@@ -1,0 +1,81 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+
+function generateSlug(text, id) {
+  const baseSlug = text
+    ?.toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 40) || 'servicio';
+  return `${baseSlug}-${id}`;
+}
+
+export async function getStaticPaths() {
+  try {
+    if (!import.meta.env.PUBLIC_DIRECTUS_URL) {
+      throw new Error('La variable PUBLIC_DIRECTUS_URL no está definida en .env');
+    }
+    const apiUrl = new URL(`${import.meta.env.PUBLIC_DIRECTUS_URL}/items/servicios`);
+    apiUrl.searchParams.set('fields', 'id,Titulo,status');
+    apiUrl.searchParams.set('limit', '-1');
+
+    const response = await fetch(apiUrl, {
+      headers: {
+        Authorization: `Bearer ${import.meta.env.PUBLIC_DIRECTUS_TOKEN}`
+      }
+    });
+    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+    const { data } = await response.json();
+    const paths = data
+      .filter(servicio => servicio.status === 'published')
+      .map(servicio => {
+        const slug = generateSlug(servicio.Titulo, servicio.id);
+        return { params: { id: servicio.id.toString(), slug } };
+      });
+    return paths;
+  } catch (error) {
+    console.error('Error crítico:', error);
+    return [];
+  }
+}
+
+const { id } = Astro.params;
+let servicio = null;
+try {
+  const response = await fetch(
+    `${import.meta.env.PUBLIC_DIRECTUS_URL}/items/servicios/${id}`,
+    { headers: { Authorization: `Bearer ${import.meta.env.PUBLIC_DIRECTUS_TOKEN}` } }
+  );
+  if (!response.ok) throw new Error('Servicio no encontrado');
+  const { data } = await response.json();
+  servicio = data;
+} catch (error) {
+  console.error('Error al cargar el servicio:', error);
+  return Response.redirect('/404', 302);
+}
+
+const descripcionHTML = servicio?.Descripcion || 'Descripción no disponible';
+---
+
+<Layout title={servicio?.Titulo || 'Servicio'}>
+  <main class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold mb-4">
+      {servicio?.Titulo || 'Servicio no encontrado'}
+    </h1>
+    {servicio?.Imagen && (
+      <img 
+        src={`${import.meta.env.PUBLIC_DIRECTUS_URL}/assets/${servicio.Imagen}`} 
+        alt={servicio?.Titulo} 
+        class="w-full h-48 object-cover mb-4 rounded" 
+      />
+    )}
+<div class="prose max-w-none" dangerouslySetInnerHTML={{ __html: descripcionHTML }}></div>
+
+    <a href="/servicios" class="mt-6 inline-block text-blue-600 hover:text-blue-800">
+      ← Volver a Servicios
+    </a>
+  </main>
+</Layout>

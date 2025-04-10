@@ -1,0 +1,61 @@
+2025-03-25T16:12:48.663Z - ✅ Autenticación exitosa
+
+
+2025-03-25T16:12:48.683Z - ℹ️ Colección ya existe
+
+
+2025-03-25T16:12:48.744Z - 🗑️ Colección eliminada exitosamente
+
+
+2025-03-25T16:12:48.752Z - 🔥 Error crítico al crear colección
+{
+  "status": 500,
+  "data": {
+    "errors": [
+      {
+        "message": "create table `antecedentes` (`id` integer not null primary key autoincrement) - SQLITE_ERROR: table `antecedentes` already exists",
+        "extensions": {
+          "code": "INTERNAL_SERVER_ERROR"
+        }
+      }
+    ]
+  },
+  "config": {
+    "transitional": {
+      "silentJSONParsing": true,
+      "forcedJSONParsing": true,
+      "clarifyTimeoutError": false
+    },
+    "adapter": [
+      "xhr",
+      "http",
+      "fetch"
+    ],
+    "transformRequest": [
+      null
+    ],
+    "transformResponse": [
+      null
+    ],
+    "timeout": 10000,
+    "xsrfCookieName": "XSRF-TOKEN",
+    "xsrfHeaderName": "X-XSRF-TOKEN",
+    "maxContentLength": -1,
+    "maxBodyLength": -1,
+    "env": {},
+    "headers": {
+      "Accept": "application/json, text/plain, */*",
+      "Content-Type": "application/json",
+      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImI1OGZhZTc3LWU0ZmItNDI2MC04MmMxLWFmYzJiYzExMjNmMSIsInJvbGUiOiJhOGI2ZDg0My1kMTU4LTRiMDUtYjg0OS1iZGExMmJlM2M3Y2IiLCJhcHBfYWNjZXNzIjp0cnVlLCJhZG1pbl9hY2Nlc3MiOnRydWUsImlhdCI6MTc0MjkxOTE2OCwiZXhwIjoxNzQyOTIwMDY4LCJpc3MiOiJkaXJlY3R1cyJ9.bC0oJByddkb6PjKOn--7JKsxMAsVXucUZs_r22mXQsI",
+      "User-Agent": "axios/1.8.4",
+      "Content-Length": "152",
+      "Accept-Encoding": "gzip, compress, deflate, br"
+    },
+    "baseURL": "http://localhost:8055",
+    "method": "post",
+    "url": "/collections",
+    "data": "{\"collection\":\"antecedentes\",\"meta\":{\"icon\":\"book\",\"note\":\"Antecedentes\",\"system\":false,\"hidden\":false},\"schema\":{\"name\":\"antecedentes\",\"comment\":null}}",
+    "allowAbsoluteUrls": true
+  }
+}
+

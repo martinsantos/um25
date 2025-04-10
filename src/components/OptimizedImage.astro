@@ -1,0 +1,75 @@
+---
+import { processAndCacheImage } from '../utils/imageCache';
+
+interface Props {
+    src: string;
+    alt: string;
+    class?: string;
+    width?: number;
+    height?: number;
+    loading?: 'lazy' | 'eager';
+}
+
+const {
+    src,
+    alt,
+    class: className,
+    width = 800,
+    height,
+    loading = 'lazy'
+} = Astro.props;
+
+// Procesar diferentes versiones de la imagen
+const formats = ['webp', 'jpeg'] as const;
+const sizes = [width, width * 2].filter(w => w <= 1920); // Limitar el tamaño máximo
+
+const imageUrls = await Promise.all(
+    formats.flatMap(format =>
+        sizes.map(async size => ({
+            url: (await processAndCacheImage(src, size, height, format)).replace(/^public/, ''),
+            size,
+            format
+        }))
+    )
+);
+
+// Agrupar por formato
+const imagesByFormat = formats.reduce((acc, format) => {
+    acc[format] = imageUrls.filter(img => img.format === format);
+    return acc;
+}, {} as Record<typeof formats[number], typeof imageUrls>);
+
+// Generar srcset para cada formato
+const srcsets = formats.map(format => ({
+    type: `image/${format}`,
+    srcset: imagesByFormat[format]
+        .map(img => `${img.url} ${img.size}w`)
+        .join(', ')
+}));
+
+// Imagen principal (primera webp)
+const mainImage = imagesByFormat.webp[0];
+---
+
+<picture>
+    {srcsets.map(({ type, srcset }) => (
+        <source type={type} srcset={srcset} sizes="(max-width: 768px) 100vw, 800px" />
+    ))}
+    <img
+        src={mainImage.url}
+        alt={alt}
+        class={className}
+        width={width}
+        height={height}
+        loading={loading}
+        decoding="async"
+    />
+</picture>
+
+<style>
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+</style>

@@ -1,0 +1,166 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+
+const DEFAULT_IMAGE = 'http://localhost:8055/assets/8cbc28b8-e6ad-46a2-93ec-14db4630091f';
+
+const authenticate = async () => {
+    const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
+    const staticToken = import.meta.env.DIRECTUS_STATIC_TOKEN;
+    if (!staticToken) {
+        throw new Error('Token estático DIRECTUS_STATIC_TOKEN no configurado en .env');
+    }
+    try {
+        console.log('[authenticate] Attempting authentication...');
+        const response = await fetch(`${baseUrl}/users/me`, {
+            headers: { 'Authorization': `Bearer ${staticToken}` }
+        });
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('[authenticate] Authentication failed:', response.status, errorText);
+            throw new Error(`Token inválido o expirado (${response.status}): ${errorText}`);
+        }
+        return { token: staticToken };
+    } catch (e) {
+        console.error('[authenticate] Error:', e);
+        throw new Error(`Autenticación fallida: ${e.message}`);
+    }
+};
+
+const fetchServiceDetail = async (token, id) => {
+  const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
+  const url = `${baseUrl}/items/Servicios/${id}?fields=id,status,sort,user_created,date_created,Imagen,Archivo,Descripcion,Titulo,user_updated,date_updated,Imagenes`;
+  console.log('[fetchServiceDetail] Fetching URL:', url);
+  try {
+    const response = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[fetchServiceDetail] API Error:', response.status, errorText);
+      if (response.status === 404) {
+        throw new Error(`API Error (${response.status}): Servicio no encontrado`);
+      }
+      throw new Error(`API Error (${response.status}): ${errorText}`);
+    }
+    const data = await response.json();
+    return data.data;
+  } catch (e) {
+    console.error('[fetchServiceDetail] Error:', e);
+    throw new Error(`Fetch service detail failed: ${e.message}`);
+  }
+};
+
+export async function getStaticPaths() {
+    const { token } = await authenticate();
+    const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
+    const path = '/items/Servicios';
+    const url = `${baseUrl}${path}?fields=id,Titulo`;
+    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' } });
+    const data = await response.json();
+    return data.data.map((servicio) => {
+        return {
+            params: { id: servicio.id, slug: generateSlug(servicio.Titulo) },
+        };
+    });
+}
+
+const generateSlug = (titulo = '') => {
+    if (!titulo) return 'item';
+    const slug = String(titulo).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50);
+    return slug || 'item';
+};
+
+const { id } = Astro.params;
+console.log('[Main] ID before fetchServiceDetail:', id);
+let servicio = null;
+let error = null;
+try {
+    const { token } = await authenticate();
+    console.log('[Main] Token before fetchServiceDetail:', token);
+    servicio = await fetchServiceDetail(token, id);
+} catch (e) {
+    error = e.message || 'Ocurrió un error inesperado.';
+}
+
+let currentSlide = 0;
+const totalSlides = (servicio?.Imagen ? 1 : 0) + (Array.isArray(servicio?.Imagenes) ? servicio.Imagenes.length : 0);
+
+const goToPreviousSlide = () => {
+    currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+};
+
+const goToNextSlide = () => {
+    currentSlide = (currentSlide + 1) % totalSlides;
+};
+
+const getSlideTransform = (index) => {
+    return `translateX(-${currentSlide * 100}%)`;
+};
+---
+
+<Layout title={servicio?.Titulo || 'Servicio'}>
+    <main class="container mx-auto px-4 py-8">
+        <nav class="mb-8">
+            <ol class="flex items-center space-x-2 text-gray-600">
+                <li><a href="/" class="hover:text-blue-600">Inicio</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li><a href="/servicios" class="hover:text-blue-600">Servicios</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li class="text-blue-600 font-medium">{servicio?.Titulo || 'Detalle'}</li>
+            </ol>
+        </nav>
+
+        {error && (
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
+                <strong class="font-bold">Error: </strong>
+                <span class="block sm:inline">{error}</span>
+            </div>
+        )}
+
+        {servicio && (
+            <>
+                <div class="relative w-full mb-8">
+                    <div class="overflow-hidden relative">
+                        <div class="flex transition-transform duration-500 ease-in-out" style={`transform: ${getSlideTransform(currentSlide)};`}>
+                            {servicio.Imagen && (
+                                <div class="w-full flex-shrink-0">
+                                    <img src={`${import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055'}/assets/${servicio.Imagen}`} alt={servicio.Titulo} class="w-full h-auto object-cover" />
+                                </div>
+                            )}
+                            {servicio.Imagenes && Array.isArray(servicio.Imagenes) && servicio.Imagenes.map((imagen) => (
+                                <div key={imagen} class="w-full flex-shrink-0">
+                                    <img src={`${import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055'}/assets/${imagen}`} alt={`Imagen adicional ${imagen}`} class="w-full h-auto object-cover" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 flex justify-between items-center">
+                        <button class="bg-gray-800 text-white p-2 rounded-full" onClick={goToPreviousSlide}>
+                            &#8249;
+                        </button>
+                        <button class="bg-gray-800 text-white p-2 rounded-full" onClick={goToNextSlide}>
+                            &#8250;
+                        </button>
+                    </div>
+                </div>
+
+                <article class="bg-white rounded-lg shadow-lg p-6">
+                    <h1 class="text-3xl font-bold mb-4">{servicio.Titulo}</h1>
+                    <div class="mb-6" set:html={servicio.Descripcion} />
+                    {servicio.Archivo && (
+                        <div class="mb-6">
+                            <a href={`${import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055'}/assets/${servicio.Archivo}`} target="_blank" class="text-blue-600 underline">
+                                Descargar archivo
+                            </a>
+                        </div>
+                    )}
+                    <div class="mt-auto border-t border-gray-100 pt-3 space-y-1 text-xs text-gray-500">
+                        <p><strong>Creado por:</strong> {servicio.user_created}</p>
+                        <p><strong>Fecha de creación:</strong> {new Date(servicio.date_created).toLocaleDateString()}</p>
+                        <p><strong>Última actualización:</strong> {new Date(servicio.date_updated).toLocaleDateString()}</p>
+                    </div>
+                </article>
+            </>
+        )}
+    </main>
+</Layout>

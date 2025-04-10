@@ -1,0 +1,133 @@
+---
+interface Props {
+    title: string;
+    description?: string;
+    image?: string;
+    post?: any;
+    isArticle?: boolean;
+}
+
+const {
+    title,
+    description = "Blog de tecnología y servicios IT de Última Milla",
+    image = "/images/blog-default.jpg",
+    post,
+    isArticle = false
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const imageURL = new URL(image, Astro.site);
+
+// Generar schema para artículo
+const articleSchema = post ? {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": post.title,
+    "description": post.description || post.excerpt || description,
+    "image": new URL(post.image || image, Astro.site).toString(),
+    "datePublished": post.date,
+    "dateModified": post.updateDate || post.date,
+    "author": {
+        "@type": "Person",
+        "name": post.author || "Última Milla"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Última Milla",
+        "logo": {
+            "@type": "ImageObject",
+            "url": new URL("/images/logo.png", Astro.site).toString()
+        }
+    },
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": canonicalURL.toString()
+    }
+} : null;
+
+// Schema para el sitio web
+const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Blog Última Milla",
+    "url": Astro.site?.toString(),
+    "description": description,
+    "publisher": {
+        "@type": "Organization",
+        "name": "Última Milla",
+        "logo": {
+            "@type": "ImageObject",
+            "url": new URL("/images/logo.png", Astro.site).toString()
+        }
+    }
+};
+
+// Schema para la organización
+const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Última Milla",
+    "url": Astro.site?.toString(),
+    "logo": new URL("/images/logo.png", Astro.site).toString(),
+    "sameAs": [
+        "https://www.linkedin.com/company/ultima-milla",
+        "https://twitter.com/UltimaMilla"
+    ]
+};
+
+// Schema para breadcrumbs
+const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Inicio",
+            "item": Astro.site?.toString()
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Blog",
+            "item": new URL("/blog", Astro.site).toString()
+        },
+        ...(post ? [{
+            "@type": "ListItem",
+            "position": 3,
+            "name": post.title,
+            "item": canonicalURL.toString()
+        }] : [])
+    ]
+};
+
+const schemas = [
+    websiteSchema,
+    organizationSchema,
+    breadcrumbSchema,
+    ...(articleSchema ? [articleSchema] : [])
+];
+---
+
+<!-- SEO Meta Tags -->
+<link rel="canonical" href={canonicalURL} />
+<meta name="description" content={description} />
+
+<!-- Open Graph -->
+<meta property="og:type" content={isArticle ? "article" : "website"} />
+<meta property="og:url" content={canonicalURL} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={imageURL} />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:url" content={canonicalURL} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageURL} />
+
+<!-- Structured Data -->
+{schemas.map(schema => (
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+))}

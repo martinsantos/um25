@@ -1,0 +1,34 @@
+<!-- src/components/ImageComponent.astro -->
+---
+import fs from 'node:fs';
+import path from 'node:path';
+
+interface Props {
+    src: string;
+    alt: string;
+    class?: string;
+}
+
+const { src, alt, class: className } = Astro.props;
+
+// Ruta base del proyecto
+const publicDir = 'public';
+// Imagen por defecto (asegúrate de que esta imagen exista)
+const defaultImagePath = '/images/default.jpg';
+
+// Función para verificar si la imagen existe
+function imageExists(imagePath: string): boolean {
+    const fullPath = path.join(process.cwd(), publicDir, imagePath);
+    return fs.existsSync(fullPath);
+}
+
+// Determinar qué imagen mostrar
+const finalImagePath = imageExists(src) ? src : defaultImagePath;
+---
+
+<img 
+    src={finalImagePath} 
+    alt={alt} 
+    class={className}
+    onerror="this.onerror=null; this.src='/images/default.jpg';"
+/>

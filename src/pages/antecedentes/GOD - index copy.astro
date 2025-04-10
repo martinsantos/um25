@@ -1,0 +1,498 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+// Configuración
+const PAGE_SIZE = 20;
+const currentUrl = Astro.url;
+const searchParams = currentUrl.searchParams;
+
+// Configuración de filtros
+const FILTER_CONFIG = {
+  area: {
+    field: 'Area',
+    display: 'Área',
+    options: [],
+    validate: (value) => typeof value === 'string' && value.length > 0,
+    filterQuery: (value) => ({ _eq: value })
+  },
+  cliente: {
+    field: 'Cliente',
+    display: 'Cliente',
+    options: [],
+    validate: (value) => typeof value === 'string' && value.length > 0,
+    filterQuery: (value) => ({ _eq: value })
+  },
+  unidad_negocio: {
+    field: 'Unidad_de_negocio',
+    display: 'Unidad de Negocio',
+    options: [],
+    validate: (value) => typeof value === 'string' && value.length > 0,
+    filterQuery: (value) => ({ _eq: value })
+  }
+};
+
+// Mejorada la gestión de filtros activos
+const activeFilters = Object.fromEntries(
+  Object.keys(FILTER_CONFIG).map(key => [key, searchParams.get(key) || ''])
+);
+
+// Estado inicial
+let servicios = [];
+let error = null;
+let totalItems = 0;
+let totalPages = 1;
+const currentPage = Number(searchParams.get('page')) || 1;
+
+// Función para autenticación
+const authenticate = async () => {
+  const baseUrl = 'http://localhost:8055';
+  const staticToken = import.meta.env.DIRECTUS_STATIC_TOKEN;
+
+  if (!staticToken) {
+    throw new Error('Token estático no configurado en .env');
+  }
+
+  // Return the static token directly
+  return { token: staticToken };
+};
+
+// Función para construir filtros
+const buildFilters = (activeFilters) => {
+  const filters = {
+    _and: []
+  };
+
+  Object.entries(activeFilters).forEach(([key, value]) => {
+    if (value && FILTER_CONFIG[key].validate(value)) {
+      filters._and.push({
+        [FILTER_CONFIG[key].field]: FILTER_CONFIG[key].filterQuery(value)
+      });
+    }
+  });
+
+  return filters._and.length ? filters : {};
+};
+
+// Función mejorada para obtener antecedentes con filtros
+const fetchServices = async (token) => {
+  const baseUrl = 'http://localhost:8055';
+  const path = '/items/Antecedentes';
+
+  const activeFilterEntries = Object.entries(activeFilters)
+    .filter(([key, value]) => value && FILTER_CONFIG[key]);
+
+  const filters = activeFilterEntries.length > 0 ? {
+    _and: activeFilterEntries.map(([key, value]) => ({
+      [FILTER_CONFIG[key].field]: value
+    }))
+  } : {};
+
+  const params = new URLSearchParams({
+    fields: 'id,Titulo,Descripcion,Imagen,Fecha,Cliente,Unidad_de_negocio,Area',
+    limit: PAGE_SIZE.toString(),
+    offset: ((currentPage - 1) * PAGE_SIZE).toString(),
+    sort: '-Fecha',
+    meta: '*'
+  });
+
+  if (Object.keys(filters).length > 0) {
+    params.append('filter', JSON.stringify(filters));
+  }
+
+  const url = `${baseUrl}${path}?${params}`;
+  console.log('Request URL:', url);
+  console.log('Applied filters:', filters);
+
+  const response = await fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error al obtener antecedentes: ${response.status}`);
+  }
+
+  const data = await response.json();
+  console.log('Response data:', data);
+  return {
+    data: data.data || [],
+    meta: {
+      total_count: data.meta?.total_count || 0,
+      filter_count: data.meta?.filter_count || data.meta?.total_count || 0
+    }
+  };
+};
+
+// Función para verificar token
+const verifyToken = async (token) => {
+  const baseUrl = 'http://localhost:8055';
+  try {
+    const response = await fetch(`${baseUrl}/users/me`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (!response.ok) {
+      console.error('Token verification failed:', await response.text());
+      return false;
+    }
+    
+    const data = await response.json();
+    console.log('Token verification response:', data);
+    return true;
+  } catch (error) {
+    console.error('Token verification error:', error);
+    return false;
+  }
+};
+
+// Función mejorada para obtener opciones de filtro
+const fetchFilterOptions = async (token) => {
+  const baseUrl = 'http://localhost:8055';
+  
+  try {
+    const response = await fetch(
+      `${baseUrl}/items/Antecedentes?fields=Area,Cliente,Unidad_de_negocio&limit=-1`,
+      { 
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        } 
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Error fetching filter options');
+    }
+
+    const data = await response.json();
+    
+    // Procesar cada campo de filtro por separado
+    Object.entries(FILTER_CONFIG).forEach(([key, config]) => {
+      const uniqueValues = [...new Set(
+        data.data
+          .map(item => item[config.field])
+          .filter(Boolean)
+      )].sort();
+
+      FILTER_CONFIG[key].options = uniqueValues.map(value => ({
+        id: value,
+        name: value
+      }));
+    });
+
+  } catch (error) {
+    console.error('Error fetching filter options:', error);
+  }
+};
+
+// Función principal para cargar datos
+async function fetchData() {
+  try {
+    console.log('Starting data fetch...');
+    const auth = await authenticate();
+    
+    const isTokenValid = await verifyToken(auth.token);
+    if (!isTokenValid) {
+      throw new Error('Token inválido o expirado');
+    }
+
+    // Cargar opciones de filtro primero
+    await fetchFilterOptions(auth.token);
+    console.log('Filter options loaded');
+    
+    // Luego cargar los datos filtrados
+    const result = await fetchServices(auth.token);
+    
+    servicios = result.data;
+    totalItems = result.meta.filter_count;
+    totalPages = Math.ceil(totalItems / PAGE_SIZE);
+    
+  } catch (e) {
+    console.error('Data fetch error:', e);
+    error = e.message;
+  }
+}
+
+// Generar URL para paginación/filtros
+const buildPageUrl = (page = 1, removeFilter = null) => {
+  const params = new URLSearchParams();
+  
+  Object.entries(activeFilters).forEach(([key, value]) => {
+    if (key !== removeFilter && value) {
+      params.set(key, value);
+    }
+  });
+  
+  if (page > 1) {
+    params.set('page', page.toString());
+  }
+  
+  const queryString = params.toString();
+  return `/antecedentes${queryString ? `?${queryString}` : ''}`;
+};
+
+// Actualizar la función generateSlug para que coincida exactamente con la del [slug].astro
+const generateSlug = (titulo = '', id = '') => {
+  if (!titulo || !id) return '';
+  
+  const slug = titulo
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 40);
+    
+  return `${slug}-${id}`;
+};
+
+// Cargar datos
+await fetchData();
+---
+
+<Layout title="Antecedentes">
+  <main class="container mx-auto px-4 py-8">
+    <!-- Navegación superior -->
+    <nav class="mb-8">
+      <ol class="flex items-center space-x-2 text-gray-600">
+        <li>
+          <a href="/" class="hover:text-blue-600">Inicio</a>
+        </li>
+        <li>
+          <span class="mx-2">/</span>
+        </li>
+        <li class="text-blue-600">Antecedentes</li>
+      </ol>
+    </nav>
+
+    <h1 class="text-4xl font-bold mb-8">Nuestros Antecedentes</h1>
+
+    <!-- Sistema de filtros -->
+    <form 
+      method="GET" 
+      action="/antecedentes" 
+      class="bg-white p-6 rounded-lg shadow-lg mb-8"
+      id="filterForm"
+    >
+      <input type="hidden" name="page" value="1" />
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {Object.entries(FILTER_CONFIG).map(([key, config]) => (
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">
+              {config.display}
+              {activeFilters[key] && (
+                <span class="ml-2 text-xs text-blue-600">
+                  (Filtrado)
+                </span>
+              )}
+            </label>
+            <select 
+              name={key}
+              class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+              onchange="this.form.requestSubmit()"
+            >
+              <option value="">Todos</option>
+              {config.options.map(option => (
+                <option 
+                  value={option.id} 
+                  selected={activeFilters[key] === option.id}
+                >
+                  {option.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        ))}
+      </div>
+    </form>
+
+    <!-- Filtros activos -->
+    {Object.values(activeFilters).some(Boolean) && (
+      <div class="mb-6">
+        <div class="bg-blue-50 p-4 rounded-lg">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+              <span class="font-medium text-blue-700">
+                {totalItems} resultados encontrados con los filtros actuales
+              </span>
+            </div>
+            <a 
+              href="/antecedentes"
+              class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+            >
+              Limpiar filtros
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </a>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            {Object.entries(activeFilters).map(([key, value]) => 
+              value && (
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                  {FILTER_CONFIG[key].display}: {value}
+                  <button
+                    type="button"
+                    onclick={`window.location.href='${buildPageUrl(1, key)}'`}
+                    class="ml-2 hover:text-blue-600 focus:outline-none"
+                    title={`Eliminar filtro ${FILTER_CONFIG[key].display}`}
+                  >
+                    ×
+                  </button>
+                </span>
+              )
+            )}
+          </div>
+        </div>
+      </div>
+    )}
+
+    <!-- Manejo de errores -->
+    {error && (
+      <div class="bg-red-50 p-4 rounded-lg mb-6">
+        <h3 class="text-red-800 font-bold">Error:</h3>
+        <p class="text-red-700">{error}</p>
+      </div>
+    )}
+
+    <!-- Grid de resultados -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {servicios.map(servicio => (
+        <article class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+          <a 
+            href={`/antecedentes/${servicio.id}/${generateSlug(servicio.Titulo, servicio.id)}`} 
+            class="block h-full"
+          >
+            <div class="aspect-w-16 aspect-h-9 relative">
+              {servicio.Imagen ? (
+                <img 
+                  src={`${import.meta.env.PUBLIC_DIRECTUS_URL}/assets/${servicio.Imagen}?width=600`}
+                  alt={servicio.Titulo}
+                  class="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              ) : (
+                <div class="w-full h-full bg-gray-100 flex items-center justify-center">
+                  <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              )}
+            </div>
+            <div class="p-4">
+              <h2 class="text-lg font-medium text-gray-900 mb-2">{servicio.Titulo}</h2>
+              <p class="text-gray-600 text-sm mb-4 line-clamp-2">{servicio.Descripcion}</p>
+              
+              <div class="space-y-2 text-sm text-gray-500">
+                {servicio.Fecha && (
+                  <div class="flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>{new Date(servicio.Fecha).toLocaleDateString()}</span>
+                  </div>
+                )}
+                
+                {servicio.Area && (
+                  <div class="flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <span>{servicio.Area}</span>
+                  </div>
+                )}
+                
+                {servicio.Cliente && (
+                  <div class="flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span>{servicio.Cliente}</span>
+                  </div>
+                )}
+                
+                {servicio.Unidad_de_negocio && (
+                  <div class="flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span>{servicio.Unidad_de_negocio}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+
+    <!-- Paginación -->
+    {totalPages > 1 && (
+      <div class="mt-8 flex justify-between items-center">
+        <div class="text-sm text-gray-700">
+          Mostrando {(currentPage - 1) * PAGE_SIZE + 1} a {Math.min(currentPage * PAGE_SIZE, totalItems)} de {totalItems} resultados
+        </div>
+        <div class="flex items-center gap-2">
+          <a
+            href={buildPageUrl(currentPage - 1)}
+            class={`px-4 py-2 rounded-md ${
+              currentPage === 1 
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                : 'bg-white hover:bg-gray-50 text-gray-700'
+            }`}
+            aria-disabled={currentPage === 1}
+          >
+            ← Anterior
+          </a>
+          
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+            <a
+              href={buildPageUrl(page)}
+              class={`px-4 py-2 rounded-md ${
+                currentPage === page 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-white hover:bg-gray-50 text-gray-700'
+              }`}
+            >
+              {page}
+            </a>
+          ))}
+
+          <a
+            href={buildPageUrl(currentPage + 1)}
+            class={`px-4 py-2 rounded-md ${
+              currentPage === totalPages 
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                : 'bg-white hover:bg-gray-50 text-gray-700'
+            }`}
+            aria-disabled={currentPage === totalPages}
+          >
+            Siguiente →
+          </a>
+        </div>
+      </div>
+    )}
+
+    <!-- Estado vacío -->
+    {!servicios.length && !error && (
+      <div class="text-center py-12">
+        <div class="text-gray-400 mb-4">
+          <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900">No se encontraron resultados</h3>
+        <p class="mt-1 text-gray-500">Prueba ajustando los filtros de búsqueda</p>
+      </div>
+    )}
+  </main>
+</Layout>

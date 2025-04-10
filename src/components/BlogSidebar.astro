@@ -1,0 +1,153 @@
+---
+import { getAllPosts } from '../data/blog';
+import OptimizedImage from './OptimizedImage.astro';
+import { formatDate } from '../utils/date';
+
+interface Props {
+    currentSlug?: string;
+    currentCategories?: string[];
+}
+
+const { currentSlug, currentCategories = [] } = Astro.props;
+
+const allPosts = getAllPosts();
+
+// Obtener posts relacionados basados en categorías
+const relatedPosts = currentSlug
+    ? allPosts
+        .filter(post => 
+            post.slug !== currentSlug && 
+            post.categories?.some(cat => currentCategories.includes(cat))
+        )
+        .slice(0, 3)
+    : [];
+
+// Obtener posts populares (por ahora, los más recientes)
+const popularPosts = allPosts
+    .filter(post => post.slug !== currentSlug)
+    .slice(0, 5);
+
+// Obtener todas las categorías con su conteo
+const categoryCount = allPosts.reduce((acc, post) => {
+    post.categories?.forEach(category => {
+        acc[category] = (acc[category] || 0) + 1;
+    });
+    return acc;
+}, {} as Record<string, number>);
+
+const sortedCategories = Object.entries(categoryCount)
+    .sort(([, a], [, b]) => b - a);
+---
+
+<aside class="space-y-8">
+    <!-- Posts Relacionados -->
+    {currentSlug && relatedPosts.length > 0 && (
+        <div>
+            <h3 class="text-xl font-bold mb-4">Posts Relacionados</h3>
+            <div class="space-y-4">
+                {relatedPosts.map(post => (
+                    <a href={`/blog/${post.slug}`} class="group block">
+                        <article class="flex gap-4 items-start">
+                            <div class="w-24 h-24 flex-shrink-0 overflow-hidden rounded-lg">
+                                <OptimizedImage
+                                    src={post.image}
+                                    alt={post.title}
+                                    class="w-full h-full object-cover transition-transform group-hover:scale-110"
+                                />
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-900 group-hover:text-primary-600 transition-colors line-clamp-2">
+                                    {post.title}
+                                </h4>
+                                <time datetime={post.date} class="text-sm text-gray-500">
+                                    {formatDate(post.date)}
+                                </time>
+                            </div>
+                        </article>
+                    </a>
+                ))}
+            </div>
+        </div>
+    )}
+
+    <!-- Posts Populares -->
+    <div>
+        <h3 class="text-xl font-bold mb-4">Posts Populares</h3>
+        <div class="space-y-4">
+            {popularPosts.map(post => (
+                <a href={`/blog/${post.slug}`} class="group block">
+                    <article class="flex gap-4 items-start">
+                        <div class="w-24 h-24 flex-shrink-0 overflow-hidden rounded-lg">
+                            <OptimizedImage
+                                src={post.image}
+                                alt={post.title}
+                                class="w-full h-full object-cover transition-transform group-hover:scale-110"
+                            />
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-900 group-hover:text-primary-600 transition-colors line-clamp-2">
+                                {post.title}
+                            </h4>
+                            <time datetime={post.date} class="text-sm text-gray-500">
+                                {formatDate(post.date)}
+                            </time>
+                        </div>
+                    </article>
+                </a>
+            ))}
+        </div>
+    </div>
+
+    <!-- Categorías -->
+    <div>
+        <h3 class="text-xl font-bold mb-4">Categorías</h3>
+        <div class="flex flex-wrap gap-2">
+            {sortedCategories.map(([category, count]) => (
+                <a
+                    href={`/blog?category=${encodeURIComponent(category)}`}
+                    class="px-3 py-1 bg-gray-100 hover:bg-primary-100 text-gray-700 hover:text-primary-700 rounded-full text-sm transition-colors"
+                >
+                    {category} ({count})
+                </a>
+            ))}
+        </div>
+    </div>
+
+    <!-- Newsletter -->
+    <div class="bg-primary-50 rounded-lg p-6">
+        <h3 class="text-xl font-bold mb-2">Suscríbete al Newsletter</h3>
+        <p class="text-gray-600 mb-4">Recibe las últimas actualizaciones y noticias directamente en tu correo.</p>
+        <form class="space-y-3" x-data="{ email: '', message: '', status: '' }">
+            <input
+                type="email"
+                x-model="email"
+                placeholder="Tu correo electrónico"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                required
+            />
+            <button
+                type="submit"
+                class="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                @click.prevent="submitNewsletter"
+            >
+                Suscribirse
+            </button>
+            <p
+                x-show="message"
+                x-text="message"
+                :class="status === 'success' ? 'text-green-600' : 'text-red-600'"
+                class="text-sm"
+            ></p>
+        </form>
+    </div>
+</aside>
+
+<script>
+function submitNewsletter() {
+    // Aquí iría la lógica para manejar la suscripción al newsletter
+    // Por ahora, solo mostraremos un mensaje de éxito
+    this.message = 'Gracias por suscribirte! Te enviaremos un correo de confirmación.';
+    this.status = 'success';
+    this.email = '';
+}
+</script>

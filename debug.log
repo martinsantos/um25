@@ -1,0 +1,19 @@
+2025-03-25T16:11:03.938Z - ✅ Colección eliminada
+
+
+2025-03-25T16:11:03.951Z - 🔥 Error en resetCollection
+{
+  "message": "Request failed with status code 500",
+  "stack": "AxiosError: Request failed with status code 500\n    at settle (file:///Users/Shared/Files%20From%20d.localized/D/ultima%20milla/2024/MKT%202024/umw141024/umw46-main/fumbling-field/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (file:///Users/Shared/Files%20From%20d.localized/D/ultima%20milla/2024/MKT%202024/umw141024/umw46-main/fumbling-field/node_modules/axios/lib/adapters/http.js:599:11)\n    at IncomingMessage.emit (node:events:530:35)\n    at endReadableNT (node:internal/streams/readable:1698:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)\n    at Axios.request (file:///Users/Shared/Files%20From%20d.localized/D/ultima%20milla/2024/MKT%202024/umw141024/umw46-main/fumbling-field/node_modules/axios/lib/core/Axios.js:45:41)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async resetCollection (file:///Users/Shared/Files%20From%20d.localized/D/ultima%20milla/2024/MKT%202024/umw141024/umw46-main/fumbling-field/configpermisos.js:53:28)\n    at async main (file:///Users/Shared/Files%20From%20d.localized/D/ultima%20milla/2024/MKT%202024/umw141024/umw46-main/fumbling-field/configpermisos.js:144:19)\n    at async file:///Users/Shared/Files%20From%20d.localized/D/ultima%20milla/2024/MKT%202024/umw141024/umw46-main/fumbling-field/configpermisos.js:174:1",
+  "response": {
+    "errors": [
+      {
+        "message": "create table `antecedentes` (`id` integer not null primary key autoincrement) - SQLITE_ERROR: table `antecedentes` already exists",
+        "extensions": {
+          "code": "INTERNAL_SERVER_ERROR"
+        }
+      }
+    ]
+  }
+}
+

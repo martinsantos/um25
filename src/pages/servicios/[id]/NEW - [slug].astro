@@ -1,0 +1,72 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+
+// Función para generar el slug (misma lógica que en servicios.astro)
+function generateSlug(text, id) {
+  const baseSlug = text
+    ?.toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 40) || 'servicio';
+  
+  return `${baseSlug}-${id}`;
+}
+
+export async function getStaticPaths() {
+  try {
+    if (!import.meta.env.VITE_DIRECTUS_URL) {
+      throw new Error('La variable VITE_DIRECTUS_URL no está definida en .env');
+    }
+
+    const apiUrl = new URL(`${import.meta.env.VITE_DIRECTUS_URL}/items/servicios`);
+    apiUrl.searchParams.set('fields', 'id,Titulo,status');
+    apiUrl.searchParams.set('limit', '-1');
+
+    const response = await fetch(apiUrl, {
+      headers: {
+        Authorization: `Bearer ${import.meta.env.VITE_DIRECTUS_TOKEN}`
+      }
+    });
+
+    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+    
+    const { data } = await response.json();
+    
+    const paths = data
+      .filter(servicio => servicio.status === 'published')
+      .map(servicio => {
+        const slug = generateSlug(servicio.Titulo, servicio.id);
+        return { params: { id: servicio.id.toString(), slug } };
+      });
+
+    return paths;
+  } catch (error) {
+    console.error('Error en getStaticPaths:', error);
+    return [];
+  }
+}
+
+// Obtener datos del servicio usando el id de la URL
+const { id } = Astro.params;
+const apiUrl = new URL(`${import.meta.env.VITE_DIRECTUS_URL}/items/servicios/${id}`);
+const response = await fetch(apiUrl, {
+  headers: {
+    Authorization: `Bearer ${import.meta.env.VITE_DIRECTUS_TOKEN}`
+  }
+});
+
+if (!response.ok) {
+  throw new Error(`Error al obtener el servicio: ${response.status}`);
+}
+
+const { data: servicio } = await response.json();
+---
+
+<Layout>
+  <h1>{servicio.Titulo}</h1>
+  {/* Corregir nombre del campo (Descripcion, no descripcion) */}
+  <p>{servicio.Descripcion}</p>
+</Layout>

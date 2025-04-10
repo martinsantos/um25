@@ -1,0 +1,372 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+// --- Configuración (parámetros fijos) ---
+const PAGE_SIZE = 12;
+const DEFAULT_IMAGE = 'http://localhost:8055/assets/8cbc28b8-e6ad-46a2-93ec-14db4630091f';
+const FILTER_CONFIG = {
+  area: { field: 'Area', display: 'Área', options: [], validate: (v) => !!v, filterQuery: (v) => ({ _eq: v }) },
+  cliente: { field: 'Cliente', display: 'Cliente', options: [], validate: (v) => !!v, filterQuery: (v) => ({ _eq: v }) },
+  unidad_negocio: { field: 'Unidad_de_negocio', display: 'Unidad de Negocio', options: [], validate: (v) => !!v, filterQuery: (v) => ({ _eq: v }) }
+};
+
+// --- Estado (será poblado dentro de fetchData) ---
+let servicios = [];
+let error = null;
+let totalItems = 0;
+let totalPages = 1;
+let randomImages = [];
+let activeFilters = {};
+let searchQuery = '';
+let currentPage = 1;
+
+// --- Funciones API (Directus) ---
+const authenticate = async () => {
+  const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
+  const staticToken = import.meta.env.DIRECTUS_STATIC_TOKEN;
+  if (!staticToken) {
+    throw new Error('Token estático DIRECTUS_STATIC_TOKEN no configurado en .env');
+  }
+  try {
+    const response = await fetch(`${baseUrl}/users/me`, {
+      headers: { 'Authorization': `Bearer ${staticToken}` }
+    });
+    if (!response.ok) {
+      console.error('Authentication failed:', response.status, await response.text());
+      throw new Error(`Token inválido o expirado (${response.status})`);
+    }
+    return { token: staticToken };
+  } catch (e) {
+    console.error('Error en authenticate:', e);
+    throw new Error(`Autenticación fallida: ${e.message}`);
+  }
+};
+
+const fetchRandomImages = async (token) => {
+  const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
+  const folderId = '82a1f135-7129-4dcf-bef2-432bec7b7b92'; // ID Carpeta Antecedentes (Ajustar a carpeta de servicios)
+  try {
+    const url = `${baseUrl}/files?filter[folder][_eq]=${folderId}&fields=id,type&filter[type][_starts_with]=image&limit=-1`;
+    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' } });
+    if (!response.ok) {
+      console.warn(`Failed to fetch random images: ${response.status}`);
+      randomImages = [DEFAULT_IMAGE];
+      return;
+    }
+    const data = await response.json();
+    if (data.data?.length) {
+      randomImages = data.data
+        .filter(f => f.id && f.type?.startsWith('image/'))
+        .map(f => `${baseUrl}/assets/${f.id}`);
+    }
+    if (!randomImages.length) {
+      console.warn('No valid random images found in folder, using default.');
+      randomImages = [DEFAULT_IMAGE];
+    }
+  } catch (e) {
+    console.error('Error fetching random images:', e);
+    randomImages = [DEFAULT_IMAGE];
+  }
+};
+
+const getRandomImage = () => {
+  if (!randomImages?.length) return DEFAULT_IMAGE;
+  return randomImages[Math.floor(Math.random() * randomImages.length)];
+};
+
+const cleanClientName = (name) => {
+  if (!name) return '';
+  return name
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/^[.,\s]+|[.,\s]+$/g, '')
+    .replace(/\b(sa|s\.a\.|s\s*a|s\.a\.b|ltda|ltd|spa)\b/gi, '')
+    .trim();
+};
+
+const normalizeClient = (name) => {
+  const cleaned = cleanClientName(name);
+  if (!cleaned) return '';
+  return cleaned.toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+const fetchFilterOptions = async (token) => {
+  const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
+  try {
+    const fields = Object.values(FILTER_CONFIG).map(c => c.field).join(',');
+    const url = `${baseUrl}/items/Servicios?fields=${fields}&limit=-1`;
+    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' } });
+    if (!response.ok) {
+      console.warn(`Failed to fetch filter options: ${response.status}`);
+      Object.keys(FILTER_CONFIG).forEach(key => { FILTER_CONFIG[key].options = []; });
+      return;
+    }
+    const data = await response.json();
+
+    Object.entries(FILTER_CONFIG).forEach(([key, config]) => {
+      let values;
+      if (key === 'cliente') {
+        values = [...new Set(
+          data.data
+            ?.map(item => normalizeClient(item[config.field]))
+            .filter(Boolean)
+            ?? []
+        )].sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+      } else {
+        values = [...new Set(
+          data.data
+            ?.map(item => item[config.field])
+            .filter(Boolean)
+            ?? []
+        )].sort();
+      }
+      config.options = values.map(v => ({ id: v, name: v }));
+    });
+  } catch (e) {
+    console.error('Error fetching filter options:', e);
+    Object.keys(FILTER_CONFIG).forEach(key => { FILTER_CONFIG[key].options = []; });
+  }
+};
+
+const fetchServices = async (token, currentFilters, currentSearch, pageNum) => {
+  const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
+  const path = '/items/Servicios';
+  const filter = { _and: [] };
+
+  Object.entries(currentFilters).forEach(([key, value]) => {
+    if (value && FILTER_CONFIG[key]?.validate(value)) {
+      filter._and.push({ [FILTER_CONFIG[key].field]: FILTER_CONFIG[key].filterQuery(value) });
+    }
+  });
+
+  const params = new URLSearchParams({
+    limit: PAGE_SIZE.toString(),
+    offset: ((pageNum - 1) * PAGE_SIZE).toString(),
+    meta: '*'
+  });
+  if (filter._and.length > 0) params.append('filter', JSON.stringify(filter));
+  if (currentSearch) params.append('search', currentSearch);
+
+  const url = `${baseUrl}${path}?${params}`;
+  console.log('[fetchServices] Calling Directus API:', url);
+
+  try {
+    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' } });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Directus API Error Response:", response.status, errorText);
+      throw new Error(`API Error (${response.status})`);
+    }
+    const data = await response.json();
+    const responseData = Array.isArray(data.data) ? data.data : [];
+    const count = data.meta?.filter_count ?? data.meta?.total_count ?? 0;
+    return { data: responseData, meta: { filter_count: count } };
+  } catch (e) {
+    console.error('Error during fetch in fetchServices:', e);
+    throw new Error(`Fetch services failed: ${e.message}`);
+  }
+};
+
+// Función Principal de Carga de Datos
+async function fetchData() {
+  console.log('[fetchData] Starting...');
+  let requestUrl;
+  let searchParams;
+  try {
+    requestUrl = new URL(Astro.request.url);
+    searchParams = requestUrl.searchParams;
+  } catch (e) {
+    console.warn("Could not parse Astro.request.url, falling back to Astro.url", e);
+    requestUrl = Astro.url;
+    searchParams = requestUrl.searchParams;
+  }
+  console.log(`[fetchData] Processing URL: ${requestUrl.href}`);
+  console.log(`[fetchData] searchParams read: ${searchParams.toString()}`);
+
+  const resetFilters = searchParams.get('reset') === '1';
+  const localActiveFilters = resetFilters
+    ? Object.keys(FILTER_CONFIG).reduce((acc, key) => { acc[key] = ''; return acc; }, {})
+    : Object.fromEntries(
+      Object.keys(FILTER_CONFIG).map(key => [key, searchParams.get(key) || ''])
+    );
+  const localSearchQuery = searchParams.get('q') || '';
+  const localCurrentPage = Number(searchParams.get('page')) || 1;
+  console.log(`[fetchData] LOCAL State Read - currentPage: ${localCurrentPage}, searchQuery: "${localSearchQuery}", activeFilters:`, localActiveFilters);
+
+  activeFilters = localActiveFilters;
+  searchQuery = localSearchQuery;
+  currentPage = localCurrentPage;
+
+  try {
+    const { token } = await authenticate();
+    await Promise.all([
+      fetchFilterOptions(token),
+      fetchRandomImages(token)
+    ]);
+
+    console.log('[fetchData] Aux data loaded, calling fetchServices...');
+    const result = await fetchServices(token, localActiveFilters, localSearchQuery, localCurrentPage);
+
+    console.log('[fetchData] fetchServices returned, processing...');
+    servicios = result.data.map(servicio => ({
+      ...servicio,
+      imagen: servicio.Imagen ? `${import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055'}/assets/${servicio.Imagen}` : getRandomImage(),
+      titulo: servicio.Titulo,
+      descripcion: servicio.Descripcion,
+      area: servicio.Area,
+      cliente: servicio.Cliente,
+      unidad_negocio: servicio.Unidad_de_negocio,
+      id: servicio.id
+    }));
+    totalItems = result.meta.filter_count;
+    totalPages = Math.ceil(totalItems / PAGE_SIZE);
+    console.log(`[fetchData] Finished. totalItems: ${totalItems}, totalPages: ${totalPages}`);
+
+  } catch (e) {
+    console.error('[fetchData] Top Level Error:', e);
+    error = e.message || 'Ocurrió un error inesperado.';
+    servicios = [];
+    totalItems = 0;
+    totalPages = 1;
+  }
+}
+
+// --- Funciones Auxiliares ---
+const generateSlug = (titulo = '') => {
+  if (!titulo) return 'item';
+  const slug = String(titulo).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50);
+  return slug || 'item';
+};
+
+const generatePaginationNumbers = (currentPage, totalPages, maxVisible = 7) => {
+  if (totalPages <= 1) return [];
+  if (totalPages <= maxVisible) return Array.from({ length: totalPages }, (_, i) => i + 1);
+  const sideWidth = Math.floor((maxVisible - 3) / 2);
+  const leftWidth = sideWidth;
+  const rightWidth = maxVisible - 3 - leftWidth;
+  const pages = [1];
+  if (currentPage > leftWidth + 2) pages.push('...');
+  const start = Math.max(2, currentPage - leftWidth);
+  const end = Math.min(totalPages - 1, currentPage + rightWidth);
+  for (let i = start; i <= end; i++) pages.push(i);
+  if (currentPage < totalPages - rightWidth - 1) pages.push('...');
+  pages.push(totalPages);
+  return pages;
+};
+
+const buildPageUrl = (page = 1, removeFilterKey = null) => {
+  const params = new URLSearchParams();
+  Object.entries(activeFilters).forEach(([key, value]) => {
+    if (key !== removeFilterKey && value) params.set(key, value);
+  });
+  if (searchQuery) params.set('q', searchQuery);
+  if (page > 1) params.set('page', page.toString());
+  const qs = params.toString();
+  return `/servicios${qs ? `?${qs}` : ''}`;
+};
+
+// --- Ejecutar Carga de Datos ---
+await fetchData();
+---
+
+<Layout title="Servicios">
+  <main class="container mx-auto px-4 py-8">
+    <nav class="mb-8"><ol class="flex items-center space-x-2 text-gray-600"><li><a href="/" class="hover:text-blue-600">Inicio</a></li><li><span class="mx-2">/</span></li><li class="text-blue-600 font-medium">Servicios</li></ol></nav>
+    <h1 class="text-4xl font-bold mb-8">Nuestros Servicios</h1>
+
+    <form method="GET" action="/servicios" class="bg-white p-6 rounded-lg shadow-lg mb-8" id="filterForm">
+      <input type="hidden" name="page" value="1" />
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+        {Object.entries(FILTER_CONFIG).map(([key, config]) => (
+          <div class="space-y-1">
+            <label for={`filter-${key}`} class="block text-sm font-medium text-gray-700">{config.display}</label>
+            <select id={`filter-${key}`} name={key} class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm">
+              <option value="">Todos</option>
+              {config.options.map(option => (
+                <option value={option.id} selected={activeFilters[key] === option.id}>{option.name}</option>
+              ))}
+            </select>
+          </div>
+        ))}
+        <div class="space-y-1">
+           <label for="search-input" class="block text-sm font-medium text-gray-700">Buscar</label>
+           <div class="relative">
+             <input type="search" id="search-input" name="q" value={searchQuery} placeholder="Buscar por título..." class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm pr-10"/>
+             <button type="submit" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-blue-600" aria-label="Buscar">
+                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+             </button>
+           </div>
+        </div>
+      </div>
+       <div class="mt-6 text-right">
+         <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+           Aplicar Filtros / Buscar
+         </button>
+       </div>
+    </form>
+
+    {(Object.values(activeFilters).some(Boolean) || searchQuery) && (
+      <div class="mb-6"> <div class="bg-blue-50 p-4 rounded-lg border border-blue-200"> <div class="flex items-center justify-between mb-2 flex-wrap gap-2"> <div class="flex items-center gap-2"> <svg class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg> <span class="font-medium text-blue-700"> {totalItems === 1 ? '1 resultado encontrado' : `${totalItems} resultados encontrados`} {searchQuery ? ` para "${searchQuery}"` : ''} {Object.values(activeFilters).some(Boolean) ? ' con los filtros actuales' : ''} </span> </div> <a href="/servicios" class="text-sm text-red-600 hover:text-red-800 font-medium flex items-center gap-1"> Limpiar todo <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg> </a> </div> <div class="flex flex-wrap gap-2"> {searchQuery && ( <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800"> Búsqueda: "{searchQuery}" <a href={buildPageUrl(1)} onclick={(e) => { e.preventDefault(); const url = new URL(window.location.href); url.searchParams.delete('q'); url.searchParams.set('page','1'); window.location.href = url.toString(); }} class="ml-2 text-red-500 hover:text-red-700 focus:outline-none" title="Eliminar búsqueda"> × </a> </span> )} {Object.entries(activeFilters).map(([key, value]) => value && ( <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"> {FILTER_CONFIG[key].display}: {value} <a href={buildPageUrl(1, key)} class="ml-2 text-red-500 hover:text-red-700 focus:outline-none" title={`Eliminar filtro ${FILTER_CONFIG[key].display}`}> × </a> </span> ))} </div> </div> </div>
+    )}
+
+    {error && (
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
+        <strong class="font-bold">Error: </strong>
+        <span class="block sm:inline">{error}</span>
+      </div>
+    )}
+
+    {servicios.length > 0 && (
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {servicios.map(servicio => (
+          <article class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col">
+            <a href={`/servicios/${servicio.id}/${generateSlug(servicio.titulo)}`} class="block group h-full flex flex-col">
+              <div class="relative h-48 w-full overflow-hidden">
+                <img src={servicio.imagen || DEFAULT_IMAGE} alt={servicio.titulo || 'Servicio'} class="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105" loading="lazy" onerror={`this.onerror=null; this.src='${DEFAULT_IMAGE}';`}/>
+              </div>
+              <div class="p-4 flex flex-col flex-grow">
+                <h2 class="text-lg font-semibold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">{servicio.titulo}</h2>
+                <p class="text-gray-600 text-sm mb-4 line-clamp-3 flex-grow">{servicio.descripcion}</p>
+                <div class="mt-auto border-t border-gray-100 pt-3 space-y-1 text-xs text-gray-500">
+                  {servicio.area && <div class="flex items-center truncate"><svg class="w-3.5 h-3.5 mr-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg><span class="truncate">{servicio.area}</span></div>}
+                  {servicio.cliente && <div class="flex items-center truncate"><svg class="w-3.5 h-3.5 mr-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg><span class="truncate">{servicio.cliente}</span></div>}
+                  {servicio.unidad_negocio && <div class="flex items-center truncate"><svg class="w-3.5 h-3.5 mr-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg><span class="truncate">{servicio.unidad_negocio}</span></div>}
+                </div>
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+    )}
+
+    {totalPages > 1 && !error && (
+      <nav class="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4" aria-label="Paginación">
+        <div class="text-sm text-gray-700"> Mostrando <span class="font-medium">{Math.min((currentPage - 1) * PAGE_SIZE + 1, totalItems)}</span> a <span class="font-medium">{Math.min(currentPage * PAGE_SIZE, totalItems)}</span> de <span class="font-medium">{totalItems}</span> resultados </div>
+        <ul class="inline-flex items-center -space-x-px text-sm">
+          <li> <a href={currentPage > 1 ? buildPageUrl(currentPage - 1) : '#'} class={`flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`} aria-disabled={currentPage === 1} tabindex={currentPage === 1 ? -1 : undefined}> <span class="sr-only">Anterior</span> <svg class="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4"/></svg> </a> </li>
+          {generatePaginationNumbers(currentPage, totalPages).map((page, index) => (
+            <li key={`page-${page}-${index}`}>
+              {typeof page === 'number' ? ( <a href={buildPageUrl(page)} class={`flex items-center justify-center px-3 h-8 leading-tight border border-gray-300 ${ currentPage === page ? 'text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 font-medium' : 'text-gray-500 bg-white hover:bg-gray-100 hover:text-gray-700' }`} aria-current={currentPage === page ? 'page' : undefined}> {page} </a> ) : ( <span class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300">...</span> )}
+            </li>
+          ))}
+          <li> <a href={currentPage < totalPages ? buildPageUrl(currentPage + 1) : '#'} class={`flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`} aria-disabled={currentPage === totalPages} tabindex={currentPage === totalPages ? -1 : undefined}> <span class="sr-only">Siguiente</span> <svg class="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/></svg> </a> </li>
+        </ul>
+      </nav>
+    )}
+
+    {servicios.length === 0 && !error && (
+      <div class="text-center py-16">
+        <div class="text-gray-400 mb-4">
+          <svg class="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM11.995 12h.01" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">No se encontraron servicios</h3>
+        <p class="text-gray-500"> {searchQuery || Object.values(activeFilters).some(Boolean) ? 'Prueba ajustar los filtros o el término de búsqueda.' : 'No hay servicios disponibles en este momento.'} </p> {(searchQuery || Object.values(activeFilters).some(Boolean)) && ( <a href="/servicios" class="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"> Limpiar búsqueda y filtros </a> )}
+      </div>
+    )}
+  </main>
+</Layout>

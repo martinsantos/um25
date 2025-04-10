@@ -1,0 +1,29 @@
+---
+import { fetchServicios } from '../utils/fetchServicios'; // Asegúrate de que esta función exista y sea la misma que en index.astro
+import { useParams } from 'astro:router';
+
+const { slug } = useParams();
+
+let servicio;
+
+try {
+  const servicios = await fetchServicios(); // Reutiliza la lógica de index.astro
+  servicio = servicios.find((s) => s.slug === slug); // Filtra por el slug dinámico
+  if (!servicio) {
+    throw new Error('Servicio no encontrado');
+  }
+} catch (error) {
+  console.error('Error al obtener el servicio:', error);
+  servicio = null;
+}
+---
+
+{!servicio ? (
+  <p>Error: Servicio no encontrado.</p>
+) : (
+  <div>
+    <h1>{servicio.nombre}</h1>
+    <p>{servicio.descripcion}</p>
+    {/* Renderiza otros campos necesarios */}
+  </div>
+)}

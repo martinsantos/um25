@@ -1,0 +1,166 @@
+---
+import Layout from '../layouts/Layout.astro';
+import BlogSEO from './BlogSEO.astro';
+import BlogSearch from './BlogSearch.astro';
+import OptimizedImage from './OptimizedImage.astro';
+import { formatDate } from '../utils/date';
+
+interface Props {
+    posts: any[];
+    categories: string[];
+    currentPage?: number;
+    totalPages?: number;
+}
+
+const {
+    posts,
+    categories,
+    currentPage = 1,
+    totalPages = 1
+} = Astro.props;
+
+const description = "Explora nuestro blog de tecnología y servicios IT. Encuentra artículos sobre cloud computing, ciberseguridad, transformación digital y más.";
+---
+
+<Layout title="Blog | Última Milla">
+    <BlogSEO
+        title="Blog | Última Milla"
+        description={description}
+        isArticle={false}
+    />
+
+    <main class="container mx-auto px-4 py-12">
+        <div class="max-w-4xl mx-auto mb-12">
+            <h1 class="text-4xl font-bold text-center mb-8">Blog</h1>
+            <BlogSearch />
+        </div>
+
+        <!-- Filtros de categorías -->
+        <div class="flex flex-wrap gap-2 mb-8 justify-center">
+            <button
+                class="px-4 py-2 rounded-full text-sm font-medium transition-colors hover:bg-primary-100 hover:text-primary-700 category-filter active"
+                data-category="all"
+            >
+                Todos
+            </button>
+            {categories.map(category => (
+                <button
+                    class="px-4 py-2 rounded-full text-sm font-medium transition-colors hover:bg-primary-100 hover:text-primary-700 category-filter"
+                    data-category={category}
+                >
+                    {category}
+                </button>
+            ))}
+        </div>
+        
+        <!-- Grid de posts -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {posts.map((post, index) => (
+                <article
+                    class={`bg-white rounded-lg shadow-lg overflow-hidden transition-transform hover:scale-105 post-card
+                        ${index === 0 && currentPage === 1 ? 'md:col-span-2 lg:col-span-3' : ''}`}
+                    data-categories={JSON.stringify(post.categories)}
+                >
+                    <a href={`/blog/${post.slug}`} class="block">
+                        <div class="relative aspect-video">
+                            <OptimizedImage
+                                src={post.image}
+                                alt={post.title}
+                                class="object-cover"
+                            />
+                        </div>
+                        <div class="p-6">
+                            <h2 class="text-xl font-bold mb-2 line-clamp-2">
+                                {post.title}
+                            </h2>
+                            <p class="text-gray-600 mb-4 line-clamp-3">
+                                {post.excerpt}
+                            </p>
+                            <div class="flex items-center justify-between text-sm text-gray-500">
+                                <time datetime={post.date}>
+                                    {formatDate(post.date)}
+                                </time>
+                                {post.categories && (
+                                    <div class="flex gap-2">
+                                        {post.categories.map((category: string) => (
+                                            <span class="px-2 py-1 bg-gray-100 rounded-full text-xs">
+                                                {category}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </a>
+                </article>
+            ))}
+        </div>
+
+        <!-- Paginación -->
+        {totalPages > 1 && (
+            <div class="flex justify-center gap-2 mt-12">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <a
+                        href={`/blog${page === 1 ? '' : `?page=${page}`}`}
+                        class={`px-4 py-2 rounded-md transition-colors
+                            ${currentPage === page
+                                ? 'bg-primary-600 text-white'
+                                : 'bg-gray-100 hover:bg-primary-100'
+                            }`}
+                    >
+                        {page}
+                    </a>
+                ))}
+            </div>
+        )}
+    </main>
+</Layout>
+
+<script>
+    // Filtrado por categorías
+    const articles = document.querySelectorAll('.post-card');
+    const categoryFilters = document.querySelectorAll('.category-filter');
+    let activeCategory = 'all';
+
+    function filterPosts(category: string) {
+        articles.forEach(article => {
+            if (category === 'all') {
+                article.classList.remove('hidden');
+                return;
+            }
+
+            const categories = JSON.parse(article.getAttribute('data-categories') || '[]');
+            if (categories.includes(category)) {
+                article.classList.remove('hidden');
+            } else {
+                article.classList.add('hidden');
+            }
+        });
+    }
+
+    categoryFilters.forEach(button => {
+        button.addEventListener('click', () => {
+            const category = button.getAttribute('data-category') || 'all';
+            
+            // Actualizar clases activas
+            categoryFilters.forEach(btn => btn.classList.remove('active', 'bg-primary-100', 'text-primary-700'));
+            button.classList.add('active', 'bg-primary-100', 'text-primary-700');
+            
+            // Filtrar posts
+            filterPosts(category);
+            activeCategory = category;
+        });
+    });
+</script>
+
+<style>
+    .post-card {
+        opacity: 1;
+        transition: opacity 0.3s ease-in-out;
+    }
+    
+    .post-card.hidden {
+        display: none;
+        opacity: 0;
+    }
+</style>

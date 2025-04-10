@@ -1,0 +1,376 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+
+const DEFAULT_IMAGE = 'http://localhost:8055/assets/2a42dfbc-8d55-4fd7-baa0-c31223a3ace8?cache-buster=2025-03-27T17';
+
+// Enable SSR explicitly
+export const prerender = false;
+
+// Add error handling for missing parameters
+if (!Astro.params.id || !Astro.params.slug) {
+  return Astro.redirect('/404', 404);
+}
+
+const { id, slug } = Astro.params;
+let servicio = null;
+let error = null;
+
+async function getDirectusToken() {
+  const staticToken = import.meta.env.DIRECTUS_STATIC_TOKEN;
+
+  if (!staticToken) {
+    throw new Error('Token estático no configurado en .env');
+  }
+
+  return staticToken;
+}
+
+try {
+  const baseUrl = 'http://localhost:8055';
+  let token = '';
+
+  try {
+    token = await getDirectusToken();
+    console.log('Token obtained successfully');
+  } catch (tokenError) {
+    console.error('Token error:', tokenError);
+    throw new Error(`No se pudo obtener el token de Directus: ${tokenError.message}`);
+  }
+
+  // Try different collection paths
+  const possiblePaths = [
+    '/items/antecedente',
+    '/items/Antecedente',
+    '/items/Antecedentes',
+    '/content/Antecedentes',
+    '/content/antecedentes'
+  ];
+
+  let successfulPath = null;
+  let responseData = null;
+
+  // Test each path
+  for (const path of possiblePaths) {
+    try {
+      console.log(`Trying path: ${path}`);
+      const testResponse = await fetch(`${baseUrl}${path}/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (testResponse.ok) {
+        console.log(`Success with path: ${path}`);
+        responseData = await testResponse.json();
+        successfulPath = path;
+        break;
+      } else {
+        console.log(`Failed with path: ${path}`, await testResponse.text());
+      }
+    } catch (error) {
+      console.error(`Error with path ${path}:`, error);
+    }
+  }
+
+  if (!successfulPath || !responseData) {
+    throw new Error('No se pudo encontrar la colección correcta o el recurso');
+  }
+
+  const { data } = responseData;
+  console.log('Data received:', data);
+  
+  if (!data) {
+    throw new Error('No data received from API');
+  }
+
+  servicio = data;
+  
+  if (!servicio) {
+    return Astro.redirect('/404', 404);
+  }
+
+  // Validate slug
+  const expectedSlug = servicio.Titulo
+    ?.toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 40) + `-${id}`;
+    
+  if (slug !== expectedSlug) {
+    return Astro.redirect('/404', 404);
+  }
+} catch (e) {
+  console.error('Error fetching antecedente:', e);
+  error = e.message;
+  return Astro.redirect('/404', 404);
+}
+
+// Agregar imagen por defecto
+---
+
+<Layout title={servicio?.Titulo || 'Antecedente'}>
+  <main class="bg-gray-50 min-h-screen">
+    {error ? (
+      <div class="text-red-500 p-4">
+        Error: {error}
+      </div>
+    ) : (
+      <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Navegación superior mejorada -->
+        <nav class="mb-8">
+          <ol class="flex items-center space-x-2 text-sm text-gray-600">
+            <li>
+              <a href="http://localhost:8055/assets/2a42dfbc-8d55-4fd7-baa0-c31223a3ace8?cache-buster=2025-03-27T17" class="hover:text-blue-600 transition-colors flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Inicio
+              </a>
+            </li>
+            <li>
+              <span class="mx-1 text-gray-400">›</span>
+            </li>
+            <li>
+              <a href="/antecedentes" class="hover:text-blue-600 transition-colors">Antecedentes</a>
+            </li>
+            <li>
+              <span class="mx-1 text-gray-400">›</span>
+            </li>
+            <li class="text-blue-600 font-medium truncate max-w-xs">{servicio?.Titulo}</li>
+          </ol>
+        </nav>
+
+        <!-- Header Section con efecto parallax -->
+        <div class="relative rounded-2xl shadow-2xl overflow-hidden mb-12 group">
+          <div class="relative h-96 overflow-hidden">
+            <img 
+              src={servicio?.Imagen ? `${import.meta.env.PUBLIC_DIRECTUS_URL}/assets/${servicio.Imagen}` : DEFAULT_IMAGE}
+              alt={servicio?.Titulo || 'Antecedente'}
+              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-8">
+              <div class="max-w-3xl mx-auto">
+                <span class="inline-block px-3 py-1 mb-4 text-xs font-semibold tracking-wider text-white bg-blue-600 rounded-full uppercase">
+                  Antecedente
+                </span>
+                <h1 class="text-4xl md:text-5xl font-bold text-white mb-3 leading-tight">
+                  {servicio?.Titulo}
+                </h1>
+                {servicio?.Cliente && (
+                  <div class="flex items-center text-white/90">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span class="text-lg">Cliente: {servicio.Cliente}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Main Content -->
+          <div class="lg:col-span-2 space-y-8">
+            <!-- Descripción General con acordeón para texto largo -->
+            <section class="bg-white rounded-2xl shadow-xl p-8 transition-all hover:shadow-2xl">
+              <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <span class="flex items-center justify-center w-8 h-8 mr-3 bg-blue-100 text-blue-800 rounded-full">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </span>
+                Descripción General
+              </h2>
+              <div class="prose max-w-none text-gray-700" set:html={servicio?.Descripcion} />
+            </section>
+
+            <!-- Objetivos y Resultados con diseño de tarjetas interactivas -->
+            <div class="grid md:grid-cols-2 gap-8">
+              {servicio?.Objetivos && (
+                <section class="bg-white rounded-2xl shadow-xl p-8 transition-all hover:shadow-2xl hover:-translate-y-1">
+                  <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                    <span class="flex items-center justify-center w-8 h-8 mr-3 bg-green-100 text-green-800 rounded-full">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </span>
+                    Objetivos
+                  </h2>
+                  <div class="prose max-w-none text-gray-700" set:html={servicio.Objetivos} />
+                </section>
+              )}
+
+              {servicio?.Resultados && (
+                <section class="bg-white rounded-2xl shadow-xl p-8 transition-all hover:shadow-2xl hover:-translate-y-1">
+                  <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                    <span class="flex items-center justify-center w-8 h-8 mr-3 bg-purple-100 text-purple-800 rounded-full">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </span>
+                    Resultados
+                  </h2>
+                  <div class="prose max-w-none text-gray-700" set:html={servicio.Resultados} />
+                </section>
+              )}
+            </div>
+
+            <!-- Galería de Imágenes con lightbox -->
+            {servicio?.Imagenes && Array.isArray(servicio.Imagenes) && servicio.Imagenes.length > 0 && (
+              <section class="bg-white rounded-2xl shadow-xl p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                  <span class="flex items-center justify-center w-8 h-8 mr-3 bg-yellow-100 text-yellow-800 rounded-full">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </span>
+                  Galería de Proyecto
+                </h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {servicio.Imagenes.map((imagen, index) => (
+                    <a 
+                      href={`${import.meta.env.PUBLIC_DIRECTUS_URL}/assets/${imagen}`}
+                      class="group relative block overflow-hidden rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
+                      data-fslightbox="gallery"
+                    >
+                      <img 
+                        src={`${import.meta.env.PUBLIC_DIRECTUS_URL}/assets/${imagen}`}
+                        alt={`${servicio.Titulo} - Imagen ${index + 1}`}
+                        class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
+                        loading="lazy"
+                      />
+                      <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 10V7m0 3h3m-3 3v3m0-3H7" />
+                        </svg>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+
+          <!-- Sidebar - Detalles Técnicos -->
+          <div class="space-y-8">
+            <!-- Ficha Técnica con diseño moderno -->
+            <section class="bg-white rounded-2xl shadow-xl p-8 sticky top-8">
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Ficha Técnica</h2>
+                <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
+                  ID: {servicio?.Id || 'N/A'}
+                </span>
+              </div>
+              
+              <div class="space-y-4">
+                {Object.entries(servicio || {}).map(([key, value]) => {
+                  // Excluir campos que ya se muestran en otras secciones
+                  if (['Titulo', 'Descripcion', 'Objetivos', 'Resultados', 'Imagen', 'Imagenes', 'Tecnologias', 'tags', 'Id'].includes(key)) {
+                    return null;
+                  }
+                  
+                  // Formatear el nombre del campo
+                  const fieldName = key.replace(/_/g, ' ');
+
+                  // Formatear el valor según su tipo
+                  let displayValue = value;
+                  if (value instanceof Date || key.toLowerCase().includes('fecha')) {
+                    displayValue = new Date(value).toLocaleDateString();
+                  } else if (typeof value === 'boolean') {
+                    displayValue = value ? 'Sí' : 'No';
+                  } else if (value === null || value === undefined) {
+                    return null;
+                  }
+
+                  return (
+                    <div class="flex items-start py-3 border-b border-gray-100 last:border-0">
+                      <dt class="w-1/3 text-gray-500 text-sm capitalize">{fieldName}</dt>
+                      <dd class="w-2/3 text-gray-800 font-medium text-sm">
+                        {key === 'Estado' ? (
+                          <span class={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            displayValue === 'Completado' ? 'bg-green-100 text-green-800' :
+                            displayValue === 'En proceso' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {displayValue}
+                          </span>
+                        ) : (
+                          String(displayValue)
+                        )}
+                      </dd>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            <!-- Tecnologías con iconos -->
+            {servicio?.Tecnologias && (
+              <section class="bg-white rounded-2xl shadow-xl p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Tecnologías Utilizadas</h2>
+                <div class="flex flex-wrap gap-3">
+                  {servicio.Tecnologias.split(',').map(tech => (
+                    <span class="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-800 text-sm font-medium rounded-full hover:bg-blue-100 transition-colors">
+                      {tech.trim()}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            <!-- Tags con diseño mejorado -->
+            {servicio?.tags && (
+              <section class="bg-white rounded-2xl shadow-xl p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Etiquetas Relacionadas</h2>
+                <div class="flex flex-wrap gap-2">
+                  {servicio.tags.split(',').map(tag => (
+                    <span class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-800 text-sm font-medium rounded-full hover:bg-gray-200 transition-colors">
+                      #{tag.trim()}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            <!-- Botón de contacto -->
+            <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl shadow-xl p-6 text-center">
+              <h3 class="text-xl font-bold text-white mb-3">¿Interesado en este proyecto?</h3>
+              <p class="text-blue-100 text-sm mb-4">Contáctanos para más información sobre nuestros servicios</p>
+              <a 
+                href="/contacto" 
+                class="inline-flex items-center justify-center w-full px-4 py-2.5 bg-white text-blue-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Contactar
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón Volver mejorado -->
+        <div class="mt-12 text-center">
+          <a 
+            href="/antecedentes" 
+            class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl shadow-sm text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all hover:shadow-lg"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Volver al Portafolio
+          </a>
+        </div>
+      </div>
+    )}
+  </main>
+
+  <!-- Script para lightbox (deberás incluir la librería fslightbox) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fslightbox/3.3.1/index.min.js"></script>
+</Layout>

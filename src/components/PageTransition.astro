@@ -1,0 +1,120 @@
+---
+---
+
+<div
+    x-data="pageTransition"
+    x-show="isTransitioning"
+    x-transition:enter="transition-transform duration-500 ease-out"
+    x-transition:enter-start="translate-x-full"
+    x-transition:enter-end="translate-x-0"
+    x-transition:leave="transition-transform duration-500 ease-in"
+    x-transition:leave-start="translate-x-0"
+    x-transition:leave-end="-translate-x-full"
+    class="fixed inset-0 z-50 bg-primary-600"
+>
+    <div class="h-full w-full flex items-center justify-center">
+        <div class="text-white text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-white mx-auto mb-4"></div>
+            <p class="text-xl font-medium">Cargando...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('pageTransition', () => ({
+        isTransitioning: false,
+
+        init() {
+            // Interceptar clicks en enlaces
+            document.addEventListener('click', (e) => {
+                const link = e.target.closest('a');
+                if (!link) return;
+
+                // Solo manejar enlaces internos
+                if (
+                    link.target === '_blank' ||
+                    link.hostname !== window.location.hostname ||
+                    link.href.startsWith('#') ||
+                    e.ctrlKey ||
+                    e.shiftKey ||
+                    e.altKey ||
+                    e.metaKey
+                ) return;
+
+                e.preventDefault();
+                this.navigateTo(link.href);
+            });
+        },
+
+        async navigateTo(url) {
+            this.isTransitioning = true;
+
+            try {
+                // Esperar la animación de entrada
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // Cargar la nueva página
+                const response = await fetch(url);
+                const html = await response.text();
+                const parser = new DOMParser();
+                const newDoc = parser.parseFromString(html, 'text/html');
+
+                // Actualizar el título
+                document.title = newDoc.title;
+
+                // Actualizar la URL
+                window.history.pushState({}, '', url);
+
+                // Actualizar el contenido principal
+                const mainContent = newDoc.querySelector('main');
+                if (mainContent) {
+                    document.querySelector('main').innerHTML = mainContent.innerHTML;
+                }
+
+                // Esperar un poco antes de ocultar la transición
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Hacer scroll al inicio
+                window.scrollTo(0, 0);
+            } catch (error) {
+                console.error('Error durante la navegación:', error);
+            } finally {
+                this.isTransitioning = false;
+            }
+        }
+    }));
+});
+</script>
+
+<style>
+.transition-transform {
+    transition-property: transform;
+}
+.duration-500 {
+    transition-duration: 500ms;
+}
+.ease-in {
+    transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+}
+.ease-out {
+    transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+.translate-x-full {
+    transform: translateX(100%);
+}
+.translate-x-0 {
+    transform: translateX(0);
+}
+.-translate-x-full {
+    transform: translateX(-100%);
+}
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+</style>

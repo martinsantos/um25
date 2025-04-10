@@ -1,0 +1,77 @@
+---
+import { Image } from 'astro:assets';
+import logoImage from '/src/assets/images/um-logo.png';
+
+const currentPath = Astro.url.pathname;
+
+const navigation = [
+    { name: 'Servicios', href: '/servicios' },
+    { name: 'Casos de Éxito', href: '/casos-de-exito' },
+    { name: 'Antecedentes', href: '/antecedentes' },
+    { name: 'Blog', href: '/blog' },
+    { name: 'Nosotros', href: '/nosotros' },
+    { name: 'Contacto', href: '/contacto' }
+];
+---
+
+<nav class="navigation">
+    <div class="logo">
+        <a href="/">
+            <Image 
+                src={logoImage} 
+                alt="Logo Ultima Milla"
+                width={200}
+                height={70}
+                quality={100}
+                class="logo-image"
+            />
+        </a>
+    </div>
+    
+    <div class="hamburger-menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <ul>
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/servicios">Servicios</a></li>
+        <li><a href="/antecedentes">Antecedentes</a></li>
+        <li><a href="/casos-de-exito">Casos de Éxito</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/nosotros">Nosotros</a></li>
+        <li><a href="/contacto">Contacto</a></li>
+    </ul>
+</nav>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const hamburger = document.querySelector('.hamburger-menu');
+        const nav = document.querySelector('.navigation ul');
+        
+        if (hamburger && nav) {
+            hamburger.addEventListener('click', () => {
+                hamburger.classList.toggle('active');
+                nav.classList.toggle('active');
+            });
+
+            // Cerrar menú al hacer clic en un enlace
+            document.querySelectorAll('.navigation ul li a').forEach(link => {
+                link.addEventListener('click', () => {
+                    hamburger.classList.remove('active');
+                    nav.classList.remove('active');
+                });
+            });
+
+            // Cerrar menú al hacer clic fuera
+            document.addEventListener('click', (e: MouseEvent) => {
+                const target = e.target as Node;
+                if (!nav.contains(target) && !hamburger.contains(target)) {
+                    hamburger.classList.remove('active');
+                    nav.classList.remove('active');
+                }
+            });
+        }
+    });
+</script>
