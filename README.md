@@ -1,68 +1,121 @@
-# Astro Starter Kit: Blog
+# Última Milla Web (UM25)
 
-```sh
-npm create astro@latest -- --template blog
+Proyecto web desarrollado con Astro y Directus CMS, optimizado para rendimiento y escalabilidad.
+
+## 🚀 Arquitectura
+
+El proyecto está compuesto por:
+
+- **Frontend**: Aplicación Astro con SSR
+- **CMS**: Directus para gestión de contenidos
+- **Base de datos**: PostgreSQL para almacenamiento persistente
+
+Todo el stack se ejecuta en contenedores Docker para facilitar el desarrollo y despliegue.
+
+## 📋 Requisitos
+
+- Docker y Docker Compose
+- Node.js 18 o superior
+- Git
+
+## 🛠️ Desarrollo Local
+
+### Configuración Inicial
+
+1. Clonar el repositorio:
+   ```bash
+   git clone https://github.com/martinsantos/um25.git
+   cd um25
+   ```
+
+2. Copiar el archivo de ejemplo de variables de entorno:
+   ```bash
+   cp .env.example .env
+   ```
+
+3. Iniciar el entorno de desarrollo:
+   ```bash
+   make setup
+   make dev
+   ```
+
+4. Acceder a las aplicaciones:
+   - Frontend Astro: http://localhost:4321
+   - Directus CMS: http://localhost:8055
+
+### Comandos Útiles
+
+| Comando         | Descripción                                      |
+|-----------------|--------------------------------------------------|
+| `make dev`      | Inicia el entorno de desarrollo                  |
+| `make build`    | Construye la aplicación para producción          |
+| `make test`     | Ejecuta las pruebas de lint                      |
+| `make backup`   | Crea un backup de la base de datos y uploads     |
+| `make restore`  | Restaura desde un backup                         |
+
+## 🚢 Despliegue en Producción
+
+### Preparación
+
+1. Configurar variables de entorno para producción:
+   ```bash
+   cp .env.example .env.prod
+   # Editar .env.prod con valores de producción
+   ```
+
+2. Construir imágenes para producción:
+   ```bash
+   make prod-build
+   ```
+
+3. Subir imágenes a Docker Hub (opcional):
+   ```bash
+   docker login
+   make docker-push
+   ```
+
+### Despliegue en Servidor
+
+1. Copiar archivos de configuración al servidor:
+   ```bash
+   scp docker-compose.production.yml .env.prod root@23.105.176.45:/root/um25/
+   ```
+
+2. Conectarse al servidor e iniciar servicios:
+   ```bash
+   ssh root@23.105.176.45
+   cd /root/um25
+   docker-compose -f docker-compose.production.yml up -d
+   ```
+
+## 🔄 Mantenimiento
+
+### Backups
+
+Para crear un backup completo:
+```bash
+make backup
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/blog)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/blog)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/blog/devcontainer.json)
-
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-![blog](https://github.com/withastro/astro/assets/2244813/ff10799f-a816-4703-b967-c78997e8323d)
-
-Features:
-
-- ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and OpenGraph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
-
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-├── public/
-├── src/
-│   ├── components/
-│   ├── content/
-│   ├── layouts/
-│   └── pages/
-├── astro.config.mjs
-├── README.md
-├── package.json
-└── tsconfig.json
+Para restaurar desde un backup:
+```bash
+make restore DB_BACKUP=./backups/db_backup_20250507.sql UPLOADS_BACKUP=./backups/uploads_backup_20250507.tar.gz
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## 📚 Estructura del Proyecto
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+```
+├── src/               # Código fuente de Astro
+├── public/            # Archivos estáticos
+├── scripts/           # Scripts de utilidad
+├── backups/           # Directorio para backups
+├── docker-compose.yml # Configuración para desarrollo
+└── docker-compose.production.yml # Configuración para producción
+```
 
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
+## 🤝 Contribución
 
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
-
-## Credit
-
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+1. Crear una rama para nuevas características: `git checkout -b feature/nombre-caracteristica`
+2. Hacer commit de los cambios: `git commit -m 'feat: añadir nueva característica'`
+3. Enviar la rama: `git push origin feature/nombre-caracteristica`
+4. Crear un Pull Request

@@ -1,0 +1,126 @@
+version: '3.8'
+
+services:
+  astro-app:
+    image: martinsantos/um25:astro-latest
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: astro-app
+    restart: always
+    ports:
+      - "80:4321"
+    env_file:
+      - .env.prod
+    environment:
+      - NODE_ENV=production
+      - DIRECTUS_URL=http://directus-app:8055
+    depends_on:
+      - directus-app
+    networks:
+      - um25_network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:4321"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  database:
+    image: postgres:15-alpine
+    container_name: database
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-myuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-mypassword}
+      POSTGRES_DB: ${DB_DATABASE:-mydatabase}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - um25_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-myuser} -d ${DB_DATABASE:-mydatabase}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  directus-app:
+    image: directus/directus:11.7.2
+    container_name: directus-app
+    restart: always
+    ports:
+      - "8055:8055"
+    depends_on:
+      - database
+    environment:
+      KEY: ${DIRECTUS_KEY:-12345678901234567890123456789012}
+      SECRET: ${DIRECTUS_SECRET:-S3cr3tK3yForDirectusConfig2025!!}
+      DB_CLIENT: pg
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-myuser}
+      DB_PASSWORD: ${DB_PASSWORD:-mypassword}
+      DB_DATABASE: ${DB_DATABASE:-mydatabase}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-adminpassword}
+      PUBLIC_URL: ${PUBLIC_URL:-http://23.105.176.45:8055}
+      CORS_ENABLED: ${CORS_ENABLED:-true}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://23.105.176.45,http://23.105.176.45:4321}
+      PUBLIC_ASSETS: ${PUBLIC_ASSETS:-true}
+      ASSETS_CACHE_TTL: "0"
+      ASSETS_TRANSFORM_TOKEN_OPTIONAL: "true"
+      RATE_LIMITER_ENABLED: "true"
+      RATE_LIMITER_STORE: "memory"
+      RATE_LIMITER_POINTS: "50"
+      RATE_LIMITER_DURATION: "1"
+    volumes:
+      - directus_uploads:/directus/uploads
+      - directus_extensions:/directus/extensions
+    networks:
+      - um25_network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8055/server/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  postgres_data:
+    name: um25_postgres_data
+  directus_uploads:
+    name: um25_directus_uploads
+  directus_extensions:
+    name: um25_directus_extensions
+
+networks:
+  um25_network:
+    name: um25_network
