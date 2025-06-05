@@ -6,14 +6,14 @@
 set -e
 
 # Verificar si el usuario está autenticado en Docker Hub
-if ! docker info | grep -q "Username"; then
+if ! docker info 2>/dev/null | grep -q "Username"; then
   echo "Error: No estás autenticado en Docker Hub. Ejecuta 'docker login' primero."
   exit 1
 fi
 
 # Establecer versión
 VERSION=${1:-latest}
-REPO="martinsantos/um25"
+REPO="santosma/um25"
 
 echo "🔨 Construyendo imágenes con versión: $VERSION"
 

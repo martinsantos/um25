@@ -1,52 +1,129 @@
+@import '@fontsource-variable/inter';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/*
-  The CSS in this style tag is based off of Bear Blog's default CSS.
-  https://github.com/HermanMartinus/bearblog/blob/297026a877bc2ab2b3bdfbd6b9f7961c350917dd/templates/styles/blog/default.css
-  License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
- */
-
+/* Estilos base */
 :root {
-  --accent: 136, 58, 234;
-  --accent-light: 224, 204, 250;
-  --accent-dark: 49, 10, 101;
+  --accent: 220, 38, 38; /* Rojo 600 */
+  --accent-light: 239, 68, 68; /* Rojo 500 */
+  --accent-dark: 185, 28, 28; /* Rojo 700 */
   --accent-gradient: linear-gradient(
     45deg,
     rgb(var(--accent)),
     rgb(var(--accent-light)) 30%,
     white 60%
   );
-  --black: 15, 18, 25;
-  --gray: 96, 115, 159;
-  --gray-light: 229, 233, 240;
-  --gray-dark: 34, 41, 57;
+  --black: 17, 24, 39; /* gray-900 */
+  --gray: 75, 85, 99; /* gray-600 */
+  --gray-light: 243, 244, 246; /* gray-100 */
+  --gray-dark: 31, 41, 55; /* gray-800 */
   --gray-gradient: rgba(var(--gray-light), 50%), #fff;
-  --box-shadow: 0 2px 6px rgba(var(--gray), 25%), 0 8px 24px rgba(var(--gray), 33%),
-    0 16px 32px rgba(var(--gray), 33%);
+  --box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05), 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
-@font-face {
-  font-family: 'Atkinson';
-  src: url('/fonts/atkinson-regular.woff') format('woff');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Atkinson';
-  src: url('/fonts/atkinson-bold.woff') format('woff');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
+/* Estilos base de tipografía */
 html {
-  font-family: system-ui, sans-serif;
-  background: #F6F6F6;
-  background-size: 224px;
+  font-family: 'Inter Variable', system-ui, -apple-system, sans-serif;
+  @apply text-gray-900 bg-white;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Títulos */
+h1, h2, h3, h4, h5, h6 {
+  @apply font-bold text-gray-900 leading-tight;
+  margin-bottom: 0.5em;
+}
+
+h1 { @apply text-4xl md:text-5xl lg:text-6xl; }
+h2 { @apply text-3xl md:text-4xl; }
+h3 { @apply text-2xl md:text-3xl; }
+h4 { @apply text-xl md:text-2xl; }
+h5 { @apply text-lg md:text-xl; }
+
+/* Enlaces */
+a {
+  @apply text-red-600 hover:text-red-700 transition-colors duration-200;
+}
+
+/* Botones */
+.btn {
+  @apply inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold transition-all duration-200;
+}
+
+.btn-primary {
+  @apply bg-red-600 text-white hover:bg-red-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+}
+
+/* Secciones */
+section {
+  @apply py-16 md:py-24;
+}
+
+/* Contenedor */
+.container {
+  @apply px-4 mx-auto w-full max-w-7xl;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+/* Utilidades personalizadas */
+.hero-gradient {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.6) 100%);
+}
+
+/* Transiciones suaves */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* Mejoras de accesibilidad */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Estilos para el modo oscuro (opcional) */
+@media (prefers-color-scheme: dark) {
+  html {
+    @apply bg-gray-900 text-gray-100;
+  }
+  
+  body {
+    @apply bg-gray-900;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-white;
+  }
 }
 
 body {

@@ -16,11 +16,11 @@ echo "📦 Iniciando backup - $TIMESTAMP"
 
 # Backup de la base de datos
 echo "💾 Creando backup de la base de datos..."
-docker-compose exec -T database pg_dump -U myuser mydatabase > $BACKUP_DIR/db_backup_$TIMESTAMP.sql
+docker exec database pg_dump -U myuser mydatabase > $BACKUP_DIR/db_backup_$TIMESTAMP.sql
 
 # Backup de los uploads
 echo "🖼️ Creando backup de los uploads..."
-tar -czf $BACKUP_DIR/uploads_backup_$TIMESTAMP.tar.gz -C /var/lib/docker/volumes/um25_directus_uploads/_data .
+docker run --rm -v um25_directus_uploads:/source -v $(pwd)/$BACKUP_DIR:/backup alpine tar -czf /backup/uploads_backup_$TIMESTAMP.tar.gz -C /source .
 
 # Limpiar backups antiguos
 echo "🧹 Limpiando backups antiguos (más de $RETENTION_DAYS días)..."

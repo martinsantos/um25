@@ -1,166 +1,188 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
+import { generateSlug } from '../../../utils/slugUtils';
 
-const DEFAULT_IMAGE = 'http://localhost:8055/assets/8cbc28b8-e6ad-46a2-93ec-14db4630091f';
+// --- Configuración ---
+const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
+const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN;
+if (!DIRECTUS_STATIC_TOKEN) {
+  throw new Error('DIRECTUS_STATIC_TOKEN no configurado. La página no puede obtener datos.');
+}
 
-const authenticate = async () => {
-    const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-    const staticToken = import.meta.env.DIRECTUS_STATIC_TOKEN;
-    if (!staticToken) {
-        throw new Error('Token estático DIRECTUS_STATIC_TOKEN no configurado en .env');
-    }
-    try {
-        console.log('[authenticate] Attempting authentication...');
-        const response = await fetch(`${baseUrl}/users/me`, {
-            headers: { 'Authorization': `Bearer ${staticToken}` }
-        });
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('[authenticate] Authentication failed:', response.status, errorText);
-            throw new Error(`Token inválido o expirado (${response.status}): ${errorText}`);
-        }
-        return { token: staticToken };
-    } catch (e) {
-        console.error('[authenticate] Error:', e);
-        throw new Error(`Autenticación fallida: ${e.message}`);
-    }
-};
+const { id, slug: slugFromUrl } = Astro.params;
+if (!id || !slugFromUrl) {
+  return Astro.redirect('/404');
+}
 
-const fetchServiceDetail = async (token, id) => {
-  const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-  const url = `${baseUrl}/items/Servicios/${id}?fields=id,status,sort,user_created,date_created,Imagen,Archivo,Descripcion,Titulo,user_updated,date_updated,Imagenes`;
-  console.log('[fetchServiceDetail] Fetching URL:', url);
+// Función para obtener datos del servicio usando fetch()
+async function fetchServiceById(itemId) {
+  const collectionPath = '/items/Servicios';
+  // Usa wildcard para obtener todos los campos, incluida la imagen
+  const fields = '*,rel_antecedentes.Antecedentes_id.*';
+  const apiUrl = `${DIRECTUS_URL}${collectionPath}/${itemId}?fields=${encodeURIComponent(fields)}`;
+  console.log(`[SERVICIOS] Fetching: ${apiUrl}`);
+
   try {
-    const response = await fetch(url, {
-      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
-    });
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[fetchServiceDetail] API Error:', response.status, errorText);
-      if (response.status === 404) {
-        throw new Error(`API Error (${response.status}): Servicio no encontrado`);
+    const response = await fetch(apiUrl, {
+      headers: {
+        'Authorization': `Bearer ${DIRECTUS_STATIC_TOKEN}`,
+        'Accept': 'application/json'
       }
-      throw new Error(`API Error (${response.status}): ${errorText}`);
-    }
-    const data = await response.json();
-    return data.data;
-  } catch (e) {
-    console.error('[fetchServiceDetail] Error:', e);
-    throw new Error(`Fetch service detail failed: ${e.message}`);
-  }
-};
-
-export async function getStaticPaths() {
-    const { token } = await authenticate();
-    const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-    const path = '/items/Servicios';
-    const url = `${baseUrl}${path}?fields=id,Titulo`;
-    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' } });
-    const data = await response.json();
-    return data.data.map((servicio) => {
-        return {
-            params: { id: servicio.id, slug: generateSlug(servicio.Titulo) },
-        };
     });
+    console.log(`[SERVICIOS] API Status: ${response.status} ${response.statusText}`);
+    if (!response.ok) {
+      if (response.status === 404) {
+        return { data: null, error: 'NOT_FOUND' };
+      }
+      const errorBody = await response.text();
+      throw new Error(`Error en la API: ${response.status} ${response.statusText} - ${errorBody}`);
+    }
+    const json = await response.json();
+    if (!json?.data) {
+      return { data: null, error: 'NO_DATA_IN_RESPONSE' };
+    }
+    if (typeof json.data.Titulo !== 'string' || !json.data.Titulo.trim()) {
+      console.warn('[SERVICIOS] El servicio recuperado no tiene título o es inválido.');
+    }
+    console.log('[DEBUG] Servicio completo:', JSON.stringify(json.data, null, 2));
+    return { data: json.data, error: null };
+  } catch (e) {
+    console.error('[SERVICIOS] Excepción durante el fetch:', e);
+    return { data: null, error: e.message || 'FETCH_EXCEPTION' };
+  }
 }
 
-const generateSlug = (titulo = '') => {
-    if (!titulo) return 'item';
-    const slug = String(titulo).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50);
-    return slug || 'item';
-};
+console.log('[SERVICIOS] Iniciando fetch y validación...');
+const result = await fetchServiceById(id);
+const servicio = result.data;
 
-const { id } = Astro.params;
-console.log('[Main] ID before fetchServiceDetail:', id);
-let servicio = null;
-let error = null;
-try {
-    const { token } = await authenticate();
-    console.log('[Main] Token before fetchServiceDetail:', token);
-    servicio = await fetchServiceDetail(token, id);
-} catch (e) {
-    error = e.message || 'Ocurrió un error inesperado.';
+if (result.error || !servicio) {
+  console.error(`[SERVICIOS] Error al obtener datos: "${result.error}". Redirigiendo a 404.`);
+  return Astro.redirect('/404');
 }
 
-let currentSlide = 0;
-const totalSlides = (servicio?.Imagen ? 1 : 0) + (Array.isArray(servicio?.Imagenes) ? servicio.Imagenes.length : 0);
+const expectedSlug = generateSlug(servicio.Titulo || '');
+if (slugFromUrl !== expectedSlug) {
+  console.warn(`[SERVICIOS] Discrepancia de slug: URL="${slugFromUrl}", Esperado="${expectedSlug}". Redirigiendo a 404.`);
+  return Astro.redirect('/404');
+}
 
-const goToPreviousSlide = () => {
-    currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-};
+console.log('[DEBUG] rel_antecedentes:', JSON.stringify(servicio.rel_antecedentes, null, 2));
+let antecedentesRaw = servicio?.rel_antecedentes;
+if (!Array.isArray(antecedentesRaw)) {
+  antecedentesRaw = antecedentesRaw ? [antecedentesRaw] : [];
+}
+const relatedAntecedentes = antecedentesRaw
+  .map(rel => rel?.Antecedentes_id ?? null)
+  .filter(a => a?.id);
 
-const goToNextSlide = () => {
-    currentSlide = (currentSlide + 1) % totalSlides;
-};
+Astro.props = { servicio, relatedAntecedentes, antecedentesRaw };
 
-const getSlideTransform = (index) => {
-    return `translateX(-${currentSlide * 100}%)`;
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A';
+  try {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('es-ES', options);
+  } catch (e) {
+    console.error(`[SERVICIOS] Error formateando fecha: ${dateString}`, e);
+    return 'Fecha inválida';
+  }
 };
 ---
 
-<Layout title={servicio?.Titulo || 'Servicio'}>
-    <main class="container mx-auto px-4 py-8">
-        <nav class="mb-8">
-            <ol class="flex items-center space-x-2 text-gray-600">
-                <li><a href="/" class="hover:text-blue-600">Inicio</a></li>
-                <li><span class="mx-2">/</span></li>
-                <li><a href="/servicios" class="hover:text-blue-600">Servicios</a></li>
-                <li><span class="mx-2">/</span></li>
-                <li class="text-blue-600 font-medium">{servicio?.Titulo || 'Detalle'}</li>
-            </ol>
-        </nav>
-
-        {error && (
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
-                <strong class="font-bold">Error: </strong>
-                <span class="block sm:inline">{error}</span>
-            </div>
-        )}
-
-        {servicio && (
-            <>
-                <div class="relative w-full mb-8">
-                    <div class="overflow-hidden relative">
-                        <div class="flex transition-transform duration-500 ease-in-out" style={`transform: ${getSlideTransform(currentSlide)};`}>
-                            {servicio.Imagen && (
-                                <div class="w-full flex-shrink-0">
-                                    <img src={`${import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055'}/assets/${servicio.Imagen}`} alt={servicio.Titulo} class="w-full h-auto object-cover" />
-                                </div>
-                            )}
-                            {servicio.Imagenes && Array.isArray(servicio.Imagenes) && servicio.Imagenes.map((imagen) => (
-                                <div key={imagen} class="w-full flex-shrink-0">
-                                    <img src={`${import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055'}/assets/${imagen}`} alt={`Imagen adicional ${imagen}`} class="w-full h-auto object-cover" />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    <div class="absolute inset-0 flex justify-between items-center">
-                        <button class="bg-gray-800 text-white p-2 rounded-full" onClick={goToPreviousSlide}>
-                            &#8249;
-                        </button>
-                        <button class="bg-gray-800 text-white p-2 rounded-full" onClick={goToNextSlide}>
-                            &#8250;
-                        </button>
-                    </div>
+<Layout title={`Servicio: ${Astro.props.servicio?.Titulo || 'Detalle'}`}>
+  <main class="container mx-auto px-4 py-12 md:py-20">
+    {
+      Astro.props.servicio ? (
+      <>
+        <article class="bg-white rounded-xl shadow-xl overflow-hidden mb-16">
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-0 md:gap-8 lg:gap-12">
+            <div class="md:col-span-2">
+              {Astro.props.servicio.Imagen ? (
+                <img
+                  src={`${DIRECTUS_URL}/assets/${Astro.props.servicio.Imagen}?access_token=${DIRECTUS_STATIC_TOKEN}`}
+                  alt={`Imagen representativa de ${Astro.props.servicio.Titulo}`}
+                  class="w-full h-64 md:h-full object-cover"
+                  loading="lazy"
+                  width="600" height="600"
+                />
+              ) : (
+                <div class="w-full h-64 md:h-full bg-gray-200 flex items-center justify-center">
+                  <span class="text-gray-500">Imagen no disponible</span>
                 </div>
-
-                <article class="bg-white rounded-lg shadow-lg p-6">
-                    <h1 class="text-3xl font-bold mb-4">{servicio.Titulo}</h1>
-                    <div class="mb-6" set:html={servicio.Descripcion} />
-                    {servicio.Archivo && (
-                        <div class="mb-6">
-                            <a href={`${import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055'}/assets/${servicio.Archivo}`} target="_blank" class="text-blue-600 underline">
-                                Descargar archivo
-                            </a>
-                        </div>
-                    )}
-                    <div class="mt-auto border-t border-gray-100 pt-3 space-y-1 text-xs text-gray-500">
-                        <p><strong>Creado por:</strong> {servicio.user_created}</p>
-                        <p><strong>Fecha de creación:</strong> {new Date(servicio.date_created).toLocaleDateString()}</p>
-                        <p><strong>Última actualización:</strong> {new Date(servicio.date_updated).toLocaleDateString()}</p>
-                    </div>
-                </article>
+              )}
+            </div>
+            <div class="md:col-span-3 p-6 md:p-8 lg:p-10 flex flex-col">
+              <h1 class="text-3xl lg:text-4xl font-bold mb-4 text-gray-900">{Astro.props.servicio.Titulo}</h1>
+              <div class="text-gray-700 mb-8 text-lg leading-relaxed prose lg:prose-lg max-w-none">
+                {Astro.props.servicio.Descripcion}
+              </div>
+              <div class="mb-8 border-t border-gray-200 pt-6">
+                <h2 class="text-lg font-semibold mb-4 text-gray-800 uppercase tracking-wider">Detalles</h2>
+                <dl class="space-y-3">
+                  <div class="flex flex-col sm:flex-row sm:justify-between">
+                    <dt class="font-medium text-gray-600 w-full sm:w-1/3 mb-1 sm:mb-0">Área:</dt>
+                    <dd class="text-gray-800 sm:text-right w-full sm:w-2/3">{Astro.props.servicio.Area || '-'}</dd>
+                  </div>
+                  <div class="flex flex-col sm:flex-row sm:justify-between">
+                    <dt class="font-medium text-gray-600 w-full sm:w-1/3 mb-1 sm:mb-0">Cliente:</dt>
+                    <dd class="text-gray-800 sm:text-right w-full sm:w-2/3">{Astro.props.servicio.Cliente || '-'}</dd>
+                  </div>
+                  <div class="flex flex-col sm:flex-row sm:justify-between">
+                    <dt class="font-medium text-gray-600 w-full sm:w-1/3 mb-1 sm:mb-0">Fecha:</dt>
+                    <dd class="text-gray-800 sm:text-right w-full sm:w-2/3">{formatDate(Astro.props.servicio.Fecha)}</dd>
+                  </div>
+                  <div class="flex flex-col sm:flex-row sm:justify-between">
+                    <dt class="font-medium text-gray-600 w-full sm:w-1/3 mb-1 sm:mb-0">Presupuesto:</dt>
+                    <dd class="text-gray-800 sm:text-right w-full sm:w-2/3">{Astro.props.servicio.Presupuesto || '-'}</dd>
+                  </div>
+                  <div class="flex flex-col sm:flex-row sm:justify-between">
+                    <dt class="font-medium text-gray-600 w-full sm:w-1/3 mb-1 sm:mb-0">Unidad Negocio:</dt>
+                    <dd class="text-gray-800 sm:text-right w-full sm:w-2/3">{Astro.props.servicio.Unidad_de_negocio || '-'}</dd>
+                  </div>
+                </dl>
+              </div>
+              {Astro.props.servicio.Palabras_clave && Astro.props.servicio.Palabras_clave.split(',').map(k => k.trim()).filter(k => k).length > 0 && (
+                <div class="border-t border-gray-200 pt-6 mt-auto">
+                  <h2 class="text-lg font-semibold mb-4 text-gray-800 uppercase tracking-wider">Etiquetas</h2>
+                  <div class="flex flex-wrap gap-2">
+                    {Astro.props.servicio.Palabras_clave.split(',').map((keyword) => keyword.trim()).filter(k => k).map((keyword) => (
+                      <span class="bg-blue-100 text-blue-800 rounded-md px-2.5 py-0.5 text-sm font-medium border border-blue-200">
+                        {keyword}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </article>
+        <section class="mb-16">
+          <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center md:text-left">Antecedentes Relacionados</h2>
+          { Astro.props.relatedAntecedentes && Array.isArray(Astro.props.relatedAntecedentes) && Astro.props.relatedAntecedentes.length > 0 ? (
+            <AntecedentesCarousel
+              antecedentes={Astro.props.relatedAntecedentes}
+              unidad={Astro.props.servicio.Unidad_de_negocio}
+              client:load
+            />
+          ) : (
+            <>
+              <p class="text-center text-gray-500 py-8">No hay antecedentes vinculados para mostrar.</p>
+              <pre class="bg-gray-100 text-xs text-left p-4 rounded overflow-x-auto">
+                {JSON.stringify(Astro.props.antecedentesRaw, null, 2)}
+              </pre>
             </>
-        )}
-    </main>
+          )}
+        </section>
+      </>
+      ) : (
+      <div class="text-center py-20">
+          <p class="text-2xl text-gray-500">Lo sentimos, servicio no encontrado.</p>
+          <a href="/servicios" class="mt-4 inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+            Volver a Servicios
+          </a>
+      </div>
+      )
+    }
+  </main>
 </Layout>

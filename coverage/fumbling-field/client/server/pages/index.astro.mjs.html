@@ -1,0 +1,163 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for fumbling-field/client/server/pages/index.astro.mjs</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../../prettify.css" />
+    <link rel="stylesheet" href="../../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">fumbling-field/client/server/pages</a> index.astro.mjs</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>0/26</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>0/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>0/26</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line low'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >/* empty css                                 */</span></span></span>
+<span class="cstat-no" title="statement not covered" >import { c as createComponent, r as renderComponent, a as renderTemplate, m as maybeRenderHead, d as renderScript } from '../chunks/astro/server_B7qweUek.mjs';</span>
+<span class="cstat-no" title="statement not covered" >import 'kleur/colors';</span>
+<span class="cstat-no" title="statement not covered" >import { $ as $$Layout } from '../chunks/Layout_CQ6jbdHh.mjs';</span>
+<span class="cstat-no" title="statement not covered" >/* empty css                                 */</span>
+<span class="cstat-no" title="statement not covered" >export { renderers } from '../renderers.mjs';</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >const $$Index = createComponent(($$result, $$props, $$slots) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >  return renderTemplate`${renderComponent($$result, "Layout", $$Layout, { "title": "ULTIMA MILLA - Servicios IT Innovadores" }, { "default": ($$result2) =&gt; renderTemplate`  ${maybeRenderHead()}&lt;header id="banner" class="hero h-screen flex items-center justify-center text-center text-white relative bg-fixed bg-blend-multiply bg-cover" style="background-image: url('/1.jpg')"&gt; &lt;div class="absolute inset-0 bg-black bg-opacity-50"&gt;&lt;/div&gt; &lt;div class="container relative z-10 px-4"&gt; &lt;h1 id="dynamicText" class="text-5xl font-bold mb-4 whitespace-nowrap overflow-hidden drop-shadow-lg"&gt;&lt;/h1&gt; &lt;p class="text-2xl mt-4 max-w-xl mx-auto"&gt;Transformamos tu negocio con tecnología que puedes pagar.&lt;/p&gt; &lt;a href="#contacto" class="mt-8 inline-block bg-red-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition"&gt;Contáctanos&lt;/a&gt; &lt;/div&gt; &lt;/header&gt; &lt;main class="bg-gray-100"&gt; &lt;!-- Sobre Nosotros --&gt; &lt;section id="about-us" class="py-16 bg-gray-50"&gt; &lt;div class="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center"&gt; &lt;div&gt; &lt;h2 class="text-4xl font-bold text-gray-800 mb-6"&gt;Sobre Nosotros&lt;/h2&gt; &lt;p class="text-lg text-gray-700 mb-8"&gt;</span>
+<span class="cstat-no" title="statement not covered" >Somos un equipo apasionado por la tecnología, dedicado a impulsar la transformación digital de las empresas. Nuestra misión es ofrecer soluciones innovadoras y eficientes que generen un impacto positivo en el crecimiento de nuestros clientes.</span>
+<span class="cstat-no" title="statement not covered" >&lt;/p&gt; &lt;a href="#" class="inline-block bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition"&gt;Saber Más&lt;/a&gt; &lt;/div&gt; &lt;div&gt; &lt;!-- Ensure that "about-us.jpg" exists in the public folder --&gt; &lt;img src="/about-us.jpg" alt="Equipo Última Milla" class="w-full h-auto rounded-lg shadow-lg"&gt; &lt;/div&gt; &lt;/div&gt; &lt;/section&gt; &lt;!-- Nuestros Servicios --&gt; &lt;section id="servicios" class="py-20 bg-white"&gt; &lt;div class="container mx-auto px-4"&gt; &lt;h2 class="text-4xl font-bold text-gray-800 mb-10 text-center"&gt;Nuestros Servicios&lt;/h2&gt; &lt;div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"&gt; &lt;div class="service-item bg-gray-100 rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow"&gt; &lt;div class="service-icon text-6xl mb-4"&gt;🛡️&lt;/div&gt; &lt;h3 class="text-2xl font-bold text-gray-800 mb-4"&gt;Ciberseguridad&lt;/h3&gt; &lt;p&gt;Protegemos tu negocio contra amenazas cibernéticas con soluciones avanzadas de seguridad.&lt;/p&gt; &lt;/div&gt; &lt;div class="service-item bg-gray-100 rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow"&gt; &lt;div class="service-icon text-6xl mb-4"&gt;☁️&lt;/div&gt; &lt;h3 class="text-2xl font-bold text-gray-800 mb-4"&gt;Cloud Computing&lt;/h3&gt; &lt;p&gt;Optimizamos tus operaciones con nuestras soluciones de nube escalables y flexibles.&lt;/p&gt; &lt;/div&gt; &lt;div class="service-item bg-gray-100 rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow"&gt; &lt;div class="service-icon text-6xl mb-4"&gt;📊&lt;/div&gt; &lt;h3 class="text-2xl font-bold text-gray-800 mb-4"&gt;Análisis de Datos&lt;/h3&gt; &lt;p&gt;Obtén insights valiosos de tus datos con nuestras soluciones de análisis avanzado.&lt;/p&gt; &lt;/div&gt; &lt;/div&gt; &lt;/div&gt; &lt;/section&gt; &lt;!-- Servicios Destacados (Carrusel) --&gt; &lt;section class="carousel-services py-16 bg-gray-50"&gt; &lt;div class="container mx-auto px-4"&gt; &lt;h2 class="text-3xl font-bold text-gray-800 mb-8 text-center"&gt;Servicios Destacados&lt;/h2&gt; &lt;div class="carousel-container overflow-x-auto"&gt; &lt;div class="flex space-x-6 py-4 animate-scroll hover:pause"&gt; &lt;div class="flex-none w-80 bg-white rounded-xl shadow-lg p-6"&gt; &lt;div class="text-red-500 text-2xl mb-4"&gt;💻&lt;/div&gt; &lt;h3 class="font-bold text-xl mb-2"&gt;Desarrollo de Software&lt;/h3&gt; &lt;p class="text-gray-600"&gt;Soluciones personalizadas para tu negocio&lt;/p&gt; &lt;ul class="mt-4 text-sm text-gray-500 list-disc list-inside"&gt; &lt;li&gt;Apps Móviles&lt;/li&gt; &lt;li&gt;Sistemas Web&lt;/li&gt; &lt;li&gt;Integración API&lt;/li&gt; &lt;/ul&gt; &lt;/div&gt; &lt;div class="flex-none w-80 bg-white rounded-xl shadow-lg p-6"&gt; &lt;div class="text-red-500 text-2xl mb-4"&gt;🔒&lt;/div&gt; &lt;h3 class="font-bold text-xl mb-2"&gt;Ciberseguridad Avanzada&lt;/h3&gt; &lt;p class="text-gray-600"&gt;Protección integral de datos&lt;/p&gt; &lt;ul class="mt-4 text-sm text-gray-500 list-disc list-inside"&gt; &lt;li&gt;Auditorías de seguridad&lt;/li&gt; &lt;li&gt;Prevención de intrusiones&lt;/li&gt; &lt;li&gt;Gestión de vulnerabilidades&lt;/li&gt; &lt;/ul&gt; &lt;/div&gt; &lt;div class="flex-none w-80 bg-white rounded-xl shadow-lg p-6"&gt; &lt;div class="text-red-500 text-2xl mb-4"&gt;📱&lt;/div&gt; &lt;h3 class="font-bold text-xl mb-2"&gt;Soluciones IoT&lt;/h3&gt; &lt;p class="text-gray-600"&gt;Conectividad inteligente&lt;/p&gt; &lt;ul class="mt-4 text-sm text-gray-500 list-disc list-inside"&gt; &lt;li&gt;Automatización&lt;/li&gt; &lt;li&gt;Monitoreo remoto&lt;/li&gt; &lt;li&gt;Análisis en tiempo real&lt;/li&gt; &lt;/ul&gt; &lt;/div&gt; &lt;div class="flex-none w-80 bg-white rounded-xl shadow-lg p-6"&gt; &lt;div class="text-red-500 text-2xl mb-4"&gt;🚀&lt;/div&gt; &lt;h3 class="font-bold text-xl mb-2"&gt;DevOps&lt;/h3&gt; &lt;p class="text-gray-600"&gt;Optimización de desarrollo&lt;/p&gt; &lt;ul class="mt-4 text-sm text-gray-500 list-disc list-inside"&gt; &lt;li&gt;CI/CD&lt;/li&gt; &lt;li&gt;Contenedores&lt;/li&gt; &lt;li&gt;Microservicios&lt;/li&gt; &lt;/ul&gt; &lt;/div&gt; &lt;/div&gt; &lt;/div&gt; &lt;/div&gt; &lt;/section&gt; &lt;!-- Casos de Éxito --&gt; &lt;section id="casos" class="py-20 bg-gray-900 text-white"&gt; &lt;div class="container mx-auto px-4"&gt; &lt;h2 class="text-4xl font-bold text-center mb-10"&gt;Casos de Éxito&lt;/h2&gt; &lt;div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"&gt; &lt;div class="case-study bg-gray-800 rounded-lg p-6 hover:bg-gray-700 transition-colors relative overflow-hidden"&gt; &lt;div class="absolute top-0 left-0 w-1 h-0 bg-red-500 hover:h-full transition-all duration-500"&gt;&lt;/div&gt; &lt;h3 class="text-2xl font-bold text-red-500 mb-4"&gt;FinanzasTech&lt;/h3&gt; &lt;p&gt;Implementamos un sistema de seguridad avanzado para el Banco XYZ, reduciendo los incidentes de ciberseguridad en un 95%.&lt;/p&gt; &lt;a href="#" class="mt-4 inline-block border border-red-500 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-gray-800 transition"&gt;Ver Detalles&lt;/a&gt; &lt;/div&gt; &lt;div class="case-study bg-gray-800 rounded-lg p-6 hover:bg-gray-700 transition-colors relative overflow-hidden"&gt; &lt;div class="absolute top-0 left-0 w-1 h-0 bg-red-500 hover:h-full transition-all duration-500"&gt;&lt;/div&gt; &lt;h3 class="text-2xl font-bold text-red-500 mb-4"&gt;EcommerceTech&lt;/h3&gt; &lt;p&gt;Nuestra solución de cloud computing permitió a la tienda online ABC escalar sus operaciones durante el Black Friday, manejando un aumento del 500% en el tráfico.&lt;/p&gt; &lt;a href="#" class="mt-4 inline-block border border-red-500 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-gray-800 transition"&gt;Ver Detalles&lt;/a&gt; &lt;/div&gt; &lt;div class="case-study bg-gray-800 rounded-lg p-6 hover:bg-gray-700 transition-colors relative overflow-hidden"&gt; &lt;div class="absolute top-0 left-0 w-1 h-0 bg-red-500 hover:h-full transition-all duration-500"&gt;&lt;/div&gt; &lt;h3 class="text-2xl font-bold text-red-500 mb-4"&gt;LogisticaTech&lt;/h3&gt; &lt;p&gt;El análisis de datos implementado para la empresa de logística DEF optimizó las rutas de entrega, aumentando la eficiencia en un 30%.&lt;/p&gt; &lt;a href="#" class="mt-4 inline-block border border-red-500 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-gray-800 transition"&gt;Ver Detalles&lt;/a&gt; &lt;/div&gt; &lt;/div&gt; &lt;/div&gt; &lt;/section&gt; &lt;!-- Contacto --&gt; &lt;section id="contacto" class="contact py-20 bg-white text-center"&gt; &lt;div class="container mx-auto px-4"&gt; &lt;h2 class="text-4xl font-bold text-gray-800 mb-8"&gt;Contáctanos&lt;/h2&gt; &lt;form class="max-w-lg mx-auto grid gap-4"&gt; &lt;input type="text" placeholder="Nombre" required class="w-full p-4 border border-gray-300 rounded-lg"&gt; &lt;input type="email" placeholder="Email" required class="w-full p-4 border border-gray-300 rounded-lg"&gt; &lt;textarea placeholder="Mensaje" required class="w-full p-4 border border-gray-300 rounded-lg h-40"&gt;&lt;/textarea&gt; &lt;button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition"&gt;Enviar&lt;/button&gt; &lt;/form&gt; &lt;/div&gt; &lt;/section&gt; &lt;/main&gt;  ${renderScript($$result2, "/Users/Shared/Files From d.localized/D/ultima milla/2024/MKT 2024/umw141024/umw46-main/fumbling-field/src/pages/index.astro?astro&amp;type=script&amp;index=0&amp;lang.ts")}  ` })}`;</span>
+<span class="cstat-no" title="statement not covered" >}, "/Users/Shared/Files From d.localized/D/ultima milla/2024/MKT 2024/umw141024/umw46-main/fumbling-field/src/pages/index.astro", void 0);</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >const $$file = "/Users/Shared/Files From d.localized/D/ultima milla/2024/MKT 2024/umw141024/umw46-main/fumbling-field/src/pages/index.astro";</span>
+<span class="cstat-no" title="statement not covered" >const $$url = "";</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({</span>
+<span class="cstat-no" title="statement not covered" >  __proto__: null,</span>
+<span class="cstat-no" title="statement not covered" >  default: $$Index,</span>
+<span class="cstat-no" title="statement not covered" >  file: $$file,</span>
+<span class="cstat-no" title="statement not covered" >  url: $$url</span>
+<span class="cstat-no" title="statement not covered" >}, Symbol.toStringTag, { value: 'Module' }));</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >const page = () =&gt; _page;</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >export { page };</span>
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2025-06-05T15:55:08.151Z
+            </div>
+        <script src="../../../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../../../sorter.js"></script>
+        <script src="../../../../block-navigation.js"></script>
+    </body>
+</html>
+    

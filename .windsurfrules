@@ -1,0 +1,46 @@
+[W] WORKFLOW
+- Comando único para iniciar entorno local: `make dev` o `docker-compose up`.
+- Repositorio clonado debe ser ejecutable sin pasos manuales adicionales.
+- Scripts para: setup (`make setup`), test (`make test`), build (`make build`).
+
+[I] INFRAESTRUCTURA
+- `Dockerfile` multistage para producción y desarrollo.
+- `docker-compose.yml` define:
+  - directus
+  - astro
+  - base de datos (ej: postgres)
+  - volumenes persistentes
+  - puertos: 3000 (astro), 8055 (directus)
+- `.env` obligatorio con valores por defecto y override local.
+
+[N] NODE + ASTRO
+- Node >=18.
+- Estructura: `src/`, `public/`, `routes/`.
+- Astro con SSR deshabilitado por defecto.
+- Uso mínimo de dependencias.
+
+[D] DIRECTUS
+- Instancia contenida en Docker, persistente.
+- Bootstrap por script (`make seed-db`).
+- Sincronización de esquemas vía `directus schema snapshot`.
+- API REST usada por Astro con fetch o SDK.
+
+[S] SYNC GIT
+- Branch `main` estable, `dev` como staging.
+- PRs obligatorios con test que pasen.
+- Convención de commits: `feat:`, `fix:`, `test:`, `chore:`.
+
+[U] UNIT + E2E TESTING
+- Test unitarios con `vitest` en `tests/`.
+- E2E con `playwright` o `cypress`, mínimo 1 flujo crítico cubierto.
+- Test ejecutables en CI y local (`make test`).
+
+[R] RENDIMIENTO
+- Build Astro en `dist/`, sin errores ni warnings.
+- Producción via `docker-compose -f docker-compose.prod.yml up`.
+- Medición de tiempos: build total, cold start Astro, respuesta de Directus.
+
+[F] FOCO
+- Formato y lint automático (`prettier`, `eslint`).
+- Zero warning policy.
+- `.vscode/` con settings y extensions recomendadas.

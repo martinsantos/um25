@@ -1,0 +1,35 @@
+services:
+  database:
+    image: postgres:15-alpine
+    env_file: .env  # Cargar variables desde .env
+    networks:
+      - directus
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  directus:
+    container_name: directus
+    image: directus/directus:latest
+    env_file: .env  # Cargar TODAS las variables desde .env
+    ports:
+      - "8055:8055"
+    volumes:
+      - ./uploads:/directus/uploads
+      - ./extensions:/directus/extensions
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - directus
+    # ¡Elimina las variables duplicadas! El .env ya las define.
+
+volumes:
+  postgres_data:
+
+networks:
+  directus:

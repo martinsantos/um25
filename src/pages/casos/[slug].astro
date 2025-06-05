@@ -4,6 +4,8 @@ import { getCasoBySlug, getAllCasos, getCasosRelacionados } from '../../data/cas
 import type { GetStaticPaths } from 'astro';
 import OptimizedImage from '../../components/OptimizedImage.astro';
 
+export const prerender = true;
+
 export const getStaticPaths = (() => {
     const casos = getAllCasos();
     return casos.map(caso => ({

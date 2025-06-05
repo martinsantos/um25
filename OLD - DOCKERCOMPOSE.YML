@@ -1,0 +1,37 @@
+
+services:
+  astro-app:
+    container_name: astro-app-${NODE_ENV:-development}
+    build:
+      context: ./fumbling-field
+    working_dir: /app
+    ports:
+      - "4322:4322"
+    volumes:
+      - ./fumbling-field:/app
+      - astro_node_modules:/app/node_modules
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+
+  directus-app:
+    container_name: directus-app-${NODE_ENV:-development}
+    image: directus/directus:latest
+    ports:
+      - "8055:8055"
+    environment:
+      - SECRET=tu-secreto
+      - DB_CLIENT=sqlite3
+      - DB_FILENAME=/directus/database/database.sqlite
+      - ADMIN_EMAIL=admin@tudominio.com
+      - ADMIN_PASSWORD=ContraseñaMuySegura123
+    volumes:
+      #- ./fumbling-field/directus-admin:/directus
+      - directus_data:/directus/database
+      - directus_uploads:/directus/uploads
+    restart: unless-stopped
+
+volumes:
+  astro_node_modules:
+  directus_data:
+  directus_uploads:

@@ -11,6 +11,7 @@ const cache = new NodeCache({
 
 // Directorio para el caché de imágenes
 const CACHE_DIR = path.join(process.cwd(), 'public', 'cache');
+const DEFAULT_IMAGE = '/images/default.jpg';
 
 // Asegurar que el directorio de caché existe
 async function ensureCacheDir() {
@@ -54,9 +55,20 @@ export async function processAndCacheImage(
             // El archivo no existe, procesarlo
         }
 
-        // Procesar la imagen
+        // Intentar procesar la imagen original, si falla usar la imagen por defecto
         const absoluteImagePath = path.join(process.cwd(), 'public', imagePath);
-        let sharpInstance = sharp(absoluteImagePath).resize(width, height, {
+        let sourceImage: string;
+        
+        try {
+            await fs.access(absoluteImagePath);
+            sourceImage = absoluteImagePath;
+        } catch {
+            // Si la imagen original no existe, usar la imagen por defecto
+            sourceImage = path.join(process.cwd(), 'public', DEFAULT_IMAGE);
+            console.warn(`Imagen no encontrada: ${imagePath}, usando imagen por defecto`);
+        }
+
+        let sharpInstance = sharp(sourceImage).resize(width, height, {
             fit: 'cover',
             position: 'center'
         });

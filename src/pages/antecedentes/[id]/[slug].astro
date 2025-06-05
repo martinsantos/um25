@@ -1,481 +1,744 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
-import { Fragment } from 'astro/jsx-runtime'; // Fragment se usa implícitamente, no necesita importación explícita en el template.
 
 // --- Configuración ---
-const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-const DEFAULT_IMAGE_URL = `${DIRECTUS_URL}/assets/2a42dfbc-8d55-4fd7-baa0-c31223a3ace8`; // URL de imagen por defecto
+// Asegurar que la URL de Directus termine sin barra al final
+const DIRECTUS_URL = (import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055').replace(/\/$/, '');
+const DEFAULT_IMAGE_URL = `${DIRECTUS_URL}/assets/2a42dfbc-8d55-4fd7-baa0-c31223a3ace8`;
 const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN;
 
-// Asegúrate de que el token esté configurado
+console.log('DIRECTUS_URL configurado como:', DIRECTUS_URL);
+
+// Validar token
 if (!DIRECTUS_STATIC_TOKEN) {
-    console.error('[SLUG PAGE] FATAL ERROR: DIRECTUS_STATIC_TOKEN no está configurado en las variables de entorno.');
-    // En un entorno real, podrías lanzar un error o redirigir a una página de error más específica.
-    // Por ahora, para evitar que falle la build o el servidor si no hay token:
+    console.error('[SLUGCOPIA PAGE] FATAL ERROR: DIRECTUS_STATIC_TOKEN no está configurado.');
     throw new Error('DIRECTUS_STATIC_TOKEN no configurado. La página no puede obtener datos.');
-    // O si prefieres redirigir en runtime (si no es prerendered):
-    // return Astro.redirect('/error-configuracion');
 }
 
-// Modo Server-Side Rendering (SSR) habilitado
+// SSR habilitado
 export const prerender = false;
 
-// --- Parámetros y Validación Inicial ---
+// Parámetros de URL
 const { id, slug: slugFromUrl } = Astro.params;
-console.log(`[SLUG PAGE] Received Params -> ID: ${id}, SlugFromURL: ${slugFromUrl}`);
+console.log(`[SLUGCOPIA PAGE] Received Params -> ID: ${id}, SlugFromURL: ${slugFromUrl}`);
 
 if (!id || !slugFromUrl) {
-    console.error('[SLUG PAGE] Error: Falta ID o Slug en la URL. Redirigiendo a 404.');
+    console.error('[SLUGCOPIA PAGE] Error: Falta ID o Slug en la URL. Redirigiendo a 404.');
     return Astro.redirect('/404');
 }
 
 // --- Estado ---
-let antecedente = null; // Renombrado de 'servicio' a 'antecedente' para claridad
+let antecedente = null;
 let fetchError = null;
 
 // --- Funciones Auxiliares ---
-
-// Función para obtener la URL completa de un asset de Directus
 const getAssetUrl = (assetId) => {
-    if (!assetId) return DEFAULT_IMAGE_URL;
-    // Si ya es una URL completa (ej. externa), la devuelve tal cual
-    if (String(assetId).startsWith('http://') || String(assetId).startsWith('https://')) {
-        return assetId;
+    console.log('getAssetUrl recibió:', JSON.stringify(assetId));
+    
+    if (!assetId) {
+        console.log('assetId vacío, retornando DEFAULT_IMAGE_URL');
+        return DEFAULT_IMAGE_URL;
     }
-    // Construye la URL del asset de Directus
-    return `${DIRECTUS_URL}/assets/${assetId}`;
+    
+    // Si es un objeto con id (formato de Directus)
+    if (typeof assetId === 'object') {
+        // Explorar estructura de objeto completo
+        console.log('assetId es un objeto:', JSON.stringify(assetId));
+        
+        // Casos específicos de formatos de Directus
+        if (assetId.id) {
+            console.log('Usando assetId.id:', assetId.id);
+            return `${DIRECTUS_URL}/assets/${assetId.id}`;
+        }
+        if (assetId.directus_files_id) {
+            console.log('Usando assetId.directus_files_id:', assetId.directus_files_id);
+            return `${DIRECTUS_URL}/assets/${assetId.directus_files_id}`;
+        }
+        if (assetId.filename_disk) {
+            console.log('Usando assetId.filename_disk:', assetId.filename_disk);
+            return `${DIRECTUS_URL}/assets/${assetId.filename_disk}`;
+        }
+    }
+    
+    // Si es una URL completa
+    if (typeof assetId === 'string') {
+        console.log('assetId es string:', assetId);
+        if (assetId.startsWith('http://') || assetId.startsWith('https://')) {
+            return assetId;
+        }
+        // Es un ID directo
+        return `${DIRECTUS_URL}/assets/${assetId}`;
+    }
+    
+    console.log('Caso no identificado, retornando DEFAULT_IMAGE_URL');
+    return DEFAULT_IMAGE_URL;
 };
 
-// Función GENERATE SLUG (IMPORTANTE: Debe ser IDÉNTICA a la usada en la página de listado)
-// Si es posible, mueve esta función a un archivo de utilidades compartido (ej: src/utils/slug.js)
-// e impórtala aquí y en el listado para evitar duplicación y discrepancias.
 const generateSlug = (text = '') => {
     if (text === null || typeof text === 'undefined') {
-       console.warn('[generateSlug] Input is null/undefined, returning "item".');
-       return 'item'; // Devuelve un slug genérico o maneja como prefieras
+       return 'item';
     }
     const slug = String(text)
        .toLowerCase()
-       .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar acentos
-       .replace(/[^\w\s-]/g, '') // Quitar caracteres no alfanuméricos excepto espacios y guiones
-       .trim() // Quitar espacios al inicio/final
-       .replace(/\s+/g, '-') // Reemplazar espacios por guiones
-       .replace(/-+/g, '-') // Reemplazar múltiples guiones por uno solo
-       .replace(/^-+|-+$/g, '') // Quitar guiones al inicio/final
-       .slice(0, 50); // Limitar longitud (ajusta según necesidad)
-    return slug || 'item'; // Si el resultado es vacío, devuelve 'item'
+       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+       .replace(/[^\w\s-]/g, '')
+       .trim()
+       .replace(/\s+/g, '-')
+       .replace(/-+/g, '-')
+       .replace(/^-+|-+$/g, '')
+       .slice(0, 50);
+    return slug || 'item';
 };
 
-// Helper para Parsear Strings Separados por Comas (Más Robusto)
 function parseCommaSeparatedString(input) {
     if (typeof input !== 'string' || !input.trim()) {
-        return []; // Devuelve array vacío si no es un string válido o está vacío
+        return [];
     }
     try {
         return input.split(',')
-            .map(item => item.trim()) // Quita espacios extra
-            .filter(Boolean); // Filtra elementos vacíos resultantes (ej: "tag1,,tag2")
+            .map(item => item.trim())
+            .filter(Boolean);
     } catch (e) {
         console.error('[parseCommaSeparatedString] Error parsing string:', input, e);
-        return []; // Devuelve array vacío en caso de error inesperado
+        return [];
     }
 }
 
-// --- Fetch de Datos del Antecedente ---
+// --- Fetch de Datos ---
 async function fetchAntecedenteById(itemId) {
-    const collectionPath = '/items/Antecedentes'; // Asegúrate que 'Antecedentes' sea el nombre correcto de tu colección
-    const fields = '*.*'; // Trae todos los campos, incluyendo datos relacionados (ej: Imagenes)
-    const apiUrl = `${DIRECTUS_URL}${collectionPath}/${itemId}?fields=${fields}`;
-    console.log(`[SLUG PAGE] Fetching: ${apiUrl}`);
-
     try {
-        const response = await fetch(apiUrl, {
+        // Consulta extendida para obtener todos los campos posibles relacionados con imágenes
+        const response = await fetch(`${DIRECTUS_URL}/items/Antecedentes/${itemId}?fields=*,Imagen.*,ImagenPrincipal.*,Imagenes.*,Imagenes.directus_files_id`, {
             headers: {
                 'Authorization': `Bearer ${DIRECTUS_STATIC_TOKEN}`,
                 'Accept': 'application/json'
             }
         });
-
-        console.log(`[SLUG PAGE] API Status: ${response.status} ${response.statusText}`);
-
+        
         if (!response.ok) {
-            if (response.status === 404) {
-                console.warn(`[SLUG PAGE] API 404: Antecedente con ID ${itemId} no encontrado.`);
-                return { data: null, error: 'NOT_FOUND' }; // Error específico para 'no encontrado'
+            throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log(`[SLUGCOPIA PAGE] Datos obtenidos para ID ${itemId}:`, data);
+        return data?.data || null;
+    } catch (error) {
+        console.error(`[SLUGCOPIA PAGE] Error fetching item ${itemId}:`, error);
+        throw error;
+    }
+}
+
+// --- Obtención de datos y validación ---
+try {
+    antecedente = await fetchAntecedenteById(id);
+    
+    if (!antecedente) {
+        console.error(`[SLUGCOPIA PAGE] No se encontró antecedente con ID ${id}`);
+        return Astro.redirect('/404');
+    }
+
+    // Validar slug
+    const expectedSlug = generateSlug(antecedente.Titulo);
+    if (expectedSlug !== slugFromUrl) {
+        console.log(`[SLUGCOPIA PAGE] Slug incorrecto. Esperado: ${expectedSlug}, Recibido: ${slugFromUrl}`);
+        return Astro.redirect(`/antecedentes/${id}/${expectedSlug}`);
+    }
+
+} catch (error) {
+    console.error('[SLUGCOPIA PAGE] Error al obtener datos:', error);
+    fetchError = error;
+}
+
+// --- Preparación de datos para la UI ---
+const pageTitle = antecedente?.Titulo 
+    ? `${antecedente.Titulo} | Antecedentes` 
+    : 'Detalle de Antecedente';
+
+// Parámetros URL y tema
+const url = new URL(Astro.request.url);
+const isDarkTheme = url.searchParams.get('theme') === 'dark';
+
+// Función unificada para procesar todas las posibles fuentes de imágenes
+const procesarImagenes = (antecedente) => {
+    console.log('Procesando imágenes para antecedente:', antecedente?.id);
+    
+    // Resultado final: arrays de imágenes validadas
+    let todasLasImagenes = [];
+    let galeria = [];
+    let imagenesPrincipales = [];
+    
+    if (!antecedente) return { todasLasImagenes, galeria, imagenesPrincipales };
+    
+    // Función para validar si un objeto es una imagen válida
+    const esImagenValida = (img) => {
+        if (!img) return false;
+        
+        // Si es un string directo, probablemente es un ID o URL
+        if (typeof img === 'string' && img.trim() !== '') return true;
+        
+        // Si es objeto con propiedades típicas de Directus
+        if (typeof img === 'object') {
+            return img.id || img.directus_files_id || img.filename_disk;
+        }
+        
+        return false;
+    };
+    
+    // 1. Buscar imágenes principales (para Hero)
+    const camposImagenPrincipal = ['ImagenPrincipal', 'Imagen', 'id_imagen', 'imagen_principal'];
+    
+    for (const campo of camposImagenPrincipal) {
+        if (antecedente[campo] && esImagenValida(antecedente[campo])) {
+            console.log(`Imagen principal encontrada en campo ${campo}:`, antecedente[campo]);
+            imagenesPrincipales.push(antecedente[campo]);
+        }
+    }
+    
+    // 2. Procesar galería (campo Imagenes)
+    if (antecedente.Imagenes) {
+        // Si es array
+        if (Array.isArray(antecedente.Imagenes)) {
+            galeria = antecedente.Imagenes.filter(esImagenValida);
+            console.log(`${galeria.length} imágenes válidas de ${antecedente.Imagenes.length} en array Imagenes`);
+        } 
+        // Si es objeto único
+        else if (typeof antecedente.Imagenes === 'object' && esImagenValida(antecedente.Imagenes)) {
+            galeria = [antecedente.Imagenes];
+            console.log('Objeto único de imagen añadido a galeria');
+        } 
+        // Si es objeto con estructura de colección
+        else if (typeof antecedente.Imagenes === 'object') {
+            const valoresImagen = Object.values(antecedente.Imagenes);
+            const imagenesValidas = valoresImagen.filter(esImagenValida);
+            if (imagenesValidas.length > 0) {
+                galeria = imagenesValidas;
+                console.log(`${galeria.length} imágenes válidas extraídas de objeto Imagenes`);
             }
-            // Intenta obtener más detalles del error si es posible
-            const errorBody = await response.text();
-            console.error(`[SLUG PAGE] API Error (${response.status}):`, errorBody);
-            throw new Error(`Error en la API: ${response.status} ${response.statusText}`);
         }
-
-        const responseData = await response.json();
-
-        if (!responseData?.data) {
-            console.warn(`[SLUG PAGE] Respuesta de API OK, pero no contiene 'data' para ID ${itemId}. Respuesta:`, JSON.stringify(responseData));
-            return { data: null, error: 'NO_DATA_IN_RESPONSE' };
-        }
-
-        console.log(`[SLUG PAGE] Datos recibidos OK. Título: "${responseData.data?.Titulo}"`);
-        // Log para ver todas las claves recibidas (útil para debug)
-        // console.log(`[SLUG PAGE] Claves recibidas: ${Object.keys(responseData.data).join(', ')}`);
-
-        // Validación crítica: El título es necesario para generar el slug esperado
-        if (typeof responseData.data.Titulo !== 'string' || !responseData.data.Titulo.trim()) {
-           console.error("[SLUG PAGE] FATAL: El campo 'Titulo' está ausente o vacío en los datos recibidos.");
-           return { data: null, error: "MISSING_OR_EMPTY_TITLE" };
-        }
-
-        return { data: responseData.data, error: null }; // Éxito
-
-    } catch (e) {
-        console.error('[SLUG PAGE] Excepción durante el fetch:', e);
-        // Devuelve un error genérico o el mensaje de la excepción
-        return { data: null, error: e.message || 'FETCH_EXCEPTION' };
     }
-}
-
-// --- Ejecución del Fetch y Validación del Slug ---
-console.log('[SLUG PAGE] Iniciando fetch y validación...');
-const result = await fetchAntecedenteById(id);
-antecedente = result.data;
-fetchError = result.error;
-
-// Manejo de errores del fetch
-if (fetchError) {
-    console.error(`[SLUG PAGE] Error al obtener datos: "${fetchError}". Redirigiendo a 404.`);
-    // Podrías redirigir a páginas de error específicas si quisieras (ej /500 si no es 404)
-    return Astro.redirect('/404');
-}
-
-// Si el fetch fue exitoso pero no se encontró el item (404) o no vino data
-if (!antecedente) {
-    console.warn(`[SLUG PAGE] Antecedente con ID ${id} no encontrado o datos inválidos. Redirigiendo a 404.`);
-    return Astro.redirect('/404');
-}
-
-// Validación del Slug: Compara el slug de la URL con el generado a partir del título obtenido
-const tituloRealDelAntecedente = antecedente.Titulo; // Sabemos que existe y es string por validación previa
-const expectedSlug = generateSlug(tituloRealDelAntecedente);
-
-console.log(`[SLUG PAGE] Comparando Slugs: URL="${slugFromUrl}", Esperado="${expectedSlug}" (Generado de título: "${tituloRealDelAntecedente}")`);
-
-if (slugFromUrl !== expectedSlug) {
-    console.warn(`[SLUG PAGE] DISCREPANCIA DE SLUG! URL="${slugFromUrl}", Esperado="${expectedSlug}". Redirigiendo a 404.`);
-    // Esta redirección previene contenido duplicado si el slug cambia o si se accede con un slug incorrecto
-    return Astro.redirect('/404');
-    // Alternativa: Redirigir al slug correcto (301 Permanent Redirect)
-    // return Astro.redirect(`/antecedentes/${id}/${expectedSlug}`, 301);
-}
-
-console.log('[SLUG PAGE] Slug OK. Preparando datos para renderizar...');
-
-// --- Preparación de Datos para el Template (Defensivo) ---
-
-// Tecnologías: Asegura que siempre sea un array.
-const tecnologias = parseCommaSeparatedString(antecedente?.Tecnologias);
-console.log(`[SLUG PAGE] Tecnologías procesadas (array):`, tecnologias);
-
-// Tags: Asegura que siempre sea un array.
-const tags = parseCommaSeparatedString(antecedente?.tags); // Asume que el campo se llama 'tags'
-console.log(`[SLUG PAGE] Tags procesados (array):`, tags);
-
-// Imagenes de la Galería: Asegura que sea un array de IDs válidos.
-// Asume que el campo en Directus es un File Library (o similar) llamado 'Imagenes' que devuelve un array de IDs o objetos.
-let imagenesGaleria = [];
-if (Array.isArray(antecedente?.Imagenes)) {
-    // Si 'Imagenes' es un array de IDs (strings/numbers)
-    imagenesGaleria = antecedente.Imagenes.filter(imgId => imgId != null);
-
-    // Si 'Imagenes' es un array de objetos (ej: { directus_files_id: '...' }), necesitas mapear para obtener el ID:
-    // imagenesGaleria = antecedente.Imagenes
-    //    .map(imgObj => imgObj?.directus_files_id) // Ajusta 'directus_files_id' si la clave es otra
-    //    .filter(imgId => imgId != null);
-
-    console.log(`[SLUG PAGE] Imágenes de galería procesadas (IDs):`, imagenesGaleria);
-} else if (antecedente?.Imagenes) {
-    // Si 'Imagenes' no es un array pero existe, loguea una advertencia.
-    console.warn(`[SLUG PAGE] El campo 'Imagenes' existe pero no es un array. Valor:`, antecedente.Imagenes);
-} else {
-    console.log(`[SLUG PAGE] No hay campo 'Imagenes' o está vacío.`);
-}
-
-// --- Campos Ficha Técnica (Asegúrate que 'key' coincida EXACTAMENTE con el nombre del campo en Directus) ---
-const fichaTecnicaFields = [
-    // Iconos de Heroicons v2 (Outline) - Asegúrate de tenerlos disponibles o usa los que prefieras
-    { key: 'Fecha', label: 'Fecha', icon: 'M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5' },
-    { key: 'Cliente', label: 'Cliente', icon: 'M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z' },
-    { key: 'Area', label: 'Área', icon: 'M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6.375M9 12h6.375M9 17.25h6.375' },
-    { key: 'Unidad_de_negocio', label: 'U. Negocio', icon: 'M2.25 21h19.5m-18-18h16.5a1.5 1.5 0 0 1 1.5 1.5v15a1.5 1.5 0 0 1-1.5 1.5H3.75a1.5 1.5 0 0 1-1.5-1.5v-15a1.5 1.5 0 0 1 1.5-1.5Zm1.5 4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 3.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 3.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z' },
-    { key: 'Estado', label: 'Estado', icon: 'M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1-18 0Z' }
-];
-
-// --- Helper para Formatear Valores de la Ficha Técnica ---
-function formatFichaValue(key, value) {
-    // Si el valor es nulo, indefinido o un string vacío, no mostrar nada
-    if (value === null || value === undefined || value === '') return null;
-
-    // Formateo específico por clave
-    if (key === 'Fecha') {
-        try {
-            const date = new Date(value);
-            // Verifica si la fecha es válida
-            if (isNaN(date.getTime())) {
-                console.warn(`[formatFichaValue] Valor de fecha inválido: ${value}`);
-                return String(value); // Devuelve el valor original si no se puede parsear
+    
+    // 3. Buscar imágenes en propiedades anidadas
+    if (galeria.length === 0 && imagenesPrincipales.length === 0) {
+        console.log('Buscando imágenes en estructura anidada...');
+        
+        const buscarImagenesEnObjeto = (obj, profundidad = 0) => {
+            if (!obj || typeof obj !== 'object' || profundidad > 3) return [];
+            
+            let resultados = [];
+            
+            for (const key in obj) {
+                // Buscar campos que parezcan imágenes
+                if ((key.toLowerCase().includes('imag') || 
+                     key.toLowerCase().includes('foto') || 
+                     key.toLowerCase().includes('file') ||
+                     key.toLowerCase().includes('thumb')) && 
+                    esImagenValida(obj[key])) {
+                    resultados.push(obj[key]);
+                }
+                
+                // Búsqueda recursiva
+                if (typeof obj[key] === 'object' && obj[key] !== null) {
+                    resultados = [...resultados, ...buscarImagenesEnObjeto(obj[key], profundidad + 1)];
+                }
             }
-            // Formato de fecha localizado (ej: "1 de abril de 2025")
-            return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
-        } catch (e) {
-            console.error(`[formatFichaValue] Error formateando fecha: ${value}`, e);
-            return String(value); // Devuelve el original en caso de error
+            
+            return resultados;
+        };
+        
+        const imagenesEncontradas = buscarImagenesEnObjeto(antecedente);
+        if (imagenesEncontradas.length > 0) {
+            console.log(`Encontradas ${imagenesEncontradas.length} imágenes en estructura anidada`);
+            galeria = [...galeria, ...imagenesEncontradas];
         }
     }
+    
+    // Combinar todas las imágenes encontradas (sin duplicados)
+    todasLasImagenes = [...new Set([...galeria, ...imagenesPrincipales])]
+        .filter(Boolean)
+        .filter(esImagenValida);
+    
+    console.log('Total final de imágenes encontradas:', todasLasImagenes.length);
+    return { todasLasImagenes, galeria, imagenesPrincipales };
+};
 
-    if (key === 'Estado') {
-        const lowerCaseValue = String(value).toLowerCase();
-        let statusClass = 'bg-gray-100 text-gray-700 ring-gray-500/10'; // Default
-        if (lowerCaseValue.includes('completado') || lowerCaseValue.includes('finalizado')) {
-            statusClass = 'bg-green-100 text-green-800 ring-green-600/20'; // Verde para completado
-        } else if (lowerCaseValue.includes('proceso') || lowerCaseValue.includes('desarrollo')) {
-            statusClass = 'bg-yellow-100 text-yellow-800 ring-yellow-600/20'; // Amarillo para en proceso
-        } else if (lowerCaseValue.includes('pendiente') || lowerCaseValue.includes('pausado')) {
-            statusClass = 'bg-orange-100 text-orange-800 ring-orange-600/20'; // Naranja para pendiente/pausado
-        } else if (lowerCaseValue.includes('cancelado')) {
-             statusClass = 'bg-red-100 text-red-800 ring-red-600/20'; // Rojo para cancelado
-        }
-        // Devuelve un objeto con el HTML del badge para ser usado con set:html
-        // ¡Importante! Asegúrate de que el valor de 'value' viene de una fuente confiable (Directus)
-        // y no contiene scripts maliciosos si usas set:html. En este caso, es solo para el texto del estado.
-        return { html: `<span class="inline-block px-2.5 py-0.5 rounded-full text-sm font-medium ring-1 ring-inset ${statusClass}">${value}</span>` };
-    }
+// Procesar todas las imágenes del antecedente
+const { todasLasImagenes, galeria, imagenesPrincipales } = procesarImagenes(antecedente);
+const imagenesGaleria = galeria.length > 0 ? galeria : todasLasImagenes;
 
-    // Para cualquier otro campo, devuelve el valor como string
-    return String(value);
+// Si tenemos imágenes principales pero no en galería, usar las principales también en galería
+if (imagenesGaleria.length === 0 && imagenesPrincipales.length > 0) {
+    imagenesGaleria.push(...imagenesPrincipales);
 }
 
-// --- Preparación final para el Template ---
-const pageTitle = antecedente?.Titulo ? `Caso de Estudio: ${antecedente.Titulo}` : 'Detalle del Antecedente';
+// Inspeccionar estructura completa del antecedente
+console.log('ESTRUCTURA DEL ANTECEDENTE:', JSON.stringify(antecedente));
 
-// Ajusta la lógica para manejar el campo 'Imagen' correctamente
-const heroImage = antecedente?.Imagen
-    ? getAssetUrl(antecedente.Imagen.id || antecedente.Imagen) // Si 'Imagen' es un objeto, usa su propiedad 'id'
-    : DEFAULT_IMAGE_URL;
+// Obtener imagen de antecedente (podría tener un campo específico para imagen principal)
+let heroImageUrl = DEFAULT_IMAGE_URL;
 
-// Log para depurar el valor de heroImage
-console.log(`[SLUG PAGE] Hero Image URL: ${heroImage}`);
+// Intentar obtener imagen en diferentes formatos posibles
+let imagenEncontrada = false;
 
+// Opción 1: Usar ImagenPrincipal si existe
+if (antecedente?.ImagenPrincipal) {
+    console.log('Usando ImagenPrincipal:', JSON.stringify(antecedente.ImagenPrincipal));
+    heroImageUrl = getAssetUrl(antecedente.ImagenPrincipal);
+    imagenEncontrada = true;
+}
+
+// Opción 2: Usar campo Imagen si existe
+if (!imagenEncontrada && antecedente?.Imagen) {
+    console.log('Usando campo Imagen:', JSON.stringify(antecedente.Imagen));
+    heroImageUrl = getAssetUrl(antecedente.Imagen);
+    imagenEncontrada = true;
+}
+
+// Opción 3: Intentar primera imagen de galería
+if (!imagenEncontrada && imagenesGaleria.length > 0) {
+    const primeraImagen = imagenesGaleria[0];
+    console.log('Usando primera imagen de galería:', JSON.stringify(primeraImagen));
+    heroImageUrl = getAssetUrl(primeraImagen);
+    imagenEncontrada = true;
+}
+
+// Opción 4: Comprobar si hay un campo id_imagen
+if (!imagenEncontrada && antecedente?.id_imagen) {
+    console.log('Usando id_imagen:', antecedente.id_imagen);
+    heroImageUrl = `${DIRECTUS_URL}/assets/${antecedente.id_imagen}`;
+    imagenEncontrada = true;
+}
+
+// Verificar si realmente tenemos una URL válida después de todos los intentos
+if (!imagenEncontrada || heroImageUrl === DEFAULT_IMAGE_URL) {
+    // Buscar directamente en la estructura de datos cualquier ID de imagen
+    console.log('No se encontró imagen en las rutas habituales, buscando en cualquier propiedad...');
+    
+    // Intentar encontrar cualquier propiedad que parezca un ID de imagen
+    const buscarIDImagenEnObjeto = (obj) => {
+        if (!obj || typeof obj !== 'object') return null;
+        
+        // Buscar propiedades que parezcan IDs de imagen
+        for (const key in obj) {
+            // Si el campo contiene "imagen" o "file" en su nombre
+            if (key.toLowerCase().includes('imagen') || key.toLowerCase().includes('file') || 
+                key.toLowerCase().includes('img') || key.toLowerCase().includes('photo')) {
+                console.log(`Encontrada posible propiedad de imagen: ${key}:`, obj[key]);
+                return obj[key];
+            }
+            
+            // Si es un objeto anidado, buscar recursivamente
+            if (typeof obj[key] === 'object' && obj[key] !== null) {
+                const resultado = buscarIDImagenEnObjeto(obj[key]);
+                if (resultado) return resultado;
+            }
+        }
+        return null;
+    };
+    
+    const posibleImagen = buscarIDImagenEnObjeto(antecedente);
+    if (posibleImagen) {
+        console.log('Se encontró posible imagen:', posibleImagen);
+        heroImageUrl = getAssetUrl(posibleImagen);
+    }
+}
+
+console.log('URL final de hero image:', heroImageUrl);
 ---
 
 <Layout title={pageTitle}>
-  <main class="relative min-h-screen bg-white">
-    {/* Hero Section */}
-    <div class="relative h-[60vh] min-h-[450px] max-h-[600px] overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-transparent z-10"></div>
-      <img 
-        src={heroImage} // Asegura que se use la imagen correcta
-        alt={antecedente?.Titulo || 'Imagen del proyecto'}
-        class="absolute w-full h-full object-cover object-center scale-105 animate-subtle-zoom"
-        loading="eager"
-        onerror={`this.onerror=null; this.src='${DEFAULT_IMAGE_URL}';`} // Fallback a la imagen por defecto si ocurre un error
-      />
-      <div class="absolute inset-0 z-20">
-        <div class="container h-full flex items-end pb-20">
-          <div class="max-w-3xl">
-            <div class="space-y-6">
-              <span class="inline-flex items-center px-4 py-1.5 rounded-full text-base font-medium bg-blue-600 text-white">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                </svg>
-                Caso de Estudio
-              </span>
-              <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
-                {antecedente?.Titulo}
-              </h1>
-              {antecedente?.Cliente && (
-                <div class="flex items-center bg-white/90 backdrop-blur-sm rounded-full px-5 py-2.5 w-fit">
-                  <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                  </svg>
-                  <span class="text-lg font-medium text-gray-800">{antecedente.Cliente}</span>
-                </div>
-              )}
+  <!-- Tema oscuro moderno -->
+  <main class="relative min-h-screen bg-gradient-to-b from-[#0a0d17] via-[#111827] to-[#1e293b] text-white">
+    <!-- Debug info - solo visible en desarrollo-->
+    <div class="fixed top-0 left-0 bg-black/80 text-white text-xs p-1 z-50">
+      Image URL: {heroImageUrl}
+    </div>
+
+    <!-- Fondo de imagen del hero -->
+    <div class="absolute inset-0 h-full overflow-hidden">
+      {heroImageUrl && heroImageUrl !== DEFAULT_IMAGE_URL ? (
+        <>
+          <img 
+            src={heroImageUrl} 
+            alt="Imagen de fondo" 
+            class="w-full h-full object-cover object-center opacity-90 blur-none"
+            style="filter: contrast(1.1) brightness(0.9); transform: scale(1.02);"
+            onload="console.log('Imagen cargada correctamente:', this.src)"
+            onerror="this.style.display='none'; this.parentElement.classList.add('image-error'); console.error('Error al cargar imagen:', this.src);"
+          />
+          <script>
+            console.log('Intentando cargar imagen de fondo:', '{heroImageUrl}');
+          </script>
+        </>
+      ) : (
+        <div class="w-full h-full flex items-center justify-center text-white opacity-20">
+          <p>Imagen no disponible</p>
+        </div>
+      )}
+      
+      <!-- Overlay de degradado sobre la imagen (más transparente) -->
+      <div class="absolute inset-0 bg-gradient-to-b from-[#0a0d17]/30 via-[#111827]/40 to-[#1e293b]/50 pointer-events-none"></div>
+    </div>
+    
+    <!-- Elementos decorativos del fondo -->
+    <div class="absolute top-0 left-0 right-0 h-96 bg-gradient-to-br from-blue-600/10 to-purple-600/5 blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-0 right-0 left-0 h-96 bg-gradient-to-tr from-indigo-600/10 to-teal-600/5 blur-3xl pointer-events-none"></div>
+    <div class="absolute top-1/3 left-1/4 w-96 h-96 rounded-full bg-blue-700/10 blur-3xl pointer-events-none"></div>
+    <div class="absolute top-2/3 right-1/4 w-96 h-96 rounded-full bg-purple-700/10 blur-3xl pointer-events-none"></div>
+    
+    <div class="container mx-auto px-4 py-12 relative z-10">
+      <!-- Hero Section con título principal -->
+      <div class="relative mb-12">
+        <div class="max-w-4xl mx-auto text-center backdrop-blur-sm py-8">
+          <div class="inline-flex items-center px-4 py-2 bg-blue-900/40 text-blue-200 text-sm font-medium rounded-full mb-6 border border-blue-800/50 backdrop-blur-sm shadow-lg">
+            <span class="mr-2">✦</span>
+            Caso de Estudio
+            <span class="ml-2">✦</span>
+          </div>
+          <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-100 to-indigo-200 leading-tight">
+            {antecedente?.Titulo || 'Proyecto Destacado'}
+          </h1>
+          <p class="text-xl text-blue-100/80 max-w-2xl mx-auto">
+            {antecedente?.Cliente || 'Cliente'}
+          </p>
+        </div>
+      </div>
+
+      <!-- Tarjetas de métricas -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <!-- Calificación -->
+        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
+          <div class="bg-yellow-500/10 p-3 rounded-full mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+              <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="text-center">
+            <h3 class="text-3xl font-bold text-white mb-1">4.9/5</h3>
+            <p class="text-blue-300/70 text-sm">Calificación</p>
+          </div>
+        </div>
+        
+        <!-- Duración -->
+        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
+          <div class="bg-blue-500/10 p-3 rounded-full mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="text-center">
+            <h3 class="text-3xl font-bold text-white mb-1">{antecedente?.Fecha ? '3 meses' : '3 meses'}</h3>
+            <p class="text-blue-300/70 text-sm">Duración</p>
+          </div>
+        </div>
+        
+        <!-- ROI -->
+        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
+          <div class="bg-green-500/10 p-3 rounded-full mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+          </div>
+          <div class="text-center">
+            <h3 class="text-3xl font-bold text-white mb-1">+340%</h3>
+            <p class="text-blue-300/70 text-sm">ROI</p>
+          </div>
+        </div>
+        
+        <!-- Performance -->
+        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
+          <div class="bg-purple-500/10 p-3 rounded-full mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div class="text-center">
+            <h3 class="text-3xl font-bold text-white mb-1">98%</h3>
+            <p class="text-blue-300/70 text-sm">Performance</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Contenido principal y panel lateral -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Columna principal - Descripción -->
+        <div class="lg:col-span-2">
+          <div class="flex items-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <h2 class="text-2xl font-bold text-white">Descripción del Proyecto</h2>
+          </div>
+          
+          <div class="bg-[#131b2e] rounded-xl p-6 sm:p-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm">
+            <p class="text-blue-100/90 leading-relaxed mb-6">
+              {antecedente?.Descripcion || 'Desarrollo completo de plataforma e-commerce con integración de pagos, gestión de inventario y panel administrativo avanzado. Incluye diseño responsive, optimización SEO y sistema de analytics en tiempo real.'}
+            </p>
+            
+            <!-- Características Principales -->
+            <div class="bg-indigo-950/50 rounded-lg p-6 mb-6 border border-indigo-900/30">
+              <h3 class="text-xl font-semibold text-blue-200 mb-4">Características Principales:</h3>
+              <ul class="space-y-3">
+                <li class="flex items-start">
+                  <span class="inline-block mr-3 text-purple-400">•</span>
+                  <span class="text-blue-100/80">Diseño responsive y moderno</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="inline-block mr-3 text-purple-400">•</span>
+                  <span class="text-blue-100/80">Integración de pagos segura</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="inline-block mr-3 text-purple-400">•</span>
+                  <span class="text-blue-100/80">Panel administrativo completo</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="inline-block mr-3 text-purple-400">•</span>
+                  <span class="text-blue-100/80">Analytics en tiempo real</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Panel lateral - Detalles y Progreso -->
+        <div class="lg:col-span-1">
+          <!-- Detalles del Proyecto -->
+          <div class="bg-[#131b2e] rounded-xl p-6 shadow-xl border border-indigo-900/20 backdrop-blur-sm mb-6">
+            <h2 class="text-xl font-bold text-white mb-4">Detalles del Proyecto</h2>
+            
+            <div class="space-y-4">
+              <!-- ID -->
+              <div class="flex justify-between items-center border-b border-blue-900/30 pb-3">
+                <span class="text-blue-300/70 text-sm">ID:</span>
+                <span class="font-mono text-white">{antecedente?.id ? `PRJ-2024-${String(antecedente.id).padStart(3, '0')}` : 'PRJ-2024-001'}</span>
+              </div>
+              
+              <!-- Creado por -->
+              <div class="flex justify-between items-center border-b border-blue-900/30 pb-3">
+                <span class="text-blue-300/70 text-sm">Creado por:</span>
+                <span class="text-white">{antecedente?.user_created ? `${antecedente.user_created}` : 'María González'}</span>
+              </div>
+              
+              <!-- Unidad -->
+              <div class="flex justify-between items-center border-b border-blue-900/30 pb-3">
+                <span class="text-blue-300/70 text-sm">Unidad:</span>
+                <span class="text-white">{antecedente?.Unidad_de_negocio || 'Digital Solutions'}</span>
+              </div>
+              
+              <!-- Fecha creación -->
+              <div class="flex justify-between items-center">
+                <span class="text-blue-300/70 text-sm">Fecha creación:</span>
+                <span class="text-white">{antecedente?.date_created ? new Date(antecedente.date_created).toLocaleDateString() : '14/1/2024'}</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Progreso del Proyecto -->
+          <div class="bg-[#131b2e] rounded-xl p-6 shadow-xl border border-indigo-900/20 backdrop-blur-sm">
+            <h2 class="text-xl font-bold text-white mb-4">Progreso del Proyecto</h2>
+            
+            <div class="mb-3">
+              <div class="flex justify-between mb-1">
+                <span class="text-blue-300/70 text-sm">Completado</span>
+                <span class="text-white text-sm font-semibold">100%</span>
+              </div>
+              <div class="w-full bg-blue-900/30 rounded-full h-2">
+                <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full w-full"></div>
+              </div>
+            </div>
+            
+            <div class="flex items-center text-green-400 mt-6">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+              <span>Proyecto finalizado</span>
+              <span class="ml-auto text-yellow-400">★</span>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    {/* Contenido Principal */}
-    <div class="container relative z-10 -mt-20 pb-20">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Sidebar */}
-        <aside class="lg:col-span-3 lg:order-2 space-y-6">
-          <div class="sticky top-8">
-            {/* Ficha Técnica */}
-            <section class="bg-white rounded-2xl p-6 text-gray-800 shadow-xl border border-gray-200">
-              <h2 class="text-xl font-bold mb-6 pb-4 border-b border-gray-200">Detalles del Proyecto</h2>
-              <dl class="space-y-4">
-                {fichaTecnicaFields.map(({ key, label, icon }) => {
-                                const value = antecedente?.[key];
-                                const formattedValue = formatFichaValue(key, value);
-
-                                // No renderizar si el valor es nulo o vacío después de formatear
-                                if (formattedValue === null) return null;
-
-                                return (
-                                    <div class="flex items-start gap-x-3" key={key}>
-                                        <dt class="flex-shrink-0 text-gray-500 pt-0.5"> {/* Icono */}
-                                            <svg class="w-5 h-5" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d={icon} />
-                                            </svg>
-                                            <span class="sr-only">{label}</span> {/* Accesibilidad */}
-                                        </dt>
-                                        <dd class="flex-1 text-gray-800"> {/* Valor */}
-                                            {typeof formattedValue === 'object' && formattedValue.html ? (
-                                                // Si es HTML (ej: badge de estado), usar set:html
-                                                <div set:html={formattedValue.html}></div>
-                                            ) : (
-                                                // Si es texto plano
-                                                <span class="text-base">{formattedValue}</span>
-                                            )}
-                                        </dd>
-                                    </div>
-                                );
-                            }).filter(Boolean)} {/* Filtra los elementos nulos */}
-              </dl>
-            </section>
-
-            {/* Tags y Tecnologías */}
-            {(tecnologias.length > 0 || tags.length > 0) && (
-              <section class="mt-6 bg-white rounded-2xl p-6 text-gray-800 shadow-xl border border-gray-200">
-                {tecnologias.length > 0 && (
-                  <div class="mb-6">
-                    <h3 class="text-lg font-semibold mb-4">Tecnologías</h3>
-                    <div class="flex flex-wrap gap-2">
-                      {tecnologias.map(tech => (
-                        <span class="px-3 py-1 rounded-full text-base font-medium bg-blue-50 text-blue-700">
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+      <!-- Tarjetas de métricas -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <!-- Calificación -->
+        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
+          <div class="bg-yellow-500/10 p-3 rounded-full mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+              <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="text-center">
+            <h3 class="text-3xl font-bold text-white mb-1">4.9/5</h3>
+            <p class="text-blue-300/70 text-sm">Calificación</p>
+          </div>
+        </div>
+        
+        <!-- Duración -->
+        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
+          <div class="bg-blue-500/10 p-3 rounded-full mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="text-center">
+            <h3 class="text-3xl font-bold text-white mb-1">{antecedente?.Fecha ? '3 meses' : '3 meses'}</h3>
+            <p class="text-blue-300/70 text-sm">Duración</p>
+          </div>
+        </div>
+        
+        <!-- ROI -->
+        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
+          <div class="bg-green-500/10 p-3 rounded-full mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+          </div>
+          <div class="text-center">
+            <h3 class="text-3xl font-bold text-white mb-1">+340%</h3>
+            <p class="text-blue-300/70 text-sm">ROI</p>
+          </div>
+        </div>
+        
+        <!-- Performance -->
+        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
+          <div class="bg-purple-500/10 p-3 rounded-full mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div class="text-center">
+            <h3 class="text-3xl font-bold text-white mb-1">98%</h3>
+            <p class="text-blue-300/70 text-sm">Performance</p>
+          </div>
+        </div>
+</div>
+      </div>
+      
+      <!-- Galería de Imágenes del Proyecto -->
+      <div class="mt-16 mb-16">
+        <div class="flex items-center mb-6">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <h2 class="text-2xl font-bold text-white">Galería del Proyecto</h2>
+        </div>
+        
+        <div class="bg-[#131b2e]/70 rounded-xl p-6 border border-indigo-900/20 backdrop-blur-lg relative">
+          <!-- Elementos decorativos de la galería -->
+          <div class="absolute -bottom-4 -right-4 w-24 h-24 rounded-full bg-blue-600/10 blur-2xl pointer-events-none"></div>
+          <div class="absolute -top-4 -left-4 w-32 h-32 rounded-full bg-purple-600/10 blur-2xl pointer-events-none"></div>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
+            {/* Lo primero que hacemos es contar cuántas imágenes REALES tenemos para mostrar */}
+            {(() => {
+              // URLs reales de imágenes (sin incluir placeholders)
+              const imagenesReales = imagenesGaleria
+                .map(img => getAssetUrl(img))
+                .filter(url => url && url !== DEFAULT_IMAGE_URL);
                 
-                {tags.length > 0 && (
-                  <div>
-                    <h3 class="text-lg font-semibold mb-4">Etiquetas</h3>
-                    <div class="flex flex-wrap gap-2">
-                      {tags.map(tag => (
-                        <span class="px-3 py-1 rounded-full text-base font-medium bg-gray-50 text-gray-600">
-                          #{tag}
-                        </span>
-                      ))}
+              // Si tenemos la imagen hero pero no está en la galería, la agregamos
+              const heroEsReal = heroImageUrl && heroImageUrl !== DEFAULT_IMAGE_URL;
+              if (heroEsReal && !imagenesReales.includes(heroImageUrl)) {
+                imagenesReales.push(heroImageUrl);
+              }
+              
+              console.log(`Imágenes reales disponibles: ${imagenesReales.length}`);
+              
+              // CASO 1: Tenemos imágenes para mostrar
+              if (imagenesReales.length > 0) {
+                return (
+                  <>
+                    {imagenesGaleria.map((imagen, index) => {
+                      const imageUrl = getAssetUrl(imagen);
+                      if (imageUrl === DEFAULT_IMAGE_URL) return null;
+                      
+                      return (
+                        <a 
+                          key={`gallery-img-${index}`}
+                          href={imageUrl} 
+                          data-fslightbox="gallery"
+                          class="block overflow-hidden rounded-lg aspect-video bg-gray-900 border border-indigo-900/30 transition-transform hover:scale-[1.02] shadow-lg hover:shadow-indigo-500/10"
+                        >
+                          <img 
+                            src={imageUrl} 
+                            alt={`${antecedente?.Titulo || "Proyecto"} - Imagen ${index + 1}`}
+                            class="w-full h-full object-cover opacity-95 hover:opacity-100 transition-all"
+                            loading="lazy"
+                          />
+                        </a>
+                      );
+                    }).filter(Boolean)}
+                    
+                    {/* Si la imagen hero es real y no está ya incluida en la galería, mostrarla también */}
+                    {heroEsReal && imagenesGaleria.every(img => getAssetUrl(img) !== heroImageUrl) && (
+                      <a 
+                        key="gallery-hero-img"
+                        href={heroImageUrl} 
+                        data-fslightbox="gallery"
+                        class="block overflow-hidden rounded-lg aspect-video bg-gray-900 border border-indigo-900/30 transition-transform hover:scale-[1.02] shadow-lg hover:shadow-indigo-500/10"
+                      >
+                        <img 
+                          src={heroImageUrl} 
+                          alt={`${antecedente?.Titulo || "Proyecto"} - Imagen principal`}
+                          class="w-full h-full object-cover opacity-95 hover:opacity-100 transition-all"
+                          loading="lazy"
+                        />
+                      </a>
+                    )}
+                    
+                    {/* Eliminamos la duplicación de imagen */}
+                  </>
+                );
+              } 
+              // CASO 2: No hay imágenes reales para mostrar
+              else {
+                return (
+                  <div class="col-span-full text-center py-8 text-blue-200/60">
+                    <div class="flex flex-col items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <p>No hay imágenes disponibles para este proyecto</p>
                     </div>
                   </div>
-                )}
-              </section>
-            )}
-
-            {/* CTA */}
-            <div class="mt-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white shadow-xl">
-              <h3 class="text-xl font-bold mb-3">¿Te interesa este proyecto?</h3>
-              <p class="text-blue-100 mb-6">Descubre cómo podemos ayudarte</p>
-              <a href="/contacto" class="block w-full bg-white text-blue-600 font-medium py-3 px-6 rounded-lg text-base text-center hover:bg-gray-50 transition-colors">
-                Hablar con un experto
+                );
+              }
+            })()} {/* IIFE para evaluar inmediatamente */}
+          
+            {/* Este bloque ha sido reemplazado por la lógica mejorada de arriba */}
+          </div>
+        </div>
+      </div>
+      
+      <!-- CTA - Contacto -->
+      <div class="relative mt-16 mb-16 overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-900/80 to-indigo-900/80 rounded-xl p-8 sm:p-10 backdrop-blur-xl border border-blue-700/20 shadow-2xl">
+          <!-- Decoración -->
+          <div class="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-blue-500/10 blur-3xl"></div>
+          <div class="absolute -bottom-24 -left-24 w-48 h-48 rounded-full bg-purple-500/10 blur-3xl"></div>
+          
+          <div class="relative z-10 flex flex-col md:flex-row md:justify-between md:items-center">
+            <div class="mb-6 md:mb-0 md:mr-8">
+              <h3 class="text-2xl sm:text-3xl font-bold text-white mb-4">¿Interesado en un proyecto similar?</h3>
+              <p class="text-blue-100/90 max-w-2xl">Consulta con nuestros expertos sobre cómo podemos ayudarte a desarrollar un proyecto personalizado adaptado a tus necesidades.</p>
+            </div>
+            
+            <div class="flex-shrink-0">
+              <a href="/contacto" class="inline-flex items-center justify-center px-6 py-3 border-2 border-blue-400/30 bg-blue-700/30 hover:bg-blue-700/50 text-white font-medium rounded-lg transition-all shadow-lg hover:shadow-blue-900/30 backdrop-blur-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                Contactar ahora
               </a>
             </div>
           </div>
-        </aside>
-
-        {/* Contenido Principal */}
-        <div class="lg:col-span-9 lg:order-1">
-          {/* Descripción */}
-          {antecedente?.Descripcion && (
-            <article class="bg-white rounded-2xl p-8 text-gray-800 shadow-xl border border-gray-200">
-              <div class="prose max-w-none" set:html={antecedente.Descripcion}></div>
-            </article>
-          )}
-
-          {/* Objetivos y Resultados */}
-          {(antecedente?.Objetivos || antecedente?.Resultados) && (
-                        <div class="grid md:grid-cols-2 gap-8">
-                            {/* Objetivos */}
-                            {antecedente?.Objetivos && (
-                                <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-xl ring-1 ring-gray-900/5 relative overflow-hidden">
-                                    <div class="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-br from-blue-50 via-blue-100 to-transparent rounded-bl-full opacity-60"></div>
-                                    <div class="relative z-10">
-                                        <h3 class="flex items-center gap-x-2 text-2xl font-bold text-gray-900 mb-4">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 text-blue-600">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.008v.008H12v-.008Z" />
-                                            </svg>
-                                            Objetivos
-                                        </h3>
-                                        <div class="prose prose-base max-w-none text-gray-600" set:html={antecedente.Objetivos}></div>
-                                    </div>
-                                </div>
-                            )}
-                            {/* Resultados */}
-                            {antecedente?.Resultados && (
-                                <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-xl ring-1 ring-gray-900/5 relative overflow-hidden">
-                                     <div class="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-br from-green-50 via-green-100 to-transparent rounded-bl-full opacity-60"></div>
-                                     <div class="relative z-10">
-                                        <h3 class="flex items-center gap-x-2 text-2xl font-bold text-gray-900 mb-4">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 text-green-600">
-                                               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1-18 0Z" />
-                                            </svg>
-                                            Resultados
-                                        </h3>
-                                        <div class="prose prose-base max-w-none text-gray-600" set:html={antecedente.Resultados}></div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-          {/* Galería */}
-          {imagenesGaleria.length > 0 && (
-            <section class="mt-8 bg-white rounded-2xl p-8 shadow-xl">
-              <h2 class="text-2xl font-bold text-gray-900 mb-6">Galería del Proyecto</h2>
-              <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
-                {imagenesGaleria.map((imagenId, index) => (
-                                    <a
-                                        href={getAssetUrl(imagenId)}
-                                        class="group relative aspect-video sm:aspect-square rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 block"
-                                        data-fslightbox="gallery" {/* Asegúrate de tener fslightbox u otra librería */}
-                                        aria-label={`Ver imagen ${index + 1} de la galería`}
-                                    >
-                                        <img
-                                            src={getAssetUrl(imagenId) + '?width=400&height=400&fit=cover'} // Pide tamaño optimizado a Directus
-                                            alt={`${antecedente.Titulo || 'Imagen del proyecto'} - ${index + 1}`}
-                                            class="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-105"
-                                            loading="lazy"
-                                            width="400"
-                                            height="400"
-                                            onerror={`this.onerror=null; this.src='${DEFAULT_IMAGE_URL}?width=400&height=400&fit=cover'; this.alt='Imagen ${index+1} por defecto';`}
-                                        />
-                                        {/* Overlay de hover para indicar click */}
-                                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-start p-3">
-                                            <span class="text-white text-sm font-medium flex items-center gap-1">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
-                                                  <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd" />
-                                                </svg>
-                                                Ampliar
-                                            </span>
-                                        </div>
-                                    </a>
-                                ))}
-              </div>
-            </section>
-          )}
         </div>
       </div>
-
-      {/* Navegación */}
-      <div class="mt-16 text-center">
-        <a href="/antecedentes" class="inline-flex items-center px-6 py-3 rounded-lg text-base font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-md">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
+      
+      <!-- Botón de navegación -->
+      <div class="mt-12 mb-8 flex justify-center">
+        <a href="/antecedentes" class="group flex items-center px-6 py-3 text-lg bg-[#131b2e] hover:bg-[#1a2540] text-blue-200 rounded-full shadow-lg transition-all border border-blue-800/30 backdrop-blur-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
           Volver a Antecedentes
         </a>
@@ -483,25 +746,3 @@ console.log(`[SLUG PAGE] Hero Image URL: ${heroImage}`);
     </div>
   </main>
 </Layout>
-
-<style is:global>
-  /* ...existing animations... */
-  
-  .prose {
-    color: #374151;
-  }
-  .prose h2 {
-    color: #1f2937;
-  }
-  .prose h3 {
-    color: #1f2937;
-  }
-  .prose a {
-    color: #2563eb;
-  }
-  .prose a:hover {
-    color: #1d4ed8;
-  }
-  
-  /* ...rest of existing styles... */
-</style>

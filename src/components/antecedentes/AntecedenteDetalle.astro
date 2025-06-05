@@ -1,0 +1,80 @@
+---
+interface Props {
+  casoId?: string;
+  cliente?: string;
+  fechaCreacion?: string;
+  prioridad?: string;
+  analista?: string;
+  presupuesto?: string;
+  resumen?: string;
+  areasFoco?: string[];
+}
+
+const { 
+  casoId = "#12345", 
+  cliente = "Cliente", 
+  fechaCreacion = "2024-01-01", 
+  prioridad = "Alta", 
+  analista = "Analista Asignado", 
+  presupuesto = "$4,850 / $5,000",
+  resumen = "Información detallada del caso no disponible.",
+  areasFoco = ["Verificación Técnica", "Revisión de Cumplimiento", "Evaluación de Riesgos"]
+} = Astro.props;
+
+// Determinar el color de la prioridad
+let prioridadColor = 'blue';
+if (prioridad.toLowerCase() === 'alta') {
+  prioridadColor = 'red';
+} else if (prioridad.toLowerCase() === 'media') {
+  prioridadColor = 'yellow';
+} else if (prioridad.toLowerCase() === 'baja') {
+  prioridadColor = 'green';
+}
+---
+
+<section class="bg-white p-8 rounded-lg shadow-xl mb-12">
+  <h3 class="text-xl font-semibold mb-6 pl-4 border-l-4 border-blue-600 text-blue-900">Información Detallada del Caso</h3>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div>
+      <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">ID del Caso</p>
+      <p class="text-lg text-gray-800 font-semibold">{casoId}</p>
+    </div>
+    <div>
+      <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Cliente</p>
+      <p class="text-lg text-gray-800 font-semibold">{cliente}</p>
+    </div>
+    <div>
+      <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Fecha de Creación</p>
+      <p class="text-lg text-gray-800 font-semibold">{fechaCreacion}</p>
+    </div>
+    <div>
+      <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Prioridad</p>
+      <span class={`inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-${prioridadColor}-100 text-${prioridadColor}-700`}>
+        <span class="material-icons-outlined mr-1 text-sm">priority_high</span> {prioridad}
+      </span>
+    </div>
+    <div>
+      <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Analista Asignado</p>
+      <p class="text-lg text-gray-800 font-semibold">{analista}</p>
+    </div>
+    <div>
+      <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Presupuesto Utilizado</p>
+      <p class="text-lg text-gray-800 font-semibold">{presupuesto}</p>
+    </div>
+  </div>
+  
+  <div class="mt-6">
+    <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Resumen</p>
+    <p class="text-gray-700 leading-relaxed">{resumen}</p>
+  </div>
+  
+  <div class="mt-6">
+    <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Áreas de Enfoque</p>
+    <div class="flex flex-wrap gap-2">
+      {areasFoco.map(area => (
+        <span class="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full text-xs font-semibold">{area}</span>
+      ))}
+    </div>
+  </div>
+</section>

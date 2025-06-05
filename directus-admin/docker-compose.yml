@@ -1,35 +1,37 @@
 services:
   database:
     image: postgres:15-alpine
-    env_file: .env  # Cargar variables desde .env
-    networks:
-      - directus
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    ports:
+      - "5432:5432"
 
-  directus:
-    container_name: directus
+  directus-app:
     image: directus/directus:latest
-    env_file: .env  # Cargar TODAS las variables desde .env
+    restart: unless-stopped
+    environment:
+      KEY: 12345678901234567890123456789012
+      SECRET: S3cr3tK3yForDirectusConfig2025!!
+      DB_CLIENT: pg
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_USER: myuser
+      DB_PASSWORD: mypassword
+      DB_DATABASE: mydatabase
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: adminpassword
+    depends_on:
+      - database
     ports:
       - "8055:8055"
     volumes:
-      - ./uploads:/directus/uploads
-      - ./extensions:/directus/extensions
-    depends_on:
-      database:
-        condition: service_healthy
-    networks:
-      - directus
-    # ¡Elimina las variables duplicadas! El .env ya las define.
+      - ./directus-admin/uploads:/directus/uploads
+      - ./directus-admin/extensions:/directus/extensions
 
 volumes:
   postgres_data:
-
-networks:
-  directus:

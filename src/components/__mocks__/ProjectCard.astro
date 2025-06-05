@@ -1,0 +1,9 @@
+---
+// Mock del componente ProjectCard para pruebas
+const { title = 'Proyecto de prueba', description = 'Descripción de prueba' } = Astro.props;
+---
+
+<div class="project-card-mock" data-testid="project-card">
+  <h3>{title}</h3>
+  <p>{description}</p>
+</div>

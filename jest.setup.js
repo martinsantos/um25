@@ -1,0 +1,90 @@
+// Configuración global de Jest
+import { expect, jest } from '@jest/globals';
+import '@testing-library/jest-dom';
+
+// Hacer que expect y jest estén disponibles globalmente
+globalThis.expect = expect;
+globalThis.jest = jest;
+
+// Mock para fetch global
+if (typeof globalThis.fetch === 'undefined') {
+  globalThis.fetch = jest.fn(() =>
+    Promise.resolve({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ data: [] }),
+    })
+  );
+}
+
+// Mock para localStorage
+const localStorageMock = (() => {
+  let store = {};
+  return {
+    getItem: jest.fn((key) => store[key] || null),
+    setItem: jest.fn((key, value) => {
+      store[key] = value.toString();
+    }),
+    removeItem: jest.fn((key) => {
+      delete store[key];
+    }),
+    clear: jest.fn(() => {
+      store = {};
+    }),
+  };
+})();
+
+globalThis.localStorage = localStorageMock;
+
+// Mock para matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation((query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
+
+// Mock para IntersectionObserver
+class IntersectionObserver {
+  constructor(callback, options) {
+    this.callback = callback;
+    this.options = options;
+    this.observe = jest.fn((target) => {
+      this.callback([{ isIntersecting: true, target }], this);
+    });
+    this.unobserve = jest.fn();
+    this.disconnect = jest.fn();
+  }
+}
+
+globalThis.IntersectionObserver = IntersectionObserver;
+
+// Mock para ResizeObserver
+class ResizeObserver {
+  constructor(callback) {
+    this.callback = callback;
+  }
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+globalThis.ResizeObserver = ResizeObserver;
+
+// Mock para window.scroll y window.scrollTo
+window.scroll = jest.fn();
+window.scrollTo = jest.fn();
+
+// Mock para getComputedStyle
+Object.defineProperty(window, 'getComputedStyle', {
+  value: () => ({
+    getPropertyValue: () => '',
+  }),
+});

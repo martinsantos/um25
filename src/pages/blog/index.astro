@@ -1,0 +1,202 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { directus } from '../../utils/directus';
+
+// Inicializar datos con valores por defecto
+let posts = [];
+let categories = [];
+let error = null;
+
+// Cargar datos del blog
+try {
+  console.log('Cargando datos del blog...');
+  
+  // Obtener posts publicados
+  const postsResponse = await directus.getBlogPosts({
+    limit: 12,
+    fields: 'id,slug,Titulo,Resumen,Imagen_portada,Fecha_publicacion,Autor,Categorias',
+    sort: '-Fecha_publicacion'
+  });
+  
+  posts = postsResponse.data || [];
+  console.log(`Se cargaron ${posts.length} posts`);
+  
+  // Obtener categorías
+  categories = await directus.getBlogCategories();
+  console.log(`Se cargaron ${categories.length} categorías`);
+  
+} catch (err) {
+  console.error('Error al cargar los datos del blog:', err);
+  error = {
+    message: err.message,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  };
+}
+---
+
+<Layout title="Blog | Última Milla">
+  <main class="min-h-screen bg-gray-50">
+    <!-- Hero Section -->
+    <div class="bg-ultima-navy text-white py-16 md:py-24">
+      <div class="container mx-auto px-4 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">Nuestro Blog</h1>
+        <p class="text-xl text-ultima-blue-light max-w-3xl mx-auto">
+          Descubre las últimas noticias, consejos y tendencias en nuestro blog
+        </p>
+      </div>
+    </div>
+
+    <!-- Contenido del blog -->
+    <div class="container mx-auto px-4 py-12">
+      {error ? (
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-8">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800">Error al cargar el blog</h3>
+              <div class="mt-2 text-sm text-red-700">
+                <p>{error.message}</p>
+                {error.stack && (
+                  <details class="mt-2">
+                    <summary class="text-xs cursor-pointer">Ver detalles técnicos</summary>
+                    <pre class="bg-gray-100 p-2 rounded text-xs overflow-auto mt-2">{error.stack}</pre>
+                  </details>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : posts.length === 0 ? (
+        <div class="text-center py-16">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 class="mt-2 text-lg font-medium text-gray-900">No hay artículos disponibles</h3>
+          <p class="mt-1 text-gray-500">No se encontraron artículos en este momento.</p>
+        </div>
+      ) : (
+        <div class="space-y-8">
+          <!-- Filtros de categorías -->
+          {categories.length > 0 && (
+            <div class="flex flex-wrap gap-2 mb-8">
+              <button 
+                class="px-4 py-2 rounded-full bg-ultima-navy text-white text-sm font-medium"
+                data-category="all"
+              >
+                Todas
+              </button>
+              {categories.map(category => (
+                <button 
+                  class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-300 transition-colors"
+                  data-category={category.slug}
+                >
+                  {category.Nombre}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <!-- Grid de artículos -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {posts.map(post => (
+              <article 
+                class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow post-card"
+                data-category={post.Categorias?.map(cat => cat.slug).join(' ') || ''}
+              >
+                <a href={`/blog/${post.slug}`} class="block">
+                  <div class="relative">
+                    {post.Imagen_portada ? (
+                      <img 
+                        src={post.Imagen_portada} 
+                        alt={post.Titulo}
+                        class="w-full h-48 object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div class="w-full h-48 bg-gray-100 flex items-center justify-center">
+                        <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    )}
+                    {post.Categorias?.length > 0 && (
+                      <div class="absolute top-2 right-2 flex flex-wrap gap-1">
+                        {post.Categorias.slice(0, 2).map(cat => (
+                          <span class="bg-ultima-navy/90 text-white text-xs px-2 py-1 rounded">
+                            {cat.Nombre}
+                          </span>
+                        ))}
+                        {post.Categorias.length > 2 && (
+                          <span class="bg-ultima-navy/90 text-white text-xs px-2 py-1 rounded">
+                            +{post.Categorias.length - 2}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div class="p-6">
+                    <h2 class="text-xl font-semibold mb-2 text-gray-900 hover:text-ultima-blue transition-colors">
+                      {post.Titulo}
+                    </h2>
+                    {post.Resumen && (
+                      <p class="text-gray-600 mb-4 line-clamp-3">
+                        {post.Resumen}
+                      </p>
+                    )}
+                    <div class="flex items-center justify-between text-sm text-gray-500">
+                      <span>{new Date(post.Fecha_publicacion).toLocaleDateString('es-AR')}</span>
+                      {post.Autor && <span>Por {post.Autor}</span>}
+                    </div>
+                  </div>
+                </a>
+              </article>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  </main>
+</Layout>
+
+<script>
+  // Filtrado de categorías
+  document.addEventListener('DOMContentLoaded', () => {
+    const categoryButtons = document.querySelectorAll('[data-category]');
+    const postCards = document.querySelectorAll('.post-card');
+
+    categoryButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const category = button.dataset.category;
+        
+        // Actualizar estado activo de los botones
+        categoryButtons.forEach(btn => {
+          if (btn === button) {
+            btn.classList.remove('bg-gray-200', 'text-gray-700');
+            btn.classList.add('bg-ultima-navy', 'text-white');
+          } else {
+            btn.classList.remove('bg-ultima-navy', 'text-white');
+            btn.classList.add('bg-gray-200', 'text-gray-700');
+          }
+        });
+
+        // Filtrar posts
+        postCards.forEach(card => {
+          if (category === 'all') {
+            card.style.display = '';
+          } else {
+            const cardCategories = card.dataset.category || '';
+            if (cardCategories.includes(category)) {
+              card.style.display = '';
+            } else {
+              card.style.display = 'none';
+            }
+          }
+        });
+      });
+    });
+  });
+</script>

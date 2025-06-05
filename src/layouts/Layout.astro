@@ -3,12 +3,13 @@ import Navigation from '../components/Navigation.astro';
 import '../styles/global.css';
 import '../styles/theme.css';
 
-interface Props {
+export interface Props {
   title: string;
   image?: string;
+  services?: any[];
 }
 
-const { title, image } = Astro.props;
+const { title, image, services } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -18,6 +19,8 @@ const { title, image } = Astro.props;
     <title>{title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/global.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
   </head>
   <body>
     <header style={image ? `background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${image}); background-size: cover; background-position: center; background-repeat: no-repeat; height: 300px;` : ''}>

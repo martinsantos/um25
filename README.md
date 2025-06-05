@@ -1,6 +1,9 @@
 # Última Milla Web (UM25)
 
-Proyecto web desarrollado con Astro y Directus CMS, optimizado para rendimiento y escalabilidad.
+Proyecto web desarrollado con Astro y Directus CMS, optimizado para rendimiento y escalabilidad. Incluye un conjunto completo de pruebas automatizadas y flujos de CI/CD para garantizar la calidad del código.
+
+[![Tests](https://github.com/martinsantos/um25/actions/workflows/ci.yml/badge.svg)](https://github.com/martinsantos/um25/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/martinsantos/um25/graph/badge.svg?token=YOUR_CODECOV_TOKEN)](https://codecov.io/gh/martinsantos/um25)
 
 ## 🚀 Arquitectura
 
@@ -49,9 +52,61 @@ Todo el stack se ejecuta en contenedores Docker para facilitar el desarrollo y d
 |-----------------|--------------------------------------------------|
 | `make dev`      | Inicia el entorno de desarrollo                  |
 | `make build`    | Construye la aplicación para producción          |
-| `make test`     | Ejecuta las pruebas de lint                      |
+| `make test`     | Ejecuta las pruebas unitarias y de integración  |
+| `make test:watch` | Ejecuta las pruebas en modo observación        |
+| `make test:coverage` | Ejecuta las pruebas con informe de cobertura |
+| `make test:ui`  | Ejecuta la interfaz de usuario de pruebas      |
 | `make backup`   | Crea un backup de la base de datos y uploads     |
 | `make restore`  | Restaura desde un backup                         |
+
+## 🧪 Pruebas
+
+El proyecto incluye un conjunto completo de pruebas automatizadas para garantizar la calidad del código:
+
+### Tipos de Pruebas
+
+- **Pruebas Unitarias**: Pruebas de funciones individuales y componentes aislados.
+- **Pruebas de Integración**: Pruebas que verifican la interacción entre componentes y servicios.
+- **Pruebas de Componentes**: Pruebas de componentes de interfaz de usuario.
+- **Pruebas de API**: Pruebas de los endpoints de la API.
+
+### Ejecutar Pruebas
+
+```bash
+# Ejecutar todas las pruebas
+npm test
+
+# Ejecutar pruebas en modo observación
+npm run test:watch
+
+# Generar informe de cobertura
+npm run test:coverage
+
+# Ejecutar interfaz de usuario de pruebas (útil para depuración)
+npm run test:ui
+```
+
+### Estructura de Pruebas
+
+```
+src/
+  __tests__/          # Pruebas unitarias
+  __mocks__/          # Mocks para pruebas
+  components/
+    __tests__/      # Pruebas de componentes
+  pages/
+    __tests__/      # Pruebas de páginas
+  utils/
+    __tests__/      # Pruebas de utilidades
+```
+
+### Configuración de Pruebas
+
+Las pruebas utilizan:
+- **Vitest**: Ejecutor de pruebas rápido y compatible con Vite.
+- **Testing Library**: Para pruebas de componentes centradas en el usuario.
+- **MSW (Mock Service Worker)**: Para simular peticiones HTTP.
+- **jsdom**: Para simular el entorno del navegador.
 
 ## 🚢 Despliegue en Producción
 
@@ -87,6 +142,35 @@ Todo el stack se ejecuta en contenedores Docker para facilitar el desarrollo y d
    cd /root/um25
    docker-compose -f docker-compose.production.yml up -d
    ```
+
+## 🔄 CI/CD
+
+El proyecto utiliza GitHub Actions para la integración y despliegue continuos. El flujo de trabajo está configurado en `.github/workflows/ci.yml`.
+
+### Flujo de Trabajo de CI/CD
+
+1. **Pruebas Automatizadas**:
+   - Se ejecutan en cada push a las ramas `main` y `dev`
+   - Incluyen pruebas unitarias, de integración y de componentes
+   - Generan informes de cobertura de código
+
+2. **Despliegue Automático**:
+   - Los cambios en `main` se despliegan automáticamente a producción
+   - Los cambios en `dev` se despliegan a un entorno de staging
+
+3. **Requisitos de Código**:
+   - Todas las pruebas deben pasar
+   - La cobertura de código debe ser al menos del 80%
+   - El código debe pasar las validaciones de ESLint y Prettier
+
+### Configuración de Secretos
+
+Los siguientes secretos deben configurarse en GitHub Secrets:
+
+- `DOCKERHUB_USERNAME`: Nombre de usuario de Docker Hub
+- `DOCKERHUB_TOKEN`: Token de acceso a Docker Hub
+- `SSH_PRIVATE_KEY`: Clave SSH para despliegue en el servidor
+- `CODECOV_TOKEN`: Token para subir informes de cobertura a Codecov
 
 ## 🔄 Mantenimiento
 

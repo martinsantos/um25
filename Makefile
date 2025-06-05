@@ -1,8 +1,9 @@
-.PHONY: setup dev build test prod-build prod-up prod-down backup restore
+.PHONY: setup dev build test prod-build prod-up prod-down backup restore docker-push
 
 # Variables
 BACKUP_DIR := ./backups
 TIMESTAMP := $(shell date +%Y%m%d_%H%M%S)
+DOCKER_REPO := santosma/um25
 
 # Setup project
 setup:
@@ -58,7 +59,7 @@ restore:
 
 # Push to Docker Hub (requires login)
 docker-push:
-	docker tag fumbling-field_astro-app martinsantos/um25:astro-latest
-	docker tag directus/directus:latest martinsantos/um25:directus-latest
-	docker push martinsantos/um25:astro-latest
-	docker push martinsantos/um25:directus-latest
+	docker tag fumbling-field_astro-app $(DOCKER_REPO):astro-latest
+	docker tag directus/directus:latest $(DOCKER_REPO):directus-latest
+	docker push $(DOCKER_REPO):astro-latest
+	docker push $(DOCKER_REPO):directus-latest

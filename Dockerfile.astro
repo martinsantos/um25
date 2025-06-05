@@ -1,0 +1,17 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copiar archivos necesarios
+COPY dist/client /app/dist/client
+COPY dist/server.js /app/dist/server.js
+COPY package.json /app/package.json
+
+# Instalar dependencias
+RUN npm install --only=production
+
+# Exponer puerto
+EXPOSE 4321
+
+# Comando para iniciar el servidor
+CMD ["node", "/app/dist/server.js"]

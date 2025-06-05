@@ -1,0 +1,159 @@
+import EnhancedImage from "./EnhancedImage.astro";
+import EnhancedImage from "./EnhancedImage.astro";
+---
+// Componente para mostrar antecedentes destacados
+const { antecedentes } = Astro.props;
+
+// Función para formatear la fecha
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString('es-ES', options);
+};
+
+// Función para generar slugs (debe coincidir con la de [id]/[slug].astro)
+const generateSlug = (text = '') => {
+  if (text === null || typeof text === 'undefined') {
+    console.warn('[generateSlug] Input is null/undefined, returning "item".');
+    return 'item'; // Devuelve un slug genérico o maneja como prefieras
+  }
+  const slug = String(text)
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar acentos
+    .replace(/[^\w\s-]/g, '') // Quitar caracteres no alfanuméricos excepto espacios y guiones
+    .trim() // Quitar espacios al inicio/final
+    .replace(/\s+/g, '-') // Reemplazar espacios por guiones
+    .replace(/-+/g, '-') // Reemplazar múltiples guiones por uno solo
+    .replace(/^-+|-+$/g, '') // Quitar guiones al inicio/final
+    .slice(0, 50); // Limitar longitud (ajusta según necesidad)
+  return slug || 'item'; // Si el resultado es vacío, devuelve 'item'
+};
+---
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+  {antecedentes.map(item => (
+    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col">
+            <EnhancedImage
+            <EnhancedImage
+              src={item.Imagen ? `${import.meta.env.PUBLIC_DIRECTUS_URL}/assets/${item.Imagen.id}?width=600&height=400&fit=cover` : null}
+              alt={item.Titulo}
+              width="600"
+              height="400"
+              class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+              fallbackSrc="/images/placeholder-project.jpg"
+              containerClass="w-full h-48 bg-gray-100 flex items-center justify-center"
+            >
+              <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </EnhancedImage>
+            <EnhancedImage
+              src={item.Imagen ? `${import.meta.env.PUBLIC_DIRECTUS_URL}/assets/${item.Imagen.id}?width=600&height=400&fit=cover` : null}
+              alt={item.Titulo}
+              width="600"
+              height="400"
+              class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+              fallbackSrc="/images/placeholder-project.jpg"
+              containerClass="w-full h-48 bg-gray-100 flex items-center justify-center"
+            >
+              <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </EnhancedImage>
+              width="600"
+              height="400"
+              class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+              fallbackSrc="/images/placeholder-project.jpg"
+              containerClass="w-full h-48 bg-gray-100 flex items-center justify-center"
+            >
+              <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </EnhancedImage>
+            <EnhancedImage
+            <EnhancedImage
+              src={item.Imagen ? `${import.meta.env.PUBLIC_DIRECTUS_URL}/assets/${item.Imagen.id}?width=600&height=400&fit=cover` : null}
+              alt={item.Titulo}
+              width="600"
+              height="400"
+              class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+              fallbackSrc="/images/placeholder-project.jpg"
+              containerClass="w-full h-48 bg-gray-100 flex items-center justify-center"
+            >
+              <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </EnhancedImage>
+            <EnhancedImage
+              src={item.Imagen ? `${import.meta.env.PUBLIC_DIRECTUS_URL}/assets/${item.Imagen.id}?width=600&height=400&fit=cover` : null}
+              alt={item.Titulo}
+              width="600"
+              height="400"
+              class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+              fallbackSrc="/images/placeholder-project.jpg"
+              containerClass="w-full h-48 bg-gray-100 flex items-center justify-center"
+            >
+              <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </EnhancedImage>
+              width="600"
+              height="400"
+              class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+              fallbackSrc="/images/placeholder-project.jpg"
+              containerClass="w-full h-48 bg-gray-100 flex items-center justify-center"
+            >
+              <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </EnhancedImage>
+          alt={item.Titulo}
+          loading="lazy"
+          onError="(e) => {
+            console.error('Error loading image:', e.target.src);
+            e.target.onerror = null;
+            e.target.src = '/placeholder-image.jpg';
+          }"
+          onLoad="(e) => e.target.classList.remove('opacity-0')"
+          class="w-full h-48 object-cover opacity-0 transition-opacity duration-300"
+        />
+      ) : (
+        <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-400">
+          <span class="text-4xl">📄</span>
+        </div>
+      )}
+      <div class="p-6 flex-grow flex flex-col">
+        <div class="flex-grow">
+          <h3 class="text-xl font-bold text-gray-800 mb-2">{item.Titulo}</h3>
+          {item.Fecha && (
+            <p class="text-sm text-gray-500 mb-3">{formatDate(item.Fecha)}</p>
+          )}
+          {item.Servicios && item.Servicios.length > 0 && (
+            <div class="flex flex-wrap gap-2 mb-3">
+              {item.Servicios.map(servicio => (
+                <span class="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
+                  {servicio.Servicios_id.Titulo}
+                </span>
+              ))}
+            </div>
+          )}
+          <p class="text-gray-600 line-clamp-3">
+            {item.Descripcion}
+          </p>
+        </div>
+        <a 
+          href={`/antecedentes/${item.id}/${generateSlug(item.Titulo)}`}
+          class="mt-4 inline-block text-red-500 font-semibold hover:text-red-600 transition-colors"
+        >
+          Ver más →
+        </a>
+      </div>
+    </div>
+  ))}
+</div>

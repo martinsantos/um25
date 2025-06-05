@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+      env:
+        CI: true
+    
+    - name: Run tests
+      run: npm test
+      env:
+        NODE_ENV: test
+        DATABASE_URL: postgresql://test:test@localhost:5432/test
+        DIRECTUS_URL: http://localhost:8055
+        DIRECTUS_STATIC_TOKEN: ${{ secrets.DIRECTUS_STATIC_TOKEN }}
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      if: success()
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage/coverage-final.json
+        fail_ci_if_error: false

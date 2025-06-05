@@ -1,0 +1,41 @@
+---
+interface Props {
+    src?: string | null;
+    alt: string;
+    width?: number | string;
+    height?: number | string;
+    class?: string;
+    loading?: 'lazy' | 'eager';
+    fallbackSrc?: string;
+    fallbackAlt?: string;
+}
+
+const {
+    src,
+    alt,
+    width = '100%',
+    height = '100%',
+    class: className = '',
+    loading = 'lazy',
+    fallbackSrc = '/images/placeholder.jpg',
+    fallbackAlt = 'Imagen no disponible'
+} = Astro.props;
+
+const imageToShow = src || fallbackSrc;
+const imageAlt = src ? alt : (fallbackAlt || alt);
+---
+
+<img
+    src={imageToShow}
+    alt={imageAlt}
+    width={width}
+    height={height}
+    loading={loading}
+    class={`w-full h-full object-cover ${className}`}
+    on:error={(e) => {
+        if (src && src !== fallbackSrc) {
+            e.target.src = fallbackSrc;
+            e.target.alt = fallbackAlt;
+        }
+    }}
+/>

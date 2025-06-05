@@ -11,13 +11,16 @@ interface Props {
 }
 
 const {
-    src,
+    src = '/images/default.jpg',
     alt,
     class: className,
     width = 800,
     height,
     loading = 'lazy'
 } = Astro.props;
+
+// Use default image if src is undefined
+const imageSrc = src || '/images/default.jpg';
 
 // Procesar diferentes versiones de la imagen
 const formats = ['webp', 'jpeg'] as const;
@@ -26,7 +29,7 @@ const sizes = [width, width * 2].filter(w => w <= 1920); // Limitar el tamaño m
 const imageUrls = await Promise.all(
     formats.flatMap(format =>
         sizes.map(async size => ({
-            url: (await processAndCacheImage(src, size, height, format)).replace(/^public/, ''),
+            url: (await processAndCacheImage(imageSrc, size, height, format)).replace(/^public/, ''),
             size,
             format
         }))

@@ -1,0 +1,27 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apk add --no-cache \
+    vips-dev \
+    build-base \
+    python3 \
+    py3-pip \
+    && npm install -g npm@9.8.1
+
+COPY package*.json ./
+RUN npm ci --include=dev
+
+COPY . .
+RUN npm run build
+
+# Cleanup dev dependencies and build tools
+RUN npm prune --production
+RUN apk del \
+    build-base \
+    python3 \
+    py3-pip
+
+EXPOSE 4321
+CMD ["npm", "run", "preview"]

@@ -1,0 +1,211 @@
+#!/bin/bash
+
+# Optimized deployment script for www.umbot.com.ar
+# Usage: ./deploy.sh [production|rollback] [--skip-backup] [--force]
+
+# Colores para mensajes
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Verificar argumentos
+if [ "$#" -ne 1 ]; then
+    echo -e "${RED}Error: Se requiere especificar la acción [production|rollback]${NC}"
+    echo -e "Uso: ./deploy.sh [production|rollback]"
+    exit 1
+fi
+
+ACTION=$1
+PROJECT_ROOT=$(pwd)
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+BACKUP_DIR="./backups"
+
+# Validar acción
+if [ "$ACTION" != "production" ] && [ "$ACTION" != "rollback" ]; then
+    echo -e "${RED}Error: Acción no válida. Use 'production' o 'rollback'${NC}"
+    exit 1
+fi
+
+# Crear directorio de backups si no existe
+mkdir -p $BACKUP_DIR
+
+# Función para verificar la disponibilidad de servicios
+check_service() {
+    local url=$1
+    local service_name=$2
+    local max_attempts=$3
+    local attempt=1
+    
+    echo -e "${YELLOW}Verificando disponibilidad de $service_name...${NC}"
+    
+    while [ $attempt -le $max_attempts ]; do
+        if curl -s -o /dev/null -w "%{http_code}" $url | grep -q "200\|301\|302"; then
+            echo -e "${GREEN}$service_name está disponible (intento $attempt)${NC}"
+            return 0
+        else
+            echo -e "${YELLOW}$service_name no está disponible, reintentando ($attempt/$max_attempts)...${NC}"
+            sleep 5
+            attempt=$((attempt+1))
+        fi
+    done
+    
+    echo -e "${RED}$service_name no está disponible después de $max_attempts intentos${NC}"
+    return 1
+}
+
+# Despliegue a producción
+if [ "$ACTION" == "production" ]; then
+    echo -e "${YELLOW}Iniciando despliegue a producción...${NC}"
+    
+    # Crear backup de archivos de configuración actuales
+    echo -e "${YELLOW}Creando backup de archivos de configuración...${NC}"
+    mkdir -p $BACKUP_DIR/config_$TIMESTAMP
+    
+    if [ -f "docker-compose.production.yml" ]; then
+        cp docker-compose.production.yml $BACKUP_DIR/config_$TIMESTAMP/docker-compose.production.yml.bak
+    fi
+    
+    if [ -f ".env.production" ]; then
+        cp .env.production $BACKUP_DIR/config_$TIMESTAMP/.env.production.bak
+    fi
+    
+    if [ -f "nginx.production.conf" ]; then
+        cp nginx.production.conf $BACKUP_DIR/config_$TIMESTAMP/nginx.production.conf.bak
+    fi
+    
+    # Crear backup de la base de datos
+    echo -e "${YELLOW}Creando backup de la base de datos...${NC}"
+    ./scripts/db_backup_restore.sh backup prod $BACKUP_DIR/pre_deploy_$TIMESTAMP.sql
+    
+    # Detener servicios actuales
+    echo -e "${YELLOW}Deteniendo servicios actuales...${NC}"
+    docker-compose -f docker-compose.production.yml down
+    
+    # Verificar si hay una nueva versión de docker-compose.production.yml
+    if [ -f "docker-compose.production.yml.new" ]; then
+        echo -e "${YELLOW}Detectada nueva versión de docker-compose.production.yml${NC}"
+        mv docker-compose.production.yml.new docker-compose.production.yml
+    fi
+    
+    # Limpiar recursos no utilizados
+    echo -e "${YELLOW}Limpiando recursos no utilizados...${NC}"
+    docker system prune -f
+    
+    # Construir y levantar servicios
+    echo -e "${YELLOW}Construyendo y levantando servicios...${NC}"
+    docker-compose -f docker-compose.production.yml up -d --build
+    
+    # Verificar estado de los servicios
+    echo -e "${YELLOW}Verificando estado de los servicios...${NC}"
+    docker-compose -f docker-compose.production.yml ps
+    
+    # Esperar a que los servicios estén disponibles
+    sleep 10
+    
+    # Verificar integridad de las imágenes
+    echo -e "${YELLOW}Verificando imágenes...${NC}"
+    docker run --rm ${DOCKER_USER}/${REPO_NAME}:${SERVICE}-latest node -e "require('./src/lib/auth.js').verifyToken('k6P8LAY8_x_y1miB_KTlWnysCnx2Abky')" || exit 1
+    
+    # Verificar disponibilidad de servicios
+    check_service "http://localhost:8080" "Astro App" 6
+    check_service "http://localhost:8055" "Directus" 6
+    
+    echo -e "${GREEN}¡Despliegue a producción completado!${NC}"
+    echo -e "${YELLOW}Para verificar los logs: docker-compose -f docker-compose.production.yml logs -f${NC}"
+    
+    # Verificar el token de Directus
+    echo -e "${YELLOW}Verificando token de Directus...${NC}"
+    
+    # Extraer token y URL de Directus del archivo .env.production
+    DIRECTUS_TOKEN=$(grep "DIRECTUS_STATIC_TOKEN" .env.production | cut -d'=' -f2 | tr -d '"' | tr -d "'")
+    DIRECTUS_URL=$(grep "PUBLIC_DIRECTUS_URL" .env.production | cut -d'=' -f2 | tr -d '"' | tr -d "'")
+    
+    # Verificar que el token funciona
+    echo -e "${YELLOW}Verificando que el token funciona correctamente...${NC}"
+    RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X GET "$DIRECTUS_URL/users/me" -H "Authorization: Bearer $DIRECTUS_TOKEN")
+    
+    if [ "$RESPONSE" -eq 200 ]; then
+        echo -e "${GREEN}¡Token verificado correctamente! (Código HTTP: $RESPONSE)${NC}"
+    else
+        echo -e "${RED}Error al verificar el token. Código HTTP: $RESPONSE${NC}"
+        echo -e "${YELLOW}Ejecutando script de corrección de token...${NC}"
+        
+        # Ejecutar script de corrección de token
+        if [ -f "fix_directus_token.sh" ]; then
+            chmod +x fix_directus_token.sh
+            ./fix_directus_token.sh
+        else
+            echo -e "${RED}No se encontró el script fix_directus_token.sh${NC}"
+        fi
+    fi
+
+# Rollback a versión anterior
+else
+    echo -e "${YELLOW}Iniciando rollback a versión anterior...${NC}"
+    
+    # Buscar el último backup de configuración
+    LATEST_CONFIG=$(ls -td $BACKUP_DIR/config_* | head -1)
+    
+    if [ -z "$LATEST_CONFIG" ]; then
+        echo -e "${RED}Error: No se encontraron backups de configuración${NC}"
+        exit 1
+    fi
+    
+    echo -e "${YELLOW}Utilizando backup de configuración: $LATEST_CONFIG${NC}"
+    
+    # Restaurar archivos de configuración
+    if [ -f "$LATEST_CONFIG/docker-compose.production.yml.bak" ]; then
+        cp $LATEST_CONFIG/docker-compose.production.yml.bak docker-compose.production.yml
+    fi
+    
+    if [ -f "$LATEST_CONFIG/.env.production.bak" ]; then
+        cp $LATEST_CONFIG/.env.production.bak .env.production
+    fi
+    
+    if [ -f "$LATEST_CONFIG/nginx.production.conf.bak" ]; then
+        cp $LATEST_CONFIG/nginx.production.conf.bak nginx.production.conf
+    fi
+    
+    # Buscar el último backup de base de datos
+    LATEST_DB=$(ls -t $BACKUP_DIR/pre_deploy_*.sql | head -1)
+    
+    if [ -z "$LATEST_DB" ]; then
+        echo -e "${RED}Error: No se encontraron backups de base de datos${NC}"
+        exit 1
+    fi
+    
+    echo -e "${YELLOW}Utilizando backup de base de datos: $LATEST_DB${NC}"
+    
+    # Detener servicios actuales
+    echo -e "${YELLOW}Deteniendo servicios actuales...${NC}"
+    docker-compose -f docker-compose.production.yml down
+    
+    # Limpiar recursos no utilizados
+    echo -e "${YELLOW}Limpiando recursos no utilizados...${NC}"
+    docker system prune -f
+    
+    # Construir y levantar servicios
+    echo -e "${YELLOW}Construyendo y levantando servicios...${NC}"
+    docker-compose -f docker-compose.production.yml up -d --build
+    
+    # Esperar a que los servicios estén disponibles
+    sleep 10
+    
+    # Restaurar base de datos
+    echo -e "${YELLOW}Restaurando base de datos...${NC}"
+    cat $LATEST_DB | docker exec -i database psql -U $(grep "DB_USER" .env.production | cut -d'=' -f2 | tr -d '"' | tr -d "'" | sed 's/^[ \t]*//;s/[ \t]*$//') -d $(grep "DB_DATABASE" .env.production | cut -d'=' -f2 | tr -d '"' | tr -d "'" | sed 's/^[ \t]*//;s/[ \t]*$//')
+    
+    # Verificar estado de los servicios
+    echo -e "${YELLOW}Verificando estado de los servicios...${NC}"
+    docker-compose -f docker-compose.production.yml ps
+    
+    # Verificar disponibilidad de servicios
+    check_service "http://localhost:8080" "Astro App" 6
+    check_service "http://localhost:8055" "Directus" 6
+    
+    echo -e "${GREEN}¡Rollback completado!${NC}"
+    echo -e "${YELLOW}Para verificar los logs: docker-compose -f docker-compose.production.yml logs -f${NC}"
+fi
+
+exit 0

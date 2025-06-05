@@ -1,0 +1,38 @@
+services:
+  database:
+    image: postgres:14
+    volumes:
+      - ./data/database:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    restart: unless-stopped
+
+  directus-app:
+    image: directus/directus:10.8.3
+    ports:
+      - 8055:8055
+    volumes:
+      - ./uploads:/directus/uploads
+    depends_on:
+      - database
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  astro-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080:4321
+    depends_on:
+      - directus-app
+    env_file:
+      - .env
+    restart: unless-stopped
+
+networks:
+  default:
+    name: um25_network

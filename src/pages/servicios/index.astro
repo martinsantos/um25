@@ -213,7 +213,7 @@ async function fetchData() {
     console.log('[fetchData] fetchServices returned, processing...');
     servicios = result.data.map(servicio => ({
       ...servicio,
-      imagen: servicio.Imagen ? `${import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055'}/assets/${servicio.Imagen}` : getRandomImage(),
+      imagen: servicio.Imagen ? `/api/asset/${servicio.Imagen}?width=400&height=250&fit=cover&quality=80` : getRandomImage(),
       titulo: servicio.Titulo,
       descripcion: servicio.Descripcion,
       area: servicio.Area,
@@ -240,6 +240,7 @@ const generateSlug = (titulo = '') => {
   const slug = String(titulo).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50);
   return slug || 'item';
 };
+
 
 const generatePaginationNumbers = (currentPage, totalPages, maxVisible = 7) => {
   if (totalPages <= 1) return [];
@@ -323,9 +324,16 @@ await fetchData();
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {servicios.map(servicio => (
           <article class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col">
-            <a href={`/servicios/${servicio.id}/${generateSlug(servicio.titulo)}`} class="block group h-full flex flex-col">
+            <a href={`/servicios/${servicio.id}/${generateSlug(servicio.Titulo)}`} class="block group h-full flex flex-col">
               <div class="relative h-48 w-full overflow-hidden">
-                <img src={servicio.imagen || DEFAULT_IMAGE} alt={servicio.titulo || 'Servicio'} class="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105" loading="lazy" onerror={`this.onerror=null; this.src='${DEFAULT_IMAGE}';`}/>
+                <img 
+                  src={servicio.imagen} 
+                  alt={servicio.titulo || 'Servicio'} 
+                  class="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105" 
+                  loading="lazy"
+                  width="400"
+                  height="250"
+                />
               </div>
               <div class="p-4 flex flex-col flex-grow">
                 <h2 class="text-lg font-semibold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">{servicio.titulo}</h2>

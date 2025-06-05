@@ -1,0 +1,691 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for fumbling-field/client/server/pages/antecedentes/_id_/_slug_.astro.mjs</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../../../../prettify.css" />
+    <link rel="stylesheet" href="../../../../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../../../../../index.html">All files</a> / <a href="index.html">fumbling-field/client/server/pages/antecedentes/_id_</a> _slug_.astro.mjs</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>0/202</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>0/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>0/202</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line low'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a>
+<a name='L131'></a><a href='#L131'>131</a>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a>
+<a name='L148'></a><a href='#L148'>148</a>
+<a name='L149'></a><a href='#L149'>149</a>
+<a name='L150'></a><a href='#L150'>150</a>
+<a name='L151'></a><a href='#L151'>151</a>
+<a name='L152'></a><a href='#L152'>152</a>
+<a name='L153'></a><a href='#L153'>153</a>
+<a name='L154'></a><a href='#L154'>154</a>
+<a name='L155'></a><a href='#L155'>155</a>
+<a name='L156'></a><a href='#L156'>156</a>
+<a name='L157'></a><a href='#L157'>157</a>
+<a name='L158'></a><a href='#L158'>158</a>
+<a name='L159'></a><a href='#L159'>159</a>
+<a name='L160'></a><a href='#L160'>160</a>
+<a name='L161'></a><a href='#L161'>161</a>
+<a name='L162'></a><a href='#L162'>162</a>
+<a name='L163'></a><a href='#L163'>163</a>
+<a name='L164'></a><a href='#L164'>164</a>
+<a name='L165'></a><a href='#L165'>165</a>
+<a name='L166'></a><a href='#L166'>166</a>
+<a name='L167'></a><a href='#L167'>167</a>
+<a name='L168'></a><a href='#L168'>168</a>
+<a name='L169'></a><a href='#L169'>169</a>
+<a name='L170'></a><a href='#L170'>170</a>
+<a name='L171'></a><a href='#L171'>171</a>
+<a name='L172'></a><a href='#L172'>172</a>
+<a name='L173'></a><a href='#L173'>173</a>
+<a name='L174'></a><a href='#L174'>174</a>
+<a name='L175'></a><a href='#L175'>175</a>
+<a name='L176'></a><a href='#L176'>176</a>
+<a name='L177'></a><a href='#L177'>177</a>
+<a name='L178'></a><a href='#L178'>178</a>
+<a name='L179'></a><a href='#L179'>179</a>
+<a name='L180'></a><a href='#L180'>180</a>
+<a name='L181'></a><a href='#L181'>181</a>
+<a name='L182'></a><a href='#L182'>182</a>
+<a name='L183'></a><a href='#L183'>183</a>
+<a name='L184'></a><a href='#L184'>184</a>
+<a name='L185'></a><a href='#L185'>185</a>
+<a name='L186'></a><a href='#L186'>186</a>
+<a name='L187'></a><a href='#L187'>187</a>
+<a name='L188'></a><a href='#L188'>188</a>
+<a name='L189'></a><a href='#L189'>189</a>
+<a name='L190'></a><a href='#L190'>190</a>
+<a name='L191'></a><a href='#L191'>191</a>
+<a name='L192'></a><a href='#L192'>192</a>
+<a name='L193'></a><a href='#L193'>193</a>
+<a name='L194'></a><a href='#L194'>194</a>
+<a name='L195'></a><a href='#L195'>195</a>
+<a name='L196'></a><a href='#L196'>196</a>
+<a name='L197'></a><a href='#L197'>197</a>
+<a name='L198'></a><a href='#L198'>198</a>
+<a name='L199'></a><a href='#L199'>199</a>
+<a name='L200'></a><a href='#L200'>200</a>
+<a name='L201'></a><a href='#L201'>201</a>
+<a name='L202'></a><a href='#L202'>202</a>
+<a name='L203'></a><a href='#L203'>203</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >/* empty css                                       */</span></span></span>
+<span class="cstat-no" title="statement not covered" >import { b as createAstro, c as createComponent, r as renderComponent, a as renderTemplate, m as maybeRenderHead, e as addAttribute, u as unescapeHTML } from '../../../chunks/astro/server_B7qweUek.mjs';</span>
+<span class="cstat-no" title="statement not covered" >import 'kleur/colors';</span>
+<span class="cstat-no" title="statement not covered" >import { $ as $$Layout } from '../../../chunks/Layout_CQ6jbdHh.mjs';</span>
+<span class="cstat-no" title="statement not covered" >/* empty css                                        */</span>
+<span class="cstat-no" title="statement not covered" >export { renderers } from '../../../renderers.mjs';</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >const $$Astro = createAstro("http://localhost:4321");</span>
+<span class="cstat-no" title="statement not covered" >const prerender = false;</span>
+<span class="cstat-no" title="statement not covered" >const $$slug = createComponent(async ($$result, $$props, $$slots) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >  const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);</span>
+<span class="cstat-no" title="statement not covered" >  Astro2.self = $$slug;</span>
+<span class="cstat-no" title="statement not covered" >  const DIRECTUS_URL = "http://23.105.176.45:8055";</span>
+<span class="cstat-no" title="statement not covered" >  const DEFAULT_IMAGE_URL = `${DIRECTUS_URL}/assets/2a42dfbc-8d55-4fd7-baa0-c31223a3ace8`;</span>
+<span class="cstat-no" title="statement not covered" >  const DIRECTUS_STATIC_TOKEN = "k6P8LAY8_x_y1miB_KTlWnysCnx2Abky";</span>
+<span class="cstat-no" title="statement not covered" >  const { id, slug: slugFromUrl } = Astro2.params;</span>
+<span class="cstat-no" title="statement not covered" >  console.log(`[SLUG PAGE] Received Params -&gt; ID: ${id}, SlugFromURL: ${slugFromUrl}`);</span>
+<span class="cstat-no" title="statement not covered" >  if (!id || !slugFromUrl) {</span>
+<span class="cstat-no" title="statement not covered" >    console.error("[SLUG PAGE] Error: Falta ID o Slug en la URL. Redirigiendo a 404.");</span>
+<span class="cstat-no" title="statement not covered" >    return Astro2.redirect("/404");</span>
+<span class="cstat-no" title="statement not covered" >  }</span>
+<span class="cstat-no" title="statement not covered" >  let antecedente = null;</span>
+<span class="cstat-no" title="statement not covered" >  let fetchError = null;</span>
+<span class="cstat-no" title="statement not covered" >  const getAssetUrl = (assetId) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    if (!assetId) return DEFAULT_IMAGE_URL;</span>
+<span class="cstat-no" title="statement not covered" >    if (String(assetId).startsWith("http://") || String(assetId).startsWith("https://")) {</span>
+<span class="cstat-no" title="statement not covered" >      return assetId;</span>
+<span class="cstat-no" title="statement not covered" >    }</span>
+<span class="cstat-no" title="statement not covered" >    return `/api/asset/${assetId}`;</span>
+<span class="cstat-no" title="statement not covered" >  };</span>
+<span class="cstat-no" title="statement not covered" >  const generateSlug = (text = "") =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    if (text === null || typeof text === "undefined") {</span>
+<span class="cstat-no" title="statement not covered" >      console.warn('[generateSlug] Input is null/undefined, returning "item".');</span>
+<span class="cstat-no" title="statement not covered" >      return "item";</span>
+<span class="cstat-no" title="statement not covered" >    }</span>
+<span class="cstat-no" title="statement not covered" >    const slug = String(text).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-+|-+$/g, "").slice(0, 50);</span>
+<span class="cstat-no" title="statement not covered" >    return slug || "item";</span>
+<span class="cstat-no" title="statement not covered" >  };</span>
+<span class="cstat-no" title="statement not covered" >  function parseCommaSeparatedString(input) {</span>
+<span class="cstat-no" title="statement not covered" >    if (typeof input !== "string" || !input.trim()) {</span>
+<span class="cstat-no" title="statement not covered" >      return [];</span>
+<span class="cstat-no" title="statement not covered" >    }</span>
+<span class="cstat-no" title="statement not covered" >    try {</span>
+<span class="cstat-no" title="statement not covered" >      return input.split(",").map((item) =&gt; item.trim()).filter(Boolean);</span>
+<span class="cstat-no" title="statement not covered" >    } catch (e) {</span>
+<span class="cstat-no" title="statement not covered" >      console.error("[parseCommaSeparatedString] Error parsing string:", input, e);</span>
+<span class="cstat-no" title="statement not covered" >      return [];</span>
+<span class="cstat-no" title="statement not covered" >    }</span>
+<span class="cstat-no" title="statement not covered" >  }</span>
+<span class="cstat-no" title="statement not covered" >  async function fetchAntecedenteById(itemId) {</span>
+<span class="cstat-no" title="statement not covered" >    const collectionPath = "/items/Antecedentes";</span>
+<span class="cstat-no" title="statement not covered" >    const fields = "*.*";</span>
+<span class="cstat-no" title="statement not covered" >    const apiUrl = `${DIRECTUS_URL}${collectionPath}/${itemId}?fields=${fields}`;</span>
+<span class="cstat-no" title="statement not covered" >    console.log(`[SLUG PAGE] Fetching: ${apiUrl}`);</span>
+<span class="cstat-no" title="statement not covered" >    try {</span>
+<span class="cstat-no" title="statement not covered" >      const response = await fetch(apiUrl, {</span>
+<span class="cstat-no" title="statement not covered" >        headers: {</span>
+<span class="cstat-no" title="statement not covered" >          "Authorization": `Bearer ${DIRECTUS_STATIC_TOKEN}`,</span>
+<span class="cstat-no" title="statement not covered" >          "Accept": "application/json"</span>
+<span class="cstat-no" title="statement not covered" >        }</span>
+<span class="cstat-no" title="statement not covered" >      });</span>
+<span class="cstat-no" title="statement not covered" >      console.log(`[SLUG PAGE] API Status: ${response.status} ${response.statusText}`);</span>
+<span class="cstat-no" title="statement not covered" >      if (!response.ok) {</span>
+<span class="cstat-no" title="statement not covered" >        if (response.status === 404) {</span>
+<span class="cstat-no" title="statement not covered" >          console.warn(`[SLUG PAGE] API 404: Antecedente con ID ${itemId} no encontrado.`);</span>
+<span class="cstat-no" title="statement not covered" >          return { data: null, error: "NOT_FOUND" };</span>
+<span class="cstat-no" title="statement not covered" >        }</span>
+<span class="cstat-no" title="statement not covered" >        const errorBody = await response.text();</span>
+<span class="cstat-no" title="statement not covered" >        console.error(`[SLUG PAGE] API Error (${response.status}):`, errorBody);</span>
+<span class="cstat-no" title="statement not covered" >        throw new Error(`Error en la API: ${response.status} ${response.statusText}`);</span>
+<span class="cstat-no" title="statement not covered" >      }</span>
+<span class="cstat-no" title="statement not covered" >      const responseData = await response.json();</span>
+<span class="cstat-no" title="statement not covered" >      if (!responseData?.data) {</span>
+<span class="cstat-no" title="statement not covered" >        console.warn(`[SLUG PAGE] Respuesta de API OK, pero no contiene 'data' para ID ${itemId}. Respuesta:`, JSON.stringify(responseData));</span>
+<span class="cstat-no" title="statement not covered" >        return { data: null, error: "NO_DATA_IN_RESPONSE" };</span>
+<span class="cstat-no" title="statement not covered" >      }</span>
+<span class="cstat-no" title="statement not covered" >      console.log(`[SLUG PAGE] Datos recibidos OK. Título: "${responseData.data?.Titulo}"`);</span>
+<span class="cstat-no" title="statement not covered" >      if (typeof responseData.data.Titulo !== "string" || !responseData.data.Titulo.trim()) {</span>
+<span class="cstat-no" title="statement not covered" >        console.error("[SLUG PAGE] FATAL: El campo 'Titulo' está ausente o vacío en los datos recibidos.");</span>
+<span class="cstat-no" title="statement not covered" >        return { data: null, error: "MISSING_OR_EMPTY_TITLE" };</span>
+<span class="cstat-no" title="statement not covered" >      }</span>
+<span class="cstat-no" title="statement not covered" >      return { data: responseData.data, error: null };</span>
+<span class="cstat-no" title="statement not covered" >    } catch (e) {</span>
+<span class="cstat-no" title="statement not covered" >      console.error("[SLUG PAGE] Excepción durante el fetch:", e);</span>
+<span class="cstat-no" title="statement not covered" >      return { data: null, error: e.message || "FETCH_EXCEPTION" };</span>
+<span class="cstat-no" title="statement not covered" >    }</span>
+<span class="cstat-no" title="statement not covered" >  }</span>
+<span class="cstat-no" title="statement not covered" >  console.log("[SLUG PAGE] Iniciando fetch y validación...");</span>
+<span class="cstat-no" title="statement not covered" >  const result = await fetchAntecedenteById(id);</span>
+<span class="cstat-no" title="statement not covered" >  antecedente = result.data;</span>
+<span class="cstat-no" title="statement not covered" >  fetchError = result.error;</span>
+<span class="cstat-no" title="statement not covered" >  if (fetchError) {</span>
+<span class="cstat-no" title="statement not covered" >    console.error(`[SLUG PAGE] Error al obtener datos: "${fetchError}". Redirigiendo a 404.`);</span>
+<span class="cstat-no" title="statement not covered" >    return Astro2.redirect("/404");</span>
+<span class="cstat-no" title="statement not covered" >  }</span>
+<span class="cstat-no" title="statement not covered" >  if (!antecedente) {</span>
+<span class="cstat-no" title="statement not covered" >    console.warn(`[SLUG PAGE] Antecedente con ID ${id} no encontrado o datos inválidos. Redirigiendo a 404.`);</span>
+<span class="cstat-no" title="statement not covered" >    return Astro2.redirect("/404");</span>
+<span class="cstat-no" title="statement not covered" >  }</span>
+<span class="cstat-no" title="statement not covered" >  const tituloRealDelAntecedente = antecedente.Titulo;</span>
+<span class="cstat-no" title="statement not covered" >  const expectedSlug = generateSlug(tituloRealDelAntecedente);</span>
+<span class="cstat-no" title="statement not covered" >  console.log(`[SLUG PAGE] Comparando Slugs: URL="${slugFromUrl}", Esperado="${expectedSlug}" (Generado de título: "${tituloRealDelAntecedente}")`);</span>
+<span class="cstat-no" title="statement not covered" >  if (slugFromUrl !== expectedSlug) {</span>
+<span class="cstat-no" title="statement not covered" >    console.warn(`[SLUG PAGE] DISCREPANCIA DE SLUG! URL="${slugFromUrl}", Esperado="${expectedSlug}". Redirigiendo a 404.`);</span>
+<span class="cstat-no" title="statement not covered" >    return Astro2.redirect("/404");</span>
+<span class="cstat-no" title="statement not covered" >  }</span>
+<span class="cstat-no" title="statement not covered" >  console.log("[SLUG PAGE] Slug OK. Preparando datos para renderizar...");</span>
+<span class="cstat-no" title="statement not covered" >  const tecnologias = parseCommaSeparatedString(antecedente?.Tecnologias);</span>
+<span class="cstat-no" title="statement not covered" >  console.log(`[SLUG PAGE] Tecnologías procesadas (array):`, tecnologias);</span>
+<span class="cstat-no" title="statement not covered" >  const tags = parseCommaSeparatedString(antecedente?.tags);</span>
+<span class="cstat-no" title="statement not covered" >  console.log(`[SLUG PAGE] Tags procesados (array):`, tags);</span>
+<span class="cstat-no" title="statement not covered" >  let imagenesGaleria = [];</span>
+<span class="cstat-no" title="statement not covered" >  if (Array.isArray(antecedente?.Imagenes)) {</span>
+<span class="cstat-no" title="statement not covered" >    imagenesGaleria = antecedente.Imagenes.filter((imgId) =&gt; imgId != null);</span>
+<span class="cstat-no" title="statement not covered" >    console.log(`[SLUG PAGE] Imágenes de galería procesadas (IDs):`, imagenesGaleria);</span>
+<span class="cstat-no" title="statement not covered" >  } else if (antecedente?.Imagenes) {</span>
+<span class="cstat-no" title="statement not covered" >    console.warn(`[SLUG PAGE] El campo 'Imagenes' existe pero no es un array. Valor:`, antecedente.Imagenes);</span>
+<span class="cstat-no" title="statement not covered" >  } else {</span>
+<span class="cstat-no" title="statement not covered" >    console.log(`[SLUG PAGE] No hay campo 'Imagenes' o está vacío.`);</span>
+<span class="cstat-no" title="statement not covered" >  }</span>
+<span class="cstat-no" title="statement not covered" >  const fichaTecnicaFields = [</span>
+<span class="cstat-no" title="statement not covered" >    // Iconos de Heroicons v2 (Outline) - Asegúrate de tenerlos disponibles o usa los que prefieras</span>
+<span class="cstat-no" title="statement not covered" >    { key: "Fecha", label: "Fecha", icon: "M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" },</span>
+<span class="cstat-no" title="statement not covered" >    { key: "Cliente", label: "Cliente", icon: "M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" },</span>
+<span class="cstat-no" title="statement not covered" >    { key: "Area", label: "Área", icon: "M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6.375M9 12h6.375M9 17.25h6.375" },</span>
+<span class="cstat-no" title="statement not covered" >    { key: "Unidad_de_negocio", label: "U. Negocio", icon: "M2.25 21h19.5m-18-18h16.5a1.5 1.5 0 0 1 1.5 1.5v15a1.5 1.5 0 0 1-1.5 1.5H3.75a1.5 1.5 0 0 1-1.5-1.5v-15a1.5 1.5 0 0 1 1.5-1.5Zm1.5 4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 3.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 3.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" },</span>
+<span class="cstat-no" title="statement not covered" >    { key: "Estado", label: "Estado", icon: "M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1-18 0Z" }</span>
+<span class="cstat-no" title="statement not covered" >  ];</span>
+<span class="cstat-no" title="statement not covered" >  function formatFichaValue(key, value) {</span>
+<span class="cstat-no" title="statement not covered" >    if (value === null || value === void 0 || value === "") return null;</span>
+<span class="cstat-no" title="statement not covered" >    if (key === "Fecha") {</span>
+<span class="cstat-no" title="statement not covered" >      try {</span>
+<span class="cstat-no" title="statement not covered" >        const date = new Date(value);</span>
+<span class="cstat-no" title="statement not covered" >        if (isNaN(date.getTime())) {</span>
+<span class="cstat-no" title="statement not covered" >          console.warn(`[formatFichaValue] Valor de fecha inválido: ${value}`);</span>
+<span class="cstat-no" title="statement not covered" >          return String(value);</span>
+<span class="cstat-no" title="statement not covered" >        }</span>
+<span class="cstat-no" title="statement not covered" >        return date.toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" });</span>
+<span class="cstat-no" title="statement not covered" >      } catch (e) {</span>
+<span class="cstat-no" title="statement not covered" >        console.error(`[formatFichaValue] Error formateando fecha: ${value}`, e);</span>
+<span class="cstat-no" title="statement not covered" >        return String(value);</span>
+<span class="cstat-no" title="statement not covered" >      }</span>
+<span class="cstat-no" title="statement not covered" >    }</span>
+<span class="cstat-no" title="statement not covered" >    if (key === "Estado") {</span>
+<span class="cstat-no" title="statement not covered" >      const lowerCaseValue = String(value).toLowerCase();</span>
+<span class="cstat-no" title="statement not covered" >      let statusClass = "bg-gray-100 text-gray-700 ring-gray-500/10";</span>
+<span class="cstat-no" title="statement not covered" >      if (lowerCaseValue.includes("completado") || lowerCaseValue.includes("finalizado")) {</span>
+<span class="cstat-no" title="statement not covered" >        statusClass = "bg-green-100 text-green-800 ring-green-600/20";</span>
+<span class="cstat-no" title="statement not covered" >      } else if (lowerCaseValue.includes("proceso") || lowerCaseValue.includes("desarrollo")) {</span>
+<span class="cstat-no" title="statement not covered" >        statusClass = "bg-yellow-100 text-yellow-800 ring-yellow-600/20";</span>
+<span class="cstat-no" title="statement not covered" >      } else if (lowerCaseValue.includes("pendiente") || lowerCaseValue.includes("pausado")) {</span>
+<span class="cstat-no" title="statement not covered" >        statusClass = "bg-orange-100 text-orange-800 ring-orange-600/20";</span>
+<span class="cstat-no" title="statement not covered" >      } else if (lowerCaseValue.includes("cancelado")) {</span>
+<span class="cstat-no" title="statement not covered" >        statusClass = "bg-red-100 text-red-800 ring-red-600/20";</span>
+<span class="cstat-no" title="statement not covered" >      }</span>
+<span class="cstat-no" title="statement not covered" >      return { html: `&lt;span class="inline-block px-2.5 py-0.5 rounded-full text-sm font-medium ring-1 ring-inset ${statusClass}"&gt;${value}&lt;/span&gt;` };</span>
+<span class="cstat-no" title="statement not covered" >    }</span>
+<span class="cstat-no" title="statement not covered" >    return String(value);</span>
+<span class="cstat-no" title="statement not covered" >  }</span>
+<span class="cstat-no" title="statement not covered" >  const pageTitle = antecedente?.Titulo ? `Caso de Estudio: ${antecedente.Titulo}` : "Detalle del Antecedente";</span>
+<span class="cstat-no" title="statement not covered" >  const heroImage = antecedente?.Imagen ? getAssetUrl(antecedente.Imagen.id || antecedente.Imagen) : DEFAULT_IMAGE_URL;</span>
+<span class="cstat-no" title="statement not covered" >  console.log(`[SLUG PAGE] Hero Image URL: ${heroImage}`);</span>
+<span class="cstat-no" title="statement not covered" >  return renderTemplate`${renderComponent($$result, "Layout", $$Layout, { "title": pageTitle }, { "default": async ($$result2) =&gt; renderTemplate` ${maybeRenderHead()}&lt;main class="relative min-h-screen bg-white"&gt;  &lt;div class="relative h-[60vh] min-h-[450px] max-h-[600px] overflow-hidden"&gt; &lt;div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-transparent z-10"&gt;&lt;/div&gt; &lt;img${addAttribute(heroImage, "src")} Asegura que se use la imagen correcta${addAttribute(antecedente?.Titulo || "Imagen del proyecto", "alt")} class="absolute w-full h-full object-cover object-center scale-105 animate-subtle-zoom" loading="eager"${addAttribute(`this.onerror=null; this.src='${DEFAULT_IMAGE_URL}';`, "onerror")} Fallback a la imagen por defecto si ocurre un error&gt; &lt;div class="absolute inset-0 z-20"&gt; &lt;div class="container h-full flex items-end pb-20"&gt; &lt;div class="max-w-3xl"&gt; &lt;div class="space-y-6"&gt; &lt;span class="inline-flex items-center px-4 py-1.5 rounded-full text-base font-medium bg-blue-600 text-white"&gt; &lt;svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt; &lt;path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"&gt;&lt;/path&gt; &lt;/svg&gt;</span>
+<span class="cstat-no" title="statement not covered" >Caso de Estudio</span>
+<span class="cstat-no" title="statement not covered" >&lt;/span&gt; &lt;h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight"&gt; ${antecedente?.Titulo} &lt;/h1&gt; ${antecedente?.Cliente &amp;&amp; renderTemplate`&lt;div class="flex items-center bg-white/90 backdrop-blur-sm rounded-full px-5 py-2.5 w-fit"&gt; &lt;svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt; &lt;path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"&gt;&lt;/path&gt; &lt;/svg&gt; &lt;span class="text-lg font-medium text-gray-800"&gt;${antecedente.Cliente}&lt;/span&gt; &lt;/div&gt;`} &lt;/div&gt; &lt;/div&gt; &lt;/div&gt; &lt;/div&gt; &lt;/div&gt;  &lt;div class="container relative z-10 -mt-20 pb-20"&gt; &lt;div class="grid grid-cols-1 lg:grid-cols-12 gap-8"&gt;  &lt;aside class="lg:col-span-3 lg:order-2 space-y-6"&gt; &lt;div class="sticky top-8"&gt;  &lt;section class="bg-white rounded-2xl p-6 text-gray-800 shadow-xl border border-gray-200"&gt; &lt;h2 class="text-xl font-bold mb-6 pb-4 border-b border-gray-200"&gt;Detalles del Proyecto&lt;/h2&gt; &lt;dl class="space-y-4"&gt; ${fichaTecnicaFields.map(({ key, label, icon }) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    const value = antecedente?.[key];</span>
+<span class="cstat-no" title="statement not covered" >    const formattedValue = formatFichaValue(key, value);</span>
+<span class="cstat-no" title="statement not covered" >    if (formattedValue === null) return null;</span>
+<span class="cstat-no" title="statement not covered" >    return renderTemplate`&lt;div class="flex items-start gap-x-3"${addAttribute(key, "key")}&gt; &lt;dt class="flex-shrink-0 text-gray-500 pt-0.5"&gt;  &lt;svg class="w-5 h-5" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"&gt; &lt;path stroke-linecap="round" stroke-linejoin="round"${addAttribute(icon, "d")}&gt;&lt;/path&gt; &lt;/svg&gt; &lt;span class="sr-only"&gt;${label}&lt;/span&gt;  &lt;/dt&gt; &lt;dd class="flex-1 text-gray-800"&gt;  ${typeof formattedValue === "object" &amp;&amp; formattedValue.html ? (</span>
+<span class="cstat-no" title="statement not covered" >      // Si es HTML (ej: badge de estado), usar set:html</span>
+<span class="cstat-no" title="statement not covered" >      renderTemplate`&lt;div&gt;${unescapeHTML(formattedValue.html)}&lt;/div&gt;`</span>
+<span class="cstat-no" title="statement not covered" >    ) : (</span>
+<span class="cstat-no" title="statement not covered" >      // Si es texto plano</span>
+<span class="cstat-no" title="statement not covered" >      renderTemplate`&lt;span class="text-base"&gt;${formattedValue}&lt;/span&gt;`</span>
+<span class="cstat-no" title="statement not covered" >    )} &lt;/dd&gt; &lt;/div&gt;`;</span>
+<span class="cstat-no" title="statement not covered" >  }).filter(Boolean)}  &lt;/dl&gt; &lt;/section&gt;  ${(tecnologias.length &gt; 0 || tags.length &gt; 0) &amp;&amp; renderTemplate`&lt;section class="mt-6 bg-white rounded-2xl p-6 text-gray-800 shadow-xl border border-gray-200"&gt; ${tecnologias.length &gt; 0 &amp;&amp; renderTemplate`&lt;div class="mb-6"&gt; &lt;h3 class="text-lg font-semibold mb-4"&gt;Tecnologías&lt;/h3&gt; &lt;div class="flex flex-wrap gap-2"&gt; ${tecnologias.map((tech) =&gt; renderTemplate`&lt;span class="px-3 py-1 rounded-full text-base font-medium bg-blue-50 text-blue-700"&gt; ${tech} &lt;/span&gt;`)} &lt;/div&gt; &lt;/div&gt;`} ${tags.length &gt; 0 &amp;&amp; renderTemplate`&lt;div&gt; &lt;h3 class="text-lg font-semibold mb-4"&gt;Etiquetas&lt;/h3&gt; &lt;div class="flex flex-wrap gap-2"&gt; ${tags.map((tag) =&gt; renderTemplate`&lt;span class="px-3 py-1 rounded-full text-base font-medium bg-gray-50 text-gray-600"&gt;</span>
+<span class="cstat-no" title="statement not covered" >#${tag} &lt;/span&gt;`)} &lt;/div&gt; &lt;/div&gt;`} &lt;/section&gt;`}  &lt;div class="mt-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white shadow-xl"&gt; &lt;h3 class="text-xl font-bold mb-3"&gt;¿Te interesa este proyecto?&lt;/h3&gt; &lt;p class="text-blue-100 mb-6"&gt;Descubre cómo podemos ayudarte&lt;/p&gt; &lt;a href="/contacto" class="block w-full bg-white text-blue-600 font-medium py-3 px-6 rounded-lg text-base text-center hover:bg-gray-50 transition-colors"&gt;</span>
+<span class="cstat-no" title="statement not covered" >Hablar con un experto</span>
+<span class="cstat-no" title="statement not covered" >&lt;/a&gt; &lt;/div&gt; &lt;/div&gt; &lt;/aside&gt;  &lt;div class="lg:col-span-9 lg:order-1"&gt;  ${antecedente?.Descripcion &amp;&amp; renderTemplate`&lt;article class="bg-white rounded-2xl p-8 text-gray-800 shadow-xl border border-gray-200"&gt; &lt;div class="prose max-w-none"&gt;${unescapeHTML(antecedente.Descripcion)}&lt;/div&gt; &lt;/article&gt;`}  ${(antecedente?.Objetivos || antecedente?.Resultados) &amp;&amp; renderTemplate`&lt;div class="grid md:grid-cols-2 gap-8"&gt;  ${antecedente?.Objetivos &amp;&amp; renderTemplate`&lt;div class="bg-white rounded-2xl p-6 sm:p-8 shadow-xl ring-1 ring-gray-900/5 relative overflow-hidden"&gt; &lt;div class="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-br from-blue-50 via-blue-100 to-transparent rounded-bl-full opacity-60"&gt;&lt;/div&gt; &lt;div class="relative z-10"&gt; &lt;h3 class="flex items-center gap-x-2 text-2xl font-bold text-gray-900 mb-4"&gt; &lt;svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 text-blue-600"&gt; &lt;path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.008v.008H12v-.008Z"&gt;&lt;/path&gt; &lt;/svg&gt;</span>
+<span class="cstat-no" title="statement not covered" >Objetivos</span>
+<span class="cstat-no" title="statement not covered" >&lt;/h3&gt; &lt;div class="prose prose-base max-w-none text-gray-600"&gt;${unescapeHTML(antecedente.Objetivos)}&lt;/div&gt; &lt;/div&gt; &lt;/div&gt;`}  ${antecedente?.Resultados &amp;&amp; renderTemplate`&lt;div class="bg-white rounded-2xl p-6 sm:p-8 shadow-xl ring-1 ring-gray-900/5 relative overflow-hidden"&gt; &lt;div class="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-br from-green-50 via-green-100 to-transparent rounded-bl-full opacity-60"&gt;&lt;/div&gt; &lt;div class="relative z-10"&gt; &lt;h3 class="flex items-center gap-x-2 text-2xl font-bold text-gray-900 mb-4"&gt; &lt;svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 text-green-600"&gt; &lt;path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1-18 0Z"&gt;&lt;/path&gt; &lt;/svg&gt;</span>
+<span class="cstat-no" title="statement not covered" >Resultados</span>
+<span class="cstat-no" title="statement not covered" >&lt;/h3&gt; &lt;div class="prose prose-base max-w-none text-gray-600"&gt;${unescapeHTML(antecedente.Resultados)}&lt;/div&gt; &lt;/div&gt; &lt;/div&gt;`} &lt;/div&gt;`}  ${imagenesGaleria.length &gt; 0 &amp;&amp; renderTemplate`&lt;section class="mt-8 bg-white rounded-2xl p-8 shadow-xl"&gt; &lt;h2 class="text-2xl font-bold text-gray-900 mb-6"&gt;Galería del Proyecto&lt;/h2&gt; &lt;div class="grid grid-cols-2 md:grid-cols-3 gap-6"&gt; ${imagenesGaleria.map((imagenId, index) =&gt; renderTemplate`&lt;a${addAttribute(getAssetUrl(imagenId), "href")} class="group relative aspect-video sm:aspect-square rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 block" data-fslightbox="gallery"${addAttribute(`Ver imagen ${index + 1} de la galería`, "aria-label")}&gt; &lt;img${addAttribute(getAssetUrl(imagenId) + "?width=400&amp;height=400&amp;fit=cover", "src")} Pide tamaño optimizado a Directus${addAttribute(`${antecedente.Titulo || "Imagen del proyecto"} - ${index + 1}`, "alt")} class="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-105" loading="lazy" width="400" height="400"${addAttribute(`this.onerror=null; this.src='${DEFAULT_IMAGE_URL}?width=400&amp;height=400&amp;fit=cover'; this.alt='Imagen ${index + 1} por defecto';`, "onerror")}&gt;  &lt;div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-start p-3"&gt; &lt;span class="text-white text-sm font-medium flex items-center gap-1"&gt; &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"&gt; &lt;path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd"&gt;&lt;/path&gt; &lt;/svg&gt;</span>
+<span class="cstat-no" title="statement not covered" >Ampliar</span>
+<span class="cstat-no" title="statement not covered" >&lt;/span&gt; &lt;/div&gt; &lt;/a&gt;`)} &lt;/div&gt; &lt;/section&gt;`} &lt;/div&gt; &lt;/div&gt;  &lt;div class="mt-16 text-center"&gt; &lt;a href="/antecedentes" class="inline-flex items-center px-6 py-3 rounded-lg text-base font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-md"&gt; &lt;svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt; &lt;path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75"&gt;&lt;/path&gt; &lt;/svg&gt;</span>
+<span class="cstat-no" title="statement not covered" >Volver a Antecedentes</span>
+<span class="cstat-no" title="statement not covered" >&lt;/a&gt; &lt;/div&gt; &lt;/div&gt; &lt;/main&gt; ` })} `;</span>
+<span class="cstat-no" title="statement not covered" >}, "/Users/Shared/Files From d.localized/D/ultima milla/2024/MKT 2024/umw141024/umw46-main/fumbling-field/src/pages/antecedentes/[id]/[slug].astro", void 0);</span>
+<span class="cstat-no" title="statement not covered" >const $$file = "/Users/Shared/Files From d.localized/D/ultima milla/2024/MKT 2024/umw141024/umw46-main/fumbling-field/src/pages/antecedentes/[id]/[slug].astro";</span>
+<span class="cstat-no" title="statement not covered" >const $$url = "/antecedentes/[id]/[slug]";</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({</span>
+<span class="cstat-no" title="statement not covered" >  __proto__: null,</span>
+<span class="cstat-no" title="statement not covered" >  default: $$slug,</span>
+<span class="cstat-no" title="statement not covered" >  file: $$file,</span>
+<span class="cstat-no" title="statement not covered" >  prerender,</span>
+<span class="cstat-no" title="statement not covered" >  url: $$url</span>
+<span class="cstat-no" title="statement not covered" >}, Symbol.toStringTag, { value: 'Module' }));</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >const page = () =&gt; _page;</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >export { page };</span>
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2025-06-05T15:55:08.151Z
+            </div>
+        <script src="../../../../../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../../../../../sorter.js"></script>
+        <script src="../../../../../../block-navigation.js"></script>
+    </body>
+</html>
+    

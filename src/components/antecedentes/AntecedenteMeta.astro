@@ -1,0 +1,107 @@
+---
+interface Props {
+  antecedente: any;
+  titulo?: string;
+}
+
+const { antecedente, titulo = "Información Adicional" } = Astro.props;
+
+// Extraer metadatos relevantes
+const cliente = antecedente.Cliente || '';
+const ubicacion = antecedente.Ubicacion || '';
+const fecha = antecedente.Fecha ? new Date(antecedente.Fecha).toLocaleDateString('es-ES', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+}) : '';
+const documentos = antecedente.documentos || [];
+---
+
+<section class="antecedente-meta">
+  <div class="antecedente-meta__container">
+    {titulo && <h2 class="antecedente-meta__title">{titulo}</h2>}
+    
+    <div class="antecedente-meta__grid">
+      {cliente && (
+        <div class="antecedente-meta__item">
+          <h3 class="antecedente-meta__item-title">Cliente</h3>
+          <p class="antecedente-meta__item-content">{cliente}</p>
+        </div>
+      )}
+      
+      {ubicacion && (
+        <div class="antecedente-meta__item">
+          <h3 class="antecedente-meta__item-title">Ubicación</h3>
+          <p class="antecedente-meta__item-content">{ubicacion}</p>
+        </div>
+      )}
+      
+      {fecha && (
+        <div class="antecedente-meta__item">
+          <h3 class="antecedente-meta__item-title">Fecha</h3>
+          <p class="antecedente-meta__item-content">{fecha}</p>
+        </div>
+      )}
+      
+      {documentos && documentos.length > 0 && (
+        <div class="antecedente-meta__item antecedente-meta__item--full">
+          <h3 class="antecedente-meta__item-title">Documentos</h3>
+          <ul class="antecedente-meta__documentos">
+            {documentos.map((doc) => (
+              <li class="antecedente-meta__documento">
+                <a 
+                  href={`${import.meta.env.PUBLIC_DIRECTUS_URL}/assets/${doc.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="antecedente-meta__documento-link"
+                >
+                  {doc.title || doc.filename}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  .antecedente-meta__item--full {
+    grid-column: 1 / -1;
+  }
+  
+  .antecedente-meta__documentos {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .antecedente-meta__documento {
+    margin-bottom: 0.5rem;
+  }
+  
+  .antecedente-meta__documento-link {
+    display: inline-flex;
+    align-items: center;
+    color: #0056b3;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .antecedente-meta__documento-link:hover {
+    color: #003d82;
+    text-decoration: underline;
+  }
+  
+  .antecedente-meta__documento-link::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230056b3'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6z'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
+</style>

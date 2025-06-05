@@ -1,399 +1,280 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import ServicesList from '../components/ServicesList.astro';
+import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
+
+// Obtener servicios destacados
+const servicesResponse = await fetch(
+  `${import.meta.env.PUBLIC_DIRECTUS_URL}/items/Servicios?limit=3&fields=*,Imagen.*`,
+  {
+    headers: {
+      'Authorization': `Bearer ${import.meta.env.PUBLIC_DIRECTUS_TOKEN}`
+    }
+  }
+);
+const services = servicesResponse.ok ? await servicesResponse.json() : { data: [] };
+
+// Obtener antecedentes destacados
+const antecedentesResponse = await fetch(
+  `${import.meta.env.PUBLIC_DIRECTUS_URL}/items/Antecedentes?limit=3&fields=*,Imagen.*,Servicios.Servicios_id.*`,
+  {
+    headers: {
+      'Authorization': `Bearer ${import.meta.env.PUBLIC_DIRECTUS_TOKEN}`
+    }
+  }
+);
+const antecedentes = antecedentesResponse.ok ? await antecedentesResponse.json() : { data: [] };
 ---
 
 <Layout title="ULTIMA MILLA - Servicios IT Innovadores">
-	<div class="min-h-screen bg-gray-100">
-		<section
-			id="banner"
-			class="hero min-h-screen flex items-center justify-center text-center text-white relative"
-		>
-			<div class="absolute inset-0 bg-black opacity-50"></div>
-			<div class="hero-content container mx-auto px-4 relative z-10">
-				<h1
-					id="dynamicText"
-					class="text-5xl font-bold overflow-hidden whitespace-nowrap border-r-4 border-red-500 inline-block mb-4 animate-typing text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]"
-				>
-					ULTIMA MILLA@root:~$
-				</h1>
-				<p class="text-2xl mt-4">
-					Transformamos tu negocio con tecnología que puedes pagar.
-				</p>
-				<a
-					href="#contacto"
-					class="mt-8 inline-block bg-red-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition duration-300"
-				>
-					Contáctanos
-				</a>
-			</div>
-		</section>
+  <!-- Hero Section -->
+  <header id="banner" class="relative w-full h-screen overflow-hidden">
+    <div 
+      class="absolute inset-0 bg-cover bg-center hero-gradient"
+      style="background-image: url('/1.jpg')"
+    >
+      <div class="absolute inset-0 bg-gradient-to-r from-black/70 to-black/40"></div>
+    </div>
+    <div class="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
+      <h1 id="dynamicText" class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"></h1>
+      <p class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">Transformamos tu negocio con tecnología que puedes pagar.</p>
+      <a 
+        href="#contacto" 
+        class="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+      >
+        Contáctanos
+      </a>
+    </div>
+    
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2">
+      <div class="animate-bounce w-6 h-10 border-4 border-white/50 rounded-full flex justify-center">
+        <div class="w-1 h-2 bg-white rounded-full mt-2"></div>
+      </div>
+    </div>
+  </header>
 
-		<section id="about-us" class="py-16 bg-gray-50">
-			<div class="container mx-auto px-4">
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-					<div class="about-content">
-						<h2 class="text-4xl font-bold text-gray-800 mb-6">
-							Sobre Nosotros
-						</h2>
-						<p class="text-lg text-gray-700 mb-8">
-							Somos un equipo apasionado por la tecnología, dedicado a
-							impulsar la transformación digital de las empresas.
-							Nuestra misión es ofrecer soluciones innovadoras y
-							eficientes que generen un impacto positivo en el
-							crecimiento de nuestros clientes.
-						</p>
-						<a
-							href="#"
-							class="inline-block bg-red-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-600 transition duration-300"
-						>
-							Saber Más
-						</a>
-					</div>
-					<div class="about-image">
-						<img
-							src="/about-us.jpg"
-							alt="Sobre Nosotros"
-							class="rounded-lg shadow-lg"
-						/>
-					</div>
-				</div>
-			</div>
-		</section>
+  <main class="bg-gray-100">
+    <!-- Sobre Nosotros -->
+    <section id="about-us" class="py-16 bg-gray-50">
+      <div class="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
+        <div>
+          <h2 class="text-4xl font-bold text-gray-800 mb-6">Sobre Nosotros</h2>
+          <p class="text-lg text-gray-700 mb-8">
+            Somos un equipo apasionado por la tecnología, dedicado a impulsar la transformación digital de las empresas. Nuestra misión es ofrecer soluciones innovadoras y eficientes que generen un impacto positivo en el crecimiento de nuestros clientes.
+          </p>
+          <a href="#" class="inline-block bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition">Saber Más</a>
+        </div>
+        <div>
+          <!-- Ensure that "about-us.jpg" exists in the public folder -->
+          <img src="/blog-placeholder-about.jpg" alt="Equipo Última Milla" class="w-full h-auto rounded-lg shadow-lg" />
+        </div>
+      </div>
+    </section>
 
-		<section id="servicios" class="services py-20 bg-white">
-			<div class="container mx-auto px-4">
-				<h2 class="text-4xl font-bold text-gray-800 mb-10 text-center">
-					Nuestros Servicios
-				</h2>
-				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-					<div
-						class="service-item bg-gray-100 rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow"
-					>
-						<div class="service-icon text-6xl mb-4">🛡️</div>
-						<h3 class="text-2xl font-bold text-gray-800 mb-4">
-							Ciberseguridad
-						</h3>
-						<p>
-							Protegemos tu negocio contra amenazas cibernéticas con
-							soluciones avanzadas de seguridad.
-						</p>
-					</div>
-					<div
-						class="service-item bg-gray-100 rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow"
-					>
-						<div class="service-icon text-6xl mb-4">☁️</div>
-						<h3 class="text-2xl font-bold text-gray-800 mb-4">
-							Cloud Computing
-						</h3>
-						<p>
-							Optimizamos tus operaciones con nuestras soluciones de
-							nube escalables y flexibles.
-						</p>
-					</div>
-					<div
-						class="service-item bg-gray-100 rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow"
-					>
-						<div class="service-icon text-6xl mb-4">📊</div>
-						<h3 class="text-2xl font-bold text-gray-800 mb-4">
-							Análisis de Datos
-						</h3>
-						<p>
-							Obtén insights valiosos de tus datos con nuestras
-							soluciones de análisis avanzado.
-						</p>
-					</div>
-				</div>
-			</div>
-		</section>
+    <!-- Nuestros Servicios -->
+    <section id="servicios" class="py-20 bg-white">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+          <span class="text-red-500 font-semibold">Nuestras Soluciones</span>
+          <h2 class="text-4xl font-bold text-gray-800 mt-2 mb-4">Servicios Profesionales</h2>
+          <div class="w-20 h-1 bg-red-500 mx-auto"></div>
+        </div>
+        
+        {services.data && services.data.length > 0 ? (
+          <ServicesList services={services.data} />
+        ) : (
+          <div class="text-center py-12">
+            <p class="text-gray-500">No hay servicios disponibles en este momento.</p>
+          </div>
+        )}
+        
+        <div class="text-center mt-10">
+          <a href="/servicios" class="inline-block bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition">
+            Ver todos los servicios
+          </a>
+        </div>
+      </div>
+    </section>
 
-		<section class="carousel-services py-16 bg-gray-50">
-			<div class="container mx-auto px-4">
-				<h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">
-					Servicios Destacados
-				</h2>
-				<div class="carousel-container overflow-x-auto">
-					<div class="flex space-x-6 py-4 animate-scroll">
-						<div class="flex-none w-80 bg-white rounded-xl shadow-lg p-6">
-							<div class="text-red-500 text-2xl mb-4">💻</div>
-							<h3 class="font-bold text-xl mb-2">
-								Desarrollo de Software
-							</h3>
-							<p class="text-gray-600">
-								Soluciones personalizadas para tu negocio
-							</p>
-							<ul class="mt-4 text-sm text-gray-500">
-								<li>• Apps Móviles</li>
-								<li>• Sistemas Web</li>
-								<li>• Integración API</li>
-							</ul>
-						</div>
+    <!-- Servicios Destacados (Carrusel) -->
+    <section class="carousel-services py-16 bg-gray-50">
+      <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">Servicios Destacados</h2>
+        <div class="carousel-container overflow-x-auto">
+          <div class="flex space-x-6 py-4 animate-scroll hover:pause">
+            <div class="flex-none w-80 bg-white rounded-xl shadow-lg p-6">
+              <div class="text-red-500 text-2xl mb-4">💻</div>
+              <h3 class="font-bold text-xl mb-2">Desarrollo de Software</h3>
+              <p class="text-gray-600">Soluciones personalizadas para tu negocio</p>
+              <ul class="mt-4 text-sm text-gray-500 list-disc list-inside">
+                <li>Apps Móviles</li>
+                <li>Sistemas Web</li>
+                <li>Integración API</li>
+              </ul>
+            </div>
+            <div class="flex-none w-80 bg-white rounded-xl shadow-lg p-6">
+              <div class="text-red-500 text-2xl mb-4">🔒</div>
+              <h3 class="font-bold text-xl mb-2">Ciberseguridad Avanzada</h3>
+              <p class="text-gray-600">Protección integral de datos</p>
+              <ul class="mt-4 text-sm text-gray-500 list-disc list-inside">
+                <li>Auditorías de seguridad</li>
+                <li>Prevención de intrusiones</li>
+                <li>Gestión de vulnerabilidades</li>
+              </ul>
+            </div>
+            <div class="flex-none w-80 bg-white rounded-xl shadow-lg p-6">
+              <div class="text-red-500 text-2xl mb-4">📱</div>
+              <h3 class="font-bold text-xl mb-2">Soluciones IoT</h3>
+              <p class="text-gray-600">Conectividad inteligente</p>
+              <ul class="mt-4 text-sm text-gray-500 list-disc list-inside">
+                <li>Automatización</li>
+                <li>Monitoreo remoto</li>
+                <li>Análisis en tiempo real</li>
+              </ul>
+            </div>
+            <div class="flex-none w-80 bg-white rounded-xl shadow-lg p-6">
+              <div class="text-red-500 text-2xl mb-4">🚀</div>
+              <h3 class="font-bold text-xl mb-2">DevOps</h3>
+              <p class="text-gray-600">Optimización de desarrollo</p>
+              <ul class="mt-4 text-sm text-gray-500 list-disc list-inside">
+                <li>CI/CD</li>
+                <li>Contenedores</li>
+                <li>Microservicios</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-						<div class="flex-none w-80 bg-white rounded-xl shadow-lg p-6">
-							<div class="text-red-500 text-2xl mb-4">🔒</div>
-							<h3 class="font-bold text-xl mb-2">
-								Ciberseguridad Avanzada
-							</h3>
-							<p class="text-gray-600">
-								Protección integral de datos
-							</p>
-							<ul class="mt-4 text-sm text-gray-500">
-								<li>• Auditorías de seguridad</li>
-								<li>• Prevención de intrusiones</li>
-								<li>• Gestión de vulnerabilidades</li>
-							</ul>
-						</div>
+    <!-- Antecedentes Destacados -->
+    <section id="antecedentes" class="py-20 bg-gray-50">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+          <span class="text-red-500 font-semibold">Nuestro Trabajo</span>
+          <h2 class="text-4xl font-bold text-gray-800 mt-2 mb-4">Casos de Estudio</h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">Conoce algunos de nuestros proyectos más destacados y cómo hemos ayudado a nuestros clientes a alcanzar sus objetivos.</p>
+          <div class="w-20 h-1 bg-red-500 mx-auto mt-4"></div>
+        </div>
+        
+        {antecedentes.data && antecedentes.data.length > 0 ? (
+          <FeaturedAntecedentes antecedentes={antecedentes.data} />
+        ) : (
+          <div class="text-center py-12">
+            <p class="text-gray-500">No hay casos de estudio disponibles en este momento.</p>
+          </div>
+        )}
+        
+        <div class="text-center mt-10">
+          <a href="/antecedentes" class="inline-block border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-6 py-3 rounded-lg font-semibold transition">
+            Ver todos los casos de estudio
+          </a>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Contacto -->
+    <section id="contacto" class="py-20 bg-white">
+      <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto bg-gray-50 rounded-xl shadow-lg overflow-hidden">
+          <div class="md:flex">
+            <div class="md:w-1/2 bg-red-500 text-white p-8 md:p-12">
+              <h2 class="text-3xl font-bold mb-4">¿Listo para comenzar?</h2>
+              <p class="mb-6">Contáctanos para discutir cómo podemos ayudarte a alcanzar tus objetivos tecnológicos.</p>
+              <div class="space-y-4">
+                <div class="flex items-start">
+                  <div class="flex-shrink-0 mt-1">
+                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <p class="ml-3">contacto@ultimamilla.com</p>
+                </div>
+                <div class="flex items-start">
+                  <div class="flex-shrink-0 mt-1">
+                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                  </div>
+                  <p class="ml-3">+54 261 123 4567</p>
+                </div>
+                <div class="flex items-start">
+                  <div class="flex-shrink-0 mt-1">
+                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <p class="ml-3">Av. San Martín 1234, Mendoza, Argentina</p>
+                </div>
+              </div>
+            </div>
+            <div class="md:w-1/2 p-8 md:p-12">
+              <h3 class="text-2xl font-bold text-gray-800 mb-6">Envíanos un mensaje</h3>
+              <form class="space-y-4">
+                <div>
+                  <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                  <input type="text" id="name" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                </div>
+                <div>
+                  <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                </div>
+                <div>
+                  <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Mensaje</label>
+                  <textarea id="message" name="message" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                  Enviar Mensaje
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-						<div class="flex-none w-80 bg-white rounded-xl shadow-lg p-6">
-							<div class="text-red-500 text-2xl mb-4">📱</div>
-							<h3 class="font-bold text-xl mb-2">Soluciones IoT</h3>
-							<p class="text-gray-600">
-								Conectividad inteligente
-							</p>
-							<ul class="mt-4 text-sm text-gray-500">
-								<li>• Automatización</li>
-								<li>• Monitoreo remoto</li>
-								<li>• Análisis en tiempo real</li>
-							</ul>
-						</div>
+    <!-- Contacto -->
+    <section id="contacto" class="contact py-20 bg-white text-center">
+      <div class="container mx-auto px-4">
+        <h2 class="text-4xl font-bold text-gray-800 mb-8">Contáctanos</h2>
+        <form class="max-w-lg mx-auto grid gap-4">
+          <input type="text" placeholder="Nombre" required class="w-full p-4 border border-gray-300 rounded-lg" />
+          <input type="email" placeholder="Email" required class="w-full p-4 border border-gray-300 rounded-lg" />
+          <textarea placeholder="Mensaje" required class="w-full p-4 border border-gray-300 rounded-lg h-40"></textarea>
+          <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition">Enviar</button>
+        </form>
+      </div>
+    </section>
+  </main>
 
-						<div class="flex-none w-80 bg-white rounded-xl shadow-lg p-6">
-							<div class="text-red-500 text-2xl mb-4">🚀</div>
-							<h3 class="font-bold text-xl mb-2">DevOps</h3>
-							<p class="text-gray-600">
-								Optimización de desarrollo
-							</p>
-							<ul class="mt-4 text-sm text-gray-500">
-								<li>• CI/CD</li>
-								<li>• Contenedores</li>
-								<li>• Microservicios</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-			</div>
-		</section>
-
-		<section id="casos" class="cases py-20 bg-gray-900 text-white">
-			<div class="container mx-auto px-4">
-				<h2 class="text-4xl font-bold text-center mb-10">
-					Casos de Éxito
-				</h2>
-				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-					<div
-						class="case-study bg-gray-800 rounded-lg p-6 hover:bg-gray-700 transition-colors relative overflow-hidden"
-					>
-						<div
-							class="absolute top-0 left-0 w-1 h-0 bg-red-500 transition-all duration-500 hover:h-full"
-						></div>
-						<h3 class="text-2xl font-bold text-red-500 mb-4">
-							FinanzasTech
-						</h3>
-						<p>
-							Implementamos un sistema de seguridad avanzado para el
-							Banco XYZ, reduciendo los incidentes de ciberseguridad
-							en un 95%.
-						</p>
-						<a
-							href="#"
-							class="mt-4 inline-block bg-transparent border border-red-500 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-gray-800 transition-colors"
-						>
-							Ver Detalles
-						</a>
-					</div>
-					<div
-						class="case-study bg-gray-800 rounded-lg p-6 hover:bg-gray-700 transition-colors relative overflow-hidden"
-					>
-						<div
-							class="absolute top-0 left-0 w-1 h-0 bg-red-500 transition-all duration-500 hover:h-full"
-						></div>
-						<h3 class="text-2xl font-bold text-red-500 mb-4">
-							EcommerceTech
-						</h3>
-						<p>
-							Nuestra solución de cloud computing permitió a la
-							tienda online ABC escalar sus operaciones durante el
-							Black Friday, manejando un aumento del 500% en el
-							tráfico.
-						</p>
-						<a
-							href="#"
-							class="mt-4 inline-block bg-transparent border border-red-500 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-gray-800 transition-colors"
-						>
-							Ver Detalles
-						</a>
-					</div>
-					<div
-						class="case-study bg-gray-800 rounded-lg p-6 hover:bg-gray-700 transition-colors relative overflow-hidden"
-					>
-						<div
-							class="absolute top-0 left-0 w-1 h-0 bg-red-500 transition-all duration-500 hover:h-full"
-						></div>
-						<h3 class="text-2xl font-bold text-red-500 mb-4">
-							LogisticaTech
-						</h3>
-						<p>
-							El análisis de datos implementado para la empresa de
-							logística DEF optimizó las rutas de entrega, aumentando
-							la eficiencia en un 30%.
-						</p>
-						<a
-							href="#"
-							class="mt-4 inline-block bg-transparent border border-red-500 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-gray-800 transition-colors"
-						>
-							Ver Detalles
-						</a>
-					</div>
-				</div>
-			</div>
-		</section>
-
-		<section id="contacto" class="contact py-20 bg-white text-center">
-			<div class="container mx-auto px-4">
-				<h2 class="text-4xl font-bold text-gray-800 mb-8">Contáctanos</h2>
-				<form class="max-w-lg mx-auto">
-					<input
-						type="text"
-						placeholder="Nombre"
-						required
-						class="w-full p-4 mb-4 border border-gray-300 rounded-lg"
-					/>
-					<input
-						type="email"
-						placeholder="Email"
-						required
-						class="w-full p-4 mb-4 border border-gray-300 rounded-lg"
-					/>
-					<textarea
-						placeholder="Mensaje"
-						required
-						class="w-full p-4 mb-4 border border-gray-300 rounded-lg h-40"
-					></textarea>
-					<button
-						type="submit"
-						class="bg-red-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-600 transition duration-300"
-					>
-						Enviar
-					</button>
-				</form>
-			</div>
-		</section>
-	</div>
-
-	<script>
-		// Efecto de escribir texto dinámico en el banner principal
-		const textArray = [
-			'ULTIMA MILLA@root:~$ run test',
-			'Transformamos tu negocio.',
-			'Tecnología que puedes pagar.',
-		];
-		let currentIndex = 0;
-		let isDeleting = false;
-		let dynamicText = '';
-		const textElement = document.getElementById('dynamicText');
-
-		function handleTyping() {
-			const currentText = textArray[currentIndex % textArray.length];
-			if (!isDeleting) {
-				dynamicText = currentText.substring(0, dynamicText.length + 1);
-				if (dynamicText === currentText) {
-					setTimeout(() => {
-						isDeleting = true;
-					}, 1000);
-				}
-			} else {
-				dynamicText = currentText.substring(0, dynamicText.length - 1);
-				if (dynamicText === '') {
-					isDeleting = false;
-					currentIndex++;
-				}
-			}
-			if (textElement) {
-				textElement.textContent = dynamicText;
-			}
-			setTimeout(handleTyping, isDeleting ? 50 : 150);
-		}
-
-		// Iniciar el efecto de escritura
-		handleTyping();
-
-		// Fondo aleatorio
-		const images = [
-			'/1.webp',
-			'/2.webp',
-			'/3.webp',
-			'/4.webp',
-			'/5.webp',
-			'/6.webp',
-			'/7.webp',
-			'/8.webp',
-			'/9.webp',
-		];
-		const randomImage = images[Math.floor(Math.random() * images.length)];
-		const bannerSection = document.getElementById('banner');
-		if (bannerSection) {
-			bannerSection.style.backgroundImage = `url(${randomImage})`;
-			bannerSection.style.backgroundSize = 'cover';
-			bannerSection.style.backgroundPosition = 'center';
-			bannerSection.style.backgroundRepeat = 'no-repeat';
-		}
-	</script>
-	<style>
-		@keyframes scroll {
-			0% {
-				transform: translateX(0);
-			}
-			100% {
-				transform: translateX(calc(-320px * 2));
-			}
-		}
-
-		.animate-scroll {
-			animation: scroll 20s linear infinite;
-		}
-
-		.carousel-container:hover .animate-scroll {
-			animation-play-state: paused;
-		}
-
-		/* Styles from indexum.html */
-		.about-us {
-			font-family: 'Montserrat', sans-serif;
-		}
-
-		.about-content h2 {
-			font-size: 2.5rem;
-			font-weight: 700;
-			color: #333;
-			margin-bottom: 1.5rem;
-		}
-
-		.about-content p {
-			font-size: 1.1rem;
-			color: #666;
-			line-height: 1.7;
-			margin-bottom: 2rem;
-		}
-
-		.about-content a {
-			display: inline-block;
-			padding: 1rem 2rem;
-			background-color: #e53e3e;
-			color: #fff;
-			text-decoration: none;
-			border-radius: 0.375rem;
-			font-weight: 600;
-			transition: background-color 0.3s ease;
-		}
-
-		.about-content a:hover {
-			background-color: #c53030;
-		}
-
-		.about-image img {
-			width: 100%;
-			height: auto;
-			border-radius: 0.5rem;
-			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-		}
-	</style>
+  <!-- Scripts y Estilos -->
+  <script>
+    const textArray = ['ULTIMA MILLA@root:~$ run test','Transformamos tu negocio.','Tecnología que puedes pagar.'];
+    let currentIndex = 0, isDeleting = false, dynamicText = '';
+    const textElement = document.getElementById('dynamicText');
+    function handleTyping() {
+      const currentText = textArray[currentIndex % textArray.length];
+      dynamicText = isDeleting ? currentText.substring(0, dynamicText.length - 1) : currentText.substring(0, dynamicText.length + 1);
+      textElement.textContent = dynamicText;
+      if (!isDeleting && dynamicText === currentText) { setTimeout(() => isDeleting = true, 1000); }
+      if (isDeleting && dynamicText === '') { isDeleting = false; currentIndex++; }
+      setTimeout(handleTyping, isDeleting ? 50 : 150);
+    }
+    handleTyping();
+    const images = Array.from({ length: 18 }, (_, i) => `/${i+1}.jpg`);
+    const banner = document.getElementById('banner');
+    const randomImage = images[Math.floor(Math.random()*images.length)];
+    banner.style.backgroundImage = `url(${randomImage})`;
+    window.addEventListener('scroll', () => {
+      const scrolled = window.pageYOffset;
+      banner.style.backgroundPositionY = `${scrolled * 0.5}px`;
+    });
+  </script>
+  <style is:global>
+    @keyframes scroll {0% {transform: translateX(0);}100% {transform: translateX(-1600px);}}
+    .animate-scroll {animation: scroll 20s linear infinite;}
+    .animate-scroll.pause:hover {animation-play-state: paused;}
+  </style>
 </Layout>

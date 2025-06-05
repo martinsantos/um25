@@ -1,0 +1,93 @@
+/**
+ * Utilidades para el manejo de imágenes y recursos
+ */
+
+/**
+ * Obtiene la URL completa de un recurso en Directus
+ * @param {string} assetId ID del recurso
+ * @param {Object} options Opciones de transformación
+ * @returns {string} URL completa del recurso
+ */
+export function getAssetUrl(assetId, options = {}) {
+  if (!assetId) return '';
+  
+  const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || '';
+  let url = `${baseUrl}/assets/${assetId}`;
+  
+  // Añadir parámetros de transformación si existen
+  const params = new URLSearchParams();
+  
+  if (options.width) params.append('width', options.width);
+  if (options.height) params.append('height', options.height);
+  if (options.fit) params.append('fit', options.fit);
+  if (options.quality) params.append('quality', options.quality);
+  
+  const paramsString = params.toString();
+  if (paramsString) {
+    url += `?${paramsString}`;
+  }
+  
+  return url;
+}
+
+/**
+ * Obtiene la URL de una imagen con tamaño optimizado para diferentes usos
+ * @param {Object} file Objeto de archivo de Directus
+ * @param {string} size Tamaño deseado (thumbnail, small, medium, large)
+ * @returns {string} URL optimizada
+ */
+export function getOptimizedImageUrl(file, size = 'medium') {
+  if (!file || !file.id) return '';
+  
+  const sizes = {
+    thumbnail: { width: 200, quality: 70 },
+    small: { width: 400, quality: 80 },
+    medium: { width: 800, quality: 85 },
+    large: { width: 1200, quality: 90 },
+    original: {}
+  };
+  
+  return getAssetUrl(file.id, sizes[size] || sizes.medium);
+}
+
+/**
+ * Obtiene la URL para una imagen de fondo optimizada
+ * @param {Object} file Objeto de archivo de Directus
+ * @returns {string} URL optimizada para fondo
+ */
+export function getBackgroundImageUrl(file) {
+  if (!file || !file.id) return '';
+  return getAssetUrl(file.id, { width: 1920, quality: 85 });
+}
+
+/**
+ * Obtiene el tipo MIME de un archivo
+ * @param {Object} file Objeto de archivo de Directus
+ * @returns {string} Tipo MIME del archivo
+ */
+export function getFileMimeType(file) {
+  if (!file) return '';
+  return file.type || '';
+}
+
+/**
+ * Verifica si un archivo es una imagen
+ * @param {Object} file Objeto de archivo de Directus
+ * @returns {boolean} True si es una imagen
+ */
+export function isImage(file) {
+  if (!file) return false;
+  const mimeType = getFileMimeType(file);
+  return mimeType.startsWith('image/');
+}
+
+/**
+ * Obtiene la extensión de un archivo
+ * @param {Object} file Objeto de archivo de Directus
+ * @returns {string} Extensión del archivo
+ */
+export function getFileExtension(file) {
+  if (!file || !file.filename) return '';
+  const parts = file.filename.split('.');
+  return parts.length > 1 ? parts.pop().toLowerCase() : '';
+}

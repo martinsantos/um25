@@ -1,378 +1,435 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { directus, PAGE_SIZE, DEFAULT_IMAGE } from '../../utils/directus';
 
-// --- Configuración (parámetros fijos) ---
-const PAGE_SIZE = 12;
-const DEFAULT_IMAGE = 'http://localhost:8055/assets/8cbc28b8-e6ad-46a2-93ec-14db4630091f';
+// Configuración de filtros
 const FILTER_CONFIG = {
-  area: { field: 'Area', display: 'Área', options: [], validate: (v) => !!v, filterQuery: (v) => ({ _eq: v }) },
-  cliente: { field: 'Cliente', display: 'Cliente', options: [], validate: (v) => !!v, filterQuery: (v) => ({ _eq: v }) },
-  unidad_negocio: { field: 'Unidad_de_negocio', display: 'Unidad de Negocio', options: [], validate: (v) => !!v, filterQuery: (v) => ({ _eq: v }) }
+  area: { field: 'Area', display: 'Área', options: [] },
+  cliente: { field: 'Cliente', display: 'Cliente', options: [] },
+  unidad_negocio: { field: 'Unidad_de_negocio', display: 'Unidad de Negocio', options: [] }
 };
 
-// --- Estado (será poblado dentro de fetchData) ---
-let servicios = [];
-let error = null;
-let totalItems = 0;
-let totalPages = 1;
-let randomImages = [];
-let activeFilters = {};
-let searchQuery = '';
-let currentPage = 1;
-
-// --- Funciones API (Directus) ---
-const authenticate = async () => {
-  const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-  const staticToken = import.meta.env.DIRECTUS_STATIC_TOKEN; // Asegúrate que esta variable exista en .env
-  if (!staticToken) {
-    throw new Error('Token estático DIRECTUS_STATIC_TOKEN no configurado en .env');
-  }
-  try {
-    // console.log('Authenticating with token:', staticToken ? staticToken.substring(0, 5) + '...' : 'undefined');
-    const response = await fetch(`${baseUrl}/users/me`, {
-      headers: { 'Authorization': `Bearer ${staticToken}` }
-    });
-    if (!response.ok) {
-      console.error('Authentication failed:', response.status, await response.text());
-      throw new Error(`Token inválido o expirado (${response.status})`);
-    }
-    // console.log('Authentication successful');
-    return { token: staticToken };
-  } catch (e) {
-    console.error('Error en authenticate:', e);
-    throw new Error(`Autenticación fallida: ${e.message}`);
-  }
-};
-
-const fetchRandomImages = async (token) => {
-   const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-   const folderId = '82a1f135-7129-4dcf-bef2-432bec7b7b92'; // ID Carpeta Antecedentes
-   try {
-    const url = `${baseUrl}/files?filter[folder][_eq]=${folderId}&fields=id,type&filter[type][_starts_with]=image&limit=-1`;
-    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' } });
-    if (!response.ok) {
-        console.warn(`Failed to fetch random images: ${response.status}`);
-        randomImages = [DEFAULT_IMAGE]; // Fallback
-        return;
-    }
-    const data = await response.json();
-    if (data.data?.length) {
-        randomImages = data.data
-            .filter(f => f.id && f.type?.startsWith('image/'))
-            .map(f => `${baseUrl}/assets/${f.id}`);
-        // console.log(`Loaded ${randomImages.length} random images.`);
-    }
-    if (!randomImages.length) {
-        console.warn('No valid random images found in folder, using default.');
-        randomImages = [DEFAULT_IMAGE];
-    }
-   } catch(e) {
-     console.error('Error fetching random images:', e);
-     randomImages = [DEFAULT_IMAGE];
-   }
-};
-
-const getRandomImage = () => {
-  if (!randomImages?.length) return DEFAULT_IMAGE;
-  return randomImages[Math.floor(Math.random() * randomImages.length)];
-};
-
-const cleanClientName = (name) => {
-  if (!name) return '';
-  return name
+// Función para generar slugs (debe coincidir con la del single view)
+const generateSlug = (text = '') => {
+  if (!text) return 'item';
+  return String(text)
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\w\s-]/g, '')
     .trim()
-    .replace(/\s+/g, ' ')  // Remove extra spaces
-    .replace(/^[.,\s]+|[.,\s]+$/g, '')  // Remove leading/trailing dots and commas
-    .replace(/\b(sa|s\.a\.|s\s*a|s\.a\.b|ltda|ltd|spa)\b/gi, '')  // Remove common business suffixes
-    .trim();
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 50) || 'item';
 };
 
-const normalizeClient = (name) => {
-  const cleaned = cleanClientName(name);
-  if (!cleaned) return '';
-  // Convertir a minúsculas y luego a Title Case para homogeneizar
-  return cleaned.toLowerCase()
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-};
-
-const fetchFilterOptions = async (token) => {
-  const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-  try {
-    const fields = Object.values(FILTER_CONFIG).map(c => c.field).join(',');
-    const url = `${baseUrl}/items/Antecedentes?fields=${fields}&limit=-1`;
-    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' } });
-    if (!response.ok) {
-        console.warn(`Failed to fetch filter options: ${response.status}`);
-        Object.keys(FILTER_CONFIG).forEach(key => { FILTER_CONFIG[key].options = []; });
-        return;
-    }
-    const data = await response.json();
-
-    // Process each filter type
-    Object.entries(FILTER_CONFIG).forEach(([key, config]) => {
-      let values;
-      if (key === 'cliente') {
-        // Aquí se genera la lista de clientes.
-        // Puedes editar este bloque para agregar transformaciones adicionales o correcciones.
-        values = [...new Set(
-          data.data
-            ?.map(item => normalizeClient(item[config.field]))
-            .filter(Boolean)
-            ?? []
-        )].sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
-        // Ejemplo: para corregir errores específicos, descomentar y ajustar:
-        // values = values.map(v => v.replace(/ErrorEspecifico/gi, 'ValorCorrecto'));
-      } else {
-        // Standard handling for other filters
-        values = [...new Set(
-          data.data
-            ?.map(item => item[config.field])
-            .filter(Boolean)
-            ?? []
-        )].sort();
-      }
-      config.options = values.map(v => ({ id: v, name: v }));
-    });
-  } catch (e) {
-    console.error('Error fetching filter options:', e);
-    Object.keys(FILTER_CONFIG).forEach(key => { FILTER_CONFIG[key].options = []; });
-  }
-};
-
-// fetchServices recibe parámetros
-const fetchServices = async (token, currentFilters, currentSearch, pageNum) => {
-  const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-  const path = '/items/Antecedentes';
-  const filter = { _and: [] };
-
-  Object.entries(currentFilters).forEach(([key, value]) => {
-    if (value && FILTER_CONFIG[key]?.validate(value)) {
-      filter._and.push({ [FILTER_CONFIG[key].field]: FILTER_CONFIG[key].filterQuery(value) });
-    }
-  });
-
-  const params = new URLSearchParams({
-    fields: 'id,Titulo,Descripcion,Imagen,Fecha,Cliente,Unidad_de_negocio,Area',
-    limit: PAGE_SIZE.toString(),
-    offset: ((pageNum - 1) * PAGE_SIZE).toString(),
-    sort: '-Fecha',
-    meta: '*'
-  });
-  if (filter._and.length > 0) params.append('filter', JSON.stringify(filter));
-  if (currentSearch) params.append('search', currentSearch);
-
-  const url = `${baseUrl}${path}?${params}`;
-  console.log('[fetchServices] Calling Directus API:', url); // <-- LOG CLAVE
-
-  try {
-    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' } });
-     if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Directus API Error Response:", response.status, errorText);
-        throw new Error(`API Error (${response.status})`); // Lanzar error para que fetchData lo capture
-     }
-    const data = await response.json();
-    const responseData = Array.isArray(data.data) ? data.data : [];
-    const count = data.meta?.filter_count ?? data.meta?.total_count ?? 0;
-    return { data: responseData, meta: { filter_count: count } };
-  } catch (e) {
-     // Loguear el error específico del fetch si ocurre
-     console.error('Error during fetch in fetchServices:', e);
-     // Re-lanzar para que fetchData lo maneje
-     throw new Error(`Fetch services failed: ${e.message}`);
-  }
-};
-
-// Función Principal de Carga de Datos (lee parámetros)
-async function fetchData() {
-  console.log('[fetchData] Starting...');
-  // Leer URL y parámetros DENTRO de fetchData
-  let requestUrl;
-  let searchParams;
-  try {
-      requestUrl = new URL(Astro.request.url);
-      searchParams = requestUrl.searchParams;
-  } catch (e) {
-      console.warn("Could not parse Astro.request.url, falling back to Astro.url", e);
-      requestUrl = Astro.url; // Fallback
-      searchParams = requestUrl.searchParams;
-  }
-  console.log(`[fetchData] Processing URL: ${requestUrl.href}`);
-  console.log(`[fetchData] searchParams read: ${searchParams.toString()}`);
-
-  // Detectar parámetro reset para reindexar y reiniciar los filtros
+// Obtener parámetros de la URL
+const getUrlParams = (url) => {
+  const searchParams = new URL(url).searchParams;
   const resetFilters = searchParams.get('reset') === '1';
-  const localActiveFilters = resetFilters
-    ? Object.keys(FILTER_CONFIG).reduce((acc, key) => { acc[key] = ''; return acc; }, {})
-    : Object.fromEntries(
-        Object.keys(FILTER_CONFIG).map(key => [key, searchParams.get(key) || ''])
-      );
-  const localSearchQuery = searchParams.get('q') || '';
-  const localCurrentPage = Number(searchParams.get('page')) || 1;
-  console.log(`[fetchData] LOCAL State Read - currentPage: ${localCurrentPage}, searchQuery: "${localSearchQuery}", activeFilters:`, localActiveFilters);
+  
+  const activeFilters = resetFilters
+    ? { area: '', cliente: '', unidad_negocio: '' }
+    : {
+        area: searchParams.get('area') || '',
+        cliente: searchParams.get('cliente') || '',
+        unidad_negocio: searchParams.get('unidad_negocio') || ''
+      };
 
-  // Actualizar estado global (para HTML y buildPageUrl)
-  activeFilters = localActiveFilters;
-  searchQuery = localSearchQuery;
-  currentPage = localCurrentPage;
+  return {
+    searchQuery: searchParams.get('q') || '',
+    currentPage: Math.max(1, parseInt(searchParams.get('page') || '1')),
+    activeFilters,
+    pageSize: PAGE_SIZE
+  };
+};
 
-  // Ejecutar lógica principal
-  try {
-    const { token } = await authenticate();
-    // Cargar datos auxiliares en paralelo
-    await Promise.all([
-        fetchFilterOptions(token), // Opciones de filtro primero
-        fetchRandomImages(token)
-    ]);
+// Cargar datos iniciales
+let pageData = {
+  antecedentes: [],
+  error: null,
+  totalItems: 0,
+  totalPages: 1,
+  randomImages: [DEFAULT_IMAGE],
+  isLoading: true,
+  ...getUrlParams(Astro.request?.url || Astro.url)
+};
 
-    console.log('[fetchData] Aux data loaded, calling fetchServices...');
-    // Pasar estado LOCAL a fetchServices
-    const result = await fetchServices(token, localActiveFilters, localSearchQuery, localCurrentPage);
+try {
+  // Cargar datos en paralelo
+  const [filterOptions, antecedentesData, randomImages] = await Promise.all([
+    directus.getFilterOptions(),
+    directus.getAntecedentes({
+      page: pageData.currentPage,
+      search: pageData.searchQuery,
+      ...pageData.activeFilters
+    }),
+    directus.getRandomImages(9)
+  ]);
 
-    console.log('[fetchData] fetchServices returned, processing...');
-    // Actualizar estado global con resultados
-    servicios = result.data.map(servicio => ({
-      ...servicio,
-      // Usar la URL base correcta para las imágenes
-      Imagen: servicio.Imagen ? `${import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055'}/assets/${servicio.Imagen}` : getRandomImage()
-    }));
-    totalItems = result.meta.filter_count;
-    totalPages = Math.ceil(totalItems / PAGE_SIZE);
-    console.log(`[fetchData] Finished. totalItems: ${totalItems}, totalPages: ${totalPages}`);
+  // Actualizar opciones de filtro
+  Object.keys(FILTER_CONFIG).forEach(key => {
+    FILTER_CONFIG[key].options = filterOptions[key] || [];
+  });
 
-  } catch (e) {
-    console.error('[fetchData] Top Level Error:', e);
-    error = e.message || 'Ocurrió un error inesperado.'; // Asignar mensaje de error
-    // Resetear estado en caso de error
-    servicios = [];
-    totalItems = 0;
-    totalPages = 1;
-  }
+  // Mapear los datos para incluir el slug generado
+  const antecedentesWithSlug = (antecedentesData.data || []).map(item => ({
+    ...item,
+    slug: `${item.id}/${generateSlug(item.Titulo)}`
+  }));
+
+  // Actualizar datos de la página
+  pageData = {
+    ...pageData,
+    antecedentes: antecedentesWithSlug,
+    totalItems: antecedentesData.meta?.filter_count || 0,
+    totalPages: Math.ceil((antecedentesData.meta?.filter_count || 0) / PAGE_SIZE),
+    randomImages: randomImages.length ? randomImages : [DEFAULT_IMAGE],
+    isLoading: false,
+    filterOptions
+  };
+} catch (error) {
+  console.error('Error al cargar datos:', error);
+  pageData = {
+    ...pageData,
+    error: 'Error al cargar los datos. Por favor, intente nuevamente más tarde.',
+    isLoading: false
+  };
 }
 
-// --- Funciones Auxiliares ---
-const generateSlug = (titulo = '') => {
-  if (!titulo) return 'item';
-  const slug = String(titulo).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50);
-  return slug || 'item';
-};
-
-const generatePaginationNumbers = (currentPage, totalPages, maxVisible = 7) => {
-    if (totalPages <= 1) return [];
-    if (totalPages <= maxVisible) return Array.from({ length: totalPages }, (_, i) => i + 1);
-    const sideWidth = Math.floor((maxVisible - 3) / 2);
-    const leftWidth = sideWidth;
-    const rightWidth = maxVisible - 3 - leftWidth;
-    const pages = [1];
-    if (currentPage > leftWidth + 2) pages.push('...');
-    const start = Math.max(2, currentPage - leftWidth);
-    const end = Math.min(totalPages - 1, currentPage + rightWidth);
-    for (let i = start; i <= end; i++) pages.push(i);
-    if (currentPage < totalPages - rightWidth - 1) pages.push('...');
-    pages.push(totalPages);
-    return pages;
-};
-
-const buildPageUrl = (page = 1, removeFilterKey = null) => {
-  // Usa las variables globales actualizadas por fetchData
-  const params = new URLSearchParams();
-  Object.entries(activeFilters).forEach(([key, value]) => {
-    if (key !== removeFilterKey && value) params.set(key, value);
+// Función para construir la URL con parámetros de filtro
+const buildFilterUrl = (params) => {
+  const url = new URL(Astro.request?.url || Astro.url);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) {
+      url.searchParams.set(key, value);
+    } else {
+      url.searchParams.delete(key);
+    }
   });
-  if (searchQuery) params.set('q', searchQuery);
-  if (page > 1) params.set('page', page.toString());
-  const qs = params.toString();
-  return `/antecedentes${qs ? `?${qs}` : ''}`;
+  url.searchParams.delete('page'); // Reset to first page when filters change
+  return url.pathname + url.search;
 };
 
-// --- Ejecutar Carga de Datos ---
-await fetchData();
+// Función para limpiar filtros
+const clearFilters = () => {
+  const url = new URL(Astro.request?.url || Astro.url);
+  url.search = '';
+  return url.pathname;
+};
+
+// Obtener el primer párrafo de una descripción HTML
+const getFirstParagraph = (html) => {
+  if (!html) return '';
+  const match = html.match(/<p[^>]*>(.*?)<\/p>/);
+  return match ? match[1] : html.substring(0, 150) + '...';
+};
+
+// Funciones de utilidad para paginación
+const generatePaginationNumbers = (currentPage, totalPages, maxVisible = 5) => {
+  if (totalPages <= 1) return [];
+  if (totalPages <= maxVisible) return Array.from({ length: totalPages }, (_, i) => i + 1);
+  
+  const pages = [1];
+  const sideItems = Math.floor((maxVisible - 3) / 2);
+  
+  if (currentPage > 2 + sideItems) pages.push('...');
+  
+  let start = Math.max(2, currentPage - sideItems);
+  let end = Math.min(totalPages - 1, currentPage + sideItems);
+  
+  if (currentPage <= 2 + sideItems) {
+    end = maxVisible - 1;
+  } else if (currentPage >= totalPages - sideItems - 1) {
+    start = totalPages - maxVisible + 2;
+  }
+  
+  for (let i = start; i <= end; i++) {
+    if (i > 1 && i < totalPages) pages.push(i);
+  }
+  
+  if (currentPage < totalPages - sideItems - 1) pages.push('...');
+  if (totalPages > 1) pages.push(totalPages);
+  
+  return pages;
+};
+
+const buildPageUrl = (page = 1) => {
+  const params = new URLSearchParams();
+  
+  // Añadir filtros activos
+  Object.entries(pageData.activeFilters).forEach(([key, value]) => {
+    if (value) params.set(key, value);
+  });
+  
+  // Añadir búsqueda
+  if (pageData.searchQuery) params.set('q', pageData.searchQuery);
+  
+  // Añadir página si no es la primera
+  if (page > 1) params.set('page', page);
+  
+  const queryString = params.toString();
+  return `/antecedentes${queryString ? `?${queryString}` : ''}`;
+};
+
+// Generar URLs para la paginación
+const paginationUrls = {
+  first: buildPageUrl(1),
+  prev: pageData.currentPage > 1 ? buildPageUrl(pageData.currentPage - 1) : null,
+  next: pageData.currentPage < pageData.totalPages ? buildPageUrl(pageData.currentPage + 1) : null,
+  last: buildPageUrl(pageData.totalPages)
+};
+
+// Generar números de página para la paginación
+const paginationNumbers = generatePaginationNumbers(
+  pageData.currentPage,
+  pageData.totalPages
+);
 ---
 
-{/* --- HTML (sin cambios respecto a la versión anterior, usa botón submit) --- */}
-<Layout title="Antecedentes">
-  <main class="container mx-auto px-4 py-8">
-    <nav class="mb-8"><ol class="flex items-center space-x-2 text-gray-600"><li><a href="/" class="hover:text-blue-600">Inicio</a></li><li><span class="mx-2">/</span></li><li class="text-blue-600 font-medium">Antecedentes</li></ol></nav>
-    <h1 class="text-4xl font-bold mb-8">Nuestros Antecedentes</h1>
-
-    <form method="GET" action="/antecedentes" class="bg-white p-6 rounded-lg shadow-lg mb-8" id="filterForm">
-      <input type="hidden" name="page" value="1" />
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-        {Object.entries(FILTER_CONFIG).map(([key, config]) => (
-          <div class="space-y-1">
-            <label for={`filter-${key}`} class="block text-sm font-medium text-gray-700">{config.display}</label>
-            <select id={`filter-${key}`} name={key} class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm">
-              <option value="">Todos</option>
-              {config.options.map(option => (
-                <option value={option.id} selected={activeFilters[key] === option.id}>{option.name}</option>
-              ))}
-            </select>
-          </div>
-        ))}
-        <div class="space-y-1">
-           <label for="search-input" class="block text-sm font-medium text-gray-700">Buscar</label>
-           <div class="relative">
-             <input type="search" id="search-input" name="q" value={searchQuery} placeholder="Buscar por título..." class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm pr-10"/>
-             <button type="submit" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-blue-600" aria-label="Buscar">
-                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
-             </button>
-           </div>
-        </div>
+<Layout 
+  title="Nuestros Proyectos | Última Milla"
+  description="Explora nuestro portafolio de proyectos realizados para diferentes clientes y sectores. Filtra por área, cliente o unidad de negocio para encontrar exactamente lo que buscas."
+  ogImage="/images/og-proyectos.jpg"
+>
+  <main class="min-h-screen bg-gray-50">
+    {/* Hero Section */}
+    <div class="bg-ultima-navy text-white py-16 md:py-24">
+      <div class="container mx-auto px-4 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">Nuestros Proyectos</h1>
+        <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+          Descubre nuestra experiencia y casos de éxito en diferentes sectores e industrias.
+        </p>
       </div>
-       <div class="mt-6 text-right">
-         <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-           Aplicar Filtros / Buscar
-         </button>
-       </div>
-    </form>
+    </div>
 
-    {(Object.values(activeFilters).some(Boolean) || searchQuery) && (
-      <div class="mb-6"> <div class="bg-blue-50 p-4 rounded-lg border border-blue-200"> <div class="flex items-center justify-between mb-2 flex-wrap gap-2"> <div class="flex items-center gap-2"> <svg class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg> <span class="font-medium text-blue-700"> {totalItems === 1 ? '1 resultado encontrado' : `${totalItems} resultados encontrados`} {searchQuery ? ` para "${searchQuery}"` : ''} {Object.values(activeFilters).some(Boolean) ? ' con los filtros actuales' : ''} </span> </div> <a href="/antecedentes" class="text-sm text-red-600 hover:text-red-800 font-medium flex items-center gap-1"> Limpiar todo <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg> </a> </div> <div class="flex flex-wrap gap-2"> {searchQuery && ( <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800"> Búsqueda: "{searchQuery}" <a href={buildPageUrl(1)} onclick={(e) => { e.preventDefault(); const url = new URL(window.location.href); url.searchParams.delete('q'); url.searchParams.set('page','1'); window.location.href = url.toString(); }} class="ml-2 text-red-500 hover:text-red-700 focus:outline-none" title="Eliminar búsqueda"> × </a> </span> )} {Object.entries(activeFilters).map(([key, value]) => value && ( <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"> {FILTER_CONFIG[key].display}: {value} <a href={buildPageUrl(1, key)} class="ml-2 text-red-500 hover:text-red-700 focus:outline-none" title={`Eliminar filtro ${FILTER_CONFIG[key].display}`}> × </a> </span> ))} </div> </div> </div>
-    )}
+    {/* Filtros y Búsqueda */}
+    <div class="container mx-auto px-4 py-8 -mt-8">
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <form method="GET" action="/antecedentes" class="space-y-4">
+          <div class="relative">
+            <input
+              type="text"
+              name="q"
+              value={pageData.searchQuery}
+              placeholder="Buscar proyectos..."
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <button 
+              type="submit" 
+              class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-600"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+          </div>
 
-    {error && ( <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert"> <strong class="font-bold">Error: </strong> <span class="block sm:inline">{error}</span> </div> )}
-
-    {servicios.length > 0 && (
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {servicios.map(servicio => (
-          <article class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col">
-            <a href={`/antecedentes/${servicio.id}/${generateSlug(servicio.Titulo)}`} class="block group h-full flex flex-col">
-              <div class="relative h-48 w-full overflow-hidden">
-                <img src={servicio.Imagen || DEFAULT_IMAGE} alt={servicio.Titulo || 'Antecedente'} class="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105" loading="lazy" onerror={`this.onerror=null; this.src='${DEFAULT_IMAGE}';`}/>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {Object.entries(FILTER_CONFIG).map(([key, config]) => (
+              <div key={key}>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{config.display}</label>
+                <select 
+                  name={key} 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  onchange="this.form.submit()"
+                >
+                  <option value="">Todos</option>
+                  {config.options.map(option => (
+                    <option 
+                      value={option} 
+                      selected={pageData.activeFilters[key] === option}
+                    >
+                      {option}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <div class="p-4 flex flex-col flex-grow">
-                <h2 class="text-lg font-semibold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">{servicio.Titulo}</h2>
-                <p class="text-gray-600 text-sm mb-4 line-clamp-3 flex-grow">{servicio.Descripcion}</p>
-                <div class="mt-auto border-t border-gray-100 pt-3 space-y-1 text-xs text-gray-500">
-                  {servicio.Fecha && <div class="flex items-center"><svg class="w-3.5 h-3.5 mr-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><span>{new Date(servicio.Fecha).toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' })}</span></div>}
-                  {servicio.Area && <div class="flex items-center truncate"><svg class="w-3.5 h-3.5 mr-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg><span class="truncate">{servicio.Area}</span></div>}
-                  {servicio.Cliente && <div class="flex items-center truncate"><svg class="w-3.5 h-3.5 mr-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg><span class="truncate">{servicio.Cliente}</span></div>}
-                  {servicio.Unidad_de_negocio && <div class="flex items-center truncate"><svg class="w-3.5 h-3.5 mr-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg><span class="truncate">{servicio.Unidad_de_negocio}</span></div>}
+            ))}
+          </div>
+
+          <div class="flex justify-end">
+            <a 
+              href={clearFilters()} 
+              class="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Limpiar filtros
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {/* Contenido */}
+    <div class="container mx-auto px-4 py-8">
+      {/* Loading State */}
+      {pageData.isLoading && (
+        <div class="text-center py-12">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+          <p class="text-gray-600">Cargando proyectos...</p>
+        </div>
+      )}
+
+      {/* Error State */}
+      {pageData.error && (
+        <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded mb-8">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm text-red-700">{pageData.error}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!pageData.isLoading && !pageData.error && pageData.antecedentes.length === 0 && (
+        <div class="text-center py-16 bg-white rounded-lg shadow-sm border border-gray-200">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 class="mt-2 text-lg font-medium text-gray-900">No se encontraron proyectos</h3>
+          <p class="mt-1 text-sm text-gray-500">Intenta ajustar tus filtros de búsqueda.</p>
+          <div class="mt-6">
+            <a href="/antecedentes" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              Limpiar filtros
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* Grid de Proyectos */}
+      {!pageData.isLoading && !pageData.error && pageData.antecedentes.length > 0 && (
+        <>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {pageData.antecedentes.map((proyecto) => (
+              <a 
+                href={`/antecedentes/${proyecto.slug}`}
+                class="group block bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden hover:-translate-y-1 h-full flex flex-col"
+              >
+                <div class="relative overflow-hidden aspect-video">
+                  {proyecto.Imagen ? (
+                    <img 
+                      src={`/api/asset/${proyecto.Imagen}?width=800`}
+                      alt={proyecto.Titulo}
+                      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div class="w-full h-full bg-gray-100 flex items-center justify-center">
+                      <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  )}
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                    <span class="text-white font-medium">Ver proyecto →</span>
+                  </div>
+                </div>
+                <div class="p-6 flex-1 flex flex-col">
+                  <div class="flex-1">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
+                      {proyecto.Titulo}
+                    </h3>
+                    {proyecto.Cliente && (
+                      <p class="text-sm text-gray-600 mb-3">
+                        {proyecto.Cliente}
+                      </p>
+                    )}
+                    <p class="text-gray-600 line-clamp-3 text-sm">
+                      {getFirstParagraph(proyecto.Descripcion) || 'Sin descripción disponible.'}
+                    </p>
+                  </div>
+                  <div class="mt-4 pt-4 border-t border-gray-100">
+                    {proyecto.Area && (
+                      <span class="inline-block bg-ultima-blue text-white text-xs font-medium px-3 py-1 rounded-full mb-2">
+                        {proyecto.Area}
+                      </span>
+                    )}
+                    {proyecto.Unidad_de_negocio && (
+                      <p class="text-xs text-gray-500 mt-2">
+                        {proyecto.Unidad_de_negocio}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+
+          {/* Paginación */}
+          {pageData.totalPages > 1 && (
+            <nav class="mt-12 flex items-center justify-between" aria-label="Pagination">
+              <div class="flex-1 flex justify-between sm:justify-start">
+                {paginationUrls.prev && (
+                  <a 
+                    href={paginationUrls.prev}
+                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                  >
+                    Anterior
+                  </a>
+                )}
+              </div>
+              
+              <div class="hidden md:flex">
+                <div class="flex rounded-md shadow-sm">
+                  {paginationNumbers.map((page, index) => (
+                    page === '...' ? (
+                      <span key={`ellipsis-${index}`} class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                        ...
+                      </span>
+                    ) : (
+                      <a
+                        key={page}
+                        href={buildPageUrl(page)}
+                        class={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                          page === pageData.currentPage
+                            ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        {page}
+                      </a>
+                    )
+                  ))}
                 </div>
               </div>
-            </a>
-          </article>
-        ))}
-      </div>
-    )}
 
-    {totalPages > 1 && !error && (
-      <nav class="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4" aria-label="Paginación">
-        <div class="text-sm text-gray-700"> Mostrando <span class="font-medium">{Math.min((currentPage - 1) * PAGE_SIZE + 1, totalItems)}</span> a <span class="font-medium">{Math.min(currentPage * PAGE_SIZE, totalItems)}</span> de <span class="font-medium">{totalItems}</span> resultados </div>
-        <ul class="inline-flex items-center -space-x-px text-sm">
-          <li> <a href={currentPage > 1 ? buildPageUrl(currentPage - 1) : '#'} class={`flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`} aria-disabled={currentPage === 1} tabindex={currentPage === 1 ? -1 : undefined}> <span class="sr-only">Anterior</span> <svg class="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4"/></svg> </a> </li>
-          {generatePaginationNumbers(currentPage, totalPages).map((page, index) => (
-            <li key={`page-${page}-${index}`}>
-              {typeof page === 'number' ? ( <a href={buildPageUrl(page)} class={`flex items-center justify-center px-3 h-8 leading-tight border border-gray-300 ${ currentPage === page ? 'text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 font-medium' : 'text-gray-500 bg-white hover:bg-gray-100 hover:text-gray-700' }`} aria-current={currentPage === page ? 'page' : undefined}> {page} </a> ) : ( <span class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300">...</span> )}
-            </li>
-          ))}
-          <li> <a href={currentPage < totalPages ? buildPageUrl(currentPage + 1) : '#'} class={`flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`} aria-disabled={currentPage === totalPages} tabindex={currentPage === totalPages ? -1 : undefined}> <span class="sr-only">Siguiente</span> <svg class="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/></svg> </a> </li>
-        </ul>
-      </nav>
-    )}
-
-    {servicios.length === 0 && !error && ( <div class="text-center py-16"> <div class="text-gray-400 mb-4"> <svg class="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"> <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM11.995 12h.01" /> </svg> </div> <h3 class="text-xl font-semibold text-gray-800 mb-2">No se encontraron resultados</h3> <p class="text-gray-500"> {searchQuery || Object.values(activeFilters).some(Boolean) ? 'Prueba ajustar los filtros o el término de búsqueda.' : 'No hay antecedentes disponibles en este momento.'} </p> {(searchQuery || Object.values(activeFilters).some(Boolean)) && ( <a href="/antecedentes" class="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"> Limpiar búsqueda y filtros </a> )} </div> )}
+              <div class="flex-1 flex justify-end">
+                {paginationUrls.next && (
+                  <a 
+                    href={paginationUrls.next}
+                    class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                  >
+                    Siguiente
+                  </a>
+                )}
+              </div>
+            </nav>
+          )}
+        </>
+      )}
+    </div>
   </main>
 </Layout>
+
+<style>
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .bg-ultima-navy {
+    background-color: #1e3a8a;
+  }
+  
+  .hover\:bg-ultima-navy-light:hover {
+    background-color: #1e40af;
+  }
+</style>

@@ -1,0 +1,325 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for fumbling-field/client/server/pages/blog/ciberseguridad-2024.astro.mjs</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../../../prettify.css" />
+    <link rel="stylesheet" href="../../../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../../../../index.html">All files</a> / <a href="index.html">fumbling-field/client/server/pages/blog</a> ciberseguridad-2024.astro.mjs</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>0/80</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>0/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>0/80</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line low'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >/* empty css                                    */</span></span></span>
+<span class="cstat-no" title="statement not covered" >import { c as createComponent, r as renderComponent, a as renderTemplate, m as maybeRenderHead, e as addAttribute, u as unescapeHTML } from '../../chunks/astro/server_B7qweUek.mjs';</span>
+<span class="cstat-no" title="statement not covered" >import 'kleur/colors';</span>
+<span class="cstat-no" title="statement not covered" >import { $ as $$Layout } from '../../chunks/Layout_CQ6jbdHh.mjs';</span>
+<span class="cstat-no" title="statement not covered" >/* empty css                                                  */</span>
+<span class="cstat-no" title="statement not covered" >export { renderers } from '../../renderers.mjs';</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >const $$Ciberseguridad2024 = createComponent(($$result, $$props, $$slots) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >  const post = {</span>
+<span class="cstat-no" title="statement not covered" >    title: "Ciberseguridad en 2024: Tendencias y Desaf\xEDos",</span>
+<span class="cstat-no" title="statement not covered" >    image: "/images/blog/cybersecurity.jpg",</span>
+<span class="cstat-no" title="statement not covered" >    category: "Ciberseguridad",</span>
+<span class="cstat-no" title="statement not covered" >    date: "15 Enero 2024",</span>
+<span class="cstat-no" title="statement not covered" >    author: "Juan P\xE9rez",</span>
+<span class="cstat-no" title="statement not covered" >    authorRole: "Especialista en Ciberseguridad",</span>
+<span class="cstat-no" title="statement not covered" >    authorImage: "/images/team/juan-perez.jpg",</span>
+<span class="cstat-no" title="statement not covered" >    content: `</span>
+<span class="cstat-no" title="statement not covered" >		&lt;h2&gt;Introducci\xF3n&lt;/h2&gt;</span>
+<span class="cstat-no" title="statement not covered" >		&lt;p&gt;En el panorama digital actual, la ciberseguridad se ha convertido en una prioridad absoluta para empresas de todos los tama\xF1os. A medida que avanzamos en 2024, nuevas amenazas y desaf\xEDos emergen, requiriendo estrategias actualizadas y soluciones innovadoras.&lt;/p&gt;</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >		&lt;h2&gt;Principales Tendencias en 2024&lt;/h2&gt;</span>
+<span class="cstat-no" title="statement not covered" >		&lt;ul&gt;</span>
+<span class="cstat-no" title="statement not covered" >			&lt;li&gt;Aumento de ataques de ransomware dirigidos&lt;/li&gt;</span>
+<span class="cstat-no" title="statement not covered" >			&lt;li&gt;Amenazas basadas en Inteligencia Artificial&lt;/li&gt;</span>
+<span class="cstat-no" title="statement not covered" >			&lt;li&gt;Vulnerabilidades en IoT empresarial&lt;/li&gt;</span>
+<span class="cstat-no" title="statement not covered" >			&lt;li&gt;Phishing avanzado y ingenier\xEDa social&lt;/li&gt;</span>
+<span class="cstat-no" title="statement not covered" >		&lt;/ul&gt;</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >		&lt;h2&gt;Soluciones y Mejores Pr\xE1cticas&lt;/h2&gt;</span>
+<span class="cstat-no" title="statement not covered" >		&lt;p&gt;Para hacer frente a estas amenazas, las organizaciones deben implementar:&lt;/p&gt;</span>
+<span class="cstat-no" title="statement not covered" >		&lt;ol&gt;</span>
+<span class="cstat-no" title="statement not covered" >			&lt;li&gt;Sistemas de detecci\xF3n y respuesta automatizados&lt;/li&gt;</span>
+<span class="cstat-no" title="statement not covered" >			&lt;li&gt;Programas de concientizaci\xF3n para empleados&lt;/li&gt;</span>
+<span class="cstat-no" title="statement not covered" >			&lt;li&gt;Pol\xEDticas de seguridad Zero Trust&lt;/li&gt;</span>
+<span class="cstat-no" title="statement not covered" >			&lt;li&gt;Copias de seguridad cifradas y distribuidas&lt;/li&gt;</span>
+<span class="cstat-no" title="statement not covered" >		&lt;/ol&gt;</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >		&lt;h2&gt;El Papel de la IA en la Ciberseguridad&lt;/h2&gt;</span>
+<span class="cstat-no" title="statement not covered" >		&lt;p&gt;La Inteligencia Artificial est\xE1 jugando un papel cada vez m\xE1s importante en la detecci\xF3n y prevenci\xF3n de amenazas. Los sistemas basados en IA pueden:&lt;/p&gt;</span>
+<span class="cstat-no" title="statement not covered" >		&lt;ul&gt;</span>
+<span class="cstat-no" title="statement not covered" >			&lt;li&gt;Identificar patrones de comportamiento sospechoso&lt;/li&gt;</span>
+<span class="cstat-no" title="statement not covered" >			&lt;li&gt;Automatizar respuestas a incidentes&lt;/li&gt;</span>
+<span class="cstat-no" title="statement not covered" >			&lt;li&gt;Predecir posibles vectores de ataque&lt;/li&gt;</span>
+<span class="cstat-no" title="statement not covered" >			&lt;li&gt;Mejorar la eficiencia del an\xE1lisis de seguridad&lt;/li&gt;</span>
+<span class="cstat-no" title="statement not covered" >		&lt;/ul&gt;</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >		&lt;h2&gt;Conclusiones&lt;/h2&gt;</span>
+<span class="cstat-no" title="statement not covered" >		&lt;p&gt;La ciberseguridad en 2024 requiere un enfoque proactivo y hol\xEDstico. Las organizaciones deben mantenerse actualizadas sobre las \xFAltimas amenazas y adoptar soluciones innovadoras para proteger sus activos digitales.&lt;/p&gt;</span>
+<span class="cstat-no" title="statement not covered" >	`</span>
+<span class="cstat-no" title="statement not covered" >  };</span>
+<span class="cstat-no" title="statement not covered" >  const relatedPosts = [</span>
+<span class="cstat-no" title="statement not covered" >    {</span>
+<span class="cstat-no" title="statement not covered" >      title: "Cloud Computing: Optimizando Recursos Empresariales",</span>
+<span class="cstat-no" title="statement not covered" >      excerpt: "C\xF3mo la nube est\xE1 transformando la gesti\xF3n de recursos en las empresas modernas.",</span>
+<span class="cstat-no" title="statement not covered" >      image: "/images/blog/cloud-computing.jpg",</span>
+<span class="cstat-no" title="statement not covered" >      slug: "cloud-computing-recursos"</span>
+<span class="cstat-no" title="statement not covered" >    },</span>
+<span class="cstat-no" title="statement not covered" >    {</span>
+<span class="cstat-no" title="statement not covered" >      title: "Big Data: An\xE1lisis Predictivo para Negocios",</span>
+<span class="cstat-no" title="statement not covered" >      excerpt: "Implementaci\xF3n de an\xE1lisis predictivo para mejorar la toma de decisiones.",</span>
+<span class="cstat-no" title="statement not covered" >      image: "/images/blog/big-data.jpg",</span>
+<span class="cstat-no" title="statement not covered" >      slug: "big-data-analisis"</span>
+<span class="cstat-no" title="statement not covered" >    }</span>
+<span class="cstat-no" title="statement not covered" >  ];</span>
+<span class="cstat-no" title="statement not covered" >  return renderTemplate`${renderComponent($$result, "Layout", $$Layout, { "title": `${post.title} - ULTIMA MILLA`, "data-astro-cid-nyw4vu6c": true }, { "default": ($$result2) =&gt; renderTemplate` ${maybeRenderHead()}&lt;article class="max-w-4xl mx-auto px-4 py-12" data-astro-cid-nyw4vu6c&gt; &lt;!-- Encabezado del Post --&gt; &lt;div class="mb-8" data-astro-cid-nyw4vu6c&gt; &lt;span class="inline-block bg-red-500 text-white px-3 py-1 rounded-full text-sm mb-4" data-astro-cid-nyw4vu6c&gt; ${post.category} &lt;/span&gt; &lt;h1 class="text-4xl font-bold mb-4" data-astro-cid-nyw4vu6c&gt;${post.title}&lt;/h1&gt; &lt;div class="flex items-center space-x-4" data-astro-cid-nyw4vu6c&gt; &lt;img${addAttribute(post.authorImage, "src")}${addAttribute(post.author, "alt")} class="w-12 h-12 rounded-full object-cover" data-astro-cid-nyw4vu6c&gt; &lt;div data-astro-cid-nyw4vu6c&gt; &lt;p class="font-semibold" data-astro-cid-nyw4vu6c&gt;${post.author}&lt;/p&gt; &lt;p class="text-gray-500 text-sm" data-astro-cid-nyw4vu6c&gt;${post.authorRole}&lt;/p&gt; &lt;/div&gt; &lt;span class="text-gray-400" data-astro-cid-nyw4vu6c&gt;•&lt;/span&gt; &lt;span class="text-gray-500" data-astro-cid-nyw4vu6c&gt;${post.date}&lt;/span&gt; &lt;/div&gt; &lt;/div&gt; &lt;!-- Imagen Principal --&gt; &lt;div class="mb-12" data-astro-cid-nyw4vu6c&gt; &lt;img${addAttribute(post.image, "src")}${addAttribute(post.title, "alt")} class="w-full h-96 object-cover rounded-lg shadow-lg" data-astro-cid-nyw4vu6c&gt; &lt;/div&gt; &lt;!-- Contenido del Post --&gt; &lt;div class="prose prose-lg max-w-none mb-12" data-astro-cid-nyw4vu6c&gt;${unescapeHTML(post.content)}&lt;/div&gt; &lt;!-- Compartir --&gt; &lt;div class="border-t border-b border-gray-200 py-8 my-8" data-astro-cid-nyw4vu6c&gt; &lt;h3 class="text-lg font-semibold mb-4" data-astro-cid-nyw4vu6c&gt;Compartir este artículo&lt;/h3&gt; &lt;div class="flex space-x-4" data-astro-cid-nyw4vu6c&gt; &lt;a href="#" class="text-gray-500 hover:text-blue-600 transition-colors duration-300" title="Compartir en LinkedIn" data-astro-cid-nyw4vu6c&gt; &lt;svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" data-astro-cid-nyw4vu6c&gt; &lt;path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" data-astro-cid-nyw4vu6c&gt;&lt;/path&gt; &lt;/svg&gt; &lt;/a&gt; &lt;a href="#" class="text-gray-500 hover:text-blue-400 transition-colors duration-300" title="Compartir en Twitter" data-astro-cid-nyw4vu6c&gt; &lt;svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" data-astro-cid-nyw4vu6c&gt; &lt;path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" data-astro-cid-nyw4vu6c&gt;&lt;/path&gt; &lt;/svg&gt; &lt;/a&gt; &lt;a href="#" class="text-gray-500 hover:text-blue-600 transition-colors duration-300" title="Compartir en Facebook" data-astro-cid-nyw4vu6c&gt; &lt;svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" data-astro-cid-nyw4vu6c&gt; &lt;path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" data-astro-cid-nyw4vu6c&gt;&lt;/path&gt; &lt;/svg&gt; &lt;/a&gt; &lt;/div&gt; &lt;/div&gt; &lt;!-- Posts Relacionados --&gt; &lt;div class="mt-12" data-astro-cid-nyw4vu6c&gt; &lt;h2 class="text-2xl font-bold mb-6" data-astro-cid-nyw4vu6c&gt;Artículos Relacionados&lt;/h2&gt; &lt;div class="grid grid-cols-1 md:grid-cols-2 gap-8" data-astro-cid-nyw4vu6c&gt; ${relatedPosts.map((post2) =&gt; renderTemplate`&lt;a${addAttribute(`/blog/${post2.slug}`, "href")} class="group block bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300" data-astro-cid-nyw4vu6c&gt; &lt;img${addAttribute(post2.image, "src")}${addAttribute(post2.title, "alt")} class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" data-astro-cid-nyw4vu6c&gt; &lt;div class="p-6" data-astro-cid-nyw4vu6c&gt; &lt;h3 class="text-xl font-semibold mb-2 group-hover:text-red-500 transition-colors duration-300" data-astro-cid-nyw4vu6c&gt; ${post2.title} &lt;/h3&gt; &lt;p class="text-gray-600" data-astro-cid-nyw4vu6c&gt;${post2.excerpt}&lt;/p&gt; &lt;/div&gt; &lt;/a&gt;`)} &lt;/div&gt; &lt;/div&gt; &lt;/article&gt; ` })} `;</span>
+<span class="cstat-no" title="statement not covered" >}, "/Users/Shared/Files From d.localized/D/ultima milla/2024/MKT 2024/umw141024/umw46-main/fumbling-field/src/pages/blog/ciberseguridad-2024.astro", void 0);</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >const $$file = "/Users/Shared/Files From d.localized/D/ultima milla/2024/MKT 2024/umw141024/umw46-main/fumbling-field/src/pages/blog/ciberseguridad-2024.astro";</span>
+<span class="cstat-no" title="statement not covered" >const $$url = "/blog/ciberseguridad-2024";</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({</span>
+<span class="cstat-no" title="statement not covered" >	__proto__: null,</span>
+<span class="cstat-no" title="statement not covered" >	default: $$Ciberseguridad2024,</span>
+<span class="cstat-no" title="statement not covered" >	file: $$file,</span>
+<span class="cstat-no" title="statement not covered" >	url: $$url</span>
+<span class="cstat-no" title="statement not covered" >}, Symbol.toStringTag, { value: 'Module' }));</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >const page = () =&gt; _page;</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >export { page };</span>
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2025-06-05T15:55:08.151Z
+            </div>
+        <script src="../../../../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../../../../sorter.js"></script>
+        <script src="../../../../../block-navigation.js"></script>
+    </body>
+</html>
+    

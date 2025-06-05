@@ -6,6 +6,8 @@ import Comments from '../../components/Comments.astro';
 import { getAllPosts } from '../../data/blog';
 import { formatDate } from '../../utils/date';
 
+export const prerender = true;
+
 export const getStaticPaths = (() => {
     const posts = getAllPosts();
     return posts.map(post => ({
