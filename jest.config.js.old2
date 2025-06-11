@@ -1,0 +1,74 @@
+// Configuración de Jest para pruebas en el proyecto
+module.exports = {
+  // Directorio raíz para los tests
+  roots: ['<rootDir>/src', '<rootDir>/tests'],
+  
+  // Configuración para módulos
+  moduleNameMapper: {
+    // Mapeo de alias de rutas (configurados en tsconfig.json)
+    '^@/(.*)$': '<rootDir>/src/$1',
+    
+    // Manejadores de archivos estáticos
+    '\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '\.(jpg|jpeg|png|gif|webp|svg)$': '<rootDir>/__mocks__/fileMock.js',
+  },
+  
+  // Extensiones de archivo que Jest manejará
+  moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'node'],
+  
+  // Transformadores
+  transform: {
+    // Usar babel-jest para archivos JavaScript y TypeScript
+    '^.+\.[jt]sx?$': 'babel-jest',
+    
+    // Manejador para archivos .astro
+    '^.+\\.astro$': 'jest-astro',
+    
+    // Manejador para archivos estáticos
+    '^.+\\.(css|less|scss|sass|png|jpg|ttf|woff|woff2)$': 'jest-transform-stub',
+  },
+  
+  // Configuración de cobertura
+  collectCoverage: true,
+  collectCoverageFrom: [
+    'src/**/*.{js,jsx,ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/**/*.stories.{js,jsx,ts,tsx}',
+    '!src/**/index.{js,jsx,ts,tsx}',
+    '!src/**/*.mock.{js,jsx,ts,tsx}',
+  ],
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov'],
+  
+  // Setup files
+  setupFilesAfterEnv: [
+    '<rootDir>/jest.setup.js',
+    '@testing-library/jest-dom',
+  ],
+  
+  // Entorno de prueba
+  testEnvironment: 'jsdom',
+  
+  // Patrones para encontrar archivos de prueba
+  testMatch: [
+    '**/__tests__/**/*.[jt]s?(x)',
+    '**/?(*.)+(spec|test).[tj]s?(x)',
+  ],
+  
+  // Ignorar directorios
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/.astro/',
+    '/.netlify/',
+    '/dist/',
+    '/public/',
+  ],
+  
+  // Configuración para TypeScript
+  preset: 'ts-jest',
+  globals: {
+    'ts-jest': {
+      tsconfig: 'tsconfig.jest.json',
+    },
+  },
+};

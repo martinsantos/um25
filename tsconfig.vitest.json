@@ -1,0 +1,120 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    /* Configuración básica */
+    "target": "es2020",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    
+    /* JSX */
+    "jsx": "react-jsx",
+    "jsxImportSource": "@emotion/react",
+    
+    /* Emisión de archivos */
+    "declaration": false,
+    "noEmit": true,
+    "isolatedModules": true,
+    "allowJs": true,
+    "checkJs": false,
+    
+    /* Módulos */
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["src/*"],
+      "@/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@pages/*": ["src/pages/*"],
+      "@utils/*": ["src/utils/*"],
+      "@styles/*": ["src/styles/*"],
+      "@types/*": ["src/types/*"],
+      "@assets/*": ["src/assets/*"],
+      "@layouts/*": ["src/layouts/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@contexts/*": ["src/contexts/*"],
+      "@services/*": ["src/services/*"],
+      "@mocks/*": ["__mocks__/*"],
+      "@tests/*": ["tests/*"],
+      "@fixtures/*": ["tests/fixtures/*"],
+      "@test-utils/*": ["tests/utils/*"],
+      "@test-mocks/*": ["tests/mocks/*"],
+      "@test-helpers/*": ["tests/helpers/*"],
+      "@astrojs/*": ["node_modules/@astrojs/*"],
+      "astro:config": ["node_modules/astro/dist/config/index.d.ts"],
+      "astro:components": ["node_modules/astro/dist/components/index.d.ts"],
+      "astro:content": ["node_modules/astro/dist/content/index.d.ts"],
+      "astro:middleware": ["node_modules/astro/dist/middleware/index.d.ts"]
+    },
+    
+    /* Tipos */
+    "types": ["vite/client", "node", "vitest/globals"],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types"
+    ],
+    
+    /* Configuración específica para pruebas */
+    "noImplicitAny": false,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowUmdGlobalAccess": true
+  },
+  
+  /* Incluir archivos para la compilación */
+  "include": [
+    "src/**/*",
+    "tests/**/*",
+    "**/*.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.mjs",
+    "**/*.cjs",
+    "**/*.json",
+    "vitest.config.*",
+    "vite.config.*",
+    "setupTests.ts"
+  ],
+  
+  /* Excluir archivos de la compilación */
+  "exclude": [
+    "**/node_modules",
+    "**/dist",
+    "**/build",
+    "**/.next",
+    "**/out",
+    "**/.astro",
+    "**/.vercel",
+    "**/.netlify",
+    "**/.contentlayer",
+    "**/.cache",
+    "**/.svelte-kit",
+    "**/.nuxt",
+    "**/.output",
+    "**/.docusaurus",
+    "**/.redwood",
+    "**/.remix",
+    "**/.sanity",
+    "**/.svelte",
+    "**/.turbo",
+    "**/.yarn",
+    "**/.husky",
+    "**/.github",
+    "**/.vscode",
+    "**/public",
+    "**/coverage",
+    "**/__snapshots__"
+  ]
+}

@@ -1,5 +1,12 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
+import AntecedenteHero from '../../../components/antecedentes/AntecedenteHero.astro';
+import AntecedenteGaleria from '../../../components/antecedentes/AntecedenteGaleria.astro';
+import AntecedenteServicios from '../../../components/antecedentes/AntecedenteServicios.astro';
+import AntecedenteMeta from '../../../components/antecedentes/AntecedenteMeta.astro';
+import AntecedenteDescripcion from '../../../components/antecedentes/AntecedenteDescripcion.astro';
+import LightboxGaleria from '../../../components/common/LightboxGaleria.astro';
+import { fetchAntecedente, generateSlug } from '../../../utils/directus';
 
 // --- Configuración ---
 // Asegurar que la URL de Directus termine sin barra al final
@@ -18,16 +25,11 @@ if (!DIRECTUS_STATIC_TOKEN) {
 // SSR habilitado
 export const prerender = false;
 
-// Parámetros de URL
-const { id, slug: slugFromUrl } = Astro.params;
-console.log(`[SLUGCOPIA PAGE] Received Params -> ID: ${id}, SlugFromURL: ${slugFromUrl}`);
+// Obtener parámetros de la URL
+const { id, slug } = Astro.params;
+console.log(`[SLUGCOPIA PAGE] Received Params -> ID: ${id}, Slug: ${slug}`);
 
-if (!id || !slugFromUrl) {
-    console.error('[SLUGCOPIA PAGE] Error: Falta ID o Slug en la URL. Redirigiendo a 404.');
-    return Astro.redirect('/404');
-}
-
-// --- Estado ---
+// Estado para datos y errores
 let antecedente = null;
 let fetchError = null;
 
@@ -74,36 +76,6 @@ const getAssetUrl = (assetId) => {
     return DEFAULT_IMAGE_URL;
 };
 
-const generateSlug = (text = '') => {
-    if (text === null || typeof text === 'undefined') {
-       return 'item';
-    }
-    const slug = String(text)
-       .toLowerCase()
-       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-       .replace(/[^\w\s-]/g, '')
-       .trim()
-       .replace(/\s+/g, '-')
-       .replace(/-+/g, '-')
-       .replace(/^-+|-+$/g, '')
-       .slice(0, 50);
-    return slug || 'item';
-};
-
-function parseCommaSeparatedString(input) {
-    if (typeof input !== 'string' || !input.trim()) {
-        return [];
-    }
-    try {
-        return input.split(',')
-            .map(item => item.trim())
-            .filter(Boolean);
-    } catch (e) {
-        console.error('[parseCommaSeparatedString] Error parsing string:', input, e);
-        return [];
-    }
-}
-
 // --- Fetch de Datos ---
 async function fetchAntecedenteById(itemId) {
     try {
@@ -128,26 +100,30 @@ async function fetchAntecedenteById(itemId) {
     }
 }
 
-// --- Obtención de datos y validación ---
+// Fetch de datos y validación de slug
 try {
-    antecedente = await fetchAntecedenteById(id);
-    
-    if (!antecedente) {
-        console.error(`[SLUGCOPIA PAGE] No se encontró antecedente con ID ${id}`);
-        return Astro.redirect('/404');
-    }
+  // Obtener datos del antecedente desde la utilidad centralizada
+  antecedente = await fetchAntecedente(id);
 
-    // Validar slug
-    const expectedSlug = generateSlug(antecedente.Titulo);
-    if (expectedSlug !== slugFromUrl) {
-        console.log(`[SLUGCOPIA PAGE] Slug incorrecto. Esperado: ${expectedSlug}, Recibido: ${slugFromUrl}`);
-        return Astro.redirect(`/antecedentes/${id}/${expectedSlug}`);
-    }
+  if (!antecedente) {
+    // Si no existe, redirigir a 404
+    return Astro.redirect('/404');
+  }
 
+  // Validar el slug generado a partir del título
+  const expectedSlug = generateSlug(antecedente.Titulo);
+  if (slug !== expectedSlug) {
+    // Redirigir a la URL canónica si el slug no coincide
+    return Astro.redirect(`/antecedentes/${id}/${expectedSlug}`);
+  }
 } catch (error) {
-    console.error('[SLUGCOPIA PAGE] Error al obtener datos:', error);
-    fetchError = error;
+  fetchError = error;
+  // Redirigir a 404 en caso de error de fetch
+  return Astro.redirect('/404');
 }
+
+// Extraer servicios únicos para el componente de servicios
+const serviciosUnicos = [...new Set(antecedente.Servicios?.map(s => s.Servicios_id?.Nombre).filter(Boolean) || [])];
 
 // --- Preparación de datos para la UI ---
 const pageTitle = antecedente?.Titulo 
@@ -345,404 +321,40 @@ if (!imagenEncontrada || heroImageUrl === DEFAULT_IMAGE_URL) {
 console.log('URL final de hero image:', heroImageUrl);
 ---
 
-<Layout title={pageTitle}>
-  <!-- Tema oscuro moderno -->
-  <main class="relative min-h-screen bg-gradient-to-b from-[#0a0d17] via-[#111827] to-[#1e293b] text-white">
-    <!-- Debug info - solo visible en desarrollo-->
-    <div class="fixed top-0 left-0 bg-black/80 text-white text-xs p-1 z-50">
-      Image URL: {heroImageUrl}
-    </div>
-
-    <!-- Fondo de imagen del hero -->
-    <div class="absolute inset-0 h-full overflow-hidden">
-      {heroImageUrl && heroImageUrl !== DEFAULT_IMAGE_URL ? (
-        <>
-          <img 
-            src={heroImageUrl} 
-            alt="Imagen de fondo" 
-            class="w-full h-full object-cover object-center opacity-90 blur-none"
-            style="filter: contrast(1.1) brightness(0.9); transform: scale(1.02);"
-            onload="console.log('Imagen cargada correctamente:', this.src)"
-            onerror="this.style.display='none'; this.parentElement.classList.add('image-error'); console.error('Error al cargar imagen:', this.src);"
-          />
-          <script>
-            console.log('Intentando cargar imagen de fondo:', '{heroImageUrl}');
-          </script>
-        </>
-      ) : (
-        <div class="w-full h-full flex items-center justify-center text-white opacity-20">
-          <p>Imagen no disponible</p>
-        </div>
-      )}
-      
-      <!-- Overlay de degradado sobre la imagen (más transparente) -->
-      <div class="absolute inset-0 bg-gradient-to-b from-[#0a0d17]/30 via-[#111827]/40 to-[#1e293b]/50 pointer-events-none"></div>
-    </div>
-    
-    <!-- Elementos decorativos del fondo -->
-    <div class="absolute top-0 left-0 right-0 h-96 bg-gradient-to-br from-blue-600/10 to-purple-600/5 blur-3xl pointer-events-none"></div>
-    <div class="absolute bottom-0 right-0 left-0 h-96 bg-gradient-to-tr from-indigo-600/10 to-teal-600/5 blur-3xl pointer-events-none"></div>
-    <div class="absolute top-1/3 left-1/4 w-96 h-96 rounded-full bg-blue-700/10 blur-3xl pointer-events-none"></div>
-    <div class="absolute top-2/3 right-1/4 w-96 h-96 rounded-full bg-purple-700/10 blur-3xl pointer-events-none"></div>
-    
-    <div class="container mx-auto px-4 py-12 relative z-10">
-      <!-- Hero Section con título principal -->
-      <div class="relative mb-12">
-        <div class="max-w-4xl mx-auto text-center backdrop-blur-sm py-8">
-          <div class="inline-flex items-center px-4 py-2 bg-blue-900/40 text-blue-200 text-sm font-medium rounded-full mb-6 border border-blue-800/50 backdrop-blur-sm shadow-lg">
-            <span class="mr-2">✦</span>
-            Caso de Estudio
-            <span class="ml-2">✦</span>
-          </div>
-          <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-100 to-indigo-200 leading-tight">
-            {antecedente?.Titulo || 'Proyecto Destacado'}
-          </h1>
-          <p class="text-xl text-blue-100/80 max-w-2xl mx-auto">
-            {antecedente?.Cliente || 'Cliente'}
-          </p>
-        </div>
-      </div>
-
-      <!-- Tarjetas de métricas -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-        <!-- Calificación -->
-        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
-          <div class="bg-yellow-500/10 p-3 rounded-full mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-              <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
-            </svg>
-          </div>
-          <div class="text-center">
-            <h3 class="text-3xl font-bold text-white mb-1">4.9/5</h3>
-            <p class="text-blue-300/70 text-sm">Calificación</p>
-          </div>
-        </div>
-        
-        <!-- Duración -->
-        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
-          <div class="bg-blue-500/10 p-3 rounded-full mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <div class="text-center">
-            <h3 class="text-3xl font-bold text-white mb-1">{antecedente?.Fecha ? '3 meses' : '3 meses'}</h3>
-            <p class="text-blue-300/70 text-sm">Duración</p>
-          </div>
-        </div>
-        
-        <!-- ROI -->
-        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
-          <div class="bg-green-500/10 p-3 rounded-full mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-            </svg>
-          </div>
-          <div class="text-center">
-            <h3 class="text-3xl font-bold text-white mb-1">+340%</h3>
-            <p class="text-blue-300/70 text-sm">ROI</p>
-          </div>
-        </div>
-        
-        <!-- Performance -->
-        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
-          <div class="bg-purple-500/10 p-3 rounded-full mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <div class="text-center">
-            <h3 class="text-3xl font-bold text-white mb-1">98%</h3>
-            <p class="text-blue-300/70 text-sm">Performance</p>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Contenido principal y panel lateral -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Columna principal - Descripción -->
-        <div class="lg:col-span-2">
-          <div class="flex items-center mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <h2 class="text-2xl font-bold text-white">Descripción del Proyecto</h2>
-          </div>
-          
-          <div class="bg-[#131b2e] rounded-xl p-6 sm:p-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm">
-            <p class="text-blue-100/90 leading-relaxed mb-6">
-              {antecedente?.Descripcion || 'Desarrollo completo de plataforma e-commerce con integración de pagos, gestión de inventario y panel administrativo avanzado. Incluye diseño responsive, optimización SEO y sistema de analytics en tiempo real.'}
-            </p>
-            
-            <!-- Características Principales -->
-            <div class="bg-indigo-950/50 rounded-lg p-6 mb-6 border border-indigo-900/30">
-              <h3 class="text-xl font-semibold text-blue-200 mb-4">Características Principales:</h3>
-              <ul class="space-y-3">
-                <li class="flex items-start">
-                  <span class="inline-block mr-3 text-purple-400">•</span>
-                  <span class="text-blue-100/80">Diseño responsive y moderno</span>
-                </li>
-                <li class="flex items-start">
-                  <span class="inline-block mr-3 text-purple-400">•</span>
-                  <span class="text-blue-100/80">Integración de pagos segura</span>
-                </li>
-                <li class="flex items-start">
-                  <span class="inline-block mr-3 text-purple-400">•</span>
-                  <span class="text-blue-100/80">Panel administrativo completo</span>
-                </li>
-                <li class="flex items-start">
-                  <span class="inline-block mr-3 text-purple-400">•</span>
-                  <span class="text-blue-100/80">Analytics en tiempo real</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Panel lateral - Detalles y Progreso -->
-        <div class="lg:col-span-1">
-          <!-- Detalles del Proyecto -->
-          <div class="bg-[#131b2e] rounded-xl p-6 shadow-xl border border-indigo-900/20 backdrop-blur-sm mb-6">
-            <h2 class="text-xl font-bold text-white mb-4">Detalles del Proyecto</h2>
-            
-            <div class="space-y-4">
-              <!-- ID -->
-              <div class="flex justify-between items-center border-b border-blue-900/30 pb-3">
-                <span class="text-blue-300/70 text-sm">ID:</span>
-                <span class="font-mono text-white">{antecedente?.id ? `PRJ-2024-${String(antecedente.id).padStart(3, '0')}` : 'PRJ-2024-001'}</span>
-              </div>
-              
-              <!-- Creado por -->
-              <div class="flex justify-between items-center border-b border-blue-900/30 pb-3">
-                <span class="text-blue-300/70 text-sm">Creado por:</span>
-                <span class="text-white">{antecedente?.user_created ? `${antecedente.user_created}` : 'María González'}</span>
-              </div>
-              
-              <!-- Unidad -->
-              <div class="flex justify-between items-center border-b border-blue-900/30 pb-3">
-                <span class="text-blue-300/70 text-sm">Unidad:</span>
-                <span class="text-white">{antecedente?.Unidad_de_negocio || 'Digital Solutions'}</span>
-              </div>
-              
-              <!-- Fecha creación -->
-              <div class="flex justify-between items-center">
-                <span class="text-blue-300/70 text-sm">Fecha creación:</span>
-                <span class="text-white">{antecedente?.date_created ? new Date(antecedente.date_created).toLocaleDateString() : '14/1/2024'}</span>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Progreso del Proyecto -->
-          <div class="bg-[#131b2e] rounded-xl p-6 shadow-xl border border-indigo-900/20 backdrop-blur-sm">
-            <h2 class="text-xl font-bold text-white mb-4">Progreso del Proyecto</h2>
-            
-            <div class="mb-3">
-              <div class="flex justify-between mb-1">
-                <span class="text-blue-300/70 text-sm">Completado</span>
-                <span class="text-white text-sm font-semibold">100%</span>
-              </div>
-              <div class="w-full bg-blue-900/30 rounded-full h-2">
-                <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full w-full"></div>
-              </div>
-            </div>
-            
-            <div class="flex items-center text-green-400 mt-6">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-              </svg>
-              <span>Proyecto finalizado</span>
-              <span class="ml-auto text-yellow-400">★</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tarjetas de métricas -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-        <!-- Calificación -->
-        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
-          <div class="bg-yellow-500/10 p-3 rounded-full mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-              <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
-            </svg>
-          </div>
-          <div class="text-center">
-            <h3 class="text-3xl font-bold text-white mb-1">4.9/5</h3>
-            <p class="text-blue-300/70 text-sm">Calificación</p>
-          </div>
-        </div>
-        
-        <!-- Duración -->
-        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
-          <div class="bg-blue-500/10 p-3 rounded-full mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <div class="text-center">
-            <h3 class="text-3xl font-bold text-white mb-1">{antecedente?.Fecha ? '3 meses' : '3 meses'}</h3>
-            <p class="text-blue-300/70 text-sm">Duración</p>
-          </div>
-        </div>
-        
-        <!-- ROI -->
-        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
-          <div class="bg-green-500/10 p-3 rounded-full mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-            </svg>
-          </div>
-          <div class="text-center">
-            <h3 class="text-3xl font-bold text-white mb-1">+340%</h3>
-            <p class="text-blue-300/70 text-sm">ROI</p>
-          </div>
-        </div>
-        
-        <!-- Performance -->
-        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
-          <div class="bg-purple-500/10 p-3 rounded-full mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <div class="text-center">
-            <h3 class="text-3xl font-bold text-white mb-1">98%</h3>
-            <p class="text-blue-300/70 text-sm">Performance</p>
-          </div>
-        </div>
-</div>
-      </div>
-      
-      <!-- Galería de Imágenes del Proyecto -->
-      <div class="mt-16 mb-16">
-        <div class="flex items-center mb-6">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <h2 class="text-2xl font-bold text-white">Galería del Proyecto</h2>
-        </div>
-        
-        <div class="bg-[#131b2e]/70 rounded-xl p-6 border border-indigo-900/20 backdrop-blur-lg relative">
-          <!-- Elementos decorativos de la galería -->
-          <div class="absolute -bottom-4 -right-4 w-24 h-24 rounded-full bg-blue-600/10 blur-2xl pointer-events-none"></div>
-          <div class="absolute -top-4 -left-4 w-32 h-32 rounded-full bg-purple-600/10 blur-2xl pointer-events-none"></div>
-          
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
-            {/* Lo primero que hacemos es contar cuántas imágenes REALES tenemos para mostrar */}
-            {(() => {
-              // URLs reales de imágenes (sin incluir placeholders)
-              const imagenesReales = imagenesGaleria
-                .map(img => getAssetUrl(img))
-                .filter(url => url && url !== DEFAULT_IMAGE_URL);
-                
-              // Si tenemos la imagen hero pero no está en la galería, la agregamos
-              const heroEsReal = heroImageUrl && heroImageUrl !== DEFAULT_IMAGE_URL;
-              if (heroEsReal && !imagenesReales.includes(heroImageUrl)) {
-                imagenesReales.push(heroImageUrl);
-              }
-              
-              console.log(`Imágenes reales disponibles: ${imagenesReales.length}`);
-              
-              // CASO 1: Tenemos imágenes para mostrar
-              if (imagenesReales.length > 0) {
-                return (
-                  <>
-                    {imagenesGaleria.map((imagen, index) => {
-                      const imageUrl = getAssetUrl(imagen);
-                      if (imageUrl === DEFAULT_IMAGE_URL) return null;
-                      
-                      return (
-                        <a 
-                          key={`gallery-img-${index}`}
-                          href={imageUrl} 
-                          data-fslightbox="gallery"
-                          class="block overflow-hidden rounded-lg aspect-video bg-gray-900 border border-indigo-900/30 transition-transform hover:scale-[1.02] shadow-lg hover:shadow-indigo-500/10"
-                        >
-                          <img 
-                            src={imageUrl} 
-                            alt={`${antecedente?.Titulo || "Proyecto"} - Imagen ${index + 1}`}
-                            class="w-full h-full object-cover opacity-95 hover:opacity-100 transition-all"
-                            loading="lazy"
-                          />
-                        </a>
-                      );
-                    }).filter(Boolean)}
-                    
-                    {/* Si la imagen hero es real y no está ya incluida en la galería, mostrarla también */}
-                    {heroEsReal && imagenesGaleria.every(img => getAssetUrl(img) !== heroImageUrl) && (
-                      <a 
-                        key="gallery-hero-img"
-                        href={heroImageUrl} 
-                        data-fslightbox="gallery"
-                        class="block overflow-hidden rounded-lg aspect-video bg-gray-900 border border-indigo-900/30 transition-transform hover:scale-[1.02] shadow-lg hover:shadow-indigo-500/10"
-                      >
-                        <img 
-                          src={heroImageUrl} 
-                          alt={`${antecedente?.Titulo || "Proyecto"} - Imagen principal`}
-                          class="w-full h-full object-cover opacity-95 hover:opacity-100 transition-all"
-                          loading="lazy"
-                        />
-                      </a>
-                    )}
-                    
-                    {/* Eliminamos la duplicación de imagen */}
-                  </>
-                );
-              } 
-              // CASO 2: No hay imágenes reales para mostrar
-              else {
-                return (
-                  <div class="col-span-full text-center py-8 text-blue-200/60">
-                    <div class="flex flex-col items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <p>No hay imágenes disponibles para este proyecto</p>
-                    </div>
-                  </div>
-                );
-              }
-            })()} {/* IIFE para evaluar inmediatamente */}
-          
-            {/* Este bloque ha sido reemplazado por la lógica mejorada de arriba */}
-          </div>
-        </div>
-      </div>
-      
-      <!-- CTA - Contacto -->
-      <div class="relative mt-16 mb-16 overflow-hidden">
-        <div class="bg-gradient-to-r from-blue-900/80 to-indigo-900/80 rounded-xl p-8 sm:p-10 backdrop-blur-xl border border-blue-700/20 shadow-2xl">
-          <!-- Decoración -->
-          <div class="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-blue-500/10 blur-3xl"></div>
-          <div class="absolute -bottom-24 -left-24 w-48 h-48 rounded-full bg-purple-500/10 blur-3xl"></div>
-          
-          <div class="relative z-10 flex flex-col md:flex-row md:justify-between md:items-center">
-            <div class="mb-6 md:mb-0 md:mr-8">
-              <h3 class="text-2xl sm:text-3xl font-bold text-white mb-4">¿Interesado en un proyecto similar?</h3>
-              <p class="text-blue-100/90 max-w-2xl">Consulta con nuestros expertos sobre cómo podemos ayudarte a desarrollar un proyecto personalizado adaptado a tus necesidades.</p>
-            </div>
-            
-            <div class="flex-shrink-0">
-              <a href="/contacto" class="inline-flex items-center justify-center px-6 py-3 border-2 border-blue-400/30 bg-blue-700/30 hover:bg-blue-700/50 text-white font-medium rounded-lg transition-all shadow-lg hover:shadow-blue-900/30 backdrop-blur-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-                Contactar ahora
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Botón de navegación -->
-      <div class="mt-12 mb-8 flex justify-center">
-        <a href="/antecedentes" class="group flex items-center px-6 py-3 text-lg bg-[#131b2e] hover:bg-[#1a2540] text-blue-200 rounded-full shadow-lg transition-all border border-blue-800/30 backdrop-blur-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Volver a Antecedentes
-        </a>
-      </div>
-    </div>
-  </main>
+<Layout 
+  title={antecedente.Titulo || 'Proyecto'} 
+  description={antecedente.Descripcion?.substring(0, 160) || ''}
+>
+  <!-- Sección Hero: cabecera con imagen y título -->
+  <AntecedenteHero antecedente={antecedente} />
+  
+  <!-- Galería de imágenes, solo si hay imágenes -->
+  {antecedente.Galeria && antecedente.Galeria.length > 0 && (
+    <AntecedenteGaleria galeria={antecedente.Galeria} titulo={antecedente.Titulo} />
+  )}
+  
+  <!-- Servicios relacionados, solo si existen -->
+  {serviciosUnicos.length > 0 && (
+    <AntecedenteServicios servicios={serviciosUnicos} />
+  )}
+  
+  <!-- Información meta del antecedente -->
+  <AntecedenteMeta antecedente={antecedente} />
+  
+  <!-- Descripción extendida del antecedente -->
+  <AntecedenteDescripcion descripcion={antecedente.Descripcion} />
+  
+  <!-- Lightbox para galería de imágenes -->
+  <LightboxGaleria />
 </Layout>
+
+<!-- Script único para inicializar efectos JS si es necesario -->
+<script>
+  // Aquí puedes inicializar efectos como Masonry, Lightbox, etc.
+  // Ejemplo:
+  // import { initMasonry, setupLightbox } from '../../../utils/gallery-utils';
+  // document.addEventListener('DOMContentLoaded', () => {
+  //   initMasonry('.masonry-grid');
+  //   setupLightbox();
+  // });
+</script>

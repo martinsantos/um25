@@ -91,3 +91,23 @@ export function getFileExtension(file) {
   const parts = file.filename.split('.');
   return parts.length > 1 ? parts.pop().toLowerCase() : '';
 }
+
+/**
+ * Devuelve el HTML <picture> para una imagen optimizada con soporte WebP y fallback a JPG/PNG
+ * @param {string} baseName - Nombre base del archivo (sin extensión)
+ * @param {string} ext - Extensión original (jpg, png)
+ * @param {string} alt - Texto alternativo
+ * @param {object} [options] - Opciones adicionales (width, height, className)
+ * @returns {string} - HTML <picture> string
+ */
+export function getPictureHtml(baseName, ext, alt, options = {}) {
+  const webpPath = `/webp/${baseName}.webp`;
+  const origPath = `/${baseName}.${ext}`;
+  const { width = '', height = '', className = '' } = options;
+  return `
+    <picture>
+      <source srcset="${webpPath}" type="image/webp">
+      <img src="${origPath}" alt="${alt}"${width ? ` width=\"${width}\"` : ''}${height ? ` height=\"${height}\"` : ''}${className ? ` class=\"${className}\"` : ''} loading="lazy" />
+    </picture>
+  `;
+}

@@ -1,4 +1,6 @@
 ---
+import '../../styles/antecedentes.css';
+
 interface Props {
   antecedente: any;
   titulo?: string;
@@ -65,43 +67,3 @@ const documentos = antecedente.documentos || [];
     </div>
   </div>
 </section>
-
-<style>
-  .antecedente-meta__item--full {
-    grid-column: 1 / -1;
-  }
-  
-  .antecedente-meta__documentos {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .antecedente-meta__documento {
-    margin-bottom: 0.5rem;
-  }
-  
-  .antecedente-meta__documento-link {
-    display: inline-flex;
-    align-items: center;
-    color: #0056b3;
-    text-decoration: none;
-    transition: color 0.3s ease;
-  }
-  
-  .antecedente-meta__documento-link:hover {
-    color: #003d82;
-    text-decoration: underline;
-  }
-  
-  .antecedente-meta__documento-link::before {
-    content: '';
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    margin-right: 8px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230056b3'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6z'/%3E%3C/svg%3E");
-    background-size: contain;
-    background-repeat: no-repeat;
-  }
-</style>

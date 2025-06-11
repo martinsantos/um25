@@ -1,24 +1,27 @@
 # Directorios y archivos a ignorar en la construcción de Docker
 node_modules
 npm-debug.log
-.DS_Store
-.git
-.github
-.vscode
-.idea
-*.log
+dist
+.cache
+coverage
 *.md
-*.sql
-*.tar.gz
-*.zip
+*.log
+.git
+.gitignore
+.vscode
+.env*
+.DS_Store
+scripts/
+test/
+test-env/
+directus-admin/
+umnueva25/
+antecedentes-single/
 
 # Directorios de datos
 local-uploads/
 uploads/
 directus_data/
-directus-admin/
-data/
-backups/
 
 # Archivos temporales
 tmp/

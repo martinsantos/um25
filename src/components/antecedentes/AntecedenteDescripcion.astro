@@ -1,4 +1,6 @@
 ---
+import '../../styles/antecedentes.css';
+
 interface Props {
   descripcion: string;
   titulo?: string;
@@ -20,50 +22,3 @@ const { descripcion, titulo = "Descripción" } = Astro.props;
     )}
   </div>
 </section>
-
-<style>
-  .antecedente-descripcion {
-    padding: 4rem 0;
-    background-color: #fff;
-  }
-  
-  .antecedente-descripcion__container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-  
-  .antecedente-descripcion__title {
-    font-size: 2.5rem;
-    margin-bottom: 2rem;
-    text-align: center;
-    color: #333;
-  }
-  
-  .antecedente-descripcion__content {
-    color: #444;
-    line-height: 1.8;
-    font-size: 1.1rem;
-  }
-  
-  .antecedente-descripcion__content p {
-    margin-bottom: 1.5rem;
-  }
-  
-  .antecedente-descripcion__empty {
-    text-align: center;
-    color: #666;
-    font-style: italic;
-    padding: 2rem;
-  }
-  
-  @media (max-width: 768px) {
-    .antecedente-descripcion__title {
-      font-size: 2rem;
-    }
-    
-    .antecedente-descripcion__content {
-      font-size: 1rem;
-    }
-  }
-</style>

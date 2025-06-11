@@ -1,0 +1,66 @@
+services:
+  astro-app:
+    build:
+      context: .
+    container_name: astro-app
+    working_dir: /app
+    ports:
+      - "4321:4321"
+    # Mount the source code for local development
+    volumes:
+      - ./fumbling-field:/app # <-- UNCOMMENT THIS LINE
+      # - astro_node_modules:/app/node_modules # Keep this commented out
+    env_file:
+      - .env
+    environment:
+      # Set NODE_ENV to development for local setup features like HMR
+      - NODE_ENV=development # <-- Consider changing this to development
+      - DIRECTUS_URL=http://directus-app:8055
+      - PUBLIC_DIRECTUS_URL=http://directus-app:8055
+    restart: unless-stopped
+
+  database:
+    image: postgres:15-alpine
+    container_name: database
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    volumes:
+      # Use the named volume for database persistence
+      - fumbling-field_directus-admin_postgres_data:/var/lib/postgresql/data # <-- Add the target path
+    ports:
+      - "5432:5432"
+
+  directus-app:
+    image: directus/directus:latest
+    container_name: directus-app
+    restart: unless-stopped
+    environment:
+      KEY: 12345678901234567890123456789012
+      SECRET: S3cr3tK3yForDirectusConfig2025!!
+      DB_CLIENT: pg
+      DB_HOST: database # This refers to the database service name
+      DB_PORT: 5432
+      DB_USER: myuser
+      DB_PASSWORD: mypassword
+      DB_DATABASE: mydatabase
+      ADMIN_EMAIL: admin@example.com # Used ONLY on the first run with an empty DB volume
+      ADMIN_PASSWORD: adminpassword # Used ONLY on the first run with an empty DB volume
+      # Add the PUBLIC_URL for Directus when accessing from host
+      PUBLIC_URL: http://localhost:8055 # <-- UNCOMMENT/ADD THIS
+    depends_on:
+      - database
+    ports:
+      - "8055:8055"
+    volumes:
+      - uploads:/directus/uploads # Keep for persistent file uploads
+      - extensions:/directus/extensions # Keep for persistent extensions
+
+volumes:
+  # astro_node_modules: # Remove this definition as the service doesn't use the named volume
+  fumbling-field_directus-admin_postgres_data: # Keep this for DB persistence
+  # directus_data: # Remove this definition as it's not used
+  uploads: # Keep for Directus uploads persistence
+  extensions: # Keep for Directus extensions persistence

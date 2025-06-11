@@ -1,4 +1,6 @@
 ---
+import '../../styles/antecedentes.css';
+
 interface Props {
   servicios: any[];
   titulo?: string;
@@ -44,27 +46,3 @@ const { servicios = [], titulo = "Servicios Relacionados" } = Astro.props;
     )}
   </div>
 </section>
-
-<style>
-  .antecedente-servicios__item-link {
-    display: inline-block;
-    margin-top: 1rem;
-    padding: 0.5rem 1rem;
-    background-color: #0056b3;
-    color: white;
-    text-decoration: none;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-  }
-  
-  .antecedente-servicios__item-link:hover {
-    background-color: #003d82;
-  }
-  
-  .antecedente-servicios__empty {
-    text-align: center;
-    color: #666;
-    font-style: italic;
-    padding: 2rem;
-  }
-</style>

@@ -1,27 +1,27 @@
 {
   "compilerOptions": {
+    /* Configuración básica */
     "target": "es2020",
     "module": "esnext",
     "lib": ["es2020", "dom", "dom.iterable"],
     "moduleResolution": "node",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "noImplicitThis": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
+    "allowJs": true,
+    "checkJs": false,
     "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "incremental": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
     "jsx": "react-jsx",
+    "jsxImportSource": "@emotion/react",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "baseUrl": ".",
-    "types": ["vite/client", "@testing-library/jest-dom", "node"],
     "paths": {
       "@/*": ["./src/*"],
       "@components/*": ["./src/components/*"],
@@ -33,26 +33,127 @@
       "@hooks/*": ["./src/hooks/*"],
       "@contexts/*": ["./src/contexts/*"],
       "@services/*": ["./src/services/*"],
-      "@types/*": ["./src/types/*"]
-    }
+      "@types/*": ["./src/types/*"],
+      "@mocks/*": ["./__mocks__/*"],
+      "@tests/*": ["./tests/*"],
+      "@fixtures/*": ["./tests/fixtures/*"],
+      "@test-utils/*": ["./tests/utils/*"],
+      "@test-mocks/*": ["./tests/mocks/*"],
+      "@test-helpers/*": ["./tests/helpers/*"]
+    },
+    
+    /* Configuración de estrictez */
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "useUnknownInCatchVariables": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    
+    /* Configuración de módulos */
+    "allowUmdGlobalAccess": true,
+    "moduleDetection": "force",
+    "allowImportingTsExtensions": false,
+    
+    /* Configuración de emisión */
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "verbatimModuleSyntax": true,
+    "removeComments": false,
+    "sourceRoot": "./src",
+    "mapRoot": "./dist",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    
+    /* Configuración de tipos */
+    "types": ["vite/client", "node", "jest"],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types"
+    ]
   },
+  
+  /* Configuración para el entorno de desarrollo */
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs",
+      "target": "es2018"
+    },
+    "transpileOnly": true,
+    "files": true,
+    "experimentalReplAwait": true
+  },
+  
+  /* Incluir archivos para la compilación */
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.js",
-    "src/**/*.jsx",
-    "src/**/*.astro",
-    "src/**/*.d.ts",
-    "tests/**/*.ts",
-    "tests/**/*.tsx",
-    "tests/**/*.js",
-    "tests/**/*.jsx",
-    "**/*.d.ts"
+    "src/**/*",
+    "tests/**/*",
+    "**/*.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.mjs",
+    "**/*.cjs",
+    "**/*.json"
   ],
+  
+  /* Excluir archivos de la compilación */
   "exclude": [
-    "node_modules",
-    "dist",
-    "**/node_modules/*",
-    "**/dist/*"
+    "**/node_modules",
+    "**/dist",
+    "**/build",
+    "**/.next",
+    "**/out",
+    "**/.astro",
+    "**/.vercel",
+    "**/.netlify",
+    "**/.contentlayer",
+    "**/.cache",
+    "**/.svelte-kit",
+    "**/.nuxt",
+    "**/.output",
+    "**/.docusaurus",
+    "**/.redwood",
+    "**/.remix",
+    "**/.sanity",
+    "**/.svelte",
+    "**/.turbo",
+    "**/.yarn",
+    "**/.husky",
+    "**/.github",
+    "**/.vscode",
+    "**/public",
+    "**/coverage",
+    "**/__snapshots__",
+    "**/*.test.*",
+    "**/*.spec.*",
+    "**/*.stories.*",
+    "**/__tests__",
+    "**/__mocks__",
+    "**/__fixtures__"
+  ],
+  
+  /* Referencias a otros proyectos */
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.test.json"
+    }
   ]
 }

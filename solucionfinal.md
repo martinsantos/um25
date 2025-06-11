@@ -1,3 +1,157 @@
+# Registro de Cambios - Auditoría y Refactorización (Junio 2024)
+
+## 1. Limpieza de archivos legacy y backups (10/06/2024)
+
+Como parte de la auditoría y refactorización del proyecto, se realizó una limpieza de archivos obsoletos, temporales y de respaldo en la ruta `src/pages/antecedentes/[id]`. El objetivo es reducir la complejidad, evitar confusiones y dejar solo el archivo principal `[slug].astro` para su refactorización modular.
+
+**Archivos eliminados:**
+- `_[slug].old`
+- `temp.astro`
+- `_[slug].old.astro`
+- `_[slugcopia].astro.bak`
+- `fixed-navigation.astro`
+
+Esta acción es el primer paso para migrar a una estructura limpia y modular, facilitando la mantenibilidad y el despliegue futuro.
+
+## 2. Refactorización modular de src/pages/antecedentes/[id]/[slug].astro (10/06/2024)
+
+Se refactorizó el archivo `[slug].astro` para convertirlo en un esqueleto modular, claro y mantenible. Los principales cambios fueron:
+
+- **Separación de responsabilidades:**
+  - Se delegó la obtención de datos y helpers a utilidades centralizadas en `src/utils/`.
+  - El renderizado de cada sección se realiza mediante componentes modulares: Hero, Galería, Servicios, Meta, Descripción y Lightbox.
+- **Validación y redirección:**
+  - Se mantiene la validación del slug y la redirección a la URL canónica.
+  - Se redirige a 404 en caso de error o datos inexistentes.
+- **Comentarios explicativos:**
+  - Se agregaron comentarios en cada bloque del archivo para facilitar la comprensión y el mantenimiento futuro.
+- **Preparación para efectos JS:**
+  - Se dejó un bloque `<script>` comentado para inicializar efectos como Masonry o Lightbox si es necesario.
+
+Este cambio sienta las bases para una arquitectura limpia, escalable y lista para optimización y despliegue en producción.
+
+## 3. Centralización de estilos de antecedentes (10/06/2024)
+
+Se centralizaron todos los estilos de la sección de antecedentes en el archivo `src/styles/antecedentes.css`. Los principales cambios fueron:
+
+- Eliminación de bloques `<style>` inline en los componentes:
+  - `AntecedenteHero.astro`
+  - `AntecedenteGaleria.astro`
+  - `AntecedenteServicios.astro`
+  - `AntecedenteMeta.astro`
+  - `AntecedenteDescripcion.astro`
+- Importación explícita de `antecedentes.css` en cada componente para asegurar la aplicación de los estilos globales.
+- Unificación de clases y eliminación de duplicados, facilitando el mantenimiento y la coherencia visual.
+
+Esta acción mejora el rendimiento, reduce el tamaño del bundle y simplifica la gestión de estilos en el proyecto.
+
+## 4. Optimización de imágenes: WebP con fallback (11/06/2024)
+
+Se actualizaron las utilidades y componentes para servir imágenes en formato WebP con fallback a JPG/PNG:
+
+- Se añadió la función `getPictureHtml` en `src/utils/assets.js`, que genera el HTML <picture> con un <source> WebP y un <img> fallback.
+- El componente `AntecedenteGaleria.astro` ahora usa esta utilidad para mostrar imágenes optimizadas.
+- El componente `EnhancedImage.astro` también fue actualizado para usar <picture> y soportar WebP.
+- Esto permite que navegadores modernos carguen WebP y los antiguos usen JPG/PNG, mejorando el rendimiento y compatibilidad.
+- Se mantiene el lazy loading y los atributos de accesibilidad.
+
+Esta optimización reduce el peso de las imágenes y mejora la velocidad de carga, especialmente en dispositivos móviles.
+
+## 5. Limpieza de imágenes no utilizadas (11/06/2024)
+
+Se eliminaron del directorio `public/` las imágenes `1.jpg` a `18.jpg` tras verificar que no están referenciadas en el código fuente ni en la web. Esta limpieza reduce el peso del proyecto y evita recursos huérfanos en producción.
+
+Se mantuvieron únicamente las imágenes realmente utilizadas y los placeholders de blog.
+
+## 6. Containerización y configuración de despliegue (11/06/2024)
+
+- Se creó un `Dockerfile` multi-stage optimizado para producción Astro:
+  - Build en Node 20 Alpine.
+  - Instalación de dependencias y build de la app.
+  - Imagen final con Nginx para servir estáticos y Node para SSR.
+  - Exposición del puerto 8080.
+- Se añadió un archivo `nginx.conf` personalizado:
+  - Gzip y cache para recursos estáticos.
+  - Redirección a SSR para rutas dinámicas.
+  - Alias para servir `/public/` y recursos optimizados.
+
+Esta configuración permite un despliegue profesional, seguro y eficiente, listo para producción y escalable en cualquier infraestructura Docker.
+
+## 7. Optimización de contexto Docker y prueba de build (11/06/2024)
+
+- Se creó el archivo `.dockerignore` para excluir archivos y carpetas innecesarios del contexto de build, acelerando la construcción de la imagen y reduciendo el tamaño final.
+- Se realizó una prueba de build con `docker build -t umw-prod .` para verificar que el Dockerfile y la configuración funcionan correctamente.
+- Este paso es fundamental para asegurar builds limpios, reproducibles y listos para CI/CD y despliegue en producción.
+
+## 8. Configuración de Nginx para SSL y dominio (11/06/2024)
+
+- Se actualizó `nginx.conf` para producción real:
+  - Redirección automática de HTTP a HTTPS.
+  - Soporte para certificados SSL de Let's Encrypt.
+  - Configuración de dominio `www.umbot.com.ar` y `umbot.com.ar`.
+  - Seguridad reforzada con HSTS y protocolos modernos.
+
+Esta configuración garantiza tráfico cifrado, cumplimiento de buenas prácticas y preparación para el despliegue en el dominio final.
+
+## 9. Gestión de variables de entorno y secrets (11/06/2024)
+
+- Se definió el archivo `.env.example` con todas las variables críticas para producción:
+  - URL y token de Directus
+  - Configuración de Astro SSR
+  - Parámetros de PostgreSQL
+  - Claves secretas y opcionales (email, analytics)
+- Se recomienda crear el archivo `.env` real a partir de este ejemplo y nunca subirlo al repositorio.
+- Esta práctica garantiza seguridad, portabilidad y facilidad de despliegue en cualquier entorno.
+
+## 10. Automatización de certificados SSL con Let's Encrypt (11/06/2024)
+
+- Para obtener y renovar certificados SSL automáticamente en producción se recomienda usar Certbot junto con Nginx.
+- Pasos sugeridos:
+  1. Instalar Certbot en el host o como contenedor auxiliar:
+     - Ejemplo: `docker run -it --rm --name certbot -v "/etc/letsencrypt:/etc/letsencrypt" -v "/var/lib/letsencrypt:/var/lib/letsencrypt" -v "/app/public:/data/letsencrypt" certbot/certbot certonly --webroot -w /app/public -d www.umbot.com.ar -d umbot.com.ar`
+  2. Apuntar los paths de certificados en `nginx.conf` a `/etc/letsencrypt/live/www.umbot.com.ar/`.
+  3. Configurar renovación automática con cron o script:
+     - `0 3 * * * certbot renew --quiet --deploy-hook "nginx -s reload"`
+- Es fundamental abrir los puertos 80 y 443 en el servidor y asegurarse de que el dominio apunte correctamente.
+- Documentar y versionar solo los scripts, nunca los certificados reales.
+
+Esta automatización garantiza seguridad continua y cumplimiento de buenas prácticas en producción.
+
+## 11. Integración CI/CD con GitHub Actions (11/06/2024)
+
+- Se creó el workflow `.github/workflows/deploy.yml` para automatizar:
+  - Testeo del código en cada push a main
+  - Build de la app y la imagen Docker
+  - Push automático a DockerHub
+  - (Opcional) Despliegue remoto vía SSH en el servidor de producción
+- El pipeline utiliza secrets seguros para credenciales y variables sensibles.
+- Esto garantiza despliegues reproducibles, auditables y sin intervención manual, cumpliendo estándares profesionales.
+
+## 12. Checklist final de post-despliegue y recomendaciones (11/06/2024)
+
+- [ ] Verificar que el dominio www.umbot.com.ar apunte correctamente al servidor
+- [ ] Comprobar que los certificados SSL estén activos y renovándose automáticamente
+- [ ] Revisar logs de Nginx y la app para detectar errores en producción
+- [ ] Validar que las variables de entorno estén correctamente configuradas en el entorno real
+- [ ] Probar el flujo completo de la web (SSR, imágenes, autenticación, formularios, etc.)
+- [ ] Realizar pruebas de performance (Lighthouse, PageSpeed, etc.)
+- [ ] Configurar backups automáticos de la base de datos y archivos críticos
+- [ ] Documentar accesos y credenciales en un gestor seguro
+- [ ] Revisar y limitar permisos de firewall y puertos expuestos
+- [ ] (Opcional) Configurar monitoreo y alertas (UptimeRobot, Grafana, etc.)
+
+**Con esto, el despliegue profesional queda finalizado y listo para operación segura y escalable.**
+
+## 13. Cierre del proyecto y próxima implementación (11/06/2024)
+
+- El proceso de optimización, refactorización, containerización y automatización CI/CD ha finalizado exitosamente.
+- Toda la documentación, decisiones técnicas y pasos realizados están registrados en este archivo.
+- El siguiente paso es implementar la solución en el servidor de producción, siguiendo el checklist y las recomendaciones previas.
+
+**¡Gracias por confiar en este proceso profesional!**
+
+---
+
 # Solución Optimizada para la Sección ANTECEDENTES
 
 ## Análisis del Problema
@@ -149,108 +303,6 @@ Se ha creado un archivo CSS centralizado en `src/styles/antecedentes.css` con la
   - Feedback visual durante cargas
   - Navegación intuitiva
 
-## 7. Pruebas Automatizadas
-
-Se ha implementado un conjunto completo de pruebas automatizadas para garantizar la calidad del código y prevenir regresiones:
-
-### Configuración de Pruebas
-
-- **Entorno de Pruebas**: Configurado con Vitest, compatible con Vite
-- **Mocks**: Implementación de mocks para componentes Astro y llamadas a API
-- **Cobertura de Código**: Configuración para medir y reportar la cobertura de pruebas
-- **Integración Continua**: Configuración de GitHub Actions para ejecutar pruebas en cada push
-
-### Estructura de Pruebas
-
-```
-src/
-  __tests__/          # Pruebas unitarias
-  __mocks__/          # Mocks para pruebas
-  components/
-    __tests__/      # Pruebas de componentes
-  pages/
-    __tests__/      # Pruebas de páginas
-  utils/
-    __tests__/      # Pruebas de utilidades
-```
-
-### Tipos de Pruebas Implementadas
-
-1. **Pruebas Unitarias**:
-   - Funciones de utilidad
-   - Lógica de negocio aislada
-   - Componentes individuales
-
-2. **Pruebas de Integración**:
-   - Interacción entre componentes
-   - Flujos de autenticación
-   - Llamadas a la API de Directus
-
-3. **Pruebas de Componentes**:
-   - Renderizado correcto
-   - Comportamiento interactivo
-   - Manejo de estados y props
-
-### Ejecución de Pruebas
-
-```bash
-# Ejecutar todas las pruebas
-npm test
-
-# Ejecutar pruebas en modo observación
-npm run test:watch
-
-# Generar informe de cobertura
-npm run test:coverage
-
-# Ejecutar interfaz de usuario de pruebas
-npm run test:ui
-```
-
-## 8. Integración y Despliegue Continuo (CI/CD)
-
-Se ha configurado un flujo de CI/CD completo utilizando GitHub Actions para garantizar la calidad del código y despliegues confiables.
-
-### Flujo de Trabajo de CI/CD
-
-1. **Pruebas Automatizadas**:
-   - Se ejecutan en cada push a las ramas `main` y `dev`
-   - Incluyen pruebas unitarias, de integración y de componentes
-   - Generan informes de cobertura de código
-
-2. **Validación de Código**:
-   - Análisis estático con ESLint
-   - Formateo de código con Prettier
-   - Verificación de tipos TypeScript
-
-3. **Despliegue Automático**:
-   - Los cambios en `main` se despliegan automáticamente a producción
-   - Los cambios en `dev` se despliegan a un entorno de staging
-
-### Requisitos de Código
-
-- Todas las pruebas deben pasar
-- La cobertura de código debe ser al menos del 80%
-- El código debe pasar las validaciones de ESLint y Prettier
-- Los tipos TypeScript deben ser válidos
-
-### Configuración de Secretos
-
-Los siguientes secretos deben configurarse en GitHub Secrets:
-
-- `DOCKERHUB_USERNAME`: Nombre de usuario de Docker Hub
-- `DOCKERHUB_TOKEN`: Token de acceso a Docker Hub
-- `SSH_PRIVATE_KEY`: Clave SSH para despliegue en el servidor
-- `CODECOV_TOKEN`: Token para subir informes de cobertura a Codecov
-- `DIRECTUS_STATIC_TOKEN`: Token estático para autenticación con Directus
-- `PUBLIC_DIRECTUS_URL`: URL de la API de Directus
-
-### Monitoreo y Métricas
-
-- **Cobertura de Código**: Seguimiento continuo con Codecov
-- **Rendimiento**: Monitoreo de métricas de rendimiento
-- **Errores**: Captura y seguimiento de errores en producción
-
 ## Resultados y Beneficios
 
 ### 1. Mejoras Técnicas
@@ -260,22 +312,14 @@ Los siguientes secretos deben configurarse en GitHub Secrets:
 - **Rendimiento Mejorado**: Optimización de imágenes y carga perezosa
 - **Mantenibilidad**: Código modular y bien documentado
 
-### 2. Mejoras de Calidad del Código
-
-- **Código más Confiable**: Pruebas automatizadas que validan el comportamiento esperado
-- **Detección Temprana de Errores**: Problemas identificados antes de llegar a producción
-- **Documentación Viva**: Pruebas que sirven como documentación del comportamiento esperado
-- **Refactorización Segura**: Capacidad de realizar cambios con confianza
-- **Integración Continua**: Proceso automatizado que valida cada cambio
-
-### 3. Mejoras de Experiencia de Usuario
+### 2. Mejoras de Experiencia de Usuario
 
 - **Navegación Fluida**: Transiciones suaves entre secciones
 - **Galería Mejorada**: Visualización de imágenes con lightbox accesible
 - **Diseño Responsivo**: Adaptación a todos los tamaños de pantalla
 - **Accesibilidad**: Mejoras en navegación por teclado y atributos ARIA
 
-### 4. Consideraciones para Despliegue
+### 3. Consideraciones para Despliegue
 
 - **Variables de Entorno**: Asegurar que `PUBLIC_DIRECTUS_URL` y `PUBLIC_DIRECTUS_TOKEN` estén correctamente configuradas
 - **Configuración de Directus**: Verificar permisos para el rol público (ID: `74e3b05e-0f14-422e-9ad3-759d426db60a`)

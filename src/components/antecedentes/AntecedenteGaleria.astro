@@ -1,5 +1,6 @@
 ---
-import { getOptimizedImageUrl } from '../../utils/assets.js';
+import { getOptimizedImageUrl, getPictureHtml } from '../../utils/assets.js';
+import '../../styles/antecedentes.css';
 
 interface Props {
   galeria: any[];
@@ -18,24 +19,20 @@ const { galeria = [], titulo = "Galería" } = Astro.props;
         {galeria.map((item, index) => {
           const file = item.directus_files_id;
           if (!file) return null;
-          
-          const imageUrl = getOptimizedImageUrl(file, 'medium');
-          const fullImageUrl = getOptimizedImageUrl(file, 'large');
-          
+          // Obtener nombre base y extensión
+          const fileName = file.filename_disk || file.filename || '';
+          const baseName = fileName.split('.').slice(0, -1).join('.');
+          const ext = fileName.split('.').pop();
+          const alt = file.title || `Imagen ${index + 1}`;
+          // Renderizar <picture> con fallback
           return (
             <div 
               class="antecedente-galeria__item masonry-item" 
               data-index={index}
-              data-full-src={fullImageUrl}
+              data-full-src={getOptimizedImageUrl(file, 'large')}
               data-caption={file.title || ''}
             >
-              <img 
-                src={imageUrl} 
-                alt={file.title || `Imagen ${index + 1}`} 
-                loading="lazy"
-                width={file.width || 400}
-                height={file.height || 300}
-              />
+              <Fragment set:html={getPictureHtml(baseName, ext, alt, { width: file.width || 400, height: file.height || 300 })} />
             </div>
           );
         })}

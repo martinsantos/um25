@@ -1,43 +1,38 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "module": "esnext",
-    "target": "es2017",
+    "target": "es2020",
+    "module": "commonjs",
     "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false,
+    "jsx": "react-jsx",
+    "jsxImportSource": "@emotion/react",
+    "types": ["node", "jest", "@testing-library/jest-dom"],
+    "typeRoots": ["./node_modules/@types"],
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "types": ["vite/client", "node"],
     "baseUrl": ".",
     "paths": {
-      "~/*": ["src/*"],
-      "@/*": ["src/*"],
-      "@astrojs/*": ["node_modules/@astrojs/*"],
-      "astro:config": ["node_modules/astro/dist/config/index.d.ts"],
-      "astro:components": ["node_modules/astro/dist/components/index.d.ts"],
-      "astro:content": ["node_modules/astro/dist/content/index.d.ts"],
-      "astro:middleware": ["node_modules/astro/dist/middleware/index.d.ts"]
-    }
+      "@/*": ["./src/*"]
+    },
+    "allowJs": true,
+    "outDir": "./dist-test"
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
-    "src/**/*.js",
-    "src/**/*.jsx",
+    "__mocks__/**/*.ts",
+    "__mocks__/**/*.tsx",
     "tests/**/*.ts",
-    "tests/**/*.tsx",
-    "tests/**/*.js",
-    "tests/**/*.jsx"
+    "tests/**/*.tsx"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.spec.ts",
-    "**/*.spec.tsx"
+    "dist-test",
+    ".astro"
   ]
 }

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Imágenes Directus</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .image-card {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            text-align: center;
+        }
+        .image-card img {
+            max-width: 100%;
+            height: auto;
+            max-height: 150px;
+            object-fit: contain;
+        }
+        .error {
+            color: #d32f2f;
+            background-color: #ffebee;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px 0;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test de Imágenes Directus</h1>
+    
+    <div>
+        <label for="directusUrl">URL de Directus:</label>
+        <input type="text" id="directusUrl" value="http://localhost:8055" style="width: 300px; padding: 5px;">
+    </div>
+    
+    <div style="margin: 10px 0;">
+        <label for="folderId">ID de Carpeta:</label>
+        <input type="text" id="folderId" value="82a1f135-7129-4dcf-bef2-432bec7b7b92" style="width: 300px; padding: 5px;">
+    </div>
+    
+    <div style="margin: 10px 0;">
+        <label for="searchTerm">Término de Búsqueda (opcional):</label>
+        <input type="text" id="searchTerm" placeholder="Ej: logo" style="width: 300px; padding: 5px;">
+    </div>
+    
+    <div>
+        <label for="token">Token de Acceso:</label>
+        <input type="password" id="token" value="k6P8LAY8_x_y1miB_KTlWnysCnx2Abky" style="width: 300px; padding: 5px;">
+    </div>
+    
+    <div style="margin: 15px 0; display: flex; gap: 10px;">
+        <button id="testButton">Probar Conexión</button>
+        <button id="fetchImages">Buscar Imágenes</button>
+        <button id="fetchRandomImages">Imágenes Aleatorias</button>
+    </div>
+    
+    <div id="loading" style="display: none;">
+        <p>Cargando...</p>
+    </div>
+    
+    <div id="result">
+        <p>Haz clic en "Probar Conexión" para verificar la conexión con Directus.</p>
+    </div>
+    
+    <div id="imagesContainer" class="images-grid"></div>
+    
+    <script>
+        const directusUrlInput = document.getElementById('directusUrl');
+        const folderIdInput = document.getElementById('folderId');
+        const tokenInput = document.getElementById('token');
+        const testButton = document.getElementById('testButton');
+        const fetchImagesButton = document.getElementById('fetchImages');
+        const resultDiv = document.getElementById('result');
+        const loadingDiv = document.getElementById('loading');
+        const imagesContainer = document.getElementById('imagesContainer');
+        
+        async function testConnection() {
+            const baseUrl = directusUrlInput.value.trim();
+            const token = tokenInput.value.trim();
+            
+            if (!baseUrl || !token) {
+                showError('Por favor, completa la URL y el token');
+                return;
+            }
+            
+            showLoading(true);
+            clearResults();
+            
+            try {
+                const response = await fetch(`${baseUrl}/users/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(`Error ${response.status}: ${error.errors?.[0]?.message || 'Error desconocido'}`);
+                }
+                
+                const userData = await response.json();
+                showSuccess(`Conexión exitosa. Usuario: ${userData.data.first_name} ${userData.data.last_name} (${userData.data.email})`);
+                
+            } catch (error) {
+                showError(`Error al conectar con Directus: ${error.message}`);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        async function fetchImages() {
+            const baseUrl = directusUrlInput.value.trim();
+            const searchTerm = document.getElementById('searchTerm').value.trim();
+            const token = tokenInput.value.trim();
+            
+            if (!baseUrl || !token) {
+                showError('Por favor, completa la URL y el token');
+                return;
+            }
+            
+            showLoading(true);
+            clearResults();
+            imagesContainer.innerHTML = '';
+            
+            try {
+                let url = `${baseUrl}/files?fields=id,type,filename_download,title,width,height,filesize&filter[type][_starts_with]=image&limit=12`;
+                
+                if (searchTerm) {
+                    url += `&search=${encodeURIComponent(searchTerm)}`;
+                }
+                console.log('Fetching images from:', url);
+                
+                const response = await fetch(url, { 
+                    headers: { 
+                        'Authorization': `Bearer ${token}`, 
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache'
+                    } 
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Error ${response.status}: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('API Response:', data);
+                
+                if (!data.data || !data.data.length) {
+                    throw new Error('No se encontraron imágenes que coincidan con la búsqueda');
+                }
+                
+                const images = data.data
+                    .filter(f => f?.id && f?.type?.startsWith('image/'))
+                    .map(f => ({
+                        url: `${baseUrl}/assets/${f.id}`,
+                        id: f.id,
+                        filename: f.filename_download || 'sin-nombre.jpg',
+                        type: f.type,
+                        title: f.title,
+                        width: f.width,
+                        height: f.height,
+                        filesize: f.filesize
+                    }));
+                
+                console.log(`Imágenes encontradas: ${images.length}`);
+                showSuccess(`Se encontraron ${images.length} imágenes.`);
+                
+                // Mostrar las imágenes
+                displayImages(images);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError(`Error al obtener imágenes: ${error.message}`);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        function showLoading(show) {
+            loadingDiv.style.display = show ? 'block' : 'none';
+            testButton.disabled = show;
+            fetchImagesButton.disabled = show;
+        }
+        
+        function clearResults() {
+            resultDiv.innerHTML = '';
+        }
+        
+        function showSuccess(message) {
+            resultDiv.innerHTML = `<div style="color: #2e7d32; background-color: #e8f5e9; padding: 10px; border-radius: 4px;">✅ ${message}</div>`;
+        }
+        
+        function showError(message) {
+            resultDiv.innerHTML = `<div class="error">❌ ${message}</div>`;
+        }
+        
+        // Función para mostrar imágenes en la cuadrícula
+        function displayImages(images) {
+            imagesContainer.innerHTML = '';
+            images.forEach(img => {
+                const imgCard = document.createElement('div');
+                imgCard.className = 'image-card';
+                imgCard.innerHTML = `
+                    <div style="height: 150px; display: flex; align-items: center; justify-content: center; background: #f5f5f5; margin-bottom: 8px;">
+                        <img 
+                            src="${img.url}" 
+                            alt="${img.title || img.filename}" 
+                            style="max-width: 100%; max-height: 100%; object-fit: contain;"
+                            onerror="this.onerror=null;this.src='https://via.placeholder.com/200?text=Error+al+cargar'" 
+                        />
+                    </div>
+                    <p style="font-size: 12px; margin: 4px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${img.title || img.filename}">
+                        ${img.title || img.filename}
+                    </p>
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: #666;">
+                        <span>${img.width}×${img.height}</span>
+                        <span>${Math.round(img.filesize / 1024)} KB</span>
+                    </div>
+                    <p style="font-size: 10px; color: #999; margin: 2px 0; word-break: break-all;">
+                        ${img.id}
+                    </p>
+                `;
+                imagesContainer.appendChild(imgCard);
+            });
+        }
+
+        // Función para obtener imágenes aleatorias
+        async function fetchRandomImages() {
+            const baseUrl = directusUrlInput.value.trim();
+            const token = tokenInput.value.trim();
+            
+            if (!baseUrl || !token) {
+                showError('Por favor, completa la URL y el token');
+                return;
+            }
+            
+            showLoading(true);
+            clearResults();
+            imagesContainer.innerHTML = '';
+            
+            try {
+                // Primero obtenemos el conteo total de imágenes
+                const countResponse = await fetch(
+                    `${baseUrl}/files/count?filter[type][_starts_with]=image`,
+                    { 
+                        headers: { 
+                            'Authorization': `Bearer ${token}`, 
+                            'Accept': 'application/json'
+                        } 
+                    }
+                );
+                
+                if (!countResponse.ok) {
+                    const errorText = await countResponse.text();
+                    throw new Error(`Error ${countResponse.status}: ${errorText}`);
+                }
+                
+                const countData = await countResponse.json();
+                const totalImages = countData.data;
+                
+                if (totalImages === 0) {
+                    throw new Error('No hay imágenes en el sistema');
+                }
+                
+                // Obtenemos 9 imágenes aleatorias
+                const randomOffset = Math.max(0, Math.floor(Math.random() * (totalImages - 9)));
+                const url = `${baseUrl}/files?fields=id,type,filename_download,title,width,height,filesize&filter[type][_starts_with]=image&limit=9&offset=${randomOffset}`;
+                
+                const response = await fetch(url, { 
+                    headers: { 
+                        'Authorization': `Bearer ${token}`, 
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache'
+                    } 
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Error ${response.status}: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Random Images API Response:', data);
+                
+                if (!data.data || !data.data.length) {
+                    throw new Error('No se pudieron obtener imágenes aleatorias');
+                }
+                
+                const images = data.data.map(img => ({
+                    url: `${baseUrl}/assets/${img.id}`,
+                    id: img.id,
+                    filename: img.filename_download || 'sin-nombre.jpg',
+                    type: img.type,
+                    title: img.title,
+                    width: img.width,
+                    height: img.height,
+                    filesize: img.filesize
+                }));
+                
+                showSuccess(`Mostrando ${images.length} imágenes aleatorias`);
+                displayImages(images);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError(`Error al obtener imágenes aleatorias: ${error.message}`);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Event listeners
+        testButton.addEventListener('click', testConnection);
+        fetchImagesButton.addEventListener('click', fetchImages);
+        document.getElementById('fetchRandomImages').addEventListener('click', fetchRandomImages);
+        
+        // Permitir presionar Enter en los inputs
+        [directusUrlInput, tokenInput, document.getElementById('searchTerm')].forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    if (input === document.getElementById('searchTerm')) {
+                        fetchImages();
+                    } else {
+                        testConnection();
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

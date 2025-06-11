@@ -1,41 +1,79 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    /* Configuración de JSX */
     "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    
+    /* Compatibilidad de módulos */
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "module": "commonjs",
-    "target": "es2017",
+    "target": "es2020",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "types": ["node", "jest"],
+    
+    /* Tipos */
+    "types": ["node", "jest", "@testing-library/jest-dom"],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types"
+    ],
+    
+    /* Rutas base */
     "baseUrl": ".",
     "paths": {
       "~/*": ["src/*"],
       "@/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@pages/*": ["src/pages/*"],
+      "@utils/*": ["src/utils/*"],
+      "@tests/*": ["tests/*"],
       "@astrojs/*": ["node_modules/@astrojs/*"],
       "astro:config": ["node_modules/astro/dist/config/index.d.ts"],
       "astro:components": ["node_modules/astro/dist/components/index.d.ts"],
       "astro:content": ["node_modules/astro/dist/content/index.d.ts"],
       "astro:middleware": ["node_modules/astro/dist/middleware/index.d.ts"]
-    }
+    },
+    
+    /* Otras opciones */
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.js",
     "src/**/*.jsx",
+    "src/**/*.d.ts",
     "tests/**/*.ts",
     "tests/**/*.tsx",
     "tests/**/*.js",
     "tests/**/*.jsx",
+    "tests/**/*.d.ts",
     "jest.setup.js",
-    "jest-astro-transformer.js"
+    "jest-astro-transformer.js",
+    "jest-astro-transformer.cjs"
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    ".astro",
+    ".netlify",
+    "coverage",
+    "**/*.test.*",
+    "**/*.spec.*"
   ]
 }

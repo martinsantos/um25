@@ -1,7 +1,5 @@
-// @ts-nocheck
-// Configuración simple de Jest para pruebas básicas
-
-const config = {
+// Configuración simple de Jest para pruebas básicas (CommonJS)
+module.exports = {
   testEnvironment: 'node',
   testMatch: [
     '**/__tests__/**/*.test.js',
@@ -24,5 +22,3 @@ const config = {
   verbose: true,
   bail: true
 };
-
-module.exports = config;
