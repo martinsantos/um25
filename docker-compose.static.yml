@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # Aplicación Astro (Frontend)
+  umbot-astro-static:
+    build:
+      context: .
+      dockerfile: Dockerfile.astro.prod
+    container_name: umbot-astro-static
+    environment:
+      - NODE_ENV=production
+      - STATIC_MODE=true
+      - PUBLIC_DIRECTUS_URL=disabled
+      - DIRECTUS_STATIC_TOKEN=disabled
+    volumes:
+      - ./public:/app/public:ro
+    networks:
+      - umbot-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4321/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Nginx (Reverse Proxy)
+  umbot-nginx-static:
+    image: nginx:alpine
+    container_name: umbot-nginx-static
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./public/images:/var/www/html/images:ro
+    depends_on:
+      - umbot-astro-static
+    networks:
+      - umbot-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  umbot-network:
+    driver: bridge
+
+volumes:
+  umbot_static_data:
+    driver: local 
