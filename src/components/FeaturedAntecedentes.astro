@@ -24,75 +24,131 @@ const generateSlug = (text = '') => {
     .replace(/^-+|-+$/g, '')
     .slice(0, 50);
 };
+
+// Función para generar un color único basado en el ID del antecedente
+const generateUniqueColor = (id) => {
+  const colors = [
+    'from-blue-500 to-blue-700',
+    'from-green-500 to-green-700', 
+    'from-purple-500 to-purple-700',
+    'from-red-500 to-red-700',
+    'from-indigo-500 to-indigo-700',
+    'from-pink-500 to-pink-700',
+    'from-yellow-500 to-yellow-700',
+    'from-teal-500 to-teal-700',
+    'from-orange-500 to-orange-700',
+    'from-cyan-500 to-cyan-700'
+  ];
+  return colors[id % colors.length];
+};
+
+// Función para obtener las iniciales del cliente
+const getClientInitials = (cliente) => {
+  if (!cliente) return 'UM';
+  return cliente.split(' ')
+    .map(word => word.charAt(0))
+    .join('')
+    .substring(0, 3)
+    .toUpperCase();
+};
 ---
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-  {antecedentes.map(item => (
-    <a 
-      href={`/antecedentes/${item.id}/${generateSlug(item.Titulo)}`}
-      class="block group cursor-pointer"
-      aria-label={`Ver detalles de ${item.Titulo || 'este proyecto'}`}
-    >
-      <div 
-        key={item.id} 
-        class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] hover:ring-4 hover:ring-blue-300/50 h-full flex flex-col border-2 border-transparent hover:border-blue-400"
+  {antecedentes.map(item => {
+    const uniqueColor = generateUniqueColor(item.id);
+    const clientInitials = getClientInitials(item.Cliente);
+    const imageUrl = item.Imagen ? 
+      `${import.meta.env.PUBLIC_DIRECTUS_URL}/assets/${item.Imagen}?width=600&height=400&fit=cover` : 
+      null;
+    
+    return (
+      <a 
+        href={`/antecedentes/${item.id}/${generateSlug(item.Titulo)}`}
+        class="block group cursor-pointer"
+        aria-label={`Ver detalles de ${item.Titulo || 'este proyecto'}`}
       >
-        <div class="relative h-48 overflow-hidden">
-          <EnhancedImage
-            src={item.Imagen ? 
-              `${import.meta.env.PUBLIC_DIRECTUS_URL}/assets/${item.Imagen}?width=600&height=400&fit=cover` : 
-              null}
-            alt={item.Titulo || 'Proyecto destacado'}
-            width={600}
-            height={400}
-            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            loading="lazy"
-            fallbackSrc="/images/placeholder-project.jpg"
-            fallbackAlt={`Imagen de proyecto ${item.Titulo || 'genérico'}`}
-            containerClass="w-full h-full bg-gray-100"
-          />
-        </div>
-        
-        <div class="p-6 flex-grow flex flex-col">
-          <div class="flex-grow">
-            <h3 class="text-xl font-black text-gray-800 mb-2 group-hover:text-red-600 transition-colors">
-              {item.Titulo || 'Proyecto sin título'}
-            </h3>
+        <div 
+          key={item.id} 
+          class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] hover:ring-4 hover:ring-blue-300/50 h-full flex flex-col border-2 border-transparent hover:border-blue-400"
+        >
+          <div class="relative h-48 overflow-hidden">
+            {imageUrl ? (
+              <EnhancedImage
+                src={imageUrl}
+                alt={item.Titulo || 'Proyecto destacado'}
+                width={600}
+                height={400}
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+                fallbackSrc={null}
+                fallbackAlt={`Imagen de proyecto ${item.Titulo || 'genérico'}`}
+                containerClass="w-full h-full bg-gray-100"
+              />
+            ) : null}
             
-            {item.Fecha && (
-              <p class="text-sm text-gray-500 mb-3">{formatDate(item.Fecha)}</p>
-            )}
-            
-            {item.Servicios && item.Servicios.length > 0 && (
-              <div class="flex flex-wrap gap-2 mb-3">
-                {item.Servicios.map(servicio => (
-                  <span 
-                    key={servicio.Servicios_id?.id || Math.random()}
-                    class="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded"
-                  >
-                    {servicio.Servicios_id?.Titulo || 'Servicio'}
-                  </span>
-                ))}
+            {/* Placeholder único cuando no hay imagen */}
+            {!imageUrl && (
+              <div class={`w-full h-full bg-gradient-to-br ${uniqueColor} flex items-center justify-center text-white relative overflow-hidden`}>
+                {/* Patrón de fondo */}
+                <div class="absolute inset-0 opacity-10">
+                  <div class="absolute inset-0" style="background-image: radial-gradient(circle at 25% 25%, white 2px, transparent 2px), radial-gradient(circle at 75% 75%, white 2px, transparent 2px); background-size: 30px 30px;"></div>
+                </div>
+                
+                {/* Contenido del placeholder */}
+                <div class="text-center z-10">
+                  <div class="text-3xl font-bold mb-2">{clientInitials}</div>
+                  <div class="text-sm opacity-90">{item.Area || 'Proyecto'}</div>
+                  <div class="text-xs opacity-75 mt-1">ID: {item.id}</div>
+                </div>
+                
+                {/* Elementos decorativos */}
+                <div class="absolute top-4 right-4 w-8 h-8 border-2 border-white/30 rounded-full"></div>
+                <div class="absolute bottom-4 left-4 w-6 h-6 border-2 border-white/20 rounded-full"></div>
               </div>
             )}
-            
-            <p class="text-gray-600 line-clamp-3">
-              {item.Descripcion || 'Descripción no disponible.'}
-            </p>
           </div>
           
-          <div class="mt-4 pt-4 border-t border-gray-100">
-            <span class="inline-flex items-center text-red-600 group-hover:text-red-700 font-medium transition-colors">
-              Ver proyecto
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-              </svg>
-            </span>
+          <div class="p-6 flex-grow flex flex-col">
+            <div class="flex-grow">
+              <h3 class="text-xl font-black text-gray-800 mb-2 group-hover:text-red-600 transition-colors">
+                {item.Titulo || 'Proyecto sin título'}
+              </h3>
+              
+              {item.Fecha && (
+                <p class="text-sm text-gray-500 mb-3">{formatDate(item.Fecha)}</p>
+              )}
+              
+              {item.Servicios && item.Servicios.length > 0 && (
+                <div class="flex flex-wrap gap-2 mb-3">
+                  {item.Servicios.map(servicio => (
+                    <span 
+                      key={servicio.Servicios_id?.id || Math.random()}
+                      class="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded"
+                    >
+                      {servicio.Servicios_id?.Titulo || 'Servicio'}
+                    </span>
+                  ))}
+                </div>
+              )}
+              
+              <p class="text-gray-600 line-clamp-3">
+                {item.Descripcion || 'Descripción no disponible.'}
+              </p>
+            </div>
+            
+            <div class="mt-4 pt-4 border-t border-gray-100">
+              <span class="inline-flex items-center text-red-600 group-hover:text-red-700 font-medium transition-colors">
+                Ver proyecto
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </span>
+            </div>
           </div>
         </div>
-      </div>
-    </a>
-  ))}
+      </a>
+    );
+  })}
 </div>
 
 <style>
