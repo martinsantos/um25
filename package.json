@@ -5,10 +5,11 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro preview --host",
-    "build": "npm run process-images && astro build",
+    "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "process-images": "node --max-old-space-size=4096 scripts/process-images.js",
+    "process-images": "node scripts/process-images.js",
+    "prebuild": "npm run process-images",
     "optimize-images": "node scripts/optimize-images.js",
     "lint": "eslint \"src/**/*.{js,ts,jsx,tsx,astro}\"",
     "lint:fix": "eslint \"src/**/*.{js,ts,jsx,tsx,astro}\" --fix",
@@ -18,7 +19,13 @@
     "test:ui": "NODE_OPTIONS=--experimental-vm-modules jest --watchAll --config=jest.config.mjs",
     "test:ci": "NODE_OPTIONS=--experimental-vm-modules jest --ci --runInBand --config=jest.config.mjs",
     "test:integration": "NODE_OPTIONS=--experimental-vm-modules jest --config=jest.config.mjs",
-    "test:e2e": "NODE_OPTIONS=--experimental-vm-modules jest --config=jest.config.mjs"
+    "test:e2e": "NODE_OPTIONS=--experimental-vm-modules jest --config=jest.config.mjs",
+    "validate:database": "./scripts/validate-database.sh",
+    "validate:images": "./scripts/validate-images.sh",
+    "validate:api": "./scripts/test-connectivity.sh",
+    "migration:report": "node scripts/generate-migration-report.js",
+    "test:migration": "npm run validate:database && npm run validate:images && npm run validate:api",
+    "test:e2e:production": "NODE_ENV=production npm run test:e2e"
   },
   "dependencies": {
     "@astrojs/alpinejs": "^0.3.0",
@@ -54,7 +61,6 @@
     "node-cache": "^5.1.2",
     "node-fetch": "^3.3.2",
     "nodemailer": "^6.9.16",
-    "sharp": "^0.34.2",
     "swiper": "^11.2.6",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^11.1.0"
@@ -136,6 +142,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-refresh": "^0.17.0",
+    "sharp": "^0.34.2",
     "tailwindcss": "^3.4.17",
     "ts-jest": "^29.3.4",
     "typescript": "^5.8.3",

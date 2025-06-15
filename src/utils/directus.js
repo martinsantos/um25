@@ -1,8 +1,8 @@
 // Configuración de Directus
 const DIRECTUS_CONFIG = {
   URL: import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055',
-  TOKEN: import.meta.env.DIRECTUS_STATIC_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky',
-  PAGE_SIZE: 9,
+  TOKEN: import.meta.env.DIRECTUS_STATIC_TOKEN || 'ujsboxj0_E5PvWKhFao7yCW6_VDFsOSk',
+  PAGE_SIZE: 20,
   DEFAULT_IMAGE: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'
 };
 
@@ -26,6 +26,7 @@ class DirectusClient {
 
     this.baseUrl = DIRECTUS_CONFIG.URL.replace(/\/+$/, ''); // Eliminar barras diagonales finales
     this.token = DIRECTUS_CONFIG.TOKEN;
+    console.log('DirectusClient inicializado con token:', this.token); // Añadido para depuración
   }
 
   async request(endpoint, options = {}) {
@@ -84,9 +85,23 @@ class DirectusClient {
       meta: '*'
     };
 
-    return this.request('/items/Antecedentes', {
-      params: { ...defaults, ...params }
+    const queryParams = new URLSearchParams();
+    const finalParams = { ...defaults, ...params };
+
+    // Construir parámetros de consulta
+    Object.entries(finalParams).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        if (key === 'filter' && typeof value === 'object') {
+          queryParams.set('filter', JSON.stringify(value));
+        } else if (Array.isArray(value)) {
+          value.forEach(v => queryParams.append(key, v));
+        } else {
+          queryParams.set(key, value);
+        }
+      }
     });
+
+    return this.request(`/items/Antecedentes?${queryParams.toString()}`);
   }
 
   async getRandomImages(limit = 9) {
@@ -116,7 +131,7 @@ class DirectusClient {
   async getUniqueValues(field) {
     try {
       const response = await this.request(
-        `/items/Antecedentes?groupBy[]=${field}`
+        `/items/antecedentes?groupBy[]=${field}`
       );
       return response.data
         .map(item => item[field])
@@ -244,3 +259,27 @@ class DirectusClient {
 
 export const directus = new DirectusClient();
 export const { DEFAULT_IMAGE, PAGE_SIZE } = DIRECTUS_CONFIG;
+
+// Funciones auxiliares para antecedentes
+export async function fetchAntecedente(id, token) {
+  try {
+    const response = await directus.request(`/items/antecedentes/${id}?fields=*,Galeria.directus_files_id.*,Servicios.Servicios_id.*,ImagenFondo.*`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching antecedente:', error);
+    throw error;
+  }
+}
+
+export function generateSlug(title) {
+  if (!title) return '';
+  
+  return title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Eliminar acentos
+    .replace(/[^a-z0-9\s-]/g, '') // Eliminar caracteres especiales
+    .replace(/\s+/g, '-') // Reemplazar espacios con guiones
+    .replace(/-+/g, '-') // Eliminar guiones duplicados
+    .trim('-');
+}

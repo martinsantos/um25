@@ -1,0 +1,227 @@
+Reporte de Validación de Migración
+Fecha: Thu Jun 12 14:35:21 -03 2025
+==============================================
+
+Validación: Validación de Base de Datos
+--------------------------------------------
+Validando estructura de la base de datos...
+
+[1;33m1. Verificando tablas principales...[0m
+time="2025-06-12T14:35:21-03:00" level=warning msg="/Users/Shared/Files From d.localized/D/ultima milla/2024/MKT 2024/umw141024/umw46-main/fumbling-field/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+[0;32m✅ Tablas encontradas:[0m
+time="2025-06-12T14:35:21-03:00" level=warning msg="/Users/Shared/Files From d.localized/D/ultima milla/2024/MKT 2024/umw141024/umw46-main/fumbling-field/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+       table_name       
+------------------------
+ directus_access
+ directus_activity
+ directus_collections
+ directus_comments
+ directus_dashboards
+ directus_extensions
+ directus_fields
+ directus_files
+ directus_flows
+ directus_folders
+ directus_migrations
+ directus_notifications
+ directus_operations
+ directus_panels
+ directus_permissions
+ directus_policies
+ directus_presets
+ directus_relations
+ directus_revisions
+ directus_roles
+ directus_sessions
+ directus_settings
+ directus_shares
+ directus_translations
+ directus_users
+ directus_versions
+ directus_webhooks
+(27 rows)
+
+
+[1;33m2. Verificando relaciones...[0m
+time="2025-06-12T14:35:21-03:00" level=warning msg="/Users/Shared/Files From d.localized/D/ultima milla/2024/MKT 2024/umw141024/umw46-main/fumbling-field/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+[0;32m✅ Relaciones encontradas:[0m
+time="2025-06-12T14:35:21-03:00" level=warning msg="/Users/Shared/Files From d.localized/D/ultima milla/2024/MKT 2024/umw141024/umw46-main/fumbling-field/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ table_schema |                  constraint_name                   |       table_name       |       column_name        |  foreign_table_name  | foreign_column_name 
+--------------+----------------------------------------------------+------------------------+--------------------------+----------------------+---------------------
+ public       | directus_access_policy_foreign                     | directus_access        | policy                   | directus_policies    | id
+ public       | directus_access_role_foreign                       | directus_access        | role                     | directus_roles       | id
+ public       | directus_access_user_foreign                       | directus_access        | user                     | directus_users       | id
+ public       | directus_collections_group_foreign                 | directus_collections   | group                    | directus_collections | collection
+ public       | directus_comments_user_updated_foreign             | directus_comments      | user_updated             | directus_users       | id
+ public       | directus_comments_user_created_foreign             | directus_comments      | user_created             | directus_users       | id
+ public       | directus_dashboards_user_created_foreign           | directus_dashboards    | user_created             | directus_users       | id
+ public       | directus_files_uploaded_by_foreign                 | directus_files         | uploaded_by              | directus_users       | id
+ public       | directus_files_folder_foreign                      | directus_files         | folder                   | directus_folders     | id
+ public       | directus_files_modified_by_foreign                 | directus_files         | modified_by              | directus_users       | id
+ public       | directus_flows_user_created_foreign                | directus_flows         | user_created             | directus_users       | id
+ public       | directus_folders_parent_foreign                    | directus_folders       | parent                   | directus_folders     | id
+ public       | directus_notifications_sender_foreign              | directus_notifications | sender                   | directus_users       | id
+ public       | directus_notifications_recipient_foreign           | directus_notifications | recipient                | directus_users       | id
+ public       | directus_operations_reject_foreign                 | directus_operations    | reject                   | directus_operations  | id
+ public       | directus_operations_user_created_foreign           | directus_operations    | user_created             | directus_users       | id
+ public       | directus_operations_flow_foreign                   | directus_operations    | flow                     | directus_flows       | id
+ public       | directus_operations_resolve_foreign                | directus_operations    | resolve                  | directus_operations  | id
+ public       | directus_panels_user_created_foreign               | directus_panels        | user_created             | directus_users       | id
+ public       | directus_panels_dashboard_foreign                  | directus_panels        | dashboard                | directus_dashboards  | id
+ public       | directus_permissions_policy_foreign                | directus_permissions   | policy                   | directus_policies    | id
+ public       | directus_presets_role_foreign                      | directus_presets       | role                     | directus_roles       | id
+ public       | directus_presets_user_foreign                      | directus_presets       | user                     | directus_users       | id
+ public       | directus_revisions_activity_foreign                | directus_revisions     | activity                 | directus_activity    | id
+ public       | directus_revisions_parent_foreign                  | directus_revisions     | parent                   | directus_revisions   | id
+ public       | directus_revisions_version_foreign                 | directus_revisions     | version                  | directus_versions    | id
+ public       | directus_roles_parent_foreign                      | directus_roles         | parent                   | directus_roles       | id
+ public       | directus_sessions_share_foreign                    | directus_sessions      | share                    | directus_shares      | id
+ public       | directus_sessions_user_foreign                     | directus_sessions      | user                     | directus_users       | id
+ public       | directus_settings_public_background_foreign        | directus_settings      | public_background        | directus_files       | id
+ public       | directus_settings_project_logo_foreign             | directus_settings      | project_logo             | directus_files       | id
+ public       | directus_settings_public_favicon_foreign           | directus_settings      | public_favicon           | directus_files       | id
+ public       | directus_settings_public_foreground_foreign        | directus_settings      | public_foreground        | directus_files       | id
+ public       | directus_settings_storage_default_folder_foreign   | directus_settings      | storage_default_folder   | directus_folders     | id
+ public       | directus_settings_public_registration_role_foreign | directus_settings      | public_registration_role | directus_roles       | id
+ public       | directus_shares_user_created_foreign               | directus_shares        | user_created             | directus_users       | id
+ public       | directus_shares_role_foreign                       | directus_shares        | role                     | directus_roles       | id
+ public       | directus_shares_collection_foreign                 | directus_shares        | collection               | directus_collections | collection
+ public       | directus_users_role_foreign                        | directus_users         | role                     | directus_roles       | id
+ public       | directus_versions_user_updated_foreign             | directus_versions      | user_updated             | directus_users       | id
+ public       | directus_versions_user_created_foreign             | directus_versions      | user_created             | directus_users       | id
+ public       | directus_versions_collection_foreign               | directus_versions      | collection               | directus_collections | collection
+ public       | directus_webhooks_migrated_flow_foreign            | directus_webhooks      | migrated_flow            | directus_flows       | id
+(43 rows)
+
+
+[1;33m3. Verificando índices...[0m
+time="2025-06-12T14:35:22-03:00" level=warning msg="/Users/Shared/Files From d.localized/D/ultima milla/2024/MKT 2024/umw141024/umw46-main/fumbling-field/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+[0;32m✅ Índices encontrados:[0m
+time="2025-06-12T14:35:22-03:00" level=warning msg="/Users/Shared/Files From d.localized/D/ultima milla/2024/MKT 2024/umw141024/umw46-main/fumbling-field/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+       tablename        |                 indexname                 |                                                         indexdef                                                         
+------------------------+-------------------------------------------+--------------------------------------------------------------------------------------------------------------------------
+ directus_access        | directus_access_pkey                      | CREATE UNIQUE INDEX directus_access_pkey ON public.directus_access USING btree (id)
+ directus_activity      | directus_activity_pkey                    | CREATE UNIQUE INDEX directus_activity_pkey ON public.directus_activity USING btree (id)
+ directus_collections   | directus_collections_pkey                 | CREATE UNIQUE INDEX directus_collections_pkey ON public.directus_collections USING btree (collection)
+ directus_comments      | directus_comments_pkey                    | CREATE UNIQUE INDEX directus_comments_pkey ON public.directus_comments USING btree (id)
+ directus_dashboards    | directus_dashboards_pkey                  | CREATE UNIQUE INDEX directus_dashboards_pkey ON public.directus_dashboards USING btree (id)
+ directus_extensions    | directus_extensions_pkey                  | CREATE UNIQUE INDEX directus_extensions_pkey ON public.directus_extensions USING btree (id)
+ directus_fields        | directus_fields_pkey                      | CREATE UNIQUE INDEX directus_fields_pkey ON public.directus_fields USING btree (id)
+ directus_files         | directus_files_pkey                       | CREATE UNIQUE INDEX directus_files_pkey ON public.directus_files USING btree (id)
+ directus_flows         | directus_flows_operation_unique           | CREATE UNIQUE INDEX directus_flows_operation_unique ON public.directus_flows USING btree (operation)
+ directus_flows         | directus_flows_pkey                       | CREATE UNIQUE INDEX directus_flows_pkey ON public.directus_flows USING btree (id)
+ directus_folders       | directus_folders_pkey                     | CREATE UNIQUE INDEX directus_folders_pkey ON public.directus_folders USING btree (id)
+ directus_migrations    | directus_migrations_pkey                  | CREATE UNIQUE INDEX directus_migrations_pkey ON public.directus_migrations USING btree (version)
+ directus_notifications | directus_notifications_pkey               | CREATE UNIQUE INDEX directus_notifications_pkey ON public.directus_notifications USING btree (id)
+ directus_operations    | directus_operations_pkey                  | CREATE UNIQUE INDEX directus_operations_pkey ON public.directus_operations USING btree (id)
+ directus_operations    | directus_operations_reject_unique         | CREATE UNIQUE INDEX directus_operations_reject_unique ON public.directus_operations USING btree (reject)
+ directus_operations    | directus_operations_resolve_unique        | CREATE UNIQUE INDEX directus_operations_resolve_unique ON public.directus_operations USING btree (resolve)
+ directus_panels        | directus_panels_pkey                      | CREATE UNIQUE INDEX directus_panels_pkey ON public.directus_panels USING btree (id)
+ directus_permissions   | directus_permissions_pkey                 | CREATE UNIQUE INDEX directus_permissions_pkey ON public.directus_permissions USING btree (id)
+ directus_policies      | directus_policies_pkey                    | CREATE UNIQUE INDEX directus_policies_pkey ON public.directus_policies USING btree (id)
+ directus_presets       | directus_presets_pkey                     | CREATE UNIQUE INDEX directus_presets_pkey ON public.directus_presets USING btree (id)
+ directus_relations     | directus_relations_pkey                   | CREATE UNIQUE INDEX directus_relations_pkey ON public.directus_relations USING btree (id)
+ directus_revisions     | directus_revisions_pkey                   | CREATE UNIQUE INDEX directus_revisions_pkey ON public.directus_revisions USING btree (id)
+ directus_roles         | directus_roles_pkey                       | CREATE UNIQUE INDEX directus_roles_pkey ON public.directus_roles USING btree (id)
+ directus_sessions      | directus_sessions_pkey                    | CREATE UNIQUE INDEX directus_sessions_pkey ON public.directus_sessions USING btree (token)
+ directus_settings      | directus_settings_pkey                    | CREATE UNIQUE INDEX directus_settings_pkey ON public.directus_settings USING btree (id)
+ directus_shares        | directus_shares_pkey                      | CREATE UNIQUE INDEX directus_shares_pkey ON public.directus_shares USING btree (id)
+ directus_translations  | directus_translations_pkey                | CREATE UNIQUE INDEX directus_translations_pkey ON public.directus_translations USING btree (id)
+ directus_users         | directus_users_email_unique               | CREATE UNIQUE INDEX directus_users_email_unique ON public.directus_users USING btree (email)
+ directus_users         | directus_users_external_identifier_unique | CREATE UNIQUE INDEX directus_users_external_identifier_unique ON public.directus_users USING btree (external_identifier)
+ directus_users         | directus_users_pkey                       | CREATE UNIQUE INDEX directus_users_pkey ON public.directus_users USING btree (id)
+ directus_users         | directus_users_token_unique               | CREATE UNIQUE INDEX directus_users_token_unique ON public.directus_users USING btree (token)
+ directus_versions      | directus_versions_pkey                    | CREATE UNIQUE INDEX directus_versions_pkey ON public.directus_versions USING btree (id)
+ directus_webhooks      | directus_webhooks_pkey                    | CREATE UNIQUE INDEX directus_webhooks_pkey ON public.directus_webhooks USING btree (id)
+(33 rows)
+
+
+[1;33m4. Verificando conteo de registros...[0m
+time="2025-06-12T14:35:22-03:00" level=warning msg="/Users/Shared/Files From d.localized/D/ultima milla/2024/MKT 2024/umw141024/umw46-main/fumbling-field/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+[0;32m✅ Estadísticas de registros:[0m
+time="2025-06-12T14:35:22-03:00" level=warning msg="/Users/Shared/Files From d.localized/D/ultima milla/2024/MKT 2024/umw141024/umw46-main/fumbling-field/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+       table_name       | record_count 
+------------------------+--------------
+ directus_access        |            1
+ directus_activity      |            1
+ directus_collections   |            1
+ directus_comments      |            1
+ directus_dashboards    |            1
+ directus_extensions    |            1
+ directus_fields        |            1
+ directus_files         |            1
+ directus_flows         |            1
+ directus_folders       |            1
+ directus_migrations    |            1
+ directus_notifications |            1
+ directus_operations    |            1
+ directus_panels        |            1
+ directus_permissions   |            1
+ directus_policies      |            1
+ directus_presets       |            1
+ directus_relations     |            1
+ directus_revisions     |            1
+ directus_roles         |            1
+ directus_sessions      |            1
+ directus_settings      |            1
+ directus_shares        |            1
+ directus_translations  |            1
+ directus_users         |            1
+ directus_versions      |            1
+ directus_webhooks      |            1
+(27 rows)
+
+
+[0;32mValidación de la base de datos completada[0m
+--------------------------------------------
+
+Validación: Validación de Imágenes
+--------------------------------------------
+Verificando integridad de imágenes...
+
+[1;33mVerificando imágenes WebP...[0m
+[0;31m❌ No se encontraron imágenes WebP[0m
+
+[1;33mVerificando otros formatos de imagen...[0m
+[0;32m✅ Se encontraron        2 imágenes jpg[0m
+public/images/default-background.jpg: very short file (no magic)
+public/images/default.jpg: sticky JPEG image data, JFIF standard 1.01, aspect ratio, density 144x144, segment length 16, progressive, precision 8, 960x747, components 3
+[1;33m⚠️ No se encontraron imágenes jpeg[0m
+[0;32m✅ Se encontraron        1 imágenes png[0m
+public/images/um-logo.png: sticky PNG image data, 2743 x 1172, 8-bit/color RGB, non-interlaced
+[1;33m⚠️ No se encontraron imágenes gif[0m
+
+[1;33mVerificando tamaños y resoluciones...[0m
+[0;31m❌ Error al verificar public/images/um-logo.png[0m
+[0;31m❌ Error al verificar public/images/default-background.jpg[0m
+[0;31m❌ Error al verificar public/images/default.jpg[0m
+
+[0;32mValidación de imágenes completada[0m
+--------------------------------------------
+
+Validación: Validación de Conectividad
+--------------------------------------------
+Probando conectividad con Directus...
+
+[1;33m1. Verificando estado del servicio...[0m
+[0;32m✅ Servicio Directus está respondiendo[0m
+
+[1;33m2. Obteniendo token de autenticación...[0m
+[0;32m✅ Token obtenido exitosamente[0m
+
+[1;33m3. Verificando endpoints principales...[0m
+[0;32m✅ Endpoint de colecciones accesible[0m
+[0;32m✅ Endpoint de archivos accesible[0m
+[0;32m✅ Endpoint de usuarios accesible[0m
+
+[1;33m4. Verificando permisos...[0m
+[0;32m✅ Permisos verificados[0m
+
+[0;32mValidación de conectividad completada[0m
+--------------------------------------------
+
+Resumen de Validación:
+==============================================
+Base de Datos: ✅
+Imágenes: ✅
+Conectividad: ✅

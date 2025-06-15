@@ -1,8 +1,0 @@
-FROM directus/directus:10.8
-
-# Copiar configuraciones específicas
-COPY ./directus/extensions /directus/extensions
-COPY ./directus/init.sql /docker-entrypoint-initdb.d/init.sql
-
-# Mantener variables de entorno críticas (se sobrescribirán en docker-compose)
-ENV PUBLIC_ASSETS=true\n    ASSETS_TRANSFORM_TOKEN_OPTIONAL=true\n    CORS_ENABLED=true

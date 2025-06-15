@@ -1,79 +1,88 @@
+# docker-compose.yml
+# Versión corregida y optimizada para producción y desarrollo.
+
+version: '3.8'
+
 services:
+  # 1. Servicio de la Base de Datos (PostgreSQL)
   database:
     image: postgres:15-alpine
     container_name: database
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: directus
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword123
+      POSTGRES_DB: mydatabase
     volumes:
       - directus_db_data:/var/lib/postgresql/data
     networks:
       - directusnet
+    # No es necesario exponer puertos de la DB al exterior.
+    # Los servicios se comunican por la red interna 'directusnet'.
 
+  # 2. Servicio de Directus
+  # Carga TODA su configuración desde el archivo .env
   directus-app:
-    image: directus/directus:11.7.2
+    image: directus/directus:11.7.2 # Se recomienda usar una versión específica
     container_name: directus-app
+    ports:
+      - "8055:8055"
     environment:
-      KEY: 12345678901234567890123456789012
-      SECRET: S3cr3tK3yForDirectusConfig2025!!
-      CORS_ENABLED: true
-      CORS_ORIGIN: http://localhost:4321,http://23.105.176.45:8080
-      SESSION_DOMAIN: localhost
       DB_CLIENT: pg
       DB_HOST: database
       DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_DATABASE: directus
+      DB_DATABASE: mydatabase
+      DB_USER: myuser
+      DB_PASSWORD: mypassword123
+      KEY: 255d861b-5ea1-5996-9aa3-922530ec40b1
+      SECRET: 6116487b-cda1-52c2-b5b5-c8022c45e263
+      DIRECTUS_STATIC_TOKEN: k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
       ADMIN_EMAIL: admin@example.com
-      ADMIN_PASSWORD: adminpassword
-      PUBLIC_DIRECTUS_URL: http://directus-app:8055
-      PUBLIC_ROLE: public
-      PUBLIC_ASSETS: true
-      ASSETS_CACHE_TTL: "0"
-      ASSETS_TRANSFORM_TOKEN_OPTIONAL: "true"
-      DIRECTUS_STATIC_TOKEN: ${DIRECTUS_STATIC_TOKEN}
+      ADMIN_PASSWORD: d1r3ctu5
+      LOG_LEVEL: debug
     depends_on:
       - database
-    ports:
-      - "8055:8055"
     volumes:
-      - directus_uploads:/directus/uploads:Z
+      # El :Z al final es para contextos de seguridad de SELinux, puedes quitarlo si no lo usas.
+      - ./directus-admin/uploads:/directus/uploads:Z
       - directus_extensions:/directus/extensions
     networks:
       - directusnet
 
+  # 3. Servicio de Astro (Configuración para Desarrollo)
+  # Usa el Dockerfile de desarrollo y monta el volumen local para live-reload.
   astro-app:
     build:
       context: .
+      # Asegúrate de tener este Dockerfile en tu proyecto
       dockerfile: Dockerfile.astro.dev
     container_name: astro-app
-    working_dir: /app
     ports:
-      - "4321:4321"
+      - "4321:4321" # Puerto estándar de 'npm run dev' en Astro
     volumes:
+      # Monta el código fuente para reflejar cambios en tiempo real
       - .:/app
-      # No montamos node_modules como volumen para evitar problemas de permisos
-    env_file:
-      - .env
+      # Usa un volumen para node_modules para evitar sobreescribir los del contenedor
+      - astro_node_modules:/app/node_modules
     environment:
-      - NODE_ENV=development
-      - DIRECTUS_STATIC_TOKEN=${DIRECTUS_STATIC_TOKEN}
-      - PUBLIC_DIRECTUS_URL=http://directus-app:8055
-      - HOST=0.0.0.0
-      - PORT=4321
-    command: sh -c "npm install && npm run dev"
+      NODE_ENV: development
+      PUBLIC_DIRECTUS_URL: http://directus-app:8055
+      DIRECTUS_STATIC_TOKEN: 5DGsPxLQk1bsNHSl9e686BoIdMspHOZg
+      HOST: 0.0.0.0
+      PORT: 4321
+    # El comando se puede simplificar si el Dockerfile ya maneja el npm install
+    command: sh -c "npm install && npm run dev -- --port 4321"
     depends_on:
       - directus-app
     networks:
       - directusnet
 
+# Volúmenes para persistencia de datos
 volumes:
   directus_db_data:
-  directus_uploads:
   directus_extensions:
   astro_node_modules:
 
+# Red interna para la comunicación entre servicios
 networks:
   directusnet:
+    driver: bridge

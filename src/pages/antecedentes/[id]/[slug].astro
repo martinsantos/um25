@@ -12,7 +12,8 @@ import { antecedentesReales } from '../../../data/antecedentes_completos.js';
 // --- Configuración ---
 // Asegurar que la URL de Directus termine sin barra al final
 const DIRECTUS_URL = (import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055').replace(/\/$/, '');
-const DEFAULT_IMAGE_URL = `${DIRECTUS_URL}/assets/2a42dfbc-8d55-4fd7-baa0-c31223a3ace8`;
+// ELIMINADA: imagen por defecto hardcodeada que se repetía
+// const DEFAULT_IMAGE_URL = `${DIRECTUS_URL}/assets/2a42dfbc-8d55-4fd7-baa0-c31223a3ace8`;
 const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN;
 
 console.log('DIRECTUS_URL configurado como:', DIRECTUS_URL);
@@ -44,8 +45,8 @@ const getAssetUrl = (assetId) => {
     console.log('getAssetUrl recibió:', JSON.stringify(assetId));
     
     if (!assetId) {
-        console.log('assetId vacío, retornando DEFAULT_IMAGE_URL');
-        return DEFAULT_IMAGE_URL;
+        console.log('assetId vacío, retornando null para usar placeholder');
+        return null; // Retornar null en lugar de imagen por defecto
     }
     
     // Si es un objeto con id (formato de Directus)
@@ -74,12 +75,12 @@ const getAssetUrl = (assetId) => {
         if (assetId.startsWith('http://') || assetId.startsWith('https://')) {
             return assetId;
         }
-        // Es un ID directo
+        // Es un ID directo - AQUÍ está la imagen específica de cada antecedente
         return `${DIRECTUS_URL}/assets/${assetId}`;
     }
     
-    console.log('Caso no identificado, retornando DEFAULT_IMAGE_URL');
-    return DEFAULT_IMAGE_URL;
+    console.log('Caso no identificado, retornando null para usar placeholder');
+    return null; // Retornar null en lugar de imagen repetida
 };
 
 const generateSlug = (text = '') => {
@@ -300,8 +301,8 @@ if (imagenesGaleria.length === 0 && imagenesPrincipales.length > 0) {
 // Inspeccionar estructura completa del antecedente
 console.log('ESTRUCTURA DEL ANTECEDENTE:', JSON.stringify(antecedente));
 
-// Obtener imagen de antecedente (podría tener un campo específico para imagen principal)
-let heroImageUrl = DEFAULT_IMAGE_URL;
+// Obtener imagen de antecedente - CADA ANTECEDENTE DEBE USAR SU IMAGEN ESPECÍFICA
+let heroImageUrl = null;
 
 // Intentar obtener imagen en diferentes formatos posibles
 let imagenEncontrada = false;
@@ -310,14 +311,14 @@ let imagenEncontrada = false;
 if (antecedente?.ImagenPrincipal) {
     console.log('Usando ImagenPrincipal:', JSON.stringify(antecedente.ImagenPrincipal));
     heroImageUrl = getAssetUrl(antecedente.ImagenPrincipal);
-    imagenEncontrada = true;
+    imagenEncontrada = !!heroImageUrl;
 }
 
-// Opción 2: Usar campo Imagen si existe
+// Opción 2: Usar campo Imagen si existe (AQUÍ están las imágenes específicas)
 if (!imagenEncontrada && antecedente?.Imagen) {
     console.log('Usando campo Imagen:', JSON.stringify(antecedente.Imagen));
     heroImageUrl = getAssetUrl(antecedente.Imagen);
-    imagenEncontrada = true;
+    imagenEncontrada = !!heroImageUrl;
 }
 
 // Opción 3: Intentar primera imagen de galería
@@ -325,7 +326,7 @@ if (!imagenEncontrada && imagenesGaleria.length > 0) {
     const primeraImagen = imagenesGaleria[0];
     console.log('Usando primera imagen de galería:', JSON.stringify(primeraImagen));
     heroImageUrl = getAssetUrl(primeraImagen);
-    imagenEncontrada = true;
+    imagenEncontrada = !!heroImageUrl;
 }
 
 // Opción 4: Comprobar si hay un campo id_imagen
@@ -336,7 +337,7 @@ if (!imagenEncontrada && antecedente?.id_imagen) {
 }
 
 // Verificar si realmente tenemos una URL válida después de todos los intentos
-if (!imagenEncontrada || heroImageUrl === DEFAULT_IMAGE_URL) {
+if (!imagenEncontrada || !heroImageUrl) {
     // Buscar directamente en la estructura de datos cualquier ID de imagen
     console.log('No se encontró imagen en las rutas habituales, buscando en cualquier propiedad...');
     
@@ -382,23 +383,30 @@ console.log('URL final de hero image:', heroImageUrl);
 
     <!-- Fondo de imagen del hero -->
     <div class="absolute inset-0 h-full overflow-hidden">
-      {heroImageUrl && heroImageUrl !== DEFAULT_IMAGE_URL ? (
+      {heroImageUrl ? (
         <>
           <img 
             src={heroImageUrl} 
-            alt="Imagen de fondo" 
+            alt={`Imagen de ${antecedente?.Titulo || 'proyecto'}`}
             class="w-full h-full object-cover object-center opacity-90 blur-none"
             style="filter: contrast(1.1) brightness(0.9); transform: scale(1.02);"
-            onload="console.log('Imagen cargada correctamente:', this.src)"
-            onerror="this.style.display='none'; this.parentElement.classList.add('image-error'); console.error('Error al cargar imagen:', this.src);"
+            onload="console.log('Imagen específica cargada correctamente:', this.src)"
+            onerror="this.style.display='none'; this.parentElement.classList.add('image-error'); console.error('Error al cargar imagen específica:', this.src);"
           />
           <script>
-            console.log('Intentando cargar imagen de fondo:', '{heroImageUrl}');
+            console.log('Intentando cargar imagen específica de fondo:', '{heroImageUrl}');
           </script>
         </>
       ) : (
-        <div class="w-full h-full flex items-center justify-center text-white opacity-20">
-          <p>Imagen no disponible</p>
+        <!-- Placeholder único generado por el título del proyecto -->
+        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-900/80 via-indigo-900/80 to-purple-900/80">
+          <div class="text-center text-white/60">
+            <svg class="w-24 h-24 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+            <p class="text-sm font-medium">{antecedente?.Cliente || 'Proyecto'}</p>
+            <p class="text-xs opacity-75">{antecedente?.Area || 'Imagen no disponible'}</p>
+          </div>
         </div>
       )}
       
@@ -505,10 +513,10 @@ console.log('URL final de hero image:', heroImageUrl);
               // URLs reales de imágenes (sin incluir placeholders)
               const imagenesReales = imagenesGaleria
                 .map(img => getAssetUrl(img))
-                .filter(url => url && url !== DEFAULT_IMAGE_URL);
+                .filter(url => url && url !== null);
                 
               // Si tenemos la imagen hero pero no está en la galería, la agregamos
-              const heroEsReal = heroImageUrl && heroImageUrl !== DEFAULT_IMAGE_URL;
+              const heroEsReal = heroImageUrl && heroImageUrl !== null;
               if (heroEsReal && !imagenesReales.includes(heroImageUrl)) {
                 imagenesReales.push(heroImageUrl);
               }
@@ -521,7 +529,7 @@ console.log('URL final de hero image:', heroImageUrl);
                   <>
                     {imagenesGaleria.map((imagen, index) => {
                       const imageUrl = getAssetUrl(imagen);
-                      if (imageUrl === DEFAULT_IMAGE_URL) return null;
+                      if (!imageUrl) return null;
                       
                       return (
                         <a 

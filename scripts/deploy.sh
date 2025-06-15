@@ -56,7 +56,7 @@ check_service() {
 
 # Despliegue a producción
 if [ "$ACTION" == "production" ]; then
-    echo -e "${YELLOW}Iniciando despliegue a producción...${NC}"
+    echo -e "${YELLOW}Iniciando despliegue en producción...${NC}"
     
     # Crear backup de archivos de configuración actuales
     echo -e "${YELLOW}Creando backup de archivos de configuración...${NC}"
@@ -111,8 +111,10 @@ if [ "$ACTION" == "production" ]; then
     check_service "http://localhost:8080" "Astro App" 6
     check_service "http://localhost:8055" "Directus" 6
     
-    echo -e "${GREEN}¡Despliegue a producción completado!${NC}"
-    echo -e "${YELLOW}Para verificar los logs: docker-compose -f docker-compose.production.yml logs -f${NC}"
+    echo -e "${GREEN}¡Despliegue completado!${NC}"
+    echo -e "${YELLOW}La aplicación está disponible en:${NC}"
+    echo -e "Frontend: http://localhost"
+    echo -e "Directus: http://localhost:8055"
     
     # Verificar el token de Directus
     echo -e "${YELLOW}Verificando token de Directus...${NC}"

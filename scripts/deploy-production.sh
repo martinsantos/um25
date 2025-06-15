@@ -2,10 +2,11 @@
 
 # Script de Despliegue para Producción - UM25-0.3
 # Ultima Milla - Deploy to Production
+# Servidor: 23.105.176.45 - Dominio: www.umbot.com.ar
 
 set -e
 
-echo "🚀 Iniciando despliegue de UM25-0.3 a producción..."
+echo "🚀 Iniciando despliegue de UM25-0.3 a producción en www.umbot.com.ar..."
 
 # Colores para output
 RED='\033[0;31m'
@@ -13,6 +14,11 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
+
+# Variables del servidor
+SERVER_IP="23.105.176.45"
+DOMAIN="www.umbot.com.ar"
+SSH_USER="root"
 
 # Función para logging
 log() {
@@ -66,6 +72,9 @@ log "Verificando variables de entorno..."
 if [ ! -f ".env.production" ]; then
     warn "Archivo .env.production no encontrado. Creando desde .env..."
     cp .env .env.production
+    # Actualizar URL para producción
+    sed -i.bak "s|DIRECTUS_URL=.*|DIRECTUS_URL=https://www.umbot.com.ar/api|g" .env.production
+    sed -i.bak "s|PUBLIC_SITE_URL=.*|PUBLIC_SITE_URL=https://www.umbot.com.ar|g" .env.production
 fi
 
 # Verificar Docker
@@ -89,7 +98,8 @@ mkdir -p ssl
 if [ ! -f "ssl/fullchain.pem" ] || [ ! -f "ssl/privkey.pem" ]; then
     warn "Certificados SSL no encontrados en ssl/"
     warn "Asegúrate de tener los certificados SSL antes del despliegue"
-    warn "Puedes usar Let's Encrypt: certbot certonly --webroot -w /var/www/certbot -d ultimamilla.com"
+    warn "Puedes usar Let's Encrypt: certbot certonly --webroot -w /var/www/certbot -d www.umbot.com.ar -d umbot.com.ar"
+    warn "O copiar desde CyberPanel: /etc/letsencrypt/live/www.umbot.com.ar/"
 fi
 
 # Backup de datos existentes (si existen)
@@ -127,7 +137,7 @@ docker-compose -f docker-compose.prod.yml build --no-cache
 
 # Verificar que las imágenes se construyeron correctamente
 log "Verificando imágenes construidas..."
-if ! docker images | grep -q "um25-astro-prod"; then
+if ! docker images | grep -q "umbot.*astro"; then
     error "La imagen de Astro no se construyó correctamente"
 fi
 
@@ -141,7 +151,7 @@ sleep 30
 
 # Verificar que los servicios están funcionando
 log "Verificando estado de los servicios..."
-SERVICES=("um25-postgres-prod" "um25-directus-prod" "um25-astro-prod" "um25-nginx-prod")
+SERVICES=("umbot-postgres-prod" "umbot-directus-prod" "umbot-astro-prod" "umbot-nginx-prod")
 
 for service in "${SERVICES[@]}"; do
     if ! docker ps | grep -q "$service"; then
@@ -182,6 +192,8 @@ docker-compose -f docker-compose.prod.yml logs --tail=20
 # Mostrar información de despliegue
 log "📊 Información del despliegue:"
 echo -e "${BLUE}Versión:${NC} UM25-0.3"
+echo -e "${BLUE}Servidor:${NC} $SERVER_IP"
+echo -e "${BLUE}Dominio:${NC} $DOMAIN"
 echo -e "${BLUE}Commit:${NC} $(git rev-parse --short HEAD)"
 echo -e "${BLUE}Fecha:${NC} $(date)"
 echo -e "${BLUE}Servicios:${NC}"
@@ -189,9 +201,10 @@ docker-compose -f docker-compose.prod.yml ps
 
 # Información de acceso
 log "🌐 URLs de acceso:"
-echo -e "${BLUE}Frontend:${NC} http://localhost (https://ultimamilla.com en producción)"
-echo -e "${BLUE}API Directus:${NC} http://localhost/api (https://ultimamilla.com/api en producción)"
-echo -e "${BLUE}Admin Directus:${NC} http://localhost/api/admin (https://ultimamilla.com/api/admin en producción)"
+echo -e "${BLUE}Frontend:${NC} http://localhost (https://www.umbot.com.ar en producción)"
+echo -e "${BLUE}API Directus:${NC} http://localhost/api (https://www.umbot.com.ar/api en producción)"
+echo -e "${BLUE}Admin Directus:${NC} http://localhost/api/admin (https://www.umbot.com.ar/api/admin en producción)"
+echo -e "${BLUE}CyberPanel:${NC} https://$SERVER_IP:8090"
 
 # Comandos útiles
 log "📝 Comandos útiles:"
@@ -199,6 +212,13 @@ echo -e "${BLUE}Ver logs:${NC} docker-compose -f docker-compose.prod.yml logs -f
 echo -e "${BLUE}Reiniciar:${NC} docker-compose -f docker-compose.prod.yml restart"
 echo -e "${BLUE}Detener:${NC} docker-compose -f docker-compose.prod.yml down"
 echo -e "${BLUE}Backup:${NC} Backups guardados en $BACKUP_DIR"
+echo -e "${BLUE}SSH al servidor:${NC} ssh $SSH_USER@$SERVER_IP"
+
+# Información de SSL
+log "🔒 Configuración SSL:"
+echo -e "${BLUE}Certificados:${NC} /etc/letsencrypt/live/www.umbot.com.ar/"
+echo -e "${BLUE}Renovar SSL:${NC} certbot renew"
+echo -e "${BLUE}CyberPanel SSL:${NC} Administrar desde https://$SERVER_IP:8090"
 
 log "🎉 ¡Despliegue de UM25-0.3 completado exitosamente!"
 log "🔍 Verifica que todo funcione correctamente antes de dirigir tráfico de producción"
@@ -223,4 +243,9 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     log "Tests de smoke completados"
 fi
 
-log "🚀 Despliegue finalizado. ¡UM25-0.3 está en producción!" 
+log "🚀 Despliegue finalizado. ¡UM25-0.3 está en producción en www.umbot.com.ar!"
+log "📋 Próximos pasos:"
+echo -e "${BLUE}1.${NC} Configurar DNS para apuntar www.umbot.com.ar a $SERVER_IP"
+echo -e "${BLUE}2.${NC} Configurar SSL en CyberPanel para www.umbot.com.ar"
+echo -e "${BLUE}3.${NC} Verificar que el firewall permita puertos 80 y 443"
+echo -e "${BLUE}4.${NC} Monitorear logs: docker-compose -f docker-compose.prod.yml logs -f" 

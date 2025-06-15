@@ -165,19 +165,41 @@ transition-all duration-300
 
 ## 🐳 **Dockerización para Producción**
 
+### 🖥️ **Servidor de Producción**
+- ✅ **IP**: `23.105.176.45`
+- ✅ **Dominio**: `www.umbot.com.ar`
+- ✅ **DNS**: Delegado a `ns1.23.105.176.45` y `ns2.23.105.176.45`
+- ✅ **Panel**: CyberPanel en `https://23.105.176.45:8090`
+- ✅ **SSH**: `root@23.105.176.45` (password: `gsiB%s@0yD`)
+
 ### **Archivos Docker Actualizados**
 - `docker-compose.yml`: Configuración principal
 - `Dockerfile.astro.prod`: Para producción optimizada
-- `docker-compose.prod.yml`: Configuración de producción
+- `docker-compose.prod.yml`: Configuración de producción con datos reales del servidor
+- `nginx.prod.conf`: Configuración Nginx para `www.umbot.com.ar`
+- `scripts/deploy-production.sh`: Script automatizado de despliegue
+- `server-config.md`: Documentación completa del servidor
 
 ### **Comandos de Despliegue**
 ```bash
+# Conectar al servidor
+ssh root@23.105.176.45
+
 # Construcción para producción
 docker-compose -f docker-compose.prod.yml build
 
 # Despliegue en producción
 docker-compose -f docker-compose.prod.yml up -d
+
+# Script automatizado
+./scripts/deploy-production.sh
 ```
+
+### 🔒 **Configuración SSL y Seguridad**
+- ✅ **SSL/TLS**: Let's Encrypt para `www.umbot.com.ar`
+- ✅ **Rate Limiting**: Protección DDoS configurada
+- ✅ **Headers de Seguridad**: HSTS, CSP, X-Frame-Options
+- ✅ **Firewall**: UFW configurado para puertos 80, 443, 22, 8090
 
 ## 🎉 **Resultado Final UM25-0.3**
 

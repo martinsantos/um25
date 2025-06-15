@@ -13,77 +13,42 @@ sharp.concurrency(1);
 const publicDir = path.join(path.dirname(__dirname), 'public');
 const cacheDir = path.join(publicDir, 'cache');
 
-async function processImage(inputPath, outputPath, options) {
-  try {
-    const transformer = sharp(inputPath, {
-      limitInputPixels: 0,
-      failOnError: false
-    });
-    
-    await transformer
-      .resize(options.width)
-      .webp({ quality: 80 })
-      .toFile(outputPath);
-      
-    console.log(`Processed: ${outputPath}`);
-    
-    // Force garbage collection between images
-    transformer.end();
-    
-  } catch (err) {
-    console.error(`Error processing ${inputPath}:`, err);
-  }
+const sourceDir = path.join(__dirname, '../public/images');
+const webpDir = path.join(__dirname, '../public/webp');
+
+// Asegurarse de que el directorio webp existe
+if (!fs.existsSync(webpDir)) {
+    fs.mkdirSync(webpDir, { recursive: true });
 }
 
-async function processBatch(images, startIdx, batchSize, publicDir, cacheDir) {
-  const endIdx = Math.min(startIdx + batchSize, images.length);
-  const batch = images.slice(startIdx, endIdx);
-  
-  for (const file of batch) {
-    const inputPath = path.join(publicDir, file);
-    const sizes = [320, 640, 800];
+async function processImage(file) {
+    const sourcePath = path.join(sourceDir, file);
+    const webpPath = path.join(webpDir, file.replace(/\.[^.]+$/, '.webp'));
 
-    for (const width of sizes) {
-      const baseName = path.parse(file).name;
-      const outputPath = path.join(cacheDir, `${baseName}-${width}.webp`);
-      
-      await processImage(inputPath, outputPath, { width });
-      // Add delay between processing
-      await new Promise(resolve => setTimeout(resolve, 200));
+    try {
+        await sharp(sourcePath)
+            .webp({ quality: 80 })
+            .toFile(webpPath);
+        console.log(`✅ Convertida: ${file} -> ${path.basename(webpPath)}`);
+    } catch (error) {
+        console.error(`❌ Error procesando ${file}:`, error.message);
     }
-  }
 }
 
-async function processImages() {
-  try {
-    fs.mkdirSync(cacheDir, { recursive: true });
+async function processAllImages() {
+    console.log('🔄 Iniciando procesamiento de imágenes...');
+    
+    const files = fs.readdirSync(sourceDir)
+        .filter(file => /\.(jpg|jpeg|png)$/i.test(file));
 
-    // Changed fs.readdir to fs.promises.readdir
-    const files = await fs.promises.readdir(publicDir);
-    const imageFiles = files.filter(file => 
-      /\.(jpg|jpeg|png)$/i.test(file) && !file.includes('placeholder')
-    );
-
-    console.log(`Found ${imageFiles.length} images to process`);
-
-    // Process in batches of 3 images
-    const BATCH_SIZE = 3;
-    for (let i = 0; i < imageFiles.length; i += BATCH_SIZE) {
-      await processBatch(imageFiles, i, BATCH_SIZE, publicDir, cacheDir);
-      // Add delay between batches
-      await new Promise(resolve => setTimeout(resolve, 500));
+    for (const file of files) {
+        await processImage(file);
     }
 
-  } catch (err) {
-    console.error('Fatal error:', err);
-    process.exit(1);
-  }
+    console.log('✨ Procesamiento de imágenes completado');
 }
 
-processImages().catch(err => {
-  console.error('Unhandled error:', err);
-  process.exit(1);
-});
+processAllImages().catch(console.error);
 
 // Placeholder for image processing
 // This is a minimal version - you may want to add actual image processing logic

@@ -4,14 +4,31 @@
 
 /**
  * Obtiene la URL completa de un recurso en Directus
- * @param {string} assetId ID del recurso
+ * @param {string|Object} assetData ID del recurso o objeto con datos del archivo
  * @param {Object} options Opciones de transformación
  * @returns {string} URL completa del recurso
  */
-export function getAssetUrl(assetId, options = {}) {
+export function getAssetUrl(assetData, options = {}) {
+  if (!assetData) return '';
+  
+  // Extraer el ID del asset de diferentes formatos posibles
+  let assetId = null;
+  
+  if (typeof assetData === 'string') {
+    // Si es un string, asumimos que es directamente el UUID
+    assetId = assetData;
+  } else if (typeof assetData === 'object') {
+    // Si es un objeto, buscar el ID en diferentes propiedades
+    assetId = assetData.id || 
+              assetData.directus_files_id?.id || 
+              assetData.directus_files_id ||
+              assetData.file?.id ||
+              assetData.data?.id;
+  }
+  
   if (!assetId) return '';
   
-  const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || '';
+  const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
   let url = `${baseUrl}/assets/${assetId}`;
   
   // Añadir parámetros de transformación si existen
