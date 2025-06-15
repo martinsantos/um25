@@ -1,0 +1,141 @@
+# Docker Compose para Producción - UM25-0.3
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: um25-postgres-prod
+    environment:
+      POSTGRES_DB: directus
+      POSTGRES_USER: directus
+      POSTGRES_PASSWORD: directus_password_prod
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - um25-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U directus"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Directus CMS
+  directus:
+    image: directus/directus:10.8.3
+    container_name: um25-directus-prod
+    environment:
+      KEY: 'um25-directus-key-production-2025'
+      SECRET: 'um25-directus-secret-production-2025'
+      DB_CLIENT: 'pg'
+      DB_HOST: 'postgres'
+      DB_PORT: '5432'
+      DB_DATABASE: 'directus'
+      DB_USER: 'directus'
+      DB_PASSWORD: 'directus_password_prod'
+      CACHE_ENABLED: 'true'
+      CACHE_STORE: 'memory'
+      ADMIN_EMAIL: 'admin@ultimamilla.com'
+      ADMIN_PASSWORD: 'UltimaMillaAdmin2025!'
+      PUBLIC_URL: 'https://api.ultimamilla.com'
+      CORS_ENABLED: 'true'
+      CORS_ORIGIN: 'https://ultimamilla.com,https://www.ultimamilla.com'
+      RATE_LIMITER_ENABLED: 'true'
+      RATE_LIMITER_POINTS: 100
+      RATE_LIMITER_DURATION: 60
+      LOG_LEVEL: 'warn'
+      NODE_ENV: 'production'
+    volumes:
+      - directus_uploads_prod:/directus/uploads
+      - directus_database_prod:/directus/database
+    networks:
+      - um25-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8055/server/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Aplicación Astro
+  astro-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.astro.prod
+    container_name: um25-astro-prod
+    environment:
+      NODE_ENV: production
+      DIRECTUS_URL: http://directus:8055
+      DIRECTUS_TOKEN: ${DIRECTUS_TOKEN}
+      HOST: 0.0.0.0
+      PORT: 4321
+    networks:
+      - um25-network
+    depends_on:
+      directus:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4321"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: um25-nginx-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.prod.conf:/etc/nginx/conf.d/default.conf
+      - ./ssl:/etc/nginx/ssl
+    networks:
+      - um25-network
+    depends_on:
+      - astro-app
+      - directus
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis para caché (opcional)
+  redis:
+    image: redis:7-alpine
+    container_name: um25-redis-prod
+    command: redis-server --appendonly yes --requirepass redis_password_prod
+    volumes:
+      - redis_data_prod:/data
+    networks:
+      - um25-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data_prod:
+    driver: local
+  directus_uploads_prod:
+    driver: local
+  directus_database_prod:
+    driver: local
+  redis_data_prod:
+    driver: local
+
+networks:
+  um25-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16 

@@ -1,0 +1,67 @@
+# Dockerfile para producción de Astro - UM25-0.3
+FROM node:18-alpine AS base
+
+# Instalar dependencias necesarias
+RUN apk add --no-cache libc6-compat
+
+# Establecer directorio de trabajo
+WORKDIR /app
+
+# Copiar archivos de configuración
+COPY package*.json ./
+COPY astro.config.mjs ./
+COPY tailwind.config.mjs ./
+COPY tsconfig.json ./
+
+# Instalar dependencias
+RUN npm ci --only=production
+
+# Etapa de construcción
+FROM base AS builder
+WORKDIR /app
+
+# Instalar todas las dependencias (incluyendo dev)
+RUN npm ci
+
+# Copiar código fuente
+COPY . .
+
+# Variables de entorno para build
+ENV NODE_ENV=production
+ENV ASTRO_TELEMETRY_DISABLED=1
+
+# Construir la aplicación
+RUN npm run build
+
+# Etapa de producción
+FROM node:18-alpine AS runner
+WORKDIR /app
+
+# Crear usuario no-root
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 astro
+
+# Copiar archivos necesarios
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+
+# Copiar archivos de configuración
+COPY --from=builder /app/.env* ./
+
+# Cambiar propietario de archivos
+RUN chown -R astro:nodejs /app
+
+# Cambiar a usuario no-root
+USER astro
+
+# Exponer puerto
+EXPOSE 4321
+
+# Variables de entorno
+ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+ENV PORT=4321
+
+# Comando de inicio
+CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "4321"] 
