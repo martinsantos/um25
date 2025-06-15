@@ -42,8 +42,8 @@ const formatDate = (dateString: string) => {
 };
 ---
 
-<article class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
-  <a href={`/antecedentes/${id}/${slug}`} class="block group h-full flex flex-col">
+<article class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] hover:ring-4 hover:ring-blue-300/50 flex flex-col h-full border-2 border-transparent hover:border-blue-400">
+  <a href={`/antecedentes/${id}/${slug}`} class="block group h-full flex flex-col cursor-pointer">
     <div class="relative overflow-hidden h-48 bg-gray-100">
       <img 
         src={imageUrl}
@@ -52,14 +52,11 @@ const formatDate = (dateString: string) => {
         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         onError="this.src='/images/placeholder-project.jpg'"
       />
-      <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-        <span class="text-white font-medium">Ver detalles →</span>
-      </div>
     </div>
     
     <div class="p-6 flex-1 flex flex-col">
       <div class="flex-1">
-        <h3 class="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{titulo}</h3>
+        <h3 class="text-xl font-black text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">{titulo}</h3>
         <p class="text-gray-600 mb-4 line-clamp-2">{descripcion}</p>
       </div>
       

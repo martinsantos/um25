@@ -51,83 +51,68 @@ const getIconColor = (index) => {
       const iconEmoji = ['📊', '💻', '📱', '🔒', '☁️', '🤖'][index % 6];
       
       return (
-        <article 
-          class="group relative overflow-hidden bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 h-full flex flex-col"
-          itemScope 
-          itemType="https://schema.org/Service"
-        >
-          {/* Contenedor de la imagen */}
-          <div class="relative pt-[56.25%] overflow-hidden">
-            <EnhancedImage
-              src={service.Imagen?.id ? 
-                `${import.meta.env.PUBLIC_DIRECTUS_URL}/assets/${service.Imagen.id}?width=600&quality=80` : 
-                null}
-              alt={service.Titulo || 'Servicio de consultoría'}
-              width="600"
-              height="400"
-              class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              loading="lazy"
-              fallbackSrc="/images/placeholder-service.jpg"
-              fallbackAlt={`Imagen de servicio ${service.Titulo || 'genérico'}`}
-              containerClass="w-full h-full"
-            />
-            
-            {/* Overlay en hover */}
-            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
-              <a 
-                href={serviceUrl}
-                class="inline-flex items-center text-white font-medium text-sm bg-red-600 hover:bg-red-700 px-4 py-2 rounded-full transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100"
-              >
-                Ver detalles
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </a>
-            </div>
-          </div>
-          
-          {/* Contenido de la tarjeta */}
-          <div class="p-6 flex-grow flex flex-col">
-            <div class="mb-4">
-              <span class={`inline-flex items-center justify-center w-12 h-12 rounded-full ${iconColor} bg-opacity-10 mb-4`}>
-                {iconEmoji}
-              </span>
-              <h3 
-                class="text-xl font-bold text-gray-900 mb-3 group-hover:text-red-600 transition-colors duration-300"
-                itemProp="name"
-              >
-                {service.Titulo}
-              </h3>
-              <p 
-                class="text-gray-600 mb-6 line-clamp-3"
-                itemProp="description"
-              >
-                {truncateText(service.Descripcion, 150)}
-              </p>
+        <a href={serviceUrl} class="block group cursor-pointer">
+          <article 
+            class="group relative overflow-hidden bg-white rounded-xl shadow-lg hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] hover:ring-4 hover:ring-blue-300/50 h-full flex flex-col border-2 border-transparent hover:border-blue-400"
+            itemScope 
+            itemType="https://schema.org/Service"
+          >
+            {/* Contenedor de la imagen */}
+            <div class="relative pt-[56.25%] overflow-hidden">
+              <EnhancedImage
+                src={service.Imagen ? 
+                  `http://localhost:8055/assets/${service.Imagen}?width=600&quality=80` : 
+                  null}
+                alt={service.Titulo || 'Servicio de consultoría'}
+                width="600"
+                height="400"
+                class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+                fallbackSrc="/images/placeholder-service.jpg"
+                fallbackAlt={`Imagen de servicio ${service.Titulo || 'genérico'}`}
+                containerClass="w-full h-full"
+              />
             </div>
             
-            <div class="mt-auto">
-              <div class="flex items-center justify-between">
-                <a 
-                  href={serviceUrl}
-                  class="text-red-600 hover:text-red-700 font-medium inline-flex items-center transition-colors duration-200"
-                  aria-label={`Ver más sobre ${service.Titulo}`}
-                >
-                  Saber más
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </a>
-                <span class="text-sm text-gray-500">
-                  {['Básico', 'Estándar', 'Premium'][index % 3]}
+            {/* Contenido de la tarjeta */}
+            <div class="p-6 flex-grow flex flex-col">
+              <div class="mb-4">
+                <span class={`inline-flex items-center justify-center w-12 h-12 rounded-full ${iconColor} bg-opacity-10 mb-4`}>
+                  {iconEmoji}
                 </span>
+                <h3 
+                  class="text-xl font-black text-gray-900 mb-3 group-hover:text-red-600 transition-colors duration-300"
+                  itemProp="name"
+                >
+                  {service.Titulo}
+                </h3>
+                <p 
+                  class="text-gray-600 mb-6 line-clamp-3"
+                  itemProp="description"
+                >
+                  {truncateText(service.Descripcion, 150)}
+                </p>
+              </div>
+              
+              <div class="mt-auto">
+                <div class="flex items-center justify-between">
+                  <span class="text-red-600 hover:text-red-700 font-medium inline-flex items-center transition-colors duration-200">
+                    Saber más
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                  <span class="text-sm text-gray-500">
+                    {['Básico', 'Estándar', 'Premium'][index % 3]}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-          
-          {/* Efecto de borde inferior */}
-          <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 to-red-300 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
-        </article>
+            
+            {/* Efecto de borde inferior */}
+            <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 to-red-300 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+          </article>
+        </a>
       );
     })}
   </div>
