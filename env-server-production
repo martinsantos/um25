@@ -1,0 +1,43 @@
+# ===============================================================
+# == CONFIGURACIÓN PARA EL SERVIDOR DE PRODUCCIÓN              ==
+# ===============================================================
+
+# --- Claves de Seguridad ---
+KEY=pzdIoGXgfJODqy8lLFxwi2NOK/K7j7Qii7W26rHS9Tk=
+SECRET=d/QUPftXXNdfnAmN5SSmWPrYLzHqWF9rixk6XrwchR4=
+
+# --- Conexión a la Base de Datos (PostgreSQL) ---
+# IMPORTANTE: Estas credenciales DEBEN coincidir con docker-compose.yml
+DB_CLIENT=pg
+DB_HOST=database
+DB_PORT=5432
+DB_DATABASE=mydatabase
+DB_USER=myuser
+DB_PASSWORD=mypassword123
+
+# --- Usuario Administrador ---
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=d1r3ctu5
+
+# --- Token de Acceso Estático ---
+ADMIN_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+
+# --- Configuración de CORS ---
+CORS_ENABLED=true
+CORS_ORIGIN=http://23.105.176.45,http://localhost:4321
+
+# --- Entorno ---
+NODE_ENV=production
+
+# --- Caché ---
+CACHE_ENABLED=true
+CACHE_AUTO_PURGE=true
+
+# ===============================================================
+# == CONFIGURACIÓN PARA LA APP DE ASTRO                         ==
+# ===============================================================
+
+# --- Conexión de Astro a Directus ---
+PUBLIC_DIRECTUS_URL=http://localhost:8055
+PUBLIC_DIRECTUS_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjBhOGMzODdmLTczOWUtNDA5Ni1hNjA1LThkODg4YTYyMDVjOSIsInJvbGUiOiIyMWQ3YWU5Zi0zNzFlLTQzNGMtYjVkNi1hZDVmNzZiZTk2OTkiLCJhcHBfYWNjZXNzIjp0cnVlLCJhZG1pbl9hY2Nlc3MiOnRydWUsImlhdCI6MTc0OTk1MDM1NSwiZXhwIjoxNzQ5OTUxMjU1LCJpc3MiOiJkaXJlY3R1cyJ9.wlTyiXfDIqV3EdDF8_ZFNLaHrkNpdlx-02pYs5tHedE
+DIRECTUS_STATIC_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjBhOGMzODdmLTczOWUtNDA5Ni1hNjA1LThkODg4YTYyMDVjOSIsInJvbGUiOiIyMWQ3YWU5Zi0zNzFlLTQzNGMtYjVkNi1hZDVmNzZiZTk2OTkiLCJhcHBfYWNjZXNzIjp0cnVlLCJhZG1pbl9hY2Nlc3MiOnRydWUsImlhdCI6MTc0OTk1MDM1NSwiZXhwIjoxNzQ5OTUxMjU1LCJpc3MiOiJkaXJlY3R1cyJ9.wlTyiXfDIqV3EdDF8_ZFNLaHrkNpdlx-02pYs5tHedE 
