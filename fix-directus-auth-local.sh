@@ -1,11 +1,9 @@
 #!/bin/bash
 
 # ========================================
-# SCRIPT PARA SOLUCIONAR AUTENTICACIÓN DIRECTUS
-# Entorno Local - UM25-0.3
+# SCRIPT DE SOLUCIÓN AUTENTICACIÓN DIRECTUS
+# Para resolver problemas de token expirado
 # ========================================
-
-set -e
 
 # Colores para output
 RED='\033[0;31m'
@@ -14,192 +12,196 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🔧 SOLUCIONANDO PROBLEMAS DE AUTENTICACIÓN DIRECTUS${NC}"
+echo -e "${BLUE}🔧 SOLUCIONANDO AUTENTICACIÓN DIRECTUS${NC}"
 echo "=========================================="
 
-# 1. DETENER SERVICIOS ACTUALES
-echo -e "${BLUE}🛑 Deteniendo servicios actuales...${NC}"
-docker-compose down || true
-
-# 2. LIMPIAR CONTENEDORES Y VOLÚMENES
-echo -e "${BLUE}🧹 Limpiando contenedores y volúmenes...${NC}"
-docker-compose down -v || true
-docker system prune -f || true
-
-# 3. VERIFICAR ARCHIVOS DE CONFIGURACIÓN
-echo -e "${BLUE}📋 Verificando configuración...${NC}"
-if [ ! -f ".env" ]; then
-    echo -e "${YELLOW}⚠️ Archivo .env no encontrado, creando uno básico...${NC}"
-    cat > .env << 'EOF'
-# Configuración Directus Local
-DIRECTUS_KEY=255d861b-5ea1-5996-9aa3-922530ec40b1
-DIRECTUS_SECRET=6116487b-cda1-52c2-b5b5-c8022c45e263
-DIRECTUS_ADMIN_EMAIL=admin@example.com
-DIRECTUS_ADMIN_PASSWORD=d1r3ctu5
-
-# Base de datos
-DB_CLIENT=sqlite
-DB_FILENAME=/directus/database/data.db
-
-# Configuración del servidor
-PUBLIC_URL=http://localhost:8055
-CORS_ENABLED=true
-CORS_ORIGIN=true
-
-# Configuración de archivos
-STORAGE_LOCATIONS=local
-STORAGE_LOCAL_DRIVER=local
-STORAGE_LOCAL_ROOT=./uploads
-
-# Configuración de autenticación
-AUTH_PROVIDERS=default
-ACCESS_TOKEN_TTL=15m
-REFRESH_TOKEN_TTL=7d
-REFRESH_TOKEN_COOKIE_SECURE=false
-REFRESH_TOKEN_COOKIE_SAME_SITE=lax
-
-# Configuración de rate limiting
-RATE_LIMITER_ENABLED=false
-EOF
+# Verificar si Docker está corriendo
+if ! docker ps >/dev/null 2>&1; then
+    echo -e "${RED}❌ Docker no está corriendo${NC}"
+    exit 1
 fi
 
-# 4. CREAR ARCHIVO .env.local PARA ASTRO
-echo -e "${BLUE}⚙️ Configurando variables de entorno para Astro...${NC}"
-cat > .env.local << 'EOF'
-# Configuración Directus para Astro
-DIRECTUS_URL=http://localhost:8055
-DIRECTUS_TOKEN=
+# 1. REINICIAR SERVICIOS DIRECTUS
+echo -e "${BLUE}🔄 Reiniciando servicios Directus...${NC}"
+docker-compose restart directus 2>/dev/null || echo -e "${YELLOW}⚠️ No se pudo reiniciar el contenedor directus${NC}"
 
-# Configuración de desarrollo
-NODE_ENV=development
-ASTRO_ENV=development
+# Esperar a que el servicio se inicie
+echo -e "${YELLOW}⏱️ Esperando a que Directus se inicie...${NC}"
+sleep 15
 
-# Configuración de imágenes
-PUBLIC_ASSETS_URL=http://localhost:8055/assets
-PUBLIC_IMAGES_URL=http://localhost:8055/assets
+# 2. VERIFICAR SERVICIOS
+echo -e "${BLUE}📊 Verificando estado de servicios...${NC}"
+docker-compose ps
 
-# Modo de datos
-STATIC_MODE=false
-USE_STATIC_DATA=false
-EOF
+# 3. INTENTAR OBTENER TOKEN AUTOMÁTICAMENTE
+echo -e "${BLUE}🔑 Intentando obtener token de autenticación...${NC}"
 
-# 5. INICIAR DIRECTUS
-echo -e "${BLUE}🚀 Iniciando Directus...${NC}"
-docker-compose up -d directus
+# Credenciales por defecto
+DIRECTUS_URL="http://localhost:8055"
+DIRECTUS_EMAIL="admin@example.com"
+DIRECTUS_PASSWORD="password"
 
-# 6. ESPERAR A QUE DIRECTUS ESTÉ LISTO
-echo -e "${BLUE}⏳ Esperando a que Directus esté listo...${NC}"
-sleep 30
+# Función para obtener token
+get_token() {
+    local email="$1"
+    local password="$2"
+    
+    echo -e "${YELLOW}Probando con credenciales: $email${NC}" >&2
+    
+    # Intentar login
+    response=$(curl -s -X POST "$DIRECTUS_URL/auth/login" \
+        -H "Content-Type: application/json" \
+        -d "{\"email\":\"$email\",\"password\":\"$password\"}" 2>/dev/null)
+    
+    if [[ $? -eq 0 ]] && [[ $response == *"access_token"* ]]; then
+        token=$(echo "$response" | grep -o '"access_token":"[^"]*' | cut -d'"' -f4)
+        if [[ -n "$token" ]]; then
+            echo -e "${GREEN}✅ Token obtenido exitosamente${NC}" >&2
+            echo "$token"
+            return 0
+        fi
+    fi
+    
+    return 1
+}
 
-# Verificar si Directus está respondiendo
-for i in {1..10}; do
-    if curl -f http://localhost:8055/server/health >/dev/null 2>&1; then
-        echo -e "${GREEN}✅ Directus está funcionando${NC}"
+# Probar diferentes combinaciones de credenciales
+CREDENTIALS=(
+    "admin@example.com:d1r3ctu5"
+    "admin@example.com:password"
+    "admin@admin.com:admin"
+    "admin:admin"
+    "admin@localhost:password"
+    "test@example.com:password"
+)
+
+TOKEN=""
+for cred in "${CREDENTIALS[@]}"; do
+    email=$(echo "$cred" | cut -d':' -f1)
+    password=$(echo "$cred" | cut -d':' -f2)
+    
+    if TOKEN=$(get_token "$email" "$password"); then
+        echo -e "${GREEN}✅ Autenticación exitosa con: $email${NC}"
         break
     else
-        echo -e "${YELLOW}⏳ Esperando... intento $i/10${NC}"
-        sleep 10
+        echo -e "${RED}❌ Falló autenticación con: $email${NC}"
     fi
 done
 
-# 7. OBTENER TOKEN DE AUTENTICACIÓN
-echo -e "${BLUE}🔑 Obteniendo token de autenticación...${NC}"
-
-# Intentar login con credenciales por defecto
-TOKEN_RESPONSE=$(curl -s -X POST http://localhost:8055/auth/login \
-    -H "Content-Type: application/json" \
-    -d '{
-        "email": "admin@example.com",
-        "password": "d1r3ctu5"
-    }' || echo "")
-
-if [ -n "$TOKEN_RESPONSE" ] && echo "$TOKEN_RESPONSE" | grep -q "access_token"; then
-    TOKEN=$(echo "$TOKEN_RESPONSE" | grep -o '"access_token":"[^"]*' | cut -d'"' -f4)
-    echo -e "${GREEN}✅ Token obtenido exitosamente${NC}"
-    
-    # Actualizar .env.local con el token
-    sed -i.bak "s/DIRECTUS_TOKEN=/DIRECTUS_TOKEN=$TOKEN/" .env.local
-    echo -e "${GREEN}✅ Token guardado en .env.local${NC}"
-else
+# Si no se pudo obtener token, configurar modo estático
+if [[ -z "$TOKEN" ]]; then
     echo -e "${YELLOW}⚠️ No se pudo obtener token automáticamente${NC}"
-    echo -e "${YELLOW}Intentando crear usuario administrador...${NC}"
+    echo -e "${BLUE}🔧 Configurando modo estático como fallback...${NC}"
     
-    # Crear usuario administrador
-    docker-compose exec directus npx directus users create --email admin@example.com --password d1r3ctu5 --role administrator || true
-    
-    # Intentar login nuevamente
-    sleep 5
-    TOKEN_RESPONSE=$(curl -s -X POST http://localhost:8055/auth/login \
-        -H "Content-Type: application/json" \
-        -d '{
-            "email": "admin@example.com",
-            "password": "d1r3ctu5"
-        }' || echo "")
-    
-    if [ -n "$TOKEN_RESPONSE" ] && echo "$TOKEN_RESPONSE" | grep -q "access_token"; then
-        TOKEN=$(echo "$TOKEN_RESPONSE" | grep -o '"access_token":"[^"]*' | cut -d'"' -f4)
-        sed -i.bak "s/DIRECTUS_TOKEN=/DIRECTUS_TOKEN=$TOKEN/" .env.local
-        echo -e "${GREEN}✅ Token obtenido y guardado${NC}"
+    # Actualizar .env.local para usar modo estático
+    if [[ -f ".env.local" ]]; then
+        # Backup del archivo actual
+        cp .env.local .env.local.backup
+        
+        # Configurar modo estático
+        {
+            echo "# Configuración de fallback - Modo estático"
+            echo "STATIC_MODE=true"
+            echo "USE_STATIC_DATA=true"
+            echo "DIRECTUS_URL=http://localhost:8055"
+            echo "# Token no disponible - usando modo estático"
+            echo "# DIRECTUS_TOKEN="
+        } > .env.local
+        
+        echo -e "${GREEN}✅ Configurado modo estático en .env.local${NC}"
     else
-        echo -e "${RED}❌ No se pudo obtener token de autenticación${NC}"
-        echo -e "${YELLOW}Configurando modo estático como fallback...${NC}"
-        sed -i.bak "s/STATIC_MODE=false/STATIC_MODE=true/" .env.local
-        sed -i.bak "s/USE_STATIC_DATA=false/USE_STATIC_DATA=true/" .env.local
+        echo -e "${YELLOW}⚠️ Archivo .env.local no encontrado${NC}"
     fi
+    
+    echo -e "${BLUE}🔄 Reiniciando servidor Astro...${NC}"
+    # Buscar y matar procesos de Astro
+    pkill -f "astro" 2>/dev/null || true
+    
+    echo -e "${GREEN}✅ Configuración de fallback completada${NC}"
+    echo -e "${YELLOW}📋 El proyecto funcionará en modo estático${NC}"
+    
+else
+    # Actualizar .env.local con el token obtenido
+    echo -e "${BLUE}📝 Actualizando archivo .env.local...${NC}"
+    
+    # Backup del archivo actual si existe
+    if [[ -f ".env.local" ]]; then
+        cp .env.local .env.local.backup
+    fi
+    
+    # Crear nuevo archivo .env.local
+    {
+        echo "# Configuración de Directus actualizada"
+        echo "DIRECTUS_URL=http://localhost:8055"
+        echo "DIRECTUS_TOKEN=$TOKEN"
+        echo "STATIC_MODE=false"
+        echo "USE_STATIC_DATA=false"
+        echo "# Token generado automáticamente: $(date)"
+    } > .env.local
+    
+    echo -e "${GREEN}✅ Token guardado en .env.local${NC}"
+    
+    # Verificar que el token funciona
+    echo -e "${BLUE}🔍 Verificando token...${NC}"
+    test_response=$(curl -s -H "Authorization: Bearer $TOKEN" "$DIRECTUS_URL/collections" 2>/dev/null)
+    
+    if [[ $? -eq 0 ]] && [[ $test_response != *"error"* ]]; then
+        echo -e "${GREEN}✅ Token funcionando correctamente${NC}"
+    else
+        echo -e "${RED}❌ Token no funciona, configurando modo estático${NC}"
+        {
+            echo "# Configuración de fallback - Token no funciona"
+            echo "STATIC_MODE=true"
+            echo "USE_STATIC_DATA=true"
+            echo "DIRECTUS_URL=http://localhost:8055"
+            echo "# DIRECTUS_TOKEN=$TOKEN"
+        } > .env.local
+    fi
+    
+    echo -e "${BLUE}🔄 Reiniciando servidor Astro...${NC}"
+    # Buscar y matar procesos de Astro
+    pkill -f "astro" 2>/dev/null || true
 fi
 
-# 8. VERIFICAR CONEXIÓN A DIRECTUS
-echo -e "${BLUE}🔍 Verificando conexión a Directus...${NC}"
-if [ -n "$TOKEN" ]; then
-    COLLECTIONS_RESPONSE=$(curl -s -H "Authorization: Bearer $TOKEN" http://localhost:8055/collections || echo "")
-    if echo "$COLLECTIONS_RESPONSE" | grep -q "data"; then
-        echo -e "${GREEN}✅ Conexión a Directus verificada${NC}"
-    else
-        echo -e "${YELLOW}⚠️ Problemas de conexión, usando modo estático${NC}"
-        sed -i.bak "s/STATIC_MODE=false/STATIC_MODE=true/" .env.local
-        sed -i.bak "s/USE_STATIC_DATA=false/USE_STATIC_DATA=true/" .env.local
-    fi
-fi
-
-# 9. INICIAR ASTRO
-echo -e "${BLUE}🚀 Iniciando Astro...${NC}"
-docker-compose up -d astro
-
-# 10. VERIFICACIÓN FINAL
+# 4. VERIFICACIÓN FINAL
+echo ""
 echo -e "${BLUE}🎯 Verificación final...${NC}"
-sleep 10
+echo "=========================================="
 
-echo -e "${BLUE}📋 Estado de servicios:${NC}"
+# Mostrar estado de servicios
+echo -e "${BLUE}📊 Estado de servicios Docker:${NC}"
 docker-compose ps
 
-echo -e "${BLUE}🌐 URLs disponibles:${NC}"
-echo -e "   • Directus: http://localhost:8055"
-echo -e "   • Astro: http://localhost:4321"
-
-# Verificar si Astro está funcionando
-if curl -f http://localhost:4321 >/dev/null 2>&1; then
-    echo -e "${GREEN}✅ Astro está funcionando correctamente${NC}"
+# Mostrar configuración actual
+echo -e "${BLUE}📋 Configuración actual:${NC}"
+if [[ -f ".env.local" ]]; then
+    echo "Contenido de .env.local:"
+    cat .env.local
 else
-    echo -e "${YELLOW}⚠️ Astro puede necesitar unos minutos para estar listo${NC}"
+    echo -e "${YELLOW}⚠️ No hay archivo .env.local${NC}"
+fi
+
+# Instrucciones finales
+echo ""
+echo -e "${BLUE}📋 INSTRUCCIONES FINALES:${NC}"
+echo "=========================================="
+if [[ -n "$TOKEN" ]]; then
+    echo -e "${GREEN}✅ Autenticación Directus configurada${NC}"
+    echo -e "   • Token válido obtenido y guardado"
+    echo -e "   • Reinicia tu servidor Astro para aplicar cambios"
+    echo -e "   • Comando: npm run dev"
+else
+    echo -e "${YELLOW}⚠️ Configurado modo estático como fallback${NC}"
+    echo -e "   • Directus no está disponible o no se pudo autenticar"
+    echo -e "   • El proyecto funcionará con datos estáticos"
+    echo -e "   • Reinicia tu servidor Astro para aplicar cambios"
 fi
 
 echo ""
-echo "=========================================="
-echo -e "${GREEN}🎉 CONFIGURACIÓN COMPLETADA${NC}"
-echo "=========================================="
-echo -e "${GREEN}✅ Directus configurado y funcionando${NC}"
-echo -e "${GREEN}✅ Token de autenticación obtenido${NC}"
-echo -e "${GREEN}✅ Variables de entorno configuradas${NC}"
-echo -e "${GREEN}✅ Astro iniciado${NC}"
+echo -e "${BLUE}🔧 Comandos útiles:${NC}"
+echo -e "   • Reiniciar Directus: docker-compose restart directus"
+echo -e "   • Ver logs: docker-compose logs -f directus"
+echo -e "   • Verificar servicios: docker-compose ps"
+echo -e "   • Probar autenticación: curl -H 'Authorization: Bearer TOKEN' http://localhost:8055/collections"
 echo ""
-echo -e "${BLUE}📋 Información importante:${NC}"
-echo -e "   • Usuario Directus: admin@example.com"
-echo -e "   • Contraseña: d1r3ctu5"
-echo -e "   • Token guardado en .env.local"
-echo ""
-echo -e "${YELLOW}📝 Si sigues teniendo problemas:${NC}"
-echo -e "   • Revisa los logs: docker-compose logs -f"
-echo -e "   • Reinicia servicios: docker-compose restart"
-echo -e "   • Usa modo estático: STATIC_MODE=true en .env.local"
-echo ""
-echo -e "${GREEN}🚀 Sistema listo para desarrollo!${NC}" 
+echo -e "${GREEN}🔧 Solución de autenticación completada${NC}" 
