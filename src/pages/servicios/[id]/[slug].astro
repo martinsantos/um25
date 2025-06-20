@@ -20,10 +20,29 @@ if (slug !== expectedSlug) {
   return Astro.redirect(`/servicios/${id}/${expectedSlug}`);
 }
 
+// Mapeo de IDs de imágenes de Directus a archivos estáticos locales
+const imageMapping = {
+  'b1a91d79-c979-4067-b78a-2cd97166fbcd': '/images/services/seguridad-informatica.jpg',
+  '6e626d63-c3ca-4982-8ed3-4a5e75e1b179': '/images/services/redes-comunicaciones.jpg',
+  'f2a65085-e6ad-49fc-a123-1b5dc19fc7ab': '/images/services/ciberseguridad.jpg',
+  '4ffcefb0-6cb8-4cfa-a748-bd4c3da1d716': '/images/services/telefonia.jpg',
+  'dc6d6069-23af-4d75-ae5a-38c830bf2b85': '/images/services/servicios-web.jpg',
+  '2749f988-2e2d-4f32-9978-4dbeb4aa6ab2': '/images/services/servicios-it.jpg',
+  'ccc32af0-df52-4e6e-8ca0-9660dddec095': '/images/services/servicios-it.jpg',
+  '18b5f4e3-4bc8-485d-a01c-8cbd53e25f4d': '/images/services/redes-comunicaciones.jpg'
+};
+
 // Función para obtener URL de imagen
 function getAssetUrl(assetId) {
-  if (!assetId) return '/images/default-service.jpg';
-  return `http://localhost:8055/assets/${assetId}`;
+  if (!assetId) return '/images/services/default-service.jpg';
+  
+  // Si tenemos un mapeo estático, usarlo
+  if (imageMapping[assetId]) {
+    return imageMapping[assetId];
+  }
+  
+  // Fallback a imagen por defecto
+  return '/images/services/default-service.jpg';
 }
 
 // Servicios relacionados (misma área, excluyendo el actual)

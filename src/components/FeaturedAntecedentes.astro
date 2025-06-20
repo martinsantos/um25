@@ -51,15 +51,48 @@ const getClientInitials = (cliente) => {
     .substring(0, 3)
     .toUpperCase();
 };
+
+// ✅ FUNCIÓN MEJORADA: Obtener imagen usando el mismo sistema que funciona en páginas individuales
+const getImageUrl = async (item) => {
+  try {
+    // Importar la función de mapeo que funciona correctamente
+    const { buscarImagenPorDatos } = await import('../data/mapeo_imagenes_completo.js');
+    
+    // Buscar la imagen específica usando los datos del antecedente
+    const nombreArchivo = buscarImagenPorDatos(
+      item.Cliente,
+      item.Area || item.Unidad_de_negocio, 
+      item.Titulo,
+      item.id
+    );
+    
+    if (nombreArchivo) {
+      // Usar la ruta estática que funciona correctamente
+      const imagenUrl = `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
+      console.log('[FEATURED] ✅ Usando imagen específica:', imagenUrl);
+      return imagenUrl;
+    }
+  } catch (error) {
+    console.log('[FEATURED] ⚠️ Error en mapeo, usando placeholder:', error.message);
+  }
+  
+  // Fallback: sin imagen, usar placeholder único
+  return null;
+};
+
+// Procesar URLs de imágenes para todos los antecedentes
+const antecedentesConImagenes = await Promise.all(
+  antecedentes.map(async (item) => ({
+    ...item,
+    imageUrl: await getImageUrl(item)
+  }))
+);
 ---
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-  {antecedentes.map(item => {
+  {antecedentesConImagenes.map(item => {
     const uniqueColor = generateUniqueColor(item.id);
     const clientInitials = getClientInitials(item.Cliente);
-    const imageUrl = item.Imagen ? 
-      `${import.meta.env.PUBLIC_DIRECTUS_URL}/assets/${item.Imagen}?width=600&height=400&fit=cover` : 
-      null;
     
     return (
       <a 
@@ -72,9 +105,9 @@ const getClientInitials = (cliente) => {
           class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] hover:ring-4 hover:ring-blue-300/50 h-full flex flex-col border-2 border-transparent hover:border-blue-400"
         >
           <div class="relative h-48 overflow-hidden">
-            {imageUrl ? (
+            {item.imageUrl ? (
               <EnhancedImage
-                src={imageUrl}
+                src={item.imageUrl}
                 alt={item.Titulo || 'Proyecto destacado'}
                 width={600}
                 height={400}
@@ -87,7 +120,7 @@ const getClientInitials = (cliente) => {
             ) : null}
             
             {/* Placeholder único cuando no hay imagen */}
-            {!imageUrl && (
+            {!item.imageUrl && (
               <div class={`w-full h-full bg-gradient-to-br ${uniqueColor} flex items-center justify-center text-white relative overflow-hidden`}>
                 {/* Patrón de fondo */}
                 <div class="absolute inset-0 opacity-10">

@@ -51,6 +51,34 @@ let pageData = {
   ...getUrlParams(Astro.request?.url || Astro.url)
 };
 
+// ✅ FUNCIÓN MEJORADA: Obtener imagen usando el sistema de mapeo que funciona
+async function getImageUrl(proyecto) {
+  try {
+    // Importar la función de mapeo que funciona correctamente
+    const { buscarImagenPorDatos } = await import('../../data/mapeo_imagenes_completo.js');
+    
+    // Buscar la imagen específica usando los datos del antecedente
+    const nombreArchivo = buscarImagenPorDatos(
+      proyecto.Cliente,
+      proyecto.Area || proyecto.Unidad_de_negocio, 
+      proyecto.Titulo,
+      proyecto.id
+    );
+    
+    if (nombreArchivo) {
+      // Usar la ruta estática que funciona correctamente
+      const imagenUrl = `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
+      console.log('[ANTECEDENTES LIST] ✅ Usando imagen específica:', imagenUrl);
+      return imagenUrl;
+    }
+  } catch (error) {
+    console.log('[ANTECEDENTES LIST] ⚠️ Error en mapeo, usando placeholder:', error.message);
+  }
+  
+  // Fallback: placeholder por defecto
+  return DEFAULT_IMAGE;
+}
+
 // Función para filtrar antecedentes
 const filterAntecedentes = (antecedentes, filters, searchQuery) => {
   let filtered = [...antecedentes];
@@ -115,10 +143,18 @@ try {
   const startIndex = (pageData.currentPage - 1) * PAGE_SIZE;
   const endIndex = startIndex + PAGE_SIZE;
   const paginatedAntecedentes = filteredAntecedentes.slice(startIndex, endIndex);
+  
+  // Procesar URLs de imágenes para todos los antecedentes paginados
+  const antecedentesConImagenes = await Promise.all(
+    paginatedAntecedentes.map(async (proyecto) => ({
+      ...proyecto,
+      imageUrl: await getImageUrl(proyecto)
+    }))
+  );
 
   pageData = {
     ...pageData,
-    antecedentes: paginatedAntecedentes,
+    antecedentes: antecedentesConImagenes,
     totalItems: filteredAntecedentes.length,
     totalPages: Math.ceil(filteredAntecedentes.length / PAGE_SIZE),
     randomImages: [DEFAULT_IMAGE],
@@ -142,9 +178,17 @@ try {
   const endIndex = startIndex + PAGE_SIZE;
   const paginatedAntecedentes = filteredAntecedentes.slice(startIndex, endIndex);
 
+  // Procesar URLs de imágenes para los datos de fallback
+  const antecedentesConImagenes = await Promise.all(
+    paginatedAntecedentes.map(async (proyecto) => ({
+      ...proyecto,
+      imageUrl: await getImageUrl(proyecto)
+    }))
+  );
+
   pageData = {
     ...pageData,
-    antecedentes: paginatedAntecedentes,
+    antecedentes: antecedentesConImagenes,
     totalItems: filteredAntecedentes.length,
     totalPages: Math.ceil(filteredAntecedentes.length / PAGE_SIZE),
     randomImages: [DEFAULT_IMAGE],
@@ -257,18 +301,6 @@ const filterOptions = {
   clientes: getUniqueValues(allDataForFilters, 'Cliente')
 };
 
-// Función para obtener la URL correcta de la imagen
-const getImageUrl = (imagen) => {
-  if (!imagen) return DEFAULT_IMAGE;
-  
-  // Si ya es una URL completa (Unsplash), devolverla tal como está
-  if (imagen.startsWith('http')) {
-    return imagen;
-  }
-  
-  // Si es un ID de Directus, construir la URL
-  return `http://localhost:8055/assets/${imagen}?width=800&quality=80`;
-};
 ---
 
 <Layout 
@@ -515,11 +547,11 @@ const getImageUrl = (imagen) => {
                   {/* Imagen del proyecto */}
                   <div class="relative overflow-hidden aspect-[4/3]">
                     <img 
-                      src={getImageUrl(proyecto.Imagen)}
+                      src={proyecto.imageUrl}
                       alt={proyecto.Titulo}
                       class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       loading="lazy"
-                      onerror="this.src='https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'"
+                      onerror="this.src='/images/default.jpg'"
                     />
                     
 

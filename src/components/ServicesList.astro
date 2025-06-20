@@ -4,6 +4,30 @@ import EnhancedImage from "./EnhancedImage.astro";
 // Componente para mostrar la lista de servicios
 const { services } = Astro.props;
 
+// Mapeo de IDs de imágenes de Directus a archivos estáticos locales
+const imageMapping = {
+  'b1a91d79-c979-4067-b78a-2cd97166fbcd': '/images/services/seguridad-informatica.jpg',
+  '6e626d63-c3ca-4982-8ed3-4a5e75e1b179': '/images/services/redes-comunicaciones.jpg',
+  'f2a65085-e6ad-49fc-a123-1b5dc19fc7ab': '/images/services/ciberseguridad.jpg',
+  '4ffcefb0-6cb8-4cfa-a748-bd4c3da1d716': '/images/services/telefonia.jpg',
+  'dc6d6069-23af-4d75-ae5a-38c830bf2b85': '/images/services/servicios-web.jpg',
+  '2749f988-2e2d-4f32-9978-4dbeb4aa6ab2': '/images/services/servicios-it.jpg',
+  'ccc32af0-df52-4e6e-8ca0-9660dddec095': '/images/services/servicios-it.jpg'
+};
+
+// Función para obtener la URL de la imagen
+const getImageUrl = (imageId) => {
+  if (!imageId) return '/images/default.jpg';
+  
+  // Si tenemos un mapeo estático, usarlo
+  if (imageMapping[imageId]) {
+    return imageMapping[imageId];
+  }
+  
+  // Fallback a placeholder que existe
+  return '/images/default.jpg';
+};
+
 // Función para limitar el texto
 const truncateText = (text, maxLength = 100) => {
   if (!text) return '';
@@ -49,6 +73,7 @@ const getIconColor = (index) => {
       const serviceUrl = `/servicios/${service.id}/${serviceSlug}`;
       const iconColor = getIconColor(index);
       const iconEmoji = ['📊', '💻', '📱', '🔒', '☁️', '🤖'][index % 6];
+      const imageUrl = getImageUrl(service.Imagen);
       
       return (
         <a href={serviceUrl} class="block group cursor-pointer">
@@ -60,15 +85,13 @@ const getIconColor = (index) => {
             {/* Contenedor de la imagen */}
             <div class="relative pt-[56.25%] overflow-hidden">
               <EnhancedImage
-                src={service.Imagen ? 
-                  `http://localhost:8055/assets/${service.Imagen}?width=600&quality=80` : 
-                  null}
+                src={imageUrl}
                 alt={service.Titulo || 'Servicio de consultoría'}
                 width="600"
                 height="400"
                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 loading="lazy"
-                fallbackSrc="/images/placeholder-service.jpg"
+                fallbackSrc="/images/default.jpg"
                 fallbackAlt={`Imagen de servicio ${service.Titulo || 'genérico'}`}
                 containerClass="w-full h-full"
               />

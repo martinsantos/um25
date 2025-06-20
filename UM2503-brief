@@ -1,0 +1,358 @@
+# 🧠 Briefing para LLM - Proyecto Ultima Milla UM25-0.3
+
+## 📋 Contexto Inmediato
+
+**Situación**: Estás tomando el control de un proyecto web **completamente funcional** que ha sido desarrollado y documentado exhaustivamente. El desarrollador anterior ha creado una solución robusta que necesita continuidad en el desarrollo.
+
+**Tu rol**: Eres el nuevo desarrollador técnico que debe comprender rápidamente el estado actual y poder continuar el desarrollo sin interrupciones.
+
+---
+
+## 🎯 Estado Actual del Proyecto (CRÍTICO)
+
+### ✅ **LO QUE YA ESTÁ FUNCIONANDO**
+```json
+{
+  "nombre": "Ultima Milla UM25-0.3",
+  "estado": "PRODUCCIÓN LISTA - 100% FUNCIONAL",
+  "tecnologias": ["Astro", "Directus", "PostgreSQL", "Docker", "Tailwind"],
+  "datos_migrados": {
+    "antecedentes": 469,
+    "servicios": 5,
+    "imagenes": 821
+  },
+  "caracteristicas_implementadas": [
+    "UI/UX moderna con efectos hover",
+    "Sistema de imágenes únicas",
+    "API Directus funcionando",
+    "Modo estático para producción",
+    "Scripts de despliegue automatizados"
+  ]
+}
+```
+
+### 🚀 **COMANDOS INMEDIATOS PARA EMPEZAR**
+```bash
+# En tu máquina local:
+git clone https://github.com/martinsantos/um25.git
+cd fumbling-field
+npm install
+docker-compose up -d  # Opcional
+npm run dev
+
+# Accesos:
+# Frontend: http://localhost:4321
+# Admin: http://localhost:8055 (admin@example.com / d1r3ctu5)
+```
+
+---
+
+## 📁 **Arquitectura que Debes Conocer**
+
+### Estructura Clave
+```
+fumbling-field/
+├── src/
+│   ├── pages/              # Páginas Astro
+│   │   ├── index.astro     # Homepage
+│   │   ├── servicios/      # 5 servicios
+│   │   └── antecedentes/   # 469 antecedentes
+│   ├── components/         # Componentes reutilizables
+│   │   ├── EnhancedImage.astro  # Sistema de imágenes
+│   │   ├── ServiceCard.astro    # Tarjetas de servicios
+│   │   └── AntecedenteCard.astro # Tarjetas de antecedentes
+│   └── utils/directus.js   # Cliente API
+├── scripts/                # Scripts de despliegue
+└── docker-compose.yml     # Servicios Docker
+```
+
+### Flujo de Datos
+```mermaid
+graph TD
+    A[PostgreSQL] --> B[Directus API]
+    B --> C[Astro Frontend]
+    C --> D[Usuario Final]
+    B --> E[Sistema de Imágenes]
+    F[Datos Estáticos] --> C
+```
+
+---
+
+## 🔧 **Patrones de Desarrollo Establecidos**
+
+### 1. **Componentes Astro**
+```astro
+---
+// Patrón estándar implementado
+export interface Props {
+  titulo: string;
+  descripcion?: string;
+}
+
+const { titulo, descripcion } = Astro.props;
+---
+
+<div class="card-modern">
+  <h3 class="font-black text-xl">{titulo}</h3>
+  {descripcion && <p class="text-gray-600">{descripcion}</p>}
+</div>
+```
+
+### 2. **Estilos UI/UX Modernos**
+```css
+/* Patrón de efectos hover establecido */
+.card-modern {
+  @apply hover:shadow-2xl hover:shadow-blue-500/25 
+         transform hover:-translate-y-2 hover:scale-[1.02]
+         hover:ring-4 hover:ring-blue-300/50
+         border-2 border-transparent hover:border-blue-400
+         transition-all duration-300;
+}
+```
+
+### 3. **API Directus**
+```javascript
+// Patrón de conexión establecido
+import { directus } from '../utils/directus.js';
+
+export async function getAntecedentes() {
+  try {
+    const response = await directus.items('antecedentes').readByQuery({
+      fields: ['*', 'servicio_id.nombre'],
+      limit: -1
+    });
+    return response.data || [];
+  } catch (error) {
+    // Fallback a datos estáticos
+    return STATIC_ANTECEDENTES;
+  }
+}
+```
+
+---
+
+## 🚨 **Información Crítica para el Desarrollo**
+
+### ⚠️ **NUNCA HAGAS ESTO**
+- **NO uses localStorage/sessionStorage** (no funciona en artifacts)
+- **NO agregues botones "Ver Detalles"** (fueron eliminados intencionalmente)
+- **NO uses font-bold** (cambiar a font-black para títulos)
+- **NO hardcodees imágenes** (usar EnhancedImage component)
+
+### ✅ **SIEMPRE HAZ ESTO**
+- **Usa React state** para datos temporales
+- **Implementa efectos hover modernos** en nuevos componentes
+- **Usa el patrón EnhancedImage** para todas las imágenes
+- **Incluye fallback a datos estáticos** en APIs
+
+### 🎨 **Estándares UI/UX Establecidos**
+```css
+/* Títulos principales */
+.titulo-principal { @apply font-black text-2xl; }
+
+/* Efectos hover estándar */
+.hover-moderno { 
+  @apply hover:shadow-2xl hover:-translate-y-2 
+         hover:scale-[1.02] transition-all duration-300;
+}
+
+/* Tarjetas clickeables */
+.tarjeta-clickeable { 
+  @apply cursor-pointer border-2 border-transparent 
+         hover:border-blue-400;
+}
+```
+
+---
+
+## 🛠️ **Herramientas de Desarrollo Disponibles**
+
+### Scripts de Utilidad
+```bash
+# Diagnóstico completo
+./scripts/diagnose-server-local.sh
+
+# Reparar autenticación Directus
+./scripts/fix-directus-auth-local.sh
+
+# Despliegue a producción
+./scripts/deploy-from-local.sh
+```
+
+### Variables de Entorno
+```bash
+# Desarrollo (.env)
+DIRECTUS_URL=http://localhost:8055
+DIRECTUS_TOKEN=[se_genera_automáticamente]
+STATIC_MODE=false
+
+# Producción (.env.production)
+NODE_ENV=production
+STATIC_MODE=true
+PUBLIC_SITE_URL=https://www.umbot.com.ar
+```
+
+---
+
+## 🔍 **Casos de Uso Comunes**
+
+### 1. **Agregar Nueva Funcionalidad**
+```astro
+---
+// src/pages/nueva-funcionalidad.astro
+import Layout from '../layouts/Layout.astro';
+import { getAntecedentes } from '../utils/directus.js';
+
+const datos = await getAntecedentes();
+---
+
+<Layout title="Nueva Funcionalidad">
+  <div class="container mx-auto py-8">
+    <!-- Tu contenido aquí -->
+  </div>
+</Layout>
+```
+
+### 2. **Crear Nuevo Componente**
+```astro
+---
+// src/components/NuevoComponente.astro
+export interface Props {
+  datos: any[];
+  mostrarImagen?: boolean;
+}
+
+const { datos, mostrarImagen = true } = Astro.props;
+---
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {datos.map(item => (
+    <div class="card-modern">
+      <!-- Contenido del componente -->
+    </div>
+  ))}
+</div>
+```
+
+### 3. **Modificar Estilos Existentes**
+```css
+/* Extender estilos existentes */
+.mi-nuevo-estilo {
+  @apply card-modern /* Usar patrón existente */
+         bg-gradient-to-r from-blue-500 to-purple-600
+         text-white;
+}
+```
+
+---
+
+## 📊 **Datos del Sistema**
+
+### Base de Datos (PostgreSQL)
+```sql
+-- Tablas principales
+antecedentes (469 registros)
+├── id, titulo, cliente, descripcion
+├── imagen (FK a directus_files)
+└── servicio_id (FK a Servicios)
+
+Servicios (5 registros)
+├── id, nombre, descripcion
+├── imagen (FK a directus_files)
+└── destacado (boolean)
+
+directus_files (821 registros)
+└── Imágenes únicas para cada proyecto
+```
+
+### Servidor de Producción
+```bash
+# Acceso SSH
+ssh root@23.105.176.45
+# Password: gsiB%s@0yD
+
+# Directorio del proyecto
+cd /root/fumbling-field
+
+# Verificar estado
+docker-compose -f docker-compose.static.yml ps
+```
+
+---
+
+## 🎯 **Próximos Desarrollos Sugeridos**
+
+### Funcionalidades Potenciales
+1. **Sistema de contacto** con formularios
+2. **Blog/Noticias** usando Directus
+3. **Panel de administración** personalizado
+4. **Métricas y analytics** 
+5. **Optimizaciones SEO** avanzadas
+
+### Mejoras Técnicas
+1. **Testing automatizado** (Jest, Playwright)
+2. **CI/CD pipeline** (GitHub Actions)
+3. **Monitoreo** (logs, métricas)
+4. **Backup automatizado**
+5. **CDN** para imágenes
+
+---
+
+## 🚀 **Comando de Inicio Inmediato**
+
+```bash
+# 1. Clonar y configurar
+git clone https://github.com/martinsantos/um25.git
+cd fumbling-field
+npm install
+
+# 2. Iniciar desarrollo
+npm run dev
+
+# 3. Verificar funcionamiento
+curl http://localhost:4321
+
+# 4. Acceder a admin (opcional)
+# http://localhost:8055
+# admin@example.com / d1r3ctu5
+```
+
+---
+
+## 📚 **Recursos de Referencia**
+
+- **Documentación completa**: `solucionfinal.md`
+- **Repositorio**: https://github.com/martinsantos/um25.git
+- **Tag estable**: `UM25-0.3`
+- **Servidor producción**: www.umbot.com.ar
+
+---
+
+## 💡 **Filosofía de Desarrollo**
+
+**Principios establecidos**:
+- **Funcionalidad sobre complejidad**
+- **UI/UX moderna y consistente**
+- **Fallbacks robustos**
+- **Documentación exhaustiva**
+- **Scripts automatizados**
+
+**Estilo de código**:
+- **Componentes reutilizables**
+- **Efectos visuales modernos**
+- **Responsive design**
+- **Accesibilidad incluida**
+
+---
+
+## 🎉 **Mensaje Final**
+
+**Tienes en tus manos un proyecto 100% funcional y bien documentado**. El sistema está listo para continuar el desarrollo sin interrupciones. Todos los patrones, herramientas y configuraciones están establecidos y probados.
+
+**Tu primera tarea**: Ejecutar los comandos de inicio y familiarizarte con la estructura. **Tu segunda tarea**: Identificar qué funcionalidad nueva quieres implementar usando los patrones existentes.
+
+**El proyecto está esperando por ti** 🚀
+
+---
+
+*Este briefing contiene toda la información necesaria para que puedas continuar el desarrollo de manera eficiente y consistente con lo ya implementado.*

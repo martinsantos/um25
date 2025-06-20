@@ -27,9 +27,10 @@ directus_data/
 tmp/
 temp/
 
-# Archivos de entorno (excepto .env.example)
+# Archivos de entorno (excepto .env.example y .env)
 .env*
 !.env.example
+!.env
 
 # Archivos de caché
 .cache/

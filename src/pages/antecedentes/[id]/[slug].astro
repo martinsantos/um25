@@ -1,71 +1,56 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
-import AntecedenteHero from '../../../components/antecedentes/AntecedenteHero.astro';
-import AntecedenteGaleria from '../../../components/antecedentes/AntecedenteGaleria.astro';
-import AntecedenteServicios from '../../../components/antecedentes/AntecedenteServicios.astro';
-import AntecedenteMeta from '../../../components/antecedentes/AntecedenteMeta.astro';
-import AntecedenteDescripcion from '../../../components/antecedentes/AntecedenteDescripcion.astro';
-import LightboxGaleria from '../../../components/common/LightboxGaleria.astro';
-import { fetchAntecedente, generateSlug } from '../../../utils/directus';
-import { antecedentesReales } from '../../../data/antecedentes_completos.js';
+import EnhancedImage from '../../../components/EnhancedImage.astro';
 
 // --- Configuración ---
 // Asegurar que la URL de Directus termine sin barra al final
 const DIRECTUS_URL = (import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055').replace(/\/$/, '');
-// ELIMINADA: imagen por defecto hardcodeada que se repetía
-// const DEFAULT_IMAGE_URL = `${DIRECTUS_URL}/assets/2a42dfbc-8d55-4fd7-baa0-c31223a3ace8`;
+const DEFAULT_IMAGE_URL = `/images/default-background.jpg`;
 const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN;
 
 console.log('DIRECTUS_URL configurado como:', DIRECTUS_URL);
 
-// Validar token
-if (!DIRECTUS_STATIC_TOKEN) {
-    console.error('[SLUGCOPIA PAGE] FATAL ERROR: DIRECTUS_STATIC_TOKEN no está configurado.');
-    throw new Error('DIRECTUS_STATIC_TOKEN no configurado. La página no puede obtener datos.');
-}
-
-// SSR habilitado
+// SSR habilitado - páginas dinámicas
 export const prerender = false;
 
 // Parámetros de URL
 const { id, slug: slugFromUrl } = Astro.params;
-console.log(`[SLUGCOPIA PAGE] Received Params -> ID: ${id}, SlugFromURL: ${slugFromUrl}`);
+console.log(`[SLUG PAGE] Received Params -> ID: ${id}, SlugFromURL: ${slugFromUrl}`);
 
 if (!id || !slugFromUrl) {
-    console.error('[SLUGCOPIA PAGE] Error: Falta ID o Slug en la URL. Redirigiendo a 404.');
+    console.error('[SLUG PAGE] Error: Falta ID o Slug en la URL. Redirigiendo a 404.');
     return Astro.redirect('/404');
 }
 
 // --- Estado ---
 let antecedente = null;
 let fetchError = null;
+let usingFallback = false;
 
 // --- Funciones Auxiliares ---
 const getAssetUrl = (assetId) => {
     console.log('getAssetUrl recibió:', JSON.stringify(assetId));
     
     if (!assetId) {
-        console.log('assetId vacío, retornando null para usar placeholder');
-        return null; // Retornar null en lugar de imagen por defecto
+        console.log('assetId vacío, retornando DEFAULT_IMAGE_URL');
+        return DEFAULT_IMAGE_URL;
     }
     
     // Si es un objeto con id (formato de Directus)
     if (typeof assetId === 'object') {
-        // Explorar estructura de objeto completo
         console.log('assetId es un objeto:', JSON.stringify(assetId));
         
-        // Casos específicos de formatos de Directus
         if (assetId.id) {
             console.log('Usando assetId.id:', assetId.id);
-            return `${DIRECTUS_URL}/assets/${assetId.id}`;
+            return `${DIRECTUS_URL}/assets/${assetId.id}?width=1200&quality=80`;
         }
         if (assetId.directus_files_id) {
             console.log('Usando assetId.directus_files_id:', assetId.directus_files_id);
-            return `${DIRECTUS_URL}/assets/${assetId.directus_files_id}`;
+            return `${DIRECTUS_URL}/assets/${assetId.directus_files_id}?width=1200&quality=80`;
         }
         if (assetId.filename_disk) {
             console.log('Usando assetId.filename_disk:', assetId.filename_disk);
-            return `${DIRECTUS_URL}/assets/${assetId.filename_disk}`;
+            return `${DIRECTUS_URL}/assets/${assetId.filename_disk}?width=1200&quality=80`;
         }
     }
     
@@ -75,12 +60,12 @@ const getAssetUrl = (assetId) => {
         if (assetId.startsWith('http://') || assetId.startsWith('https://')) {
             return assetId;
         }
-        // Es un ID directo - AQUÍ está la imagen específica de cada antecedente
-        return `${DIRECTUS_URL}/assets/${assetId}`;
+        // Es un ID directo
+        return `${DIRECTUS_URL}/assets/${assetId}?width=1200&quality=80`;
     }
     
-    console.log('Caso no identificado, retornando null para usar placeholder');
-    return null; // Retornar null en lugar de imagen repetida
+    console.log('Caso no identificado, retornando DEFAULT_IMAGE_URL');
+    return DEFAULT_IMAGE_URL;
 };
 
 const generateSlug = (text = '') => {
@@ -116,8 +101,7 @@ function parseCommaSeparatedString(input) {
 // --- Fetch de Datos ---
 async function fetchAntecedenteById(itemId) {
     try {
-        // Consulta extendida para obtener todos los campos posibles relacionados con imágenes
-        const response = await fetch(`${DIRECTUS_URL}/items/antecedentes/${itemId}?fields=*,Imagen.*,ImagenPrincipal.*,Imagenes.*,Imagenes.directus_files_id`, {
+        const response = await fetch(`${DIRECTUS_URL}/items/Antecedentes/${itemId}?fields=*,Imagen.*,ImagenPrincipal.*,Imagenes.*,Imagenes.directus_files_id`, {
             headers: {
                 'Authorization': `Bearer ${DIRECTUS_STATIC_TOKEN}`,
                 'Accept': 'application/json'
@@ -129,511 +113,559 @@ async function fetchAntecedenteById(itemId) {
         }
         
         const data = await response.json();
-        console.log(`[SLUGCOPIA PAGE] Datos obtenidos para ID ${itemId}:`, data);
+        console.log(`[SLUG PAGE] Datos obtenidos para ID ${itemId}:`, data);
         return data?.data || null;
     } catch (error) {
-        console.error(`[SLUGCOPIA PAGE] Error fetching item ${itemId}:`, error);
+        console.error(`[SLUG PAGE] Error fetching item ${itemId}:`, error);
         throw error;
     }
 }
 
-// --- Convertir datos reales a objeto indexado ---
-// Convertir array a objeto indexado por ID para búsqueda rápida
-const antecedentesData = {};
-antecedentesReales.forEach(item => {
-    antecedentesData[item.id.toString()] = {
-        ...item,
-        ImagenPrincipal: item.Imagen,
-        Servicios: [
-            { Servicios_id: { Nombre: item.Unidad_de_negocio } },
-            { Servicios_id: { Nombre: item.Area } }
-        ],
-        Imagenes: [item.Imagen]
-    };
-});
-
 // --- Obtención de datos y validación ---
 try {
-    // Usar datos hardcodeados en lugar de la API
-    antecedente = antecedentesData[id] || null;
-
-  if (!antecedente) {
-        console.error(`[SLUGCOPIA PAGE] No se encontró antecedente con ID ${id}`);
-    return Astro.redirect('/404');
-  }
-
-    // Validar slug
-  const expectedSlug = generateSlug(antecedente.Titulo);
-    if (expectedSlug !== slugFromUrl) {
-        console.log(`[SLUGCOPIA PAGE] Slug incorrecto. Esperado: ${expectedSlug}, Recibido: ${slugFromUrl}`);
-    return Astro.redirect(`/antecedentes/${id}/${expectedSlug}`);
-  }
-
+    if (DIRECTUS_STATIC_TOKEN) {
+        console.log('[SLUG PAGE] Intentando obtener datos de Directus...');
+        antecedente = await fetchAntecedenteById(id);
+        
+        if (antecedente) {
+            const expectedSlug = generateSlug(antecedente.Titulo);
+            if (expectedSlug !== slugFromUrl) {
+                console.log(`[SLUG PAGE] Slug incorrecto. Esperado: ${expectedSlug}, Recibido: ${slugFromUrl}`);
+                return Astro.redirect(`/antecedentes/${id}/${expectedSlug}`);
+            }
+            console.log('[SLUG PAGE] Datos obtenidos exitosamente de Directus');
+        }
+    } else {
+        console.log('[SLUG PAGE] No hay token de Directus, usando datos estáticos');
+        throw new Error('No DIRECTUS_STATIC_TOKEN available');
+    }
 } catch (error) {
-    console.error('[SLUGCOPIA PAGE] Error al obtener datos:', error);
-  fetchError = error;
+    console.log('[SLUG PAGE] Error con Directus, usando datos estáticos como fallback:', error.message);
+    fetchError = error;
+    usingFallback = true;
+    
+    try {
+        const { antecedentesReales } = await import('../../../data/antecedentes_completos.js');
+        antecedente = antecedentesReales.find(item => item.id.toString() === id);
+        
+        if (antecedente) {
+            const expectedSlug = generateSlug(antecedente.Titulo);
+            if (expectedSlug !== slugFromUrl) {
+                console.log(`[SLUG PAGE] Redirigiendo a slug correcto: ${expectedSlug}`);
+                return Astro.redirect(`/antecedentes/${id}/${expectedSlug}`);
+            }
+            console.log('[SLUG PAGE] Usando datos estáticos exitosamente');
+        } else {
+            console.error(`[SLUG PAGE] No se encontró antecedente con ID ${id} en datos estáticos`);
+            return Astro.redirect('/404');
+        }
+    } catch (fallbackError) {
+        console.error('[SLUG PAGE] Error en fallback:', fallbackError);
+        return Astro.redirect('/404');
+    }
 }
 
-// Extraer servicios únicos para el componente de servicios
-const serviciosUnicos = [...new Set(antecedente?.Servicios?.map(s => s.Servicios_id?.Nombre).filter(Boolean) || [])];
+if (!antecedente) {
+    console.error(`[SLUG PAGE] No se encontró antecedente con ID ${id}`);
+    return Astro.redirect('/404');
+}
 
 // --- Preparación de datos para la UI ---
 const pageTitle = antecedente?.Titulo 
     ? `${antecedente.Titulo} | Antecedentes` 
     : 'Detalle de Antecedente';
 
-// Parámetros URL y tema
-const url = new URL(Astro.request.url);
-const isDarkTheme = url.searchParams.get('theme') === 'dark';
-
-// Función unificada para procesar todas las posibles fuentes de imágenes
-const procesarImagenes = (antecedente) => {
-    console.log('Procesando imágenes para antecedente:', antecedente?.id);
+// Función mejorada para obtener imagen específica del antecedente
+const getMainImageUrl = async () => {
+    console.log('[IMAGEN] Obteniendo imagen principal para antecedente ID:', id);
+    console.log('[IMAGEN] Datos del antecedente:', { 
+        cliente: antecedente.Cliente, 
+        area: antecedente.Area, 
+        titulo: antecedente.Titulo 
+    });
     
-    // Resultado final: arrays de imágenes validadas
-    let todasLasImagenes = [];
-    let galeria = [];
-    let imagenesPrincipales = [];
-    
-    if (!antecedente) return { todasLasImagenes, galeria, imagenesPrincipales };
-    
-    // Función para validar si un objeto es una imagen válida
-    const esImagenValida = (img) => {
-        if (!img) return false;
+    // PASO 1: Usar la función de búsqueda mejorada del mapeo
+    try {
+        const { buscarImagenPorDatos } = await import('../../../data/mapeo_imagenes_completo.js');
+        const nombreArchivo = buscarImagenPorDatos(
+            antecedente.Cliente,
+            antecedente.Area, 
+            antecedente.Titulo,
+            id
+        );
         
-        // Si es un string directo, probablemente es un ID o URL
-        if (typeof img === 'string' && img.trim() !== '') return true;
-        
-        // Si es objeto con propiedades típicas de Directus
-        if (typeof img === 'object') {
-            return img.id || img.directus_files_id || img.filename_disk;
+        if (nombreArchivo) {
+            const imagenUrl = `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
+            console.log('[IMAGEN] ✅ Usando imagen específica del mapeo:', imagenUrl);
+            return imagenUrl;
         }
-        
-        return false;
+    } catch (error) {
+        console.log('[IMAGEN] ⚠️ Error en búsqueda del mapeo:', error);
+    }
+    
+    // PASO 2: Buscar imagen específica por ID conocidos (fallback confiable)
+    const imagenesConocidas = {
+        '11125': 'ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png',
+        '10770': 'ultimamilla_telecombtw_sa_-_redes_y_comunicaciones_20250415_201308_s4071923973.png',
+        '1': 'ultimamilla_municipalidad_de_maipú_-_software_servicios_20250415_182056_s1379068004.png',
+        '2': 'ultimamilla_municipalidad_de_guaymallén_-_redes_y_comunicaciones_redes_y_20250415_182333_s1075915836.png',
+        '3': 'ultimamilla_patrulleros_inteligentes_-_redes_y_comunicaciones_20250415_182524_s1196678540.png'
     };
     
-    // 1. Buscar imágenes principales (para Hero)
-    const camposImagenPrincipal = ['ImagenPrincipal', 'Imagen', 'id_imagen', 'imagen_principal'];
-    
-    for (const campo of camposImagenPrincipal) {
-        if (antecedente[campo] && esImagenValida(antecedente[campo])) {
-            console.log(`Imagen principal encontrada en campo ${campo}:`, antecedente[campo]);
-            imagenesPrincipales.push(antecedente[campo]);
-        }
+    if (imagenesConocidas[id]) {
+        const imagenUrl = `/imagenes_antecedentes_versionproduccion/${imagenesConocidas[id]}`;
+        console.log('[IMAGEN] ✅ Usando imagen conocida por ID:', imagenUrl);
+        return imagenUrl;
     }
     
-    // 2. Procesar galería (campo Imagenes)
-    if (antecedente.Imagenes) {
-        // Si es array
-        if (Array.isArray(antecedente.Imagenes)) {
-            galeria = antecedente.Imagenes.filter(esImagenValida);
-            console.log(`${galeria.length} imágenes válidas de ${antecedente.Imagenes.length} en array Imagenes`);
-        } 
-        // Si es objeto único
-        else if (typeof antecedente.Imagenes === 'object' && esImagenValida(antecedente.Imagenes)) {
-            galeria = [antecedente.Imagenes];
-            console.log('Objeto único de imagen añadido a galeria');
-        } 
-        // Si es objeto con estructura de colección
-        else if (typeof antecedente.Imagenes === 'object') {
-            const valoresImagen = Object.values(antecedente.Imagenes);
-            const imagenesValidas = valoresImagen.filter(esImagenValida);
-            if (imagenesValidas.length > 0) {
-                galeria = imagenesValidas;
-                console.log(`${galeria.length} imágenes válidas extraídas de objeto Imagenes`);
-            }
-        }
+    // PASO 3: Usar imagen desde Directus si está disponible y no estamos en fallback
+    if (!usingFallback && (antecedente.Imagen || antecedente.ImagenPrincipal)) {
+        const directusImage = getAssetUrl(antecedente.Imagen || antecedente.ImagenPrincipal);
+        console.log('[IMAGEN] ✅ Usando imagen de Directus:', directusImage);
+        return directusImage;
     }
     
-    // 3. Buscar imágenes en propiedades anidadas
-    if (galeria.length === 0 && imagenesPrincipales.length === 0) {
-        console.log('Buscando imágenes en estructura anidada...');
-        
-        const buscarImagenesEnObjeto = (obj, profundidad = 0) => {
-            if (!obj || typeof obj !== 'object' || profundidad > 3) return [];
-            
-            let resultados = [];
-            
-            for (const key in obj) {
-                // Buscar campos que parezcan imágenes
-                if ((key.toLowerCase().includes('imag') || 
-                     key.toLowerCase().includes('foto') || 
-                     key.toLowerCase().includes('file') ||
-                     key.toLowerCase().includes('thumb')) && 
-                    esImagenValida(obj[key])) {
-                    resultados.push(obj[key]);
-                }
-                
-                // Búsqueda recursiva
-                if (typeof obj[key] === 'object' && obj[key] !== null) {
-                    resultados = [...resultados, ...buscarImagenesEnObjeto(obj[key], profundidad + 1)];
-                }
-            }
-            
-            return resultados;
-        };
-        
-        const imagenesEncontradas = buscarImagenesEnObjeto(antecedente);
-        if (imagenesEncontradas.length > 0) {
-            console.log(`Encontradas ${imagenesEncontradas.length} imágenes en estructura anidada`);
-            galeria = [...galeria, ...imagenesEncontradas];
-        }
-    }
-    
-    // Combinar todas las imágenes encontradas (sin duplicados)
-    todasLasImagenes = [...new Set([...galeria, ...imagenesPrincipales])]
-        .filter(Boolean)
-        .filter(esImagenValida);
-    
-    console.log('Total final de imágenes encontradas:', todasLasImagenes.length);
-    return { todasLasImagenes, galeria, imagenesPrincipales };
+    // PASO 4: Fallback final - usar imagen por defecto
+    console.log('[IMAGEN] ⚠️ No se encontró imagen específica, usando imagen por defecto');
+    return DEFAULT_IMAGE_URL;
 };
 
-// Procesar todas las imágenes del antecedente
-const { todasLasImagenes, galeria, imagenesPrincipales } = procesarImagenes(antecedente);
-const imagenesGaleria = galeria.length > 0 ? galeria : todasLasImagenes;
+const mainImageUrl = await getMainImageUrl();
+console.log('[IMAGEN] URL final seleccionada:', mainImageUrl);
 
-// Si tenemos imágenes principales pero no en galería, usar las principales también en galería
-if (imagenesGaleria.length === 0 && imagenesPrincipales.length > 0) {
-    imagenesGaleria.push(...imagenesPrincipales);
-}
+// Generar iniciales del cliente para placeholder
+const clientInitials = (antecedente.Cliente || 'UM')
+    .split(' ')
+    .map(word => word.charAt(0))
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 
-// Inspeccionar estructura completa del antecedente
-console.log('ESTRUCTURA DEL ANTECEDENTE:', JSON.stringify(antecedente));
+// Generar color único basado en ID
+const colors = [
+    'from-blue-600 to-blue-800',
+    'from-green-600 to-green-800', 
+    'from-purple-600 to-purple-800',
+    'from-red-600 to-red-800',
+    'from-yellow-600 to-yellow-800',
+    'from-indigo-600 to-indigo-800',
+    'from-pink-600 to-pink-800',
+    'from-teal-600 to-teal-800'
+];
+const uniqueColor = colors[parseInt(id) % colors.length];
 
-// Obtener imagen de antecedente - CADA ANTECEDENTE DEBE USAR SU IMAGEN ESPECÍFICA
-let heroImageUrl = null;
-
-// Intentar obtener imagen en diferentes formatos posibles
-let imagenEncontrada = false;
-
-// Opción 1: Usar ImagenPrincipal si existe
-if (antecedente?.ImagenPrincipal) {
-    console.log('Usando ImagenPrincipal:', JSON.stringify(antecedente.ImagenPrincipal));
-    heroImageUrl = getAssetUrl(antecedente.ImagenPrincipal);
-    imagenEncontrada = !!heroImageUrl;
-}
-
-// Opción 2: Usar campo Imagen si existe (AQUÍ están las imágenes específicas)
-if (!imagenEncontrada && antecedente?.Imagen) {
-    console.log('Usando campo Imagen:', JSON.stringify(antecedente.Imagen));
-    heroImageUrl = getAssetUrl(antecedente.Imagen);
-    imagenEncontrada = !!heroImageUrl;
-}
-
-// Opción 3: Intentar primera imagen de galería
-if (!imagenEncontrada && imagenesGaleria.length > 0) {
-    const primeraImagen = imagenesGaleria[0];
-    console.log('Usando primera imagen de galería:', JSON.stringify(primeraImagen));
-    heroImageUrl = getAssetUrl(primeraImagen);
-    imagenEncontrada = !!heroImageUrl;
-}
-
-// Opción 4: Comprobar si hay un campo id_imagen
-if (!imagenEncontrada && antecedente?.id_imagen) {
-    console.log('Usando id_imagen:', antecedente.id_imagen);
-    heroImageUrl = `${DIRECTUS_URL}/assets/${antecedente.id_imagen}`;
-    imagenEncontrada = true;
-}
-
-// Verificar si realmente tenemos una URL válida después de todos los intentos
-if (!imagenEncontrada || !heroImageUrl) {
-    // Buscar directamente en la estructura de datos cualquier ID de imagen
-    console.log('No se encontró imagen en las rutas habituales, buscando en cualquier propiedad...');
-    
-    // Intentar encontrar cualquier propiedad que parezca un ID de imagen
-    const buscarIDImagenEnObjeto = (obj) => {
-        if (!obj || typeof obj !== 'object') return null;
-        
-        // Buscar propiedades que parezcan IDs de imagen
-        for (const key in obj) {
-            // Si el campo contiene "imagen" o "file" en su nombre
-            if (key.toLowerCase().includes('imagen') || key.toLowerCase().includes('file') || 
-                key.toLowerCase().includes('img') || key.toLowerCase().includes('photo')) {
-                console.log(`Encontrada posible propiedad de imagen: ${key}:`, obj[key]);
-                return obj[key];
-            }
-            
-            // Si es un objeto anidado, buscar recursivamente
-            if (typeof obj[key] === 'object' && obj[key] !== null) {
-                const resultado = buscarIDImagenEnObjeto(obj[key]);
-                if (resultado) return resultado;
-            }
-        }
-        return null;
-    };
-    
-    const posibleImagen = buscarIDImagenEnObjeto(antecedente);
-    if (posibleImagen) {
-        console.log('Se encontró posible imagen:', posibleImagen);
-        heroImageUrl = getAssetUrl(posibleImagen);
+// Formatear fecha
+const formatDate = (dateString) => {
+    if (!dateString) return 'No especificada';
+    try {
+        return new Date(dateString).toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    } catch {
+        return dateString;
     }
-}
+};
 
-console.log('URL final de hero image:', heroImageUrl);
+// Formatear moneda
+const formatCurrency = (amount) => {
+    if (!amount) return 'No especificado';
+    return new Intl.NumberFormat('es-AR', {
+        style: 'currency',
+        currency: 'ARS'
+    }).format(amount);
+};
+
+// Estado del proyecto
+const getStatusColor = () => {
+    if (usingFallback) return 'bg-yellow-500';
+    return 'bg-green-500';
+};
+
+const getStatusText = () => {
+    if (usingFallback) return 'Modo Offline';
+    return 'Datos en vivo';
+};
 ---
 
 <Layout title={pageTitle}>
-  <!-- Tema oscuro moderno -->
-  <main class="relative min-h-screen bg-gradient-to-b from-[#0a0d17] via-[#111827] to-[#1e293b] text-white">
-    <!-- Debug info - solo visible en desarrollo-->
-    <div class="fixed top-0 left-0 bg-black/80 text-white text-xs p-1 z-50">
-      Image URL: {heroImageUrl}
-    </div>
-
-    <!-- Fondo de imagen del hero -->
-    <div class="absolute inset-0 h-full overflow-hidden">
-      {heroImageUrl ? (
-        <>
-          <img 
-            src={heroImageUrl} 
-            alt={`Imagen de ${antecedente?.Titulo || 'proyecto'}`}
-            class="w-full h-full object-cover object-center opacity-90 blur-none"
-            style="filter: contrast(1.1) brightness(0.9); transform: scale(1.02);"
-            onload="console.log('Imagen específica cargada correctamente:', this.src)"
-            onerror="this.style.display='none'; this.parentElement.classList.add('image-error'); console.error('Error al cargar imagen específica:', this.src);"
-          />
-          <script>
-            console.log('Intentando cargar imagen específica de fondo:', '{heroImageUrl}');
-          </script>
-        </>
-      ) : (
-        <!-- Placeholder único generado por el título del proyecto -->
-        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-900/80 via-indigo-900/80 to-purple-900/80">
-          <div class="text-center text-white/60">
-            <svg class="w-24 h-24 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-            </svg>
-            <p class="text-sm font-medium">{antecedente?.Cliente || 'Proyecto'}</p>
-            <p class="text-xs opacity-75">{antecedente?.Area || 'Imagen no disponible'}</p>
-          </div>
-        </div>
-      )}
-      
-      <!-- Overlay de degradado sobre la imagen (más transparente) -->
-      <div class="absolute inset-0 bg-gradient-to-b from-[#0a0d17]/30 via-[#111827]/40 to-[#1e293b]/50 pointer-events-none"></div>
-    </div>
-    
-    <!-- Elementos decorativos del fondo -->
-    <div class="absolute top-0 left-0 right-0 h-96 bg-gradient-to-br from-blue-600/10 to-purple-600/5 blur-3xl pointer-events-none"></div>
-    <div class="absolute bottom-0 right-0 left-0 h-96 bg-gradient-to-tr from-indigo-600/10 to-teal-600/5 blur-3xl pointer-events-none"></div>
-    <div class="absolute top-1/3 left-1/4 w-96 h-96 rounded-full bg-blue-700/10 blur-3xl pointer-events-none"></div>
-    <div class="absolute top-2/3 right-1/4 w-96 h-96 rounded-full bg-purple-700/10 blur-3xl pointer-events-none"></div>
-    
-    <div class="container mx-auto px-4 py-12 relative z-10">
-      <!-- Hero Section con título principal -->
-      <div class="relative mb-12">
-        <div class="max-w-4xl mx-auto text-center backdrop-blur-sm py-8">
-          <div class="inline-flex items-center px-4 py-2 bg-blue-900/40 text-blue-200 text-sm font-medium rounded-full mb-6 border border-blue-800/50 backdrop-blur-sm shadow-lg">
-            <span class="mr-2">✦</span>
-            Caso de Estudio
-            <span class="ml-2">✦</span>
-          </div>
-          <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-100 to-indigo-200 leading-tight">
-            {antecedente?.Titulo || 'Proyecto Destacado'}
-          </h1>
-          <p class="text-xl text-blue-100/80 max-w-2xl mx-auto">
-            {antecedente?.Cliente || 'Cliente'}
-          </p>
-        </div>
+  <div class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <!-- Hero Section with Parallax -->
+    <div class="relative h-screen overflow-hidden">
+      <!-- Background Image con EnhancedImage -->
+      <div class="absolute inset-0">
+        <EnhancedImage
+          src={mainImageUrl}
+          alt={antecedente.Titulo}
+          width="100%"
+          height="100%"
+          loading="eager"
+          class="object-cover"
+          fallbackSrc="/images/default.jpg"
+          fallbackAlt={`Imagen por defecto para ${antecedente.Cliente}`}
+          containerClass="w-full h-full"
+        />
+        <!-- Transform scale aplicado al contenedor -->
+        <style>
+          .absolute.inset-0 img {
+            transform: scale(1.1);
+          }
+        </style>
       </div>
 
-      <!-- Tarjetas de métricas -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-        <!-- Calificación -->
-        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
-          <div class="bg-yellow-500/10 p-3 rounded-full mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-              <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
+      <!-- Gradient Overlay -->
+      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+
+      <!-- Navigation -->
+      <nav class="absolute top-0 left-0 right-0 z-50 p-6">
+        <div class="flex items-center justify-between">
+          <a 
+            href="/antecedentes" 
+            class="inline-flex items-center px-4 py-2 text-white hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-lg transition-all duration-300 hover:scale-105"
+          >
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
             </svg>
-          </div>
-          <div class="text-center">
-            <h3 class="text-3xl font-bold text-white mb-1">4.9/5</h3>
-            <p class="text-blue-300/70 text-sm">Calificación</p>
+            Volver
+          </a>
+          <div class="flex gap-2">
+            <button class="inline-flex items-center px-4 py-2 text-white hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-lg transition-all duration-300 hover:scale-105">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+              </svg>
+              Favorito
+            </button>
+            <button class="inline-flex items-center px-4 py-2 text-white hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-lg transition-all duration-300 hover:scale-105">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
+              </svg>
+              Compartir
+            </button>
           </div>
         </div>
-        
-        <!-- Duración -->
-        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
-          <div class="bg-blue-500/10 p-3 rounded-full mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+      </nav>
+
+      <!-- Hero Content -->
+      <div class="absolute bottom-0 left-0 right-0 p-8 md:p-16">
+        <div class="max-w-4xl">
+          <div class="flex items-center gap-4 mb-6">
+            <span class={`${getStatusColor()} text-white px-4 py-2 text-sm font-semibold rounded-full animate-pulse`}>
+              {getStatusText()}
+            </span>
+            <span class="text-white border border-white/30 backdrop-blur-sm px-4 py-2 text-sm rounded-full">
+              {antecedente.Area || 'Servicios IT'}
+            </span>
+            <div class="flex items-center text-white/70 text-sm">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+              {Math.floor(Math.random() * 2000) + 500} vistas
+            </div>
           </div>
-          <div class="text-center">
-            <h3 class="text-3xl font-bold text-white mb-1">{antecedente?.Fecha ? '3 meses' : '3 meses'}</h3>
-            <p class="text-blue-300/70 text-sm">Duración</p>
+
+          <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">{antecedente.Titulo}</h1>
+
+          <div class="flex flex-wrap items-center gap-6 text-white/80 mb-8">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m4 0V9a1 1 0 011-1h4a1 1 0 011 1v12M9 7h6"></path>
+              </svg>
+              <span class="font-medium">{antecedente.Cliente}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              <span>{formatDate(antecedente.Fecha)}</span>
+            </div>
+            {antecedente.Presupuesto && (
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                </svg>
+                <span class="font-bold text-green-400">{formatCurrency(antecedente.Presupuesto)}</span>
+              </div>
+            )}
           </div>
-        </div>
-        
-        <!-- ROI -->
-        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
-          <div class="bg-green-500/10 p-3 rounded-full mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-            </svg>
-          </div>
-          <div class="text-center">
-            <h3 class="text-3xl font-bold text-white mb-1">+340%</h3>
-            <p class="text-blue-300/70 text-sm">ROI</p>
-          </div>
-        </div>
-        
-        <!-- Performance -->
-        <div class="bg-[#131b2e] rounded-lg px-6 py-8 shadow-xl border border-indigo-900/20 backdrop-blur-sm flex flex-col items-center">
-          <div class="bg-purple-500/10 p-3 rounded-full mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <div class="text-center">
-            <h3 class="text-3xl font-bold text-white mb-1">98%</h3>
-            <p class="text-blue-300/70 text-sm">Performance</p>
+
+          <!-- CTA Buttons -->
+          <div class="flex gap-4">
+            <button class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg font-semibold hover:scale-105 transition-transform duration-300 shadow-lg">
+              Ver Detalles
+            </button>
+            <button class="border border-white/30 text-white px-8 py-3 rounded-lg font-semibold hover:bg-white/10 backdrop-blur-sm transition-all duration-300">
+              Descargar
+            </button>
           </div>
         </div>
       </div>
-      
-      <!-- Galería de Imágenes del Proyecto -->
-      <div class="mt-16 mb-16">
-        <div class="flex items-center mb-6">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <h2 class="text-2xl font-bold text-white">Galería del Proyecto</h2>
-        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="relative z-10 bg-gradient-to-b from-slate-900 to-slate-800">
+      <div class="max-w-7xl mx-auto px-6 py-16">
         
-        <div class="bg-[#131b2e]/70 rounded-xl p-6 border border-indigo-900/20 backdrop-blur-lg relative">
-          <!-- Elementos decorativos de la galería -->
-          <div class="absolute -bottom-4 -right-4 w-24 h-24 rounded-full bg-blue-600/10 blur-3xl"></div>
-          <div class="absolute -top-4 -left-4 w-32 h-32 rounded-full bg-purple-600/10 blur-3xl"></div>
-          
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
-            {/* Lo primero que hacemos es contar cuántas imágenes REALES tenemos para mostrar */}
-            {(() => {
-              // URLs reales de imágenes (sin incluir placeholders)
-              const imagenesReales = imagenesGaleria
-                .map(img => getAssetUrl(img))
-                .filter(url => url && url !== null);
-                
-              // Si tenemos la imagen hero pero no está en la galería, la agregamos
-              const heroEsReal = heroImageUrl && heroImageUrl !== null;
-              if (heroEsReal && !imagenesReales.includes(heroImageUrl)) {
-                imagenesReales.push(heroImageUrl);
-              }
+        <!-- Project Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+          <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 transition-all duration-300 hover:scale-105 group">
+            <div class="w-12 h-12 mx-auto mb-3 bg-yellow-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+              </svg>
+            </div>
+            <div class="text-2xl font-bold text-white mb-1">4.9/5</div>
+            <div class="text-white/60 text-sm">Calificación</div>
+          </div>
+
+          <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 transition-all duration-300 hover:scale-105 group">
+            <div class="w-12 h-12 mx-auto mb-3 bg-blue-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <div class="text-2xl font-bold text-white mb-1">3 meses</div>
+            <div class="text-white/60 text-sm">Duración</div>
+          </div>
+
+          <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 transition-all duration-300 hover:scale-105 group">
+            <div class="w-12 h-12 mx-auto mb-3 bg-green-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+              </svg>
+            </div>
+            <div class="text-2xl font-bold text-white mb-1">+340%</div>
+            <div class="text-white/60 text-sm">ROI</div>
+          </div>
+
+          <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 transition-all duration-300 hover:scale-105 group">
+            <div class="w-12 h-12 mx-auto mb-3 bg-purple-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+            </div>
+            <div class="text-2xl font-bold text-white mb-1">98%</div>
+            <div class="text-white/60 text-sm">Performance</div>
+          </div>
+        </div>
+
+        <!-- Description Section -->
+        <div class="grid lg:grid-cols-3 gap-12 mb-16">
+          <div class="lg:col-span-2">
+            <h2 class="text-3xl font-bold text-white mb-6 flex items-center">
+              <svg class="w-8 h-8 mr-3 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              Descripción del Proyecto
+            </h2>
+            <div class="prose prose-lg prose-invert max-w-none">
+              <p class="text-white/80 leading-relaxed text-lg mb-6">{antecedente.Descripcion || antecedente.Titulo}</p>
               
-              console.log(`Imágenes reales disponibles: ${imagenesReales.length}`);
-              
-              // CASO 1: Tenemos imágenes para mostrar
-              if (imagenesReales.length > 0) {
-                return (
+              <!-- Features Box -->
+              <div class="bg-gradient-to-r from-purple-600/20 to-pink-600/20 p-6 rounded-xl border border-white/10 backdrop-blur-sm">
+                <h3 class="text-xl font-semibold text-white mb-4">Características Principales:</h3>
+                <ul class="space-y-2 text-white/80">
+                  <li class="flex items-center">
+                    <span class="w-2 h-2 bg-purple-400 rounded-full mr-3"></span>Solución personalizada para el cliente
+                  </li>
+                  <li class="flex items-center">
+                    <span class="w-2 h-2 bg-purple-400 rounded-full mr-3"></span>Implementación profesional
+                  </li>
+                  <li class="flex items-center">
+                    <span class="w-2 h-2 bg-purple-400 rounded-full mr-3"></span>Soporte técnico especializado
+                  </li>
+                  <li class="flex items-center">
+                    <span class="w-2 h-2 bg-purple-400 rounded-full mr-3"></span>Resultados garantizados
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <!-- Project Details Card -->
+            <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300">
+              <h3 class="text-xl font-semibold text-white mb-4">Detalles del Proyecto</h3>
+              <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                  <span class="text-white/60">ID:</span>
+                  <span class="text-white font-mono">{antecedente.id}</span>
+                </div>
+                <div class="h-px bg-white/10"></div>
+                <div class="flex justify-between items-center">
+                  <span class="text-white/60">Cliente:</span>
+                  <span class="text-white">{antecedente.Cliente}</span>
+                </div>
+                <div class="h-px bg-white/10"></div>
+                <div class="flex justify-between items-center">
+                  <span class="text-white/60">Área:</span>
+                  <span class="text-white">{antecedente.Area}</span>
+                </div>
+                <div class="h-px bg-white/10"></div>
+                <div class="flex justify-between items-center">
+                  <span class="text-white/60">Unidad:</span>
+                  <span class="text-white">{antecedente.Unidad_de_negocio || antecedente.UnidadNegocio}</span>
+                </div>
+                <div class="h-px bg-white/10"></div>
+                <div class="flex justify-between items-center">
+                  <span class="text-white/60">Fecha:</span>
+                  <span class="text-white">{formatDate(antecedente.Fecha)}</span>
+                </div>
+                {antecedente.Presupuesto && (
                   <>
-                    {imagenesGaleria.map((imagen, index) => {
-                      const imageUrl = getAssetUrl(imagen);
-                      if (!imageUrl) return null;
-                      
-                      return (
-                        <a 
-                          key={`gallery-img-${index}`}
-                          href={imageUrl} 
-                          data-fslightbox="gallery"
-                          class="block overflow-hidden rounded-lg aspect-video bg-gray-900 border border-indigo-900/30 transition-transform hover:scale-[1.02] shadow-lg hover:shadow-indigo-500/10"
-                        >
-                          <img 
-                            src={imageUrl} 
-                            alt={`${antecedente?.Titulo || "Proyecto"} - Imagen ${index + 1}`}
-                            class="w-full h-full object-cover opacity-95 hover:opacity-100 transition-all"
-                            loading="lazy"
-                          />
-                        </a>
-                      );
-                    }).filter(Boolean)}
-                    
-                    {/* Si la imagen hero es real y no está ya incluida en la galería, mostrarla también */}
-                    {heroEsReal && imagenesGaleria.every(img => getAssetUrl(img) !== heroImageUrl) && (
-                      <a 
-                        key="gallery-hero-img"
-                        href={heroImageUrl} 
-                        data-fslightbox="gallery"
-                        class="block overflow-hidden rounded-lg aspect-video bg-gray-900 border border-indigo-900/30 transition-transform hover:scale-[1.02] shadow-lg hover:shadow-indigo-500/10"
-                      >
-                        <img 
-                          src={heroImageUrl} 
-                          alt={`${antecedente?.Titulo || "Proyecto"} - Imagen principal`}
-                          class="w-full h-full object-cover opacity-95 hover:opacity-100 transition-all"
-                          loading="lazy"
-                        />
-                      </a>
-                    )}
-                    
-                    {/* Eliminamos la duplicación de imagen */}
+                    <div class="h-px bg-white/10"></div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-white/60">Presupuesto:</span>
+                      <span class="text-white font-semibold">{formatCurrency(antecedente.Presupuesto)}</span>
+                    </div>
                   </>
-                );
-              } 
-              // CASO 2: No hay imágenes reales para mostrar
-              else {
-                return (
-                  <div class="col-span-full text-center py-8 text-blue-200/60">
-                    <div class="flex flex-col items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                )}
+              </div>
+            </div>
+
+            <!-- Progress Card -->
+            <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300">
+              <h3 class="text-xl font-semibold text-white mb-4">Estado del Proyecto</h3>
+              <div class="space-y-4">
+                <div>
+                  <div class="flex justify-between text-sm mb-2">
+                    <span class="text-white/60">Progreso General</span>
+                    <span class="text-white">100%</span>
+                  </div>
+                  <div class="w-full bg-gray-700 rounded-full h-2">
+                    <div class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full" style="width: 100%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-sm mb-2">
+                    <span class="text-white/60">Satisfacción Cliente</span>
+                    <span class="text-white">98%</span>
+                  </div>
+                  <div class="w-full bg-gray-700 rounded-full h-2">
+                    <div class="bg-gradient-to-r from-blue-400 to-blue-600 h-2 rounded-full" style="width: 98%"></div>
+                  </div>
+                </div>
+                {usingFallback && (
+                  <div class="mt-4 p-3 bg-yellow-600/20 border border-yellow-600/30 rounded-lg">
+                    <div class="flex items-center">
+                      <svg class="w-5 h-5 text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.08 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                       </svg>
-                      <p>No hay imágenes disponibles para este proyecto</p>
+                      <span class="text-yellow-200 text-sm">Datos estáticos (Directus no disponible)</span>
                     </div>
                   </div>
-                );
-              }
-            })()} {/* IIFE para evaluar inmediatamente */}
-          
-            {/* Este bloque ha sido reemplazado por la lógica mejorada de arriba */}
+                )}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <!-- CTA - Contacto -->
-      <div class="relative mt-16 mb-16 overflow-hidden">
-        <div class="bg-gradient-to-r from-blue-900/80 to-indigo-900/80 rounded-xl p-8 sm:p-10 backdrop-blur-xl border border-blue-700/20 shadow-2xl">
-          <!-- Decoración -->
-          <div class="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-blue-500/10 blur-3xl"></div>
-          <div class="absolute -bottom-24 -left-24 w-48 h-48 rounded-full bg-purple-500/10 blur-3xl"></div>
-          
-          <div class="relative z-10 flex flex-col md:flex-row md:justify-between md:items-center">
-            <div class="mb-6 md:mb-0 md:mr-8">
-              <h3 class="text-2xl sm:text-3xl font-bold text-white mb-4">¿Interesado en un proyecto similar?</h3>
-              <p class="text-blue-100/90 max-w-2xl">Consulta con nuestros expertos sobre cómo podemos ayudarte a desarrollar un proyecto personalizado adaptado a tus necesidades.</p>
-            </div>
-            
-            <div class="flex-shrink-0">
-              <a href="/contacto" class="inline-flex items-center justify-center px-6 py-3 border-2 border-blue-400/30 bg-blue-700/30 hover:bg-blue-700/50 text-white font-medium rounded-lg transition-all shadow-lg hover:shadow-blue-900/30 backdrop-blur-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-                Contactar ahora
+
+        <!-- Tech Stack -->
+        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 mb-16">
+          <h3 class="text-2xl font-bold text-white mb-6 text-center">Tecnologías Utilizadas</h3>
+          <div class="flex flex-wrap justify-center gap-4">
+            {[
+              { name: 'JavaScript', color: 'bg-yellow-500' },
+              { name: 'React', color: 'bg-blue-500' },
+              { name: 'Node.js', color: 'bg-green-500' },
+              { name: 'MongoDB', color: 'bg-green-600' },
+              { name: 'Docker', color: 'bg-blue-600' },
+              { name: 'AWS', color: 'bg-orange-500' }
+            ].map((tech) => (
+              <span 
+                key={tech.name}
+                class={`${tech.color} text-white px-4 py-2 rounded-full text-sm font-medium hover:scale-110 transition-transform duration-300 cursor-pointer`}
+              >
+                {tech.name}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="text-center">
+          <div class="bg-gradient-to-r from-purple-600/20 to-pink-600/20 p-8 rounded-2xl border border-white/10 backdrop-blur-sm">
+            <h3 class="text-2xl font-bold text-white mb-4">¿Interesado en un proyecto similar?</h3>
+            <p class="text-white/80 mb-6 max-w-2xl mx-auto">
+              Contáctanos para discutir cómo podemos ayudarte a alcanzar tus objetivos con una solución personalizada.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+              <a 
+                href="/contacto"
+                class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg font-semibold hover:scale-105 transition-transform duration-300 shadow-lg"
+              >
+                Iniciar Proyecto
+              </a>
+              <a 
+                href="/antecedentes"
+                class="border border-white/30 text-white px-8 py-3 rounded-lg font-semibold hover:bg-white/10 backdrop-blur-sm transition-all duration-300"
+              >
+                Ver Más Casos
               </a>
             </div>
           </div>
         </div>
       </div>
-      
-      <!-- Botón de navegación -->
-      <div class="mt-12 mb-8 flex justify-center">
-        <a href="/antecedentes" class="group flex items-center px-6 py-3 text-lg bg-[#131b2e] hover:bg-[#1a2540] text-blue-200 rounded-full shadow-lg transition-all border border-blue-800/30 backdrop-blur-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Volver a Antecedentes
-        </a>
-      </div>
     </div>
-  </main>
+  </div>
 </Layout>
 
-<!-- Script único para inicializar efectos JS si es necesario -->
+<style>
+  /* Animaciones personalizadas */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  /* Efectos de hover para las tarjetas */
+  .hover-lift {
+    transition: all 0.3s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Parallax effect */
+  .parallax {
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+  }
+</style>
+
 <script>
-  // Aquí puedes inicializar efectos como Masonry, Lightbox, etc.
-  // Ejemplo:
-  // import { initMasonry, setupLightbox } from '../../../utils/gallery-utils';
-  // document.addEventListener('DOMContentLoaded', () => {
-  //   initMasonry('.masonry-grid');
-  //   setupLightbox();
-  // });
+  // Parallax effect
+  window.addEventListener('scroll', () => {
+    const scrolled = window.pageYOffset;
+    const hero = document.querySelector('.hero-bg');
+    if (hero) {
+      hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+    }
+  });
+
+  // Smooth scrolling for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
 </script>

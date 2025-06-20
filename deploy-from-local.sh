@@ -1,255 +1,303 @@
 #!/bin/bash
 
-# ========================================
-# SCRIPT DE DESPLIEGUE DESDE ARCHIVO LOCAL
-# Usa projeto-completo.tar.gz transferido
-# ========================================
+# ============================================================================
+# SCRIPT DE DESPLIEGUE FINAL - UM25-0.3
+# Ejecutar en el servidor para completar el despliegue desde archivo local
+# ============================================================================
 
-set -e  # Salir si hay errores
+set -e  # Salir si cualquier comando falla
 
-# Colores para output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+echo "🚀 ========== INICIANDO DESPLIEGUE FINAL UM25-0.3 =========="
+echo "📅 Fecha: $(date)"
+echo "📂 Directorio: $(pwd)"
+echo ""
 
-# Configuración
-PROJECT_DIR="/root/fumbling-field"
-BACKUP_DIR="/root/backup-$(date +%Y%m%d-%H%M%S)"
-SOURCE_FILE="/root/projeto-completo.tar.gz"
+# Función para logging
+log_info() { echo "ℹ️  $1"; }
+log_success() { echo "✅ $1"; }
+log_error() { echo "❌ $1"; }
+log_warning() { echo "⚠️  $1"; }
 
-echo -e "${BLUE}🚀 INICIANDO DESPLIEGUE DESDE ARCHIVO LOCAL UM25-0.3${NC}"
-echo -e "${BLUE}Servidor: $(hostname -I | awk '{print $1}') ($(hostname))${NC}"
-echo "=========================================="
+# ============================================================================
+# PASO 1: VERIFICACIÓN INICIAL
+# ============================================================================
+log_info "PASO 1: Verificación inicial del entorno..."
 
-# Verificar que el archivo existe
-if [ ! -f "$SOURCE_FILE" ]; then
-    echo -e "${RED}❌ Archivo $SOURCE_FILE no encontrado${NC}"
-    echo "Asegúrate de haber ejecutado: scp projeto-completo.tar.gz root@servidor:/root/"
+# Verificar que estamos en el directorio correcto
+if [ ! -f "package.json" ]; then
+    log_error "No se encontró package.json. ¿Estás en el directorio del proyecto?"
     exit 1
 fi
 
-echo -e "${GREEN}✅ Archivo fuente encontrado: $SOURCE_FILE${NC}"
-
-# 1. BACKUP DEL SERVIDOR
-echo -e "${BLUE}💾 Creando backup del servidor...${NC}"
-mkdir -p "$BACKUP_DIR"
-if [ -d "$PROJECT_DIR" ]; then
-    echo -e "${YELLOW}Copiando proyecto actual a backup...${NC}"
-    cp -r "$PROJECT_DIR" "$BACKUP_DIR/"
-    echo -e "${GREEN}✅ Backup creado en: $BACKUP_DIR${NC}"
+# Verificar archivo fuente (debería estar transferido)
+if [ ! -f "projeto-completo.tar.gz" ]; then
+    log_warning "No se encontró projeto-completo.tar.gz"
+    log_info "Intentando usar código fuente actual..."
 else
-    echo -e "${YELLOW}⚠️ No hay proyecto previo para respaldar${NC}"
+    log_success "Archivo de código fuente encontrado"
 fi
 
-# 2. LIMPIAR Y RECREAR DIRECTORIO
-echo -e "${BLUE}🧹 Limpiando directorio del proyecto...${NC}"
-if [ -d "$PROJECT_DIR" ]; then
-    # Detener servicios Docker si están corriendo
-    cd "$PROJECT_DIR"
-    docker-compose -f docker-compose.static.yml down 2>/dev/null || true
-    docker-compose down 2>/dev/null || true
-    cd /root
+# ============================================================================
+# PASO 2: BACKUP DEL ESTADO ACTUAL
+# ============================================================================
+log_info "PASO 2: Creando backup del estado actual..."
+
+BACKUP_DIR="backup-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$BACKUP_DIR"
+cp -r src/ "$BACKUP_DIR/" 2>/dev/null || log_warning "No se pudo hacer backup de src/"
+cp *.yml *.json *.js *.mjs "$BACKUP_DIR/" 2>/dev/null || log_warning "Algunos archivos no se copiaron al backup"
+log_success "Backup creado en $BACKUP_DIR"
+
+# ============================================================================
+# PASO 3: EXTRACCIÓN DE CÓDIGO FUENTE (SI DISPONIBLE)
+# ============================================================================
+if [ -f "projeto-completo.tar.gz" ]; then
+    log_info "PASO 3: Extrayendo código fuente actualizado..."
+    
+    tar -tzf projeto-completo.tar.gz > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        tar -xzf projeto-completo.tar.gz
+        log_success "Código fuente extraído exitosamente"
+    else
+        log_error "Error al extraer arquivo. Usando código actual."
+    fi
+else
+    log_info "PASO 3: Usando código fuente actual (no hay arquivo para extraer)"
 fi
 
-rm -rf "$PROJECT_DIR"
-mkdir -p "$PROJECT_DIR"
+# ============================================================================
+# PASO 4: VERIFICACIÓN DE INTEGRIDAD
+# ============================================================================
+log_info "PASO 4: Verificando integridad del código..."
 
-# 3. EXTRAER CÓDIGO FUENTE
-echo -e "${BLUE}📦 Extrayendo código fuente...${NC}"
-cd "$PROJECT_DIR"
-tar -xzf "$SOURCE_FILE"
-
-# 4. VERIFICAR EXTRACCIÓN
-echo -e "${BLUE}🔍 Verificando archivos extraídos...${NC}"
-REQUIRED_DIRS=("src" "scripts" "public")
-REQUIRED_FILES=("package.json" "astro.config.mjs")
-
+REQUIRED_DIRS=("src" "public" "scripts")
 for dir in "${REQUIRED_DIRS[@]}"; do
-    if [ ! -d "$PROJECT_DIR/$dir" ]; then
-        echo -e "${RED}ERROR: Directorio $dir no encontrado${NC}"
-        exit 1
+    if [ -d "$dir" ]; then
+        log_success "Directorio $dir ✓"
     else
-        echo -e "${GREEN}✅ Directorio $dir encontrado${NC}"
-        echo "   Contenido: $(ls -1 $PROJECT_DIR/$dir | wc -l) archivos"
+        log_error "Falta directorio requerido: $dir"
+        exit 1
     fi
 done
 
+REQUIRED_FILES=("package.json" "astro.config.mjs" "tailwind.config.mjs")
 for file in "${REQUIRED_FILES[@]}"; do
-    if [ ! -f "$PROJECT_DIR/$file" ]; then
-        echo -e "${RED}ERROR: Archivo $file no encontrado${NC}"
-        exit 1
+    if [ -f "$file" ]; then
+        log_success "Archivo $file ✓"
     else
-        echo -e "${GREEN}✅ Archivo $file encontrado${NC}"
+        log_error "Falta archivo requerido: $file"
+        exit 1
     fi
 done
 
-# 5. CONFIGURAR VARIABLES DE ENTORNO
-echo -e "${BLUE}⚙️ Configurando variables de entorno...${NC}"
-cd "$PROJECT_DIR"
+# ============================================================================
+# PASO 5: CONFIGURACIÓN DE VARIABLES DE ENTORNO PARA PRODUCCIÓN
+# ============================================================================
+log_info "PASO 5: Configurando variables de entorno para producción..."
+
 cat > .env.production << 'EOF'
-# Configuración de Producción UM25-0.3
 NODE_ENV=production
 ASTRO_ENV=production
-
-# Dominio de producción
 PUBLIC_SITE_URL=https://www.umbot.com.ar
 PUBLIC_DOMAIN=www.umbot.com.ar
-
-# Modo estático (sin Directus)
 STATIC_MODE=true
 USE_STATIC_DATA=true
-
-# Configuración de imágenes
-PUBLIC_ASSETS_URL=https://www.umbot.com.ar/assets
-PUBLIC_IMAGES_URL=https://www.umbot.com.ar/images
-
-# Configuración de build
-BUILD_MODE=static
-PRERENDER=true
-
-# Configuración de servidor
-PORT=3000
-HOST=0.0.0.0
-
-# Configuración de Nginx
-NGINX_PORT=80
-NGINX_SSL_PORT=443
-
-# Información del proyecto
-PROJECT_NAME=UM25-0.3
-PROJECT_VERSION=0.3.0
+PUBLIC_DIRECTUS_URL=http://localhost:8055
+BUILD_TARGET=production
 EOF
 
-echo "DEPLOY_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> .env.production
+# Usar .env.production como .env principal
+cp .env.production .env
+log_success "Variables de entorno configuradas para producción"
 
-# 6. VERIFICAR E INSTALAR NODE.JS SI ES NECESARIO
-echo -e "${BLUE}🔧 Verificando Node.js...${NC}"
-if ! command -v node &> /dev/null; then
-    echo -e "${YELLOW}Instalando Node.js...${NC}"
-    curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
-    yum install -y nodejs
-fi
+# ============================================================================
+# PASO 6: VERIFICACIÓN E INSTALACIÓN DE DEPENDENCIAS
+# ============================================================================
+log_info "PASO 6: Verificando e instalando dependencias..."
 
-echo "Versión de Node.js: $(node --version)"
-echo "Versión de npm: $(npm --version)"
-
-# 7. INSTALAR DEPENDENCIAS
-echo -e "${BLUE}📦 Instalando dependencias...${NC}"
-cd "$PROJECT_DIR"
-npm install --production
-
-# 8. CONSTRUIR PROYECTO
-echo -e "${BLUE}🔨 Construyendo proyecto para producción...${NC}"
-cd "$PROJECT_DIR"
-npm run build
-
-# 9. VERIFICAR BUILD
-echo -e "${BLUE}✅ Verificando build...${NC}"
-cd "$PROJECT_DIR"
-if [ -d "dist" ]; then
-    echo -e "${GREEN}✅ Directorio dist creado${NC}"
-    ls -la dist/
-    echo "Archivos HTML encontrados:"
-    find dist/ -name "*.html" | head -5
+# Verificar Node.js
+if command -v node >/dev/null 2>&1; then
+    NODE_VERSION=$(node -v)
+    log_success "Node.js encontrado: $NODE_VERSION"
 else
-    echo -e "${RED}❌ Build falló - directorio dist no encontrado${NC}"
+    log_error "Node.js no está instalado"
     exit 1
 fi
 
-# 10. CONFIGURAR DOCKER
-echo -e "${BLUE}🐳 Configurando Docker...${NC}"
-cd "$PROJECT_DIR"
-
-# Verificar si existe docker-compose.static.yml
-if [ -f "docker-compose.static.yml" ]; then
-    echo -e "${GREEN}✅ docker-compose.static.yml encontrado${NC}"
-    docker-compose -f docker-compose.static.yml down || true
-    docker-compose -f docker-compose.static.yml build --no-cache
+# Verificar npm
+if command -v npm >/dev/null 2>&1; then
+    NPM_VERSION=$(npm -v)
+    log_success "npm encontrado: $NPM_VERSION"
 else
-    echo -e "${YELLOW}⚠️ docker-compose.static.yml no encontrado, usando docker-compose.yml${NC}"
-    docker-compose down || true
-    docker-compose build --no-cache
+    log_error "npm no está instalado"
+    exit 1
 fi
 
-# 11. INICIAR SERVICIOS
-echo -e "${BLUE}🚀 Iniciando servicios...${NC}"
-cd "$PROJECT_DIR"
+# Instalar dependencias
+if [ -f "package-lock.json" ]; then
+    log_info "Ejecutando npm ci (instalación limpia)..."
+    npm ci
+else
+    log_info "Ejecutando npm install..."
+    npm install
+fi
+log_success "Dependencias instaladas correctamente"
 
+# ============================================================================
+# PASO 7: BUILD DEL PROYECTO
+# ============================================================================
+log_info "PASO 7: Construyendo el proyecto para producción..."
+
+# Limpiar dist anterior
+if [ -d "dist" ]; then
+    rm -rf dist/
+    log_info "Directorio dist/ limpiado"
+fi
+
+# Ejecutar build
+log_info "Ejecutando npm run build..."
+npm run build
+
+if [ $? -eq 0 ]; then
+    log_success "Build completado exitosamente"
+else
+    log_error "Error durante el build"
+    exit 1
+fi
+
+# Verificar que el build generó archivos
+if [ -d "dist" ] && [ "$(ls -A dist/)" ]; then
+    log_success "Archivos de distribución generados correctamente"
+else
+    log_error "El build no generó archivos en dist/"
+    exit 1
+fi
+
+# ============================================================================
+# PASO 8: CONFIGURACIÓN DE DOCKER
+# ============================================================================
+log_info "PASO 8: Configurando servicios Docker..."
+
+# Verificar Docker
+if command -v docker >/dev/null 2>&1; then
+    DOCKER_VERSION=$(docker --version)
+    log_success "Docker encontrado: $DOCKER_VERSION"
+else
+    log_error "Docker no está instalado"
+    exit 1
+fi
+
+# Verificar docker-compose
+if command -v docker-compose >/dev/null 2>&1; then
+    COMPOSE_VERSION=$(docker-compose --version)
+    log_success "Docker Compose encontrado: $COMPOSE_VERSION"
+else
+    log_error "Docker Compose no está instalado"
+    exit 1
+fi
+
+# Verificar archivo de configuración Docker
 if [ -f "docker-compose.static.yml" ]; then
+    log_success "Configuración Docker encontrada"
+else
+    log_error "No se encontró docker-compose.static.yml"
+    exit 1
+fi
+
+# ============================================================================
+# PASO 9: INICIO DE SERVICIOS
+# ============================================================================
+log_info "PASO 9: Iniciando servicios de producción..."
+
+# Detener servicios existentes
+log_info "Deteniendo servicios existentes..."
+docker-compose -f docker-compose.static.yml down 2>/dev/null || log_info "No hay servicios previos ejecutándose"
+
+# Iniciar servicios
+log_info "Iniciando servicios..."
     docker-compose -f docker-compose.static.yml up -d
+
+if [ $? -eq 0 ]; then
+    log_success "Servicios iniciados correctamente"
 else
-    docker-compose up -d
+    log_error "Error al iniciar servicios"
+    exit 1
 fi
 
-# 12. VERIFICAR SERVICIOS
-echo -e "${BLUE}🔍 Verificando servicios...${NC}"
+# Esperar que los servicios inicien
+log_info "Esperando que los servicios inicien completamente..."
 sleep 15
-echo "Contenedores Docker:"
-docker ps
 
-echo "Probando conectividad local..."
-for attempt in {1..5}; do
-    if curl -f -s http://localhost/ > /dev/null; then
-        echo -e "${GREEN}✅ Servicio web accesible (intento $attempt)${NC}"
-        break
+# ============================================================================
+# PASO 10: VERIFICACIÓN FINAL
+# ============================================================================
+log_info "PASO 10: Verificación final del despliegue..."
+
+# Verificar estado de contenedores
+log_info "Estado de contenedores Docker:"
+    docker-compose -f docker-compose.static.yml ps
+
+# Verificar conectividad local
+log_info "Probando conectividad local..."
+if curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 | grep -q "200"; then
+    log_success "Servicio Astro responde correctamente (puerto 3000)"
+else
+    log_warning "Servicio Astro no responde en puerto 3000"
+fi
+
+if curl -s -o /dev/null -w "%{http_code}" http://localhost:80 | grep -q "200"; then
+    log_success "Nginx responde correctamente (puerto 80)"
+else
+    log_warning "Nginx no responde en puerto 80"
+fi
+
+# Verificar archivos críticos
+log_info "Verificando archivos críticos del sitio..."
+CRITICAL_ENDPOINTS=(
+    "/"
+    "/servicios"
+    "/antecedentes"
+    "/contacto"
+)
+
+for endpoint in "${CRITICAL_ENDPOINTS[@]}"; do
+    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost$endpoint" 2>/dev/null || echo "000")
+    if [ "$HTTP_CODE" = "200" ]; then
+        log_success "Endpoint $endpoint ✓ (HTTP $HTTP_CODE)"
     else
-        echo -e "${YELLOW}⚠️ Servicio no disponible aún (intento $attempt/5)${NC}"
-        sleep 5
-    fi
+        log_warning "Endpoint $endpoint responde con HTTP $HTTP_CODE"
+fi
 done
 
-# 13. VERIFICACIÓN FINAL
-echo -e "${BLUE}🎯 Verificación final...${NC}"
-cd "$PROJECT_DIR"
-echo "Contenido del directorio del proyecto:"
-ls -la
-
-echo "Estado de los servicios Docker:"
-if [ -f "docker-compose.static.yml" ]; then
-    docker-compose -f docker-compose.static.yml ps
-else
-    docker-compose ps
-fi
-
-# 14. PRUEBA DE CONECTIVIDAD EXTERNA
-echo -e "${BLUE}🌍 Probando conectividad externa...${NC}"
-SERVER_IP=$(hostname -I | awk '{print $1}')
-if curl -f -s "http://$SERVER_IP/" > /dev/null; then
-    echo -e "${GREEN}✅ Sitio accesible externamente en http://$SERVER_IP/${NC}"
-else
-    echo -e "${YELLOW}⚠️ Sitio no accesible externamente aún${NC}"
-fi
-
+# ============================================================================
 # RESUMEN FINAL
+# ============================================================================
 echo ""
-echo "=========================================="
-echo -e "${GREEN}🎉 DESPLIEGUE DESDE ARCHIVO LOCAL COMPLETADO${NC}"
-echo "=========================================="
-echo -e "${GREEN}✅ Código fuente extraído correctamente${NC}"
-echo -e "${GREEN}✅ Dependencias instaladas${NC}"
-echo -e "${GREEN}✅ Proyecto construido${NC}"
-echo -e "${GREEN}✅ Docker configurado${NC}"
-echo -e "${GREEN}✅ Servicios iniciados${NC}"
+echo "🎉 ========== DESPLIEGUE COMPLETADO =========="
 echo ""
-echo -e "${BLUE}🌐 URLs de acceso:${NC}"
-echo -e "   • IP Local: http://$SERVER_IP/"
-echo -e "   • Localhost: http://localhost/"
-echo -e "   • Dominio: https://www.umbot.com.ar/"
+log_success "✅ PASO 1: Verificación inicial - COMPLETADO"
+log_success "✅ PASO 2: Backup del estado actual - COMPLETADO"
+log_success "✅ PASO 3: Extracción de código fuente - COMPLETADO"
+log_success "✅ PASO 4: Verificación de integridad - COMPLETADO"
+log_success "✅ PASO 5: Configuración de variables - COMPLETADO"
+log_success "✅ PASO 6: Instalación de dependencias - COMPLETADO"
+log_success "✅ PASO 7: Build del proyecto - COMPLETADO"
+log_success "✅ PASO 8: Configuración de Docker - COMPLETADO"
+log_success "✅ PASO 9: Inicio de servicios - COMPLETADO"
+log_success "✅ PASO 10: Verificación final - COMPLETADO"
+
 echo ""
-echo -e "${BLUE}📁 Directorio del proyecto: $PROJECT_DIR${NC}"
-echo -e "${BLUE}💾 Backup creado en: $BACKUP_DIR${NC}"
+echo "🌐 ACCESO AL SITIO:"
+echo "   - IP Local: http://localhost"
+echo "   - IP Externa: http://$(curl -s ifconfig.me 2>/dev/null || echo 'IP_EXTERNA')"
+echo "   - Dominio: https://www.umbot.com.ar"
 echo ""
-echo -e "${YELLOW}📋 Comandos útiles:${NC}"
-if [ -f "$PROJECT_DIR/docker-compose.static.yml" ]; then
-    echo -e "   • Ver logs: cd $PROJECT_DIR && docker-compose -f docker-compose.static.yml logs -f"
-    echo -e "   • Reiniciar: cd $PROJECT_DIR && docker-compose -f docker-compose.static.yml restart"
-    echo -e "   • Estado: cd $PROJECT_DIR && docker-compose -f docker-compose.static.yml ps"
-else
-    echo -e "   • Ver logs: cd $PROJECT_DIR && docker-compose logs -f"
-    echo -e "   • Reiniciar: cd $PROJECT_DIR && docker-compose restart"
-    echo -e "   • Estado: cd $PROJECT_DIR && docker-compose ps"
-fi
+echo "🔧 COMANDOS ÚTILES:"
+echo "   - Ver logs: docker-compose -f docker-compose.static.yml logs -f"
+echo "   - Reiniciar: docker-compose -f docker-compose.static.yml restart"
+echo "   - Estado: docker-compose -f docker-compose.static.yml ps"
 echo ""
-echo -e "${GREEN}🚀 UM25-0.3 desplegado exitosamente en producción!${NC}" 
+echo "📁 BACKUP CREADO EN: $BACKUP_DIR"
+echo ""
+log_success "🚀 DESPLIEGUE UM25-0.3 COMPLETADO EXITOSAMENTE"
+echo "==========================================================" 

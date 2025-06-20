@@ -10,8 +10,11 @@ services:
     environment:
       - NODE_ENV=production
       - STATIC_MODE=true
-      - PUBLIC_DIRECTUS_URL=disabled
-      - DIRECTUS_STATIC_TOKEN=disabled
+      - USE_STATIC_DATA=true
+      - PUBLIC_DIRECTUS_URL=http://localhost:8055
+      - DIRECTUS_STATIC_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAzOTdkNzkwLWVkOWItNDkxMC1iOWIxLWI4NjJiODZiODUyNiIsInJvbGUiOiI4NWMxZTZiZi1kZWI1LTRjMGYtYWI5Ny1lYjJkZTA0NGYzODUiLCJhcHBfYWNjZXNzIjp0cnVlLCJhZG1pbl9hY2Nlc3MiOnRydWUsImlhdCI6MTc1MDMzODgxMywiZXhwIjoxNzUwMzM5NzEzLCJpc3MiOiJkaXJlY3R1cyJ9.KAEAhsiVWo61Y1YF7SvKkm7tw-7D4iPU4yrjhNxu76w
+    env_file:
+      - .env
     volumes:
       - ./public:/app/public:ro
     networks:
@@ -30,10 +33,8 @@ services:
     container_name: umbot-nginx-static
     ports:
       - "80:80"
-      - "443:443"
     volumes:
       - ./nginx.prod.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
       - ./public/images:/var/www/html/images:ro
     depends_on:
       - umbot-astro-static

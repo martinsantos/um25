@@ -41,13 +41,16 @@ WORKDIR /app
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 astro
 
-# Copiar archivos necesarios
+# Copiar archivos necesarios para SSR
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 
-# Copiar archivos de configuración
+# Copiar archivos de configuración y código fuente necesario
 COPY --from=builder /app/.env* ./
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/astro.config.mjs ./
+COPY --from=builder /app/tsconfig.json ./
 
 # Cambiar propietario de archivos
 RUN chown -R astro:nodejs /app
@@ -63,5 +66,5 @@ ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=4321
 
-# Comando de inicio
-CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "4321"] 
+# Comando de inicio para SSR
+CMD ["node", "./dist/server/entry.mjs"] 
