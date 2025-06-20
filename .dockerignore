@@ -1,40 +1,154 @@
-# Directorios y archivos a ignorar en la construcción de Docker
-node_modules
-npm-debug.log
-dist
-.cache
-coverage
-*.md
-*.log
+# ===========================================
+# 🐳 DOCKERIGNORE OPTIMIZADO
+# ULTiMA MILLA - Fumbling Field
+# ===========================================
+
+# Archivos de configuración de Git
 .git
 .gitignore
-.vscode
-.env*
-.DS_Store
-# scripts/  # Comentado para permitir la inclusión del directorio scripts
-test/
-test-env/
-directus-admin/
-umnueva25/
-antecedentes-single/
+.gitattributes
 
-# Directorios de datos
-local-uploads/
-uploads/
-directus_data/
+# Documentación
+README.md
+*.md
+docs/
+CHANGELOG.md
+LICENSE
+
+# Dependencias que se instalan en el contenedor
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Archivos de build local (se construyen en el contenedor)
+dist/
+.astro/
+.next/
+out/
+build/
+
+# Cache de herramientas
+.npm
+.cache/
+.parcel-cache/
+.turbo/
+
+# Archivos de entorno local
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Archivos de configuración de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Archivos del sistema operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Coverage y testing
+coverage/
+.nyc_output/
+test-results/
+.coverage/
 
 # Archivos temporales
 tmp/
 temp/
+.tmp/
+.temp/
 
-# Archivos de entorno (excepto .env.example y .env)
-.env*
-!.env.example
-!.env
+# Backups y archivos de producción específicos
+backups/
+*.backup
+*.bak
+*.tar.gz
+*.zip
 
-# Archivos de caché
-.cache/
-.astro/
+# Archivos de deploy específicos del proyecto
+deploy-*.tar.gz
+projeto-completo*.tar.gz
+RESPALDO_*.tar.gz
 
-# Archivos de build
-dist/
+# Scripts de setup local (no necesarios en contenedor)
+scripts/setup-local.sh
+scripts/deploy-automated.sh
+
+# Archivos de Docker local
+docker-compose*.yml
+!docker-compose.prod.yml
+Dockerfile.dev
+.dockerignore
+
+# Configuraciones específicas de desarrollo
+.env.example
+.env.development
+
+# Archivos de CI/CD (ya están en el repo, no necesarios en imagen)
+.github/
+
+# Archivos de configuración de herramientas de desarrollo
+.eslintcache
+.stylelintcache
+.prettierrc*
+jest.config.*
+vitest.config.*
+playwright.config.*
+
+# Archivos de monitoreo y métricas (desarrollo)
+.vscode/
+prometheus/
+grafana/
+
+# Directorios específicos del proyecto que no van en producción
+fumbling-field/
+antecedentes/
+antecedentes-single/
+umnueva25/
+directus-admin/uploads/
+local-uploads/
+temp_images/
+temp_uploads/
+imagenes_antecedentes_versionproduccion/
+
+# Archivos SQL de datos específicos
+*.sql
+restore_*.sql
+datos_*.sql
+
+# Archivos de certificados SSL (se manejan por separado)
+certs/
+ssl/
+*.pem
+*.crt
+*.key
+
+# Archivos de configuración de servidor específicos
+nginx/
+caddy/
+apache/
+
+# Archivos de backup de configuración
+*.conf.backup*
+*.yml.backup*
+*.json.backup*

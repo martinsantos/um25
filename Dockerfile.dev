@@ -1,0 +1,65 @@
+# ===========================================
+# 🐳 DOCKERFILE PARA DESARROLLO
+# ULTiMA MILLA - Fumbling Field
+# ===========================================
+
+FROM node:18-alpine AS base
+
+# Instalar dependencias del sistema necesarias para desarrollo
+RUN apk add --no-cache \
+    libc6-compat \
+    curl \
+    git \
+    bash \
+    && rm -rf /var/cache/apk/*
+
+# Crear usuario para desarrollo
+RUN addgroup --system --gid 1001 nodejs \
+    && adduser --system --uid 1001 astro
+
+# Establecer directorio de trabajo
+WORKDIR /app
+
+# Copiar archivos de configuración
+COPY package*.json ./
+COPY astro.config.mjs ./
+COPY tailwind.config.mjs ./
+COPY tsconfig.json ./
+
+# ===========================================
+# ETAPA DE DESARROLLO
+# ===========================================
+FROM base AS development
+
+# Instalar todas las dependencias (incluyendo dev)
+RUN npm install --frozen-lockfile
+
+# Instalar herramientas globales para desarrollo
+RUN npm install -g \
+    @astrojs/cli \
+    nodemon \
+    concurrently
+
+# Cambiar propietario de archivos a usuario de desarrollo
+RUN chown -R astro:nodejs /app
+
+# Cambiar a usuario no-root
+USER astro
+
+# Variables de entorno para desarrollo
+ENV NODE_ENV=development
+ENV HOST=0.0.0.0
+ENV PORT=4321
+ENV ASTRO_TELEMETRY_DISABLED=1
+ENV CHOKIDAR_USEPOLLING=true
+ENV CHOKIDAR_INTERVAL=1000
+
+# Exponer puertos
+EXPOSE 4321 24678
+
+# Health check básico para desarrollo
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:4321 || exit 1
+
+# Comando por defecto para desarrollo
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"] 

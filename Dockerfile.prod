@@ -1,0 +1,115 @@
+# ===========================================
+# 🐳 DOCKERFILE OPTIMIZADO PARA PRODUCCIÓN
+# ULTiMA MILLA - Fumbling Field
+# ===========================================
+
+# Etapa base con dependencias comunes
+FROM node:18-alpine AS base
+
+# Configurar variables de build
+ARG NODE_ENV=production
+ARG ASTRO_TELEMETRY_DISABLED=1
+
+# Instalar dependencias del sistema
+RUN apk add --no-cache \
+    libc6-compat \
+    dumb-init \
+    && rm -rf /var/cache/apk/*
+
+# Crear usuario no-root para seguridad
+RUN addgroup --system --gid 1001 nodejs \
+    && adduser --system --uid 1001 astro
+
+# Establecer directorio de trabajo
+WORKDIR /app
+
+# Copiar archivos de configuración de dependencias
+COPY package*.json ./
+COPY astro.config.mjs ./
+COPY tailwind.config.mjs ./
+COPY tsconfig.json ./
+
+# ===========================================
+# ETAPA 1: INSTALACIÓN DE DEPENDENCIAS
+# ===========================================
+FROM base AS deps
+
+# Instalar dependencias de producción solamente
+RUN npm ci --only=production --frozen-lockfile \
+    && npm cache clean --force
+
+# ===========================================
+# ETAPA 2: BUILD DE DESARROLLO (para testing)
+# ===========================================
+FROM base AS dev-deps
+
+# Instalar todas las dependencias (dev + prod)
+RUN npm ci --frozen-lockfile
+
+# ===========================================
+# ETAPA 3: BUILD DE LA APLICACIÓN
+# ===========================================
+FROM dev-deps AS builder
+
+# Copiar todo el código fuente
+COPY . .
+
+# Variables de entorno para build
+ENV NODE_ENV=production
+ENV ASTRO_TELEMETRY_DISABLED=1
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Construir la aplicación
+RUN npm run build \
+    && npm prune --production \
+    && npm cache clean --force
+
+# ===========================================
+# ETAPA 4: RUNNER PARA PRODUCCIÓN
+# ===========================================
+FROM base AS runner
+
+# Copiar las dependencias de producción
+COPY --from=deps --chown=astro:nodejs /app/node_modules ./node_modules
+
+# Copiar archivos de configuración
+COPY --from=builder --chown=astro:nodejs /app/package*.json ./
+COPY --from=builder --chown=astro:nodejs /app/astro.config.mjs ./
+COPY --from=builder --chown=astro:nodejs /app/tsconfig.json ./
+
+# Copiar el build de la aplicación
+COPY --from=builder --chown=astro:nodejs /app/dist ./dist
+
+# Copiar archivos necesarios para runtime
+COPY --from=builder --chown=astro:nodejs /app/src ./src
+COPY --from=builder --chown=astro:nodejs /app/public ./public
+
+# Cambiar a usuario no-root
+USER astro
+
+# Exponer puerto
+EXPOSE 4321
+
+# Variables de entorno de runtime
+ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+ENV PORT=4321
+ENV ASTRO_TELEMETRY_DISABLED=1
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:4321/health || exit 1
+
+# Comando de inicio con dumb-init para manejo correcto de señales
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "./dist/server/entry.mjs"]
+
+# ===========================================
+# LABELS PARA METADATA
+# ===========================================
+LABEL maintainer="ULTiMA MILLA <admin@umbot.com.ar>"
+LABEL description="Aplicación web ULTiMA MILLA - Fumbling Field"
+LABEL version="1.0.0"
+LABEL org.opencontainers.image.source="https://github.com/martinsantos/um25"
+LABEL org.opencontainers.image.description="ULTiMA MILLA web application"
+LABEL org.opencontainers.image.licenses="MIT" 
