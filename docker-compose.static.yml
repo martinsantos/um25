@@ -33,9 +33,11 @@ services:
     container_name: umbot-nginx-static
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./nginx.prod.conf:/etc/nginx/nginx.conf:ro
       - ./public/images:/var/www/html/images:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - umbot-astro-static
     networks:
