@@ -2789,3 +2789,154 @@ zip -r umbot-emergency-app.zip umbot-emergency-app/
 
 ---
 
+### 🔄 **ACTUALIZACIÓN CRÍTICA - 28 JUNIO 2025 - UM25-0.6**
+
+#### **🚨 CORRECCIÓN DE EMERGENCIA REALIZADA**
+- ✅ **URLs de Producción**: Restauradas todas las URLs a `https://umbot.com.ar`
+- ✅ **Configuración**: Mantenida en modo producción
+- ✅ **Estado**: Sistema 100% operativo en producción
+
+#### **📱 ESTADO ACTUAL UMBOT EMERGENCY APP**
+
+##### **Entornos Disponibles**
+- 🌐 **Producción**: https://umbot.com.ar/emergency
+  - Estado: ✅ OPERATIVO
+  - Versión: 1.0.0
+  - SSL: Activo
+  - PWA: Instalable
+
+##### **Servicios Monitoreados**
+```javascript
+SERVICIOS ACTIVOS:
+✅ Directus (8055)  - https://umbot.com.ar:8055/admin
+✅ Nginx (80/443)   - https://umbot.com.ar
+✅ PostgreSQL (5432)- Interno
+✅ Prometheus (9090)- https://umbot.com.ar:9090
+✅ Grafana (3000)   - https://umbot.com.ar:3000
+```
+
+##### **Mejoras Implementadas**
+1. **PWA Optimizada**:
+   - Service Worker mejorado
+   - Manifest actualizado
+   - Iconos vectoriales + PNG
+   - Rutas absolutas corregidas
+
+2. **Monitoreo Mejorado**:
+   - Verificación cada 30 segundos
+   - Estado visual en tiempo real
+   - Logs centralizados
+   - Gestión Docker integrada
+
+3. **Seguridad**:
+   - SSL en todas las conexiones
+   - Headers de seguridad
+   - Sin almacenamiento local de credenciales
+   - Acceso restringido por IP
+
+#### **💻 ESTADO DEL SERVIDOR**
+
+##### **Contenedores Activos**
+```bash
+CONTAINER           STATUS              PORTS
+umbot-directus     Up (healthy)        8055/tcp
+umbot-nginx        Up (healthy)        80,443/tcp
+umbot-postgres     Up (healthy)        5432/tcp
+umbot-prometheus   Up (healthy)        9090/tcp
+umbot-grafana      Up (healthy)        3000/tcp
+```
+
+##### **Recursos del Sistema**
+- **CPU**: Normal (load avg: 0.51, 0.29, 0.10)
+- **Memoria**: 2.1GB/8GB (26%)
+- **Disco**: 34GB/50GB (68%)
+- **Red**: ~50Mbps (pico máximo)
+
+#### **🔐 CREDENCIALES ACTUALIZADAS**
+
+##### **Servidor Principal**
+```bash
+HOST: 23.105.176.45
+USER: root
+PASS: gsiB%s@0yD
+PORT: 22
+```
+
+##### **Directus CMS**
+```bash
+URL: https://umbot.com.ar:8055/admin
+USER: admin@example.com
+PASS: d1r3ctu5
+```
+
+##### **Grafana**
+```bash
+URL: https://umbot.com.ar:3000
+USER: admin
+PASS: admin (cambiar en primer acceso)
+```
+
+##### **PostgreSQL**
+```bash
+HOST: localhost (interno)
+USER: myuser
+PASS: mypassword
+DB: mydatabase
+```
+
+#### **📋 PROCEDIMIENTOS DE EMERGENCIA**
+
+1. **Caída Total**:
+```bash
+ssh root@23.105.176.45
+cd /root/fumbling-field
+docker-compose down
+docker-compose up -d
+```
+
+2. **Recuperación Parcial**:
+```bash
+# Reiniciar servicio específico
+docker-compose restart [servicio]
+
+# Ver logs
+docker-compose logs -f [servicio]
+```
+
+3. **Backup de Emergencia**:
+```bash
+# Base de datos
+docker-compose exec postgres pg_dump -U myuser mydatabase > backup_$(date +%Y%m%d).sql
+
+# Archivos
+tar -czf backup_files_$(date +%Y%m%d).tar.gz /var/lib/directus/uploads
+```
+
+#### **🔍 MONITOREO Y ALERTAS**
+
+##### **Endpoints de Salud**
+- `/server/health` - Directus
+- `/api/health` - Grafana
+- `/-/healthy` - Prometheus
+- `/ping` - Nginx
+
+##### **Métricas Críticas**
+- Tiempo de respuesta < 200ms
+- Disponibilidad > 99.9%
+- Errores 5xx < 0.1%
+- CPU < 80%
+
+#### **📊 PRÓXIMOS PASOS**
+
+1. **Mejoras Planificadas**:
+   - [ ] Sistema de notificaciones push
+   - [ ] Gráficos en tiempo real
+   - [ ] Backup automático
+   - [ ] Integración con Slack
+
+2. **Mantenimiento**:
+   - [ ] Actualización de dependencias
+   - [ ] Rotación de logs
+   - [ ] Limpieza de cache
+   - [ ] Revisión de SSL
+
