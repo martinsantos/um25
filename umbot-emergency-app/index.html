@@ -394,7 +394,7 @@
                 email: 'admin@example.com',
                 password: 'd1r3ctu5'
             },
-            DEMO_MODE: false, // Se activa automáticamente si no hay conexión
+            DEMO_MODE: false, // Solo se activa si no hay conexión
             SERVICES: [
                 { 
                     name: 'Directus', 
@@ -429,20 +429,6 @@
                     container: 'grafana',
                     healthCheck: '/api/health',
                     url: 'https://umbot.com.ar:3000'
-                },
-                { 
-                    name: 'Node Exporter', 
-                    port: 9100, 
-                    container: 'node-exporter',
-                    healthCheck: '/metrics',
-                    url: 'https://umbot.com.ar:9100'
-                },
-                { 
-                    name: 'Astro App', 
-                    port: 4321, 
-                    container: 'astro',
-                    healthCheck: '/',
-                    url: 'https://umbot.com.ar:4321'
                 }
             ]
         };
