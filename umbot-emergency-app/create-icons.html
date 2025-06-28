@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generador de Iconos</title>
+</head>
+<body>
+    <h1>Generador de Iconos para UMBot Emergency</h1>
+    <p>Haz clic derecho en cada imagen y guárdala con el nombre indicado:</p>
+    
+    <div style="margin: 20px;">
+        <h3>icon-96.png</h3>
+        <canvas id="canvas96" width="96" height="96"></canvas>
+    </div>
+    
+    <div style="margin: 20px;">
+        <h3>icon-192.png</h3>
+        <canvas id="canvas192" width="192" height="192"></canvas>
+    </div>
+    
+    <div style="margin: 20px;">
+        <h3>icon-512.png</h3>
+        <canvas id="canvas512" width="512" height="512"></canvas>
+    </div>
+
+    <script>
+        // Función para dibujar el icono
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const radius = size * 0.45;
+            
+            // Fondo con gradiente
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#d32f2f');
+            gradient.addColorStop(1, '#b71c1c');
+            
+            // Círculo principal
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // Texto "UM"
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.35}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('UM', centerX, centerY);
+            
+            // Borde
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = size * 0.02;
+            ctx.stroke();
+        }
+        
+        // Generar iconos
+        drawIcon(document.getElementById('canvas96'), 96);
+        drawIcon(document.getElementById('canvas192'), 192);
+        drawIcon(document.getElementById('canvas512'), 512);
+        
+        // Función para descargar
+        function downloadCanvas(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
+    
+    <div style="margin-top: 40px;">
+        <h2>O descarga automáticamente:</h2>
+        <button onclick="downloadCanvas('canvas96', 'icon-96.png')">Descargar icon-96.png</button>
+        <button onclick="downloadCanvas('canvas192', 'icon-192.png')">Descargar icon-192.png</button>
+        <button onclick="downloadCanvas('canvas512', 'icon-512.png')">Descargar icon-512.png</button>
+    </div>
+</body>
+</html> 

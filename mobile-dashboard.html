@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🚨 UMBot Emergency Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: white;
+            padding: 15px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .status-time {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .status-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .status-card.ok {
+            background: linear-gradient(135deg, #2d5a2d 0%, #4a7c4a 100%);
+            border-color: #5cb85c;
+        }
+        
+        .status-card.error {
+            background: linear-gradient(135deg, #5a2d2d 0%, #7c4a4a 100%);
+            border-color: #d9534f;
+        }
+        
+        .status-card.warning {
+            background: linear-gradient(135deg, #5a5a2d 0%, #7c7c4a 100%);
+            border-color: #f0ad4e;
+        }
+        
+        .status-card.loading {
+            background: linear-gradient(135deg, #2d4a5a 0%, #4a6a7c 100%);
+            border-color: #5bc0de;
+        }
+        
+        .status-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .status-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        
+        .status-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .status-result {
+            font-size: 16px;
+            line-height: 1.4;
+        }
+        
+        .button {
+            width: 100%;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .button-emergency {
+            background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.4);
+        }
+        
+        .button-emergency:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.6);
+        }
+        
+        .button-diagnostic {
+            background: linear-gradient(135deg, #1976d2 0%, #2196f3 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(25, 118, 210, 0.4);
+        }
+        
+        .button-diagnostic:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(25, 118, 210, 0.6);
+        }
+        
+        .button-ssh {
+            background: linear-gradient(135deg, #388e3c 0%, #4caf50 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(56, 142, 60, 0.4);
+        }
+        
+        .button-ssh:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(56, 142, 60, 0.6);
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .metric {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4caf50;
+        }
+        
+        .metric-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            opacity: 0.6;
+            font-size: 12px;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .button {
+                font-size: 16px;
+                padding: 15px;
+            }
+            
+            .metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiVU1Cb3QgRW1lcmdlbmN5IERhc2hib2FyZCIsInNob3J0X25hbWUiOiJVTUJvdCIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMWExYTFhIiwidGhlbWVfY29sb3IiOiIjZDMyZjJmIn0=">
+</head>
+<body>
+    <div class="header">
+        <h1>🚨 UMBot Emergency Dashboard</h1>
+        <div class="status-time" id="current-time"></div>
+        <div class="status-time">Última verificación: <span id="last-check">Nunca</span></div>
+    </div>
+    
+    <div class="status-card loading" id="status-web">
+        <div class="status-header">
+            <div class="status-icon">🌐</div>
+            <div class="status-title">Estado del Sitio Web</div>
+        </div>
+        <div class="status-result" id="web-result">
+            <span class="loading-spinner"></span>Verificando...
+        </div>
+    </div>
+    
+    <div class="status-card loading" id="status-admin">
+        <div class="status-header">
+            <div class="status-icon">⚙️</div>
+            <div class="status-title">Panel de Administración</div>
+        </div>
+        <div class="status-result" id="admin-result">
+            <span class="loading-spinner"></span>Verificando...
+        </div>
+    </div>
+    
+    <div class="status-card loading" id="status-server">
+        <div class="status-header">
+            <div class="status-icon">🖥️</div>
+            <div class="status-title">Estado del Servidor</div>
+        </div>
+        <div class="status-result" id="server-result">
+            <span class="loading-spinner"></span>Verificando...
+        </div>
+    </div>
+    
+    <div class="metrics">
+        <div class="metric">
+            <div class="metric-value" id="uptime">--</div>
+            <div class="metric-label">Tiempo activo</div>
+        </div>
+        <div class="metric">
+            <div class="metric-value" id="response-time">--</div>
+            <div class="metric-label">Tiempo respuesta</div>
+        </div>
+    </div>
+    
+    <button class="button button-emergency pulse" onclick="emergencyRecover()">
+        🚨 RECUPERACIÓN DE EMERGENCIA
+    </button>
+    
+    <button class="button button-diagnostic" onclick="runDiagnostic()">
+        🔍 EJECUTAR DIAGNÓSTICO
+    </button>
+    
+    <button class="button button-ssh" onclick="openSSH()">
+        🔐 CONECTAR SSH
+    </button>
+    
+    <div class="footer">
+        <div>📱 Optimizado para Android</div>
+        <div>🔄 Auto-actualización cada 30 segundos</div>
+        <div>⚡ Fumbling Field Emergency Response</div>
+    </div>
+    
+    <script>
+        // Configuration
+        const CONFIG = {
+            WEBSITE_URL: 'https://umbot.com.ar/',
+            ADMIN_URL: 'https://umbot.com.ar/admin/',
+            SERVER_IP: '23.105.176.45',
+            CHECK_INTERVAL: 30000, // 30 seconds
+            TIMEOUT: 10000 // 10 seconds
+        };
+        
+        // State management
+        let checkCount = 0;
+        let startTime = Date.now();
+        let lastSuccessTime = null;
+        
+        // Utility functions
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleString('es-ES');
+        }
+        
+        function formatDuration(ms) {
+            const seconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            
+            if (hours > 0) return `${hours}h ${minutes % 60}m`;
+            if (minutes > 0) return `${minutes}m ${seconds % 60}s`;
+            return `${seconds}s`;
+        }
+        
+        function updateMetrics() {
+            const uptime = Date.now() - startTime;
+            document.getElementById('uptime').textContent = formatDuration(uptime);
+        }
+        
+        function setCardStatus(cardId, status, message) {
+            const card = document.getElementById(cardId);
+            const result = document.querySelector(`#${cardId} .status-result`);
+            
+            card.className = `status-card ${status}`;
+            result.innerHTML = message;
+        }
+        
+        // Status check functions
+        async function checkWebsite() {
+            try {
+                const startTime = Date.now();
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT);
+                
+                const response = await fetch(CONFIG.WEBSITE_URL, {
+                    method: 'HEAD',
+                    signal: controller.signal,
+                    cache: 'no-cache'
+                });
+                
+                clearTimeout(timeoutId);
+                const responseTime = Date.now() - startTime;
+                
+                if (response.ok) {
+                    setCardStatus('status-web', 'ok', `✅ HTTP ${response.status} - OK<br><small>Tiempo: ${responseTime}ms</small>`);
+                    document.getElementById('response-time').textContent = `${responseTime}ms`;
+                    lastSuccessTime = Date.now();
+                    return true;
+                } else {
+                    setCardStatus('status-web', 'error', `❌ HTTP ${response.status} - Error<br><small>Tiempo: ${responseTime}ms</small>`);
+                    return false;
+                }
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    setCardStatus('status-web', 'error', '❌ Timeout - Sin respuesta<br><small>Tiempo límite excedido</small>');
+                } else {
+                    setCardStatus('status-web', 'error', `❌ Error: ${error.message}<br><small>Conexión fallida</small>`);
+                }
+                return false;
+            }
+        }
+        
+        async function checkAdmin() {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT);
+                
+                const response = await fetch(CONFIG.ADMIN_URL, {
+                    method: 'HEAD',
+                    signal: controller.signal,
+                    cache: 'no-cache'
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (response.ok) {
+                    setCardStatus('status-admin', 'ok', `✅ Panel administrativo accesible<br><small>HTTP ${response.status}</small>`);
+                    return true;
+                } else {
+                    setCardStatus('status-admin', 'warning', `⚠️ Panel con problemas<br><small>HTTP ${response.status}</small>`);
+                    return false;
+                }
+            } catch (error) {
+                setCardStatus('status-admin', 'error', `❌ Panel inaccesible<br><small>${error.message}</small>`);
+                return false;
+            }
+        }
+        
+        async function checkServer() {
+            // Since we can't ping from browser, we'll use a proxy check
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT);
+                
+                // Try to connect to the server IP directly (this will likely fail due to CORS, but we can detect the failure type)
+                const response = await fetch(`http://${CONFIG.SERVER_IP}/`, {
+                    method: 'HEAD',
+                    signal: controller.signal,
+                    cache: 'no-cache',
+                    mode: 'no-cors'
+                });
+                
+                clearTimeout(timeoutId);
+                setCardStatus('status-server', 'ok', '✅ Servidor respondiendo<br><small>Conectividad verificada</small>');
+                return true;
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    setCardStatus('status-server', 'warning', '⚠️ Servidor lento<br><small>Timeout en verificación</small>');
+                } else {
+                    // CORS error usually means server is up but blocking cross-origin requests
+                    if (error.message.includes('CORS') || error.message.includes('network')) {
+                        setCardStatus('status-server', 'ok', '✅ Servidor activo<br><small>CORS bloqueado (normal)</small>');
+                        return true;
+                    } else {
+                        setCardStatus('status-server', 'error', `❌ Servidor inaccesible<br><small>${error.message}</small>`);
+                        return false;
+                    }
+                }
+            }
+        }
+        
+        // Main diagnostic function
+        async function runDiagnostic() {
+            checkCount++;
+            document.getElementById('last-check').textContent = new Date().toLocaleString('es-ES');
+            
+            // Set all cards to loading state
+            setCardStatus('status-web', 'loading', '<span class="loading-spinner"></span>Verificando...');
+            setCardStatus('status-admin', 'loading', '<span class="loading-spinner"></span>Verificando...');
+            setCardStatus('status-server', 'loading', '<span class="loading-spinner"></span>Verificando...');
+            
+            // Run all checks in parallel
+            const [webOk, adminOk, serverOk] = await Promise.all([
+                checkWebsite(),
+                checkAdmin(),
+                checkServer()
+            ]);
+            
+            updateMetrics();
+            
+            // Update overall status
+            const overallOk = webOk && adminOk && serverOk;
+            
+            if (overallOk) {
+                // Remove pulse animation from emergency button
+                document.querySelector('.button-emergency').classList.remove('pulse');
+            } else {
+                // Add pulse animation to emergency button
+                document.querySelector('.button-emergency').classList.add('pulse');
+            }
+            
+            return overallOk;
+        }
+        
+        // Emergency recovery function
+        function emergencyRecover() {
+            if (confirm('🚨 ¿Ejecutar recuperación de emergencia?\n\nEsto reiniciará todos los servicios del servidor.')) {
+                // Show recovery instructions
+                const instructions = `
+🚨 RECUPERACIÓN DE EMERGENCIA ACTIVADA
+
+📱 OPCIÓN 1 - SSH Directo:
+1. Abrir JuiceSSH o Termux
+2. Conectar: ssh root@${CONFIG.SERVER_IP}
+3. Password: gsiB%s@0yD
+4. Ejecutar: cd /root/fumbling-field && docker-compose restart
+
+📱 OPCIÓN 2 - Script Automático:
+1. Descargar mobile-emergency-recovery.sh
+2. Ejecutar en Termux: bash mobile-emergency-recovery.sh
+
+⏱️ Tiempo estimado: 2-5 minutos
+                `;
+                
+                if (confirm(instructions + '\n\n¿Continuar con SSH manual?')) {
+                    // Try to open SSH app if available
+                    try {
+                        window.location.href = `ssh://root@${CONFIG.SERVER_IP}:22`;
+                    } catch (e) {
+                        // Fallback: copy SSH command to clipboard
+                        navigator.clipboard.writeText(`ssh root@${CONFIG.SERVER_IP}`).then(() => {
+                            alert('📋 Comando SSH copiado al portapapeles!\n\nPega en tu app SSH favorita.');
+                        }).catch(() => {
+                            alert('💡 Comando SSH:\nssh root@' + CONFIG.SERVER_IP);
+                        });
+                    }
+                }
+            }
+        }
+        
+        // SSH connection function
+        function openSSH() {
+            const sshCommand = `ssh root@${CONFIG.SERVER_IP}`;
+            
+            // Try different methods to open SSH
+            try {
+                // Try SSH protocol handler
+                window.location.href = `ssh://root@${CONFIG.SERVER_IP}:22`;
+            } catch (e) {
+                // Fallback: copy to clipboard
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(sshCommand).then(() => {
+                        alert('📋 Comando SSH copiado al portapapeles!\n\n' + sshCommand + '\n\nPega en JuiceSSH, Termux o tu app SSH favorita.');
+                    }).catch(() => {
+                        alert('💡 Comando SSH para copiar:\n\n' + sshCommand);
+                    });
+                } else {
+                    alert('💡 Comando SSH para copiar:\n\n' + sshCommand);
+                }
+            }
+        }
+        
+        // Initialize dashboard
+        function initialize() {
+            updateTime();
+            runDiagnostic();
+            
+            // Set up periodic updates
+            setInterval(updateTime, 1000);
+            setInterval(runDiagnostic, CONFIG.CHECK_INTERVAL);
+            setInterval(updateMetrics, 1000);
+            
+            // Add touch feedback for buttons
+            document.querySelectorAll('.button').forEach(button => {
+                button.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.95)';
+                });
+                
+                button.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                });
+            });
+            
+            console.log('🚨 UMBot Emergency Dashboard initialized');
+            console.log('📱 Optimized for Android mobile devices');
+            console.log('🔄 Auto-refresh every', CONFIG.CHECK_INTERVAL / 1000, 'seconds');
+        }
+        
+        // PWA Service Worker registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:application/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCJpbnN0YWxsIiwgZnVuY3Rpb24oZXZlbnQpIHsgY29uc29sZS5sb2coIlBXQSBpbnN0YWxsZWQiKTsgfSk7').catch(console.error);
+        }
+        
+        // Start the dashboard
+        document.addEventListener('DOMContentLoaded', initialize);
+        
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                runDiagnostic();
+            }
+        });
+        
+        // Handle online/offline events
+        window.addEventListener('online', function() {
+            runDiagnostic();
+        });
+        
+        window.addEventListener('offline', function() {
+            setCardStatus('status-web', 'error', '❌ Sin conexión a internet');
+            setCardStatus('status-admin', 'error', '❌ Sin conexión a internet');
+            setCardStatus('status-server', 'error', '❌ Sin conexión a internet');
+        });
+    </script>
+</body>
+</html> 

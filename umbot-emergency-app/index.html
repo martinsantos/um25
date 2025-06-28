@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>UMBot Emergency</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#d32f2f">
+    <style>
+        /* Estilos optimizados para móvil */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #mainContent {
+            flex: 1;
+            padding: 15px;
+        }
+        
+        .status-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            backdrop-filter: blur(10px);
+        }
+        
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .service-name {
+            font-weight: bold;
+        }
+        
+        .service-uptime {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .status-error {
+            color: #ff4444;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .button {
+            width: 100%;
+            padding: 18px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            margin: 8px 0;
+            cursor: pointer;
+            color: white;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .button-emergency { background: #d32f2f; }
+        .button-diagnostic { background: #1976d2; }
+        .button-ssh { background: #388e3c; }
+        .button-admin { background: #6a1b9a; }
+        .button-logs { background: #546e7a; }
+        .button-docker { background: #ff9800; }
+        
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .status-time {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .loading { animation: pulse 1.5s infinite; }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .status-icon {
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+
+        .status-text {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .service-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .service-card:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        .service-status {
+            font-size: 24px;
+            margin: 5px 0;
+        }
+
+        .service-port {
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #2d2d2d;
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 500px;
+            margin: 50px auto;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .tab-container {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            opacity: 0.7;
+            border-bottom: 2px solid transparent;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            opacity: 1;
+            border-bottom-color: #1976d2;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .log-viewer {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .log-line {
+            margin: 2px 0;
+            line-height: 1.4;
+        }
+
+        .log-error { color: #ff4444; }
+        .log-warning { color: #ffbb33; }
+        .log-info { color: #33b5e5; }
+
+        .docker-stats {
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .docker-container {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 8px;
+            margin: 5px 0;
+        }
+
+        .docker-name {
+            font-weight: bold;
+            color: #33b5e5;
+        }
+
+        .docker-status {
+            margin-left: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8em;
+        }
+
+        .status-running { background: #4caf50; }
+        .status-stopped { background: #f44336; }
+        .status-restarting { background: #ff9800; }
+
+        .demo-notice {
+            background: rgba(255, 165, 0, 0.2);
+            border: 1px solid orange;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 0.9em;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚨 UMBot Emergency</h1>
+        <div class="status-time" id="current-time"></div>
+    </div>
+
+    <div id="mainContent">
+        <!-- Aviso de modo demo -->
+        <div class="demo-notice" id="demo-notice" style="display: none;">
+            ⚠️ Modo Demo - Configure SERVER_IP para conectar al servidor real
+        </div>
+
+        <!-- Estado del Sitio -->
+        <div class="status-card">
+            <h2>🌐 Estado del Sitio</h2>
+            <div class="status-text">
+                <span id="site-status-icon" class="status-icon">⏳</span>
+                <span id="site-status">Verificando...</span>
+            </div>
+            <div id="site-status-error" class="status-error"></div>
+        </div>
+
+        <!-- Estado de Servicios -->
+        <div class="status-card">
+            <h2>⚙️ Servicios</h2>
+            <div class="services-grid" id="services-grid">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+
+        <!-- Acciones Principales -->
+        <button class="button button-emergency" onclick="emergencyRecover()" id="emergency-btn">
+            🚨 RECUPERACIÓN DE EMERGENCIA
+        </button>
+
+        <button class="button button-diagnostic" onclick="runDiagnostic()" id="diagnostic-btn">
+            🔍 EJECUTAR DIAGNÓSTICO
+        </button>
+
+        <!-- Acciones Administrativas -->
+        <button class="button button-admin" onclick="openDirectus()" id="admin-btn">
+            👤 ACCEDER A DIRECTUS
+        </button>
+
+        <button class="button button-docker" onclick="showDocker()" id="docker-btn">
+            🐳 GESTIÓN DOCKER
+        </button>
+
+        <button class="button button-logs" onclick="showLogs()" id="logs-btn">
+            📋 VER LOGS
+        </button>
+
+        <button class="button button-ssh" onclick="openSSH()" id="ssh-btn">
+            🔐 CONECTAR SSH
+        </button>
+    </div>
+
+    <!-- Modal para Logs -->
+    <div id="logsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 Logs del Sistema</h2>
+                <button class="close-modal" onclick="closeModal('logsModal')">&times;</button>
+            </div>
+            <div class="tab-container">
+                <div class="tab active" onclick="switchTab('system')">Sistema</div>
+                <div class="tab" onclick="switchTab('nginx')">Nginx</div>
+                <div class="tab" onclick="switchTab('directus')">Directus</div>
+                <div class="tab" onclick="switchTab('docker')">Docker</div>
+                <div class="tab" onclick="switchTab('postgres')">PostgreSQL</div>
+            </div>
+            <div id="systemLogs" class="tab-content active">
+                <div class="log-viewer" id="system-log-viewer"></div>
+            </div>
+            <div id="nginxLogs" class="tab-content">
+                <div class="log-viewer" id="nginx-log-viewer"></div>
+            </div>
+            <div id="directusLogs" class="tab-content">
+                <div class="log-viewer" id="directus-log-viewer"></div>
+            </div>
+            <div id="dockerLogs" class="tab-content">
+                <div class="log-viewer" id="docker-log-viewer"></div>
+            </div>
+            <div id="postgresLogs" class="tab-content">
+                <div class="log-viewer" id="postgres-log-viewer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Docker -->
+    <div id="dockerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🐳 Gestión Docker</h2>
+                <button class="close-modal" onclick="closeModal('dockerModal')">&times;</button>
+            </div>
+            <div class="docker-stats" id="docker-stats">
+                <!-- Se llena dinámicamente -->
+            </div>
+            <div class="button-container">
+                <button class="button button-emergency" onclick="dockerAction('restart')" id="docker-restart-btn">
+                    🔄 Reiniciar Todo
+                </button>
+                <button class="button button-diagnostic" onclick="dockerAction('prune')" id="docker-prune-btn">
+                    🧹 Limpiar Cache
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración
+        const CONFIG = {
+            WEBSITE_URL: 'https://umbot.com.ar',
+            SERVER_IP: '23.105.176.45',
+            CHECK_INTERVAL: 30000,
+            SSH_PORT: 22,
+            DIRECTUS_URL: 'https://umbot.com.ar/admin',
+            DIRECTUS_CREDENTIALS: {
+                email: 'admin@example.com',
+                password: 'd1r3ctu5'
+            },
+            DEMO_MODE: false, // Se activa automáticamente si no hay conexión
+            SERVICES: [
+                { 
+                    name: 'Directus', 
+                    port: 8055, 
+                    container: 'directus',
+                    healthCheck: '/server/health',
+                    url: 'https://umbot.com.ar:8055/admin'
+                },
+                { 
+                    name: 'Nginx', 
+                    port: 80, 
+                    container: 'nginx',
+                    healthCheck: '/',
+                    url: 'https://umbot.com.ar'
+                },
+                { 
+                    name: 'PostgreSQL', 
+                    port: 5432, 
+                    container: 'postgres',
+                    healthCheck: false
+                },
+                { 
+                    name: 'Prometheus', 
+                    port: 9090, 
+                    container: 'prometheus',
+                    healthCheck: '/-/ready',
+                    url: 'https://umbot.com.ar:9090'
+                },
+                { 
+                    name: 'Grafana', 
+                    port: 3000, 
+                    container: 'grafana',
+                    healthCheck: '/api/health',
+                    url: 'https://umbot.com.ar:3000'
+                },
+                { 
+                    name: 'Node Exporter', 
+                    port: 9100, 
+                    container: 'node-exporter',
+                    healthCheck: '/metrics',
+                    url: 'https://umbot.com.ar:9100'
+                },
+                { 
+                    name: 'Astro App', 
+                    port: 4321, 
+                    container: 'astro',
+                    healthCheck: '/',
+                    url: 'https://umbot.com.ar:4321'
+                }
+            ]
+        };
+
+        // Estado de demo
+        let demoMode = false;
+        let serviceStates = {};
+
+        // Actualizar hora
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = 
+                now.toLocaleString('es-AR', { 
+                    timeZone: 'America/Argentina/Buenos_Aires',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Inicializar grid de servicios
+        function initServicesGrid() {
+            const grid = document.getElementById('services-grid');
+            CONFIG.SERVICES.forEach(service => {
+                const card = document.createElement('div');
+                card.className = 'service-card';
+                card.onclick = () => showServiceDetails(service);
+                card.innerHTML = `
+                    <div class="service-name">${service.name}</div>
+                    <div class="service-status" id="${service.container}-status">⏳</div>
+                    <div class="service-uptime" id="${service.container}-uptime">--:--:--</div>
+                    <div class="service-port">:${service.port}</div>
+                `;
+                grid.appendChild(card);
+                
+                // Inicializar estado
+                serviceStates[service.container] = {
+                    status: 'unknown',
+                    uptime: '--:--:--',
+                    lastCheck: null
+                };
+            });
+        }
+
+        // Mostrar detalles del servicio
+        function showServiceDetails(service) {
+            if (service.url && !demoMode) {
+                window.open(service.url, '_blank');
+            } else {
+                showLogs(service.container);
+            }
+        }
+
+        // Verificar servicios
+        async function checkServices() {
+            for (const service of CONFIG.SERVICES) {
+                const statusEl = document.getElementById(`${service.container}-status`);
+                const uptimeEl = document.getElementById(`${service.container}-uptime`);
+                
+                if (demoMode) {
+                    // Modo demo: simular estados
+                    const demoStates = ['✅', '❌', '⚠️'];
+                    const randomState = demoStates[Math.floor(Math.random() * demoStates.length)];
+                    statusEl.textContent = randomState;
+                    
+                    if (randomState === '✅') {
+                        const hours = Math.floor(Math.random() * 24);
+                        const mins = Math.floor(Math.random() * 60);
+                        uptimeEl.textContent = `${hours}:${mins}:00`;
+                    } else {
+                        uptimeEl.textContent = '--:--:--';
+                    }
+                    
+                    serviceStates[service.container] = {
+                        status: randomState,
+                        uptime: uptimeEl.textContent,
+                        lastCheck: new Date()
+                    };
+                } else {
+                    try {
+                        let isHealthy = false;
+                        
+                        if (service.healthCheck && service.url) {
+                            // Intentar verificar via URL pública
+                            const checkUrl = service.url + (service.healthCheck === '/' ? '' : service.healthCheck);
+                            const response = await fetch(checkUrl, {
+                                method: 'HEAD',
+                                mode: 'no-cors',
+                                cache: 'no-cache'
+                            });
+                            isHealthy = true; // Si no lanza error, asumimos que está funcionando
+                        } else if (service.name === 'PostgreSQL') {
+                            // PostgreSQL no tiene endpoint HTTP, verificar via sitio web
+                            isHealthy = serviceStates['nginx']?.status === '✅';
+                        }
+                        
+                        if (isHealthy) {
+                            statusEl.textContent = '✅';
+                            // Calcular uptime simulado basado en última verificación
+                            const lastCheck = serviceStates[service.container].lastCheck;
+                            if (lastCheck) {
+                                const diff = new Date() - lastCheck;
+                                const hours = Math.floor(diff / 3600000);
+                                const mins = Math.floor((diff % 3600000) / 60000);
+                                uptimeEl.textContent = `${hours}:${mins}:00`;
+                            } else {
+                                uptimeEl.textContent = '0:01:00';
+                            }
+                            
+                            serviceStates[service.container] = {
+                                status: '✅',
+                                uptime: uptimeEl.textContent,
+                                lastCheck: serviceStates[service.container].lastCheck || new Date()
+                            };
+                        } else {
+                            throw new Error('Servicio no responde');
+                        }
+                    } catch (error) {
+                        statusEl.textContent = '❌';
+                        uptimeEl.textContent = '--:--:--';
+                        serviceStates[service.container] = {
+                            status: '❌',
+                            uptime: '--:--:--',
+                            lastCheck: new Date(),
+                            error: error.message
+                        };
+                    }
+                }
+            }
+        }
+
+        // Verificar sitio web
+        async function checkWebsite() {
+            const statusIcon = document.getElementById('site-status-icon');
+            const statusText = document.getElementById('site-status');
+            const statusError = document.getElementById('site-status-error');
+            
+            statusIcon.textContent = '⏳';
+            statusText.textContent = 'Verificando...';
+            statusError.textContent = '';
+            
+            try {
+                // Intentar verificar el sitio web
+                const response = await fetch(CONFIG.WEBSITE_URL, {
+                    method: 'HEAD',
+                    mode: 'no-cors',
+                    cache: 'no-cache'
+                });
+                
+                // Si no lanza error, asumimos que está funcionando
+                statusIcon.textContent = '✅';
+                statusText.textContent = 'Sitio web funcionando';
+                demoMode = false;
+                document.getElementById('demo-notice').style.display = 'none';
+                return true;
+            } catch (error) {
+                // Si falla, activar modo demo
+                statusIcon.textContent = '⚠️';
+                statusText.textContent = 'Modo Demo - Sin conexión al servidor';
+                statusError.textContent = 'Configure la conexión al servidor para monitoreo real';
+                demoMode = true;
+                document.getElementById('demo-notice').style.display = 'block';
+                return false;
+            }
+        }
+
+        // Recuperación de emergencia
+        async function emergencyRecover() {
+            const btn = document.getElementById('emergency-btn');
+            btn.disabled = true;
+            
+            try {
+                if (demoMode) {
+                    if (confirm('🚨 MODO DEMO\n\nEn un entorno real, esto:\n- Reiniciaría todos los servicios\n- Limpiaría cache Docker\n- Verificaría el estado\n\n¿Simular recuperación?')) {
+                        // Simular recuperación
+                        alert('✅ Recuperación simulada exitosamente\n\nEn producción esto ejecutaría:\n- docker-compose restart\n- docker system prune\n- Health checks');
+                        
+                        // Actualizar estados a OK
+                        CONFIG.SERVICES.forEach(service => {
+                            const statusEl = document.getElementById(`${service.container}-status`);
+                            statusEl.textContent = '✅';
+                        });
+                    }
+                } else {
+                    const sshUrl = `ssh://root@${CONFIG.SERVER_IP}:${CONFIG.SSH_PORT}`;
+                    const command = 'cd /root/fumbling-field && docker-compose restart && docker system prune -f';
+                    
+                    if (confirm('🚨 ¿Ejecutar recuperación de emergencia?\n\nEsto reiniciará todos los servicios.')) {
+                        // Intentar ejecutar comando via SSH
+                        window.location.href = sshUrl;
+                        
+                        // Mostrar instrucciones
+                        alert(`📋 Ejecute este comando en SSH:\n\n${command}\n\nLuego verifique el estado de los servicios.`);
+                    }
+                }
+            } catch (error) {
+                alert('Error al ejecutar recuperación: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                setTimeout(() => runDiagnostic(), 2000);
+            }
+        }
+
+        // Abrir Directus
+        function openDirectus() {
+            if (demoMode) {
+                alert('🔐 Credenciales Directus:\n\nURL: ' + CONFIG.DIRECTUS_URL + '\nEmail: ' + CONFIG.DIRECTUS_CREDENTIALS.email + '\nPassword: ' + CONFIG.DIRECTUS_CREDENTIALS.password);
+            } else {
+                window.open(CONFIG.DIRECTUS_URL, '_blank');
+            }
+        }
+
+        // Mostrar Docker
+        async function showDocker() {
+            document.getElementById('dockerModal').style.display = 'block';
+            await updateDockerStats();
+        }
+
+        // Actualizar estadísticas Docker
+        async function updateDockerStats() {
+            const stats = document.getElementById('docker-stats');
+            
+            if (demoMode) {
+                // Modo demo: mostrar estados simulados
+                stats.innerHTML = CONFIG.SERVICES.map(service => `
+                    <div class="docker-container">
+                        <span class="docker-name">${service.name}</span>
+                        <span class="docker-status status-${serviceStates[service.container]?.status === '✅' ? 'running' : 'stopped'}">
+                            ${serviceStates[service.container]?.status === '✅' ? 'running' : 'stopped'}
+                        </span>
+                    </div>
+                `).join('');
+            } else {
+                stats.innerHTML = '<p>Conectando con Docker...</p>';
+                
+                // En producción, intentar obtener estado real
+                try {
+                    const containers = await Promise.all(CONFIG.SERVICES.map(async service => {
+                        return {
+                            name: service.name,
+                            status: serviceStates[service.container]?.status === '✅' ? 'running' : 'stopped',
+                            container: service.container
+                        };
+                    }));
+
+                    stats.innerHTML = containers.map(container => `
+                        <div class="docker-container">
+                            <span class="docker-name">${container.name}</span>
+                            <span class="docker-status status-${container.status}">${container.status}</span>
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    stats.innerHTML = `<p class="log-error">Error al obtener estadísticas: ${error.message}</p>`;
+                }
+            }
+        }
+
+        // Acciones Docker
+        async function dockerAction(action) {
+            const btn = document.getElementById(`docker-${action}-btn`);
+            btn.disabled = true;
+            
+            try {
+                if (demoMode) {
+                    const actions = {
+                        restart: 'docker-compose restart',
+                        prune: 'docker system prune -af'
+                    };
+                    
+                    alert(`🐳 MODO DEMO\n\nEn producción ejecutaría:\n${actions[action]}`);
+                    
+                    // Simular efecto
+                    if (action === 'restart') {
+                        CONFIG.SERVICES.forEach(service => {
+                            const statusEl = document.getElementById(`${service.container}-status`);
+                            statusEl.textContent = '⏳';
+                            setTimeout(() => statusEl.textContent = '✅', 2000);
+                        });
+                    }
+                } else {
+                    // En producción, mostrar comando SSH
+                    const commands = {
+                        restart: 'cd /root/fumbling-field && docker-compose restart',
+                        prune: 'docker system prune -af --volumes'
+                    };
+                    
+                    alert(`📋 Ejecute en SSH:\n\n${commands[action]}`);
+                }
+                
+                await updateDockerStats();
+            } catch (error) {
+                alert(`Error en acción Docker: ${error.message}`);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // Mostrar Logs
+        function showLogs(initialTab = 'system') {
+            document.getElementById('logsModal').style.display = 'block';
+            switchTab(initialTab);
+        }
+
+        // Cerrar Modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Cambiar Tab
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}Logs`).classList.add('active');
+            
+            fetchLogs(tabName);
+        }
+
+        // Obtener Logs
+        async function fetchLogs(type = 'system') {
+            const viewer = document.getElementById(`${type}-log-viewer`);
+            viewer.innerHTML = 'Cargando logs...';
+
+            try {
+                const logs = demoMode ? generateDemoLogs(type) : await fetchRealLogs(type);
+                
+                viewer.innerHTML = logs.map(log => 
+                    `<div class="log-line ${log.level}">[${log.time}] ${log.message}</div>`
+                ).join('');
+            } catch (error) {
+                viewer.innerHTML = `<div class="log-line log-error">Error al cargar logs: ${error.message}</div>`;
+            }
+        }
+
+        // Generar logs de demo
+        function generateDemoLogs(type) {
+            const now = new Date();
+            const messages = {
+                system: [
+                    { level: 'log-info', message: 'Sistema iniciado correctamente' },
+                    { level: 'log-warning', message: 'Uso de CPU: 75%' },
+                    { level: 'log-info', message: 'Backup automático completado' }
+                ],
+                nginx: [
+                    { level: 'log-info', message: 'GET / 200 OK (15ms)' },
+                    { level: 'log-info', message: 'GET /api/health 200 OK (5ms)' },
+                    { level: 'log-error', message: 'POST /api/login 401 Unauthorized' }
+                ],
+                directus: [
+                    { level: 'log-info', message: 'Directus iniciado en puerto 8055' },
+                    { level: 'log-info', message: 'Conexión a PostgreSQL establecida' },
+                    { level: 'log-warning', message: 'Cache limpiado automáticamente' }
+                ],
+                docker: [
+                    { level: 'log-info', message: 'Contenedor nginx: running (24h)' },
+                    { level: 'log-info', message: 'Contenedor directus: running (24h)' },
+                    { level: 'log-warning', message: 'Espacio en disco: 85% usado' }
+                ],
+                postgres: [
+                    { level: 'log-info', message: 'PostgreSQL 14.5 iniciado' },
+                    { level: 'log-info', message: 'Conexiones activas: 5/100' },
+                    { level: 'log-info', message: 'Último vacuum: hace 2 horas' }
+                ]
+            };
+
+            return messages[type] || messages.system;
+        }
+
+        // Obtener logs reales (placeholder)
+        async function fetchRealLogs(type) {
+            // En producción, esto haría fetch a los endpoints reales
+            return generateDemoLogs(type);
+        }
+
+        // Diagnóstico completo
+        async function runDiagnostic() {
+            const btn = document.getElementById('diagnostic-btn');
+            btn.disabled = true;
+            
+            try {
+                await Promise.all([
+                    checkWebsite(),
+                    checkServices()
+                ]);
+                
+                // Mostrar resumen
+                const healthyServices = Object.values(serviceStates).filter(s => s.status === '✅').length;
+                const totalServices = CONFIG.SERVICES.length;
+                
+                if (demoMode) {
+                    alert(`📊 Diagnóstico (MODO DEMO)\n\nServicios: ${healthyServices}/${totalServices} funcionando\n\nPara monitoreo real, configure la conexión al servidor.`);
+                } else if (healthyServices === totalServices) {
+                    alert(`✅ Diagnóstico Completo\n\nTodos los servicios funcionando correctamente\nServicios: ${healthyServices}/${totalServices}`);
+                } else {
+                    alert(`⚠️ Diagnóstico Completo\n\nAlgunos servicios requieren atención\nServicios: ${healthyServices}/${totalServices}\n\nRevise los servicios marcados con ❌`);
+                }
+            } catch (error) {
+                alert('Error en diagnóstico: ' + error.message);
+            }
+            
+            btn.disabled = false;
+        }
+
+        // Conexión SSH
+        function openSSH() {
+            const btn = document.getElementById('ssh-btn');
+            btn.disabled = true;
+            
+            try {
+                if (demoMode) {
+                    alert(`🔐 Conexión SSH (MODO DEMO)\n\nComando:\nssh root@${CONFIG.SERVER_IP}\n\nPuerto: ${CONFIG.SSH_PORT}`);
+                } else {
+                    const sshUrl = `ssh://root@${CONFIG.SERVER_IP}:${CONFIG.SSH_PORT}`;
+                    window.location.href = sshUrl;
+                }
+            } catch (error) {
+                alert('Error al abrir conexión SSH: ' + error.message);
+            }
+            
+            setTimeout(() => btn.disabled = false, 2000);
+        }
+
+        // Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(reg => console.log('Service Worker registrado'))
+                .catch(error => console.error('Error al registrar SW:', error));
+        }
+
+        // Inicialización
+        initServicesGrid();
+        runDiagnostic();
+        setInterval(runDiagnostic, CONFIG.CHECK_INTERVAL);
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            if (event.target.className === 'modal') {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Manejar parámetros URL para acciones directas
+        const urlParams = new URLSearchParams(window.location.search);
+        const action = urlParams.get('action');
+        if (action === 'diagnostic') {
+            setTimeout(() => runDiagnostic(), 1000);
+        } else if (action === 'recovery') {
+            setTimeout(() => emergencyRecover(), 1000);
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Importador Directus - UltiMilla</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: #6644ff;
+            color: white;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+        }
+        .content {
+            padding: 20px;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .btn {
+            background: #6644ff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #5533ee;
+        }
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            height: 400px;
+            overflow-y: auto;
+            margin: 15px 0;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 12px;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #007bff; }
+        .warning { color: #ffc107; }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #6644ff;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+            display: none;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #28a745;
+            transition: width 0.3s;
+            width: 0%;
+        }
+        .file-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Importador de Contenidos Directus</h1>
+            <p>Herramienta para importar todos los contenidos de UltiMilla a Directus</p>
+        </div>
+        
+        <div class="content">
+            <div class="file-info">
+                <h3>📁 Archivos de datos requeridos:</h3>
+                <p>Para usar esta herramienta, necesitas tener estos archivos en la misma carpeta:</p>
+                <ul>
+                    <li><strong>directus-antecedentes.json</strong> - 469 casos de éxito</li>
+                    <li><strong>directus-servicios.json</strong> - Servicios de la empresa</li>
+                </ul>
+                <p><em>Estos archivos se generan ejecutando el script convert-js-to-json.py</em></p>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="antecedentesCount">-</div>
+                    <div class="stat-label">Antecedentes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="serviciosCount">-</div>
+                    <div class="stat-label">Servicios</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalCount">-</div>
+                    <div class="stat-label">Total Registros</div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>🌐 URL de Directus:</label>
+                <input type="text" id="directusUrl" value="https://www.umbot.com.ar:8055" />
+            </div>
+            
+            <div class="form-group">
+                <label>👤 Email:</label>
+                <input type="email" id="email" value="admin@umbot.com.ar" />
+            </div>
+            
+            <div class="form-group">
+                <label>🔑 Contraseña:</label>
+                <input type="password" id="password" value="UmbotDirectusAdmin2025!" />
+            </div>
+            
+            <div>
+                <button class="btn" onclick="loadDataFiles()">📂 Cargar Archivos</button>
+                <button class="btn" onclick="authenticate()" disabled id="authBtn">🔐 Conectar</button>
+                <button class="btn" onclick="createCollections()" disabled id="createBtn">📦 Crear Colecciones</button>
+                <button class="btn" onclick="importData()" disabled id="importBtn">📥 Importar Todo</button>
+                <button class="btn btn-secondary" onclick="clearLog()">🧹 Limpiar Log</button>
+            </div>
+            
+            <div class="progress" id="progressContainer">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <div id="log" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        let token = null;
+        let baseUrl = '';
+        let antecedentesData = [];
+        let serviciosData = [];
+        
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '📝';
+            const className = type;
+            logDiv.innerHTML += `<div class="${className}">[${timestamp}] ${icon} ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+        
+        function updateProgress(current, total) {
+            const container = document.getElementById('progressContainer');
+            const bar = document.getElementById('progressBar');
+            const percentage = (current / total) * 100;
+            
+            container.style.display = 'block';
+            bar.style.width = percentage + '%';
+            
+            if (current >= total) {
+                setTimeout(() => {
+                    container.style.display = 'none';
+                }, 2000);
+            }
+        }
+        
+        function updateStats() {
+            document.getElementById('antecedentesCount').textContent = antecedentesData.length;
+            document.getElementById('serviciosCount').textContent = serviciosData.length;
+            document.getElementById('totalCount').textContent = antecedentesData.length + serviciosData.length;
+        }
+        
+        async function loadDataFiles() {
+            log('📂 Cargando archivos de datos...');
+            
+            try {
+                // Cargar antecedentes
+                const antecedentesResponse = await fetch('./directus-antecedentes.json');
+                if (antecedentesResponse.ok) {
+                    antecedentesData = await antecedentesResponse.json();
+                    log(`✅ Cargados ${antecedentesData.length} antecedentes`, 'success');
+                } else {
+                    log('❌ No se pudo cargar directus-antecedentes.json', 'error');
+                }
+                
+                // Cargar servicios
+                const serviciosResponse = await fetch('./directus-servicios.json');
+                if (serviciosResponse.ok) {
+                    serviciosData = await serviciosResponse.json();
+                    log(`✅ Cargados ${serviciosData.length} servicios`, 'success');
+                } else {
+                    log('⚠️ No se pudo cargar directus-servicios.json (opcional)', 'warning');
+                }
+                
+                updateStats();
+                
+                if (antecedentesData.length > 0 || serviciosData.length > 0) {
+                    document.getElementById('authBtn').disabled = false;
+                    log('📋 Archivos cargados. Ahora puedes conectarte a Directus.', 'info');
+                } else {
+                    log('❌ No se cargaron datos. Verifica que los archivos JSON estén disponibles.', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Error cargando archivos: ${error.message}`, 'error');
+                log('💡 Asegúrate de que este HTML esté en la misma carpeta que los archivos JSON', 'info');
+            }
+        }
+        
+        async function authenticate() {
+            baseUrl = document.getElementById('directusUrl').value.replace(/\/$/, '');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            log('🔐 Iniciando autenticación...');
+            
+            try {
+                const response = await fetch(`${baseUrl}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    token = data.access_token;
+                    log('✅ Autenticación exitosa', 'success');
+                    document.getElementById('createBtn').disabled = false;
+                    document.getElementById('importBtn').disabled = false;
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Error de autenticación (${response.status}): ${errorText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Error conectando: ${error.message}`, 'error');
+                log('💡 Verifica que la URL de Directus sea correcta y esté accesible', 'info');
+            }
+        }
+        
+        async function createCollections() {
+            if (!token) {
+                log('❌ Primero debes autenticarte', 'error');
+                return;
+            }
+            
+            log('📦 Configurando colecciones...');
+            
+            // Configurar colección antecedentes
+            if (antecedentesData.length > 0) {
+                await createCollection('antecedentes', 'Antecedentes - Casos de éxito', [
+                    { field: 'Titulo', type: 'string' },
+                    { field: 'Descripcion', type: 'text' },
+                    { field: 'Cliente', type: 'string' },
+                    { field: 'Area', type: 'string' },
+                    { field: 'Presupuesto', type: 'integer' },
+                    { field: 'Fecha', type: 'date' },
+                    { field: 'Imagen', type: 'string' },
+                    { field: 'Unidad_de_negocio', type: 'string' }
+                ]);
+            }
+            
+            // Configurar colección servicios
+            if (serviciosData.length > 0) {
+                await createCollection('servicios', 'Servicios', [
+                    { field: 'Titulo', type: 'string' },
+                    { field: 'Descripcion', type: 'text' },
+                    { field: 'Area', type: 'string' },
+                    { field: 'Cliente', type: 'string' },
+                    { field: 'Presupuesto', type: 'integer' }
+                ]);
+            }
+            
+            log('✅ Colecciones configuradas exitosamente', 'success');
+        }
+        
+        async function createCollection(name, description, fields) {
+            try {
+                // Crear colección
+                const collectionData = {
+                    collection: name,
+                    meta: {
+                        collection: name,
+                        icon: 'folder',
+                        note: description,
+                        hidden: false,
+                        singleton: false
+                    },
+                    schema: { name: name }
+                };
+                
+                const collectionResponse = await fetch(`${baseUrl}/collections`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(collectionData)
+                });
+                
+                if (collectionResponse.ok || collectionResponse.status === 409) {
+                    log(`📋 Colección '${name}' configurada`);
+                } else {
+                    log(`⚠️ Error creando colección '${name}': ${collectionResponse.status}`, 'warning');
+                }
+                
+                // Crear campos
+                for (const fieldConfig of fields) {
+                    try {
+                        const fieldData = {
+                            field: fieldConfig.field,
+                            type: fieldConfig.type,
+                            meta: {
+                                field: fieldConfig.field,
+                                interface: fieldConfig.type === 'text' ? 'input-multiline' : 'input',
+                                readonly: false,
+                                hidden: false
+                            },
+                            schema: {
+                                name: fieldConfig.field,
+                                table: name,
+                                data_type: fieldConfig.type,
+                                is_nullable: true
+                            }
+                        };
+                        
+                        await fetch(`${baseUrl}/fields/${name}`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(fieldData)
+                        });
+                    } catch (fieldError) {
+                        // Campo probablemente ya existe
+                    }
+                }
+                
+            } catch (error) {
+                log(`❌ Error configurando colección '${name}': ${error.message}`, 'error');
+            }
+        }
+        
+        async function importData() {
+            if (!token) {
+                log('❌ Primero debes autenticarte', 'error');
+                return;
+            }
+            
+            if (antecedentesData.length === 0 && serviciosData.length === 0) {
+                log('❌ No hay datos para importar. Primero carga los archivos.', 'error');
+                return;
+            }
+            
+            log('📥 Iniciando importación masiva...');
+            
+            let totalSuccess = 0;
+            let totalErrors = 0;
+            const totalItems = antecedentesData.length + serviciosData.length;
+            let processedItems = 0;
+            
+            // Importar antecedentes
+            if (antecedentesData.length > 0) {
+                log(`📝 Importando ${antecedentesData.length} antecedentes...`);
+                for (const [index, item] of antecedentesData.entries()) {
+                    try {
+                        const response = await fetch(`${baseUrl}/items/antecedentes`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(item)
+                        });
+                        
+                        if (response.ok) {
+                            totalSuccess++;
+                            if (index % 25 === 0) {
+                                log(`   ✅ ${index + 1} antecedentes procesados`, 'success');
+                            }
+                        } else {
+                            totalErrors++;
+                            if (totalErrors <= 5) {
+                                log(`   ❌ Error en antecedente ${item.id}: ${response.status}`, 'error');
+                            }
+                        }
+                        
+                        processedItems++;
+                        updateProgress(processedItems, totalItems);
+                        
+                        // Pausa para no sobrecargar
+                        if (index % 10 === 0) {
+                            await new Promise(resolve => setTimeout(resolve, 50));
+                        }
+                        
+                    } catch (error) {
+                        totalErrors++;
+                        log(`   ❌ Error procesando antecedente: ${error.message}`, 'error');
+                    }
+                }
+            }
+            
+            // Importar servicios
+            if (serviciosData.length > 0) {
+                log(`🔧 Importando ${serviciosData.length} servicios...`);
+                for (const [index, item] of serviciosData.entries()) {
+                    try {
+                        const response = await fetch(`${baseUrl}/items/servicios`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(item)
+                        });
+                        
+                        if (response.ok) {
+                            totalSuccess++;
+                            if (index % 10 === 0) {
+                                log(`   ✅ ${index + 1} servicios procesados`, 'success');
+                            }
+                        } else {
+                            totalErrors++;
+                            if (totalErrors <= 5) {
+                                log(`   ❌ Error en servicio ${item.id}: ${response.status}`, 'error');
+                            }
+                        }
+                        
+                        processedItems++;
+                        updateProgress(processedItems, totalItems);
+                        
+                        await new Promise(resolve => setTimeout(resolve, 50));
+                        
+                    } catch (error) {
+                        totalErrors++;
+                        log(`   ❌ Error procesando servicio: ${error.message}`, 'error');
+                    }
+                }
+            }
+            
+            // Resumen final
+            log('', 'info');
+            log('🎉 IMPORTACIÓN COMPLETADA', 'success');
+            log(`📊 Resumen: ${totalSuccess} éxitos, ${totalErrors} errores`, 'info');
+            log(`🔗 Panel Directus: ${baseUrl}/admin`, 'info');
+            log('✨ ¡Todos los contenidos están ahora disponibles para administrar!', 'success');
+        }
+        
+        // Auto-cargar archivos al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🌐 Importador de Contenidos Directus - UltiMilla', 'info');
+            log('📋 Haz clic en "Cargar Archivos" para comenzar', 'info');
+        });
+    </script>
+</body>
+</html> 

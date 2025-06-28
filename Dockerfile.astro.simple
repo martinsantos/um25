@@ -1,0 +1,25 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copiar archivos de configuración
+COPY package*.json ./
+COPY astro.config.mjs ./
+COPY tsconfig.json ./
+
+# Instalar dependencias
+RUN npm install
+
+# Copiar el resto de los archivos
+COPY . .
+
+# Exponer el puerto
+EXPOSE 4321
+
+# Variables de entorno
+ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+ENV PORT=4321
+
+# Comando para desarrollo (más estable)
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "4321"] 

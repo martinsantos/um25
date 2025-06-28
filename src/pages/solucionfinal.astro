@@ -1,0 +1,15 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { Markdown } from '@astropub/md';
+
+const solucionFinal = await Astro.glob('../solucionfinal.md');
+const content = solucionFinal[0].rawContent();
+---
+
+<Layout title="Solución Final - Documentación Técnica">
+  <main class="container mx-auto px-4 py-8">
+    <article class="prose prose-lg max-w-none">
+      <Markdown>{content}</Markdown>
+    </article>
+  </main>
+</Layout> 

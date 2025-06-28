@@ -1,0 +1,25 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Instalar dependencias
+COPY requirements-metadata.txt .
+RUN pip install --no-cache-dir -r requirements-metadata.txt
+
+# Copiar scripts
+COPY update-real-metadata.py .
+COPY generate-thumbnails.py .
+COPY process_and_upload_images.py .
+
+# Configurar variables de entorno
+ENV POSTGRES_HOST=database
+ENV POSTGRES_PORT=5432
+ENV POSTGRES_DB=mydatabase
+ENV POSTGRES_USER=myuser
+ENV POSTGRES_PASSWORD=mypassword
+
+# Dar permisos de ejecución a los scripts
+RUN chmod +x *.py
+
+# Ejecutar el script de procesamiento de imágenes
+CMD ["python", "process_and_upload_images.py"] 

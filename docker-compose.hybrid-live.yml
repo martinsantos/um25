@@ -1,0 +1,110 @@
+version: '3.8'
+
+services:
+  # Mantener la base de datos existente (ya tiene los datos)
+  database:
+    image: postgres:15-alpine
+    container_name: fumbling-field-database-1
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - fumbling-field_default
+    restart: unless-stopped
+
+  # Agregar Directus para administración
+  directus-admin:
+    image: directus/directus:11.7.2
+    container_name: directus-admin
+    environment:
+      KEY: '255d861b-5ea1-5996-9aa3-922530ec40b1'
+      SECRET: '6116487b-cda1-52c2-b5b5-c8022c45e263'
+      DB_CLIENT: 'pg'
+      DB_HOST: 'database'
+      DB_PORT: '5432'
+      DB_DATABASE: 'mydatabase'
+      DB_USER: 'myuser'
+      DB_PASSWORD: 'mypassword123'
+      ADMIN_EMAIL: 'admin@umbot.com.ar'
+      ADMIN_PASSWORD: 'UmbotAdmin2025!'
+      PUBLIC_URL: 'https://www.umbot.com.ar'
+      CORS_ENABLED: 'true'
+      CORS_ORIGIN: 'https://www.umbot.com.ar'
+      CACHE_ENABLED: 'true'
+      STORAGE_LOCATIONS: 'local'
+      STORAGE_LOCAL_DRIVER: 'local'
+      STORAGE_LOCAL_ROOT: './uploads'
+    ports:
+      - "8056:8055"  # Usar puerto 8056 como está configurado en nginx
+    volumes:
+      - ./uploads:/directus/uploads
+      - ./extensions:/directus/extensions
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - fumbling-field_default
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >
+          node -e "require('http')
+          .get('http://localhost:8055/server/health',
+          r=>process.exit(r.statusCode===200?0:1));"
+      start_period: 30s
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  # Mantener Astro estático (ya funcionando)
+  umbot-astro-static:
+    image: fumbling-field-umbot-astro-static
+    container_name: umbot-astro-static
+    environment:
+      NODE_ENV: production
+      ASTRO_ENV: production
+      PUBLIC_SITE_URL: https://www.umbot.com.ar
+      STATIC_MODE: true
+      USE_STATIC_DATA: true
+    volumes:
+      - ./public/images:/app/public/images:ro
+    networks:
+      - fumbling-field_default
+    restart: unless-stopped
+
+  # Actualizar Nginx para soportar /admin
+  umbot-nginx-hybrid:
+    image: nginx:alpine
+    container_name: umbot-nginx-hybrid
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.hybrid.conf:/etc/nginx/nginx.conf:ro
+      - ./public/images:/var/www/html/images:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - umbot-astro-static
+      - directus-admin
+    networks:
+      - fumbling-field_default
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    external: true
+    name: fumbling-field_postgres_data
+
+networks:
+  fumbling-field_default:
+    external: true
+    name: fumbling-field_default 

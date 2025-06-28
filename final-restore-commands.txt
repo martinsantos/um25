@@ -1,0 +1,22 @@
+# COMANDOS PARA EJECUTAR EN EL SERVIDOR MANUALMENTE
+# Conectar: ssh root@23.105.176.45
+
+cd /root/fumbling-field
+
+# 7. Restaurar dump completo (tomará unos minutos)
+cat directus_dump.sql | docker-compose exec -T database psql -U myuser -d mydatabase
+
+# 8. Verificar restauración
+docker-compose exec database psql -U myuser -d mydatabase -c "SELECT COUNT(*) FROM directus_files;"
+
+# 9. Verificar antecedentes
+docker-compose exec database psql -U myuser -d mydatabase -c "SELECT COUNT(*) FROM antecedentes;"
+
+# 10. Verificar servicios
+docker-compose exec database psql -U myuser -d mydatabase -c "SELECT COUNT(*) FROM \"Servicios\";"
+
+# 11. Iniciar todos los servicios
+docker-compose up -d
+
+# 12. Verificar estado final
+docker-compose ps 

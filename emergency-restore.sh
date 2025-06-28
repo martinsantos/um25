@@ -1,0 +1,154 @@
+#!/bin/bash
+
+echo "🚨 RESTAURACIÓN DE EMERGENCIA DEL SERVIDOR"
+echo "=========================================="
+
+echo "⚠️  SITUACIÓN DETECTADA:"
+echo "- Servidor completamente inaccesible"
+echo "- Puertos 80 y 443 no responden"
+echo "- Contenedores Docker probablemente detenidos"
+echo ""
+
+# Crear script de recuperación inmediata
+cat > emergency-recovery-commands.txt << 'EOF'
+# COMANDOS DE RECUPERACIÓN DE EMERGENCIA
+# =====================================
+# Ejecutar estos comandos EN EL SERVIDOR para restaurar el servicio
+
+# 1. Verificar estado de Docker
+echo "🔍 Verificando Docker..."
+docker --version
+systemctl status docker
+
+# 2. Iniciar Docker si está detenido
+echo "🚀 Iniciando Docker..."
+systemctl start docker
+systemctl enable docker
+
+# 3. Verificar contenedores existentes
+echo "📊 Contenedores existentes:"
+docker ps -a
+
+# 4. Verificar redes Docker
+echo "🌐 Redes Docker:"
+docker network ls
+
+# 5. Verificar volúmenes
+echo "💾 Volúmenes Docker:"
+docker volume ls
+
+# 6. OPCIÓN A: Restaurar configuración híbrida anterior (MÁS SEGURA)
+echo "🔄 Restaurando configuración híbrida anterior..."
+docker-compose -f docker-compose.hybrid.yml up -d
+
+# Si no existe el archivo, usar esta configuración de emergencia:
+cat > docker-compose.emergency.yml << 'EMERGENCY_EOF'
+version: '3.8'
+
+networks:
+  umbot-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  directus_uploads:
+  letsencrypt_data:
+  letsencrypt_conf:
+
+services:
+  umbot-astro-static:
+    image: nginx:alpine
+    container_name: umbot-astro-static
+    volumes:
+      - ./public:/var/www/html:ro
+    networks:
+      - umbot-network
+    restart: unless-stopped
+
+  umbot-nginx-emergency:
+    image: nginx:alpine
+    container_name: umbot-nginx-emergency
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./public:/var/www/html:ro
+      - letsencrypt_conf:/etc/letsencrypt:ro
+      - letsencrypt_data:/var/lib/letsencrypt:ro
+    networks:
+      - umbot-network
+    depends_on:
+      - umbot-astro-static
+    restart: unless-stopped
+    command: |
+      sh -c "
+      cat > /etc/nginx/conf.d/default.conf << 'NGINX_CONF'
+      server {
+          listen 80;
+          server_name www.umbot.com.ar;
+          return 301 https://\$$server_name\$$request_uri;
+      }
+      
+      server {
+          listen 443 ssl http2;
+          server_name www.umbot.com.ar;
+          
+          ssl_certificate /etc/letsencrypt/live/www.umbot.com.ar/fullchain.pem;
+          ssl_certificate_key /etc/letsencrypt/live/www.umbot.com.ar/privkey.pem;
+          ssl_protocols TLSv1.2 TLSv1.3;
+          ssl_prefer_server_ciphers off;
+          
+          add_header Strict-Transport-Security 'max-age=31536000; includeSubDomains' always;
+          
+          root /var/www/html;
+          index index.html;
+          
+          location / {
+              try_files \$$uri \$$uri/ =404;
+          }
+      }
+      NGINX_CONF
+      nginx -g 'daemon off;'
+      "
+EMERGENCY_EOF
+
+# 7. Si la opción A falla, usar configuración de emergencia
+echo "🆘 Si la restauración híbrida falla, usar configuración de emergencia:"
+docker-compose -f docker-compose.emergency.yml up -d
+
+# 8. Verificar que el servicio está funcionando
+echo "⏳ Esperando servicios..."
+sleep 15
+
+echo "🔍 Verificando estado:"
+docker ps
+curl -I http://localhost 2>/dev/null || echo "HTTP no responde"
+curl -I https://localhost 2>/dev/null || echo "HTTPS no responde"
+
+echo ""
+echo "✅ VERIFICACIÓN EXTERNA:"
+echo "Probar desde fuera del servidor:"
+echo "curl -I https://www.umbot.com.ar"
+echo ""
+echo "🌐 Si funciona, el sitio debería estar en:"
+echo "https://www.umbot.com.ar"
+EOF
+
+echo "📋 INSTRUCCIONES DE RECUPERACIÓN:"
+echo "================================"
+echo ""
+echo "1. 🔐 CONECTAR AL SERVIDOR INMEDIATAMENTE:"
+echo "   ssh root@www.umbot.com.ar"
+echo ""
+echo "2. 📋 COPIAR Y EJECUTAR LOS COMANDOS DEL ARCHIVO:"
+echo "   cat emergency-recovery-commands.txt"
+echo ""
+echo "3. 🎯 PRIORIDADES:"
+echo "   - Primero restaurar el sitio web principal"
+echo "   - Luego preocuparse por el panel admin"
+echo ""
+echo "4. 🔍 VERIFICAR DESDE AQUÍ:"
+echo "   curl -I https://www.umbot.com.ar"
+echo ""
+echo "⚠️  URGENTE: El servidor necesita atención inmediata"
+echo "El sitio web está completamente caído" 
