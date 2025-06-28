@@ -385,30 +385,30 @@
     <script>
         // Configuración
         const CONFIG = {
-            WEBSITE_URL: 'https://umbot.com.ar',
+            WEBSITE_URL: 'http://localhost:8091',
             SERVER_IP: '23.105.176.45',
             CHECK_INTERVAL: 30000,
             SSH_PORT: 22,
-            DIRECTUS_URL: 'https://umbot.com.ar/admin',
+            DIRECTUS_URL: 'http://23.105.176.45:8055/admin',
             DIRECTUS_CREDENTIALS: {
                 email: 'admin@example.com',
                 password: 'd1r3ctu5'
             },
-            DEMO_MODE: false, // Se activa automáticamente si no hay conexión
+            DEMO_MODE: true, // Activamos modo demo por defecto
             SERVICES: [
                 { 
                     name: 'Directus', 
                     port: 8055, 
                     container: 'directus',
                     healthCheck: '/server/health',
-                    url: 'https://umbot.com.ar:8055/admin'
+                    url: 'http://23.105.176.45:8055'
                 },
                 { 
                     name: 'Nginx', 
                     port: 80, 
                     container: 'nginx',
                     healthCheck: '/',
-                    url: 'https://umbot.com.ar'
+                    url: 'http://23.105.176.45'
                 },
                 { 
                     name: 'PostgreSQL', 
@@ -421,28 +421,14 @@
                     port: 9090, 
                     container: 'prometheus',
                     healthCheck: '/-/ready',
-                    url: 'https://umbot.com.ar:9090'
+                    url: 'http://23.105.176.45:9090'
                 },
                 { 
                     name: 'Grafana', 
                     port: 3000, 
                     container: 'grafana',
                     healthCheck: '/api/health',
-                    url: 'https://umbot.com.ar:3000'
-                },
-                { 
-                    name: 'Node Exporter', 
-                    port: 9100, 
-                    container: 'node-exporter',
-                    healthCheck: '/metrics',
-                    url: 'https://umbot.com.ar:9100'
-                },
-                { 
-                    name: 'Astro App', 
-                    port: 4321, 
-                    container: 'astro',
-                    healthCheck: '/',
-                    url: 'https://umbot.com.ar:4321'
+                    url: 'http://23.105.176.45:3000'
                 }
             ]
         };
