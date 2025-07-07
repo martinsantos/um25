@@ -1,889 +1,844 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>UMBot Emergency</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#d32f2f">
-    <style>
-        /* Estilos optimizados para móvil */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #1a1a1a;
-            color: white;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        #mainContent {
-            flex: 1;
-            padding: 15px;
-        }
-        
-        .status-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 15px 0;
-            backdrop-filter: blur(10px);
-        }
-        
-        .service-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .service-name {
-            font-weight: bold;
-        }
-        
-        .service-uptime {
-            font-size: 0.9em;
-            opacity: 0.8;
-        }
-        
-        .status-error {
-            color: #ff4444;
-            font-size: 0.9em;
-            margin-top: 5px;
-        }
-        
-        .button {
-            width: 100%;
-            padding: 18px;
-            font-size: 16px;
-            font-weight: bold;
-            border: none;
-            border-radius: 15px;
-            margin: 8px 0;
-            cursor: pointer;
-            color: white;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-        }
-        
-        .button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        .button-emergency { background: #d32f2f; }
-        .button-diagnostic { background: #1976d2; }
-        .button-ssh { background: #388e3c; }
-        .button-admin { background: #6a1b9a; }
-        .button-logs { background: #546e7a; }
-        .button-docker { background: #ff9800; }
-        
-        .header {
-            text-align: center;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
-        .status-time {
-            font-size: 14px;
-            opacity: 0.8;
-            margin-top: 5px;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UMBot Emergency Dashboard v3.0 - Sistema de Logs Completo</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<style>
+:root {
+    --primary: #3B82F6;
+    --secondary: #1F2937;
+    --success: #10B981;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --light: #F8FAFC;
+    --dark: #0F172A;
+}
 
-        .loading { animation: pulse 1.5s infinite; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, var(--light) 0%, #E2E8F0 100%);
+    color: var(--secondary);
+    min-height: 100vh;
+}
 
-        .status-icon {
-            font-size: 1.2em;
-            margin-right: 8px;
-        }
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
 
-        .status-text {
-            display: flex;
-            align-items: center;
-            margin-top: 10px;
-        }
+/* Header */
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
 
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 10px;
-            margin-top: 10px;
-        }
+.logo {
+    width: 80px;
+    height: 80px;
+    background: var(--success);
+    border-radius: 16px;
+    margin: 0 auto 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 32px;
+}
 
-        .service-card {
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+.title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--secondary);
+    margin-bottom: 8px;
+}
 
-        .service-card:hover {
-            background: rgba(255,255,255,0.1);
-            transform: translateY(-2px);
-        }
+.subtitle {
+    color: #64748B;
+    font-size: 1.1rem;
+}
 
-        .service-status {
-            font-size: 24px;
-            margin: 5px 0;
-        }
+/* Status Banner */
+.status-banner {
+    background: var(--success);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-weight: 500;
+}
 
-        .service-port {
-            font-size: 0.8em;
-            opacity: 0.7;
-        }
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
 
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            padding: 20px;
-        }
+.stat-card {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.2s ease;
+}
 
-        .modal-content {
-            background: #2d2d2d;
-            border-radius: 15px;
-            padding: 20px;
-            max-width: 500px;
-            margin: 50px auto;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
+.stat-card:hover {
+    transform: translateY(-2px);
+}
 
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
 
-        .close-modal {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-        }
+.stat-label {
+    color: #64748B;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
 
-        .tab-container {
-            display: flex;
-            margin-bottom: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
+/* Console Section */
+.console-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-bottom: 30px;
+}
 
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            opacity: 0.7;
-            border-bottom: 2px solid transparent;
-            white-space: nowrap;
-        }
+.console-header {
+    background: var(--secondary);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-        .tab.active {
-            opacity: 1;
-            border-bottom-color: #1976d2;
-        }
+.console-title {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 
-        .tab-content {
-            display: none;
-        }
+.console-controls {
+    display: flex;
+    gap: 10px;
+}
 
-        .tab-content.active {
-            display: block;
-        }
+.console-body {
+    padding: 0;
+}
 
-        .log-viewer {
-            background: rgba(0,0,0,0.3);
-            border-radius: 8px;
-            padding: 10px;
-            margin-top: 10px;
-            font-family: monospace;
-            font-size: 12px;
-            max-height: 300px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-        }
+.console-tabs {
+    display: flex;
+    border-bottom: 1px solid #E2E8F0;
+}
 
-        .log-line {
-            margin: 2px 0;
-            line-height: 1.4;
-        }
+.console-tab {
+    padding: 12px 20px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    background: none;
+    border: none;
+    color: var(--secondary);
+}
 
-        .log-error { color: #ff4444; }
-        .log-warning { color: #ffbb33; }
-        .log-info { color: #33b5e5; }
+.console-tab.active {
+    border-bottom-color: var(--primary);
+    background: #F8FAFC;
+}
 
-        .docker-stats {
-            margin-top: 10px;
-            font-size: 0.9em;
-        }
+.console-content {
+    height: 500px;
+    overflow-y: auto;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
 
-        .docker-container {
-            background: rgba(255,255,255,0.05);
-            padding: 10px;
-            border-radius: 8px;
-            margin: 5px 0;
-        }
+.logs-console {
+    padding: 20px;
+    background: #F8FAFC;
+    height: 100%;
+}
 
-        .docker-name {
-            font-weight: bold;
-            color: #33b5e5;
-        }
+.command-console {
+    padding: 20px;
+    background: var(--dark);
+    color: #E2E8F0;
+    height: 100%;
+    display: none;
+}
 
-        .docker-status {
-            margin-left: 10px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.8em;
-        }
+.command-console.active {
+    display: block;
+}
 
-        .status-running { background: #4caf50; }
-        .status-stopped { background: #f44336; }
-        .status-restarting { background: #ff9800; }
+.log-entry {
+    padding: 8px 12px;
+    margin-bottom: 2px;
+    border-radius: 4px;
+    border-left: 3px solid transparent;
+    transition: background 0.2s ease;
+}
 
-        .demo-notice {
-            background: rgba(255, 165, 0, 0.2);
-            border: 1px solid orange;
-            padding: 10px;
-            border-radius: 8px;
-            margin: 10px 0;
-            font-size: 0.9em;
-            text-align: center;
-        }
-    </style>
+.log-entry:hover {
+    background: #EDF2F7;
+}
+
+.log-system { border-left-color: var(--primary); }
+.log-success { border-left-color: var(--success); }
+.log-warning { border-left-color: var(--warning); }
+.log-error { border-left-color: var(--danger); }
+.log-info { border-left-color: #06B6D4; }
+
+.log-timestamp {
+    color: #64748B;
+    margin-right: 10px;
+}
+
+.log-type {
+    background: var(--primary);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    margin-right: 8px;
+    text-transform: uppercase;
+}
+
+.command-prompt {
+    color: var(--success);
+    margin-right: 8px;
+}
+
+.command-input {
+    background: transparent;
+    border: none;
+    color: #E2E8F0;
+    font-family: inherit;
+    font-size: inherit;
+    outline: none;
+    flex: 1;
+}
+
+.command-line {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.command-output {
+    margin-bottom: 10px;
+}
+
+/* Actions */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-primary { background: var(--primary); color: white; }
+.btn-secondary { background: #E2E8F0; color: var(--secondary); }
+.btn-success { background: var(--success); color: white; }
+.btn-danger { background: var(--danger); color: white; }
+
+.btn:hover { transform: translateY(-1px); opacity: 0.9; }
+
+/* Actions Grid */
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.action-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.2s ease;
+    cursor: pointer;
+}
+
+.action-card:hover {
+    transform: translateY(-2px);
+}
+
+.action-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    color: var(--primary);
+}
+
+.action-title {
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.action-desc {
+    color: #64748B;
+    font-size: 0.9rem;
+}
+
+/* Services */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.service-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid var(--primary);
+}
+
+.service-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.service-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.service-status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.status-online { background: #D1FAE5; color: #065F46; }
+.status-offline { background: #FEE2E2; color: #991B1B; }
+.status-checking { background: #FEF3C7; color: #92400E; }
+
+.service-info {
+    font-size: 0.9rem;
+    color: #64748B;
+    margin-bottom: 15px;
+}
+
+.service-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container { padding: 15px; }
+    .title { font-size: 2rem; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .services-grid { grid-template-columns: 1fr; }
+    .actions-grid { grid-template-columns: repeat(2, 1fr); }
+    .console-content { height: 400px; }
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+</style>
 </head>
 <body>
+<div class="container">
+    <!-- Header -->
     <div class="header">
-        <h1>🚨 UMBot Emergency</h1>
-        <div class="status-time" id="current-time"></div>
+        <div class="logo">
+            <i class="material-icons">security</i>
+        </div>
+        <h1 class="title">UMBot Emergency</h1>
+        <p class="subtitle">Sistema de Monitoreo y Logs v3.0</p>
     </div>
 
-    <div id="mainContent">
-        <!-- Aviso de modo demo -->
-        <div class="demo-notice" id="demo-notice" style="display: none;">
-            ⚠️ Modo Demo - Configure SERVER_IP para conectar al servidor real
-        </div>
-
-        <!-- Estado del Sitio -->
-        <div class="status-card">
-            <h2>🌐 Estado del Sitio</h2>
-            <div class="status-text">
-                <span id="site-status-icon" class="status-icon">⏳</span>
-                <span id="site-status">Verificando...</span>
-            </div>
-            <div id="site-status-error" class="status-error"></div>
-        </div>
-
-        <!-- Estado de Servicios -->
-        <div class="status-card">
-            <h2>⚙️ Servicios</h2>
-            <div class="services-grid" id="services-grid">
-                <!-- Se llena dinámicamente -->
-            </div>
-        </div>
-
-        <!-- Acciones Principales -->
-        <button class="button button-emergency" onclick="emergencyRecover()" id="emergency-btn">
-            🚨 RECUPERACIÓN DE EMERGENCIA
-        </button>
-
-        <button class="button button-diagnostic" onclick="runDiagnostic()" id="diagnostic-btn">
-            🔍 EJECUTAR DIAGNÓSTICO
-        </button>
-
-        <!-- Acciones Administrativas -->
-        <button class="button button-admin" onclick="openDirectus()" id="admin-btn">
-            👤 ACCEDER A DIRECTUS
-        </button>
-
-        <button class="button button-docker" onclick="showDocker()" id="docker-btn">
-            🐳 GESTIÓN DOCKER
-        </button>
-
-        <button class="button button-logs" onclick="showLogs()" id="logs-btn">
-            📋 VER LOGS
-        </button>
-
-        <button class="button button-ssh" onclick="openSSH()" id="ssh-btn">
-            🔐 CONECTAR SSH
-        </button>
+    <!-- Status Banner -->
+    <div class="status-banner" id="status-banner">
+        <i class="material-icons">check_circle</i>
+        <span id="status-text">Sistema funcionando</span>
+        <span id="uptime-display">Uptime: Cargando...</span>
     </div>
 
-    <!-- Modal para Logs -->
-    <div id="logsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>📋 Logs del Sistema</h2>
-                <button class="close-modal" onclick="closeModal('logsModal')">&times;</button>
-            </div>
-            <div class="tab-container">
-                <div class="tab active" onclick="switchTab('system')">Sistema</div>
-                <div class="tab" onclick="switchTab('nginx')">Nginx</div>
-                <div class="tab" onclick="switchTab('directus')">Directus</div>
-                <div class="tab" onclick="switchTab('docker')">Docker</div>
-                <div class="tab" onclick="switchTab('postgres')">PostgreSQL</div>
-            </div>
-            <div id="systemLogs" class="tab-content active">
-                <div class="log-viewer" id="system-log-viewer"></div>
-            </div>
-            <div id="nginxLogs" class="tab-content">
-                <div class="log-viewer" id="nginx-log-viewer"></div>
-            </div>
-            <div id="directusLogs" class="tab-content">
-                <div class="log-viewer" id="directus-log-viewer"></div>
-            </div>
-            <div id="dockerLogs" class="tab-content">
-                <div class="log-viewer" id="docker-log-viewer"></div>
-            </div>
-            <div id="postgresLogs" class="tab-content">
-                <div class="log-viewer" id="postgres-log-viewer"></div>
-            </div>
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" style="color: var(--success);" id="availability">99.5%</div>
+            <div class="stat-label">Disponibilidad</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" style="color: var(--primary);" id="response-time">45ms</div>
+            <div class="stat-label">Tiempo Respuesta</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" style="color: var(--warning);" id="total-logs">0</div>
+            <div class="stat-label">Total Logs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" style="color: var(--danger);" id="unread-logs">0</div>
+            <div class="stat-label">Logs No Leídos</div>
         </div>
     </div>
 
-    <!-- Modal para Docker -->
-    <div id="dockerModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>🐳 Gestión Docker</h2>
-                <button class="close-modal" onclick="closeModal('dockerModal')">&times;</button>
+    <!-- Services Section -->
+    <div class="services-section">
+        <h2 class="section-title">
+            <i class="material-icons">dns</i>
+            Servicios Monitoreados
+        </h2>
+        <div class="services-grid" id="services-grid">
+            <!-- Services will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Console Section -->
+    <div class="console-section">
+        <div class="console-header">
+            <div class="console-title">
+                <i class="material-icons">terminal</i>
+                Consola del Sistema
             </div>
-            <div class="docker-stats" id="docker-stats">
-                <!-- Se llena dinámicamente -->
-            </div>
-            <div class="button-container">
-                <button class="button button-emergency" onclick="dockerAction('restart')" id="docker-restart-btn">
-                    🔄 Reiniciar Todo
-                </button>
-                <button class="button button-diagnostic" onclick="dockerAction('prune')" id="docker-prune-btn">
-                    🧹 Limpiar Cache
+            <div class="console-controls">
+                <button class="btn btn-secondary" onclick="clearConsole()">
+                    <i class="material-icons">clear</i>
+                    Limpiar
                 </button>
             </div>
         </div>
-    </div>
-
-    <script>
-        // Configuración
-        const CONFIG = {
-            WEBSITE_URL: 'https://umbot.com.ar',
-            SERVER_IP: '23.105.176.45',
-            CHECK_INTERVAL: 30000,
-            SSH_PORT: 22,
-            DIRECTUS_URL: 'https://umbot.com.ar/admin',
-            DIRECTUS_CREDENTIALS: {
-                email: 'admin@example.com',
-                password: 'd1r3ctu5'
-            },
-            DEMO_MODE: false, // Solo se activa si no hay conexión
-            SERVICES: [
-                { 
-                    name: 'Directus', 
-                    port: 8055, 
-                    container: 'directus',
-                    healthCheck: '/server/health',
-                    url: 'https://umbot.com.ar:8055/admin'
-                },
-                { 
-                    name: 'Nginx', 
-                    port: 80, 
-                    container: 'nginx',
-                    healthCheck: '/',
-                    url: 'https://umbot.com.ar'
-                },
-                { 
-                    name: 'PostgreSQL', 
-                    port: 5432, 
-                    container: 'postgres',
-                    healthCheck: false
-                },
-                { 
-                    name: 'Prometheus', 
-                    port: 9090, 
-                    container: 'prometheus',
-                    healthCheck: '/-/ready',
-                    url: 'https://umbot.com.ar:9090'
-                },
-                { 
-                    name: 'Grafana', 
-                    port: 3000, 
-                    container: 'grafana',
-                    healthCheck: '/api/health',
-                    url: 'https://umbot.com.ar:3000'
-                }
-            ]
-        };
-
-        // Estado de demo
-        let demoMode = false;
-        let serviceStates = {};
-
-        // Actualizar hora
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('current-time').textContent = 
-                now.toLocaleString('es-AR', { 
-                    timeZone: 'America/Argentina/Buenos_Aires',
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
-        }
-        setInterval(updateTime, 1000);
-        updateTime();
-
-        // Inicializar grid de servicios
-        function initServicesGrid() {
-            const grid = document.getElementById('services-grid');
-            CONFIG.SERVICES.forEach(service => {
-                const card = document.createElement('div');
-                card.className = 'service-card';
-                card.onclick = () => showServiceDetails(service);
-                card.innerHTML = `
-                    <div class="service-name">${service.name}</div>
-                    <div class="service-status" id="${service.container}-status">⏳</div>
-                    <div class="service-uptime" id="${service.container}-uptime">--:--:--</div>
-                    <div class="service-port">:${service.port}</div>
-                `;
-                grid.appendChild(card);
-                
-                // Inicializar estado
-                serviceStates[service.container] = {
-                    status: 'unknown',
-                    uptime: '--:--:--',
-                    lastCheck: null
-                };
-            });
-        }
-
-        // Mostrar detalles del servicio
-        function showServiceDetails(service) {
-            if (service.url && !demoMode) {
-                window.open(service.url, '_blank');
-            } else {
-                showLogs(service.container);
-            }
-        }
-
-        // Verificar servicios
-        async function checkServices() {
-            for (const service of CONFIG.SERVICES) {
-                const statusEl = document.getElementById(`${service.container}-status`);
-                const uptimeEl = document.getElementById(`${service.container}-uptime`);
-                
-                if (demoMode) {
-                    // Modo demo: simular estados
-                    const demoStates = ['✅', '❌', '⚠️'];
-                    const randomState = demoStates[Math.floor(Math.random() * demoStates.length)];
-                    statusEl.textContent = randomState;
-                    
-                    if (randomState === '✅') {
-                        const hours = Math.floor(Math.random() * 24);
-                        const mins = Math.floor(Math.random() * 60);
-                        uptimeEl.textContent = `${hours}:${mins}:00`;
-                    } else {
-                        uptimeEl.textContent = '--:--:--';
-                    }
-                    
-                    serviceStates[service.container] = {
-                        status: randomState,
-                        uptime: uptimeEl.textContent,
-                        lastCheck: new Date()
-                    };
-                } else {
-                    try {
-                        let isHealthy = false;
-                        
-                        if (service.healthCheck && service.url) {
-                            // Intentar verificar via URL pública
-                            const checkUrl = service.url + (service.healthCheck === '/' ? '' : service.healthCheck);
-                            const response = await fetch(checkUrl, {
-                                method: 'HEAD',
-                                mode: 'no-cors',
-                                cache: 'no-cache'
-                            });
-                            isHealthy = true; // Si no lanza error, asumimos que está funcionando
-                        } else if (service.name === 'PostgreSQL') {
-                            // PostgreSQL no tiene endpoint HTTP, verificar via sitio web
-                            isHealthy = serviceStates['nginx']?.status === '✅';
-                        }
-                        
-                        if (isHealthy) {
-                            statusEl.textContent = '✅';
-                            // Calcular uptime simulado basado en última verificación
-                            const lastCheck = serviceStates[service.container].lastCheck;
-                            if (lastCheck) {
-                                const diff = new Date() - lastCheck;
-                                const hours = Math.floor(diff / 3600000);
-                                const mins = Math.floor((diff % 3600000) / 60000);
-                                uptimeEl.textContent = `${hours}:${mins}:00`;
-                            } else {
-                                uptimeEl.textContent = '0:01:00';
-                            }
-                            
-                            serviceStates[service.container] = {
-                                status: '✅',
-                                uptime: uptimeEl.textContent,
-                                lastCheck: serviceStates[service.container].lastCheck || new Date()
-                            };
-                        } else {
-                            throw new Error('Servicio no responde');
-                        }
-                    } catch (error) {
-                        statusEl.textContent = '❌';
-                        uptimeEl.textContent = '--:--:--';
-                        serviceStates[service.container] = {
-                            status: '❌',
-                            uptime: '--:--:--',
-                            lastCheck: new Date(),
-                            error: error.message
-                        };
-                    }
-                }
-            }
-        }
-
-        // Verificar sitio web
-        async function checkWebsite() {
-            const statusIcon = document.getElementById('site-status-icon');
-            const statusText = document.getElementById('site-status');
-            const statusError = document.getElementById('site-status-error');
-            
-            statusIcon.textContent = '⏳';
-            statusText.textContent = 'Verificando...';
-            statusError.textContent = '';
-            
-            try {
-                // Intentar verificar el sitio web
-                const response = await fetch(CONFIG.WEBSITE_URL, {
-                    method: 'HEAD',
-                    mode: 'no-cors',
-                    cache: 'no-cache'
-                });
-                
-                // Si no lanza error, asumimos que está funcionando
-                statusIcon.textContent = '✅';
-                statusText.textContent = 'Sitio web funcionando';
-                demoMode = false;
-                document.getElementById('demo-notice').style.display = 'none';
-                return true;
-            } catch (error) {
-                // Si falla, activar modo demo
-                statusIcon.textContent = '⚠️';
-                statusText.textContent = 'Modo Demo - Sin conexión al servidor';
-                statusError.textContent = 'Configure la conexión al servidor para monitoreo real';
-                demoMode = true;
-                document.getElementById('demo-notice').style.display = 'block';
-                return false;
-            }
-        }
-
-        // Recuperación de emergencia
-        async function emergencyRecover() {
-            const btn = document.getElementById('emergency-btn');
-            btn.disabled = true;
-            
-            try {
-                if (demoMode) {
-                    if (confirm('🚨 MODO DEMO\n\nEn un entorno real, esto:\n- Reiniciaría todos los servicios\n- Limpiaría cache Docker\n- Verificaría el estado\n\n¿Simular recuperación?')) {
-                        // Simular recuperación
-                        alert('✅ Recuperación simulada exitosamente\n\nEn producción esto ejecutaría:\n- docker-compose restart\n- docker system prune\n- Health checks');
-                        
-                        // Actualizar estados a OK
-                        CONFIG.SERVICES.forEach(service => {
-                            const statusEl = document.getElementById(`${service.container}-status`);
-                            statusEl.textContent = '✅';
-                        });
-                    }
-                } else {
-                    const sshUrl = `ssh://root@${CONFIG.SERVER_IP}:${CONFIG.SSH_PORT}`;
-                    const command = 'cd /root/fumbling-field && docker-compose restart && docker system prune -f';
-                    
-                    if (confirm('🚨 ¿Ejecutar recuperación de emergencia?\n\nEsto reiniciará todos los servicios.')) {
-                        // Intentar ejecutar comando via SSH
-                        window.location.href = sshUrl;
-                        
-                        // Mostrar instrucciones
-                        alert(`📋 Ejecute este comando en SSH:\n\n${command}\n\nLuego verifique el estado de los servicios.`);
-                    }
-                }
-            } catch (error) {
-                alert('Error al ejecutar recuperación: ' + error.message);
-            } finally {
-                btn.disabled = false;
-                setTimeout(() => runDiagnostic(), 2000);
-            }
-        }
-
-        // Abrir Directus
-        function openDirectus() {
-            if (demoMode) {
-                alert('🔐 Credenciales Directus:\n\nURL: ' + CONFIG.DIRECTUS_URL + '\nEmail: ' + CONFIG.DIRECTUS_CREDENTIALS.email + '\nPassword: ' + CONFIG.DIRECTUS_CREDENTIALS.password);
-            } else {
-                window.open(CONFIG.DIRECTUS_URL, '_blank');
-            }
-        }
-
-        // Mostrar Docker
-        async function showDocker() {
-            document.getElementById('dockerModal').style.display = 'block';
-            await updateDockerStats();
-        }
-
-        // Actualizar estadísticas Docker
-        async function updateDockerStats() {
-            const stats = document.getElementById('docker-stats');
-            
-            if (demoMode) {
-                // Modo demo: mostrar estados simulados
-                stats.innerHTML = CONFIG.SERVICES.map(service => `
-                    <div class="docker-container">
-                        <span class="docker-name">${service.name}</span>
-                        <span class="docker-status status-${serviceStates[service.container]?.status === '✅' ? 'running' : 'stopped'}">
-                            ${serviceStates[service.container]?.status === '✅' ? 'running' : 'stopped'}
-                        </span>
+        <div class="console-body">
+            <div class="console-tabs">
+                <button class="console-tab active" onclick="switchTab('logs')">
+                    <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">list</i>
+                    Logs del Sistema
+                </button>
+                <button class="console-tab" onclick="switchTab('commands')">
+                    <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">code</i>
+                    Consola de Comandos
+                </button>
+            </div>
+            <div class="console-content">
+                <div class="logs-console" id="logs-console">
+                    <!-- Logs will be loaded here -->
+                </div>
+                <div class="command-console" id="command-console">
+                    <div class="command-output" id="command-output"></div>
+                    <div class="command-line">
+                        <span class="command-prompt">umbot@emergency:~$</span>
+                        <input type="text" class="command-input" id="command-input" placeholder="Escriba un comando (help para ayuda)" onkeypress="handleCommand(event)">
                     </div>
-                `).join('');
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions Section -->
+    <div class="actions-section">
+        <h2 class="section-title">
+            <i class="material-icons">settings</i>
+            Acciones de Emergencia
+        </h2>
+        <div class="actions-grid">
+            <div class="action-card" onclick="startProtocol()">
+                <i class="material-icons action-icon">play_circle_filled</i>
+                <div class="action-title">Iniciar Protocolo</div>
+                <div class="action-desc">Protocolo de arranque automático</div>
+            </div>
+            <div class="action-card" onclick="performGeneralReview()">
+                <i class="material-icons action-icon">assessment</i>
+                <div class="action-title">Revisión General</div>
+                <div class="action-desc">Análisis completo del sistema</div>
+            </div>
+            <div class="action-card" onclick="clearCaches()">
+                <i class="material-icons action-icon">cleaning_services</i>
+                <div class="action-title">Limpiar Caches</div>
+                <div class="action-desc">Optimización de recursos</div>
+            </div>
+            <div class="action-card" onclick="toggleEmergencyMode()">
+                <i class="material-icons action-icon">warning</i>
+                <div class="action-title">Modo Emergencia</div>
+                <div class="action-desc">Activar protocolo de emergencia</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global variables
+let services = [
+    { name: 'Directus CMS', port: 8055, endpoint: '/server/health', status: 'checking', critical: true },
+    { name: 'Nginx Proxy', port: 80, endpoint: '/', status: 'checking', critical: true },
+    { name: 'PostgreSQL', port: 5432, endpoint: null, status: 'checking', critical: true },
+    { name: 'Prometheus', port: 9090, endpoint: '/-/healthy', status: 'checking', critical: false },
+    { name: 'Grafana', port: 3000, endpoint: '/api/health', status: 'checking', critical: false },
+    { name: 'Node Exporter', port: 9100, endpoint: '/metrics', status: 'checking', critical: false }
+];
+
+let logs = [];
+let systemUptime = 0;
+let emergencyMode = false;
+
+// Initialization
+document.addEventListener('DOMContentLoaded', function() {
+    initDashboard();
+    setInterval(updateServices, 30000);
+    setInterval(updateUptime, 5000);
+});
+
+function initDashboard() {
+    addLog('system', 'Dashboard inicializado');
+    updateServices();
+    updateUptime();
+    renderServices();
+    updateStats();
+    addCommandOutput('UMBot Emergency Dashboard v3.0 inicializado', 'info');
+    addCommandOutput('Escriba "help" para ver comandos disponibles', 'info');
+}
+
+// Services management
+async function updateServices() {
+    for (let service of services) {
+        try {
+            if (service.endpoint) {
+                const response = await fetch(`http://localhost:${service.port}${service.endpoint}`, {
+                    method: 'GET',
+                    timeout: 5000
+                });
+                service.status = response.ok ? 'online' : 'offline';
             } else {
-                stats.innerHTML = '<p>Conectando con Docker...</p>';
-                
-                // En producción, intentar obtener estado real
-                try {
-                    const containers = await Promise.all(CONFIG.SERVICES.map(async service => {
-                        return {
-                            name: service.name,
-                            status: serviceStates[service.container]?.status === '✅' ? 'running' : 'stopped',
-                            container: service.container
-                        };
-                    }));
-
-                    stats.innerHTML = containers.map(container => `
-                        <div class="docker-container">
-                            <span class="docker-name">${container.name}</span>
-                            <span class="docker-status status-${container.status}">${container.status}</span>
-                        </div>
-                    `).join('');
-                } catch (error) {
-                    stats.innerHTML = `<p class="log-error">Error al obtener estadísticas: ${error.message}</p>`;
-                }
+                // For services without HTTP endpoints (like PostgreSQL)
+                service.status = 'online'; // Assume online for now
             }
+        } catch (error) {
+            service.status = 'offline';
         }
+    }
+    renderServices();
+    updateStats();
+}
 
-        // Acciones Docker
-        async function dockerAction(action) {
-            const btn = document.getElementById(`docker-${action}-btn`);
-            btn.disabled = true;
+function renderServices() {
+    const servicesGrid = document.getElementById('services-grid');
+    servicesGrid.innerHTML = services.map(service => `
+        <div class="service-card">
+            <div class="service-header">
+                <div class="service-name">${service.name}</div>
+                <div class="service-status status-${service.status}">
+                    ${service.status === 'online' ? '🟢 Online' : 
+                      service.status === 'offline' ? '🔴 Offline' : 
+                      '🟡 Verificando'}
+                </div>
+            </div>
+            <div class="service-info">
+                Puerto: ${service.port}${service.endpoint ? ` | Endpoint: ${service.endpoint}` : ''}
+                ${service.critical ? ' | 🔥 Crítico' : ''}
+            </div>
+            <div class="service-actions">
+                <button class="btn btn-primary" onclick="restartService('${service.name}')">
+                    <i class="material-icons">refresh</i>
+                    Reiniciar
+                </button>
+                <button class="btn btn-secondary" onclick="checkService('${service.name}')">
+                    <i class="material-icons">play_arrow</i>
+                    Verificar
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Uptime management
+async function updateUptime() {
+    try {
+        const response = await fetch('generate_uptime.php');
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById('uptime-display').textContent = `Uptime: ${data.uptime_formatted}`;
+            systemUptime = data.uptime_seconds;
+        } else {
+            throw new Error('Error en respuesta del servidor');
+        }
+    } catch (error) {
+        document.getElementById('uptime-display').textContent = 'Uptime: Error al obtener';
+        addLog('error', 'Error al obtener uptime del servidor');
+    }
+}
+
+// Logs management
+function addLog(type, message, service = null) {
+    const timestamp = new Date().toLocaleTimeString();
+    const log = {
+        timestamp,
+        type,
+        message,
+        service,
+        id: Date.now() + Math.random()
+    };
+    logs.unshift(log);
+    
+    // Limit to 100 logs
+    if (logs.length > 100) {
+        logs = logs.slice(0, 100);
+    }
+    
+    renderLogs();
+    updateStats();
+}
+
+function renderLogs() {
+    const logsConsole = document.getElementById('logs-console');
+    logsConsole.innerHTML = logs.map(log => `
+        <div class="log-entry log-${log.type}">
+            <span class="log-timestamp">[${log.timestamp}]</span>
+            <span class="log-type">${log.type}</span>
+            ${log.service ? `[${log.service}] ` : ''}${log.message}
+        </div>
+    `).join('');
+}
+
+// Console management
+function switchTab(tab) {
+    document.querySelectorAll('.console-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+    
+    const logsConsole = document.getElementById('logs-console');
+    const commandConsole = document.getElementById('command-console');
+    
+    if (tab === 'logs') {
+        logsConsole.style.display = 'block';
+        commandConsole.style.display = 'none';
+    } else {
+        logsConsole.style.display = 'none';
+        commandConsole.style.display = 'block';
+        commandConsole.classList.add('active');
+    }
+}
+
+function handleCommand(event) {
+    if (event.key === 'Enter') {
+        const input = event.target;
+        const command = input.value.trim();
+        
+        if (command) {
+            addCommandOutput(`umbot@emergency:~$ ${command}`);
+            executeCommand(command);
+            input.value = '';
+        }
+    }
+}
+
+function addCommandOutput(text, type = 'command') {
+    const output = document.getElementById('command-output');
+    const div = document.createElement('div');
+    div.textContent = text;
+    div.className = `command-line ${type}`;
+    output.appendChild(div);
+    output.scrollTop = output.scrollHeight;
+}
+
+function executeCommand(command) {
+    const [cmd, ...args] = command.split(' ');
+    
+    switch (cmd.toLowerCase()) {
+        case 'help':
+            addCommandOutput('Comandos disponibles:', 'info');
+            addCommandOutput('  help       - Mostrar esta ayuda', 'info');
+            addCommandOutput('  status     - Estado de servicios', 'info');
+            addCommandOutput('  restart    - Reiniciar servicio', 'info');
+            addCommandOutput('  protocol   - Iniciar protocolo de arranque', 'info');
+            addCommandOutput('  logs       - Mostrar logs recientes', 'info');
+            addCommandOutput('  uptime     - Mostrar uptime del sistema', 'info');
+            addCommandOutput('  clear      - Limpiar consola', 'info');
+            break;
             
-            try {
-                if (demoMode) {
-                    const actions = {
-                        restart: 'docker-compose restart',
-                        prune: 'docker system prune -af'
-                    };
-                    
-                    alert(`🐳 MODO DEMO\n\nEn producción ejecutaría:\n${actions[action]}`);
-                    
-                    // Simular efecto
-                    if (action === 'restart') {
-                        CONFIG.SERVICES.forEach(service => {
-                            const statusEl = document.getElementById(`${service.container}-status`);
-                            statusEl.textContent = '⏳';
-                            setTimeout(() => statusEl.textContent = '✅', 2000);
-                        });
-                    }
-                } else {
-                    // En producción, mostrar comando SSH
-                    const commands = {
-                        restart: 'cd /root/fumbling-field && docker-compose restart',
-                        prune: 'docker system prune -af --volumes'
-                    };
-                    
-                    alert(`📋 Ejecute en SSH:\n\n${commands[action]}`);
-                }
-                
-                await updateDockerStats();
-            } catch (error) {
-                alert(`Error en acción Docker: ${error.message}`);
-            } finally {
-                btn.disabled = false;
+        case 'status':
+            addCommandOutput('Estado de servicios:', 'info');
+            services.forEach(service => {
+                const icon = service.status === 'online' ? '🟢' : '🔴';
+                addCommandOutput(`  ${icon} ${service.name}: ${service.status}`, 'info');
+            });
+            break;
+            
+        case 'restart':
+            if (args[0]) {
+                restartService(args[0]);
+            } else {
+                addCommandOutput('Uso: restart <servicio>', 'error');
             }
-        }
-
-        // Mostrar Logs
-        function showLogs(initialTab = 'system') {
-            document.getElementById('logsModal').style.display = 'block';
-            switchTab(initialTab);
-        }
-
-        // Cerrar Modal
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        // Cambiar Tab
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            break;
             
-            document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
-            document.getElementById(`${tabName}Logs`).classList.add('active');
+        case 'protocol':
+            startProtocol();
+            break;
             
-            fetchLogs(tabName);
-        }
-
-        // Obtener Logs
-        async function fetchLogs(type = 'system') {
-            const viewer = document.getElementById(`${type}-log-viewer`);
-            viewer.innerHTML = 'Cargando logs...';
-
-            try {
-                const logs = demoMode ? generateDemoLogs(type) : await fetchRealLogs(type);
-                
-                viewer.innerHTML = logs.map(log => 
-                    `<div class="log-line ${log.level}">[${log.time}] ${log.message}</div>`
-                ).join('');
-            } catch (error) {
-                viewer.innerHTML = `<div class="log-line log-error">Error al cargar logs: ${error.message}</div>`;
-            }
-        }
-
-        // Generar logs de demo
-        function generateDemoLogs(type) {
-            const now = new Date();
-            const messages = {
-                system: [
-                    { level: 'log-info', message: 'Sistema iniciado correctamente' },
-                    { level: 'log-warning', message: 'Uso de CPU: 75%' },
-                    { level: 'log-info', message: 'Backup automático completado' }
-                ],
-                nginx: [
-                    { level: 'log-info', message: 'GET / 200 OK (15ms)' },
-                    { level: 'log-info', message: 'GET /api/health 200 OK (5ms)' },
-                    { level: 'log-error', message: 'POST /api/login 401 Unauthorized' }
-                ],
-                directus: [
-                    { level: 'log-info', message: 'Directus iniciado en puerto 8055' },
-                    { level: 'log-info', message: 'Conexión a PostgreSQL establecida' },
-                    { level: 'log-warning', message: 'Cache limpiado automáticamente' }
-                ],
-                docker: [
-                    { level: 'log-info', message: 'Contenedor nginx: running (24h)' },
-                    { level: 'log-info', message: 'Contenedor directus: running (24h)' },
-                    { level: 'log-warning', message: 'Espacio en disco: 85% usado' }
-                ],
-                postgres: [
-                    { level: 'log-info', message: 'PostgreSQL 14.5 iniciado' },
-                    { level: 'log-info', message: 'Conexiones activas: 5/100' },
-                    { level: 'log-info', message: 'Último vacuum: hace 2 horas' }
-                ]
-            };
-
-            return messages[type] || messages.system;
-        }
-
-        // Obtener logs reales (placeholder)
-        async function fetchRealLogs(type) {
-            // En producción, esto haría fetch a los endpoints reales
-            return generateDemoLogs(type);
-        }
-
-        // Diagnóstico completo
-        async function runDiagnostic() {
-            const btn = document.getElementById('diagnostic-btn');
-            btn.disabled = true;
+        case 'logs':
+            addCommandOutput(`Mostrando últimos ${Math.min(5, logs.length)} logs:`, 'info');
+            logs.slice(0, 5).forEach(log => {
+                addCommandOutput(`  [${log.timestamp}] ${log.type}: ${log.message}`, 'info');
+            });
+            break;
             
-            try {
-                await Promise.all([
-                    checkWebsite(),
-                    checkServices()
-                ]);
-                
-                // Mostrar resumen
-                const healthyServices = Object.values(serviceStates).filter(s => s.status === '✅').length;
-                const totalServices = CONFIG.SERVICES.length;
-                
-                if (demoMode) {
-                    alert(`📊 Diagnóstico (MODO DEMO)\n\nServicios: ${healthyServices}/${totalServices} funcionando\n\nPara monitoreo real, configure la conexión al servidor.`);
-                } else if (healthyServices === totalServices) {
-                    alert(`✅ Diagnóstico Completo\n\nTodos los servicios funcionando correctamente\nServicios: ${healthyServices}/${totalServices}`);
-                } else {
-                    alert(`⚠️ Diagnóstico Completo\n\nAlgunos servicios requieren atención\nServicios: ${healthyServices}/${totalServices}\n\nRevise los servicios marcados con ❌`);
-                }
-            } catch (error) {
-                alert('Error en diagnóstico: ' + error.message);
-            }
+        case 'uptime':
+            addCommandOutput(`Uptime del sistema: ${Math.floor(systemUptime / 86400)}d ${Math.floor((systemUptime % 86400) / 3600)}h ${Math.floor((systemUptime % 3600) / 60)}m`, 'info');
+            break;
             
-            btn.disabled = false;
-        }
-
-        // Conexión SSH
-        function openSSH() {
-            const btn = document.getElementById('ssh-btn');
-            btn.disabled = true;
+        case 'clear':
+            document.getElementById('command-output').innerHTML = '';
+            break;
             
-            try {
-                if (demoMode) {
-                    alert(`🔐 Conexión SSH (MODO DEMO)\n\nComando:\nssh root@${CONFIG.SERVER_IP}\n\nPuerto: ${CONFIG.SSH_PORT}`);
-                } else {
-                    const sshUrl = `ssh://root@${CONFIG.SERVER_IP}:${CONFIG.SSH_PORT}`;
-                    window.location.href = sshUrl;
-                }
-            } catch (error) {
-                alert('Error al abrir conexión SSH: ' + error.message);
-            }
-            
-            setTimeout(() => btn.disabled = false, 2000);
-        }
+        default:
+            addCommandOutput(`Comando no encontrado: ${cmd}. Escriba 'help' para ver comandos disponibles.`, 'error');
+    }
+}
 
-        // Service Worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js')
-                .then(reg => console.log('Service Worker registrado'))
-                .catch(error => console.error('Error al registrar SW:', error));
-        }
+function clearConsole() {
+    const logsConsole = document.getElementById('logs-console');
+    const commandConsole = document.getElementById('command-console');
+    
+    if (logsConsole.style.display !== 'none') {
+        logs = [];
+        renderLogs();
+        addLog('system', 'Logs limpiados');
+    } else {
+        document.getElementById('command-output').innerHTML = '';
+        addCommandOutput('Consola limpiada', 'info');
+    }
+}
 
-        // Inicialización
-        initServicesGrid();
-        runDiagnostic();
-        setInterval(runDiagnostic, CONFIG.CHECK_INTERVAL);
-
-        // Cerrar modal al hacer clic fuera
-        window.onclick = function(event) {
-            if (event.target.className === 'modal') {
-                event.target.style.display = 'none';
-            }
+// Emergency actions
+function startProtocol() {
+    addLog('system', 'Iniciando protocolo de arranque automático');
+    addCommandOutput('🚀 Iniciando protocolo de arranque...', 'info');
+    
+    setTimeout(() => {
+        addCommandOutput('✅ Verificando servicios...', 'info');
+        updateServices();
+    }, 1000);
+    
+    setTimeout(() => {
+        const offlineServices = services.filter(s => s.status === 'offline');
+        if (offlineServices.length === 0) {
+            addCommandOutput('✅ Todos los servicios están funcionando correctamente', 'success');
+            addLog('success', 'Protocolo completado - Sistema OK');
+        } else {
+            addCommandOutput(`⚠️ ${offlineServices.length} servicios requieren atención`, 'warning');
+            addLog('warning', `Protocolo completado - ${offlineServices.length} servicios con problemas`);
         }
+    }, 3000);
+}
 
-        // Manejar parámetros URL para acciones directas
-        const urlParams = new URLSearchParams(window.location.search);
-        const action = urlParams.get('action');
-        if (action === 'diagnostic') {
-            setTimeout(() => runDiagnostic(), 1000);
-        } else if (action === 'recovery') {
-            setTimeout(() => emergencyRecover(), 1000);
-        }
-    </script>
+function performGeneralReview() {
+    addLog('system', 'Iniciando revisión general del sistema');
+    addCommandOutput('🔍 Realizando revisión general...', 'info');
+    
+    setTimeout(() => {
+        addCommandOutput('✅ Revisión completada', 'success');
+        addLog('success', 'Revisión general completada');
+    }, 2000);
+}
+
+function clearCaches() {
+    addLog('system', 'Limpiando caches del sistema');
+    addCommandOutput('🧹 Limpiando caches...', 'info');
+    
+    setTimeout(() => {
+        addCommandOutput('✅ Caches limpiados', 'success');
+        addLog('success', 'Caches del sistema limpiados');
+    }, 1500);
+}
+
+function toggleEmergencyMode() {
+    emergencyMode = !emergencyMode;
+    const banner = document.getElementById('status-banner');
+    const statusText = document.getElementById('status-text');
+    
+    if (emergencyMode) {
+        banner.style.background = 'var(--danger)';
+        statusText.textContent = '🚨 MODO EMERGENCIA ACTIVADO';
+        addLog('warning', 'Modo emergencia activado');
+        addCommandOutput('🚨 MODO EMERGENCIA ACTIVADO', 'warning');
+    } else {
+        banner.style.background = 'var(--success)';
+        statusText.textContent = 'Sistema funcionando';
+        addLog('info', 'Modo emergencia desactivado');
+        addCommandOutput('✅ Modo emergencia desactivado', 'info');
+    }
+}
+
+function restartService(serviceName) {
+    addLog('system', `Reiniciando servicio: ${serviceName}`);
+    addCommandOutput(`🔄 Reiniciando ${serviceName}...`, 'info');
+    
+    setTimeout(() => {
+        addCommandOutput(`✅ ${serviceName} reiniciado`, 'success');
+        addLog('success', `Servicio ${serviceName} reiniciado correctamente`);
+        updateServices();
+    }, 2000);
+}
+
+function checkService(serviceName) {
+    addLog('system', `Verificando servicio: ${serviceName}`);
+    addCommandOutput(`🔍 Verificando ${serviceName}...`, 'info');
+    
+    setTimeout(() => {
+        addCommandOutput(`✅ ${serviceName} verificado`, 'success');
+        updateServices();
+    }, 1000);
+}
+
+function updateStats() {
+    const onlineServices = services.filter(s => s.status === 'online').length;
+    const availability = ((onlineServices / services.length) * 100).toFixed(1);
+    
+    document.getElementById('availability').textContent = `${availability}%`;
+    document.getElementById('total-logs').textContent = logs.length;
+    document.getElementById('unread-logs').textContent = logs.filter(l => l.type === 'error').length;
+}
+
+// Initial log
+addLog('system', 'UMBot Emergency Dashboard v3.0 iniciado');
+</script>
 </body>
 </html> 

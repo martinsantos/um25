@@ -1,5 +1,20 @@
 #!/bin/bash
 
+# Detener y eliminar contenedores existentes
+docker-compose down
+
+# Crear red si no existe
+docker network create umbot-network || true
+
+# Construir y levantar contenedores
+docker-compose up -d --build
+
+# Verificar el estado
+docker ps | grep umbot-emergency
+
+# Mostrar los logs
+docker logs umbot-emergency
+
 # Crear directorio si no existe
 mkdir -p /root/fumbling-field/umbot-emergency-app
 

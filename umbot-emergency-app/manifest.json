@@ -1,54 +1,81 @@
 {
-  "name": "UMBot Emergency",
-  "short_name": "UMBot",
-  "description": "App de emergencia para monitoreo y recuperación de servicios",
+  "name": "UMBot Emergency v2.0.0",
+  "short_name": "UMBot Emergency",
+  "description": "Sistema de monitoreo y recuperación de emergencia para UMBot - Versión 2.0.0 con estadísticas, logs permanentes y comandos directos",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1a1a1a",
   "theme_color": "#d32f2f",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "es",
+  "categories": ["utilities", "productivity", "monitoring"],
   "icons": [
     {
-      "src": "/icon.svg",
+      "src": "icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.png", 
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icon-96.png",
+      "src": "icon-96.png",
       "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon.ico",
+      "sizes": "16x16",
+      "type": "image/x-icon"
     }
   ],
-  "orientation": "portrait",
-  "categories": ["utilities", "productivity"],
-  "prefer_related_applications": false,
+  "screenshots": [
+    {
+      "src": "icon-512.png", 
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
   "shortcuts": [
     {
-      "name": "Diagnóstico",
+      "name": "Diagnóstico Rápido",
       "short_name": "Diagnóstico",
-      "description": "Ejecutar diagnóstico completo",
+      "description": "Ejecutar diagnóstico completo del sistema",
       "url": "/?action=diagnostic",
-      "icons": [{ "src": "/icon-96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "icon-96.png", "sizes": "96x96" }]
     },
     {
-      "name": "Recuperación",
-      "short_name": "Recuperar",
-      "description": "Iniciar recuperación de emergencia",
+      "name": "Recuperación de Emergencia",
+      "short_name": "Emergencia",
+      "description": "Iniciar procedimiento de recuperación",
       "url": "/?action=recovery",
-      "icons": [{ "src": "/icon-96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Panel Admin",
+      "short_name": "Admin",
+      "description": "Acceso directo al panel de administración",
+      "url": "/?action=admin",
+      "icons": [{ "src": "icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Logs del Sistema",
+      "short_name": "Logs",
+      "description": "Ver logs permanentes del sistema",
+      "url": "/?action=logs",
+      "icons": [{ "src": "icon-96.png", "sizes": "96x96" }]
     }
-  ]
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
 } 

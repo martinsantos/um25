@@ -1,4 +1,4 @@
-# 🚨 UMBot Emergency App
+# 🚨 UMBot Emergency App v2.0.1
 
 App de emergencia para monitoreo y recuperación de servicios de UMBot.
 
@@ -10,164 +10,153 @@ App de emergencia para monitoreo y recuperación de servicios de UMBot.
 - **Recuperación de emergencia** automatizada
 - **PWA instalable** que funciona offline
 - **Interfaz móvil** optimizada
+- **API REST** para gestión remota
+- **Modo Demo** para pruebas sin conexión
 
-## 📱 Instalación en Móvil
+## 🚀 Instalación y Despliegue
 
-### Android
-1. Abre https://emergency.umbot.com.ar en Chrome
-2. Toca el menú (3 puntos) → "Añadir a pantalla de inicio"
-3. O espera el banner automático de instalación
+### Requisitos
+- Docker y Docker Compose
+- Node.js 18 o superior (para desarrollo)
+- Acceso al socket de Docker
 
-### iOS
-1. Abre https://emergency.umbot.com.ar en Safari
-2. Toca el botón compartir → "Añadir a pantalla de inicio"
-
-## 🚀 Acceso Local
-
+### Método 1: Docker Compose (Recomendado)
 ```bash
-cd umbot-emergency-app
-python3 -m http.server 8001
+# Clonar repositorio
+git clone https://github.com/umbot/emergency-app.git
+cd emergency-app
+
+# Construir y ejecutar
+docker-compose up -d
+
+# Ver logs
+docker-compose logs -f
 ```
 
-Luego abre: http://localhost:8001
-
-## 🛠️ Funcionalidades
-
-### Estado del Sitio
-- Verificación automática cada 30 segundos
-- Indicador visual del estado (✅/❌)
-- Mensajes de error detallados
-
-### Servicios Monitoreados
-- **Directus** (Puerto 8055) - CMS y Admin
-- **Nginx** (Puerto 80) - Servidor web
-- **PostgreSQL** (Puerto 5432) - Base de datos
-- **Prometheus** (Puerto 9090) - Métricas
-- **Grafana** (Puerto 3000) - Dashboards
-
-### Acciones Disponibles
-1. **🚨 Recuperación de Emergencia**
-   - Reinicia todos los servicios
-   - Limpia cache Docker
-   - Verifica estado post-reinicio
-
-2. **🔍 Diagnóstico Completo**
-   - Verifica conectividad
-   - Chequea health de servicios
-   - Actualiza estado visual
-
-3. **👤 Acceder a Directus**
-   - Acceso directo al panel admin
-   - Credenciales pre-configuradas
-
-4. **🐳 Gestión Docker**
-   - Ver estado de contenedores
-   - Reiniciar servicios
-   - Limpiar cache
-
-5. **📋 Ver Logs**
-   - Logs por servicio
-   - Filtrado por nivel
-   - Actualización en tiempo real
-
-6. **🔐 Conectar SSH**
-   - Acceso directo al servidor
-   - Para comandos avanzados
-
-## 🔧 Configuración
-
-### Endpoints
-```javascript
-WEBSITE_URL: 'https://umbot.com.ar'
-SERVER_IP: '23.105.176.45'
-DIRECTUS_URL: 'https://umbot.com.ar/directus-admin'
-```
-
-### Credenciales Directus
-```javascript
-email: 'admin@example.com'
-password: 'd1r3ctu5'
-```
-
-## 📦 Despliegue en Producción
-
-1. **Subir archivos al servidor:**
+### Método 2: Node.js (Desarrollo)
 ```bash
-scp -r umbot-emergency-app root@23.105.176.45:/root/
-scp deploy-emergency-app.sh root@23.105.176.45:/root/
+# Instalar dependencias
+npm install
+
+# Ejecutar en modo desarrollo
+npm run dev
+
+# Ejecutar en producción
+npm start
 ```
 
-2. **Ejecutar en el servidor:**
-```bash
-ssh root@23.105.176.45
-cd /root
-chmod +x deploy-emergency-app.sh
-./deploy-emergency-app.sh
+## 📱 Acceso
+
+### Producción
+- Web: https://www.umbot.com.ar:8092
+- API: https://www.umbot.com.ar:8092/api
+
+### Desarrollo
+- Web: http://localhost:8092
+- API: http://localhost:8092/api
+
+## 🔧 Endpoints API
+
+### Estado General
+```
+GET /api/status
 ```
 
-3. **Verificar:**
-- https://emergency.umbot.com.ar
-- SSL configurado automáticamente
-- PWA instalable
+### Verificar Servicio
+```
+GET /api/check/:service
+```
 
-## 🔒 Seguridad
+### Reiniciar Servicio
+```
+POST /api/restart/:service
+```
 
-- Headers de seguridad configurados
-- CORS habilitado para API Docker
-- SSL/TLS con Let's Encrypt
-- Permisos restrictivos
+### Ejecutar Comando
+```
+POST /api/execute
+Content-Type: application/json
+{
+    "command": "docker ps"
+}
+```
 
-## 📱 Uso Offline
+## 📦 Servicios Monitoreados
 
-La app funciona sin conexión gracias al Service Worker:
-- Interfaz completa disponible
-- Último estado conocido visible
-- Reconexión automática cuando vuelve internet
+| Servicio | Container | Puerto |
+|----------|-----------|--------|
+| Directus | umbot-directus | 8055 |
+| Nginx | umbot-nginx-static | 80 |
+| PostgreSQL | umbot-postgres | 5432 |
+| Grafana | umbot-grafana | 3000 |
+| Prometheus | umbot-prometheus | 9090 |
 
-## 🐞 Troubleshooting
+## 🔐 Seguridad
 
-### La app no se instala
-- Verifica que uses HTTPS
-- Limpia cache del navegador
-- Usa Chrome/Safari actualizado
+- Lista blanca de comandos permitidos
+- Validación de entradas
+- CORS configurado
+- Sin acceso a comandos sensibles
+- Logs de acciones
 
-### Los servicios no responden
-- Verifica conectividad de red
-- Revisa configuración CORS
-- Chequea firewall del servidor
+## 🛠️ Desarrollo
 
-### Los logs no cargan
-- Verifica permisos Docker
-- Revisa API Docker habilitada
-- Chequea logs de Nginx
-
-## 📄 Archivos del Proyecto
-
+### Estructura del Proyecto
 ```
 umbot-emergency-app/
-├── index.html          # App principal
-├── service-worker.js   # Soporte offline
-├── manifest.json       # Configuración PWA
-├── icon.svg           # Icono base
-├── generate-icons.sh  # Script para generar iconos
-└── README.md          # Este archivo
+├── index.html          # Frontend
+├── server.js           # Backend API
+├── package.json        # Dependencias
+├── Dockerfile          # Contenedor
+└── docker-compose.yml  # Orquestación
 ```
 
-## 🎯 Próximas Mejoras
+### Comandos NPM
+```bash
+npm run dev    # Desarrollo con hot-reload
+npm start      # Producción
+npm test       # Tests
+```
 
-- [ ] Notificaciones push para alertas
-- [ ] Gráficos de métricas en tiempo real
-- [ ] Backup automático antes de recuperación
-- [ ] Integración con Slack/Discord
-- [ ] Modo oscuro/claro automático
+## 📝 Logs y Monitoreo
+
+Los logs se almacenan en:
+- Aplicación: `/app/logs`
+- Docker: `docker-compose logs emergency-app`
+
+## 🔄 Actualización
+
+```bash
+# Detener servicios
+docker-compose down
+
+# Actualizar código
+git pull
+
+# Reconstruir y reiniciar
+docker-compose up -d --build
+```
+
+## 🐛 Solución de Problemas
+
+1. **Error de conexión**
+   - Verificar puerto 8092
+   - Comprobar permisos de Docker socket
+
+2. **Comandos no funcionan**
+   - Verificar permisos de usuario
+   - Comprobar lista de comandos permitidos
+
+3. **Modo Demo activo**
+   - Verificar conectividad con el servidor
+   - Comprobar configuración de API_ENDPOINT
 
 ## 📞 Soporte
 
-Para problemas o sugerencias:
 - Email: admin@umbot.com.ar
 - Sitio: https://umbot.com.ar
 
 ---
 
-**Versión**: 1.0.0  
-**Última actualización**: Junio 2025 
+**Versión**: 2.0.1  
+**Última actualización**: Marzo 2024 
