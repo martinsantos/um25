@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Operaciones Completo</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #f3f4f6;
+            --card-bg-color: #ffffff;
+            --text-color: #1f2937;
+            --subtle-text-color: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        html.dark {
+            --bg-color: #111827;
+            --card-bg-color: #1f2937;
+            --text-color: #f9fafb;
+            --subtle-text-color: #9ca3af;
+            --border-color: #374151;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .card {
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .console-log {
+            background: #18181b;
+            color: #e4e4e7;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            height: 400px;
+            overflow-y: auto;
+            font-size: 0.875rem;
+            font-family: 'Menlo', 'Courier New', monospace;
+        }
+        .log-entry { white-space: pre-wrap; }
+        .log-time { color: #6b7280; margin-right: 0.5rem; }
+        .log-input { color: #60a5fa; }
+        .log-output { color: #e4e4e7; }
+        .log-system { color: #a3e635; }
+        .log-error { color: #f87171; }
+        .log-warn { color: #fbbf24; }
+        
+        .status-banner {
+            transition: background-color 0.5s ease-in-out, border-color 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header -->
+    <header class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm sticky top-0 z-20 border-b" style="border-color: var(--border-color);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <i class="material-icons text-indigo-500">dvr</i>
+                    <h1 class="ml-3 text-xl font-bold">Dashboard de Operaciones</h1>
+                </div>
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                    <i class="material-icons" id="theme-icon">light_mode</i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- 1. Overall Health Status -->
+        <section id="health-summary" class="mb-8">
+            <div id="status-banner" class="status-banner p-6 rounded-xl shadow-lg text-white">
+                <div class="flex items-center">
+                    <i id="status-icon" class="material-icons text-5xl mr-4"></i>
+                    <div>
+                        <p class="text-lg font-medium">Estado General del Sistema</p>
+                        <h2 id="status-text" class="text-4xl font-extrabold"></h2>
+                        <p id="status-description" class="mt-1 opacity-90"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Uptime & Key Metrics -->
+        <section id="uptime-metrics" class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="card p-5 rounded-xl shadow-sm">
+                    <p class="text-sm font-medium" style="color: var(--subtle-text-color);">System Uptime</p>
+                    <p id="uptime-display" class="text-3xl font-bold text-indigo-500">Cargando...</p>
+                </div>
+                <div class="card p-5 rounded-xl shadow-sm">
+                    <p class="text-sm font-medium" style="color: var(--subtle-text-color);">Servicios Activos</p>
+                    <p id="active-services" class="text-3xl font-bold text-teal-500">0 / 0</p>
+                </div>
+                <div class="card p-5 rounded-xl shadow-sm">
+                    <p class="text-sm font-medium" style="color: var(--subtle-text-color);">Alertas (24h)</p>
+                    <p id="total-alerts" class="text-3xl font-bold text-amber-500">0</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Global Actions Panel -->
+        <section class="mb-8">
+            <h2 class="text-xl font-semibold mb-4" style="color: var(--subtle-text-color);">Acciones Globales</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <button onclick="runGlobalCommand('System Check')" class="card p-4 rounded-lg flex items-center justify-center space-x-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <i class="material-icons text-sky-500">health_and_safety</i>
+                    <span class="font-semibold">Revisión General</span>
+                </button>
+                <button onclick="runGlobalCommand('Clear Caches')" class="card p-4 rounded-lg flex items-center justify-center space-x-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <i class="material-icons text-amber-500">delete_sweep</i>
+                    <span class="font-semibold">Limpiar Caches</span>
+                </button>
+                <button onclick="runGlobalCommand('Deploy Update')" class="card p-4 rounded-lg flex items-center justify-center space-x-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <i class="material-icons text-indigo-500">upload</i>
+                    <span class="font-semibold">Deploy Update</span>
+                </button>
+                <button onclick="runGlobalCommand('Emergency Mode')" class="card p-4 rounded-lg flex items-center justify-center space-x-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <i class="material-icons text-rose-500">gpp_bad</i>
+                    <span class="font-semibold">Modo Emergencia</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 4. Services Control Panel -->
+        <section id="services-panel" class="mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold" style="color: var(--subtle-text-color);">Panel de Servicios</h2>
+                <button onclick="startAllServices()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-transform hover:scale-105 flex items-center">
+                    <i class="material-icons mr-2">power_settings_new</i>
+                    INICIAR PROTOCOLO DE ARRANQUE
+                </button>
+            </div>
+            <div id="services-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Service cards will be injected here -->
+            </div>
+        </section>
+
+        <!-- 5. Operations Console -->
+        <section id="console-section">
+            <h2 class="text-xl font-semibold mb-4" style="color: var(--subtle-text-color);">Consola de Operaciones</h2>
+            <div class="card p-6 rounded-xl shadow-sm">
+                <div class="console-log" id="console-log"></div>
+                <div class="flex space-x-2 mt-4">
+                    <i class="material-icons mt-2 text-green-400">terminal</i>
+                    <input id="command-input" type="text" class="flex-grow bg-transparent focus:outline-none" placeholder="Escribe un comando (ej: help)" />
+                    <button onclick="executeCommand()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2 rounded-lg text-sm">Ejecutar</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const DOMElements = {
+                html: document.documentElement,
+                themeToggle: document.getElementById('theme-toggle'),
+                themeIcon: document.getElementById('theme-icon'),
+                statusBanner: document.getElementById('status-banner'),
+                statusIcon: document.getElementById('status-icon'),
+                statusText: document.getElementById('status-text'),
+                statusDescription: document.getElementById('status-description'),
+                uptimeDisplay: document.getElementById('uptime-display'),
+                activeServices: document.getElementById('active-services'),
+                totalAlerts: document.getElementById('total-alerts'),
+                servicesGrid: document.getElementById('services-grid'),
+                consoleLog: document.getElementById('console-log'),
+                commandInput: document.getElementById('command-input'),
+            };
+
+            let theme = localStorage.getItem('theme') || 'light';
+            let uptimeSeconds = 0;
+            let services = [
+                { id: 'user-db', name: 'Database (PostgreSQL)', status: 'Offline', health: 0, isCritical: true },
+                { id: 'cache-service', name: 'Cache (Redis)', status: 'Offline', health: 0, isCritical: true },
+                { id: 'api-gateway', name: 'API Gateway', status: 'Offline', health: 0, isCritical: true },
+                { id: 'web-server', name: 'Web Server (Nginx)', status: 'Offline', health: 0, isCritical: true },
+                { id: 'job-queue', name: 'Job Queue (RabbitMQ)', status: 'Offline', health: 0, isCritical: false },
+                { id: 'logging-service', name: 'Logging Service', status: 'Offline', health: 0, isCritical: false },
+            ];
+
+            const UI = {
+                updateTheme() {
+                    DOMElements.html.classList.toggle('dark', theme === 'dark');
+                    DOMElements.themeIcon.textContent = theme === 'dark' ? 'dark_mode' : 'light_mode';
+                    localStorage.setItem('theme', theme);
+                },
+                updateUptime() {
+                    uptimeSeconds++;
+                    const d = Math.floor(uptimeSeconds / 86400);
+                    const h = Math.floor((uptimeSeconds % 86400) / 3600);
+                    const m = Math.floor((uptimeSeconds % 3600) / 60);
+                    DOMElements.uptimeDisplay.textContent = `${d}d ${h}h ${m}m`;
+                },
+                addLogEntry(message, type = 'output') {
+                    const time = new Date().toLocaleTimeString('es-ES', { hour12: false });
+                    const logEntry = document.createElement('div');
+                    logEntry.className = `log-entry log-${type}`;
+                    logEntry.innerHTML = `<span class="log-time">[${time}]</span><span>${message}</span>`;
+                    DOMElements.consoleLog.appendChild(logEntry);
+                    DOMElements.consoleLog.scrollTop = DOMElements.consoleLog.scrollHeight;
+                },
+                renderServices() {
+                    DOMElements.servicesGrid.innerHTML = '';
+                    services.forEach(service => {
+                        let statusColor, statusIcon, statusText, bgColor;
+                        if (service.status === 'Online') {
+                            statusColor = '#22c55e'; statusIcon = 'check_circle'; statusText = 'Online'; bgColor = 'bg-green-500/10';
+                        } else if (service.status === 'Degraded') {
+                            statusColor = '#f59e0b'; statusIcon = 'warning'; statusText = 'Degraded'; bgColor = 'bg-amber-500/10';
+                        } else if (service.status === 'Starting') {
+                            statusColor = '#3b82f6'; statusIcon = 'sync'; statusText = 'Starting...'; bgColor = 'bg-blue-500/10';
+                        } else {
+                            statusColor = '#ef4444'; statusIcon = 'error'; statusText = 'Offline'; bgColor = 'bg-red-500/10';
+                        }
+
+                        const card = document.createElement('div');
+                        card.className = `card p-4 rounded-lg shadow-sm flex flex-col justify-between ${bgColor}`;
+                        card.innerHTML = `
+                            <div>
+                                <div class="flex justify-between items-start">
+                                    <span class="font-semibold text-base">${service.name}</span>
+                                    <button onclick="restartService('${service.id}')" class="p-1 rounded-full hover:bg-gray-500/20" title="Restart Service">
+                                        <i class="material-icons text-sm" style="color: var(--subtle-text-color);">refresh</i>
+                                    </button>
+                                </div>
+                                <div class="flex items-center mt-2" style="color: ${statusColor};">
+                                    <i class="material-icons text-base mr-1 ${service.status === 'Starting' ? 'animate-spin' : ''}">${statusIcon}</i>
+                                    <span class="text-sm font-medium">${statusText}</span>
+                                </div>
+                            </div>
+                        `;
+                        DOMElements.servicesGrid.appendChild(card);
+                    });
+                },
+                updateOverallHealth() {
+                    const onlineServices = services.filter(s => s.status === 'Online').length;
+                    const criticalOffline = services.filter(s => s.isCritical && s.status !== 'Online').length;
+                    const degradedServices = services.filter(s => s.status === 'Degraded').length;
+
+                    DOMElements.activeServices.textContent = `${onlineServices} / ${services.length}`;
+                    DOMElements.totalAlerts.textContent = services.length - onlineServices;
+
+                    if (criticalOffline > 0) {
+                        DOMElements.statusBanner.className = 'status-banner p-6 rounded-xl shadow-lg text-white bg-red-600';
+                        DOMElements.statusIcon.textContent = 'gpp_bad';
+                        DOMElements.statusText.textContent = 'FALLA CRÍTICA';
+                        DOMElements.statusDescription.textContent = 'Uno o más servicios esenciales están fuera de línea. La aplicación no está operativa.';
+                    } else if (degradedServices > 0 || onlineServices < services.length) {
+                        DOMElements.statusBanner.className = 'status-banner p-6 rounded-xl shadow-lg text-white bg-amber-500';
+                        DOMElements.statusIcon.textContent = 'warning';
+                        DOMElements.statusText.textContent = 'RENDIMIENTO DEGRADADO';
+                        DOMElements.statusDescription.textContent = 'Algunos servicios no críticos están fallando. La funcionalidad puede ser limitada.';
+                    } else {
+                        DOMElements.statusBanner.className = 'status-banner p-6 rounded-xl shadow-lg text-white bg-green-600';
+                        DOMElements.statusIcon.textContent = 'verified_user';
+                        DOMElements.statusText.textContent = 'SISTEMA OPERACIONAL';
+                        DOMElements.statusDescription.textContent = 'Todos los servicios están funcionando correctamente.';
+                    }
+                }
+            };
+
+            const ConsoleCommands = {
+                help: `Comandos disponibles:
+  help        - Muestra esta ayuda.
+  status      - Muestra el estado de todos los servicios.
+  restart     - Reinicia un servicio (ej: restart api-gateway).
+  start-all   - Inicia el protocolo de arranque de todos los servicios.
+  check       - Realiza una revisión del sistema.
+  deploy      - Simula un despliegue de actualización.
+  caches      - Limpia las caches del sistema.
+  emergency   - Activa/desactiva el modo de emergencia.
+  clear       - Limpia la consola.`,
+                status: () => services.map(s => `  - ${s.name.padEnd(25)} [${s.status.padEnd(10)}] Health: ${s.health}%`).join('\n'),
+                restart: (args) => {
+                    const serviceId = args[0];
+                    if (!serviceId) return 'Error: Debes especificar el ID de un servicio.';
+                    const service = services.find(s => s.id === serviceId);
+                    if (!service) return `Error: Servicio con ID "${serviceId}" no encontrado.`;
+                    window.restartService(serviceId);
+                    return `Comando de reinicio enviado a "${service.name}".`;
+                },
+                'start-all': () => { window.startAllServices(); return 'Protocolo de arranque iniciado.'; },
+                check: () => { window.runGlobalCommand('System Check'); return 'Iniciando revisión del sistema...'; },
+                deploy: () => { window.runGlobalCommand('Deploy Update'); return 'Iniciando despliegue...'; },
+                caches: () => { window.runGlobalCommand('Clear Caches'); return 'Limpiando caches...'; },
+                emergency: () => { window.runGlobalCommand('Emergency Mode'); return 'Cambiando estado de modo emergencia...'; },
+                clear: () => { DOMElements.consoleLog.innerHTML = ''; return 'Consola limpiada.'; }
+            };
+            
+            window.executeCommand = () => {
+                const fullCommand = DOMElements.commandInput.value.trim();
+                if (!fullCommand) return;
+                UI.addLogEntry(`> ${fullCommand}`, 'input');
+                DOMElements.commandInput.value = '';
+                const [command, ...args] = fullCommand.split(' ');
+                const handler = ConsoleCommands[command.toLowerCase()];
+                if (handler) {
+                    const output = typeof handler === 'function' ? handler(args) : handler;
+                    if(output) UI.addLogEntry(output);
+                } else {
+                    UI.addLogEntry(`Error: Comando '${command}' no reconocido. Escribe 'help'.`, 'error');
+                }
+            };
+
+            window.restartService = (serviceId) => {
+                const service = services.find(s => s.id === serviceId);
+                if (!service || service.status === 'Starting') return;
+                startSingleService(service, true);
+            };
+
+            const startSingleService = (service, isRestart = false) => {
+                return new Promise(resolve => {
+                    UI.addLogEntry(`[${isRestart ? 'Restarting' : 'Starting'}] ${service.name}...`, 'warn');
+                    service.status = 'Starting';
+                    service.health = 0;
+                    UI.renderServices();
+                    UI.updateOverallHealth();
+
+                    setTimeout(() => {
+                        service.status = 'Online';
+                        service.health = Math.floor(Math.random() * 10) + 90;
+                        UI.addLogEntry(`[ONLINE] ${service.name} está operativo.`, 'system');
+                        UI.renderServices();
+                        UI.updateOverallHealth();
+                        resolve();
+                    }, 2000);
+                });
+            };
+
+            window.startAllServices = async () => {
+                UI.addLogEntry('INICIANDO PROTOCOLO DE ARRANQUE COMPLETO...', 'system');
+                for (const service of services) {
+                    if (service.status !== 'Online') {
+                        await startSingleService(service);
+                    }
+                }
+                UI.addLogEntry('PROTOCOLO DE ARRANQUE FINALIZADO.', 'system');
+            };
+
+            window.runGlobalCommand = (commandName) => {
+                UI.addLogEntry(`[ACCIÓN GLOBAL] Ejecutando: ${commandName}...`, 'warn');
+                setTimeout(() => {
+                    UI.addLogEntry(`[ACCIÓN GLOBAL] '${commandName}' completado.`, 'system');
+                }, 2500);
+            };
+
+            function init() {
+                UI.updateTheme();
+                UI.renderServices();
+                UI.updateOverallHealth();
+                UI.addLogEntry('Dashboard de Operaciones inicializado.', 'system');
+                
+                setInterval(UI.updateUptime, 1000);
+                setInterval(() => {
+                    services.forEach(s => {
+                        if (s.status === 'Online' || s.status === 'Degraded') {
+                            const change = (Math.random() - 0.4) * 3;
+                            s.health = Math.max(0, Math.min(100, s.health + change));
+                            if (s.health < 70 && s.status === 'Online') s.status = 'Degraded';
+                            else if (s.health >= 70 && s.status === 'Degraded') s.status = 'Online';
+                        }
+                    });
+                    UI.renderServices();
+                    UI.updateOverallHealth();
+                }, 3000);
+                
+                DOMElements.commandInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') executeCommand();
+                });
+                DOMElements.themeToggle.addEventListener('click', () => {
+                    theme = theme === 'light' ? 'dark' : 'light';
+                    UI.updateTheme();
+                });
+            }
+
+            init();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UMBot Emergency Dashboard v3.1</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#d32f2f">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #111827;
+            --card-bg-color: #1f2937;
+            --text-color: #f9fafb;
+            --subtle-text-color: #9ca3af;
+            --border-color: #374151;
+            --primary: #d32f2f;
+            --primary-dark: #b71c1c;
+        }
+
+        html.light {
+            --bg-color: #f3f4f6;
+            --card-bg-color: #ffffff;
+            --text-color: #1f2937;
+            --subtle-text-color: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Sistema de logs mejorado */
+        .log-entry {
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            position: relative;
+        }
+        
+        .log-entry:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(2px);
+        }
+        
+        .log-entry.log-info { 
+            border-left-color: #3b82f6;
+        }
+        .log-entry.log-warning { 
+            border-left-color: #f59e0b;
+        }
+        .log-entry.log-error { 
+            border-left-color: #ef4444;
+        }
+        .log-entry.log-success { 
+            border-left-color: #10b981;
+        }
+        .log-entry.log-system { 
+            border-left-color: #8b5cf6;
+        }
+        .log-entry.log-command { 
+            border-left-color: #f97316;
+        }
+        .log-entry.log-service { 
+            border-left-color: #06b6d4;
+        }
+
+        .log-timestamp {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            font-family: 'Courier New', monospace;
+        }
+
+        .log-type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .log-type-badge.info { background: #dbeafe; color: #1e40af; }
+        .log-type-badge.warning { background: #fef3c7; color: #92400e; }
+        .log-type-badge.error { background: #fee2e2; color: #b91c1c; }
+        .log-type-badge.success { background: #d1fae5; color: #065f46; }
+        .log-type-badge.system { background: #ede9fe; color: #5b21b6; }
+        .log-type-badge.command { background: #fed7aa; color: #9a3412; }
+        .log-type-badge.service { background: #cffafe; color: #0c4a6e; }
+
+        .log-message {
+            margin-top: 6px;
+            line-height: 1.4;
+            font-size: 0.875rem;
+        }
+
+        .log-data {
+            margin-top: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            background: rgba(0,0,0,0.2);
+            padding: 6px;
+            border-radius: 4px;
+            color: #9ca3af;
+        }
+
+        .unread-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Filtros y controles */
+        .logs-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 16px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg-color);
+            color: var(--text-color);
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .search-input {
+            flex-grow: 1;
+            min-width: 200px;
+            padding: 8px 12px;
+            background: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 0.875rem;
+        }
+
+        .search-input::placeholder {
+            color: var(--subtle-text-color);
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .action-btn.secondary {
+            background: var(--card-bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .action-btn.secondary:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Stats */
+        .log-stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logs-controls {
+                flex-direction: column;
+            }
+            
+            .search-input {
+                min-width: auto;
+                width: 100%;
+            }
+            
+            .log-stats {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <!-- Scripts -->
+    <script src="emergency-dashboard-v3.1.js"></script>
+    <script>
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            init();
+        });
+    </script>
+</body>
+</html> 

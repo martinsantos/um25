@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UMBot Emergency - Servicios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-red-600 shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-20">
+                    <div class="flex items-center">
+                        <span class="material-icons text-white text-3xl mr-3">emergency</span>
+                        <div>
+                            <h1 class="text-2xl font-bold text-white">UMBot Emergency</h1>
+                            <span class="text-sm bg-white/20 px-2 py-0.5 rounded text-white">v2.0.1 - Enhanced</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center text-white">
+                            <span class="material-icons text-green-400 mr-1">check_circle</span>
+                            <span>Sitio web funcionando</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- System Status Bar -->
+        <div class="bg-red-700 px-4 py-2">
+            <div class="max-w-7xl mx-auto flex justify-between items-center text-sm">
+                <span>Sistema activo: <span id="uptime" class="font-mono">00:00:45</span></span>
+                <span id="datetime">29/06/2025, 09:54:07 a. m.</span>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="bg-gray-800 border-b border-gray-700">
+            <div class="max-w-7xl mx-auto px-4">
+                <nav class="flex space-x-8">
+                    <button onclick="showTab('general')" class="tab-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-400 transition-colors flex items-center">
+                        <span class="material-icons mr-2">dashboard</span>
+                        General
+                    </button>
+                    <button onclick="showTab('services')" class="tab-btn py-4 px-2 border-b-2 border-blue-500 text-blue-400 flex items-center">
+                        <span class="material-icons mr-2">dns</span>
+                        Servicios
+                    </button>
+                    <button onclick="showTab('logs')" class="tab-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-400 transition-colors flex items-center">
+                        <span class="material-icons mr-2">article</span>
+                        Logs
+                    </button>
+                    <button onclick="showTab('commands')" class="tab-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-400 transition-colors flex items-center">
+                        <span class="material-icons mr-2">terminal</span>
+                        Comandos
+                    </button>
+                    <button onclick="showTab('stats')" class="tab-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-400 transition-colors flex items-center">
+                        <span class="material-icons mr-2">analytics</span>
+                        Estadísticas
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 py-8">
+            <!-- System Status -->
+            <div class="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
+                <h2 class="text-xl font-semibold mb-4 flex items-center">
+                    <span class="material-icons mr-2 text-blue-400">language</span>
+                    Estado del Sistema
+                </h2>
+                <div class="flex items-center text-green-400">
+                    <span class="material-icons mr-2">check_circle</span>
+                    <span class="text-lg">Sitio web funcionando</span>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
+                <h2 class="text-xl font-semibold mb-4 flex items-center">
+                    <span class="material-icons mr-2 text-blue-400">bar_chart</span>
+                    Estadísticas Rápidas
+                </h2>
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="text-center">
+                        <div class="text-sm text-gray-400 mb-1">Servicios Online</div>
+                        <div class="text-3xl font-bold">4</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-sm text-gray-400 mb-1">Tiempo Respuesta</div>
+                        <div class="text-3xl font-bold">0 ms</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-sm text-gray-400 mb-1">Última Verificación</div>
+                        <div class="text-3xl font-bold">09:53:52</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-sm text-gray-400 mb-1">Total Verificaciones</div>
+                        <div class="text-3xl font-bold">2</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service Management -->
+            <div class="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
+                <h2 class="text-xl font-semibold mb-4 flex items-center">
+                    <span class="material-icons mr-2 text-blue-400">settings</span>
+                    Gestión de Servicios
+                </h2>
+                
+                <!-- Restart All Button -->
+                <button onclick="restartAll()" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg mb-6 flex items-center justify-center transition-colors">
+                    <span class="material-icons mr-2">refresh</span>
+                    Reiniciar Todos los Servicios
+                </button>
+
+                <!-- Services Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Directus -->
+                    <div class="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-semibold flex items-center">
+                                <span class="material-icons mr-2 text-red-400">cancel</span>
+                                Directus
+                            </h3>
+                            <span class="text-sm text-gray-400">Uptime: --:--:--</span>
+                        </div>
+                        <div class="text-sm text-gray-400 mb-3">Puerto: 8055</div>
+                        <button onclick="restartService('directus')" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded transition-colors flex items-center justify-center">
+                            <span class="material-icons mr-2">refresh</span>
+                            Reiniciar
+                        </button>
+                    </div>
+
+                    <!-- Nginx -->
+                    <div class="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-semibold flex items-center">
+                                <span class="material-icons mr-2 text-green-400">check_circle</span>
+                                Nginx
+                            </h3>
+                            <span class="text-sm text-gray-400">Uptime: 0:00:00</span>
+                        </div>
+                        <div class="text-sm text-gray-400 mb-3">Puerto: 80</div>
+                        <button onclick="restartService('nginx')" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded transition-colors flex items-center justify-center">
+                            <span class="material-icons mr-2">refresh</span>
+                            Reiniciar
+                        </button>
+                    </div>
+
+                    <!-- PostgreSQL -->
+                    <div class="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-semibold flex items-center">
+                                <span class="material-icons mr-2 text-green-400">check_circle</span>
+                                PostgreSQL
+                            </h3>
+                            <span class="text-sm text-gray-400">Uptime: 0:00:00</span>
+                        </div>
+                        <div class="text-sm text-gray-400 mb-3">Puerto: 5432</div>
+                        <button onclick="restartService('postgres')" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded transition-colors flex items-center justify-center">
+                            <span class="material-icons mr-2">refresh</span>
+                            Reiniciar
+                        </button>
+                    </div>
+
+                    <!-- Grafana -->
+                    <div class="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-semibold flex items-center">
+                                <span class="material-icons mr-2 text-green-400">check_circle</span>
+                                Grafana
+                            </h3>
+                            <span class="text-sm text-gray-400">Uptime: 0:00:00</span>
+                        </div>
+                        <div class="text-sm text-gray-400 mb-3">Puerto: 3000</div>
+                        <button onclick="restartService('grafana')" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded transition-colors flex items-center justify-center">
+                            <span class="material-icons mr-2">refresh</span>
+                            Reiniciar
+                        </button>
+                    </div>
+
+                    <!-- Prometheus -->
+                    <div class="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-semibold flex items-center">
+                                <span class="material-icons mr-2 text-green-400">check_circle</span>
+                                Prometheus
+                            </h3>
+                            <span class="text-sm text-gray-400">Uptime: 0:00:00</span>
+                        </div>
+                        <div class="text-sm text-gray-400 mb-3">Puerto: 9090</div>
+                        <button onclick="restartService('prometheus')" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded transition-colors flex items-center justify-center">
+                            <span class="material-icons mr-2">refresh</span>
+                            Reiniciar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_URL = 'http://23.105.176.45:8092/api';
+        let startTime = Date.now();
+
+        // Update datetime
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById('datetime').textContent = now.toLocaleString('es-ES');
+        }
+
+        // Update uptime
+        function updateUptime() {
+            const elapsed = Date.now() - startTime;
+            const hours = Math.floor(elapsed / 3600000);
+            const minutes = Math.floor((elapsed % 3600000) / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            document.getElementById('uptime').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Show tab
+        function showTab(tabName) {
+            console.log('Switching to tab:', tabName);
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'text-blue-400');
+                btn.classList.add('border-transparent');
+            });
+            event.target.closest('.tab-btn').classList.remove('border-transparent');
+            event.target.closest('.tab-btn').classList.add('border-blue-500', 'text-blue-400');
+        }
+
+        // Restart service
+        async function restartService(service) {
+            if (!confirm(`¿Está seguro de reiniciar ${service}?`)) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/restart/${service}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    alert(`${service} reiniciado exitosamente`);
+                } else {
+                    alert(`Error: ${data.message}`);
+                }
+            } catch (error) {
+                alert(`Error de conexión: ${error.message}`);
+            }
+        }
+
+        // Restart all services
+        async function restartAll() {
+            if (!confirm('¿Está seguro de reiniciar TODOS los servicios?')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/restart/all`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    alert('Todos los servicios reiniciados exitosamente');
+                } else {
+                    alert(`Error: ${data.message}`);
+                }
+            } catch (error) {
+                alert(`Error de conexión: ${error.message}`);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDateTime();
+            updateUptime();
+            
+            setInterval(updateDateTime, 1000);
+            setInterval(updateUptime, 1000);
+        });
+    </script>
+</body>
+</html> 

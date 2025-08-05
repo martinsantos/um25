@@ -1,43 +1,35 @@
 #!/bin/bash
 
-echo "🔧 Configurando variables de entorno para Directus..."
+# Setup Directus Environment Variables for Astro SSR
+# Este script configura las variables necesarias para que Astro conecte con Directus
 
-# Crear archivo .env con las variables necesarias
-cat << EOF > .env
-DB_CLIENT=pg
-DB_HOST=database
-DB_PORT=5432
-DB_DATABASE=mydatabase
-DB_USER=myuser
-DB_PASSWORD=mypassword123
-KEY=255d861b-5ea1-5996-9aa3-922530ec40b1
-SECRET=6116487b-cda1-52c2-b5b5-c8022c45e263
-ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=d1r3ctu5
-PUBLIC_URL=http://23.105.176.45:8055
-CORS_ENABLED=true
-CORS_ORIGIN=*
-DIRECTUS_STATIC_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
-EOF
+echo "🔧 Configurando variables de entorno para Astro SSR + Directus..."
 
-echo "✅ Archivo .env creado"
+# 1. Crear token estático para API
+STATIC_TOKEN="umbot-api-token-ssr-2025"
 
-# Reiniciar los contenedores para aplicar los cambios
-echo "🔄 Reiniciando contenedores..."
-docker-compose down
-docker-compose up -d
+# 2. Configurar variables de entorno en el contenedor Astro
+docker exec umbot-astro-static sh -c 'cat > /app/.env << EOF
+# Directus Configuration for SSR
+PUBLIC_DIRECTUS_URL=http://umbot-directus:8055
+PUBLIC_DIRECTUS_TOKEN='$STATIC_TOKEN'
+DIRECTUS_STATIC_TOKEN='$STATIC_TOKEN'
+DIRECTUS_ADMIN_EMAIL=admin@example.com
+DIRECTUS_ADMIN_PASSWORD=d1r3ctu5
+EOF'
 
-# Esperar a que la base de datos esté lista
-echo "⏳ Esperando a que la base de datos esté lista..."
-sleep 15
+echo "✅ Variables de entorno configuradas:"
+echo "   - PUBLIC_DIRECTUS_URL=http://umbot-directus:8055"
+echo "   - PUBLIC_DIRECTUS_TOKEN=$STATIC_TOKEN"
+echo "   - DIRECTUS_STATIC_TOKEN=$STATIC_TOKEN"
 
-# Verificar conexión a la base de datos
-echo "🔍 Verificando conexión a la base de datos..."
-if docker exec database pg_isready -U myuser; then
-    echo "✅ Base de datos lista"
-else
-    echo "❌ Error al conectar con la base de datos"
-    exit 1
-fi
+# 3. Verificar que el archivo se creó correctamente
+echo "📋 Verificando archivo .env en contenedor Astro:"
+docker exec umbot-astro-static cat /app/.env
 
-echo "✨ Configuración completada" 
+# 4. Reiniciar contenedor para aplicar variables
+echo "🔄 Reiniciando contenedor Astro para aplicar configuración..."
+docker restart umbot-astro-static
+
+echo "✅ Configuración completada! Astro ahora puede conectar con Directus en modo SSR."
+echo "🌐 Test: https://www.umbot.com.ar/servicios/2/redes-de-datos" 

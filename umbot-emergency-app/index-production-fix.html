@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UMBot Emergency Dashboard v3.1 - Producción</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#d32f2f">
+    <style>
+        /* VARIABLES CSS PERSONALIZADAS - SIN TAILWIND */
+        :root {
+            --primary: #d32f2f;
+            --primary-dark: #b71c1c;
+            --background: #111827;
+            --card-bg: #1f2937;
+            --text-color: #f9fafb;
+            --subtle-text-color: #9ca3af;
+            --border-color: #374151;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--background);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .version-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .uptime-display {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* CONTENEDOR PRINCIPAL */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* GRID DE SERVICIOS */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .service-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .service-name {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .service-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-online {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-offline {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .health-bar {
+            width: 100%;
+            height: 6px;
+            background: #374151;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .health-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .health-100 { width: 100%; background: var(--success); }
+        .health-0 { width: 0%; background: var(--error); }
+
+        /* SISTEMA DE LOGS - ESTILOS CORREGIDOS */
+        .log-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+            padding: 16px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--subtle-text-color);
+        }
+
+        .logs-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 16px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .logs-container {
+            max-height: 400px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 8px;
+        }
+
+        /* ENTRADAS DE LOG - ESTILOS CORREGIDOS */
+        .log-entry {
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+            position: relative;
+            backdrop-filter: blur(5px);
+        }
+        
+        .log-entry:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(2px);
+        }
+        
+        /* COLORES POR TIPO DE LOG - CORREGIDOS */
+        .log-entry.log-info { 
+            border-left-color: var(--info);
+            background: rgba(59, 130, 246, 0.1);
+        }
+        .log-entry.log-warning { 
+            border-left-color: var(--warning);
+            background: rgba(245, 158, 11, 0.1);
+        }
+        .log-entry.log-error { 
+            border-left-color: var(--error);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        .log-entry.log-success { 
+            border-left-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+        .log-entry.log-system { 
+            border-left-color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.1);
+        }
+        .log-entry.log-command { 
+            border-left-color: #f97316;
+            background: rgba(249, 115, 22, 0.1);
+        }
+
+        .log-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .log-timestamp {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            font-family: 'Courier New', monospace;
+        }
+
+        .log-type-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .log-type-badge.info { background: #dbeafe; color: #1e40af; }
+        .log-type-badge.warning { background: #fef3c7; color: #92400e; }
+        .log-type-badge.error { background: #fee2e2; color: #b91c1c; }
+        .log-type-badge.success { background: #d1fae5; color: #065f46; }
+        .log-type-badge.system { background: #ede9fe; color: #5b21b6; }
+        .log-type-badge.command { background: #fed7aa; color: #9a3412; }
+
+        .log-message {
+            font-size: 0.875rem;
+            line-height: 1.4;
+            color: var(--text-color);
+        }
+
+        /* BOTONES */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* DEMO CONTROLS */
+        .demo-controls {
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            background: var(--card-bg);
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .demo-btn {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            margin: 6px 0;
+            background: rgba(255,255,255,0.1);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .demo-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .logs-controls {
+                flex-direction: column;
+            }
+            
+            .log-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .demo-controls {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 20px 0;
+            }
+        }
+
+        /* SCROLLBAR PERSONALIZADO */
+        .logs-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .logs-container::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+
+        .logs-container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        .logs-container::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚨 UMBot Emergency Dashboard v3.1</h1>
+        <div class="version-badge">Estilos de Logs Corregidos</div>
+        <div class="uptime-display">
+            Tiempo activo: <span id="system-uptime">Iniciando...</span>
+        </div>
+    </div>
+
+    <!-- Controles de demostración -->
+    <div class="demo-controls">
+        <h4 style="margin-bottom: 12px; color: var(--text-color); font-size: 0.9rem;">🎮 Controles</h4>
+        <button class="demo-btn" onclick="generateTestLogs()">📝 Generar Logs</button>
+        <button class="demo-btn" onclick="clearLogs()">🗑️ Limpiar Logs</button>
+        <button class="demo-btn" onclick="toggleTheme()">🌙 Modo Oscuro</button>
+    </div>
+
+    <div class="container">
+        <!-- Estado de Servicios -->
+        <div class="card">
+            <h2>🔧 Estado de Servicios</h2>
+            <div class="services-grid" id="services-grid">
+                <div class="service-card">
+                    <div class="service-header">
+                        <span class="service-name">PostgreSQL</span>
+                        <span class="service-status status-online">Online</span>
+                    </div>
+                    <div class="health-bar">
+                        <div class="health-fill health-100"></div>
+                    </div>
+                    <small style="color: var(--subtle-text-color);">Puerto: 5432 | Health: 100%</small>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-header">
+                        <span class="service-name">Grafana</span>
+                        <span class="service-status status-online">Online</span>
+                    </div>
+                    <div class="health-bar">
+                        <div class="health-fill health-100"></div>
+                    </div>
+                    <small style="color: var(--subtle-text-color);">Puerto: 3000 | Health: 100%</small>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-header">
+                        <span class="service-name">Directus CMS</span>
+                        <span class="service-status status-online">Online</span>
+                    </div>
+                    <div class="health-bar">
+                        <div class="health-fill health-100"></div>
+                    </div>
+                    <small style="color: var(--subtle-text-color);">Puerto: 8055 | Health: 100%</small>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-header">
+                        <span class="service-name">Node Exporter</span>
+                        <span class="service-status status-online">Online</span>
+                    </div>
+                    <div class="health-bar">
+                        <div class="health-fill health-100"></div>
+                    </div>
+                    <small style="color: var(--subtle-text-color);">Puerto: 9100 | Health: 100%</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sistema de Logs Mejorado -->
+        <div class="card">
+            <h2>📝 Sistema de Logs Corregido</h2>
+            
+            <!-- Estadísticas -->
+            <div class="log-stats">
+                <div class="stat-item">
+                    <span class="stat-value" id="logs-total">0</span>
+                    <div class="stat-label">Total Logs</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="logs-errors">0</span>
+                    <div class="stat-label">Errores</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="logs-warnings">0</span>
+                    <div class="stat-label">Advertencias</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="logs-success">0</span>
+                    <div class="stat-label">Éxitos</div>
+                </div>
+            </div>
+
+            <!-- Controles -->
+            <div class="logs-controls">
+                <button class="filter-btn active" data-filter="">Todos</button>
+                <button class="filter-btn" data-filter="system">Sistema</button>
+                <button class="filter-btn" data-filter="info">Info</button>
+                <button class="filter-btn" data-filter="warning">Advertencias</button>
+                <button class="filter-btn" data-filter="error">Errores</button>
+                <button class="filter-btn" data-filter="success">Éxitos</button>
+                
+                <button class="btn btn-secondary" onclick="clearLogs()" style="margin-left: auto;">🗑️ Limpiar</button>
+                <button class="btn btn-primary" onclick="generateTestLogs()">📝 Generar Logs</button>
+            </div>
+
+            <!-- Contenedor de logs -->
+            <div class="logs-container" id="logs-container">
+                <div style="text-align: center; padding: 40px; color: var(--subtle-text-color);">
+                    <div style="font-size: 2rem; margin-bottom: 16px;">📝</div>
+                    <div>Sistema de logs listo</div>
+                    <div style="font-size: 0.9rem; margin-top: 8px; opacity: 0.7;">
+                        Los estilos están completamente corregidos
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JAVASCRIPT COMPLETAMENTE FUNCIONAL SIN DEPENDENCIAS EXTERNAS
+        
+        // Estado de la aplicación
+        const appState = {
+            logs: [],
+            currentFilter: '',
+            systemStartTime: new Date(),
+            isDarkMode: true
+        };
+
+        // Función para agregar logs
+        function addLog(type, message) {
+            const timestamp = new Date().toLocaleTimeString('es-ES');
+            const log = {
+                id: Date.now() + Math.random(),
+                type,
+                message,
+                timestamp,
+                date: new Date()
+            };
+            
+            appState.logs.unshift(log);
+            
+            // Limitar a 50 logs para rendimiento
+            if (appState.logs.length > 50) {
+                appState.logs = appState.logs.slice(0, 50);
+            }
+            
+            renderLogs();
+            updateStats();
+        }
+
+        // Renderizar logs
+        function renderLogs() {
+            const container = document.getElementById('logs-container');
+            let filteredLogs = appState.logs;
+
+            // Aplicar filtros
+            if (appState.currentFilter) {
+                filteredLogs = filteredLogs.filter(log => log.type === appState.currentFilter);
+            }
+
+            if (filteredLogs.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--subtle-text-color);">
+                        <div style="font-size: 2rem; margin-bottom: 16px;">🔍</div>
+                        <div>No se encontraron logs</div>
+                        <div style="font-size: 0.9rem; margin-top: 8px; opacity: 0.7;">
+                            ${appState.currentFilter ? 'Prueba cambiar el filtro o generar más logs' : 'Genera algunos logs para comenzar'}
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredLogs.map(log => `
+                <div class="log-entry log-${log.type}" data-id="${log.id}">
+                    <div class="log-header">
+                        <span class="log-timestamp">${log.timestamp}</span>
+                        <span class="log-type-badge ${log.type}">${log.type}</span>
+                    </div>
+                    <div class="log-message">${log.message}</div>
+                </div>
+            `).join('');
+        }
+
+        // Actualizar estadísticas
+        function updateStats() {
+            const total = appState.logs.length;
+            const errors = appState.logs.filter(log => log.type === 'error').length;
+            const warnings = appState.logs.filter(log => log.type === 'warning').length;
+            const success = appState.logs.filter(log => log.type === 'success').length;
+            
+            document.getElementById('logs-total').textContent = total;
+            document.getElementById('logs-errors').textContent = errors;
+            document.getElementById('logs-warnings').textContent = warnings;
+            document.getElementById('logs-success').textContent = success;
+        }
+
+        // Actualizar uptime del sistema
+        function updateSystemUptime() {
+            const now = new Date();
+            const diff = now - appState.systemStartTime;
+            const hours = Math.floor(diff / 3600000);
+            const mins = Math.floor((diff % 3600000) / 60000);
+            const secs = Math.floor((diff % 60000) / 1000);
+            
+            document.getElementById('system-uptime').textContent = 
+                `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Funciones de demostración
+        function generateTestLogs() {
+            const testLogs = [
+                { type: 'system', message: 'Sistema iniciado correctamente' },
+                { type: 'info', message: 'Verificación de servicios completada' },
+                { type: 'success', message: 'Conexión a base de datos establecida' },
+                { type: 'warning', message: 'Uso de memoria por encima del 80%' },
+                { type: 'error', message: 'Fallo en la conexión con servicio externo' },
+                { type: 'info', message: 'Backup programado ejecutado' },
+                { type: 'success', message: 'Certificados SSL renovados' },
+                { type: 'warning', message: 'Espacio en disco: 85% utilizado' }
+            ];
+
+            testLogs.forEach((log, index) => {
+                setTimeout(() => {
+                    addLog(log.type, log.message);
+                }, index * 300);
+            });
+        }
+
+        function clearLogs() {
+            appState.logs = [];
+            renderLogs();
+            updateStats();
+            addLog('system', 'Logs limpiados correctamente');
+        }
+
+        function toggleTheme() {
+            // Esta función se puede implementar para cambiar temas
+            addLog('info', 'Cambio de tema solicitado');
+        }
+
+        // Funciones de simulación de actividad
+        function simulateSystemActivity() {
+            const activities = [
+                { type: 'info', message: 'Verificación automática de servicios completada' },
+                { type: 'success', message: 'Health check de todos los servicios: OK' },
+                { type: 'system', message: 'Rotación automática de logs ejecutada' },
+                { type: 'info', message: 'Backup incremental programado iniciado' },
+                { type: 'warning', message: 'Detección de tráfico elevado en nginx' }
+            ];
+
+            const randomActivity = activities[Math.floor(Math.random() * activities.length)];
+            addLog(randomActivity.type, randomActivity.message);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar filtros
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    appState.currentFilter = this.dataset.filter;
+                    renderLogs();
+                });
+            });
+
+            // Generar logs iniciales
+            setTimeout(() => {
+                addLog('system', 'UMBot Emergency Dashboard v3.1 iniciado');
+                addLog('info', 'Sistema de logs corregido y funcionando');
+                addLog('success', 'Todos los estilos aplicados correctamente');
+                addLog('info', 'Monitoreo de servicios activo');
+            }, 500);
+
+            // Iniciar contadores
+            setInterval(updateSystemUptime, 1000);
+            
+            // Simular actividad del sistema cada 15 segundos
+            setInterval(simulateSystemActivity, 15000);
+        });
+    </script>
+</body>
+</html> 

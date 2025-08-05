@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  # Dynamic Servicios SSR Proxy
+  umbot-ssr-proxy:
+    image: node:18-alpine
+    container_name: umbot-ssr-proxy
+    working_dir: /app
+    volumes:
+      - ./dynamic-servicios-proxy.js:/app/server.js:ro
+    ports:
+      - "8092:8092"
+    command: node server.js
+    environment:
+      - NODE_ENV=production
+      - PORT=8092
+      - DIRECTUS_URL=http://umbot-directus:8055
+    networks:
+      - umbot-network
+    restart: unless-stopped
+    depends_on:
+      - umbot-directus
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8092/servicios/2/test"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  umbot-network:
+    external: true 

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UMBot Emergency Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .console-log {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            height: 400px;
+            overflow-y: auto;
+            font-size: 0.875rem;
+        }
+        .log-entry { margin-bottom: 0.25rem; }
+        .log-time { color: #888; margin-right: 0.5rem; }
+        .log-critical { color: #ff6b6b; }
+        .log-success { color: #51cf66; }
+        .log-info { color: #339af0; }
+        .log-warning { color: #ffd43b; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-red-600 shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-20">
+                    <div class="flex items-center">
+                        <span class="material-icons text-white text-3xl mr-3">emergency</span>
+                        <div>
+                            <h1 class="text-2xl font-bold text-white">UMBot Emergency</h1>
+                            <span class="text-sm bg-white/20 px-2 py-0.5 rounded text-white">v2.0.1 - Enhanced</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center text-white">
+                            <span class="material-icons text-green-400 mr-1">check_circle</span>
+                            <span>Sitio web funcionando</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- System Status Bar -->
+        <div class="bg-red-700 px-4 py-2">
+            <div class="max-w-7xl mx-auto flex justify-between items-center text-sm">
+                <span>Sistema activo: <span id="uptime" class="font-mono">00:00:00</span></span>
+                <span id="datetime">--</span>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="bg-gray-800 border-b border-gray-700">
+            <div class="max-w-7xl mx-auto px-4">
+                <nav class="flex space-x-8">
+                    <button onclick="showTab('general')" data-tab="general" class="tab-btn py-4 px-2 border-b-2 border-blue-500 text-blue-400 transition-colors flex items-center">
+                        <span class="material-icons mr-2">dashboard</span>
+                        General
+                    </button>
+                    <button onclick="showTab('services')" data-tab="services" class="tab-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-400 transition-colors flex items-center">
+                        <span class="material-icons mr-2">dns</span>
+                        Servicios
+                    </button>
+                    <button onclick="showTab('logs')" data-tab="logs" class="tab-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-400 transition-colors flex items-center">
+                        <span class="material-icons mr-2">article</span>
+                        Logs
+                    </button>
+                    <button onclick="showTab('commands')" data-tab="commands" class="tab-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-400 transition-colors flex items-center">
+                        <span class="material-icons mr-2">terminal</span>
+                        Comandos
+                    </button>
+                    <button onclick="showTab('stats')" data-tab="stats" class="tab-btn py-4 px-2 border-b-2 border-transparent hover:border-gray-400 transition-colors flex items-center">
+                        <span class="material-icons mr-2">analytics</span>
+                        Estadísticas
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 py-8">
+            <!-- General Tab -->
+            <div id="general-tab" class="tab-content active">
+                <!-- System Status -->
+                <div class="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <span class="material-icons mr-2 text-blue-400">language</span>
+                        Estado del Sistema
+                    </h2>
+                    <div class="flex items-center text-green-400">
+                        <span class="material-icons mr-2">check_circle</span>
+                        <span class="text-lg">Sitio web funcionando</span>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <h3 class="text-lg font-semibold mb-4">Disponibilidad del Sistema</h3>
+                        <div class="relative h-48">
+                            <canvas id="availabilityChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <h3 class="text-lg font-semibold mb-4">Uso de Recursos</h3>
+                        <div class="relative h-48">
+                            <canvas id="resourcesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button onclick="emergencyRecovery()" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center transition-colors">
+                        <span class="material-icons mr-2">error_outline</span>
+                        Recuperación de Emergencia
+                    </button>
+                    <button onclick="runDiagnostics()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center transition-colors">
+                        <span class="material-icons mr-2">build</span>
+                        Diagnóstico Completo
+                    </button>
+                    <button onclick="cleanDocker()" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center transition-colors">
+                        <span class="material-icons mr-2">cleaning_services</span>
+                        Limpieza Docker
+                    </button>
+                </div>
+            </div>
+
+            <!-- Services Tab -->
+            <div id="services-tab" class="tab-content">
+                <div class="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <span class="material-icons mr-2 text-blue-400">settings</span>
+                        Gestión de Servicios
+                    </h2>
+                    
+                    <button onclick="restartAll()" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg mb-6 flex items-center justify-center transition-colors">
+                        <span class="material-icons mr-2">refresh</span>
+                        Reiniciar Todos los Servicios
+                    </button>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="services-grid">
+                        <!-- Services will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logs Tab -->
+            <div id="logs-tab" class="tab-content">
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold flex items-center">
+                            <span class="material-icons mr-2 text-blue-400">article</span>
+                            Consola de Eventos
+                        </h2>
+                        <div class="flex space-x-2">
+                            <button onclick="clearLogs()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm">
+                                Limpiar
+                            </button>
+                            <button onclick="exportLogs()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm">
+                                Exportar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="console-log" id="console">
+                        <!-- Logs will be added here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Commands Tab -->
+            <div id="commands-tab" class="tab-content">
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <span class="material-icons mr-2 text-blue-400">terminal</span>
+                        Comandos Directos
+                    </h2>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <button onclick="executeCommand('docker ps')" class="bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center transition-colors">
+                            <span class="material-icons mr-2">view_list</span>
+                            Ver Contenedores
+                        </button>
+                        <button onclick="executeCommand('docker stats --no-stream')" class="bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center transition-colors">
+                            <span class="material-icons mr-2">assessment</span>
+                            Estadísticas Docker
+                        </button>
+                        <button onclick="executeCommand('df -h')" class="bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center transition-colors">
+                            <span class="material-icons mr-2">storage</span>
+                            Espacio Disco
+                        </button>
+                        <button onclick="executeCommand('free -h')" class="bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center transition-colors">
+                            <span class="material-icons mr-2">memory</span>
+                            Memoria RAM
+                        </button>
+                        <button onclick="executeCommand('uptime')" class="bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center transition-colors">
+                            <span class="material-icons mr-2">update</span>
+                            Uptime Sistema
+                        </button>
+                        <button onclick="executeCommand('netstat -tlpn')" class="bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center transition-colors">
+                            <span class="material-icons mr-2">settings_ethernet</span>
+                            Puertos Activos
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Tab -->
+            <div id="stats-tab" class="tab-content">
+                <div class="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <span class="material-icons mr-2 text-blue-400">analytics</span>
+                        Estadísticas Detalladas
+                    </h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="text-center bg-gray-700 rounded-lg p-4">
+                            <p class="text-sm text-gray-400 mb-1">Tiempo Respuesta</p>
+                            <p class="text-3xl font-bold text-green-400" id="avg-response">1 ms</p>
+                        </div>
+                        <div class="text-center bg-gray-700 rounded-lg p-4">
+                            <p class="text-sm text-gray-400 mb-1">Disponibilidad</p>
+                            <p class="text-3xl font-bold text-blue-400" id="availability">82.5%</p>
+                        </div>
+                        <div class="text-center bg-gray-700 rounded-lg p-4">
+                            <p class="text-sm text-gray-400 mb-1">Errores</p>
+                            <p class="text-3xl font-bold text-yellow-400" id="total-errors">7</p>
+                        </div>
+                        <div class="text-center bg-gray-700 rounded-lg p-4">
+                            <p class="text-sm text-gray-400 mb-1">Reinicios</p>
+                            <p class="text-3xl font-bold text-red-400" id="total-restarts">0</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Time Series Charts -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <h3 class="text-lg font-semibold mb-4">Tiempos de Respuesta (24h)</h3>
+                        <div class="relative h-48">
+                            <canvas id="responseTimeChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <h3 class="text-lg font-semibold mb-4">Incidentes (7 días)</h3>
+                        <div class="relative h-48">
+                            <canvas id="incidentsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html> 

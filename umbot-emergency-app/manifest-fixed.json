@@ -1,0 +1,76 @@
+{
+  "name": "UMBot Emergency v3.1",
+  "short_name": "UMBot Emergency",
+  "description": "Sistema de monitoreo y recuperación de emergencia para UMBot - Versión 3.1 con estadísticas, logs permanentes y comandos directos",
+  "start_url": "/log/",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#d32f2f",
+  "orientation": "portrait-primary",
+  "scope": "/log/",
+  "lang": "es",
+  "categories": ["utilities", "productivity", "monitoring"],
+  "icons": [
+    {
+      "src": "/log/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/log/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/log/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/log/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/log/icon-512.png", 
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Diagnóstico Rápido",
+      "short_name": "Diagnóstico",
+      "description": "Ejecutar diagnóstico completo del sistema",
+      "url": "/log/?action=diagnostic",
+      "icons": [{ "src": "/log/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Recuperación de Emergencia",
+      "short_name": "Emergencia",
+      "description": "Iniciar procedimiento de recuperación",
+      "url": "/log/?action=recovery",
+      "icons": [{ "src": "/log/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Panel Admin",
+      "short_name": "Admin",
+      "description": "Acceso directo al panel de administración",
+      "url": "/log/?action=admin",
+      "icons": [{ "src": "/log/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Logs del Sistema",
+      "short_name": "Logs",
+      "description": "Ver logs permanentes del sistema",
+      "url": "/log/?action=logs",
+      "icons": [{ "src": "/log/icon-96.png", "sizes": "96x96" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+} 

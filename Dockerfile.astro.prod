@@ -49,6 +49,7 @@ COPY --from=builder /app/node_modules ./node_modules
 # Copiar archivos de configuración y código fuente necesario
 COPY --from=builder /app/.env* ./
 COPY --from=builder /app/src ./src
+COPY --from=builder /app/public ./public
 COPY --from=builder /app/astro.config.mjs ./
 COPY --from=builder /app/tsconfig.json ./
 

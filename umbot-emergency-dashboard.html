@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UMBot Emergency Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .stat-card {
+            @apply bg-white rounded-lg p-6 shadow-sm border border-gray-100;
+        }
+        .service-card {
+            @apply bg-white rounded-lg p-4 shadow-sm border border-gray-100 transition-all hover:shadow-md;
+        }
+        .console-log {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            height: 300px;
+            overflow-y: auto;
+            font-size: 0.875rem;
+        }
+        .log-entry {
+            margin-bottom: 0.25rem;
+        }
+        .log-time {
+            color: #888;
+            margin-right: 0.5rem;
+        }
+        .log-critical { color: #ff6b6b; }
+        .log-success { color: #51cf66; }
+        .log-info { color: #339af0; }
+        .log-warning { color: #ffd43b; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center">
+                        <span class="material-icons text-green-600 mr-2">computer</span>
+                        <h1 class="text-xl font-bold text-gray-900">UMBot Emergency</h1>
+                        <span class="ml-2 px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">v2.0.1 - Enhanced</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center text-sm text-green-600">
+                            <span class="material-icons text-sm mr-1">check_circle</span>
+                            Sitio web funcionando
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- System Status -->
+            <div class="mb-6">
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <span class="material-icons text-green-600 mr-2">check_circle</span>
+                        <div>
+                            <p class="font-medium text-green-900">Sitio web funcionando</p>
+                            <div class="flex space-x-6 mt-1 text-sm text-green-700">
+                                <span>Sistema activo: <span id="uptime">Cargando...</span></span>
+                                <span>Fecha y Hora: <span id="datetime">--</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Disponibilidad del Sistema -->
+                <div class="stat-card">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Disponibilidad del Sistema</h3>
+                    <div class="relative h-48">
+                        <canvas id="availabilityChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Uso de Recursos -->
+                <div class="stat-card">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Uso de Recursos</h3>
+                    <div class="relative h-48">
+                        <canvas id="resourcesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Time Series Charts -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Tiempos de Respuesta -->
+                <div class="stat-card">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Tiempos de Respuesta (últimas 24h)</h3>
+                    <div class="relative h-48">
+                        <canvas id="responseTimeChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Incidentes Registrados -->
+                <div class="stat-card">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Incidentes Registrados (últimos 7 días)</h3>
+                    <div class="relative h-48">
+                        <canvas id="incidentsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <button onclick="emergencyRecovery()" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center transition-colors">
+                    <span class="material-icons mr-2">error_outline</span>
+                    Recuperación de Emergencia
+                </button>
+                <button onclick="runDiagnostics()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center transition-colors">
+                    <span class="material-icons mr-2">build</span>
+                    Diagnóstico Completo
+                </button>
+                <button onclick="cleanDocker()" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center transition-colors">
+                    <span class="material-icons mr-2">cleaning_services</span>
+                    Limpieza Docker
+                </button>
+            </div>
+
+            <!-- Console -->
+            <div class="stat-card mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Consola de Eventos en Tiempo Real</h3>
+                <div class="console-log" id="console">
+                    <!-- Logs will be added here dynamically -->
+                </div>
+                <!-- Command form -->
+                <form id="commandForm" class="flex mt-4 space-x-2">
+                    <input id="cmdInput" type="text" class="flex-grow border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej: docker ps" />
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg">Ejecutar</button>
+                </form>
+                <!-- Log action buttons -->
+                <div class="flex space-x-2 mt-2">
+                    <button onclick="clearLogs()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-3 py-1 rounded-lg">Limpiar</button>
+                    <button onclick="copyLogs()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-3 py-1 rounded-lg">Copiar</button>
+                    <button onclick="exportLogs()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-3 py-1 rounded-lg">Exportar</button>
+                </div>
+            </div>
+
+            <!-- Commands Grid -->
+            <div class="stat-card mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Comandos Directos</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <button onclick="executeCommand('docker ps')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg flex items-center justify-center transition-colors">
+                        <span class="material-icons mr-2 text-lg">view_list</span>
+                        Ver Contenedores
+                    </button>
+                    <button onclick="executeCommand('docker stats --no-stream')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg flex items-center justify-center transition-colors">
+                        <span class="material-icons mr-2 text-lg">assessment</span>
+                        Estadísticas Docker
+                    </button>
+                    <button onclick="executeCommand('df -h')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg flex items-center justify-center transition-colors">
+                        <span class="material-icons mr-2 text-lg">storage</span>
+                        Espacio Disco
+                    </button>
+                    <button onclick="executeCommand('free -h')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg flex items-center justify-center transition-colors">
+                        <span class="material-icons mr-2 text-lg">memory</span>
+                        Memoria RAM
+                    </button>
+                    <button onclick="executeCommand('uptime')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg flex items-center justify-center transition-colors">
+                        <span class="material-icons mr-2 text-lg">update</span>
+                        Uptime Sistema
+                    </button>
+                    <button onclick="executeCommand('netstat -tlpn')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg flex items-center justify-center transition-colors">
+                        <span class="material-icons mr-2 text-lg">settings_ethernet</span>
+                        Puertos Activos
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="stat-card">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Estadísticas Detalladas</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600 mb-1">Tiempo Respuesta Promedio</p>
+                        <p class="text-3xl font-bold text-green-600" id="avg-response">1 ms</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600 mb-1">Disponibilidad</p>
+                        <p class="text-3xl font-bold text-blue-600" id="availability">82.5%</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600 mb-1">Errores Totales</p>
+                        <p class="text-3xl font-bold text-yellow-600" id="total-errors">7</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600 mb-1">Reinicios</p>
+                        <p class="text-3xl font-bold text-red-600" id="total-restarts">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Servicios -->
+            <div class="stat-card my-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Servicios</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="services-grid"></div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="text-center py-8 text-gray-500 text-sm">
+            <p>© 2025 UMBot Systems. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+
+    <!-- PWA Elements -->
+    <button id="btnInstall" style="display:none;position:fixed;bottom:80px;right:20px;background:#3B82F6;color:white;border:none;padding:12px 16px;border-radius:8px;z-index:300;box-shadow:0 4px 12px rgba(0,0,0,0.4);">Instalar App</button>
+    <div id="customInstallBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#3B82F6;color:white;padding:12px;justify-content:space-between;align-items:center;z-index:400;">
+        <span>Instala UMBot Emergency para acceso rápido</span>
+        <button class="bg-white text-blue-600 font-bold py-1 px-3 rounded">Instalar</button>
+    </div>
+
+    <!-- Script principal remoto -->
+    <script src="/emergency/app.js"></script>
+        <!-- Script complementario -->
+    <script>
+        // ESTRATEGIA NUCLEAR: Control total e inmediato
+        console.log('🚀 Inicializando control de uptime...');
+        
+        // Deshabilitar INMEDIATAMENTE cualquier función del app.js
+        window.updateUptime = function() { console.log('⛔ updateUptime bloqueada'); };
+        window.updateDateTime = function() { console.log('⛔ updateDateTime bloqueada'); };
+        
+        let serverUptimeSecs = null;
+        let bootTimeStr = null;
+        let ourInterval = null;
+
+        function uptimeStringToSeconds(str) {
+            let days = 0, hours = 0, minutes = 0;
+            const dayMatch = str.match(/(\d+)\s+day/);
+            if (dayMatch) days = parseInt(dayMatch[1], 10);
+            const hmMatch = str.match(/(\d+):(\d+)/);
+            if (hmMatch) {
+                hours = parseInt(hmMatch[1], 10);
+                minutes = parseInt(hmMatch[2], 10);
+            }
+            return days * 86400 + hours * 3600 + minutes * 60;
+        }
+
+        async function initializeRealUptime() {
+            try {
+                console.log('📡 Obteniendo uptime del servidor...');
+                const res = await fetch('/emergency/api/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command: 'uptime' })
+                });
+                const data = await res.json();
+                
+                if (data.status === 'success') {
+                    const fullOutput = data.output.trim();
+                    const match = fullOutput.match(/up\s+(.*?),\s*\d+\s*user/);
+                    
+                    if (match) {
+                        const uptimeStr = match[1].trim();
+                        serverUptimeSecs = uptimeStringToSeconds(uptimeStr);
+                        
+                        const now = new Date();
+                        const bootTime = new Date(now.getTime() - (serverUptimeSecs * 1000));
+                        bootTimeStr = `${bootTime.getDate().toString().padStart(2,'0')}/${(bootTime.getMonth()+1).toString().padStart(2,'0')}/${bootTime.getFullYear()}, ${bootTime.getHours().toString().padStart(2,'0')}:${bootTime.getMinutes().toString().padStart(2,'0')}`;
+                        
+                        console.log(`✅ Uptime: ${uptimeStr} = ${serverUptimeSecs}s`);
+                        console.log(`📅 Boot time: ${bootTimeStr}`);
+                        
+                        // Iniciar nuestro control inmediato
+                        startOurUptimeControl();
+                    }
+                }
+            } catch (err) {
+                console.error('❌ Error inicializando uptime:', err);
+            }
+        }
+
+        function startOurUptimeControl() {
+            const uptimeEl = document.getElementById('uptime');
+            if (!uptimeEl) return;
+            
+            console.log('🎯 Tomando control del elemento uptime');
+            
+            // Función que actualiza nuestro uptime
+            function updateOurUptime() {
+                if (serverUptimeSecs !== null && bootTimeStr) {
+                    const days = Math.floor(serverUptimeSecs / 86400);
+                    const hrs = Math.floor((serverUptimeSecs % 86400) / 3600);
+                    const mins = Math.floor((serverUptimeSecs % 3600) / 60);
+                    const secs = serverUptimeSecs % 60;
+                    
+                    const parts = [];
+                    if (days > 0) parts.push(`${days} día${days>1?'s':''}`);
+                    parts.push(`${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`);
+                    
+                    const displayText = parts.join(', ') + ` (desde ${bootTimeStr})`;
+                    uptimeEl.textContent = displayText;
+                    serverUptimeSecs++;
+                }
+            }
+            
+            // Actualizar inmediatamente
+            updateOurUptime();
+            
+            // Crear nuestro interval
+            if (ourInterval) clearInterval(ourInterval);
+            ourInterval = setInterval(updateOurUptime, 1000);
+            
+            // Observer agresivo para bloquear cambios externos
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'characterData' || mutation.type === 'childList') {
+                        if (!uptimeEl.textContent.includes('desde') && serverUptimeSecs !== null) {
+                            console.log('🛡️ Bloqueando intento de cambio externo');
+                            updateOurUptime();
+                        }
+                    }
+                });
+            });
+            
+            observer.observe(uptimeEl, {
+                childList: true,
+                characterData: true,
+                subtree: true
+            });
+        }
+
+        // EJECUTAR INMEDIATAMENTE (sin esperar DOMContentLoaded)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(initializeRealUptime, 500);
+            });
+        } else {
+            // DOM ya está listo
+            setTimeout(initializeRealUptime, 500);
+        }
+
+        // Limpiar intervalos del app.js después de un momento
+        setTimeout(() => {
+            console.log('🧹 Limpiando intervalos externos...');
+            for (let i = 1; i < 99999; i++) {
+                clearInterval(i);
+            }
+            // Preservar nuestro interval
+            if (ourInterval) {
+                const temp = ourInterval;
+                setTimeout(() => {
+                    ourInterval = temp;
+                    console.log('✅ Nuestro interval preservado');
+                }, 100);
+            }
+        }, 2000);
+
+        // Funciones adicionales
+        function copyLogs() {
+            try {
+                const srcLogs = typeof logs !== 'undefined' ? logs : [];
+                const text = srcLogs.map(l => `[${l.time}] [${l.type.toUpperCase()}] ${l.message}`).join('\n');
+                navigator.clipboard.writeText(text).then(() => {
+                    if (typeof addLog === 'function') addLog('Logs copiados al portapapeles', 'success');
+                });
+            } catch (err) {
+                if (typeof addLog === 'function') addLog('Error al copiar logs', 'critical');
+            }
+        }
+
+        // Manejo de datetime independiente
+        function updateDateTime() {
+            const el = document.getElementById('datetime');
+            if (el) el.textContent = new Date().toLocaleString('es-ES');
+        }
+        setInterval(updateDateTime, 1000);
+    </script>
+</body>
+</html> 

@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UMBot Emergency Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<link rel="manifest" href="manifest.json"/>
+<style type="text/tailwindcss">
+        :root {
+            --primary-color: #3B82F6;--secondary-color: #F3F4F6;--tertiary-color: #FFFFFF;--text-primary-color: #1F2937;--text-secondary-color: #6B7280;--accent-green: #10B981;--accent-red: #EF4444;--accent-yellow: #F59E0B;--accent-blue: #3B82F6;--border-color: #E5E7EB;}
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--secondary-color);
+            color: var(--text-primary-color);
+        }
+        .material-icons {
+            vertical-align: middle;
+        }
+        .bg-primary { background-color: var(--primary-color);}
+        .text-primary { color: var(--primary-color);}
+        .hover-bg-primary:hover { background-color: #2563EB;}
+        .bg-secondary { background-color: var(--secondary-color);}
+        .bg-tertiary { background-color: var(--tertiary-color);}
+        .hover-bg-tertiary:hover { background-color: #F9FAFB;}
+        .text-accent-green { color: var(--accent-green);}
+        .text-accent-blue { color: var(--accent-blue);}
+        .text-accent-yellow { color: var(--accent-yellow);}
+        .text-accent-red { color: var(--accent-red);}
+        .border-primary { border-color: var(--primary-color);}
+        .border-light { border-color: var(--border-color);}
+        .log-console {
+            font-family: 'Roboto Mono', monospace;
+            background-color: #0D1117;color: #32CD32;padding: 1rem;
+            border-radius: 0.5rem;
+            height: 300px;
+            overflow-y: auto;
+            font-size: 0.875rem;line-height: 1.5;
+            box-shadow: 0 0 10px rgba(50, 205, 50, 0.3);
+        }
+        .log-console p {
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+        }
+        .log-console .timestamp {
+            color: #A0AEC0;margin-right: 0.5rem;
+        }
+        .log-console .event-type-INFO { color: #60A5FA; }.log-console .event-type-WARN { color: #FACC15; }.log-console .event-type-ERROR { color: #F87171; }.log-console .event-type-CRITICAL { color: #FB923C; }.log-console .event-type-SUCCESS { color: #4ADE80; }.log-console::-webkit-scrollbar {
+            width: 8px;
+        }
+        .log-console::-webkit-scrollbar-track {
+            background: #161B22;}
+        .log-console::-webkit-scrollbar-thumb {
+            background-color: #32CD32;border-radius: 4px;
+            border: 2px solid #161B22;
+        }
+    </style>
+</head>
+<body class="text-[var(--text-primary-color)]">
+<div class="min-h-screen p-4 md:p-8">
+<header class="text-center mb-8">
+<div class="flex items-center justify-center mb-2">
+<img alt="UMBot Logo" class="h-12 w-12 mr-3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPqA59H3oLcWEIBWSsWnal8vVogOvu1h_w9LdIFd5t9ol2STjJhWUddQLpCX2EinYA1tuCl56oOVQ_yLLBSThhAZ3w4ODAmUAfAdjqoxsVIDmqffGvFcU7GKiuyFbf5YVd_nu9VOUm_6WIitfXZAZTpfdAnC4Bvhx5ox6zioz_mh8xU_8jGtRIBpVxQRko-Fm9E4vyuspaOqG7w_7nuhizRSZKkGysy0PhGmnJbyGjLLmUGPsdcbCN9LW4pAEBDfi305V1DhB496NU"/>
+<h1 class="text-4xl font-bold text-primary">UMBot Emergency</h1>
+</div>
+<p class="text-[var(--text-secondary-color)] text-sm">v2.0.1 - Enhanced</p>
+</header>
+<main class="space-y-6">
+<section class="bg-tertiary p-6 rounded-lg shadow-lg border border-light">
+<div class="flex items-center text-accent-green mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-md">
+<span class="material-icons mr-2">check_circle</span>
+<p class="font-medium text-emerald-700">Sitio web funcionando</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+<div class="bg-secondary p-3 rounded-md border border-light">
+<p><span class="font-semibold text-[var(--text-primary-color)]">Sistema activo:</span> <span class="text-[var(--text-secondary-color)]">00:03:40</span></p>
+</div>
+<div class="bg-secondary p-3 rounded-md border border-light">
+<p><span class="font-semibold text-[var(--text-primary-color)]">Fecha y Hora:</span> <span class="text-[var(--text-secondary-color)]">29/06/2025, 09:57:02 a. m.</span></p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+<div class="bg-tertiary p-4 rounded-lg shadow-md border border-light">
+<h3 class="text-lg font-semibold text-[var(--text-primary-color)] mb-3">Disponibilidad del Sistema</h3>
+<div class="relative h-40">
+<canvas id="availabilityChart"></canvas>
+</div>
+</div>
+<div class="bg-tertiary p-4 rounded-lg shadow-md border border-light">
+<h3 class="text-lg font-semibold text-[var(--text-primary-color)] mb-3">Uso de Recursos</h3>
+<div class="relative h-40">
+<canvas id="resourceUsageChart"></canvas>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+<div class="bg-tertiary p-4 rounded-lg shadow-md border border-light">
+<h3 class="text-lg font-semibold text-[var(--text-primary-color)] mb-3">Tiempos de Respuesta (últimas 24h)</h3>
+<div class="relative h-60">
+<canvas id="responseTimeChart"></canvas>
+</div>
+</div>
+<div class="bg-tertiary p-4 rounded-lg shadow-md border border-light">
+<h3 class="text-lg font-semibold text-[var(--text-primary-color)] mb-3">Incidentes Registrados (últimos 7 días)</h3>
+<div class="relative h-60">
+<canvas id="incidentsTimelineChart"></canvas>
+</div>
+</div>
+</div>
+<button class="mt-6 w-full flex items-center justify-center bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-150">
+<span class="material-icons mr-2">error_outline</span>
+                    Recuperación de Emergencia
+                </button>
+</section>
+<section class="bg-tertiary p-6 rounded-lg shadow-lg space-y-4 border border-light">
+<button class="w-full flex items-center justify-center bg-primary hover-bg-primary text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-150">
+<span class="material-icons mr-2">build</span>
+                    Diagnóstico Completo
+                </button>
+<button class="w-full flex items-center justify-center bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-150">
+<span class="material-icons mr-2">cleaning_services</span>
+                    Limpieza Docker
+                </button>
+</section>
+<section class="bg-tertiary p-6 rounded-lg shadow-lg border border-light">
+<h2 class="text-2xl font-semibold mb-4 text-[var(--text-primary-color)]">Consola de Eventos en Tiempo Real</h2>
+<div class="flex justify-end space-x-2 mb-2">
+    <button onclick="copyLogs()" class="bg-secondary hover-bg-tertiary border border-light py-1 px-3 rounded text-sm">Copiar</button>
+    <button onclick="clearLogs()" class="bg-secondary hover-bg-tertiary border border-light py-1 px-3 rounded text-sm">Limpiar</button>
+    <button onclick="exportLogs()" class="bg-secondary hover-bg-tertiary border border-light py-1 px-3 rounded text-sm">Exportar</button>
+</div>
+<div class="log-console" id="logConsole"></div>
+<!-- Formulario de comandos -->
+<form id="commandForm" class="mt-3 flex gap-2">
+  <input id="cmdInput" type="text" placeholder="docker ps" class="flex-1 border border-light rounded-md px-3 py-2 text-sm" />
+  <button type="submit" class="bg-primary hover-bg-primary text-white px-4 rounded-md text-sm">Ejecutar</button>
+</form>
+</section>
+<section class="bg-tertiary p-6 rounded-lg shadow-lg border border-light">
+<h2 class="text-2xl font-semibold mb-6 text-[var(--text-primary-color)]">Comandos Directos</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+<button class="flex items-center justify-center bg-secondary hover-bg-tertiary text-[var(--text-primary-color)] font-medium py-3 px-4 rounded-lg shadow-sm border border-light transition duration-150">
+<span class="material-icons mr-2">view_list</span>
+                        Ver Contenedores
+                    </button>
+<button class="flex items-center justify-center bg-secondary hover-bg-tertiary text-[var(--text-primary-color)] font-medium py-3 px-4 rounded-lg shadow-sm border border-light transition duration-150">
+<span class="material-icons mr-2">assessment</span>
+                        Estadísticas Docker
+                    </button>
+<button class="flex items-center justify-center bg-secondary hover-bg-tertiary text-[var(--text-primary-color)] font-medium py-3 px-4 rounded-lg shadow-sm border border-light transition duration-150">
+<span class="material-icons mr-2">storage</span>
+                        Espacio Disco
+                    </button>
+<button class="flex items-center justify-center bg-secondary hover-bg-tertiary text-[var(--text-primary-color)] font-medium py-3 px-4 rounded-lg shadow-sm border border-light transition duration-150">
+<span class="material-icons mr-2">memory</span>
+                        Memoria RAM
+                    </button>
+<button class="flex items-center justify-center bg-secondary hover-bg-tertiary text-[var(--text-primary-color)] font-medium py-3 px-4 rounded-lg shadow-sm border border-light transition duration-150">
+<span class="material-icons mr-2">update</span>
+                        Uptime Sistema
+                    </button>
+<button class="flex items-center justify-center bg-secondary hover-bg-tertiary text-[var(--text-primary-color)] font-medium py-3 px-4 rounded-lg shadow-sm border border-light transition duration-150">
+<span class="material-icons mr-2">settings_ethernet</span>
+                        Puertos Activos
+                    </button>
+</div>
+</section>
+<section class="bg-tertiary p-6 rounded-lg shadow-lg border border-light">
+<h2 class="text-2xl font-semibold mb-6 text-[var(--text-primary-color)]">Estadísticas Detalladas</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="bg-secondary p-6 rounded-lg text-center shadow-sm border border-light">
+<p class="text-sm text-[var(--text-secondary-color)] mb-1">Tiempo Respuesta Promedio</p>
+<p class="text-4xl font-bold text-accent-green" id="stat-response">-</p>
+</div>
+<div class="bg-secondary p-6 rounded-lg text-center shadow-sm border border-light">
+<p class="text-sm text-[var(--text-secondary-color)] mb-1">Disponibilidad</p>
+<p class="text-4xl font-bold text-accent-blue" id="stat-availability">-</p>
+</div>
+<div class="bg-secondary p-6 rounded-lg text-center shadow-sm border border-light">
+<p class="text-sm text-[var(--text-secondary-color)] mb-1">Errores Totales</p>
+<p class="text-4xl font-bold text-accent-yellow" id="stat-errors">-</p>
+</div>
+<div class="bg-secondary p-6 rounded-lg text-center shadow-sm border border-light">
+<p class="text-sm text-[var(--text-secondary-color)] mb-1">Reinicios</p>
+<p class="text-4xl font-bold text-accent-red" id="stat-restarts">-</p>
+</div>
+</div>
+</section>
+</main>
+<footer class="text-center mt-12 text-[var(--text-secondary-color)] text-sm">
+<p>© 2025 UMBot Systems. Todos los derechos reservados.</p>
+</footer>
+</div>
+<script>
+        const textColorPrimary = getComputedStyle(document.documentElement).getPropertyValue('--text-primary-color').trim();
+        const textColorSecondary = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary-color').trim();
+        const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim();
+        const accentGreen = getComputedStyle(document.documentElement).getPropertyValue('--accent-green').trim();
+        const accentRed = getComputedStyle(document.documentElement).getPropertyValue('--accent-red').trim();
+        const accentBlue = getComputedStyle(document.documentElement).getPropertyValue('--accent-blue').trim();
+        const accentYellow = getComputedStyle(document.documentElement).getPropertyValue('--accent-yellow').trim();
+        const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
+        const availabilityCtx = document.getElementById('availabilityChart').getContext('2d');
+        const availabilityChart = new Chart(availabilityCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Disponible', 'No Disponible'],
+                datasets: [{
+                    label: 'Disponibilidad',
+                    data: [82.5, 17.5], // Example data
+                    backgroundColor: [
+                        accentGreen,
+                        accentRed
+                    ],
+                    borderColor: [
+                        'var(--tertiary-color)',
+                        'var(--tertiary-color)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: textColorSecondary
+                        }
+                    }
+                }
+            }
+        });
+        const resourceUsageCtx = document.getElementById('resourceUsageChart').getContext('2d');
+        const resourceUsageChart = new Chart(resourceUsageCtx, {
+            type: 'bar',
+            data: {
+                labels: ['CPU', 'Memoria', 'Disco'],
+                datasets: [{
+                    label: 'Uso (%)',
+                    data: [65, 40, 75], // Example data
+                    backgroundColor: [
+                        accentBlue,
+                        accentYellow,
+                        '#A78BFA'],
+                    borderColor: [
+                        'var(--tertiary-color)',
+                        'var(--tertiary-color)',
+                        'var(--tertiary-color)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            color: textColorSecondary
+                        },
+                        grid: {
+                            color: borderColor
+                        }
+                    },
+                    y: {
+                         ticks: {
+                            color: textColorSecondary
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        // Timeline Chart: Response Time
+        const responseTimeCtx = document.getElementById('responseTimeChart').getContext('2d');
+        const responseTimeChart = new Chart(responseTimeCtx, {
+            type: 'line',
+            data: {
+                labels: ['-24h', '-20h', '-16h', '-12h', '-8h', '-4h', 'Ahora'], // Example time labels
+                datasets: [{
+                    label: 'Tiempo de Respuesta (ms)',
+                    data: [5, 8, 6, 10, 7, 9, 4], // Example data
+                    borderColor: primaryColor,
+                    backgroundColor: primaryColor + '33', // semi-transparent
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: primaryColor,
+                    pointBorderColor: 'var(--tertiary-color)',
+                    pointHoverBackgroundColor: 'var(--tertiary-color)',
+                    pointHoverBorderColor: primaryColor,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        ticks: { color: textColorSecondary },
+                        grid: { color: borderColor }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: textColorSecondary },
+                        grid: { color: borderColor }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: textColorPrimary }
+                    }
+                }
+            }
+        });
+        // Timeline Chart: Incidents
+        const incidentsTimelineCtx = document.getElementById('incidentsTimelineChart').getContext('2d');
+        const incidentsTimelineChart = new Chart(incidentsTimelineCtx, {
+            type: 'bar', // Using bar for discrete events, could also be scatter
+            data: {
+                labels: ['Día -6', 'Día -5', 'Día -4', 'Día -3', 'Día -2', 'Ayer', 'Hoy'], // Example day labels
+                datasets: [
+                    {
+                        label: 'Errores Críticos',
+                        data: [0, 1, 0, 2, 0, 1, 0], // Example data for critical errors
+                        backgroundColor: accentRed,
+                        borderRadius: 4,
+                    },
+                    {
+                        label: 'Advertencias',
+                        data: [2, 1, 3, 1, 4, 2, 1], // Example data for warnings
+                        backgroundColor: accentYellow,
+                        borderRadius: 4,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true,
+                        ticks: { color: textColorSecondary },
+                        grid: { display: false }
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        ticks: { color: textColorSecondary, stepSize: 1 },
+                        grid: { color: borderColor }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { color: textColorPrimary }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                }
+            }
+        });
+        // Matrix Log Console Simulation
+        const logConsole = document.getElementById('logConsole');
+        const eventTypes = [
+            { type: 'INFO', message: 'System check initiated...', colorClass: 'event-type-INFO' },
+            { type: 'SUCCESS', message: 'UMBot core services online.', colorClass: 'event-type-SUCCESS' },
+            { type: 'INFO', message: 'Connecting to monitoring endpoints...', colorClass: 'event-type-INFO' },
+            { type: 'WARN', message: 'High CPU usage detected on worker-3.', colorClass: 'event-type-WARN' },
+            { type: 'INFO', message: 'Docker container scan started.', colorClass: 'event-type-INFO' },
+            { type: 'ERROR', message: 'Failed to connect to database: timeout.', colorClass: 'event-type-ERROR' },
+            { type: 'INFO', message: 'Attempting database reconnection...', colorClass: 'event-type-INFO' },
+            { type: 'SUCCESS', message: 'Database connection re-established.', colorClass: 'event-type-SUCCESS' },
+            { type: 'CRITICAL', message: 'Security alert: Unauthorized access attempt from IP 192.168.1.100', colorClass: 'event-type-CRITICAL' },
+            { type: 'INFO', message: 'Network latency normal.', colorClass: 'event-type-INFO' },
+        ];
+        let logCounter = 0;
+        function addLogEntry() {
+            if (logCounter >= 50) { // Limit number of logs for performance
+                 // Optionally clear old logs or stop adding
+                 // logConsole.innerHTML = ''; logCounter = 0; // To restart logs
+                 return;
+            }
+            const event = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+            const timestamp = new Date().toLocaleTimeString('es-ES', { hour12: false });
+            const logEntry = document.createElement('p');
+            logEntry.innerHTML = `<span class="timestamp">[${timestamp}]</span> <span class="${event.colorClass}">[${event.type}]</span> ${event.message}`;
+            logConsole.appendChild(logEntry);
+            logConsole.scrollTop = logConsole.scrollHeight; // Auto-scroll to bottom
+            logCounter++;
+        }
+        // Add initial logs and then periodically
+        for(let i=0; i < 7; i++) addLogEntry(); // Initial burst
+        setInterval(addLogEntry, Math.random() * (5000 - 2000) + 2000); // Random interval between 2-5 seconds
+
+        // --- Desactivar simulación y habilitar datos reales ---
+        logConsole.innerHTML = '';
+        function addLogEntry(){} // desactiva demo
+
+        // === Gestión de Logs Reales ===
+        async function fetchLogs() {
+            try {
+                const res = await fetch('/api/logs/umbot-nginx-static?lines=100');
+                const data = await res.json();
+                logConsole.innerText = data.logs;
+                logConsole.scrollTop = logConsole.scrollHeight;
+            } catch (err) {
+                console.error('Error obteniendo logs', err);
+            }
+        }
+        function clearLogs(){ logConsole.innerHTML=''; }
+        function copyLogs(){ navigator.clipboard.writeText(logConsole.innerText).then(()=>alert('Logs copiados')); }
+        function exportLogs(){
+            const text = logConsole.innerText || logConsole.textContent || '';
+            if(!text.trim()){ alert('No hay registros para exportar'); return; }
+            const blob = new Blob([text.replace(/\u00A0/g,' ')], {type:'text/plain;charset=utf-8'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'umbot_logs_'+new Date().toISOString().replace(/[:.]/g,'-')+'.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        fetchLogs();
+        setInterval(fetchLogs, 5000);
+
+        // === Métricas en Tiempo Real ===
+        async function updateMetrics(){
+            try{
+                const res = await fetch('/api/services');
+                const data = await res.json();
+                const total = data.services.length;
+                const healthy = data.services.filter(s=>s.status==='healthy').length;
+                const availability = total? (healthy/total)*100 : 0;
+                availabilityChart.data.datasets[0].data = [availability, 100-availability];
+                availabilityChart.update();
+                document.getElementById('stat-availability').innerText = availability.toFixed(1)+'%';
+                document.getElementById('stat-errors').innerText = data.metrics.totalErrors;
+                document.getElementById('stat-restarts').innerText = data.metrics.totalRestarts;
+                document.getElementById('stat-response').innerText = data.metrics.avgResponseTime + ' ms';
+            }catch(e){console.error(e);}    
+        }
+        updateMetrics();
+        setInterval(updateMetrics, 15000);
+
+        // Registro SW y manejo instalación PWA
+        if('serviceWorker' in navigator){
+          navigator.serviceWorker.register('service-worker.js');
+        }
+        let deferredPrompt;
+        const installBtn = document.getElementById('btnInstall');
+        window.addEventListener('beforeinstallprompt', (e)=>{
+          e.preventDefault();
+          deferredPrompt = e;
+          installBtn.style.display='block';
+        });
+        installBtn.addEventListener('click', async ()=>{
+          if(!deferredPrompt) return;
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          if(outcome==='accepted') installBtn.style.display='none';
+          deferredPrompt=null;
+        });
+
+        // Helper para agregar línea al log
+        function appendLog(type,msg){
+         const p=document.createElement('p');
+         p.innerHTML=`<span class="timestamp">[${new Date().toLocaleTimeString('es-ES',{hour12:false})}]</span> <span class="event-type-${type}">[${type}]</span> ${msg}`;
+         logConsole.appendChild(p);
+         logConsole.scrollTop=logConsole.scrollHeight;
+        }
+
+        // Procesamiento de formulario de comandos
+        const form=document.getElementById('commandForm');
+        form.addEventListener('submit',async (e)=>{
+          e.preventDefault();
+          const cmd=document.getElementById('cmdInput').value.trim();
+          if(!cmd){return;}
+          appendLog('INFO',`Ejecutando: ${cmd}`);
+          try{
+            const res=await fetch('/api/execute',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command:cmd})});
+            const data=await res.json();
+            if(data.status==='success'){
+                appendLog('SUCCESS','--- SALIDA ---');
+                data.output.split('\n').forEach(l=>appendLog('SUCCESS',l));
+            }else{
+                appendLog('ERROR',data.message||'Error ejecutando');
+            }
+          }catch(err){appendLog('ERROR',err.message);}
+          document.getElementById('cmdInput').value='';
+        });
+
+        // Mostrar banner app en HTTP como fallback
+        if(!window.matchMedia('(display-mode: standalone)').matches){
+          customInstallBanner.style.display='flex';
+        }
+        function triggerInstall(){installBtn.click();customInstallBanner.style.display='none';}
+    </script>
+<!-- botón instalar -->
+<button id="btnInstall" style="display:none;position:fixed;bottom:80px;right:20px;background:#3B82F6;color:#fff;border:none;padding:12px 16px;border-radius:8px;z-index:300">Instalar App</button>
+<!-- Banner PWA Manual -->
+<div id="customInstallBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#3B82F6;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;z-index:400">
+  <span>Instala UMBot Emergency como App para acceso rápido</span>
+  <button onclick="triggerInstall()" style="background:#fff;color:#3B82F6;border:none;padding:8px 16px;border-radius:6px;font-weight:600">Instalar</button>
+</div>
+</body></html>

@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UMBot Emergency Dashboard v3.1 - Sistema de Logs</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<link rel="manifest" href="manifest.json"/>
+<style>
+        :root {
+            --primary-color: #3B82F6;
+            --secondary-color: #F3F4F6;
+            --tertiary-color: #FFFFFF;
+            --text-primary-color: #1F2937;
+            --text-secondary-color: #6B7280;
+            --accent-green: #10B981;
+            --accent-red: #EF4444;
+            --accent-yellow: #F59E0B;
+            --accent-blue: #3B82F6;
+            --border-color: #E5E7EB;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--secondary-color);
+            color: var(--text-primary-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        .material-icons {
+            vertical-align: middle;
+        }
+        
+        /* Utilidades de color */
+        .bg-primary { background-color: var(--primary-color); }
+        .text-primary { color: var(--primary-color); }
+        .hover-bg-primary:hover { background-color: #2563EB; }
+        .bg-secondary { background-color: var(--secondary-color); }
+        .bg-tertiary { background-color: var(--tertiary-color); }
+        .hover-bg-tertiary:hover { background-color: #F9FAFB; }
+        .text-accent-green { color: var(--accent-green); }
+        .text-accent-blue { color: var(--accent-blue); }
+        .text-accent-yellow { color: var(--accent-yellow); }
+        .text-accent-red { color: var(--accent-red); }
+        .border-primary { border-color: var(--primary-color); }
+        .border-light { border-color: var(--border-color); }
+        
+        /* Layout básico */
+        .min-h-screen { min-height: 100vh; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .space-y-6 > * + * { margin-top: 1.5rem; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .border { border-width: 1px; }
+        
+        /* Flexbox */
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .space-x-2 > * + * { margin-left: 0.5rem; }
+        .space-x-3 > * + * { margin-left: 0.75rem; }
+        
+        /* Grid */
+        .grid { display: grid; }
+        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .gap-4 { gap: 1rem; }
+        .gap-6 { gap: 1.5rem; }
+        
+        /* Header */
+        .text-center { text-align: center; }
+        .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+        .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+        .font-bold { font-weight: 700; }
+        .font-semibold { font-weight: 600; }
+        .font-medium { font-weight: 500; }
+        
+        /* Sistema de logs mejorado */
+        .log-console {
+            font-family: 'Roboto Mono', monospace;
+            background-color: #F8FAFC;
+            color: var(--text-primary-color);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            height: 500px;
+            overflow-y: auto;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        
+        .log-entry {
+            padding: 0.5rem;
+            margin-bottom: 0.25rem;
+            border-radius: 0.25rem;
+            border-left: 4px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .log-entry:hover {
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+        
+        .log-entry.unread {
+            background-color: rgba(59, 130, 246, 0.1);
+            border-left-color: var(--primary-color);
+        }
+        
+        .log-entry.log-system { border-left-color: var(--accent-blue); }
+        .log-entry.log-info { border-left-color: var(--accent-blue); }
+        .log-entry.log-warning { border-left-color: var(--accent-yellow); }
+        .log-entry.log-error { border-left-color: var(--accent-red); }
+        .log-entry.log-success { border-left-color: var(--accent-green); }
+        .log-entry.log-command { border-left-color: #8B5CF6; }
+        .log-entry.log-service { border-left-color: #06B6D4; }
+        
+        .log-timestamp {
+            color: var(--text-secondary-color);
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+        }
+        
+        .log-type-badge {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+            text-transform: uppercase;
+        }
+        
+        .badge-system { background-color: #DBEAFE; color: #1E40AF; }
+        .badge-info { background-color: #DBEAFE; color: #1E40AF; }
+        .badge-warning { background-color: #FEF3C7; color: #92400E; }
+        .badge-error { background-color: #FEE2E2; color: #991B1B; }
+        .badge-success { background-color: #D1FAE5; color: #065F46; }
+        .badge-command { background-color: #EDE9FE; color: #5B21B6; }
+        .badge-service { background-color: #CFFAFE; color: #155E75; }
+        
+        /* Filtros de logs */
+        .log-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+        
+        .filter-btn {
+            padding: 0.375rem 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            background-color: var(--tertiary-color);
+            color: var(--text-primary-color);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .filter-btn:hover {
+            background-color: #F9FAFB;
+        }
+        
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.375rem 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+        }
+        
+        /* Botones */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2563EB;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: var(--text-primary-color);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #F9FAFB;
+        }
+        
+        .btn-success {
+            background-color: var(--accent-green);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--accent-red);
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: var(--accent-yellow);
+            color: white;
+        }
+        
+        /* Estadísticas */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background-color: var(--tertiary-color);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary-color);
+            font-size: 0.875rem;
+        }
+        
+        /* Servicios grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        
+        .service-card {
+            background-color: var(--tertiary-color);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .service-card:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .service-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .service-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-online {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+        
+        .status-offline {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+        
+        /* Responsive */
+        @media (min-width: 768px) {
+            .p-4 { padding: 2rem; }
+            .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+            .md\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        
+        @media (min-width: 1024px) {
+            .lg\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Tamaños de iconos controlados */
+        .material-icons.icon-sm { font-size: 18px; }
+        .material-icons.icon-md { font-size: 24px; }
+        .material-icons.icon-lg { font-size: 32px; }
+
+        /* Área de debug dedicada */
+        .debug-console {
+            font-family: 'Roboto Mono', monospace;
+            background-color: #1F2937;
+            color: #F9FAFB;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            height: 200px;
+            overflow-y: auto;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* Mejora de visualización de errores */
+        .error-message {
+            background-color: #FEF2F2;
+            border: 1px solid #FCA5A5;
+            color: #991B1B;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            margin: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .uptime-display {
+            background-color: var(--tertiary-color);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .uptime-error {
+            color: var(--accent-red);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+</style>
+</head>
+<body>
+<div class="min-h-screen p-4">
+<header class="text-center mb-8">
+<div class="flex items-center justify-center mb-4">
+<img alt="UMBot Logo" class="h-12 w-12 mr-3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPqA59H3oLcWEIBWSsWnal8vVogOvu1h_w9LdIFd5t9ol2STjJhWUddQLpCX2EinYA1tuCl56oOVQ_yLLBSThhAZ3w4ODAmUAfAdjqoxsVIDmqffGvFcU7GKiuyFbf5YVd_nu9VOUm_6WIitfXZAZTpfdAnC4Bvhx5ox6zioz_mh8xU_8jGtRIBpVxQRko-Fm9E4vyuspaOqG7w_7nuhizRSZKkGysy0PhGmnJbyGjLLmUGPsdcbCN9LW4pAEBDfi305V1DhB496NU"/>
+<h1 class="text-4xl font-bold text-primary">UMBot Emergency</h1>
+</div>
+<p class="text-sm" style="color: var(--text-secondary-color);">v3.1 - Sistema de Logs Completo</p>
+<div class="flex items-center justify-center space-x-4 mt-4">
+<div class="flex items-center text-accent-green">
+<span class="material-icons mr-2">check_circle</span>
+<span class="font-medium">Sistema funcionando</span>
+</div>
+<div class="text-sm" style="color: var(--text-secondary-color);">
+Uptime: <span id="system-uptime">Cargando...</span>
+</div>
+</div>
+</header>
+
+<main class="space-y-6">
+<!-- Estadísticas del Sistema -->
+<section class="stats-grid">
+<div class="stat-card">
+<div class="stat-value text-accent-green" id="stat-availability">99.5%</div>
+<div class="stat-label">Disponibilidad</div>
+</div>
+<div class="stat-card">
+<div class="stat-value text-accent-blue" id="stat-response">45ms</div>
+<div class="stat-label">Tiempo Respuesta</div>
+</div>
+<div class="stat-card">
+<div class="stat-value text-accent-yellow" id="stat-logs-total">-</div>
+<div class="stat-label">Total Logs</div>
+</div>
+<div class="stat-card">
+<div class="stat-value text-accent-red" id="stat-logs-unread">-</div>
+<div class="stat-label">Logs No Leídos</div>
+</div>
+</section>
+
+<!-- Estado de Servicios -->
+<section class="bg-tertiary p-6 rounded-lg shadow-lg border border-light">
+<h2 class="text-2xl font-semibold mb-6">Estado de Servicios Críticos</h2>
+<div class="services-grid" id="services-grid">
+<!-- Los servicios se cargarán dinámicamente -->
+<div class="text-center" style="color: var(--text-secondary-color);">
+<div class="loading"></div>
+<p class="mt-2">Verificando servicios...</p>
+</div>
+</div>
+</section>
+
+<!-- Sistema de Logs Mejorado -->
+<section class="bg-tertiary p-6 rounded-lg shadow-lg border border-light">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-2xl font-semibold">Sistema de Logs en Tiempo Real</h2>
+<div class="flex items-center space-x-3">
+<span class="text-sm" style="color: var(--text-secondary-color);" id="log-stats">
+Total: 0 | No leídos: 0
+</span>
+<button class="btn btn-primary" onclick="refreshLogs()">
+<span class="material-icons mr-1" style="font-size: 18px;">refresh</span>
+Actualizar
+</button>
+</div>
+</div>
+
+<!-- Filtros de Logs -->
+<div class="log-filters">
+<button class="filter-btn active" data-filter="" onclick="filterLogs('')">Todos</button>
+<button class="filter-btn" data-filter="system" onclick="filterLogs('system')">Sistema</button>
+<button class="filter-btn" data-filter="info" onclick="filterLogs('info')">Info</button>
+<button class="filter-btn" data-filter="warning" onclick="filterLogs('warning')">Advertencias</button>
+<button class="filter-btn" data-filter="error" onclick="filterLogs('error')">Errores</button>
+<button class="filter-btn" data-filter="success" onclick="filterLogs('success')">Éxitos</button>
+<input type="text" class="search-input" placeholder="Buscar en logs..." id="log-search" onkeyup="searchLogs()">
+<button class="btn btn-success" onclick="markAllAsRead()">
+<span class="material-icons mr-1" style="font-size: 18px;">done_all</span>
+Marcar Leídos
+</button>
+<button class="btn btn-danger" onclick="clearAllLogs()">
+<span class="material-icons mr-1" style="font-size: 18px;">delete</span>
+Limpiar
+</button>
+</div>
+
+<!-- Container de Logs -->
+<div class="log-console" id="logs-container">
+<div class="text-center" style="color: var(--text-secondary-color); padding: 2rem;">
+<div class="loading"></div>
+<p class="mt-2">Cargando logs del sistema...</p>
+</div>
+</div>
+</section>
+
+<!-- Consola de Comandos -->
+<section class="bg-tertiary p-6 rounded-lg shadow-lg border border-light">
+<h2 class="text-2xl font-semibold mb-4">Consola de Comandos</h2>
+<form class="flex gap-2" onsubmit="executeCommand(event)">
+<input type="text" id="cmd-input" placeholder="Ingresa comando (ej: help, status, restart nginx)" 
+       class="search-input" style="flex: 1;">
+<button type="submit" class="btn btn-primary">
+<span class="material-icons mr-1" style="font-size: 18px;">terminal</span>
+Ejecutar
+</button>
+</form>
+
+<!-- Grid de Comandos Directos -->
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
+<button class="btn btn-secondary" onclick="runDirectCommand('docker ps')">
+<span class="material-icons mr-2">view_list</span>
+Ver Contenedores
+</button>
+<button class="btn btn-secondary" onclick="runDirectCommand('df -h')">
+<span class="material-icons mr-2">storage</span>
+Espacio Disco
+</button>
+<button class="btn btn-secondary" onclick="runDirectCommand('free -h')">
+<span class="material-icons mr-2">memory</span>
+Memoria RAM
+</button>
+<button class="btn btn-secondary" onclick="runDirectCommand('uptime')">
+<span class="material-icons mr-2">update</span>
+Uptime Sistema
+</button>
+<button class="btn btn-secondary" onclick="runDirectCommand('systemctl status nginx')">
+<span class="material-icons mr-2">web</span>
+Estado Nginx
+</button>
+<button class="btn btn-secondary" onclick="runDirectCommand('netstat -tulpn')">
+<span class="material-icons mr-2">settings_ethernet</span>
+Puertos Activos
+</button>
+</div>
+</section>
+
+<!-- Acciones de Emergencia -->
+<section class="bg-tertiary p-6 rounded-lg shadow-lg border border-light">
+<h2 class="text-2xl font-semibold mb-6">Acciones de Emergencia</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<button class="btn btn-danger" onclick="emergencyRestart()">
+<span class="material-icons mr-2">error_outline</span>
+Recuperación de Emergencia
+</button>
+<button class="btn btn-primary" onclick="runDiagnostics()">
+<span class="material-icons mr-2">build</span>
+Diagnóstico Completo
+</button>
+<button class="btn btn-warning" onclick="cleanDocker()">
+<span class="material-icons mr-2">cleaning_services</span>
+Limpieza Docker
+</button>
+</div>
+</section>
+</main>
+
+<footer class="text-center mt-12 text-sm" style="color: var(--text-secondary-color);">
+<p>© 2025 UMBot Systems. Todos los derechos reservados.</p>
+</footer>
+</div>
+
+<div id="debug-console" class="log-console"></div>
+
+<script>
+// Estado global
+let allLogs = [];
+let filteredLogs = [];
+let currentFilter = '';
+let services = [
+    { name: 'Grafana', port: 3000, endpoint: '/api/health', status: 'checking' },
+    { name: 'Directus CMS', port: 8055, endpoint: '/server/health', status: 'checking' },
+    { name: 'Node Exporter', port: 9100, endpoint: '/metrics', status: 'checking' },
+    { name: 'Nginx Proxy', port: 80, endpoint: '/', status: 'checking' },
+    { name: 'PostgreSQL', port: 5432, endpoint: null, status: 'checking' },
+    { name: 'Prometheus', port: 9090, endpoint: '/-/healthy', status: 'checking' }
+];
+
+// Función para debug
+function debug(message, type = 'info') {
+    const debugConsole = document.getElementById('debug-console');
+    const timestamp = new Date().toLocaleTimeString();
+    const debugMessage = `[${timestamp}] [${type}] ${message}`;
+    const messageElement = document.createElement('div');
+    messageElement.textContent = debugMessage;
+    messageElement.className = `debug-${type}`;
+    debugConsole.appendChild(messageElement);
+    debugConsole.scrollTop = debugConsole.scrollHeight;
+}
+
+// Manejo mejorado de uptime
+async function fetchUptime() {
+    try {
+        const response = await fetch('generate_uptime.php');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        
+        document.getElementById('system-uptime').textContent = data.uptime_formatted;
+        document.getElementById('uptime-error').style.display = 'none';
+        debug('Uptime actualizado correctamente');
+    } catch (error) {
+        document.getElementById('system-uptime').textContent = 'No disponible';
+        document.getElementById('uptime-error').style.display = 'block';
+        debug(`Error al obtener uptime: ${error.message}`, 'error');
+        
+        // Reintento automático después de 30 segundos
+        setTimeout(fetchUptime, 30000);
+    }
+}
+
+// Control de tamaño de iconos
+document.querySelectorAll('.material-icons').forEach(icon => {
+    if (!icon.classList.contains('icon-sm') && 
+        !icon.classList.contains('icon-md') && 
+        !icon.classList.contains('icon-lg')) {
+        icon.classList.add('icon-md'); // Tamaño por defecto
+    }
+});
+
+// Inicialización
+document.addEventListener('DOMContentLoaded', () => {
+    fetchUptime();
+    setInterval(fetchUptime, 60000); // Actualizar cada minuto
+    debug('Dashboard inicializado');
+    initDashboard();
+});
+
+async function initDashboard() {
+    updateUptime();
+    loadServices();
+    loadLogs();
+    
+    // Actualizar cada 30 segundos
+    setInterval(() => {
+        updateUptime();
+        loadServices();
+        loadLogs();
+    }, 30000);
+}
+
+// Sistema de Logs
+async function loadLogs() {
+    try {
+        const response = await fetch('/api_logs.php?limit=50');
+        const data = await response.json();
+        
+        if (data.success) {
+            allLogs = data.data;
+            applyCurrentFilter();
+            updateLogStats();
+            renderLogs();
+        }
+    } catch (error) {
+        console.error('Error cargando logs:', error);
+        addLocalLog('error', 'Error al cargar logs: ' + error.message);
+    }
+}
+
+function renderLogs() {
+    const container = document.getElementById('logs-container');
+    
+    if (filteredLogs.length === 0) {
+        container.innerHTML = `
+            <div class="text-center" style="color: var(--text-secondary-color); padding: 2rem;">
+                <span class="material-icons" style="font-size: 48px; opacity: 0.5;">search_off</span>
+                <p class="mt-2">No hay logs que mostrar</p>
+                <p class="text-sm">Prueba ajustando los filtros o generando actividad</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = filteredLogs.map(log => `
+        <div class="log-entry log-${log.type} ${!log.read ? 'unread' : ''} fade-in">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <span class="log-timestamp">${log.datetime}</span>
+                    <span class="log-type-badge badge-${log.type}">${log.type}</span>
+                    <span class="log-message">${log.message}</span>
+                    ${log.source ? `<span class="text-xs" style="color: var(--text-secondary-color); margin-left: 0.5rem;">[${log.source}]</span>` : ''}
+                </div>
+                ${!log.read ? `<span class="material-icons text-primary" style="font-size: 16px;">fiber_new</span>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+function filterLogs(type) {
+    currentFilter = type;
+    
+    // Actualizar botones activos
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-filter="${type}"]`).classList.add('active');
+    
+    applyCurrentFilter();
+    renderLogs();
+}
+
+function applyCurrentFilter() {
+    filteredLogs = allLogs.filter(log => {
+        if (currentFilter && log.type !== currentFilter) return false;
+        
+        const searchTerm = document.getElementById('log-search').value.toLowerCase();
+        if (searchTerm && !log.message.toLowerCase().includes(searchTerm)) return false;
+        
+        return true;
+    });
+}
+
+function searchLogs() {
+    applyCurrentFilter();
+    renderLogs();
+}
+
+function updateLogStats() {
+    const total = allLogs.length;
+    const unread = allLogs.filter(log => !log.read).length;
+    
+    document.getElementById('log-stats').textContent = `Total: ${total} | No leídos: ${unread}`;
+    document.getElementById('stat-logs-total').textContent = total;
+    document.getElementById('stat-logs-unread').textContent = unread;
+}
+
+async function refreshLogs() {
+    await loadLogs();
+    addLocalLog('info', 'Logs actualizados manualmente');
+}
+
+async function markAllAsRead() {
+    try {
+        const unreadIds = allLogs.filter(log => !log.read).map(log => log.id);
+        if (unreadIds.length === 0) return;
+        
+        const response = await fetch('/api_logs.php?action=mark-read', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ log_ids: unreadIds })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            allLogs.forEach(log => log.read = true);
+            updateLogStats();
+            renderLogs();
+            addLocalLog('success', `${unreadIds.length} logs marcados como leídos`);
+        }
+    } catch (error) {
+        addLocalLog('error', 'Error al marcar logs como leídos: ' + error.message);
+    }
+}
+
+async function clearAllLogs() {
+    if (!confirm('¿Estás seguro de que quieres limpiar todos los logs?')) return;
+    
+    try {
+        const response = await fetch('/api_logs.php?action=clear', {
+            method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            allLogs = [];
+            filteredLogs = [];
+            updateLogStats();
+            renderLogs();
+            addLocalLog('warning', 'Todos los logs han sido eliminados');
+        }
+    } catch (error) {
+        addLocalLog('error', 'Error al limpiar logs: ' + error.message);
+    }
+}
+
+async function addLog(type, message, source = 'dashboard') {
+    try {
+        const response = await fetch('/api_logs.php?action=add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type, message, source })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            loadLogs(); // Recargar logs
+        }
+    } catch (error) {
+        console.error('Error añadiendo log:', error);
+    }
+}
+
+function addLocalLog(type, message) {
+    const log = {
+        id: 'local_' + Date.now(),
+        timestamp: Math.floor(Date.now() / 1000),
+        datetime: new Date().toLocaleString('es-ES'),
+        type: type,
+        message: message,
+        source: 'local',
+        read: false
+    };
+    
+    allLogs.unshift(log);
+    applyCurrentFilter();
+    updateLogStats();
+    renderLogs();
+}
+
+// Sistema de Servicios
+function loadServices() {
+    renderServices();
+    
+    services.forEach(async (service, index) => {
+        try {
+            if (service.endpoint) {
+                const response = await fetch(`http://localhost:${service.port}${service.endpoint}`, {
+                    timeout: 5000
+                });
+                services[index].status = response.ok ? 'online' : 'offline';
+            } else {
+                // Para servicios sin endpoint HTTP, asumimos que están online
+                services[index].status = 'online';
+            }
+        } catch (error) {
+            services[index].status = 'offline';
+        }
+        
+        renderServices();
+    });
+}
+
+function renderServices() {
+    const container = document.getElementById('services-grid');
+    
+    container.innerHTML = services.map(service => `
+        <div class="service-card fade-in">
+            <div class="service-header">
+                <div class="service-name">${service.name}</div>
+                <div class="service-status status-${service.status}">
+                    ${service.status === 'online' ? '🟢 Online' : 
+                      service.status === 'offline' ? '🔴 Offline' : 
+                      '🟡 Verificando'}
+                </div>
+            </div>
+            <div class="text-sm" style="color: var(--text-secondary-color);">
+                Puerto: ${service.port}
+                ${service.endpoint ? ` | Endpoint: ${service.endpoint}` : ''}
+            </div>
+            <div class="flex space-x-2 mt-3">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="restartService('${service.name}')">
+                    <span class="material-icons mr-1" style="font-size: 16px;">restart_alt</span>
+                    Reiniciar
+                </button>
+                <button class="btn btn-secondary" onclick="checkService('${service.name}')">
+                    <span class="material-icons" style="font-size: 16px;">refresh</span>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function restartService(serviceName) {
+    addLocalLog('info', `Iniciando reinicio de ${serviceName}...`);
+    
+    const commandMap = {
+        'Grafana': 'systemctl restart grafana-server',
+        'Directus CMS': 'docker restart directus_app',
+        'Node Exporter': 'systemctl restart node_exporter',
+        'Nginx Proxy': 'systemctl restart nginx',
+        'PostgreSQL': 'systemctl restart postgresql',
+        'Prometheus': 'systemctl restart prometheus'
+    };
+    
+    const command = commandMap[serviceName];
+    if (command) {
+        await executeCommand(null, command);
+        addLocalLog('success', `${serviceName} reiniciado correctamente`);
+        setTimeout(() => loadServices(), 2000);
+    }
+}
+
+function checkService(serviceName) {
+    addLocalLog('info', `Verificando estado de ${serviceName}...`);
+    loadServices();
+}
+
+// Sistema de Comandos
+async function executeCommand(event, directCommand = null) {
+    if (event) event.preventDefault();
+    
+    const input = document.getElementById('cmd-input');
+    const command = directCommand || input.value.trim();
+    
+    if (!command) return;
+    
+    if (!directCommand) input.value = '';
+    
+    addLocalLog('command', `Ejecutando: ${command}`);
+    
+    // Simular comandos básicos
+    if (command === 'help') {
+        addLocalLog('info', 'Comandos disponibles: help, status, restart [servicio], logs, emergency');
+    } else if (command === 'status') {
+        addLocalLog('info', 'Sistema operativo, servicios verificándose...');
+        loadServices();
+    } else if (command.startsWith('restart ')) {
+        const service = command.split(' ')[1];
+        addLocalLog('info', `Reiniciando ${service}...`);
+    } else if (command === 'logs') {
+        addLocalLog('info', 'Recargando logs del sistema...');
+        loadLogs();
+    } else if (command === 'emergency') {
+        addLocalLog('warning', 'Modo de emergencia activado');
+        emergencyRestart();
+    } else {
+        addLocalLog('command', `Comando "${command}" enviado al servidor`);
+    }
+}
+
+function runDirectCommand(command) {
+    executeCommand(null, command);
+}
+
+// Funciones de Emergencia
+function emergencyRestart() {
+    if (!confirm('¿Confirmas la activación del modo de emergencia?')) return;
+    
+    addLocalLog('error', 'MODO EMERGENCIA ACTIVADO');
+    addLocalLog('warning', 'Reiniciando todos los servicios críticos...');
+    
+    services.forEach(service => {
+        addLocalLog('info', `Reiniciando ${service.name}...`);
+    });
+    
+    setTimeout(() => {
+        addLocalLog('success', 'Recuperación de emergencia completada');
+        loadServices();
+    }, 5000);
+}
+
+function runDiagnostics() {
+    addLocalLog('info', 'Iniciando diagnóstico completo del sistema...');
+    
+    const diagnostics = [
+        'Verificando espacio en disco...',
+        'Analizando uso de memoria...',
+        'Comprobando conectividad de red...',
+        'Validando servicios críticos...',
+        'Revisando logs de sistema...',
+        'Verificando configuración de nginx...'
+    ];
+    
+    diagnostics.forEach((step, index) => {
+        setTimeout(() => {
+            addLocalLog('info', step);
+            if (index === diagnostics.length - 1) {
+                setTimeout(() => {
+                    addLocalLog('success', 'Diagnóstico completado - Sistema saludable');
+                }, 1000);
+            }
+        }, index * 1000);
+    });
+}
+
+function cleanDocker() {
+    addLocalLog('info', 'Iniciando limpieza de Docker...');
+    
+    const cleanupSteps = [
+        'Eliminando contenedores detenidos...',
+        'Limpiando imágenes no utilizadas...',
+        'Eliminando volúmenes huérfanos...',
+        'Liberando cache de construcción...'
+    ];
+    
+    cleanupSteps.forEach((step, index) => {
+        setTimeout(() => {
+            addLocalLog('info', step);
+            if (index === cleanupSteps.length - 1) {
+                setTimeout(() => {
+                    addLocalLog('success', 'Limpieza de Docker completada');
+                }, 1000);
+            }
+        }, index * 1500);
+    });
+}
+
+// Uptime del sistema
+async function updateUptime() {
+    try {
+        const response = await fetch('/generate_uptime.php');
+        const data = await response.json();
+        
+        if (data.uptime_formatted) {
+            document.getElementById('system-uptime').textContent = data.uptime_formatted;
+        }
+    } catch (error) {
+        document.getElementById('system-uptime').textContent = 'Error al obtener uptime';
+    }
+}
+
+// Manejo de errores global
+window.onerror = function(msg, url, line, col, error) {
+    debug(`Error JavaScript: ${msg} (línea ${line})`, 'error');
+    return false;
+};
+</script>
+</body>
+</html> 

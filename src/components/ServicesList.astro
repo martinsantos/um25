@@ -2,35 +2,25 @@
 // Componente para mostrar la lista de servicios
 const { services } = Astro.props;
 
-// Mapeo de IDs de imágenes de Directus a archivos estáticos locales
-// Actualizado para coincidir con servicios_reales_db.js
+// BREAKTHROUGH DEFINITIVO: Mapeo usando rutas normales - nginx corregido sirve imágenes desde contenedor Astro
+// Nginx ya deriva correctamente /images/services/ al contenedor umbot-astro-static
 const imageMapping = {
-  // Servicios IT (ID: 1)
-  '2749f988-2e2d-4f32-9978-4dbeb4aa6ab2': '/images/services/servicios-it.jpg',
-  // Redes de datos (ID: 2) 
-  '18b5f4e3-4bc8-485d-a01c-8cbd53e25f4d': '/images/services/redes-comunicaciones.jpg',
-  // Seguridad Informática (ID: 3)
-  'f2a65085-e6ad-49fc-a123-1b5dc19fc7ab': '/images/services/ciberseguridad.jpg',
-  // Telefonía y Citoina (ID: 4)
-  '4ffcefb0-6cb8-4cfa-a748-bd4c3da1d716': '/images/services/telefonia.jpg',
-  // Servicios Web (ID: 6)
-  'dc6d6069-23af-4d75-ae5a-38c830bf2b85': '/images/services/servicios-web.jpg',
-  // Mapeos adicionales para compatibilidad (HOME)
-  'b1a91d79-c979-4067-b78a-2cd97166fbcd': '/images/services/ciberseguridad.jpg',
-  '6e626d63-c3ca-4982-8ed3-4a5e75e1b179': '/images/services/redes-comunicaciones.jpg',
-  'ccc32af0-df52-4e6e-8ca0-9660dddec095': '/images/services/servicios-it.jpg'
+  1: '/images/services/servicios-it.jpg',        // Servicios IT
+  2: '/images/services/redes-comunicaciones.jpg', // Redes de datos  
+  3: '/images/services/ciberseguridad.jpg',       // Seguridad Informática
+  4: '/images/services/telefonia.jpg',            // Telefonía y Citofonía
+  5: '/images/services/servicios-it.jpg',         // Software a medida (fallback)
+  6: '/images/services/servicios-web.jpg'         // Servicios Web
 };
 
-// Función para obtener la URL de la imagen
-const getImageUrl = (imageId) => {
-  if (!imageId) return '/images/services/default-service.jpg';
-  
-  // Si tenemos un mapeo estático, usarlo
-  if (imageMapping[imageId]) {
-    return imageMapping[imageId];
+// RESTAURADO: Función para obtener URL de imagen por ID de servicio directo
+const getImageUrl = (serviceId) => {
+  // Usar mapeo directo por ID de servicio (las imágenes originales existen)
+  if (imageMapping[serviceId]) {
+    return imageMapping[serviceId];
   }
   
-  // Fallback a placeholder que existe
+  // Fallback a imagen por defecto
   return '/images/services/default-service.jpg';
 };
 
@@ -79,7 +69,7 @@ const getIconColor = (index) => {
       const serviceUrl = `/servicios/${service.id}/${serviceSlug}`;
       const iconColor = getIconColor(index);
       const iconEmoji = ['📊', '💻', '📱', '🔒', '☁️', '🤖'][index % 6];
-      const imageUrl = getImageUrl(service.Imagen);
+      const imageUrl = getImageUrl(service.id); // RESTAURADO: usar service.id en lugar de service.Imagen (null)
       
       return (
         <a href={serviceUrl} class="block group cursor-pointer">

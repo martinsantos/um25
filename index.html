@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UMBot Emergency Dashboard v3.0</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#d32f2f">
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS (Production) -->
+    <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+
+    <style>
+        :root {
+            --bg-color: #f3f4f6;
+            --card-bg-color: #ffffff;
+            --text-color: #1f2937;
+            --subtle-text-color: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        html.dark {
+            --bg-color: #111827;
+            --card-bg-color: #1f2937;
+            --text-color: #f9fafb;
+            --subtle-text-color: #9ca3af;
+            --border-color: #374151;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .card {
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .console-log {
+            background: #18181b;
+            color: #e4e4e7;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            height: 400px;
+            overflow-y: auto;
+            font-size: 0.875rem;
+            font-family: 'Menlo', 'Courier New', monospace;
+        }
+        .log-entry { white-space: pre-wrap; }
+        .log-time { color: #6b7280; margin-right: 0.5rem; }
+        .log-input { color: #60a5fa; }
+        .log-output { color: #e4e4e7; }
+        .log-system { color: #a3e635; }
+        .log-error { color: #f87171; }
+        .log-warn { color: #fbbf24; }
+        
+        .status-banner {
+            transition: background-color 0.5s ease-in-out, border-color 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div id="app">Cargando...</div>
+    <script src="app.js"></script>
+</body>
+</html>
+ 

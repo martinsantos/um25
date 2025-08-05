@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  emergency-app:
+    build: .
+    container_name: umbot-emergency
+    ports:
+      - "8092:8092"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    networks:
+      - umbot-network
+
+networks:
+  umbot-network:
+    external: true 
