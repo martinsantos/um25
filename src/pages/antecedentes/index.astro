@@ -51,34 +51,6 @@ let pageData = {
   ...getUrlParams(Astro.request?.url || Astro.url)
 };
 
-// ✅ FUNCIÓN MEJORADA: Obtener imagen usando el sistema de mapeo que funciona
-async function getImageUrl(proyecto) {
-  try {
-    // Importar la función de mapeo que funciona correctamente
-    const { buscarImagenPorDatos } = await import('../../data/mapeo_imagenes_completo.js');
-    
-    // Buscar la imagen específica usando los datos del antecedente
-    const nombreArchivo = buscarImagenPorDatos(
-      proyecto.Cliente,
-      proyecto.Area || proyecto.Unidad_de_negocio, 
-      proyecto.Titulo,
-      proyecto.id
-    );
-    
-    if (nombreArchivo) {
-      // Usar la ruta estática que funciona correctamente
-      const imagenUrl = `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
-      console.log('[ANTECEDENTES LIST] ✅ Usando imagen específica:', imagenUrl);
-      return imagenUrl;
-    }
-  } catch (error) {
-    console.log('[ANTECEDENTES LIST] ⚠️ Error en mapeo, usando placeholder:', error.message);
-  }
-  
-  // Fallback: placeholder por defecto
-  return DEFAULT_IMAGE;
-}
-
 // Función para filtrar antecedentes
 const filterAntecedentes = (antecedentes, filters, searchQuery) => {
   let filtered = [...antecedentes];
@@ -301,6 +273,33 @@ const filterOptions = {
   clientes: getUniqueValues(allDataForFilters, 'Cliente')
 };
 
+// ✅ FUNCIÓN MEJORADA: Obtener imagen usando el sistema de mapeo que funciona
+async function getImageUrl(proyecto) {
+  try {
+    // Importar la función de mapeo que funciona correctamente
+    const { buscarImagenPorDatos } = await import('../../data/mapeo_imagenes_completo.js');
+    
+    // Buscar la imagen específica usando los datos del antecedente
+    const nombreArchivo = buscarImagenPorDatos(
+      proyecto.Cliente,
+      proyecto.Area || proyecto.Unidad_de_negocio, 
+      proyecto.Titulo,
+      proyecto.id
+    );
+    
+    if (nombreArchivo) {
+      // Usar la ruta estática que funciona correctamente
+      const imagenUrl = `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
+      console.log('[ANTECEDENTES LIST] ✅ Usando imagen específica:', imagenUrl);
+      return imagenUrl;
+    }
+  } catch (error) {
+    console.log('[ANTECEDENTES LIST] ⚠️ Error en mapeo, usando placeholder:', error.message);
+  }
+  
+  // Fallback: placeholder por defecto
+  return DEFAULT_IMAGE;
+};
 ---
 
 <Layout 
