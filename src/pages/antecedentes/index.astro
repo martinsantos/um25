@@ -2,19 +2,8 @@
 import Layout from '../../layouts/Layout.astro';
 import { directus, PAGE_SIZE, DEFAULT_IMAGE } from '../../utils/directus';
 
-// Función para generar slugs (debe coincidir con la del single view)
-const generateSlug = (text = '') => {
-  if (!text) return 'item';
-  return String(text)
-    .toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\w\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 50) || 'item';
-};
+// Import shared slug utility for consistency
+import { generateSlug } from '../../utils/slugUtils.js';
 
 // Obtener parámetros de la URL
 const getUrlParams = (url) => {

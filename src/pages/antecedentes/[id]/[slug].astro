@@ -68,21 +68,8 @@ const getAssetUrl = (assetId) => {
     return DEFAULT_IMAGE_URL;
 };
 
-const generateSlug = (text = '') => {
-    if (text === null || typeof text === 'undefined') {
-       return 'item';
-    }
-    const slug = String(text)
-       .toLowerCase()
-       .normalize("NFD").replace(/[̀-ͯ]/g, "")
-       .replace(/[^\w\s-]/g, '')
-       .trim()
-       .replace(/\s+/g, '-')
-       .replace(/-+/g, '-')
-       .replace(/^-+|-+$/g, '')
-       .slice(0, 50);
-    return slug || 'item';
-};
+// Import shared slug utility for consistency
+import { generateSlug } from '../../../utils/slugUtils.js';
 
 function parseCommaSeparatedString(input) {
     if (typeof input !== 'string' || !input.trim()) {

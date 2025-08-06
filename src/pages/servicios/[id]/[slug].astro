@@ -7,7 +7,7 @@ const DEFAULT_IMAGE = '/images/services/default-service.jpg';
 export const prerender = false;
 
 const authenticate = async () => {
-    const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://um25_directus:8055';
+    const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://directus-app:8055';
     const staticToken = import.meta.env.DIRECTUS_STATIC_TOKEN;
     if (!staticToken) {
         throw new Error('Token estático DIRECTUS_STATIC_TOKEN no configurado en .env');
@@ -30,8 +30,8 @@ const authenticate = async () => {
 };
 
 const fetchServiceDetail = async (token, id) => {
-  const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://um25_directus:8055';
-  const url = `${baseUrl}/items/Servicios/${id}?fields=id,status,sort,user_created,date_created,Imagen,Archivo,Descripcion,Titulo,user_updated,date_updated,Imagenes&t=${Date.now()}`;
+  const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://directus-app:8055';
+  const url = `${baseUrl}/items/Servicios/${id}?t=${Date.now()}`;
   console.log('[fetchServiceDetail] Fetching URL:', url);
   try {
     const response = await fetch(url, {
@@ -49,54 +49,33 @@ const fetchServiceDetail = async (token, id) => {
       if (response.status === 404) {
         throw new Error(`API Error (${response.status}): Servicio no encontrado`);
       }
+      if (response.status === 500) {
+        try {
+          const errorData = JSON.parse(errorText);
+          const errorMessage = errorData?.errors?.[0]?.message || errorData?.error || errorText;
+          throw new Error(`API Error (${response.status}): ${errorMessage}`);
+        } catch {
+          throw new Error(`API Error (${response.status}): ${errorText}`);
+        }
+      }
       throw new Error(`API Error (${response.status}): ${errorText}`);
     }
     const data = await response.json();
-    return data.data;
+    // Handle different response structures
+    if (data && typeof data === 'object') {
+      // If the response has a 'data' property, use it
+      if ('data' in data) {
+        return data.data;
+      }
+      // Otherwise, assume the response itself is the data
+      return data;
+    }
+    throw new Error('Invalid response format from API');
   } catch (e) {
     console.error('[fetchServiceDetail] Error:', e);
     throw new Error(`Fetch service detail failed: ${e.message}`);
   }
 };
-
-// Función para generar getStaticPaths según plantilla óptima del commit inicial
-export async function getStaticPaths() {
-    try {
-        const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://um25_directus:8055';
-        const staticToken = import.meta.env.DIRECTUS_STATIC_TOKEN;
-        
-        if (!staticToken) {
-            console.error('[getStaticPaths] Token estático no configurado');
-            return [];
-        }
-
-        const response = await fetch(`${baseUrl}/items/Servicios?fields=id,Titulo,status&filter[status][_eq]=published`, {
-            headers: { 'Authorization': `Bearer ${staticToken}` }
-        });
-
-        if (!response.ok) {
-            console.error('[getStaticPaths] Error al obtener servicios:', response.status);
-            return [];
-        }
-
-        const data = await response.json();
-        const servicios = data.data || [];
-
-        return servicios.map((servicio) => {
-            const slug = generateSlug(servicio.Titulo);
-            return {
-                params: { 
-                    id: servicio.id.toString(), 
-                    slug: slug 
-                },
-                props: { servicio }
-            };
-        });
-    } catch (error) {
-        console.error('[getStaticPaths] Error:', error);
-        return [];
-    }
-}
 
 const generateSlug = (titulo = '') => {
     if (!titulo) return 'item';
@@ -104,173 +83,345 @@ const generateSlug = (titulo = '') => {
     return slug || 'item';
 };
 
-const { id } = Astro.params;
-console.log('[Main] ID before fetchServiceDetail:', id);
+const { id, slug } = Astro.params;
+console.log('[Main] Processing service ID:', id, 'Slug:', slug);
 let servicio = null;
 let error = null;
 try {
     const { token } = await authenticate();
-    console.log('[Main] Token before fetchServiceDetail:', token);
+    console.log('[Main] Authentication successful');
     servicio = await fetchServiceDetail(token, id);
+    console.log('[Main] Service data received:', servicio);
 } catch (e) {
+    console.error('[Main] Error occurred:', e);
     error = e.message || 'Ocurrió un error inesperado.';
 }
 
-// Carousel avanzado según plantilla óptima del commit inicial
-let currentSlide = 0;
-const allImages = [];
-
-// Agregar imagen principal si existe
-if (servicio?.Imagen) {
-    allImages.push({
-        id: servicio.Imagen,
-        type: 'principal',
-        alt: `${servicio.Titulo} - Imagen principal`
-    });
+// Verificar que el slug coincida si tenemos un servicio
+if (servicio && slug) {
+    const expectedSlug = generateSlug(servicio.Titulo);
+    if (slug !== expectedSlug) {
+        console.log('[Main] Redirecting to correct slug:', expectedSlug);
+        return Astro.redirect(`/servicios/${id}/${expectedSlug}`);
+    }
 }
 
-// Agregar imágenes adicionales si existen
-if (servicio?.Imagenes && Array.isArray(servicio.Imagenes)) {
-    servicio.Imagenes.forEach((imagen, index) => {
-        allImages.push({
-            id: imagen,
-            type: 'adicional',
-            alt: `${servicio.Titulo} - Imagen adicional ${index + 1}`
-        });
-    });
+// Mapeo de IDs de imágenes de Directus a archivos estáticos locales
+// Actualizado para coincidir con servicios_reales_db.js
+const imageMapping = {
+  // Servicios IT (ID: 1)
+  '2749f988-2e2d-4f32-9978-4dbeb4aa6ab2': '/images/services/servicios-it.jpg',
+  // Redes de datos (ID: 2)
+  '18b5f4e3-4bc8-485d-a01c-8cbd53e25f4d': '/images/services/redes-comunicaciones.jpg',
+  // Seguridad Informática (ID: 3)
+  'f2a65085-e6ad-49fc-a123-1b5dc19fc7ab': '/images/services/ciberseguridad.jpg',
+  // Telefonía y Citoina (ID: 4)
+  '4ffcefb0-6cb8-4cfa-a748-bd4c3da1d716': '/images/services/telefonia.jpg',
+  // Servicios Web (ID: 6)
+  'dc6d6069-23af-4d75-ae5a-38c830bf2b85': '/images/services/servicios-web.jpg',
+  // Mapeos adicionales para compatibilidad
+  'b1a91d79-c979-4067-b78a-2cd97166fbcd': '/images/services/seguridad-informatica.jpg',
+  '6e626d63-c3ca-4982-8ed3-4a5e75e1b179': '/images/services/redes-comunicaciones.jpg',
+  'ccc32af0-df52-4e6e-8ca0-9660dddec095': '/images/services/servicios-it.jpg'
+};
+
+// Función para obtener URL de imagen
+function getAssetUrl(assetId) {
+  if (!assetId) return '/images/services/default-service.jpg';
+  
+  // Si tenemos un mapeo estático, usarlo
+  if (imageMapping[assetId]) {
+    return imageMapping[assetId];
+  }
+  
+  // Fallback a imagen por defecto
+  return '/images/services/default-service.jpg';
 }
 
-const totalSlides = allImages.length;
-const hasMultipleImages = totalSlides > 1;
-
-const goToPreviousSlide = () => {
-    if (hasMultipleImages) {
-        currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-    }
-};
-
-const goToNextSlide = () => {
-    if (hasMultipleImages) {
-        currentSlide = (currentSlide + 1) % totalSlides;
-    }
-};
-
-const goToSlide = (index) => {
-    if (index >= 0 && index < totalSlides) {
-        currentSlide = index;
-    }
-};
-
-const getSlideTransform = () => {
-    return `translateX(-${currentSlide * 100}%)`;
-};
 ---
 
-<Layout title={servicio?.Titulo || 'Servicio'}>
-    <main class="container mx-auto px-4 py-8">
-        <nav class="mb-8">
-            <ol class="flex items-center space-x-2 text-gray-600">
-                <li><a href="/" class="hover:text-blue-600">Inicio</a></li>
-                <li><span class="mx-2">/</span></li>
-                <li><a href="/servicios" class="hover:text-blue-600">Servicios</a></li>
-                <li><span class="mx-2">/</span></li>
-                <li class="text-blue-600 font-medium">{servicio?.Titulo || 'Detalle'}</li>
-            </ol>
-        </nav>
+<Layout title={servicio?.Titulo ? `${servicio.Titulo} - Servicios - Ultima Milla` : 'Servicio - Ultima Milla'}>
+  <main class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <!-- Breadcrumb -->
+    <nav class="bg-white shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <ol class="flex items-center space-x-2 text-gray-600">
+          <li><a href="/" class="hover:text-blue-600 transition-colors">Inicio</a></li>
+          <li><span class="mx-2">/</span></li>
+          <li><a href="/servicios" class="hover:text-blue-600 transition-colors">Servicios</a></li>
+          <li><span class="mx-2">/</span></li>
+          <li class="text-blue-600 font-medium">{servicio.Titulo}</li>
+        </ol>
+      </div>
+    </nav>
 
-        {error && (
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
-                <strong class="font-bold">Error: </strong>
-                <span class="block sm:inline">{error}</span>
+    <!-- Hero Section -->
+    <section class="relative py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white">
+      <div class="absolute inset-0 bg-black/20"></div>
+      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <div class="inline-block bg-white/20 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
+              {servicio.Area}
             </div>
-        )}
+            <h1 class="text-4xl md:text-5xl font-bold mb-6 text-white">
+              {servicio.Titulo}
+            </h1>
+            <p class="text-xl text-blue-100 mb-8 leading-relaxed">
+              {servicio.Descripcion.replace(/\\\\/g, '\n')}
+            </p>
+            <div class="flex items-center space-x-6">
+              <div class="text-center">
+                <div class="text-2xl font-bold text-yellow-300">
+                  {servicio.Cliente}
+                </div>
+                <div class="text-sm text-blue-200">Tipo de cliente</div>
+              </div>
+            </div>
+          </div>
+          <div class="relative">
+            <div class="aspect-square bg-white/10 rounded-2xl overflow-hidden backdrop-blur-sm">
+              <img
+                src={getAssetUrl(servicio.Imagen)}
+                alt={servicio.Titulo}
+                class="w-full h-full object-cover"
+                onerror="this.src='/images/default-service.jpg'"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-        {servicio && (
-            <>
-                {/* Carousel avanzado según plantilla óptima */}
-                {totalSlides > 0 && (
-                    <div class="relative w-full mb-8">
-                        <div class="overflow-hidden relative rounded-lg shadow-lg">
-                            <div class="flex transition-transform duration-500 ease-in-out" style={`transform: ${getSlideTransform()};`}>
-                                {allImages.map((imagen, index) => (
-                                    <div key={`${imagen.type}-${imagen.id}`} class="w-full flex-shrink-0">
-                                        <img 
-                                            src={`${import.meta.env.PUBLIC_DIRECTUS_URL || 'http://um25_directus:8055'}/assets/${imagen.id}`} 
-                                            alt={imagen.alt} 
-                                            class="w-full h-96 object-cover" 
-                                            loading={index === 0 ? 'eager' : 'lazy'}
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        
-                        {/* Controles de navegación - solo mostrar si hay múltiples imágenes */}
-                        {hasMultipleImages && (
-                            <>
-                                <div class="absolute inset-0 flex justify-between items-center px-4">
-                                    <button 
-                                        class="bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-3 rounded-full transition-all duration-200" 
-                                        onClick={goToPreviousSlide}
-                                        aria-label="Imagen anterior"
-                                    >
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                                        </svg>
-                                    </button>
-                                    <button 
-                                        class="bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-3 rounded-full transition-all duration-200" 
-                                        onClick={goToNextSlide}
-                                        aria-label="Siguiente imagen"
-                                    >
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                        </svg>
-                                    </button>
-                                </div>
-                                
-                                {/* Indicadores de posición */}
-                                <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                                    {allImages.map((_, index) => (
-                                        <button
-                                            key={index}
-                                            class={`w-3 h-3 rounded-full transition-all duration-200 ${
-                                                index === currentSlide 
-                                                    ? 'bg-white' 
-                                                    : 'bg-white bg-opacity-50 hover:bg-opacity-75'
-                                            }`}
-                                            onClick={() => goToSlide(index)}
-                                            aria-label={`Ir a imagen ${index + 1}`}
-                                        ></button>
-                                    ))}
-                                </div>
-                                
-                                {/* Contador de imágenes */}
-                                <div class="absolute top-4 right-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
-                                    {currentSlide + 1} / {totalSlides}
-                                </div>
-                            </>
-                        )}
+    <!-- Contenido Principal -->
+    <section class="py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <!-- Contenido Principal -->
+          <div class="lg:col-span-2 space-y-12">
+            <!-- Información del Proyecto -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+              <h2 class="text-3xl font-bold text-gray-900 mb-8 flex items-center">
+                <svg class="w-8 h-8 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Información del Proyecto
+              </h2>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-6">
+                  <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H3m2 0h4M9 7h6m-6 4h6m-6 4h6"></path>
+                      </svg>
                     </div>
-                )}
+                    <div>
+                      <h3 class="text-lg font-semibold text-gray-900">Área de Especialización</h3>
+                      <p class="text-gray-600">{servicio.Area}</p>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 class="text-lg font-semibold text-gray-900">Tipo de Cliente</h3>
+                      <p class="text-gray-600">{servicio.Cliente}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="space-y-6">
+                  <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 class="text-lg font-semibold text-gray-900">Unidad de Negocio</h3>
+                      <p class="text-gray-600">{servicio.Unidad_de_negocio}</p>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 class="text-lg font-semibold text-gray-900">ID del Servicio</h3>
+                      <p class="text-gray-600">#{servicio.id.toString().padStart(4, '0')}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-                <article class="bg-white rounded-lg shadow-lg p-6">
-                    <h1 class="text-3xl font-bold mb-4">{servicio.Titulo}</h1>
-                    <div class="mb-6" set:html={servicio.Descripcion} />
-                    {servicio.Archivo && (
-                        <div class="mb-6">
-                            <a href={`${import.meta.env.PUBLIC_DIRECTUS_URL || 'http://um25_directus:8055'}/assets/${servicio.Archivo}`} target="_blank" class="text-blue-600 underline">
-                                Descargar archivo
-                            </a>
-                        </div>
-                    )}
-                    <div class="mt-auto border-t border-gray-100 pt-3 space-y-1 text-xs text-gray-500">
-                        <p><strong>Creado por:</strong> {servicio.user_created}</p>
-                        <p><strong>Fecha de creación:</strong> {new Date(servicio.date_created).toLocaleDateString()}</p>
-                        <p><strong>Última actualización:</strong> {new Date(servicio.date_updated).toLocaleDateString()}</p>
+            <!-- Servicios Incluidos -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+              <h2 class="text-3xl font-bold text-gray-900 mb-8 flex items-center">
+                <svg class="w-8 h-8 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Servicios Incluidos
+              </h2>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {servicio.Servicios.map((servicio_item) => (
+                  <div class="flex items-center space-x-3 p-4 bg-green-50 rounded-lg">
+                    <svg class="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span class="text-gray-800 font-medium">{servicio_item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <!-- Características -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+              <h2 class="text-3xl font-bold text-gray-900 mb-8 flex items-center">
+                <svg class="w-8 h-8 text-purple-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                </svg>
+                Características Destacadas
+              </h2>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {servicio.Caracteristicas.map((caracteristica) => (
+                  <div class="flex items-center space-x-3 p-4 bg-purple-50 rounded-lg">
+                    <svg class="w-5 h-5 text-purple-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span class="text-gray-800 font-medium">{caracteristica}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar -->
+          <div class="space-y-8">
+            <!-- Información del Servicio -->
+            <div class="bg-gradient-to-br from-blue-600 to-purple-600 text-white rounded-2xl p-8 shadow-lg">
+              <h3 class="text-2xl font-bold mb-6 flex items-center">
+                <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Información del Servicio
+              </h3>
+              
+              <div class="space-y-3 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-blue-200">Área:</span>
+                  <span class="font-semibold">{servicio.Area}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-blue-200">Cliente tipo:</span>
+                  <span class="font-semibold">{servicio.Cliente}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-blue-200">Unidad:</span>
+                  <span class="font-semibold">{servicio.Unidad_de_negocio}</span>
+                </div>
+              </div>
+              
+              <button class="w-full mt-6 bg-white text-blue-600 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
+                Solicitar Cotización
+              </button>
+            </div>
+
+            <!-- Etiquetas -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+              <h3 class="text-xl font-bold text-gray-900 mb-4">Etiquetas</h3>
+              <div class="flex flex-wrap gap-2">
+                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                  {servicio.Area}
+                </span>
+                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                  {servicio.Cliente}
+                </span>
+                <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
+                  {servicio.Unidad_de_negocio}
+                </span>
+                <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+                  ID-{servicio.id}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Servicios Relacionados -->
+    {serviciosRelacionados.length > 0 && (
+      <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">
+              Servicios Relacionados
+            </h2>
+            <p class="text-gray-600">
+              Otros servicios en el área de {servicio.Area}
+            </p>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {serviciosRelacionados.map((relacionado) => {
+              const slug = generateSlug(relacionado.Titulo);
+              return (
+                <a href={`/servicios/${relacionado.id}/${slug}`} class="block group cursor-pointer">
+                  <article class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] hover:ring-4 hover:ring-blue-300/50 h-full border-2 border-transparent hover:border-blue-400">
+                    <div class="aspect-video bg-gradient-to-br from-blue-500 to-purple-600 relative overflow-hidden">
+                      <img
+                        src={getAssetUrl(relacionado.Imagen)}
+                        alt={relacionado.Titulo}
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                        onerror="this.src='/images/default-service.jpg'"
+                      />
                     </div>
-                </article>
-            </>
-        )}
-    </main>
+                    
+                    <div class="p-6">
+                      <h3 class="text-xl font-black text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                        {relacionado.Titulo}
+                      </h3>
+                      
+                      <p class="text-gray-600 mb-4 line-clamp-2">
+                        {relacionado.Descripcion.replace(/\\\\/g, ' ').substring(0, 100)}...
+                      </p>
+                      
+                      <div class="flex items-center justify-between mb-4">
+                        <span class="text-sm text-gray-500">
+                          Cliente: {relacionado.Cliente}
+                        </span>
+                      </div>
+                      
+
+                    </div>
+                  </article>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+    )}
+  </main>
 </Layout>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

@@ -1,0 +1,275 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+
+const DEFAULT_IMAGE = '/images/services/default-service.jpg';
+
+// SSR enabled for live data
+export const prerender = false;
+
+const authenticate = async () => {
+    const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+    const staticToken = import.meta.env.DIRECTUS_STATIC_TOKEN;
+    if (!staticToken) {
+        throw new Error('Token estático DIRECTUS_STATIC_TOKEN no configurado en .env');
+    }
+    try {
+        console.log('[authenticate] Attempting authentication...');
+        const response = await fetch(`${baseUrl}/users/me`, {
+            headers: { 'Authorization': `Bearer ${staticToken}` }
+        });
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('[authenticate] Authentication failed:', response.status, errorText);
+            throw new Error(`Token inválido o expirado (${response.status}): ${errorText}`);
+        }
+        return { token: staticToken };
+    } catch (e) {
+        console.error('[authenticate] Error:', e);
+        throw new Error(`Autenticación fallida: ${e.message}`);
+    }
+};
+
+const fetchServiceDetail = async (token, id) => {
+  const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+  const url = `${baseUrl}/items/Servicios/${id}?fields=id,status,sort,user_created,date_created,Imagen,Archivo,Descripcion,Titulo,user_updated,date_updated,Imagenes&t=${Date.now()}`;
+  console.log('[fetchServiceDetail] Fetching URL:', url);
+  try {
+    const response = await fetch(url, { 
+      headers: { 
+        'Authorization': `Bearer ${token}`, 
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[fetchServiceDetail] API Error:', response.status, errorText);
+      if (response.status === 404) {
+        throw new Error(`API Error (${response.status}): Servicio no encontrado`);
+      }
+      throw new Error(`API Error (${response.status}): ${errorText}`);
+    }
+    const data = await response.json();
+    return data.data;
+  } catch (e) {
+    console.error('[fetchServiceDetail] Error:', e);
+    throw new Error(`Fetch service detail failed: ${e.message}`);
+  }
+};
+
+export async function getStaticPaths() {
+    try {
+        const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+        const staticToken = import.meta.env.DIRECTUS_STATIC_TOKEN;
+        
+        if (!staticToken) {
+            console.error('[getStaticPaths] Token estático no configurado');
+            return [];
+        }
+
+        const response = await fetch(`${baseUrl}/items/Servicios?fields=id,Titulo,status&filter[status][_eq]=published`, {
+            headers: { 'Authorization': `Bearer ${staticToken}` }
+        });
+
+        if (!response.ok) {
+            console.error('[getStaticPaths] Error al obtener servicios:', response.status);
+            return [];
+        }
+
+        const data = await response.json();
+        const servicios = data.data || [];
+
+        return servicios.map((servicio) => {
+            const slug = generateSlug(servicio.Titulo);
+            return {
+                params: { 
+                    id: servicio.id.toString(), 
+                    slug: slug 
+                },
+                props: { servicio }
+            };
+        });
+    } catch (error) {
+        console.error('[getStaticPaths] Error:', error);
+        return [];
+    }
+}
+
+const generateSlug = (titulo = '') => {
+    if (!titulo) return 'item';
+    const slug = String(titulo).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50);
+    return slug || 'item';
+};
+
+const { id } = Astro.params;
+console.log('[Main] ID before fetchServiceDetail:', id);
+let servicio = null;
+let error = null;
+try {
+    const { token } = await authenticate();
+    console.log('[Main] Token before fetchServiceDetail:', token);
+    servicio = await fetchServiceDetail(token, id);
+} catch (e) {
+    error = e.message || 'Ocurrió un error inesperado.';
+}
+
+// Carousel avanzado según plantilla óptima del commit inicial
+let currentSlide = 0;
+const allImages = [];
+
+// Agregar imagen principal si existe
+if (servicio?.Imagen) {
+    allImages.push({
+        id: servicio.Imagen,
+        type: 'principal',
+        alt: `${servicio.Titulo} - Imagen principal`
+    });
+}
+
+// Agregar imágenes adicionales si existen
+if (servicio?.Imagenes && Array.isArray(servicio.Imagenes)) {
+    servicio.Imagenes.forEach((imagen, index) => {
+        allImages.push({
+            id: imagen,
+            type: 'adicional',
+            alt: `${servicio.Titulo} - Imagen adicional ${index + 1}`
+        });
+    });
+}
+
+const totalSlides = allImages.length;
+const hasMultipleImages = totalSlides > 1;
+
+const goToPreviousSlide = () => {
+    if (hasMultipleImages) {
+        currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+    }
+};
+
+const goToNextSlide = () => {
+    if (hasMultipleImages) {
+        currentSlide = (currentSlide + 1) % totalSlides;
+    }
+};
+
+const goToSlide = (index) => {
+    if (index >= 0 && index < totalSlides) {
+        currentSlide = index;
+    }
+};
+
+const getSlideTransform = () => {
+    return `translateX(-${currentSlide * 100}%)`;
+};
+---
+
+<Layout title={servicio?.Titulo || 'Servicio'}>
+    <main class="container mx-auto px-4 py-8">
+        <nav class="mb-8">
+            <ol class="flex items-center space-x-2 text-gray-600">
+                <li><a href="/" class="hover:text-blue-600">Inicio</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li><a href="/servicios" class="hover:text-blue-600">Servicios</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li class="text-blue-600 font-medium">{servicio?.Titulo || 'Detalle'}</li>
+            </ol>
+        </nav>
+
+        {error && (
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
+                <strong class="font-bold">Error: </strong>
+                <span class="block sm:inline">{error}</span>
+            </div>
+        )}
+
+        {servicio && (
+            <>
+                {/* Carousel avanzado según plantilla óptima */}
+                {totalSlides > 0 && (
+                    <div class="relative w-full mb-8">
+                        <div class="overflow-hidden relative rounded-lg shadow-lg">
+                            <div class="flex transition-transform duration-500 ease-in-out" style={`transform: ${getSlideTransform()};`}>
+                                {allImages.map((imagen, index) => (
+                                    <div key={`${imagen.type}-${imagen.id}`} class="w-full flex-shrink-0">
+                                        <img 
+                                            src={`${import.meta.env.PUBLIC_DIRECTUS_URL}/assets/${imagen.id}`} 
+                                            alt={imagen.alt} 
+                                            class="w-full h-96 object-cover" 
+                                            loading={index === 0 ? 'eager' : 'lazy'}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        {/* Controles de navegación - solo mostrar si hay múltiples imágenes */}
+                        {hasMultipleImages && (
+                            <>
+                                <div class="absolute inset-0 flex justify-between items-center px-4">
+                                    <button 
+                                        class="bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-3 rounded-full transition-all duration-200" 
+                                        onClick={goToPreviousSlide}
+                                        aria-label="Imagen anterior"
+                                    >
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                        </svg>
+                                    </button>
+                                    <button 
+                                        class="bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-3 rounded-full transition-all duration-200" 
+                                        onClick={goToNextSlide}
+                                        aria-label="Siguiente imagen"
+                                    >
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                                
+                                {/* Indicadores de posición */}
+                                <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                                    {allImages.map((_, index) => (
+                                        <button
+                                            key={index}
+                                            class={`w-3 h-3 rounded-full transition-all duration-200 ${
+                                                index === currentSlide 
+                                                    ? 'bg-white' 
+                                                    : 'bg-white bg-opacity-50 hover:bg-opacity-75'
+                                            }`}
+                                            onClick={() => goToSlide(index)}
+                                            aria-label={`Ir a imagen ${index + 1}`}
+                                        ></button>
+                                    ))}
+                                </div>
+                                
+                                {/* Contador de imágenes */}
+                                <div class="absolute top-4 right-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
+                                    {currentSlide + 1} / {totalSlides}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                )}
+
+                <article class="bg-white rounded-lg shadow-lg p-6">
+                    <h1 class="text-3xl font-bold mb-4">{servicio.Titulo}</h1>
+                    <div class="mb-6" set:html={servicio.Descripcion} />
+                    {servicio.Archivo && (
+                        <div class="mb-6">
+                            <a href={`${import.meta.env.PUBLIC_DIRECTUS_URL}/assets/${servicio.Archivo}`} target="_blank" class="text-blue-600 underline">
+                                Descargar archivo
+                            </a>
+                        </div>
+                    )}
+                    <div class="mt-auto border-t border-gray-100 pt-3 space-y-1 text-xs text-gray-500">
+                        <p><strong>Creado por:</strong> {servicio.user_created}</p>
+                        <p><strong>Fecha de creación:</strong> {new Date(servicio.date_created).toLocaleDateString()}</p>
+                        <p><strong>Última actualización:</strong> {new Date(servicio.date_updated).toLocaleDateString()}</p>
+                    </div>
+                </article>
+            </>
+        )}
+    </main>
+</Layout>

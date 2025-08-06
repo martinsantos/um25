@@ -27,40 +27,16 @@ const services = {
   ]
 };
 
-// Datos hardcodeados para antecedentes destacados
+// Usar datos reales desde el archivo de antecedentes
+import { antecedentesReales } from '../data/antecedentes_completos.js';
+
+// Seleccionar los primeros 3 antecedentes reales como destacados
 const antecedentes = {
-  data: [
-    {
-      id: 10768,
-      Titulo: "ISI Solutions - Redes y comunicaciones",
-      Descripcion: "Proyecto de implementación de redes y comunicaciones para ISI Solutions",
-      Imagen: "6f535377-5177-4fcd-8c8d-8f41f32ece7c",
-      Fecha: "2024-04-15",
-      Cliente: "ISI Solutions",
-      Unidad_de_negocio: "Redes y comunicaciones",
-      Area: "Servicios de Telecomunicaciones"
-    },
-    {
-      id: 10769,
-      Titulo: "Ministerio de Deportes. Gobierno de Mendoza - Redes y comunicaciones",
-      Descripcion: "Proyecto de infraestructura de redes para el Ministerio de Deportes",
-      Imagen: "689632a4-7b40-4dba-be22-9de6a3a17877",
-      Fecha: "2024-04-15",
-      Cliente: "Ministerio de Deportes. Gobierno de Mendoza",
-      Unidad_de_negocio: "Redes y comunicaciones",
-      Area: "Servicios de Telecomunicaciones"
-    },
-    {
-      id: 10770,
-      Titulo: "TELECOMBTW S.A - Redes y comunicaciones",
-      Descripcion: "Implementación de soluciones de telecomunicaciones para TELECOMBTW",
-      Imagen: "4966f1aa-3a35-4ec9-b72a-ee3000e11978",
-      Fecha: "2024-04-15",
-      Cliente: "TELECOMBTW S.A",
-      Unidad_de_negocio: "Redes y comunicaciones",
-      Area: "Servicios de Telecomunicaciones"
-    }
-  ]
+  data: antecedentesReales.slice(0, 3).map(item => ({
+    ...item,
+    // Asegurar que tengamos las fechas correctas del archivo real
+    Fecha: item.Fecha || "2024-04-15"
+  }))
 };
 ---
 

@@ -11,19 +11,8 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('es-ES', options);
 };
 
-// Función para generar slugs
-const generateSlug = (text = '') => {
-  if (!text) return 'proyecto';
-  return String(text)
-    .toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\w\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 50);
-};
+// Import shared slug utility for consistency
+import { generateSlug } from '../utils/slugUtils.js';
 
 // Función para generar un color único basado en el ID del antecedente
 const generateUniqueColor = (id) => {

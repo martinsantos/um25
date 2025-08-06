@@ -1,0 +1,15 @@
+[Unit]
+Description=UMBot Astro Service
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=always
+RestartSec=5
+User=root
+Group=docker
+ExecStart=/usr/bin/docker start -a astro-app
+ExecStop=/usr/bin/docker stop -t 2 astro-app
+
+[Install]
+WantedBy=multi-user.target

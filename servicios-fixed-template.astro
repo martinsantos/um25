@@ -1,0 +1,169 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+
+const DEFAULT_IMAGE = '/images/services/default-service.jpg';
+
+// SSR enabled for live data
+export const prerender = false;
+
+const authenticate = async () => {
+    const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://directus-app:8055';
+    const staticToken = import.meta.env.DIRECTUS_STATIC_TOKEN;
+    if (!staticToken) {
+        throw new Error('Token estático DIRECTUS_STATIC_TOKEN no configurado en .env');
+    }
+    try {
+        console.log('[authenticate] Attempting authentication...');
+        const response = await fetch(`${baseUrl}/users/me`, {
+            headers: { 'Authorization': `Bearer ${staticToken}` }
+        });
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('[authenticate] Authentication failed:', response.status, errorText);
+            throw new Error(`Token inválido o expirado (${response.status}): ${errorText}`);
+        }
+        return { token: staticToken };
+    } catch (e) {
+        console.error('[authenticate] Error:', e);
+        throw new Error(`Autenticación fallida: ${e.message}`);
+    }
+};
+
+const fetchServiceDetail = async (token, id) => {
+  const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://directus-app:8055';
+  const url = `${baseUrl}/items/Servicios/${id}?t=${Date.now()}`;
+  console.log('[fetchServiceDetail] Fetching URL:', url);
+  try {
+    const response = await fetch(url, {
+      headers: { 
+        'Authorization': `Bearer ${token}`, 
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[fetchServiceDetail] API Error:', response.status, errorText);
+      if (response.status === 404) {
+        throw new Error(`API Error (${response.status}): Servicio no encontrado`);
+      }
+      if (response.status === 500) {
+        try {
+          const errorData = JSON.parse(errorText);
+          const errorMessage = errorData?.errors?.[0]?.message || errorData?.error || errorText;
+          throw new Error(`API Error (${response.status}): ${errorMessage}`);
+        } catch {
+          throw new Error(`API Error (${response.status}): ${errorText}`);
+        }
+      }
+      throw new Error(`API Error (${response.status}): ${errorText}`);
+    }
+    const data = await response.json();
+    // Handle different response structures
+    if (data && typeof data === 'object') {
+      // If the response has a 'data' property, use it
+      if ('data' in data) {
+        return data.data;
+      }
+      // Otherwise, assume the response itself is the data
+      return data;
+    }
+    throw new Error('Invalid response format from API');
+  } catch (e) {
+    console.error('[fetchServiceDetail] Error:', e);
+    throw new Error(`Fetch service detail failed: ${e.message}`);
+  }
+};
+
+const generateSlug = (titulo = '') => {
+    if (!titulo) return 'item';
+    const slug = String(titulo).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50);
+    return slug || 'item';
+};
+
+const { id, slug } = Astro.params;
+console.log('[Main] Processing service ID:', id, 'Slug:', slug);
+let servicio = null;
+let error = null;
+try {
+    const { token } = await authenticate();
+    console.log('[Main] Authentication successful');
+    servicio = await fetchServiceDetail(token, id);
+    console.log('[Main] Service data received:', servicio);
+} catch (e) {
+    console.error('[Main] Error occurred:', e);
+    error = e.message || 'Ocurrió un error inesperado.';
+}
+
+// Verificar que el slug coincida si tenemos un servicio
+if (servicio && slug) {
+    const expectedSlug = generateSlug(servicio.Titulo);
+    if (slug !== expectedSlug) {
+        console.log('[Main] Redirecting to correct slug:', expectedSlug);
+        return Astro.redirect(`/servicios/${id}/${expectedSlug}`);
+    }
+}
+
+// Función para obtener URL de imagen
+function getAssetUrl(assetId) {
+  return '/images/services/default-service.jpg';
+}
+---
+
+<Layout title={servicio?.Titulo ? `${servicio.Titulo} - Servicios - Ultima Milla` : 'Servicio - Ultima Milla'}>
+  <main class="container mx-auto px-4 py-8">
+        <nav class="mb-8">
+            <ol class="flex items-center space-x-2 text-gray-600">
+                <li><a href="/" class="hover:text-blue-600">Inicio</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li><a href="/servicios" class="hover:text-blue-600">Servicios</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li class="text-blue-600 font-medium">{servicio?.Titulo || 'Detalle'}</li>
+            </ol>
+        </nav>
+
+        {error && (
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
+                <strong class="font-bold">Error: </strong>
+                <span class="block sm:inline">{error}</span>
+            </div>
+        )}
+
+        {servicio && (
+            <>
+                <div class="relative w-full mb-8">
+                    <div class="overflow-hidden relative rounded-lg shadow-lg">
+                        <img 
+                            src={`${import.meta.env.PUBLIC_DIRECTUS_URL || 'http://directus-app:8055'}/assets/${servicio.Imagen || 'default'}`} 
+                            alt={servicio.Titulo} 
+                            class="w-full h-96 object-cover" 
+                            loading="eager"
+                            onerror="this.src='/images/services/default-service.jpg'"
+                        >
+                    </div>
+                </div>
+                
+                <article class="bg-white rounded-lg shadow-lg p-6">
+                    <h1 class="text-3xl font-bold mb-4">{servicio.Titulo}</h1>
+                    <div class="mb-6 prose" set:html={servicio.Descripcion} />
+                    {servicio.Archivo && (
+                        <div class="mb-6">
+                            <a href={`${import.meta.env.PUBLIC_DIRECTUS_URL || 'http://directus-app:8055'}/assets/${servicio.Archivo}`} target="_blank" class="text-blue-600 underline">
+                                Descargar archivo
+                            </a>
+                        </div>
+                    )}
+                    <div class="mt-auto border-t border-gray-100 pt-3 space-y-1 text-xs text-gray-500">
+                        <p><strong>ID:</strong> {servicio.id}</p>
+                        <p><strong>Estado:</strong> {servicio.status}</p>
+                        {servicio.user_created && <p><strong>Creado por:</strong> {servicio.user_created}</p>}
+                        {servicio.date_created && <p><strong>Fecha de creación:</strong> {new Date(servicio.date_created).toLocaleDateString()}</p>}
+                        {servicio.date_updated && <p><strong>Última actualización:</strong> {new Date(servicio.date_updated).toLocaleDateString()}</p>}
+                    </div>
+                </article>
+            </>
+        )}
+    </main>
+</Layout>

@@ -1,0 +1,42 @@
+ROLLBACK PLAN - SYSTEM STATE BEFORE CHANGES
+===========================================
+Date: $(date)
+Project: UM25 Production System
+
+GIT COMMIT STATE:
+================
+Current HEAD: adb03ea - fix: update remaining hardcoded URLs to use PUBLIC_DIRECTUS_URL
+Recent commits:
+- adb03ea: fix: update remaining hardcoded URLs to use PUBLIC_DIRECTUS_URL
+- c15f571: feat: direct Directus integration
+- daf0852: fix: Corrección definitiva de errores persistentes UM25-1.0
+- b30d06a: fix: Corrección de errores detectados en frontend y dashboard UM25-0.9
+- 6e12f66: docs: Documentación completa de actualización UM25-0.8 en producción
+
+CONTAINER STATE BEFORE CHANGES:
+===============================
+CONTAINER ID   IMAGE                                                  STATUS                        NAMES
+36e2c0b66c2a   wordpress:cli                                          Up 4 minutes                  loscocos_wpcli
+618a041b8ae9   nginx:alpine                                           Up 4 minutes                  loscocos_nginx
+7c86f4a94d3b   wordpress:latest                                       Up 4 minutes                  loscocos_wordpress
+349faa511a39   phpmyadmin/phpmyadmin:latest                           Up 4 minutes                  loscocos_phpmyadmin
+cd4eb6df7037   mysql:8.0                                              Up 4 minutes                  loscocos_mysql
+712f59b7a0a3   fumbling-field-umbot-astro-static:latest               Up 7 minutes                  astro-app
+172e2f138b5a   wordpress:latest                                       Up 18 minutes                 loscocos_staging_wp
+a82b62c9f888   mysql:8.0                                              Up 18 minutes                 loscocos_staging_mysql
+fb7081d9bbef   licitometro-frontend                                   Up 18 minutes                 licitometro-frontend-1
+42bd1cc7aec9   postgres:13                                            Up 18 minutes                 licitometro-db-1
+
+KEY CONTAINERS FOR ROLLBACK:
+============================
+- Main App: 712f59b7a0a3 (fumbling-field-umbot-astro-static:latest)
+- Nginx: 618a041b8ae9 (nginx:alpine)
+- Production WordPress: 7c86f4a94d3b (wordpress:latest)
+- Production MySQL: cd4eb6df7037 (mysql:8.0)
+
+CRITICAL SERVICES STATUS:
+========================
+- astro-app: RUNNING (Main application)
+- loscocos_nginx: RUNNING (Web server/proxy)
+- loscocos_wordpress: RUNNING (CMS)
+- loscocos_mysql: RUNNING (Database)

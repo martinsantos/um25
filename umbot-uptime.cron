@@ -1,0 +1,6 @@
+# UMBot Uptime Monitoring Cron Entry
+# Check every 5 minutes
+*/5 * * * * /root/fumbling-field/uptime-probe.sh
+
+# Clean up old log entries (keep last 1000 lines) - daily at 2 AM
+0 2 * * * tail -n 1000 /var/log/umbot-uptime.log > /var/log/umbot-uptime.log.tmp && mv /var/log/umbot-uptime.log.tmp /var/log/umbot-uptime.log
