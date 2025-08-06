@@ -82,7 +82,7 @@ const filterAntecedentes = (antecedentes, filters, searchQuery) => {
 try {
   // Intentar usar el cliente de Directus existente
   const response = await directus.getAntecedentes({
-    limit: 100, // Obtener muchos más proyectos
+    limit: 500, // Obtener TODOS los antecedentes (469 disponibles)
     page: 1 // Siempre obtener desde la primera página para filtrar localmente
   });
 
