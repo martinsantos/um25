@@ -1,36 +1,146 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
-import { generateSlug } from '../../../utils/slugUtils.js';
-import { serviciosReales, serviciosPorId } from '../../../data/servicios_reales_db.js';
-import { getServiceImageUrl } from '../../../utils/imageUtils.js';
 
-// Obtener parámetros de la URL
+const DEFAULT_IMAGE = '/images/services/default-service.jpg';
+
+// SSR enabled for live data
+export const prerender = false;
+
+const authenticate = async () => {
+    const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://directus-app:8055';
+    const staticToken = import.meta.env.DIRECTUS_STATIC_TOKEN;
+    if (!staticToken) {
+        throw new Error('Token estático DIRECTUS_STATIC_TOKEN no configurado en .env');
+    }
+    try {
+        console.log('[authenticate] Attempting authentication...');
+        const response = await fetch(`${baseUrl}/users/me`, {
+            headers: { 'Authorization': `Bearer ${staticToken}` }
+        });
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('[authenticate] Authentication failed:', response.status, errorText);
+            throw new Error(`Token inválido o expirado (${response.status}): ${errorText}`);
+        }
+        return { token: staticToken };
+    } catch (e) {
+        console.error('[authenticate] Error:', e);
+        throw new Error(`Autenticación fallida: ${e.message}`);
+    }
+};
+
+const fetchServiceDetail = async (token, id) => {
+  const baseUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://directus-app:8055';
+  const url = `${baseUrl}/items/Servicios/${id}?t=${Date.now()}`;
+  console.log('[fetchServiceDetail] Fetching URL:', url);
+  try {
+    const response = await fetch(url, {
+      headers: { 
+        'Authorization': `Bearer ${token}`, 
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[fetchServiceDetail] API Error:', response.status, errorText);
+      if (response.status === 404) {
+        throw new Error(`API Error (${response.status}): Servicio no encontrado`);
+      }
+      if (response.status === 500) {
+        try {
+          const errorData = JSON.parse(errorText);
+          const errorMessage = errorData?.errors?.[0]?.message || errorData?.error || errorText;
+          throw new Error(`API Error (${response.status}): ${errorMessage}`);
+        } catch {
+          throw new Error(`API Error (${response.status}): ${errorText}`);
+        }
+      }
+      throw new Error(`API Error (${response.status}): ${errorText}`);
+    }
+    const data = await response.json();
+    // Handle different response structures
+    if (data && typeof data === 'object') {
+      // If the response has a 'data' property, use it
+      if ('data' in data) {
+        return data.data;
+      }
+      // Otherwise, assume the response itself is the data
+      return data;
+    }
+    throw new Error('Invalid response format from API');
+  } catch (e) {
+    console.error('[fetchServiceDetail] Error:', e);
+    throw new Error(`Fetch service detail failed: ${e.message}`);
+  }
+};
+
+const generateSlug = (titulo = '') => {
+    if (!titulo) return 'item';
+    const slug = String(titulo).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50);
+    return slug || 'item';
+};
+
 const { id, slug } = Astro.params;
-
-// Buscar el servicio por ID
-const servicio = serviciosPorId[parseInt(id)];
-
-// Si no se encuentra el servicio, devolver 404
-if (!servicio) {
-  return Astro.redirect('/404');
+console.log('[Main] Processing service ID:', id, 'Slug:', slug);
+let servicio = null;
+let error = null;
+try {
+    const { token } = await authenticate();
+    console.log('[Main] Authentication successful');
+    servicio = await fetchServiceDetail(token, id);
+    console.log('[Main] Service data received:', servicio);
+} catch (e) {
+    console.error('[Main] Error occurred:', e);
+    error = e.message || 'Ocurrió un error inesperado.';
 }
 
-// Verificar que el slug coincida (para SEO)
-const expectedSlug = generateSlug(servicio.Titulo);
-if (slug !== expectedSlug) {
-  return Astro.redirect(`/servicios/${id}/${expectedSlug}`);
+// Verificar que el slug coincida si tenemos un servicio
+if (servicio && slug) {
+    const expectedSlug = generateSlug(servicio.Titulo);
+    if (slug !== expectedSlug) {
+        console.log('[Main] Redirecting to correct slug:', expectedSlug);
+        return Astro.redirect(`/servicios/${id}/${expectedSlug}`);
+    }
 }
 
-// Usar la función utilitaria compartida para manejar imágenes
-const getAssetUrl = getServiceImageUrl;
+// Mapeo de IDs de imágenes de Directus a archivos estáticos locales
+// Actualizado para coincidir con servicios_reales_db.js
+const imageMapping = {
+  // Servicios IT (ID: 1)
+  '2749f988-2e2d-4f32-9978-4dbeb4aa6ab2': '/images/services/servicios-it.jpg',
+  // Redes de datos (ID: 2)
+  '18b5f4e3-4bc8-485d-a01c-8cbd53e25f4d': '/images/services/redes-comunicaciones.jpg',
+  // Seguridad Informática (ID: 3)
+  'f2a65085-e6ad-49fc-a123-1b5dc19fc7ab': '/images/services/ciberseguridad.jpg',
+  // Telefonía y Citoina (ID: 4)
+  '4ffcefb0-6cb8-4cfa-a748-bd4c3da1d716': '/images/services/telefonia.jpg',
+  // Servicios Web (ID: 6)
+  'dc6d6069-23af-4d75-ae5a-38c830bf2b85': '/images/services/servicios-web.jpg',
+  // Mapeos adicionales para compatibilidad
+  'b1a91d79-c979-4067-b78a-2cd97166fbcd': '/images/services/seguridad-informatica.jpg',
+  '6e626d63-c3ca-4982-8ed3-4a5e75e1b179': '/images/services/redes-comunicaciones.jpg',
+  'ccc32af0-df52-4e6e-8ca0-9660dddec095': '/images/services/servicios-it.jpg'
+};
 
-// Servicios relacionados (misma área, excluyendo el actual)
-const serviciosRelacionados = serviciosReales
-  .filter(s => s.Area === servicio.Area && s.id !== servicio.id)
-  .slice(0, 3);
+// Función para obtener URL de imagen
+function getAssetUrl(assetId) {
+  if (!assetId) return '/images/services/default-service.jpg';
+  
+  // Si tenemos un mapeo estático, usarlo
+  if (imageMapping[assetId]) {
+    return imageMapping[assetId];
+  }
+  
+  // Fallback a imagen por defecto
+  return '/images/services/default-service.jpg';
+}
+
 ---
 
-<Layout title={`${servicio.Titulo} - Servicios - Ultima Milla`}>
+<Layout title={servicio?.Titulo ? `${servicio.Titulo} - Servicios - Ultima Milla` : 'Servicio - Ultima Milla'}>
   <main class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
     <!-- Breadcrumb -->
     <nav class="bg-white shadow-sm">

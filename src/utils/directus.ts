@@ -17,36 +17,31 @@ const MOCK_SERVICES = [
 export async function authenticate() {
     const baseUrl = import.meta.env.VITE_DIRECTUS_URL;
     const staticToken = import.meta.env.VITE_DIRECTUS_TOKEN;
+    const isDevelopment = import.meta.env.MODE === 'development';
+    const useDirectus = import.meta.env.USE_DIRECTUS === 'true';
     
-    // Durante el build, si no hay token, usar datos mock
-    if (import.meta.env.SSR && (!staticToken || !baseUrl)) {
-        console.warn('Variables de entorno de Directus no configuradas, usando datos mock');
+    // In development or when Directus is disabled, use mock data
+    if (isDevelopment || !useDirectus || !staticToken || !baseUrl) {
+        console.warn('Using static data instead of Directus connection');
         return { token: 'mock-token' };
-    }
-
-    if (!staticToken) {
-        throw new Error('Token estático VITE_DIRECTUS_TOKEN no configurado en .env');
-    }
-
-    if (!baseUrl) {
-        throw new Error('VITE_DIRECTUS_URL no configurado en .env');
     }
 
     try {
         const response = await fetch(`${baseUrl}/users/me`, {
-            headers: { 'Authorization': `Bearer ${staticToken}` }
+            headers: { 'Authorization': `Bearer ${staticToken}` },
+            signal: AbortSignal.timeout(5000) // 5 second timeout
         });
         
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Authentication failed:', response.status, errorText);
-            throw new Error(`Token inválido o expirado (${response.status}): ${errorText}`);
+            console.warn('Directus authentication failed, falling back to static data:', response.status, errorText);
+            return { token: 'mock-token' };
         }
         
         return { token: staticToken };
     } catch (e) {
-        console.error('Error de autenticación:', e);
-        throw new Error(`Autenticación fallida: ${e.message}`);
+        console.warn('Directus connection failed, using static data:', e.message);
+        return { token: 'mock-token' };
     }
 }
 

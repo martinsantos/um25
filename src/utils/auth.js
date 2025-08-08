@@ -25,14 +25,24 @@ export function getAuthHeaders() {
  * @returns {Promise<boolean>} True si el token es válido
  */
 export async function verifyToken() {
+  const isDevelopment = import.meta.env.MODE === 'development';
+  const useDirectus = import.meta.env.USE_DIRECTUS === 'true';
+  
+  // In development or when Directus is disabled, skip verification
+  if (isDevelopment || !useDirectus) {
+    console.log('Skipping token verification in development mode');
+    return true;
+  }
+  
   try {
     const response = await fetch(`${import.meta.env.PUBLIC_DIRECTUS_URL}/users/me`, {
-      headers: getAuthHeaders()
+      headers: getAuthHeaders(),
+      signal: AbortSignal.timeout(3000) // 3 second timeout
     });
     return response.ok;
   } catch (error) {
-    console.error('Error verificando token:', error);
-    return false;
+    console.warn('Token verification failed, continuing with static data:', error.message);
+    return false; // Fail gracefully
   }
 }
 
