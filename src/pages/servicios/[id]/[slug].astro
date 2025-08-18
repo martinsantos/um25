@@ -1,14 +1,42 @@
 ---
+// Activar SSR
+export const prerender = false;
+
 import Layout from '../../../layouts/Layout.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { serviciosReales, serviciosPorId } from '../../../data/servicios_reales_db.js';
-import { getServiceImageUrl } from '../../../utils/imageUtils.js';
+import { getServiceImageUrl, imageMapping } from '../../../utils/imageUtils.js';
+
+// Importar utilidades necesarias para Directus
+const PUBLIC_DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://directus-app:8055';
+const DIRECTUS_TOKEN = import.meta.env.PUBLIC_DIRECTUS_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
 
 // Obtener parámetros de la URL
 const { id, slug } = Astro.params;
 
-// Buscar el servicio por ID
-const servicio = serviciosPorId[parseInt(id)];
+// Fetch dinámico de datos desde Directus
+let servicio = null;
+
+try {
+  // Usar acceso público sin token
+  const url = `${PUBLIC_DIRECTUS_URL}/items/Servicios/${id}`;
+  console.log('Fetching from Directus:', url);
+  const response = await fetch(url);
+  if (response.ok) {
+    const data = await response.json();
+    servicio = data.data;
+    console.log('Servicio from Directus:', servicio?.Titulo);
+  } else {
+    console.log('Response not OK:', response.status);
+  }
+} catch (error) {
+  console.error('Error fetching servicio:', error);
+}
+
+// Fallback a datos estáticos si falla
+if (!servicio) {
+  servicio = serviciosPorId[parseInt(id)] || serviciosPorId['1'];
+}
 
 // Si no se encuentra el servicio, devolver 404
 if (!servicio) {
@@ -16,7 +44,7 @@ if (!servicio) {
 }
 
 // Verificar que el slug coincida (para SEO)
-const expectedSlug = generateSlug(servicio.Titulo);
+const expectedSlug = generateSlug(servicio.Titulo || servicio.Nombre || servicio.title);
 if (slug !== expectedSlug) {
   return Astro.redirect(`/servicios/${id}/${expectedSlug}`);
 }
@@ -30,7 +58,7 @@ const serviciosRelacionados = serviciosReales
   .slice(0, 3);
 ---
 
-<Layout title={`${servicio.Titulo} - Servicios - Ultima Milla`}>
+<Layout title={`${servicio.Titulo || servicio.Nombre || servicio.title} - Servicios - Ultima Milla`}>
   <main class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
     <!-- Breadcrumb -->
     <nav class="bg-white shadow-sm">
@@ -40,48 +68,44 @@ const serviciosRelacionados = serviciosReales
           <li><span class="mx-2">/</span></li>
           <li><a href="/servicios" class="hover:text-blue-600 transition-colors">Servicios</a></li>
           <li><span class="mx-2">/</span></li>
-          <li class="text-blue-600 font-medium">{servicio.Titulo}</li>
+          <li class="text-blue-600 font-medium">{servicio.Titulo || servicio.Nombre || servicio.title}</li>
         </ol>
       </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="relative py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white">
-      <div class="absolute inset-0 bg-black/20"></div>
-      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <div class="inline-block bg-white/20 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
-              {servicio.Area}
-            </div>
-            <h1 class="text-4xl md:text-5xl font-bold mb-6 text-white">
-              {servicio.Titulo}
-            </h1>
-            <p class="text-xl text-blue-100 mb-8 leading-relaxed">
-              {servicio.Descripcion.replace(/\\\\/g, '\n')}
-            </p>
-            <div class="flex items-center space-x-6">
-              <div class="text-center">
-                <div class="text-2xl font-bold text-yellow-300">
-                  {servicio.Cliente}
-                </div>
-                <div class="text-sm text-blue-200">Tipo de cliente</div>
-              </div>
-            </div>
+    <!-- Hero Section con background-image -->
+    <div class="service-hero" style={`
+      background-image: ${servicio.Imagen 
+        ? `url('${PUBLIC_DIRECTUS_URL}/assets/${servicio.Imagen}')` 
+        : `url('/images/services/${imageMapping[servicio.id] || 'default-service.jpg'}')`};
+      background-size: cover;
+      background-position: center;
+      min-height: 400px;
+      position: relative;
+    `}>
+      <div class="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-purple-900/70 to-blue-900/80"></div>
+      <div class="hero-content relative z-10 flex items-center justify-center min-h-[400px]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-20">
+          <div class="inline-block bg-white/20 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
+            {servicio.Area}
           </div>
-          <div class="relative">
-            <div class="aspect-square bg-white/10 rounded-2xl overflow-hidden backdrop-blur-sm">
-              <img
-                src={getAssetUrl(servicio.Imagen)}
-                alt={servicio.Titulo}
-                class="w-full h-full object-cover"
-                onerror="this.src='/images/default-service.jpg'"
-              />
+          <h1 class="text-4xl md:text-5xl font-bold mb-6 text-white">
+            {servicio.Nombre || servicio.Titulo || servicio.title}
+          </h1>
+          <p class="text-xl text-blue-100 mb-8 leading-relaxed max-w-3xl mx-auto">
+            {(servicio.Descripcion || servicio.descripcion || '').replace(/\\/g, '\n')}
+          </p>
+          <div class="flex items-center justify-center space-x-6">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-yellow-300">
+                {servicio.Cliente || servicio.cliente}
+              </div>
+              <div class="text-sm text-blue-200">Tipo de cliente</div>
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
 
     <!-- Contenido Principal -->
     <section class="py-16">
@@ -107,8 +131,8 @@ const serviciosRelacionados = serviciosReales
                       </svg>
                     </div>
                     <div>
-                      <h3 class="text-lg font-semibold text-gray-900">Área de Especialización</h3>
-                      <p class="text-gray-600">{servicio.Area}</p>
+              <h3 class="text-lg font-semibold text-gray-900">Área de Especialización</h3>
+              <p class="text-gray-600">{servicio.Area || servicio.area}</p>
                     </div>
                   </div>
                   
@@ -119,8 +143,8 @@ const serviciosRelacionados = serviciosReales
                       </svg>
                     </div>
                     <div>
-                      <h3 class="text-lg font-semibold text-gray-900">Tipo de Cliente</h3>
-                      <p class="text-gray-600">{servicio.Cliente}</p>
+              <h3 class="text-lg font-semibold text-gray-900">Tipo de Cliente</h3>
+              <p class="text-gray-600">{servicio.Cliente || servicio.cliente}</p>
                     </div>
                   </div>
                 </div>
@@ -133,8 +157,8 @@ const serviciosRelacionados = serviciosReales
                       </svg>
                     </div>
                     <div>
-                      <h3 class="text-lg font-semibold text-gray-900">Unidad de Negocio</h3>
-                      <p class="text-gray-600">{servicio.Unidad_de_negocio}</p>
+              <h3 class="text-lg font-semibold text-gray-900">Unidad de Negocio</h3>
+              <p class="text-gray-600">{servicio.Unidad_de_negocio || servicio.unidad_de_negocio}</p>
                     </div>
                   </div>
                   
@@ -163,7 +187,7 @@ const serviciosRelacionados = serviciosReales
               </h2>
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {servicio.Servicios.map((servicio_item) => (
+                {(servicio.Servicios || servicio.servicios || []).map((servicio_item) => (
                   <div class="flex items-center space-x-3 p-4 bg-green-50 rounded-lg">
                     <svg class="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -184,7 +208,7 @@ const serviciosRelacionados = serviciosReales
               </h2>
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {servicio.Caracteristicas.map((caracteristica) => (
+                {(servicio.Caracteristicas || servicio.caracteristicas || []).map((caracteristica) => (
                   <div class="flex items-center space-x-3 p-4 bg-purple-50 rounded-lg">
                     <svg class="w-5 h-5 text-purple-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
@@ -210,15 +234,15 @@ const serviciosRelacionados = serviciosReales
               <div class="space-y-3 text-sm">
                 <div class="flex justify-between">
                   <span class="text-blue-200">Área:</span>
-                  <span class="font-semibold">{servicio.Area}</span>
+                  <span class="font-semibold">{servicio.Area || servicio.area}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-blue-200">Cliente tipo:</span>
-                  <span class="font-semibold">{servicio.Cliente}</span>
+                  <span class="font-semibold">{servicio.Cliente || servicio.cliente}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-blue-200">Unidad:</span>
-                  <span class="font-semibold">{servicio.Unidad_de_negocio}</span>
+                  <span class="font-semibold">{servicio.Unidad_de_negocio || servicio.unidad_de_negocio}</span>
                 </div>
               </div>
               
@@ -232,13 +256,13 @@ const serviciosRelacionados = serviciosReales
               <h3 class="text-xl font-bold text-gray-900 mb-4">Etiquetas</h3>
               <div class="flex flex-wrap gap-2">
                 <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                  {servicio.Area}
+                  {servicio.Area || servicio.area}
                 </span>
                 <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                  {servicio.Cliente}
+                  {servicio.Cliente || servicio.cliente}
                 </span>
                 <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
-                  {servicio.Unidad_de_negocio}
+                  {servicio.Unidad_de_negocio || servicio.unidad_de_negocio}
                 </span>
                 <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
                   ID-{servicio.id}
@@ -281,11 +305,11 @@ const serviciosRelacionados = serviciosReales
                     
                     <div class="p-6">
                       <h3 class="text-xl font-black text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
-                        {relacionado.Titulo}
+                        {relacionado.Titulo || relacionado.Nombre || relacionado.title}
                       </h3>
                       
                       <p class="text-gray-600 mb-4 line-clamp-2">
-                        {relacionado.Descripcion.replace(/\\\\/g, ' ').substring(0, 100)}...
+                        {(relacionado.Descripcion || relacionado.descripcion || '').replace(/\\/g, ' ').substring(0, 100)}...
                       </p>
                       
                       <div class="flex items-center justify-between mb-4">

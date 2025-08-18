@@ -1,16 +1,8 @@
-services:
-  database:
-    image: postgres:15-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: mydatabase
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+networks:
+  licitometro_default:
+    external: true
 
+services:
   directus-app:
     image: directus/directus:latest
     restart: unless-stopped
@@ -18,20 +10,17 @@ services:
       KEY: 12345678901234567890123456789012
       SECRET: S3cr3tK3yForDirectusConfig2025!!
       DB_CLIENT: pg
-      DB_HOST: database
+      DB_HOST: licitometro-db-1
       DB_PORT: 5432
       DB_USER: myuser
       DB_PASSWORD: mypassword
       DB_DATABASE: mydatabase
       ADMIN_EMAIL: admin@example.com
       ADMIN_PASSWORD: adminpassword
-    depends_on:
-      - database
     ports:
       - "8055:8055"
     volumes:
-      - ./directus-admin/uploads:/directus/uploads
-      - ./directus-admin/extensions:/directus/extensions
-
-volumes:
-  postgres_data:
+      - ./uploads:/directus/uploads
+      - ./extensions:/directus/extensions
+    networks:
+      - licitometro_default

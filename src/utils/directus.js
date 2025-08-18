@@ -142,6 +142,73 @@ class DirectusClient {
     }
   }
 
+  // Métodos para servicios
+  async getServicios(params = {}) {
+    try {
+      const defaults = {
+        fields: 'id,Titulo,Descripcion,Imagen,status',
+        sort: 'id',
+        limit: DIRECTUS_CONFIG.PAGE_SIZE,
+        meta: '*'
+      };
+
+      const queryParams = new URLSearchParams();
+      const finalParams = { ...defaults, ...params };
+
+      // Construir parámetros de consulta
+      Object.entries(finalParams).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (key === 'filter' && typeof value === 'object') {
+            queryParams.set('filter', JSON.stringify(value));
+          } else if (Array.isArray(value)) {
+            value.forEach(v => queryParams.append(key, v));
+          } else {
+            queryParams.set(key, value);
+          }
+        }
+      });
+
+      const response = await this.request(`/items/Servicios?${queryParams.toString()}`);
+      
+      // Procesar la respuesta para incluir la URL completa de la imagen
+      if (response && response.data) {
+        return {
+          ...response,
+          data: response.data.map(servicio => ({
+            ...servicio,
+            // Convertir la referencia de imagen a URL completa
+            Imagen: servicio.Imagen 
+              ? `${this.baseUrl}/assets/${servicio.Imagen}?access_token=${this.token}`
+              : DIRECTUS_CONFIG.DEFAULT_IMAGE,
+          }))
+        };
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Error en getServicios:', error);
+      return { data: [], meta: {} };
+    }
+  }
+
+  async getServicioById(id) {
+    try {
+      const response = await this.request(`/items/Servicios/${id}`);
+      if (response && response.data) {
+        return {
+          ...response.data,
+          Imagen: response.data.Imagen 
+            ? `${this.baseUrl}/assets/${response.data.Imagen}?access_token=${this.token}`
+            : DIRECTUS_CONFIG.DEFAULT_IMAGE,
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error(`Error al obtener servicio ${id}:`, error);
+      return null;
+    }
+  }
+
   // Blog Methods
   async getBlogPosts(params = {}) {
     try {

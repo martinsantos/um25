@@ -1,0 +1,198 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { directus } from '../utils/directus.js';
+
+// Obtener servicios dinámicamente desde Directus
+let serviciosResponse = { data: [], meta: {} };
+let errorMessage = '';
+
+try {
+  console.log('🔄 Intentando conectar con Directus...');
+  serviciosResponse = await directus.getServicios({
+    limit: -1, // Obtener todos los servicios
+    filter: {
+      status: { _eq: 'published' }
+    }
+  });
+  console.log('✅ Servicios obtenidos desde Directus:', serviciosResponse.data.length, 'servicios');
+} catch (error) {
+  console.error('❌ Error al conectar con Directus:', error.message);
+  errorMessage = `Error de conectividad: ${error.message}`;
+}
+
+const servicios = serviciosResponse.data || [];
+---
+
+<Layout title="Servicios Live - Directus Integration Test">
+  <main class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <!-- Hero Section -->
+    <section class="relative bg-gradient-to-r from-green-600 via-blue-600 to-green-800 text-white py-20">
+      <div class="absolute inset-0 bg-black/20"></div>
+      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+          <h1 class="text-4xl md:text-6xl font-bold mb-6 text-white">
+            🔗 Servicios Live - Test de Integración
+          </h1>
+          <p class="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto mb-8">
+            Datos obtenidos dinámicamente desde Directus en tiempo real
+          </p>
+          
+          <!-- Indicadores de Estado -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+            <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+              <div class="text-3xl mb-2">
+                {errorMessage ? '❌' : '✅'}
+              </div>
+              <div class="text-lg font-semibold">
+                {errorMessage ? 'Error de Conexión' : 'Conectado a Directus'}
+              </div>
+              <div class="text-sm opacity-80 mt-2">
+                {errorMessage || 'API funcionando correctamente'}
+              </div>
+            </div>
+            
+            <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+              <div class="text-4xl font-bold text-yellow-300 mb-2">
+                {servicios.length}
+              </div>
+              <div class="text-lg font-semibold">Servicios Encontrados</div>
+              <div class="text-sm opacity-80 mt-2">
+                Desde base de datos
+              </div>
+            </div>
+            
+            <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+              <div class="text-4xl font-bold text-yellow-300 mb-2">
+                {new Date().toLocaleTimeString()}
+              </div>
+              <div class="text-lg font-semibold">Última Actualización</div>
+              <div class="text-sm opacity-80 mt-2">
+                En tiempo real
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contenido -->
+    <section class="py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {errorMessage ? (
+          <div class="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
+            <div class="text-6xl mb-4">⚠️</div>
+            <h3 class="text-2xl font-bold text-red-900 mb-4">Error de Conectividad</h3>
+            <p class="text-red-700 mb-4">{errorMessage}</p>
+            <div class="bg-red-100 p-4 rounded-lg">
+              <h4 class="font-bold text-red-900 mb-2">Posibles causas:</h4>
+              <ul class="text-left text-red-800 space-y-1">
+                <li>• Directus no está ejecutándose</li>
+                <li>• Token de autenticación inválido</li>
+                <li>• Problemas de red</li>
+                <li>• Variables de entorno incorrectas</li>
+              </ul>
+            </div>
+          </div>
+        ) : servicios.length === 0 ? (
+          <div class="text-center py-16">
+            <div class="text-6xl mb-4">📭</div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">No hay servicios disponibles</h3>
+            <p class="text-gray-600">La conexión funciona, pero no se encontraron servicios publicados.</p>
+          </div>
+        ) : (
+          <>
+            <div class="text-center mb-12">
+              <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                ✅ Integración Exitosa - Servicios desde Directus
+              </h2>
+              <p class="text-gray-600">
+                Los siguientes datos provienen directamente de la base de datos de Directus:
+              </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {servicios.map((servicio) => (
+                <article class="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-green-200 hover:border-green-400 transition-all duration-300 transform hover:-translate-y-1">
+                  <div class="aspect-video bg-gradient-to-br from-green-500 to-blue-600 relative">
+                    <img
+                      src={servicio.Imagen}
+                      alt={servicio.Titulo}
+                      class="w-full h-full object-cover"
+                      loading="lazy"
+                      onerror="this.src='/images/default-service.jpg'"
+                    />
+                    <div class="absolute top-4 right-4">
+                      <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                        Live
+                      </span>
+                    </div>
+                    <div class="absolute bottom-4 left-4">
+                      <span class="bg-black/50 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                        ID: {servicio.id}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div class="p-6">
+                    <h3 class="text-xl font-bold text-gray-900 mb-3 text-green-600">
+                      {servicio.Titulo}
+                    </h3>
+                    
+                    <p class="text-gray-600 mb-4 line-clamp-4">
+                      {servicio.Descripcion}
+                    </p>
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                      <div class="flex items-center justify-between text-sm text-gray-500">
+                        <span>Estado: {servicio.status}</span>
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                          En vivo
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <!-- Panel de información técnica -->
+            <div class="mt-16 bg-gray-50 rounded-xl p-8">
+              <h3 class="text-2xl font-bold text-gray-900 mb-6 text-center">
+                📊 Información Técnica de la Integración
+              </h3>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <h4 class="font-bold text-gray-800 mb-3">Configuración:</h4>
+                  <ul class="text-sm text-gray-600 space-y-2">
+                    <li><strong>Directus URL:</strong> {import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055'}</li>
+                    <li><strong>Token:</strong> {import.meta.env.DIRECTUS_STATIC_TOKEN ? '✅ Configurado' : '❌ No configurado'}</li>
+                    <li><strong>Modo:</strong> {import.meta.env.MODE}</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h4 class="font-bold text-gray-800 mb-3">Estadísticas:</h4>
+                  <ul class="text-sm text-gray-600 space-y-2">
+                    <li><strong>Total servicios:</strong> {servicios.length}</li>
+                    <li><strong>Última actualización:</strong> {new Date().toLocaleString()}</li>
+                    <li><strong>Tiempo de respuesta:</strong> En tiempo real</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .line-clamp-4 {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
