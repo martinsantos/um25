@@ -1,80 +1,101 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+// SEO metadata optimizado
+const title = "Sobre Nosotros - ULTIMA MILLA | Especialistas en Comunicaciones y Sistemas";
+const description = "ULTIMA MILLA: equipo de especialistas en comunicaciones, sistemas e integración desde los 2000. +400 proyectos documentados con clientes como Gobierno de Mendoza, AFIP, Banco Credicoop.";
+const keywords = "ultima milla, comunicaciones, sistemas, integración, redes, telecomunicaciones, software a medida, seguridad digital, mendoza, argentina";
+
+// Array de imágenes tecnológicas del hero (mismo que en index.astro)
+const techImages = [
+  'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Servidores
+  'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Código
+  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Tecnología espacial
+  'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Laptop código
+  'https://images.unsplash.com/photo-1537432376769-00f83c2f9c52?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Cables red
+  'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Fibra óptica
+  'https://images.unsplash.com/photo-1563206767-5b18f218e8de?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Circuitos
+  'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // AI/ML
+  'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Código terminal
+  'https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Programación
+  'https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Blockchain
+  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Gráficos datos
+  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Analytics
+  'https://images.unsplash.com/photo-1504639725590-34d0984388bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Desarrollo
+  'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Matemáticas
+];
+
+// Seleccionar imagen aleatoria
+const randomImage = techImages[Math.floor(Math.random() * techImages.length)];
 ---
 
-<Layout title="Sobre Nosotros - ULTIMA MILLA">
+<Layout title={title} description={description} keywords={keywords}>
 	<div class="bg-white pt-8 py-12">
 		<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
 			<h1 class="text-4xl font-bold text-gray-900 mb-8 text-center">Sobre Nosotros</h1>
 			<div class="prose prose-lg mx-auto">
 				<div class="mb-8">
-					<img src="/blog-placeholder-about.jpg" alt="Equipo ULTIMA MILLA" class="w-full h-64 object-cover rounded-lg shadow-lg mb-6">
+					<img id="heroImage" src={randomImage} alt="Infraestructura tecnológica ULTIMA MILLA" class="w-full h-64 object-cover rounded-lg shadow-lg mb-6">
 					<p class="text-gray-800 leading-relaxed">
-						En ULTIMA MILLA, somos pioneros en la transformación digital de empresas. Nuestra misión es proporcionar soluciones tecnológicas innovadoras que impulsen el crecimiento y la eficiencia de nuestros clientes.
-					</p>
-					<p class="text-gray-800 leading-relaxed mt-4">
-						Fundada en 2010, nuestra empresa ha crecido hasta convertirse en un referente en el sector de servicios IT. Contamos con un equipo de expertos apasionados por la tecnología y comprometidos con la excelencia.
+						<strong>ULTIMA MILLA</strong> nació como un equipo de especialistas en comunicaciones, sistemas e integración para transformar necesidades operativas en soluciones tecnológicas concretas. Nuestra trayectoria incluye proyectos desde inicios de los 2000 hasta la actualidad, con presencia en sectores: gobierno provincial y nacional, salud, educación, agronegocios y obra civil (estadio, torres, desarrollos inmobiliarios), además de clientes privados como bancos y medios.
 					</p>
 				</div>
 
 				<div class="mb-8">
-					<h2 class="text-2xl font-bold text-gray-900 mb-4">Nuestra Visión</h2>
-					<p class="text-gray-800 leading-relaxed">
-						Aspiramos a ser líderes globales en la provisión de soluciones tecnológicas, reconocidos por nuestra innovación, calidad y compromiso con el éxito de nuestros clientes.
-					</p>
-				</div>
-
-				<div class="mb-8">
-					<h2 class="text-2xl font-bold text-gray-900 mb-4">Nuestros Valores</h2>
-					<ul class="text-gray-800 leading-relaxed space-y-2">
-						<li class="flex items-center">
-							<span class="text-red-500 mr-2">●</span>
-							Innovación constante
+					<h2 class="text-2xl font-bold text-gray-900 mb-4">Ofrecemos</h2>
+					<ul class="text-gray-800 leading-relaxed space-y-3">
+						<li class="flex items-start">
+							<span class="text-red-500 mr-2 mt-1">●</span>
+							<span>Ingeniería y operación de redes y telecomunicaciones (cableado estructurado, fibra, radioenlaces).</span>
 						</li>
-						<li class="flex items-center">
-							<span class="text-red-500 mr-2">●</span>
-							Excelencia en el servicio
+						<li class="flex items-start">
+							<span class="text-red-500 mr-2 mt-1">●</span>
+							<span>Desarrollo de software a medida e integraciones API para plataformas y comercio electrónico.</span>
 						</li>
-						<li class="flex items-center">
-							<span class="text-red-500 mr-2">●</span>
-							Integridad y transparencia
+						<li class="flex items-start">
+							<span class="text-red-500 mr-2 mt-1">●</span>
+							<span>Seguridad física y digital, gestión de incidentes y cumplimiento.</span>
 						</li>
-						<li class="flex items-center">
-							<span class="text-red-500 mr-2">●</span>
-							Colaboración y trabajo en equipo
+						<li class="flex items-start">
+							<span class="text-red-500 mr-2 mt-1">●</span>
+							<span>Servicios gestionados y soporte operativo con métricas y SLAs.</span>
 						</li>
-						<li class="flex items-center">
-							<span class="text-red-500 mr-2">●</span>
-							Responsabilidad social y ambiental
+						<li class="flex items-start">
+							<span class="text-red-500 mr-2 mt-1">●</span>
+							<span>Migraciones, modernización y optimización de infraestructura on-prem y cloud.</span>
 						</li>
 					</ul>
 				</div>
 
 				<div class="mb-8">
-					<h2 class="text-2xl font-bold text-gray-900 mb-4">Nuestro Equipo</h2>
-					<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-						<div class="text-center">
-							<img src="/blog-placeholder-3.jpg" alt="Líder 1" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover">
-							<h3 class="font-semibold text-lg">Juan Pérez</h3>
-							<p class="text-gray-600">CEO & Fundador</p>
-						</div>
-						<div class="text-center">
-							<img src="/blog-placeholder-4.jpg" alt="Líder 2" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover">
-							<h3 class="font-semibold text-lg">María González</h3>
-							<p class="text-gray-600">CTO</p>
-						</div>
-						<div class="text-center">
-							<img src="/blog-placeholder-5.jpg" alt="Líder 3" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover">
-							<h3 class="font-semibold text-lg">Carlos Rodríguez</h3>
-							<p class="text-gray-600">Director de Innovación</p>
-						</div>
-					</div>
+					<h2 class="text-2xl font-bold text-gray-900 mb-4">Antecedentes Verificables</h2>
+					<p class="text-gray-800 leading-relaxed">
+						El sitio muestra un portfolio con +400 proyectos documentados, clientes como Gobierno de Mendoza, AFIP, Banco Credicoop, CNN, Aeropuertos Argentina 2000, y proyectos en obra pública y eventos (ej.: trabajos vinculados a infraestructura deportiva y grandes obras). El sitio publica casos y fichas técnicas con años, presupuestos y tecnologías empleadas.
+					</p>
 				</div>
 
-				<div>
-					<p class="text-gray-800 leading-relaxed">
-						En ULTIMA MILLA, no solo ofrecemos servicios IT; creamos asociaciones duraderas con nuestros clientes, ayudándoles a navegar en el cambiante mundo digital y a alcanzar sus objetivos de negocio.
-					</p>
+				<div class="mb-8">
+					<h2 class="text-2xl font-bold text-gray-900 mb-4">Diferencial Competitivo</h2>
+					<div class="space-y-4">
+						<div>
+							<h3 class="text-lg font-semibold text-gray-900 mb-2">ADN regional, capacidad nacional</h3>
+							<p class="text-gray-800 leading-relaxed">
+								Operación desde Mendoza con experiencia en entornos críticos y licitaciones públicas.
+							</p>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-gray-900 mb-2">Enfoque en tecnología abierta</h3>
+							<p class="text-gray-800 leading-relaxed">
+								Sin dependencia de "clientes cautivos" por licencias extranjeras (modelo de soluciones abiertas descrito en el sitio).
+							</p>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-gray-900 mb-2">Transparencia</h3>
+							<p class="text-gray-800 leading-relaxed">
+								Documentación pública de proyectos, presupuestos y resultados que permiten evaluar impacto y trazabilidad.
+							</p>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

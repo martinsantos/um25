@@ -8,7 +8,7 @@ import { serviciosReales, serviciosPorId } from '../../../data/servicios_reales_
 import { getServiceImageUrl, imageMapping } from '../../../utils/imageUtils.js';
 
 // Importar utilidades necesarias para Directus
-const PUBLIC_DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://directus-app:8055';
+const PUBLIC_DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://directus:8055';
 const DIRECTUS_TOKEN = import.meta.env.PUBLIC_DIRECTUS_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
 
 // Obtener parámetros de la URL
@@ -21,7 +21,11 @@ try {
   // Usar acceso público sin token
   const url = `${PUBLIC_DIRECTUS_URL}/items/Servicios/${id}`;
   console.log('Fetching from Directus:', url);
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${DIRECTUS_TOKEN}`
+    }
+  });
   if (response.ok) {
     const data = await response.json();
     servicio = data.data;

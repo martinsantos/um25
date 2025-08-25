@@ -57,7 +57,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8055/server/health"]
+      test: ["CMD-SHELL", "node -e 'require(\"http\").get(\"http://localhost:8055/server/health\", r => { process.exit(r.statusCode === 200 ? 0 : 1); }).on(\"error\", () => process.exit(1));'"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -71,7 +71,9 @@ services:
     environment:
       NODE_ENV: production
       DIRECTUS_URL: http://directus:8055
-      DIRECTUS_TOKEN: ${DIRECTUS_TOKEN}
+      PUBLIC_DIRECTUS_URL: http://directus:8055
+      DIRECTUS_STATIC_TOKEN: ${DIRECTUS_STATIC_TOKEN}
+      PUBLIC_DIRECTUS_TOKEN: ${DIRECTUS_STATIC_TOKEN}
       HOST: 0.0.0.0
       PORT: 4321
       PUBLIC_SITE_URL: https://www.umbot.com.ar

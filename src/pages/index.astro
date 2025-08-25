@@ -3,6 +3,11 @@ import Layout from '../layouts/Layout.astro';
 import ServicesList from '../components/ServicesList.astro';
 import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
 
+// SEO metadata optimizado para página principal
+const title = "ULTIMA MILLA | Especialistas en Comunicaciones, Sistemas e Integración - Mendoza";
+const description = "ULTIMA MILLA: transformación digital y tecnología desde los 2000. +400 proyectos con Gobierno de Mendoza, AFIP, Banco Credicoop. Redes, software, seguridad y servicios gestionados.";
+const keywords = "ultima milla, transformación digital, comunicaciones, sistemas, redes, telecomunicaciones, software a medida, seguridad informática, mendoza, argentina, gobierno, afip";
+
 // Datos hardcodeados para servicios destacados
 const services = {
   data: [
@@ -40,7 +45,7 @@ const antecedentes = {
 };
 ---
 
-<Layout title="ULTiMA MILLA - Transformación Digital y Tecnología">
+<Layout title={title} description={description} keywords={keywords}>
   <!-- Hero Section -->
   <header id="banner" class="relative w-full h-screen overflow-hidden">
     <div class="absolute inset-0 bg-cover bg-center hero-background">

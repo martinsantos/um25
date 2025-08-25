@@ -5,11 +5,20 @@ import '../styles/theme.css';
 
 export interface Props {
   title: string;
+  description?: string;
+  keywords?: string;
   image?: string;
   services?: any[];
+  canonical?: string;
 }
 
-const { title, image, services } = Astro.props;
+const { title, description, keywords, image, services, canonical } = Astro.props;
+
+// SEO defaults
+const defaultDescription = "ULTIMA MILLA - Especialistas en comunicaciones, sistemas e integración. +400 proyectos documentados con clientes como Gobierno de Mendoza, AFIP, Banco Credicoop.";
+const defaultKeywords = "ultima milla, comunicaciones, sistemas, redes, telecomunicaciones, software, mendoza, argentina";
+const siteUrl = "https://ultimamilla.com.ar";
+const currentUrl = canonical || `${siteUrl}${Astro.url.pathname}`;
 ---
 
 <!DOCTYPE html>
@@ -17,10 +26,60 @@ const { title, image, services } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <title>{title}</title>
+    <meta name="description" content={description || defaultDescription} />
+    <meta name="keywords" content={keywords || defaultKeywords} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={currentUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description || defaultDescription} />
+    <meta property="og:image" content={image || `${siteUrl}/images/og-default.jpg`} />
+    <meta property="og:site_name" content="ULTIMA MILLA" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={currentUrl} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description || defaultDescription} />
+    <meta property="twitter:image" content={image || `${siteUrl}/images/og-default.jpg`} />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href={currentUrl} />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="/global.css" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "ULTIMA MILLA",
+      "url": "https://ultimamilla.com.ar",
+      "logo": "https://ultimamilla.com.ar/images/um-logo.png",
+      "description": "Especialistas en comunicaciones, sistemas e integración desde los 2000",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Mendoza",
+        "addressCountry": "AR"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "url": "https://ultimamilla.com.ar/contacto"
+      },
+      "sameAs": [
+        "https://ultimamilla.com.ar"
+      ]
+    }
+    </script>
   </head>
   <body>
     <header style={image ? `background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${image}); background-size: cover; background-position: center; background-repeat: no-repeat; height: 300px;` : ''}>

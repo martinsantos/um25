@@ -1,0 +1,23 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://ultimamilla.com.ar/sitemap.xml
+
+# Disallow admin areas
+Disallow: /admin/
+Disallow: /directus/
+Disallow: /_astro/
+Disallow: /api/
+
+# Allow important pages
+Allow: /
+Allow: /nosotros
+Allow: /servicios
+Allow: /antecedentes
+Allow: /contacto
+Allow: /servicios/*
+Allow: /antecedentes/*
+
+# Crawl delay
+Crawl-delay: 1

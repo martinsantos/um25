@@ -6,14 +6,14 @@ import sitemap from '@astrojs/sitemap';
 import alpinejs from '@astrojs/alpinejs';
 
 export default defineConfig({
-  // SSR habilitado para producción
+  // Configuración SSR y Adaptador
   output: 'server',
   adapter: node({
     mode: 'standalone'
   }),
 
   // URL base para generación de sitemap y rutas absolutas
-  site: process.env.PUBLIC_SITE_URL || 'https://www.ultimamilla.com.ar',
+  site: process.env.PUBLIC_SITE_URL || 'http://localhost:3000',
 
   // Integraciones
   integrations: [
@@ -27,26 +27,6 @@ export default defineConfig({
   server: {
     host: true,
     port: 4321,
-    allowedHosts: [
-      'ultimamilla.com.ar',
-      'www.ultimamilla.com.ar',
-      'umbot.com.ar',
-      'www.umbot.com.ar',
-      'localhost',
-      '127.0.0.1',
-      '23.105.176.45',
-      // Explicit host:port variants for strict reverse proxy environments
-      'ultimamilla.com.ar:443',
-      'www.ultimamilla.com.ar:443',
-      'umbot.com.ar:443',
-      'www.umbot.com.ar:443',
-      '23.105.176.45:443',
-      'ultimamilla.com.ar:80',
-      'www.ultimamilla.com.ar:80',
-      'umbot.com.ar:80',
-      'www.umbot.com.ar:80',
-      '23.105.176.45:80'
-    ]
   },
 
   // Optimizaciones para producción
@@ -58,52 +38,6 @@ export default defineConfig({
 
   // Configuración de Vite con optimizaciones
   vite: {
-    server: {
-      host: true,
-      allowedHosts: [
-        'ultimamilla.com.ar',
-        'www.ultimamilla.com.ar',
-        'umbot.com.ar',
-        'www.umbot.com.ar',
-        'localhost',
-        '127.0.0.1',
-        '23.105.176.45',
-        // Explicit host:port variants for strict reverse proxy environments
-        'ultimamilla.com.ar:443',
-        'www.ultimamilla.com.ar:443',
-        'umbot.com.ar:443',
-        'www.umbot.com.ar:443',
-        '23.105.176.45:443',
-        'ultimamilla.com.ar:80',
-        'www.ultimamilla.com.ar:80',
-        'umbot.com.ar:80',
-        'www.umbot.com.ar:80',
-        '23.105.176.45:80'
-      ]
-    },
-    preview: {
-      host: true,
-      allowedHosts: [
-        'ultimamilla.com.ar',
-        'www.ultimamilla.com.ar',
-        'umbot.com.ar',
-        'www.umbot.com.ar',
-        'localhost',
-        '127.0.0.1',
-        '23.105.176.45',
-        // Explicit host:port variants for strict reverse proxy environments
-        'ultimamilla.com.ar:443',
-        'www.ultimamilla.com.ar:443',
-        'umbot.com.ar:443',
-        'www.umbot.com.ar:443',
-        '23.105.176.45:443',
-        'ultimamilla.com.ar:80',
-        'www.ultimamilla.com.ar:80',
-        'umbot.com.ar:80',
-        'www.umbot.com.ar:80',
-        '23.105.176.45:80'
-      ]
-    },
     resolve: {
       alias: {
         '@': '/src'
