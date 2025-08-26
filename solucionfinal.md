@@ -10507,42 +10507,49 @@ Se reemplazó completamente el contenido genérico por información específica 
 
 ---
 
-## Optimización SEO Integral (Agosto 2025)
+### Actualización de Página /nosotros y Mejoras SEO Integrales (Agosto 2025)
 
-### Objetivo
-Implementar mejoras completas de SEO en toda la web basándose en el nuevo contenido corporativo actualizado, para mejorar el posicionamiento en buscadores y la visibilidad online.
+Durante esta sesión se realizaron mejoras significativas en la página /nosotros y optimizaciones SEO completas:
 
-### Mejoras Implementadas
+#### Contenido de Página /nosotros
+- **Actualización completa del contenido** con nuevo texto corporativo detallado
+- **Estructura mejorada** con secciones: Descripción, Servicios, Antecedentes Verificables, Diferencial Competitivo
+- **Corrección de HTML malformado** que causaba problemas de layout
+- **Optimización de presentación** con mejor formato y legibilidad
 
-#### 1. Layout Principal Optimizado (`src/layouts/Layout.astro`)
-**Meta Tags Completos:**
-- Meta description dinámica con fallback corporativo
-- Keywords específicos por página
-- Viewport responsive optimizado
+#### Mejoras SEO Implementadas
+- **Meta tags dinámicos** en Layout.astro: title, description, keywords
+- **Open Graph y Twitter Cards** para mejor sharing en redes sociales
+- **Structured data JSON-LD** para organización (schema.org)
+- **Canonical URLs** y favicon optimizado
+- **Sitemap.xml actualizado** con URLs correctas y prioridades
+- **Robots.txt configurado** con reglas de crawling apropiadas
 
-**Open Graph y Twitter Cards:**
-- Implementación completa de meta tags sociales
-- Imágenes dinámicas con fallback
-- URLs canónicas automáticas
-- Site name y tipo de contenido
+#### Optimización de Imágenes
+- **Sistema de imágenes aleatorias** implementado en homepage con 15 imágenes tecnológicas de alta calidad
+- **Rotación automática** de hero images para mejor experiencia visual
+- **URLs de Unsplash optimizadas** con parámetros de calidad y formato
 
-**Structured Data (JSON-LD):**
-- Schema.org Organization implementado
-- Información corporativa estructurada
-- Datos de contacto y ubicación
-- URLs de redes sociales
+#### Sistema de Imágenes Aleatorias en /nosotros (Implementación Final)
+- **Array de 15 imágenes tecnológicas** sincronizado con homepage
+- **Selección aleatoria server-side** en cada carga de página
+- **Imágenes de alta calidad** de Unsplash con temática tecnológica profesional
+- **Consistencia visual** mantenida entre homepage y página /nosotros
+- **Experiencia dinámica** que mejora el engagement del usuario
 
-#### 2. Página Principal (`src/pages/index.astro`)
-**SEO Optimizado:**
-- Title: "ULTIMA MILLA | Especialistas en Comunicaciones, Sistemas e Integración - Mendoza"
-- Description: Incluye keywords principales y clientes destacados
-- Keywords: Términos específicos del sector y ubicación geográfica
+#### Despliegue y Sincronización
+- **Rebuild completo** del contenedor Docker en producción sin cache
+- **Verificación de funcionamiento** en ultimamilla.com.ar con imágenes rotando correctamente
+- **Sincronización exitosa** con repositorio GitHub martinsantos/um25
+- **Commit estructurado** con mensaje descriptivo de cambios implementados
+
+**Estado Final**: Todos los cambios están activos en producción. El sitio presenta una imagen profesional mejorada con SEO optimizado y sistema de imágenes aleatorias funcionando correctamente en la página /nosotros. La implementación está completamente sincronizada entre repositorio local, GitHub y servidor de producción.s específicos del sector y ubicación geográfica
 
 #### 3. Página Nosotros (`src/pages/nosotros.astro`)
 **Meta Tags Específicos:**
 - Title optimizado con especialización técnica
 - Description con información corporativa clave
-- Keywords enfocados en servicios y ubicación
+{{ ... }}
 
 #### 4. Archivos de Indexación
 **Sitemap.xml:**
