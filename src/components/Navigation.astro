@@ -1,7 +1,4 @@
 ---
-import { Image } from 'astro:assets';
-import logoImage from '/src/assets/images/um-logo.png';
-
 const currentPath = Astro.url.pathname;
 
 const navigation = [
@@ -15,12 +12,11 @@ const navigation = [
 <nav class="navigation">
     <div class="logo">
         <a href="/">
-            <Image 
-                src={logoImage} 
+            <img 
+                src="/images/um-logo.png" 
                 alt="Logo Ultima Milla"
-                width={200}
-                height={70}
-                quality={100}
+                width="200"
+                height="70"
                 class="logo-image"
             />
         </a>
