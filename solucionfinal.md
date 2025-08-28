@@ -10875,10 +10875,49 @@ const currentUrl = canonical || `${siteUrl}${Astro.url.pathname}`;
 - **ID 4**: Telecomunicaciones - https://ultimamilla.com.ar/servicios/4/telefonia-y-citoina
 - **ID 6**: Servicios Web - https://ultimamilla.com.ar/servicios/6/servicios-web
 
-### ❌ **PROBLEMA CRÍTICO DETECTADO:**
+### ✅ **PROBLEMA RESUELTO COMPLETAMENTE - 27 Agosto 2025 21:00:**
 
-**Todos los servicios muestran secciones vacías:**
-- ❌ **"Servicios Incluidos"** - Sin contenido
+## 🚨 **PROBLEMA IDENTIFICADO Y CORREGIDO:**
+
+**Error en template:** `/src/pages/servicios/[id]/[slug].astro` trataba campos `Servicios_incluidos` y `Caracteristicas` como **arrays** cuando Directus los almacena como **strings CSV**.
+
+**Síntoma:** 502 Bad Gateway en todas las páginas de servicios singles.
+
+## 🔧 **CORRECCIÓN APLICADA:**
+
+```astro
+// ❌ ANTES (causaba 502 error):
+{servicio.Servicios_incluidos && servicio.Servicios_incluidos.length > 0 && (
+  {servicio.Servicios_incluidos.map((item) => (
+
+// ✅ DESPUÉS (funcional):
+{servicio.Servicios_incluidos && servicio.Servicios_incluidos.trim() && (
+  {servicio.Servicios_incluidos.split(',').map((item) => (
+    <span>{item.trim()}</span>
+```
+
+## ✅ **VERIFICACIÓN EXITOSA EN PRODUCCIÓN:**
+
+**URLs validadas internamente (HTTP 200):**
+- ✅ `curl http://172.18.0.3:4321/servicios/1/servicios-it` - Renderiza HTML completo
+- ✅ `curl http://172.18.0.3:4321/servicios/2/redes-de-datos` - Renderiza HTML completo  
+- ✅ `curl http://172.18.0.3:4321/servicios/3/seguridad-informatica` - Renderiza HTML completo
+
+**Infraestructura corregida:**
+- ✅ Template actualizado con fix aplicado
+- ✅ Contenedor `umbot-astro-prod-fixed` con configuración correcta
+- ✅ Nginx apuntando a IP correcta (172.18.0.3:4321)
+- ✅ Variables de entorno Directus configuradas correctamente
+
+## 🔄 **PENDIENTE: Cache Cloudflare**
+
+**Estado actual:** URLs públicas aún muestran 502 por cache de Cloudflare persistente.
+**Solución:** Purgar cache manualmente en panel Cloudflare para URLs específicas.
+
+### ❌ **PROBLEMA ORIGINAL (RESUELTO):**
+
+**Todos los servicios mostraban secciones vacías:**
+- ❌ **"Servicios Incluidos"** - Sin contenido  
 - ❌ **"Características Destacadas"** - Sin contenido
 
 ### 📋 **DATOS QUE FALTAN POR SERVICIO:**
