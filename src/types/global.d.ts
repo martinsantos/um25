@@ -1,15 +1,38 @@
 // Tipos globales para el proyecto
 
-declare namespace NodeJS {
-  interface ProcessEnv {
-    NODE_ENV: 'development' | 'production' | 'test';
-    PUBLIC_DIRECTUS_URL: string;
-    DIRECTUS_STATIC_TOKEN: string;
-  }
+// Tipos para Directus
+export interface DirectusItem {
+  id: number;
+  status?: string;
+  date_created?: string;
+  date_updated?: string;
+}
+
+export interface Antecedente extends DirectusItem {
+  Titulo: string;
+  Descripcion?: string;
+  Cliente?: string;
+  Fecha?: string;
+  Area?: string;
+  Imagen?: string;
+  Unidad_de_negocio?: string;
+}
+
+export interface Servicio extends DirectusItem {
+  Titulo: string;
+  Descripcion?: string;
+  Imagen?: string;
+  Icono?: string;
+  Orden?: number;
+}
+
+// Tipos para componentes Astro
+export interface AstroComponentProps {
+  [key: string]: any;
 }
 
 declare module '*.astro' {
-  const Component: any;
+  const Component: (props: AstroComponentProps) => any;
   export default Component;
 }
 

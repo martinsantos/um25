@@ -1,55 +1,38 @@
 ---
-// Componente para mostrar la lista de servicios
+export interface Props {
+  services: any[];
+}
+
 const { services } = Astro.props;
 
-// BREAKTHROUGH DEFINITIVO: Mapeo usando rutas normales - nginx corregido sirve imágenes desde contenedor Astro
-// Nginx ya deriva correctamente /images/services/ al contenedor umbot-astro-static
-const imageMapping = {
-  1: '/images/services/servicios-it.jpg',        // Servicios IT
-  2: '/images/services/redes-comunicaciones.jpg', // Redes de datos  
-  3: '/images/services/ciberseguridad.jpg',       // Seguridad Informática
-  4: '/images/services/telefonia.jpg',            // Telefonía y Citofonía
-  5: '/images/services/servicios-it.jpg',         // Software a medida (fallback)
-  6: '/images/services/servicios-web.jpg'         // Servicios Web
-};
-
-// RESTAURADO: Función para obtener URL de imagen por ID de servicio directo
-const getImageUrl = (serviceId) => {
-  // Usar mapeo directo por ID de servicio (las imágenes originales existen)
-  if (imageMapping[serviceId]) {
-    return imageMapping[serviceId];
+// Función para obtener URL de imagen por servicio
+const getImageUrl = (service: any): string => {
+  if (service.Imagen) {
+    return `/images/services/${service.Imagen}`;
   }
-  
-  // Fallback a imagen por defecto
   return '/images/services/default-service.jpg';
 };
 
+// Función para crear slug SEO-friendly
+function createSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+}
+
 // Función para limitar el texto
-const truncateText = (text, maxLength = 100) => {
+const truncateText = (text: string, maxLength: number = 100): string => {
   if (!text) return '';
   return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
 };
 
-// Función para generar slugs
-const generateSlug = (text = '') => {
-  if (text === null || typeof text === 'undefined') {
-    console.warn('[generateSlug] Input is null/undefined, returning "item".');
-    return 'item';
-  }
-  const slug = String(text)
-    .toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\w\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 50);
-  return slug || 'item';
-};
-
 // Función para obtener el color del ícono basado en el índice
-const getIconColor = (index) => {
+const getIconColor = (index: number): string => {
   const colors = [
     'text-red-500',
     'text-blue-500',

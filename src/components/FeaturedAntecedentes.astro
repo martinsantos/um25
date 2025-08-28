@@ -1,21 +1,31 @@
 ---
-import EnhancedImage from "./EnhancedImage.astro";
+export interface Props {
+  antecedentes: any[];
+}
 
-// Componente para mostrar antecedentes destacados
 const { antecedentes } = Astro.props;
 
 // Función para formatear la fecha
-const formatDate = (dateString) => {
+const formatDate = (dateString: string): string => {
   if (!dateString) return '';
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(dateString).toLocaleDateString('es-ES', options);
 };
 
-// Import shared slug utility for consistency
-import { generateSlug } from '../utils/slugUtils.js';
+// Función para crear slug SEO-friendly
+function createSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+}
 
 // Función para generar un color único basado en el ID del antecedente
-const generateUniqueColor = (id) => {
+const generateUniqueColor = (id: number): string => {
   const colors = [
     'from-blue-500 to-blue-700',
     'from-green-500 to-green-700', 

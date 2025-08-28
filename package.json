@@ -28,6 +28,8 @@
     "validate:images": "./scripts/validate-images.sh",
     "validate:api": "./scripts/test-connectivity.sh",
     "migration:report": "node scripts/generate-migration-report.js",
+    "migrate:directus": "node scripts/migrate-to-directus.js",
+    "migrate:dry-run": "node scripts/migrate-to-directus.js --dry-run",
     "test:migration": "npm run validate:database && npm run validate:images && npm run validate:api",
     "test:e2e:production": "NODE_ENV=production npm run test:e2e"
   },
@@ -35,7 +37,7 @@
     "@astrojs/alpinejs": "^0.3.0",
     "@astrojs/mdx": "^4.2.4",
     "@astrojs/netlify": "^6.3.2",
-    "@astrojs/node": "^9.2.1",
+    "@astrojs/node": "^9.4.3",
     "@astrojs/rss": "^3.0.0",
     "@astrojs/sitemap": "^3.0.0",
     "@astrojs/tailwind": "^5.0.0",

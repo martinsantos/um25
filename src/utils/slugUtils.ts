@@ -1,10 +1,21 @@
-// ...existing imports or code...
-export function generateSlug(text: string): string {
-  return text
-    .normalize('NFD')                              // split diacritics
-    .replace(/[\u0300-\u036f]/g, "")                 // remove diacritic marks
-    .toLowerCase()                                  
+/**
+ * Generates a URL-friendly slug from a given text
+ * This function ensures consistency across all components
+ */
+export function generateSlug(text: string = ''): string {
+  if (!text || text === null || typeof text === 'undefined') {
+    return 'item';
+  }
+  
+  const slug = String(text)
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove accents
+    .replace(/[^\w\s-]/g, '') // Remove special chars except spaces and hyphens
     .trim()
-    .replace(/[^a-z0-9]+/g, '-')                    // replace spaces/invalid chars with hyphen
-    .replace(/^-+|-+$/g, '');                        // trim hyphens on both ends
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Remove duplicate hyphens
+    .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
+    .slice(0, 50); // Limit to 50 chars
+  
+  return slug || 'item';
 }

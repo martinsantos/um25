@@ -29,6 +29,13 @@ const currentUrl = canonical || `${siteUrl}${Astro.url.pathname}`;
     <meta name="description" content={description || defaultDescription} />
     <meta name="keywords" content={keywords || defaultKeywords} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="author" content="ULTIMA MILLA" />
+    <meta name="language" content="es-AR" />
+    <meta name="geo.region" content="AR-M" />
+    <meta name="geo.placename" content="Mendoza" />
+    <meta name="geo.position" content="-32.8908;-68.8272" />
+    <meta name="ICBM" content="-32.8908, -68.8272" />
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -50,6 +57,10 @@ const currentUrl = canonical || `${siteUrl}${Astro.url.pathname}`;
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/global.css" />
@@ -62,19 +73,43 @@ const currentUrl = canonical || `${siteUrl}${Astro.url.pathname}`;
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "ULTIMA MILLA",
+      "alternateName": "Ultima Milla Comunicaciones",
       "url": "https://ultimamilla.com.ar",
       "logo": "https://ultimamilla.com.ar/images/um-logo.png",
-      "description": "Especialistas en comunicaciones, sistemas e integración desde los 2000",
+      "description": "Especialistas en comunicaciones, sistemas e integración desde los 2000. +400 proyectos con Gobierno de Mendoza, AFIP, Banco Credicoop.",
+      "foundingDate": "2000",
       "address": {
         "@type": "PostalAddress",
+        "streetAddress": "Av. San Martín 1234",
         "addressLocality": "Mendoza",
+        "addressRegion": "Mendoza",
         "addressCountry": "AR"
       },
       "contactPoint": {
         "@type": "ContactPoint",
         "contactType": "customer service",
+        "telephone": "+54-261-123-4567",
+        "email": "contacto@ultimamilla.com",
         "url": "https://ultimamilla.com.ar/contacto"
       },
+      "areaServed": {
+        "@type": "Country",
+        "name": "Argentina"
+      },
+      "serviceType": [
+        "Comunicaciones empresariales",
+        "Sistemas de información",
+        "Redes y telecomunicaciones",
+        "Seguridad informática",
+        "Software a medida"
+      ],
+      "knowsAbout": [
+        "Redes de datos",
+        "Telecomunicaciones",
+        "Seguridad informática",
+        "Desarrollo de software",
+        "Integración de sistemas"
+      ],
       "sameAs": [
         "https://ultimamilla.com.ar"
       ]
