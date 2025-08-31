@@ -1,12 +1,15 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import SEOHead from '../components/SEO/SEOHead.astro';
 import ServicesList from '../components/ServicesList.astro';
 import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
 
-// SEO metadata optimizado para página principal
-const title = "ULTIMA MILLA | Especialistas en Comunicaciones, Sistemas e Integración - Mendoza";
-const description = "ULTIMA MILLA: transformación digital y tecnología desde los 2000. +400 proyectos con Gobierno de Mendoza, AFIP, Banco Credicoop. Redes, software, seguridad y servicios gestionados.";
-const keywords = "ultima milla, transformación digital, comunicaciones, sistemas, redes, telecomunicaciones, software a medida, seguridad informática, mendoza, argentina, gobierno, afip";
+// SEO metadata optimizado para página principal con enfoque local
+const seoData = {
+  title: "ULTIMA MILLA | Empresa IT Líder en Mendoza | Servicios Tecnológicos +20 Años",
+  description: "ULTIMA MILLA: empresa líder en servicios IT en Mendoza desde 2000. +469 proyectos exitosos con Gobierno de Mendoza, AFIP, empresas vitivinícolas. Infraestructura, redes, seguridad informática y desarrollo web.",
+  keywords: "ultima milla mendoza, empresa IT mendoza, servicios tecnológicos mendoza, transformación digital mendoza, comunicaciones mendoza, redes datos mendoza, seguridad informática mendoza, desarrollo web mendoza, argentina"  
+};
 
 // Array de imágenes tecnológicas para sección Nosotros (mismo que en /nosotros)
 const techImages = [
@@ -67,15 +70,42 @@ const antecedentes = {
 };
 ---
 
-<Layout title={title} description={description} keywords={keywords}>
-  <!-- Hero Section -->
+<Layout>
+  <SEOHead 
+    title={seoData.title}
+    description={seoData.description}
+    keywords={seoData.keywords}
+    canonical="https://ultimamilla.com.ar"
+    ogType="website"
+  />
+  <!-- Hero Section - Terminal Linux -->
   <header id="banner" class="relative w-full h-screen overflow-hidden">
     <div class="absolute inset-0 bg-cover bg-center hero-background">
-      <div class="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-purple-900/70 to-blue-800/80"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-black/90 to-gray-800/95"></div>
+      <div class="absolute inset-0 bg-black/30"></div>
     </div>
     <div class="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
-      <h1 id="dynamicText" class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight drop-shadow-lg hero-title"></h1>
-      <p class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto drop-shadow-md hero-subtitle">Transformamos tu negocio con tecnología que puedes pagar.</p>
+      <!-- Terminal Container con altura fija -->
+      <div class="terminal-container max-w-4xl w-full mb-8">
+        <div id="terminalOutput" class="terminal-output text-left space-y-1"></div>
+      </div>
+      
+      <!-- Subtítulo actualizado -->
+      <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto drop-shadow-md hero-subtitle">
+        Transformamos tu negocio con <strong class="text-green-400">tecnología abierta</strong>.<br>
+        <span class="text-white font-medium">ULTIMA MILLA: soluciones tecnológicas integrales.</span>
+      </p>
+      <div class="flex flex-wrap justify-center gap-6 mb-8 text-sm md:text-base">
+        <div class="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
+          <span class="font-bold text-yellow-400">+469</span> Proyectos Exitosos
+        </div>
+        <div class="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
+          <span class="font-bold text-yellow-400">+20</span> Años en Mendoza
+        </div>
+        <div class="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
+          <span class="font-bold text-yellow-400">24/7</span> Soporte Local
+        </div>
+      </div>
       <a 
         href="#contacto" 
         class="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
@@ -98,9 +128,12 @@ const antecedentes = {
     <section id="about-us" class="py-16 bg-gray-50">
       <div class="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
         <div>
-          <h2 class="text-4xl font-bold text-gray-800 mb-6">Sobre Nosotros</h2>
+          <h2 class="text-4xl font-bold text-gray-800 mb-6">ULTIMA MILLA en Mendoza</h2>
+          <p class="text-lg text-gray-700 mb-6">
+            Somos la <strong>empresa líder en servicios IT de Mendoza</strong> desde el año 2000. Nuestro equipo apasionado por la tecnología se dedica a impulsar la transformación digital de empresas mendocinas.
+          </p>
           <p class="text-lg text-gray-700 mb-8">
-            Somos un equipo apasionado por la tecnología, dedicado a impulsar la transformación digital de las empresas. Nuestra misión es ofrecer soluciones innovadoras y eficientes que generen un impacto positivo en el crecimiento de nuestros clientes.
+            Con presencia local y <strong>+469 proyectos exitosos</strong>, ofrecemos soluciones innovadoras que generan impacto real en el crecimiento de nuestros clientes en Mendoza y la región.
           </p>
           <a href="/nosotros" class="inline-block bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition">Saber Más</a>
         </div>
@@ -122,7 +155,7 @@ const antecedentes = {
       <div class="container mx-auto px-4">
         <div class="text-center mb-12">
           <span class="text-red-500 font-semibold">Nuestras Soluciones</span>
-          <h2 class="text-4xl font-bold text-gray-800 mt-2 mb-4">Servicios Profesionales</h2>
+          <h2 class="text-4xl font-bold text-gray-800 mt-2 mb-4">Servicios IT Profesionales en Mendoza</h2>
           <div class="w-20 h-1 bg-red-500 mx-auto"></div>
         </div>
         
@@ -144,8 +177,8 @@ const antecedentes = {
       <div class="container mx-auto px-4">
         <div class="text-center mb-12">
           <span class="text-red-500 font-semibold">Nuestro Trabajo</span>
-          <h2 class="text-4xl font-bold text-gray-800 mt-2 mb-4">Casos de Estudio</h2>
-          <p class="text-gray-600 max-w-2xl mx-auto">Conoce algunos de nuestros proyectos más destacados y cómo hemos ayudado a nuestros clientes a alcanzar sus objetivos.</p>
+          <h2 class="text-4xl font-bold text-gray-800 mt-2 mb-4">Casos de Éxito en Mendoza</h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">Conoce algunos de nuestros <strong>+469 proyectos exitosos</strong> en Mendoza y cómo hemos ayudado a empresas locales a alcanzar sus objetivos tecnológicos.</p>
           <div class="w-20 h-1 bg-red-500 mx-auto mt-4"></div>
         </div>
         
@@ -171,8 +204,8 @@ const antecedentes = {
         <div class="max-w-4xl mx-auto bg-gray-50 rounded-xl shadow-lg overflow-hidden">
           <div class="md:flex">
             <div class="md:w-1/2 bg-red-500 text-white p-8 md:p-12">
-              <h2 class="text-3xl font-bold mb-4">¿Listo para comenzar?</h2>
-              <p class="mb-6">Contáctanos para discutir cómo podemos ayudarte a alcanzar tus objetivos tecnológicos.</p>
+              <h2 class="text-3xl font-bold mb-4">¿Listo para comenzar tu transformación digital?</h2>
+              <p class="mb-6">Contáctanos para una <strong>consulta gratuita</strong> en Mendoza y descubre cómo podemos ayudarte a alcanzar tus objetivos tecnológicos.</p>
               <div class="space-y-4">
                 <div class="flex items-start">
                   <div class="flex-shrink-0 mt-1">
@@ -229,36 +262,88 @@ const antecedentes = {
 
   <!-- Scripts y Estilos -->
   <script>
-    const textArray = [
-      'ULTIMA MILLA@root:~$ ./deploy_solutions.sh',
-      'Transformamos tu negocio.',
-      'Tecnología que puedes pagar.'
+    // Secuencia completa de terminal Linux
+    const terminalSequence = [
+      { text: 'ULTIMA MILLA@root:~$ ', delay: 0, class: 'terminal-prompt' },
+      { text: 'sudo ultimamilla.py', delay: 100, class: 'terminal-command' },
+      { text: '', delay: 800, class: 'terminal-output' }, // Line break
+      { text: '🔒 Inicializando Seguridad Informática...', delay: 600, class: 'terminal-output' },
+      { text: '✓ Protección integral de sistemas y datos activada', delay: 800, class: 'terminal-success' },
+      { text: '', delay: 400, class: 'terminal-output' },
+      { text: '🌐 Configurando Redes y Comunicaciones...', delay: 600, class: 'terminal-output' },
+      { text: '✓ Infraestructura de red avanzada establecida', delay: 800, class: 'terminal-success' },
+      { text: '', delay: 400, class: 'terminal-output' },
+      { text: '💻 Desplegando Software y Servicios...', delay: 600, class: 'terminal-output' },
+      { text: '✓ Soluciones personalizadas implementadas', delay: 800, class: 'terminal-success' },
+      { text: '', delay: 400, class: 'terminal-output' },
+      { text: '🚀 RESULTADO EXITOSO! Listo para desplegar.', delay: 1000, class: 'terminal-result' },
     ];
-    let currentIndex = 0, isDeleting = false, dynamicText = '';
-    const textElement = document.getElementById('dynamicText');
     
-    function handleTyping() {
-      const currentText = textArray[currentIndex % textArray.length];
-      dynamicText = isDeleting ? currentText.substring(0, dynamicText.length - 1) : currentText.substring(0, dynamicText.length + 1);
+    let currentLine = 0;
+    let currentChar = 0;
+    let isComplete = false;
+    
+    const terminalOutput = document.getElementById('terminalOutput');
+    
+    function typeTerminalSequence() {
+      if (currentLine >= terminalSequence.length) {
+        isComplete = true;
+        // Reiniciar después de 5 segundos
+        setTimeout(() => {
+          terminalOutput.innerHTML = '';
+          currentLine = 0;
+          currentChar = 0;
+          isComplete = false;
+          typeTerminalSequence();
+        }, 5000);
+        return;
+      }
       
-      // Aplicar estilo de terminal solo al primer texto
-      if (currentIndex % textArray.length === 0) {
-        textElement.innerHTML = `<span class="terminal-text">${dynamicText}</span><span class="terminal-cursor">|</span>`;
+      const currentSequence = terminalSequence[currentLine];
+      const currentText = currentSequence.text;
+      
+      if (currentChar <= currentText.length) {
+        const displayText = currentText.substring(0, currentChar);
+        
+        // Crear o actualizar la línea actual
+        let currentLineElement = document.getElementById(`terminal-line-${currentLine}`);
+        if (!currentLineElement) {
+          currentLineElement = document.createElement('div');
+          currentLineElement.id = `terminal-line-${currentLine}`;
+          currentLineElement.className = `terminal-line ${currentSequence.class}`;
+          terminalOutput.appendChild(currentLineElement);
+        }
+        
+        // Agregar cursor parpadeante si es la línea actual
+        if (currentChar < currentText.length) {
+          currentLineElement.innerHTML = displayText + '<span class="terminal-cursor">█</span>';
+        } else {
+          currentLineElement.innerHTML = displayText;
+        }
+        
+        currentChar++;
+        setTimeout(typeTerminalSequence, currentSequence.delay || 100);
       } else {
-        textElement.innerHTML = `<span class="hero-title">${dynamicText}</span>`;
+        // Pasar a la siguiente línea
+        currentLine++;
+        currentChar = 0;
+        setTimeout(typeTerminalSequence, terminalSequence[currentLine-1]?.delay || 300);
       }
-      
-      if (!isDeleting && dynamicText === currentText) { 
-        setTimeout(() => isDeleting = true, 2000); 
-      }
-      if (isDeleting && dynamicText === '') { 
-        isDeleting = false; 
-        currentIndex++; 
-      }
-      setTimeout(handleTyping, isDeleting ? 100 : 150);
     }
     
-    handleTyping();
+    // Iniciar la secuencia cuando se carga la página
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(typeTerminalSequence, 500);
+    });
+    
+    // Si el DOM ya está cargado
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(typeTerminalSequence, 500);
+      });
+    } else {
+      setTimeout(typeTerminalSequence, 500);
+    }
     
     // Sistema de imágenes aleatorias de alta calidad
     const techImages = [
@@ -304,38 +389,96 @@ const antecedentes = {
     });
   </script>
   
+  <!-- Fira Code Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
   <style is:global>
     
     .terminal-text {
-      font-family: 'Courier New', 'Monaco', 'Lucida Console', monospace;
-      color: #00cc00;
-      font-weight: bold;
-      letter-spacing: 0.1em;
-      text-shadow: 1px 1px 0px rgba(0,0,0,0.8);
+      font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      color: #00ff41;
+      font-weight: 500;
+      font-size: inherit;
+      line-height: 1.2;
+      letter-spacing: 0.05em;
+      text-shadow: 0 0 8px rgba(0, 255, 65, 0.4), 0 0 12px rgba(0, 255, 65, 0.2);
+      position: relative;
     }
     
     .terminal-cursor {
-      font-family: 'Courier New', 'Monaco', 'Lucida Console', monospace;
-      color: #00cc00;
-      font-weight: bold;
-      animation: blink 1s infinite;
+      font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      color: #00ff41;
+      font-weight: 500;
+      font-size: inherit;
+      line-height: 1.2;
+      text-shadow: 0 0 8px rgba(0, 255, 65, 0.6), 0 0 12px rgba(0, 255, 65, 0.3);
+      animation: terminal-blink 1.2s infinite;
     }
     
     .hero-title {
-      font-family: 'Courier New', 'Monaco', 'Lucida Console', monospace;
-      font-weight: bold;
+      font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      color: #ffffff;
+      font-weight: 400;
+      font-size: inherit;
+      line-height: 1.2;
       letter-spacing: 0.05em;
+      text-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
     }
     
     .hero-subtitle {
-      font-family: 'Courier New', 'Monaco', 'Lucida Console', monospace;
-      font-weight: normal;
+      font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      color: #cccccc;
+      font-weight: 300;
+      font-size: inherit;
+      line-height: 1.3;
       letter-spacing: 0.02em;
+      text-shadow: 0 0 4px rgba(255, 255, 255, 0.1);
     }
     
     @keyframes blink {
       0%, 50% { opacity: 1; }
       51%, 100% { opacity: 0; }
+    }
+    
+    @keyframes terminal-blink {
+      0%, 50% { 
+        opacity: 1; 
+        text-shadow: 0 0 8px rgba(0, 255, 65, 0.8), 0 0 12px rgba(0, 255, 65, 0.5);
+      }
+      51%, 100% { 
+        opacity: 0.3;
+        text-shadow: 0 0 4px rgba(0, 255, 65, 0.3), 0 0 6px rgba(0, 255, 65, 0.1);
+      }
+    }
+    
+    /* Terminal glow effect */
+    .terminal-text::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, rgba(0, 255, 65, 0.1), transparent, rgba(0, 255, 65, 0.05));
+      z-index: -1;
+      border-radius: 2px;
+      opacity: 0.5;
+    }
+    
+    /* Hero responsive adjustments */
+    @media (max-width: 768px) {
+      .terminal-text {
+        font-size: 0.9em;
+        line-height: 1.3;
+      }
+      .hero-title {
+        line-height: 1.3;
+      }
+      .hero-subtitle {
+        line-height: 1.4;
+      }
     }
     
     @keyframes scroll {
@@ -349,6 +492,101 @@ const antecedentes = {
     
     .animate-scroll.pause:hover {
       animation-play-state: paused;
+    }
+    
+    /* Nuevos estilos para la secuencia de terminal */
+    .terminal-container {
+      min-height: 300px; /* Altura mínima fija para evitar desplazamiento */
+      max-height: 400px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 8px;
+      border: 1px solid rgba(0, 255, 65, 0.3);
+      box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+      backdrop-filter: blur(10px);
+    }
+    
+    .terminal-output {
+      font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'SF Mono', Monaco, 'Roboto Mono', Consolas, 'Courier New', monospace;
+      font-size: 16px;
+      line-height: 1.4;
+      color: #ffffff;
+      overflow-y: auto;
+      max-height: 350px;
+    }
+    
+    .terminal-line {
+      margin: 4px 0;
+      min-height: 22px;
+    }
+    
+    .terminal-prompt {
+      color: #00ff41;
+      font-weight: 600;
+      text-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+    }
+    
+    .terminal-command {
+      color: #ffffff;
+      font-weight: 500;
+      margin-left: 20px;
+    }
+    
+    .terminal-output {
+      color: #cccccc;
+      font-weight: 400;
+      padding-left: 0;
+    }
+    
+    .terminal-success {
+      color: #00ff41;
+      font-weight: 500;
+      text-shadow: 0 0 6px rgba(0, 255, 65, 0.4);
+    }
+    
+    .terminal-result {
+      color: #00ff41;
+      font-weight: 700;
+      text-shadow: 0 0 10px rgba(0, 255, 65, 0.8), 0 0 20px rgba(0, 255, 65, 0.4);
+      animation: terminal-glow 2s ease-in-out infinite alternate;
+    }
+    
+    @keyframes terminal-glow {
+      0% {
+        text-shadow: 0 0 10px rgba(0, 255, 65, 0.8), 0 0 20px rgba(0, 255, 65, 0.4);
+      }
+      100% {
+        text-shadow: 0 0 15px rgba(0, 255, 65, 1), 0 0 30px rgba(0, 255, 65, 0.6), 0 0 40px rgba(0, 255, 65, 0.3);
+      }
+    }
+    
+    /* Responsive para móvil */
+    @media (max-width: 768px) {
+      .terminal-container {
+        min-height: 250px;
+        padding: 15px;
+      }
+      
+      .terminal-output {
+        font-size: 14px;
+        line-height: 1.3;
+      }
+      
+      .terminal-command {
+        margin-left: 10px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .terminal-container {
+        min-height: 200px;
+        padding: 12px;
+      }
+      
+      .terminal-output {
+        font-size: 13px;
+        line-height: 1.2;
+      }
     }
     
     /* Efectos adicionales para el banner */
