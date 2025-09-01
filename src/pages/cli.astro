@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import SEOHead from '../components/SEO/SEOHead.astro';
+import UMTerminal from '../components/UMTerminal.astro';
 
 // SEO metadata optimizado para página CLI
 const seoData = {
@@ -50,7 +51,7 @@ const seoData = {
     <!-- Terminal principal -->
     <main class="cli-main">
       <div class="terminal-container">
-        <div id="um-cli-container"></div>
+        <UMTerminal />
       </div>
     </main>
 
@@ -329,146 +330,34 @@ const seoData = {
 </style>
 
 <script>
-  // Importar el plugin UM CLI
-  import('../plugins/UMCliPlugin.js').then(module => {
-    const UMCliPlugin = module.default;
-    
-    document.addEventListener('DOMContentLoaded', () => {
-      // Crear instancia del CLI para página independiente
-      const umCli = new UMCliPlugin({
-        container: '#um-cli-container',
-        theme: 'dark',
-        showWelcome: true,
-        autoFocus: true,
-        allowFullscreen: true,
-        customCommands: {
-          // Comando específico para la página CLI
-          'page-info': async () => ({
-            success: true,
-            output: `
-📄 INFORMACIÓN DE LA PÁGINA CLI
-
-Esta es la página independiente del terminal ULTIMA MILLA CLI.
-
-🎯 PROPÓSITO:
-• Acceso directo al terminal sin distracciones
-• Experiencia completa de navegación de datos
-• Ideal para usuarios técnicos y desarrolladores
-
-🔗 NAVEGACIÓN:
-• Desde cualquier parte del sitio: /cli
-• Embeddable en sitios externos
-• Compatible con todos los comandos
-
-🛠️ FUNCIONALIDADES:
-• Terminal completo con 150+ comandos
-• Datos reales de 22 años de historia
-• Autocompletado y navegación por historial
-• Modo fullscreen disponible
-
-¡Explora sin límites! 🚀
-            `
-          }),
-
-          'inicio': async () => ({
-            success: true,
-            output: `
-🏠 VOLVIENDO AL INICIO...
-
-Redirigiendo a la página principal de ULTIMA MILLA.
-En 3 segundos serás redirigido automáticamente.
-
-Si no funciona, usa: https://ultimamilla.com.ar/
-            `,
-            callback: () => {
-              setTimeout(() => {
-                window.location.href = '/';
-              }, 3000);
-            }
-          }),
-
-          'contacto': async () => ({
-            success: true,
-            output: `
-📞 INFORMACIÓN DE CONTACTO - ULTIMA MILLA CLI
-
-🏢 Oficina Principal
-📍 Mendoza, Argentina
-📧 info@ultimamilla.com.ar
-🌐 https://ultimamilla.com.ar
-📱 WhatsApp: Consultar en sitio web
-
-💼 Áreas Especializadas:
-• Ventas: ventas@ultimamilla.com.ar
-• Soporte Técnico: soporte@ultimamilla.com.ar  
-• Proyectos: proyectos@ultimamilla.com.ar
-• Recursos Humanos: rrhh@ultimamilla.com.ar
-
-⏰ Horarios de Atención:
-Lunes a Viernes: 9:00 - 18:00 ART
-Soporte 24/7 para clientes enterprise
-
-🚀 ¿Listo para transformar tu infraestructura IT?
-            `
-          })
-        }
-      });
-
-      // Event listeners para botones de sugerencias
-      const suggestionButtons = document.querySelectorAll('.suggestion-btn');
-      suggestionButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          const command = button.dataset.command;
-          if (command && umCli) {
-            // Ejecutar comando y enfocar terminal
-            umCli.executeCommandProgrammatically(command);
-            umCli.focus();
+  // Event listeners para botones de sugerencias
+  document.addEventListener('DOMContentLoaded', () => {
+    const suggestionButtons = document.querySelectorAll('.suggestion-btn');
+    suggestionButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const command = button.dataset.command;
+        if (command) {
+          // Buscar el input del terminal y ejecutar comando
+          const terminalInput = document.getElementById('terminal-input');
+          if (terminalInput) {
+            terminalInput.value = command;
+            terminalInput.focus();
+            
+            // Simular Enter
+            const event = new KeyboardEvent('keydown', {
+              key: 'Enter',
+              bubbles: true
+            });
+            terminalInput.dispatchEvent(event);
             
             // Scroll suave hacia el terminal
-            document.getElementById('um-cli-container').scrollIntoView({
+            document.getElementById('um-terminal-container').scrollIntoView({
               behavior: 'smooth',
               block: 'center'
             });
           }
-        });
-      });
-
-      // Eventos del CLI para analytics y mejoras
-      umCli.on('commandExecuted', (event) => {
-        console.log('CLI Command executed:', event.detail.command);
-        
-        // Analytics tracking si está disponible
-        if (typeof gtag !== 'undefined') {
-          gtag('event', 'cli_command_executed', {
-            'command': event.detail.command.raw || 'unknown',
-            'success': event.detail.command.success,
-            'page': '/cli'
-          });
         }
       });
-
-      umCli.on('fullscreenToggled', (event) => {
-        console.log('CLI Fullscreen toggled:', event.detail.isFullscreen);
-      });
-
-      // Mensaje de bienvenida personalizado para página CLI
-      setTimeout(() => {
-        const welcomeMessages = [
-          '🎯 Terminal ULTIMA MILLA CLI - Página Independiente',
-          '💡 Tip: Usa TAB para autocompletar comandos',
-          '⚡ Comando especial: "page-info" para información de esta página',
-          '🏠 Comando: "inicio" para volver a la página principal',
-          ''
-        ];
-        
-        welcomeMessages.forEach((msg, i) => {
-          setTimeout(() => {
-            if (msg) {
-              umCli.addOutput(msg, 'um-command-info');
-            }
-          }, i * 600);
-        });
-      }, 1500);
     });
   });
 
