@@ -1,0 +1,660 @@
+---
+// UMTerminal.astro - Componente del terminal UM CLI para integrar en cualquier página
+---
+
+<div id="um-terminal-container">
+  <div id="um-terminal" class="um-terminal">
+    <div class="um-terminal-header">
+      <div class="um-terminal-controls">
+        <span class="um-control um-close"></span>
+        <span class="um-control um-minimize"></span>
+        <span class="um-control um-maximize"></span>
+      </div>
+      <div class="um-terminal-title">ULTIMA MILLA CLI v22.0 - Mendoza, Argentina</div>
+    </div>
+    
+    <div class="um-terminal-body" id="terminal-output">
+      <div class="welcome-message">
+        <pre id="welcome-ascii"></pre>
+        <div class="welcome-info">
+          <p>🚀 Bienvenido al <strong>ULTIMA MILLA CLI</strong> - Terminal interactivo con datos reales</p>
+          <p>📊 Explora 22 años de historia, 201+ proyectos y 150+ clientes</p>
+          <p>💡 Escribe <code>help</code> para ver comandos disponibles</p>
+          <p>⚡ Prueba <code>sudo ultimamilla.py --demo</code> para una demostración completa</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="um-terminal-input-line">
+      <span class="um-prompt" id="terminal-prompt">visitante@ultimamilla:~$ </span>
+      <input 
+        type="text" 
+        id="terminal-input" 
+        class="um-input" 
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="Escribe un comando..."
+      />
+    </div>
+  </div>
+</div>
+
+<style>
+  .um-terminal {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4);
+    font-family: 'Fira Code', 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
+    width: 100%;
+    max-width: 900px;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    margin: 20px auto;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .um-terminal-header {
+    background: linear-gradient(90deg, #21262d 0%, #30363d 100%);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #30363d;
+    user-select: none;
+  }
+
+  .um-terminal-controls {
+    display: flex;
+    gap: 8px;
+  }
+
+  .um-control {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .um-close {
+    background: #ff5f57;
+  }
+
+  .um-minimize {
+    background: #ffbd2e;
+  }
+
+  .um-maximize {
+    background: #28ca42;
+  }
+
+  .um-control:hover {
+    transform: scale(1.1);
+    filter: brightness(1.1);
+  }
+
+  .um-terminal-title {
+    color: #8b949e;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    flex: 1;
+    margin-left: -60px; /* Compensar los controles */
+  }
+
+  .um-terminal-body {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    color: #e6edf3;
+    font-size: 14px;
+    line-height: 1.5;
+    background: rgba(13, 17, 23, 0.8);
+  }
+
+  .welcome-message {
+    margin-bottom: 20px;
+  }
+
+  #welcome-ascii {
+    color: #00d4aa;
+    font-size: 10px;
+    margin-bottom: 16px;
+    text-shadow: 0 0 10px rgba(0, 212, 170, 0.3);
+  }
+
+  .welcome-info p {
+    margin: 8px 0;
+    color: #8b949e;
+  }
+
+  .welcome-info strong {
+    color: #00d4aa;
+    font-weight: 600;
+  }
+
+  .welcome-info code {
+    background: rgba(110, 118, 129, 0.1);
+    color: #79c0ff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: inherit;
+  }
+
+  .um-terminal-input-line {
+    padding: 12px 16px;
+    background: rgba(13, 17, 23, 0.9);
+    border-top: 1px solid #21262d;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .um-prompt {
+    color: #00d4aa;
+    font-weight: 600;
+    white-space: nowrap;
+    text-shadow: 0 0 8px rgba(0, 212, 170, 0.4);
+  }
+
+  .um-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #e6edf3;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    caret-color: #00d4aa;
+  }
+
+  .um-input::placeholder {
+    color: #6e7681;
+  }
+
+  /* Output styling */
+  .command-output {
+    margin: 12px 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .command-input {
+    color: #e6edf3;
+    margin: 8px 0 4px 0;
+  }
+
+  .command-success {
+    color: #7ee787;
+  }
+
+  .command-error {
+    color: #f85149;
+  }
+
+  .command-info {
+    color: #79c0ff;
+  }
+
+  .command-warning {
+    color: #f0883e;
+  }
+
+  /* Scroll styling */
+  .um-terminal-body::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .um-terminal-body::-webkit-scrollbar-track {
+    background: rgba(110, 118, 129, 0.1);
+    border-radius: 3px;
+  }
+
+  .um-terminal-body::-webkit-scrollbar-thumb {
+    background: rgba(110, 118, 129, 0.3);
+    border-radius: 3px;
+  }
+
+  .um-terminal-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(110, 118, 129, 0.5);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .um-terminal {
+      height: 400px;
+      margin: 10px;
+      border-radius: 6px;
+    }
+    
+    .um-terminal-body {
+      font-size: 12px;
+      padding: 12px;
+    }
+    
+    #welcome-ascii {
+      font-size: 8px;
+    }
+    
+    .um-input {
+      font-size: 12px;
+    }
+  }
+
+  /* Typing effect */
+  @keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+  }
+
+  .typing-effect {
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 2px solid #00d4aa;
+    animation: typing 2s steps(40, end);
+  }
+
+  /* Matrix effect for special commands */
+  .matrix-effect {
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+    animation: matrix-glow 1s infinite alternate;
+  }
+
+  @keyframes matrix-glow {
+    from { opacity: 0.8; }
+    to { opacity: 1; }
+  }
+
+  /* Loading animation */
+  .loading-bar {
+    background: #21262d;
+    height: 4px;
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+
+  .loading-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #00d4aa, #79c0ff);
+    border-radius: 2px;
+    animation: loading 2s ease-in-out;
+  }
+
+  @keyframes loading {
+    from { width: 0% }
+    to { width: 100% }
+  }
+</style>
+
+<script>
+  // UM Terminal JavaScript Logic
+  class UMTerminal {
+    constructor() {
+      this.output = document.getElementById('terminal-output');
+      this.input = document.getElementById('terminal-input');
+      this.prompt = document.getElementById('terminal-prompt');
+      this.history = [];
+      this.historyIndex = -1;
+      this.currentPath = '/ultimamilla/home';
+      
+      this.initializeTerminal();
+      this.setupEventListeners();
+      this.displayWelcome();
+    }
+
+    initializeTerminal() {
+      // Enfocar automáticamente el input
+      this.input.focus();
+      
+      // Mantener el foco en el input
+      this.output.addEventListener('click', () => {
+        this.input.focus();
+      });
+    }
+
+    setupEventListeners() {
+      this.input.addEventListener('keydown', (e) => {
+        switch(e.key) {
+          case 'Enter':
+            this.executeCommand();
+            break;
+          case 'ArrowUp':
+            e.preventDefault();
+            this.navigateHistory(-1);
+            break;
+          case 'ArrowDown':
+            e.preventDefault();
+            this.navigateHistory(1);
+            break;
+          case 'Tab':
+            e.preventDefault();
+            this.autoComplete();
+            break;
+        }
+      });
+
+      // Prevenir que se pierda el foco
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('#um-terminal')) {
+          setTimeout(() => this.input.focus(), 0);
+        }
+      });
+    }
+
+    displayWelcome() {
+      const asciiArt = `
+╔══════════════════════════════════════╗
+║           ULTIMA MILLA               ║
+║    Conectando el futuro desde 2003   ║
+╚══════════════════════════════════════╝
+      `;
+      
+      document.getElementById('welcome-ascii').textContent = asciiArt;
+    }
+
+    async executeCommand() {
+      const command = this.input.value.trim();
+      if (!command) return;
+
+      // Agregar comando al historial
+      this.history.push(command);
+      this.historyIndex = -1;
+
+      // Mostrar comando ejecutado
+      this.addOutput(`visitante@ultimamilla:${this.getShortPath()}$ ${command}`, 'command-input');
+
+      // Limpiar input
+      this.input.value = '';
+
+      // Comandos especiales del frontend
+      if (command === 'clear') {
+        this.clearTerminal();
+        return;
+      }
+
+      try {
+        // Simular procesamiento (en producción sería llamada al servicio)
+        const response = await this.processCommand(command);
+        
+        if (response.success) {
+          // Actualizar path si cambió
+          if (response.path) {
+            this.currentPath = response.path;
+            this.updatePrompt();
+          }
+          
+          // Mostrar output
+          if (response.output) {
+            this.addOutput(response.output, 'command-success');
+          }
+        } else {
+          this.addOutput(response.output, 'command-error');
+          if (response.suggestion) {
+            this.addOutput(`¿Quisiste decir: ${response.suggestion}?`, 'command-info');
+          }
+        }
+      } catch (error) {
+        this.addOutput(`Error: ${error.message}`, 'command-error');
+      }
+
+      // Scroll al final
+      this.scrollToBottom();
+    }
+
+    async processCommand(command) {
+      // Aquí iría la llamada real al servicio UMCliService
+      // Por ahora simularemos algunas respuestas para demo
+      
+      const [cmd, ...args] = command.split(' ');
+      
+      switch(cmd.toLowerCase()) {
+        case 'ls':
+          return {
+            success: true,
+            output: '📁 servicios  📁 clientes  📁 proyectos  📁 antecedentes  📄 empresa.info'
+          };
+          
+        case 'help':
+          return {
+            success: true,
+            output: `
+📚 ULTIMA MILLA CLI - SISTEMA DE AYUDA
+
+🔧 COMANDOS PRINCIPALES:
+• ls [directorio]        Lista contenido 
+• cd [directorio]        Cambiar directorio
+• cat [archivo]          Mostrar contenido
+• grep [término]         Buscar en datos
+• stats [--opción]       Estadísticas
+• sudo ultimamilla.py    Comando maestro
+
+💡 EJEMPLOS:
+• grep "Quilmes"        → Busca proyectos de Quilmes
+• cat empresa.info      → Info de la empresa
+• sudo ultimamilla.py --demo  → Demo completa
+            `
+          };
+          
+        case 'whoami':
+          return {
+            success: true,
+            output: 'visitante_um_cli'
+          };
+          
+        case 'pwd':
+          return {
+            success: true,
+            output: this.currentPath
+          };
+          
+        case 'sudo':
+          if (args[0] === 'ultimamilla.py') {
+            return this.handleSudoUltimaMilla(args.slice(1));
+          }
+          break;
+          
+        case 'grep':
+          return this.handleGrep(args);
+          
+        case 'fortune':
+          const fortunes = [
+            "La innovación distingue entre un líder y un seguidor. - Steve Jobs",
+            "En Ultima Milla, cada proyecto es una oportunidad de conectar el futuro.",
+            "22 años conectando sueños con realidad tecnológica."
+          ];
+          return {
+            success: true,
+            output: `💡 ${fortunes[Math.floor(Math.random() * fortunes.length)]}`
+          };
+          
+        case 'matrix':
+          return {
+            success: true,
+            output: `
+🔴 Activando Matrix Effect...
+
+U L T I M A   M I L L A   S Y S T E M S
+█ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █
+R E D E S   •   S O F T W A R E   •   S E G U R I D A D
+█ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █
+
+¿Seguir el conejo blanco? [S/n] _
+            `
+          };
+          
+        default:
+          return {
+            success: false,
+            output: `umcli: ${cmd}: command not found`,
+            suggestion: this.getSuggestion(cmd)
+          };
+      }
+    }
+
+    handleSudoUltimaMilla(args) {
+      if (args.includes('--demo')) {
+        return {
+          success: true,
+          output: `
+🚀 ULTIMA MILLA - DEMOSTRACIÓN COMPLETA
+
+[████████████████████████████████] 100% Cargando sistemas...
+
+✅ Sistema de redes: OPERATIVO (201 proyectos activos)
+✅ Centro de desarrollo: OPERATIVO  
+✅ Infraestructura de seguridad: OPERATIVO (SDI+CCTV)
+✅ Soporte 24/7: OPERATIVO
+
+🏆 PROYECTOS EMBLEMÁTICOS:
+• Hospital Schestakow - $12.9M (Corrientes débiles)
+• Gobierno de Mendoza - Portal web completo
+• AFIP Multi-sede - Sistema detección incendios
+• Quilmes - Mantenimiento integral
+
+📡 CONECTIVIDAD:
+• Mendoza ████████████ 100%
+• Buenos Aires ██████████ 90%
+• Córdoba ████████ 80%
+
+🎯 STATUS: READY FOR NEW CHALLENGES
+Contacto: info@ultimamilla.com
+          `
+        };
+      }
+      
+      return {
+        success: true,
+        output: `
+🔐 ACCESO ADMINISTRATIVO CONCEDIDO
+
+╔══════════════════════════════════════╗
+║        ULTIMA MILLA SYSTEMS          ║
+║     Diagnóstico Completo v22.0       ║
+╚══════════════════════════════════════╝
+
+📊 ESTADO DEL SISTEMA: ✅ OPERATIVO
+🚀 201+ proyectos completados
+👥 150+ clientes activos
+⏱️ 22 años de experiencia
+
+💡 Comandos: --demo --scan --analyze
+        `
+      };
+    }
+
+    handleGrep(args) {
+      const query = args[0];
+      if (!query) {
+        return {
+          success: false,
+          output: 'grep: falta operando de búsqueda'
+        };
+      }
+
+      // Simulación de búsqueda
+      const mockResults = {
+        'quilmes': 'CERVECERIA Y MALTERIA QUILMES - Sistema de CCTV - $397,784',
+        'hospital': 'Hospital A Italo Perrupato - SDI - $29,651',
+        'gobierno': 'Gobierno de Mendoza - Portal Web - $2,430,000'
+      };
+
+      const result = mockResults[query.toLowerCase()];
+      if (result) {
+        return {
+          success: true,
+          output: `🔍 RESULTADOS DE BÚSQUEDA: "${query}"\n\n${result}`
+        };
+      }
+
+      return {
+        success: true,
+        output: `grep: sin coincidencias para '${query}'`
+      };
+    }
+
+    getSuggestion(command) {
+      const suggestions = {
+        'l': 'ls',
+        'list': 'ls',
+        'dir': 'ls',
+        'search': 'grep',
+        'ayuda': 'help'
+      };
+      return suggestions[command] || null;
+    }
+
+    addOutput(text, className = '') {
+      const div = document.createElement('div');
+      div.className = `command-output ${className}`;
+      div.textContent = text;
+      this.output.appendChild(div);
+    }
+
+    clearTerminal() {
+      // Mantener solo el mensaje de bienvenida
+      const welcome = this.output.querySelector('.welcome-message');
+      this.output.innerHTML = '';
+      this.output.appendChild(welcome);
+    }
+
+    navigateHistory(direction) {
+      if (this.history.length === 0) return;
+
+      if (direction === -1) {
+        // Hacia arriba
+        if (this.historyIndex === -1) {
+          this.historyIndex = this.history.length - 1;
+        } else if (this.historyIndex > 0) {
+          this.historyIndex--;
+        }
+      } else {
+        // Hacia abajo
+        if (this.historyIndex < this.history.length - 1) {
+          this.historyIndex++;
+        } else {
+          this.historyIndex = -1;
+          this.input.value = '';
+          return;
+        }
+      }
+
+      this.input.value = this.history[this.historyIndex] || '';
+    }
+
+    autoComplete() {
+      const value = this.input.value;
+      const commands = ['ls', 'cd', 'cat', 'grep', 'help', 'whoami', 'pwd', 'sudo', 'fortune', 'matrix', 'clear'];
+      
+      const matches = commands.filter(cmd => cmd.startsWith(value));
+      if (matches.length === 1) {
+        this.input.value = matches[0] + ' ';
+      } else if (matches.length > 1) {
+        this.addOutput(`Posibles completados: ${matches.join('  ')}`, 'command-info');
+        this.scrollToBottom();
+      }
+    }
+
+    updatePrompt() {
+      const shortPath = this.getShortPath();
+      this.prompt.textContent = `visitante@ultimamilla:${shortPath}$ `;
+    }
+
+    getShortPath() {
+      return this.currentPath.replace('/ultimamilla', '~');
+    }
+
+    scrollToBottom() {
+      this.output.scrollTop = this.output.scrollHeight;
+    }
+  }
+
+  // Inicializar el terminal cuando se carga la página
+  document.addEventListener('DOMContentLoaded', () => {
+    new UMTerminal();
+  });
+</script>

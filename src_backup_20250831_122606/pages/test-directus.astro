@@ -1,0 +1,164 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { directus } from '../utils/directus';
+
+// Obtener datos de prueba
+let posts = [];
+let categories = [];
+let error = null;
+
+try {
+  console.log('Iniciando prueba de conexión con Directus...');
+  
+  // Probar la conexión básica
+  console.log('Probando conexión con Directus en:', directus.baseUrl);
+  
+  // Obtener posts
+  console.log('Obteniendo posts...');
+  const postsResponse = await directus.getBlogPosts({ limit: 3 });
+  posts = postsResponse.data || [];
+  console.log('Posts obtenidos:', posts.length);
+  
+  // Obtener categorías
+  console.log('Obteniendo categorías...');
+  categories = await directus.getBlogCategories();
+  console.log('Categorías obtenidas:', categories.length);
+  
+} catch (err) {
+  console.error('Error en la prueba de Directus:', err);
+  error = {
+    message: err.message,
+    stack: err.stack
+  };
+}
+---
+
+<Layout title="Prueba de Directus | Última Milla">
+  <main class="min-h-screen bg-gray-50 py-12">
+    <div class="container mx-auto px-4">
+      <h1 class="text-3xl font-bold text-ultima-navy mb-8">Prueba de Conexión con Directus</h1>
+      
+      {error ? (
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-8">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800">Error al conectar con Directus</h3>
+              <div class="mt-2 text-sm text-red-700">
+                <p class="mb-2">{error.message}</p>
+                <pre class="bg-gray-100 p-2 rounded text-xs overflow-auto">{error.stack}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-8">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-green-800">Conexión exitosa con Directus</h3>
+              <div class="mt-2 text-sm text-green-700">
+                <p>Se ha establecido la conexión correctamente.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <h2 class="text-xl font-semibold text-ultima-navy mb-4">Últimos Posts ({posts.length})</h2>
+          <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <ul class="divide-y divide-gray-200">
+              {posts.length > 0 ? (
+                posts.map(post => (
+                  <li class="px-4 py-4 sm:px-6">
+                    <div class="flex items-center justify-between">
+                      <p class="text-sm font-medium text-ultima-blue truncate">{post.Titulo}</p>
+                      <div class="ml-2 flex-shrink-0 flex">
+                        <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                          Ver
+                        </p>
+                      </div>
+                    </div>
+                    <div class="mt-2 sm:flex sm:justify-between">
+                      <div class="sm:flex">
+                        <p class="flex items-center text-sm text-gray-500">
+                          {post.Categorias?.map(cat => cat.Nombre).join(', ')}
+                        </p>
+                      </div>
+                      <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                        <time datetime={post.Fecha_publicacion}>
+                          {new Date(post.Fecha_publicacion).toLocaleDateString('es-AR')}
+                        </time>
+                      </div>
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <li class="px-4 py-4 sm:px-6">
+                  <p class="text-sm text-gray-500">No hay posts disponibles</p>
+                </li>
+              )}
+            </ul>
+          </div>
+        </div>
+
+        <div>
+          <h2 class="text-xl font-semibold text-ultima-navy mb-4">Categorías ({categories.length})</h2>
+          <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <ul class="divide-y divide-gray-200">
+              {categories.length > 0 ? (
+                categories.map(category => (
+                  <li class="px-4 py-4 sm:px-6">
+                    <div class="flex items-center">
+                      <p class="text-sm font-medium text-ultima-blue">{category.Nombre}</p>
+                      <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {category.slug}
+                      </span>
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <li class="px-4 py-4 sm:px-6">
+                  <p class="text-sm text-gray-500">No hay categorías disponibles</p>
+                </li>
+              )}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-8 p-6 bg-white shadow overflow-hidden sm:rounded-lg">
+        <h2 class="text-lg font-medium text-ultima-navy mb-4">Información de la API</h2>
+        <div class="grid grid-cols-1 gap-4">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">URL de la API</dt>
+            <dd class="mt-1 text-sm text-gray-900 font-mono break-all">{directus.baseUrl}</dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Token de autenticación</dt>
+            <dd class="mt-1 text-sm text-gray-900 font-mono break-all">
+              {directus.token ? `${directus.token.substring(0, 10)}...` : 'No configurado'}
+            </dd>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+</style>

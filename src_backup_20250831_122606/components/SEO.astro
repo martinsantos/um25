@@ -1,0 +1,43 @@
+---
+interface Props {
+    title: string;
+    description?: string;
+    image?: string;
+    type?: 'website' | 'article';
+    schemas?: Array<Record<string, any>>;
+}
+
+const {
+    title,
+    description = "ULTIMA MILLA - Servicios IT Innovadores",
+    image = "/images/og-image.jpg",
+    type = "website",
+    schemas = []
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const imageURL = new URL(image, Astro.site);
+---
+
+<!-- SEO -->
+<link rel="canonical" href={canonicalURL} />
+<meta name="description" content={description} />
+
+<!-- Open Graph -->
+<meta property="og:type" content={type} />
+<meta property="og:url" content={canonicalURL} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={imageURL} />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:url" content={canonicalURL} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageURL} />
+
+<!-- Structured Data -->
+{schemas.map(schema => (
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+))}

@@ -1,0 +1,69 @@
+---
+import '../../styles/antecedentes.css';
+
+interface Props {
+  antecedente: any;
+  titulo?: string;
+}
+
+const { antecedente, titulo = "Información Adicional" } = Astro.props;
+
+// Extraer metadatos relevantes
+const cliente = antecedente.Cliente || '';
+const ubicacion = antecedente.Ubicacion || '';
+const fecha = antecedente.Fecha ? new Date(antecedente.Fecha).toLocaleDateString('es-ES', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+}) : '';
+const documentos = antecedente.documentos || [];
+---
+
+<section class="antecedente-meta">
+  <div class="antecedente-meta__container">
+    {titulo && <h2 class="antecedente-meta__title">{titulo}</h2>}
+    
+    <div class="antecedente-meta__grid">
+      {cliente && (
+        <div class="antecedente-meta__item">
+          <h3 class="antecedente-meta__item-title">Cliente</h3>
+          <p class="antecedente-meta__item-content">{cliente}</p>
+        </div>
+      )}
+      
+      {ubicacion && (
+        <div class="antecedente-meta__item">
+          <h3 class="antecedente-meta__item-title">Ubicación</h3>
+          <p class="antecedente-meta__item-content">{ubicacion}</p>
+        </div>
+      )}
+      
+      {fecha && (
+        <div class="antecedente-meta__item">
+          <h3 class="antecedente-meta__item-title">Fecha</h3>
+          <p class="antecedente-meta__item-content">{fecha}</p>
+        </div>
+      )}
+      
+      {documentos && documentos.length > 0 && (
+        <div class="antecedente-meta__item antecedente-meta__item--full">
+          <h3 class="antecedente-meta__item-title">Documentos</h3>
+          <ul class="antecedente-meta__documentos">
+            {documentos.map((doc) => (
+              <li class="antecedente-meta__documento">
+                <a 
+                  href={`${import.meta.env.PUBLIC_DIRECTUS_URL}/assets/${doc.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="antecedente-meta__documento-link"
+                >
+                  {doc.title || doc.filename}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  </div>
+</section>

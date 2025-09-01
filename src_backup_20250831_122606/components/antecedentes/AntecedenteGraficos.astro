@@ -1,0 +1,45 @@
+---
+interface Props {
+  titulo1?: string;
+  titulo2?: string;
+  descripcion1?: string;
+  descripcion2?: string;
+}
+
+const { 
+  titulo1 = "Distribución de Estados", 
+  titulo2 = "Mejoras de Eficiencia", 
+  descripcion1 = "Desglose de verificaciones completadas, pendientes y con alertas.",
+  descripcion2 = "Ilustración de la reducción en el tiempo de respuesta por trimestre."
+} = Astro.props;
+---
+
+<section class="mb-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
+  <div class="bg-white p-6 rounded-lg shadow-xl">
+    <h3 class="text-xl font-semibold mb-4 pl-4 border-l-4 border-blue-600 text-blue-900">{titulo1}</h3>
+    <div class="chart-placeholder h-64 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
+      <span class="material-icons-outlined text-5xl mr-2">pie_chart</span>
+      <p class="text-lg">Visualización de Gráfico Circular</p>
+    </div>
+    <p class="mt-3 text-sm text-gray-600 text-center">{descripcion1}</p>
+  </div>
+  
+  <div class="bg-white p-6 rounded-lg shadow-xl">
+    <h3 class="text-xl font-semibold mb-4 pl-4 border-l-4 border-blue-600 text-blue-900">{titulo2}</h3>
+    <div class="chart-placeholder h-64 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
+      <span class="material-icons-outlined text-5xl mr-2">show_chart</span>
+      <p class="text-lg">Visualización de Gráfico Lineal</p>
+    </div>
+    <p class="mt-3 text-sm text-gray-600 text-center">{descripcion2}</p>
+  </div>
+</section>
+
+<style>
+  .chart-placeholder {
+    transition: background-color 0.3s ease;
+  }
+  
+  .chart-placeholder:hover {
+    background-color: #e5e7eb;
+  }
+</style>

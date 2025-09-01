@@ -27,7 +27,7 @@ export default defineConfig({
   server: {
     host: true,
     port: 4321,
-    hmr: process.env.NODE_ENV === 'production' ? false : true,
+    hmr: false, // Deshabilitado para producción
     allowedHosts: [
       'ultimamilla.com.ar',
       'www.ultimamilla.com.ar',
@@ -61,10 +61,7 @@ export default defineConfig({
   vite: {
     server: {
       host: true,
-      hmr: process.env.NODE_ENV === 'production' ? false : {
-        port: 5173,
-        host: 'localhost'
-      },
+      hmr: false, // Completamente deshabilitado para producción
       allowedHosts: [
         'ultimamilla.com.ar',
         'www.ultimamilla.com.ar',

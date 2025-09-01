@@ -1,0 +1,216 @@
+---
+export interface Props {
+  src: string;
+  alt: string;
+  class?: string;
+  loading?: 'lazy' | 'eager';
+  width?: number;
+  height?: number;
+  priority?: boolean;
+}
+
+const { 
+  src, 
+  alt, 
+  class: className = '', 
+  loading = 'lazy',
+  width,
+  height,
+  priority = false
+} = Astro.props;
+
+// Generate responsive image sources
+const generateResponsiveSrc = (baseSrc: string) => {
+  if (baseSrc.startsWith('http') || baseSrc.startsWith('data:')) {
+    return baseSrc;
+  }
+  
+  // For local images, generate different sizes
+  const baseUrl = baseSrc.replace(/\.[^/.]+$/, '');
+  const extension = baseSrc.split('.').pop();
+  
+  return {
+    small: `/cache/${baseUrl}-480.${extension}`,
+    medium: `/cache/${baseUrl}-768.${extension}`,
+    large: `/cache/${baseUrl}-1024.${extension}`,
+    original: baseSrc
+  };
+};
+
+const responsiveSrc = generateResponsiveSrc(src);
+const isResponsive = typeof responsiveSrc === 'object';
+---
+
+{isResponsive ? (
+  <picture class={`lazy-picture ${className}`}>
+    <!-- WebP sources for modern browsers -->
+    <source 
+      media="(max-width: 480px)" 
+      srcset={`${responsiveSrc.small.replace(/\.[^/.]+$/, '.webp')}`} 
+      type="image/webp" 
+    />
+    <source 
+      media="(max-width: 768px)" 
+      srcset={`${responsiveSrc.medium.replace(/\.[^/.]+$/, '.webp')}`} 
+      type="image/webp" 
+    />
+    <source 
+      media="(min-width: 769px)" 
+      srcset={`${responsiveSrc.large.replace(/\.[^/.]+$/, '.webp')}`} 
+      type="image/webp" 
+    />
+    
+    <!-- Fallback sources -->
+    <source media="(max-width: 480px)" srcset={responsiveSrc.small} />
+    <source media="(max-width: 768px)" srcset={responsiveSrc.medium} />
+    <source media="(min-width: 769px)" srcset={responsiveSrc.large} />
+    
+    <img
+      src={responsiveSrc.original}
+      alt={alt}
+      class={`lazy-image ${className} ${priority ? 'priority' : ''}`}
+      loading={priority ? 'eager' : loading}
+      width={width}
+      height={height}
+      decoding="async"
+      onload="this.classList.add('loaded')"
+      onerror="this.src='/images/fallback/default-image.jpg'; this.classList.add('error');"
+    />
+  </picture>
+) : (
+  <img
+    src={src}
+    alt={alt}
+    class={`lazy-image ${className} ${priority ? 'priority' : ''}`}
+    loading={priority ? 'eager' : loading}
+    width={width}
+    height={height}
+    decoding="async"
+    onload="this.classList.add('loaded')"
+    onerror="this.src='/images/fallback/default-image.jpg'; this.classList.add('error');"
+  />
+)}
+
+<style>
+  .lazy-image {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+  }
+  
+  .lazy-image.loaded {
+    opacity: 1;
+    background: none;
+    animation: none;
+  }
+  
+  .lazy-image.priority {
+    opacity: 1;
+    background: none;
+    animation: none;
+  }
+  
+  .lazy-image.error {
+    opacity: 0.7;
+    background: #f8f8f8;
+    animation: none;
+  }
+  
+  .lazy-picture {
+    display: block;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  @keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  
+  /* Intersection Observer fallback */
+  .no-js .lazy-image {
+    opacity: 1;
+    background: none;
+    animation: none;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .lazy-image {
+      animation: none;
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  // Enhanced lazy loading with Intersection Observer
+  if ('IntersectionObserver' in window) {
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target as HTMLImageElement;
+          
+          // Handle picture elements
+          const picture = img.closest('picture');
+          if (picture) {
+            const sources = picture.querySelectorAll('source');
+            sources.forEach(source => {
+              if (source.dataset.srcset) {
+                source.srcset = source.dataset.srcset;
+              }
+            });
+          }
+          
+          // Handle regular images
+          if (img.dataset.src) {
+            img.src = img.dataset.src;
+          }
+          
+          img.classList.add('loading');
+          observer.unobserve(img);
+        }
+      });
+    }, {
+      root: null,
+      rootMargin: '50px',
+      threshold: 0.1
+    });
+
+    // Observe all lazy images
+    document.querySelectorAll('.lazy-image:not(.priority)').forEach(img => {
+      imageObserver.observe(img);
+    });
+    
+    // Preload critical images immediately
+    document.querySelectorAll('.lazy-image.priority').forEach(img => {
+      img.classList.add('loaded');
+    });
+  } else {
+    // Fallback for browsers without Intersection Observer
+    document.querySelectorAll('.lazy-image').forEach(img => {
+      const image = img as HTMLImageElement;
+      if (image.dataset.src) {
+        image.src = image.dataset.src;
+      }
+      image.classList.add('loaded');
+    });
+  }
+
+  // Progressive enhancement for WebP support
+  function supportsWebP() {
+    return new Promise(resolve => {
+      const webP = new Image();
+      webP.onload = webP.onerror = () => resolve(webP.height === 2);
+      webP.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+    });
+  }
+
+  // Add webp-support class if supported
+  supportsWebP().then(supported => {
+    if (supported) {
+      document.documentElement.classList.add('webp-support');
+    }
+  });
+</script>

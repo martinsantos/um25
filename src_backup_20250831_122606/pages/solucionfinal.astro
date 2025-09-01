@@ -1,0 +1,27 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { readFile } from 'fs/promises';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const solucionPath = join(__dirname, '../../solucionfinal.md');
+
+let content = '';
+try {
+  content = await readFile(solucionPath, 'utf-8');
+} catch (error) {
+  content = '# Error al cargar la documentación\n\nNo se pudo cargar el archivo solucionfinal.md';
+}
+---
+
+<Layout title="Solución Final - Documentación Técnica">
+  <main class="container mx-auto px-4 py-8">
+    <article class="prose prose-lg max-w-none">
+      <div class="whitespace-pre-wrap font-mono text-sm bg-gray-50 p-6 rounded-lg border">
+        {content}
+      </div>
+    </article>
+  </main>
+</Layout> 

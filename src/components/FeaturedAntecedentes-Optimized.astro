@@ -1,0 +1,166 @@
+---
+export interface Props {
+  antecedentes: any[];
+}
+
+const { antecedentes } = Astro.props;
+
+// Función para crear slug SEO-friendly
+function createSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+}
+---
+
+<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+  {antecedentes.map((antecedente, index) => (
+    <article 
+      class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 group overflow-hidden"
+      itemscope 
+      itemtype="https://schema.org/CreativeWork"
+    >
+      <div class="relative overflow-hidden h-48">
+        <img 
+          data-src={antecedente.Imagen ? `/imagenes_antecedentes_versionproduccion/${antecedente.Imagen}` : '/images/antecedentes/default-antecedente.jpg'}
+          alt={`Proyecto ${antecedente.Titulo} - ${antecedente.Cliente} - ULTIMA MILLA`}
+          class={`lazy w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 loading-skeleton ${index < 3 ? '' : 'lazy'}`}
+          loading={index < 3 ? 'eager' : 'lazy'}
+          itemprop="image"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+        
+        <!-- Badge de área/categoría -->
+        <div class="absolute top-4 left-4">
+          <span class="bg-blue-600/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-semibold">
+            {antecedente.Area || 'Servicios IT'}
+          </span>
+        </div>
+        
+        <!-- Fecha -->
+        <div class="absolute top-4 right-4">
+          <span class="bg-white/90 backdrop-blur-sm text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
+            {new Date(antecedente.Fecha || '2024-01-01').getFullYear()}
+          </span>
+        </div>
+        
+        <!-- Overlay con información -->
+        <div class="absolute bottom-0 left-0 right-0 p-4 text-white transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+          <p class="text-sm font-medium" itemprop="creator" itemscope itemtype="https://schema.org/Organization">
+            <span itemprop="name">{antecedente.Cliente}</span>
+          </p>
+        </div>
+      </div>
+      
+      <div class="p-6">
+        <div class="mb-3">
+          <span class="text-blue-600 font-semibold text-sm uppercase tracking-wide">
+            {antecedente.Area || 'Desarrollo de Software'}
+          </span>
+        </div>
+        
+        <h3 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors duration-300" itemprop="name">
+          {antecedente.Titulo}
+        </h3>
+        
+        <p class="text-gray-600 mb-4 line-clamp-3 leading-relaxed text-sm" itemprop="description">
+          {antecedente.Descripcion}
+        </p>
+        
+        <!-- Cliente -->
+        <div class="flex items-center mb-4 p-3 bg-gray-50 rounded-lg">
+          <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+            <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 6a2 2 0 104 0 2 2 0 00-4 0zm6 0a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 text-sm">{antecedente.Cliente}</p>
+            <p class="text-gray-500 text-xs">Cliente</p>
+          </div>
+        </div>
+        
+        <!-- Botón de ver más -->
+        <a 
+          href={`/antecedentes/${antecedente.id}/${createSlug(antecedente.Titulo)}`}
+          class="inline-flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 group/button"
+          itemprop="url"
+          aria-label={`Ver detalles del proyecto ${antecedente.Titulo} realizado para ${antecedente.Cliente}`}
+        >
+          <span>Ver Caso de Estudio</span>
+          <svg class="w-4 h-4 ml-2 transform group-hover/button:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </a>
+      </div>
+      
+      <!-- Structured Data -->
+      <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "CreativeWork",
+          "name": "{antecedente.Titulo}",
+          "description": "{antecedente.Descripcion}",
+          "creator": {
+            "@type": "Organization",
+            "name": "ULTIMA MILLA"
+          },
+          "client": {
+            "@type": "Organization", 
+            "name": "{antecedente.Cliente}"
+          },
+          "dateCreated": "{antecedente.Fecha}",
+          "genre": "{antecedente.Area}",
+          "provider": {
+            "@type": "Organization",
+            "name": "ULTIMA MILLA"
+          }
+        }
+      </script>
+    </article>
+  ))}
+</div>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .loading-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+  }
+  
+  .loading-skeleton.lazy {
+    animation: loading 1.5s infinite;
+  }
+  
+  @keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  
+  .lazy {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+  
+  .lazy.loaded {
+    opacity: 1;
+  }
+</style>

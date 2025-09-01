@@ -1,0 +1,58 @@
+---
+import type { BlogPost } from '../data/blog-posts';
+import OptimizedImage from './OptimizedImage.astro';
+import { formatDate } from '../utils/date';
+
+interface Props {
+	post: BlogPost;
+	featured?: boolean;
+}
+
+const { post, featured = false } = Astro.props;
+---
+
+<article class={`blog-post ${featured ? 'featured' : ''} rounded-lg overflow-hidden shadow-lg bg-white hover:shadow-xl transition-shadow duration-300`}>
+	<a href={`/blog/${post.slug}`} class="block">
+		<OptimizedImage
+			src={post.image}
+			alt={post.title}
+			class="w-full h-48 object-cover"
+			loading={featured ? 'eager' : 'lazy'}
+		/>
+		<div class="p-6">
+			<div class="flex items-center mb-4">
+				<span class="text-sm text-gray-600">{formatDate(post.date)}</span>
+				<span class="mx-2">•</span>
+				<span class="text-sm text-primary-600">{post.category}</span>
+			</div>
+			<h2 class="text-xl font-bold mb-2 text-gray-900 hover:text-primary-600 transition-colors">{post.title}</h2>
+			<p class="text-gray-700 mb-4">{post.excerpt}</p>
+			<div class="flex items-center">
+				<OptimizedImage
+					src={post.authorImage}
+					alt={post.author}
+					class="w-10 h-10 rounded-full mr-4"
+					loading="lazy"
+				/>
+				<div>
+					<p class="font-medium text-gray-900">{post.author}</p>
+					<p class="text-sm text-gray-600">{post.role}</p>
+				</div>
+			</div>
+		</div>
+	</a>
+</article>
+
+<style>
+.blog-post.featured {
+	@apply col-span-2 md:col-span-3;
+}
+
+.blog-post.featured img:first-child {
+	@apply h-64;
+}
+
+.blog-post.featured h2 {
+	@apply text-2xl;
+}
+</style>
