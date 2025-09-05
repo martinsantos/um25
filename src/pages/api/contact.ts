@@ -7,14 +7,18 @@ const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutos
 const MAX_REQUESTS_PER_WINDOW = 3; // 3 envíos máximo por IP en 15 minutos
 
 // Configuración del transporte de correo
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   host: import.meta.env.SMTP_HOST,
   port: parseInt(import.meta.env.SMTP_PORT),
-  secure: true,
+  secure: false,  // false para puerto 587, true solo para 465
   auth: {
     user: import.meta.env.SMTP_USER,
     pass: import.meta.env.SMTP_PASS,
   },
+  // Permitir autofirma/certificados no válidos en desarrollo
+  tls: {
+    rejectUnauthorized: false
+  }
 });
 
 // Función para validar email
@@ -47,7 +51,11 @@ function isSpam(data: any): boolean {
   }
   
   // Detectar emails sospechosos
-  if (email.includes('temp') || email.includes('disposable') || email.includes('10minute')) {
+  if (data.email && typeof data.email === 'string' && (
+    data.email.includes('temp') || 
+    data.email.includes('disposable') || 
+    data.email.includes('10minute')
+  )) {
     return true;
   }
   
@@ -99,7 +107,19 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       });
     }
 
-    const data = await request.json();
+    let data: any;
+    const contentType = request.headers.get('content-type') || '';
+    
+    if (contentType.includes('application/json')) {
+      data = await request.json();
+    } else {
+      // Manejar FormData (desde formularios HTML)
+      const formData = await request.formData();
+      data = {};
+      for (const [key, value] of formData.entries()) {
+        data[key] = value;
+      }
+    }
     
     // Verificar honeypot
     if (hasHoneypot(data)) {
@@ -178,8 +198,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
     // Configuración del correo
     const mailOptions = {
-      from: `"Formulario Web ULTIMA MILLA" <${import.meta.env.SMTP_USER}>`,
-      to: import.meta.env.CONTACT_EMAIL || 'contacto@ultimamilla.com.ar',
+      from: '"Ultima Milla web" <martin@ultimamilla.com.ar>',
+      to: 'martin@ultimamilla.com.ar',
       replyTo: sanitizedData.email,
       subject: `Nuevo contacto desde web: ${sanitizedData.name} - ${projectTypesText}`,
       html: `

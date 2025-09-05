@@ -88,7 +88,7 @@ const antecedentes = {
     <div class="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
       
       <!-- UM CLI Container Interactivo -->
-      <div id="um-cli-container" class="terminal-container max-w-5xl w-full mb-6">
+      <div class="terminal-hero-container terminal-container w-[672px] h-[400px] mx-auto mb-6 sm:w-[90vw] sm:h-[300px]">
         <UMTerminal />
       </div>
       
@@ -97,8 +97,8 @@ const antecedentes = {
         <button class="quick-cmd-btn" data-command="sudo ultimamilla.py --demo">
           <span class="text-green-400">🚀</span> Demo completa
         </button>
-        <button class="quick-cmd-btn" data-command='grep "Quilmes"'>
-          <span class="text-blue-400">🔍</span> Buscar Quilmes
+        <button class="quick-cmd-btn" data-command='grep "antecedentes"'>
+          <span class="text-blue-400">🔍</span> Buscar Antecedentes
         </button>
         <button class="quick-cmd-btn" data-command="stats --clientes">
           <span class="text-yellow-400">📊</span> Estadísticas
@@ -108,23 +108,6 @@ const antecedentes = {
         </button>
       </div>
       
-      <!-- Subtítulo actualizado -->
-      <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto drop-shadow-md hero-subtitle">
-        Explora ULTIMA MILLA con nuestro <strong class="text-green-400">terminal interactivo</strong>.<br>
-        <span class="text-white font-medium">22 años de historia tecnológica al alcance de tus dedos.</span>
-      </p>
-      
-      <div class="flex flex-wrap justify-center gap-6 mb-8 text-sm md:text-base">
-        <div class="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-          <span class="font-bold text-yellow-400">+469</span> Proyectos Reales
-        </div>
-        <div class="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-          <span class="font-bold text-yellow-400">+30</span> Comandos CLI
-        </div>
-        <div class="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-          <span class="font-bold text-yellow-400">22</span> Años Historia
-        </div>
-      </div>
       
       <div class="flex flex-wrap justify-center gap-4">
         <a 
@@ -264,23 +247,213 @@ const antecedentes = {
             </div>
             <div class="md:w-1/2 p-8 md:p-12">
               <h3 class="text-2xl font-bold text-gray-800 mb-6">Envíanos un mensaje</h3>
-              <form class="space-y-4">
+              <form id="footerContactForm" method="post" action="/api/contact" novalidate class="space-y-4" data-form-type="footer">
                 <div>
-                  <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-                  <input type="text" id="name" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                  <label for="footer_name" class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+                  <input type="text" id="footer_name" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="Tu nombre completo">
                 </div>
                 <div>
-                  <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                  <label for="footer_email" class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                  <input type="email" id="footer_email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="tu@email.com">
                 </div>
                 <div>
-                  <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Mensaje</label>
-                  <textarea id="message" name="message" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
+                  <label for="footer_message" class="block text-sm font-medium text-gray-700 mb-1">Mensaje *</label>
+                  <textarea id="footer_message" name="message" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="Describe tu proyecto o consulta..."></textarea>
                 </div>
-                <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
-                  Enviar Mensaje
+                <input type="text" name="honeypot" class="hidden" tabindex="-1" autocomplete="off" />
+                <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 flex justify-center items-center gap-2" id="footer_submit">
+                  <span>Enviar Mensaje</span>
+                  <div class="hidden" id="footer_spinner">
+                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  </div>
                 </button>
+                <div id="footer_message" class="text-sm mt-2 text-center"></div>
               </form>
+              <script is:inline>
+              document.addEventListener('DOMContentLoaded', () => {
+                const form = document.getElementById('footerContactForm');
+                if (!form) return;
+
+                const msg = document.getElementById('footer_message');
+                const btn = document.getElementById('footer_submit');
+                const spinner = document.getElementById('footer_spinner');
+                const btnText = btn?.querySelector('span');
+
+                function showSpinner(show) {
+                  if (!spinner || !btn || !btnText) return;
+                  spinner.classList.toggle('hidden', !show);
+                  btnText.textContent = show ? 'Enviando...' : 'Enviar Mensaje';
+                  btn.disabled = show;
+                  btn.style.opacity = show ? '0.7' : '1';
+                }
+
+                function showMessage(text, isSuccess) {
+                  if (!msg) return;
+                  msg.textContent = text;
+                  msg.style.color = isSuccess ? '#16a34a' : '#dc2626';
+                  msg.style.opacity = '1';
+                }
+
+                form.addEventListener('submit', async (e) => {
+                  e.preventDefault();
+                  const formData = new FormData(form);
+                  const data = Object.fromEntries(formData);
+
+                  // Validaciones
+                  if (data.honeypot) {
+                    showMessage('Error de validación.', false);
+                    return;
+                  }
+
+                  if (!data.name || !data.email || !data.message) {
+                    showMessage('Por favor completa todos los campos obligatorios (*)', false);
+                    return;
+                  }
+
+                  // Deshabilitar botón y mostrar spinner
+                  showSpinner(true);
+                  showMessage('', false); // Limpiar mensaje anterior
+
+                  try {
+                    // Enviar los datos
+                    console.log('Enviando datos al servidor...', data);
+                    const res = await fetch('/api/contact', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify(data)
+                    });
+
+                    console.log('Respuesta del servidor:', res.status);
+                    const json = await res.json();
+                    console.log('Datos de respuesta:', json);
+
+                    if (res.ok && json.success) {
+                      showMessage('¡Gracias! Tu mensaje ha sido enviado. Te contactaremos pronto.', true);
+                      form.reset();
+                    } else {
+                      showMessage(json.message || 'Error al enviar el mensaje. Por favor intenta nuevamente.', false);
+                    }
+                  } catch (err) {
+                    console.error('Error al enviar formulario:', err);
+                    showMessage('Error de conexión. Por favor verifica tu conexión e intenta nuevamente.', false);
+                  } finally {
+                    showSpinner(false);
+                  }
+                });
+              });
+              </script>
+              <script is:inline>
+                (function() {
+                  const form = document.getElementById('footerContactForm');
+                  if (!form) return;
+                  
+                  const msg = document.getElementById('footer_message');
+                  const btn = form.querySelector('button[type="submit"]');
+                  const spinner = document.getElementById('footer_spinner');
+                  const btnText = btn.querySelector('span');
+                  
+                  function showSpinner(show) {
+                    spinner.classList.toggle('hidden', !show);
+                    btnText.textContent = show ? 'Enviando...' : 'Enviar Mensaje';
+                    btn.disabled = show;
+                  }
+
+                  function showMessage(text, ok) {
+                    if (msg) {
+                      msg.textContent = text;
+                      msg.style.color = ok ? '#16a34a' : '#dc2626';
+                    }
+                  }
+
+                  form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const data = Object.fromEntries(new FormData(form));
+                    
+                    if (data.honeypot) {
+                      showMessage('Detectado spam.', false);
+                      return;
+                    }
+                    
+                    if (!data.name || !data.email || !data.message) {
+                      showMessage('Por favor completa todos los campos obligatorios (*)', false);
+                      return;
+                    }
+
+                    showSpinner(true);
+                    showMessage('');
+
+                    try {
+                      const res = await fetch('/api/contact', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                      });
+                      
+                      const json = await res.json();
+                      
+                      if (res.ok && json.success) {
+                        showMessage('¡Gracias por tu mensaje! Te responderemos muy pronto.', true);
+                        form.reset();
+                      } else {
+                        showMessage(json?.message || 'No se pudo enviar el mensaje. Por favor intenta nuevamente.', false);
+                      }
+                    } catch (err) {
+                      console.error('Error:', err);
+                      showMessage('Error de conexión. Por favor verifica tu conexión a internet e intenta nuevamente.', false);
+                    } finally {
+                      showSpinner(false);
+                    }
+                  });
+                })();
+              </script>
+              <script is:inline>
+                (function () {
+                  const form = document.getElementById('homeContactForm');
+                  if (!form) return;
+                  const msg = form.querySelector('#formMessage');
+                  const btn = form.querySelector('button[type="submit"]');
+                  function showMessage(text, ok) {
+                    if (msg) {
+                      msg.textContent = text;
+                      msg.style.color = ok ? '#16a34a' : '#dc2626';
+                    }
+                  }
+                  form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const data = Object.fromEntries(new FormData(form).entries());
+                    if (data.honeypot) { showMessage('Detectado spam.', false); return; }
+                    if (!data.name || !data.email || !data.message) {
+                      showMessage('Completa nombre, email y mensaje.', false);
+                      return;
+                    }
+                    if (btn) btn.disabled = true;
+                    showMessage('Enviando...', true);
+                    try {
+                      const res = await fetch('/api/contact', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                      });
+                      const json = await res.json().catch(() => ({}));
+                      if (res.ok && json.success) {
+                        showMessage('Mensaje enviado. ¡Gracias!', true);
+                        form.reset();
+                      } else {
+                        showMessage(json?.message || 'No se pudo enviar el mensaje.', false);
+                      }
+                    } catch (err) {
+                      showMessage('Error de red al enviar el mensaje.', false);
+                    } finally {
+                      if (btn) btn.disabled = false;
+                    }
+                  });
+                })();
+              </script>
             </div>
           </div>
         </div>
@@ -364,10 +537,13 @@ const antecedentes = {
             terminalInput.dispatchEvent(enterEvent);
             
             // Hacer scroll suave al terminal
-            document.getElementById('um-cli-container').scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'center' 
-            });
+              const hero = document.querySelector('.terminal-hero-container');
+              if (hero) {
+                hero.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'center'
+                });
+              }
           }
         });
       });
@@ -483,8 +659,7 @@ const antecedentes = {
     
     /* Nuevos estilos para la secuencia de terminal */
     .terminal-container {
-      min-height: 300px; /* Altura mínima fija para evitar desplazamiento */
-      max-height: 400px;
+      max-width: 672px; height: 400px;
       padding: 20px;
       background: rgba(0, 0, 0, 0.8);
       border-radius: 8px;
@@ -499,7 +674,7 @@ const antecedentes = {
       line-height: 1.4;
       color: #ffffff;
       overflow-y: auto;
-      max-height: 350px;
+      width: 630px; height: 500px;
     }
     
     .terminal-line {
@@ -550,7 +725,7 @@ const antecedentes = {
     /* Responsive para móvil */
     @media (max-width: 768px) {
       .terminal-container {
-        min-height: 250px;
+        max-width: 90vw; height: 300px;
         padding: 15px;
       }
       
@@ -566,7 +741,7 @@ const antecedentes = {
     
     @media (max-width: 480px) {
       .terminal-container {
-        min-height: 200px;
+        max-width: 95vw; height: 250px;
         padding: 12px;
       }
       
