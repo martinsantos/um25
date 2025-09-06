@@ -1,0 +1,686 @@
+---
+// UMTerminalEnhanced.astro - Enhanced terminal component for hero banner
+// Larger size, better responsive design, groundbreaking UX
+---
+
+<div id="um-terminal-enhanced-container">
+  <div id="um-terminal-enhanced" class="um-terminal-enhanced">
+    <!-- Terminal Header -->
+    <div class="um-terminal-header">
+    <div class="um-terminal-controls">
+        <button class="um-control um-minimize" data-action="minimize" aria-label="Minimizar terminal">
+          <span class="control-icon">−</span>
+        </button>
+        <button class="um-control um-maximize" data-action="fullscreen" aria-label="Pantalla completa">
+          <span class="control-icon">⬜</span>
+        </button>
+        <button class="um-control um-close" data-action="close" aria-label="Cerrar terminal">
+          <span class="control-icon">✕</span>
+        </button>
+      </div>
+      <div class="um-terminal-title">ULTIMA MILLA CLI v22.0 - Mendoza, Argentina</div>
+      <div class="um-terminal-status">
+        <div class="status-indicator" id="connection-status" aria-label="Estado de conexión"></div>
+      </div>
+    </div>
+    
+    <!-- Terminal Body -->
+    <div class="um-terminal-body" id="terminal-output">
+      <div class="welcome-message">
+        <pre id="welcome-ascii" class="ascii-art"></pre>
+        <div class="welcome-info">
+          <div class="welcome-line typing-effect" data-delay="0">
+            <span class="icon">🚀</span> Bienvenido a <strong>ULTIMA MILLA CLI</strong> - Terminal interactivo empresarial
+          </div>
+          <div class="welcome-line typing-effect" data-delay="800">
+            <span class="icon">📊</span> Explora <strong>22 años</strong> de historia, <strong>469+ proyectos</strong> y <strong>150+ clientes</strong>
+          </div>
+          <div class="welcome-line typing-effect" data-delay="1600">
+            <span class="icon">💡</span> Escribe <code>help</code> para ver comandos disponibles
+          </div>
+          <div class="welcome-line typing-effect" data-delay="2400">
+            <span class="icon">⚡</span> Prueba <code>sudo ultimamilla.py --demo</code> para una demostración completa
+          </div>
+          <div class="welcome-line typing-effect" data-delay="3200">
+            <span class="icon">📞</span> Comando <code>contacto</code> para enviar mensajes reales
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Terminal Input Line -->
+    <div class="um-terminal-input-line">
+      <div class="input-container">
+        <span class="um-prompt" id="terminal-prompt">visitante@ultimamilla:~$ </span>
+        <input 
+          type="text" 
+          id="terminal-input" 
+          class="um-input" 
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Escribe un comando..."
+          aria-label="Terminal de comandos"
+        />
+        <div class="cursor-blink" id="terminal-cursor"></div>
+      </div>
+      <div class="input-suggestions" id="input-suggestions"></div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Procesando comando...</div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Enhanced Terminal Container */
+  #um-terminal-enhanced-container {
+    width: 100%;
+    max-width: none;
+    margin: 0 auto;
+    padding: 0;
+    position: relative;
+    z-index: 10;
+  }
+
+  .um-terminal-enhanced {
+    /* Responsive sizing - balanced with background visibility */
+    width: 85vw;
+    max-width: 1200px;
+    height: 70vh;
+    min-height: 500px;
+    max-height: 800px;
+    
+    /* Enhanced visual design */
+    background: linear-gradient(145deg, #0a0e1a 0%, #1a1f2e 50%, #0d1117 100%);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    border-radius: 16px;
+    
+    /* Enhanced shadow and glow effects */
+    box-shadow: 
+      0 25px 50px -12px rgba(0, 0, 0, 0.8),
+      0 0 0 1px rgba(255, 255, 255, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    
+    /* Font and layout */
+    font-family: 'Fira Code', 'JetBrains Mono', 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    margin: 0 auto;
+    
+    /* Subtle animation */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Glowing border effect */
+  .um-terminal-enhanced::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, 
+      rgba(0, 255, 170, 0.3) 0%,
+      rgba(121, 192, 255, 0.3) 25%,
+      rgba(255, 107, 107, 0.3) 50%,
+      rgba(255, 214, 0, 0.3) 75%,
+      rgba(0, 255, 170, 0.3) 100%
+    );
+    border-radius: 16px;
+    z-index: -1;
+    animation: borderGlow 4s linear infinite;
+  }
+
+  @keyframes borderGlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Terminal Header */
+  .um-terminal-header {
+    background: linear-gradient(135deg, #21262d 0%, #30363d 100%);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    user-select: none;
+    backdrop-filter: blur(10px);
+  }
+
+  .um-terminal-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .um-control {
+    width: 32px;
+    height: 26px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .um-minimize {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .um-minimize:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .um-maximize {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .um-maximize:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .um-close {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .um-close:hover {
+    background: #e74c3c;
+    border-color: #c0392b;
+  }
+
+  .control-icon {
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 1;
+  }
+
+  .um-control:active {
+    transform: scale(0.95);
+  }
+
+  .um-terminal-title {
+    color: #e6edf3;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    flex: 1;
+    margin-left: -80px;
+    text-shadow: 0 0 10px rgba(230, 237, 243, 0.3);
+  }
+
+  .um-terminal-status {
+    display: flex;
+    align-items: center;
+  }
+
+  .status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #00d4aa, #00ff88);
+    box-shadow: 0 0 15px rgba(0, 212, 170, 0.5);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(0.9); }
+  }
+
+  /* Terminal Body */
+  .um-terminal-body {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    color: #e6edf3;
+    font-size: 16px;
+    line-height: 1.6;
+    background: rgba(13, 17, 23, 0.4);
+    backdrop-filter: blur(5px);
+    position: relative;
+  }
+
+  /* Custom scrollbar */
+  .um-terminal-body::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .um-terminal-body::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+
+  .um-terminal-body::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #00d4aa, #79c0ff);
+    border-radius: 4px;
+  }
+
+  .um-terminal-body::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #00ff88, #a0d0ff);
+  }
+
+  /* Welcome Message */
+  .welcome-message {
+    margin-bottom: 30px;
+  }
+
+  .ascii-art {
+    color: #00d4aa;
+    font-size: 12px;
+    margin-bottom: 24px;
+    text-shadow: 
+      0 0 10px rgba(0, 212, 170, 0.5),
+      0 0 20px rgba(0, 212, 170, 0.2);
+    filter: drop-shadow(0 0 5px rgba(0, 212, 170, 0.3));
+  }
+
+  .welcome-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .welcome-line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .welcome-line.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .welcome-line .icon {
+    font-size: 18px;
+    min-width: 24px;
+    text-align: center;
+    filter: drop-shadow(0 0 5px currentColor);
+  }
+
+  .welcome-line strong {
+    color: #00d4aa;
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(0, 212, 170, 0.4);
+  }
+
+  .welcome-line code {
+    background: rgba(121, 192, 255, 0.15);
+    color: #79c0ff;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 14px;
+    border: 1px solid rgba(121, 192, 255, 0.3);
+    transition: all 0.2s ease;
+  }
+
+  .welcome-line code:hover {
+    background: rgba(121, 192, 255, 0.25);
+    border-color: rgba(121, 192, 255, 0.5);
+    transform: translateY(-1px);
+  }
+
+  /* Terminal Input */
+  .um-terminal-input-line {
+    padding: 20px 24px;
+    background: rgba(13, 17, 23, 0.8);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    position: relative;
+  }
+
+  .input-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+  }
+
+  .um-prompt {
+    color: #00d4aa;
+    font-weight: 700;
+    white-space: nowrap;
+    text-shadow: 0 0 12px rgba(0, 212, 170, 0.6);
+    font-size: 16px;
+  }
+
+  .um-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #e6edf3;
+    font-family: inherit;
+    font-size: 16px;
+    outline: none;
+    caret-color: transparent; /* Hide default caret */
+    padding: 8px 0;
+  }
+
+  .um-input::placeholder {
+    color: rgba(110, 118, 129, 0.6);
+    font-style: italic;
+  }
+
+  /* Custom cursor */
+  .cursor-blink {
+    width: 2px;
+    height: 20px;
+    background: #00d4aa;
+    margin-left: 2px;
+    animation: blink 1s infinite;
+    box-shadow: 0 0 8px rgba(0, 212, 170, 0.6);
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  /* Input Suggestions */
+  .input-suggestions {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    right: 0;
+    background: rgba(33, 38, 45, 0.95);
+    border: 1px solid rgba(121, 192, 255, 0.3);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #79c0ff;
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+
+  .input-suggestions.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  /* Loading Overlay */
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(13, 17, 23, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(5px);
+    z-index: 100;
+  }
+
+  .loading-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(121, 192, 255, 0.2);
+    border-top: 3px solid #79c0ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .loading-text {
+    color: #79c0ff;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  /* Output styling */
+  .command-output {
+    margin: 16px 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    line-height: 1.4;
+  }
+
+  .command-input {
+    color: #e6edf3;
+    margin: 12px 0 8px 0;
+    font-weight: 600;
+  }
+
+  .command-success {
+    color: #7ee787;
+    text-shadow: 0 0 8px rgba(126, 231, 135, 0.3);
+  }
+
+  .command-error {
+    color: #f85149;
+    text-shadow: 0 0 8px rgba(248, 81, 73, 0.3);
+  }
+
+  .command-info {
+    color: #79c0ff;
+    text-shadow: 0 0 8px rgba(121, 192, 255, 0.3);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    .um-terminal-enhanced {
+      width: 90vw;
+      height: 65vh;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .um-terminal-enhanced {
+      width: 94vw;
+      height: 60vh;
+      min-height: 400px;
+      border-radius: 12px;
+    }
+
+    .um-terminal-header {
+      padding: 12px 16px;
+    }
+
+    .um-control {
+      width: 14px;
+      height: 14px;
+    }
+
+    .um-terminal-title {
+      font-size: 12px;
+      margin-left: -60px;
+    }
+
+    .um-terminal-body {
+      padding: 16px;
+      font-size: 14px;
+    }
+
+    .welcome-line {
+      gap: 8px;
+    }
+
+    .welcome-line .icon {
+      font-size: 16px;
+      min-width: 20px;
+    }
+
+    .welcome-line code {
+      font-size: 12px;
+      padding: 2px 6px;
+    }
+
+    .um-terminal-input-line {
+      padding: 16px;
+    }
+
+    .um-prompt {
+      font-size: 14px;
+    }
+
+    .um-input {
+      font-size: 14px;
+    }
+
+    .cursor-blink {
+      height: 18px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .um-terminal-enhanced {
+      width: 99vw;
+      height: 55vh;
+      min-height: 350px;
+      border-radius: 8px;
+    }
+
+    .um-terminal-header {
+      padding: 10px 12px;
+    }
+
+    .um-terminal-title {
+      font-size: 11px;
+      margin-left: -50px;
+    }
+
+    .um-terminal-body {
+      padding: 12px;
+      font-size: 13px;
+    }
+
+    .ascii-art {
+      font-size: 10px;
+    }
+
+    .welcome-line {
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    .welcome-line .icon {
+      font-size: 14px;
+      min-width: 18px;
+    }
+
+    .um-terminal-input-line {
+      padding: 12px;
+    }
+
+    .um-prompt {
+      font-size: 13px;
+    }
+
+    .um-input {
+      font-size: 13px;
+    }
+
+    .cursor-blink {
+      height: 16px;
+    }
+  }
+
+  /* Landscape mobile optimization */
+  @media (max-height: 600px) and (orientation: landscape) {
+    .um-terminal-enhanced {
+      height: 85vh;
+      min-height: 300px;
+    }
+
+    .um-terminal-body {
+      padding: 12px;
+    }
+
+    .welcome-message {
+      margin-bottom: 16px;
+    }
+
+    .welcome-line {
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+  }
+
+  /* High DPI displays */
+  @media (min-resolution: 2dppx) {
+    .um-terminal-enhanced {
+      border-width: 1px;
+    }
+
+    .um-terminal-enhanced::before {
+      top: -1px;
+      left: -1px;
+      right: -1px;
+      bottom: -1px;
+    }
+  }
+
+  /* Accessibility improvements */
+  @media (prefers-reduced-motion: reduce) {
+    .um-terminal-enhanced,
+    .um-control,
+    .welcome-line,
+    .cursor-blink,
+    .loading-overlay,
+    .input-suggestions {
+      animation: none;
+      transition: none;
+    }
+
+    .status-indicator {
+      animation: none;
+    }
+  }
+
+  /* High contrast mode */
+  @media (prefers-contrast: high) {
+    .um-terminal-enhanced {
+      border: 2px solid #ffffff;
+      box-shadow: none;
+    }
+
+    .um-terminal-enhanced::before {
+      display: none;
+    }
+
+    .um-terminal-header {
+      border-bottom: 2px solid #ffffff;
+    }
+
+    .welcome-line strong {
+      color: #ffffff;
+      text-shadow: none;
+    }
+  }
+</style>
