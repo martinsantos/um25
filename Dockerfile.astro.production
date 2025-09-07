@@ -1,0 +1,79 @@
+# Dockerfile.astro.production
+# Multi-stage build optimizado para producción
+
+# ========================
+# STAGE 1: Builder
+# ========================
+FROM node:20-alpine AS builder
+
+# Metadata
+LABEL maintainer="ultimamilla.com.ar"
+LABEL description="Astro production build stage"
+
+# Instalar dependencias del sistema
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/cache/apk/*
+
+WORKDIR /app
+
+# Copiar archivos de dependencias primero (para aprovechar Docker layer caching)
+COPY package*.json ./
+
+# Instalar dependencias de producción + dev (necesarias para build)
+RUN npm ci --only=production=false \
+    && npm cache clean --force
+
+# Copiar código fuente
+COPY . .
+
+# Build de la aplicación para producción
+ENV NODE_ENV=production
+RUN npm run build
+
+# Limpiar dependencias de desarrollo post-build
+RUN npm prune --production
+
+# ========================
+# STAGE 2: Production Runtime
+# ========================
+FROM node:20-alpine AS runner
+
+# Metadata
+LABEL maintainer="ultimamilla.com.ar"
+LABEL description="Astro production runtime"
+
+# Crear usuario no-root para seguridad
+RUN addgroup -g 1001 -S nodejs \
+    && adduser -S nextjs -u 1001
+
+# Instalar curl para healthchecks
+RUN apk add --no-cache curl \
+    && rm -rf /var/cache/apk/*
+
+WORKDIR /app
+
+# Copiar archivos necesarios desde builder
+COPY --from=builder --chown=nextjs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+
+# Cambiar a usuario no-root
+USER nextjs
+
+# Configuración de producción
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOST=0.0.0.0
+
+# Exponer puerto
+EXPOSE 3000
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3000/health || exit 1
+
+# Comando de inicio
+CMD ["node", "dist/server/entry.mjs"]

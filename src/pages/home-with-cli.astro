@@ -415,8 +415,8 @@ const antecedentes = {
 
 <script>
   // Importar el plugin UM CLI
-  import('../plugins/UMCliPlugin.js').then(module => {
-    const UMCliPlugin = module.default;
+  // Verificar que el UMCliPlugin esté disponible globalmente
+  if (typeof UMCliPlugin !== 'undefined') {
     
     // Inicializar el CLI cuando se carga la página
     document.addEventListener('DOMContentLoaded', () => {
@@ -540,7 +540,9 @@ Soporte 24/7 para clientes premium
         });
       }, 2000);
     });
-  });
+  } else {
+    console.warn('UMCliPlugin no está disponible');
+  }
 
   // Animación de entrada para los elementos
   const observerOptions = {

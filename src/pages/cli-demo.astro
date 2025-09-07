@@ -534,8 +534,9 @@ import Layout from '../layouts/Layout.astro';
 
 <script>
   // Importar el plugin UM CLI
-  import('../plugins/UMCliPlugin.js').then(module => {
-    const UMCliPlugin = module.default;
+// Verificar que el UMCliPlugin esté disponible globalmente
+    if (typeof UMCliPlugin !== 'undefined') {
+      const umCliPlugin = UMCliPlugin;
     
     document.addEventListener('DOMContentLoaded', () => {
       // Configuración según parámetros URL
@@ -733,6 +734,8 @@ Para insertar este terminal en tu sitio web:
         }
       });
     });
-  });
+  } else {
+    console.warn('UMCliPlugin no está disponible');
+  }
 </script>
 </Layout>
