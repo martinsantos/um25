@@ -17,10 +17,10 @@ def test_website():
     print("==================================")
     
     urls_to_test = [
-        "https://www.umbot.com.ar/",
-        "https://www.umbot.com.ar/antecedentes",
-        "https://www.umbot.com.ar/servicios",
-        "https://www.umbot.com.ar/contact"
+        "https://www.ultimamilla.com.ar/",
+        "https://www.ultimamilla.com.ar/antecedentes",
+        "https://www.ultimamilla.com.ar/servicios",
+        "https://www.ultimamilla.com.ar/contact"
     ]
     
     for url in urls_to_test:
@@ -40,7 +40,7 @@ def test_directus():
     
     # Verificar que el panel esté accesible
     try:
-        response = requests.get("https://www.umbot.com.ar:8056/admin", timeout=10, verify=False)
+        response = requests.get("https://www.ultimamilla.com.ar:8056/admin", timeout=10, verify=False)
         if response.status_code == 200:
             print("✅ Panel de administración accesible")
         else:
@@ -50,7 +50,7 @@ def test_directus():
     
     # Verificar servidor Directus
     try:
-        response = requests.get("https://www.umbot.com.ar:8056/server/ping", timeout=10, verify=False)
+        response = requests.get("https://www.ultimamilla.com.ar:8056/server/ping", timeout=10, verify=False)
         if response.status_code == 200 and "pong" in response.text:
             print("✅ Servidor Directus respondiendo")
         else:
@@ -66,9 +66,9 @@ def authenticate_and_verify_data():
     # Autenticación
     try:
         auth_response = requests.post(
-            "https://www.umbot.com.ar:8056/auth/login",
+            "https://www.ultimamilla.com.ar:8056/auth/login",
             json={
-                "email": "admin@umbot.com.ar",
+                "email": "admin@ultimamilla.com.ar",
                 "password": "UmbotDirectusAdmin2025!"
             },
             timeout=30,
@@ -86,7 +86,7 @@ def authenticate_and_verify_data():
                 headers = {"Authorization": f"Bearer {token}"}
                 
                 antecedentes_response = requests.get(
-                    "https://www.umbot.com.ar:8056/items/antecedentes?aggregate[count]=*",
+                    "https://www.ultimamilla.com.ar:8056/items/antecedentes?aggregate[count]=*",
                     headers=headers,
                     verify=False
                 )
@@ -100,7 +100,7 @@ def authenticate_and_verify_data():
                 
                 # Verificar servicios
                 servicios_response = requests.get(
-                    "https://www.umbot.com.ar:8056/items/servicios?aggregate[count]=*",
+                    "https://www.ultimamilla.com.ar:8056/items/servicios?aggregate[count]=*",
                     headers=headers,
                     verify=False
                 )
@@ -117,7 +117,7 @@ def authenticate_and_verify_data():
                 print("===============================")
                 
                 example_response = requests.get(
-                    "https://www.umbot.com.ar:8056/items/antecedentes?limit=1",
+                    "https://www.ultimamilla.com.ar:8056/items/antecedentes?limit=1",
                     headers=headers,
                     verify=False
                 )
@@ -149,9 +149,9 @@ def show_summary():
     print("✅ Sistema completo operativo")
     print()
     print("🔗 ENLACES IMPORTANTES:")
-    print("• Sitio web: https://www.umbot.com.ar")
-    print("• Panel admin: https://www.umbot.com.ar:8056/admin")
-    print("• Credenciales: admin@umbot.com.ar / UmbotDirectusAdmin2025!")
+    print("• Sitio web: https://www.ultimamilla.com.ar")
+    print("• Panel admin: https://www.ultimamilla.com.ar:8056/admin")
+    print("• Credenciales: admin@ultimamilla.com.ar / UmbotDirectusAdmin2025!")
     print()
     print("✨ MISIÓN CUMPLIDA:")
     print("• Todos los contenidos del sitio están ahora administrables")

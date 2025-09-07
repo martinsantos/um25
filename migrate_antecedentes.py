@@ -36,7 +36,7 @@ class DirectusMigration:
             response = self.session.post(
                 f"{self.base_url}/auth/login",
                 json={
-                    "email": "admin@umbot.com.ar",
+                    "email": "admin@ultimamilla.com.ar",
                     "password": "UmbotHybridAdmin2025!"
                 }
             )

@@ -30,18 +30,18 @@ docker-compose -f docker-compose.spa.yml ps
 echo ""
 echo "🔍 Verificando conectividad:"
 echo "Admin principal:"
-curl -I https://www.umbot.com.ar/admin 2>/dev/null | head -1
+curl -I https://www.ultimamilla.com.ar/admin 2>/dev/null | head -1
 echo "Admin con slash:"
-curl -I https://www.umbot.com.ar/admin/ 2>/dev/null | head -1
+curl -I https://www.ultimamilla.com.ar/admin/ 2>/dev/null | head -1
 echo "Login page:"
-curl -I https://www.umbot.com.ar/admin/login 2>/dev/null | head -1
+curl -I https://www.ultimamilla.com.ar/admin/login 2>/dev/null | head -1
 
 echo ""
 echo "✅ Despliegue SPA completado"
-echo "🌐 Sitio: https://www.umbot.com.ar"
-echo "🔧 Admin: https://www.umbot.com.ar/admin"
-echo "🔑 Login: https://www.umbot.com.ar/admin/login?redirect=/admin"
-echo "👤 Usuario: admin@umbot.com.ar"
+echo "🌐 Sitio: https://www.ultimamilla.com.ar"
+echo "🔧 Admin: https://www.ultimamilla.com.ar/admin"
+echo "🔑 Login: https://www.ultimamilla.com.ar/admin/login?redirect=/admin"
+echo "👤 Usuario: admin@ultimamilla.com.ar"
 echo "🔑 Password: UmbotDirectusAdmin2025!"
 echo ""
 echo "📝 Notas:"

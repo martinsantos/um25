@@ -20,16 +20,16 @@ upstream directus {
 
 server {
     listen 80;
-    server_name www.umbot.com.ar;
+    server_name www.ultimamilla.com.ar;
     return 301 https://$server_name$request_uri;
 }
 
 server {
     listen 443 ssl http2;
-    server_name www.umbot.com.ar;
+    server_name www.ultimamilla.com.ar;
 
-    ssl_certificate /etc/letsencrypt/live/www.umbot.com.ar/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/www.umbot.com.ar/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/www.ultimamilla.com.ar/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/www.ultimamilla.com.ar/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384;
     ssl_prefer_server_ciphers off;
@@ -99,7 +99,7 @@ echo "🆘 Si nginx sigue fallando, usar configuración simple:"
 cat > /root/nginx.simple.conf << 'SIMPLE_EOF'
 server {
     listen 80;
-    server_name www.umbot.com.ar;
+    server_name www.ultimamilla.com.ar;
     root /var/www/html;
     index index.html;
     location / {
@@ -109,12 +109,12 @@ server {
 
 server {
     listen 443 ssl http2;
-    server_name www.umbot.com.ar;
+    server_name www.ultimamilla.com.ar;
     root /var/www/html;
     index index.html;
     
-    ssl_certificate /etc/letsencrypt/live/www.umbot.com.ar/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/www.umbot.com.ar/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/www.ultimamilla.com.ar/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/www.ultimamilla.com.ar/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
     
     location / {
@@ -131,7 +131,7 @@ echo "docker restart umbot-nginx-direct"
 echo ""
 echo "🌐 Verificación externa:"
 echo "Desde fuera del servidor ejecutar:"
-echo "curl -I https://www.umbot.com.ar"
+echo "curl -I https://www.ultimamilla.com.ar"
 EOF
 
 echo ""

@@ -149,7 +149,7 @@ echo "   🔄 Contenedores reconstruidos"
 
 echo ""
 echo -e "${BLUE}🌐 VERIFICACIÓN:${NC}"
-echo "   1. Abre: https://www.umbot.com.ar"
+echo "   1. Abre: https://www.ultimamilla.com.ar"
 echo "   2. Verifica que los servicios en la HOME muestren imágenes reales"
 echo "   3. Presiona Ctrl+F5 para limpiar caché del navegador"
 echo ""

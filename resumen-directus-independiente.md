@@ -4,14 +4,14 @@
 
 ### 📋 **RESUMEN EJECUTIVO**
 
-Se ha implementado exitosamente **Directus CMS como servicio independiente** en el servidor umbot.com.ar, manteniendo el frontend estático completamente funcional y sin interferencias.
+Se ha implementado exitosamente **Directus CMS como servicio independiente** en el servidor ultimamilla.com.ar, manteniendo el frontend estático completamente funcional y sin interferencias.
 
 ### 🏗️ **ARQUITECTURA IMPLEMENTADA**
 
 ```
 SERVIDOR 23.105.176.45
 ├── Frontend Estático (Puerto 80/443)
-│   ├── www.umbot.com.ar (Público)
+│   ├── www.ultimamilla.com.ar (Público)
 │   ├── Contenido original mantenido
 │   └── Rendimiento sin cambios
 │
@@ -36,7 +36,7 @@ SERVIDOR 23.105.176.45
    - Sistema de gestión de archivos operativo
 
 3. **🌐 ACCESOS DIFERENCIADOS**
-   - **Público**: https://www.umbot.com.ar (sin cambios)
+   - **Público**: https://www.ultimamilla.com.ar (sin cambios)
    - **Admin**: http://23.105.176.45:8055/admin
    - **APIs**: http://23.105.176.45:8055/items/
 
@@ -51,7 +51,7 @@ SERVIDOR 23.105.176.45
 
 #### **FRONTEND ESTÁTICO (Sin cambios)**
 - **Puerto**: 80/443
-- **Dominio**: www.umbot.com.ar
+- **Dominio**: www.ultimamilla.com.ar
 - **Contenido**: HTML/CSS/JS original
 - **Estado**: ✅ Funcionando normalmente
 
@@ -102,13 +102,13 @@ SERVIDOR 23.105.176.45
 
 #### **Frontend Estático (Sin cambios)**
 ```bash
-curl -I https://www.umbot.com.ar
+curl -I https://www.ultimamilla.com.ar
 # HTTP/2 200 OK ✅
 
-curl -I https://www.umbot.com.ar/servicios
+curl -I https://www.ultimamilla.com.ar/servicios
 # HTTP/2 200 OK ✅
 
-curl -I https://www.umbot.com.ar/antecedentes
+curl -I https://www.ultimamilla.com.ar/antecedentes
 # HTTP/2 200 OK ✅
 ```
 

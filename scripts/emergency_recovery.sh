@@ -91,8 +91,8 @@ show_status "Limpieza de cache" $?
 
 # 6. Verificar certificados SSL
 echo -e "\n${YELLOW}Verificando certificados SSL...${NC}"
-if [ -f "/etc/letsencrypt/live/umbot.com.ar/fullchain.pem" ]; then
-    CERT_EXPIRY=$(openssl x509 -enddate -noout -in "/etc/letsencrypt/live/umbot.com.ar/fullchain.pem" | cut -d= -f2)
+if [ -f "/etc/letsencrypt/live/ultimamilla.com.ar/fullchain.pem" ]; then
+    CERT_EXPIRY=$(openssl x509 -enddate -noout -in "/etc/letsencrypt/live/ultimamilla.com.ar/fullchain.pem" | cut -d= -f2)
     echo -e "${GREEN}Certificado válido hasta: $CERT_EXPIRY${NC}"
 else
     echo -e "${RED}Certificado no encontrado${NC}"
@@ -105,4 +105,4 @@ docker-compose ps
 echo "----------------------------------------"
 
 echo -e "\n${GREEN}✅ Recuperación completada${NC}"
-echo -e "Accede a https://umbot.com.ar para verificar" 
+echo -e "Accede a https://ultimamilla.com.ar para verificar" 

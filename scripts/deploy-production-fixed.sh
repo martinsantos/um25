@@ -34,10 +34,10 @@ echo "[$(date '+%Y-%m-%d %H:%M:%S')] Paso 4: Configurando variables de entorno..
 if [ ! -f ".env.production" ]; then
     echo "Creando .env.production..."
     cat > .env.production << EOF
-# Configuración de producción para www.umbot.com.ar
+# Configuración de producción para www.ultimamilla.com.ar
 NODE_ENV=production
-PUBLIC_SITE_URL=https://www.umbot.com.ar
-PUBLIC_DIRECTUS_URL=https://www.umbot.com.ar/api
+PUBLIC_SITE_URL=https://www.ultimamilla.com.ar
+PUBLIC_DIRECTUS_URL=https://www.ultimamilla.com.ar/api
 
 # Directus Configuration
 DIRECTUS_URL=http://directus:8055
@@ -54,8 +54,8 @@ DB_PASSWORD=umbot_directus_2025!
 # Security
 KEY=umbot-directus-key-production-2025
 SECRET=umbot-directus-secret-production-2025
-ADMIN_EMAIL=admin@umbot.com.ar
-ADMIN_PASSWORD=UmbotAdmin2025!
+ADMIN_EMAIL=admin@ultimamilla.com.ar
+ADMIN_PASSWORD=UltimaMillaAdmin2025!
 EOF
 fi
 
@@ -103,12 +103,12 @@ echo "🎉 ¡Despliegue completado!"
 echo "📋 Resumen:"
 echo "   - Sitio web: http://23.105.176.45 (temporal)"
 echo "   - Directus Admin: http://23.105.176.45:8055"
-echo "   - Usuario: admin@umbot.com.ar"
-echo "   - Contraseña: UmbotAdmin2025!"
+echo "   - Usuario: admin@ultimamilla.com.ar"
+echo "   - Contraseña: UltimaMillaAdmin2025!"
 echo ""
 echo "⚠️  Próximos pasos:"
 echo "   1. Configurar SSL con Let's Encrypt"
-echo "   2. Configurar DNS para www.umbot.com.ar"
+echo "   2. Configurar DNS para www.ultimamilla.com.ar"
 echo "   3. Configurar Nginx reverse proxy"
 echo ""
 echo "📊 Para monitorear:"

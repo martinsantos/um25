@@ -3,7 +3,7 @@
 ## 🖥️ **Datos del Servidor**
 
 - **IP**: `23.105.176.45`
-- **Dominio**: `www.umbot.com.ar`
+- **Dominio**: `www.ultimamilla.com.ar`
 - **DNS**: Delegado a `ns1.23.105.176.45` y `ns2.23.105.176.45`
 - **Panel**: CyberPanel en `https://23.105.176.45:8090`
 
@@ -22,12 +22,12 @@ ssh root@23.105.176.45
 
 ## 🌐 **Configuración DNS**
 
-El dominio `www.umbot.com.ar` debe estar configurado para apuntar a `23.105.176.45`:
+El dominio `www.ultimamilla.com.ar` debe estar configurado para apuntar a `23.105.176.45`:
 
 ```
-A     www.umbot.com.ar    23.105.176.45
-A     umbot.com.ar        23.105.176.45
-CNAME www                 umbot.com.ar
+A     www.ultimamilla.com.ar    23.105.176.45
+A     ultimamilla.com.ar        23.105.176.45
+CNAME www                 ultimamilla.com.ar
 ```
 
 ## 🔒 **Configuración SSL**
@@ -35,17 +35,17 @@ CNAME www                 umbot.com.ar
 ### Certificados Let's Encrypt
 ```bash
 # Generar certificados SSL
-certbot certonly --webroot -w /var/www/certbot -d www.umbot.com.ar -d umbot.com.ar
+certbot certonly --webroot -w /var/www/certbot -d www.ultimamilla.com.ar -d ultimamilla.com.ar
 
 # Ubicación de certificados
-/etc/letsencrypt/live/www.umbot.com.ar/fullchain.pem
-/etc/letsencrypt/live/www.umbot.com.ar/privkey.pem
+/etc/letsencrypt/live/www.ultimamilla.com.ar/fullchain.pem
+/etc/letsencrypt/live/www.ultimamilla.com.ar/privkey.pem
 ```
 
 ### Configuración en CyberPanel
 1. Acceder a `https://23.105.176.45:8090`
 2. Ir a **SSL** > **Manage SSL**
-3. Seleccionar dominio `www.umbot.com.ar`
+3. Seleccionar dominio `www.ultimamilla.com.ar`
 4. Configurar certificados SSL
 
 ## 🐳 **Despliegue Docker**
@@ -53,15 +53,15 @@ certbot certonly --webroot -w /var/www/certbot -d www.umbot.com.ar -d umbot.com.
 ### Variables de Entorno para Producción
 ```bash
 # URLs de Producción
-DIRECTUS_URL=https://www.umbot.com.ar/api
-PUBLIC_SITE_URL=https://www.umbot.com.ar
+DIRECTUS_URL=https://www.ultimamilla.com.ar/api
+PUBLIC_SITE_URL=https://www.ultimamilla.com.ar
 
 # Base de Datos
 DB_PASSWORD=umbot_directus_2025!
 
 # Directus Admin
-DIRECTUS_ADMIN_EMAIL=admin@umbot.com.ar
-DIRECTUS_ADMIN_PASSWORD=UmbotAdmin2025!
+DIRECTUS_ADMIN_EMAIL=admin@ultimamilla.com.ar
+DIRECTUS_ADMIN_PASSWORD=UltimaMillaAdmin2025!
 
 # Redis
 REDIS_PASSWORD=umbot_redis_2025!
@@ -158,14 +158,14 @@ docker-compose -f docker-compose.prod.yml restart umbot-nginx-prod
 1. **Error de conexión SSL**
    ```bash
    # Verificar certificados
-   openssl x509 -in /etc/letsencrypt/live/www.umbot.com.ar/fullchain.pem -text -noout
+   openssl x509 -in /etc/letsencrypt/live/www.ultimamilla.com.ar/fullchain.pem -text -noout
    ```
 
 2. **Error de DNS**
    ```bash
    # Verificar resolución DNS
-   nslookup www.umbot.com.ar
-   dig www.umbot.com.ar
+   nslookup www.ultimamilla.com.ar
+   dig www.ultimamilla.com.ar
    ```
 
 3. **Error de Docker**

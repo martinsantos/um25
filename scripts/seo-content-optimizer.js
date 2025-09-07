@@ -250,7 +250,7 @@ async function createGlobalSEOConfig() {
   const seoConfig = {
     sitio_web: {
       nombre: "ULTIMA MILLA",
-      url_actual: "https://www.umbot.com.ar",
+      url_actual: "https://www.ultimamilla.com.ar",
       url_final: "https://www.ultimamilla.com.ar",
       descripcion: SEO_CONTENT.empresa.descripcion,
       keywords: SEO_CONTENT.empresa.keywords,
@@ -298,7 +298,7 @@ async function runSEOOptimization() {
   const report = {
     inicio: new Date().toISOString(),
     empresa: "ULTIMA MILLA",
-    url_actual: "https://www.umbot.com.ar",
+    url_actual: "https://www.ultimamilla.com.ar",
     url_objetivo: "https://www.ultimamilla.com.ar",
     resultados: {}
   };

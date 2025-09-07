@@ -98,8 +98,8 @@ log_info "PASO 5: Configurando variables de entorno para producción..."
 cat > .env.production << 'EOF'
 NODE_ENV=production
 ASTRO_ENV=production
-PUBLIC_SITE_URL=https://www.umbot.com.ar
-PUBLIC_DOMAIN=www.umbot.com.ar
+PUBLIC_SITE_URL=https://www.ultimamilla.com.ar
+PUBLIC_DOMAIN=www.ultimamilla.com.ar
 STATIC_MODE=true
 USE_STATIC_DATA=true
 PUBLIC_DIRECTUS_URL=http://localhost:8055
@@ -290,7 +290,7 @@ echo ""
 echo "🌐 ACCESO AL SITIO:"
 echo "   - IP Local: http://localhost"
 echo "   - IP Externa: http://$(curl -s ifconfig.me 2>/dev/null || echo 'IP_EXTERNA')"
-echo "   - Dominio: https://www.umbot.com.ar"
+echo "   - Dominio: https://www.ultimamilla.com.ar"
 echo ""
 echo "🔧 COMANDOS ÚTILES:"
 echo "   - Ver logs: docker-compose -f docker-compose.static.yml logs -f"

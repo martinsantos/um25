@@ -125,7 +125,7 @@ generate_ssh_key() {
     fi
     
     log_info "Generando nueva clave SSH para GitHub Actions..."
-    ssh-keygen -t rsa -b 4096 -C "github-actions@umbot.com.ar" -f "$key_path" -N ""
+    ssh-keygen -t rsa -b 4096 -C "github-actions@ultimamilla.com.ar" -f "$key_path" -N ""
     
     log_success "Clave SSH generada en: $key_path"
     
@@ -400,7 +400,7 @@ show_final_status() {
     echo "🔧 Comandos útiles:"
     echo "  • Ver estado: ssh root@23.105.176.45 'docker ps'"
     echo "  • Ver logs: ssh root@23.105.176.45 'docker-compose logs'"
-    echo "  • Health check: curl -I https://www.umbot.com.ar/"
+    echo "  • Health check: curl -I https://www.ultimamilla.com.ar/"
     echo ""
     echo "📋 Próximos pasos:"
     echo "  • Configurar notificaciones Slack (opcional)"

@@ -13,16 +13,16 @@ upstream directus {
 
 server {
     listen 80;
-    server_name www.umbot.com.ar;
+    server_name www.ultimamilla.com.ar;
     return 301 https://\$server_name\$request_uri;
 }
 
 server {
     listen 443 ssl http2;
-    server_name www.umbot.com.ar;
+    server_name www.ultimamilla.com.ar;
 
-    ssl_certificate /etc/letsencrypt/live/www.umbot.com.ar/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/www.umbot.com.ar/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/www.ultimamilla.com.ar/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/www.ultimamilla.com.ar/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384;
     ssl_prefer_server_ciphers off;
@@ -102,7 +102,7 @@ services:
     image: directus/directus:10.8.3
     container_name: umbot-directus-admin
     environment:
-      KEY: 'DirectusSecretKey2025UmbotAdmin'
+      KEY: 'DirectusSecretKey2025UltimaMillaAdmin'
       SECRET: 'DirectusSecretToken2025UmbotHybrid'
       DB_CLIENT: pg
       DB_HOST: umbot-postgres-admin
@@ -110,7 +110,7 @@ services:
       DB_DATABASE: directus
       DB_USER: directus
       DB_PASSWORD: DirectusAdmin2025!
-      ADMIN_EMAIL: admin@umbot.com.ar
+      ADMIN_EMAIL: admin@ultimamilla.com.ar
       ADMIN_PASSWORD: UmbotDirectusAdmin2025!
       SERVE_APP: true
       CORS_ENABLED: true
@@ -163,8 +163,8 @@ echo '📊 Estado de contenedores:'
 docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
 
 echo '🔍 Verificando corrección:'
-curl -s https://www.umbot.com.ar/admin | grep -o 'base href=\"[^\"]*\"' || echo 'No encontrado'
-curl -I https://www.umbot.com.ar/admin/login 2>/dev/null | head -1
+curl -s https://www.ultimamilla.com.ar/admin | grep -o 'base href=\"[^\"]*\"' || echo 'No encontrado'
+curl -I https://www.ultimamilla.com.ar/admin/login 2>/dev/null | head -1
 
 echo '✅ Corrección aplicada'
 "
@@ -173,7 +173,7 @@ echo "🚀 EJECUTANDO CORRECCIÓN REMOTA DIRECTA..."
 echo "=========================================="
 
 # Ejecutar comando remoto
-ssh root@www.umbot.com.ar "$REMOTE_COMMAND"
+ssh root@www.ultimamilla.com.ar "$REMOTE_COMMAND"
 
 if [ $? -eq 0 ]; then
     echo ""
@@ -182,13 +182,13 @@ if [ $? -eq 0 ]; then
     echo ""
     echo "🔍 Verificando resultado..."
     echo "Base href actual:"
-    curl -s https://www.umbot.com.ar/admin | grep -o 'base href="[^"]*"'
+    curl -s https://www.ultimamilla.com.ar/admin | grep -o 'base href="[^"]*"'
     echo ""
     echo "Estado del login:"
-    curl -I https://www.umbot.com.ar/admin/login 2>/dev/null | head -1
+    curl -I https://www.ultimamilla.com.ar/admin/login 2>/dev/null | head -1
     echo ""
-    echo "🌐 Panel admin disponible en: https://www.umbot.com.ar/admin"
-    echo "🔑 Credenciales: admin@umbot.com.ar / UmbotDirectusAdmin2025!"
+    echo "🌐 Panel admin disponible en: https://www.ultimamilla.com.ar/admin"
+    echo "🔑 Credenciales: admin@ultimamilla.com.ar / UmbotDirectusAdmin2025!"
 else
     echo ""
     echo "❌ ERROR EN LA CORRECCIÓN"
@@ -196,7 +196,7 @@ else
     echo "Problemas de conexión SSH o ejecución remota"
     echo ""
     echo "📋 ALTERNATIVA MANUAL:"
-    echo "1. Conectar al servidor: ssh root@www.umbot.com.ar"
+    echo "1. Conectar al servidor: ssh root@www.ultimamilla.com.ar"
     echo "2. Copiar y pegar el contenido del comando remoto"
     echo "3. Ejecutar paso a paso"
 fi 

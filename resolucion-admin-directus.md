@@ -1,7 +1,7 @@
 # Resolución del Problema de Admin Directus - 26 Junio 2025
 
 ## Problema Identificado
-- El panel de administración en https://umbot.com.ar/admin/ devolvía error 404
+- El panel de administración en https://ultimamilla.com.ar/admin/ devolvía error 404
 - La ruta `/server/info` también devolvía 404
 - Mensaje de error: "404: Not found - Path: /server/info"
 
@@ -39,14 +39,14 @@ docker-compose up -d --force-recreate nginx-proxy
 ```
 
 ## Resultado
-- ✅ https://umbot.com.ar/admin/ ahora responde HTTP 200 OK
-- ✅ https://umbot.com.ar/server/info ahora responde HTTP 200 OK
+- ✅ https://ultimamilla.com.ar/admin/ ahora responde HTTP 200 OK
+- ✅ https://ultimamilla.com.ar/server/info ahora responde HTTP 200 OK
 - ✅ Todas las rutas de la API de Directus funcionando correctamente
 - ✅ Headers de seguridad y CORS configurados apropiadamente
 
 ## Credenciales de Acceso
-- URL: https://umbot.com.ar/admin/
-- Usuario: admin@umbot.com.ar
+- URL: https://ultimamilla.com.ar/admin/
+- Usuario: admin@ultimamilla.com.ar
 - Contraseña: UmbotHybridAdmin2025!
 
 ## Estado Final

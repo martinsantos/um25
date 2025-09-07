@@ -1,40 +1,18 @@
 ---
+// home-with-cli.astro - Página home con UM CLI integrado
 import Layout from '../layouts/Layout.astro';
 import SEOHead from '../components/SEO/SEOHead.astro';
 import ServicesList from '../components/ServicesList.astro';
 import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
-import UMTerminalEnhanced from '../components/UMTerminalEnhanced.astro';
 
-// SEO metadata optimizado para página principal con enfoque local
+// SEO metadata
 const seoData = {
-  title: "ULTIMA MILLA | Empresa IT Líder en Mendoza | Servicios Tecnológicos +20 Años",
-  description: "ULTIMA MILLA: empresa líder en servicios IT en Mendoza desde 2000. +469 proyectos exitosos con Gobierno de Mendoza, AFIP, empresas vitivinícolas. Infraestructura, redes, seguridad informática y desarrollo web.",
-  keywords: "ultima milla mendoza, empresa IT mendoza, servicios tecnológicos mendoza, transformación digital mendoza, comunicaciones mendoza, redes datos mendoza, seguridad informática mendoza, desarrollo web mendoza, argentina"  
+  title: "ULTIMA MILLA CLI - Terminal Interactivo | Explora nuestra tecnología",
+  description: "Descubre la historia y servicios de ULTIMA MILLA a través de nuestro terminal interactivo. 22 años de experiencia en tecnología, más de 469 proyectos exitosos en Mendoza.",
+  keywords: "ultima milla cli, terminal interactivo, empresa IT mendoza, tecnología linux, comandos, experiencia innovadora"  
 };
 
-// Array de imágenes tecnológicas para sección Nosotros (mismo que en /nosotros)
-const techImages = [
-  'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Servidores
-  'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Código
-  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Tecnología espacial
-  'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Laptop código
-  'https://images.unsplash.com/photo-1537432376769-00f83c2f9c52?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Cables red
-  'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Fibra óptica
-  'https://images.unsplash.com/photo-1563206767-5b18f218e8de?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Circuitos
-  'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // AI/ML
-  'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Código terminal
-  'https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Programación
-  'https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Blockchain
-  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Gráficos datos
-  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Analytics
-  'https://images.unsplash.com/photo-1504639725590-34d0984388bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Desarrollo
-  'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Matemáticas
-];
-
-// Seleccionar imagen aleatoria para sección Nosotros
-const randomAboutImage = techImages[Math.floor(Math.random() * techImages.length)];
-
-// Datos hardcodeados para servicios destacados
+// Servicios destacados
 const services = {
   data: [
     {
@@ -58,14 +36,11 @@ const services = {
   ]
 };
 
-// Usar datos reales desde el archivo de antecedentes
+// Importar antecedentes reales
 import { antecedentesReales } from '../data/antecedentes_completos.js';
-
-// Seleccionar los primeros 3 antecedentes reales como destacados
 const antecedentes = {
   data: antecedentesReales.slice(0, 3).map(item => ({
     ...item,
-    // Asegurar que tengamos las fechas correctas del archivo real
     Fecha: item.Fecha || "2024-04-15"
   }))
 };
@@ -76,894 +51,635 @@ const antecedentes = {
     title={seoData.title}
     description={seoData.description}
     keywords={seoData.keywords}
-    canonical="https://ultimamilla.com.ar"
+    canonical="https://ultimamilla.com.ar/home-with-cli"
     ogType="website"
   />
-  <!-- Enhanced Hero Section - Large Interactive UM CLI Terminal -->
-  <header id="banner" class="relative w-full min-h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-800">
+  
+  <!-- Hero Section con terminal -->
+  <header id="banner" class="relative w-full h-screen overflow-hidden">
     <div class="absolute inset-0 bg-cover bg-center hero-background">
       <div class="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-black/90 to-gray-800/95"></div>
-      <div class="absolute inset-0 bg-black/40"></div>
+      <div class="absolute inset-0 bg-black/30"></div>
     </div>
-    
-    <!-- Enhanced Grid Background -->
-    <div class="absolute inset-0 opacity-20">
-      <div class="absolute inset-0" style="background-image: linear-gradient(rgba(0,212,170,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,170,0.1) 1px, transparent 1px); background-size: 50px 50px;"></div>
+    <div class="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
+      <div class="terminal-container max-w-4xl w-full mb-8">
+        <div id="terminalOutput" class="terminal-output text-left space-y-1"></div>
+      </div>
+      <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto drop-shadow-md hero-subtitle">
+        Explora ULTIMA MILLA a través de nuestro <strong class="text-green-400">terminal interactivo</strong>.<br>
+        <span class="text-white font-medium">Una experiencia única que combina nostalgia Linux con datos reales.</span>
+      </p>
+      <div class="flex flex-wrap justify-center gap-6 mb-8 text-sm md:text-base">
+        <div class="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
+          <span class="font-bold text-yellow-400">+30</span> Comandos Interactivos
+        </div>
+        <div class="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
+          <span class="font-bold text-yellow-400">22</span> Años de Historia
+        </div>
+        <div class="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
+          <span class="font-bold text-yellow-400">469+</span> Proyectos Reales
+        </div>
+      </div>
+      <a 
+        href="#um-cli-section" 
+        class="px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+      >
+        Explorar Terminal
+      </a>
     </div>
-    
-    <div class="relative z-10 flex flex-col items-center justify-center min-h-screen text-center text-white px-4 py-8">
-      
-      <!-- Enhanced Terminal Container - Much Larger -->
-      <div class="w-full max-w-none flex justify-center mb-8">
-        <UMTerminalEnhanced />
-      </div>
-      
-      <!-- Enhanced Quick Command Buttons -->
-      <div class="flex flex-wrap justify-center gap-4 mb-8 max-w-4xl">
-        <button class="enhanced-cmd-btn" data-command="sudo ultimamilla.py --demo">
-          <span class="text-green-400">🚀</span> 
-          <span class="btn-text">Demo Completa</span>
-        </button>
-        <button class="enhanced-cmd-btn" data-command="antecedentes">
-          <span class="text-blue-400">🔍</span> 
-          <span class="btn-text">Casos de Éxito</span>
-        </button>
-        <button class="enhanced-cmd-btn" data-command="servicios">
-          <span class="text-cyan-400">🛠️</span> 
-          <span class="btn-text">Nuestros Servicios</span>
-        </button>
-        <button class="enhanced-cmd-btn" data-command="stats">
-          <span class="text-yellow-400">📊</span> 
-          <span class="btn-text">Estadísticas</span>
-        </button>
-        <button class="enhanced-cmd-btn" data-command="contacto">
-          <span class="text-red-400">📞</span> 
-          <span class="btn-text">Contacto</span>
-        </button>
-        <button class="enhanced-cmd-btn" data-command="help">
-          <span class="text-purple-400">❓</span> 
-          <span class="btn-text">Ayuda</span>
-        </button>
-      </div>
-      
-      <!-- Action Buttons -->
-      <div class="flex flex-wrap justify-center gap-6">
-        <a 
-          href="#servicios" 
-          class="px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 flex items-center gap-3"
-        >
-          <span>🛠️</span>
-          <span>Ver Servicios</span>
-        </a>
-        <a 
-          href="#antecedentes" 
-          class="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 flex items-center gap-3"
-        >
-          <span>📊</span>
-          <span>Antecedentes</span>
-        </a>
-        <a 
-          href="#contacto" 
-          class="px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 flex items-center gap-3"
-        >
-          <span>📞</span>
-          <span>Contáctanos</span>
-        </a>
-      </div>
-    </div>
-    
-    <!-- Enhanced Scroll Indicator -->
-    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-      <div class="animate-bounce w-8 h-12 border-4 border-green-400/50 rounded-full flex justify-center">
-        <div class="w-1.5 h-3 bg-green-400 rounded-full mt-2 shadow-lg"></div>
+    <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2">
+      <div class="animate-bounce w-6 h-10 border-4 border-white/50 rounded-full flex justify-center">
+        <div class="w-1 h-2 bg-white rounded-full mt-2"></div>
       </div>
     </div>
   </header>
-
-  <main class="bg-gray-100">
-    
-    <!-- Sobre Nosotros -->
-    <section id="about-us" class="py-16 bg-gray-50">
-      <div class="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
-        <div>
-          <h2 class="text-4xl font-bold text-gray-800 mb-6">ULTIMA MILLA en Mendoza</h2>
-          <p class="text-lg text-gray-700 mb-6">
-            Somos la <strong>empresa líder en servicios IT de Mendoza</strong> desde el año 2000. Nuestro equipo apasionado por la tecnología se dedica a impulsar la transformación digital de empresas mendocinas.
-          </p>
-          <p class="text-lg text-gray-700 mb-8">
-            Con presencia local y <strong>+469 proyectos exitosos</strong>, ofrecemos soluciones innovadoras que generan impacto real en el crecimiento de nuestros clientes en Mendoza y la región.
-          </p>
-          <a href="/nosotros" class="inline-block bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition">Saber Más</a>
-        </div>
-        <div>
-          <img 
-            src={randomAboutImage} 
-            alt="Infraestructura tecnológica ULTIMA MILLA - Especialistas en comunicaciones, sistemas e integración desde los 2000" 
-            class="w-full h-auto rounded-lg shadow-lg"
-            loading="lazy"
-            width="600"
-            height="400"
-          />
-        </div>
+  
+  <!-- Sección del UM CLI -->
+  <section id="um-cli-section" class="um-cli-section">
+    <div class="container">
+      <div class="cli-intro">
+        <h2>🖥️ Explora ULTIMA MILLA</h2>
+        <p>Descubre nuestros servicios, proyectos y capacidades a través de nuestro terminal interactivo. Una experiencia única que combina la nostalgia de Linux con datos reales de 22 años de historia empresarial.</p>
       </div>
-    </section>
-
-    <!-- Nuestros Servicios -->
-    <section id="servicios" class="py-20 bg-white">
-      <div class="container mx-auto px-4">
-        <div class="text-center mb-12">
-          <span class="text-red-500 font-semibold">Nuestras Soluciones</span>
-          <h2 class="text-4xl font-bold text-gray-800 mt-2 mb-4">Servicios IT Profesionales en Mendoza</h2>
-          <div class="w-20 h-1 bg-red-500 mx-auto"></div>
-        </div>
-        
-        {services.data && services.data.length > 0 ? (
-          <ServicesList services={services.data} />
-        ) : (
-          <div class="text-center py-12">
-            <p class="text-gray-500">No hay servicios disponibles en este momento.</p>
-            <ServicesList services={services.data} />
-          </div>
-        )}
-      </div>
-    </section>
-
-
-
-    <!-- Antecedentes Destacados -->
-    <section id="antecedentes" class="py-20 bg-gray-50">
-      <div class="container mx-auto px-4">
-        <div class="text-center mb-12">
-          <span class="text-red-500 font-semibold">Nuestro Trabajo</span>
-          <h2 class="text-4xl font-bold text-gray-800 mt-2 mb-4">Casos de Éxito en Mendoza</h2>
-          <p class="text-gray-600 max-w-2xl mx-auto">Conoce algunos de nuestros <strong>+469 proyectos exitosos</strong> en Mendoza y cómo hemos ayudado a empresas locales a alcanzar sus objetivos tecnológicos.</p>
-          <div class="w-20 h-1 bg-red-500 mx-auto mt-4"></div>
-        </div>
-        
-        {antecedentes.data && antecedentes.data.length > 0 ? (
-          <FeaturedAntecedentes antecedentes={antecedentes.data} />
-        ) : (
-          <div class="text-center py-12">
-            <p class="text-gray-500">No hay casos de estudio disponibles en este momento.</p>
-          </div>
-        )}
-        
-        <div class="text-center mt-10">
-          <a href="/antecedentes" class="inline-block border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-6 py-3 rounded-lg font-semibold transition">
-            Ver todos los antecedentes
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Formulario de Contacto después de Nosotros -->
-    <section id="contacto" class="py-20 bg-white">
-      <div class="container mx-auto px-4">
-        <div class="max-w-4xl mx-auto bg-gray-50 rounded-xl shadow-lg overflow-hidden">
-          <div class="md:flex">
-            <div class="md:w-1/2 bg-red-500 text-white p-8 md:p-12">
-              <h2 class="text-3xl font-bold mb-4">¿Listo para comenzar tu transformación digital?</h2>
-              <p class="mb-6">Contáctanos para una <strong>consulta gratuita</strong> en Mendoza y descubre cómo podemos ayudarte a alcanzar tus objetivos tecnológicos.</p>
-              <div class="space-y-4">
-                <div class="flex items-start">
-                  <div class="flex-shrink-0 mt-1">
-                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <p class="ml-3">contacto@ultimamilla.com</p>
-                </div>
-                <div class="flex items-start">
-                  <div class="flex-shrink-0 mt-1">
-                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                  </div>
-                  <p class="ml-3">+54 261 123 4567</p>
-                </div>
-                <div class="flex items-start">
-                  <div class="flex-shrink-0 mt-1">
-                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
-                  <p class="ml-3">Av. San Martín 1234, Mendoza, Argentina</p>
-                </div>
-              </div>
-            </div>
-            <div class="md:w-1/2 p-8 md:p-12">
-              <h3 class="text-2xl font-bold text-gray-800 mb-6">Envíanos un mensaje</h3>
-              <form id="footerContactForm" method="post" action="/api/contact" novalidate class="space-y-4" data-form-type="footer">
-                <div>
-                  <label for="footer_name" class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
-                  <input type="text" id="footer_name" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="Tu nombre completo">
-                </div>
-                <div>
-                  <label for="footer_email" class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                  <input type="email" id="footer_email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="tu@email.com">
-                </div>
-                <div>
-                  <label for="footer_message" class="block text-sm font-medium text-gray-700 mb-1">Mensaje *</label>
-                  <textarea id="footer_message" name="message" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="Describe tu proyecto o consulta..."></textarea>
-                </div>
-                <input type="text" name="honeypot" class="hidden" tabindex="-1" autocomplete="off" />
-                <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 flex justify-center items-center gap-2" id="footer_submit">
-                  <span>Enviar Mensaje</span>
-                  <div class="hidden" id="footer_spinner">
-                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                  </div>
-                </button>
-                <div id="footer_message" class="text-sm mt-2 text-center"></div>
-              </form>
-              <script is:inline>
-              document.addEventListener('DOMContentLoaded', () => {
-                const form = document.getElementById('footerContactForm');
-                if (!form) return;
-
-                const msg = document.getElementById('footer_message');
-                const btn = document.getElementById('footer_submit');
-                const spinner = document.getElementById('footer_spinner');
-                const btnText = btn?.querySelector('span');
-
-                function showSpinner(show) {
-                  if (!spinner || !btn || !btnText) return;
-                  spinner.classList.toggle('hidden', !show);
-                  btnText.textContent = show ? 'Enviando...' : 'Enviar Mensaje';
-                  btn.disabled = show;
-                  btn.style.opacity = show ? '0.7' : '1';
-                }
-
-                function showMessage(text, isSuccess) {
-                  if (!msg) return;
-                  msg.textContent = text;
-                  msg.style.color = isSuccess ? '#16a34a' : '#dc2626';
-                  msg.style.opacity = '1';
-                }
-
-                form.addEventListener('submit', async (e) => {
-                  e.preventDefault();
-                  const formData = new FormData(form);
-                  const data = Object.fromEntries(formData);
-
-                  // Validaciones
-                  if (data.honeypot) {
-                    showMessage('Error de validación.', false);
-                    return;
-                  }
-
-                  if (!data.name || !data.email || !data.message) {
-                    showMessage('Por favor completa todos los campos obligatorios (*)', false);
-                    return;
-                  }
-
-                  // Deshabilitar botón y mostrar spinner
-                  showSpinner(true);
-                  showMessage('', false); // Limpiar mensaje anterior
-
-                  try {
-                    // Enviar los datos
-                    console.log('Enviando datos al servidor...', data);
-                    const res = await fetch('/api/contact', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify(data)
-                    });
-
-                    console.log('Respuesta del servidor:', res.status);
-                    const json = await res.json();
-                    console.log('Datos de respuesta:', json);
-
-                    if (res.ok && json.success) {
-                      showMessage('¡Gracias! Tu mensaje ha sido enviado. Te contactaremos pronto.', true);
-                      form.reset();
-                    } else {
-                      showMessage(json.message || 'Error al enviar el mensaje. Por favor intenta nuevamente.', false);
-                    }
-                  } catch (err) {
-                    console.error('Error al enviar formulario:', err);
-                    showMessage('Error de conexión. Por favor verifica tu conexión e intenta nuevamente.', false);
-                  } finally {
-                    showSpinner(false);
-                  }
-                });
-              });
-              </script>
-              <script is:inline>
-                (function() {
-                  const form = document.getElementById('footerContactForm');
-                  if (!form) return;
-                  
-                  const msg = document.getElementById('footer_message');
-                  const btn = form.querySelector('button[type="submit"]');
-                  const spinner = document.getElementById('footer_spinner');
-                  const btnText = btn.querySelector('span');
-                  
-                  function showSpinner(show) {
-                    spinner.classList.toggle('hidden', !show);
-                    btnText.textContent = show ? 'Enviando...' : 'Enviar Mensaje';
-                    btn.disabled = show;
-                  }
-
-                  function showMessage(text, ok) {
-                    if (msg) {
-                      msg.textContent = text;
-                      msg.style.color = ok ? '#16a34a' : '#dc2626';
-                    }
-                  }
-
-                  form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const data = Object.fromEntries(new FormData(form));
-                    
-                    if (data.honeypot) {
-                      showMessage('Detectado spam.', false);
-                      return;
-                    }
-                    
-                    if (!data.name || !data.email || !data.message) {
-                      showMessage('Por favor completa todos los campos obligatorios (*)', false);
-                      return;
-                    }
-
-                    showSpinner(true);
-                    showMessage('');
-
-                    try {
-                      const res = await fetch('/api/contact', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                      });
-                      
-                      const json = await res.json();
-                      
-                      if (res.ok && json.success) {
-                        showMessage('¡Gracias por tu mensaje! Te responderemos muy pronto.', true);
-                        form.reset();
-                      } else {
-                        showMessage(json?.message || 'No se pudo enviar el mensaje. Por favor intenta nuevamente.', false);
-                      }
-                    } catch (err) {
-                      console.error('Error:', err);
-                      showMessage('Error de conexión. Por favor verifica tu conexión a internet e intenta nuevamente.', false);
-                    } finally {
-                      showSpinner(false);
-                    }
-                  });
-                })();
-              </script>
-              <script is:inline>
-                (function () {
-                  const form = document.getElementById('homeContactForm');
-                  if (!form) return;
-                  const msg = form.querySelector('#formMessage');
-                  const btn = form.querySelector('button[type="submit"]');
-                  function showMessage(text, ok) {
-                    if (msg) {
-                      msg.textContent = text;
-                      msg.style.color = ok ? '#16a34a' : '#dc2626';
-                    }
-                  }
-                  form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const data = Object.fromEntries(new FormData(form).entries());
-                    if (data.honeypot) { showMessage('Detectado spam.', false); return; }
-                    if (!data.name || !data.email || !data.message) {
-                      showMessage('Completa nombre, email y mensaje.', false);
-                      return;
-                    }
-                    if (btn) btn.disabled = true;
-                    showMessage('Enviando...', true);
-                    try {
-                      const res = await fetch('/api/contact', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                      });
-                      const json = await res.json().catch(() => ({}));
-                      if (res.ok && json.success) {
-                        showMessage('Mensaje enviado. ¡Gracias!', true);
-                        form.reset();
-                      } else {
-                        showMessage(json?.message || 'No se pudo enviar el mensaje.', false);
-                      }
-                    } catch (err) {
-                      showMessage('Error de red al enviar el mensaje.', false);
-                    } finally {
-                      if (btn) btn.disabled = false;
-                    }
-                  });
-                })();
-              </script>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Scripts y Estilos -->
-  <script type="module">
-    // Sistema de imágenes aleatorias de alta calidad
-    const techImages = [
-      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Servidores
-      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Código
-      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Tecnología espacial
-      'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Laptop código
-      'https://images.unsplash.com/photo-1537432376769-00f83c2f9c52?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Cables red
-      'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Fibra óptica
-      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Data center
-      'https://images.unsplash.com/photo-1563206767-5b18f218e8de?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Circuitos
-      'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // AI/ML
-      'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Código terminal
-      'https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Programación
-      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Servidores 2
-      'https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Blockchain
-      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Gráficos datos
-      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Analytics
-      'https://images.unsplash.com/photo-1504639725590-34d0984388bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Desarrollo
-      'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Matemáticas
-      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'  // Tech final
-    ];
-    
-    const banner = document.getElementById('banner');
-    const heroBackground = banner.querySelector('.hero-background');
-    
-    // Función para cambiar imagen aleatoriamente
-    function changeBackgroundImage() {
-      const randomImage = techImages[Math.floor(Math.random() * techImages.length)];
-      heroBackground.style.backgroundImage = `url(${randomImage})`;
-    }
-    
-    // Establecer imagen inicial
-    changeBackgroundImage();
-    
-    // Cambiar imagen cada 10 segundos (opcional)
-    setInterval(changeBackgroundImage, 10000);
-    
-    // Efecto parallax
-    window.addEventListener('scroll', () => {
-      const scrolled = window.pageYOffset;
-      heroBackground.style.backgroundPositionY = `${scrolled * 0.5}px`;
-    });
-    
-    // Enhanced Terminal Configuration
-    document.addEventListener('DOMContentLoaded', () => {
-      // Configure enhanced command buttons
-      const enhancedCmdButtons = document.querySelectorAll('.enhanced-cmd-btn');
       
-      enhancedCmdButtons.forEach(button => {
+      <!-- Container para el CLI -->
+      <div id="um-cli-container"></div>
+      
+      <!-- Sugerencias rápidas -->
+      <div class="cli-suggestions">
+        <h3>💡 Comandos sugeridos para empezar:</h3>
+        <div class="suggestion-grid">
+          <button class="suggestion-btn" data-command="help">
+            <code>help</code>
+            <span>Ver todos los comandos</span>
+          </button>
+          <button class="suggestion-btn" data-command="sudo ultimamilla.py --demo">
+            <code>sudo ultimamilla.py --demo</code>
+            <span>Demostración completa</span>
+          </button>
+          <button class="suggestion-btn" data-command="grep Quilmes">
+            <code>grep "Quilmes"</code>
+            <span>Buscar proyectos de Quilmes</span>
+          </button>
+          <button class="suggestion-btn" data-command="stats --clientes">
+            <code>stats --clientes</code>
+            <span>Estadísticas de clientes</span>
+          </button>
+          <button class="suggestion-btn" data-command="ls servicios">
+            <code>ls servicios</code>
+            <span>Ver nuestros servicios</span>
+          </button>
+          <button class="suggestion-btn" data-command="top --proyectos">
+            <code>top --proyectos</code>
+            <span>Proyectos más grandes</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Resto del contenido de la página -->
+  <!-- Aquí irían las otras secciones de la home -->
+  
+</Layout>
+
+<style is:global>
+  /* Estilos del Hero Section */
+  .hero-background {
+    transition: background-image 0.5s ease-in-out;
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  #banner {
+    background-attachment: fixed;
+  }
+
+  .terminal-container {
+    min-height: 300px; 
+    max-height: 400px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 255, 65, 0.3);
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+    backdrop-filter: blur(10px);
+  }
+  
+  .terminal-output {
+    font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'SF Mono', Monaco, 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 16px;
+    line-height: 1.4;
+    color: #ffffff;
+    overflow-y: auto;
+    max-height: 350px;
+  }
+  
+  .terminal-line {
+    margin: 4px 0;
+    min-height: 22px;
+  }
+  
+  .terminal-prompt {
+    color: #00ff41;
+    font-weight: 600;
+    text-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+  }
+  
+  .terminal-command {
+    color: #ffffff;
+    font-weight: 500;
+    margin-left: 20px;
+  }
+  
+  .terminal-success {
+    color: #00ff41;
+    font-weight: 500;
+    text-shadow: 0 0 6px rgba(0, 255, 65, 0.4);
+  }
+  
+  .terminal-result {
+    color: #00ff41;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.8), 0 0 20px rgba(0, 255, 65, 0.4);
+    animation: terminal-glow 2s ease-in-out infinite alternate;
+  }
+  
+  @keyframes terminal-glow {
+    0% {
+      text-shadow: 0 0 10px rgba(0, 255, 65, 0.8), 0 0 20px rgba(0, 255, 65, 0.4);
+    }
+    100% {
+      text-shadow: 0 0 15px rgba(0, 255, 65, 1), 0 0 30px rgba(0, 255, 65, 0.6), 0 0 40px rgba(0, 255, 65, 0.3);
+    }
+  }
+
+  .hero-subtitle {
+    font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'SF Mono', Monaco, 'Roboto Mono', Consolas, 'Courier New', monospace;
+    color: #cccccc;
+    font-weight: 300;
+    font-size: inherit;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    text-shadow: 0 0 4px rgba(255, 255, 255, 0.1);
+  }
+
+  /* UM CLI Section */
+  .um-cli-section {
+    background: linear-gradient(135deg, #0f1419 0%, #161b22 50%, #21262d 100%);
+    padding: 80px 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .um-cli-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 50%, rgba(0, 212, 170, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 50%, rgba(121, 192, 255, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cli-intro {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .cli-intro h2 {
+    font-size: 2.5rem;
+    color: #00d4aa;
+    margin-bottom: 16px;
+    font-weight: 700;
+    text-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
+  }
+
+  .cli-intro p {
+    font-size: 1.2rem;
+    color: #8b949e;
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  #um-cli-container {
+    margin: 40px 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cli-suggestions {
+    margin-top: 40px;
+  }
+
+  .cli-suggestions h3 {
+    color: #e6edf3;
+    font-size: 1.3rem;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .suggestion-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .suggestion-btn {
+    background: rgba(33, 38, 45, 0.8);
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .suggestion-btn:hover {
+    background: rgba(33, 38, 45, 1);
+    border-color: #00d4aa;
+    box-shadow: 0 4px 12px rgba(0, 212, 170, 0.2);
+    transform: translateY(-2px);
+  }
+
+  .suggestion-btn code {
+    background: rgba(110, 118, 129, 0.15);
+    color: #79c0ff;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-family: 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: 1px solid rgba(121, 192, 255, 0.3);
+  }
+
+  .suggestion-btn span {
+    color: #8b949e;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .suggestion-btn:hover code {
+    color: #00d4aa;
+    border-color: rgba(0, 212, 170, 0.5);
+    background: rgba(0, 212, 170, 0.1);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .um-cli-section {
+      padding: 60px 0;
+    }
+
+    .cli-intro h2 {
+      font-size: 2rem;
+    }
+
+    .cli-intro p {
+      font-size: 1rem;
+    }
+
+    .suggestion-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .suggestion-btn {
+      padding: 12px;
+    }
+
+    .container {
+      padding: 0 15px;
+    }
+  }
+
+  /* Animaciones */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .cli-intro {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .suggestion-grid {
+    animation: fadeInUp 0.6s ease-out 0.3s both;
+  }
+
+  /* Efecto de typing para el titulo */
+  .cli-intro h2 {
+    overflow: hidden;
+    border-right: 3px solid #00d4aa;
+    white-space: nowrap;
+    animation: 
+      typing 2s steps(20, end),
+      blink-caret 0.75s step-end infinite;
+  }
+
+  @keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+  }
+
+  @keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: #00d4aa }
+  }
+</style>
+
+<script>
+  // Importar el plugin UM CLI
+  import('../plugins/UMCliPlugin.js').then(module => {
+    const UMCliPlugin = module.default;
+    
+    // Inicializar el CLI cuando se carga la página
+    document.addEventListener('DOMContentLoaded', () => {
+      // Crear instancia del CLI
+      const umCli = new UMCliPlugin({
+        container: '#um-cli-container',
+        theme: 'dark',
+        showWelcome: true,
+        autoFocus: false, // No autoenfocamos para evitar scroll automático
+        customCommands: {
+          // Comando personalizado para contacto
+          'contacto': async () => ({
+            success: true,
+            output: `
+📞 INFORMACIÓN DE CONTACTO - ULTIMA MILLA
+
+🏢 Oficina Principal
+📍 Mendoza, Argentina
+📧 info@ultimamilla.com
+🌐 www.ultimamilla.com
+📱 WhatsApp: +54 261 XXX-XXXX
+
+💼 Áreas de Contacto:
+• Ventas: ventas@ultimamilla.com
+• Soporte: soporte@ultimamilla.com  
+• Proyectos: proyectos@ultimamilla.com
+• RRHH: rrhh@ultimamilla.com
+
+⏰ Horarios de atención:
+Lunes a Viernes: 9:00 - 18:00 ART
+Soporte 24/7 para clientes premium
+
+¿Listo para conectar el futuro juntos? 🚀
+            `
+          }),
+
+          // Comando de presupuesto
+          'presupuesto': async () => ({
+            success: true,
+            output: `
+💰 SOLICITAR PRESUPUESTO - ULTIMA MILLA
+
+📋 Para generar un presupuesto personalizado, proporcionanos:
+
+🔧 TIPO DE PROYECTO:
+• Redes y comunicaciones
+• Software a medida  
+• Sistemas de seguridad (CCTV/SDI)
+• Soporte IT y mantenimiento
+• Consultoría tecnológica
+
+📏 ALCANCE:
+• Pequeño (< $500K)
+• Mediano ($500K - $2M) 
+• Grande ($2M - $5M)
+• Enterprise (> $5M)
+
+📞 CONTACTA CON NUESTRO EQUIPO:
+• Email: presupuestos@ultimamilla.com
+• Formulario web: www.ultimamilla.com/presupuesto
+• WhatsApp: +54 261 XXX-XXXX
+
+⚡ Respuesta en 24-48 horas hábiles
+🎯 22 años de experiencia nos respaldan
+            `
+          })
+        }
+      });
+
+      // Event listeners para los botones de sugerencias
+      const suggestionButtons = document.querySelectorAll('.suggestion-btn');
+      suggestionButtons.forEach(button => {
         button.addEventListener('click', () => {
-          const command = button.getAttribute('data-command');
+          const command = button.dataset.command;
           if (command) {
-            console.log(`Ejecutando comando mejorado: ${command}`);
+            // Ejecutar el comando y enfocar el terminal
+            umCli.executeCommandProgrammatically(command);
+            umCli.focus();
             
-            // Wait for terminal to be initialized
-            setTimeout(() => {
-              const terminalInput = document.getElementById('terminal-input');
-              if (terminalInput) {
-                terminalInput.value = command;
-                terminalInput.focus();
-                
-                // Dispatch enhanced enter event
-                const enterEvent = new KeyboardEvent('keydown', {
-                  key: 'Enter',
-                  code: 'Enter',
-                  keyCode: 13,
-                  which: 13,
-                  bubbles: true
-                });
-                
-                terminalInput.dispatchEvent(enterEvent);
-                
-                // Smooth scroll to terminal
-                const terminal = document.getElementById('um-terminal-enhanced-container');
-                if (terminal) {
-                  terminal.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center'
-                  });
-                }
-              }
-            }, 100);
+            // Scroll suave hacia el terminal
+            document.getElementById('um-cli-container').scrollIntoView({
+              behavior: 'smooth',
+              block: 'center'
+            });
           }
         });
       });
-      
-      console.log(`✓ Configurados ${enhancedCmdButtons.length} botones de comandos mejorados`);
+
+      // Eventos personalizados del CLI
+      umCli.on('commandExecuted', (event) => {
+        console.log('Comando ejecutado:', event.detail.command);
+        
+        // Analytics: trackear comandos populares
+        if (typeof gtag !== 'undefined') {
+          gtag('event', 'cli_command_executed', {
+            'command': event.detail.command.raw || 'unknown',
+            'success': event.detail.command.success
+          });
+        }
+      });
+
+      umCli.on('fullscreenToggled', (event) => {
+        console.log('Fullscreen toggled:', event.detail.isFullscreen);
+      });
+
+      // Mostrar mensaje especial en el primer uso
+      setTimeout(() => {
+        const welcomeCommands = [
+          '🎯 ¡Bienvenido a ULTIMA MILLA CLI!',
+          '💡 Tip: Usa TAB para autocompletar comandos',
+          '🚀 Prueba "sudo ultimamilla.py --demo" para una demo completa',
+          ''
+        ];
+        
+        welcomeCommands.forEach((msg, i) => {
+          setTimeout(() => {
+            if (msg) {
+              umCli.addOutput(msg, 'um-command-info');
+            }
+          }, i * 800);
+        });
+      }, 2000);
     });
-  </script>
-  
-  <!-- Data Files -->
-  <script is:inline src="/data-antecedentes.js"></script>
-  <script is:inline src="/data-servicios.js"></script>
-  
-  <!-- Contact System -->
-  <script is:inline src="/contactSystem.js"></script>
-  
-  <!-- Enhanced Terminal Script -->
-  <script is:inline type="module" src="/terminalEnhanced.js"></script>
-  
-  <!-- Fira Code Font -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
-  <style is:global>
-    
-    .terminal-text {
-      font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-      color: #00ff41;
-      font-weight: 500;
-      font-size: inherit;
-      line-height: 1.2;
-      letter-spacing: 0.05em;
-      text-shadow: 0 0 8px rgba(0, 255, 65, 0.4), 0 0 12px rgba(0, 255, 65, 0.2);
-      position: relative;
-    }
-    
-    .terminal-cursor {
-      font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-      color: #00ff41;
-      font-weight: 500;
-      font-size: inherit;
-      line-height: 1.2;
-      text-shadow: 0 0 8px rgba(0, 255, 65, 0.6), 0 0 12px rgba(0, 255, 65, 0.3);
-      animation: terminal-blink 1.2s infinite;
-    }
-    
-    .hero-title {
-      font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-      color: #ffffff;
-      font-weight: 400;
-      font-size: inherit;
-      line-height: 1.2;
-      letter-spacing: 0.05em;
-      text-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
-    }
-    
-    .hero-subtitle {
-      font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-      color: #cccccc;
-      font-weight: 300;
-      font-size: inherit;
-      line-height: 1.3;
-      letter-spacing: 0.02em;
-      text-shadow: 0 0 4px rgba(255, 255, 255, 0.1);
-    }
-    
-    @keyframes blink {
-      0%, 50% { opacity: 1; }
-      51%, 100% { opacity: 0; }
-    }
-    
-    @keyframes terminal-blink {
-      0%, 50% { 
-        opacity: 1; 
-        text-shadow: 0 0 8px rgba(0, 255, 65, 0.8), 0 0 12px rgba(0, 255, 65, 0.5);
+  });
+
+  // Animación de entrada para los elementos
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.animation = 'fadeInUp 0.6s ease-out forwards';
       }
-      51%, 100% { 
-        opacity: 0.3;
-        text-shadow: 0 0 4px rgba(0, 255, 65, 0.3), 0 0 6px rgba(0, 255, 65, 0.1);
+    });
+  }, observerOptions);
+
+  // Observar elementos cuando se carga la página
+  document.addEventListener('DOMContentLoaded', () => {
+    const elements = document.querySelectorAll('.cli-suggestions, #um-cli-container');
+    elements.forEach(el => observer.observe(el));
+  });
+  
+  // Script del terminal del hero
+  const heroTerminalSequence = [
+    { text: 'ULTIMA MILLA@cli:~$ ', delay: 0, class: 'terminal-prompt' },
+    { text: 'sudo ultimamilla.py --explore', delay: 100, class: 'terminal-command' },
+    { text: '', delay: 800, class: 'terminal-output' },
+    { text: '🔒 Inicializando exploración empresarial...', delay: 600, class: 'terminal-output' },
+    { text: '✓ 22 años de historia cargados', delay: 800, class: 'terminal-success' },
+    { text: '', delay: 400, class: 'terminal-output' },
+    { text: '📊 Cargando 469+ proyectos...', delay: 600, class: 'terminal-output' },
+    { text: '✓ Base de datos empresarial sincronizada', delay: 800, class: 'terminal-success' },
+    { text: '', delay: 400, class: 'terminal-output' },
+    { text: '🚀 TERMINAL UM CLI LISTO - Explora interactivamente!', delay: 1000, class: 'terminal-result' },
+  ];
+  
+  let heroCurrentLine = 0;
+  let heroCurrentChar = 0;
+  const heroTerminalOutput = document.getElementById('terminalOutput');
+  
+  function typeHeroTerminalSequence() {
+    if (heroCurrentLine >= heroTerminalSequence.length) {
+      // Reiniciar después de 8 segundos
+      setTimeout(() => {
+        heroTerminalOutput.innerHTML = '';
+        heroCurrentLine = 0;
+        heroCurrentChar = 0;
+        typeHeroTerminalSequence();
+      }, 8000);
+      return;
+    }
+    
+    const currentSequence = heroTerminalSequence[heroCurrentLine];
+    const currentText = currentSequence.text;
+    
+    if (heroCurrentChar <= currentText.length) {
+      const displayText = currentText.substring(0, heroCurrentChar);
+      
+      let currentLineElement = document.getElementById(`hero-terminal-line-${heroCurrentLine}`);
+      if (!currentLineElement) {
+        currentLineElement = document.createElement('div');
+        currentLineElement.id = `hero-terminal-line-${heroCurrentLine}`;
+        currentLineElement.className = `terminal-line ${currentSequence.class}`;
+        heroTerminalOutput.appendChild(currentLineElement);
+      }
+      
+      if (heroCurrentChar < currentText.length) {
+        currentLineElement.innerHTML = displayText + '<span class="terminal-cursor">█</span>';
+      } else {
+        currentLineElement.innerHTML = displayText;
+      }
+      
+      heroCurrentChar++;
+      setTimeout(typeHeroTerminalSequence, currentSequence.delay || 80);
+    } else {
+      heroCurrentLine++;
+      heroCurrentChar = 0;
+      setTimeout(typeHeroTerminalSequence, heroTerminalSequence[heroCurrentLine-1]?.delay || 300);
+    }
+  }
+  
+  // Iniciar la secuencia del hero
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(typeHeroTerminalSequence, 1000);
+    
+    // Configurar imagen de fondo aleatoria para el hero
+    const techImages = [
+      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+      'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'
+    ];
+    
+    const banner = document.getElementById('banner');
+    const heroBackground = banner?.querySelector('.hero-background');
+    
+    function changeHeroBackground() {
+      if (heroBackground) {
+        const randomImage = techImages[Math.floor(Math.random() * techImages.length)];
+        heroBackground.style.backgroundImage = `url(${randomImage})`;
       }
     }
     
-    /* Terminal glow effect */
-    .terminal-text::before {
-      content: '';
-      position: absolute;
-      top: -2px;
-      left: -2px;
-      right: -2px;
-      bottom: -2px;
-      background: linear-gradient(45deg, rgba(0, 255, 65, 0.1), transparent, rgba(0, 255, 65, 0.05));
-      z-index: -1;
-      border-radius: 2px;
-      opacity: 0.5;
-    }
-    
-    /* Hero responsive adjustments */
-    @media (max-width: 768px) {
-      .terminal-text {
-        font-size: 0.9em;
-        line-height: 1.3;
-      }
-      .hero-title {
-        line-height: 1.3;
-      }
-      .hero-subtitle {
-        line-height: 1.4;
-      }
-    }
-    
-    @keyframes scroll {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-1600px); }
-    }
-    
-    .animate-scroll {
-      animation: scroll 20s linear infinite;
-    }
-    
-    .animate-scroll.pause:hover {
-      animation-play-state: paused;
-    }
-    
-    /* Nuevos estilos para la secuencia de terminal */
-    .terminal-container {
-      max-width: 672px; height: 400px;
-      padding: 20px;
-      background: rgba(0, 0, 0, 0.8);
+    changeHeroBackground();
+    setInterval(changeHeroBackground, 15000); // Cambiar cada 15 segundos
+  });
+  
+</script>
+
+<!-- Fira Code Font -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<noscript>
+  <div class="no-js-message">
+    <h3>Terminal no disponible</h3>
+    <p>Para una experiencia completa, habilita JavaScript en tu navegador.</p>
+    <p>Mientras tanto, puedes contactarnos en: <a href="mailto:info@ultimamilla.com">info@ultimamilla.com</a></p>
+  </div>
+  
+  <style>
+    .no-js-message {
+      background: #1a1a2e;
+      color: #eee;
+      padding: 40px;
+      text-align: center;
       border-radius: 8px;
-      border: 1px solid rgba(0, 255, 65, 0.3);
-      box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
-      backdrop-filter: blur(10px);
+      margin: 40px auto;
+      max-width: 600px;
+      border: 2px solid #00d4aa;
     }
     
-    .terminal-output {
-      font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'SF Mono', Monaco, 'Roboto Mono', Consolas, 'Courier New', monospace;
-      font-size: 16px;
-      line-height: 1.4;
-      color: #ffffff;
-      overflow-y: auto;
-      width: 630px; height: 500px;
-    }
-    
-    .terminal-line {
-      margin: 4px 0;
-      min-height: 22px;
-    }
-    
-    .terminal-prompt {
-      color: #00ff41;
-      font-weight: 600;
-      text-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
-    }
-    
-    .terminal-command {
-      color: #ffffff;
-      font-weight: 500;
-      margin-left: 20px;
-    }
-    
-    .terminal-output {
-      color: #cccccc;
-      font-weight: 400;
-      padding-left: 0;
-    }
-    
-    .terminal-success {
-      color: #00ff41;
-      font-weight: 500;
-      text-shadow: 0 0 6px rgba(0, 255, 65, 0.4);
-    }
-    
-    .terminal-result {
-      color: #00ff41;
-      font-weight: 700;
-      text-shadow: 0 0 10px rgba(0, 255, 65, 0.8), 0 0 20px rgba(0, 255, 65, 0.4);
-      animation: terminal-glow 2s ease-in-out infinite alternate;
-    }
-    
-    @keyframes terminal-glow {
-      0% {
-        text-shadow: 0 0 10px rgba(0, 255, 65, 0.8), 0 0 20px rgba(0, 255, 65, 0.4);
-      }
-      100% {
-        text-shadow: 0 0 15px rgba(0, 255, 65, 1), 0 0 30px rgba(0, 255, 65, 0.6), 0 0 40px rgba(0, 255, 65, 0.3);
-      }
-    }
-    
-    /* Responsive para móvil */
-    @media (max-width: 768px) {
-      .terminal-container {
-        max-width: 90vw; height: 300px;
-        padding: 15px;
-      }
-      
-      .terminal-output {
-        font-size: 14px;
-        line-height: 1.3;
-      }
-      
-      .terminal-command {
-        margin-left: 10px;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .terminal-container {
-        max-width: 95vw; height: 250px;
-        padding: 12px;
-      }
-      
-      .terminal-output {
-        font-size: 13px;
-        line-height: 1.2;
-      }
-    }
-    
-    /* Enhanced Command Buttons */
-    .enhanced-cmd-btn {
-      background: linear-gradient(135deg, rgba(13, 17, 23, 0.9) 0%, rgba(21, 26, 33, 0.9) 100%);
-      border: 2px solid rgba(0, 212, 170, 0.3);
-      color: #ffffff;
-      padding: 12px 20px;
-      border-radius: 12px;
-      font-family: 'Fira Code', 'JetBrains Mono', 'SF Mono', 'Monaco', monospace;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      backdrop-filter: blur(15px);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 160px;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 
-        0 4px 15px rgba(0, 0, 0, 0.3),
-        0 0 0 1px rgba(255, 255, 255, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    }
-    
-    .enhanced-cmd-btn::before {
-      content: '';
-      position: absolute;
-      top: -2px;
-      left: -2px;
-      right: -2px;
-      bottom: -2px;
-      background: linear-gradient(45deg, 
-        rgba(0, 212, 170, 0.2) 0%,
-        rgba(121, 192, 255, 0.2) 25%,
-        rgba(255, 107, 107, 0.2) 50%,
-        rgba(255, 214, 0, 0.2) 75%,
-        rgba(0, 212, 170, 0.2) 100%
-      );
-      border-radius: 12px;
-      z-index: -1;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    
-    .enhanced-cmd-btn:hover {
-      background: linear-gradient(135deg, rgba(0, 212, 170, 0.15) 0%, rgba(21, 26, 33, 0.95) 100%);
-      border-color: rgba(0, 212, 170, 0.6);
-      box-shadow: 
-        0 8px 25px rgba(0, 212, 170, 0.3),
-        0 0 0 1px rgba(255, 255, 255, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-      transform: translateY(-3px) scale(1.02);
+    .no-js-message a {
       color: #00d4aa;
+      text-decoration: none;
     }
     
-    .enhanced-cmd-btn:hover::before {
-      opacity: 1;
-    }
-    
-    .enhanced-cmd-btn:active {
-      transform: translateY(-1px) scale(1.01);
-      background: linear-gradient(135deg, rgba(0, 212, 170, 0.25) 0%, rgba(21, 26, 33, 0.95) 100%);
-    }
-    
-    .enhanced-cmd-btn .btn-text {
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      transition: all 0.3s ease;
-    }
-    
-    .enhanced-cmd-btn:hover .btn-text {
-      text-shadow: 0 0 8px rgba(0, 212, 170, 0.4);
-    }
-    
-    /* Legacy quick command buttons (for backward compatibility) */
-    .quick-cmd-btn {
-      background: rgba(0, 0, 0, 0.7);
-      border: 1px solid rgba(0, 255, 65, 0.3);
-      color: #ffffff;
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-family: 'Fira Code', 'JetBrains Mono', monospace;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .quick-cmd-btn:hover {
-      background: rgba(0, 255, 65, 0.1);
-      border-color: rgba(0, 255, 65, 0.6);
-      box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
-      transform: translateY(-2px);
-    }
-    
-    .quick-cmd-btn:active {
-      transform: translateY(0);
-      background: rgba(0, 255, 65, 0.2);
-    }
-    
-    /* Clases auxiliares para tipos de terminal */
-    .terminal-info {
-      color: #79c0ff;
-      font-weight: 400;
-    }
-    
-    .terminal-error {
-      color: #ff6b6b;
-      font-weight: 500;
-      text-shadow: 0 0 6px rgba(255, 107, 107, 0.4);
-    }
-    
-    /* Efectos adicionales para el banner */
-    #banner {
-      background-attachment: fixed;
-    }
-    
-    .hero-background {
-      transition: background-image 0.5s ease-in-out;
-      background-attachment: fixed;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-    }
-    
-    /* Responsive styles for enhanced buttons */
-    @media (max-width: 1200px) {
-      .enhanced-cmd-btn {
-        min-width: 140px;
-        font-size: 14px;
-        padding: 10px 16px;
-        gap: 8px;
-      }
-    }
-    
-    @media (max-width: 768px) {
-      .enhanced-cmd-btn {
-        min-width: 120px;
-        font-size: 13px;
-        padding: 8px 14px;
-        gap: 6px;
-        border-radius: 10px;
-      }
-      
-      .quick-cmd-btn {
-        font-size: 12px;
-        padding: 6px 12px;
-        gap: 6px;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .enhanced-cmd-btn {
-        min-width: 100px;
-        font-size: 12px;
-        padding: 6px 12px;
-        gap: 4px;
-        border-radius: 8px;
-      }
-      
-      .enhanced-cmd-btn .btn-text {
-        display: none; /* Show only icons on very small screens */
-      }
-      
-      .quick-cmd-btn {
-        font-size: 11px;
-        padding: 5px 10px;
-        gap: 4px;
-      }
+    .no-js-message a:hover {
+      text-decoration: underline;
     }
   </style>
-</Layout>
+</noscript>

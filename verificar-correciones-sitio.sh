@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script para verificar las correcciones aplicadas al sitio umbot.com.ar
+# Script para verificar las correcciones aplicadas al sitio ultimamilla.com.ar
 # Ejecutar cuando el servidor 23.105.176.45 esté disponible
 # Fecha: 21 Julio 2025
 
@@ -12,7 +12,7 @@ echo ""
 SERVER_IP="23.105.176.45"
 SERVER_USER="root"
 SERVER_PASS="gsiB%s@0yD"
-DOMAIN="umbot.com.ar"
+DOMAIN="ultimamilla.com.ar"
 
 # Función para verificar URL
 check_url() {

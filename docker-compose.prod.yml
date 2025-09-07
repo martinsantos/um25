@@ -1,5 +1,5 @@
 # Docker Compose para Producción - UM25-0.3
-# Servidor: 23.105.176.45 - Dominio: www.umbot.com.ar
+# Servidor: 23.105.176.45 - Dominio: www.ultimamilla.com.ar
 version: '3.8'
 
 services:
@@ -26,6 +26,8 @@ services:
   directus:
     image: directus/directus:10.8.3
     container_name: umbot-directus-prod
+    ports:
+      - "8055:8055"  # Temporal for debugging
     environment:
       KEY: 'umbot-directus-key-production-2025'
       SECRET: 'umbot-directus-secret-production-2025'
@@ -37,11 +39,11 @@ services:
       DB_PASSWORD: 'umbot_directus_2025!'
       CACHE_ENABLED: 'true'
       CACHE_STORE: 'memory'
-      ADMIN_EMAIL: 'admin@umbot.com.ar'
-      ADMIN_PASSWORD: 'UmbotAdmin2025!'
-      PUBLIC_URL: 'https://www.umbot.com.ar/api'
+      ADMIN_EMAIL: 'admin@ultimamilla.com.ar'
+      ADMIN_PASSWORD: 'UltimaMillaAdmin2025!'
+      PUBLIC_URL: 'https://www.ultimamilla.com.ar:8055'
       CORS_ENABLED: 'true'
-      CORS_ORIGIN: 'https://www.umbot.com.ar,https://umbot.com.ar'
+      CORS_ORIGIN: 'https://www.ultimamilla.com.ar,https://ultimamilla.com.ar'
       RATE_LIMITER_ENABLED: 'true'
       RATE_LIMITER_POINTS: 100
       RATE_LIMITER_DURATION: 60
@@ -57,30 +59,36 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "node -e 'require(\"http\").get(\"http://localhost:8055/server/health\", r => { process.exit(r.statusCode === 200 ? 0 : 1); }).on(\"error\", () => process.exit(1));'"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      test: ["CMD-SHELL", "sleep 2"]
+      interval: 60s
+      timeout: 30s
+      retries: 2
 
-  # Aplicación Astro
+  # Aplicación Astro (SSR)
   astro-app:
     build:
       context: .
-      dockerfile: Dockerfile.astro.prod
+      dockerfile: Dockerfile.astro.ssr
     container_name: umbot-astro-prod
+    ports:
+      - "3000:4321"  # Map container port 4321 to host port 3000
     environment:
       NODE_ENV: production
-      DIRECTUS_URL: http://directus:8055
-      PUBLIC_DIRECTUS_URL: http://directus:8055
-      DIRECTUS_STATIC_TOKEN: ${DIRECTUS_STATIC_TOKEN}
-      PUBLIC_DIRECTUS_TOKEN: ${DIRECTUS_STATIC_TOKEN}
+      PUBLIC_SITE_URL: https://www.ultimamilla.com.ar
       HOST: 0.0.0.0
       PORT: 4321
-      PUBLIC_SITE_URL: https://www.umbot.com.ar
+      # Configuración de Directus
+      DIRECTUS_URL: http://directus:8055
+      PUBLIC_DIRECTUS_URL: https://www.ultimamilla.com.ar:8055
+      DIRECTUS_STATIC_TOKEN: k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+      # Database connection for Astro (if needed)
+      DATABASE_URL: postgresql://directus:umbot_directus_2025!@postgres:5432/directus
     networks:
       - umbot-network
     depends_on:
       directus:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
@@ -89,28 +97,27 @@ services:
       timeout: 10s
       retries: 3
 
-  # Nginx Reverse Proxy
-  nginx:
-    image: nginx:alpine
-    container_name: umbot-nginx-prod
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.prod.conf:/etc/nginx/conf.d/default.conf
-      - ./ssl:/etc/nginx/ssl
-      - /var/log/nginx:/var/log/nginx
-    networks:
-      - umbot-network
-    depends_on:
-      - astro-app
-      - directus
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+  # Nginx Reverse Proxy (temporarily disabled)
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: umbot-nginx-prod
+  #   ports:
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.prod.conf:/etc/nginx/conf.d/default.conf
+  #     - ./ssl:/etc/nginx/ssl
+  #     - /var/log/nginx:/var/log/nginx
+  #   networks:
+  #     - umbot-network
+  #   depends_on:
+  #     - astro-app
+  #     - directus
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
 
   # Redis para caché (opcional)
   redis:

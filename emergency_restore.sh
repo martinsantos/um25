@@ -20,4 +20,4 @@ docker-compose -f docker-compose.static.yml ps
 curl -I http://localhost/ 2>/dev/null | head -1 || echo "❌ Aún no disponible"
 
 echo "🎯 RESTAURACIÓN COMPLETADA"
-echo "Sitio debería estar disponible en: https://www.umbot.com.ar/"
+echo "Sitio debería estar disponible en: https://www.ultimamilla.com.ar/"

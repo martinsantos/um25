@@ -13,7 +13,7 @@ Se realizó un testing exhaustivo del sistema UMBot Emergency Dashboard según l
 - **Versión**: UMBot Emergency Dashboard v3.0
 - **Estado**: ✅ OPERATIVO
 - **Proxy**: Funcionando correctamente
-- **Simulación**: https://umbot.com.ar/log/
+- **Simulación**: https://ultimamilla.com.ar/log/
 
 ### ❌ **Servidor de Producción - CAÍDO**
 - **IP**: 23.105.176.45
@@ -182,7 +182,7 @@ curl -s http://localhost:8095/log/ | grep -E "(help|status|restart|clear|uptime)
 
 ### **Solución Implementada**
 - ✅ **Proxy local**: Funcionando en puerto 8095
-- ✅ **Simulación**: https://umbot.com.ar/log/
+- ✅ **Simulación**: https://ultimamilla.com.ar/log/
 - ✅ **Funcionalidad**: 100% operativa localmente
 - ✅ **Documentación**: Actualizada con estado actual
 

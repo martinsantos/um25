@@ -216,7 +216,7 @@ curl -s -m 10 http://172.18.0.3:4321/servicios/1/servicios-it
 
 ### 🔴 PROBLEMA: CACHE CLOUDFLARE 
 ```bash
-curl -s -I https://umbot.com.ar/servicios/1/servicios-it
+curl -s -I https://ultimamilla.com.ar/servicios/1/servicios-it
 # HTTP/1.1 502 Bad Gateway (Cached desde antes del fix)
 ```
 
@@ -292,7 +292,7 @@ curl -s -m 10 http://172.20.0.5:4321/servicios/1/servicios-it
 ## 🎉 RESOLUCIÓN FINAL EXITOSA (28/08/2025 07:29)
 
 ### ✅ PROBLEMA ADICIONAL DETECTADO Y RESUELTO
-**Issue final**: nginx.conf también tenía IP incorrecta para www.umbot.com.ar (172.18.0.4 → 172.20.0.5)
+**Issue final**: nginx.conf también tenía IP incorrecta para www.ultimamilla.com.ar (172.18.0.4 → 172.20.0.5)
 
 ### ✅ CORRECCIÓN FINAL APLICADA
 ```bash

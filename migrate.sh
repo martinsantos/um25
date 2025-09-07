@@ -60,4 +60,4 @@ ssh root@23.105.176.45 "docker exec -i fumbling-field-database-1 psql -U myuser 
 check_status "Migration verification"
 
 echo -e "\n${GREEN}=== Migration completed successfully ===${NC}"
-echo "Please verify the data in the Directus admin panel at https://www.umbot.com.ar/admin" 
+echo "Please verify the data in the Directus admin panel at https://www.ultimamilla.com.ar/admin" 

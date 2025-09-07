@@ -267,7 +267,7 @@ EOF
                 log "• Imágenes físicas en servidor: 469"
                 echo ""
                 log "🌐 URLs de verificación:"
-                log "• Sitio web: https://www.umbot.com.ar/antecedentes"
+                log "• Sitio web: https://www.ultimamilla.com.ar/antecedentes"
                 log "• Admin Directus: http://$SERVER_IP:8055/admin/files/all"
                 echo ""
                 

@@ -92,7 +92,7 @@ sed -i.bak 's/directus\/directus:11.7.2/directus\/directus:11.10.1/' docker-comp
 # Agregar PUBLIC_URL al environment de Directus
 if ! grep -q "PUBLIC_URL" docker-compose.yml; then
     sed -i.bak '/LOG_LEVEL: debug/a\
-      PUBLIC_URL: https://www.umbot.com.ar' docker-compose.yml
+      PUBLIC_URL: https://www.ultimamilla.com.ar' docker-compose.yml
     echo "✅ PUBLIC_URL agregada a configuración de Directus"
 fi
 
@@ -130,9 +130,9 @@ cat > .env.security << 'EOF'
 # ==========================================
 
 # Directus - Configuración de Seguridad
-PUBLIC_URL=https://www.umbot.com.ar
+PUBLIC_URL=https://www.ultimamilla.com.ar
 CORS_ENABLED=true
-CORS_ORIGIN=https://www.umbot.com.ar,http://localhost:4321
+CORS_ORIGIN=https://www.ultimamilla.com.ar,http://localhost:4321
 CORS_METHODS=GET,POST,PATCH,DELETE,OPTIONS
 CORS_ALLOWED_HEADERS=Content-Type,Authorization
 
@@ -167,7 +167,7 @@ services:
     environment:
       # Configuración de CORS más restrictiva
       CORS_ENABLED: "true"
-      CORS_ORIGIN: "http://localhost:4321,https://www.umbot.com.ar"
+      CORS_ORIGIN: "http://localhost:4321,https://www.ultimamilla.com.ar"
       CORS_METHODS: "GET,POST,PATCH,DELETE,OPTIONS"
       CORS_ALLOWED_HEADERS: "Content-Type,Authorization,X-Requested-With"
       

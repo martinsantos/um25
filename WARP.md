@@ -6,8 +6,8 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 **ULTiMA MILLA - Fumbling Field** is a modern corporate web portal built with Astro, Directus CMS, and a Docker-based deployment pipeline. The project serves as the main website for ULTiMA MILLA, featuring services showcase, case studies (antecedentes), and blog functionality.
 
-- **Production URL**: https://www.umbot.com.ar
-- **Admin Panel**: https://www.umbot.com.ar:8055  
+- **Production URL**: https://www.ultimamilla.com.ar
+- **Admin Panel**: https://www.ultimamilla.com.ar:8055  
 - **GitHub**: https://github.com/martinsantos/um25
 
 ## Architecture Overview
@@ -193,7 +193,7 @@ make dev-docker
 
 ### Development URLs
 - **App**: http://localhost:4321
-- **Directus Admin**: http://localhost:8055 (admin@umbot.local / admin123dev)
+- **Directus Admin**: http://localhost:8055 (admin@ultimamilla.local / admin123dev)
 - **Database Admin**: http://localhost:8080 (Adminer)
 - **Email Testing**: http://localhost:8025 (MailHog)
 
@@ -239,8 +239,8 @@ make rollback
 ### Production Environment
 - **Server**: 23.105.176.45
 - **Path**: /root/fumbling-field
-- **Domains**: www.umbot.com.ar, ultimamilla.com.ar
-- **Admin**: https://www.umbot.com.ar:8055
+- **Domains**: www.ultimamilla.com.ar, ultimamilla.com.ar
+- **Admin**: https://www.ultimamilla.com.ar:8055
 
 ## Code Patterns & Best Practices
 
@@ -298,7 +298,7 @@ REDIS_URL=redis://localhost:6379
 ```bash
 NODE_ENV=production
 DIRECTUS_URL=http://directus:8055
-PUBLIC_SITE_URL=https://www.umbot.com.ar
+PUBLIC_SITE_URL=https://www.ultimamilla.com.ar
 DATABASE_URL=postgresql://directus:prod_password@postgres:5432/directus
 ```
 

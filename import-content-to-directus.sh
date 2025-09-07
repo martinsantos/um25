@@ -8,8 +8,8 @@ echo "📥 IMPORTANDO CONTENIDOS A DIRECTUS"
 echo "====================================="
 
 # Variables de configuración
-DIRECTUS_URL="https://www.umbot.com.ar:8055"
-ADMIN_EMAIL="admin@umbot.com.ar" 
+DIRECTUS_URL="https://www.ultimamilla.com.ar:8055"
+ADMIN_EMAIL="admin@ultimamilla.com.ar" 
 ADMIN_PASSWORD="UmbotDirectusAdmin2025!"
 
 # Archivos de datos

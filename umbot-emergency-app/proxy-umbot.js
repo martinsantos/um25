@@ -80,7 +80,7 @@ function handlePHPRequest(url, method, body) {
 const server = http.createServer((req, res) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
     
-    // Simular exactamente https://umbot.com.ar/log/
+    // Simular exactamente https://ultimamilla.com.ar/log/
     if (req.url === '/log/' || req.url === '/log') {
         res.writeHead(200, { 
             'Content-Type': 'text/html',
@@ -165,7 +165,7 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, () => {
     console.log(`🚀 UMBot Emergency Dashboard iniciado`);
     console.log(`📊 URL: http://localhost:${PORT}/log/`);
-    console.log(`🌐 Simula: https://umbot.com.ar/log/`);
+    console.log(`🌐 Simula: https://ultimamilla.com.ar/log/`);
     console.log(`⏰ ${new Date().toISOString()}`);
 });
 

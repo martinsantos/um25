@@ -37,7 +37,7 @@ services:
     image: directus/directus:10.8.3
     container_name: umbot-directus-admin
     environment:
-      KEY: "DirectusSecretKey2025UmbotAdmin"
+      KEY: "DirectusSecretKey2025UltimaMillaAdmin"
       SECRET: "DirectusSecretToken2025UmbotHybrid"
       DB_CLIENT: pg
       DB_HOST: umbot-postgres-admin
@@ -45,7 +45,7 @@ services:
       DB_DATABASE: directus
       DB_USER: directus
       DB_PASSWORD: DirectusAdmin2025!
-      ADMIN_EMAIL: admin@umbot.com.ar
+      ADMIN_EMAIL: admin@ultimamilla.com.ar
       ADMIN_PASSWORD: UmbotDirectusAdmin2025!
       # CLAVE: Sin PUBLIC_URL para evitar problemas de subdirectorio
       SERVE_APP: true

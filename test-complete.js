@@ -12,7 +12,7 @@ import path from 'path';
 
 // Configuración
 const CONFIG = {
-  baseUrl: 'https://umbot.com.ar',
+  baseUrl: 'https://ultimamilla.com.ar',
   timeout: 15000,
   maxRetries: 3,
   logFile: 'test-results.json',

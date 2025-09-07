@@ -83,7 +83,7 @@ scp -r umbot-emergency-app root@23.105.176.45:/var/www/
 # 2. Configurar Nginx
 server {
     listen 80;
-    server_name emergency.umbot.com.ar;
+    server_name emergency.ultimamilla.com.ar;
     root /var/www/umbot-emergency-app;
     index index.html;
     
@@ -138,9 +138,9 @@ surge . emergency-umbot.surge.sh
 
 ### Endpoints (en index.html)
 ```javascript
-WEBSITE_URL: 'https://umbot.com.ar'
+WEBSITE_URL: 'https://ultimamilla.com.ar'
 SERVER_IP: '23.105.176.45'
-DIRECTUS_URL: 'https://umbot.com.ar/admin'
+DIRECTUS_URL: 'https://ultimamilla.com.ar/admin'
 ```
 
 ### Credenciales

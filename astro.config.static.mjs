@@ -9,7 +9,7 @@ export default defineConfig({
   output: 'static',
 
   // URL base para generación de sitemap y rutas absolutas
-  site: process.env.PUBLIC_SITE_URL || 'https://www.umbot.com.ar',
+  site: process.env.PUBLIC_SITE_URL || 'https://www.ultimamilla.com.ar',
 
   // Integraciones
   integrations: [

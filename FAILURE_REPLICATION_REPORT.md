@@ -2,13 +2,13 @@
 
 ## Executive Summary
 
-This report documents the analysis of failures in the `/antecedentes` (projects/portfolio) section of the umbot.com.ar website. The investigation reveals that while the website is functioning with fallback data, there are clear indicators that the primary Directus CMS integration is not working properly.
+This report documents the analysis of failures in the `/antecedentes` (projects/portfolio) section of the ultimamilla.com.ar website. The investigation reveals that while the website is functioning with fallback data, there are clear indicators that the primary Directus CMS integration is not working properly.
 
 ## 1. Server Response Analysis
 
 ### 1.1 Index Page (`/antecedentes/`)
 ```bash
-curl -I https://umbot.com.ar/antecedentes/
+curl -I https://ultimamilla.com.ar/antecedentes/
 ```
 **Result**: `HTTP/1.1 500 Internal Server Error`
 - Server: nginx/1.20.1
@@ -16,7 +16,7 @@ curl -I https://umbot.com.ar/antecedentes/
 
 ### 1.2 Single Page (`/antecedentes/10768/isi-solutions-redes-y-comunicaciones`)
 ```bash
-curl -s https://umbot.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones | head
+curl -s https://ultimamilla.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones | head
 ```
 **Result**: `HTTP/1.1 200 OK` - Page loads but with fallback behavior
 

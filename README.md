@@ -1,15 +1,15 @@
 # 🚀 ULTiMA MILLA - Fumbling Field
 
 [![CI/CD Pipeline](https://github.com/martinsantos/um25/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/martinsantos/um25/actions/workflows/ci-cd.yml)
-[![Deployment Status](https://img.shields.io/website?url=https%3A//www.umbot.com.ar)](https://www.umbot.com.ar)
+[![Deployment Status](https://img.shields.io/website?url=https%3A//www.ultimamilla.com.ar)](https://www.ultimamilla.com.ar)
 [![Docker Image](https://img.shields.io/docker/v/umbot/fumbling-field?label=docker)](https://hub.docker.com/r/umbot/fumbling-field)
 
 > **Aplicación web moderna para ULTiMA MILLA** - Portal corporativo con Astro, Directus CMS, y pipeline CI/CD automatizado.
 
 ## 🌐 **Enlaces Importantes**
 
-- **🌍 Sitio Web**: [www.umbot.com.ar](https://www.umbot.com.ar)
-- **🎛️ Admin Panel**: [www.umbot.com.ar:8055](https://www.umbot.com.ar:8055)
+- **🌍 Sitio Web**: [www.ultimamilla.com.ar](https://www.ultimamilla.com.ar)
+- **🎛️ Admin Panel**: [www.ultimamilla.com.ar:8055](https://www.ultimamilla.com.ar:8055)
 - **📊 GitHub Repository**: [martinsantos/um25](https://github.com/martinsantos/um25)
 
 ## 📋 **Tabla de Contenidos**
@@ -126,7 +126,7 @@ npm run dev
 | Servicio | URL | Credenciales |
 |----------|-----|--------------|
 | **App Principal** | http://localhost:4321 | - |
-| **Directus Admin** | http://localhost:8055 | admin@umbot.local / admin123dev |
+| **Directus Admin** | http://localhost:8055 | admin@ultimamilla.local / admin123dev |
 | **Adminer (DB)** | http://localhost:8080 | directus / dev_password_2025 |
 | **MailHog (Email)** | http://localhost:8025 | - |
 | **Redis** | localhost:6379 | - |
@@ -199,7 +199,7 @@ make rollback
 
 ### **Ambientes**
 - **Desarrollo**: `http://localhost:4321`
-- **Producción**: `https://www.umbot.com.ar`
+- **Producción**: `https://www.ultimamilla.com.ar`
 
 ## 🧪 **Testing**
 
@@ -286,7 +286,7 @@ REDIS_URL=redis://localhost:6379
 ```bash
 NODE_ENV=production
 DIRECTUS_URL=http://directus:8055
-PUBLIC_SITE_URL=https://www.umbot.com.ar
+PUBLIC_SITE_URL=https://www.ultimamilla.com.ar
 DATABASE_URL=postgresql://directus:prod_password@postgres:5432/directus
 ```
 
@@ -332,7 +332,7 @@ Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
 ## 🆘 **Soporte**
 
 Para soporte técnico o consultas:
-- **Email**: admin@umbot.com.ar
+- **Email**: admin@ultimamilla.com.ar
 - **Issues**: [GitHub Issues](https://github.com/martinsantos/um25/issues)
 - **Documentación**: [Wiki del Proyecto](https://github.com/martinsantos/um25/wiki)
 

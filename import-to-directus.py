@@ -14,8 +14,8 @@ from typing import Dict, List, Any
 import time
 
 # Configuración
-DIRECTUS_URL = "https://www.umbot.com.ar:8055"
-ADMIN_EMAIL = "admin@umbot.com.ar"
+DIRECTUS_URL = "https://www.ultimamilla.com.ar:8055"
+ADMIN_EMAIL = "admin@ultimamilla.com.ar"
 ADMIN_PASSWORD = "UmbotDirectusAdmin2025!"
 
 # Archivos de datos
@@ -368,7 +368,7 @@ def main():
     print()
     print("🔗 Accede a Directus en:")
     print(f"   • Principal: {DIRECTUS_URL}/admin")
-    print(f"   • Alternativo: https://www.umbot.com.ar:8056/admin")
+    print(f"   • Alternativo: https://www.ultimamilla.com.ar:8056/admin")
     print()
     print("✨ Todos los contenidos del sitio web están ahora disponibles para administrar!")
 

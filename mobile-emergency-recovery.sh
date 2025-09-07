@@ -70,7 +70,7 @@ test_connectivity() {
 test_website() {
     echo -e "${YELLOW}🔍 Verificando sitio web...${NC}"
     
-    local status_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 https://umbot.com.ar/ || echo "000")
+    local status_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 https://ultimamilla.com.ar/ || echo "000")
     
     if [ "$status_code" = "200" ]; then
         echo -e "${GREEN}✅ Sitio web: HTTP $status_code - OK${NC}"

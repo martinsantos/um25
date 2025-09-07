@@ -10,8 +10,8 @@ import time
 import sys
 
 # Configuración
-DIRECTUS_URL = "https://www.umbot.com.ar:8056"
-ADMIN_EMAIL = "admin@umbot.com.ar"
+DIRECTUS_URL = "https://www.ultimamilla.com.ar:8056"
+ADMIN_EMAIL = "admin@ultimamilla.com.ar"
 ADMIN_PASSWORD = "UmbotDirectusAdmin2025!"
 
 def log_with_icon(message, icon="📝"):

@@ -57,9 +57,9 @@ docker-compose exec directus-app curl -s http://localhost:8055/server/ping
 
 ## 🌐 PRUEBA EN NAVEGADOR
 
-1. **Sitio web**: https://www.umbot.com.ar/antecedentes/
-2. **Panel admin**: https://www.umbot.com.ar/admin
-3. **Credenciales**: admin@umbot.com.ar / EmergencyAdmin2025!
+1. **Sitio web**: https://www.ultimamilla.com.ar/antecedentes/
+2. **Panel admin**: https://www.ultimamilla.com.ar/admin
+3. **Credenciales**: admin@ultimamilla.com.ar / EmergencyAdmin2025!
 
 ## 📈 RESULTADOS ESPERADOS
 

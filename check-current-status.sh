@@ -36,16 +36,16 @@ echo "🌐 VERIFICACIÓN DE SITIO WEB"
 echo "============================"
 
 print_info "Verificando sitio principal..."
-if curl -I https://www.umbot.com.ar >/dev/null 2>&1; then
+if curl -I https://www.ultimamilla.com.ar >/dev/null 2>&1; then
     print_status "Sitio principal accesible (HTTPS)"
-    HTTP_STATUS=$(curl -I https://www.umbot.com.ar 2>/dev/null | head -1)
+    HTTP_STATUS=$(curl -I https://www.ultimamilla.com.ar 2>/dev/null | head -1)
     echo "   Status: $HTTP_STATUS"
 else
     print_error "Sitio principal NO accesible"
 fi
 
 print_info "Verificando redirección HTTP -> HTTPS..."
-if curl -I http://www.umbot.com.ar 2>/dev/null | grep -q "301"; then
+if curl -I http://www.ultimamilla.com.ar 2>/dev/null | grep -q "301"; then
     print_status "Redirección HTTP -> HTTPS funcionando"
 else
     print_error "Redirección HTTP -> HTTPS NO funcionando"
@@ -53,7 +53,7 @@ fi
 
 print_info "Verificando imágenes de servicios..."
 for img in ciberseguridad redes-comunicaciones servicios-it; do
-    if curl -I "https://www.umbot.com.ar/images/services/${img}.jpg" >/dev/null 2>&1; then
+    if curl -I "https://www.ultimamilla.com.ar/images/services/${img}.jpg" >/dev/null 2>&1; then
         print_status "Imagen ${img}.jpg accesible"
     else
         print_error "Imagen ${img}.jpg NO accesible"
@@ -65,16 +65,16 @@ echo "🔐 VERIFICACIÓN DE PANEL DE ADMINISTRACIÓN"
 echo "=========================================="
 
 print_info "Verificando acceso a panel admin..."
-if curl -I https://www.umbot.com.ar/admin >/dev/null 2>&1; then
+if curl -I https://www.ultimamilla.com.ar/admin >/dev/null 2>&1; then
     print_status "Panel de administración accesible"
-    ADMIN_STATUS=$(curl -I https://www.umbot.com.ar/admin 2>/dev/null | head -1)
+    ADMIN_STATUS=$(curl -I https://www.ultimamilla.com.ar/admin 2>/dev/null | head -1)
     echo "   Status: $ADMIN_STATUS"
 else
     print_error "Panel de administración NO accesible"
 fi
 
 print_info "Verificando API Directus..."
-if curl -I https://www.umbot.com.ar/api >/dev/null 2>&1; then
+if curl -I https://www.ultimamilla.com.ar/api >/dev/null 2>&1; then
     print_status "API Directus accesible"
 else
     print_error "API Directus NO accesible"
@@ -92,14 +92,14 @@ echo "🔒 VERIFICACIÓN DE SEGURIDAD"
 echo "============================"
 
 print_info "Verificando certificado SSL..."
-if openssl s_client -connect www.umbot.com.ar:443 -servername www.umbot.com.ar </dev/null 2>/dev/null | grep -q "Verify return code: 0"; then
+if openssl s_client -connect www.ultimamilla.com.ar:443 -servername www.ultimamilla.com.ar </dev/null 2>/dev/null | grep -q "Verify return code: 0"; then
     print_status "Certificado SSL válido"
 else
     print_warning "Certificado SSL con problemas o no verificable"
 fi
 
 print_info "Verificando headers de seguridad..."
-HEADERS=$(curl -I https://www.umbot.com.ar 2>/dev/null)
+HEADERS=$(curl -I https://www.ultimamilla.com.ar 2>/dev/null)
 if echo "$HEADERS" | grep -q "Strict-Transport-Security"; then
     print_status "HSTS habilitado"
 else
@@ -139,8 +139,8 @@ echo "🎯 RECOMENDACIONES BASADAS EN EL ESTADO ACTUAL"
 echo "=============================================="
 
 # Determinar recomendaciones basadas en los resultados
-SITE_OK=$(curl -I https://www.umbot.com.ar >/dev/null 2>&1 && echo "true" || echo "false")
-ADMIN_OK=$(curl -I https://www.umbot.com.ar/admin >/dev/null 2>&1 && echo "true" || echo "false")
+SITE_OK=$(curl -I https://www.ultimamilla.com.ar >/dev/null 2>&1 && echo "true" || echo "false")
+ADMIN_OK=$(curl -I https://www.ultimamilla.com.ar/admin >/dev/null 2>&1 && echo "true" || echo "false")
 
 if [[ "$SITE_OK" == "true" && "$ADMIN_OK" == "true" ]]; then
     print_status "✅ ESTADO ÓPTIMO: Sitio web y panel de administración funcionando"

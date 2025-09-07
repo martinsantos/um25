@@ -85,16 +85,16 @@ services:
       cat > /etc/nginx/conf.d/default.conf << 'NGINX_CONF'
       server {
           listen 80;
-          server_name www.umbot.com.ar;
+          server_name www.ultimamilla.com.ar;
           return 301 https://\$$server_name\$$request_uri;
       }
       
       server {
           listen 443 ssl http2;
-          server_name www.umbot.com.ar;
+          server_name www.ultimamilla.com.ar;
           
-          ssl_certificate /etc/letsencrypt/live/www.umbot.com.ar/fullchain.pem;
-          ssl_certificate_key /etc/letsencrypt/live/www.umbot.com.ar/privkey.pem;
+          ssl_certificate /etc/letsencrypt/live/www.ultimamilla.com.ar/fullchain.pem;
+          ssl_certificate_key /etc/letsencrypt/live/www.ultimamilla.com.ar/privkey.pem;
           ssl_protocols TLSv1.2 TLSv1.3;
           ssl_prefer_server_ciphers off;
           
@@ -128,17 +128,17 @@ curl -I https://localhost 2>/dev/null || echo "HTTPS no responde"
 echo ""
 echo "✅ VERIFICACIÓN EXTERNA:"
 echo "Probar desde fuera del servidor:"
-echo "curl -I https://www.umbot.com.ar"
+echo "curl -I https://www.ultimamilla.com.ar"
 echo ""
 echo "🌐 Si funciona, el sitio debería estar en:"
-echo "https://www.umbot.com.ar"
+echo "https://www.ultimamilla.com.ar"
 EOF
 
 echo "📋 INSTRUCCIONES DE RECUPERACIÓN:"
 echo "================================"
 echo ""
 echo "1. 🔐 CONECTAR AL SERVIDOR INMEDIATAMENTE:"
-echo "   ssh root@www.umbot.com.ar"
+echo "   ssh root@www.ultimamilla.com.ar"
 echo ""
 echo "2. 📋 COPIAR Y EJECUTAR LOS COMANDOS DEL ARCHIVO:"
 echo "   cat emergency-recovery-commands.txt"
@@ -148,7 +148,7 @@ echo "   - Primero restaurar el sitio web principal"
 echo "   - Luego preocuparse por el panel admin"
 echo ""
 echo "4. 🔍 VERIFICAR DESDE AQUÍ:"
-echo "   curl -I https://www.umbot.com.ar"
+echo "   curl -I https://www.ultimamilla.com.ar"
 echo ""
 echo "⚠️  URGENTE: El servidor necesita atención inmediata"
 echo "El sitio web está completamente caído" 

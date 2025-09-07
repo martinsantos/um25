@@ -11,17 +11,17 @@ upstream directus {
 
 server {
     listen 80;
-    server_name www.umbot.com.ar;
+    server_name www.ultimamilla.com.ar;
     return 301 https://$server_name$request_uri;
 }
 
 server {
     listen 443 ssl http2;
-    server_name www.umbot.com.ar;
+    server_name www.ultimamilla.com.ar;
 
     # SSL Configuration
-    ssl_certificate /etc/letsencrypt/live/www.umbot.com.ar/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/www.umbot.com.ar/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/www.ultimamilla.com.ar/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/www.ultimamilla.com.ar/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384;
     ssl_prefer_server_ciphers off;
@@ -116,7 +116,7 @@ services:
     image: directus/directus:10.8.3
     container_name: umbot-directus-admin
     environment:
-      KEY: "DirectusSecretKey2025UmbotAdmin"
+      KEY: "DirectusSecretKey2025UltimaMillaAdmin"
       SECRET: "DirectusSecretToken2025UmbotHybrid"
       DB_CLIENT: pg
       DB_HOST: umbot-postgres-admin
@@ -124,10 +124,10 @@ services:
       DB_DATABASE: directus
       DB_USER: directus
       DB_PASSWORD: DirectusAdmin2025!
-      ADMIN_EMAIL: admin@umbot.com.ar
+      ADMIN_EMAIL: admin@ultimamilla.com.ar
       ADMIN_PASSWORD: UmbotDirectusAdmin2025!
       # Configuración simple sin subdirectorio
-      PUBLIC_URL: https://www.umbot.com.ar/admin
+      PUBLIC_URL: https://www.ultimamilla.com.ar/admin
       SERVE_APP: true
     volumes:
       - directus_uploads:/directus/uploads
@@ -183,9 +183,9 @@ docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
 echo ""
 echo "✅ Despliegue completado"
-echo "🌐 Sitio: https://www.umbot.com.ar"
-echo "🔧 Admin: https://www.umbot.com.ar/admin/"
-echo "👤 Usuario: admin@umbot.com.ar"
+echo "🌐 Sitio: https://www.ultimamilla.com.ar"
+echo "🔧 Admin: https://www.ultimamilla.com.ar/admin/"
+echo "👤 Usuario: admin@ultimamilla.com.ar"
 echo "🔑 Password: UmbotDirectusAdmin2025!"
 EOF
 

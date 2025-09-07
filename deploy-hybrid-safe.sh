@@ -21,7 +21,7 @@ echo ""
 # PASO 1: Verificar estado del sitio ANTES
 echo "1️⃣ VERIFICACIÓN PRE-IMPLEMENTACIÓN"
 echo "   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-curl -I https://www.umbot.com.ar/ 2>/dev/null | head -3
+curl -I https://www.ultimamilla.com.ar/ 2>/dev/null | head -3
 if [ $? -eq 0 ]; then
     echo "   ✅ Sitio web funcionando correctamente"
 else
@@ -103,9 +103,9 @@ echo "🏥 Verificando salud de Directus..."
 timeout 60 bash -c 'until curl -f http://localhost:8055/server/health 2>/dev/null; do echo "Esperando Directus..."; sleep 5; done' || echo "⚠️ Directus aún iniciando"
 
 echo "✅ IMPLEMENTACIÓN HÍBRIDA COMPLETADA"
-echo "🌐 Sitio: https://www.umbot.com.ar"
-echo "🎛️ Admin: https://www.umbot.com.ar/admin"
-echo "📊 Usuario: admin@umbot.com.ar"
+echo "🌐 Sitio: https://www.ultimamilla.com.ar"
+echo "🎛️ Admin: https://www.ultimamilla.com.ar/admin"
+echo "📊 Usuario: admin@ultimamilla.com.ar"
 echo "🔑 Pass: UmbotHybridAdmin2025!"
 
 REMOTE_SCRIPT
@@ -155,9 +155,9 @@ echo ""
 
 echo "5️⃣ MONITOREO POST-IMPLEMENTACIÓN"
 echo "   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "   🌐 Sitio web: https://www.umbot.com.ar"
-echo "   🎛️ Panel admin: https://www.umbot.com.ar/admin"
-echo "   🏥 Health check: https://www.umbot.com.ar/health"
+echo "   🌐 Sitio web: https://www.ultimamilla.com.ar"
+echo "   🎛️ Panel admin: https://www.ultimamilla.com.ar/admin"
+echo "   🏥 Health check: https://www.ultimamilla.com.ar/health"
 echo ""
 
 # PASO 6: Ejecutar transferencia automática si es posible

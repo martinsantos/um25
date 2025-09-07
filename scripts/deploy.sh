@@ -1,213 +1,223 @@
 #!/bin/bash
 
-# Script para el despliegue y migración de la aplicación
-# Uso: ./deploy.sh [production|rollback]
+# Production Deployment Script for ULTIMA MILLA CLI
+# Server: root@23.105.176.45
+# Version: 1.0.0
 
-# Colores para mensajes
-GREEN='\033[0;32m'
+echo "🚀 ULTIMA MILLA CLI - Production Deployment"
+echo "============================================"
+echo ""
+
+# Configuration
+SERVER="root@23.105.176.45"
+PROJECT_PATH="/root/fumbling-field"
+BRANCH="main"
+BACKUP_DIR="/root/backup"
+SERVICE_NAME="fumbling-field"
+
+# Color codes
 RED='\033[0;31m'
+GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+BLUE='\033[0;34m'
+NC='\033[0m'
 
-# Verificar argumentos
-if [ "$#" -ne 1 ]; then
-    echo -e "${RED}Error: Se requiere especificar la acción [production|rollback]${NC}"
-    echo -e "Uso: ./deploy.sh [production|rollback]"
-    exit 1
-fi
-
-ACTION=$1
-PROJECT_ROOT=$(pwd)
-TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-BACKUP_DIR="./backups"
-
-# Validar acción
-if [ "$ACTION" != "production" ] && [ "$ACTION" != "rollback" ]; then
-    echo -e "${RED}Error: Acción no válida. Use 'production' o 'rollback'${NC}"
-    exit 1
-fi
-
-# Crear directorio de backups si no existe
-mkdir -p $BACKUP_DIR
-
-# Función para verificar la disponibilidad de servicios
-check_service() {
-    local url=$1
-    local service_name=$2
-    local max_attempts=$3
-    local attempt=1
-    
-    echo -e "${YELLOW}Verificando disponibilidad de $service_name...${NC}"
-    
-    while [ $attempt -le $max_attempts ]; do
-        if curl -s -o /dev/null -w "%{http_code}" $url | grep -q "200\|301\|302"; then
-            echo -e "${GREEN}$service_name está disponible (intento $attempt)${NC}"
-            return 0
-        else
-            echo -e "${YELLOW}$service_name no está disponible, reintentando ($attempt/$max_attempts)...${NC}"
-            sleep 5
-            attempt=$((attempt+1))
-        fi
-    done
-    
-    echo -e "${RED}$service_name no está disponible después de $max_attempts intentos${NC}"
-    return 1
+function log_info() {
+    echo -e "${BLUE}ℹ${NC} $1"
 }
 
-# Despliegue a producción
-if [ "$ACTION" == "production" ]; then
-    echo -e "${YELLOW}Iniciando despliegue en producción...${NC}"
-    
-    # Crear backup de archivos de configuración actuales
-    echo -e "${YELLOW}Creando backup de archivos de configuración...${NC}"
-    mkdir -p $BACKUP_DIR/config_$TIMESTAMP
-    
-    if [ -f "docker-compose.production.yml" ]; then
-        cp docker-compose.production.yml $BACKUP_DIR/config_$TIMESTAMP/docker-compose.production.yml.bak
-    fi
-    
-    if [ -f ".env.production" ]; then
-        cp .env.production $BACKUP_DIR/config_$TIMESTAMP/.env.production.bak
-    fi
-    
-    if [ -f "nginx.production.conf" ]; then
-        cp nginx.production.conf $BACKUP_DIR/config_$TIMESTAMP/nginx.production.conf.bak
-    fi
-    
-    # Crear backup de la base de datos
-    echo -e "${YELLOW}Creando backup de la base de datos...${NC}"
-    ./scripts/db_backup_restore.sh backup prod $BACKUP_DIR/pre_deploy_$TIMESTAMP.sql
-    
-    # Detener servicios actuales
-    echo -e "${YELLOW}Deteniendo servicios actuales...${NC}"
-    docker-compose -f docker-compose.production.yml down
-    
-    # Verificar si hay una nueva versión de docker-compose.production.yml
-    if [ -f "docker-compose.production.yml.new" ]; then
-        echo -e "${YELLOW}Detectada nueva versión de docker-compose.production.yml${NC}"
-        mv docker-compose.production.yml.new docker-compose.production.yml
-    fi
-    
-    # Limpiar recursos no utilizados
-    echo -e "${YELLOW}Limpiando recursos no utilizados...${NC}"
-    docker system prune -f
-    
-    # Construir y levantar servicios
-    echo -e "${YELLOW}Construyendo y levantando servicios...${NC}"
-    docker-compose -f docker-compose.production.yml up -d --build
-    
-    # Verificar estado de los servicios
-    echo -e "${YELLOW}Verificando estado de los servicios...${NC}"
-    docker-compose -f docker-compose.production.yml ps
-    
-    # Esperar a que los servicios estén disponibles
-    sleep 10
-    
-    # Verificar integridad de las imágenes
-    echo -e "${YELLOW}Verificando imágenes...${NC}"
-    docker run --rm ${DOCKER_USER}/${REPO_NAME}:${SERVICE}-latest node -e "require('./src/lib/auth.js').verifyToken('k6P8LAY8_x_y1miB_KTlWnysCnx2Abky')" || exit 1
-    
-    # Verificar disponibilidad de servicios
-    check_service "http://localhost:8080" "Astro App" 6
-    check_service "http://localhost:8055" "Directus" 6
-    
-    echo -e "${GREEN}¡Despliegue completado!${NC}"
-    echo -e "${YELLOW}La aplicación está disponible en:${NC}"
-    echo -e "Frontend: http://localhost"
-    echo -e "Directus: http://localhost:8055"
-    
-    # Verificar el token de Directus
-    echo -e "${YELLOW}Verificando token de Directus...${NC}"
-    
-    # Extraer token y URL de Directus del archivo .env.production
-    DIRECTUS_TOKEN=$(grep "DIRECTUS_STATIC_TOKEN" .env.production | cut -d'=' -f2 | tr -d '"' | tr -d "'")
-    DIRECTUS_URL=$(grep "PUBLIC_DIRECTUS_URL" .env.production | cut -d'=' -f2 | tr -d '"' | tr -d "'")
-    
-    # Verificar que el token funciona
-    echo -e "${YELLOW}Verificando que el token funciona correctamente...${NC}"
-    RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X GET "$DIRECTUS_URL/users/me" -H "Authorization: Bearer $DIRECTUS_TOKEN")
-    
-    if [ "$RESPONSE" -eq 200 ]; then
-        echo -e "${GREEN}¡Token verificado correctamente! (Código HTTP: $RESPONSE)${NC}"
-    else
-        echo -e "${RED}Error al verificar el token. Código HTTP: $RESPONSE${NC}"
-        echo -e "${YELLOW}Ejecutando script de corrección de token...${NC}"
-        
-        # Ejecutar script de corrección de token
-        if [ -f "fix_directus_token.sh" ]; then
-            chmod +x fix_directus_token.sh
-            ./fix_directus_token.sh
-        else
-            echo -e "${RED}No se encontró el script fix_directus_token.sh${NC}"
-        fi
-    fi
+function log_success() {
+    echo -e "${GREEN}✓${NC} $1"
+}
 
-# Rollback a versión anterior
+function log_warning() {
+    echo -e "${YELLOW}⚠${NC} $1"
+}
+
+function log_error() {
+    echo -e "${RED}✗${NC} $1"
+}
+
+# Check if we can connect to server
+log_info "Testing connection to production server..."
+if ssh -o ConnectTimeout=10 -o BatchMode=yes $SERVER exit 2>/dev/null; then
+    log_success "Connection to $SERVER established"
 else
-    echo -e "${YELLOW}Iniciando rollback a versión anterior...${NC}"
-    
-    # Buscar el último backup de configuración
-    LATEST_CONFIG=$(ls -td $BACKUP_DIR/config_* | head -1)
-    
-    if [ -z "$LATEST_CONFIG" ]; then
-        echo -e "${RED}Error: No se encontraron backups de configuración${NC}"
-        exit 1
-    fi
-    
-    echo -e "${YELLOW}Utilizando backup de configuración: $LATEST_CONFIG${NC}"
-    
-    # Restaurar archivos de configuración
-    if [ -f "$LATEST_CONFIG/docker-compose.production.yml.bak" ]; then
-        cp $LATEST_CONFIG/docker-compose.production.yml.bak docker-compose.production.yml
-    fi
-    
-    if [ -f "$LATEST_CONFIG/.env.production.bak" ]; then
-        cp $LATEST_CONFIG/.env.production.bak .env.production
-    fi
-    
-    if [ -f "$LATEST_CONFIG/nginx.production.conf.bak" ]; then
-        cp $LATEST_CONFIG/nginx.production.conf.bak nginx.production.conf
-    fi
-    
-    # Buscar el último backup de base de datos
-    LATEST_DB=$(ls -t $BACKUP_DIR/pre_deploy_*.sql | head -1)
-    
-    if [ -z "$LATEST_DB" ]; then
-        echo -e "${RED}Error: No se encontraron backups de base de datos${NC}"
-        exit 1
-    fi
-    
-    echo -e "${YELLOW}Utilizando backup de base de datos: $LATEST_DB${NC}"
-    
-    # Detener servicios actuales
-    echo -e "${YELLOW}Deteniendo servicios actuales...${NC}"
-    docker-compose -f docker-compose.production.yml down
-    
-    # Limpiar recursos no utilizados
-    echo -e "${YELLOW}Limpiando recursos no utilizados...${NC}"
-    docker system prune -f
-    
-    # Construir y levantar servicios
-    echo -e "${YELLOW}Construyendo y levantando servicios...${NC}"
-    docker-compose -f docker-compose.production.yml up -d --build
-    
-    # Esperar a que los servicios estén disponibles
-    sleep 10
-    
-    # Restaurar base de datos
-    echo -e "${YELLOW}Restaurando base de datos...${NC}"
-    cat $LATEST_DB | docker exec -i database psql -U $(grep "DB_USER" .env.production | cut -d'=' -f2 | tr -d '"' | tr -d "'" | sed 's/^[ \t]*//;s/[ \t]*$//') -d $(grep "DB_DATABASE" .env.production | cut -d'=' -f2 | tr -d '"' | tr -d "'" | sed 's/^[ \t]*//;s/[ \t]*$//')
-    
-    # Verificar estado de los servicios
-    echo -e "${YELLOW}Verificando estado de los servicios...${NC}"
-    docker-compose -f docker-compose.production.yml ps
-    
-    # Verificar disponibilidad de servicios
-    check_service "http://localhost:8080" "Astro App" 6
-    check_service "http://localhost:8055" "Directus" 6
-    
-    echo -e "${GREEN}¡Rollback completado!${NC}"
-    echo -e "${YELLOW}Para verificar los logs: docker-compose -f docker-compose.production.yml logs -f${NC}"
+    log_error "Cannot connect to $SERVER"
+    echo "Please check:"
+    echo "1. SSH key is properly configured"
+    echo "2. Server is accessible"
+    echo "3. Firewall settings allow connection"
+    exit 1
 fi
 
-exit 0
+# Create deployment command script
+DEPLOY_COMMANDS=$(cat << 'EOF'
+#!/bin/bash
+
+# Production deployment commands
+set -e
+
+PROJECT_PATH="/root/fumbling-field"
+BACKUP_DIR="/root/backup"
+SERVICE_NAME="fumbling-field"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+
+echo "🔄 Starting deployment process..."
+
+# Create backup directory if it doesn't exist
+mkdir -p $BACKUP_DIR
+
+# Create backup of current version
+if [ -d "$PROJECT_PATH" ]; then
+    echo "📦 Creating backup of current version..."
+    cp -r $PROJECT_PATH $BACKUP_DIR/fumbling-field_$TIMESTAMP
+    echo "✓ Backup created: $BACKUP_DIR/fumbling-field_$TIMESTAMP"
+fi
+
+# Navigate to project directory
+cd $PROJECT_PATH || {
+    echo "❌ Project directory not found: $PROJECT_PATH"
+    exit 1
+}
+
+echo "📥 Pulling latest changes from repository..."
+
+# Fetch latest changes
+git fetch origin
+
+# Check if there are new commits
+LOCAL=$(git rev-parse @)
+REMOTE=$(git rev-parse @{u})
+
+if [ $LOCAL = $REMOTE ]; then
+    echo "⚠️  No new changes to deploy"
+else
+    echo "🔄 New changes detected, updating..."
+    
+    # Pull latest changes
+    git pull origin main
+    
+    echo "📦 Installing/updating dependencies..."
+    npm ci --only=production
+    
+    echo "🏗️  Building project for production..."
+    npm run build
+    
+    # Check if build was successful
+    if [ $? -eq 0 ]; then
+        echo "✅ Build completed successfully"
+    else
+        echo "❌ Build failed, rolling back..."
+        git reset --hard $LOCAL
+        exit 1
+    fi
+fi
+
+# Check if PM2 is installed
+if command -v pm2 >/dev/null 2>&1; then
+    echo "🔄 Managing services with PM2..."
+    
+    # Check if service is already running
+    if pm2 describe $SERVICE_NAME > /dev/null 2>&1; then
+        echo "🔄 Restarting existing service..."
+        pm2 restart $SERVICE_NAME
+        pm2 save
+    else
+        echo "🚀 Starting new service..."
+        pm2 start npm --name $SERVICE_NAME -- start
+        pm2 save
+    fi
+    
+    # Show service status
+    pm2 status
+    
+elif command -v docker-compose >/dev/null 2>&1; then
+    echo "🐳 Managing services with Docker..."
+    
+    # Check for docker-compose files
+    if [ -f "docker-compose.yml" ] || [ -f "docker-compose.prod.yml" ]; then
+        echo "🔄 Restarting Docker services..."
+        docker-compose -f docker-compose.prod.yml down 2>/dev/null || docker-compose down
+        docker-compose -f docker-compose.prod.yml up -d --build 2>/dev/null || docker-compose up -d --build
+        
+        # Show service status
+        docker-compose ps
+    else
+        echo "⚠️  No docker-compose files found"
+    fi
+    
+else
+    echo "⚠️  No service manager found (PM2 or Docker)"
+    echo "🚀 Starting application directly..."
+    
+    # Kill existing process if running
+    pkill -f "npm start" || true
+    pkill -f "node" || true
+    
+    # Start in background
+    nohup npm start > /root/logs/app.log 2>&1 &
+    echo "✅ Application started"
+fi
+
+echo ""
+echo "🎉 Deployment completed successfully!"
+echo "📊 Deployment summary:"
+echo "   - Time: $(date)"
+echo "   - Commit: $(git rev-parse --short HEAD)"
+echo "   - Branch: $(git branch --show-current)"
+echo ""
+
+# Basic health check
+echo "🏥 Performing basic health check..."
+sleep 5
+
+# Check if port is responding (assuming the app runs on port 3000 or 4321)
+for port in 4321 3000 80 443; do
+    if netstat -tuln | grep ":$port " > /dev/null; then
+        echo "✅ Service responding on port $port"
+        break
+    fi
+done
+
+echo "✅ Deployment verification completed"
+EOF
+)
+
+# Transfer and execute deployment script
+log_info "Transferring deployment script to server..."
+echo "$DEPLOY_COMMANDS" | ssh $SERVER 'cat > /tmp/deploy.sh && chmod +x /tmp/deploy.sh'
+
+log_info "Executing deployment on production server..."
+ssh -t $SERVER '/tmp/deploy.sh'
+
+if [ $? -eq 0 ]; then
+    echo ""
+    log_success "🎉 Deployment completed successfully!"
+    echo ""
+    echo "🌐 Your enhanced terminal should now be live at:"
+    echo "   https://ultimamilla.com.ar/"
+    echo ""
+    echo "🔍 Next steps:"
+    echo "1. Verify the site is loading correctly"
+    echo "2. Test the enhanced terminal functionality"  
+    echo "3. Check all new commands (performance, cache, memory, theme)"
+    echo "4. Test on mobile devices"
+    echo "5. Verify offline functionality"
+    echo ""
+else
+    log_error "Deployment failed"
+    echo ""
+    echo "🔧 Troubleshooting steps:"
+    echo "1. Check server logs: ssh $SERVER 'tail -f /root/logs/app.log'"
+    echo "2. Check service status: ssh $SERVER 'pm2 status' or 'docker-compose ps'"
+    echo "3. Manual rollback if needed: ssh $SERVER 'cp -r $BACKUP_DIR/fumbling-field_* $PROJECT_PATH'"
+    echo ""
+    exit 1
+fi
+
+# Cleanup
+ssh $SERVER 'rm -f /tmp/deploy.sh'
+
+echo "🧹 Cleanup completed"
+echo "🎉 Deployment process finished!"

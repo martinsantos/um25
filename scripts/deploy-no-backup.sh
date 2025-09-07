@@ -76,7 +76,7 @@ main() {
     
     # Verificar deployment
     log "🧪 Verificando deployment..."
-    if curl -s --max-time 10 https://www.umbot.com.ar | grep -q "ULTIMA MILLA"; then
+    if curl -s --max-time 10 https://www.ultimamilla.com.ar | grep -q "ULTIMA MILLA"; then
         log "✅ Sitio principal funcionando"
     else
         warn "⚠️ Posible problema en sitio principal"
@@ -88,7 +88,7 @@ main() {
     
     log ""
     log "🎉 DEPLOY COMPLETADO!"
-    log "🌐 Sitio: https://www.umbot.com.ar"
+    log "🌐 Sitio: https://www.ultimamilla.com.ar"
     log "🎛️  Admin: http://23.105.176.45:8055"
 }
 

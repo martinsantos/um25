@@ -32,4 +32,4 @@ echo "🔄 Reiniciando contenedor Astro para aplicar configuración..."
 docker restart umbot-astro-static
 
 echo "✅ Configuración completada! Astro ahora puede conectar con Directus en modo SSR."
-echo "🌐 Test: https://www.umbot.com.ar/servicios/2/redes-de-datos" 
+echo "🌐 Test: https://www.ultimamilla.com.ar/servicios/2/redes-de-datos" 

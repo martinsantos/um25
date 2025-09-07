@@ -29,9 +29,9 @@ docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 echo ""
 echo "🔍 Verificando corrección:"
 echo "Base href:"
-curl -s https://www.umbot.com.ar/admin | grep -o 'base href="[^"]*"' 2>/dev/null || echo "No encontrado"
+curl -s https://www.ultimamilla.com.ar/admin | grep -o 'base href="[^"]*"' 2>/dev/null || echo "No encontrado"
 echo "Login status:"
-curl -I https://www.umbot.com.ar/admin/login 2>/dev/null | head -1
+curl -I https://www.ultimamilla.com.ar/admin/login 2>/dev/null | head -1
 
 echo ""
 echo "✅ Corrección aplicada"

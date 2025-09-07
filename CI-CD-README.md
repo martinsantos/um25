@@ -70,7 +70,7 @@ SSH_PRIVATE_KEY: -----BEGIN OPENSSH PRIVATE KEY-----
 **Configuración SSH:**
 ```bash
 # Generar clave SSH (si no existe)
-ssh-keygen -t rsa -b 4096 -C "github-actions@umbot.com.ar" -f ~/.ssh/github-actions-umbot
+ssh-keygen -t rsa -b 4096 -C "github-actions@ultimamilla.com.ar" -f ~/.ssh/github-actions-umbot
 
 # Instalar clave pública en servidor
 ssh-copy-id -i ~/.ssh/github-actions-umbot.pub root@23.105.176.45
@@ -193,14 +193,14 @@ git push origin main
 ### Verificaciones Automáticas
 ```bash
 # Conectividad básica
-curl -f https://www.umbot.com.ar/
+curl -f https://www.ultimamilla.com.ar/
 
 # API health
-curl -f https://www.umbot.com.ar/api/server/health
+curl -f https://www.ultimamilla.com.ar/api/server/health
 
 # Páginas críticas
-curl -f https://www.umbot.com.ar/antecedentes
-curl -f https://www.umbot.com.ar/servicios
+curl -f https://www.ultimamilla.com.ar/antecedentes
+curl -f https://www.ultimamilla.com.ar/servicios
 ```
 
 ### Configuración de Timeouts
@@ -237,7 +237,7 @@ ssh root@23.105.176.45 "docker ps"
 ssh root@23.105.176.45 "cd /root/fumbling-field && cat .deploy-info"
 
 # Verificar salud del sitio
-curl -I https://www.umbot.com.ar/
+curl -I https://www.ultimamilla.com.ar/
 ```
 
 ### Logs Importantes
@@ -275,7 +275,7 @@ echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-s
 #### ❌ Health check falla
 ```bash
 # Verificar sitio manualmente
-curl -v https://www.umbot.com.ar/
+curl -v https://www.ultimamilla.com.ar/
 
 # Verificar logs del servidor
 ssh root@23.105.176.45 "docker logs fumbling-field-astro-app-1"
@@ -331,7 +331,7 @@ ssh root@23.105.176.45 "docker logs fumbling-field-astro-app-1"
 - 📖 [GitHub Actions Docs](https://docs.github.com/en/actions)
 - 🐳 [Docker Compose Reference](https://docs.docker.com/compose/)
 - 🚀 [Astro Deployment Guide](https://docs.astro.build/en/guides/deploy/)
-- 📊 [UMBot Status Page](https://www.umbot.com.ar/)
+- 📊 [UMBot Status Page](https://www.ultimamilla.com.ar/)
 
 ---
 

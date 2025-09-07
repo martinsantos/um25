@@ -6,7 +6,7 @@
 
 ## 🔍 Problema Identificado
 
-La URL https://umbot.com.ar/servicios/2/redes-de-datos no mostraba la plantilla correcta, presentando un diseño básico sin las funcionalidades avanzadas esperadas.
+La URL https://ultimamilla.com.ar/servicios/2/redes-de-datos no mostraba la plantilla correcta, presentando un diseño básico sin las funcionalidades avanzadas esperadas.
 
 ## 🔎 Investigación Realizada
 
@@ -108,7 +108,7 @@ umbot-node-exporter Up 2+ weeks
 
 **✅ MISIÓN CUMPLIDA**
 
-La URL https://umbot.com.ar/servicios/2/redes-de-datos ahora muestra la **plantilla correcta** con:
+La URL https://ultimamilla.com.ar/servicios/2/redes-de-datos ahora muestra la **plantilla correcta** con:
 
 - ✅ Diseño profesional y moderno
 - ✅ Todas las secciones organizadas

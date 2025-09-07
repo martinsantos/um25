@@ -1231,7 +1231,7 @@ Para obtener datos específicos, use:
                 console.log('✓ Performance Optimizer loaded successfully');
             } else {
                 // Try to load it dynamically
-                await this.loadScriptDynamically('/performanceOptimizer.js');
+                await this.loadScriptDynamically('/performanceOptimizer.v2.js');
                 if (typeof window.PerformanceOptimizer !== 'undefined') {
                     this.performanceOptimizer = new window.PerformanceOptimizer(this);
                     this.isPerformanceOptimizerReady = true;

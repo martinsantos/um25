@@ -39,9 +39,9 @@ database       → Up 5 hours (Puerto 5432)
 ```
 
 ### **FRONTEND ESTÁTICO**
-- ✅ https://www.umbot.com.ar → HTTP/2 200 OK
-- ✅ https://www.umbot.com.ar/servicios → HTTP/2 200 OK  
-- ✅ https://www.umbot.com.ar/antecedentes → HTTP/2 200 OK
+- ✅ https://www.ultimamilla.com.ar → HTTP/2 200 OK
+- ✅ https://www.ultimamilla.com.ar/servicios → HTTP/2 200 OK  
+- ✅ https://www.ultimamilla.com.ar/antecedentes → HTTP/2 200 OK
 
 ### **DIRECTUS CMS**
 - ✅ http://23.105.176.45:8055/admin → HTTP/1.1 200 OK
@@ -69,7 +69,7 @@ database       → Up 5 hours (Puerto 5432)
 ## 🌐 **ACCESOS FINALES**
 
 ### **PARA USUARIOS PÚBLICOS**
-- **Sitio web**: https://www.umbot.com.ar
+- **Sitio web**: https://www.ultimamilla.com.ar
 - **Estado**: Sin cambios, funcionando normalmente
 
 ### **PARA ADMINISTRADORES**

@@ -8,7 +8,7 @@
 ## ✅ Estado del Proyecto: COMPLETADO Y OPTIMIZADO PARA SEO
 
 **Fecha de Finalización**: 18 Agosto 2025  
-**Sitio Web Principal**: https://www.umbot.com.ar  
+**Sitio Web Principal**: https://www.ultimamilla.com.ar  
 **Estado General**: ✅ TOTALMENTE OPTIMIZADO Y LISTO PARA MIGRACIÓN  
 **Arquitectura**: Astro + Directus CMS + PostgreSQL  
 **Infraestructura**: Docker + Nginx + SSL  
@@ -31,9 +31,9 @@
 ## 🌐 Sitio Web Principal
 
 ### URLs Operacionales (POST-OPTIMIZACIÓN SEO):
-- **Sitio Principal**: https://www.umbot.com.ar ✅ OPERACIONAL
-- **Página de Servicios**: https://www.umbot.com.ar/servicios ✅ OPERACIONAL
-- **Página de Antecedentes**: https://www.umbot.com.ar/antecedentes ✅ OPERACIONAL
+- **Sitio Principal**: https://www.ultimamilla.com.ar ✅ OPERACIONAL
+- **Página de Servicios**: https://www.ultimamilla.com.ar/servicios ✅ OPERACIONAL
+- **Página de Antecedentes**: https://www.ultimamilla.com.ar/antecedentes ✅ OPERACIONAL
 - **Servicios Individuales**: /servicios/[id]/[slug] ✅ TODAS VERIFICADAS (HTTP 200)
 - **Antecedentes Individuales**: /antecedentes/[id]/[slug] ✅ TODAS VERIFICADAS
 
@@ -110,9 +110,9 @@ Preparar completamente el sitio para migración del dominio a **ultimamilla.com.
 ## 🎯 Testing Exhaustivo Post-Deploy
 
 ### URLs Principales Verificadas:
-✅ **Sitio Principal**: https://www.umbot.com.ar (HTTP 200)  
-✅ **Servicios**: https://www.umbot.com.ar/servicios (HTTP 200)  
-✅ **Antecedentes**: https://www.umbot.com.ar/antecedentes (HTTP 200)  
+✅ **Sitio Principal**: https://www.ultimamilla.com.ar (HTTP 200)  
+✅ **Servicios**: https://www.ultimamilla.com.ar/servicios (HTTP 200)  
+✅ **Antecedentes**: https://www.ultimamilla.com.ar/antecedentes (HTTP 200)  
 ✅ **Servicios Individuales**: /servicios/1/servicios-it (HTTP 200)  
 ✅ **Servicios Individuales**: /servicios/2/redes-de-datos (HTTP 200/302)  
 ✅ **Servicios Individuales**: /servicios/3/software-y-servicios (HTTP 302)  
@@ -182,7 +182,7 @@ Preparar completamente el sitio para migración del dominio a **ultimamilla.com.
 ### 1. Preparación DNS (ultimamilla.com.ar)
 - Configurar registros A/CNAME apuntando a 23.105.176.45  
 - Actualizar certificados SSL para nuevo dominio
-- Configurar redirects desde umbot.com.ar
+- Configurar redirects desde ultimamilla.com.ar
 
 ### 2. Actualización Configuración
 - Actualizar PUBLIC_BASE_URL en variables de entorno
@@ -583,7 +583,7 @@ El **UMTerminal está completamente funcional** y listo para demostrar las capac
 
 ### Servidor Principal:
 - **IP**: 23.105.176.45
-- **Dominio**: umbot.com.ar
+- **Dominio**: ultimamilla.com.ar
 - **OS**: CentOS/RHEL 9.4
 - **Docker**: v28.2.2 (Última versión estable)
 - **Nginx**: v1.20.1 con SSL configurado
@@ -709,7 +709,7 @@ services:
 - [ ] **Health Check**: Verificar que todos los contenedores estén Up
 
 ### ✅ Verificación Post-Deploy:
-- [ ] **Website Status**: Verificar https://umbot.com.ar carga correctamente
+- [ ] **Website Status**: Verificar https://ultimamilla.com.ar carga correctamente
 - [ ] **API Endpoints**: Probar llamadas a Directus API
 - [ ] **Database Connection**: Verificar conectividad a PostgreSQL
 - [ ] **SSL Certificate**: Confirmar que HTTPS funciona
@@ -801,11 +801,11 @@ Metrics endpoint - no auth required
 
 ### Producción:
 ```bash
-Main Site: https://umbot.com.ar
-Services: https://umbot.com.ar/servicios
-History: https://umbot.com.ar/antecedentes
-Contact: https://umbot.com.ar/contacto
-About: https://umbot.com.ar/nosotros
+Main Site: https://ultimamilla.com.ar
+Services: https://ultimamilla.com.ar/servicios
+History: https://ultimamilla.com.ar/antecedentes
+Contact: https://ultimamilla.com.ar/contacto
+About: https://ultimamilla.com.ar/nosotros
 ```
 
 ### Desarrollo Local:
@@ -860,7 +860,7 @@ docker exec -i database psql -U myuser mydatabase < backup.sql
 ### Health Checks:
 ```bash
 # Verificar estado del sitio web
-curl -I https://umbot.com.ar
+curl -I https://ultimamilla.com.ar
 
 # Verificar API de Directus
 curl -H "Authorization: Bearer k6P8LAY8_x_y1miB_KTlWnysCnx2Abky" \
@@ -906,7 +906,7 @@ docker-compose up --build -d
 
 # 5. Verificar estado
 docker-compose ps
-curl -I https://umbot.com.ar
+curl -I https://ultimamilla.com.ar
 ```
 
 ### Restauración desde Backup:
@@ -1046,7 +1046,7 @@ docker-compose up -d
 
 **El proyecto UMBOT.com.ar ha sido completado exitosamente con todos los objetivos alcanzados:**
 
-✅ **Website completamente funcional** en https://umbot.com.ar  
+✅ **Website completamente funcional** en https://ultimamilla.com.ar  
 ✅ **CMS Directus operacional** con interfaz de administración completa  
 ✅ **Base de datos poblada** con 469 antecedentes y 6 servicios  
 ✅ **Arquitectura moderna** con Astro + Directus + PostgreSQL  
@@ -1179,8 +1179,8 @@ TEMPLATE DINÁMICO SSR:
 ```
 
 #### ✅ Validación Visual Exitosa:
-- **Página de servicios**: https://umbot.com.ar/servicios - Imágenes originales restauradas
-- **Single service**: https://umbot.com.ar/servicios/2/redes-de-datos - ✅ **PLANTILLA PROFESIONAL RESTAURADA**
+- **Página de servicios**: https://ultimamilla.com.ar/servicios - Imágenes originales restauradas
+- **Single service**: https://ultimamilla.com.ar/servicios/2/redes-de-datos - ✅ **PLANTILLA PROFESIONAL RESTAURADA**
 - **Proxy SSR**: Puerto 8093 activo y respondiendo
 
 #### 🚀 CORRECCIÓN CRÍTICA COMPLETADA (01/08/2025):
@@ -1279,7 +1279,7 @@ Astro SSR (prerender = false) ↔ Directus API (contenido en tiempo real)
 ### ✅ **URLs PRINCIPALES VERIFICADAS**
 
 #### 1. **PÁGINA DE ANTECEDENTES**
-- **🔗 URL**: https://umbot.com.ar/antecedentes
+- **🔗 URL**: https://ultimamilla.com.ar/antecedentes
 - **📊 Estado HTTP**: `200 OK`
 - **🖥️ Servidor**: nginx/1.20.1
 - **✅ Contenido**: Carga correctamente, muestra "Portfolio de Proyectos Destacados"
@@ -1287,7 +1287,7 @@ Astro SSR (prerender = false) ↔ Directus API (contenido en tiempo real)
 - **📊 Resultado**: ✅ **FUNCIONANDO PERFECTAMENTE**
 
 #### 2. **PÁGINA DE SERVICIOS ESPECÍFICOS**
-- **🔗 URL**: https://umbot.com.ar/servicios/3/seguridad-informatica
+- **🔗 URL**: https://ultimamilla.com.ar/servicios/3/seguridad-informatica
 - **📊 Estado HTTP**: `200 OK`
 - **🖥️ Servidor**: nginx/1.20.1
 - **❌ Problema Identificado**: "Error en la estructura de datos del servidor. Por favor, contacte al administrador."
@@ -1483,7 +1483,7 @@ const fetchServiceDetail = async (token, id) => {
 - ✅ Template desplegado vía SSH a producción
 - ✅ Docker rebuild completado exitosamente 
 - ✅ Contenedor reiniciado con nueva imagen
-- ✅ Validación visual confirmada en https://umbot.com.ar/servicios/2/redes-de-datos
+- ✅ Validación visual confirmada en https://ultimamilla.com.ar/servicios/2/redes-de-datos
 
 #### Recomendaciones:
 1. **Mantener arquitectura actual**: El proxy SSR funciona correctamente
@@ -1494,13 +1494,13 @@ const fetchServiceDetail = async (token, id) => {
 
 ## 📌 PROBLEMAS IDENTIFICADOS
 
-### 1. Error 502 Bad Gateway en https://umbot.com.ar/servicios
+### 1. Error 502 Bad Gateway en https://ultimamilla.com.ar/servicios
 **Causa Raíz**:
 - El servicio Astro que debería estar escuchando en el puerto 4321 no está en ejecución
 - No hay ningún proceso escuchando en el puerto 4321
 - El servicio systemd 'umbot-astro' no existe
 
-### 2. Problemas con el Dashboard de Emergencia en https://www.umbot.com.ar/log/
+### 2. Problemas con el Dashboard de Emergencia en https://www.ultimamilla.com.ar/log/
 **Causa Raíz**:
 - El servicio está en ejecución (puerto 8091)
 - Sin embargo, podría haber problemas de configuración o permisos
@@ -1686,28 +1686,28 @@ El UMBot Emergency Dashboard v3.1 ahora es **COMPLETAMENTE FUNCIONAL** con todas
    - Ambos devuelven JSON válido, no código fuente
 
 ##### **🌐 URLS FINALES VERIFICADAS**
-- ✅ **Dashboard**: https://umbot.com.ar/log/ → **Estética moderna, sin errores**
-- ✅ **API Logs**: https://umbot.com.ar/log/api_logs.php → **JSON funcional**
-- ✅ **Uptime**: https://umbot.com.ar/log/generate_uptime.php → **JSON funcional**
-- ✅ **Iconos**: https://umbot.com.ar/log/icon.svg → **SVG disponible**
+- ✅ **Dashboard**: https://ultimamilla.com.ar/log/ → **Estética moderna, sin errores**
+- ✅ **API Logs**: https://ultimamilla.com.ar/log/api_logs.php → **JSON funcional**
+- ✅ **Uptime**: https://ultimamilla.com.ar/log/generate_uptime.php → **JSON funcional**
+- ✅ **Iconos**: https://ultimamilla.com.ar/log/icon.svg → **SVG disponible**
 
 ##### **🎉 VERIFICACIÓN FINAL - SIN ERRORES**
 
 ```bash
 # ✅ Dashboard sin errores JavaScript
-curl -I https://umbot.com.ar/log/
+curl -I https://ultimamilla.com.ar/log/
 # HTTP/2 200 OK - Sin errores en consola
 
 # ✅ API de logs funcional
-curl -s https://umbot.com.ar/log/api_logs.php?limit=5
+curl -s https://ultimamilla.com.ar/log/api_logs.php?limit=5
 # {"success":true,"data":[{"id":"log_...","type":"info"...}]}
 
 # ✅ Uptime dinámico funcional  
-curl -s https://umbot.com.ar/log/generate_uptime.php
+curl -s https://ultimamilla.com.ar/log/generate_uptime.php
 # {"uptime_seconds":1336871,"uptime_formatted":"15d 11h 21m"}
 
 # ✅ Iconos disponibles
-curl -I https://umbot.com.ar/log/icon.svg
+curl -I https://ultimamilla.com.ar/log/icon.svg
 # HTTP/2 200 OK Content-Type: image/svg+xml
 ```
 
@@ -1736,13 +1736,13 @@ El UMBot Emergency Dashboard v3.1 es ahora un **SISTEMA COMPLETAMENTE ESTABLE** 
 ❌ **LOS CAMBIOS EN DIRECTUS NO SE REFLEJAN EN EL FRONTEND**
 
 **CASO ESPECÍFICO REPORTADO:**
-- **URL Afectada**: https://www.umbot.com.ar/servicios/2/redes-de-datos
+- **URL Afectada**: https://www.ultimamilla.com.ar/servicios/2/redes-de-datos
 - **Síntoma**: Los cambios realizados en el admin de Directus no aparecen en el sitio web público
 - **Causa Raíz**: Arquitectura de **build estático (SSG)** con Astro
 
 ##### **🏗️ ARQUITECTURA IDENTIFICADA**
 
-**PROBLEMA:** El sitio web umbot.com.ar utiliza **Astro con Static Site Generation (SSG)** que genera una build estática una sola vez y sirve contenido cacheado desde Docker.
+**PROBLEMA:** El sitio web ultimamilla.com.ar utiliza **Astro con Static Site Generation (SSG)** que genera una build estática una sola vez y sirve contenido cacheado desde Docker.
 
 ```
 ┌─────────────────┐    ❌ NO SE SINCRONIZA    ┌─────────────────┐
@@ -1754,7 +1754,7 @@ El UMBot Emergency Dashboard v3.1 es ahora un **SISTEMA COMPLETAMENTE ESTABLE** 
                                                       ▼
                                               ┌─────────────────┐
                                               │ NGINX FRONTEND  │
-                                              │ umbot.com.ar    │
+                                              │ ultimamilla.com.ar    │
                                               └─────────────────┘
 ```
 
@@ -1978,7 +1978,7 @@ curl -X POST http://localhost:8055/auth/login
 
 ✅ **MIGRACIÓN SSR COMPLETAMENTE EXITOSA**
 
-El sistema umbot.com.ar ahora tiene **CONTENIDO DINÁMICO EN TIEMPO REAL**:
+El sistema ultimamilla.com.ar ahora tiene **CONTENIDO DINÁMICO EN TIEMPO REAL**:
 
 1. **❌ SSG Estático** → ✅ **SSR Dinámico**
 2. **❌ Build cacheada** → ✅ **Contenido en tiempo real**
@@ -2067,7 +2067,7 @@ El UMBot Emergency Dashboard v3.1 ahora combina la **FUNCIONALIDAD COMPLETA DE L
    - Campo de búsqueda integrado con placeholder descriptivo
 
 ##### **🌐 URLs Y ENDPOINTS FUNCIONANDO (ESTÉTICA MEJORADA)**
-- ✅ **Dashboard Principal**: http://23.105.176.45:8091 | https://umbot.com.ar/log/
+- ✅ **Dashboard Principal**: http://23.105.176.45:8091 | https://ultimamilla.com.ar/log/
 - ✅ **API de Logs**: http://23.105.176.45:8091/api_logs.php (INTEGRADA)
 - ✅ **Uptime Dinámico**: http://23.105.176.45:8091/generate_uptime.php (VISUAL)
 - ✅ **Estado**: HTTP 200 OK - Sistema con estética profesional operativo
@@ -2161,7 +2161,7 @@ El sistema mantiene **TODA LA FUNCIONALIDAD** del hito anterior (UM25-0.7) mient
 El UMBot Emergency Dashboard v3.1 ahora incluye un **VERDADERO SISTEMA DE LOGS** con las siguientes características:
 
 ##### **🌐 URLs Y ENDPOINTS FUNCIONANDO**
-- ✅ **Dashboard Principal**: http://23.105.176.45:8091 | https://umbot.com.ar/log/
+- ✅ **Dashboard Principal**: http://23.105.176.45:8091 | https://ultimamilla.com.ar/log/
 - ✅ **API de Logs**: http://23.105.176.45:8091/api_logs.php
 - ✅ **Uptime Dinámico**: http://23.105.176.45:8091/generate_uptime.php
 - ✅ **Estado**: HTTP 200 OK - Sistema completamente operativo
@@ -2333,7 +2333,7 @@ El UMBot Emergency Dashboard v3.0 está **COMPLETAMENTE OPERATIVO** con acceso t
 
 ##### **🌐 URLs DE ACCESO AL DASHBOARD**
 - ✅ **Acceso Directo**: http://23.105.176.45:8091
-- ✅ **Acceso vía Dominio**: https://umbot.com.ar/log/ 
+- ✅ **Acceso vía Dominio**: https://ultimamilla.com.ar/log/ 
 - ✅ **Proxy HTTPS**: Configurado en nginx dockerizado
 - ✅ **Estado**: HTTP 200 OK - Completamente funcional
 
@@ -2341,7 +2341,7 @@ El UMBot Emergency Dashboard v3.0 está **COMPLETAMENTE OPERATIVO** con acceso t
 
 ##### **Flujo de Acceso HTTPS**
 ```
-https://umbot.com.ar/log/ → Docker Nginx (puerto 443) → Host Nginx (puerto 8091) → Dashboard
+https://ultimamilla.com.ar/log/ → Docker Nginx (puerto 443) → Host Nginx (puerto 8091) → Dashboard
 ```
 
 ##### **Configuración Nginx Docker**
@@ -2545,7 +2545,7 @@ Scripts del sistema:
 #### **🔐 CREDENCIALES Y ACCESO**
 
 ##### **Dashboard**
-- **URL Principal**: https://umbot.com.ar/log/
+- **URL Principal**: https://ultimamilla.com.ar/log/
 - **URL Directa**: http://23.105.176.45:8091
 - **Autenticación**: No requerida (acceso directo)
 - **Funcionalidad**: 100% operativa
@@ -2586,7 +2586,7 @@ sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "tail -f /tmp/uptime-update.log"
 
 | Componente | Estado | Verificación | URL/Comando |
 |------------|--------|--------------|-------------|
-| **Dashboard HTTPS** | ✅ ACTIVO | HTTP 200 OK | https://umbot.com.ar/log/ |
+| **Dashboard HTTPS** | ✅ ACTIVO | HTTP 200 OK | https://ultimamilla.com.ar/log/ |
 | **Dashboard Directo** | ✅ ACTIVO | HTTP 200 OK | http://23.105.176.45:8091 |
 | **Consola Interactiva** | ✅ FUNCIONAL | Todos los comandos | `help`, `status`, `protocol` |
 | **Sistema de Logs** | ✅ OPERATIVO | Persistencia localStorage | Modal con filtros y export |
@@ -2603,7 +2603,7 @@ sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "tail -f /tmp/uptime-update.log"
 
 El dashboard está funcionando al 100% con:
 
-1. **🌐 Acceso Dual**: HTTPS (umbot.com.ar/log) + HTTP directo (puerto 8091)
+1. **🌐 Acceso Dual**: HTTPS (ultimamilla.com.ar/log) + HTTP directo (puerto 8091)
 2. **📊 Monitoreo Real**: 6 servicios con health checks automáticos
 3. **🖥️ Consola Completa**: 8+ comandos funcionales con feedback
 4. **📋 Sistema de Logs**: Historial persistente con filtros y exportación
@@ -2617,7 +2617,7 @@ El dashboard está funcionando al 100% con:
 ##### **📱 Comandos de Recuperación Rápida**
 ```bash
 # Restaurar dashboard completo desde este hito
-curl -I https://umbot.com.ar/log/          # Verificar acceso HTTPS
+curl -I https://ultimamilla.com.ar/log/          # Verificar acceso HTTPS
 curl -I http://23.105.176.45:8091          # Verificar acceso directo
 
 # Reiniciar si es necesario
@@ -2642,7 +2642,7 @@ sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "cd /var/www/emergency/public && 
 - ✅ **Base de datos PostgreSQL**: Funcionando (469 Antecedentes + 413 Servicios)
 - ✅ **Directus Admin**: Funcionando en `http://23.105.176.45:8055`
 - ✅ **Front-end Astro**: Funcionando en `http://23.105.176.45:4321`
-- ✅ **Nginx Proxy**: Funcionando con SSL en `https://umbot.com.ar`
+- ✅ **Nginx Proxy**: Funcionando con SSL en `https://ultimamilla.com.ar`
 - ✅ **Grafana**: Funcionando en `http://23.105.176.45:3000`
 - ✅ **Prometheus**: Funcionando en `http://23.105.176.45:9090`
 - ✅ **Node Exporter**: Funcionando en `http://23.105.176.45:9100`
@@ -2665,7 +2665,7 @@ umbot-astro-static    Up 9 minutes (unhealthy)   4321/tcp
 ##### **🌐 URLs DE ACCESO - TODAS OPERATIVAS**
 
 ###### **Sitio Web Principal**
-- ✅ **https://umbot.com.ar** - Sitio principal (HTTP 200)
+- ✅ **https://ultimamilla.com.ar** - Sitio principal (HTTP 200)
 - ✅ **http://23.105.176.45** - IP directa (HTTP 301 → HTTPS)
 
 ###### **Servicios de Monitoreo**
@@ -2750,7 +2750,7 @@ SERVICES: [
 
 ##### **Información del Servidor**
 - **IP**: `23.105.176.45`
-- **Dominio**: `umbot.com.ar`
+- **Dominio**: `ultimamilla.com.ar`
 - **OS**: CentOS/RHEL 9.4
 - **Uptime**: 10+ días continuos
 - **Espacio**: 34GB usados / 50GB total (68%)
@@ -3240,7 +3240,7 @@ nginx (80/443) → Astro Container (4321) → Directus API (8055)
               ↓
           SSL/HTTPS
               ↓
-      www.umbot.com.ar
+      www.ultimamilla.com.ar
 ```
 
 ### **RESULTADO FINAL**
@@ -3251,7 +3251,7 @@ nginx (80/443) → Astro Container (4321) → Directus API (8055)
 - ✅ Edición en tiempo real sin rebuilding
 - ✅ Credenciales admin sincronizadas con documentación
 - ✅ Sistema completamente estable y operacional
-- ✅ Sitio web www.umbot.com.ar 100% funcional
+- ✅ Sitio web www.ultimamilla.com.ar 100% funcional
 
 **💾 DATOS MIGRADOS:**
 - **469 antecedentes** históricos migrados exitosamente
@@ -3279,7 +3279,7 @@ Discrepancia crítica entre contenido del admin Directus y frontend Astro:
 ### **RESULTADO**
 **✅ SISTEMA COMPLETAMENTE FUNCIONAL Y SINCRONIZADO**
 
-El sitio www.umbot.com.ar ahora opera con:
+El sitio www.ultimamilla.com.ar ahora opera con:
 - Integración dinámica perfecta entre Directus y Astro
 - Contenido editable en tiempo real desde el admin
 - Equivalencia total entre backend y frontend
@@ -3440,8 +3440,8 @@ docker-compose -f docker-compose.static.yml ps
 # .env.production (creado automáticamente)
 NODE_ENV=production
 ASTRO_ENV=production
-PUBLIC_SITE_URL=https://www.umbot.com.ar
-PUBLIC_DOMAIN=www.umbot.com.ar
+PUBLIC_SITE_URL=https://www.ultimamilla.com.ar
+PUBLIC_DOMAIN=www.ultimamilla.com.ar
 STATIC_MODE=true
 USE_STATIC_DATA=true
 ```
@@ -3456,7 +3456,7 @@ USE_STATIC_DATA=true
 
 ### 🖥️ **Servidor de Producción**
 - ✅ **IP**: `23.105.176.45`
-- ✅ **Dominio**: `www.umbot.com.ar`
+- ✅ **Dominio**: `www.ultimamilla.com.ar`
 - ✅ **Sistema**: CentOS/RHEL 9.4 (detectado automáticamente)
 - ✅ **Docker**: v28.2.2 funcionando
 - ✅ **Nginx**: Puerto 80 activo
@@ -3466,9 +3466,9 @@ USE_STATIC_DATA=true
 
 #### **Producción**
 - **IP Directa**: http://23.105.176.45/
-- **Dominio**: https://www.umbot.com.ar/
-- **Antecedentes**: https://www.umbot.com.ar/antecedentes
-- **Servicios**: https://www.umbot.com.ar/servicios
+- **Dominio**: https://www.ultimamilla.com.ar/
+- **Antecedentes**: https://www.ultimamilla.com.ar/antecedentes
+- **Servicios**: https://www.ultimamilla.com.ar/servicios
 
 #### **Local (Desarrollo)**
 - **Astro**: http://localhost:4321/
@@ -3548,7 +3548,7 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:8055/collections
 - Fallback automático en caso de errores
 
 ### 🔒 **Configuración SSL y Seguridad**
-- ✅ **SSL/TLS**: Let's Encrypt para `www.umbot.com.ar`
+- ✅ **SSL/TLS**: Let's Encrypt para `www.ultimamilla.com.ar`
 - ✅ **Rate Limiting**: Protección DDoS configurada  
 - ✅ **Headers de Seguridad**: HSTS, CSP, X-Frame-Options
 - ✅ **Firewall**: UFW configurado para puertos 80, 443, 22, 8090
@@ -3560,7 +3560,7 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:8055/collections
 ## 📋 **PROBLEMAS IDENTIFICADOS Y SOLUCIONADOS**
 
 ### 🎯 **PROBLEMA 1: Plantilla Single de Servicios Incorrecta**
-**URL Afectada**: https://umbot.com.ar/servicios/2/redes-de-datos
+**URL Afectada**: https://ultimamilla.com.ar/servicios/2/redes-de-datos
 
 #### **Causa Raíz**:
 - La plantilla single de servicios en producción no era la correcta
@@ -3582,7 +3582,7 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:8055/collections
    - ✅ Manejo robusto de errores
 
 ### 🎯 **PROBLEMA 2: Página de Antecedentes sin Filtros**
-**URL Afectada**: https://umbot.com.ar/antecedentes
+**URL Afectada**: https://ultimamilla.com.ar/antecedentes
 
 #### **Causa Raíz**:
 - La página de índice de antecedentes no tenía los filtros funcionales
@@ -3663,8 +3663,8 @@ f9c070be5018   postgres:15-alpine          Up 16 hours           5432/tcp       
 ## 🌐 **URLS VERIFICADAS FUNCIONANDO**
 
 ### **📱 PÁGINAS PRINCIPALES**
-- ✅ **https://umbot.com.ar/servicios/2/redes-de-datos** - HTTP 200 OK
-- ✅ **https://umbot.com.ar/antecedentes** - HTTP 200 OK
+- ✅ **https://ultimamilla.com.ar/servicios/2/redes-de-datos** - HTTP 200 OK
+- ✅ **https://ultimamilla.com.ar/antecedentes** - HTTP 200 OK
 - ✅ **Admin Directus**: http://localhost:8055/admin - Funcionando
 
 ### **📡 API ENDPOINTS DIRECTUS**
@@ -3979,7 +3979,7 @@ El pipeline CI/CD implementado ha pasado todas las pruebas exhaustivas y está c
 - **Containers:** 3 servicios UP por 5+ horas de uptime
 
 #### **Producción - 100% Operativo**
-- **URL Principal:** ✅ https://www.umbot.com.ar (HTTP 200)
+- **URL Principal:** ✅ https://www.ultimamilla.com.ar (HTTP 200)
 - **Performance:** 0.69s tiempo de respuesta
 - **Containers:** umbot-nginx-static (healthy), umbot-astro-static (running)
 - **SSL:** ✅ Certificado válido
@@ -5088,7 +5088,7 @@ El proxy SSR (`dynamic-servicios-proxy-auth.js` en puerto 8093) estaba **generan
 ### ✅ **VERIFICACIÓN EXITOSA**
 
 **Fecha de verificación:** 25 de Julio 2025, 12:38 PM
-**URL verificada:** https://www.umbot.com.ar/servicios/2/redes-de-datos
+**URL verificada:** https://www.ultimamilla.com.ar/servicios/2/redes-de-datos
 
 **Elementos confirmados restaurados:**
 - ✅ Header con gradiente azul-púrpura profesional
@@ -5121,7 +5121,7 @@ El proxy SSR (`dynamic-servicios-proxy-auth.js` en puerto 8093) estaba **generan
 
 ## Conclusión
 
-El proyecto www.umbot.com.ar ha sido completamente restaurado y mejorado después de enfrentar varios desafíos técnicos críticos. La migración exitosa a SSR, la correcta configuración de autenticación, la restauración de datos, el fix del diseño visual y la implementación de un stack de monitoreo robusto han resultado en una aplicación web completamente funcional y eficiente.
+El proyecto www.ultimamilla.com.ar ha sido completamente restaurado y mejorado después de enfrentar varios desafíos técnicos críticos. La migración exitosa a SSR, la correcta configuración de autenticación, la restauración de datos, el fix del diseño visual y la implementación de un stack de monitoreo robusto han resultado en una aplicación web completamente funcional y eficiente.
 
 **Status Final del Proyecto:**
 - ✅ **Infraestructura**: 100% operativa
@@ -5261,8 +5261,8 @@ El sistema de logs se integra automáticamente con:
 ### 🎯 **SISTEMA FINAL COMPLETAMENTE OPERATIVO**
 
 #### **🌐 Infraestructura de Producción**
-- **URL Principal**: https://umbot.com.ar (SSL/HTTPS activo)
-- **Dashboard Emergency**: https://umbot.com.ar/log/ (proxy HTTPS configurado)
+- **URL Principal**: https://ultimamilla.com.ar (SSL/HTTPS activo)
+- **Dashboard Emergency**: https://ultimamilla.com.ar/log/ (proxy HTTPS configurado)
 - **Admin Panel**: http://23.105.176.45:8055 (Directus CMS)
 - **Monitoreo**: Prometheus (9090) + Grafana (3000) + Node Exporter (9100)
 - **Base de Datos**: PostgreSQL con 469 antecedentes + 5 servicios + 821 imágenes
@@ -5270,7 +5270,7 @@ El sistema de logs se integra automáticamente con:
 #### **🎨 UMBOT Emergency Dashboard v3.0 - CARACTERÍSTICAS FINALES**
 1. **🔗 Acceso Dual**: 
    - Directo: http://23.105.176.45:8091 
-   - HTTPS: https://umbot.com.ar/log/
+   - HTTPS: https://ultimamilla.com.ar/log/
 2. **📊 Monitoreo Real**: 6 servicios con health checks cada 30s
 3. **🖥️ Consola Interactiva**: 8+ comandos funcionales con feedback
 4. **📋 Sistema de Logs**: Historial persistente con filtros y exportación
@@ -5320,8 +5320,8 @@ El sistema de logs se integra automáticamente con:
 #### **🚀 Acceso y Verificación**
 ```bash
 # Verificar estado completo del sistema
-curl -I https://umbot.com.ar                    # Sitio principal
-curl -I https://umbot.com.ar/log/                # Dashboard emergency
+curl -I https://ultimamilla.com.ar                    # Sitio principal
+curl -I https://ultimamilla.com.ar/log/                # Dashboard emergency
 curl -I http://23.105.176.45:8055/server/health # Directus health
 
 # Conectar al servidor
@@ -5361,7 +5361,7 @@ git checkout UM25-0.6-dashboard-logs
 git reset --hard UM25-0.6
 
 # Verificar dashboard de logs
-curl -I https://umbot.com.ar/log/
+curl -I https://ultimamilla.com.ar/log/
 # Resultado esperado: HTTP/1.1 200 OK
 ```
 
@@ -5414,8 +5414,8 @@ El sistema UMBot con Dashboard de Logs representa la culminación exitosa de un 
 **📊 Documentación**: 2500+ líneas de documentación técnica completa  
 **🔖 Tag Git**: `UM25-0.6-dashboard-logs`  
 **🌐 URLs Operativas**:
-- Sitio: https://umbot.com.ar  
-- Dashboard: https://umbot.com.ar/log/  
+- Sitio: https://ultimamilla.com.ar  
+- Dashboard: https://ultimamilla.com.ar/log/  
 - Admin: http://23.105.176.45:8055  
 
 **🚀 PROYECTO 100% FUNCIONAL CON DASHBOARD DE LOGS COMPLETO - UM25-0.6 FINALIZADO** ✅
@@ -5561,7 +5561,7 @@ curl -I http://23.105.176.45:8091/
 # Content-Length: 24771
 
 # ✅ Dashboard funcionando - Acceso HTTPS
-curl -I https://umbot.com.ar/log/
+curl -I https://ultimamilla.com.ar/log/
 # HTTP/1.1 200 OK
 # Content-Length: 24771
 
@@ -5613,7 +5613,7 @@ curl -s http://23.105.176.45:8091/ | grep "Consola del Sistema"
 
 ##### **🌐 URLS OPERATIVAS CONFIRMADAS**
 - ✅ **Acceso Directo**: http://23.105.176.45:8091
-- ✅ **Acceso HTTPS**: https://umbot.com.ar/log/
+- ✅ **Acceso HTTPS**: https://ultimamilla.com.ar/log/
 - ✅ **Estado**: HTTP 200 OK - Dashboard v3.0 completamente funcional
 
 ##### **📊 CUMPLIMIENTO DE PREMISAS ORIGINALES**
@@ -5716,7 +5716,7 @@ rm -f failed_uploads.csv
 
 - Se consolidó el dashboard en /var/www/emergency/public/index.html
 - Se eliminaron duplicados y backups de index y app.js
-- Se verificó que el dashboard funcione en https://umbot.com.ar/log/
+- Se verificó que el dashboard funcione en https://ultimamilla.com.ar/log/
 - Se documentó el proceso y comandos en este mismo archivo
 
 ---
@@ -5728,7 +5728,7 @@ rm -f failed_uploads.csv
 ### 🟢 **Servicios Docker Funcionando**
 | Servicio           | Estado      | Puerto   | URL de Acceso              |
 |--------------------|-------------|----------|----------------------------|
-| Nginx              | 🟢 healthy  | 80/443   | https://umbot.com.ar/      |
+| Nginx              | 🟢 healthy  | 80/443   | https://ultimamilla.com.ar/      |
 | Grafana            | 🟢 healthy  | 3000     | http://23.105.176.45:3000  |
 | Directus CMS       | 🟢 running  | 8055     | http://23.105.176.45:8055  |
 | Prometheus         | 🟢 healthy  | 9090     | http://23.105.176.45:9090  |
@@ -5750,14 +5750,14 @@ rm -f failed_uploads.csv
 
 ### **✅ Dashboard Local Operativo**
 ```bash
-# Servidor proxy que simula https://umbot.com.ar/log/
+# Servidor proxy que simula https://ultimamilla.com.ar/log/
 cd umbot-emergency-app
 node proxy-umbot.js
 ```
 
 ### **✅ URLs de Acceso**
 - **Dashboard Principal**: http://localhost:8095/log/
-- **Simula Exactamente**: https://umbot.com.ar/log/
+- **Simula Exactamente**: https://ultimamilla.com.ar/log/
 - **Estado**: ✅ FUNCIONANDO
 
 ### **✅ Verificación de Funcionamiento**
@@ -5841,7 +5841,7 @@ curl -I http://localhost:8095/log/
 ## 📞 **CONTACTO Y SOPORTE**
 
 - **Servidor**: 23.105.176.45 (actualmente caído)
-- **Dominio**: umbot.com.ar
+- **Dominio**: ultimamilla.com.ar
 - **Dashboard Local**: **http://localhost:8095/log/**
 - **Documentación**: solucionfinal.md
 
@@ -5853,7 +5853,7 @@ curl -I http://localhost:8095/log/
 
 - **Servidor remoto**: Caído (23.105.176.45)
 - **Dashboard local**: ✅ FUNCIONANDO en http://localhost:8095/log/
-- **Simulación**: ✅ Perfecta de https://umbot.com.ar/log/
+- **Simulación**: ✅ Perfecta de https://ultimamilla.com.ar/log/
 - **Funcionalidad**: ✅ Completa con todos los servicios
 
 **El dashboard UMBot Emergency está funcionando perfectamente en tu entorno local. Cuando el servidor remoto vuelva a estar online, podremos restaurar el acceso oficial.**
@@ -6019,7 +6019,7 @@ node scripts/validar_migracion.js
 ### Variables de Entorno Configuradas
 ```bash
 # Producción
-DIRECTUS_URL=https://www.umbot.com.ar
+DIRECTUS_URL=https://www.ultimamilla.com.ar
 DIRECTUS_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 NODE_ENV=production
 ```
@@ -6059,7 +6059,7 @@ NODE_ENV=production
 
 ### Información Técnica
 - **Servidor**: 23.105.176.45
-- **Directus**: https://www.umbot.com.ar
+- **Directus**: https://www.ultimamilla.com.ar
 - **Estado**: Operativo y saludable
 
 ### Archivos de Log
@@ -6094,32 +6094,32 @@ docker logs directus-admin --tail 20
 ```bash
 # Conectar a Directus y verificar colecciones
 curl -H "Authorization: Bearer TOKEN" \
-  "https://www.umbot.com.ar/items/antecedentes?limit=1&fields=cliente_nombre,cliente_industria,tecnologias_utilizadas"
+  "https://www.ultimamilla.com.ar/items/antecedentes?limit=1&fields=cliente_nombre,cliente_industria,tecnologias_utilizadas"
 
 curl -H "Authorization: Bearer TOKEN" \
-  "https://www.umbot.com.ar/items/Servicios?limit=1&fields=descripcion_detallada,tecnologias_principales,nivel_complejidad"
+  "https://www.ultimamilla.com.ar/items/Servicios?limit=1&fields=descripcion_detallada,tecnologias_principales,nivel_complejidad"
 ```
 
 ### 4. Conteo de Registros
 ```bash
 # Antecedentes
 curl -H "Authorization: Bearer TOKEN" \
-  "https://www.umbot.com.ar/items/antecedentes?aggregate[count]=*"
+  "https://www.ultimamilla.com.ar/items/antecedentes?aggregate[count]=*"
 
 # Servicios  
 curl -H "Authorization: Bearer TOKEN" \
-  "https://www.umbot.com.ar/items/Servicios?aggregate[count]=*"
+  "https://www.ultimamilla.com.ar/items/Servicios?aggregate[count]=*"
 ```
 
 ### 5. Verificación de Campos Nuevos
 ```bash
 # Verificar esquema de antecedentes
 curl -H "Authorization: Bearer TOKEN" \
-  "https://www.umbot.com.ar/collections/antecedentes"
+  "https://www.ultimamilla.com.ar/collections/antecedentes"
 
 # Verificar esquema de servicios
 curl -H "Authorization: Bearer TOKEN" \
-  "https://www.umbot.com.ar/collections/Servicios"
+  "https://www.ultimamilla.com.ar/collections/Servicios"
 ```
 
 ## Scripts de Validación Rápida
@@ -6143,7 +6143,7 @@ node scripts/test_migracion.js
 
 ### ✅ Indicadores de Éxito
 - Docker containers ejecutándose
-- Directus respondiendo en https://www.umbot.com.ar
+- Directus respondiendo en https://www.ultimamilla.com.ar
 - 467 antecedentes con campos nuevos poblados
 - 6 servicios con campos nuevos poblados
 - 19 campos nuevos agregados al esquema
@@ -6267,7 +6267,7 @@ node scripts/test_conectividad.js
 ## 📞 Contacto Técnico
 
 - **Servidor**: 23.105.176.45
-- **Directus**: https://www.umbot.com.ar
+- **Directus**: https://www.ultimamilla.com.ar
 - **Estado**: ✅ OPERATIVO
 - **Última Verificación**: 5 de Julio de 2025
 
@@ -6351,7 +6351,7 @@ git push origin UM25-0.8
 
 **URLs de Acceso**:
 - ✅ **Dashboard Local**: http://localhost:8095/log/ (proxy funcionando)
-- ❌ **Dashboard Remoto**: https://umbot.com.ar/log/ (servidor caído)
+- ❌ **Dashboard Remoto**: https://ultimamilla.com.ar/log/ (servidor caído)
 - ❌ **Servidor Directo**: http://23.105.176.45:8091 (servidor caído)
 
 ##### **📋 DOCUMENTACIÓN ACTUALIZADA**
@@ -6404,7 +6404,7 @@ git push origin UM25-0.8
    ```bash
    # Verificar servicios
    docker ps
-   curl -I https://umbot.com.ar/log/
+   curl -I https://ultimamilla.com.ar/log/
    curl -I http://23.105.176.45:8055/server/health
    ```
 
@@ -6504,7 +6504,7 @@ El servidor de producción ha sido activado exitosamente y todos los servicios e
 ##### **🌐 URLs DE ACCESO OPERATIVAS**
 
 **Dashboard Emergency**:
-- ✅ **HTTPS**: https://umbot.com.ar/log/ (HTTP 200 OK)
+- ✅ **HTTPS**: https://ultimamilla.com.ar/log/ (HTTP 200 OK)
 - ✅ **Directo**: http://23.105.176.45:8091/ (HTTP 200 OK)
 - ✅ **Servidor**: Python HTTP Server (PID: 679345)
 
@@ -6536,7 +6536,7 @@ sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "pkil
 # 6. Verificación de servicios
 sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "netstat -tlnp | grep :8091"
 curl -I http://23.105.176.45:8091/
-curl -I https://umbot.com.ar/log/
+curl -I https://ultimamilla.com.ar/log/
 ```
 
 ##### **📊 MÉTRICAS DE ACTIVACIÓN**
@@ -6578,7 +6578,7 @@ curl -I https://umbot.com.ar/log/
 
 ```bash
 # Dashboard Emergency
-curl -I https://umbot.com.ar/log/
+curl -I https://ultimamilla.com.ar/log/
 # Resultado: HTTP/1.1 200 OK
 
 # Servidor directo
@@ -6643,7 +6643,7 @@ Este estado representa el **SERVIDOR COMPLETAMENTE OPERATIVO** con:
 **Para verificar este estado en el futuro**:
 ```bash
 # Verificar dashboard
-curl -I https://umbot.com.ar/log/
+curl -I https://ultimamilla.com.ar/log/
 
 # Verificar servidor
 sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "docker ps"
@@ -6656,7 +6656,7 @@ sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "tail -f /tmp/emergency-server.lo
 
 **Fecha de Activación**: 7 de Julio de 2025 13:56 UTC  
 **Servidor**: 23.105.176.45 (ACTIVO)  
-**Dashboard**: https://umbot.com.ar/log/ (FUNCIONANDO)  
+**Dashboard**: https://ultimamilla.com.ar/log/ (FUNCIONANDO)  
 **Estado**: ✅ **SERVIDOR COMPLETAMENTE OPERATIVO**  
 **Documentación**: ✅ **ACTUALIZADA EN solucionfinal.md**
 
@@ -6679,12 +6679,12 @@ Se han identificado y corregido los siguientes errores críticos en el sistema:
 ##### **🔍 ERRORES DETECTADOS**
 
 1. **Error 1**: Frontend no refleja cambios del backend
-   - **URL afectada**: https://www.umbot.com.ar/servicios/3/seguridad-informatica
+   - **URL afectada**: https://www.ultimamilla.com.ar/servicios/3/seguridad-informatica
    - **Problema**: Los cambios en Directus no se sincronizaban con el frontend de Astro
    - **Estado**: ✅ CORREGIDO
 
 2. **Error 2**: Dashboard de emergencia con skin antiguo
-   - **URL afectada**: https://umbot.com.ar/log/
+   - **URL afectada**: https://ultimamilla.com.ar/log/
    - **Problema**: Dashboard mostraba versión antigua del sistema
    - **Estado**: ✅ CORREGIDO
 
@@ -6725,8 +6725,8 @@ sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "nets
 
 **Estado Final del Sistema**:
 - ✅ **Servidor**: 23.105.176.45 - ACTIVO
-- ✅ **Frontend Astro**: https://umbot.com.ar/servicios/3/seguridad-informatica - FUNCIONANDO
-- ✅ **Dashboard Emergency**: https://umbot.com.ar/log/ - ACTUALIZADO
+- ✅ **Frontend Astro**: https://ultimamilla.com.ar/servicios/3/seguridad-informatica - FUNCIONANDO
+- ✅ **Dashboard Emergency**: https://ultimamilla.com.ar/log/ - ACTUALIZADO
 - ✅ **Directus Admin**: http://23.105.176.45:8055 - OPERATIVO
 - ✅ **Contenedores Docker**: 7/7 activos
 
@@ -6740,13 +6740,13 @@ sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "nets
 
 **Frontend Astro**:
 ```bash
-curl -I https://umbot.com.ar/servicios/3/seguridad-informatica
+curl -I https://ultimamilla.com.ar/servicios/3/seguridad-informatica
 # Resultado: HTTP/1.1 200 OK ✅
 ```
 
 **Dashboard Emergency**:
 ```bash
-curl -I https://umbot.com.ar/log/
+curl -I https://ultimamilla.com.ar/log/
 # Resultado: HTTP/1.1 200 OK ✅
 ```
 
@@ -6821,14 +6821,14 @@ Se han corregido exitosamente los errores persistentes que afectaban el sistema:
 ##### **🔍 ERRORES PERSISTENTES IDENTIFICADOS**
 
 1. **Error 1**: Frontend de servicios no sincronizado con admin Directus
-   - **URL afectada**: https://www.umbot.com.ar/servicios/2/redes-de-datos
+   - **URL afectada**: https://www.ultimamilla.com.ar/servicios/2/redes-de-datos
    - **Problema**: Los cambios en Directus no se reflejaban en el frontend público
    - **Causa**: Contenedor Astro en modo estático sin rebuild
    - **Solución**: Recreación completa del contenedor umbot-astro-static
    - **Estado**: ✅ CORREGIDO DEFINITIVAMENTE
 
 2. **Error 2**: Dashboard de emergencia con skin incorrecto
-   - **URL afectada**: https://umbot.com.ar/log/
+   - **URL afectada**: https://ultimamilla.com.ar/log/
    - **Problema**: Dashboard mostraba versión antigua no deseada
    - **Causa**: Archivo index.html actualizado con versión incorrecta
    - **Solución**: Restauración de versión anterior (index-aesthetic-logs.html)
@@ -6860,14 +6860,14 @@ cd umbot-emergency-app && node proxy-umbot.js &
 ##### **📊 RESULTADOS FINALES**
 
 **Dashboard de Emergencia:**
-- **URL**: https://umbot.com.ar/log/
+- **URL**: https://ultimamilla.com.ar/log/
 - **Estado**: ✅ FUNCIONANDO
 - **Versión**: index-aesthetic-logs.html (34,576 bytes)
 - **Última actualización**: 7 julio 2025 14:30:51 GMT
 - **Proxy local**: http://localhost:8095/log/ ✅ ACTIVO
 
 **Frontend de Servicios:**
-- **URL**: https://umbot.com.ar/servicios/2/redes-de-datos
+- **URL**: https://ultimamilla.com.ar/servicios/2/redes-de-datos
 - **Estado**: ✅ FUNCIONANDO
 - **Contenedor**: umbot-astro-static recreado exitosamente
 - **Sincronización**: ✅ CONECTADO A DIRECTUS
@@ -6902,7 +6902,7 @@ cd umbot-emergency-app && node proxy-umbot.js &
 
 **1. Dashboard de Emergencia:**
 ```bash
-curl -I https://umbot.com.ar/log/
+curl -I https://ultimamilla.com.ar/log/
 # HTTP/1.1 200 OK
 # Content-Length: 34576
 # Last-Modified: Mon, 07 Jul 2025 14:30:51 GMT
@@ -6910,7 +6910,7 @@ curl -I https://umbot.com.ar/log/
 
 **2. Frontend de Servicios:**
 ```bash
-curl -I https://umbot.com.ar/servicios/2/redes-de-datos
+curl -I https://ultimamilla.com.ar/servicios/2/redes-de-datos
 # HTTP/1.1 200 OK
 # Server: nginx/1.29.0
 ```
@@ -6977,7 +6977,7 @@ Todos los errores persistentes han sido corregidos exitosamente:
    sshpass -p 'UMBot2025!' scp umbot-emergency-app/api_logs.php root@23.105.176.45:/var/www/emergency/public/log/
    sshpass -p 'UMBot2025!' scp umbot-emergency-app/generate_uptime.php root@23.105.176.45:/var/www/emergency/public/log/
    ```
-3. **Verificar funcionamiento en producción** accediendo a `https://umbot.com.ar/log/`
+3. **Verificar funcionamiento en producción** accediendo a `https://ultimamilla.com.ar/log/`
 
 ### 🎯 ESTADO ACTUAL
 - **Local**: ✅ Funcionando perfectamente
@@ -6998,7 +6998,7 @@ Todos los errores persistentes han sido corregidos exitosamente:
 ## 2025-07-07 - Estado actual del dashboard emergency
 
 ### ✅ FUNCIONANDO:
-- Dashboard principal: `https://umbot.com.ar/log/` → HTTP 200 OK
+- Dashboard principal: `https://ultimamilla.com.ar/log/` → HTTP 200 OK
 - Contenedores Docker: todos activos y saludables
 - Archivos PHP: existen en `/var/www/emergency/public/log/` con permisos correctos
 - Nginx: configurado y funcionando
@@ -7006,8 +7006,8 @@ Todos los errores persistentes han sido corregidos exitosamente:
 
 ### ❌ PROBLEMA PERSISTENTE:
 - Endpoints PHP devuelven código fuente en lugar de ejecutarse:
-  - `https://umbot.com.ar/log/api_logs.php` → devuelve `<?php...`
-  - `https://umbot.com.ar/log/generate_uptime.php` → devuelve `<?php...`
+  - `https://ultimamilla.com.ar/log/api_logs.php` → devuelve `<?php...`
+  - `https://ultimamilla.com.ar/log/generate_uptime.php` → devuelve `<?php...`
 
 ### 🔍 DIAGNÓSTICO:
 El problema indica que Nginx no está procesando los archivos PHP en `/log/` a través de FastCGI, a pesar de que:
@@ -7036,7 +7036,7 @@ El problema indica que Nginx no está procesando los archivos PHP en `/log/` a t
 - Se verificó que el orden de los bloques es correcto (PHP antes que `/`)
 
 ### 📊 ESTADO ACTUAL:
-- **Dashboard principal**: ✅ Funcionando en `https://umbot.com.ar/log/`
+- **Dashboard principal**: ✅ Funcionando en `https://ultimamilla.com.ar/log/`
 - **Endpoint uptime**: ✅ Funcionando (`/log/generate_uptime.php` devuelve JSON)
 - **Endpoint logs**: ⚠️ Aún devuelve código fuente (`/log/api_logs.php`)
 - **PHP-FPM**: ✅ Funcionando correctamente
@@ -7146,12 +7146,12 @@ El UMBot Emergency Dashboard ahora funciona **COMPLETAMENTE** con PHP ejecutánd
 
 ✅ **DASHBOARD FUNCIONANDO EN HTTPS - PHP PENDIENTE**
 
-El dashboard está funcionando correctamente en https://umbot.com.ar/log/ pero los endpoints PHP aún devuelven código fuente:
+El dashboard está funcionando correctamente en https://ultimamilla.com.ar/log/ pero los endpoints PHP aún devuelven código fuente:
 
 ##### **🌐 ESTADO ACTUAL**
 
-- ✅ **Dashboard principal**: https://umbot.com.ar/log/ → HTTP 200 OK
-- ❌ **API de logs**: https://umbot.com.ar/log/api_logs.php → Devuelve código PHP
+- ✅ **Dashboard principal**: https://ultimamilla.com.ar/log/ → HTTP 200 OK
+- ❌ **API de logs**: https://ultimamilla.com.ar/log/api_logs.php → Devuelve código PHP
 - ✅ **SSL configurado**: Certificados Let's Encrypt funcionando
 - ✅ **Proxy reverso**: Contenedor Docker configurado correctamente
 
@@ -7161,10 +7161,10 @@ El dashboard está funcionando correctamente en https://umbot.com.ar/log/ pero l
 # /etc/nginx/conf.d/umbot-ssl.conf (Docker)
 server {
     listen 443 ssl http2;
-    server_name www.umbot.com.ar;
+    server_name www.ultimamilla.com.ar;
     
-    ssl_certificate /etc/letsencrypt/live/www.umbot.com.ar/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/www.umbot.com.ar/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/www.ultimamilla.com.ar/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/www.ultimamilla.com.ar/privkey.pem;
     
     # Proxy para /log/ al puerto 8091 del host
     location /log/ {
@@ -7193,7 +7193,7 @@ El proxy reverso del contenedor Docker está funcionando para archivos estático
 
 ##### **🎯 ESTADO TEMPORAL**
 
-- 🎨 **Dashboard visual**: ✅ Funcionando perfectamente en https://umbot.com.ar/log/
+- 🎨 **Dashboard visual**: ✅ Funcionando perfectamente en https://ultimamilla.com.ar/log/
 - 📊 **Sistema de logs**: ⚠️ Funciona en http://23.105.176.45:8091/api_logs.php
 - 🔧 **PHP en dominio**: ❌ Pendiente de configuración
 - ⚡ **SSL y proxy**: ✅ Configurado y funcionando
@@ -7208,7 +7208,7 @@ El proxy reverso del contenedor Docker está funcionando para archivos estático
 
 ### 🎯 SÍNTOMA
 - Se edita contenido en Directus (servicio ID 421, por ejemplo)
-- El frontend SSR (https://www.umbot.com.ar/servicios/2/redes-de-datos) **no refleja los cambios**
+- El frontend SSR (https://www.ultimamilla.com.ar/servicios/2/redes-de-datos) **no refleja los cambios**
 - El SSR siempre muestra datos estáticos (modo fallback)
 
 ### 🔍 ANÁLISIS TÉCNICO
@@ -7311,7 +7311,7 @@ El proxy reverso del contenedor Docker está funcionando para archivos estático
 
 ✅ **SITIO WEB COMPLETAMENTE FUNCIONAL Y OPERATIVO**
 
-El sitio www.umbot.com.ar ha sido **COMPLETAMENTE RESTAURADO** después de estar caído con error 502 Bad Gateway:
+El sitio www.ultimamilla.com.ar ha sido **COMPLETAMENTE RESTAURADO** después de estar caído con error 502 Bad Gateway:
 
 ##### **🔧 PROBLEMAS IDENTIFICADOS Y RESUELTOS**
 
@@ -7324,7 +7324,7 @@ El sitio www.umbot.com.ar ha sido **COMPLETAMENTE RESTAURADO** después de estar
    - **Solución:** Configuración corregida para apuntar a `astro-app:4321` y `directus-app:8055`
 
 3. **❌ Astro bloqueando hosts externos** → ✅ **Hosts permitidos configurados**
-   - **Problema:** Astro rechazaba peticiones con header `Host: www.umbot.com.ar`
+   - **Problema:** Astro rechazaba peticiones con header `Host: www.ultimamilla.com.ar`
    - **Solución:** Agregado `allowedHosts` en configuración de Vite
 
 4. **❌ Servicios en redes diferentes** → ✅ **Red unificada funcionando**
@@ -7346,11 +7346,11 @@ Internet (HTTPS) → nginx-proxy (SSL) → {
 
 | Servicio | Contenedor | Puerto | Estado | URL |
 |----------|------------|---------|---------|-----|
-| **Frontend** | `astro-app` | 4321 | ✅ Running | https://www.umbot.com.ar |
-| **CMS Admin** | `directus-app` | 8055 | ✅ Running | https://www.umbot.com.ar/admin |
+| **Frontend** | `astro-app` | 4321 | ✅ Running | https://www.ultimamilla.com.ar |
+| **CMS Admin** | `directus-app` | 8055 | ✅ Running | https://www.ultimamilla.com.ar/admin |
 | **Base de Datos** | `database` | 5432 | ✅ Running | Interno |
 | **Proxy SSL** | `umbot-nginx-final` | 80/443 | ✅ Running | nginx/1.29.0 |
-| **Dashboard** | nginx-system | 8091 | ✅ Running | https://umbot.com.ar/log/ |
+| **Dashboard** | nginx-system | 8091 | ✅ Running | https://ultimamilla.com.ar/log/ |
 | **Monitoreo** | `umbot-grafana` | 3000 | ✅ Running | Métricas |
 
 ##### **🔧 CONFIGURACIONES TÉCNICAS APLICADAS**
@@ -7360,11 +7360,11 @@ Internet (HTTPS) → nginx-proxy (SSL) → {
    // astro.config.mjs - Configuración corregida
    export default defineConfig({
      output: "server",
-     site: "https://www.umbot.com.ar",
+     site: "https://www.ultimamilla.com.ar",
      server: { host: true, port: 4321 },
      vite: {
        server: {
-         allowedHosts: ["www.umbot.com.ar", "umbot.com.ar", "localhost"]
+         allowedHosts: ["www.ultimamilla.com.ar", "ultimamilla.com.ar", "localhost"]
        }
      }
    });
@@ -7396,19 +7396,19 @@ Internet (HTTPS) → nginx-proxy (SSL) → {
 
 ```bash
 # ✅ Frontend principal
-curl -I https://www.umbot.com.ar
+curl -I https://www.ultimamilla.com.ar
 # HTTP/1.1 200 OK - Astro SSR funcionando
 
 # ✅ Admin Directus
-curl -I https://www.umbot.com.ar/admin
+curl -I https://www.ultimamilla.com.ar/admin
 # HTTP/1.1 200 OK - CMS accesible
 
 # ✅ Dashboard emergencia
-curl -I https://umbot.com.ar/log/
+curl -I https://ultimamilla.com.ar/log/
 # HTTP/1.1 200 OK - Dashboard operativo
 
 # ✅ API Directus
-curl -I https://www.umbot.com.ar/items/servicios
+curl -I https://www.ultimamilla.com.ar/items/servicios
 # HTTP/1.1 200 OK - API funcionando
 ```
 
@@ -7416,7 +7416,7 @@ curl -I https://www.umbot.com.ar/items/servicios
 
 ✅ **SITIO WEB COMPLETAMENTE RESTAURADO Y OPERATIVO**
 
-El sitio www.umbot.com.ar está **100% FUNCIONAL** con todos los componentes trabajando correctamente:
+El sitio www.ultimamilla.com.ar está **100% FUNCIONAL** con todos los componentes trabajando correctamente:
 
 1. **❌ Error 502 Bad Gateway** → ✅ **HTTP 200 OK en todas las rutas**
 2. **❌ Contenedores detenidos** → ✅ **Todos los servicios activos**
@@ -7435,7 +7435,7 @@ El sitio www.umbot.com.ar está **100% FUNCIONAL** con todos los componentes tra
 
 **TIEMPO DE RESTAURACIÓN:** ~2 horas desde identificación hasta resolución completa.
 
-**El sitio www.umbot.com.ar está COMPLETAMENTE OPERATIVO y listo para producción.**
+**El sitio www.ultimamilla.com.ar está COMPLETAMENTE OPERATIVO y listo para producción.**
 
 ---
 
@@ -7455,7 +7455,7 @@ El sitio www.umbot.com.ar está **100% FUNCIONAL** con todos los componentes tra
 
 ✅ **DASHBOARD ADVANCED ESTABLECIDO COMO VERSIÓN POR DEFECTO**
 
-El UMBot Emergency Dashboard Advanced v3.1 ha sido **IMPLEMENTADO EXITOSAMENTE** como la versión principal en https://umbot.com.ar/log/:
+El UMBot Emergency Dashboard Advanced v3.1 ha sido **IMPLEMENTADO EXITOSAMENTE** como la versión principal en https://ultimamilla.com.ar/log/:
 
 ##### **🔧 CARACTERÍSTICAS AVANZADAS IMPLEMENTADAS**
 
@@ -7551,7 +7551,7 @@ SERVER_IP: '23.105.176.45'
    cp advanced-functional.html index.html
    
    # Verificación de funcionamiento
-   curl -I https://umbot.com.ar/log/
+   curl -I https://ultimamilla.com.ar/log/
    # HTTP/1.1 200 OK - 31,888 bytes
    ```
 
@@ -7565,15 +7565,15 @@ SERVER_IP: '23.105.176.45'
 
 ```bash
 # ✅ Dashboard Advanced cargando
-curl -I https://umbot.com.ar/log/
+curl -I https://ultimamilla.com.ar/log/
 # HTTP/1.1 200 OK - Content-Length: 31888
 
 # ✅ API de logs funcional
-curl -s "https://umbot.com.ar/log/api_logs.php?limit=3"
+curl -s "https://ultimamilla.com.ar/log/api_logs.php?limit=3"
 # {"success":true,"data":[...3 logs...],"filters":{...}}
 
 # ✅ Uptime dinámico
-curl -s "https://umbot.com.ar/log/generate_uptime.php"
+curl -s "https://ultimamilla.com.ar/log/generate_uptime.php"
 # {"uptime_seconds":17898,"uptime_formatted":"0 days, 4 hours, 58 minutes"}
 
 # ✅ Tamaño del archivo
@@ -7585,7 +7585,7 @@ ls -la /var/www/emergency/public/index.html
 
 ✅ **DASHBOARD ADVANCED v3.1 COMPLETAMENTE IMPLEMENTADO COMO ESTÁNDAR**
 
-El sitio https://umbot.com.ar/log/ ahora presenta el **DASHBOARD MÁS AVANZADO** con:
+El sitio https://ultimamilla.com.ar/log/ ahora presenta el **DASHBOARD MÁS AVANZADO** con:
 
 1. **❌ Dashboard básico** → ✅ **Dashboard Advanced con gráficos interactivos**
 2. **❌ Interfaz simple** → ✅ **Interfaz moderna con Tailwind CSS + Material Icons**
@@ -7603,9 +7603,9 @@ El sitio https://umbot.com.ar/log/ ahora presenta el **DASHBOARD MÁS AVANZADO**
 - 🔄 **Actualización automática** - Datos refrescados cada 30 segundos
 
 **VERSIONES DISPONIBLES:**
-- ✅ **Principal:** https://umbot.com.ar/log/ (Advanced v3.1)
-- ✅ **Móvil:** https://umbot.com.ar/log/mobile.html (Glassmorphism)
-- ✅ **Completa:** https://umbot.com.ar/log/v3.html (Complete v3.0)
+- ✅ **Principal:** https://ultimamilla.com.ar/log/ (Advanced v3.1)
+- ✅ **Móvil:** https://ultimamilla.com.ar/log/mobile.html (Glassmorphism)
+- ✅ **Completa:** https://ultimamilla.com.ar/log/v3.html (Complete v3.0)
 - ✅ **Backup:** index-backup-20250720-131259.html (versión anterior)
 
 **El Dashboard Advanced v3.1 está COMPLETAMENTE OPERATIVO como versión por defecto con todas las funcionalidades integradas y probadas.**
@@ -7645,7 +7645,7 @@ He realizado un diagnóstico completo del estado de Directus y identificado el p
    - **Credenciales:** Funcionando correctamente
 
 3. **✅ ACCESO WEB Y AUTENTICACIÓN**
-   - **URL Admin:** https://www.umbot.com.ar/admin → HTTP 200 OK
+   - **URL Admin:** https://www.ultimamilla.com.ar/admin → HTTP 200 OK
    - **Credenciales:** `admin@example.com:d1r3ctu5` → Autenticación exitosa
    - **Token API:** Generación de tokens funcionando
    - **Interfaz:** Panel de administración cargando correctamente
@@ -7726,7 +7726,7 @@ docker exec database psql -U myuser -d mydatabase < restore_directus_files.sql
 **FASE 3: CONFIGURAR PERMISOS**
 ```bash
 # Configurar rol público para acceso sin autenticación
-# 1. Acceder a https://www.umbot.com.ar/admin
+# 1. Acceder a https://www.ultimamilla.com.ar/admin
 # 2. Ir a Settings → Roles & Permissions
 # 3. Configurar rol "Public" con permisos de lectura
 # 4. Habilitar acceso a colecciones servicios y Antecedentes
@@ -7735,11 +7735,11 @@ docker exec database psql -U myuser -d mydatabase < restore_directus_files.sql
 **FASE 4: VERIFICACIÓN COMPLETA**
 ```bash
 # Probar APIs de contenido
-curl https://www.umbot.com.ar/items/servicios
-curl https://www.umbot.com.ar/items/Antecedentes?limit=5
+curl https://www.ultimamilla.com.ar/items/servicios
+curl https://www.ultimamilla.com.ar/items/Antecedentes?limit=5
 
 # Verificar frontend dinámico
-curl https://www.umbot.com.ar/servicios/2/redes-de-datos
+curl https://www.ultimamilla.com.ar/servicios/2/redes-de-datos
 ```
 
 ##### **📊 MÉTRICAS ESPERADAS POST-IMPLEMENTACIÓN**
@@ -7751,10 +7751,10 @@ curl https://www.umbot.com.ar/servicios/2/redes-de-datos
 - ✅ **APIs RESTful** completamente funcionales para frontend dinámico
 
 **URLS FUNCIONALES ESPERADAS:**
-- ✅ `https://www.umbot.com.ar/items/servicios` → JSON con 6 servicios
-- ✅ `https://www.umbot.com.ar/items/Antecedentes` → JSON con 469 antecedentes
-- ✅ `https://www.umbot.com.ar/servicios/2/redes-de-datos` → Página dinámica desde Directus
-- ✅ `https://www.umbot.com.ar/antecedentes/10768/isi-solutions` → Detalle dinámico
+- ✅ `https://www.ultimamilla.com.ar/items/servicios` → JSON con 6 servicios
+- ✅ `https://www.ultimamilla.com.ar/items/Antecedentes` → JSON con 469 antecedentes
+- ✅ `https://www.ultimamilla.com.ar/servicios/2/redes-de-datos` → Página dinámica desde Directus
+- ✅ `https://www.ultimamilla.com.ar/antecedentes/10768/isi-solutions` → Detalle dinámico
 
 ##### **🎯 IMPACTO DE LA SOLUCIÓN**
 
@@ -7814,7 +7814,7 @@ curl https://www.umbot.com.ar/servicios/2/redes-de-datos
 
 ✅ **DIRECTUS CMS COMPLETAMENTE OPERATIVO CON CONTENIDO DINÁMICO**
 
-He implementado exitosamente Directus como sistema de administración de contenido para umbot.com.ar siguiendo el task manager definido:
+He implementado exitosamente Directus como sistema de administración de contenido para ultimamilla.com.ar siguiendo el task manager definido:
 
 ##### **📋 FASES COMPLETADAS EXITOSAMENTE**
 
@@ -8067,8 +8067,8 @@ docker logs directus-app --tail 20  # Health verification
 sed -i 's|PUBLIC_DIRECTUS_URL=http://directus-app:8055|PUBLIC_DIRECTUS_URL=http://localhost:8055|g' .env
 
 # Connectivity tests
-curl -I https://umbot.com.ar/servicios/2/redes-de-datos  # HTTP 200 OK ✅
-curl -I https://umbot.com.ar/antecedentes              # HTTP 200 OK ✅
+curl -I https://ultimamilla.com.ar/servicios/2/redes-de-datos  # HTTP 200 OK ✅
+curl -I https://ultimamilla.com.ar/antecedentes              # HTTP 200 OK ✅
 curl -I http://localhost:8055/server/health            # Directus health ✅
 ```
 
@@ -8099,7 +8099,7 @@ curl -I http://localhost:8055/server/health            # Directus health ✅
 - **Antecedents Detail**: ✅ HTTP 200 OK - Dynamic content loading
 
 #### Backend API Testing Results
-- **Directus Admin Panel**: ✅ https://www.umbot.com.ar/admin - Accessible
+- **Directus Admin Panel**: ✅ https://www.ultimamilla.com.ar/admin - Accessible
 - **Services API**: ✅ `/items/Servicios` - Returns 6 services JSON
 - **Antecedents API**: ✅ `/items/Antecedents` - Returns paginated results
 - **File Assets**: ✅ `/assets/` - Images serving correctly
@@ -8163,12 +8163,12 @@ curl -I http://localhost:8055/server/health            # Directus health ✅
 - **Container Infrastructure**: ✅ Docker services healthy and monitored
 
 **URLs Verified and Functional**:
-- ✅ https://umbot.com.ar - Main site with professional design
-- ✅ https://umbot.com.ar/servicios - Services listing with dynamic content
-- ✅ https://umbot.com.ar/servicios/2/redes-de-datos - Service detail with full features
-- ✅ https://umbot.com.ar/antecedentes - Antecedents with search and filters
-- ✅ https://www.umbot.com.ar/admin - Directus CMS admin panel
-- ✅ https://umbot.com.ar/log/ - Emergency monitoring dashboard
+- ✅ https://ultimamilla.com.ar - Main site with professional design
+- ✅ https://ultimamilla.com.ar/servicios - Services listing with dynamic content
+- ✅ https://ultimamilla.com.ar/servicios/2/redes-de-datos - Service detail with full features
+- ✅ https://ultimamilla.com.ar/antecedentes - Antecedents with search and filters
+- ✅ https://www.ultimamilla.com.ar/admin - Directus CMS admin panel
+- ✅ https://ultimamilla.com.ar/log/ - Emergency monitoring dashboard
 
 **Performance Metrics**:
 - Average response time: <500ms
@@ -8207,7 +8207,7 @@ curl -I http://localhost:8055/server/health            # Directus health ✅
 
 ✅ **DIRECTUS CMS COMPLETAMENTE FUNCIONAL CON CONTENIDO DINÁMICO**
 
-La implementación de **Directus CMS** como sistema de administración de contenido para umbot.com.ar ha sido **COMPLETAMENTE EXITOSA**:
+La implementación de **Directus CMS** como sistema de administración de contenido para ultimamilla.com.ar ha sido **COMPLETAMENTE EXITOSA**:
 
 ##### **🔧 ARQUITECTURA IMPLEMENTADA**
 
@@ -8252,7 +8252,7 @@ curl -s http://23.105.176.45:8055/items/Antecedentes?limit=1
 # {"data":[{"id":10768,"status":"published",...}],"meta":{"..."}
 
 # ✅ Frontend consumiendo datos
-curl -I https://www.umbot.com.ar/servicios/2/redes-de-datos
+curl -I https://www.ultimamilla.com.ar/servicios/2/redes-de-datos
 # HTTP/1.1 200 OK
 ```
 
@@ -8352,7 +8352,7 @@ Se crearon los siguientes scripts para automatizar la implementación:
 
 ✅ **DIRECTUS CMS COMPLETAMENTE IMPLEMENTADO Y FUNCIONAL**
 
-El sistema umbot.com.ar ahora cuenta con un **CMS COMPLETO Y DINÁMICO**:
+El sistema ultimamilla.com.ar ahora cuenta con un **CMS COMPLETO Y DINÁMICO**:
 
 1. **❌ Contenido estático** → ✅ **Contenido dinámico administrable**
 2. **❌ Sin panel de administración** → ✅ **Panel completo para edición**
@@ -8413,7 +8413,7 @@ La implementación de **Directus CMS como servicio independiente** ha sido **COM
 │           │                                │                │
 │           ▼                                ▼                │
 │  ┌─────────────────┐              ┌─────────────────┐       │
-│  │ www.umbot.com.ar│              │ :8055/admin     │       │
+│  │ www.ultimamilla.com.ar│              │ :8055/admin     │       │
 │  │ (Público)       │              │ (Administración)│       │
 │  └─────────────────┘              └─────────────────┘       │
 │                                                             │
@@ -8428,7 +8428,7 @@ La implementación de **Directus CMS como servicio independiente** ha sido **COM
    - Sin interferencias entre sistemas
 
 2. **🌐 ACCESOS INDEPENDIENTES**
-   - **Frontend público**: https://www.umbot.com.ar (mantenido)
+   - **Frontend público**: https://www.ultimamilla.com.ar (mantenido)
    - **Panel admin**: http://23.105.176.45:8055/admin
    - **APIs**: http://23.105.176.45:8055/items/
 
@@ -8457,7 +8457,7 @@ La implementación de **Directus CMS como servicio independiente** ha sido **COM
 
 | Componente | Estado | Puerto | Acceso |
 |------------|--------|--------|--------|
-| **Frontend Estático** | ✅ Sin cambios | 80/443 | https://www.umbot.com.ar |
+| **Frontend Estático** | ✅ Sin cambios | 80/443 | https://www.ultimamilla.com.ar |
 | **Directus Admin** | ✅ Independiente | 8055 | http://23.105.176.45:8055/admin |
 | **APIs Directus** | ✅ Funcionales | 8055 | http://23.105.176.45:8055/items/ |
 | **Base de Datos** | ✅ Operativa | 5432 | PostgreSQL interno |
@@ -8480,10 +8480,10 @@ La implementación de **Directus CMS como servicio independiente** ha sido **COM
 
 ```bash
 # ✅ Frontend estático (sin cambios)
-curl -I https://www.umbot.com.ar
+curl -I https://www.ultimamilla.com.ar
 # HTTP/2 200 OK
 
-curl -I https://www.umbot.com.ar/servicios
+curl -I https://www.ultimamilla.com.ar/servicios
 # HTTP/2 200 OK
 
 # ✅ Directus independiente
@@ -8545,7 +8545,7 @@ curl -s http://23.105.176.45:8055/items/Servicios?limit=1
 
 ✅ **DIRECTUS CMS INDEPENDIENTE COMPLETAMENTE IMPLEMENTADO**
 
-El sistema umbot.com.ar ahora cuenta con:
+El sistema ultimamilla.com.ar ahora cuenta con:
 
 1. **🌐 Frontend estático mantenido** → Sin cambios, funcionando normalmente
 2. **🚀 Directus CMS independiente** → Panel de administración completo
@@ -8588,9 +8588,9 @@ El sistema está **LISTO PARA USO INMEDIATO** con arquitectura independiente com
 
 ```bash
 # Verificar frontend estático
-curl -I https://www.umbot.com.ar
-curl -I https://www.umbot.com.ar/servicios
-curl -I https://www.umbot.com.ar/antecedentes
+curl -I https://www.ultimamilla.com.ar
+curl -I https://www.ultimamilla.com.ar/servicios
+curl -I https://www.ultimamilla.com.ar/antecedentes
 
 # Verificar Directus independiente
 curl -I http://23.105.176.45:8055/admin
@@ -8613,7 +8613,7 @@ docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
 
 ✅ **DIRECTUS CMS INDEPENDIENTE COMPLETAMENTE FUNCIONAL**
 
-La implementación de **Directus CMS como sistema independiente** para umbot.com.ar ha sido **COMPLETAMENTE EXITOSA**, manteniendo el frontend estático sin cambios:
+La implementación de **Directus CMS como sistema independiente** para ultimamilla.com.ar ha sido **COMPLETAMENTE EXITOSA**, manteniendo el frontend estático sin cambios:
 
 ##### **🔧 ARQUITECTURA IMPLEMENTADA**
 
@@ -8634,7 +8634,7 @@ La implementación de **Directus CMS como sistema independiente** para umbot.com
 │           │                                │                │
 │           ▼                                ▼                │
 │  ┌─────────────────┐              ┌─────────────────┐       │
-│  │ www.umbot.com.ar│              │ :8055/admin     │       │
+│  │ www.ultimamilla.com.ar│              │ :8055/admin     │       │
 │  │ (Público)       │              │ (Administración)│       │
 │  └─────────────────┘              └─────────────────┘       │
 │                                                             │
@@ -8665,7 +8665,7 @@ La implementación de **Directus CMS como sistema independiente** para umbot.com
 
 ```bash
 # ✅ Frontend estático (sin cambios)
-curl -I https://www.umbot.com.ar
+curl -I https://www.ultimamilla.com.ar
 # HTTP/2 200 OK
 
 # ✅ Panel de administración Directus
@@ -8771,7 +8771,7 @@ Se crearon los siguientes scripts para la implementación:
 
 ✅ **DIRECTUS CMS INDEPENDIENTE COMPLETAMENTE IMPLEMENTADO Y FUNCIONAL**
 
-El sistema umbot.com.ar ahora cuenta con un **CMS INDEPENDIENTE**:
+El sistema ultimamilla.com.ar ahora cuenta con un **CMS INDEPENDIENTE**:
 
 1. **✅ Frontend estático** → Mantenido sin cambios
 2. **✅ Directus CMS** → Disponible para administración
@@ -8823,9 +8823,9 @@ database              Up 5 hours          5432/tcp
 ```
 
 #### **🌐 FRONTEND ESTÁTICO (SIN CAMBIOS)**
-- ✅ **Página principal**: https://www.umbot.com.ar → HTTP/2 200 OK
-- ✅ **Página de servicios**: https://www.umbot.com.ar/servicios → HTTP/2 200 OK
-- ✅ **Página de antecedentes**: https://www.umbot.com.ar/antecedentes → HTTP/2 200 OK
+- ✅ **Página principal**: https://www.ultimamilla.com.ar → HTTP/2 200 OK
+- ✅ **Página de servicios**: https://www.ultimamilla.com.ar/servicios → HTTP/2 200 OK
+- ✅ **Página de antecedentes**: https://www.ultimamilla.com.ar/antecedentes → HTTP/2 200 OK
 
 #### **🚀 DIRECTUS CMS INDEPENDIENTE**
 - ✅ **Panel de administración**: http://23.105.176.45:8055/admin → HTTP/1.1 200 OK
@@ -8850,8 +8850,8 @@ database              Up 5 hours          5432/tcp
 
 ```bash
 # Verificar frontend estático
-curl -I https://www.umbot.com.ar
-curl -I https://www.umbot.com.ar/servicios
+curl -I https://www.ultimamilla.com.ar
+curl -I https://www.ultimamilla.com.ar/servicios
 
 # Verificar Directus independiente
 curl -I http://23.105.176.45:8055/admin
@@ -8865,7 +8865,7 @@ docker ps | grep -E '(directus|database|astro)'
 
 | Servicio | URL | Estado |
 |----------|-----|--------|
-| **Frontend Público** | https://www.umbot.com.ar | ✅ Funcionando |
+| **Frontend Público** | https://www.ultimamilla.com.ar | ✅ Funcionando |
 | **Panel Admin Directus** | http://23.105.176.45:8055/admin | ✅ Operativo |
 | **API Servicios** | http://23.105.176.45:8055/items/Servicios | ✅ Disponible |
 | **API Antecedentes** | http://23.105.176.45:8055/items/Antecedentes | ✅ Disponible |
@@ -8899,7 +8899,7 @@ docker ps | grep -E '(directus|database|astro)'
 
 ❌ **PROBLEMAS IDENTIFICADOS EN EL SITIO WEB**
 
-Durante la verificación del sitio https://umbot.com.ar/servicios se detectaron los siguientes problemas críticos:
+Durante la verificación del sitio https://ultimamilla.com.ar/servicios se detectaron los siguientes problemas críticos:
 
 ##### **🖼️ PROBLEMA 1: IMÁGENES INCORRECTAS**
 - **Síntoma**: Imágenes genéricas (iconos de terminal sonrientes) en lugar de imágenes reales de servicios
@@ -8949,7 +8949,7 @@ docker ps | grep -E '(directus|astro|nginx)'
 docker start umbot-nginx-final
 
 # Verificación de funcionamiento
-curl -I https://www.umbot.com.ar/
+curl -I https://www.ultimamilla.com.ar/
 # HTTP/1.1 200 OK ✅
 ```
 
@@ -8969,7 +8969,7 @@ curl -I https://www.umbot.com.ar/
 │           │                       │                   │     │
 │           ▼                       ▼                   ▼     │
 │  ┌─────────────────┐    ┌─────────────────┐    ┌──────────┐ │
-│  │ umbot.com.ar    │    │ Páginas         │    │ CMS      │ │
+│  │ ultimamilla.com.ar    │    │ Páginas         │    │ CMS      │ │
 │  │ (Público)       │    │ Dinámicas       │    │ Admin    │ │
 │  └─────────────────┘    └─────────────────┘    └──────────┘ │
 │                                                             │
@@ -9000,24 +9000,24 @@ curl -I https://www.umbot.com.ar/
 ##### **✅ URLS FUNCIONANDO**
 ```bash
 # Sitio principal
-curl -I https://umbot.com.ar/
+curl -I https://ultimamilla.com.ar/
 # HTTP/1.1 200 OK
 
 # Página de servicios
-curl -I https://umbot.com.ar/servicios
+curl -I https://ultimamilla.com.ar/servicios
 # HTTP/1.1 200 OK
 
 # Imágenes de servicios
-curl -I https://umbot.com.ar/images/services/servicios-it.jpg
+curl -I https://ultimamilla.com.ar/images/services/servicios-it.jpg
 # HTTP/1.1 200 OK (21606 bytes)
 ```
 
 ##### **⚠️ URLS PENDIENTES DE VERIFICACIÓN**
 ```bash
 # Páginas individuales (requieren verificación post-corrección)
-https://umbot.com.ar/servicios/1/servicios-it
-https://umbot.com.ar/servicios/2/redes-de-datos
-https://umbot.com.ar/servicios/3/seguridad-informatica
+https://ultimamilla.com.ar/servicios/1/servicios-it
+https://ultimamilla.com.ar/servicios/2/redes-de-datos
+https://ultimamilla.com.ar/servicios/3/seguridad-informatica
 ```
 
 #### **🔧 CORRECCIONES ADICIONALES IDENTIFICADAS**
@@ -9052,8 +9052,8 @@ ssh root@23.105.176.45
 ##### **🔄 CUANDO EL SERVIDOR ESTÉ DISPONIBLE**
 1. **Verificar páginas individuales**:
    ```bash
-   curl -I https://umbot.com.ar/servicios/1/servicios-it
-   curl -I https://umbot.com.ar/servicios/2/redes-de-datos
+   curl -I https://ultimamilla.com.ar/servicios/1/servicios-it
+   curl -I https://ultimamilla.com.ar/servicios/2/redes-de-datos
    ```
 
 2. **Corregir título en base de datos**:
@@ -9085,7 +9085,7 @@ ssh root@23.105.176.45
 
 ✅ **CORRECCIONES CRÍTICAS APLICADAS**
 
-1. **🌐 Sitio principal funcionando** → https://umbot.com.ar accesible
+1. **🌐 Sitio principal funcionando** → https://ultimamilla.com.ar accesible
 2. **🔧 Configuración Astro corregida** → URL de Directus actualizada
 3. **📊 Nginx operativo** → Proxy funcionando correctamente
 4. **🗄️ Directus independiente** → CMS funcionando sin interferencias
@@ -9167,15 +9167,15 @@ Las páginas individuales de servicios (ej: `/servicios/4/telefonia-y-citoina`) 
 ```bash
 # ✅ API con autenticación (funciona)
 curl -H 'Authorization: Bearer k6P8LAY8_x_y1miB_KTlWnysCnx2Abky' \
-  https://www.umbot.com.ar/items/Servicios/4
+  https://www.ultimamilla.com.ar/items/Servicios/4
 # RESULTADO: {"data":{"id":4,"Titulo":"Telefonía y Citofonía",...}}
 
 # ❌ API sin autenticación (falla)
-curl -s https://www.umbot.com.ar/items/Servicios/4
+curl -s https://www.ultimamilla.com.ar/items/Servicios/4
 # RESULTADO: {"errors":[{"message":"You don't have permission to access this."}]}
 
 # ⚠️ Página individual (modo fallback)
-curl -s https://umbot.com.ar/servicios/4/telefonia-y-citoina | grep "MODO FALLBACK"
+curl -s https://ultimamilla.com.ar/servicios/4/telefonia-y-citoina | grep "MODO FALLBACK"
 # RESULTADO: Modo fallback activado por FORBIDDEN en API
 ```
 
@@ -9206,7 +9206,7 @@ curl -s https://umbot.com.ar/servicios/4/telefonia-y-citoina | grep "MODO FALLBA
 
 ✅ **RESTAURACIÓN DE IMÁGENES COMPLETADA EXITOSAMENTE**
 
-He logrado restaurar completamente el sistema de imágenes para los antecedentes en umbot.com.ar, resolviendo el problema crítico de imágenes faltantes que impedía la visualización correcta de los proyectos.
+He logrado restaurar completamente el sistema de imágenes para los antecedentes en ultimamilla.com.ar, resolviendo el problema crítico de imágenes faltantes que impedía la visualización correcta de los proyectos.
 
 ### 🔍 **PROBLEMA ORIGINAL IDENTIFICADO**
 
@@ -9285,7 +9285,7 @@ curl -s "http://23.105.176.45:8055/files" -H "Authorization: Bearer k6P8LAY8_x_y
 # RESULTADO: {"data":[{"id":"11111111-1111-1111-1111-111111111111",...}]}
 
 # ✅ Frontend mostrando imágenes correctas
-curl -s "https://umbot.com.ar/antecedentes" | grep "img src"
+curl -s "https://ultimamilla.com.ar/antecedentes" | grep "img src"
 # RESULTADO: <img src="/imagenes_antecedentes_versionproduccion/ultimamilla_fondo_vitivinícola_mendoza_...">
 ```
 
@@ -9307,7 +9307,7 @@ curl -s "https://umbot.com.ar/antecedentes" | grep "img src"
 │                    SISTEMA DE IMÁGENES RESTAURADO           │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
-│  Frontend Astro (umbot.com.ar)                             │
+│  Frontend Astro (ultimamilla.com.ar)                             │
 │  ├── Renderiza imágenes dinámicamente                      │
 │  ├── Sistema de fallback operativo                         │
 │  └── Rutas correctas generadas                             │
@@ -9340,7 +9340,7 @@ curl -s "http://23.105.176.45:8055/files" -H "Authorization: Bearer k6P8LAY8_x_y
 # ✅ RESULTADO: 5
 
 # Verificar frontend
-curl -s "https://umbot.com.ar/antecedentes" | grep -c "img src.*imagenes_antecedentes"
+curl -s "https://ultimamilla.com.ar/antecedentes" | grep -c "img src.*imagenes_antecedentes"
 # ✅ RESULTADO: Múltiples imágenes renderizadas
 ```
 
@@ -9424,13 +9424,13 @@ const DIRECTUS_STATIC_TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
 ### 📍 EVIDENCIA DE FUNCIONAMIENTO FINAL
 ```
 ✅ SERVICIOS SINGLE PAGES:
-   - https://umbot.com.ar/servicios/3/seguridad-informatica: HTTP 200 ✓
-   - https://umbot.com.ar/servicios/4/telefonia-y-citofonia: HTTP 200 ✓  
-   - https://umbot.com.ar/servicios/5/servicios-web: HTTP 200 ✓
-   - https://umbot.com.ar/servicios/6/servicio-tecnico: HTTP 200 ✓
+   - https://ultimamilla.com.ar/servicios/3/seguridad-informatica: HTTP 200 ✓
+   - https://ultimamilla.com.ar/servicios/4/telefonia-y-citofonia: HTTP 200 ✓  
+   - https://ultimamilla.com.ar/servicios/5/servicios-web: HTTP 200 ✓
+   - https://ultimamilla.com.ar/servicios/6/servicio-tecnico: HTTP 200 ✓
 
 ✅ ANTECEDENTES INDEX:
-   - https://umbot.com.ar/antecedentes: HTTP 200 ✓
+   - https://ultimamilla.com.ar/antecedentes: HTTP 200 ✓
    - Título correcto: "Nuestros Proyectos | Última Milla" ✓
    - Filtros funcionando correctamente ✓
 
@@ -9442,9 +9442,9 @@ const DIRECTUS_STATIC_TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
 ```
 
 ### 🔗 ENLACES RELEVANTES
-- **Frontend**: https://www.umbot.com.ar/
-- **Servicios**: https://umbot.com.ar/servicios/3/seguridad-informatica
-- **Antecedentes**: https://umbot.com.ar/antecedentes  
+- **Frontend**: https://www.ultimamilla.com.ar/
+- **Servicios**: https://ultimamilla.com.ar/servicios/3/seguridad-informatica
+- **Antecedentes**: https://ultimamilla.com.ar/antecedentes  
 - **Admin Directus**: http://23.105.176.45:8055/admin
 
 ---
@@ -9500,16 +9500,16 @@ const DIRECTUS_STATIC_TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
 
 ```bash
 # ✅ Frontend SSR principal
-curl -I https://www.umbot.com.ar/
+curl -I https://www.ultimamilla.com.ar/
 # HTTP/1.1 200 OK (Funcional)
 
 # ⚠️ Páginas individuales (fallback)
-curl -s https://umbot.com.ar/servicios/4/telefonia-y-citoina | grep "Generated:"
+curl -s https://ultimamilla.com.ar/servicios/4/telefonia-y-citoina | grep "Generated:"
 # Generated: 2025-07-25T12:10:19.254Z (SSR activo pero en fallback)
 
 # ✅ API con autenticación
 curl -H 'Authorization: Bearer k6P8LAY8_x_y1miB_KTlWnysCnx2Abky' \
-  https://www.umbot.com.ar/items/Servicios/4
+  https://www.ultimamilla.com.ar/items/Servicios/4
 # HTTP/1.1 200 OK {"data":{...}} (Funcional)
 ```
 
@@ -9697,7 +9697,7 @@ La aplicación está lista para uso en producción con acceso público en http:/
 **Fecha:** $(date)
 
 ### PROBLEMA
-- URL https://umbot.com.ar/antecedentes mostraba título "undefined" 
+- URL https://ultimamilla.com.ar/antecedentes mostraba título "undefined" 
 - Error JavaScript "Unexpected ')'" en el parsing
 - Página no cargaba correctamente
 
@@ -9755,9 +9755,9 @@ La aplicación está lista para uso en producción con acceso público en http:/
 - **Tiempos de respuesta óptimos:** <50ms
 
 ### URLS PÚBLICAS VERIFICADAS
-- **🌐 Web App:** https://umbot.com.ar ✅
-- **📁 Antecedentes:** https://umbot.com.ar/antecedentes ✅  
-- **📋 Servicios:** https://umbot.com.ar/servicios ✅
+- **🌐 Web App:** https://ultimamilla.com.ar ✅
+- **📁 Antecedentes:** https://ultimamilla.com.ar/antecedentes ✅  
+- **📋 Servicios:** https://ultimamilla.com.ar/servicios ✅
 - **🔧 Admin Directus:** http://23.105.176.45:8055 ✅
 - **📊 Monitoreo:** http://23.105.176.45:3000 ✅
 
@@ -9919,7 +9919,7 @@ Nginx → Proxy SSR (8093) → Astro SSR (4321) → Directus (8055)
 ### **1. Test del Sistema de Servicios SSR**
 ```bash
 # ✅ Template moderno restaurado
-curl https://www.umbot.com.ar/servicios/2/redes-de-datos | grep "bg-gradient-to-br"
+curl https://www.ultimamilla.com.ar/servicios/2/redes-de-datos | grep "bg-gradient-to-br"
 # Resultado: ✅ ENCONTRADO - Diseño profesional confirmado
 
 # ✅ Datos dinámicos funcionando
@@ -9930,7 +9930,7 @@ curl -H "Authorization: Bearer TOKEN" http://localhost:8055/items/Servicios/2
 ### **2. Test del Dashboard Emergency**
 ```bash
 # ✅ Dashboard funcionando
-curl -I https://umbot.com.ar/log/
+curl -I https://ultimamilla.com.ar/log/
 # Resultado: HTTP/1.1 200 OK
 
 # ✅ Funcionalidades verificadas
@@ -9956,11 +9956,11 @@ done
 ### **4. Test de SSL y Conectividad**
 ```bash
 # ✅ HTTPS funcionando
-curl -I https://umbot.com.ar/
+curl -I https://ultimamilla.com.ar/
 # Resultado: HTTP/2 200 OK, SSL válido
 
 # ✅ Proxy nginx operativo
-curl -I https://umbot.com.ar/log/
+curl -I https://ultimamilla.com.ar/log/
 # Resultado: HTTP/1.1 200 OK via proxy
 ```
 
@@ -9999,8 +9999,8 @@ curl -I https://umbot.com.ar/log/
 ## 📊 **ESTADO FINAL DEL SISTEMA**
 
 ### **✅ Servicios Completamente Operativos:**
-- **Sitio Web Principal:** https://umbot.com.ar (SSL/HTTPS)
-- **Dashboard Emergency:** https://umbot.com.ar/log/ (Proxy HTTPS)
+- **Sitio Web Principal:** https://ultimamilla.com.ar (SSL/HTTPS)
+- **Dashboard Emergency:** https://ultimamilla.com.ar/log/ (Proxy HTTPS)
 - **Admin Directus:** http://23.105.176.45:8055 (CMS)
 - **Monitoreo Grafana:** http://23.105.176.45:3000
 - **Métricas Prometheus:** http://23.105.176.45:9090
@@ -10045,15 +10045,15 @@ curl -I https://umbot.com.ar/log/
 ### **Comandos de Verificación Rápida:**
 ```bash
 # 1. Verificar sitio principal
-curl -I https://umbot.com.ar/
+curl -I https://ultimamilla.com.ar/
 # Esperado: HTTP/2 200 OK
 
 # 2. Verificar dashboard emergency  
-curl -I https://umbot.com.ar/log/
+curl -I https://ultimamilla.com.ar/log/
 # Esperado: HTTP/1.1 200 OK
 
 # 3. Verificar servicio individual con diseño restaurado
-curl -s https://umbot.com.ar/servicios/2/redes-de-datos | grep -c "bg-gradient-to-br"
+curl -s https://ultimamilla.com.ar/servicios/2/redes-de-datos | grep -c "bg-gradient-to-br"
 # Esperado: 1 (diseño profesional presente)
 
 # 4. Verificar servicios Docker
@@ -10117,8 +10117,8 @@ docker-compose restart astro-app
 - `/root/fumbling-field/src/pages/servicios/[id]/[slug].astro` - Replaced with working template (backup: [slug].astro.backup-20250806_163030)
 
 **Test Results**:
-- ✅ https://umbot.com.ar/servicios/2/redes-de-datos - HTTP 200 OK - "Redes de datos"
-- ✅ https://umbot.com.ar/servicios/1/servicios-it - HTTP 200 OK - "Servicios IT"
+- ✅ https://ultimamilla.com.ar/servicios/2/redes-de-datos - HTTP 200 OK - "Redes de datos"
+- ✅ https://ultimamilla.com.ar/servicios/1/servicios-it - HTTP 200 OK - "Servicios IT"
 - ✅ All services now load properly from Directus CMS
 - ✅ Dynamic data rendering working correctly
 - ✅ Authentication with Directus successful
@@ -10128,8 +10128,8 @@ docker-compose restart astro-app
 **Status**: Links work correctly when accessed directly
 
 **Test Results**:
-- ✅ https://umbot.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones - HTTP 200 OK
-- ✅ https://umbot.com.ar/antecedentes - Index page loads properly
+- ✅ https://ultimamilla.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones - HTTP 200 OK
+- ✅ https://ultimamilla.com.ar/antecedentes - Index page loads properly
 - ✅ Dynamic slug generation working in index.astro (line 533: `href={`/antecedentes/${proyecto.slug}`}`)
 - ✅ Slug format: `${id}/${generateSlug(titulo)}` working correctly
 
@@ -10180,13 +10180,13 @@ docker exec astro-app node -e "fetch('http://directus-app:8055/items/Servicios/2
 ### 🚀 URLs Verified Working
 
 **Services**:
-- https://umbot.com.ar/servicios/1/servicios-it ✅ (HTTP 200)
-- https://umbot.com.ar/servicios/2/redes-de-datos ✅ (HTTP 200)
-- https://umbot.com.ar/servicios ✅ (Index working)
+- https://ultimamilla.com.ar/servicios/1/servicios-it ✅ (HTTP 200)
+- https://ultimamilla.com.ar/servicios/2/redes-de-datos ✅ (HTTP 200)
+- https://ultimamilla.com.ar/servicios ✅ (Index working)
 
 **Antecedents**:
-- https://umbot.com.ar/antecedentes ✅ (Index with filtering working)
-- https://umbot.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones ✅ (HTTP 200)
+- https://ultimamilla.com.ar/antecedentes ✅ (Index with filtering working)
+- https://ultimamilla.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones ✅ (HTTP 200)
 
 ### 🔄 Commands Executed
 
@@ -10202,9 +10202,9 @@ sshpass -p 'gsiB%s@0yD' scp "servicios-fixed-template.astro" root@23.105.176.45:
 sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "cd /root/fumbling-field && docker-compose restart astro-app"
 
 # 4. Testing and Verification
-curl -I "https://umbot.com.ar/servicios/2/redes-de-datos"
-curl -I "https://umbot.com.ar/servicios/1/servicios-it" 
-curl -I "https://umbot.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones"
+curl -I "https://ultimamilla.com.ar/servicios/2/redes-de-datos"
+curl -I "https://ultimamilla.com.ar/servicios/1/servicios-it" 
+curl -I "https://ultimamilla.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones"
 ```
 
 ### 📈 Performance Metrics
@@ -10321,36 +10321,36 @@ ls -la directus-admin/uploads/ | wc -l
 ##### Frontend URLs Verification ✅ ALL WORKING
 ```bash
 # Antecedents Index
-curl -s https://umbot.com.ar/antecedentes -o /dev/null -w 'HTTP: %{http_code}, Size: %{size_download} bytes'
+curl -s https://ultimamilla.com.ar/antecedentes -o /dev/null -w 'HTTP: %{http_code}, Size: %{size_download} bytes'
 # Result: HTTP: 200, Size: 364554 bytes ✅
 
 # Individual Antecedent Page
-curl -s https://umbot.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones -o /dev/null -w 'HTTP: %{http_code}, Size: %{size_download} bytes'
+curl -s https://ultimamilla.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones -o /dev/null -w 'HTTP: %{http_code}, Size: %{size_download} bytes'
 # Result: HTTP: 200, Size: 261173 bytes ✅
 
 # Service Page with Redirect
-curl -sL https://umbot.com.ar/servicios/1/desarrollo-de-aplicaciones -o /dev/null -w 'HTTP: %{http_code}, Final URL: %{url_effective}, Size: %{size_download} bytes'
-# Result: HTTP: 200, Final URL: https://umbot.com.ar/servicios/1/servicios-it, Size: 229139 bytes ✅
+curl -sL https://ultimamilla.com.ar/servicios/1/desarrollo-de-aplicaciones -o /dev/null -w 'HTTP: %{http_code}, Final URL: %{url_effective}, Size: %{size_download} bytes'
+# Result: HTTP: 200, Final URL: https://ultimamilla.com.ar/servicios/1/servicios-it, Size: 229139 bytes ✅
 
 # Homepage
-curl -s https://umbot.com.ar -o /dev/null -w 'HTTP: %{http_code}, Size: %{size_download} bytes'
+curl -s https://ultimamilla.com.ar -o /dev/null -w 'HTTP: %{http_code}, Size: %{size_download} bytes'
 # Result: HTTP: 200, Size: 268356 bytes ✅
 
 # Services Index  
-curl -s https://umbot.com.ar/servicios -o /dev/null -w 'HTTP: %{http_code}, Size: %{size_download} bytes'
+curl -s https://ultimamilla.com.ar/servicios -o /dev/null -w 'HTTP: %{http_code}, Size: %{size_download} bytes'
 # Result: HTTP: 200, Size: 246830 bytes ✅
 ```
 
 ##### Content Verification ✅ CONFIRMED
 **Antecedents Count Display**: 
 ```bash
-curl -s https://umbot.com.ar/antecedentes | grep -o 'Explorando [0-9]\+ proyectos'
+curl -s https://ultimamilla.com.ar/antecedentes | grep -o 'Explorando [0-9]\+ proyectos'
 # Result: "Explorando 469 proyectos" ✅ (Previously showed only 100)
 ```
 
 **Individual Page Content**:
 ```bash
-curl -s https://umbot.com.ar/antecedents/10768/isi-solutions-redes-y-comunicaciones | grep -i 'ISI Solutions' | head -1
+curl -s https://ultimamilla.com.ar/antecedents/10768/isi-solutions-redes-y-comunicaciones | grep -i 'ISI Solutions' | head -1
 # Result: Contains proper title "ISI Solutions - Redes y comunicaciones" ✅
 ```
 
@@ -10374,8 +10374,8 @@ sshpass -p 'gsiB%s@0yD' scp index.astro root@23.105.176.45:/root/fumbling-field/
 sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "cd /root/fumbling-field && docker restart astro-app"
 
 # 6. Comprehensive Testing
-curl -s https://umbot.com.ar/antecedentes -o /dev/null -w 'HTTP: %{http_code}, Size: %{size_download} bytes'
-curl -s https://umbot.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones -o /dev/null -w 'HTTP: %{http_code}, Size: %{size_download} bytes'
+curl -s https://ultimamilla.com.ar/antecedentes -o /dev/null -w 'HTTP: %{http_code}, Size: %{size_download} bytes'
+curl -s https://ultimamilla.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones -o /dev/null -w 'HTTP: %{http_code}, Size: %{size_download} bytes'
 ```
 
 #### 📁 Files Modified with Backup Status
@@ -10451,11 +10451,11 @@ curl -s https://umbot.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaci
 ```
 
 **URLs Tested and Verified**:
-- ✅ https://umbot.com.ar - Main website with professional design
-- ✅ https://umbot.com.ar/servicios - Services listing with 6 active services
-- ✅ https://umbot.com.ar/servicios/1/servicios-it - Individual service pages
-- ✅ https://umbot.com.ar/antecedentes - Complete antecedents index (469 projects)
-- ✅ https://umbot.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones - Individual antecedent pages
+- ✅ https://ultimamilla.com.ar - Main website with professional design
+- ✅ https://ultimamilla.com.ar/servicios - Services listing with 6 active services
+- ✅ https://ultimamilla.com.ar/servicios/1/servicios-it - Individual service pages
+- ✅ https://ultimamilla.com.ar/antecedentes - Complete antecedents index (469 projects)
+- ✅ https://ultimamilla.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones - Individual antecedent pages
 
 **Performance Metrics**:
 - ✅ Average Response Time: <500ms
@@ -10675,9 +10675,9 @@ curl http://127.0.0.1:8055/server/health
   - `docker ps` mostrando `astro-app` (4321), `directus-app` (8055) y `database` activos.
 
 - __Checks HTTP__
-  - `curl -I https://umbot.com.ar` → 200 OK
-  - `curl -I https://umbot.com.ar/antecedentes` → 200 OK
-  - `curl -I https://umbot.com.ar/servicios/2/redes-de-datos` → 200 OK
+  - `curl -I https://ultimamilla.com.ar` → 200 OK
+  - `curl -I https://ultimamilla.com.ar/antecedentes` → 200 OK
+  - `curl -I https://ultimamilla.com.ar/servicios/2/redes-de-datos` → 200 OK
 
 - __Nginx saludable__
   - Sin 502/504 tras corregir `proxy_pass` e IP de contenedor.
@@ -11064,18 +11064,18 @@ const currentUrl = canonical || `${siteUrl}${Astro.url.pathname}`;
    - Slug verification y SEO-friendly redirects implementados
 
 4. **✅ Testing Completo en Producción**
-   - URLs testeadas: https://umbot.com.ar/servicios/2/redes-de-datos
+   - URLs testeadas: https://ultimamilla.com.ar/servicios/2/redes-de-datos
    - Renderizado correcto verificado en vivo
    - Datos desde Directus: ✅ Título, Descripción, Área, Cliente
    - Template desplegado y funcionando en producción
 
 #### URLs de Servicios Verificadas y Operativas:
-- ✅ https://umbot.com.ar/servicios/1/servicios-de-infraestructura-it
-- ✅ https://umbot.com.ar/servicios/2/redes-de-datos  
-- ✅ https://umbot.com.ar/servicios/3/seguridad-informatica
-- ✅ https://umbot.com.ar/servicios/4/servicios-gestionados
-- ✅ https://umbot.com.ar/servicios/5/consultoria-tecnologica
-- ✅ https://umbot.com.ar/servicios/11/desarrollo-web
+- ✅ https://ultimamilla.com.ar/servicios/1/servicios-de-infraestructura-it
+- ✅ https://ultimamilla.com.ar/servicios/2/redes-de-datos  
+- ✅ https://ultimamilla.com.ar/servicios/3/seguridad-informatica
+- ✅ https://ultimamilla.com.ar/servicios/4/servicios-gestionados
+- ✅ https://ultimamilla.com.ar/servicios/5/consultoria-tecnologica
+- ✅ https://ultimamilla.com.ar/servicios/11/desarrollo-web
 
 ### 🚀 CARACTERÍSTICAS NUEVAS IMPLEMENTADAS:
 

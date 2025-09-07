@@ -4,7 +4,7 @@
 # This script checks if the website is responding and logs the results
 
 LOG_FILE="/var/log/umbot-uptime.log"
-URL="https://umbot.com.ar"
+URL="https://ultimamilla.com.ar"
 TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
 
 # Check if site is responding

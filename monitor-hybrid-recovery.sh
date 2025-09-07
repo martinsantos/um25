@@ -6,8 +6,8 @@
 set -e
 
 SERVER="23.105.176.45"
-SITE="https://www.umbot.com.ar"
-ADMIN="https://www.umbot.com.ar/admin"
+SITE="https://www.ultimamilla.com.ar"
+ADMIN="https://www.ultimamilla.com.ar/admin"
 
 echo "🔍 MONITOR RECUPERACIÓN STACK HÍBRIDO"
 echo "═══════════════════════════════════════"
@@ -141,7 +141,7 @@ main() {
             echo "🏆 ¡RECUPERACIÓN COMPLETADA!"
             echo "🌐 Sitio: $SITE"
             echo "🎛️ Admin: $ADMIN"
-            echo "👤 Usuario: admin@umbot.com.ar"
+            echo "👤 Usuario: admin@ultimamilla.com.ar"
             echo "🔑 Password: UmbotHybridAdmin2025!"
             recovery_complete=true
             break

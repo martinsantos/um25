@@ -88,15 +88,15 @@ curl -s http://localhost | grep -i "servicios destacados"
 
 Después del deploy, verificar en el navegador:
 
-1. **HOME (https://www.umbot.com.ar)**
+1. **HOME (https://www.ultimamilla.com.ar)**
    - ❌ NO debe aparecer sección "Servicios Destacados"
    - ✅ DEBE aparecer sección normal de servicios con imágenes
 
-2. **SERVICIOS (https://www.umbot.com.ar/servicios)**
+2. **SERVICIOS (https://www.ultimamilla.com.ar/servicios)**
    - ✅ DEBEN verse las miniaturas de todos los servicios
    - ✅ Imágenes correctas para cada servicio
 
-3. **SERVICIO INDIVIDUAL (https://www.umbot.com.ar/servicios/2/redes-de-datos)**
+3. **SERVICIO INDIVIDUAL (https://www.ultimamilla.com.ar/servicios/2/redes-de-datos)**
    - ✅ DEBE verse la imagen correcta del servicio
    - ✅ NO imagen genérica o equivocada
 

@@ -36,9 +36,9 @@ services:
       DB_DATABASE: directus
       DB_USER: directus
       DB_PASSWORD: directus123
-      ADMIN_EMAIL: admin@umbot.com.ar
+      ADMIN_EMAIL: admin@ultimamilla.com.ar
       ADMIN_PASSWORD: EmergencyAdmin2025!
-      PUBLIC_URL: https://www.umbot.com.ar
+      PUBLIC_URL: https://www.ultimamilla.com.ar
     volumes:
       - directus_simple:/directus/uploads
     networks:

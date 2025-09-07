@@ -35,7 +35,7 @@ echo -e "${BLUE}⚙️ Configurando Nginx...${NC}"
 sudo tee $NGINX_CONF > /dev/null <<EOF
 server {
     listen 80;
-    server_name emergency.umbot.com.ar;
+    server_name emergency.ultimamilla.com.ar;
 
     root $DEPLOY_DIR;
     index index.html;
@@ -108,7 +108,7 @@ fi
 
 # Generar certificado SSL con Let's Encrypt
 echo -e "${BLUE}🔒 Generando certificado SSL...${NC}"
-sudo certbot --nginx -d emergency.umbot.com.ar --non-interactive --agree-tos --email admin@umbot.com.ar
+sudo certbot --nginx -d emergency.ultimamilla.com.ar --non-interactive --agree-tos --email admin@ultimamilla.com.ar
 
 echo -e "${GREEN}✅ Despliegue completado!${NC}"
-echo -e "${GREEN}🌎 La app está disponible en: https://emergency.umbot.com.ar${NC}" 
+echo -e "${GREEN}🌎 La app está disponible en: https://emergency.ultimamilla.com.ar${NC}" 

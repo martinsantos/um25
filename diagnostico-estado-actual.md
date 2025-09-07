@@ -6,19 +6,19 @@
 
 | URL | Estado | Detalle |
 |-----|--------|---------|
-| **http://umbot.com.ar/** | ✅ **FUNCIONA** | HTTP/1.1 200 OK |
-| **http://umbot.com.ar/antecedentes** | ✅ **FUNCIONA** | HTTP/1.1 200 OK (confirmado por usuario) |
-| **http://umbot.com.ar/servicios** | ✅ **FUNCIONA** | HTTP/1.1 200 OK |
-| **DNS umbot.com.ar** | ✅ **FUNCIONA** | Resuelve a 23.105.176.45 |
-| **https://umbot.com.ar/** | ❌ **NO FUNCIONA** | Sin respuesta SSL |
-| **www.umbot.com.ar** | ❌ **NO FUNCIONA** | NXDOMAIN (DNS no propagado) |
+| **http://ultimamilla.com.ar/** | ✅ **FUNCIONA** | HTTP/1.1 200 OK |
+| **http://ultimamilla.com.ar/antecedentes** | ✅ **FUNCIONA** | HTTP/1.1 200 OK (confirmado por usuario) |
+| **http://ultimamilla.com.ar/servicios** | ✅ **FUNCIONA** | HTTP/1.1 200 OK |
+| **DNS ultimamilla.com.ar** | ✅ **FUNCIONA** | Resuelve a 23.105.176.45 |
+| **https://ultimamilla.com.ar/** | ❌ **NO FUNCIONA** | Sin respuesta SSL |
+| **www.ultimamilla.com.ar** | ❌ **NO FUNCIONA** | NXDOMAIN (DNS no propagado) |
 
 ---
 
 ## 📊 **ANÁLISIS DEL PROGRESO:**
 
 ### ✅ **LO QUE YA ESTÁ SOLUCIONADO (75%):**
-- ✅ **DNS principal restaurado** - umbot.com.ar → 23.105.176.45
+- ✅ **DNS principal restaurado** - ultimamilla.com.ar → 23.105.176.45
 - ✅ **Sitio web completamente funcional** - Todas las páginas cargan
 - ✅ **HTTP funcionando** perfectamente
 - ✅ **Servidor nginx operativo** - nginx/1.20.1
@@ -26,7 +26,7 @@
 
 ### ⏳ **LO QUE FALTA POR RESOLVER (25%):**
 - ❌ **HTTPS/SSL** - Configurado en panel pero no activo
-- ❌ **www.umbot.com.ar** - DNS no propagado (aunque está configurado)
+- ❌ **www.ultimamilla.com.ar** - DNS no propagado (aunque está configurado)
 
 ---
 
@@ -36,11 +36,11 @@
 
 **En CiberPanel (configurado):**
 - ✅ Registro A: www → 23.105.176.45 (visible en panel)
-- ✅ SSL: umbot.com.ar + www.umbot.com.ar (activo en panel)
+- ✅ SSL: ultimamilla.com.ar + www.ultimamilla.com.ar (activo en panel)
 
 **En la realidad (funcionando):**
-- ✅ umbot.com.ar → 23.105.176.45 ✅
-- ❌ www.umbot.com.ar → NXDOMAIN ❌
+- ✅ ultimamilla.com.ar → 23.105.176.45 ✅
+- ❌ www.ultimamilla.com.ar → NXDOMAIN ❌
 - ❌ SSL no responde en puerto 443 ❌
 
 ---
@@ -63,14 +63,14 @@
 
 ### **PASO 1: ACTIVAR SSL (5 minutos)**
 En CiberPanel:
-1. **SSL → Manage SSL → umbot.com.ar**
+1. **SSL → Manage SSL → ultimamilla.com.ar**
 2. **Verificar certificados están activos**
-3. **Websites → umbot.com.ar → Force HTTPS**
+3. **Websites → ultimamilla.com.ar → Force HTTPS**
 4. **Actions → Restart Web Server**
 
 ### **PASO 2: ACTIVAR WWW DNS (5 minutos)**
 En CiberPanel:
-1. **DNS → Manage DNS → umbot.com.ar**  
+1. **DNS → Manage DNS → ultimamilla.com.ar**  
 2. **Verificar registro "www" esté guardado**
 3. **DNS → Restart DNS Services**
 4. **Esperar 5-10 minutos propagación**
@@ -80,10 +80,10 @@ En CiberPanel:
 ## 🎉 **RESULTADO ESPERADO FINAL:**
 
 ### **Después de completar ambos pasos:**
-- ✅ `http://umbot.com.ar/` → HTTP 200 OK (ya funciona)
-- ✅ `https://umbot.com.ar/` → HTTP 200 OK con SSL ⏳
-- ✅ `http://www.umbot.com.ar/` → HTTP 200 OK ⏳  
-- ✅ `https://www.umbot.com.ar/` → HTTP 200 OK con SSL ⏳
+- ✅ `http://ultimamilla.com.ar/` → HTTP 200 OK (ya funciona)
+- ✅ `https://ultimamilla.com.ar/` → HTTP 200 OK con SSL ⏳
+- ✅ `http://www.ultimamilla.com.ar/` → HTTP 200 OK ⏳  
+- ✅ `https://www.ultimamilla.com.ar/` → HTTP 200 OK con SSL ⏳
 
 ---
 

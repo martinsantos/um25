@@ -102,7 +102,7 @@ scp -r umbot-emergency-app-dist/* root@servidor:/var/www/emergency/
 ## 📱 URLs de Acceso
 
 ### Producción
-- https://emergency.umbot.com.ar
+- https://emergency.ultimamilla.com.ar
 - https://martinsantos.github.io/umbot-emergency
 
 ### Desarrollo
@@ -111,7 +111,7 @@ scp -r umbot-emergency-app-dist/* root@servidor:/var/www/emergency/
 ## 🔐 Credenciales
 
 ### Directus
-- URL: https://umbot.com.ar/admin
+- URL: https://ultimamilla.com.ar/admin
 - Email: admin@example.com
 - Password: d1r3ctu5
 

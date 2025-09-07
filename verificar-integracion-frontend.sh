@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script para verificar la integración de Directus con el frontend Astro
-# Parte de la implementación de Directus como administrador de contenido para umbot.com.ar
+# Parte de la implementación de Directus como administrador de contenido para ultimamilla.com.ar
 # Fecha: 21 Julio 2025
 
 echo "🔍 VERIFICANDO INTEGRACIÓN DIRECTUS ↔ FRONTEND ASTRO"
@@ -52,10 +52,10 @@ fi
 
 # Verificar URLs públicas
 echo "🌐 Verificando URLs públicas..."
-ssh root@$SERVER_IP "curl -s -I \"https://www.umbot.com.ar/servicios/2/redes-de-datos\" | head -1"
+ssh root@$SERVER_IP "curl -s -I \"https://www.ultimamilla.com.ar/servicios/2/redes-de-datos\" | head -1"
 show_result "URL pública de servicios"
 
-ssh root@$SERVER_IP "curl -s -I \"https://www.umbot.com.ar/antecedentes/10768/isi-solutions\" | head -1"
+ssh root@$SERVER_IP "curl -s -I \"https://www.ultimamilla.com.ar/antecedentes/10768/isi-solutions\" | head -1"
 show_result "URL pública de antecedentes"
 
 # Verificar si los cambios en Directus se reflejan en el frontend

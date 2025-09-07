@@ -51,7 +51,7 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, () => {
     console.log(`🚀 Servidor proxy iniciado en puerto ${PORT}`);
     console.log(`📊 Dashboard disponible en: http://localhost:${PORT}/log/`);
-    console.log(`🌐 Simulando: https://umbot.com.ar/log/`);
+    console.log(`🌐 Simulando: https://ultimamilla.com.ar/log/`);
 });
 
 server.on('error', (err) => {

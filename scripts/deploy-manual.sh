@@ -54,7 +54,7 @@ echo "   docker-compose -f docker-compose.production.yml up -d"
 echo ""
 
 echo "8️⃣ Verificar deployment:"
-echo "   curl -s https://www.umbot.com.ar | grep 'ULTIMA MILLA'"
+echo "   curl -s https://www.ultimamilla.com.ar | grep 'ULTIMA MILLA'"
 echo "   curl -s http://localhost:8055/server/health"
 echo ""
 
@@ -67,7 +67,7 @@ echo "   echo '# Deploy completado manualmente el \$(date)' >> solucionfinal.md"
 echo ""
 
 echo "✅ URLS FINALES:"
-echo "   🌐 Sitio: https://www.umbot.com.ar"
+echo "   🌐 Sitio: https://www.ultimamilla.com.ar"
 echo "   🎛️  Admin: http://23.105.176.45:8055"
 echo ""
 

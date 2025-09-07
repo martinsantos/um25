@@ -4,7 +4,7 @@
 1. **Websites** → **Create Website**
 2. **Domain**: ultimamilla.com.ar
 3. **Admin Email**: tu-email@gmail.com
-4. **Package**: Default o el mismo que umbot.com.ar
+4. **Package**: Default o el mismo que ultimamilla.com.ar
 5. **Create Website**
 
 ## 2. AGREGAR SUBDOMINIOS

@@ -47,7 +47,7 @@ services:
       PUBLIC_ASSETS: true
       ASSETS_TRANSFORM_TOKEN_OPTIONAL: true
       CORS_ENABLED: true
-      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:4321,http://dev.umbot.com.ar}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:4321,http://dev.ultimamilla.com.ar}
       PUBLIC_ROLE: ${PUBLIC_ROLE:-74e3b05e-0f14-422e-9ad3-759d426db60a}
     volumes:
       - directus-dev-uploads:/directus/uploads

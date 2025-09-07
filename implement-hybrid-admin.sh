@@ -81,11 +81,11 @@ services:
       DB_USER: 'myuser'
       DB_PASSWORD: 'mypassword'
       CACHE_ENABLED: 'false'
-      ADMIN_EMAIL: 'admin@umbot.com.ar'
+      ADMIN_EMAIL: 'admin@ultimamilla.com.ar'
       ADMIN_PASSWORD: 'UmbotHybridAdmin2025!'
-      PUBLIC_URL: 'https://www.umbot.com.ar'
+      PUBLIC_URL: 'https://www.ultimamilla.com.ar'
       CORS_ENABLED: 'true'
-      CORS_ORIGIN: 'https://www.umbot.com.ar,http://localhost:4321'
+      CORS_ORIGIN: 'https://www.ultimamilla.com.ar,http://localhost:4321'
       STORAGE_LOCATIONS: 'local'
       STORAGE_LOCAL_DRIVER: 'local'
       STORAGE_LOCAL_ROOT: './uploads'
@@ -119,7 +119,7 @@ services:
     environment:
       NODE_ENV: production
       ASTRO_ENV: production
-      PUBLIC_SITE_URL: https://www.umbot.com.ar
+      PUBLIC_SITE_URL: https://www.ultimamilla.com.ar
       STATIC_MODE: true
       USE_STATIC_DATA: true
     volumes:
@@ -181,17 +181,17 @@ http {
     
     server {
         listen 80;
-        server_name www.umbot.com.ar;
+        server_name www.ultimamilla.com.ar;
         return 301 https://$server_name$request_uri;
     }
     
     server {
         listen 443 ssl http2;
-        server_name www.umbot.com.ar;
+        server_name www.ultimamilla.com.ar;
         
         # Certificados SSL
-        ssl_certificate /etc/letsencrypt/live/www.umbot.com.ar/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/www.umbot.com.ar/privkey.pem;
+        ssl_certificate /etc/letsencrypt/live/www.ultimamilla.com.ar/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/www.ultimamilla.com.ar/privkey.pem;
         
         # Headers de seguridad
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
@@ -245,7 +245,7 @@ http {
             proxy_set_header X-Forwarded-Proto $scheme;
             
             # CORS headers
-            add_header Access-Control-Allow-Origin "https://www.umbot.com.ar" always;
+            add_header Access-Control-Allow-Origin "https://www.ultimamilla.com.ar" always;
             add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
             add_header Access-Control-Allow-Headers "Authorization, Content-Type" always;
             
@@ -288,8 +288,8 @@ cat > .env.hybrid << 'EOF'
 # Configuración híbrida - Sitio estático + Admin dinámico
 NODE_ENV=production
 ASTRO_ENV=production
-PUBLIC_SITE_URL=https://www.umbot.com.ar
-PUBLIC_DOMAIN=www.umbot.com.ar
+PUBLIC_SITE_URL=https://www.ultimamilla.com.ar
+PUBLIC_DOMAIN=www.ultimamilla.com.ar
 
 # Modo híbrido
 STATIC_MODE=true
@@ -297,9 +297,9 @@ USE_STATIC_DATA=true
 ENABLE_ADMIN=true
 
 # Directus API para frontend
-PUBLIC_DIRECTUS_URL=https://www.umbot.com.ar/api
+PUBLIC_DIRECTUS_URL=https://www.ultimamilla.com.ar/api
 DIRECTUS_URL=http://directus-app:8055
-DIRECTUS_ADMIN_EMAIL=admin@umbot.com.ar
+DIRECTUS_ADMIN_EMAIL=admin@ultimamilla.com.ar
 DIRECTUS_ADMIN_PASSWORD=UmbotHybridAdmin2025!
 
 # Base de datos
@@ -317,7 +317,7 @@ ADMIN_TOKEN=UmbotHybridToken2025
 
 # CORS
 CORS_ENABLED=true
-CORS_ORIGIN=https://www.umbot.com.ar,http://localhost:4321
+CORS_ORIGIN=https://www.ultimamilla.com.ar,http://localhost:4321
 
 # Storage
 STORAGE_LOCATIONS=local
@@ -395,12 +395,12 @@ echo ""
 info "🎉 STACK HÍBRIDO IMPLEMENTADO EXITOSAMENTE"
 echo ""
 echo "📋 URLs de acceso:"
-echo "   🌍 Sitio web: https://www.umbot.com.ar"
-echo "   🔧 Admin panel: https://www.umbot.com.ar/admin"
-echo "   📊 API Directus: https://www.umbot.com.ar/api"
+echo "   🌍 Sitio web: https://www.ultimamilla.com.ar"
+echo "   🔧 Admin panel: https://www.ultimamilla.com.ar/admin"
+echo "   📊 API Directus: https://www.ultimamilla.com.ar/api"
 echo ""
 echo "👤 Credenciales de administración:"
-echo "   📧 Usuario: admin@umbot.com.ar"
+echo "   📧 Usuario: admin@ultimamilla.com.ar"
 echo "   🔑 Contraseña: UmbotHybridAdmin2025!"
 echo ""
 echo "🔧 Características implementadas:"
@@ -413,7 +413,7 @@ echo "   ✅ Headers de seguridad configurados"
 echo ""
 
 warn "📝 Próximos pasos recomendados:"
-echo "   1. Acceder a https://www.umbot.com.ar/admin"
+echo "   1. Acceder a https://www.ultimamilla.com.ar/admin"
 echo "   2. Verificar que se pueden editar antecedentes"
 echo "   3. Probar creación/edición de contenido"
 echo "   4. Configurar usuarios adicionales si es necesario"

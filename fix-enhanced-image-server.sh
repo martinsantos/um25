@@ -143,7 +143,7 @@ echo "   🔄 Contenedores completamente reconstruidos"
 
 echo ""
 echo -e "${BLUE}🌐 VERIFICACIÓN FINAL:${NC}"
-echo "   1. Abre: https://www.umbot.com.ar"
+echo "   1. Abre: https://www.ultimamilla.com.ar"
 echo "   2. Presiona Ctrl+Shift+R (recarga forzada)"
 echo "   3. Abre DevTools (F12) y verifica Console por errores"
 echo "   4. Las imágenes deberían cargar ahora en la HOME"

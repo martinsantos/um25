@@ -80,7 +80,7 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?La variable ADMIN_PASSWORD no está definida}
       
       # Configuración de red y URLs  
-      PUBLIC_URL: https://www.umbot.com.ar
+      PUBLIC_URL: https://www.ultimamilla.com.ar
       
       # Configuración de activos
       PUBLIC_ASSETS: "true"
@@ -88,7 +88,7 @@ services:
       
       # CORS
       CORS_ENABLED: "true"
-      CORS_ORIGINS: "https://umbot.com.ar,https://www.umbot.com.ar"
+      CORS_ORIGINS: "https://ultimamilla.com.ar,https://www.ultimamilla.com.ar"
       
       # Rol público
       PUBLIC_ROLE: ${PUBLIC_ROLE:-74e3b05e-0f14-422e-9ad3-759d426db60a}

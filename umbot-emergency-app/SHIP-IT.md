@@ -113,7 +113,7 @@ Después de subir a cualquier servicio, compartir URL
 ```nginx
 server {
     listen 80;
-    server_name emergency.umbot.com.ar;
+    server_name emergency.ultimamilla.com.ar;
     root /var/www/umbot-emergency;
     
     location / {
@@ -125,7 +125,7 @@ server {
 ### Apache
 ```apache
 <VirtualHost *:80>
-    ServerName emergency.umbot.com.ar
+    ServerName emergency.ultimamilla.com.ar
     DocumentRoot /var/www/umbot-emergency
     
     <Directory /var/www/umbot-emergency>
@@ -164,7 +164,7 @@ server {
 - IP Local: http://[tu-ip]:8002
 
 ### Producción (después de deploy)
-- Principal: https://emergency.umbot.com.ar
+- Principal: https://emergency.ultimamilla.com.ar
 - Backup: https://umbot-emergency.netlify.app
 - GitHub: https://[usuario].github.io/[repo]/umbot-emergency-app
 

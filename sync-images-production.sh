@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script para sincronizar imágenes de servicios al servidor de producción
-# Soluciona el problema de imágenes no mostradas en https://www.umbot.com.ar/servicios
+# Soluciona el problema de imágenes no mostradas en https://www.ultimamilla.com.ar/servicios
 
 set -e
 
@@ -112,7 +112,7 @@ echo -e "${YELLOW}📋 RESUMEN:${NC}"
 echo "   🖼️  Imágenes sincronizadas a: $SERVER_IP:$PROJECT_DIR/public/images/services/"
 echo "   💾 Backup creado en: $BACKUP_DIR"
 echo "   🔄 Contenedores reiniciados"
-echo "   🌐 Prueba el sitio: https://www.umbot.com.ar/servicios"
+echo "   🌐 Prueba el sitio: https://www.ultimamilla.com.ar/servicios"
 echo ""
 echo -e "${BLUE}💡 Si las imágenes aún no aparecen:${NC}"
 echo "   1. Limpia caché del navegador (Ctrl+F5)"

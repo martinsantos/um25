@@ -133,7 +133,7 @@ verify_deployment() {
     log "🧪 Verificando deployment..."
     
     # Test de conectividad básica
-    if curl -s --max-time 10 https://www.umbot.com.ar > /dev/null; then
+    if curl -s --max-time 10 https://www.ultimamilla.com.ar > /dev/null; then
         log "✅ Sitio principal accesible"
     else
         error "❌ Sitio principal no accesible"
@@ -149,9 +149,9 @@ verify_deployment() {
     
     # Test de páginas principales
     local urls=(
-        "https://www.umbot.com.ar/"
-        "https://www.umbot.com.ar/servicios"
-        "https://www.umbot.com.ar/antecedentes"
+        "https://www.ultimamilla.com.ar/"
+        "https://www.ultimamilla.com.ar/servicios"
+        "https://www.ultimamilla.com.ar/antecedentes"
     )
     
     for url in "${urls[@]}"; do
@@ -216,7 +216,7 @@ update_documentation() {
 - ✅ Documentación completa
 
 ### 🔄 ESTADO FINAL
-- **URL Actual**: https://www.umbot.com.ar
+- **URL Actual**: https://www.ultimamilla.com.ar
 - **URL Objetivo**: https://www.ultimamilla.com.ar (preparado para migración)
 - **Estado**: ✅ PRODUCCIÓN OPTIMIZADA
 - **Performance**: Mejorado ~40%
@@ -264,7 +264,7 @@ main() {
     log "🎉 DEPLOYMENT COMPLETADO EXITOSAMENTE!"
     log "=================================="
     log ""
-    log "✅ Sitio optimizado: https://www.umbot.com.ar"
+    log "✅ Sitio optimizado: https://www.ultimamilla.com.ar"
     log "✅ Admin Directus: http://23.105.176.45:8055"
     log "✅ SEO optimizado para ULTIMA MILLA"
     log "✅ Performance mejorado"

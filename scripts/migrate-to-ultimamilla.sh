@@ -1,17 +1,17 @@
 #!/bin/bash
 
 # ==============================================
-# Script de Migración: umbot.com.ar → ultimamilla.com.ar
+# Script de Migración: ultimamilla.com.ar → ultimamilla.com.ar
 # ==============================================
 
 set -e
 
-echo "🌐 INICIANDO MIGRACIÓN DE DOMINIO: umbot.com.ar → ultimamilla.com.ar"
+echo "🌐 INICIANDO MIGRACIÓN DE DOMINIO: ultimamilla.com.ar → ultimamilla.com.ar"
 echo "=============================================================="
 
 # Variables de configuración
 NEW_DOMAIN="ultimamilla.com.ar"
-OLD_DOMAIN="umbot.com.ar"
+OLD_DOMAIN="ultimamilla.com.ar"
 SERVER_IP="23.105.176.45"
 SERVER_USER="root"
 
@@ -157,7 +157,7 @@ cat > INSTRUCCIONES-CYBERPANEL.md << EOF
 1. **Websites** → **Create Website**
 2. **Domain**: ultimamilla.com.ar
 3. **Admin Email**: tu-email@gmail.com
-4. **Package**: Default o el mismo que umbot.com.ar
+4. **Package**: Default o el mismo que ultimamilla.com.ar
 5. **Create Website**
 
 ## 2. AGREGAR SUBDOMINIOS

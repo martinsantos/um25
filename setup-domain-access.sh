@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# 🌐 CONFIGURAR ACCESO VIA DOMINIO www.umbot.com.ar
+# 🌐 CONFIGURAR ACCESO VIA DOMINIO www.ultimamilla.com.ar
 echo "🚀 ================================================"
-echo "   CONFIGURANDO ACCESO VIA www.umbot.com.ar"
+echo "   CONFIGURANDO ACCESO VIA www.ultimamilla.com.ar"
 echo "   Nginx Proxy → Astro Original (Puerto 4321)"
 echo "================================================"
 
@@ -46,10 +46,10 @@ http {
         server directus-app:8055;
     }
     
-    # Servidor principal para www.umbot.com.ar
+    # Servidor principal para www.ultimamilla.com.ar
     server {
         listen 80;
-        server_name www.umbot.com.ar umbot.com.ar;
+        server_name www.ultimamilla.com.ar ultimamilla.com.ar;
         
         # Security headers
         add_header X-Frame-Options \"DENY\" always;
@@ -130,11 +130,11 @@ http {
     # Redirección HTTPS (para cuando se configure SSL)
     server {
         listen 443 ssl http2;
-        server_name www.umbot.com.ar umbot.com.ar;
+        server_name www.ultimamilla.com.ar ultimamilla.com.ar;
         
         # SSL configuration (cuando esté disponible)
-        # ssl_certificate /etc/letsencrypt/live/www.umbot.com.ar/fullchain.pem;
-        # ssl_certificate_key /etc/letsencrypt/live/www.umbot.com.ar/privkey.pem;
+        # ssl_certificate /etc/letsencrypt/live/www.ultimamilla.com.ar/fullchain.pem;
+        # ssl_certificate_key /etc/letsencrypt/live/www.ultimamilla.com.ar/privkey.pem;
         
         # Por ahora, redirigir a HTTP
         return 301 http://\$server_name\$request_uri;
@@ -189,15 +189,15 @@ execute_remote "docker logs nginx-proxy --tail=10"
 
 # 6. Verificar acceso por dominio
 echo "🌐 Verificando acceso por dominio..."
-echo "1. Verificando www.umbot.com.ar..."
-if execute_remote "curl -I -H 'Host: www.umbot.com.ar' http://localhost/ 2>/dev/null | head -1 | grep -q '200'"; then
-    echo "   ✅ www.umbot.com.ar funcionando"
+echo "1. Verificando www.ultimamilla.com.ar..."
+if execute_remote "curl -I -H 'Host: www.ultimamilla.com.ar' http://localhost/ 2>/dev/null | head -1 | grep -q '200'"; then
+    echo "   ✅ www.ultimamilla.com.ar funcionando"
 else
-    echo "   ⚠️  www.umbot.com.ar iniciando..."
+    echo "   ⚠️  www.ultimamilla.com.ar iniciando..."
 fi
 
 echo "2. Verificando admin panel..."
-if execute_remote "curl -I -H 'Host: www.umbot.com.ar' http://localhost/admin 2>/dev/null | head -1 | grep -q '302\\|200'"; then
+if execute_remote "curl -I -H 'Host: www.ultimamilla.com.ar' http://localhost/admin 2>/dev/null | head -1 | grep -q '302\\|200'"; then
     echo "   ✅ Panel admin accesible"
 else
     echo "   ⚠️  Panel admin iniciando..."
@@ -205,7 +205,7 @@ fi
 
 # 7. Verificar desde internet
 echo "3. Verificando acceso externo..."
-if curl -I http://www.umbot.com.ar 2>/dev/null | head -1 | grep -q '200'; then
+if curl -I http://www.ultimamilla.com.ar 2>/dev/null | head -1 | grep -q '200'; then
     echo "   ✅ Sitio accesible desde internet"
 else
     echo "   ⚠️  DNS propagando o sitio iniciando..."
@@ -218,9 +218,9 @@ echo "   SITIO ACCESIBLE VIA DOMINIO"
 echo "================================================"
 echo ""
 echo "📱 URLs de Acceso:"
-echo "   🌍 Sitio Web:    http://www.umbot.com.ar"
-echo "   🌍 Sitio Web:    https://www.umbot.com.ar (redirige a HTTP)"
-echo "   🔧 Admin Panel:  http://www.umbot.com.ar/admin"
+echo "   🌍 Sitio Web:    http://www.ultimamilla.com.ar"
+echo "   🌍 Sitio Web:    https://www.ultimamilla.com.ar (redirige a HTTP)"
+echo "   🔧 Admin Panel:  http://www.ultimamilla.com.ar/admin"
 echo "   📊 Credenciales: admin@example.com / d1r3ctu5"
 echo ""
 echo "🔧 Acceso directo (backup):"

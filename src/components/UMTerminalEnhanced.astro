@@ -278,13 +278,27 @@
   }
 
   .ascii-art {
-    color: #00d4aa;
-    font-size: 12px;
+    color: #00ffaa;
+    font-size: 9px;
     margin-bottom: 24px;
     text-shadow: 
-      0 0 10px rgba(0, 212, 170, 0.5),
-      0 0 20px rgba(0, 212, 170, 0.2);
-    filter: drop-shadow(0 0 5px rgba(0, 212, 170, 0.3));
+      0 0 10px rgba(0, 255, 170, 0.6),
+      0 0 20px rgba(0, 255, 170, 0.3),
+      0 0 30px rgba(0, 255, 170, 0.1);
+    filter: drop-shadow(0 0 8px rgba(0, 255, 170, 0.4));
+    font-family: 'Fira Code', 'JetBrains Mono', 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+    line-height: 0.9;
+    white-space: pre;
+    overflow-x: auto;
+    font-weight: 400;
+    letter-spacing: -0.3px;
+    text-align: center;
+    background: rgba(0, 255, 170, 0.02);
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 255, 170, 0.15);
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .welcome-info {
@@ -556,6 +570,12 @@
     .cursor-blink {
       height: 18px;
     }
+    
+    .ascii-art {
+      font-size: 8px;
+      line-height: 0.85;
+      letter-spacing: -0.35px;
+    }
   }
 
   @media (max-width: 480px) {
@@ -581,7 +601,10 @@
     }
 
     .ascii-art {
-      font-size: 10px;
+      font-size: 7px;
+      line-height: 0.8;
+      letter-spacing: -0.4px;
+      padding: 12px;
     }
 
     .welcome-line {
@@ -684,3 +707,178 @@
     }
   }
 </style>
+
+<script>
+  // Enhanced Terminal Initialization Script - Embedded for Reliability
+  class UMTerminalEnhancedInit {
+    constructor() {
+      this.init();
+    }
+
+    async init() {
+      // Ensure DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => this.initializeTerminal());
+      } else {
+        this.initializeTerminal();
+      }
+    }
+
+    async initializeTerminal() {
+      try {
+        // Check if elements exist
+        const container = document.getElementById('um-terminal-enhanced');
+        const input = document.getElementById('terminal-input');
+        const output = document.getElementById('terminal-output');
+        const welcomeAscii = document.getElementById('welcome-ascii');
+        
+        if (!container || !input || !output) {
+          console.warn('UM Terminal Enhanced: Required elements not found');
+          return;
+        }
+
+        console.log('✓ UM Terminal Enhanced: Elements found, initializing...');
+
+        // Try to load and initialize external enhanced terminal
+        try {
+          if (window.EnhancedTerminal) {
+            const terminal = new window.EnhancedTerminal('um-terminal-enhanced');
+            window.umTerminal = terminal;
+            console.log('✓ UM Terminal Enhanced: External script initialized');
+            return;
+          }
+        } catch (error) {
+          console.warn('UM Terminal Enhanced: External script failed, using fallback:', error);
+        }
+
+        // Fallback: Basic terminal functionality
+        this.initializeFallbackTerminal(container, input, output, welcomeAscii);
+        
+      } catch (error) {
+        console.error('UM Terminal Enhanced: Initialization failed:', error);
+      }
+    }
+
+    initializeFallbackTerminal(container, input, output, welcomeAscii) {
+      console.log('✓ UM Terminal Enhanced: Using fallback initialization');
+      
+      // Display ASCII art
+      if (welcomeAscii) {
+        const asciiArt = `
+
+ ██    ██ ██   ████████ ██ ███    ███  █████      ███    ███ ██ ██       ██        █████  
+ ██    ██ ██      ██    ██ ████  ████ ██   ██     ████  ████ ██ ██       ██       ██   ██ 
+ ██    ██ ██      ██    ██ ██ ████ ██ ███████     ██ ████ ██ ██ ██       ██       ███████ 
+ ██    ██ ██      ██    ██ ██  ██  ██ ██   ██     ██  ██  ██ ██ ██       ██       ██   ██ 
+  ██████  ███████ ██    ██ ██      ██ ██   ██     ██      ██ ██ ███████ ███████   ██   ██ 
+                                                                                            
+        ════════════════════════════════════════════════════════════════════════════
+        ║  🏢 EMPRESA TECNOLÓGICA LÍDER EN MENDOZA DESDE 2003  🚀              ║
+        ║  💻 DESARROLLO WEB • APPS • SISTEMAS • INFRAESTRUCTURA • SEGURIDAD   ║
+        ║  📊 +469 PROYECTOS EXITOSOS • +150 CLIENTES SATISFECHOS             ║
+        ════════════════════════════════════════════════════════════════════════════
+`;
+        
+        this.typeText(welcomeAscii, asciiArt, 20);
+      }
+
+      // Animate welcome lines
+      const welcomeLines = document.querySelectorAll('.welcome-line');
+      welcomeLines.forEach((line, index) => {
+        const delay = parseInt(line.dataset.delay) || 0;
+        setTimeout(() => {
+          line.classList.add('visible');
+          line.style.opacity = '1';
+          line.style.transform = 'translateY(0)';
+        }, delay + 1000); // Delay after ASCII
+      });
+
+      // Basic input handling
+      if (input) {
+        input.focus();
+        
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            const command = input.value.trim();
+            if (command) {
+              this.executeBasicCommand(command, input, output);
+            }
+          }
+        });
+
+        // Click to focus
+        container.addEventListener('click', () => {
+          input.focus();
+        });
+      }
+
+      console.log('✓ UM Terminal Enhanced: Fallback terminal ready');
+    }
+
+    async typeText(element, text, speed = 50) {
+      return new Promise(resolve => {
+        element.textContent = '';
+        let i = 0;
+        const interval = setInterval(() => {
+          if (i < text.length) {
+            element.textContent += text.charAt(i);
+            i++;
+          } else {
+            clearInterval(interval);
+            resolve();
+          }
+        }, speed);
+      });
+    }
+
+    executeBasicCommand(command, input, output) {
+      // Add command to output
+      const commandLine = document.createElement('div');
+      commandLine.className = 'command-input';
+      commandLine.style.cssText = 'color: #e6edf3; margin: 12px 0 8px 0; font-weight: 600;';
+      commandLine.textContent = `visitante@ultimamilla:~$ ${command}`;
+      output.appendChild(commandLine);
+
+      // Basic command responses
+      const response = document.createElement('div');
+      response.className = 'command-output';
+      response.style.cssText = 'margin: 16px 0; white-space: pre-wrap; word-wrap: break-word; line-height: 1.4; color: #7ee787;';
+
+      if (command === 'help') {
+        response.textContent = `Comandos disponibles:
+- help: Mostrar esta ayuda
+- clear: Limpiar pantalla
+- about: Información de ULTIMA MILLA
+- services: Nuestros servicios
+- contact: Información de contacto`;
+      } else if (command === 'clear') {
+        // Clear output except welcome message
+        const welcomeMessage = output.querySelector('.welcome-message');
+        output.innerHTML = '';
+        if (welcomeMessage) {
+          output.appendChild(welcomeMessage);
+        }
+        input.value = '';
+        return;
+      } else if (command === 'about') {
+        response.textContent = `ULTIMA MILLA - Empresa IT líder en Mendoza\n\n📍 Mendoza, Argentina\n📅 Desde 2003\n🚀 +469 proyectos exitosos\n🏢 +150 clientes satisfechos\n💡 Especialistas en transformación digital`;
+      } else if (command === 'services') {
+        response.textContent = `Nuestros servicios:\n\n🖥️  Desarrollo Web & Apps\n🔧 Infraestructura IT\n🛡️  Seguridad Informática\n📡 Redes de Datos\n☁️  Cloud Computing\n📊 Business Intelligence`;
+      } else if (command === 'contact') {
+        response.textContent = `📞 Contacto ULTIMA MILLA:\n\n🌐 Web: https://ultimamilla.com.ar\n📧 Email: contacto@ultimamilla.com.ar\n📱 WhatsApp: +54 261 123-4567\n📍 Dirección: Av. San Martín 1234, Mendoza`;
+      } else {
+        response.textContent = `Comando '${command}' no reconocido. Escribe 'help' para ver comandos disponibles.`;
+        response.style.color = '#f85149';
+      }
+
+      output.appendChild(response);
+      input.value = '';
+      
+      // Scroll to bottom
+      output.scrollTop = output.scrollHeight;
+    }
+  }
+
+  // Initialize when script loads
+  new UMTerminalEnhancedInit();
+</script>

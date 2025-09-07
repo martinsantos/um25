@@ -109,8 +109,8 @@ ssh root@23.105.176.45 "cd /root/fumbling-field && docker-compose -f docker-comp
 # .env.production (creado automáticamente)
 NODE_ENV=production
 ASTRO_ENV=production
-PUBLIC_SITE_URL=https://www.umbot.com.ar
-PUBLIC_DOMAIN=www.umbot.com.ar
+PUBLIC_SITE_URL=https://www.ultimamilla.com.ar
+PUBLIC_DOMAIN=www.ultimamilla.com.ar
 STATIC_MODE=true
 USE_STATIC_DATA=true
 ```
@@ -129,9 +129,9 @@ USE_STATIC_DATA=true
 
 ### **Producción**
 - **IP Directa**: http://23.105.176.45/
-- **Dominio**: https://www.umbot.com.ar/
-- **Antecedentes**: https://www.umbot.com.ar/antecedentes
-- **Servicios**: https://www.umbot.com.ar/servicios
+- **Dominio**: https://www.ultimamilla.com.ar/
+- **Antecedentes**: https://www.ultimamilla.com.ar/antecedentes
+- **Servicios**: https://www.ultimamilla.com.ar/servicios
 
 ### **Local (Desarrollo)**
 - **Astro**: http://localhost:4321/
@@ -221,7 +221,7 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:8055/collections
 
 1. **Ejecutar despliegue**: `./deploy-production-complete.sh`
 2. **Verificar funcionamiento**: Acceder a http://23.105.176.45/
-3. **Configurar dominio**: Apuntar www.umbot.com.ar al servidor
+3. **Configurar dominio**: Apuntar www.ultimamilla.com.ar al servidor
 4. **Configurar SSL**: Certificado HTTPS para el dominio
 5. **Monitoreo**: Configurar alertas y backups automáticos
 

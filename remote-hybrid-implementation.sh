@@ -54,8 +54,8 @@ echo "🏥 Verificando salud de Directus..."
 timeout 60 bash -c 'until curl -f http://localhost:8055/server/health 2>/dev/null; do echo "Esperando Directus..."; sleep 5; done' || echo "⚠️ Directus aún iniciando"
 
 echo "✅ IMPLEMENTACIÓN HÍBRIDA COMPLETADA"
-echo "🌐 Sitio: https://www.umbot.com.ar"
-echo "🎛️ Admin: https://www.umbot.com.ar/admin"
-echo "📊 Usuario: admin@umbot.com.ar"
+echo "🌐 Sitio: https://www.ultimamilla.com.ar"
+echo "🎛️ Admin: https://www.ultimamilla.com.ar/admin"
+echo "📊 Usuario: admin@ultimamilla.com.ar"
 echo "🔑 Pass: UmbotHybridAdmin2025!"
 

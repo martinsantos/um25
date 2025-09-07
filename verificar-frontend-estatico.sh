@@ -10,7 +10,7 @@ echo ""
 
 # Variables
 SERVER_IP="23.105.176.45"
-DOMAIN="www.umbot.com.ar"
+DOMAIN="www.ultimamilla.com.ar"
 
 # Función para verificar URL
 check_url() {

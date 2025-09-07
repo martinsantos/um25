@@ -2,11 +2,11 @@
 
 # Script de Despliegue para Producción - UM25-0.3
 # Ultima Milla - Deploy to Production
-# Servidor: 23.105.176.45 - Dominio: www.umbot.com.ar
+# Servidor: 23.105.176.45 - Dominio: www.ultimamilla.com.ar
 
 set -e
 
-echo "🚀 Iniciando despliegue de UM25-0.3 a producción en www.umbot.com.ar..."
+echo "🚀 Iniciando despliegue de UM25-0.3 a producción en www.ultimamilla.com.ar..."
 
 # Colores para output
 RED='\033[0;31m'
@@ -17,7 +17,7 @@ NC='\033[0m' # No Color
 
 # Variables del servidor
 SERVER_IP="23.105.176.45"
-DOMAIN="www.umbot.com.ar"
+DOMAIN="www.ultimamilla.com.ar"
 SSH_USER="root"
 
 # Función para logging
@@ -73,8 +73,8 @@ if [ ! -f ".env.production" ]; then
     warn "Archivo .env.production no encontrado. Creando desde .env..."
     cp .env .env.production
     # Actualizar URL para producción
-    sed -i.bak "s|DIRECTUS_URL=.*|DIRECTUS_URL=https://www.umbot.com.ar/api|g" .env.production
-    sed -i.bak "s|PUBLIC_SITE_URL=.*|PUBLIC_SITE_URL=https://www.umbot.com.ar|g" .env.production
+    sed -i.bak "s|DIRECTUS_URL=.*|DIRECTUS_URL=https://www.ultimamilla.com.ar/api|g" .env.production
+    sed -i.bak "s|PUBLIC_SITE_URL=.*|PUBLIC_SITE_URL=https://www.ultimamilla.com.ar|g" .env.production
 fi
 
 # Verificar Docker
@@ -98,8 +98,8 @@ mkdir -p ssl
 if [ ! -f "ssl/fullchain.pem" ] || [ ! -f "ssl/privkey.pem" ]; then
     warn "Certificados SSL no encontrados en ssl/"
     warn "Asegúrate de tener los certificados SSL antes del despliegue"
-    warn "Puedes usar Let's Encrypt: certbot certonly --webroot -w /var/www/certbot -d www.umbot.com.ar -d umbot.com.ar"
-    warn "O copiar desde CyberPanel: /etc/letsencrypt/live/www.umbot.com.ar/"
+    warn "Puedes usar Let's Encrypt: certbot certonly --webroot -w /var/www/certbot -d www.ultimamilla.com.ar -d ultimamilla.com.ar"
+    warn "O copiar desde CyberPanel: /etc/letsencrypt/live/www.ultimamilla.com.ar/"
 fi
 
 # Backup de datos existentes (si existen)
@@ -201,9 +201,9 @@ docker-compose -f docker-compose.prod.yml ps
 
 # Información de acceso
 log "🌐 URLs de acceso:"
-echo -e "${BLUE}Frontend:${NC} http://localhost (https://www.umbot.com.ar en producción)"
-echo -e "${BLUE}API Directus:${NC} http://localhost/api (https://www.umbot.com.ar/api en producción)"
-echo -e "${BLUE}Admin Directus:${NC} http://localhost/api/admin (https://www.umbot.com.ar/api/admin en producción)"
+echo -e "${BLUE}Frontend:${NC} http://localhost (https://www.ultimamilla.com.ar en producción)"
+echo -e "${BLUE}API Directus:${NC} http://localhost/api (https://www.ultimamilla.com.ar/api en producción)"
+echo -e "${BLUE}Admin Directus:${NC} http://localhost/api/admin (https://www.ultimamilla.com.ar/api/admin en producción)"
 echo -e "${BLUE}CyberPanel:${NC} https://$SERVER_IP:8090"
 
 # Comandos útiles
@@ -216,7 +216,7 @@ echo -e "${BLUE}SSH al servidor:${NC} ssh $SSH_USER@$SERVER_IP"
 
 # Información de SSL
 log "🔒 Configuración SSL:"
-echo -e "${BLUE}Certificados:${NC} /etc/letsencrypt/live/www.umbot.com.ar/"
+echo -e "${BLUE}Certificados:${NC} /etc/letsencrypt/live/www.ultimamilla.com.ar/"
 echo -e "${BLUE}Renovar SSL:${NC} certbot renew"
 echo -e "${BLUE}CyberPanel SSL:${NC} Administrar desde https://$SERVER_IP:8090"
 
@@ -243,9 +243,9 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     log "Tests de smoke completados"
 fi
 
-log "🚀 Despliegue finalizado. ¡UM25-0.3 está en producción en www.umbot.com.ar!"
+log "🚀 Despliegue finalizado. ¡UM25-0.3 está en producción en www.ultimamilla.com.ar!"
 log "📋 Próximos pasos:"
-echo -e "${BLUE}1.${NC} Configurar DNS para apuntar www.umbot.com.ar a $SERVER_IP"
-echo -e "${BLUE}2.${NC} Configurar SSL en CyberPanel para www.umbot.com.ar"
+echo -e "${BLUE}1.${NC} Configurar DNS para apuntar www.ultimamilla.com.ar a $SERVER_IP"
+echo -e "${BLUE}2.${NC} Configurar SSL en CyberPanel para www.ultimamilla.com.ar"
 echo -e "${BLUE}3.${NC} Verificar que el firewall permita puertos 80 y 443"
 echo -e "${BLUE}4.${NC} Monitorear logs: docker-compose -f docker-compose.prod.yml logs -f" 

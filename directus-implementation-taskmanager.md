@@ -26,7 +26,7 @@
 
 ### ✅ **TASK 1.1: Verificar conectividad con servidor**
 - **Estado:** ✅ COMPLETADO
-- **Comando:** `curl -I https://www.umbot.com.ar/admin`
+- **Comando:** `curl -I https://www.ultimamilla.com.ar/admin`
 - **Esperado:** HTTP 200 OK
 - **Resultado:** ✅ SSH funcionando, contenedores reiniciados exitosamente
 
@@ -168,7 +168,7 @@
 
 ### ✅ **TASK 4.1: Acceder al panel de administración**
 - **Estado:** ✅ COMPLETADO
-- **URL:** https://www.umbot.com.ar/admin
+- **URL:** https://www.ultimamilla.com.ar/admin
 - **Credenciales:** `admin@example.com:d1r3ctu5`
 - **Resultado:** ✅ Acceso exitoso al panel de administración
 
@@ -193,8 +193,8 @@
 - **Estado:** ✅ COMPLETADO
 - **Comandos de prueba:**
   ```bash
-  curl "https://www.umbot.com.ar/items/servicios?limit=5"
-  curl "https://www.umbot.com.ar/items/Antecedentes?limit=5"
+  curl "https://www.ultimamilla.com.ar/items/servicios?limit=5"
+  curl "https://www.ultimamilla.com.ar/items/Antecedentes?limit=5"
   ```
 - **Esperado:** JSON sin necesidad de autenticación
 - **Resultado:** ✅ APIs accesibles sin autenticación
@@ -206,8 +206,8 @@
 ### ✅ **TASK 5.1: Verificar frontend estático no afectado**
 - **Estado:** ✅ COMPLETADO
 - **URLs a probar:**
-  - https://www.umbot.com.ar/servicios/2/redes-de-datos
-  - https://www.umbot.com.ar/antecedentes/
+  - https://www.ultimamilla.com.ar/servicios/2/redes-de-datos
+  - https://www.ultimamilla.com.ar/antecedentes/
 - **Esperado:** Contenido estático funcionando normalmente
 - **Resultado:** ✅ Frontend estático funcionando sin interferencias
 
@@ -250,7 +250,7 @@
 - ✅ `http://23.105.176.45:8055/items/Servicios` → JSON con servicios
 - ✅ `http://23.105.176.45:8055/items/Antecedentes` → JSON con antecedentes
 - ✅ `http://23.105.176.45:8055/admin` → Panel de administración
-- ✅ `https://www.umbot.com.ar/servicios/2/redes-de-datos` → Página estática (sin cambios)
+- ✅ `https://www.ultimamilla.com.ar/servicios/2/redes-de-datos` → Página estática (sin cambios)
 
 ---
 

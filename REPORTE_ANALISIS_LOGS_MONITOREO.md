@@ -90,7 +90,7 @@ npm audit fix --force
 # Cambiar en docker-compose.yml: directus/directus:11.10.1
 
 # 2. Configurar PUBLIC_URL correctamente
-PUBLIC_URL=https://www.umbot.com.ar
+PUBLIC_URL=https://www.ultimamilla.com.ar
 
 # 3. Opcional: Instalar PostGIS para soporte geométrico
 # Agregar al contenedor PostgreSQL
@@ -107,8 +107,8 @@ PUBLIC_URL=https://www.umbot.com.ar
 ### Análisis de Configuración SSL
 ```nginx
 # Configuración SSL detectada:
-ssl_certificate /etc/letsencrypt/live/www.umbot.com.ar/fullchain.pem
-ssl_certificate_key /etc/letsencrypt/live/www.umbot.com.ar/privkey.pem
+ssl_certificate /etc/letsencrypt/live/www.ultimamilla.com.ar/fullchain.pem
+ssl_certificate_key /etc/letsencrypt/live/www.ultimamilla.com.ar/privkey.pem
 ssl_protocols TLSv1.2 TLSv1.3
 ssl_ciphers HIGH:!aNULL:!MD5
 ```
@@ -125,7 +125,7 @@ ssl_ciphers HIGH:!aNULL:!MD5
 ### Configuración Actual
 ```nginx
 # En nginx-ssl-complete.conf:
-server_name www.umbot.com.ar umbot.com.ar;
+server_name www.ultimamilla.com.ar ultimamilla.com.ar;
 return 301 https://$server_name$request_uri;
 ```
 
