@@ -877,212 +877,57 @@ const antecedentes = {
 </script>
 
 <!-- Script único del terminal CLI -->
-<script src="/UMCliPlugin.js" defer></script>
-
-<!-- Script único del terminal CLI optimizado -->
 <script>
-  // Script principal del CLI - Versión única y mejorada
-  document.addEventListener('DOMContentLoaded', () => {
-    // Verificar que el UMCliPlugin esté disponible
-    if (typeof UMCliPlugin !== 'undefined') {
-      console.log('✅ UMCliPlugin disponible, inicializando...');
-      
-      try {
-        const umCli = new UMCliPlugin({
-          container: '#um-cli-container',
-          theme: 'dark',
-          showWelcome: true,
-          autoFocus: false, // No autoenfocamos para evitar scroll automático
-          customCommands: {
-            // Comando personalizado para contacto
-            'contacto': async () => ({
-              success: true,
-              output: `
-📞 INFORMACIÓN DE CONTACTO - ULTIMA MILLA
-
-🏢 Oficina Principal
-📍 Mendoza, Argentina
-📧 info@ultimamilla.com
-🌐 www.ultimamilla.com
-📱 WhatsApp: +54 261 XXX-XXXX
-
-💼 Áreas de Contacto:
-• Ventas: ventas@ultimamilla.com
-• Soporte: soporte@ultimamilla.com  
-• Proyectos: proyectos@ultimamilla.com
-• RRHH: rrhh@ultimamilla.com
-
-⏰ Horarios de atención:
-Lunes a Viernes: 9:00 - 18:00 ART
-Soporte 24/7 para clientes premium
-
-¿Listo para conectar el futuro juntos? 🚀`
-            }),
-
-            // Comando de presupuesto
-            'presupuesto': async () => ({
-              success: true,
-              output: `
-💰 SOLICITAR PRESUPUESTO - ULTIMA MILLA
-
-📋 Para generar un presupuesto personalizado, proporcionanos:
-
-🔧 TIPO DE PROYECTO:
-• Redes y comunicaciones
-• Software a medida  
-• Sistemas de seguridad (CCTV/SDI)
-• Soporte IT y mantenimiento
-• Consultoría tecnológica
-
-📏 ALCANCE:
-• Pequeño (< $500K)
-• Mediano ($500K - $2M) 
-• Grande ($2M - $5M)
-• Enterprise (> $5M)
-
-📞 CONTACTA CON NUESTRO EQUIPO:
-• Email: presupuestos@ultimamilla.com
-• Formulario web: www.ultimamilla.com/presupuesto
-• WhatsApp: +54 261 XXX-XXXX
-
-⚡ Respuesta en 24-48 horas hábiles
-🎯 22 años de experiencia nos respaldan`
-            }),
-
-            // Comando servicios
-            'servicios': async () => ({
-              success: true,
-              output: `
-📋 NUESTROS SERVICIOS - ULTIMA MILLA
-
-🔒 SEGURIDAD INFORMÁTICA
-• Protección integral de sistemas y datos
-• CCTV y videovigilancia
-• Auditorías de seguridad
-
-💻 REDES Y COMUNICACIONES  
-• Infraestructura de red empresarial
-• Comunicaciones unificadas
-• Conectividad avanzada
-
-⚙️ SOFTWARE Y SERVICIOS
-• Desarrollo a medida
-• Integración de sistemas
-• Consultoría tecnológica
-
-📞 Más info: /servicios`
-            }),
-
-            // Comando antecedentes
-            'antecedentes': async () => ({
-              success: true,
-              output: `
-🏆 NUESTROS CASOS DE ÉXITO - ULTIMA MILLA
-
-📊 ESTADÍSTICAS:
-• 469+ proyectos completados
-• 22 años de experiencia
-• Clientes en toda Argentina
-• Sectores: Gobierno, Privado, ONG
-
-🎯 PROYECTOS DESTACADOS:
-• Sistemas críticos gubernamentales
-• Infraestructura empresarial
-• Soluciones personalizadas
-
-🌐 Ver casos completos: /antecedentes`
-            })
-          }
-        });
-        
-        console.log('✅ UM CLI inicializado correctamente');
-        
-        // Event listeners para los botones de sugerencias compactos
-        const suggestionButtons = document.querySelectorAll('.suggestion-compact-btn');
-        suggestionButtons.forEach(button => {
-          button.addEventListener('click', (e) => {
-            const command = e.currentTarget.getAttribute('data-command');
-            if (command && umCli) {
-              umCli.executeCommandProgrammatically(command);
-              umCli.focus();
-              
-              // Scroll suave hacia el terminal
-              document.getElementById('um-cli-container').scrollIntoView({
-                behavior: 'smooth',
-                block: 'center'
-              });
+  // VERSIÓN FINAL: Un solo UMCliPlugin, sin duplicados
+  
+  // Prevenir múltiples inicializaciones
+  if (!window.umCliInitialized) {
+    window.umCliInitialized = true;
+    
+    // Cargar UMCliPlugin dinámicamente
+    const script = document.createElement('script');
+    script.src = '/UMCliPlugin.js';
+    script.onload = () => {
+      document.addEventListener('DOMContentLoaded', () => {
+        if (typeof UMCliPlugin !== 'undefined') {
+          console.log('✅ UM CLI inicializando (versión única)...');
+          
+          const umCli = new UMCliPlugin({
+            container: '#um-cli-container',
+            theme: 'dark',
+            showWelcome: true,
+            autoFocus: false,
+            customCommands: {
+              'contacto': async () => ({
+                success: true,
+                output: `📞 CONTACTO ULTIMA MILLA\n\n🏢 Mendoza, Argentina\n📧 info@ultimamilla.com\n📞 +54 261 XXX-XXXX\n\n✅ 22 años de experiencia`
+              }),
+              'servicios': async () => ({
+                success: true,
+                output: `💼 SERVICIOS ULTIMA MILLA\n\n🔒 Seguridad Informática\n💻 Redes y Comunicaciones\n⚙️ Software y Servicios\n\n🔗 Más info: /servicios`
+              }),
+              'antecedentes': async () => ({
+                success: true,
+                output: `🏆 CASOS DE ÉXITO\n\n📊 469+ proyectos completados\n🌐 22 años de experiencia\n🏢 Clientes en Argentina\n\n🔗 Ver casos: /antecedentes`
+              })
             }
           });
-        });
-
-        // Eventos personalizados del CLI
-        umCli.on('commandExecuted', (event) => {
-          console.log('Comando ejecutado:', event.detail.command);
           
-          // Analytics: trackear comandos populares
-          if (typeof gtag !== 'undefined') {
-            gtag('event', 'cli_command_executed', {
-              'command': event.detail.command.raw || 'unknown',
-              'success': event.detail.command.success
+          console.log('✅ UM CLI inicializado correctamente');
+          
+          // Event listeners para botones
+          document.querySelectorAll('.suggestion-compact-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const command = e.target.closest('[data-command]').getAttribute('data-command');
+              if (command) {
+                umCli.executeCommandProgrammatically(command);
+                umCli.focus();
+              }
             });
-          }
-        });
-
-        umCli.on('fullscreenToggled', (event) => {
-          console.log('Fullscreen toggled:', event.detail.isFullscreen);
-        });
-
-        // Mostrar mensaje especial en el primer uso
-        setTimeout(() => {
-          const welcomeCommands = [
-            '🎯 ¡Bienvenido a ULTIMA MILLA CLI!',
-            '💡 Tip: Usa TAB para autocompletar comandos',
-            '🚀 Prueba "sudo ultimamilla.py --demo" para una demo completa'
-          ];
-          
-          welcomeCommands.forEach((msg, i) => {
-            setTimeout(() => {
-              umCli.addOutput(msg, 'um-command-info');
-            }, i * 800);
           });
-        }, 2000);
-        
-      } catch (error) {
-        console.error('❌ Error inicializando UM CLI:', error);
-        // Mostrar mensaje de fallback
-        const container = document.getElementById('um-cli-container');
-        if (container) {
-          container.innerHTML = `
-            <div style="background: #1a1a2e; color: #eee; padding: 30px; border-radius: 8px; text-align: center; border: 2px solid #00d4aa;">
-              <h3>⚠️ Terminal temporalmente no disponible</h3>
-              <p>Estamos trabajando para restaurar la funcionalidad del terminal.</p>
-              <p>Mientras tanto, puedes contactarnos en: <a href="mailto:info@ultimamilla.com.ar" style="color: #00d4aa;">info@ultimamilla.com.ar</a></p>
-            </div>
-          `;
         }
-      }
-    } else {
-      console.warn('❌ UMCliPlugin no está disponible. Fallback al terminal básico.');
-      // Cargar fallback básico
-      const container = document.getElementById('um-cli-container');
-      if (container) {
-        container.innerHTML = `
-          <div style="background: #0d1117; color: #e6edf3; padding: 20px; border-radius: 8px; font-family: 'Fira Code', monospace;">
-            <div style="background: #21262d; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
-              <div style="color: #00d4aa;">visitante@ultimamilla:~$ <span style="color: #7ee787;">help</span></div>
-            </div>
-            <div style="background: #161b22; padding: 15px; border-radius: 4px;">
-              <p><strong style="color: #00d4aa;">🖥️  ULTIMA MILLA CLI - MODO BÁSICO</strong></p>
-              <p>Terminal interactivo temporalmente no disponible.</p>
-              <p>Para acceso completo a nuestros datos y servicios:</p>
-              <p>📞 <a href="tel:+5492611234567" style="color: #00d4aa;">+54 261 123 4567</a></p>
-              <p>📧 <a href="mailto:info@ultimamilla.com.ar" style="color: #00d4aa;">info@ultimamilla.com.ar</a></p>
-              <p>🌐 <strong style="color: #7ee787;">22 años</strong> de experiencia</p>
-              <p>🚀 <strong style="color: #7ee787;">469+</strong> proyectos completados</p>
-            </div>
-          </div>
-        `;
-      }
-    }
-  });
+      });
+    };
+    document.head.appendChild(script);
+  }
 </script>

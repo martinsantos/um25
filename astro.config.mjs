@@ -61,15 +61,15 @@ export default defineConfig({
   vite: {
     // Configuración del entorno
     define: {
-      __PROD__: process.env.NODE_ENV === 'production'
+      __PROD__: process.env.NODE_ENV === 'production',
+      // Deshabilitar completamente Vite HMR en producción
+      'import.meta.hot': process.env.NODE_ENV === 'production' ? false : 'undefined'
     },
     // Configuración del servidor
     server: {
       host: true,
-      hmr: process.env.NODE_ENV === 'production' ? false : {
-        port: 5173,
-        host: 'localhost'
-      },
+      // Completamente deshabilitar HMR en producción
+      hmr: process.env.NODE_ENV === 'production' ? false : true,
       allowedHosts: [
         'ultimamilla.com.ar',
         'www.ultimamilla.com.ar',
@@ -77,6 +77,13 @@ export default defineConfig({
         '127.0.0.1',
         '23.105.176.45'
       ]
+    },
+    // Configuración específica para el build
+    build: {
+      // En producción no incluir el cliente HMR
+      rollupOptions: process.env.NODE_ENV === 'production' ? {
+        external: ['/@vite/client']
+      } : {}
     },
     preview: {
       host: true,
