@@ -1,4 +1,4 @@
-import { Directus, createDirectus, rest, readItems } from '@directus/sdk';
+import { createDirectus, rest, readItems } from '@directus/sdk';
 
 // Export only the configuration, not the client
 export const DIRECTUS_CONFIG = {
