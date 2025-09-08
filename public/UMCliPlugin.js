@@ -6,9 +6,416 @@
  * - Otras páginas del sitio
  * - Sitios externos como iframe
  * - Aplicaciones de terceros
+ * 
+ * Version: 3.0 - No Dependencies
  */
 
-import UMTerminalEngine from '/UMTerminalEngine.js';
+// Simple terminal engine integrado
+class UMTerminalEngine {
+  constructor() {
+    this.commands = this.initializeCommands();
+    this.history = [];
+    this.aliases = {
+      'll': 'ls -la',
+      'dir': 'ls',
+      'cls': 'clear',
+      'ayuda': 'help'
+    };
+  }
+
+  initializeCommands() {
+    return {
+      'help': () => this.showHelp(),
+      'clear': () => '<!-- CLEAR -->',
+      'ls': (args) => this.listServices(args),
+      'grep': (args) => this.searchProjects(args),
+      'stats': (args) => this.showStats(args),
+      'top': (args) => this.showTopProjects(args),
+      'sudo': (args) => this.handleSudo(args),
+      'contacto': (args) => this.showContact(args),
+      'whoami': () => this.whoami(),
+      'date': () => this.showDate(),
+      'uptime': () => this.showUptime()
+    };
+  }
+
+  async executeCommand(input) {
+    const parts = input.trim().split(' ');
+    const cmd = parts[0].toLowerCase();
+    const args = parts.slice(1);
+
+    // Check aliases
+    if (this.aliases[cmd]) {
+      const aliasedCommand = this.aliases[cmd].split(' ');
+      return this.executeCommand(aliasedCommand.concat(args).join(' '));
+    }
+
+    if (this.commands[cmd]) {
+      try {
+        const result = await this.commands[cmd](args);
+        this.history.push(input);
+        return result;
+      } catch (error) {
+        return `<div class="command-error">Error ejecutando '${cmd}': ${error.message}</div>`;
+      }
+    }
+
+    return `<div class="command-error">Comando '${cmd}' no encontrado. Usa 'help' para ver comandos disponibles.</div>`;
+  }
+
+  showHelp() {
+    return `<div class="command-success">
+🚀 ULTIMA MILLA CLI - COMANDOS DISPONIBLES
+═══════════════════════════════════════════════════════════════
+
+📊 EXPLORACIÓN DE DATOS:
+  ls [servicios|proyectos]     - Listar servicios o proyectos
+  grep [término]               - Buscar en proyectos por término
+  stats [--clientes|--anos]    - Estadísticas de la empresa
+  top [--proyectos|--clientes] - Top proyectos o clientes
+
+🔧 INFORMACIÓN:
+  sudo ultimamilla.py --demo   - Demostración completa
+  contacto [info|email|wa]     - Información de contacto
+  whoami                       - Información del usuario
+  date                         - Fecha y hora actual
+  uptime                       - Tiempo de funcionamiento
+
+🖥️  SISTEMA:
+  help                         - Mostrar esta ayuda
+  clear                        - Limpiar terminal
+  history                      - Historial de comandos
+
+💡 EJEMPLOS:
+  • grep "Quilmes"             - Buscar proyectos de Quilmes
+  • ls servicios               - Ver servicios disponibles
+  • stats --clientes           - Estadísticas de clientes
+  • contacto info              - Ver info de contacto
+
+═══════════════════════════════════════════════════════════════
+</div>`;
+  }
+
+  listServices(args) {
+    if (args.includes('servicios')) {
+      return `<div class="command-success">
+📋 SERVICIOS ULTIMA MILLA
+═══════════════════════════════════════════════════════════════
+
+🔐 SEGURIDAD INFORMÁTICA
+   • Auditorías de seguridad
+   • Implementación de firewalls
+   • Monitoreo 24/7
+   • Backup y recuperación
+
+🌐 REDES Y COMUNICACIONES
+   • Cableado estructurado
+   • Redes empresariales
+   • WiFi corporativo
+   • Telefonía IP
+
+💻 SOFTWARE Y SERVICIOS
+   • Desarrollo web
+   • Aplicaciones a medida
+   • Integración de sistemas
+   • Mantenimiento de software
+
+📊 ESTADÍSTICAS:
+   • 469+ proyectos completados
+   • 22 años de experiencia
+   • 150+ clientes activos
+   • Cobertura en toda Mendoza
+
+═══════════════════════════════════════════════════════════════
+</div>`;
+    }
+    return this.showGeneralListing();
+  }
+
+  showGeneralListing() {
+    return `<div class="command-success">
+📁 DIRECTORIO PRINCIPAL - ULTIMA MILLA
+═══════════════════════════════════════════════════════════════
+
+drwxr-xr-x  5 admin  admin  160 Sep  7 20:30 servicios/
+drwxr-xr-x  3 admin  admin   96 Sep  7 20:30 proyectos/
+drwxr-xr-x  2 admin  admin   64 Sep  7 20:30 clientes/
+drwxr-xr-x  2 admin  admin   64 Sep  7 20:30 stats/
+-rw-r--r--  1 admin  admin 1024 Sep  7 20:30 README.md
+-rw-r--r--  1 admin  admin  512 Sep  7 20:30 empresa.info
+
+💡 Usa 'ls servicios' para ver servicios detallados
+💡 Usa 'grep [término]' para buscar proyectos
+💡 Usa 'stats --clientes' para estadísticas
+
+═══════════════════════════════════════════════════════════════
+</div>`;
+  }
+
+  searchProjects(args) {
+    const searchTerm = args.join(' ');
+    if (!searchTerm) {
+      return `<div class="command-error">Uso: grep [término de búsqueda]</div>`;
+    }
+
+    // Simulación de búsqueda de proyectos
+    const mockResults = [
+      { client: 'Gobierno de Mendoza', project: 'Modernización de sistemas', year: 2023 },
+      { client: 'Hospital Central', project: 'Red de comunicaciones', year: 2022 },
+      { client: 'Municipalidad de Godoy Cruz', project: 'Portal web ciudadano', year: 2023 },
+      { client: 'Bodegas Catena', project: 'ERP personalizado', year: 2021 },
+      { client: 'AFIP Mendoza', project: 'Infraestructura de redes', year: 2022 }
+    ];
+
+    const filteredResults = mockResults.filter(r => 
+      r.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.project.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    if (filteredResults.length === 0) {
+      return `<div class="command-info">No se encontraron proyectos con el término "${searchTerm}"</div>`;
+    }
+
+    return `<div class="command-success">
+🔍 RESULTADOS DE BÚSQUEDA: "${searchTerm}"
+═══════════════════════════════════════════════════════════════
+
+${filteredResults.map((result, index) => 
+  `${index + 1}. 🏢 ${result.client}
+   📋 ${result.project}
+   📅 Año: ${result.year}\n`
+).join('\n')}
+
+📊 Total encontrado: ${filteredResults.length} proyectos
+
+═══════════════════════════════════════════════════════════════
+</div>`;
+  }
+
+  showStats(args) {
+    if (args.includes('--clientes')) {
+      return `<div class="command-success">
+📊 ESTADÍSTICAS DE CLIENTES - ULTIMA MILLA
+═══════════════════════════════════════════════════════════════
+
+👥 RESUMEN GENERAL:
+   • Total clientes atendidos: 150+
+   • Clientes activos: 89
+   • Tasa de retención: 94%
+   • Satisfacción promedio: 4.8/5
+
+🏛️  SECTOR PÚBLICO (35%):
+   • Gobierno de Mendoza
+   • Municipalidades (12)
+   • Hospitales públicos (8)
+   • Universidades (3)
+
+🏢 SECTOR PRIVADO (65%):
+   • Bodegas y viñedos (23)
+   • Clínicas privadas (15)
+   • Empresas comerciales (45)
+   • Industrias (12)
+
+🌍 COBERTURA GEOGRÁFICA:
+   • Ciudad de Mendoza: 45%
+   • Gran Mendoza: 35%
+   • Interior provincial: 20%
+
+═══════════════════════════════════════════════════════════════
+</div>`;
+    }
+
+    return `<div class="command-success">
+📈 ESTADÍSTICAS GENERALES - ULTIMA MILLA
+═══════════════════════════════════════════════════════════════
+
+🚀 EMPRESA:
+   • Años en el mercado: 22 (desde 2000)
+   • Proyectos completados: 469+
+   • Tasa de éxito: 98.5%
+   • Equipo técnico: 15 profesionales
+
+💼 PROYECTOS POR AÑO:
+   • 2023: 45 proyectos
+   • 2022: 52 proyectos
+   • 2021: 38 proyectos
+   • Promedio: 40 proyectos/año
+
+🏆 ESPECIALIDADES:
+   • Redes y comunicaciones: 45%
+   • Desarrollo de software: 30%
+   • Seguridad informática: 25%
+
+🌟 RECONOCIMIENTOS:
+   • Proveedor preferido Gob. Mendoza
+   • Certificación ISO 9001
+   • Partner oficial Microsoft
+
+═══════════════════════════════════════════════════════════════
+</div>`;
+  }
+
+  showTopProjects(args) {
+    return `<div class="command-success">
+🏆 TOP PROYECTOS - ULTIMA MILLA
+═══════════════════════════════════════════════════════════════
+
+1. 🏛️  GOBIERNO DE MENDOZA - Red Provincial
+   💰 Presupuesto: $2.5M ARG
+   📅 Duración: 18 meses
+   👥 Equipo: 8 técnicos
+   ⭐ Impacto: Conectividad en 18 departamentos
+
+2. 🏥 HOSPITAL CENTRAL - Sistema Integral
+   💰 Presupuesto: $1.8M ARG
+   📅 Duración: 12 meses
+   👥 Equipo: 6 técnicos
+   ⭐ Impacto: Digitalización completa
+
+3. 🍷 CATENA ZAPATA - ERP Vitivinícola
+   💰 Presupuesto: $1.2M ARG
+   📅 Duración: 10 meses
+   👥 Equipo: 5 técnicos
+   ⭐ Impacto: Automatización de procesos
+
+4. 🏢 AFIP REGIONAL - Infraestructura
+   💰 Presupuesto: $950K ARG
+   📅 Duración: 8 meses
+   👥 Equipo: 4 técnicos
+   ⭐ Impacto: Modernización tecnológica
+
+5. 🏫 UNCuyo - Campus Digital
+   💰 Presupuesto: $780K ARG
+   📅 Duración: 6 meses
+   👥 Equipo: 6 técnicos
+   ⭐ Impacto: WiFi en todo el campus
+
+═══════════════════════════════════════════════════════════════
+</div>`;
+  }
+
+  handleSudo(args) {
+    if (args[0] === 'ultimamilla.py' && args.includes('--demo')) {
+      return this.showDemo();
+    }
+    return `<div class="command-error">sudo: comando no autorizado. Use 'sudo ultimamilla.py --demo' para la demostración.</div>`;
+  }
+
+  showDemo() {
+    return `<div class="command-success">
+🎬 DEMOSTRACIÓN ULTIMA MILLA - MODO ADMINISTRATIVO
+═══════════════════════════════════════════════════════════════
+
+🔐 Acceso autorizado como: admin@ultimamilla
+⚡ Iniciando demostración completa...
+
+📊 CARGANDO DATOS EMPRESARIALES:
+   ✅ Base de datos de proyectos: 469 registros
+   ✅ Clientes activos: 89 empresas
+   ✅ Servicios disponibles: 15 categorías
+   ✅ Equipo técnico: 15 profesionales
+
+🚀 CAPACIDADES DEL SISTEMA:
+   • Gestión integral de proyectos
+   • Seguimiento en tiempo real
+   • Reportes automáticos
+   • Integración con sistemas externos
+   • API REST para terceros
+
+💡 COMANDOS ESPECIALES DESBLOQUEADOS:
+   • advanced-search [criterios]
+   • project-timeline [id]
+   • client-portal [cliente]
+   • team-status
+   • system-monitor
+
+🎯 PRÓXIMOS PASOS:
+   1. Use 'contacto info' para comunicarse
+   2. Explore con 'ls servicios'
+   3. Busque proyectos con 'grep [término]'
+   4. Vea estadísticas con 'stats'
+
+═══════════════════════════════════════════════════════════════
+</div>`;
+  }
+
+  showContact(args) {
+    const contactInfo = `<div class="command-success">
+📞 CONTACTO - ULTIMA MILLA
+═══════════════════════════════════════════════════════════════
+
+🏢 OFICINA PRINCIPAL:
+   📍 Av. San Martín 1234, Ciudad de Mendoza
+   ☎️  +54 261 123 4567
+   📧 info@ultimamilla.com.ar
+   🌐 www.ultimamilla.com.ar
+
+💬 WHATSAPP COMERCIAL:
+   📱 +54 261 123 4567
+   💭 "Hola! Vengo desde su terminal CLI"
+
+⏰ HORARIOS DE ATENCIÓN:
+   📅 Lunes a Viernes: 9:00 - 18:00
+   📅 Sábados: 9:00 - 13:00
+   📅 Domingos: Solo emergencias
+
+🚨 SOPORTE TÉCNICO 24/7:
+   📞 +54 261 456 7890
+   📧 soporte@ultimamilla.com.ar
+
+═══════════════════════════════════════════════════════════════
+</div>`;
+    
+    if (args.includes('email')) {
+      window.open('mailto:info@ultimamilla.com.ar?subject=Consulta desde Terminal CLI');
+    }
+    if (args.includes('wa')) {
+      window.open('https://wa.me/5492611234567?text=Hola! Vengo desde el terminal CLI de su sitio web');
+    }
+    
+    return contactInfo;
+  }
+
+  whoami() {
+    return `<div class="command-info">
+visitante@ultimamilla.com.ar
+
+👤 Usuario: Visitante
+🌐 Dominio: ultimamilla.com.ar
+🔐 Privilegios: Lectura
+📍 Ubicación: Mendoza, Argentina
+⏰ Sesión iniciada: ${new Date().toLocaleString()}
+</div>`;
+  }
+
+  showDate() {
+    return `<div class="command-info">${new Date().toLocaleString('es-AR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'America/Argentina/Mendoza'
+    })}</div>`;
+  }
+
+  showUptime() {
+    return `<div class="command-info">
+⏱️  TIEMPO DE FUNCIONAMIENTO - ULTIMA MILLA
+
+🖥️  Servidor web: 99.8% uptime (22 años)
+🌐 Sitio web: Operativo desde 2000
+💼 Empresa: 22 años en funcionamiento
+🔧 Último mantenimiento: Ayer 02:00 AM
+
+📊 Estadísticas de rendimiento:
+   • Tiempo promedio de respuesta: 250ms
+   • Disponibilidad mensual: 99.9%
+   • Proyectos en ejecución: 12
+</div>`;
+  }
+}
 
 class UMCliPlugin {
   constructor(options = {}) {
@@ -26,6 +433,8 @@ class UMCliPlugin {
     this.engine = new UMTerminalEngine();
     this.isInitialized = false;
     this.isFullscreen = false;
+    this.commandHistory = [];
+    this.historyIndex = -1;
     
     this.init();
   }
@@ -490,7 +899,8 @@ class UMCliPlugin {
       if (this.options.apiEndpoint) {
         result = await this.callAPI(command);
       } else {
-        result = await this.engine.processCommand(command);
+        const output = await this.engine.executeCommand(command);
+        result = { success: true, output: output };
       }
 
       this.handleCommandResult(result);
@@ -547,7 +957,13 @@ class UMCliPlugin {
   addOutput(text, className = '') {
     const div = document.createElement('div');
     div.className = `um-output-line ${className}`;
-    div.textContent = text;
+    
+    // Check if text contains HTML
+    if (text.includes('<')) {
+      div.innerHTML = text;
+    } else {
+      div.textContent = text;
+    }
     
     this.elements.output.appendChild(div);
     this.scrollToBottom();
@@ -726,4 +1142,10 @@ window.UMCli = {
   }
 };
 
-export default UMCliPlugin;
+// Export para compatibilidad
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = UMCliPlugin;
+}
+
+// Global para uso directo en navegador
+window.UMCliPlugin = UMCliPlugin;

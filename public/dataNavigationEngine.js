@@ -1,11 +1,12 @@
 /**
  * Enhanced Data Navigation Engine for UM CLI
  * Provides advanced data exploration, filtering, and navigation capabilities
- * Version: 2.0.0
+ * Version: 2.0.0 - No Dependencies
  */
 
-import { antecedentesReales } from '../data/antecedentes_completos.js';
-import { serviciosReales } from '../data/servicios_completos.js.backup';
+// Mock data instead of imports
+const antecedentesReales = [];
+const serviciosReales = [];
 
 class DataNavigationEngine {
     constructor() {

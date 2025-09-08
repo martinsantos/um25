@@ -965,5 +965,78 @@ Soporte 24/7 para clientes premium
 </script>
 
 <!-- Scripts del sistema completo -->
-<script is:inline src="/contactSystem.js"></script>
-<script is:inline src="/UMCliPlugin.js"></script>
+<script src="/uiEffectsSystem.js" defer></script>
+<script src="/performanceOptimizer.v2.js" defer></script>
+<script src="/dataNavigationEngine.js" defer></script>
+<script src="/UMCliPlugin.js" defer></script>
+<script src="/terminalEnhanced.js" defer></script>
+
+<!-- Script principal del CLI -->
+<script>
+  // Script principal del CLI
+  document.addEventListener('DOMContentLoaded', () => {
+    // Verificar que el UMCliPlugin esté disponible
+    if (typeof UMCliPlugin !== 'undefined') {
+      // Crear instancia del CLI
+      console.log('✅ UMCliPlugin disponible, inicializando...');
+      
+      try {
+        const umCli = new UMCliPlugin({
+          container: '#um-cli-container',
+          theme: 'dark',
+          showWelcome: true,
+          autoFocus: true
+        });
+        
+        console.log('✅ UM CLI inicializado correctamente');
+        
+        // Configurar botones de sugerencias
+        const suggestionButtons = document.querySelectorAll('.suggestion-btn');
+        suggestionButtons.forEach(button => {
+          button.addEventListener('click', (e) => {
+            const command = e.currentTarget.getAttribute('data-command');
+            if (command && umCli) {
+              umCli.executeCommandProgrammatically(command);
+            }
+          });
+        });
+        
+      } catch (error) {
+        console.error('❌ Error inicializando UM CLI:', error);
+        // Mostrar mensaje de fallback
+        const container = document.getElementById('um-cli-container');
+        if (container) {
+          container.innerHTML = `
+            <div style="background: #1a1a2e; color: #eee; padding: 30px; border-radius: 8px; text-align: center; border: 2px solid #00d4aa;">
+              <h3>⚠️ Terminal temporalmente no disponible</h3>
+              <p>Estamos trabajando para restaurar la funcionalidad del terminal.</p>
+              <p>Mientras tanto, puedes contactarnos en: <a href="mailto:info@ultimamilla.com.ar" style="color: #00d4aa;">info@ultimamilla.com.ar</a></p>
+            </div>
+          `;
+        }
+      }
+    } else {
+      console.warn('❌ UMCliPlugin no está disponible. Fallback al terminal básico.');
+      // Cargar fallback básico
+      const container = document.getElementById('um-cli-container');
+      if (container) {
+        container.innerHTML = `
+          <div style="background: #0d1117; color: #e6edf3; padding: 20px; border-radius: 8px; font-family: 'Fira Code', monospace;">
+            <div style="background: #21262d; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+              <div style="color: #00d4aa;">visitante@ultimamilla:~$ <span style="color: #7ee787;">help</span></div>
+            </div>
+            <div style="background: #161b22; padding: 15px; border-radius: 4px;">
+              <p><strong style="color: #00d4aa;">🖥️  ULTIMA MILLA CLI - MODO BÁSICO</strong></p>
+              <p>Terminal interactivo temporalmente no disponible.</p>
+              <p>Para acceso completo a nuestros datos y servicios:</p>
+              <p>📞 <a href="tel:+5492611234567" style="color: #00d4aa;">+54 261 123 4567</a></p>
+              <p>📧 <a href="mailto:info@ultimamilla.com.ar" style="color: #00d4aa;">info@ultimamilla.com.ar</a></p>
+              <p>🌐 <strong style="color: #7ee787;">22 años</strong> de experiencia</p>
+              <p>🚀 <strong style="color: #7ee787;">469+</strong> proyectos completados</p>
+            </div>
+          </div>
+        `;
+      }
+    }
+  });
+</script>
