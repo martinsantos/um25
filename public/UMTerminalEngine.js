@@ -24,7 +24,11 @@ class UMTerminalEngine {
     this.commands = this.initializeCommands();
     this.filesystem = this.initializeFilesystem();
     this.companyData = this.initializeCompanyData();
+    this.dynamicData = null; // Datos cargados desde Directus vía API
     this.sessionStartTime = Date.now();
+
+    // Cargar datos dinámicos de forma no bloqueante
+    this.loadDynamicData().catch(() => {/* fallback silencioso */});
   }
 
   initializeAliases() {
@@ -111,7 +115,13 @@ class UMTerminalEngine {
 
       // Contacto y empresa
       'contacto': (args) => this.showContact(args),
-      'empresa': (args) => this.showCompanyInfo(args)
+      'empresa': (args) => this.showCompanyInfo(args),
+
+      // Comandos de datos dinámicos
+      'directus': (args) => this.showDirectusData(args),
+      'antecedentes': (args) => this.showCasosExito(args),
+      'blog': (args) => this.showBlogPosts(args),
+      'reload': (args) => this.reloadDynamicData(args)
     };
   }
 
@@ -150,6 +160,20 @@ class UMTerminalEngine {
         items: ['enterprise/', 'grande/', 'mediano/', 'pequeno/', 'activos/', 'completados/']
       }
     };
+  }
+
+  async loadDynamicData() {
+    try {
+      const res = await fetch('/api/umcli.json');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const json = await res.json();
+      if (json && json.success && json.data) {
+        this.dynamicData = json.data;
+      }
+    } catch (e) {
+      // No interrumpir el flujo del terminal si falla
+      console.warn('[UMTerminalEngine] No se pudieron cargar datos dinámicos:', e?.message || e);
+    }
   }
 
   initializeCompanyData() {
@@ -337,10 +361,15 @@ class UMTerminalEngine {
   }
 
   showServicesListing() {
+    const dyn = this.dynamicData;
+    const dynResumen = dyn && Array.isArray(dyn.servicios)
+      ? `\n📦 Servicios disponibles (Directus): ${dyn.servicios.length}\n` +
+        dyn.servicios.slice(0, 6).map((s, i) => `   • ${s.titulo || s.nombre || s.slug || 'Servicio ' + (i+1)}`).join('\n') + '\n'
+      : '';
     return this.formatSuccess(`
 📋 SERVICIOS ULTIMA MILLA - CATÁLOGO COMPLETO
 ═══════════════════════════════════════════════════════════════════
-
+${dynResumen}
 🌐 REDES Y COMUNICACIONES (45% de proyectos):
    📡 Cableado estructurado
    🔌 Redes empresariales  
@@ -922,6 +951,99 @@ visitante@ultimamilla.com.ar
   configSystem() { return this.formatInfo('Funcionalidad config en desarrollo...'); }
   manageAliases() { return this.formatInfo('Funcionalidad alias en desarrollo...'); }
   showCompanyInfo() { return this.formatInfo('Funcionalidad empresa en desarrollo...'); }
+
+  // Métodos para datos dinámicos de Directus
+  async reloadDynamicData() {
+    const loading = this.formatInfo('🔄 Recargando datos desde Directus...');
+    await this.loadDynamicData();
+    return loading + '\n' + (this.dynamicData 
+      ? this.formatSuccess('✅ Datos actualizados correctamente')
+      : this.formatWarning('⚠️  Usando datos de fallback'));
+  }
+
+  showDirectusData() {
+    const dyn = this.dynamicData;
+    if (!dyn) {
+      return this.formatWarning('🔄 Datos de Directus no disponibles. Usa "reload" para reintentar.');
+    }
+
+    return this.formatSuccess(`
+🌐 DATOS DIRECTUS CMS - ESTADO ACTUAL
+═══════════════════════════════════════════════════════════════════
+
+📦 SERVICIOS: ${Array.isArray(dyn.servicios) ? dyn.servicios.length : 0} disponibles
+📊 CASOS DE EXITO: ${Array.isArray(dyn.casos_de_exito) ? dyn.casos_de_exito.length : 0} proyectos destacados
+📝 BLOG POSTS: ${Array.isArray(dyn.blog_posts) ? dyn.blog_posts.length : 0} artículos publicados
+
+🕰 Última actualización: ${dyn.estadisticas?.ultimaActualizacion ? new Date(dyn.estadisticas.ultimaActualizacion).toLocaleString('es-AR') : 'Desconocida'}
+🔢 Timestamp: ${new Date(dyn.timestamp || Date.now()).toLocaleString('es-AR')}
+
+💹 Comandos disponibles:
+  • antecedentes - Ver casos de éxito
+  • blog - Ver últimas publicaciones  
+  • ls servicios - Ver servicios (con datos dinámicos)
+  • reload - Recargar datos desde Directus
+═══════════════════════════════════════════════════════════════════
+    `);
+  }
+
+  showCasosExito() {
+    const dyn = this.dynamicData;
+    if (!dyn || !Array.isArray(dyn.casos_de_exito) || dyn.casos_de_exito.length === 0) {
+      return this.formatWarning('🔄 Casos de éxito no disponibles desde Directus. Intenta "reload".');
+    }
+
+    let output = this.formatSuccess(`
+📊 CASOS DE ÉXITO ULTIMA MILLA - PROYECTOS DESTACADOS
+═══════════════════════════════════════════════════════════════════
+
+`);
+
+    dyn.casos_de_exito.slice(0, 10).forEach((caso, i) => {
+      output += `🏆 ${i + 1}. ${caso.titulo || caso.nombre || 'Sin título'}\n`;
+      if (caso.resumen) {
+        output += `   📝 ${caso.resumen.substring(0, 120)}${caso.resumen.length > 120 ? '...' : ''}\n`;
+      }
+      if (caso.fecha_publicacion) {
+        output += `   🗺 ${new Date(caso.fecha_publicacion).toLocaleDateString('es-AR')}\n`;
+      }
+      output += '\n';
+    });
+
+    output += `📈 Total casos documentados: ${dyn.casos_de_exito.length}\n`;
+    output += `═══════════════════════════════════════════════════════════════════`;
+    
+    return output;
+  }
+
+  showBlogPosts() {
+    const dyn = this.dynamicData;
+    if (!dyn || !Array.isArray(dyn.blog_posts) || dyn.blog_posts.length === 0) {
+      return this.formatWarning('🔄 Artículos del blog no disponibles desde Directus. Intenta "reload".');
+    }
+
+    let output = this.formatSuccess(`
+📝 BLOG ULTIMA MILLA - ÚLTIMAS PUBLICACIONES
+═══════════════════════════════════════════════════════════════════
+
+`);
+
+    dyn.blog_posts.slice(0, 8).forEach((post, i) => {
+      output += `📰 ${i + 1}. ${post.titulo || 'Sin título'}\n`;
+      if (post.descripcion_corta) {
+        output += `   📋 ${post.descripcion_corta.substring(0, 100)}${post.descripcion_corta.length > 100 ? '...' : ''}\n`;
+      }
+      if (post.fecha_publicacion) {
+        output += `   🗺 ${new Date(post.fecha_publicacion).toLocaleDateString('es-AR')}\n`;
+      }
+      output += '\n';
+    });
+
+    output += `📈 Total artículos publicados: ${dyn.blog_posts.length}\n`;
+    output += `═══════════════════════════════════════════════════════════════════`;
+    
+    return output;
+  }
 }
 
 // Exportar para uso global

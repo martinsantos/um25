@@ -4,6 +4,9 @@
  * Version: 2.0.0
  */
 
+// UMTerminal namespace para evitar colisiones
+window.UMTerminal = window.UMTerminal || {};
+
 // Import DataNavigationEngine (will be loaded dynamically)
 let UMDataNavigationEngine = null;
 
@@ -1464,9 +1467,13 @@ ${cacheEntries || '   No hay entradas en cache\n'}
 document.addEventListener('DOMContentLoaded', () => {
     const terminal = new EnhancedTerminal('um-terminal-enhanced');
     
-    // Make terminal globally accessible for debugging
-    window.umTerminal = terminal;
+    // Make terminal globally accessible via namespace
+    window.UMTerminal.instance = terminal;
+    window.umTerminal = terminal; // Mantener compatibilidad
 });
+
+// Export to UMTerminal namespace
+window.UMTerminal.EnhancedTerminal = EnhancedTerminal;
 
 // Export for module use
 if (typeof module !== 'undefined' && module.exports) {
