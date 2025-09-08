@@ -129,15 +129,7 @@ const currentUrl = canonical || `${siteUrl}${Astro.url.pathname}`;
     <Navigation />
     <slot />
     
-    <!-- Enhanced Terminal Scripts (excluded for CLI page to avoid conflicts) -->
-    {!isCLIPage && (
-      <>
-        <script src="/uiEffectsSystem.js" defer></script>
-        <script src="/performanceOptimizer.v2.js" defer></script>
-        <script src="/contactSystem.js" defer></script>
-        <script src="/dataNavigationEngine.js" defer></script>
-        <script src="/terminalEnhanced.js" defer></script>
-      </>
-    )}
+    <!-- Scripts básicos solo si se necesitan -->
+    {/* Scripts complejos temporalmente deshabilitados para evitar conflictos */}
   </body>
 </html>

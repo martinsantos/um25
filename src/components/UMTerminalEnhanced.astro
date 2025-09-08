@@ -74,6 +74,27 @@
   </div>
 </div>
 
+<!-- Scripts del terminal básico como fallback -->
+<link rel="stylesheet" href="/terminal-basic.css">
+<script src="/terminal-basic.js" defer></script>
+
+<script>
+  // Fallback al terminal básico si el avanzado falla
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      const container = document.getElementById('um-terminal-enhanced');
+      const hasAdvancedTerminal = container && container.querySelector('.terminal-input');
+      
+      if (!hasAdvancedTerminal) {
+        console.log('⚠️  Terminal avanzado no disponible. Activando fallback básico.');
+        if (window.BasicUMTerminal && container) {
+          new BasicUMTerminal('um-terminal-enhanced');
+        }
+      }
+    }, 2000); // Esperar 2 segundos para scripts complejos
+  });
+</script>
+
 <style>
   /* Enhanced Terminal Container */
   #um-terminal-enhanced-container {
