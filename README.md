@@ -339,3 +339,74 @@ Para soporte técnico o consultas:
 ---
 
 **Desarrollado con ❤️ por el equipo de ULTiMA MILLA**
+
+
+## 🔥 **IMPLEMENTACIÓN MEGA: UM CLI v4.0 CON DATOS DINÁMICOS**
+
+Se ha completado exitosamente la implementación de la versión MEGA del UM CLI que integra datos dinámicos desde Directus CMS con sistema robusto de cache y fallback.
+
+### **🏗️ Arquitectura de Datos Dinámicos**
+
+```
+┌─────────────────┐    fetch    ┌─────────────────┐    SDK    ┌─────────────────┐
+│  UM Terminal    │─────────────▶│  API Endpoint   │─────────▶│   Directus CMS  │
+│  (Frontend JS)  │             │ /api/umcli.json │           │   (Backend)     │
+└─────────────────┘             └─────────────────┘           └─────────────────┘
+        │                               │                             │
+        ▼                               ▼                             ▼
+┌─────────────────┐             ┌─────────────────┐           ┌─────────────────┐
+│ Fallback Data   │             │  HTTP Cache     │           │   PostgreSQL    │
+│  (Hardcoded)    │             │  60s + SWR     │           │   Database      │
+└─────────────────┘             └─────────────────┘           └─────────────────┘
+```
+
+### **⚡ Funcionalidades Implementadas**
+
+#### **1. Endpoint API Server-Side** (`/src/pages/api/umcli.json.ts`):
+- ✅ Consume datos de Directus vía SDK oficial en el servidor
+- ✅ Maneja autenticación y filtros de contenido publicado
+- ✅ Sistema de cache HTTP optimizado (`max-age=60s`, `stale-while-revalidate=300s`)
+- ✅ Fallback automático en caso de error de conexión a Directus
+- ✅ Payload consolidado: servicios, casos de éxito, blog posts + estadísticas
+
+#### **2. Integración del Cliente** (`/public/UMTerminalEngine.js`):
+- ✅ Carga asincrónica no bloqueante desde `/api/umcli.json`
+- ✅ Inicialización que permite funcionamiento offline
+- ✅ Sistema de namespace `window.UMTerminal` para evitar colisiones
+- ✅ Actualización automática de comandos con datos reales
+
+### **🚀 Estado de Deployment**
+
+| Componente | Estado | URL | Funcionalidad |
+|------------|--------|-----|---------------|
+| **UM CLI Terminal** | ✅ Operativo | [www.ultimamilla.com.ar](https://www.ultimamilla.com.ar) | Terminal interactivo con 49+ comandos |
+| **API Endpoint** | ✅ Funcional | `/api/umcli.json` | Datos dinámicos con cache |
+| **Directus CMS** | ✅ Conectado | `:8055/admin` | Gestión de contenidos |
+| **Sistema de Cache** | ✅ Optimizado | HTTP + Browser | Performance mejorada |
+| **Fallback System** | ✅ Probado | Hardcoded data | Funciona offline |
+
+### **🔧 Comandos MEGA Destacados**
+
+```bash
+# CONTENIDO DINÁMICO
+ls servicios          # Lista servicios con datos de Directus
+antecedentes          # Casos de éxito desde CMS
+blog                  # Últimas publicaciones
+directus             # Estado de integración CMS
+reload               # Recargar datos dinámicos
+
+# ANÁLISIS Y ESTADÍSTICAS
+stats --all          # Estadísticas completas empresa
+top --clientes       # Ranking de clientes principales
+benchmark redes      # Comparativas técnicas
+
+# DIVERSIÓN Y EASTER EGGS
+fortune             # Frases motivacionales
+cowsay "ULTIMA MILLA"  # Arte ASCII
+sudo ultimamilla.py # Comando maestro
+```
+
+---
+
+**🚀 UM CLI MEGA v4.0** - *"Conectando el futuro con tecnología de vanguardia"*
+
