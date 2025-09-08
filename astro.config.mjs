@@ -59,28 +59,23 @@ export default defineConfig({
 
   // Configuración de Vite con optimizaciones
   vite: {
+    // Configuración del entorno
+    define: {
+      __PROD__: process.env.NODE_ENV === 'production'
+    },
+    // Configuración del servidor
     server: {
       host: true,
-      hmr: false, // Completamente deshabilitado para producción
+      hmr: process.env.NODE_ENV === 'production' ? false : {
+        port: 5173,
+        host: 'localhost'
+      },
       allowedHosts: [
-        'ultimamilla.com.ar',
-        'www.ultimamilla.com.ar',
         'ultimamilla.com.ar',
         'www.ultimamilla.com.ar',
         'localhost',
         '127.0.0.1',
-        '23.105.176.45',
-        // Explicit host:port variants for strict reverse proxy environments
-        'ultimamilla.com.ar:443',
-        'www.ultimamilla.com.ar:443',
-        'ultimamilla.com.ar:443',
-        'www.ultimamilla.com.ar:443',
-        '23.105.176.45:443',
-        'ultimamilla.com.ar:80',
-        'www.ultimamilla.com.ar:80',
-        'ultimamilla.com.ar:80',
-        'www.ultimamilla.com.ar:80',
-        '23.105.176.45:80'
+        '23.105.176.45'
       ]
     },
     preview: {
