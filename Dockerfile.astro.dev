@@ -14,8 +14,12 @@ COPY . .
 # Exponer el puerto
 EXPOSE 4321
 
-# Variables de entorno
+# Variables de entorno - FORZAR PRODUCCION
 ENV NODE_ENV=production
+ENV ASTRO_TELEMETRY_DISABLED=1
 
-# Comando para desarrollo o producción
-CMD ["sh", "-c", "if [ '$NODE_ENV' = 'production' ]; then npm run build && npm run start -- --host 0.0.0.0 --port 4321; else npm run dev -- --host 0.0.0.0 --port 4321; fi"]
+# Build en tiempo de construcción de imagen
+RUN npm run build
+
+# Comando solo para producción
+CMD ["npm", "run", "start", "--", "--host", "0.0.0.0", "--port", "4321"]
