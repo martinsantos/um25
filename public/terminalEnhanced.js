@@ -5,7 +5,7 @@
  */
 
 // Import DataNavigationEngine (will be loaded dynamically)
-let DataNavigationEngine = null;
+let UMDataNavigationEngine = null;
 
 class EnhancedTerminal {
     constructor(containerId) {
@@ -942,14 +942,14 @@ Clientes activos: 150+ | Tasa de satisfacción: 98%
 
     async loadDataNavigationEngine() {
         try {
-            // Import data navigation engine dynamically
-            const module = await import('./dataNavigationEngine.js');
-            const DataNavigationEngine = module.default || module.DataNavigationEngine;
-            
-            if (DataNavigationEngine) {
-                this.dataEngine = new DataNavigationEngine();
+            // Check if DataNavigationEngine is available globally
+            if (typeof window.DataNavigationEngine !== 'undefined') {
+                this.dataEngine = new window.DataNavigationEngine();
                 this.isDataEngineReady = true;
                 console.log('✓ Data Navigation Engine loaded successfully');
+            } else {
+                console.warn('DataNavigationEngine not available in window');
+                this.isDataEngineReady = false;
             }
         } catch (error) {
             console.warn('Data Navigation Engine not available:', error);

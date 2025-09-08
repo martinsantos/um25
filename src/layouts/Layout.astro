@@ -14,6 +14,9 @@ export interface Props {
 
 const { title, description, keywords, image, services, canonical } = Astro.props;
 
+// Check if current page is CLI to avoid script conflicts
+const isCLIPage = Astro.url.pathname.includes('/cli');
+
 // SEO defaults
 const defaultDescription = "ULTIMA MILLA - Especialistas en comunicaciones, sistemas e integración. +400 proyectos documentados con clientes como Gobierno de Mendoza, AFIP, Banco Credicoop.";
 const defaultKeywords = "ultima milla, comunicaciones, sistemas, redes, telecomunicaciones, software, mendoza, argentina";
@@ -126,11 +129,15 @@ const currentUrl = canonical || `${siteUrl}${Astro.url.pathname}`;
     <Navigation />
     <slot />
     
-    <!-- Enhanced Terminal Scripts -->
-    <script src="/uiEffectsSystem.js" defer></script>
-    <script src="/performanceOptimizer.v2.js" defer></script>
-    <script src="/contactSystem.js" defer></script>
-    <script src="/dataNavigationEngine.js" defer></script>
-    <script src="/terminalEnhanced.js" defer></script>
+    <!-- Enhanced Terminal Scripts (excluded for CLI page to avoid conflicts) -->
+    {!isCLIPage && (
+      <>
+        <script src="/uiEffectsSystem.js" defer></script>
+        <script src="/performanceOptimizer.v2.js" defer></script>
+        <script src="/contactSystem.js" defer></script>
+        <script src="/dataNavigationEngine.js" defer></script>
+        <script src="/terminalEnhanced.js" defer></script>
+      </>
+    )}
   </body>
 </html>

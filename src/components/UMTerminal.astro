@@ -312,9 +312,22 @@
     
     async initEngine() {
       try {
-        // Dynamic import for UMTerminalEngine
-        const { default: UMTerminalEngine } = await import('./UMTerminalEngine.js');
-        this.engine = new UMTerminalEngine();
+        // Load UMTerminalEngine from public directory
+        if (typeof window !== 'undefined' && window.UMTerminalEngine) {
+          this.engine = new window.UMTerminalEngine();
+          console.log('✅ UMTerminalEngine MEGA loaded successfully');
+        } else {
+          // Fallback: try to load from script tag
+          const script = document.createElement('script');
+          script.src = '/UMTerminalEngine.js';
+          script.onload = () => {
+            if (window.UMTerminalEngine) {
+              this.engine = new window.UMTerminalEngine();
+              console.log('✅ UMTerminalEngine MEGA loaded via script');
+            }
+          };
+          document.head.appendChild(script);
+        }
       } catch (error) {
         console.error('Failed to load UMTerminalEngine:', error);
         this.engine = null;
@@ -404,7 +417,11 @@
           
           // Mostrar output
           if (response.output) {
-            this.addOutput(response.output, 'command-success');
+            if (response.isHTML) {
+              this.addHTMLOutput(response.output);
+            } else {
+              this.addOutput(response.output, 'command-success');
+            }
           }
         } else {
           this.addOutput(response.output, 'command-error');
@@ -427,8 +444,21 @@
       }
       
       try {
-        const result = await this.engine.processCommand(command);
-        return result;
+        const result = await this.engine.executeCommand(command);
+        
+        // Parse HTML output properly
+        if (result && result.includes('<div class=')) {
+          return {
+            success: true,
+            output: result,
+            isHTML: true
+          };
+        }
+        
+        return {
+          success: true,
+          output: result || 'Comando ejecutado correctamente'
+        };
       } catch (error) {
         console.error('Engine error:', error);
         return this.fallbackProcessCommand(command);
@@ -504,6 +534,13 @@
       const div = document.createElement('div');
       div.className = `command-output ${className}`;
       div.textContent = text;
+      this.output.appendChild(div);
+    }
+    
+    addHTMLOutput(html) {
+      const div = document.createElement('div');
+      div.className = 'command-output';
+      div.innerHTML = html;
       this.output.appendChild(div);
     }
 
