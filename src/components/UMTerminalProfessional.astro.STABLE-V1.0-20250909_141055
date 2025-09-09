@@ -11,11 +11,7 @@
         <div class="control maximize"></div>
         <div class="control close"></div>
       </div>
-      <div class="terminal-title">ULTIMA MILLA CLI v22.1 - Mendoza, Argentina</div>
-      <!-- V1.2.0 Feature: Status Indicator -->
-      <div class="terminal-status">
-        <div class="status-indicator" id="connection-status" title="Estado: Conectado"></div>
-      </div>
+      <div class="terminal-title">ULTIMA MILLA CLI v22.0 - Mendoza, Argentina</div>
     </div>
     
     <!-- Terminal Body -->
@@ -23,19 +19,19 @@
       <div class="welcome-message">
         <pre id="welcome-ascii" class="ascii-art"></pre>
         <div class="welcome-info">
-          <div class="welcome-line typing-effect" data-delay="0">
+          <div class="welcome-line">
             <span class="icon">🚀</span> Bienvenido a <strong>ULTIMA MILLA CLI</strong> - Terminal interactivo empresarial
           </div>
-          <div class="welcome-line typing-effect" data-delay="600">
+          <div class="welcome-line">
             <span class="icon">📊</span> Explora <strong>22 años</strong> de historia, <strong>469+ proyectos</strong> y <strong>150+ clientes</strong>
           </div>
-          <div class="welcome-line typing-effect" data-delay="1200">
+          <div class="welcome-line">
             <span class="icon">💡</span> Escribe <code>help</code> para ver comandos disponibles
           </div>
-          <div class="welcome-line typing-effect" data-delay="1800">
+          <div class="welcome-line">
             <span class="icon">⚡</span> Prueba <code>sudo ultimamilla.py --demo</code> para una demostración completa
           </div>
-          <div class="welcome-line typing-effect" data-delay="2400">
+          <div class="welcome-line">
             <span class="icon">📞</span> Comando <code>contacto</code> para enviar mensajes reales
           </div>
         </div>
@@ -80,17 +76,15 @@
     min-height: 500px;
     max-height: 800px;
     
-    /* Enhanced visual design with border glow */
+    /* Diseño profesional simple */
     background: linear-gradient(145deg, #0d1117 0%, #21262d 50%, #161b22 100%);
-    border: 2px solid transparent;
-    background-clip: padding-box;
+    border: 1px solid #30363d;
     border-radius: 12px;
     
-    /* Enhanced shadow and glow effects */
+    /* Sombra profesional */
     box-shadow: 
       0 20px 40px -12px rgba(0, 0, 0, 0.5),
-      0 0 0 1px rgba(255, 255, 255, 0.05),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      0 0 0 1px rgba(255, 255, 255, 0.05);
     
     font-family: 'Fira Code', 'SF Mono', 'Monaco', 'Consolas', monospace;
     display: flex;
@@ -98,43 +92,7 @@
     overflow: hidden;
     position: relative;
     
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* V1.2.0 Feature: Glowing border effect */
-  .um-terminal-professional::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, 
-      rgba(0, 212, 170, 0.2) 0%,
-      rgba(121, 192, 255, 0.2) 25%,
-      rgba(255, 107, 107, 0.15) 50%,
-      rgba(255, 214, 0, 0.15) 75%,
-      rgba(0, 212, 170, 0.2) 100%
-    );
-    background-size: 300% 300%;
-    border-radius: 12px;
-    z-index: -1;
-    animation: borderGlow 8s ease-in-out infinite;
-  }
-
-  @keyframes borderGlow {
-    0%, 100% { 
-      background-position: 0% 50%;
-      opacity: 0.3;
-    }
-    33% { 
-      background-position: 100% 50%;
-      opacity: 0.6;
-    }
-    66% { 
-      background-position: 0% 100%;
-      opacity: 0.4;
-    }
+    transition: all 0.3s ease;
   }
 
   /* Terminal Header */
@@ -170,34 +128,6 @@
     font-weight: 600;
   }
 
-  /* V1.2.0 Feature: Terminal Status Indicator */
-  .terminal-status {
-    display: flex;
-    align-items: center;
-  }
-
-  .status-indicator {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: linear-gradient(45deg, #00d4aa, #00ff88);
-    box-shadow: 0 0 12px rgba(0, 212, 170, 0.4);
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { 
-      opacity: 1; 
-      transform: scale(1); 
-      box-shadow: 0 0 12px rgba(0, 212, 170, 0.4);
-    }
-    50% { 
-      opacity: 0.8; 
-      transform: scale(0.95); 
-      box-shadow: 0 0 8px rgba(0, 212, 170, 0.6);
-    }
-  }
-
   /* Terminal Body */
   .terminal-body {
     flex: 1;
@@ -226,23 +156,11 @@
     margin-top: 20px;
   }
 
-  /* V1.2.0 Feature: Welcome Line with Typing Animation */
   .welcome-line {
     margin: 8px 0;
     display: flex;
     align-items: center;
     gap: 8px;
-  }
-
-  .welcome-line.typing-effect {
-    opacity: 0;
-    transform: translateY(10px);
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .welcome-line.typing-effect.visible {
-    opacity: 1;
-    transform: translateY(0);
   }
 
   .icon {
@@ -291,26 +209,17 @@
     color: #7d8590;
   }
 
-  /* V1.2.0 Feature: Enhanced Cursor with Glow */
   .cursor {
     width: 2px;
     height: 18px;
     background: #00d4aa;
     margin-left: 2px;
-    animation: enhancedBlink 1s infinite;
-    box-shadow: 0 0 8px rgba(0, 212, 170, 0.6);
-    border-radius: 1px;
+    animation: blink 1s infinite;
   }
 
-  @keyframes enhancedBlink {
-    0%, 50% { 
-      opacity: 1;
-      box-shadow: 0 0 8px rgba(0, 212, 170, 0.6), 0 0 12px rgba(0, 212, 170, 0.3);
-    }
-    51%, 100% { 
-      opacity: 0;
-      box-shadow: 0 0 4px rgba(0, 212, 170, 0.2);
-    }
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
   }
 
   /* Loading Overlay */
@@ -422,8 +331,6 @@
       this.showWelcome();
       this.setupEventListeners();
       this.focusInput();
-      // V1.2.0 Feature: Animate welcome lines
-      this.animateWelcomeLines();
     }
 
     setupEventListeners() {
@@ -462,19 +369,6 @@
   ╚═════╝ ╚══════╝╚═╝   ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝    ╚═╝     ╚═╝╚═╝╚══════╝╚══════╝╚═╝  ╚═╝`;
         asciiElement.textContent = asciiArt;
       }
-    }
-
-    // V1.2.0 Feature: Animate welcome lines with typing effect
-    animateWelcomeLines() {
-      const welcomeLines = document.querySelectorAll('.welcome-line.typing-effect');
-      
-      welcomeLines.forEach((line) => {
-        const delay = parseInt(line.dataset.delay) || 0;
-        
-        setTimeout(() => {
-          line.classList.add('visible');
-        }, delay + 800); // Delay after ASCII art
-      });
     }
 
     focusInput() {

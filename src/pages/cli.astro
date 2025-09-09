@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import SEOHead from '../components/SEO/SEOHead.astro';
-import UMTerminal from '../components/UMTerminal.astro';
+import UMTerminalProfessional from '../components/UMTerminalProfessional.astro';
 
 // SEO metadata optimizado para página CLI
 const seoData = {
@@ -51,7 +51,7 @@ const seoData = {
     <!-- Terminal principal -->
     <main class="cli-main">
       <div class="terminal-container">
-        <UMTerminal />
+        <UMTerminalProfessional />
       </div>
     </main>
 
@@ -354,7 +354,7 @@ const seoData = {
             terminalInput.dispatchEvent(event);
             
             // Scroll suave hacia el terminal
-            document.getElementById('um-terminal-container').scrollIntoView({
+            document.getElementById('um-terminal-enhanced-container').scrollIntoView({
               behavior: 'smooth',
               block: 'center'
             });
