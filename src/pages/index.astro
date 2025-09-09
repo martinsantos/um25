@@ -1,17 +1,19 @@
 ---
+// Index completo con diseño original COMPLETO + UM CLI avanzado integrado
 import Layout from '../layouts/Layout.astro';
 import SEOHead from '../components/SEO/SEOHead.astro';
 import ServicesList from '../components/ServicesList.astro';
 import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
+import UMTerminalProfessional from '../components/UMTerminalProfessional.astro';
 
-// SEO metadata optimizado para página principal con enfoque local
+// SEO metadata optimizado para página principal
 const seoData = {
   title: "ULTIMA MILLA | Empresa IT Líder en Mendoza | Servicios Tecnológicos +20 Años",
   description: "ULTIMA MILLA: empresa líder en servicios IT en Mendoza desde 2000. +469 proyectos exitosos con Gobierno de Mendoza, AFIP, empresas vitivinícolas. Infraestructura, redes, seguridad informática y desarrollo web.",
   keywords: "ultima milla mendoza, empresa IT mendoza, servicios tecnológicos mendoza, transformación digital mendoza, comunicaciones mendoza, redes datos mendoza, seguridad informática mendoza, desarrollo web mendoza, argentina"  
 };
 
-// Array de imágenes tecnológicas para sección Nosotros
+// Array de imágenes tecnológicas para sección Nosotros Y fondo del banner
 const techImages = [
   'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Servidores
   'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Código
@@ -79,101 +81,32 @@ const antecedentes = {
     ogType="website"
   />
   
-  <!-- Hero Section con terminal -->
-  <header id="banner" class="relative w-full h-screen overflow-hidden">
-    <div class="absolute inset-0 bg-cover bg-center hero-background">
-      <div class="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-black/90 to-gray-800/95"></div>
-      <div class="absolute inset-0 bg-black/30"></div>
+  <!-- Hero Section - UM CLI TERMINAL COMPLETO -->
+  <header id="banner" class="relative w-full min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center p-4">
+    
+    <!-- Dynamic Background -->
+    <div class="absolute inset-0 bg-cover bg-center hero-background transition-all duration-700 ease-in-out">
+      <div class="absolute inset-0 bg-gradient-to-r from-gray-900/70 via-black/60 to-gray-800/70"></div>
+      <div class="absolute inset-0 bg-black/20"></div>
     </div>
-    <div class="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
-      <div class="terminal-container max-w-4xl w-full mb-8">
-        <div id="terminalOutput" class="terminal-output text-left space-y-1"></div>
-      </div>
-      <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto drop-shadow-md hero-subtitle">
-        Explora ULTIMA MILLA a través de nuestro <strong class="text-green-400">terminal interactivo</strong>.<br>
-        <span class="text-white font-medium">Una experiencia única que combina nostalgia Linux con datos reales.</span>
-      </p>
-      <div class="flex flex-wrap justify-center gap-6 mb-8 text-sm md:text-base">
-        <div class="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-          <span class="font-bold text-yellow-400">+30</span> Comandos Interactivos
-        </div>
-        <div class="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-          <span class="font-bold text-yellow-400">22</span> Años de Historia
-        </div>
-        <div class="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-          <span class="font-bold text-yellow-400">469+</span> Proyectos Reales
-        </div>
-      </div>
-      <a 
-        href="#um-cli-section" 
-        class="px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
-      >
-        Explorar Terminal
-      </a>
+    
+    <!-- Enhanced Grid Background -->
+    <div class="absolute inset-0 opacity-20">
+      <div class="absolute inset-0" style="background-image: linear-gradient(rgba(0,212,170,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,170,0.1) 1px, transparent 1px); background-size: 50px 50px;"></div>
     </div>
-    <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2">
-      <div class="animate-bounce w-6 h-10 border-4 border-white/50 rounded-full flex justify-center">
-        <div class="w-1 h-2 bg-white rounded-full mt-2"></div>
-      </div>
+    
+    <!-- UM TERMINAL ENHANCED - HERO PRINCIPAL -->
+    <div class="relative z-10 w-full flex items-center justify-center">
+      <UMTerminalProfessional />
+    </div>
+    
+    <!-- Botón de scroll hacia abajo -->
+    <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-white/60 animate-bounce">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+      </svg>
     </div>
   </header>
-  
-  <!-- Sección del UM CLI -->
-  <section id="um-cli-section" class="um-cli-section">
-    <div class="container">
-      <div class="cli-intro">
-        <h2>🖥️ Explora ULTIMA MILLA</h2>
-        <p>Descubre nuestros servicios, proyectos y capacidades a través de nuestro terminal interactivo. Una experiencia única que combina la nostalgia de Linux con datos reales de 22 años de historia empresarial.</p>
-      </div>
-      
-      <!-- Container para el CLI -->
-      <div id="um-cli-container"></div>
-      
-      <!-- Accesos directos principales -->
-      <div class="cli-quick-access">
-        <h3>🚀 Accesos rápidos:</h3>
-        <div class="quick-access-grid">
-          <a href="/servicios" class="quick-access-btn">
-            <span class="icon">💼</span>
-            <span class="label">Servicios</span>
-          </a>
-          <a href="/antecedentes" class="quick-access-btn">
-            <span class="icon">🏆</span>
-            <span class="label">Antecedentes</span>
-          </a>
-          <a href="#contacto" class="quick-access-btn">
-            <span class="icon">📞</span>
-            <span class="label">Contacto</span>
-          </a>
-        </div>
-      </div>
-      
-      <!-- Comandos sugeridos compactos -->
-      <div class="cli-suggestions">
-        <h3>💡 Comandos populares:</h3>
-        <div class="suggestion-compact">
-          <button class="suggestion-compact-btn" data-command="help">
-            <code>help</code>
-          </button>
-          <button class="suggestion-compact-btn" data-command="sudo ultimamilla.py --demo">
-            <code>demo</code>
-          </button>
-          <button class="suggestion-compact-btn" data-command="ls servicios">
-            <code>servicios</code>
-          </button>
-          <button class="suggestion-compact-btn" data-command="grep Mendoza">
-            <code>proyectos</code>
-          </button>
-          <button class="suggestion-compact-btn" data-command="stats --clientes">
-            <code>estadísticas</code>
-          </button>
-          <button class="suggestion-compact-btn" data-command="contacto">
-            <code>contacto</code>
-          </button>
-        </div>
-      </div>
-    </div>
-  </section>
   
   <main class="bg-gray-100">
     
@@ -188,6 +121,17 @@ const antecedentes = {
           <p class="text-lg text-gray-700 mb-8">
             Con presencia local y <strong>+469 proyectos exitosos</strong>, ofrecemos soluciones innovadoras que generan impacto real en el crecimiento de nuestros clientes en Mendoza y la región.
           </p>
+          <div class="flex flex-wrap gap-4 mb-8">
+            <div class="bg-red-100 text-red-800 px-4 py-2 rounded-full font-semibold">
+              💻 Desarrollo Web
+            </div>
+            <div class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-semibold">
+              🔒 Seguridad IT
+            </div>
+            <div class="bg-green-100 text-green-800 px-4 py-2 rounded-full font-semibold">
+              🌐 Redes & Comunicaciones
+            </div>
+          </div>
           <a href="/nosotros" class="inline-block bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition">Saber Más</a>
         </div>
         <div>
@@ -220,6 +164,12 @@ const antecedentes = {
             <ServicesList services={services.data} />
           </div>
         )}
+        
+        <div class="text-center mt-12">
+          <a href="/servicios" class="inline-block border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-8 py-3 rounded-lg font-semibold transition">
+            Ver todos los servicios
+          </a>
+        </div>
       </div>
     </section>
 
@@ -248,6 +198,7 @@ const antecedentes = {
         </div>
       </div>
     </section>
+    
 
     <!-- Formulario de Contacto -->
     <section id="contacto" class="py-20 bg-white">
@@ -335,9 +286,10 @@ const antecedentes = {
     background-attachment: fixed;
   }
 
+  /* Terminal Hero Styles */
   .terminal-container {
-    min-height: 300px; 
-    max-height: 400px;
+    min-height: 280px; 
+    max-height: 360px;
     padding: 20px;
     background: rgba(0, 0, 0, 0.8);
     border-radius: 8px;
@@ -348,16 +300,16 @@ const antecedentes = {
   
   .terminal-output {
     font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'SF Mono', Monaco, 'Roboto Mono', Consolas, 'Courier New', monospace;
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.4;
     color: #ffffff;
     overflow-y: auto;
-    max-height: 350px;
+    max-height: 320px;
   }
   
   .terminal-line {
     margin: 4px 0;
-    min-height: 22px;
+    min-height: 21px;
   }
   
   .terminal-prompt {
@@ -453,11 +405,12 @@ const antecedentes = {
     margin: 0 auto;
     line-height: 1.6;
   }
-
-  #um-cli-container {
+  
+  .terminal-wrapper {
     margin: 40px 0;
-    position: relative;
-    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   /* Accesos directos */
@@ -654,6 +607,11 @@ const antecedentes = {
     from, to { border-color: transparent }
     50% { border-color: #00d4aa }
   }
+  
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
 </style>
 
 <script is:inline>
@@ -673,79 +631,26 @@ const antecedentes = {
 
   // Observar elementos cuando se carga la página
   document.addEventListener('DOMContentLoaded', () => {
-    const elements = document.querySelectorAll('.cli-suggestions, #um-cli-container');
+    const elements = document.querySelectorAll('.cli-suggestions, .terminal-wrapper');
     elements.forEach(el => observer.observe(el));
-  });
-  
-  // Script del terminal del hero
-  const heroTerminalSequence = [
-    { text: 'ULTIMA MILLA@cli:~$ ', delay: 0, class: 'terminal-prompt' },
-    { text: 'sudo ultimamilla.py --explore', delay: 100, class: 'terminal-command' },
-    { text: '', delay: 800, class: 'terminal-output' },
-    { text: '🔒 Inicializando exploración empresarial...', delay: 600, class: 'terminal-output' },
-    { text: '✓ 22 años de historia cargados', delay: 800, class: 'terminal-success' },
-    { text: '', delay: 400, class: 'terminal-output' },
-    { text: '📊 Cargando 469+ proyectos...', delay: 600, class: 'terminal-output' },
-    { text: '✓ Base de datos empresarial sincronizada', delay: 800, class: 'terminal-success' },
-    { text: '', delay: 400, class: 'terminal-output' },
-    { text: '🚀 TERMINAL UM CLI LISTO - Explora interactivamente!', delay: 1000, class: 'terminal-result' },
-  ];
-  
-  let heroCurrentLine = 0;
-  let heroCurrentChar = 0;
-  const heroTerminalOutput = document.getElementById('terminalOutput');
-  
-  function typeHeroTerminalSequence() {
-    if (heroCurrentLine >= heroTerminalSequence.length) {
-      // Reiniciar después de 8 segundos
-      setTimeout(() => {
-        heroTerminalOutput.innerHTML = '';
-        heroCurrentLine = 0;
-        heroCurrentChar = 0;
-        typeHeroTerminalSequence();
-      }, 8000);
-      return;
-    }
-    
-    const currentSequence = heroTerminalSequence[heroCurrentLine];
-    const currentText = currentSequence.text;
-    
-    if (heroCurrentChar <= currentText.length) {
-      const displayText = currentText.substring(0, heroCurrentChar);
-      
-      let currentLineElement = document.getElementById(`hero-terminal-line-${heroCurrentLine}`);
-      if (!currentLineElement) {
-        currentLineElement = document.createElement('div');
-        currentLineElement.id = `hero-terminal-line-${heroCurrentLine}`;
-        currentLineElement.className = `terminal-line ${currentSequence.class}`;
-        heroTerminalOutput.appendChild(currentLineElement);
-      }
-      
-      if (heroCurrentChar < currentText.length) {
-        currentLineElement.innerHTML = displayText + '<span class="terminal-cursor">█</span>';
-      } else {
-        currentLineElement.innerHTML = displayText;
-      }
-      
-      heroCurrentChar++;
-      setTimeout(typeHeroTerminalSequence, currentSequence.delay || 80);
-    } else {
-      heroCurrentLine++;
-      heroCurrentChar = 0;
-      setTimeout(typeHeroTerminalSequence, heroTerminalSequence[heroCurrentLine-1]?.delay || 300);
-    }
-  }
-  
-  // Iniciar la secuencia del hero
-  document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(typeHeroTerminalSequence, 1000);
     
     // Configurar imagen de fondo aleatoria para el hero
     const techImages = [
-      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
-      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
-      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
-      'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'
+      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Servidores
+      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Código
+      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Tecnología espacial
+      'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Laptop código
+      'https://images.unsplash.com/photo-1537432376769-00f83c2f9c52?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Cables red
+      'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Fibra óptica
+      'https://images.unsplash.com/photo-1563206767-5b18f218e8de?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Circuitos
+      'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // AI/ML
+      'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Código terminal
+      'https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Programación
+      'https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Blockchain
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Gráficos datos
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Analytics
+      'https://images.unsplash.com/photo-1504639725590-34d0984388bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Desarrollo
+      'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80' // Matemáticas
     ];
     
     const banner = document.getElementById('banner');
@@ -760,6 +665,18 @@ const antecedentes = {
     
     changeHeroBackground();
     setInterval(changeHeroBackground, 15000); // Cambiar cada 15 segundos
+    
+    // Mobile menu toggle
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    if (mobileMenuButton) {
+      mobileMenuButton.addEventListener('click', () => {
+        // Mobile menu functionality
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenu) {
+          mobileMenu.classList.toggle('hidden');
+        }
+      });
+    }
   });
   
 </script>
@@ -768,36 +685,6 @@ const antecedentes = {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<noscript>
-  <div class="no-js-message">
-    <h3>Terminal no disponible</h3>
-    <p>Para una experiencia completa, habilita JavaScript en tu navegador.</p>
-    <p>Mientras tanto, puedes contactarnos en: <a href="mailto:info@ultimamilla.com">info@ultimamilla.com</a></p>
-  </div>
-  
-  <style>
-    .no-js-message {
-      background: #1a1a2e;
-      color: #eee;
-      padding: 40px;
-      text-align: center;
-      border-radius: 8px;
-      margin: 40px auto;
-      max-width: 600px;
-      border: 2px solid #00d4aa;
-    }
-    
-    .no-js-message a {
-      color: #00d4aa;
-      text-decoration: none;
-    }
-    
-    .no-js-message a:hover {
-      text-decoration: underline;
-    }
-  </style>
-</noscript>
 
 <!-- Contact System Script -->
 <script is:inline>
@@ -876,58 +763,112 @@ const antecedentes = {
   });
 </script>
 
-<!-- Script único del terminal CLI -->
-<script>
-  // VERSIÓN FINAL: Un solo UMCliPlugin, sin duplicados
-  
-  // Prevenir múltiples inicializaciones
-  if (!window.umCliInitialized) {
-    window.umCliInitialized = true;
-    
-    // Cargar UMCliPlugin dinámicamente
-    const script = document.createElement('script');
-    script.src = '/UMCliPlugin.js';
-    script.onload = () => {
-      document.addEventListener('DOMContentLoaded', () => {
-        if (typeof UMCliPlugin !== 'undefined') {
-          console.log('✅ UM CLI inicializando (versión única)...');
+<!-- Script para terminal en banner hero -->
+<script is:inline>
+  // Inicializar terminal en banner hero
+  document.addEventListener('DOMContentLoaded', () => {
+    // Esperar a que el script terminalEnhanced.js se cargue
+    function initHeroTerminal() {
+      if (typeof window.terminalEnhanced === 'undefined') {
+        setTimeout(initHeroTerminal, 100);
+        return;
+      }
+      
+      try {
+        // Configurar el terminal para el banner hero
+        const terminalOutput = document.getElementById('terminalOutput');
+        if (terminalOutput) {
+          // Simular una sesión de terminal con animación de tipeo
+          const terminalLines = [
+            { prompt: 'root@ultimamilla:~$', command: 'cat /info/empresa.txt', delay: 1000 },
+            { output: '🏢 ULTIMA MILLA - Empresa IT Líder en Mendoza', delay: 1500 },
+            { output: '📅 Fundada: 2000 | 🚀 22+ años de experiencia', delay: 2000 },
+            { output: '✅ +469 proyectos exitosos completados', delay: 2500 },
+            { output: '🎯 Especialistas en: Redes, Seguridad, Software', delay: 3000 },
+            { prompt: 'root@ultimamilla:~$', command: 'ls servicios/', delay: 4000 },
+            { output: 'seguridad-informatica/  redes-comunicaciones/  software-servicios/', delay: 4500 },
+            { prompt: 'root@ultimamilla:~$', command: 'echo "¡Bienvenido a ULTIMA MILLA!"', delay: 5500 },
+            { output: '🎉 ¡Bienvenido a ULTIMA MILLA! 🎉', delay: 6000 },
+            { output: '💡 Tip: Visita /cli para el terminal completo', delay: 6500 }
+          ];
           
-          const umCli = new UMCliPlugin({
-            container: '#um-cli-container',
-            theme: 'dark',
-            showWelcome: true,
-            autoFocus: false,
-            customCommands: {
-              'contacto': async () => ({
-                success: true,
-                output: `📞 CONTACTO ULTIMA MILLA\n\n🏢 Mendoza, Argentina\n📧 info@ultimamilla.com\n📞 +54 261 XXX-XXXX\n\n✅ 22 años de experiencia`
-              }),
-              'servicios': async () => ({
-                success: true,
-                output: `💼 SERVICIOS ULTIMA MILLA\n\n🔒 Seguridad Informática\n💻 Redes y Comunicaciones\n⚙️ Software y Servicios\n\n🔗 Más info: /servicios`
-              }),
-              'antecedentes': async () => ({
-                success: true,
-                output: `🏆 CASOS DE ÉXITO\n\n📊 469+ proyectos completados\n🌐 22 años de experiencia\n🏢 Clientes en Argentina\n\n🔗 Ver casos: /antecedentes`
-              })
-            }
-          });
-          
-          console.log('✅ UM CLI inicializado correctamente');
-          
-          // Event listeners para botones
-          document.querySelectorAll('.suggestion-compact-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-              const command = e.target.closest('[data-command]').getAttribute('data-command');
-              if (command) {
-                umCli.executeCommandProgrammatically(command);
-                umCli.focus();
-              }
+          function typewriter(text, element, speed = 50) {
+            return new Promise(resolve => {
+              let i = 0;
+              const timer = setInterval(() => {
+                if (i < text.length) {
+                  element.innerHTML += text.charAt(i);
+                  i++;
+                } else {
+                  clearInterval(timer);
+                  resolve();
+                }
+              }, speed);
             });
-          });
+          }
+          
+          async function animateTerminal() {
+            for (const line of terminalLines) {
+              await new Promise(resolve => setTimeout(resolve, line.delay));
+              
+              const lineDiv = document.createElement('div');
+              lineDiv.className = 'terminal-line';
+              
+              if (line.prompt && line.command) {
+                const promptSpan = document.createElement('span');
+                promptSpan.className = 'terminal-prompt';
+                const commandSpan = document.createElement('span');
+                commandSpan.className = 'terminal-command';
+                
+                lineDiv.appendChild(promptSpan);
+                lineDiv.appendChild(commandSpan);
+                terminalOutput.appendChild(lineDiv);
+                
+                await typewriter(line.prompt + ' ', promptSpan, 30);
+                await typewriter(line.command, commandSpan, 40);
+              } else if (line.output) {
+                const outputSpan = document.createElement('span');
+                outputSpan.className = line.output.includes('🎉') ? 'terminal-result' : 'terminal-success';
+                lineDiv.appendChild(outputSpan);
+                terminalOutput.appendChild(lineDiv);
+                
+                await typewriter(line.output, outputSpan, 25);
+              }
+              
+              // Auto scroll
+              terminalOutput.scrollTop = terminalOutput.scrollHeight;
+            }
+            
+            // Agregar prompt final parpadeante
+            setTimeout(() => {
+              const finalLine = document.createElement('div');
+              finalLine.className = 'terminal-line';
+              const finalPrompt = document.createElement('span');
+              finalPrompt.className = 'terminal-prompt';
+              finalPrompt.innerHTML = 'root@ultimamilla:~$ <span style="animation: blink 1s infinite;">_</span>';
+              finalLine.appendChild(finalPrompt);
+              terminalOutput.appendChild(finalLine);
+              terminalOutput.scrollTop = terminalOutput.scrollHeight;
+            }, 1000);
+          }
+          
+          // Iniciar animación después de 2 segundos
+          setTimeout(animateTerminal, 2000);
         }
-      });
-    };
-    document.head.appendChild(script);
-  }
+      } catch (error) {
+        console.warn('Error inicializando terminal hero:', error);
+      }
+    }
+    
+    initHeroTerminal();
+  });
+</script>
+
+<!-- Scripts del terminal CLI integrados -->
+<!-- Removed external script to avoid conflicts -->
+<script>
+  // Sistema de terminal integrado funcionando desde UMTerminalProfessional.astro
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log('✅ UM CLI Enhanced - Sistema integrado inicializado');
+  });
 </script>

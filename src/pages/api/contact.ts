@@ -8,17 +8,21 @@ const MAX_REQUESTS_PER_WINDOW = 3; // 3 envíos máximo por IP en 15 minutos
 
 // Configuración del transporte de correo
 const transporter = nodemailer.createTransport({
-  host: import.meta.env.SMTP_HOST,
-  port: parseInt(import.meta.env.SMTP_PORT),
-  secure: false,  // false para puerto 587, true solo para 465
-  auth: {
+  host: import.meta.env.SMTP_HOST || '127.0.0.1',  // Usar IPv4 explícitamente
+  port: parseInt(import.meta.env.SMTP_PORT) || 25,
+  secure: false,  // false para puerto 25/587, true solo para 465
+  // Sin autenticación para postfix local
+  auth: import.meta.env.SMTP_USER ? {
     user: import.meta.env.SMTP_USER,
     pass: import.meta.env.SMTP_PASS,
-  },
-  // Permitir autofirma/certificados no válidos en desarrollo
-  tls: {
-    rejectUnauthorized: false
-  }
+  } : undefined,
+  // Deshabilitar TLS completamente para postfix local
+  ignoreTLS: true,
+  requireTLS: false,
+  // Configuraciones adicionales para postfix local
+  connectionTimeout: 5000, // 5 segundos de timeout
+  greetingTimeout: 3000,
+  socketTimeout: 10000
 });
 
 // Función para validar email

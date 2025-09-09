@@ -1,0 +1,1169 @@
+---
+// UMTerminalEnhanced.astro - Enhanced terminal with groundbreaking visual effects and advanced UX
+---
+
+<div id="um-terminal-enhanced-container">
+  <div id="um-terminal-enhanced" class="um-terminal-enhanced">
+    <!-- Terminal Header -->
+    <div class="um-terminal-header">
+    <div class="um-terminal-controls">
+        <button class="um-control um-minimize" data-action="minimize" aria-label="Minimizar terminal">
+          <span class="control-icon">−</span>
+        </button>
+        <button class="um-control um-maximize" data-action="fullscreen" aria-label="Pantalla completa">
+          <span class="control-icon">⬜</span>
+        </button>
+        <button class="um-control um-close" data-action="close" aria-label="Cerrar terminal">
+          <span class="control-icon">✕</span>
+        </button>
+      </div>
+      <div class="um-terminal-title">ULTIMA MILLA CLI v22.0 - Mendoza, Argentina</div>
+      <div class="um-terminal-status">
+        <div class="status-indicator" id="connection-status" aria-label="Estado de conexión"></div>
+      </div>
+    </div>
+    
+    <!-- Terminal Body -->
+    <div class="um-terminal-body" id="terminal-output">
+      <div class="welcome-message">
+        <pre id="welcome-ascii" class="ascii-art"></pre>
+        <div class="welcome-info">
+        <div class="welcome-line typing-effect" data-delay="0">
+            <span class="icon">🚀</span> Bienvenido a <strong>ULTIMA MILLA CLI</strong> - Terminal interactivo empresarial
+          </div>
+          <div class="welcome-line typing-effect" data-delay="800">
+            <span class="icon">📊</span> Explora <strong>22 años</strong> de historia, <strong>469+ proyectos</strong> y <strong>150+ clientes</strong>
+          </div>
+          <div class="welcome-line typing-effect" data-delay="1600">
+            <span class="icon">💡</span> Escribe <code>help</code> para ver comandos disponibles
+          </div>
+          <div class="welcome-line typing-effect" data-delay="2400">
+            <span class="icon">⚡</span> Prueba <code>sudo ultimamilla.py --demo</code> para una demostración completa
+          </div>
+          <div class="welcome-line typing-effect" data-delay="3200">
+            <span class="icon">📞</span> Comando <code>contacto</code> para enviar mensajes reales
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Terminal Input Line -->
+    <div class="um-terminal-input-line">
+      <div class="input-container">
+        <span class="um-prompt" id="terminal-prompt">visitante@ultimamilla:~$ </span>
+        <input 
+          type="text" 
+          id="terminal-input" 
+          class="um-input" 
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Escribe un comando..."
+          aria-label="Terminal de comandos"
+        />
+        <div class="cursor-blink" id="terminal-cursor"></div>
+      </div>
+      <div class="input-suggestions" id="input-suggestions"></div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Procesando comando...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts del terminal integrados (sin scripts externos) -->
+
+<style>
+  /* Enhanced Terminal Container */
+  #um-terminal-enhanced-container {
+    width: 100%;
+    max-width: none;
+    margin: 0 auto;
+    padding: 0;
+    position: relative;
+    z-index: 10;
+  }
+
+  .um-terminal-enhanced {
+    /* Responsive sizing - balanced with background visibility */
+    width: 85vw;
+    max-width: 1200px;
+    height: 70vh;
+    min-height: 500px;
+    max-height: 800px;
+    
+    /* Enhanced visual design */
+    background: linear-gradient(145deg, #0a0e1a 0%, #1a1f2e 50%, #0d1117 100%);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    border-radius: 16px;
+    
+    /* Enhanced shadow and glow effects */
+    box-shadow: 
+      0 25px 50px -12px rgba(0, 0, 0, 0.8),
+      0 0 0 1px rgba(255, 255, 255, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    
+    /* Font and layout */
+    font-family: 'Fira Code', 'JetBrains Mono', 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    margin: 0 auto;
+    
+    /* Subtle animation */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Glowing border effect */
+  .um-terminal-enhanced::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, 
+      rgba(0, 255, 170, 0.3) 0%,
+      rgba(121, 192, 255, 0.3) 25%,
+      rgba(255, 107, 107, 0.3) 50%,
+      rgba(255, 214, 0, 0.3) 75%,
+      rgba(0, 255, 170, 0.3) 100%
+    );
+    border-radius: 16px;
+    z-index: -1;
+    animation: borderGlow 4s linear infinite;
+  }
+
+  @keyframes borderGlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Terminal Header */
+  .um-terminal-header {
+    background: linear-gradient(135deg, #21262d 0%, #30363d 100%);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    user-select: none;
+    backdrop-filter: blur(10px);
+  }
+
+  .um-terminal-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .um-control {
+    width: 32px;
+    height: 26px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .um-minimize {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .um-minimize:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .um-maximize {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .um-maximize:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .um-close {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .um-close:hover {
+    background: #e74c3c;
+    border-color: #c0392b;
+  }
+
+  .control-icon {
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 1;
+  }
+
+  .um-control:active {
+    transform: scale(0.95);
+  }
+
+  .um-terminal-title {
+    color: #e6edf3;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    flex: 1;
+    margin-left: -80px;
+    text-shadow: 0 0 10px rgba(230, 237, 243, 0.3);
+  }
+
+  .um-terminal-status {
+    display: flex;
+    align-items: center;
+  }
+
+  .status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #00d4aa, #00ff88);
+    box-shadow: 0 0 15px rgba(0, 212, 170, 0.5);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(0.9); }
+  }
+
+  /* Terminal Body */
+  .um-terminal-body {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    color: #e6edf3;
+    font-size: 16px;
+    line-height: 1.6;
+    background: rgba(13, 17, 23, 0.4);
+    backdrop-filter: blur(5px);
+    position: relative;
+  }
+
+  /* Custom scrollbar */
+  .um-terminal-body::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .um-terminal-body::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+
+  .um-terminal-body::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #00d4aa, #79c0ff);
+    border-radius: 4px;
+  }
+
+  .um-terminal-body::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #00ff88, #a0d0ff);
+  }
+
+  /* Welcome Message */
+  .welcome-message {
+    margin-bottom: 30px;
+  }
+
+  .ascii-art {
+    color: #00ffaa;
+    font-size: 9px;
+    margin-bottom: 24px;
+    text-shadow: 
+      0 0 10px rgba(0, 255, 170, 0.6),
+      0 0 20px rgba(0, 255, 170, 0.3),
+      0 0 30px rgba(0, 255, 170, 0.1);
+    filter: drop-shadow(0 0 8px rgba(0, 255, 170, 0.4));
+    font-family: 'Fira Code', 'JetBrains Mono', 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+    line-height: 0.9;
+    white-space: pre;
+    overflow-x: auto;
+    font-weight: 400;
+    letter-spacing: -0.3px;
+    text-align: center;
+    background: rgba(0, 255, 170, 0.02);
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 255, 170, 0.15);
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .welcome-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .welcome-line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .welcome-line.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .welcome-line .icon {
+    font-size: 18px;
+    min-width: 24px;
+    text-align: center;
+    filter: drop-shadow(0 0 5px currentColor);
+  }
+
+  .welcome-line strong {
+    color: #00d4aa;
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(0, 212, 170, 0.4);
+  }
+
+  .welcome-line code {
+    background: rgba(121, 192, 255, 0.15);
+    color: #79c0ff;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 14px;
+    border: 1px solid rgba(121, 192, 255, 0.3);
+    transition: all 0.2s ease;
+  }
+
+  .welcome-line code:hover {
+    background: rgba(121, 192, 255, 0.25);
+    border-color: rgba(121, 192, 255, 0.5);
+    transform: translateY(-1px);
+  }
+
+  /* Terminal Input */
+  .um-terminal-input-line {
+    padding: 20px 24px;
+    background: rgba(13, 17, 23, 0.8);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    position: relative;
+  }
+
+  .input-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+  }
+
+  .um-prompt {
+    color: #00d4aa;
+    font-weight: 700;
+    white-space: nowrap;
+    text-shadow: 0 0 12px rgba(0, 212, 170, 0.6);
+    font-size: 16px;
+  }
+
+  .um-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #e6edf3;
+    font-family: inherit;
+    font-size: 16px;
+    outline: none;
+    caret-color: transparent; /* Hide default caret */
+    padding: 8px 0;
+  }
+
+  .um-input::placeholder {
+    color: rgba(110, 118, 129, 0.6);
+    font-style: italic;
+  }
+
+  /* Custom cursor */
+  .cursor-blink {
+    width: 2px;
+    height: 20px;
+    background: #00d4aa;
+    margin-left: 2px;
+    animation: blink 1s infinite;
+    box-shadow: 0 0 8px rgba(0, 212, 170, 0.6);
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  /* Input Suggestions */
+  .input-suggestions {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    right: 0;
+    background: rgba(33, 38, 45, 0.95);
+    border: 1px solid rgba(121, 192, 255, 0.3);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #79c0ff;
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+
+  .input-suggestions.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  /* Loading Overlay */
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(13, 17, 23, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(5px);
+    z-index: 100;
+  }
+
+  .loading-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(121, 192, 255, 0.2);
+    border-top: 3px solid #79c0ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .loading-text {
+    color: #79c0ff;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  /* Output styling */
+  .command-output {
+    margin: 16px 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    line-height: 1.4;
+  }
+
+  .command-input {
+    color: #e6edf3;
+    margin: 12px 0 8px 0;
+    font-weight: 600;
+  }
+
+  .command-success {
+    color: #7ee787;
+    text-shadow: 0 0 8px rgba(126, 231, 135, 0.3);
+  }
+
+  .command-error {
+    color: #f85149;
+    text-shadow: 0 0 8px rgba(248, 81, 73, 0.3);
+  }
+
+  .command-info {
+    color: #79c0ff;
+    text-shadow: 0 0 8px rgba(121, 192, 255, 0.3);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    .um-terminal-enhanced {
+      width: 90vw;
+      height: 65vh;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .um-terminal-enhanced {
+      width: 94vw;
+      height: 60vh;
+      min-height: 400px;
+      border-radius: 12px;
+    }
+
+    .um-terminal-header {
+      padding: 12px 16px;
+    }
+
+    .um-control {
+      width: 14px;
+      height: 14px;
+    }
+
+    .um-terminal-title {
+      font-size: 12px;
+      margin-left: -60px;
+    }
+
+    .um-terminal-body {
+      padding: 16px;
+      font-size: 14px;
+    }
+
+    .welcome-line {
+      gap: 8px;
+    }
+
+    .welcome-line .icon {
+      font-size: 16px;
+      min-width: 20px;
+    }
+
+    .welcome-line code {
+      font-size: 12px;
+      padding: 2px 6px;
+    }
+
+    .um-terminal-input-line {
+      padding: 16px;
+    }
+
+    .um-prompt {
+      font-size: 14px;
+    }
+
+    .um-input {
+      font-size: 14px;
+    }
+
+    .cursor-blink {
+      height: 18px;
+    }
+    
+    .ascii-art {
+      font-size: 8px;
+      line-height: 0.85;
+      letter-spacing: -0.35px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .um-terminal-enhanced {
+      width: 99vw;
+      height: 55vh;
+      min-height: 350px;
+      border-radius: 8px;
+    }
+
+    .um-terminal-header {
+      padding: 10px 12px;
+    }
+
+    .um-terminal-title {
+      font-size: 11px;
+      margin-left: -50px;
+    }
+
+    .um-terminal-body {
+      padding: 12px;
+      font-size: 13px;
+    }
+
+    .ascii-art {
+      font-size: 7px;
+      line-height: 0.8;
+      letter-spacing: -0.4px;
+      padding: 12px;
+    }
+
+    .welcome-line {
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    .welcome-line .icon {
+      font-size: 14px;
+      min-width: 18px;
+    }
+
+    .um-terminal-input-line {
+      padding: 12px;
+    }
+
+    .um-prompt {
+      font-size: 13px;
+    }
+
+    .um-input {
+      font-size: 13px;
+    }
+
+    .cursor-blink {
+      height: 16px;
+    }
+  }
+
+  /* Landscape mobile optimization */
+  @media (max-height: 600px) and (orientation: landscape) {
+    .um-terminal-enhanced {
+      height: 85vh;
+      min-height: 300px;
+    }
+
+    .um-terminal-body {
+      padding: 12px;
+    }
+
+    .welcome-message {
+      margin-bottom: 16px;
+    }
+
+    .welcome-line {
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+  }
+
+  /* High DPI displays */
+  @media (min-resolution: 2dppx) {
+    .um-terminal-enhanced {
+      border-width: 1px;
+    }
+
+    .um-terminal-enhanced::before {
+      top: -1px;
+      left: -1px;
+      right: -1px;
+      bottom: -1px;
+    }
+  }
+
+  /* Accessibility improvements */
+  @media (prefers-reduced-motion: reduce) {
+    .um-terminal-enhanced,
+    .um-control,
+    .welcome-line,
+    .cursor-blink,
+    .loading-overlay,
+    .input-suggestions {
+      animation: none;
+      transition: none;
+    }
+
+    .status-indicator {
+      animation: none;
+    }
+  }
+
+  /* High contrast mode */
+  @media (prefers-contrast: high) {
+    .um-terminal-enhanced {
+      border: 2px solid #ffffff;
+      box-shadow: none;
+    }
+
+    .um-terminal-enhanced::before {
+      display: none;
+    }
+
+    .um-terminal-header {
+      border-bottom: 2px solid #ffffff;
+    }
+
+    .welcome-line strong {
+      color: #ffffff;
+      text-shadow: none;
+    }
+  }
+</style>
+
+<script>
+  // Enhanced Terminal Initialization Script - Embedded for Reliability
+  class UMTerminalEnhancedInit {
+    constructor() {
+      this.init();
+    }
+
+    async init() {
+      // Ensure DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => this.initializeTerminal());
+      } else {
+        this.initializeTerminal();
+      }
+    }
+
+    async initializeTerminal() {
+      try {
+        // Check if elements exist
+        const container = document.getElementById('um-terminal-enhanced');
+        const input = document.getElementById('terminal-input');
+        const output = document.getElementById('terminal-output');
+        const welcomeAscii = document.getElementById('welcome-ascii');
+        
+        if (!container || !input || !output) {
+          console.warn('UM Terminal Enhanced: Required elements not found');
+          return;
+        }
+
+        console.log('✓ UM Terminal Enhanced: Elements found, initializing...');
+
+        // Try to load and initialize external enhanced terminal
+        try {
+          if (window.EnhancedTerminal) {
+            const terminal = new window.EnhancedTerminal('um-terminal-enhanced');
+            window.umTerminal = terminal;
+            console.log('✓ UM Terminal Enhanced: External script initialized');
+            return;
+          }
+        } catch (error) {
+          console.warn('UM Terminal Enhanced: External script failed, using fallback:', error);
+        }
+
+        // Fallback: Basic terminal functionality
+        this.initializeFallbackTerminal(container, input, output, welcomeAscii);
+        
+      } catch (error) {
+        console.error('UM Terminal Enhanced: Initialization failed:', error);
+      }
+    }
+
+    initializeFallbackTerminal(container, input, output, welcomeAscii) {
+      console.log('✓ UM Terminal Enhanced: Using fallback initialization');
+      
+      // Display ASCII art
+      if (welcomeAscii) {
+        const asciiArt = `
+ ██    ██ ██   ████████ ██ ███    ███  █████      ███    ███ ██ ██       ██        █████  
+ ██    ██ ██      ██    ██ ████  ████ ██   ██     ████  ████ ██ ██       ██       ██   ██ 
+ ██    ██ ██      ██    ██ ██ ████ ██ ███████     ██ ████ ██ ██ ██       ██       ███████ 
+ ██    ██ ██      ██    ██ ██  ██  ██ ██   ██     ██  ██  ██ ██ ██       ██       ██   ██ 
+  ██████  ███████ ██    ██ ██      ██ ██   ██     ██      ██ ██ ███████ ███████   ██   ██ 
+
+        ════════════════════════════════════════════════════════════════════════════
+        ║  🏢 EMPRESA TECNOLÓGICA LÍDER EN MENDOZA DESDE 2003  🚀              ║
+        ║  💻 DESARROLLO WEB • APPS • SISTEMAS • INFRAESTRUCTURA • SEGURIDAD   ║
+        ║  📊 +469 PROYECTOS EXITOSOS • +150 CLIENTES SATISFECHOS             ║
+        ║  🌐 TERMINAL INTERACTIVO - www.ultimamilla.com.ar                   ║
+        ════════════════════════════════════════════════════════════════════════════`;
+        
+        this.typeText(welcomeAscii, asciiArt, 10);
+      }
+      
+      // Animate welcome lines
+      this.animateWelcomeLines();
+      
+      // Initialize window controls
+      this.initializeWindowControls();
+      
+      // Initialize basic terminal functionality 
+      new UMTerminalBasic(container, input, output);
+    }
+    
+    // Typewriter effect
+    async typeText(element, text, speed = 15) {
+      return new Promise(resolve => {
+        element.textContent = '';
+        let i = 0;
+        const interval = setInterval(() => {
+          if (i < text.length) {
+            element.textContent += text.charAt(i);
+            i++;
+          } else {
+            clearInterval(interval);
+            resolve();
+          }
+        }, speed);
+      });
+    }
+    
+    // Animate welcome lines
+    animateWelcomeLines() {
+      const welcomeLines = document.querySelectorAll('.welcome-line');
+      welcomeLines.forEach((line, index) => {
+        const delay = parseInt(line.dataset.delay) || 0;
+        setTimeout(() => {
+          line.classList.add('visible');
+        }, delay);
+      });
+    }
+    
+    // Initialize window controls functionality
+    initializeWindowControls() {
+      const minimizeBtn = document.querySelector('[data-action="minimize"]');
+      const maximizeBtn = document.querySelector('[data-action="fullscreen"]');
+      const closeBtn = document.querySelector('[data-action="close"]');
+      const terminal = document.getElementById('um-terminal-enhanced');
+      
+      if (minimizeBtn) {
+        minimizeBtn.addEventListener('click', () => {
+          terminal.style.transform = 'scale(0.1)';
+          terminal.style.opacity = '0.3';
+          setTimeout(() => {
+            terminal.style.transform = 'scale(1)';
+            terminal.style.opacity = '1';
+          }, 1000);
+        });
+      }
+      
+      if (maximizeBtn) {
+        let isFullscreen = false;
+        maximizeBtn.addEventListener('click', () => {
+          if (!isFullscreen) {
+            terminal.style.position = 'fixed';
+            terminal.style.top = '0';
+            terminal.style.left = '0';
+            terminal.style.width = '100vw';
+            terminal.style.height = '100vh';
+            terminal.style.zIndex = '9999';
+            terminal.style.borderRadius = '0';
+            isFullscreen = true;
+          } else {
+            terminal.style.position = 'relative';
+            terminal.style.top = 'auto';
+            terminal.style.left = 'auto';
+            terminal.style.width = '';
+            terminal.style.height = '';
+            terminal.style.zIndex = '';
+            terminal.style.borderRadius = '16px';
+            isFullscreen = false;
+          }
+        });
+      }
+      
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          terminal.style.animation = 'fadeOut 0.5s ease forwards';
+          setTimeout(() => {
+            terminal.style.display = 'none';
+            setTimeout(() => {
+              terminal.style.display = 'flex';
+              terminal.style.animation = 'fadeIn 0.5s ease forwards';
+            }, 2000);
+          }, 500);
+        });
+      }
+    }
+  }
+    
+  // Basic Terminal functionality as fallback
+  class UMTerminalBasic {
+    constructor(container, input, output) {
+      this.input = input;
+      this.output = output;
+      this.container = container;
+      this.history = [];
+      this.historyIndex = -1;
+      
+      this.setupEventListeners();
+      this.focusInput();
+      console.log('✅ UM Terminal Basic initialized');
+    }
+    
+    setupEventListeners() {
+      this.input.addEventListener('keydown', (e) => {
+        switch(e.key) {
+          case 'Enter':
+            e.preventDefault();
+            this.executeCommand();
+            break;
+          case 'ArrowUp':
+            e.preventDefault();
+            this.navigateHistory(-1);
+            break;
+          case 'ArrowDown':
+            e.preventDefault();
+            this.navigateHistory(1);
+            break;
+          case 'Tab':
+            e.preventDefault();
+            this.handleAutocomplete();
+            break;
+        }
+      });
+      
+      // Click to focus
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('#um-terminal-enhanced')) {
+          this.focusInput();
+        }
+      });
+    }
+    
+    focusInput() {
+      this.input.focus();
+    }
+    
+    executeCommand() {
+      const command = this.input.value.trim();
+      if (!command) return;
+      
+      this.history.push(command);
+      this.historyIndex = -1;
+      
+      this.addOutput(`visitante@ultimamilla:~$ ${command}`, 'command-input');
+      this.input.value = '';
+      
+      this.processCommand(command);
+      this.scrollToBottom();
+    }
+    
+    processCommand(command) {
+      const [cmd, ...args] = command.toLowerCase().split(' ');
+      
+      switch(cmd) {
+        case 'help':
+        case 'ayuda':
+          this.showHelp();
+          break;
+        case 'clear':
+        case 'cls':
+          this.clearOutput();
+          break;
+        case 'sudo':
+          if (args[0] === 'ultimamilla.py') {
+            this.showDemo();
+          } else {
+            this.addOutput('sudo: comando no reconocido', 'command-error');
+          }
+          break;
+        case 'ls':
+          this.listDirectory();
+          break;
+        case 'servicios':
+          this.showServices();
+          break;
+        case 'stats':
+          this.showStats();
+          break;
+        case 'contacto':
+          this.showContact();
+          break;
+        case 'whoami':
+          this.addOutput('visitante - Explorador del UM CLI', 'command-success');
+          break;
+        case 'date':
+          this.addOutput(new Date().toString(), 'command-success');
+          break;
+        case 'matrix':
+          this.matrixEffect();
+          break;
+        default:
+          this.addOutput(`Comando '${cmd}' no reconocido. Escribe 'help' para ver comandos disponibles.`, 'command-error');
+      }
+    }
+    
+    showHelp() {
+      const helpText = `
+═══════════════════════════════════════════════════════════════════
+                    🚀 ULTIMA MILLA CLI v22.0 - COMANDOS
+═══════════════════════════════════════════════════════════════════
+
+📁 NAVEGACIÓN Y SISTEMA:
+  • help, ayuda           - Muestra esta ayuda
+  • clear, cls            - Limpia la pantalla
+  • ls                    - Lista contenido del directorio
+  • whoami               - Usuario actual
+  • date                 - Fecha y hora actual
+
+🏢 INFORMACIÓN EMPRESARIAL:
+  • servicios            - Lista todos los servicios IT
+  • stats                - Estadísticas de la empresa
+  • contacto             - Información de contacto
+  • sudo ultimamilla.py  - Demostración completa
+
+🎮 ENTRETENIMIENTO:
+  • matrix               - Efecto Matrix
+
+💡 TIPS:
+  - Use TAB para autocompletar comandos
+  - Use ↑/↓ para navegar el historial
+  - Todos los comandos están basados en datos reales de 22 años
+
+═══════════════════════════════════════════════════════════════════
+      `;
+      this.addOutput(helpText, 'command-success');
+    }
+    
+    showDemo() {
+      this.addOutput('🚀 Iniciando demostración de ULTIMA MILLA...', 'command-info');
+      this.addOutput('📊 Empresa líder en Mendoza desde 2003', 'command-success');
+      this.addOutput('🏢 +469 proyectos exitosos realizados', 'command-success');
+      this.addOutput('👥 +150 clientes satisfechos', 'command-success');
+      this.addOutput('🔌 Especializados en: Desarrollo Web, Apps, Sistemas, Redes, Seguridad', 'command-success');
+    }
+    
+    showServices() {
+      const services = `
+💼 SERVICIOS DE ULTIMA MILLA:
+
+🔐 1. Seguridad Informática
+   - Ciberseguridad empresarial
+   - Monitoreo 24/7
+   - Análisis de vulnerabilidades
+
+🌐 2. Redes y Comunicaciones
+   - Infraestructura de red
+   - Cableado estructurado
+   - Wi-Fi empresarial
+
+💻 3. Software y Servicios
+   - Desarrollo web
+   - Aplicaciones móviles
+   - Sistemas a medida
+
+📈 Contacto: info@ultimamilla.com.ar
+      `;
+      this.addOutput(services, 'command-success');
+    }
+    
+    showStats() {
+      const stats = `
+📊 ESTADÍSTICAS DE ULTIMA MILLA:
+
+🔥 Años de experiencia: 22+ años (2003-2025)
+💼 Proyectos completados: +469
+👥 Clientes satisfechos: +150
+🏢 Ubicación: Mendoza, Argentina
+🎆 Especializaciones: 5 áreas principales
+⭐ Tasa de éxito: 98.5%
+📊 Crecimiento anual: 15%
+      `;
+      this.addOutput(stats, 'command-success');
+    }
+    
+    showContact() {
+      const contact = `
+📞 CONTACTO - ULTIMA MILLA
+
+🏢 Dirección: Av. San Martín 1234, Mendoza, Argentina
+📞 Teléfono: +54 261 123 4567
+📧 Email: contacto@ultimamilla.com.ar
+🌐 Web: www.ultimamilla.com.ar
+🕰️ Horario: Lun-Vie 8:00-18:00
+
+🚀 ¡Transformamos tu negocio con tecnología!
+      `;
+      this.addOutput(contact, 'command-success');
+    }
+    
+    listDirectory() {
+      const dirs = `
+📁 Contenido de /ultimamilla:
+
+servicios/          📁 Servicios IT disponibles
+proyectos/          📁 Historial de proyectos
+clientes/           📁 Cartera de clientes
+equipo/             📁 Nuestro equipo
+empresa.info        📄 Información corporativa
+contacto.txt        📄 Datos de contacto
+README.md           📄 Documentación
+      `;
+      this.addOutput(dirs, 'command-success');
+    }
+    
+    clearOutput() {
+      const welcome = this.output.querySelector('.welcome-message');
+      this.output.innerHTML = '';
+      if (welcome) {
+        this.output.appendChild(welcome);
+      }
+    }
+    
+    matrixEffect() {
+      this.addOutput('🟢 Iniciando efecto Matrix...', 'command-info');
+      const matrixText = '🟢 Wake up, Neo... The Matrix has you... Follow the white rabbit.';
+      this.addOutput(matrixText, 'command-success matrix-effect');
+    }
+    
+    navigateHistory(direction) {
+      if (this.history.length === 0) return;
+      
+      if (direction === -1 && this.historyIndex < this.history.length - 1) {
+        this.historyIndex++;
+      } else if (direction === 1 && this.historyIndex > -1) {
+        this.historyIndex--;
+      }
+      
+      if (this.historyIndex === -1) {
+        this.input.value = '';
+      } else {
+        this.input.value = this.history[this.historyIndex];
+      }
+    }
+    
+    handleAutocomplete() {
+      const commands = ['help', 'clear', 'ls', 'servicios', 'stats', 'contacto', 'sudo', 'whoami', 'date', 'matrix'];
+      const value = this.input.value.toLowerCase();
+      
+      const matches = commands.filter(cmd => cmd.startsWith(value));
+      if (matches.length === 1) {
+        this.input.value = matches[0];
+      } else if (matches.length > 1) {
+        this.addOutput(`Autocompletado: ${matches.join(', ')}`, 'command-info');
+      }
+    }
+    
+    addOutput(text, className = '') {
+      const div = document.createElement('div');
+      div.className = `command-output ${className}`;
+      div.innerHTML = text;
+      
+      this.output.appendChild(div);
+      this.scrollToBottom();
+    }
+    
+    scrollToBottom() {
+      this.output.scrollTop = this.output.scrollHeight;
+    }
+  }
+  
+  // Initialize the enhanced terminal system
+  new UMTerminalEnhancedInit();
+  
+  // Add some fade effects for animations
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes fadeOut {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0; transform: scale(0.8); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  `;
+  document.head.appendChild(style);
+</script>

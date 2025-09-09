@@ -73,6 +73,9 @@ const currentUrl = canonical || `${siteUrl}${Astro.url.pathname}`;
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     
+    <!-- Error suppressor MUST load first -->
+    <script src="/js/error-suppressor.js" is:inline></script>
+    
     <!-- Structured Data -->
     <script type="application/ld+json">
     {

@@ -6,6 +6,43 @@
 
 > **Aplicación web moderna para ULTiMA MILLA** - Portal corporativo con Astro, Directus CMS, y pipeline CI/CD automatizado.
 
+## 📸 **HITO: UM CLI 1.0 + CONTACT FORM FIXED - ESTADO ACTUAL**
+
+**🎯 VERSIÓN ESTABLE**: v1.1.0 (2025-09-09 15:24:00Z)  
+✅ **ESTADO**: PRODUCCIÓN COMPLETAMENTE FUNCIONAL + FORMULARIO CONTACTO REPARADO
+
+### 🚀 **Logros del HITO UM CLI 1.0**
+- ✅ **Terminal Profesional**: UM CLI con 30+ comandos interactivos, ASCII art y efectos avanzados
+- ✅ **Navegación Limpia**: Eliminada duplicación de menús, interface limpia
+- ✅ **Arquitectura Optimizada**: Componentes organizados sin conflictos
+- ✅ **100% Responsive**: Diseño adaptable móvil/tablet/desktop
+- ✅ **Performance Optimizado**: Carga rápida y experiencia fluida
+
+### 🎆 **Características UM CLI 1.0**
+- **⭐ Terminal Interactivo**: GitHub-style con comandos: `help`, `services`, `about`, `contact`, `matrix`
+- **🎨 ASCII Art Animado**: Logo Ultima Milla con efectos de typing
+- **⚙️ Funciones Avanzadas**: Historial (↑↓), autocompletado (Tab), cursor parpadeante
+- **📱 Mobile-First**: Responsive breakpoints optimizados para todos los dispositivos
+- **🔥 Visual Effects**: Gradientes, glow effects, smooth animations
+
+### 📧 **NUEVO: Formulario de Contacto Reparado (v1.1.0)**
+- **✅ Correo Funcionando**: Nodemailer configurado correctamente con postfix
+- **✅ Seguridad Implementada**: Rate limiting, detección spam, honeypot anti-bots
+- **✅ Validaciones Robustas**: Campos requeridos, formato email, sanitización
+- **✅ Entrega Verificada**: Logs postfix confirman envío exitoso a martin@ultimamilla.com.ar
+- **✅ API Estable**: /api/contact respondiendo HTTP 200 con ~0.4s response time
+
+## 🎉 **Estado Actual: COMPLETAMENTE OPERACIONAL**
+
+✅ **SITIO WEB RESTAURADO EXITOSAMENTE** (Enero 2025)
+
+- **🌍 Sitio Principal**: [ultimamilla.com.ar](https://www.ultimamilla.com.ar) - Diseño corporativo completo ✅
+- **🏢 Diseño Corporativo**: Hero, Nosotros, Servicios, Antecedentes, Contacto - Todas las secciones funcionando ✅
+- **🖥️ Terminal CLI**: Integrada como plugin en banner central (no reemplaza contenido) ✅
+- **⚡ Performance**: SSR dinámico con contenido en tiempo real ✅
+- **📊 CMS Directus**: Gestión de contenido operacional ✅
+- **🔒 SSL**: Certificados válidos y HTTPS funcionando ✅
+
 ## 🌐 **Enlaces Importantes**
 
 - **🌍 Sitio Web**: [www.ultimamilla.com.ar](https://www.ultimamilla.com.ar)
@@ -20,9 +57,10 @@
 - [🚀 Pipeline CI/CD](#-pipeline-cicd)
 - [📦 Deploy](#-deploy)
 - [🧪 Testing](#-testing)
-- [📚 Comandos Útiles](#-comandos-útiles)
-- [🔧 Configuración](#-configuración)
-- [📖 Documentación](#-documentación)
+- 📚 [Comandos Ütiles](#-comandos-útiles)
+- 🔧 [Configuración](#-configuración)
+- 📖 [Documentación](#-documentación)
+- 📸 **[HITO UM CLI 1.0 - Punto de Restauración](solucionfinal.md)** (🎯 **Estado Estable**)
 
 ## 🏗️ **Arquitectura**
 

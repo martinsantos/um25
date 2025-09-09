@@ -359,3 +359,9 @@ make db-restore BACKUP_FILE=backup.sql
 - Application-level monitoring
 - Performance auditing scripts
 - Automated deployment verification
+
+### SSHPASS
+
+- PROCEDE DIRECTAMENTE EN PRODUCCIÓN EN EL SERVIDOR CON SSHPASS:
+- US: root@23.105.176.45
+- PASS: gsiB%s@0yD

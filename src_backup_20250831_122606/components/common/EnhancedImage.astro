@@ -1,9 +1,0 @@
-import { getPictureHtml } from '../../utils/assets.js';
-const { src, alt, width = '', height = '', class: className = '', ...rest } = Astro.props;
-
-// Extraer nombre base y extensión
-const parts = src.split('/').pop().split('.');
-const baseName = parts.slice(0, -1).join('.');
-const ext = parts.pop();
-
-<Fragment set:html={getPictureHtml(baseName, ext, alt, { width, height, className })} /> 

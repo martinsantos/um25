@@ -1,7 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import SEOHead from '../../components/SEO/SEOHead.astro';
-import Breadcrumbs from '../../components/SEO/Breadcrumbs.astro';
 import { generateSlug } from '../../utils/slugUtils';
 import { serviciosReales } from '../../data/servicios_reales_db.js';
 import { getServiceImageUrl } from '../../utils/imageUtils.js';
@@ -57,11 +56,6 @@ const seoData = {
   canonical: "https://ultimamilla.com.ar/servicios"
 };
 
-// Breadcrumbs
-const breadcrumbs = [
-  { name: "Inicio", url: "/" },
-  { name: "Servicios", url: "/servicios", current: true }
-];
 ---
 
 <Layout>
@@ -76,15 +70,8 @@ const breadcrumbs = [
       area: "Tecnología e IT",
       description: "Soluciones tecnológicas integrales para empresas mendocinas"
     }}
-    breadcrumbs={breadcrumbs}
   />
   <main class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-    <!-- Breadcrumbs Section -->
-    <section class="bg-white shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <Breadcrumbs items={breadcrumbs} />
-      </div>
-    </section>
     <!-- Hero Section con Indicadores -->
     <section class="relative bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white py-20">
       <div class="absolute inset-0 bg-black/20"></div>
