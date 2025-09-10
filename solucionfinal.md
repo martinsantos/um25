@@ -59,10 +59,25 @@ Este documento representa una "fotografía" completa del estado actual del proye
 ```
 
 ### 📈 **RESULTADOS VERIFICADOS**:
-- 🌐 **Google Analytics**: ACTIVO en producción (G-S2376K1GED detectado)
-- 📦 **UM CLI API**: Respondiendo {"success":true} 
-- 📱 **Terminal**: Disponible en /cli con v1.3.0 Enhanced
-- ⚙️ **Contenedores**: Todos UP y HEALTHY
+- 🌐 **Google Analytics**: ✅ ACTIVO en producción (G-S2376K1GED detectado)
+- 📦 **UM CLI API**: ✅ Respondiendo {"success":true} 
+- 📱 **Terminal**: ✅ Disponible en /cli con v1.3.0 Enhanced
+- 🔧 **Servicios**: ✅ Página /servicios funcionando con datos estáticos
+- 📁 **Antecedentes**: ✅ Página /antecedentes cargando correctamente
+- ⚙️ **Contenedores**: ✅ Todos UP y HEALTHY (post-restart)
+
+### 🔴 **TROUBLESHOOTING REALIZADO - 2025-09-10 20:35**:
+
+**Problema detectado**: Contenedor astro-app caído, Error 502 en /servicios
+```bash
+✅ SOLUCIÓN APLICADA:
+- docker-compose up -d astro-app ejecutado
+- Contenedor astro-app reiniciado exitosamente  
+- docker restart directus-app para mejorar conectividad
+- Verificaciones: HTTP 200 en todas las páginas principales
+```
+
+**Estado actual**: ✅ SITIO WEB COMPLETAMENTE FUNCIONAL
 
 ---
 
