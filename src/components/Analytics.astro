@@ -1,0 +1,189 @@
+---
+// Analytics.astro - Google Analytics 4 Integration
+// Compatible con Astro SSR y respeta privacidad
+
+interface Props {
+  id: string; // Google Analytics ID (G-XXXXXXXXXX)
+  debug?: boolean;
+  respectPrivacy?: boolean;
+}
+
+const { id, debug = false, respectPrivacy = true } = Astro.props;
+
+// Solo cargar en producción por defecto, o si se especifica debug
+const shouldLoad = import.meta.env.PROD || debug;
+
+// ID por defecto para desarrollo/testing (reemplazar con el real)
+const analyticsId = id || 'G-XXXXXXXXXX';
+---
+
+{shouldLoad && (
+  <>
+    <!-- Google Tag Manager / Analytics 4 -->
+    <script type="text/partytown" async src={`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`}></script>
+    
+    <script type="text/partytown" define:vars={{ analyticsId, respectPrivacy }}>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      
+      // Configuración inicial
+      gtag('js', new Date());
+      
+      // Configurar Analytics con respeto a la privacidad si está habilitado
+      const config = {
+        // Configuraciones básicas
+        page_title: document.title,
+        page_location: window.location.href,
+        
+        // Configuraciones de privacidad
+        ...(respectPrivacy && {
+          anonymize_ip: true,              // Anonimizar IP
+          allow_google_signals: false,     // Deshabilitar Google Signals
+          allow_ad_personalization_signals: false, // Deshabilitar personalización de anuncios
+          cookie_flags: 'max-age=7200;secure;samesite=strict' // Cookies más restrictivas
+        })
+      };
+      
+      gtag('config', analyticsId, config);
+      
+      // Función personalizada para tracking de eventos
+      window.umAnalytics = {
+        // Track page views
+        trackPageView: (page_title, page_location) => {
+          gtag('config', analyticsId, {
+            page_title,
+            page_location
+          });
+        },
+        
+        // Track custom events
+        trackEvent: (action, category, label, value) => {
+          gtag('event', action, {
+            event_category: category,
+            event_label: label,
+            value: value
+          });
+        },
+        
+        // Track terminal commands (specific for UM CLI)
+        trackTerminalCommand: (command, success = true) => {
+          gtag('event', 'terminal_command', {
+            event_category: 'UM_CLI',
+            event_label: command,
+            success: success,
+            custom_parameter: 'ultima_milla_terminal'
+          });
+        },
+        
+        // Track form submissions
+        trackFormSubmission: (form_name, success = true) => {
+          gtag('event', 'form_submit', {
+            event_category: 'Contact',
+            event_label: form_name,
+            success: success
+          });
+        },
+        
+        // Track file downloads
+        trackDownload: (file_name, file_type) => {
+          gtag('event', 'file_download', {
+            event_category: 'Download',
+            event_label: file_name,
+            file_type: file_type
+          });
+        }
+      };
+      
+      // Auto-track SPA navigation si aplica
+      if ('Navigation' in window) {
+        const navigation = window.navigation;
+        navigation.addEventListener('navigate', (event) => {
+          // Track navigation for SPA-like behavior
+          setTimeout(() => {
+            window.umAnalytics.trackPageView(document.title, window.location.href);
+          }, 100);
+        });
+      }
+      
+      console.log('🔍 Google Analytics cargado:', analyticsId);
+      if (respectPrivacy) {
+        console.log('🔐 Modo privacidad habilitado');
+      }
+    </script>
+
+    <!-- Consent Banner para cumplir con GDPR/Privacy (opcional) -->
+    {respectPrivacy && (
+      <div id="privacy-notice" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #333; color: white; padding: 15px; text-align: center; z-index: 9999;">
+        <p>
+          🍪 Utilizamos cookies y analíticas para mejorar tu experiencia. Los datos son anónimos y respetan tu privacidad.
+          <button onclick="acceptPrivacy()" style="margin-left: 10px; padding: 5px 15px; background: #00d4aa; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Aceptar
+          </button>
+          <button onclick="rejectPrivacy()" style="margin-left: 5px; padding: 5px 15px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Rechazar
+          </button>
+        </p>
+      </div>
+      
+      <script type="text/partytown">
+        // Privacy consent management
+        function showPrivacyNotice() {
+          const notice = document.getElementById('privacy-notice');
+          const hasConsent = localStorage.getItem('um-analytics-consent');
+          
+          if (!hasConsent && notice) {
+            notice.style.display = 'block';
+          }
+        }
+        
+        function acceptPrivacy() {
+          localStorage.setItem('um-analytics-consent', 'accepted');
+          document.getElementById('privacy-notice').style.display = 'none';
+          
+          // Reinicializar Analytics con consentimiento
+          gtag('consent', 'update', {
+            analytics_storage: 'granted'
+          });
+          
+          console.log('✅ Consentimiento de analytics otorgado');
+        }
+        
+        function rejectPrivacy() {
+          localStorage.setItem('um-analytics-consent', 'rejected');
+          document.getElementById('privacy-notice').style.display = 'none';
+          
+          // Deshabilitar Analytics
+          gtag('consent', 'update', {
+            analytics_storage: 'denied'
+          });
+          
+          console.log('❌ Consentimiento de analytics rechazado');
+        }
+        
+        // Show notice on load if no consent given
+        document.addEventListener('DOMContentLoaded', showPrivacyNotice);
+        
+        // Inicializar consent mode
+        gtag('consent', 'default', {
+          analytics_storage: 'denied'
+        });
+      </script>
+    )}
+  </>
+)}
+
+<!-- Development Notice -->
+{!shouldLoad && (
+  <script>
+    console.log('📊 Google Analytics deshabilitado en desarrollo');
+    
+    // Mock analytics object for development
+    window.umAnalytics = {
+      trackPageView: (title, location) => console.log('📈 [DEV] Page view:', title, location),
+      trackEvent: (action, category, label, value) => console.log('📊 [DEV] Event:', action, category, label, value),
+      trackTerminalCommand: (command, success) => console.log('💻 [DEV] Terminal:', command, success),
+      trackFormSubmission: (form, success) => console.log('📝 [DEV] Form:', form, success),
+      trackDownload: (file, type) => console.log('💾 [DEV] Download:', file, type)
+    };
+  </script>
+)}

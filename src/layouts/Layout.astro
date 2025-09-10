@@ -1,5 +1,6 @@
 ---
 import Navigation from '../components/Navigation.astro';
+import Analytics from '../components/Analytics.astro';
 import '../styles/global.css';
 import '../styles/theme.css';
 
@@ -75,6 +76,9 @@ const currentUrl = canonical || `${siteUrl}${Astro.url.pathname}`;
     
     <!-- Error suppressor MUST load first -->
     <script src="/js/error-suppressor.js" is:inline></script>
+    
+    <!-- Google Analytics Integration -->
+    <Analytics id="G-S2376K1GED" respectPrivacy={true} />
     
     <!-- Structured Data -->
     <script type="application/ld+json">

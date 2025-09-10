@@ -3,20 +3,23 @@ import { getServicios, getCasosExito, getBlogPosts } from '../../lib/directus';
 
 export const GET: APIRoute = async ({ request }) => {
   try {
-    const [servicios, casos_de_exito, blog_posts] = await Promise.all([
+    // Usar las colecciones correctas: 'servicios' y 'antecedentes'
+    const [servicios, antecedentes, blog_posts] = await Promise.all([
       getServicios(50),
-      getCasosExito(50),
+      getCasosExito(50), // Esto mapea a 'antecedentes' internamente
       getBlogPosts(50)
     ]);
 
     const payload = {
       timestamp: Date.now(),
       servicios,
-      casos_de_exito,
+      antecedentes,
+      casos_de_exito: antecedentes, // Alias para compatibilidad
       blog_posts,
       estadisticas: {
         totalServicios: servicios.length,
-        totalCasosExito: casos_de_exito.length,
+        totalAntecedentes: antecedentes.length,
+        totalCasosExito: antecedentes.length, // Alias
         totalBlogPosts: blog_posts.length,
         ultimaActualizacion: new Date().toISOString()
       }

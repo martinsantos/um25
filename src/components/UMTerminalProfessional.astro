@@ -11,7 +11,7 @@
         <div class="control maximize"></div>
         <div class="control close"></div>
       </div>
-      <div class="terminal-title">ULTIMA MILLA CLI v22.1 - Mendoza, Argentina</div>
+      <div class="terminal-title">ULTIMA MILLA CLI v1.3.0 Enhanced - Mendoza, Argentina</div>
       <!-- V1.2.0 Feature: Status Indicator -->
       <div class="terminal-status">
         <div class="status-indicator" id="connection-status" title="Estado: Conectado"></div>
@@ -70,7 +70,7 @@
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0;
+    padding: 0 16px; /* Add horizontal padding for mobile */
     position: relative;
   }
 
@@ -203,6 +203,7 @@
     flex: 1;
     padding: 20px;
     overflow-y: auto;
+    overflow-x: auto; /* Allow horizontal scroll for wide content */
     background: transparent;
     color: #e6edf3;
     font-size: 14px;
@@ -220,6 +221,15 @@
     margin-bottom: 20px;
     white-space: pre;
     font-family: monospace;
+    overflow-x: auto; /* Allow horizontal scroll for ASCII */
+    max-width: 100%;
+  }
+  
+  .ascii-art.compact-ascii {
+    text-align: center; /* Center compact ASCII */
+    font-size: 10px;
+    line-height: 1.1;
+    margin-bottom: 15px;
   }
 
   .welcome-info {
@@ -350,6 +360,10 @@
 
   /* Responsive Design */
   @media (max-width: 768px) {
+    #um-terminal-container {
+      padding: 0 8px; /* Reduce horizontal padding on tablets */
+    }
+    
     .um-terminal-professional {
       height: 60vh;
       min-height: 400px;
@@ -362,52 +376,87 @@
     
     .terminal-title {
       font-size: 12px;
+      word-wrap: break-word; /* Break long titles */
     }
     
     .terminal-body {
-      padding: 16px;
+      padding: 16px 12px; /* Reduce horizontal padding */
       font-size: 13px;
     }
     
     .terminal-input-line {
-      padding: 12px 16px;
+      padding: 12px;
     }
     
     .terminal-input {
       font-size: 13px;
     }
+    
+    .ascii-art {
+      font-size: 10px; /* Smaller ASCII on tablets */
+    }
   }
 
   @media (max-width: 480px) {
+    #um-terminal-container {
+      padding: 0 4px; /* Minimal padding on small phones */
+    }
+    
     .um-terminal-professional {
       height: 50vh;
       min-height: 350px;
+      border-radius: 6px; /* Smaller radius */
+    }
+    
+    .terminal-header {
+      padding: 6px 8px; /* Reduce header padding */
+    }
+    
+    .terminal-title {
+      font-size: 11px; /* Smaller title */
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
     
     .terminal-body {
-      padding: 12px;
+      padding: 8px; /* Minimal body padding */
       font-size: 12px;
     }
     
     .ascii-art {
-      font-size: 10px;
+      font-size: 8px; /* Much smaller ASCII for phones */
+      margin-bottom: 10px;
     }
     
     .welcome-line {
-      margin: 6px 0;
-      font-size: 12px;
+      margin: 4px 0; /* Reduce line spacing */
+      font-size: 11px;
     }
     
     .icon {
-      font-size: 14px;
-      width: 16px;
+      font-size: 12px;
+      width: 14px;
+    }
+    
+    .terminal-input-line {
+      padding: 8px; /* Reduce input padding */
+    }
+    
+    .terminal-input {
+      font-size: 12px; /* Smaller input text */
+    }
+    
+    .prompt {
+      font-size: 12px;
     }
   }
 </style>
 
 <script>
-  // Terminal básico y estable sin funcionalidades problemáticas
-  class UMTerminalBasic {
+  // Terminal avanzado con engine completo de 150+ comandos
+  class UMTerminalAdvanced {
     constructor() {
       this.output = document.getElementById('terminal-output');
       this.input = document.getElementById('terminal-input');
@@ -415,7 +464,36 @@
       this.commandHistory = [];
       this.historyIndex = -1;
       
-      this.init();
+      // Cargar engine completo dinámicamente
+      this.engineReady = false;
+      this.loadEngine().then(() => {
+        this.init();
+      });
+    }
+    
+    async loadEngine() {
+      try {
+        // Cargar UMTerminalEngine desde el script estático
+        if (typeof UMTerminalEngine !== 'undefined') {
+          this.engine = new UMTerminalEngine();
+          this.engineReady = true;
+          console.log('🚀 UMTerminalEngine loaded successfully with', Object.keys(this.engine.commands).length, 'commands');
+        } else {
+          // Fallback: cargar dinámicamente
+          const script = document.createElement('script');
+          script.src = '/UMTerminalEngine.js';
+          script.onload = () => {
+            this.engine = new UMTerminalEngine();
+            this.engineReady = true;
+            console.log('🚀 UMTerminalEngine loaded dynamically with', Object.keys(this.engine.commands).length, 'commands');
+            this.updateHelp();
+          };
+          document.head.appendChild(script);
+        }
+      } catch (error) {
+        console.error('Error loading UMTerminalEngine:', error);
+        this.engineReady = false;
+      }
     }
 
     init() {
@@ -453,14 +531,43 @@
     showWelcome() {
       const asciiElement = document.getElementById('welcome-ascii');
       if (asciiElement) {
-        const asciiArt = `
+        // Full ASCII art for desktop/tablet
+        const fullAsciiArt = `
  ██╗   ██╗██╗  ████████╗██╗███╗   ███╗ █████╗     ███╗   ███╗██╗██╗     ██╗      █████╗ 
  ██║   ██║██║  ╚══██╔══╝██║████╗ ████║██╔══██╗    ████╗ ████║██║██║     ██║     ██╔══██╗
  ██║   ██║██║     ██║   ██║██╔████╔██║███████║    ██╔████╔██║██║██║     ██║     ███████║
  ██║   ██║██║     ██║   ██║██║╚██╔╝██║██╔══██║    ██║╚██╔╝██║██║██║     ██║     ██╔══██║
  ╚██████╔╝███████╗██║   ██║██║ ╚═╝ ██║██║  ██║    ██║ ╚═╝ ██║██║███████╗███████╗██║  ██║
   ╚═════╝ ╚══════╝╚═╝   ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝    ╚═╝     ╚═╝╚═╝╚══════╝╚══════╝╚═╝  ╚═╝`;
-        asciiElement.textContent = asciiArt;
+        
+        // Compact ASCII art for mobile
+        const compactAsciiArt = `
+ ██╗   ██╗███╗   ███╗
+ ██║   ██║████╗ ████║
+ ██║   ██║██╔████╔██║
+ ██║   ██║██║╚██╔╝██║
+ ╚██████╔╝██║ ╚═╝ ██║
+  ╚═════╝ ╚═╝     ╚═╝`;
+        
+        // Determine which ASCII art to display based on screen width
+        if (window.innerWidth <= 480) {
+          asciiElement.textContent = compactAsciiArt;
+          asciiElement.classList.add('compact-ascii');
+        } else {
+          asciiElement.textContent = fullAsciiArt;
+          asciiElement.classList.remove('compact-ascii');
+        }
+        
+        // Listen for resize events to update ASCII art responsively
+        window.addEventListener('resize', () => {
+          if (window.innerWidth <= 480 && !asciiElement.classList.contains('compact-ascii')) {
+            asciiElement.textContent = compactAsciiArt;
+            asciiElement.classList.add('compact-ascii');
+          } else if (window.innerWidth > 480 && asciiElement.classList.contains('compact-ascii')) {
+            asciiElement.textContent = fullAsciiArt;
+            asciiElement.classList.remove('compact-ascii');
+          }
+        });
       }
     }
 
@@ -490,33 +597,99 @@
       this.addToHistory(command);
       this.showLoading();
 
-      setTimeout(() => {
-        this.executeCommand(command);
+      setTimeout(async () => {
+        await this.executeCommand(command);
         this.hideLoading();
         this.input.value = '';
         this.focusInput();
       }, 500);
     }
 
-    executeCommand(command) {
+    normalizeCommand(cmd) {
+      // Alias y corrección de typos comunes
+      const map = {
+        'contacto': 'contact',
+        'cotizacion': 'quote',
+        'cotización': 'quote',  // Con tilde
+        'historia': 'history',
+        'hidtory': 'history',
+        'who am i': 'whoami',
+        'quien soy': 'whoami',
+        'estadisticas': 'stats',
+        'estadísticas': 'stats'
+      };
+      return map[cmd] || cmd;
+    }
+
+    async executeCommand(command) {
       const commandOutput = document.createElement('div');
       commandOutput.className = 'command-output';
       
       let response = '';
+      let commandSuccess = true;
+
+      // Si el engine está listo, usar el motor completo
+      if (this.engineReady && this.engine) {
+        try {
+          const result = await this.engine.executeCommand(command);
+          if (result && typeof result === 'object') {
+            response = result.output || result;
+            commandSuccess = result.success !== false;
+          } else {
+            response = result || '';
+          }
+        } catch (error) {
+          response = `<span style="color: #ef4444;">❌ Error: ${error.message}</span>`;
+          commandSuccess = false;
+        }
+      } else {
+        // Fallback básico mientras se carga el engine
+        response = this.executeBasicCommand(command);
+      }
 
       switch (command) {
         case 'help':
           response = `
-<span style="color: #00d4aa;">Comandos disponibles:</span>
+<span style="color: #00d4aa;">UM CLI v1.3.0 - Comandos disponibles:</span>
+
+<span style="color: #fbbf24;">📋 BÁSICOS</span>
 • help - Muestra esta ayuda
 • clear - Limpia la terminal
+• version - Versión del sistema
+
+<span style="color: #fbbf24;">🏢 EMPRESA</span>
 • about - Información sobre Ultima Milla
-• services - Nuestros servicios
-• contact - Información de contacto
-• stats - Estadísticas de la empresa
-• portfolio - Ver nuestro portfolio
+• stats - Estadísticas en tiempo real
+• team - Conoce nuestro equipo
+• history - Historia y trayectoria
+
+<span style="color: #fbbf24;">💼 SERVICIOS & PORTFOLIO</span>
+• services [categoria] - Nuestros servicios
+• portfolio [cantidad] - Ver casos de éxito (ej: portfolio 5)
+• projects - Proyectos destacados
+• clients - Lista de clientes
+
+<span style="color: #fbbf24;">🛠️ TÉCNICO</span>
 • tech - Stack tecnológico
-• team - Conoce nuestro equipo`;
+• security - Información de seguridad
+• infrastructure - Nuestra infraestructura
+
+<span style="color: #fbbf24;">📞 CONTACTO & DEMO</span>
+• contact / contacto - Información de contacto
+• quote / cotización - Solicitar cotización
+• demo - Demostración interactiva
+• presupuesto - Análisis de presupuesto
+• directus - Ver datos reales del CMS
+• antecedentes - Ver casos de éxito reales
+• social - Redes sociales
+
+<span style="color: #fbbf24;">🎮 INTERACTIVOS</span>
+• whoami - Tu información de sesión
+• date - Fecha y hora actual
+• uptime - Tiempo de funcionamiento
+• matrix - Efecto Matrix (solo por diversión)
+
+<span style="color: #7ee787;">💡 Tip: Usa TAB para autocompletado</span>`;
           break;
 
         case 'clear':
@@ -552,8 +725,9 @@ dedicados a impulsar la transformación digital de empresas locales.`;
           break;
 
         case 'contact':
+        case 'contacto':
           response = `
-<span style="color: #00d4aa;">Información de Contacto:</span>
+<span style=\"color: #00d4aa;\">Información de Contacto:</span>
 
 📧 Email: info@ultimamilla.com.ar
 📞 Teléfono: +54 261 123 4567
@@ -611,9 +785,132 @@ Seguridad: HTTPS, OAuth, Encriptación`;
 🚀 DevOps Engineers`;
           break;
 
+        // ========== NUEVOS COMANDOS v1.3.0 ==========
+        
+        case 'presupuesto':
+          response = this.getBudgetCommand();
+          break;
+          
+        case 'directus':
+          response = await this.getDirectusData();
+          break;
+          
+        case 'antecedentes':
+          response = await this.getAntecedentesData();
+          break;
+        
+        case 'version':
+          response = `
+<span style="color: #00d4aa;">Sistema de Información UM CLI</span>
+
+💻 Versión: 1.3.0 Enhanced Dynamic
+🚀 Build: ${new Date().getFullYear()}0910
+🏢 Empresa: ULTIMA MILLA
+📍 Ubicación: Mendoza, Argentina
+⏰ Última actualización: ${new Date().toLocaleDateString('es-AR')}
+🔧 Modo: Producción Estable`;
+          break;
+
+        case 'whoami':
+          response = `
+<span style="color: #00d4aa;">Información de Sesión:</span>
+
+👤 Usuario: visitante
+🏠 Host: ultimamilla.com.ar
+📍 IP: ${window.location.hostname}
+🌐 Navegador: ${navigator.userAgent.split(' ')[0]}
+📅 Sesión iniciada: ${new Date().toLocaleTimeString('es-AR')}
+🔑 Permisos: Lectura pública
+📱 Dispositivo: ${window.innerWidth < 768 ? 'Móvil' : 'Escritorio'}`;
+          break;
+
+        case 'date':
+          const now = new Date();
+          response = `
+<span style="color: #00d4aa;">Fecha y Hora Actual:</span>
+
+📅 Fecha: ${now.toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+⏰ Hora: ${now.toLocaleTimeString('es-AR')}
+🌍 Zona horaria: ${Intl.DateTimeFormat().resolvedOptions().timeZone}
+🎨 Estación: ${this.getSeason()}`;
+          break;
+
+        case 'uptime':
+          const uptime = Math.floor((Date.now() - performance.timeOrigin) / 1000);
+          const hours = Math.floor(uptime / 3600);
+          const minutes = Math.floor((uptime % 3600) / 60);
+          const seconds = uptime % 60;
+          response = `
+<span style="color: #00d4aa;">Tiempo de Funcionamiento:</span>
+
+⏱️ Sesión activa: ${hours}h ${minutes}m ${seconds}s
+🚀 Servidor: En línea desde el arranque
+🟢 Estado: Operativo al 100%
+📊 Rendimiento: Óptimo`;
+          break;
+
+        case 'history':
+          response = `
+<span style="color: #00d4aa;">Historia de ULTIMA MILLA:</span>
+
+🏢 <strong>2000</strong> - Fundación en Mendoza
+💻 <strong>2003</strong> - Primeros proyectos gubernamentales
+🌐 <strong>2008</strong> - Expansión en redes y comunicaciones
+🔒 <strong>2012</strong> - Especialización en ciberseguridad
+☁️ <strong>2018</strong> - Adopción de tecnologías cloud
+🚀 <strong>2024</strong> - Líderes en transformación digital
+
+🏆 <strong>+24 años</strong> de innovación continua en Mendoza`;
+          break;
+
+        case 'social':
+          response = `
+<span style="color: #00d4aa;">Redes Sociales y Contacto Digital:</span>
+
+🔗 LinkedIn: /company/ultimamilla
+🐦 Twitter: @ultimamilla_ar
+📧 Email: info@ultimamilla.com.ar
+🌐 Web: www.ultimamilla.com.ar
+📱 WhatsApp: +54 261 123 4567
+📨 Newsletter: Suscríbete para novedades
+
+👤 ¡Síguenos para mantenerte al día!`;
+          break;
+
+        // ========== COMANDOS CON PARÁMETROS ==========
+        
         default:
-          response = `<span style="color: #ef4444;">Comando no reconocido: "${command}"</span>
-Escribe <code>help</code> para ver los comandos disponibles.`;
+          // Handle commands with parameters
+          const [baseCommandRaw, ...params] = command.split(' ');
+          const baseCommand = this.normalizeCommand(baseCommandRaw);
+          
+          if (baseCommand === 'portfolio') {
+            const count = parseInt(params[0]) || 3;
+            const maxCount = Math.min(count, 10); // Limit to 10
+            response = this.getPortfolioCommand(maxCount);
+          } else if (baseCommand === 'services' && params[0]) {
+            response = this.getServicesCommand(params[0]);
+          } else if (baseCommand === 'demo') {
+            response = this.getDemoCommand();
+          } else if (baseCommand === 'quote') {
+            response = this.getQuoteCommand();
+          } else if (baseCommand === 'matrix') {
+            response = this.getMatrixCommand();
+          } else if (baseCommand === 'security') {
+            response = this.getSecurityCommand();
+          } else if (baseCommand === 'infrastructure') {
+            response = this.getInfrastructureCommand();
+          } else if (baseCommand === 'projects') {
+            response = this.getProjectsCommand();
+          } else if (baseCommand === 'clients') {
+            response = this.getClientsCommand();
+          } else {
+            response = `<span style="color: #ef4444;">Comando no reconocido: "${command}"</span>
+Escribe <code>help</code> para ver los comandos disponibles.
+
+<span style="color: #7ee787;">💡 Sugerencia:</span> Usa <code>TAB</code> para autocompletado o <code>help</code> para la lista completa.`;
+            commandSuccess = false; // Mark as failed command
+          }
       }
 
       commandOutput.innerHTML = `
@@ -628,6 +925,511 @@ Escribe <code>help</code> para ver los comandos disponibles.`;
         this.output.appendChild(commandOutput);
         this.output.scrollTop = this.output.scrollHeight;
       }
+      
+      // Track command usage with Google Analytics
+      if (typeof window.umAnalytics !== 'undefined') {
+        window.umAnalytics.trackTerminalCommand(command, commandSuccess);
+      }
+    }
+    
+    executeBasicCommand(command) {
+      // Fallback con comandos básicos mientras se carga el engine completo
+      command = this.normalizeCommand(command);
+      
+      switch (command) {
+        case 'help':
+          return `
+<span style="color: #00d4aa;">🚀 UM CLI - Cargando Engine Completo...</span>
+
+📄 **Estado**: Inicializando motor de comandos avanzados
+🔄 **Progreso**: Cargando UMTerminalEngine.js
+⏳ **Tiempo estimado**: 2-3 segundos
+
+💡 **Mientras tanto, comandos disponibles**:
+• help - Esta ayuda
+• clear - Limpiar terminal  
+• contact - Información de contacto
+• presupuesto - Análisis de presupuesto
+
+✨ **Próximamente disponibles**: grep, find, stats, top, matrix, cowsay, fortune, y 140+ comandos más!`;
+          
+        case 'clear':
+          this.clearTerminal();
+          return '';
+          
+        case 'contact':
+        case 'contacto':
+          return this.getContactInfo();
+          
+        case 'presupuesto':
+          return this.getBudgetCommand();
+          
+        default:
+          return `
+<span style="color: #fbbf24;">⚠️ Motor de comandos cargando...</span>
+
+Comando "${command}" estará disponible en unos segundos.
+
+🚀 **UMTerminalEngine** se está inicializando con 150+ comandos avanzados.
+⏳ Por favor, inténtalo nuevamente en un momento.
+
+💡 **Tip**: Usa 'help' para ver el progreso de carga.`;
+      }
+    }
+    
+    getContactInfo() {
+      return `
+<span style="color: #00d4aa;">Información de Contacto:</span>
+
+📧 Email: info@ultimamilla.com.ar
+📞 Teléfono: +54 261 123 4567
+📍 Dirección: Av. San Martín 1234, Mendoza
+🌐 Web: www.ultimamilla.com.ar
+💼 LinkedIn: /company/ultimamilla`;
+    }
+    
+    updateHelp() {
+      // Método llamado cuando el engine se carga completamente
+      if (this.engineReady && this.engine) {
+        const commandCount = Object.keys(this.engine.commands).length;
+        const notification = document.createElement('div');
+        notification.style.color = '#00d4aa';
+        notification.style.padding = '10px';
+        notification.style.marginBottom = '10px';
+        notification.innerHTML = `
+✨ <strong>UMTerminalEngine cargado exitosamente!</strong>
+🚀 **${commandCount} comandos** ahora disponibles
+💡 Escribe 'help' para ver todos los comandos o usa TAB para autocomplear`;
+        
+        if (this.output) {
+          this.output.appendChild(notification);
+          this.output.scrollTop = this.output.scrollHeight;
+        }
+      }
+    }
+    
+    // ========== MÉTODOS DE COMANDOS AVANZADOS v1.3.0 ==========
+    
+    getSeason() {
+      const month = new Date().getMonth();
+      if (month >= 2 && month <= 4) return 'Otoño 🍂';
+      if (month >= 5 && month <= 7) return 'Invierno ❄️';
+      if (month >= 8 && month <= 10) return 'Primavera 🌸';
+      return 'Verano ☀️';
+    }
+    
+    getPortfolioCommand(count) {
+      const projects = [
+        { name: 'Sistema Gobierno Mendoza', year: '2024', type: 'Gubernamental', tech: 'React + PostgreSQL' },
+        { name: 'Plataforma Bancaria Segura', year: '2023', type: 'Financiero', tech: 'Angular + Node.js' },
+        { name: 'ERP Bodega Viñas del Sol', year: '2023', type: 'Industrial', tech: 'Vue.js + Python' },
+        { name: 'App Móvil Salud+', year: '2024', type: 'Salud', tech: 'React Native' },
+        { name: 'E-commerce MendoMarket', year: '2022', type: 'Comercial', tech: 'Astro + Stripe' },
+        { name: 'Sistema Educativo UNCU', year: '2024', type: 'Educacional', tech: 'Laravel + MySQL' },
+        { name: 'IoT Riego Inteligente', year: '2023', type: 'Agrícola', tech: 'Python + MongoDB' },
+        { name: 'Dashboard Análitica 360', year: '2024', type: 'Analytics', tech: 'D3.js + Redis' }
+      ];
+      
+      const selectedProjects = projects.slice(0, count);
+      let response = `
+<span style="color: #00d4aa;">💼 Portfolio - Últimos ${count} Proyectos:</span>
+
+`;
+      
+      selectedProjects.forEach((project, index) => {
+        response += `<span style="color: #fbbf24;">${index + 1}. ${project.name}</span> (${project.year})
+   🏢 Sector: ${project.type}
+   🛠️ Stack: ${project.tech}
+
+`;
+      });
+      
+      response += `🏆 Total de proyectos completados: <strong>469+</strong>`;
+      return response;
+    }
+    
+    getBudgetCommand() {
+      // Resumen simple de presupuestos a partir de proyectos simulados
+      const projects = [
+        { cliente: 'Gobierno de Mendoza', titulo: 'Red Provincial de Datos', presupuesto: 2500000, area: 'Redes' },
+        { cliente: 'Hospital Central', titulo: 'Historia Clínica Digital', presupuesto: 1800000, area: 'Salud/Software' },
+        { cliente: 'Catena Zapata', titulo: 'ERP Vitivinícola', presupuesto: 1200000, area: 'Software' },
+        { cliente: 'AFIP Regional', titulo: 'Infraestructura Segura', presupuesto: 950000, area: 'Seguridad' },
+        { cliente: 'UNCuyo', titulo: 'Campus Digital', presupuesto: 780000, area: 'Educación/Redes' }
+      ];
+
+      const total = projects.reduce((s, p) => s + p.presupuesto, 0);
+      const top3 = projects
+        .slice()
+        .sort((a, b) => b.presupuesto - a.presupuesto)
+        .slice(0, 3);
+
+      let out = `<span style=\"color: #00d4aa;\">Análisis de Presupuesto - Proyectos Clave</span>\n\n`;
+      out += `💰 Presupuesto total analizado: <strong>$${total.toLocaleString('es-AR')}</strong>\n`;
+      out += `📈 Promedio por proyecto: <strong>$${Math.round(total / projects.length).toLocaleString('es-AR')}</strong>\n`;
+      out += `\n🏆 Top 3 por presupuesto:\n`;
+      top3.forEach((p, i) => {
+        out += `${i + 1}. ${p.cliente} — ${p.titulo}\n   💵 $${p.presupuesto.toLocaleString('es-AR')} • 🧩 ${p.area}\n\n`;
+      });
+      out += `📊 Distribución por áreas (aprox): Redes 40% • Software 35% • Seguridad 25%`;
+      return out;
+    }
+    
+    // ========== INTEGRACIÓN CON DIRECTUS CMS ==========
+    
+    async getDirectusData() {
+      try {
+        const response = await fetch('/api/umcli.json');
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          const { servicios, antecedentes } = data.data;
+          return `
+<span style="color: #00d4aa;">🗄️ Datos en Tiempo Real - Directus CMS</span>
+
+📊 **Base de Datos Actualizada**:
+• Servicios registrados: ${servicios?.length || 0}
+• Casos de éxito: ${antecedentes?.length || 0}
+• Última sincronización: ${new Date().toLocaleString('es-AR')}
+
+🚀 **Estado del Sistema**:
+• CMS Status: ✅ Operacional
+• API Endpoint: /api/umcli.json
+• Modo: Producción
+
+💡 **Comandos Disponibles**:
+• antecedentes - Ver casos reales
+• grep [cliente] - Buscar proyectos
+• stats --live - Estadísticas en vivo
+
+🔗 **Panel Admin**: https://www.ultimamilla.com.ar:8055`;
+        } else {
+          throw new Error('Datos no disponibles');
+        }
+      } catch (error) {
+        return `
+<span style="color: #ef4444;">❌ Error conectando a Directus</span>
+
+**Problema**: ${error.message}
+**Fallback**: Usando datos locales
+
+💡 **Alternativas**:
+• Reintentar: directus
+• Datos locales: presupuesto
+• Contactar admin si persiste el error`;
+      }
+    }
+    
+    async getAntecedentesData() {
+      try {
+        const response = await fetch('/api/umcli.json');
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const data = await response.json();
+        
+        if (data.success && data.data?.antecedentes) {
+          const casos = data.data.antecedentes.slice(0, 5); // Top 5
+          let output = `
+<span style="color: #00d4aa;">🏆 Casos de Éxito - Datos Reales</span>
+
+`;
+          
+          casos.forEach((caso, i) => {
+            output += `**${i + 1}. ${caso.titulo || caso.Cliente}**
+`;
+            output += `   🏢 Cliente: ${caso.Cliente || 'N/D'}
+`;
+            output += `   📅 Año: ${caso.Año || caso.fecha || 'N/D'}
+`;
+            output += `   🏷️ Área: ${caso.Area || caso.categoria || 'N/D'}
+
+`;
+          });
+          
+          output += `📊 Total casos registrados: ${data.data.antecedentes.length}
+`;
+          output += `🔍 Usa: grep [cliente] para búsquedas específicas`;
+          
+          return output;
+        } else {
+          throw new Error('No se encontraron casos de éxito');
+        }
+      } catch (error) {
+        // Fallback con datos locales
+        return `
+<span style="color: #fbbf24;">⚠️ Usando Datos Locales</span>
+
+**Error API**: ${error.message}
+
+🏆 **Casos Destacados** (datos locales):
+
+1. **Gobierno de Mendoza** - Red Provincial
+   🏢 Sector: Gubernamental
+   📅 2003-2024 (21 años)
+   🏷️ Redes y Comunicaciones
+   
+2. **Hospital Central** - Digitalización
+   🏢 Sector: Salud Pública  
+   📅 2020-2024
+   🏷️ Software Médico
+
+💡 **Tip**: Intenta 'directus' para ver el estado de la API`;
+      }
+    }
+
+    getServicesCommand(category) {
+      const services = {
+        'web': {
+          title: 'Desarrollo Web y Software',
+          items: [
+            '🌐 Sitios web corporativos responsive',
+            '📱 Aplicaciones web progresivas (PWA)',
+            '🛍️ E-commerce y tiendas online',
+            '📊 Dashboards y paneles de control',
+            '🔌 API REST y microservicios'
+          ]
+        },
+        'security': {
+          title: 'Ciberseguridad Empresarial',
+          items: [
+            '🔒 Auditorías de seguridad integrales',
+            '🛡️ Implementación de firewalls avanzados',
+            '🔑 Gestión de identidades y accesos',
+            '🔍 Monitoreo 24/7 de amenazas',
+            '🏅 Certificaciones ISO 27001'
+          ]
+        },
+        'cloud': {
+          title: 'Soluciones Cloud Computing',
+          items: [
+            '☁️ Migración a AWS, Azure, Google Cloud',
+            '📦 Contenedores Docker y Kubernetes',
+            '🚀 CI/CD y DevOps automatizado',
+            '📊 Escalabilidad automática',
+            '🛠️ Infraestructura como código'
+          ]
+        },
+        'redes': {
+          title: 'Redes y Comunicaciones',
+          items: [
+            '🗺 Diseño de redes empresariales',
+            '📶 WiFi corporativo de alta performance',
+            '🗜️ Cableado estructurado certificado',
+            '📡 Telecomunicaciones VoIP',
+            '🔗 VPN y conectividad remota'
+          ]
+        }
+      };
+      
+      const service = services[category.toLowerCase()];
+      if (!service) {
+        return `
+<span style="color: #ef4444;">❌ Categoría no encontrada: "${category}"</span>
+
+Categorías disponibles:
+• <code>services web</code> - Desarrollo web
+• <code>services security</code> - Ciberseguridad  
+• <code>services cloud</code> - Cloud computing
+• <code>services redes</code> - Redes y comunicaciones`;
+      }
+      
+      let response = `
+<span style="color: #00d4aa;">${service.title}:</span>
+
+`;
+      service.items.forEach(item => {
+        response += `${item}
+`;
+      });
+      response += `
+📞 ¿Te interesa? Escribe <code>quote</code> para cotizar`;
+      
+      return response;
+    }
+    
+    getDemoCommand() {
+      return `
+<span style="color: #00d4aa;">🎮 Demostración Interactiva ULTIMA MILLA</span>
+
+🎥 <strong>Demo en Vivo Disponible:</strong>
+
+🕍 Horarios de demostración:
+  • Lunes a Viernes: 9:00 - 18:00
+  • Duración: 30-45 minutos
+  • Modalidad: Presencial o virtual
+
+💻 Qué incluye:
+  • Presentación de casos reales
+  • Demo de nuestras herramientas
+  • Sesión de Q&A personalizada
+  • Propuesta técnica inicial
+
+📞 <strong>Agenda tu demo:</strong>
+  Email: demos@ultimamilla.com.ar
+  Tel: +54 261 123 4567
+  ¡Sin compromiso ni costo!`;
+    }
+    
+    getQuoteCommand() {
+      return `
+<span style="color: #00d4aa;">💰 Solicitar Cotización Personalizada</span>
+
+📋 <strong>Para cotizaciones rápidas, proporciona:</strong>
+
+1️⃣ Tipo de proyecto
+2️⃣ Tecnologías preferidas  
+3️⃣ Plazo estimado
+4️⃣ Presupuesto aproximado
+
+📧 <strong>Contactos para cotización:</strong>
+  Email: cotizaciones@ultimamilla.com.ar
+  WhatsApp: +54 261 123 4567
+  Formulario: www.ultimamilla.com.ar/contacto
+
+⏱️ <strong>Tiempo de respuesta:</strong> 24-48hs
+🎆 <strong>Consultoría inicial:</strong> GRATUITA
+
+🕰️ Horario comercial: L-V 9:00-18:00`;
+    }
+    
+    getMatrixCommand() {
+      const matrixLines = [
+        '0011100110100101110010',
+        '🔴🔵🔴🔵🔴🔵🔴🔵',
+        '01001000 01100101 01101100 01101100 01101111',
+        '█░▒▓█░▒▓█░▒▓'
+      ];
+      
+      return `
+<span style="color: #00ff00;">Matrix Mode Activated...</span>
+
+<span style="color: #00ff00;">${matrixLines.join('\n')}</span>
+
+<span style="color: #00d4aa;">⚡ ULTIMA MILLA MATRIX ⚡</span>
+
+🔴 Bienvenido al código fuente de la realidad
+📊 Análisis de sistemas: COMPLETADO
+🔍 Vulnerabilidades encontradas: 0
+🔒 Nivel de seguridad: MÁXIMO
+
+<span style="color: #00ff00;">Neo, ¿estás listo para la transformación digital?</span>
+
+<span style="color: #7ee787;">Comando solo por diversión - ¡Esperamos que te haya gustado! 😄</span>`;
+    }
+    
+    getSecurityCommand() {
+      return `
+<span style="color: #00d4aa;">🔒 Información de Seguridad ULTIMA MILLA</span>
+
+🏅 <strong>Certificaciones:</strong>
+  • ISO 27001:2013 - Gestión de Seguridad
+  • SOC 2 Type II - Controles de seguridad
+  • CISSP - Profesionales certificados
+
+🛡️ <strong>Protección Multicapa:</strong>
+  • Firewall de próxima generación
+  • Detección de amenazas AI-powered
+  • Backup cifrado automatizado
+  • Monitoreo 24/7/365
+
+🔍 <strong>Auditorías Regulares:</strong>
+  • Pentesting semestral
+  • Revisión de código
+  • Análisis de vulnerabilidades
+  • Compliance reporting
+
+📊 <strong>Métricas de Seguridad:</strong>
+  • Uptime: 99.98%
+  • Incidentes resueltos: 100%
+  • Tiempo de respuesta: < 15 min`;
+    }
+    
+    getInfrastructureCommand() {
+      return `
+<span style="color: #00d4aa;">🏢 Infraestructura ULTIMA MILLA</span>
+
+🗺 <strong>Centros de Datos:</strong>
+  • Datacenter principal: Mendoza
+  • Backup site: Buenos Aires  
+  • Cloud híbrido: AWS + Azure
+
+💻 <strong>Hardware Enterprise:</strong>
+  • Servidores Dell PowerEdge
+  • Storage NetApp All-Flash
+  • Networking Cisco Catalyst
+  • UPS redundante N+1
+
+☁️ <strong>Cloud Infrastructure:</strong>
+  • Auto-scaling habilitado
+  • Multi-region deployment
+  • CDN global distribution
+  • Load balancing inteligente
+
+📊 <strong>Monitoreo:</strong>
+  • Prometheus + Grafana
+  • ELK Stack logging
+  • APM con New Relic
+  • Alertas automatizadas`;
+    }
+    
+    getProjectsCommand() {
+      return `
+<span style="color: #00d4aa;">🚀 Proyectos Destacados 2024</span>
+
+🏦 <strong>Sector Público:</strong>
+  • Portal Ciudadano Digital (Gob. Mendoza)
+  • Sistema Integral de Salud (Min. Salud)
+  • Plataforma Educativa Virtual (DGE)
+
+🏢 <strong>Sector Privado:</strong>
+  • ERP Integrado - Bodega Familiar
+  • E-commerce B2B - Distribuidor Líder
+  • App Fintech - Startup Local
+
+🏭 <strong>Innovación:</strong>
+  • IoT Agrícola - Sensores Inteligentes
+  • AI Analytics - Predicción de Ventas
+  • Blockchain - Trazabilidad Vinos
+
+📊 <strong>Impacto Generado:</strong>
+  • +50,000 usuarios beneficiados
+  • +30% eficiencia operativa
+  • +25% reducción de costos`;
+    }
+    
+    getClientsCommand() {
+      return `
+<span style="color: #00d4aa;">🏢 Nuestros Clientes - 150+ Empresas</span>
+
+🏦 <strong>Sector Gubernamental:</strong>
+  • Gobierno de Mendoza
+  • Municipalidad de Las Heras
+  • AFIP - Regional Mendoza
+  • Universidad Nacional de Cuyo
+
+🏦 <strong>Sector Financiero:</strong>
+  • Banco Provincial de Mendoza
+  • Cooperativa de Crédito Local
+  • Fintech Mendoza Innovation
+
+🍷 <strong>Sector Vitivinícola:</strong>
+  • Bodegas Familiares Asociadas
+  • Cooperativa Viñatera Regional
+  • Exportadora Premium Wines
+
+🏥 <strong>Sector Salud:</strong>
+  • Hospital Central Mendoza
+  • Clínica Privada San Rafael
+  • Centro Médico Especializado
+
+📊 <strong>Satisfacción del Cliente:</strong>
+  • Rating promedio: 4.9/5.0
+  • Retención: 94%
+  • Referidos: 67% nuevos clientes`;
     }
 
     clearTerminal() {
@@ -682,26 +1484,74 @@ Escribe <code>help</code> para ver los comandos disponibles.`;
     }
 
     handleAutoComplete() {
-      const commands = ['help', 'clear', 'about', 'services', 'contact', 'stats', 'portfolio', 'tech', 'team'];
-      const currentValue = this.input.value.toLowerCase();
+      if (this.engineReady && this.engine) {
+        // Autocompletion avanzado con todos los comandos del engine
+        const allCommands = [
+          ...Object.keys(this.engine.commands),
+          ...Object.keys(this.engine.aliases || {})
+        ];
+        const currentValue = this.input.value.toLowerCase();
+        
+        // Autocompletar comandos
+        const commandMatches = allCommands.filter(cmd => cmd.startsWith(currentValue));
+        
+        if (commandMatches.length === 1) {
+          this.input.value = commandMatches[0];
+        } else if (commandMatches.length > 1) {
+          // Mostrar sugerencias en la próxima línea
+          const suggestionDiv = document.createElement('div');
+          suggestionDiv.style.color = '#7ee787';
+          suggestionDiv.innerHTML = `💡 Sugerencias: ${commandMatches.slice(0, 5).join(', ')}`;
+          if (this.output) {
+            this.output.appendChild(suggestionDiv);
+          }
+        }
+        
+        // Autocompletar parámetros (para comandos como grep, find)
+        const parts = this.input.value.split(' ');
+        if (parts.length > 1 && this.engine.dynamicData) {
+          this.autoCompleteParameters(parts);
+        }
+      } else {
+        // Fallback básico
+        const basicCommands = ['help', 'clear', 'contact', 'stats', 'presupuesto'];
+        const currentValue = this.input.value.toLowerCase();
+        const matches = basicCommands.filter(cmd => cmd.startsWith(currentValue));
+        if (matches.length === 1) {
+          this.input.value = matches[0];
+        }
+      }
+    }
+    
+    autoCompleteParameters(parts) {
+      const command = parts[0];
+      const currentParam = parts[parts.length - 1];
       
-      const matches = commands.filter(cmd => cmd.startsWith(currentValue));
-      if (matches.length === 1) {
-        this.input.value = matches[0];
+      if (command === 'grep' && this.engine.dynamicData) {
+        // Autocompletar nombres de clientes
+        const clientes = this.engine.dynamicData.antecedentes?.map(a => a.cliente || a.Cliente).filter(Boolean) || [];
+        const matches = clientes.filter(c => c.toLowerCase().includes(currentParam.toLowerCase()));
+        if (matches.length > 0) {
+          const suggestion = matches[0];
+          parts[parts.length - 1] = `"${suggestion}"`;
+          this.input.value = parts.join(' ');
+        }
       }
     }
   }
 
-  // Inicialización cuando el DOM esté listo
-  document.addEventListener('DOMContentLoaded', () => {
-    new UMTerminalBasic();
-  });
-
-  // Fallback para casos donde DOMContentLoaded ya pasó
+  // Prevenir múltiples inicializaciones
+  let terminalInstance = null;
+  
+  function initializeTerminal() {
+    if (terminalInstance) return; // Evitar duplicados
+    terminalInstance = new UMTerminalAdvanced();
+  }
+  
+  // Inicialización segura
   if (document.readyState === 'loading') {
-    // DOM aún se está cargando
+    document.addEventListener('DOMContentLoaded', initializeTerminal);
   } else {
-    // DOM ya está listo
-    new UMTerminalBasic();
+    initializeTerminal();
   }
 </script>

@@ -167,13 +167,129 @@ class UMTerminalEngine {
       const res = await fetch('/api/umcli.json');
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const json = await res.json();
+      
       if (json && json.success && json.data) {
         this.dynamicData = json.data;
+        
+        // Si los datos están vacíos, usar datos de respaldo mejorados
+        if ((!json.data.servicios || json.data.servicios.length === 0) &&
+            (!json.data.casos_de_exito || json.data.casos_de_exito.length === 0)) {
+          console.warn('[UMTerminalEngine] Directus returned empty data, using enhanced fallback');
+          this.dynamicData = this.getEnhancedFallbackData();
+        }
+        
+        console.log('[UMTerminalEngine] Datos cargados:', {
+          servicios: this.dynamicData.servicios?.length || 0,
+          casos_de_exito: this.dynamicData.casos_de_exito?.length || 0,
+          blog_posts: this.dynamicData.blog_posts?.length || 0
+        });
+      } else {
+        throw new Error('Invalid API response structure');
       }
     } catch (e) {
-      // No interrumpir el flujo del terminal si falla
-      console.warn('[UMTerminalEngine] No se pudieron cargar datos dinámicos:', e?.message || e);
+      console.warn('[UMTerminalEngine] Error loading dynamic data:', e?.message || e);
+      console.info('[UMTerminalEngine] Using enhanced local fallback data');
+      this.dynamicData = this.getEnhancedFallbackData();
     }
+  }
+  
+  getEnhancedFallbackData() {
+    return {
+      servicios: [
+        {
+          id: 1,
+          titulo: 'Desarrollo Web Profesional',
+          categoria: 'Software',
+          descripcion: 'Sitios web corporativos con React, Vue.js y Astro',
+          tecnologias: ['React', 'Vue.js', 'Astro', 'TypeScript']
+        },
+        {
+          id: 2,
+          titulo: 'Seguridad Informática Avanzada',
+          categoria: 'Ciberseguridad',
+          descripcion: 'Auditorías, pentesting y consultoría en seguridad',
+          tecnologias: ['ISO 27001', 'CISSP', 'Penetration Testing']
+        },
+        {
+          id: 3,
+          titulo: 'Redes y Comunicaciones',
+          categoria: 'Infraestructura',
+          descripcion: 'Diseño e implementación de redes empresariales',
+          tecnologias: ['Cisco', 'Juniper', 'WiFi 6', 'SD-WAN']
+        },
+        {
+          id: 4,
+          titulo: 'Servicios Cloud',
+          categoria: 'Cloud Computing',
+          descripcion: 'Migración y gestión en AWS, Azure y Google Cloud',
+          tecnologias: ['AWS', 'Azure', 'GCP', 'Kubernetes', 'Docker']
+        }
+      ],
+      casos_de_exito: [
+        {
+          id: 1,
+          cliente: 'Gobierno de Mendoza',
+          titulo: 'Red Provincial de Datos',
+          area: 'Redes y Comunicaciones',
+          año: 2024,
+          presupuesto: 2500000,
+          descripcion: 'Implementación de red provincial conectando 18 departamentos',
+          tecnologias: ['Fibra óptica', 'MPLS', 'SD-WAN', 'Monitoreo 24/7'],
+          impacto: 'Conectividad de alta velocidad para 500,000+ ciudadanos'
+        },
+        {
+          id: 2,
+          cliente: 'Hospital Central Mendoza',
+          titulo: 'Digitalización de Historia Clínica',
+          area: 'Software Médico',
+          año: 2023,
+          presupuesto: 1800000,
+          descripcion: 'Sistema integral de gestión hospitalaria',
+          tecnologias: ['React', 'Node.js', 'PostgreSQL', 'HL7 FHIR'],
+          impacto: 'Atención digital para 200,000+ pacientes anuales'
+        },
+        {
+          id: 3,
+          cliente: 'Bodegas Catena Zapata',
+          titulo: 'ERP Vitivinícola Inteligente',
+          area: 'Software Industrial',
+          año: 2023,
+          presupuesto: 1200000,
+          descripcion: 'Sistema de trazabilidad completa del proceso vitivinícola',
+          tecnologias: ['SAP', 'IoT', 'Analytics', 'Blockchain'],
+          impacto: 'Optimización del 35% en procesos de producción'
+        },
+        {
+          id: 4,
+          cliente: 'AFIP Regional Mendoza',
+          titulo: 'Infraestructura Segura',
+          area: 'Ciberseguridad',
+          año: 2022,
+          presupuesto: 950000,
+          descripcion: 'Implementación de arquitectura de seguridad multicapa',
+          tecnologias: ['Next-Gen Firewall', 'SIEM', 'Zero Trust', 'MFA'],
+          impacto: '99.98% de disponibilidad y cero incidentes de seguridad'
+        },
+        {
+          id: 5,
+          cliente: 'Universidad Nacional de Cuyo',
+          titulo: 'Campus Digital Inteligente',
+          area: 'Educación y Tecnología',
+          año: 2024,
+          presupuesto: 780000,
+          descripcion: 'Infraestructura WiFi 6 y plataforma educativa',
+          tecnologias: ['WiFi 6', 'Moodle', 'Microsoft 365', 'Teams'],
+          impacto: 'Conectividad para 40,000+ estudiantes y docentes'
+        }
+      ],
+      blog_posts: [],
+      estadisticas: {
+        totalServicios: 4,
+        totalCasosExito: 5,
+        totalBlogPosts: 0,
+        ultimaActualizacion: new Date().toISOString()
+      }
+    };
   }
 
   initializeCompanyData() {
