@@ -199,94 +199,85 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
   image={seoConfig.ogImage}
   canonical={seoConfig.canonical}
 >
-  <main style="background: linear-gradient(135deg, #fafaf9 0%, #f5f3ff 100%);">
-    <!-- HERO ENRIQUECIDO Y PROFESIONAL -->
-    <section style="background: linear-gradient(135deg, #ffffff 0%, #fffbf0 100%); padding: 100px 24px; position: relative; overflow: hidden; border-bottom: 1px solid #e5e7eb;">
-      <!-- Background decorative elements -->
-      <div style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, transparent 70%); border-radius: 50%;"></div>
-      <div style="position: absolute; bottom: -50px; left: -50px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(245, 158, 11, 0.05) 0%, transparent 70%); border-radius: 50%;"></div>
-
-      <div style="max-width: 80rem; margin: 0 auto; position: relative; z-index: 10;">
+  <main style="background: #f8f9fa;">
+    <!-- HERO MODERNO CON IMAGEN DE FONDO -->
+    <section style="position: relative; min-height: 600px; display: flex; align-items: center; background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1920&q=80') center/cover; color: white;">
+      <div style="max-width: 80rem; margin: 0 auto; padding: 80px 24px; position: relative; z-index: 10; width: 100%;">
         <!-- Badge -->
-        <div style="display: inline-flex; align-items: center; gap: 8px; border-radius: 9999px; border: 1px solid #fed7aa; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); padding: 10px 20px; margin-bottom: 32px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);">
-          <div style="width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);"></div>
-          <span style="font-size: 14px; font-weight: 700; color: #92400e; letter-spacing: 0.5px;">SECTOR CONSTRUCCIÓN</span>
+        <div style="display: inline-flex; align-items: center; gap: 8px; border-radius: 9999px; background: rgba(245, 158, 11, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(245, 158, 11, 0.3); padding: 10px 20px; margin-bottom: 24px;">
+          <div style="width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; box-shadow: 0 0 12px rgba(245, 158, 11, 0.8);"></div>
+          <span style="font-size: 13px; font-weight: 700; color: #fbbf24; letter-spacing: 1px; text-transform: uppercase;">Sector Construcción</span>
         </div>
 
-        <!-- Title with gradient -->
-        <h1 style="font-size: clamp(36px, 6vw, 72px); font-weight: 800; letter-spacing: -0.03em; background: linear-gradient(135deg, #111827 0%, #374151 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 24px; line-height: 1.1;">
-          Infraestructura IT para Constructoras
+        <!-- Title -->
+        <h1 style="font-size: clamp(40px, 7vw, 64px); font-weight: 900; letter-spacing: -0.02em; margin-bottom: 20px; line-height: 1.1; text-shadow: 2px 4px 8px rgba(0,0,0,0.3);">
+          Construyendo el Mañana<br/>con Tecnología y Precisión
         </h1>
 
-        <!-- Subtitle with accent -->
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 32px;">
-          <div style="width: 4px; height: 40px; background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%); border-radius: 2px;"></div>
-          <p style="font-size: 20px; font-weight: 600; color: #1f2937; line-height: 1.5;">
-            Soluciones IT confiables para proyectos de construcción
-          </p>
-        </div>
-
-        <!-- Description -->
-        <p style="font-size: 16px; line-height: 1.8; color: #4b5563; max-width: 56rem; margin-bottom: 56px; font-weight: 500;">
-          Soluciones tecnológicas especializadas para obras, oficinas técnicas y proyectos de construcción. Experiencia comprobada con PROCON, LAUGGERO y KRISTICH. Infraestructura robusta para entornos de obra con conectividad en campo.
+        <!-- Subtitle -->
+        <p style="font-size: 20px; font-weight: 500; color: rgba(255, 255, 255, 0.95); max-width: 600px; margin-bottom: 40px; line-height: 1.6;">
+          Soluciones integrales para la gestión y ejecución de proyectos de construcción con precisión.
         </p>
 
-        <!-- Stats Grid - Enhanced -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 48px;">
-          <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 28px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-              <div style="width: 4px; height: 28px; background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%); border-radius: 2px;"></div>
-              <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #92400e;">Proyectos</span>
+        <!-- CTA Button -->
+        <a href="#servicios" style="display: inline-flex; align-items: center; gap: 12px; background: #f59e0b; color: white; padding: 16px 40px; border-radius: 8px; font-weight: 700; font-size: 16px; text-decoration: none; box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4); transition: all 0.3s ease; border: none; cursor: pointer;">
+          Explorar Nuestras Soluciones
+          <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+          </svg>
+        </a>
+      </div>
+    </section>
+
+    <!-- CARACTERÍSTICAS PRINCIPALES -->
+    <section style="background: white; padding: 80px 24px;">
+      <div style="max-width: 80rem; margin: 0 auto;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px;">
+          <!-- Card 1 -->
+          <div style="text-align: center; padding: 40px 24px; background: #f8f9fa; border-radius: 16px; border: 2px solid #e9ecef; transition: all 0.3s ease;" onmouseover="this.style.borderColor='#f59e0b'; this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 24px rgba(245,158,11,0.15)'" onmouseout="this.style.borderColor='#e9ecef'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+              <svg style="width: 32px; height: 32px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
             </div>
-            <div style="font-size: 56px; font-weight: 800; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px;">+50</div>
-            <p style="font-size: 14px; color: #6b7280; font-weight: 500;">Proyectos documentados</p>
+            <h3 style="font-size: 20px; font-weight: 800; color: #1a1a1a; margin-bottom: 12px;">Proyectos a Gran Escala</h3>
+            <p style="font-size: 15px; color: #6c757d; line-height: 1.6;">Gestionamos proyectos complejos con precisión y eficiencia en proyectos de construcción.</p>
           </div>
 
-          <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 28px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-              <div style="width: 4px; height: 28px; background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%); border-radius: 2px;"></div>
-              <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #92400e;">Experiencia</span>
+          <!-- Card 2 -->
+          <div style="text-align: center; padding: 40px 24px; background: #f8f9fa; border-radius: 16px; border: 2px solid #e9ecef; transition: all 0.3s ease;" onmouseover="this.style.borderColor='#f59e0b'; this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 24px rgba(245,158,11,0.15)'" onmouseout="this.style.borderColor='#e9ecef'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+              <svg style="width: 32px; height: 32px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+              </svg>
             </div>
-            <div style="font-size: 56px; font-weight: 800; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px;">20+ Años</div>
-            <p style="font-size: 14px; color: #6b7280; font-weight: 500;">En el sector construcción</p>
+            <h3 style="font-size: 20px; font-weight: 800; color: #1a1a1a; margin-bottom: 12px;">Innovación Tecnológica</h3>
+            <p style="font-size: 15px; color: #6c757d; line-height: 1.6;">Implementamos las últimas tecnologías para optimizar cada fase de la construcción.</p>
           </div>
 
-          <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 28px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-              <div style="width: 4px; height: 28px; background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%); border-radius: 2px;"></div>
-              <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #92400e;">Disponibilidad</span>
+          <!-- Card 3 -->
+          <div style="text-align: center; padding: 40px 24px; background: #f8f9fa; border-radius: 16px; border: 2px solid #e9ecef; transition: all 0.3s ease;" onmouseover="this.style.borderColor='#f59e0b'; this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 24px rgba(245,158,11,0.15)'" onmouseout="this.style.borderColor='#e9ecef'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+              <svg style="width: 32px; height: 32px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
             </div>
-            <div style="font-size: 56px; font-weight: 800; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px;">24/7</div>
-            <p style="font-size: 14px; color: #6b7280; font-weight: 500;">Soporte operativo</p>
+            <h3 style="font-size: 20px; font-weight: 800; color: #1a1a1a; margin-bottom: 12px;">Seguridad y Certificación</h3>
+            <p style="font-size: 15px; color: #6c757d; line-height: 1.6;">Cumplimiento riguroso de normativas y estándares de seguridad en obra.</p>
           </div>
-        </div>
-
-        <!-- CTA Buttons -->
-        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-          <a href="#servicios" style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; text-decoration: none; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); border: none; cursor: pointer;">
-            Ver Servicios
-            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-            </svg>
-          </a>
-          <a href="#antecedentes" style="display: inline-flex; align-items: center; gap: 8px; background: white; color: #92400e; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; text-decoration: none; border: 2px solid #fed7aa; cursor: pointer;">
-            Ver Casos de Éxito
-            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-            </svg>
-          </a>
         </div>
       </div>
     </section>
 
-    <!-- SERVICIOS - DISEÑO PREMIUM -->
-    <section class="bg-gray-50 py-24">
-      <div class="mx-auto max-w-7xl px-6">
+
+    <!-- SERVICIOS OFRECIDOS -->
+    <section id="servicios" style="background: #f8f9fa; padding: 80px 24px;">
+      <div style="max-width: 80rem; margin: 0 auto;">
         <!-- Header -->
-        <div class="mb-16 text-center">
-          <h2 class="mb-4 text-5xl font-black text-gray-900">Servicios Especializados</h2>
-          <p class="mx-auto max-w-2xl text-xl text-gray-600">
-            Soluciones IT diseñadas específicamente para el sector construcción
+        <div style="text-align: center; margin-bottom: 60px;">
+          <h2 style="font-size: clamp(32px, 5vw, 48px); font-weight: 900; color: #1a1a1a; margin-bottom: 16px;">Servicios Ofrecidos</h2>
+          <p style="font-size: 18px; color: #6c757d; max-width: 700px; margin: 0 auto;">
+            Ofrecemos un portafolio de servicios tecnológicos diseñados para optimizar cada fase del ciclo de vida del proyecto de construcción.
           </p>
         </div>
 
