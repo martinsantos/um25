@@ -70,7 +70,16 @@ const areasUnicas = [...new Set(serviciosReales.map(s => s.Area || s.area).filte
 const clientesUnicos = [...new Set(serviciosReales.map(s => s.Cliente || s.cliente).filter(Boolean))].sort();
 
 // Utilidad: usar Directus para assets si está configurado
-const resolveImage = (assetId) => getAssetUrl(assetId, true);
+const resolveImage = (assetId) => {
+  if (!assetId) return '/images/default-service.jpg';
+  if (assetId.startsWith('http')) return assetId;
+  if (assetId.startsWith('/')) return assetId;
+  try {
+    return getAssetUrl(assetId, true);
+  } catch (e) {
+    return '/images/default-service.jpg';
+  }
+};
 
 // SEO Data
 const seoData = {
@@ -225,8 +234,6 @@ const seoData = {
                               Cliente: {servicio.Cliente || servicio.cliente}
                             </span>
                           </div>
-                          
-
                         </div>
                       </div>
                     </article>
