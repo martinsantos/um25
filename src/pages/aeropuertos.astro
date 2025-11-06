@@ -29,16 +29,18 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    // Mostrar todos los antecedentes
+    // Filtrar antecedentes de aeropuertos (solo Aeropuertos Argentina 2000)
     antecedentes = response.data
-      
+      .filter(item => 
+        item.Cliente?.toLowerCase().includes('aeropuerto')
+      )
       .map(item => ({
         ...item,
         slug: `${item.id}/${generateSlug(item.Titulo)}`
       }))
       .sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
 
-    console.log(`✅ Cargados ${antecedentes.length} antecedentes`);
+    console.log(`✅ Cargados ${antecedentes.length} antecedentes de aeropuertos`);
   }
 
   // Servicios relacionados con el sector constructoras

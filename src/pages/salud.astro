@@ -29,16 +29,18 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    // Mostrar todos los antecedentes
+    // Filtrar antecedentes de salud (solo Hospital)
     antecedentes = response.data
-      
+      .filter(item => 
+        item.Cliente?.toLowerCase().includes('hospital')
+      )
       .map(item => ({
         ...item,
         slug: `${item.id}/${generateSlug(item.Titulo)}`
       }))
       .sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
 
-    console.log(`✅ Cargados ${antecedentes.length} antecedentes`);
+    console.log(`✅ Cargados ${antecedentes.length} antecedentes de salud`);
   }
 
   // Servicios relacionados con el sector constructoras
