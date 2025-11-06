@@ -1,0 +1,300 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+// SEO metadata optimized for English sectors page
+const seoData = {
+  title: "Solutions by Sector | IT Mendoza | ULTIMA MILLA | Wineries, Software, Government, Construction",
+  description: "Specialized IT solutions by sector in Mendoza and Argentina. Experience in wineries, software, government, construction, airports and healthcare. +20 years of experience. Infrastructure, networks, cybersecurity and custom web development.",
+  keywords: "IT mendoza, information technology argentina, IT services mendoza, technology solutions, communications mendoza, data networks, cybersecurity, IT service providers argentina, technology mendoza, digital transformation",
+  ogTitle: "Technology Solutions by Sector | ULTIMA MILLA",
+  ogDescription: "Specialized experience in the most demanding sectors of Mendoza and Argentina",
+  ogImage: "https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=630&q=80",
+  canonical: "https://www.ultimamilla.com.ar/en/sector",
+  locale: "en_US",
+  region: "Mendoza, Argentina",
+  author: "ULTIMA MILLA",
+  robots: "index, follow"
+};
+
+// Datos de sectores en inglés
+const sectores = [
+  {
+    id: 1,
+    nombre: "Construction",
+    titulo_en: "Construction",
+    descripcion: "IT infrastructure for construction works and projects",
+    descripcion_en: "IT infrastructure for construction works and projects",
+    stats: [
+      { numero: "+50", label: "Projects", label_en: "Projects" },
+      { numero: "20+", label: "Years", label_en: "Years" }
+    ],
+    color: "orange",
+    icon: "🏗️",
+    link: "/en/constructoras"
+  },
+  {
+    id: 2,
+    nombre: "Airports",
+    titulo_en: "Airports",
+    descripcion: "Critical communications and airport security",
+    descripcion_en: "Critical communications and airport security",
+    stats: [
+      { numero: "35+", label: "Projects", label_en: "Projects" },
+      { numero: "24/7", label: "Support", label_en: "Support" }
+    ],
+    color: "cyan",
+    icon: "✈️",
+    link: "/en/aeropuertos"
+  },
+  {
+    id: 3,
+    nombre: "Healthcare",
+    titulo_en: "Healthcare",
+    descripcion: "Hospital technology and critical healthcare systems",
+    descripcion_en: "Hospital technology and critical healthcare systems",
+    stats: [
+      { numero: "40+", label: "Projects", label_en: "Projects" },
+      { numero: "15+", label: "Years", label_en: "Years" }
+    ],
+    color: "teal",
+    icon: "🏥",
+    link: "/en/salud"
+  },
+  {
+    id: 4,
+    nombre: "Wineries",
+    titulo_en: "Wineries",
+    descripcion: "Technology for Mendoza wineries and vineyards",
+    descripcion_en: "Technology for Mendoza wineries and vineyards",
+    stats: [
+      { numero: "+50", label: "Projects", label_en: "Projects" },
+      { numero: "20+", label: "Years", label_en: "Years" }
+    ],
+    color: "purple",
+    icon: "🍷",
+    link: "/en/bodegas"
+  },
+  {
+    id: 5,
+    nombre: "Software Development",
+    titulo_en: "Software Development",
+    descripcion: "Custom and personalized software development",
+    descripcion_en: "Custom and personalized software development",
+    stats: [
+      { numero: "+100", label: "Projects", label_en: "Projects" },
+      { numero: "20+", label: "Years", label_en: "Years" }
+    ],
+    color: "blue",
+    icon: "💻",
+    link: "/en/software"
+  },
+  {
+    id: 6,
+    nombre: "Public Sector",
+    titulo_en: "Public Sector",
+    descripcion: "Technological solutions for the public sector",
+    descripcion_en: "Technological solutions for the public sector",
+    stats: [
+      { numero: "40+", label: "Projects", label_en: "Projects" },
+      { numero: "20+", label: "Years", label_en: "Years" }
+    ],
+    color: "red",
+    icon: "🏛️",
+    link: "/en/gobiernosectorpublico"
+  }
+];
+
+// Mapeo de colores a valores CSS
+const colorMap = {
+  orange: { border: "#fb923c", bg: "rgba(251, 146, 60, 0.05)" },
+  cyan: { border: "#06b6d4", bg: "rgba(6, 182, 212, 0.05)" },
+  teal: { border: "#14b8a6", bg: "rgba(20, 184, 166, 0.05)" },
+  purple: { border: "#a855f7", bg: "rgba(168, 85, 247, 0.05)" },
+  blue: { border: "#3b82f6", bg: "rgba(59, 130, 246, 0.05)" },
+  red: { border: "#ef4444", bg: "rgba(239, 68, 68, 0.05)" }
+};
+---
+
+<Layout>
+  <head>
+    <title>{seoData.title}</title>
+    <meta name="description" content={seoData.description} />
+    <meta name="keywords" content={seoData.keywords} />
+    <meta name="robots" content={seoData.robots} />
+    <meta name="author" content={seoData.author} />
+    <meta property="og:title" content={seoData.ogTitle} />
+    <meta property="og:description" content={seoData.ogDescription} />
+    <meta property="og:image" content={seoData.ogImage} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={seoData.canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={seoData.ogTitle} />
+    <meta name="twitter:description" content={seoData.ogDescription} />
+    <meta name="twitter:image" content={seoData.ogImage} />
+    <link rel="canonical" href={seoData.canonical} />
+    <meta name="geo.placename" content={seoData.region} />
+    <meta name="geo.region" content="AR-MDZ" />
+    <meta name="ICBM" content="-32.8895, -68.8458" />
+    <meta http-equiv="content-language" content="en-US" />
+    
+    <!-- Schema.org structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "ULTIMA MILLA",
+      "url": "https://www.ultimamilla.com.ar",
+      "logo": "https://www.ultimamilla.com.ar/logo.png",
+      "description": "Leading IT services company in Mendoza",
+      "areaServed": ["AR", "Mendoza"],
+      "knowsAbout": ["IT Services", "Software Development", "Network Infrastructure", "Cybersecurity"],
+      "sameAs": [
+        "https://www.ultimamilla.com.ar"
+      ]
+    }
+    </script>
+  </head>
+
+  <main style="min-height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+    <!-- Hero Section -->
+    <section style="padding: 80px 20px; text-align: center; color: white;">
+      <div style="max-width: 1200px; margin: 0 auto;">
+        <h1 style="font-size: 48px; font-weight: 800; margin-bottom: 16px; letter-spacing: -1px;">
+          Solutions by Sector
+        </h1>
+        <p style="font-size: 18px; color: #cbd5e1; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto;">
+          Specialized experience in the most demanding sectors of Mendoza and Argentina
+        </p>
+      </div>
+    </section>
+
+    <!-- Grid de Sectores -->
+    <section style="padding: 60px 20px; max-width: 1400px; margin: 0 auto;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 32px;">
+        {sectores.map((sector) => {
+          const colors = colorMap[sector.color as keyof typeof colorMap];
+          return (
+            <a href={sector.link} style="text-decoration: none; transition: all 0.3s ease;">
+              <div style={`
+                background: white;
+                border-radius: 24px;
+                padding: 40px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                border-left: 6px solid ${colors.border};
+                transition: all 0.3s ease;
+                cursor: pointer;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+              `}
+              onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 30px 80px rgba(0,0,0,0.4)'"
+              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 20px 60px rgba(0,0,0,0.3)'"
+              >
+                <!-- Color indicator bar -->
+                <div style={`
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 8px;
+                  margin-bottom: 16px;
+                  width: fit-content;
+                `}>
+                  <div style={`
+                    width: 40px;
+                    height: 3px;
+                    background: ${colors.border};
+                    border-radius: 2px;
+                  `}></div>
+                  <span style={`
+                    font-size: 12px;
+                    font-weight: 700;
+                    color: ${colors.border};
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                  `}>SECTOR</span>
+                </div>
+
+                <!-- Título con emoji -->
+                <h2 style="font-size: 32px; font-weight: 800; color: #0f172a; margin: 16px 0; display: flex; align-items: center; gap: 12px;">
+                  <span style="font-size: 40px;">{sector.icon}</span>
+                  {sector.nombre}
+                </h2>
+
+                <!-- Descripción -->
+                <p style="font-size: 15px; color: #64748b; margin-bottom: 24px; flex-grow: 1;">
+                  {sector.descripcion_en}
+                </p>
+
+                <!-- Stats -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #e2e8f0;">
+                  {sector.stats.map((stat) => (
+                    <div>
+                      <div style="font-size: 24px; font-weight: 800; color: #0f172a;">
+                        {stat.numero}
+                      </div>
+                      <div style="font-size: 12px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                        {stat.label_en}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <!-- CTA -->
+                <div style={`
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 8px;
+                  font-weight: 700;
+                  color: ${colors.border};
+                  font-size: 14px;
+                `}>
+                  Learn more <span style="font-size: 18px;">→</span>
+                </div>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section style="padding: 80px 20px; text-align: center; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(168, 85, 247, 0.1)); margin-top: 60px;">
+      <div style="max-width: 800px; margin: 0 auto;">
+        <h2 style="font-size: 36px; font-weight: 800; color: white; margin-bottom: 16px;">
+          Didn't find your sector?
+        </h2>
+        <p style="font-size: 16px; color: #cbd5e1; margin-bottom: 32px;">
+          Contact us to learn how we can help you with personalized IT solutions for your industry
+        </p>
+        <a href="/en/contacto" style={`
+          display: inline-block;
+          padding: 16px 40px;
+          background: linear-gradient(135deg, #3b82f6, #2563eb);
+          color: white;
+          border-radius: 12px;
+          font-weight: 800;
+          text-decoration: none;
+          transition: all 0.3s ease;
+          box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        `}
+        onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 14px 40px rgba(59, 130, 246, 0.5)'"
+        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(59, 130, 246, 0.4)'"
+        >
+          Contact Now
+        </a>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: none;
+  }
+</style>
