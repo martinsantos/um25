@@ -78,18 +78,9 @@ export default defineConfig({
         '23.105.176.45'
       ]
     },
-    // Configuración específica para el build
-    build: {
-      // En producción no incluir el cliente HMR
-      rollupOptions: process.env.NODE_ENV === 'production' ? {
-        external: ['/@vite/client']
-      } : {}
-    },
     preview: {
       host: true,
       allowedHosts: [
-        'ultimamilla.com.ar',
-        'www.ultimamilla.com.ar',
         'ultimamilla.com.ar',
         'www.ultimamilla.com.ar',
         'localhost',
@@ -98,11 +89,7 @@ export default defineConfig({
         // Explicit host:port variants for strict reverse proxy environments
         'ultimamilla.com.ar:443',
         'www.ultimamilla.com.ar:443',
-        'ultimamilla.com.ar:443',
-        'www.ultimamilla.com.ar:443',
         '23.105.176.45:443',
-        'ultimamilla.com.ar:80',
-        'www.ultimamilla.com.ar:80',
         'ultimamilla.com.ar:80',
         'www.ultimamilla.com.ar:80',
         '23.105.176.45:80'
@@ -115,19 +102,15 @@ export default defineConfig({
     },
     build: {
       // Optimizaciones de producción
-      minify: 'terser', // Minificación agresiva con terser
+      minify: 'esbuild', // Usar esbuild para mejor compatibilidad
       cssCodeSplit: true, // Dividir CSS por chunks
       rollupOptions: {
         output: {
-          // Estrategia de nombrado con hash para caché
-          assetFileNames: '_astro/[name].[hash][extname]',
-          chunkFileNames: '_astro/[name].[hash].js',
-          entryFileNames: '_astro/[name].[hash].js',
-          // Optimizar chunks
-          manualChunks: {
-            vendor: ['@astrojs/node'],
-            utils: ['date-fns']
-          }
+          // Deshabilitar hashing en nombres de archivos para SSR
+          entryFileNames: '[name].mjs',
+          chunkFileNames: '[name].mjs',
+          assetFileNames: '[name][extname]',
+          manualChunks: undefined
         }
       },
       // Configuración de compresión

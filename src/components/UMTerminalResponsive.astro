@@ -1,0 +1,180 @@
+---
+// UMTerminalResponsive.astro - Terminal que detecta móvil y usa el diseño perfecto
+import UMTerminalProfessional from './UMTerminalProfessional-v2.astro';
+import UMTerminalMobilePerfect from './UMTerminalMobilePerfect.astro';
+---
+
+<!-- Desktop/Tablet Terminal -->
+<div class="desktop-terminal-wrapper">
+  <div class="um-cli-main-container hero-terminal-section">
+    <div class="hero-container">
+      <UMTerminalProfessional />
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Perfect Terminal -->
+<div class="mobile-terminal-wrapper">
+  <UMTerminalMobilePerfect />
+</div>
+
+<style>
+/* Show desktop terminal by default */
+.desktop-terminal-wrapper {
+  display: block;
+}
+
+.mobile-terminal-wrapper {
+  display: none;
+}
+
+/* Switch to mobile terminal on small screens */
+@media (max-width: 768px) {
+  .desktop-terminal-wrapper {
+    display: none;
+  }
+  
+  .mobile-terminal-wrapper {
+    display: block;
+  }
+}
+
+/* Force mobile on very small screens */
+@media (max-width: 480px) {
+  .desktop-terminal-wrapper {
+    display: none !important;
+  }
+  
+  .mobile-terminal-wrapper {
+    display: block !important;
+  }
+}
+
+/* Ensure no conflicts */
+.um-cli-main-container {
+  width: 100%;
+  max-width: 100vw;
+  margin: 0;
+  padding: 8px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.hero-terminal-section {
+  padding: 20px 0;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+/* Tablet adjustments */
+@media (min-width: 481px) and (max-width: 768px) {
+  .hero-container {
+    padding: 0 15px;
+  }
+  
+  .hero-terminal-section {
+    padding: 15px 0;
+    min-height: 95vh;
+  }
+}
+</style>
+
+<script is:inline>
+// Enhanced mobile detection and optimization
+document.addEventListener('DOMContentLoaded', function() {
+  // Additional mobile detection beyond CSS media queries
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isSmallScreen = window.innerWidth <= 768;
+  const isTouchDevice = 'ontouchstart' in window;
+  
+  if (isMobile || (isSmallScreen && isTouchDevice)) {
+    // Force mobile layout
+    const desktopWrapper = document.querySelector('.desktop-terminal-wrapper');
+    const mobileWrapper = document.querySelector('.mobile-terminal-wrapper');
+    
+    if (desktopWrapper && mobileWrapper) {
+      desktopWrapper.style.display = 'none';
+      mobileWrapper.style.display = 'block';
+    }
+    
+    // Add mobile-specific optimizations
+    document.body.classList.add('mobile-optimized');
+    
+    // Prevent zoom on input focus (iOS)
+    const viewportMeta = document.querySelector('meta[name="viewport"]');
+    if (viewportMeta) {
+      viewportMeta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0';
+    }
+    
+    // Add touch-friendly styles
+    const style = document.createElement('style');
+    style.textContent = `
+      .mobile-optimized * {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+      
+      .mobile-optimized input,
+      .mobile-optimized textarea {
+        -webkit-user-select: text;
+        -moz-user-select: text;
+        -ms-user-select: text;
+        user-select: text;
+      }
+      
+      .mobile-optimized body {
+        overflow-x: hidden;
+        position: relative;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  
+  // Orientation change handler
+  window.addEventListener('orientationchange', function() {
+    setTimeout(() => {
+      // Recalculate layout after orientation change
+      if (window.innerWidth <= 768) {
+        const desktopWrapper = document.querySelector('.desktop-terminal-wrapper');
+        const mobileWrapper = document.querySelector('.mobile-terminal-wrapper');
+        
+        if (desktopWrapper && mobileWrapper) {
+          desktopWrapper.style.display = 'none';
+          mobileWrapper.style.display = 'block';
+        }
+      }
+    }, 500);
+  });
+  
+  // Performance optimization for mobile
+  if (isMobile) {
+    // Reduce animation frequency on mobile
+    const reducedMotionStyle = document.createElement('style');
+    reducedMotionStyle.textContent = `
+      @media (max-width: 768px) {
+        * {
+          animation-duration: 0.3s !important;
+          transition-duration: 0.2s !important;
+        }
+      }
+    `;
+    document.head.appendChild(reducedMotionStyle);
+  }
+});
+</script>

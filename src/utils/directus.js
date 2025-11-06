@@ -3,7 +3,7 @@ const DIRECTUS_CONFIG = {
   URL: import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055',
   TOKEN: import.meta.env.DIRECTUS_STATIC_TOKEN || 'ujsboxj0_E5PvWKhFao7yCW6_VDFsOSk',
   PAGE_SIZE: 20,
-  DEFAULT_IMAGE: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'
+  DEFAULT_IMAGE: '/images/default.jpg'
 };
 
 // Validar configuración

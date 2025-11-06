@@ -28,6 +28,8 @@ const getUrlParams = (url) => {
 
 // Importar todos los antecedentes reales desde el archivo de datos
 import { antecedentesReales } from '../../data/antecedentes_completos.js';
+// Importar la función de mapeo de imágenes
+import { buscarImagenPorDatos } from '../../data/mapeo_imagenes_completo.js';
 
 // Cargar datos iniciales
 let pageData = {
@@ -140,12 +142,10 @@ try {
   const paginatedAntecedentes = filteredAntecedentes.slice(startIndex, endIndex);
 
   // Procesar URLs de imágenes para los datos de fallback
-  const antecedentesConImagenes = await Promise.all(
-    paginatedAntecedentes.map(async (proyecto) => ({
-      ...proyecto,
-      imageUrl: await getImageUrl(proyecto)
-    }))
-  );
+  const antecedentesConImagenes = paginatedAntecedentes.map((proyecto) => ({
+    ...proyecto,
+    imageUrl: getImageUrl(proyecto)
+  }));
 
   pageData = {
     ...pageData,
@@ -263,11 +263,8 @@ const filterOptions = {
 };
 
 // ✅ FUNCIÓN MEJORADA: Obtener imagen usando el sistema de mapeo que funciona
-async function getImageUrl(proyecto) {
+function getImageUrl(proyecto) {
   try {
-    // Importar la función de mapeo que funciona correctamente
-    const { buscarImagenPorDatos } = await import('../../data/mapeo_imagenes_completo.js');
-    
     // Buscar la imagen específica usando los datos del antecedente
     const nombreArchivo = buscarImagenPorDatos(
       proyecto.Cliente,

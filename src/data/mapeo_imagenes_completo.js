@@ -3087,17 +3087,20 @@ export function buscarImagenPorDatos(cliente, area, titulo, id) {
         return false; // Imagen correcta
     };
 
-    // 1. Búsqueda por ID específico
+    // 1. Búsqueda por ID específico (PRIORIDAD MÁXIMA)
     if (id) {
-        const porId = mapeoImagenes.find(entrada => entrada.numero === parseInt(id));
-        if (porId) {
-            // Verificar si la imagen es incorrecta
-            if (detectarImagenIncorrecta(porId, titulo)) {
-                console.log('[MAPEO] ❌ Imagen incorrecta por ID, usando fallback');
-                return null; // Forzar fallback
+        const idNumero = typeof id === 'number' ? id : parseInt(id);
+        if (!isNaN(idNumero)) {
+            const porId = mapeoImagenes.find(entrada => entrada.numero === idNumero);
+            if (porId) {
+                // Verificar si la imagen es incorrecta
+                if (detectarImagenIncorrecta(porId, titulo)) {
+                    console.log('[MAPEO] ❌ Imagen incorrecta por ID, usando fallback');
+                    return null; // Forzar fallback
+                }
+                console.log('[MAPEO] ✅ Encontrada por ID exacto:', porId.nombre_archivo_generado);
+                return porId.nombre_archivo_generado;
             }
-            console.log('[MAPEO] ✅ Encontrada por ID:', porId.nombre_archivo_generado);
-            return porId.nombre_archivo_generado;
         }
     }
 
@@ -3126,19 +3129,64 @@ export function buscarImagenPorDatos(cliente, area, titulo, id) {
         return porCombinacion.nombre_archivo_generado;
     }
 
-    // 3. Búsqueda por cliente (más flexible)
-    const porCliente = mapeoImagenes.find(entrada => {
+    // 3. Búsqueda por cliente + área (más específica)
+    const porClienteAreaList = mapeoImagenes.filter(entrada => {
+        const entradaClienteNorm = normalizarTexto(entrada.cliente);
+        const entradaAreaNorm = normalizarTexto(entrada.area);
+        return entradaClienteNorm === clienteNorm && entradaAreaNorm === areaNorm;
+    });
+
+    if (porClienteAreaList.length > 0) {
+        // Usar hash del título para seleccionar una imagen de forma consistente
+        let hash = 0;
+        for (let i = 0; i < tituloNorm.length; i++) {
+            hash = ((hash << 5) - hash) + tituloNorm.charCodeAt(i);
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        const index = Math.abs(hash) % porClienteAreaList.length;
+        const porClienteArea = porClienteAreaList[index];
+        
+        // Verificar si la imagen es incorrecta
+        if (detectarImagenIncorrecta(porClienteArea, titulo)) {
+            console.log('[MAPEO] ❌ Imagen incorrecta por cliente+área, usando fallback');
+            return null; // Forzar fallback
+        }
+        console.log('[MAPEO] ✅ Encontrada por cliente+área (índice ' + index + '):', porClienteArea.nombre_archivo_generado);
+        return porClienteArea.nombre_archivo_generado;
+    }
+
+    // 4. Búsqueda por cliente solo (fallback)
+    const porClienteList = mapeoImagenes.filter(entrada => {
         const entradaClienteNorm = normalizarTexto(entrada.cliente);
         return entradaClienteNorm === clienteNorm;
     });
 
-    if (porCliente) {
+    if (porClienteList.length > 0) {
+        // Usar ID del antecedente para seleccionar una imagen de forma consistente
+        // Esto asegura que cada antecedente con el mismo cliente tenga una imagen diferente
+        let hash = 0;
+        if (id) {
+            const idStr = String(id);
+            for (let i = 0; i < idStr.length; i++) {
+                hash = ((hash << 5) - hash) + idStr.charCodeAt(i);
+                hash = hash & hash; // Convert to 32bit integer
+            }
+        } else {
+            // Si no hay ID, usar el título
+            for (let i = 0; i < tituloNorm.length; i++) {
+                hash = ((hash << 5) - hash) + tituloNorm.charCodeAt(i);
+                hash = hash & hash; // Convert to 32bit integer
+            }
+        }
+        const index = Math.abs(hash) % porClienteList.length;
+        const porCliente = porClienteList[index];
+        
         // Verificar si la imagen es incorrecta
         if (detectarImagenIncorrecta(porCliente, titulo)) {
             console.log('[MAPEO] ❌ Imagen incorrecta por cliente, usando fallback');
             return null; // Forzar fallback
         }
-        console.log('[MAPEO] ✅ Encontrada por cliente:', porCliente.nombre_archivo_generado);
+        console.log('[MAPEO] ✅ Encontrada por cliente (índice ' + index + ' de ' + porClienteList.length + '):', porCliente.nombre_archivo_generado);
         return porCliente.nombre_archivo_generado;
     }
 

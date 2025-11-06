@@ -1,0 +1,454 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { directus, DEFAULT_IMAGE } from '../utils/directus';
+import { generateSlug } from '../utils/slugUtils';
+
+// Configuración SEO específica para aeropuertos - ULTRA OPTIMIZADA MUNDIAL
+const seoConfig = {
+  title: "Aeropuertos Argentina 2000 Mendoza | Sistemas Aviación | Comunicaciones Aéreas",
+  description: "Especialistas en sistemas de comunicación para aeropuertos en Argentina. Experiencia en Aeropuertos Argentina 2000 Mendoza. Tecnología de aviación, control aéreo, comunicaciones críticas.",
+  keywords: "aeropuertos argentina 2000, sistemas aviacion mendoza, comunicaciones aereas, tecnologia aeropuertos, control aereo argentina, infraestructura aeropuertos mendoza, sistemas navegacion aerea, comunicaciones criticas aviacion, IT aeropuertos, tecnologia terminal aerea, mendoza argentina aeropuertos",
+  ogImage: "/images/aeropuertos-hero.jpg",
+  canonical: "https://ultimamilla.com.ar/aeropuertos",
+  locale: "es_AR",
+  region: "AR"
+};
+
+// Cargar antecedentes del sector aeropuertos
+let antecedentes = [];
+let serviciosRelacionados = [];
+let error = null;
+
+try {
+  // Obtener antecedentes de aeropuertos desde Directus
+  const response = await directus.getAntecedentes({
+    limit: 500,
+    page: 1
+  });
+
+  if (response && response.data && response.data.length > 0) {
+    // Filtrar antecedentes del sector aeropuertos
+    antecedentes = response.data
+      .filter(item => 
+        item.vertical === 'aeropuertos' ||
+        item.Cliente?.toLowerCase().includes('aeropuerto') ||
+        item.Cliente?.toLowerCase().includes('aa2000') ||
+        item.Cliente?.toLowerCase().includes('argentina 2000')
+      )
+      .map(item => ({
+        ...item,
+        slug: `${item.id}/${generateSlug(item.Titulo)}`
+      }))
+      .sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
+
+    console.log(`✅ Cargados ${antecedentes.length} antecedentes del sector aeropuertos`);
+  }
+
+  // Servicios relacionados con el sector aeropuertos
+  serviciosRelacionados = [
+    {
+      id: 1,
+      titulo: "Sistemas de Videovigilancia CCTV",
+      descripcion: "Circuitos cerrados de televisión de alta definición con análisis inteligente de video para seguridad aeroportuaria",
+      icon: "camera",
+      slug: "seguridad-informatica"
+    },
+    {
+      id: 2,
+      titulo: "Control de Accesos y Seguridad",
+      descripcion: "Sistemas biométricos, torniquetes y control de acceso para áreas restringidas y zonas de seguridad",
+      icon: "shield",
+      slug: "seguridad-informatica"
+    },
+    {
+      id: 3,
+      titulo: "Redes de Datos de Alta Disponibilidad",
+      descripcion: "Infraestructura de red redundante y cableado estructurado certificado para operaciones críticas 24/7",
+      icon: "network",
+      slug: "redes-de-datos"
+    },
+    {
+      id: 4,
+      titulo: "Sistemas de Comunicaciones",
+      descripcion: "Telefonía IP, intercomunicadores y sistemas de comunicación para operaciones aeroportuarias",
+      icon: "phone",
+      slug: "servicios-it"
+    },
+    {
+      id: 5,
+      titulo: "Detección de Incendios y Emergencias",
+      descripcion: "Sistemas de detección temprana y alarmas para protección de infraestructura crítica",
+      icon: "alert",
+      slug: "seguridad-informatica"
+    },
+    {
+      id: 6,
+      titulo: "Soporte Técnico Especializado 24/7",
+      descripcion: "Mantenimiento preventivo y correctivo con respuesta inmediata para infraestructura aeroportuaria",
+      icon: "support",
+      slug: "servicios-gestionados"
+    }
+  ];
+
+} catch (err) {
+  console.error('Error al cargar datos de aeropuertos:', err);
+  error = err.message;
+}
+
+// Función para obtener imagen del antecedente
+async function getImageUrl(proyecto) {
+  try {
+    const { buscarImagenPorDatos } = await import('../data/mapeo_imagenes_completo.js');
+    const nombreArchivo = buscarImagenPorDatos(
+      proyecto.Cliente,
+      proyecto.Area || proyecto.Unidad_de_negocio, 
+      proyecto.Titulo,
+      proyecto.id
+    );
+    
+    if (nombreArchivo) {
+      return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
+    }
+  } catch (error) {
+    console.log('⚠️ Error en mapeo de imagen:', error.message);
+  }
+  return DEFAULT_IMAGE;
+}
+
+// Procesar imágenes
+const antecedentesConImagenes = await Promise.all(
+  antecedentes.map(async (proyecto) => ({
+    ...proyecto,
+    imageUrl: await getImageUrl(proyecto)
+  }))
+);
+
+// Estadísticas del sector
+const stats = {
+  proyectos: antecedentes.length,
+  terminales: new Set(antecedentes.map(a => a.Cliente)).size,
+  aniosExperiencia: new Date().getFullYear() - Math.min(...antecedentes.map(a => new Date(a.Fecha).getFullYear()))
+};
+---
+
+<Layout 
+  title={seoConfig.title}
+  description={seoConfig.description}
+  ogImage={seoConfig.ogImage}
+>
+  <!-- Meta Tags Adicionales para SEO -->
+  <meta slot="head" name="keywords" content={seoConfig.keywords} />
+  <meta slot="head" name="geo.region" content="AR" />
+  <meta slot="head" name="geo.placename" content="Argentina" />
+  <link slot="head" rel="canonical" href={seoConfig.canonical} />
+  
+  <!-- Open Graph Adicional -->
+  <meta slot="head" property="og:type" content="website" />
+  <meta slot="head" property="og:locale" content={seoConfig.locale} />
+  <meta slot="head" property="og:url" content={seoConfig.canonical} />
+  <meta slot="head" property="og:site_name" content="Última Milla" />
+  
+  <!-- Twitter Card -->
+  <meta slot="head" name="twitter:card" content="summary_large_image" />
+  <meta slot="head" name="twitter:title" content={seoConfig.title} />
+  <meta slot="head" name="twitter:description" content={seoConfig.description} />
+  
+  <!-- Schema Markup Mejorado para SEO -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Soluciones IT para Aeropuertos en Argentina",
+    "provider": {
+      "@type": "Organization",
+      "name": "Última Milla",
+      "url": "https://www.ultimamilla.com.ar",
+      "logo": "https://www.ultimamilla.com.ar/images/logo.png"
+    },
+    "areaServed": {
+      "@type": "Country",
+      "name": "Argentina"
+    },
+    "serviceType": ["CCTV Aeroportuario", "Control de Accesos", "Redes de Datos Alta Disponibilidad", "Sistemas de Comunicaciones Aeronáuticas", "Seguridad Informática Aeroportuaria"],
+    "description": seoConfig.description,
+    "offers": {
+      "@type": "Offer",
+      "availability": "https://schema.org/InStock",
+      "areaServed": "Argentina"
+    }
+  })} />
+
+  <main style="background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);">
+    <!-- HERO ENRIQUECIDO Y PROFESIONAL -->
+    <section style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); padding: 100px 24px; position: relative; overflow: hidden; border-bottom: 1px solid #e5e7eb;">
+      <!-- Background decorative elements -->
+      <div style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(14, 165, 233, 0.08) 0%, transparent 70%); border-radius: 50%;"></div>
+      <div style="position: absolute; bottom: -50px; left: -50px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(14, 165, 233, 0.05) 0%, transparent 70%); border-radius: 50%;"></div>
+
+      <div style="max-width: 80rem; margin: 0 auto; position: relative; z-index: 10;">
+        <!-- Badge -->
+        <div style="display: inline-flex; align-items: center; gap: 8px; border-radius: 9999px; border: 1px solid #e0f2fe; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 10px 20px; margin-bottom: 32px; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);">
+          <div style="width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); box-shadow: 0 0 8px rgba(14, 165, 233, 0.5);"></div>
+          <span style="font-size: 14px; font-weight: 700; color: #0369a1; letter-spacing: 0.5px;">SECTOR AEROPORTUARIO</span>
+        </div>
+
+        <!-- Title with gradient -->
+        <h1 style="font-size: clamp(36px, 6vw, 72px); font-weight: 800; letter-spacing: -0.03em; background: linear-gradient(135deg, #111827 0%, #374151 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 24px; line-height: 1.1;">
+          Infraestructura IT para Aeropuertos
+        </h1>
+
+        <!-- Subtitle with accent -->
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 32px;">
+          <div style="width: 4px; height: 40px; background: linear-gradient(180deg, #0ea5e9 0%, #06b6d4 100%); border-radius: 2px;"></div>
+          <p style="font-size: 20px; font-weight: 600; color: #1f2937; line-height: 1.5;">
+            Soluciones críticas para operaciones aeroportuarias de clase mundial
+          </p>
+        </div>
+
+        <!-- Description -->
+        <p style="font-size: 16px; line-height: 1.8; color: #4b5563; max-width: 56rem; margin-bottom: 56px; font-weight: 500;">
+          Comunicaciones críticas, control y seguridad para Aeropuertos Argentina 2000 y terminales regionales. Operaciones 24/7 con tolerancia a fallos garantizada. Experiencia comprobada en sistemas de misión crítica con uptime 99.99%.
+        </p>
+
+        <!-- Stats Grid - Enhanced -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 48px;">
+          <!-- Stat 1 -->
+          <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 28px; transition: all 0.3s ease; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); hover: box-shadow 0 10px 30px rgba(14, 165, 233, 0.1);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+              <div style="width: 4px; height: 28px; background: linear-gradient(180deg, #0ea5e9 0%, #06b6d4 100%); border-radius: 2px;"></div>
+              <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #0369a1;">Proyectos</span>
+            </div>
+            <div style="font-size: 56px; font-weight: 800; background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px;">{stats.proyectos}</div>
+            <p style="font-size: 14px; color: #6b7280; font-weight: 500;">Proyectos ejecutados exitosamente</p>
+          </div>
+
+          <!-- Stat 2 -->
+          <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 28px; transition: all 0.3s ease; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+              <div style="width: 4px; height: 28px; background: linear-gradient(180deg, #0ea5e9 0%, #06b6d4 100%); border-radius: 2px;"></div>
+              <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #0369a1;">Terminales</span>
+            </div>
+            <div style="font-size: 56px; font-weight: 800; background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px;">{stats.terminales}</div>
+            <p style="font-size: 14px; color: #6b7280; font-weight: 500;">Terminales operacionales</p>
+          </div>
+
+          <!-- Stat 3 -->
+          <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 28px; transition: all 0.3s ease; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+              <div style="width: 4px; height: 28px; background: linear-gradient(180deg, #0ea5e9 0%, #06b6d4 100%); border-radius: 2px;"></div>
+              <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #0369a1;">Disponibilidad</span>
+            </div>
+            <div style="font-size: 56px; font-weight: 800; background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px;">24/7</div>
+            <p style="font-size: 14px; color: #6b7280; font-weight: 500;">Soporte crítico garantizado</p>
+          </div>
+        </div>
+
+        <!-- CTA Buttons -->
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+          <a href="#servicios" style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); color: white; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; text-decoration: none; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3); transition: all 0.3s ease; border: none; cursor: pointer;">
+            Ver Servicios
+            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+            </svg>
+          </a>
+          <a href="#antecedentes" style="display: inline-flex; align-items: center; gap: 8px; background: white; color: #0369a1; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; text-decoration: none; border: 2px solid #e0f2fe; transition: all 0.3s ease; cursor: pointer;">
+            Ver Casos de Éxito
+            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICIOS - DISEÑO PREMIUM -->
+    <section class="bg-gray-50 py-24">
+      <div class="mx-auto max-w-7xl px-6">
+        <!-- Header -->
+        <div class="mb-16 text-center">
+          <h2 class="mb-4 text-5xl font-black text-gray-900">Servicios Especializados</h2>
+          <p class="mx-auto max-w-2xl text-xl text-gray-600">
+            Sistemas de comunicación críticos para terminales aéreas. Experiencia en Aeropuertos Argentina 2000.
+          </p>
+        </div>
+
+        <!-- Services Grid - Premium Cards -->
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {serviciosRelacionados.map(servicio => (
+            <a href={`/servicios/${servicio.id}/${servicio.slug}`} class="group">
+              <div class="bg-gradient-to-br from-sky-100 to-blue-100 rounded-xl p-6 h-full border-2 border-sky-300 hover:border-sky-500 transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
+                <div class="w-16 h-16 bg-sky-600 rounded-xl flex items-center justify-center mb-4 group-hover:bg-sky-700 transition-colors">
+                  {servicio.icon === 'camera' && (
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  )}
+                  {servicio.icon === 'shield' && (
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  )}
+                  {servicio.icon === 'network' && (
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                    </svg>
+                  )}
+                  {servicio.icon === 'phone' && (
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                  )}
+                  {servicio.icon === 'alert' && (
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  )}
+                  {servicio.icon === 'support' && (
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  )}
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-sky-600 transition-colors">
+                  {servicio.titulo}
+                </h3>
+                <p class="text-gray-600 leading-relaxed">
+                  {servicio.descripcion}
+                </p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <!-- Proyectos Destacados del Sector Aeropuertos -->
+    <div class="container mx-auto px-4 py-16">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl font-bold text-gray-900 mb-4">Proyectos en Aeropuertos</h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+          Experiencia comprobada en {stats.proyectos} proyectos de infraestructura tecnológica aeroportuaria
+        </p>
+      </div>
+
+      {error && (
+        <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded mb-8">
+          <p class="text-sm text-red-700">Error al cargar proyectos: {error}</p>
+        </div>
+      )}
+
+      {antecedentesConImagenes.length === 0 && !error && (
+        <div class="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
+          <p class="text-gray-600">No se encontraron proyectos del sector aeropuertos</p>
+        </div>
+      )}
+
+      {antecedentesConImagenes.length > 0 && (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {antecedentesConImagenes.map((proyecto) => (
+            <a href={`/antecedentes/${proyecto.slug}`} class="block group cursor-pointer">
+              <article class="bg-white rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-sky-500/25 transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] hover:ring-4 hover:ring-sky-300/50 overflow-hidden border-2 border-transparent hover:border-sky-400 h-full">
+                {/* Imagen del proyecto */}
+                <div class="relative overflow-hidden aspect-[4/3]">
+                  <img 
+                    src={proyecto.imageUrl}
+                    alt={proyecto.Titulo}
+                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
+                    onerror="this.src='/images/default.jpg'"
+                  />
+                  
+                  {/* Badge de aeropuertos */}
+                  <div style="position: absolute; top: 1rem; left: 1rem;">
+                    <span style="display: inline-flex; align-items: center; padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 900; background-color: #fbbf24; color: #111827; border: 2px solid #d97706; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
+                      <svg style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem;" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
+                      </svg>
+                      Aeropuertos
+                    </span>
+                  </div>
+                </div>
+
+                {/* Contenido de la tarjeta */}
+                <div class="p-6">
+                  <div class="mb-4">
+                    <h3 class="text-xl font-black text-gray-900 mb-2 line-clamp-2 group-hover:text-teal-600 transition-colors">
+                      {proyecto.Titulo}
+                    </h3>
+                    {proyecto.Cliente && (
+                      <div class="flex items-center text-sm text-gray-600 mb-2">
+                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m4 0V9a1 1 0 011-1h4a1 1 0 011 1v12M9 7h6"></path>
+                        </svg>
+                        {proyecto.Cliente}
+                      </div>
+                    )}
+                  </div>
+
+                  <p class="text-gray-600 line-clamp-3 text-sm leading-relaxed mb-4">
+                    {proyecto.Descripcion?.substring(0, 120)}...
+                  </p>
+
+                  <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <div class="flex items-center text-xs text-gray-500">
+                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                      </svg>
+                      {(() => {
+                        if (!proyecto.Fecha) return '2024';
+                        const fecha = new Date(proyecto.Fecha);
+                        return isNaN(fecha.getTime()) ? '2024' : fecha.toLocaleDateString('es-ES', { year: 'numeric', month: 'short' });
+                      })()}
+                    </div>
+                    {proyecto.Area && (
+                      <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-sky-100 text-sky-700">
+                        {proyecto.Area}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </article>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+
+    <!-- Call to Action -->
+    <div class="bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-900 py-20">
+      <div class="container mx-auto px-4 text-center">
+        <h2 class="text-5xl md:text-6xl font-black text-white mb-6">
+          ¿Necesita tecnología para su aeropuerto?
+        </h2>
+        <p class="text-2xl text-gray-100 mb-10 max-w-3xl mx-auto font-semibold">
+          Contáctenos para una consulta personalizada sobre sus necesidades tecnológicas
+        </p>
+        <a 
+          href="/contacto" 
+          class="inline-flex items-center px-10 py-5 bg-amber-400 text-gray-900 font-black text-lg rounded-2xl hover:bg-amber-300 transition-all duration-200 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 hover:scale-105"
+        >
+          Solicitar Consultoría
+          <svg class="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

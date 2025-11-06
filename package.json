@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro preview --host",
-    "build": "astro build",
+    "build": "astro build && node remove-css-404.js",
     "preview": "astro preview",
     "astro": "astro",
     "process-images": "node scripts/process-images.js",

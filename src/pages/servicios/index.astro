@@ -1,9 +1,8 @@
----
 import Layout from '../../layouts/Layout.astro';
 import SEOHead from '../../components/SEO/SEOHead.astro';
 import { generateSlug } from '../../utils/slugUtils';
-import { serviciosReales } from '../../data/servicios_reales_db.js';
-import { getServiceImageUrl } from '../../utils/imageUtils.js';
+import { getAssetUrl } from '../../utils/imageUtils.js';
+import { serviciosReales as serviciosEstaticos } from '../../data/servicios_reales_db.js';
 
 // Configuración de paginación
 const PAGE_SIZE = 12;
@@ -12,25 +11,50 @@ const searchQuery = Astro.url.searchParams.get('search') || '';
 const areaFilter = Astro.url.searchParams.get('area') || '';
 const clienteFilter = Astro.url.searchParams.get('cliente') || '';
 
+// Obtener servicios desde Directus (REST) con fallback a datos estáticos
+let serviciosReales = [];
+try {
+  const RAW_BASE = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://admin.ultimamilla.com.ar';
+  const base = RAW_BASE.replace('http://directus-app:8055', 'https://admin.ultimamilla.com.ar').replace(/\/$/, '');
+  const token = import.meta.env.PUBLIC_DIRECTUS_TOKEN || '';
+  const url = `${base}/items/Servicios?limit=-1`;
+  const res = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+  if (res.ok) {
+    const json = await res.json();
+    serviciosReales = Array.isArray(json.data) ? json.data : [];
+    console.log(`✅ Servicios obtenidos desde Directus: ${serviciosReales.length}`);
+  } else {
+    console.error('❌ Directus respondió no-OK:', res.status);
+    serviciosReales = serviciosEstaticos;
+    console.log(`⚠️ Usando datos estáticos: ${serviciosReales.length} servicios`);
+  }
+} catch (error) {
+  console.error('❌ Error obteniendo servicios de Directus (REST):', error);
+  serviciosReales = serviciosEstaticos;
+  console.log(`⚠️ Usando datos estáticos por error: ${serviciosReales.length} servicios`);
+}
+
 // Filtrar servicios
 let serviciosFiltrados = serviciosReales;
 
 if (searchQuery) {
   serviciosFiltrados = serviciosFiltrados.filter(servicio => 
-    servicio.Titulo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    servicio.Descripcion.toLowerCase().includes(searchQuery.toLowerCase())
+    (servicio.Titulo || servicio.titulo || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (servicio.Descripcion || servicio.descripcion || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 }
 
 if (areaFilter) {
   serviciosFiltrados = serviciosFiltrados.filter(servicio => 
-    servicio.Area === areaFilter
+    (servicio.Area || servicio.area) === areaFilter
   );
 }
 
 if (clienteFilter) {
   serviciosFiltrados = serviciosFiltrados.filter(servicio => 
-    servicio.Cliente === clienteFilter
+    (servicio.Cliente || servicio.cliente) === clienteFilter
   );
 }
 
@@ -42,11 +66,11 @@ const endIndex = startIndex + PAGE_SIZE;
 const serviciosPaginados = serviciosFiltrados.slice(startIndex, endIndex);
 
 // Generar opciones de filtros dinámicamente
-const areasUnicas = [...new Set(serviciosReales.map(s => s.Area))].sort();
-const clientesUnicos = [...new Set(serviciosReales.map(s => s.Cliente))].sort();
+const areasUnicas = [...new Set(serviciosReales.map(s => s.Area || s.area).filter(Boolean))].sort();
+const clientesUnicos = [...new Set(serviciosReales.map(s => s.Cliente || s.cliente).filter(Boolean))].sort();
 
-// Usar la función utilitaria compartida para manejar imágenes
-const getAssetUrl = getServiceImageUrl;
+// Utilidad: usar Directus para assets si está configurado
+const resolveImage = (assetId) => getAssetUrl(assetId, true);
 
 // SEO Data
 const seoData = {
@@ -167,38 +191,38 @@ const seoData = {
           <>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {serviciosFiltrados.map((servicio) => {
-                const slug = generateSlug(servicio.Titulo);
+                const slug = generateSlug(servicio.Titulo || servicio.titulo);
                 return (
                   <a href={`/servicios/${servicio.id}/${slug}`} class="block group cursor-pointer">
                     <article class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] hover:ring-4 hover:ring-blue-300/50 h-full border-2 border-transparent hover:border-blue-400">
                       <div class="aspect-video bg-gradient-to-br from-blue-500 to-purple-600 relative overflow-hidden">
                         <img
-                          src={getAssetUrl(servicio.Imagen)}
-                          alt={servicio.Titulo}
+                          src={resolveImage(servicio.Imagen || servicio.imagen)}
+                          alt={servicio.Titulo || servicio.titulo || 'Servicio Ultima Milla'}
                           class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           loading="lazy"
                           onerror="this.src='/images/default-service.jpg'"
                         />
                         <div class="absolute top-4 right-4">
                           <span class="bg-white/90 text-blue-600 px-3 py-1 rounded-full text-sm font-semibold">
-                            {servicio.Area}
+                            {servicio.Area || servicio.area}
                           </span>
                         </div>
                       </div>
                       
                       <div class="p-6 flex flex-col h-full">
                         <h3 class="text-xl font-black text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
-                          {servicio.Titulo}
+                          {servicio.Titulo || servicio.titulo}
                         </h3>
                         
                         <p class="text-gray-600 mb-4 line-clamp-3 flex-grow">
-                          {servicio.Descripcion.replace(/\\\\/g, ' ').substring(0, 150)}...
+                          {(servicio.Descripcion || servicio.descripcion || '').replace(/\\\\/g, ' ').substring(0, 150)}...
                         </p>
                         
                         <div class="mt-auto">
                           <div class="flex items-center justify-between mb-4">
                             <span class="text-sm text-gray-500">
-                              Cliente: {servicio.Cliente}
+                              Cliente: {servicio.Cliente || servicio.cliente}
                             </span>
                           </div>
                           

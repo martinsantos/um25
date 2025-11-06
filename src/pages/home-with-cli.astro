@@ -161,10 +161,10 @@ const antecedentes = {
     min-height: 300px; 
     max-height: 400px;
     padding: 20px;
-    background: rgba(0, 0, 0, 0.8);
-    border-radius: 8px;
-    border: 1px solid rgba(0, 255, 65, 0.3);
-    box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.15), inset 0 0 20px rgba(0, 255, 65, 0.05);
     backdrop-filter: blur(10px);
   }
   
@@ -527,8 +527,7 @@ Soporte 24/7 para clientes premium
         const welcomeCommands = [
           '🎯 ¡Bienvenido a ULTIMA MILLA CLI!',
           '💡 Tip: Usa TAB para autocompletar comandos',
-          '🚀 Prueba "sudo ultimamilla.py --demo" para una demo completa',
-          ''
+          '🚀 Prueba "sudo ultimamilla.py --demo" para una demo completa'
         ];
         
         welcomeCommands.forEach((msg, i) => {
@@ -584,13 +583,7 @@ Soporte 24/7 para clientes premium
   
   function typeHeroTerminalSequence() {
     if (heroCurrentLine >= heroTerminalSequence.length) {
-      // Reiniciar después de 8 segundos
-      setTimeout(() => {
-        heroTerminalOutput.innerHTML = '';
-        heroCurrentLine = 0;
-        heroCurrentChar = 0;
-        typeHeroTerminalSequence();
-      }, 8000);
+      // Terminal completada - no reiniciar
       return;
     }
     

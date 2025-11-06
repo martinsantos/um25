@@ -18,8 +18,8 @@ const { id, slug } = Astro.params;
 let servicio = null;
 
 try {
-  // Usar acceso público sin token
-  const url = `${PUBLIC_DIRECTUS_URL}/items/Servicios/${id}`;
+  // Fetch con todos los campos desde Directus
+  const url = `${PUBLIC_DIRECTUS_URL}/items/Servicios/${id}?fields=*`;
   console.log('Fetching from Directus:', url);
   const response = await fetch(url, {
     headers: {
@@ -29,12 +29,20 @@ try {
   if (response.ok) {
     const data = await response.json();
     servicio = data.data;
-    console.log('Servicio from Directus:', servicio?.Titulo);
+    console.log('✅ Servicio from Directus:', {
+      id: servicio?.id,
+      titulo: servicio?.Titulo,
+      area: servicio?.Area,
+      cliente: servicio?.Cliente,
+      unidad: servicio?.Unidad_de_negocio,
+      servicios: servicio?.Servicios,
+      caracteristicas: servicio?.Caracteristicas
+    });
   } else {
-    console.log('Response not OK:', response.status);
+    console.log('❌ Response not OK:', response.status);
   }
 } catch (error) {
-  console.error('Error fetching servicio:', error);
+  console.error('❌ Error fetching servicio:', error);
 }
 
 // Fallback a datos estáticos si falla
@@ -56,13 +64,118 @@ if (slug !== expectedSlug) {
 // Usar la función utilitaria compartida para manejar imágenes
 const getAssetUrl = getServiceImageUrl;
 
+// Mapeo de IDs de servicio a imágenes por defecto
+const servicioImageMapping = {
+  1: '/images/services/servicios-it.jpg',
+  2: '/images/services/redes-comunicaciones.jpg',
+  3: '/images/services/seguridad-informatica.jpg',
+  4: '/images/services/telefonica.jpg',
+  5: '/images/services/consultoria.jpg',
+  6: '/images/services/servicios-web.jpg',
+  11: '/images/services/servicios-web.jpg'
+};
+
+// Obtener imagen del servicio
+const getHeroImage = () => {
+  // Prioridad 1: Usar imagen de Directus si existe
+  if (servicio.Imagen) {
+    return getAssetUrl(servicio.Imagen);
+  }
+  // Prioridad 2: Usar mapeo por ID
+  if (servicioImageMapping[servicio.id]) {
+    return servicioImageMapping[servicio.id];
+  }
+  // Fallback: imagen por defecto
+  return '/images/default-service.jpg';
+};
+
+const heroImageUrl = getHeroImage();
+const siteUrl = 'https://ultimamilla.com.ar';
+const serviceSlug = generateSlug(servicio.Titulo || servicio.Nombre || servicio.title);
+const serviceUrl = `${siteUrl}/servicios/${id}/${serviceSlug}`;
+const heroImageAbsolute = heroImageUrl.startsWith('http') ? heroImageUrl : `${siteUrl}${heroImageUrl}`;
+
+const rawDescription = (servicio.Descripcion || servicio.descripcion || '').replace(/<[^>]+>/g, '').replace(/\\n/g, ' ').trim();
+const metaDescription = rawDescription.length > 160 ? `${rawDescription.slice(0, 157)}...` : rawDescription || `Servicio de ${servicio.Area} ofrecido por ULTIMA MILLA en Mendoza.`;
+const serviceName = servicio.Nombre || servicio.Titulo || servicio.title;
+const serviceTitle = `${serviceName} | Servicios IT en Mendoza - ULTIMA MILLA`;
+const serviceKeywords = [
+  'ultima milla',
+  'mendoza',
+  'servicios IT',
+  servicio.Area,
+  servicio.Cliente,
+  serviceName
+].filter(Boolean).join(', ');
+
+const serviciosIncluidos = Array.isArray(servicio.Servicios) ? servicio.Servicios : [];
+const caracteristicasDestacadas = Array.isArray(servicio.Caracteristicas) ? servicio.Caracteristicas : [];
+
+const serviceStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: serviceName,
+  description: metaDescription,
+  url: serviceUrl,
+  image: heroImageAbsolute,
+  serviceType: servicio.Area || 'Servicios IT',
+  areaServed: {
+    '@type': 'Place',
+    name: 'Mendoza, Argentina',
+  },
+  provider: {
+    '@type': 'Organization',
+    name: 'ULTIMA MILLA',
+    url: siteUrl,
+    telephone: '+54-261-123-4567',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Av. San Martín 1234',
+      addressLocality: 'Mendoza',
+      addressRegion: 'Mendoza',
+      addressCountry: 'AR',
+    },
+  },
+  hasOfferCatalog: serviciosIncluidos.length > 0 ? {
+    '@type': 'OfferCatalog',
+    name: `Servicios incluidos en ${serviceName}`,
+    itemListElement: serviciosIncluidos.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'Service',
+        name: item,
+      },
+    })),
+  } : undefined,
+};
+
+const featuresStructuredData = caracteristicasDestacadas.length > 0 ? {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: `Características destacadas de ${serviceName}`,
+  itemListElement: caracteristicasDestacadas.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item,
+  })),
+} : null;
+
+const structuredData = [serviceStructuredData, featuresStructuredData].filter(Boolean);
+
 // Servicios relacionados (misma área, excluyendo el actual)
 const serviciosRelacionados = serviciosReales
   .filter(s => s.Area === servicio.Area && s.id !== servicio.id)
   .slice(0, 3);
 ---
-
-<Layout title={`${servicio.Titulo || servicio.Nombre || servicio.title} - Servicios - Ultima Milla`}>
+<Layout
+  title={serviceTitle}
+  description={metaDescription}
+  keywords={serviceKeywords}
+  image={heroImageAbsolute}
+  canonical={serviceUrl}
+  structuredData={structuredData}
+>
   <main class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
     <!-- Breadcrumb -->
     <nav class="bg-white shadow-sm">
@@ -78,7 +191,7 @@ const serviciosRelacionados = serviciosReales
     </nav>
 
     <!-- Hero Section con background-image -->
-    <div class="service-hero" style="background-image: url('/images/services/redes-datos.jpg'); background-size: cover; background-position: center; min-height: 400px; position: relative;">
+    <div class="service-hero" style={`background-image: url('${heroImageUrl}'); background-size: cover; background-position: center; min-height: 400px; position: relative;`}>
       <div class="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-purple-900/70 to-blue-900/80"></div>
       <div class="hero-content relative z-10 flex items-center justify-center min-h-[400px]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-20">
@@ -227,18 +340,20 @@ const serviciosRelacionados = serviciosReales
                 Información del Servicio
               </h3>
               
-              <div class="space-y-3 text-sm">
-                <div class="flex justify-between">
-                  <span class="text-blue-200">Área:</span>
-                  <span class="font-semibold">{servicio.Area || servicio.area}</span>
+              <div class="space-y-4 text-sm">
+                <div class="bg-white/10 rounded-lg p-3 backdrop-blur-sm">
+                  <div class="text-blue-200 text-xs uppercase tracking-wide mb-1">Área de Especialización</div>
+                  <div class="font-semibold text-lg">{servicio.Area || servicio.area || 'No especificada'}</div>
                 </div>
-                <div class="flex justify-between">
-                  <span class="text-blue-200">Cliente tipo:</span>
-                  <span class="font-semibold">{servicio.Cliente || servicio.cliente}</span>
+                
+                <div class="bg-white/10 rounded-lg p-3 backdrop-blur-sm">
+                  <div class="text-blue-200 text-xs uppercase tracking-wide mb-1">Tipo de Cliente</div>
+                  <div class="font-semibold text-lg">{servicio.Cliente || servicio.cliente || 'No especificado'}</div>
                 </div>
-                <div class="flex justify-between">
-                  <span class="text-blue-200">Unidad:</span>
-                  <span class="font-semibold">{servicio.Unidad_de_negocio || servicio.unidad_de_negocio}</span>
+                
+                <div class="bg-white/10 rounded-lg p-3 backdrop-blur-sm">
+                  <div class="text-blue-200 text-xs uppercase tracking-wide mb-1">Unidad de Negocio</div>
+                  <div class="font-semibold text-lg">{servicio.Unidad_de_negocio || servicio.unidad_de_negocio || 'No especificada'}</div>
                 </div>
               </div>
               

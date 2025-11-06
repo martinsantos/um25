@@ -37,73 +37,73 @@ const navigation = [
     </ul>
 </nav>
 
-<style>
+<style is:global>
 .navigation {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.5rem 2rem;
-    background-color: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    border-bottom: none;
-    margin: 0;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0.5rem 2rem !important;
+    background-color: white !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    border-bottom: none !important;
+    margin: 0 !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
 }
 
 .logo {
-    display: flex;
-    align-items: center;
+    display: flex !important;
+    align-items: center !important;
 }
 
 .logo-image {
-    max-width: 200px;
-    height: auto;
-    object-fit: contain;
+    max-width: 200px !important;
+    height: auto !important;
+    object-fit: contain !important;
 }
 
 .hamburger-menu {
-    display: none;
-    flex-direction: column;
-    gap: 4px;
-    cursor: pointer;
-    padding: 5px;
+    display: none !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    cursor: pointer !important;
+    padding: 5px !important;
 }
 
 .hamburger-menu span {
-    width: 25px;
-    height: 3px;
-    background-color: #333;
-    transition: all 0.3s ease;
+    width: 25px !important;
+    height: 3px !important;
+    background-color: #333 !important;
+    transition: all 0.3s ease !important;
 }
 
 .navigation ul {
-    display: flex;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    gap: 2rem;
-    align-items: center;
+    display: flex !important;
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 2rem !important;
+    align-items: center !important;
 }
 
 .navigation ul li {
-    padding: 0;
-    margin: 0;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 .navigation ul li a {
-    text-decoration: none;
-    color: #333;
-    font-size: 1rem;
-    font-weight: 500;
-    transition: color 0.3s;
-    white-space: nowrap;
-    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+    text-decoration: none !important;
+    color: #333 !important;
+    font-size: 1rem !important;
+    font-weight: 500 !important;
+    transition: color 0.3s !important;
+    white-space: nowrap !important;
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif !important;
 }
 
 .navigation ul li a:hover {
-    color: #007BFF;
+    color: #007BFF !important;
 }
 
 /* Media query para móviles */

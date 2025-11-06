@@ -231,17 +231,6 @@ const currentYear = new Date().getFullYear();
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
-    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
-    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png" />
-    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png" />
-    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png" />
-    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png" />
-    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png" />
-    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png" />
-    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png" />
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png" />
     <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#1a365d" />
@@ -277,26 +266,118 @@ const currentYear = new Date().getFullYear();
       rel="stylesheet"
     />
 
-    <link rel="preload" as="image" href={pageImage} />
-    <link rel="preload" as="image" href={`${siteUrl}/images/um-logo.png`} />
     <link rel="dns-prefetch" href="//www.google-analytics.com" />
     <link rel="dns-prefetch" href="//www.googletagmanager.com" />
 
     {hasHeadSlot && <slot name="head" />}
-
-    <!-- Error suppressor MUST load first -->
-    <script src="/js/error-suppressor.js" is:inline></script>
 
     <!-- Google Analytics Integration -->
     <Analytics id="G-S2376K1GED" respectPrivacy={true} />
 
     <!-- Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(combinedStructuredData)} />
+    
+    <style is:global>
+      .navigation {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 0.5rem 2rem !important;
+        background-color: white !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+        border-bottom: none !important;
+        margin: 0 !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 1000 !important;
+      }
+      
+      .navigation .logo {
+        display: flex !important;
+        align-items: center !important;
+      }
+      
+      .navigation .logo-image {
+        max-width: 200px !important;
+        height: auto !important;
+        object-fit: contain !important;
+      }
+      
+      .navigation ul {
+        display: flex !important;
+        list-style: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        gap: 2rem !important;
+        align-items: center !important;
+      }
+      
+      .navigation ul li {
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      
+      .navigation ul li a {
+        text-decoration: none !important;
+        color: #333 !important;
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+        transition: color 0.3s !important;
+        white-space: nowrap !important;
+      }
+      
+      .navigation ul li a:hover {
+        color: #007BFF !important;
+      }
+      
+      .hamburger-menu {
+        display: none !important;
+      }
+      
+      @media (max-width: 768px) {
+        .navigation {
+          padding: 0.5rem 1rem !important;
+        }
+        
+        .navigation .logo-image {
+          max-width: 150px !important;
+        }
+        
+        .navigation ul {
+          display: none !important;
+        }
+        
+        .navigation ul.active {
+          display: flex !important;
+          flex-direction: column !important;
+          position: absolute !important;
+          top: 70px !important;
+          left: 0 !important;
+          width: 100% !important;
+          background-color: white !important;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+          padding: 1rem !important;
+          gap: 1rem !important;
+        }
+        
+        .hamburger-menu {
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 4px !important;
+          cursor: pointer !important;
+          padding: 5px !important;
+        }
+        
+        .hamburger-menu span {
+          width: 25px !important;
+          height: 3px !important;
+          background-color: #333 !important;
+          transition: all 0.3s ease !important;
+        }
+      }
+    </style>
   </head>
   <body>
-    <header style={image ? `background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${image}); background-size: cover; background-position: center; background-repeat: no-repeat; height: 300px;` : ''}>
-      {/* Se elimina el título del header */}
-    </header>
     <Navigation />
     <slot />
     
