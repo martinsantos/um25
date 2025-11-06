@@ -131,7 +131,7 @@ try {
     {
       id: 2,
       nombre: "Sistemas de Seguridad y Control",
-      descripcion: "HIPAA, GDPR y estándares internacionales de seguridad médica para obras",
+      descripcion: "Sistemas de comunicación integrados para hospitales y clínicas para obras",
       icon: "shield",
       slug: "sistemas-seguridad-control"
     },
@@ -145,7 +145,7 @@ try {
     {
       id: 4,
       nombre: "Telefonía IP Empresarial",
-      descripcion: "Redes hospitalarias, conectividad y sistemas de comunicación y canteros",
+      descripcion: "Asistencia técnica especializada para sistemas médicos y canteros",
       icon: "phone",
       slug: "telefonia-ip"
     },
@@ -285,8 +285,8 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
               </svg>
             </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Sistemas Hospitalarios</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">HIS, EMR y sistemas de gestión hospitalaria integrados</p>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Redes Hospitalarias</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Infraestructura de redes de datos para hospitales y clínicas</p>
           </div>
 
           <!-- Servicio 2 -->
@@ -296,8 +296,8 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Cumplimiento Normativo</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">HIPAA, GDPR y estándares internacionales de seguridad médica</p>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Telecomunicaciones Médicas</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Sistemas de comunicación integrados para hospitales y clínicas</p>
           </div>
 
           <!-- Servicio 3 -->
@@ -318,8 +318,8 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
             </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Infraestructura Médica</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Redes hospitalarias, conectividad y sistemas de comunicación</p>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Soporte Técnico 24/7</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Asistencia técnica especializada para sistemas médicos</p>
           </div>
 
           <!-- Card 5 -->
@@ -479,7 +479,7 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
           
           <!-- Right Form -->
           <div style="background: white; border-radius: 24px; padding: 48px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-            <form action="/api/contacto" method="POST" style="display: flex; flex-direction: column; gap: 24px;">
+            <form action="/api/contact" method="POST" style="display: flex; flex-direction: column; gap: 24px;">
               <div>
                 <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Nombre</label>
                 <input type="text" name="nombre" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#fb923c'; this.style.boxShadow='0 0 0 4px rgba(251,146,60,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Juan Pérez" />
