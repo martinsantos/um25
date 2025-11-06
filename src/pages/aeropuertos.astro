@@ -29,8 +29,13 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    // Tomar los primeros 6 antecedentes para mostrar
+    // Filtrar antecedentes de aeropuertos
     antecedentes = response.data
+      .filter(item => 
+        item.Cliente?.toLowerCase().includes('aeropuerto') ||
+        item.Cliente?.toLowerCase().includes('argentina 2000') ||
+        item.Unidad_de_negocio?.toLowerCase().includes('aeropuertos')
+      )
       .slice(0, 6)
       .map(item => ({
         ...item,
@@ -38,7 +43,7 @@ try {
       }))
       .sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
 
-    console.log(`✅ Cargados ${antecedentes.length} antecedentes`);
+    console.log(`✅ Cargados ${antecedentes.length} antecedentes de aeropuertos`);
   }
 
   // Servicios relacionados con el sector constructoras

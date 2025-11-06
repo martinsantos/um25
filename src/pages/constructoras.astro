@@ -29,8 +29,15 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    // Tomar los primeros 6 antecedentes para mostrar
+    // Filtrar antecedentes de constructoras
     antecedentes = response.data
+      .filter(item => 
+        item.Cliente?.toLowerCase().includes('procon') ||
+        item.Cliente?.toLowerCase().includes('lauggero') ||
+        item.Cliente?.toLowerCase().includes('kristich') ||
+        item.Cliente?.toLowerCase().includes('constructora') ||
+        item.Unidad_de_negocio?.toLowerCase().includes('constructoras')
+      )
       .slice(0, 6)
       .map(item => ({
         ...item,
@@ -38,7 +45,7 @@ try {
       }))
       .sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
 
-    console.log(`✅ Cargados ${antecedentes.length} antecedentes`);
+    console.log(`✅ Cargados ${antecedentes.length} antecedentes de constructoras`);
   }
 
   // Servicios relacionados con el sector constructoras
