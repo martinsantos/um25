@@ -3,383 +3,407 @@ import Layout from '../layouts/Layout.astro';
 import { directus, DEFAULT_IMAGE } from '../utils/directus';
 import { generateSlug } from '../utils/slugUtils';
 
-// Configuración SEO específica para aeropuertos - ULTRA OPTIMIZADA MUNDIAL
+// Configuración SEO específica para constructoras - ULTRA OPTIMIZADA para Argentina y Mendoza
 const seoConfig = {
-  title: "Aeropuertos Argentina 2000 Mendoza | Sistemas Aviación | Comunicaciones Aéreas",
-  description: "Especialistas en sistemas de comunicación para aeropuertos en Argentina. Experiencia en Aeropuertos Argentina 2000 Mendoza. Tecnología de aviación, control aéreo, comunicaciones críticas.",
-  keywords: "aeropuertos argentina 2000, sistemas aviacion mendoza, comunicaciones aereas, tecnologia aeropuertos, control aereo argentina, infraestructura aeropuertos mendoza, sistemas navegacion aerea, comunicaciones criticas aviacion, IT aeropuertos, tecnologia terminal aerea, mendoza argentina aeropuertos",
-  ogImage: "/images/aeropuertos-hero.jpg",
-  canonical: "https://ultimamilla.com.ar/aeropuertos",
+  title: "Tecnología IT Constructoras Mendoza Argentina | PROCON LAUGGERO KRISTICH | Infraestructura Obras",
+  description: "⛑️ Especialistas en infraestructura IT para constructoras en Mendoza y Argentina. Sistemas tecnológicos completos para PROCON, LAUGGERO, KRISTICH. Redes estructuradas, comunicaciones IP, seguridad CCTV y control de accesos para obras y canteros. +50 proyectos documentados, 20+ años de experiencia. Soporte 24/7.",
+  keywords: "constructoras mendoza, infraestructura IT constructoras argentina, tecnología para obras mendoza, PROCON mendoza IT, LAUGGERO constructoras tecnología, KRISTICH infraestructura, redes estructuradas constructoras, cableado certificado obras, comunicaciones IP constructoras, CCTV obras mendoza, control accesos biométrico canteros, seguridad electrónica construccion, telefonía IP obras, conectividad temporal canteros, sistemas gestión constructora, IT construcción argentina, tecnología oficinas técnicas, servidores construccion, redes wifi obras, integración tecnológica constructoras mendoza",
+  ogImage: "/images/constructoras-hero.jpg",
+  canonical: "https://www.ultimamilla.com.ar/constructoras",
   locale: "es_AR",
-  region: "AR"
+  region: "AR-M",
+  author: "Ultima Milla",
+  robots: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
 };
 
-// Cargar antecedentes del sector aeropuertos
+// Cargar antecedentes del sector constructoras
 let antecedentes = [];
 let serviciosRelacionados = [];
 let error = null;
 
 try {
-  // Obtener antecedentes de aeropuertos desde Directus
+  // Obtener antecedentes de constructoras desde Directus
   const response = await directus.getAntecedentes({
     limit: 500,
     page: 1
   });
 
   if (response && response.data && response.data.length > 0) {
-    // Filtrar antecedentes del sector aeropuertos
+    // Tomar los primeros 6 antecedentes para mostrar
     antecedentes = response.data
-      .filter(item => 
-        item.vertical === 'aeropuertos' ||
-        item.Cliente?.toLowerCase().includes('aeropuerto') ||
-        item.Cliente?.toLowerCase().includes('aa2000') ||
-        item.Cliente?.toLowerCase().includes('argentina 2000')
-      )
+      .slice(0, 6)
       .map(item => ({
         ...item,
         slug: `${item.id}/${generateSlug(item.Titulo)}`
       }))
       .sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
 
-    console.log(`✅ Cargados ${antecedentes.length} antecedentes del sector aeropuertos`);
+    console.log(`✅ Cargados ${antecedentes.length} antecedentes`);
   }
 
-  // Servicios relacionados con el sector aeropuertos
+  // Servicios relacionados con el sector constructoras
+  // Structured Data para SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "serviceType": "Infraestructura IT para Constructoras",
+    "provider": {
+      "@type": "Organization",
+      "name": "Ultima Milla",
+      "url": "https://www.ultimamilla.com.ar",
+      "logo": "https://www.ultimamilla.com.ar/images/um-logo.png",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Mendoza",
+        "addressRegion": "Mendoza",
+        "addressCountry": "AR"
+      }
+    },
+    "areaServed": [
+      {
+        "@type": "City",
+        "name": "Mendoza"
+      },
+      {
+        "@type": "Country",
+        "name": "Argentina"
+      }
+    ],
+    "audience": {
+      "@type": "BusinessAudience",
+      "name": "Constructoras y Empresas de Construcción"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Servicios IT para Constructoras",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Cableado Estructurado para Obras"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Sistemas de Seguridad CCTV y Control de Accesos"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Conectividad Temporal para Canteros"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Telefonía IP Empresarial"
+          }
+        }
+      ]
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "50"
+    }
+  };
+
   serviciosRelacionados = [
     {
       id: 1,
-      titulo: "Sistemas de Videovigilancia CCTV",
-      descripcion: "Circuitos cerrados de televisión de alta definición con análisis inteligente de video para seguridad aeroportuaria",
-      icon: "camera",
-      slug: "seguridad-informatica"
+      nombre: "Cableado Estructurado para Obras",
+      descripcion: "Infraestructura de red certificada para canteros y oficinas de obra",
+      icon: "network",
+      slug: "cableado-estructurado-obras"
     },
     {
       id: 2,
-      titulo: "Control de Accesos y Seguridad",
-      descripcion: "Sistemas biométricos, torniquetes y control de acceso para áreas restringidas y zonas de seguridad",
+      nombre: "Sistemas de Seguridad y Control",
+      descripcion: "CCTV, control de accesos biométrico y sistemas de alarma para obras",
       icon: "shield",
-      slug: "seguridad-informatica"
+      slug: "sistemas-seguridad-control"
     },
     {
       id: 3,
-      titulo: "Redes de Datos de Alta Disponibilidad",
-      descripcion: "Infraestructura de red redundante y cableado estructurado certificado para operaciones críticas 24/7",
-      icon: "network",
-      slug: "redes-de-datos"
+      nombre: "Conectividad Temporal",
+      descripcion: "Soluciones de red móvil y temporal para canteros en construcción",
+      icon: "wifi",
+      slug: "conectividad-temporal"
     },
     {
       id: 4,
-      titulo: "Sistemas de Comunicaciones",
-      descripcion: "Telefonía IP, intercomunicadores y sistemas de comunicación para operaciones aeroportuarias",
+      nombre: "Telefonía IP Empresarial",
+      descripcion: "Sistemas de comunicaciones integrados para oficinas y canteros",
       icon: "phone",
-      slug: "servicios-it"
+      slug: "telefonia-ip"
     },
     {
       id: 5,
-      titulo: "Detección de Incendios y Emergencias",
-      descripcion: "Sistemas de detección temprana y alarmas para protección de infraestructura crítica",
+      nombre: "Sistemas de Detección de Incendios",
+      descripcion: "Detección temprana y alarmas para protección de obras",
       icon: "alert",
-      slug: "seguridad-informatica"
+      slug: "deteccion-incendios"
     },
     {
       id: 6,
-      titulo: "Soporte Técnico Especializado 24/7",
-      descripcion: "Mantenimiento preventivo y correctivo con respuesta inmediata para infraestructura aeroportuaria",
+      nombre: "Soporte Técnico 24/7",
+      descripcion: "Mantenimiento preventivo y correctivo para operaciones continuas",
       icon: "support",
-      slug: "servicios-gestionados"
+      slug: "soporte-tecnico"
     }
   ];
-
 } catch (err) {
-  console.error('Error al cargar datos de aeropuertos:', err);
-  error = err.message;
+  console.error('Error cargando antecedentes:', err);
+  error = err;
 }
 
 // Función para obtener imagen del antecedente
-async function getImageUrl(proyecto) {
-  try {
-    const { buscarImagenPorDatos } = await import('../data/mapeo_imagenes_completo.js');
-    const nombreArchivo = buscarImagenPorDatos(
-      proyecto.Cliente,
-      proyecto.Area || proyecto.Unidad_de_negocio, 
-      proyecto.Titulo,
-      proyecto.id
-    );
-    
-    if (nombreArchivo) {
-      return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
-    }
-  } catch (error) {
-    console.log('⚠️ Error en mapeo de imagen:', error.message);
-  }
-  return DEFAULT_IMAGE;
+import { buscarImagenPorDatos } from '../data/mapeo_imagenes_completo';
+
+function getImageUrl(proyecto) {
+  if (!proyecto) return DEFAULT_IMAGE;
+  const imagenNombre = buscarImagenPorDatos(
+    proyecto.Cliente,
+    proyecto.Area || proyecto.Unidad_de_negocio,
+    proyecto.Titulo,
+    proyecto.id
+  );
+  return imagenNombre 
+    ? `/imagenes_antecedentes_versionproduccion/${imagenNombre}`
+    : DEFAULT_IMAGE;
 }
 
-// Procesar imágenes
-const antecedentesConImagenes = await Promise.all(
-  antecedentes.map(async (proyecto) => ({
-    ...proyecto,
-    imageUrl: await getImageUrl(proyecto)
-  }))
-);
-
-// Estadísticas del sector
-const stats = {
-  proyectos: antecedentes.length,
-  terminales: new Set(antecedentes.map(a => a.Cliente)).size,
-  aniosExperiencia: new Date().getFullYear() - Math.min(...antecedentes.map(a => new Date(a.Fecha).getFullYear()))
-};
+const antecedentesConImagenes = antecedentes.map(proyecto => ({
+  ...proyecto,
+  imageUrl: getImageUrl(proyecto)
+}));
 ---
 
-<Layout 
+<Layout
   title={seoConfig.title}
   description={seoConfig.description}
-  ogImage={seoConfig.ogImage}
+  keywords={seoConfig.keywords}
+  image={seoConfig.ogImage}
+  canonical={seoConfig.canonical}
 >
-  <!-- Meta Tags Adicionales para SEO -->
-  <meta slot="head" name="keywords" content={seoConfig.keywords} />
-  <meta slot="head" name="geo.region" content="AR" />
-  <meta slot="head" name="geo.placename" content="Argentina" />
-  <link slot="head" rel="canonical" href={seoConfig.canonical} />
-  
-  <!-- Open Graph Adicional -->
-  <meta slot="head" property="og:type" content="website" />
-  <meta slot="head" property="og:locale" content={seoConfig.locale} />
-  <meta slot="head" property="og:url" content={seoConfig.canonical} />
-  <meta slot="head" property="og:site_name" content="Última Milla" />
-  
-  <!-- Twitter Card -->
-  <meta slot="head" name="twitter:card" content="summary_large_image" />
-  <meta slot="head" name="twitter:title" content={seoConfig.title} />
-  <meta slot="head" name="twitter:description" content={seoConfig.description} />
-  
-  <!-- Schema Markup Mejorado para SEO -->
-  <script type="application/ld+json" set:html={JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "name": "Soluciones IT para Aeropuertos en Argentina",
-    "provider": {
-      "@type": "Organization",
-      "name": "Última Milla",
-      "url": "https://www.ultimamilla.com.ar",
-      "logo": "https://www.ultimamilla.com.ar/images/logo.png"
-    },
-    "areaServed": {
-      "@type": "Country",
-      "name": "Argentina"
-    },
-    "serviceType": ["CCTV Aeroportuario", "Control de Accesos", "Redes de Datos Alta Disponibilidad", "Sistemas de Comunicaciones Aeronáuticas", "Seguridad Informática Aeroportuaria"],
-    "description": seoConfig.description,
-    "offers": {
-      "@type": "Offer",
-      "availability": "https://schema.org/InStock",
-      "areaServed": "Argentina"
-    }
-  })} />
-
-  <main style="background: #f0f9ff;">
-    <!-- HERO MODERNO CON IMAGEN DE FONDO AEROPORTUARIA -->
-    <section style="position: relative; min-height: 600px; display: flex; align-items: center; background: linear-gradient(rgba(2, 132, 199, 0.85), rgba(3, 105, 161, 0.9)), url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80') center/cover; color: white;">
-      <div style="max-width: 80rem; margin: 0 auto; padding: 80px 24px; position: relative; z-index: 10; width: 100%;">
-        <!-- Badge -->
-        <div style="display: inline-flex; align-items: center; gap: 8px; border-radius: 9999px; background: rgba(14, 165, 233, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(14, 165, 233, 0.3); padding: 10px 20px; margin-bottom: 24px;">
-          <div style="width: 10px; height: 10px; border-radius: 50%; background: #0ea5e9; box-shadow: 0 0 12px rgba(14, 165, 233, 0.8);"></div>
-          <span style="font-size: 13px; font-weight: 700; color: #7dd3fc; letter-spacing: 1px; text-transform: uppercase;">Aeropuertos</span>
+  <main style="background: #f5f5f5;">
+    <!-- HERO EXACTO DEL BOCETO -->
+    <section style="position: relative; min-height: 500px; display: flex; align-items: center; background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1920&q=80') center/cover; color: white;">
+      <div style="max-width: 1200px; margin: 0 auto; padding: 80px 40px; width: 100%;">
+        <!-- Badge Simple -->
+        <div style="display: inline-block; padding: 8px 16px; background: rgba(255, 107, 53, 0.2); border-radius: 20px; margin-bottom: 20px;">
+          <span style="font-size: 12px; font-weight: 700; color: #0ea5e9; text-transform: uppercase; letter-spacing: 1px;">🏗️ Sector Construcción</span>
         </div>
 
-        <!-- Title -->
-        <h1 style="font-size: clamp(40px, 7vw, 64px); font-weight: 900; letter-spacing: -0.02em; margin-bottom: 20px; line-height: 1.1; text-shadow: 2px 4px 8px rgba(0,0,0,0.3);">
-          Innovando el Futuro de los<br/>Viajes Aéreos
+        <!-- Title Simple -->
+        <h1 style="font-size: 48px; font-weight: 900; margin-bottom: 20px; line-height: 1.2; color: white;">
+          Construyendo el Mañana<br/>con Tecnología y Precisión
         </h1>
 
-        <!-- Subtitle -->
-        <p style="font-size: 20px; font-weight: 500; color: rgba(255, 255, 255, 0.95); max-width: 650px; margin-bottom: 40px; line-height: 1.6;">
-          Nos especializamos en soluciones tecnológicas de vanguardia para operaciones aeroportuarias seguras, eficientes y conectadas.
+        <!-- Subtitle Simple -->
+        <p style="font-size: 18px; font-weight: 400; color: rgba(255, 255, 255, 0.9); max-width: 600px; margin-bottom: 32px; line-height: 1.6;">
+          Soluciones integrales para la gestión y ejecución de proyectos de construcción con precisión.
         </p>
 
-        <!-- CTA Button -->
-        <a href="#servicios" style="display: inline-flex; align-items: center; gap: 12px; background: #0ea5e9; color: white; padding: 16px 40px; border-radius: 8px; font-weight: 700; font-size: 16px; text-decoration: none; box-shadow: 0 8px 20px rgba(14, 165, 233, 0.4); transition: all 0.3s ease; border: none; cursor: pointer;">
-          Explorar Soluciones
-          <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-          </svg>
+        <!-- CTA Button Simple -->
+        <a href="#contacto" style="display: inline-block; background: #0ea5e9; color: white; padding: 14px 32px; border-radius: 6px; font-weight: 700; font-size: 15px; text-decoration: none; transition: all 0.3s ease;" onmouseover="this.style.background='#0284c7'" onmouseout="this.style.background='#0ea5e9'">
+          Explorar Nuestras Soluciones
         </a>
       </div>
     </section>
 
-    <!-- PILARES FUNDAMENTALES -->
-    <section style="background: white; padding: 80px 24px;">
-      <div style="max-width: 80rem; margin: 0 auto;">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px;">
-          <!-- Card 1 -->
-          <div style="text-align: center; padding: 40px 24px; background: #f0f9ff; border-radius: 16px; border: 2px solid #bae6fd; transition: all 0.3s ease;" onmouseover="this.style.borderColor='#0ea5e9'; this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 24px rgba(14,165,233,0.15)'" onmouseout="this.style.borderColor='#bae6fd'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #0ea5e9, #0284c7); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
-              <svg style="width: 32px; height: 32px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- 3 CARDS EXACTAS DEL BOCETO -->
+    <section style="background: #f5f5f5; padding: 80px 40px;">
+      <div style="max-width: 1200px; margin: 0 auto;">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;">
+          <!-- Card 1 EXACTA -->
+          <div style="text-align: center; padding: 40px 30px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="width: 80px; height: 80px; background: white; border: 3px solid #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+              <svg style="width: 40px; height: 40px; color: #333;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m4 0V9a1 1 0 011-1h4a1 1 0 011 1v12M9 7h6"></path>
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Proyectos a Gran Escala</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Gestionamos proyectos complejos con precisión y eficiencia.</p>
+          </div>
+
+          <!-- Card 2 EXACTA -->
+          <div style="text-align: center; padding: 40px 30px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="width: 80px; height: 80px; background: white; border: 3px solid #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+              <svg style="width: 40px; height: 40px; color: #333;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Innovación Tecnológica</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Implementamos las últimas tecnologías para optimizar cada fase.</p>
+          </div>
+
+          <!-- Card 3 EXACTA -->
+          <div style="text-align: center; padding: 40px 30px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="width: 80px; height: 80px; background: white; border: 3px solid #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+              <svg style="width: 40px; height: 40px; color: #333;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
               </svg>
             </div>
-            <h3 style="font-size: 20px; font-weight: 800; color: #1a1a1a; margin-bottom: 12px;">Eficiencia Operacional</h3>
-            <p style="font-size: 15px; color: #6c757d; line-height: 1.6;">Optimizamos procesos para garantizar operaciones fluidas y sin interrupciones.</p>
-          </div>
-
-          <!-- Card 2 -->
-          <div style="text-align: center; padding: 40px 24px; background: #f0f9ff; border-radius: 16px; border: 2px solid #bae6fd; transition: all 0.3s ease;" onmouseover="this.style.borderColor='#0ea5e9'; this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 24px rgba(14,165,233,0.15)'" onmouseout="this.style.borderColor='#bae6fd'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #0ea5e9, #0284c7); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
-              <svg style="width: 32px; height: 32px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-              </svg>
-            </div>
-            <h3 style="font-size: 20px; font-weight: 800; color: #1a1a1a; margin-bottom: 12px;">Ruta de la Excelencia</h3>
-            <p style="font-size: 15px; color: #6c757d; line-height: 1.6;">Sistemas de monitoreo y control para máxima seguridad en cada vuelo.</p>
-          </div>
-
-          <!-- Card 3 -->
-          <div style="text-align: center; padding: 40px 24px; background: #f0f9ff; border-radius: 16px; border: 2px solid #bae6fd; transition: all 0.3s ease;" onmouseover="this.style.borderColor='#0ea5e9'; this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 24px rgba(14,165,233,0.15)'" onmouseout="this.style.borderColor='#bae6fd'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #0ea5e9, #0284c7); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
-              <svg style="width: 32px; height: 32px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-              </svg>
-            </div>
-            <h3 style="font-size: 20px; font-weight: 800; color: #1a1a1a; margin-bottom: 12px;">Experiencia de Pasajeros</h3>
-            <p style="font-size: 15px; color: #6c757d; line-height: 1.6;">Tecnología que mejora cada etapa del viaje del pasajero.</p>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Seguridad y Certificación</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Cumplimiento riguroso de normativas y estándares de seguridad.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- SERVICIOS OFRECIDOS PARA AEROPUERTOS -->
-    <section id="servicios" style="background: #f0f9ff; padding: 80px 24px;">
-      <div style="max-width: 80rem; margin: 0 auto;">
-        <!-- Header -->
+
+    <!-- SERVICIOS EXACTOS DEL BOCETO -->
+    <section id="servicios" style="background: white; padding: 80px 40px;">
+      <div style="max-width: 1200px; margin: 0 auto;">
+        <!-- Header Simple -->
         <div style="text-align: center; margin-bottom: 60px;">
-          <h2 style="font-size: clamp(32px, 5vw, 48px); font-weight: 900; color: #1a1a1a; margin-bottom: 16px;">Servicios Ofrecidos para Aeropuertos</h2>
-          <p style="font-size: 18px; color: #6c757d; max-width: 700px; margin: 0 auto;">
-            Proveemos un espectro de soluciones innovadoras para garantizar cada faceta de la gestión aeroportuaria y la seguridad de los pasajeros.
+          <h2 style="font-size: 36px; font-weight: 700; color: #333; margin-bottom: 16px;">Servicios Ofrecidos</h2>
+          <p style="font-size: 16px; color: #666; max-width: 700px; margin: 0 auto; line-height: 1.6;">
+            Ofrecemos un portafolio de servicios tecnológicos diseñados para optimizar cada fase del ciclo de vida del proyecto de construcción.
           </p>
         </div>
 
-        <!-- Services Grid - Premium Cards -->
+        <!-- Services Grid 2x2 -->
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; max-width: 900px; margin: 0 auto;">
+          <!-- Servicio 1 -->
+          <div style="padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #0ea5e9;">
+            <div style="width: 50px; height: 50px; background: #0ea5e9; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Gestión de Proyectos</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Infraestructura de red certificada para canteros y oficinas de obra</p>
+          </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {serviciosRelacionados.map(servicio => (
-            <a href={`/servicios/${servicio.id}/${servicio.slug}`} class="group">
-              <div class="bg-gradient-to-br from-sky-100 to-blue-100 rounded-xl p-6 h-full border-2 border-sky-300 hover:border-sky-500 transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
-                <div class="w-16 h-16 bg-sky-600 rounded-xl flex items-center justify-center mb-4 group-hover:bg-sky-700 transition-colors">
-                  {servicio.icon === 'camera' && (
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                  )}
-                  {servicio.icon === 'shield' && (
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                  )}
-                  {servicio.icon === 'network' && (
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                    </svg>
-                  )}
-                  {servicio.icon === 'phone' && (
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                  )}
-                  {servicio.icon === 'alert' && (
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                  )}
-                  {servicio.icon === 'support' && (
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                  )}
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-sky-600 transition-colors">
-                  {servicio.titulo}
-                </h3>
-                <p class="text-gray-600 leading-relaxed">
-                  {servicio.descripcion}
-                </p>
-              </div>
-            </a>
-          ))}
+          <!-- Servicio 2 -->
+          <div style="padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #0ea5e9;">
+            <div style="width: 50px; height: 50px; background: #0ea5e9; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Seguridad en Obra</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">CCTV, control de accesos biométrico y sistemas de alarma</p>
+          </div>
+
+          <!-- Servicio 3 -->
+          <div style="padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #0ea5e9;">
+            <div style="width: 50px; height: 50px; background: #0ea5e9; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Control de Activos</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Soluciones de red móvil y temporal para canteros</p>
+          </div>
+
+          <!-- Servicio 4 -->
+          <div style="padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #0ea5e9;">
+            <div style="width: 50px; height: 50px; background: #0ea5e9; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Digitalización de Procesos</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Sistemas de comunicaciones integrados para oficinas</p>
+          </div>
+
+          <!-- Card 5 -->
+          <div class="group relative overflow-hidden rounded-2xl bg-white p-8 shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
+            <div class="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-100 transition-all duration-300 group-hover:bg-amber-500 group-hover:scale-110">
+              <svg class="h-8 w-8 text-amber-600 transition-colors duration-300 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">Sistemas de Detección de Incendios</h3>
+          <p class="text-sm text-gray-600">Detección temprana y alarmas para protección de obras</p>
+        </div>
+        
+        <div class="bg-white rounded-xl p-6 border-2 border-amber-200 hover:border-amber-500 hover:shadow-lg transition-all duration-300">
+          <div class="w-14 h-14 bg-amber-600 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">Soporte Técnico 24/7</h3>
+          <p class="text-sm text-gray-600">Mantenimiento preventivo y correctivo para operaciones continuas</p>
         </div>
       </div>
     </div>
 
-    <!-- Proyectos Destacados del Sector Aeropuertos -->
-    <div class="container mx-auto px-4 py-16">
-      <div class="text-center mb-12">
-        <h2 class="text-4xl font-bold text-gray-900 mb-4">Proyectos en Aeropuertos</h2>
-        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-          Experiencia comprobada en {stats.proyectos} proyectos de infraestructura tecnológica aeroportuaria
-        </p>
-      </div>
+    <!-- CASOS DE ÉXITO -->
+    {antecedentesConImagenes.length > 0 && (
+      <section style="background: #f8fafc; padding: 100px 32px; border-top: 1px solid #e2e8f0;">
+        <div style="max-width: 75rem; margin: 0 auto;">
+          <div style="text-align: center; margin-bottom: 72px;">
+            <div style="display: inline-block; padding: 8px 20px; background: linear-gradient(135deg, #fb923c, #f97316); border-radius: 50px; margin-bottom: 20px;">
+              <span style="font-size: 13px; font-weight: 800; color: white; letter-spacing: 1px; text-transform: uppercase;">✨ Casos de Éxito</span>
+            </div>
+            <h2 style="font-size: clamp(36px, 5.5vw, 52px); font-weight: 900; color: #0f172a; margin-bottom: 20px; letter-spacing: -0.02em;">Proyectos Realizados</h2>
+            <p style="font-size: 19px; color: #64748b; max-width: 750px; margin: 0 auto; line-height: 1.7; font-weight: 500;">
+              Nuestras soluciones han impulsado la eficiencia y productividad de importantes proyectos de<br/>construcción en todo el país.
+            </p>
+          </div>
 
-      {error && (
-        <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded mb-8">
-          <p class="text-sm text-red-700">Error al cargar proyectos: {error}</p>
-        </div>
-      )}
-
-      {antecedentesConImagenes.length === 0 && !error && (
-        <div class="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
-          <p class="text-gray-600">No se encontraron proyectos del sector aeropuertos</p>
-        </div>
-      )}
-
-      {antecedentesConImagenes.length > 0 && (
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 32px;">
           {antecedentesConImagenes.map((proyecto) => (
-            <a href={`/antecedentes/${proyecto.slug}`} class="block group cursor-pointer">
-              <article class="bg-white rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-sky-500/25 transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] hover:ring-4 hover:ring-sky-300/50 overflow-hidden border-2 border-transparent hover:border-sky-400 h-full">
+            <a href={`/antecedentes/${proyecto.slug}`} style="display: block; text-decoration: none; height: 100%;">
+              <article style="background: white; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; border: 2px solid #e2e8f0; height: 100%;" onmouseover="this.style.transform='translateY(-12px)'; this.style.boxShadow='0 20px 50px rgba(251,146,60,0.25)'; this.style.borderColor='#fb923c'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.08)'; this.style.borderColor='#e2e8f0'">
                 {/* Imagen del proyecto */}
-                <div class="relative overflow-hidden aspect-[4/3]">
+                <div style="position: relative; overflow: hidden; aspect-ratio: 4/3;">
                   <img 
                     src={proyecto.imageUrl}
                     alt={proyecto.Titulo}
-                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease;"
                     loading="lazy"
                     onerror="this.src='/images/default.jpg'"
+                    onmouseover="this.style.transform='scale(1.08)'"
+                    onmouseout="this.style.transform='scale(1)'"
                   />
                   
-                  {/* Badge de aeropuertos */}
-                  <div style="position: absolute; top: 1rem; left: 1rem;">
-                    <span style="display: inline-flex; align-items: center; padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 900; background-color: #fbbf24; color: #111827; border: 2px solid #d97706; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
-                      <svg style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem;" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
+                  {/* Badge Premium */}
+                  <div style="position: absolute; top: 20px; left: 20px;">
+                    <span style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 50px; font-size: 12px; font-weight: 900; background: linear-gradient(135deg, #fb923c, #f97316); color: white; box-shadow: 0 8px 20px rgba(251,146,60,0.4); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2);">
+                      <svg style="width: 16px; height: 16px;" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m4 0V9a1 1 0 011-1h4a1 1 0 011 1v12M9 7h6" />
                       </svg>
-                      Aeropuertos
+                      CONSTRUCTORAS
                     </span>
                   </div>
                 </div>
 
-                {/* Contenido de la tarjeta */}
-                <div class="p-6">
-                  <div class="mb-4">
-                    <h3 class="text-xl font-black text-gray-900 mb-2 line-clamp-2 group-hover:text-teal-600 transition-colors">
+                {/* Contenido Premium */}
+                <div style="padding: 28px;">
+                  <div style="margin-bottom: 20px;">
+                    <h3 style="font-size: 20px; font-weight: 900; color: #0f172a; margin-bottom: 12px; line-height: 1.3; letter-spacing: -0.01em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                       {proyecto.Titulo}
                     </h3>
                     {proyecto.Cliente && (
-                      <div class="flex items-center text-sm text-gray-600 mb-2">
-                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m4 0V9a1 1 0 011-1h4a1 1 0 011 1v12M9 7h6"></path>
+                      <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #64748b; margin-bottom: 12px; font-weight: 600;">
+                        <svg style="width: 18px; height: 18px; color: #fb923c;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m4 0V9a1 1 0 011-1h4a1 1 0 011 1v12M9 7h6"></path>
                         </svg>
                         {proyecto.Cliente}
                       </div>
                     )}
                   </div>
 
-                  <p class="text-gray-600 line-clamp-3 text-sm leading-relaxed mb-4">
+                  <p style="color: #64748b; font-size: 14px; line-height: 1.7; margin-bottom: 20px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-weight: 500;">
                     {proyecto.Descripcion?.substring(0, 120)}...
                   </p>
 
-                  <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <div class="flex items-center text-xs text-gray-500">
-                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 20px; border-top: 2px solid #f1f5f9;">
+                    <div style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #94a3b8; font-weight: 600;">
+                      <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                       </svg>
                       {(() => {
                         if (!proyecto.Fecha) return '2024';
@@ -388,7 +412,7 @@ const stats = {
                       })()}
                     </div>
                     {proyecto.Area && (
-                      <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-sky-100 text-sky-700">
+                      <span style="display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 50px; font-size: 12px; font-weight: 800; background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; border: 1px solid #fbbf24;">
                         {proyecto.Area}
                       </span>
                     )}
@@ -397,30 +421,83 @@ const stats = {
               </article>
             </a>
           ))}
+          </div>
         </div>
-      )}
-    </div>
+      </section>
+    )}
 
-    <!-- Call to Action -->
-    <div class="bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-900 py-20">
-      <div class="container mx-auto px-4 text-center">
-        <h2 class="text-5xl md:text-6xl font-black text-white mb-6">
-          ¿Necesita tecnología para su aeropuerto?
-        </h2>
-        <p class="text-2xl text-gray-100 mb-10 max-w-3xl mx-auto font-semibold">
-          Contáctenos para una consulta personalizada sobre sus necesidades tecnológicas
-        </p>
-        <a 
-          href="/contacto" 
-          class="inline-flex items-center px-10 py-5 bg-amber-400 text-gray-900 font-black text-lg rounded-2xl hover:bg-amber-300 transition-all duration-200 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 hover:scale-105"
-        >
-          Solicitar Consultoría
-          <svg class="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
-        </a>
+    <!-- FORMULARIO DE CONTACTO PREMIUM -->
+    <section id="contacto" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 100px 32px; position: relative; overflow: hidden;">
+      <!-- Decorative Elements -->
+      <div style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(251, 146, 60, 0.15) 0%, transparent 70%); border-radius: 50%;"></div>
+      <div style="position: absolute; bottom: -150px; left: -150px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(251, 146, 60, 0.1) 0%, transparent 70%); border-radius: 50%;"></div>
+      
+      <div style="max-width: 75rem; margin: 0 auto; position: relative; z-index: 10;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;">
+          <!-- Left Content -->
+          <div>
+            <div style="display: inline-block; padding: 8px 20px; background: rgba(251, 146, 60, 0.2); border-radius: 50px; margin-bottom: 24px; border: 1px solid rgba(251, 146, 60, 0.3);">
+              <span style="font-size: 13px; font-weight: 800; color: #fbbf24; letter-spacing: 1px; text-transform: uppercase;">📞 Contáctenos</span>
+            </div>
+            <h2 style="font-size: clamp(36px, 5vw, 56px); font-weight: 900; color: white; margin-bottom: 24px; line-height: 1.1; letter-spacing: -0.02em;">
+              ¿Listo para Digitalizar<br/>Su Próximo Proyecto?
+            </h2>
+            <p style="font-size: 18px; color: #cbd5e1; line-height: 1.8; margin-bottom: 40px; font-weight: 500;">
+              Contáctenos y nuestro equipo de expertos le ayudará a encontrar la solución tecnológica perfecta para su proyecto de construcción.
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+              <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #fb923c, #f97316); border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p style="font-size: 14px; color: #94a3b8; font-weight: 600; margin-bottom: 4px;">Teléfono</p>
+                  <p style="font-size: 18px; color: white; font-weight: 700;">+54 261 123-4567</p>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #fb923c, #f97316); border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p style="font-size: 14px; color: #94a3b8; font-weight: 600; margin-bottom: 4px;">Email</p>
+                  <p style="font-size: 18px; color: white; font-weight: 700;">constructoras@ultimamilla.com.ar</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Right Form -->
+          <div style="background: white; border-radius: 24px; padding: 48px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <form action="/api/contacto" method="POST" style="display: flex; flex-direction: column; gap: 24px;">
+              <div>
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Nombre</label>
+                <input type="text" name="nombre" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#fb923c'; this.style.boxShadow='0 0 0 4px rgba(251,146,60,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Juan Pérez" />
+              </div>
+              <div>
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Empresa</label>
+                <input type="text" name="empresa" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#fb923c'; this.style.boxShadow='0 0 0 4px rgba(251,146,60,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Constructora ABC" />
+              </div>
+              <div>
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Email</label>
+                <input type="email" name="email" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#fb923c'; this.style.boxShadow='0 0 0 4px rgba(251,146,60,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="juan@constructora.com" />
+              </div>
+              <div>
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Mensaje</label>
+                <textarea name="mensaje" required rows="4" style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none; resize: vertical;" onfocus="this.style.borderColor='#fb923c'; this.style.boxShadow='0 0 0 4px rgba(251,146,60,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Cuéntenos sobre su proyecto..."></textarea>
+              </div>
+              <button type="submit" style="width: 100%; padding: 18px; background: linear-gradient(135deg, #fb923c, #f97316); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 10px 30px rgba(251,146,60,0.4);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 14px 40px rgba(251,146,60,0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(251,146,60,0.4)'">
+                Solicitar Consultoría Ahora
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   </main>
 </Layout>
 
@@ -431,11 +508,21 @@ const stats = {
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  
+
   .line-clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  .group:hover .group-hover\:scale-105 {
+    transform: scale(1.05);
+  }
+
+  a:focus {
+    outline: 2px solid rgba(217, 119, 6, 0.5);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
   }
 </style>
