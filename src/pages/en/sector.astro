@@ -157,20 +157,20 @@ const colorMap = {
 
   <main style="min-height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
     <!-- Hero Section -->
-    <section style="padding: 80px 20px; text-align: center; color: white;">
+    <section style="padding: clamp(40px, 10vw, 80px) 20px; text-align: center; color: white;">
       <div style="max-width: 1200px; margin: 0 auto;">
-        <h1 style="font-size: 48px; font-weight: 800; margin-bottom: 16px; letter-spacing: -1px;">
+        <h1 style="font-size: clamp(28px, 8vw, 48px); font-weight: 800; margin-bottom: 16px; letter-spacing: -1px;">
           Solutions by Sector
         </h1>
-        <p style="font-size: 18px; color: #cbd5e1; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto;">
+        <p style="font-size: clamp(14px, 4vw, 18px); color: #cbd5e1; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto;">
           Specialized experience in the most demanding sectors of Mendoza and Argentina
         </p>
       </div>
     </section>
 
     <!-- Grid de Sectores -->
-    <section style="padding: 60px 20px; max-width: 1400px; margin: 0 auto;">
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 32px;">
+    <section style="padding: clamp(30px, 8vw, 60px) 16px; max-width: 1400px; margin: 0 auto;">
+      <div id="sectores-grid">
         {sectores.map((sector) => {
           const colors = colorMap[sector.color as keyof typeof colorMap];
           return (
@@ -178,7 +178,7 @@ const colorMap = {
               <div style={`
                 background: white;
                 border-radius: 24px;
-                padding: 40px;
+                padding: clamp(24px, 6vw, 40px);
                 box-shadow: 0 20px 60px rgba(0,0,0,0.3);
                 border-left: 6px solid ${colors.border};
                 transition: all 0.3s ease;
@@ -214,13 +214,13 @@ const colorMap = {
                 </div>
 
                 <!-- Título con emoji -->
-                <h2 style="font-size: 32px; font-weight: 800; color: #0f172a; margin: 16px 0; display: flex; align-items: center; gap: 12px;">
-                  <span style="font-size: 40px;">{sector.icon}</span>
+                <h2 style="font-size: clamp(20px, 5vw, 32px); font-weight: 800; color: #0f172a; margin: 16px 0; display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: clamp(28px, 7vw, 40px);">{sector.icon}</span>
                   {sector.nombre}
                 </h2>
 
                 <!-- Descripción -->
-                <p style="font-size: 15px; color: #64748b; margin-bottom: 24px; flex-grow: 1;">
+                <p style="font-size: clamp(13px, 3.5vw, 15px); color: #64748b; margin-bottom: 24px; flex-grow: 1; line-height: 1.5;">
                   {sector.descripcion_en}
                 </p>
 
@@ -228,10 +228,10 @@ const colorMap = {
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #e2e8f0;">
                   {sector.stats.map((stat) => (
                     <div>
-                      <div style="font-size: 24px; font-weight: 800; color: #0f172a;">
+                      <div style="font-size: clamp(18px, 5vw, 24px); font-weight: 800; color: #0f172a;">
                         {stat.numero}
                       </div>
-                      <div style="font-size: 12px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                      <div style="font-size: clamp(10px, 2.5vw, 12px); color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
                         {stat.label_en}
                       </div>
                     </div>
@@ -245,7 +245,7 @@ const colorMap = {
                   gap: 8px;
                   font-weight: 700;
                   color: ${colors.border};
-                  font-size: 14px;
+                  font-size: clamp(12px, 3vw, 14px);
                 `}>
                   Learn more <span style="font-size: 18px;">→</span>
                 </div>
@@ -257,17 +257,17 @@ const colorMap = {
     </section>
 
     <!-- CTA Section -->
-    <section style="padding: 80px 20px; text-align: center; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(168, 85, 247, 0.1)); margin-top: 60px;">
+    <section style="padding: clamp(40px, 10vw, 80px) 20px; text-align: center; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(168, 85, 247, 0.1)); margin-top: clamp(30px, 8vw, 60px);">
       <div style="max-width: 800px; margin: 0 auto;">
-        <h2 style="font-size: 36px; font-weight: 800; color: white; margin-bottom: 16px;">
+        <h2 style="font-size: clamp(24px, 6vw, 36px); font-weight: 800; color: white; margin-bottom: 16px;">
           Didn't find your sector?
         </h2>
-        <p style="font-size: 16px; color: #cbd5e1; margin-bottom: 32px;">
+        <p style="font-size: clamp(14px, 3.5vw, 16px); color: #cbd5e1; margin-bottom: 32px; line-height: 1.6;">
           Contact us to learn how we can help you with personalized IT solutions for your industry
         </p>
         <a href="/en/contacto" style={`
           display: inline-block;
-          padding: 16px 40px;
+          padding: clamp(12px, 3vw, 16px) clamp(24px, 6vw, 40px);
           background: linear-gradient(135deg, #3b82f6, #2563eb);
           color: white;
           border-radius: 12px;
@@ -277,6 +277,7 @@ const colorMap = {
           box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
           text-transform: uppercase;
           letter-spacing: 0.5px;
+          font-size: clamp(12px, 3vw, 14px);
         `}
         onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 14px 40px rgba(59, 130, 246, 0.5)'"
         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(59, 130, 246, 0.4)'"
@@ -296,5 +297,23 @@ const colorMap = {
 
   a:hover {
     text-decoration: none;
+  }
+
+  #sectores-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(16px, 4vw, 32px);
+  }
+
+  @media (min-width: 640px) {
+    #sectores-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    #sectores-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
   }
 </style>
