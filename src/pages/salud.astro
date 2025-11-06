@@ -29,22 +29,16 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    // Filtrar antecedentes de salud
+    // Mostrar todos los antecedentes
     antecedentes = response.data
-      .filter(item => 
-        item.Cliente?.toLowerCase().includes('hospital') ||
-        item.Cliente?.toLowerCase().includes('clinica') ||
-        item.Cliente?.toLowerCase().includes('salud') ||
-        item.Unidad_de_negocio?.toLowerCase().includes('salud')
-      )
-      .slice(0, 6)
+      .slice(0, 12)
       .map(item => ({
         ...item,
         slug: `${item.id}/${generateSlug(item.Titulo)}`
       }))
       .sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
 
-    console.log(`✅ Cargados ${antecedentes.length} antecedentes de salud`);
+    console.log(`✅ Cargados ${antecedentes.length} antecedentes`);
   }
 
   // Servicios relacionados con el sector constructoras
