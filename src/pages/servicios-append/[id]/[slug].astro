@@ -1,6 +1,6 @@
 ---
 // Apéndice con nueva estética - Alternando diseños por servicio
-export const prerender = true;
+export const prerender = false;
 
 import Layout from '../../../layouts/Layout.astro';
 import { generateSlug } from '../../../utils/slugUtils';
@@ -9,22 +9,6 @@ import { getServiceImageUrl } from '../../../utils/imageUtils.js';
 
 const PUBLIC_DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://directus:8055';
 const DIRECTUS_TOKEN = import.meta.env.PUBLIC_DIRECTUS_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
-
-// Generar rutas estáticas para los 5 servicios principales
-export async function getStaticPaths() {
-  const servicios = [1, 2, 3, 4, 6]; // IDs de servicios
-  const paths = [];
-  
-  for (const id of servicios) {
-    const servicio = serviciosPorId[id];
-    if (servicio) {
-      const slug = generateSlug(servicio.Titulo || servicio.Nombre || servicio.title);
-      paths.push({ params: { id: String(id), slug } });
-    }
-  }
-  
-  return paths;
-}
 
 const { id, slug } = Astro.params;
 let servicio = null;
