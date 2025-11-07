@@ -201,7 +201,7 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
         <!-- Badge Simple -->
         <div style="display: inline-flex; align-items: center; gap: 12px; padding: 12px 20px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(16, 185, 129, 0.1)); border-radius: 20px; margin-bottom: 20px; border: 1px solid rgba(16, 185, 129, 0.4); backdrop-filter: blur(10px);">
           <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);">
-            <span style="font-size: 24px;">🏵️</span>
+            <span style="font-size: 24px;">🏟</span>
           </div>
           <span style="font-size: 13px; font-weight: 800; color: #10b981; text-transform: uppercase; letter-spacing: 1.2px;">Sector Salud</span>
         </div>
@@ -419,7 +419,7 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
                       })()}
                     </div>
                     {proyecto.Area && (
-                      <span style="display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 50px; font-size: 12px; font-weight: 800; background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; border: 1px solid #fbbf24;">
+                      <span style="display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 50px; font-size: 12px; font-weight: 800; background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; border: 1px solid #fbbf24; white-space: nowrap; max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
                         {proyecto.Area}
                       </span>
                     )}
