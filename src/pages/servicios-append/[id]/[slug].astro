@@ -5,7 +5,7 @@ export const prerender = false;
 import Layout from '../../../layouts/Layout.astro';
 import { generateSlug } from '../../../utils/slugUtils';
 import { serviciosReales, serviciosPorId } from '../../../data/servicios_reales_db.js';
-import { getServiceImageUrl } from '../../../utils/imageUtils.js';
+import { getServiceImageUrl, getAssetUrl } from '../../../utils/imageUtils.js';
 
 const PUBLIC_DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://directus:8055';
 const DIRECTUS_TOKEN = import.meta.env.PUBLIC_DIRECTUS_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
@@ -39,20 +39,8 @@ if (slug !== expectedSlug) {
   return Astro.redirect(`/servicios-append/${id}/${expectedSlug}`);
 }
 
-const getAssetUrl = getServiceImageUrl;
-const servicioImageMapping = {
-  1: '/images/services/servicios-it.jpg',
-  2: '/images/services/redes-comunicaciones.jpg',
-  3: '/images/services/seguridad-informatica.jpg',
-  4: '/images/services/telefonica.jpg',
-  5: '/images/services/consultoria.jpg',
-  6: '/images/services/servicios-web.jpg',
-  11: '/images/services/servicios-web.jpg'
-};
-
 const getHeroImage = () => {
   if (servicio.Imagen) return getAssetUrl(servicio.Imagen);
-  if (servicioImageMapping[servicio.id]) return servicioImageMapping[servicio.id];
   return '/images/default-service.jpg';
 };
 
