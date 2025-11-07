@@ -52,7 +52,7 @@ export default defineConfig({
 
   // Optimizaciones para producción
   build: {
-    inlineStylesheets: 'auto', // Inline CSS pequeño para reducir requests
+    inlineStylesheets: 'always', // Inline todos los CSS para evitar problemas de MIME type
     assets: '_astro', // Directorio para assets
     splitting: true, // Code splitting habilitado
   },
