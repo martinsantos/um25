@@ -6,7 +6,7 @@ import { generateSlug } from '../../../utils/slugUtils.js';
 // --- Configuración ---
 // Direct Directus integration using environment variables
 const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://directus:8055';
-const DEFAULT_IMAGE_URL = `/images/default-background.jpg`;
+const DEFAULT_IMAGE_URL = `/images/default-placeholder.svg`;
 const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
 
 console.log('DIRECTUS_URL configurado como:', DIRECTUS_URL);
@@ -362,7 +362,7 @@ const structuredData = [articleStructuredData, metricsStructuredData].filter(Boo
           height="100%"
           loading="eager"
           class="object-cover"
-          fallbackSrc="/images/default.jpg"
+          fallbackSrc="/images/default-placeholder.svg"
           fallbackAlt={`Imagen por defecto para ${antecedente.Cliente}`}
           containerClass="w-full h-full"
         />
