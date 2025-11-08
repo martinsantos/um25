@@ -243,13 +243,15 @@ const uniqueColor = colors[parseInt(id) % colors.length];
 const formatDate = (dateString) => {
     if (!dateString) return 'No especificada';
     try {
-        return new Date(dateString).toLocaleDateString('es-ES', {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'No especificada';
+        return date.toLocaleDateString('es-ES', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
         });
     } catch {
-        return dateString;
+        return 'No especificada';
     }
 };
 
