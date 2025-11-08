@@ -7,6 +7,7 @@ import { generateSlug } from '../../../utils/slugUtils.js';
 // Direct Directus integration using environment variables
 const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://directus:8055';
 const DEFAULT_IMAGE_URL = `/images/default-placeholder.svg`;
+const DEFAULT_HERO_BG = `/images/antecedentes-hero-bg.jpg`;
 const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
 
 console.log('DIRECTUS_URL configurado como:', DIRECTUS_URL);
@@ -210,13 +211,44 @@ const getMainImageUrl = async () => {
         return directusImage;
     }
     
-    // PASO 4: Fallback final - usar imagen por defecto
-    console.log('[IMAGEN] ⚠️ No se encontró imagen específica, usando imagen por defecto');
-    return DEFAULT_IMAGE_URL;
+    // PASO 4: Fallback final - usar imagen de fondo profesional
+    console.log('[IMAGEN] ⚠️ No se encontró imagen específica, usando fondo profesional');
+    return DEFAULT_HERO_BG;
 };
 
 const mainImageUrl = await getMainImageUrl();
 console.log('[IMAGEN] URL final seleccionada:', mainImageUrl);
+
+// Función para obtener imagen de fondo del hero (prioriza mapeo sobre fondo genérico)
+const getHeroBackgroundUrl = async () => {
+    try {
+        // Importar función de búsqueda de imágenes
+        const { buscarImagenPorDatos } = await import('../../../data/mapeo_imagenes_completo.js');
+        
+        // Buscar imagen específica usando los datos del antecedente
+        const nombreArchivo = buscarImagenPorDatos(
+            antecedente.Cliente,
+            antecedente.Area || antecedente.Unidad_de_negocio,
+            antecedente.Titulo,
+            antecedente.id
+        );
+        
+        if (nombreArchivo) {
+            const imagenUrl = `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
+            console.log('[HERO BG] ✅ Usando imagen del mapeo:', imagenUrl);
+            return imagenUrl;
+        }
+    } catch (error) {
+        console.log('[HERO BG] ⚠️ Error en búsqueda del mapeo:', error);
+    }
+    
+    // Fallback a fondo profesional
+    console.log('[HERO BG] Usando fondo profesional');
+    return DEFAULT_HERO_BG;
+};
+
+const heroBackgroundUrl = await getHeroBackgroundUrl();
+console.log('[HERO BG] URL final seleccionada:', heroBackgroundUrl);
 
 // Generar iniciales del cliente para placeholder
 const clientInitials = (antecedente.Cliente || 'UM')
@@ -358,14 +390,14 @@ const structuredData = [articleStructuredData, metricsStructuredData].filter(Boo
       <!-- Background Image con EnhancedImage -->
       <div class="absolute inset-0">
         <EnhancedImage
-          src={mainImageUrl}
+          src={heroBackgroundUrl}
           alt={antecedente.Titulo}
           width="100%"
           height="100%"
           loading="eager"
           class="object-cover"
-          fallbackSrc="/images/default-placeholder.svg"
-          fallbackAlt={`Imagen por defecto para ${antecedente.Cliente}`}
+          fallbackSrc="/images/antecedentes-hero-bg.jpg"
+          fallbackAlt={`Fondo profesional para ${antecedente.Cliente}`}
           containerClass="w-full h-full"
         />
         <!-- Transform scale aplicado al contenedor -->
