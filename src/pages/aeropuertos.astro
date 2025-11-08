@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import { directus, DEFAULT_IMAGE } from '../utils/directus';
 import { generateSlug } from '../utils/slugUtils';
+import { filtrarPorVertical } from '../data/verticales';
 
 // Configuración SEO específica para constructoras - ULTRA OPTIMIZADA para Argentina y Mendoza
 const seoConfig = {
@@ -29,15 +30,13 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    // Filtrar antecedentes de aeropuertos (solo Aeropuertos Argentina 2000)
-    antecedentes = response.data
-      .filter(item => 
-        item.Cliente?.toLowerCase().includes('aeropuerto')
-      )
-      .map(item => ({
-        ...item,
-        slug: `${item.id}/${generateSlug(item.Titulo)}`
-      }))
+    // Filtrar antecedentes de aeropuertos usando clasificación por vertical
+    const allAntecedentes = response.data.map(item => ({
+      ...item,
+      slug: `${item.id}/${generateSlug(item.Titulo)}`
+    }));
+    
+    antecedentes = filtrarPorVertical(allAntecedentes, 'aeropuertos')
       .sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
 
     console.log(`✅ Cargados ${antecedentes.length} antecedentes de aeropuertos`);
