@@ -4,20 +4,20 @@ import { directus, DEFAULT_IMAGE } from '../utils/directus';
 import { generateSlug } from '../utils/slugUtils';
 import { filtrarPorVertical } from '../data/verticales';
 
-// Configuración SEO específica para constructoras - ULTRA OPTIMIZADA para Argentina y Mendoza
+// Configuración SEO específica para SALUD - ULTRA OPTIMIZADA para Argentina y Mendoza
 const seoConfig = {
-  title: "Tecnología IT Constructoras Mendoza Argentina | PROCON LAUGGERO KRISTICH | Infraestructura Obras",
-  description: "⛑️ Especialistas en infraestructura IT para constructoras en Mendoza y Argentina. Sistemas tecnológicos completos para PROCON, LAUGGERO, KRISTICH. Redes estructuradas, comunicaciones IP, seguridad CCTV y control de accesos para obras y canteros. +50 proyectos documentados, 20+ años de experiencia. Soporte 24/7.",
-  keywords: "constructoras mendoza, infraestructura IT constructoras argentina, tecnología para obras mendoza, PROCON mendoza IT, LAUGGERO constructoras tecnología, KRISTICH infraestructura, redes estructuradas constructoras, cableado certificado obras, comunicaciones IP constructoras, CCTV obras mendoza, control accesos biométrico canteros, seguridad electrónica construccion, telefonía IP obras, conectividad temporal canteros, sistemas gestión constructora, IT construcción argentina, tecnología oficinas técnicas, servidores construccion, redes wifi obras, integración tecnológica constructoras mendoza",
-  ogImage: "/images/constructoras-hero.jpg",
-  canonical: "https://www.ultimamilla.com.ar/constructoras",
+  title: "Tecnología IT Hospitales Mendoza | Sistemas Críticos de Salud | ULTIMA MILLA",
+  description: "🏥 Soluciones IT especializadas para hospitales y clínicas en Mendoza y Argentina. Sistemas críticos de salud, redes de datos, seguridad informática y telecomunicaciones. Hospital A Italo Perrupato, Ministerio de Salud. +40 proyectos documentados, 20+ años de experiencia. Soporte 24/7.",
+  keywords: "tecnología hospitales mendoza, IT salud argentina, sistemas críticos salud, redes datos hospitales, seguridad informática salud, telecomunicaciones clínicas, software hospitalario mendoza, IT sanatorios argentina, sistemas gestión hospitalaria, conectividad hospitales, soporte técnico salud, infraestructura IT salud, telemedicina mendoza, sistemas información hospitalaria",
+  ogImage: "/images/salud-hero.jpg",
+  canonical: "https://www.ultimamilla.com.ar/salud",
   locale: "es_AR",
   region: "AR-M",
   author: "Ultima Milla",
   robots: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
 };
 
-// Cargar antecedentes del sector constructoras
+// Cargar antecedentes del sector salud
 let antecedentes = [];
 let serviciosRelacionados = [];
 let error = null;
@@ -168,16 +168,27 @@ try {
 import { buscarImagenPorDatos } from '../data/mapeo_imagenes_completo';
 
 function getImageUrl(proyecto) {
-  if (!proyecto) return DEFAULT_IMAGE;
-  const imagenNombre = buscarImagenPorDatos(
-    proyecto.Cliente,
-    proyecto.Area || proyecto.Unidad_de_negocio,
-    proyecto.Titulo,
-    proyecto.id
-  );
-  return imagenNombre 
-    ? `/imagenes_antecedentes_versionproduccion/${imagenNombre}`
-    : DEFAULT_IMAGE;
+  if (!proyecto) return '/images/default-placeholder.svg';
+  
+  try {
+    const imagenNombre = buscarImagenPorDatos(
+      proyecto.Cliente,
+      proyecto.Area || proyecto.Unidad_de_negocio,
+      proyecto.Titulo,
+      proyecto.id
+    );
+    
+    if (imagenNombre) {
+      const imagenUrl = `/imagenes_antecedentes_versionproduccion/${imagenNombre}`;
+      console.log(`[SALUD] ✅ Imagen encontrada para ${proyecto.Cliente}: ${imagenUrl}`);
+      return imagenUrl;
+    }
+  } catch (error) {
+    console.log(`[SALUD] ⚠️ Error buscando imagen: ${error.message}`);
+  }
+  
+  console.log(`[SALUD] ℹ️ Usando placeholder para ${proyecto.Cliente}`);
+  return '/images/default-placeholder.svg';
 }
 
 const antecedentesConImagenes = antecedentes.map(proyecto => ({
@@ -370,7 +381,7 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
                     alt={proyecto.Titulo}
                     style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease;"
                     loading="lazy"
-                    onerror="this.src='/images/default.jpg'"
+                    onerror="this.src='/images/default-placeholder.svg'"
                     onmouseover="this.style.transform='scale(1.08)'"
                     onmouseout="this.style.transform='scale(1)'"
                   />
@@ -378,7 +389,7 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
                   {/* Badge Premium */}
                   <div style="position: absolute; top: 20px; left: 20px;">
                     <span style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 50px; font-size: 12px; font-weight: 900; background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 8px 20px rgba(16,185,129,0.4); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2);">
-                      <span style="font-size: 16px;">🏟</span>
+                      <span style="font-size: 16px;">🏥</span>
                       SALUD
                     </span>
                   </div>

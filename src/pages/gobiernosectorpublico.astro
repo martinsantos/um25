@@ -168,16 +168,27 @@ try {
 import { buscarImagenPorDatos } from '../data/mapeo_imagenes_completo';
 
 function getImageUrl(proyecto) {
-  if (!proyecto) return DEFAULT_IMAGE;
-  const imagenNombre = buscarImagenPorDatos(
-    proyecto.Cliente,
-    proyecto.Area || proyecto.Unidad_de_negocio,
-    proyecto.Titulo,
-    proyecto.id
-  );
-  return imagenNombre 
-    ? `/imagenes_antecedentes_versionproduccion/${imagenNombre}`
-    : DEFAULT_IMAGE;
+  if (!proyecto) return '/images/default-placeholder.svg';
+  
+  try {
+    const imagenNombre = buscarImagenPorDatos(
+      proyecto.Cliente,
+      proyecto.Area || proyecto.Unidad_de_negocio,
+      proyecto.Titulo,
+      proyecto.id
+    );
+    
+    if (imagenNombre) {
+      const imagenUrl = `/imagenes_antecedentes_versionproduccion/${imagenNombre}`;
+      console.log(`[GOBIERNO] ✅ Imagen encontrada para ${proyecto.Cliente}: ${imagenUrl}`);
+      return imagenUrl;
+    }
+  } catch (error) {
+    console.log(`[GOBIERNO] ⚠️ Error buscando imagen: ${error.message}`);
+  }
+  
+  console.log(`[GOBIERNO] ℹ️ Usando placeholder para ${proyecto.Cliente}`);
+  return '/images/default-placeholder.svg';
 }
 
 const antecedentesConImagenes = antecedentes.map(proyecto => ({
@@ -370,7 +381,7 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
                     alt={proyecto.Titulo}
                     style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease;"
                     loading="lazy"
-                    onerror="this.src='/images/default.jpg'"
+                    onerror="this.src='/images/default-placeholder.svg'"
                     onmouseover="this.style.transform='scale(1.08)'"
                     onmouseout="this.style.transform='scale(1)'"
                   />

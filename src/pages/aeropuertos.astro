@@ -4,20 +4,20 @@ import { directus, DEFAULT_IMAGE } from '../utils/directus';
 import { generateSlug } from '../utils/slugUtils';
 import { filtrarPorVertical } from '../data/verticales';
 
-// Configuración SEO específica para constructoras - ULTRA OPTIMIZADA para Argentina y Mendoza
+// Configuración SEO específica para AEROPUERTOS - ULTRA OPTIMIZADA para Argentina y Mendoza
 const seoConfig = {
-  title: "Tecnología IT Constructoras Mendoza Argentina | PROCON LAUGGERO KRISTICH | Infraestructura Obras",
-  description: "⛑️ Especialistas en infraestructura IT para constructoras en Mendoza y Argentina. Sistemas tecnológicos completos para PROCON, LAUGGERO, KRISTICH. Redes estructuradas, comunicaciones IP, seguridad CCTV y control de accesos para obras y canteros. +50 proyectos documentados, 20+ años de experiencia. Soporte 24/7.",
-  keywords: "constructoras mendoza, infraestructura IT constructoras argentina, tecnología para obras mendoza, PROCON mendoza IT, LAUGGERO constructoras tecnología, KRISTICH infraestructura, redes estructuradas constructoras, cableado certificado obras, comunicaciones IP constructoras, CCTV obras mendoza, control accesos biométrico canteros, seguridad electrónica construccion, telefonía IP obras, conectividad temporal canteros, sistemas gestión constructora, IT construcción argentina, tecnología oficinas técnicas, servidores construccion, redes wifi obras, integración tecnológica constructoras mendoza",
-  ogImage: "/images/constructoras-hero.jpg",
-  canonical: "https://www.ultimamilla.com.ar/constructoras",
+  title: "Tecnología IT Aeropuertos Mendoza | Comunicaciones Críticas | ULTIMA MILLA",
+  description: "✍️ Soluciones IT especializadas para aeropuertos en Mendoza y Argentina. Comunicaciones críticas, sistemas de seguridad, redes de datos y telecomunicaciones. Aeropuerto Internacional Gobernador Francisco Gabrielli. +35 proyectos documentados, 20+ años de experiencia. Soporte 24/7.",
+  keywords: "tecnología aeropuertos mendoza, IT aeroportuario argentina, comunicaciones críticas aeropuertos, sistemas seguridad aeropuertos, redes datos aeropuertos, telecomunicaciones aeropuertos, infraestructura IT aeropuertos, sistemas control aéreo, conectividad aeropuertos mendoza, soporte técnico aeropuertos, sistemas información aeroportuaria",
+  ogImage: "/images/aeropuertos-hero.jpg",
+  canonical: "https://www.ultimamilla.com.ar/aeropuertos",
   locale: "es_AR",
   region: "AR-M",
   author: "Ultima Milla",
   robots: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
 };
 
-// Cargar antecedentes del sector constructoras
+// Cargar antecedentes del sector aeropuertos
 let antecedentes = [];
 let serviciosRelacionados = [];
 let error = null;
@@ -168,16 +168,27 @@ try {
 import { buscarImagenPorDatos } from '../data/mapeo_imagenes_completo';
 
 function getImageUrl(proyecto) {
-  if (!proyecto) return DEFAULT_IMAGE;
-  const imagenNombre = buscarImagenPorDatos(
-    proyecto.Cliente,
-    proyecto.Area || proyecto.Unidad_de_negocio,
-    proyecto.Titulo,
-    proyecto.id
-  );
-  return imagenNombre 
-    ? `/imagenes_antecedentes_versionproduccion/${imagenNombre}`
-    : DEFAULT_IMAGE;
+  if (!proyecto) return '/images/default-placeholder.svg';
+  
+  try {
+    const imagenNombre = buscarImagenPorDatos(
+      proyecto.Cliente,
+      proyecto.Area || proyecto.Unidad_de_negocio,
+      proyecto.Titulo,
+      proyecto.id
+    );
+    
+    if (imagenNombre) {
+      const imagenUrl = `/imagenes_antecedentes_versionproduccion/${imagenNombre}`;
+      console.log(`[AEROPUERTOS] ✅ Imagen encontrada para ${proyecto.Cliente}: ${imagenUrl}`);
+      return imagenUrl;
+    }
+  } catch (error) {
+    console.log(`[AEROPUERTOS] ⚠️ Error buscando imagen: ${error.message}`);
+  }
+  
+  console.log(`[AEROPUERTOS] ℹ️ Usando placeholder para ${proyecto.Cliente}`);
+  return '/images/default-placeholder.svg';
 }
 
 const antecedentesConImagenes = antecedentes.map(proyecto => ({
@@ -370,7 +381,7 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
                     alt={proyecto.Titulo}
                     style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease;"
                     loading="lazy"
-                    onerror="this.src='/images/default.jpg'"
+                    onerror="this.src='/images/default-placeholder.svg'"
                     onmouseover="this.style.transform='scale(1.08)'"
                     onmouseout="this.style.transform='scale(1)'"
                   />
