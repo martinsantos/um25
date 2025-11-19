@@ -43,6 +43,13 @@
 - **📊 CMS Directus**: Gestión de contenido operacional ✅
 - **🔒 SSL**: Certificados válidos y HTTPS funcionando ✅
 
+### 🛠️ Actualización 2025-11-19
+- **Problema**: El sitio intentaba cargar `about.css`, `servicios-ciberseguridad.css` e `index-optimized-1.css`, archivos legacy inexistentes que devolvían 404 y sobrescribían estilos.
+- **Solución**: Se eliminaron esas referencias desde `src/layouts/Layout.astro`, dejando únicamente los estilos empaquetados por Astro/Tailwind y `uiEffects.css`.
+- **Verificación**:
+  - `npm run build` ✅
+  - Validación manual: homepage y navegación principal sin errores 404 en consola.
+
 ## 🌐 **Enlaces Importantes**
 
 - **🌍 Sitio Web**: [www.ultimamilla.com.ar](https://www.ultimamilla.com.ar)
