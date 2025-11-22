@@ -1,9 +1,11 @@
 // Configuración de Directus
+import { antecedentesReales } from '../data/antecedentes_completos.js';
+import { getFixedImage } from './imageFixer';
 const DIRECTUS_CONFIG = {
   URL: import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055',
   TOKEN: import.meta.env.DIRECTUS_STATIC_TOKEN || 'ujsboxj0_E5PvWKhFao7yCW6_VDFsOSk',
   PAGE_SIZE: 20,
-  DEFAULT_IMAGE: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'
+  DEFAULT_IMAGE: '/images/default.jpg'
 };
 
 // Validar configuración
@@ -78,37 +80,63 @@ class DirectusClient {
 
   // Métodos específicos de la API
   async getAntecedentes(params = {}) {
-    const defaults = {
-      fields: 'id,Titulo,Descripcion,Imagen,Fecha,Cliente,Unidad_de_negocio,Area',
-      sort: '-Fecha',
-      limit: DIRECTUS_CONFIG.PAGE_SIZE,
-      meta: '*'
-    };
+    try {
+      const defaults = {
+        fields: 'id,Titulo,Descripcion,Imagen,Fecha,Cliente,Unidad_de_negocio,Area',
+        limit: DIRECTUS_CONFIG.PAGE_SIZE,
+        meta: '*'
+      };
 
-    const queryParams = new URLSearchParams();
-    const finalParams = { ...defaults, ...params };
+      const queryParams = new URLSearchParams();
+      const finalParams = { ...defaults, ...params };
 
-    // Construir parámetros de consulta
-    Object.entries(finalParams).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        if (key === 'filter' && typeof value === 'object') {
-          queryParams.set('filter', JSON.stringify(value));
-        } else if (Array.isArray(value)) {
-          value.forEach(v => queryParams.append(key, v));
-        } else {
-          queryParams.set(key, value);
+      // Construir parámetros de consulta
+      Object.entries(finalParams).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (key === 'filter' && typeof value === 'object') {
+            queryParams.set('filter', JSON.stringify(value));
+          } else if (Array.isArray(value)) {
+            value.forEach(v => queryParams.append(key, v));
+          } else {
+            queryParams.set(key, value);
+          }
         }
-      }
-    });
+      });
 
-    return this.request(`/items/Antecedentes?${queryParams.toString()}`);
+      const response = await this.request(`/items/Antecedentes?${queryParams.toString()}`);
+
+      if (response && response.data) {
+        response.data = response.data.map(item => {
+          let imageUrl = DIRECTUS_CONFIG.DEFAULT_IMAGE;
+          if (item.Imagen) {
+            // Check if it's a UUID (Directus File ID)
+            if (item.Imagen.match(/^[a-f0-9-]{36}$/)) {
+              imageUrl = `${this.baseUrl}/assets/${item.Imagen}`;
+            } else {
+              // Assume it's a filename served by Nginx
+              // Remove any leading slash if present in the DB to avoid double slash
+              let cleanPath = item.Imagen.startsWith('/') ? item.Imagen.substring(1) : item.Imagen;
+              cleanPath = getFixedImage(cleanPath);
+              imageUrl = `/imagenes_antecedentes_versionproduccion/${cleanPath}`;
+            }
+          }
+          return { ...item, Imagen: imageUrl };
+        });
+      }
+      return response;
+
+    } catch (error) {
+      console.error('Error fetching antecedentes:', error);
+      // Fallback minimalista si falla todo, pero el objetivo es que funcione Directus
+      return { data: [], meta: {} };
+    }
   }
 
   async getRandomImages(limit = 9) {
     const response = await this.request(
       `/files?filter[type][_starts_with]=image&limit=${limit}`
     );
-    
+
     return response.data.map(img => ({
       url: `${this.baseUrl}/assets/${img.id}`,
       id: img.id,
@@ -139,6 +167,73 @@ class DirectusClient {
     } catch (error) {
       console.error(`Error getting unique values for ${field}:`, error);
       return [];
+    }
+  }
+
+  // Métodos para servicios
+  async getServicios(params = {}) {
+    try {
+      const defaults = {
+        fields: 'id,Titulo,Descripcion,Imagen,status',
+        sort: 'id',
+        limit: DIRECTUS_CONFIG.PAGE_SIZE,
+        meta: '*'
+      };
+
+      const queryParams = new URLSearchParams();
+      const finalParams = { ...defaults, ...params };
+
+      // Construir parámetros de consulta
+      Object.entries(finalParams).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (key === 'filter' && typeof value === 'object') {
+            queryParams.set('filter', JSON.stringify(value));
+          } else if (Array.isArray(value)) {
+            value.forEach(v => queryParams.append(key, v));
+          } else {
+            queryParams.set(key, value);
+          }
+        }
+      });
+
+      const response = await this.request(`/items/Servicios?${queryParams.toString()}`);
+
+      // Procesar la respuesta para incluir la URL completa de la imagen
+      if (response && response.data) {
+        return {
+          ...response,
+          data: response.data.map(servicio => ({
+            ...servicio,
+            // Convertir la referencia de imagen a URL completa
+            Imagen: servicio.Imagen
+              ? `${this.baseUrl}/assets/${servicio.Imagen}?access_token=${this.token}`
+              : DIRECTUS_CONFIG.DEFAULT_IMAGE,
+          }))
+        };
+      }
+
+      return response;
+    } catch (error) {
+      console.error('Error en getServicios:', error);
+      return { data: [], meta: {} };
+    }
+  }
+
+  async getServicioById(id) {
+    try {
+      const response = await this.request(`/items/Servicios/${id}`);
+      if (response && response.data) {
+        return {
+          ...response.data,
+          Imagen: response.data.Imagen
+            ? `${this.baseUrl}/assets/${response.data.Imagen}?access_token=${this.token}`
+            : DIRECTUS_CONFIG.DEFAULT_IMAGE,
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error(`Error al obtener servicio ${id}:`, error);
+      return null;
     }
   }
 
@@ -183,7 +278,7 @@ class DirectusClient {
         ...response,
         data: response.data.map(post => ({
           ...post,
-          Imagen_portada: post.Imagen_portada 
+          Imagen_portada: post.Imagen_portada
             ? `${this.baseUrl}/assets/${post.Imagen_portada}?access_token=${this.token}`
             : DIRECTUS_CONFIG.DEFAULT_IMAGE,
           // Asegurarse de que siempre haya un array de categorías
@@ -204,7 +299,7 @@ class DirectusClient {
 
     try {
       const response = await this.getBlogPosts({
-        filter: { 
+        filter: {
           slug: { _eq: slug },
           Estado: { _eq: 'publicado' }
         },
@@ -216,7 +311,7 @@ class DirectusClient {
         console.warn(`No se encontró el post con slug: ${slug}`);
         return null;
       }
-      
+
       // Formatear la respuesta para que coincida con lo que espera el frontend
       return {
         ...post,
@@ -273,7 +368,7 @@ export async function fetchAntecedente(id, token) {
 
 export function generateSlug(title) {
   if (!title) return '';
-  
+
   return title
     .toLowerCase()
     .normalize('NFD')
