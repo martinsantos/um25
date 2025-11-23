@@ -41,29 +41,45 @@ const antecedentes = {
 ---
 
 <Layout title="ULTiMA MILLA - Transformación Digital y Tecnología">
-  <!-- Hero Section -->
-  <header id="banner" class="relative w-full h-screen overflow-hidden">
-    <div class="absolute inset-0 bg-cover bg-center hero-background">
-      <div class="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-purple-900/70 to-blue-800/80"></div>
-    </div>
-    <div class="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
-      <h1 id="dynamicText" class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight drop-shadow-lg hero-title"></h1>
-      <p class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto drop-shadow-md hero-subtitle">Transformamos tu negocio con tecnología que puedes pagar.</p>
-      <a 
-        href="#contacto" 
-        class="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
-      >
-        Contáctanos
-      </a>
-    </div>
-    
-    <!-- Scroll indicator -->
-    <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2">
-      <div class="animate-bounce w-6 h-10 border-4 border-white/50 rounded-full flex justify-center">
-        <div class="w-1 h-2 bg-white rounded-full mt-2"></div>
+  <!-- Hero Section MODERNO -->
+  <section style="position: relative; min-height: 500px; display: flex; align-items: center; background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80') center/cover; color: white;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 60px 40px; width: 100%;">
+      <!-- Badge -->
+      <div style="display: inline-flex; align-items: center; gap: 12px; padding: 12px 20px; background: linear-gradient(135deg, rgba(220, 38, 38, 0.3), rgba(220,  38, 38, 0.1)); border-radius: 20px; margin-bottom: 20px; border: 1px solid rgba(220, 38, 38, 0.4); backdrop-filter: blur(10px);">
+        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #dc2626, #ef4444); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(220, 38, 38, 0.4);">
+          <span style="font-size: 24px;">🚀</span>
+        </div>
+        <span style="font-size: 13px; font-weight: 800; color: #dc2626; text-transform: uppercase; letter-spacing: 1.2px; color: white;">Última Milla</span>
+      </div>
+
+      <!-- Título Principal -->
+      <h1 style="font-size: 56px; font-weight: 900; margin-bottom: 20px; line-height: 1.2; color: white;">
+        Transformación Digital<br/>con Tecnología que Puedes Pagar
+      </h1>
+
+      <!-- Subtítulo -->
+      <p style="font-size: 20px; font-weight: 400; color: rgba(255, 255, 255, 0.9); max-width: 700px; margin-bottom: 32px; line-height: 1.6;">
+        Líderes en servicios IT en Argentina. Infraestructura, ciberseguridad y telecomunicaciones para empresas en Mendoza, San Juan, San Luis y Patagonia.
+      </p>
+
+      <!--  CTA Buttons -->
+      <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+        <a href="#contacto" style="display: inline-block; background: #dc2626; color: white; padding: 16px 36px; border-radius: 8px; font-weight: 700; font-size: 16px; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 4px 14px rgba(220, 38, 38, 0.4);" onmouseover="this.style.background='#b91c1c'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(220, 38, 38, 0.5)'" onmouseout="this.style.background='#dc2626'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 14px rgba(220, 38, 38, 0.4)'">
+          Contáctanos
+        </a>
+        <a href="#servicios" style="display: inline-block; background: transparent; color: white; padding: 16px 36px; border-radius: 8px; font-weight: 700; font-size: 16px; text-decoration: none; border: 2px solid white; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='transparent'; this.style.transform='translateY(0)'">
+          Nuestros Servicios
+        </a>
       </div>
     </div>
-  </header>
+
+    <!-- Scroll indicator -->
+    <div style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite;">
+      <div style="width: 30px; height: 50px; border: 3px solid rgba(255,255,255,0.5); border-radius: 20px; display: flex; justify-content: center; padding-top: 10px;">
+        <div style="width: 6px; height: 10px; background: white; border-radius: 3px;"></div>
+      </div>
+    </div>
+  </section>
 
   <main class="bg-gray-100">
     <!-- TEST PIPELINE BANNER -->
