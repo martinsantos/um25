@@ -1,10 +1,11 @@
 import { getAllBlogPosts } from '../data/blog';
 import type { APIRoute } from 'astro';
 
-const SITE_URL = 'https://ultimamilla.com';
+const SITE_URL = 'https://www.ultimamilla.com.ar';
 
 function formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
+    if (isNaN(date.getTime())) return new Date().toISOString().split('T')[0] || '';
+    return date.toISOString().split('T')[0] || '';
 }
 
 function generateSitemapXml(posts: any[]): string {
@@ -39,12 +40,54 @@ function generateSitemapXml(posts: any[]): string {
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
+    
+    <!-- Nuevos Verticales y Sectores -->
+    <url>
+        <loc>${SITE_URL}/mineria</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>${SITE_URL}/industria</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>${SITE_URL}/seguridad-electronica</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>${SITE_URL}/constructoras</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>${SITE_URL}/bodegas</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>${SITE_URL}/aeropuertos</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>${SITE_URL}/salud</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>${SITE_URL}/gobiernosectorpublico</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
 
     <!-- Posts del blog -->
     ${posts.map(post => `
     <url>
         <loc>${SITE_URL}/blog/${post.slug}</loc>
-        <lastmod>${formatDate(new Date(post.date))}</lastmod>
+        <lastmod>${formatDate(new Date(post.date || new Date()))}</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
         ${post.image ? `
@@ -57,7 +100,7 @@ function generateSitemapXml(posts: any[]): string {
 }
 
 export const GET: APIRoute = async () => {
-    const posts = getAllPosts();
+    const posts = await getAllBlogPosts();
     const sitemap = generateSitemapXml(posts);
 
     return new Response(sitemap, {

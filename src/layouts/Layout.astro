@@ -1,9 +1,9 @@
 ---
 import Navigation from '../components/Navigation.astro';
-import Analytics from '../components/Analytics.astro';
+
 import '../styles/global.css';
 import '../styles/theme.css';
-import '../styles/sectors-mobile.css';
+
 
 export interface Props {
   title?: string;
@@ -27,10 +27,11 @@ const {
 const isCLIPage = Astro.url.pathname.includes('/cli');
 
 // SEO defaults
-const defaultDescription = "ULTIMA MILLA - Especialistas en comunicaciones, sistemas e integración. +400 proyectos documentados con clientes como Gobierno de Mendoza, AFIP, Banco Credicoop.";
-const defaultKeywords = "ultima milla, comunicaciones, sistemas, redes, telecomunicaciones, software, mendoza, argentina";
+// SEO defaults
+const defaultDescription = "ULTIMA MILLA - Líderes en Servicios IT, Infraestructura y Telecomunicaciones en Mendoza, San Juan, San Luis y Patagonia. Especialistas en Minería, Industria, Gobierno y Seguridad. +400 proyectos exitosos.";
+const defaultKeywords = "servicios it mendoza, empresa tecnologia argentina, infraestructura redes, ciberseguridad, mineria it, industria 4.0, seguridad electronica, mendoza, san juan, san luis, patagonia, telecomunicaciones, software a medida";
 const siteUrl = "https://ultimamilla.com.ar";
-const defaultTitle = "ULTIMA MILLA | Especialistas en Comunicaciones, Sistemas e Integración";
+const defaultTitle = "ULTIMA MILLA | Servicios IT y Tecnología en Mendoza y Argentina";
 const currentUrl = (canonical || `${siteUrl}${Astro.url.pathname}`).replace(/\/$/, "");
 const isoNow = new Date().toISOString();
 
@@ -49,7 +50,7 @@ const defaultStructuredData = {
   alternateName: "Ultima Milla Comunicaciones",
   url: siteUrl,
   logo: `${siteUrl}/images/um-logo.png`,
-  description: "Especialistas en comunicaciones, sistemas e integración desde el año 2000. Más de 400 proyectos con clientes como Gobierno de Mendoza, AFIP y Banco Credicoop.",
+  description: "Empresa líder en servicios IT, telecomunicaciones y transformación digital en la región de Cuyo y Patagonia. Especialistas en Minería, Industria y Gobierno.",
   foundingDate: "2000",
   address: {
     "@type": "PostalAddress",
@@ -59,6 +60,13 @@ const defaultStructuredData = {
     postalCode: "M5500",
     addressCountry: "AR",
   },
+  areaServed: [
+    { "@type": "City", "name": "Mendoza" },
+    { "@type": "City", "name": "San Juan" },
+    { "@type": "City", "name": "San Luis" },
+    { "@type": "AdministrativeArea", "name": "Patagonia" },
+    { "@type": "Country", "name": "Argentina" }
+  ],
   geo: {
     "@type": "GeoCoordinates",
     latitude: "-32.8908",
@@ -252,7 +260,7 @@ const currentYear = new Date().getFullYear();
     {hasHeadSlot && <slot name="head" />}
 
     <!-- Google Analytics Integration -->
-    <Analytics id="G-S2376K1GED" respectPrivacy={true} />
+
 
     <!-- Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(combinedStructuredData)} />
