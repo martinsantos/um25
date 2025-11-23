@@ -47,32 +47,14 @@ const antecedentes = {
       <div class="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-purple-900/70 to-blue-800/80"></div>
     </div>
     <div class="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
-      <!-- SEO H1: Visually prominent but static for crawlers -->
-      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight drop-shadow-lg hero-title">
-        Líderes en Servicios IT <br/>y Tecnología en Argentina
-      </h1>
-      
-      <!-- Dynamic Subtitle for UX -->
-      <div id="dynamicText" class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto drop-shadow-md hero-subtitle h-8"></div>
-      
-      <p class="text-lg md:text-xl mb-8 max-w-2xl mx-auto drop-shadow-md text-gray-200">
-        Transformamos negocios en Mendoza, San Juan, San Luis y Patagonia con soluciones tecnológicas de vanguardia.
-      </p>
-
-      <div class="flex gap-4">
-        <a 
-          href="#contacto" 
-          class="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
-        >
-          Contáctanos
-        </a>
-        <a 
-          href="#servicios" 
-          class="px-8 py-4 bg-transparent border-2 border-white hover:bg-white/10 text-white font-semibold rounded-lg shadow-lg transition-all duration-300"
-        >
-          Nuestros Servicios
-        </a>
-      </div>
+      <h1 id="dynamicText" class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight drop-shadow-lg hero-title"></h1>
+      <p class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto drop-shadow-md hero-subtitle">Transformamos tu negocio con tecnología que puedes pagar.</p>
+      <a 
+        href="#contacto" 
+        class="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+      >
+        Contáctanos
+      </a>
     </div>
     
     <!-- Scroll indicator -->
@@ -93,47 +75,15 @@ const antecedentes = {
     <section id="about-us" class="py-16 bg-gray-50">
       <div class="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
         <div>
-          <h2 class="text-4xl font-bold text-gray-800 mb-6">Empresa de Servicios IT en Argentina</h2>
-          <p class="text-lg text-gray-700 mb-6">
-            En <strong>ULTIMA MILLA</strong>, somos un equipo apasionado por la tecnología, dedicado a impulsar la transformación digital de las empresas en <strong>Mendoza, San Juan, San Luis y toda la Patagonia</strong>.
-          </p>
+          <h2 class="text-4xl font-bold text-gray-800 mb-6">Sobre Nosotros</h2>
           <p class="text-lg text-gray-700 mb-8">
-            Nuestra misión es ofrecer soluciones innovadoras en <strong>Infraestructura IT, Ciberseguridad, y Telecomunicaciones</strong> que generen un impacto positivo y medible en el crecimiento de nuestros clientes.
+            Somos un equipo apasionado por la tecnología, dedicado a impulsar la transformación digital de las empresas. Nuestra misión es ofrecer soluciones innovadoras y eficientes que generen un impacto positivo en el crecimiento de nuestros clientes.
           </p>
-          <a href="#contacto" class="inline-block bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition">Solicitar Asesoramiento</a>
+          <a href="#" class="inline-block bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition">Saber Más</a>
         </div>
         <div>
           <!-- Ensure that "about-us.jpg" exists in the public folder -->
-          <img src="/blog-placeholder-about.jpg" alt="Equipo de Profesionales IT en Mendoza" class="w-full h-auto rounded-lg shadow-lg" />
-        </div>
-      </div>
-    </section>
-
-    <!-- Cobertura Regional -->
-    <section class="py-16 bg-white border-t border-gray-200">
-      <div class="container mx-auto px-4 text-center">
-        <h2 class="text-3xl font-bold text-gray-800 mb-12">Cobertura Regional</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-          <div class="p-6 bg-gray-50 rounded-xl hover:shadow-md transition">
-            <div class="text-4xl mb-4">🍇</div>
-            <h3 class="text-xl font-bold text-gray-800">Mendoza</h3>
-            <p class="text-gray-600 text-sm mt-2">Casa Matriz y Centro de Operaciones</p>
-          </div>
-          <div class="p-6 bg-gray-50 rounded-xl hover:shadow-md transition">
-            <div class="text-4xl mb-4">☀️</div>
-            <h3 class="text-xl font-bold text-gray-800">San Juan</h3>
-            <p class="text-gray-600 text-sm mt-2">Proyectos Mineros e Industriales</p>
-          </div>
-          <div class="p-6 bg-gray-50 rounded-xl hover:shadow-md transition">
-            <div class="text-4xl mb-4">⛰️</div>
-            <h3 class="text-xl font-bold text-gray-800">San Luis</h3>
-            <p class="text-gray-600 text-sm mt-2">Infraestructura y Gobierno</p>
-          </div>
-          <div class="p-6 bg-gray-50 rounded-xl hover:shadow-md transition">
-            <div class="text-4xl mb-4">🏔️</div>
-            <h3 class="text-xl font-bold text-gray-800">Patagonia</h3>
-            <p class="text-gray-600 text-sm mt-2">Petróleo, Gas y Energía</p>
-          </div>
+          <img src="/blog-placeholder-about.jpg" alt="Equipo Última Milla" class="w-full h-auto rounded-lg shadow-lg" />
         </div>
       </div>
     </section>
@@ -163,7 +113,85 @@ const antecedentes = {
       </div>
     </section>
 
-
+    <!-- Sectores -->
+    <section class="py-16 bg-white border-t border-gray-200">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+          <span class="text-red-500 font-semibold">Nuestros Sectores</span>
+          <h2 class="text-4xl font-bold text-gray-800 mt-2 mb-4">Soluciones por Industria</h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">Experiencia especializada en los sectores más exigentes de Argentina</p>
+          <div class="w-20 h-1 bg-red-500 mx-auto mt-4"></div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Aeropuertos -->
+          <a href="/aeropuertos" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">✈️</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Aeropuertos</h3>
+            <p class="text-gray-600 text-sm">Infraestructura crítica y sistemas de comunicación</p>
+          </a>
+          
+          <!-- Bodegas -->
+          <a href="/bodegas" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">🍷</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Bodegas</h3>
+            <p class="text-gray-600 text-sm">Automatización y control de procesos vitivinícolas</p>
+          </a>
+          
+          <!-- Constructoras -->
+          <a href="/constructoras" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">🏗️</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Constructoras</h3>
+            <p class="text-gray-600 text-sm">Redes y comunicaciones para obras y canteros</p>
+          </a>
+          
+          <!-- Salud -->
+          <a href="/salud" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">🏥</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Salud</h3>
+            <p class="text-gray-600 text-sm">Sistemas críticos para centros médicos y clínicas</p>
+          </a>
+          
+          <!-- Gobierno -->
+          <a href="/gobiernosectorpublico" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">🏛️</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Gobierno</h3>
+            <p class="text-gray-600 text-sm">Infraestructura tecnológica para el sector público</p>
+          </a>
+          
+          <!-- Software -->
+          <a href="/software" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">💻</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Software</h3>
+            <p class="text-gray-600 text-sm">Desarrollo de soluciones a medida</p>
+          </a>
+          
+          <!-- Minería (NUEVO) -->
+          <a href="/mineria" class="group block p-6 bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-amber-200">
+            <div class="text-4xl mb-4">⛏️</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-amber-600 transition">Minería</h3>
+            <p class="text-gray-600 text-sm">Conectividad crítica en zonas remotas</p>
+            <span class="inline-block mt-2 text-xs font-semibold text-amber-600 bg-amber-100 px-2 py-1 rounded">NUEVO</span>
+          </a>
+          
+          <!-- Industria (NUEVO) -->
+          <a href="/industria" class="group block p-6 bg-gradient-to-br from-green-50 to-teal-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-green-200">
+            <div class="text-4xl mb-4">🏭</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-green-600 transition">Industria</h3>
+            <p class="text-gray-600 text-sm">Industria 4.0 y automatización</p>
+            <span class="inline-block mt-2 text-xs font-semibold text-green-600 bg-green-100 px-2 py-1 rounded">NUEVO</span>
+          </a>
+          
+          <!-- Seguridad Electrónica (NUEVO) -->
+          <a href="/seguridad-electronica" class="group block p-6 bg-gradient-to-br from-red-50 to-pink-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-red-200">
+            <div class="text-4xl mb-4">🔒</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Seguridad Electrónica</h3>
+            <p class="text-gray-600 text-sm">CCTV, control de accesos y detección</p>
+            <span class="inline-block mt-2 text-xs font-semibold text-red-600 bg-red-100 px-2 py-1 rounded">NUEVO</span>
+          </a>
+        </div>
+      </div>
+    </section>
 
     <!-- Antecedentes Destacados -->
     <section id="antecedentes" class="py-20 bg-gray-50">
