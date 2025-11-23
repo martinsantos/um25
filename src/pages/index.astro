@@ -47,28 +47,27 @@ const antecedentes = {
       <div class="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-purple-900/70 to-blue-800/80"></div>
     </div>
     <div class="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
-      <!-- SEO H1: Visually prominent but static for crawlers -->
-      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight drop-shadow-lg hero-title">
-        Líderes en Servicios IT <br/>y Tecnología en Argentina
+      <!-- Modern Elegant H1 -->
+      <h1 class="text-5xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight drop-shadow-2xl" style="font-family: 'Inter', 'Segoe UI', 'Roboto', system-ui, -apple-system, sans-serif; letter-spacing: -0.02em;">
+        Líderes en Servicios IT<br/>y Tecnología en Argentina
       </h1>
       
-      <!-- Dynamic Subtitle for UX -->
-      <div id="dynamicText" class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto drop-shadow-md hero-subtitle h-8"></div>
-      
-      <p class="text-lg md:text-xl mb-8 max-w-2xl mx-auto drop-shadow-md text-gray-200">
-        Transformamos negocios en Mendoza, San Juan, San Luis y Patagonia con soluciones tecnológicas de vanguardia.
+      <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto drop-shadow-lg font-medium" style="font-family: 'Inter', 'Segoe UI', 'Roboto', system-ui, -apple-system, sans-serif; color: rgba(139, 92, 246, 0.95);">
+        Transformamos negocios en Mendoza, San Juan, San Luis y Patagonia<br/>con soluciones tecnológicas de vanguardia.
       </p>
 
       <div class="flex gap-4">
         <a 
           href="#contacto" 
-          class="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+          class="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+          style="font-family: 'Inter', 'Segoe UI', 'Roboto', system-ui, -apple-system, sans-serif;"
         >
           Contáctanos
         </a>
         <a 
           href="#servicios" 
-          class="px-8 py-4 bg-transparent border-2 border-white hover:bg-white/10 text-white font-semibold rounded-lg shadow-lg transition-all duration-300"
+          class="px-8 py-4 bg-transparent border-2 border-white hover:bg-white/10 text-white font-bold rounded-lg shadow-lg transition-all duration-300"
+          style="font-family: 'Inter', 'Segoe UI', 'Roboto', system-ui, -apple-system, sans-serif;"
         >
           Nuestros Servicios
         </a>
@@ -268,37 +267,6 @@ const antecedentes = {
 
   <!-- Scripts y Estilos -->
   <script>
-    const textArray = [
-      'ULTIMA MILLA@root:~$ ./deploy_solutions.sh',
-      'Transformamos tu negocio.',
-      'Tecnología que puedes pagar.'
-    ];
-    let currentIndex = 0, isDeleting = false, dynamicText = '';
-    const textElement = document.getElementById('dynamicText');
-    
-    function handleTyping() {
-      const currentText = textArray[currentIndex % textArray.length];
-      dynamicText = isDeleting ? currentText.substring(0, dynamicText.length - 1) : currentText.substring(0, dynamicText.length + 1);
-      
-      // Aplicar estilo de terminal solo al primer texto
-      if (currentIndex % textArray.length === 0) {
-        textElement.innerHTML = `<span class="terminal-text">${dynamicText}</span><span class="terminal-cursor">|</span>`;
-      } else {
-        textElement.innerHTML = `<span class="hero-title">${dynamicText}</span>`;
-      }
-      
-      if (!isDeleting && dynamicText === currentText) { 
-        setTimeout(() => isDeleting = true, 2000); 
-      }
-      if (isDeleting && dynamicText === '') { 
-        isDeleting = false; 
-        currentIndex++; 
-      }
-      setTimeout(handleTyping, isDeleting ? 100 : 150);
-    }
-    
-    handleTyping();
-    
     // Sistema de imágenes aleatorias de alta calidad
     const techImages = [
       'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Servidores
