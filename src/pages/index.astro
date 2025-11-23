@@ -71,34 +71,7 @@ const antecedentes = {
       </div>
     </section>
 
-    <!-- Cobertura Regional -->
-    <section class="py-16 bg-white border-t border-gray-200">
-      <div class="container mx-auto px-4 text-center">
-        <h2 class="text-3xl font-bold text-gray-800 mb-12">Cobertura Regional</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-          <div class="p-6 bg-gray-50 rounded-xl hover:shadow-md transition">
-            <div class="text-4xl mb-4">🍇</div>
-            <h3 class="text-xl font-bold text-gray-800">Mendoza</h3>
-            <p class="text-gray-600 text-sm mt-2">Casa Matriz y Centro de Operaciones</p>
-          </div>
-          <div class="p-6 bg-gray-50 rounded-xl hover:shadow-md transition">
-            <div class="text-4xl mb-4">☀️</div>
-            <h3 class="text-xl font-bold text-gray-800">San Juan</h3>
-            <p class="text-gray-600 text-sm mt-2">Proyectos Mineros e Industriales</p>
-          </div>
-          <div class="p-6 bg-gray-50 rounded-xl hover:shadow-md transition">
-            <div class="text-4xl mb-4">⛰️</div>
-            <h3 class="text-xl font-bold text-gray-800">San Luis</h3>
-            <p class="text-gray-600 text-sm mt-2">Infraestructura y Gobierno</p>
-          </div>
-          <div class="p-6 bg-gray-50 rounded-xl hover:shadow-md transition">
-            <div class="text-4xl mb-4">🏔️</div>
-            <h3 class="text-xl font-bold text-gray-800">Patagonia</h3>
-            <p class="text-gray-600 text-sm mt-2">Petróleo, Gas y Energía</p>
-          </div>
-        </div>
-      </div>
-    </section>
+
 
     <!-- Nuestros Servicios -->
     <section id="servicios" class="py-20 bg-white">
@@ -148,6 +121,86 @@ const antecedentes = {
         <div class="text-center mt-10">
           <a href="/antecedentes" class="inline-block border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-6 py-3 rounded-lg font-semibold transition">
             Ver todos los casos de estudio
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sectores -->
+    <section class="py-16 bg-white border-t border-gray-200">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+          <span class="text-red-500 font-semibold">Nuestros Sectores</span>
+          <h2 class="text-4xl font-bold text-gray-800 mt-2 mb-4">Soluciones por Industria</h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">Experiencia especializada en los sectores más exigentes de Argentina</p>
+          <div class="w-20 h-1 bg-red-500 mx-auto mt-4"></div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Aeropuertos -->
+          <a href="/aeropuertos" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">✈️</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Aeropuertos</h3>
+            <p class="text-gray-600 text-sm">Infraestructura crítica y sistemas de comunicación</p>
+          </a>
+          
+          <!-- Bodegas -->
+          <a href="/bodegas" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">🍷</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Bodegas</h3>
+            <p class="text-gray-600 text-sm">Automatización y control de procesos vitivinícolas</p>
+          </a>
+          
+          <!-- Constructoras -->
+          <a href="/constructoras" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">🏗️</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Constructoras</h3>
+            <p class="text-gray-600 text-sm">Redes y comunicaciones para obras y canteros</p>
+          </a>
+          
+          <!-- Salud -->
+          <a href="/salud" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">🏥</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Salud</h3>
+            <p class="text-gray-600 text-sm">Sistemas críticos para centros médicos y clínicas</p>
+          </a>
+          
+          <!-- Gobierno -->
+          <a href="/gobiernosectorpublico" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">🏛️</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Gobierno</h3>
+            <p class="text-gray-600 text-sm">Infraestructura tecnológica para el sector público</p>
+          </a>
+          
+          <!-- Software -->
+          <a href="/software" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">💻</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Software</h3>
+            <p class="text-gray-600 text-sm">Desarrollo de soluciones a medida</p>
+          </a>
+          
+          <!-- Minería (NUEVO) -->
+          <a href="/mineria" class="group block p-6 bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-amber-200">
+            <div class="text-4xl mb-4">⛏️</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-amber-600 transition">Minería</h3>
+            <p class="text-gray-600 text-sm">Conectividad crítica en zonas remotas</p>
+            <span class="inline-block mt-2 text-xs font-semibold text-amber-600 bg-amber-100 px-2 py-1 rounded">NUEVO</span>
+          </a>
+          
+          <!-- Industria (NUEVO) -->
+          <a href="/industria" class="group block p-6 bg-gradient-to-br from-green-50 to-teal-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-green-200">
+            <div class="text-4xl mb-4">🏭</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-green-600 transition">Industria</h3>
+            <p class="text-gray-600 text-sm">Industria 4.0 y automatización</p>
+            <span class="inline-block mt-2 text-xs font-semibold text-green-600 bg-green-100 px-2 py-1 rounded">NUEVO</span>
+          </a>
+          
+          <!-- Seguridad Electrónica (NUEVO) -->
+          <a href="/seguridad-electronica" class="group block p-6 bg-gradient-to-br from-red-50 to-pink-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-red-200">
+            <div class="text-4xl mb-4">🔒</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Seguridad Electrónica</h3>
+            <p class="text-gray-600 text-sm">CCTV, control de accesos y detección</p>
+            <span class="inline-block mt-2 text-xs font-semibold text-red-600 bg-red-100 px-2 py-1 rounded">NUEVO</span>
           </a>
         </div>
       </div>
@@ -214,18 +267,7 @@ const antecedentes = {
       </div>
     </section>
 
-    <!-- Contacto -->
-    <section id="contacto" class="contact py-20 bg-white text-center">
-      <div class="container mx-auto px-4">
-        <h2 class="text-4xl font-bold text-gray-800 mb-8">Contáctanos</h2>
-        <form class="max-w-lg mx-auto grid gap-4">
-          <input type="text" placeholder="Nombre" required class="w-full p-4 border border-gray-300 rounded-lg" />
-          <input type="email" placeholder="Email" required class="w-full p-4 border border-gray-300 rounded-lg" />
-          <textarea placeholder="Mensaje" required class="w-full p-4 border border-gray-300 rounded-lg h-40"></textarea>
-          <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition">Enviar</button>
-        </form>
-      </div>
-    </section>
+
   </main>
 
   <!-- Scripts y Estilos -->
