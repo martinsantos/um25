@@ -5,13 +5,13 @@ import { generateSlug } from '../utils/slugUtils';
 
 // Configuración SEO específica para software - ULTRA OPTIMIZADA para Argentina y Mendoza
 const seoConfig = {
-  title: "Desarrollo de Software a Medida Mendoza | Aplicaciones Personalizadas | Ultima Milla",
-  description: "💻 Desarrollo de software personalizado en Mendoza y Argentina. Aplicaciones a medida, sistemas empresariales, consultoría IT y soporte técnico 24/7. Municipalidad de Maipú y más. +20 años de experiencia en desarrollo de software.",
-  keywords: "desarrollo software mendoza, aplicaciones a medida argentina, software personalizado mendoza, sistemas empresariales, desarrollo aplicaciones mendoza, consultoría IT software, programación a medida, software empresarial mendoza, desarrollo web mendoza, aplicaciones móviles argentina, sistemas gestión empresarial, software ERP mendoza, desarrollo sistemas mendoza, IT software argentina, programación personalizada",
-  ogImage: "/images/software-hero.jpg",
-  canonical: "https://www.ultimamilla.com.ar/software",
+  title: "Desarrollo de Software a Medida | ULTIMA MILLA",
+  description: "Fábrica de software y desarrollo de aplicaciones web/móviles en Mendoza y Argentina. Soluciones digitales personalizadas, integraciones API y transformación digital.",
+  keywords: "desarrollo software mendoza, software a medida, aplicaciones moviles, desarrollo web argentina, fabrica software, transformacion digital, integracion sistemas",
+  ogImage: "/images/services/software-hero.jpg",
+  canonical: "https://ultimamilla.com.ar/software",
   locale: "es_AR",
-  region: "AR-M",
+  region: "Cuyo, Patagonia, Argentina",
   author: "Ultima Milla",
   robots: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
 };
@@ -29,12 +29,21 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    // Filtrar antecedentes de software
+    // Filtrar antecedentes de software con keywords exhaustivas
+    const keywords = [
+      'software', 'desarrollo', 'app', 'web', 'sistema', 'plataforma', 'digital', 
+      'api', 'ecommerce', 'gestion', 'intranet', 'portal', 'movil', 'android', 
+      'ios', 'cloud', 'nube', 'programacion'
+    ];
+
     antecedentes = response.data
-      .filter(item => 
-        item.Titulo?.toLowerCase().includes('software') ||
-        item.Unidad_de_negocio?.includes('SW-')
-      )
+      .filter(item => {
+        const cliente = item.Cliente?.toLowerCase() || '';
+        const titulo = item.Titulo?.toLowerCase() || '';
+        const area = item.Area?.toLowerCase() || '';
+        
+        return keywords.some(k => cliente.includes(k) || titulo.includes(k) || area.includes(k));
+      })
       .map(item => ({
         ...item,
         slug: `${item.id}/${generateSlug(item.Titulo)}`

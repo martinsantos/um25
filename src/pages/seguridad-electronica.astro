@@ -5,13 +5,13 @@ import { generateSlug } from '../utils/slugUtils';
 
 // Configuración SEO específica para Seguridad Electrónica - ULTRA OPTIMIZADA
 const seoConfig = {
-  title: "Seguridad Electrónica Mendoza Argentina | CCTV | Control de Accesos | Videovigilancia",
-  description: "🛡️ Soluciones de seguridad electrónica integral en Mendoza y Argentina. Sistemas de CCTV IP, control de accesos biométrico, detección de incendios y seguridad perimetral. Protección inteligente para empresas, industrias y barrios privados.",
-  keywords: "seguridad electrónica mendoza, cctv empresas argentina, control de accesos biométrico, videovigilancia ip, seguridad perimetral, monitoreo inteligente, cámaras seguridad mendoza, alarmas industriales, detección incendios, integración seguridad, hikvision mendoza, dahua argentina, seguridad barrios privados",
-  ogImage: "/images/seguridad-hero.jpg",
-  canonical: "https://www.ultimamilla.com.ar/seguridad-electronica",
+  title: "Seguridad Electrónica Integral y CCTV | ULTIMA MILLA",
+  description: "Sistemas de videovigilancia CCTV, control de accesos y detección de incendios en Mendoza, San Juan y Patagonia. Protección inteligente para empresas.",
+  keywords: "cctv mendoza, seguridad electronica empresas, control accesos biometrico, deteccion incendios, alarmas monitoreadas, videovigilancia ip, san juan seguridad",
+  ogImage: "/images/services/seguridad-hero.jpg",
+  canonical: "https://ultimamilla.com.ar/seguridad-electronica",
   locale: "es_AR",
-  region: "AR-M",
+  region: "Cuyo, Patagonia, Argentina",
   author: "Ultima Milla",
   robots: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
 };
@@ -29,20 +29,20 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    // Filtrar antecedentes de seguridad (filtro positivo estricto)
+    // Filtrar antecedentes de seguridad electrónica con keywords exhaustivas
     const keywords = [
-      'seguridad', 'cctv', 'camaras', 'vigilancia', 'acceso', 
-      'biometrico', 'barreras', 'alarmas', 'incendio', 'monitoreo',
-      'video', 'perimetral', 'control', 'molinetes', 'reconocimiento'
+      'cctv', 'camara', 'videovigilancia', 'control de acceso', 'biometrico', 
+      'alarma', 'incendio', 'fuego', 'sdi', 'seguridad', 'monitoreo', 'barrera', 
+      'intrusismo', 'perimetral', 'detectores'
     ];
-    
+
     antecedentes = response.data
       .filter(item => {
         const cliente = item.Cliente?.toLowerCase() || '';
         const titulo = item.Titulo?.toLowerCase() || '';
+        const area = item.Area?.toLowerCase() || '';
         
-        // Check if any keyword matches
-        return keywords.some(keyword => cliente.includes(keyword) || titulo.includes(keyword));
+        return keywords.some(k => cliente.includes(k) || titulo.includes(k) || area.includes(k));
       })
       .map(item => ({
         ...item,
@@ -50,7 +50,7 @@ try {
       }))
       .sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
 
-    console.log(`✅ Cargados ${antecedentes.length} antecedentes de seguridad`);
+    console.log(`✅ Cargados ${antecedentes.length} antecedentes de seguridad electrónica`);
   }
 
   // Structured Data para SEO

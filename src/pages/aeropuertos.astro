@@ -5,13 +5,13 @@ import { generateSlug } from '../utils/slugUtils';
 
 // Configuración SEO específica para Aeropuertos - ULTRA OPTIMIZADA para Argentina y Mendoza
 const seoConfig = {
-  title: "Tecnología IT Aeropuertos Mendoza Argentina | Infraestructura Crítica | Comunicaciones Aeroportuarias",
-  description: "✈️ Soluciones IT especializadas para aeropuertos en Mendoza y Argentina. Infraestructura crítica, redes de datos, sistemas de comunicación, CCTV y seguridad aeroportuaria. Conectividad de misión crítica 24/7. +20 años de experiencia en infraestructura aeroportuaria.",
-  keywords: "aeropuertos mendoza IT, tecnología aeroportuaria argentina, infraestructura crítica aeropuertos, redes datos aeropuertos, comunicaciones aeroportuarias, CCTV aeropuertos mendoza, seguridad aeroportuaria IT, sistemas aeropuertos, conectividad aeropuertos, telecomunicaciones aeroportuarias, IT aviación mendoza, redes críticas aeropuertos, soporte 24/7 aeropuertos",
-  ogImage: "/images/aeropuertos-hero.jpg",
-  canonical: "https://www.ultimamilla.com.ar/aeropuertos",
+  title: "Soluciones IT para Aeropuertos y Aviación | ULTIMA MILLA",
+  description: "Líderes en infraestructura tecnológica crítica para aeropuertos en Mendoza, San Juan, San Luis y Patagonia. Redes, comunicaciones y seguridad aeroportuaria.",
+  keywords: "tecnologia aeropuertos, infraestructura it aviacion, redes aeroportuarias, seguridad aeropuertos mendoza, aa2000 tecnologia, comunicaciones criticas, cuyo, patagonia",
+  ogImage: "/images/services/aeropuertos-hero.jpg",
+  canonical: "https://ultimamilla.com.ar/aeropuertos",
   locale: "es_AR",
-  region: "AR-M",
+  region: "Cuyo, Patagonia, Argentina",
   author: "Ultima Milla",
   robots: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
 };
@@ -29,11 +29,20 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    // Filtrar antecedentes de aeropuertos (solo Aeropuertos Argentina 2000)
+    // Filtrar antecedentes de aeropuertos con keywords exhaustivas
+    const keywords = [
+      'aeropuerto', 'aa2000', 'plumerillo', 'torre de control', 'pista', 'hangar',
+      'aerolineas', 'aviacion', 'aereo', 'terminal aerea', 'radar', 'balizamiento'
+    ];
+
     antecedentes = response.data
-      .filter(item => 
-        item.Cliente?.toLowerCase().includes('aeropuerto')
-      )
+      .filter(item => {
+        const cliente = item.Cliente?.toLowerCase() || '';
+        const titulo = item.Titulo?.toLowerCase() || '';
+        const area = item.Area?.toLowerCase() || '';
+        
+        return keywords.some(k => cliente.includes(k) || titulo.includes(k) || area.includes(k));
+      })
       .map(item => ({
         ...item,
         slug: `${item.id}/${generateSlug(item.Titulo)}`
@@ -43,12 +52,12 @@ try {
     console.log(`✅ Cargados ${antecedentes.length} antecedentes de aeropuertos`);
   }
 
-  // Servicios relacionados con el sector constructoras
+  // Servicios relacionados con el sector aeropuertos
   // Structured Data para SEO
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Service",
-    "serviceType": "Infraestructura IT para Constructoras",
+    "serviceType": "Infraestructura IT para Aeropuertos",
     "provider": {
       "@type": "Organization",
       "name": "Ultima Milla",
@@ -73,17 +82,17 @@ try {
     ],
     "audience": {
       "@type": "BusinessAudience",
-      "name": "Constructoras y Empresas de Construcción"
+      "name": "Aeropuertos y Autoridades Aeroportuarias"
     },
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
-      "name": "Servicios IT para Constructoras",
+      "name": "Servicios IT para Aeropuertos",
       "itemListElement": [
         {
           "@type": "Offer",
           "itemOffered": {
             "@type": "Service",
-            "name": "Cableado Estructurado para Obras"
+            "name": "Redes de Datos Aeroportuarias"
           }
         },
         {
@@ -97,14 +106,14 @@ try {
           "@type": "Offer",
           "itemOffered": {
             "@type": "Service",
-            "name": "Conectividad Temporal para Canteros"
+            "name": "Telecomunicaciones Críticas"
           }
         },
         {
           "@type": "Offer",
           "itemOffered": {
             "@type": "Service",
-            "name": "Telefonía IP Empresarial"
+            "name": "Sistemas de Información Aeroportuaria"
           }
         }
       ]

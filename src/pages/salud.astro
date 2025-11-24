@@ -5,35 +5,44 @@ import { generateSlug } from '../utils/slugUtils';
 
 // Configuración SEO específica para Salud - ULTRA OPTIMIZADA para Argentina y Mendoza
 const seoConfig = {
-  title: "Tecnología IT Sector Salud Mendoza Argentina | Hospitales | Clínicas | Sistemas Médicos",
-  description: "🏥 Soluciones IT especializadas para el sector salud en Mendoza y Argentina. Infraestructura hospitalaria, redes de datos médicas, sistemas HIS, seguridad de datos sensibles y telecomunicaciones para hospitales y clínicas. Cumplimiento normativo. +20 años de experiencia en salud.",
-  keywords: "tecnología salud mendoza, IT hospitales argentina, infraestructura clínicas, redes datos hospitalarias, sistemas HIS mendoza, seguridad datos médicos, telecomunicaciones salud, IT sector médico, hospital IT mendoza, clínicas tecnología argentina, sistemas médicos, redes hospitalarias, soporte 24/7 salud",
-  ogImage: "/images/salud-hero.jpg",
-  canonical: "https://www.ultimamilla.com.ar/salud",
+  title: "Tecnología para Salud y Hospitales | ULTIMA MILLA",
+  description: "Infraestructura IT crítica para hospitales, clínicas y sanatorios en Mendoza y San Juan. Redes médicas, seguridad de datos y sistemas de turno.",
+  keywords: "tecnologia salud mendoza, infraestructura hospitales, redes medicas, seguridad datos pacientes, historia clinica electronica, san juan salud",
+  ogImage: "/images/services/salud-hero.jpg",
+  canonical: "https://ultimamilla.com.ar/salud",
   locale: "es_AR",
-  region: "AR-M",
+  region: "Cuyo, Patagonia, Argentina",
   author: "Ultima Milla",
   robots: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
 };
 
-// Cargar antecedentes del sector constructoras
+// Cargar antecedentes del sector salud
 let antecedentes = [];
 let serviciosRelacionados = [];
 let error = null;
 
 try {
-  // Obtener antecedentes de constructoras desde Directus
+  // Obtener antecedentes de salud desde Directus
   const response = await directus.getAntecedentes({
     limit: 500,
     page: 1
   });
 
   if (response && response.data && response.data.length > 0) {
-    // Filtrar antecedentes de salud (solo Hospital)
+    // Filtrar antecedentes de salud (hospitales, clínicas, centros médicos, sanatorios)
+    const keywords = [
+      'hospital', 'clinica', 'sanatorio', 'centro medico', 'centro de salud',
+      'policlinico', 'obra social', 'prepaga', 'salud', 'medico'
+    ];
+    
     antecedentes = response.data
-      .filter(item => 
-        item.Cliente?.toLowerCase().includes('hospital')
-      )
+      .filter(item => {
+        const cliente = item.Cliente?.toLowerCase() || '';
+        const titulo = item.Titulo?.toLowerCase() || '';
+        
+        // Check if any keyword matches
+        return keywords.some(keyword => cliente.includes(keyword) || titulo.includes(keyword));
+      })
       .map(item => ({
         ...item,
         slug: `${item.id}/${generateSlug(item.Titulo)}`

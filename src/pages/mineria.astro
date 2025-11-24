@@ -5,13 +5,13 @@ import { generateSlug } from '../utils/slugUtils';
 
 // Configuración SEO específica para Minería - ULTRA OPTIMIZADA para Argentina y Mendoza
 const seoConfig = {
-  title: "Tecnología IT Minería Mendoza Argentina | Comunicaciones Críticas | CCTV | IoT",
-  description: "⛏️ Soluciones IT especializadas para el sector minero en Mendoza, San Juan y Patagonia. Conectividad en zonas remotas, CCTV para ambientes extremos, IoT y telemetría. Proyectos con VALE, POTASIO RIO COLORADO, BARRICK. Soporte crítico 24/7.",
-  keywords: "minería mendoza, tecnología minera argentina, comunicaciones mina, CCTV minería, IoT minería, conectividad remota, redes minería, automatización minera, seguridad electrónica minas, campamentos mineros IT, radioenlaces minería, fibra óptica minas, san juan minería tecnología, litio argentina IT, cobre mendoza tecnología",
-  ogImage: "/images/mineria-hero.jpg",
-  canonical: "https://www.ultimamilla.com.ar/mineria",
+  title: "Tecnología y Telecomunicaciones para Minería | ULTIMA MILLA",
+  description: "Expertos en conectividad crítica y sistemas IT para minería en San Juan, Mendoza y Patagonia. Enlaces de radio, fibra óptica y campamentos mineros.",
+  keywords: "tecnologia mineria argentina, telecomunicaciones mineras, internet satelital mineria, radioenlaces cordillera, san juan mineria, litio argentina, cobre mendoza",
+  ogImage: "/images/services/mineria-hero.jpg",
+  canonical: "https://ultimamilla.com.ar/mineria",
   locale: "es_AR",
-  region: "AR-M",
+  region: "Cuyo, Patagonia, Argentina",
   author: "Ultima Milla",
   robots: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
 };
@@ -29,20 +29,20 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    // Filtrar antecedentes de minería (filtro positivo estricto)
+    // Filtrar antecedentes de minería con keywords exhaustivas
     const keywords = [
-      'minera', 'mining', 'yacimiento', 'cantera', 'barrick', 'valle', 
-      'potasio', 'rio colorado', 'hierro', 'indio', 'sales', 'litio',
-      'cobre', 'oro', 'plata', 'exploracion', 'perforacion'
+      'minera', 'mining', 'yacimiento', 'cantera', 'barrick', 'valle', 'potasio', 
+      'rio colorado', 'hierro', 'indio', 'sales', 'litio', 'cobre', 'oro', 'plata', 
+      'exploracion', 'perforacion', 'geologia', 'campamento', 'remoto'
     ];
     
     antecedentes = response.data
       .filter(item => {
         const cliente = item.Cliente?.toLowerCase() || '';
         const titulo = item.Titulo?.toLowerCase() || '';
+        const area = item.Area?.toLowerCase() || '';
         
-        // Check if any keyword matches
-        return keywords.some(keyword => cliente.includes(keyword) || titulo.includes(keyword));
+        return keywords.some(k => cliente.includes(k) || titulo.includes(k) || area.includes(k));
       })
       .map(item => ({
         ...item,

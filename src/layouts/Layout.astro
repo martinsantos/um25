@@ -26,12 +26,11 @@ const {
 // Check if current page is CLI to avoid script conflicts
 const isCLIPage = Astro.url.pathname.includes('/cli');
 
-// SEO defaults
-// SEO defaults
-const defaultDescription = "ULTIMA MILLA - Líderes en Servicios IT, Infraestructura y Telecomunicaciones en Mendoza, San Juan, San Luis y Patagonia. Especialistas en Minería, Industria, Gobierno y Seguridad. +400 proyectos exitosos.";
-const defaultKeywords = "servicios it mendoza, empresa tecnologia argentina, infraestructura redes, ciberseguridad, mineria it, industria 4.0, seguridad electronica, mendoza, san juan, san luis, patagonia, telecomunicaciones, software a medida";
+// SEO defaults - OPTIMIZADO para OESTE ARGENTINO y VERTICALES ESTRATÉGICOS
+const defaultDescription = "ULTIMA MILLA - Líderes en Servicios IT, Infraestructura y Telecomunicaciones en Mendoza, San Juan, San Luis y Patagonia. Especialistas en Minería, Industria 4.0, Sector Salud, Aeropuertos, Bodegas, Constructoras, Gobierno y Seguridad Electrónica. +400 proyectos exitosos, +20 años de experiencia. Cobertura regional: Cuyo y Patagonia Argentina.";
+const defaultKeywords = "servicios it mendoza, empresa tecnologia argentina, infraestructura redes mendoza, ciberseguridad argentina, mineria it mendoza, mineria san juan tecnologia, industria 4.0 mendoza, industria alimenticia it, bodegas vitivinicolas tecnologia, seguridad electronica mendoza, aeropuertos it argentina, hospitales clinicas it, constructoras tecnologia, gobierno sector publico it, san juan servicios it, san luis tecnologia, patagonia it, telecomunicaciones cuyo, software a medida mendoza, redes datos argentina oeste, conectividad remota mineria, automatizacion industrial, CCTV empresas, control accesos biometrico, wifi empresarial, soporte tecnico 24/7 mendoza";
 const siteUrl = "https://ultimamilla.com.ar";
-const defaultTitle = "ULTIMA MILLA | Servicios IT y Tecnología en Mendoza y Argentina";
+const defaultTitle = "ULTIMA MILLA | Servicios IT y Tecnología en Mendoza, San Juan, San Luis y Patagonia";
 const currentUrl = (canonical || `${siteUrl}${Astro.url.pathname}`).replace(/\/$/, "");
 const isoNow = new Date().toISOString();
 

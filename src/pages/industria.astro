@@ -5,13 +5,13 @@ import { generateSlug } from '../utils/slugUtils';
 
 // Configuración SEO específica para Industria - ULTRA OPTIMIZADA
 const seoConfig = {
-  title: "Tecnología Industrial Mendoza Argentina | Automatización | IoT | Industria 4.0",
-  description: "🏭 Soluciones IT para la industria y manufactura en Mendoza y Argentina. Automatización, IoT industrial, conectividad en planta y seguridad electrónica. Proyectos en industria alimenticia, bodegas, y manufactura. Eficiencia y control de procesos.",
-  keywords: "industria mendoza, automatización industrial argentina, conectividad plantas industriales, CCTV industria alimenticia, IoT industria, industria 4.0 argentina, tecnología manufactura, redes industriales, sensores IoT mendoza, eficiencia energética industria, control procesos IT, seguridad industrial electrónica, wifi industrial, fibra óptica plantas",
-  ogImage: "/images/industria-hero.jpg",
-  canonical: "https://www.ultimamilla.com.ar/industria",
+  title: "Industria 4.0 y Automatización Industrial | ULTIMA MILLA",
+  description: "Soluciones IT para la industria manufacturera y alimenticia en Mendoza y San Luis. Automatización, IoT industrial y redes de planta.",
+  keywords: "industria 4.0 argentina, automatizacion industrial mendoza, iot fabrica, industria alimenticia tecnologia, redes industriales, parque industrial, san luis industria",
+  ogImage: "/images/services/industria-hero.jpg",
+  canonical: "https://ultimamilla.com.ar/industria",
   locale: "es_AR",
-  region: "AR-M",
+  region: "Cuyo, Patagonia, Argentina",
   author: "Ultima Milla",
   robots: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
 };
@@ -29,21 +29,21 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    // Filtrar antecedentes de industria (filtro positivo estricto)
+    // Filtrar antecedentes de industria con keywords exhaustivas
     const keywords = [
-      'industrial', 'fabrica', 'planta', 'manufactura', 'produccion', 
-      'alimenticia', 'alimentos', 'bebidas', 'aceitera', 'conservera', 
-      'fruta', 'empaque', 'logistica', 'distribucion', 'parque industrial',
-      'bodega', 'viñedos', 'cerveceria'
+      'industrial', 'fabrica', 'planta', 'manufactura', 'produccion', 'alimenticia', 
+      'alimentos', 'bebidas', 'aceitera', 'conservera', 'fruta', 'empaque', 
+      'logistica', 'distribucion', 'parque industrial', 'cerveceria', 'quilmes', 
+      'refineria', 'petroleo', 'gas', 'energia'
     ];
-    
+
     antecedentes = response.data
       .filter(item => {
         const cliente = item.Cliente?.toLowerCase() || '';
         const titulo = item.Titulo?.toLowerCase() || '';
+        const area = item.Area?.toLowerCase() || '';
         
-        // Check if any keyword matches
-        return keywords.some(keyword => cliente.includes(keyword) || titulo.includes(keyword));
+        return keywords.some(k => cliente.includes(k) || titulo.includes(k) || area.includes(k));
       })
       .map(item => ({
         ...item,

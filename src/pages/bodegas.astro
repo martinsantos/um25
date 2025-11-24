@@ -5,13 +5,13 @@ import { generateSlug } from '../utils/slugUtils';
 
 // Configuración SEO específica para bodegas - ULTRA OPTIMIZADA para Argentina y Mendoza
 const seoConfig = {
-  title: "Tecnología IT para Bodegas Mendoza | Infraestructura Vitivinícola | Ultima Milla",
-  description: "🍷 Soluciones IT especializadas para bodegas y viñedos en Mendoza. Redes de datos, seguridad informática, telecomunicaciones y soporte 24/7 para operaciones vitivinícolas. Bodega Domaine Bousquet y más. +20 años de experiencia en el sector.",
-  keywords: "tecnología bodegas mendoza, IT vitivinícola argentina, infraestructura bodegas, redes datos bodegas, seguridad informática vitivinícola, telecomunicaciones bodegas, bodega domaine bousquet IT, sistemas bodegas mendoza, tecnología viñedos, cableado estructurado bodegas, conectividad bodegas, soporte técnico vitivinícola, IT sector vitivinícola, redes wifi bodegas, servidores bodegas mendoza",
-  ogImage: "/images/bodegas-hero.jpg",
-  canonical: "https://www.ultimamilla.com.ar/bodegas",
+  title: "Tecnología para Bodegas y Sector Vitivinícola | ULTIMA MILLA",
+  description: "Líderes en soluciones IT para bodegas en Mendoza, San Juan y Patagonia. Automatización, trazabilidad, IoT y conectividad para la industria del vino.",
+  keywords: "tecnologia bodegas mendoza, software vitivinicola, iot viñedos, trazabilidad vinos, conectividad fincas, automatizacion bodegas, san juan, patagonia",
+  ogImage: "/images/services/bodegas-hero.jpg",
+  canonical: "https://ultimamilla.com.ar/bodegas",
   locale: "es_AR",
-  region: "AR-M",
+  region: "Cuyo, Patagonia, Argentina",
   author: "Ultima Milla",
   robots: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
 };
@@ -29,11 +29,21 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    // Filtrar antecedentes de bodegas
+    // Filtrar antecedentes de bodegas con keywords exhaustivas
+    const keywords = [
+      'bodega', 'viña', 'finca', 'wines', 'vitivinicola', 'vino', 'domaine', 
+      'bousquet', 'norton', 'trapiche', 'catena', 'zuccardi', 'rutini', 
+      'enologia', 'viñedo', 'malbec'
+    ];
+
     antecedentes = response.data
-      .filter(item => 
-        item.Cliente?.toLowerCase().includes('bodega')
-      )
+      .filter(item => {
+        const cliente = item.Cliente?.toLowerCase() || '';
+        const titulo = item.Titulo?.toLowerCase() || '';
+        const area = item.Area?.toLowerCase() || '';
+        
+        return keywords.some(k => cliente.includes(k) || titulo.includes(k) || area.includes(k));
+      })
       .map(item => ({
         ...item,
         slug: `${item.id}/${generateSlug(item.Titulo)}`
