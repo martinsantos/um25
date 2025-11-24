@@ -46,63 +46,92 @@ const clientesUnicos = [...new Set(serviciosReales.map(s => s.Cliente))].sort();
 
 // Usar la función utilitaria compartida para manejar imágenes
 const getAssetUrl = getServiceImageUrl;
+
+// Imágenes para el slider de fondo
+const backgroundImages = [
+  '/images/hero-bg.jpg', 
+  '/images/mining-bg.jpg',
+  '/images/tech-bg.jpg'
+];
 ---
 
 <Layout title="Servicios - Ultima Milla">
-  <main class="min-h-screen bg-slate-50">
-    <!-- Hero Section Premium (Executive Style) -->
-    <section class="relative bg-slate-900 text-white overflow-hidden">
-      <div class="absolute inset-0">
-        <div class="absolute inset-0 bg-slate-900 z-10"></div>
-        <img 
-          src="/images/hero-bg.jpg" 
-          alt="Background" 
-          class="w-full h-full object-cover opacity-10"
-          onerror="this.style.display='none'"
-        />
-        <!-- Subtle gradient overlay, no blur -->
-        <div class="absolute inset-0 bg-gradient-to-b from-slate-900/50 to-slate-900 z-10"></div>
+  <main class="min-h-screen bg-white">
+    <!-- Hero Section V3 (Immersive, Rotating BG) -->
+    <section class="relative h-[60vh] md:h-[70vh] flex items-center overflow-hidden bg-slate-900">
+      <!-- Background Slider -->
+      <div id="hero-slider" class="absolute inset-0 z-0">
+        <!-- Images will be injected/controlled by JS -->
+        <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out opacity-100" style="background-image: url('/images/hero-bg.jpg');"></div>
+        <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out opacity-0" style="background-image: url('/images/mining-bg.jpg');"></div>
+        <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out opacity-0" style="background-image: url('/images/tech-bg.jpg');"></div>
       </div>
+      
+      <!-- Overlay -->
+      <div class="absolute inset-0 bg-slate-900/80 z-10"></div>
 
-      <div class="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+      <div class="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-4xl">
-          <span class="inline-block py-1 px-3 rounded bg-blue-900 text-blue-100 text-sm font-bold mb-6 tracking-wide uppercase">
-            Soluciones Integrales
-          </span>
-          <h1 class="text-5xl md:text-7xl font-bold mb-8 tracking-tight leading-tight text-white">
-            Excelencia en <br/>Servicios Tecnológicos
+          <div class="inline-flex items-center space-x-2 mb-6 animate-fade-in-up">
+            <span class="w-8 h-[2px] bg-blue-500"></span>
+            <span class="text-blue-400 font-bold tracking-widest uppercase text-sm">Soluciones Integrales</span>
+          </div>
+          
+          <h1 class="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight tracking-tight animate-fade-in-up delay-100">
+            Excelencia en <br/>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">Servicios Tecnológicos</span>
           </h1>
-          <p class="text-xl md:text-2xl text-slate-300 max-w-2xl leading-relaxed mb-12 font-light">
-            Impulsamos el crecimiento de su organización con infraestructura de vanguardia y soluciones a medida.
-          </p>
-
-          <!-- Stats (Solid, Executive) -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-t border-slate-800 pt-8">
-            <div class="flex flex-col">
-              <div class="text-4xl font-bold text-white mb-1">{serviciosReales.length}+</div>
-              <div class="text-slate-400 text-sm uppercase tracking-wider">Servicios Especializados</div>
+          
+          <!-- Metrics Row (Solid, Executive) -->
+          <div class="flex flex-wrap gap-8 md:gap-16 pt-8 border-t border-white/10 animate-fade-in-up delay-200">
+            <div class="flex items-center space-x-4">
+              <div class="p-3 bg-white/5 rounded-lg border border-white/10">
+                <svg class="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                </svg>
+              </div>
+              <div>
+                <div class="text-3xl font-bold text-white">{serviciosReales.length}+</div>
+                <div class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Servicios</div>
+              </div>
             </div>
-            <div class="flex flex-col">
-              <div class="text-4xl font-bold text-white mb-1">{areasUnicas.length}</div>
-              <div class="text-slate-400 text-sm uppercase tracking-wider">Áreas de Expertise</div>
+            
+            <div class="flex items-center space-x-4">
+              <div class="p-3 bg-white/5 rounded-lg border border-white/10">
+                <svg class="w-6 h-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
+              <div>
+                <div class="text-3xl font-bold text-white">{areasUnicas.length}</div>
+                <div class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Áreas</div>
+              </div>
             </div>
-            <div class="flex flex-col">
-              <div class="text-4xl font-bold text-white mb-1">{clientesUnicos.length}+</div>
-              <div class="text-slate-400 text-sm uppercase tracking-wider">Sectores Atendidos</div>
+            
+            <div class="flex items-center space-x-4">
+              <div class="p-3 bg-white/5 rounded-lg border border-white/10">
+                <svg class="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <div class="text-3xl font-bold text-white">{clientesUnicos.length}+</div>
+                <div class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Sectores</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Filtros y Búsqueda -->
-    <section class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-slate-200 shadow-sm transition-all duration-300" id="filter-bar">
+    <!-- Filtros y Búsqueda (Compact & Sticky) -->
+    <section class="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <form method="GET" class="flex flex-col md:flex-row gap-4 items-center justify-between">
           <!-- Búsqueda -->
-          <div class="relative w-full md:w-96 group">
+          <div class="relative w-full md:w-96">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -111,114 +140,81 @@ const getAssetUrl = getServiceImageUrl;
               name="search"
               value={searchQuery}
               placeholder="Buscar servicios..."
-              class="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-xl leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 sm:text-sm"
+              class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg leading-5 bg-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
           
           <div class="flex flex-wrap gap-3 w-full md:w-auto">
-            <!-- Filtro por Área -->
-            <div class="relative flex-grow md:flex-grow-0">
-              <select name="area" class="appearance-none w-full bg-slate-50 border border-slate-200 text-slate-700 py-2.5 px-4 pr-8 rounded-xl leading-tight focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-all">
-                <option value="">Todas las áreas</option>
-                {areasUnicas.map(area => (
-                  <option value={area} selected={areaFilter === area}>{area}</option>
-                ))}
-              </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
-                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-              </div>
-            </div>
+            <select name="area" class="bg-white border border-slate-300 text-slate-700 py-2 px-4 pr-8 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm">
+              <option value="">Todas las áreas</option>
+              {areasUnicas.map(area => (
+                <option value={area} selected={areaFilter === area}>{area}</option>
+              ))}
+            </select>
             
-            <!-- Filtro por Cliente -->
-            <div class="relative flex-grow md:flex-grow-0">
-              <select name="cliente" class="appearance-none w-full bg-slate-50 border border-slate-200 text-slate-700 py-2.5 px-4 pr-8 rounded-xl leading-tight focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-all">
-                <option value="">Todos los clientes</option>
-                {clientesUnicos.map(cliente => (
-                  <option value={cliente} selected={clienteFilter === cliente}>{cliente}</option>
-                ))}
-              </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
-                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-              </div>
-            </div>
+            <select name="cliente" class="bg-white border border-slate-300 text-slate-700 py-2 px-4 pr-8 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm">
+              <option value="">Todos los clientes</option>
+              {clientesUnicos.map(cliente => (
+                <option value={cliente} selected={clienteFilter === cliente}>{cliente}</option>
+              ))}
+            </select>
             
-            <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all shadow-lg shadow-blue-500/30">
-              Aplicar Filtros
+            <button type="submit" class="px-6 py-2 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-800 transition-colors text-sm">
+              Filtrar
             </button>
           </div>
         </form>
       </div>
     </section>
 
-    <!-- Grid de Servicios -->
+    <!-- Grid de Servicios (Solid, Clean) -->
     <section class="py-16 md:py-24 bg-slate-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {serviciosPaginados.length === 0 ? (
-          <div class="text-center py-20 bg-white rounded-3xl shadow-sm border border-slate-100">
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-100 mb-6">
-              <svg class="w-10 h-10 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <h3 class="text-2xl font-bold text-slate-900 mb-2">No se encontraron servicios</h3>
-            <p class="text-slate-500 max-w-md mx-auto">Intenta ajustar los términos de búsqueda o los filtros para encontrar lo que necesitas.</p>
-            <a href="/servicios" class="inline-block mt-6 text-blue-600 font-medium hover:text-blue-700">Limpiar filtros &rarr;</a>
+          <div class="text-center py-20">
+            <h3 class="text-xl font-medium text-slate-900">No se encontraron resultados</h3>
+            <p class="text-slate-500 mt-2">Intenta ajustar tus filtros de búsqueda.</p>
           </div>
         ) : (
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {serviciosFiltrados.map((servicio) => {
               const slug = generateSlug(servicio.Titulo);
               return (
                 <a href={`/servicios/${servicio.id}/${slug}`} class="group flex flex-col h-full">
-                  <article class="flex flex-col h-full bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-blue-900/10 transition-all duration-500 transform hover:-translate-y-2 border border-slate-100">
-                    <!-- Image Container -->
-                    <div class="relative aspect-[4/3] overflow-hidden">
-                      <div class="absolute inset-0 bg-slate-200 animate-pulse"></div>
+                  <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1">
+                    <!-- Image -->
+                    <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
                       <img
                         src={getAssetUrl(servicio.Imagen)}
                         alt={servicio.Titulo}
-                        class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         loading="lazy"
                         onerror="this.src='/images/default-service.jpg'"
                       />
-                      <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500"></div>
-                      
-                      <!-- Floating Badge -->
                       <div class="absolute top-4 left-4">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-white/90 text-blue-700 backdrop-blur-md shadow-lg">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-slate-900 text-white shadow-sm">
                           {servicio.Area}
                         </span>
                       </div>
                     </div>
                     
                     <!-- Content -->
-                    <div class="flex flex-col flex-grow p-6 md:p-8">
-                      <div class="mb-4">
-                        <h3 class="text-2xl font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors leading-tight">
-                          {servicio.Titulo}
-                        </h3>
-                        <div class="w-12 h-1 bg-blue-500 rounded-full group-hover:w-20 transition-all duration-300"></div>
-                      </div>
+                    <div class="flex flex-col flex-grow p-6">
+                      <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors">
+                        {servicio.Titulo}
+                      </h3>
                       
-                      <p class="text-slate-600 mb-6 line-clamp-3 leading-relaxed flex-grow">
+                      <p class="text-slate-600 text-sm mb-6 line-clamp-3 flex-grow leading-relaxed">
                         {servicio.Descripcion.replace(/\\\\/g, ' ')}
                       </p>
                       
-                      <div class="pt-6 border-t border-slate-100 mt-auto">
-                        <div class="flex items-center justify-between">
-                          <div class="flex items-center space-x-2 text-sm text-slate-500">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H3m2 0h4M9 7h6m-6 4h6m-6 4h6" />
-                            </svg>
-                            <span class="font-medium truncate max-w-[150px]">{servicio.Cliente}</span>
-                          </div>
-                          <span class="inline-flex items-center text-blue-600 font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">
-                            Ver detalles
-                            <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                            </svg>
-                          </span>
-                        </div>
+                      <div class="pt-4 border-t border-slate-100 mt-auto flex items-center justify-between">
+                        <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                          {servicio.Cliente}
+                        </span>
+                        <span class="text-blue-600 text-sm font-semibold group-hover:underline">
+                          Ver detalles &rarr;
+                        </span>
                       </div>
                     </div>
                   </article>
@@ -232,11 +228,50 @@ const getAssetUrl = getServiceImageUrl;
   </main>
 </Layout>
 
+<script>
+  // Simple Background Slider Script
+  document.addEventListener('DOMContentLoaded', () => {
+    const slides = document.querySelectorAll('#hero-slider > div');
+    let currentSlide = 0;
+    
+    if (slides.length > 1) {
+      setInterval(() => {
+        // Fade out current
+        slides[currentSlide].classList.remove('opacity-100');
+        slides[currentSlide].classList.add('opacity-0');
+        
+        // Next slide
+        currentSlide = (currentSlide + 1) % slides.length;
+        
+        // Fade in next
+        slides[currentSlide].classList.remove('opacity-0');
+        slides[currentSlide].classList.add('opacity-100');
+      }, 5000); // Change every 5 seconds
+    }
+  });
+</script>
+
 <style>
   .line-clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+  
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  
+  .delay-100 { animation-delay: 0.1s; }
+  .delay-200 { animation-delay: 0.2s; }
+  
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 </style>
