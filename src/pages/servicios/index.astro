@@ -50,46 +50,45 @@ const getAssetUrl = getServiceImageUrl;
 
 <Layout title="Servicios - Ultima Milla">
   <main class="min-h-screen bg-slate-50">
-    <!-- Hero Section Premium -->
+    <!-- Hero Section Premium (Executive Style) -->
     <section class="relative bg-slate-900 text-white overflow-hidden">
       <div class="absolute inset-0">
-        <div class="absolute inset-0 bg-gradient-to-br from-blue-900/90 via-slate-900/95 to-slate-900/90 z-10"></div>
+        <div class="absolute inset-0 bg-slate-900 z-10"></div>
         <img 
           src="/images/hero-bg.jpg" 
           alt="Background" 
-          class="w-full h-full object-cover opacity-20"
+          class="w-full h-full object-cover opacity-10"
           onerror="this.style.display='none'"
         />
-        <!-- Decorative elements -->
-        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl z-0"></div>
-        <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl z-0"></div>
+        <!-- Subtle gradient overlay, no blur -->
+        <div class="absolute inset-0 bg-gradient-to-b from-slate-900/50 to-slate-900 z-10"></div>
       </div>
 
       <div class="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
-        <div class="text-center max-w-4xl mx-auto">
-          <span class="inline-block py-1 px-3 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-sm font-semibold mb-6 backdrop-blur-sm">
+        <div class="max-w-4xl">
+          <span class="inline-block py-1 px-3 rounded bg-blue-900 text-blue-100 text-sm font-bold mb-6 tracking-wide uppercase">
             Soluciones Integrales
           </span>
-          <h1 class="text-5xl md:text-7xl font-bold mb-8 tracking-tight leading-tight">
-            Excelencia en <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Servicios Tecnológicos</span>
+          <h1 class="text-5xl md:text-7xl font-bold mb-8 tracking-tight leading-tight text-white">
+            Excelencia en <br/>Servicios Tecnológicos
           </h1>
-          <p class="text-xl md:text-2xl text-slate-300 max-w-2xl mx-auto leading-relaxed mb-12">
+          <p class="text-xl md:text-2xl text-slate-300 max-w-2xl leading-relaxed mb-12 font-light">
             Impulsamos el crecimiento de su organización con infraestructura de vanguardia y soluciones a medida.
           </p>
 
-          <!-- Stats Cards -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-            <div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 transform hover:-translate-y-1 transition-transform duration-300">
-              <div class="text-4xl font-bold text-blue-400 mb-2">{serviciosReales.length}+</div>
-              <div class="text-slate-400 font-medium">Servicios Especializados</div>
+          <!-- Stats (Solid, Executive) -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-t border-slate-800 pt-8">
+            <div class="flex flex-col">
+              <div class="text-4xl font-bold text-white mb-1">{serviciosReales.length}+</div>
+              <div class="text-slate-400 text-sm uppercase tracking-wider">Servicios Especializados</div>
             </div>
-            <div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 transform hover:-translate-y-1 transition-transform duration-300">
-              <div class="text-4xl font-bold text-purple-400 mb-2">{areasUnicas.length}</div>
-              <div class="text-slate-400 font-medium">Áreas de Expertise</div>
+            <div class="flex flex-col">
+              <div class="text-4xl font-bold text-white mb-1">{areasUnicas.length}</div>
+              <div class="text-slate-400 text-sm uppercase tracking-wider">Áreas de Expertise</div>
             </div>
-            <div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 transform hover:-translate-y-1 transition-transform duration-300">
-              <div class="text-4xl font-bold text-emerald-400 mb-2">{clientesUnicos.length}+</div>
-              <div class="text-slate-400 font-medium">Sectores Atendidos</div>
+            <div class="flex flex-col">
+              <div class="text-4xl font-bold text-white mb-1">{clientesUnicos.length}+</div>
+              <div class="text-slate-400 text-sm uppercase tracking-wider">Sectores Atendidos</div>
             </div>
           </div>
         </div>
