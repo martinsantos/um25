@@ -5,15 +5,45 @@ import { generateSlug } from '../utils/slugUtils';
 
 // Configuración SEO específica para Seguridad Electrónica - ULTRA OPTIMIZADA
 const seoConfig = {
-  title: "Seguridad Electrónica Integral y CCTV | ULTIMA MILLA",
-  description: "Sistemas de videovigilancia CCTV, control de accesos y detección de incendios en Mendoza, San Juan y Patagonia. Protección inteligente para empresas.",
-  keywords: "cctv mendoza, seguridad electronica empresas, control accesos biometrico, deteccion incendios, alarmas monitoreadas, videovigilancia ip, san juan seguridad",
+  title: "Seguridad Electrónica y Detección de Incendio | Mendoza, Cuyo y Patagonia | ULTIMA MILLA",
+  description: "Servicios tecnológicos de seguridad electrónica para empresas argentinas. Zona de incumbencia: Mendoza, Cuyo, Patagonia. CCTV profesional, control de accesos biométrico, detección de incendios certificada, corrientes débiles. Protección inteligente empresarial.",
+  keywords: "seguridad electronica mendoza cuyo, cctv empresas patagonia, control accesos biometrico, deteccion incendio certificada, corrientes debiles seguridad, videovigilancia ip, sistemas seguridad organizaciones",
   // ogImage: "/images/services/seguridad-hero.jpg",
   canonical: "https://ultimamilla.com.ar/seguridad-electronica",
   locale: "es_AR",
   region: "Cuyo, Patagonia, Argentina",
   author: "Ultima Milla",
   robots: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+};
+
+// Cargar antecedentes del sector seguridad
+import { antecedentesReales } from '../data/antecedentes_completos.js';
+import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
+
+// Filtrar antecedentes específicos de SEGURIDAD ELECTRÓNICA
+const filterAntecedentes = (data) => {
+  const keywords = ['cctv', 'seguridad', 'videovigilancia', 'alarma', 'control de acceso', 
+                    'deteccion de incendios', 'sdi', 'camara', 'biometr', 'perimetral', 
+                    'intrusion', 'monitoreo'];
+  
+  return data
+    .filter(item => {
+      const titulo = (item.Titulo || '').toLowerCase();
+      const area = (item.Area || '').toLowerCase();
+      const desc = (item.Descripcion || '').toLowerCase();
+      
+      // Buscar keywords relacionadas a seguridad electrónica
+      return keywords.some(k => 
+        titulo.includes(k) || 
+        area.includes(k) || 
+        desc.includes(k)
+      );
+    })
+    .map(item => ({
+      ...item,
+      slug: `${item.id}/${generateSlug(item.Titulo)}`
+    }))
+    .sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
 };
 
 // Cargar antecedentes del sector seguridad
@@ -29,100 +59,60 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    // Filtrar antecedentes de seguridad electrónica con keywords exhaustivas
-    const keywords = [
-      'cctv', 'camara', 'videovigilancia', 'control de acceso', 'biometrico', 
-      'alarma', 'incendio', 'fuego', 'sdi', 'seguridad', 'monitoreo', 'barrera', 
-      'intrusismo', 'perimetral', 'detectores'
-    ];
-
-    antecedentes = response.data
-      .filter(item => {
-        const cliente = item.Cliente?.toLowerCase() || '';
-        const titulo = item.Titulo?.toLowerCase() || '';
-        const area = item.Area?.toLowerCase() || '';
-        
-        return keywords.some(k => cliente.includes(k) || titulo.includes(k) || area.includes(k));
-      })
-      .map(item => ({
-        ...item,
-        slug: `${item.id}/${generateSlug(item.Titulo)}`
-      }))
-      .sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
-
+    antecedentes = filterAntecedentes(response.data);
     console.log(`✅ Cargados ${antecedentes.length} antecedentes de seguridad electrónica`);
   }
-
-  // Structured Data para SEO
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "serviceType": "Sistemas de Seguridad Electrónica",
-    "provider": {
-      "@type": "Organization",
-      "name": "Ultima Milla",
-      "url": "https://www.ultimamilla.com.ar",
-      "logo": "https://www.ultimamilla.com.ar/images/um-logo.png",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Mendoza",
-        "addressRegion": "Mendoza",
-        "addressCountry": "AR"
-      }
-    },
-    "areaServed": [
-      { "@type": "City", "name": "Mendoza" },
-      { "@type": "City", "name": "San Juan" },
-      { "@type": "City", "name": "San Luis" },
-      { "@type": "Country", "name": "Argentina" }
-    ],
-    "audience": {
-      "@type": "BusinessAudience",
-      "name": "Empresas, Industrias y Barrios Privados"
-    },
-    "hasOfferCatalog": {
-      "@type": "OfferCatalog",
-      "name": "Servicios de Seguridad Electrónica",
-      "itemListElement": [
-        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Video Vigilancia IP (CCTV)" } },
-        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Control de Accesos Biométrico" } },
-        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Detección de Incendios" } },
-        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Seguridad Perimetral" } }
-      ]
-    }
-  };
-
 } catch (err) {
   console.error('Error cargando antecedentes:', err);
   error = err;
 }
 
-// Función para obtener imagen del antecedente
-import { buscarImagenPorDatos } from '../data/mapeo_imagenes_completo';
-
-function getImageUrl(proyecto) {
-  if (!proyecto) return DEFAULT_IMAGE;
-
-  // Si ya viene con imagen desde Directus (URL completa o path)
-  if (proyecto.Imagen && (proyecto.Imagen.startsWith('/imagenes_') || proyecto.Imagen.startsWith('http'))) {
-    return proyecto.Imagen;
-  }
-
-  const imagenNombre = buscarImagenPorDatos(
-    proyecto.Cliente,
-    proyecto.Area || proyecto.Unidad_de_negocio,
-    proyecto.Titulo,
-    proyecto.id
-  );
-  return imagenNombre 
-    ? `/imagenes_antecedentes_versionproduccion/${imagenNombre}`
-    : DEFAULT_IMAGE;
+// Fallback a datos locales si no hay resultados de API
+if (antecedentes.length === 0) {
+  console.log('Usando antecedentes locales para Seguridad Electrónica');
+  antecedentes = filterAntecedentes(antecedentesReales);
 }
 
-const antecedentesConImagenes = antecedentes.map(proyecto => ({
-  ...proyecto,
-  imageUrl: getImageUrl(proyecto)
-}));
+// Structured Data para SEO
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "serviceType": "Sistemas de Seguridad Electrónica",
+  "provider": {
+    "@type": "Organization",
+    "name": "Ultima Milla",
+    "url": "https://www.ultimamilla.com.ar",
+    "logo": "https://www.ultimamilla.com.ar/images/um-logo.png",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Mendoza",
+      "addressRegion": "Mendoza",
+      "addressCountry": "AR"
+    }
+  },
+  "areaServed": [
+    { "@type": "City", "name": "Mendoza" },
+    { "@type": "City", "name": "San Juan" },
+    { "@type": "City", "name": "San Luis" },
+    { "@type": "Country", "name": "Argentina" }
+  ],
+  "audience": {
+    "@type": "BusinessAudience",
+    "name": "Empresas, Industrias y Barrios Privados"
+  },
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Servicios de Seguridad Electrónica",
+    "itemListElement": [
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Video Vigilancia IP (CCTV)" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Control de Accesos Biométrico" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Detección de Incendios" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Seguridad Perimetral" } }
+    ]
+  }
+};
+
+
 ---
 
 <Layout
@@ -263,7 +253,7 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
     </section>
 
     <!-- CASOS DE ÉXITO -->
-    {antecedentesConImagenes.length > 0 && (
+    {antecedentes.length > 0 && (
       <section style="background: #f8fafc; padding: 100px 32px; border-top: 1px solid #e2e8f0;">
         <div style="max-width: 75rem; margin: 0 auto;">
           <div style="text-align: center; margin-bottom: 72px;">
@@ -276,68 +266,7 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
             </p>
           </div>
 
-          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 32px;">
-          {antecedentesConImagenes.map((proyecto) => (
-            <a href={`/antecedentes/${proyecto.slug}`} style="display: block; text-decoration: none; height: 100%;">
-              <article style="background: white; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; border: 2px solid #e2e8f0; height: 100%;" onmouseover="this.style.transform='translateY(-12px)'; this.style.boxShadow='0 20px 50px rgba(220,38,38,0.25)'; this.style.borderColor='#dc2626'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.08)'; this.style.borderColor='#e2e8f0'">
-                {/* Imagen del proyecto */}
-                <div style="position: relative; overflow: hidden; aspect-ratio: 4/3;">
-                  <img 
-                    src={proyecto.imageUrl}
-                    alt={proyecto.Titulo}
-                    style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease;"
-                    loading="lazy"
-                    onerror="this.src='/images/default.jpg'"
-                    onmouseover="this.style.transform='scale(1.08)'"
-                    onmouseout="this.style.transform='scale(1)'"
-                  />
-                  
-                  {/* Badge */}
-                  <div style="position: absolute; top: 20px; left: 20px;">
-                    <span style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 50px; font-size: 12px; font-weight: 900; background: linear-gradient(135deg, #dc2626, #ef4444); color: white; box-shadow: 0 8px 20px rgba(220,38,38,0.4); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2);">
-                      <span style="font-size: 16px;">🛡️</span>
-                      SEGURIDAD
-                    </span>
-                  </div>
-                </div>
-
-                {/* Contenido */}
-                <div style="padding: 28px;">
-                  <div style="margin-bottom: 20px;">
-                    <h3 style="font-size: 20px; font-weight: 900; color: #0f172a; margin-bottom: 12px; line-height: 1.3; letter-spacing: -0.01em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                      {proyecto.Titulo}
-                    </h3>
-                    {proyecto.Cliente && (
-                      <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #64748b; margin-bottom: 12px; font-weight: 600;">
-                        <svg style="width: 18px; height: 18px; color: #dc2626;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m4 0V9a1 1 0 011-1h4a1 1 0 011 1v12M9 7h6"></path>
-                        </svg>
-                        {proyecto.Cliente}
-                      </div>
-                    )}
-                  </div>
-
-                  <p style="color: #64748b; font-size: 14px; line-height: 1.7; margin-bottom: 20px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-weight: 500;">
-                    {proyecto.Descripcion?.substring(0, 120)}...
-                  </p>
-
-                  <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 20px; border-top: 2px solid #f1f5f9;">
-                    <div style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #94a3b8; font-weight: 600;">
-                      <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                      </svg>
-                      {(() => {
-                        if (!proyecto.Fecha) return '2024';
-                        const fecha = new Date(proyecto.Fecha);
-                        return isNaN(fecha.getTime()) ? '2024' : fecha.toLocaleDateString('es-ES', { year: 'numeric', month: 'short' });
-                      })()}
-                    </div>
-                  </div>
-                </div>
-              </article>
-            </a>
-          ))}
-          </div>
+          <FeaturedAntecedentes antecedentes={antecedentes} />
         </div>
       </section>
     )}
@@ -388,3 +317,33 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
     </section>
   </main>
 </Layout>
+
+<style>
+  /* Mobile Responsive Styles */
+  @media (max-width: 768px) {
+    section > div > div[style*="grid-template-columns: repeat(3, 1fr)"] {
+      grid-template-columns: 1fr !important;
+    }
+    
+    section > div > div[style*="grid-template-columns: repeat(2, 1fr)"] {
+      grid-template-columns: 1fr !important;
+    }
+    
+    #contacto > div > div[style*="grid-template-columns: 1fr 1fr"] {
+      grid-template-columns: 1fr !important;
+      gap: 40px !important;
+    }
+    
+    h1 {
+      font-size: 32px !important;
+    }
+    
+    h2 {
+      font-size: 28px !important;
+    }
+    
+    section {
+      padding: 40px 20px !important;
+    }
+  }
+</style>

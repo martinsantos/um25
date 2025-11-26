@@ -162,83 +162,107 @@ const buildPageUrl = (page) => {
   url.searchParams.set('page', page);
   return url.pathname + url.search;
 };
+
+// Extract filter values for the new filter bar structure
+const searchQuery = pageData.searchQuery;
+const areaFilter = pageData.activeFilters.area;
+const unidadFilter = pageData.activeFilters.unidad_negocio;
+const areas = filterOptions.areas;
+const unidades = filterOptions.unidades;
 ---
 
-<Layout title="Antecedentes - Ultima Milla">
-  <main class="min-h-screen bg-white">
-    <!-- Hero Section V3 (Immersive, Executive) -->
-    <section class="relative h-[50vh] md:h-[60vh] flex items-center overflow-hidden bg-slate-900">
-      <div class="absolute inset-0 z-0">
-        <div class="absolute inset-0 bg-slate-900 z-10"></div>
-        <img 
-          src="/images/services/servicios-it.jpg" 
-          alt="Background" 
-          class="w-full h-full object-cover opacity-20"
-        />
-        <div class="absolute inset-0 bg-gradient-to-b from-slate-900/50 to-slate-900 z-10"></div>
-      </div>
+<Layout title="Antecedentes - Casos de Éxito | Ultima Milla" description="Explore nuestros casos de éxito y proyectos realizados en telecomunicaciones, desarrollo de software y soluciones tecnológicas.">
+  
+  <!-- Hero Section V3 (Immersive, Dark, with Background) -->
+  <section class="relative h-[50vh] md:h-[60vh] flex items-center overflow-hidden bg-slate-900">
+    <!-- Background Image -->
+    <div class="absolute inset-0 z-0">
+      <img 
+        src="/images/services/servicios-it.jpg" 
+        alt="Antecedentes Background" 
+        class="w-full h-full object-cover opacity-40"
+      />
+      <div class="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/60 to-slate-900/90"></div>
+    </div>
 
-      <div class="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-4xl">
-          <div class="inline-flex items-center space-x-2 mb-6 animate-fade-in-up">
-            <span class="w-8 h-[2px] bg-blue-500"></span>
-            <span class="text-blue-400 font-bold tracking-widest uppercase text-sm">Trayectoria</span>
+    <div class="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <span class="inline-block py-1 px-3 rounded-full bg-blue-500/20 text-blue-300 text-sm font-medium mb-6 backdrop-blur-sm border border-blue-500/30">
+        Nuestra Experiencia
+      </span>
+      <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight mb-6">
+        Casos de <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Éxito Real</span>
+      </h1>
+      <p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
+        Descubra cómo hemos transformado desafíos complejos en soluciones tecnológicas robustas para empresas líderes.
+      </p>
+    </div>
+  </section>
+
+  <!-- Filtros y Búsqueda (Compact & Sticky) -->
+  <section class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm transition-all duration-300" id="filter-bar">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <form id="filter-form" class="flex flex-col md:flex-row gap-3 items-center justify-between">
+        
+        <!-- Search -->
+        <div class="relative w-full md:w-96 group">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
           </div>
-          
-          <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight tracking-tight animate-fade-in-up delay-100">
-            Casos de <br/>
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">Éxito Real</span>
-          </h1>
-          
-          <p class="text-xl text-slate-300 max-w-2xl leading-relaxed font-light animate-fade-in-up delay-200">
-            Explora nuestra colección de proyectos que han transformado negocios y creado valor tangible para nuestros clientes.
-          </p>
+          <input
+            type="text"
+            name="q"
+            value={searchQuery}
+            placeholder="Buscar por cliente, título..."
+            class="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg leading-5 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all shadow-sm"
+          />
         </div>
-      </div>
-    </section>
 
-    <!-- Filtros y Búsqueda (Compact & Sticky) -->
-    <section class="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <form method="GET" class="flex flex-col md:flex-row gap-4 items-center justify-between">
-          <!-- Búsqueda -->
-          <div class="relative w-full md:w-96">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <!-- Filters Group -->
+        <div class="flex flex-wrap gap-2 w-full md:w-auto justify-center md:justify-end">
+          <!-- Area Filter -->
+          <div class="relative">
+            <select
+              name="area"
+              class="appearance-none block w-full pl-3 pr-8 py-2 border border-slate-200 rounded-lg bg-white text-slate-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 cursor-pointer hover:bg-slate-50 transition-colors shadow-sm"
+              onchange="this.form.submit()"
+            >
+              <option value="">Todas las Áreas</option>
+              {areas.map((a) => (
+                <option value={a} selected={a === areaFilter}>{a}</option>
+              ))}
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+              <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
               </svg>
             </div>
-            <input
-              type="text"
-              name="q"
-              value={pageData.searchQuery}
-              placeholder="Buscar proyectos..."
-              class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg leading-5 bg-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
           </div>
-          
-          <div class="flex flex-wrap gap-3 w-full md:w-auto">
-            <select name="unidad_negocio" class="bg-white border border-slate-300 text-slate-700 py-2 px-4 pr-8 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm">
-              <option value="">Todas las unidades</option>
-              {filterOptions.unidades.map(u => (
-                <option value={u} selected={pageData.activeFilters.unidad_negocio === u}>{u}</option>
+
+          <!-- Unit Filter -->
+          <div class="relative">
+            <select
+              name="unidad"
+              class="appearance-none block w-full pl-3 pr-8 py-2 border border-slate-200 rounded-lg bg-white text-slate-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 cursor-pointer hover:bg-slate-50 transition-colors shadow-sm"
+              onchange="this.form.submit()"
+            >
+              <option value="">Todas las Unidades</option>
+              {unidades.map((u) => (
+                <option value={u} selected={u === unidadFilter}>{u}</option>
               ))}
             </select>
-            
-            <select name="area" class="bg-white border border-slate-300 text-slate-700 py-2 px-4 pr-8 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm">
-              <option value="">Todas las áreas</option>
-              {filterOptions.areas.map(a => (
-                <option value={a} selected={pageData.activeFilters.area === a}>{a}</option>
-              ))}
-            </select>
-            
-            <button type="submit" class="px-6 py-2 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-800 transition-colors text-sm">
-              Filtrar
-            </button>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+              <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </div>
           </div>
-        </form>
-      </div>
-    </section>
+        </div>
+
+      </form>
+    </div>
+  </section>
 
     <!-- Grid de Proyectos (Solid, Clean V3) -->
     <section class="py-16 md:py-24 bg-slate-50">

@@ -217,11 +217,11 @@ const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').
                 <h3 class="text-xl font-bold text-slate-900">Galería del Proyecto</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {antecedente.Imagenes.map((img) => (
-                    <div class="aspect-video rounded-xl overflow-hidden bg-slate-100">
+                    <div class="aspect-video rounded-xl overflow-hidden bg-slate-100 group">
                       <img 
                         src={getAssetUrl(img)} 
                         alt="Galería" 
-                        class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"
                       />
                     </div>
@@ -239,38 +239,76 @@ const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').
                 <h3 class="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">
                   Ficha Técnica
                 </h3>
-                <dl class="space-y-4">
-                  <div>
-                    <dt class="text-sm font-medium text-slate-500">Cliente</dt>
-                    <dd class="text-base font-semibold text-slate-900 mt-1">{antecedente.Cliente}</dd>
-                  </div>
-                  <div>
-                    <dt class="text-sm font-medium text-slate-500">Área</dt>
-                    <dd class="text-base font-semibold text-slate-900 mt-1">{antecedente.Area}</dd>
-                  </div>
-                  <div>
-                    <dt class="text-sm font-medium text-slate-500">Unidad de Negocio</dt>
-                    <dd class="text-base font-semibold text-slate-900 mt-1">{antecedente.Unidad_de_negocio || 'Consultoría'}</dd>
-                  </div>
-                  {antecedente.Presupuesto && (
-                    <div>
-                      <dt class="text-sm font-medium text-slate-500">Presupuesto</dt>
-                      <dd class="text-base font-semibold text-green-600 mt-1">{formatCurrency(antecedente.Presupuesto)}</dd>
+                <ul class="space-y-5">
+                  <li class="flex items-start">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 mr-4">
+                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
                     </div>
+                    <div>
+                      <p class="text-sm font-medium text-slate-500">Cliente</p>
+                      <p class="text-base font-semibold text-slate-900 mt-0.5">{antecedente.Cliente}</p>
+                    </div>
+                  </li>
+                  
+                  <li class="flex items-start">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 mr-4">
+                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-slate-500">Área de Servicio</p>
+                      <p class="text-base font-semibold text-slate-900 mt-0.5">{antecedente.Area}</p>
+                    </div>
+                  </li>
+
+                  <li class="flex items-start">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 mr-4">
+                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-slate-500">Unidad</p>
+                      <p class="text-base font-semibold text-slate-900 mt-0.5">{antecedente.Unidad_de_negocio || 'Consultoría'}</p>
+                    </div>
+                  </li>
+
+                  {antecedente.Fecha && (
+                    <li class="flex items-start">
+                      <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 mr-4">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                      </div>
+                      <div>
+                        <p class="text-sm font-medium text-slate-500">Fecha</p>
+                        <p class="text-base font-semibold text-slate-900 mt-0.5">{formatDate(antecedente.Fecha)}</p>
+                      </div>
+                    </li>
                   )}
-                </dl>
+
+                  {antecedente.Presupuesto && (
+                    <li class="flex items-start">
+                      <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center text-green-600 mr-4">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      </div>
+                      <div>
+                        <p class="text-sm font-medium text-slate-500">Inversión</p>
+                        <p class="text-base font-semibold text-green-700 mt-0.5">{formatCurrency(antecedente.Presupuesto)}</p>
+                      </div>
+                    </li>
+                  )}
+                </ul>
               </div>
 
               <!-- CTA Card -->
-              <div class="bg-slate-900 rounded-xl shadow-lg p-6 text-center">
-                <h3 class="text-lg font-bold text-white mb-2">¿Necesitas algo similar?</h3>
-                <p class="text-slate-400 text-sm mb-6">Contáctanos para evaluar tu proyecto.</p>
-                <a 
-                  href="/contacto" 
-                  class="block w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors"
-                >
-                  Iniciar Conversación
-                </a>
+              <div class="bg-slate-900 rounded-xl shadow-lg p-6 text-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 z-0"></div>
+                <div class="relative z-10">
+                  <h3 class="text-lg font-bold text-white mb-2">¿Necesitas algo similar?</h3>
+                  <p class="text-slate-400 text-sm mb-6">Contáctanos para evaluar tu proyecto.</p>
+                  <a 
+                    href="/contacto" 
+                    class="block w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors shadow-lg hover:shadow-blue-500/30"
+                  >
+                    Iniciar Conversación
+                  </a>
+                </div>
               </div>
             </div>
           </div>
