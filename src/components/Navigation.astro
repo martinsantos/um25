@@ -1,4 +1,7 @@
 ---
+import { Image } from 'astro:assets';
+import logoImage from '/src/assets/images/um-logo.png';
+
 const currentPath = Astro.url.pathname;
 
 const navigation = [
@@ -36,124 +39,6 @@ const navigation = [
         <li><a href="/contacto">Contacto</a></li>
     </ul>
 </nav>
-
-<style is:global>
-.navigation {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    padding: 0.5rem 2rem !important;
-    background-color: white !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-    border-bottom: none !important;
-    margin: 0 !important;
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 1000 !important;
-}
-
-.logo {
-    display: flex !important;
-    align-items: center !important;
-}
-
-.logo-image {
-    max-width: 200px !important;
-    height: auto !important;
-    object-fit: contain !important;
-}
-
-.hamburger-menu {
-    display: none !important;
-    flex-direction: column !important;
-    gap: 4px !important;
-    cursor: pointer !important;
-    padding: 5px !important;
-}
-
-.hamburger-menu span {
-    width: 25px !important;
-    height: 3px !important;
-    background-color: #333 !important;
-    transition: all 0.3s ease !important;
-}
-
-.navigation ul {
-    display: flex !important;
-    list-style: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    gap: 2rem !important;
-    align-items: center !important;
-}
-
-.navigation ul li {
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
-.navigation ul li a {
-    text-decoration: none !important;
-    color: #333 !important;
-    font-size: 1rem !important;
-    font-weight: 500 !important;
-    transition: color 0.3s !important;
-    white-space: nowrap !important;
-    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif !important;
-}
-
-.navigation ul li a:hover {
-    color: #007BFF !important;
-}
-
-/* Media query para móviles */
-@media (max-width: 768px) {
-    .navigation {
-        padding: 0.5rem 1rem;
-    }
-    
-    .logo-image {
-        max-width: 150px;
-    }
-    
-    .navigation ul {
-        display: none;
-        width: 100%;
-        flex-direction: column;
-        position: absolute;
-        top: 70px;
-        left: 0;
-        background-color: white;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        padding: 1rem;
-        gap: 1rem;
-    }
-    
-    .navigation ul.active {
-        display: flex;
-    }
-    
-    .hamburger-menu {
-        display: flex;
-    }
-    
-    .hamburger-menu.active span:nth-child(1) {
-        transform: rotate(45deg) translate(5px, 5px);
-    }
-    
-    .hamburger-menu.active span:nth-child(2) {
-        opacity: 0;
-    }
-    
-    .hamburger-menu.active span:nth-child(3) {
-        transform: rotate(-45deg) translate(5px, -5px);
-    }
-    
-    .navigation ul li a {
-        font-size: 0.9rem;
-    }
-}
-</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {

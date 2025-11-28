@@ -3,7 +3,7 @@
 ## ✅ ESTADO FINAL: 100% OPERATIVO
 
 **Fecha y Hora:** 16 Enero 2025, 13:40 UTC  
-**Servidor:** www.ultimamilla.com.ar  
+**Servidor:** www.umbot.com.ar  
 **Estado:** PRODUCCIÓN COMPLETAMENTE FUNCIONAL
 
 ---
@@ -29,7 +29,7 @@
 
 ### ✅ 3. DIRECTUS CMS COMPLETO
 ```
-✅ Panel admin: http://www.ultimamilla.com.ar:8055/admin/
+✅ Panel admin: http://www.umbot.com.ar:8055/admin/
 ✅ 2 colecciones registradas y visibles
 ✅ 17 campos configurados (9 antecedentes + 8 servicios)
 ✅ Permisos públicos configurados
@@ -39,11 +39,11 @@
 ### ✅ 4. APIs PÚBLICAS FUNCIONANDO
 ```bash
 # API Antecedentes
-GET http://www.ultimamilla.com.ar:8055/items/antecedentes
+GET http://www.umbot.com.ar:8055/items/antecedentes
 ✅ Respuesta: 21 antecedentes con datos completos
 
 # API Servicios  
-GET http://www.ultimamilla.com.ar:8055/items/Servicios
+GET http://www.umbot.com.ar:8055/items/Servicios
 ✅ Respuesta: 10 servicios con datos completos
 ```
 
@@ -132,14 +132,14 @@ docker ps | grep fumbling-field
 ✅ 4/4 contenedores funcionando
 
 # Test 2: APIs
-curl http://www.ultimamilla.com.ar:8055/items/antecedentes
+curl http://www.umbot.com.ar:8055/items/antecedentes
 ✅ 21 antecedentes retornados
 
-curl http://www.ultimamilla.com.ar:8055/items/Servicios  
+curl http://www.umbot.com.ar:8055/items/Servicios  
 ✅ 10 servicios retornados
 
 # Test 3: Panel Admin
-http://www.ultimamilla.com.ar:8055/admin/content
+http://www.umbot.com.ar:8055/admin/content
 ✅ 2 colecciones visibles
 
 # Test 4: Desarrollo Local

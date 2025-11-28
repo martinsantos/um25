@@ -1,61 +1,36 @@
 import type { APIRoute } from 'astro';
 
-const SITE_URL = 'https://ultimamilla.com.ar';
+const SITE_URL = 'https://ultimamilla.com';
 
 export const GET: APIRoute = async () => {
-    const robotsTxt = `# ULTIMA MILLA - Robots.txt
-# Última actualización: ${new Date().toISOString().split('T')[0]}
+    const robotsTxt = `# www.robotstxt.org
 
-# Permitir indexación general
 User-agent: *
 Allow: /
-Allow: /servicios/
-Allow: /antecedentes/
-Allow: /nosotros/
-Allow: /contacto/
-
-# Bloquear acceso a áreas administrativas
 Disallow: /admin/
 Disallow: /api/
-Disallow: /private/
-Disallow: /_astro/
-Disallow: /.env
 
-# No indexar archivos estáticos
+# Sitemap
+Sitemap: ${SITE_URL}/sitemap.xml
+
+# Archivos específicos a no indexar
 Disallow: /*.json$
 Disallow: /*.js$
 Disallow: /*.css$
-Disallow: /*.map$
 
-# Permitir acceso a recursos públicos
-Allow: /images/
-Allow: /fonts/
-Allow: /public/
+# Permitir principales directorios
+Allow: /blog/
+Allow: /servicios/
+Allow: /nosotros/
+Allow: /contacto/
 
-# Configuración de crawl
-User-agent: *
-Crawl-delay: 1
-Request-rate: 30/60
-
-# Sitemaps
-Sitemap: ${SITE_URL}/sitemap.xml
-Sitemap: ${SITE_URL}/sitemap-antecedentes.xml
-Sitemap: ${SITE_URL}/sitemap-index.xml
-
-# Reglas específicas para bots de IA
-User-agent: GPTBot
-Disallow: /
-
-User-agent: CCBot
-Disallow: /
-
-User-agent: anthropic-ai
-Disallow: /`;
+# Crawl-delay
+Crawl-delay: 10`;
 
     return new Response(robotsTxt, {
         headers: {
-            'Content-Type': 'text/plain; charset=utf-8',
-            'Cache-Control': 'public, max-age=86400'
+            'Content-Type': 'text/plain',
+            'Cache-Control': 'public, max-age=3600'
         },
     });
 }

@@ -72,9 +72,8 @@ module.exports = {
     },
   },
   plugins: [
-    // Plugins comentados temporalmente para producción
-    // require('@tailwindcss/typography'),
-    // require('@tailwindcss/forms'),
-    // require('@tailwindcss/aspect-ratio'),
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/aspect-ratio'),
   ],
 }

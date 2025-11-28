@@ -50,7 +50,7 @@ else
     print_error "Directus NO accesible en puerto 8055"
 fi
 
-if curl -I https://www.ultimamilla.com.ar:8055 >/dev/null 2>&1; then
+if curl -I https://www.umbot.com.ar:8055 >/dev/null 2>&1; then
     print_status "Directus accesible via HTTPS"
 else
     print_error "Directus NO accesible via HTTPS"
@@ -106,7 +106,7 @@ echo "      - Separación completa de responsabilidades"
 echo "      - Sitio principal no afectado"
 echo "      - Fácil mantenimiento independiente"
 echo "   ⚠️ Consideraciones:"
-echo "      - Requiere configuración DNS adicional (admin.ultimamilla.com.ar)"
+echo "      - Requiere configuración DNS adicional (admin.umbot.com.ar)"
 echo "      - Certificados SSL adicionales"
 echo "      - Proceso de sincronización manual"
 

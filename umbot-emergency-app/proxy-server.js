@@ -49,4 +49,4 @@ server.listen(PORT, () => {
     console.log(`🌐 También en: http://localhost:${PORT}/`);
 });
 
-console.log('✅ Proxy configurado para simular ultimamilla.com.ar/log/'); 
+console.log('✅ Proxy configurado para simular umbot.com.ar/log/'); 

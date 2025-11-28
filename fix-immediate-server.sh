@@ -52,7 +52,7 @@ services:
     image: directus/directus:10.8.3
     container_name: umbot-directus-admin
     environment:
-      KEY: "DirectusSecretKey2025UltimaMillaAdmin"
+      KEY: "DirectusSecretKey2025UmbotAdmin"
       SECRET: "DirectusSecretToken2025UmbotHybrid"
       DB_CLIENT: pg
       DB_HOST: umbot-postgres-admin
@@ -60,7 +60,7 @@ services:
       DB_DATABASE: directus
       DB_USER: directus
       DB_PASSWORD: DirectusAdmin2025!
-      ADMIN_EMAIL: admin@ultimamilla.com.ar
+      ADMIN_EMAIL: admin@umbot.com.ar
       ADMIN_PASSWORD: UmbotDirectusAdmin2025!
       SERVE_APP: true
       CORS_ENABLED: true
@@ -117,7 +117,7 @@ curl -I https://localhost -k 2>/dev/null | head -1 || echo "HTTPS local no respo
 # 7. Verificar desde fuera
 echo ""
 echo "🌐 Verificar desde fuera del servidor:"
-echo "curl -I https://www.ultimamilla.com.ar"
+echo "curl -I https://www.umbot.com.ar"
 
 # 8. Si no funciona, usar configuración mínima de emergencia
 echo ""
@@ -141,7 +141,7 @@ services:
       cat > /etc/nginx/conf.d/default.conf << 'NGINX_EMERGENCY'
       server {
           listen 80;
-          server_name www.ultimamilla.com.ar;
+          server_name www.umbot.com.ar;
           root /usr/share/nginx/html;
           index index.html;
           location / {
@@ -150,7 +150,7 @@ services:
       }
       server {
           listen 443 ssl http2;
-          server_name www.ultimamilla.com.ar;
+          server_name www.umbot.com.ar;
           root /usr/share/nginx/html;
           index index.html;
           ssl_certificate /etc/ssl/certs/ssl-cert-snakeoil.pem;
@@ -172,7 +172,7 @@ echo ""
 echo "🚨 COMANDOS PARA EJECUTAR EN EL SERVIDOR:"
 echo "========================================"
 echo ""
-echo "ssh root@www.ultimamilla.com.ar"
+echo "ssh root@www.umbot.com.ar"
 echo ""
 echo "Luego copiar y pegar estos comandos:"
 cat server-fix-now.txt

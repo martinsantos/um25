@@ -18,8 +18,8 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Configuration
-DIRECTUS_URL = "https://www.ultimamilla.com.ar"
-ADMIN_EMAIL = "admin@ultimamilla.com.ar"
+DIRECTUS_URL = "https://www.umbot.com.ar"
+ADMIN_EMAIL = "admin@umbot.com.ar"
 ADMIN_PASSWORD = "UmbotHybridAdmin2025!"
 IMAGES_DIR = Path("imagenes_antecedentes_versionproduccion")
 MAX_RETRIES = 3

@@ -8,19 +8,17 @@ const MAX_REQUESTS_PER_WINDOW = 3; // 3 envíos máximo por IP en 15 minutos
 
 // Configuración del transporte de correo
 const transporter = nodemailer.createTransport({
-  host: import.meta.env.SMTP_HOST || '127.0.0.1',
-  port: parseInt(import.meta.env.SMTP_PORT) || 25,
-  secure: false,
-  family: 4, // Forzar IPv4 en lugar de IPv6
-  auth: import.meta.env.SMTP_USER ? {
+  host: import.meta.env.SMTP_HOST,
+  port: parseInt(import.meta.env.SMTP_PORT),
+  secure: false,  // false para puerto 587, true solo para 465
+  auth: {
     user: import.meta.env.SMTP_USER,
     pass: import.meta.env.SMTP_PASS,
-  } : undefined,
-  ignoreTLS: true,
-  requireTLS: false,
-  connectionTimeout: 5000,
-  greetingTimeout: 3000,
-  socketTimeout: 10000
+  },
+  // Permitir autofirma/certificados no válidos en desarrollo
+  tls: {
+    rejectUnauthorized: false
+  }
 });
 
 // Función para validar email

@@ -21,9 +21,9 @@
 ```
 
 #### **✅ Configuración de Acceso:**
-- 🌍 **Sitio**: https://www.ultimamilla.com.ar
-- 🎛️ **Admin**: https://www.ultimamilla.com.ar/admin
-- 👤 **Usuario**: admin@ultimamilla.com.ar
+- 🌍 **Sitio**: https://www.umbot.com.ar
+- 🎛️ **Admin**: https://www.umbot.com.ar/admin
+- 👤 **Usuario**: admin@umbot.com.ar
 - 🔑 **Password**: UmbotHybridAdmin2025!
 
 ## 📈 **PROCESO DE IMPLEMENTACIÓN**
@@ -103,10 +103,10 @@ Esta situación es **NORMAL** después de una implementación mayor como:
 ssh root@23.105.176.45
 
 # Verificar sitio web
-curl -I https://www.ultimamilla.com.ar/
+curl -I https://www.umbot.com.ar/
 
 # Verificar panel admin
-curl -I https://www.ultimamilla.com.ar/admin
+curl -I https://www.umbot.com.ar/admin
 ```
 
 #### **2. Verificación de Servicios:**
@@ -125,13 +125,13 @@ docker network ls
 #### **3. Verificación Funcional:**
 ```bash
 # Sitio principal
-curl -s https://www.ultimamilla.com.ar/ | head -10
+curl -s https://www.umbot.com.ar/ | head -10
 
 # Panel admin
-curl -s https://www.ultimamilla.com.ar/admin | head -10
+curl -s https://www.umbot.com.ar/admin | head -10
 
 # API Directus
-curl -I https://www.ultimamilla.com.ar/admin/server/health
+curl -I https://www.umbot.com.ar/admin/server/health
 ```
 
 ## 🎯 **PRÓXIMOS PASOS RECOMENDADOS**

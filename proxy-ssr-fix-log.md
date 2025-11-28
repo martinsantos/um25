@@ -2,7 +2,7 @@
 
 ## 🚨 PROBLEMA IDENTIFICADO
 **Error crítico:** Todas las páginas single de servicios devolvían 502 Bad Gateway
-- URL afectada: `https://ultimamilla.com.ar/servicios/{id}/{slug}`
+- URL afectada: `https://umbot.com.ar/servicios/{id}/{slug}`
 - Causa raíz: Proxy SSR ejecutándose en máquina local en lugar del servidor remoto
 - Arquitectura problemática:
   ```
@@ -41,19 +41,19 @@ Servidor Remoto (23.105.176.45):
 **Verificación exitosa:**
 ```bash
 # ✅ Servicio ID 1
-curl -I "https://ultimamilla.com.ar/servicios/1/servicios-it"
+curl -I "https://umbot.com.ar/servicios/1/servicios-it"
 # HTTP/1.1 200 OK
 
 # ✅ Servicio ID 2
-curl -I "https://ultimamilla.com.ar/servicios/2/redes-de-datos"
+curl -I "https://umbot.com.ar/servicios/2/redes-de-datos"
 # HTTP/1.1 200 OK
 
 # ✅ Servicio ID 3
-curl -I "https://ultimamilla.com.ar/servicios/3/seguridad-informatica"
+curl -I "https://umbot.com.ar/servicios/3/seguridad-informatica"
 # HTTP/1.1 200 OK
 
 # ❓ Servicio ID 6 (no existe en Directus)
-curl -I "https://ultimamilla.com.ar/servicios/6/servicios-web"
+curl -I "https://umbot.com.ar/servicios/6/servicios-web"
 # HTTP/1.1 404 Not Found (correcto, servicio no existe)
 ```
 

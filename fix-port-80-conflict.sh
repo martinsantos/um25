@@ -46,9 +46,9 @@ docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 echo ""
 echo "🔍 8. Verificando acceso:"
 echo "Sitio principal:"
-curl -I https://www.ultimamilla.com.ar/ 2>/dev/null | head -1
+curl -I https://www.umbot.com.ar/ 2>/dev/null | head -1
 echo "Admin panel:"
-curl -I https://www.ultimamilla.com.ar/admin 2>/dev/null | head -1
+curl -I https://www.umbot.com.ar/admin 2>/dev/null | head -1
 
 # 9. Verificar logs de Directus
 echo ""
@@ -58,9 +58,9 @@ docker logs umbot-directus-admin --tail 10
 echo ""
 echo "✅ CORRECCIÓN COMPLETADA"
 echo "🌐 Accesos disponibles:"
-echo "   - Sitio: https://www.ultimamilla.com.ar/"
-echo "   - Admin: https://www.ultimamilla.com.ar/admin"
-echo "   - Login: admin@ultimamilla.com.ar / UmbotDirectusAdmin2025!"
+echo "   - Sitio: https://www.umbot.com.ar/"
+echo "   - Admin: https://www.umbot.com.ar/admin"
+echo "   - Login: admin@umbot.com.ar / UmbotDirectusAdmin2025!"
 
 EOF
 chmod +x fix-port-conflict-remote.sh
@@ -75,10 +75,10 @@ echo "🔧 PASOS PARA APLICAR LA CORRECCIÓN:"
 echo "===================================="
 echo ""
 echo "1. 📤 Transferir archivos al servidor:"
-echo "   scp docker-compose.fixed.yml nginx.fixed.conf fix-port-conflict-remote.sh root@www.ultimamilla.com.ar:~/fumbling-field/"
+echo "   scp docker-compose.fixed.yml nginx.fixed.conf fix-port-conflict-remote.sh root@www.umbot.com.ar:~/fumbling-field/"
 echo ""
 echo "2. 🔐 Conectar al servidor:"
-echo "   ssh root@www.ultimamilla.com.ar"
+echo "   ssh root@www.umbot.com.ar"
 echo ""
 echo "3. 🚀 Aplicar corrección:"
 echo "   cd fumbling-field"

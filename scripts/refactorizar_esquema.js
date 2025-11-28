@@ -1,11 +1,11 @@
 import axios from 'axios';
 
 // Configuración
-const DIRECTUS_URL = process.env.DIRECTUS_URL || 'https://www.ultimamilla.com.ar';
+const DIRECTUS_URL = process.env.DIRECTUS_URL || 'https://www.umbot.com.ar';
 const DIRECTUS_TOKEN = process.env.DIRECTUS_TOKEN || '';
 
 // Detectar entorno
-const isProduction = process.env.NODE_ENV === 'production' || DIRECTUS_URL.includes('ultimamilla.com.ar');
+const isProduction = process.env.NODE_ENV === 'production' || DIRECTUS_URL.includes('umbot.com.ar');
 
 console.log('🚀 Iniciando refactorización del esquema Directus...');
 console.log(`📍 Entorno: ${isProduction ? 'PRODUCCIÓN' : 'DESARROLLO'}`);

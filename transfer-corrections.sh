@@ -94,9 +94,9 @@ echo "🔍 Verificando que las correcciones estén aplicadas..."
 
 # Test de la homepage
 echo "📱 Testeando homepage..."
-if curl -s https://www.ultimamilla.com.ar | grep -q "/images/services/default-service.jpg"; then
+if curl -s https://www.umbot.com.ar | grep -q "/images/services/default-service.jpg"; then
     print_status "✅ Homepage: Fallback corregido"
-elif curl -s https://www.ultimamilla.com.ar | grep -q "/images/default.jpg"; then
+elif curl -s https://www.umbot.com.ar | grep -q "/images/default.jpg"; then
     print_error "❌ Homepage: Aún usa fallback incorrecto"
 else
     print_warning "⚠️ Homepage: No se detectan fallbacks (puede ser normal)"
@@ -105,7 +105,7 @@ fi
 # Test de imágenes específicas
 echo "🖼️ Testeando imágenes de servicios..."
 for img in ciberseguridad redes-comunicaciones servicios-it telefonia servicios-web default-service; do
-    if curl -I "https://www.ultimamilla.com.ar/images/services/${img}.jpg" 2>/dev/null | grep -q "200"; then
+    if curl -I "https://www.umbot.com.ar/images/services/${img}.jpg" 2>/dev/null | grep -q "200"; then
         print_status "✅ ${img}.jpg disponible"
     else
         print_error "❌ ${img}.jpg no disponible"
@@ -115,7 +115,7 @@ done
 echo ""
 print_status "🎉 TRANSFERENCIA COMPLETADA"
 echo "📝 Próximos pasos:"
-echo "   1. Verificar visualmente: https://www.ultimamilla.com.ar"
+echo "   1. Verificar visualmente: https://www.umbot.com.ar"
 echo "   2. Limpiar caché del navegador si es necesario (Ctrl+Shift+R)"
 echo "   3. Verificar que las imágenes de servicios aparezcan en homepage"
 echo ""

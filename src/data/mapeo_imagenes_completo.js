@@ -205,7 +205,7 @@ export const mapeoImagenes = [
         titulo_original: "Municipalidad de Guaymallén - Redes de Cableado Estructurado",
         cliente: "Municipalidad de Guaymallén",
         area: "Redes Informáticas",
-        nombre_archivo_generado: "ultimamilla_municipalidad_de_guaymallén_-_cctv_20250416_072532_s3918098581.png"
+        nombre_archivo_generado: "ultimamilla_municipalidad_de_guaymallen_-_redes_y_comunicaciones_20250415_183819_s1389620071.png"
     },
     {
         numero: 10882,
@@ -1010,7 +1010,7 @@ export const mapeoImagenes = [
         titulo_original: "Municipalidad de Guaymallén - Software a medida",
         cliente: "Municipalidad de Guaymallén",
         area: "Servicios de Telecomunicaciones",
-        nombre_archivo_generado: "ultimamilla_municipalidad_de_guaymallén_-_cctv_20250416_072532_s3918098581.png"
+        nombre_archivo_generado: "ultimamilla_municipalidad_de_guaymallen_-_software_a_medida_20250416_111940_s3396040808.png"
     },
     {
         numero: 11162,
@@ -1031,7 +1031,7 @@ export const mapeoImagenes = [
         titulo_original: "Municipalidad de Guaymallén - Soporte IT",
         cliente: "Municipalidad de Guaymallén",
         area: "Comunicaciones y Telecomunicaciones",
-        nombre_archivo_generado: "ultimamilla_municipalidad_de_guaymallén_-_cctv_20250416_072532_s3918098581.png"
+        nombre_archivo_generado: "ultimamilla_municipalidad_de_guaymallen_-_soporte_it_20250416_094828_s1016811286.png"
     },
     {
         numero: 11165,
@@ -1143,7 +1143,7 @@ export const mapeoImagenes = [
         titulo_original: "Municipalidad de Guaymallén - Redes de Cableado Estructurado",
         cliente: "Municipalidad de Guaymallén",
         area: "Redes Informáticas",
-        nombre_archivo_generado: "ultimamilla_municipalidad_de_guaymallén_-_cctv_20250416_072532_s3918098581.png"
+        nombre_archivo_generado: "ultimamilla_municipalidad_de_guaymallen_-_redes_y_comunicaciones_20250415_183819_s1389620071.png"
     },
     {
         numero: 10899,
@@ -1598,7 +1598,7 @@ export const mapeoImagenes = [
         titulo_original: "Municipalidad de Guaymallén - Software a medida",
         cliente: "Municipalidad de Guaymallén",
         area: "Servicios de Telecomunicaciones",
-        nombre_archivo_generado: "ultimamilla_municipalidad_de_guaymallén_-_cctv_20250416_072532_s3918098581.png"
+        nombre_archivo_generado: "ultimamilla_municipalidad_de_guaymallen_-_software_a_medida_20250416_111940_s3396040808.png"
     },
     {
         numero: 10952,
@@ -1976,7 +1976,7 @@ export const mapeoImagenes = [
         titulo_original: "Municipalidad de Guaymallén - Redes de Cableado Estructurado",
         cliente: "Municipalidad de Guaymallén",
         area: "Redes Informáticas",
-        nombre_archivo_generado: "ultimamilla_municipalidad_de_guaymallén_-_cctv_20250416_072532_s3918098581.png"
+        nombre_archivo_generado: "ultimamilla_municipalidad_de_guaymallen_-_redes_y_comunicaciones_20250415_183819_s1389620071.png"
     },
     {
         numero: 11014,
@@ -2253,10 +2253,10 @@ export const mapeoImagenes = [
     },
     {
         numero: 11055,
-        titulo_original: "Luna Maya - Corrientes debiles",
-        cliente: "Luna Maya",
-        area: "Electrónica y Comunicaciones",
-        nombre_archivo_generado: "ultimamilla_luna_maya_-_cableado_estructurado_20250416_094433_s370247347.png"
+        titulo_original: "Municipalidad de Guaymallén - Software a medida",
+        cliente: "Municipalidad de Guaymallén",
+        area: "Servicios de Telecomunicaciones",
+        nombre_archivo_generado: "ultimamilla_municipalidad_de_guaymallen_-_cctv_20250416_072532_s3918098581.png"
     },
     {
         numero: 11056,
@@ -2634,7 +2634,7 @@ export const mapeoImagenes = [
         titulo_original: "Municipalidad de Guaymallén - Soporte IT",
         cliente: "Municipalidad de Guaymallén",
         area: "Comunicaciones y Telecomunicaciones",
-        nombre_archivo_generado: "ultimamilla_municipalidad_de_guaymallén_-_cctv_20250416_072532_s3918098581.png"
+        nombre_archivo_generado: "ultimamilla_municipalidad_de_guaymallen_-_soporte_it_20250416_094828_s1016811286.png"
     },
     {
         numero: 11111,
@@ -3054,7 +3054,7 @@ export const mapeoImagenes = [
 // Función mejorada para búsqueda con detección de imágenes incorrectas
 export function buscarImagenPorDatos(cliente, area, titulo, id) {
     console.log('[MAPEO] Buscando imagen para:', { cliente, area, titulo, id });
-    
+
     const normalizarTexto = (texto) => {
         if (!texto) return '';
         return texto.toLowerCase()
@@ -3071,13 +3071,13 @@ export function buscarImagenPorDatos(cliente, area, titulo, id) {
         const imagenes_problematicas = [
             'ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png'
         ];
-        
+
         if (imagenes_problematicas.includes(entrada.nombre_archivo_generado)) {
             // Verificar si es realmente un proyecto de CCTV
-            const es_proyecto_cctv = titulo_original.toLowerCase().includes('cctv') || 
-                                   titulo_original.toLowerCase().includes('seguridad') ||
-                                   titulo_original.toLowerCase().includes('videovigilancia');
-            
+            const es_proyecto_cctv = titulo_original.toLowerCase().includes('cctv') ||
+                titulo_original.toLowerCase().includes('seguridad') ||
+                titulo_original.toLowerCase().includes('videovigilancia');
+
             if (!es_proyecto_cctv) {
                 console.log(`[MAPEO] ⚠️  Imagen incorrecta detectada para ID ${entrada.numero}: ${titulo_original}`);
                 console.log(`[MAPEO] 🔄 Activando fallback inteligente para imagen específica`);
@@ -3087,20 +3087,17 @@ export function buscarImagenPorDatos(cliente, area, titulo, id) {
         return false; // Imagen correcta
     };
 
-    // 1. Búsqueda por ID específico (PRIORIDAD MÁXIMA)
+    // 1. Búsqueda por ID específico
     if (id) {
-        const idNumero = typeof id === 'number' ? id : parseInt(id);
-        if (!isNaN(idNumero)) {
-            const porId = mapeoImagenes.find(entrada => entrada.numero === idNumero);
-            if (porId) {
-                // Verificar si la imagen es incorrecta
-                if (detectarImagenIncorrecta(porId, titulo)) {
-                    console.log('[MAPEO] ❌ Imagen incorrecta por ID, usando fallback');
-                    return null; // Forzar fallback
-                }
-                console.log('[MAPEO] ✅ Encontrada por ID exacto:', porId.nombre_archivo_generado);
-                return porId.nombre_archivo_generado;
+        const porId = mapeoImagenes.find(entrada => entrada.numero === parseInt(id));
+        if (porId) {
+            // Verificar si la imagen es incorrecta
+            if (detectarImagenIncorrecta(porId, titulo)) {
+                console.log('[MAPEO] ❌ Imagen incorrecta por ID, usando fallback');
+                return null; // Forzar fallback
             }
+            console.log('[MAPEO] ✅ Encontrada por ID:', porId.nombre_archivo_generado);
+            return porId.nombre_archivo_generado;
         }
     }
 
@@ -3114,9 +3111,9 @@ export function buscarImagenPorDatos(cliente, area, titulo, id) {
         const entradaAreaNorm = normalizarTexto(entrada.area);
         const entradaTituloNorm = normalizarTexto(entrada.titulo_original);
 
-        return entradaClienteNorm === clienteNorm && 
-               entradaAreaNorm === areaNorm && 
-               entradaTituloNorm === tituloNorm;
+        return entradaClienteNorm === clienteNorm &&
+            entradaAreaNorm === areaNorm &&
+            entradaTituloNorm === tituloNorm;
     });
 
     if (porCombinacion) {
@@ -3129,64 +3126,19 @@ export function buscarImagenPorDatos(cliente, area, titulo, id) {
         return porCombinacion.nombre_archivo_generado;
     }
 
-    // 3. Búsqueda por cliente + área (más específica)
-    const porClienteAreaList = mapeoImagenes.filter(entrada => {
-        const entradaClienteNorm = normalizarTexto(entrada.cliente);
-        const entradaAreaNorm = normalizarTexto(entrada.area);
-        return entradaClienteNorm === clienteNorm && entradaAreaNorm === areaNorm;
-    });
-
-    if (porClienteAreaList.length > 0) {
-        // Usar hash del título para seleccionar una imagen de forma consistente
-        let hash = 0;
-        for (let i = 0; i < tituloNorm.length; i++) {
-            hash = ((hash << 5) - hash) + tituloNorm.charCodeAt(i);
-            hash = hash & hash; // Convert to 32bit integer
-        }
-        const index = Math.abs(hash) % porClienteAreaList.length;
-        const porClienteArea = porClienteAreaList[index];
-        
-        // Verificar si la imagen es incorrecta
-        if (detectarImagenIncorrecta(porClienteArea, titulo)) {
-            console.log('[MAPEO] ❌ Imagen incorrecta por cliente+área, usando fallback');
-            return null; // Forzar fallback
-        }
-        console.log('[MAPEO] ✅ Encontrada por cliente+área (índice ' + index + '):', porClienteArea.nombre_archivo_generado);
-        return porClienteArea.nombre_archivo_generado;
-    }
-
-    // 4. Búsqueda por cliente solo (fallback)
-    const porClienteList = mapeoImagenes.filter(entrada => {
+    // 3. Búsqueda por cliente (más flexible)
+    const porCliente = mapeoImagenes.find(entrada => {
         const entradaClienteNorm = normalizarTexto(entrada.cliente);
         return entradaClienteNorm === clienteNorm;
     });
 
-    if (porClienteList.length > 0) {
-        // Usar ID del antecedente para seleccionar una imagen de forma consistente
-        // Esto asegura que cada antecedente con el mismo cliente tenga una imagen diferente
-        let hash = 0;
-        if (id) {
-            const idStr = String(id);
-            for (let i = 0; i < idStr.length; i++) {
-                hash = ((hash << 5) - hash) + idStr.charCodeAt(i);
-                hash = hash & hash; // Convert to 32bit integer
-            }
-        } else {
-            // Si no hay ID, usar el título
-            for (let i = 0; i < tituloNorm.length; i++) {
-                hash = ((hash << 5) - hash) + tituloNorm.charCodeAt(i);
-                hash = hash & hash; // Convert to 32bit integer
-            }
-        }
-        const index = Math.abs(hash) % porClienteList.length;
-        const porCliente = porClienteList[index];
-        
+    if (porCliente) {
         // Verificar si la imagen es incorrecta
         if (detectarImagenIncorrecta(porCliente, titulo)) {
             console.log('[MAPEO] ❌ Imagen incorrecta por cliente, usando fallback');
             return null; // Forzar fallback
         }
-        console.log('[MAPEO] ✅ Encontrada por cliente (índice ' + index + ' de ' + porClienteList.length + '):', porCliente.nombre_archivo_generado);
+        console.log('[MAPEO] ✅ Encontrada por cliente:', porCliente.nombre_archivo_generado);
         return porCliente.nombre_archivo_generado;
     }
 

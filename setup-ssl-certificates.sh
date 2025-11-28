@@ -3,7 +3,7 @@
 echo "🔧 Configurando certificados SSL..."
 
 # Verificar si el directorio de certificados existe
-CERT_DIR="/etc/letsencrypt/live/www.ultimamilla.com.ar"
+CERT_DIR="/etc/letsencrypt/live/www.umbot.com.ar"
 if [ ! -d "$CERT_DIR" ]; then
     echo "❌ Directorio de certificados no encontrado"
     echo "🔄 Generando certificados nuevos usando desafío DNS..."
@@ -17,10 +17,10 @@ if [ ! -d "$CERT_DIR" ]; then
         -v "/var/lib/letsencrypt:/var/lib/letsencrypt" \
         certbot/certbot certonly --manual \
         --preferred-challenges dns \
-        -d "*.ultimamilla.com.ar" \
-        -d ultimamilla.com.ar \
+        -d "*.umbot.com.ar" \
+        -d umbot.com.ar \
         --agree-tos \
-        --email admin@ultimamilla.com.ar \
+        --email admin@umbot.com.ar \
         --no-eff-email \
         --server https://acme-v02.api.letsencrypt.org/directory
 
@@ -30,8 +30,8 @@ if [ ! -d "$CERT_DIR" ]; then
 fi
 
 # Crear directorio de certificados si no existe
-sudo mkdir -p /etc/letsencrypt/live/www.ultimamilla.com.ar
-sudo mkdir -p /etc/letsencrypt/archive/www.ultimamilla.com.ar
+sudo mkdir -p /etc/letsencrypt/live/www.umbot.com.ar
+sudo mkdir -p /etc/letsencrypt/archive/www.umbot.com.ar
 
 # Verificar permisos de los certificados
 echo "🔍 Verificando permisos de certificados..."

@@ -42,12 +42,12 @@ curl -I http://localhost:8055 2>/dev/null | head -1 || echo "❌ No disponible"
 
 echo ""
 echo "🎯 URLs de acceso:"
-echo "- Sitio web: https://www.ultimamilla.com.ar/"
-echo "- Admin panel: https://www.ultimamilla.com.ar:8055/admin"
-echo "- Credenciales: admin@ultimamilla.com.ar / UmbotHybridAdmin2025!"
+echo "- Sitio web: https://www.umbot.com.ar/"
+echo "- Admin panel: https://www.umbot.com.ar:8055/admin"
+echo "- Credenciales: admin@umbot.com.ar / UmbotHybridAdmin2025!"
 
 SSH_EOF
 
 echo ""
 echo "✅ IMPLEMENTACIÓN HÍBRIDA COMPLETADA"
-echo "Verificar funcionamiento en: https://www.ultimamilla.com.ar/"
+echo "Verificar funcionamiento en: https://www.umbot.com.ar/"

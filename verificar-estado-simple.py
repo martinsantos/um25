@@ -12,8 +12,8 @@ import sys
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Configuración
-DIRECTUS_URL = "https://www.ultimamilla.com.ar:8056"
-ADMIN_EMAIL = "admin@ultimamilla.com.ar"
+DIRECTUS_URL = "https://www.umbot.com.ar:8056"
+ADMIN_EMAIL = "admin@umbot.com.ar"
 ADMIN_PASSWORD = "UmbotDirectusAdmin2025!"
 
 def authenticate() -> str:
@@ -169,9 +169,9 @@ def main():
         print("✅ Todas las verificaciones pasaron correctamente")
         
         print(f"\n🌐 URLs del sistema:")
-        print(f"   • Directus Admin: https://www.ultimamilla.com.ar:8056/admin")
-        print(f"   • API Directus: https://www.ultimamilla.com.ar:8056")
-        print(f"   • Sitio web: https://www.ultimamilla.com.ar")
+        print(f"   • Directus Admin: https://www.umbot.com.ar:8056/admin")
+        print(f"   • API Directus: https://www.umbot.com.ar:8056")
+        print(f"   • Sitio web: https://www.umbot.com.ar")
         
         print(f"\n📝 Próximos pasos:")
         print(f"   1. Subir las 3 imágenes restantes (necesita ajustar nginx)")

@@ -1,39 +1,4 @@
 User-agent: *
 Allow: /
 
-# Sitemap
-Sitemap: https://ultimamilla.com.ar/sitemap.xml
 Sitemap: https://ultimamilla.com.ar/sitemap-index.xml
-
-# Disallow admin areas
-Disallow: /admin/
-Disallow: /directus/
-Disallow: /_astro/
-Disallow: /api/
-Disallow: /scripts/
-Disallow: /migration_data/
-Disallow: /.env*
-Disallow: /temp_*
-Disallow: /backup_*
-
-# Allow important pages
-Allow: /
-Allow: /nosotros
-Allow: /servicios
-Allow: /antecedentes
-Allow: /contacto
-Allow: /servicios/*
-Allow: /antecedentes/*
-
-# SEO optimizations
-Allow: /images/
-Allow: /css/
-Allow: /js/
-Allow: /favicon.ico
-Allow: /manifest.json
-
-# Crawl delay for better server performance
-Crawl-delay: 1
-
-# Host directive
-Host: https://ultimamilla.com.ar

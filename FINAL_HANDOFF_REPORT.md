@@ -46,7 +46,7 @@ All critical issues have been resolved and the UMBOT.com.ar website is fully ope
 ## CURRENT SYSTEM STATUS
 
 ### 🟢 Website Status
-- **Main Site**: https://ultimamilla.com.ar - **OPERATIONAL** (HTTP 200)
+- **Main Site**: https://umbot.com.ar - **OPERATIONAL** (HTTP 200)
 - **All Pages Verified**: All major pages responding correctly
   - Home: ✅ 200 OK
   - Servicios: ✅ 200 OK  
@@ -56,7 +56,7 @@ All critical issues have been resolved and the UMBOT.com.ar website is fully ope
 
 ### 🔐 SSL Certificate Status
 - **Status**: VALID ✅
-- **Subject**: CN=www.ultimamilla.com.ar
+- **Subject**: CN=www.umbot.com.ar
 - **Issuer**: Let's Encrypt (E6)
 - **Valid From**: June 19, 2025
 - **Valid Until**: September 17, 2025
@@ -105,7 +105,7 @@ Status: OPTIMAL ✅
 | `licitometro-elasticsearch-1` | ✅ Running | 9200→9200 | Search engine |
 
 ### 🔗 Active Service URLs
-- **Main Website**: https://ultimamilla.com.ar (Port 4321)
+- **Main Website**: https://umbot.com.ar (Port 4321)
 - **WordPress Site**: http://localhost:8080
 - **phpMyAdmin**: http://localhost:8081
 - **Licitometro**: http://localhost:3000
@@ -168,7 +168,7 @@ vm_stat
 top -l 1
 
 # Website health
-curl -I https://ultimamilla.com.ar
+curl -I https://umbot.com.ar
 ```
 
 #### Manual Backup
@@ -275,7 +275,7 @@ docker-compose -f docker-compose-ssr.yml up -d
 
 # Check status
 docker ps
-curl -I https://ultimamilla.com.ar
+curl -I https://umbot.com.ar
 
 # View logs
 docker logs astro-app -f

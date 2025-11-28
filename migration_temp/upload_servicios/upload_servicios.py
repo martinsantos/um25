@@ -18,9 +18,9 @@ DATA_DIR = BASE_DIR / "src" / "data"
 IMAGES_DIR = BASE_DIR / "imagenes_antecedentes_versionproduccion"
 
 # Configuración de Directus
-DIRECTUS_URL = "http://www.ultimamilla.com.ar:8055"
-ADMIN_EMAIL = "admin@ultimamilla.com.ar"
-ADMIN_PASSWORD = "UltimaMillaAdmin2025!"
+DIRECTUS_URL = "http://www.umbot.com.ar:8055"
+ADMIN_EMAIL = "admin@umbot.com.ar"
+ADMIN_PASSWORD = "UmbotAdmin2025!"
 
 # Configuración de logging
 logging.basicConfig(

@@ -1,7 +1,7 @@
 const axios = require('axios');
 const fs = require('fs');
 
-const DIRECTUS_URL = 'https://ultimamilla.com.ar';
+const DIRECTUS_URL = 'https://umbot.com.ar';
 const ADMIN_EMAIL = 'admin@example.com';
 const ADMIN_PASSWORD = 'd1r3ctu5';
 

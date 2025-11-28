@@ -66,7 +66,7 @@ services:
     environment:
       NODE_ENV: development
       PUBLIC_DIRECTUS_URL: http://directus-app:8055
-      DIRECTUS_STATIC_TOKEN: k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+      DIRECTUS_STATIC_TOKEN: 5DGsPxLQk1bsNHSl9e686BoIdMspHOZg
       HOST: 0.0.0.0
       PORT: 4321
     # El comando se puede simplificar si el Dockerfile ya maneja el npm install

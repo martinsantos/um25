@@ -6,7 +6,7 @@ from pathlib import Path
 
 # Configuración de Directus
 DIRECTUS_URL = "http://localhost:8055"
-ADMIN_EMAIL = "admin@ultimamilla.com.ar"
+ADMIN_EMAIL = "admin@umbot.com.ar"
 ADMIN_PASSWORD = "UmbotHybridAdmin2025!"
 UPLOADS_DIR = "/root/fumbling-field/uploads"
 

@@ -1,0 +1,30 @@
+
+\u003cstyle\u003e
+  /* Mobile Responsive Styles */
+  @media (max-width: 768px) {
+    section > div > div[style*="grid-template-columns: repeat(3, 1fr)"] {
+      grid-template-columns: 1fr !important;
+    }
+    
+    section > div > div[style*="grid-template-columns: repeat(2, 1fr)"] {
+      grid-template-columns: 1fr !important;
+    }
+    
+    #contacto > div > div[style*="grid-template-columns: 1fr 1fr"] {
+      grid-template-columns: 1fr !important;
+      gap: 40px !important;
+    }
+    
+    h1 {
+      font-size: 32px !important;
+    }
+    
+    h2 {
+      font-size: 28px !important;
+    }
+    
+    section {
+      padding: 40px 20px !important;
+    }
+  }
+\u003c/style\u003e

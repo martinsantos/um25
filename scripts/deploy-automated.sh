@@ -15,7 +15,7 @@ PRODUCTION_PATH="${PRODUCTION_PATH:-/root/fumbling-field}"
 DEPLOY_USER="${DEPLOY_USER:-root}"
 BACKUP_DIR="${BACKUP_DIR:-/root/backups/fumbling-field}"
 ROLLBACK_ENABLED="${ROLLBACK_ENABLED:-true}"
-HEALTH_CHECK_URL="${HEALTH_CHECK_URL:-https://www.ultimamilla.com.ar}"
+HEALTH_CHECK_URL="${HEALTH_CHECK_URL:-https://www.umbot.com.ar}"
 HEALTH_CHECK_TIMEOUT="${HEALTH_CHECK_TIMEOUT:-300}"
 
 # Colores para output

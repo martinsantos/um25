@@ -48,8 +48,8 @@ npm start
 ## 📱 Acceso
 
 ### Producción
-- Web: https://www.ultimamilla.com.ar:8092
-- API: https://www.ultimamilla.com.ar:8092/api
+- Web: https://www.umbot.com.ar:8092
+- API: https://www.umbot.com.ar:8092/api
 
 ### Desarrollo
 - Web: http://localhost:8092
@@ -153,8 +153,8 @@ docker-compose up -d --build
 
 ## 📞 Soporte
 
-- Email: admin@ultimamilla.com.ar
-- Sitio: https://ultimamilla.com.ar
+- Email: admin@umbot.com.ar
+- Sitio: https://umbot.com.ar
 
 ---
 

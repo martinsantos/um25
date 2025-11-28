@@ -360,7 +360,7 @@ def main():
     print("   2. O copia los archivos JSON al servidor Directus")
     print("   3. Importa usando la API de Directus")
     print()
-    print("🔗 Panel Directus: https://www.ultimamilla.com.ar:8056/admin")
+    print("🔗 Panel Directus: https://www.umbot.com.ar:8056/admin")
 
 def generate_web_import_script(antecedentes: List[Dict], servicios: List[Dict]):
     """Generar script HTML para importación via navegador"""
@@ -393,12 +393,12 @@ def generate_web_import_script(antecedentes: List[Dict], servicios: List[Dict]):
         
         <div class="form-group">
             <label>URL de Directus:</label>
-            <input type="text" id="directusUrl" value="https://www.ultimamilla.com.ar:8055" />
+            <input type="text" id="directusUrl" value="https://www.umbot.com.ar:8055" />
         </div>
         
         <div class="form-group">
             <label>Email:</label>
-            <input type="email" id="email" value="admin@ultimamilla.com.ar" />
+            <input type="email" id="email" value="admin@umbot.com.ar" />
         </div>
         
         <div class="form-group">

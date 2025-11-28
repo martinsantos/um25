@@ -68,9 +68,9 @@ services:
       DB_DATABASE: directus
       DB_USER: directus
       DB_PASSWORD: directus123
-      ADMIN_EMAIL: admin@ultimamilla.com.ar
+      ADMIN_EMAIL: admin@umbot.com.ar
       ADMIN_PASSWORD: UMAdmin2024!
-      PUBLIC_URL: https://www.ultimamilla.com.ar
+      PUBLIC_URL: https://www.umbot.com.ar
     volumes:
       - directus_uploads:/directus/uploads
     networks:
@@ -111,16 +111,16 @@ upstream directus {
 
 server {
     listen 80;
-    server_name www.ultimamilla.com.ar;
+    server_name www.umbot.com.ar;
     return 301 https://$server_name$request_uri;
 }
 
 server {
     listen 443 ssl http2;
-    server_name www.ultimamilla.com.ar;
+    server_name www.umbot.com.ar;
 
-    ssl_certificate /etc/letsencrypt/live/www.ultimamilla.com.ar/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/www.ultimamilla.com.ar/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/www.umbot.com.ar/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/www.umbot.com.ar/privkey.pem;
 
     # SSL Security Headers
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
@@ -182,10 +182,10 @@ docker logs --tail 5 umbot-nginx-hybrid
 echo "9. Probando conectividad..."
 sleep 3
 echo "🌐 HTTP:"
-curl -I http://www.ultimamilla.com.ar 2>/dev/null | head -1 || echo "❌ HTTP no responde"
+curl -I http://www.umbot.com.ar 2>/dev/null | head -1 || echo "❌ HTTP no responde"
 
 echo "🔐 HTTPS:"
-curl -I https://www.ultimamilla.com.ar 2>/dev/null | head -1 || echo "❌ HTTPS no responde"
+curl -I https://www.umbot.com.ar 2>/dev/null | head -1 || echo "❌ HTTPS no responde"
 
 echo ""
 echo "🎯 RESULTADO:"
@@ -197,5 +197,5 @@ echo "   - Nginx: Proxy reverso con SSL"
 echo "   - PostgreSQL: Base de datos"
 echo ""
 echo "🌐 URLs:"
-echo "   - Sitio web: https://www.ultimamilla.com.ar"
-echo "   - Panel admin: https://www.ultimamilla.com.ar/admin" 
+echo "   - Sitio web: https://www.umbot.com.ar"
+echo "   - Panel admin: https://www.umbot.com.ar/admin" 

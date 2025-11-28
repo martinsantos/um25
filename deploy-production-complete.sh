@@ -2,7 +2,7 @@
 
 # ========================================
 # SCRIPT DE DESPLIEGUE COMPLETO UM25-0.3
-# Servidor: 23.105.176.45 (www.ultimamilla.com.ar)
+# Servidor: 23.105.176.45 (www.umbot.com.ar)
 # ========================================
 
 set -e  # Salir si hay errores
@@ -23,7 +23,7 @@ BACKUP_DIR="/root/backup-$(date +%Y%m%d-%H%M%S)"
 REPO_URL="https://github.com/martinsantos/um25.git"
 
 echo -e "${BLUE}🚀 INICIANDO DESPLIEGUE COMPLETO UM25-0.3${NC}"
-echo -e "${BLUE}Servidor: ${SERVER_IP} (www.ultimamilla.com.ar)${NC}"
+echo -e "${BLUE}Servidor: ${SERVER_IP} (www.umbot.com.ar)${NC}"
 echo "=========================================="
 
 # Función para ejecutar comandos en el servidor
@@ -93,16 +93,16 @@ NODE_ENV=production
 ASTRO_ENV=production
 
 # Dominio de producción
-PUBLIC_SITE_URL=https://www.ultimamilla.com.ar
-PUBLIC_DOMAIN=www.ultimamilla.com.ar
+PUBLIC_SITE_URL=https://www.umbot.com.ar
+PUBLIC_DOMAIN=www.umbot.com.ar
 
 # Modo estático (sin Directus)
 STATIC_MODE=true
 USE_STATIC_DATA=true
 
 # Configuración de imágenes
-PUBLIC_ASSETS_URL=https://www.ultimamilla.com.ar/assets
-PUBLIC_IMAGES_URL=https://www.ultimamilla.com.ar/images
+PUBLIC_ASSETS_URL=https://www.umbot.com.ar/assets
+PUBLIC_IMAGES_URL=https://www.umbot.com.ar/images
 
 # Configuración de build
 BUILD_MODE=static
@@ -180,7 +180,7 @@ echo -e "${GREEN}✅ Servicios iniciados${NC}"
 echo ""
 echo -e "${BLUE}🌐 URLs de acceso:${NC}"
 echo -e "   • Directo IP: http://$SERVER_IP/"
-echo -e "   • Dominio: https://www.ultimamilla.com.ar/"
+echo -e "   • Dominio: https://www.umbot.com.ar/"
 echo ""
 echo -e "${BLUE}📁 Directorio del proyecto: $PROJECT_DIR${NC}"
 echo -e "${BLUE}💾 Backup creado en: $BACKUP_DIR${NC}"

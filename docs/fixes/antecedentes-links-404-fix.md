@@ -5,7 +5,7 @@
 Users reported that clicking on antecedentes links from the index page (`/antecedentes`) resulted in 404 errors, even though accessing the same URLs directly worked perfectly.
 
 **Example:**
-- Direct access: `https://ultimamilla.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones` ✅ Works
+- Direct access: `https://umbot.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones` ✅ Works
 - From index page click: Same URL ❌ Returns 404
 
 ## Root Cause Analysis

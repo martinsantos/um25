@@ -1,0 +1,91 @@
+    <!-- FORMULARIO DE CONTACTO -->
+    <section id="contacto" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 100px 32px; position: relative; overflow: hidden;">
+      <div style="max-width: 75rem; margin: 0 auto; position: relative; z-index: 10;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;">
+          <div>
+            <div style="display: inline-block; padding: 8px 20px; background: rgba(16, 185, 129, 0.2); border-radius: 50px; margin-bottom: 24px; border: 1px solid rgba(16, 185, 129, 0.3);">
+              <span style="font-size: 13px; font-weight: 800; color: #6ee7b7; letter-spacing: 1px; text-transform: uppercase;">📞 Contáctenos</span>
+            </div>
+            <h2 style="font-size: clamp(36px, 5vw, 56px); font-weight: 900; color: white; margin-bottom: 24px; line-height: 1.1;">
+              Soluciones Tecnológicas<br/>para el Sector Salud
+            </h2>
+            <p style="font-size: 18px; color: #cbd5e1; line-height: 1.8; margin-bottom: 40px;">
+              Contáctenos para diseñar la infraestructura tecnológica que su institución médica necesita.
+            </p>
+          </div>
+          
+          <div style="background: white; border-radius: 24px; padding: 48px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <form action="/api/contact" method="POST" style="display: flex; flex-direction: column; gap: 24px;">
+              <div>
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Nombre *</label>
+                <input type="text" name="nombre" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px;" placeholder="Nombre Completo" />
+              </div>
+              <div>
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Institución Médica</label>
+                <input type="text" name="empresa" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px;" placeholder="Hospital/Clínica" />
+              </div>
+              <div>
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Email *</label>
+                <input type="email" name="email" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px;" placeholder="contacto@hospital.com" />
+              </div>
+              <div>
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Mensaje *</label>
+                <textarea name="mensaje" required rows="4" style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px;" placeholder="Detalles del requerimiento..."></textarea>
+              </div>
+              <button type="submit" style="width: 100%; padding: 18px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer;">
+                Solicitar Asesoramiento
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  /* RESPONSIVE MOBILE - FUERZA OVERRIDE CON !important */
+  @media (max-width: 768px) {
+    /* GRIDS: Forzar 1 columna en móvil */
+    [style*="grid-template-columns: repeat(3, 1fr)"] {
+      grid-template-columns: 1fr !important;
+    }
+    
+    [style*="grid-template-columns: repeat(2, 1fr)"] {
+      grid-template-columns: 1fr !important;
+    }
+    
+    [style*="grid-template-columns: 1fr 1fr"] {
+      grid-template-columns: 1fr !important;
+      gap: 40px !important;
+    }
+    
+    /* TIPOGRAFÍA: Reducir tamaños */
+    h1[style] {
+      font-size: 32px !important;
+    }
+    
+    h2[style] {
+      font-size: 28px !important;
+    }
+    
+    h3[style] {
+      font-size: 18px !important;
+    }
+    
+    /* SPACING: Reducir padding en secciones */
+    section[style*="padding"] {
+      padding: 40px 20px !important;
+    }
+    
+    /* FORMS: Mejorar en móvil */
+    #contacto form {
+      padding: 24px !important;
+    }
+    
+    /* CARDS: Mejorar legibilidad */
+    [style*="padding: 30px"] {
+      padding: 20px !important;
+    }
+  }
+</style>

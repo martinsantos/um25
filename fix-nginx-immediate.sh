@@ -30,10 +30,10 @@ netstat -tlnp | grep nginx
 
 # 7. Verificar acceso HTTPS estándar
 echo "7. Verificando HTTPS puerto 443:"
-curl -k -I https://www.ultimamilla.com.ar/
+curl -k -I https://www.umbot.com.ar/
 
 # 8. Verificar que el sitio principal carga
 echo "8. Verificando contenido del sitio:"
-curl -k -s https://www.ultimamilla.com.ar/ | head -20
+curl -k -s https://www.umbot.com.ar/ | head -20
 
 echo "=== FIN DEL FIX ===" 

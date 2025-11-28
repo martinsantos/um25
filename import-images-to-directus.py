@@ -16,8 +16,8 @@ from typing import Dict, Optional, Tuple
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Configuración
-DIRECTUS_URL = "https://www.ultimamilla.com.ar:8056"
-ADMIN_EMAIL = "admin@ultimamilla.com.ar"
+DIRECTUS_URL = "https://www.umbot.com.ar:8056"
+ADMIN_EMAIL = "admin@umbot.com.ar"
 ADMIN_PASSWORD = "UmbotDirectusAdmin2025!"
 IMAGES_DIR = Path("imagenes_antecedentes_versionproduccion")
 MAPPING_FILE = Path("datos_imagenes_para_directus_20250415_181330.json")

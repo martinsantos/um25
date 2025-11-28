@@ -54,7 +54,7 @@ curl -f http://localhost:80/ || echo "⚠️  Servicio aún no disponible"
 
 echo ""
 echo "✅ DESPLIEGUE ESTÁTICO COMPLETADO"
-echo "🌐 Sitio disponible en: http://www.ultimamilla.com.ar"
+echo "🌐 Sitio disponible en: http://www.umbot.com.ar"
 echo "📊 Datos: 469 antecedentes + 5 servicios (modo estático)"
 echo "🖼️  Imágenes: Sistema de placeholders únicos activo"
 echo ""

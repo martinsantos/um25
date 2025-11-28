@@ -1,60 +1,29 @@
 ---
-// Index refactorizado - Banner moderno minimalista
 import Layout from '../layouts/Layout.astro';
-import SEOHead from '../components/SEO/SEOHead.astro';
+import HeroBannerModern from '../components/HeroBannerModern.astro';
 import ServicesList from '../components/ServicesList.astro';
 import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
-import HeroBannerModern from '../components/HeroBannerModern.astro';
 
-// SEO metadata optimizado para página principal
-const seoData = {
-  title: "ULTIMA MILLA | Empresa IT Líder en Mendoza | Servicios Tecnológicos +20 Años",
-  description: "ULTIMA MILLA: empresa líder en servicios IT en Mendoza desde 2000. +469 proyectos exitosos con Gobierno de Mendoza, AFIP, empresas vitivinícolas. Infraestructura, redes, seguridad informática y desarrollo web.",
-  keywords: "ultima milla mendoza, empresa IT mendoza, servicios tecnológicos mendoza, transformación digital mendoza, comunicaciones mendoza, redes datos mendoza, seguridad informática mendoza, desarrollo web mendoza, argentina"  
-};
-
-// Array de imágenes tecnológicas para sección Nosotros Y fondo del banner
-const techImages = [
-  'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Servidores
-  'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Código
-  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Tecnología espacial
-  'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Laptop código
-  'https://images.unsplash.com/photo-1537432376769-00f83c2f9c52?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Cables red
-  'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Fibra óptica
-  'https://images.unsplash.com/photo-1563206767-5b18f218e8de?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Circuitos
-  'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // AI/ML
-  'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Código terminal
-  'https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Programación
-  'https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Blockchain
-  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Gráficos datos
-  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Analytics
-  'https://images.unsplash.com/photo-1504639725590-34d0984388bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Desarrollo
-  'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Matemáticas
-];
-
-// Seleccionar imagen aleatoria para sección Nosotros
-const randomAboutImage = techImages[Math.floor(Math.random() * techImages.length)];
-
-// Datos hardcodeados para servicios destacados con asset IDs correctos de Directus
+// Datos hardcodeados para servicios destacados
 const services = {
   data: [
     {
-      id: 3,
+      id: 1,
       Titulo: "Seguridad Informática",
       Descripcion: "Protección integral de sistemas y datos empresariales",
-      Imagen: "f2a65085-e6ad-49fc-a123-1b5dc19fc7ab"
+      Imagen: "b1a91d79-c979-4067-b78a-2cd97166fbcd"
     },
     {
       id: 2,
       Titulo: "Redes y comunicaciones",
       Descripcion: "Infraestructura de red avanzada para comunicaciones empresariales",
-      Imagen: "18b5f4e3-4bc8-485d-a01c-8cbd53e25f4d"
+      Imagen: "6e626d63-c3ca-4982-8ed3-4a5e75e1b179"
     },
     {
-      id: 1,
+      id: 3,
       Titulo: "Software y Servicios",
       Descripcion: "Soluciones de software personalizadas para empresas",
-      Imagen: "2749f988-2e2d-4f32-9978-4dbeb4aa6ab2"
+      Imagen: "ccc32af0-df52-4e6e-8ca0-9660dddec095"
     }
   ]
 };
@@ -72,63 +41,49 @@ const antecedentes = {
 };
 ---
 
-<Layout>
-  <SEOHead 
-    title={seoData.title}
-    description={seoData.description}
-    keywords={seoData.keywords}
-    canonical="https://ultimamilla.com.ar"
-    ogType="website"
-  />
-  
+<Layout 
+  title="ULTIMA MILLA | Servicios Tecnológicos para Empresas en Mendoza, Cuyo y Patagonia"
+  description="Servicios tecnológicos para empresas y organizaciones argentinas. Zona de incumbencia: Mendoza, Cuyo, Patagonia. Especialistas en Telecomunicaciones, Cableado Estructurado, Corrientes Débiles, Detección de Incendio, Software a Medida. +400 proyectos, +20 años de experiencia."
+  keywords="servicios tecnologicos empresas argentina, zona incumbencia mendoza cuyo patagonia, telecomunicaciones empresas, cableado estructurado, corrientes debiles, deteccion incendio, software a medida organizaciones"
+  image="/nosotros-tech.jpg"
+>
   <!-- Hero Section - Banner Moderno Minimalista -->
   <HeroBannerModern />
-  
+
   <main class="bg-gray-100">
+    <!-- TEST PIPELINE BANNER -->
+    <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 text-center text-sm font-medium">
+      🚀 Pipeline CI/CD Test - Desplegado automáticamente - {new Date().toLocaleString()}
+    </div>
     
     <!-- Sobre Nosotros -->
     <section id="about-us" class="py-16 bg-gray-50">
       <div class="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
         <div>
-          <h2 class="text-4xl font-bold text-gray-800 mb-6">ULTIMA MILLA en Mendoza</h2>
+          <h2 class="text-4xl font-bold text-gray-800 mb-6">Servicios Tecnológicos para Empresas y Organizaciones en Argentina</h2>
           <p class="text-lg text-gray-700 mb-6">
-            Somos la <strong>empresa líder en servicios IT de Mendoza</strong> desde el año 2000. Nuestro equipo apasionado por la tecnología se dedica a impulsar la transformación digital de empresas mendocinas.
+            En <strong>ULTIMA MILLA</strong>, ofrecemos servicios tecnológicos especializados para empresas y organizaciones en nuestra <strong>zona de incumbencia: Mendoza, Cuyo y Patagonia</strong>. Con +20 años de experiencia en <strong>Telecomunicaciones, Cableado Estructurado, Corrientes Débiles, Detección de Incendio y Software a Medida</strong>.
           </p>
           <p class="text-lg text-gray-700 mb-8">
-            Con presencia local y <strong>+469 proyectos exitosos</strong>, ofrecemos soluciones innovadoras que generan impacto real en el crecimiento de nuestros clientes en Mendoza y la región.
+            Nuestra misión es ofrecer soluciones innovadoras en <strong>Infraestructura IT, Ciberseguridad, y Telecomunicaciones</strong> que generen un impacto positivo y medible en el crecimiento de nuestros clientes.
           </p>
-          <div class="flex flex-wrap gap-4 mb-8">
-            <div class="bg-red-100 text-red-800 px-4 py-2 rounded-full font-semibold">
-              💻 Desarrollo Web
-            </div>
-            <div class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-semibold">
-              🔒 Seguridad IT
-            </div>
-            <div class="bg-green-100 text-green-800 px-4 py-2 rounded-full font-semibold">
-              🌐 Redes & Comunicaciones
-            </div>
-          </div>
-          <a href="/nosotros" class="inline-block bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition">Saber Más</a>
+          <a href="#contacto" class="inline-block bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition">Solicitar Asesoramiento</a>
         </div>
         <div>
-          <img 
-            src={randomAboutImage} 
-            alt="Infraestructura tecnológica ULTIMA MILLA - Especialistas en comunicaciones, sistemas e integración desde los 2000" 
-            class="w-full h-auto rounded-lg shadow-lg"
-            loading="lazy"
-            width="600"
-            height="400"
-          />
+          <!-- Ensure that "about-us.jpg" exists in the public folder -->
+          <img src="/nosotros-tech.jpg" alt="Infraestructura Tecnológica de Vanguardia en Mendoza" class="w-full h-auto rounded-lg shadow-lg" />
         </div>
       </div>
     </section>
+
+
 
     <!-- Nuestros Servicios -->
     <section id="servicios" class="py-20 bg-white">
       <div class="container mx-auto px-4">
         <div class="text-center mb-12">
           <span class="text-red-500 font-semibold">Nuestras Soluciones</span>
-          <h2 class="text-4xl font-bold text-gray-800 mt-2 mb-4">Servicios IT Profesionales en Mendoza</h2>
+          <h2 class="text-4xl font-bold text-gray-800 mt-2 mb-4">Servicios Profesionales</h2>
           <div class="w-20 h-1 bg-red-500 mx-auto"></div>
         </div>
         
@@ -137,25 +92,26 @@ const antecedentes = {
         ) : (
           <div class="text-center py-12">
             <p class="text-gray-500">No hay servicios disponibles en este momento.</p>
-            <ServicesList services={services.data} />
           </div>
         )}
         
-        <div class="text-center mt-12">
-          <a href="/servicios" class="inline-block border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-8 py-3 rounded-lg font-semibold transition">
+        <div class="text-center mt-10">
+          <a href="/servicios" class="inline-block bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition">
             Ver todos los servicios
           </a>
         </div>
       </div>
     </section>
 
+
+
     <!-- Antecedentes Destacados -->
     <section id="antecedentes" class="py-20 bg-gray-50">
       <div class="container mx-auto px-4">
         <div class="text-center mb-12">
           <span class="text-red-500 font-semibold">Nuestro Trabajo</span>
-          <h2 class="text-4xl font-bold text-gray-800 mt-2 mb-4">Casos de Éxito en Mendoza</h2>
-          <p class="text-gray-600 max-w-2xl mx-auto">Conoce algunos de nuestros <strong>+469 proyectos exitosos</strong> en Mendoza y cómo hemos ayudado a empresas locales a alcanzar sus objetivos tecnológicos.</p>
+          <h2 class="text-4xl font-bold text-gray-800 mt-2 mb-4">Casos de Estudio</h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">Conoce algunos de nuestros proyectos más destacados y cómo hemos ayudado a nuestros clientes a alcanzar sus objetivos.</p>
           <div class="w-20 h-1 bg-red-500 mx-auto mt-4"></div>
         </div>
         
@@ -169,285 +125,97 @@ const antecedentes = {
         
         <div class="text-center mt-10">
           <a href="/antecedentes" class="inline-block border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-6 py-3 rounded-lg font-semibold transition">
-            Ver todos los antecedentes
+            Ver todos los casos de estudio
           </a>
         </div>
       </div>
     </section>
 
-    <!-- Verticales Section - Diseño mejorado con blur y badges -->
-    <section class="py-24 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
+    <!-- Sectores -->
+    <section class="py-16 bg-white border-t border-gray-200">
       <div class="container mx-auto px-4">
-        <div class="text-center mb-20">
-          <h2 class="text-5xl md:text-6xl font-bold text-white mb-4 tracking-tight">Soluciones por Sector</h2>
-          <p class="text-lg text-gray-400 max-w-xl mx-auto">Experiencia especializada en los sectores más exigentes</p>
+        <div class="text-center mb-12">
+          <span class="text-red-500 font-semibold">Nuestros Sectores</span>
+          <h2 class="text-4xl font-bold text-gray-800 mt-2 mb-4">Soluciones por Industria</h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">Experiencia especializada en los sectores más exigentes de Argentina</p>
+          <div class="w-20 h-1 bg-red-500 mx-auto mt-4"></div>
         </div>
         
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-3 max-w-7xl mx-auto">
-          <!-- Constructoras - ULTRA REFINADO -->
-          <a href="/constructoras" class="group relative block overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 transition-all duration-500 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10">
-            <div class="p-8">
-              <!-- Indicator -->
-              <div class="mb-6 flex items-center gap-3">
-                <div class="h-1 w-12 rounded-full bg-gradient-to-r from-amber-500 to-orange-500"></div>
-                <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Sector</span>
-              </div>
-              
-              <!-- Title -->
-              <h3 class="text-3xl font-bold text-white mb-3 transition-colors duration-300 group-hover:text-amber-400">
-                Constructoras
-              </h3>
-              
-              <!-- Description -->
-              <p class="text-sm text-gray-400 mb-6 leading-relaxed">
-                Infraestructura IT para obras y proyectos de construcción
-              </p>
-              
-              <!-- Stats Mini -->
-              <div class="flex items-center gap-6 mb-6 pb-6 border-b border-gray-700/50">
-                <div>
-                  <div class="text-2xl font-bold text-white">+50</div>
-                  <div class="text-xs text-gray-500">Proyectos</div>
-                </div>
-                <div>
-                  <div class="text-2xl font-bold text-white">20+</div>
-                  <div class="text-xs text-gray-500">Años</div>
-                </div>
-              </div>
-              
-              <!-- CTA -->
-              <div class="flex items-center gap-2 text-sm font-medium text-gray-400 transition-all duration-300 group-hover:text-amber-400 group-hover:gap-3">
-                <span>Ver más</span>
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </div>
-            </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Aeropuertos -->
+          <a href="/aeropuertos" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">✈️</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Aeropuertos</h3>
+            <p class="text-gray-600 text-sm">Infraestructura crítica y sistemas de comunicación</p>
           </a>
-
-          <!-- Aeropuertos - ULTRA REFINADO -->
-          <a href="/aeropuertos" class="group relative block overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 transition-all duration-500 hover:border-sky-500/50 hover:shadow-2xl hover:shadow-sky-500/10">
-            <div class="p-8">
-              <!-- Indicator -->
-              <div class="mb-6 flex items-center gap-3">
-                <div class="h-1 w-12 rounded-full bg-gradient-to-r from-sky-500 to-blue-500"></div>
-                <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Sector</span>
-              </div>
-              
-              <!-- Title -->
-              <h3 class="text-3xl font-bold text-white mb-3 transition-colors duration-300 group-hover:text-sky-400">
-                Aeropuertos
-              </h3>
-              
-              <!-- Description -->
-              <p class="text-sm text-gray-400 mb-6 leading-relaxed">
-                Comunicaciones críticas y seguridad aeroportuaria
-              </p>
-              
-              <!-- Stats Mini -->
-              <div class="flex items-center gap-6 mb-6 pb-6 border-b border-gray-700/50">
-                <div>
-                  <div class="text-2xl font-bold text-white">35+</div>
-                  <div class="text-xs text-gray-500">Proyectos</div>
-                </div>
-                <div>
-                  <div class="text-2xl font-bold text-white">24/7</div>
-                  <div class="text-xs text-gray-500">Soporte</div>
-                </div>
-              </div>
-              
-              <!-- CTA -->
-              <div class="flex items-center gap-2 text-sm font-medium text-gray-400 transition-all duration-300 group-hover:text-sky-400 group-hover:gap-3">
-                <span>Ver más</span>
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </div>
-            </div>
+          
+          <!-- Bodegas -->
+          <a href="/bodegas" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">🍷</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Bodegas</h3>
+            <p class="text-gray-600 text-sm">Automatización y control de procesos vitivinícolas</p>
           </a>
-
-          <!-- Salud - ULTRA REFINADO -->
-          <a href="/salud" class="group relative block overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 transition-all duration-500 hover:border-teal-500/50 hover:shadow-2xl hover:shadow-teal-500/10">
-            <div class="p-8">
-              <!-- Indicator -->
-              <div class="mb-6 flex items-center gap-3">
-                <div class="h-1 w-12 rounded-full bg-gradient-to-r from-teal-500 to-emerald-500"></div>
-                <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Sector</span>
-              </div>
-              
-              <!-- Title -->
-              <h3 class="text-3xl font-bold text-white mb-3 transition-colors duration-300 group-hover:text-teal-400">
-                Salud
-              </h3>
-              
-              <!-- Description -->
-              <p class="text-sm text-gray-400 mb-6 leading-relaxed">
-                Tecnología hospitalaria y sistemas críticos de salud
-              </p>
-              
-              <!-- Stats Mini -->
-              <div class="flex items-center gap-6 mb-6 pb-6 border-b border-gray-700/50">
-                <div>
-                  <div class="text-2xl font-bold text-white">40+</div>
-                  <div class="text-xs text-gray-500">Proyectos</div>
-                </div>
-                <div>
-                  <div class="text-2xl font-bold text-white">15+</div>
-                  <div class="text-xs text-gray-500">Años</div>
-                </div>
-              </div>
-              
-              <!-- CTA -->
-              <div class="flex items-center gap-2 text-sm font-medium text-gray-400 transition-all duration-300 group-hover:text-teal-400 group-hover:gap-3">
-                <span>Ver más</span>
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </div>
-            </div>
+          
+          <!-- Constructoras -->
+          <a href="/constructoras" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">🏗️</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Constructoras</h3>
+            <p class="text-gray-600 text-sm">Redes y comunicaciones para obras y canteros</p>
           </a>
-
-          <!-- Bodegas - ULTRA REFINADO -->
-          <a href="/bodegas" class="group relative block overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 transition-all duration-500 hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/10">
-            <div class="p-8">
-              <!-- Indicator -->
-              <div class="mb-6 flex items-center gap-3">
-                <div class="h-1 w-12 rounded-full bg-gradient-to-r from-purple-500 to-violet-500"></div>
-                <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Sector</span>
-              </div>
-              
-              <!-- Title -->
-              <h3 class="text-3xl font-bold text-white mb-3 transition-colors duration-300 group-hover:text-purple-400">
-                Bodegas
-              </h3>
-              
-              <!-- Description -->
-              <p class="text-sm text-gray-400 mb-6 leading-relaxed">
-                Tecnología para bodegas y vitivinicultura
-              </p>
-              
-              <!-- Stats Mini -->
-              <div class="flex items-center gap-6 mb-6 pb-6 border-b border-gray-700/50">
-                <div>
-                  <div class="text-2xl font-bold text-white">10+</div>
-                  <div class="text-xs text-gray-500">Proyectos</div>
-                </div>
-                <div>
-                  <div class="text-2xl font-bold text-white">5+</div>
-                  <div class="text-xs text-gray-500">Años</div>
-                </div>
-              </div>
-              
-              <!-- CTA -->
-              <div class="flex items-center gap-2 text-sm font-medium text-gray-400 transition-all duration-300 group-hover:text-purple-400 group-hover:gap-3">
-                <span>Ver más</span>
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </div>
-            </div>
+          
+          <!-- Salud -->
+          <a href="/salud" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">🏥</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Salud</h3>
+            <p class="text-gray-600 text-sm">Sistemas críticos para centros médicos y clínicas</p>
           </a>
-
-          <!-- Software - ULTRA REFINADO -->
-          <a href="/software" class="group relative block overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 transition-all duration-500 hover:border-cyan-500/50 hover:shadow-2xl hover:shadow-cyan-500/10">
-            <div class="p-8">
-              <!-- Indicator -->
-              <div class="mb-6 flex items-center gap-3">
-                <div class="h-1 w-12 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500"></div>
-                <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Sector</span>
-              </div>
-              
-              <!-- Title -->
-              <h3 class="text-3xl font-bold text-white mb-3 transition-colors duration-300 group-hover:text-cyan-400">
-                Software
-              </h3>
-              
-              <!-- Description -->
-              <p class="text-sm text-gray-400 mb-6 leading-relaxed">
-                Desarrollo de software a medida y personalizado
-              </p>
-              
-              <!-- Stats Mini -->
-              <div class="flex items-center gap-6 mb-6 pb-6 border-b border-gray-700/50">
-                <div>
-                  <div class="text-2xl font-bold text-white">20+</div>
-                  <div class="text-xs text-gray-500">Proyectos</div>
-                </div>
-                <div>
-                  <div class="text-2xl font-bold text-white">10+</div>
-                  <div class="text-xs text-gray-500">Años</div>
-                </div>
-              </div>
-              
-              <!-- CTA -->
-              <div class="flex items-center gap-2 text-sm font-medium text-gray-400 transition-all duration-300 group-hover:text-cyan-400 group-hover:gap-3">
-                <span>Ver más</span>
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </div>
-            </div>
+          
+          <!-- Gobierno -->
+          <a href="/gobiernosectorpublico" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">🏛️</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Gobierno</h3>
+            <p class="text-gray-600 text-sm">Infraestructura tecnológica para el sector público</p>
           </a>
-
-          <!-- Gobierno/Sector Público - ULTRA REFINADO -->
-          <a href="/gobiernosectorpublico" class="group relative block overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 transition-all duration-500 hover:border-red-500/50 hover:shadow-2xl hover:shadow-red-500/10">
-            <div class="p-8">
-              <!-- Indicator -->
-              <div class="mb-6 flex items-center gap-3">
-                <div class="h-1 w-12 rounded-full bg-gradient-to-r from-red-500 to-rose-500"></div>
-                <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Sector</span>
-              </div>
-              
-              <!-- Title -->
-              <h3 class="text-3xl font-bold text-white mb-3 transition-colors duration-300 group-hover:text-red-400">
-                Gobierno
-              </h3>
-              
-              <!-- Description -->
-              <p class="text-sm text-gray-400 mb-6 leading-relaxed">
-                Soluciones tecnológicas para el sector público
-              </p>
-              
-              <!-- Stats Mini -->
-              <div class="flex items-center gap-6 mb-6 pb-6 border-b border-gray-700/50">
-                <div>
-                  <div class="text-2xl font-bold text-white">30+</div>
-                  <div class="text-xs text-gray-500">Proyectos</div>
-                </div>
-                <div>
-                  <div class="text-2xl font-bold text-white">15+</div>
-                  <div class="text-xs text-gray-500">Años</div>
-                </div>
-              </div>
-              
-              <!-- CTA -->
-              <div class="flex items-center gap-2 text-sm font-medium text-gray-400 transition-all duration-300 group-hover:text-red-400 group-hover:gap-3">
-                <span>Ver más</span>
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </div>
-            </div>
+          
+          <!-- Software -->
+          <a href="/software" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">💻</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Software</h3>
+            <p class="text-gray-600 text-sm">Desarrollo de soluciones a medida</p>
           </a>
-        </div>
-
-        <!-- CTA a página de sectores -->
-        <div class="text-center mt-16">
-          <a href="/sector" class="inline-block border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-3 rounded-lg font-semibold transition duration-300">
-            Ver todos los sectores →
+          
+          <!-- Minería -->
+          <a href="/mineria" class="group block p-6 bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-amber-200">
+            <div class="text-4xl mb-4">⛏️</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-amber-600 transition">Minería</h3>
+            <p class="text-gray-600 text-sm">Conectividad crítica en zonas remotas</p>
+          </a>
+          
+          <!-- Industria -->
+          <a href="/industria" class="group block p-6 bg-gradient-to-br from-green-50 to-teal-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-green-200">
+            <div class="text-4xl mb-4">🏭</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-green-600 transition">Industria</h3>
+            <p class="text-gray-600 text-sm">Industria 4.0 y automatización</p>
+          </a>
+          
+          <!-- Seguridad Electrónica -->
+          <a href="/seguridad-electronica" class="group block p-6 bg-gradient-to-br from-red-50 to-pink-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-red-200">
+            <div class="text-4xl mb-4">🔒</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Seguridad Electrónica</h3>
+            <p class="text-gray-600 text-sm">CCTV, control de accesos y detección</p>
           </a>
         </div>
       </div>
     </section>
-
-    <!-- Formulario de Contacto -->
+    
+    <!-- Contacto -->
     <section id="contacto" class="py-20 bg-white">
       <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto bg-gray-50 rounded-xl shadow-lg overflow-hidden">
           <div class="md:flex">
             <div class="md:w-1/2 bg-red-500 text-white p-8 md:p-12">
-              <h2 class="text-3xl font-bold mb-4">¿Listo para comenzar tu transformación digital?</h2>
-              <p class="mb-6">Contáctanos para una <strong>consulta gratuita</strong> en Mendoza y descubre cómo podemos ayudarte a alcanzar tus objetivos tecnológicos.</p>
+              <h2 class="text-3xl font-bold mb-4">¿Listo para comenzar?</h2>
+              <p class="mb-6">Contáctanos para discutir cómo podemos ayudarte a alcanzar tus objetivos tecnológicos.</p>
               <div class="space-y-4">
                 <div class="flex items-start">
                   <div class="flex-shrink-0 mt-1">
@@ -455,36 +223,45 @@ const antecedentes = {
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <p class="ml-3">info@ultimamilla.com.ar</p>
+                  <p class="ml-3">contacto@ultimamilla.com</p>
+                </div>
+                <div class="flex items-start">
+                  <div class="flex-shrink-0 mt-1">
+                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                  </div>
+                  <p class="ml-3">+54 261 123 4567</p>
+                </div>
+                <div class="flex items-start">
+                  <div class="flex-shrink-0 mt-1">
+                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <p class="ml-3">Av. San Martín 1234, Mendoza, Argentina</p>
                 </div>
               </div>
             </div>
             <div class="md:w-1/2 p-8 md:p-12">
               <h3 class="text-2xl font-bold text-gray-800 mb-6">Envíanos un mensaje</h3>
-              <form id="footerContactForm" method="post" action="/api/contact" novalidate class="space-y-4" data-form-type="footer">
+              <form class="space-y-4">
                 <div>
-                  <label for="footer_name" class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
-                  <input type="text" id="footer_name" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="Tu nombre completo">
+                  <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                  <input type="text" id="name" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
                 </div>
                 <div>
-                  <label for="footer_email" class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                  <input type="email" id="footer_email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="tu@email.com">
+                  <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
                 </div>
                 <div>
-                  <label for="footer_message" class="block text-sm font-medium text-gray-700 mb-1">Mensaje *</label>
-                  <textarea id="footer_message" name="message" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="Describe tu proyecto o consulta..."></textarea>
+                  <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Mensaje</label>
+                  <textarea id="message" name="message" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
                 </div>
-                <input type="text" name="honeypot" class="hidden" tabindex="-1" autocomplete="off" />
-                <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 flex justify-center items-center gap-2" id="footer_submit">
-                  <span>Enviar Mensaje</span>
-                  <div class="hidden" id="footer_spinner">
-                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                  </div>
+                <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                  Enviar Mensaje
                 </button>
-                <div id="footer_message_status" class="text-sm mt-2 text-center"></div>
               </form>
             </div>
           </div>
@@ -492,113 +269,113 @@ const antecedentes = {
       </div>
     </section>
 
+
   </main>
-  
-</Layout>
 
-<style is:global>
-  /* Estilos globales para la página */
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-</style>
-
-<script is:inline>
-  // Mobile menu toggle
-  document.addEventListener('DOMContentLoaded', () => {
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    if (mobileMenuButton) {
-      mobileMenuButton.addEventListener('click', () => {
-        const mobileMenu = document.getElementById('mobile-menu');
-        if (mobileMenu) {
-          mobileMenu.classList.toggle('hidden');
-        }
-      });
+  <!-- Scripts y Estilos -->
+  <script>
+    // Sistema de imágenes aleatorias de alta calidad
+    const techImages = [
+      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Servidores
+      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Código
+      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Tecnología espacial
+      'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Laptop código
+      'https://images.unsplash.com/photo-1537432376769-00f83c2f9c52?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Cables red
+      'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Fibra óptica
+      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Data center
+      'https://images.unsplash.com/photo-1563206767-5b18f218e8de?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Circuitos
+      'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // AI/ML
+      'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Código terminal
+      'https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Programación
+      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Servidores 2
+      'https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Blockchain
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Gráficos datos
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Analytics
+      'https://images.unsplash.com/photo-1504639725590-34d0984388bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Desarrollo
+      'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Matemáticas
+      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'  // Tech final
+    ];
+    
+    const banner = document.getElementById('banner');
+    const heroBackground = banner.querySelector('.hero-background');
+    
+    // Función para cambiar imagen aleatoriamente
+    function changeBackgroundImage() {
+      const randomImage = techImages[Math.floor(Math.random() * techImages.length)];
+      heroBackground.style.backgroundImage = `url(${randomImage})`;
     }
-  });
-</script>
-
-<!-- Fira Code Font -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<!-- Contact System Script -->
-<script is:inline>
-  document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('footerContactForm');
-    if (!form) return;
-
-    const msg = document.getElementById('footer_message_status');
-    const btn = document.getElementById('footer_submit');
-    const spinner = document.getElementById('footer_spinner');
-    const btnText = btn?.querySelector('span');
-
-    function showSpinner(show) {
-      if (!spinner || !btn || !btnText) return;
-      spinner.classList.toggle('hidden', !show);
-      btnText.textContent = show ? 'Enviando...' : 'Enviar Mensaje';
-      btn.disabled = show;
-      btn.style.opacity = show ? '0.7' : '1';
-    }
-
-    function showMessage(text, isSuccess) {
-      if (!msg) return;
-      msg.textContent = text;
-      msg.style.color = isSuccess ? '#16a34a' : '#dc2626';
-      msg.style.opacity = '1';
-    }
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData);
-
-      // Validaciones
-      if (data.honeypot) {
-        showMessage('Error de validación.', false);
-        return;
-      }
-
-      if (!data.name || !data.email || !data.message) {
-        showMessage('Por favor completa todos los campos obligatorios (*)', false);
-        return;
-      }
-
-      // Deshabilitar botón y mostrar spinner
-      showSpinner(true);
-      showMessage('', false); // Limpiar mensaje anterior
-
-      try {
-        // Enviar los datos
-        console.log('Enviando datos al servidor...', data);
-        const res = await fetch('/api/contact', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data)
-        });
-
-        console.log('Respuesta del servidor:', res.status);
-        const json = await res.json();
-        console.log('Datos de respuesta:', json);
-
-        if (res.ok && json.success) {
-          showMessage('¡Gracias! Tu mensaje ha sido enviado. Te contactaremos pronto.', true);
-          form.reset();
-        } else {
-          showMessage(json.message || 'Error al enviar el mensaje. Por favor intenta nuevamente.', false);
-        }
-      } catch (err) {
-        console.error('Error al enviar formulario:', err);
-        showMessage('Error de conexión. Por favor verifica tu conexión e intenta nuevamente.', false);
-      } finally {
-        showSpinner(false);
-      }
+    
+    // Establecer imagen inicial
+    changeBackgroundImage();
+    
+    // Cambiar imagen cada 10 segundos (opcional)
+    setInterval(changeBackgroundImage, 10000);
+    
+    // Efecto parallax
+    window.addEventListener('scroll', () => {
+      const scrolled = window.pageYOffset;
+      heroBackground.style.backgroundPositionY = `${scrolled * 0.5}px`;
     });
-  });
-</script>
-
+  </script>
+  
+  <style is:global>
+    
+    .terminal-text {
+      font-family: 'Courier New', 'Monaco', 'Lucida Console', monospace;
+      color: #00cc00;
+      font-weight: bold;
+      letter-spacing: 0.1em;
+      text-shadow: 1px 1px 0px rgba(0,0,0,0.8);
+    }
+    
+    .terminal-cursor {
+      font-family: 'Courier New', 'Monaco', 'Lucida Console', monospace;
+      color: #00cc00;
+      font-weight: bold;
+      animation: blink 1s infinite;
+    }
+    
+    .hero-title {
+      font-family: 'Courier New', 'Monaco', 'Lucida Console', monospace;
+      font-weight: bold;
+      letter-spacing: 0.05em;
+    }
+    
+    .hero-subtitle {
+      font-family: 'Courier New', 'Monaco', 'Lucida Console', monospace;
+      font-weight: normal;
+      letter-spacing: 0.02em;
+    }
+    
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+    
+    @keyframes scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-1600px); }
+    }
+    
+    .animate-scroll {
+      animation: scroll 20s linear infinite;
+    }
+    
+    .animate-scroll.pause:hover {
+      animation-play-state: paused;
+    }
+    
+    /* Efectos adicionales para el banner */
+    #banner {
+      background-attachment: fixed;
+    }
+    
+    .hero-background {
+      transition: background-image 0.5s ease-in-out;
+      background-attachment: fixed;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+  </style>
+</Layout>

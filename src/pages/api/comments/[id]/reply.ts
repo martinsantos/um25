@@ -1,11 +1,7 @@
 import type { APIRoute } from 'astro';
 import { addReply } from '../../../../data/comments';
 
-export function getStaticPaths() {
-  return [];
-}
-
-export const POST: APIRoute = async ({ params, request }) => {
+export const POST: APIRoute = async ({ request, params }) => {
     try {
         const commentId = params.id;
         if (!commentId) {

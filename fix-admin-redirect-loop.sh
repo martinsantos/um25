@@ -78,18 +78,18 @@ http {
     # Servidor HTTP - Redirección a HTTPS
     server {
         listen 80;
-        server_name www.ultimamilla.com.ar ultimamilla.com.ar;
+        server_name www.umbot.com.ar umbot.com.ar;
         return 301 https://$server_name$request_uri;
     }
     
     # Servidor HTTPS Principal
     server {
         listen 443 ssl http2;
-        server_name www.ultimamilla.com.ar ultimamilla.com.ar;
+        server_name www.umbot.com.ar umbot.com.ar;
         
         # Configuración SSL
-        ssl_certificate /etc/letsencrypt/live/www.ultimamilla.com.ar/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/www.ultimamilla.com.ar/privkey.pem;
+        ssl_certificate /etc/letsencrypt/live/www.umbot.com.ar/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/www.umbot.com.ar/privkey.pem;
         ssl_protocols TLSv1.2 TLSv1.3;
         ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384;
         ssl_prefer_server_ciphers off;
@@ -232,8 +232,8 @@ print_info "Verificando que el bucle de redirecciones esté corregido..."
 sleep 5
 
 # Verificar que no hay bucle
-if curl -I https://www.ultimamilla.com.ar/admin 2>/dev/null | grep -q "200\|302"; then
-    if ! curl -L https://www.ultimamilla.com.ar/admin 2>&1 | grep -q "Maximum.*redirects"; then
+if curl -I https://www.umbot.com.ar/admin 2>/dev/null | grep -q "200\|302"; then
+    if ! curl -L https://www.umbot.com.ar/admin 2>&1 | grep -q "Maximum.*redirects"; then
         print_status "✅ Bucle de redirecciones CORREGIDO"
     else
         print_error "❌ Bucle de redirecciones PERSISTE"
@@ -243,7 +243,7 @@ else
 fi
 
 # Verificar sitio principal
-if curl -I https://www.ultimamilla.com.ar >/dev/null 2>&1; then
+if curl -I https://www.umbot.com.ar >/dev/null 2>&1; then
     print_status "✅ Sitio principal funcionando"
 else
     print_error "❌ Sitio principal con problemas"
@@ -258,11 +258,11 @@ echo ""
 echo "📋 ACCESOS ACTUALIZADOS:"
 echo "======================="
 print_info "🌐 Sitio Web Principal:"
-echo "   URL: https://www.ultimamilla.com.ar"
+echo "   URL: https://www.umbot.com.ar"
 echo ""
 print_info "🔐 Panel de Administración:"
-echo "   URL: https://www.ultimamilla.com.ar/admin/"
-echo "   Usuario: admin@ultimamilla.com.ar"
+echo "   URL: https://www.umbot.com.ar/admin/"
+echo "   Usuario: admin@umbot.com.ar"
 echo "   Contraseña: UmbotHybridAdmin2025!"
 echo ""
 print_info "📝 Cambios aplicados:"
@@ -273,7 +273,7 @@ echo "   - Headers X-Forwarded-Prefix agregados"
 
 echo ""
 print_status "🎯 PANEL DE ADMINISTRACIÓN DEBERÍA FUNCIONAR AHORA"
-print_info "   Probar: https://www.ultimamilla.com.ar/admin/"
+print_info "   Probar: https://www.umbot.com.ar/admin/"
 
 # Limpiar archivo temporal
 rm -f nginx.hybrid.fixed.conf

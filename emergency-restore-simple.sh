@@ -6,7 +6,7 @@ echo "Iniciado: $(date)"
 
 # Variables
 SERVER_IP="23.105.176.45"
-DOMAIN="www.ultimamilla.com.ar"
+DOMAIN="www.umbot.com.ar"
 
 echo ""
 echo "🔧 PASO 1: CREANDO CONFIGURACIÓN DE EMERGENCIA SIMPLE"
@@ -52,9 +52,9 @@ services:
       DB_DATABASE: directus
       DB_USER: directus
       DB_PASSWORD: directus123
-      ADMIN_EMAIL: admin@ultimamilla.com.ar
+      ADMIN_EMAIL: admin@umbot.com.ar
       ADMIN_PASSWORD: EmergencyAdmin2025!
-      PUBLIC_URL: https://www.ultimamilla.com.ar
+      PUBLIC_URL: https://www.umbot.com.ar
     volumes:
       - directus_simple:/directus/uploads
     networks:
@@ -92,18 +92,18 @@ upstream directus_simple {
 # Redirección HTTP a HTTPS
 server {
     listen 80;
-    server_name www.ultimamilla.com.ar;
+    server_name www.umbot.com.ar;
     return 301 https://$server_name$request_uri;
 }
 
 # Servidor principal HTTPS
 server {
     listen 443 ssl http2;
-    server_name www.ultimamilla.com.ar;
+    server_name www.umbot.com.ar;
 
     # Certificados SSL
-    ssl_certificate /etc/letsencrypt/live/www.ultimamilla.com.ar/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/www.ultimamilla.com.ar/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/www.umbot.com.ar/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/www.umbot.com.ar/privkey.pem;
 
     # Headers de seguridad
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
@@ -193,7 +193,7 @@ echo "docker-compose -f docker-compose.simple.yml up -d"
 echo ""
 echo "# 7. Verificar estado"
 echo "docker-compose -f docker-compose.simple.yml ps"
-echo "curl -I https://www.ultimamilla.com.ar/"
+echo "curl -I https://www.umbot.com.ar/"
 echo ""
 
 echo "🎯 RECUPERACIÓN SIMPLE LISTA"

@@ -33,11 +33,11 @@ services:
       DB_DATABASE: 'mydatabase'
       DB_USER: 'myuser'
       DB_PASSWORD: 'mypassword123'
-      ADMIN_EMAIL: 'admin@ultimamilla.com.ar'
-      ADMIN_PASSWORD: 'UltimaMillaAdmin2025!'
-      PUBLIC_URL: 'https://www.ultimamilla.com.ar'
+      ADMIN_EMAIL: 'admin@umbot.com.ar'
+      ADMIN_PASSWORD: 'UmbotAdmin2025!'
+      PUBLIC_URL: 'https://www.umbot.com.ar'
       CORS_ENABLED: 'true'
-      CORS_ORIGIN: 'https://www.ultimamilla.com.ar'
+      CORS_ORIGIN: 'https://www.umbot.com.ar'
       CACHE_ENABLED: 'true'
       STORAGE_LOCATIONS: 'local'
       STORAGE_LOCAL_DRIVER: 'local'
@@ -72,7 +72,7 @@ services:
     environment:
       NODE_ENV: production
       ASTRO_ENV: production
-      PUBLIC_SITE_URL: https://www.ultimamilla.com.ar
+      PUBLIC_SITE_URL: https://www.umbot.com.ar
       STATIC_MODE: true
       USE_STATIC_DATA: true
     volumes:

@@ -72,7 +72,7 @@ The new Directus-powered backend has been successfully deployed. This update str
     *   **URL:** `http://<your_domain>:8055`
     *   **Credentials:** Located in `docker-compose.yml` (`ADMIN_EMAIL`, `ADMIN_PASSWORD`).
 *   **API Endpoint:** The Directus API is available at `http://<your_domain>:8055`.
-*   **Application URL:** The primary application remains accessible at `https://www.ultimamilla.com.ar`.
+*   **Application URL:** The primary application remains accessible at `https://www.umbot.com.ar`.
 
 #### Token Location
 

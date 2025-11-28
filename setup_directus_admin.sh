@@ -18,8 +18,8 @@ curl -I http://localhost:8055/ 2>/dev/null | head -1
 
 echo ""
 echo "🎯 DIRECTUS CONFIGURADO:"
-echo "URL: https://www.ultimamilla.com.ar:8055/admin"
-echo "Usuario: admin@ultimamilla.com.ar"  
+echo "URL: https://www.umbot.com.ar:8055/admin"
+echo "Usuario: admin@umbot.com.ar"  
 echo "Contraseña: UmbotDirectusAdmin2025!"
 echo ""
-echo "✅ El sitio principal sigue funcionando en: https://www.ultimamilla.com.ar/"
+echo "✅ El sitio principal sigue funcionando en: https://www.umbot.com.ar/"

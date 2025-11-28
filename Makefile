@@ -133,7 +133,7 @@ health: ## 🏥 Health check completo
 	@curl -s http://localhost:4321 > /dev/null && echo "  ✅ App local OK" || echo "  ❌ App local FAIL"
 	@curl -s http://localhost:8055/server/health > /dev/null && echo "  ✅ Directus local OK" || echo "  ❌ Directus local FAIL"
 	@echo "$(YELLOW)Producción:$(NC)"
-	@curl -s https://www.ultimamilla.com.ar > /dev/null && echo "  ✅ Producción OK" || echo "  ❌ Producción FAIL"
+	@curl -s https://www.umbot.com.ar > /dev/null && echo "  ✅ Producción OK" || echo "  ❌ Producción FAIL"
 
 ##@ 🗄️ BASE DE DATOS
 
@@ -215,8 +215,8 @@ info: ## 📋 Información del proyecto
 	@echo "🟢 Node.js: $(shell node -v)"
 	@echo "📦 npm: $(shell npm -v)"
 	@echo "🐳 Docker: $(shell docker --version 2>/dev/null || echo 'No instalado')"
-	@echo "🌐 Producción: https://www.ultimamilla.com.ar"
-	@echo "🎛️  Admin: https://www.ultimamilla.com.ar:8055"
+	@echo "🌐 Producción: https://www.umbot.com.ar"
+	@echo "🎛️  Admin: https://www.umbot.com.ar:8055"
 
 urls: ## 🌐 URLs importantes
 	@echo "$(CYAN)🌐 URLS IMPORTANTES$(NC)"
@@ -228,8 +228,8 @@ urls: ## 🌐 URLs importantes
 	@echo "  📧 MailHog: http://localhost:8025"
 	@echo ""
 	@echo "$(YELLOW)Producción:$(NC)"
-	@echo "  🌐 Sitio: https://www.ultimamilla.com.ar"
-	@echo "  🎛️  Admin: https://www.ultimamilla.com.ar:8055"
+	@echo "  🌐 Sitio: https://www.umbot.com.ar"
+	@echo "  🎛️  Admin: https://www.umbot.com.ar:8055"
 
 # Comando por defecto
 .DEFAULT_GOAL := help

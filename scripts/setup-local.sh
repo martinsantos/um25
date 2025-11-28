@@ -128,7 +128,7 @@ DATABASE_URL=postgresql://directus:dev_password_2025@localhost:5432/directus_dev
 # Directus
 DIRECTUS_URL=http://localhost:8055
 PUBLIC_DIRECTUS_URL=http://localhost:8055
-DIRECTUS_ADMIN_EMAIL=admin@ultimamilla.local
+DIRECTUS_ADMIN_EMAIL=admin@umbot.local
 DIRECTUS_ADMIN_PASSWORD=admin123dev
 
 # Redis
@@ -249,7 +249,7 @@ setup_directus() {
     done
     
     log_info "🌐 Directus Admin disponible en: http://localhost:8055"
-    log_info "👤 Usuario: admin@ultimamilla.local"
+    log_info "👤 Usuario: admin@umbot.local"
     log_info "🔐 Contraseña: admin123dev"
 }
 
@@ -363,7 +363,7 @@ show_summary() {
 👤 CREDENCIALES DIRECTUS:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Email:    admin@ultimamilla.local
+Email:    admin@umbot.local
 Password: admin123dev
 
 🚀 COMANDOS ÚTILES:

@@ -16,8 +16,8 @@
 #### **📋 Checklist de verificación inmediata:**
 ```bash
 # URLs a verificar desde el navegador móvil:
-✅ https://ultimamilla.com.ar/
-✅ https://ultimamilla.com.ar/admin/
+✅ https://umbot.com.ar/
+✅ https://umbot.com.ar/admin/
 ✅ https://23.105.176.45/ (IP directa)
 
 # Estados esperados:
@@ -133,8 +133,8 @@ ping -c 3 23.105.176.45 > /dev/null && echo "✅ Servidor accesible" || echo "�
 # Test de servicios web
 echo ""
 echo "🔍 SERVICIOS WEB:"
-curl -I --connect-timeout 10 https://ultimamilla.com.ar/ 2>/dev/null | head -1 || echo "❌ HTTPS no responde"
-curl -I --connect-timeout 10 http://ultimamilla.com.ar/ 2>/dev/null | head -1 || echo "❌ HTTP no responde"
+curl -I --connect-timeout 10 https://umbot.com.ar/ 2>/dev/null | head -1 || echo "❌ HTTPS no responde"
+curl -I --connect-timeout 10 http://umbot.com.ar/ 2>/dev/null | head -1 || echo "❌ HTTP no responde"
 
 # SSH Test
 echo ""
@@ -158,7 +158,7 @@ echo "📊 DIAGNÓSTICO COMPLETADO"
 
 // Task: Emergency Recovery
 A1: HTTP Get [
-    Server:Port: https://ultimamilla.com.ar
+    Server:Port: https://umbot.com.ar
     Timeout: 10
 ]
 
@@ -170,7 +170,7 @@ A2: If [ %HTTPD !~ 200 ]
         Command: cd /root/fumbling-field && docker-compose restart
     ]
     A4: Wait [ 30 seconds ]
-    A5: HTTP Get [ https://ultimamilla.com.ar ]
+    A5: HTTP Get [ https://umbot.com.ar ]
     A6: Flash [ "Recovery completed: %HTTPD" ]
 A7: End If
 ```
@@ -239,7 +239,7 @@ send_mobile_notification "CRITICAL" "Server unresponsive - manual intervention r
     <script>
         async function checkStatus() {
             try {
-                const response = await fetch('https://ultimamilla.com.ar/');
+                const response = await fetch('https://umbot.com.ar/');
                 document.getElementById('web-result').textContent = `✅ OK (${response.status})`;
                 document.getElementById('status-web').className = 'status ok';
             } catch (error) {

@@ -152,7 +152,7 @@ cat > dist/client/antecedentes/index.html << 'HTML_EOF'
         
         <div style="text-align: center; margin-top: 40px; opacity: 0.8;">
             <p>🔄 Para acceder al catálogo completo de antecedentes, utiliza el panel de administración</p>
-            <p>📧 Contacto: info@ultimamilla.com.ar | 📞 +54 11 1234-5678</p>
+            <p>📧 Contacto: info@umbot.com.ar | 📞 +54 11 1234-5678</p>
         </div>
     </div>
 </body>
@@ -343,7 +343,7 @@ cat > dist/client/servicios/index.html << 'HTML_EOF'
         
         <div style="text-align: center; margin-top: 40px; opacity: 0.8;">
             <p>💼 Soluciones personalizadas para cada cliente</p>
-            <p>📧 Contacto: info@ultimamilla.com.ar | 📞 +54 11 1234-5678</p>
+            <p>📧 Contacto: info@umbot.com.ar | 📞 +54 11 1234-5678</p>
         </div>
     </div>
 </body>
@@ -366,16 +366,16 @@ ls -la dist/client/servicios/
 echo "🌐 Probando páginas..."
 curl -I http://localhost/antecedentes/
 curl -I http://localhost/servicios/
-curl -I https://www.ultimamilla.com.ar/antecedentes/
-curl -I https://www.ultimamilla.com.ar/servicios/
+curl -I https://www.umbot.com.ar/antecedentes/
+curl -I https://www.umbot.com.ar/servicios/
 
 echo ""
 echo "🎯 CORRECCIÓN COMPLETADA"
 echo "========================"
 echo ""
-echo "✅ Antecedentes: https://www.ultimamilla.com.ar/antecedentes/"
-echo "✅ Servicios: https://www.ultimamilla.com.ar/servicios/"
-echo "✅ Admin: https://www.ultimamilla.com.ar/admin"
+echo "✅ Antecedentes: https://www.umbot.com.ar/antecedentes/"
+echo "✅ Servicios: https://www.umbot.com.ar/servicios/"
+echo "✅ Admin: https://www.umbot.com.ar/admin"
 echo ""
 
 COMMANDS_EOF

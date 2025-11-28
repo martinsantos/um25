@@ -3,7 +3,7 @@
 ## 🎯 **OBJETIVO: DIRECTUS SIN AFECTAR FRONTEND ESTÁTICO**
 
 ### 📋 **SITUACIÓN ACTUAL**
-- Frontend estático funcionando en ultimamilla.com.ar
+- Frontend estático funcionando en umbot.com.ar
 - Necesidad de CMS para administración de contenido
 - Requisito: No interferir con el sitio web actual
 
@@ -28,7 +28,7 @@
 │           │                                │                │
 │           ▼                                ▼                │
 │  ┌─────────────────┐              ┌─────────────────┐       │
-│  │ www.ultimamilla.com.ar│              │ :8055/admin     │       │
+│  │ www.umbot.com.ar│              │ :8055/admin     │       │
 │  │ (Público)       │              │ (Administración)│       │
 │  └─────────────────┘              └─────────────────┘       │
 │                                                             │
@@ -43,7 +43,7 @@
    - Sin interferencias entre sistemas
 
 2. **🌐 ACCESOS INDEPENDIENTES**
-   - **Frontend público**: https://www.ultimamilla.com.ar
+   - **Frontend público**: https://www.umbot.com.ar
    - **Panel admin**: http://23.105.176.45:8055/admin
    - **APIs**: http://23.105.176.45:8055/items/
 
@@ -56,7 +56,7 @@
 #### **PASO 1: VERIFICAR ESTADO ACTUAL**
 ```bash
 # Verificar que el frontend estático funciona
-curl -I https://www.ultimamilla.com.ar
+curl -I https://www.umbot.com.ar
 # Esperado: HTTP/2 200 OK
 
 # Verificar Directus independiente
@@ -107,7 +107,7 @@ chmod +x verificar-frontend-estatico.sh
 #### **FRONTEND ESTÁTICO (Puerto 80/443)**
 - **Servidor**: Nginx
 - **Contenido**: HTML/CSS/JS estático
-- **Dominio**: www.ultimamilla.com.ar
+- **Dominio**: www.umbot.com.ar
 - **SSL**: Certificado válido
 
 ### 📊 **DATOS DISPONIBLES EN DIRECTUS**
@@ -121,10 +121,10 @@ chmod +x verificar-frontend-estatico.sh
 ### 🌐 **URLS DE ACCESO**
 
 #### **FRONTEND PÚBLICO (NO AFECTADO)**
-- https://www.ultimamilla.com.ar → Página principal
-- https://www.ultimamilla.com.ar/servicios → Lista de servicios
-- https://www.ultimamilla.com.ar/antecedentes → Lista de antecedentes
-- https://www.ultimamilla.com.ar/contacto → Página de contacto
+- https://www.umbot.com.ar → Página principal
+- https://www.umbot.com.ar/servicios → Lista de servicios
+- https://www.umbot.com.ar/antecedentes → Lista de antecedentes
+- https://www.umbot.com.ar/contacto → Página de contacto
 
 #### **DIRECTUS INDEPENDIENTE**
 - http://23.105.176.45:8055/admin → Panel de administración

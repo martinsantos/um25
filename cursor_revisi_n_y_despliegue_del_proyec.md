@@ -5,7 +5,7 @@ _Exported on 14/6/2025 at 07:39:29 GMT-3 from Cursor (1.0.0)_
 
 **User**
 
-Revisemos salud del proyecto local en /fumbling-field que debe estar desplegado en www.ultimamilla.com.ar con el frente en astro y www.ultimamilla.com.ar /admin para el back en directus con TODOS LOS DATOS de la Base de datos, archivos, etc. 
+Revisemos salud del proyecto local en /fumbling-field que debe estar desplegado en www.umbot.com.ar con el frente en astro y www.umbot.com.ar /admin para el back en directus con TODOS LOS DATOS de la Base de datos, archivos, etc. 
 
 Ya hicimos mucho, revisa lo realizado en SolucionFInal.md, en la memoria de estos chats, y despliega y controla segun el documento de solucionfinalmigracion.md 
 @solucionfinalmigracion.md 
@@ -16,13 +16,13 @@ Revisa, testea, despliega, controla y no permitas que no esté en linea en el do
 
 **Cursor**
 
-Perfecto, voy a revisar el estado actual del proyecto `/fumbling-field` y seguir el checklist de validación de migración para asegurarme de que todo esté desplegado correctamente en `www.ultimamilla.com.ar`. Comenzaré explorando la estructura actual del proyecto.
+Perfecto, voy a revisar el estado actual del proyecto `/fumbling-field` y seguir el checklist de validación de migración para asegurarme de que todo esté desplegado correctamente en `www.umbot.com.ar`. Comenzaré explorando la estructura actual del proyecto.
 
 Ahora voy a revisar la configuración específica para entender el estado del proyecto:
 
 Perfecto, ahora empezaré con la validación siguiendo el checklist. Primero, verificaré la conectividad y estado actual del proyecto:
 
-Veo un problema crítico: **el dominio `www.ultimamilla.com.ar` no está resuelto por DNS**. Esto significa que necesitamos configurar el dominio o usar otro servidor. Ahora voy a verificar el estado del proyecto local y preparar el despliegue paso a paso:
+Veo un problema crítico: **el dominio `www.umbot.com.ar` no está resuelto por DNS**. Esto significa que necesitamos configurar el dominio o usar otro servidor. Ahora voy a verificar el estado del proyecto local y preparar el despliegue paso a paso:
 
 Excelente, tenemos todas las dependencias instaladas. Ahora siguiendo el checklist de validación de migración, voy a ejecutar los pasos paso a paso:
 
@@ -71,9 +71,9 @@ export function generateSlug(title) {
 ✅ **API**: Todos los endpoints operativos (200 OK)  
 ✅ **Build**: Completado sin errores  
 
-**PROBLEMA CRÍTICO**: El dominio `www.ultimamilla.com.ar` no está resuelto por DNS. Necesitamos configurar el despliegue. Voy a revisar la configuración del servidor:
+**PROBLEMA CRÍTICO**: El dominio `www.umbot.com.ar` no está resuelto por DNS. Necesitamos configurar el despliegue. Voy a revisar la configuración del servidor:
 
-¡Perfecto! Ahora entiendo la situación completa. **Hay un servidor existente en `23.105.176.45`** donde ya está desplegado el proyecto. El problema es que el dominio `www.ultimamilla.com.ar` no está configurado para apuntar a esta IP. 
+¡Perfecto! Ahora entiendo la situación completa. **Hay un servidor existente en `23.105.176.45`** donde ya está desplegado el proyecto. El problema es que el dominio `www.umbot.com.ar` no está configurado para apuntar a esta IP. 
 
 Voy a verificar el estado actual del servidor y configurar todo correctamente:
 
@@ -97,7 +97,7 @@ DB_DATABASE=mydatabase
 # Configuración de Directus
 DIRECTUS_KEY=d41d8cd98f00b204e9800998ecf8427e
 DIRECTUS_SECRET=6c7f5b9e8d3a4f1c2e5b8a9d6f0c3e7a
-ADMIN_EMAIL=admin@ultimamilla.com.ar
+ADMIN_EMAIL=admin@umbot.com.ar
 ADMIN_PASSWORD=Admin123!
 
 # Token estático de autenticación
@@ -106,11 +106,11 @@ PUBLIC_DIRECTUS_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
 
 # URLs del proyecto
 PUBLIC_DIRECTUS_URL=http://23.105.176.45:8055
-PUBLIC_SITE_URL=https://www.ultimamilla.com.ar
+PUBLIC_SITE_URL=https://www.umbot.com.ar
 PUBLIC_URL=http://23.105.176.45:8055
 
 # Configuración CORS
-CORS_ORIGINS=https://www.ultimamilla.com.ar,https://ultimamilla.com.ar,http://23.105.176.45:8080
+CORS_ORIGINS=https://www.umbot.com.ar,https://umbot.com.ar,http://23.105.176.45:8080
 
 # Rol público para Directus
 PUBLIC_ROLE=74e3b05e-0f14-422e-9ad3-759d426db60a
@@ -136,7 +136,7 @@ LOG_LEVEL=warn
 ```shellscript
 #!/bin/bash
 
-# Script de despliegue automático para www.ultimamilla.com.ar
+# Script de despliegue automático para www.umbot.com.ar
 # Este script debe ejecutarse en el servidor 23.105.176.45
 
 set -e  # Salir en caso de error
@@ -149,11 +149,11 @@ NC='\033[0m'
 
 # Configuración
 PROJECT_DIR="/root/um25"
-DOMAIN="www.ultimamilla.com.ar"
+DOMAIN="www.umbot.com.ar"
 SERVER_IP="23.105.176.45"
 
 echo -e "${YELLOW}========================================${NC}"
-echo -e "${YELLOW}    DESPLIEGUE DE www.ultimamilla.com.ar     ${NC}"
+echo -e "${YELLOW}    DESPLIEGUE DE www.umbot.com.ar     ${NC}"
 echo -e "${YELLOW}========================================${NC}"
 
 # 1. Crear directorio del proyecto
@@ -231,8 +231,8 @@ echo -e "${YELLOW}11. Configurando Nginx...${NC}"
 if [ -f "nginx.production.conf" ]; then
     # Verificar si Nginx está instalado
     if command -v nginx >/dev/null 2>&1; then
-        cp nginx.production.conf /etc/nginx/sites-available/ultimamilla.com.ar
-        ln -sf /etc/nginx/sites-available/ultimamilla.com.ar /etc/nginx/sites-enabled/
+        cp nginx.production.conf /etc/nginx/sites-available/umbot.com.ar
+        ln -sf /etc/nginx/sites-available/umbot.com.ar /etc/nginx/sites-enabled/
         nginx -t && systemctl reload nginx
         echo -e "${GREEN}✅ Nginx configurado${NC}"
     else
@@ -268,7 +268,7 @@ echo -e "${GREEN}🎉 ¡Despliegue completado exitosamente!${NC}"
 ```
 
 ```markdown
-# 🚀 INSTRUCCIONES DE DESPLIEGUE - www.ultimamilla.com.ar
+# 🚀 INSTRUCCIONES DE DESPLIEGUE - www.umbot.com.ar
 
 ## 📋 Checklist de Despliegue Completo
 
@@ -282,7 +282,7 @@ echo -e "${GREEN}🎉 ¡Despliegue completado exitosamente!${NC}"
 
 ### 🎯 OBJETIVO DEL DESPLIEGUE
 
-Desplegar **www.ultimamilla.com.ar** en el servidor `23.105.176.45` con:
+Desplegar **www.umbot.com.ar** en el servidor `23.105.176.45` con:
 - Frontend Astro en puerto 3000
 - Backend Directus en puerto 8055 
 - Admin panel en `/admin`
@@ -327,11 +327,11 @@ chmod +x deploy-server.sh
 
 ### Paso 4: Configurar DNS
 
-Configurar los registros DNS para que `www.ultimamilla.com.ar` apunte a `23.105.176.45`:
+Configurar los registros DNS para que `www.umbot.com.ar` apunte a `23.105.176.45`:
 
 ```
 Tipo: A
-Nombre: www.ultimamilla.com.ar
+Nombre: www.umbot.com.ar
 Valor: 23.105.176.45
 TTL: 3600
 ```
@@ -343,8 +343,8 @@ TTL: 3600
 apt update && apt install nginx -y
 
 # Copiar configuración
-cp nginx.production.conf /etc/nginx/sites-available/ultimamilla.com.ar
-ln -sf /etc/nginx/sites-available/ultimamilla.com.ar /etc/nginx/sites-enabled/
+cp nginx.production.conf /etc/nginx/sites-available/umbot.com.ar
+ln -sf /etc/nginx/sites-available/umbot.com.ar /etc/nginx/sites-enabled/
 
 # Testear y recargar
 nginx -t
@@ -358,7 +358,7 @@ systemctl reload nginx
 apt install certbot python3-certbot-nginx -y
 
 # Obtener certificado SSL
-certbot --nginx -d www.ultimamilla.com.ar -d ultimamilla.com.ar
+certbot --nginx -d www.umbot.com.ar -d umbot.com.ar
 
 # Verificar renovación automática
 certbot renew --dry-run
@@ -368,9 +368,9 @@ certbot renew --dry-run
 
 ### URLs a verificar:
 
-1. **Frontend**: https://www.ultimamilla.com.ar
-2. **Admin Directus**: https://www.ultimamilla.com.ar/admin
-3. **API Directus**: https://www.ultimamilla.com.ar/api/items/antecedentes
+1. **Frontend**: https://www.umbot.com.ar
+2. **Admin Directus**: https://www.umbot.com.ar/admin
+3. **API Directus**: https://www.umbot.com.ar/api/items/antecedentes
 4. **Estado IP**: http://23.105.176.45:3000 (temporal)
 
 ### Comandos de verificación:
@@ -390,13 +390,13 @@ curl -X GET "http://localhost:8055/items/antecedentes?limit=1" \
 curl -I http://localhost:3000
 
 # Verificar SSL (después de configuración)
-curl -I https://www.ultimamilla.com.ar
+curl -I https://www.umbot.com.ar
 ```
 
 ## 🏗️ ARQUITECTURA DESPLEGADA
 
 ```
-www.ultimamilla.com.ar (443) → Nginx → {
+www.umbot.com.ar (443) → Nginx → {
   /admin → Directus (8055)
   /api   → Directus (8055)
   /      → Astro (3000)
@@ -406,7 +406,7 @@ www.ultimamilla.com.ar (443) → Nginx → {
 ## 🔑 CREDENCIALES Y TOKENS
 
 - **Token API**: `k6P8LAY8_x_y1miB_KTlWnysCnx2Abky`
-- **Admin Directus**: admin@ultimamilla.com.ar / Admin123!
+- **Admin Directus**: admin@umbot.com.ar / Admin123!
 - **Base de datos**: myuser / mypassword123
 
 ## 🛠️ COMANDOS DE MANTENIMIENTO
@@ -451,8 +451,8 @@ curl -X GET "http://localhost:8055/users/me" \
 ### Si el dominio no resuelve:
 ```bash
 # Verificar DNS
-nslookup www.ultimamilla.com.ar
-dig www.ultimamilla.com.ar
+nslookup www.umbot.com.ar
+dig www.umbot.com.ar
 ```
 
 ## 📞 SOPORTE
@@ -472,17 +472,17 @@ Para resolver problemas, verificar:
 - [ ] DNS configurado
 - [ ] Nginx instalado y configurado
 - [ ] SSL configurado con Let's Encrypt
-- [ ] Frontend accesible en www.ultimamilla.com.ar
-- [ ] Admin accesible en www.ultimamilla.com.ar/admin
+- [ ] Frontend accesible en www.umbot.com.ar
+- [ ] Admin accesible en www.umbot.com.ar/admin
 - [ ] API funcionando correctamente
 - [ ] Todas las páginas cargan sin errores
 
 ---
 
-🎉 **¡Una vez completados todos los pasos, www.ultimamilla.com.ar estará completamente operativo!**
+🎉 **¡Una vez completados todos los pasos, www.umbot.com.ar estará completamente operativo!**
 ```
 
-## 🎯 **RESUMEN EJECUTIVO - DESPLIEGUE www.ultimamilla.com.ar**
+## 🎯 **RESUMEN EJECUTIVO - DESPLIEGUE www.umbot.com.ar**
 
 ### ✅ **ESTADO ACTUAL COMPLETADO**
 
@@ -518,13 +518,13 @@ chmod +x deploy-server.sh
 ```
 
 **4. CONFIGURAR DNS:**
-- Registrar: `www.ultimamilla.com.ar` → `23.105.176.45`
+- Registrar: `www.umbot.com.ar` → `23.105.176.45`
 - Tipo A, TTL 3600
 
 ### 📊 **ARQUITECTURA DESPLEGADA**
 
 ```
-www.ultimamilla.com.ar → Nginx (443) → {
+www.umbot.com.ar → Nginx (443) → {
   /        → Astro Frontend (3000)
   /admin   → Directus Admin (8055)
   /api     → Directus API (8055)
@@ -534,14 +534,14 @@ www.ultimamilla.com.ar → Nginx (443) → {
 ### 🔑 **CREDENCIALES**
 
 - **API Token**: `k6P8LAY8_x_y1miB_KTlWnysCnx2Abky`
-- **Admin**: admin@ultimamilla.com.ar / Admin123!
+- **Admin**: admin@umbot.com.ar / Admin123!
 - **DB**: myuser / mypassword123
 
 ### 🎯 **URLS FINALES**
 
-- **Frontend**: https://www.ultimamilla.com.ar
-- **Admin**: https://www.ultimamilla.com.ar/admin  
-- **API**: https://www.ultimamilla.com.ar/api
+- **Frontend**: https://www.umbot.com.ar
+- **Admin**: https://www.umbot.com.ar/admin  
+- **API**: https://www.umbot.com.ar/api
 
 ### ⚡ **ACCIÓN REQUERIDA**
 
@@ -576,7 +576,7 @@ chmod +x deploy-server.sh
 ```
 
 ```plaintext
-www.ultimamilla.com.ar → Nginx (443) → {
+www.umbot.com.ar → Nginx (443) → {
   /        → Astro Frontend (3000)
   /admin   → Directus Admin (8055)
   /api     → Directus API (8055)
@@ -610,7 +610,7 @@ Perfecto, voy a documentar todo el proceso en `solucionfinal.md` y luego analiza
 
 ### Auditoría Completa del Proyecto
 
-Se realizó una auditoría exhaustiva del proyecto `/fumbling-field` para preparar el despliegue en `www.ultimamilla.com.ar`:
+Se realizó una auditoría exhaustiva del proyecto `/fumbling-field` para preparar el despliegue en `www.umbot.com.ar`:
 
 **✅ Validaciones Completadas:**
 - **Build local**: Completado sin errores tras corregir función `fetchAntecedente` faltante
@@ -654,11 +654,11 @@ Se realizó una auditoría exhaustiva del proyecto `/fumbling-field` para prepar
 ### Configuración del Servidor de Producción
 
 **Servidor Target**: `23.105.176.45`
-**Dominio**: `www.ultimamilla.com.ar` 
+**Dominio**: `www.umbot.com.ar` 
 
 **Arquitectura Desplegada**:
 ```
-www.ultimamilla.com.ar (443) → Nginx → {
+www.umbot.com.ar (443) → Nginx → {
   /admin → Directus (8055)
   /api   → Directus (8055) 
   /      → Astro (3000)
@@ -686,7 +686,7 @@ deploy-package/
 ```bash
 # URLs del proyecto
 PUBLIC_DIRECTUS_URL=http://23.105.176.45:8055
-PUBLIC_SITE_URL=https://www.ultimamilla.com.ar
+PUBLIC_SITE_URL=https://www.umbot.com.ar
 PUBLIC_URL=http://23.105.176.45:8055
 
 # Token de autenticación validado
@@ -694,7 +694,7 @@ DIRECTUS_STATIC_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
 PUBLIC_DIRECTUS_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
 
 # CORS configurado para múltiples dominios
-CORS_ORIGINS=https://www.ultimamilla.com.ar,https://ultimamilla.com.ar,http://23.105.176.45:8080
+CORS_ORIGINS=https://www.umbot.com.ar,https://umbot.com.ar,http://23.105.176.45:8080
 
 # Optimizaciones de producción
 PUBLIC_ASSETS=true
@@ -731,7 +731,7 @@ Durante la ejecución del script en el servidor se detectó un error:
 ### Próximos Pasos para Completar el Despliegue
 
 1. **Corregir script de despliegue** para buscar el archivo en la ubicación correcta
-2. **Configurar DNS** para `www.ultimamilla.com.ar` → `23.105.176.45`
+2. **Configurar DNS** para `www.umbot.com.ar` → `23.105.176.45`
 3. **Instalar y configurar Nginx**
 4. **Configurar SSL con Let's Encrypt**
 5. **Verificación final de todas las URLs**
@@ -739,14 +739,14 @@ Durante la ejecución del script en el servidor se detectó un error:
 ### URLs Finales Esperadas
 
 Una vez completado el despliegue:
-- **Frontend**: https://www.ultimamilla.com.ar
-- **Admin Directus**: https://www.ultimamilla.com.ar/admin
-- **API Directus**: https://www.ultimamilla.com.ar/api/items/antecedentes
+- **Frontend**: https://www.umbot.com.ar
+- **Admin Directus**: https://www.umbot.com.ar/admin
+- **API Directus**: https://www.umbot.com.ar/api/items/antecedentes
 
 ### Credenciales de Producción
 
 - **Token API**: `k6P8LAY8_x_y1miB_KTlWnysCnx2Abky`
-- **Admin Directus**: admin@ultimamilla.com.ar / Admin123!
+- **Admin Directus**: admin@umbot.com.ar / Admin123!
 - **Base de datos**: myuser / mypassword123
 
 **El proyecto está 100% listo para producción, solo requiere corrección del script de despliegue y configuración final del DNS.**
@@ -1030,7 +1030,7 @@ echo -e "   Directus Admin: ${GREEN}http://23.105.176.45:8055/admin${NC}"
 echo -e "   Directus API: ${GREEN}http://23.105.176.45:8055/items/antecedentes${NC}"
 
 echo -e "${YELLOW}🔑 Credenciales:${NC}"
-echo -e "   Admin: admin@ultimamilla.com.ar / Admin123!"
+echo -e "   Admin: admin@umbot.com.ar / Admin123!"
 echo -e "   Token: k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
 
 echo -e "${YELLOW}🔧 Comandos útiles:${NC}"
@@ -1092,7 +1092,7 @@ Una vez ejecutado el script:
 
 ## 🔑 **CREDENCIALES**
 
-- **Admin**: `admin@ultimamilla.com.ar` / `Admin123!`
+- **Admin**: `admin@umbot.com.ar` / `Admin123!`
 - **Token API**: `k6P8LAY8_x_y1miB_KTlWnysCnx2Abky`
 
 ## 📊 **CAMBIOS EN EL SCRIPT CORREGIDO**
@@ -1237,7 +1237,7 @@ DB_DATABASE=mydatabase
 
 DIRECTUS_KEY=d41d8cd98f00b204e9800998ecf8427e
 DIRECTUS_SECRET=6c7f5b9e8d3a4f1c2e5b8a9d6f0c3e7a
-ADMIN_EMAIL=admin@ultimamilla.com.ar
+ADMIN_EMAIL=admin@umbot.com.ar
 ADMIN_PASSWORD=Admin123!
 
 DIRECTUS_STATIC_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
@@ -1325,7 +1325,7 @@ DB_DATABASE=mydatabase
 
 DIRECTUS_KEY=d41d8cd98f00b204e9800998ecf8427e
 DIRECTUS_SECRET=6c7f5b9e8d3a4f1c2e5b8a9d6f0c3e7a
-ADMIN_EMAIL=admin@ultimamilla.com.ar
+ADMIN_EMAIL=admin@umbot.com.ar
 ADMIN_PASSWORD=Admin123!
 
 DIRECTUS_STATIC_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
@@ -1394,7 +1394,7 @@ DB_DATABASE=mydatabase
 
 DIRECTUS_KEY=d41d8cd98f00b204e9800998ecf8427e
 DIRECTUS_SECRET=6c7f5b9e8d3a4f1c2e5b8a9d6f0c3e7a
-ADMIN_EMAIL=admin@ultimamilla.com.ar
+ADMIN_EMAIL=admin@umbot.com.ar
 ADMIN_PASSWORD=Admin123!
 
 DIRECTUS_STATIC_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
@@ -1457,7 +1457,7 @@ DB_PASSWORD=mypassword123
 DB_DATABASE=mydatabase
 DIRECTUS_KEY=d41d8cd98f00b204e9800998ecf8427e
 DIRECTUS_SECRET=6c7f5b9e8d3a4f1c2e5b8a9d6f0c3e7a
-ADMIN_EMAIL=admin@ultimamilla.com.ar
+ADMIN_EMAIL=admin@umbot.com.ar
 ADMIN_PASSWORD=Admin123!
 DIRECTUS_STATIC_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
 PUBLIC_DIRECTUS_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
@@ -1499,7 +1499,7 @@ DB_DATABASE=mydatabase
 
 DIRECTUS_KEY=d41d8cd98f00b204e9800998ecf8427e
 DIRECTUS_SECRET=6c7f5b9e8d3a4f1c2e5b8a9d6f0c3e7a
-ADMIN_EMAIL=admin@ultimamilla.com.ar
+ADMIN_EMAIL=admin@umbot.com.ar
 ADMIN_PASSWORD=Admin123!
 
 DIRECTUS_STATIC_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
@@ -1556,7 +1556,7 @@ DB_PASSWORD=mypassword123
 DB_DATABASE=mydatabase
 DIRECTUS_KEY=d41d8cd98f00b204e9800998ecf8427e
 DIRECTUS_SECRET=6c7f5b9e8d3a4f1c2e5b8a9d6f0c3e7a
-ADMIN_EMAIL=admin@ultimamilla.com.ar
+ADMIN_EMAIL=admin@umbot.com.ar
 ADMIN_PASSWORD=Admin123!
 DIRECTUS_STATIC_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
 PUBLIC_DIRECTUS_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
@@ -3074,7 +3074,7 @@ curl "http://23.105.176.45:8055/items/antecedentes?limit=1"
 # Si no funciona, crear el token en Directus
 echo "=== Accediendo a Directus Admin ==="
 echo "URL: http://23.105.176.45:8055/admin"
-echo "Email: admin@ultimamilla.com.ar"
+echo "Email: admin@umbot.com.ar"
 echo "Password: Admin123!"
 ```
 
@@ -3188,7 +3188,7 @@ curl "http://23.105.176.45:8055/items/antecedentes?limit=1"
 # Si no funciona, crear el token en Directus
 echo "=== Accediendo a Directus Admin ==="
 echo "URL: http://23.105.176.45:8055/admin"
-echo "Email: admin@ultimamilla.com.ar"
+echo "Email: admin@umbot.com.ar"
 echo "Password: Admin123!"
 ```
 
@@ -3302,7 +3302,7 @@ El problema de la API es que no está configurado el acceso público. Vamos a so
 curl -X POST "http://23.105.176.45:8055/auth/login" \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "admin@ultimamilla.com.ar",
+    "email": "admin@umbot.com.ar",
     "password": "Admin123!"
   }'
 
@@ -3316,7 +3316,7 @@ Necesitamos acceder al admin y configurar el rol público:
 ```bash
 echo "🚀 ACCEDE A DIRECTUS ADMIN:"
 echo "URL: http://23.105.176.45:8055/admin"
-echo "Email: admin@ultimamilla.com.ar"
+echo "Email: admin@umbot.com.ar"
 echo "Password: Admin123!"
 echo ""
 echo "📋 PASOS EN DIRECTUS ADMIN:"
@@ -3385,7 +3385,7 @@ curl -I http://23.105.176.45/
 curl -X POST "http://23.105.176.45:8055/auth/login" \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "admin@ultimamilla.com.ar",
+    "email": "admin@umbot.com.ar",
     "password": "Admin123!"
   }'
 
@@ -3395,7 +3395,7 @@ curl -X POST "http://23.105.176.45:8055/auth/login" \
 ```shellscript
 echo "🚀 ACCEDE A DIRECTUS ADMIN:"
 echo "URL: http://23.105.176.45:8055/admin"
-echo "Email: admin@ultimamilla.com.ar"
+echo "Email: admin@umbot.com.ar"
 echo "Password: Admin123!"
 echo ""
 echo "📋 PASOS EN DIRECTUS ADMIN:"
@@ -3491,7 +3491,7 @@ echo "Admin Directus: http://23.105.176.45/admin"
 ```
 Admin Directus:
 - URL: http://23.105.176.45/admin
-- Email: admin@ultimamilla.com.ar
+- Email: admin@umbot.com.ar
 - Password: Admin123!
 ```
 
@@ -3540,7 +3540,7 @@ echo "Admin Directus: http://23.105.176.45/admin"
 ```plaintext
 Admin Directus:
 - URL: http://23.105.176.45/admin
-- Email: admin@ultimamilla.com.ar
+- Email: admin@umbot.com.ar
 - Password: Admin123!
 ```
 
@@ -3559,7 +3559,7 @@ Con esta configuración, el proyecto debería funcionar correctamente en servido
 
 ### ✅ DESPLIEGUE COMPLETADO CON ÉXITO
 
-El proyecto **www.ultimamilla.com.ar** ha sido desplegado exitosamente en el servidor `23.105.176.45` con todas las funcionalidades operativas:
+El proyecto **www.umbot.com.ar** ha sido desplegado exitosamente en el servidor `23.105.176.45` con todas las funcionalidades operativas:
 
 **URLs Finales Funcionando:**
 - ✅ **Sitio principal**: http://23.105.176.45/ (Puerto 80 con Nginx)
@@ -3606,7 +3606,7 @@ Puerto 80 (Nginx) → {
 ```bash
 # Admin Directus
 URL: http://23.105.176.45/admin
-Email: admin@ultimamilla.com.ar
+Email: admin@umbot.com.ar
 Password: Admin123!
 
 # Base de datos PostgreSQL
@@ -3633,7 +3633,7 @@ Admin Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ### Próximos Pasos Recomendados
 
-1. **Configurar dominio**: Apuntar www.ultimamilla.com.ar a 23.105.176.45
+1. **Configurar dominio**: Apuntar www.umbot.com.ar a 23.105.176.45
 2. **SSL/HTTPS**: Configurar certificados Let's Encrypt
 3. **Contenido**: Cargar datos reales de antecedentes y servicios
 4. **Monitoreo**: Configurar logs y alertas de sistema
@@ -3655,7 +3655,7 @@ Admin Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 Admin Directus:
 URL: http://23.105.176.45/admin
-Email: admin@ultimamilla.com.ar
+Email: admin@umbot.com.ar
 Password: Admin123!
 ```
 
@@ -3672,7 +3672,7 @@ Puerto 80 (Nginx) → {
 ### **📝 PRÓXIMOS PASOS OPCIONALES**
 
 1. **Ejecutar los comandos finales** que te proporcioné para crear datos de prueba
-2. **Configurar DNS** para www.ultimamilla.com.ar → 23.105.176.45
+2. **Configurar DNS** para www.umbot.com.ar → 23.105.176.45
 3. **Agregar SSL/HTTPS** con Let's Encrypt
 4. **Cargar contenido real** en Directus
 
@@ -3685,14 +3685,14 @@ Puerto 80 (Nginx) → {
 - ✅ Proxy Nginx configurado correctamente
 - ✅ Documentación completa del proceso
 
-**¡El proyecto www.ultimamilla.com.ar está DESPLEGADO y FUNCIONANDO correctamente en http://23.105.176.45/!** 🚀
+**¡El proyecto www.umbot.com.ar está DESPLEGADO y FUNCIONANDO correctamente en http://23.105.176.45/!** 🚀
 
 ¿Quieres que ejecutemos los comandos finales para crear datos de prueba o prefieres proceder con el siguiente paso?
 
 ```plaintext
 Admin Directus:
 URL: http://23.105.176.45/admin
-Email: admin@ultimamilla.com.ar
+Email: admin@umbot.com.ar
 Password: Admin123!
 ```
 
@@ -3707,7 +3707,7 @@ Puerto 80 (Nginx) → {
 ```plaintext
 Admin Directus:
 URL: http://23.105.176.45/admin
-Email: admin@ultimamilla.com.ar
+Email: admin@umbot.com.ar
 Password: Admin123!
 ```
 
@@ -4644,7 +4644,7 @@ La forma más sencilla para esto es exportar desde el panel de administración d
 1.  **Accede al panel de administración de Directus en producción**:
     Abre tu navegador y ve a `http://23.105.176.45/admin/`.
 2.  **Inicia sesión** con las credenciales de producción que hemos configurado previamente:
-    *   **Email**: `admin@ultimamilla.com.ar`
+    *   **Email**: `admin@umbot.com.ar`
     *   **Contraseña**: `Admin123!`
 3.  **Exporta los datos de las colecciones principales**:
     *   Ve a **"Data Studio"** (Estudio de Datos) en la barra lateral izquierda.

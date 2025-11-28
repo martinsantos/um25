@@ -1,260 +1,496 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import SEOHead from '../components/SEO/SEOHead.astro';
-import Breadcrumbs from '../components/SEO/Breadcrumbs.astro';
-
-// SEO metadata optimizado para página Nosotros con enfoque local
-const seoData = {
-  title: "Sobre ULTIMA MILLA Mendoza | +20 Años Líderes en Servicios IT | Historia y Equipo",
-  description: "Conoce ULTIMA MILLA: empresa líder en servicios IT de Mendoza desde 2000. +469 proyectos exitosos con Gobierno de Mendoza, AFIP, Banco Credicoop. Equipo especializado en infraestructura, redes y desarrollo.",
-  keywords: "sobre ultima milla mendoza, historia empresa IT mendoza, equipo tecnológico mendoza, especialistas comunicaciones mendoza, sistemas integración argentina, empresa local tecnología",
-  canonical: "https://ultimamilla.com.ar/nosotros"
-};
-
-// Breadcrumbs
-const breadcrumbs = [
-  { name: "Inicio", url: "/" },
-  { name: "Nosotros", url: "/nosotros", current: true }
-];
-
-// Array de imágenes tecnológicas del hero (mismo que en index.astro)
-const techImages = [
-  'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Servidores
-  'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Código
-  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Tecnología espacial
-  'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Laptop código
-  'https://images.unsplash.com/photo-1537432376769-00f83c2f9c52?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Cables red
-  'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Fibra óptica
-  'https://images.unsplash.com/photo-1563206767-5b18f218e8de?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Circuitos
-  'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // AI/ML
-  'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Código terminal
-  'https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Programación
-  'https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Blockchain
-  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Gráficos datos
-  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Analytics
-  'https://images.unsplash.com/photo-1504639725590-34d0984388bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Desarrollo
-  'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Matemáticas
-];
-
-// Seleccionar imagen aleatoria
-const randomImage = techImages[Math.floor(Math.random() * techImages.length)];
 ---
 
-<Layout>
-  <SEOHead 
-    title={seoData.title}
-    description={seoData.description}
-    keywords={seoData.keywords}
-    canonical={seoData.canonical}
-    ogType="website"
-    breadcrumbs={breadcrumbs}
-  />
-
-  <div class="bg-white pt-16 py-12">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-12">
-        <h1 class="text-5xl font-black text-gray-900 mb-6">ULTIMA MILLA en <span class="text-blue-600">Mendoza</span></h1>
-        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-          La empresa líder en servicios IT de Mendoza desde el año 2000
-        </p>
-      </div>
-			<!-- Estadísticas y Historia -->
-			<div class="grid md:grid-cols-2 gap-12 mb-16">
-				<div>
-					<img id="heroImage" src={randomImage} alt="Infraestructura tecnológica ULTIMA MILLA - Empresa IT líder en Mendoza desde 2000" class="w-full h-80 object-cover rounded-xl shadow-lg mb-6">
-				</div>
-				<div class="flex flex-col justify-center">
-					<h2 class="text-3xl font-black text-gray-900 mb-6">Nuestra Historia en Mendoza</h2>
-					<p class="text-lg text-gray-700 mb-6 leading-relaxed">
-						<strong>ULTIMA MILLA</strong> nació en Mendoza como un equipo de especialistas en comunicaciones, sistemas e integración. Desde el año <strong>2000</strong>, transformamos necesidades operativas en soluciones tecnológicas concretas para empresas mendocinas.
-					</p>
-					<div class="grid grid-cols-2 gap-6 mb-6">
-						<div class="text-center p-4 bg-blue-50 rounded-lg">
-							<div class="text-3xl font-black text-blue-600 mb-2">+469</div>
-							<div class="text-sm font-semibold text-gray-600">Proyectos Exitosos</div>
-						</div>
-						<div class="text-center p-4 bg-green-50 rounded-lg">
-							<div class="text-3xl font-black text-green-600 mb-2">+20</div>
-							<div class="text-sm font-semibold text-gray-600">Años en Mendoza</div>
-						</div>
-					</div>
+<Layout 
+  title="Sobre ULTIMA MILLA | Servicios Tecnológicos en Mendoza, Cuyo y Patagonia" 
+  description="Servicios tecnológicos para empresas y organizaciones argentinas. Zona de incumbencia: Mendoza, Cuyo, Patagonia. +20 años de experiencia en telecomunicaciones, cableado estructurado, corrientes débiles, detección de incendio y software a medida. +400 proyectos exitosos." 
+  keywords="servicios tecnologicos empresas, zona incumbencia mendoza cuyo patagonia, ultima milla argentina, telecomunicaciones profesionales, historia empresa tecnologia"
+>
+	
+	<!-- 1. HERO SECTION MEJORADO (Recuperado de diseño anterior) -->
+	<div class="bg-gradient-to-br from-blue-50 to-indigo-100 py-16">
+		<div class="max-w-4xl mx-auto px-4 text-center">
+			<div class="flex justify-center mb-6">
+				<div class="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">
+					<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+					</svg>
+					SOBRE NOSOTROS
 				</div>
 			</div>
+			
+			<h1 class="text-5xl font-black text-gray-900 mb-6">
+			Expertos en <span class="text-blue-600">Servicios Tecnológicos</span> en Argentina
+		</h1>
+			
+			<p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+				Más de dos décadas transformando empresas en Mendoza y Argentina con soluciones IT robustas, escalables y seguras.
+			</p>
 
-			<!-- Sectores Atendidos -->
-			<div class="mb-16">
-				<h2 class="text-3xl font-black text-gray-900 mb-8 text-center">Sectores que Atendemos en Mendoza</h2>
-				<div class="grid md:grid-cols-3 gap-6">
-					<div class="bg-white p-6 rounded-xl shadow-lg text-center">
-						<div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-							<svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-								<path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-								<path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
-							</svg>
-						</div>
-						<h3 class="text-xl font-bold text-gray-900 mb-3">Gobierno</h3>
-						<p class="text-gray-600">Provincial y nacional, estadios, eventos deportivos</p>
-					</div>
-					<div class="bg-white p-6 rounded-xl shadow-lg text-center">
-						<div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-							<svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-								<path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
-							</svg>
-						</div>
-						<h3 class="text-xl font-bold text-gray-900 mb-3">Sector Privado</h3>
-						<p class="text-gray-600">Bancos, empresas vitivinícolas, medios de comunicación</p>
-					</div>
-					<div class="bg-white p-6 rounded-xl shadow-lg text-center">
-						<div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-							<svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-								<path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
-							</svg>
-						</div>
-						<h3 class="text-xl font-bold text-gray-900 mb-3">Salud & Educación</h3>
-						<p class="text-gray-600">Hospitales, universidades, centros educativos</p>
-					</div>
+			<!-- Estadísticas -->
+			<div class="grid grid-cols-3 gap-8 mb-12">
+				<div class="text-center">
+					<div class="text-4xl font-black text-blue-600 mb-2">+469</div>
+					<div class="text-gray-600 font-medium">Proyectos Exitosos</div>
+				</div>
+				<div class="text-center">
+					<div class="text-4xl font-black text-green-600 mb-2">+20</div>
+					<div class="text-gray-600 font-medium">Años de Trayectoria</div>
+				</div>
+				<div class="text-center">
+					<div class="text-4xl font-black text-purple-600 mb-2">24/7</div>
+					<div class="text-gray-600 font-medium">Soporte Crítico</div>
 				</div>
 			</div>
+		</div>
+	</div>
 
-			<!-- Servicios que Ofrecemos -->
-			<div class="mb-16">
-				<h2 class="text-3xl font-black text-gray-900 mb-8 text-center">Nuestros Servicios IT en Mendoza</h2>
-				<div class="grid md:grid-cols-2 gap-8">
-					<div class="bg-blue-50 p-6 rounded-xl">
-						<h3 class="text-xl font-bold text-blue-800 mb-4">Infraestructura & Redes</h3>
-						<ul class="space-y-3">
-							<li class="flex items-start">
-								<svg class="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-									<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-								</svg>
-								<span class="text-gray-700">Cableado estructurado y fibra óptica</span>
-							</li>
-							<li class="flex items-start">
-								<svg class="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-									<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-								</svg>
-								<span class="text-gray-700">Radioenlaces y telecomunicaciones</span>
-							</li>
-							<li class="flex items-start">
-								<svg class="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-									<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-								</svg>
-								<span class="text-gray-700">Centros de datos y servidores</span>
-							</li>
-						</ul>
-					</div>
-					<div class="bg-green-50 p-6 rounded-xl">
-						<h3 class="text-xl font-bold text-green-800 mb-4">Desarrollo & Seguridad</h3>
-						<ul class="space-y-3">
-							<li class="flex items-start">
-								<svg class="w-5 h-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-									<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-								</svg>
-								<span class="text-gray-700">Software a medida e integraciones API</span>
-							</li>
-							<li class="flex items-start">
-								<svg class="w-5 h-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-									<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-								</svg>
-								<span class="text-gray-700">Seguridad física y digital</span>
-							</li>
-							<li class="flex items-start">
-								<svg class="w-5 h-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-									<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-								</svg>
-								<span class="text-gray-700">Modernización cloud e infraestructura</span>
-							</li>
-						</ul>
-					</div>
-				</div>
-			</div>
+	<div class="max-w-7xl mx-auto px-4 py-16">
+		
+		<!-- 2. IMAGEN PRINCIPAL (Requerimiento de usuario) -->
+		<div class="mb-20">
+			<img src="/nosotros-tech.jpg" alt="Infraestructura tecnológica ULTIMA MILLA" class="w-full h-[500px] object-cover rounded-2xl shadow-2xl transform hover:scale-[1.01] transition-transform duration-500">
+		</div>
 
-			<!-- Antecedentes Verificables -->
-			<div class="mb-16">
-				<h2 class="text-3xl font-black text-gray-900 mb-8 text-center">Antecedentes Verificables en Mendoza</h2>
-				<div class="bg-gray-50 p-8 rounded-xl">
-					<p class="text-lg text-gray-700 leading-relaxed text-center mb-8">
-						Nuestro portfolio incluye <strong>+469 proyectos documentados</strong> con clientes de prestigio en Mendoza y Argentina.
-					</p>
-					<div class="grid md:grid-cols-3 gap-6">
-						<div class="bg-white p-6 rounded-lg shadow text-center">
-							<div class="text-2xl font-black text-blue-600 mb-2">Gobierno</div>
-							<p class="text-sm text-gray-600">Gobierno de Mendoza, AFIP, Estadio Malvinas Argentinas</p>
-						</div>
-						<div class="bg-white p-6 rounded-lg shadow text-center">
-							<div class="text-2xl font-black text-green-600 mb-2">Empresas</div>
-							<p class="text-sm text-gray-600">Banco Credicoop, CNN, Aeropuertos Argentina 2000</p>
-						</div>
-						<div class="bg-white p-6 rounded-lg shadow text-center">
-							<div class="text-2xl font-black text-purple-600 mb-2">Eventos</div>
-							<p class="text-sm text-gray-600">Copa América, infraestructura deportiva, grandes obras</p>
-						</div>
-					</div>
-					<div class="text-center mt-8">
-						<a href="/antecedentes" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors inline-block">
-							Ver Todos los Proyectos
-						</a>
-					</div>
-				</div>
-			</div>
-
-			<!-- Diferencial Competitivo -->
-			<div class="mb-16">
-				<h2 class="text-3xl font-black text-gray-900 mb-12 text-center">¿Por qué elegirnos en Mendoza?</h2>
-				<div class="grid md:grid-cols-3 gap-8">
-					<div class="text-center p-6">
-						<div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-							<svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-								<path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-								<path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
-							</svg>
-						</div>
-						<h3 class="text-xl font-bold text-gray-900 mb-4">ADN Mendocino</h3>
-						<p class="text-gray-600 leading-relaxed">
-							Presencia local con capacidad nacional. Conocemos las necesidades específicas de las empresas mendocinas y la normativa provincial.
-						</p>
-					</div>
-					<div class="text-center p-6">
-						<div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-							<svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-								<path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
-							</svg>
-						</div>
-						<h3 class="text-xl font-bold text-gray-900 mb-4">Tecnología Abierta</h3>
-						<p class="text-gray-600 leading-relaxed">
-							Soluciones independientes sin dependencia de licencias extranjeras. Libertad tecnológica que reduce costos y aumenta flexibilidad.
-						</p>
-					</div>
-					<div class="text-center p-6">
-						<div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-							<svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-								<path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-							</svg>
-						</div>
-						<h3 class="text-xl font-bold text-gray-900 mb-4">Transparencia Total</h3>
-						<p class="text-gray-600 leading-relaxed">
-							Documentación pública de proyectos con presupuestos y resultados. Trazabilidad completa para evaluar impacto y ROI.
-						</p>
-					</div>
-				</div>
-			</div>
-
-			<!-- Call to Action -->
-			<div class="text-center">
-				<h2 class="text-3xl font-black text-gray-900 mb-6">¿Listo para transformar tu empresa en Mendoza?</h2>
-				<p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-					Con +20 años de experiencia y +469 proyectos exitosos, somos tu socio tecnológico de confianza en Mendoza.
+		<!-- 3. PROCESO DE DESARROLLO (Recuperado de diseño anterior) -->
+		<div class="mb-20">
+			<div class="text-center mb-12">
+				<h2 class="text-4xl font-black text-gray-900 mb-4">
+					Nuestro enfoque <span class="text-blue-600">profesional</span>
+				</h2>
+				<p class="text-xl text-gray-600 max-w-3xl mx-auto">
+					Metodología probada para garantizar resultados excepcionales en cada proyecto de infraestructura y software.
 				</p>
-				<div class="flex flex-col sm:flex-row gap-4 justify-center">
-					<a href="/contacto" class="bg-blue-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors">
-						Consulta Gratuita
-					</a>
-					<a href="/antecedentes" class="border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-50 transition-colors">
-						Ver Nuestros Proyectos
-					</a>
+			</div>
+
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+				<div class="relative bg-white p-6 rounded-2xl shadow-lg border-2 border-transparent hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-500/25 transform hover:-translate-y-2 transition-all duration-300">
+					<div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+						<span class="text-blue-600 font-bold text-xl">1</span>
+					</div>
+					<h3 class="text-xl font-black text-gray-900 mb-3">Consultoría</h3>
+					<p class="text-gray-600">Análisis profundo de necesidades y objetivos operativos.</p>
+				</div>
+
+				<div class="relative bg-white p-6 rounded-2xl shadow-lg border-2 border-transparent hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-500/25 transform hover:-translate-y-2 transition-all duration-300">
+					<div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+						<span class="text-purple-600 font-bold text-xl">2</span>
+					</div>
+					<h3 class="text-xl font-black text-gray-900 mb-3">Diseño</h3>
+					<p class="text-gray-600">Arquitectura de soluciones a medida, escalables y eficientes.</p>
+				</div>
+
+				<div class="relative bg-white p-6 rounded-2xl shadow-lg border-2 border-transparent hover:border-orange-400 hover:shadow-2xl hover:shadow-orange-500/25 transform hover:-translate-y-2 transition-all duration-300">
+					<div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+						<span class="text-orange-600 font-bold text-xl">3</span>
+					</div>
+					<h3 class="text-xl font-black text-gray-900 mb-3">Implementación</h3>
+					<p class="text-gray-600">Despliegue técnico con estándares de calidad internacionales.</p>
+				</div>
+
+				<div class="relative bg-white p-6 rounded-2xl shadow-lg border-2 border-transparent hover:border-green-400 hover:shadow-2xl hover:shadow-green-500/25 transform hover:-translate-y-2 transition-all duration-300">
+					<div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+						<span class="text-green-600 font-bold text-xl">4</span>
+					</div>
+					<h3 class="text-xl font-black text-gray-900 mb-3">Soporte</h3>
+					<p class="text-gray-600">Mantenimiento proactivo y garantía de continuidad operativa.</p>
 				</div>
 			</div>
+		</div>
+
+		<!-- 4. CONTENIDO CORPORATIVO DETALLADO -->
+		<div class="prose prose-lg mx-auto mb-20 text-gray-600">
+			<h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">Nuestra Historia y Visión</h2>
+			<p class="leading-relaxed mb-6">
+				<strong>ULTIMA MILLA</strong> nació como un equipo de especialistas en comunicaciones, sistemas e integración para transformar necesidades operativas en soluciones tecnológicas concretas. Nuestra trayectoria incluye proyectos desde inicios de los 2000 hasta la actualidad, con presencia en sectores: gobierno provincial y nacional, salud, educación, agronegocios y obra civil (estadio, torres, desarrollos inmobiliarios), además de clientes privados como bancos y medios.
+			</p>
+			
+			<div class="grid md:grid-cols-2 gap-12 mt-12">
+				<div>
+					<h3 class="text-2xl font-bold text-gray-900 mb-4">Qué Ofrecemos</h3>
+					<ul class="space-y-3">
+						<li class="flex items-start"><span class="text-blue-500 mr-2">●</span> Ingeniería y operación de redes y telecomunicaciones.</li>
+						<li class="flex items-start"><span class="text-blue-500 mr-2">●</span> Desarrollo de software a medida e integraciones API.</li>
+						<li class="flex items-start"><span class="text-blue-500 mr-2">●</span> Seguridad física y digital, gestión de incidentes.</li>
+						<li class="flex items-start"><span class="text-blue-500 mr-2">●</span> Servicios gestionados y soporte operativo.</li>
+						<li class="flex items-start"><span class="text-blue-500 mr-2">●</span> Migraciones y optimización de infraestructura.</li>
+					</ul>
+				</div>
+				<div>
+					<h3 class="text-2xl font-bold text-gray-900 mb-4">Diferencial Competitivo</h3>
+					<ul class="space-y-4">
+						<li>
+							<strong class="text-gray-900">ADN regional:</strong> Operación desde Mendoza con capacidad nacional.
+						</li>
+						<li>
+							<strong class="text-gray-900">Tecnología abierta:</strong> Sin dependencia de licencias restrictivas.
+						</li>
+						<li>
+							<strong class="text-gray-900">Transparencia:</strong> Documentación pública y trazabilidad total.
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 5. FORMULARIO COMPLEJO INTEGRADO -->
+	<div class="bg-gray-50 py-16 border-t border-gray-200">
+		<div class="max-w-7xl mx-auto px-4">
+			<div class="text-center mb-12">
+				<h2 class="text-3xl font-black text-gray-900 mb-4">Solicitar Presupuesto / Contacto</h2>
+				<p class="text-xl text-gray-600 max-w-3xl mx-auto">
+					Cuéntanos sobre tu proyecto. Te responderemos con una propuesta detallada.
+				</p>
+			</div>
+
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-8" id="contact-layout">
+				<!-- Formulario -->
+				<div class="relative">
+					<div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 h-full">
+						<h2 class="text-2xl font-black text-gray-900 mb-6">Detalles del Proyecto</h2>
+						
+						<form id="contactForm" class="space-y-6">
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div>
+									<label for="name" class="block text-sm font-semibold text-gray-700 mb-2">Nombre *</label>
+									<input type="text" id="name" name="name" required placeholder="Tu nombre completo" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200" />
+									<span class="text-red-500 text-sm hidden" id="nameError"></span>
+								</div>
+								<div>
+									<label for="company" class="block text-sm font-semibold text-gray-700 mb-2">Empresa</label>
+									<input type="text" id="company" name="company" placeholder="Nombre de tu empresa" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200" />
+								</div>
+							</div>
+
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div>
+									<label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
+									<input type="email" id="email" name="email" required placeholder="tu@email.com" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200" />
+									<span class="text-red-500 text-sm hidden" id="emailError"></span>
+								</div>
+								<div>
+									<label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Teléfono</label>
+									<input type="tel" id="phone" name="phone" placeholder="+54 (11) 1234-5678" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200" />
+								</div>
+							</div>
+
+							<div>
+								<label for="projectType" class="block text-sm font-semibold text-gray-700 mb-2">Tipo de proyecto *</label>
+								<div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+									<label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+										<input type="checkbox" name="projectType" value="datos" class="sr-only">
+										<div class="w-4 h-4 border-2 border-gray-300 rounded mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-blue-500 rounded hidden"></div></div>
+										<span class="text-sm font-medium">Datos</span>
+									</label>
+									<label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+										<input type="checkbox" name="projectType" value="control" class="sr-only">
+										<div class="w-4 h-4 border-2 border-gray-300 rounded mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-blue-500 rounded hidden"></div></div>
+										<span class="text-sm font-medium">Control</span>
+									</label>
+									<label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+										<input type="checkbox" name="projectType" value="incendio" class="sr-only">
+										<div class="w-4 h-4 border-2 border-gray-300 rounded mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-blue-500 rounded hidden"></div></div>
+										<span class="text-sm font-medium">Incendio</span>
+									</label>
+									<label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+										<input type="checkbox" name="projectType" value="software" class="sr-only">
+										<div class="w-4 h-4 border-2 border-gray-300 rounded mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-blue-500 rounded hidden"></div></div>
+										<span class="text-sm font-medium">Software</span>
+									</label>
+									<label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+										<input type="checkbox" name="projectType" value="soporte" class="sr-only">
+										<div class="w-4 h-4 border-2 border-gray-300 rounded mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-blue-500 rounded hidden"></div></div>
+										<span class="text-sm font-medium">Soporte</span>
+									</label>
+								</div>
+								<span class="text-red-500 text-sm hidden" id="projectTypeError"></span>
+							</div>
+							
+							<input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off" />
+
+							<div>
+								<label for="budget" class="block text-sm font-semibold text-gray-700 mb-2">Presupuesto estimado *</label>
+								<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+									<label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+										<input type="radio" name="budget" value="5000-15000" class="sr-only">
+										<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-blue-500 rounded-full hidden"></div></div>
+										<span class="text-sm font-medium">$5k-$15k</span>
+									</label>
+									<label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+										<input type="radio" name="budget" value="15000-35000" class="sr-only">
+										<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-blue-500 rounded-full hidden"></div></div>
+										<span class="text-sm font-medium">$15k-$35k</span>
+									</label>
+									<label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+										<input type="radio" name="budget" value="35000-75000" class="sr-only">
+										<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-blue-500 rounded-full hidden"></div></div>
+										<span class="text-sm font-medium">$35k-$75k</span>
+									</label>
+									<label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+										<input type="radio" name="budget" value="75000+" class="sr-only">
+										<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-blue-500 rounded-full hidden"></div></div>
+										<span class="text-sm font-medium">$75k+</span>
+									</label>
+								</div>
+							</div>
+
+							<div>
+								<label for="timeline" class="block text-sm font-semibold text-gray-700 mb-2">Timeline preferido *</label>
+								<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+									<label class="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+										<input type="radio" name="timeline" value="1-2-meses" class="sr-only">
+										<span class="text-sm font-medium">1-2 meses</span>
+									</label>
+									<label class="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+										<input type="radio" name="timeline" value="2-4-meses" class="sr-only">
+										<span class="text-sm font-medium">2-4 meses</span>
+									</label>
+									<label class="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+										<input type="radio" name="timeline" value="4-6-meses" class="sr-only">
+										<span class="text-sm font-medium">4-6 meses</span>
+									</label>
+									<label class="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+										<input type="radio" name="timeline" value="6+-meses" class="sr-only">
+										<span class="text-sm font-medium">6+ meses</span>
+									</label>
+								</div>
+							</div>
+
+							<div>
+								<label for="message" class="block text-sm font-semibold text-gray-700 mb-2">Descripción del proyecto *</label>
+								<textarea id="message" name="message" required rows="4" placeholder="Describe tu proyecto, objetivos, funcionalidades necesarias..." class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200"></textarea>
+								<span class="text-red-500 text-sm hidden" id="messageError"></span>
+							</div>
+
+							<div class="w-full flex justify-end">
+								<button type="submit" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg">
+									ENVIAR SOLICITUD
+								</button>
+							</div>
+
+							<div id="successMessage" class="hidden bg-green-50 border border-green-200 text-green-700 p-4 rounded-lg">
+								Mensaje enviado exitosamente. Nos pondremos en contacto contigo pronto.
+							</div>
+							<div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
+								Hubo un error al enviar el mensaje. Por favor, intenta nuevamente.
+							</div>
+						</form>
+					</div>
+				</div>
+
+				<!-- Canales de Contacto -->
+				<div class="sticky top-8 space-y-8">
+					<div class="bg-white p-6 rounded-2xl shadow-lg">
+						<h2 class="text-2xl font-black text-gray-900 mb-3">
+							Contacto directo en <span class="text-blue-600">Mendoza</span>
+						</h2>
+						<p class="text-gray-600 text-sm">
+							Presencia local con atención personalizada. Estamos disponibles a través de múltiples canales para empresas mendocinas.
+						</p>
+					</div>
+
+					<div class="bg-white p-6 rounded-2xl shadow-lg border-2 border-transparent hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-500/25 transform hover:-translate-y-1 transition-all duration-300">
+						<div class="flex items-center space-x-4">
+							<div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
+								<svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+							</div>
+							<div class="flex-1">
+								<h3 class="text-xl font-black text-gray-900">Email Mendoza</h3>
+								<p class="text-gray-600 text-sm mb-2">Escríbenos directamente</p>
+								<p class="text-blue-600 font-semibold">contacto@ultimamilla.com.ar</p>
+							</div>
+						</div>
+					</div>
+
+					<div class="bg-gray-50 p-6 rounded-2xl">
+						<div class="flex items-center mb-4">
+							<svg class="w-6 h-6 text-gray-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+							<h3 class="text-xl font-black text-gray-900">Horarios de atención</h3>
+						</div>
+						<div class="grid grid-cols-2 gap-4 text-sm">
+							<div>
+								<p class="font-semibold text-gray-900">Lunes - Viernes</p>
+								<p class="text-gray-600">9:00 AM - 6:00 PM</p>
+							</div>
+							<div>
+								<p class="font-semibold text-gray-900">Fines de semana</p>
+								<p class="text-gray-600">Emergencias</p>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
 </Layout>
+
+<script>
+	const form = document.getElementById('contactForm') as HTMLFormElement;
+	const successMessage = document.getElementById('successMessage');
+	const errorMessage = document.getElementById('errorMessage');
+	const errorElements = {
+		name: document.getElementById('nameError'),
+		email: document.getElementById('emailError'),
+		message: document.getElementById('messageError')
+	};
+
+	document.addEventListener('DOMContentLoaded', () => {
+		document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+			checkbox.addEventListener('change', function() {
+				const label = this.closest('label');
+				const indicator = label?.querySelector('div > div');
+				if ((this as HTMLInputElement).checked) {
+					label?.classList.add('border-blue-500', 'bg-blue-50');
+					indicator?.classList.remove('hidden');
+				} else {
+					label?.classList.remove('border-blue-500', 'bg-blue-50');
+					indicator?.classList.add('hidden');
+				}
+			});
+		});
+
+		document.querySelectorAll('input[type="radio"]').forEach(radio => {
+			radio.addEventListener('change', function() {
+				const name = (this as HTMLInputElement).name;
+				document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+					const label = r.closest('label');
+					const indicator = label?.querySelector('div > div');
+					label?.classList.remove('border-blue-500', 'bg-blue-50');
+					indicator?.classList.add('hidden');
+				});
+				
+				const label = this.closest('label');
+				const indicator = label?.querySelector('div > div');
+				label?.classList.add('border-blue-500', 'bg-blue-50');
+				indicator?.classList.remove('hidden');
+			});
+		});
+	});
+
+	function isValidEmail(email: string) {
+		const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		return re.test(email);
+	}
+
+	function showError(field: keyof typeof errorElements, message: string) {
+		const errorElement = errorElements[field];
+		if (errorElement) {
+			errorElement.textContent = message;
+			errorElement.classList.remove('hidden');
+		}
+	}
+
+	function clearErrors() {
+		Object.values(errorElements).forEach(element => {
+			if (element) {
+				element.textContent = '';
+				element.classList.add('hidden');
+			}
+		});
+		successMessage?.classList.add('hidden');
+		errorMessage?.classList.add('hidden');
+	}
+
+	if (form) {
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault();
+			clearErrors();
+
+			const formData = new FormData(form);
+			const data = Object.fromEntries(formData);
+			let hasErrors = false;
+
+			if (!data.name) { showError('name', 'El nombre es requerido'); hasErrors = true; }
+			if (!data.email) { showError('email', 'El email es requerido'); hasErrors = true; }
+			else if (!isValidEmail(data.email.toString())) { showError('email', 'Por favor ingresa un email válido'); hasErrors = true; }
+			if (!data.message) { showError('message', 'El mensaje es requerido'); hasErrors = true; }
+
+			if (hasErrors) return;
+
+			try {
+				const projectTypes = [];
+				document.querySelectorAll('input[name="projectType"]:checked').forEach(checkbox => {
+					projectTypes.push((checkbox as HTMLInputElement).value);
+				});
+				
+				const submitData = {
+					name: data.name,
+					email: data.email,
+					company: data.company || '',
+					phone: data.phone || '',
+					projectType: projectTypes,
+					budget: data.budget || '',
+					timeline: data.timeline || '',
+					message: data.message,
+					website: data.website || ''
+				};
+				
+				const response = await fetch('/api/contact', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(submitData)
+				});
+				
+				const result = await response.json();
+				
+				if (result.success) {
+					if (successMessage) {
+						successMessage.textContent = result.message || 'Mensaje enviado exitosamente. Te contactaremos pronto.';
+						successMessage.classList.remove('hidden');
+						form.reset();
+						document.querySelectorAll('label').forEach(label => {
+							label.classList.remove('border-blue-500', 'bg-blue-50');
+							const indicator = label.querySelector('div > div');
+							indicator?.classList.add('hidden');
+						});
+					}
+				} else {
+					if (errorMessage) {
+						errorMessage.textContent = result.message || 'Error al enviar el mensaje. Por favor, intenta nuevamente.';
+						errorMessage.classList.remove('hidden');
+					}
+				}
+			} catch (error) {
+				console.error('Error al enviar formulario:', error);
+				if (errorMessage) {
+					errorMessage.textContent = 'Error de conexión. Por favor, intenta nuevamente o contacta por email.';
+					errorMessage.classList.remove('hidden');
+				}
+			}
+		});
+	}
+</script>
+
+<style>
+  #contact-layout {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  @media (min-width: 1024px) {
+    #contact-layout {
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+    }
+
+    #contact-layout > div:last-child {
+      position: sticky;
+      top: 2rem;
+      align-self: flex-start;
+    }
+  }
+
+  @media (max-width: 1023px) {
+    #contact-layout > div:first-child {
+      order: 1;
+    }
+    #contact-layout > div:last-child {
+      order: 2;
+      text-align: center;
+    }
+  }
+</style>

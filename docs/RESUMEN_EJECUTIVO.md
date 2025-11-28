@@ -86,7 +86,7 @@ node scripts/test_conectividad.js
 ## 📞 Contacto Técnico
 
 - **Servidor**: 23.105.176.45
-- **Directus**: https://www.ultimamilla.com.ar
+- **Directus**: https://www.umbot.com.ar
 - **Estado**: ✅ OPERATIVO
 - **Última Verificación**: $(date)
 

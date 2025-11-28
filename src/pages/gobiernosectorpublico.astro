@@ -2,25 +2,57 @@
 import Layout from '../layouts/Layout.astro';
 import { directus, DEFAULT_IMAGE } from '../utils/directus';
 import { generateSlug } from '../utils/slugUtils';
-import { filtrarPorVertical } from '../data/verticales';
 
 // Configuración SEO específica para gobierno - ULTRA OPTIMIZADA para Argentina y Mendoza
 const seoConfig = {
-  title: "Tecnología IT Sector Público Mendoza | Soluciones Gubernamentales | Ultima Milla",
-  description: "🏛️ Soluciones IT para gobierno y sector público en Mendoza y Argentina. Redes de datos, seguridad informática, telecomunicaciones y software para entidades públicas. Municipalidades, Universidades, AFIP y más. +20 años de experiencia.",
-  keywords: "tecnología sector público mendoza, IT gobierno argentina, infraestructura municipalidades, redes datos gobierno, seguridad informática pública, telecomunicaciones sector público, software gubernamental mendoza, IT universidades argentina, sistemas municipalidades mendoza, tecnología AFIP, conectividad gobierno, soporte técnico sector público, IT entidades públicas, redes wifi gobierno, servidores sector público mendoza",
-  ogImage: "/images/gobierno-hero.jpg",
-  canonical: "https://www.ultimamilla.com.ar/gobiernosectorpublico",
+  title: "Tecnología para Gobierno y Sector Público | Mendoza, Cuyo y Patagonia | ULTIMA MILLA",
+  description: "Servicios tecnológicos para gobierno y sector público en Argentina. Zona de incumbencia: Mendoza, Cuyo, Patagonia. Digitalización del estado, redes gubernamentales, telecomunicaciones para municipios, corrientes débiles y portales ciudadanos.",
+  keywords: "servicios tecnologicos gobierno, infraestructura sector publico mendoza, redes gubernamentales cuyo, telecomunicaciones municipios patagonia, corrientes debiles entidades publicas, digitalizacion estado, modernizacion municipalidades",
+  // ogImage: "/images/services/gobierno-hero.jpg",
+  canonical: "https://ultimamilla.com.ar/gobiernosectorpublico",
   locale: "es_AR",
-  region: "AR-M",
+  region: "Cuyo, Patagonia, Argentina",
   author: "Ultima Milla",
   robots: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
 };
 
 // Cargar antecedentes del sector gobierno
+import { antecedentesReales } from '../data/antecedentes_completos.js';
+import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
+
 let antecedentes = [];
 let serviciosRelacionados = [];
 let error = null;
+
+const keywords = [
+  // Core government - BE MORE SPECIFIC
+  'gobierno', 'municipalidad', 'intendencia', 'comuna', 'municipio',
+  'ministerio', 'secretaria de estado', 'subsecretaria',
+  'direccion general', 'departamento general',
+  // Judicial & Legislative
+  'poder judicial', 'corte suprema', 'suprema corte', 'juzgado', 'fiscalia',
+  'tribunal',  'legislatura', 'camara de diputados', 'senado',
+  // Federal entities
+  'afip', 'inta', 'inti', 'conicet', 'cnea', 'senasa',
+  // Provincial/Local - EXCLUDE HEALTH
+  'dgi', 'rentas mendoza', 'irrigacion', 'atm mendoza', 'ase',
+  'parques nacionales', 'secretaria de ambiente',
+  'anses', 'pami',
+  // Municipal - need to be PRECISE so they don't conflict with health/education
+  'municipalidad de maipu', 'municipalidad de guaymallen',
+  'municipalidad de san martin', 'municipalidad de godoy cruz',
+  'municipalidad de lujan', 'municipalidad de las heras',
+  'municipalidad de capital', 'municipalidad de san rafael'
+];
+
+const filterAntecedentes = (data) => {
+  return data.filter(item => {
+    const cliente = (item.Cliente || '').toLowerCase();
+    const titulo = (item.Titulo || '').toLowerCase();
+    const area = (item.Area || '').toLowerCase();
+    return keywords.some(k => cliente.includes(k) || titulo.includes(k) || area.includes(k));
+  }).sort((a, b) => new Date(b.Fecha || '2000-01-01') - new Date(a.Fecha || '2000-01-01'));
+};
 
 try {
   // Obtener antecedentes de gobierno desde Directus
@@ -30,17 +62,22 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    // Filtrar antecedentes de gobierno usando clasificación por vertical
-    const allAntecedentes = response.data.map(item => ({
-      ...item,
-      slug: `${item.id}/${generateSlug(item.Titulo)}`
-    }));
-    
-    antecedentes = filtrarPorVertical(allAntecedentes, 'gobierno')
-      .sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
-
+    antecedentes = filterAntecedentes(response.data);
     console.log(`✅ Cargados ${antecedentes.length} antecedentes de gobierno`);
   }
+} catch (err) {
+  console.error('Error cargando antecedentes:', err);
+  error = err;
+}
+
+// Fallback a datos locales si no hay resultados de API
+if (antecedentes.length === 0) {
+  console.log('Usando antecedentes locales para Gobierno');
+  antecedentes = filterAntecedentes(antecedentesReales);
+}
+
+// Limitar a 6 para la vista (ELIMINADO - Ahora se maneja en el componente con "Ver más")
+// antecedentes = antecedentes.slice(0, 6);
 
   // Servicios relacionados con el sector gobierno
   // Structured Data para SEO
@@ -159,42 +196,9 @@ try {
       slug: "soporte-tecnico"
     }
   ];
-} catch (err) {
-  console.error('Error cargando antecedentes:', err);
-  error = err;
-}
 
-// Función para obtener imagen del antecedente
-import { buscarImagenPorDatos } from '../data/mapeo_imagenes_completo';
-
-function getImageUrl(proyecto) {
-  if (!proyecto) return '/images/default-placeholder.svg';
-  
-  try {
-    const imagenNombre = buscarImagenPorDatos(
-      proyecto.Cliente,
-      proyecto.Area || proyecto.Unidad_de_negocio,
-      proyecto.Titulo,
-      proyecto.id
-    );
-    
-    if (imagenNombre) {
-      const imagenUrl = `/imagenes_antecedentes_versionproduccion/${imagenNombre}`;
-      console.log(`[GOBIERNO] ✅ Imagen encontrada para ${proyecto.Cliente}: ${imagenUrl}`);
-      return imagenUrl;
-    }
-  } catch (error) {
-    console.log(`[GOBIERNO] ⚠️ Error buscando imagen: ${error.message}`);
-  }
-  
-  console.log(`[GOBIERNO] ℹ️ Usando placeholder para ${proyecto.Cliente}`);
-  return '/images/default-placeholder.svg';
-}
-
-const antecedentesConImagenes = antecedentes.map(proyecto => ({
-  ...proyecto,
-  imageUrl: getImageUrl(proyecto)
-}));
+// Función para obtener imagen del antecedente (Ya no es necesaria aquí, la maneja el componente)
+// const antecedentesConImagenes = ... (Eliminado)
 ---
 
 <Layout
@@ -330,7 +334,7 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
             <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Servicios IT</h3>
             <p style="font-size: 14px; color: #666; line-height: 1.6;">Consultoría y soporte técnico especializado</p>
           </a>
-
+        
           <!-- Servicio 5: Sistemas de Detección -->
           <a href="/servicios/5/deteccion-incendios" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #dc2626; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(220,38,38,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
             <div style="width: 50px; height: 50px; background: #dc2626; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
@@ -341,7 +345,7 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
             <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Sistemas de Detección de Incendios</h3>
             <p style="font-size: 14px; color: #666; line-height: 1.6;">Detección temprana y alarmas para protección de obras</p>
           </a>
-
+        
           <!-- Servicio 6: Soporte Técnico -->
           <a href="/servicios/6/soporte-tecnico" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #dc2626; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(220,38,38,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
             <div style="width: 50px; height: 50px; background: #dc2626; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
@@ -352,91 +356,26 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
             <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Soporte Técnico 24/7</h3>
             <p style="font-size: 14px; color: #666; line-height: 1.6;">Mantenimiento preventivo y correctivo para operaciones continuas</p>
           </a>
-        </div>
       </div>
-    </section>
+    </div>
 
     <!-- CASOS DE ÉXITO -->
-    {antecedentesConImagenes.length > 0 && (
+    {antecedentes.length > 0 && (
       <section style="background: #f8fafc; padding: 100px 32px; border-top: 1px solid #e2e8f0;">
         <div style="max-width: 75rem; margin: 0 auto;">
           <div style="text-align: center; margin-bottom: 72px;">
             <div style="display: inline-block; padding: 8px 20px; background: linear-gradient(135deg, #dc2626, #b91c1c); border-radius: 50px; margin-bottom: 20px;">
               <span style="font-size: 13px; font-weight: 800; color: white; letter-spacing: 1px; text-transform: uppercase;">✨ Casos de Éxito</span>
             </div>
-            <h2 style="font-size: clamp(36px, 5.5vw, 52px); font-weight: 900; color: #0f172a; margin-bottom: 20px; letter-spacing: -0.02em;">Proyectos Realizados</h2>
+            <h2 style="font-size: clamp(36px, 5.5vw, 52px); font-weight: 900; color: #0f172a; margin-bottom: 20px; letter-spacing: -0.02em;">
+              Proyectos Realizados
+            </h2>
             <p style="font-size: 19px; color: #64748b; max-width: 750px; margin: 0 auto; line-height: 1.7; font-weight: 500;">
               Nuestras soluciones han impulsado la eficiencia y productividad de importantes proyectos de<br/>construcción en todo el país.
             </p>
           </div>
 
-          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 32px;">
-          {antecedentesConImagenes.map((proyecto) => (
-            <a href={`/antecedentes/${proyecto.slug}`} style="display: block; text-decoration: none; height: 100%;">
-              <article style="background: white; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; border: 2px solid #e2e8f0; height: 100%;" onmouseover="this.style.transform='translateY(-12px)'; this.style.boxShadow='0 20px 50px rgba(220,38,38,0.25)'; this.style.borderColor='#dc2626'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.08)'; this.style.borderColor='#e2e8f0'">
-                {/* Imagen del proyecto */}
-                <div style="position: relative; overflow: hidden; aspect-ratio: 4/3;">
-                  <img 
-                    src={proyecto.imageUrl}
-                    alt={proyecto.Titulo}
-                    style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease;"
-                    loading="lazy"
-                    onerror="this.src='/images/default-placeholder.svg'"
-                    onmouseover="this.style.transform='scale(1.08)'"
-                    onmouseout="this.style.transform='scale(1)'"
-                  />
-                  
-                  {/* Badge Premium */}
-                  <div style="position: absolute; top: 20px; left: 20px;">
-                    <span style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 50px; font-size: 12px; font-weight: 900; background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; box-shadow: 0 8px 20px rgba(220,38,38,0.4); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2);">
-                      <span style="font-size: 16px;">🏛</span>
-                      GOBIERNO
-                    </span>
-                  </div>
-                </div>
-
-                {/* Contenido Premium */}
-                <div style="padding: 28px;">
-                  <div style="margin-bottom: 20px;">
-                    <h3 style="font-size: 20px; font-weight: 900; color: #0f172a; margin-bottom: 12px; line-height: 1.3; letter-spacing: -0.01em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                      {proyecto.Titulo}
-                    </h3>
-                    {proyecto.Cliente && (
-                      <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #64748b; margin-bottom: 12px; font-weight: 600;">
-                        <svg style="width: 18px; height: 18px; color: #dc2626;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m4 0V9a1 1 0 011-1h4a1 1 0 011 1v12M9 7h6"></path>
-                        </svg>
-                        {proyecto.Cliente}
-                      </div>
-                    )}
-                  </div>
-
-                  <p style="color: #64748b; font-size: 14px; line-height: 1.7; margin-bottom: 20px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-weight: 500;">
-                    {proyecto.Descripcion?.substring(0, 120)}...
-                  </p>
-
-                  <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 20px; border-top: 2px solid #f1f5f9;">
-                    <div style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #94a3b8; font-weight: 600;">
-                      <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                      </svg>
-                      {(() => {
-                        if (!proyecto.Fecha) return '2024';
-                        const fecha = new Date(proyecto.Fecha);
-                        return isNaN(fecha.getTime()) ? '2024' : fecha.toLocaleDateString('es-ES', { year: 'numeric', month: 'short' });
-                      })()}
-                    </div>
-                    {proyecto.Area && (
-                      <span style="display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 50px; font-size: 12px; font-weight: 800; background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; border: 1px solid #fbbf24;">
-                        {proyecto.Area}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </article>
-            </a>
-          ))}
-          </div>
+          <FeaturedAntecedentes antecedentes={antecedentes} />
         </div>
       </section>
     )}
@@ -444,21 +383,21 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
     <!-- FORMULARIO DE CONTACTO PREMIUM -->
     <section id="contacto" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 100px 32px; position: relative; overflow: hidden;">
       <!-- Decorative Elements -->
-      <div style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(251, 146, 60, 0.15) 0%, transparent 70%); border-radius: 50%;"></div>
-      <div style="position: absolute; bottom: -150px; left: -150px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(251, 146, 60, 0.1) 0%, transparent 70%); border-radius: 50%;"></div>
+      <div style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(220, 38, 38, 0.15) 0%, transparent 70%); border-radius: 50%;"></div>
+      <div style="position: absolute; bottom: -150px; left: -150px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(220, 38, 38, 0.1) 0%, transparent 70%); border-radius: 50%;"></div>
       
       <div style="max-width: 75rem; margin: 0 auto; position: relative; z-index: 10;">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;">
           <!-- Left Content -->
           <div>
-            <div style="display: inline-block; padding: 8px 20px; background: rgba(251, 146, 60, 0.2); border-radius: 50px; margin-bottom: 24px; border: 1px solid rgba(251, 146, 60, 0.3);">
-              <span style="font-size: 13px; font-weight: 800; color: #fbbf24; letter-spacing: 1px; text-transform: uppercase;">📞 Contáctenos</span>
+            <div style="display: inline-block; padding: 8px 20px; background: rgba(220, 38, 38, 0.2); border-radius: 50px; margin-bottom: 24px; border: 1px solid rgba(220, 38, 38, 0.3);">
+              <span style="font-size: 13px; font-weight: 800; color: #fca5a5; letter-spacing: 1px; text-transform: uppercase;">📞 Contáctenos</span>
             </div>
             <h2 style="font-size: clamp(36px, 5vw, 56px); font-weight: 900; color: white; margin-bottom: 24px; line-height: 1.1; letter-spacing: -0.02em;">
-              ¿Listo para Digitalizar<br/>Su Próximo Proyecto?
+              Modernización del<br/>Sector Público
             </h2>
             <p style="font-size: 18px; color: #cbd5e1; line-height: 1.8; margin-bottom: 40px; font-weight: 500;">
-              Contáctenos y nuestro equipo de expertos le ayudará a encontrar la solución tecnológica perfecta para su proyecto de construcción.
+              Contáctenos para diseñar soluciones tecnológicas para su entidad pública.
             </p>
             <div style="display: flex; flex-direction: column; gap: 20px;">
               <div style="display: flex; align-items: center; gap: 16px;">
@@ -477,26 +416,25 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
           
           <!-- Right Form -->
           <div style="background: white; border-radius: 24px; padding: 48px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-            <form id="gobiernoContactForm" style="display: flex; flex-direction: column; gap: 24px;">
+            <form action="/api/contact" method="POST" style="display: flex; flex-direction: column; gap: 24px;">
               <div>
                 <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Nombre *</label>
-                <input type="text" name="name" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#dc2626'; this.style.boxShadow='0 0 0 4px rgba(220,38,38,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Juan Pérez" />
+                <input type="text" name="nombre" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px;" placeholder="Nombre Completo" />
               </div>
               <div>
                 <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Entidad Pública</label>
-                <input type="text" name="company" style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#dc2626'; this.style.boxShadow='0 0 0 4px rgba(220,38,38,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Municipalidad ABC" />
+                <input type="text" name="empresa" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px;" placeholder="Municipalidad ABC" />
               </div>
               <div>
                 <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Email *</label>
-                <input type="email" name="email" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#dc2626'; this.style.boxShadow='0 0 0 4px rgba(220,38,38,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="juan@municipalidad.gov.ar" />
+                <input type="email" name="email" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px;" placeholder="contacto@municipalidad.gov.ar" />
               </div>
               <div>
                 <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Mensaje *</label>
-                <textarea name="message" required rows="4" style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none; resize: vertical;" onfocus="this.style.borderColor='#dc2626'; this.style.boxShadow='0 0 0 4px rgba(220,38,38,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Cuéntenos sobre su proyecto..."></textarea>
+                <textarea name="mensaje" required rows="4" style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px;" placeholder="Detalles del requerimiento..."></textarea>
               </div>
-              <div id="gobiernoMessage" style="display: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; text-align: center;"></div>
-              <button type="submit" style="width: 100%; padding: 18px; background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 10px 30px rgba(220,38,38,0.4);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 14px 40px rgba(220,38,38,0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(220,38,38,0.4)'">
-                Solicitar Consultoría Ahora
+              <button type="submit" style="width: 100%; padding: 18px; background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer;">
+                Solicitar Asesoramiento
               </button>
             </form>
           </div>
@@ -506,77 +444,35 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
   </main>
 </Layout>
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('gobiernoContactForm');
-    const messageDiv = document.getElementById('gobiernoMessage');
-    
-    if (!form) return;
-    
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData);
-      
-      try {
-        const response = await fetch('/api/contact', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data)
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-          messageDiv.textContent = '✅ Mensaje enviado exitosamente. Te contactaremos pronto.';
-          messageDiv.style.background = '#dcfce7';
-          messageDiv.style.color = '#166534';
-          messageDiv.style.display = 'block';
-          form.reset();
-          setTimeout(() => {
-            messageDiv.style.display = 'none';
-          }, 5000);
-        } else {
-          messageDiv.textContent = '❌ ' + (result.message || 'Error al enviar el mensaje');
-          messageDiv.style.background = '#fee2e2';
-          messageDiv.style.color = '#991b1b';
-          messageDiv.style.display = 'block';
-        }
-      } catch (error) {
-        messageDiv.textContent = '❌ Error de conexión. Intenta nuevamente.';
-        messageDiv.style.background = '#fee2e2';
-        messageDiv.style.color = '#991b1b';
-        messageDiv.style.display = 'block';
-      }
-    });
-  });
-</script>
-
 <style>
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  /* Mobile Responsive Styles */
+  @media (max-width: 768px) {
+    section > div > div[style*="grid-template-columns: repeat(3, 1fr)"] {
+      grid-template-columns: 1fr !important;
+    }
+    
+    section > div > div[style*="grid-template-columns: repeat(2, 1fr)"] {
+      grid-template-columns: 1fr !important;
+    }
+    
+    #contacto > div > div[style*="grid-template-columns: 1fr 1fr"] {
+      grid-template-columns: 1fr !important;
+      gap: 40px !important;
+    }
+    
+    h1 {
+      font-size: 32px !important;
+    }
+    
+    h2 {
+      font-size: 28px !important;
+    }
+    
+    section {
+      padding: 40px 20px !important;
+    }
   }
+</style>
 
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .group:hover .group-hover\:scale-105 {
-    transform: scale(1.05);
-  }
-
-  a:focus {
-    outline: 2px solid rgba(217, 119, 6, 0.5);
-    outline-offset: 2px;
-    border-radius: 0.25rem;
   }
 </style>

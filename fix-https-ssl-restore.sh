@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script para restaurar HTTPS/SSL en www.ultimamilla.com.ar
+# Script para restaurar HTTPS/SSL en www.umbot.com.ar
 # Problema: En las correcciones del 20 de junio se perdió la configuración SSL
 # Solución: Restaurar configuración HTTPS completa
 
@@ -37,17 +37,17 @@ fi
 cd /root/fumbling-field
 
 print_status "1. Verificando estado actual de HTTPS..."
-if curl -I -k https://www.ultimamilla.com.ar/ &>/dev/null; then
+if curl -I -k https://www.umbot.com.ar/ &>/dev/null; then
     print_warning "HTTPS ya está funcionando"
 else
     print_error "HTTPS no funciona - procediendo con la restauración"
 fi
 
 print_status "2. Verificando certificados Let's Encrypt..."
-if [ -f "/etc/letsencrypt/live/www.ultimamilla.com.ar/fullchain.pem" ]; then
-    print_status "Certificado SSL encontrado en /etc/letsencrypt/live/www.ultimamilla.com.ar/"
+if [ -f "/etc/letsencrypt/live/www.umbot.com.ar/fullchain.pem" ]; then
+    print_status "Certificado SSL encontrado en /etc/letsencrypt/live/www.umbot.com.ar/"
     # Verificar fecha de expiración
-    openssl x509 -in /etc/letsencrypt/live/www.ultimamilla.com.ar/fullchain.pem -noout -dates
+    openssl x509 -in /etc/letsencrypt/live/www.umbot.com.ar/fullchain.pem -noout -dates
 else
     print_error "Certificado SSL no encontrado"
     print_warning "Intentando renovar certificados con certbot..."
@@ -96,18 +96,18 @@ docker-compose -f docker-compose.static.yml ps
 
 print_status "10. Probando HTTPS..."
 echo "Probando conexión HTTPS..."
-if curl -I -k https://www.ultimamilla.com.ar/ &>/dev/null; then
+if curl -I -k https://www.umbot.com.ar/ &>/dev/null; then
     print_status "✅ HTTPS RESTAURADO EXITOSAMENTE"
     echo ""
     echo "🎉 SITIO FUNCIONANDO:"
-    echo "   HTTP:  http://www.ultimamilla.com.ar (redirige a HTTPS)"
-    echo "   HTTPS: https://www.ultimamilla.com.ar"
+    echo "   HTTP:  http://www.umbot.com.ar (redirige a HTTPS)"
+    echo "   HTTPS: https://www.umbot.com.ar"
     echo "   IP:    http://23.105.176.45"
     echo ""
     
     # Verificar redirección HTTP -> HTTPS
     echo "Verificando redirección HTTP -> HTTPS..."
-    redirect_response=$(curl -s -o /dev/null -w "%{http_code}" http://www.ultimamilla.com.ar/)
+    redirect_response=$(curl -s -o /dev/null -w "%{http_code}" http://www.umbot.com.ar/)
     if [ "$redirect_response" = "301" ]; then
         print_status "Redirección HTTP -> HTTPS funcionando correctamente"
     else
@@ -121,14 +121,14 @@ else
     echo "1. Verificar logs:"
     echo "   docker-compose -f docker-compose.static.yml logs umbot-nginx-static"
     echo "2. Verificar certificados:"
-    echo "   ls -la /etc/letsencrypt/live/www.ultimamilla.com.ar/"
+    echo "   ls -la /etc/letsencrypt/live/www.umbot.com.ar/"
     echo "3. Verificar puertos:"
     echo "   netstat -tlnp | grep :443"
     exit 1
 fi
 
 print_status "11. Verificando imágenes (no deben perderse)..."
-if curl -I https://www.ultimamilla.com.ar/images/services/servicios-it.jpg &>/dev/null; then
+if curl -I https://www.umbot.com.ar/images/services/servicios-it.jpg &>/dev/null; then
     print_status "Imágenes funcionando correctamente"
 else
     print_warning "Verificar imágenes manualmente"
@@ -143,7 +143,7 @@ echo "✅ Redirección HTTP -> HTTPS activa"
 echo "✅ Headers de seguridad aplicados"
 echo "✅ Imágenes funcionando"
 echo ""
-echo "🔐 SITIO SEGURO: https://www.ultimamilla.com.ar"
+echo "🔐 SITIO SEGURO: https://www.umbot.com.ar"
 
 # Limpiar archivos temporales
 rm -f nginx.test.conf 2>/dev/null || true

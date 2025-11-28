@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Configuración
-const DIRECTUS_URL = process.env.DIRECTUS_URL || 'https://www.ultimamilla.com.ar';
+const DIRECTUS_URL = process.env.DIRECTUS_URL || 'https://www.umbot.com.ar';
 const DIRECTUS_TOKEN = process.env.DIRECTUS_TOKEN || '';
 
 console.log('🚀 Iniciando migración de datos Directus...');

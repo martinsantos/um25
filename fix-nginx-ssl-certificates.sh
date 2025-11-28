@@ -10,9 +10,9 @@ docker rm umbot-nginx-direct 2>/dev/null || true
 
 # 2. Verificar si existen los certificados SSL
 echo "2. Verificando certificados SSL..."
-if [ -d "/etc/letsencrypt/live/www.ultimamilla.com.ar" ]; then
+if [ -d "/etc/letsencrypt/live/www.umbot.com.ar" ]; then
     echo "✅ Certificados SSL encontrados"
-    ls -la /etc/letsencrypt/live/www.ultimamilla.com.ar/
+    ls -la /etc/letsencrypt/live/www.umbot.com.ar/
 else
     echo "❌ Certificados SSL NO encontrados en /etc/letsencrypt/live/"
     echo "📋 Listando contenido de /etc/letsencrypt/:"
@@ -28,7 +28,7 @@ upstream directus {
 
 server {
     listen 80;
-    server_name www.ultimamilla.com.ar;
+    server_name www.umbot.com.ar;
     
     # Servir archivos estáticos de Astro
     location / {
@@ -112,9 +112,9 @@ services:
       DB_DATABASE: directus
       DB_USER: directus
       DB_PASSWORD: directus123
-      ADMIN_EMAIL: admin@ultimamilla.com.ar
+      ADMIN_EMAIL: admin@umbot.com.ar
       ADMIN_PASSWORD: UMAdmin2024!
-      PUBLIC_URL: https://www.ultimamilla.com.ar
+      PUBLIC_URL: https://www.umbot.com.ar
     volumes:
       - directus_uploads:/directus/uploads
     networks:
@@ -160,15 +160,15 @@ docker logs --tail 10 umbot-nginx-direct
 # 8. Verificar conectividad
 echo "8. Verificando conectividad..."
 echo "🌐 Probando HTTP..."
-curl -I http://www.ultimamilla.com.ar 2>/dev/null | head -1 || echo "❌ HTTP no responde"
+curl -I http://www.umbot.com.ar 2>/dev/null | head -1 || echo "❌ HTTP no responde"
 
 echo "🔐 Probando HTTPS..."
-curl -I https://www.ultimamilla.com.ar 2>/dev/null | head -1 || echo "❌ HTTPS no responde (normal si no hay certificados)"
+curl -I https://www.umbot.com.ar 2>/dev/null | head -1 || echo "❌ HTTPS no responde (normal si no hay certificados)"
 
 echo ""
 echo "🎯 PRÓXIMOS PASOS:"
 echo "=================="
-if [ ! -d "/etc/letsencrypt/live/www.ultimamilla.com.ar" ]; then
+if [ ! -d "/etc/letsencrypt/live/www.umbot.com.ar" ]; then
     echo "❗ Los certificados SSL no están disponibles."
     echo "   Opciones:"
     echo "   A) Generar nuevos certificados con certbot"
@@ -176,13 +176,13 @@ if [ ! -d "/etc/letsencrypt/live/www.ultimamilla.com.ar" ]; then
     echo "   C) Restaurar certificados desde backup"
     echo ""
     echo "🔧 Para generar nuevos certificados:"
-    echo "   certbot --nginx -d www.ultimamilla.com.ar"
+    echo "   certbot --nginx -d www.umbot.com.ar"
 else
     echo "✅ Certificados SSL disponibles, nginx debería funcionar"
 fi
 
 echo ""
 echo "📊 Estado actual:"
-echo "   - Sitio web: http://www.ultimamilla.com.ar (debería funcionar)"
-echo "   - Panel admin: http://www.ultimamilla.com.ar/admin (debería funcionar)"
+echo "   - Sitio web: http://www.umbot.com.ar (debería funcionar)"
+echo "   - Panel admin: http://www.umbot.com.ar/admin (debería funcionar)"
 echo "   - HTTPS: Depende de certificados SSL" 

@@ -221,7 +221,7 @@ jobs:
       - name: 🏥 Health check
         run: |
           sleep 30
-          curl -f https://www.ultimamilla.com.ar/health || curl -f https://www.ultimamilla.com.ar/
+          curl -f https://www.umbot.com.ar/health || curl -f https://www.umbot.com.ar/
           echo "✅ Production deployment is healthy!"
 
   # ==========================================
@@ -276,7 +276,7 @@ jobs:
           status: success
           text: |
             ✅ Deployment successful!
-            🌐 Site: https://www.ultimamilla.com.ar
+            🌐 Site: https://www.umbot.com.ar
             📝 Commit: ${{ github.event.head_commit.message }}
             👤 Author: ${{ github.actor }}
         env:

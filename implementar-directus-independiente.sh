@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script para implementar Directus CMS de forma independiente
-# Sin interferir con el frontend estático actual de ultimamilla.com.ar
+# Sin interferir con el frontend estático actual de umbot.com.ar
 # Fecha: 21 Julio 2025
 
 echo "🚀 IMPLEMENTANDO DIRECTUS CMS DE FORMA INDEPENDIENTE"

@@ -35,7 +35,7 @@ sleep 10
 ssh $SERVER_USER@$SERVER_IP "docker ps"
 
 echo "6. Probando sitio..."
-curl -I http://ultimamilla.com.ar/ | head -3
+curl -I http://umbot.com.ar/ | head -3
 
 echo "=== ACTUALIZACIÓN COMPLETADA ==="
-echo "Sitio disponible en: http://ultimamilla.com.ar" 
+echo "Sitio disponible en: http://umbot.com.ar" 

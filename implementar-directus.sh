@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script para implementar Directus como administrador de contenido para ultimamilla.com.ar
+# Script para implementar Directus como administrador de contenido para umbot.com.ar
 # Basado en el task manager definido en directus-implementation-taskmanager.md
 # Fecha: 21 Julio 2025
 

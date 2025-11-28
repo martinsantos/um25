@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 🚨 SCRIPT DE SOLUCIÓN COMPLETA DNS + SSL - UM25-0.4
-# Soluciona problemas de www.ultimamilla.com.ar y HTTPS
+# Soluciona problemas de www.umbot.com.ar y HTTPS
 # Fecha: 17 de Junio 2025
 
 set -e
@@ -13,13 +13,13 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-echo -e "${BLUE}🔧 SOLUCIÓN COMPLETA DNS + SSL para ultimamilla.com.ar${NC}"
+echo -e "${BLUE}🔧 SOLUCIÓN COMPLETA DNS + SSL para umbot.com.ar${NC}"
 echo "=================================================================="
 
 # Variables
 SERVER_IP="23.105.176.45"
-DOMAIN="ultimamilla.com.ar"
-WWW_DOMAIN="www.ultimamilla.com.ar"
+DOMAIN="umbot.com.ar"
+WWW_DOMAIN="www.umbot.com.ar"
 CYBERPANEL_PORT="8090"
 
 echo -e "${YELLOW}📋 PASO 1: VERIFICAR PROBLEMAS ACTUALES${NC}"
@@ -53,15 +53,15 @@ echo "1. Accede a CiberPanel: https://$SERVER_IP:$CYBERPANEL_PORT"
 echo "   Usuario: admin"
 echo "   Password: gsiB%s@0yD"
 echo ""
-echo "2. Ve a: DNS → Manage DNS → ultimamilla.com.ar"
+echo "2. Ve a: DNS → Manage DNS → umbot.com.ar"
 echo ""
 echo "3. VERIFICA/AGREGA estos registros DNS:"
 echo "   ┌─────────────────────────────────────────────────────────┐"
 echo "   │ Tipo │ Nombre        │ Valor        │ TTL  │ Prioridad │"
 echo "   ├─────────────────────────────────────────────────────────┤"
-echo "   │  A   │ ultimamilla.com.ar  │ $SERVER_IP   │ 3600 │     -     │"
+echo "   │  A   │ umbot.com.ar  │ $SERVER_IP   │ 3600 │     -     │"
 echo "   │  A   │ www           │ $SERVER_IP   │ 3600 │     -     │"
-echo "   │ CNAME│ www           │ ultimamilla.com.ar │ 3600 │     -     │"
+echo "   │ CNAME│ www           │ umbot.com.ar │ 3600 │     -     │"
 echo "   └─────────────────────────────────────────────────────────┘"
 echo ""
 echo -e "${RED}⚠️  IMPORTANTE: Si ya existe 'www', EDITARLO, no crear duplicado${NC}"
@@ -71,13 +71,13 @@ echo -e "${BLUE}🔒 CONFIGURACIÓN SSL:${NC}"
 echo ""
 echo "4. Ve a: SSL → Manage SSL"
 echo ""
-echo "5. Selecciona dominio: ultimamilla.com.ar"
+echo "5. Selecciona dominio: umbot.com.ar"
 echo ""
 echo "6. Selecciona: 'Issue SSL Certificate'"
 echo ""
 echo "7. Marca ambos dominios:"
-echo "   ✅ ultimamilla.com.ar"
-echo "   ✅ www.ultimamilla.com.ar"
+echo "   ✅ umbot.com.ar"
+echo "   ✅ www.umbot.com.ar"
 echo ""
 echo "8. Método: Let's Encrypt (Free)"
 echo ""
@@ -90,7 +90,7 @@ echo -e "${BLUE}🔧 CONFIGURACIÓN DE VIRTUAL HOST:${NC}"
 echo ""
 echo "10. Ve a: Websites → List Websites"
 echo ""
-echo "11. Busca: ultimamilla.com.ar → Manage"
+echo "11. Busca: umbot.com.ar → Manage"
 echo ""
 echo "12. Ve a pestaña: 'Configurations'"
 echo ""
@@ -99,11 +99,11 @@ echo ""
 echo "14. AGREGAR estas líneas en la sección de SSL:"
 cat << 'VHOST_CONFIG'
 
-# Configuración SSL para ultimamilla.com.ar
+# Configuración SSL para umbot.com.ar
 map                     *:443
 secure                  Yes
-keyFile                 /etc/letsencrypt/live/ultimamilla.com.ar/privkey.pem
-certFile                /etc/letsencrypt/live/ultimamilla.com.ar/fullchain.pem
+keyFile                 /etc/letsencrypt/live/umbot.com.ar/privkey.pem
+certFile                /etc/letsencrypt/live/umbot.com.ar/fullchain.pem
 certChain               1
 sslProtocol             24
 renegProtection         1
@@ -113,7 +113,7 @@ enableSpdy              15
 enableQuic              1
 
 # Alias para www
-vhAliases               www.ultimamilla.com.ar
+vhAliases               www.umbot.com.ar
 
 VHOST_CONFIG
 
@@ -129,16 +129,16 @@ echo ""
 echo "Después de aplicar los cambios, ejecuta estos comandos para verificar:"
 echo ""
 echo -e "${BLUE}# Verificar DNS (esperar 5-10 minutos para propagación):${NC}"
-echo "nslookup www.ultimamilla.com.ar"
-echo "dig www.ultimamilla.com.ar @8.8.8.8"
+echo "nslookup www.umbot.com.ar"
+echo "dig www.umbot.com.ar @8.8.8.8"
 echo ""
 echo -e "${BLUE}# Verificar SSL:${NC}"
-echo "curl -I https://ultimamilla.com.ar/"
-echo "curl -I https://www.ultimamilla.com.ar/"
+echo "curl -I https://umbot.com.ar/"
+echo "curl -I https://www.umbot.com.ar/"
 echo ""
 echo -e "${BLUE}# Verificar redirecciones:${NC}"
-echo "curl -I http://ultimamilla.com.ar/"
-echo "curl -I http://www.ultimamilla.com.ar/"
+echo "curl -I http://umbot.com.ar/"
+echo "curl -I http://www.umbot.com.ar/"
 echo ""
 
 echo -e "${YELLOW}📋 PASO 5: CONFIGURACIÓN DOCKER (OPCIONAL)${NC}"
@@ -168,10 +168,10 @@ DOCKER_CONFIG
 echo ""
 echo -e "${GREEN}🎉 DESPUÉS DE APLICAR TODOS LOS CAMBIOS:${NC}"
 echo ""
-echo "✅ http://ultimamilla.com.ar/ → Funcionará (ya funciona)"
-echo "✅ http://www.ultimamilla.com.ar/ → Funcionará"
-echo "✅ https://ultimamilla.com.ar/ → Funcionará con SSL"
-echo "✅ https://www.ultimamilla.com.ar/ → Funcionará con SSL"
+echo "✅ http://umbot.com.ar/ → Funcionará (ya funciona)"
+echo "✅ http://www.umbot.com.ar/ → Funcionará"
+echo "✅ https://umbot.com.ar/ → Funcionará con SSL"
+echo "✅ https://www.umbot.com.ar/ → Funcionará con SSL"
 echo ""
 echo -e "${BLUE}📞 Si necesitas ayuda:${NC}"
 echo "- CiberPanel Docs: https://docs.cyberpanel.net/ssl"

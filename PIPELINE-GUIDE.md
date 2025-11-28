@@ -2,7 +2,7 @@
 
 ## 📋 **RESUMEN EJECUTIVO**
 
-Se ha implementado un **pipeline CI/CD completo y automatizado** para el proyecto fumbling-field de ULTiMA MILLA que automatiza todo el flujo desde desarrollo local hasta producción en `www.ultimamilla.com.ar`.
+Se ha implementado un **pipeline CI/CD completo y automatizado** para el proyecto fumbling-field de ULTiMA MILLA que automatiza todo el flujo desde desarrollo local hasta producción en `www.umbot.com.ar`.
 
 ## 🏗️ **ARQUITECTURA DEL PIPELINE**
 
@@ -111,7 +111,7 @@ cp .env.example .env.local
 | Servicio | URL | Credenciales |
 |----------|-----|--------------|
 | **App Principal** | http://localhost:4321 | - |
-| **Directus Admin** | http://localhost:8055 | admin@ultimamilla.local / admin123dev |
+| **Directus Admin** | http://localhost:8055 | admin@umbot.local / admin123dev |
 | **Adminer (DB)** | http://localhost:8080 | directus / dev_password_2025 |
 | **MailHog (Email)** | http://localhost:8025 | - |
 | **Redis** | localhost:6379 | - |
@@ -120,8 +120,8 @@ cp .env.example .env.local
 ### **Producción**
 | Servicio | URL | Descripción |
 |----------|-----|-------------|
-| **Sitio Web** | https://www.ultimamilla.com.ar | Aplicación principal |
-| **Admin Panel** | https://www.ultimamilla.com.ar:8055 | Directus CMS |
+| **Sitio Web** | https://www.umbot.com.ar | Aplicación principal |
+| **Admin Panel** | https://www.umbot.com.ar:8055 | Directus CMS |
 
 ## 🧪 **TESTING Y CALIDAD**
 

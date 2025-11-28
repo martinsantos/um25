@@ -1,150 +1,112 @@
+import { getAllBlogPosts } from '../data/blog';
 import type { APIRoute } from 'astro';
 
-const SITE_URL = 'https://ultimamilla.com.ar';
+const SITE_URL = 'https://www.ultimamilla.com.ar';
 
 function formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
+    if (isNaN(date.getTime())) return new Date().toISOString().split('T')[0] || '';
+    return date.toISOString().split('T')[0] || '';
 }
 
-// Servicios estáticos basados en la estructura actual
-const servicios = [
-    { id: 1, slug: 'seguridad-informatica' },
-    { id: 2, slug: 'redes-y-comunicaciones' },
-    { id: 3, slug: 'software-y-servicios' },
-    { id: 4, slug: 'telefonia' },
-    { id: 5, slug: 'ciberseguridad' },
-    { id: 6, slug: 'servicios-web' }
-];
-
-// Antecedentes principales
-const antecedentes = [
-    { id: 10768, slug: 'isi-solutions-redes-y-comunicaciones' },
-    { id: 10769, slug: 'ministerio-de-deportes-gobierno-de-mendoza-redes-y' },
-    { id: 10770, slug: 'telecombtw-sa-redes-y-comunicaciones' }
-];
-
-function generateSitemapXml(): string {
-    const today = formatDate(new Date());
-    
+function generateSitemapXml(posts: any[]): string {
     return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-    <!-- Página principal -->
+    <!-- Páginas estáticas principales -->
     <url>
-        <loc>${SITE_URL}/</loc>
-        <lastmod>${today}</lastmod>
+        <loc>${SITE_URL}</loc>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
-    
-    <!-- Páginas principales -->
+    <url>
+        <loc>${SITE_URL}/blog</loc>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url>
     <url>
         <loc>${SITE_URL}/servicios</loc>
-        <lastmod>${today}</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.9</priority>
-    </url>
-    <url>
-        <loc>${SITE_URL}/antecedentes</loc>
-        <lastmod>${today}</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.9</priority>
-    </url>
-    <url>
-        <loc>${SITE_URL}/nosotros</loc>
-        <lastmod>${today}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
+        <loc>${SITE_URL}/nosotros</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
         <loc>${SITE_URL}/contacto</loc>
-        <lastmod>${today}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     
-    <!-- Página de sectores -->
+    <!-- Nuevos Verticales y Sectores -->
     <url>
-        <loc>${SITE_URL}/sector</loc>
-        <lastmod>${today}</lastmod>
-        <changefreq>monthly</changefreq>
+        <loc>${SITE_URL}/mineria</loc>
+        <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
-    
-    <!-- Páginas de verticales por sector -->
     <url>
-        <loc>${SITE_URL}/bodegas</loc>
-        <lastmod>${today}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
+        <loc>${SITE_URL}/industria</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
     </url>
     <url>
-        <loc>${SITE_URL}/software</loc>
-        <lastmod>${today}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>${SITE_URL}/gobiernosectorpublico</loc>
-        <lastmod>${today}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
+        <loc>${SITE_URL}/seguridad-electronica</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
     </url>
     <url>
         <loc>${SITE_URL}/constructoras</loc>
-        <lastmod>${today}</lastmod>
-        <changefreq>monthly</changefreq>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>${SITE_URL}/bodegas</loc>
+        <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>${SITE_URL}/aeropuertos</loc>
-        <lastmod>${today}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>${SITE_URL}/salud</loc>
-        <lastmod>${today}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
-    
-    <!-- Versiones en inglés -->
     <url>
-        <loc>${SITE_URL}/en/sector</loc>
-        <lastmod>${today}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.9</priority>
-    </url>
-
-    <!-- Páginas de servicios individuales -->
-    ${servicios.map(servicio => `
-    <url>
-        <loc>${SITE_URL}/servicios/${servicio.id}/${servicio.slug}</loc>
-        <lastmod>${today}</lastmod>
+        <loc>${SITE_URL}/gobiernosectorpublico</loc>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
-    </url>`).join('')}
+    </url>
 
-    <!-- Páginas de antecedentes individuales -->
-    ${antecedentes.map(antecedente => `
+    <!-- Posts del blog -->
+    ${posts.map(post => `
     <url>
-        <loc>${SITE_URL}/antecedentes/${antecedente.id}/${antecedente.slug}</loc>
-        <lastmod>${today}</lastmod>
-        <changefreq>yearly</changefreq>
-        <priority>0.6</priority>
-    </url>`).join('')}
+        <loc>${SITE_URL}/blog/${post.slug}</loc>
+        <lastmod>${formatDate(new Date(post.date || new Date()))}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+        ${post.image ? `
+        <image:image>
+            <image:loc>${SITE_URL}${post.image}</image:loc>
+            <image:title>${post.title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;')}</image:title>
+        </image:image>` : ''}
+    </url>`).join('\n    ')}
 </urlset>`;
 }
 
 export const GET: APIRoute = async () => {
-    const sitemap = generateSitemapXml();
+    const posts = await getAllBlogPosts();
+    const sitemap = generateSitemapXml(posts);
 
     return new Response(sitemap, {
         headers: {
             'Content-Type': 'application/xml',
-            'Cache-Control': 'public, max-age=86400', // 24 horas
-            'X-Robots-Tag': 'noindex'
+            'Cache-Control': 'public, max-age=3600'
         },
     });
 }

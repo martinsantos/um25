@@ -195,7 +195,7 @@ ls -1 public/images/services/*.jpg | sed 's/^/       /'
 
 echo ""
 echo -e "${BLUE}🌐 VERIFICACIÓN:${NC}"
-echo "   Abre: https://www.ultimamilla.com.ar/servicios"
+echo "   Abre: https://www.umbot.com.ar/servicios"
 echo "   Presiona Ctrl+F5 para limpiar caché del navegador"
 echo ""
 echo -e "${BLUE}📊 LOGS si hay problemas:${NC}"

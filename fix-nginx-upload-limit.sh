@@ -21,7 +21,7 @@ echo ""
 echo "🚀 Comandos para ejecutar en el servidor:"
 echo ""
 echo "# 1. SSH al servidor"
-echo "ssh root@www.ultimamilla.com.ar"
+echo "ssh root@www.umbot.com.ar"
 echo ""
 echo "# 2. Editar configuración de nginx para aumentar límite"
 echo "nano /etc/nginx/sites-available/default"
@@ -33,7 +33,7 @@ echo "# 4. Reiniciar nginx"
 echo "systemctl reload nginx"
 echo ""
 echo "# 5. Verificar que el cambio funcionó"
-echo "curl -k https://www.ultimamilla.com.ar:8056/server/ping"
+echo "curl -k https://www.umbot.com.ar:8056/server/ping"
 echo ""
 echo "📤 Después de hacer estos cambios, ejecuta:"
 echo "python3 import-remaining-images.py"
@@ -57,8 +57,8 @@ from typing import Dict, Optional, Tuple
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Configuración
-DIRECTUS_URL = "https://www.ultimamilla.com.ar:8056"
-ADMIN_EMAIL = "admin@ultimamilla.com.ar"
+DIRECTUS_URL = "https://www.umbot.com.ar:8056"
+ADMIN_EMAIL = "admin@umbot.com.ar"
 ADMIN_PASSWORD = "UmbotDirectusAdmin2025!"
 IMAGES_DIR = Path("imagenes_antecedentes_versionproduccion")
 

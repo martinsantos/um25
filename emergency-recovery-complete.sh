@@ -8,7 +8,7 @@ echo ""
 
 # Variables de configuración
 SERVER_IP="23.105.176.45"
-DOMAIN="www.ultimamilla.com.ar"
+DOMAIN="www.umbot.com.ar"
 DB_USER="directus"
 DB_PASS="directus123"
 DB_NAME="directus"
@@ -99,9 +99,9 @@ services:
       DB_DATABASE: directus
       DB_USER: directus
       DB_PASSWORD: directus123
-      ADMIN_EMAIL: admin@ultimamilla.com.ar
+      ADMIN_EMAIL: admin@umbot.com.ar
       ADMIN_PASSWORD: EmergencyAdmin2025!
-      PUBLIC_URL: https://www.ultimamilla.com.ar
+      PUBLIC_URL: https://www.umbot.com.ar
       CORS_ENABLED: true
       CORS_ORIGIN: true
     volumes:
@@ -233,18 +233,18 @@ upstream directus_emergency {
 # Redirección HTTP a HTTPS
 server {
     listen 80;
-    server_name www.ultimamilla.com.ar;
+    server_name www.umbot.com.ar;
     return 301 https://$server_name$request_uri;
 }
 
 # Servidor principal HTTPS
 server {
     listen 443 ssl http2;
-    server_name www.ultimamilla.com.ar;
+    server_name www.umbot.com.ar;
 
     # Certificados SSL
-    ssl_certificate /etc/letsencrypt/live/www.ultimamilla.com.ar/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/www.ultimamilla.com.ar/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/www.umbot.com.ar/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/www.umbot.com.ar/privkey.pem;
 
     # Headers de seguridad
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
@@ -306,7 +306,7 @@ server {
 # Acceso directo a Directus (puerto 8055)
 server {
     listen 8055;
-    server_name www.ultimamilla.com.ar;
+    server_name www.umbot.com.ar;
 
     location / {
         proxy_pass http://directus_emergency;
@@ -329,7 +329,7 @@ ASTRO_ENV=production
 
 # Directus Configuration
 DIRECTUS_URL=http://directus-emergency:8055
-PUBLIC_DIRECTUS_URL=https://www.ultimamilla.com.ar
+PUBLIC_DIRECTUS_URL=https://www.umbot.com.ar
 
 # Database
 DB_CLIENT=pg
@@ -340,7 +340,7 @@ DB_USER=directus
 DB_PASSWORD=directus123
 
 # Admin User
-ADMIN_EMAIL=admin@ultimamilla.com.ar
+ADMIN_EMAIL=admin@umbot.com.ar
 ADMIN_PASSWORD=EmergencyAdmin2025!
 
 # Security
@@ -348,8 +348,8 @@ KEY=255d861b-5ea1-5996-9aa3-922530ec40b1
 SECRET=6116487b-cda1-52c2-b5b5-c8022c45e263
 
 # Site Configuration
-PUBLIC_SITE_URL=https://www.ultimamilla.com.ar
-PUBLIC_DOMAIN=www.ultimamilla.com.ar
+PUBLIC_SITE_URL=https://www.umbot.com.ar
+PUBLIC_DOMAIN=www.umbot.com.ar
 
 # Fallback mode
 USE_STATIC_DATA=false
@@ -395,9 +395,9 @@ echo "docker-compose -f docker-compose.emergency.yml ps"
 echo "docker-compose -f docker-compose.emergency.yml logs -f"
 echo ""
 echo "# 8. Probar conectividad"
-echo "curl -I https://www.ultimamilla.com.ar/"
-echo "curl -I https://www.ultimamilla.com.ar/antecedentes/"
-echo "curl -I https://www.ultimamilla.com.ar/admin"
+echo "curl -I https://www.umbot.com.ar/"
+echo "curl -I https://www.umbot.com.ar/antecedentes/"
+echo "curl -I https://www.umbot.com.ar/admin"
 echo ""
 
 echo "🔥 PLAN DE EMERGENCIA CREADO EXITOSAMENTE"
@@ -416,7 +416,7 @@ echo "3. Verificar funcionamiento"
 echo "4. Importar datos si es necesario"
 echo ""
 echo "⚡ CREDENCIALES DE EMERGENCIA:"
-echo "Admin: admin@ultimamilla.com.ar"
+echo "Admin: admin@umbot.com.ar"
 echo "Pass: EmergencyAdmin2025!"
 echo ""
 echo "Finalizado: $(date)" 

@@ -149,7 +149,7 @@ node scripts/validar_migracion.js
 ### Variables de Entorno Configuradas
 ```bash
 # Producción
-DIRECTUS_URL=https://www.ultimamilla.com.ar
+DIRECTUS_URL=https://www.umbot.com.ar
 DIRECTUS_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 NODE_ENV=production
 ```
@@ -189,7 +189,7 @@ NODE_ENV=production
 
 ### Información Técnica
 - **Servidor**: 23.105.176.45
-- **Directus**: https://www.ultimamilla.com.ar
+- **Directus**: https://www.umbot.com.ar
 - **Estado**: Operativo y saludable
 
 ### Archivos de Log

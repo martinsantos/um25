@@ -1,9 +1,9 @@
 ---
 import Navigation from '../components/Navigation.astro';
-import Analytics from '../components/Analytics.astro';
+
 import '../styles/global.css';
 import '../styles/theme.css';
-import '../styles/sectors-mobile.css';
+
 
 export interface Props {
   title?: string;
@@ -26,11 +26,11 @@ const {
 // Check if current page is CLI to avoid script conflicts
 const isCLIPage = Astro.url.pathname.includes('/cli');
 
-// SEO defaults
-const defaultDescription = "ULTIMA MILLA - Especialistas en comunicaciones, sistemas e integración. +400 proyectos documentados con clientes como Gobierno de Mendoza, AFIP, Banco Credicoop.";
-const defaultKeywords = "ultima milla, comunicaciones, sistemas, redes, telecomunicaciones, software, mendoza, argentina";
+// SEO defaults - OPTIMIZADO para servicios tecnológicos y zona de incumbencia
+const defaultDescription = "Servicios tecnológicos para empresas y organizaciones argentinas. Zona de incumbencia: Mendoza, Cuyo, Patagonia. Expertos en Telecomunicaciones, Cableado Estructurado, Corrientes Débiles, Detección de Incendio, Software a Medida. +400 proyectos, +20 años de experiencia.";
+const defaultKeywords = "servicios tecnologicos empresas argentina, zona incumbencia mendoza cuyo patagonia, telecomunicaciones profesionales, cableado estructurado certificado, corrientes debiles instalacion, deteccion incendio sistemas, software a medida organizaciones, servicios it mendoza san juan san luis, mineria tecnologia, industria 4.0, salud hospitales, aeropuertos infraestructura, gobierno sector publico, bodegas vitivinicolas, constructoras, seguridad electronica cctv";
 const siteUrl = "https://ultimamilla.com.ar";
-const defaultTitle = "ULTIMA MILLA | Especialistas en Comunicaciones, Sistemas e Integración";
+const defaultTitle = "ULTIMA MILLA | Servicios Tecnológicos en Mendoza, Cuyo y Patagonia";
 const currentUrl = (canonical || `${siteUrl}${Astro.url.pathname}`).replace(/\/$/, "");
 const isoNow = new Date().toISOString();
 
@@ -38,7 +38,7 @@ const pageTitle = title ?? defaultTitle;
 const metaTitle = pageTitle.includes('ULTIMA MILLA') ? pageTitle : `${pageTitle} | ULTIMA MILLA`;
 const pageDescription = description ?? defaultDescription;
 const pageKeywords = keywords ?? defaultKeywords;
-const pageImage = image || `${siteUrl}/images/og-default.jpg`;
+const pageImage = image || `${siteUrl}/nosotros-tech.jpg`;
 
 const hasHeadSlot = Astro.slots.has('head');
 
@@ -49,7 +49,7 @@ const defaultStructuredData = {
   alternateName: "Ultima Milla Comunicaciones",
   url: siteUrl,
   logo: `${siteUrl}/images/um-logo.png`,
-  description: "Especialistas en comunicaciones, sistemas e integración desde el año 2000. Más de 400 proyectos con clientes como Gobierno de Mendoza, AFIP y Banco Credicoop.",
+  description: "Empresa líder en servicios IT, telecomunicaciones y transformación digital en la región de Cuyo y Patagonia. Especialistas en Minería, Industria y Gobierno.",
   foundingDate: "2000",
   address: {
     "@type": "PostalAddress",
@@ -59,6 +59,13 @@ const defaultStructuredData = {
     postalCode: "M5500",
     addressCountry: "AR",
   },
+  areaServed: [
+    { "@type": "City", "name": "Mendoza" },
+    { "@type": "City", "name": "San Juan" },
+    { "@type": "City", "name": "San Luis" },
+    { "@type": "AdministrativeArea", "name": "Patagonia" },
+    { "@type": "Country", "name": "Argentina" }
+  ],
   geo: {
     "@type": "GeoCoordinates",
     latitude: "-32.8908",
@@ -231,7 +238,7 @@ const currentYear = new Date().getFullYear();
     <link rel="canonical" href={currentUrl} />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png" />
     <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#1a365d" />
@@ -244,9 +251,7 @@ const currentYear = new Date().getFullYear();
     <link rel="preconnect" href="https://www.google-analytics.com" />
     <link rel="preconnect" href="https://www.googletagmanager.com" />
 
-    <link rel="preload" href="/uiEffects.css" as="style" />
 
-    <link rel="stylesheet" href="/uiEffects.css" />
 
     <link rel="dns-prefetch" href="//www.google-analytics.com" />
     <link rel="dns-prefetch" href="//www.googletagmanager.com" />
@@ -254,7 +259,7 @@ const currentYear = new Date().getFullYear();
     {hasHeadSlot && <slot name="head" />}
 
     <!-- Google Analytics Integration -->
-    <Analytics id="G-S2376K1GED" respectPrivacy={true} />
+
 
     <!-- Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(combinedStructuredData)} />
@@ -367,3 +372,4 @@ const currentYear = new Date().getFullYear();
     {/* Scripts complejos temporalmente deshabilitados para evitar conflictos */}
   </body>
 </html>
+<!-- Cache bust: 1763595741 -->

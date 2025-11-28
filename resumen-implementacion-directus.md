@@ -8,7 +8,7 @@
 
 ✅ **DIRECTUS CMS COMPLETAMENTE FUNCIONAL CON CONTENIDO DINÁMICO**
 
-La implementación de **Directus CMS** como sistema de administración de contenido para ultimamilla.com.ar ha sido **COMPLETAMENTE EXITOSA**:
+La implementación de **Directus CMS** como sistema de administración de contenido para umbot.com.ar ha sido **COMPLETAMENTE EXITOSA**:
 
 ##### **🔧 ARQUITECTURA IMPLEMENTADA**
 
@@ -53,7 +53,7 @@ curl -s http://23.105.176.45:8055/items/Antecedentes?limit=1
 # {"data":[{"id":10768,"status":"published",...}],"meta":{"..."}
 
 # ✅ Frontend consumiendo datos
-curl -I https://www.ultimamilla.com.ar/servicios/2/redes-de-datos
+curl -I https://www.umbot.com.ar/servicios/2/redes-de-datos
 # HTTP/1.1 200 OK
 ```
 
@@ -153,7 +153,7 @@ Se crearon los siguientes scripts para automatizar la implementación:
 
 ✅ **DIRECTUS CMS COMPLETAMENTE IMPLEMENTADO Y FUNCIONAL**
 
-El sistema ultimamilla.com.ar ahora cuenta con un **CMS COMPLETO Y DINÁMICO**:
+El sistema umbot.com.ar ahora cuenta con un **CMS COMPLETO Y DINÁMICO**:
 
 1. **❌ Contenido estático** → ✅ **Contenido dinámico administrable**
 2. **❌ Sin panel de administración** → ✅ **Panel completo para edición**

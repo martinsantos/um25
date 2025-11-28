@@ -2,45 +2,66 @@
 import Layout from '../layouts/Layout.astro';
 import { directus, DEFAULT_IMAGE } from '../utils/directus';
 import { generateSlug } from '../utils/slugUtils';
-import { filtrarPorVertical } from '../data/verticales';
 
 // Configuración SEO específica para constructoras - ULTRA OPTIMIZADA para Argentina y Mendoza
 const seoConfig = {
-  title: "Tecnología IT Constructoras Mendoza Argentina | PROCON LAUGGERO KRISTICH | Infraestructura Obras",
-  description: "⛑️ Especialistas en infraestructura IT para constructoras en Mendoza y Argentina. Sistemas tecnológicos completos para PROCON, LAUGGERO, KRISTICH. Redes estructuradas, comunicaciones IP, seguridad CCTV y control de accesos para obras y canteros. +50 proyectos documentados, 20+ años de experiencia. Soporte 24/7.",
-  keywords: "constructoras mendoza, infraestructura IT constructoras argentina, tecnología para obras mendoza, PROCON mendoza IT, LAUGGERO constructoras tecnología, KRISTICH infraestructura, redes estructuradas constructoras, cableado certificado obras, comunicaciones IP constructoras, CCTV obras mendoza, control accesos biométrico canteros, seguridad electrónica construccion, telefonía IP obras, conectividad temporal canteros, sistemas gestión constructora, IT construcción argentina, tecnología oficinas técnicas, servidores construccion, redes wifi obras, integración tecnológica constructoras mendoza",
-  ogImage: "/images/constructoras-hero.jpg",
-  canonical: "https://www.ultimamilla.com.ar/constructoras",
+  title: "Servicios IT para Constructoras y Obras | Mendoza, Cuyo y Patagonia | ULTIMA MILLA",
+  description: "Servicios tecnológicos para constructoras y obras en Argentina. Zona de incumbencia: Mendoza, Cuyo, Patagonia. Conectividad temporal, cableado estructurado, corrientes débiles, detección de incendio, seguridad CCTV y telecomunicaciones para canteros.",
+  keywords: "servicios tecnologicos constructoras, infraestructura it obras mendoza, conectividad temporal canteros cuyo, cableado estructurado construccion patagonia, corrientes debiles obras, deteccion incendio canteros, cctv seguridad construccion",
+  // ogImage: "/images/services/constructoras-hero.jpg",
+  canonical: "https://ultimamilla.com.ar/constructoras",
   locale: "es_AR",
-  region: "AR-M",
+  region: "Cuyo, Patagonia, Argentina",
   author: "Ultima Milla",
   robots: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
 };
 
 // Cargar antecedentes del sector constructoras
+import { antecedentesReales } from '../data/antecedentes_completos.js';
+import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
+
 let antecedentes = [];
 let serviciosRelacionados = [];
 let error = null;
 
+const keywords = [
+  'construccion', 'constructora', 'obras', 'ingenier', 'urbaniz',
+  'edificio', 'torre', 'complejo', 'shopping', 'centro comercial',
+  'procon', 'impsa', 'tecnigas', 'cartellone', 'benito roggio',
+  'infraestructura', 'vial', 'puente', 'tuneles', 'pavimento',
+  'housing', 'barrio', 'loteo', 'country', 'desarrollo',
+  'hotel', 'apart', 'spa', 'casino', 'resort',
+  'laugero', 'kristich', 'monteverdi', 'ceosa', 'green'
+];
+
+const filterAntecedentes = (data) => {
+  return data.filter(item => {
+    const cliente = (item.Cliente || '').toLowerCase();
+    const titulo = (item.Titulo || '').toLowerCase();
+    const area = (item.Area || '').toLowerCase();
+    return keywords.some(k => cliente.includes(k) || titulo.includes(k) || area.includes(k));
+  }).sort((a, b) => new Date(b.Fecha || '2000-01-01') - new Date(a.Fecha || '2000-01-01'));
+};
+
 try {
-  // Obtener antecedentes de constructoras desde Directus
-  const response = await directus.getAntecedentes({
-    limit: 500,
-    page: 1
-  });
-
+  // Intentar obtener de Directus
+  const response = await directus.getAntecedentes({ limit: 100, page: 1 });
+  
   if (response && response.data && response.data.length > 0) {
-    // Filtrar antecedentes de constructoras usando clasificación por vertical
-    const allAntecedentes = response.data.map(item => ({
-      ...item,
-      slug: `${item.id}/${generateSlug(item.Titulo)}`
-    }));
-    
-    antecedentes = filtrarPorVertical(allAntecedentes, 'constructoras')
-      .sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
-
-    console.log(`✅ Cargados ${antecedentes.length} antecedentes de constructoras`);
+    antecedentes = filterAntecedentes(response.data);
   }
+} catch (err) {
+  console.error('Error cargando antecedentes de Directus, usando fallback:', err);
+}
+
+// Fallback a datos locales si no hay resultados de API
+if (antecedentes.length === 0) {
+  console.log('Usando antecedentes locales para Constructoras');
+  antecedentes = filterAntecedentes(antecedentesReales);
+}
+
+// Limitar a 6 para la vista (ELIMINADO - Ahora se maneja en el componente con "Ver más")
+// antecedentes = antecedentes.slice(0, 6);
 
   // Servicios relacionados con el sector constructoras
   // Structured Data para SEO
@@ -159,42 +180,188 @@ try {
       slug: "soporte-tecnico"
     }
   ];
-} catch (err) {
-  console.error('Error cargando antecedentes:', err);
-  error = err;
-}
 
-// Función para obtener imagen del antecedente
-import { buscarImagenPorDatos } from '../data/mapeo_imagenes_completo';
+// Función para obtener imagen del antecedente (Ya no es necesaria aquí, la maneja el componente)
+// const antecedentesConImagenes = ... (Eliminado)
+---
 
-function getImageUrl(proyecto) {
-  if (!proyecto) return '/images/default-placeholder.svg';
-  
-  try {
-    const imagenNombre = buscarImagenPorDatos(
-      proyecto.Cliente,
-      proyecto.Area || proyecto.Unidad_de_negocio,
-      proyecto.Titulo,
-      proyecto.id
-    );
-    
-    if (imagenNombre) {
-      const imagenUrl = `/imagenes_antecedentes_versionproduccion/${imagenNombre}`;
-      console.log(`[CONSTRUCTORAS] ✅ Imagen encontrada para ${proyecto.Cliente}: ${imagenUrl}`);
-      return imagenUrl;
-    }
-  } catch (error) {
-    console.log(`[CONSTRUCTORAS] ⚠️ Error buscando imagen: ${error.message}`);
-  }
-  
-  console.log(`[CONSTRUCTORAS] ℹ️ Usando placeholder para ${proyecto.Cliente}`);
-  return '/images/default-placeholder.svg';
-}
+<Layout
+  title={seoConfig.title}
+  description={seoConfig.description}
+  keywords={seoConfig.keywords}
+  image={seoConfig.ogImage}
+  canonical={seoConfig.canonical}
+>
+  <main style="background: #f5f5f5;">
+    <!-- HERO EXACTO DEL BOCETO -->
+    <section style="position: relative; min-height: 350px; display: flex; align-items: center; background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1920&q=80') center/cover; color: white;">
+      <div style="max-width: 1200px; margin: 0 auto; padding: 50px 40px; width: 100%;">
+        <!-- Badge Simple -->
+        <div style="display: inline-flex; align-items: center; gap: 12px; padding: 12px 20px; background: linear-gradient(135deg, rgba(255, 107, 53, 0.3), rgba(255, 107, 53, 0.1)); border-radius: 20px; margin-bottom: 20px; border: 1px solid rgba(255, 107, 53, 0.4); backdrop-filter: blur(10px);">
+          <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #ff6b35, #ff8a5b); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);">
+            <span style="font-size: 24px;">🏢</span>
+          </div>
+          <span style="font-size: 13px; font-weight: 800; color: #ff6b35; text-transform: uppercase; letter-spacing: 1.2px;">Sector Construcción</span>
+        </div>
 
-const antecedentesConImagenes = antecedentes.map(proyecto => ({
-  ...proyecto,
-  imageUrl: getImageUrl(proyecto)
-}));
+        <!-- Title Simple -->
+        <h1 style="font-size: 48px; font-weight: 900; margin-bottom: 20px; line-height: 1.2; color: white;">
+          Construyendo el Mañana<br/>con Tecnología y Precisión
+        </h1>
+
+        <!-- Subtitle Simple -->
+        <p style="font-size: 18px; font-weight: 400; color: rgba(255, 255, 255, 0.9); max-width: 600px; margin-bottom: 32px; line-height: 1.6;">
+          Soluciones integrales para la gestión y ejecución de proyectos de construcción con precisión.
+        </p>
+
+        <!-- CTA Button Simple -->
+        <a href="#contacto" style="display: inline-block; background: #ff6b35; color: white; padding: 14px 32px; border-radius: 6px; font-weight: 700; font-size: 15px; text-decoration: none; transition: all 0.3s ease;" onmouseover="this.style.background='#e55a2b'" onmouseout="this.style.background='#ff6b35'">
+          Explorar Nuestras Soluciones
+        </a>
+      </div>
+    </section>
+
+    <!-- 3 CARDS EXACTAS DEL BOCETO -->
+    <section style="background: #f5f5f5; padding: 50px 40px;">
+      <div style="max-width: 1200px; margin: 0 auto;">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;">
+          <!-- Card 1 EXACTA -->
+          <div style="text-align: center; padding: 40px 30px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="width: 80px; height: 80px; background: white; border: 3px solid #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+              <svg style="width: 40px; height: 40px; color: #333;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m4 0V9a1 1 0 011-1h4a1 1 0 011 1v12M9 7h6"></path>
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Proyectos a Gran Escala</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Gestionamos proyectos complejos con precisión y eficiencia.</p>
+          </div>
+
+          <!-- Card 2 EXACTA -->
+          <div style="text-align: center; padding: 40px 30px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="width: 80px; height: 80px; background: white; border: 3px solid #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+              <svg style="width: 40px; height: 40px; color: #333;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Innovación Tecnológica</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Implementamos las últimas tecnologías para optimizar cada fase.</p>
+          </div>
+
+          <!-- Card 3 EXACTA -->
+          <div style="text-align: center; padding: 40px 30px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="width: 80px; height: 80px; background: white; border: 3px solid #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+              <svg style="width: 40px; height: 40px; color: #333;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Seguridad y Certificación</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Cumplimiento riguroso de normativas y estándares de seguridad.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- SERVICIOS EXACTOS DEL BOCETO -->
+    <section id="servicios" style="background: white; padding: 50px 40px;">
+      <div style="max-width: 1200px; margin: 0 auto;">
+        <!-- Header Simple -->
+        <div style="text-align: center; margin-bottom: 60px;">
+          <h2 style="font-size: 36px; font-weight: 700; color: #333; margin-bottom: 16px;">Servicios Ofrecidos</h2>
+          <p style="font-size: 16px; color: #666; max-width: 700px; margin: 0 auto; line-height: 1.6;">
+            Ofrecemos un portafolio de servicios tecnológicos diseñados para optimizar cada fase del ciclo de vida del proyecto de construcción.
+          </p>
+        </div>
+
+        <!-- Services Grid 2x2 -->
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; max-width: 900px; margin: 0 auto;">
+          <!-- Servicio 1 -->
+          <div style="padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #ff6b35;">
+            <div style="width: 50px; height: 50px; background: #ff6b35; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Redes de Datos</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Cableado estructurado y fibra óptica para obras</p>
+          </div>
+
+          <!-- Servicio 2 -->
+          <div style="padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #ff6b35;">
+            <div style="width: 50px; height: 50px; background: #ff6b35; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Seguridad Informática</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Protección de sistemas y datos en canteros</p>
+          </div>
+
+          <!-- Servicio 3 -->
+          <div style="padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #ff6b35;">
+            <div style="width: 50px; height: 50px; background: #ff6b35; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Telecomunicaciones</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Sistemas de comunicación para obras</p>
+          </div>
+
+          <!-- Servicio 4 -->
+          <div style="padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #ff6b35;">
+            <div style="width: 50px; height: 50px; background: #ff6b35; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Soporte Técnico</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Asistencia técnica especializada en canteros</p>
+          </div>
+
+          <!-- Card 5: Sistemas de Detección -->
+          <a href="/servicios/5/deteccion-incendios" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #ff6b35; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(255,107,53,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <div style="width: 50px; height: 50px; background: #ff6b35; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Sistemas de Detección de Incendios</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Detección temprana y alarmas para protección de obras</p>
+          </a>
+        
+          <!-- Card 6: Soporte Técnico -->
+          <a href="/servicios/6/soporte-tecnico" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #ff6b35; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(255,107,53,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <div style="width: 50px; height: 50px; background: #ff6b35; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Soporte Técnico 24/7</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Mantenimiento preventivo y correctivo para operaciones continuas</p>
+          </a>
+      </div>
+    </div>
+    </section>
+
+    <!-- CASOS DE ÉXITO -->
+    {antecedentes.length > 0 && (
+      <section style="background: #f8fafc; padding: 100px 32px; border-top: 1px solid #e2e8f0;">
+        <div style="max-width: 75rem; margin: 0 auto;">
+          <div style="text-align: center; margin-bottom: 72px;">
+            <div style="display: inline-block; padding: 8px 20px; background: linear-gradient(135deg, #fb923c, #f97316); border-radius: 50px; margin-bottom: 20px;">
+              <span style="font-size: 13px; font-weight: 800; color: white; letter-spacing: 1px; text-transform: uppercase;">✨ Casos de Éxito</span>
+            </div>
+            <h2 style="font-size: clamp(36px, 5.5vw, 52px); font-weight: 900; color: #0f172a; margin-bottom: 20px; letter-spacing: -0.02em;">Proyectos Realizados</h2>
+            <p style="font-size: 19px; color: #64748b; max-width: 750px; margin: 0 auto; line-height: 1.7; font-weight: 500;">
+              Nuestras soluciones han impulsado la eficiencia y productividad de importantes proyectos de<br/>construcción en todo el país.
+            </p>
+          </div>
+
+          <FeaturedAntecedentes antecedentes={antecedentes} />
+        </div>
+      </section>
+    )}
 ---
 
 <Layout
@@ -380,7 +547,7 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
                     alt={proyecto.Titulo}
                     style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease;"
                     loading="lazy"
-                    onerror="this.src='/images/default-placeholder.svg'"
+                    onerror="this.src='/images/default.jpg'"
                     onmouseover="this.style.transform='scale(1.08)'"
                     onmouseout="this.style.transform='scale(1)'"
                   />
@@ -527,5 +694,20 @@ const antecedentesConImagenes = antecedentes.map(proyecto => ({
     outline: 2px solid rgba(217, 119, 6, 0.5);
     outline-offset: 2px;
     border-radius: 0.25rem;
+  }
+</style>
+
+<style>
+  /* RESPONSIVE MOBILE - FUERZA OVERRIDE CON !important */
+  @media (max-width: 768px) {
+    [style*="grid-template-columns: repeat(3, 1fr)"] { grid-template-columns: 1fr !important; }
+    [style*="grid-template-columns: repeat(2, 1fr)"] { grid-template-columns: 1fr !important; }
+    [style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; gap: 40px !important; }
+    h1[style] { font-size: 32px !important; }
+    h2[style] { font-size: 28px !important; }
+    h3[style] { font-size: 18px !important; }
+    section[style*="padding"] { padding: 40px 20px !important; }
+    #contacto form { padding: 24px !important; }
+    [style*="padding: 30px"] { padding: 20px !important; }
   }
 </style>

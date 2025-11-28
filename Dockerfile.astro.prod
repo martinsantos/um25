@@ -33,24 +33,39 @@ ENV ASTRO_TELEMETRY_DISABLED=1
 # Construir la aplicación
 RUN npm run build
 
-# Etapa de producción - Servir archivos estáticos con nginx
-FROM nginx:alpine AS runner
-WORKDIR /usr/share/nginx/html
+# Etapa de producción
+FROM node:18-alpine AS runner
+WORKDIR /app
 
-# Remover archivos por defecto de nginx
-RUN rm -rf /usr/share/nginx/html/*
+# Crear usuario no-root
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 astro
 
-# Copiar archivos estáticos construidos
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Copiar archivos necesarios para SSR
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
 
-# Copiar configuración personalizada de nginx
-COPY nginx.static.conf /etc/nginx/conf.d/default.conf
+# Copiar archivos de configuración y código fuente necesario
+COPY --from=builder /app/.env* ./
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/astro.config.mjs ./
+COPY --from=builder /app/tsconfig.json ./
+
+# Cambiar propietario de archivos
+RUN chown -R astro:nodejs /app
+
+# Cambiar a usuario no-root
+USER astro
 
 # Exponer puerto
-EXPOSE 80
+EXPOSE 4321
 
 # Variables de entorno
 ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+ENV PORT=4321
 
-# Comando de inicio
-CMD ["nginx", "-g", "daemon off;"]
+# Comando de inicio para SSR
+CMD ["node", "./dist/server/entry.mjs"] 

@@ -18,7 +18,7 @@ DATA_DIR = BASE_DIR / "migration_data"
 IMAGES_DIR = BASE_DIR / "imagenes_antecedentes_versionproduccion"
 
 # Configuración de Directus
-DIRECTUS_URL = "https://ultimamilla.com.ar"
+DIRECTUS_URL = "https://umbot.com.ar"
 ADMIN_EMAIL = "admin@example.com"
 ADMIN_PASSWORD = "d1r3ctu5"
 

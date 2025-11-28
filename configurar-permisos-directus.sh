@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script para configurar permisos públicos en Directus
-# Parte de la implementación de Directus como administrador de contenido para ultimamilla.com.ar
+# Parte de la implementación de Directus como administrador de contenido para umbot.com.ar
 # Fecha: 21 Julio 2025
 
 echo "🔒 CONFIGURANDO PERMISOS PÚBLICOS EN DIRECTUS"

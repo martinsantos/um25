@@ -47,7 +47,7 @@ El pipeline CI/CD implementado ha pasado todas las pruebas y está completamente
 - **Containers:** 3 servicios UP por 5+ horas
 
 ### Producción
-- **URL:** ✅ https://www.ultimamilla.com.ar (HTTP 200)
+- **URL:** ✅ https://www.umbot.com.ar (HTTP 200)
 - **Performance:** 0.69s tiempo de respuesta
 - **Containers:** umbot-nginx-static (healthy), umbot-astro-static (running)
 - **SSL:** ✅ Certificado válido
@@ -161,4 +161,4 @@ El sistema está listo para uso en producción con deploy automático y alta dis
 
 **Generado:** `make info` - fumbling-field v0.0.1  
 **Repositorio:** https://github.com/martinsantos/um25  
-**Producción:** https://www.ultimamilla.com.ar 
+**Producción:** https://www.umbot.com.ar 

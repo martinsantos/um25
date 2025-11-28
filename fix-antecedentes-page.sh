@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script para corregir problemas en la página /antecedentes de ultimamilla.com.ar
+# Script para corregir problemas en la página /antecedentes de umbot.com.ar
 # Ejecutar cuando el servidor 23.105.176.45 esté disponible
 # Fecha: 21 Enero 2025
 
@@ -81,7 +81,7 @@ sleep 20
 
 # Verificar acceso a la página
 echo -e "\n${YELLOW}10. Verificando acceso a la página /antecedentes...${NC}"
-RESPONSE=$(ssh_exec "curl -s -I https://ultimamilla.com.ar/antecedentes | head -1")
+RESPONSE=$(ssh_exec "curl -s -I https://umbot.com.ar/antecedentes | head -1")
 echo "Respuesta: $RESPONSE"
 
 if echo "$RESPONSE" | grep -q "200 OK"; then

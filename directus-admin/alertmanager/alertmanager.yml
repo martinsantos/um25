@@ -1,8 +1,8 @@
 global:
   resolve_timeout: 5m
   smtp_smarthost: 'smtp.gmail.com:587'
-  smtp_from: 'alertas@ultimamilla.com.ar'
-  smtp_auth_username: 'alertas@ultimamilla.com.ar'
+  smtp_from: 'alertas@umbot.com.ar'
+  smtp_auth_username: 'alertas@umbot.com.ar'
   smtp_auth_password: 'UmbotAlerts2025!'
 
 route:
@@ -15,5 +15,5 @@ route:
 receivers:
 - name: 'email-notifications'
   email_configs:
-  - to: 'admin@ultimamilla.com.ar'
+  - to: 'admin@umbot.com.ar'
     send_resolved: true 

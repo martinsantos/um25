@@ -12,15 +12,15 @@
 ### 1. Transferir archivo al servidor
 ```bash
 # Opción A: Usar SCP (requerirá contraseña)
-scp antecedentes-fix-manual-20250806-172834.tar.gz root@ultimamilla.com.ar:/root/fumbling-field/
+scp antecedentes-fix-manual-20250806-172834.tar.gz root@umbot.com.ar:/root/fumbling-field/
 
 # Opción B: Usar cualquier herramienta de transferencia de archivos
-# Transferir a: root@ultimamilla.com.ar:/root/fumbling-field/
+# Transferir a: root@umbot.com.ar:/root/fumbling-field/
 ```
 
 ### 2. Conectar al servidor
 ```bash
-ssh root@ultimamilla.com.ar
+ssh root@umbot.com.ar
 ```
 
 ### 3. Navegar al directorio del proyecto
@@ -40,10 +40,10 @@ bash deploy-on-server.sh
 ### 5. Verificar que funcionó
 ```bash
 # Verificar que el servicio responde
-curl -I https://ultimamilla.com.ar/antecedentes
+curl -I https://umbot.com.ar/antecedentes
 
 # Verificar una página individual
-curl -I https://ultimamilla.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones
+curl -I https://umbot.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones
 ```
 
 ## ✅ CAMBIOS INCLUIDOS EN EL FIX
@@ -66,7 +66,7 @@ curl -I https://ultimamilla.com.ar/antecedentes/10768/isi-solutions-redes-y-comu
 
 Después del deploy, verificar:
 
-1. **Página índice de antecedentes**: https://ultimamilla.com.ar/antecedentes
+1. **Página índice de antecedentes**: https://umbot.com.ar/antecedentes
    - Debería mostrar "469 Proyectos Disponibles" (no 100)
 
 2. **Navegación desde índice**:
@@ -74,7 +74,7 @@ Después del deploy, verificar:
    - Debería navegar correctamente (no 404)
 
 3. **Acceso directo**:
-   - https://ultimamilla.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones
+   - https://umbot.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones
    - Debería seguir funcionando
 
 ## 🔙 ROLLBACK (si es necesario)

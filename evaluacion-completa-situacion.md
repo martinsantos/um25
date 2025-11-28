@@ -12,7 +12,7 @@
 
 | Componente | Estado | Detalle |
 |------------|--------|---------|
-| **🌐 DNS Resolution** | ❌ **NO FUNCIONA** | ultimamilla.com.ar no resuelve desde DNS públicos |
+| **🌐 DNS Resolution** | ❌ **NO FUNCIONA** | umbot.com.ar no resuelve desde DNS públicos |
 | **🖥️ Servidor (IP directa)** | ✅ **FUNCIONA** | 23.105.176.45 responde perfectamente |
 | **🌐 Puerto 80 (HTTP)** | ✅ **FUNCIONA** | Connection succeeded |
 | **🔒 Puerto 443 (HTTPS)** | ❌ **NO FUNCIONA** | Connection refused |
@@ -32,7 +32,7 @@
 - ✅ **Puerto 8090 (panel) abierto y funcional**
 
 ### ❌ **LO QUE NO FUNCIONA (Solo 2 cosas):**
-- ❌ **DNS no resuelve** ultimamilla.com.ar
+- ❌ **DNS no resuelve** umbot.com.ar
 - ❌ **SSL/Puerto 443** no configurado
 
 ---
@@ -60,10 +60,10 @@ Status: ✅ ACCESIBLE
 ```
 
 ### **PASO 2: RESTAURAR DNS** (5 minutos)
-1. **Ve a: DNS → Manage DNS → ultimamilla.com.ar**
+1. **Ve a: DNS → Manage DNS → umbot.com.ar**
 2. **Verificar/Crear registro A:**
    - Tipo: A
-   - Nombre: @ (o ultimamilla.com.ar)
+   - Nombre: @ (o umbot.com.ar)
    - Valor: 23.105.176.45
    - TTL: 3600
 3. **Guardar cambios**
@@ -72,10 +72,10 @@ Status: ✅ ACCESIBLE
 ### **PASO 3: VERIFICACIÓN** (2 minutos después)
 ```bash
 # Verificar DNS (esperar 5-10 minutos)
-nslookup ultimamilla.com.ar
+nslookup umbot.com.ar
 
 # Verificar sitio
-curl -I http://ultimamilla.com.ar/
+curl -I http://umbot.com.ar/
 ```
 
 ---
@@ -83,13 +83,13 @@ curl -I http://ultimamilla.com.ar/
 ## 🎯 **RESULTADO ESPERADO INMEDIATO**
 
 ### **Después de arreglar DNS:**
-- ✅ `http://ultimamilla.com.ar/` → **HTTP 200 OK** (como antes)
+- ✅ `http://umbot.com.ar/` → **HTTP 200 OK** (como antes)
 - ✅ `http://23.105.176.45/` → **HTTP 200 OK** (ya funciona)
 - ✅ **CiberPanel accesible** (ya funciona)
 
 ### **SSL se puede configurar después:**
-- ⏳ `https://ultimamilla.com.ar/` → Configurar SSL después
-- ⏳ `www.ultimamilla.com.ar` → Configurar después
+- ⏳ `https://umbot.com.ar/` → Configurar SSL después
+- ⏳ `www.umbot.com.ar` → Configurar después
 
 ---
 
@@ -110,7 +110,7 @@ curl -I http://ultimamilla.com.ar/
 1. **Acceder CiberPanel:** https://23.105.176.45:8090 ✅
 2. **Restaurar DNS:** Crear/verificar registro A ⏳
 3. **Esperar propagación:** 5-10 minutos ⏳
-4. **Verificar funcionamiento:** curl http://ultimamilla.com.ar/ ⏳
+4. **Verificar funcionamiento:** curl http://umbot.com.ar/ ⏳
 
 **🎉 RESULTADO: SITIO FUNCIONANDO COMO ANTES**
 

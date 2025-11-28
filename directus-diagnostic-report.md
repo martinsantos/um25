@@ -10,7 +10,7 @@
 ### 🔧 **INFRAESTRUCTURA - FUNCIONANDO**
 - ✅ **Contenedor Directus:** `directus-app` corriendo en puerto 8055
 - ✅ **Base de Datos:** PostgreSQL funcionando con 27 tablas del sistema
-- ✅ **Acceso Web:** https://www.ultimamilla.com.ar/admin → HTTP 200 OK
+- ✅ **Acceso Web:** https://www.umbot.com.ar/admin → HTTP 200 OK
 - ✅ **Autenticación:** Credenciales `admin@example.com:d1r3ctu5` funcionando
 - ✅ **API:** Endpoints de sistema respondiendo correctamente
 
@@ -119,10 +119,10 @@ docker exec database psql -U myuser -d mydatabase < restore_directus_files.sql
 - ✅ **APIs funcionales** para frontend dinámico
 
 ### 🌐 **URLS FUNCIONALES ESPERADAS**
-- ✅ `https://www.ultimamilla.com.ar/items/servicios` → JSON con servicios
-- ✅ `https://www.ultimamilla.com.ar/items/Antecedentes` → JSON con antecedentes  
-- ✅ `https://www.ultimamilla.com.ar/servicios/2/redes-de-datos` → Página dinámica
-- ✅ `https://www.ultimamilla.com.ar/antecedentes/10768/isi-solutions` → Detalle dinámico
+- ✅ `https://www.umbot.com.ar/items/servicios` → JSON con servicios
+- ✅ `https://www.umbot.com.ar/items/Antecedentes` → JSON con antecedentes  
+- ✅ `https://www.umbot.com.ar/servicios/2/redes-de-datos` → Página dinámica
+- ✅ `https://www.umbot.com.ar/antecedentes/10768/isi-solutions` → Detalle dinámico
 
 ---
 

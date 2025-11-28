@@ -18,5 +18,5 @@ sleep 30
 docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
 echo "✅ Despliegue completado"
-echo "🌐 Sitio: https://www.ultimamilla.com.ar"
-echo "🔧 Admin: https://www.ultimamilla.com.ar/admin"
+echo "🌐 Sitio: https://www.umbot.com.ar"
+echo "🔧 Admin: https://www.umbot.com.ar/admin"

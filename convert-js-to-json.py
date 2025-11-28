@@ -304,12 +304,12 @@ def generate_web_importer(antecedentes: List[Dict], servicios: List[Dict]):
             
             <div class="form-group">
                 <label>🌐 URL de Directus:</label>
-                <input type="text" id="directusUrl" value="https://www.ultimamilla.com.ar:8055" />
+                <input type="text" id="directusUrl" value="https://www.umbot.com.ar:8055" />
             </div>
             
             <div class="form-group">
                 <label>👤 Email:</label>
-                <input type="email" id="email" value="admin@ultimamilla.com.ar" />
+                <input type="email" id="email" value="admin@umbot.com.ar" />
             </div>
             
             <div class="form-group">
@@ -666,7 +666,7 @@ def main():
     print("   3. Crea las colecciones")
     print("   4. Importa todos los datos")
     print()
-    print("🔗 Panel Directus: https://www.ultimamilla.com.ar:8056/admin")
+    print("🔗 Panel Directus: https://www.umbot.com.ar:8056/admin")
 
 if __name__ == "__main__":
     main() 

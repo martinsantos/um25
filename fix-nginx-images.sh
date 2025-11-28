@@ -92,7 +92,7 @@ if systemctl is-active --quiet nginx; then
     )
     
     for img in "${TEST_IMAGES[@]}"; do
-        URL="https://www.ultimamilla.com.ar/imagenes_antecedentes_versionproduccion/$img"
+        URL="https://www.umbot.com.ar/imagenes_antecedentes_versionproduccion/$img"
         echo -n "Verificando $img... "
         if curl -s -I "$URL" | head -1 | grep -q 200; then
             echo "✅ OK"

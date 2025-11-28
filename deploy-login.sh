@@ -23,13 +23,13 @@ docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 # Verificar conectividad
 echo ""
 echo "🔍 Verificando conectividad:"
-curl -I https://www.ultimamilla.com.ar/admin/ 2>/dev/null | head -1
-curl -I https://www.ultimamilla.com.ar/admin/login 2>/dev/null | head -1
+curl -I https://www.umbot.com.ar/admin/ 2>/dev/null | head -1
+curl -I https://www.umbot.com.ar/admin/login 2>/dev/null | head -1
 
 echo ""
 echo "✅ Despliegue completado"
-echo "🌐 Sitio: https://www.ultimamilla.com.ar"
-echo "🔧 Admin: https://www.ultimamilla.com.ar/admin/"
-echo "🔑 Login: https://www.ultimamilla.com.ar/admin/login"
-echo "👤 Usuario: admin@ultimamilla.com.ar"
+echo "🌐 Sitio: https://www.umbot.com.ar"
+echo "🔧 Admin: https://www.umbot.com.ar/admin/"
+echo "🔑 Login: https://www.umbot.com.ar/admin/login"
+echo "👤 Usuario: admin@umbot.com.ar"
 echo "🔑 Password: UmbotDirectusAdmin2025!"

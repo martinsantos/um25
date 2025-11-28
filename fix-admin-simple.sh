@@ -38,18 +38,18 @@ http {
     # HTTP -> HTTPS redirect
     server {
         listen 80;
-        server_name www.ultimamilla.com.ar ultimamilla.com.ar;
+        server_name www.umbot.com.ar umbot.com.ar;
         return 301 https://$server_name$request_uri;
     }
     
     # HTTPS server
     server {
         listen 443 ssl http2;
-        server_name www.ultimamilla.com.ar ultimamilla.com.ar;
+        server_name www.umbot.com.ar umbot.com.ar;
         
         # SSL configuration
-        ssl_certificate /etc/letsencrypt/live/www.ultimamilla.com.ar/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/www.ultimamilla.com.ar/privkey.pem;
+        ssl_certificate /etc/letsencrypt/live/www.umbot.com.ar/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/www.umbot.com.ar/privkey.pem;
         ssl_protocols TLSv1.2 TLSv1.3;
         
         # Security headers
@@ -108,13 +108,13 @@ echo "🧪 Verificando..."
 sleep 10
 
 # Verificar resultado
-if curl -I https://www.ultimamilla.com.ar/admin 2>/dev/null | grep -q "200\|302"; then
+if curl -I https://www.umbot.com.ar/admin 2>/dev/null | grep -q "200\|302"; then
     echo "✅ Panel admin respondiendo"
 else
     echo "❌ Panel admin con problemas"
 fi
 
-if curl -I https://www.ultimamilla.com.ar >/dev/null 2>&1; then
+if curl -I https://www.umbot.com.ar >/dev/null 2>&1; then
     echo "✅ Sitio principal OK"
 else
     echo "❌ Sitio principal con problemas"
@@ -122,8 +122,8 @@ fi
 
 echo ""
 echo "🎯 CONFIGURACIÓN SIMPLE APLICADA"
-echo "Probar: https://www.ultimamilla.com.ar/admin"
-echo "Usuario: admin@ultimamilla.com.ar"
+echo "Probar: https://www.umbot.com.ar/admin"
+echo "Usuario: admin@umbot.com.ar"
 echo "Contraseña: UmbotHybridAdmin2025!"
 
 # Limpiar

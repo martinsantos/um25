@@ -17,32 +17,32 @@ docker logs directus-admin --tail 20
 ```bash
 # Conectar a Directus y verificar colecciones
 curl -H "Authorization: Bearer TOKEN" \
-  "https://www.ultimamilla.com.ar/items/antecedentes?limit=1&fields=cliente_nombre,cliente_industria,tecnologias_utilizadas"
+  "https://www.umbot.com.ar/items/antecedentes?limit=1&fields=cliente_nombre,cliente_industria,tecnologias_utilizadas"
 
 curl -H "Authorization: Bearer TOKEN" \
-  "https://www.ultimamilla.com.ar/items/Servicios?limit=1&fields=descripcion_detallada,tecnologias_principales,nivel_complejidad"
+  "https://www.umbot.com.ar/items/Servicios?limit=1&fields=descripcion_detallada,tecnologias_principales,nivel_complejidad"
 ```
 
 ### 4. Conteo de Registros
 ```bash
 # Antecedentes
 curl -H "Authorization: Bearer TOKEN" \
-  "https://www.ultimamilla.com.ar/items/antecedentes?aggregate[count]=*"
+  "https://www.umbot.com.ar/items/antecedentes?aggregate[count]=*"
 
 # Servicios  
 curl -H "Authorization: Bearer TOKEN" \
-  "https://www.ultimamilla.com.ar/items/Servicios?aggregate[count]=*"
+  "https://www.umbot.com.ar/items/Servicios?aggregate[count]=*"
 ```
 
 ### 5. Verificación de Campos Nuevos
 ```bash
 # Verificar esquema de antecedentes
 curl -H "Authorization: Bearer TOKEN" \
-  "https://www.ultimamilla.com.ar/collections/antecedentes"
+  "https://www.umbot.com.ar/collections/antecedentes"
 
 # Verificar esquema de servicios
 curl -H "Authorization: Bearer TOKEN" \
-  "https://www.ultimamilla.com.ar/collections/Servicios"
+  "https://www.umbot.com.ar/collections/Servicios"
 ```
 
 ## Scripts de Validación Rápida
@@ -66,7 +66,7 @@ node scripts/test_migracion.js
 
 ### ✅ Indicadores de Éxito
 - Docker containers ejecutándose
-- Directus respondiendo en https://www.ultimamilla.com.ar
+- Directus respondiendo en https://www.umbot.com.ar
 - 467 antecedentes con campos nuevos poblados
 - 6 servicios con campos nuevos poblados
 - 19 campos nuevos agregados al esquema

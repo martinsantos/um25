@@ -1,9 +1,5 @@
 import type { APIRoute } from 'astro';
 
-export function getStaticPaths() {
-  return [];
-}
-
 export const GET: APIRoute = async ({ params, request }) => {
   const assetId = params.id;
   if (!assetId) {

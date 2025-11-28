@@ -12,7 +12,7 @@ echo "📅 Date: $(date)"
 echo ""
 
 # Configuration
-SERVER_HOST="ultimamilla.com.ar"
+SERVER_HOST="umbot.com.ar"
 SERVER_USER="root"
 SERVER_PATH="/root/fumbling-field"
 BACKUP_PREFIX="backup-antecedentes-fix-$(date +%Y%m%d-%H%M%S)"
@@ -114,7 +114,7 @@ docker-compose restart astro-app || echo "⚠️  Could not restart astro-app co
 echo "✅ Deployment completed"
 echo ""
 echo "🧪 TEST THE FIX:"
-echo "1. Go to https://ultimamilla.com.ar/antecedentes"
+echo "1. Go to https://umbot.com.ar/antecedentes"
 echo "2. Click on any antecedent link"
 echo "3. Should navigate properly (no 404)"
 echo "4. Should show 469 total projects"
@@ -185,7 +185,7 @@ sleep 10
 
 # Test the fix
 log_info "Testing antecedentes page..."
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://ultimamilla.com.ar/antecedentes" || echo "000")
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://umbot.com.ar/antecedentes" || echo "000")
 if [ "$HTTP_CODE" = "200" ]; then
     log_success "Antecedentes index page is working ✓ (HTTP $HTTP_CODE)"
 else
@@ -193,7 +193,7 @@ else
 fi
 
 log_info "Testing individual antecedent page..."
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://ultimamilla.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones" || echo "000")
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://umbot.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaciones" || echo "000")
 if [ "$HTTP_CODE" = "200" ]; then
     log_success "Individual antecedent page is working ✓ (HTTP $HTTP_CODE)"
 else
@@ -215,7 +215,7 @@ log_success "✅ Antecedentes limit increased from 100 to 500 to show all 469 pr
 log_success "✅ Documentation updated with fix details"
 echo ""
 echo "🧪 VERIFICATION STEPS:"
-echo "1. Visit: https://ultimamilla.com.ar/antecedentes"
+echo "1. Visit: https://umbot.com.ar/antecedentes"
 echo "2. Verify: Shows '469 Proyectos Disponibles' instead of '100'"
 echo "3. Click any antecedent link from the list"
 echo "4. Verify: Navigates properly without 404 error"

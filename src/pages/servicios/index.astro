@@ -1,7 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import SEOHead from '../../components/SEO/SEOHead.astro';
-import { generateSlug } from '../../utils/slugUtils';
+import { generateSlug } from '../../utils/slugUtils.js';
 import { serviciosReales } from '../../data/servicios_reales_db.js';
 import { getServiceImageUrl } from '../../utils/imageUtils.js';
 
@@ -48,176 +47,209 @@ const clientesUnicos = [...new Set(serviciosReales.map(s => s.Cliente))].sort();
 // Usar la función utilitaria compartida para manejar imágenes
 const getAssetUrl = getServiceImageUrl;
 
-// SEO Data
-const seoData = {
-  title: "Servicios IT Profesionales en Mendoza | Infraestructura, Redes, Seguridad - ULTIMA MILLA",
-  description: `Servicios IT especializados en Mendoza. ${serviciosReales.length}+ soluciones tecnológicas: infraestructura, redes de datos, seguridad informática, desarrollo web y telecomunicaciones para empresas.`,
-  keywords: "servicios IT mendoza, infraestructura tecnológica, redes datos, seguridad informática, desarrollo web, telecomunicaciones, soporte IT mendoza",
-  canonical: "https://ultimamilla.com.ar/servicios"
-};
-
+// Imágenes para el slider de fondo
+const backgroundImages = [
+  '/images/services/servicios-it.jpg', 
+  '/images/services/ciberseguridad.jpg',
+  '/images/services/redes-comunicaciones.jpg'
+];
 ---
 
-<Layout>
-  <SEOHead 
-    title={seoData.title}
-    description={seoData.description}
-    keywords={seoData.keywords}
-    canonical={seoData.canonical}
-    ogType="service"
-    service={{
-      name: "Servicios IT Profesionales",
-      area: "Tecnología e IT",
-      description: "Soluciones tecnológicas integrales para empresas mendocinas"
-    }}
-  />
-  <main class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-    <!-- Hero Section con Indicadores -->
-    <section class="relative bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white py-20">
-      <div class="absolute inset-0 bg-black/20"></div>
-      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-          <h1 class="text-4xl md:text-6xl font-bold mb-6 text-white">
-            Servicios IT Profesionales en <span class="text-yellow-400">Mendoza</span>
+<Layout title="Servicios - Ultima Milla">
+  <main class="min-h-screen bg-white">
+    <!-- Hero Section V3 (Immersive, Rotating BG) -->
+    <section class="relative h-[60vh] md:h-[70vh] flex items-center overflow-hidden bg-slate-900">
+      <!-- Background Slider -->
+      <div id="hero-slider" class="absolute inset-0 z-0">
+        <!-- Images will be injected/controlled by JS -->
+        <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out opacity-100" style="background-image: url('/images/services/servicios-it.jpg');"></div>
+        <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out opacity-0" style="background-image: url('/images/services/ciberseguridad.jpg');"></div>
+        <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out opacity-0" style="background-image: url('/images/services/redes-comunicaciones.jpg');"></div>
+      </div>
+      
+      <!-- Overlay -->
+      <div class="absolute inset-0 bg-slate-900/80 z-10"></div>
+
+      <div class="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl">
+          <div class="inline-flex items-center space-x-2 mb-6 animate-fade-in-up">
+            <span class="w-8 h-[2px] bg-blue-500"></span>
+            <span class="text-blue-400 font-bold tracking-widest uppercase text-sm">Soluciones Integrales</span>
+          </div>
+          
+          <h1 class="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight tracking-tight animate-fade-in-up delay-100">
+            Excelencia en <br/>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">Servicios Tecnológicos</span>
           </h1>
-          <p class="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto">
-            Soluciones tecnológicas integrales para empresas mendocinas. 
-            <strong>+20 años de experiencia</strong> en infraestructura IT, redes, seguridad y desarrollo.
-          </p>
-        </div>
-        
-        <!-- Indicadores Visuales -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mt-16">
-          <div class="text-center">
-            <div class="text-4xl md:text-5xl font-bold text-yellow-300 mb-2">
-              {serviciosReales.length}+
+          
+          <!-- Metrics Row (Solid, Executive) -->
+          <div class="flex flex-wrap gap-8 md:gap-16 pt-8 border-t border-white/10 animate-fade-in-up delay-200">
+            <div class="flex items-center space-x-4">
+              <div class="p-3 bg-white/5 rounded-lg border border-white/10">
+                <svg class="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                </svg>
+              </div>
+              <div>
+                <div class="text-3xl font-bold text-white">{serviciosReales.length}+</div>
+                <div class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Servicios</div>
+              </div>
             </div>
-            <div class="text-lg text-blue-100">Servicios Especializados</div>
-          </div>
-          <div class="text-center">
-            <div class="text-4xl md:text-5xl font-bold text-yellow-300 mb-2">
-              +469
+            
+            <div class="flex items-center space-x-4">
+              <div class="p-3 bg-white/5 rounded-lg border border-white/10">
+                <svg class="w-6 h-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
+              <div>
+                <div class="text-3xl font-bold text-white">{areasUnicas.length}</div>
+                <div class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Áreas</div>
+              </div>
             </div>
-            <div class="text-lg text-blue-100">Proyectos Exitosos</div>
-          </div>
-          <div class="text-center">
-            <div class="text-4xl md:text-5xl font-bold text-yellow-300 mb-2">
-              +20
+            
+            <div class="flex items-center space-x-4">
+              <div class="p-3 bg-white/5 rounded-lg border border-white/10">
+                <svg class="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <div class="text-3xl font-bold text-white">{clientesUnicos.length}+</div>
+                <div class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Sectores</div>
+              </div>
             </div>
-            <div class="text-lg text-blue-100">Años en Mendoza</div>
-          </div>
-          <div class="text-center">
-            <div class="text-4xl md:text-5xl font-bold text-yellow-300 mb-2">
-              24/7
-            </div>
-            <div class="text-lg text-blue-100">Soporte Técnico</div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Filtros y Búsqueda -->
-    <section class="py-8 bg-white shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <form method="GET" class="flex flex-wrap gap-4 items-center justify-between">
+    <!-- Filtros y Búsqueda (Compact & Sticky) -->
+    <section class="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <form method="GET" class="flex flex-col md:flex-row gap-4 items-center justify-between">
           <!-- Búsqueda -->
-          <div class="flex-1 min-w-64">
+          <div class="relative w-full md:w-96">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
             <input
               type="text"
               name="search"
               value={searchQuery}
               placeholder="Buscar servicios..."
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg leading-5 bg-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
           
-          <!-- Filtro por Área -->
-          <select name="area" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-            <option value="">Todas las áreas</option>
-            {areasUnicas.map(area => (
-              <option value={area} selected={areaFilter === area}>{area}</option>
-            ))}
-          </select>
-          
-          <!-- Filtro por Cliente -->
-          <select name="cliente" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-            <option value="">Todos los clientes</option>
-            {clientesUnicos.map(cliente => (
-              <option value={cliente} selected={clienteFilter === cliente}>{cliente}</option>
-            ))}
-          </select>
-          
-          <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            Filtrar
-          </button>
+          <div class="flex flex-wrap gap-3 w-full md:w-auto">
+            <select name="area" class="bg-white border border-slate-300 text-slate-700 py-2 px-4 pr-8 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm">
+              <option value="">Todas las áreas</option>
+              {areasUnicas.map(area => (
+                <option value={area} selected={areaFilter === area}>{area}</option>
+              ))}
+            </select>
+            
+            <select name="cliente" class="bg-white border border-slate-300 text-slate-700 py-2 px-4 pr-8 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm">
+              <option value="">Todos los clientes</option>
+              {clientesUnicos.map(cliente => (
+                <option value={cliente} selected={clienteFilter === cliente}>{cliente}</option>
+              ))}
+            </select>
+            
+            <button type="submit" class="px-6 py-2 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-800 transition-colors text-sm">
+              Filtrar
+            </button>
+          </div>
         </form>
       </div>
     </section>
 
-    <!-- Grid de Servicios -->
-    <section class="py-16">
+    <!-- Grid de Servicios (Solid, Clean) -->
+    <section class="py-16 md:py-24 bg-slate-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {serviciosPaginados.length === 0 ? (
-          <div class="text-center py-16">
-            <div class="text-6xl mb-4">🔍</div>
-            <h3 class="text-2xl font-bold text-gray-900 mb-2">No se encontraron servicios</h3>
-            <p class="text-gray-600">Intenta ajustar los filtros de búsqueda</p>
+          <div class="text-center py-20">
+            <h3 class="text-xl font-medium text-slate-900">No se encontraron resultados</h3>
+            <p class="text-slate-500 mt-2">Intenta ajustar tus filtros de búsqueda.</p>
           </div>
         ) : (
-          <>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {serviciosFiltrados.map((servicio) => {
-                const slug = generateSlug(servicio.Titulo);
-                return (
-                  <a href={`/servicios/${servicio.id}/${slug}`} class="block group cursor-pointer">
-                    <article class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] hover:ring-4 hover:ring-blue-300/50 h-full border-2 border-transparent hover:border-blue-400">
-                      <div class="aspect-video bg-gradient-to-br from-blue-500 to-purple-600 relative overflow-hidden">
-                        <img
-                          src={getAssetUrl(servicio.Imagen)}
-                          alt={servicio.Titulo}
-                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          loading="lazy"
-                          onerror="this.src='/images/default-service.jpg'"
-                        />
-                        <div class="absolute top-4 right-4">
-                          <span class="bg-white/90 text-blue-600 px-3 py-1 rounded-full text-sm font-semibold">
-                            {servicio.Area}
-                          </span>
-                        </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {serviciosFiltrados.map((servicio) => {
+              const slug = generateSlug(servicio.Titulo);
+              return (
+                <a href={`/servicios/${servicio.id}/${slug}`} class="group flex flex-col h-full">
+                  <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1">
+                    <!-- Image -->
+                    <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
+                      <img
+                        src={getAssetUrl(servicio.Imagen)}
+                        alt={servicio.Titulo}
+                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        loading="lazy"
+                        onerror="this.src='/images/default-service.jpg'"
+                      />
+                      <div class="absolute top-4 left-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-slate-900 text-white shadow-sm">
+                          {servicio.Area}
+                        </span>
                       </div>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="flex flex-col flex-grow p-6">
+                      <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors">
+                        {servicio.Titulo}
+                      </h3>
                       
-                      <div class="p-6 flex flex-col h-full">
-                        <h3 class="text-xl font-black text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
-                          {servicio.Titulo}
-                        </h3>
-                        
-                        <p class="text-gray-600 mb-4 line-clamp-3 flex-grow">
-                          {servicio.Descripcion.replace(/\\\\/g, ' ').substring(0, 150)}...
-                        </p>
-                        
-                        <div class="mt-auto">
-                          <div class="flex items-center justify-between mb-4">
-                            <span class="text-sm text-gray-500">
-                              Cliente: {servicio.Cliente}
-                            </span>
-                          </div>
-                          
-
-                        </div>
+                      <p class="text-slate-600 text-sm mb-6 line-clamp-3 flex-grow leading-relaxed">
+                        {servicio.Descripcion.replace(/\\\\/g, ' ')}
+                      </p>
+                      
+                      <div class="pt-4 border-t border-slate-100 mt-auto flex items-center justify-between">
+                        <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                          {servicio.Cliente}
+                        </span>
+                        <span class="text-blue-600 text-sm font-semibold group-hover:underline">
+                          Ver detalles &rarr;
+                        </span>
                       </div>
-                    </article>
-                  </a>
-                );
-              })}
-            </div>
-          </>
+                    </div>
+                  </article>
+                </a>
+              );
+            })}
+          </div>
         )}
       </div>
     </section>
-
-
   </main>
 </Layout>
+
+<script>
+  // Simple Background Slider Script
+  document.addEventListener('DOMContentLoaded', () => {
+    const slides = document.querySelectorAll('#hero-slider > div');
+    let currentSlide = 0;
+    
+    if (slides.length > 1) {
+      setInterval(() => {
+        // Fade out current
+        slides[currentSlide].classList.remove('opacity-100');
+        slides[currentSlide].classList.add('opacity-0');
+        
+        // Next slide
+        currentSlide = (currentSlide + 1) % slides.length;
+        
+        // Fade in next
+        slides[currentSlide].classList.remove('opacity-0');
+        slides[currentSlide].classList.add('opacity-100');
+      }, 5000); // Change every 5 seconds
+    }
+  });
+</script>
 
 <style>
   .line-clamp-3 {
@@ -225,5 +257,21 @@ const seoData = {
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+  
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  
+  .delay-100 { animation-delay: 0.1s; }
+  .delay-200 { animation-delay: 0.2s; }
+  
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 </style>

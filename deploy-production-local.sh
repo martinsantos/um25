@@ -162,16 +162,16 @@ NODE_ENV=production
 ASTRO_ENV=production
 
 # Dominio de producción
-PUBLIC_SITE_URL=https://www.ultimamilla.com.ar
-PUBLIC_DOMAIN=www.ultimamilla.com.ar
+PUBLIC_SITE_URL=https://www.umbot.com.ar
+PUBLIC_DOMAIN=www.umbot.com.ar
 
 # Modo estático (sin Directus)
 STATIC_MODE=true
 USE_STATIC_DATA=true
 
 # Configuración de imágenes
-PUBLIC_ASSETS_URL=https://www.ultimamilla.com.ar/assets
-PUBLIC_IMAGES_URL=https://www.ultimamilla.com.ar/images
+PUBLIC_ASSETS_URL=https://www.umbot.com.ar/assets
+PUBLIC_IMAGES_URL=https://www.umbot.com.ar/images
 
 # Configuración de build
 BUILD_MODE=static
@@ -293,7 +293,7 @@ echo ""
 echo -e "${BLUE}🌐 URLs de acceso:${NC}"
 echo -e "   • IP Local: http://$SERVER_IP/"
 echo -e "   • Localhost: http://localhost/"
-echo -e "   • Dominio: https://www.ultimamilla.com.ar/"
+echo -e "   • Dominio: https://www.umbot.com.ar/"
 echo ""
 echo -e "${BLUE}📁 Directorio del proyecto: $PROJECT_DIR${NC}"
 echo -e "${BLUE}💾 Backup creado en: $BACKUP_DIR${NC}"

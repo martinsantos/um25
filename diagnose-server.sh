@@ -2,7 +2,7 @@
 
 # ========================================
 # SCRIPT DE DIAGNÓSTICO SERVIDOR UM25-0.3
-# Servidor: 23.105.176.45 (www.ultimamilla.com.ar)
+# Servidor: 23.105.176.45 (www.umbot.com.ar)
 # ========================================
 
 # Colores para output
@@ -19,7 +19,7 @@ SERVER_PASSWORD="gsiB%s@0yD"
 PROJECT_DIR="/root/fumbling-field"
 
 echo -e "${BLUE}🔍 DIAGNÓSTICO SERVIDOR UM25-0.3${NC}"
-echo -e "${BLUE}Servidor: ${SERVER_IP} (www.ultimamilla.com.ar)${NC}"
+echo -e "${BLUE}Servidor: ${SERVER_IP} (www.umbot.com.ar)${NC}"
 echo "=========================================="
 
 # Función para ejecutar comandos en el servidor

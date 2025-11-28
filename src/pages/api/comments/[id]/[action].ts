@@ -1,11 +1,7 @@
 import type { APIRoute } from 'astro';
-import { getCommentById, updateComment, deleteComment } from '../../../../data/comments';
+import { approveComment, deleteComment } from '../../../../data/comments';
 
-export function getStaticPaths() {
-  return [];
-}
-
-export const GET: APIRoute = async ({ params }) => {
+export const POST: APIRoute = async ({ params }) => {
     const { id, action } = params;
 
     if (!id || !action) {
