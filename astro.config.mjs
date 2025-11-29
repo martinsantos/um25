@@ -4,6 +4,7 @@ import mdx from '@astrojs/mdx';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import alpinejs from '@astrojs/alpinejs';
+import sentry from '@sentry/astro';
 
 export default defineConfig({
   // Configuración SSR y Adaptador
@@ -17,6 +18,15 @@ export default defineConfig({
 
   // Integraciones
   integrations: [
+    sentry({
+      dsn: process.env.SENTRY_DSN,
+      environment: process.env.NODE_ENV || 'development',
+      release: process.env.npm_package_version,
+      enabled: process.env.NODE_ENV === 'production',
+      tracesSampleRate: 1.0,
+      replaysSessionSampleRate: 0.1,
+      replaysOnErrorSampleRate: 1.0,
+    }),
     mdx(),
     tailwind(),
     sitemap(),
