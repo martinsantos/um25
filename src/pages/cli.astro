@@ -516,7 +516,7 @@ const seoData = {
   }
 </style>
 
-<script is:inline define:vars={{ apiEndpoint: '/api/umcli-v2.json' }}>
+<script is:inline>
   /**
    * ULTIMA MILLA CLI v4.0
    * Professional Terminal with 49+ Commands
@@ -526,7 +526,7 @@ const seoData = {
   class UMTerminalV4 {
     constructor() {
       this.version = '4.0.0';
-      this.apiEndpoint = apiEndpoint;
+      this.apiEndpoint = '/api/umcli-v2.json';
       this.terminal = document.getElementById('um-terminal');
       this.input = document.getElementById('terminal-input');
       this.output = document.getElementById('terminal-output');
