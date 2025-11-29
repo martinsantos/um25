@@ -585,14 +585,16 @@ function debug(message, type = 'info') {
     debugConsole.scrollTop = debugConsole.scrollHeight;
 }
 
-// Cambiar rutas de endpoints PHP a /log/
+// Fetch uptime from Astro API endpoint
 async function fetchUptime() {
     try {
-        const response = await fetch('/log/generate_uptime.php');
+        const response = await fetch('/api/uptime');
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
-        
-        document.getElementById('system-uptime').textContent = data.uptime_formatted;
+
+        // Format uptime from API response
+        const uptime = data.uptime || data.uptimeSeconds || 'No disponible';
+        document.getElementById('system-uptime').textContent = uptime;
         document.getElementById('uptime-error').style.display = 'none';
         debug('Uptime actualizado correctamente');
     } catch (error) {
@@ -983,11 +985,11 @@ function cleanDocker() {
 // Uptime del sistema
 async function updateUptime() {
     try {
-        const response = await fetch('/log/generate_uptime.php');
+        const response = await fetch('/api/uptime');
         const data = await response.json();
-        
-        if (data.uptime_formatted) {
-            document.getElementById('system-uptime').textContent = data.uptime_formatted;
+
+        if (data.uptime) {
+            document.getElementById('system-uptime').textContent = data.uptime;
         }
     } catch (error) {
         document.getElementById('system-uptime').textContent = 'Error al obtener uptime';
