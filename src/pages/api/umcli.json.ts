@@ -1,35 +1,28 @@
 import type { APIRoute } from 'astro';
-import { getServicios, getCasosExito, getBlogPosts } from '../../lib/directus';
 
+/**
+ * DEPRECATED: Use /api/umcli-v2.json instead
+ * This endpoint is kept for backward compatibility and redirects to the new API
+ */
 export const GET: APIRoute = async ({ request }) => {
   try {
-    // Usar las colecciones correctas: 'servicios' y 'antecedentes'
-    const [servicios, antecedentes, blog_posts] = await Promise.all([
-      getServicios(50),
-      getCasosExito(50), // Esto mapea a 'antecedentes' internamente
-      getBlogPosts(50)
-    ]);
+    // Redirect to the working umcli-v2.json endpoint
+    const url = new URL(request.url);
+    const searchParams = url.searchParams;
 
-    const payload = {
-      timestamp: Date.now(),
-      servicios,
-      antecedentes,
-      casos_de_exito: antecedentes, // Alias para compatibilidad
-      blog_posts,
-      estadisticas: {
-        totalServicios: servicios.length,
-        totalAntecedentes: antecedentes.length,
-        totalCasosExito: antecedentes.length, // Alias
-        totalBlogPosts: blog_posts.length,
-        ultimaActualizacion: new Date().toISOString()
-      }
-    };
+    // Forward all query parameters to umcli-v2.json
+    const forwardUrl = new URL('/api/umcli-v2.json', url.origin);
+    for (const [key, value] of searchParams) {
+      forwardUrl.searchParams.append(key, value);
+    }
 
-    return new Response(JSON.stringify({ success: true, data: payload }), {
+    const response = await fetch(forwardUrl.toString());
+    const data = await response.json();
+
+    return new Response(JSON.stringify(data), {
       status: 200,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        // Cache en CDN/navegador por 60s, stale-while-revalidate por 5 minutos
         'cache-control': 'public, max-age=60, stale-while-revalidate=300'
       }
     });
