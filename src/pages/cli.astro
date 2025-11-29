@@ -527,6 +527,8 @@ const seoData = {
     constructor() {
       this.version = '4.0.0';
       this.apiEndpoint = '/api/umcli-v2.json';
+
+      // Element references with safety checks
       this.terminal = document.getElementById('um-terminal');
       this.input = document.getElementById('terminal-input');
       this.output = document.getElementById('terminal-output');
@@ -540,6 +542,13 @@ const seoData = {
       this.directusStatus = document.getElementById('directus-status');
       this.commandCountEl = document.getElementById('command-count');
       this.responseTimeEl = document.getElementById('response-time');
+
+      // Validate all required elements exist
+      if (!this.terminal || !this.input || !this.output) {
+        console.error('[UM-CLI] Critical DOM elements missing');
+        this.showErrorMessage('Error al inicializar el terminal. Por favor recarga la página.');
+        return;
+      }
 
       this.state = {
         currentUser: 'ultimamilla',
@@ -557,22 +566,47 @@ const seoData = {
       };
 
       this.commands = this.initializeCommands();
-      this.init();
+      this.initializeTerminal();
+    }
+
+    showErrorMessage(msg) {
+      const errorDiv = document.querySelector('.terminal-output');
+      if (errorDiv) {
+        errorDiv.innerHTML += `<div class="output-line output-error">${msg}</div>`;
+      }
+    }
+
+    initializeTerminal() {
+      try {
+        this.setupEventListeners();
+        this.displayWelcome();
+        this.loadDirectusData();
+        this.checkConnection();
+        if (this.input) this.input.focus();
+      } catch (e) {
+        console.error('[UM-CLI] Initialization error:', e);
+        this.showErrorMessage('Error al inicializar componentes: ' + e.message);
+      }
     }
 
     init() {
-      this.setupEventListeners();
-      this.displayWelcome();
-      this.loadDirectusData();
-      this.checkConnection();
-      this.input.focus();
+      // Legacy method for compatibility
+      this.initializeTerminal();
     }
 
     setupEventListeners() {
-      this.input.addEventListener('keydown', (e) => this.handleKeyDown(e));
-      this.input.addEventListener('input', (e) => this.handleInput(e));
-      this.themeSelector.addEventListener('change', (e) => this.changeTheme(e));
-      this.terminal.addEventListener('click', () => this.input.focus());
+      if (this.input) {
+        this.input.addEventListener('keydown', (e) => this.handleKeyDown(e));
+        this.input.addEventListener('input', (e) => this.handleInput(e));
+      }
+      if (this.themeSelector) {
+        this.themeSelector.addEventListener('change', (e) => this.changeTheme(e));
+      }
+      if (this.terminal) {
+        this.terminal.addEventListener('click', () => {
+          if (this.input) this.input.focus();
+        });
+      }
     }
 
     handleKeyDown(e) {
@@ -1200,18 +1234,55 @@ Presiona TAB para autocompletar comandos
     }
 
     showLoading() {
-      this.loading.classList.remove('hidden');
-      this.progress.style.width = '30%';
+      if (this.loading) {
+        this.loading.classList.remove('hidden');
+      }
+      if (this.progress) {
+        this.progress.style.width = '30%';
+      }
     }
 
     hideLoading() {
-      this.loading.classList.add('hidden');
-      this.progress.style.width = '0%';
+      if (this.loading) {
+        this.loading.classList.add('hidden');
+      }
+      if (this.progress) {
+        this.progress.style.width = '0%';
+      }
     }
   }
 
   // Inicializar cuando el DOM está listo
-  document.addEventListener('DOMContentLoaded', () => {
-    new UMTerminalV4();
-  });
+  function initializeTerminal() {
+    // Prevent multiple initializations
+    if (window.umTerminalInitialized) {
+      return;
+    }
+    window.umTerminalInitialized = true;
+
+    try {
+      const terminal = new UMTerminalV4();
+      console.log('[UM-CLI] Terminal initialized successfully');
+    } catch (error) {
+      console.error('[UM-CLI] Failed to initialize:', error);
+      // Show error in a simple alert if DOM is ready
+      setTimeout(() => {
+        const output = document.getElementById('terminal-output');
+        if (output) {
+          output.innerHTML = '<div class="output-line output-error">❌ Error iniciando CLI: ' + error.message + '</div>';
+        }
+      }, 100);
+    }
+  }
+
+  // Try multiple ways to initialize
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeTerminal);
+  } else {
+    // DOM already loaded
+    initializeTerminal();
+  }
+
+  // Also try with a small delay as fallback (in case DOMContentLoaded already fired)
+  setTimeout(initializeTerminal, 500);
 </script>
