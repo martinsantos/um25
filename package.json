@@ -10,7 +10,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "process-images": "node scripts/process-images.js",
-    "prebuild": "npm run process-images",
+    "prebuild": "",
     "optimize-images": "node scripts/optimize-images.js",
     "lint": "eslint \"src/**/*.{js,ts,jsx,tsx,astro}\"",
     "lint:fix": "eslint \"src/**/*.{js,ts,jsx,tsx,astro}\" --fix",
