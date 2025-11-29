@@ -704,7 +704,7 @@ const seoData = {
       this.state.commandHistory.unshift(command);
       this.state.historyIndex = -1;
       this.state.commandCount++;
-      this.commandCountEl.textContent = this.state.commandCount;
+      if (this.commandCountEl) this.commandCountEl.textContent = this.state.commandCount;
 
       this.output.innerHTML += `<div class="output-line output-command">${this.prompt.textContent}${command}</div>`;
       this.input.value = '';
@@ -719,7 +719,7 @@ const seoData = {
         this.hideLoading();
 
         const responseTime = Date.now() - startTime;
-        this.responseTimeEl.textContent = `${responseTime}ms`;
+        if (this.responseTimeEl) this.responseTimeEl.textContent = `${responseTime}ms`;
 
         if (result.type === 'clear') {
           this.output.innerHTML = '';
@@ -1087,8 +1087,10 @@ Escribe 'help [comando]' para más detalles
 
     changeThemeCmd(args) {
       const theme = args[0] || 'default';
-      this.themeSelector.value = theme;
-      this.changeTheme({ target: { value: theme } });
+      if (this.themeSelector) {
+        this.themeSelector.value = theme;
+        this.changeTheme({ target: { value: theme } });
+      }
       return { type: 'success', output: `Tema cambiado a: ${theme}` };
     }
 
@@ -1173,15 +1175,23 @@ Escribe 'help [comando]' para más detalles
     updateConnectionStatus(online) {
       this.state.directusOnline = online;
       if (online) {
-        this.connectionStatus.textContent = '● Online';
-        this.connectionStatus.className = 'status-value connected';
-        this.directusStatus.textContent = '● Connected';
-        this.directusStatus.className = 'status-value connected';
+        if (this.connectionStatus) {
+          this.connectionStatus.textContent = '● Online';
+          this.connectionStatus.className = 'status-value connected';
+        }
+        if (this.directusStatus) {
+          this.directusStatus.textContent = '● Connected';
+          this.directusStatus.className = 'status-value connected';
+        }
       } else {
-        this.connectionStatus.textContent = '● Offline';
-        this.connectionStatus.className = 'status-value disconnected';
-        this.directusStatus.textContent = '● Disconnected';
-        this.directusStatus.className = 'status-value disconnected';
+        if (this.connectionStatus) {
+          this.connectionStatus.textContent = '● Offline';
+          this.connectionStatus.className = 'status-value disconnected';
+        }
+        if (this.directusStatus) {
+          this.directusStatus.textContent = '● Disconnected';
+          this.directusStatus.className = 'status-value disconnected';
+        }
       }
     }
 
@@ -1234,20 +1244,28 @@ Presiona TAB para autocompletar comandos
     }
 
     showLoading() {
-      if (this.loading) {
-        this.loading.classList.remove('hidden');
-      }
-      if (this.progress) {
-        this.progress.style.width = '30%';
+      try {
+        if (this.loading) {
+          this.loading.classList.remove('hidden');
+        }
+        if (this.progress) {
+          this.progress.style.width = '30%';
+        }
+      } catch (e) {
+        console.warn('[UM-CLI] Error showing loading:', e);
       }
     }
 
     hideLoading() {
-      if (this.loading) {
-        this.loading.classList.add('hidden');
-      }
-      if (this.progress) {
-        this.progress.style.width = '0%';
+      try {
+        if (this.loading) {
+          this.loading.classList.add('hidden');
+        }
+        if (this.progress) {
+          this.progress.style.width = '0%';
+        }
+      } catch (e) {
+        console.warn('[UM-CLI] Error hiding loading:', e);
       }
     }
   }
@@ -1284,5 +1302,7 @@ Presiona TAB para autocompletar comandos
   }
 
   // Also try with a small delay as fallback (in case DOMContentLoaded already fired)
+  setTimeout(initializeTerminal, 100);
   setTimeout(initializeTerminal, 500);
+  setTimeout(initializeTerminal, 1000);
 </script>
