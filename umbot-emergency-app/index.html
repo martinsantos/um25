@@ -399,7 +399,42 @@
 </style>
 </head>
 <body>
-<div class="min-h-screen p-4">
+<!-- Login Modal -->
+<div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="display: flex;">
+  <div class="bg-tertiary rounded-lg shadow-2xl p-8 w-96 max-w-full">
+    <div class="text-center mb-6">
+      <h2 class="text-2xl font-bold text-primary mb-2">Emergency Dashboard</h2>
+      <p class="text-gray-500 text-sm">Ingrese credenciales para acceder</p>
+    </div>
+
+    <form onsubmit="handleLogin(event)" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-2">Contraseña de Acceso</label>
+        <input
+          type="password"
+          id="login-password"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          placeholder="Ingrese la contraseña"
+          required
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-blue-600 transition"
+      >
+        Acceder
+      </button>
+
+      <div id="login-error" class="text-red-500 text-sm text-center hidden">
+        Contraseña incorrecta. Intente nuevamente.
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Dashboard Container (oculto hasta autenticarse) -->
+<div id="dashboard-container" class="min-h-screen p-4" style="display: none;">
 <header class="text-center mb-8">
 <div class="flex items-center justify-center mb-4">
 <img alt="UMBot Logo" class="h-12 w-12 mr-3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPqA59H3oLcWEIBWSsWnal8vVogOvu1h_w9LdIFd5t9ol2STjJhWUddQLpCX2EinYA1tuCl56oOVQ_yLLBSThhAZ3w4ODAmUAfAdjqoxsVIDmqffGvFcU7GKiuyFbf5YVd_nu9VOUm_6WIitfXZAZTpfdAnC4Bvhx5ox6zioz_mh8xU_8jGtRIBpVxQRko-Fm9E4vyuspaOqG7w_7nuhizRSZKkGysy0PhGmnJbyGjLLmUGPsdcbCN9LW4pAEBDfi305V1DhB496NU"/>
@@ -558,8 +593,71 @@ Limpieza Docker
 <p>© 2025 UMBot Systems. Todos los derechos reservados.</p>
 </footer>
 </div>
+<!-- Cierre de dashboard-container -->
+</div>
 
 <script>
+// ============ AUTENTICACIÓN ============
+const DASHBOARD_PASSWORD = 'ultimamillabomba2000';
+
+function handleLogin(event) {
+    event.preventDefault();
+    const passwordInput = document.getElementById('login-password');
+    const password = passwordInput.value;
+    const errorDiv = document.getElementById('login-error');
+
+    if (password === DASHBOARD_PASSWORD) {
+        // Contraseña correcta
+        document.getElementById('login-modal').style.display = 'none';
+        document.getElementById('dashboard-container').style.display = 'block';
+        errorDiv.classList.add('hidden');
+
+        // Guardar sesión en localStorage
+        localStorage.setItem('dashboardAuth', 'true');
+        localStorage.setItem('authTime', new Date().getTime().toString());
+
+        // Inicializar dashboard
+        initDashboard();
+    } else {
+        // Contraseña incorrecta
+        errorDiv.classList.remove('hidden');
+        passwordInput.value = '';
+        passwordInput.focus();
+    }
+}
+
+// Verificar autenticación al cargar la página
+window.addEventListener('load', function() {
+    const isAuthenticated = localStorage.getItem('dashboardAuth') === 'true';
+    const authTime = parseInt(localStorage.getItem('authTime') || '0');
+    const currentTime = new Date().getTime();
+    const sessionExpire = 24 * 60 * 60 * 1000; // 24 horas
+
+    if (isAuthenticated && (currentTime - authTime) < sessionExpire) {
+        document.getElementById('login-modal').style.display = 'none';
+        document.getElementById('dashboard-container').style.display = 'block';
+        initDashboard();
+    } else {
+        // Limpiar sesión expirada
+        localStorage.removeItem('dashboardAuth');
+        localStorage.removeItem('authTime');
+        document.getElementById('login-password').focus();
+    }
+});
+
+// Permitir Enter en el input de contraseña
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('login-password');
+    if (passwordInput) {
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleLogin(e);
+            }
+        });
+    }
+});
+
+</script>
 // Estado global
 let allLogs = [];
 let filteredLogs = [];
