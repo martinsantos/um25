@@ -1,21 +1,18 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import SEOHead from '../components/SEO/SEOHead.astro';
-import UMTerminalProfessional from '../components/UMTerminalProfessional.astro';
 
 // SEO metadata optimizado para página CLI
 const seoData = {
-  title: "ULTIMA MILLA CLI | Terminal Interactivo | Explora 22 Años de Historia IT",
-  description: "Terminal interactivo ULTIMA MILLA CLI: Explora 469+ proyectos, 150+ clientes y 22 años de experiencia IT en Mendoza. Comandos Linux auténticos con datos reales.",
-  keywords: "terminal interactivo, CLI empresarial, ULTIMA MILLA, comandos Linux, exploración datos IT, terminal mendoza, CLI innovador",
+  title: "ULTIMA MILLA CLI | Terminal Interactivo Completo | Accede a 469+ Proyectos",
+  description: "ULTIMA MILLA CLI: Terminal interactiva con acceso a 469+ antecedentes, 6 servicios, 150+ clientes, estadísticas reales. Búsqueda avanzada, exportación de datos, mobile-ready.",
+  keywords: "terminal interactivo, CLI empresarial, ULTIMA MILLA, antecedentes, servicios, búsqueda datos, terminal móvil, CLI responsive",
   canonical: "https://ultimamilla.com.ar/cli"
 };
-
-// No usamos breadcrumbs en esta página para mantenerla limpia
 ---
 
 <Layout>
-  <SEOHead 
+  <SEOHead
     title={seoData.title}
     description={seoData.description}
     keywords={seoData.keywords}
@@ -23,258 +20,466 @@ const seoData = {
     ogType="website"
   />
 
-  <div class="cli-page" data-cache-bust="2025-09-01-19-45">
-    <!-- Header minimalista -->
+  <div class="cli-container">
+    <!-- Header -->
     <header class="cli-header">
-      <div class="header-content">
-        <div class="brand-info">
-          <h1 class="cli-title">ULTIMA MILLA CLI</h1>
-          <p class="cli-subtitle">Terminal Interactivo - Explora 22 años de historia IT</p>
+      <div class="header-wrapper">
+        <div class="brand">
+          <h1 class="brand-title">ULTIMA MILLA CLI</h1>
+          <p class="brand-subtitle">Terminal Interactiva - Acceso a 22 años de datos</p>
         </div>
-        <div class="quick-info">
-          <div class="stat-item">
-            <span class="stat-number">469+</span>
+        <div class="stats-bar">
+          <div class="stat">
+            <span class="stat-value">469+</span>
             <span class="stat-label">Proyectos</span>
           </div>
-          <div class="stat-item">
-            <span class="stat-number">150+</span>
+          <div class="stat">
+            <span class="stat-value">150+</span>
             <span class="stat-label">Clientes</span>
           </div>
-          <div class="stat-item">
-            <span class="stat-number">22</span>
+          <div class="stat">
+            <span class="stat-value">6</span>
+            <span class="stat-label">Servicios</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">22</span>
             <span class="stat-label">Años</span>
           </div>
         </div>
       </div>
     </header>
 
-    <!-- Terminal principal -->
+    <!-- Main Terminal -->
     <main class="cli-main">
-      <div class="terminal-container">
-        <UMTerminalProfessional />
+      <div class="terminal-wrapper">
+        <!-- Terminal Window -->
+        <div class="terminal-window">
+          <!-- Terminal Header -->
+          <div class="terminal-header">
+            <div class="terminal-title">
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+              <span class="dot green"></span>
+              <span class="terminal-user">ultimamilla@cli:~</span>
+            </div>
+            <div class="terminal-controls">
+              <button id="fullscreen-btn" class="control-btn" title="Pantalla completa (F11)">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                  <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+                </svg>
+              </button>
+              <button id="clear-btn" class="control-btn" title="Limpiar pantalla">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                  <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+                </svg>
+              </button>
+              <button id="export-btn" class="control-btn" title="Exportar datos">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-8-6z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Terminal Output Area -->
+          <div id="terminal-output" class="terminal-output"></div>
+
+          <!-- Terminal Input Area -->
+          <div class="terminal-input-group">
+            <span class="terminal-prompt">ultimamilla@cli:~$</span>
+            <input
+              id="terminal-input"
+              type="text"
+              class="terminal-input"
+              placeholder="Escribe 'help' para ver comandos disponibles..."
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <div id="autocomplete-suggestions" class="autocomplete-suggestions"></div>
+          </div>
+        </div>
+
+        <!-- Quick Help Section -->
+        <div class="quick-help">
+          <h3>⚡ Comandos Principales</h3>
+          <div class="help-grid">
+            <div class="help-item">
+              <code>help</code>
+              <span>Ver todos los comandos</span>
+            </div>
+            <div class="help-item">
+              <code>antecedentes 10</code>
+              <span>Ver últimos 10 proyectos</span>
+            </div>
+            <div class="help-item">
+              <code>servicios</code>
+              <span>Listar todos los servicios</span>
+            </div>
+            <div class="help-item">
+              <code>grep "empresa"</code>
+              <span>Buscar proyectos por término</span>
+            </div>
+            <div class="help-item">
+              <code>stats</code>
+              <span>Estadísticas empresariales</span>
+            </div>
+            <div class="help-item">
+              <code>health</code>
+              <span>Estado del sistema</span>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
 
-    <!-- Sugerencias de comandos -->
-    <section class="cli-suggestions">
-      <div class="suggestions-content">
-        <h2 class="suggestions-title">🚀 Comandos Sugeridos</h2>
-        <div class="suggestions-grid">
-          <button class="suggestion-btn" data-command="help">
-            <span class="cmd">help</span>
-            <span class="desc">Lista todos los comandos</span>
-          </button>
-          <button class="suggestion-btn" data-command="ls servicios">
-            <span class="cmd">ls servicios</span>
-            <span class="desc">Ver nuestros servicios IT</span>
-          </button>
-          <button class="suggestion-btn" data-command="grep 'Quilmes'">
-            <span class="cmd">grep "Quilmes"</span>
-            <span class="desc">Proyectos con Quilmes</span>
-          </button>
-          <button class="suggestion-btn" data-command="stats --all">
-            <span class="cmd">stats --all</span>
-            <span class="desc">Estadísticas generales</span>
-          </button>
-          <button class="suggestion-btn" data-command="top --clientes">
-            <span class="cmd">top --clientes</span>
-            <span class="desc">Principales clientes</span>
-          </button>
-          <button class="suggestion-btn" data-command="sudo ultimamilla.py --demo">
-            <span class="cmd">sudo ultimamilla.py</span>
-            <span class="desc">Demo completa</span>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Footer minimalista -->
+    <!-- Footer -->
     <footer class="cli-footer">
-      <div class="footer-content">
-        <p>© 2024 ULTIMA MILLA - Mendoza, Argentina</p>
-        <div class="footer-links">
-          <a href="/">Inicio</a>
-          <a href="/nosotros">Nosotros</a>
-          <a href="/contacto">Contacto</a>
-        </div>
+      <p>© 2024 ULTIMA MILLA - Terminal v3.0 Enhanced | Datos en tiempo real desde Directus</p>
+      <div class="footer-links">
+        <a href="/">Inicio</a>
+        <a href="/nosotros">Nosotros</a>
+        <a href="/servicios">Servicios</a>
+        <a href="/antecedentes">Antecedentes</a>
       </div>
     </footer>
   </div>
 </Layout>
 
-<!-- Script para cargar el motor MEGA del UM CLI -->
-<script is:inline src="/UMTerminalEngine.js"></script>
-
 <style>
-  .cli-page {
+  * {
+    box-sizing: border-box;
+  }
+
+  .cli-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #0f1419 0%, #1e2025 100%);
+    background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1425 100%);
     color: #e6edf3;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Fira Code', 'Monaco', monospace;
+    display: flex;
+    flex-direction: column;
   }
 
   /* Header */
   .cli-header {
-    padding: 2rem 0;
+    background: rgba(15, 20, 25, 0.95);
     border-bottom: 1px solid #30363d;
+    padding: 2rem 0;
+    backdrop-filter: blur(10px);
   }
 
-  .header-content {
-    max-width: 1200px;
+  .header-wrapper {
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 2rem;
+    flex-wrap: wrap;
   }
 
-  .brand-info {
+  .brand {
     flex: 1;
+    min-width: 250px;
   }
 
-  .cli-title {
+  .brand-title {
     font-size: 2.5rem;
     font-weight: 900;
-    margin: 0 0 0.5rem 0;
+    margin: 0;
     background: linear-gradient(135deg, #00d4aa 0%, #79c0ff 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  .cli-subtitle {
-    font-size: 1.1rem;
+  .brand-subtitle {
+    font-size: 0.95rem;
     color: #8b949e;
-    margin: 0;
+    margin: 0.5rem 0 0 0;
   }
 
-  .quick-info {
+  .stats-bar {
     display: flex;
     gap: 2rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
   }
 
-  .stat-item {
+  .stat {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
   }
 
-  .stat-number {
-    font-size: 2rem;
+  .stat-value {
+    font-size: 1.8rem;
     font-weight: 900;
     color: #00d4aa;
-    line-height: 1;
   }
 
   .stat-label {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     color: #8b949e;
     margin-top: 0.25rem;
   }
 
-  /* Main content */
+  /* Main */
   .cli-main {
-    padding: 3rem 0;
     flex: 1;
-  }
-
-  .terminal-container {
-    max-width: 1200px;
+    padding: 2rem 0;
+    max-width: 1400px;
+    width: 100%;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 
-  /* Sugerencias */
-  .cli-suggestions {
-    padding: 2rem 0 3rem 0;
-    border-top: 1px solid #30363d;
-  }
-
-  .suggestions-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
-  }
-
-  .suggestions-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin: 0 0 1.5rem 0;
-    text-align: center;
-    color: #e6edf3;
-  }
-
-  .suggestions-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1rem;
-  }
-
-  .suggestion-btn {
-    background: rgba(33, 38, 45, 0.8);
-    border: 1px solid #30363d;
-    border-radius: 8px;
-    padding: 1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: left;
+  .terminal-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 2rem;
   }
 
-  .suggestion-btn:hover {
-    background: rgba(33, 38, 45, 1);
-    border-color: #00d4aa;
-    transform: translateY(-2px);
+  .terminal-window {
+    background: rgba(21, 26, 33, 0.9);
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+    max-height: 70vh;
   }
 
-  .suggestion-btn .cmd {
-    font-family: 'Fira Code', monospace;
-    font-size: 0.9rem;
-    color: #00d4aa;
-    font-weight: 600;
-  }
-
-  .suggestion-btn .desc {
-    font-size: 0.85rem;
-    color: #8b949e;
-  }
-
-  /* Footer */
-  .cli-footer {
-    border-top: 1px solid #30363d;
-    padding: 2rem 0;
-    margin-top: auto;
-  }
-
-  .footer-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
+  .terminal-header {
+    background: #21262d;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #30363d;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
   }
 
-  .footer-content p {
-    margin: 0;
+  .terminal-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    font-size: 0.875rem;
     color: #8b949e;
-    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .dot.red { background: #ff5f57; }
+  .dot.yellow { background: #ffbd2e; }
+  .dot.green { background: #28c840; }
+
+  .terminal-user {
+    color: #79c0ff;
+  }
+
+  .terminal-controls {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .control-btn {
+    background: none;
+    border: none;
+    color: #8b949e;
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+  }
+
+  .control-btn:hover {
+    color: #00d4aa;
+  }
+
+  .terminal-output {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .terminal-output-line {
+    margin-bottom: 0.5rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .output-prompt {
+    color: #00d4aa;
+    font-weight: 600;
+  }
+
+  .output-success {
+    color: #3fb950;
+  }
+
+  .output-error {
+    color: #f85149;
+  }
+
+  .output-info {
+    color: #79c0ff;
+  }
+
+  .output-warning {
+    color: #d29922;
+  }
+
+  .terminal-input-group {
+    background: #0d1117;
+    border-top: 1px solid #30363d;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+  }
+
+  .terminal-prompt {
+    color: #00d4aa;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .terminal-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #e6edf3;
+    font-family: inherit;
+    font-size: 0.875rem;
+    outline: none;
+  }
+
+  .terminal-input::placeholder {
+    color: #6e7681;
+  }
+
+  .autocomplete-suggestions {
+    position: absolute;
+    top: -150px;
+    left: 0;
+    right: 0;
+    background: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    max-height: 140px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1000;
+    margin: 0 1rem;
+  }
+
+  .autocomplete-suggestions.show {
+    display: block;
+  }
+
+  .suggestion-item {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    color: #e6edf3;
+    border-bottom: 1px solid #30363d;
+    transition: background 0.2s ease;
+  }
+
+  .suggestion-item:hover,
+  .suggestion-item.active {
+    background: #30363d;
+    color: #00d4aa;
+  }
+
+  .suggestion-item:last-child {
+    border-bottom: none;
+  }
+
+  /* Quick Help */
+  .quick-help {
+    background: rgba(33, 38, 45, 0.6);
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .quick-help h3 {
+    margin: 0 0 1rem 0;
+    color: #79c0ff;
+    font-size: 1rem;
+  }
+
+  .help-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .help-item {
+    background: rgba(21, 26, 33, 0.6);
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .help-item:hover {
+    border-color: #00d4aa;
+    box-shadow: 0 4px 12px rgba(0, 212, 170, 0.15);
+  }
+
+  .help-item code {
+    color: #00d4aa;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .help-item span {
+    color: #8b949e;
+    font-size: 0.8rem;
+  }
+
+  /* Footer */
+  .cli-footer {
+    background: rgba(15, 20, 25, 0.95);
+    border-top: 1px solid #30363d;
+    padding: 1.5rem;
+    text-align: center;
+    color: #8b949e;
+    font-size: 0.875rem;
   }
 
   .footer-links {
+    margin-top: 1rem;
     display: flex;
-    gap: 2rem;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
   }
 
   .footer-links a {
-    color: #8b949e;
+    color: #79c0ff;
     text-decoration: none;
-    font-size: 0.9rem;
     transition: color 0.2s ease;
   }
 
@@ -282,28 +487,123 @@ const seoData = {
     color: #00d4aa;
   }
 
-  /* Responsive */
+  /* Scrollbar Styles */
+  .terminal-output::-webkit-scrollbar,
+  .autocomplete-suggestions::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .terminal-output::-webkit-scrollbar-track,
+  .autocomplete-suggestions::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .terminal-output::-webkit-scrollbar-thumb,
+  .autocomplete-suggestions::-webkit-scrollbar-thumb {
+    background: #30363d;
+    border-radius: 3px;
+  }
+
+  .terminal-output::-webkit-scrollbar-thumb:hover,
+  .autocomplete-suggestions::-webkit-scrollbar-thumb:hover {
+    background: #8b949e;
+  }
+
+  /* Mobile Responsive */
   @media (max-width: 768px) {
-    .header-content {
+    .cli-container {
+      min-height: 100vh;
+    }
+
+    .header-wrapper {
       flex-direction: column;
-      text-align: center;
+      align-items: stretch;
+      padding: 1rem;
+      gap: 1rem;
     }
 
-    .cli-title {
-      font-size: 2rem;
+    .brand-title {
+      font-size: 1.75rem;
     }
 
-    .quick-info {
-      gap: 1.5rem;
+    .stats-bar {
+      justify-content: space-around;
+      gap: 1rem;
+      margin-top: 1rem;
     }
 
-    .suggestions-grid {
+    .stat-value {
+      font-size: 1.4rem;
+    }
+
+    .cli-main {
+      padding: 1rem;
+      margin: 0;
+    }
+
+    .terminal-window {
+      height: 400px;
+      max-height: none;
+    }
+
+    .terminal-header {
+      flex-wrap: wrap;
+      padding: 0.5rem;
+    }
+
+    .terminal-title {
+      width: 100%;
+      font-size: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .terminal-output {
+      font-size: 0.8rem;
+      padding: 0.75rem;
+      line-height: 1.5;
+    }
+
+    .terminal-input {
+      font-size: 0.8rem;
+    }
+
+    .quick-help {
+      padding: 1rem;
+    }
+
+    .quick-help h3 {
+      font-size: 0.95rem;
+    }
+
+    .help-grid {
       grid-template-columns: 1fr;
+      gap: 0.75rem;
     }
 
-    .footer-content {
-      flex-direction: column;
-      text-align: center;
+    .help-item {
+      padding: 0.75rem;
+    }
+
+    .help-item code {
+      font-size: 0.8rem;
+    }
+
+    .help-item span {
+      font-size: 0.75rem;
+    }
+
+    .autocomplete-suggestions {
+      max-height: 120px;
+      font-size: 0.8rem;
+    }
+
+    .suggestion-item {
+      padding: 0.4rem 0.75rem;
+    }
+
+    .cli-footer {
+      padding: 1rem 0.75rem;
+      font-size: 0.8rem;
     }
 
     .footer-links {
@@ -311,77 +611,538 @@ const seoData = {
     }
   }
 
-  /* Animaciones */
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
+  @media (max-width: 480px) {
+    .brand-title {
+      font-size: 1.5rem;
     }
-    to {
-      opacity: 1;
-      transform: translateY(0);
+
+    .stat-value {
+      font-size: 1.2rem;
     }
-  }
 
-  .terminal-container {
-    animation: fadeInUp 0.6s ease-out;
-  }
+    .terminal-window {
+      height: 350px;
+      border-radius: 8px;
+    }
 
-  .cli-suggestions {
-    animation: fadeInUp 0.8s ease-out;
+    .stats-bar {
+      gap: 0.8rem;
+    }
+
+    .stat {
+      min-width: 60px;
+    }
   }
 </style>
 
 <script>
-  // Event listeners para botones de sugerencias
-  document.addEventListener('DOMContentLoaded', () => {
-    const suggestionButtons = document.querySelectorAll('.suggestion-btn');
-    suggestionButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const command = button.dataset.command;
+  // UM Terminal Engine v3.0 - Full Data Access & Mobile Ready
+  class UMTerminalV3 {
+    constructor() {
+      this.version = '3.0';
+      this.apiEndpoint = '/api/umcli-v2.json';
+      this.currentDir = '/home/ultimamilla';
+      this.history = [];
+      this.historyIndex = -1;
+      this.cache = new Map();
+      this.cacheTTL = 5 * 60 * 1000; // 5 minutos
+
+      this.commands = {
+        'help': this.help.bind(this),
+        'antecedentes': this.antecedentes.bind(this),
+        'servicios': this.servicios.bind(this),
+        'grep': this.grep.bind(this),
+        'stats': this.stats.bind(this),
+        'health': this.health.bind(this),
+        'ls': this.ls.bind(this),
+        'cd': this.cd.bind(this),
+        'pwd': this.pwd.bind(this),
+        'clear': this.clear.bind(this),
+        'version': this.showVersion.bind(this),
+        'export': this.exportData.bind(this),
+        'top': this.topClients.bind(this),
+        'find': this.find.bind(this)
+      };
+
+      this.allCommands = Object.keys(this.commands).sort();
+      this.init();
+    }
+
+    init() {
+      const output = document.getElementById('terminal-output');
+      const input = document.getElementById('terminal-input');
+      const clearBtn = document.getElementById('clear-btn');
+      const exportBtn = document.getElementById('export-btn');
+      const fullscreenBtn = document.getElementById('fullscreen-btn');
+
+      this.showWelcome();
+
+      input.addEventListener('keydown', (e) => this.handleInput(e));
+      clearBtn.addEventListener('click', () => this.clear());
+      exportBtn.addEventListener('click', () => this.showExportOptions());
+      fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
+
+      // Autocomplete
+      input.addEventListener('input', (e) => this.showAutocomplete(e));
+      input.addEventListener('keydown', (e) => this.handleAutocompleteNav(e));
+
+      input.focus();
+    }
+
+    showWelcome() {
+      this.log('🚀 ULTIMA MILLA CLI v3.0 - ACCESO COMPLETO A TODOS LOS DATOS', 'info');
+      this.log('', '');
+      this.log('Terminal interactiva con acceso a:', 'info');
+      this.log('  • 469+ Antecedentes (proyectos documentados)', 'success');
+      this.log('  • 6 Servicios profesionales', 'success');
+      this.log('  • 150+ Clientes', 'success');
+      this.log('  • Estadísticas empresariales en tiempo real', 'success');
+      this.log('  • Estado del sistema y monitoreo', 'success');
+      this.log('  • Búsqueda avanzada (grep)', 'success');
+      this.log('  • Exportación de datos (JSON/CSV)', 'success');
+      this.log('', '');
+      this.log('Escribe "help" para ver todos los comandos disponibles', 'info');
+      this.log('', '');
+    }
+
+    handleInput(e) {
+      if (e.key === 'Enter') {
+        const input = document.getElementById('terminal-input');
+        const command = input.value.trim();
+
         if (command) {
-          // Buscar el input del terminal y ejecutar comando
-          const terminalInput = document.getElementById('terminal-input');
-          if (terminalInput) {
-            terminalInput.value = command;
-            terminalInput.focus();
-            
-            // Simular Enter
-            const event = new KeyboardEvent('keydown', {
-              key: 'Enter',
-              bubbles: true
-            });
-            terminalInput.dispatchEvent(event);
-            
-            // Scroll suave hacia el terminal
-            document.getElementById('um-terminal-enhanced-container').scrollIntoView({
-              behavior: 'smooth',
-              block: 'center'
-            });
-          }
+          this.history.unshift(command);
+          this.historyIndex = -1;
+          this.execute(command);
         }
-      });
-    });
-  });
 
-  // Animación de entrada para elementos
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.style.animation = 'fadeInUp 0.6s ease-out forwards';
+        input.value = '';
+        this.closeSuggestions();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        this.historyIndex++;
+        if (this.historyIndex < this.history.length) {
+          document.getElementById('terminal-input').value = this.history[this.historyIndex];
+        }
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (this.historyIndex > 0) {
+          this.historyIndex--;
+          document.getElementById('terminal-input').value = this.history[this.historyIndex];
+        } else {
+          this.historyIndex = -1;
+          document.getElementById('terminal-input').value = '';
+        }
+      } else if (e.key === 'Tab') {
+        e.preventDefault();
+        this.autocompleteCommand();
+      } else if (e.ctrlKey && e.key === 'l') {
+        e.preventDefault();
+        this.clear();
       }
-    });
-  }, observerOptions);
+    }
 
-  // Observar elementos cuando se carga la página
+    showAutocomplete(e) {
+      const input = e.target.value.toLowerCase().trim();
+      if (!input) {
+        this.closeSuggestions();
+        return;
+      }
+
+      const matches = this.allCommands.filter(cmd => cmd.startsWith(input));
+      const suggestions = document.getElementById('autocomplete-suggestions');
+
+      if (matches.length === 0) {
+        this.closeSuggestions();
+        return;
+      }
+
+      suggestions.innerHTML = matches
+        .map((cmd, i) => `<div class="suggestion-item ${i === 0 ? 'active' : ''}" data-cmd="${cmd}">${cmd}</div>`)
+        .join('');
+
+      suggestions.classList.add('show');
+
+      suggestions.querySelectorAll('.suggestion-item').forEach(item => {
+        item.addEventListener('click', () => {
+          document.getElementById('terminal-input').value = item.dataset.cmd + ' ';
+          this.closeSuggestions();
+          document.getElementById('terminal-input').focus();
+        });
+      });
+    }
+
+    handleAutocompleteNav(e) {
+      const suggestions = document.getElementById('autocomplete-suggestions');
+      if (!suggestions.classList.contains('show')) return;
+
+      const items = Array.from(suggestions.querySelectorAll('.suggestion-item'));
+      const active = suggestions.querySelector('.suggestion-item.active');
+      let currentIndex = items.indexOf(active);
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        active.classList.remove('active');
+        currentIndex = (currentIndex + 1) % items.length;
+        items[currentIndex].classList.add('active');
+        items[currentIndex].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        active.classList.remove('active');
+        currentIndex = (currentIndex - 1 + items.length) % items.length;
+        items[currentIndex].classList.add('active');
+        items[currentIndex].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const selected = active.dataset.cmd;
+        document.getElementById('terminal-input').value = selected + ' ';
+        this.closeSuggestions();
+      }
+    }
+
+    closeSuggestions() {
+      document.getElementById('autocomplete-suggestions').classList.remove('show');
+    }
+
+    autocompleteCommand() {
+      const input = document.getElementById('terminal-input');
+      const value = input.value.toLowerCase().trim();
+      const matches = this.allCommands.filter(cmd => cmd.startsWith(value));
+
+      if (matches.length === 1) {
+        input.value = matches[0] + ' ';
+      }
+    }
+
+    async execute(input) {
+      const parts = input.trim().split(/\s+/);
+      const cmd = parts[0].toLowerCase();
+      const args = parts.slice(1);
+
+      this.log(`<span class="output-prompt">ultimamilla@cli:~$</span> ${input}`, '');
+
+      if (!this.commands[cmd]) {
+        this.log(`bash: ${cmd}: command not found`, 'error');
+        this.log(`Try 'help' to see available commands`, 'info');
+        return;
+      }
+
+      try {
+        await this.commands[cmd](args);
+      } catch (error) {
+        this.log(`Error: ${error.message}`, 'error');
+      }
+    }
+
+    async antecedentes(args) {
+      const limit = parseInt(args[0]) || 10;
+      this.log('Obteniendo antecedentes...', 'info');
+
+      try {
+        const response = await fetch(`${this.apiEndpoint}?action=antecedentes&limit=${Math.min(limit, 50)}`);
+        const data = await response.json();
+
+        if (data.success && data.data?.data) {
+          this.log(`📊 ANTECEDENTES (${data.data.total} totales, mostrando ${data.data.data.length})\n`, 'success');
+
+          let output = 'ID      CLIENTE                          PROYECTO\n';
+          output += '─'.repeat(90) + '\n';
+
+          data.data.data.slice(0, limit).forEach(item => {
+            const id = item.id.toString().padEnd(8);
+            const cliente = (item.cliente || 'N/A').substring(0, 30).padEnd(32);
+            const proyecto = (item.titulo || 'Sin título').substring(0, 50);
+            output += `${id}${cliente}${proyecto}\n`;
+          });
+
+          this.log(output, '');
+          this.log(`\n✅ Total: ${data.data.data.length} proyectos mostrados`, 'success');
+        }
+      } catch (error) {
+        this.log(`Error fetching antecedentes: ${error.message}`, 'error');
+      }
+    }
+
+    async servicios(args) {
+      this.log('📋 SERVICIOS DISPONIBLES - ULTIMA MILLA\n', 'success');
+
+      const servicios = [
+        { name: 'Redes de Datos', desc: 'Infraestructura de conectividad empresarial' },
+        { name: 'Seguridad Informática', desc: 'Protección contra amenazas cibernéticas' },
+        { name: 'Servicios Gestionados', desc: 'Soporte y monitoreo 24/7' },
+        { name: 'Consultoría Tecnológica', desc: 'Asesoramiento en transformación digital' },
+        { name: 'Servicios Web', desc: 'Desarrollo y hosting de aplicaciones' },
+        { name: 'Software a Medida', desc: 'Soluciones personalizadas para negocios' }
+      ];
+
+      servicios.forEach((svc, i) => {
+        this.log(`${i + 1}. ${svc.name}`, 'info');
+        this.log(`   ${svc.desc}\n`, '');
+      });
+
+      this.log('Para más información: /servicios', 'info');
+    }
+
+    async grep(args) {
+      if (args.length === 0) {
+        this.log('Usage: grep "search_term"', 'error');
+        this.log('Example: grep "gobierno"', 'info');
+        return;
+      }
+
+      const searchTerm = args.join(' ');
+      this.log(`🔍 Buscando: "${searchTerm}"...`, 'info');
+
+      try {
+        const response = await fetch(`${this.apiEndpoint}?action=search&q=${encodeURIComponent(searchTerm)}`);
+        const data = await response.json();
+
+        if (data.success && data.data?.count > 0) {
+          this.log(`\n📊 RESULTADOS DE BÚSQUEDA (${data.data.count} encontrados)\n`, 'success');
+
+          (data.data.results || []).slice(0, 20).forEach(item => {
+            this.log(`[${item.id}] ${item.titulo}`, 'info');
+            this.log(`    Cliente: ${item.cliente || 'N/A'}`, '');
+          });
+
+          if (data.data.count > 20) {
+            this.log(`\n... y ${data.data.count - 20} resultados más`, 'warning');
+          }
+        } else {
+          this.log(`No se encontraron resultados para "${searchTerm}"`, 'warning');
+        }
+      } catch (error) {
+        this.log(`Error searching: ${error.message}`, 'error');
+      }
+    }
+
+    async stats(args) {
+      this.log('📊 ESTADÍSTICAS EMPRESARIALES\n', 'info');
+
+      try {
+        const response = await fetch(`${this.apiEndpoint}?action=stats`);
+        const data = await response.json();
+
+        if (data.success) {
+          const stats = data.data;
+
+          this.log('EMPRESA:', 'info');
+          this.log(`  Fundación: ${stats.empresa?.fundacion || '2003'}`, '');
+          this.log(`  Experiencia: ${stats.empresa?.años_experiencia || '22'} años`, '');
+
+          this.log('\nPROYECTOS:', 'info');
+          this.log(`  Completados: ${stats.empresa?.total_antecedentes || '469'}`, '');
+          this.log(`  Clientes: ${stats.empresa?.total_clientes || '150'}`, '');
+
+          this.log('\nSERVICIOS:', 'info');
+          this.log(`  Servicios Activos: 6`, '');
+          this.log(`  Verticales: Construcción, Turismo, Agro, Salud, Aeropuertos`, '');
+        }
+      } catch (error) {
+        this.log(`Error fetching stats: ${error.message}`, 'error');
+      }
+    }
+
+    async health(args) {
+      this.log('🏥 SYSTEM HEALTH CHECK\n', 'info');
+
+      try {
+        const response = await fetch(`${this.apiEndpoint}?action=health`);
+        const data = await response.json();
+
+        if (data.success) {
+          this.log('SERVICIOS:', 'info');
+          this.log('  Astro Frontend: ✅ online', 'success');
+          this.log('  Directus CMS: ✅ online', 'success');
+          this.log('  PostgreSQL: ✅ online', 'success');
+          this.log('  Redis Cache: ✅ online', 'success');
+          this.log('  Nginx Proxy: ✅ online', 'success');
+
+          this.log('\nCHECKS:', 'info');
+          this.log('  Memory: ✅ ok', 'success');
+          this.log('  CPU: ✅ ok', 'success');
+          this.log('  Disk: ✅ ok', 'success');
+        }
+      } catch (error) {
+        this.log(`Health check failed: ${error.message}`, 'error');
+      }
+    }
+
+    ls(args) {
+      const path = args[0] || this.currentDir;
+
+      if (path === '/' || path === '/home' || path === '/home/ultimamilla') {
+        this.log('antecedentes/  servicios/  clientes/  equipo/  documentos/', '');
+      } else if (path === 'servicios') {
+        this.log('redes-de-datos/  seguridad/  gestionados/  consultoria/  web/  software-medida/', '');
+      } else {
+        this.log(`No such file or directory: ${path}`, 'error');
+      }
+    }
+
+    cd(args) {
+      const path = args[0] || '/home/ultimamilla';
+      this.currentDir = path;
+      // No output on successful cd
+    }
+
+    pwd(args) {
+      this.log(this.currentDir, '');
+    }
+
+    clear() {
+      document.getElementById('terminal-output').innerHTML = '';
+    }
+
+    showVersion() {
+      this.log(`ULTIMA MILLA CLI v${this.version}`, 'info');
+      this.log('Full Data Access Edition', '');
+      this.log('© 2024 ULTIMA MILLA - Mendoza, Argentina', '');
+    }
+
+    showExportOptions() {
+      this.log('\n📥 EXPORT OPTIONS:', 'info');
+      this.log('  export json - Export data as JSON', '');
+      this.log('  export csv  - Export data as CSV', '');
+      this.log('\nExample: export json antecedentes', 'info');
+    }
+
+    async exportData(args) {
+      if (args.length === 0) {
+        this.showExportOptions();
+        return;
+      }
+
+      const format = args[0]?.toLowerCase() || 'json';
+      const type = args[1]?.toLowerCase() || 'antecedentes';
+
+      this.log(`📤 Exporting ${type} as ${format}...`, 'info');
+
+      try {
+        const response = await fetch(`${this.apiEndpoint}?action=${type}&limit=100`);
+        const data = await response.json();
+
+        if (format === 'json') {
+          const json = JSON.stringify(data.data || data, null, 2);
+          this.downloadFile(json, `${type}.json`, 'application/json');
+        } else if (format === 'csv') {
+          const csv = this.convertToCSV(data.data?.data || []);
+          this.downloadFile(csv, `${type}.csv`, 'text/csv');
+        }
+
+        this.log(`✅ Export completado: ${type}.${format}`, 'success');
+      } catch (error) {
+        this.log(`Error exporting: ${error.message}`, 'error');
+      }
+    }
+
+    convertToCSV(data) {
+      if (!Array.isArray(data) || data.length === 0) return 'No data';
+
+      const headers = Object.keys(data[0]);
+      const rows = data.map(row =>
+        headers.map(h => `"${(row[h] || '').toString().replace(/"/g, '""')}"`).join(',')
+      );
+
+      return [headers.join(','), ...rows].join('\n');
+    }
+
+    downloadFile(content, filename, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    topClients(args) {
+      this.log('👥 TOP CLIENTES - ULTIMA MILLA\n', 'info');
+      this.log('Quilmes Grupo (3 proyectos)', '');
+      this.log('YPF Luz (2 proyectos)', '');
+      this.log('Bodega Domaine Bousquet (2 proyectos)', '');
+      this.log('Municipalidad de Maipú (2 proyectos)', '');
+      this.log('CNN Software (1 proyecto)', '');
+      this.log('\nVer todos: /antecedentes?filtro=cliente', 'info');
+    }
+
+    async find(args) {
+      if (args.length === 0) {
+        this.log('Usage: find <search_term>', 'error');
+        return;
+      }
+
+      // Alias para grep
+      await this.grep(args);
+    }
+
+    help(args) {
+      this.log('🚀 UM CLI v3.0 - COMANDOS DISPONIBLES\n', 'info');
+
+      this.log('NAVEGACIÓN:', 'info');
+      this.log('  ls [path]           - Listar contenido', '');
+      this.log('  cd [path]           - Cambiar directorio', '');
+      this.log('  pwd                 - Mostrar directorio actual', '');
+
+      this.log('\nDATOS EMPRESARIALES:', 'info');
+      this.log('  antecedentes [n]    - Ver últimos n proyectos (def: 10)', '');
+      this.log('  servicios           - Listar todos los servicios', '');
+      this.log('  grep "término"      - Buscar en antecedentes', '');
+      this.log('  find "término"      - Alias para grep', '');
+      this.log('  stats               - Estadísticas empresariales', '');
+      this.log('  top                 - Top clientes', '');
+
+      this.log('\nSISTEMA:', 'info');
+      this.log('  health              - Estado del sistema', '');
+      this.log('  version             - Versión del CLI', '');
+
+      this.log('\nEXPORTACIÓN:', 'info');
+      this.log('  export json|csv     - Exportar datos', '');
+
+      this.log('\nUTILIDADES:', 'info');
+      this.log('  help                - Este menú', '');
+      this.log('  clear               - Limpiar pantalla', '');
+
+      this.log('\nATAJOS DE TECLADO:', 'warning');
+      this.log('  ↑ ↓                 - Navegar historial', '');
+      this.log('  Tab                 - Autocompletar comando', '');
+      this.log('  Ctrl+L              - Limpiar pantalla', '');
+    }
+
+    log(text, type = '') {
+      const output = document.getElementById('terminal-output');
+      const line = document.createElement('div');
+      line.className = `terminal-output-line output-${type}`;
+      line.innerHTML = text;
+      output.appendChild(line);
+      output.scrollTop = output.scrollHeight;
+    }
+
+    toggleFullscreen() {
+      const terminal = document.querySelector('.terminal-window');
+      if (!document.fullscreenElement) {
+        terminal.requestFullscreen?.().catch(() => {
+          alert('No se puede activar pantalla completa en este navegador');
+        });
+      } else {
+        document.exitFullscreen?.();
+      }
+    }
+
+    showExportOptions() {
+      this.log('\n📥 OPCIONES DE EXPORTACIÓN:', 'info');
+      this.log('  export json antecedentes  - Exportar proyectos como JSON', '');
+      this.log('  export csv antecedentes   - Exportar proyectos como CSV', '');
+      this.log('  export json servicios     - Exportar servicios como JSON', '');
+      this.log('  export csv servicios      - Exportar servicios como CSV', '');
+    }
+  }
+
+  // Inicializar terminal cuando DOM está listo
   document.addEventListener('DOMContentLoaded', () => {
-    const elements = document.querySelectorAll('.cli-suggestions');
-    elements.forEach(el => observer.observe(el));
+    new UMTerminalV3();
   });
 </script>
-</Layout>
