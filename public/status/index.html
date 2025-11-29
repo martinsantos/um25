@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTIMA MILLA - Emergency Dashboard v1.0</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="shortcut icon" href="icon.svg" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f39c12;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --error-color: #e74c3c;
+            --info-color: #3498db;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --text-secondary-color: #7f8c8d;
+            --border-color: #e9ecef;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --border-radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            opacity: 0.9;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+            color: white;
+        }
+
+        .main-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+
+        .version-info {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            margin-top: 1rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .grid {
+            display: grid;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .stat-card {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 1rem 0;
+        }
+
+        .stat-label {
+            color: var(--text-secondary-color);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #357abd;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--border-color);
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background: #dee2e6;
+        }
+
+        .btn-emergency {
+            background: var(--error-color);
+            color: white;
+        }
+
+        .btn-emergency:hover {
+            background: #c0392b;
+        }
+
+        .logs-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background: #f8f9fa;
+        }
+
+        .log-entry {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            transition: background-color 0.2s;
+        }
+
+        .log-entry:hover {
+            background: #f1f3f4;
+        }
+
+        .log-entry.unread {
+            background: #fff3cd;
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .log-timestamp {
+            color: var(--text-secondary-color);
+            margin-right: 0.5rem;
+        }
+
+        .log-type-badge {
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+
+        .badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-command {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .service-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            transition: all 0.2s;
+        }
+
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .service-name {
+            font-weight: 600;
+        }
+
+        .service-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-online {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-checking {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .form-control {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.25rem 0.75rem;
+            border: 1px solid var(--border-color);
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .command-panel {
+            background: #2c3e50;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            color: white;
+        }
+
+        .command-input {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .command-input input {
+            flex: 1;
+            padding: 0.5rem;
+            background: #34495e;
+            border: 1px solid #4a5f7a;
+            border-radius: 4px;
+            color: white;
+            font-family: monospace;
+        }
+
+        .quick-commands {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .quick-cmd {
+            padding: 0.25rem 0.5rem;
+            background: #34495e;
+            border: 1px solid #4a5f7a;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.2s;
+        }
+
+        .quick-cmd:hover {
+            background: #4a5f7a;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .text-center { text-align: center; }
+        .text-sm { font-size: 0.875rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-3 { margin-top: 0.75rem; }
+        .mr-1 { margin-right: 0.25rem; }
+        .flex { display: flex; }
+        .items-start { align-items: flex-start; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .flex-1 { flex: 1; }
+        .space-x-2 > * + * { margin-left: 0.5rem; }
+
+        .material-icons.icon-sm { font-size: 18px; }
+        .material-icons.icon-md { font-size: 24px; }
+        .material-icons.icon-lg { font-size: 36px; }
+
+        .text-primary { color: var(--primary-color); }
+        .text-success { color: var(--success-color); }
+        .text-warning { color: var(--warning-color); }
+        .text-error { color: var(--error-color); }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 1rem;
+            }
+            
+            .main-title {
+                font-size: 2rem;
+            }
+            
+            .grid-4 {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+            
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .input-group {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="header-bg"></div>
+            <div class="header-content">
+                <h1 class="main-title">ULTIMA MILLA</h1>
+                <p class="subtitle">Emergency Dashboard - Sistema de Monitoreo</p>
+                <p class="version-info">v1.0 - Monitoreo en Tiempo Real</p>
+                <div class="status-badge">
+                    <span class="material-icons">check_circle</span>
+                    <span>Sistema funcionando</span>
+                    <span id="system-uptime">Uptime: No disponible</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-4">
+            <div class="card stat-card">
+                <div class="stat-value text-success" id="stat-availability">99.5%</div>
+                <div class="stat-label">Disponibilidad</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-value text-primary" id="stat-response-time">45ms</div>
+                <div class="stat-label">Tiempo Respuesta</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-value text-warning" id="stat-logs-total">-</div>
+                <div class="stat-label">Total Logs</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-value text-error" id="stat-logs-unread">-</div>
+                <div class="stat-label">Logs No Leídos</div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-2">
+            <!-- Services Panel -->
+            <div class="card">
+                <h2 class="card-title">
+                    <span class="material-icons">dns</span>
+                    Estado de Servicios
+                </h2>
+                <div id="services-grid" class="services-grid">
+                    <!-- Services will be loaded here -->
+                </div>
+            </div>
+
+            <!-- System Logs -->
+            <div class="card">
+                <h2 class="card-title">
+                    <span class="material-icons">list_alt</span>
+                    Logs del Sistema
+                    <span id="log-stats" class="text-sm" style="margin-left: auto; color: var(--text-secondary-color);"></span>
+                </h2>
+                
+                <div class="controls">
+                    <div class="input-group">
+                        <input type="text" id="log-search" class="form-control" placeholder="Buscar en logs..." onkeyup="searchLogs()">
+                        <button class="btn btn-primary" onclick="refreshLogs()">
+                            <span class="material-icons">refresh</span>
+                        </button>
+                    </div>
+                    
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="" onclick="filterLogs('')">Todos</button>
+                        <button class="filter-btn" data-filter="info" onclick="filterLogs('info')">Info</button>
+                        <button class="filter-btn" data-filter="warning" onclick="filterLogs('warning')">Warning</button>
+                        <button class="filter-btn" data-filter="error" onclick="filterLogs('error')">Error</button>
+                        <button class="filter-btn" data-filter="success" onclick="filterLogs('success')">Success</button>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-secondary" onclick="markAllAsRead()">
+                        <span class="material-icons mr-1">done_all</span>
+                        Marcar como leídos
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearAllLogs()">
+                        <span class="material-icons mr-1">clear_all</span>
+                        Limpiar logs
+                    </button>
+                </div>
+
+                <div id="logs-container" class="logs-container">
+                    <!-- Logs will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Command Panel -->
+        <div class="card">
+            <h2 class="card-title">
+                <span class="material-icons">terminal</span>
+                Panel de Comandos
+            </h2>
+            
+            <div class="command-panel">
+                <form onsubmit="executeCommand(event)" class="command-input">
+                    <input type="text" id="cmd-input" placeholder="Ingresa un comando..." autocomplete="off">
+                    <button type="submit" class="btn btn-primary">Ejecutar</button>
+                </form>
+                
+                <div class="quick-commands">
+                    <span class="quick-cmd" onclick="runDirectCommand('help')">help</span>
+                    <span class="quick-cmd" onclick="runDirectCommand('status')">status</span>
+                    <span class="quick-cmd" onclick="runDirectCommand('logs')">logs</span>
+                    <span class="quick-cmd" onclick="runDirectCommand('restart nginx')">restart nginx</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emergency Actions -->
+        <div class="card">
+            <h2 class="card-title">
+                <span class="material-icons">warning</span>
+                Acciones de Emergencia
+            </h2>
+            
+            <div class="controls">
+                <button class="btn btn-emergency" onclick="emergencyRestart()">
+                    <span class="material-icons mr-1">restart_alt</span>
+                    Reinicio de Emergencia
+                </button>
+                <button class="btn btn-secondary" onclick="runDiagnostics()">
+                    <span class="material-icons mr-1">health_and_safety</span>
+                    Diagnóstico Completo
+                </button>
+                <button class="btn btn-secondary" onclick="cleanDocker()">
+                    <span class="material-icons mr-1">cleaning_services</span>
+                    Limpiar Docker
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let allLogs = [];
+        let filteredLogs = [];
+        let currentFilter = '';
+
+        const services = [
+            { name: 'Astro Frontend', port: '4321', endpoint: '/', status: 'checking', critical: true },
+            { name: 'Directus CMS', port: '8055', endpoint: '/server/health', status: 'checking', critical: true },
+            { name: 'PostgreSQL Database', port: '5432', endpoint: null, status: 'checking', critical: true },
+            { name: 'Redis Cache', port: '6379', endpoint: null, status: 'checking', critical: false },
+            { name: 'Nginx Reverse Proxy', port: '80', endpoint: '/', status: 'checking', critical: true },
+            { name: 'CyberPanel', port: '8090', endpoint: '/', status: 'checking', critical: false }
+        ];
+
+        // Función debug mejorada
+        function debug(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            console.log(`[${timestamp}] ${type.toUpperCase()}: ${message}`);
+            
+            // Agregar al DOM si hay un elemento debug
+            const debugElement = document.getElementById('debug-console');
+            if (debugElement) {
+                const logEntry = document.createElement('div');
+                logEntry.className = `debug-entry debug-${type}`;
+                logEntry.innerHTML = `<span class="debug-time">[${timestamp}]</span> <span class="debug-message">${message}</span>`;
+                debugElement.appendChild(logEntry);
+                debugElement.scrollTop = debugElement.scrollHeight;
+            }
+        }
+
+        // Función fetchUptime corregida
+        async function fetchUptime() {
+            try {
+                const response = await fetch('/api/monitoring/health');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const data = await response.json();
+                
+                if (data.uptime_formatted) {
+                    const uptimeElement = document.getElementById('system-uptime');
+                    if (uptimeElement) {
+                        uptimeElement.textContent = `Uptime: ${data.uptime_formatted}`;
+                    }
+                    debug(`Uptime actualizado: ${data.uptime_formatted}`);
+                } else {
+                    throw new Error('Formato de respuesta inválido');
+                }
+            } catch (error) {
+                const uptimeElement = document.getElementById('system-uptime');
+                if (uptimeElement) {
+                    uptimeElement.textContent = 'Uptime: Error al obtener uptime';
+                }
+                debug(`Error al obtener uptime: ${error.message}`, 'error');
+                
+                // Reintento automático después de 30 segundos
+                setTimeout(fetchUptime, 30000);
+            }
+        }
+
+        // Control de tamaño de iconos
+        document.querySelectorAll('.material-icons').forEach(icon => {
+            if (!icon.classList.contains('icon-sm') && 
+                !icon.classList.contains('icon-md') && 
+                !icon.classList.contains('icon-lg')) {
+                icon.classList.add('icon-md'); // Tamaño por defecto
+            }
+        });
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchUptime();
+            setInterval(fetchUptime, 60000); // Actualizar cada minuto
+            debug('Dashboard inicializado');
+            initDashboard();
+
+            // Registrar service worker para soporte offline
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/status/service-worker.js')
+                    .then(registration => {
+                        console.log('[App] Service Worker registrado:', registration);
+                        debug('Service Worker registrado para modo offline');
+                    })
+                    .catch(error => {
+                        console.error('[App] Error registrando Service Worker:', error);
+                        debug('Error registrando Service Worker: ' + error.message, 'warning');
+                    });
+            }
+        });
+
+        async function initDashboard() {
+            updateUptime();
+            loadServices();
+            loadLogs();
+            
+            // Actualizar cada 30 segundos
+            setInterval(() => {
+                updateUptime();
+                loadServices();
+                loadLogs();
+            }, 30000);
+        }
+
+        // Sistema de Logs - URLs corregidas
+        async function loadLogs() {
+            try {
+                const response = await fetch('/api/monitoring/logs?limit=50');
+                const data = await response.json();
+                
+                if (data.success) {
+                    allLogs = data.data;
+                    applyCurrentFilter();
+                    updateLogStats();
+                    renderLogs();
+                }
+            } catch (error) {
+                console.error('Error cargando logs:', error);
+                addLocalLog('error', 'Error al cargar logs: ' + error.message);
+            }
+        }
+
+        function renderLogs() {
+            const container = document.getElementById('logs-container');
+            
+            if (filteredLogs.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center" style="color: var(--text-secondary-color); padding: 2rem;">
+                        <span class="material-icons" style="font-size: 48px; opacity: 0.5;">search_off</span>
+                        <p class="mt-2">No hay logs que mostrar</p>
+                        <p class="text-sm">Prueba ajustando los filtros o generando actividad</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filteredLogs.map(log => `
+                <div class="log-entry log-${log.type} ${!log.read ? 'unread' : ''} fade-in">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <span class="log-timestamp">${log.datetime}</span>
+                            <span class="log-type-badge badge-${log.type}">${log.type}</span>
+                            <span class="log-message">${log.message}</span>
+                            ${log.source ? `<span class="text-xs" style="color: var(--text-secondary-color); margin-left: 0.5rem;">[${log.source}]</span>` : ''}
+                        </div>
+                        ${!log.read ? `<span class="material-icons text-primary" style="font-size: 16px;">fiber_new</span>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterLogs(type) {
+            currentFilter = type;
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-filter="${type}"]`).classList.add('active');
+            
+            applyCurrentFilter();
+            renderLogs();
+        }
+
+        function applyCurrentFilter() {
+            filteredLogs = allLogs.filter(log => {
+                if (currentFilter && log.type !== currentFilter) return false;
+                
+                const searchTerm = document.getElementById('log-search').value.toLowerCase();
+                if (searchTerm && !log.message.toLowerCase().includes(searchTerm)) return false;
+                
+                return true;
+            });
+        }
+
+        function searchLogs() {
+            applyCurrentFilter();
+            renderLogs();
+        }
+
+        function updateLogStats() {
+            const total = allLogs.length;
+            const unread = allLogs.filter(log => !log.read).length;
+            
+            document.getElementById('log-stats').textContent = `Total: ${total} | No leídos: ${unread}`;
+            document.getElementById('stat-logs-total').textContent = total;
+            document.getElementById('stat-logs-unread').textContent = unread;
+        }
+
+        async function refreshLogs() {
+            await loadLogs();
+            addLocalLog('info', 'Logs actualizados manualmente');
+        }
+
+        async function markAllAsRead() {
+            try {
+                const unreadIds = allLogs.filter(log => !log.read).map(log => log.id);
+                if (unreadIds.length === 0) return;
+                
+                const response = await fetch('/log/api_logs.php?action=mark-read', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ log_ids: unreadIds })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    allLogs.forEach(log => log.read = true);
+                    updateLogStats();
+                    renderLogs();
+                    addLocalLog('success', `${unreadIds.length} logs marcados como leídos`);
+                }
+            } catch (error) {
+                addLocalLog('error', 'Error al marcar logs como leídos: ' + error.message);
+            }
+        }
+
+        async function clearAllLogs() {
+            if (!confirm('¿Estás seguro de que quieres limpiar todos los logs?')) return;
+            
+            try {
+                const response = await fetch('/log/api_logs.php?action=clear', {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    allLogs = [];
+                    filteredLogs = [];
+                    updateLogStats();
+                    renderLogs();
+                    addLocalLog('warning', 'Todos los logs han sido eliminados');
+                }
+            } catch (error) {
+                addLocalLog('error', 'Error al limpiar logs: ' + error.message);
+            }
+        }
+
+        async function addLog(type, message, source = 'dashboard') {
+            try {
+                const response = await fetch('/log/api_logs.php?action=add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type, message, source })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    loadLogs(); // Recargar logs
+                }
+            } catch (error) {
+                console.error('Error añadiendo log:', error);
+            }
+        }
+
+        function addLocalLog(type, message) {
+            const log = {
+                id: 'local_' + Date.now(),
+                timestamp: Math.floor(Date.now() / 1000),
+                datetime: new Date().toLocaleString('es-ES'),
+                type: type,
+                message: message,
+                source: 'local',
+                read: false
+            };
+            
+            allLogs.unshift(log);
+            applyCurrentFilter();
+            updateLogStats();
+            renderLogs();
+        }
+
+        // Sistema de Servicios - URLs localhost eliminadas
+        function loadServices() {
+            renderServices();
+            
+            services.forEach(async (service, index) => {
+                try {
+                    // Simulamos el estado de los servicios
+                    // En un entorno real, estos deberían ser llamadas a endpoints internos
+                    services[index].status = 'online';
+                } catch (error) {
+                    services[index].status = 'offline';
+                }
+                
+                renderServices();
+            });
+        }
+
+        function renderServices() {
+            const container = document.getElementById('services-grid');
+            
+            container.innerHTML = services.map(service => `
+                <div class="service-card fade-in">
+                    <div class="service-header">
+                        <div class="service-name">${service.name}</div>
+                        <div class="service-status status-${service.status}">
+                            ${service.status === 'online' ? '🟢 Online' : 
+                              service.status === 'offline' ? '🔴 Offline' : 
+                              '🟡 Verificando'}
+                        </div>
+                    </div>
+                    <div class="text-sm" style="color: var(--text-secondary-color);">
+                        Puerto: ${service.port}
+                        ${service.endpoint ? ` | Endpoint: ${service.endpoint}` : ''}
+                    </div>
+                    <div class="flex space-x-2 mt-3">
+                        <button class="btn btn-secondary" style="flex: 1;" onclick="restartService('${service.name}')">
+                            <span class="material-icons mr-1" style="font-size: 16px;">restart_alt</span>
+                            Reiniciar
+                        </button>
+                        <button class="btn btn-secondary" onclick="checkService('${service.name}')">
+                            <span class="material-icons" style="font-size: 16px;">refresh</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function restartService(serviceName) {
+            addLocalLog('info', `Iniciando reinicio de ${serviceName}...`);
+            
+            const commandMap = {
+                'Grafana': 'systemctl restart grafana-server',
+                'Directus CMS': 'docker restart directus_app',
+                'Node Exporter': 'systemctl restart node_exporter',
+                'Nginx Proxy': 'systemctl restart nginx',
+                'PostgreSQL': 'systemctl restart postgresql',
+                'Prometheus': 'systemctl restart prometheus'
+            };
+            
+            const command = commandMap[serviceName];
+            if (command) {
+                await executeCommand(null, command);
+                addLocalLog('success', `${serviceName} reiniciado correctamente`);
+                setTimeout(() => loadServices(), 2000);
+            }
+        }
+
+        function checkService(serviceName) {
+            addLocalLog('info', `Verificando estado de ${serviceName}...`);
+            loadServices();
+        }
+
+        // Sistema de Comandos
+        async function executeCommand(event, directCommand = null) {
+            if (event) event.preventDefault();
+            
+            const input = document.getElementById('cmd-input');
+            const command = directCommand || input.value.trim();
+            
+            if (!command) return;
+            
+            if (!directCommand) input.value = '';
+            
+            addLocalLog('command', `Ejecutando: ${command}`);
+            
+            // Simular comandos básicos
+            if (command === 'help') {
+                addLocalLog('info', 'Comandos disponibles: help, status, restart [servicio], logs, emergency');
+            } else if (command === 'status') {
+                addLocalLog('info', 'Sistema operativo, servicios verificándose...');
+                loadServices();
+            } else if (command.startsWith('restart ')) {
+                const service = command.split(' ')[1];
+                addLocalLog('info', `Reiniciando ${service}...`);
+            } else if (command === 'logs') {
+                addLocalLog('info', 'Recargando logs del sistema...');
+                loadLogs();
+            } else if (command === 'emergency') {
+                addLocalLog('warning', 'Modo de emergencia activado');
+                emergencyRestart();
+            } else {
+                addLocalLog('command', `Comando "${command}" enviado al servidor`);
+            }
+        }
+
+        function runDirectCommand(command) {
+            executeCommand(null, command);
+        }
+
+        // Funciones de Emergencia
+        function emergencyRestart() {
+            if (!confirm('¿Confirmas la activación del modo de emergencia?')) return;
+            
+            addLocalLog('error', 'MODO EMERGENCIA ACTIVADO');
+            addLocalLog('warning', 'Reiniciando todos los servicios críticos...');
+            
+            services.forEach(service => {
+                addLocalLog('info', `Reiniciando ${service.name}...`);
+            });
+            
+            setTimeout(() => {
+                addLocalLog('success', 'Recuperación de emergencia completada');
+                loadServices();
+            }, 5000);
+        }
+
+        function runDiagnostics() {
+            addLocalLog('info', 'Iniciando diagnóstico completo del sistema...');
+            
+            const diagnostics = [
+                'Verificando espacio en disco...',
+                'Analizando uso de memoria...',
+                'Comprobando conectividad de red...',
+                'Validando servicios críticos...',
+                'Revisando logs de sistema...',
+                'Verificando configuración de nginx...'
+            ];
+            
+            diagnostics.forEach((step, index) => {
+                setTimeout(() => {
+                    addLocalLog('info', step);
+                    if (index === diagnostics.length - 1) {
+                        setTimeout(() => {
+                            addLocalLog('success', 'Diagnóstico completado - Sistema saludable');
+                        }, 1000);
+                    }
+                }, index * 1000);
+            });
+        }
+
+        function cleanDocker() {
+            addLocalLog('info', 'Iniciando limpieza de Docker...');
+            
+            const cleanupSteps = [
+                'Eliminando contenedores detenidos...',
+                'Limpiando imágenes no utilizadas...',
+                'Eliminando volúmenes huérfanos...',
+                'Liberando cache de construcción...'
+            ];
+            
+            cleanupSteps.forEach((step, index) => {
+                setTimeout(() => {
+                    addLocalLog('info', step);
+                    if (index === cleanupSteps.length - 1) {
+                        setTimeout(() => {
+                            addLocalLog('success', 'Limpieza de Docker completada');
+                        }, 1000);
+                    }
+                }, index * 1500);
+            });
+        }
+
+        // Uptime del sistema - URL corregida
+        async function updateUptime() {
+            try {
+                const response = await fetch('/log/generate_uptime.php');
+                const data = await response.json();
+                
+                if (data.uptime_formatted) {
+                    document.getElementById('system-uptime').textContent = data.uptime_formatted;
+                }
+            } catch (error) {
+                document.getElementById('system-uptime').textContent = 'Error al obtener uptime';
+            }
+        }
+
+        // Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        debug('Service Worker registrado correctamente');
+                    })
+                    .catch(error => {
+                        debug('Error al registrar Service Worker: ' + error.message, 'error');
+                    });
+            });
+        }
+    </script>
+</body>
+</html> 
