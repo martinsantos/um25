@@ -14,7 +14,7 @@ export default defineConfig({
   }),
 
   // URL base para generación de sitemap y rutas absolutas
-  site: process.env.PUBLIC_SITE_URL || 'http://localhost:3000',
+  site: process.env.PUBLIC_SITE_URL || 'https://ultimamilla.com.ar',
 
   // Integraciones
   integrations: [
@@ -29,7 +29,13 @@ export default defineConfig({
     }),
     mdx(),
     tailwind(),
-    sitemap(),
+    sitemap({
+      filter: (page) => {
+        // Exclude admin, CLI, status, and API pages from sitemap
+        const excluded = ['/admin', '/cli', '/status', '/api/', 'undefined'];
+        return !excluded.some(path => page.includes(path));
+      }
+    }),
     alpinejs()
   ],
 
