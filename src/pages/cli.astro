@@ -377,26 +377,234 @@ const seoData = {
     transition: width 0.3s ease;
   }
 
-  @media (max-width: 768px) {
+  /* Mobile: Extra Small (< 480px) */
+  @media (max-width: 480px) {
+    .um-terminal {
+      font-size: 12px;
+    }
+
+    .terminal-header {
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 0.75rem;
+    }
+
+    .header-left {
+      min-width: auto;
+      width: 100%;
+    }
+
+    .terminal-title {
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    .terminal-subtitle {
+      font-size: 0.65rem;
+      margin-top: 0.2rem;
+    }
+
+    .header-controls {
+      width: 100%;
+      gap: 0.5rem;
+    }
+
+    .theme-selector,
+    .um-control {
+      flex: 1;
+      padding: 0.4rem 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .terminal-content {
+      padding: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .welcome-ascii {
+      font-size: 0.65rem;
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+    }
+
+    .output-line {
+      font-size: 0.9rem;
+      margin: 0.2rem 0;
+      word-wrap: break-word;
+    }
+
+    .terminal-prompt {
+      font-size: 0.85rem;
+      white-space: normal;
+      min-width: auto;
+      margin-right: 0.3rem;
+    }
+
+    .terminal-input {
+      font-size: 0.9rem;
+    }
+
+    .terminal-input-area {
+      padding: 0.75rem;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+
+    .terminal-status-bar {
+      font-size: 0.65rem;
+      padding: 0.5rem;
+      justify-content: flex-start;
+      overflow-x: auto;
+      gap: 0.5rem;
+    }
+
+    .status-item {
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .input-suggestions {
+      left: 0.75rem;
+      right: 0.75rem;
+      font-size: 0.8rem;
+      max-height: 120px;
+    }
+
+    .suggestion-item {
+      padding: 0.3rem 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .output-table {
+      font-size: 0.75rem;
+      margin: 0.3rem 0;
+    }
+
+    .output-table td {
+      padding: 0.2rem 0.4rem;
+      font-size: 0.75rem;
+    }
+  }
+
+  /* Tablet: Small (480px - 768px) */
+  @media (min-width: 481px) and (max-width: 768px) {
+    .um-terminal {
+      font-size: 13px;
+    }
+
+    .terminal-header {
+      flex-direction: row;
+      gap: 0.5rem;
+      padding: 0.75rem;
+    }
+
+    .header-left {
+      flex: 1;
+      min-width: 200px;
+    }
+
     .terminal-title {
       font-size: 1.1rem;
     }
+
     .terminal-subtitle {
-      font-size: 0.7rem;
+      font-size: 0.75rem;
     }
-    .terminal-header {
-      padding: 1rem;
-      gap: 1rem;
+
+    .header-controls {
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }
+
+    .theme-selector,
+    .um-control {
+      padding: 0.4rem 0.7rem;
+      font-size: 0.85rem;
+    }
+
     .terminal-content {
       padding: 1rem;
     }
+
+    .welcome-ascii {
+      font-size: 0.7rem;
+      line-height: 1.2;
+    }
+
     .output-line {
       font-size: 0.85rem;
+      margin: 0.25rem 0;
     }
+
+    .terminal-input-area {
+      padding: 0.75rem;
+      gap: 0.4rem;
+    }
+
+    .terminal-prompt {
+      font-size: 0.9rem;
+    }
+
+    .terminal-input {
+      font-size: 0.9rem;
+    }
+
     .terminal-status-bar {
       font-size: 0.7rem;
+      padding: 0.5rem 0.75rem;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .status-item {
+      flex: 0 1 auto;
+    }
+
+    .output-table {
+      font-size: 0.8rem;
+    }
+
+    .output-table td {
+      padding: 0.3rem 0.5rem;
+    }
+  }
+
+  /* Desktop: Large (> 768px) */
+  @media (min-width: 769px) {
+    .terminal-title {
+      font-size: 1.5rem;
+    }
+
+    .terminal-subtitle {
+      font-size: 0.85rem;
+    }
+
+    .header-controls {
+      gap: 1rem;
+    }
+
+    .theme-selector,
+    .um-control {
       padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+
+    .terminal-content {
+      padding: 1.5rem;
+    }
+
+    .welcome-ascii {
+      font-size: 0.75rem;
+    }
+
+    .output-line {
+      font-size: 0.95rem;
+    }
+
+    .terminal-status-bar {
+      font-size: 0.85rem;
+      padding: 0.75rem 1.5rem;
     }
   }
 
