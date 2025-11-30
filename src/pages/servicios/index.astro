@@ -1,5 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import BreadcrumbSchema from '../../components/SEO/BreadcrumbSchema.astro';
+import RelatedLinks from '../../components/RelatedLinks.astro';
 import { generateSlug } from '../../utils/slugUtils.js';
 import { serviciosReales } from '../../data/servicios_reales_db.js';
 import { getServiceImageUrl } from '../../utils/imageUtils.js';
@@ -56,6 +58,11 @@ const backgroundImages = [
 ---
 
 <Layout title="Servicios IT Mendoza | Redes, Desarrollo, Seguridad | ULTIMA MILLA" description="Servicios informáticos integrales en Mendoza y Cuyo: infraestructura de redes, desarrollo de software a medida, seguridad informática, cloud computing. Soporte 24/7." keywords="servicios it mendoza, infraestructura redes cuyo, desarrollo software mendoza, seguridad informatica, consultoria tecnologica">
+  <BreadcrumbSchema items={[
+    { label: 'Inicio', url: '/' },
+    { label: 'Servicios', url: '/servicios' }
+  ]} />
+
   <main class="min-h-screen bg-white">
     <!-- Hero Section V3 (Immersive, Rotating BG) -->
     <section class="relative h-[60vh] md:h-[70vh] flex items-center overflow-hidden bg-slate-900">
@@ -224,6 +231,16 @@ const backgroundImages = [
           </div>
         )}
       </div>
+    </section>
+
+    <!-- Related Links Section -->
+    <section class="container mx-auto px-4 py-12">
+      <RelatedLinks
+        category="servicio"
+        currentPage="/servicios"
+        limit={6}
+        title="Explore Más Servicios"
+      />
     </section>
   </main>
 </Layout>
