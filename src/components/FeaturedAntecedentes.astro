@@ -49,11 +49,11 @@ const processedAntecedentes = await Promise.all(
 ---
 
 <div class="featured-antecedentes-wrapper">
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 antecedente-grid" data-initial-count="6">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 antecedente-grid" data-initial-count="all">
     {processedAntecedentes.map((proyecto, index) => (
-      <a 
-        href={`/antecedentes/${proyecto.slug}`} 
-        class={`group flex flex-col h-full antecedente-item ${index >= 6 ? 'hidden' : ''}`}
+      <a
+        href={`/antecedentes/${proyecto.slug}`}
+        class="group flex flex-col h-full antecedente-item"
         data-index={index}
       >
         <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1">
@@ -103,62 +103,18 @@ const processedAntecedentes = await Promise.all(
     ))}
   </div>
 
-  {processedAntecedentes.length > 6 && (
-    <div class="mt-12 text-center load-more-container">
-      <button 
-        class="load-more-btn inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 shadow-md"
-        onclick="loadMoreAntecedentes(this)"
-      >
-        Ver más casos
-        <svg class="ml-2 -mr-1 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-      <p class="mt-2 text-sm text-slate-500">
-        Mostrando <span class="showing-count">6</span> de {processedAntecedentes.length} casos
+  {processedAntecedentes.length > 0 && (
+    <div class="mt-12 text-center summary-container">
+      <p class="text-sm text-slate-600">
+        Total: <span class="font-bold text-blue-600">{processedAntecedentes.length} casos</span> en este sector
       </p>
     </div>
   )}
 </div>
 
 <script is:inline>
-  window.loadMoreAntecedentes = function(btn) {
-    console.log('Load More clicked');
-    const wrapper = btn.closest('.featured-antecedentes-wrapper');
-    if (!wrapper) {
-      console.error('Wrapper not found');
-      return;
-    }
-
-    const items = wrapper.querySelectorAll('.antecedente-item');
-    const showingCountSpan = wrapper.querySelector('.showing-count');
-    const container = wrapper.querySelector('.load-more-container');
-    
-    // Get current count from data attribute or calculate
-    let currentlyShowing = parseInt(wrapper.dataset.showing || "6");
-    const totalItems = items.length;
-    const batchSize = 6;
-    
-    console.log(`Currently showing: ${currentlyShowing}, Total: ${totalItems}`);
-
-    const newCount = currentlyShowing + batchSize;
-    
-    items.forEach((item, index) => {
-      if (index < newCount) {
-        item.classList.remove('hidden');
-      }
-    });
-
-    wrapper.dataset.showing = newCount;
-    
-    if (showingCountSpan) {
-      showingCountSpan.textContent = Math.min(newCount, totalItems);
-    }
-
-    if (newCount >= totalItems) {
-      container.style.display = 'none';
-    }
-  };
+  // All antecedentes are now displayed by default
+  // No load-more functionality needed
 </script>
 
 <style>

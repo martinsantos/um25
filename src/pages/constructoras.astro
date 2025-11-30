@@ -45,7 +45,7 @@ const filterAntecedentes = (data) => {
 
 try {
   // Intentar obtener de Directus
-  const response = await directus.getAntecedentes({ limit: 100, page: 1 });
+  const response = await directus.getAntecedentes({ limit: 500, page: 1 });
   
   if (response && response.data && response.data.length > 0) {
     antecedentes = filterAntecedentes(response.data);
