@@ -260,11 +260,11 @@ const creativeWorkSchema = {
               <div class="space-y-6">
                 <h3 class="text-xl font-bold text-slate-900">Galería del Proyecto</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {antecedente.Imagenes.map((img) => (
+                  {antecedente.Imagenes.map((img, index) => (
                     <div class="aspect-video rounded-xl overflow-hidden bg-slate-100 group">
                       <img 
                         src={getAssetUrl(img)} 
-                        alt="Galería" 
+                        alt={`${antecedente.Titulo} - Imagen ${index + 1}`} 
                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"
                       />
