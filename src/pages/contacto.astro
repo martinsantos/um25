@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Layout from '../layouts/Layout.astro';
+import FAQSchema from '../components/SEO/FAQSchema.astro';
 
 // SEO Data optimizado para contacto local
 const seoData = {
@@ -11,6 +11,30 @@ const seoData = {
 ---
 
 <Layout title={seoData.title} description={seoData.description} keywords={seoData.keywords}>
+
+	<!-- FAQ Schema for Contact Page -->
+	<FAQSchema items={[
+		{
+			question: "¿Cuál es el costo de una consulta inicial?",
+			answer: "La consulta inicial es completamente gratuita. Te contactaremos para entender tus necesidades y proporcionar una evaluación sin compromiso."
+		},
+		{
+			question: "¿En cuánto tiempo puedo obtener una propuesta?",
+			answer: "Generalmente dentro de 48-72 horas después de la consulta inicial, te enviaremos una propuesta detallada con timeline y presupuesto."
+		},
+		{
+			question: "¿Ofrecen soporte post-proyecto?",
+			answer: "Sí, ofrecemos soporte 24/7 y mantenimiento continuo para todos nuestros proyectos. Nuestro equipo está siempre disponible para asistirte."
+		},
+		{
+			question: "¿Qué métodos de pago aceptan?",
+			answer: "Aceptamos transferencia bancaria, tarjeta de crédito y planes de financiamiento según el monto del proyecto."
+		},
+		{
+			question: "¿Realizan proyectos en otras provincias?",
+			answer: "Sí, aunque nuestra base está en Mendoza, atendemos proyectos en Cuyo, Patagonia y otras regiones de Argentina."
+		}
+	]} />
 
 	<!-- Hero Section -->
 	<div class="bg-gradient-to-br from-blue-50 to-indigo-100 py-16">

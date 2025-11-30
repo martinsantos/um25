@@ -1,5 +1,6 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
+import BreadcrumbSchema from '../../../components/SEO/BreadcrumbSchema.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getFixedImage } from '../../../utils/imageFixer.js';
 
@@ -129,15 +130,58 @@ const formatCurrency = (amount) => {
 
 const siteUrl = 'https://ultimamilla.com.ar';
 const canonicalUrl = `${siteUrl}/antecedentes/${id}/${slugFromUrl}`;
-const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').substring(0, 160) + '...';
+
+// Dynamic SEO title with keywords
+const seoTitle = `${antecedente.Titulo} | ${antecedente.Area || 'Proyecto IT'} para ${antecedente.Cliente} | Caso de Éxito`;
+
+// Optimized meta description
+const rawDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').trim();
+const metaDescription = rawDescription.substring(0, 160) || `Caso de éxito en ${antecedente.Area || 'servicios IT'} para ${antecedente.Cliente}. Soluciones tecnológicas implementadas por ULTIMA MILLA.`;
+
+// CreativeWork schema for structured data
+const creativeWorkSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  '@id': canonicalUrl,
+  'name': antecedente.Titulo,
+  'description': metaDescription,
+  'image': mainImageUrl,
+  'datePublished': antecedente.Fecha || new Date().toISOString(),
+  'author': {
+    '@type': 'Organization',
+    'name': 'ULTIMA MILLA',
+    'url': siteUrl
+  },
+  'creator': {
+    '@type': 'Organization',
+    'name': 'ULTIMA MILLA'
+  },
+  'about': {
+    '@type': 'Thing',
+    'name': antecedente.Area || 'Servicios Tecnológicos'
+  },
+  'client': antecedente.Cliente,
+  'url': canonicalUrl,
+  'inLanguage': 'es-AR'
+};
 ---
 
 <Layout
-  title={`${antecedente.Titulo} | Caso de Éxito - Ultima Milla`}
+  title={seoTitle}
   description={metaDescription}
   image={mainImageUrl}
   canonical={canonicalUrl}
 >
+  <!-- CreativeWork Structured Data for Portfolio Items -->
+  <script type="application/ld+json" set:html={JSON.stringify(creativeWorkSchema)} />
+
+  <!-- Breadcrumb Navigation Schema -->
+  <BreadcrumbSchema items={[
+    { label: 'Inicio', url: '/' },
+    { label: 'Antecedentes', url: '/antecedentes' },
+    { label: antecedente.Titulo, url: canonicalUrl }
+  ]} />
+
   <main class="min-h-screen bg-white">
     <!-- Hero Section V3 (Immersive, Full-Screen) -->
     <section class="relative h-[70vh] md:h-[85vh] flex items-end md:items-center overflow-hidden bg-slate-900">

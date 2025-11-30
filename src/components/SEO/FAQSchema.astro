@@ -1,0 +1,40 @@
+---
+/**
+ * FAQ Schema Component
+ * Generates FAQPage JSON-LD for SEO
+ *
+ * Usage:
+ * <FAQSchema items={[
+ *   {
+ *     question: "¿Cuál es el costo del servicio?",
+ *     answer: "Ofrecemos presupuestos personalizados basados en los requisitos específicos del proyecto."
+ *   }
+ * ]} />
+ */
+
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  items: FAQItem[];
+}
+
+const { items } = Astro.props;
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  'mainEntity': items.map(item => ({
+    '@type': 'Question',
+    'name': item.question,
+    'acceptedAnswer': {
+      '@type': 'Answer',
+      'text': item.answer
+    }
+  }))
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
