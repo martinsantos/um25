@@ -22,7 +22,7 @@ const isActive = (href: string): boolean => {
 
 <nav class="navigation">
     <div class="logo">
-        <a href="/">
+        <a href="/" class="logo-link">
             <img
                 src="/images/um-logo.png"
                 alt=""
@@ -109,8 +109,8 @@ const isActive = (href: string): boolean => {
         position: relative;
     }
 
-    /* Hover effect - subrayado sutil */
-    .navigation a:hover {
+    /* Hover effect - subrayado sutil (excluir logo) */
+    .navigation a:hover:not(.logo-link) {
         color: #dc2626;
         border-bottom-color: #fecaca;
     }
