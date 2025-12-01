@@ -244,36 +244,6 @@ export const serviciosReales = [
     ]
   },
   {
-    "id": 11,
-    "Titulo": "Cloud Computing y Migración a la Nube | Infraestructura, Seguridad, Escalabilidad",
-    "Descripcion": "Servicios cloud para Mendoza, Cuyo, Patagonia y Argentina oeste. Migración de aplicaciones, hosting cloud, infraestructura AWS/Azure/GCP, bases de datos cloud (RDS, CloudSQL), almacenamiento, CDN, containers, disaster recovery. Escalabilidad garantizada, disponibilidad 99.9%, optimización de costos, cumplimiento normativo.",
-    "Area": "Cloud",
-    "Cliente": "Empresas",
-    "Unidad_de_negocio": "Cloud",
-    "Imagen": "dc6d6069-23af-4d75-ae5a-38c830bf2b85",
-    "Presupuesto": 220000,
-    "Servicios": [
-      "Migración de aplicaciones a la nube",
-      "Hosting y administración de servidores cloud",
-      "Configuración de infraestructura AWS/Azure/GCP",
-      "Bases de datos en la nube (RDS, CloudSQL)",
-      "Almacenamiento y backup cloud",
-      "Implementación de CDN y caché",
-      "Contenedores y orquestación (Docker, Kubernetes)",
-      "Optimización de costos cloud"
-    ],
-    "Caracteristicas": [
-      "Experiencia en múltiples plataformas cloud",
-      "Arquitectura cloud nativa y escalable",
-      "Alta disponibilidad y disaster recovery",
-      "Seguridad y cumplimiento normativo",
-      "Monitoreo y alertas 24/7",
-      "Optimización de performance",
-      "Backup automático y versionado",
-      "Soporte multi-cloud e híbrido"
-    ]
-  },
-  {
     "id": 12,
     "Titulo": "Consultoría IT y Transformación Digital | Arquitectura, Auditoría",
     "Descripcion": "Asesoramiento estratégico en tecnología para Mendoza, Cuyo, Patagonia y Argentina. Consultoría IT, arquitectura empresarial, auditorías de seguridad, planificación estratégica, evaluación de proveedores, transformación digital, roadmap tecnológico. +100 proyectos en minería, gobierno, bodegas, constructoras y salud. Metodologías ITIL, COBIT, TOGAF.",

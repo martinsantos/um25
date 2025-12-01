@@ -81,26 +81,7 @@ export const serviciosSEO = {
     ]
   },
 
-  11: {
-    // CLOUD COMPUTING
-    slug: 'cloud-computing',
-    title: 'Cloud Computing y Migración a la Nube | Infraestructura, Seguridad, Escalabilidad | ULTIMA MILLA',
-    description: 'Servicios de cloud computing en Mendoza y Argentina oeste. Migración a la nube, hosting, infraestructura AWS, Azure, Google Cloud. Escalabilidad, disponibilidad y seguridad garantizadas.',
-    keywords: 'cloud computing mendoza, migracion nube mendoza, hosting mendoza, aws azure gcp, infraestructura cloud, cloud empresarial, servidores cloud, backup nube',
-    regions: ['Mendoza', 'Cuyo', 'Patagonia', 'Argentina Oeste'],
-    industries: ['Minería', 'Bodegas', 'Salud', 'Gobierno', 'Constructoras'],
-    longTail: [
-      'migracion aplicaciones nube',
-      'hosting cloud mendoza',
-      'disaster recovery cloud',
-      'bases datos cloud',
-      'almacenamiento nube seguro',
-      'infraestructura hibrida',
-      'optimizacion costos cloud'
-    ]
-  },
-
-  12: {
+12: {
     // CONSULTORÍA IT
     slug: 'consultoria-it',
     title: 'Consultoría IT y Transformación Digital | Arquitectura, Auditoría | ULTIMA MILLA',
