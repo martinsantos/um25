@@ -3,6 +3,7 @@ import Layout from '../../../layouts/Layout.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { serviciosReales, serviciosPorId } from '../../../data/servicios_reales_db.js';
 import { getServiceImageUrl } from '../../../utils/imageUtils.js';
+import { getServiceSEO } from '../../../data/servicios_seo_config.js';
 
 const { id, slug } = Astro.params;
 
@@ -23,13 +24,18 @@ if (slug !== expectedSlug) {
 
 const getAssetUrl = getServiceImageUrl;
 
+// Obtener configuración SEO del servicio
+const seoConfig = getServiceSEO(parseInt(id));
+const pageTitle = seoConfig?.title || `${servicio.Titulo} - Servicios IT - ULTIMA MILLA`;
+const pageDescription = seoConfig?.description || servicio.Descripcion;
+
 // Servicios relacionados (misma área)
 const serviciosRelacionados = serviciosReales
   .filter(s => s.Area === servicio.Area && s.id !== servicio.id)
   .slice(0, 3);
 ---
 
-<Layout title={`${servicio.Titulo} - Servicios - Ultima Milla`}>
+<Layout title={pageTitle} description={pageDescription}>
   <main class="min-h-screen bg-white">
     <!-- Breadcrumb -->
     <nav class="bg-white border-b border-slate-200">
@@ -251,6 +257,50 @@ const serviciosRelacionados = serviciosReales
       </div>
     </section>
   </main>
+
+  <!-- Structured Data - Service Schema -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": servicio.Titulo,
+    "description": seoConfig?.description || servicio.Descripcion,
+    "provider": {
+      "@type": "Organization",
+      "name": "ULTIMA MILLA",
+      "url": "https://ultimamilla.com.ar",
+      "logo": "https://ultimamilla.com.ar/logo.png",
+      "sameAs": [
+        "https://www.facebook.com/ultimamilla",
+        "https://www.linkedin.com/company/ultima-milla"
+      ],
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "AR",
+        "addressRegion": "Mendoza",
+        "addressLocality": "Mendoza"
+      },
+      "telephone": "+54-261-4250000",
+      "email": "info@ultimamilla.com.ar"
+    },
+    "areaServed": seoConfig?.regions || ["Mendoza", "Argentina"],
+    "serviceType": servicio.Area,
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": `Servicios de ${servicio.Area}`,
+      "itemListElement": servicio.Servicios?.map((s, idx) => ({
+        "@type": "Offer",
+        "position": idx + 1,
+        "name": s,
+        "offeredBy": {
+          "@type": "Organization",
+          "name": "ULTIMA MILLA"
+        }
+      })) || []
+    },
+    "url": `https://ultimamilla.com.ar/servicios/${id}/${slug}`
+  })}>
+  </script>
+
 </Layout>
 
 <style>
