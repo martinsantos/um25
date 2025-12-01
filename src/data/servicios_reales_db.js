@@ -125,7 +125,7 @@ export const serviciosReales = [
   },
   {
     "id": 7,
-    "Titulo": "Infraestructura de Redes Mendoza | Cableado, Fibra Óptica, Radioenlaces",
+    "Titulo": "Infraestructura de Redes | Cableado, Fibra Óptica, Radioenlaces",
     "Descripcion": "Diseño e implementación de infraestructura de redes de datos en Mendoza, San Juan, San Luis y Cuyo. Soluciones completas: cableado estructurado Cat 6/6A/7, fibra óptica, radioenlaces, LAN/WAN, data centers. +94 proyectos exitosos en minería, bodegas, constructoras, gobierno y salud. Certificación TIA/EIA. Garantía extendida.",
     "Area": "Telecomunicaciones",
     "Cliente": "Empresas e Instituciones",
@@ -155,7 +155,7 @@ export const serviciosReales = [
   },
   {
     "id": 8,
-    "Titulo": "Desarrollo de Software a Medida Mendoza | Web, Mobile, ERP",
+    "Titulo": "Desarrollo de Software a Medida | Web, Mobile, ERP",
     "Descripcion": "Desarrollo de software a medida para empresas en Mendoza, San Juan, Cuyo y Argentina. Aplicaciones web, sistemas ERP, plataformas e-commerce, APIs REST, apps mobile iOS/Android. Experiencia con CNN, Gobierno de Mendoza, Banco Credicoop. +60 clientes en minería, bodegas, constructoras, salud y gobierno. Stack: React, Node.js, Python, .NET.",
     "Area": "Desarrollo",
     "Cliente": "Empresas y Gobierno",
@@ -185,7 +185,7 @@ export const serviciosReales = [
   },
   {
     "id": 9,
-    "Titulo": "Ciberseguridad y Seguridad Informática Mendoza | CCTV, Control Acceso",
+    "Titulo": "Ciberseguridad y Seguridad Informática | CCTV, Control Acceso",
     "Descripcion": "Soluciones integrales de seguridad en Mendoza, Cuyo y Patagonia. Videovigilancia CCTV IP, sistemas de detección de intrusos (SDI), control de acceso biométrico/RFID, alarmas, BMS. +67 proyectos en aeropuertos, minería, bodegas, hospitales y gobierno. Monitoreo 24/7, respuesta rápida a incidentes, cumplimiento normativo ISO 27001.",
     "Area": "Seguridad",
     "Cliente": "Empresas y Aeropuertos",
@@ -215,7 +215,7 @@ export const serviciosReales = [
   },
   {
     "id": 10,
-    "Titulo": "Soporte Técnico 24/7 Mendoza | Mesa de Ayuda, Mantenimiento IT",
+    "Titulo": "Soporte Técnico 24/7 | Mesa de Ayuda, Mantenimiento IT",
     "Descripcion": "Servicio integral de soporte técnico 24/7 en Mendoza, San Juan, Cuyo y Argentina. Mesa de ayuda, mantenimiento preventivo/correctivo, gestión de incidentes, monitoreo proactivo, backup y recuperación. +51 contratos activos. SLA garantizado (respuesta en <30 min). Técnicos certificados. Disponible todos los días del año.",
     "Area": "Soporte TIC",
     "Cliente": "Empresas",
@@ -245,7 +245,7 @@ export const serviciosReales = [
   },
   {
     "id": 11,
-    "Titulo": "Cloud Computing y Migración a la Nube Mendoza | AWS Azure GCP",
+    "Titulo": "Cloud Computing y Migración a la Nube | Infraestructura, Seguridad, Escalabilidad",
     "Descripcion": "Servicios cloud para Mendoza, Cuyo, Patagonia y Argentina oeste. Migración de aplicaciones, hosting cloud, infraestructura AWS/Azure/GCP, bases de datos cloud (RDS, CloudSQL), almacenamiento, CDN, containers, disaster recovery. Escalabilidad garantizada, disponibilidad 99.9%, optimización de costos, cumplimiento normativo.",
     "Area": "Cloud",
     "Cliente": "Empresas",
@@ -275,7 +275,7 @@ export const serviciosReales = [
   },
   {
     "id": 12,
-    "Titulo": "Consultoría IT y Transformación Digital Mendoza | Arquitectura, Auditoría",
+    "Titulo": "Consultoría IT y Transformación Digital | Arquitectura, Auditoría",
     "Descripcion": "Asesoramiento estratégico en tecnología para Mendoza, Cuyo, Patagonia y Argentina. Consultoría IT, arquitectura empresarial, auditorías de seguridad, planificación estratégica, evaluación de proveedores, transformación digital, roadmap tecnológico. +100 proyectos en minería, gobierno, bodegas, constructoras y salud. Metodologías ITIL, COBIT, TOGAF.",
     "Area": "Consultoría",
     "Cliente": "Empresas y Gobierno",
