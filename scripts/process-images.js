@@ -15,7 +15,8 @@ async function main() {
     sharp = sharpModule.default;
   } catch (error) {
     console.warn('⚠️  Sharp module not available, skipping image processing');
-    process.exit(0);
+    console.warn('Error details:', error.message);
+    process.exit(0);  // Exit gracefully, don't fail the build
   }
 
   // Configure sharp for better memory management
