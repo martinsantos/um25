@@ -9,9 +9,10 @@ module.exports = {
       NODE_ENV: 'production',
       SMTP_HOST: 'smtp.gmail.com',
       SMTP_PORT: '587',
-      SMTP_USER: 'santosma@gmail.com',
+      SMTP_USER: 'martin@ultimamilla.com.ar',
       SMTP_PASS: 'pwrxasnjzdipbrml',
-      PUBLIC_DIRECTUS_URL: 'https://admin.ultimamilla.com.ar',
+      PUBLIC_DIRECTUS_URL: 'http://localhost:8055',
+      PUBLIC_DIRECTUS_TOKEN: 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky',
       PORT: '4321',
       HOST: '0.0.0.0'
     }
