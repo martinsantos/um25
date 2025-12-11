@@ -5,7 +5,7 @@ const DIRECTUS_CONFIG = {
   URL: import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055',
   TOKEN: import.meta.env.DIRECTUS_STATIC_TOKEN || 'ujsboxj0_E5PvWKhFao7yCW6_VDFsOSk',
   PAGE_SIZE: 20,
-  DEFAULT_IMAGE: '/images/default.jpg'
+  DEFAULT_IMAGE: '/images/default-background.jpg' // FIXED: Must be a valid 30KB image, NOT corrupt
 };
 
 // Validar configuración
