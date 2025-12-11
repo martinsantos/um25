@@ -233,14 +233,14 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - CCTV",
         cliente: "Procon SRL",
         area: "Servicios de Telecomunicaciones",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11126,
         titulo_original: "Procon SRL - CCTV",
         cliente: "Procon SRL",
         area: "Videovigilancia en Circuito Cerrado",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11127,
@@ -254,14 +254,14 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - Insumo informatico",
         cliente: "Procon SRL",
         area: "Soporte TIC",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11129,
         titulo_original: "Procon SRL - SDI",
         cliente: "Procon SRL",
         area: "Comunicaciones y Telecomunicaciones",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11130,
@@ -422,21 +422,21 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - Redes y comunicaciones. Detección IncendiosCorrientes Débiles",
         cliente: "Procon SRL",
         area: "Seguridad Informática",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 10810,
         titulo_original: "Procon SRL - Redes y comunicaciones. Detección IncendiosCorrientes Débiles",
         cliente: "Procon SRL",
         area: "Servicios de Telecomunicaciones",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 10811,
         titulo_original: "Procon SRL - Redes y comunicaciones. Detección IncendiosCorrientes Débiles",
         cliente: "Procon SRL",
         area: "Servicios de Telecomunicaciones",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 10812,
@@ -485,7 +485,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - Soporte IT",
         cliente: "Procon SRL",
         area: "Soporte TIC",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11137,
@@ -646,7 +646,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - Corrientes debiles",
         cliente: "Procon SRL",
         area: "Redes Informáticas",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 10835,
@@ -695,7 +695,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - SDI",
         cliente: "Procon SRL",
         area: "Servicios de Telecomunicaciones",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 10843,
@@ -835,7 +835,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - CCTV",
         cliente: "Procon SRL",
         area: "Seguridad Informática",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 10867,
@@ -1122,7 +1122,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - Porteria",
         cliente: "Procon SRL",
         area: "Comunicaciones y Telecomunicaciones",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 10896,
@@ -1213,7 +1213,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - Porteria",
         cliente: "Procon SRL",
         area: "Redes Informáticas",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 10911,
@@ -1388,14 +1388,14 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - Sonido",
         cliente: "Procon SRL",
         area: "Comunicaciones y Telecomunicaciones",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 10936,
         titulo_original: "Procon SRL - Insumo informatico",
         cliente: "Procon SRL",
         area: "Redes Informáticas",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 10938,
@@ -1864,7 +1864,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - Corrientes debiles",
         cliente: "Procon SRL",
         area: "Electrónica y Comunicaciones",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 10997,
@@ -1934,7 +1934,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - Insumo informatico",
         cliente: "Procon SRL",
         area: "Servicios de Telecomunicaciones",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11008,
@@ -1955,7 +1955,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - SDI",
         cliente: "Procon SRL",
         area: "Servicios de Telecomunicaciones",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11011,
@@ -2018,7 +2018,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - Insumo informatico",
         cliente: "Procon SRL",
         area: "Soporte TIC",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11020,
@@ -2116,7 +2116,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - Soporte IT",
         cliente: "Procon SRL",
         area: "Comunicaciones y Telecomunicaciones",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11034,
@@ -2144,7 +2144,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - SDI",
         cliente: "Procon SRL",
         area: "Redes Informáticas",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11039,
@@ -2228,7 +2228,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - Soporte IT",
         cliente: "Procon SRL",
         area: "Soporte TIC",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11052,
@@ -2249,7 +2249,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - Insumo informatico",
         cliente: "Procon SRL",
         area: "Soporte TIC",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11055,
@@ -2270,7 +2270,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - Redes de Cableado Estructurado",
         cliente: "Procon SRL",
         area: "Redes Informáticas",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11058,
@@ -2375,7 +2375,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - SDI",
         cliente: "Procon SRL",
         area: "Comunicaciones y Telecomunicaciones",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11073,
@@ -2396,7 +2396,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - Soporte IT",
         cliente: "Procon SRL",
         area: "Soporte TIC",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11076,
@@ -2522,7 +2522,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - Redes de Cableado Estructurado",
         cliente: "Procon SRL",
         area: "Redes Informáticas",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11094,
@@ -2627,7 +2627,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - Soporte IT",
         cliente: "Procon SRL",
         area: "Soporte TIC",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11110,
@@ -2676,7 +2676,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - Insumo informatico",
         cliente: "Procon SRL",
         area: "Seguridad Informática",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11117,
@@ -2690,7 +2690,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - SDI",
         cliente: "Procon SRL",
         area: "Comunicaciones y Telecomunicaciones",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11119,
@@ -2704,7 +2704,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - CCTV",
         cliente: "Procon SRL",
         area: "Seguridad Informática",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 11121,
@@ -3047,7 +3047,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - SDI",
         cliente: "Procon SRL",
         area: "Servicios de Telecomunicaciones",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     }
 ];
 
@@ -3069,7 +3069,7 @@ export function buscarImagenPorDatos(cliente, area, titulo, id) {
     const detectarImagenIncorrecta = (entrada, titulo_original) => {
         // Lista de imágenes problemáticas identificadas
         const imagenes_problematicas = [
-            'ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png'
+            'ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png'
         ];
 
         if (imagenes_problematicas.includes(entrada.nombre_archivo_generado)) {
