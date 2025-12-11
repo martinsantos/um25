@@ -4,6 +4,7 @@ import BreadcrumbSchema from '../../components/SEO/BreadcrumbSchema.astro';
 import { directus, PAGE_SIZE, DEFAULT_IMAGE } from '../../utils/directus';
 import { generateSlug } from '../../utils/slugUtils.js';
 import { antecedentesReales } from '../../data/antecedentes_completos.js';
+import { sortByImpact } from '../../utils/antecedentesScoring.js';
 
 // Configuración SEO optimizada para Antecedentes/Portfolio
 const seoConfig = {
@@ -106,8 +107,12 @@ try {
     throw new Error('No se obtuvieron datos válidos');
   }
 
-  const filteredAntecedentes = filterAntecedentes(allAntecedentes, pageData.activeFilters, pageData.searchQuery);
-  
+  let filteredAntecedentes = filterAntecedentes(allAntecedentes, pageData.activeFilters, pageData.searchQuery);
+
+  // ✅ NUEVA: Ordenar por impacto (más importante primero)
+  // Sin explicitarlo al usuario - muestra los mejores casos primero
+  filteredAntecedentes = sortByImpact(filteredAntecedentes);
+
   const startIndex = (pageData.currentPage - 1) * PAGE_SIZE;
   const endIndex = startIndex + PAGE_SIZE;
   const paginatedAntecedentes = filteredAntecedentes.slice(startIndex, endIndex);
@@ -134,7 +139,11 @@ try {
     slug: `${item.id}/${generateSlug(item.Titulo)}`
   }));
 
-  const filteredAntecedentes = filterAntecedentes(allAntecedentes, pageData.activeFilters, pageData.searchQuery);
+  let filteredAntecedentes = filterAntecedentes(allAntecedentes, pageData.activeFilters, pageData.searchQuery);
+
+  // ✅ Ordenar por impacto (más importante primero) - fallback también
+  filteredAntecedentes = sortByImpact(filteredAntecedentes);
+
   const startIndex = (pageData.currentPage - 1) * PAGE_SIZE;
   const endIndex = startIndex + PAGE_SIZE;
   const paginatedAntecedentes = filteredAntecedentes.slice(startIndex, endIndex);
