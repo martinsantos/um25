@@ -415,7 +415,7 @@ export const mapeoImagenes = [
         titulo_original: "Procon SRL - Redes y comunicaciones. Detección IncendiosCorrientes Débiles",
         cliente: "Procon SRL",
         area: "Servicios de Telecomunicaciones",
-        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250415_233416_s2729457426.png"
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
     },
     {
         numero: 10809,
