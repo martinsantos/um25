@@ -138,6 +138,17 @@ const seoTitle = `${antecedente.Titulo} | ${antecedente.Area || 'Proyecto IT'} p
 const rawDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').trim();
 const metaDescription = rawDescription.substring(0, 160) || `Caso de éxito en ${antecedente.Area || 'servicios IT'} para ${antecedente.Cliente}. Soluciones tecnológicas implementadas por ULTIMA MILLA.`;
 
+// Dynamic keywords based on project data
+const dynamicKeywords = [
+  antecedente.Area,
+  antecedente.Cliente,
+  antecedente.Unidad_de_negocio,
+  'proyecto tecnológico',
+  'caso de éxito',
+  'servicios IT Mendoza',
+  'infraestructura tecnológica'
+].filter(Boolean).join(', ');
+
 // CreativeWork schema for structured data
 const creativeWorkSchema = {
   '@context': 'https://schema.org',
@@ -169,6 +180,7 @@ const creativeWorkSchema = {
 <Layout
   title={seoTitle}
   description={metaDescription}
+  keywords={dynamicKeywords}
   image={mainImageUrl}
   canonical={canonicalUrl}
 >

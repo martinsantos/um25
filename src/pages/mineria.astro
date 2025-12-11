@@ -1,14 +1,35 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import FAQSchema from '../components/SEO/FAQSchema.astro';
 import { directus, DEFAULT_IMAGE } from '../utils/directus';
 import { generateSlug } from '../utils/slugUtils';
+
+// FAQs para el sector minería
+const mineriaFAQs = [
+  {
+    question: "¿Qué servicios de telecomunicaciones ofrecen para minería?",
+    answer: "Ofrecemos radioenlaces punto a punto, conectividad satelital, redes de fibra óptica, comunicaciones VHF/UHF, y sistemas de monitoreo remoto para campamentos y faenas mineras en Mendoza, San Juan y la Cordillera."
+  },
+  {
+    question: "¿Trabajan en zonas remotas de alta montaña?",
+    answer: "Sí, tenemos amplia experiencia en proyectos de telecomunicaciones y corrientes débiles a más de 4.000 metros de altura en la Cordillera de los Andes, con soluciones diseñadas para condiciones extremas."
+  },
+  {
+    question: "¿Qué sistemas de seguridad instalan para minería?",
+    answer: "Implementamos sistemas de detección de incendio certificados, CCTV para monitoreo de operaciones, control de acceso biométrico, y sistemas de alarma perimetral para sitios mineros críticos."
+  },
+  {
+    question: "¿Ofrecen soporte técnico en sitios mineros remotos?",
+    answer: "Sí, brindamos soporte técnico 24/7 con tiempos de respuesta garantizados, incluyendo asistencia remota y presencial en faenas mineras de difícil acceso."
+  }
+];
 
 // Configuración SEO específica para Minería - ULTRA OPTIMIZADA para Argentina y Mendoza
 const seoConfig = {
   title: "Tecnología y Telecomunicaciones para Minería | Mendoza, San Juan y Patagonia | ULTIMA MILLA",
   description: "Servicios tecnológicos para empresas mineras en Argentina. Zona de incumbencia: Mendoza, Cuyo, Patagonia. Telecomunicaciones críticas, corrientes débiles, detección de incendio, cableado estructurado y conectividad remota. Enlaces de radio, fibra óptica y campamentos mineros.",
   keywords: "servicios tecnologicos mineria, zona incumbencia san juan mendoza, telecomunicaciones mineras, corrientes debiles mineria, deteccion incendio mineria, cableado estructurado remote, conectividad satelital, radioenlaces cordillera, campamentos mineros tecnologia",
-  // ogImage: "/images/services/mineria-hero.jpg",
+  ogImage: "/images/services/redes-comunicaciones.jpg",
   canonical: "https://ultimamilla.com.ar/mineria",
   locale: "es_AR",
   region: "Cuyo, Patagonia, Argentina",
@@ -203,6 +224,8 @@ if (antecedentes.length === 0) {
   image={seoConfig.ogImage}
   canonical={seoConfig.canonical}
 >
+  <FAQSchema items={mineriaFAQs} />
+
   <main style="background: #f5f5f5;">
     <!-- HERO EXACTO DEL BOCETO -->
     <section style="position: relative; min-height: 350px; display: flex; align-items: center; background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1920&q=80') center/cover; color: white;">

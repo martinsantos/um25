@@ -98,6 +98,93 @@ export const serviciosSEO = {
       'mejores practicas it',
       'analisis infraestructura'
     ]
+  },
+
+  1: {
+    // SERVICIOS IT INTEGRALES
+    slug: 'servicios-it',
+    title: 'Servicios IT Integrales para Empresas | Mendoza, Cuyo y Patagonia | ULTIMA MILLA',
+    description: 'Servicios IT completos para empresas y organizaciones en Mendoza, San Juan y Cuyo. Redes de datos, seguridad informática, telecomunicaciones, software y soporte técnico. +469 proyectos, +20 años de experiencia.',
+    keywords: 'servicios it mendoza, servicios informaticos empresas, tecnologia empresarial cuyo, soluciones it argentina, informatica corporativa, gestion activos tecnologicos, servicios tecnologicos mendoza',
+    regions: ['Mendoza', 'San Juan', 'San Luis', 'Cuyo', 'Patagonia'],
+    industries: ['Minería', 'Bodegas', 'Constructoras', 'Gobierno', 'Salud', 'Aeropuertos'],
+    longTail: [
+      'servicios informaticos para pymes mendoza',
+      'gestion activos tecnologicos empresas',
+      'outsourcing it argentina',
+      'servicios tecnologicos para organizaciones',
+      'empresa de servicios it cuyo'
+    ]
+  },
+
+  2: {
+    // REDES DE DATOS
+    slug: 'redes-de-datos',
+    title: 'Redes de Datos Empresariales | Cableado Estructurado Certificado | ULTIMA MILLA',
+    description: 'Diseño e instalación de redes de datos en Mendoza y Cuyo. Cableado estructurado Cat6/6A, fibra óptica, radioenlaces, redes LAN/WAN. Certificación TIA/EIA. Experiencia en minería, bodegas e industria.',
+    keywords: 'redes de datos mendoza, cableado estructurado certificado, redes empresariales cuyo, fibra optica instalacion, radioenlaces mendoza, redes lan wan, telecomunicaciones empresas',
+    regions: ['Mendoza', 'San Juan', 'San Luis', 'Cuyo', 'Patagonia'],
+    industries: ['Minería', 'Bodegas', 'Constructoras', 'Industria', 'Gobierno'],
+    longTail: [
+      'instalacion redes empresariales mendoza',
+      'cableado estructurado cat6 certificado',
+      'redes de datos para mineria',
+      'fibra optica para empresas cuyo',
+      'radioenlaces punto a punto mendoza'
+    ]
+  },
+
+  4: {
+    // TELEFONÍA Y CITOFONÍA
+    slug: 'telefonia',
+    title: 'Telefonía IP y Comunicaciones Unificadas | Centrales Telefónicas | ULTIMA MILLA',
+    description: 'Soluciones de telefonía IP y comunicaciones unificadas en Mendoza y Cuyo. Centrales telefónicas, citofonía, VoIP, intercomunicadores para edificios y empresas. Integración con sistemas existentes.',
+    keywords: 'telefonia ip mendoza, comunicaciones unificadas, central telefonica empresas, voip argentina, citofonia edificios, intercomunicadores, telefonia empresarial cuyo',
+    regions: ['Mendoza', 'San Juan', 'Cuyo', 'Argentina'],
+    industries: ['Edificios', 'Empresas', 'Gobierno', 'Salud', 'Constructoras'],
+    longTail: [
+      'central telefonica ip mendoza',
+      'telefonia voip para empresas',
+      'citofonia y porteros electricos',
+      'comunicaciones unificadas cuyo',
+      'telefonia para edificios inteligentes'
+    ]
+  },
+
+  6: {
+    // SERVICIOS WEB
+    slug: 'servicios-web',
+    title: 'Servicios Web y Cloud | Hosting, APIs, Gestión Digital | ULTIMA MILLA',
+    description: 'Servicios web profesionales en Mendoza y Argentina. Alojamiento web, APIs, administración de recursos digitales, gestión de activos en la nube para empresas y organizaciones.',
+    keywords: 'servicios web mendoza, hosting empresarial argentina, apis desarrollo, gestion activos digitales, cloud computing cuyo, recursos digitales, alojamiento web profesional',
+    regions: ['Mendoza', 'Cuyo', 'Argentina'],
+    industries: ['Empresas', 'Pymes', 'Gobierno', 'Organizaciones'],
+    longTail: [
+      'alojamiento web empresarial mendoza',
+      'desarrollo apis rest mendoza',
+      'gestion recursos digitales empresas',
+      'cloud para pymes argentina',
+      'administracion servidores web'
+    ]
+  },
+
+  9: {
+    // CIBERSEGURIDAD Y CCTV
+    slug: 'ciberseguridad-cctv',
+    title: 'CCTV y Seguridad Electrónica | Detección de Incendio, Control de Acceso | ULTIMA MILLA',
+    description: 'Sistemas de seguridad electrónica en Mendoza, Cuyo y Patagonia. CCTV videovigilancia, detección de incendios, control de acceso biométrico, alarmas, corrientes débiles. +67 proyectos en aeropuertos y sitios críticos.',
+    keywords: 'cctv mendoza, videovigilancia empresas, deteccion incendio certificada, control acceso biometrico, corrientes debiles, seguridad electronica cuyo, alarmas inteligentes, sistemas seguridad patagonia',
+    regions: ['Mendoza', 'San Juan', 'Cuyo', 'Patagonia', 'Argentina'],
+    industries: ['Aeropuertos', 'Minería', 'Gobierno', 'Salud', 'Bodegas', 'Constructoras'],
+    longTail: [
+      'camaras cctv ip mendoza',
+      'sistema deteccion incendio certificado',
+      'control acceso biometrico rfid',
+      'instalacion corrientes debiles obras',
+      'seguridad electronica aeropuertos',
+      'videovigilancia para mineria',
+      'alarmas inteligentes empresas'
+    ]
   }
 };
 

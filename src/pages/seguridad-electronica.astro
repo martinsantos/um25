@@ -1,14 +1,35 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import FAQSchema from '../components/SEO/FAQSchema.astro';
 import { directus, DEFAULT_IMAGE } from '../utils/directus';
 import { generateSlug } from '../utils/slugUtils';
+
+// FAQs para seguridad electrónica
+const seguridadFAQs = [
+  {
+    question: "¿Qué sistemas de detección de incendio instalan?",
+    answer: "Instalamos sistemas de detección de incendio certificados según normas NFPA, incluyendo detectores de humo, calor, y llama, paneles de control, sistemas de extinción automática y monitoreo centralizado 24/7."
+  },
+  {
+    question: "¿Qué tipos de cámaras CCTV ofrecen?",
+    answer: "Ofrecemos cámaras IP de alta definición, cámaras térmicas, PTZ (Pan-Tilt-Zoom), y sistemas con analítica de video inteligente para detección de movimiento, reconocimiento facial y conteo de personas."
+  },
+  {
+    question: "¿Qué es el control de acceso biométrico?",
+    answer: "El control de acceso biométrico utiliza características físicas únicas como huellas dactilares, reconocimiento facial o iris para autorizar el ingreso a áreas restringidas, ofreciendo mayor seguridad que los métodos tradicionales."
+  },
+  {
+    question: "¿Qué son las corrientes débiles en instalaciones?",
+    answer: "Las corrientes débiles incluyen todos los sistemas de baja tensión: cableado estructurado, CCTV, control de acceso, detección de incendio, alarmas, y automatización de edificios. ULTIMA MILLA es especialista en instalaciones de corrientes débiles para proyectos y obras."
+  }
+];
 
 // Configuración SEO específica para Seguridad Electrónica - ULTRA OPTIMIZADA
 const seoConfig = {
   title: "Seguridad Electrónica y Detección de Incendio | Mendoza, Cuyo y Patagonia | ULTIMA MILLA",
   description: "Servicios tecnológicos de seguridad electrónica para empresas argentinas. Zona de incumbencia: Mendoza, Cuyo, Patagonia. CCTV profesional, control de accesos biométrico, detección de incendios certificada, corrientes débiles. Protección inteligente empresarial.",
   keywords: "seguridad electronica mendoza cuyo, cctv empresas patagonia, control accesos biometrico, deteccion incendio certificada, corrientes debiles seguridad, videovigilancia ip, sistemas seguridad organizaciones",
-  // ogImage: "/images/services/seguridad-hero.jpg",
+  ogImage: "/images/services/ciberseguridad.jpg",
   canonical: "https://ultimamilla.com.ar/seguridad-electronica",
   locale: "es_AR",
   region: "Cuyo, Patagonia, Argentina",
@@ -122,6 +143,8 @@ const structuredData = {
   image={seoConfig.ogImage}
   canonical={seoConfig.canonical}
 >
+  <FAQSchema items={seguridadFAQs} />
+
   <main style="background: #f5f5f5;">
     <!-- HERO -->
     <section style="position: relative; min-height: 400px; display: flex; align-items: center; background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url('https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=1920&q=80') center/cover; color: white;">
