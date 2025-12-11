@@ -99,16 +99,28 @@ const getMainImageUrl = async () => {
         if (nombreArchivo) return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
     } catch (e) {}
     
+    const proconHeadcommImage = 'ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png';
     const imagenesConocidas = {
-        '11125': 'ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png',
-        '10807': 'ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png',
-        '10808': 'ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png',
-        '10895': 'ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png',
-        '10935': 'ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png',
+        // PROCON SRL - All instances use valid SDI image
+        '10807': proconHeadcommImage, '10808': proconHeadcommImage, '10809': proconHeadcommImage,
+        '10810': proconHeadcommImage, '10811': proconHeadcommImage, '10820': proconHeadcommImage,
+        '10821': proconHeadcommImage, '10834': proconHeadcommImage, '10841': proconHeadcommImage,
+        '10845': proconHeadcommImage, '10862': proconHeadcommImage, '10866': proconHeadcommImage,
+        '10885': proconHeadcommImage, '10895': proconHeadcommImage, '10910': proconHeadcommImage,
+        '10935': proconHeadcommImage, '10936': proconHeadcommImage, '10996': proconHeadcommImage,
+        '11007': proconHeadcommImage, '11010': proconHeadcommImage, '11019': proconHeadcommImage,
+        '11033': proconHeadcommImage, '11038': proconHeadcommImage, '11051': proconHeadcommImage,
+        '11054': proconHeadcommImage, '11057': proconHeadcommImage, '11072': proconHeadcommImage,
+        '11075': proconHeadcommImage, '11093': proconHeadcommImage, '11108': proconHeadcommImage,
+        '11109': proconHeadcommImage, '11116': proconHeadcommImage, '11118': proconHeadcommImage,
+        '11120': proconHeadcommImage, '11125': proconHeadcommImage, '11126': proconHeadcommImage,
+        '11128': proconHeadcommImage, '11129': proconHeadcommImage,
+        // HEADCOMM & Other Telecom
+        '11176': proconHeadcommImage, '11191': proconHeadcommImage,
+        // Others
         '10824': 'ultimamilla_telecombtw_sa_-_redes_y_comunicaciones_20250415_201308_s4071923973.png',
         '10842': 'ultimamilla_telecombtw_sa_-_redes_y_comunicaciones_20250415_201308_s4071923973.png',
         '10844': 'ultimamilla_telecombtw_sa_-_redes_y_comunicaciones_20250415_201308_s4071923973.png',
-        '11176': 'ultimamilla_telecombtw_sa_-_redes_y_comunicaciones_20250415_201308_s4071923973.png',
         '11145': 'ultimamilla_telecombtw_sa_-_redes_y_comunicaciones_20250415_201308_s4071923973.png',
         '10956': 'ultimamilla_telecombtw_sa_-_redes_y_comunicaciones_20250415_201308_s4071923973.png',
         '11005': 'ultimamilla_telecombtw_sa_-_redes_y_comunicaciones_20250415_201308_s4071923973.png',
