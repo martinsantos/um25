@@ -3048,6 +3048,223 @@ export const mapeoImagenes = [
         cliente: "Procon SRL",
         area: "Servicios de Telecomunicaciones",
         nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
+    },
+    {
+        numero: 11176,
+        titulo_original: "Headcomm S.A - Cableado Estructurado",
+        cliente: "Headcomm S.A",
+        area: "Servicios de Telecomunicaciones",
+        nombre_archivo_generado: "ultimamilla_headcomm_sa_-_cableado_estructurado_20250416_111429_s1166823420.png"
+    },
+    {
+        numero: 11145,
+        titulo_original: "Ministerio de Desarrollo Social, Salud y Deportes del Gobierno de Mendoza - Redes de Cableado Estructurado",
+        cliente: "Ministerio de Desarrollo Social, Salud y Deportes del Gobierno de Mendoza",
+        area: "Servicios de Telecomunicaciones",
+        nombre_archivo_generado: "ultimamilla_ministerio_de_desarrollo_social_salud_y_deportes_del_gobiern_20250416_090904_s460767258.png"
+    },
+    {
+        numero: 11191,
+        titulo_original: "Headcomm S.A - Cableado Estructurado",
+        cliente: "Headcomm S.A",
+        area: "Redes Informáticas",
+        nombre_archivo_generado: "ultimamilla_headcomm_sa_-_cableado_estructurado_20250416_111429_s1166823420.png"
+    },
+    {
+        numero: 11175,
+        titulo_original: "Ministerio de Desarrollo Social, Salud y Deportes del Gobierno de MZA - Telefonía",
+        cliente: "Ministerio de Desarrollo Social, Salud y Deportes del Gobierno de MZA",
+        area: "Servicios de Telecomunicaciones",
+        nombre_archivo_generado: "ultimamilla_ministerio_de_desarrollo_social_salud_y_deportes_del_gobiern_20250416_090904_s460767258.png"
+    },
+    {
+        numero: 10907,
+        titulo_original: "DAR SALUD MAR DEL PLATA S.R.L - CCTV",
+        cliente: "DAR SALUD MAR DEL PLATA S.R.L",
+        area: "Servicios de Telecomunicaciones",
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250416_083033_s2823714985.png"
+    },
+    {
+        numero: 10902,
+        titulo_original: "PROCON S.R.L. - LAUGERO CONSTRUCCIONES S.A. - UNION TRANSITORIA - Redes de Cableado Estructurado",
+        cliente: "PROCON S.R.L. - LAUGERO CONSTRUCCIONES S.A. - UNION TRANSITORIA",
+        area: "Comunicaciones y Telecomunicaciones",
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_insumo_informatico_20250416_043728_s273733657.png"
+    },
+    {
+        numero: 10889,
+        titulo_original: "Ministerio de Desarrollo Social, Salud y Deportes del Gobierno de MZA - Insumo informatico",
+        cliente: "Ministerio de Desarrollo Social, Salud y Deportes del Gobierno de MZA",
+        area: "Redes Informáticas",
+        nombre_archivo_generado: "ultimamilla_ministerio_de_desarrollo_social_salud_y_deportes_del_gobiern_20250416_090904_s460767258.png"
+    },
+    {
+        numero: 11136,
+        titulo_original: "Fondo para la transformación y el Crecimiento de Mendoza FTyC - Internet",
+        cliente: "Fondo para la transformación y el Crecimiento de Mendoza FTyC",
+        area: "Redes Informáticas",
+        nombre_archivo_generado: "ultimamilla_ministerio_de_deportes_gobierno_de_mendoza_-_redes_y_comunic_20250415_200935_s4292238773.png"
+    },
+    {
+        numero: 10990,
+        titulo_original: "CONSTRUCCIONES ELECTROMECANICAS DEL OESTE S.A. - OHA CONSTRUCCIONES S - Soporte IT",
+        cliente: "CONSTRUCCIONES ELECTROMECANICAS DEL OESTE S.A. - OHA CONSTRUCCIONES S",
+        area: "Redes Informáticas",
+        nombre_archivo_generado: "ultimamilla_construcciones_electromecanicas_del_oeste_sa_-_oha_construcc_20250416_034027_s4140770817.png"
+    },
+    {
+        numero: 10973,
+        titulo_original: "Ministerio de Desarrollo Social, Salud y Deportes del Gobierno de MZA - Insumo informatico",
+        cliente: "Ministerio de Desarrollo Social, Salud y Deportes del Gobierno de MZA",
+        area: "Redes Informáticas",
+        nombre_archivo_generado: "ultimamilla_ministerio_de_desarrollo_social_salud_y_deportes_del_gobiern_20250416_090904_s460767258.png"
+    },
+    {
+        numero: 10949,
+        titulo_original: "PROCON S.R.L. - LAUGERO CONSTRUCCIONES S.A. - UNION TRANSITORIA - SDI",
+        cliente: "PROCON S.R.L. - LAUGERO CONSTRUCCIONES S.A. - UNION TRANSITORIA",
+        area: "Comunicaciones y Telecomunicaciones",
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_insumo_informatico_20250416_043728_s273733657.png"
+    },
+    {
+        numero: 10869,
+        titulo_original: "UTE - CANANDES S.A WINDWEST S.A - SDI",
+        cliente: "UTE - CANANDES S.A WINDWEST S.A",
+        area: "Seguridad Informática",
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
+    },
+    {
+        numero: 10865,
+        titulo_original: "PROCON S.R.L. - LAUGERO CONSTRUCCIONES S.A. - UNION TRANSITORIA - Corrientes debiles",
+        cliente: "PROCON S.R.L. - LAUGERO CONSTRUCCIONES S.A. - UNION TRANSITORIA",
+        area: "Redes de Cableado Estructurado",
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_insumo_informatico_20250416_043728_s273733657.png"
+    },
+    {
+        numero: 10853,
+        titulo_original: "UTE - CANANDES S.A WINDWEST S.A - SDI",
+        cliente: "UTE - CANANDES S.A WINDWEST S.A",
+        area: "Servicios de Telecomunicaciones",
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png"
+    },
+    {
+        numero: 10819,
+        titulo_original: "Ministerio de Ambiente de la Nación. Administración de Parques Nacionales - Software a medida",
+        cliente: "Ministerio de Ambiente de la Nación. Administración de Parques Nacionales",
+        area: "Comunicaciones y Telecomunicaciones",
+        nombre_archivo_generado: "ultimamilla_ministerio_de_ambiente_de_la_nación_administración_de_parque_20250415_220112_s2157618584.png"
+    },
+    {
+        numero: 10818,
+        titulo_original: "Departamento General de IrrigaciónBanco Interamericano de Desarrollo BID - Software a medida",
+        cliente: "Departamento General de IrrigaciónBanco Interamericano de Desarrollo BID",
+        area: "Servicios de Telecomunicaciones",
+        nombre_archivo_generado: "ultimamilla_ministerio_de_deportes_gobierno_de_mendoza_-_redes_y_comunic_20250415_200935_s4292238773.png"
+    },
+    {
+        numero: 10937,
+        titulo_original: "PROCON S.R.L. - LAUGERO CONSTRUCCIONES S.A. - UNION TRANSITORIA - Corrientes debiles",
+        cliente: "PROCON S.R.L. - LAUGERO CONSTRUCCIONES S.A. - UNION TRANSITORIA",
+        area: "Redes de Cableado Estructurado",
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_insumo_informatico_20250416_043728_s273733657.png"
+    },
+    {
+        numero: 11143,
+        titulo_original: "EQALQ S.R.L - Implementación de Cuenta de Correo y Carpeta Compartida",
+        cliente: "EQALQ S.R.L",
+        area: "Servicios de Telecomunicaciones",
+        nombre_archivo_generado: "ultimamilla_eqalq_srl_-_insumo_informatico_20250416_085839_s4126525139.png"
+    },
+    {
+        numero: 11005,
+        titulo_original: "PROCON S.R.L. - LAUGERO CONSTRUCCIONES S.A. - UNION TRANSITORIA - Insumo informatico",
+        cliente: "PROCON S.R.L. - LAUGERO CONSTRUCCIONES S.A. - UNION TRANSITORIA",
+        area: "Redes Informáticas",
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_insumo_informatico_20250416_043728_s273733657.png"
+    },
+    {
+        numero: 10964,
+        titulo_original: "LOS SILOS CLUB S.A - CCTV",
+        cliente: "LOS SILOS CLUB S.A",
+        area: "Seguridad Digital",
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250416_083033_s2823714985.png"
+    },
+    {
+        numero: 10956,
+        titulo_original: "LOS SILOS CLUB S.A - Insumo informatico",
+        cliente: "LOS SILOS CLUB S.A",
+        area: "Servicios de Telecomunicaciones",
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250416_083033_s2823714985.png"
+    },
+    {
+        numero: 10844,
+        titulo_original: "CONSTRUCCIONES ELECTROMECANICAS DEL OESTE S.A. - OHA CONSTRUCCIONES S - Redes de Cableado Estructurado",
+        cliente: "CONSTRUCCIONES ELECTROMECANICAS DEL OESTE S.A. - OHA CONSTRUCCIONES S",
+        area: "Comunicaciones y Telecomunicaciones",
+        nombre_archivo_generado: "ultimamilla_construcciones_electromecanicas_del_oeste_sa_-_oha_construcc_20250416_034027_s4140770817.png"
+    },
+    {
+        numero: 10842,
+        titulo_original: "CONSTRUCCIONES ELECTROMECANICAS DEL OESTE S.A. - OHA CONSTRUCCIONES S - Redes de Cableado Estructurado",
+        cliente: "CONSTRUCCIONES ELECTROMECANICAS DEL OESTE S.A. - OHA CONSTRUCCIONES S",
+        area: "Redes de Cableado Estructurado",
+        nombre_archivo_generado: "ultimamilla_construcciones_electromecanicas_del_oeste_sa_-_oha_construcc_20250416_034027_s4140770817.png"
+    },
+    {
+        numero: 10824,
+        titulo_original: "Aseguradores de Cauciones S.A - Redes de Cableado Estructurado",
+        cliente: "Aseguradores de Cauciones S.A",
+        area: "Seguridad Informática",
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_corrientes_debiles_20250415_223008_s2108792560.png"
+    },
+    {
+        numero: 10992,
+        titulo_original: "CONSTRUCCIONES ELECTROMECANICAS DEL OESTE S.A. - OHA CONSTRUCCIONES S - Insumo informatico",
+        cliente: "CONSTRUCCIONES ELECTROMECANICAS DEL OESTE S.A. - OHA CONSTRUCCIONES S",
+        area: "Redes Informáticas",
+        nombre_archivo_generado: "ultimamilla_construcciones_electromecanicas_del_oeste_sa_-_oha_construcc_20250416_034027_s4140770817.png"
+    },
+    {
+        numero: 10976,
+        titulo_original: "PROCON S.R.L. - LAUGERO CONSTRUCCIONES S.A. - UNION TRANSITORIA - Insumo informatico",
+        cliente: "PROCON S.R.L. - LAUGERO CONSTRUCCIONES S.A. - UNION TRANSITORIA",
+        area: "Redes de Cableado Estructurado",
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_insumo_informatico_20250416_043728_s273733657.png"
+    },
+    {
+        numero: 10987,
+        titulo_original: "PROCON S.R.L. - LAUGERO CONSTRUCCIONES S.A. - UNION TRANSITORIA - Insumo informatico",
+        cliente: "PROCON S.R.L. - LAUGERO CONSTRUCCIONES S.A. - UNION TRANSITORIA",
+        area: "Redes de Cableado Estructurado",
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_insumo_informatico_20250416_043728_s273733657.png"
+    },
+    {
+        numero: 10943,
+        titulo_original: "Laboratorio Químicos S.R.L - Telefonía",
+        cliente: "Laboratorio Químicos S.R.L",
+        area: "Seguridad Informática",
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_corrientes_debiles_20250415_223008_s2108792560.png"
+    },
+    {
+        numero: 10821,
+        titulo_original: "Headcomm S.A - Soporte IT",
+        cliente: "Headcomm S.A",
+        area: "Soporte TIC",
+        nombre_archivo_generado: "ultimamilla_headcomm_sa_-_cableado_estructurado_20250416_111429_s1166823420.png"
+    },
+    {
+        numero: 11037,
+        titulo_original: "LOS SILOS CLUB S.A - CCTV",
+        cliente: "LOS SILOS CLUB S.A",
+        area: "Seguridad Digital",
+        nombre_archivo_generado: "ultimamilla_procon_srl_-_cctv_20250416_083033_s2823714985.png"
+    },
+    {
+        numero: 11140,
+        titulo_original: "EQALQ S.R.L - Insumo informatico",
+        cliente: "EQALQ S.R.L",
+        area: "Soporte TIC",
+        nombre_archivo_generado: "ultimamilla_eqalq_srl_-_insumo_informatico_20250416_085839_s4126525139.png"
     }
 ];
 
