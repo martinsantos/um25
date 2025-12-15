@@ -117,12 +117,14 @@ Frontend:
   Styling: Tailwind CSS
   Icons: Lucide, Iconify
   Interactive: Alpine.js
-  Process: PM2 (process: astro-ultimamilla)
+  Process: PM2 (process: astro-ultimamilla, port 4321)
 
-Backend:
-  CMS: Directus 10.8.3
-  Database: PostgreSQL 15 (Docker)
-  Cache: Redis 7 (Docker)
+Backend Services:
+  CMS: Directus 10.8.3 (port 8055, Docker)
+  SGI: Sistema de Gestión Integral (port 3000/3456, Node.js)
+  Database: PostgreSQL 15 (Docker, port 5432)
+  Cache: Redis 7 (Docker, port 6379)
+  MySQL: MariaDB 10.11.15 (port 3306, local)
 
 Web Server:
   Proxy: Nginx (reverse proxy)
@@ -131,21 +133,43 @@ Web Server:
 
 Process Management:
   PM2: astro-ultimamilla (port 4321)
-  Node: 18.x
+  PM2: sgi (port 3000)
+  Node: 20.x
 ```
 
 ### Data Flow
 
 ```
-Client Request
-    ↓
-Nginx (:80/:443)
-    ↓
-PM2: astro-ultimamilla (:4321)
-    ↓
-Directus API (internal Docker network)
-    ↓
-PostgreSQL (:5432) + Redis (:6379)
+┌──────────────────────────────────────────────────────┐
+│              CLIENT REQUESTS                         │
+└──────────────────────────────────────────────────────┘
+         ↓
+┌──────────────────────────────────────────────────────┐
+│   NGINX (reverse proxy on :80/:443)                  │
+│  - www.ultimamilla.com.ar → astro-ultimamilla:4321 │
+│  - sgi.ultimamilla.com.ar → SGI:3000               │
+│  - admin.ultimamilla.com.ar → Directus:8055         │
+└──────────────────────────────────────────────────────┘
+         ↓
+    ┌────┴────┬────────┐
+    ↓         ↓        ↓
+┌─────────┐ ┌────┐ ┌─────────────┐
+│ Astro   │ │SGI │ │ Directus    │
+│ :4321   │ │:3000│ │ :8055       │
+└────┬────┘ └───┬┘ └──────┬──────┘
+     ↓          ↓         ↓
+     └──────────┼─────────┘
+            ↓
+    ┌──────────────────┐
+    │  PostgreSQL      │
+    │  :5432 (Docker)  │
+    │  + Redis :6379   │
+    └──────────────────┘
+
+    ┌──────────────────┐
+    │  MySQL/MariaDB   │
+    │  :3306 (local)   │
+    └──────────────────┘
 ```
 
 ### Directus Integration
@@ -176,6 +200,34 @@ const items = await directus.request(
 - `Servicios` - Services offered
 - `Imagenes` - Image assets linked to antecedentes
 - `sectores` - Industry sectors for filtering
+
+### SGI (Sistema de Gestión Integral)
+
+**Purpose**: Internal business management system for Ultima Milla
+- URL: https://sgi.ultimamilla.com.ar
+- Backend: Node.js + Express.js
+- Port: 3000 (internal) → 3456 (Nginx reverse proxy)
+- Database: MySQL/MariaDB (:3306)
+- Auth: Basic authentication + session management
+
+**Important Details**:
+- **Database**: Uses local MariaDB (NOT Docker)
+- **Credentials**: Root user without password (original setup)
+- **Nginx Config**: `/etc/nginx/sites-available/sgi.ultimamilla.com.ar`
+  - Must route to `127.0.0.1:3000` (NOT 3456)
+  - Protocol: Reverse proxy with session preservation
+- **PM2 Process**: `sgi` (started via PM2)
+- **Memory Usage**: ~40-45MB normal
+- **Critical**: If Nginx config port changes, SGI will return 502
+
+**Incident 2025-12-15**: SGI was down for 10 minutes due to:
+1. Nginx pointed to port 3456 (wrong)
+2. SGI running on port 3000 (correct)
+3. Fix: Updated `/etc/nginx/sites-available/sgi.ultimamilla.com.ar`
+   ```
+   sed -i 's/127.0.0.1:3456/127.0.0.1:3000/g' /etc/nginx/sites-available/sgi.ultimamilla.com.ar
+   systemctl reload nginx
+   ```
 
 ### Image Handling
 
@@ -451,6 +503,129 @@ SSH_PRIVATE_KEY    # For deployment
 
 ## Common Issues & Solutions
 
+### Issue: www.ultimamilla.com.ar Returns 502
+
+**Symptoms**: HTTP 502 Bad Gateway, site not responding
+
+**Diagnosis**:
+```bash
+# Check if astro-ultimamilla is running
+pm2 list
+# Should show: astro-ultimamilla online
+
+# Check if port 4321 is listening
+netstat -tlnp | grep :4321
+# Should show: node process listening
+
+# Check Nginx error logs
+tail -50 /var/log/nginx/error.log | grep 4321
+# Will show: "Connection refused" if astro-ultimamilla down
+```
+
+**Solution**:
+```bash
+# Option 1: Restart astro-ultimamilla
+pm2 restart astro-ultimamilla
+
+# Option 2: If restart fails, check ecosystem config exists
+cat /root/fumbling-field/ecosystem.config.cjs
+# Should show: name: 'astro-ultimamilla', script: './dist/server/entry.mjs'
+
+# Option 3: If config missing, recreate from master branch
+git checkout master -- ecosystem.config.cjs
+pm2 start ecosystem.config.cjs
+```
+
+**Root Cause (2025-12-15 Incident)**:
+- Missing `ecosystem.config.cjs` file in repository
+- File was only on server at `/root/ecosystem.config.cjs`
+- When PM2 was misconfigured, process couldn't start
+
+### Issue: www.sgi.ultimamilla.com.ar Returns 502
+
+**Symptoms**: HTTP 502 Bad Gateway, SGI login page not loading
+
+**Diagnosis**:
+```bash
+# Check if SGI is running
+pm2 list | grep sgi
+# Should show: sgi online, port 3000
+
+# Check if Nginx points to correct port
+grep proxy_pass /etc/nginx/sites-available/sgi.ultimamilla.com.ar
+# Should show: proxy_pass http://127.0.0.1:3000;
+# NOT: proxy_pass http://127.0.0.1:3456;
+
+# Check MySQL connectivity
+mysql -u root -e 'SELECT 1;'
+# Should work (root has no password)
+```
+
+**Solution**:
+```bash
+# Check Nginx config
+grep 127.0.0.1:3456 /etc/nginx/sites-available/sgi.ultimamilla.com.ar
+
+# If found, fix it
+sed -i 's/127.0.0.1:3456/127.0.0.1:3000/g' /etc/nginx/sites-available/sgi.ultimamilla.com.ar
+
+# Validate and reload
+nginx -t
+systemctl reload nginx
+
+# Restart SGI if needed
+pm2 restart sgi
+```
+
+**Root Cause (2025-12-15 Incident)**:
+- Nginx config had hardcoded port 3456 (legacy config)
+- SGI actually runs on port 3000
+- Nginx couldn't connect, returned 502
+
+### Issue: Server Running Out of Memory
+
+**Symptoms**:
+- Free RAM < 200MB
+- Processes start to slow down
+- One service may kill another via OOM killer
+
+**Diagnosis**:
+```bash
+free -h
+# If available < 200MB, critical
+
+ps aux --sort=-%mem | head -10
+# Check which processes consuming most memory
+```
+
+**Current State (2025-12-15)**:
+- Total: 3.6GB
+- Astro: 100-102MB (HIGH for Node.js)
+- SGI: 40-45MB (NORMAL)
+- Directus: 17-20MB (NORMAL)
+- **Root cause**: Astro's VSZ is 22.8GB (virtual memory reserved)
+
+**Solutions**:
+1. **Short-term**: Monitor memory, restart processes if > 85%
+2. **Medium-term**: Investigate Astro memory leak
+   - Sentry integration may be leaking memory
+   - Image processing may reserve too much memory
+   - Build may have unused dependencies
+3. **Long-term**: Upgrade server RAM from 3.6GB to 8GB
+
+### Issue: PM2 Process Crashed
+
+```bash
+# Check what happened
+pm2 logs astro-ultimamilla --lines 50
+
+# Restart process
+pm2 restart astro-ultimamilla
+
+# Verify it stays online
+sleep 5 && pm2 list
+```
+
 ### Issue: Images Not Loading
 
 **Solution**: Check Directus URL configuration and image UUID mapping in `imageFixer.js`
@@ -461,14 +636,6 @@ export const imageFixMap = {
   'broken-image-id': 'working-url',
   // Add mappings here
 };
-```
-
-### Issue: PM2 Process Crashed
-
-```bash
-ssh ultimamilla
-pm2 restart astro-ultimamilla
-pm2 save
 ```
 
 ### Issue: Directus API Not Responding
@@ -501,10 +668,17 @@ npm run build
 3. `WORKFLOW_GITFLOW.md` - Git Flow workflow
 4. `MONITORING_SETUP.md` - Monitoring configuration
 5. `IMPLEMENTATION_COMPLETE.md` - System overview
+6. `INCIDENT-REPORT-2025-12-15.md` - **CRITICAL INCIDENT DOCUMENTATION**
 
 **Architecture Docs**:
 - `ARQUITECTURA_DIRECTUS_BACKEND.md` - Directus integration details
 - `BASELINE_PRODUCTION_SYNC_REPORT.md` - Production baseline report
+
+**Recent Critical Issues (2025-12-15)**:
+- See `INCIDENT-REPORT-2025-12-15.md` for complete analysis
+- Both www.ultimamilla.com.ar and www.sgi.ultimamilla.com.ar went down
+- Root causes: Missing ecosystem config + Nginx misconfiguration + memory saturation
+- Required actions documented in incident report
 
 ---
 
