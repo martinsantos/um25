@@ -1,443 +1,58 @@
 ---
-import Layout from '@/layouts/Layout.astro';
+import Layout from "@/layouts/Layout.astro";
 
-const title = 'ULTIMA MILLA - Emergency Dashboard';
-const description = 'Sistema de monitoreo de emergencia con acceso restringido por contraseña';
+const statusResponse = await fetch(`${Astro.url.origin}/api/status.json`);
+const status = await statusResponse.json();
 ---
 
-<Layout title={title}>
-  <style>
-    :root {
-      --primary-color: #3B82F6;
-      --secondary-color: #F3F4F6;
-      --tertiary-color: #FFFFFF;
-      --text-primary-color: #1F2937;
-      --text-secondary-color: #6B7280;
-      --accent-green: #10B981;
-      --accent-red: #EF4444;
-      --accent-yellow: #F59E0B;
-      --accent-blue: #3B82F6;
-      --border-color: #E5E7EB;
-    }
+<Layout title="System Status - Ultima Milla">
+  <div class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+    <div class="border-b border-slate-700 bg-slate-900/50">
+      <div class="max-w-6xl mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-2">System Status</h1>
+        <p class="text-slate-400">Last updated: {new Date(status.timestamp).toLocaleString()}</p>
+      </div>
+    </div>
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <div class="max-w-6xl mx-auto px-4 py-12">
+      {status.server && (
+        <>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+              <h2 class="text-xl font-semibold mb-4">Memory</h2>
+              <div class="text-3xl font-bold mb-2">{status.server.memory.usagePercent}%</div>
+              <div class="text-sm text-slate-400">{status.server.memory.used} / {status.server.memory.total}</div>
+            </div>
 
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background-color: var(--secondary-color);
-      color: var(--text-primary-color);
-      line-height: 1.6;
-    }
+            <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+              <h2 class="text-xl font-semibold mb-4">Status</h2>
+              <div class="text-3xl font-bold mb-2">{status.health.toUpperCase()}</div>
+              <div class="text-sm text-slate-400">{status.issues.length} issues</div>
+            </div>
 
-    /* Login Modal */
-    #login-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 50;
-    }
+            <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+              <h2 class="text-xl font-semibold mb-4">Services</h2>
+              <div class="space-y-1 text-sm">
+                {status.server.services.map(s => (
+                  <div>{s.name}: {s.status === "online" ? "✅" : "🔴"}</div>
+                ))}
+              </div>
+            </div>
+          </div>
 
-    #login-modal.hidden {
-      display: none;
-    }
-
-    .login-container {
-      background: var(--tertiary-color);
-      border-radius: 0.5rem;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-      padding: 2rem;
-      width: 100%;
-      max-width: 400px;
-    }
-
-    .login-container h2 {
-      font-size: 1.875rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      color: var(--text-primary-color);
-    }
-
-    .login-container p {
-      color: var(--text-secondary-color);
-      margin-bottom: 1.5rem;
-      font-size: 0.875rem;
-    }
-
-    .login-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .form-group label {
-      font-weight: 500;
-      font-size: 0.875rem;
-      color: var(--text-primary-color);
-    }
-
-    .form-group input {
-      padding: 0.625rem 0.75rem;
-      border: 1px solid var(--border-color);
-      border-radius: 0.375rem;
-      font-size: 1rem;
-      font-family: inherit;
-    }
-
-    .form-group input:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-
-    .login-button {
-      padding: 0.625rem 1rem;
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      border-radius: 0.375rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    .login-button:hover {
-      background-color: #2563EB;
-    }
-
-    .login-button:active {
-      background-color: #1D4ED8;
-    }
-
-    .error-message {
-      color: var(--accent-red);
-      font-size: 0.875rem;
-      padding: 0.75rem;
-      background-color: #FEE2E2;
-      border-radius: 0.375rem;
-      margin-bottom: 1rem;
-      display: none;
-    }
-
-    .error-message.show {
-      display: block;
-    }
-
-    /* Dashboard Container */
-    #dashboard-container {
-      display: none;
-      padding: 2rem;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    #dashboard-container.visible {
-      display: block;
-    }
-
-    .dashboard-header {
-      background: var(--tertiary-color);
-      border-radius: 0.5rem;
-      padding: 2rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      text-align: center;
-    }
-
-    .dashboard-header h1 {
-      font-size: 2.25rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      color: var(--text-primary-color);
-    }
-
-    .dashboard-header p {
-      color: var(--text-secondary-color);
-      margin: 0.5rem 0;
-    }
-
-    /* Status Cards */
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .status-card {
-      background: var(--tertiary-color);
-      border-radius: 0.5rem;
-      padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      border-left: 4px solid var(--primary-color);
-    }
-
-    .status-card h3 {
-      font-size: 0.875rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      color: var(--text-secondary-color);
-      margin-bottom: 0.5rem;
-    }
-
-    .status-value {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--text-primary-color);
-      margin-bottom: 0.5rem;
-    }
-
-    .status-detail {
-      font-size: 0.875rem;
-      color: var(--text-secondary-color);
-    }
-
-    /* Log Console */
-    .log-console {
-      font-family: 'Roboto Mono', monospace;
-      background-color: #F8FAFC;
-      color: var(--text-primary-color);
-      border: 1px solid var(--border-color);
-      padding: 1rem;
-      border-radius: 0.5rem;
-      height: 400px;
-      overflow-y: auto;
-      font-size: 0.875rem;
-      line-height: 1.5;
-    }
-
-    .log-entry {
-      padding: 0.5rem;
-      margin-bottom: 0.25rem;
-      border-left: 4px solid transparent;
-      border-left-color: var(--primary-color);
-    }
-
-    .log-entry.success {
-      border-left-color: var(--accent-green);
-      color: var(--accent-green);
-    }
-
-    .log-entry.error {
-      border-left-color: var(--accent-red);
-      color: var(--accent-red);
-    }
-
-    .log-entry.warning {
-      border-left-color: var(--accent-yellow);
-      color: var(--accent-yellow);
-    }
-
-    .logout-button {
-      margin-top: 2rem;
-      padding: 0.625rem 1.5rem;
-      background-color: var(--accent-red);
-      color: white;
-      border: none;
-      border-radius: 0.375rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    .logout-button:hover {
-      background-color: #DC2626;
-    }
-
-    .navigation {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      padding: 0.5rem 2rem !important;
-      background-color: #fff !important;
-      box-shadow: 0 2px 4px #0000001a !important;
-      border-bottom: none !important;
-      margin: 0 !important;
-      position: sticky !important;
-      top: 0 !important;
-      z-index: 1000 !important;
-    }
-  </style>
-
-  <div id="login-modal">
-    <div class="login-container">
-      <h2>Emergency Dashboard</h2>
-      <p>Acceso restringido por contraseña</p>
-      <form class="login-form" onsubmit="handleLogin(event)">
-        <div id="login-error" class="error-message">
-          Contraseña incorrecta. Intenta nuevamente.
-        </div>
-        <div class="form-group">
-          <label for="login-password">Contraseña:</label>
-          <input
-            type="password"
-            id="login-password"
-            placeholder="Ingrese la contraseña"
-            required
-            autofocus
-          />
-        </div>
-        <button type="submit" class="login-button">
-          Acceder al Dashboard
-        </button>
-      </form>
+          <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Recent Logs</h2>
+            <div class="max-h-96 overflow-y-auto space-y-1 text-xs font-mono">
+              {status.recentLogs.map(log => (
+                <div class="text-slate-300">[{log.level}] {log.message}</div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   </div>
-
-  <div id="dashboard-container">
-    <div class="dashboard-header">
-      <h1>ULTIMA MILLA - Emergency Dashboard</h1>
-      <p>Sistema de Monitoreo en Tiempo Real</p>
-      <p id="uptime-display">Uptime: cargando...</p>
-    </div>
-
-    <div class="cards-grid">
-      <div class="status-card">
-        <h3>Proceso Astro</h3>
-        <div class="status-value" id="process-status">●</div>
-        <div class="status-detail" id="process-detail">Online</div>
-      </div>
-
-      <div class="status-card">
-        <h3>Memoria</h3>
-        <div class="status-value" id="memory-value">0 MB</div>
-        <div class="status-detail" id="memory-detail">Heap usado</div>
-      </div>
-
-      <div class="status-card">
-        <h3>Node Version</h3>
-        <div class="status-value" id="node-version">v20.x</div>
-        <div class="status-detail">Runtime</div>
-      </div>
-
-      <div class="status-card">
-        <h3>Última Actualización</h3>
-        <div class="status-value" id="last-update">--:--</div>
-        <div class="status-detail" id="update-detail">Ahora</div>
-      </div>
-    </div>
-
-    <h2 style="margin-top: 2rem; margin-bottom: 1rem;">Logs del Sistema</h2>
-    <div class="log-console" id="log-console">
-      <div class="log-entry">Iniciando monitoreo...</div>
-    </div>
-
-    <button class="logout-button" onclick="handleLogout()">Cerrar Sesión</button>
-  </div>
-
-  <script is:inline>
-    const DASHBOARD_PASSWORD = 'ultimamillabomba2000';
-    const SESSION_TIMEOUT = 1800000; // 30 minutos
-
-    function handleLogin(event) {
-      event.preventDefault();
-      const password = document.getElementById('login-password').value;
-
-      if (password === DASHBOARD_PASSWORD) {
-        document.getElementById('login-modal').classList.add('hidden');
-        document.getElementById('dashboard-container').classList.add('visible');
-        localStorage.setItem('dashboardAuth', 'true');
-        localStorage.setItem('authTime', new Date().getTime().toString());
-        initDashboard();
-        startAutoLogout();
-      } else {
-        document.getElementById('login-error').classList.add('show');
-        document.getElementById('login-password').value = '';
-        setTimeout(() => {
-          document.getElementById('login-error').classList.remove('show');
-        }, 3000);
-      }
-    }
-
-    function handleLogout() {
-      localStorage.removeItem('dashboardAuth');
-      localStorage.removeItem('authTime');
-      document.getElementById('login-modal').classList.remove('hidden');
-      document.getElementById('dashboard-container').classList.remove('visible');
-      document.getElementById('login-password').value = '';
-    }
-
-    function startAutoLogout() {
-      setTimeout(() => {
-        const authTime = parseInt(localStorage.getItem('authTime') || '0');
-        if (new Date().getTime() - authTime > SESSION_TIMEOUT) {
-          handleLogout();
-          alert('Sesión expirada. Por favor, ingrese nuevamente.');
-        }
-      }, SESSION_TIMEOUT);
-    }
-
-    function initDashboard() {
-      // Fetch uptime data
-      fetch('/api/uptime')
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            document.getElementById('uptime-display').textContent =
-              `Uptime: ${data.uptime}`;
-
-            const heap = Math.round(
-              data.processInfo.memoryUsage.heapUsed / 1024 / 1024
-            );
-            document.getElementById('memory-value').textContent = `${heap} MB`;
-            document.getElementById('node-version').textContent =
-              data.processInfo.nodeVersion;
-
-            const now = new Date();
-            document.getElementById('last-update').textContent =
-              now.toLocaleTimeString('es-AR');
-
-            document.getElementById('log-console').innerHTML +=
-              `<div class="log-entry success">✓ API Uptime conectada - ${data.uptime}</div>`;
-          }
-        })
-        .catch(err => {
-          document.getElementById('log-console').innerHTML +=
-            `<div class="log-entry error">✗ Error conectando API: ${err.message}</div>`;
-        });
-
-      // Auto-refresh every 10 seconds
-      setInterval(() => {
-        fetch('/api/uptime')
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              const heap = Math.round(
-                data.processInfo.memoryUsage.heapUsed / 1024 / 1024
-              );
-              document.getElementById('memory-value').textContent = `${heap} MB`;
-            }
-          })
-          .catch(() => {
-            // Silent fail on refresh
-          });
-      }, 10000);
-    }
-
-    // Check session on load
-    window.addEventListener('DOMContentLoaded', () => {
-      const isAuth = localStorage.getItem('dashboardAuth') === 'true';
-      const authTime = parseInt(localStorage.getItem('authTime') || '0');
-      const now = new Date().getTime();
-
-      if (isAuth && (now - authTime) < SESSION_TIMEOUT) {
-        document.getElementById('login-modal').classList.add('hidden');
-        document.getElementById('dashboard-container').classList.add('visible');
-        initDashboard();
-        startAutoLogout();
-      }
-    });
+  <script>
+    setInterval(() => location.reload(), 30000);
   </script>
 </Layout>
