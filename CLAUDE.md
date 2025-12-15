@@ -507,6 +507,68 @@ Real-time system monitoring dashboard with:
 - Memory parsing: Uses `free -b` for accurate GB calculations
 - PM2 status: Parses `pm2 list` text output for service detection
 
+### Email Alert System
+
+**Purpose**: Automated email notifications for system issues (grouped, no spam)
+
+**How It Works**:
+- ✅ Monitors system every 10 minutes (via cron)
+- ✅ Sends CRITICAL alerts immediately (memory >85%, services offline)
+- ✅ Groups non-critical warnings into single email every 6 hours
+- ✅ No email when system is healthy
+- ✅ Professional HTML emails with metrics
+
+**Installation**:
+```bash
+ssh ultimamilla
+
+# 1. Ensure mailutils installed
+apt-get install mailutils
+
+# 2. Make script executable
+chmod +x /root/scripts/alert-monitor-email.sh
+
+# 3. Test manually
+/root/scripts/alert-monitor-email.sh
+
+# 4. Add to crontab (runs every 10 minutes)
+crontab -e
+# Add: */10 * * * * /root/scripts/alert-monitor-email.sh
+```
+
+**Configuration**:
+```bash
+# Email recipient (in script or as env var)
+ALERT_EMAIL="devops@ultimamilla.com.ar"
+
+# Memory threshold for immediate alert
+ALERT_THRESHOLD_MEMORY="85"  # % - sends immediately if exceeded
+
+# Grouping period for non-critical alerts
+ALERT_CONSOLIDATE_HOURS="6"  # Sends grouped email every 6 hours
+```
+
+**Alert Scenarios**:
+1. **All OK**: No email
+2. **Warning (degraded)**: Buffered, sent in 6h or next critical
+3. **Critical (>85% memory or service down)**: Immediate email
+4. **Multiple warnings**: All grouped in single consolidated email
+
+**Alert Email Contains**:
+- System health status (CRITICAL/DEGRADED/HEALTHY)
+- Current memory usage %
+- Service status (online/offline)
+- Issue summary
+- Timestamp (UTC)
+- Action links
+
+**Logs**:
+- `/var/log/alert-monitor.log` - Alert events
+- `/var/log/alert-monitor-cron.log` - Cron execution
+- `/tmp/alert-state.json` - State tracking (last email time, etc)
+
+**Complete Setup Guide**: See [ALERT-SYSTEM-SETUP.md](ALERT-SYSTEM-SETUP.md)
+
 ---
 
 ## CI/CD Pipeline
