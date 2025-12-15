@@ -474,6 +474,39 @@ pm2 logs astro-ultimamilla
 ✅ PostgreSQL Docker container
 ```
 
+### Status Dashboard
+
+**Live Monitoring Page**: https://ultimamilla.com.ar/status
+
+Real-time system monitoring dashboard with:
+- **Memory Usage**: Current RAM consumption, threshold warnings (warning at 70%, critical at 85%)
+- **Service Status**: Real-time Astro and SGI process status
+- **Nginx Port Validation**: Ensures critical ports are listening (4321, 3000, 8055)
+- **Recent Logs**: Integration with monitoring scripts
+- **Auto-refresh**: Page refreshes every 30 seconds
+
+**API Endpoint**: `/api/status.json`
+```typescript
+// Returns JSON with:
+{
+  "timestamp": "ISO8601",
+  "server": {
+    "memory": { total, used, available, usagePercent, status },
+    "services": [{ name, status }],
+    "nginxPorts": [{ service, expected, listening, status }]
+  },
+  "recentLogs": [{ timestamp, level, message, source }],
+  "issues": ["list of detected issues"],
+  "health": "healthy|degraded|critical"
+}
+```
+
+**Implementation**:
+- Backend: `src/pages/api/status.json.ts` - Executes shell commands for real-time data
+- Frontend: `src/pages/status.astro` - SSR page with Tailwind styling
+- Memory parsing: Uses `free -b` for accurate GB calculations
+- PM2 status: Parses `pm2 list` text output for service detection
+
 ---
 
 ## CI/CD Pipeline
