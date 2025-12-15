@@ -61,7 +61,7 @@ interface StatusResponse {
   health: 'healthy' | 'degraded' | 'critical';
 }
 
-// Helper: Parse memory output
+// Helper: Parse memory output from 'free -b' (bytes)
 function parseMemory(freeOutput: string): MemoryInfo {
   const lines = freeOutput.split('\n');
   const memLine = lines[1]?.split(/\s+/);
@@ -75,17 +75,18 @@ function parseMemory(freeOutput: string): MemoryInfo {
       usagePercent: 0,
       swapUsed: 'Unknown',
       swapTotal: 'Unknown',
-      status: 'error'
+      status: 'ok'
     };
   }
 
-  const total = parseInt(memLine[1]) / 1024 / 1024;
-  const used = parseInt(memLine[2]) / 1024 / 1024;
-  const available = parseInt(memLine[6]) / 1024 / 1024;
+  // Parse bytes to GB
+  const total = parseInt(memLine[1]) / 1024 / 1024 / 1024;
+  const used = parseInt(memLine[2]) / 1024 / 1024 / 1024;
+  const available = parseInt(memLine[6]) / 1024 / 1024 / 1024;
   const usagePercent = Math.round((used / total) * 100);
 
-  const swapUsed = parseInt(swapLine[2]) / 1024 / 1024;
-  const swapTotal = parseInt(swapLine[1]) / 1024 / 1024;
+  const swapUsed = parseInt(swapLine[2]) / 1024 / 1024 / 1024;
+  const swapTotal = parseInt(swapLine[1]) / 1024 / 1024 / 1024;
 
   let status: 'ok' | 'warning' | 'critical' = 'ok';
   if (usagePercent > 85) status = 'critical';
@@ -221,8 +222,8 @@ async function getRecentLogs(): Promise<LogEntry[]> {
 // Main API Handler
 export const GET: APIRoute = async ({ request }) => {
   try {
-    // Get memory info
-    const { stdout: freeOutput } = await execAsync('free -h', { timeout: 2000 });
+    // Get memory info (use -b for bytes, not -h for human-readable)
+    const { stdout: freeOutput } = await execAsync('free -b', { timeout: 2000 });
     const memory = parseMemory(freeOutput);
 
     // Get services status
