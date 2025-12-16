@@ -177,6 +177,16 @@ const filterOptions = {
 const buildPageUrl = (page) => {
   const url = new URL(Astro.request.url);
   url.searchParams.set('page', page);
+  // IMPORTANTE: Preservar búsqueda y filtros al paginar
+  if (!url.searchParams.has('q') && pageData.searchQuery) {
+    url.searchParams.set('q', pageData.searchQuery);
+  }
+  if (!url.searchParams.has('area') && pageData.activeFilters.area) {
+    url.searchParams.set('area', pageData.activeFilters.area);
+  }
+  if (!url.searchParams.has('unidad_negocio') && pageData.activeFilters.unidad_negocio) {
+    url.searchParams.set('unidad_negocio', pageData.activeFilters.unidad_negocio);
+  }
   return url.pathname + url.search;
 };
 
@@ -229,20 +239,28 @@ const unidades = filterOptions.unidades;
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
       <form id="filter-form" class="flex flex-col md:flex-row gap-3 items-center justify-between">
         
-        <!-- Search -->
-        <div class="relative w-full md:w-96 group">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg class="h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+        <!-- Search with Submit Button -->
+        <div class="relative w-full md:w-auto flex gap-2">
+          <div class="relative flex-1 md:flex-none group">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              name="q"
+              value={searchQuery}
+              placeholder="Buscar por cliente, título..."
+              class="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg leading-5 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all shadow-sm"
+            />
           </div>
-          <input
-            type="text"
-            name="q"
-            value={searchQuery}
-            placeholder="Buscar por cliente, título..."
-            class="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg leading-5 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all shadow-sm"
-          />
+          <button
+            type="submit"
+            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors shadow-sm"
+          >
+            Buscar
+          </button>
         </div>
 
         <!-- Filters Group -->
@@ -350,21 +368,40 @@ const unidades = filterOptions.unidades;
           </div>
         )}
 
-        <!-- Pagination -->
+        <!-- Pagination (Mobile Responsive with Prev/Next) -->
         {pageData.totalPages > 1 && (
-          <div class="mt-12 flex justify-center space-x-2">
-            {Array.from({ length: pageData.totalPages }, (_, i) => i + 1).map(page => (
-              <a
-                href={buildPageUrl(page)}
-                class={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  page === pageData.currentPage
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
-                }`}
-              >
-                {page}
-              </a>
-            ))}
+          <div class="mt-12 flex flex-col md:flex-row justify-center items-center gap-4">
+            <div class="flex justify-center items-center gap-2 flex-wrap">
+              {/* Previous Button */}
+              {pageData.currentPage > 1 && (
+                <a
+                  href={buildPageUrl(pageData.currentPage - 1)}
+                  class="px-4 py-2 text-sm font-medium rounded-lg bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 transition-colors"
+                >
+                  ← Anterior
+                </a>
+              )}
+
+              {/* Current page indicator */}
+              <span class="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-50 rounded-lg border border-slate-200">
+                {pageData.currentPage} / {pageData.totalPages}
+              </span>
+
+              {/* Next Button */}
+              {pageData.currentPage < pageData.totalPages && (
+                <a
+                  href={buildPageUrl(pageData.currentPage + 1)}
+                  class="px-4 py-2 text-sm font-medium rounded-lg bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 transition-colors"
+                >
+                  Siguiente →
+                </a>
+              )}
+            </div>
+
+            {/* Page count text */}
+            <span class="text-sm text-slate-500">
+              Mostrando página {pageData.currentPage} de {pageData.totalPages}
+            </span>
           </div>
         )}
       </div>
