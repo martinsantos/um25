@@ -478,6 +478,10 @@ pm2 logs astro-ultimamilla
 
 **Live Monitoring Page**: https://ultimamilla.com.ar/status
 
+**Authentication**: Requires HTTP Basic Auth
+- **Username**: `santosma`
+- **Password**: `santosma@gmail.com`
+
 Real-time system monitoring dashboard with:
 - **Memory Usage**: Current RAM consumption, threshold warnings (warning at 70%, critical at 85%)
 - **Service Status**: Real-time Astro and SGI process status
@@ -485,9 +489,21 @@ Real-time system monitoring dashboard with:
 - **Recent Logs**: Integration with monitoring scripts
 - **Auto-refresh**: Page refreshes every 30 seconds
 
-**API Endpoint**: `/api/status.json`
+**Dashboard Features** (4 Tabs):
+1. **📈 Memory Trend**: Real-time Chart.js visualization with time range selection (1h/6h/24h/7d)
+2. **⚙️ Configuration**: Editable threshold settings, check intervals, retention policies
+3. **🔔 Webhooks**: Configure Slack/Discord webhook URLs for multi-channel alerts
+4. **📋 Alert History**: Track recent system alerts and events
+
+**Metrics Persistence**:
+- Auto-saves metrics every 60 seconds via `/api/metrics/save.json`
+- Stores in `/var/lib/ultimamilla/metrics/` directory
+- Daily rotation with 30-day retention policy
+
+**Protected API Endpoints** (All require HTTP Basic Auth):
+
+1. **GET /api/status.json** - Current system metrics
 ```typescript
-// Returns JSON with:
 {
   "timestamp": "ISO8601",
   "server": {
@@ -501,11 +517,18 @@ Real-time system monitoring dashboard with:
 }
 ```
 
+2. **GET /api/config.json** - Current configuration thresholds
+3. **POST /api/config.json** - Update configuration with validation
+4. **POST /api/metrics/save.json** - Save metric snapshot (called by dashboard)
+5. **GET /api/metrics/chart.json?hours={1,6,24,168,720}&type=memory** - Chart.js data
+
 **Implementation**:
 - Backend: `src/pages/api/status.json.ts` - Executes shell commands for real-time data
-- Frontend: `src/pages/status.astro` - SSR page with Tailwind styling
+- Backend: `src/lib/metrics-store.ts` - JSON-based metric persistence
+- Frontend: `src/pages/status.astro` - SSR page with all 5 integrated features
 - Memory parsing: Uses `free -b` for accurate GB calculations
 - PM2 status: Parses `pm2 list` text output for service detection
+- Nginx Auth: HTTP Basic Auth protection via `/etc/nginx/.htpasswd`
 
 ### Email Alert System
 
