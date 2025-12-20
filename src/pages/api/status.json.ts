@@ -115,13 +115,19 @@ async function getPM2Status(): Promise<ServiceStatus[]> {
     const services: ServiceStatus[] = [];
     const lines = stdout.split('\n');
 
+    // Track which required services were found
+    const requiredServices = ['astro-ultimamilla', 'sgi'];
+    const foundServices = new Set<string>();
+
     for (const line of lines) {
       if (line.includes('astro-ultimamilla')) {
+        foundServices.add('astro-ultimamilla');
         services.push({
           name: 'astro-ultimamilla',
           status: line.includes('online') ? 'online' : 'offline'
         });
       } else if (line.includes('sgi')) {
+        foundServices.add('sgi');
         services.push({
           name: 'sgi',
           status: line.includes('online') ? 'online' : 'offline'
@@ -129,16 +135,25 @@ async function getPM2Status(): Promise<ServiceStatus[]> {
       }
     }
 
-    // Return found services or defaults if none found
+    // Add missing services as offline (critical issue)
+    for (const service of requiredServices) {
+      if (!foundServices.has(service)) {
+        services.push({
+          name: service,
+          status: 'offline'  // Treat missing from pm2 list as offline
+        });
+      }
+    }
+
     return services.length > 0 ? services : [
-      { name: 'astro-ultimamilla', status: 'online' },
-      { name: 'sgi', status: 'online' }
+      { name: 'astro-ultimamilla', status: 'offline' },
+      { name: 'sgi', status: 'offline' }
     ];
   } catch (error) {
-    // If PM2 command succeeds but parsing fails, assume services are online
+    // If PM2 command fails, mark services as error (not assuming they're online)
     return [
-      { name: 'astro-ultimamilla', status: 'online' },
-      { name: 'sgi', status: 'online' }
+      { name: 'astro-ultimamilla', status: 'error' },
+      { name: 'sgi', status: 'error' }
     ];
   }
 }
@@ -261,7 +276,9 @@ export const GET: APIRoute = async ({ request }) => {
 
     for (const service of services) {
       if (service.status === 'offline') {
-        issues.push(`🔴 Service offline: ${service.name}`);
+        issues.push(`🔴 CRITICAL: Service offline: ${service.name} (PM2 may have auto-restarted)`);
+      } else if (service.status === 'error') {
+        issues.push(`❌ ERROR: Cannot determine status of ${service.name}`);
       }
     }
 
@@ -274,7 +291,7 @@ export const GET: APIRoute = async ({ request }) => {
     // Determine overall health
     let health: 'healthy' | 'degraded' | 'critical' = 'healthy';
     if (issues.length > 0) health = 'degraded';
-    if (memory.status === 'critical' || services.some((s) => s.status === 'offline')) health = 'critical';
+    if (memory.status === 'critical' || services.some((s) => s.status === 'offline' || s.status === 'error')) health = 'critical';
 
     const response: StatusResponse = {
       timestamp: new Date().toISOString(),

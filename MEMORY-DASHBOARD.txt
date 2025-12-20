@@ -1,0 +1,153 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                   📊 MEMORY ANALYSIS DASHBOARD                               ║
+║                    Servidor: 23.105.176.45                                   ║
+║                    Fecha: 2025-12-16 01:42:00 UTC                            ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 🔴 ESTADO ACTUAL - CRÍTICO                                                   │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                               │
+│  MEMORIA TOTAL: 3.6 GB                                                       │
+│  ┌─────────────────────────────────────────────────────────────────────────┐ │
+│  │█████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│ │
+│  │ USADO: 3.2 GB (89%)  │  LIBRE: 158 MB (4%)  │  BUFFER: 474 MB         │ │
+│  └─────────────────────────────────────────────────────────────────────────┘ │
+│                                                                               │
+│  SWAP USADO: 939 MB / 1.9 GB (49%) - RALENTIZACIÓN PERMANENTE              │
+│                                                                               │
+│  ⚠️  PROBLEMAS DETECTADOS:                                                  │
+│      🔴 Solo 158 MB libres (alarma roja)                                    │
+│      🔴 VSZ Astro: 22.9 GB (279x el uso real)                              │
+│      🔴 939 MB en SWAP (ralentización 100x)                                │
+│      🔴 Sin límites de memoria configurados                                │
+│      🔴 Riesgo de OOM Killer en próximas horas                            │
+│                                                                               │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 📈 TOP 5 CONSUMIDORES DE MEMORIA                                             │
+├─────────┬──────────────────────┬──────────┬──────┬─────────┬──────────────────┤
+│ Rank    │ Proceso              │ RSS      │ %    │ VSZ     │ Estado           │
+├─────────┼──────────────────────┼──────────┼──────┼─────────┼──────────────────┤
+│ 1 🔴   │ Directus (node)      │ 106 MB   │ 2.8% │ 13.4 GB │ Alto VSZ         │
+│ 2 🔴   │ Astro (node)         │  82 MB   │ 2.1% │ 22.9 GB │ CRÍTICO VSZ      │
+│ 3 🟡   │ RW-Core (node)       │  58 MB   │ 1.5% │ 1.1 GB  │ OK               │
+│ 4 🟡   │ SGI (node)           │  33 MB   │ 0.8% │ 1.3 GB  │ OK               │
+│ 5 🟡   │ MariaDB              │  28 MB   │ 0.7% │ 1.5 GB  │ OK               │
+├─────────┼──────────────────────┼──────────┼──────┼─────────┼──────────────────┤
+│         │ Total Node.js        │ 316 MB   │ 8.8% │ 39.6 GB │ PROBLEMA         │
+│         │ Total Docker         │ 195 MB   │ 5.3% │ Sin lím │ SIN LÍMITES      │
+│         │ Total PHP-FPM        │ 150 MB   │ 4.2% │ N/A     │ 8 procesos       │
+└─────────┴──────────────────────┴──────────┴──────┴─────────┴──────────────────┘
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 🐳 DOCKER CONTAINERS                                                         │
+├─────────────────────────────────┬──────────────┬─────────────────────────────┤
+│ Container                       │ Mem Actual   │ Límite Configurado          │
+├─────────────────────────────────┼──────────────┼─────────────────────────────┤
+│ Directus App                    │ 120.8 MB     │ ❌ Sin límite               │
+│ PostgreSQL (directus)           │  54.84 MB    │ ❌ Sin límite               │
+│ PostgreSQL (umbot)              │  ?           │ ❌ Sin límite               │
+│ Redis (umbot)                   │   7.6 MB     │ ❌ Sin límite               │
+│ Node container                  │  ? MB        │ ❌ Sin límite               │
+├─────────────────────────────────┼──────────────┼─────────────────────────────┤
+│ TOTAL                           │ ~195 MB      │ ❌ ILIMITADO                │
+└─────────────────────────────────┴──────────────┴─────────────────────────────┘
+
+⚠️  RIESGO: Un contenedor podría consumir toda la RAM disponible sin aviso
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 🎯 RECOMENDACIONES - PRIORIDADES                                             │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                               │
+│  CRÍTICO (HOY - 5 min):                                                      │
+│  ├─ Configurar límites Docker (512M Directus, 256M PostgreSQL)              │
+│  ├─ Limpiar logs viejos (libera ~100MB)                                     │
+│  └─ Crear script de monitoreo con alertas                                   │
+│                                                                               │
+│  IMPORTANTE (Esta semana - 30 min):                                          │
+│  ├─ Configurar NODE_OPTIONS en PM2 (max-old-space-size=256)               │
+│  ├─ Añadir max_memory_restart: '320M' en ecosystem.config.cjs             │
+│  └─ Investigar por qué Astro VSZ es 22.9 GB                               │
+│                                                                               │
+│  FUTURO (1-3 meses):                                                         │
+│  ├─ Upgrade a 8 GB RAM (costo: $15/mes extra)                             │
+│  ├─ Audit dependencias Astro (Sentry, etc)                                │
+│  └─ Considerar separar servicios en múltiples servidores                  │
+│                                                                               │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 📊 BEFORE vs AFTER (Estimado con cambios)                                    │
+├──────────────────────────────────┬─────────────────┬────────────────────────┤
+│ Métrica                          │ Actual          │ Después (Estimado)     │
+├──────────────────────────────────┼─────────────────┼────────────────────────┤
+│ RAM Disponible                   │ 158 MB ❌       │ 600-800 MB ✅          │
+│ VSZ Astro                        │ 22.9 GB ❌      │ 512 MB ✅              │
+│ Procesos con límites             │ 0 ❌            │ 100% ✅                │
+│ Swap en uso                      │ 939 MB ❌       │ 0-100 MB ✅            │
+│ Riesgo OOM Killer                │ ALTO ❌         │ BAJO ✅                │
+│ Performance General              │ Degradada 🔴    │ Normal 🟢              │
+└──────────────────────────────────┴─────────────────┴────────────────────────┘
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 🔧 COMANDOS QUICK START                                                      │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                               │
+│  Monitorear en tiempo real:                                                  │
+│  $ watch -n 1 free -h                                                        │
+│  $ docker stats --no-stream                                                  │
+│  $ pm2 list                                                                  │
+│                                                                               │
+│  Aplicar limpieza inmediata:                                                 │
+│  $ pm2 flush && find /var/log -name "*.1" | xargs rm -f                    │
+│  $ docker update --memory 512m directus-admin-directus-app-1                │
+│  $ docker update --memory 256m directus-admin-database-1                    │
+│                                                                               │
+│  Ejecutar optimización completa:                                             │
+│  $ chmod +x /root/fumbling-field/scripts/optimize-memory.sh                │
+│  $ /root/fumbling-field/scripts/optimize-memory.sh                         │
+│                                                                               │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 📁 DOCUMENTACIÓN DISPONIBLE                                                  │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                               │
+│  📄 MEMORY-ANALYSIS-REPORT.md                                               │
+│     → Análisis detallado con 10 recomendaciones                             │
+│     → Plan a corto/mediano/largo plazo                                      │
+│     → Detalles técnicos completos                                           │
+│                                                                               │
+│  ⚡ MEMORY-QUICK-FIX.md                                                      │
+│     → 3 pasos de 5 minutos                                                  │
+│     → Comandos listos para copiar/pegar                                     │
+│     → Monitoreo continuo (opcional)                                         │
+│                                                                               │
+│  🛠️  scripts/optimize-memory.sh                                              │
+│     → Script automatizado de optimización                                   │
+│     → Genera reporte visual                                                 │
+│     → Sin downtime                                                          │
+│                                                                               │
+│  ⚙️  ecosystem.config.production.js                                          │
+│     → Configuración PM2 con límites de memoria                             │
+│     → Listo para usar                                                       │
+│                                                                               │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║ 🚨 ACCIÓN RECOMENDADA: APLICAR CAMBIOS HOY                                   ║
+║    Riesgo de OOM Killer aumenta cada hora                                   ║
+║    Tiempo requerido: 5 minutos                                              ║
+║    Downtime: 0 minutos (sin disrupción de servicios)                        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+

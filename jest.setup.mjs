@@ -1,5 +1,4 @@
-// Import Jest globals
-import { jest } from '@jest/globals';
+// Jest globals are automatically available
 
 // Configuración global de Jest para pruebas
 
@@ -359,10 +358,9 @@ process.env = {
 
 // Configuración global de expect para mensajes de error más descriptivos
 try {
-    try {
-    // Intentar cargar @testing-library/jest-dom si está disponible
-    const jestDom = require('@testing-library/jest-dom');
-    expect.extend(jestDom);
+  // Intentar cargar @testing-library/jest-dom si está disponible
+  try {
+    require('@testing-library/jest-dom');
   } catch (e) {
     // Ignorar si no está disponible
   }

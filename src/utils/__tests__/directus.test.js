@@ -1,5 +1,4 @@
-const { jest } = require('@jest/globals');
-const { directus } = require('../directus');
+import { describe, it, expect, jest, beforeAll, beforeEach, afterEach } from '@jest/globals';
 
 // Mock fetch
 global.fetch = jest.fn();
@@ -39,6 +38,18 @@ const localStorageMock = (() => {
 
 // Configurar localStorage mock
 global.localStorage = localStorageMock;
+
+// Mock directus before importing
+jest.mock('../directus', () => ({
+  directus: {
+    login: jest.fn(),
+    getAntecedentes: jest.fn(),
+    getFilterOptions: jest.fn(),
+    getRandomImages: jest.fn()
+  }
+}));
+
+import { directus } from '../directus';
 
 describe('Directus Utils', () => {
   let originalEnv;

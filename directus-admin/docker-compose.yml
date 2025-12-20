@@ -24,6 +24,12 @@ services:
       - ./extensions:/directus/extensions
     networks:
       - fumbling-field_umbot-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
 
 networks:
   fumbling-field_umbot-network:
