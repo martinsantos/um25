@@ -378,3 +378,104 @@ export function generateSlug(title) {
     .replace(/-+/g, '-') // Eliminar guiones duplicados
     .trim('-');
 }
+
+/**
+ * FASE 3: Función Centralizada para Resolución de URLs de Imágenes
+ *
+ * Consolida la lógica de 3 capas en un solo lugar:
+ * 1. Detecta UUIDs de Directus
+ * 2. Resuelve filenames locales con correcciones
+ * 3. Busca en mapeo de imágenes
+ * 4. Retorna fallback profesional
+ */
+export async function getAntecedenteImageUrl(item) {
+  if (!item) {
+    console.warn('[IMAGE] Item vacío, usando fallback');
+    return DIRECTUS_CONFIG.DEFAULT_IMAGE;
+  }
+
+  try {
+    // 1. Si ya tiene imageUrl procesado
+    if (item.imageUrl && typeof item.imageUrl === 'string' && item.imageUrl.startsWith('http')) {
+      return item.imageUrl;
+    }
+
+    // 2. Si tiene Imagen válida (UUID o filename)
+    if (item.Imagen) {
+      // 2a. UUID de Directus (patrón: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
+      if (/^[a-f0-9-]{36}$/.test(item.Imagen)) {
+        const directusUrl = `${directus.baseUrl}/assets/${item.Imagen}`;
+        console.log('[IMAGE] ✅ UUID resuelto:', { id: item.id, url: directusUrl });
+        return directusUrl;
+      }
+
+      // 2b. Filename local con correcciones
+      if (item.Imagen.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
+        const cleanPath = item.Imagen.startsWith('/') ? item.Imagen.substring(1) : item.Imagen;
+        const fixedFilename = getFixedImage(cleanPath);
+        const localUrl = `/imagenes_antecedentes_versionproduccion/${fixedFilename}`;
+        console.log('[IMAGE] ✅ Filename local:', { id: item.id, filename: fixedFilename });
+        return localUrl;
+      }
+    }
+
+    // 3. Buscar en mapeo_imagenes_completo.js como fallback
+    try {
+      const { buscarImagenPorDatos } = await import('../data/mapeo_imagenes_completo.js');
+      const mappedFilename = buscarImagenPorDatos(
+        item.Cliente,
+        item.Area || item.Unidad_de_negocio,
+        item.Titulo,
+        item.id
+      );
+
+      if (mappedFilename) {
+        const mappedUrl = `/imagenes_antecedentes_versionproduccion/${mappedFilename}`;
+        console.log('[IMAGE] ✅ Encontrada en mapeo:', { id: item.id, filename: mappedFilename });
+        return mappedUrl;
+      }
+    } catch (error) {
+      console.warn('[IMAGE] ⚠️ Error buscando en mapeo:', error.message);
+    }
+
+    // 4. Fallback profesional (gradient azul oscuro, NO ALF verde)
+    console.warn('[IMAGE] ⚠️ Usando fallback para:', { id: item.id, titulo: item.Titulo });
+    return DIRECTUS_CONFIG.DEFAULT_IMAGE;
+
+  } catch (error) {
+    console.error('[IMAGE] ❌ Error procesando imagen:', {
+      id: item.id,
+      titulo: item.Titulo,
+      error: error.message
+    });
+    return DIRECTUS_CONFIG.DEFAULT_IMAGE;
+  }
+}
+
+/**
+ * Versión síncrona simplificada para componentes que necesitan
+ * procesar imágenes sin await (menos recomendado pero más simple)
+ */
+export function getAntecedenteImageUrlSync(item) {
+  if (!item || !item.Imagen) {
+    return DIRECTUS_CONFIG.DEFAULT_IMAGE;
+  }
+
+  try {
+    // UUID
+    if (/^[a-f0-9-]{36}$/.test(item.Imagen)) {
+      return `${directus.baseUrl}/assets/${item.Imagen}`;
+    }
+
+    // Filename local
+    if (item.Imagen.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
+      const cleanPath = item.Imagen.startsWith('/') ? item.Imagen.substring(1) : item.Imagen;
+      const fixedFilename = getFixedImage(cleanPath);
+      return `/imagenes_antecedentes_versionproduccion/${fixedFilename}`;
+    }
+  } catch (error) {
+    console.warn('[IMAGE] Sync error:', error.message);
+  }
+
+  return DIRECTUS_CONFIG.DEFAULT_IMAGE;
+}
