@@ -3,10 +3,11 @@ import Layout from '../../../layouts/Layout.astro';
 import BreadcrumbSchema from '../../../components/SEO/BreadcrumbSchema.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getFixedImage } from '../../../utils/imageFixer.js';
+import { DEFAULT_IMAGE } from '../../../utils/directus.js';
 
 // --- Configuración ---
 const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://ultimamilla.com.ar/admin';
-const DEFAULT_IMAGE_URL = `/images/default-background.jpg`;
+const DEFAULT_IMAGE_URL = DEFAULT_IMAGE || `/images/default-background.jpg`;
 const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
 
 export const prerender = false;
