@@ -74,7 +74,7 @@ const isResponsive = typeof responsiveSrc === 'object';
       height={height}
       decoding="async"
       onload="this.classList.add('loaded')"
-      onerror="this.src='/images/fallback/default-image.jpg'; this.classList.add('error');"
+      onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null; this.classList.add('error');"
     />
   </picture>
 ) : (
@@ -87,7 +87,7 @@ const isResponsive = typeof responsiveSrc === 'object';
     height={height}
     decoding="async"
     onload="this.classList.add('loaded')"
-    onerror="this.src='/images/fallback/default-image.jpg'; this.classList.add('error');"
+    onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null; this.classList.add('error');"
   />
 )}
 

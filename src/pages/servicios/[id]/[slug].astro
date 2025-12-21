@@ -58,7 +58,7 @@ const serviciosRelacionados = serviciosReales
           src={getAssetUrl(servicio.Imagen)}
           alt={servicio.Titulo}
           class="w-full h-full object-cover"
-          onerror="this.src='/images/default-service.jpg'"
+          onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null;"
         />
       </div>
       
@@ -177,7 +177,7 @@ const serviciosRelacionados = serviciosReales
                               alt={relacionado.Titulo}
                               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                               loading="lazy"
-                              onerror="this.src='/images/default-service.jpg'"
+                              onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null;"
                             />
                           </div>
                           <div class="p-4">

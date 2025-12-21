@@ -87,13 +87,7 @@ const getIconColor = (index) => {
                 height="400"
                 loading="lazy"
                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                onerror={`
-                  if (this.src !== '/images/services/default-service.jpg') {
-                    console.log('Error cargando imagen:', this.src, 'usando fallback:', '/images/services/default-service.jpg');
-                    this.src = '/images/services/default-service.jpg';
-                    this.alt = 'Imagen de servicio ${service.Titulo || 'genérico'}';
-                  }
-                `}
+                onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null;"
               />
             </div>
             

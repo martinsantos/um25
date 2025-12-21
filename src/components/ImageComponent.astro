@@ -26,9 +26,9 @@ function imageExists(imagePath: string): boolean {
 const finalImagePath = imageExists(src) ? src : defaultImagePath;
 ---
 
-<img 
-    src={finalImagePath} 
-    alt={alt} 
+<img
+    src={finalImagePath}
+    alt={alt}
     class={className}
-    onerror="this.onerror=null; this.src='/images/default.jpg';"
+    onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null;"
 />

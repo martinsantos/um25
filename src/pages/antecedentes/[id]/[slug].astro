@@ -228,7 +228,7 @@ const creativeWorkSchema = {
           src={mainImageUrl}
           alt={antecedente.Titulo}
           class="w-full h-full object-cover"
-          onerror="if(this.src!=='/images/default-background.jpg'){this.src='/images/default-background.jpg'}else if(this.src!=='/images/default-background.svg'){this.src='/images/default-background.svg'}"
+          onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null;"
         />
       </div>
       
