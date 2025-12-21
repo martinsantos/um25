@@ -3265,6 +3265,27 @@ export const mapeoImagenes = [
         cliente: "EQALQ S.R.L",
         area: "Soporte TIC",
         nombre_archivo_generado: "ultimamilla_eqalq_srl_-_insumo_informatico_20250416_085839_s4126525139.png"
+    },
+    {
+        numero: 10862,
+        titulo_original: "Headcomm S.A - Soporte IT",
+        cliente: "Headcomm S.A",
+        area: "Comunicaciones y Telecomunicaciones",
+        nombre_archivo_generado: "ultimamilla_headcomm_sa_-_soporte_it_20250415_220507_s659537006.png"
+    },
+    {
+        numero: 11044,
+        titulo_original: "Ministerio de Desarrollo Social, Salud y Deportes del Gobierno de MZA - Telefonía",
+        cliente: "Ministerio de Desarrollo Social, Salud y Deportes del Gobierno de MZA",
+        area: "Servicios de Telecomunicaciones",
+        nombre_archivo_generado: "ultimamilla_ministerio_de_desarrollo_social_salud_y_deportes_del_gobiern_20250416_002049_s1665554785.png"
+    },
+    {
+        numero: 11109,
+        titulo_original: "Headcomm S.A - Soporte IT",
+        cliente: "Headcomm S.A",
+        area: "Redes Informáticas",
+        nombre_archivo_generado: "ultimamilla_headcomm_sa_-_soporte_it_20250416_074421_s2351132709.png"
     }
 ];
 
