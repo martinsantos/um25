@@ -12,29 +12,36 @@ const getImageUrl = async (item) => {
     if (item.imageUrl) return item.imageUrl;
     // Si es una URL completa o path absoluto
     if (item.Imagen && (item.Imagen.startsWith('http') || item.Imagen.startsWith('/'))) return item.Imagen;
+
+    // NUEVO: Si es un UUID de Directus (36 caracteres hexadecimales con guiones)
+    if (item.Imagen && /^[a-f0-9\-]{36}$/.test(item.Imagen)) {
+      const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
+      return `${DIRECTUS_URL}/assets/${item.Imagen}`;
+    }
+
     // Si es un nombre de archivo simple (tiene extensión)
     if (item.Imagen && item.Imagen.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
       return `/imagenes_antecedentes_versionproduccion/${item.Imagen}`;
     }
 
-    // Importar la función de mapeo
+    // Importar la función de mapeo (fallback para archivos legados)
     const { buscarImagenPorDatos } = await import('../data/mapeo_imagenes_completo.js');
-    
+
     // Buscar la imagen específica
     const nombreArchivo = buscarImagenPorDatos(
       item.Cliente,
-      item.Area || item.Unidad_de_negocio, 
+      item.Area || item.Unidad_de_negocio,
       item.Titulo,
       item.id
     );
-    
+
     if (nombreArchivo) {
       return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
     }
   } catch (error) {
     console.log('[FEATURED] ⚠️ Error en mapeo:', error.message);
   }
-  
+
   return null; // Dejar que el onerror maneje el default
 };
 

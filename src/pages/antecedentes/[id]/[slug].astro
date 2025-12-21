@@ -98,7 +98,7 @@ const getMainImageUrl = async () => {
         const nombreArchivo = buscarImagenPorDatos(antecedente.Cliente, antecedente.Area, antecedente.Titulo, id);
         if (nombreArchivo) return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
     } catch (e) {}
-    
+
     const proconHeadcommImage = 'ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png';
     const imagenesConocidas = {
         // PROCON SRL - All instances use valid SDI image
@@ -130,8 +130,9 @@ const getMainImageUrl = async () => {
         '3': 'ultimamilla_patrulleros_inteligentes_-_redes_y_comunicaciones_20250415_182524_s1196678540.png'
     };
     if (imagenesConocidas[id]) return `/imagenes_antecedentes_versionproduccion/${imagenesConocidas[id]}`;
-    
-    if (!usingFallback && (antecedente.Imagen || antecedente.ImagenPrincipal)) {
+
+    // FIXED: Try to use Directus asset URL for both fallback and direct data
+    if (antecedente.Imagen || antecedente.ImagenPrincipal) {
         return getAssetUrl(antecedente.Imagen || antecedente.ImagenPrincipal);
     }
     return DEFAULT_IMAGE_URL;
