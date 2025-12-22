@@ -404,7 +404,9 @@ export async function getAntecedenteImageUrl(item) {
     if (item.Imagen) {
       // 2a. UUID de Directus (patrón: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
       if (/^[a-f0-9-]{36}$/.test(item.Imagen)) {
-        const directusUrl = `${directus.baseUrl}/assets/${item.Imagen}`;
+        // Use DIRECTUS_CONFIG.URL directly (accessible in browser context)
+        const baseUrl = DIRECTUS_CONFIG.URL.replace(/\/+$/, ''); // Remove trailing slashes
+        const directusUrl = `${baseUrl}/assets/${item.Imagen}`;
         console.log('[IMAGE] ✅ UUID resuelto:', { id: item.id, url: directusUrl });
         return directusUrl;
       }
@@ -464,7 +466,9 @@ export function getAntecedenteImageUrlSync(item) {
   try {
     // UUID
     if (/^[a-f0-9-]{36}$/.test(item.Imagen)) {
-      return `${directus.baseUrl}/assets/${item.Imagen}`;
+      // Use DIRECTUS_CONFIG.URL directly (accessible in browser context)
+      const baseUrl = DIRECTUS_CONFIG.URL.replace(/\/+$/, ''); // Remove trailing slashes
+      return `${baseUrl}/assets/${item.Imagen}`;
     }
 
     // Filename local
