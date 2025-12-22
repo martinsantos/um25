@@ -3,7 +3,7 @@ import Layout from '../../../layouts/Layout.astro';
 import BreadcrumbSchema from '../../../components/SEO/BreadcrumbSchema.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getFixedImage } from '../../../utils/imageFixer.js';
-import { DEFAULT_IMAGE } from '../../../utils/directus.js';
+import { DEFAULT_IMAGE, getAntecedenteImageUrlSync } from '../../../utils/directus.js';
 
 // --- Configuración ---
 const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://ultimamilla.com.ar/admin';
@@ -22,24 +22,6 @@ if (!id || !slugFromUrl) {
 // --- Estado ---
 let antecedente = null;
 let usingFallback = false;
-
-// --- Funciones Auxiliares ---
-const getAssetUrl = (assetId) => {
-    if (!assetId) return DEFAULT_IMAGE_URL;
-    if (typeof assetId === 'object') {
-        if (assetId.id) return `${DIRECTUS_URL}/assets/${assetId.id}?width=1200&quality=80`;
-        if (assetId.directus_files_id) return `${DIRECTUS_URL}/assets/${assetId.directus_files_id}?width=1200&quality=80`;
-        if (assetId.filename_disk) return `${DIRECTUS_URL}/assets/${assetId.filename_disk}?width=1200&quality=80`;
-    }
-    if (typeof assetId === 'string') {
-        if (assetId.startsWith('http')) return assetId;
-        if (assetId.match(/^[a-f0-9-]{36}$/)) return `${DIRECTUS_URL}/assets/${assetId}?width=1200&quality=80`;
-        let filename = assetId.startsWith('/') ? assetId.substring(1) : assetId;
-        filename = getFixedImage(filename);
-        return `/imagenes_antecedentes_versionproduccion/${filename}`;
-    }
-    return DEFAULT_IMAGE_URL;
-};
 
 // --- Fetch de Datos ---
 async function fetchAntecedenteById(itemId) {
@@ -93,53 +75,7 @@ try {
 if (!antecedente) return Astro.redirect('/404');
 
 // --- Preparación de datos para la UI ---
-const getMainImageUrl = async () => {
-    try {
-        const { buscarImagenPorDatos } = await import('../../../data/mapeo_imagenes_completo.js');
-        const nombreArchivo = buscarImagenPorDatos(antecedente.Cliente, antecedente.Area, antecedente.Titulo, id);
-        if (nombreArchivo) return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
-    } catch (e) {}
-
-    const proconHeadcommImage = 'ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png';
-    const imagenesConocidas = {
-        // PROCON SRL - All instances use valid SDI image
-        '10807': proconHeadcommImage, '10808': proconHeadcommImage, '10809': proconHeadcommImage,
-        '10810': proconHeadcommImage, '10811': proconHeadcommImage, '10820': proconHeadcommImage,
-        '10821': proconHeadcommImage, '10834': proconHeadcommImage, '10841': proconHeadcommImage,
-        '10845': proconHeadcommImage, '10862': proconHeadcommImage, '10866': proconHeadcommImage,
-        '10885': proconHeadcommImage, '10895': proconHeadcommImage, '10910': proconHeadcommImage,
-        '10935': proconHeadcommImage, '10936': proconHeadcommImage, '10996': proconHeadcommImage,
-        '11007': proconHeadcommImage, '11010': proconHeadcommImage, '11019': proconHeadcommImage,
-        '11033': proconHeadcommImage, '11038': proconHeadcommImage, '11051': proconHeadcommImage,
-        '11054': proconHeadcommImage, '11057': proconHeadcommImage, '11072': proconHeadcommImage,
-        '11075': proconHeadcommImage, '11093': proconHeadcommImage, '11108': proconHeadcommImage,
-        '11109': proconHeadcommImage, '11116': proconHeadcommImage, '11118': proconHeadcommImage,
-        '11120': proconHeadcommImage, '11125': proconHeadcommImage, '11126': proconHeadcommImage,
-        '11128': proconHeadcommImage, '11129': proconHeadcommImage,
-        // HEADCOMM & Other Telecom
-        '11176': proconHeadcommImage, '11191': proconHeadcommImage,
-        // Others
-        '10824': 'ultimamilla_telecombtw_sa_-_redes_y_comunicaciones_20250415_201308_s4071923973.png',
-        '10842': 'ultimamilla_telecombtw_sa_-_redes_y_comunicaciones_20250415_201308_s4071923973.png',
-        '10844': 'ultimamilla_telecombtw_sa_-_redes_y_comunicaciones_20250415_201308_s4071923973.png',
-        '11145': 'ultimamilla_telecombtw_sa_-_redes_y_comunicaciones_20250415_201308_s4071923973.png',
-        '10956': 'ultimamilla_telecombtw_sa_-_redes_y_comunicaciones_20250415_201308_s4071923973.png',
-        '11005': 'ultimamilla_telecombtw_sa_-_redes_y_comunicaciones_20250415_201308_s4071923973.png',
-        '10770': 'ultimamilla_telecombtw_sa_-_redes_y_comunicaciones_20250415_201308_s4071923973.png',
-        '1': 'ultimamilla_municipalidad_de_maipú_-_software_servicios_20250415_182056_s1379068004.png',
-        '2': 'ultimamilla_municipalidad_de_guaymallén_-_redes_y_comunicaciones_redes_y_20250415_182333_s1075915836.png',
-        '3': 'ultimamilla_patrulleros_inteligentes_-_redes_y_comunicaciones_20250415_182524_s1196678540.png'
-    };
-    if (imagenesConocidas[id]) return `/imagenes_antecedentes_versionproduccion/${imagenesConocidas[id]}`;
-
-    // FIXED: Try to use Directus asset URL for both fallback and direct data
-    if (antecedente.Imagen || antecedente.ImagenPrincipal) {
-        return getAssetUrl(antecedente.Imagen || antecedente.ImagenPrincipal);
-    }
-    return DEFAULT_IMAGE_URL;
-};
-
-const mainImageUrl = await getMainImageUrl();
+const mainImageUrl = getAntecedenteImageUrlSync(antecedente);
 
 const formatDate = (dateString) => {
     if (!dateString) return 'No especificada';

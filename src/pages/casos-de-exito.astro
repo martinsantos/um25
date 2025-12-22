@@ -2,8 +2,10 @@
 import Layout from '../layouts/Layout.astro';
 import { getCasosExito } from '../lib/directus'; // Asegúrate de que esta función esté definida en directus.ts
 
+const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://admin.ultimamilla.com.ar';
+
 // Obtener los casos de éxito desde Directus
-const response = await fetch('http://localhost:8055/items/casos_de_exito');
+const response = await fetch(`${DIRECTUS_URL}/items/casos_de_exito`);
 const { data: casosExito } = await response.json();
 ---
 
@@ -15,7 +17,7 @@ const { data: casosExito } = await response.json();
 			{casosExito.map(caso => (
 				<div class="bg-white p-6 rounded-lg shadow-lg">
 					<h2 class="text-2xl font-semibold mb-4">{caso.Título}</h2> <!-- Usar 'Título' en lugar de 'titulo' -->
-					{caso.Imagen && <img src={`http://localhost:8055/assets/${caso.Imagen}`} alt={caso.Título} class="w-full h-48 object-cover mb-4 rounded" />} <!-- Usar 'Imagen' en lugar de 'imagen' -->
+					{caso.Imagen && <img src={`${DIRECTUS_URL}/assets/${caso.Imagen}`} alt={caso.Título} class="w-full h-48 object-cover mb-4 rounded" />} <!-- Usar 'Imagen' en lugar de 'imagen' -->
 					<p class="text-gray-700 mb-4">{caso.Descripción}</p> <!-- Usar 'Descripción' en lugar de 'descripcion' -->
 					{caso['Links-qhkc-b'] && (
 						<a href={caso['Links-qhkc-b']} class="text-blue-600 hover:text-blue-800">Más información →</a>

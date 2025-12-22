@@ -1,58 +1,17 @@
 ---
 import EnhancedImage from "./EnhancedImage.astro";
 import { generateSlug } from '../utils/slugUtils.js';
+import { getAntecedenteImageUrlSync } from '../utils/directus.js';
 
 // Componente para mostrar antecedentes destacados
 const { antecedentes } = Astro.props;
 
-// Función para obtener imagen del antecedente (Lógica centralizada)
-const getImageUrl = async (item) => {
-  try {
-    // Si ya tiene imagen válida (URL completa o path relativo conocido)
-    if (item.imageUrl) return item.imageUrl;
-    // Si es una URL completa o path absoluto
-    if (item.Imagen && (item.Imagen.startsWith('http') || item.Imagen.startsWith('/'))) return item.Imagen;
-
-    // NUEVO: Si es un UUID de Directus (36 caracteres hexadecimales con guiones)
-    if (item.Imagen && /^[a-f0-9\-]{36}$/.test(item.Imagen)) {
-      const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-      return `${DIRECTUS_URL}/assets/${item.Imagen}`;
-    }
-
-    // Si es un nombre de archivo simple (tiene extensión)
-    if (item.Imagen && item.Imagen.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
-      return `/imagenes_antecedentes_versionproduccion/${item.Imagen}`;
-    }
-
-    // Importar la función de mapeo (fallback para archivos legados)
-    const { buscarImagenPorDatos } = await import('../data/mapeo_imagenes_completo.js');
-
-    // Buscar la imagen específica
-    const nombreArchivo = buscarImagenPorDatos(
-      item.Cliente,
-      item.Area || item.Unidad_de_negocio,
-      item.Titulo,
-      item.id
-    );
-
-    if (nombreArchivo) {
-      return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
-    }
-  } catch (error) {
-    console.log('[FEATURED] ⚠️ Error en mapeo:', error.message);
-  }
-
-  return null; // Dejar que el onerror maneje el default
-};
-
 // Procesar antecedentes para asegurar que tengan slug e imagen
-const processedAntecedentes = await Promise.all(
-  antecedentes.map(async (item) => ({
-    ...item,
-    slug: item.slug || `${item.id}/${generateSlug(item.Titulo)}`,
-    imageUrl: await getImageUrl(item)
-  }))
-);
+const processedAntecedentes = antecedentes.map((item) => ({
+  ...item,
+  slug: item.slug || `${item.id}/${generateSlug(item.Titulo)}`,
+  imageUrl: getAntecedenteImageUrlSync(item)
+}));
 ---
 
 <div class="featured-antecedentes-wrapper">

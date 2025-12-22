@@ -2,7 +2,7 @@
 import { antecedentesReales } from '../data/antecedentes_completos.js';
 import { getFixedImage } from './imageFixer';
 const DIRECTUS_CONFIG = {
-  URL: import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055',
+  URL: import.meta.env.PUBLIC_DIRECTUS_URL || 'https://ultimamilla.com.ar/directus',
   TOKEN: import.meta.env.DIRECTUS_STATIC_TOKEN || 'ujsboxj0_E5PvWKhFao7yCW6_VDFsOSk',
   PAGE_SIZE: 20,
   DEFAULT_IMAGE: '/images/antecedentes-hero-bg.jpg' // Professional dark blue gradient - NOT green ALF
@@ -402,16 +402,7 @@ export async function getAntecedenteImageUrl(item) {
 
     // 2. Si tiene Imagen válida (UUID o filename)
     if (item.Imagen) {
-      // 2a. UUID de Directus (patrón: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
-      if (/^[a-f0-9-]{36}$/.test(item.Imagen)) {
-        // Use DIRECTUS_CONFIG.URL directly (accessible in browser context)
-        const baseUrl = DIRECTUS_CONFIG.URL.replace(/\/+$/, ''); // Remove trailing slashes
-        const directusUrl = `${baseUrl}/assets/${item.Imagen}`;
-        console.log('[IMAGE] ✅ UUID resuelto:', { id: item.id, url: directusUrl });
-        return directusUrl;
-      }
-
-      // 2b. Filename local con correcciones
+      // 2b. Filename local con correcciones (prioridad sobre UUID)
       if (item.Imagen.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
         const cleanPath = item.Imagen.startsWith('/') ? item.Imagen.substring(1) : item.Imagen;
         const fixedFilename = getFixedImage(cleanPath);
@@ -419,9 +410,35 @@ export async function getAntecedenteImageUrl(item) {
         console.log('[IMAGE] ✅ Filename local:', { id: item.id, filename: fixedFilename });
         return localUrl;
       }
+
+      // 2a. UUID de Directus - BUSCAR EN MAPEO PRIMERO
+      if (/^[a-f0-9-]{36}$/.test(item.Imagen)) {
+        try {
+          const { buscarImagenPorDatos } = await import('../data/mapeo_imagenes_completo.js');
+          const mappedFilename = buscarImagenPorDatos(
+            item.Cliente,
+            item.Area || item.Unidad_de_negocio,
+            item.Titulo,
+            item.id
+          );
+          if (mappedFilename) {
+            const mappedUrl = `/imagenes_antecedentes_versionproduccion/${mappedFilename}`;
+            console.log('[IMAGE] ✅ UUID encontrada en mapeo:', { id: item.id, filename: mappedFilename });
+            return mappedUrl;
+          }
+        } catch (e) {
+          console.warn('[IMAGE] ⚠️ Error buscando UUID en mapeo:', e.message);
+        }
+
+        // Fallback a Directus si no está en mapeo
+        const baseUrl = DIRECTUS_CONFIG.URL.replace(/\/+$/, ''); // Remove trailing slashes
+        const directusUrl = `${baseUrl}/assets/${item.Imagen}`;
+        console.log('[IMAGE] ✅ UUID usando Directus fallback:', { id: item.id, url: directusUrl });
+        return directusUrl;
+      }
     }
 
-    // 3. Buscar en mapeo_imagenes_completo.js como fallback
+    // 3. Búsqueda global en mapeo (si no hay Imagen)
     try {
       const { buscarImagenPorDatos } = await import('../data/mapeo_imagenes_completo.js');
       const mappedFilename = buscarImagenPorDatos(
@@ -433,11 +450,11 @@ export async function getAntecedenteImageUrl(item) {
 
       if (mappedFilename) {
         const mappedUrl = `/imagenes_antecedentes_versionproduccion/${mappedFilename}`;
-        console.log('[IMAGE] ✅ Encontrada en mapeo:', { id: item.id, filename: mappedFilename });
+        console.log('[IMAGE] ✅ Encontrada en mapeo (sin Imagen field):', { id: item.id, filename: mappedFilename });
         return mappedUrl;
       }
     } catch (error) {
-      console.warn('[IMAGE] ⚠️ Error buscando en mapeo:', error.message);
+      console.warn('[IMAGE] ⚠️ Error buscando en mapeo global:', error.message);
     }
 
     // 4. Fallback profesional (gradient azul oscuro, NO ALF verde)
@@ -459,23 +476,39 @@ export async function getAntecedenteImageUrl(item) {
  * procesar imágenes sin await (menos recomendado pero más simple)
  */
 export function getAntecedenteImageUrlSync(item) {
-  if (!item || !item.Imagen) {
+  if (!item) {
     return DIRECTUS_CONFIG.DEFAULT_IMAGE;
   }
 
   try {
-    // UUID
-    if (/^[a-f0-9-]{36}$/.test(item.Imagen)) {
-      // Use DIRECTUS_CONFIG.URL directly (accessible in browser context)
-      const baseUrl = DIRECTUS_CONFIG.URL.replace(/\/+$/, ''); // Remove trailing slashes
-      return `${baseUrl}/assets/${item.Imagen}`;
-    }
-
-    // Filename local
-    if (item.Imagen.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
+    // 1. Filename local con extensión
+    if (item.Imagen && item.Imagen.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
       const cleanPath = item.Imagen.startsWith('/') ? item.Imagen.substring(1) : item.Imagen;
       const fixedFilename = getFixedImage(cleanPath);
       return `/imagenes_antecedentes_versionproduccion/${fixedFilename}`;
+    }
+
+    // 2. UUID - buscar en mapeo primero (para antecedentes con UUID)
+    if (item.Imagen && /^[a-f0-9-]{36}$/.test(item.Imagen)) {
+      // Buscar en mapeo como fallback para UUIDs sin archivo local
+      try {
+        const { buscarImagenPorDatos } = require('../data/mapeo_imagenes_completo.js');
+        const mappedFilename = buscarImagenPorDatos(
+          item.Cliente,
+          item.Area || item.Unidad_de_negocio,
+          item.Titulo,
+          item.id
+        );
+        if (mappedFilename) {
+          return `/imagenes_antecedentes_versionproduccion/${mappedFilename}`;
+        }
+      } catch (e) {
+        // Si falla el mapeo, usa Directus como último recurso
+      }
+
+      // Fallback a Directus si no hay mapeo
+      const baseUrl = DIRECTUS_CONFIG.URL.replace(/\/+$/, '');
+      return `${baseUrl}/assets/${item.Imagen}`;
     }
   } catch (error) {
     console.warn('[IMAGE] Sync error:', error.message);

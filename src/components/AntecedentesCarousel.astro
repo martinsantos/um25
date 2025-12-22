@@ -16,8 +16,9 @@ interface Props {
 const { antecedentes, unidad } = Astro.props;
 const SITE_URL = import.meta.env.SITE_URL || '';
 
-// Import shared slug utility for consistency
+// Import shared utilities
 import { generateSlug } from '../utils/slugUtils.js';
+import { getAntecedenteImageUrlSync } from '../utils/directus.js';
 ---
 
 <div class="antecedentes-carousel">
@@ -34,12 +35,13 @@ import { generateSlug } from '../utils/slugUtils.js';
         {item.Imagen ? (
           <a href={`/antecedentes/${item.id}/${generateSlug(item.Titulo)}`} aria-label={`Ver detalle de ${item.Titulo}`}>
             <img
-              src={`http://localhost:8055/assets/${item.Imagen}?width=400&height=250&fit=cover&quality=80`}
+              src={getAntecedenteImageUrlSync(item)}
               alt={`Imagen de ${item.Titulo}`}
               class="w-full h-48 object-cover group-hover:opacity-85 transition-opacity duration-300"
               loading="lazy"
               width="400"
               height="250"
+              onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null;"
             />
           </a>
         ) : (

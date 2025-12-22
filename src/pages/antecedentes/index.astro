@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import BreadcrumbSchema from '../../components/SEO/BreadcrumbSchema.astro';
-import { directus, PAGE_SIZE, DEFAULT_IMAGE } from '../../utils/directus';
+import { directus, PAGE_SIZE, DEFAULT_IMAGE, getAntecedenteImageUrl } from '../../utils/directus';
 import { generateSlug } from '../../utils/slugUtils.js';
 import { antecedentesReales } from '../../data/antecedentes_completos.js';
 import { sortByImpact } from '../../utils/antecedentesScoring.js';
@@ -73,35 +73,8 @@ const filterAntecedentes = (antecedentes, filters, searchQuery) => {
   return filtered;
 };
 
-// ✅ FUNCIÓN MEJORADA: Obtener imagen usando el sistema de mapeo
-async function getImageUrl(proyecto) {
-  try {
-    // Si es una URL completa ya está bien
-    if (proyecto.Imagen && proyecto.Imagen.startsWith('http')) {
-      return proyecto.Imagen;
-    }
-
-    // NUEVO: Si es un UUID de Directus (36 caracteres hexadecimales con guiones)
-    if (proyecto.Imagen && /^[a-f0-9\-]{36}$/.test(proyecto.Imagen)) {
-      return `${import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055'}/assets/${proyecto.Imagen}`;
-    }
-
-    const { buscarImagenPorDatos } = await import('../../data/mapeo_imagenes_completo.js');
-    const nombreArchivo = buscarImagenPorDatos(
-      proyecto.Cliente,
-      proyecto.Area || proyecto.Unidad_de_negocio,
-      proyecto.Titulo,
-      proyecto.id
-    );
-
-    if (nombreArchivo) {
-      return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
-    }
-  } catch (error) {
-    console.log('[ANTECEDENTES] Error en mapeo:', error.message);
-  }
-  return DEFAULT_IMAGE;
-};
+// ✅ Usar función centralizada de directus.js para resolver imágenes
+const getImageUrl = getAntecedenteImageUrl;
 
 // Lógica de carga de datos
 try {
