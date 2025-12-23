@@ -1,64 +1,125 @@
 ---
-import EnhancedImage from "./EnhancedImage.astro";
 import { generateSlug } from '../utils/slugUtils.js';
-import { getAntecedenteImageUrlSync } from '../utils/directus.js';
+import { getAntecedenteImageUrl } from '../utils/directus.js';
 
-// Componente para mostrar antecedentes destacados
 const { antecedentes } = Astro.props;
+const ITEMS_PER_PAGE = 25;
 
-// Procesar antecedentes para asegurar que tengan slug e imagen
-const processedAntecedentes = antecedentes.map((item) => ({
-  ...item,
-  slug: item.slug || `${item.id}/${generateSlug(item.Titulo)}`,
-  imageUrl: getAntecedenteImageUrlSync(item)
-}));
+// Procesar antecedentes
+const processedAntecedentes = await Promise.all(
+  antecedentes.map(async (item) => ({
+    ...item,
+    slug: item.slug || `${item.id}/${generateSlug(item.Titulo)}`,
+    imageUrl: await getAntecedenteImageUrl(item)
+  }))
+);
+
+const totalPages = Math.ceil(processedAntecedentes.length / ITEMS_PER_PAGE);
+const allItemsJSON = JSON.stringify(processedAntecedentes);
 ---
 
-<div class="featured-antecedentes-wrapper">
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 antecedente-grid" data-initial-count="all">
-    {processedAntecedentes.map((proyecto, index) => (
-      <a
-        href={`/antecedentes/${proyecto.slug}`}
-        class="group flex flex-col h-full antecedente-item"
-        data-index={index}
-      >
+<div
+  class="featured-antecedentes-wrapper"
+  x-data={`{
+    allItems: ${allItemsJSON},
+    itemsPerPage: ${ITEMS_PER_PAGE},
+    totalPages: ${totalPages},
+    currentPage: 1,
+
+    get totalItems() { return this.allItems.length; },
+    get startIndex() { return (this.currentPage - 1) * this.itemsPerPage; },
+    get endIndex() { return Math.min(this.currentPage * this.itemsPerPage, this.totalItems); },
+
+    get paginatedItems() {
+      return this.allItems.slice(this.startIndex, this.endIndex);
+    },
+
+    get pageNumbers() {
+      const pages = [];
+      const maxVisible = 5;
+      if (this.totalPages <= maxVisible) {
+        for (let i = 1; i <= this.totalPages; i++) pages.push(i);
+      } else {
+        const start = Math.max(1, this.currentPage - 2);
+        const end = Math.min(this.totalPages, this.currentPage + 2);
+        if (start > 1) {
+          pages.push(1);
+          if (start > 2) pages.push('...');
+        }
+        for (let i = start; i <= end; i++) pages.push(i);
+        if (end < this.totalPages) {
+          if (end < this.totalPages - 1) pages.push('...');
+          pages.push(this.totalPages);
+        }
+      }
+      return pages;
+    },
+
+    goToPage(page) {
+      if (typeof page === 'number' && page >= 1 && page <= this.totalPages) {
+        this.currentPage = page;
+        this.scrollToTop();
+      }
+    },
+
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+        this.scrollToTop();
+      }
+    },
+
+    previousPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+        this.scrollToTop();
+      }
+    },
+
+    formatDate(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('es-AR', {year: 'numeric', month: 'long', day: 'numeric'});
+    },
+
+    getDescription(proyecto) {
+      if (!proyecto.Descripcion) return '';
+      return proyecto.Descripcion.replace(/<[^>]*>/g, '').substring(0, 150) + '...';
+    },
+
+    scrollToTop() {
+      this.$el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }`}
+>
+  <!-- Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 antecedente-grid">
+    <template x-for="proyecto in paginatedItems" :key="proyecto.id">
+      <a :href="`/antecedentes/${proyecto.slug}`" class="group flex flex-col h-full antecedente-item">
         <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1">
-          <!-- Image -->
           <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
             <img
-              src={proyecto.imageUrl}
-              alt={proyecto.Titulo}
+              :src="proyecto.imageUrl"
+              :alt="proyecto.Titulo"
               class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               loading="lazy"
-              onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null;"
+              onerror="this.src='/images/antecedentes-hero-bg.jpg'"
             />
             <div class="absolute top-4 left-4">
               <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-slate-900 text-white shadow-sm">
-                {proyecto.Area || 'Proyecto'}
+                <span x-text="proyecto.Area || 'Proyecto'"></span>
               </span>
             </div>
           </div>
-          
-          <!-- Content -->
+
           <div class="flex flex-col flex-grow p-6">
             <div class="mb-2">
-              <span class="text-xs font-bold text-blue-600 uppercase tracking-wide">
-                {proyecto.Cliente}
-              </span>
+              <span class="text-xs font-bold text-blue-600 uppercase tracking-wide" x-text="proyecto.Cliente"></span>
             </div>
-            
-            <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors line-clamp-2">
-              {proyecto.Titulo}
-            </h3>
-            
-            <p class="text-slate-600 text-sm mb-6 line-clamp-3 flex-grow leading-relaxed">
-              {proyecto.Descripcion ? proyecto.Descripcion.replace(/<[^>]*>/g, '').substring(0, 150) + '...' : ''}
-            </p>
-            
+            <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors line-clamp-2" x-text="proyecto.Titulo"></h3>
+            <p class="text-slate-600 text-sm mb-6 line-clamp-3 flex-grow leading-relaxed" x-text="getDescription(proyecto)"></p>
             <div class="pt-4 border-t border-slate-100 mt-auto flex items-center justify-between">
-              <span class="text-xs font-medium text-slate-500">
-                {proyecto.Fecha ? new Date(proyecto.Fecha).toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' }) : proyecto.Unidad_de_negocio || 'Consultoría'}
-              </span>
+              <span class="text-xs font-medium text-slate-500" x-text="formatDate(proyecto.Fecha)"></span>
               <span class="text-blue-600 text-sm font-semibold group-hover:underline flex items-center">
                 Ver caso <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
               </span>
@@ -66,22 +127,50 @@ const processedAntecedentes = antecedentes.map((item) => ({
           </div>
         </article>
       </a>
-    ))}
+    </template>
   </div>
 
   {processedAntecedentes.length > 0 && (
-    <div class="mt-12 text-center summary-container">
-      <p class="text-sm text-slate-600">
-        Total: <span class="font-bold text-blue-600">{processedAntecedentes.length} casos</span> en este sector
-      </p>
+    <div class="mt-12">
+      <div class="text-center summary-container mb-8">
+        <p class="text-sm text-slate-600">
+          Mostrando <span class="font-bold text-blue-600" x-text="startIndex + 1"></span>
+          a <span class="font-bold text-blue-600" x-text="endIndex"></span>
+          de <span class="font-bold text-blue-600" x-text="totalItems"></span> casos
+        </p>
+      </div>
+
+      <div class="flex justify-center items-center gap-2 flex-wrap" x-show="totalPages > 1">
+        <button
+          @click="previousPage()"
+          :disabled="currentPage === 1"
+          class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-medium transition-all hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          ← Anterior
+        </button>
+
+        <div class="flex gap-1">
+          <template x-for="page in pageNumbers" :key="page">
+            <button
+              @click="goToPage(page)"
+              :class="`px-3 py-2 rounded-lg font-medium transition-all ${page === currentPage ? 'bg-blue-600 text-white' : 'border border-slate-300 text-slate-700 hover:bg-slate-50'}`"
+              :disabled="page === currentPage"
+              x-text="page"
+            ></button>
+          </template>
+        </div>
+
+        <button
+          @click="nextPage()"
+          :disabled="currentPage === totalPages"
+          class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-medium transition-all hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Siguiente →
+        </button>
+      </div>
     </div>
   )}
 </div>
-
-<script is:inline>
-  // All antecedentes are now displayed by default
-  // No load-more functionality needed
-</script>
 
 <style>
   .line-clamp-2 {
