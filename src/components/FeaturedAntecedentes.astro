@@ -88,10 +88,55 @@ const allItemsJSON = JSON.stringify(processedAntecedentes);
     },
 
     scrollToTop() {
-      this.$el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const gridElement = this.$el.querySelector('.antecedente-grid');
+      if (gridElement) {
+        gridElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
   }`}
 >
+  <!-- Top Pagination -->
+  {processedAntecedentes.length > 0 && (
+    <div class="mb-8">
+      <div class="text-center summary-container mb-4">
+        <p class="text-sm text-slate-600">
+          Mostrando <span class="font-bold text-blue-600" x-text="startIndex + 1"></span>
+          a <span class="font-bold text-blue-600" x-text="endIndex"></span>
+          de <span class="font-bold text-blue-600" x-text="totalItems"></span> casos
+        </p>
+      </div>
+
+      <div class="flex justify-center items-center gap-2 flex-wrap" x-show="totalPages > 1">
+        <button
+          @click="previousPage()"
+          :disabled="currentPage === 1"
+          class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-medium transition-all hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          ← Anterior
+        </button>
+
+        <div class="flex gap-1 flex-wrap justify-center">
+          <template x-for="page in pageNumbers" :key="page">
+            <button
+              @click="goToPage(page)"
+              :class="`px-3 py-2 rounded-lg font-medium transition-all ${page === currentPage ? 'bg-blue-600 text-white' : 'border border-slate-300 text-slate-700 hover:bg-slate-50'}`"
+              :disabled="page === currentPage"
+              x-text="page"
+            ></button>
+          </template>
+        </div>
+
+        <button
+          @click="nextPage()"
+          :disabled="currentPage === totalPages"
+          class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-medium transition-all hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Siguiente →
+        </button>
+      </div>
+    </div>
+  )}
+
   <!-- Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 antecedente-grid">
     <template x-for="proyecto in paginatedItems" :key="proyecto.id">
@@ -130,9 +175,10 @@ const allItemsJSON = JSON.stringify(processedAntecedentes);
     </template>
   </div>
 
+  <!-- Bottom Pagination -->
   {processedAntecedentes.length > 0 && (
     <div class="mt-12">
-      <div class="text-center summary-container mb-8">
+      <div class="text-center summary-container mb-4">
         <p class="text-sm text-slate-600">
           Mostrando <span class="font-bold text-blue-600" x-text="startIndex + 1"></span>
           a <span class="font-bold text-blue-600" x-text="endIndex"></span>
@@ -149,7 +195,7 @@ const allItemsJSON = JSON.stringify(processedAntecedentes);
           ← Anterior
         </button>
 
-        <div class="flex gap-1">
+        <div class="flex gap-1 flex-wrap justify-center">
           <template x-for="page in pageNumbers" :key="page">
             <button
               @click="goToPage(page)"
