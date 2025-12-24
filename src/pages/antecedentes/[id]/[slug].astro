@@ -3,7 +3,7 @@ import Layout from '../../../layouts/Layout.astro';
 import BreadcrumbSchema from '../../../components/SEO/BreadcrumbSchema.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getFixedImage } from '../../../utils/imageFixer.js';
-import { DEFAULT_IMAGE, getAntecedenteImageUrlSync } from '../../../utils/directus.js';
+import { DEFAULT_IMAGE, getAntecedenteImageUrl } from '../../../utils/directus.js';
 
 // --- Configuración ---
 const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://ultimamilla.com.ar/admin';
@@ -75,7 +75,7 @@ try {
 if (!antecedente) return Astro.redirect('/404');
 
 // --- Preparación de datos para la UI ---
-const mainImageUrl = getAntecedenteImageUrlSync(antecedente);
+const mainImageUrl = await getAntecedenteImageUrl(antecedente);
 
 const formatDate = (dateString) => {
     if (!dateString) return 'No especificada';

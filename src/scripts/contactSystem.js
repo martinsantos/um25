@@ -7,8 +7,7 @@
 class ContactSystem {
     constructor() {
         this.contactData = {
-            phone: '+542614250000',
-            email: 'info@ultimamilla.com.ar',
+            email: 'contacto@ultimamilla.com.ar',
             address: 'Av. España 1234, Mendoza, Argentina',
             hours: 'Lunes a Viernes: 9:00-18:00, Sábados: 9:00-13:00',
             whatsappMessage: 'Hola! Vengo desde el terminal CLI de su sitio web. Me interesa conocer más sobre sus servicios.',

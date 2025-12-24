@@ -488,27 +488,11 @@ export function getAntecedenteImageUrlSync(item) {
       return `/imagenes_antecedentes_versionproduccion/${fixedFilename}`;
     }
 
-    // 2. UUID - buscar en mapeo primero (para antecedentes con UUID)
+    // 2. UUID - retorna fallback (mapeo se busca en función async)
     if (item.Imagen && /^[a-f0-9-]{36}$/.test(item.Imagen)) {
-      // Buscar en mapeo como fallback para UUIDs sin archivo local
-      try {
-        const { buscarImagenPorDatos } = require('../data/mapeo_imagenes_completo.js');
-        const mappedFilename = buscarImagenPorDatos(
-          item.Cliente,
-          item.Area || item.Unidad_de_negocio,
-          item.Titulo,
-          item.id
-        );
-        if (mappedFilename) {
-          return `/imagenes_antecedentes_versionproduccion/${mappedFilename}`;
-        }
-      } catch (e) {
-        // Si falla el mapeo, usa Directus como último recurso
-      }
-
-      // Fallback a Directus si no hay mapeo
-      const baseUrl = DIRECTUS_CONFIG.URL.replace(/\/+$/, '');
-      return `${baseUrl}/assets/${item.Imagen}`;
+      // UUID sin mapeo en versión sync: usar DEFAULT_IMAGE
+      // La versión async getAntecedenteImageUrl() maneja búsqueda de mapeo
+      return DIRECTUS_CONFIG.DEFAULT_IMAGE;
     }
   } catch (error) {
     console.warn('[IMAGE] Sync error:', error.message);

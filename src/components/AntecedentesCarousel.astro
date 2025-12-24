@@ -18,7 +18,15 @@ const SITE_URL = import.meta.env.SITE_URL || '';
 
 // Import shared utilities
 import { generateSlug } from '../utils/slugUtils.js';
-import { getAntecedenteImageUrlSync } from '../utils/directus.js';
+import { getAntecedenteImageUrl } from '../utils/directus.js';
+
+// Pre-resolve image URLs
+const antecedentesConImagenes = await Promise.all(
+  antecedentes.map(async (item) => ({
+    ...item,
+    imageUrl: await getAntecedenteImageUrl(item)
+  }))
+);
 ---
 
 <div class="antecedentes-carousel">
@@ -30,12 +38,12 @@ import { getAntecedenteImageUrlSync } from '../utils/directus.js';
     class="pb-10"
     init="false"
   >
-    {antecedentes.map(item => (
+    {antecedentesConImagenes.map(item => (
       <swiper-slide key={item.id} class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col group h-auto">
-        {item.Imagen ? (
+        {item.imageUrl ? (
           <a href={`/antecedentes/${item.id}/${generateSlug(item.Titulo)}`} aria-label={`Ver detalle de ${item.Titulo}`}>
             <img
-              src={getAntecedenteImageUrlSync(item)}
+              src={item.imageUrl}
               alt={`Imagen de ${item.Titulo}`}
               class="w-full h-48 object-cover group-hover:opacity-85 transition-opacity duration-300"
               loading="lazy"
