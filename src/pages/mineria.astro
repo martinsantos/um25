@@ -39,7 +39,7 @@ const seoConfig = {
 
 // Cargar antecedentes del sector software
 import { antecedentesReales } from '../data/antecedentes_completos.js';
-import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
+import AntecedentesGridMobileOptimized from '../components/AntecedentesGridMobileOptimized.astro';
 
 // Filtrar antecedentes específicos de MINERÍA
 // Como no hay antecedentes con "minería" explícita, mostramos proyectos de 
@@ -392,7 +392,7 @@ if (antecedentes.length === 0) {
             </p>
           </div>
 
-          <FeaturedAntecedentes antecedentes={antecedentes} />
+          <AntecedentesGridMobileOptimized limit={25} title="Casos de u00c9xito en mineria" description="Proyectos destacados en este sector" />
         </div>
       </section>
     )}

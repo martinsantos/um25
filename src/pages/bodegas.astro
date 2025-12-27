@@ -18,7 +18,7 @@ const seoConfig = {
 
 // Cargar antecedentes del sector bodegas
 import { antecedentesReales } from '../data/antecedentes_completos.js';
-import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
+import AntecedentesGridMobileOptimized from '../components/AntecedentesGridMobileOptimized.astro';
 
 let antecedentes = [];
 let serviciosRelacionados = [];
@@ -264,7 +264,7 @@ serviciosRelacionados = [
             </p>
           </div>
 
-          <FeaturedAntecedentes antecedentes={antecedentes} />
+          <AntecedentesGridMobileOptimized limit={25} title="Casos de u00c9xito en ubodegas" description="Proyectos destacados en este sector" />
         </div>
       </section>
     )}
