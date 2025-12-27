@@ -1,0 +1,165 @@
+---
+// src/components/AntecedentesGridMobileOptimized.astro
+// Grid adaptativo: 1 col móvil → 2 tablet → 3 desktop
+
+import { directus } from '@/lib/directus';
+import { readItems } from '@directus/sdk';
+
+interface Props {
+  sector?: string;
+  limit?: number;
+  title?: string;
+  description?: string;
+}
+
+const {
+  sector,
+  limit = 25,
+  title = 'Casos de Éxito',
+  description = 'Descubre cómo hemos transformado empresas con soluciones IT estratégicas'
+} = Astro.props;
+
+// Fetch antecedentes from Directus
+let items = [];
+try {
+  const antecedentes = await directus.request(
+    readItems('antecedentes', {
+      filter: sector ? { Sector: { _contains: sector } } : {},
+      fields: ['id', 'Nombre', 'Descripcion', 'mapeo_imagenes_completo', 'slug'],
+      limit: limit,
+      sort: ['-date_created']
+    })
+  );
+  items = antecedentes || [];
+} catch (error) {
+  console.warn('Error fetching antecedentes:', error);
+  // Fallback empty items
+  items = [];
+}
+---
+
+<section class="w-full px-4 sm:px-6 py-12 sm:py-16 max-w-7xl mx-auto">
+
+  <!-- Header -->
+  <div class="mb-10 sm:mb-14">
+    <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 mb-3 sm:mb-4">
+      {title}
+    </h2>
+    <p class="text-base sm:text-lg text-gray-600 max-w-2xl">
+      {description}
+    </p>
+  </div>
+
+  <!-- Grid - Responsive columns -->
+  {items.length > 0 ? (
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-10 sm:mb-14">
+      {items.map((item, index) => (
+        <article
+          class="group rounded-xl overflow-hidden bg-white border border-gray-200 hover:border-cyan-300 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 flex flex-col h-full cursor-pointer"
+          style={`animation: fadeInScale 0.6s ease-out ${index * 50}ms backwards`}
+        >
+
+          <!-- Image Container -->
+          <div class="relative w-full h-40 sm:h-48 overflow-hidden bg-gray-100">
+            {item.mapeo_imagenes_completo ? (
+              <img
+                src={item.mapeo_imagenes_completo}
+                alt={item.Nombre}
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                loading="lazy"
+              />
+            ) : (
+              <div class="w-full h-full bg-gradient-to-br from-cyan-100 to-blue-100 flex items-center justify-center">
+                <svg class="w-12 h-12 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+              </div>
+            )}
+            <!-- Badge overlay -->
+            <div class="absolute top-2 sm:top-3 right-2 sm:right-3 px-2 sm:px-3 py-1 bg-cyan-500/90 text-white text-xs sm:text-sm font-semibold rounded-full backdrop-blur-sm">
+              Caso Exitoso
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class="flex-1 p-4 sm:p-5 flex flex-col">
+            <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3 line-clamp-2 group-hover:text-cyan-600 transition-colors">
+              {item.Nombre}
+            </h3>
+
+            <p class="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 line-clamp-3 flex-1">
+              {item.Descripcion?.substring(0, 120)}...
+            </p>
+
+            <!-- CTA Link -->
+            <a
+              href={`/antecedentes/${item.id}/${item.slug}`}
+              class="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-cyan-600 hover:text-cyan-700 group/link"
+            >
+              Ver Caso
+              <svg class="w-4 h-4 sm:w-5 sm:h-5 transform group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+        </article>
+      ))}
+    </div>
+  ) : (
+    <!-- Empty State -->
+    <div class="text-center py-12">
+      <p class="text-gray-600 text-lg">No hay casos disponibles en este momento.</p>
+    </div>
+  )}
+
+  <!-- Pagination for mobile -->
+  {items.length > 0 && (
+    <div class="flex justify-center gap-2">
+      <button class="px-4 py-2 bg-gray-100 text-gray-900 rounded-lg hover:bg-gray-200 transition-colors font-medium">
+        Anterior
+      </button>
+      <div class="flex items-center gap-1">
+        <button class="px-3 py-2 bg-cyan-500 text-white rounded-lg font-medium">
+          1
+        </button>
+        <button class="px-3 py-2 text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+          2
+        </button>
+        <button class="px-3 py-2 text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+          3
+        </button>
+      </div>
+      <button class="px-4 py-2 bg-gray-100 text-gray-900 rounded-lg hover:bg-gray-200 transition-colors font-medium">
+        Siguiente
+      </button>
+    </div>
+  )}
+
+</section>
+
+<style>
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

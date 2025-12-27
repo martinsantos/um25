@@ -120,7 +120,7 @@ class DataNavigationEngine {
         this.currentPath = fullPath;
         const contents = this.filesystem[fullPath];
         
-        let output = `<div class="command-success">
+        const output = `<div class="command-success">
 📁 EXPLORANDO: ${fullPath}
 ═══════════════════════════════════════════════════════════════
 

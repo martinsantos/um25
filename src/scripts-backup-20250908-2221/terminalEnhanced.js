@@ -5,7 +5,7 @@
  */
 
 // Import DataNavigationEngine (will be loaded dynamically)
-let DataNavigationEngine = null;
+const DataNavigationEngine = null;
 
 class EnhancedTerminal {
     constructor(containerId) {
@@ -423,7 +423,7 @@ class EnhancedTerminal {
         ];
 
         let output = '<div class="command-success">';
-        for (let line of demoCommands) {
+        for (const line of demoCommands) {
             output += line + '\n';
             // Add small delay for dramatic effect in real implementation
         }

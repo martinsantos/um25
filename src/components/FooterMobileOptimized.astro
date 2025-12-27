@@ -1,0 +1,196 @@
+---
+// src/components/FooterMobileOptimized.astro
+// Footer con acordeones en móvil
+---
+
+<footer class="w-full bg-gradient-to-b from-slate-900 to-slate-950 text-gray-300 mt-16 sm:mt-24">
+
+  <!-- Main content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+
+    <!-- Grid: Stacked on mobile, multi-column on desktop -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 mb-10 sm:mb-14">
+
+      <!-- Company Info -->
+      <div class="lg:col-span-1">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
+            <span class="text-white font-black text-lg">UM</span>
+          </div>
+          <span class="font-bold text-white text-lg tracking-tight">Ultima Milla</span>
+        </div>
+        <p class="text-sm text-gray-400 mb-4">
+          Transformación digital para empresas mendocinas. 22+ años de experiencia.
+        </p>
+        <!-- Social links -->
+        <div class="flex gap-3">
+          <a
+            href="https://linkedin.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-10 h-10 bg-white/10 hover:bg-cyan-500/30 rounded-lg flex items-center justify-center transition-colors"
+            aria-label="LinkedIn"
+          >
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+            </svg>
+          </a>
+          <a
+            href="https://twitter.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-10 h-10 bg-white/10 hover:bg-cyan-500/30 rounded-lg flex items-center justify-center transition-colors"
+            aria-label="Twitter"
+          >
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2s9 5 20 5a9.5 9.5 0 00-9-5.5c4.75 2.25 7-7 7-7s-1.5 2.25-5 2.25H21s1-3 2-5a10.94 10.94 0 01-3.14 1.53"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Servicios - Accordion on mobile -->
+      <div class="lg:col-span-1">
+        <button
+          class="footer-accordion-btn flex items-center justify-between w-full text-white font-bold text-lg mb-4 lg:cursor-default"
+          data-section="servicios"
+        >
+          Servicios
+          <svg class="footer-accordion-icon w-5 h-5 lg:hidden transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+          </svg>
+        </button>
+        <nav class="footer-accordion-content hidden lg:block space-y-3" data-section="servicios">
+          <a href="/servicios" class="block text-sm text-gray-400 hover:text-cyan-400 transition-colors py-1.5">
+            Consultoría IT
+          </a>
+          <a href="/servicios" class="block text-sm text-gray-400 hover:text-cyan-400 transition-colors py-1.5">
+            Desarrollo Web
+          </a>
+          <a href="/servicios" class="block text-sm text-gray-400 hover:text-cyan-400 transition-colors py-1.5">
+            Seguridad Informática
+          </a>
+          <a href="/servicios" class="block text-sm text-gray-400 hover:text-cyan-400 transition-colors py-1.5">
+            Infraestructura
+          </a>
+        </nav>
+      </div>
+
+      <!-- Company - Accordion on mobile -->
+      <div class="lg:col-span-1">
+        <button
+          class="footer-accordion-btn flex items-center justify-between w-full text-white font-bold text-lg mb-4 lg:cursor-default"
+          data-section="empresa"
+        >
+          Empresa
+          <svg class="footer-accordion-icon w-5 h-5 lg:hidden transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+          </svg>
+        </button>
+        <nav class="footer-accordion-content hidden lg:block space-y-3" data-section="empresa">
+          <a href="/nosotros" class="block text-sm text-gray-400 hover:text-cyan-400 transition-colors py-1.5">
+            Nosotros
+          </a>
+          <a href="/antecedentes" class="block text-sm text-gray-400 hover:text-cyan-400 transition-colors py-1.5">
+            Antecedentes
+          </a>
+          <a href="/blog" class="block text-sm text-gray-400 hover:text-cyan-400 transition-colors py-1.5">
+            Blog
+          </a>
+          <a href="/contacto" class="block text-sm text-gray-400 hover:text-cyan-400 transition-colors py-1.5">
+            Contacto
+          </a>
+        </nav>
+      </div>
+
+      <!-- Contact - Sticky on mobile -->
+      <div class="lg:col-span-1">
+        <h3 class="text-white font-bold text-lg mb-4">Contacto</h3>
+        <div class="space-y-3">
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-cyan-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            </svg>
+            <span class="text-sm">Mendoza, Argentina</span>
+          </div>
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-cyan-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+            <a href="mailto:info@ultimamilla.com" class="text-sm text-cyan-400 hover:text-cyan-300 transition-colors">
+              info@ultimamilla.com
+            </a>
+          </div>
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-cyan-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+            </svg>
+            <a href="tel:+542616234567" class="text-sm text-cyan-400 hover:text-cyan-300 transition-colors">
+              +54 261 6234567
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom section -->
+    <div class="pt-8 sm:pt-10 border-t border-gray-800">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p class="text-sm text-gray-500 text-center sm:text-left">
+          © 2025 Ultima Milla. Todos los derechos reservados.
+        </p>
+        <div class="flex gap-6">
+          <a href="#" class="text-xs text-gray-500 hover:text-gray-400 transition-colors">
+            Privacidad
+          </a>
+          <a href="#" class="text-xs text-gray-500 hover:text-gray-400 transition-colors">
+            Términos
+          </a>
+          <a href="#" class="text-xs text-gray-500 hover:text-gray-400 transition-colors">
+            Cookies
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+<script is:inline>
+  // Footer accordion functionality
+  document.querySelectorAll('.footer-accordion-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const section = this.dataset.section;
+      const content = document.querySelector(`.footer-accordion-content[data-section="${section}"]`);
+      const icon = this.querySelector('.footer-accordion-icon');
+
+      if (content) {
+        content.classList.toggle('hidden');
+        if (icon) {
+          icon.style.transform = content.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+      }
+    });
+  });
+
+  // Close accordions on larger screens
+  if (window.matchMedia('(min-width: 1024px)').matches) {
+    document.querySelectorAll('.footer-accordion-content').forEach(content => {
+      content.classList.remove('hidden');
+    });
+  }
+</script>
+
+<style>
+  footer {
+    background-attachment: fixed;
+  }
+
+  @media (max-width: 768px) {
+    footer {
+      background-attachment: scroll;
+    }
+  }
+</style>

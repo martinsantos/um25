@@ -316,7 +316,7 @@ ${this.areas.map(area => {
     const isAreaSearch = args.includes('--area');
     const showAll = args.includes('--all');
     
-    let results = [];
+    const results = [];
 
     // Búsqueda en servicios
     this.servicios.forEach(servicio => {
