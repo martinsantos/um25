@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import FAQSchema from '../components/SEO/FAQSchema.astro';
-import { directus, DEFAULT_IMAGE } from '../utils/directus';
+import { directus, DEFAULT_IMAGE, getAntecedenteImageUrl } from '../utils/directus';
 import { generateSlug } from '../utils/slugUtils';
 
 // FAQs para el sector minería
@@ -42,35 +42,39 @@ import { antecedentesReales } from '../data/antecedentes_completos.js';
 import AntecedentesGridMobileOptimized from '../components/AntecedentesGridMobileOptimized.astro';
 
 // Filtrar antecedentes específicos de MINERÍA
-// Como no hay antecedentes con "minería" explícita, mostramos proyectos de 
+// Como no hay antecedentes con "minería" explícita, mostramos proyectos de
 // telecomunicaciones, redes, CCTV y sistemas remotos que son aplicables al sector
-const filterAntecedentes = (data) => {
-  const keywords = ['telecomunicaciones', 'radioenlace', 'fibra optica', 'cctv', 
+const filterAntecedentes = async (data) => {
+  const keywords = ['telecomunicaciones', 'radioenlace', 'fibra optica', 'cctv',
                     'radio enlace', 'satelital', 'remoto', 'campamento', 'scada',
                     'telemetria', 'monitoreo', 'iot'];
-  
-  return data
+
+  const filtered = data
     .filter(item => {
       const cliente = (item.Cliente || '').toLowerCase();
       const titulo = (item.Titulo || '').toLowerCase();
       const area = (item.Area || '').toLowerCase();
       const desc = (item.Descripcion || '').toLowerCase();
-      
+
       // Buscar keywords relacionadas a tecnología para minería
-      return keywords.some(k => 
-        cliente.includes(k) || 
-        titulo.includes(k) || 
+      return keywords.some(k =>
+        cliente.includes(k) ||
+        titulo.includes(k) ||
         area.includes(k) ||
         desc.includes(k)
       );
-    })
-    .map(item => ({
+    });
+
+  const withImages = await Promise.all(
+    filtered.map(async (item) => ({
       ...item,
       Nombre: item.Titulo,
-      mapeo_imagenes_completo: item.Imagen,
+      mapeo_imagenes_completo: await getAntecedenteImageUrl(item),
       slug: `${item.id}/${generateSlug(item.Titulo)}`
     }))
-    .sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
+  );
+
+  return withImages.sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
 };
 
 let antecedentes = [];
@@ -78,15 +82,15 @@ let serviciosRelacionados = [];
 let error = null;
 
 try {
-  // Obtener antecedentes de software desde Directus
+  // Obtener antecedentes de minería desde Directus
   const response = await directus.getAntecedentes({
     limit: 500,
     page: 1
   });
 
   if (response && response.data && response.data.length > 0) {
-    antecedentes = filterAntecedentes(response.data);
-    console.log(`✅ Cargados ${antecedentes.length} antecedentes de software`);
+    antecedentes = await filterAntecedentes(response.data);
+    console.log(`✅ Cargados ${antecedentes.length} antecedentes de minería`);
   }
 } catch (err) {
   console.error('Error cargando antecedentes:', err);
@@ -95,8 +99,8 @@ try {
 
 // Fallback a datos locales si no hay resultados de API
 if (antecedentes.length === 0) {
-  console.log('Usando antecedentes locales para Software');
-  antecedentes = filterAntecedentes(antecedentesReales);
+  console.log('Usando antecedentes locales para Minería');
+  antecedentes = await filterAntecedentes(antecedentesReales);
 }
 
   // Servicios relacionados con el sector software

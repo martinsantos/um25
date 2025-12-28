@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { directus, DEFAULT_IMAGE } from '../utils/directus';
+import { directus, DEFAULT_IMAGE, getAntecedenteImageUrl } from '../utils/directus';
 import { generateSlug } from '../utils/slugUtils';
 
 // Configuración SEO específica para Salud - ULTRA OPTIMIZADA para Argentina y Mendoza
@@ -35,18 +35,24 @@ const keywords = [
   'ambulancia', 'emergencia', 'trauma', 'quirofano'
 ];
 
-const filterAntecedentes = (data) => {
-  return data.filter(item => {
+const filterAntecedentes = async (data) => {
+  const filtered = data.filter(item => {
     const cliente = (item.Cliente || '').toLowerCase();
     const titulo = (item.Titulo || '').toLowerCase();
     const area = (item.Area || '').toLowerCase();
     return keywords.some(k => cliente.includes(k) || titulo.includes(k) || area.includes(k));
-  }).map(item => ({
-    ...item,
-    Nombre: item.Titulo,
-    mapeo_imagenes_completo: item.Imagen,
-    slug: `${item.id}/${generateSlug(item.Titulo)}`
-  })).sort((a, b) => new Date(b.Fecha || '2000-01-01') - new Date(a.Fecha || '2000-01-01'));
+  });
+
+  const withImages = await Promise.all(
+    filtered.map(async (item) => ({
+      ...item,
+      Nombre: item.Titulo,
+      mapeo_imagenes_completo: await getAntecedenteImageUrl(item),
+      slug: `${item.id}/${generateSlug(item.Titulo)}`
+    }))
+  );
+
+  return withImages.sort((a, b) => new Date(b.Fecha || '2000-01-01') - new Date(a.Fecha || '2000-01-01'));
 };
 
 try {
@@ -57,7 +63,7 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    antecedentes = filterAntecedentes(response.data);
+    antecedentes = await filterAntecedentes(response.data);
     console.log(`✅ Cargados ${antecedentes.length} antecedentes de salud`);
   }
 } catch (err) {
@@ -68,7 +74,7 @@ try {
 // Fallback a datos locales si no hay resultados de API
 if (antecedentes.length === 0) {
   console.log('Usando antecedentes locales para Salud');
-  antecedentes = filterAntecedentes(antecedentesReales);
+  antecedentes = await filterAntecedentes(antecedentesReales);
 }
 
 // Limitar a 6 para la vista (ELIMINADO - Ahora se maneja en el componente con "Ver más")
