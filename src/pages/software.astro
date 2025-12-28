@@ -39,6 +39,8 @@ const filterAntecedentes = (data) => {
     })
     .map(item => ({
       ...item,
+      Nombre: item.Titulo,  // Normalizar Titulo → Nombre
+      mapeo_imagenes_completo: item.Imagen,  // Normalizar Imagen → mapeo_imagenes_completo
       slug: `${item.id}/${generateSlug(item.Titulo)}`
     }))
     .sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));

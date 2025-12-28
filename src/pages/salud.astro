@@ -41,7 +41,12 @@ const filterAntecedentes = (data) => {
     const titulo = (item.Titulo || '').toLowerCase();
     const area = (item.Area || '').toLowerCase();
     return keywords.some(k => cliente.includes(k) || titulo.includes(k) || area.includes(k));
-  }).sort((a, b) => new Date(b.Fecha || '2000-01-01') - new Date(a.Fecha || '2000-01-01'));
+  }).map(item => ({
+    ...item,
+    Nombre: item.Titulo,
+    mapeo_imagenes_completo: item.Imagen,
+    slug: `${item.id}/${generateSlug(item.Titulo)}`
+  ]).sort((a, b) => new Date(b.Fecha || '2000-01-01') - new Date(a.Fecha || '2000-01-01'));
 };
 
 try {
