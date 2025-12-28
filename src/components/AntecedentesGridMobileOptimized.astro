@@ -24,12 +24,17 @@ const {
 // Usar items pasados por la página, o intentar fetch solo como fallback
 let items = passedItems;
 
-// Solo fetch si NO hay items pasados Y se proporciona sector
-if (items.length === 0 && sector) {
+// Solo fetch si NO hay items pasados
+if (items.length === 0) {
   try {
+    // Intentar con filtro de sector si se proporciona
+    const filterConfig = sector
+      ? { filter: { Sector: { _contains: sector } } }
+      : {};
+
     const antecedentes = await directus.request(
       readItems('antecedentes', {
-        filter: sector ? { Sector: { _contains: sector } } : {},
+        ...filterConfig,
         fields: ['id', 'Nombre', 'Descripcion', 'mapeo_imagenes_completo', 'slug'],
         limit: limit,
         sort: ['-date_created']
