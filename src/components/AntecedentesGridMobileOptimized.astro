@@ -6,35 +6,40 @@ import { directus } from '@/lib/directus';
 import { readItems } from '@directus/sdk';
 
 interface Props {
-  sector?: string;
+  items?: any[];           // ← Datos pre-filtrados por la página
+  sector?: string;         // ← Mantener para compatibilidad
   limit?: number;
   title?: string;
   description?: string;
 }
 
 const {
+  items: passedItems = [],  // ← Recibir items de la página
   sector,
   limit = 25,
   title = 'Casos de Éxito',
   description = 'Descubre cómo hemos transformado empresas con soluciones IT estratégicas'
 } = Astro.props;
 
-// Fetch antecedentes from Directus
-let items = [];
-try {
-  const antecedentes = await directus.request(
-    readItems('antecedentes', {
-      filter: sector ? { Sector: { _contains: sector } } : {},
-      fields: ['id', 'Nombre', 'Descripcion', 'mapeo_imagenes_completo', 'slug'],
-      limit: limit,
-      sort: ['-date_created']
-    })
-  );
-  items = antecedentes || [];
-} catch (error) {
-  console.warn('Error fetching antecedentes:', error);
-  // Fallback empty items
-  items = [];
+// Usar items pasados por la página, o intentar fetch solo como fallback
+let items = passedItems;
+
+// Solo fetch si NO hay items pasados Y se proporciona sector
+if (items.length === 0 && sector) {
+  try {
+    const antecedentes = await directus.request(
+      readItems('antecedentes', {
+        filter: sector ? { Sector: { _contains: sector } } : {},
+        fields: ['id', 'Nombre', 'Descripcion', 'mapeo_imagenes_completo', 'slug'],
+        limit: limit,
+        sort: ['-date_created']
+      })
+    );
+    items = antecedentes || [];
+  } catch (error) {
+    console.warn('Error fetching antecedentes:', error);
+    items = [];
+  }
 }
 ---
 
