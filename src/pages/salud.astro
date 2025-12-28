@@ -46,7 +46,7 @@ const filterAntecedentes = (data) => {
     Nombre: item.Titulo,
     mapeo_imagenes_completo: item.Imagen,
     slug: `${item.id}/${generateSlug(item.Titulo)}`
-  ]).sort((a, b) => new Date(b.Fecha || '2000-01-01') - new Date(a.Fecha || '2000-01-01'));
+  })).sort((a, b) => new Date(b.Fecha || '2000-01-01') - new Date(a.Fecha || '2000-01-01'));
 };
 
 try {
