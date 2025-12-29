@@ -39,10 +39,11 @@ const seoConfig = {
 
 // Cargar antecedentes del sector seguridad
 import { antecedentesReales } from '../data/antecedentes_completos.js';
-import AntecedentesGridMobileOptimized from '../components/AntecedentesGridMobileOptimized.astro';
+import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
+import { sortByImpact } from '../utils/antecedentesScoring.js';
 
 // Filtrar antecedentes específicos de SEGURIDAD ELECTRÓNICA
-const filterAntecedentes = async (data) => {
+const filterAntecedentes = (data) => {
   const keywords = ['cctv', 'seguridad', 'videovigilancia', 'alarma', 'control de acceso',
                     'deteccion de incendios', 'sdi', 'camara', 'biometr', 'perimetral',
                     'intrusion', 'monitoreo'];
@@ -61,16 +62,10 @@ const filterAntecedentes = async (data) => {
       );
     });
 
-  const withImages = await Promise.all(
-    filtered.map(async (item) => ({
-      ...item,
-      Nombre: item.Titulo,
-      mapeo_imagenes_completo: await getAntecedenteImageUrl(item),
-      slug: `${item.id}/${generateSlug(item.Titulo)}`
-    }))
-  );
+  // Ordenar por impacto (relevancia) - mejores casos primero
+  const sortedByImpact = sortByImpact(filtered);
 
-  return withImages.sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
+  return sortedByImpact;
 };
 
 // Cargar antecedentes del sector seguridad
@@ -86,7 +81,7 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    antecedentes = await filterAntecedentes(response.data);
+    antecedentes = filterAntecedentes(response.data);
     console.log(`✅ Cargados ${antecedentes.length} antecedentes de seguridad electrónica`);
   }
 } catch (err) {
@@ -97,7 +92,7 @@ try {
 // Fallback a datos locales si no hay resultados de API
 if (antecedentes.length === 0) {
   console.log('Usando antecedentes locales para Seguridad Electrónica');
-  antecedentes = await filterAntecedentes(antecedentesReales);
+  antecedentes = filterAntecedentes(antecedentesReales);
 }
 
 // Structured Data para SEO
@@ -295,7 +290,7 @@ const structuredData = {
             </p>
           </div>
 
-          <AntecedentesGridMobileOptimized items={antecedentes} limit={25} title="Casos de u00c9xito en seguridad electronica" description="Proyectos destacados en este sector" />
+          <FeaturedAntecedentes antecedentes={antecedentes} />
         </div>
       </section>
     )}

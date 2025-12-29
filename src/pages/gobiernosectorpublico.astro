@@ -18,7 +18,8 @@ const seoConfig = {
 
 // Cargar antecedentes del sector gobierno
 import { antecedentesReales } from '../data/antecedentes_completos.js';
-import AntecedentesGridMobileOptimized from '../components/AntecedentesGridMobileOptimized.astro';
+import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
+import { sortByImpact } from '../utils/antecedentesScoring.js';
 
 let antecedentes = [];
 let serviciosRelacionados = [];
@@ -45,7 +46,7 @@ const keywords = [
   'municipalidad de capital', 'municipalidad de san rafael'
 ];
 
-const filterAntecedentes = async (data) => {
+const filterAntecedentes = (data) => {
   const filtered = data.filter(item => {
     const cliente = (item.Cliente || '').toLowerCase();
     const titulo = (item.Titulo || '').toLowerCase();
@@ -53,16 +54,10 @@ const filterAntecedentes = async (data) => {
     return keywords.some(k => cliente.includes(k) || titulo.includes(k) || area.includes(k));
   });
 
-  const withImages = await Promise.all(
-    filtered.map(async (item) => ({
-      ...item,
-      Nombre: item.Titulo,
-      mapeo_imagenes_completo: await getAntecedenteImageUrl(item),
-      slug: `${item.id}/${generateSlug(item.Titulo)}`
-    }))
-  );
+  // Ordenar por impacto (relevancia) - mejores casos primero
+  const sortedByImpact = sortByImpact(filtered);
 
-  return withImages.sort((a, b) => new Date(b.Fecha || '2000-01-01') - new Date(a.Fecha || '2000-01-01'));
+  return sortedByImpact;
 };
 
 try {
@@ -73,7 +68,7 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    antecedentes = await filterAntecedentes(response.data);
+    antecedentes = filterAntecedentes(response.data);
     console.log(`✅ Cargados ${antecedentes.length} antecedentes de gobierno`);
   }
 } catch (err) {
@@ -84,7 +79,7 @@ try {
 // Fallback a datos locales si no hay resultados de API
 if (antecedentes.length === 0) {
   console.log('Usando antecedentes locales para Gobierno');
-  antecedentes = await filterAntecedentes(antecedentesReales);
+  antecedentes = filterAntecedentes(antecedentesReales);
 }
 
 // Limitar a 6 para la vista (ELIMINADO - Ahora se maneja en el componente con "Ver más")
@@ -386,7 +381,7 @@ if (antecedentes.length === 0) {
             </p>
           </div>
 
-          <AntecedentesGridMobileOptimized items={antecedentes} limit={25} title="Casos de u00c9xito en goubiernosectorpuublico" description="Proyectos destacados en este sector" />
+          <FeaturedAntecedentes antecedentes={antecedentes} />
         </div>
       </section>
     )}

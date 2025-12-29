@@ -39,12 +39,13 @@ const seoConfig = {
 
 // Cargar antecedentes del sector software
 import { antecedentesReales } from '../data/antecedentes_completos.js';
-import AntecedentesGridMobileOptimized from '../components/AntecedentesGridMobileOptimized.astro';
+import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
+import { sortByImpact } from '../utils/antecedentesScoring.js';
 
 // Filtrar antecedentes específicos de MINERÍA
 // Como no hay antecedentes con "minería" explícita, mostramos proyectos de
 // telecomunicaciones, redes, CCTV y sistemas remotos que son aplicables al sector
-const filterAntecedentes = async (data) => {
+const filterAntecedentes = (data) => {
   const keywords = ['telecomunicaciones', 'radioenlace', 'fibra optica', 'cctv',
                     'radio enlace', 'satelital', 'remoto', 'campamento', 'scada',
                     'telemetria', 'monitoreo', 'iot'];
@@ -65,16 +66,10 @@ const filterAntecedentes = async (data) => {
       );
     });
 
-  const withImages = await Promise.all(
-    filtered.map(async (item) => ({
-      ...item,
-      Nombre: item.Titulo,
-      mapeo_imagenes_completo: await getAntecedenteImageUrl(item),
-      slug: `${item.id}/${generateSlug(item.Titulo)}`
-    }))
-  );
+  // Ordenar por impacto (relevancia) - mejores casos primero
+  const sortedByImpact = sortByImpact(filtered);
 
-  return withImages.sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
+  return sortedByImpact;
 };
 
 let antecedentes = [];
@@ -89,7 +84,7 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    antecedentes = await filterAntecedentes(response.data);
+    antecedentes = filterAntecedentes(response.data);
     console.log(`✅ Cargados ${antecedentes.length} antecedentes de minería`);
   }
 } catch (err) {
@@ -100,7 +95,7 @@ try {
 // Fallback a datos locales si no hay resultados de API
 if (antecedentes.length === 0) {
   console.log('Usando antecedentes locales para Minería');
-  antecedentes = await filterAntecedentes(antecedentesReales);
+  antecedentes = filterAntecedentes(antecedentesReales);
 }
 
   // Servicios relacionados con el sector software
@@ -398,7 +393,7 @@ if (antecedentes.length === 0) {
             </p>
           </div>
 
-          <AntecedentesGridMobileOptimized items={antecedentes} limit={25} title="Casos de u00c9xito en mineria" description="Proyectos destacados en este sector" />
+          <FeaturedAntecedentes antecedentes={antecedentes} />
         </div>
       </section>
     )}

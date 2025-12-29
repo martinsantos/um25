@@ -430,11 +430,9 @@ export async function getAntecedenteImageUrl(item) {
           console.warn('[IMAGE] ⚠️ Error buscando UUID en mapeo:', e.message);
         }
 
-        // Fallback a Directus si no está en mapeo
-        const baseUrl = DIRECTUS_CONFIG.URL.replace(/\/+$/, ''); // Remove trailing slashes
-        const directusUrl = `${baseUrl}/assets/${item.Imagen}`;
-        console.log('[IMAGE] ✅ UUID usando Directus fallback:', { id: item.id, url: directusUrl });
-        return directusUrl;
+        // Fallback a DEFAULT_IMAGE si UUID no está en mapeo (Directus URLs no funcionan)
+        console.warn('[IMAGE] ⚠️ UUID no encontrada en mapeo, usando fallback:', { id: item.id, uuid: item.Imagen });
+        return DIRECTUS_CONFIG.DEFAULT_IMAGE;
       }
     }
 

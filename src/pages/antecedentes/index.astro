@@ -84,7 +84,7 @@ try {
   if (response && response.data && response.data.length > 0) {
     allAntecedentes = response.data.map(item => ({
       ...item,
-      slug: `${item.id}/${generateSlug(item.Titulo)}`
+      slug: generateSlug(item.Titulo)
     }));
   } else {
     throw new Error('No se obtuvieron datos válidos');
@@ -119,7 +119,7 @@ try {
   console.error('Error al cargar datos, usando fallback:', error);
   const allAntecedentes = antecedentesReales.map(item => ({
     ...item,
-    slug: `${item.id}/${generateSlug(item.Titulo)}`
+    slug: generateSlug(item.Titulo)
   }));
 
   let filteredAntecedentes = filterAntecedentes(allAntecedentes, pageData.activeFilters, pageData.searchQuery);

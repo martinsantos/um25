@@ -1,13 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { directus, DEFAULT_IMAGE, getAntecedenteImageUrl } from '../utils/directus';
+import { directus, DEFAULT_IMAGE } from '../utils/directus';
 import { generateSlug } from '../utils/slugUtils';
 
-// Configuración SEO específica para bodegas - ULTRA OPTIMIZADA para Argentina y Mendoza
+// Configuración SEO específica para Bodegas
 const seoConfig = {
   title: "Tecnología para Bodegas Mendoza | Automatización Vitivinícola | ULTIMA MILLA",
-  description: "Soluciones IT para bodegas: infraestructura de redes, conectividad, automatización y monitoreo especializado para la industria vitivinícola en Mendoza y Cuyo.",
-  keywords: "servicios tecnologicos bodegas, infraestructura it vitivinicola mendoza, redes bodegas cuyo, telecomunicaciones viñedos, corrientes debiles fincas, automatizacion bodegas patagonia, conectividad vinos",
+  description: "Soluciones IT para bodegas vitivinícolas: infraestructura de redes, conectividad, automatización y monitoreo especializado en Mendoza y Cuyo.",
+  keywords: "servicios tecnologicos bodegas, infraestructura it vitivinicola mendoza, redes bodegas cuyo, telecomunicaciones viñedos, automatizacion bodegas patagonia",
   ogImage: "/images/services/redes-comunicaciones.jpg",
   canonical: "https://ultimamilla.com.ar/bodegas",
   locale: "es_AR",
@@ -18,36 +18,24 @@ const seoConfig = {
 
 // Cargar antecedentes del sector bodegas
 import { antecedentesReales } from '../data/antecedentes_completos.js';
-import AntecedentesGridMobileOptimized from '../components/AntecedentesGridMobileOptimized.astro';
+import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
 
 let antecedentes = [];
-let serviciosRelacionados = [];
 let error = null;
 
 const keywords = [
   'bodega', 'viña', 'finca', 'wines', 'vitivinicola', 'vino', 'domaine',
   'bousquet', 'norton', 'trapiche', 'catena', 'zuccardi', 'rutini',
-  'enologia', 'viñedo', 'malbec'
+  'enologia', 'viñedo', 'malbec', 'viticola'
 ];
 
-const filterAntecedentes = async (data) => {
-  const filtered = data.filter(item => {
+const filterAntecedentes = (data) => {
+  return data.filter(item => {
     const cliente = (item.Cliente || '').toLowerCase();
     const titulo = (item.Titulo || '').toLowerCase();
     const area = (item.Area || '').toLowerCase();
     return keywords.some(k => cliente.includes(k) || titulo.includes(k) || area.includes(k));
-  });
-
-  const withImages = await Promise.all(
-    filtered.map(async (item) => ({
-      ...item,
-      Nombre: item.Titulo,
-      mapeo_imagenes_completo: await getAntecedenteImageUrl(item),
-      slug: `${item.id}/${generateSlug(item.Titulo)}`
-    }))
-  );
-
-  return withImages.sort((a, b) => new Date(b.Fecha || '2000-01-01') - new Date(a.Fecha || '2000-01-01'));
+  }).sort((a, b) => new Date(b.Fecha || '2000-01-01') - new Date(a.Fecha || '2000-01-01'));
 };
 
 try {
@@ -58,7 +46,7 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    antecedentes = await filterAntecedentes(response.data);
+    antecedentes = filterAntecedentes(response.data);
     console.log(`✅ Cargados ${antecedentes.length} antecedentes de bodegas`);
   }
 } catch (err) {
@@ -69,7 +57,7 @@ try {
 // Fallback a datos locales si no hay resultados de API
 if (antecedentes.length === 0) {
   console.log('Usando antecedentes locales para Bodegas');
-  antecedentes = await filterAntecedentes(antecedentesReales);
+  antecedentes = filterAntecedentes(antecedentesReales);
 }
 
 // Limitar a 6 para la vista (ELIMINADO - Ahora se maneja en el componente con "Ver más")
@@ -264,7 +252,7 @@ serviciosRelacionados = [
       <section style="background: #f8fafc; padding: 100px 32px; border-top: 1px solid #e2e8f0;">
         <div style="max-width: 75rem; margin: 0 auto;">
           <div style="text-align: center; margin-bottom: 72px;">
-            <div style="display: inline-block; padding: 8px 20px; background: linear-gradient(135deg, #fb923c, #f97316); border-radius: 50px; margin-bottom: 20px;">
+            <div style="display: inline-block; padding: 8px 20px; background: linear-gradient(135deg, #a855f7, #9333ea); border-radius: 50px; margin-bottom: 20px;">
               <span style="font-size: 13px; font-weight: 800; color: white; letter-spacing: 1px; text-transform: uppercase;">✨ Casos de Éxito</span>
             </div>
             <h2 style="font-size: clamp(36px, 5.5vw, 52px); font-weight: 900; color: #0f172a; margin-bottom: 20px; letter-spacing: -0.02em;">
@@ -275,7 +263,7 @@ serviciosRelacionados = [
             </p>
           </div>
 
-          <AntecedentesGridMobileOptimized items={antecedentes} limit={25} title="Casos de u00c9xito en ubodegas" description="Proyectos destacados en este sector" />
+          <FeaturedAntecedentes antecedentes={antecedentes} />
         </div>
       </section>
     )}
