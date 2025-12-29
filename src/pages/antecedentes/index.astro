@@ -302,7 +302,7 @@ const unidades = filterOptions.unidades;
         ) : (
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {pageData.antecedentes.map((proyecto) => (
-              <a href={`/antecedentes/${proyecto.slug}`} class="group flex flex-col h-full">
+              <a href={`/antecedentes/${proyecto.id}/${proyecto.slug}`} class="group flex flex-col h-full">
                 <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1">
                   <!-- Image -->
                   <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
