@@ -59,55 +59,6 @@ if (antecedentes.length === 0) {
   console.log('Usando antecedentes locales para Bodegas');
   antecedentes = filterAntecedentes(antecedentesReales);
 }
-
-// Limitar a 6 para la vista (ELIMINADO - Ahora se maneja en el componente con "Ver más")
-// antecedentes = antecedentes.slice(0, 6);
-
-// Servicios relacionados con el sector bodegas
-serviciosRelacionados = [
-  {
-    id: 1,
-    nombre: "Redes de Datos",
-    descripcion: "Cableado estructurado y fibra óptica para bodegas",
-    icon: "network",
-    slug: "redes-datos"
-  },
-  {
-    id: 2,
-    nombre: "Seguridad Informática",
-    descripcion: "Protección de sistemas y datos en operaciones vitivinícolas",
-    icon: "shield",
-    slug: "seguridad-informatica"
-  },
-  {
-    id: 3,
-    nombre: "Telecomunicaciones",
-    descripcion: "Sistemas de comunicación integrados para bodegas",
-    icon: "wifi",
-    slug: "telecomunicaciones"
-  },
-  {
-    id: 4,
-    nombre: "Telefonía IP",
-    descripcion: "Soluciones de comunicación para operaciones vitivinícolas",
-    icon: "phone",
-    slug: "telefonia-ip"
-  },
-  {
-    id: 5,
-    nombre: "Sistemas de Detección",
-    descripcion: "Detección de incendios y alarmas para protección",
-    icon: "alert",
-    slug: "deteccion-incendios"
-  },
-  {
-    id: 6,
-    nombre: "Soporte Técnico 24/7",
-    descripcion: "Asistencia técnica especializada para bodegas",
-    icon: "support",
-    slug: "soporte-tecnico"
-  }
-];
 ---
 
 <Layout
@@ -118,130 +69,62 @@ serviciosRelacionados = [
   canonical={seoConfig.canonical}
 >
   <main style="background: #f5f5f5;">
-    <!-- HERO EXACTO DEL BOCETO -->
+    <!-- HERO BODEGAS -->
     <section style="position: relative; min-height: 350px; display: flex; align-items: center; background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=1920&q=80') center/cover; color: white;">
       <div style="max-width: 1200px; margin: 0 auto; padding: 50px 40px; width: 100%;">
-        <!-- Badge Simple -->
         <div style="display: inline-flex; align-items: center; gap: 12px; padding: 12px 20px; background: linear-gradient(135deg, rgba(147, 51, 234, 0.3), rgba(147, 51, 234, 0.1)); border-radius: 20px; margin-bottom: 20px; border: 1px solid rgba(147, 51, 234, 0.4); backdrop-filter: blur(10px);">
           <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(147, 51, 234, 0.4);">
-            <span style="font-size: 24px;">📦</span>
+            <span style="font-size: 24px;">🍇</span>
           </div>
           <span style="font-size: 13px; font-weight: 800; color: #c084fc; text-transform: uppercase; letter-spacing: 1.2px;">Sector Vitivinícola</span>
         </div>
 
-        <!-- Title Simple -->
         <h1 style="font-size: 48px; font-weight: 900; margin-bottom: 20px; line-height: 1.2; color: white;">
           Tecnología para Bodegas<br/>y Vitivinicultura
         </h1>
 
-        <!-- Subtitle Simple -->
         <p style="font-size: 18px; font-weight: 400; color: rgba(255, 255, 255, 0.9); max-width: 600px; margin-bottom: 32px; line-height: 1.6;">
           Infraestructura IT especializada para bodegas, viñedos y operaciones vitivinícolas en Mendoza.
         </p>
 
-        <!-- CTA Button Simple -->
-        <a href="#contacto" style="display: inline-block; background: #9333ea; color: white; padding: 14px 32px; border-radius: 6px; font-weight: 700; font-size: 15px; text-decoration: none; transition: all 0.3s ease;" onmouseover="this.style.background='#e55a2b'" onmouseout="this.style.background='#9333ea'">
+        <a href="#contacto" style="display: inline-block; background: #9333ea; color: white; padding: 14px 32px; border-radius: 6px; font-weight: 700; font-size: 15px; text-decoration: none; transition: all 0.3s ease;" onmouseover="this.style.background='#a855f7'" onmouseout="this.style.background='#9333ea'">
           Explorar Nuestras Soluciones
         </a>
       </div>
     </section>
 
-    <!-- 3 CARDS EXACTAS DEL BOCETO -->
+    <!-- 3 CARDS SERVICIOS -->
     <section style="background: #f5f5f5; padding: 50px 40px;">
       <div style="max-width: 1200px; margin: 0 auto;">
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;">
-          <!-- Card 1 EXACTA -->
-          <a href="/servicios/1/redes-de-datos" style="text-decoration: none; display: block; padding: 40px 30px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <div style="width: 80px; height: 80px; background: white; border: 3px solid #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
-              <svg style="width: 40px; height: 40px; color: #9333ea;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          <a href="/servicios/1/redes-datos" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #9333ea; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(147,51,234,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <div style="width: 50px; height: 50px; background: #9333ea; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m4 0V9a1 1 0 011-1h4a1 1 0 011 1v12M9 7h6"></path>
               </svg>
             </div>
             <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Redes de Datos</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Infraestructura de redes robusta para operaciones vitivinícolas.</p>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Infraestructura robusta para operaciones vitivinícolas</p>
           </a>
 
-          <!-- Card 2 EXACTA -->
-          <a href="/servicios/2/seguridad-informatica" style="text-decoration: none; display: block; padding: 40px 30px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <div style="width: 80px; height: 80px; background: white; border: 3px solid #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
-              <svg style="width: 40px; height: 40px; color: #9333ea;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <a href="/servicios/2/seguridad" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #9333ea; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(147,51,234,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <div style="width: 50px; height: 50px; background: #9333ea; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
               </svg>
             </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Seguridad Informática</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Protección de sistemas y datos en operaciones vitivinícolas</p>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Seguridad</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Protección de sistemas y datos</p>
           </a>
 
-          <!-- Card 3 EXACTA -->
-          <a href="/servicios/3/telecomunicaciones" style="text-decoration: none; display: block; padding: 40px 30px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <div style="width: 80px; height: 80px; background: white; border: 3px solid #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
-              <svg style="width: 40px; height: 40px; color: #9333ea;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          <a href="/servicios/3/telecomunicaciones" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #9333ea; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(147,51,234,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <div style="width: 50px; height: 50px; background: #9333ea; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path>
               </svg>
             </div>
             <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Telecomunicaciones</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Sistemas de comunicación integrados para bodegas</p>
-          </a>
-        </div>
-      </div>
-    </section>
-
-
-    <!-- SERVICIOS EXACTOS DEL BOCETO -->
-    <section id="servicios" style="background: white; padding: 50px 40px;">
-      <div style="max-width: 1200px; margin: 0 auto;">
-        <!-- Header Simple -->
-        <div style="text-align: center; margin-bottom: 60px;">
-          <h2 style="font-size: 36px; font-weight: 700; color: #333; margin-bottom: 16px;">Servicios Ofrecidos</h2>
-          <p style="font-size: 16px; color: #666; max-width: 700px; margin: 0 auto; line-height: 1.6;">
-            Ofrecemos un portafolio de servicios tecnológicos diseñados para optimizar cada fase del ciclo de vida del proyecto de construcción.
-          </p>
-        </div>
-
-        <!-- Services Grid 2x2 -->
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; max-width: 900px; margin: 0 auto;">
-          <!-- Servicio 1: Redes de Datos (ID 2) -->
-          <a href="/servicios/2/redes-de-datos" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #9333ea; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'">
-            <div style="width: 50px; height: 50px; background: #9333ea; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Redes de Datos</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Cableado estructurado y fibra óptica para bodegas</p>
-          </a>
-
-          <!-- Servicio 2: Seguridad Informática (ID 3) -->
-          <a href="/servicios/3/seguridad-informatica" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #9333ea; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'">
-            <div style="width: 50px; height: 50px; background: #9333ea; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Seguridad Informática</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Protección de sistemas y datos en operaciones vitivinícolas</p>
-          </a>
-
-          <!-- Servicio 3: Telecomunicaciones (ID 4) -->
-          <a href="/servicios/4/telecomunicaciones" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #9333ea; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'">
-            <div style="width: 50px; height: 50px; background: #9333ea; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Telecomunicaciones</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Sistemas de comunicación integrados para bodegas</p>
-          </a>
-
-          <!-- Servicio 4: Servicios IT (ID 1) -->
-          <a href="/servicios/1/servicios-it" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #9333ea; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'">
-            <div style="width: 50px; height: 50px; background: #9333ea; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Servicios IT</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Consultoría y soporte técnico especializado</p>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Sistemas integrados para bodegas</p>
           </a>
         </div>
       </div>
@@ -259,7 +142,7 @@ serviciosRelacionados = [
               Proyectos Realizados
             </h2>
             <p style="font-size: 19px; color: #64748b; max-width: 750px; margin: 0 auto; line-height: 1.7; font-weight: 500;">
-              Nuestras soluciones han impulsado la calidad y excelencia de bodegas vitivinícolas<br/>en Mendoza y todo el país.
+              Nuestras soluciones han impulsado la calidad y excelencia de bodegas vitivinícolas en Mendoza y todo el país.
             </p>
           </div>
 
@@ -268,61 +151,55 @@ serviciosRelacionados = [
       </section>
     )}
 
-    <!-- FORMULARIO DE CONTACTO PREMIUM -->
+    <!-- CONTACTO -->
     <section id="contacto" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 100px 32px; position: relative; overflow: hidden;">
-      <!-- Decorative Elements -->
-      <div style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(251, 146, 60, 0.15) 0%, transparent 70%); border-radius: 50%;"></div>
-      <div style="position: absolute; bottom: -150px; left: -150px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(251, 146, 60, 0.1) 0%, transparent 70%); border-radius: 50%;"></div>
-      
+      <div style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(147, 51, 234, 0.15) 0%, transparent 70%); border-radius: 50%;"></div>
+      <div style="position: absolute; bottom: -150px; left: -150px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(147, 51, 234, 0.1) 0%, transparent 70%); border-radius: 50%;"></div>
+
       <div style="max-width: 75rem; margin: 0 auto; position: relative; z-index: 10;">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;">
-          <!-- Left Content -->
           <div>
-            <div style="display: inline-block; padding: 8px 20px; background: rgba(251, 146, 60, 0.2); border-radius: 50px; margin-bottom: 24px; border: 1px solid rgba(251, 146, 60, 0.3);">
-              <span style="font-size: 13px; font-weight: 800; color: #fbbf24; letter-spacing: 1px; text-transform: uppercase;">📞 Contáctenos</span>
+            <div style="display: inline-block; padding: 8px 20px; background: rgba(147, 51, 234, 0.2); border-radius: 50px; margin-bottom: 24px; border: 1px solid rgba(147, 51, 234, 0.3);">
+              <span style="font-size: 13px; font-weight: 800; color: #d8b4fe; letter-spacing: 1px; text-transform: uppercase;">📞 Contáctenos</span>
             </div>
             <h2 style="font-size: clamp(36px, 5vw, 56px); font-weight: 900; color: white; margin-bottom: 24px; line-height: 1.1; letter-spacing: -0.02em;">
-              ¿Listo para Transformar<br/>Su Bodega?
+              ¿Listo para Transformar Su Bodega?
             </h2>
             <p style="font-size: 18px; color: #cbd5e1; line-height: 1.8; margin-bottom: 40px; font-weight: 500;">
-              Contáctenos y nuestro equipo de expertos le ayudará a encontrar la solución tecnológica perfecta para su operación vitivinícola.
+              Contáctenos y encontraremos la solución tecnológica perfecta para su operación vitivinícola.
             </p>
-            <div style="display: flex; flex-direction: column; gap: 20px;">
-              <div style="display: flex; align-items: center; gap: 16px;">
-                <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #a855f7, #9333ea); border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                  <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                  </svg>
-                </div>
-                <div>
-                  <p style="font-size: 14px; color: #94a3b8; font-weight: 600; margin-bottom: 4px;">Email</p>
-                  <p style="font-size: 18px; color: white; font-weight: 700;">contacto@ultimamilla.com.ar</p>
-                </div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #a855f7, #9333ea); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 011 1.21V9a2 2 0 00-2-2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                </svg>
+              </div>
+              <div>
+                <p style="font-size: 14px; color: #94a3b8; font-weight: 600; margin-bottom: 4px;">Email</p>
+                <p style="font-size: 18px; color: white; font-weight: 700;">contacto@ultimamilla.com.ar</p>
               </div>
             </div>
           </div>
-          
-          <!-- Right Form -->
+
           <div style="background: white; border-radius: 24px; padding: 48px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-            <form id="bodegasContactForm" style="display: flex; flex-direction: column; gap: 24px;">
+            <form action="/api/contact" method="POST" style="display: flex; flex-direction: column; gap: 24px;">
               <div>
-                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Nombre *</label>
-                <input type="text" name="name" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#fb923c'; this.style.boxShadow='0 0 0 4px rgba(251,146,60,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Juan Pérez" />
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Nombre</label>
+                <input type="text" name="nombre" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#9333ea'; this.style.boxShadow='0 0 0 4px rgba(147,51,234,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Juan Pérez" />
               </div>
               <div>
                 <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Empresa</label>
-                <input type="text" name="company" style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#fb923c'; this.style.boxShadow='0 0 0 4px rgba(251,146,60,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Bodega ABC" />
+                <input type="text" name="empresa" style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#9333ea'; this.style.boxShadow='0 0 0 4px rgba(147,51,234,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Bodega ABC" />
               </div>
               <div>
-                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Email *</label>
-                <input type="email" name="email" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#fb923c'; this.style.boxShadow='0 0 0 4px rgba(251,146,60,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="juan@bodega.com" />
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Email</label>
+                <input type="email" name="email" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#9333ea'; this.style.boxShadow='0 0 0 4px rgba(147,51,234,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="juan@bodega.com" />
               </div>
               <div>
-                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Mensaje *</label>
-                <textarea name="message" required rows="4" style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none; resize: vertical;" onfocus="this.style.borderColor='#fb923c'; this.style.boxShadow='0 0 0 4px rgba(251,146,60,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Cuéntenos sobre su proyecto..."></textarea>
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Mensaje</label>
+                <textarea name="mensaje" required rows="4" style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none; resize: vertical;" onfocus="this.style.borderColor='#9333ea'; this.style.boxShadow='0 0 0 4px rgba(147,51,234,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Cuéntenos sobre su proyecto..."></textarea>
               </div>
-              <div id="bodegasMessage" style="display: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; text-align: center;"></div>
-              <button type="submit" style="width: 100%; padding: 18px; background: linear-gradient(135deg, #fb923c, #f97316); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 10px 30px rgba(251,146,60,0.4);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 14px 40px rgba(251,146,60,0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(251,146,60,0.4)'">
+              <button type="submit" style="width: 100%; padding: 18px; background: linear-gradient(135deg, #a855f7, #9333ea); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 10px 30px rgba(147,51,234,0.4);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 14px 40px rgba(147,51,234,0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(147,51,234,0.4)'">
                 Solicitar Consultoría Ahora
               </button>
             </form>
@@ -333,92 +210,10 @@ serviciosRelacionados = [
   </main>
 </Layout>
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('bodegasContactForm');
-    const messageDiv = document.getElementById('bodegasMessage');
-    
-    if (!form) return;
-    
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData);
-      
-      try {
-        const response = await fetch('/api/contact', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data)
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-          messageDiv.textContent = '✅ Mensaje enviado exitosamente. Te contactaremos pronto.';
-          messageDiv.style.background = '#dcfce7';
-          messageDiv.style.color = '#166534';
-          messageDiv.style.display = 'block';
-          form.reset();
-          setTimeout(() => {
-            messageDiv.style.display = 'none';
-          }, 5000);
-        } else {
-          messageDiv.textContent = '❌ ' + (result.message || 'Error al enviar el mensaje');
-          messageDiv.style.background = '#fee2e2';
-          messageDiv.style.color = '#991b1b';
-          messageDiv.style.display = 'block';
-        }
-      } catch (error) {
-        messageDiv.textContent = '❌ Error de conexión. Intenta nuevamente.';
-        messageDiv.style.background = '#fee2e2';
-        messageDiv.style.color = '#991b1b';
-        messageDiv.style.display = 'block';
-      }
-    });
-  });
-</script>
-
 <style>
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .group:hover .group-hover\:scale-105 {
-    transform: scale(1.05);
-  }
-
   a:focus {
-    outline: 2px solid rgba(217, 119, 6, 0.5);
+    outline: 2px solid rgba(147, 51, 234, 0.5);
     outline-offset: 2px;
     border-radius: 0.25rem;
-  }
-</style>
-
-<style>
-  /* RESPONSIVE MOBILE - FUERZA OVERRIDE CON !important */
-  @media (max-width: 768px) {
-    [style*="grid-template-columns: repeat(3, 1fr)"] { grid-template-columns: 1fr !important; }
-    [style*="grid-template-columns: repeat(2, 1fr)"] { grid-template-columns: 1fr !important; }
-    [style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; gap: 40px !important; }
-    h1[style] { font-size: 32px !important; }
-    h2[style] { font-size: 28px !important; }
-    h3[style] { font-size: 18px !important; }
-    section[style*="padding"] { padding: 40px 20px !important; }
-    #contacto form { padding: 24px !important; }
-    [style*="padding: 30px"] { padding: 20px !important; }
   }
 </style>
