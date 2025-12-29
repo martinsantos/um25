@@ -59,6 +59,18 @@ if (antecedentes.length === 0) {
   console.log('Usando antecedentes locales para Bodegas');
   antecedentes = filterAntecedentes(antecedentesReales);
 }
+
+// Procesar imágenes y slugs para cada antecedente
+const { getAntecedenteImageUrl } = await import('../utils/directus.js');
+const { generateSlug } = await import('../utils/slugUtils.js');
+antecedentes = await Promise.all(
+  antecedentes.map(async (item) => ({
+    ...item,
+    Nombre: item.Titulo || item.Nombre,
+    mapeo_imagenes_completo: await getAntecedenteImageUrl(item),
+    slug: generateSlug(item.Titulo || item.Nombre)
+  }))
+);
 ---
 
 <Layout
