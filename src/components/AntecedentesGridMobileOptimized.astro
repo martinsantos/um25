@@ -135,16 +135,13 @@ const paginatedItems = items.slice(0, itemsPerPage);
               {item.Descripcion?.substring(0, 120)}...
             </p>
 
-            <!-- CTA Link -->
-            <a
-              href={`/antecedentes/${item.id}/${item.slug}`}
-              class="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-cyan-600 hover:text-cyan-700 group/link"
-            >
+            <!-- CTA Visual (not a link - parent card is already clickable) -->
+            <span class="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-cyan-600 group-hover:text-cyan-700">
               Ver Caso
-              <svg class="w-4 h-4 sm:w-5 sm:h-5 transform group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
               </svg>
-            </a>
+            </span>
           </div>
         </a>
       ))}
