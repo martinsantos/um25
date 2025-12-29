@@ -67,8 +67,7 @@ antecedentes = await Promise.all(
   antecedentes.map(async (item) => ({
     ...item,
     Nombre: item.Titulo || item.Nombre,
-    mapeo_imagenes_completo: await getAntecedenteImageUrl(item),
-    slug: generateSlug(item.Titulo || item.Nombre)
+    mapeo_imagenes_completo: await getAntecedenteImageUrl(item)
   }))
 );
 ---
