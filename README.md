@@ -415,6 +415,13 @@ Para soporte técnico o consultas:
 - **Issues**: [GitHub Issues](https://github.com/martinsantos/um25/issues)
 - **Documentación**: [Wiki del Proyecto](https://github.com/martinsantos/um25/wiki)
 
+## 🔍 Auditoría y Remediación (Enero 2026)
+Se ha completado una auditoría profunda del sitio con los siguientes resultados:
+- **Enlaces Rotos (404):** 0 (Corregidos enlaces de antecedentes y servicios).
+- **SEO & Indexación:** Verificado 100% de páginas core.
+- **Rutas de Antecedentes:** Corregido error de doble ID (`/11187/11187/`) sincronizando lógica de servidor y componentes.
+- **Validación Final:** Reporte generado y verificado en `SITE_AUDIT_REPORT.md`.
+
 ---
 
 **Desarrollado con ❤️ por el equipo de ULTiMA MILLA**

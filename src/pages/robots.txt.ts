@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 
-const SITE_URL = 'https://ultimamilla.com';
+const SITE_URL = 'https://ultimamilla.com.ar';
 
 export const GET: APIRoute = async () => {
     const robotsTxt = `# www.robotstxt.org

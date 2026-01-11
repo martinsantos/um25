@@ -7,17 +7,30 @@ const ITEMS_PER_PAGE = 25;
 
 // Procesar antecedentes
 const processedAntecedentes = await Promise.all(
-  antecedentes.map(async (item) => ({
-    ...item,
-    slug: item.slug || `${item.id}/${generateSlug(item.Titulo)}`,
-    imageUrl: await getAntecedenteImageUrl(item)
-  }))
+  antecedentes.map(async (item) => {
+    const cleanId = String(item.id).split('/')[0].trim();
+    const textSlug = generateSlug(item.Titulo);
+    const deepLink = `${cleanId}/${textSlug}`;
+    
+    let imageUrl = '/images/antecedentes-hero-bg.jpg'; // Fallback default
+    try {
+      imageUrl = await getAntecedenteImageUrl(item);
+    } catch (e) {
+      console.error(`[FeaturedAntecedentes] Failed to load image for ID ${item.id}:`, e.message);
+    }
+
+    return {
+      ...item,
+      calculatedDeepLink: deepLink, 
+      imageUrl: imageUrl
+    };
+  })
 );
 
 const totalPages = Math.ceil(processedAntecedentes.length / ITEMS_PER_PAGE);
 const allItemsJSON = JSON.stringify(processedAntecedentes);
 ---
-
+<!-- DEBUG: FIXED LINK COMPONENT LOADED -->
 <div
   class="featured-antecedentes-wrapper"
   x-data={`{
@@ -33,6 +46,9 @@ const allItemsJSON = JSON.stringify(processedAntecedentes);
     get paginatedItems() {
       return this.allItems.slice(this.startIndex, this.endIndex);
     },
+    // ... rest of logic
+    
+
 
     get pageNumbers() {
       const pages = [];
@@ -140,7 +156,7 @@ const allItemsJSON = JSON.stringify(processedAntecedentes);
   <!-- Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 antecedente-grid">
     <template x-for="proyecto in paginatedItems" :key="proyecto.id">
-      <a :href="`/antecedentes/${proyecto.slug}`" class="group flex flex-col h-full antecedente-item">
+      <a :href="'/antecedentes/' + proyecto.calculatedDeepLink" class="group flex flex-col h-full antecedente-item">
         <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1">
           <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
             <img

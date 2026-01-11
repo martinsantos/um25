@@ -1,33 +1,228 @@
 ---
-// Página de redirección para antecedentes individuales
-// Redirige a la página principal de antecedentes hasta que se solucionen las páginas dinámicas
+import Layout from '../../../layouts/Layout.astro';
+import { antecedentesReales } from '../../../data/antecedentes_completos.js';
+import { getAntecedenteImageUrl, directus } from '../../../utils/directus';
+import { generateSlug } from '../../../utils/slugUtils';
 
-export const prerender = true;
+// Disable prerender to allow dynamic ID lookup at runtime (SSR)
+export const prerender = false;
 
-export async function getStaticPaths() {
-    // Generar rutas para todos los IDs de antecedentes disponibles
-    const allIds = [];
-    
-    // Rango principal de IDs (basado en los datos disponibles)
-    for (let i = 10768; i <= 10850; i++) {
-        allIds.push(i.toString());
-    }
-    
-    // IDs adicionales comunes que podrían existir
-    const additionalIds = [
-        '1', '2', '3', '4', '5', '10', '15', '20', '25', '30',
-        '100', '200', '300', '400', '500', '1000', '2000', '3000'
-    ];
-    
-    allIds.push(...additionalIds);
-    
-    return allIds.map(id => ({
-        params: { id }
-    }));
+const { id, slug } = Astro.params;
+
+// 1. Try to find the antecedent
+let antecedente = null;
+
+try {
+  if (id) {
+    antecedente = antecedentesReales.find(a => a.id.toString() === id.toString());
+  }
+} catch (e) {
+  console.error(`Error finding antecedent ${id}:`, e);
 }
 
-const { id } = Astro.params;
+// 2. Handle 404
+if (!antecedente) {
+  return Astro.redirect('/404');
+}
 
-// Redirigir a la página principal de antecedentes
-return Astro.redirect('/antecedentes');
---- 
+// 3. Prepare Data for View
+const imageUrl = await getAntecedenteImageUrl(antecedente);
+const title = antecedente.Titulo || "Proyecto Sin Título";
+const rawDescription = antecedente.Descripcion || "Sin descripción disponible.";
+const description = rawDescription.replace(/<[^>]*>/g, '');
+const client = antecedente.Cliente || "Cliente Confidencial";
+const date = antecedente.Fecha ? new Date(antecedente.Fecha).toLocaleDateString('es-AR', { year: 'numeric', month: 'long' }) : "Fecha desconocida";
+const area = antecedente.Area || "General";
+
+// 4. Get Related Cases (Logic: Same Area, exclude current)
+let relatedCases = antecedentesReales
+  .filter(a => a.Area === area && a.id.toString() !== antecedente.id.toString())
+  .slice(0, 3);
+
+// Fill with recent if not enough
+if (relatedCases.length < 3) {
+  const others = antecedentesReales
+    .filter(a => a.id.toString() !== antecedente.id.toString() && !relatedCases.find(r => r.id === a.id))
+    .slice(0, 3 - relatedCases.length);
+  relatedCases = [...relatedCases, ...others];
+}
+
+// Process images for related cases
+const relatedCasesWithImages = await Promise.all(relatedCases.map(async (item) => ({
+  ...item,
+  imageUrl: await getAntecedenteImageUrl(item),
+  slug: `${item.id}/${generateSlug(item.Titulo)}`
+})));
+
+
+// SEO Metadata
+const seoTitle = `${title} | Casos de Éxito Ultima Milla`;
+const seoDescription = `Proyecto: ${title}. Cliente: ${client}. Área: ${area}. ${description.substring(0, 100)}...`;
+const canonicalUrl = `https://ultimamilla.com.ar/antecedentes/${id}/${slug || ''}`;
+
+---
+
+<Layout title={seoTitle} description={seoDescription} image={imageUrl} canonical={canonicalUrl}>
+  
+  <!-- HERO CINEMATICO (Mobile Optimized) -->
+  <section class="relative h-[65vh] min-h-[500px] w-full overflow-hidden bg-slate-900 group">
+    <!-- Background Image -->
+    <div class="absolute inset-0 z-0">
+      <img 
+        src={imageUrl} 
+        alt={title}
+        class="w-full h-full object-cover opacity-50 scale-105 transition-transform duration-[20s] ease-linear group-hover:scale-110"
+      />
+      <!-- Gradient Overlay: Professional Dark Fade -->
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+    </div>
+
+    <!-- Content Container -->
+    <div class="relative z-10 container mx-auto px-4 md:px-6 h-full flex flex-col justify-end pb-12 md:pb-20">
+      
+      <!-- Meta Badges -->
+      <div class="flex flex-wrap items-center gap-3 mb-4 md:mb-6 animate-fade-in-up" style="animation-delay: 0.1s;">
+        <span class="inline-flex items-center px-3 py-1 rounded-full bg-red-600 text-white text-[10px] md:text-xs font-bold tracking-widest uppercase shadow-sm">
+          {area}
+        </span>
+        <span class="inline-flex items-center px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-[10px] md:text-xs font-medium">
+          {date}
+        </span>
+      </div>
+
+      <!-- Main Title (Responsive Typography) -->
+      <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-4 md:mb-6 leading-tight max-w-5xl tracking-tight animate-fade-in-up drop-shadow-xl" style="animation-delay: 0.2s;">
+        {title}
+      </h1>
+
+      <!-- Client Subtitle -->
+      <p class="text-slate-300 text-lg md:text-xl font-light animate-fade-in-up" style="animation-delay: 0.25s;">
+        Cliente: <span class="text-white font-medium">{client}</span>
+      </p>
+
+    </div>
+  </section>
+
+  <!-- CONTENT WRAPPER -->
+  <div class="relative z-20 bg-white">
+    <div class="container mx-auto px-4 md:px-6 py-12 md:py-20">
+      
+      <div class="grid lg:grid-cols-[1fr_350px] gap-10 md:gap-20 max-w-7xl mx-auto">
+        
+        <!-- COLUMN LEFT: Description -->
+        <main class="animate-fade-in-up" style="animation-delay: 0.3s;">
+          <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-6 pb-4 border-b border-gray-100 flex items-center gap-3">
+             <span class="w-1.5 h-6 bg-red-600 rounded-full"></span>
+             Detalle del Proyecto
+          </h2>
+          
+          <div class="prose prose-base md:prose-lg prose-slate max-w-none text-slate-600 leading-relaxed text-justify">
+            <p class="whitespace-pre-line">
+              {description}
+            </p>
+          </div>
+        </main>
+
+        <!-- COLUMN RIGHT: Sidebar Information (Stacked on Mobile) -->
+        <aside class="space-y-8 animate-fade-in-up" style="animation-delay: 0.4s;">
+          
+          <!-- Project Card -->
+          <div class="bg-slate-50 p-6 md:p-8 rounded-2xl border border-slate-100 shadow-sm">
+            <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-6 border-b border-slate-200 pb-2">Ficha Técnica</h3>
+            
+            <dl class="space-y-5">
+              <div class="group">
+                <dt class="text-[10px] text-slate-500 uppercase font-bold tracking-wider group-hover:text-red-600 transition-colors">Organización</dt>
+                <dd class="text-sm md:text-base font-bold text-slate-800 mt-1">{client}</dd>
+              </div>
+              
+              <div class="group">
+                <dt class="text-[10px] text-slate-500 uppercase font-bold tracking-wider group-hover:text-red-600 transition-colors">Vertical</dt>
+                <dd class="text-sm md:text-base font-bold text-slate-800 mt-1">{area}</dd>
+              </div>
+
+              <div class="group">
+                 <dt class="text-[10px] text-slate-500 uppercase font-bold tracking-wider group-hover:text-red-600 transition-colors">Finalización</dt>
+                 <dd class="text-sm md:text-base font-bold text-slate-800 mt-1">{date}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- CTA / Contact -->
+          <div class="bg-gray-900 text-white p-6 md:p-8 rounded-2xl shadow-xl relative overflow-hidden group">
+            <div class="absolute top-0 right-0 -mt-10 -mr-10 w-32 h-32 bg-red-600/20 rounded-full blur-3xl group-hover:bg-red-600/30 transition-all"></div>
+            
+            <h3 class="relative z-10 text-lg font-bold mb-3">¿Necesita Innovación?</h3>
+            <p class="relative z-10 text-slate-300 text-sm mb-6 leading-relaxed">
+              Transformamos la infraestructura tecnológica de su empresa.
+            </p>
+            
+            <a href="/#contacto" class="relative z-10 block w-full py-3 px-4 bg-red-600 hover:bg-red-700 text-white text-center font-bold rounded-lg transition-transform duration-300 active:scale-95 shadow-lg">
+              Contactar Experto
+            </a>
+          </div>
+
+        </aside>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- RELATED CASES MODULE -->
+  <section class="bg-slate-50 border-t border-slate-200 py-16 md:py-24">
+    <div class="container mx-auto px-4 md:px-6">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-10 text-center">
+          Proyectos Relacionados
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {relatedCasesWithImages.map(rc => (
+            <a href={`/antecedentes/${rc.slug}`} class="group flex flex-col bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <div class="relative h-48 overflow-hidden">
+                <img 
+                  src={rc.imageUrl} 
+                  alt={rc.Titulo}
+                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  loading="lazy"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
+                <span class="absolute bottom-4 left-4 text-xs font-bold text-white uppercase tracking-wider">
+                  {rc.Area}
+                </span>
+              </div>
+              <div class="p-6 flex flex-col flex-grow">
+                <h3 class="text-lg font-bold text-slate-900 mb-2 line-clamp-2 group-hover:text-red-600 transition-colors">
+                  {rc.Titulo}
+                </h3>
+                <p class="text-sm text-slate-500 mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <span>{new Date(rc.Fecha).getFullYear()}</span>
+                  <span class="text-red-600 font-medium group-hover:underline">Ver Caso →</span>
+                </p>
+              </div>
+            </a>
+          ))}
+        </div>
+        
+        <div class="mt-12 text-center">
+          <a href="/antecedentes" class="inline-flex items-center gap-2 px-6 py-3 border-2 border-slate-200 rounded-lg text-slate-600 font-bold hover:border-red-600 hover:text-red-600 transition-colors">
+            Ver Portfolio Completo
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    @keyframes fade-in-up {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-up {
+      animation: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+    }
+  </style>
+
+</Layout>

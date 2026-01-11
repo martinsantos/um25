@@ -84,6 +84,7 @@ try {
   if (response && response.data && response.data.length > 0) {
     allAntecedentes = response.data.map(item => ({
       ...item,
+      id: String(item.id).split('/')[0].trim(),
       slug: generateSlug(item.Titulo)
     }));
   } else {
@@ -119,6 +120,7 @@ try {
   console.error('Error al cargar datos, usando fallback:', error);
   const allAntecedentes = antecedentesReales.map(item => ({
     ...item,
+    id: String(item.id).split('/')[0].trim(),
     slug: generateSlug(item.Titulo)
   }));
 

@@ -1,351 +1,228 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
-import BreadcrumbSchema from '../../../components/SEO/BreadcrumbSchema.astro';
-import { generateSlug } from '../../../utils/slugUtils.js';
-import { getFixedImage } from '../../../utils/imageFixer.js';
-import { DEFAULT_IMAGE, getAntecedenteImageUrl } from '../../../utils/directus.js';
+import { antecedentesReales } from '../../../data/antecedentes_completos.js';
+import { getAntecedenteImageUrl, directus } from '../../../utils/directus';
+import { generateSlug } from '../../../utils/slugUtils';
 
-// --- Configuración ---
-const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://ultimamilla.com.ar/admin';
-const DEFAULT_IMAGE_URL = DEFAULT_IMAGE || `/images/default-background.jpg`;
-const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
-
+// Disable prerender to allow dynamic ID lookup at runtime (SSR)
 export const prerender = false;
 
-// Parámetros de URL
-const { id, slug: slugFromUrl } = Astro.params;
+const { id, slug } = Astro.params;
 
-if (!id || !slugFromUrl) {
-    return Astro.redirect('/404');
-}
-
-// --- Estado ---
+// 1. Try to find the antecedent
 let antecedente = null;
-let usingFallback = false;
 
-// --- Fetch de Datos ---
-async function fetchAntecedenteById(itemId) {
-    try {
-        const response = await fetch(`${DIRECTUS_URL}/items/Antecedentes/${itemId}?fields=*,Imagen.*,ImagenPrincipal.*,Imagenes.*,Imagenes.directus_files_id`, {
-            headers: {
-                'Authorization': `Bearer ${DIRECTUS_STATIC_TOKEN}`,
-                'Accept': 'application/json'
-            }
-        });
-        if (!response.ok) throw new Error(`API Error: ${response.status}`);
-        const data = await response.json();
-        return data?.data || null;
-    } catch (error) {
-        console.error(`Error fetching item ${itemId}:`, error);
-        throw error;
-    }
-}
-
-// --- Obtención de datos y validación ---
 try {
-    if (DIRECTUS_STATIC_TOKEN) {
-        antecedente = await fetchAntecedenteById(id);
-        if (antecedente) {
-            const expectedSlug = generateSlug(antecedente.Titulo);
-            if (expectedSlug !== slugFromUrl) {
-                return Astro.redirect(`/antecedentes/${id}/${expectedSlug}`, 301);
-            }
-        }
-    } else {
-        throw new Error('No token');
-    }
-} catch (error) {
-    usingFallback = true;
-    try {
-        const { antecedentesReales } = await import('../../../data/antecedentes_completos.js');
-        antecedente = antecedentesReales.find(item => item.id.toString() === id);
-        if (antecedente) {
-            const expectedSlug = generateSlug(antecedente.Titulo);
-            if (expectedSlug !== slugFromUrl) {
-                return Astro.redirect(`/antecedentes/${id}/${expectedSlug}`, 301);
-            }
-        } else {
-            return Astro.redirect('/404');
-        }
-    } catch (fallbackError) {
-        return Astro.redirect('/404');
-    }
+  if (id) {
+    antecedente = antecedentesReales.find(a => a.id.toString() === id.toString());
+  }
+} catch (e) {
+  console.error(`Error finding antecedent ${id}:`, e);
 }
 
-if (!antecedente) return Astro.redirect('/404');
+// 2. Handle 404
+if (!antecedente) {
+  return Astro.redirect('/404');
+}
 
-// --- Preparación de datos para la UI ---
-const mainImageUrl = await getAntecedenteImageUrl(antecedente);
+// 3. Prepare Data for View
+const imageUrl = await getAntecedenteImageUrl(antecedente);
+const title = antecedente.Titulo || "Proyecto Sin Título";
+const rawDescription = antecedente.Descripcion || "Sin descripción disponible.";
+const description = rawDescription.replace(/<[^>]*>/g, '');
+const client = antecedente.Cliente || "Cliente Confidencial";
+const date = antecedente.Fecha ? new Date(antecedente.Fecha).toLocaleDateString('es-AR', { year: 'numeric', month: 'long' }) : "Fecha desconocida";
+const area = antecedente.Area || "General";
 
-const formatDate = (dateString) => {
-    if (!dateString) return 'No especificada';
-    try {
-        return new Date(dateString).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
-    } catch { return dateString; }
-};
+// 4. Get Related Cases (Logic: Same Area, exclude current)
+let relatedCases = antecedentesReales
+  .filter(a => a.Area === area && a.id.toString() !== antecedente.id.toString())
+  .slice(0, 3);
 
-const formatCurrency = (amount) => {
-    if (!amount) return 'No especificado';
-    return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
-};
+// Fill with recent if not enough
+if (relatedCases.length < 3) {
+  const others = antecedentesReales
+    .filter(a => a.id.toString() !== antecedente.id.toString() && !relatedCases.find(r => r.id === a.id))
+    .slice(0, 3 - relatedCases.length);
+  relatedCases = [...relatedCases, ...others];
+}
 
-const siteUrl = 'https://ultimamilla.com.ar';
-const canonicalUrl = `${siteUrl}/antecedentes/${id}/${slugFromUrl}`;
+// Process images for related cases
+const relatedCasesWithImages = await Promise.all(relatedCases.map(async (item) => ({
+  ...item,
+  imageUrl: await getAntecedenteImageUrl(item),
+  slug: `${item.id}/${generateSlug(item.Titulo)}`
+})));
 
-// Dynamic SEO title with keywords
-const seoTitle = `${antecedente.Titulo} | ${antecedente.Area || 'Proyecto IT'} para ${antecedente.Cliente} | Caso de Éxito`;
 
-// Optimized meta description
-const rawDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').trim();
-const metaDescription = rawDescription.substring(0, 160) || `Caso de éxito en ${antecedente.Area || 'servicios IT'} para ${antecedente.Cliente}. Soluciones tecnológicas implementadas por ULTIMA MILLA.`;
+// SEO Metadata
+const seoTitle = `${title} | Casos de Éxito Ultima Milla`;
+const seoDescription = `Proyecto: ${title}. Cliente: ${client}. Área: ${area}. ${description.substring(0, 100)}...`;
+const canonicalUrl = `https://ultimamilla.com.ar/antecedentes/${id}/${slug || ''}`;
 
-// Dynamic keywords based on project data
-const dynamicKeywords = [
-  antecedente.Area,
-  antecedente.Cliente,
-  antecedente.Unidad_de_negocio,
-  'proyecto tecnológico',
-  'caso de éxito',
-  'servicios IT Mendoza',
-  'infraestructura tecnológica'
-].filter(Boolean).join(', ');
-
-// CreativeWork schema for structured data
-const creativeWorkSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'CreativeWork',
-  '@id': canonicalUrl,
-  'name': antecedente.Titulo,
-  'description': metaDescription,
-  'image': mainImageUrl,
-  'datePublished': antecedente.Fecha || new Date().toISOString(),
-  'author': {
-    '@type': 'Organization',
-    'name': 'ULTIMA MILLA',
-    'url': siteUrl
-  },
-  'creator': {
-    '@type': 'Organization',
-    'name': 'ULTIMA MILLA'
-  },
-  'about': {
-    '@type': 'Thing',
-    'name': antecedente.Area || 'Servicios Tecnológicos'
-  },
-  'client': antecedente.Cliente,
-  'url': canonicalUrl,
-  'inLanguage': 'es-AR'
-};
 ---
 
-<Layout
-  title={seoTitle}
-  description={metaDescription}
-  keywords={dynamicKeywords}
-  image={mainImageUrl}
-  canonical={canonicalUrl}
->
-  <!-- CreativeWork Structured Data for Portfolio Items -->
-  <script type="application/ld+json" set:html={JSON.stringify(creativeWorkSchema)} />
-
-  <!-- Breadcrumb Navigation Schema -->
-  <BreadcrumbSchema items={[
-    { label: 'Inicio', url: '/' },
-    { label: 'Antecedentes', url: '/antecedentes' },
-    { label: antecedente.Titulo, url: canonicalUrl }
-  ]} />
-
-  <main class="min-h-screen bg-white">
-    <!-- Hero Section V3 (Immersive, Full-Screen) -->
-    <section class="relative h-[70vh] md:h-[85vh] flex items-end md:items-center overflow-hidden bg-slate-900">
-      <!-- Background Image -->
-      <div class="absolute inset-0 z-0">
-        <img
-          src={mainImageUrl}
-          alt={antecedente.Titulo}
-          class="w-full h-full object-cover"
-          onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null;"
-        />
-      </div>
-      
-      <!-- Gradient Overlay (Dark, Dramatic) -->
-      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30 z-10"></div>
-
-      <!-- Content -->
-      <div class="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-24">
-        <div class="max-w-4xl animate-fade-in-up">
-          <!-- Breadcrumb / Badge -->
-          <div class="flex items-center space-x-4 mb-6 text-sm font-medium text-white/80">
-            <a href="/antecedentes" class="hover:text-white transition-colors flex items-center">
-              <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-              Volver
-            </a>
-            <span class="text-white/30">|</span>
-            <span class="text-blue-400 uppercase tracking-wider">{antecedente.Area || 'Proyecto'}</span>
-          </div>
-
-          <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
-            {antecedente.Titulo}
-          </h1>
-
-          <div class="flex flex-wrap items-center gap-6 text-lg text-white/90">
-            <div class="flex items-center">
-              <span class="font-bold text-blue-400 mr-2">Cliente:</span>
-              {antecedente.Cliente}
-            </div>
-            {antecedente.Fecha && (
-              <div class="flex items-center">
-                <span class="w-1.5 h-1.5 bg-white/50 rounded-full mr-6"></span>
-                {formatDate(antecedente.Fecha)}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <!-- Scroll Indicator -->
-      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 animate-bounce hidden md:block">
-        <svg class="w-6 h-6 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </svg>
-      </div>
-    </section>
-
-    <!-- Content Section -->
-    <section class="py-16 md:py-24 bg-slate-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          <!-- Main Content -->
-          <div class="lg:col-span-2 space-y-12">
-            <!-- Descripción -->
-            <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100">
-              <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center">
-                <span class="w-1 h-8 bg-blue-600 mr-4 rounded-full"></span>
-                Sobre el Proyecto
-              </h2>
-              <div class="prose prose-lg prose-slate max-w-none text-slate-600 leading-relaxed">
-                <div set:html={antecedente.Descripcion || antecedente.descripcion || '<p>Información detallada del proyecto no disponible.</p>'} />
-              </div>
-            </div>
-
-            <!-- Galería (Si hay imágenes adicionales) -->
-            {antecedente.Imagenes && antecedente.Imagenes.length > 0 && (
-              <div class="space-y-6">
-                <h3 class="text-xl font-bold text-slate-900">Galería del Proyecto</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {antecedente.Imagenes.map((img, index) => (
-                    <div class="aspect-video rounded-xl overflow-hidden bg-slate-100 group">
-                      <img 
-                        src={getAssetUrl(img)} 
-                        alt={`${antecedente.Titulo} - Imagen ${index + 1}`} 
-                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <!-- Sidebar (Sticky) -->
-          <div class="lg:col-span-1">
-            <div class="sticky top-24 space-y-6">
-              <!-- Info Card -->
-              <div class="bg-white rounded-xl shadow-lg border border-slate-100 p-6">
-                <h3 class="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">
-                  Ficha Técnica
-                </h3>
-                <ul class="space-y-5">
-                  <li class="flex items-start">
-                    <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 mr-4">
-                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-slate-500">Cliente</p>
-                      <p class="text-base font-semibold text-slate-900 mt-0.5">{antecedente.Cliente}</p>
-                    </div>
-                  </li>
-                  
-                  <li class="flex items-start">
-                    <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 mr-4">
-                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-slate-500">Área de Servicio</p>
-                      <p class="text-base font-semibold text-slate-900 mt-0.5">{antecedente.Area}</p>
-                    </div>
-                  </li>
-
-                  <li class="flex items-start">
-                    <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 mr-4">
-                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-slate-500">Unidad</p>
-                      <p class="text-base font-semibold text-slate-900 mt-0.5">{antecedente.Unidad_de_negocio || 'Consultoría'}</p>
-                    </div>
-                  </li>
-
-                  {antecedente.Fecha && (
-                    <li class="flex items-start">
-                      <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 mr-4">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                      </div>
-                      <div>
-                        <p class="text-sm font-medium text-slate-500">Fecha</p>
-                        <p class="text-base font-semibold text-slate-900 mt-0.5">{formatDate(antecedente.Fecha)}</p>
-                      </div>
-                    </li>
-                  )}
-
-                  {antecedente.Presupuesto && (
-                    <li class="flex items-start">
-                      <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center text-green-600 mr-4">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                      </div>
-                      <div>
-                        <p class="text-sm font-medium text-slate-500">Inversión</p>
-                        <p class="text-base font-semibold text-green-700 mt-0.5">{formatCurrency(antecedente.Presupuesto)}</p>
-                      </div>
-                    </li>
-                  )}
-                </ul>
-              </div>
-
-              <!-- CTA Card -->
-              <div class="bg-slate-900 rounded-xl shadow-lg p-6 text-center relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 z-0"></div>
-                <div class="relative z-10">
-                  <h3 class="text-lg font-bold text-white mb-2">¿Necesitas algo similar?</h3>
-                  <p class="text-slate-400 text-sm mb-6">Contáctanos para evaluar tu proyecto.</p>
-                  <a 
-                    href="/contacto" 
-                    class="block w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors shadow-lg hover:shadow-blue-500/30"
-                  >
-                    Iniciar Conversación
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-</Layout>
-
-<style>
-  .animate-fade-in-up {
-    animation: fadeInUp 0.8s ease-out forwards;
-    opacity: 0;
-    transform: translateY(20px);
-  }
+<Layout title={seoTitle} description={seoDescription} image={imageUrl} canonical={canonicalUrl}>
   
-  @keyframes fadeInUp {
-    to {
-      opacity: 1;
-      transform: translateY(0);
+  <!-- HERO CINEMATICO (Mobile Optimized) -->
+  <section class="relative h-[65vh] min-h-[500px] w-full overflow-hidden bg-slate-900 group">
+    <!-- Background Image -->
+    <div class="absolute inset-0 z-0">
+      <img 
+        src={imageUrl} 
+        alt={title}
+        class="w-full h-full object-cover opacity-50 scale-105 transition-transform duration-[20s] ease-linear group-hover:scale-110"
+      />
+      <!-- Gradient Overlay: Professional Dark Fade -->
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+    </div>
+
+    <!-- Content Container -->
+    <div class="relative z-10 container mx-auto px-4 md:px-6 h-full flex flex-col justify-end pb-12 md:pb-20">
+      
+      <!-- Meta Badges -->
+      <div class="flex flex-wrap items-center gap-3 mb-4 md:mb-6 animate-fade-in-up" style="animation-delay: 0.1s;">
+        <span class="inline-flex items-center px-3 py-1 rounded-full bg-red-600 text-white text-[10px] md:text-xs font-bold tracking-widest uppercase shadow-sm">
+          {area}
+        </span>
+        <span class="inline-flex items-center px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-[10px] md:text-xs font-medium">
+          {date}
+        </span>
+      </div>
+
+      <!-- Main Title (Responsive Typography) -->
+      <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-4 md:mb-6 leading-tight max-w-5xl tracking-tight animate-fade-in-up drop-shadow-xl" style="animation-delay: 0.2s;">
+        {title}
+      </h1>
+
+      <!-- Client Subtitle -->
+      <p class="text-slate-300 text-lg md:text-xl font-light animate-fade-in-up" style="animation-delay: 0.25s;">
+        Cliente: <span class="text-white font-medium">{client}</span>
+      </p>
+
+    </div>
+  </section>
+
+  <!-- CONTENT WRAPPER -->
+  <div class="relative z-20 bg-white">
+    <div class="container mx-auto px-4 md:px-6 py-12 md:py-20">
+      
+      <div class="grid lg:grid-cols-[1fr_350px] gap-10 md:gap-20 max-w-7xl mx-auto">
+        
+        <!-- COLUMN LEFT: Description -->
+        <main class="animate-fade-in-up" style="animation-delay: 0.3s;">
+          <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-6 pb-4 border-b border-gray-100 flex items-center gap-3">
+             <span class="w-1.5 h-6 bg-red-600 rounded-full"></span>
+             Detalle del Proyecto
+          </h2>
+          
+          <div class="prose prose-base md:prose-lg prose-slate max-w-none text-slate-600 leading-relaxed text-justify">
+            <p class="whitespace-pre-line">
+              {description}
+            </p>
+          </div>
+        </main>
+
+        <!-- COLUMN RIGHT: Sidebar Information (Stacked on Mobile) -->
+        <aside class="space-y-8 animate-fade-in-up" style="animation-delay: 0.4s;">
+          
+          <!-- Project Card -->
+          <div class="bg-slate-50 p-6 md:p-8 rounded-2xl border border-slate-100 shadow-sm">
+            <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-6 border-b border-slate-200 pb-2">Ficha Técnica</h3>
+            
+            <dl class="space-y-5">
+              <div class="group">
+                <dt class="text-[10px] text-slate-500 uppercase font-bold tracking-wider group-hover:text-red-600 transition-colors">Organización</dt>
+                <dd class="text-sm md:text-base font-bold text-slate-800 mt-1">{client}</dd>
+              </div>
+              
+              <div class="group">
+                <dt class="text-[10px] text-slate-500 uppercase font-bold tracking-wider group-hover:text-red-600 transition-colors">Vertical</dt>
+                <dd class="text-sm md:text-base font-bold text-slate-800 mt-1">{area}</dd>
+              </div>
+
+              <div class="group">
+                 <dt class="text-[10px] text-slate-500 uppercase font-bold tracking-wider group-hover:text-red-600 transition-colors">Finalización</dt>
+                 <dd class="text-sm md:text-base font-bold text-slate-800 mt-1">{date}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- CTA / Contact -->
+          <div class="bg-gray-900 text-white p-6 md:p-8 rounded-2xl shadow-xl relative overflow-hidden group">
+            <div class="absolute top-0 right-0 -mt-10 -mr-10 w-32 h-32 bg-red-600/20 rounded-full blur-3xl group-hover:bg-red-600/30 transition-all"></div>
+            
+            <h3 class="relative z-10 text-lg font-bold mb-3">¿Necesita Innovación?</h3>
+            <p class="relative z-10 text-slate-300 text-sm mb-6 leading-relaxed">
+              Transformamos la infraestructura tecnológica de su empresa.
+            </p>
+            
+            <a href="/#contacto" class="relative z-10 block w-full py-3 px-4 bg-red-600 hover:bg-red-700 text-white text-center font-bold rounded-lg transition-transform duration-300 active:scale-95 shadow-lg">
+              Contactar Experto
+            </a>
+          </div>
+
+        </aside>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- RELATED CASES MODULE -->
+  <section class="bg-slate-50 border-t border-slate-200 py-16 md:py-24">
+    <div class="container mx-auto px-4 md:px-6">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-10 text-center">
+          Proyectos Relacionados
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {relatedCasesWithImages.map(rc => (
+            <a href={`/antecedentes/${rc.slug}`} class="group flex flex-col bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <div class="relative h-48 overflow-hidden">
+                <img 
+                  src={rc.imageUrl} 
+                  alt={rc.Titulo}
+                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  loading="lazy"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
+                <span class="absolute bottom-4 left-4 text-xs font-bold text-white uppercase tracking-wider">
+                  {rc.Area}
+                </span>
+              </div>
+              <div class="p-6 flex flex-col flex-grow">
+                <h3 class="text-lg font-bold text-slate-900 mb-2 line-clamp-2 group-hover:text-red-600 transition-colors">
+                  {rc.Titulo}
+                </h3>
+                <p class="text-sm text-slate-500 mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <span>{new Date(rc.Fecha).getFullYear()}</span>
+                  <span class="text-red-600 font-medium group-hover:underline">Ver Caso →</span>
+                </p>
+              </div>
+            </a>
+          ))}
+        </div>
+        
+        <div class="mt-12 text-center">
+          <a href="/antecedentes" class="inline-flex items-center gap-2 px-6 py-3 border-2 border-slate-200 rounded-lg text-slate-600 font-bold hover:border-red-600 hover:text-red-600 transition-colors">
+            Ver Portfolio Completo
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    @keyframes fade-in-up {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-  }
-</style>
+    .animate-fade-in-up {
+      animation: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+    }
+  </style>
+
+</Layout>

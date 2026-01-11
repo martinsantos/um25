@@ -1,6 +1,6 @@
 // Configuración de Directus
 import { antecedentesReales } from '../data/antecedentes_completos.js';
-import { getFixedImage } from './imageFixer';
+import { getFixedImage } from './imageFixer.js';
 const DIRECTUS_CONFIG = {
   URL: import.meta.env.PUBLIC_DIRECTUS_URL || 'https://ultimamilla.com.ar/directus',
   TOKEN: import.meta.env.DIRECTUS_STATIC_TOKEN || 'ujsboxj0_E5PvWKhFao7yCW6_VDFsOSk',

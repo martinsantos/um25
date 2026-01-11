@@ -31,26 +31,14 @@ const services = {
 
 // Usar datos reales desde el archivo de antecedentes
 import { antecedentesReales } from '../data/antecedentes_completos.js';
-import { getAntecedenteImageUrl } from '../utils/directus';
-import { generateSlug } from '../utils/slugUtils';
-import { getTopProjects } from '../utils/antecedentesScoring.js';
 
-// Obtener los 3 antecedentes más relevantes ordenados por impacto (igual al /antecedentes)
-const topAntecedentes = getTopProjects(antecedentesReales, 3);
-
-// Procesar las imágenes
-const processedAntecedentes = await Promise.all(
-  topAntecedentes.map(async (item) => ({
+// Seleccionar los primeros 3 antecedentes reales como destacados
+const antecedentes = {
+  data: antecedentesReales.slice(0, 3).map(item => ({
     ...item,
-    Nombre: item.Titulo,
-    mapeo_imagenes_completo: await getAntecedenteImageUrl(item),
-    slug: generateSlug(item.Titulo),
+    // Asegurar que tengamos las fechas correctas del archivo real
     Fecha: item.Fecha || "2024-04-15"
   }))
-);
-
-const antecedentes = {
-  data: processedAntecedentes
 };
 ---
 
@@ -128,7 +116,6 @@ const antecedentes = {
     <!-- Antecedentes Destacados - Mobile Optimized Grid -->
     <section id="antecedentes" class="py-20 bg-gray-50">
       <AntecedentesGridMobileOptimized
-        items={antecedentes.data}
         limit={12}
         title="Casos de Éxito"
         description="Descubre cómo hemos transformado empresas con soluciones IT estratégicas"

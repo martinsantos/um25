@@ -18,8 +18,7 @@ const seoConfig = {
 
 // Cargar antecedentes del sector gobierno
 import { antecedentesReales } from '../data/antecedentes_completos.js';
-import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
-import { sortByImpact } from '../utils/antecedentesScoring.js';
+import AntecedentesGridMobileOptimized from '../components/AntecedentesGridMobileOptimized.astro';
 
 let antecedentes = [];
 let serviciosRelacionados = [];
@@ -46,7 +45,7 @@ const keywords = [
   'municipalidad de capital', 'municipalidad de san rafael'
 ];
 
-const filterAntecedentes = (data) => {
+const filterAntecedentes = async (data) => {
   const filtered = data.filter(item => {
     const cliente = (item.Cliente || '').toLowerCase();
     const titulo = (item.Titulo || '').toLowerCase();
@@ -54,10 +53,16 @@ const filterAntecedentes = (data) => {
     return keywords.some(k => cliente.includes(k) || titulo.includes(k) || area.includes(k));
   });
 
-  // Ordenar por impacto (relevancia) - mejores casos primero
-  const sortedByImpact = sortByImpact(filtered);
+  const withImages = await Promise.all(
+    filtered.map(async (item) => ({
+      ...item,
+      Nombre: item.Titulo,
+      mapeo_imagenes_completo: await getAntecedenteImageUrl(item),
+      slug: `${item.id}/${generateSlug(item.Titulo)}`
+    }))
+  );
 
-  return sortedByImpact;
+  return withImages.sort((a, b) => new Date(b.Fecha || '2000-01-01') - new Date(a.Fecha || '2000-01-01'));
 };
 
 try {
@@ -68,7 +73,7 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    antecedentes = filterAntecedentes(response.data);
+    antecedentes = await filterAntecedentes(response.data);
     console.log(`✅ Cargados ${antecedentes.length} antecedentes de gobierno`);
   }
 } catch (err) {
@@ -79,18 +84,11 @@ try {
 // Fallback a datos locales si no hay resultados de API
 if (antecedentes.length === 0) {
   console.log('Usando antecedentes locales para Gobierno');
-  antecedentes = filterAntecedentes(antecedentesReales);
+  antecedentes = await filterAntecedentes(antecedentesReales);
 }
 
-// Procesar imágenes para cada antecedente
-const { getAntecedenteImageUrl } = await import('../utils/directus.js');
-antecedentes = await Promise.all(
-  antecedentes.map(async (item) => ({
-    ...item,
-    Nombre: item.Titulo || item.Nombre,
-    mapeo_imagenes_completo: await getAntecedenteImageUrl(item)
-  }))
-);
+// Limitar a 6 para la vista (ELIMINADO - Ahora se maneja en el componente con "Ver más")
+// antecedentes = antecedentes.slice(0, 6);
 
   // Servicios relacionados con el sector gobierno
   // Structured Data para SEO
@@ -349,7 +347,7 @@ antecedentes = await Promise.all(
           </a>
         
           <!-- Servicio 5: Sistemas de Detección -->
-          <a href="/servicios/5/deteccion-incendios" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #dc2626; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(220,38,38,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+          <a href="/servicios" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #dc2626; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(220,38,38,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
             <div style="width: 50px; height: 50px; background: #dc2626; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
               <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -388,7 +386,7 @@ antecedentes = await Promise.all(
             </p>
           </div>
 
-          <FeaturedAntecedentes antecedentes={antecedentes} />
+          <AntecedentesGridMobileOptimized items={antecedentes} limit={25} title="Casos de u00c9xito en goubiernosectorpuublico" description="Proyectos destacados en este sector" />
         </div>
       </section>
     )}

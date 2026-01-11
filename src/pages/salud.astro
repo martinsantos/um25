@@ -18,7 +18,7 @@ const seoConfig = {
 
 // Cargar antecedentes del sector salud
 import { antecedentesReales } from '../data/antecedentes_completos.js';
-import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
+import AntecedentesGridMobileOptimized from '../components/AntecedentesGridMobileOptimized.astro';
 
 let antecedentes = [];
 let serviciosRelacionados = [];
@@ -35,7 +35,7 @@ const keywords = [
   'ambulancia', 'emergencia', 'trauma', 'quirofano'
 ];
 
-const filterAntecedentes = (data) => {
+const filterAntecedentes = async (data) => {
   const filtered = data.filter(item => {
     const cliente = (item.Cliente || '').toLowerCase();
     const titulo = (item.Titulo || '').toLowerCase();
@@ -43,7 +43,16 @@ const filterAntecedentes = (data) => {
     return keywords.some(k => cliente.includes(k) || titulo.includes(k) || area.includes(k));
   });
 
-  return filtered.sort((a, b) => new Date(b.Fecha || '2000-01-01') - new Date(a.Fecha || '2000-01-01'));
+  const withImages = await Promise.all(
+    filtered.map(async (item) => ({
+      ...item,
+      Nombre: item.Titulo,
+      mapeo_imagenes_completo: await getAntecedenteImageUrl(item),
+      slug: `${String(item.id).split('/')[0].trim()}/${generateSlug(item.Titulo)}`
+    }))
+  );
+
+  return withImages.sort((a, b) => new Date(b.Fecha || '2000-01-01') - new Date(a.Fecha || '2000-01-01'));
 };
 
 try {
@@ -54,7 +63,7 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    antecedentes = filterAntecedentes(response.data);
+    antecedentes = await filterAntecedentes(response.data);
     console.log(`✅ Cargados ${antecedentes.length} antecedentes de salud`);
   }
 } catch (err) {
@@ -65,18 +74,11 @@ try {
 // Fallback a datos locales si no hay resultados de API
 if (antecedentes.length === 0) {
   console.log('Usando antecedentes locales para Salud');
-  antecedentes = filterAntecedentes(antecedentesReales);
+  antecedentes = await filterAntecedentes(antecedentesReales);
 }
 
-// Procesar imágenes para cada antecedente
-const { getAntecedenteImageUrl } = await import('../utils/directus.js');
-antecedentes = await Promise.all(
-  antecedentes.map(async (item) => ({
-    ...item,
-    Nombre: item.Titulo || item.Nombre,
-    mapeo_imagenes_completo: await getAntecedenteImageUrl(item)
-  }))
-);
+// Limitar a 6 para la vista (ELIMINADO - Ahora se maneja en el componente con "Ver más")
+// antecedentes = antecedentes.slice(0, 6);
 
   // Servicios relacionados con el sector constructoras
   // Structured Data para SEO
@@ -334,7 +336,7 @@ antecedentes = await Promise.all(
           </a>
         
           <!-- Card 5: Sistemas de Detección -->
-          <a href="/servicios/5/deteccion-incendios" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #10b981; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(16,185,129,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+          <a href="/servicios" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #10b981; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(16,185,129,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
             <div style="width: 50px; height: 50px; background: #10b981; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
               <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
@@ -373,10 +375,63 @@ antecedentes = await Promise.all(
             </p>
           </div>
 
-          <FeaturedAntecedentes antecedentes={antecedentes} />
+          <AntecedentesGridMobileOptimized items={antecedentes} limit={25} title="Casos de u00c9xito en salud" description="Proyectos destacados en este sector" />
         </div>
       </section>
     )}
+---
+
+<Layout
+  title={seoConfig.title}
+  description={seoConfig.description}
+  keywords={seoConfig.keywords}
+  image={seoConfig.ogImage}
+  canonical={seoConfig.canonical}
+>
+  <main style="background: #f5f5f5;">
+    <!-- FORMULARIO DE CONTACTO -->
+    <section id="contacto" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 100px 32px; position: relative; overflow: hidden;">
+      <div style="max-width: 75rem; margin: 0 auto; position: relative; z-index: 10;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;">
+          <div>
+            <div style="display: inline-block; padding: 8px 20px; background: rgba(16, 185, 129, 0.2); border-radius: 50px; margin-bottom: 24px; border: 1px solid rgba(16, 185, 129, 0.3);">
+              <span style="font-size: 13px; font-weight: 800; color: #6ee7b7; letter-spacing: 1px; text-transform: uppercase;">📞 Contáctenos</span>
+            </div>
+            <h2 style="font-size: clamp(36px, 5vw, 56px); font-weight: 900; color: white; margin-bottom: 24px; line-height: 1.1;">
+              Soluciones Tecnológicas<br/>para el Sector Salud
+            </h2>
+            <p style="font-size: 18px; color: #cbd5e1; line-height: 1.8; margin-bottom: 40px;">
+              Contáctenos para diseñar la infraestructura tecnológica que su institución médica necesita.
+            </p>
+          </div>
+          
+          <div style="background: white; border-radius: 24px; padding: 48px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <form action="/api/contact" method="POST" style="display: flex; flex-direction: column; gap: 24px;">
+              <div>
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Nombre *</label>
+                <input type="text" name="nombre" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px;" placeholder="Nombre Completo" />
+              </div>
+              <div>
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Institución Médica</label>
+                <input type="text" name="empresa" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px;" placeholder="Hospital/Clínica" />
+              </div>
+              <div>
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Email *</label>
+                <input type="email" name="email" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px;" placeholder="contacto@hospital.com" />
+              </div>
+              <div>
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Mensaje *</label>
+                <textarea name="mensaje" required rows="4" style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px;" placeholder="Detalles del requerimiento..."></textarea>
+              </div>
+              <button type="submit" style="width: 100%; padding: 18px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer;">
+                Solicitar Asesoramiento
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 </Layout>
 
 <style>

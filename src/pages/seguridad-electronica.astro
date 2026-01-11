@@ -39,11 +39,10 @@ const seoConfig = {
 
 // Cargar antecedentes del sector seguridad
 import { antecedentesReales } from '../data/antecedentes_completos.js';
-import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
-import { sortByImpact } from '../utils/antecedentesScoring.js';
+import AntecedentesGridMobileOptimized from '../components/AntecedentesGridMobileOptimized.astro';
 
 // Filtrar antecedentes específicos de SEGURIDAD ELECTRÓNICA
-const filterAntecedentes = (data) => {
+const filterAntecedentes = async (data) => {
   const keywords = ['cctv', 'seguridad', 'videovigilancia', 'alarma', 'control de acceso',
                     'deteccion de incendios', 'sdi', 'camara', 'biometr', 'perimetral',
                     'intrusion', 'monitoreo'];
@@ -62,10 +61,16 @@ const filterAntecedentes = (data) => {
       );
     });
 
-  // Ordenar por impacto (relevancia) - mejores casos primero
-  const sortedByImpact = sortByImpact(filtered);
+  const withImages = await Promise.all(
+    filtered.map(async (item) => ({
+      ...item,
+      Nombre: item.Titulo,
+      mapeo_imagenes_completo: await getAntecedenteImageUrl(item),
+      slug: `${item.id}/${generateSlug(item.Titulo)}`
+    }))
+  );
 
-  return sortedByImpact;
+  return withImages.sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
 };
 
 // Cargar antecedentes del sector seguridad
@@ -81,7 +86,7 @@ try {
   });
 
   if (response && response.data && response.data.length > 0) {
-    antecedentes = filterAntecedentes(response.data);
+    antecedentes = await filterAntecedentes(response.data);
     console.log(`✅ Cargados ${antecedentes.length} antecedentes de seguridad electrónica`);
   }
 } catch (err) {
@@ -92,18 +97,8 @@ try {
 // Fallback a datos locales si no hay resultados de API
 if (antecedentes.length === 0) {
   console.log('Usando antecedentes locales para Seguridad Electrónica');
-  antecedentes = filterAntecedentes(antecedentesReales);
+  antecedentes = await filterAntecedentes(antecedentesReales);
 }
-
-// Procesar imágenes para cada antecedente
-const { getAntecedenteImageUrl } = await import('../utils/directus.js');
-antecedentes = await Promise.all(
-  antecedentes.map(async (item) => ({
-    ...item,
-    Nombre: item.Titulo || item.Nombre,
-    mapeo_imagenes_completo: await getAntecedenteImageUrl(item)
-  }))
-);
 
 // Structured Data para SEO
 const structuredData = {
@@ -300,7 +295,7 @@ const structuredData = {
             </p>
           </div>
 
-          <FeaturedAntecedentes antecedentes={antecedentes} />
+          <AntecedentesGridMobileOptimized items={antecedentes} limit={25} title="Casos de u00c9xito en seguridad electronica" description="Proyectos destacados en este sector" />
         </div>
       </section>
     )}

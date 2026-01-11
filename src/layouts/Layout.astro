@@ -260,9 +260,13 @@ const currentYear = new Date().getFullYear();
     {hasHeadSlot && <slot name="head" />}
 
     <!-- Google Analytics Integration -->
-
-
-    <!-- Structured Data -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S2376K1GED"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-S2376K1GED');
+    </script>    <!-- Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(combinedStructuredData)} />
     
     <style is:global>
