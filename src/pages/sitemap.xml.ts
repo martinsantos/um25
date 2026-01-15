@@ -1,7 +1,8 @@
 import { getAllBlogPosts } from '../data/blog';
 import type { APIRoute } from 'astro';
 
-const SITE_URL = 'https://www.ultimamilla.com.ar';
+// Use environment variable or fallback - NO www for consistency
+const SITE_URL = (import.meta.env.PUBLIC_SITE_URL as string) || (import.meta.env.SITE as string) || 'https://ultimamilla.com.ar';
 
 function formatDate(date: Date): string {
     if (isNaN(date.getTime())) return new Date().toISOString().split('T')[0] || '';

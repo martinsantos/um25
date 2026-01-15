@@ -1,34 +1,156 @@
 // Configuración de Directus
+import 'dotenv/config';
 import { antecedentesReales } from '../data/antecedentes_completos.js';
 import { getFixedImage } from './imageFixer.js';
+
 const DIRECTUS_CONFIG = {
-  URL: import.meta.env.PUBLIC_DIRECTUS_URL || 'https://ultimamilla.com.ar/directus',
-  TOKEN: import.meta.env.DIRECTUS_STATIC_TOKEN || 'ujsboxj0_E5PvWKhFao7yCW6_VDFsOSk',
-  PAGE_SIZE: 20,
-  DEFAULT_IMAGE: '/images/antecedentes-hero-bg.jpg' // Professional dark blue gradient - NOT green ALF
+  // URL pública para assets e imágenes (accesible desde el navegador)
+  PUBLIC_URL: process.env.PUBLIC_DIRECTUS_URL || 'https://admin.ultimamilla.com.ar',
+  // URL interna para peticiones del servidor (rápida, evita fallos de SSL locales)
+  // URL interna para peticiones del servidor (rápida, evita fallos de SSL locales)
+  API_URL: process.env.DIRECTUS_URL || 'http://localhost:8055',
+  EMAIL: process.env.DIRECTUS_EMAIL || 'admin@umbot.com.ar',
+  PASSWORD: process.env.DIRECTUS_PASSWORD || 'UmbotAdmin2025!',
+  TOKEN: process.env.DIRECTUS_STATIC_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky',
+  DEFAULT_IMAGE: '/images/antecedentes-hero-bg.jpg', // Professional dark blue gradient - NOT green ALF
+  PAGE_SIZE: 12
 };
 
+// Mapeo de categorías a imágenes generadas únicas
+const CATEGORY_IMAGES = {
+  // CCTV / Seguridad
+  'CCTV': '/images/generated/cctv_control_room_1768353676992.png',
+  'Seguridad': '/images/generated/cctv_control_room_1768353676992.png',
+  'Control de Acceso': '/images/generated/access_control_biometric_1768353716905.png',
+  'Biométrico': '/images/generated/access_control_biometric_1768353716905.png',
+  
+  // Detección de Incendio
+  'SDI': '/images/generated/fire_detection_system_1768353731995.png',
+  'Detección de Incendio': '/images/generated/fire_detection_system_1768353731995.png',
+  'Sistema de Alarma': '/images/generated/fire_detection_system_1768353731995.png',
+  
+  // Redes / Cableado
+  'Cableado Estructurado': '/images/generated/structured_cabling_patch_1768353747209.png',
+  'Redes de Datos': '/images/generated/structured_cabling_patch_1768353747209.png',
+  'Networking': '/images/generated/structured_cabling_patch_1768353747209.png',
+  
+  // Fibra Óptica
+  'Fibra Óptica': '/images/generated/fiber_optic_installation_1768353661641.png',
+  'Fibra': '/images/generated/fiber_optic_installation_1768353661641.png',
+  
+  // Datacenter / Servidores
+  'Datacenter': '/images/generated/networking_datacenter_racks_1768353647752.png',
+  'Servidores': '/images/generated/networking_datacenter_racks_1768353647752.png',
+  'Infraestructura IT': '/images/generated/networking_datacenter_racks_1768353647752.png',
+  'Soluciones Tecnológicas': '/images/generated/networking_datacenter_racks_1768353647752.png',
+  
+  // Telecomunicaciones
+  'Telecomunicaciones': '/images/generated/telecom_radio_tower_1768353762111.png',
+  'Radioenlaces': '/images/generated/telecom_radio_tower_1768353762111.png',
+  'Radio': '/images/generated/telecom_radio_tower_1768353762111.png',
+  
+  // Bodegas
+  'Bodega': '/images/generated/bodega_tech_overlay_1768237851113.png',
+  'Vitivinícola': '/images/generated/bodega_tech_overlay_1768237851113.png',
+  
+  // Gobierno
+  'Gobierno': '/images/generated/gobierno_digital_overlay_1768237887931.png',
+  'Sector Público': '/images/generated/gobierno_digital_overlay_1768237887931.png',
+  
+  // Fallbacks genéricos
+  'default': '/images/generated/server_room_maintenance_tech_1768237985687.png'
+};
+
+// Array de todas las imágenes generadas para distribución por hash de ID (30 total)
+const ALL_GENERATED_IMAGES = [
+  // CCTV/Vigilancia (4)
+  '/images/generated/cctv_control_room_1768353676992.png',
+  '/images/generated/cctv_outdoor_dome_1768387262497.png',
+  '/images/generated/cctv_ptz_camera_1768387278707.png',
+  '/images/generated/cctv_video_wall_1768387292977.png',
+  // Control de Acceso (4)
+  '/images/generated/access_control_biometric_1768353716905.png',
+  '/images/generated/access_facial_scan_1768387321512.png',
+  '/images/generated/access_smart_lock_1768387335317.png',
+  '/images/generated/access_turnstile_1768387308294.png',
+  // Detección de Incendio (5)
+  '/images/generated/fire_detection_system_1768353731995.png',
+  '/images/generated/fire_control_panel_1768387370236.png',
+  '/images/generated/fire_smoke_detector_1768387384551.png',
+  '/images/generated/fire_sprinkler_system_1768387402715.png',
+  '/images/generated/fire_safety_industrial_sensors_1768237918477.png',
+  // Datacenter/Redes (4)
+  '/images/generated/datacenter_corridor_1768387417712.png',
+  '/images/generated/datacenter_technician_1768387433623.png',
+  '/images/generated/networking_datacenter_racks_1768353647752.png',
+  '/images/generated/network_rack_cabling_1768387461455.png',
+  // Cableado Estructurado (1)
+  '/images/generated/structured_cabling_patch_1768353747209.png',
+  // Fibra Óptica (4)
+  '/images/generated/fiber_optic_installation_1768353661641.png',
+  '/images/generated/fiber_splicing_1768387509213.png',
+  '/images/generated/fiber_cable_tray_1768387523814.png',
+  '/images/generated/fiber_outdoor_cabinet_1768387538667.png',
+  // Telecomunicaciones (4)
+  '/images/generated/telecom_radio_tower_1768353762111.png',
+  '/images/generated/telecom_antenna_array_1768387553993.png',
+  '/images/generated/telecom_microwave_dish_1768387570110.png',
+  '/images/generated/telecom_equipment_room_1768387584754.png',
+  // Otros (4)
+  '/images/generated/bodega_tech_overlay_1768237851113.png',
+  '/images/generated/gobierno_digital_overlay_1768237887931.png',
+  '/images/generated/server_room_maintenance_tech_1768237985687.png',
+  '/images/generated/security_camera_analytics_overlay_1768237955796.png'
+];
+
+// Función para obtener imagen única basada en ID del proyecto
+// Usa siempre el ID para garantizar que cada proyecto tenga una imagen diferente
+function getCategoryImage(item) {
+  // Extraer ID numérico del proyecto
+  let numericId = 0;
+  
+  if (item.id) {
+    if (typeof item.id === 'number') {
+      numericId = item.id;
+    } else if (typeof item.id === 'string') {
+      // Para UUIDs, usar suma de caracteres como hash
+      if (item.id.includes('-')) {
+        numericId = item.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      } else {
+        numericId = parseInt(item.id, 10) || 0;
+      }
+    }
+  }
+  
+  // Usar el ID para seleccionar una imagen del array (distribución uniforme)
+  const index = Math.abs(numericId) % ALL_GENERATED_IMAGES.length;
+  return ALL_GENERATED_IMAGES[index];
+}
+
 // Validar configuración
-if (!DIRECTUS_CONFIG.URL) {
-  console.error('Error: PUBLIC_DIRECTUS_URL no está configurado en las variables de entorno');
+if (!DIRECTUS_CONFIG.PUBLIC_URL) {
+  console.warn('Warning: PUBLIC_DIRECTUS_URL no está configurado, usando fallback:', DIRECTUS_CONFIG.PUBLIC_URL);
 }
 if (!DIRECTUS_CONFIG.TOKEN) {
-  console.error('Error: DIRECTUS_STATIC_TOKEN no está configurado en las variables de entorno');
+  console.warn('Warning: DIRECTUS_STATIC_TOKEN no está configurado');
 }
 
 // Cliente de API de Directus
 class DirectusClient {
   constructor() {
-    if (!DIRECTUS_CONFIG.URL) {
+    if (!DIRECTUS_CONFIG.PUBLIC_URL) {
       throw new Error('La URL de Directus no está configurada');
     }
     if (!DIRECTUS_CONFIG.TOKEN) {
       throw new Error('El token de autenticación de Directus no está configurado');
     }
 
-    this.baseUrl = DIRECTUS_CONFIG.URL.replace(/\/+$/, ''); // Eliminar barras diagonales finales
+    // Usamos API_URL para las peticiones fetch
+    this.apiUrl = DIRECTUS_CONFIG.API_URL.replace(/\/+$/, '');
+    // Usamos PUBLIC_URL para generar links de assets
+    this.publicUrl = DIRECTUS_CONFIG.PUBLIC_URL.replace(/\/+$/, '');
     this.token = DIRECTUS_CONFIG.TOKEN;
-    console.log('DirectusClient inicializado con token:', this.token); // Añadido para depuración
+    console.log('DirectusClient inicializado. API:', this.apiUrl, 'Public:', this.publicUrl);
   }
 
   async request(endpoint, options = {}) {
@@ -36,7 +158,7 @@ class DirectusClient {
       endpoint = `/${endpoint}`;
     }
 
-    const url = `${this.baseUrl}${endpoint}`;
+    const url = `${this.apiUrl}${endpoint}`;
     const headers = {
       'Authorization': `Bearer ${this.token}`,
       'Accept': 'application/json',
@@ -84,6 +206,7 @@ class DirectusClient {
       const defaults = {
         fields: 'id,Titulo,Descripcion,Imagen,Fecha,Cliente,Unidad_de_negocio,Area',
         limit: DIRECTUS_CONFIG.PAGE_SIZE,
+        filter: {},
         meta: '*'
       };
 
@@ -103,22 +226,23 @@ class DirectusClient {
         }
       });
 
-      const response = await this.request(`/items/Antecedentes?${queryParams.toString()}`);
+      const url = `/items/Antecedentes?${queryParams.toString()}`;
+      const response = await this.request(url);
+      
+      console.log(`[DirectusClient.getAntecedentes] API Response:`, { 
+        hasData: !!response?.data, 
+        count: response?.data?.length,
+        url: url
+      });
 
-      if (response && response.data) {
+       if (response && response.data) {
         response.data = response.data.map(item => {
-          let imageUrl = DIRECTUS_CONFIG.DEFAULT_IMAGE;
-          if (item.Imagen) {
-            // Check if it's a UUID (Directus File ID)
-            if (item.Imagen.match(/^[a-f0-9-]{36}$/)) {
-              imageUrl = `${this.baseUrl}/assets/${item.Imagen}`;
-            } else {
-              // Assume it's a filename served by Nginx
-              // Remove any leading slash if present in the DB to avoid double slash
-              let cleanPath = item.Imagen.startsWith('/') ? item.Imagen.substring(1) : item.Imagen;
-              cleanPath = getFixedImage(cleanPath);
-              imageUrl = `/imagenes_antecedentes_versionproduccion/${cleanPath}`;
-            }
+          // Use local generated images as fallback (distributed by ID hash)
+          let imageUrl = getCategoryImage(item);
+          
+          // If Directus has a UUID, use public Directus proxy (nginx adds /assets/)
+          if (item.Imagen && item.Imagen.match(/^[a-f0-9-]{36}$/)) {
+            imageUrl = `${this.publicUrl}/${item.Imagen}`;
           }
           return { ...item, Imagen: imageUrl };
         });
@@ -138,7 +262,7 @@ class DirectusClient {
     );
 
     return response.data.map(img => ({
-      url: `${this.baseUrl}/assets/${img.id}`,
+      url: `${this.publicUrl}/assets/${img.id}`,
       id: img.id,
       filename: img.filename_download || 'sin-nombre.jpg',
       width: img.width,
@@ -159,7 +283,7 @@ class DirectusClient {
   async getUniqueValues(field) {
     try {
       const response = await this.request(
-        `/items/antecedentes?groupBy[]=${field}`
+        `/items/Antecedentes?groupBy[]=${field}`
       );
       return response.data
         .map(item => item[field])
@@ -170,13 +294,48 @@ class DirectusClient {
     }
   }
 
+  /**
+   * Get single antecedente by ID for slug redirect
+   */
+  async getAntecedenteById(id) {
+    try {
+      const response = await this.request(`/items/Antecedentes/${id}?fields=id,Titulo`);
+      
+      if (!response || !response.data) {
+        console.warn(`[ANTECEDENTE] No encontrado: ${id}`);
+        return null;
+      }
+      
+      const data = response.data;
+      
+      // Generate slug
+      const slug = (data.Titulo || 'antecedente')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim()
+        .substring(0, 100);
+      
+      return {
+        ...data,
+        slug
+      };
+    } catch (error) {
+      console.error(`[ANTECEDENTE] Error obteniendo antecedente ${id}:`, error);
+      return null;
+    }
+  }
+
   // Métodos para servicios
   async getServicios(params = {}) {
     try {
       const defaults = {
-        fields: 'id,Titulo,Descripcion,Imagen,status',
+        fields: 'id,Titulo,Descripcion,Imagen,status,Area,Cliente,Unidad_de_negocio,Servicios_Detalle,Caracteristicas',
         sort: 'id',
-        limit: DIRECTUS_CONFIG.PAGE_SIZE,
+        limit: -1,
         meta: '*'
       };
 
@@ -202,13 +361,21 @@ class DirectusClient {
       if (response && response.data) {
         return {
           ...response,
-          data: response.data.map(servicio => ({
-            ...servicio,
-            // Convertir la referencia de imagen a URL completa
-            Imagen: servicio.Imagen
-              ? `${this.baseUrl}/assets/${servicio.Imagen}?access_token=${this.token}`
-              : DIRECTUS_CONFIG.DEFAULT_IMAGE,
-          }))
+          data: response.data.map(servicio => {
+            let imageUrl = DIRECTUS_CONFIG.DEFAULT_IMAGE;
+            if (servicio.Imagen) {
+              if (servicio.Imagen.match(/^[a-f0-9-]{36}$/)) {
+                // UUID detected - use public Directus proxy (nginx adds /assets/)
+                imageUrl = `${this.publicUrl}/${servicio.Imagen}`;
+              } else {
+                imageUrl = servicio.Imagen;
+              }
+            }
+            return {
+              ...servicio,
+              Imagen: imageUrl
+            };
+          })
         };
       }
 
@@ -226,7 +393,7 @@ class DirectusClient {
         return {
           ...response.data,
           Imagen: response.data.Imagen
-            ? `${this.baseUrl}/assets/${response.data.Imagen}?access_token=${this.token}`
+            ? `${this.publicUrl}/assets/${response.data.Imagen}?access_token=${this.token}`
             : DIRECTUS_CONFIG.DEFAULT_IMAGE,
         };
       }
@@ -279,7 +446,7 @@ class DirectusClient {
         data: response.data.map(post => ({
           ...post,
           Imagen_portada: post.Imagen_portada
-            ? `${this.baseUrl}/assets/${post.Imagen_portada}?access_token=${this.token}`
+            ? `${this.publicUrl}/assets/${post.Imagen_portada}?access_token=${this.token}`
             : DIRECTUS_CONFIG.DEFAULT_IMAGE,
           // Asegurarse de que siempre haya un array de categorías
           Categorias: Array.isArray(post.Categorias) ? post.Categorias : []
@@ -402,6 +569,22 @@ export async function getAntecedenteImageUrl(item) {
 
     // 2. Si tiene Imagen válida (UUID o filename)
     if (item.Imagen) {
+      // 2a. Support already-processed Directus asset URLs (from getAntecedentes processing)
+      if (item.Imagen.startsWith('http://') || item.Imagen.startsWith('https://')) {
+        console.log('[IMAGE] ✅ URL http ya procesada:', { id: item.id, url: item.Imagen.substring(0, 60) + '...' });
+        return item.Imagen;
+      }
+
+      // 2c. Support generated images (already absolute paths)
+      if (item.Imagen.startsWith('/images/')) {
+         return item.Imagen;
+      }
+
+      // 2d. Support already-absolute paths (from sync)
+      if (item.Imagen.startsWith('/imagenes_antecedentes_versionproduccion/')) {
+         return item.Imagen;
+      }
+
       // 2b. Filename local con correcciones (prioridad sobre UUID)
       if (item.Imagen.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
         const cleanPath = item.Imagen.startsWith('/') ? item.Imagen.substring(1) : item.Imagen;
@@ -411,28 +594,11 @@ export async function getAntecedenteImageUrl(item) {
         return localUrl;
       }
 
-      // 2a. UUID de Directus - BUSCAR EN MAPEO PRIMERO
+      // 2a. UUID de Directus - usar proxy HTTPS (nginx adds /assets/)
       if (/^[a-f0-9-]{36}$/.test(item.Imagen)) {
-        try {
-          const { buscarImagenPorDatos } = await import('../data/mapeo_imagenes_completo.js');
-          const mappedFilename = buscarImagenPorDatos(
-            item.Cliente,
-            item.Area || item.Unidad_de_negocio,
-            item.Titulo,
-            item.id
-          );
-          if (mappedFilename) {
-            const mappedUrl = `/imagenes_antecedentes_versionproduccion/${mappedFilename}`;
-            console.log('[IMAGE] ✅ UUID encontrada en mapeo:', { id: item.id, filename: mappedFilename });
-            return mappedUrl;
-          }
-        } catch (e) {
-          console.warn('[IMAGE] ⚠️ Error buscando UUID en mapeo:', e.message);
-        }
-
-        // Fallback a DEFAULT_IMAGE si UUID no está en mapeo (Directus URLs no funcionan)
-        console.warn('[IMAGE] ⚠️ UUID no encontrada en mapeo, usando fallback:', { id: item.id, uuid: item.Imagen });
-        return DIRECTUS_CONFIG.DEFAULT_IMAGE;
+        const directusAssetUrl = `${DIRECTUS_CONFIG.PUBLIC_URL}/${item.Imagen}`;
+        console.log('[IMAGE] ✅ UUID detectado, usando Directus proxy:', { id: item.id, url: directusAssetUrl });
+        return directusAssetUrl;
       }
     }
 
@@ -479,6 +645,15 @@ export function getAntecedenteImageUrlSync(item) {
   }
 
   try {
+    // 0. Rutas absolutas generadas
+    if (item.Imagen && item.Imagen.startsWith('/images/')) {
+        return item.Imagen;
+    }
+
+    if (item.Imagen && item.Imagen.startsWith('/imagenes_antecedentes_versionproduccion/')) {
+        return item.Imagen;
+    }
+
     // 1. Filename local con extensión
     if (item.Imagen && item.Imagen.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
       const cleanPath = item.Imagen.startsWith('/') ? item.Imagen.substring(1) : item.Imagen;

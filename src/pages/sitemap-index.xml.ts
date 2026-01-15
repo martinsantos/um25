@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 
-const SITE_URL = 'https://ultimamilla.com.ar';
+// Use environment variable or fallback
+const SITE_URL = (import.meta.env.PUBLIC_SITE_URL as string) || (import.meta.env.SITE as string) || 'https://ultimamilla.com.ar';
 
 function formatDate(date: Date): string {
     const isoString = date.toISOString();

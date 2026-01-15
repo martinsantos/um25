@@ -1,11 +1,12 @@
 import type { APIRoute } from 'astro';
 
-const SITE_URL = 'https://ultimamilla.com.ar';
+// Use environment variable or fallback
+const SITE_URL = (import.meta.env.PUBLIC_SITE_URL as string) || (import.meta.env.SITE as string) || 'https://ultimamilla.com.ar';
 
 function formatDate(date: Date): string {
     const isoString = date.toISOString();
     const parts = isoString.split('T');
-    return parts[0] || new Date().toISOString().split('T')[0];
+    return parts[0] ?? new Date().toISOString().split('T')[0];
 }
 
 // Función para generar slug desde nombre
@@ -16,7 +17,7 @@ function generateSlug(text: string): string {
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '')
-        .substring(0, 75);
+        .substring(0, 100); // Increased from 75 to 100 chars for better SEO
 }
 
 function generateSitemapXml(antecedentes: any[]): string {
@@ -41,12 +42,12 @@ function generateSitemapXml(antecedentes: any[]): string {
 
 export const GET: APIRoute = async () => {
     try {
-        // Obtener todos los antecedentes desde Directus
-        const directusUrl = (import.meta.env.PUBLIC_DIRECTUS_URL as string) || 'http://directus:8055';
-        const token = (import.meta.env as any)['DIRECTUS_TOKEN'] || '';
+        // Use internal Directus URL for server-side API calls (has proper auth)
+        const directusUrl = (import.meta.env.DIRECTUS_URL as string) || 'http://localhost:8055';
+        const token = (import.meta.env as any)['DIRECTUS_STATIC_TOKEN'] || (import.meta.env as any)['DIRECTUS_TOKEN'] || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
         
         const response = await fetch(
-            `${directusUrl}/items/antecedentes?limit=500&fields=id,Titulo,fecha_modificacion`,
+            `${directusUrl}/items/Antecedentes?limit=600&fields=id,Titulo`,
             {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -62,6 +63,9 @@ export const GET: APIRoute = async () => {
             antecedentes = data.data || [];
         } else {
             // Fallback: usar datos estáticos si Directus no está disponible
+            console.error(`[SITEMAP] Directus fetch failed: ${response.status} ${response.statusText}`);
+            const errorText = await response.text().catch(() => 'no body');
+            console.error(`[SITEMAP] Error body:`, errorText);
             console.warn('Directus no disponible, usando datos estáticos');
             antecedentes = [
                 { id: 10768, Titulo: 'ISI Solutions - Redes y Comunicaciones' },

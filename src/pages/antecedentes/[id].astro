@@ -1,0 +1,31 @@
+---
+/**
+ * Handler for /antecedentes/[id] URLs without slug
+ * Redirects to /antecedentes/[id]/[slug] with 301 redirect
+ */
+import { directus } from '../../utils/directus.js';
+
+export const prerender = false;
+
+const { id } = Astro.params;
+
+if (!id) {
+    return new Response(null, { status: 404 });
+}
+
+try {
+    // Obtener el antecedente para generar el slug
+    const antecedente = await directus.getAntecedenteById(parseInt(id));
+    
+    if (antecedente && antecedente.slug) {
+        // Redirect permanente a URL con slug
+        return Astro.redirect(`/antecedentes/${id}/${antecedente.slug}`, 301);
+    } else {
+        // Si no existe el antecedente, 404
+        return new Response(null, { status: 404 });
+    }
+} catch (error) {
+    console.error(`[REDIRECT] Error redirecting antecedente ${id}:`, error);
+    return new Response(null, { status: 404 });
+}
+---
