@@ -1,230 +1,224 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import BreadcrumbSchema from '../../components/SEO/BreadcrumbSchema.astro';
-import RelatedLinks from '../../components/RelatedLinks.astro';
 import { generateSlug } from '../../utils/slugUtils.js';
-import { serviciosReales } from '../../data/servicios_reales_db.js';
-import { getServiceImageUrl } from '../../utils/imageUtils.js';
+import { directus } from '../../utils/directus.js';
 
-// Configuración de paginación
-const PAGE_SIZE = 12;
-const currentPage = parseInt(Astro.url.searchParams.get('page') || '1');
-const searchQuery = Astro.url.searchParams.get('search') || '';
-const areaFilter = Astro.url.searchParams.get('area') || '';
-const clienteFilter = Astro.url.searchParams.get('cliente') || '';
+// Datos de servicios locales (fallback y mapeo de imágenes)
+const serviciosConfig = {
+  // Mapeo de títulos a imágenes generadas (con fondo blanco)
+  imageMap: {
+    'ciberseguridad': '/images/services/seguidadfondoblanco.png',
+    'seguridad': '/images/services/seguidadfondoblanco.png',
+    'cctv': '/images/services/seguridadcctvfondoblanco.png',
+    'detección': '/images/services/seguridadcctvfondoblanco.png',
+    'deteccion': '/images/services/seguridadcctvfondoblanco.png',
+    'desarrollo': '/images/services/softwarefondoblanco.png',
+    'software': '/images/services/softwarefondoblanco.png',
+    'infraestructura': '/images/services/redfondoblanco.png',
+    'redes': '/images/services/redfondoblanco.png',
+    'red': '/images/services/redfondoblanco.png',
+    'telecomunicaciones': '/images/services/redfondoblanco.png',
+    'consultoria': '/images/services/serviciositfondoblanco.png',
+    'consultoría': '/images/services/serviciositfondoblanco.png',
+    'transformación': '/images/services/serviciositfondoblanco.png',
+    'transformacion': '/images/services/serviciositfondoblanco.png',
+    'soporte': '/images/services/serviciositfondoblanco.png',
+    'mesa': '/images/services/serviciositfondoblanco.png',
+    'servicios': '/images/services/serviciositfondoblanco.png',
+  },
+  // Iconos por categoría
+  icons: {
+    'Seguridad': '🛡️',
+    'Software': '💻',
+    'Telecomunicaciones': '📡',
+    'Consultoría': '📊',
+    'Soporte TIC': '🎧',
+  },
+  // Colores por categoría
+  colors: {
+    'Seguridad': 'from-blue-600 to-cyan-500',
+    'Software': 'from-amber-500 to-orange-600',
+    'Telecomunicaciones': 'from-emerald-500 to-teal-600',
+    'Consultoría': 'from-purple-600 to-indigo-600',
+    'Soporte TIC': 'from-rose-500 to-pink-600',
+  }
+};
 
-// Filtrar servicios
-let serviciosFiltrados = serviciosReales;
+// Función para obtener imagen según título
+const getServiceImage = (titulo) => {
+  const tituloLower = titulo.toLowerCase();
+  for (const [key, value] of Object.entries(serviciosConfig.imageMap)) {
+    if (tituloLower.includes(key)) return value;
+  }
+  return '/images/antecedentes-hero-bg.jpg';
+};
 
-if (searchQuery) {
-  serviciosFiltrados = serviciosFiltrados.filter(servicio => 
-    servicio.Titulo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    servicio.Descripcion.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+// Cargar servicios desde Directus
+let servicios = [];
+try {
+  const response = await directus.getServicios();
+  if (response?.data?.length > 0) {
+    servicios = response.data.map(s => ({
+      ...s,
+      imageUrl: getServiceImage(s.Titulo || ''),
+      icon: serviciosConfig.icons[s.Area] || '⚡',
+      gradient: serviciosConfig.colors[s.Area] || 'from-slate-600 to-slate-800'
+    }));
+  }
+} catch (e) {
+  console.error('[SERVICIOS] Error:', e);
 }
 
-if (areaFilter) {
-  serviciosFiltrados = serviciosFiltrados.filter(servicio => 
-    servicio.Area === areaFilter
-  );
-}
-
-if (clienteFilter) {
-  serviciosFiltrados = serviciosFiltrados.filter(servicio => 
-    servicio.Cliente === clienteFilter
-  );
-}
-
-// Paginación
-const totalServicios = serviciosFiltrados.length;
-const totalPages = Math.ceil(totalServicios / PAGE_SIZE);
-const startIndex = (currentPage - 1) * PAGE_SIZE;
-const endIndex = startIndex + PAGE_SIZE;
-const serviciosPaginados = serviciosFiltrados.slice(startIndex, endIndex);
-
-// Generar opciones de filtros dinámicamente
-const areasUnicas = [...new Set(serviciosReales.map(s => s.Area))].sort();
-const clientesUnicos = [...new Set(serviciosReales.map(s => s.Cliente))].sort();
-
-// Usar la función utilitaria compartida para manejar imágenes
-const getAssetUrl = getServiceImageUrl;
-
-// Imágenes para el slider de fondo
-const backgroundImages = [
-  '/images/services/servicios-it.jpg', 
-  '/images/services/ciberseguridad.jpg',
-  '/images/services/redes-comunicaciones.jpg'
-];
+// Estadísticas
+const totalServicios = servicios.length;
+const areasUnicas = [...new Set(servicios.map(s => s.Area).filter(Boolean))];
 ---
 
-<Layout title="Servicios IT Mendoza | Redes, Desarrollo, Seguridad | ULTIMA MILLA" description="Servicios informáticos integrales en Mendoza y Cuyo: infraestructura de redes, desarrollo de software a medida, seguridad informática, cloud computing. Soporte 24/7." keywords="servicios it mendoza, infraestructura redes cuyo, desarrollo software mendoza, seguridad informatica, consultoria tecnologica">
+<Layout 
+  title="Servicios IT Mendoza | Infraestructura, Desarrollo, Seguridad | ULTIMA MILLA" 
+  description="Servicios tecnológicos integrales para empresas en Mendoza, Cuyo y Patagonia. Infraestructura de redes, desarrollo de software, ciberseguridad, consultoría IT y soporte técnico 24/7."
+  keywords="servicios it mendoza, infraestructura redes, desarrollo software, ciberseguridad empresas, consultoria tecnologica, soporte tecnico 24/7"
+>
   <BreadcrumbSchema items={[
     { label: 'Inicio', url: '/' },
     { label: 'Servicios', url: '/servicios' }
   ]} />
 
-  <main class="min-h-screen bg-white">
-    <!-- Hero Section V3 (Immersive, Rotating BG) -->
-    <section class="relative h-[60vh] md:h-[70vh] flex items-center overflow-hidden bg-slate-900">
-      <!-- Background Slider -->
-      <div id="hero-slider" class="absolute inset-0 z-0">
-        <!-- Images will be injected/controlled by JS -->
-        <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out opacity-100" style="background-image: url('/images/services/servicios-it.jpg');"></div>
-        <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out opacity-0" style="background-image: url('/images/services/ciberseguridad.jpg');"></div>
-        <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out opacity-0" style="background-image: url('/images/services/redes-comunicaciones.jpg');"></div>
+  <main class="min-h-screen bg-slate-50">
+    <!-- Hero Section Premium -->
+    <section class="relative min-h-[60vh] flex items-center overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <!-- Animated background pattern -->
+      <div class="absolute inset-0 opacity-10">
+        <div class="absolute inset-0" style="background-image: radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.3) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(16, 185, 129, 0.3) 0%, transparent 50%);"></div>
+        <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%239C92AC&quot; fill-opacity=&quot;0.1&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
       </div>
       
-      <!-- Overlay -->
-      <div class="absolute inset-0 bg-slate-900/80 z-10"></div>
-
-      <div class="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-4xl">
-          <div class="inline-flex items-center space-x-2 mb-6 animate-fade-in-up">
-            <span class="w-8 h-[2px] bg-blue-500"></span>
-            <span class="text-blue-400 font-bold tracking-widest uppercase text-sm">Soluciones Integrales</span>
+      <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+        <!-- Badge -->
+        <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-8">
+          <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+          <span class="text-white/90 text-sm font-medium tracking-wide">Soluciones Tecnológicas Integrales</span>
+        </div>
+        
+        <!-- Título Principal -->
+        <h1 class="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-tight">
+          <span class="block">Servicios IT para</span>
+          <span class="block mt-2 bg-gradient-to-r from-cyan-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent">
+            Empresas que Evolucionan
+          </span>
+        </h1>
+        
+        <p class="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto mb-12 leading-relaxed">
+          +22 años impulsando la transformación digital de empresas en Mendoza, Cuyo y Patagonia
+        </p>
+        
+        <!-- Métricas -->
+        <div class="flex flex-wrap justify-center gap-8 md:gap-16">
+          <div class="text-center">
+            <div class="text-4xl md:text-5xl font-black text-white">469+</div>
+            <div class="text-sm text-slate-400 uppercase tracking-widest mt-1">Proyectos</div>
           </div>
-          
-          <h1 class="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight tracking-tight animate-fade-in-up delay-100">
-            Servicios IT y <br/>
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">Telecomunicaciones en Mendoza</span>
-          </h1>
-          
-          <!-- Metrics Row (Solid, Executive) -->
-          <div class="flex flex-wrap gap-8 md:gap-16 pt-8 border-t border-white/10 animate-fade-in-up delay-200">
-            <div class="flex items-center space-x-4">
-              <div class="p-3 bg-white/5 rounded-lg border border-white/10">
-                <svg class="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                </svg>
-              </div>
-              <div>
-                <div class="text-3xl font-bold text-white">{serviciosReales.length}+</div>
-                <div class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Servicios</div>
-              </div>
-            </div>
-            
-            <div class="flex items-center space-x-4">
-              <div class="p-3 bg-white/5 rounded-lg border border-white/10">
-                <svg class="w-6 h-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-              </div>
-              <div>
-                <div class="text-3xl font-bold text-white">{areasUnicas.length}</div>
-                <div class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Áreas</div>
-              </div>
-            </div>
-            
-            <div class="flex items-center space-x-4">
-              <div class="p-3 bg-white/5 rounded-lg border border-white/10">
-                <svg class="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <div class="text-3xl font-bold text-white">{clientesUnicos.length}+</div>
-                <div class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Sectores</div>
-              </div>
-            </div>
+          <div class="text-center">
+            <div class="text-4xl md:text-5xl font-black text-white">{totalServicios}</div>
+            <div class="text-sm text-slate-400 uppercase tracking-widest mt-1">Servicios</div>
+          </div>
+          <div class="text-center">
+            <div class="text-4xl md:text-5xl font-black text-white">{areasUnicas.length}</div>
+            <div class="text-sm text-slate-400 uppercase tracking-widest mt-1">Áreas de Expertise</div>
+          </div>
+          <div class="text-center">
+            <div class="text-4xl md:text-5xl font-black text-white">24/7</div>
+            <div class="text-sm text-slate-400 uppercase tracking-widest mt-1">Soporte</div>
           </div>
         </div>
       </div>
-    </section>
-
-    <!-- Filtros y Búsqueda (Compact & Sticky) -->
-    <section class="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <form method="GET" class="flex flex-col md:flex-row gap-4 items-center justify-between">
-          <!-- Búsqueda -->
-          <div class="relative w-full md:w-96">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <input
-              type="text"
-              name="search"
-              value={searchQuery}
-              placeholder="Buscar servicios..."
-              class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg leading-5 bg-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
-          </div>
-          
-          <div class="flex flex-wrap gap-3 w-full md:w-auto">
-            <select name="area" class="bg-white border border-slate-300 text-slate-700 py-2 px-4 pr-8 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm">
-              <option value="">Todas las áreas</option>
-              {areasUnicas.map(area => (
-                <option value={area} selected={areaFilter === area}>{area}</option>
-              ))}
-            </select>
-            
-            <select name="cliente" class="bg-white border border-slate-300 text-slate-700 py-2 px-4 pr-8 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm">
-              <option value="">Todos los clientes</option>
-              {clientesUnicos.map(cliente => (
-                <option value={cliente} selected={clienteFilter === cliente}>{cliente}</option>
-              ))}
-            </select>
-            
-            <button type="submit" class="px-6 py-2 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-800 transition-colors text-sm">
-              Filtrar
-            </button>
-          </div>
-        </form>
+      
+      <!-- Scroll indicator -->
+      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+        <svg class="w-6 h-6 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+        </svg>
       </div>
     </section>
 
-    <!-- Grid de Servicios (Solid, Clean) -->
-    <section class="py-16 md:py-24 bg-slate-50">
+    <!-- Grid de Servicios Premium -->
+    <section class="py-20 md:py-28 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {serviciosPaginados.length === 0 ? (
+        <!-- Section Header -->
+        <div class="text-center mb-16">
+          <span class="inline-block px-3 py-1 text-sm font-semibold text-blue-600 bg-blue-50 rounded-full mb-4">
+            Nuestras Soluciones
+          </span>
+          <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+            Servicios Profesionales IT
+          </h2>
+          <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+            Soluciones integrales diseñadas para potenciar la competitividad de tu empresa
+          </p>
+        </div>
+        
+        <!-- Services Grid -->
+        {servicios.length === 0 ? (
           <div class="text-center py-20">
-            <h3 class="text-xl font-medium text-slate-900">No se encontraron resultados</h3>
-            <p class="text-slate-500 mt-2">Intenta ajustar tus filtros de búsqueda.</p>
+            <p class="text-slate-500 text-lg">Cargando servicios...</p>
           </div>
         ) : (
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {serviciosFiltrados.map((servicio) => {
+            {servicios.map((servicio, index) => {
               const slug = generateSlug(servicio.Titulo);
               return (
-                <a href={`/servicios/${servicio.id}/${slug}`} class="group flex flex-col h-full">
-                  <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1">
-                    <!-- Image -->
-                    <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
-                      <img
-                        src={getAssetUrl(servicio.Imagen)}
-                        alt={servicio.Titulo}
-                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        loading="lazy"
-                        onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null;"
-                      />
-                      <div class="absolute top-4 left-4">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-slate-900 text-white shadow-sm">
-                          {servicio.Area}
-                        </span>
-                      </div>
+                <a 
+                  href={`/servicios-append/${servicio.id}/${slug}`} 
+                  class="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
+                  style={`animation-delay: ${index * 100}ms`}
+                >
+                  <!-- Image Container with White BG for Transparency Effect -->
+                  <div class="relative aspect-[16/10] overflow-hidden bg-white">
+                    <img 
+                      src={servicio.imageUrl}
+                      alt={servicio.Titulo}
+                      class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      loading="lazy"
+                    />
+                    <!-- Subtle Bottom Gradient for Text Readability -->
+                    <div class="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    
+                    <!-- Category Badge -->
+                    <div class="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-white/95 backdrop-blur-sm rounded-full shadow-lg">
+                      <span class="text-lg">{servicio.icon}</span>
+                      <span class="text-xs font-bold text-slate-700 uppercase tracking-wide">{servicio.Area}</span>
                     </div>
                     
-                    <!-- Content -->
-                    <div class="flex flex-col flex-grow p-6">
-                      <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors">
-                        {servicio.Titulo}
-                      </h3>
-                      
-                      <p class="text-slate-600 text-sm mb-6 line-clamp-3 flex-grow leading-relaxed">
-                        {servicio.Descripcion.replace(/\\\\/g, ' ')}
-                      </p>
-                      
-                      <div class="pt-4 border-t border-slate-100 mt-auto flex items-center justify-between">
-                        <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                          {servicio.Cliente}
-                        </span>
-                        <span class="text-blue-600 text-sm font-semibold group-hover:underline">
-                          Ver detalles &rarr;
-                        </span>
-                      </div>
+                    <!-- Hover CTA -->
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <span class="px-6 py-3 bg-white text-slate-900 font-bold rounded-full shadow-xl transform -translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                        Ver Detalles →
+                      </span>
                     </div>
-                  </article>
+                  </div>
+                  
+                  <!-- Content -->
+                  <div class="flex-1 p-6">
+                    <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
+                      {servicio.Titulo}
+                    </h3>
+                    <p class="text-slate-600 text-sm leading-relaxed line-clamp-3">
+                      {servicio.Descripcion?.replace(/\\\\/g, ' ')}
+                    </p>
+                  </div>
+                  
+                  <!-- Footer -->
+                  <div class="px-6 pb-6">
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                      <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                        {servicio.Cliente || 'Empresas'}
+                      </span>
+                      <span class="text-blue-600 text-sm font-bold group-hover:underline">
+                        Explorar servicio
+                      </span>
+                    </div>
+                  </div>
                 </a>
               );
             })}
@@ -233,42 +227,45 @@ const backgroundImages = [
       </div>
     </section>
 
-    <!-- Related Links Section -->
-    <section class="container mx-auto px-4 py-12">
-      <RelatedLinks
-        category="servicio"
-        currentPage="/servicios"
-        limit={6}
-        title="Explore Más Servicios"
-      />
+    <!-- CTA Section -->
+    <section class="py-20 bg-gradient-to-r from-slate-900 to-slate-800">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
+          ¿Listo para impulsar tu empresa?
+        </h2>
+        <p class="text-lg text-slate-300 mb-10">
+          Agenda una consulta gratuita con nuestros especialistas
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a 
+            href="/contacto" 
+            class="inline-flex items-center justify-center px-8 py-4 bg-white text-slate-900 font-bold rounded-xl hover:bg-slate-100 transition-colors shadow-xl"
+          >
+            Solicitar Consulta Gratuita
+          </a>
+          <a 
+            href="tel:+542614001234" 
+            class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent text-white font-bold rounded-xl border-2 border-white/30 hover:bg-white/10 transition-colors"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+            </svg>
+            Llamar Ahora
+          </a>
+        </div>
+      </div>
     </section>
   </main>
 </Layout>
 
-<script>
-  // Simple Background Slider Script
-  document.addEventListener('DOMContentLoaded', () => {
-    const slides = document.querySelectorAll('#hero-slider > div');
-    let currentSlide = 0;
-    
-    if (slides.length > 1) {
-      setInterval(() => {
-        // Fade out current
-        slides[currentSlide].classList.remove('opacity-100');
-        slides[currentSlide].classList.add('opacity-0');
-        
-        // Next slide
-        currentSlide = (currentSlide + 1) % slides.length;
-        
-        // Fade in next
-        slides[currentSlide].classList.remove('opacity-0');
-        slides[currentSlide].classList.add('opacity-100');
-      }, 5000); // Change every 5 seconds
-    }
-  });
-</script>
-
 <style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
   .line-clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -276,19 +273,42 @@ const backgroundImages = [
     overflow: hidden;
   }
   
-  .animate-fade-in-up {
-    animation: fadeInUp 0.8s ease-out forwards;
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  
-  .delay-100 { animation-delay: 0.1s; }
-  .delay-200 { animation-delay: 0.2s; }
-  
   @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
     to {
       opacity: 1;
       transform: translateY(0);
     }
   }
+  
+  .grid > a {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+  }
 </style>
+
+<!-- Schema.org Markup -->
+<script type="application/ld+json" set:html={JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Servicios IT - ULTIMA MILLA",
+  "description": "Servicios tecnológicos profesionales para empresas en Argentina",
+  "numberOfItems": totalServicios,
+  "itemListElement": servicios.map((s, i) => ({
+    "@type": "ListItem",
+    "position": i + 1,
+    "item": {
+      "@type": "Service",
+      "name": s.Titulo,
+      "description": s.Descripcion?.substring(0, 200),
+      "provider": {
+        "@type": "Organization",
+        "name": "ULTIMA MILLA"
+      },
+      "areaServed": ["Mendoza", "Cuyo", "Patagonia"]
+    }
+  }))
+})}></script>
