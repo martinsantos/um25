@@ -6,12 +6,60 @@ import { generateSlug } from '../../utils/slugUtils.js';
 import { serviciosReales } from '../../data/servicios_reales_db.js';
 import { getServiceImageUrl } from '../../utils/imageUtils.js';
 
+// Mapeo de imágenes de servicios con fondo blanco
+const servicioImageMap = {
+  // Seguridad
+  'ciberseguridad': '/images/services/seguidadfondoblanco.png',
+  'seguridad': '/images/services/seguidadfondoblanco.png',
+  'informatica': '/images/services/seguidadfondoblanco.png',
+  'cctv': '/images/services/seguridadcctvfondoblanco.png',
+  'detección': '/images/services/seguridadcctvfondoblanco.png',
+  'deteccion': '/images/services/seguridadcctvfondoblanco.png',
+  'videovigilancia': '/images/services/seguridadcctvfondoblanco.png',
+  
+  // Redes
+  'infraestructura': '/images/services/redfondoblanco.png',
+  'redes': '/images/services/redfondoblanco.png',
+  'red': '/images/services/redfondoblanco.png',
+  'telecomunicaciones': '/images/services/redfondoblanco.png',
+  'datos': '/images/services/redfondoblanco.png',
+  'fibra': '/images/services/redfondoblanco.png',
+  
+  // Software
+  'desarrollo': '/images/services/softwarefondoblanco.png',
+  'software': '/images/services/softwarefondoblanco.png',
+  'programación': '/images/services/softwarefondoblanco.png',
+  'programacion': '/images/services/softwarefondoblanco.png',
+  'aplicaciones': '/images/services/softwarefondoblanco.png',
+  
+  // IT/Consultoría
+  'consultoria': '/images/services/serviciositfondoblanco.png',
+  'consultoría': '/images/services/serviciositfondoblanco.png',
+  'servicios': '/images/services/serviciositfondoblanco.png',
+  'soporte': '/images/services/serviciositfondoblanco.png',
+  'mesa': '/images/services/serviciositfondoblanco.png',
+  'it': '/images/services/serviciositfondoblanco.png',
+};
+
+// Función para obtener imagen basada en título
+const getImageForService = (titulo) => {
+  const tituloLower = titulo.toLowerCase();
+  for (const [keyword, imagePath] of Object.entries(servicioImageMap)) {
+    if (tituloLower.includes(keyword)) {
+      return imagePath;
+    }
+  }
+  // Fallback a imagen por defecto
+  return '/images/services/serviciositfondoblanco.png';
+};
+
 // Configuración de paginación
 const PAGE_SIZE = 12;
 const currentPage = parseInt(Astro.url.searchParams.get('page') || '1');
 const searchQuery = Astro.url.searchParams.get('search') || '';
 const areaFilter = Astro.url.searchParams.get('area') || '';
 const clienteFilter = Astro.url.searchParams.get('cliente') || '';
+
 
 // Filtrar servicios
 let serviciosFiltrados = serviciosReales;
@@ -192,7 +240,7 @@ const backgroundImages = [
                     <!-- Image -->
                     <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
                       <img
-                        src={getAssetUrl(servicio.Imagen)}
+                        src={getImageForService(servicio.Titulo)}
                         alt={servicio.Titulo}
                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         loading="lazy"
