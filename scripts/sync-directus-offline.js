@@ -15,6 +15,12 @@ const SERVER_IMG_DIR = '/var/www/html/imagenes_antecedentes_versionproduccion';
 const SSH_HOST = '23.105.176.45';
 const SSH_PASS = 'gsiB%s@0yD';
 
+// MANUAL OVERRIDES for known broken/missing Directus assets
+const MANUAL_IMAGE_OVERRIDES = {
+    3381: '/img/sync-offline/a0894963-881d-4995-8f6f-467ae5a21adb.png', // Reubicacion de tablero -> Hospital Tablero
+    3581: '/img/sync-offline/0b029f93-6eb9-4ff5-89a6-6f11b859a69c.png'  // Tablero Banco Capacitores -> Triunfo Cableado
+};
+
 // Ensure sync directory exists
 if (!fs.existsSync(SYNC_DIR)) {
     fs.mkdirSync(SYNC_DIR, { recursive: true });
@@ -78,6 +84,13 @@ async function sync() {
     for (const item of antecedentes) {
         const itemData = { ...item };
         let imageFound = false;
+
+        // PRIORITY 0: Manual Overrides
+        if (MANUAL_IMAGE_OVERRIDES[item.id]) {
+            itemData.LocalFallbackImage = MANUAL_IMAGE_OVERRIDES[item.id];
+            console.log(`[SYNC] Applied manual override for ID ${item.id}: ${itemData.LocalFallbackImage}`);
+            imageFound = true;
+        }
 
         // PRIORITY 1: Map to "Perfect" Legacy Images from Server
         const mapping = mapeoImagenes.find(m => m.numero === item.id);
