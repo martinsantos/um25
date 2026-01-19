@@ -21,6 +21,18 @@ const MANUAL_IMAGE_OVERRIDES = {
     3581: '/img/sync-offline/0b029f93-6eb9-4ff5-89a6-6f11b859a69c.png'  // Tablero Banco Capacitores -> Triunfo Cableado
 };
 
+// CATEGORY FALLBACKS for antecedents missing specific images
+const CATEGORY_FALLBACKS = {
+    'Detección de Incendios & Seguridad': '/img/sync-offline/bfaef3db-246f-4f12-a18b-4bd95d005f25.png',
+    'Video Vigilancia & Seguridad': '/img/sync-offline/61560a7e-c560-4033-944d-7804a50a2ce8.png',
+    'Conectividad & Redes': '/img/sync-offline/0bab09d0-dc93-48a9-a9f7-f91b9dcd2bb6.png',
+    'Infraestructura Hospitalaria': '/img/sync-offline/a0894963-881d-4995-8f6f-467ae5a21adb.png',
+    'Soluciones Tecnológicas': '/img/sync-offline/08d1b4fc-aa12-4c02-aaa6-f8957e73795b.png',
+    'Industria & Bodegas': '/img/sync-offline/c29fa2f2-f8f1-40fa-a1e4-ce9baf697564.png',
+    'Aeropuertos & Telecomunicaciones': '/img/sync-offline/929c605f-32c7-47da-a95a-2da664e9e2fa.png',
+    'DEFAULT': '/img/sync-offline/050fc7d2-67cb-4943-af0a-afba1230e9bd.png'
+};
+
 // Ensure sync directory exists
 if (!fs.existsSync(SYNC_DIR)) {
     fs.mkdirSync(SYNC_DIR, { recursive: true });
@@ -117,7 +129,16 @@ async function sync() {
             const success = await downloadImage(url, filename);
             if (success) {
                 itemData.LocalFallbackImage = `/img/sync-offline/${filename}`;
+                imageFound = true;
             }
+        }
+
+        // PRIORITY 3: Categorical Fallbacks (If still NO image)
+        if (!imageFound) {
+            const area = item.Area || 'DEFAULT';
+            const fallback = CATEGORY_FALLBACKS[area] || CATEGORY_FALLBACKS['DEFAULT'];
+            itemData.LocalFallbackImage = fallback;
+            console.log(`[SYNC] Applied categorical fallback for ID ${item.id} (Area: ${area}): ${fallback}`);
         }
 
         fallbackData.antecedentes.push(itemData);
