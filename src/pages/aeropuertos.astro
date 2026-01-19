@@ -47,7 +47,7 @@ const filterAntecedentes = async (data) => {
       ...item,
       Nombre: item.Titulo,
       mapeo_imagenes_completo: await getAntecedenteImageUrl(item),
-      slug: `${String(item.id).split('/')[0].trim()}/${generateSlug(item.Titulo)}`
+      slug: generateSlug(item.Titulo)
     }))
   );
 
@@ -226,6 +226,7 @@ serviciosRelacionados = [
             <p style="font-size: 14px; color: #666; line-height: 1.6;">Infraestructura de redes para aeropuertos</p>
           </a>
 
+
           <!-- Servicio 2 -->
           <a href="/servicios/2/seguridad-informatica" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #0ea5e9; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(14,165,233,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
             <div style="width: 50px; height: 50px; background: #0ea5e9; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
@@ -233,9 +234,11 @@ serviciosRelacionados = [
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Seguridad Informática</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Protección de sistemas críticos</p>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">CCTV y Seguridad</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Monitoreo inteligente para Parking, Check-in y Pistas</p>
           </a>
+
+
 
           <!-- Servicio 3 -->
           <a href="/servicios/3/conectividad-temporal" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #0ea5e9; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(14,165,233,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
@@ -244,9 +247,10 @@ serviciosRelacionados = [
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
               </svg>
             </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Telecomunicaciones</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Sistemas de comunicación integrados</p>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Balizamiento de Pista</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Fibra óptica para sistemas de iluminación y aproximación</p>
           </a>
+
 
           <!-- Servicio 4 -->
           <a href="/servicios/4/telefonia-ip" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #0ea5e9; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(14,165,233,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
@@ -299,7 +303,7 @@ serviciosRelacionados = [
             </p>
           </div>
 
-          <AntecedentesGridMobileOptimized items={antecedentes} limit={25} title="Casos de u00c9xito en aeropuertos" description="Proyectos destacados en este sector" />
+          <AntecedentesGridMobileOptimized items={antecedentes} limit={25} title="Casos de Éxito en Aeropuertos" description="Proyectos destacados en este sector" />
         </div>
       </section>
     )}

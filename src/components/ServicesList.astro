@@ -5,23 +5,23 @@ const { services } = Astro.props;
 // BREAKTHROUGH DEFINITIVO: Mapeo usando rutas normales - nginx corregido sirve imágenes desde contenedor Astro
 // Nginx ya deriva correctamente /images/services/ al contenedor umbot-astro-static
 const imageMapping = {
-  1: '/images/services/servicios-it.jpg',        // Servicios IT
-  2: '/images/services/redes-comunicaciones.jpg', // Redes de datos  
-  3: '/images/services/ciberseguridad.jpg',       // Seguridad Informática
-  4: '/images/services/telefonia.jpg',            // Telefonía y Citofonía
-  5: '/images/services/servicios-it.jpg',         // Software a medida (fallback)
-  6: '/images/services/servicios-web.jpg'         // Servicios Web
+  101: '/images/services/redinfraestructura.png',
+  102: '/images/services/seguridad.png',
+  103: '/images/services/soportetic.png',
+  104: '/images/services/soportetic.png',
+  105: '/images/services/desarrollo.png',
+  106: '/images/services/desarrollo.png'
 };
 
-// RESTAURADO: Función para obtener URL de imagen por ID de servicio directo
+// Función para obtener URL de imagen por ID de servicio directo
 const getImageUrl = (serviceId) => {
-  // Usar mapeo directo por ID de servicio (las imágenes originales existen)
+  // Usar mapeo directo por ID si existe
   if (imageMapping[serviceId]) {
     return imageMapping[serviceId];
   }
   
-  // Fallback a imagen por defecto
-  return '/images/services/default-service.jpg';
+  // Fallback genérico profesional (gradiente azul oscuro)
+  return '/images/antecedentes-hero-bg.jpg';
 };
 
 // Función para limitar el texto
@@ -69,7 +69,7 @@ const getIconColor = (index) => {
       const serviceUrl = `/servicios/${service.id}/${serviceSlug}`;
       const iconColor = getIconColor(index);
       const iconEmoji = ['📊', '💻', '📱', '🔒', '☁️', '🤖'][index % 6];
-      const imageUrl = getImageUrl(service.id); // RESTAURADO: usar service.id en lugar de service.Imagen (null)
+      const imageUrl = service.Imagen || getImageUrl(service.id); 
       
       return (
         <a href={serviceUrl} class="block group cursor-pointer">

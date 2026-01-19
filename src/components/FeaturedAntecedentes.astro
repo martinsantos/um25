@@ -31,65 +31,41 @@ const totalPages = Math.ceil(processedAntecedentes.length / ITEMS_PER_PAGE);
 const allItemsJSON = JSON.stringify(processedAntecedentes);
 ---
 <!-- DEBUG: FIXED LINK COMPONENT LOADED -->
+<!-- 
+  SEO OPTIMIZED COMPONENT:
+  1. Initial render is 100% Server-Side HTML (visible to Googlebot).
+  2. Alpine.js takes over for interactive pagination ("Hydration").
+-->
 <div
   class="featured-antecedentes-wrapper"
   x-data={`{
     allItems: ${allItemsJSON},
     itemsPerPage: ${ITEMS_PER_PAGE},
-    totalPages: ${totalPages},
     currentPage: 1,
-
-    get totalItems() { return this.allItems.length; },
-    get startIndex() { return (this.currentPage - 1) * this.itemsPerPage; },
-    get endIndex() { return Math.min(this.currentPage * this.itemsPerPage, this.totalItems); },
+    
+    get totalPages() {
+      return Math.ceil(this.allItems.length / this.itemsPerPage);
+    },
 
     get paginatedItems() {
-      return this.allItems.slice(this.startIndex, this.endIndex);
-    },
-    // ... rest of logic
-    
-
-
-    get pageNumbers() {
-      const pages = [];
-      const maxVisible = 5;
-      if (this.totalPages <= maxVisible) {
-        for (let i = 1; i <= this.totalPages; i++) pages.push(i);
-      } else {
-        const start = Math.max(1, this.currentPage - 2);
-        const end = Math.min(this.totalPages, this.currentPage + 2);
-        if (start > 1) {
-          pages.push(1);
-          if (start > 2) pages.push('...');
-        }
-        for (let i = start; i <= end; i++) pages.push(i);
-        if (end < this.totalPages) {
-          if (end < this.totalPages - 1) pages.push('...');
-          pages.push(this.totalPages);
-        }
-      }
-      return pages;
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.allItems.slice(start, end);
     },
 
     goToPage(page) {
-      if (typeof page === 'number' && page >= 1 && page <= this.totalPages) {
-        this.currentPage = page;
-        this.scrollToTop();
-      }
+      this.currentPage = page;
+      this.$nextTick(() => {
+        document.getElementById('antecedentes-anchor').scrollIntoView({ behavior: 'smooth' });
+      });
     },
 
     nextPage() {
-      if (this.currentPage < this.totalPages) {
-        this.currentPage++;
-        this.scrollToTop();
-      }
+      if (this.currentPage < this.totalPages) this.goToPage(this.currentPage + 1);
     },
 
-    previousPage() {
-      if (this.currentPage > 1) {
-        this.currentPage--;
-        this.scrollToTop();
-      }
+    prevPage() {
+      if (this.currentPage > 1) this.goToPage(this.currentPage - 1);
     },
 
     formatDate(dateString) {
@@ -101,86 +77,43 @@ const allItemsJSON = JSON.stringify(processedAntecedentes);
     getDescription(proyecto) {
       if (!proyecto.Descripcion) return '';
       return proyecto.Descripcion.replace(/<[^>]*>/g, '').substring(0, 150) + '...';
-    },
-
-    scrollToTop() {
-      const gridElement = this.$el.querySelector('.antecedente-grid');
-      if (gridElement) {
-        gridElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
     }
   }`}
 >
-  <!-- Top Pagination -->
-  {processedAntecedentes.length > 0 && (
-    <div class="mb-8">
-      <div class="text-center summary-container mb-4">
-        <p class="text-sm text-slate-600">
-          Mostrando <span class="font-bold text-blue-600" x-text="startIndex + 1"></span>
-          a <span class="font-bold text-blue-600" x-text="endIndex"></span>
-          de <span class="font-bold text-blue-600" x-text="totalItems"></span> casos
-        </p>
-      </div>
+  <div id="antecedentes-anchor" class="scroll-mt-24"></div>
 
-      <div class="flex justify-center items-center gap-2 flex-wrap" x-show="totalPages > 1">
-        <button
-          @click="previousPage()"
-          :disabled="currentPage === 1"
-          class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-medium transition-all hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          ← Anterior
-        </button>
-
-        <div class="flex gap-1 flex-wrap justify-center">
-          <template x-for="page in pageNumbers" :key="page">
-            <button
-              @click="goToPage(page)"
-              :class="`px-3 py-2 rounded-lg font-medium transition-all ${page === currentPage ? 'bg-blue-600 text-white' : 'border border-slate-300 text-slate-700 hover:bg-slate-50'}`"
-              :disabled="page === currentPage"
-              x-text="page"
-            ></button>
-          </template>
-        </div>
-
-        <button
-          @click="nextPage()"
-          :disabled="currentPage === totalPages"
-          class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-medium transition-all hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Siguiente →
-        </button>
-      </div>
-    </div>
-  )}
-
-  <!-- Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 antecedente-grid">
-    <template x-for="proyecto in paginatedItems" :key="proyecto.id">
-      <a :href="'/antecedentes/' + proyecto.calculatedDeepLink" class="group flex flex-col h-full antecedente-item">
+  <!-- SERVER SIDE RENDERED GRID (First Page) - SEO GOLD -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 antecedente-grid" x-show="currentPage === 1">
+    {processedAntecedentes.slice(0, ITEMS_PER_PAGE).map((proyecto) => (
+      <a href={`/antecedentes/${proyecto.calculatedDeepLink}`} class="group flex flex-col h-full antecedente-item">
         <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1">
           <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
             <img
-              :src="proyecto.imageUrl"
-              :alt="proyecto.Titulo"
+              src={proyecto.imageUrl}
+              alt={proyecto.Titulo}
               class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               loading="lazy"
               onerror="this.src='/images/antecedentes-hero-bg.jpg'"
             />
             <div class="absolute top-4 left-4">
               <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-slate-900 text-white shadow-sm">
-                <span x-text="proyecto.Area || 'Proyecto'"></span>
+                {proyecto.Area || 'Proyecto'}
               </span>
             </div>
           </div>
 
           <div class="flex flex-col flex-grow p-6">
             <div class="mb-2">
-              <span class="text-xs font-bold text-blue-600 uppercase tracking-wide" x-text="proyecto.Cliente"></span>
+              <span class="text-xs font-bold text-blue-600 uppercase tracking-wide">{proyecto.Cliente}</span>
             </div>
-            <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors line-clamp-2" x-text="proyecto.Titulo"></h3>
-            <p class="text-slate-600 text-sm mb-6 line-clamp-3 flex-grow leading-relaxed" x-text="getDescription(proyecto)"></p>
+            <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors line-clamp-2">{proyecto.Titulo}</h3>
+            <p class="text-slate-600 text-sm mb-6 line-clamp-3 flex-grow leading-relaxed">
+              {proyecto.Descripcion ? proyecto.Descripcion.replace(/<[^>]*>/g, '').substring(0, 150) + '...' : ''}
+            </p>
             <div class="pt-4 border-t border-slate-100 mt-auto flex items-center justify-between">
-              <span class="text-xs font-medium text-slate-500" x-text="formatDate(proyecto.Fecha)"></span>
+              <span class="text-xs font-medium text-slate-500">
+                {proyecto.Fecha ? new Date(proyecto.Fecha).toLocaleDateString('es-AR', {year: 'numeric', month: 'long', day: 'numeric'}) : ''}
+              </span>
               <span class="text-blue-600 text-sm font-semibold group-hover:underline flex items-center">
                 Ver caso <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
               </span>
@@ -188,48 +121,71 @@ const allItemsJSON = JSON.stringify(processedAntecedentes);
           </div>
         </article>
       </a>
-    </template>
+    ))}
   </div>
 
-  <!-- Bottom Pagination -->
-  {processedAntecedentes.length > 0 && (
-    <div class="mt-12">
-      <div class="text-center summary-container mb-4">
-        <p class="text-sm text-slate-600">
-          Mostrando <span class="font-bold text-blue-600" x-text="startIndex + 1"></span>
-          a <span class="font-bold text-blue-600" x-text="endIndex"></span>
-          de <span class="font-bold text-blue-600" x-text="totalItems"></span> casos
-        </p>
-      </div>
+  <!-- CLIENT SIDE RENDERED GRID (Subsequent Pages) -->
+  <template x-if="currentPage > 1">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 antecedente-grid">
+      <template x-for="proyecto in paginatedItems" :key="proyecto.id">
+        <a :href="'/antecedentes/' + (proyecto.calculatedDeepLink || proyecto.id)" class="group flex flex-col h-full antecedente-item">
+          <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1">
+            <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
+              <img
+                :src="proyecto.imageUrl"
+                :alt="proyecto.Titulo"
+                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                loading="lazy"
+                onerror="this.src='/images/antecedentes-hero-bg.jpg'"
+              />
+              <div class="absolute top-4 left-4">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-slate-900 text-white shadow-sm">
+                  <span x-text="proyecto.Area || 'Proyecto'"></span>
+                </span>
+              </div>
+            </div>
 
-      <div class="flex justify-center items-center gap-2 flex-wrap" x-show="totalPages > 1">
-        <button
-          @click="previousPage()"
-          :disabled="currentPage === 1"
-          class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-medium transition-all hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          ← Anterior
-        </button>
+            <div class="flex flex-col flex-grow p-6">
+              <div class="mb-2">
+                <span class="text-xs font-bold text-blue-600 uppercase tracking-wide" x-text="proyecto.Cliente"></span>
+              </div>
+              <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors line-clamp-2" x-text="proyecto.Titulo"></h3>
+              <p class="text-slate-600 text-sm mb-6 line-clamp-3 flex-grow leading-relaxed" x-text="getDescription(proyecto)"></p>
+              <div class="pt-4 border-t border-slate-100 mt-auto flex items-center justify-between">
+                <span class="text-xs font-medium text-slate-500" x-text="formatDate(proyecto.Fecha)"></span>
+                <span class="text-blue-600 text-sm font-semibold group-hover:underline flex items-center">
+                  Ver caso <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                </span>
+              </div>
+            </div>
+          </article>
+        </a>
+      </template>
+    </div>
+  </template>
 
-        <div class="flex gap-1 flex-wrap justify-center">
-          <template x-for="page in pageNumbers" :key="page">
-            <button
-              @click="goToPage(page)"
-              :class="`px-3 py-2 rounded-lg font-medium transition-all ${page === currentPage ? 'bg-blue-600 text-white' : 'border border-slate-300 text-slate-700 hover:bg-slate-50'}`"
-              :disabled="page === currentPage"
-              x-text="page"
-            ></button>
-          </template>
-        </div>
+  <!-- PAGINATION CONTROLS -->
+  {totalPages > 1 && (
+    <div class="mt-12 flex justify-center items-center gap-4" x-show="totalPages > 1" x-cloak>
+      <button
+        @click="prevPage"
+        :disabled="currentPage === 1"
+        class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
+        ← Anterior
+      </button>
 
-        <button
-          @click="nextPage()"
-          :disabled="currentPage === totalPages"
-          class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-medium transition-all hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Siguiente →
-        </button>
-      </div>
+      <span class="text-slate-600 font-medium">
+        Página <span x-text="currentPage"></span> de <span x-text="totalPages"></span>
+      </span>
+
+      <button
+        @click="nextPage"
+        :disabled="currentPage === totalPages"
+        class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
+        Siguiente →
+      </button>
     </div>
   )}
 </div>

@@ -23,7 +23,7 @@ const {
   slug 
 } = Astro.props;
 
-const defaultImage = 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80';
+const defaultImage = '/images/antecedentes-hero-bg.jpg';
 const imageUrl = imagen || defaultImage;
 
 // Formatear fecha
@@ -50,7 +50,7 @@ const formatDate = (dateString: string) => {
         alt={titulo}
         loading="lazy"
         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        onError="this.src='/images/placeholder-project.jpg'"
+        onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null;"
       />
     </div>
     

@@ -3,54 +3,65 @@ import Layout from '../../layouts/Layout.astro';
 import BreadcrumbSchema from '../../components/SEO/BreadcrumbSchema.astro';
 import RelatedLinks from '../../components/RelatedLinks.astro';
 import { generateSlug } from '../../utils/slugUtils.js';
-import { serviciosReales } from '../../data/servicios_reales_db.js';
+// Removed unused imports to prevent duplicates
 import { getServiceImageUrl } from '../../utils/imageUtils.js';
+import { directus } from '../../utils/directus.js';
+
+// Combinar servicios - SOLO DIRECTUS (Requerimiento Usuario)
+const response = await directus.getServicios();
+let todosLosServicios = response?.data || [];
+
+// Log para depuración en servidor
+console.log(`[SERVICIOS INDEX] Cargados ${todosLosServicios.length} servicios desde Directus.`);
 
 // Mapeo de imágenes de servicios con fondo blanco
 const servicioImageMap = {
-  // Seguridad
-  'ciberseguridad': '/images/services/seguidadfondoblanco.png',
-  'seguridad': '/images/services/seguidadfondoblanco.png',
-  'informatica': '/images/services/seguidadfondoblanco.png',
-  'cctv': '/images/services/seguridadcctvfondoblanco.png',
-  'detección': '/images/services/seguridadcctvfondoblanco.png',
-  'deteccion': '/images/services/seguridadcctvfondoblanco.png',
-  'videovigilancia': '/images/services/seguridadcctvfondoblanco.png',
+  // Seguridad - UNIFIED con Hero (usando mismos archivos que [slug].astro)
+  'ciberseguridad': '/images/services/seguridad.png',
+  'seguridad': '/images/services/seguridad.png',
+  'informatica': '/images/services/seguridad.png',
+  'cctv': '/images/services/seguridad.png',
+  'detección': '/images/services/seguridad.png',
+  'deteccion': '/images/services/seguridad.png',
+  'videovigilancia': '/images/services/seguridad.png',
   
-  // Redes
-  'infraestructura': '/images/services/redfondoblanco.png',
-  'redes': '/images/services/redfondoblanco.png',
-  'red': '/images/services/redfondoblanco.png',
-  'telecomunicaciones': '/images/services/redfondoblanco.png',
-  'datos': '/images/services/redfondoblanco.png',
-  'fibra': '/images/services/redfondoblanco.png',
+  // Redes - UNIFIED con Hero
+  'infraestructura': '/images/services/redinfraestructura.png',
+  'redes': '/images/services/redinfraestructura.png',
+  'red': '/images/services/redinfraestructura.png',
+  'telecomunicaciones': '/images/services/redinfraestructura.png',
+  'datos': '/images/services/redinfraestructura.png',
+  'fibra': '/images/services/redinfraestructura.png',
   
-  // Software
-  'desarrollo': '/images/services/softwarefondoblanco.png',
-  'software': '/images/services/softwarefondoblanco.png',
-  'programación': '/images/services/softwarefondoblanco.png',
-  'programacion': '/images/services/softwarefondoblanco.png',
-  'aplicaciones': '/images/services/softwarefondoblanco.png',
+  // Software - UNIFIED con Hero
+  'desarrollo': '/images/services/desarrollo.png',
+  'software': '/images/services/desarrollo.png',
+  'programación': '/images/services/desarrollo.png',
+  'programacion': '/images/services/desarrollo.png',
+  'aplicaciones': '/images/services/desarrollo.png',
   
-  // IT/Consultoría
-  'consultoria': '/images/services/serviciositfondoblanco.png',
-  'consultoría': '/images/services/serviciositfondoblanco.png',
-  'servicios': '/images/services/serviciositfondoblanco.png',
-  'soporte': '/images/services/serviciositfondoblanco.png',
-  'mesa': '/images/services/serviciositfondoblanco.png',
-  'it': '/images/services/serviciositfondoblanco.png',
+  // IT/Consultoría - UNIFIED con Hero
+  'consultoria': '/images/services/consultoria.png',
+  'consultoría': '/images/services/consultoria.png',
+  'servicios': '/images/services/soportetic.png',
+  'soporte': '/images/services/soportetic.png',
+  'mesa': '/images/services/soportetic.png',
+  'it': '/images/services/soportetic.png',
 };
 
-// Función para obtener imagen basada en título
-const getImageForService = (titulo) => {
+// Función para obtener imagen
+const getImageForService = (input) => {
+  if (typeof input === 'object' && input !== null) {
+      if (input.Imagen && (input.Imagen.startsWith('http') || input.Imagen.startsWith('/assets/') || input.Imagen.startsWith('/directus-assets/'))) return input.Imagen;
+      if (input.Productos && input.Productos.length > 0) return input.Productos[0].imagen;
+      return getImageForService(input.Titulo);
+  }
+  const titulo = input || '';
   const tituloLower = titulo.toLowerCase();
   for (const [keyword, imagePath] of Object.entries(servicioImageMap)) {
-    if (tituloLower.includes(keyword)) {
-      return imagePath;
-    }
+    if (tituloLower.includes(keyword)) return imagePath;
   }
-  // Fallback a imagen por defecto
-  return '/images/services/serviciositfondoblanco.png';
+  return '/images/services/desarrollo.png';
 };
 
 // Configuración de paginación
@@ -62,7 +73,7 @@ const clienteFilter = Astro.url.searchParams.get('cliente') || '';
 
 
 // Filtrar servicios
-let serviciosFiltrados = serviciosReales;
+let serviciosFiltrados = todosLosServicios;
 
 if (searchQuery) {
   serviciosFiltrados = serviciosFiltrados.filter(servicio => 
@@ -91,8 +102,8 @@ const endIndex = startIndex + PAGE_SIZE;
 const serviciosPaginados = serviciosFiltrados.slice(startIndex, endIndex);
 
 // Generar opciones de filtros dinámicamente
-const areasUnicas = [...new Set(serviciosReales.map(s => s.Area))].sort();
-const clientesUnicos = [...new Set(serviciosReales.map(s => s.Cliente))].sort();
+const areasUnicas = [...new Set(todosLosServicios.map(s => s.Area))].sort();
+const clientesUnicos = [...new Set(todosLosServicios.map(s => s.Cliente))].sort();
 
 // Usar la función utilitaria compartida para manejar imágenes
 const getAssetUrl = getServiceImageUrl;
@@ -146,7 +157,7 @@ const backgroundImages = [
                 </svg>
               </div>
               <div>
-                <div class="text-3xl font-bold text-white">{serviciosReales.length}+</div>
+                <div class="text-3xl font-bold text-white">{todosLosServicios.length}+</div>
                 <div class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Servicios</div>
               </div>
             </div>
@@ -238,13 +249,13 @@ const backgroundImages = [
                 <a href={`/servicios/${servicio.id}/${slug}`} class="group flex flex-col h-full">
                   <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1">
                     <!-- Image -->
-                    <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
+                    <div class="relative aspect-[16/9] overflow-hidden bg-white">
                       <img
-                        src={getImageForService(servicio.Titulo)}
+                        src={servicio.Imagen || '/images/services/desarrollo.png'}
                         alt={servicio.Titulo}
-                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
                         loading="lazy"
-                        onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null;"
+                        onerror="this.src='/images/services/desarrollo.png'; this.onerror=null;"
                       />
                       <div class="absolute top-4 left-4">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-slate-900 text-white shadow-sm">
@@ -281,15 +292,6 @@ const backgroundImages = [
       </div>
     </section>
 
-    <!-- Related Links Section -->
-    <section class="container mx-auto px-4 py-12">
-      <RelatedLinks
-        category="servicio"
-        currentPage="/servicios"
-        limit={6}
-        title="Explore Más Servicios"
-      />
-    </section>
   </main>
 </Layout>
 

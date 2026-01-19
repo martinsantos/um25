@@ -1,5 +1,8 @@
 // Datos de antecedentes reales procesados desde la base de datos
-export const antecedentesReales = [
+import { antecedentesSGI } from './antecedentes_sgi.js';
+import { antecedentesEnhanced } from './antecedentes_enhanced.js';
+
+export const manualData = [ // Keep this for backward compatibility if needed, but we will likely replace usage
   {
     id: 10768,
     Titulo: "ISI Solutions - Redes y comunicaciones",
@@ -5159,4 +5162,9 @@ export const antecedentesReales = [
     Area: "Servicios de Telecomunicaciones",
     Presupuesto: 218960
   }
+];
+
+export const antecedentesReales = [
+  // ...manualData, // Desactivado para evitar duplicados, usamos SGI Enhanced como fuente unica
+  ...antecedentesEnhanced
 ];

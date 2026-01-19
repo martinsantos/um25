@@ -422,6 +422,48 @@ Se ha completado una auditoría profunda del sitio con los siguientes resultados
 - **Rutas de Antecedentes:** Corregido error de doble ID (`/11187/11187/`) sincronizando lógica de servidor y componentes.
 - **Validación Final:** Reporte generado y verificado en `SITE_AUDIT_REPORT.md`.
 
+## 🆕 Nueva Plantilla de Servicios (Enero 2026)
+
+### Directus Collection: `servicios_nuevos`
+
+Para que los nuevos servicios sean editables desde Directus, crear la siguiente colección:
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `id` | Integer | ID único (recomendado 101+) |
+| `Titulo` | String | Título principal del servicio |
+| `Subtitulo` | String | Subtítulo destacado opcional |
+| `Tagline` | String | Frase corta de posicionamiento |
+| `Descripcion` | Text | Descripción extendida del servicio |
+| `Area` | String | Categoría: Infraestructura, Seguridad, etc. |
+| `Stats` | JSON Array | `[{valor: "469+", label: "Proyectos"}]` |
+| `Productos` | JSON Array | Array de productos (ver estructura abajo) |
+| `Servicios` | JSON Array | Lista de servicios incluidos |
+| `PorQueElegirnos` | JSON Array | Lista de ventajas competitivas |
+| `Antecedentes` | JSON Array | `[{Cliente, Proyecto, Alcance}]` |
+
+#### Estructura de `Productos`:
+```json
+{
+  "nombre": "Fibra Óptica de Alta Capacidad",
+  "descripcion": "Velocidad sin límites para su organización...",
+  "servicio_asociado": "🔧 Instalamos enlaces de fibra óptica...",
+  "imagen": "/images/services/productos/infraestructura/1.1.png",
+  "caracteristicas": ["Sin checkmark, se añade en template"]
+}
+```
+
+### Template Location
+- **Page**: `src/pages/servicios/[id]/[slug].astro`
+- **Mock Data**: `src/data/servicios_nuevos_mock.js`
+
+### Design Decisions
+1. **Imágenes**: Sin bordes, sin sombras, `mix-blend-multiply` para fusión con fondo blanco.
+2. **Antecedentes**: Estilo card matching `www.ultimamilla.com.ar/antecedentes` con badge "Caso de Éxito".
+3. **Bullets**: Checkmark único añadido por template (no en datos).
+4. **Contacto**: Sidebar con gradiente cyan/blue estilo Ultima Milla.
+
 ---
 
 **Desarrollado con ❤️ por el equipo de ULTiMA MILLA**
+

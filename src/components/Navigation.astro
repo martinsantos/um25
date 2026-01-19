@@ -21,30 +21,32 @@ const isActive = (href: string): boolean => {
 ---
 
 <nav class="navigation">
-    <div class="logo">
-        <a href="/" class="logo-link">
-            <img
-                src="/images/um-logo.png"
-                alt="Ultima Milla Logo"
-                width="200"
-                height="70"
-                class="logo-image"
-            />
-        </a>
-    </div>
-    
-    <div class="hamburger-menu">
-        <span></span>
-        <span></span>
-        <span></span>
-    </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex justify-between items-center h-full">
+        <div class="logo">
+            <a href="/" class="logo-link">
+                <img
+                    src="/images/um-logo.png"
+                    alt="Ultima Milla Logo"
+                    width="200"
+                    height="70"
+                    class="logo-image"
+                />
+            </a>
+        </div>
+        
+        <div class="hamburger-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
 
-    <ul>
-        <li><a href="/" class={isActive('/') ? 'active' : ''}>Inicio</a></li>
-        {navigation.map(item => (
-            <li><a href={item.href} class={isActive(item.href) ? 'active' : ''}>{item.name}</a></li>
-        ))}
-    </ul>
+        <ul>
+            <li><a href="/" class={isActive('/') ? 'active' : ''}>Inicio</a></li>
+            {navigation.map(item => (
+                <li><a href={item.href} class={isActive(item.href) ? 'active' : ''}>{item.name}</a></li>
+            ))}
+        </ul>
+    </div>
 </nav>
 
 <script>
@@ -98,16 +100,21 @@ const isActive = (href: string): boolean => {
         padding: 0;
     }
 
+    .navigation a:not(.logo-link) {
+        padding: 0.5rem 0.75rem;
+    }
+
     .navigation a {
         text-decoration: none;
         color: #333;
         font-weight: 500;
         font-size: 1rem;
-        padding: 0.5rem 0.75rem;
+        /* padding moved to specific selector to exclude logo */
         border-bottom: 3px solid transparent;
         transition: all 0.3s ease;
         position: relative;
     }
+
 
     /* Hover effect - subrayado sutil (excluir logo) */
     .navigation a:hover:not(.logo-link) {

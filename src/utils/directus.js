@@ -2,12 +2,12 @@
 import 'dotenv/config';
 import { antecedentesReales } from '../data/antecedentes_completos.js';
 import { getFixedImage } from './imageFixer.js';
+import fallbackData from '../data/directus_fallback_offline.json';
 
 const DIRECTUS_CONFIG = {
-  // URL pública para assets e imágenes (accesible desde el navegador)
-  PUBLIC_URL: process.env.PUBLIC_DIRECTUS_URL || 'https://admin.ultimamilla.com.ar',
-  // URL interna para peticiones del servidor (rápida, evita fallos de SSL locales)
-  // URL interna para peticiones del servidor (rápida, evita fallos de SSL locales)
+  // URL pública corregida para usar el proxy Nginx
+  PUBLIC_URL: 'https://ultimamilla.com.ar',
+  // URL interna para peticiones del servidor
   API_URL: process.env.DIRECTUS_URL || 'http://localhost:8055',
   EMAIL: process.env.DIRECTUS_EMAIL || 'admin@umbot.com.ar',
   PASSWORD: process.env.DIRECTUS_PASSWORD || 'UmbotAdmin2025!',
@@ -166,12 +166,17 @@ class DirectusClient {
       ...options.headers
     };
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000); // 3s timeout
+
     try {
       const response = await fetch(url, {
         ...options,
         headers,
+        signal: controller.signal,
         credentials: 'same-origin'
       });
+      clearTimeout(timeout);
 
       if (!response.ok) {
         let errorMessage = `HTTP error! status: ${response.status}`;
@@ -240,9 +245,9 @@ class DirectusClient {
           // Use local generated images as fallback (distributed by ID hash)
           let imageUrl = getCategoryImage(item);
           
-          // If Directus has a UUID, use public Directus proxy (nginx adds /assets/)
+          // If Directus has a UUID, use public Directus proxy
           if (item.Imagen && item.Imagen.match(/^[a-f0-9-]{36}$/)) {
-            imageUrl = `${this.publicUrl}/${item.Imagen}`;
+            imageUrl = `${this.publicUrl}/directus-assets/${item.Imagen}`;
           }
           return { ...item, Imagen: imageUrl };
         });
@@ -250,9 +255,18 @@ class DirectusClient {
       return response;
 
     } catch (error) {
-      console.error('Error fetching antecedentes:', error);
-      // Fallback minimalista si falla todo, pero el objetivo es que funcione Directus
-      return { data: [], meta: {} };
+      console.warn(`[Directus] Fallback activado para getAntecedentes debido a: ${error.message}`);
+      
+      // FALLBACK EMERGENCIA: Usar datos sincronizados
+      const items = fallbackData.antecedentes || [];
+      
+      return { 
+        data: items.map(item => ({
+          ...item,
+          Imagen: item.LocalFallbackImage || getCategoryImage(item)
+        })),
+        meta: { total_count: items.length } 
+      };
     }
   }
 
@@ -299,7 +313,7 @@ class DirectusClient {
    */
   async getAntecedenteById(id) {
     try {
-      const response = await this.request(`/items/Antecedentes/${id}?fields=id,Titulo`);
+      const response = await this.request(`/items/Antecedentes/${id}?fields=*`);
       
       if (!response || !response.data) {
         console.warn(`[ANTECEDENTE] No encontrado: ${id}`);
@@ -336,6 +350,7 @@ class DirectusClient {
         fields: 'id,Titulo,Descripcion,Imagen,status,Area,Cliente,Unidad_de_negocio,Servicios_Detalle,Caracteristicas',
         sort: 'id',
         limit: -1,
+        filter: { status: { _eq: 'published' } },
         meta: '*'
       };
 
@@ -365,8 +380,8 @@ class DirectusClient {
             let imageUrl = DIRECTUS_CONFIG.DEFAULT_IMAGE;
             if (servicio.Imagen) {
               if (servicio.Imagen.match(/^[a-f0-9-]{36}$/)) {
-                // UUID detected - use public Directus proxy (nginx adds /assets/)
-                imageUrl = `${this.publicUrl}/${servicio.Imagen}`;
+                // UUID detected - use public Directus proxy
+                imageUrl = `${this.publicUrl}/directus-assets/${servicio.Imagen}`;
               } else {
                 imageUrl = servicio.Imagen;
               }
@@ -381,8 +396,15 @@ class DirectusClient {
 
       return response;
     } catch (error) {
-      console.error('Error en getServicios:', error);
-      return { data: [], meta: {} };
+      console.warn(`[Directus] Fallback activado para getServicios debido a: ${error.message}`);
+      const items = fallbackData.servicios || [];
+      return { 
+        data: items.map(item => ({
+          ...item,
+          Imagen: item.LocalFallbackImage || getCategoryImage(item)
+        })),
+        meta: { total_count: items.length }
+      };
     }
   }
 
@@ -390,11 +412,17 @@ class DirectusClient {
     try {
       const response = await this.request(`/items/Servicios/${id}`);
       if (response && response.data) {
+        let imageUrl = DIRECTUS_CONFIG.DEFAULT_IMAGE;
+        if (response.data.Imagen) {
+          if (response.data.Imagen.match(/^[a-f0-9-]{36}$/)) {
+            imageUrl = `${this.publicUrl}/directus-assets/${response.data.Imagen}`;
+          } else {
+            imageUrl = response.data.Imagen;
+          }
+        }
         return {
           ...response.data,
-          Imagen: response.data.Imagen
-            ? `${this.publicUrl}/assets/${response.data.Imagen}?access_token=${this.token}`
-            : DIRECTUS_CONFIG.DEFAULT_IMAGE,
+          Imagen: imageUrl
         };
       }
       return null;
@@ -581,7 +609,8 @@ export async function getAntecedenteImageUrl(item) {
       }
 
       // 2d. Support already-absolute paths (from sync)
-      if (item.Imagen.startsWith('/imagenes_antecedentes_versionproduccion/')) {
+      if (item.Imagen.startsWith('/imagenes_antecedentes_versionproduccion/') || 
+          item.Imagen.startsWith('/img/sync-offline/')) {
          return item.Imagen;
       }
 
@@ -594,9 +623,9 @@ export async function getAntecedenteImageUrl(item) {
         return localUrl;
       }
 
-      // 2a. UUID de Directus - usar proxy HTTPS (nginx adds /assets/)
+      // 2a. UUID de Directus - usar proxy HTTPS (nginx maps /directus-assets/ to /assets/)
       if (/^[a-f0-9-]{36}$/.test(item.Imagen)) {
-        const directusAssetUrl = `${DIRECTUS_CONFIG.PUBLIC_URL}/${item.Imagen}`;
+        const directusAssetUrl = `${DIRECTUS_CONFIG.PUBLIC_URL}/directus-assets/${item.Imagen}`;
         console.log('[IMAGE] ✅ UUID detectado, usando Directus proxy:', { id: item.id, url: directusAssetUrl });
         return directusAssetUrl;
       }

@@ -27,9 +27,9 @@ export const imageMapping = {
  * @param {string} assetId - ID del asset en Directus
  * @returns {string} - URL de la imagen estática local
  */
-export function getServiceImageUrl(assetId) {
+export function getServiceImageUrl(assetId, directusUrl = null) {
   if (!assetId) {
-    return '/images/services/default-service.jpg';
+    return '/images/antecedentes-hero-bg.jpg';
   }
   
   // Si tenemos un mapeo estático, usarlo
@@ -37,8 +37,13 @@ export function getServiceImageUrl(assetId) {
     return imageMapping[assetId];
   }
   
-  // Fallback a imagen por defecto
-  return '/images/services/default-service.jpg';
+  // Si nos pasaron una URL de Directus ya formada, usarla
+  if (directusUrl) {
+    return directusUrl;
+  }
+  
+  // Fallback a imagen de fondo neutra (NO ALF)
+  return '/images/antecedentes-hero-bg.jpg';
 }
 
 /**
@@ -50,7 +55,7 @@ export function getServiceImageUrl(assetId) {
  */
 export function getAssetUrl(assetId, useDirectus = false) {
   if (!assetId) {
-    return '/images/services/default-service.jpg';
+    return '/images/antecedentes-hero-bg.jpg';
   }
   
   // Por ahora siempre usar imágenes estáticas hasta que Directus esté configurado

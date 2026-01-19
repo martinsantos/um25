@@ -1,9 +1,14 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
+import { directus } from '../../../utils/directus.js';
 import { serviciosReales, serviciosPorId } from '../../../data/servicios_reales_db.js';
+import { serviciosNuevosPorId } from '../../../data/servicios_nuevos_mock.js';
 import { getServiceImageUrl } from '../../../utils/imageUtils.js';
 import { getServiceSEO } from '../../../data/servicios_seo_config.js';
+
+import ProjectCard from '../../../components/ProjectCard.astro';
+import { getAntecedenteImageUrl } from '../../../utils/directus.js';
 
 const { id, slug } = Astro.params;
 
@@ -11,288 +16,520 @@ if (!id || !slug) {
   return Astro.redirect('/404');
 }
 
-const servicio = serviciosPorId[id];
+// Cargar Antecedentes de Directus con TODOS los datos para las Cards
+let antecedentsList = [];
+try {
+  const antResponse = await directus.getAntecedentes({ 
+    limit: -1, 
+    fields: 'id,Cliente,Imagen,Titulo,Descripcion,Fecha,Area,Unidad_de_negocio'
+  });
+  if (antResponse?.data) {
+    antecedentsList = antResponse.data;
+  }
+} catch (error) {
+  console.error("Error cargando antecedentes de Directus:", error);
+}
+
+// Helper: Find full antecedente object by cliente name
+function findAntecedente(clienteName) {
+  if (!clienteName) return null;
+  const normalizedName = clienteName.toLowerCase().trim().split(' ')[0];
+  // Fuzzy match: check if first word of client name matches
+  return antecedentsList.find(ant => 
+    ant.Cliente && ant.Cliente.toLowerCase().includes(normalizedName)
+  );
+}
+
+
+
+// Intentar cargar el servicio
+let servicioRaw = null;
+let source = 'directus';
+const idNum = parseInt(id);
+
+// 1. DIRECTUS ES LA FUENTE PRINCIPAL para todos los servicios
+// Esto permite editar TODOS los campos desde el admin de Directus
+try {
+  const response = await directus.getServicioById(id);
+  if (response) {
+    servicioRaw = response;
+    source = 'directus';
+  }
+} catch (e) {
+  console.warn(`Servicio ${id} no encontrado en Directus, probando fallback...`);
+}
+
+// 2. Fallback a Mock Local solo si Directus no tiene el servicio
+if (!servicioRaw && !isNaN(idNum) && serviciosNuevosPorId[idNum]) {
+  servicioRaw = serviciosNuevosPorId[idNum];
+  source = 'local_new';
+}
+
+// 3. Fallback a Legacy Local
+if (!servicioRaw && !isNaN(idNum) && serviciosPorId[idNum]) {
+  servicioRaw = serviciosPorId[idNum];
+  source = 'local_legacy';
+}
+// 4. Final check
+if (!servicioRaw) {
+  // Try one last time with string ID lookup if numeric failed
+   try {
+      const response = await directus.getServicios({
+        filter: { original_id: { _eq: id.toString() } },
+        limit: 1
+      });
+      if (response && response.data && response.data.length > 0) {
+        servicioRaw = response.data[0];
+        source = 'directus_legacy';
+      }
+   } catch (e) {
+      console.error(e);
+   }
+}
+let servicio = null;
+if (servicioRaw) {
+  if (source === 'local_new') {
+    servicio = servicioRaw;
+  } else {
+    servicio = {
+      ...servicioRaw,
+      Servicios: servicioRaw.Servicios || [],
+      Caracteristicas: servicioRaw.Caracteristicas || [],
+      Productos: servicioRaw.Productos || servicioRaw.Servicios_Detalle || [],
+      Stats: servicioRaw.Stats || null,
+      Antecedentes: servicioRaw.Antecedentes || [],
+      AntecedentesIds: servicioRaw.AntecedentesIds || []
+    };
+  }
+} else {
+  console.warn(`[SERVICIOS] Registro ${id} no encontrado en Directus, usando fallback local legacy`);
+  servicio = serviciosPorId[id];
+  source = 'local_legacy';
+}
 
 if (!servicio) {
   return Astro.redirect('/404');
 }
+
+// --- NUEVA LÓGICA DE ANTECEDENTES REFINADA ---
+let finalAntecedentes = [];
+
+// 1. Prioridad: AntecedentesIds de Directus (Relación explícita)
+if (servicio && servicio.AntecedentesIds && (Array.isArray(servicio.AntecedentesIds) ? servicio.AntecedentesIds.length > 0 : !!servicio.AntecedentesIds)) {
+  const ids = Array.isArray(servicio.AntecedentesIds) ? servicio.AntecedentesIds.map(i => Number(i)) : [Number(servicio.AntecedentesIds)];
+  finalAntecedentes = antecedentsList.filter(ant => ids.includes(Number(ant.id)));
+  console.log(`[ANTECEDENTES] Encontrados ${finalAntecedentes.length} por IDs para servicio ${id}`);
+}
+
+// 2. Fallback: Por Área (Reutilizando patrón de individuales)
+if (finalAntecedentes.length === 0 && servicio && servicio.Area) {
+  finalAntecedentes = antecedentsList
+    .filter(ant => ant.Area === servicio.Area)
+    .slice(0, 3);
+  console.log(`[ANTECEDENTES] Encontrados ${finalAntecedentes.length} por Área (${servicio.Area}) para servicio ${id}`);
+}
+
+// 3. Fallback: Lógica anterior (Mock Antecedentes o Fuzzy match)
+if (finalAntecedentes.length === 0 && servicio && servicio.Antecedentes && servicio.Antecedentes.length > 0) {
+  finalAntecedentes = servicio.Antecedentes.map(row => {
+    const realAntec = findAntecedente(row.Cliente);
+    if (realAntec) return realAntec;
+    
+    // Mapping format for Mock compatibility
+    return {
+      id: `mock-${row.Cliente}`,
+      Titulo: row.Proyecto || 'Proyecto sin título',
+      Cliente: row.Cliente,
+      Descripcion: row.Alcance || '',
+      Fecha: new Date().toISOString(),
+      Area: servicio.Titulo || 'Servicios',
+      isMock: true
+    };
+  });
+  console.log(`[ANTECEDENTES] Cargados ${finalAntecedentes.length} desde campo Antecedentes (Fuzzy/Mock)`);
+}
+
+// Procesar imágenes y slugs para todos los antecedentes finales
+const processedAntecedentes = await Promise.all(
+  finalAntecedentes.map(async (ant) => {
+    const img = await getAntecedenteImageUrl(ant);
+    return {
+      ...ant,
+      CardProps: {
+        id: String(ant.id),
+        titulo: ant.Titulo || ant.titulo,
+        cliente: ant.Cliente || ant.cliente,
+        descripcion: ant.Descripcion || ant.descripcion || '',
+        fecha: ant.Fecha || ant.fecha || new Date().toISOString(),
+        area: ant.Area || ant.area || 'Tecnología',
+        servicio: ant.Unidad_de_negocio || ant.servicio || 'Servicio IT',
+        imagen: img,
+        slug: generateSlug(ant.Titulo || ant.titulo || 'proyecto')
+      }
+    };
+  })
+);
 
 const expectedSlug = generateSlug(servicio.Titulo);
 if (slug !== expectedSlug) {
   return Astro.redirect(`/servicios/${id}/${expectedSlug}`);
 }
 
-const getAssetUrl = getServiceImageUrl;
+// Helper de imágenes
+const getImageForService = (titulo) => {
+  if (servicio.Imagen && (servicio.Imagen.startsWith('http') || servicio.Imagen.startsWith('/assets/') || servicio.Imagen.startsWith('/directus-assets/'))) {
+    return servicio.Imagen;
+  }
+  if (servicio.Productos && servicio.Productos.length > 0) {
+     return servicio.Productos[0].imagen;
+  }
+  
+  if (!titulo) return '/images/services/soportetic.png';
+  const tituloLower = titulo.toLowerCase();
+  
+  const servicioImageMap = {
+     'videovigilancia': '/images/services/seguridad.png',
+     'cctv': '/images/services/seguridad.png',
+     'seguridad': '/images/services/seguridad.png',
+     'desarrollo': '/images/services/desarrollo.png',
+     'software': '/images/services/desarrollo.png',
+     'consultoria': '/images/services/consultoria.png',
+     'consultoría': '/images/services/consultoria.png',
+     'infraestructura': '/images/services/redinfraestructura.png',
+     'redes': '/images/services/redinfraestructura.png',
+     'soporte': '/images/services/soportetic.png'
+  };
 
-// Obtener configuración SEO del servicio
-const seoConfig = getServiceSEO(parseInt(id));
+  for (const [keyword, imagePath] of Object.entries(servicioImageMap)) {
+    if (tituloLower.includes(keyword)) return imagePath;
+  }
+  return '/images/services/desarrollo.png';
+};
+
+// SEO
+const seoId = servicio.original_id ? parseInt(servicio.original_id) : (typeof id === 'string' ? parseInt(id) : id);
+const seoConfig = getServiceSEO(seoId);
 const pageTitle = seoConfig?.title || `${servicio.Titulo} - Servicios IT - ULTIMA MILLA`;
 const pageDescription = seoConfig?.description || servicio.Descripcion;
+const pageKeywords = seoConfig?.keywords || '';
+const pageCanonical = seoConfig?.canonical || `https://ultimamilla.com.ar/servicios/${id}/${slug}`;
+const pageOgImage = seoConfig?.ogImage || getImageForService(servicio.Titulo);
 
-// Servicios relacionados (misma área)
-const serviciosRelacionados = serviciosReales
-  .filter(s => s.Area === servicio.Area && s.id !== servicio.id)
-  .slice(0, 3);
+// Generate Schema.org JSON-LD for Service
+const serviceSchema = seoConfig?.schema ? {
+  "@context": "https://schema.org",
+  ...seoConfig.schema,
+  "@id": `https://ultimamilla.com.ar/servicios/${id}/${slug}#service`,
+  "url": pageCanonical,
+  "image": pageOgImage,
+  "provider": {
+    "@type": "Organization",
+    "@id": "https://ultimamilla.com.ar/#organization",
+    "name": "Ultima Milla",
+    "url": "https://ultimamilla.com.ar"
+  },
+  "areaServed": seoConfig.regions?.map(r => ({ "@type": "State", "name": r })) || []
+} : null;
+
+// Generate Schema.org JSON-LD for FAQ
+const faqSchema = seoConfig?.faqs?.length > 0 ? {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": seoConfig.faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.answer
+    }
+  }))
+} : null;
+
+// Breadcrumb Schema
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://ultimamilla.com.ar/" },
+    { "@type": "ListItem", "position": 2, "name": "Servicios", "item": "https://ultimamilla.com.ar/servicios" },
+    { "@type": "ListItem", "position": 3, "name": servicio.Titulo, "item": pageCanonical }
+  ]
+};
 ---
 
-<Layout title={pageTitle} description={pageDescription}>
+<Layout 
+  title={pageTitle} 
+  description={pageDescription}
+  keywords={pageKeywords}
+  image={pageOgImage}
+  canonical={pageCanonical}
+>
+  <!-- Schema.org JSON-LD -->
+  {serviceSchema && (
+    <script type="application/ld+json" set:html={JSON.stringify(serviceSchema)} />
+  )}
+  {faqSchema && (
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  )}
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
   <main class="min-h-screen bg-white">
-    <!-- Breadcrumb -->
-    <nav class="bg-white border-b border-slate-200">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <ol class="flex items-center space-x-2 text-sm text-slate-600">
-          <li><a href="/" class="hover:text-blue-600 transition-colors">Inicio</a></li>
-          <li><span class="mx-2">/</span></li>
-          <li><a href="/servicios" class="hover:text-blue-600 transition-colors">Servicios</a></li>
-          <li><span class="mx-2">/</span></li>
-          <li class="text-blue-600 font-medium truncate">{servicio.Titulo}</li>
-        </ol>
-      </div>
-    </nav>
+    <!-- Breadcrumbs: Balanced spacing -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 mb-2">
+        <nav class="flex py-2" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">Inicio</a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                        </svg>
+                        <a href="/servicios" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2">Servicios</a>
+                    </div>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{servicio.Titulo}</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+    </div>
 
-    <!-- Hero Section V3 (Immersive, Full-Screen) -->
-    <section class="relative h-[70vh] md:h-[85vh] flex items-end md:items-center overflow-hidden bg-slate-900">
-      <!-- Background Image (Service Specific) -->
-      <div class="absolute inset-0 z-0">
-        <img
-          src={getAssetUrl(servicio.Imagen)}
-          alt={servicio.Titulo}
-          class="w-full h-full object-cover"
-          onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null;"
-        />
-      </div>
-      
-      <!-- Gradient Overlay (Dark, Dramatic) -->
-      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30 z-10"></div>
+    <!-- Hero Section -->
+    <section class="relative bg-white overflow-hidden pt-2 pb-12 md:pt-4 md:pb-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div class="order-2 lg:order-1 space-y-6">
+            <div class="inline-block">
+              <span class="text-xs font-bold uppercase tracking-widest text-blue-600">
+                ● {servicio.Area}
+              </span>
+            </div>
+            
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 leading-tight">
+              {servicio.Titulo}
+            </h1>
+            
+            {servicio.Subtitulo && (
+              <h2 class="text-xl md:text-2xl font-medium text-blue-800">
+                {servicio.Subtitulo}
+              </h2>
+            )}
 
-      <!-- Content -->
-      <div class="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-24">
-        <div class="max-w-4xl">
-          <!-- Tags -->
-          <div class="flex flex-wrap gap-3 mb-6 animate-fade-in-up">
-            <span class="px-4 py-2 bg-blue-600 text-white text-xs font-bold uppercase tracking-wider rounded shadow-lg">
-              {servicio.Area}
-            </span>
-            <span class="px-4 py-2 bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider rounded shadow-lg">
-              {servicio.Cliente}
-            </span>
-            <span class="px-4 py-2 bg-slate-700 text-white text-xs font-bold uppercase tracking-wider rounded shadow-lg">
-              {servicio.Unidad_de_negocio}
-            </span>
+            <p class="text-lg text-slate-600 leading-relaxed">
+              {servicio.Descripcion}
+            </p>
+
+            {servicio.Tagline && (
+              <p class="text-sm font-bold text-slate-500 uppercase tracking-wide border-l-4 border-blue-500 pl-4">
+                {servicio.Tagline}
+              </p>
+            )}
+
+            <div class="flex flex-wrap gap-4 pt-4">
+              <a href="#contacto" class="px-8 py-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl">
+                Solicitar Cotización
+              </a>
+            </div>
           </div>
-          
-          <!-- Title (Bold, Responsive) -->
-          <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-8 leading-tight tracking-tight animate-fade-in-up delay-100">
-            {servicio.Titulo}
-          </h1>
-          
-          <!-- Description -->
-          <p class="text-xl md:text-2xl text-slate-200 leading-relaxed max-w-3xl mb-8 font-light animate-fade-in-up delay-200">
-            {servicio.Descripcion.replace(/\\\\/g, '\n')}
-          </p>
 
-          <!-- CTAs -->
-          <div class="flex flex-wrap gap-4 animate-fade-in-up delay-300">
-            <a href="#servicios-incluidos" class="px-8 py-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-all shadow-xl shadow-blue-900/50 transform hover:-translate-y-1 text-sm md:text-base">
-              Explorar Servicios
-            </a>
-            <a href="#contacto" class="px-8 py-4 bg-white text-slate-900 font-bold rounded-lg hover:bg-slate-100 transition-all shadow-xl text-sm md:text-base">
-              Solicitar Cotización
-            </a>
+          <!-- Hero Image: Sin bordes, sin sombras, fondo continuo -->
+          <div class="order-1 lg:order-2 flex items-center justify-center">
+            <img
+              src={getImageForService(servicio.Titulo)}
+              alt={servicio.Titulo}
+              class="w-full max-w-lg h-auto object-contain mix-blend-multiply"
+              loading="eager"
+              onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null;"
+            />
           </div>
         </div>
       </div>
-
-      <!-- Scroll Indicator -->
-      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 animate-bounce hidden md:block">
-        <svg class="w-6 h-6 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </svg>
-      </div>
     </section>
 
-    <!-- Content Section -->
-    <section class="py-16 md:py-24 bg-slate-50">
+    <!-- Stats Section (Solo para servicios nuevos) -->
+    {servicio.Stats && (
+      <section class="bg-slate-900 py-12 border-y border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-slate-800">
+            {servicio.Stats.map((stat) => (
+              <div class="p-4">
+                <div class="text-4xl md:text-5xl font-black text-white mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">
+                  {stat.valor}
+                </div>
+                <div class="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- Productos Section: Sin bordes, sin sombras, sin efectos hover -->
+    {servicio.Productos && servicio.Productos.length > 0 && (
+      <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 class="text-3xl font-black text-center text-slate-900 mb-16 uppercase tracking-wider">
+            Productos y Equipamiento
+          </h2>
+          
+          <div class="space-y-24">
+            {servicio.Productos.map((prod, idx) => (
+              <div class={`flex flex-col md:flex-row items-center gap-12 ${idx % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
+                
+                <!-- Imagen con máscara radial para fundir bordes no-blancos -->
+                <div class="w-full md:w-1/2 flex justify-center">
+                  <div class="relative w-full max-w-md">
+                    <img 
+                      src={prod.imagen} 
+                      alt={prod.nombre}
+                      class="w-full h-auto object-contain product-image-blend"
+                      onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null;"
+                    />
+                  </div>
+                </div>
+                
+                <div class="w-full md:w-1/2 space-y-6">
+                  <h3 class="text-2xl font-bold text-slate-900">{prod.nombre}</h3>
+                  <p class="text-slate-600 leading-relaxed text-lg">{prod.descripcion}</p>
+                  
+                  <!-- Bullets sin doble checkmark: Solo texto, sin SVG interno -->
+                  {prod.caracteristicas && (
+                    <ul class="space-y-3 mb-6">
+                      {prod.caracteristicas.map(c => (
+                        <li class="flex items-start space-x-3 text-slate-700">
+                          <span class="text-blue-500 font-bold flex-shrink-0">✓</span>
+                          <span>{c.replace(/^✓\s*/, '')}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {prod.servicio_asociado && (
+                    <div class="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                      <p class="text-blue-900 font-medium text-sm leading-relaxed">
+                        {prod.servicio_asociado}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- Main Content Section -->
+    <section class="py-16 bg-slate-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          <!-- Main Content -->
+          
           <div class="lg:col-span-2 space-y-12">
-            <!-- Servicios Incluidos -->
-            <div id="servicios-incluidos" class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 md:p-10">
-              <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-8 flex items-center">
-                <span class="w-1 h-8 bg-blue-600 mr-4"></span>
-                Servicios Incluidos
-              </h2>
-              
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {servicio.Servicios.map((servicio_item) => (
-                  <div class="flex items-start space-x-3 p-4 bg-slate-50 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
-                    <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <span class="text-slate-700 font-medium text-sm">{servicio_item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <!-- Características -->
-            {servicio.Caracteristicas && servicio.Caracteristicas.length > 0 && (
-              <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 md:p-10">
-                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-8 flex items-center">
-                  <span class="w-1 h-8 bg-purple-600 mr-4"></span>
-                  Características Destacadas
-                </h2>
-                
+             <!-- Servicios Incluidos -->
+             {servicio.Servicios && servicio.Servicios.length > 0 && (
+              <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
+                <h3 class="text-2xl font-bold text-slate-900 mb-6">Servicios Incluidos</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {servicio.Caracteristicas.map((caracteristica) => (
-                    <div class="flex items-start space-x-3 p-4 bg-purple-50 rounded-lg border border-purple-200">
-                      <svg class="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                      </svg>
-                      <span class="text-slate-700 font-medium text-sm">{caracteristica}</span>
+                  {servicio.Servicios.map((s) => (
+                    <div class="flex items-start space-x-3">
+                      <span class="text-blue-600 font-bold flex-shrink-0">✓</span>
+                      <span class="text-slate-700">{s}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            <!-- Servicios Relacionados -->
-            {serviciosRelacionados.length > 0 && (
-              <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 md:p-10">
-                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-8 flex items-center">
-                  <span class="w-1 h-8 bg-emerald-600 mr-4"></span>
-                  Servicios Relacionados
-                </h2>
+            <!-- Por Qué Elegirnos / Características -->
+            {(servicio.PorQueElegirnos || servicio.Caracteristicas) && (
+              <div class="bg-blue-50 rounded-xl p-8 border border-blue-100">
+                 <h3 class="text-2xl font-bold text-slate-900 mb-6">
+                   {servicio.PorQueElegirnos ? 'Por Qué Elegirnos' : 'Características'}
+                 </h3>
+                 <ul class="space-y-4">
+                   {(servicio.PorQueElegirnos || servicio.Caracteristicas).map(item => (
+                     <li class="flex items-center space-x-3">
+                       <span class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center text-blue-700 font-bold">✓</span>
+                       <span class="text-slate-800 font-medium">{item}</span>
+                     </li>
+                   ))}
+                 </ul>
+              </div>
+            )}
+
+            <!-- Antecedentes: Estilo Refinado -->
+            {processedAntecedentes.length > 0 && (
+              <div class="mt-16">
+                <h3 class="text-3xl font-bold text-slate-900 mb-8 flex items-center">
+                  <span class="w-1 h-8 bg-cyan-500 mr-4"></span>
+                  Antecedentes Destacados
+                </h3>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {serviciosRelacionados.map((relacionado) => {
-                    const relSlug = generateSlug(relacionado.Titulo);
-                    return (
-                      <a href={`/servicios/${relacionado.id}/${relSlug}`} class="group">
-                        <article class="bg-slate-50 rounded-lg overflow-hidden border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all">
-                          <div class="aspect-video bg-slate-200 overflow-hidden">
-                            <img
-                              src={getAssetUrl(relacionado.Imagen)}
-                              alt={relacionado.Titulo}
-                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                              loading="lazy"
-                              onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null;"
-                            />
-                          </div>
-                          <div class="p-4">
-                            <h3 class="font-bold text-slate-900 text-sm mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
-                              {relacionado.Titulo}
-                            </h3>
-                            <span class="text-xs text-slate-500 uppercase tracking-wide">{relacionado.Area}</span>
-                          </div>
-                        </article>
-                      </a>
-                    );
-                  })}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {processedAntecedentes.map((ant) => (
+                    <div class="h-full">
+                       <ProjectCard {...ant.CardProps} />
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
           </div>
 
-          <!-- Sidebar (Sticky) -->
+          <!-- Sidebar: Contact Card Simplificado -->
           <div class="lg:col-span-1">
-            <div class="sticky top-24 space-y-6">
-              <!-- Info Card -->
-              <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <h3 class="font-bold text-slate-900 text-lg mb-4">Información del Servicio</h3>
+            <div class="sticky top-24">
+              <div id="contacto" class="bg-white rounded-2xl border-2 border-slate-200 shadow-lg overflow-hidden">
                 
-                <div class="space-y-4">
-                  <div class="flex items-start space-x-3">
-                    <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                    </svg>
-                    <div>
-                      <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Área</p>
-                      <p class="text-sm font-semibold text-slate-900">{servicio.Area}</p>
-                    </div>
-                  </div>
+                <!-- Header con gradiente -->
+                <div class="bg-gradient-to-r from-blue-600 to-cyan-500 px-6 py-5">
+                  <h3 class="text-white font-black text-xl">¿Necesita este servicio?</h3>
+                  <p class="text-blue-100 text-sm mt-1">Respuesta en menos de 24hs</p>
+                </div>
+                
+                <!-- Body -->
+                <div class="p-6">
+                  <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                    Nuestro equipo de ingenieros está listo para asesorarlo. Obtenga una cotización personalizada sin compromiso.
+                  </p>
                   
-                  <div class="flex items-start space-x-3">
-                    <svg class="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    <div>
-                      <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Cliente</p>
-                      <p class="text-sm font-semibold text-slate-900">{servicio.Cliente}</p>
-                    </div>
-                  </div>
+                  <a href="/contacto" class="block w-full py-4 bg-blue-600 text-white font-bold rounded-lg text-center hover:bg-blue-700 transition-colors">
+                    Contactar Ahora
+                  </a>
                   
-                  <div class="flex items-start space-x-3">
-                    <svg class="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m8 0h-8m8 0a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2" />
-                    </svg>
-                    <div>
-                      <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Unidad</p>
-                      <p class="text-sm font-semibold text-slate-900">{servicio.Unidad_de_negocio}</p>
-                    </div>
+                  <div class="mt-5 pt-5 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-center gap-3 text-xs text-slate-500">
+                    <span class="flex items-center gap-1">
+                      <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                      </svg>
+                      Sin compromiso
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                      </svg>
+                      Presupuesto gratis
+                    </span>
                   </div>
                 </div>
               </div>
-
-              <!-- Contact Card -->
-              <div id="contacto" class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl shadow-xl p-6 text-white">
-                <h3 class="font-bold text-xl mb-4">¿Interesado en este servicio?</h3>
-                <p class="text-blue-100 mb-6 text-sm">Contáctanos para recibir una cotización personalizada.</p>
-                
-                <a href="/contacto" class="block w-full py-3 bg-white text-blue-600 font-bold rounded-lg text-center hover:bg-blue-50 transition-colors shadow-lg">
-                  Solicitar Cotización
-                </a>
-              </div>
             </div>
           </div>
+
         </div>
       </div>
     </section>
+
   </main>
-
-  <!-- Structured Data - Service Schema -->
-  <script type="application/ld+json" set:html={JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "name": servicio.Titulo,
-    "description": seoConfig?.description || servicio.Descripcion,
-    "provider": {
-      "@type": "Organization",
-      "name": "ULTIMA MILLA",
-      "url": "https://ultimamilla.com.ar",
-      "logo": "https://ultimamilla.com.ar/logo.png",
-      "sameAs": [
-        "https://www.facebook.com/ultimamilla",
-        "https://www.linkedin.com/company/ultima-milla"
-      ],
-      "address": {
-        "@type": "PostalAddress",
-        "addressCountry": "AR",
-        "addressRegion": "Mendoza",
-        "addressLocality": "Mendoza"
-      },
-      "email": "contacto@ultimamilla.com.ar"
-    },
-    "areaServed": seoConfig?.regions || ["Mendoza", "Argentina"],
-    "serviceType": servicio.Area,
-    "hasOfferCatalog": {
-      "@type": "OfferCatalog",
-      "name": `Servicios de ${servicio.Area}`,
-      "itemListElement": servicio.Servicios?.map((s, idx) => ({
-        "@type": "Offer",
-        "position": idx + 1,
-        "name": s,
-        "offeredBy": {
-          "@type": "Organization",
-          "name": "ULTIMA MILLA"
-        }
-      })) || []
-    },
-    "url": `https://ultimamilla.com.ar/servicios/${id}/${slug}`
-  })}>
-  </script>
-
 </Layout>
 
 <style>
@@ -302,21 +539,22 @@ const serviciosRelacionados = serviciosReales
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  
-  .animate-fade-in-up {
-    animation: fadeInUp 0.8s ease-out forwards;
-    opacity: 0;
-    transform: translateY(20px);
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
   
-  .delay-100 { animation-delay: 0.1s; }
-  .delay-200 { animation-delay: 0.2s; }
-  .delay-300 { animation-delay: 0.3s; }
+  /* Imagen con máscara radial para fundir bordes no-blancos */
+  .product-image-blend {
+    mix-blend-mode: multiply;
+    filter: drop-shadow(0 0 0 transparent);
+  }
   
-  @keyframes fadeInUp {
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  /* Contenedor con máscara radial para suavizar bordes */
+  .product-image-blend {
+    -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 70%, transparent 100%);
+    mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 70%, transparent 100%);
   }
 </style>

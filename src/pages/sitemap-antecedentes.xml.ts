@@ -9,16 +9,8 @@ function formatDate(date: Date): string {
     return parts[0] ?? new Date().toISOString().split('T')[0];
 }
 
-// Función para generar slug desde nombre
-function generateSlug(text: string): string {
-    return text
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
-        .substring(0, 100); // Increased from 75 to 100 chars for better SEO
-}
+import { generateSlug } from '../utils/slugUtils';
+import fallbackData from '../data/directus_fallback_offline.json';
 
 function generateSitemapXml(antecedentes: any[]): string {
     const today = formatDate(new Date());
@@ -43,11 +35,21 @@ function generateSitemapXml(antecedentes: any[]): string {
 export const GET: APIRoute = async () => {
     try {
         // Use internal Directus URL for server-side API calls (has proper auth)
-        const directusUrl = (import.meta.env.DIRECTUS_URL as string) || 'http://localhost:8055';
-        const token = (import.meta.env as any)['DIRECTUS_STATIC_TOKEN'] || (import.meta.env as any)['DIRECTUS_TOKEN'] || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+        // Improved fallback chain to include PUBLIC_ variables and the known production URL
+        const directusUrl = (import.meta.env.DIRECTUS_URL as string) || 
+                          (import.meta.env.PUBLIC_DIRECTUS_URL as string) || 
+                          'https://admin.ultimamilla.com.ar' || 
+                          'http://localhost:8055';
+
+        const token = (import.meta.env.DIRECTUS_STATIC_TOKEN as string) || 
+                     (import.meta.env.DIRECTUS_TOKEN as string) || 
+                     (import.meta.env.PUBLIC_DIRECTUS_TOKEN as string) || 
+                     'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
         
+        console.log(`[SITEMAP] Fetching antecedents from: ${directusUrl}`);
+
         const response = await fetch(
-            `${directusUrl}/items/Antecedentes?limit=600&fields=id,Titulo`,
+            `${directusUrl}/items/Antecedentes?limit=1000&fields=id,Titulo,Fecha&status=published`,
             {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -61,17 +63,13 @@ export const GET: APIRoute = async () => {
         if (response.ok) {
             const data = await response.json();
             antecedentes = data.data || [];
+            console.log(`[SITEMAP] Successfully fetched ${antecedentes.length} antecedents`);
         } else {
-            // Fallback: usar datos estáticos si Directus no está disponible
+            // Fallback: usar datos sincronizados si Directus no está disponible
             console.error(`[SITEMAP] Directus fetch failed: ${response.status} ${response.statusText}`);
-            const errorText = await response.text().catch(() => 'no body');
-            console.error(`[SITEMAP] Error body:`, errorText);
-            console.warn('Directus no disponible, usando datos estáticos');
-            antecedentes = [
-                { id: 10768, Titulo: 'ISI Solutions - Redes y Comunicaciones' },
-                { id: 10769, Titulo: 'Ministerio de Deportes Gobierno de Mendoza - Redes y' },
-                { id: 10770, Titulo: 'TelecombTW SA - Redes y Comunicaciones' }
-            ];
+            console.warn('Directus no disponible, usando datos de respaldo sincronizados');
+            
+            antecedentes = fallbackData.antecedentes || [];
         }
 
         const sitemap = generateSitemapXml(antecedentes);
@@ -79,8 +77,8 @@ export const GET: APIRoute = async () => {
         return new Response(sitemap, {
             headers: {
                 'Content-Type': 'application/xml; charset=utf-8',
-                'Cache-Control': 'public, max-age=86400',
-                'X-Robots-Tag': 'noindex'
+                'Cache-Control': 'public, max-age=86400'
+                // REMOVED X-Robots-Tag: noindex to allow indexing
             },
         });
     } catch (error) {

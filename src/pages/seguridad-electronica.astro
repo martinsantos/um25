@@ -66,7 +66,7 @@ const filterAntecedentes = async (data) => {
       ...item,
       Nombre: item.Titulo,
       mapeo_imagenes_completo: await getAntecedenteImageUrl(item),
-      slug: `${item.id}/${generateSlug(item.Titulo)}`
+      slug: generateSlug(item.Titulo)
     }))
   );
 
@@ -295,7 +295,7 @@ const structuredData = {
             </p>
           </div>
 
-          <AntecedentesGridMobileOptimized items={antecedentes} limit={25} title="Casos de u00c9xito en seguridad electronica" description="Proyectos destacados en este sector" />
+          <AntecedentesGridMobileOptimized items={antecedentes} limit={25} title="Casos de Éxito en Seguridad Electrónica" description="Proyectos destacados en este sector" />
         </div>
       </section>
     )}

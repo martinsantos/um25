@@ -2,7 +2,6 @@ import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
 import mdx from '@astrojs/mdx';
 import tailwind from '@astrojs/tailwind';
-import sitemap from '@astrojs/sitemap';
 import alpinejs from '@astrojs/alpinejs';
 // import sentry from '@sentry/astro';
 
@@ -29,13 +28,6 @@ export default defineConfig({
     // }),
     mdx(),
     tailwind(),
-    sitemap({
-      filter: (page) => {
-        // Exclude admin, CLI, status, and API pages from sitemap
-        const excluded = ['/admin', '/cli', '/status', '/api/', 'undefined'];
-        return !excluded.some(path => page.includes(path));
-      }
-    }),
     alpinejs()
   ],
 

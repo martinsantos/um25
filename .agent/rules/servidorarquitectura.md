@@ -15,13 +15,13 @@ trigger: always_on
 23.105.176.45 (Servidor Principal)
 │
 ├── 🌐 Nginx (Puertos 80/443) - Proxy Inverso Principal
-│   ├── www.ultimamilla.com.ar → Astro App (puerto 3000) ✅
+│   ├── www.ultimamilla.com.ar → Astro App (puerto 4321) ✅
 │   ├── sgi.ultimamilla.com.ar → SGI System (puerto 3456) ✅
 │   ├── viveroloscocos.com.ar → WordPress (PHP-FPM 9000) ✅
 │   └── admin.ultimamilla.com.ar → Directus (puerto 8055) ✅
 │
 ├── 🚀 Aplicaciones Principales - PRODUCCIÓN
-│   ├── 📦 Astro App (Puerto 3000) - Modo Producción via PM2
+│   ├── 📦 Astro App (Puerto 4321) - Modo Producción via PM2
 │   ├── 🗄️  Directus CMS (Puerto 8055) - Contenedor Docker
 │   ├── 🐘 PostgreSQL (Contenedor Docker) - Base de Datos
 │   ├── 🟥 Redis (Contenedor Docker) - Caché

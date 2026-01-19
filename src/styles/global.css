@@ -131,8 +131,8 @@ body {
   margin: 0;
   padding: 0;
   text-align: left;
-  background: linear-gradient(var(--gray-gradient)) no-repeat;
-  background-size: 100% 600px;
+  background-color: white; /* Changed from gray gradient to pure white */
+  background-image: none;
   word-wrap: break-word;
   overflow-wrap: break-word;
   color: rgb(var(--gray-dark));
@@ -144,7 +144,7 @@ main {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 1em;
+  padding: 0; /* Removed 1em padding to fix alignment with header */
 }
 
 h1,

@@ -48,7 +48,7 @@ const filterAntecedentes = async (data) => {
       ...item,
       Nombre: item.Titulo,
       mapeo_imagenes_completo: await getAntecedenteImageUrl(item),
-      slug: `${String(item.id).split('/')[0].trim()}/${generateSlug(item.Titulo)}`
+      slug: generateSlug(item.Titulo)
     }))
   );
 
@@ -264,6 +264,7 @@ if (antecedentes.length === 0) {
             <p style="font-size: 14px; color: #666; line-height: 1.6;">Sistemas de comunicación integrados para hospitales y clínicas</p>
           </a>
 
+
           <!-- Card 3 EXACTA -->
           <a href="/servicios/3/seguridad-de-datos" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #10b981; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(16,185,129,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
             <div style="width: 50px; height: 50px; background: #10b981; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
@@ -271,9 +272,10 @@ if (antecedentes.length === 0) {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path>
               </svg>
             </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Seguridad de Datos</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Protección de información médica sensible y privacidad</p>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Infraestructura Crítica</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Data centers y respaldo energético para continuidad médica</p>
           </a>
+
         </div>
       </div>
     </section>
@@ -313,6 +315,7 @@ if (antecedentes.length === 0) {
             <p style="font-size: 14px; color: #666; line-height: 1.6;">Sistemas de comunicación integrados para hospitales y clínicas</p>
           </a>
 
+
           <!-- Servicio 3 -->
           <a href="/servicios/3/seguridad-de-datos" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #10b981; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(16,185,129,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
             <div style="width: 50px; height: 50px; background: #10b981; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
@@ -320,9 +323,10 @@ if (antecedentes.length === 0) {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path>
               </svg>
             </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Seguridad de Datos</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Protección de información médica sensible y privacidad</p>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Logística Farmacéutica</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Trazabilidad y seguridad para farmacias y droguerías</p>
           </a>
+
 
           <!-- Servicio 4 -->
           <a href="/servicios/4/soporte-tecnico" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #10b981; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(16,185,129,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
@@ -375,20 +379,11 @@ if (antecedentes.length === 0) {
             </p>
           </div>
 
-          <AntecedentesGridMobileOptimized items={antecedentes} limit={25} title="Casos de u00c9xito en salud" description="Proyectos destacados en este sector" />
+          <AntecedentesGridMobileOptimized items={antecedentes} limit={25} title="Casos de Éxito en Salud" description="Proyectos destacados en este sector" />
         </div>
       </section>
     )}
----
 
-<Layout
-  title={seoConfig.title}
-  description={seoConfig.description}
-  keywords={seoConfig.keywords}
-  image={seoConfig.ogImage}
-  canonical={seoConfig.canonical}
->
-  <main style="background: #f5f5f5;">
     <!-- FORMULARIO DE CONTACTO -->
     <section id="contacto" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 100px 32px; position: relative; overflow: hidden;">
       <div style="max-width: 75rem; margin: 0 auto; position: relative; z-index: 10;">

@@ -11,13 +11,23 @@ const { id, slug } = Astro.params;
 
 // 1. Try to find the antecedent
 let antecedente = null;
+let source = 'directus';
 
 try {
   if (id) {
-    antecedente = antecedentesReales.find(a => a.id.toString() === id.toString());
+    // Try Directus by ID first
+    antecedente = await directus.getAntecedenteById(id);
+    
+    // If not found in Directus, try local data
+    if (!antecedente) {
+      antecedente = antecedentesReales.find(a => a.id.toString() === id.toString());
+      source = 'local';
+    }
   }
 } catch (e) {
-  console.error(`Error finding antecedent ${id}:`, e);
+  console.error(`Error finding antecedent ${id} in Directus:`, e.message);
+  antecedente = antecedentesReales.find(a => a.id.toString() === id.toString());
+  source = 'local';
 }
 
 // 2. Handle 404
@@ -34,10 +44,20 @@ const client = antecedente.Cliente || "Cliente Confidencial";
 const date = antecedente.Fecha ? new Date(antecedente.Fecha).toLocaleDateString('es-AR', { year: 'numeric', month: 'long' }) : "Fecha desconocida";
 const area = antecedente.Area || "General";
 
-// 4. Get Related Cases (Logic: Same Area, exclude current)
-let relatedCases = antecedentesReales
-  .filter(a => a.Area === area && a.id.toString() !== antecedente.id.toString())
-  .slice(0, 3);
+// 4. Get Related Cases from Directus (Same Area, exclude current)
+let relatedCases = [];
+try {
+  const relatedResponse = await directus.getAntecedentes({
+    filter: { Area: { _eq: area }, id: { _neq: antecedente.id } },
+    limit: 3
+  });
+  relatedCases = relatedResponse?.data || [];
+} catch (e) {
+  console.warn('Failed to fetch related from Directus, using local:', e.message);
+  relatedCases = antecedentesReales
+    .filter(a => a.Area === area && a.id.toString() !== antecedente.id.toString())
+    .slice(0, 3);
+}
 
 // Fill with recent if not enough
 if (relatedCases.length < 3) {
@@ -47,22 +67,51 @@ if (relatedCases.length < 3) {
   relatedCases = [...relatedCases, ...others];
 }
 
-// Process images for related cases
-const relatedCasesWithImages = await Promise.all(relatedCases.map(async (item) => ({
+// Process images for related cases (Directus data already has Imagen as URL)
+const relatedCasesWithImages = relatedCases.map(item => ({
   ...item,
-  imageUrl: await getAntecedenteImageUrl(item),
+  imageUrl: item.Imagen || '/images/antecedentes-hero-bg.jpg',
   slug: `${item.id}/${generateSlug(item.Titulo)}`
-})));
+}));
 
 
 // SEO Metadata
 const seoTitle = `${title} | Casos de Éxito Ultima Milla`;
-const seoDescription = `Proyecto: ${title}. Cliente: ${client}. Área: ${area}. ${description.substring(0, 100)}...`;
+const seoDescription = `Proyecto: ${title}. Cliente: ${client}. Área: ${area}. Fecha: ${date}. ${description.substring(0, 160)}...`;
 const canonicalUrl = `https://ultimamilla.com.ar/antecedentes/${id}/${slug || ''}`;
+const isoDate = antecedente.Fecha ? new Date(antecedente.Fecha).toISOString() : new Date().toISOString();
+
+const schemaData = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": seoTitle,
+  "description": seoDescription,
+  "image": [imageUrl],
+  "datePublished": isoDate,
+  "dateModified": isoDate,
+  "author": {
+    "@type": "Organization",
+    "name": "Ultima Milla",
+    "url": "https://ultimamilla.com.ar"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Ultima Milla",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://ultimamilla.com.ar/images/um-logo.png"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": canonicalUrl
+  },
+  "keywords": `${area}, ${client}, ${title}`
+};
 
 ---
 
-<Layout title={seoTitle} description={seoDescription} image={imageUrl} canonical={canonicalUrl}>
+<Layout title={seoTitle} description={seoDescription} image={imageUrl} canonical={canonicalUrl} structuredData={schemaData}>
   
   <!-- HERO CINEMATICO (Mobile Optimized) -->
   <section class="relative h-[65vh] min-h-[500px] w-full overflow-hidden bg-slate-900 group">

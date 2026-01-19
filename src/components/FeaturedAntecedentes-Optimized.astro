@@ -27,7 +27,7 @@ function createSlug(title: string): string {
     >
       <div class="relative overflow-hidden h-48">
         <img 
-          data-src={antecedente.Imagen ? `/imagenes_antecedentes_versionproduccion/${antecedente.Imagen}` : '/images/antecedentes/default-antecedente.jpg'}
+          data-src={antecedente.Imagen ? (antecedente.Imagen.startsWith('/') || antecedente.Imagen.startsWith('http') ? antecedente.Imagen : `/imagenes_antecedentes_versionproduccion/${antecedente.Imagen}`) : '/images/antecedentes/default-antecedente.jpg'}
           alt={`Proyecto ${antecedente.Titulo} - ${antecedente.Cliente} - ULTIMA MILLA`}
           class={`lazy w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 loading-skeleton ${index < 3 ? '' : 'lazy'}`}
           loading={index < 3 ? 'eager' : 'lazy'}

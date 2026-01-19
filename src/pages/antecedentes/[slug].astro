@@ -1,0 +1,56 @@
+---
+import { antecedentesReales } from '../../data/antecedentes_completos.js';
+import { directus } from '../../utils/directus';
+import { generateSlug } from '../../utils/slugUtils';
+
+// Disable prerender for dynamic redirection
+export const prerender = false;
+
+const { slug } = Astro.params;
+
+console.log(`[Redirector] Checking slug: "${slug}"`);
+// 1. Try to find by direct slug match in local mocked data first (fastest)
+let target = antecedentesReales.find(a => {
+    const s = generateSlug(a.Titulo);
+    // console.log(`[Redirector] Compare with: "${s}" (${a.id})`); // Verbose
+    return s === slug;
+});
+if (target) console.log(`[Redirector] Found local: ${target.id}`);
+
+// 2. If not found, try to search in Directus (most up to date)
+if (!target) {
+  try {
+     // Search in all records (inefficient but legacy fallback)
+     // Ideally we would search by a slug field, but we don't have one?
+     // We will fetch list and match JS side or use search
+     const response = await directus.getAntecedentes({ 
+        limit: -1, 
+        fields: 'id,Titulo' 
+     });
+     
+     if (response && response.data) {
+        target = response.data.find(a => generateSlug(a.Titulo) === slug);
+     }
+  } catch (e) {
+     console.error('Error searching for redirect target:', e);
+  }
+}
+
+if (target) {
+  const newSlug = generateSlug(target.Titulo);
+  const targetId = target.id; // Ensure ID is correct
+  return Astro.redirect(`/antecedentes/${targetId}/${newSlug}`, 301);
+}
+
+// 3. Last fallback: Try to match by simple ID if the slug IS an ID
+if (/^\d+$/.test(slug)) {
+    // If slug is just digits, maybe it's an ID from an old structure?
+    const response = await directus.getAntecedenteById(slug);
+    if (response) {
+        const trueSlug = generateSlug(response.Titulo);
+        return Astro.redirect(`/antecedentes/${slug}/${trueSlug}`, 301);
+    }
+}
+
+return Astro.redirect('/404');
+---

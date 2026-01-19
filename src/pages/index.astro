@@ -5,40 +5,71 @@ import ServicesList from '../components/ServicesList.astro';
 import AntecedentesGridMobileOptimized from '../components/AntecedentesGridMobileOptimized.astro';
 import FooterMobileOptimized from '../components/FooterMobileOptimized.astro';
 
-// Datos hardcodeados para servicios destacados
-const services = {
-  data: [
-    {
-      id: 1,
-      Titulo: "Seguridad Informática",
-      Descripcion: "Protección integral de sistemas y datos empresariales",
-      Imagen: "b1a91d79-c979-4067-b78a-2cd97166fbcd"
-    },
-    {
-      id: 2,
-      Titulo: "Redes y comunicaciones",
-      Descripcion: "Infraestructura de red avanzada para comunicaciones empresariales",
-      Imagen: "6e626d63-c3ca-4982-8ed3-4a5e75e1b179"
-    },
-    {
-      id: 3,
-      Titulo: "Software y Servicios",
-      Descripcion: "Soluciones de software personalizadas para empresas",
-      Imagen: "ccc32af0-df52-4e6e-8ca0-9660dddec095"
-    }
-  ]
-};
-
-// Usar datos reales desde el archivo de antecedentes
+// Importar utilidades de Directus
+import { directus, getAntecedenteImageUrl } from '../utils/directus';
+import { getAssetUrl } from '../utils/imageUtils';
+import { generateSlug } from '../utils/slugUtils';
 import { antecedentesReales } from '../data/antecedentes_completos.js';
 
-// Seleccionar los primeros 3 antecedentes reales como destacados
+// Obtener servicios reales de Directus
+let directusServices = [];
+try {
+  directusServices = await directus.getServicios();
+} catch (error) {
+  console.error('Error fetching services for home:', error);
+}
+
+// Seleccionar 3 servicios destacados (o usar los hardcoded como fallback si falla la API)
+const directusData = directusServices?.data || [];
+const featuredServices = directusData.length > 0 
+  ? directusData.slice(0, 9).map(s => ({
+      ...s,
+      slug: generateSlug(s.Titulo || s.title || s.nombre)
+    }))
+  : [
+      {
+        id: 101,
+        Titulo: "Infraestructura de Redes y Cableado",
+        Descripcion: "Cableado estructurado, fibra óptica, radioenlaces y data centers",
+        Imagen: "/images/services/redinfraestructura.png",
+        slug: "infraestructura-de-redes-y-cableado"
+      },
+      {
+        id: 102,
+        Titulo: "Sistemas de Seguridad Electrónica",
+        Descripcion: "CCTV, detección de incendios, control de acceso biométrico",
+        Imagen: "/images/services/seguridad.png",
+        slug: "sistemas-de-seguridad-electronica"
+      },
+      {
+        id: 103,
+        Titulo: "Telecomunicaciones",
+        Descripcion: "Telefonía IP, WiFi empresarial, radiocomunicaciones",
+        Imagen: "/images/services/soportetic.png",
+        slug: "telecomunicaciones"
+      }
+    ];
+
+const services = {
+  data: featuredServices
+};
+
+// Seleccionar los primeros 3 antecedentes reales como destacados y procesar sus datos
+const processedAntecedentes = await Promise.all(
+  antecedentesReales.slice(0, 3).map(async (item) => {
+    const title = item.Titulo || item.Nombre || "Proyecto Sin Título";
+    return {
+      ...item,
+      Nombre: title, // Unificar campo de título
+      imageUrl: await getAntecedenteImageUrl(item),
+      slug: generateSlug(title),
+      Fecha: item.Fecha || "2024-04-15"
+    };
+  })
+);
+
 const antecedentes = {
-  data: antecedentesReales.slice(0, 3).map(item => ({
-    ...item,
-    // Asegurar que tengamos las fechas correctas del archivo real
-    Fecha: item.Fecha || "2024-04-15"
-  }))
+  data: processedAntecedentes
 };
 ---
 
@@ -116,7 +147,8 @@ const antecedentes = {
     <!-- Antecedentes Destacados - Mobile Optimized Grid -->
     <section id="antecedentes" class="py-20 bg-gray-50">
       <AntecedentesGridMobileOptimized
-        limit={12}
+        items={antecedentes.data}
+        limit={3}
         title="Casos de Éxito"
         description="Descubre cómo hemos transformado empresas con soluciones IT estratégicas"
       />
@@ -248,49 +280,52 @@ const antecedentes = {
   <FooterMobileOptimized />
 
   <!-- Scripts y Estilos -->
-  <script>
-    // Sistema de imágenes aleatorias de alta calidad
+  <script define:vars={{ featuredImages: services.data.map(s => s.Imagen).filter(img => img && img.includes('directus')) }}>
+    // Sistema de imágenes dinámicas desde Directus
+    const directusImages = featuredImages && featuredImages.length > 0 ? featuredImages : [];
+    
     const techImages = [
-      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Servidores
-      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Código
-      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Tecnología espacial
-      'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Laptop código
-      'https://images.unsplash.com/photo-1537432376769-00f83c2f9c52?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Cables red
-      'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Fibra óptica
-      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Data center
-      'https://images.unsplash.com/photo-1563206767-5b18f218e8de?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Circuitos
-      'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // AI/ML
-      'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Código terminal
-      'https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Programación
-      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Servidores 2
-      'https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Blockchain
-      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Gráficos datos
-      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Analytics
-      'https://images.unsplash.com/photo-1504639725590-34d0984388bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Desarrollo
-      'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Matemáticas
-      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'  // Tech final
+      '/nosotros-tech.jpg',
+      ...directusImages,
+      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'
     ];
     
     const banner = document.getElementById('banner');
-    const heroBackground = banner.querySelector('.hero-background');
-    
-    // Función para cambiar imagen aleatoriamente
-    function changeBackgroundImage() {
-      const randomImage = techImages[Math.floor(Math.random() * techImages.length)];
-      heroBackground.style.backgroundImage = `url(${randomImage})`;
+    if (banner) {
+      const heroBackground = banner.querySelector('.hero-background');
+      
+      if (heroBackground) {
+        let currentIndex = 0;
+        
+        // Función para cambiar imagen secuencialmente
+        function changeBackgroundImage() {
+          currentIndex = (currentIndex + 1) % techImages.length;
+          const nextImage = techImages[currentIndex];
+          
+          // Crear una nueva imagen para pre-cargar
+          const img = new Image();
+          img.onload = () => {
+            heroBackground.style.backgroundImage = `url(${nextImage})`;
+          };
+          img.src = nextImage;
+        }
+        
+        // Establecer imagen inicial (local)
+        heroBackground.style.backgroundImage = "url('/nosotros-tech.jpg')";
+        
+        // Cambiar imagen cada 10 segundos
+        setInterval(changeBackgroundImage, 10000);
+        
+        // Efecto parallax
+        window.addEventListener('scroll', () => {
+          const scrolled = window.pageYOffset;
+          if (scrolled < 1000) { // Solo si es visible
+            heroBackground.style.transform = `translateY(${scrolled * 0.3}px)`;
+          }
+        }, { passive: true });
+      }
     }
-    
-    // Establecer imagen inicial
-    changeBackgroundImage();
-    
-    // Cambiar imagen cada 10 segundos (opcional)
-    setInterval(changeBackgroundImage, 10000);
-    
-    // Efecto parallax
-    window.addEventListener('scroll', () => {
-      const scrolled = window.pageYOffset;
-      heroBackground.style.backgroundPositionY = `${scrolled * 0.5}px`;
-    });
   </script>
   
   <style is:global>

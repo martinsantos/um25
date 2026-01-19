@@ -11,13 +11,35 @@ const { id, slug } = Astro.params;
 
 // 1. Try to find the antecedent
 let antecedente = null;
+let source = 'directus';
 
 try {
   if (id) {
-    antecedente = antecedentesReales.find(a => a.id.toString() === id.toString());
+    // Try Directus first (Numeric ID or UUID if stored in a custom field)
+    // If id is numeric (Directus format)
+    if (!isNaN(id)) {
+      const response = await directus.request(`/items/Antecedentes/${id}`);
+      if (response && response.data) {
+        antecedente = response.data;
+      }
+    } else {
+      // 1b. UUID Bridge: Try Directus by original_id
+      const query = `/items/Antecedentes?filter[original_id][_eq]=${id}&limit=1`;
+      const response = await directus.request(query);
+      if (response && response.data && response.data.length > 0) {
+        antecedente = response.data[0];
+      } else {
+        // Fallback to local if not yet in Directus or not mapped
+        antecedente = antecedentesReales.find(a => a.id.toString() === id.toString());
+        source = 'local';
+      }
+    }
   }
 } catch (e) {
-  console.error(`Error finding antecedent ${id}:`, e);
+  console.error(`Error finding antecedent ${id} in Directus:`, e.message);
+  // Fallback to local
+  antecedente = antecedentesReales.find(a => a.id.toString() === id.toString());
+  source = 'local';
 }
 
 // 2. Handle 404

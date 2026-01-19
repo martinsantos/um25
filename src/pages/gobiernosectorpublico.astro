@@ -7,7 +7,7 @@ import { generateSlug } from '../utils/slugUtils';
 const seoConfig = {
   title: "Tecnología para Sector Público y Gobierno | Digitalización del Estado | ULTIMA MILLA",
   description: "Soluciones IT para organismos públicos: redes gubernamentales, digitalización estatal, modernización municipal y sistemas críticos con máxima seguridad.",
-  keywords: "servicios tecnologicos gobierno, infraestructura sector publico mendoza, redes gubernamentales cuyo, telecomunicaciones municipios patagonia, corrientes debiles entidades publicas, digitalizacion estado, modernizacion municipalidades",
+  keywords: "trazabilidad estatal, software gobierno mendoza, mantenimiento web municipio, digitalizacion expediente, soporte infraestructura publica, seguridad datos gobierno",
   ogImage: "/images/services/servicios-it.jpg",
   canonical: "https://ultimamilla.com.ar/gobiernosectorpublico",
   locale: "es_AR",
@@ -58,7 +58,7 @@ const filterAntecedentes = async (data) => {
       ...item,
       Nombre: item.Titulo,
       mapeo_imagenes_completo: await getAntecedenteImageUrl(item),
-      slug: `${item.id}/${generateSlug(item.Titulo)}`
+      slug: generateSlug(item.Titulo)
     }))
   );
 
@@ -238,7 +238,7 @@ if (antecedentes.length === 0) {
 
         <!-- Subtitle Simple -->
         <p style="font-size: 18px; font-weight: 400; color: rgba(255, 255, 255, 0.9); max-width: 600px; margin-bottom: 32px; line-height: 1.6;">
-          Soluciones integrales para la gestión y ejecución de proyectos de construcción con precisión.
+          Soluciones críticas: Software de Trazabilidad, Digitalización de Servicios y Mantenimiento Web Institucional.
         </p>
 
         <!-- CTA Button Simple -->
@@ -259,8 +259,8 @@ if (antecedentes.length === 0) {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m4 0V9a1 1 0 011-1h4a1 1 0 011 1v12M9 7h6"></path>
               </svg>
             </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Proyectos a Gran Escala</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Gestionamos proyectos complejos con precisión y eficiencia.</p>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Digitalización y Trazabilidad</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Software a medida para gestión de expedientes y trazabilidad de activos públicos.</p>
           </div>
 
           <!-- Card 2 EXACTA -->
@@ -270,8 +270,8 @@ if (antecedentes.length === 0) {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
               </svg>
             </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Innovación Tecnológica</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Implementamos las últimas tecnologías para optimizar cada fase.</p>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Mantenimiento Web</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Gestión continua de portales municipales y sistemas de atención al ciudadano.</p>
           </div>
 
           <!-- Card 3 EXACTA -->
@@ -281,8 +281,8 @@ if (antecedentes.length === 0) {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
               </svg>
             </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Seguridad y Certificación</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Cumplimiento riguroso de normativas y estándares de seguridad.</p>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Seguridad de Datos</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Infraestructura crítica protegida para salvaguardar la información del ciudadano.</p>
           </div>
         </div>
       </div>
@@ -386,7 +386,7 @@ if (antecedentes.length === 0) {
             </p>
           </div>
 
-          <AntecedentesGridMobileOptimized items={antecedentes} limit={25} title="Casos de u00c9xito en goubiernosectorpuublico" description="Proyectos destacados en este sector" />
+          <AntecedentesGridMobileOptimized items={antecedentes} limit={25} title="Casos de Éxito en Gobierno y Sector Público" description="Proyectos destacados en este sector" />
         </div>
       </section>
     )}
@@ -485,5 +485,4 @@ if (antecedentes.length === 0) {
   }
 </style>
 
-  }
-</style>
+
