@@ -1,0 +1,205 @@
+---
+import { Image } from 'astro:assets';
+import logoImage from '/src/assets/images/um-logo.png';
+
+const currentPath = Astro.url.pathname;
+
+const navigation = [
+    { name: 'Servicios', href: '/servicios' },
+    { name: 'Antecedentes', href: '/antecedentes' },
+    { name: 'Sectores', href: '/sector' },
+    { name: 'Nosotros', href: '/nosotros' },
+    { name: 'Contacto', href: '/contacto' }
+];
+
+// Función para detectar si un enlace es la página actual
+const isActive = (href: string): boolean => {
+    if (href === '/' && currentPath === '/') return true;
+    if (href !== '/' && currentPath.startsWith(href)) return true;
+    return false;
+};
+---
+
+<nav class="navigation">
+    <div class="logo">
+        <a href="/" class="logo-link">
+            <img
+                src="/images/um-logo.png"
+                alt="Ultima Milla Logo"
+                width="200"
+                height="70"
+                class="logo-image"
+            />
+        </a>
+    </div>
+    
+    <div class="hamburger-menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <ul>
+        <li><a href="/" class={isActive('/') ? 'active' : ''}>Inicio</a></li>
+        {navigation.map(item => (
+            <li><a href={item.href} class={isActive(item.href) ? 'active' : ''}>{item.name}</a></li>
+        ))}
+    </ul>
+</nav>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const hamburger = document.querySelector('.hamburger-menu');
+        const nav = document.querySelector('.navigation ul');
+        
+        if (hamburger && nav) {
+            hamburger.addEventListener('click', () => {
+                hamburger.classList.toggle('active');
+                nav.classList.toggle('active');
+            });
+
+            // Cerrar menú al hacer clic en un enlace
+            document.querySelectorAll('.navigation ul li a').forEach(link => {
+                link.addEventListener('click', () => {
+                    hamburger.classList.remove('active');
+                    nav.classList.remove('active');
+                });
+            });
+
+            // Cerrar menú al hacer clic fuera
+            document.addEventListener('click', (e: MouseEvent) => {
+                const target = e.target as Node;
+                if (!nav.contains(target) && !hamburger.contains(target)) {
+                    hamburger.classList.remove('active');
+                    nav.classList.remove('active');
+                }
+            });
+        }
+    });
+</script>
+
+<style>
+    .navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+        background-color: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 100;
+    }
+
+    .navigation ul {
+        display: flex;
+        gap: 2rem;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .navigation a {
+        text-decoration: none;
+        color: #333;
+        font-weight: 500;
+        font-size: 1rem;
+        padding: 0.5rem 0.75rem;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    /* Hover effect - subrayado sutil (excluir logo) */
+    .navigation a:hover:not(.logo-link) {
+        color: #dc2626;
+        border-bottom-color: #fecaca;
+    }
+
+    /* Active state - indicador más prominente */
+    .navigation a.active {
+        color: #dc2626;
+        border-bottom-color: #dc2626;
+        font-weight: 700;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+    }
+
+    .logo-image {
+        height: 50px;
+        width: auto;
+    }
+
+    .hamburger-menu {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        gap: 5px;
+    }
+
+    .hamburger-menu span {
+        width: 25px;
+        height: 3px;
+        background-color: #333;
+        transition: all 0.3s ease;
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+        .navigation {
+            padding: 1rem;
+        }
+
+        .hamburger-menu {
+            display: flex;
+        }
+
+        .navigation ul {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            flex-direction: column;
+            gap: 0;
+            background-color: white;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+        }
+
+        .navigation ul.active {
+            display: flex;
+        }
+
+        .navigation a {
+            display: block;
+            padding: 1rem 2rem;
+            border-bottom: none;
+            border-left: 4px solid transparent;
+        }
+
+        .navigation a:hover {
+            border-left-color: #dc2626;
+            background-color: #fef2f2;
+        }
+
+        .navigation a.active {
+            border-left-color: #dc2626;
+            background-color: #fef2f2;
+        }
+
+        .hamburger-menu.active span:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+        }
+
+        .hamburger-menu.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger-menu.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+    }
+</style>

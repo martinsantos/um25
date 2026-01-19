@@ -1,0 +1,214 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { generateSlug } from '../../../utils/slugUtils';
+// Importar el componente del carrusel
+import AntecedentesCarousel from '../../../components/AntecedentesCarousel.astro';
+
+// --- Configuración ---
+const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
+const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN;
+if (!DIRECTUS_STATIC_TOKEN) {
+  throw new Error('DIRECTUS_STATIC_TOKEN no configurado. La página no puede obtener datos.');
+}
+
+const { id, slug: slugFromUrl } = Astro.params;
+if (!id || !slugFromUrl) {
+  return Astro.redirect('/404');
+}
+
+// Función para obtener datos del servicio usando fetch()
+async function fetchServiceById(itemId) {
+  const collectionPath = '/items/Servicios';
+  // Asegúrate que estos campos coinciden exactamente con tu setup en Directus
+  const fields = '*,antecedentes_relacionados.Antecedentes_id.id,antecedentes_relacionados.Antecedentes_id.Titulo,antecedentes_relacionados.Antecedentes_id.Imagen';
+  const apiUrl = `${DIRECTUS_URL}${collectionPath}/${itemId}?fields=${fields}`;
+  console.log(`[SERVICIOS] Fetching: ${apiUrl}`);
+
+  try {
+    const response = await fetch(apiUrl, {
+      headers: {
+        'Authorization': `Bearer ${DIRECTUS_STATIC_TOKEN}`,
+        'Accept': 'application/json'
+      }
+    });
+    console.log(`[SERVICIOS] API Status: ${response.status} ${response.statusText}`);
+    if (!response.ok) {
+      if (response.status === 404) {
+        return { data: null, error: 'NOT_FOUND' };
+      }
+      const errorBody = await response.text();
+      throw new Error(`Error en la API: ${response.status} ${response.statusText} - ${errorBody}`);
+    }
+    const json = await response.json();
+    if (!json?.data) {
+      return { data: null, error: 'NO_DATA_IN_RESPONSE' };
+    }
+    // Considera si un título vacío es un error real o un caso posible
+    if (typeof json.data.Titulo !== 'string' || !json.data.Titulo.trim()) {
+      console.warn('[SERVICIOS] El servicio recuperado no tiene título o es inválido.');
+      // Podrías decidir no tratar esto como un error fatal si es posible
+      // return { data: null, error: 'MISSING_OR_EMPTY_TITLE' };
+    }
+    return { data: json.data, error: null };
+  } catch (e) {
+    console.error('[SERVICIOS] Excepción durante el fetch:', e);
+    return { data: null, error: e.message || 'FETCH_EXCEPTION' };
+  }
+}
+
+console.log('[SERVICIOS] Iniciando fetch y validación...');
+const result = await fetchServiceById(id);
+const servicio = result.data;
+
+// **DEBUG**: Descomenta para ver los datos exactos recibidos
+// console.log('[SERVICIOS] Datos recibidos:', JSON.stringify(servicio, null, 2));
+
+if (result.error || !servicio) {
+  console.error(`[SERVICIOS] Error al obtener datos: "${result.error}". Redirigiendo a 404.`);
+  return Astro.redirect('/404');
+}
+
+// Validación del slug (importante para SEO y consistencia)
+const expectedSlug = generateSlug(servicio.Titulo || ''); // Añadir fallback por si Titulo es null/undefined
+if (slugFromUrl !== expectedSlug) {
+  console.warn(`[SERVICIOS] Discrepancia de slug: URL="${slugFromUrl}", Esperado="${expectedSlug}". Redirigiendo a la URL correcta o a 404.`);
+  // Considera redirigir a la URL correcta en lugar de 404 si el ID es válido
+  // return Astro.redirect(`/servicios/${id}/${expectedSlug}`);
+  return Astro.redirect('/404'); // Manteniendo comportamiento actual
+}
+
+// Extraer antecedentes relacionados (corregido para asegurar array de objetos válidos)
+let relatedAntecedentes = [];
+if (Array.isArray(servicio?.antecedentes_relacionados)) {
+  relatedAntecedentes = servicio.antecedentes_relacionados
+    .map(rel => rel && rel.Antecedentes_id ? rel.Antecedentes_id : null)
+    .filter(a => a && a.id); // Solo antecedentes válidos con id
+}
+
+// DEBUG: Descomenta para ver la estructura real en consola
+// console.log('[SERVICIOS] relatedAntecedentes:', JSON.stringify(relatedAntecedentes, null, 2));
+
+Astro.props = { servicio, relatedAntecedentes };
+
+// Función de formateo de fecha
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A';
+  try {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    // Asegúrate de que la zona horaria sea la adecuada si es relevante
+    return new Date(dateString).toLocaleDateString('es-ES', options);
+  } catch (e) {
+    console.error(`[SERVICIOS] Error formateando fecha: ${dateString}`, e);
+    return 'Fecha inválida';
+  }
+};
+---
+
+<Layout title={`Servicio: ${Astro.props.servicio?.Titulo || 'Detalle'}`}>
+  <main class="container mx-auto px-4 py-12 md:py-20">
+    {Astro.props.servicio ? (
+      <>
+        <article class="bg-white rounded-xl shadow-xl overflow-hidden mb-16">
+           {/* SUGERENCIA: Añadir un gap para separar imagen y texto en pantallas medianas+ */}
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-0 md:gap-8 lg:gap-12">
+            {/* Columna de Imagen */}
+            <div class="md:col-span-2">
+              {Astro.props.servicio.Imagen ? (
+                <img
+                  src={`${DIRECTUS_URL}/assets/${Astro.props.servicio.Imagen}`}
+                  alt={`Imagen representativa de ${Astro.props.servicio.Titulo}`}
+                  // CONSIDERACIÓN: md:h-full puede causar alturas variables.
+                  // Alternativas: md:h-96, md:aspect-video, etc. según el diseño deseado.
+                  class="w-full h-64 md:h-full object-cover"
+                  loading="lazy"
+                  width="600" height="600" {/* Añadir width/height ayuda al navegador */}
+                />
+              ) : (
+                <div class="w-full h-64 md:h-full bg-gray-200 flex items-center justify-center">
+                  <span class="text-gray-500">Imagen no disponible</span>
+                </div>
+              )}
+            </div>
+            {/* Columna de Contenido */}
+            <div class="md:col-span-3 p-6 md:p-8 lg:p-10 flex flex-col"> {/* flex flex-col puede ayudar si necesitas alinear contenido */}
+              <h1 class="text-3xl lg:text-4xl font-bold mb-4 text-gray-900">{Astro.props.servicio.Titulo}</h1>
+              {/* Usar prose de Tailwind puede mejorar la legibilidad del texto largo */}
+              <div class="text-gray-700 mb-8 text-lg leading-relaxed prose lg:prose-lg max-w-none">
+                 {/* Si la descripción es HTML, usa set:html */}
+                 {Astro.props.servicio.Descripcion}
+                 {/* <div set:html={Astro.props.servicio.Descripcion} /> */}
+              </div>
+
+              {/* Sección de Detalles */}
+              <div class="mb-8 border-t border-gray-200 pt-6">
+                <h2 class="text-lg font-semibold mb-4 text-gray-800 uppercase tracking-wider">Detalles</h2>
+                <dl class="space-y-3">
+                   {/* El layout de detalles con flex es bueno */}
+                  <div class="flex flex-col sm:flex-row sm:justify-between">
+                    <dt class="font-medium text-gray-600 w-full sm:w-1/3 mb-1 sm:mb-0">Área:</dt>
+                    <dd class="text-gray-800 sm:text-right w-full sm:w-2/3">{Astro.props.servicio.Area || '-'}</dd>
+                  </div>
+                  <div class="flex flex-col sm:flex-row sm:justify-between">
+                    <dt class="font-medium text-gray-600 w-full sm:w-1/3 mb-1 sm:mb-0">Cliente:</dt>
+                    <dd class="text-gray-800 sm:text-right w-full sm:w-2/3">{Astro.props.servicio.Cliente || '-'}</dd>
+                  </div>
+                  <div class="flex flex-col sm:flex-row sm:justify-between">
+                    <dt class="font-medium text-gray-600 w-full sm:w-1/3 mb-1 sm:mb-0">Fecha:</dt>
+                    <dd class="text-gray-800 sm:text-right w-full sm:w-2/3">{formatDate(Astro.props.servicio.Fecha)}</dd>
+                  </div>
+                  <div class="flex flex-col sm:flex-row sm:justify-between">
+                    <dt class="font-medium text-gray-600 w-full sm:w-1/3 mb-1 sm:mb-0">Presupuesto:</dt>
+                    <dd class="text-gray-800 sm:text-right w-full sm:w-2/3">{Astro.props.servicio.Presupuesto || '-'}</dd>
+                  </div>
+                  <div class="flex flex-col sm:flex-row sm:justify-between">
+                    <dt class="font-medium text-gray-600 w-full sm:w-1/3 mb-1 sm:mb-0">Unidad Negocio:</dt>
+                    <dd class="text-gray-800 sm:text-right w-full sm:w-2/3">{Astro.props.servicio.Unidad_de_negocio || '-'}</dd>
+                  </div>
+                </dl>
+              </div>
+
+              {/* Sección de Etiquetas */}
+              {Astro.props.servicio.Palabras_clave && Astro.props.servicio.Palabras_clave.split(',').map(k => k.trim()).filter(k => k).length > 0 && (
+                <div class="border-t border-gray-200 pt-6 mt-auto"> {/* mt-auto si usaste flex-col arriba para empujar esto abajo */}
+                  <h2 class="text-lg font-semibold mb-4 text-gray-800 uppercase tracking-wider">Etiquetas</h2>
+                  <div class="flex flex-wrap gap-2">
+                    {Astro.props.servicio.Palabras_clave.split(',').map((keyword) => keyword.trim()).filter(k => k).map((keyword) => (
+                      <span class="bg-blue-100 text-blue-800 rounded-md px-2.5 py-0.5 text-sm font-medium border border-blue-200">
+                        {keyword}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </article>
+
+        {/* --- SECCIÓN CRÍTICA: Antecedentes Relacionados --- */}
+        <section class="mb-16">
+          <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center md:text-left">Antecedentes Relacionados</h2>
+          {/* Verifica que los datos existan Y que el array tenga elementos */}
+          { Astro.props.relatedAntecedentes && Array.isArray(Astro.props.relatedAntecedentes) && Astro.props.relatedAntecedentes.length > 0 ? (
+            <AntecedentesCarousel
+              antecedentes={Astro.props.relatedAntecedentes}
+              unidad={Astro.props.servicio.Unidad_de_negocio}
+              client:load
+            />
+          ) : (
+            <p class="text-center text-gray-500 py-8">No hay antecedentes vinculados para mostrar.</p>
+          )}
+        </section>
+        {/* --- FIN SECCIÓN CRÍTICA --- */}
+
+      </>
+    ) : (
+      <div class="text-center py-20">
+          <p class="text-2xl text-gray-500">Lo sentimos, servicio no encontrado.</p>
+          {/* Podrías añadir un enlace para volver al listado */}
+          <a href="/servicios" class="mt-4 inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+            Volver a Servicios
+          </a>
+      </div>
+    )}
+  </main>
+</Layout>

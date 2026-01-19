@@ -1,0 +1,71 @@
+---
+// src/pages/article.astro
+import { getItems } from '../lib/directus'; // Asegúrate de tener esta función
+
+// Obtener datos iniciales (para SEO y primera renderización)
+const initialArticles = await getItems('articles');
+
+
+<html lang="es">
+<head>
+  <title>Artículos Actualizados</title>
+  
+  <!-- Script para actualización en tiempo real -->
+  <script>
+    // Función para actualizar el DOM
+    const updateArticles = (articles) => {
+      const container = document.getElementById('articles-container');
+      container.innerHTML = articles.map(article => `
+        <article class="post">
+          <h2>${article.title}</h2>
+          <p>${article.content}</p>
+          <small>Última actualización: ${new Date(article.date_updated).toLocaleTimeString()}</small>
+        </article>
+      `).join('');
+    };
+
+    // Cargar desde localStorage al iniciar
+    window.addEventListener('DOMContentLoaded', () => {
+      const cachedData = localStorage.getItem('cachedArticles');
+      if (cachedData) {
+        updateArticles(JSON.parse(cachedData));
+      }
+
+      // Función de actualización periódica
+      const fetchArticles = async () => {
+        try {
+          const response = await fetch('/api/get-articles'); // Crear esta ruta API
+          const data = await response.json();
+          
+          localStorage.setItem('cachedArticles', JSON.stringify(data));
+          updateArticles(data);
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      };
+
+      // Primera carga y actualización cada 30 segundos
+      fetchArticles();
+      setInterval(fetchArticles, 30000);
+    });
+  </script>
+</head>
+
+<body>
+  <h1>Últimos Artículos</h1>
+  
+  <!-- Contenedor dinámico -->
+  <div id="articles-container">
+    <!-- Contenido estático inicial -->
+    {
+      initialArticles.map(article => (
+        <article class="post">
+          <h2>{article.title}</h2>
+          <p>{article.content}</p>
+          <small>Última actualización: {new Date(article.date_updated).toLocaleTimeString()}</small>
+        </article>
+      ))
+    }
+  </div>
+</body>
+</html>

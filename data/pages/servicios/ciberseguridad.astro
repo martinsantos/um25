@@ -1,0 +1,153 @@
+---
+// VERSIÓN ALTERNATIVA - CIBERSEGURIDAD
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Ciberseguridad - Nueva Estética | ULTIMA MILLA">
+  <style>
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    @keyframes shield { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  </style>
+
+  <!-- HERO -->
+  <section style="position: relative; min-height: 650px; background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 50%, #0f172a 100%); color: white; overflow: hidden;">
+    <div style="position: absolute; inset: 0; opacity: 0.05; background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cpath d=&quot;M30 0L60 30L30 60L0 30z&quot; fill=&quot;%23a855f7&quot;/%3E%3C/svg%3E');"></div>
+    <div style="position: absolute; top: -150px; right: -150px; width: 700px; height: 700px; background: radial-gradient(circle, rgba(124, 58, 237, 0.25) 0%, transparent 70%); filter: blur(100px);"></div>
+
+    <div style="max-width: 1400px; margin: 0 auto; padding: 140px 40px 80px; position: relative; z-index: 10;">
+      <div style="max-width: 950px; margin: 0 auto; text-align: center;">
+        <div style="display: inline-flex; align-items: center; gap: 10px; padding: 10px 24px; background: rgba(124, 58, 237, 0.15); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 50px; margin-bottom: 32px;">
+          <div style="width: 8px; height: 8px; background: #7c3aed; border-radius: 50%; animation: pulse 2s ease-in-out infinite;"></div>
+          <span style="font-size: 13px; font-weight: 700; color: #c4b5fd; text-transform: uppercase; letter-spacing: 1.5px;">Ciberseguridad Avanzada</span>
+        </div>
+
+        <h1 style="font-size: clamp(52px, 7vw, 80px); font-weight: 900; line-height: 1.05; margin-bottom: 32px; letter-spacing: -0.03em;">
+          Protección Total Contra Amenazas Digitales
+        </h1>
+
+        <p style="font-size: 22px; line-height: 1.7; color: #cbd5e1; margin-bottom: 48px; max-width: 800px; margin-left: auto; margin-right: auto;">
+          Soluciones integrales de ciberseguridad con monitoreo 24/7 y respuesta inmediata ante incidentes
+        </p>
+
+        <a href="#servicios" style="display: inline-flex; align-items: center; gap: 12px; padding: 20px 40px; background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; font-weight: 700; font-size: 17px; border-radius: 12px; text-decoration: none; box-shadow: 0 12px 45px rgba(124, 58, 237, 0.4);">
+          Ver Servicios
+          <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICIOS -->
+  <section id="servicios" style="background: #0f172a; padding: 100px 40px;">
+    <div style="max-width: 1400px; margin: 0 auto;">
+      <div style="text-align: center; margin-bottom: 80px;">
+        <h2 style="font-size: clamp(40px, 5vw, 56px); font-weight: 900; color: white; margin-bottom: 24px;">
+          Servicios de Ciberseguridad
+        </h2>
+        <p style="font-size: 20px; color: #94a3b8; max-width: 800px; margin: 0 auto;">
+          Protección completa contra amenazas digitales modernas
+        </p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px;">
+        <div style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(15, 23, 42, 0.5) 100%); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 24px; padding: 40px; transition: all 0.3s;">
+          <div style="width: 70px; height: 70px; background: rgba(124, 58, 237, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; animation: shield 3s ease-in-out infinite;">
+            <span style="font-size: 32px;">🔍</span>
+          </div>
+          <h3 style="font-size: 24px; font-weight: 800; color: white; margin-bottom: 16px;">Auditoría de Seguridad</h3>
+          <p style="font-size: 16px; color: #94a3b8; line-height: 1.7;">Evaluación completa de la infraestructura de seguridad de su empresa.</p>
+        </div>
+
+        <div style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(15, 23, 42, 0.5) 100%); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 24px; padding: 40px; transition: all 0.3s;">
+          <div style="width: 70px; height: 70px; background: rgba(124, 58, 237, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; animation: shield 3s ease-in-out infinite; animation-delay: 0.5s;">
+            <span style="font-size: 32px;">🛡️</span>
+          </div>
+          <h3 style="font-size: 24px; font-weight: 800; color: white; margin-bottom: 16px;">Protección contra Malware</h3>
+          <p style="font-size: 16px; color: #94a3b8; line-height: 1.7;">Soluciones avanzadas de detección y prevención de malware.</p>
+        </div>
+
+        <div style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(15, 23, 42, 0.5) 100%); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 24px; padding: 40px; transition: all 0.3s;">
+          <div style="width: 70px; height: 70px; background: rgba(124, 58, 237, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; animation: shield 3s ease-in-out infinite; animation-delay: 1s;">
+            <span style="font-size: 32px;">☁️</span>
+          </div>
+          <h3 style="font-size: 24px; font-weight: 800; color: white; margin-bottom: 16px;">Seguridad en la Nube</h3>
+          <p style="font-size: 16px; color: #94a3b8; line-height: 1.7;">Protección integral para sus datos y aplicaciones en la nube.</p>
+        </div>
+
+        <div style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(15, 23, 42, 0.5) 100%); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 24px; padding: 40px; transition: all 0.3s;">
+          <div style="width: 70px; height: 70px; background: rgba(124, 58, 237, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; animation: shield 3s ease-in-out infinite; animation-delay: 1.5s;">
+            <span style="font-size: 32px;">⚡</span>
+          </div>
+          <h3 style="font-size: 24px; font-weight: 800; color: white; margin-bottom: 16px;">Respuesta a Incidentes</h3>
+          <p style="font-size: 16px; color: #94a3b8; line-height: 1.7;">Equipo especializado en respuesta rápida ante incidentes de seguridad.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- POR QUÉ ELEGIRNOS -->
+  <section style="background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%); padding: 100px 40px;">
+    <div style="max-width: 1200px; margin: 0 auto;">
+      <div style="text-align: center; margin-bottom: 60px;">
+        <h2 style="font-size: clamp(40px, 5vw, 56px); font-weight: 900; color: white; margin-bottom: 24px;">
+          ¿Por qué elegirnos?
+        </h2>
+      </div>
+
+      <div style="background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 24px; padding: 60px;">
+        <div style="display: grid; gap: 24px;">
+          <div style="display: flex; align-items: center; gap: 20px; padding: 20px; background: rgba(124, 58, 237, 0.05); border-radius: 12px;">
+            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #7c3aed, #6d28d9); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span style="font-size: 24px;">✓</span>
+            </div>
+            <p style="font-size: 18px; color: white; font-weight: 600;">Experiencia comprobada en ciberseguridad</p>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 20px; padding: 20px; background: rgba(124, 58, 237, 0.05); border-radius: 12px;">
+            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #7c3aed, #6d28d9); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span style="font-size: 24px;">✓</span>
+            </div>
+            <p style="font-size: 18px; color: white; font-weight: 600;">Soluciones personalizadas según sus necesidades</p>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 20px; padding: 20px; background: rgba(124, 58, 237, 0.05); border-radius: 12px;">
+            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #7c3aed, #6d28d9); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span style="font-size: 24px;">✓</span>
+            </div>
+            <p style="font-size: 18px; color: white; font-weight: 600;">Monitoreo 24/7</p>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 20px; padding: 20px; background: rgba(124, 58, 237, 0.05); border-radius: 12px;">
+            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #7c3aed, #6d28d9); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span style="font-size: 24px;">✓</span>
+            </div>
+            <p style="font-size: 18px; color: white; font-weight: 600;">Equipo certificado de expertos</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section style="background: #0f172a; padding: 120px 40px; border-top: 1px solid rgba(255, 255, 255, 0.05);">
+    <div style="max-width: 900px; margin: 0 auto; text-align: center;">
+      <h2 style="font-size: clamp(36px, 4vw, 48px); font-weight: 900; color: white; margin-bottom: 24px;">
+        Proteja su Empresa Hoy
+      </h2>
+      <p style="font-size: 18px; color: #94a3b8; margin-bottom: 40px;">
+        Solicite una evaluación de seguridad gratuita
+      </p>
+
+      <form action="/api/contact" method="POST" style="max-width: 600px; margin: 0 auto;">
+        <div style="display: grid; gap: 20px;">
+          <input type="text" name="nombre" placeholder="Nombre completo" required style="padding: 18px 24px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white; font-size: 16px;" />
+          <input type="email" name="email" placeholder="Email corporativo" required style="padding: 18px 24px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white; font-size: 16px;" />
+          <textarea name="mensaje" placeholder="Cuéntenos sobre sus necesidades de seguridad..." rows="4" required style="padding: 18px 24px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white; font-size: 16px;"></textarea>
+          <button type="submit" style="padding: 20px; background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; font-weight: 700; font-size: 18px; border-radius: 12px; border: none; cursor: pointer; box-shadow: 0 10px 40px rgba(124, 58, 237, 0.3);">
+            Solicitar Evaluación Gratuita
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+</Layout>

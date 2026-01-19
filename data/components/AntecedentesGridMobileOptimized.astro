@@ -1,0 +1,288 @@
+---
+// src/components/AntecedentesGridMobileOptimized.astro
+// Grid adaptativo: 1 col móvil → 2 tablet → 3 desktop
+
+import { directus, getAntecedenteImageUrlSync } from '@/utils/directus';
+import { readItems } from '@directus/sdk';
+
+interface Props {
+  items?: any[];           // ← Datos pre-filtrados por la página
+  sector?: string;         // ← Mantener para compatibilidad
+  limit?: number;
+  title?: string;
+  description?: string;
+}
+
+const {
+  items: passedItems = [],  // ← Recibir items de la página
+  sector,
+  limit = 25,
+  title = 'Casos de Éxito',
+  description = 'Descubre cómo hemos transformado empresas con soluciones IT estratégicas'
+} = Astro.props;
+
+// Usar items pasados por la página, o intentar fetch solo como fallback
+let items = passedItems;
+
+// Solo fetch si NO hay items pasados
+if (items.length === 0) {
+  try {
+    // Intentar con filtro de sector si se proporciona
+    const filterConfig = sector
+      ? { filter: { Sector: { _contains: sector } } }
+      : {};
+
+    const antecedentes = await directus.request(
+      readItems('antecedentes', {
+        ...filterConfig,
+        fields: ['id', 'Nombre', 'Descripcion', 'mapeo_imagenes_completo', 'slug'],
+        limit: limit,
+        sort: ['-date_created']
+      })
+    );
+    items = antecedentes || [];
+  } catch (error) {
+    console.warn('Error fetching antecedentes:', error);
+    items = [];
+  }
+}
+---
+
+<section class="w-full px-4 sm:px-6 py-12 sm:py-16 max-w-7xl mx-auto">
+
+  <!-- Header -->
+  <div class="mb-10 sm:mb-14">
+    <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 mb-3 sm:mb-4">
+      {title}
+    </h2>
+    <p class="text-base sm:text-lg text-gray-600 max-w-2xl">
+      {description}
+    </p>
+  </div>
+
+  <!-- Grid - Responsive columns -->
+  {items.length > 0 ? (
+    <>
+      <div id="antecedentes-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-10 sm:mb-14 min-h-[600px]">
+        {items.map((item, index) => {
+          // Usar datos pre-procesados si existen, sino resolver dinámicamente
+          const baseImageUrl = item.imageUrl || item.mapeo_imagenes_completo || getAntecedenteImageUrlSync(item);
+          const imageUrl = `${baseImageUrl}?v=FINAL_PAGINATION`;
+          const title = item.Nombre || item.Titulo || 'Sin Título';
+          const displayId = item.id ? String(item.id).split('/')[0].trim() : '';
+          const displaySlug = item.slug || 'proyecto';
+          const projectUrl = `/antecedentes/${displayId}/${displaySlug}`;
+          
+          return (
+            <a href={projectUrl} class="group block h-full antecedente-item" data-index={index}>
+              <article
+                class="rounded-xl overflow-hidden bg-white border border-gray-200 group-hover:border-cyan-400 transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/10 flex flex-col h-full"
+              >
+
+                <!-- Image Container -->
+                <div class="relative w-full h-44 sm:h-52 overflow-hidden bg-gray-100">
+                  <img
+                    src={imageUrl}
+                    alt={title}
+                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    loading={index < 6 ? "eager" : "lazy"}
+                    onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null;"
+                  />
+                  <!-- Badge overlay -->
+                  <div class="absolute top-3 right-3 px-3 py-1 bg-cyan-600/90 text-white text-xs font-bold rounded-full backdrop-blur-sm shadow-sm">
+                    Caso de Éxito
+                  </div>
+                </div>
+
+                <!-- Content -->
+                <div class="flex-1 p-5 md:p-6 flex flex-col">
+                  <h3 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-cyan-600 transition-colors tracking-tight">
+                    {title}
+                  </h3>
+
+                  <p class="text-gray-600 text-sm md:text-base mb-6 line-clamp-3 flex-1 leading-relaxed">
+                    {item.Descripcion?.replace(/<[^>]*>/g, '').substring(0, 140)}...
+                  </p>
+
+                  <!-- CTA -->
+                  <div class="mt-auto flex items-center gap-2 text-cyan-600 font-bold text-sm uppercase tracking-wider group-hover:translate-x-1 transition-transform">
+                    Ver detalle
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                  </div>
+                </div>
+              </article>
+            </a>
+          );
+        })}
+      </div>
+
+      <!-- Pagination Controls -->
+      <div id="pagination-controls" class="hidden flex justify-center gap-2 mt-8">
+        <!-- Injected by JS -->
+      </div>
+    </>
+  ) : (
+    <!-- Empty State -->
+    <div class="text-center py-12">
+      <p class="text-gray-600 text-lg">No hay casos disponibles en este momento.</p>
+    </div>
+  )}
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Configuration
+    const PAGE_SIZE = 9;
+    let currentPage = 1;
+    
+    // Elements
+    const items = document.querySelectorAll('.antecedente-item');
+    const container = document.getElementById('pagination-controls');
+    const totalItems = items.length;
+    const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+
+    // Only init if we have items and more than 1 page
+    if (totalItems > 0 && totalPages > 1) {
+      initPagination();
+    }
+
+    function initPagination() {
+      // Show container
+      if (container) container.classList.remove('hidden');
+      if (container) container.classList.add('flex');
+      
+      renderPage(1);
+    }
+
+    function renderPage(page) {
+      currentPage = page;
+      
+      // 1. Show/Hide Items
+      items.forEach((item, index) => {
+        const itemIndex = parseInt(item.getAttribute('data-index') || '0');
+        const start = (page - 1) * PAGE_SIZE;
+        const end = start + PAGE_SIZE;
+        
+        if (index >= start && index < end) {
+          item.classList.remove('hidden');
+          // Add animation class slightly staggered
+          item.style.animation = `fadeInScale 0.4s ease-out ${(index - start) * 50}ms backwards`;
+        } else {
+          item.classList.add('hidden');
+        }
+      });
+
+      // 2. Render Controls
+      if (container) {
+        container.innerHTML = buildControls(page, totalPages);
+        attachEvents();
+      }
+
+      // 3. Scroll to top of grid
+      const grid = document.getElementById('antecedentes-grid-container');
+      if (grid && page > 1) {
+        grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    function buildControls(current, total) {
+      let html = '';
+      
+      // Prev Button
+      html += `<button class="p-btn prev px-4 py-2 bg-gray-100 text-gray-900 rounded-lg hover:bg-gray-200 transition-colors font-medium ${current === 1 ? 'opacity-50 cursor-not-allowed' : ''}" ${current === 1 ? 'disabled' : ''}>Anterior</button>`;
+      
+      // Numbered Buttons (Logic for windowing could be added, keeping simple for now)
+      // If many pages, maybe show range, but 500 items / 9 = 55 pages. We need simple windowing.
+      
+      const maxButtons = 5;
+      let startPage = Math.max(1, current - Math.floor(maxButtons / 2));
+      let endPage = Math.min(total, startPage + maxButtons - 1);
+      
+      if (endPage - startPage + 1 < maxButtons) {
+        startPage = Math.max(1, endPage - maxButtons + 1);
+      }
+
+      if (startPage > 1) {
+        html += `<button class="p-btn page-num px-3 py-2 text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" data-page="1">1</button>`;
+        if (startPage > 2) html += `<span class="px-2 py-2">...</span>`;
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        const activeClass = i === current 
+          ? 'bg-cyan-500 text-white shadow-md transform scale-105' 
+          : 'text-gray-900 hover:bg-gray-100';
+        
+        html += `<button class="p-btn page-num px-3 py-2 rounded-lg transition-all duration-200 font-medium ${activeClass}" data-page="${i}">${i}</button>`;
+      }
+
+      if (endPage < total) {
+        if (endPage < total - 1) html += `<span class="px-2 py-2">...</span>`;
+        html += `<button class="p-btn page-num px-3 py-2 text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" data-page="${total}">${total}</button>`;
+      }
+
+      // Next Button
+      html += `<button class="p-btn next px-4 py-2 bg-gray-100 text-gray-900 rounded-lg hover:bg-gray-200 transition-colors font-medium ${current === total ? 'opacity-50 cursor-not-allowed' : ''}" ${current === total ? 'disabled' : ''}>Siguiente</button>`;
+      
+      return html;
+    }
+
+    function attachEvents() {
+      if (!container) return;
+
+      // Number buttons
+      container.querySelectorAll('.page-num').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const target = e.target as HTMLElement; 
+          const page = parseInt(target.getAttribute('data-page') || '1');
+          if (page !== currentPage) renderPage(page);
+        });
+      });
+
+      // Prev
+      const prevBtn = container.querySelector('.prev');
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+          if (currentPage > 1) renderPage(currentPage - 1);
+        });
+      }
+
+      // Next
+      const nextBtn = container.querySelector('.next');
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+          if (currentPage < totalPages) renderPage(currentPage + 1);
+        });
+      }
+    }
+  });
+</script>
+
+</section>
+
+<style>
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

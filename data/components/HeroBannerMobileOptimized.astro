@@ -1,0 +1,182 @@
+---
+// src/components/HeroBannerMobileOptimized.astro
+// Hero con tipografía fluid y estadísticas colapsables
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+  ctaText?: string;
+  ctaLink?: string;
+  secondaryCtaText?: string;
+  secondaryCtaLink?: string;
+}
+
+const {
+  title = 'Soluciones IT',
+  subtitle = 'que transforman negocios',
+  ctaText = 'Conversemos',
+  ctaLink = '/contacto',
+  secondaryCtaText = 'Ver Casos',
+  secondaryCtaLink = '/antecedentes',
+} = Astro.props;
+---
+
+<section id="banner" class="relative w-full min-h-[100dvh] flex items-center justify-center overflow-hidden bg-slate-900">
+  <!-- Dynamic background image container -->
+  <div class="absolute inset-0 z-0 hero-background bg-cover bg-center transition-opacity duration-1000 opacity-40"></div>
+
+
+  <!-- Animated background elements -->
+  <div class="absolute inset-0 overflow-hidden">
+    <!-- Gradient orbs -->
+    <div
+      class="absolute -top-40 -right-40 w-80 h-80 bg-cyan-500/20 rounded-full mix-blend-screen filter blur-3xl animate-pulse"
+      style="animation-duration: 4s"
+    ></div>
+    <div
+      class="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/20 rounded-full mix-blend-screen filter blur-3xl animate-pulse"
+      style="animation-duration: 6s; animation-delay: 1s"
+    ></div>
+
+    <!-- Grid pattern -->
+    <div
+      class="absolute inset-0 opacity-5"
+      style="background-image: linear-gradient(rgba(34, 211, 238, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 211, 238, 0.1) 1px, transparent 1px); background-size: 40px 40px;"
+    ></div>
+  </div>
+
+  <!-- Content container -->
+  <div class="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-24 flex flex-col items-center text-center">
+
+    <!-- Badge -->
+    <div
+      class="inline-block mb-6 sm:mb-8 animate-fadeInDown"
+      style="animation: fadeInDown 0.8s ease-out"
+    >
+      <span class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full text-xs sm:text-sm font-semibold text-cyan-400 tracking-wide">
+        <span class="relative flex w-2 h-2">
+          <span class="absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75 animate-ping"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+        </span>
+        Transformación Digital
+      </span>
+    </div>
+
+    <!-- Main headline - Fluid typography -->
+    <h1
+      class="mb-6 sm:mb-8 leading-tight animate-fadeInUp text-white"
+      style="animation: fadeInUp 0.8s ease-out 0.2s backwards; font-size: clamp(2.5rem, 8vw, 4.5rem); line-height: 1.1;"
+    >
+      <span class="block font-black mb-2 sm:mb-4">
+        {title}
+      </span>
+      <span class="block bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent font-black">
+        {subtitle}
+      </span>
+    </h1>
+
+    <!-- Subheadline -->
+    <p
+      class="max-w-2xl mb-8 sm:mb-12 text-base sm:text-lg md:text-xl text-gray-300 leading-relaxed animate-fadeInUp"
+      style="animation: fadeInUp 0.8s ease-out 0.4s backwards"
+    >
+      22+ años impulsando empresas mendocinas hacia la transformación digital. Desde soluciones IT hasta consultoría estratégica.
+    </p>
+
+    <!-- Stats Grid - Responsive -->
+    <div
+      class="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 mb-8 sm:mb-12 w-full animate-fadeInUp"
+      style="animation: fadeInUp 0.8s ease-out 0.6s backwards"
+    >
+      <div class="flex flex-col items-center p-3 sm:p-4">
+        <div
+          class="font-black text-transparent bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text mb-1 sm:mb-2"
+          style="font-size: clamp(1.875rem, 6vw, 3rem)"
+        >
+          469+
+        </div>
+        <div class="text-xs sm:text-sm text-gray-400 font-medium tracking-wide">
+          Proyectos
+        </div>
+      </div>
+      <div class="flex flex-col items-center p-3 sm:p-4">
+        <div
+          class="font-black text-transparent bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text mb-1 sm:mb-2"
+          style="font-size: clamp(1.875rem, 6vw, 3rem)"
+        >
+          22+
+        </div>
+        <div class="text-xs sm:text-sm text-gray-400 font-medium tracking-wide">
+          Años
+        </div>
+      </div>
+      <div class="flex flex-col items-center p-3 sm:p-4">
+        <div
+          class="font-black text-transparent bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text mb-1 sm:mb-2"
+          style="font-size: clamp(1.875rem, 6vw, 3rem)"
+        >
+          100%
+        </div>
+        <div class="text-xs sm:text-sm text-gray-400 font-medium tracking-wide">
+          Satisfacción
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA Buttons -->
+    <div
+      class="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto justify-center animate-fadeInUp"
+      style="animation: fadeInUp 0.8s ease-out 0.8s backwards"
+    >
+      <a
+        href={ctaLink}
+        class="px-6 sm:px-8 py-3 sm:py-4 bg-cyan-500 text-white font-semibold rounded-lg hover:bg-cyan-600 active:scale-95 transition-all min-h-12 flex items-center justify-center shadow-lg hover:shadow-cyan-500/50 duration-200"
+      >
+        {ctaText}
+      </a>
+      <a
+        href={secondaryCtaLink}
+        class="px-6 sm:px-8 py-3 sm:py-4 bg-white/10 text-white font-semibold rounded-lg border border-white/20 hover:bg-white/20 active:scale-95 transition-all min-h-12 flex items-center justify-center backdrop-blur-sm duration-200"
+      >
+        {secondaryCtaText}
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 640px) {
+    h1 {
+      /* Ensure text doesn't overflow on small screens */
+      word-spacing: -0.05em;
+    }
+  }
+
+  /* Smooth scroll behavior */
+  html {
+    scroll-behavior: smooth;
+  }
+</style>

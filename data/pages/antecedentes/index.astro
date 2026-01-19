@@ -1,0 +1,426 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import BreadcrumbSchema from '../../components/SEO/BreadcrumbSchema.astro';
+import { directus, PAGE_SIZE, DEFAULT_IMAGE, getAntecedenteImageUrl } from '../../utils/directus';
+import { generateSlug } from '../../utils/slugUtils.js';
+import { antecedentesReales } from '../../data/antecedentes_completos.js';
+import { sortByImpact } from '../../utils/antecedentesScoring.js';
+
+// Configuración SEO optimizada para Antecedentes/Portfolio
+const seoConfig = {
+  title: "Proyectos IT y Telecomunicaciones | 469+ Casos de Éxito | ULTIMA MILLA",
+  description: "Más de 469 proyectos de infraestructura IT, telecomunicaciones, corrientes débiles y software en Mendoza, Cuyo y Patagonia. Trabajos para minería, bodegas, hospitales, aeropuertos, constructoras y gobierno.",
+  keywords: "proyectos it argentina, casos exito telecomunicaciones mendoza, antecedentes infraestructura redes, portfolio servicios tecnologicos, proyectos corrientes debiles, instalaciones cctv cableado estructurado, deteccion incendio proyectos"
+};
+
+// Obtener parámetros de la URL
+const getUrlParams = (url) => {
+  const searchParams = new URL(url).searchParams;
+  const resetFilters = searchParams.get('reset') === '1';
+  
+  const activeFilters = resetFilters
+    ? { area: '', cliente: '', unidad_negocio: '' }
+    : {
+        area: searchParams.get('area') || '',
+        cliente: searchParams.get('cliente') || '',
+        unidad_negocio: searchParams.get('unidad_negocio') || ''
+      };
+
+  return {
+    searchQuery: searchParams.get('q') || '',
+    currentPage: Math.max(1, parseInt(searchParams.get('page') || '1')),
+    activeFilters,
+    pageSize: PAGE_SIZE
+  };
+};
+
+// Cargar datos iniciales
+let pageData = {
+  antecedentes: [],
+  error: null,
+  totalItems: 0,
+  totalPages: 1,
+  isLoading: true,
+  ...getUrlParams(Astro.request?.url || Astro.url)
+};
+
+// Función para filtrar antecedentes
+const filterAntecedentes = (antecedentes, filters, searchQuery) => {
+  let filtered = [...antecedentes];
+
+  if (searchQuery) {
+    const query = searchQuery.toLowerCase();
+    filtered = filtered.filter(item => 
+      item.Titulo.toLowerCase().includes(query) ||
+      item.Descripcion.toLowerCase().includes(query) ||
+      item.Cliente.toLowerCase().includes(query) ||
+      item.Area.toLowerCase().includes(query)
+    );
+  }
+
+  if (filters.unidad_negocio) {
+    filtered = filtered.filter(item => item.Unidad_de_negocio === filters.unidad_negocio);
+  }
+
+  if (filters.area) {
+    filtered = filtered.filter(item => item.Area === filters.area);
+  }
+
+  if (filters.cliente) {
+    filtered = filtered.filter(item => item.Cliente.toLowerCase().includes(filters.cliente.toLowerCase()));
+  }
+
+  return filtered;
+};
+
+// ✅ Usar función centralizada de directus.js para resolver imágenes
+const getImageUrl = getAntecedenteImageUrl;
+
+// Lógica de carga de datos
+try {
+  const response = await directus.getAntecedentes({ limit: 500, page: 1 });
+  let allAntecedentes = [];
+
+  if (response && response.data && response.data.length > 0) {
+    allAntecedentes = response.data.map(item => ({
+      ...item,
+      id: String(item.id).split('/')[0].trim(),
+      slug: generateSlug(item.Titulo)
+    }));
+  } else {
+    throw new Error('No se obtuvieron datos válidos');
+  }
+
+  let filteredAntecedentes = filterAntecedentes(allAntecedentes, pageData.activeFilters, pageData.searchQuery);
+
+  // ✅ NUEVA: Ordenar por impacto (más importante primero)
+  // Sin explicitarlo al usuario - muestra los mejores casos primero
+  filteredAntecedentes = sortByImpact(filteredAntecedentes);
+
+  const startIndex = (pageData.currentPage - 1) * PAGE_SIZE;
+  const endIndex = startIndex + PAGE_SIZE;
+  const paginatedAntecedentes = filteredAntecedentes.slice(startIndex, endIndex);
+  
+  const antecedentesConImagenes = await Promise.all(
+    paginatedAntecedentes.map(async (proyecto) => ({
+      ...proyecto,
+      imageUrl: await getImageUrl(proyecto)
+    }))
+  );
+
+  pageData = {
+    ...pageData,
+    antecedentes: antecedentesConImagenes,
+    totalItems: filteredAntecedentes.length,
+    totalPages: Math.ceil(filteredAntecedentes.length / PAGE_SIZE),
+    isLoading: false
+  };
+
+} catch (error) {
+  console.error('Error al cargar datos, usando fallback:', error);
+  const allAntecedentes = antecedentesReales.map(item => ({
+    ...item,
+    id: String(item.id).split('/')[0].trim(),
+    slug: generateSlug(item.Titulo)
+  }));
+
+  let filteredAntecedentes = filterAntecedentes(allAntecedentes, pageData.activeFilters, pageData.searchQuery);
+
+  // ✅ Ordenar por impacto (más importante primero) - fallback también
+  filteredAntecedentes = sortByImpact(filteredAntecedentes);
+
+  const startIndex = (pageData.currentPage - 1) * PAGE_SIZE;
+  const endIndex = startIndex + PAGE_SIZE;
+  const paginatedAntecedentes = filteredAntecedentes.slice(startIndex, endIndex);
+
+  const antecedentesConImagenes = await Promise.all(
+    paginatedAntecedentes.map(async (proyecto) => ({
+      ...proyecto,
+      imageUrl: await getImageUrl(proyecto)
+    }))
+  );
+
+  pageData = {
+    ...pageData,
+    antecedentes: antecedentesConImagenes,
+    totalItems: filteredAntecedentes.length,
+    totalPages: Math.ceil(filteredAntecedentes.length / PAGE_SIZE),
+    error: null,
+    isLoading: false
+  };
+}
+
+// Opciones de filtro
+const allDataForFilters = antecedentesReales;
+const filterOptions = {
+  unidades: [...new Set(allDataForFilters.map(i => i.Unidad_de_negocio).filter(Boolean))].sort(),
+  areas: [...new Set(allDataForFilters.map(i => i.Area).filter(Boolean))].sort(),
+  clientes: [...new Set(allDataForFilters.map(i => i.Cliente).filter(Boolean))].sort()
+};
+
+// Helpers de URL
+const buildPageUrl = (page) => {
+  const url = new URL(Astro.request.url);
+  url.searchParams.set('page', page);
+  // IMPORTANTE: Preservar búsqueda y filtros al paginar
+  if (!url.searchParams.has('q') && pageData.searchQuery) {
+    url.searchParams.set('q', pageData.searchQuery);
+  }
+  if (!url.searchParams.has('area') && pageData.activeFilters.area) {
+    url.searchParams.set('area', pageData.activeFilters.area);
+  }
+  if (!url.searchParams.has('unidad_negocio') && pageData.activeFilters.unidad_negocio) {
+    url.searchParams.set('unidad_negocio', pageData.activeFilters.unidad_negocio);
+  }
+  return url.pathname + url.search;
+};
+
+// Extract filter values for the new filter bar structure
+const searchQuery = pageData.searchQuery;
+const areaFilter = pageData.activeFilters.area;
+const unidadFilter = pageData.activeFilters.unidad_negocio;
+const areas = filterOptions.areas;
+const unidades = filterOptions.unidades;
+---
+
+<Layout
+  title={seoConfig.title}
+  description={seoConfig.description}
+  keywords={seoConfig.keywords}
+  image="/images/services/servicios-it.jpg"
+>
+  <BreadcrumbSchema items={[
+    { label: 'Inicio', url: '/' },
+    { label: 'Antecedentes', url: '/antecedentes' }
+  ]} />
+
+  <!-- Hero Section V3 (Immersive, Dark, with Background) -->
+  <section class="relative h-[50vh] md:h-[60vh] flex items-center overflow-hidden bg-slate-900">
+    <!-- Background Image -->
+    <div class="absolute inset-0 z-0">
+      <img 
+        src="/images/services/servicios-it.jpg" 
+        alt="Antecedentes Background" 
+        class="w-full h-full object-cover opacity-40"
+      />
+      <div class="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/60 to-slate-900/90"></div>
+    </div>
+
+    <div class="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <span class="inline-block py-1 px-3 rounded-full bg-blue-500/20 text-blue-300 text-sm font-medium mb-6 backdrop-blur-sm border border-blue-500/30">
+        Nuestra Experiencia
+      </span>
+      <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight mb-6">
+        Proyectos de <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Infraestructura IT</span>
+      </h1>
+      <p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
+        Más de 469 proyectos de telecomunicaciones, redes, corrientes débiles y software implementados en Mendoza, Cuyo y Patagonia.
+      </p>
+    </div>
+  </section>
+
+  <!-- Filtros y Búsqueda (Compact & Sticky) -->
+  <section class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm transition-all duration-300" id="filter-bar">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <form id="filter-form" class="flex flex-col md:flex-row gap-3 items-center justify-between">
+        
+        <!-- Search with Submit Button -->
+        <div class="relative w-full md:w-auto flex gap-2">
+          <div class="relative flex-1 md:flex-none group">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              name="q"
+              value={searchQuery}
+              placeholder="Buscar por cliente, título..."
+              class="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg leading-5 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all shadow-sm"
+            />
+          </div>
+          <button
+            type="submit"
+            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors shadow-sm"
+          >
+            Buscar
+          </button>
+        </div>
+
+        <!-- Filters Group -->
+        <div class="flex flex-wrap gap-2 w-full md:w-auto justify-center md:justify-end">
+          <!-- Area Filter -->
+          <div class="relative">
+            <select
+              name="area"
+              class="appearance-none block w-full pl-3 pr-8 py-2 border border-slate-200 rounded-lg bg-white text-slate-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 cursor-pointer hover:bg-slate-50 transition-colors shadow-sm"
+              onchange="this.form.submit()"
+            >
+              <option value="">Todas las Áreas</option>
+              {areas.map((a) => (
+                <option value={a} selected={a === areaFilter}>{a}</option>
+              ))}
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+              <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Unit Filter -->
+          <div class="relative">
+            <select
+              name="unidad"
+              class="appearance-none block w-full pl-3 pr-8 py-2 border border-slate-200 rounded-lg bg-white text-slate-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 cursor-pointer hover:bg-slate-50 transition-colors shadow-sm"
+              onchange="this.form.submit()"
+            >
+              <option value="">Todas las Unidades</option>
+              {unidades.map((u) => (
+                <option value={u} selected={u === unidadFilter}>{u}</option>
+              ))}
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+              <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </section>
+
+    <!-- Grid de Proyectos (Solid, Clean V3) -->
+    <section class="py-16 md:py-24 bg-slate-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {pageData.antecedentes.length === 0 ? (
+          <div class="text-center py-20">
+            <h3 class="text-xl font-medium text-slate-900">No se encontraron proyectos</h3>
+            <p class="text-slate-500 mt-2">Intenta ajustar tus filtros de búsqueda.</p>
+          </div>
+        ) : (
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {pageData.antecedentes.map((proyecto) => (
+              <a href={`/antecedentes/${proyecto.id}/${proyecto.slug}`} class="group flex flex-col h-full">
+                <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1">
+                  <!-- Image -->
+                  <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
+                    <img
+                      src={proyecto.imageUrl}
+                      alt={proyecto.Titulo}
+                      class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      loading="lazy"
+                      onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null;"
+                    />
+                    <div class="absolute top-4 left-4">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-slate-900 text-white shadow-sm">
+                        {proyecto.Area || 'Proyecto'}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <!-- Content -->
+                  <div class="flex flex-col flex-grow p-6">
+                    <div class="mb-2">
+                      <span class="text-xs font-bold text-blue-600 uppercase tracking-wide">
+                        {proyecto.Cliente}
+                      </span>
+                    </div>
+                    
+                    <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors line-clamp-2">
+                      {proyecto.Titulo}
+                    </h3>
+                    
+                    <p class="text-slate-600 text-sm mb-6 line-clamp-3 flex-grow leading-relaxed">
+                      {proyecto.Descripcion ? proyecto.Descripcion.replace(/<[^>]*>/g, '').substring(0, 150) + '...' : ''}
+                    </p>
+                    
+                    <div class="pt-4 border-t border-slate-100 mt-auto flex items-center justify-between">
+                      <span class="text-xs font-medium text-slate-500">
+                        {proyecto.Fecha ? new Date(proyecto.Fecha).toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' }) : proyecto.Unidad_de_negocio}
+                      </span>
+                      <span class="text-blue-600 text-sm font-semibold group-hover:underline flex items-center">
+                        Ver caso <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                      </span>
+                    </div>
+                  </div>
+                </article>
+              </a>
+            ))}
+          </div>
+        )}
+
+        <!-- Pagination (Mobile Responsive with Prev/Next) -->
+        {pageData.totalPages > 1 && (
+          <div class="mt-12 flex flex-col md:flex-row justify-center items-center gap-4">
+            <div class="flex justify-center items-center gap-2 flex-wrap">
+              {/* Previous Button */}
+              {pageData.currentPage > 1 && (
+                <a
+                  href={buildPageUrl(pageData.currentPage - 1)}
+                  class="px-4 py-2 text-sm font-medium rounded-lg bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 transition-colors"
+                >
+                  ← Anterior
+                </a>
+              )}
+
+              {/* Current page indicator */}
+              <span class="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-50 rounded-lg border border-slate-200">
+                {pageData.currentPage} / {pageData.totalPages}
+              </span>
+
+              {/* Next Button */}
+              {pageData.currentPage < pageData.totalPages && (
+                <a
+                  href={buildPageUrl(pageData.currentPage + 1)}
+                  class="px-4 py-2 text-sm font-medium rounded-lg bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 transition-colors"
+                >
+                  Siguiente →
+                </a>
+              )}
+            </div>
+
+            {/* Page count text */}
+            <span class="text-sm text-slate-500">
+              Mostrando página {pageData.currentPage} de {pageData.totalPages}
+            </span>
+          </div>
+        )}
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  
+  .delay-100 { animation-delay: 0.1s; }
+  .delay-200 { animation-delay: 0.2s; }
+  
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

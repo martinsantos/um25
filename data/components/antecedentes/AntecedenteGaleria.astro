@@ -1,0 +1,106 @@
+---
+import { getOptimizedImageUrl, getPictureHtml } from '../../utils/assets.js';
+import '../../styles/antecedentes.css';
+
+interface Props {
+  galeria: any[];
+  titulo?: string;
+}
+
+const { galeria = [], titulo = "Galería" } = Astro.props;
+---
+
+<section class="antecedente-galeria">
+  <div class="antecedente-galeria__container">
+    {titulo && <h2 class="antecedente-galeria__title">{titulo}</h2>}
+    
+    {galeria && galeria.length > 0 ? (
+      <div class="antecedente-galeria__grid masonry-grid" id="galeria-grid">
+        {galeria.map((item, index) => {
+          const file = item.directus_files_id;
+          if (!file) return null;
+          // Obtener nombre base y extensión
+          const fileName = file.filename_disk || file.filename || '';
+          const baseName = fileName.split('.').slice(0, -1).join('.');
+          const ext = fileName.split('.').pop();
+          const alt = file.title || `Imagen ${index + 1}`;
+          // Renderizar <picture> con fallback
+          return (
+            <div 
+              class="antecedente-galeria__item masonry-item" 
+              data-index={index}
+              data-full-src={getOptimizedImageUrl(file, 'large')}
+              data-caption={file.title || ''}
+            >
+              <Fragment set:html={getPictureHtml(baseName, ext, alt, { width: file.width || 400, height: file.height || 300 })} />
+            </div>
+          );
+        })}
+      </div>
+    ) : (
+      <p class="antecedente-galeria__empty">No hay imágenes disponibles</p>
+    )}
+  </div>
+</section>
+
+<script>
+  // Inicializar Masonry cuando el DOM esté cargado
+  document.addEventListener('DOMContentLoaded', () => {
+    const grid = document.getElementById('galeria-grid');
+    if (!grid) return;
+
+    // Importar Masonry de forma dinámica
+    import('masonry-layout').then((Masonry) => {
+      const msnry = new Masonry.default(grid, {
+        itemSelector: '.masonry-item',
+        columnWidth: '.masonry-item',
+        percentPosition: true,
+        transitionDuration: '0.3s'
+      });
+      
+      // Recalcular layout cuando todas las imágenes estén cargadas
+      const images = grid.querySelectorAll('img');
+      let loadedImages = 0;
+      
+      images.forEach(img => {
+        if (img.complete) {
+          loadedImages++;
+          if (loadedImages === images.length) {
+            msnry.layout();
+          }
+        } else {
+          img.addEventListener('load', () => {
+            loadedImages++;
+            if (loadedImages === images.length) {
+              msnry.layout();
+            }
+          });
+        }
+      });
+      
+      // Configurar lightbox
+      const items = grid.querySelectorAll('.antecedente-galeria__item');
+      items.forEach(item => {
+        item.addEventListener('click', () => {
+          const index = parseInt(item.dataset.index);
+          const fullSrc = item.dataset.fullSrc;
+          const caption = item.dataset.caption;
+          
+          // Disparar evento personalizado para abrir lightbox
+          const event = new CustomEvent('openLightbox', {
+            detail: { index, images: Array.from(items), fullSrc, caption }
+          });
+          document.dispatchEvent(event);
+        });
+      });
+    }).catch(err => {
+      console.error('Error cargando Masonry:', err);
+      // Fallback a grid simple si Masonry falla
+      if (grid) {
+        grid.style.display = 'grid';
+        grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(300px, 1fr))';
+        grid.style.gap = '20px';
+      }
+    });
+  });
+</script>

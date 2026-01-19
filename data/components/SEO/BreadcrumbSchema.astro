@@ -1,0 +1,41 @@
+---
+/**
+ * Breadcrumb Schema Component
+ * Generates BreadcrumbList JSON-LD for SEO
+ *
+ * Usage:
+ * <BreadcrumbSchema items={[
+ *   { label: 'Home', url: '/' },
+ *   { label: 'Servicios', url: '/servicios' },
+ *   { label: 'Desarrollo Software', url: '/servicios/software' }
+ * ]} />
+ */
+
+export interface BreadcrumbItem {
+  label: string;
+  url: string;
+}
+
+interface Props {
+  items: BreadcrumbItem[];
+  baseUrl?: string;
+}
+
+const { items, baseUrl = 'https://ultimamilla.com.ar' } = Astro.props;
+
+// Ensure base URL doesn't end with /
+const cleanBaseUrl = baseUrl.replace(/\/$/, '');
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  'itemListElement': items.map((item, index) => ({
+    '@type': 'ListItem',
+    'position': index + 1,
+    'name': item.label,
+    'item': item.url.startsWith('http') ? item.url : `${cleanBaseUrl}${item.url}`
+  }))
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />

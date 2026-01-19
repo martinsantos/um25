@@ -1,0 +1,175 @@
+---
+// VERSIÓN ALTERNATIVA - CLOUD COMPUTING
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Cloud Computing - Nueva Estética | ULTIMA MILLA">
+  <style>
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+  </style>
+
+  <!-- HERO -->
+  <section style="position: relative; min-height: 600px; background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #0f172a 100%); color: white; overflow: hidden;">
+    <div style="position: absolute; inset: 0; opacity: 0.04; background-image: url('data:image/svg+xml,%3Csvg width=&quot;50&quot; height=&quot;50&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Ccircle cx=&quot;25&quot; cy=&quot;25&quot; r=&quot;2&quot; fill=&quot;%2306b6d4&quot;/%3E%3C/svg%3E');"></div>
+    <div style="position: absolute; top: -100px; left: -100px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(14, 165, 233, 0.2) 0%, transparent 70%); filter: blur(80px);"></div>
+
+    <div style="max-width: 1400px; margin: 0 auto; padding: 140px 40px 80px; position: relative; z-index: 10;">
+      <div style="max-width: 900px; margin: 0 auto; text-align: center;">
+        <div style="display: inline-flex; align-items: center; gap: 10px; padding: 10px 24px; background: rgba(14, 165, 233, 0.15); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 50px; margin-bottom: 32px;">
+          <div style="width: 8px; height: 8px; background: #0ea5e9; border-radius: 50%; animation: pulse 2s ease-in-out infinite;"></div>
+          <span style="font-size: 13px; font-weight: 700; color: #7dd3fc; text-transform: uppercase; letter-spacing: 1.5px;">Cloud Solutions</span>
+        </div>
+
+        <h1 style="font-size: clamp(52px, 7vw, 80px); font-weight: 900; line-height: 1.05; margin-bottom: 32px; letter-spacing: -0.03em;">
+          Transforme su Negocio con la Nube
+        </h1>
+
+        <p style="font-size: 22px; line-height: 1.7; color: #cbd5e1; margin-bottom: 48px;">
+          Soluciones cloud escalables para maximizar eficiencia y reducir costos operativos
+        </p>
+
+        <a href="#servicios" style="display: inline-flex; align-items: center; gap: 12px; padding: 20px 40px; background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; font-weight: 700; font-size: 17px; border-radius: 12px; text-decoration: none; box-shadow: 0 12px 45px rgba(14, 165, 233, 0.4);">
+          Explorar Servicios
+          <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICIOS CLOUD -->
+  <section id="servicios" style="background: #0f172a; padding: 100px 40px;">
+    <div style="max-width: 1400px; margin: 0 auto;">
+      <div style="text-align: center; margin-bottom: 80px;">
+        <h2 style="font-size: clamp(40px, 5vw, 56px); font-weight: 900; color: white; margin-bottom: 24px;">
+          Servicios de Cloud Computing
+        </h2>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px;">
+        <div style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(15, 23, 42, 0.5) 100%); border: 1px solid rgba(14, 165, 233, 0.2); border-radius: 24px; padding: 40px;">
+          <div style="width: 70px; height: 70px; background: rgba(14, 165, 233, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; animation: float 4s ease-in-out infinite;">
+            <span style="font-size: 32px;">🚀</span>
+          </div>
+          <h3 style="font-size: 24px; font-weight: 800; color: white; margin-bottom: 16px;">Migración a la Nube</h3>
+          <p style="font-size: 16px; color: #94a3b8; line-height: 1.7;">Transición segura y eficiente de sus sistemas a la nube.</p>
+        </div>
+
+        <div style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(15, 23, 42, 0.5) 100%); border: 1px solid rgba(14, 165, 233, 0.2); border-radius: 24px; padding: 40px;">
+          <div style="width: 70px; height: 70px; background: rgba(14, 165, 233, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; animation: float 4s ease-in-out infinite; animation-delay: 0.5s;">
+            <span style="font-size: 32px;">🖥️</span>
+          </div>
+          <h3 style="font-size: 24px; font-weight: 800; color: white; margin-bottom: 16px;">IaaS</h3>
+          <p style="font-size: 16px; color: #94a3b8; line-height: 1.7;">Recursos de computación flexibles y escalables según demanda.</p>
+        </div>
+
+        <div style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(15, 23, 42, 0.5) 100%); border: 1px solid rgba(14, 165, 233, 0.2); border-radius: 24px; padding: 40px;">
+          <div style="width: 70px; height: 70px; background: rgba(14, 165, 233, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; animation: float 4s ease-in-out infinite; animation-delay: 1s;">
+            <span style="font-size: 32px;">⚙️</span>
+          </div>
+          <h3 style="font-size: 24px; font-weight: 800; color: white; margin-bottom: 16px;">PaaS</h3>
+          <p style="font-size: 16px; color: #94a3b8; line-height: 1.7;">Entornos de desarrollo y despliegue completamente gestionados.</p>
+        </div>
+
+        <div style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(15, 23, 42, 0.5) 100%); border: 1px solid rgba(14, 165, 233, 0.2); border-radius: 24px; padding: 40px;">
+          <div style="width: 70px; height: 70px; background: rgba(14, 165, 233, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; animation: float 4s ease-in-out infinite; animation-delay: 1.5s;">
+            <span style="font-size: 32px;">📱</span>
+          </div>
+          <h3 style="font-size: 24px; font-weight: 800; color: white; margin-bottom: 16px;">SaaS</h3>
+          <p style="font-size: 16px; color: #94a3b8; line-height: 1.7;">Aplicaciones empresariales accesibles desde cualquier lugar.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BENEFICIOS + PLATAFORMAS -->
+  <section style="background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); padding: 100px 40px;">
+    <div style="max-width: 1200px; margin: 0 auto;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 60px;">
+        <!-- Beneficios -->
+        <div>
+          <h2 style="font-size: clamp(32px, 4vw, 42px); font-weight: 900; color: white; margin-bottom: 32px;">
+            Beneficios del Cloud
+          </h2>
+          <div style="display: grid; gap: 16px;">
+            <div style="display: flex; align-items: start; gap: 16px;">
+              <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #0ea5e9, #0284c7); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <span style="font-size: 20px;">✓</span>
+              </div>
+              <p style="font-size: 16px; color: #cbd5e1; line-height: 1.6;">Reducción significativa de costos de infraestructura</p>
+            </div>
+            <div style="display: flex; align-items: start; gap: 16px;">
+              <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #0ea5e9, #0284c7); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <span style="font-size: 20px;">✓</span>
+              </div>
+              <p style="font-size: 16px; color: #cbd5e1; line-height: 1.6;">Escalabilidad inmediata según las necesidades</p>
+            </div>
+            <div style="display: flex; align-items: start; gap: 16px;">
+              <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #0ea5e9, #0284c7); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <span style="font-size: 20px;">✓</span>
+              </div>
+              <p style="font-size: 16px; color: #cbd5e1; line-height: 1.6;">Alta disponibilidad y redundancia</p>
+            </div>
+            <div style="display: flex; align-items: start; gap: 16px;">
+              <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #0ea5e9, #0284c7); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <span style="font-size: 20px;">✓</span>
+              </div>
+              <p style="font-size: 16px; color: #cbd5e1; line-height: 1.6;">Acceso seguro desde cualquier ubicación</p>
+            </div>
+            <div style="display: flex; align-items: start; gap: 16px;">
+              <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #0ea5e9, #0284c7); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <span style="font-size: 20px;">✓</span>
+              </div>
+              <p style="font-size: 16px; color: #cbd5e1; line-height: 1.6;">Respaldo y recuperación automatizados</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Plataformas -->
+        <div>
+          <h2 style="font-size: clamp(32px, 4vw, 42px); font-weight: 900; color: white; margin-bottom: 32px;">
+            Plataformas Cloud
+          </h2>
+          <div style="background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(14, 165, 233, 0.2); border-radius: 20px; padding: 40px;">
+            <div style="display: grid; gap: 20px;">
+              <div style="padding: 16px; background: rgba(14, 165, 233, 0.05); border-radius: 12px;">
+                <p style="font-size: 18px; color: white; font-weight: 700;">☁️ Amazon Web Services (AWS)</p>
+              </div>
+              <div style="padding: 16px; background: rgba(14, 165, 233, 0.05); border-radius: 12px;">
+                <p style="font-size: 18px; color: white; font-weight: 700;">☁️ Microsoft Azure</p>
+              </div>
+              <div style="padding: 16px; background: rgba(14, 165, 233, 0.05); border-radius: 12px;">
+                <p style="font-size: 18px; color: white; font-weight: 700;">☁️ Google Cloud Platform</p>
+              </div>
+              <div style="padding: 16px; background: rgba(14, 165, 233, 0.05); border-radius: 12px;">
+                <p style="font-size: 18px; color: white; font-weight: 700;">☁️ IBM Cloud</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section style="background: #0f172a; padding: 120px 40px; border-top: 1px solid rgba(255, 255, 255, 0.05);">
+    <div style="max-width: 900px; margin: 0 auto; text-align: center;">
+      <h2 style="font-size: clamp(36px, 4vw, 48px); font-weight: 900; color: white; margin-bottom: 24px;">
+        Migre a la Nube Hoy
+      </h2>
+      <p style="font-size: 18px; color: #94a3b8; margin-bottom: 40px;">
+        Consulta gratuita sobre su estrategia cloud
+      </p>
+
+      <form action="/api/contact" method="POST" style="max-width: 600px; margin: 0 auto;">
+        <div style="display: grid; gap: 20px;">
+          <input type="text" name="nombre" placeholder="Nombre completo" required style="padding: 18px 24px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white; font-size: 16px;" />
+          <input type="email" name="email" placeholder="Email" required style="padding: 18px 24px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white; font-size: 16px;" />
+          <button type="submit" style="padding: 20px; background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; font-weight: 700; font-size: 18px; border-radius: 12px; border: none; cursor: pointer;">
+            Solicitar Consulta
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+</Layout>

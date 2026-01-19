@@ -1,0 +1,559 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { directus, DEFAULT_IMAGE, getAntecedenteImageUrl } from '../utils/directus';
+import { generateSlug } from '../utils/slugUtils';
+
+// Configuración SEO específica para software - ULTRA OPTIMIZADA para Argentina y Mendoza
+const seoConfig = {
+  title: "Desarrollo de Software a Medida Mendoza | Aplicaciones Web y Móvil | ULTIMA MILLA",
+  description: "Desarrollo de software personalizado para empresas en Mendoza. Aplicaciones web, móviles, integraciones y transformación digital con tecnología de punta.",
+  keywords: "desarrollo software mendoza, software a medida cuyo patagonia, aplicaciones empresas organizaciones, desarrollo web argentina, transformacion digital mendoza, integracion sistemas, servicios tecnologicos software",
+  ogImage: "/images/services/servicios-web.jpg",
+  canonical: "https://ultimamilla.com.ar/software",
+  locale: "es_AR",
+  region: "Cuyo, Patagonia, Argentina",
+  author: "Ultima Milla",
+  robots: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+};
+
+// Cargar antecedentes del sector software
+import { antecedentesReales } from '../data/antecedentes_completos.js';
+import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
+import { sortByImpact } from '../utils/antecedentesScoring.js';
+
+// Filtrar antecedentes específicos de SOFTWARE
+const filterAntecedentes = (data) => {
+  const keywords = ['software a medida', 'software', 'desarrollo', 'aplicacion', 'app', 'web', 'plataforma', 'sistema'];
+
+  const filtered = data
+    .filter(item => {
+      const titulo = (item.Titulo || '').toLowerCase();
+      const area = (item.Area || '').toLowerCase();
+      const desc = (item.Descripcion || '').toLowerCase();
+
+      // Buscar keywords relacionadas a software
+      return keywords.some(k =>
+        titulo.includes(k) ||
+        area.includes(k) ||
+        (titulo.includes('software') && desc.includes('desarrollo'))
+      );
+    });
+
+  // Ordenar por impacto (relevancia) - mejores casos primero
+  const sortedByImpact = sortByImpact(filtered);
+
+  return sortedByImpact;
+};
+
+let antecedentes = [];
+let serviciosRelacionados = [];
+let error = null;
+
+try {
+  // Obtener antecedentes de software desde Directus
+  const response = await directus.getAntecedentes({
+    limit: 500,
+    page: 1
+  });
+
+  if (response && response.data && response.data.length > 0) {
+    antecedentes = filterAntecedentes(response.data);
+    console.log(`✅ Cargados ${antecedentes.length} antecedentes de software`);
+  }
+} catch (err) {
+  console.error('Error cargando antecedentes:', err);
+  error = err;
+}
+
+// Fallback a datos locales si no hay resultados de API
+if (antecedentes.length === 0) {
+  console.log('Usando antecedentes locales para Software');
+  antecedentes = filterAntecedentes(antecedentesReales);
+}
+
+// Procesar imágenes para cada antecedente
+// Image processing using static import from line 3
+// const { getAntecedenteImageUrl } = await import('../utils/directus.js');
+antecedentes = await Promise.all(
+  antecedentes.map(async (item) => {
+    let img = null;
+    try {
+      img = await getAntecedenteImageUrl(item);
+    } catch(e) {
+      console.error(`[SoftwarePage] Error loading image for ${item.id}`, e);
+    }
+    return {
+      ...item,
+      Nombre: item.Titulo || item.Nombre,
+      mapeo_imagenes_completo: img
+    };
+  })
+);
+
+  // Servicios relacionados con el sector software
+  // Structured Data para SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "serviceType": "Infraestructura IT para Software",
+    "provider": {
+      "@type": "Organization",
+      "name": "Ultima Milla",
+      "url": "https://www.ultimamilla.com.ar",
+      "logo": "https://www.ultimamilla.com.ar/images/um-logo.png",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Mendoza",
+        "addressRegion": "Mendoza",
+        "addressCountry": "AR"
+      }
+    },
+    "areaServed": [
+      {
+        "@type": "City",
+        "name": "Mendoza"
+      },
+      {
+        "@type": "Country",
+        "name": "Argentina"
+      }
+    ],
+    "audience": {
+      "@type": "BusinessAudience",
+      "name": "Software y Empresas de Construcción"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Servicios IT para Software",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Cableado Estructurado para Obras"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Sistemas de Seguridad CCTV y Control de Accesos"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Conectividad Temporal para Canteros"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Telefonía IP Empresarial"
+          }
+        }
+      ]
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "50"
+    }
+  };
+
+  serviciosRelacionados = [
+    {
+      id: 1,
+      nombre: "Servicios IT",
+      descripcion: "Consultoría y desarrollo de soluciones IT personalizadas",
+      icon: "network",
+      slug: "servicios-it"
+    },
+    {
+      id: 2,
+      nombre: "Redes de Datos",
+      descripcion: "Infraestructura de redes robusta y escalable",
+      icon: "shield",
+      slug: "redes-datos"
+    },
+    {
+      id: 3,
+      nombre: "Seguridad Informática",
+      descripcion: "Protección de sistemas y datos empresariales",
+      icon: "wifi",
+      slug: "seguridad-informatica"
+    },
+    {
+      id: 4,
+      nombre: "Telecomunicaciones",
+      descripcion: "Sistemas de comunicación integrados",
+      icon: "phone",
+      slug: "telecomunicaciones"
+    },
+    {
+      id: 5,
+      nombre: "Software Personalizado",
+      descripcion: "Desarrollo de aplicaciones a medida",
+      icon: "alert",
+      slug: "software-personalizado"
+    },
+    {
+      id: 6,
+      nombre: "Soporte Técnico 24/7",
+      descripcion: "Asistencia técnica especializada continua",
+      icon: "support",
+      slug: "soporte-tecnico"
+    }
+  ];
+
+---
+
+<Layout
+  title={seoConfig.title}
+  description={seoConfig.description}
+  keywords={seoConfig.keywords}
+  image={seoConfig.ogImage}
+  canonical={seoConfig.canonical}
+>
+  <main style="background: #f5f5f5;">
+    <!-- HERO EXACTO DEL BOCETO -->
+    <section style="position: relative; min-height: 350px; display: flex; align-items: center; background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1920&q=80') center/cover; color: white;">
+      <div style="max-width: 1200px; margin: 0 auto; padding: 50px 40px; width: 100%;">
+        <!-- Badge Simple -->
+        <div style="display: inline-flex; align-items: center; gap: 12px; padding: 12px 20px; background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(6, 182, 212, 0.1)); border-radius: 20px; margin-bottom: 20px; border: 1px solid rgba(6, 182, 212, 0.4); backdrop-filter: blur(10px);">
+          <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #06b6d4, #0891b2); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);">
+            <span style="font-size: 24px;">💾</span>
+          </div>
+          <span style="font-size: 13px; font-weight: 800; color: #06b6d4; text-transform: uppercase; letter-spacing: 1.2px;">Sector Software</span>
+        </div>
+
+        <!-- Title Simple -->
+        <h1 style="font-size: 48px; font-weight: 900; margin-bottom: 20px; line-height: 1.2; color: white;">
+          Desarrollo de Software<br/>a Medida
+        </h1>
+
+        <!-- Subtitle Simple -->
+        <p style="font-size: 18px; font-weight: 400; color: rgba(255, 255, 255, 0.9); max-width: 600px; margin-bottom: 32px; line-height: 1.6;">
+          Soluciones integrales para la gestión y ejecución de proyectos de construcción con precisión.
+        </p>
+
+        <!-- CTA Button Simple -->
+        <a href="#contacto" style="display: inline-block; background: #06b6d4; color: white; padding: 14px 32px; border-radius: 6px; font-weight: 700; font-size: 15px; text-decoration: none; transition: all 0.3s ease;" onmouseover="this.style.background='#e55a2b'" onmouseout="this.style.background='#06b6d4'">
+          Explorar Nuestras Soluciones
+        </a>
+      </div>
+    </section>
+
+    <!-- 3 CARDS EXACTAS DEL BOCETO -->
+    <section style="background: #f5f5f5; padding: 50px 40px;">
+      <div style="max-width: 1200px; margin: 0 auto;">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;">
+          <!-- Card 1 EXACTA -->
+          <div style="text-align: center; padding: 40px 30px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="width: 80px; height: 80px; background: white; border: 3px solid #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+              <svg style="width: 40px; height: 40px; color: #333;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m4 0V9a1 1 0 011-1h4a1 1 0 011 1v12M9 7h6"></path>
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Proyectos a Gran Escala</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Gestionamos proyectos complejos con precisión y eficiencia.</p>
+          </div>
+
+          <!-- Card 2 EXACTA -->
+          <div style="text-align: center; padding: 40px 30px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="width: 80px; height: 80px; background: white; border: 3px solid #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+              <svg style="width: 40px; height: 40px; color: #333;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Innovación Tecnológica</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Implementamos las últimas tecnologías para optimizar cada fase.</p>
+          </div>
+
+          <!-- Card 3 EXACTA -->
+          <div style="text-align: center; padding: 40px 30px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="width: 80px; height: 80px; background: white; border: 3px solid #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+              <svg style="width: 40px; height: 40px; color: #333;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Seguridad y Certificación</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Cumplimiento riguroso de normativas y estándares de seguridad.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- SERVICIOS EXACTOS DEL BOCETO -->
+    <section id="servicios" style="background: white; padding: 50px 40px;">
+      <div style="max-width: 1200px; margin: 0 auto;">
+        <!-- Header Simple -->
+        <div style="text-align: center; margin-bottom: 60px;">
+          <h2 style="font-size: 36px; font-weight: 700; color: #333; margin-bottom: 16px;">Servicios Ofrecidos</h2>
+          <p style="font-size: 16px; color: #666; max-width: 700px; margin: 0 auto; line-height: 1.6;">
+            Ofrecemos un portafolio de servicios tecnológicos diseñados para optimizar cada fase del ciclo de vida del proyecto de construcción.
+          </p>
+        </div>
+
+        <!-- Services Grid 2x2 -->
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; max-width: 900px; margin: 0 auto;">
+          <!-- Servicio 1: Servicios IT (ID 1) -->
+          <a href="/servicios/1/servicios-it" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #06b6d4; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'">
+            <div style="width: 50px; height: 50px; background: #06b6d4; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Servicios IT</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Consultoría y soporte técnico especializado</p>
+          </a>
+
+          <!-- Servicio 2: Redes de Datos (ID 2) -->
+          <a href="/servicios/2/redes-de-datos" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #06b6d4; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'">
+            <div style="width: 50px; height: 50px; background: #06b6d4; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Redes de Datos</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Cableado estructurado y fibra óptica</p>
+          </a>
+
+          <!-- Servicio 3: Seguridad Informática (ID 3) -->
+          <a href="/servicios/3/seguridad-informatica" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #06b6d4; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'">
+            <div style="width: 50px; height: 50px; background: #06b6d4; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Seguridad Informática</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Protección de sistemas y datos</p>
+          </a>
+
+          <!-- Servicio 4: Software Personalizado (ID 4) -->
+          <a href="/servicios/4/software-personalizado" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #06b6d4; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'">
+            <div style="width: 50px; height: 50px; background: #06b6d4; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Software Personalizado</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Desarrollo de aplicaciones a medida</p>
+          </a>
+
+          <!-- Servicio 5: Sistemas de Detección (ID 5) -->
+          <a href="/servicios/5/deteccion-incendios" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #06b6d4; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'">
+            <div style="width: 50px; height: 50px; background: #06b6d4; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Sistemas de Detección de Incendios</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Detección temprana y alarmas para protección de obras</p>
+          </a>
+
+          <!-- Servicio 6: Soporte Técnico (ID 6) -->
+          <a href="/servicios/6/soporte-tecnico" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #06b6d4; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'">
+            <div style="width: 50px; height: 50px; background: #06b6d4; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Soporte Técnico 24/7</h3>
+            <p style="font-size: 14px; color: #666; line-height: 1.6;">Mantenimiento preventivo y correctivo para operaciones continuas</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- CASOS DE ÉXITO -->
+    {antecedentes.length > 0 && (
+      <section style="background: #f8fafc; padding: 100px 32px; border-top: 1px solid #e2e8f0;">
+        <div style="max-width: 75rem; margin: 0 auto;">
+          <div style="text-align: center; margin-bottom: 72px;">
+            <div style="display: inline-block; padding: 8px 20px; background: linear-gradient(135deg, #06b6d4, #0891b2); border-radius: 50px; margin-bottom: 20px;">
+              <span style="font-size: 13px; font-weight: 800; color: white; letter-spacing: 1px; text-transform: uppercase;">✨ Casos de Éxito</span>
+            </div>
+            <h2 style="font-size: clamp(36px, 5.5vw, 52px); font-weight: 900; color: #0f172a; margin-bottom: 20px; letter-spacing: -0.02em;">Proyectos Realizados</h2>
+            <p style="font-size: 19px; color: #64748b; max-width: 750px; margin: 0 auto; line-height: 1.7; font-weight: 500;">
+              Nuestras soluciones han impulsado la eficiencia y productividad de importantes proyectos de<br/>construcción en todo el país.
+            </p>
+          </div>
+
+          {/* <FeaturedAntecedentes antecedentes={antecedentes} /> */}
+          <p class="text-center text-red-600 font-bold p-10 bg-red-50 border border-red-200 rounded-lg">SYSTEM MAINTENANCE MODE: ANTECEDENTES</p>
+        </div>
+      </section>
+    )}
+
+
+    <!-- FORMULARIO DE CONTACTO PREMIUM -->
+    <section id="contacto" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 100px 32px; position: relative; overflow: hidden;">
+      <!-- Decorative Elements -->
+      <div style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(251, 146, 60, 0.15) 0%, transparent 70%); border-radius: 50%;"></div>
+      <div style="position: absolute; bottom: -150px; left: -150px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(251, 146, 60, 0.1) 0%, transparent 70%); border-radius: 50%;"></div>
+      
+      <div style="max-width: 75rem; margin: 0 auto; position: relative; z-index: 10;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;">
+          <!-- Left Content -->
+          <div>
+            <div style="display: inline-block; padding: 8px 20px; background: rgba(251, 146, 60, 0.2); border-radius: 50px; margin-bottom: 24px; border: 1px solid rgba(251, 146, 60, 0.3);">
+              <span style="font-size: 13px; font-weight: 800; color: #fbbf24; letter-spacing: 1px; text-transform: uppercase;">📞 Contáctenos</span>
+            </div>
+            <h2 style="font-size: clamp(36px, 5vw, 56px); font-weight: 900; color: white; margin-bottom: 24px; line-height: 1.1; letter-spacing: -0.02em;">
+              ¿Listo para Digitalizar<br/>Su Próximo Proyecto?
+            </h2>
+            <p style="font-size: 18px; color: #cbd5e1; line-height: 1.8; margin-bottom: 40px; font-weight: 500;">
+              Contáctenos y nuestro equipo de expertos le ayudará a encontrar la solución tecnológica perfecta para su proyecto de construcción.
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+              <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #06b6d4, #0891b2); border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p style="font-size: 14px; color: #94a3b8; font-weight: 600; margin-bottom: 4px;">Email</p>
+                  <p style="font-size: 18px; color: white; font-weight: 700;">contacto@ultimamilla.com.ar</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Right Form -->
+          <div style="background: white; border-radius: 24px; padding: 48px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <form id="softwareContactForm" style="display: flex; flex-direction: column; gap: 24px;">
+              <div>
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Nombre *</label>
+                <input type="text" name="name" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#06b6d4'; this.style.boxShadow='0 0 0 4px rgba(6,182,212,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Juan Pérez" />
+              </div>
+              <div>
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Empresa</label>
+                <input type="text" name="company" style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#06b6d4'; this.style.boxShadow='0 0 0 4px rgba(6,182,212,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Software ABC" />
+              </div>
+              <div>
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Email *</label>
+                <input type="email" name="email" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#06b6d4'; this.style.boxShadow='0 0 0 4px rgba(6,182,212,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="juan@software.com" />
+              </div>
+              <div>
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Mensaje *</label>
+                <textarea name="message" required rows="4" style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none; resize: vertical;" onfocus="this.style.borderColor='#06b6d4'; this.style.boxShadow='0 0 0 4px rgba(6,182,212,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Cuéntenos sobre su proyecto..."></textarea>
+              </div>
+              <div id="softwareMessage" style="display: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; text-align: center;"></div>
+              <button type="submit" style="width: 100%; padding: 18px; background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 10px 30px rgba(6,182,212,0.4);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 14px 40px rgba(6,182,212,0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(6,182,212,0.4)'">
+                Solicitar Consultoría Ahora
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('softwareContactForm');
+    const messageDiv = document.getElementById('softwareMessage');
+    
+    if (!form) return;
+    
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData);
+      
+      try {
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          messageDiv.textContent = '✅ Mensaje enviado exitosamente. Te contactaremos pronto.';
+          messageDiv.style.background = '#dcfce7';
+          messageDiv.style.color = '#166534';
+          messageDiv.style.display = 'block';
+          form.reset();
+          setTimeout(() => {
+            messageDiv.style.display = 'none';
+          }, 5000);
+        } else {
+          messageDiv.textContent = '❌ ' + (result.message || 'Error al enviar el mensaje');
+          messageDiv.style.background = '#fee2e2';
+          messageDiv.style.color = '#991b1b';
+          messageDiv.style.display = 'block';
+        }
+      } catch (error) {
+        messageDiv.textContent = '❌ Error de conexión. Intenta nuevamente.';
+        messageDiv.style.background = '#fee2e2';
+        messageDiv.style.color = '#991b1b';
+        messageDiv.style.display = 'block';
+      }
+    });
+  });
+</script>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .group:hover .group-hover\:scale-105 {
+    transform: scale(1.05);
+  }
+
+  a:focus {
+    outline: 2px solid rgba(217, 119, 6, 0.5);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+  }
+
+  /* Mobile Responsive Styles */
+  @media (max-width: 768px) {
+    section > div > div[style*="grid-template-columns: repeat(3, 1fr)"] {
+      grid-template-columns: 1fr !important;
+    }
+    
+    section > div > div[style*="grid-template-columns: repeat(2, 1fr)"] {
+      grid-template-columns: 1fr !important;
+    }
+    
+    #contacto > div > div[style*="grid-template-columns: 1fr 1fr"] {
+      grid-template-columns: 1fr !important;
+      gap: 40px !important;
+    }
+    
+    h1 {
+      font-size: 32px !important;
+    }
+    
+    h2 {
+      font-size: 28px !important;
+    }
+    
+    section {
+      padding: 40px 20px !important;
+    }
+  }
+</style>

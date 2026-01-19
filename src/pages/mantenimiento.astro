@@ -1,0 +1,201 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { directus, DEFAULT_IMAGE, getAntecedenteImageUrl } from '../utils/directus';
+import { generateSlug } from '../utils/slugUtils';
+
+// Configuración SEO específica para Mantenimiento
+const seoConfig = {
+  title: "Mantenimiento IT y Soporte Técnico Corporativo | ULTIMA MILLA",
+  description: "Contratos de mantenimiento IT, soporte 24/7 de infraestructura crítica y gestión de activos tecnológicos para empresas en Mendoza y Argentina.",
+  keywords: "mantenimiento it mendoza, soporte tecnico corporativo, sla infraestructura critica, mantenimiento servidores, help desk empresas, gestion activos ti, soporte cctv sdi",
+  ogImage: "/images/generated/server_room_maintenance_tech_1768237985687.png",
+  canonical: "https://ultimamilla.com.ar/mantenimiento",
+  locale: "es_AR",
+  region: "Cuyo, Patagonia, Argentina",
+  author: "Ultima Milla",
+  robots: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+};
+
+// Cargar antecedentes de mantenimiento
+import { manualData } from '../data/antecedentes_completos.js'; // Using enhanced importer
+import AntecedentesGridMobileOptimized from '../components/AntecedentesGridMobileOptimized.astro';
+
+let antecedentes = [];
+let error = null;
+
+const keywords = ['mantenimiento', 'soporte', 'infraestructura', 'rack', 'preventivo', 'correctivo', 'sla', 'abono'];
+
+const filterAntecedentes = async (data) => {
+  const filtered = data.filter(item => {
+    const titulo = (item.Titulo || '').toLowerCase();
+    const desc = (item.Descripcion || '').toLowerCase();
+    return keywords.some(k => titulo.includes(k) || desc.includes(k));
+  });
+
+  const withImages = await Promise.all(
+    filtered.map(async (item) => ({
+      ...item,
+      Nombre: item.Titulo,
+      mapeo_imagenes_completo: await getAntecedenteImageUrl(item),
+      slug: generateSlug(item.Titulo)
+    }))
+  );
+
+  return withImages.sort((a, b) => new Date(b.Fecha || '2000-01-01') - new Date(a.Fecha || '2000-01-01'));
+};
+
+try {
+  // Try API first
+  const response = await directus.getAntecedentes({ limit: 500, page: 1 });
+  if (response?.data?.length > 0) {
+    antecedentes = await filterAntecedentes(response.data);
+  } else {
+    // Fallback
+   antecedentes = await filterAntecedentes(manualData);
+  }
+} catch (err) {
+  console.error("Error loading maintenance data", err);
+  antecedentes = await filterAntecedentes(manualData);
+}
+
+// Servicios de Mantenimiento
+const serviciosMantenimiento = [
+  {
+    id: 1,
+    nombre: "Soporte Infraestructura IT",
+    descripcion: "Mantenimiento preventivo y correctivo de servidores, racks y cableado.",
+    icon: "server",
+    slug: "soporte-infraestructura"
+  },
+  {
+    id: 2,
+    nombre: "Mantenimiento SDI y CCTV",
+    descripcion: "Verificación y certificación de sistemas de seguridad electrónica y detección de incendios.",
+    icon: "shield",
+    slug: "mantenimiento-seguridad"
+  },
+  {
+    id: 3,
+    nombre: "Contratos con SLA",
+    descripcion: "Acuerdos de nivel de servicio garantizados con tiempos de respuesta prioritarios.",
+    icon: "clock",
+    slug: "contratos-sla"
+  },
+  {
+    id: 4,
+    nombre: "Help Desk Corporativo",
+    descripcion: "Mesa de ayuda para usuarios finales y resolución remota de incidentes.",
+    icon: "users",
+    slug: "help-desk"
+  }
+];
+
+---
+
+<Layout
+  title={seoConfig.title}
+  description={seoConfig.description}
+  keywords={seoConfig.keywords}
+  image={seoConfig.ogImage}
+  canonical={seoConfig.canonical}
+>
+  <main style="background: #f5f5f5;">
+    <!-- HERO -->
+    <section style="position: relative; min-height: 400px; display: flex; align-items: center; background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('/images/generated/server_room_maintenance_tech_1768237985687.png') center/cover; color: white;">
+      <div style="max-width: 1200px; margin: 0 auto; padding: 50px 40px; width: 100%;">
+        <div style="display: inline-flex; align-items: center; gap: 12px; padding: 12px 20px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(37, 99, 235, 0.1)); border-radius: 20px; margin-bottom: 20px; border: 1px solid rgba(59, 130, 246, 0.4); backdrop-filter: blur(10px);">
+          <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);">
+             <span style="font-size: 24px;">🛠️</span>
+          </div>
+          <span style="font-size: 13px; font-weight: 800; color: #60a5fa; text-transform: uppercase; letter-spacing: 1.2px;">Servicios Gestionados</span>
+        </div>
+
+        <h1 style="font-size: 48px; font-weight: 900; margin-bottom: 20px; line-height: 1.2; color: white;">
+          Mantenimiento IT y<br/>Soporte Crítico
+        </h1>
+
+        <p style="font-size: 18px; font-weight: 400; color: rgba(255, 255, 255, 0.9); max-width: 600px; margin-bottom: 32px; line-height: 1.6;">
+          Garantice la continuidad operativa de su empresa con nuestros planes de mantenimiento preventivo y correctivo.
+        </p>
+
+        <a href="#contacto" style="display: inline-block; background: #3b82f6; color: white; padding: 14px 32px; border-radius: 6px; font-weight: 700; font-size: 15px; text-decoration: none; transition: all 0.3s ease;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">
+          Solicitar Propuesta
+        </a>
+      </div>
+    </section>
+
+    <!-- FEATURES GRID -->
+    <section style="background: white; padding: 80px 40px;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+          <div style="text-align: center; margin-bottom: 60px;">
+            <h2 style="font-size: 36px; font-weight: 700; color: #1e293b; margin-bottom: 16px;">¿Por qué elegir nuestro soporte?</h2>
+            <p style="font-size: 16px; color: #64748b;">Tranquilidad total para su infraestructura tecnológica.</p>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px;">
+             {serviciosMantenimiento.map(servicio => (
+                <div style="padding: 30px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                   <div style="width: 50px; height: 50px; background: #eff6ff; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                      <span style="font-size: 24px; color: #3b82f6;">✓</span>
+                   </div>
+                   <h3 style="font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 10px;">{servicio.nombre}</h3>
+                   <p style="font-size: 15px; color: #64748b; line-height: 1.6;">{servicio.descripcion}</p>
+                </div>
+             ))}
+          </div>
+        </div>
+    </section>
+
+    <!-- ANTECEDENTES -->
+    {antecedentes.length > 0 && (
+      <section style="background: #f1f5f9; padding: 100px 32px;">
+        <div style="max-width: 75rem; margin: 0 auto;">
+           <div style="text-align: center; margin-bottom: 60px;">
+            <h2 style="font-size: 36px; font-weight: 900; color: #0f172a;">Experiencia Comprobada</h2>
+            <p style="font-size: 18px; color: #64748b;">Empresas que confían en nuestro mantenimiento diario.</p>
+           </div>
+           <AntecedentesGridMobileOptimized items={antecedentes} limit={20} title="" description="" />
+        </div>
+      </section>
+    )}
+
+    <!-- CONTACTO -->
+     <section id="contacto" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 100px 32px; position: relative; overflow: hidden;">
+      <div style="max-width: 75rem; margin: 0 auto; position: relative; z-index: 10;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;">
+          <div>
+            <h2 style="font-size: 48px; font-weight: 900; color: white; margin-bottom: 24px;">
+              Soporte Continuo<br/>Para Su Empresa
+            </h2>
+            <p style="font-size: 18px; color: #cbd5e1; line-height: 1.8; margin-bottom: 40px;">
+              No espere a que falle. Contrate un plan de mantenimiento preventivo hoy mismo.
+            </p>
+             <ul style="list-style: none; padding: 0; margin-bottom: 40px;">
+              <li style="display: flex; align-items: center; gap: 15px; color: #e2e8f0; margin-bottom: 15px; font-size: 16px;">
+                <span style="color: #3b82f6;">✓</span> Respuesta en 4 horas o menos
+              </li>
+              <li style="display: flex; align-items: center; gap: 15px; color: #e2e8f0; margin-bottom: 15px; font-size: 16px;">
+                <span style="color: #3b82f6;">✓</span> Técnicos certificados
+              </li>
+              <li style="display: flex; align-items: center; gap: 15px; color: #e2e8f0; margin-bottom: 15px; font-size: 16px;">
+                <span style="color: #3b82f6;">✓</span> Reportes mensuales de estado
+              </li>
+            </ul>
+          </div>
+          
+           <!-- Simple Form Placeholder -->
+           <div style="background: white; padding: 40px; border-radius: 16px;">
+              <p style="color: #333; margin-bottom: 20px; font-weight: 700;">Solicite cotización de abono</p>
+               <form action="https://formspree.io/f/mnqoqgvj" method="POST">
+                <input type="text" name="name" placeholder="Nombre completo" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 6px;" required>
+                <input type="email" name="email" placeholder="Email corporativo" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 6px;" required>
+                <input type="tel" name="phone" placeholder="Teléfono" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                <textarea name="message" placeholder="¿Qué equipos necesita mantener?" rows="4" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #cbd5e1; border-radius: 6px;" required></textarea>
+                <button type="submit" style="width: 100%; padding: 14px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">Enviar Solicitud</button>
+              </form>
+           </div>
+        </div>
+      </div>
+     </section>
+  </main>
+</Layout>

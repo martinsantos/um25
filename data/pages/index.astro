@@ -1,0 +1,361 @@
+---
+import Layout from '../layouts/Layout.astro';
+import HeroBannerMobileOptimized from '../components/HeroBannerMobileOptimized.astro';
+import ServicesList from '../components/ServicesList.astro';
+import AntecedentesGridMobileOptimized from '../components/AntecedentesGridMobileOptimized.astro';
+import FooterMobileOptimized from '../components/FooterMobileOptimized.astro';
+
+// Datos hardcodeados para servicios destacados
+const services = {
+  data: [
+    {
+      id: 1,
+      Titulo: "Seguridad Informática",
+      Descripcion: "Protección integral de sistemas y datos empresariales",
+      Imagen: "b1a91d79-c979-4067-b78a-2cd97166fbcd"
+    },
+    {
+      id: 2,
+      Titulo: "Redes y comunicaciones",
+      Descripcion: "Infraestructura de red avanzada para comunicaciones empresariales",
+      Imagen: "6e626d63-c3ca-4982-8ed3-4a5e75e1b179"
+    },
+    {
+      id: 3,
+      Titulo: "Software y Servicios",
+      Descripcion: "Soluciones de software personalizadas para empresas",
+      Imagen: "ccc32af0-df52-4e6e-8ca0-9660dddec095"
+    }
+  ]
+};
+
+// Usar datos reales desde el archivo de antecedentes
+import { antecedentesReales } from '../data/antecedentes_completos.js';
+import { getAntecedenteImageUrl } from '../utils/directus';
+import { generateSlug } from '../utils/slugUtils';
+
+// Seleccionar los primeros 3 antecedentes reales como destacados y procesar sus datos
+const processedAntecedentes = await Promise.all(
+  antecedentesReales.slice(0, 3).map(async (item) => {
+    const title = item.Titulo || item.Nombre || "Proyecto Sin Título";
+    return {
+      ...item,
+      Nombre: title, // Unificar campo de título
+      imageUrl: await getAntecedenteImageUrl(item),
+      slug: generateSlug(title),
+      Fecha: item.Fecha || "2024-04-15"
+    };
+  })
+);
+
+const antecedentes = {
+  data: processedAntecedentes
+};
+---
+
+<Layout 
+  title="ULTIMA MILLA | Servicios Tecnológicos para Empresas en Mendoza, Cuyo y Patagonia"
+  description="Servicios tecnológicos para empresas y organizaciones argentinas. Zona de incumbencia: Mendoza, Cuyo, Patagonia. Especialistas en Telecomunicaciones, Cableado Estructurado, Corrientes Débiles, Detección de Incendio, Software a Medida. +400 proyectos, +20 años de experiencia."
+  keywords="servicios tecnologicos empresas argentina, zona incumbencia mendoza cuyo patagonia, telecomunicaciones empresas, cableado estructurado, corrientes debiles, deteccion incendio, software a medida organizaciones"
+  image="/nosotros-tech.jpg"
+>
+  <!-- Hero Section - Banner Mobile-Optimized -->
+  <HeroBannerMobileOptimized
+    title="Soluciones IT"
+    subtitle="que transforman negocios"
+    ctaText="Solicitar Asesoramiento"
+    ctaLink="#servicios"
+    secondaryCtaText="Ver Casos"
+    secondaryCtaLink="#antecedentes"
+  />
+
+  <main class="bg-gray-100">
+    <!-- TEST PIPELINE BANNER - HIDDEN -->
+    <div style="display: none;" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 text-center text-sm font-medium">
+      🚀 Pipeline CI/CD Test - Desplegado automáticamente - {new Date().toLocaleString()}
+    </div>
+    
+    <!-- Sobre Nosotros -->
+    <section id="about-us" class="py-16 bg-gray-50">
+      <div class="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
+        <div>
+          <h2 class="text-4xl font-bold text-gray-800 mb-6">Servicios Tecnológicos para Empresas y Organizaciones en Argentina</h2>
+          <p class="text-lg text-gray-700 mb-6">
+            En <strong>ULTIMA MILLA</strong>, ofrecemos servicios tecnológicos especializados para empresas y organizaciones en nuestra <strong>zona de incumbencia: Mendoza, Cuyo y Patagonia</strong>. Con +20 años de experiencia en <strong>Telecomunicaciones, Cableado Estructurado, Corrientes Débiles, Detección de Incendio y Software a Medida</strong>.
+          </p>
+          <p class="text-lg text-gray-700 mb-8">
+            Nuestra misión es ofrecer soluciones innovadoras en <strong>Infraestructura IT, Ciberseguridad, y Telecomunicaciones</strong> que generen un impacto positivo y medible en el crecimiento de nuestros clientes.
+          </p>
+          <a href="#contacto" class="inline-block bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition">Solicitar Asesoramiento</a>
+        </div>
+        <div>
+          <!-- Ensure that "about-us.jpg" exists in the public folder -->
+          <img src="/nosotros-tech.jpg" alt="Infraestructura Tecnológica de Vanguardia en Mendoza" class="w-full h-auto rounded-lg shadow-lg" />
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- Nuestros Servicios -->
+    <section id="servicios" class="py-20 bg-white">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+          <span class="text-red-500 font-semibold">Nuestras Soluciones</span>
+          <h2 class="text-4xl font-bold text-gray-800 mt-2 mb-4">Servicios Profesionales</h2>
+          <div class="w-20 h-1 bg-red-500 mx-auto"></div>
+        </div>
+        
+        {services.data && services.data.length > 0 ? (
+          <ServicesList services={services.data} />
+        ) : (
+          <div class="text-center py-12">
+            <p class="text-gray-500">No hay servicios disponibles en este momento.</p>
+          </div>
+        )}
+        
+        <div class="text-center mt-10">
+          <a href="/servicios" class="inline-block bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition">
+            Ver todos los servicios
+          </a>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- Antecedentes Destacados - Mobile Optimized Grid -->
+    <section id="antecedentes" class="py-20 bg-gray-50">
+      <AntecedentesGridMobileOptimized
+        items={antecedentes.data}
+        limit={3}
+        title="Casos de Éxito"
+        description="Descubre cómo hemos transformado empresas con soluciones IT estratégicas"
+      />
+    </section>
+
+    <!-- Sectores -->
+    <section class="py-16 bg-white border-t border-gray-200">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+          <span class="text-red-500 font-semibold">Nuestros Sectores</span>
+          <h2 class="text-4xl font-bold text-gray-800 mt-2 mb-4">Soluciones por Industria</h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">Experiencia especializada en los sectores más exigentes de Argentina</p>
+          <div class="w-20 h-1 bg-red-500 mx-auto mt-4"></div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Aeropuertos -->
+          <a href="/aeropuertos" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">✈️</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Aeropuertos</h3>
+            <p class="text-gray-600 text-sm">Infraestructura crítica y sistemas de comunicación</p>
+          </a>
+          
+          <!-- Bodegas -->
+          <a href="/bodegas" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">🍷</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Bodegas</h3>
+            <p class="text-gray-600 text-sm">Automatización y control de procesos vitivinícolas</p>
+          </a>
+          
+          <!-- Constructoras -->
+          <a href="/constructoras" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">🏗️</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Constructoras</h3>
+            <p class="text-gray-600 text-sm">Redes y comunicaciones para obras y canteros</p>
+          </a>
+          
+          <!-- Salud -->
+          <a href="/salud" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">🏥</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Salud</h3>
+            <p class="text-gray-600 text-sm">Sistemas críticos para centros médicos y clínicas</p>
+          </a>
+          
+          <!-- Gobierno -->
+          <a href="/gobiernosectorpublico" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">🏛️</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Gobierno</h3>
+            <p class="text-gray-600 text-sm">Infraestructura tecnológica para el sector público</p>
+          </a>
+          
+          <!-- Software -->
+          <a href="/software" class="group block p-6 bg-gray-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="text-4xl mb-4">💻</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Software</h3>
+            <p class="text-gray-600 text-sm">Desarrollo de soluciones a medida</p>
+          </a>
+          
+          <!-- Minería -->
+          <a href="/mineria" class="group block p-6 bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-amber-200">
+            <div class="text-4xl mb-4">⛏️</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-amber-600 transition">Minería</h3>
+            <p class="text-gray-600 text-sm">Conectividad crítica en zonas remotas</p>
+          </a>
+          
+          <!-- Industria -->
+          <a href="/industria" class="group block p-6 bg-gradient-to-br from-green-50 to-teal-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-green-200">
+            <div class="text-4xl mb-4">🏭</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-green-600 transition">Industria</h3>
+            <p class="text-gray-600 text-sm">Industria 4.0 y automatización</p>
+          </a>
+          
+          <!-- Seguridad Electrónica -->
+          <a href="/seguridad-electronica" class="group block p-6 bg-gradient-to-br from-red-50 to-pink-50 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-red-200">
+            <div class="text-4xl mb-4">🔒</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-red-600 transition">Seguridad Electrónica</h3>
+            <p class="text-gray-600 text-sm">CCTV, control de accesos y detección</p>
+          </a>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Contacto -->
+    <section id="contacto" class="py-20 bg-white">
+      <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto bg-gray-50 rounded-xl shadow-lg overflow-hidden">
+          <div class="md:flex">
+            <div class="md:w-1/2 bg-red-500 text-white p-8 md:p-12">
+              <h2 class="text-3xl font-bold mb-4 text-white">¿Listo para comenzar?</h2>
+              <p class="mb-6 text-white">Contáctanos para discutir cómo podemos ayudarte a alcanzar tus objetivos tecnológicos.</p>
+              <div class="flex items-start">
+                <div class="flex-shrink-0 mt-1">
+                  <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <p class="ml-3 text-white text-lg font-semibold">contacto@ultimamilla.com.ar</p>
+              </div>
+            </div>
+            <div class="md:w-1/2 p-8 md:p-12">
+              <h3 class="text-2xl font-bold text-gray-800 mb-6">Envíanos un mensaje</h3>
+              <form class="space-y-4">
+                <div>
+                  <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                  <input type="text" id="name" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                </div>
+                <div>
+                  <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                </div>
+                <div>
+                  <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Mensaje</label>
+                  <textarea id="message" name="message" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                  Enviar Mensaje
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+  </main>
+
+  <!-- Footer Mobile-Optimized -->
+  <FooterMobileOptimized />
+
+  <!-- Scripts y Estilos -->
+  <script>
+    // Sistema de imágenes aleatorias de alta calidad
+    const techImages = [
+      '/nosotros-tech.jpg', // Imagen local prioritaria y segura
+      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Servidores
+      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Código
+      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Tecnología espacial
+      'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Laptop código
+      'https://images.unsplash.com/photo-1537432376769-00f83c2f9c52?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Cables red
+      'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Fibra óptica
+    ];
+    
+    const banner = document.getElementById('banner');
+    if (banner) {
+      const heroBackground = banner.querySelector('.hero-background');
+      
+      if (heroBackground) {
+        // Función para cambiar imagen aleatoriamente
+        function changeBackgroundImage() {
+          const randomImage = techImages[Math.floor(Math.random() * techImages.length)];
+          heroBackground.style.backgroundImage = `url(${randomImage})`;
+        }
+        
+        // Establecer imagen inicial (local)
+        heroBackground.style.backgroundImage = "url('/nosotros-tech.jpg')";
+        
+        // Cambiar imagen cada 15 segundos
+        setInterval(changeBackgroundImage, 15000);
+        
+        // Efecto parallax opcional
+        window.addEventListener('scroll', () => {
+          const scrolled = window.pageYOffset;
+          heroBackground.style.transform = `translateY(${scrolled * 0.3}px)`;
+        });
+      }
+    }
+  </script>
+  
+  <style is:global>
+    
+    .terminal-text {
+      font-family: 'Courier New', 'Monaco', 'Lucida Console', monospace;
+      color: #00cc00;
+      font-weight: bold;
+      letter-spacing: 0.1em;
+      text-shadow: 1px 1px 0px rgba(0,0,0,0.8);
+    }
+    
+    .terminal-cursor {
+      font-family: 'Courier New', 'Monaco', 'Lucida Console', monospace;
+      color: #00cc00;
+      font-weight: bold;
+      animation: blink 1s infinite;
+    }
+    
+    .hero-title {
+      font-family: 'Courier New', 'Monaco', 'Lucida Console', monospace;
+      font-weight: bold;
+      letter-spacing: 0.05em;
+    }
+    
+    .hero-subtitle {
+      font-family: 'Courier New', 'Monaco', 'Lucida Console', monospace;
+      font-weight: normal;
+      letter-spacing: 0.02em;
+    }
+    
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+    
+    @keyframes scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-1600px); }
+    }
+    
+    .animate-scroll {
+      animation: scroll 20s linear infinite;
+    }
+    
+    .animate-scroll.pause:hover {
+      animation-play-state: paused;
+    }
+    
+    /* Efectos adicionales para el banner */
+    #banner {
+      background-attachment: fixed;
+    }
+    
+    .hero-background {
+      transition: background-image 0.5s ease-in-out;
+      background-attachment: fixed;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+  </style>
+</Layout>

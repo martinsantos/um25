@@ -1,0 +1,48 @@
+---
+import '../../styles/antecedentes.css';
+
+interface Props {
+  servicios: any[];
+  titulo?: string;
+}
+
+const { servicios = [], titulo = "Servicios Relacionados" } = Astro.props;
+---
+
+<section class="antecedente-servicios">
+  <div class="antecedente-servicios__container">
+    {titulo && <h2 class="antecedente-servicios__title">{titulo}</h2>}
+    
+    {servicios && servicios.length > 0 ? (
+      <div class="antecedente-servicios__grid">
+        {servicios.map((item) => {
+          const servicio = item.Servicios_id;
+          if (!servicio) return null;
+          
+          return (
+            <div class="antecedente-servicios__item">
+              <h3 class="antecedente-servicios__item-title">{servicio.Titulo}</h3>
+              <p class="antecedente-servicios__item-description">{servicio.Descripcion}</p>
+              <a 
+                href={`/servicios/${servicio.id}/${servicio.Titulo
+                  .toLowerCase()
+                  .normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .replace(/[^\w\s-]/g, '')
+                  .trim()
+                  .replace(/\s+/g, '-')
+                  .replace(/-+/g, '-')
+                  .replace(/^-+|-+$/g, '')}`} 
+                class="antecedente-servicios__item-link"
+              >
+                Ver más detalles
+              </a>
+            </div>
+          );
+        })}
+      </div>
+    ) : (
+      <p class="antecedente-servicios__empty">No hay servicios relacionados disponibles</p>
+    )}
+  </div>
+</section>

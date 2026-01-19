@@ -1,0 +1,206 @@
+---
+import { generateSlug } from '../utils/slugUtils.js';
+import { getAntecedenteImageUrl } from '../utils/directus.js';
+
+const { antecedentes } = Astro.props;
+const ITEMS_PER_PAGE = 25;
+
+// Procesar antecedentes
+const processedAntecedentes = await Promise.all(
+  antecedentes.map(async (item) => {
+    const cleanId = String(item.id).split('/')[0].trim();
+    const textSlug = generateSlug(item.Titulo);
+    const deepLink = `${cleanId}/${textSlug}`;
+    
+    let imageUrl = '/images/antecedentes-hero-bg.jpg'; // Fallback default
+    try {
+      imageUrl = await getAntecedenteImageUrl(item);
+    } catch (e) {
+      console.error(`[FeaturedAntecedentes] Failed to load image for ID ${item.id}:`, e.message);
+    }
+
+    return {
+      ...item,
+      calculatedDeepLink: deepLink, 
+      imageUrl: imageUrl
+    };
+  })
+);
+
+const totalPages = Math.ceil(processedAntecedentes.length / ITEMS_PER_PAGE);
+const allItemsJSON = JSON.stringify(processedAntecedentes);
+---
+<!-- DEBUG: FIXED LINK COMPONENT LOADED -->
+<!-- 
+  SEO OPTIMIZED COMPONENT:
+  1. Initial render is 100% Server-Side HTML (visible to Googlebot).
+  2. Alpine.js takes over for interactive pagination ("Hydration").
+-->
+<div
+  class="featured-antecedentes-wrapper"
+  x-data={`{
+    allItems: ${allItemsJSON},
+    itemsPerPage: ${ITEMS_PER_PAGE},
+    currentPage: 1,
+    
+    get totalPages() {
+      return Math.ceil(this.allItems.length / this.itemsPerPage);
+    },
+
+    get paginatedItems() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.allItems.slice(start, end);
+    },
+
+    goToPage(page) {
+      this.currentPage = page;
+      this.$nextTick(() => {
+        document.getElementById('antecedentes-anchor').scrollIntoView({ behavior: 'smooth' });
+      });
+    },
+
+    nextPage() {
+      if (this.currentPage < this.totalPages) this.goToPage(this.currentPage + 1);
+    },
+
+    prevPage() {
+      if (this.currentPage > 1) this.goToPage(this.currentPage - 1);
+    },
+
+    formatDate(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('es-AR', {year: 'numeric', month: 'long', day: 'numeric'});
+    },
+
+    getDescription(proyecto) {
+      if (!proyecto.Descripcion) return '';
+      return proyecto.Descripcion.replace(/<[^>]*>/g, '').substring(0, 150) + '...';
+    }
+  }`}
+>
+  <div id="antecedentes-anchor" class="scroll-mt-24"></div>
+
+  <!-- SERVER SIDE RENDERED GRID (First Page) - SEO GOLD -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 antecedente-grid" x-show="currentPage === 1">
+    {processedAntecedentes.slice(0, ITEMS_PER_PAGE).map((proyecto) => (
+      <a href={`/antecedentes/${proyecto.calculatedDeepLink}`} class="group flex flex-col h-full antecedente-item">
+        <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1">
+          <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
+            <img
+              src={proyecto.imageUrl}
+              alt={proyecto.Titulo}
+              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              loading="lazy"
+              onerror="this.src='/images/antecedentes-hero-bg.jpg'"
+            />
+            <div class="absolute top-4 left-4">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-slate-900 text-white shadow-sm">
+                {proyecto.Area || 'Proyecto'}
+              </span>
+            </div>
+          </div>
+
+          <div class="flex flex-col flex-grow p-6">
+            <div class="mb-2">
+              <span class="text-xs font-bold text-blue-600 uppercase tracking-wide">{proyecto.Cliente}</span>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors line-clamp-2">{proyecto.Titulo}</h3>
+            <p class="text-slate-600 text-sm mb-6 line-clamp-3 flex-grow leading-relaxed">
+              {proyecto.Descripcion ? proyecto.Descripcion.replace(/<[^>]*>/g, '').substring(0, 150) + '...' : ''}
+            </p>
+            <div class="pt-4 border-t border-slate-100 mt-auto flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-500">
+                {proyecto.Fecha ? new Date(proyecto.Fecha).toLocaleDateString('es-AR', {year: 'numeric', month: 'long', day: 'numeric'}) : ''}
+              </span>
+              <span class="text-blue-600 text-sm font-semibold group-hover:underline flex items-center">
+                Ver caso <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+              </span>
+            </div>
+          </div>
+        </article>
+      </a>
+    ))}
+  </div>
+
+  <!-- CLIENT SIDE RENDERED GRID (Subsequent Pages) -->
+  <template x-if="currentPage > 1">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 antecedente-grid">
+      <template x-for="proyecto in paginatedItems" :key="proyecto.id">
+        <a :href="'/antecedentes/' + (proyecto.calculatedDeepLink || proyecto.id)" class="group flex flex-col h-full antecedente-item">
+          <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1">
+            <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
+              <img
+                :src="proyecto.imageUrl"
+                :alt="proyecto.Titulo"
+                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                loading="lazy"
+                onerror="this.src='/images/antecedentes-hero-bg.jpg'"
+              />
+              <div class="absolute top-4 left-4">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-slate-900 text-white shadow-sm">
+                  <span x-text="proyecto.Area || 'Proyecto'"></span>
+                </span>
+              </div>
+            </div>
+
+            <div class="flex flex-col flex-grow p-6">
+              <div class="mb-2">
+                <span class="text-xs font-bold text-blue-600 uppercase tracking-wide" x-text="proyecto.Cliente"></span>
+              </div>
+              <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors line-clamp-2" x-text="proyecto.Titulo"></h3>
+              <p class="text-slate-600 text-sm mb-6 line-clamp-3 flex-grow leading-relaxed" x-text="getDescription(proyecto)"></p>
+              <div class="pt-4 border-t border-slate-100 mt-auto flex items-center justify-between">
+                <span class="text-xs font-medium text-slate-500" x-text="formatDate(proyecto.Fecha)"></span>
+                <span class="text-blue-600 text-sm font-semibold group-hover:underline flex items-center">
+                  Ver caso <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                </span>
+              </div>
+            </div>
+          </article>
+        </a>
+      </template>
+    </div>
+  </template>
+
+  <!-- PAGINATION CONTROLS -->
+  {totalPages > 1 && (
+    <div class="mt-12 flex justify-center items-center gap-4" x-show="totalPages > 1" x-cloak>
+      <button
+        @click="prevPage"
+        :disabled="currentPage === 1"
+        class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
+        ← Anterior
+      </button>
+
+      <span class="text-slate-600 font-medium">
+        Página <span x-text="currentPage"></span> de <span x-text="totalPages"></span>
+      </span>
+
+      <button
+        @click="nextPage"
+        :disabled="currentPage === totalPages"
+        class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
+        Siguiente →
+      </button>
+    </div>
+  )}
+</div>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

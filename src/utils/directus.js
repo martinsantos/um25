@@ -3,6 +3,7 @@ import 'dotenv/config';
 import { antecedentesReales } from '../data/antecedentes_completos.js';
 import { getFixedImage } from './imageFixer.js';
 import fallbackData from '../data/directus_fallback_offline.json';
+import { REPAIR_MAP } from '../data/repair_mapping.js';
 
 const DIRECTUS_CONFIG = {
   // URL pública corregida para usar el proxy Nginx
@@ -56,6 +57,12 @@ const CATEGORY_IMAGES = {
   // Gobierno
   'Gobierno': '/images/generated/gobierno_digital_overlay_1768237887931.png',
   'Sector Público': '/images/generated/gobierno_digital_overlay_1768237887931.png',
+  'Gobierno & Sector Público': '/images/generated/gobierno_digital_overlay_1768237887931.png',
+  
+  // Salud
+  'Salud & Sector Salud': '/images/generated/hospital_medical_tech_1768237918477.png',
+  'Salud': '/images/generated/hospital_medical_tech_1768237918477.png',
+  'Infraestructura Hospitalaria': '/images/generated/hospital_medical_tech_1768237918477.png',
   
   // Fallbacks genéricos
   'default': '/images/generated/server_room_maintenance_tech_1768237985687.png'
@@ -590,6 +597,17 @@ export async function getAntecedenteImageUrl(item) {
   }
 
   try {
+    // 0. Priority: Definitive Repair Map (Hard-coded restoration)
+    if (item.id && REPAIR_MAP[item.id]) {
+        const repairFilename = REPAIR_MAP[item.id];
+        return `/img/sync-offline/${repairFilename}`;
+    }
+
+    // 0b. Priority: LocalFallbackImage (If item came from the offline sync)
+    if (item.LocalFallbackImage) {
+        return item.LocalFallbackImage;
+    }
+
     // 1. Si ya tiene imageUrl procesado
     if (item.imageUrl && typeof item.imageUrl === 'string' && item.imageUrl.startsWith('http')) {
       return item.imageUrl;
@@ -674,6 +692,16 @@ export function getAntecedenteImageUrlSync(item) {
   }
 
   try {
+    // 0. Priority: Definitive Repair Map (Hard-coded restoration)
+    if (item.id && REPAIR_MAP[item.id]) {
+        const repairFilename = REPAIR_MAP[item.id];
+        return `/img/sync-offline/${repairFilename}`;
+    }
+
+    // 0b. Priority: LocalFallbackImage
+    if (item.LocalFallbackImage) {
+        return item.LocalFallbackImage;
+    }
     // 0. Rutas absolutas generadas
     if (item.Imagen && item.Imagen.startsWith('/images/')) {
         return item.Imagen;

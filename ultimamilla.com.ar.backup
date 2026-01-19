@@ -1,0 +1,185 @@
+# ====================================================================
+# ÚLTIMA MODIFICACIÓN: 2026-01-18 21:30 ART
+# AUTOR: Antigravity AI Agent (aprobado por usuario)
+# PROPÓSITO: Fix Mixed Content Images - Directus Assets Proxy
+# ====================================================================
+
+# ====================================================================
+# WWW to non-WWW Redirect (SEO Fix - 301 Permanent)
+# ====================================================================
+server {
+    listen 80;
+    listen 443 ssl http2;
+    server_name www.ultimamilla.com.ar;
+    
+    # SSL certificates
+    ssl_certificate /etc/letsencrypt/live/ultimamilla.com.ar-0001/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/ultimamilla.com.ar-0001/privkey.pem;
+    
+    # Redirect permanente a sin www
+    return 301 https://ultimamilla.com.ar$request_uri;
+}
+
+server {
+    if ($host = www.ultimamilla.com.ar) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    if ($host = ultimamilla.com.ar) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80;
+    server_name ultimamilla.com.ar;    
+    # Serve images directly on HTTP to prevent Cloudflare redirect loops
+    location /imagenes_antecedentes_versionproduccion/ {
+        root /var/www/html;
+        try_files $uri $uri/ =404;
+        expires 7d;
+        add_header Cache-Control "public, max-age=604800, immutable";
+        add_header Access-Control-Allow-Origin "*";
+    }
+
+    # Redirect everything else to HTTPS
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    server_name ultimamilla.com.ar;        
+    # Configuración SSL
+    ssl_certificate /etc/letsencrypt/live/ultimamilla.com.ar-0001/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/ultimamilla.com.ar-0001/privkey.pem; # managed by Certbot
+    
+    # ============ DEMO AMBIENTE ============
+    # Frontend SPA (archivos estáticos)
+    # Archivos estaticos (assets, css, js)
+    location /demoambiente/assets/ {
+        alias /var/www/demoambiente/assets/;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        add_header Cache-Control "no-cache, must-revalidate";
+    }
+
+    # DEMOAMBIENTE API - NO AUTH (served as static files)
+    location /demoambiente/api/ {
+        proxy_pass http://127.0.0.1:3457/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    location /demoambiente/api-DISABLED/ {
+        alias /var/www/demoambiente/api/;
+        try_files $uri $uri/ =404;
+    }
+
+    location /demoambiente/ {
+        alias /var/www/demoambiente/;
+        index index.html;
+        try_files $uri $uri/ /demoambiente/index.html;
+        add_header Cache-Control "public, max-age=0, must-revalidate" always;
+        add_header Pragma "no-cache" always;
+        add_header Expires "0" always;
+        add_header X-Robots-Tag "noindex, nofollow" always;
+    }
+    
+    # Redirección sin slash final
+    location = /demoambiente {
+        return 301 /demoambiente/;
+    }
+    
+    # Backend API Trazabilidad
+    # Protected Status Dashboard
+    location ~ ^/status(/|$) {
+        proxy_pass http://127.0.0.1:4321;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Status API - no auth (internal server use)
+    location = /api/status.json {
+        proxy_pass http://127.0.0.1:4321;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+    }
+
+    # ============ DIRECTUS ASSETS PROXY (FIXED) ============
+    # Soluciona Mixed Content para imágenes
+    location /directus-assets/ {
+        rewrite ^/directus-assets/(.*) /assets/$1 break;
+        proxy_pass http://127.0.0.1:8055;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_hide_header Content-Security-Policy;
+        add_header Access-Control-Allow-Origin *;
+    }
+
+    # ============ DIRECTUS HTTPS PROXY ============
+    location /directus/ {
+        proxy_set_header Authorization "Bearer k6P8LAY8_x_y1miB_KTlWnysCnx2Abky";
+        proxy_pass http://127.0.0.1:8055/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_buffering off;
+    }
+    # ============ FIN DIRECTUS PROXY ============
+
+    # === EMERGENCY FIX: Route demo API requests correctly (Frontend misconfig mitigation) ===
+    # Rutas especificas de la demo que el frontend busca incorrectamente en la raiz
+    location ~ ^/api/(auth|manifiestos|catalogos|pdf|reportes|actores|analytics|notificaciones) {
+        proxy_pass http://127.0.0.1:3010;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    # === END EMERGENCY FIX ===
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:4321;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+    # ============ FIN DEMO AMBIENTE ============
+
+    # Proxy a Astro SSR (sitio principal)
+    location / {
+        proxy_pass http://127.0.0.1:4321;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
+# Anti-caching headers para prevenir cachéé de 401
+add_header Cache-Control 'no-cache, no-store, must-revalidate' always;
+add_header Pragma 'no-cache' always;
+add_header Expires '0' always;

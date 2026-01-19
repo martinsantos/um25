@@ -1,0 +1,127 @@
+---
+/**
+ * RelatedLinks Component
+ * Generates contextual related content links for SEO and user engagement
+ *
+ * Usage:
+ * <RelatedLinks
+ *   category="servicio"
+ *   currentPage="/servicios/desarrollo-software"
+ *   limit={5}
+ * />
+ */
+
+interface Props {
+  category?: 'servicio' | 'antecedente' | 'sector' | 'blog';
+  currentPage?: string;
+  limit?: number;
+  title?: string;
+}
+
+const {
+  category = 'servicio',
+  currentPage = '',
+  limit = 5,
+  title = 'Contenido Relacionado'
+} = Astro.props;
+
+// Define related links by category and context
+const relatedContentMap = {
+  servicio: [
+    { label: 'Infraestructura de Redes', url: '/servicios/7/infraestructura-de-redes', tags: ['redes', 'infraestructura', 'telecomunicaciones'] },
+    { label: 'Desarrollo de Software', url: '/servicios/8/desarrollo-de-software', tags: ['software', 'desarrollo', 'aplicaciones'] },
+    { label: 'Seguridad Informática', url: '/servicios/3/seguridad-informatica', tags: ['seguridad', 'ciberseguridad', 'protección'] },
+    { label: 'Soporte Técnico 24/7', url: '/servicios/10/soporte-tecnico-247', tags: ['soporte', 'mesa de ayuda', 'mantenimiento'] },
+    { label: 'Consultoría IT', url: '/servicios/12/consultoria-it', tags: ['consultoría', 'asesoramiento', 'estrategia'] }
+  ],
+
+  sector: [
+    { label: 'Soluciones para Constructoras', url: '/constructoras', tags: ['construcción', 'inmobiliaria', 'proyectos'] },
+    { label: 'Soluciones para Bodegas', url: '/bodegas', tags: ['vitivinicultura', 'bodegas', 'vino'] },
+    { label: 'Soluciones para Salud', url: '/salud', tags: ['salud', 'clínicas', 'hospitales', 'médico'] },
+    { label: 'Soluciones para Aeropuertos', url: '/aeropuertos', tags: ['aeropuertos', 'transporte', 'logística'] },
+    { label: 'Soluciones para Software', url: '/software', tags: ['software', 'desarrollo', 'tecnología'] },
+    { label: 'Soluciones para Gobierno', url: '/gobiernosectorpublico', tags: ['gobierno', 'público', 'estado'] }
+  ],
+
+  blog: [
+    { label: 'Ver Todos los Artículos', url: '/blog', tags: ['blog', 'artículos', 'noticias'] },
+    { label: 'Guías de Servicios IT', url: '/blog/guias', tags: ['guías', 'tutoriales', 'howto'] },
+    { label: 'Casos de Éxito', url: '/blog/casos-exito', tags: ['casos', 'éxito', 'proyectos'] },
+    { label: 'Tendencias Tecnológicas', url: '/blog/tendencias', tags: ['tendencias', 'tecnología', 'innovación'] }
+  ],
+
+  antecedente: [
+    { label: 'Ver Todos los Proyectos', url: '/antecedentes', tags: ['proyectos', 'portfolio', 'casos'] },
+    { label: 'Contacto para Más Información', url: '/contacto', tags: ['contacto', 'consulta', 'información'] }
+  ]
+};
+
+// Get relevant links based on category and current page
+const contentMap = relatedContentMap[category] || relatedContentMap.servicio;
+const filteredLinks = contentMap
+  .filter(link => link.url !== currentPage)
+  .slice(0, limit);
+---
+
+{filteredLinks.length > 0 && (
+  <aside class="related-links my-12 p-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-l-4 border-blue-600">
+    <h3 class="text-2xl font-bold text-gray-800 mb-6">
+      {title}
+    </h3>
+
+    <ul class="space-y-3">
+      {filteredLinks.map(link => (
+        <li>
+          <a
+            href={link.url}
+            class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition group"
+          >
+            <span class="group-hover:translate-x-1 transition">{link.label}</span>
+            <span class="ml-2 text-blue-400 group-hover:text-blue-600 transition">→</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": title,
+      "itemListElement": filteredLinks.map((link, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "name": link.label,
+        "url": `https://ultimamilla.com.ar${link.url}`
+      }))
+    })}></script>
+  </aside>
+)}
+
+<style>
+  .related-links {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .related-links {
+      padding: 1rem;
+    }
+
+    .related-links h3 {
+      font-size: 1.5rem;
+    }
+  }
+</style>

@@ -1,0 +1,131 @@
+---
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+
+interface Props {
+  antecedentes: Array<{
+    id: number | string;
+    Titulo: string;
+    Imagen?: string;
+    Unidad_de_negocio?: string;
+  }>;
+  unidad?: string;
+}
+
+const { antecedentes, unidad } = Astro.props;
+const SITE_URL = import.meta.env.SITE_URL || '';
+
+// Import shared utilities
+import { generateSlug } from '../utils/slugUtils.js';
+import { getAntecedenteImageUrl } from '../utils/directus.js';
+
+// Pre-resolve image URLs
+const antecedentesConImagenes = await Promise.all(
+  antecedentes.map(async (item) => ({
+    ...item,
+    imageUrl: await getAntecedenteImageUrl(item)
+  }))
+);
+---
+
+<div class="antecedentes-carousel">
+  <swiper-container
+    slides-per-view="1"
+    space-between="15"
+    navigation="true"
+    pagination="true"
+    class="pb-10"
+    init="false"
+  >
+    {antecedentesConImagenes.map(item => (
+      <swiper-slide key={item.id} class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col group h-auto">
+        {item.imageUrl ? (
+          <a href={`/antecedentes/${item.id}/${generateSlug(item.Titulo)}`} aria-label={`Ver detalle de ${item.Titulo}`}>
+            <img
+              src={item.imageUrl}
+              alt={`Imagen de ${item.Titulo}`}
+              class="w-full h-48 object-cover group-hover:opacity-85 transition-opacity duration-300"
+              loading="lazy"
+              width="400"
+              height="250"
+              onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null;"
+            />
+          </a>
+        ) : (
+          <a href={`/antecedentes/${item.id}/${generateSlug(item.Titulo)}`} class="block">
+            <div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+              <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l-1.586-1.586a2 2 0 010-2.828L14 8"></path>
+                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+              </svg>
+            </div>
+          </a>
+        )}
+        <div class="p-4 flex-grow flex flex-col">
+          <h3 class="font-semibold text-lg text-gray-800 mb-2 flex-grow">
+            <a href={`/antecedentes/${item.id}/${generateSlug(item.Titulo)}`} class="hover:text-blue-700 transition-colors">
+              {item.Titulo}
+            </a>
+          </h3>
+          <a
+            href={`/antecedentes/${item.id}/${generateSlug(item.Titulo)}`}
+            class="text-blue-600 hover:text-blue-800 hover:underline text-sm font-medium mt-2 self-start"
+          >
+            Ver Detalle &rarr;
+          </a>
+        </div>
+      </swiper-slide>
+    ))}
+  </swiper-container>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const { register } = await import('swiper/element/bundle');
+      register();
+
+      const swiperElements = document.querySelectorAll('swiper-container');
+      if (!swiperElements || swiperElements.length === 0) return;
+
+      swiperElements.forEach(el => {
+        if (el.swiper) return;
+
+        const swiperParams = {
+          slidesPerView: 1.2,
+          spaceBetween: 15,
+          navigation: true,
+          pagination: { clickable: true, enabled: true },
+          breakpoints: {
+            640: { slidesPerView: 2.3, spaceBetween: 20 },
+            1024: { slidesPerView: 3, spaceBetween: 30 }
+          }
+        };
+
+        Object.assign(el, swiperParams);
+        el.initialize();
+      });
+    } catch (error) {
+      console.error("Swiper initialization failed:", error);
+    }
+  });
+</script>
+
+<style is:global>
+  swiper-container {
+    --swiper-navigation-color: theme('colors.blue.600');
+    --swiper-pagination-color: theme('colors.blue.600');
+    --swiper-pagination-bullet-inactive-color: theme('colors.gray.300');
+    --swiper-pagination-bullet-inactive-opacity: 1;
+    --swiper-pagination-bullet-size: 8px;
+    --swiper-pagination-bullet-horizontal-gap: 4px;
+    --swiper-navigation-sides-offset: 10px;
+    --swiper-navigation-size: 30px;
+  }
+
+  swiper-slide {
+    height: auto;
+    display: flex;
+  }
+</style>
