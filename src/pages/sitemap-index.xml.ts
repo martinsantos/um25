@@ -34,8 +34,7 @@ export const GET: APIRoute = async () => {
     return new Response(sitemapIndex, {
         headers: {
             'Content-Type': 'application/xml; charset=utf-8',
-            'Cache-Control': 'public, max-age=86400',
-            'X-Robots-Tag': 'noindex'
+            'Cache-Control': 'public, max-age=86400'
         },
     });
 }
