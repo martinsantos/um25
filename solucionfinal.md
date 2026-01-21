@@ -9433,3 +9433,55 @@ curl -s https://umbot.com.ar/antecedentes/10768/isi-solutions-redes-y-comunicaci
 **✅ STATUS**: ✅ **DEPLOYMENT SUCCESSFUL** - All critical functions restored and verified  
 
 **🚀 UMBOT.COM.AR ANTECEDENTS NAVIGATION - FULLY FUNCTIONAL** ✅
+
+---
+
+# 🖼️ FIX: MINIATURAS DE SERVICIOS EN PORTADA - 20 ENERO 2026
+
+## 📋 **PROBLEMA REPORTADO**
+
+**Síntoma**: Las miniaturas de servicios en la sección "Servicios Profesionales" de la portada se veían borrosas/fuera de foco, mientras que en `/servicios` se mostraban correctamente.
+
+## 🔍 **DIAGNÓSTICO**
+
+| Aspecto | **Portada** (`ServicesList.astro`) | **`/servicios/index.astro`** |
+|---------|-----------------------------------|------------------------------|
+| **CSS de imagen** | `object-cover` | `object-contain` |
+| **Contenedor** | Sin fondo definido | `bg-white` |
+| **Efecto visual** | Imagen recortada y escalada (borroso) | Imagen completa, nítida |
+
+**Causa Raíz**: `object-cover` recortaba y escalaba las imágenes causando interpolación que las desenfocaba.
+
+## ✅ **SOLUCIÓN IMPLEMENTADA**
+
+**Archivo**: `src/components/ServicesList.astro`
+
+**Cambios realizados**:
+
+```diff
+-            {/* Contenedor de la imagen */}
+-            <div class="relative pt-[56.25%] overflow-hidden">
++            {/* Contenedor de la imagen - bg-white + object-contain para mostrar imagen completa sin recorte */}
++            <div class="relative pt-[56.25%] overflow-hidden bg-white">
+               <img
+                 src={imageUrl}
+                 alt={service.Titulo || 'Servicio de consultoría'}
+                 width="600"
+                 height="400"
+                 loading="lazy"
+-                class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
++                class="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+                 onerror="this.src='/images/antecedentes-hero-bg.jpg'; this.onerror=null;"
+               />
+             </div>
+```
+
+## 🎯 **RESULTADO**
+
+- ✅ Miniaturas en portada ahora muestran imágenes completas sin recortar
+- ✅ Fondo blanco mantiene consistencia visual con `/servicios`
+- ✅ Imágenes nítidas sin distorsión ni borroneidad
+- ✅ Verificado en localhost:4321
+
+**📅 Fecha**: 20 de Enero de 2026
+**🔧 Archivo modificado**: `src/components/ServicesList.astro` (líneas 81-92)

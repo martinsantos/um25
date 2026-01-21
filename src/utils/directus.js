@@ -160,6 +160,33 @@ class DirectusClient {
     console.log('DirectusClient inicializado. API:', this.apiUrl, 'Public:', this.publicUrl);
   }
 
+  // Hero Methods
+  async getHeroImages() {
+    try {
+      const response = await this.request('/items/Hero_Home?fields=*,imagen.*&sort=orden&filter[status][_eq]=published');
+      
+      if (response && response.data) {
+        return response.data.map(item => {
+          let imageUrl = '/nosotros-tech.jpg';
+          if (item.imagen) {
+            // Manejar tanto el object como el id string del archivo Directus
+            const imageId = (typeof item.imagen === 'object' && item.imagen !== null) ? item.imagen.id : item.imagen;
+            imageUrl = `${this.publicUrl}/directus-assets/${imageId}`;
+          }
+          return {
+            ...item,
+            imageUrl
+          };
+        });
+      }
+      return [];
+    } catch (error) {
+      console.error('Error fetching hero images:', error.message);
+      // Retornar vacío para que el page-level maneje el fallback o la exclusividad
+      return [];
+    }
+  }
+
   async request(endpoint, options = {}) {
     if (!endpoint.startsWith('/')) {
       endpoint = `/${endpoint}`;

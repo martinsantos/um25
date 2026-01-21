@@ -6,7 +6,7 @@
 <header id="banner" class="relative w-full min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center overflow-hidden">
   
   <!-- Fondo dinámico con animación -->
-  <div class="absolute inset-0 bg-cover bg-center opacity-40 hero-background transition-all duration-700"></div>
+  <div class="absolute inset-0 bg-cover bg-center opacity-40 hero-background"></div>
   
   <!-- Grid animado de fondo -->
   <div class="absolute inset-0 opacity-10">
@@ -171,9 +171,26 @@
 <script is:inline>
   document.addEventListener('DOMContentLoaded', () => {
     const techImages = [
-      '/nosotros-tech.jpg', // Imagen local segura
-      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Abstracto circuitos
-      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Abstracto red global
+      '/images/portadas/portada1.png',
+      '/images/portadas/portada11.png',
+      '/images/portadas/portada1alt2.png',
+      '/images/portadas/portada21.png',
+      '/images/portadas/portada2alt2.png',
+      '/images/portadas/portada3.png',
+      '/images/portadas/portada31.png',
+      '/images/portadas/portada3alt2.png',
+      '/images/portadas/portada4alt2.png',
+      '/images/portadas/portada51.png',
+      '/images/portadas/portada5alt2.png',
+      '/images/portadas/portada61.png',
+      '/images/portadas/portada71.png',
+      '/images/portadas/portada7alt2.png',
+      '/images/portadas/portada81.png',
+      '/images/portadas/portada811.png',
+      '/images/portadas/portada8111.png',
+      '/images/portadas/portada8alt2.png',
+      '/images/portadas/portada91.png',
+      '/images/portadas/portadagif.gif'
     ];
     
     const banner = document.getElementById('banner');
@@ -187,6 +204,6 @@
     }
     
     changeHeroBackground();
-    setInterval(changeHeroBackground, 15000);
+    setInterval(changeHeroBackground, 5000); // Faster for testing
   });
 </script>
