@@ -1,5 +1,6 @@
 ---
 import Navigation from '../components/Navigation.astro';
+import FooterMobileOptimized from '../components/FooterMobileOptimized.astro';
 
 import '../styles/global.css';
 import '../styles/theme.css';
@@ -371,6 +372,9 @@ const currentYear = new Date().getFullYear();
   <body>
     <Navigation />
     <slot />
+    
+    <!-- Footer Mobile-Optimized (global) -->
+    <FooterMobileOptimized />
     
     <!-- Scripts básicos solo si se necesitan -->
     {/* Scripts complejos temporalmente deshabilitados para evitar conflictos */}

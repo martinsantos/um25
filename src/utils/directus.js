@@ -587,7 +587,7 @@ export const { DEFAULT_IMAGE, PAGE_SIZE } = DIRECTUS_CONFIG;
 // Funciones auxiliares para antecedentes
 export async function fetchAntecedente(id, token) {
   try {
-    const response = await directus.request(`/items/antecedentes/${id}?fields=*,Galeria.directus_files_id.*,Servicios.Servicios_id.*,ImagenFondo.*`);
+    const response = await directus.request(`/items/Antecedentes/${id}?fields=*,Galeria.directus_files_id.*,Servicios.Servicios_id.*,ImagenFondo.*`);
     return response.data;
   } catch (error) {
     console.error('Error fetching antecedente:', error);
@@ -624,56 +624,65 @@ export async function getAntecedenteImageUrl(item) {
   }
 
   try {
-    // 0. Priority: Definitive Repair Map (Hard-coded restoration)
-    if (item.id && REPAIR_MAP[item.id]) {
-        const repairFilename = REPAIR_MAP[item.id];
-        return `/img/sync-offline/${repairFilename}`;
+    // ====================================================
+    // PRIORITY 1: Already-processed Directus URLs (from getAntecedentes)
+    // item.Imagen is already transformed to full URL by getAntecedentes()
+    // ====================================================
+    if (item.Imagen) {
+      if (item.Imagen.startsWith('http://') || item.Imagen.startsWith('https://')) {
+        // This is already a valid Directus asset URL - USE IT DIRECTLY
+        return item.Imagen;
+      }
+      
+      // Support generated images (already absolute paths)
+      if (item.Imagen.startsWith('/images/generated/')) {
+        return item.Imagen;
+      }
+      
+      // UUID de Directus - convert to proxy URL
+      if (/^[a-f0-9-]{36}$/.test(item.Imagen)) {
+        return `${DIRECTUS_CONFIG.PUBLIC_URL}/directus-assets/${item.Imagen}`;
+      }
     }
 
-    // 0b. Priority: LocalFallbackImage (If item came from the offline sync)
-    if (item.LocalFallbackImage) {
-        return item.LocalFallbackImage;
-    }
-
-    // 1. Si ya tiene imageUrl procesado
+    // ====================================================
+    // PRIORITY 2: Pre-processed imageUrl (if available)
+    // ====================================================
     if (item.imageUrl && typeof item.imageUrl === 'string' && item.imageUrl.startsWith('http')) {
       return item.imageUrl;
     }
 
-    // 2. Si tiene Imagen válida (UUID o filename)
-    if (item.Imagen) {
-      // 2a. Support already-processed Directus asset URLs (from getAntecedentes processing)
-      if (item.Imagen.startsWith('http://') || item.Imagen.startsWith('https://')) {
-        console.log('[IMAGE] ✅ URL http ya procesada:', { id: item.id, url: item.Imagen.substring(0, 60) + '...' });
-        return item.Imagen;
-      }
+    // ====================================================
+    // PRIORITY 3: LocalFallbackImage (from offline sync data)
+    // ====================================================
+    if (item.LocalFallbackImage) {
+      return item.LocalFallbackImage;
+    }
 
-      // 2c. Support generated images (already absolute paths)
-      if (item.Imagen.startsWith('/images/')) {
-         return item.Imagen;
-      }
+    // ====================================================
+    // PRIORITY 4: REPAIR_MAP (only as last resort before global search)
+    // NOTE: Only use if no valid Directus URL is available
+    // ====================================================
+    if (item.id && REPAIR_MAP[item.id]) {
+      const repairFilename = REPAIR_MAP[item.id];
+      // Check if file exists would be ideal, but for now trust the map
+      return `/img/sync-offline/${repairFilename}`;
+    }
 
-      // 2d. Support already-absolute paths (from sync)
-      if (item.Imagen.startsWith('/imagenes_antecedentes_versionproduccion/') || 
-          item.Imagen.startsWith('/img/sync-offline/')) {
-         return item.Imagen;
-      }
+    // ====================================================
+    // PRIORITY 5: Support already-absolute paths (from sync)
+    // ====================================================
+    if (item.Imagen && (
+        item.Imagen.startsWith('/imagenes_antecedentes_versionproduccion/') || 
+        item.Imagen.startsWith('/img/sync-offline/'))) {
+      return item.Imagen;
+    }
 
-      // 2b. Filename local con correcciones (prioridad sobre UUID)
-      if (item.Imagen.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
-        const cleanPath = item.Imagen.startsWith('/') ? item.Imagen.substring(1) : item.Imagen;
-        const fixedFilename = getFixedImage(cleanPath);
-        const localUrl = `/imagenes_antecedentes_versionproduccion/${fixedFilename}`;
-        console.log('[IMAGE] ✅ Filename local:', { id: item.id, filename: fixedFilename });
-        return localUrl;
-      }
-
-      // 2a. UUID de Directus - usar proxy HTTPS (nginx maps /directus-assets/ to /assets/)
-      if (/^[a-f0-9-]{36}$/.test(item.Imagen)) {
-        const directusAssetUrl = `${DIRECTUS_CONFIG.PUBLIC_URL}/directus-assets/${item.Imagen}`;
-        console.log('[IMAGE] ✅ UUID detectado, usando Directus proxy:', { id: item.id, url: directusAssetUrl });
-        return directusAssetUrl;
-      }
+    // 6. Filename local con correcciones (for items with local filenames)
+    if (item.Imagen && item.Imagen.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
+      const cleanPath = item.Imagen.startsWith('/') ? item.Imagen.substring(1) : item.Imagen;
+      const fixedFilename = getFixedImage(cleanPath);
+      return `/imagenes_antecedentes_versionproduccion/${fixedFilename}`;
     }
 
     // 3. Búsqueda global en mapeo (si no hay Imagen)

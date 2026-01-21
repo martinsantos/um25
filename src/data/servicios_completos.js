@@ -1527,9 +1527,7 @@ export const serviciosReales = [
   {
     id: 128,
     Titulo: "Cela SA - Soporte IT",
-    Descripcion: "Servicios para conectividad en eventos
- Costos por puesto simple, con y sin electricidad
- Costos por persona conectada al wifi",
+    Descripcion: "Servicios para conectividad en eventos. Costos por puesto simple, con y sin electricidad. Costos por persona conectada al wifi.",
     Imagen: "ccc32af0-df52-4e6e-8ca0-9660dddec095",
     Area: "Soporte IT",
     Cliente: "Cela SA",
@@ -1565,9 +1563,7 @@ export const serviciosReales = [
   {
     id: 131,
     Titulo: "Kristich Desarrollos - SDI",
-    Descripcion: "Adicional para presupuestar a Kristich
- 6 módulos de rele FRM-1
- 4 módulos de monitoreo FMM-101",
+    Descripcion: "Adicional para presupuestar a Kristich: 6 modulos de rele FRM-1, 4 modulos de monitoreo FMM-101.",
     Imagen: "6f535377-5177-4fcd-8c8d-8f41f32ece7c",
     Area: "SDI",
     Cliente: "Kristich Desarrollos",
@@ -1603,11 +1599,7 @@ export const serviciosReales = [
   {
     id: 134,
     Titulo: "Univercidad del Aconcagua - SDI",
-    Descripcion: "provisión de materiales
- 9 Detectores de Humo
- 1 sirena
- 2 Pulsadores
- 2 Detectores de temperatura",
+    Descripcion: "Provision de materiales: 9 Detectores de Humo, 1 sirena, 2 Pulsadores, 2 Detectores de temperatura.",
     Imagen: "ccc32af0-df52-4e6e-8ca0-9660dddec095",
     Area: "SDI",
     Cliente: "Univercidad del Aconcagua",

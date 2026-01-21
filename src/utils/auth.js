@@ -53,7 +53,7 @@ export async function verifyToken() {
  */
 export async function fetchAntecedente(id) {
   try {
-    const url = `${import.meta.env.PUBLIC_DIRECTUS_URL}/items/antecedentes/${id}?fields=*.*.*,Galeria.directus_files_id.*,Servicios.Servicios_id.*,Imagen.*,ImagenFondo.*,documentos.*`;
+    const url = `${import.meta.env.PUBLIC_DIRECTUS_URL}/items/Antecedentes/${id}?fields=*.*.*,Galeria.directus_files_id.*,Servicios.Servicios_id.*,Imagen.*,ImagenFondo.*,documentos.*`;
     console.log('Fetching antecedente from:', url);
     
     const response = await fetch(url, { headers: getAuthHeaders() });

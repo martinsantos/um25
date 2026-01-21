@@ -66,15 +66,15 @@ if (items.length === 0) {
     <>
       <div id="antecedentes-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-10 sm:mb-14 min-h-[600px]">
         {items.map((item, index) => {
-          // Priority 1: Definitive local fallback (from sync/repair map)
-          // Priority 2: Pre-processed imageUrl (if it starts with /img/sync-offline/)
+          // Priority 1: Pre-processed imageUrl from index.astro (Directus URLs, local paths, etc.)
+          // Priority 2: LocalFallbackImage (from sync/repair map)
           // Priority 3: Dynamic resolution via Sync util
-          const baseImageUrl = item.LocalFallbackImage || 
-                             (item.imageUrl?.startsWith('/img/sync-offline/') ? item.imageUrl : null) ||
-                             item.mapeo_imagenes_completo || 
+          const baseImageUrl = item.imageUrl ||  // ← USE THIS FIRST (comes from index.astro with Directus URL)
+                             item.LocalFallbackImage || 
+                             item.Imagen ||  // ← Fallback to raw Imagen field
                              getAntecedenteImageUrlSync(item);
                              
-          const imageUrl = `${baseImageUrl}?v=REPAIR_V2`;
+          const imageUrl = baseImageUrl?.includes('?') ? baseImageUrl : `${baseImageUrl}?v=REPAIR_V3`;
           const title = item.Titulo || item.Nombre || 'Sin Título';
           const displayId = item.id ? String(item.id).split('/')[0].trim() : '';
           const displaySlug = generateSlug(title);
