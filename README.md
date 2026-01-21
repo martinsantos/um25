@@ -422,6 +422,65 @@ Se ha completado una auditoría profunda del sitio con los siguientes resultados
 - **Rutas de Antecedentes:** Corregido error de doble ID (`/11187/11187/`) sincronizando lógica de servidor y componentes.
 - **Validación Final:** Reporte generado y verificado en `SITE_AUDIT_REPORT.md`.
 
+---
+
+## 🪨 MOJÓN DE MÍNIMA - Estado de Referencia (21/01/2026)
+
+> **Este es el punto de restauración mínimo garantizado.** Si hay problemas, restaurar a este commit.
+
+### 📌 Identificadores
+| Campo | Valor |
+|-------|-------|
+| **Commit** | `82da4bf` |
+| **Fecha** | 21 de Enero 2026, 16:50 ART |
+| **Branch** | `master` |
+| **Repositorio** | [github.com/martinsantos/um25](https://github.com/martinsantos/um25) |
+
+### ✅ Estado Verificado
+- **Directus CMS**: ✅ Operativo (`status: ok`)
+- **Antecedentes**: ✅ 518+ registros, imágenes desde `/directus-assets/UUID`
+- **Servicios**: ✅ Grid dinámico funcionando
+- **Hero Home**: ✅ 2 slides activos
+- **Single Pages**: ✅ Detalle con imágenes de Directus
+
+### 📁 Ubicaciones del Código
+
+#### Producción (Activa)
+| Ubicación | Tipo | Estado |
+|-----------|------|--------|
+| `/var/www/ultimamilla.com.ar/` | Código fuente Astro | ✅ Actualizado |
+| PM2: `astro-ultimamilla` | Proceso Node.js | ✅ Online |
+
+#### Backups en Servidor (Solo Config/Estáticos)
+| Ubicación | Contenido |
+|-----------|-----------|
+| `/var/www/ultimamilla/` | Config legacy |
+| `/home/ultimamilla.com.ar/` | Archivos estáticos |
+| `/home/astro-app/` | Deploy antiguo |
+
+#### Docker Volumes Críticos
+| Volume | Contenido |
+|--------|-----------|
+| `directus-admin_directus-data` | Uploads de Directus |
+| `directus-admin_postgres_data` | Base de datos |
+
+### 🔧 Archivos Clave del Fix
+```
+src/utils/directus.js          # Prioridad URLs Directus > REPAIR_MAP
+src/utils/auth.js              # Nombre colección Antecedentes
+src/components/AntecedentesGridMobileOptimized.astro
+```
+
+### 🚨 Restauración de Emergencia
+```bash
+# Desde servidor
+cd /var/www/ultimamilla.com.ar
+git fetch origin
+git reset --hard 82da4bf
+npm run build
+pm2 restart astro-ultimamilla
+```
+
 ## 🆕 Nueva Plantilla de Servicios (Enero 2026)
 
 ### Directus Collection: `servicios_nuevos`
