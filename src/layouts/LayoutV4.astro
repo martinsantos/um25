@@ -1,0 +1,366 @@
+---
+/**
+ * LayoutV4 - Layout principal V4 Design System
+ * - Integra NavbarV4 + FooterV4
+ * - Preserva todo el SEO del Layout original
+ * - Open Sans font
+ * - V4 custom styles
+ */
+
+import NavbarV4 from '../components/v4/NavbarV4.astro';
+import FooterV4 from '../components/v4/FooterV4.astro';
+import '../styles/v4.css';
+
+export interface Props {
+  title?: string;
+  description?: string;
+  keywords?: string;
+  image?: string;
+  canonical?: string;
+  structuredData?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const {
+  title,
+  description,
+  keywords,
+  image,
+  canonical,
+  structuredData,
+} = Astro.props;
+
+// SEO defaults - OPTIMIZADO para servicios tecnológicos y zona de incumbencia
+const defaultDescription = "Servicios tecnológicos para empresas y organizaciones argentinas. Zona de incumbencia: Mendoza, Cuyo, Patagonia. Expertos en Telecomunicaciones, Cableado Estructurado, Corrientes Débiles, Detección de Incendio, Software a Medida. +400 proyectos, +20 años de experiencia.";
+const defaultKeywords = "servicios tecnologicos empresas argentina, zona incumbencia mendoza cuyo patagonia, telecomunicaciones profesionales, cableado estructurado certificado, corrientes debiles instalacion, deteccion incendio sistemas, software a medida organizaciones, servicios it mendoza san juan san luis, mineria tecnologia, industria 4.0, salud hospitales, aeropuertos infraestructura, gobierno sector publico, bodegas vitivinicolas, constructoras, seguridad electronica cctv";
+const siteUrl = "https://www.ultimamilla.com.ar";
+const defaultTitle = "ULTIMA MILLA | Servicios Tecnológicos en Mendoza, Cuyo y Patagonia";
+const currentUrl = (canonical || `${siteUrl}${Astro.url.pathname}`).replace(/\/$/, "");
+const isoNow = new Date().toISOString();
+
+const pageTitle = title ?? defaultTitle;
+const metaTitle = pageTitle.includes('ULTIMA MILLA') ? pageTitle : `${pageTitle} | ULTIMA MILLA`;
+const pageDescription = description ?? defaultDescription;
+const pageKeywords = keywords ?? defaultKeywords;
+const pageImage = image || `${siteUrl}/nosotros-tech.jpg`;
+
+const hasHeadSlot = Astro.slots.has('head');
+
+// Structured data - Organization
+const defaultStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "ULTIMA MILLA",
+  alternateName: "Ultima Milla Comunicaciones",
+  url: siteUrl,
+  logo: `${siteUrl}/images/um-logo.png`,
+  description: "Empresa líder en servicios IT, telecomunicaciones y transformación digital en la región de Cuyo y Patagonia. Especialistas en Minería, Industria y Gobierno.",
+  foundingDate: "2000",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Houssay 1159",
+    addressLocality: "Guaymallén",
+    addressRegion: "Mendoza",
+    postalCode: "M5500",
+    addressCountry: "AR",
+  },
+  areaServed: [
+    { "@type": "City", "name": "Mendoza" },
+    { "@type": "City", "name": "San Juan" },
+    { "@type": "City", "name": "San Luis" },
+    { "@type": "AdministrativeArea", "name": "Patagonia" },
+    { "@type": "Country", "name": "Argentina" }
+  ],
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: "-32.8908",
+    longitude: "-68.8272",
+  },
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "customer service",
+    email: "contacto@ultimamilla.com.ar",
+    url: `${siteUrl}/contacto`,
+    availableLanguage: ["es", "en"],
+  },
+  sameAs: [
+    "https://www.linkedin.com/company/ultimamilla",
+    "https://twitter.com/ultimamilla",
+  ],
+};
+
+// Breadcrumb structured data
+const breadcrumbItems = [
+  {
+    "@type": "ListItem",
+    position: 1,
+    name: "Inicio",
+    item: siteUrl,
+  },
+];
+
+if (Astro.url.pathname !== "/") {
+  const segments = Astro.url.pathname.split("/").filter(Boolean);
+  let pathAccumulator = "";
+
+  segments.forEach((segment, index) => {
+    pathAccumulator += `/${segment}`;
+    breadcrumbItems.push({
+      "@type": "ListItem",
+      position: index + 2,
+      name: segment
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" "),
+      item: `${siteUrl}${pathAccumulator}`,
+    });
+  });
+}
+
+const breadcrumbStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: breadcrumbItems,
+};
+
+// LocalBusiness schema for homepage
+const localBusinessSchema = Astro.url.pathname === "/" ? {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  name: "ULTIMA MILLA",
+  image: `${siteUrl}/images/um-logo.png`,
+  description: "Especialistas en comunicaciones, sistemas e integración en Mendoza, Argentina.",
+  priceRange: "$$",
+  email: "contacto@ultimamilla.com.ar",
+  url: siteUrl,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Houssay 1159",
+    addressLocality: "Guaymallén",
+    addressRegion: "Mendoza",
+    postalCode: "M5500",
+    addressCountry: "AR",
+  },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: "-32.8908",
+    longitude: "-68.8272",
+  },
+  openingHoursSpecification: {
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    opens: "08:00",
+    closes: "18:00",
+  },
+  sameAs: [
+    "https://www.linkedin.com/company/ultimamilla",
+    "https://twitter.com/ultimamilla",
+  ],
+} : undefined;
+
+const additionalStructuredData = Array.isArray(structuredData)
+  ? structuredData
+  : structuredData
+    ? [structuredData]
+    : [];
+
+const combinedStructuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    defaultStructuredData,
+    breadcrumbStructuredData,
+    ...additionalStructuredData,
+    ...(localBusinessSchema ? [localBusinessSchema] : []),
+  ],
+};
+
+const currentYear = new Date().getFullYear();
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{metaTitle}</title>
+
+    <!-- Primary Meta -->
+    <meta name="title" content={metaTitle} />
+    <meta name="description" content={pageDescription} />
+    <meta name="keywords" content={pageKeywords} />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover"
+    />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="author" content="ULTIMA MILLA" />
+    <meta name="publisher" content="ULTIMA MILLA" />
+    <meta name="copyright" content={`© ${currentYear} ULTIMA MILLA`} />
+    <meta name="language" content="es-AR" />
+    <meta name="geo.region" content="AR-M" />
+    <meta name="geo.placename" content="Mendoza" />
+    <meta name="geo.position" content="-32.8908;-68.8272" />
+    <meta name="ICBM" content="-32.8908, -68.8272" />
+    <meta name="revisit-after" content="7 days" />
+    <meta name="rating" content="general" />
+    <meta name="distribution" content="global" />
+    <meta name="theme-color" content="#0ea5e9" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ULTIMA MILLA" />
+    <meta name="application-name" content="ULTIMA MILLA" />
+    <meta name="msapplication-TileColor" content="#0ea5e9" />
+    <meta name="format-detection" content="telephone=yes" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={currentUrl} />
+    <meta property="og:title" content={metaTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:image" content={pageImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={metaTitle} />
+    <meta property="og:site_name" content="ULTIMA MILLA" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:updated_time" content={isoNow} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={currentUrl} />
+    <meta name="twitter:title" content={metaTitle} />
+    <meta name="twitter:description" content={pageDescription} />
+    <meta name="twitter:image" content={pageImage} />
+    <meta name="twitter:image:alt" content={metaTitle} />
+    <meta name="twitter:site" content="@ultimamilla" />
+    <meta name="twitter:creator" content="@ultimamilla" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href={currentUrl} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Fonts - Open Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+    {hasHeadSlot && <slot name="head" />}
+
+    <!-- Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify(combinedStructuredData)} />
+
+    <!-- V4 Custom Styles -->
+    <style is:global>
+      /* V4 Design System - Base Styles */
+      body {
+        font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        max-width: 100vw;
+        background-color: #ffffff;
+        color: #111827;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* Card hover animation */
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+      }
+
+      /* Animations */
+      .animate-fade-in {
+        animation: fadeIn 0.8s ease forwards;
+        opacity: 0;
+      }
+      .animate-slide-up {
+        animation: slideUp 0.8s ease forwards;
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      @keyframes fadeIn {
+        to { opacity: 1; }
+      }
+      @keyframes slideUp {
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Typography fluid */
+      .text-fluid-hero {
+        font-size: clamp(1.75rem, 6vw, 3.5rem);
+        line-height: 1.1;
+      }
+      .text-fluid-title {
+        font-size: clamp(1.5rem, 4vw, 2.25rem);
+      }
+      .text-fluid-body {
+        font-size: clamp(0.9rem, 2.5vw, 1.125rem);
+      }
+
+      /* Section padding fluid */
+      .section-padding {
+        padding-top: clamp(2.5rem, 8vw, 5rem);
+        padding-bottom: clamp(2.5rem, 8vw, 5rem);
+      }
+
+      /* Touch targets */
+      .touch-target {
+        min-height: 44px;
+        min-width: 44px;
+      }
+
+      /* Line clamp utilities */
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      /* Safe area for iPhone notch */
+      @supports (padding: env(safe-area-inset-bottom)) {
+        .safe-bottom {
+          padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+        }
+      }
+
+      /* Reduced motion */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      /* Reset base link colors for V4 */
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <NavbarV4 />
+
+    <main>
+      <slot />
+    </main>
+
+    <FooterV4 />
+  </body>
+</html>

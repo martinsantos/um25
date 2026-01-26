@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sectores | Ultima Milla - Soluciones por Industria</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            // DOMINANTE - Azul celeste
+            'um-primary': '#0ea5e9',
+            'um-primary-dark': '#0284c7',
+            'um-primary-light': '#38bdf8',
+            'um-primary-bg': '#f0f9ff',
+            // COMPLEMENTARIO - Rojo (solo CTAs)
+            'um-accent': '#dc2626',
+            'um-accent-dark': '#b91c1c',
+            // ESTRUCTURAL
+            'um-dark': '#111827',
+            'um-slate': '#1e293b',
+            // NEUTRALES
+            'um-gray': '#6b7280',
+            'um-gray-light': '#f3f4f6'
+          },
+          fontFamily: {
+            'opensans': ['Open Sans', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Open Sans', sans-serif; }
+    .sector-card { transition: all 0.3s ease; }
+    .sector-card:hover { transform: translateY(-8px); box-shadow: 0 25px 50px rgba(0,0,0,0.15); }
+    .sector-card:hover .sector-icon { transform: scale(1.1); }
+    .sector-icon { transition: transform 0.3s ease; }
+
+    /* ===== MOBILE-FIRST RESPONSIVE STYLES ===== */
+    html, body { overflow-x: hidden; max-width: 100vw; }
+    .touch-target { min-height: 44px; min-width: 44px; }
+    #mobileMenu { transition: opacity 0.3s ease, transform 0.3s ease; }
+    #mobileMenu.hidden { opacity: 0; transform: translateY(-10px); pointer-events: none; }
+    #mobileMenu:not(.hidden) { opacity: 1; transform: translateY(0); }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body class="bg-white">
+
+  <!-- NAVBAR -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20">
+        <a href="index-v4.html" class="flex items-center">
+          <img src="https://ultimamilla.com.ar/images/um-logo.png" alt="Ultima Milla" class="h-10 sm:h-14" style="mix-blend-mode: multiply;">
+        </a>
+        <div class="hidden md:flex items-center gap-6 lg:gap-8">
+          <a href="index-v4.html" class="text-um-gray hover:text-um-primary font-medium transition-colors">Inicio</a>
+          <a href="servicios-v4.html" class="text-um-gray hover:text-um-primary font-medium transition-colors">Servicios</a>
+          <a href="antecedentes-index-v4.html" class="text-um-gray hover:text-um-primary font-medium transition-colors">Antecedentes</a>
+          <a href="sectores-v4.html" class="text-um-primary font-semibold">Sectores</a>
+          <a href="nosotros-v4.html" class="text-um-gray hover:text-um-primary font-medium transition-colors">Nosotros</a>
+          <a href="contacto-v4.html" class="px-5 py-2.5 bg-um-accent text-white rounded-lg font-semibold hover:bg-um-accent-dark transition-colors shadow-lg shadow-um-accent/25">
+            Contacto
+          </a>
+        </div>
+        <button id="menuToggle" class="md:hidden p-2 touch-target" aria-label="Abrir menu" aria-expanded="false">
+          <svg id="menuIconOpen" class="w-6 h-6 text-um-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+          <svg id="menuIconClose" class="w-6 h-6 text-um-dark hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-100 shadow-lg">
+      <div class="px-4 py-4 space-y-2">
+        <a href="index-v4.html" class="block px-4 py-3 text-um-gray hover:text-um-primary hover:bg-um-primary-bg rounded-lg font-medium transition-colors touch-target">Inicio</a>
+        <a href="servicios-v4.html" class="block px-4 py-3 text-um-gray hover:text-um-primary hover:bg-um-primary-bg rounded-lg font-medium transition-colors touch-target">Servicios</a>
+        <a href="antecedentes-index-v4.html" class="block px-4 py-3 text-um-gray hover:text-um-primary hover:bg-um-primary-bg rounded-lg font-medium transition-colors touch-target">Antecedentes</a>
+        <a href="sectores-v4.html" class="block px-4 py-3 text-um-primary bg-um-primary-bg rounded-lg font-semibold touch-target">Sectores</a>
+        <a href="nosotros-v4.html" class="block px-4 py-3 text-um-gray hover:text-um-primary hover:bg-um-primary-bg rounded-lg font-medium transition-colors touch-target">Nosotros</a>
+        <a href="contacto-v4.html" class="block px-4 py-3 bg-um-accent text-white rounded-lg font-semibold text-center hover:bg-um-accent-dark transition-colors touch-target mt-4">
+          Contacto
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <section class="bg-um-dark pt-20 sm:pt-24 pb-6 sm:pb-10 lg:pb-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex items-center gap-2 text-sm text-gray-400 mb-3 sm:mb-4">
+        <a href="index-v4.html" class="hover:text-white transition-colors">Inicio</a>
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        <span class="text-white">Sectores</span>
+      </nav>
+
+      <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
+        <div>
+          <span class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-um-primary/30 text-um-primary-light rounded-full text-xs sm:text-sm font-semibold mb-4 sm:mb-6">
+            <i data-lucide="layers" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+            Industrias
+          </span>
+          <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white mb-4 sm:mb-6 leading-tight">
+            Soluciones por<br>
+            <span class="text-um-primary-light">Industria</span>
+          </h1>
+          <p class="text-base sm:text-lg lg:text-xl text-gray-300 max-w-xl">
+            Conocemos los desafíos específicos de cada sector. Nuestra experiencia nos permite ofrecer soluciones especializadas que realmente funcionan.
+          </p>
+        </div>
+
+        <div class="hidden lg:grid grid-cols-3 gap-4">
+          <div class="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
+            <i data-lucide="plane" class="w-8 h-8 text-um-primary-light mx-auto mb-2"></i>
+            <div class="text-white text-sm font-medium">Aeropuertos</div>
+          </div>
+          <div class="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
+            <i data-lucide="wine" class="w-8 h-8 text-um-primary-light mx-auto mb-2"></i>
+            <div class="text-white text-sm font-medium">Bodegas</div>
+          </div>
+          <div class="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
+            <i data-lucide="landmark" class="w-8 h-8 text-um-primary-light mx-auto mb-2"></i>
+            <div class="text-white text-sm font-medium">Gobierno</div>
+          </div>
+          <div class="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
+            <i data-lucide="heart-pulse" class="w-8 h-8 text-um-primary-light mx-auto mb-2"></i>
+            <div class="text-white text-sm font-medium">Salud</div>
+          </div>
+          <div class="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
+            <i data-lucide="factory" class="w-8 h-8 text-um-primary-light mx-auto mb-2"></i>
+            <div class="text-white text-sm font-medium">Industria</div>
+          </div>
+          <div class="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
+            <i data-lucide="building-2" class="w-8 h-8 text-um-primary-light mx-auto mb-2"></i>
+            <div class="text-white text-sm font-medium">Construcción</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTORS GRID -->
+  <section class="py-10 sm:py-14 lg:py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+
+        <!-- Aeropuertos -->
+        <a href="sector-single-v4.html?sector=aeropuertos" class="sector-card bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 group">
+          <div class="h-48 bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center relative">
+            <span class="text-7xl">✈️</span>
+            <div class="absolute bottom-4 left-4 inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
+              <span class="text-xs font-bold text-white uppercase tracking-wider">15+ proyectos</span>
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-um-dark mb-3 group-hover:text-sky-600 transition-colors">Aeropuertos</h3>
+            <p class="text-um-gray text-sm mb-4">
+              Sistemas críticos de comunicación, CCTV de alta seguridad, control de accesos y redes de misión crítica para operaciones aeroportuarias 24/7.
+            </p>
+            <div class="flex items-center gap-2 text-um-primary font-semibold text-sm">
+              Ver soluciones
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </div>
+          </div>
+        </a>
+
+        <!-- Bodegas -->
+        <a href="sector-single-v4.html?sector=bodegas" class="sector-card bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 group">
+          <div class="h-48 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center relative">
+            <span class="text-7xl">🍷</span>
+            <div class="absolute bottom-4 left-4 inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
+              <span class="text-xs font-bold text-white uppercase tracking-wider">45+ proyectos</span>
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-um-dark mb-3 group-hover:text-purple-600 transition-colors">Bodegas</h3>
+            <p class="text-um-gray text-sm mb-4">
+              Automatización de líneas de producción, monitoreo de tanques, control de temperatura y sistemas de trazabilidad para la industria vitivinícola.
+            </p>
+            <div class="flex items-center gap-2 text-um-primary font-semibold text-sm">
+              Ver soluciones
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </div>
+          </div>
+        </a>
+
+        <!-- Gobierno -->
+        <a href="sector-single-v4.html?sector=gobierno" class="sector-card bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 group">
+          <div class="h-48 bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center relative">
+            <span class="text-7xl">🏛️</span>
+            <div class="absolute bottom-4 left-4 inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
+              <span class="text-xs font-bold text-white uppercase tracking-wider">80+ proyectos</span>
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-um-dark mb-3 group-hover:text-emerald-600 transition-colors">Gobierno y Sector Público</h3>
+            <p class="text-um-gray text-sm mb-4">
+              Infraestructura para municipios, data centers gubernamentales, sistemas de videovigilancia urbana y redes WAN interinstitucionales.
+            </p>
+            <div class="flex items-center gap-2 text-um-primary font-semibold text-sm">
+              Ver soluciones
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </div>
+          </div>
+        </a>
+
+        <!-- Salud -->
+        <a href="sector-single-v4.html?sector=salud" class="sector-card bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 group">
+          <div class="h-48 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center relative">
+            <span class="text-7xl">🏥</span>
+            <div class="absolute bottom-4 left-4 inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
+              <span class="text-xs font-bold text-white uppercase tracking-wider">35+ proyectos</span>
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-um-dark mb-3 group-hover:text-green-600 transition-colors">Salud</h3>
+            <p class="text-um-gray text-sm mb-4">
+              Redes hospitalarias de alta disponibilidad, sistemas de llamado enfermera, CCTV en áreas críticas e integración con equipamiento médico.
+            </p>
+            <div class="flex items-center gap-2 text-um-primary font-semibold text-sm">
+              Ver soluciones
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </div>
+          </div>
+        </a>
+
+        <!-- Construcción -->
+        <a href="sector-single-v4.html?sector=construccion" class="sector-card bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 group">
+          <div class="h-48 bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center relative">
+            <span class="text-7xl">🏗️</span>
+            <div class="absolute bottom-4 left-4 inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
+              <span class="text-xs font-bold text-white uppercase tracking-wider">60+ proyectos</span>
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-um-dark mb-3 group-hover:text-amber-600 transition-colors">Construcción</h3>
+            <p class="text-um-gray text-sm mb-4">
+              Pre-cableado estructurado para edificios, sistemas de automatización de edificios inteligentes y soluciones para obra en construcción.
+            </p>
+            <div class="flex items-center gap-2 text-um-primary font-semibold text-sm">
+              Ver soluciones
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </div>
+          </div>
+        </a>
+
+        <!-- Industria -->
+        <a href="sector-single-v4.html?sector=industria" class="sector-card bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 group">
+          <div class="h-48 bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center relative">
+            <span class="text-7xl">🏭</span>
+            <div class="absolute bottom-4 left-4 inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
+              <span class="text-xs font-bold text-white uppercase tracking-wider">50+ proyectos</span>
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-um-dark mb-3 group-hover:text-slate-600 transition-colors">Industria</h3>
+            <p class="text-um-gray text-sm mb-4">
+              Redes industriales robustas, cableado en ambientes hostiles, integración IT/OT y soluciones de conectividad para plantas de producción.
+            </p>
+            <div class="flex items-center gap-2 text-um-primary font-semibold text-sm">
+              Ver soluciones
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </div>
+          </div>
+        </a>
+
+        <!-- Minería -->
+        <a href="sector-single-v4.html?sector=mineria" class="sector-card bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 group">
+          <div class="h-48 bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center relative">
+            <span class="text-7xl">⛏️</span>
+            <div class="absolute bottom-4 left-4 inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
+              <span class="text-xs font-bold text-white uppercase tracking-wider">25+ proyectos</span>
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-um-dark mb-3 group-hover:text-orange-600 transition-colors">Minería</h3>
+            <p class="text-um-gray text-sm mb-4">
+              Comunicaciones en zonas remotas, radioenlaces de largo alcance, sistemas anti-intrusión perimetral y redes para campamentos mineros.
+            </p>
+            <div class="flex items-center gap-2 text-um-primary font-semibold text-sm">
+              Ver soluciones
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </div>
+          </div>
+        </a>
+
+        <!-- Seguridad Electrónica -->
+        <a href="sector-single-v4.html?sector=seguridad" class="sector-card bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 group">
+          <div class="h-48 bg-gradient-to-br from-cyan-400 to-cyan-600 flex items-center justify-center relative">
+            <span class="text-7xl">🛡️</span>
+            <div class="absolute bottom-4 left-4 inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
+              <span class="text-xs font-bold text-white uppercase tracking-wider">120+ proyectos</span>
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-um-dark mb-3 group-hover:text-cyan-600 transition-colors">Seguridad Electrónica</h3>
+            <p class="text-um-gray text-sm mb-4">
+              CCTV analítico con IA, control de accesos biométrico, detección perimetral y centros de monitoreo profesionales.
+            </p>
+            <div class="flex items-center gap-2 text-um-primary font-semibold text-sm">
+              Ver soluciones
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </div>
+          </div>
+        </a>
+
+        <!-- Software -->
+        <a href="sector-single-v4.html?sector=software" class="sector-card bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 group">
+          <div class="h-48 bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center relative">
+            <span class="text-7xl">💻</span>
+            <div class="absolute bottom-4 left-4 inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
+              <span class="text-xs font-bold text-white uppercase tracking-wider">40+ proyectos</span>
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-um-dark mb-3 group-hover:text-indigo-600 transition-colors">Desarrollo de Software</h3>
+            <p class="text-um-gray text-sm mb-4">
+              Sistemas a medida, aplicaciones web y móviles, integraciones API, automatización de procesos y consultoría tecnológica.
+            </p>
+            <div class="flex items-center gap-2 text-um-primary font-semibold text-sm">
+              Ver soluciones
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="bg-um-primary-bg py-10 sm:py-14 lg:py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-8 sm:mb-12">
+        <h2 class="text-2xl sm:text-3xl font-bold text-um-dark mb-3 sm:mb-4">Experiencia Multisectorial</h2>
+        <p class="text-sm sm:text-base text-um-gray max-w-2xl mx-auto">
+          Nuestra experiencia en múltiples industrias nos permite aplicar las mejores prácticas de cada sector a todos nuestros proyectos.
+        </p>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+        <div class="text-center">
+          <div class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-um-primary">469+</div>
+          <div class="text-sm sm:text-base text-um-gray mt-1 sm:mt-2">Proyectos Totales</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-um-primary">9</div>
+          <div class="text-sm sm:text-base text-um-gray mt-1 sm:mt-2">Industrias Atendidas</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-um-primary">22+</div>
+          <div class="text-sm sm:text-base text-um-gray mt-1 sm:mt-2">Años de Experiencia</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-um-primary">100%</div>
+          <div class="text-sm sm:text-base text-um-gray mt-1 sm:mt-2">Satisfacción</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="bg-um-dark py-10 sm:py-14 lg:py-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">¿No Encuentra su Industria?</h2>
+      <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-8">
+        Contáctenos. Nuestra experiencia nos permite adaptarnos a cualquier sector.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+        <a href="contacto-v4.html" class="px-6 sm:px-8 py-3 sm:py-4 bg-um-accent text-white font-bold rounded-xl hover:bg-um-accent-dark transition-colors shadow-lg shadow-um-accent/25 touch-target">
+          Contactar Ahora
+        </a>
+        <a href="antecedentes-index-v4.html" class="px-6 sm:px-8 py-3 sm:py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-colors touch-target">
+          Ver Todos los Casos
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-um-dark text-gray-400 py-10 sm:py-12 lg:py-16 border-t border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 mb-8 sm:mb-12">
+        <div class="sm:col-span-2 lg:col-span-1">
+          <div class="flex items-center gap-3 mb-4 sm:mb-6">
+            <img src="https://ultimamilla.com.ar/images/um-logo.png" alt="Ultima Milla" class="h-8 sm:h-10 brightness-0 invert">
+          </div>
+          <p class="text-sm leading-relaxed">
+            Soluciones IT de clase mundial para empresas de Mendoza, Cuyo y Patagonia desde el año 2000.
+          </p>
+        </div>
+        <div>
+          <h4 class="font-bold text-white mb-3 sm:mb-4">Servicios</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="servicio-single-v4.html?id=101" class="hover:text-white transition-colors">Infraestructura de Redes</a></li>
+            <li><a href="servicio-single-v4.html?id=102" class="hover:text-white transition-colors">Seguridad Electrónica</a></li>
+            <li><a href="servicio-single-v4.html?id=103" class="hover:text-white transition-colors">Telecomunicaciones</a></li>
+            <li><a href="servicio-single-v4.html?id=104" class="hover:text-white transition-colors">Desarrollo de Software</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-white mb-3 sm:mb-4">Empresa</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="nosotros-v4.html" class="hover:text-white transition-colors">Nosotros</a></li>
+            <li><a href="antecedentes-index-v4.html" class="hover:text-white transition-colors">Antecedentes</a></li>
+            <li><a href="sectores-v4.html" class="hover:text-white transition-colors">Sectores</a></li>
+            <li><a href="contacto-v4.html" class="hover:text-white transition-colors">Contacto</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-white mb-3 sm:mb-4">Contacto</h4>
+          <ul class="space-y-3 text-sm">
+            <li class="flex items-start gap-3">
+              <i data-lucide="map-pin" class="w-4 h-4 mt-0.5 text-um-primary-light flex-shrink-0"></i>
+              <span>Houssay 1159, Guaymallén<br>Mendoza 5500</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <i data-lucide="phone" class="w-4 h-4 text-um-primary-light flex-shrink-0"></i>
+              <span>+54 261 400-0000</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <i data-lucide="mail" class="w-4 h-4 text-um-primary-light flex-shrink-0"></i>
+              <span>info@ultimamilla.com.ar</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <p class="text-xs sm:text-sm text-center sm:text-left">© 2024 Ultima Milla. Todos los derechos reservados.</p>
+        <div class="flex gap-3 sm:gap-4">
+          <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-um-primary transition-colors touch-target">
+            <i data-lucide="linkedin" class="w-5 h-5"></i>
+          </a>
+          <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-um-primary transition-colors touch-target">
+            <i data-lucide="instagram" class="w-5 h-5"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+
+    // Mobile menu toggle functionality
+    const menuToggle = document.getElementById('menuToggle');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuIconOpen = document.getElementById('menuIconOpen');
+    const menuIconClose = document.getElementById('menuIconClose');
+
+    if (menuToggle && mobileMenu) {
+      menuToggle.addEventListener('click', function() {
+        const isHidden = mobileMenu.classList.contains('hidden');
+
+        if (isHidden) {
+          mobileMenu.classList.remove('hidden');
+          menuIconOpen.classList.add('hidden');
+          menuIconClose.classList.remove('hidden');
+          menuToggle.setAttribute('aria-expanded', 'true');
+          menuToggle.setAttribute('aria-label', 'Cerrar menu');
+        } else {
+          mobileMenu.classList.add('hidden');
+          menuIconOpen.classList.remove('hidden');
+          menuIconClose.classList.add('hidden');
+          menuToggle.setAttribute('aria-expanded', 'false');
+          menuToggle.setAttribute('aria-label', 'Abrir menu');
+        }
+      });
+
+      // Close menu when clicking outside
+      document.addEventListener('click', function(event) {
+        if (!menuToggle.contains(event.target) && !mobileMenu.contains(event.target)) {
+          mobileMenu.classList.add('hidden');
+          menuIconOpen.classList.remove('hidden');
+          menuIconClose.classList.add('hidden');
+          menuToggle.setAttribute('aria-expanded', 'false');
+          menuToggle.setAttribute('aria-label', 'Abrir menu');
+        }
+      });
+
+      // Close menu on escape key
+      document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && !mobileMenu.classList.contains('hidden')) {
+          mobileMenu.classList.add('hidden');
+          menuIconOpen.classList.remove('hidden');
+          menuIconClose.classList.add('hidden');
+          menuToggle.setAttribute('aria-expanded', 'false');
+          menuToggle.setAttribute('aria-label', 'Abrir menu');
+          menuToggle.focus();
+        }
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 
-const SITE_URL = 'https://ultimamilla.com.ar';
+const SITE_URL = 'https://www.ultimamilla.com.ar';
 
 function formatDate(date: Date): string {
     const isoString = date.toISOString();
@@ -33,8 +33,7 @@ export const GET: APIRoute = async () => {
     return new Response(sitemapIndex, {
         headers: {
             'Content-Type': 'application/xml; charset=utf-8',
-            'Cache-Control': 'public, max-age=86400',
-            'X-Robots-Tag': 'noindex'
+            'Cache-Control': 'public, max-age=86400'
         },
     });
 }

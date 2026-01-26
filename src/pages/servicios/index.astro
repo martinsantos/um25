@@ -1,8 +1,38 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+/**
+ * Servicios Index - V4 Design System
+ * Services listing page with filtering and V4 components
+ */
+
+import LayoutV4 from '../../layouts/LayoutV4.astro';
+import HeroPageV4 from '../../components/v4/HeroPageV4.astro';
+import ServiceCard from '../../components/v4/ServiceCard.astro';
+import CTASection from '../../components/v4/CTASection.astro';
 import { generateSlug } from '../../utils/slugUtils.js';
-import { serviciosReales } from '../../data/servicios_reales_db.js';
-import { getServiceImageUrl } from '../../utils/imageUtils.js';
+import { getServicios } from '../../utils/directusHelpers';
+
+// Get services from Directus (with automatic fallback to JS data)
+const serviciosFromDirectus = await getServicios();
+
+// Icon mapping for ServiceCard
+const iconMap: Record<number, { icon: string; iconColor: string }> = {
+  101: { icon: 'network', iconColor: 'bg-sky-600/90' },
+  102: { icon: 'shield', iconColor: 'bg-rose-600/90' },
+  103: { icon: 'radio', iconColor: 'bg-cyan-600/90' },
+  104: { icon: 'code', iconColor: 'bg-purple-600/90' },
+  105: { icon: 'headphones', iconColor: 'bg-amber-600/90' },
+  106: { icon: 'lightbulb', iconColor: 'bg-emerald-600/90' },
+  107: { icon: 'flame', iconColor: 'bg-orange-600/90' },
+  108: { icon: 'zap', iconColor: 'bg-yellow-600/90' }
+};
+
+// Enhance services with icons and slugs
+const serviciosReales = serviciosFromDirectus.map(s => ({
+  ...s,
+  ...iconMap[s.id],
+  slug: s.slug || generateSlug(s.Titulo),
+  Area: s.area || 'Tecnología' // Fallback for filtering
+}));
 
 // Configuración de paginación
 const PAGE_SIZE = 12;
@@ -15,20 +45,20 @@ const clienteFilter = Astro.url.searchParams.get('cliente') || '';
 let serviciosFiltrados = serviciosReales;
 
 if (searchQuery) {
-  serviciosFiltrados = serviciosFiltrados.filter(servicio => 
+  serviciosFiltrados = serviciosFiltrados.filter(servicio =>
     servicio.Titulo.toLowerCase().includes(searchQuery.toLowerCase()) ||
     servicio.Descripcion.toLowerCase().includes(searchQuery.toLowerCase())
   );
 }
 
 if (areaFilter) {
-  serviciosFiltrados = serviciosFiltrados.filter(servicio => 
+  serviciosFiltrados = serviciosFiltrados.filter(servicio =>
     servicio.Area === areaFilter
   );
 }
 
 if (clienteFilter) {
-  serviciosFiltrados = serviciosFiltrados.filter(servicio => 
+  serviciosFiltrados = serviciosFiltrados.filter(servicio =>
     servicio.Cliente === clienteFilter
   );
 }
@@ -44,234 +74,238 @@ const serviciosPaginados = serviciosFiltrados.slice(startIndex, endIndex);
 const areasUnicas = [...new Set(serviciosReales.map(s => s.Area))].sort();
 const clientesUnicos = [...new Set(serviciosReales.map(s => s.Cliente))].sort();
 
-// Usar la función utilitaria compartida para manejar imágenes
-const getAssetUrl = getServiceImageUrl;
+// Imágenes ya tienen URL completa en serviciosCompletos
+const getAssetUrl = (url) => url || '/images/default-service.jpg';
 
-// Imágenes para el slider de fondo
-const backgroundImages = [
-  '/images/services/servicios-it.jpg', 
-  '/images/services/ciberseguridad.jpg',
-  '/images/services/redes-comunicaciones.jpg'
-];
+// Compute pagination pages
+const computePaginationPages = () => {
+  const total = totalPages;
+  const current = currentPage;
+  const maxPages = 5;
+
+  if (total <= maxPages) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  if (current <= 3) {
+    return [1, 2, 3, 4, 5];
+  }
+
+  if (current >= total - 2) {
+    return [total - 4, total - 3, total - 2, total - 1, total];
+  }
+
+  return [current - 2, current - 1, current, current + 1, current + 2];
+};
+
+const paginationPages = computePaginationPages();
+
+// Helper to build pagination URL
+const buildPageUrl = (page: number) => {
+  let url = `/servicios?page=${page}`;
+  if (searchQuery) url += `&search=${searchQuery}`;
+  if (areaFilter) url += `&area=${areaFilter}`;
+  if (clienteFilter) url += `&cliente=${clienteFilter}`;
+  return url;
+};
 ---
 
-<Layout title="Servicios - Ultima Milla">
-  <main class="min-h-screen bg-white">
-    <!-- Hero Section V3 (Immersive, Rotating BG) -->
-    <section class="relative h-[60vh] md:h-[70vh] flex items-center overflow-hidden bg-slate-900">
-      <!-- Background Slider -->
-      <div id="hero-slider" class="absolute inset-0 z-0">
-        <!-- Images will be injected/controlled by JS -->
-        <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out opacity-100" style="background-image: url('/images/services/servicios-it.jpg');"></div>
-        <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out opacity-0" style="background-image: url('/images/services/ciberseguridad.jpg');"></div>
-        <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out opacity-0" style="background-image: url('/images/services/redes-comunicaciones.jpg');"></div>
-      </div>
-      
-      <!-- Overlay -->
-      <div class="absolute inset-0 bg-slate-900/80 z-10"></div>
+<LayoutV4
+  title="Servicios | ULTIMA MILLA - Soluciones Tecnológicas Integrales"
+  description="Catálogo completo de servicios tecnológicos: telecomunicaciones, cableado estructurado, seguridad electrónica, desarrollo de software, detección de incendio y más. +469 proyectos exitosos en Mendoza, Cuyo y Patagonia."
+  keywords="servicios tecnologicos mendoza, telecomunicaciones profesionales, cableado estructurado certificado, seguridad electronica cctv, desarrollo software a medida, deteccion incendio sistemas"
+>
+  <HeroPageV4
+    title="Excelencia en"
+    titleHighlight="Servicios Tecnológicos"
+    subtitle="Soluciones integrales de infraestructura IT, telecomunicaciones, seguridad electrónica y desarrollo de software para empresas de Argentina."
+    breadcrumb={[
+      { label: 'Inicio', href: '/' },
+      { label: 'Servicios', href: '/servicios' },
+    ]}
+    badge={{ icon: 'briefcase', text: 'Soluciones Integrales' }}
+    backgroundImage="https://www.ultimamilla.com.ar/directus-assets/b104c9b7-708f-4cc7-ab7f-5f8443a2475e"
+    stats={[
+      { value: `${serviciosReales.length}+`, label: 'Servicios' },
+      { value: String(areasUnicas.length), label: 'Áreas' },
+      { value: `${clientesUnicos.length}+`, label: 'Sectores' },
+    ]}
+  />
 
-      <div class="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-4xl">
-          <div class="inline-flex items-center space-x-2 mb-6 animate-fade-in-up">
-            <span class="w-8 h-[2px] bg-blue-500"></span>
-            <span class="text-blue-400 font-bold tracking-widest uppercase text-sm">Soluciones Integrales</span>
+  <!-- Filtros y Búsqueda -->
+  <section class="sticky top-16 sm:top-20 z-30 bg-white border-b border-gray-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+      <form method="GET" class="flex flex-col md:flex-row gap-3 sm:gap-4 items-center justify-between">
+        <!-- Búsqueda -->
+        <div class="relative w-full md:w-96">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-um-gray" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
           </div>
-          
-          <h1 class="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight tracking-tight animate-fade-in-up delay-100">
-            Excelencia en <br/>
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">Servicios Tecnológicos</span>
-          </h1>
-          
-          <!-- Metrics Row (Solid, Executive) -->
-          <div class="flex flex-wrap gap-8 md:gap-16 pt-8 border-t border-white/10 animate-fade-in-up delay-200">
-            <div class="flex items-center space-x-4">
-              <div class="p-3 bg-white/5 rounded-lg border border-white/10">
-                <svg class="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                </svg>
-              </div>
-              <div>
-                <div class="text-3xl font-bold text-white">{serviciosReales.length}+</div>
-                <div class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Servicios</div>
-              </div>
-            </div>
-            
-            <div class="flex items-center space-x-4">
-              <div class="p-3 bg-white/5 rounded-lg border border-white/10">
-                <svg class="w-6 h-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-              </div>
-              <div>
-                <div class="text-3xl font-bold text-white">{areasUnicas.length}</div>
-                <div class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Áreas</div>
-              </div>
-            </div>
-            
-            <div class="flex items-center space-x-4">
-              <div class="p-3 bg-white/5 rounded-lg border border-white/10">
-                <svg class="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <div class="text-3xl font-bold text-white">{clientesUnicos.length}+</div>
-                <div class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Sectores</div>
-              </div>
-            </div>
-          </div>
+          <input
+            type="text"
+            name="search"
+            value={searchQuery}
+            placeholder="Buscar servicios..."
+            class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg leading-5 bg-white placeholder-um-gray focus:outline-none focus:ring-2 focus:ring-um-primary focus:border-um-primary text-sm min-h-[44px]"
+          />
         </div>
-      </div>
-    </section>
 
-    <!-- Filtros y Búsqueda (Compact & Sticky) -->
-    <section class="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <form method="GET" class="flex flex-col md:flex-row gap-4 items-center justify-between">
-          <!-- Búsqueda -->
-          <div class="relative w-full md:w-96">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <input
-              type="text"
-              name="search"
-              value={searchQuery}
-              placeholder="Buscar servicios..."
-              class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg leading-5 bg-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
-          </div>
-          
-          <div class="flex flex-wrap gap-3 w-full md:w-auto">
-            <select name="area" class="bg-white border border-slate-300 text-slate-700 py-2 px-4 pr-8 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm">
-              <option value="">Todas las áreas</option>
-              {areasUnicas.map(area => (
-                <option value={area} selected={areaFilter === area}>{area}</option>
-              ))}
-            </select>
-            
-            <select name="cliente" class="bg-white border border-slate-300 text-slate-700 py-2 px-4 pr-8 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm">
-              <option value="">Todos los clientes</option>
-              {clientesUnicos.map(cliente => (
-                <option value={cliente} selected={clienteFilter === cliente}>{cliente}</option>
-              ))}
-            </select>
-            
-            <button type="submit" class="px-6 py-2 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-800 transition-colors text-sm">
-              Filtrar
-            </button>
-          </div>
-        </form>
-      </div>
-    </section>
+        <div class="flex flex-wrap gap-2 sm:gap-3 w-full md:w-auto">
+          <select
+            name="area"
+            class="bg-white border border-gray-300 text-um-dark py-2.5 px-4 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-um-primary focus:border-um-primary text-sm min-h-[44px] flex-1 md:flex-none"
+          >
+            <option value="">Todas las áreas</option>
+            {areasUnicas.map(area => (
+              <option value={area} selected={areaFilter === area}>{area}</option>
+            ))}
+          </select>
 
-    <!-- Grid de Servicios (Solid, Clean) -->
-    <section class="py-16 md:py-24 bg-slate-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {serviciosPaginados.length === 0 ? (
-          <div class="text-center py-20">
-            <h3 class="text-xl font-medium text-slate-900">No se encontraron resultados</h3>
-            <p class="text-slate-500 mt-2">Intenta ajustar tus filtros de búsqueda.</p>
-          </div>
-        ) : (
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {serviciosFiltrados.map((servicio) => {
-              const slug = generateSlug(servicio.Titulo);
-              return (
-                <a href={`/servicios/${servicio.id}/${slug}`} class="group flex flex-col h-full">
-                  <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1">
-                    <!-- Image -->
-                    <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
-                      <img
-                        src={getAssetUrl(servicio.Imagen)}
-                        alt={servicio.Titulo}
-                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        loading="lazy"
-                        onerror="this.src='/images/default-service.jpg'"
-                      />
-                      <div class="absolute top-4 left-4">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-slate-900 text-white shadow-sm">
-                          {servicio.Area}
-                        </span>
-                      </div>
+          <select
+            name="cliente"
+            class="bg-white border border-gray-300 text-um-dark py-2.5 px-4 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-um-primary focus:border-um-primary text-sm min-h-[44px] flex-1 md:flex-none"
+          >
+            <option value="">Todos los sectores</option>
+            {clientesUnicos.map(cliente => (
+              <option value={cliente} selected={clienteFilter === cliente}>{cliente}</option>
+            ))}
+          </select>
+
+          <button
+            type="submit"
+            class="px-5 sm:px-6 py-2.5 bg-um-primary text-white font-semibold rounded-lg hover:bg-um-primary-dark transition-colors text-sm min-h-[44px]"
+          >
+            Filtrar
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Grid de Servicios -->
+  <section class="py-10 sm:py-14 lg:py-20 bg-um-gray-light">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {serviciosPaginados.length === 0 ? (
+        <div class="text-center py-16 sm:py-20">
+          <svg class="w-16 h-16 text-um-gray mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 class="text-xl font-bold text-um-dark mb-2">No se encontraron resultados</h3>
+          <p class="text-um-gray">Intenta ajustar tus filtros de búsqueda.</p>
+          <a href="/servicios" class="inline-block mt-6 px-6 py-3 bg-um-primary text-white font-semibold rounded-lg hover:bg-um-primary-dark transition-colors">
+            Ver todos los servicios
+          </a>
+        </div>
+      ) : (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+          {serviciosPaginados.map((servicio) => {
+            const slug = generateSlug(servicio.Titulo);
+            return (
+              <a href={`/servicios/${servicio.id}/${slug}`} class="group flex flex-col h-full">
+                <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 card-hover">
+                  <!-- Image -->
+                  <div class="relative aspect-[16/9] overflow-hidden bg-gray-100">
+                    <img
+                      src={getAssetUrl(servicio.Imagen)}
+                      alt={servicio.Titulo}
+                      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                      onerror="this.src='/images/default-service.jpg'"
+                    />
+                    <div class="absolute top-3 sm:top-4 left-3 sm:left-4">
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-um-dark text-white shadow-sm">
+                        {servicio.Area}
+                      </span>
                     </div>
-                    
-                    <!-- Content -->
-                    <div class="flex flex-col flex-grow p-6">
-                      <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors">
-                        {servicio.Titulo}
-                      </h3>
-                      
-                      <p class="text-slate-600 text-sm mb-6 line-clamp-3 flex-grow leading-relaxed">
-                        {servicio.Descripcion.replace(/\\\\/g, ' ')}
-                      </p>
-                      
-                      <div class="pt-4 border-t border-slate-100 mt-auto flex items-center justify-between">
-                        <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                          {servicio.Cliente}
-                        </span>
-                        <span class="text-blue-600 text-sm font-semibold group-hover:underline">
-                          Ver detalles &rarr;
-                        </span>
-                      </div>
+                  </div>
+
+                  <!-- Content -->
+                  <div class="flex flex-col flex-grow p-4 sm:p-6">
+                    <h3 class="text-lg sm:text-xl font-bold text-um-dark mb-2 sm:mb-3 group-hover:text-um-primary transition-colors line-clamp-2">
+                      {servicio.Titulo}
+                    </h3>
+
+                    <p class="text-um-gray text-sm mb-4 sm:mb-6 line-clamp-3 flex-grow leading-relaxed">
+                      {servicio.Descripcion.replace(/\\\\/g, ' ')}
+                    </p>
+
+                    <div class="pt-3 sm:pt-4 border-t border-gray-100 mt-auto flex items-center justify-between">
+                      <span class="text-xs font-medium text-um-gray uppercase tracking-wide">
+                        {servicio.Cliente}
+                      </span>
+                      <span class="text-um-primary text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
+                        Ver detalles
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                      </span>
                     </div>
-                  </article>
-                </a>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </section>
-  </main>
-</Layout>
+                  </div>
+                </article>
+              </a>
+            );
+          })}
+        </div>
+      )}
 
-<script>
-  // Simple Background Slider Script
-  document.addEventListener('DOMContentLoaded', () => {
-    const slides = document.querySelectorAll('#hero-slider > div');
-    let currentSlide = 0;
-    
-    if (slides.length > 1) {
-      setInterval(() => {
-        // Fade out current
-        slides[currentSlide].classList.remove('opacity-100');
-        slides[currentSlide].classList.add('opacity-0');
-        
-        // Next slide
-        currentSlide = (currentSlide + 1) % slides.length;
-        
-        // Fade in next
-        slides[currentSlide].classList.remove('opacity-0');
-        slides[currentSlide].classList.add('opacity-100');
-      }, 5000); // Change every 5 seconds
-    }
-  });
-</script>
+      <!-- Pagination -->
+      {totalPages > 1 && (
+        <div class="mt-10 sm:mt-12 flex justify-center">
+          <nav class="flex items-center gap-1 sm:gap-2" aria-label="Paginación">
+            {currentPage > 1 && (
+              <a
+                href={buildPageUrl(currentPage - 1)}
+                class="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-um-dark hover:bg-um-primary hover:text-white hover:border-um-primary transition-colors min-h-[44px] flex items-center"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </a>
+            )}
 
-<style>
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  
-  .animate-fade-in-up {
-    animation: fadeInUp 0.8s ease-out forwards;
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  
-  .delay-100 { animation-delay: 0.1s; }
-  .delay-200 { animation-delay: 0.2s; }
-  
-  @keyframes fadeInUp {
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-</style>
+            {paginationPages.map((pageNum) => (
+              <a
+                href={buildPageUrl(pageNum)}
+                class={`px-3 sm:px-4 py-2 border rounded-lg font-medium transition-colors min-h-[44px] flex items-center justify-center min-w-[44px] ${
+                  currentPage === pageNum
+                    ? 'bg-um-primary text-white border-um-primary'
+                    : 'border-gray-300 text-um-dark hover:bg-um-primary hover:text-white hover:border-um-primary'
+                }`}
+              >
+                {pageNum}
+              </a>
+            ))}
+
+            {currentPage < totalPages && (
+              <a
+                href={buildPageUrl(currentPage + 1)}
+                class="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-um-dark hover:bg-um-primary hover:text-white hover:border-um-primary transition-colors min-h-[44px] flex items-center"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            )}
+          </nav>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <CTASection
+    badge="¿Necesita algo personalizado?"
+    badgeIcon="rocket"
+    titulo="Diseñamos Soluciones a Medida para su Empresa"
+    descripcion="Contáctenos para una consultoría gratuita y descubra cómo podemos crear una solución perfecta para sus necesidades específicas."
+    primaryButtonText="Solicitar Cotización"
+    primaryButtonUrl="/contacto"
+    secondaryButtonText="Ver Casos de Éxito"
+    secondaryButtonUrl="/antecedentes"
+    secondaryButtonIcon="arrow-right"
+    backgroundImage="https://ultimamilla.com.ar/directus-assets/b104c9b7-708f-4cc7-ab7f-5f8443a2475e"
+    darkOverlay={90}
+  />
+</LayoutV4>

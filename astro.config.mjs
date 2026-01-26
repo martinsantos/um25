@@ -14,7 +14,7 @@ export default defineConfig({
   }),
 
   // URL base para generación de sitemap y rutas absolutas
-  site: process.env.PUBLIC_SITE_URL || 'http://localhost:3000',
+  site: 'https://www.ultimamilla.com.ar',
 
   // Integraciones
   integrations: [

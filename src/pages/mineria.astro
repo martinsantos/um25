@@ -1,544 +1,326 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { directus, DEFAULT_IMAGE } from '../utils/directus';
-import { generateSlug } from '../utils/slugUtils';
+/**
+ * Minería Sector Page - V4 Design System
+ * Sector page with V4 components and filtering
+ */
 
-// Configuración SEO específica para Minería - ULTRA OPTIMIZADA para Argentina y Mendoza
-const seoConfig = {
-  title: "Tecnología y Telecomunicaciones para Minería | Mendoza, San Juan y Patagonia | ULTIMA MILLA",
-  description: "Servicios tecnológicos para empresas mineras en Argentina. Zona de incumbencia: Mendoza, Cuyo, Patagonia. Telecomunicaciones críticas, corrientes débiles, detección de incendio, cableado estructurado y conectividad remota. Enlaces de radio, fibra óptica y campamentos mineros.",
-  keywords: "servicios tecnologicos mineria, zona incumbencia san juan mendoza, telecomunicaciones mineras, corrientes debiles mineria, deteccion incendio mineria, cableado estructurado remote, conectividad satelital, radioenlaces cordillera, campamentos mineros tecnologia",
-  // ogImage: "/images/services/mineria-hero.jpg",
-  canonical: "https://ultimamilla.com.ar/mineria",
-  locale: "es_AR",
-  region: "Cuyo, Patagonia, Argentina",
-  author: "Ultima Milla",
-  robots: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+import LayoutV4 from '../layouts/LayoutV4.astro';
+import HeroPageV4 from '../components/v4/HeroPageV4.astro';
+import { generateSlug } from '../utils/slugUtils.js';
+import { antecedentesReales } from '../data/antecedentes_completos.js';
+import { directus, DEFAULT_IMAGE } from '../utils/directus';
+
+// Sector configuration
+const sectorConfig = {
+  name: 'Minería',
+  emoji: '⛏️',
+  color: 'amber',
+  heroImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1920&q=80',
+  description: 'Soluciones de conectividad, seguridad y automatización diseñadas para operar en las condiciones más exigentes de la minería.',
+  keywords: ['telecomunicaciones', 'radioenlace', 'fibra optica', 'cctv', 'radio enlace', 'satelital', 'remoto', 'campamento', 'scada', 'telemetria', 'monitoreo', 'iot', 'minera', 'mina', 'yacimiento'],
 };
 
-// Cargar antecedentes del sector software
-import { antecedentesReales } from '../data/antecedentes_completos.js';
-import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
+// SEO configuration
+const seoConfig = {
+  title: `Tecnología y Telecomunicaciones para ${sectorConfig.name} | Mendoza, San Juan y Patagonia | ULTIMA MILLA`,
+  description: `Servicios tecnológicos para empresas mineras en Argentina. Zona de incumbencia: Mendoza, Cuyo, Patagonia. Telecomunicaciones críticas, corrientes débiles, detección de incendio, cableado estructurado y conectividad remota. Enlaces de radio, fibra óptica y campamentos mineros.`,
+  keywords: `servicios tecnologicos mineria, zona incumbencia san juan mendoza, telecomunicaciones mineras, corrientes debiles mineria, deteccion incendio mineria, cableado estructurado remote, conectividad satelital, radioenlaces cordillera, campamentos mineros tecnologia`,
+};
 
-// Filtrar antecedentes específicos de MINERÍA
-// Como no hay antecedentes con "minería" explícita, mostramos proyectos de 
-// telecomunicaciones, redes, CCTV y sistemas remotos que son aplicables al sector
-const filterAntecedentes = (data) => {
-  const keywords = ['telecomunicaciones', 'radioenlace', 'fibra optica', 'cctv', 
-                    'radio enlace', 'satelital', 'remoto', 'campamento', 'scada',
-                    'telemetria', 'monitoreo', 'iot'];
-  
+// Filter antecedentes by sector keywords
+const filterAntecedentes = (data: any[]) => {
   return data
     .filter(item => {
       const cliente = (item.Cliente || '').toLowerCase();
       const titulo = (item.Titulo || '').toLowerCase();
       const area = (item.Area || '').toLowerCase();
       const desc = (item.Descripcion || '').toLowerCase();
-      
-      // Buscar keywords relacionadas a tecnología para minería
-      return keywords.some(k => 
-        cliente.includes(k) || 
-        titulo.includes(k) || 
+
+      return sectorConfig.keywords.some(k =>
+        cliente.includes(k) ||
+        titulo.includes(k) ||
         area.includes(k) ||
         desc.includes(k)
       );
     })
     .map(item => ({
       ...item,
-      slug: `${item.id}/${generateSlug(item.Titulo)}`
+      slug: generateSlug(item.Titulo)
     }))
-    .sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
+    .sort((a: any, b: any) => new Date(b.Fecha).getTime() - new Date(a.Fecha).getTime())
+    .slice(0, 12);
 };
 
-let antecedentes = [];
-let serviciosRelacionados = [];
-let error = null;
+// Load antecedentes
+let antecedentes: any[] = [];
 
 try {
-  // Obtener antecedentes de software desde Directus
-  const response = await directus.getAntecedentes({
-    limit: 500,
-    page: 1
-  });
-
-  if (response && response.data && response.data.length > 0) {
+  const response = await directus.getAntecedentes({ limit: 500, page: 1 });
+  if (response?.data?.length > 0) {
     antecedentes = filterAntecedentes(response.data);
-    console.log(`✅ Cargados ${antecedentes.length} antecedentes de software`);
   }
 } catch (err) {
-  console.error('Error cargando antecedentes:', err);
-  error = err;
+  console.error('Error loading antecedentes:', err);
 }
 
-// Fallback a datos locales si no hay resultados de API
+// Fallback to local data
 if (antecedentes.length === 0) {
-  console.log('Usando antecedentes locales para Software');
   antecedentes = filterAntecedentes(antecedentesReales);
 }
 
-  // Servicios relacionados con el sector software
-  // Structured Data para SEO
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "serviceType": "Infraestructura IT para Software",
-    "provider": {
-      "@type": "Organization",
-      "name": "Ultima Milla",
-      "url": "https://www.ultimamilla.com.ar",
-      "logo": "https://www.ultimamilla.com.ar/images/um-logo.png",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Mendoza",
-        "addressRegion": "Mendoza",
-        "addressCountry": "AR"
-      }
-    },
-    "areaServed": [
-      {
-        "@type": "City",
-        "name": "Mendoza"
-      },
-      {
-        "@type": "Country",
-        "name": "Argentina"
-      }
-    ],
-    "audience": {
-      "@type": "BusinessAudience",
-      "name": "Software y Empresas de Construcción"
-    },
-    "hasOfferCatalog": {
-      "@type": "OfferCatalog",
-      "name": "Servicios IT para Software",
-      "itemListElement": [
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
-            "name": "Cableado Estructurado para Obras"
-          }
-        },
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
-            "name": "Sistemas de Seguridad CCTV y Control de Accesos"
-          }
-        },
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
-            "name": "Conectividad Temporal para Canteros"
-          }
-        },
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
-            "name": "Telefonía IP Empresarial"
-          }
-        }
-      ]
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.9",
-      "reviewCount": "50"
-    }
-  };
+// Value propositions
+const valueProps = [
+  {
+    icon: 'wifi',
+    title: 'Conectividad Remota',
+    description: 'Enlaces de alta disponibilidad en zonas aisladas y de difícil acceso.'
+  },
+  {
+    icon: 'shield',
+    title: 'Seguridad Industrial',
+    description: 'Sistemas CCTV y control de accesos robustos para ambientes hostiles.'
+  },
+  {
+    icon: 'activity',
+    title: 'IoT y Telemetría',
+    description: 'Monitoreo en tiempo real de activos y condiciones ambientales.'
+  }
+];
 
-  serviciosRelacionados = [
-    {
-      id: 1,
-      nombre: "Servicios IT",
-      descripcion: "Consultoría y desarrollo de soluciones IT personalizadas",
-      icon: "network",
-      slug: "servicios-it"
-    },
-    {
-      id: 2,
-      nombre: "Redes de Datos",
-      descripcion: "Infraestructura de redes robusta y escalable",
-      icon: "shield",
-      slug: "redes-datos"
-    },
-    {
-      id: 3,
-      nombre: "Seguridad Informática",
-      descripcion: "Protección de sistemas y datos empresariales",
-      icon: "wifi",
-      slug: "seguridad-informatica"
-    },
-    {
-      id: 4,
-      nombre: "Telecomunicaciones",
-      descripcion: "Sistemas de comunicación integrados",
-      icon: "phone",
-      slug: "telecomunicaciones"
-    },
-    {
-      id: 5,
-      nombre: "Software Personalizado",
-      descripcion: "Desarrollo de aplicaciones a medida",
-      icon: "alert",
-      slug: "software-personalizado"
-    },
-    {
-      id: 6,
-      nombre: "Soporte Técnico 24/7",
-      descripcion: "Asistencia técnica especializada continua",
-      icon: "support",
-      slug: "soporte-tecnico"
-    }
-  ];
+// Related services
+const serviciosRelacionados = [
+  { id: 101, nombre: 'Telecomunicaciones', descripcion: 'Radioenlaces y comunicaciones de misión crítica' },
+  { id: 102, nombre: 'Redes de Datos', descripcion: 'Cableado estructurado y fibra óptica' },
+  { id: 103, nombre: 'Seguridad Electrónica', descripcion: 'CCTV y control de accesos industriales' },
+  { id: 107, nombre: 'Detección de Incendios', descripcion: 'Sistemas de alarma y detección temprana' },
+  { id: 105, nombre: 'Soporte IT', descripcion: 'Mantenimiento y soporte técnico 24/7' },
+  { id: 104, nombre: 'Software a Medida', descripcion: 'Soluciones de monitoreo y SCADA' },
+];
 
+// Image URL helper
+const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://admin.ultimamilla.com.ar';
+const getImageUrl = (ant: any): string => {
+  if (ant.Imagen && typeof ant.Imagen === 'string' && ant.Imagen.includes('-')) {
+    return `${DIRECTUS_URL}/assets/${ant.Imagen}`;
+  }
+  if (ant.ImagenPrincipal && typeof ant.ImagenPrincipal === 'string' && ant.ImagenPrincipal.includes('-')) {
+    return `${DIRECTUS_URL}/assets/${ant.ImagenPrincipal}`;
+  }
+  return '/images/default-antecedente.jpg';
+};
 ---
 
-<Layout
+<LayoutV4
   title={seoConfig.title}
   description={seoConfig.description}
   keywords={seoConfig.keywords}
-  image={seoConfig.ogImage}
-  canonical={seoConfig.canonical}
 >
-  <main style="background: #f5f5f5;">
-    <!-- HERO EXACTO DEL BOCETO -->
-    <section style="position: relative; min-height: 350px; display: flex; align-items: center; background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1920&q=80') center/cover; color: white;">
-      <div style="max-width: 1200px; margin: 0 auto; padding: 50px 40px; width: 100%;">
-        <!-- Badge Simple -->
-        <div style="display: inline-flex; align-items: center; gap: 12px; padding: 12px 20px; background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(6, 182, 212, 0.1)); border-radius: 20px; margin-bottom: 20px; border: 1px solid rgba(6, 182, 212, 0.4); backdrop-filter: blur(10px);">
-          <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #d97706, #f59e0b); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);">
-            <span style="font-size: 24px;">⛏️</span>
-          </div>
-          <span style="font-size: 13px; font-weight: 800; color: #d97706; text-transform: uppercase; letter-spacing: 1.2px;">Sector Minería</span>
-        </div>
+  <!-- Hero Section -->
+  <section class="relative bg-um-dark pt-20 sm:pt-24 pb-8 sm:pb-12 lg:pb-16 overflow-hidden">
+    <div class="absolute inset-0 opacity-40" style={`background-image: url('${sectorConfig.heroImage}'); background-position: center; background-size: cover;`}></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-um-dark/70 to-um-dark/90"></div>
 
-        <!-- Title Simple -->
-        <h1 style="font-size: 48px; font-weight: 900; margin-bottom: 20px; line-height: 1.2; color: white;">
-          Tecnología Crítica para<br/>Ambientes Extremos
-        </h1>
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 text-xs sm:text-sm text-white/70 mb-4 flex-wrap">
+        <a href="/" class="hover:text-white transition-colors">Inicio</a>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+        <a href="/sectores" class="hover:text-white transition-colors">Sectores</a>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+        <span class="text-white">{sectorConfig.name}</span>
+      </nav>
 
-        <!-- Subtitle -->
-        <p style="font-size: 18px; font-weight: 400; color: rgba(255, 255, 255, 0.9); max-width: 600px; margin-bottom: 32px; line-height: 1.6;">
-          Soluciones de conectividad, seguridad y automatización diseñadas para operar en las condiciones más exigentes de la minería.
-        </p>
-
-        <!-- CTA Button -->
-        <a href="#contacto" style="display: inline-block; background: #d97706; color: white; padding: 14px 32px; border-radius: 6px; font-weight: 700; font-size: 15px; text-decoration: none; transition: all 0.3s ease;" onmouseover="this.style.background='#b45309'" onmouseout="this.style.background='#d97706'">
-          Soluciones para Minería
-        </a>
-      </div>
-    </section>
-
-    <!-- 3 CARDS EXACTAS DEL BOCETO -->
-    <section style="background: #f5f5f5; padding: 50px 40px;">
-      <div style="max-width: 1200px; margin: 0 auto;">
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;">
-          <!-- Card 1 EXACTA -->
-          <div style="text-align: center; padding: 40px 30px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <div style="width: 80px; height: 80px; background: white; border: 3px solid #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
-              <svg style="width: 40px; height: 40px; color: #333;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m4 0V9a1 1 0 011-1h4a1 1 0 011 1v12M9 7h6"></path>
-              </svg>
+      <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+        <div>
+          <!-- Badge -->
+          <div class="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-2 sm:py-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-4 sm:mb-5">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg">
+              <span class="text-lg sm:text-2xl">{sectorConfig.emoji}</span>
             </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Conectividad Remota</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Enlaces de alta disponibilidad en zonas aisladas y de difícil acceso.</p>
+            <span class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-amber-300">Sector {sectorConfig.name}</span>
           </div>
 
-          <!-- Card 2 EXACTA -->
-          <div style="text-align: center; padding: 40px 30px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <div style="width: 80px; height: 80px; background: white; border: 3px solid #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
-              <svg style="width: 40px; height: 40px; color: #333;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Seguridad Industrial</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Sistemas CCTV y control de accesos robustos para ambientes hostiles.</p>
-          </div>
-
-          <!-- Card 3 EXACTA -->
-          <div style="text-align: center; padding: 40px 30px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <div style="width: 80px; height: 80px; background: white; border: 3px solid #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
-              <svg style="width: 40px; height: 40px; color: #333;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">IoT y Telemetría</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Monitoreo en tiempo real de activos y condiciones ambientales.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-
-    <!-- SERVICIOS EXACTOS DEL BOCETO -->
-    <section id="servicios" style="background: white; padding: 50px 40px;">
-      <div style="max-width: 1200px; margin: 0 auto;">
-        <!-- Header Simple -->
-        <div style="text-align: center; margin-bottom: 60px;">
-          <h2 style="font-size: 36px; font-weight: 700; color: #333; margin-bottom: 16px;">Soluciones para Minería</h2>
-          <p style="font-size: 16px; color: #666; max-width: 700px; margin: 0 auto; line-height: 1.6;">
-            Infraestructura tecnológica diseñada para garantizar la continuidad operativa en yacimientos y plantas de procesamiento.
+          <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4 sm:mb-5 leading-tight">
+            Tecnología Crítica para<br/>Ambientes Extremos
+          </h1>
+          <p class="text-base sm:text-lg lg:text-xl text-gray-200 max-w-xl">
+            {sectorConfig.description}
           </p>
         </div>
 
-        <!-- Services Grid 2x2 -->
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; max-width: 900px; margin: 0 auto;">
-          <!-- Servicio 1: Servicios IT (ID 1) -->
-          <a href="/servicios/1/servicios-it" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #d97706; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'">
-            <div style="width: 50px; height: 50px; background: #d97706; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Servicios IT</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Consultoría y soporte técnico especializado</p>
-          </a>
-
-          <!-- Servicio 2: Redes de Datos (ID 2) -->
-          <a href="/servicios/2/redes-de-datos" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #d97706; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'">
-            <div style="width: 50px; height: 50px; background: #d97706; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Redes de Datos</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Cableado estructurado y fibra óptica</p>
-          </a>
-
-          <!-- Servicio 3: Seguridad Informática (ID 3) -->
-          <a href="/servicios/3/seguridad-informatica" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #d97706; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'">
-            <div style="width: 50px; height: 50px; background: #d97706; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Seguridad Informática</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Protección de sistemas y datos</p>
-          </a>
-
-          <!-- Servicio 4: Software Personalizado (ID 4) -->
-          <a href="/servicios/4/software-personalizado" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #d97706; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'">
-            <div style="width: 50px; height: 50px; background: #d97706; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Software Personalizado</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Desarrollo de aplicaciones a medida</p>
-          </a>
-
-          <!-- Servicio 5: Sistemas de Detección (ID 5) -->
-          <a href="/servicios/5/deteccion-incendios" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #d97706; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'">
-            <div style="width: 50px; height: 50px; background: #d97706; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Sistemas de Detección de Incendios</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Detección temprana y alarmas para protección de obras</p>
-          </a>
-
-          <!-- Servicio 6: Soporte Técnico (ID 6) -->
-          <a href="/servicios/6/soporte-tecnico" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #d97706; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'">
-            <div style="width: 50px; height: 50px; background: #d97706; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Soporte Técnico 24/7</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Mantenimiento preventivo y correctivo para operaciones continuas</p>
-          </a>
+        <!-- Stats -->
+        <div class="flex flex-wrap justify-center lg:justify-end gap-3 sm:gap-4">
+          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
+            <div class="text-2xl sm:text-3xl font-extrabold text-white">{antecedentes.length}+</div>
+            <div class="text-xs sm:text-sm text-white/70 mt-1">Proyectos</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
+            <div class="text-2xl sm:text-3xl font-extrabold text-white">99.9%</div>
+            <div class="text-xs sm:text-sm text-white/70 mt-1">Uptime</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
+            <div class="text-2xl sm:text-3xl font-extrabold text-white">24/7</div>
+            <div class="text-xs sm:text-sm text-white/70 mt-1">Soporte</div>
+          </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- CASOS DE ÉXITO -->
-    {antecedentes.length > 0 && (
-      <section style="background: #f8fafc; padding: 100px 32px; border-top: 1px solid #e2e8f0;">
-        <div style="max-width: 75rem; margin: 0 auto;">
-          <div style="text-align: center; margin-bottom: 72px;">
-            <div style="display: inline-block; padding: 8px 20px; background: linear-gradient(135deg, #d97706, #f59e0b); border-radius: 50px; margin-bottom: 20px;">
-              <span style="font-size: 13px; font-weight: 800; color: white; letter-spacing: 1px; text-transform: uppercase;">✨ Casos de Éxito</span>
+  <!-- Value Propositions -->
+  <section class="py-10 sm:py-14 lg:py-16 border-b border-gray-100 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        {valueProps.map((prop) => (
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
+              {prop.icon === 'wifi' && (
+                <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/>
+                </svg>
+              )}
+              {prop.icon === 'shield' && (
+                <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+              )}
+              {prop.icon === 'activity' && (
+                <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+              )}
             </div>
-            <h2 style="font-size: clamp(36px, 5.5vw, 52px); font-weight: 900; color: #0f172a; margin-bottom: 20px; letter-spacing: -0.02em;">Proyectos en Minería</h2>
-            <p style="font-size: 19px; color: #64748b; max-width: 750px; margin: 0 auto; line-height: 1.7; font-weight: 500;">
-              Soluciones implementadas en los principales yacimientos de la región.<br/>.
-            </p>
+            <div>
+              <h3 class="font-bold text-um-dark mb-2">{prop.title}</h3>
+              <p class="text-sm text-um-gray">{prop.description}</p>
+            </div>
           </div>
+        ))}
+      </div>
+    </div>
+  </section>
 
-          <FeaturedAntecedentes antecedentes={antecedentes} />
-        </div>
-      </section>
-    )}
+  <!-- Services Section -->
+  <section class="py-10 sm:py-14 lg:py-20 bg-um-gray-light">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-8 sm:mb-12">
+        <span class="text-amber-600 font-semibold text-xs sm:text-sm uppercase tracking-wider">Servicios</span>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">
+          Soluciones para {sectorConfig.name}
+        </h2>
+        <p class="text-sm sm:text-base text-um-gray max-w-2xl mx-auto px-4 sm:px-0">
+          Infraestructura tecnológica diseñada para garantizar la continuidad operativa en yacimientos y plantas de procesamiento.
+        </p>
+      </div>
 
-
-    <!-- FORMULARIO DE CONTACTO PREMIUM -->
-    <section id="contacto" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 100px 32px; position: relative; overflow: hidden;">
-      <!-- Decorative Elements -->
-      <div style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(251, 146, 60, 0.15) 0%, transparent 70%); border-radius: 50%;"></div>
-      <div style="position: absolute; bottom: -150px; left: -150px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(251, 146, 60, 0.1) 0%, transparent 70%); border-radius: 50%;"></div>
-      
-      <div style="max-width: 75rem; margin: 0 auto; position: relative; z-index: 10;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;">
-          <!-- Left Content -->
-          <div>
-            <div style="display: inline-block; padding: 8px 20px; background: rgba(251, 146, 60, 0.2); border-radius: 50px; margin-bottom: 24px; border: 1px solid rgba(251, 146, 60, 0.3);">
-              <span style="font-size: 13px; font-weight: 800; color: #fbbf24; letter-spacing: 1px; text-transform: uppercase;">📞 Contáctenos</span>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        {serviciosRelacionados.map((servicio) => (
+          <a href={`/servicios/${servicio.id}/${generateSlug(servicio.nombre)}`} class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover group">
+            <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-amber-500 transition-colors">
+              <svg class="w-6 h-6 text-amber-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
             </div>
-            <h2 style="font-size: clamp(36px, 5vw, 56px); font-weight: 900; color: white; margin-bottom: 24px; line-height: 1.1; letter-spacing: -0.02em;">
-              Soluciones Críticas para<br/>Minería
-            </h2>
-            <p style="font-size: 18px; color: #cbd5e1; line-height: 1.8; margin-bottom: 40px; font-weight: 500;">
-              Contáctenos para diseñar la infraestructura tecnológica que su operación minera necesita.
-            </p>
-            <div style="display: flex; flex-direction: column; gap: 20px;">
-              <div style="display: flex; align-items: center; gap: 16px;">
-                <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #d97706, #f59e0b); border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                  <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            <h3 class="font-bold text-um-dark mb-2 group-hover:text-um-primary transition-colors">{servicio.nombre}</h3>
+            <p class="text-sm text-um-gray mb-4">{servicio.descripcion}</p>
+            <span class="text-amber-600 font-semibold text-sm flex items-center gap-1">
+              Ver servicio
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+              </svg>
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Cases Section -->
+  {antecedentes.length > 0 && (
+    <section class="py-10 sm:py-14 lg:py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8 sm:mb-12">
+          <span class="text-amber-600 font-semibold text-xs sm:text-sm uppercase tracking-wider">Casos de Éxito</span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">
+            Proyectos en {sectorConfig.name}
+          </h2>
+          <p class="text-sm sm:text-base text-um-gray">
+            Soluciones implementadas en los principales yacimientos de la región.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+          {antecedentes.slice(0, 6).map((ant) => (
+            <a href={`/antecedentes/${ant.id}/${ant.slug}`} class="group bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 card-hover">
+              <div class="aspect-video overflow-hidden bg-gray-100">
+                <img
+                  src={getImageUrl(ant)}
+                  alt={ant.Titulo}
+                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  loading="lazy"
+                  onerror="this.src='/images/default-antecedente.jpg'"
+                />
+              </div>
+              <div class="p-5 sm:p-6">
+                <span class="text-xs font-semibold text-amber-600 uppercase tracking-wider">{ant.Area || sectorConfig.name}</span>
+                <h3 class="font-bold text-um-dark mt-2 mb-2 group-hover:text-um-primary transition-colors line-clamp-2">
+                  {ant.Titulo}
+                </h3>
+                <p class="text-sm text-um-gray mb-4 line-clamp-2">
+                  {ant.Descripcion?.substring(0, 100)}...
+                </p>
+                <span class="text-amber-600 font-semibold text-sm flex items-center gap-1">
+                  Ver caso
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                   </svg>
-                </div>
-                <div>
-                  <p style="font-size: 14px; color: #94a3b8; font-weight: 600; margin-bottom: 4px;">Email</p>
-                  <p style="font-size: 18px; color: white; font-weight: 700;">contacto@ultimamilla.com.ar</p>
-                </div>
+                </span>
               </div>
-            </div>
-          </div>
-          
-          <!-- Right Form -->
-          <div style="background: white; border-radius: 24px; padding: 48px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-            <form id="softwareContactForm" style="display: flex; flex-direction: column; gap: 24px;">
-              <div>
-                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Nombre *</label>
-                <input type="text" name="name" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#d97706'; this.style.boxShadow='0 0 0 4px rgba(6,182,212,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Juan Pérez" />
-              </div>
-              <div>
-                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Empresa</label>
-                <input type="text" name="company" style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#d97706'; this.style.boxShadow='0 0 0 4px rgba(6,182,212,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Empresa Minera" />
-              </div>
-              <div>
-                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Email *</label>
-                <input type="email" name="email" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#d97706'; this.style.boxShadow='0 0 0 4px rgba(6,182,212,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="contacto@minera.com" />
-              </div>
-              <div>
-                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Mensaje *</label>
-                <textarea name="message" required rows="4" style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none; resize: vertical;" onfocus="this.style.borderColor='#d97706'; this.style.boxShadow='0 0 0 4px rgba(6,182,212,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Cuéntenos sobre su proyecto..."></textarea>
-              </div>
-              <div id="softwareMessage" style="display: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; text-align: center;"></div>
-              <button type="submit" style="width: 100%; padding: 18px; background: linear-gradient(135deg, #d97706, #f59e0b); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 10px 30px rgba(6,182,212,0.4);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 14px 40px rgba(6,182,212,0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(6,182,212,0.4)'">
-                Solicitar Contacto
-              </button>
-            </form>
-          </div>
+            </a>
+          ))}
+        </div>
+
+        <div class="text-center mt-8 sm:mt-12">
+          <a href={`/antecedentes?sector=${sectorConfig.name.toLowerCase()}`} class="inline-flex items-center gap-2 px-5 sm:px-6 py-3 border-2 border-amber-500 text-amber-600 font-semibold rounded-xl hover:bg-amber-500 hover:text-white transition-colors text-sm sm:text-base min-h-[44px]">
+            Ver Todos los Casos del Sector
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </a>
         </div>
       </div>
     </section>
-  </main>
-</Layout>
+  )}
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('softwareContactForm');
-    const messageDiv = document.getElementById('softwareMessage');
-    
-    if (!form) return;
-    
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData);
-      
-      try {
-        const response = await fetch('/api/contact', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data)
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-          messageDiv.textContent = '✅ Mensaje enviado exitosamente. Te contactaremos pronto.';
-          messageDiv.style.background = '#dcfce7';
-          messageDiv.style.color = '#166534';
-          messageDiv.style.display = 'block';
-          form.reset();
-          setTimeout(() => {
-            messageDiv.style.display = 'none';
-          }, 5000);
-        } else {
-          messageDiv.textContent = '❌ ' + (result.message || 'Error al enviar el mensaje');
-          messageDiv.style.background = '#fee2e2';
-          messageDiv.style.color = '#991b1b';
-          messageDiv.style.display = 'block';
-        }
-      } catch (error) {
-        messageDiv.textContent = '❌ Error de conexión. Intenta nuevamente.';
-        messageDiv.style.background = '#fee2e2';
-        messageDiv.style.color = '#991b1b';
-        messageDiv.style.display = 'block';
-      }
-    });
-  });
-</script>
-
-<style>
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .group:hover .group-hover\:scale-105 {
-    transform: scale(1.05);
-  }
-
-  a:focus {
-    outline: 2px solid rgba(217, 119, 6, 0.5);
-    outline-offset: 2px;
-    border-radius: 0.25rem;
-  }
-
-  /* Mobile Responsive Styles */
-  @media (max-width: 768px) {
-    section > div > div[style*="grid-template-columns: repeat(3, 1fr)"] {
-      grid-template-columns: 1fr !important;
-    }
-    
-    section > div > div[style*="grid-template-columns: repeat(2, 1fr)"] {
-      grid-template-columns: 1fr !important;
-    }
-    
-    #contacto > div > div[style*="grid-template-columns: 1fr 1fr"] {
-      grid-template-columns: 1fr !important;
-      gap: 40px !important;
-    }
-    
-    h1 {
-      font-size: 32px !important;
-    }
-    
-    h2 {
-      font-size: 28px !important;
-    }
-    
-    section {
-      padding: 40px 20px !important;
-    }
-  }
-</style>
+  <!-- CTA Section -->
+  <section class="bg-um-dark py-10 sm:py-14 lg:py-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <span class="text-amber-400 font-semibold text-xs sm:text-sm uppercase tracking-wider">Contacto</span>
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mt-3 sm:mt-4 mb-3 sm:mb-4">
+        ¿Necesita Soluciones para su Operación Minera?
+      </h2>
+      <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-8">
+        Nuestro equipo especializado en infraestructura para minería está listo para ayudarlo.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+        <a
+          href="/contacto"
+          class="px-6 sm:px-8 py-3 sm:py-4 bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-600 transition-colors shadow-lg shadow-amber-500/25 min-h-[44px] flex items-center justify-center"
+        >
+          Solicitar Cotización
+        </a>
+        <a
+          href="/servicios"
+          class="px-6 sm:px-8 py-3 sm:py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-colors min-h-[44px] flex items-center justify-center"
+        >
+          Ver Todos los Servicios
+        </a>
+      </div>
+    </div>
+  </section>
+</LayoutV4>

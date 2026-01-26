@@ -18,7 +18,7 @@ export const generateSlug = (text = '') => {
     .replace(/\s+/g, '-') // Replace spaces with hyphens
     .replace(/-+/g, '-') // Remove duplicate hyphens
     .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
-    .slice(0, 50); // Limit to 50 chars
+    .slice(0, 100); // Limit to 100 chars
   
   return slug || 'item';
 };

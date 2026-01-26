@@ -1,37 +1,48 @@
 ---
-import Layout from '../../../layouts/Layout.astro';
+/**
+ * Antecedente Detail Page - V4 Design System
+ * Case study/project detail with enhanced design matching V4 template
+ */
+
+import LayoutV4 from '../../../layouts/LayoutV4.astro';
+import ServiceCard from '../../../components/v4/ServiceCard.astro';
+import CTASection from '../../../components/v4/CTASection.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getFixedImage } from '../../../utils/imageFixer.js';
+import { getServiciosPorAntecedente } from '../../../utils/directusHelpers';
+import { serviciosCompletos } from '../../../data/servicios_completos_v4.js';
+import { getServiceIdFromArea } from '../../../data/areaToServiceMap.js';
 
-// --- Configuración ---
+// --- Configuration ---
 const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://ultimamilla.com.ar/admin';
+const PROD_URL = 'https://ultimamilla.com.ar';
 const DEFAULT_IMAGE_URL = `/images/default-background.jpg`;
 const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
 
 export const prerender = false;
 
-// Parámetros de URL
+// URL params
 const { id, slug: slugFromUrl } = Astro.params;
 
 if (!id || !slugFromUrl) {
     return Astro.redirect('/404');
 }
 
-// --- Estado ---
-let antecedente = null;
+// --- State ---
+let antecedente: any = null;
 let usingFallback = false;
 
-// --- Funciones Auxiliares ---
-const getAssetUrl = (assetId) => {
+// --- Helper Functions ---
+const getAssetUrl = (assetId: any): string => {
     if (!assetId) return DEFAULT_IMAGE_URL;
     if (typeof assetId === 'object') {
-        if (assetId.id) return `${DIRECTUS_URL}/assets/${assetId.id}?width=1200&quality=80`;
-        if (assetId.directus_files_id) return `${DIRECTUS_URL}/assets/${assetId.directus_files_id}?width=1200&quality=80`;
-        if (assetId.filename_disk) return `${DIRECTUS_URL}/assets/${assetId.filename_disk}?width=1200&quality=80`;
+        if (assetId.id) return `${PROD_URL}/directus-assets/${assetId.id}`;
+        if (assetId.directus_files_id) return `${PROD_URL}/directus-assets/${assetId.directus_files_id}`;
+        if (assetId.filename_disk) return `${PROD_URL}/directus-assets/${assetId.filename_disk}`;
     }
     if (typeof assetId === 'string') {
         if (assetId.startsWith('http')) return assetId;
-        if (assetId.match(/^[a-f0-9-]{36}$/)) return `${DIRECTUS_URL}/assets/${assetId}?width=1200&quality=80`;
+        if (assetId.match(/^[a-f0-9-]{36}$/)) return `${PROD_URL}/directus-assets/${assetId}`;
         let filename = assetId.startsWith('/') ? assetId.substring(1) : assetId;
         filename = getFixedImage(filename);
         return `/imagenes_antecedentes_versionproduccion/${filename}`;
@@ -39,8 +50,8 @@ const getAssetUrl = (assetId) => {
     return DEFAULT_IMAGE_URL;
 };
 
-// --- Fetch de Datos ---
-async function fetchAntecedenteById(itemId) {
+// --- Fetch Data ---
+async function fetchAntecedenteById(itemId: string) {
     try {
         const response = await fetch(`${DIRECTUS_URL}/items/Antecedentes/${itemId}?fields=*,Imagen.*,ImagenPrincipal.*,Imagenes.*,Imagenes.directus_files_id`, {
             headers: {
@@ -57,7 +68,7 @@ async function fetchAntecedenteById(itemId) {
     }
 }
 
-// --- Obtención de datos y validación ---
+// --- Get data and validate ---
 try {
     if (DIRECTUS_STATIC_TOKEN) {
         antecedente = await fetchAntecedenteById(id);
@@ -74,7 +85,7 @@ try {
     usingFallback = true;
     try {
         const { antecedentesReales } = await import('../../../data/antecedentes_completos.js');
-        antecedente = antecedentesReales.find(item => item.id.toString() === id);
+        antecedente = antecedentesReales.find((item: any) => item.id.toString() === id);
         if (antecedente) {
             const expectedSlug = generateSlug(antecedente.Titulo);
             if (expectedSlug !== slugFromUrl) {
@@ -90,15 +101,15 @@ try {
 
 if (!antecedente) return Astro.redirect('/404');
 
-// --- Preparación de datos para la UI ---
-const getMainImageUrl = async () => {
+// --- Prepare data for UI ---
+const getMainImageUrl = async (): Promise<string> => {
     try {
         const { buscarImagenPorDatos } = await import('../../../data/mapeo_imagenes_completo.js');
         const nombreArchivo = buscarImagenPorDatos(antecedente.Cliente, antecedente.Area, antecedente.Titulo, id);
         if (nombreArchivo) return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
     } catch (e) {}
-    
-    const imagenesConocidas = {
+
+    const imagenesConocidas: Record<string, string> = {
         '11125': 'ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png',
         '10770': 'ultimamilla_telecombtw_sa_-_redes_y_comunicaciones_20250415_201308_s4071923973.png',
         '1': 'ultimamilla_municipalidad_de_maipú_-_software_servicios_20250415_182056_s1379068004.png',
@@ -106,7 +117,7 @@ const getMainImageUrl = async () => {
         '3': 'ultimamilla_patrulleros_inteligentes_-_redes_y_comunicaciones_20250415_182524_s1196678540.png'
     };
     if (imagenesConocidas[id]) return `/imagenes_antecedentes_versionproduccion/${imagenesConocidas[id]}`;
-    
+
     if (!usingFallback && (antecedente.Imagen || antecedente.ImagenPrincipal)) {
         return getAssetUrl(antecedente.Imagen || antecedente.ImagenPrincipal);
     }
@@ -115,220 +126,363 @@ const getMainImageUrl = async () => {
 
 const mainImageUrl = await getMainImageUrl();
 
-const formatDate = (dateString) => {
+const formatDate = (dateString: string): string => {
     if (!dateString) return 'No especificada';
     try {
-        return new Date(dateString).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+        return new Date(dateString).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' });
     } catch { return dateString; }
 };
 
-const formatCurrency = (amount) => {
-    if (!amount) return 'No especificado';
-    return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
+// Extract scope items from description (bullet points)
+const extractScopeItems = (descripcion: string): string[] => {
+    if (!descripcion) return [];
+    const items: string[] = [];
+    // Try to extract bullet points or sentences
+    const sentences = descripcion.split(/[.;]/).filter(s => s.trim().length > 10 && s.trim().length < 150);
+    return sentences.slice(0, 5).map(s => s.trim());
 };
 
-const siteUrl = 'https://ultimamilla.com.ar';
+const scopeItems = extractScopeItems(antecedente.Descripcion || '');
+
+// Get related services via M2M relationship from Directus (with fallback to area mapping)
+const getRelatedServices = async (antecedenteId: string, area: string) => {
+    try {
+        // Try to get M2M related services from Directus
+        const serviciosFromDirectus = await getServiciosPorAntecedente(parseInt(antecedenteId));
+
+        if (serviciosFromDirectus && serviciosFromDirectus.length > 0) {
+            return serviciosFromDirectus.slice(0, 4); // Max 4 services
+        }
+    } catch (error) {
+        console.error('Error fetching related services from Directus:', error);
+    }
+
+    // Fallback: Use area-based mapping to find one service
+    const serviceId = getServiceIdFromArea(area);
+    const servicio = serviciosCompletos[serviceId];
+
+    if (servicio) {
+        return [{
+            id: serviceId,
+            Titulo: servicio.Titulo,
+            Descripcion: servicio.Descripcion,
+            Imagen: servicio.Imagen,
+            subtitulo: servicio.Descripcion?.substring(0, 100),
+            slug: generateSlug(servicio.Titulo)
+        }];
+    }
+
+    return [];
+};
+
+const relatedServices = await getRelatedServices(id, antecedente.Area || '');
+
+// SEO
+const siteUrl = 'https://www.ultimamilla.com.ar';
 const canonicalUrl = `${siteUrl}/antecedentes/${id}/${slugFromUrl}`;
 const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').substring(0, 160) + '...';
 ---
 
-<Layout
-  title={`${antecedente.Titulo} | Caso de Éxito - Ultima Milla`}
+<LayoutV4
+  title={`${antecedente.Titulo} | Caso de Éxito - ULTIMA MILLA`}
   description={metaDescription}
   image={mainImageUrl}
   canonical={canonicalUrl}
 >
-  <main class="min-h-screen bg-white">
-    <!-- Hero Section V3 (Immersive, Full-Screen) -->
-    <section class="relative h-[70vh] md:h-[85vh] flex items-end md:items-center overflow-hidden bg-slate-900">
-      <!-- Background Image -->
-      <div class="absolute inset-0 z-0">
-        <img
-          src={mainImageUrl}
-          alt={antecedente.Titulo}
-          class="w-full h-full object-cover"
-          onerror="this.src='/images/default-background.jpg'"
-        />
-      </div>
-      
-      <!-- Gradient Overlay (Dark, Dramatic) -->
-      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30 z-10"></div>
+  <!-- HERO SECTION -->
+  <section class="relative overflow-hidden bg-um-dark">
+    <!-- Background Image -->
+    <img
+      src={mainImageUrl}
+      alt={antecedente.Titulo}
+      class="absolute inset-0 w-full h-full object-cover opacity-50"
+      onerror="this.src='/images/default-background.jpg'"
+    />
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-gradient-to-t from-um-dark via-um-dark/70 to-um-dark/40"></div>
 
-      <!-- Content -->
-      <div class="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-24">
-        <div class="max-w-4xl animate-fade-in-up">
-          <!-- Breadcrumb / Badge -->
-          <div class="flex items-center space-x-4 mb-6 text-sm font-medium text-white/80">
-            <a href="/antecedentes" class="hover:text-white transition-colors flex items-center">
-              <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-              Volver
-            </a>
-            <span class="text-white/30">|</span>
-            <span class="text-blue-400 uppercase tracking-wider">{antecedente.Area || 'Proyecto'}</span>
+    <!-- Content -->
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-6 sm:pb-10 lg:pb-12">
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 text-xs mb-3 sm:mb-4">
+        <a href="/" class="text-white/60 hover:text-white/80 font-medium">Inicio</a>
+        <span class="text-white/30">/</span>
+        <a href="/antecedentes" class="text-white/60 hover:text-white/80 font-medium">Antecedentes</a>
+        <span class="text-white/30">/</span>
+        <span class="text-white font-medium">{antecedente.Area || 'Proyecto'}</span>
+      </nav>
+
+      <!-- Category Badge -->
+      <div class="inline-flex items-center gap-1.5 bg-um-primary px-3 py-1.5 rounded-full mb-4 sm:mb-5">
+        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+        </svg>
+        <span class="text-white text-[10px] font-bold tracking-wider uppercase">{antecedente.Area || 'Proyecto'}</span>
+      </div>
+
+      <!-- Title -->
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold text-white leading-tight max-w-4xl mb-4 sm:mb-5">
+        {antecedente.Titulo}
+      </h1>
+
+      <!-- Subtitle (from description) -->
+      <p class="text-sm sm:text-base lg:text-lg text-white/80 max-w-2xl leading-relaxed mb-5 sm:mb-6">
+        {antecedente.Descripcion?.replace(/<[^>]+>/g, '').substring(0, 150)}...
+      </p>
+
+      <!-- Meta Info -->
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:text-sm">
+        <div class="flex items-center gap-2 text-white/80">
+          <svg class="w-4 h-4 text-um-primary-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+          <span>{antecedente.Cliente}</span>
+        </div>
+        {antecedente.Fecha && (
+          <>
+            <span class="text-white/30">•</span>
+            <div class="flex items-center gap-2 text-white/80">
+              <svg class="w-4 h-4 text-um-primary-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              <span>{formatDate(antecedente.Fecha)}</span>
+            </div>
+          </>
+        )}
+        <span class="text-white/30">•</span>
+        <div class="flex items-center gap-2 text-white/80">
+          <svg class="w-4 h-4 text-um-primary-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <span>Mendoza, Argentina</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTENT SECTION -->
+  <section class="px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12 xl:gap-16">
+      <!-- Left Column (Main Content) -->
+      <div class="flex-1 flex flex-col gap-8 sm:gap-10 lg:gap-12 order-2 lg:order-1">
+
+        <!-- Description Section -->
+        <div class="flex flex-col gap-4 sm:gap-5">
+          <div class="flex items-center gap-3">
+            <div class="w-1 h-5 sm:h-6 bg-um-primary rounded-sm"></div>
+            <h2 class="text-lg sm:text-xl lg:text-[22px] font-bold text-gray-900">Descripción del Proyecto</h2>
+          </div>
+          <div class="text-gray-600 leading-relaxed text-sm sm:text-base prose prose-lg max-w-none">
+            <div set:html={antecedente.Descripcion || antecedente.descripcion || '<p>Información detallada del proyecto no disponible.</p>'} />
           </div>
 
-          <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
-            {antecedente.Titulo}
-          </h1>
+          <!-- Callout Box -->
+          <div class="flex items-start sm:items-center gap-3 bg-um-primary-bg px-4 sm:px-5 py-3 sm:py-4 rounded-r-lg border-l-4 border-um-primary">
+            <span class="text-base sm:text-lg flex-shrink-0">💡</span>
+            <span class="text-um-primary text-[10px] sm:text-xs font-semibold tracking-wide leading-tight uppercase">
+              Proyecto de {antecedente.Area || 'tecnología'} para {antecedente.Cliente}
+            </span>
+          </div>
+        </div>
 
-          <div class="flex flex-wrap items-center gap-6 text-lg text-white/90">
-            <div class="flex items-center">
-              <span class="font-bold text-blue-400 mr-2">Cliente:</span>
-              {antecedente.Cliente}
+        <!-- Alcance del Proyecto Section -->
+        {scopeItems.length > 0 && (
+          <div class="flex flex-col gap-4 sm:gap-5">
+            <div class="flex items-center gap-3">
+              <div class="w-1 h-5 sm:h-6 bg-um-primary rounded-sm"></div>
+              <h2 class="text-lg sm:text-xl lg:text-[22px] font-bold text-gray-900">Alcance del Proyecto</h2>
+            </div>
+            <div class="flex flex-col gap-3 sm:gap-3.5">
+              {scopeItems.map((item) => (
+                <div class="flex items-start gap-3">
+                  <div class="w-5 sm:w-[22px] h-5 sm:h-[22px] rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg class="w-3 sm:w-3.5 h-3 sm:h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </div>
+                  <span class="text-gray-700 text-sm sm:text-[15px] font-medium">{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <!-- Servicios Relacionados -->
+        {relatedServices.length > 0 && (
+          <div class="flex flex-col gap-4 sm:gap-5">
+            <div class="flex items-center gap-3">
+              <div class="w-1 h-5 sm:h-6 bg-um-primary rounded-sm"></div>
+              <h2 class="text-lg sm:text-xl lg:text-[22px] font-bold text-gray-900">Servicios Relacionados</h2>
+            </div>
+            <p class="text-gray-600 text-sm sm:text-base">
+              Este proyecto utilizó los siguientes servicios de ULTIMA MILLA:
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              {relatedServices.map((servicio) => (
+                <ServiceCard
+                  id={servicio.id}
+                  slug={servicio.slug}
+                  titulo={servicio.Titulo}
+                  subtitulo={servicio.subtitulo || servicio.Descripcion?.substring(0, 100)}
+                  imagen={servicio.Imagen}
+                  icon="box"
+                  iconColor="bg-um-primary/90"
+                />
+              ))}
+            </div>
+
+            <a
+              href="/servicios"
+              class="inline-flex items-center gap-2 text-um-primary font-semibold text-sm hover:underline"
+            >
+              Ver todos nuestros servicios
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+              </svg>
+            </a>
+          </div>
+        )}
+
+        <!-- Gallery (if has additional images from Directus) -->
+        {antecedente.Imagenes && antecedente.Imagenes.length > 0 && (
+          <div class="flex flex-col gap-4 sm:gap-5">
+            <div class="flex items-center gap-3">
+              <div class="w-1 h-5 sm:h-6 bg-purple-600 rounded-sm"></div>
+              <h2 class="text-lg sm:text-xl lg:text-[22px] font-bold text-gray-900">Galería del Proyecto</h2>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {antecedente.Imagenes.map((img: any) => (
+                <div class="aspect-video rounded-xl overflow-hidden bg-gray-100 group">
+                  <img
+                    src={getAssetUrl(img)}
+                    alt="Galería"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                    onerror="this.src='/images/default-background.jpg'"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <!-- Sidebar -->
+      <div class="w-full lg:w-[320px] xl:w-[360px] flex flex-col gap-4 sm:gap-6 order-1 lg:order-2">
+
+        <!-- Ficha Técnica Card -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
+          <div class="flex items-center gap-2.5 px-4 sm:px-5 py-3 sm:py-4 bg-gray-50 border-b border-gray-200">
+            <svg class="w-4 sm:w-[18px] h-4 sm:h-[18px] text-um-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span class="text-sm font-bold text-gray-900">Ficha Técnica</span>
+          </div>
+          <div class="p-4 sm:p-5 flex flex-col gap-3 sm:gap-4">
+            <div class="flex flex-col gap-1">
+              <span class="text-[10px] font-semibold text-gray-500 tracking-wider uppercase">Organización</span>
+              <span class="text-sm sm:text-[15px] font-semibold text-gray-900">{antecedente.Cliente}</span>
+            </div>
+            <div class="h-px bg-gray-100"></div>
+            <div class="flex flex-col gap-1">
+              <span class="text-[10px] font-semibold text-gray-500 tracking-wider uppercase">Vertical</span>
+              <span class="text-sm sm:text-[15px] font-semibold text-gray-900">{antecedente.Area || 'Tecnología'}</span>
+            </div>
+            <div class="h-px bg-gray-100"></div>
+            <div class="flex flex-col gap-1">
+              <span class="text-[10px] font-semibold text-gray-500 tracking-wider uppercase">Unidad de Negocio</span>
+              <span class="text-sm sm:text-[15px] font-semibold text-gray-900">{antecedente.Unidad_de_negocio || 'Consultoría'}</span>
+            </div>
+            <div class="h-px bg-gray-100"></div>
+            <div class="flex flex-col gap-1">
+              <span class="text-[10px] font-semibold text-gray-500 tracking-wider uppercase">Ubicación</span>
+              <span class="text-sm sm:text-[15px] font-semibold text-gray-900">Mendoza, Argentina</span>
             </div>
             {antecedente.Fecha && (
-              <div class="flex items-center">
-                <span class="w-1.5 h-1.5 bg-white/50 rounded-full mr-6"></span>
-                {formatDate(antecedente.Fecha)}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <!-- Scroll Indicator -->
-      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 animate-bounce hidden md:block">
-        <svg class="w-6 h-6 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </svg>
-      </div>
-    </section>
-
-    <!-- Content Section -->
-    <section class="py-16 md:py-24 bg-slate-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          <!-- Main Content -->
-          <div class="lg:col-span-2 space-y-12">
-            <!-- Descripción -->
-            <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100">
-              <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center">
-                <span class="w-1 h-8 bg-blue-600 mr-4 rounded-full"></span>
-                Sobre el Proyecto
-              </h2>
-              <div class="prose prose-lg prose-slate max-w-none text-slate-600 leading-relaxed">
-                <div set:html={antecedente.Descripcion || antecedente.descripcion || '<p>Información detallada del proyecto no disponible.</p>'} />
-              </div>
-            </div>
-
-            <!-- Galería (Si hay imágenes adicionales) -->
-            {antecedente.Imagenes && antecedente.Imagenes.length > 0 && (
-              <div class="space-y-6">
-                <h3 class="text-xl font-bold text-slate-900">Galería del Proyecto</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {antecedente.Imagenes.map((img) => (
-                    <div class="aspect-video rounded-xl overflow-hidden bg-slate-100 group">
-                      <img 
-                        src={getAssetUrl(img)} 
-                        alt="Galería" 
-                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
-                      />
-                    </div>
-                  ))}
+              <>
+                <div class="h-px bg-gray-100"></div>
+                <div class="flex flex-col gap-1">
+                  <span class="text-[10px] font-semibold text-gray-500 tracking-wider uppercase">Finalización</span>
+                  <span class="text-sm sm:text-[15px] font-semibold text-gray-900">{formatDate(antecedente.Fecha)}</span>
                 </div>
-              </div>
+              </>
             )}
-          </div>
-
-          <!-- Sidebar (Sticky) -->
-          <div class="lg:col-span-1">
-            <div class="sticky top-24 space-y-6">
-              <!-- Info Card -->
-              <div class="bg-white rounded-xl shadow-lg border border-slate-100 p-6">
-                <h3 class="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">
-                  Ficha Técnica
-                </h3>
-                <ul class="space-y-5">
-                  <li class="flex items-start">
-                    <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 mr-4">
-                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-slate-500">Cliente</p>
-                      <p class="text-base font-semibold text-slate-900 mt-0.5">{antecedente.Cliente}</p>
-                    </div>
-                  </li>
-                  
-                  <li class="flex items-start">
-                    <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 mr-4">
-                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-slate-500">Área de Servicio</p>
-                      <p class="text-base font-semibold text-slate-900 mt-0.5">{antecedente.Area}</p>
-                    </div>
-                  </li>
-
-                  <li class="flex items-start">
-                    <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 mr-4">
-                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-slate-500">Unidad</p>
-                      <p class="text-base font-semibold text-slate-900 mt-0.5">{antecedente.Unidad_de_negocio || 'Consultoría'}</p>
-                    </div>
-                  </li>
-
-                  {antecedente.Fecha && (
-                    <li class="flex items-start">
-                      <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 mr-4">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                      </div>
-                      <div>
-                        <p class="text-sm font-medium text-slate-500">Fecha</p>
-                        <p class="text-base font-semibold text-slate-900 mt-0.5">{formatDate(antecedente.Fecha)}</p>
-                      </div>
-                    </li>
-                  )}
-
-                  {antecedente.Presupuesto && (
-                    <li class="flex items-start">
-                      <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center text-green-600 mr-4">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                      </div>
-                      <div>
-                        <p class="text-sm font-medium text-slate-500">Inversión</p>
-                        <p class="text-base font-semibold text-green-700 mt-0.5">{formatCurrency(antecedente.Presupuesto)}</p>
-                      </div>
-                    </li>
-                  )}
-                </ul>
-              </div>
-
-              <!-- CTA Card -->
-              <div class="bg-slate-900 rounded-xl shadow-lg p-6 text-center relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 z-0"></div>
-                <div class="relative z-10">
-                  <h3 class="text-lg font-bold text-white mb-2">¿Necesitas algo similar?</h3>
-                  <p class="text-slate-400 text-sm mb-6">Contáctanos para evaluar tu proyecto.</p>
-                  <a 
-                    href="/contacto" 
-                    class="block w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors shadow-lg hover:shadow-blue-500/30"
-                  >
-                    Iniciar Conversación
-                  </a>
-                </div>
-              </div>
+            <div class="h-px bg-gray-100"></div>
+            <div class="flex flex-col gap-1">
+              <span class="text-[10px] font-semibold text-gray-500 tracking-wider uppercase">Código Proyecto</span>
+              <span class="text-sm sm:text-[15px] font-semibold text-um-primary font-mono">ANT-{id}</span>
             </div>
           </div>
         </div>
-      </div>
-    </section>
-  </main>
-</Layout>
 
-<style>
-  .animate-fade-in-up {
-    animation: fadeInUp 0.8s ease-out forwards;
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  
-  @keyframes fadeInUp {
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-</style>
+        <!-- CTA Widget -->
+        <div class="bg-gradient-to-br from-um-primary to-um-primary-dark rounded-2xl p-5 sm:p-6 flex flex-col items-center gap-3 sm:gap-4">
+          <div class="w-12 sm:w-14 h-12 sm:h-14 rounded-full bg-white/20 flex items-center justify-center">
+            <svg class="w-6 sm:w-7 h-6 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+          </div>
+          <h3 class="text-base sm:text-lg font-bold text-white text-center">¿Necesita una solución similar?</h3>
+          <p class="text-xs sm:text-sm text-white/80 text-center leading-relaxed">
+            Contáctenos para una evaluación gratuita de su proyecto
+          </p>
+          <div class="w-full flex flex-col gap-2 sm:gap-2.5">
+            <a href="/contacto" class="flex items-center justify-center gap-2 bg-white text-um-primary font-semibold py-3 sm:py-3.5 px-4 sm:px-5 rounded-lg hover:bg-gray-50 transition-colors min-h-[44px] text-sm sm:text-base">
+              <svg class="w-4 sm:w-[18px] h-4 sm:h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+              </svg>
+              Solicitar Cotización
+            </a>
+            <a href="mailto:contacto@ultimamilla.com.ar" class="flex items-center justify-center gap-2 bg-white/20 text-white font-semibold py-3 sm:py-3.5 px-4 sm:px-5 rounded-lg border border-white/30 hover:bg-white/30 transition-colors min-h-[44px] text-sm sm:text-base">
+              <svg class="w-4 sm:w-[18px] h-4 sm:h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              Enviar Email
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED SECTION -->
+  <section class="bg-um-gray-light border-t border-gray-200 py-10 sm:py-14 lg:py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Proyectos Relacionados</h2>
+        <a href="/antecedentes" class="flex items-center gap-1.5 text-um-primary font-semibold text-sm hover:underline">
+          Ver portfolio completo
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+          </svg>
+        </a>
+      </div>
+
+      <div class="text-center py-8">
+        <a href="/antecedentes" class="inline-flex items-center gap-2 px-6 py-3 bg-um-dark text-white font-bold rounded-xl hover:bg-um-primary transition-colors">
+          Explorar más proyectos
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA SECTION -->
+  <CTASection
+    badge="¿Necesita una solución similar?"
+    badgeIcon="rocket"
+    titulo={`Implemente ${antecedente.Area || 'soluciones tecnológicas'} en su organización`}
+    descripcion="Contáctenos para una consultoría gratuita y descubra cómo podemos ayudarle a alcanzar sus objetivos."
+    primaryButtonText="Solicitar Consulta Gratuita"
+    primaryButtonUrl="/contacto"
+    secondaryButtonText="Ver Más Casos"
+    secondaryButtonUrl="/antecedentes"
+    secondaryButtonIcon="arrow-right"
+    backgroundImage={mainImageUrl}
+    darkOverlay={85}
+  />
+</LayoutV4>
