@@ -16,13 +16,13 @@ import { antecedentesReales } from '../data/antecedentes_completos.js';
 // Production URL for images
 const PROD_URL = 'https://www.ultimamilla.com.ar';
 
-// Hero images from Directus (rotate every 5 seconds)
+// Hero images - using local assets (Directus assets currently have permission issues)
 const heroImages = [
-  { url: `${PROD_URL}/directus-assets/a404fe13-25dc-409d-9789-02cbf9fb93c1`, alt: 'Infraestructura de Redes' },
-  { url: `${PROD_URL}/directus-assets/992632c1-5d88-48ea-9bc5-53c59109694e`, alt: 'Seguridad Electrónica' },
-  { url: `${PROD_URL}/directus-assets/caffbcaa-2457-4fc9-9960-2e0601f27736`, alt: 'Telecomunicaciones' },
-  { url: `${PROD_URL}/directus-assets/be4911d3-7a71-457e-a081-97d0472c4aa9`, alt: 'Desarrollo de Software' },
-  { url: `${PROD_URL}/directus-assets/b104c9b7-708f-4cc7-ab7f-5f8443a2475e`, alt: 'Consultoría IT' },
+  { url: '/images/services/redes-comunicaciones.jpg', alt: 'Infraestructura de Redes' },
+  { url: '/images/services/ciberseguridad.jpg', alt: 'Seguridad Electrónica' },
+  { url: '/images/services/telefonia.jpg', alt: 'Telecomunicaciones' },
+  { url: '/images/services/servicios-web.jpg', alt: 'Desarrollo de Software' },
+  { url: '/images/services/servicios-it.jpg', alt: 'Consultoría IT' },
 ];
 
 // Helper function to get image URL for antecedentes

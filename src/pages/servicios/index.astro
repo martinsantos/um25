@@ -9,10 +9,11 @@ import HeroPageV4 from '../../components/v4/HeroPageV4.astro';
 import ServiceCard from '../../components/v4/ServiceCard.astro';
 import CTASection from '../../components/v4/CTASection.astro';
 import { generateSlug } from '../../utils/slugUtils.js';
-import { getServicios } from '../../utils/directusHelpers';
+import { getAllServicios } from '../../utils/directusHelpers';
+import { getHeroBackground } from '../../utils/serviceImageMap';
 
 // Get services from Directus (with automatic fallback to JS data)
-const serviciosFromDirectus = await getServicios();
+const serviciosFromDirectus = await getAllServicios();
 
 // Icon mapping for ServiceCard
 const iconMap: Record<number, { icon: string; iconColor: string }> = {
@@ -124,7 +125,7 @@ const buildPageUrl = (page: number) => {
       { label: 'Servicios', href: '/servicios' },
     ]}
     badge={{ icon: 'briefcase', text: 'Soluciones Integrales' }}
-    backgroundImage="https://www.ultimamilla.com.ar/directus-assets/b104c9b7-708f-4cc7-ab7f-5f8443a2475e"
+    backgroundImage={getHeroBackground('servicios')}
     stats={[
       { value: `${serviciosReales.length}+`, label: 'Servicios' },
       { value: String(areasUnicas.length), label: 'Áreas' },
