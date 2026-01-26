@@ -5,7 +5,10 @@
  */
 
 import LayoutV4 from '../layouts/LayoutV4.astro';
+import ServiceCard from '../components/v4/ServiceCard.astro';
+import CTASection from '../components/v4/CTASection.astro';
 import { generateSlug } from '../utils/slugUtils.js';
+import { getServicios } from '../utils/directusHelpers';
 
 // Import real data
 import { antecedentesReales } from '../data/antecedentes_completos.js';
@@ -47,75 +50,29 @@ const antecedentesEnhanced = antecedentesReales.slice(0, 3).map(ant => ({
   imageUrl: getImageUrl(ant)
 }));
 
-// Services data with real Directus asset URLs
-const servicios = [
-  {
-    id: 101,
-    titulo: 'Infraestructura de Redes',
-    descripcion: 'Cableado, fibra óptica y radioenlaces.',
-    imagen: 'https://ultimamilla.com.ar/directus-assets/a404fe13-25dc-409d-9789-02cbf9fb93c1',
-    iconColor: 'bg-sky-600/90',
-    icon: 'network'
-  },
-  {
-    id: 102,
-    titulo: 'Seguridad Electrónica',
-    descripcion: 'CCTV, control de acceso y detección.',
-    imagen: 'https://ultimamilla.com.ar/directus-assets/992632c1-5d88-48ea-9bc5-53c59109694e',
-    iconColor: 'bg-rose-600/90',
-    icon: 'shield'
-  },
-  {
-    id: 103,
-    titulo: 'Telecomunicaciones',
-    descripcion: 'Datos, voz y video convergentes.',
-    imagen: 'https://ultimamilla.com.ar/directus-assets/caffbcaa-2457-4fc9-9960-2e0601f27736',
-    iconColor: 'bg-cyan-600/90',
-    icon: 'radio'
-  },
-  {
-    id: 104,
-    titulo: 'Desarrollo de Software',
-    descripcion: 'Web, mobile y sistemas ERP.',
-    imagen: 'https://ultimamilla.com.ar/directus-assets/be4911d3-7a71-457e-a081-97d0472c4aa9',
-    iconColor: 'bg-purple-600/90',
-    icon: 'code'
-  },
-  {
-    id: 105,
-    titulo: 'Soporte 24/7',
-    descripcion: 'Mesa de ayuda y mantenimiento IT.',
-    imagen: 'https://ultimamilla.com.ar/directus-assets/d3bfa8eb-8ba4-4791-a05c-51eb4d1933c2',
-    iconColor: 'bg-amber-600/90',
-    icon: 'headphones'
-  },
-  {
-    id: 106,
-    titulo: 'Consultoría IT',
-    descripcion: 'Transformación digital y auditorías.',
-    imagen: 'https://ultimamilla.com.ar/directus-assets/b104c9b7-708f-4cc7-ab7f-5f8443a2475e',
-    iconColor: 'bg-emerald-600/90',
-    icon: 'lightbulb'
-  },
-  {
-    id: 107,
-    titulo: 'Detección Incendios',
-    descripcion: 'Sistemas inteligentes NFPA.',
-    imagen: 'https://ultimamilla.com.ar/directus-assets/7707d106-f6a9-4fcf-83fc-2cdcc417c4ad',
-    iconColor: 'bg-orange-600/90',
-    icon: 'flame'
-  },
-  {
-    id: 108,
-    titulo: 'Servicios Eléctricos',
-    descripcion: 'UPS, tableros y puesta a tierra.',
-    imagen: 'https://ultimamilla.com.ar/directus-assets/050fc7d2-67cb-4943-af0a-afba1230e9bd',
-    iconColor: 'bg-yellow-600/90',
-    icon: 'zap'
-  }
-];
+// Get services from Directus (with automatic fallback to JS data)
+const serviciosFromDirectus = await getServicios();
 
-// Industries/Sectors data
+// Map icon names for ServiceCard component
+const iconMap: Record<number, { icon: string; iconColor: string }> = {
+  101: { icon: 'network', iconColor: 'bg-sky-600/90' },
+  102: { icon: 'shield', iconColor: 'bg-rose-600/90' },
+  103: { icon: 'radio', iconColor: 'bg-cyan-600/90' },
+  104: { icon: 'code', iconColor: 'bg-purple-600/90' },
+  105: { icon: 'headphones', iconColor: 'bg-amber-600/90' },
+  106: { icon: 'lightbulb', iconColor: 'bg-emerald-600/90' },
+  107: { icon: 'flame', iconColor: 'bg-orange-600/90' },
+  108: { icon: 'zap', iconColor: 'bg-yellow-600/90' }
+};
+
+// Enhance services with icon data
+const servicios = serviciosFromDirectus.slice(0, 8).map(s => ({
+  ...s,
+  ...iconMap[s.id],
+  slug: s.slug || generateSlug(s.Titulo)
+}));
+
+// Industries/Sectors data (kept for future sector pages)
 const sectores = [
   { slug: 'aeropuertos', name: 'Aeropuertos', icon: 'plane' },
   { slug: 'bodegas', name: 'Bodegas', icon: 'wine' },
@@ -127,30 +84,6 @@ const sectores = [
   { slug: 'industria', name: 'Industria', icon: 'factory' },
   { slug: 'seguridad-electronica', name: 'Seguridad', icon: 'shield' }
 ];
-
-// Icon SVG paths for services
-const iconPaths: Record<string, string> = {
-  network: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>',
-  shield: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>',
-  radio: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.14 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/>',
-  code: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>',
-  headphones: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 18v-6a9 9 0 0118 0v6M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/>',
-  lightbulb: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>',
-  flame: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"/>',
-  zap: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>'
-};
-
-// Sector icon paths
-const sectorIconPaths: Record<string, string> = {
-  plane: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>',
-  wine: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>',
-  building: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>',
-  heart: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>',
-  landmark: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/>',
-  monitor: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>',
-  mountain: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>',
-  factory: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>'
-};
 ---
 
 <LayoutV4
@@ -245,47 +178,18 @@ const sectorIconPaths: Record<string, string> = {
         </a>
       </div>
 
-      <!-- Services Grid - First Row -->
+      <!-- Services Grid -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {servicios.slice(0, 4).map((servicio) => (
-          <a href={`/servicios/${servicio.id}/${generateSlug(servicio.titulo)}`} class="card-hover group relative rounded-2xl overflow-hidden aspect-square sm:aspect-[4/5]">
-            <img
-              src={servicio.imagen}
-              alt={servicio.titulo}
-              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-              loading="lazy"
-            />
-            <div class="absolute inset-0 bg-gradient-to-t from-um-dark via-um-dark/40 to-transparent"></div>
-            <div class="absolute inset-0 p-4 sm:p-6 flex flex-col justify-end">
-              <div class={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${servicio.iconColor} flex items-center justify-center mb-2 sm:mb-4`}>
-                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" set:html={iconPaths[servicio.icon]} />
-              </div>
-              <h3 class="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">{servicio.titulo}</h3>
-              <p class="text-xs sm:text-sm text-gray-300 line-clamp-2">{servicio.descripcion}</p>
-            </div>
-          </a>
-        ))}
-      </div>
-
-      <!-- Services Grid - Second Row -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-4 sm:mt-6">
-        {servicios.slice(4, 8).map((servicio) => (
-          <a href={`/servicios/${servicio.id}/${generateSlug(servicio.titulo)}`} class="card-hover group relative rounded-2xl overflow-hidden aspect-square sm:aspect-[4/5]">
-            <img
-              src={servicio.imagen}
-              alt={servicio.titulo}
-              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-              loading="lazy"
-            />
-            <div class="absolute inset-0 bg-gradient-to-t from-um-dark via-um-dark/40 to-transparent"></div>
-            <div class="absolute inset-0 p-4 sm:p-6 flex flex-col justify-end">
-              <div class={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${servicio.iconColor} flex items-center justify-center mb-2 sm:mb-4`}>
-                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" set:html={iconPaths[servicio.icon]} />
-              </div>
-              <h3 class="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">{servicio.titulo}</h3>
-              <p class="text-xs sm:text-sm text-gray-300 line-clamp-2">{servicio.descripcion}</p>
-            </div>
-          </a>
+        {servicios.map((servicio) => (
+          <ServiceCard
+            id={servicio.id}
+            slug={servicio.slug}
+            titulo={servicio.Titulo}
+            subtitulo={servicio.subtitulo || servicio.Descripcion?.substring(0, 100)}
+            imagen={servicio.Imagen}
+            icon={servicio.icon || 'box'}
+            iconColor={servicio.iconColor || 'bg-um-primary/90'}
+          />
         ))}
       </div>
     </div>
@@ -415,6 +319,21 @@ const sectorIconPaths: Record<string, string> = {
       </div>
     </div>
   </section>
+
+  <!-- CTA SECTION -->
+  <CTASection
+    badge="Comience su transformación digital"
+    badgeIcon="rocket"
+    titulo="¿Listo para llevar su empresa al siguiente nivel?"
+    descripcion="Contáctenos hoy para una consultoría gratuita y descubra cómo nuestras soluciones pueden impulsar su negocio."
+    primaryButtonText="Solicitar Consultoría Gratis"
+    primaryButtonUrl="/contacto"
+    secondaryButtonText="+54 261 623 4567"
+    secondaryButtonUrl="tel:+542616234567"
+    secondaryButtonIcon="phone"
+    backgroundImage="https://ultimamilla.com.ar/directus-assets/a404fe13-25dc-409d-9789-02cbf9fb93c1"
+    darkOverlay={85}
+  />
 
   <!-- Hero Image Rotation Script -->
   <script>
