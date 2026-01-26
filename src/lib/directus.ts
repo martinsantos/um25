@@ -208,7 +208,7 @@ export async function getAntecedenteConServicios(id: number | string): Promise<A
  * Obtiene antecedentes relacionados con un servicio específico (reverso M2M)
  * Útil para mostrar proyectos en la página de un servicio
  */
-export async function getAntecedentes PorServicio(servicioId: number, limit: number = 6): Promise<AntecedenteV4[]> {
+export async function getAntecedentesPorServicio(servicioId: number, limit: number = 6): Promise<AntecedenteV4[]> {
   try {
     const client = getClient();
     const response = await client.items('antecedentes').readByQuery({

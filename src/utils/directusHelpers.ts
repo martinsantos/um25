@@ -16,7 +16,7 @@ import {
   getServicioConProductos,
   getProductosPorServicio,
   getAntecedenteConServicios,
-  getAntecedentes PorServicio,
+  getAntecedentesPorServicio,
   buscarServicios
 } from '../lib/directus';
 
@@ -166,7 +166,7 @@ export async function getAntecedenteWithServices(id: number | string): Promise<A
  */
 export async function getProyectosPorServicio(servicioId: number, limit: number = 6): Promise<AntecedenteV4[]> {
   try {
-    const antecedentes = await getAntecedentes PorServicio(servicioId, limit);
+    const antecedentes = await getAntecedentesPorServicio(servicioId, limit);
 
     if (antecedentes && antecedentes.length > 0) {
       if (IS_DEV) {
