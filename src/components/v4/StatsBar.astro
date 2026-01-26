@@ -1,0 +1,87 @@
+---
+/**
+ * StatsBar Component V4
+ *
+ * Barra de estadísticas para mostrar métricas clave de un servicio.
+ * Usado en página de detalle de servicio debajo del hero.
+ *
+ * Props:
+ * - stats: Array de objetos {value: string, label: string}
+ *
+ * Ejemplo de uso:
+ * <StatsBar stats={[
+ *   { value: '94+', label: 'Proyectos Completados' },
+ *   { value: '22+', label: 'Años de Experiencia' },
+ *   { value: '25', label: 'Años de Garantía' },
+ *   { value: '24/7', label: 'Soporte Técnico' }
+ * ]} />
+ */
+
+export interface Stat {
+  value: string;
+  label: string;
+}
+
+export interface Props {
+  stats?: Stat[];
+  className?: string;
+}
+
+const {
+  stats = [
+    { value: '100+', label: 'Proyectos' },
+    { value: '20+', label: 'Años' },
+    { value: '99%', label: 'Satisfacción' },
+    { value: '24/7', label: 'Soporte' }
+  ],
+  className = ''
+} = Astro.props;
+
+// Validar que haya stats
+const validStats = stats && stats.length > 0 ? stats : [];
+const hasStats = validStats.length > 0;
+
+// Determinar número de columnas según cantidad de stats
+const gridCols = validStats.length <= 2 ? 'grid-cols-2' :
+                 validStats.length === 3 ? 'grid-cols-3' :
+                 'grid-cols-2 md:grid-cols-4';
+---
+
+{hasStats && (
+  <section class={`bg-um-dark border-t border-white/10 ${className}`}>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div class={`grid ${gridCols} gap-4 sm:gap-6 lg:gap-8`}>
+        {validStats.map((stat) => (
+          <div class="text-center">
+            <div class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">
+              {stat.value}
+            </div>
+            <div class="text-xs sm:text-sm text-gray-400 mt-1">
+              {stat.label}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  /* Animación opcional al entrar en viewport */
+  @media (prefers-reduced-motion: no-preference) {
+    .text-2xl {
+      animation: fadeInUp 0.6s ease-out;
+    }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
