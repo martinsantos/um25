@@ -26,7 +26,16 @@
     "validate:api": "./scripts/test-connectivity.sh",
     "migration:report": "node scripts/generate-migration-report.js",
     "test:migration": "npm run validate:database && npm run validate:images && npm run validate:api",
-    "test:e2e:production": "NODE_ENV=production npm run test:e2e"
+    "test:e2e:production": "NODE_ENV=production npm run test:e2e",
+    "migrate:servicios-v4": "node scripts/migration/migrate-servicios-v4-fields.js",
+    "migrate:servicios-v4:dry": "node scripts/migration/migrate-servicios-v4-fields.js --dry-run",
+    "migrate:productos": "node scripts/migration/migrate-productos-to-directus.js",
+    "migrate:productos:dry": "node scripts/migration/migrate-productos-to-directus.js --dry-run",
+    "migrate:m2m": "node scripts/migration/create-m2m-antecedentes-servicios.js",
+    "migrate:m2m:dry": "node scripts/migration/create-m2m-antecedentes-servicios.js --dry-run",
+    "migrate:m2m:test": "node scripts/migration/create-m2m-antecedentes-servicios.js --dry-run --limit=10",
+    "migrate:v4": "npm run migrate:servicios-v4 && npm run migrate:productos && npm run migrate:m2m",
+    "migrate:v4:dry": "npm run migrate:servicios-v4:dry && npm run migrate:productos:dry && npm run migrate:m2m:test"
   },
   "dependencies": {
     "@astrojs/alpinejs": "^0.3.0",
