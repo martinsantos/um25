@@ -45,6 +45,18 @@ export default defineConfig({
       alias: {
         '@': '/src'
       }
+    },
+    server: {
+      host: '0.0.0.0',
+      strictPort: false,
+      hmr: false,
+      allowedHosts: [
+        'localhost',
+        '127.0.0.1',
+        'ultimamilla.com.ar',
+        'www.ultimamilla.com.ar',
+        '.ultimamilla.com.ar'
+      ]
     }
   },
 

@@ -8,7 +8,7 @@ import LayoutV4 from '../layouts/LayoutV4.astro';
 import ServiceCard from '../components/v4/ServiceCard.astro';
 import CTASection from '../components/v4/CTASection.astro';
 import { generateSlug } from '../utils/slugUtils.js';
-import { getServicios } from '../utils/directusHelpers';
+import { getAllServicios } from '../utils/directusHelpers';
 
 // Import real data
 import { antecedentesReales } from '../data/antecedentes_completos.js';
@@ -51,7 +51,7 @@ const antecedentesEnhanced = antecedentesReales.slice(0, 3).map(ant => ({
 }));
 
 // Get services from Directus (with automatic fallback to JS data)
-const serviciosFromDirectus = await getServicios();
+const serviciosFromDirectus = await getAllServicios();
 
 // Map icon names for ServiceCard component
 const iconMap: Record<number, { icon: string; iconColor: string }> = {
