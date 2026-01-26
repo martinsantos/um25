@@ -1,14 +1,24 @@
 ---
 /**
- * Service Detail Page - V4 Design System COMPLETO
- * Con sección de Productos y Equipamiento con imágenes
- * Basado en: umnueva25/servicio-single-v4.html
+ * Service Detail Page - V4 Design System + Directus Integration
+ * FASE 4: Conectado a Directus con fallback automático a datos JS
+ *
+ * Usa componentes V4:
+ * - StatsBar
+ * - ProductCard
+ * - CTASection
+ *
+ * Usa helpers de Directus con fallback:
+ * - getServicioById() con fallback a servicios_completos_v4.js
  */
 
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
+import StatsBar from '../../../components/v4/StatsBar.astro';
+import ProductCard from '../../../components/v4/ProductCard.astro';
+import CTASection from '../../../components/v4/CTASection.astro';
+
 import { generateSlug } from '../../../utils/slugUtils.js';
-import { getServicioCompleto, listarServicios } from '../../../data/servicios_completos_v4.js';
-import { serviciosReales, serviciosPorId } from '../../../data/servicios_reales_db.js';
+import { getServicioById } from '../../../utils/directusHelpers';
 
 const { id, slug } = Astro.params;
 
@@ -16,33 +26,15 @@ if (!id || !slug) {
   return Astro.redirect('/404');
 }
 
-// Intentar obtener servicio completo V4, sino usar datos básicos
-let servicio = getServicioCompleto(id);
-
-// Fallback a datos básicos si no hay V4
-if (!servicio && serviciosPorId[id]) {
-  const basic = serviciosPorId[id];
-  servicio = {
-    ...basic,
-    Subtitulo: basic.Descripcion?.split('.')[0] || '',
-    Stats: [
-      { value: '150+', label: 'Proyectos Completados' },
-      { value: '22+', label: 'Años de Experiencia' },
-      { value: '99.9%', label: 'Uptime Garantizado' },
-      { value: '24/7', label: 'Soporte Técnico' }
-    ],
-    Productos: [],
-    Soluciones: [],
-    Marcas: [],
-    PorQueElegirnos: []
-  };
-}
+// Obtener servicio de Directus con fallback automático a JS
+const servicio = await getServicioById(id);
 
 if (!servicio) {
   return Astro.redirect('/404');
 }
 
-const expectedSlug = generateSlug(servicio.Titulo);
+// Validar slug
+const expectedSlug = servicio.slug || generateSlug(servicio.Titulo);
 if (slug !== expectedSlug) {
   return Astro.redirect(`/servicios/${id}/${expectedSlug}`);
 }
@@ -51,13 +43,10 @@ if (slug !== expectedSlug) {
 const pageTitle = `${servicio.Titulo} | Servicios - ULTIMA MILLA`;
 const pageDescription = servicio.Descripcion?.replace(/\\/g, ' ').substring(0, 160) || `${servicio.Titulo} - Servicios tecnológicos profesionales en Mendoza, Cuyo y Patagonia.`;
 
-// Related services
-const allServicios = listarServicios();
-const serviciosRelacionados = allServicios
-  .filter(s => s.Area === servicio.Area && s.id !== servicio.id)
-  .slice(0, 3);
+// Productos del servicio (viene de Directus o de JS)
+const productos = servicio.productos || [];
 
-// SVG icon paths
+// SVG icon paths para soluciones
 const iconPaths = {
   'monitor': '<rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>',
   'headphones': '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>',
@@ -68,59 +57,48 @@ const iconPaths = {
   'radio': '<circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/>',
   'wifi': '<path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>',
   'server': '<rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/>',
-  'clipboard-check': '<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="m9 14 2 2 4-4"/>',
-  'video': '<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>',
-  'fingerprint': '<path d="M2 12C2 6.5 6.5 2 12 2a10 10 0 0 1 8 4"/><path d="M5 19.5C5.5 18 6 15 6 12c0-.7.12-1.37.34-2"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M9 6.8a6 6 0 0 1 9 5.2c0 .47 0 1.17-.02 2"/>',
-  'bell': '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
-  'flame': '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
-  'phone': '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
-  'headset': '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>',
-  'message-circle': '<path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/>',
   'globe': '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
   'code': '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
   'database': '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>',
   'smartphone': '<rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>',
   'cpu': '<rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/>',
-  'share-2': '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>',
-  'bar-chart-2': '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+  'flame': '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>'
 };
-
-// Colors for product cards (alternating)
-const productColors = ['sky', 'emerald', 'purple', 'amber', 'rose', 'indigo'];
 ---
 
 <LayoutV4
   title={pageTitle}
   description={pageDescription}
-  keywords={`${servicio.Titulo.toLowerCase()}, ${servicio.Area?.toLowerCase()}, servicios tecnologicos mendoza`}
+  keywords={`${servicio.Titulo.toLowerCase()}, ${servicio.area?.toLowerCase()}, servicios tecnologicos mendoza`}
 >
   <!-- HERO SECTION -->
   <section class="relative bg-um-dark overflow-hidden">
     <div class="absolute inset-0">
       <img
-        src={servicio.Imagen || servicio.ImagenFallback}
+        src={servicio.Imagen || '/images/services/default-service.jpg'}
         alt={servicio.Titulo}
         class="w-full h-full object-cover opacity-50"
-        onerror={`this.src='${servicio.ImagenFallback || '/images/services/default-service.jpg'}'`}
+        loading="eager"
       />
       <div class="absolute inset-0 bg-gradient-to-t from-um-dark via-um-dark/60 to-um-dark/30"></div>
     </div>
 
     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-6 sm:pb-10 lg:pb-12">
       <!-- Breadcrumb -->
-      <nav class="flex items-center gap-2 text-xs sm:text-sm text-gray-300 mb-3 sm:mb-4" aria-label="Breadcrumb">
+      <nav class="flex items-center gap-2 text-xs sm:text-sm text-gray-300 mb-3 sm:mb-4">
         <a href="/" class="hover:text-white transition-colors">Inicio</a>
         <span class="text-white/30">/</span>
         <a href="/servicios" class="hover:text-white transition-colors">Servicios</a>
         <span class="text-white/30">/</span>
-        <span class="text-white font-medium truncate max-w-[200px]">{servicio.Titulo}</span>
+        <span class="text-white font-medium">{servicio.Titulo}</span>
       </nav>
 
       <!-- Badge -->
-      <span class="inline-flex items-center gap-2 px-4 py-2 bg-um-primary text-white rounded-full text-xs font-bold uppercase tracking-wide mb-4 sm:mb-5">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" set:html={iconPaths['monitor'] || iconPaths['globe']} />
-        {servicio.Area}
-      </span>
+      {servicio.area && (
+        <span class="inline-flex items-center gap-2 px-4 py-2 bg-um-primary text-white rounded-full text-xs font-bold uppercase tracking-wide mb-4 sm:mb-5">
+          {servicio.area}
+        </span>
+      )}
 
       <!-- Title -->
       <h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold text-white mb-4 max-w-4xl leading-tight">
@@ -128,28 +106,17 @@ const productColors = ['sky', 'emerald', 'purple', 'amber', 'rose', 'indigo'];
       </h1>
 
       <!-- Subtitle -->
-      {servicio.Subtitulo && (
+      {servicio.subtitulo && (
         <p class="text-sm sm:text-base lg:text-lg text-white/80 max-w-2xl leading-relaxed">
-          {servicio.Subtitulo}
+          {servicio.subtitulo}
         </p>
       )}
     </div>
   </section>
 
-  <!-- STATS BAR -->
-  {servicio.Stats && servicio.Stats.length > 0 && (
-    <section class="bg-um-dark border-t border-white/10">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-          {servicio.Stats.map((stat) => (
-            <div class="text-center">
-              <div class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">{stat.value}</div>
-              <div class="text-xs sm:text-sm text-gray-400 mt-1">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
+  <!-- STATS BAR - Componente V4 -->
+  {servicio.stats && servicio.stats.length > 0 && (
+    <StatsBar stats={servicio.stats} />
   )}
 
   <!-- MAIN CONTENT -->
@@ -167,7 +134,7 @@ const productColors = ['sky', 'emerald', 'purple', 'amber', 'rose', 'indigo'];
             </p>
           </div>
 
-          <!-- Soluciones que Ofrecemos -->
+          <!-- Soluciones que Ofrecemos (si existen en formato JS) -->
           {servicio.Soluciones && servicio.Soluciones.length > 0 && (
             <div class="mb-8 sm:mb-12">
               <h3 class="text-xl sm:text-2xl font-bold text-um-dark mb-4 sm:mb-6">Soluciones que Ofrecemos</h3>
@@ -219,16 +186,16 @@ const productColors = ['sky', 'emerald', 'purple', 'amber', 'rose', 'indigo'];
           </div>
 
           <!-- Por Qué Elegirnos -->
-          {servicio.PorQueElegirnos && servicio.PorQueElegirnos.length > 0 && (
+          {servicio.por_que_elegirnos && servicio.por_que_elegirnos.length > 0 && (
             <div class="bg-um-primary-bg rounded-2xl p-6 sm:p-8 mb-8 sm:mb-12">
               <h3 class="text-xl sm:text-2xl font-bold text-um-dark mb-4 sm:mb-6">Por Qué Elegirnos</h3>
               <ul class="space-y-3">
-                {servicio.PorQueElegirnos.map((item) => (
+                {servicio.por_que_elegirnos.map((item) => (
                   <li class="flex items-start gap-3">
                     <svg class="w-5 h-5 text-um-primary flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <span class="text-um-dark font-medium">{item}</span>
+                    <span class="text-um-dark">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -244,7 +211,7 @@ const productColors = ['sky', 'emerald', 'purple', 'amber', 'rose', 'indigo'];
 
             <div class="space-y-4 mb-6">
               <div class="flex items-start gap-3">
-                <svg class="w-5 h-5 text-um-primary mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-um-primary mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                   <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                 </svg>
                 <div>
@@ -252,56 +219,44 @@ const productColors = ['sky', 'emerald', 'purple', 'amber', 'rose', 'indigo'];
                   <div class="font-semibold text-um-dark">2-8 semanas</div>
                 </div>
               </div>
-
               <div class="flex items-start gap-3">
-                <svg class="w-5 h-5 text-um-primary mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                <svg class="w-5 h-5 text-um-primary mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
                 <div>
                   <div class="text-sm text-um-gray">Garantía</div>
                   <div class="font-semibold text-um-dark">5 años en materiales</div>
                 </div>
               </div>
-
               <div class="flex items-start gap-3">
-                <svg class="w-5 h-5 text-um-primary mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                <svg class="w-5 h-5 text-um-primary mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
                 <div>
                   <div class="text-sm text-um-gray">Cobertura</div>
                   <div class="font-semibold text-um-dark">Mendoza, Cuyo y Patagonia</div>
                 </div>
               </div>
-
-              <div class="flex items-start gap-3">
-                <svg class="w-5 h-5 text-um-primary mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
-                </svg>
-                <div>
-                  <div class="text-sm text-um-gray">Certificaciones</div>
-                  <div class="font-semibold text-um-dark">ISO 9001, BICSI</div>
-                </div>
-              </div>
             </div>
 
-            <a href="/contacto" class="block w-full py-3 bg-um-accent text-white text-center font-semibold rounded-xl hover:bg-um-accent-dark transition-colors shadow-lg shadow-um-accent/25 mb-3 min-h-[44px] flex items-center justify-center">
+            <a href="/contacto" class="block w-full py-3 bg-um-accent text-white text-center font-semibold rounded-xl hover:bg-um-accent-dark transition-colors shadow-lg shadow-um-accent/25 mb-3">
               Solicitar Presupuesto
             </a>
-            <a href="mailto:contacto@ultimamilla.com.ar" class="flex items-center justify-center gap-2 w-full py-3 border border-um-primary text-um-primary font-semibold rounded-xl hover:bg-um-primary-bg transition-colors min-h-[44px]">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            <a href="tel:+542614000000" class="flex items-center justify-center gap-2 w-full py-3 border border-um-primary text-um-primary font-semibold rounded-xl hover:bg-um-primary-bg transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
               </svg>
-              Enviar Email
+              Llamar Ahora
             </a>
           </div>
 
-          <!-- Marcas que Trabajamos -->
-          {servicio.Marcas && servicio.Marcas.length > 0 && (
+          <!-- Brands -->
+          {servicio.marcas && servicio.marcas.length > 0 && (
             <div class="bg-gray-50 rounded-2xl p-6">
               <h3 class="font-bold text-um-dark mb-4 text-lg">Marcas que Trabajamos</h3>
               <div class="flex flex-wrap gap-3">
-                {servicio.Marcas.map((brand) => (
-                  <span class="px-3 py-1 bg-white rounded-full text-sm text-um-gray border">{brand}</span>
+                {servicio.marcas.map((marca) => (
+                  <span class="px-3 py-1 bg-white rounded-full text-sm text-um-gray border">{marca}</span>
                 ))}
               </div>
             </div>
@@ -311,8 +266,8 @@ const productColors = ['sky', 'emerald', 'purple', 'amber', 'rose', 'indigo'];
     </div>
   </section>
 
-  <!-- PRODUCTOS Y EQUIPAMIENTO -->
-  {servicio.Productos && servicio.Productos.length > 0 && (
+  <!-- PRODUCTOS Y EQUIPAMIENTO - Usando componente ProductCard V4 -->
+  {productos.length > 0 && (
     <section class="py-12 sm:py-16 lg:py-20 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-8 sm:mb-12 lg:mb-16">
@@ -326,149 +281,39 @@ const productColors = ['sky', 'emerald', 'purple', 'amber', 'rose', 'indigo'];
         </div>
 
         <div class="space-y-12 sm:space-y-16 lg:space-y-24">
-          {servicio.Productos.map((producto, index) => {
-            const isReversed = index % 2 !== 0;
-            const colorIndex = index % productColors.length;
-            const color = productColors[colorIndex];
-            const bgColorClass = `bg-${color}-50`;
-            const borderColorClass = `border-${color}-500`;
-            const textColorClass = `text-${color}-900`;
-
-            return (
-              <div class={`flex flex-col ${isReversed ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-6 sm:gap-8 lg:gap-12`}>
-                <!-- Image -->
-                <div class="w-full md:w-1/2">
-                  <div class="relative">
-                    <img
-                      src={producto.imagen}
-                      alt={producto.titulo}
-                      class="w-full rounded-2xl shadow-xl"
-                      style="mix-blend-mode: multiply; -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 70%, transparent 100%); mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 70%, transparent 100%);"
-                      loading="lazy"
-                      onerror="this.src='/images/services/default-service.jpg'"
-                    />
-                  </div>
-                </div>
-
-                <!-- Content -->
-                <div class="w-full md:w-1/2 space-y-6">
-                  <h3 class="text-2xl font-bold text-slate-900">{producto.titulo}</h3>
-                  <p class="text-slate-600 leading-relaxed text-lg">
-                    {producto.descripcion}
-                  </p>
-
-                  {producto.features && producto.features.length > 0 && (
-                    <ul class="space-y-3">
-                      {producto.features.map((feature) => (
-                        <li class="flex items-start space-x-3">
-                          <span class="text-um-primary font-bold">✓</span>
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
-                  {producto.destacado && (
-                    <div class="p-4 bg-sky-50 border-l-4 border-um-primary rounded-r-lg">
-                      <p class="text-sky-900 font-medium text-sm">
-                        🔧 {producto.destacado}
-                      </p>
-                    </div>
-                  )}
-
-                  {producto.marcas && producto.marcas.length > 0 && (
-                    <div class="p-4 bg-gray-50 border-l-4 border-gray-300 rounded-r-lg">
-                      <p class="text-gray-700 font-medium text-sm">
-                        <strong>Marcas:</strong> {producto.marcas.join(', ')}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+          {productos.map((producto, index) => (
+            <ProductCard
+              titulo={producto.titulo}
+              descripcion={producto.descripcion}
+              imagen={producto.imagen}
+              features={producto.features}
+              destacado={producto.destacado}
+              marcas={producto.marcas}
+              orden={index}
+            />
+          ))}
         </div>
       </div>
     </section>
   )}
 
-  <!-- CASOS DE ÉXITO RELACIONADOS -->
-  {serviciosRelacionados.length > 0 && (
-    <section class="bg-gray-50 py-10 sm:py-14 lg:py-20 xl:py-24">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-8 sm:mb-12">
-          <h2 class="text-2xl sm:text-3xl font-bold text-um-dark mb-3 sm:mb-4">Servicios Relacionados</h2>
-          <p class="text-sm sm:text-base text-um-gray">Otros servicios que podrían interesarle</p>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-          {serviciosRelacionados.map((relacionado) => {
-            const relSlug = generateSlug(relacionado.Titulo);
-            return (
-              <a href={`/servicios/${relacionado.id}/${relSlug}`} class="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
-                <div class="aspect-video overflow-hidden">
-                  <img
-                    src={relacionado.Imagen || relacionado.ImagenFallback}
-                    alt={relacionado.Titulo}
-                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    loading="lazy"
-                    onerror="this.src='/images/services/default-service.jpg'"
-                  />
-                </div>
-                <div class="p-6">
-                  <span class="text-xs font-semibold text-um-primary uppercase tracking-wider">{relacionado.Area}</span>
-                  <h3 class="font-bold text-um-dark mt-2 mb-2 group-hover:text-um-primary transition-colors">{relacionado.Titulo}</h3>
-                  <p class="text-sm text-um-gray line-clamp-2">{relacionado.Subtitulo || relacionado.Descripcion?.substring(0, 100)}</p>
-                </div>
-              </a>
-            );
-          })}
-        </div>
-
-        <div class="text-center mt-8 sm:mt-12">
-          <a href="/servicios" class="inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 border-2 border-um-primary text-um-primary font-semibold rounded-xl hover:bg-um-primary hover:text-white transition-colors min-h-[44px]">
-            Ver Todos los Servicios
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-            </svg>
-          </a>
-        </div>
-      </div>
-    </section>
-  )}
-
-  <!-- CTA SECTION -->
-  <section class="bg-um-dark py-10 sm:py-14 lg:py-20">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">
-        ¿Necesita {servicio.Titulo}?
-      </h2>
-      <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-8">
-        Nuestro equipo de especialistas está listo para diseñar la solución perfecta para su empresa
-      </p>
-      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-        <a href="/contacto" class="px-6 py-3 sm:px-8 sm:py-4 bg-um-accent text-white font-bold rounded-xl hover:bg-um-accent-dark transition-colors shadow-xl shadow-um-accent/25 min-h-[48px] flex items-center justify-center">
-          Solicitar Consulta Gratuita
-        </a>
-        <a href="mailto:contacto@ultimamilla.com.ar" class="px-6 py-3 sm:px-8 sm:py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2 min-h-[48px]">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-          </svg>
-          contacto@ultimamilla.com.ar
-        </a>
-      </div>
-    </div>
-  </section>
+  <!-- CTA SECTION - Componente V4 -->
+  <CTASection
+    badge="Solicite su consultoría gratuita"
+    badgeIcon="rocket"
+    titulo={`¿Listo para implementar ${servicio.Titulo}?`}
+    descripcion="Contáctenos hoy para una consultoría técnica gratuita y descubra cómo podemos ayudar a su empresa."
+    primaryButtonText="Solicitar Consultoría"
+    primaryButtonUrl="/contacto"
+    secondaryButtonText="+54 261 623 4567"
+    secondaryButtonUrl="tel:+542616234567"
+    secondaryButtonIcon="phone"
+    backgroundImage={servicio.Imagen}
+  />
 </LayoutV4>
 
 <style>
-  .card-hover {
-    transition: all 0.3s ease;
-  }
-  .card-hover:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
-  }
+  /* Line clamp utility */
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
