@@ -7,6 +7,7 @@
 
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import HeroPageV4 from '../../components/v4/HeroPageV4.astro';
+import CTASection from '../../components/v4/CTASection.astro';
 import { directus, PAGE_SIZE, DEFAULT_IMAGE } from '../../utils/directus';
 import { generateSlug } from '../../utils/slugUtils.js';
 import { antecedentesReales } from '../../data/antecedentes_completos.js';
@@ -463,37 +464,19 @@ const filterIconPaths: Record<string, string> = {
   </section>
 
   <!-- CTA Section -->
-  <section class="relative py-12 sm:py-16 lg:py-20 xl:py-24 overflow-hidden">
-    <div class="absolute inset-0">
-      <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80" alt="" class="w-full h-full object-cover" />
-      <div class="absolute inset-0 bg-um-dark/90"></div>
-    </div>
-    <div class="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
-      <span class="inline-flex items-center gap-2 px-4 py-2 bg-um-primary/20 text-um-primary-light rounded-full text-sm font-semibold mb-6">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-        </svg>
-        Comience su proyecto
-      </span>
-      <h2 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-6">
-        ¿Tiene un proyecto en mente?
-      </h2>
-      <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
-        Contáctenos para discutir cómo podemos ayudarle a alcanzar sus objetivos tecnológicos. Más de {pageData.totalItems} proyectos nos respaldan.
-      </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="/contacto" class="px-8 py-4 bg-um-accent text-white font-bold rounded-xl hover:bg-um-accent-dark transition-colors shadow-xl shadow-um-accent/25 min-h-[48px] flex items-center justify-center">
-          Solicitar Cotización
-        </a>
-        <a href="mailto:contacto@ultimamilla.com.ar" class="px-8 py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2 min-h-[48px]">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-          </svg>
-          contacto@ultimamilla.com.ar
-        </a>
-      </div>
-    </div>
-  </section>
+  <CTASection
+    badge="Comience su proyecto"
+    badgeIcon="rocket"
+    titulo="¿Tiene un proyecto en mente?"
+    descripcion={`Contáctenos para discutir cómo podemos ayudarle a alcanzar sus objetivos tecnológicos. Más de ${pageData.totalItems} proyectos nos respaldan.`}
+    primaryButtonText="Solicitar Cotización"
+    primaryButtonUrl="/contacto"
+    secondaryButtonText="contacto@ultimamilla.com.ar"
+    secondaryButtonUrl="mailto:contacto@ultimamilla.com.ar"
+    secondaryButtonIcon="mail"
+    backgroundImage="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80"
+    darkOverlay={90}
+  />
 </LayoutV4>
 
 <style>
