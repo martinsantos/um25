@@ -76,7 +76,7 @@ const areasUnicas = [...new Set(serviciosReales.map(s => s.Area))].sort();
 const clientesUnicos = [...new Set(serviciosReales.map(s => s.Cliente))].sort();
 
 // Imágenes ya tienen URL completa en serviciosCompletos
-const getAssetUrl = (url) => url || '/images/default-service.jpg';
+const getAssetUrl = (url) => url || '/images/services/default-service.jpg';
 
 // Compute pagination pages
 const computePaginationPages = () => {
@@ -213,7 +213,7 @@ const buildPageUrl = (page: number) => {
                       alt={servicio.Titulo}
                       class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
-                      onerror="this.src='/images/default-service.jpg'"
+                      onerror="this.src='/images/services/default-service.jpg'"
                     />
                     <div class="absolute top-3 sm:top-4 left-3 sm:left-4">
                       <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-um-dark text-white shadow-sm">
