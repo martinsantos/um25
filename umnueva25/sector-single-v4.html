@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aeropuertos | Sectores - Ultima Milla V4</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            // DOMINANTE - Azul celeste
+            'um-primary': '#0ea5e9',
+            'um-primary-dark': '#0284c7',
+            'um-primary-light': '#38bdf8',
+            'um-primary-bg': '#f0f9ff',
+            // COMPLEMENTARIO - Rojo (solo CTAs)
+            'um-accent': '#dc2626',
+            'um-accent-dark': '#b91c1c',
+            // ESTRUCTURAL
+            'um-dark': '#111827',
+            'um-slate': '#1e293b',
+            // NEUTRALES
+            'um-gray': '#6b7280',
+            'um-gray-light': '#f3f4f6'
+          },
+          fontFamily: {
+            'opensans': ['Open Sans', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Open Sans', sans-serif; }
+    .card-hover { transition: all 0.3s ease; }
+    .card-hover:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
+
+    /* ===== MOBILE-FIRST RESPONSIVE STYLES ===== */
+    html, body { overflow-x: hidden; max-width: 100vw; }
+    .touch-target { min-height: 44px; min-width: 44px; }
+    #mobileMenu { transition: opacity 0.3s ease, transform 0.3s ease; }
+    #mobileMenu.hidden { opacity: 0; transform: translateY(-10px); pointer-events: none; }
+    #mobileMenu:not(.hidden) { opacity: 1; transform: translateY(0); }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body class="bg-white">
+
+  <!-- NAVBAR -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20">
+        <a href="index-v4.html" class="flex items-center">
+          <img src="https://ultimamilla.com.ar/images/um-logo.png" alt="Ultima Milla" class="h-10 sm:h-14" style="mix-blend-mode: multiply;">
+        </a>
+        <div class="hidden md:flex items-center gap-6 lg:gap-8">
+          <a href="index-v4.html" class="text-um-gray hover:text-um-primary font-medium transition-colors">Inicio</a>
+          <a href="servicios-v4.html" class="text-um-gray hover:text-um-primary font-medium transition-colors">Servicios</a>
+          <a href="antecedentes-index-v4.html" class="text-um-gray hover:text-um-primary font-medium transition-colors">Antecedentes</a>
+          <a href="sectores-v4.html" class="text-um-primary font-semibold">Sectores</a>
+          <a href="nosotros-v4.html" class="text-um-gray hover:text-um-primary font-medium transition-colors">Nosotros</a>
+          <a href="contacto-v4.html" class="px-5 py-2.5 bg-um-accent text-white rounded-lg font-semibold hover:bg-um-accent-dark transition-colors shadow-lg shadow-um-accent/25">
+            Contacto
+          </a>
+        </div>
+        <button id="menuToggle" class="md:hidden p-2 touch-target flex items-center justify-center" aria-label="Abrir menu" aria-expanded="false">
+          <svg id="menuIconOpen" class="w-6 h-6 text-um-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+          <svg id="menuIconClose" class="w-6 h-6 text-um-dark hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-100 shadow-lg">
+      <div class="px-4 py-4 space-y-2">
+        <a href="index-v4.html" class="block px-4 py-3 text-um-gray hover:text-um-primary hover:bg-um-primary-bg rounded-lg font-medium transition-colors touch-target">Inicio</a>
+        <a href="servicios-v4.html" class="block px-4 py-3 text-um-gray hover:text-um-primary hover:bg-um-primary-bg rounded-lg font-medium transition-colors touch-target">Servicios</a>
+        <a href="antecedentes-index-v4.html" class="block px-4 py-3 text-um-gray hover:text-um-primary hover:bg-um-primary-bg rounded-lg font-medium transition-colors touch-target">Antecedentes</a>
+        <a href="sectores-v4.html" class="block px-4 py-3 text-um-primary bg-um-primary-bg rounded-lg font-semibold touch-target">Sectores</a>
+        <a href="nosotros-v4.html" class="block px-4 py-3 text-um-gray hover:text-um-primary hover:bg-um-primary-bg rounded-lg font-medium transition-colors touch-target">Nosotros</a>
+        <a href="contacto-v4.html" class="block px-4 py-3 bg-um-accent text-white rounded-lg font-semibold text-center hover:bg-um-accent-dark transition-colors touch-target mt-4">
+          Contacto
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION - With Background Image -->
+  <section class="relative bg-um-dark pt-20 sm:pt-24 pb-6 sm:pb-10 lg:pb-12 overflow-hidden"
+           style="background: linear-gradient(rgba(17, 24, 39, 0.85), rgba(17, 24, 39, 0.85)), url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80') center/cover; opacity: 1;">
+
+    <!-- Background image with reduced opacity for better text contrast -->
+    <div class="absolute inset-0 opacity-50" style="background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80'); background-position: center; background-size: cover;"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 text-xs sm:text-sm text-white/70 mb-3 sm:mb-4 flex-wrap">
+        <a href="index-v4.html" class="hover:text-white transition-colors">Inicio</a>
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        <a href="sectores-v4.html" class="hover:text-white transition-colors">Sectores</a>
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        <span class="text-white">Aeropuertos</span>
+      </nav>
+
+      <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+        <div>
+          <!-- Badge with Emoji -->
+          <div class="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-2 sm:py-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-4 sm:mb-5">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-sky-400 to-sky-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-sky-500/30">
+              <span class="text-lg sm:text-2xl">✈️</span>
+            </div>
+            <span class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-sky-300">Aeropuertos</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white mb-4 sm:mb-5 leading-tight">
+            Soluciones para<br>Aeropuertos
+          </h1>
+          <p class="text-base sm:text-lg lg:text-xl text-gray-200 max-w-xl">
+            Infraestructura tecnológica de misión crítica para operaciones aeroportuarias que nunca se detienen.
+          </p>
+        </div>
+
+        <!-- Stats - Centrados verticalmente -->
+        <div class="flex flex-wrap justify-center lg:justify-end gap-3 sm:gap-4">
+          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
+            <div class="text-2xl sm:text-3xl font-extrabold text-white">15+</div>
+            <div class="text-xs sm:text-sm text-white/70 mt-1">Proyectos</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
+            <div class="text-2xl sm:text-3xl font-extrabold text-white">99.99%</div>
+            <div class="text-xs sm:text-sm text-white/70 mt-1">Uptime</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
+            <div class="text-2xl sm:text-3xl font-extrabold text-white">24/7</div>
+            <div class="text-xs sm:text-sm text-white/70 mt-1">Soporte</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALUE PROPOSITIONS -->
+  <section class="py-10 sm:py-14 lg:py-16 border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 bg-um-primary-bg rounded-xl flex items-center justify-center flex-shrink-0">
+            <i data-lucide="shield-check" class="w-6 h-6 text-um-primary"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-um-dark mb-2">Sistemas de Misión Crítica</h3>
+            <p class="text-sm text-um-gray">Infraestructura redundante diseñada para operación continua 24/7 sin tolerancia a fallos.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 bg-um-primary-bg rounded-xl flex items-center justify-center flex-shrink-0">
+            <i data-lucide="lock" class="w-6 h-6 text-um-primary"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-um-dark mb-2">Cumplimiento Normativo</h3>
+            <p class="text-sm text-um-gray">Soluciones que cumplen con regulaciones de aviación civil, OACI y normativas de seguridad aeroportuaria.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 bg-um-primary-bg rounded-xl flex items-center justify-center flex-shrink-0">
+            <i data-lucide="headphones" class="w-6 h-6 text-um-primary"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-um-dark mb-2">Soporte Especializado</h3>
+            <p class="text-sm text-um-gray">Equipo técnico con experiencia en ambientes aeroportuarios y tiempos de respuesta críticos.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTOR DESCRIPTION -->
+  <section class="py-10 sm:py-14 lg:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center mb-12 lg:mb-20">
+        <div>
+          <span class="text-um-red font-semibold text-xs sm:text-sm uppercase tracking-wider">El Desafío</span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-4 sm:mb-6">
+            Tecnología que Vuela Alto
+          </h2>
+          <div class="prose prose-lg text-um-gray">
+            <p>
+              Los aeropuertos son infraestructuras críticas donde cada segundo cuenta. Las operaciones aeroportuarias requieren sistemas de comunicación, seguridad y control que funcionen sin interrupciones las 24 horas del día, los 365 días del año.
+            </p>
+            <p>
+              En Ultima Milla, entendemos estos desafíos únicos y hemos desarrollado soluciones especializadas que cumplen con los más altos estándares de la industria de aviación, incluyendo normativas OACI, regulaciones de la ANAC y estándares internacionales de seguridad.
+            </p>
+          </div>
+        </div>
+        <div class="relative">
+          <div class="absolute -inset-4 bg-um-primary/10 rounded-3xl"></div>
+          <img
+            src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&h=450&fit=crop"
+            alt="Aeropuerto"
+            class="relative rounded-2xl shadow-xl w-full"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELEVANT SERVICES -->
+  <section class="bg-gray-50 py-10 sm:py-14 lg:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-8 sm:mb-12">
+        <span class="text-um-red font-semibold text-xs sm:text-sm uppercase tracking-wider">Servicios</span>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">Soluciones para el Sector</h2>
+        <p class="text-sm sm:text-base text-um-gray max-w-2xl mx-auto px-4 sm:px-0">
+          Servicios especializados para cubrir todas las necesidades tecnológicas de un aeropuerto moderno.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        <!-- Service 1 -->
+        <a href="servicio-single-v4.html?id=102" class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover group">
+          <div class="w-12 h-12 bg-um-primary-bg rounded-xl flex items-center justify-center mb-4 group-hover:bg-um-primary transition-colors">
+            <i data-lucide="video" class="w-6 h-6 text-um-red group-hover:text-white transition-colors"></i>
+          </div>
+          <h3 class="font-bold text-um-dark mb-2 group-hover:text-um-primary transition-colors">CCTV de Alta Seguridad</h3>
+          <p class="text-sm text-um-gray mb-4">
+            Sistemas de videovigilancia con analítica de video, reconocimiento facial y almacenamiento redundante.
+          </p>
+          <span class="text-um-red font-semibold text-sm flex items-center gap-1">
+            Ver servicio <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </span>
+        </a>
+
+        <!-- Service 2 -->
+        <a href="servicio-single-v4.html?id=101" class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover group">
+          <div class="w-12 h-12 bg-um-primary-bg rounded-xl flex items-center justify-center mb-4 group-hover:bg-um-primary transition-colors">
+            <i data-lucide="network" class="w-6 h-6 text-um-red group-hover:text-white transition-colors"></i>
+          </div>
+          <h3 class="font-bold text-um-dark mb-2 group-hover:text-um-primary transition-colors">Redes de Misión Crítica</h3>
+          <p class="text-sm text-um-gray mb-4">
+            Backbone de fibra óptica redundante con failover automático y monitoreo continuo.
+          </p>
+          <span class="text-um-red font-semibold text-sm flex items-center gap-1">
+            Ver servicio <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </span>
+        </a>
+
+        <!-- Service 3 -->
+        <a href="servicio-single-v4.html?id=102" class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover group">
+          <div class="w-12 h-12 bg-um-primary-bg rounded-xl flex items-center justify-center mb-4 group-hover:bg-um-primary transition-colors">
+            <i data-lucide="door-open" class="w-6 h-6 text-um-red group-hover:text-white transition-colors"></i>
+          </div>
+          <h3 class="font-bold text-um-dark mb-2 group-hover:text-um-primary transition-colors">Control de Accesos</h3>
+          <p class="text-sm text-um-gray mb-4">
+            Sistemas biométricos, lectores de credenciales y control de zonas restringidas.
+          </p>
+          <span class="text-um-red font-semibold text-sm flex items-center gap-1">
+            Ver servicio <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </span>
+        </a>
+
+        <!-- Service 4 -->
+        <a href="servicio-single-v4.html?id=103" class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover group">
+          <div class="w-12 h-12 bg-um-primary-bg rounded-xl flex items-center justify-center mb-4 group-hover:bg-um-primary transition-colors">
+            <i data-lucide="radio" class="w-6 h-6 text-um-red group-hover:text-white transition-colors"></i>
+          </div>
+          <h3 class="font-bold text-um-dark mb-2 group-hover:text-um-primary transition-colors">Comunicaciones</h3>
+          <p class="text-sm text-um-gray mb-4">
+            Sistemas de radio, megafonía, intercomunicadores y comunicaciones de emergencia.
+          </p>
+          <span class="text-um-red font-semibold text-sm flex items-center gap-1">
+            Ver servicio <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </span>
+        </a>
+
+        <!-- Service 5 -->
+        <a href="servicio-single-v4.html?id=107" class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover group">
+          <div class="w-12 h-12 bg-um-primary-bg rounded-xl flex items-center justify-center mb-4 group-hover:bg-um-primary transition-colors">
+            <i data-lucide="flame" class="w-6 h-6 text-um-red group-hover:text-white transition-colors"></i>
+          </div>
+          <h3 class="font-bold text-um-dark mb-2 group-hover:text-um-primary transition-colors">Detección de Incendios</h3>
+          <p class="text-sm text-um-gray mb-4">
+            Sistemas de detección temprana, alarmas y protocolos de evacuación integrados.
+          </p>
+          <span class="text-um-red font-semibold text-sm flex items-center gap-1">
+            Ver servicio <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </span>
+        </a>
+
+        <!-- Service 6 -->
+        <a href="servicio-single-v4.html?id=105" class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover group">
+          <div class="w-12 h-12 bg-um-primary-bg rounded-xl flex items-center justify-center mb-4 group-hover:bg-um-primary transition-colors">
+            <i data-lucide="headset" class="w-6 h-6 text-um-red group-hover:text-white transition-colors"></i>
+          </div>
+          <h3 class="font-bold text-um-dark mb-2 group-hover:text-um-primary transition-colors">Soporte IT 24/7</h3>
+          <p class="text-sm text-um-gray mb-4">
+            Mesa de ayuda dedicada con SLAs específicos para operaciones aeroportuarias.
+          </p>
+          <span class="text-um-red font-semibold text-sm flex items-center gap-1">
+            Ver servicio <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED CASES -->
+  <section class="py-10 sm:py-14 lg:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-8 sm:mb-12">
+        <span class="text-um-red font-semibold text-xs sm:text-sm uppercase tracking-wider">Casos de Éxito</span>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">Proyectos en el Sector</h2>
+        <p class="text-sm sm:text-base text-um-gray">Algunos de los aeropuertos donde hemos implementado soluciones</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        <!-- Case 1 -->
+        <a href="antecedente-single-v4.html" class="group bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100 card-hover">
+          <div class="aspect-video overflow-hidden">
+            <img
+              src="https://images.unsplash.com/photo-1529074963764-98f45c47344b?w=400&h=225&fit=crop"
+              alt="Aeropuerto El Plumerillo"
+              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            />
+          </div>
+          <div class="p-6">
+            <span class="text-xs font-semibold text-um-red uppercase tracking-wider">Aeropuertos</span>
+            <h3 class="font-bold text-um-dark mt-2 mb-2 group-hover:text-um-primary transition-colors">
+              Aeropuerto El Plumerillo - CCTV
+            </h3>
+            <p class="text-sm text-um-gray mb-4">
+              Sistema de videovigilancia con 120 cámaras IP y analítica de video.
+            </p>
+            <span class="text-um-red font-semibold text-sm flex items-center gap-1">
+              Ver caso <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </span>
+          </div>
+        </a>
+
+        <!-- Case 2 -->
+        <a href="antecedente-single-v4.html" class="group bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100 card-hover">
+          <div class="aspect-video overflow-hidden">
+            <img
+              src="https://images.unsplash.com/photo-1474302770737-173ee21bab63?w=400&h=225&fit=crop"
+              alt="Aeropuerto San Juan"
+              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            />
+          </div>
+          <div class="p-6">
+            <span class="text-xs font-semibold text-um-red uppercase tracking-wider">Aeropuertos</span>
+            <h3 class="font-bold text-um-dark mt-2 mb-2 group-hover:text-um-primary transition-colors">
+              Aeropuerto San Juan - Red de Datos
+            </h3>
+            <p class="text-sm text-um-gray mb-4">
+              Backbone de fibra óptica y WiFi de alta densidad para pasajeros.
+            </p>
+            <span class="text-um-red font-semibold text-sm flex items-center gap-1">
+              Ver caso <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </span>
+          </div>
+        </a>
+
+        <!-- Case 3 -->
+        <a href="antecedente-single-v4.html" class="group bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100 card-hover">
+          <div class="aspect-video overflow-hidden">
+            <img
+              src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=225&fit=crop"
+              alt="Aeropuerto Neuquén"
+              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            />
+          </div>
+          <div class="p-6">
+            <span class="text-xs font-semibold text-um-red uppercase tracking-wider">Aeropuertos</span>
+            <h3 class="font-bold text-um-dark mt-2 mb-2 group-hover:text-um-primary transition-colors">
+              Aeropuerto Neuquén - Control de Accesos
+            </h3>
+            <p class="text-sm text-um-gray mb-4">
+              Sistema biométrico para 15 zonas restringidas con integración CCTV.
+            </p>
+            <span class="text-um-red font-semibold text-sm flex items-center gap-1">
+              Ver caso <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </span>
+          </div>
+        </a>
+      </div>
+
+      <div class="text-center mt-8 sm:mt-12">
+        <a href="antecedentes-index-v4.html?sector=aeropuertos" class="inline-flex items-center gap-2 px-5 sm:px-6 py-3 border-2 border-um-primary text-um-primary font-semibold rounded-xl hover:bg-um-primary hover:text-white transition-colors text-sm sm:text-base touch-target">
+          Ver Todos los Casos del Sector
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT FORM SECTION -->
+  <section class="bg-um-dark py-10 sm:py-14 lg:py-24">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-8 sm:mb-12">
+        <span class="text-um-primary-light font-semibold text-xs sm:text-sm uppercase tracking-wider">Contacto</span>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mt-3 sm:mt-4 mb-3 sm:mb-4">
+          ¿Necesita Soluciones para su Aeropuerto?
+        </h2>
+        <p class="text-sm sm:text-base text-gray-300 px-4 sm:px-0">
+          Nuestro equipo especializado en infraestructura aeroportuaria está listo para ayudarlo.
+        </p>
+      </div>
+
+      <form class="bg-white rounded-xl sm:rounded-2xl p-5 sm:p-8 shadow-xl">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+          <div>
+            <label class="block text-sm font-medium text-um-dark mb-2">Nombre</label>
+            <input
+              type="text"
+              required
+              class="w-full px-3 sm:px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary text-base"
+              placeholder="Su nombre"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-um-dark mb-2">Organización</label>
+            <input
+              type="text"
+              class="w-full px-3 sm:px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary text-base"
+              placeholder="Nombre del aeropuerto u organización"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+          <div>
+            <label class="block text-sm font-medium text-um-dark mb-2">Email</label>
+            <input
+              type="email"
+              required
+              class="w-full px-3 sm:px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary text-base"
+              placeholder="email@aeropuerto.com"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-um-dark mb-2">Teléfono</label>
+            <input
+              type="tel"
+              class="w-full px-3 sm:px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary text-base"
+              placeholder="+54 261 000-0000"
+            />
+          </div>
+        </div>
+
+        <div class="mb-4 sm:mb-6">
+          <label class="block text-sm font-medium text-um-dark mb-2">¿En qué podemos ayudarlo?</label>
+          <textarea
+            rows="4"
+            class="w-full px-3 sm:px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary resize-none text-base"
+            placeholder="Describa brevemente su proyecto o necesidad..."
+          ></textarea>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full py-3 sm:py-4 bg-um-accent text-white font-bold rounded-lg sm:rounded-xl hover:bg-um-accent-dark transition-colors shadow-lg shadow-um-accent/25 flex items-center justify-center gap-2 touch-target"
+        >
+          <i data-lucide="send" class="w-5 h-5"></i>
+          Enviar Consulta
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-um-dark text-gray-400 py-10 sm:py-14 lg:py-16 border-t border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 mb-8 sm:mb-12">
+        <div>
+          <div class="flex items-center gap-3 mb-6">
+            <img src="https://ultimamilla.com.ar/images/um-logo.png" alt="Ultima Milla" class="h-10 brightness-0 invert">
+          </div>
+          <p class="text-sm leading-relaxed">
+            Soluciones IT de clase mundial para empresas de Mendoza, Cuyo y Patagonia desde el año 2000.
+          </p>
+        </div>
+        <div>
+          <h4 class="font-bold text-white mb-4">Servicios</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="servicio-single-v4.html?id=101" class="hover:text-white transition-colors">Infraestructura de Redes</a></li>
+            <li><a href="servicio-single-v4.html?id=102" class="hover:text-white transition-colors">Seguridad Electrónica</a></li>
+            <li><a href="servicio-single-v4.html?id=103" class="hover:text-white transition-colors">Telecomunicaciones</a></li>
+            <li><a href="servicio-single-v4.html?id=104" class="hover:text-white transition-colors">Desarrollo de Software</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-white mb-4">Empresa</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="nosotros-v4.html" class="hover:text-white transition-colors">Nosotros</a></li>
+            <li><a href="antecedentes-index-v4.html" class="hover:text-white transition-colors">Antecedentes</a></li>
+            <li><a href="sectores-v4.html" class="hover:text-white transition-colors">Sectores</a></li>
+            <li><a href="contacto-v4.html" class="hover:text-white transition-colors">Contacto</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-white mb-4">Contacto</h4>
+          <ul class="space-y-3 text-sm">
+            <li class="flex items-start gap-3">
+              <i data-lucide="map-pin" class="w-4 h-4 mt-0.5 text-um-primary-light"></i>
+              Houssay 1159, Guaymallén<br>Mendoza 5500
+            </li>
+            <li class="flex items-center gap-3">
+              <i data-lucide="phone" class="w-4 h-4 text-um-primary-light"></i>
+              +54 261 400-0000
+            </li>
+            <li class="flex items-center gap-3">
+              <i data-lucide="mail" class="w-4 h-4 text-um-primary-light"></i>
+              info@ultimamilla.com.ar
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <p class="text-xs sm:text-sm text-center sm:text-left">© 2024 Ultima Milla. Todos los derechos reservados.</p>
+        <div class="flex gap-3 sm:gap-4">
+          <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-um-primary transition-colors touch-target">
+            <i data-lucide="linkedin" class="w-5 h-5"></i>
+          </a>
+          <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-um-primary transition-colors touch-target">
+            <i data-lucide="instagram" class="w-5 h-5"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+
+    // Mobile Menu Toggle
+    const menuToggle = document.getElementById('menuToggle');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuIconOpen = document.getElementById('menuIconOpen');
+    const menuIconClose = document.getElementById('menuIconClose');
+
+    if (menuToggle && mobileMenu) {
+      menuToggle.addEventListener('click', function() {
+        const isHidden = mobileMenu.classList.contains('hidden');
+
+        if (isHidden) {
+          mobileMenu.classList.remove('hidden');
+          menuIconOpen.classList.add('hidden');
+          menuIconClose.classList.remove('hidden');
+          menuToggle.setAttribute('aria-expanded', 'true');
+          menuToggle.setAttribute('aria-label', 'Cerrar menu');
+        } else {
+          mobileMenu.classList.add('hidden');
+          menuIconOpen.classList.remove('hidden');
+          menuIconClose.classList.add('hidden');
+          menuToggle.setAttribute('aria-expanded', 'false');
+          menuToggle.setAttribute('aria-label', 'Abrir menu');
+        }
+      });
+
+      // Close menu when clicking outside
+      document.addEventListener('click', function(event) {
+        if (!menuToggle.contains(event.target) && !mobileMenu.contains(event.target)) {
+          mobileMenu.classList.add('hidden');
+          menuIconOpen.classList.remove('hidden');
+          menuIconClose.classList.add('hidden');
+          menuToggle.setAttribute('aria-expanded', 'false');
+          menuToggle.setAttribute('aria-label', 'Abrir menu');
+        }
+      });
+
+      // Close menu on window resize to desktop
+      window.addEventListener('resize', function() {
+        if (window.innerWidth >= 768) {
+          mobileMenu.classList.add('hidden');
+          menuIconOpen.classList.remove('hidden');
+          menuIconClose.classList.add('hidden');
+          menuToggle.setAttribute('aria-expanded', 'false');
+          menuToggle.setAttribute('aria-label', 'Abrir menu');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

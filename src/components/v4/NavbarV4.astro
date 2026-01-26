@@ -1,0 +1,204 @@
+---
+/**
+ * NavbarV4 - Navbar responsivo V4 Design System
+ * - Fixed position con backdrop blur
+ * - Menu hamburguesa para móvil
+ * - Touch targets 44px mínimo
+ * - Highlight de página activa
+ */
+
+interface Props {
+  currentPath?: string;
+}
+
+const { currentPath = Astro.url.pathname } = Astro.props;
+
+// Navigation items
+const navItems = [
+  { href: '/', label: 'Inicio' },
+  { href: '/servicios', label: 'Servicios' },
+  { href: '/antecedentes', label: 'Antecedentes' },
+  { href: '/sectores', label: 'Sectores' },
+  { href: '/nosotros', label: 'Nosotros' },
+];
+
+// Helper to check if current page
+const isActive = (href: string) => {
+  if (href === '/') return currentPath === '/';
+  return currentPath.startsWith(href);
+};
+---
+
+<nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100/50 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16 sm:h-20">
+      <!-- Logo responsive -->
+      <a href="/" class="flex items-center">
+        <img
+          src="/images/um-logo.png"
+          alt="Ultima Milla"
+          class="h-10 sm:h-14"
+          style="mix-blend-mode: multiply;"
+          width="180"
+          height="56"
+        />
+      </a>
+
+      <!-- Desktop Menu (oculto en móvil) -->
+      <div class="hidden md:flex items-center gap-6 lg:gap-8">
+        {navItems.map((item) => (
+          <a
+            href={item.href}
+            class={`font-medium transition-colors ${
+              isActive(item.href)
+                ? 'text-um-primary font-semibold'
+                : 'text-um-gray hover:text-um-primary'
+            }`}
+          >
+            {item.label}
+          </a>
+        ))}
+        <a
+          href="/contacto"
+          class="px-5 py-2.5 bg-um-accent text-white rounded-lg font-semibold hover:bg-um-accent-dark transition-colors shadow-lg shadow-um-accent/25"
+        >
+          Contacto
+        </a>
+      </div>
+
+      <!-- Hamburger Button (visible solo móvil) -->
+      <button
+        id="menuToggle"
+        class="md:hidden p-2 -mr-2 rounded-lg hover:bg-gray-100 min-h-[44px] min-w-[44px] flex items-center justify-center"
+        aria-label="Abrir menú"
+        aria-expanded="false"
+        aria-controls="mobileMenu"
+      >
+        <svg id="hamburgerIcon" class="w-6 h-6 text-um-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        <svg id="closeIcon" class="w-6 h-6 text-um-dark hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu Dropdown -->
+  <div id="mobileMenu" class="mobile-menu-hidden md:hidden bg-white border-t border-gray-100 shadow-xl">
+    <div class="px-4 py-4 space-y-1">
+      {navItems.map((item) => (
+        <a
+          href={item.href}
+          class={`block px-4 py-3 rounded-lg min-h-[44px] flex items-center font-medium transition-colors ${
+            isActive(item.href)
+              ? 'text-um-primary font-semibold bg-um-primary-bg'
+              : 'text-um-dark hover:bg-um-primary-bg'
+          }`}
+        >
+          {item.label}
+        </a>
+      ))}
+      <a
+        href="/contacto"
+        class={`block px-4 py-3 mt-2 rounded-lg min-h-[44px] flex items-center justify-center font-semibold transition-colors ${
+          isActive('/contacto')
+            ? 'bg-um-accent-dark text-white'
+            : 'bg-um-accent text-white hover:bg-um-accent-dark'
+        }`}
+      >
+        Contacto
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- Spacer to compensate for fixed navbar -->
+<div class="h-16 sm:h-20"></div>
+
+<style>
+  /* Mobile menu animation */
+  .mobile-menu-hidden {
+    display: none;
+  }
+
+  .mobile-menu-visible {
+    display: block;
+  }
+
+  /* Respect reduced motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-menu-hidden,
+    .mobile-menu-visible {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  // Mobile menu toggle functionality
+  const menuToggle = document.getElementById('menuToggle');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const hamburgerIcon = document.getElementById('hamburgerIcon');
+  const closeIcon = document.getElementById('closeIcon');
+
+  if (menuToggle && mobileMenu && hamburgerIcon && closeIcon) {
+    menuToggle.addEventListener('click', function() {
+      const isHidden = mobileMenu.classList.contains('mobile-menu-hidden');
+
+      if (isHidden) {
+        mobileMenu.classList.remove('mobile-menu-hidden');
+        mobileMenu.classList.add('mobile-menu-visible');
+        hamburgerIcon.classList.add('hidden');
+        closeIcon.classList.remove('hidden');
+        menuToggle.setAttribute('aria-expanded', 'true');
+        menuToggle.setAttribute('aria-label', 'Cerrar menú');
+      } else {
+        mobileMenu.classList.remove('mobile-menu-visible');
+        mobileMenu.classList.add('mobile-menu-hidden');
+        hamburgerIcon.classList.remove('hidden');
+        closeIcon.classList.add('hidden');
+        menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.setAttribute('aria-label', 'Abrir menú');
+      }
+    });
+
+    // Close menu when clicking a link
+    mobileMenu.querySelectorAll('a').forEach(function(link) {
+      link.addEventListener('click', function() {
+        mobileMenu.classList.remove('mobile-menu-visible');
+        mobileMenu.classList.add('mobile-menu-hidden');
+        hamburgerIcon.classList.remove('hidden');
+        closeIcon.classList.add('hidden');
+        menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.setAttribute('aria-label', 'Abrir menú');
+      });
+    });
+
+    // Close menu on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && mobileMenu.classList.contains('mobile-menu-visible')) {
+        mobileMenu.classList.remove('mobile-menu-visible');
+        mobileMenu.classList.add('mobile-menu-hidden');
+        hamburgerIcon.classList.remove('hidden');
+        closeIcon.classList.add('hidden');
+        menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.setAttribute('aria-label', 'Abrir menú');
+        menuToggle.focus();
+      }
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(e) {
+      const target = e.target as Node;
+      if (!menuToggle.contains(target) && !mobileMenu.contains(target) && mobileMenu.classList.contains('mobile-menu-visible')) {
+        mobileMenu.classList.remove('mobile-menu-visible');
+        mobileMenu.classList.add('mobile-menu-hidden');
+        hamburgerIcon.classList.remove('hidden');
+        closeIcon.classList.add('hidden');
+        menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.setAttribute('aria-label', 'Abrir menú');
+      }
+    });
+  }
+</script>

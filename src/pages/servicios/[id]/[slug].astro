@@ -1,8 +1,14 @@
 ---
-import Layout from '../../../layouts/Layout.astro';
+/**
+ * Service Detail Page - V4 Design System COMPLETO
+ * Con sección de Productos y Equipamiento con imágenes
+ * Basado en: umnueva25/servicio-single-v4.html
+ */
+
+import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
+import { getServicioCompleto, listarServicios } from '../../../data/servicios_completos_v4.js';
 import { serviciosReales, serviciosPorId } from '../../../data/servicios_reales_db.js';
-import { getServiceImageUrl } from '../../../utils/imageUtils.js';
 
 const { id, slug } = Astro.params;
 
@@ -10,7 +16,27 @@ if (!id || !slug) {
   return Astro.redirect('/404');
 }
 
-const servicio = serviciosPorId[id];
+// Intentar obtener servicio completo V4, sino usar datos básicos
+let servicio = getServicioCompleto(id);
+
+// Fallback a datos básicos si no hay V4
+if (!servicio && serviciosPorId[id]) {
+  const basic = serviciosPorId[id];
+  servicio = {
+    ...basic,
+    Subtitulo: basic.Descripcion?.split('.')[0] || '',
+    Stats: [
+      { value: '150+', label: 'Proyectos Completados' },
+      { value: '22+', label: 'Años de Experiencia' },
+      { value: '99.9%', label: 'Uptime Garantizado' },
+      { value: '24/7', label: 'Soporte Técnico' }
+    ],
+    Productos: [],
+    Soluciones: [],
+    Marcas: [],
+    PorQueElegirnos: []
+  };
+}
 
 if (!servicio) {
   return Astro.redirect('/404');
@@ -21,260 +47,432 @@ if (slug !== expectedSlug) {
   return Astro.redirect(`/servicios/${id}/${expectedSlug}`);
 }
 
-const getAssetUrl = getServiceImageUrl;
+// SEO
+const pageTitle = `${servicio.Titulo} | Servicios - ULTIMA MILLA`;
+const pageDescription = servicio.Descripcion?.replace(/\\/g, ' ').substring(0, 160) || `${servicio.Titulo} - Servicios tecnológicos profesionales en Mendoza, Cuyo y Patagonia.`;
 
-// Servicios relacionados (misma área)
-const serviciosRelacionados = serviciosReales
+// Related services
+const allServicios = listarServicios();
+const serviciosRelacionados = allServicios
   .filter(s => s.Area === servicio.Area && s.id !== servicio.id)
   .slice(0, 3);
+
+// SVG icon paths
+const iconPaths = {
+  'monitor': '<rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>',
+  'headphones': '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>',
+  'cloud': '<path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>',
+  'shield': '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  'cable': '<path d="M4 9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2"/><path d="M6 9v12"/><path d="M14 15a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2"/><path d="M18 13v-2"/><path d="M6 13h8"/>',
+  'zap': '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+  'radio': '<circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/>',
+  'wifi': '<path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>',
+  'server': '<rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/>',
+  'clipboard-check': '<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="m9 14 2 2 4-4"/>',
+  'video': '<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>',
+  'fingerprint': '<path d="M2 12C2 6.5 6.5 2 12 2a10 10 0 0 1 8 4"/><path d="M5 19.5C5.5 18 6 15 6 12c0-.7.12-1.37.34-2"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M9 6.8a6 6 0 0 1 9 5.2c0 .47 0 1.17-.02 2"/>',
+  'bell': '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
+  'flame': '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+  'phone': '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
+  'headset': '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>',
+  'message-circle': '<path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/>',
+  'globe': '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  'code': '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
+  'database': '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>',
+  'smartphone': '<rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>',
+  'cpu': '<rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/>',
+  'share-2': '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>',
+  'bar-chart-2': '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+};
+
+// Colors for product cards (alternating)
+const productColors = ['sky', 'emerald', 'purple', 'amber', 'rose', 'indigo'];
 ---
 
-<Layout title={`${servicio.Titulo} - Servicios - Ultima Milla`}>
-  <main class="min-h-screen bg-white">
-    <!-- Breadcrumb -->
-    <nav class="bg-white border-b border-slate-200">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <ol class="flex items-center space-x-2 text-sm text-slate-600">
-          <li><a href="/" class="hover:text-blue-600 transition-colors">Inicio</a></li>
-          <li><span class="mx-2">/</span></li>
-          <li><a href="/servicios" class="hover:text-blue-600 transition-colors">Servicios</a></li>
-          <li><span class="mx-2">/</span></li>
-          <li class="text-blue-600 font-medium truncate">{servicio.Titulo}</li>
-        </ol>
-      </div>
-    </nav>
+<LayoutV4
+  title={pageTitle}
+  description={pageDescription}
+  keywords={`${servicio.Titulo.toLowerCase()}, ${servicio.Area?.toLowerCase()}, servicios tecnologicos mendoza`}
+>
+  <!-- HERO SECTION -->
+  <section class="relative bg-um-dark overflow-hidden">
+    <div class="absolute inset-0">
+      <img
+        src={servicio.Imagen || servicio.ImagenFallback}
+        alt={servicio.Titulo}
+        class="w-full h-full object-cover opacity-50"
+        onerror={`this.src='${servicio.ImagenFallback || '/images/services/default-service.jpg'}'`}
+      />
+      <div class="absolute inset-0 bg-gradient-to-t from-um-dark via-um-dark/60 to-um-dark/30"></div>
+    </div>
 
-    <!-- Hero Section V3 (Immersive, Full-Screen) -->
-    <section class="relative h-[70vh] md:h-[85vh] flex items-end md:items-center overflow-hidden bg-slate-900">
-      <!-- Background Image (Service Specific) -->
-      <div class="absolute inset-0 z-0">
-        <img
-          src={getAssetUrl(servicio.Imagen)}
-          alt={servicio.Titulo}
-          class="w-full h-full object-cover"
-          onerror="this.src='/images/default-service.jpg'"
-        />
-      </div>
-      
-      <!-- Gradient Overlay (Dark, Dramatic) -->
-      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30 z-10"></div>
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-6 sm:pb-10 lg:pb-12">
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 text-xs sm:text-sm text-gray-300 mb-3 sm:mb-4" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-white transition-colors">Inicio</a>
+        <span class="text-white/30">/</span>
+        <a href="/servicios" class="hover:text-white transition-colors">Servicios</a>
+        <span class="text-white/30">/</span>
+        <span class="text-white font-medium truncate max-w-[200px]">{servicio.Titulo}</span>
+      </nav>
 
-      <!-- Content -->
-      <div class="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-24">
-        <div class="max-w-4xl">
-          <!-- Tags -->
-          <div class="flex flex-wrap gap-3 mb-6 animate-fade-in-up">
-            <span class="px-4 py-2 bg-blue-600 text-white text-xs font-bold uppercase tracking-wider rounded shadow-lg">
-              {servicio.Area}
-            </span>
-            <span class="px-4 py-2 bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider rounded shadow-lg">
-              {servicio.Cliente}
-            </span>
-            <span class="px-4 py-2 bg-slate-700 text-white text-xs font-bold uppercase tracking-wider rounded shadow-lg">
-              {servicio.Unidad_de_negocio}
-            </span>
-          </div>
-          
-          <!-- Title (Huge, Bold, Provocative) -->
-          <h1 class="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-none tracking-tight animate-fade-in-up delay-100">
-            {servicio.Titulo}
-          </h1>
-          
-          <!-- Description -->
-          <p class="text-xl md:text-2xl text-slate-200 leading-relaxed max-w-3xl mb-8 font-light animate-fade-in-up delay-200">
-            {servicio.Descripcion.replace(/\\\\/g, '\n')}
-          </p>
+      <!-- Badge -->
+      <span class="inline-flex items-center gap-2 px-4 py-2 bg-um-primary text-white rounded-full text-xs font-bold uppercase tracking-wide mb-4 sm:mb-5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" set:html={iconPaths['monitor'] || iconPaths['globe']} />
+        {servicio.Area}
+      </span>
 
-          <!-- CTAs -->
-          <div class="flex flex-wrap gap-4 animate-fade-in-up delay-300">
-            <a href="#servicios-incluidos" class="px-8 py-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-all shadow-xl shadow-blue-900/50 transform hover:-translate-y-1 text-sm md:text-base">
-              Explorar Servicios
-            </a>
-            <a href="#contacto" class="px-8 py-4 bg-white text-slate-900 font-bold rounded-lg hover:bg-slate-100 transition-all shadow-xl text-sm md:text-base">
-              Solicitar Cotización
-            </a>
-          </div>
+      <!-- Title -->
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold text-white mb-4 max-w-4xl leading-tight">
+        {servicio.Titulo}
+      </h1>
+
+      <!-- Subtitle -->
+      {servicio.Subtitulo && (
+        <p class="text-sm sm:text-base lg:text-lg text-white/80 max-w-2xl leading-relaxed">
+          {servicio.Subtitulo}
+        </p>
+      )}
+    </div>
+  </section>
+
+  <!-- STATS BAR -->
+  {servicio.Stats && servicio.Stats.length > 0 && (
+    <section class="bg-um-dark border-t border-white/10">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+          {servicio.Stats.map((stat) => (
+            <div class="text-center">
+              <div class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">{stat.value}</div>
+              <div class="text-xs sm:text-sm text-gray-400 mt-1">{stat.label}</div>
+            </div>
+          ))}
         </div>
       </div>
-
-      <!-- Scroll Indicator -->
-      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 animate-bounce hidden md:block">
-        <svg class="w-6 h-6 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </svg>
-      </div>
     </section>
+  )}
 
-    <!-- Content Section -->
-    <section class="py-16 md:py-24 bg-slate-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          <!-- Main Content -->
-          <div class="lg:col-span-2 space-y-12">
-            <!-- Servicios Incluidos -->
-            <div id="servicios-incluidos" class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 md:p-10">
-              <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-8 flex items-center">
-                <span class="w-1 h-8 bg-blue-600 mr-4"></span>
-                Servicios Incluidos
-              </h2>
-              
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {servicio.Servicios.map((servicio_item) => (
-                  <div class="flex items-start space-x-3 p-4 bg-slate-50 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
-                    <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <span class="text-slate-700 font-medium text-sm">{servicio_item}</span>
+  <!-- MAIN CONTENT -->
+  <section class="py-10 sm:py-14 lg:py-20 xl:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-3 gap-8 lg:gap-12">
+
+        <!-- Main Content -->
+        <div class="lg:col-span-2 order-2 lg:order-1">
+          <!-- Description -->
+          <h2 class="text-2xl sm:text-3xl font-bold text-um-dark mb-4 sm:mb-6">Descripción del Servicio</h2>
+          <div class="prose prose-lg max-w-none text-um-gray mb-12">
+            <p class="whitespace-pre-line leading-relaxed">
+              {servicio.Descripcion?.replace(/\\/g, '\n')}
+            </p>
+          </div>
+
+          <!-- Soluciones que Ofrecemos -->
+          {servicio.Soluciones && servicio.Soluciones.length > 0 && (
+            <div class="mb-8 sm:mb-12">
+              <h3 class="text-xl sm:text-2xl font-bold text-um-dark mb-4 sm:mb-6">Soluciones que Ofrecemos</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                {servicio.Soluciones.map((solucion) => (
+                  <div class="bg-um-primary-bg rounded-xl p-6 border border-um-primary/10">
+                    <div class="w-12 h-12 bg-um-primary rounded-lg flex items-center justify-center mb-4">
+                      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" set:html={iconPaths[solucion.icon] || iconPaths['globe']} />
+                    </div>
+                    <h4 class="font-bold text-um-dark mb-2">{solucion.titulo}</h4>
+                    <p class="text-sm text-um-gray">{solucion.descripcion}</p>
                   </div>
                 ))}
               </div>
             </div>
+          )}
 
-            <!-- Características -->
-            {servicio.Caracteristicas && servicio.Caracteristicas.length > 0 && (
-              <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 md:p-10">
-                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-8 flex items-center">
-                  <span class="w-1 h-8 bg-purple-600 mr-4"></span>
-                  Características Destacadas
-                </h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {servicio.Caracteristicas.map((caracteristica) => (
-                    <div class="flex items-start space-x-3 p-4 bg-purple-50 rounded-lg border border-purple-200">
-                      <svg class="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                      </svg>
-                      <span class="text-slate-700 font-medium text-sm">{caracteristica}</span>
-                    </div>
-                  ))}
-                </div>
+          <!-- Nuestro Proceso -->
+          <h3 class="text-xl sm:text-2xl font-bold text-um-dark mb-4 sm:mb-6">Nuestro Proceso</h3>
+          <div class="space-y-4 sm:space-y-6 mb-8 sm:mb-12">
+            <div class="flex gap-4">
+              <div class="flex-shrink-0 w-10 h-10 bg-um-primary rounded-full flex items-center justify-center text-white font-bold">1</div>
+              <div>
+                <h4 class="font-bold text-um-dark">Relevamiento</h4>
+                <p class="text-um-gray">Análisis completo de su infraestructura actual y requerimientos futuros.</p>
               </div>
-            )}
-
-            <!-- Servicios Relacionados -->
-            {serviciosRelacionados.length > 0 && (
-              <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 md:p-10">
-                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-8 flex items-center">
-                  <span class="w-1 h-8 bg-emerald-600 mr-4"></span>
-                  Servicios Relacionados
-                </h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {serviciosRelacionados.map((relacionado) => {
-                    const relSlug = generateSlug(relacionado.Titulo);
-                    return (
-                      <a href={`/servicios/${relacionado.id}/${relSlug}`} class="group">
-                        <article class="bg-slate-50 rounded-lg overflow-hidden border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all">
-                          <div class="aspect-video bg-slate-200 overflow-hidden">
-                            <img
-                              src={getAssetUrl(relacionado.Imagen)}
-                              alt={relacionado.Titulo}
-                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                              loading="lazy"
-                              onerror="this.src='/images/default-service.jpg'"
-                            />
-                          </div>
-                          <div class="p-4">
-                            <h3 class="font-bold text-slate-900 text-sm mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
-                              {relacionado.Titulo}
-                            </h3>
-                            <span class="text-xs text-slate-500 uppercase tracking-wide">{relacionado.Area}</span>
-                          </div>
-                        </article>
-                      </a>
-                    );
-                  })}
-                </div>
+            </div>
+            <div class="flex gap-4">
+              <div class="flex-shrink-0 w-10 h-10 bg-um-primary rounded-full flex items-center justify-center text-white font-bold">2</div>
+              <div>
+                <h4 class="font-bold text-um-dark">Diseño</h4>
+                <p class="text-um-gray">Propuesta técnica con planos, materiales y cronograma detallado.</p>
               </div>
-            )}
-          </div>
-
-          <!-- Sidebar (Sticky) -->
-          <div class="lg:col-span-1">
-            <div class="sticky top-24 space-y-6">
-              <!-- Info Card -->
-              <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <h3 class="font-bold text-slate-900 text-lg mb-4">Información del Servicio</h3>
-                
-                <div class="space-y-4">
-                  <div class="flex items-start space-x-3">
-                    <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                    </svg>
-                    <div>
-                      <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Área</p>
-                      <p class="text-sm font-semibold text-slate-900">{servicio.Area}</p>
-                    </div>
-                  </div>
-                  
-                  <div class="flex items-start space-x-3">
-                    <svg class="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    <div>
-                      <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Cliente</p>
-                      <p class="text-sm font-semibold text-slate-900">{servicio.Cliente}</p>
-                    </div>
-                  </div>
-                  
-                  <div class="flex items-start space-x-3">
-                    <svg class="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m8 0h-8m8 0a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2" />
-                    </svg>
-                    <div>
-                      <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Unidad</p>
-                      <p class="text-sm font-semibold text-slate-900">{servicio.Unidad_de_negocio}</p>
-                    </div>
-                  </div>
-                </div>
+            </div>
+            <div class="flex gap-4">
+              <div class="flex-shrink-0 w-10 h-10 bg-um-primary rounded-full flex items-center justify-center text-white font-bold">3</div>
+              <div>
+                <h4 class="font-bold text-um-dark">Implementación</h4>
+                <p class="text-um-gray">Ejecución por técnicos certificados con mínima interrupción operativa.</p>
               </div>
-
-              <!-- Contact Card -->
-              <div id="contacto" class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl shadow-xl p-6 text-white">
-                <h3 class="font-bold text-xl mb-4">¿Interesado en este servicio?</h3>
-                <p class="text-blue-100 mb-6 text-sm">Contáctanos para recibir una cotización personalizada.</p>
-                
-                <a href="/contacto" class="block w-full py-3 bg-white text-blue-600 font-bold rounded-lg text-center hover:bg-blue-50 transition-colors shadow-lg">
-                  Solicitar Cotización
-                </a>
-                
-                <div class="mt-6 pt-6 border-t border-blue-500/30">
-                  <p class="text-xs text-blue-200 mb-2">O llámanos directamente:</p>
-                  <a href="tel:+542614250000" class="text-white font-bold text-lg hover:text-blue-100 transition-colors">
-                    +54 261 425-0000
-                  </a>
-                </div>
+            </div>
+            <div class="flex gap-4">
+              <div class="flex-shrink-0 w-10 h-10 bg-um-primary rounded-full flex items-center justify-center text-white font-bold">4</div>
+              <div>
+                <h4 class="font-bold text-um-dark">Certificación</h4>
+                <p class="text-um-gray">Testing completo con equipos especializados y entrega de documentación.</p>
               </div>
             </div>
           </div>
+
+          <!-- Por Qué Elegirnos -->
+          {servicio.PorQueElegirnos && servicio.PorQueElegirnos.length > 0 && (
+            <div class="bg-um-primary-bg rounded-2xl p-6 sm:p-8 mb-8 sm:mb-12">
+              <h3 class="text-xl sm:text-2xl font-bold text-um-dark mb-4 sm:mb-6">Por Qué Elegirnos</h3>
+              <ul class="space-y-3">
+                {servicio.PorQueElegirnos.map((item) => (
+                  <li class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-um-primary flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <span class="text-um-dark font-medium">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1 order-1 lg:order-2">
+          <!-- Quick Info Card -->
+          <div class="bg-gray-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 lg:sticky lg:top-24">
+            <h3 class="font-bold text-um-dark mb-4 text-lg">Información del Servicio</h3>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-um-primary mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <div>
+                  <div class="text-sm text-um-gray">Tiempo de Implementación</div>
+                  <div class="font-semibold text-um-dark">2-8 semanas</div>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-um-primary mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                </svg>
+                <div>
+                  <div class="text-sm text-um-gray">Garantía</div>
+                  <div class="font-semibold text-um-dark">5 años en materiales</div>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-um-primary mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                </svg>
+                <div>
+                  <div class="text-sm text-um-gray">Cobertura</div>
+                  <div class="font-semibold text-um-dark">Mendoza, Cuyo y Patagonia</div>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-um-primary mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                </svg>
+                <div>
+                  <div class="text-sm text-um-gray">Certificaciones</div>
+                  <div class="font-semibold text-um-dark">ISO 9001, BICSI</div>
+                </div>
+              </div>
+            </div>
+
+            <a href="/contacto" class="block w-full py-3 bg-um-accent text-white text-center font-semibold rounded-xl hover:bg-um-accent-dark transition-colors shadow-lg shadow-um-accent/25 mb-3 min-h-[44px] flex items-center justify-center">
+              Solicitar Presupuesto
+            </a>
+            <a href="mailto:contacto@ultimamilla.com.ar" class="flex items-center justify-center gap-2 w-full py-3 border border-um-primary text-um-primary font-semibold rounded-xl hover:bg-um-primary-bg transition-colors min-h-[44px]">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              Enviar Email
+            </a>
+          </div>
+
+          <!-- Marcas que Trabajamos -->
+          {servicio.Marcas && servicio.Marcas.length > 0 && (
+            <div class="bg-gray-50 rounded-2xl p-6">
+              <h3 class="font-bold text-um-dark mb-4 text-lg">Marcas que Trabajamos</h3>
+              <div class="flex flex-wrap gap-3">
+                {servicio.Marcas.map((brand) => (
+                  <span class="px-3 py-1 bg-white rounded-full text-sm text-um-gray border">{brand}</span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTOS Y EQUIPAMIENTO -->
+  {servicio.Productos && servicio.Productos.length > 0 && (
+    <section class="py-12 sm:py-16 lg:py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8 sm:mb-12 lg:mb-16">
+          <span class="text-um-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">Equipamiento Especializado</span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-2 sm:mt-3 mb-3 sm:mb-4">
+            Productos y Soluciones
+          </h2>
+          <p class="text-base sm:text-lg text-um-gray max-w-2xl mx-auto">
+            Trabajamos con equipamiento de primera línea para garantizar el máximo rendimiento y durabilidad.
+          </p>
+        </div>
+
+        <div class="space-y-12 sm:space-y-16 lg:space-y-24">
+          {servicio.Productos.map((producto, index) => {
+            const isReversed = index % 2 !== 0;
+            const colorIndex = index % productColors.length;
+            const color = productColors[colorIndex];
+            const bgColorClass = `bg-${color}-50`;
+            const borderColorClass = `border-${color}-500`;
+            const textColorClass = `text-${color}-900`;
+
+            return (
+              <div class={`flex flex-col ${isReversed ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-6 sm:gap-8 lg:gap-12`}>
+                <!-- Image -->
+                <div class="w-full md:w-1/2">
+                  <div class="relative">
+                    <img
+                      src={producto.imagen}
+                      alt={producto.titulo}
+                      class="w-full rounded-2xl shadow-xl"
+                      style="mix-blend-mode: multiply; -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 70%, transparent 100%); mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 70%, transparent 100%);"
+                      loading="lazy"
+                      onerror="this.src='/images/services/default-service.jpg'"
+                    />
+                  </div>
+                </div>
+
+                <!-- Content -->
+                <div class="w-full md:w-1/2 space-y-6">
+                  <h3 class="text-2xl font-bold text-slate-900">{producto.titulo}</h3>
+                  <p class="text-slate-600 leading-relaxed text-lg">
+                    {producto.descripcion}
+                  </p>
+
+                  {producto.features && producto.features.length > 0 && (
+                    <ul class="space-y-3">
+                      {producto.features.map((feature) => (
+                        <li class="flex items-start space-x-3">
+                          <span class="text-um-primary font-bold">✓</span>
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {producto.destacado && (
+                    <div class="p-4 bg-sky-50 border-l-4 border-um-primary rounded-r-lg">
+                      <p class="text-sky-900 font-medium text-sm">
+                        🔧 {producto.destacado}
+                      </p>
+                    </div>
+                  )}
+
+                  {producto.marcas && producto.marcas.length > 0 && (
+                    <div class="p-4 bg-gray-50 border-l-4 border-gray-300 rounded-r-lg">
+                      <p class="text-gray-700 font-medium text-sm">
+                        <strong>Marcas:</strong> {producto.marcas.join(', ')}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
-  </main>
-</Layout>
+  )}
+
+  <!-- CASOS DE ÉXITO RELACIONADOS -->
+  {serviciosRelacionados.length > 0 && (
+    <section class="bg-gray-50 py-10 sm:py-14 lg:py-20 xl:py-24">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8 sm:mb-12">
+          <h2 class="text-2xl sm:text-3xl font-bold text-um-dark mb-3 sm:mb-4">Servicios Relacionados</h2>
+          <p class="text-sm sm:text-base text-um-gray">Otros servicios que podrían interesarle</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+          {serviciosRelacionados.map((relacionado) => {
+            const relSlug = generateSlug(relacionado.Titulo);
+            return (
+              <a href={`/servicios/${relacionado.id}/${relSlug}`} class="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
+                <div class="aspect-video overflow-hidden">
+                  <img
+                    src={relacionado.Imagen || relacionado.ImagenFallback}
+                    alt={relacionado.Titulo}
+                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    loading="lazy"
+                    onerror="this.src='/images/services/default-service.jpg'"
+                  />
+                </div>
+                <div class="p-6">
+                  <span class="text-xs font-semibold text-um-primary uppercase tracking-wider">{relacionado.Area}</span>
+                  <h3 class="font-bold text-um-dark mt-2 mb-2 group-hover:text-um-primary transition-colors">{relacionado.Titulo}</h3>
+                  <p class="text-sm text-um-gray line-clamp-2">{relacionado.Subtitulo || relacionado.Descripcion?.substring(0, 100)}</p>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+
+        <div class="text-center mt-8 sm:mt-12">
+          <a href="/servicios" class="inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 border-2 border-um-primary text-um-primary font-semibold rounded-xl hover:bg-um-primary hover:text-white transition-colors min-h-[44px]">
+            Ver Todos los Servicios
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- CTA SECTION -->
+  <section class="bg-um-dark py-10 sm:py-14 lg:py-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">
+        ¿Necesita {servicio.Titulo}?
+      </h2>
+      <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-8">
+        Nuestro equipo de especialistas está listo para diseñar la solución perfecta para su empresa
+      </p>
+      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+        <a href="/contacto" class="px-6 py-3 sm:px-8 sm:py-4 bg-um-accent text-white font-bold rounded-xl hover:bg-um-accent-dark transition-colors shadow-xl shadow-um-accent/25 min-h-[48px] flex items-center justify-center">
+          Solicitar Consulta Gratuita
+        </a>
+        <a href="mailto:contacto@ultimamilla.com.ar" class="px-6 py-3 sm:px-8 sm:py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2 min-h-[48px]">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          contacto@ultimamilla.com.ar
+        </a>
+      </div>
+    </div>
+  </section>
+</LayoutV4>
 
 <style>
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+  }
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-  }
-  
-  .animate-fade-in-up {
-    animation: fadeInUp 0.8s ease-out forwards;
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  
-  .delay-100 { animation-delay: 0.1s; }
-  .delay-200 { animation-delay: 0.2s; }
-  .delay-300 { animation-delay: 0.3s; }
-  
-  @keyframes fadeInUp {
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
   }
 </style>

@@ -1,399 +1,202 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { directus, DEFAULT_IMAGE } from '../utils/directus';
-import { generateSlug } from '../utils/slugUtils';
+/**
+ * Aeropuertos Sector Page - V4 Design System
+ */
 
-// Configuración SEO específica para Aeropuertos - ULTRA OPTIMIZADA para Argentina y Mendoza
-const seoConfig = {
-  title: "Soluciones IT para Aeropuertos | Mendoza, Cuyo y Patagonia | ULTIMA MILLA",
-  description: "Servicios tecnológicos para aeropuertos en Argentina. Zona de incumbencia: Mendoza, Cuyo, Patagonia. Redes críticas, telecomunicaciones profesionales, seguridad, cableado estructurado y corrientes débiles para infraestructura aeroportuaria.",
-  keywords: "servicios tecnologicos aeropuertos, infraestructura it aeroportuaria, telecomunicaciones aeropuertos mendoza, redes criticas patagonia, cableado estructurado aeroportos, corrientes debiles aviacion",
-  // ogImage: "/images/services/aeropuertos-hero.jpg",
-  canonical: "https://ultimamilla.com.ar/aeropuertos",
-  locale: "es_AR",
-  region: "Cuyo, Patagonia, Argentina",
-  author: "Ultima Milla",
-  robots: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
-};
-
-// Cargar antecedentes del sector aeropuertos
+import LayoutV4 from '../layouts/LayoutV4.astro';
+import { generateSlug } from '../utils/slugUtils.js';
 import { antecedentesReales } from '../data/antecedentes_completos.js';
-import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
+import { directus, DEFAULT_IMAGE } from '../utils/directus';
 
-let antecedentes = [];
-let serviciosRelacionados = [];
-let error = null;
-
-const keywords = [
-  'aeropuerto', 'aeroparque', 'aa2000', 'aeropuertos argentina',
-  'aviacion', 'terminal aerea', 'torre de control', 'pista',
-  'mendoza', 'ezeiza', 'aeroparque', 'san juan', 'san luis',
-  'neuquen', 'bariloche', 'cordoba', 'rosario', 'salta',
-  'anac', 'orsna', 'eana', 'aerolinea', 'hangar',
-  'terminal', 'migraciones', 'aduana', 'equipaje', 'embarque',
-  'plumerillo', 'radar', 'balizamiento', 'psa'
-];
-
-const filterAntecedentes = (data) => {
-  return data.filter(item => {
-    const cliente = (item.Cliente || '').toLowerCase();
-    const titulo = (item.Titulo || '').toLowerCase();
-    const area = (item.Area || '').toLowerCase();
-    return keywords.some(k => cliente.includes(k) || titulo.includes(k) || area.includes(k));
-  }).sort((a, b) => new Date(b.Fecha || '2000-01-01') - new Date(a.Fecha || '2000-01-01'));
+const sectorConfig = {
+  name: 'Aeropuertos',
+  emoji: '✈️',
+  heroImage: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80',
+  description: 'Infraestructura tecnológica de misión crítica para operaciones aeroportuarias que nunca se detienen.',
+  keywords: ['aeropuerto', 'aeroparque', 'aa2000', 'aviacion', 'terminal', 'pista', 'torre', 'anac', 'orsna', 'hangar', 'plumerillo'],
 };
 
+const seoConfig = {
+  title: `Soluciones IT para ${sectorConfig.name} | Mendoza, Cuyo y Patagonia | ULTIMA MILLA`,
+  description: `Servicios tecnológicos para aeropuertos en Argentina. Redes críticas, telecomunicaciones, seguridad y cableado estructurado para infraestructura aeroportuaria.`,
+  keywords: `servicios tecnologicos aeropuertos, infraestructura it aeroportuaria, telecomunicaciones aeropuertos mendoza, redes criticas patagonia`,
+};
+
+const filterAntecedentes = (data: any[]) => {
+  return data
+    .filter(item => {
+      const texto = `${item.Cliente} ${item.Titulo} ${item.Area} ${item.Descripcion}`.toLowerCase();
+      return sectorConfig.keywords.some(k => texto.includes(k));
+    })
+    .map(item => ({ ...item, slug: generateSlug(item.Titulo) }))
+    .slice(0, 12);
+};
+
+let antecedentes: any[] = [];
 try {
-  // Obtener antecedentes desde Directus
-  const response = await directus.getAntecedentes({
-    limit: 500,
-    page: 1
-  });
+  const response = await directus.getAntecedentes({ limit: 500, page: 1 });
+  if (response?.data?.length > 0) antecedentes = filterAntecedentes(response.data);
+} catch (err) { console.error('Error:', err); }
+if (antecedentes.length === 0) antecedentes = filterAntecedentes(antecedentesReales);
 
-  if (response && response.data && response.data.length > 0) {
-    antecedentes = filterAntecedentes(response.data);
-    console.log(`✅ Cargados ${antecedentes.length} antecedentes de aeropuertos`);
-  }
-} catch (err) {
-  console.error('Error cargando antecedentes:', err);
-  error = err;
-}
-
-// Fallback a datos locales si no hay resultados de API
-if (antecedentes.length === 0) {
-  console.log('Usando antecedentes locales para Aeropuertos');
-  antecedentes = filterAntecedentes(antecedentesReales);
-}
-
-// Limitar a 6 para la vista (ELIMINADO - Ahora se maneja en el componente con "Ver más")
-// antecedentes = antecedentes.slice(0, 6);
-
-// Servicios relacionados con el sector aeropuertos
-serviciosRelacionados = [
-  {
-    id: 1,
-    nombre: "Cableado Estructurado para Obras",
-    descripcion: "Infraestructura de redes para aeropuertos",
-    icon: "network",
-    slug: "cableado-estructurado-obras"
-  },
-  {
-    id: 2,
-    nombre: "Seguridad Informática y Control",
-    descripcion: "Protección de sistemas críticos para obras",
-    icon: "shield",
-    slug: "sistemas-seguridad-control"
-  },
-  {
-    id: 3,
-    nombre: "Conectividad Temporal",
-    descripcion: "Sistemas de comunicación integrados en construcción",
-    icon: "wifi",
-    slug: "conectividad-temporal"
-  },
-  {
-    id: 4,
-    nombre: "Telefonía IP Empresarial",
-    descripcion: "Información en tiempo real y wayfinding digital y canteros",
-    icon: "phone",
-    slug: "telefonia-ip"
-  },
-  {
-    id: 5,
-    nombre: "Sistemas de Detección de Incendios",
-    descripcion: "Detección temprana y alarmas para protección de obras",
-    icon: "alert",
-    slug: "deteccion-incendios"
-  },
-  {
-    id: 6,
-    nombre: "Soporte Técnico 24/7",
-    descripcion: "Mantenimiento preventivo y correctivo para operaciones continuas",
-    icon: "support",
-    slug: "soporte-tecnico"
-  }
+const valueProps = [
+  { icon: 'shield', title: 'Sistemas de Misión Crítica', description: 'Infraestructura redundante para operación 24/7 sin tolerancia a fallos.' },
+  { icon: 'lock', title: 'Cumplimiento Normativo', description: 'Soluciones que cumplen con OACI y normativas de seguridad aeroportuaria.' },
+  { icon: 'headphones', title: 'Soporte Especializado', description: 'Equipo técnico con experiencia en ambientes aeroportuarios.' }
 ];
+
+const serviciosRelacionados = [
+  { id: 102, nombre: 'CCTV de Alta Seguridad', descripcion: 'Videovigilancia con analítica de video' },
+  { id: 101, nombre: 'Redes de Misión Crítica', descripcion: 'Backbone de fibra óptica redundante' },
+  { id: 103, nombre: 'Control de Accesos', descripcion: 'Sistemas biométricos para zonas restringidas' },
+  { id: 104, nombre: 'Comunicaciones', descripcion: 'Radio, megafonía e intercomunicadores' },
+  { id: 107, nombre: 'Detección de Incendios', descripcion: 'Sistemas de detección temprana' },
+  { id: 105, nombre: 'Soporte IT 24/7', descripcion: 'Mesa de ayuda con SLAs aeroportuarios' },
+];
+
+const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://admin.ultimamilla.com.ar';
+const getImageUrl = (ant: any): string => {
+  if (ant.Imagen && typeof ant.Imagen === 'string' && ant.Imagen.includes('-')) return `${DIRECTUS_URL}/assets/${ant.Imagen}`;
+  if (ant.ImagenPrincipal && typeof ant.ImagenPrincipal === 'string' && ant.ImagenPrincipal.includes('-')) return `${DIRECTUS_URL}/assets/${ant.ImagenPrincipal}`;
+  return '/images/default-antecedente.jpg';
+};
 ---
 
-<Layout
-  title={seoConfig.title}
-  description={seoConfig.description}
-  keywords={seoConfig.keywords}
-  image={seoConfig.ogImage}
-  canonical={seoConfig.canonical}
->
-  <main style="background: #f5f5f5;">
-    <!-- HERO EXACTO DEL BOCETO -->
-    <section style="position: relative; min-height: 350px; display: flex; align-items: center; background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80') center/cover; color: white;">
-      <div style="max-width: 1200px; margin: 0 auto; padding: 50px 40px; width: 100%;">
-        <!-- Badge Simple -->
-        <div style="display: inline-flex; align-items: center; gap: 12px; padding: 12px 20px; background: linear-gradient(135deg, rgba(14, 165, 233, 0.3), rgba(14, 165, 233, 0.1)); border-radius: 20px; margin-bottom: 20px; border: 1px solid rgba(14, 165, 233, 0.4); backdrop-filter: blur(10px);">
-          <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #0ea5e9, #0284c7); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(14, 165, 233, 0.4);">
-            <span style="font-size: 24px;">✈️</span>
+<LayoutV4 title={seoConfig.title} description={seoConfig.description} keywords={seoConfig.keywords}>
+  <section class="relative bg-um-dark pt-20 sm:pt-24 pb-8 sm:pb-12 lg:pb-16 overflow-hidden">
+    <div class="absolute inset-0 opacity-40" style={`background-image: url('${sectorConfig.heroImage}'); background-position: center; background-size: cover;`}></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-um-dark/70 to-um-dark/90"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex items-center gap-2 text-xs sm:text-sm text-white/70 mb-4 flex-wrap">
+        <a href="/" class="hover:text-white transition-colors">Inicio</a>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <a href="/sectores" class="hover:text-white transition-colors">Sectores</a>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <span class="text-white">{sectorConfig.name}</span>
+      </nav>
+
+      <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+        <div>
+          <div class="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-2 sm:py-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-4 sm:mb-5">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-sky-400 to-sky-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg">
+              <span class="text-lg sm:text-2xl">{sectorConfig.emoji}</span>
+            </div>
+            <span class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-sky-300">Sector {sectorConfig.name}</span>
           </div>
-          <span style="font-size: 13px; font-weight: 800; color: #0ea5e9; text-transform: uppercase; letter-spacing: 1.2px;">Sector Aeropuertos</span>
+          <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4 sm:mb-5 leading-tight">
+            Operaciones Críticas<br/>para {sectorConfig.name}
+          </h1>
+          <p class="text-base sm:text-lg lg:text-xl text-gray-200 max-w-xl">{sectorConfig.description}</p>
         </div>
 
-        <!-- Title Simple -->
-        <h1 style="font-size: 48px; font-weight: 900; margin-bottom: 20px; line-height: 1.2; color: white;">
-          Operaciones Críticas<br/>para Aeropuertos
-        </h1>
-
-        <!-- Subtitle Simple -->
-        <p style="font-size: 18px; font-weight: 400; color: rgba(255, 255, 255, 0.9); max-width: 600px; margin-bottom: 32px; line-height: 1.6;">
-          Soluciones críticas para operaciones aeroportuarias de clase mundial.
-        </p>
-
-        <!-- CTA Button Simple -->
-        <a href="#contacto" style="display: inline-block; background: #0ea5e9; color: white; padding: 14px 32px; border-radius: 6px; font-weight: 700; font-size: 15px; text-decoration: none; transition: all 0.3s ease;" onmouseover="this.style.background='#0284c7'" onmouseout="this.style.background='#0ea5e9'">
-          Explorar Nuestras Soluciones
-        </a>
-      </div>
-    </section>
-
-    <!-- 3 CARDS EXACTAS DEL BOCETO -->
-    <section style="background: #f5f5f5; padding: 50px 40px;">
-      <div style="max-width: 1200px; margin: 0 auto;">
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;">
-          <!-- Card 1 EXACTA -->
-          <a href="/servicios/1/cableado-estructurado-obras" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #0ea5e9; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(14,165,233,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-            <div style="width: 50px; height: 50px; background: #0ea5e9; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m4 0V9a1 1 0 011-1h4a1 1 0 011 1v12M9 7h6"></path>
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Redes de Datos</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Infraestructura de redes para aeropuertos</p>
-          </a>
-
-          <!-- Card 2 EXACTA -->
-          <a href="/servicios/2/seguridad-informatica" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #0ea5e9; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(14,165,233,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-            <div style="width: 50px; height: 50px; background: #0ea5e9; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Seguridad Informática</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Protección de sistemas críticos</p>
-          </a>
-
-          <!-- Card 3 EXACTA -->
-          <a href="/servicios/3/conectividad-temporal" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #0ea5e9; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(14,165,233,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-            <div style="width: 50px; height: 50px; background: #0ea5e9; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Telecomunicaciones</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Sistemas de comunicación integrados</p>
-          </a>
+        <div class="flex flex-wrap justify-center lg:justify-end gap-3 sm:gap-4">
+          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
+            <div class="text-2xl sm:text-3xl font-extrabold text-white">{antecedentes.length}+</div>
+            <div class="text-xs sm:text-sm text-white/70 mt-1">Proyectos</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
+            <div class="text-2xl sm:text-3xl font-extrabold text-white">99.99%</div>
+            <div class="text-xs sm:text-sm text-white/70 mt-1">Uptime</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
+            <div class="text-2xl sm:text-3xl font-extrabold text-white">24/7</div>
+            <div class="text-xs sm:text-sm text-white/70 mt-1">Soporte</div>
+          </div>
         </div>
-      </div>
-    </section>
-
-    <!-- SERVICIOS EXACTOS DEL BOCETO -->
-    <section id="servicios" style="background: white; padding: 50px 40px;">
-      <div style="max-width: 1200px; margin: 0 auto;">
-        <!-- Header Simple -->
-        <div style="text-align: center; margin-bottom: 60px;">
-          <h2 style="font-size: 36px; font-weight: 700; color: #333; margin-bottom: 16px;">Servicios Ofrecidos</h2>
-          <p style="font-size: 16px; color: #666; max-width: 700px; margin: 0 auto; line-height: 1.6;">
-            Ofrecemos un portafolio de servicios tecnológicos diseñados para optimizar cada fase del ciclo de vida del proyecto de construcción.
-          </p>
-        </div>
-
-        <!-- Services Grid 2x2 -->
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; max-width: 900px; margin: 0 auto;">
-          <!-- Servicio 1 -->
-          <a href="/servicios/1/cableado-estructurado-obras" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #0ea5e9; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(14,165,233,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-            <div style="width: 50px; height: 50px; background: #0ea5e9; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m4 0V9a1 1 0 011-1h4a1 1 0 011 1v12M9 7h6"></path>
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Redes de Datos</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Infraestructura de redes para aeropuertos</p>
-          </a>
-
-          <!-- Servicio 2 -->
-          <a href="/servicios/2/seguridad-informatica" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #0ea5e9; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(14,165,233,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-            <div style="width: 50px; height: 50px; background: #0ea5e9; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Seguridad Informática</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Protección de sistemas críticos</p>
-          </a>
-
-          <!-- Servicio 3 -->
-          <a href="/servicios/3/conectividad-temporal" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #0ea5e9; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(14,165,233,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-            <div style="width: 50px; height: 50px; background: #0ea5e9; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Telecomunicaciones</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Sistemas de comunicación integrados</p>
-          </a>
-
-          <!-- Servicio 4 -->
-          <a href="/servicios/4/telefonia-ip" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #0ea5e9; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(14,165,233,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-            <div style="width: 50px; height: 50px; background: #0ea5e9; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Sistemas de Información</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Asistencia técnica especializada</p>
-          </a>
-
-          <!-- Card 5: Sistemas de Detección -->
-          <a href="/servicios/5/deteccion-incendios" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #0ea5e9; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(14,165,233,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-            <div style="width: 50px; height: 50px; background: #0ea5e9; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Sistemas de Detección de Incendios</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Detección temprana y alarmas para protección de obras</p>
-          </a>
-        
-          <!-- Card 6: Soporte Técnico -->
-          <a href="/servicios/6/soporte-tecnico" style="text-decoration: none; display: block; padding: 30px; background: #fafafa; border-radius: 8px; border-left: 4px solid #0ea5e9; transition: all 0.3s ease;" onmouseover="this.style.background='#f0f0f0'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 30px rgba(14,165,233,0.2)'" onmouseout="this.style.background='#fafafa'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-            <div style="width: 50px; height: 50px; background: #0ea5e9; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px;">Soporte Técnico 24/7</h3>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">Mantenimiento preventivo y correctivo para operaciones continuas</p>
-          </a>
       </div>
     </div>
+  </section>
 
-    <!-- CASOS DE ÉXITO -->
-    {antecedentes.length > 0 && (
-      <section style="background: #f8fafc; padding: 100px 32px; border-top: 1px solid #e2e8f0;">
-        <div style="max-width: 75rem; margin: 0 auto;">
-          <div style="text-align: center; margin-bottom: 72px;">
-            <div style="display: inline-block; padding: 8px 20px; background: linear-gradient(135deg, #fb923c, #f97316); border-radius: 50px; margin-bottom: 20px;">
-              <span style="font-size: 13px; font-weight: 800; color: white; letter-spacing: 1px; text-transform: uppercase;">✨ Casos de Éxito</span>
+  <section class="py-10 sm:py-14 lg:py-16 border-b border-gray-100 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        {valueProps.map((prop) => (
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 bg-sky-50 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
             </div>
-            <h2 style="font-size: clamp(36px, 5.5vw, 52px); font-weight: 900; color: #0f172a; margin-bottom: 20px; letter-spacing: -0.02em;">
-              Proyectos Realizados
-            </h2>
-            <p style="font-size: 19px; color: #64748b; max-width: 750px; margin: 0 auto; line-height: 1.7; font-weight: 500;">
-              Nuestras soluciones han impulsado la eficiencia y productividad de importantes proyectos aeroportuarios<br/>en todo el país.
-            </p>
+            <div>
+              <h3 class="font-bold text-um-dark mb-2">{prop.title}</h3>
+              <p class="text-sm text-um-gray">{prop.description}</p>
+            </div>
           </div>
+        ))}
+      </div>
+    </div>
+  </section>
 
-          <FeaturedAntecedentes antecedentes={antecedentes} />
+  <section class="py-10 sm:py-14 lg:py-20 bg-um-gray-light">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-8 sm:mb-12">
+        <span class="text-sky-600 font-semibold text-xs sm:text-sm uppercase tracking-wider">Servicios</span>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">Soluciones para el Sector</h2>
+        <p class="text-sm sm:text-base text-um-gray max-w-2xl mx-auto">Servicios especializados para aeropuertos modernos.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        {serviciosRelacionados.map((servicio) => (
+          <a href={`/servicios/${servicio.id}/${generateSlug(servicio.nombre)}`} class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover group">
+            <div class="w-12 h-12 bg-sky-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-sky-500 transition-colors">
+              <svg class="w-6 h-6 text-sky-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <h3 class="font-bold text-um-dark mb-2 group-hover:text-um-primary transition-colors">{servicio.nombre}</h3>
+            <p class="text-sm text-um-gray mb-4">{servicio.descripcion}</p>
+            <span class="text-sky-600 font-semibold text-sm flex items-center gap-1">Ver servicio <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {antecedentes.length > 0 && (
+    <section class="py-10 sm:py-14 lg:py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8 sm:mb-12">
+          <span class="text-sky-600 font-semibold text-xs sm:text-sm uppercase tracking-wider">Casos de Éxito</span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">Proyectos en {sectorConfig.name}</h2>
         </div>
-      </section>
-    )}
 
-    <!-- FORMULARIO DE CONTACTO PREMIUM -->
-    <section id="contacto" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 100px 32px; position: relative; overflow: hidden;">
-      <!-- Decorative Elements -->
-      <div style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(251, 146, 60, 0.15) 0%, transparent 70%); border-radius: 50%;"></div>
-      <div style="position: absolute; bottom: -150px; left: -150px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(251, 146, 60, 0.1) 0%, transparent 70%); border-radius: 50%;"></div>
-      
-      <div style="max-width: 75rem; margin: 0 auto; position: relative; z-index: 10;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;">
-          <!-- Left Content -->
-          <div>
-            <div style="display: inline-block; padding: 8px 20px; background: rgba(251, 146, 60, 0.2); border-radius: 50px; margin-bottom: 24px; border: 1px solid rgba(251, 146, 60, 0.3);">
-              <span style="font-size: 13px; font-weight: 800; color: #fbbf24; letter-spacing: 1px; text-transform: uppercase;">📞 Contáctenos</span>
-            </div>
-            <h2 style="font-size: clamp(36px, 5vw, 56px); font-weight: 900; color: white; margin-bottom: 24px; line-height: 1.1; letter-spacing: -0.02em;">
-              ¿Listo para Digitalizar<br/>Su Próximo Proyecto?
-            </h2>
-            <p style="font-size: 18px; color: #cbd5e1; line-height: 1.8; margin-bottom: 40px; font-weight: 500;">
-              Contáctenos y nuestro equipo de expertos le ayudará a encontrar la solución tecnológica perfecta para su proyecto de construcción.
-            </p>
-            <div style="display: flex; flex-direction: column; gap: 20px;">
-              <div style="display: flex; align-items: center; gap: 16px;">
-                <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #0ea5e9, #0284c7); border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                  <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                  </svg>
-                </div>
-                <div>
-                  <p style="font-size: 14px; color: #94a3b8; font-weight: 600; margin-bottom: 4px;">Email</p>
-                  <p style="font-size: 18px; color: white; font-weight: 700;">contacto@ultimamilla.com.ar</p>
-                </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+          {antecedentes.slice(0, 6).map((ant) => (
+            <a href={`/antecedentes/${ant.id}/${ant.slug}`} class="group bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 card-hover">
+              <div class="aspect-video overflow-hidden bg-gray-100">
+                <img src={getImageUrl(ant)} alt={ant.Titulo} class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" onerror="this.src='/images/default-antecedente.jpg'"/>
               </div>
-            </div>
-          </div>
-          
-          <!-- Right Form -->
-          <div style="background: white; border-radius: 24px; padding: 48px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-            <form action="/api/contact" method="POST" style="display: flex; flex-direction: column; gap: 24px;">
-              <div>
-                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Nombre</label>
-                <input type="text" name="nombre" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#fb923c'; this.style.boxShadow='0 0 0 4px rgba(251,146,60,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Juan Pérez" />
+              <div class="p-5 sm:p-6">
+                <span class="text-xs font-semibold text-sky-600 uppercase tracking-wider">{ant.Area || sectorConfig.name}</span>
+                <h3 class="font-bold text-um-dark mt-2 mb-2 group-hover:text-um-primary transition-colors line-clamp-2">{ant.Titulo}</h3>
+                <p class="text-sm text-um-gray mb-4 line-clamp-2">{ant.Descripcion?.substring(0, 100)}...</p>
+                <span class="text-sky-600 font-semibold text-sm flex items-center gap-1">Ver caso <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></span>
               </div>
-              <div>
-                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Empresa</label>
-                <input type="text" name="empresa" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#fb923c'; this.style.boxShadow='0 0 0 4px rgba(251,146,60,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Constructora ABC" />
-              </div>
-              <div>
-                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Email</label>
-                <input type="email" name="email" required style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='#fb923c'; this.style.boxShadow='0 0 0 4px rgba(251,146,60,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="juan@constructora.com" />
-              </div>
-              <div>
-                <label style="display: block; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Mensaje</label>
-                <textarea name="mensaje" required rows="4" style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: all 0.3s; outline: none; resize: vertical;" onfocus="this.style.borderColor='#fb923c'; this.style.boxShadow='0 0 0 4px rgba(251,146,60,0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'" placeholder="Cuéntenos sobre su proyecto..."></textarea>
-              </div>
-              <button type="submit" style="width: 100%; padding: 18px; background: linear-gradient(135deg, #fb923c, #f97316); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 10px 30px rgba(251,146,60,0.4);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 14px 40px rgba(251,146,60,0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(251,146,60,0.4)'">
-                Solicitar Consultoría Ahora
-              </button>
-            </form>
-          </div>
+            </a>
+          ))}
+        </div>
+
+        <div class="text-center mt-8 sm:mt-12">
+          <a href={`/antecedentes?sector=${sectorConfig.name.toLowerCase()}`} class="inline-flex items-center gap-2 px-5 sm:px-6 py-3 border-2 border-sky-500 text-sky-600 font-semibold rounded-xl hover:bg-sky-500 hover:text-white transition-colors text-sm sm:text-base min-h-[44px]">
+            Ver Todos los Casos
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </a>
         </div>
       </div>
     </section>
-  </main>
-</Layout>
+  )}
 
-<style>
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .group:hover .group-hover\:scale-105 {
-    transform: scale(1.05);
-  }
-
-  a:focus {
-    outline: 2px solid rgba(217, 119, 6, 0.5);
-    outline-offset: 2px;
-    border-radius: 0.25rem;
-  }
-</style>
-
-<style>
-  /* RESPONSIVE MOBILE - FUERZA OVERRIDE CON !important */
-  @media (max-width: 768px) {
-    [style*="grid-template-columns: repeat(3, 1fr)"] { grid-template-columns: 1fr !important; }
-    [style*="grid-template-columns: repeat(2, 1fr)"] { grid-template-columns: 1fr !important; }
-    [style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; gap: 40px !important; }
-    h1[style] { font-size: 32px !important; }
-    h2[style] { font-size: 28px !important; }
-    h3[style] { font-size: 18px !important; }
-    section[style*="padding"] { padding: 40px 20px !important; }
-    #contacto form { padding: 24px !important; }
-    [style*="padding: 30px"] { padding: 20px !important; }
-  }
-</style>
+  <section class="bg-um-dark py-10 sm:py-14 lg:py-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <span class="text-sky-400 font-semibold text-xs sm:text-sm uppercase tracking-wider">Contacto</span>
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mt-3 sm:mt-4 mb-3 sm:mb-4">¿Necesita Soluciones para su Aeropuerto?</h2>
+      <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-8">Nuestro equipo especializado en infraestructura aeroportuaria está listo para ayudarlo.</p>
+      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+        <a href="/contacto" class="px-6 sm:px-8 py-3 sm:py-4 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 transition-colors shadow-lg shadow-sky-500/25 min-h-[44px] flex items-center justify-center">Solicitar Cotización</a>
+        <a href="/servicios" class="px-6 sm:px-8 py-3 sm:py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-colors min-h-[44px] flex items-center justify-center">Ver Todos los Servicios</a>
+      </div>
+    </div>
+  </section>
+</LayoutV4>

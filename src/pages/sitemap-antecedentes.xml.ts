@@ -1,22 +1,13 @@
 import type { APIRoute } from 'astro';
 
-const SITE_URL = 'https://ultimamilla.com.ar';
+import { generateSlug } from '../utils/slugUtils.js';
+
+const SITE_URL = 'https://www.ultimamilla.com.ar';
 
 function formatDate(date: Date): string {
     const isoString = date.toISOString();
     const parts = isoString.split('T');
     return parts[0] || new Date().toISOString().split('T')[0];
-}
-
-// Función para generar slug desde nombre
-function generateSlug(text: string): string {
-    return text
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
-        .substring(0, 75);
 }
 
 function generateSitemapXml(antecedentes: any[]): string {
@@ -75,8 +66,7 @@ export const GET: APIRoute = async () => {
         return new Response(sitemap, {
             headers: {
                 'Content-Type': 'application/xml; charset=utf-8',
-                'Cache-Control': 'public, max-age=86400',
-                'X-Robots-Tag': 'noindex'
+                'Cache-Control': 'public, max-age=86400'
             },
         });
     } catch (error) {

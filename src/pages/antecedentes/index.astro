@@ -1,5 +1,12 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+/**
+ * Antecedentes Index - V4 Design System
+ * Case studies listing page with FILTER BUTTONS (not links)
+ * Matches approved v4-ready-to-deploy/antecedentes-index-v4.html
+ */
+
+import LayoutV4 from '../../layouts/LayoutV4.astro';
+import HeroPageV4 from '../../components/v4/HeroPageV4.astro';
 import { directus, PAGE_SIZE, DEFAULT_IMAGE } from '../../utils/directus';
 import { generateSlug } from '../../utils/slugUtils.js';
 import { antecedentesReales } from '../../data/antecedentes_completos.js';
@@ -8,13 +15,14 @@ import { antecedentesReales } from '../../data/antecedentes_completos.js';
 const getUrlParams = (url) => {
   const searchParams = new URL(url).searchParams;
   const resetFilters = searchParams.get('reset') === '1';
-  
+
   const activeFilters = resetFilters
-    ? { area: '', cliente: '', unidad_negocio: '' }
+    ? { area: '', cliente: '', unidad_negocio: '', sector: '' }
     : {
         area: searchParams.get('area') || '',
         cliente: searchParams.get('cliente') || '',
-        unidad_negocio: searchParams.get('unidad_negocio') || ''
+        unidad_negocio: searchParams.get('unidad_negocio') || '',
+        sector: searchParams.get('sector') || ''
       };
 
   return {
@@ -35,18 +43,41 @@ let pageData = {
   ...getUrlParams(Astro.request?.url || Astro.url)
 };
 
+// Sector keywords for filtering
+const sectorKeywords: Record<string, string[]> = {
+  'aeropuertos': ['aeropuerto', 'aeroportuario', 'aviación', 'aviacion', 'terminal aérea', 'aerolinea'],
+  'bodegas': ['bodega', 'vino', 'vitivinícola', 'vitivinicola', 'viñedo', 'vinedo', 'enología'],
+  'gobierno': ['gobierno', 'municipal', 'provincial', 'público', 'publico', 'ministerio', 'secretaría', 'legislatura'],
+  'salud': ['hospital', 'clínica', 'clinica', 'sanatorio', 'salud', 'médico', 'medico', 'sanitario'],
+  'construccion': ['constructora', 'construcción', 'construccion', 'edificio', 'torre', 'inmobiliaria', 'obra'],
+  'industria': ['industria', 'industrial', 'fábrica', 'fabrica', 'planta', 'manufactura', 'producción'],
+  'datacenter': ['data center', 'datacenter', 'centro de datos', 'servidor', 'rack', 'hosting'],
+  'mineria': ['minería', 'mineria', 'mina', 'minero', 'extracción', 'yacimiento'],
+  'seguridad': ['seguridad', 'cctv', 'videovigilancia', 'control acceso', 'alarma', 'monitoreo'],
+  'software': ['software', 'desarrollo', 'aplicación', 'aplicacion', 'sistema', 'web', 'app'],
+};
+
 // Función para filtrar antecedentes
 const filterAntecedentes = (antecedentes, filters, searchQuery) => {
   let filtered = [...antecedentes];
 
   if (searchQuery) {
     const query = searchQuery.toLowerCase();
-    filtered = filtered.filter(item => 
+    filtered = filtered.filter(item =>
       item.Titulo.toLowerCase().includes(query) ||
       item.Descripcion.toLowerCase().includes(query) ||
       item.Cliente.toLowerCase().includes(query) ||
       item.Area.toLowerCase().includes(query)
     );
+  }
+
+  // Filter by sector (using keywords)
+  if (filters.sector && sectorKeywords[filters.sector]) {
+    const keywords = sectorKeywords[filters.sector];
+    filtered = filtered.filter(item => {
+      const searchText = `${item.Titulo} ${item.Descripcion} ${item.Cliente} ${item.Area}`.toLowerCase();
+      return keywords.some(kw => searchText.includes(kw.toLowerCase()));
+    });
   }
 
   if (filters.unidad_negocio) {
@@ -64,17 +95,17 @@ const filterAntecedentes = (antecedentes, filters, searchQuery) => {
   return filtered;
 };
 
-// ✅ FUNCIÓN MEJORADA: Obtener imagen usando el sistema de mapeo
+// Función para obtener imagen usando el sistema de mapeo
 async function getImageUrl(proyecto) {
   try {
     const { buscarImagenPorDatos } = await import('../../data/mapeo_imagenes_completo.js');
     const nombreArchivo = buscarImagenPorDatos(
       proyecto.Cliente,
-      proyecto.Area || proyecto.Unidad_de_negocio, 
+      proyecto.Area || proyecto.Unidad_de_negocio,
       proyecto.Titulo,
       proyecto.id
     );
-    
+
     if (nombreArchivo) {
       return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
     }
@@ -82,7 +113,7 @@ async function getImageUrl(proyecto) {
     console.log('[ANTECEDENTES] Error en mapeo:', error.message);
   }
   return DEFAULT_IMAGE;
-};
+}
 
 // Lógica de carga de datos
 try {
@@ -99,11 +130,11 @@ try {
   }
 
   const filteredAntecedentes = filterAntecedentes(allAntecedentes, pageData.activeFilters, pageData.searchQuery);
-  
+
   const startIndex = (pageData.currentPage - 1) * PAGE_SIZE;
   const endIndex = startIndex + PAGE_SIZE;
   const paginatedAntecedentes = filteredAntecedentes.slice(startIndex, endIndex);
-  
+
   const antecedentesConImagenes = await Promise.all(
     paginatedAntecedentes.map(async (proyecto) => ({
       ...proyecto,
@@ -159,220 +190,358 @@ const filterOptions = {
 // Helpers de URL
 const buildPageUrl = (page) => {
   const url = new URL(Astro.request.url);
-  url.searchParams.set('page', page);
+  url.searchParams.set('page', page.toString());
   return url.pathname + url.search;
 };
 
-// Extract filter values for the new filter bar structure
+const buildSectorUrl = (sector: string) => {
+  const url = new URL(Astro.request.url);
+  if (sector) {
+    url.searchParams.set('sector', sector);
+  } else {
+    url.searchParams.delete('sector');
+  }
+  url.searchParams.set('page', '1');
+  return url.pathname + url.search;
+};
+
+// Extract filter values
 const searchQuery = pageData.searchQuery;
 const areaFilter = pageData.activeFilters.area;
 const unidadFilter = pageData.activeFilters.unidad_negocio;
+const sectorFilter = pageData.activeFilters.sector;
 const areas = filterOptions.areas;
 const unidades = filterOptions.unidades;
+
+// Compute pagination pages
+const computePaginationPages = () => {
+  const total = pageData.totalPages;
+  const current = pageData.currentPage;
+  const maxPages = 5;
+
+  if (total <= maxPages) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  if (current <= 3) {
+    return [1, 2, 3, 4, 5];
+  }
+
+  if (current >= total - 2) {
+    return [total - 4, total - 3, total - 2, total - 1, total];
+  }
+
+  return [current - 2, current - 1, current, current + 1, current + 2];
+};
+
+const paginationPages = computePaginationPages();
+
+// Filter chips V4 design - BUTTONS not links
+const filterChips = [
+  { id: '', name: 'Todas', icon: 'grid' },
+  { id: 'aeropuertos', name: 'Aeropuertos', icon: 'plane' },
+  { id: 'bodegas', name: 'Bodegas', icon: 'wine' },
+  { id: 'gobierno', name: 'Gobierno', icon: 'landmark' },
+  { id: 'salud', name: 'Salud', icon: 'heart' },
+  { id: 'construccion', name: 'Construcción', icon: 'building' },
+  { id: 'industria', name: 'Industria', icon: 'factory' },
+  { id: 'datacenter', name: 'Data Center', icon: 'server' },
+  { id: 'mineria', name: 'Minería', icon: 'mountain' },
+  { id: 'seguridad', name: 'Seguridad', icon: 'shield' },
+  { id: 'software', name: 'Software', icon: 'code' },
+];
+
+// Icon paths for filter chips
+const filterIconPaths: Record<string, string> = {
+  grid: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>',
+  plane: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>',
+  wine: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 22h8M12 11v11M5.5 3h13l-1.6 7.2a4 4 0 01-3.9 3.2h-2a4 4 0 01-3.9-3.2L5.5 3z"/>',
+  landmark: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/>',
+  heart: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>',
+  building: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>',
+  factory: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>',
+  server: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>',
+  mountain: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>',
+  shield: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>',
+  code: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>',
+};
 ---
 
-<Layout title="Antecedentes - Casos de Éxito | Ultima Milla" description="Explore nuestros casos de éxito y proyectos realizados en telecomunicaciones, desarrollo de software y soluciones tecnológicas.">
-  
-  <!-- Hero Section V3 (Immersive, Dark, with Background) -->
-  <section class="relative h-[50vh] md:h-[60vh] flex items-center overflow-hidden bg-slate-900">
-    <!-- Background Image -->
-    <div class="absolute inset-0 z-0">
-      <img 
-        src="/images/services/servicios-it.jpg" 
-        alt="Antecedentes Background" 
-        class="w-full h-full object-cover opacity-40"
-      />
-      <div class="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/60 to-slate-900/90"></div>
-    </div>
+<LayoutV4
+  title="Antecedentes - Casos de Éxito | ULTIMA MILLA"
+  description="Explore nuestros +469 casos de éxito y proyectos realizados en telecomunicaciones, cableado estructurado, seguridad electrónica, desarrollo de software y soluciones tecnológicas en Mendoza, Cuyo y Patagonia."
+  keywords="casos exito tecnologia mendoza, proyectos telecomunicaciones, antecedentes cableado estructurado, portfolio seguridad electronica, software a medida casos"
+>
+  <HeroPageV4
+    title="Nuestra"
+    titleHighlight="Experiencia"
+    subtitle="Más de 22 años transformando empresas en Mendoza, Cuyo y Patagonia con soluciones IT de clase mundial."
+    breadcrumb={[
+      { label: 'Inicio', href: '/' },
+      { label: 'Antecedentes', href: '/antecedentes' },
+    ]}
+    badge={{ icon: 'briefcase', text: 'Portafolio de Proyectos' }}
+    backgroundImage="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920&q=80"
+    stats={[
+      { value: `${pageData.totalItems}+`, label: 'Proyectos' },
+      { value: '22+', label: 'Años' },
+      { value: '8', label: 'Verticales' },
+    ]}
+  />
 
-    <div class="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <span class="inline-block py-1 px-3 rounded-full bg-blue-500/20 text-blue-300 text-sm font-medium mb-6 backdrop-blur-sm border border-blue-500/30">
-        Nuestra Experiencia
-      </span>
-      <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight mb-6">
-        Casos de <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Éxito Real</span>
-      </h1>
-      <p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
-        Descubra cómo hemos transformado desafíos complejos en soluciones tecnológicas robustas para empresas líderes.
-      </p>
-    </div>
-  </section>
+  <!-- FILTER CHIPS SECTION - V4 Design with BUTTONS -->
+  <section class="bg-white border-b border-gray-100 sticky top-16 sm:top-20 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
 
-  <!-- Filtros y Búsqueda (Compact & Sticky) -->
-  <section class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm transition-all duration-300" id="filter-bar">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-      <form id="filter-form" class="flex flex-col md:flex-row gap-3 items-center justify-between">
-        
+        <!-- Filter Chips - BUTTONS that filter the list -->
+        <div class="flex flex-wrap gap-2" id="filter-chips">
+          {filterChips.map((chip) => (
+            <a
+              href={buildSectorUrl(chip.id)}
+              class={`filter-chip px-4 py-2 rounded-full text-sm font-medium border border-gray-200 flex items-center gap-2 transition-all min-h-[44px] ${
+                sectorFilter === chip.id || (chip.id === '' && !sectorFilter)
+                  ? 'bg-um-primary text-white border-um-primary'
+                  : 'text-um-gray hover:bg-um-primary hover:text-white hover:border-um-primary'
+              }`}
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" set:html={filterIconPaths[chip.icon]} />
+              {chip.name}
+            </a>
+          ))}
+        </div>
+
         <!-- Search -->
-        <div class="relative w-full md:w-96 group">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg class="h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <div class="flex items-center gap-4">
+          <form id="search-form" class="relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
-          </div>
-          <input
-            type="text"
-            name="q"
-            value={searchQuery}
-            placeholder="Buscar por cliente, título..."
-            class="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg leading-5 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all shadow-sm"
-          />
+            <input
+              type="text"
+              name="q"
+              value={searchQuery}
+              placeholder="Buscar proyecto..."
+              class="pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary w-full sm:w-64 min-h-[44px]"
+            />
+          </form>
         </div>
-
-        <!-- Filters Group -->
-        <div class="flex flex-wrap gap-2 w-full md:w-auto justify-center md:justify-end">
-          <!-- Area Filter -->
-          <div class="relative">
-            <select
-              name="area"
-              class="appearance-none block w-full pl-3 pr-8 py-2 border border-slate-200 rounded-lg bg-white text-slate-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 cursor-pointer hover:bg-slate-50 transition-colors shadow-sm"
-              onchange="this.form.submit()"
-            >
-              <option value="">Todas las Áreas</option>
-              {areas.map((a) => (
-                <option value={a} selected={a === areaFilter}>{a}</option>
-              ))}
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
-              <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-              </svg>
-            </div>
-          </div>
-
-          <!-- Unit Filter -->
-          <div class="relative">
-            <select
-              name="unidad"
-              class="appearance-none block w-full pl-3 pr-8 py-2 border border-slate-200 rounded-lg bg-white text-slate-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 cursor-pointer hover:bg-slate-50 transition-colors shadow-sm"
-              onchange="this.form.submit()"
-            >
-              <option value="">Todas las Unidades</option>
-              {unidades.map((u) => (
-                <option value={u} selected={u === unidadFilter}>{u}</option>
-              ))}
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
-              <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-      </form>
+      </div>
     </div>
   </section>
 
-    <!-- Grid de Proyectos (Solid, Clean V3) -->
-    <section class="py-16 md:py-24 bg-slate-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {pageData.antecedentes.length === 0 ? (
-          <div class="text-center py-20">
-            <h3 class="text-xl font-medium text-slate-900">No se encontraron proyectos</h3>
-            <p class="text-slate-500 mt-2">Intenta ajustar tus filtros de búsqueda.</p>
-          </div>
-        ) : (
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {pageData.antecedentes.map((proyecto) => (
-              <a href={`/antecedentes/${proyecto.slug}`} class="group flex flex-col h-full">
-                <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1">
-                  <!-- Image -->
-                  <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
-                    <img
-                      src={proyecto.imageUrl}
-                      alt={proyecto.Titulo}
-                      class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      loading="lazy"
-                      onerror="this.src='/images/default.jpg'"
-                    />
-                    <div class="absolute top-4 left-4">
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-slate-900 text-white shadow-sm">
-                        {proyecto.Area || 'Proyecto'}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <!-- Content -->
-                  <div class="flex flex-col flex-grow p-6">
-                    <div class="mb-2">
-                      <span class="text-xs font-bold text-blue-600 uppercase tracking-wide">
-                        {proyecto.Cliente}
-                      </span>
-                    </div>
-                    
-                    <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors line-clamp-2">
-                      {proyecto.Titulo}
-                    </h3>
-                    
-                    <p class="text-slate-600 text-sm mb-6 line-clamp-3 flex-grow leading-relaxed">
-                      {proyecto.Descripcion ? proyecto.Descripcion.replace(/<[^>]*>/g, '').substring(0, 150) + '...' : ''}
-                    </p>
-                    
-                    <div class="pt-4 border-t border-slate-100 mt-auto flex items-center justify-between">
-                      <span class="text-xs font-medium text-slate-500">
-                        {proyecto.Unidad_de_negocio}
-                      </span>
-                      <span class="text-blue-600 text-sm font-semibold group-hover:underline flex items-center">
-                        Ver caso <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                      </span>
-                    </div>
-                  </div>
-                </article>
-              </a>
-            ))}
-          </div>
-        )}
-
-        <!-- Pagination -->
-        {pageData.totalPages > 1 && (
-          <div class="mt-12 flex justify-center space-x-2">
-            {Array.from({ length: pageData.totalPages }, (_, i) => i + 1).map(page => (
-              <a
-                href={buildPageUrl(page)}
-                class={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  page === pageData.currentPage
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
-                }`}
-              >
-                {page}
-              </a>
-            ))}
-          </div>
+  <!-- RESULTS INFO -->
+  <section class="bg-um-primary-bg/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex items-center justify-between">
+        <p class="text-sm text-um-gray">
+          Mostrando <span class="font-semibold text-um-dark">{((pageData.currentPage - 1) * PAGE_SIZE) + 1}-{Math.min(pageData.currentPage * PAGE_SIZE, pageData.totalItems)}</span> de <span class="font-semibold text-um-dark">{pageData.totalItems}</span> proyectos
+          {sectorFilter && (
+            <span class="ml-2">
+              en <span class="font-semibold text-um-primary">{filterChips.find(c => c.id === sectorFilter)?.name}</span>
+            </span>
+          )}
+        </p>
+        {(sectorFilter || searchQuery || areaFilter || unidadFilter) && (
+          <a
+            href="/antecedentes?reset=1"
+            class="text-sm text-um-primary hover:text-um-primary-dark font-medium flex items-center gap-1"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            Limpiar filtros
+          </a>
         )}
       </div>
-    </section>
-  </main>
-</Layout>
+    </div>
+  </section>
+
+  <!-- Grid de Proyectos -->
+  <section class="py-10 sm:py-14 lg:py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {pageData.antecedentes.length === 0 ? (
+        <div class="text-center py-16 sm:py-20">
+          <svg class="w-16 h-16 text-um-gray mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 class="text-xl font-bold text-um-dark mb-2">No se encontraron proyectos</h3>
+          <p class="text-um-gray">Intenta ajustar tus filtros de búsqueda.</p>
+          <a href="/antecedentes?reset=1" class="inline-block mt-6 px-6 py-3 bg-um-primary text-white font-semibold rounded-lg hover:bg-um-primary-dark transition-colors">
+            Ver todos los proyectos
+          </a>
+        </div>
+      ) : (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          {pageData.antecedentes.map((proyecto, index) => (
+            <a
+              href={`/antecedentes/${proyecto.slug}`}
+              class="card-hover bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 animate-fade-in"
+              style={`animation-delay: ${0.1 + index * 0.05}s`}
+            >
+              <div class="relative h-48 overflow-hidden">
+                <img
+                  src={proyecto.imageUrl}
+                  alt={proyecto.Titulo}
+                  class="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                  loading="lazy"
+                  onerror="this.src='/images/default.jpg'"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                <span class="absolute bottom-3 left-3 px-2.5 py-1 bg-um-primary text-white text-xs font-semibold rounded-md">
+                  {proyecto.Area || 'Proyecto'}
+                </span>
+              </div>
+              <div class="p-5">
+                <h3 class="font-bold text-um-dark mb-2 line-clamp-2 group-hover:text-um-primary transition-colors">
+                  {proyecto.Titulo}
+                </h3>
+                <p class="text-sm text-um-gray line-clamp-2 mb-4">
+                  {proyecto.Descripcion ? proyecto.Descripcion.replace(/<[^>]*>/g, '').substring(0, 100) + '...' : ''}
+                </p>
+                <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <span class="text-xs text-um-gray">{proyecto.Cliente}</span>
+                  <span class="text-um-primary text-sm font-medium flex items-center gap-1">
+                    Ver detalle
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+
+      <!-- Pagination -->
+      {pageData.totalPages > 1 && (
+        <nav class="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p class="text-sm text-um-gray">
+            Página <span class="font-semibold text-um-dark">{pageData.currentPage}</span> de <span class="font-semibold text-um-dark">{pageData.totalPages}</span>
+          </p>
+
+          <div class="flex items-center gap-2">
+            {pageData.currentPage > 1 && (
+              <a
+                href={buildPageUrl(pageData.currentPage - 1)}
+                class="p-2 rounded-lg border border-gray-200 text-um-gray hover:bg-gray-50 min-h-[44px] min-w-[44px] flex items-center justify-center"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+              </a>
+            )}
+
+            {paginationPages.map((pageNum) => (
+              <a
+                href={buildPageUrl(pageNum)}
+                class={`w-10 h-10 rounded-lg font-medium flex items-center justify-center min-h-[44px] ${
+                  pageData.currentPage === pageNum
+                    ? 'bg-um-primary text-white'
+                    : 'border border-gray-200 text-um-gray hover:bg-gray-50'
+                }`}
+              >
+                {pageNum}
+              </a>
+            ))}
+
+            {pageData.currentPage < pageData.totalPages && (
+              <a
+                href={buildPageUrl(pageData.currentPage + 1)}
+                class="p-2 rounded-lg border border-gray-200 text-um-gray hover:bg-gray-50 min-h-[44px] min-w-[44px] flex items-center justify-center"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </a>
+            )}
+          </div>
+        </nav>
+      )}
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="relative py-12 sm:py-16 lg:py-20 xl:py-24 overflow-hidden">
+    <div class="absolute inset-0">
+      <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80" alt="" class="w-full h-full object-cover" />
+      <div class="absolute inset-0 bg-um-dark/90"></div>
+    </div>
+    <div class="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
+      <span class="inline-flex items-center gap-2 px-4 py-2 bg-um-primary/20 text-um-primary-light rounded-full text-sm font-semibold mb-6">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Comience su proyecto
+      </span>
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-6">
+        ¿Tiene un proyecto en mente?
+      </h2>
+      <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+        Contáctenos para discutir cómo podemos ayudarle a alcanzar sus objetivos tecnológicos. Más de {pageData.totalItems} proyectos nos respaldan.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/contacto" class="px-8 py-4 bg-um-accent text-white font-bold rounded-xl hover:bg-um-accent-dark transition-colors shadow-xl shadow-um-accent/25 min-h-[48px] flex items-center justify-center">
+          Solicitar Cotización
+        </a>
+        <a href="mailto:contacto@ultimamilla.com.ar" class="px-8 py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2 min-h-[48px]">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          contacto@ultimamilla.com.ar
+        </a>
+      </div>
+    </div>
+  </section>
+</LayoutV4>
 
 <style>
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  /* V4 Filter chip styles */
+  .filter-chip {
+    transition: all 0.2s ease;
   }
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  
-  .animate-fade-in-up {
-    animation: fadeInUp 0.8s ease-out forwards;
+
+  /* Card animation */
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease forwards;
     opacity: 0;
     transform: translateY(20px);
   }
-  
-  .delay-100 { animation-delay: 0.1s; }
-  .delay-200 { animation-delay: 0.2s; }
-  
-  @keyframes fadeInUp {
+
+  @keyframes fadeIn {
     to {
       opacity: 1;
       transform: translateY(0);
     }
   }
+
+  /* Card hover */
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+  }
 </style>
+
+<script>
+  // Search form submit on enter
+  const searchForm = document.getElementById('search-form');
+  if (searchForm) {
+    searchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData(searchForm as HTMLFormElement);
+      const q = formData.get('q') as string;
+      const url = new URL(window.location.href);
+      if (q) {
+        url.searchParams.set('q', q);
+      } else {
+        url.searchParams.delete('q');
+      }
+      url.searchParams.set('page', '1');
+      window.location.href = url.toString();
+    });
+  }
+</script>

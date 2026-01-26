@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Implementación de Redes de Datos y Fibra Óptica | Ultima Milla</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'sans': ['Inter', 'sans-serif'],
+            'mono': ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            'um-blue': '#1e40af',
+            'um-blue-light': '#3b82f6',
+            'um-blue-bg': '#eff6ff',
+            'um-dark': '#0a0a1a',
+            'um-accent': '#f97316',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .hero-gradient {
+      background: linear-gradient(180deg, rgba(10,10,26,0.93) 0%, rgba(10,10,26,0.6) 50%, rgba(10,10,26,0.87) 100%);
+    }
+    .cta-gradient {
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    }
+
+    /* === MOBILE-FIRST CSS === */
+
+    /* Tipografía fluida */
+    .text-fluid-hero {
+      font-size: clamp(1.75rem, 5vw, 3rem);
+      line-height: 1.1;
+    }
+
+    .text-fluid-title {
+      font-size: clamp(1.25rem, 3vw, 1.375rem);
+    }
+
+    .text-fluid-body {
+      font-size: clamp(0.875rem, 2.5vw, 1rem);
+    }
+
+    /* Touch targets mínimos (44px) */
+    .touch-target {
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    /* Safe area para notch/dynamic island iPhone */
+    @supports (padding: env(safe-area-inset-bottom)) {
+      .safe-bottom {
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+      }
+    }
+
+    /* Prevenir overflow horizontal */
+    html, body {
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+
+    /* Line clamp para textos largos */
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .line-clamp-3 {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Respetar preferencias de movimiento reducido */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Menú móvil animado */
+    #mobileMenu {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    #mobileMenu.hidden {
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+    }
+
+    #mobileMenu:not(.hidden) {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body class="font-sans bg-white">
+
+  <!-- NAVBAR -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20">
+
+        <!-- Logo responsive -->
+        <a href="index-v4.html" class="flex items-center">
+          <img src="https://ultimamilla.com.ar/images/um-logo.png"
+               alt="Ultima Milla"
+               class="h-10 sm:h-14"
+               style="mix-blend-mode: multiply;">
+        </a>
+
+        <!-- Desktop Menu (oculto en móvil) -->
+        <div class="hidden md:flex items-center gap-4 lg:gap-6 xl:gap-8">
+          <a href="index-v4.html" class="text-gray-600 hover:text-um-blue font-medium text-sm transition-colors">Inicio</a>
+          <a href="servicios-v4.html" class="text-gray-600 hover:text-um-blue font-medium text-sm transition-colors">Servicios</a>
+          <a href="antecedentes-index-v4.html" class="text-um-blue font-semibold text-sm">Antecedentes</a>
+          <a href="sectores-v4.html" class="text-gray-600 hover:text-um-blue font-medium text-sm transition-colors">Sectores</a>
+          <a href="nosotros-v4.html" class="text-gray-600 hover:text-um-blue font-medium text-sm transition-colors">Nosotros</a>
+          <a href="contacto-v4.html" class="bg-um-accent hover:bg-orange-600 text-white font-semibold px-5 py-2.5 rounded-lg text-sm transition-colors">
+            Contacto
+          </a>
+        </div>
+
+        <!-- Hamburger Button (visible solo móvil) -->
+        <button id="menuToggle"
+                class="md:hidden p-2 -mr-2 rounded-lg hover:bg-gray-100 touch-target flex items-center justify-center"
+                aria-label="Abrir menú"
+                aria-expanded="false">
+          <svg id="hamburgerIcon" class="w-6 h-6 text-um-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+          <svg id="closeIcon" class="w-6 h-6 text-um-dark hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu Dropdown -->
+    <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-100 shadow-xl">
+      <div class="px-4 py-4 space-y-1">
+        <a href="index-v4.html" class="block px-4 py-3 text-um-dark font-medium rounded-lg hover:bg-um-blue-bg touch-target">Inicio</a>
+        <a href="servicios-v4.html" class="block px-4 py-3 text-um-dark font-medium rounded-lg hover:bg-um-blue-bg touch-target">Servicios</a>
+        <a href="antecedentes-index-v4.html" class="block px-4 py-3 text-um-blue font-semibold rounded-lg bg-um-blue-bg touch-target">Antecedentes</a>
+        <a href="sectores-v4.html" class="block px-4 py-3 text-um-dark font-medium rounded-lg hover:bg-um-blue-bg touch-target">Sectores</a>
+        <a href="nosotros-v4.html" class="block px-4 py-3 text-um-dark font-medium rounded-lg hover:bg-um-blue-bg touch-target">Nosotros</a>
+        <a href="contacto-v4.html" class="block px-4 py-3 mt-2 bg-um-accent text-white text-center font-semibold rounded-lg touch-target">Contacto</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION - Espaciado uniforme -->
+  <section class="relative overflow-hidden bg-um-dark">
+    <!-- Background Image -->
+    <img
+      src="https://images.unsplash.com/photo-1617999904537-5175f3edfef9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1920&q=80"
+      alt="Fiber optic cables"
+      class="absolute inset-0 w-full h-full object-cover opacity-50"
+    />
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-gradient-to-t from-um-dark via-um-dark/70 to-um-dark/40"></div>
+
+    <!-- Content con padding uniforme -->
+    <div class="relative z-10 px-4 sm:px-6 lg:px-8 xl:px-16 2xl:px-[120px] pt-20 sm:pt-24 pb-6 sm:pb-10 lg:pb-12">
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 text-xs mb-3 sm:mb-4">
+        <a href="index-v4.html" class="text-white/60 hover:text-white/80 font-medium">Inicio</a>
+        <span class="text-white/30">/</span>
+        <a href="antecedentes-index-v4.html" class="text-white/60 hover:text-white/80 font-medium">Antecedentes</a>
+        <span class="text-white/30">/</span>
+        <span class="text-white font-medium">Redes</span>
+      </nav>
+
+      <!-- Category Badge -->
+      <div class="inline-flex items-center gap-1.5 bg-um-blue px-3 py-1.5 rounded-full mb-4 sm:mb-5">
+        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+        </svg>
+        <span class="text-white text-[10px] font-bold tracking-wider">REDES Y CONECTIVIDAD</span>
+      </div>
+
+      <!-- Title -->
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold text-white leading-tight max-w-4xl mb-4 sm:mb-5">
+        Implementación de Redes de Datos y Fibra Óptica
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="text-sm sm:text-base lg:text-lg text-white/80 max-w-2xl leading-relaxed mb-5 sm:mb-6">
+        Cableado estructurado Cat 6/6A/7 y tendido de fibra óptica para infraestructura empresarial de alta velocidad
+      </p>
+
+      <!-- Meta Info en línea -->
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:text-sm">
+        <div class="flex items-center gap-2 text-white/80">
+          <svg class="w-4 h-4 text-um-blue-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+          <span>Hospital A. Italo Perrupato</span>
+        </div>
+        <span class="text-white/30">•</span>
+        <div class="flex items-center gap-2 text-white/80">
+          <svg class="w-4 h-4 text-um-blue-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          <span>Marzo 2024</span>
+        </div>
+        <span class="text-white/30">•</span>
+        <div class="flex items-center gap-2 text-white/80">
+          <svg class="w-4 h-4 text-um-blue-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <span>Mendoza, Argentina</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTENT SECTION -->
+  <section class="px-4 sm:px-6 lg:px-8 xl:px-16 2xl:px-[120px] py-8 sm:py-12 lg:py-16">
+    <div class="flex flex-col lg:flex-row gap-8 lg:gap-12 xl:gap-16">
+      <!-- Left Column (Main Content) - Order 2 en móvil para que sidebar aparezca después -->
+      <div class="flex-1 flex flex-col gap-8 sm:gap-10 lg:gap-12 order-2 lg:order-1">
+
+        <!-- Description Section -->
+        <div class="flex flex-col gap-4 sm:gap-5">
+          <div class="flex items-center gap-3">
+            <div class="w-1 h-5 sm:h-6 bg-um-blue rounded-sm"></div>
+            <h2 class="text-lg sm:text-xl lg:text-[22px] font-bold text-gray-900">Descripción del Proyecto</h2>
+          </div>
+          <p class="text-gray-600 leading-relaxed text-sm sm:text-base">
+            Diseño e implementación de infraestructura de redes de datos con cableado estructurado Cat 6/6A/7 y tendido de fibra óptica para el Hospital A. Italo Perrupato en Mendoza.
+            <br><br>
+            El proyecto incluyó la instalación de cableado exterior por postes con 3 tendidos nuevos y 4 a recuperar, además de la configuración de switch 16b (150W) Ubiquiti para garantizar conectividad de alta velocidad y confiabilidad en toda la infraestructura hospitalaria.
+          </p>
+
+          <!-- Callout Box -->
+          <div class="flex items-start sm:items-center gap-3 bg-um-blue-bg px-4 sm:px-5 py-3 sm:py-4 rounded-r-lg border-l-4 border-um-blue">
+            <span class="text-base sm:text-lg flex-shrink-0">💡</span>
+            <span class="text-um-blue text-[10px] sm:text-xs font-semibold tracking-wide leading-tight">INFRAESTRUCTURA DE RED HOSPITALARIA DE ALTA DISPONIBILIDAD</span>
+          </div>
+        </div>
+
+        <!-- Alcance Section -->
+        <div class="flex flex-col gap-4 sm:gap-5">
+          <div class="flex items-center gap-3">
+            <div class="w-1 h-5 sm:h-6 bg-um-blue rounded-sm"></div>
+            <h2 class="text-lg sm:text-xl lg:text-[22px] font-bold text-gray-900">Alcance del Proyecto</h2>
+          </div>
+          <div class="flex flex-col gap-3 sm:gap-3.5">
+            <div class="flex items-start gap-3">
+              <div class="w-5 sm:w-[22px] h-5 sm:h-[22px] rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg class="w-3 sm:w-3.5 h-3 sm:h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+              <span class="text-gray-700 text-sm sm:text-[15px] font-medium">Instalación de cableado exterior por postes - 3 tendidos nuevos</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-5 sm:w-[22px] h-5 sm:h-[22px] rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg class="w-3 sm:w-3.5 h-3 sm:h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+              <span class="text-gray-700 text-sm sm:text-[15px] font-medium">Recuperación de 4 tendidos existentes</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-5 sm:w-[22px] h-5 sm:h-[22px] rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg class="w-3 sm:w-3.5 h-3 sm:h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+              <span class="text-gray-700 text-sm sm:text-[15px] font-medium">Configuración de switch 16b (150W) Ubiquiti</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-5 sm:w-[22px] h-5 sm:h-[22px] rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg class="w-3 sm:w-3.5 h-3 sm:h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+              <span class="text-gray-700 text-sm sm:text-[15px] font-medium">Certificación de puntos de red Cat 6/6A</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gallery Section -->
+        <div class="flex flex-col gap-4 sm:gap-5">
+          <div class="flex items-center gap-3">
+            <div class="w-1 h-5 sm:h-6 bg-um-blue rounded-sm"></div>
+            <h2 class="text-lg sm:text-xl lg:text-[22px] font-bold text-gray-900">Equipamiento Instalado</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <img src="https://images.unsplash.com/flagged/photo-1579274216947-86eaa4b00475?w=600&q=80" alt="Rack de servidores" class="w-full h-40 sm:h-44 lg:h-[180px] object-cover rounded-xl"/>
+            <img src="https://images.unsplash.com/photo-1754603957757-52cbda751ea9?w=600&q=80" alt="Patch panel" class="w-full h-40 sm:h-44 lg:h-[180px] object-cover rounded-xl"/>
+            <img src="https://images.unsplash.com/photo-1669988021067-624c6b1699ca?w=600&q=80" alt="Cámara CCTV" class="w-full h-40 sm:h-44 lg:h-[180px] object-cover rounded-xl sm:col-span-2 lg:col-span-1"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar - Order 1 en móvil para que aparezca primero, luego cambia a order-2 en lg -->
+      <div class="w-full lg:w-[320px] xl:w-[360px] flex flex-col gap-4 sm:gap-6 order-1 lg:order-2">
+
+        <!-- Ficha Técnica Card -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
+          <div class="flex items-center gap-2.5 px-4 sm:px-5 py-3 sm:py-4 bg-gray-50 border-b border-gray-200">
+            <svg class="w-4 sm:w-[18px] h-4 sm:h-[18px] text-um-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span class="text-sm font-bold text-gray-900">Ficha Técnica</span>
+          </div>
+          <div class="p-4 sm:p-5 flex flex-col gap-3 sm:gap-4">
+            <div class="flex flex-col gap-1">
+              <span class="text-[10px] font-semibold text-gray-500 tracking-wider">ORGANIZACIÓN</span>
+              <span class="text-sm sm:text-[15px] font-semibold text-gray-900">Hospital A. Italo Perrupato</span>
+            </div>
+            <div class="h-px bg-gray-100"></div>
+            <div class="flex flex-col gap-1">
+              <span class="text-[10px] font-semibold text-gray-500 tracking-wider">VERTICAL</span>
+              <span class="text-sm sm:text-[15px] font-semibold text-gray-900">Salud</span>
+            </div>
+            <div class="h-px bg-gray-100"></div>
+            <div class="flex flex-col gap-1">
+              <span class="text-[10px] font-semibold text-gray-500 tracking-wider">UBICACIÓN</span>
+              <span class="text-sm sm:text-[15px] font-semibold text-gray-900">Mendoza, Argentina</span>
+            </div>
+            <div class="h-px bg-gray-100"></div>
+            <div class="flex flex-col gap-1">
+              <span class="text-[10px] font-semibold text-gray-500 tracking-wider">FINALIZACIÓN</span>
+              <span class="text-sm sm:text-[15px] font-semibold text-gray-900">Marzo 2024</span>
+            </div>
+            <div class="h-px bg-gray-100"></div>
+            <div class="flex flex-col gap-1">
+              <span class="text-[10px] font-semibold text-gray-500 tracking-wider">CÓDIGO PROYECTO</span>
+              <span class="text-sm sm:text-[15px] font-semibold text-um-blue font-mono">OTR-3072</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA Widget -->
+        <div class="cta-gradient rounded-2xl p-5 sm:p-6 flex flex-col items-center gap-3 sm:gap-4">
+          <div class="w-12 sm:w-14 h-12 sm:h-14 rounded-full bg-white/20 flex items-center justify-center">
+            <svg class="w-6 sm:w-7 h-6 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+            </svg>
+          </div>
+          <h3 class="text-base sm:text-lg font-bold text-white text-center">¿Necesita una solución similar?</h3>
+          <p class="text-xs sm:text-sm text-white/80 text-center leading-relaxed">
+            Contáctenos para una evaluación gratuita de su proyecto de infraestructura
+          </p>
+          <div class="w-full flex flex-col gap-2 sm:gap-2.5">
+            <a href="contacto-v4.html" class="flex items-center justify-center gap-2 bg-white text-um-blue font-semibold py-3 sm:py-3.5 px-4 sm:px-5 rounded-lg hover:bg-gray-50 transition-colors touch-target text-sm sm:text-base">
+              <svg class="w-4 sm:w-[18px] h-4 sm:h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+              </svg>
+              Solicitar Cotización
+            </a>
+            <a href="tel:+5491112345678" class="flex items-center justify-center gap-2 bg-white/20 text-white font-semibold py-3 sm:py-3.5 px-4 sm:px-5 rounded-lg border border-white/30 hover:bg-white/30 transition-colors touch-target text-sm sm:text-base">
+              <svg class="w-4 sm:w-[18px] h-4 sm:h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+              </svg>
+              Llamar Ahora
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED SECTION -->
+  <section class="bg-gray-50 border-t border-gray-200 px-4 sm:px-6 lg:px-8 xl:px-16 2xl:px-[120px] py-8 sm:py-12 lg:py-16">
+    <div class="flex flex-col gap-6 sm:gap-8">
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h2 class="text-xl sm:text-2xl lg:text-[28px] font-bold text-gray-900">Proyectos Relacionados</h2>
+        <a href="antecedentes-index-v4.html" class="flex items-center gap-1.5 text-um-blue font-semibold text-sm hover:underline">
+          Ver portfolio completo
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+          </svg>
+        </a>
+      </div>
+
+      <!-- Cards Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+        <!-- Card 1 -->
+        <a href="#" class="group bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg transition-shadow">
+          <div class="h-36 sm:h-40 lg:h-[160px] overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1762329404225-2953941c00f1?w=600&q=80" alt="Infraestructura de Redes" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>
+          </div>
+          <div class="p-4 sm:p-5 flex flex-col gap-2 sm:gap-3">
+            <span class="text-[10px] font-bold text-um-blue tracking-wider">REDES</span>
+            <h3 class="text-sm sm:text-base font-semibold text-gray-900 leading-snug group-hover:text-um-blue transition-colors line-clamp-2">
+              Infraestructura de Redes - Bodega Premium
+            </h3>
+            <div class="flex items-center justify-between pt-2 sm:pt-3 border-t border-gray-100">
+              <span class="text-xs sm:text-[13px] text-gray-500 font-medium">2024</span>
+              <span class="text-xs sm:text-[13px] text-um-blue font-semibold">Ver caso →</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Card 2 -->
+        <a href="#" class="group bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg transition-shadow">
+          <div class="h-36 sm:h-40 lg:h-[160px] overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1708794758085-b733c022008c?w=600&q=80" alt="Sistema de Seguridad" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>
+          </div>
+          <div class="p-4 sm:p-5 flex flex-col gap-2 sm:gap-3">
+            <span class="text-[10px] font-bold text-um-blue tracking-wider">SEGURIDAD</span>
+            <h3 class="text-sm sm:text-base font-semibold text-gray-900 leading-snug group-hover:text-um-blue transition-colors line-clamp-2">
+              Sistema de Seguridad Distribuido - CCTV Control
+            </h3>
+            <div class="flex items-center justify-between pt-2 sm:pt-3 border-t border-gray-100">
+              <span class="text-xs sm:text-[13px] text-gray-500 font-medium">2023</span>
+              <span class="text-xs sm:text-[13px] text-um-blue font-semibold">Ver caso →</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Card 3 -->
+        <a href="#" class="group bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg transition-shadow sm:col-span-2 lg:col-span-1">
+          <div class="h-36 sm:h-40 lg:h-[160px] overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1642775196125-38a9eb496568?w=600&q=80" alt="Telecomunicaciones" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>
+          </div>
+          <div class="p-4 sm:p-5 flex flex-col gap-2 sm:gap-3">
+            <span class="text-[10px] font-bold text-um-blue tracking-wider">TELECOMUNICACIONES</span>
+            <h3 class="text-sm sm:text-base font-semibold text-gray-900 leading-snug group-hover:text-um-blue transition-colors line-clamp-2">
+              Telecomunicaciones - Datos, Voz, Video
+            </h3>
+            <div class="flex items-center justify-between pt-2 sm:pt-3 border-t border-gray-100">
+              <span class="text-xs sm:text-[13px] text-gray-500 font-medium">2024</span>
+              <span class="text-xs sm:text-[13px] text-um-blue font-semibold">Ver caso →</span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-um-dark text-gray-400 py-8 sm:py-10 lg:py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 mb-8">
+
+        <!-- Brand -->
+        <div class="text-center sm:text-left">
+          <img src="https://ultimamilla.com.ar/images/um-logo.png" alt="Ultima Milla" class="h-8 sm:h-10 brightness-0 invert mx-auto sm:mx-0 mb-4">
+          <p class="text-sm leading-relaxed">
+            Soluciones integrales de infraestructura tecnológica para empresas que buscan excelencia operativa.
+          </p>
+        </div>
+
+        <!-- Servicios -->
+        <div>
+          <h4 class="font-bold text-white mb-4 text-center sm:text-left">Servicios</h4>
+          <ul class="space-y-2 text-sm text-center sm:text-left">
+            <li><a href="servicios-v4.html" class="hover:text-white transition-colors">Redes y Conectividad</a></li>
+            <li><a href="servicios-v4.html" class="hover:text-white transition-colors">Seguridad Electrónica</a></li>
+            <li><a href="servicios-v4.html" class="hover:text-white transition-colors">Data Centers</a></li>
+            <li><a href="servicios-v4.html" class="hover:text-white transition-colors">Telecomunicaciones</a></li>
+          </ul>
+        </div>
+
+        <!-- Empresa -->
+        <div>
+          <h4 class="font-bold text-white mb-4 text-center sm:text-left">Empresa</h4>
+          <ul class="space-y-2 text-sm text-center sm:text-left">
+            <li><a href="nosotros-v4.html" class="hover:text-white transition-colors">Nosotros</a></li>
+            <li><a href="antecedentes-index-v4.html" class="hover:text-white transition-colors">Antecedentes</a></li>
+            <li><a href="sectores-v4.html" class="hover:text-white transition-colors">Sectores</a></li>
+            <li><a href="contacto-v4.html" class="hover:text-white transition-colors">Contacto</a></li>
+          </ul>
+        </div>
+
+        <!-- Contacto -->
+        <div>
+          <h4 class="font-bold text-white mb-4 text-center sm:text-left">Contacto</h4>
+          <ul class="space-y-3 text-sm">
+            <li class="flex items-center gap-2 justify-center sm:justify-start">
+              <svg class="w-4 h-4 text-um-blue-light flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              <span>info@ultimamilla.com.ar</span>
+            </li>
+            <li class="flex items-center gap-2 justify-center sm:justify-start">
+              <svg class="w-4 h-4 text-um-blue-light flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+              </svg>
+              <span>+54 261 123-4567</span>
+            </li>
+            <li class="flex items-center gap-2 justify-center sm:justify-start">
+              <svg class="w-4 h-4 text-um-blue-light flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <span>Mendoza, Argentina</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Copyright -->
+      <div class="border-t border-gray-800 pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
+        <p class="text-xs sm:text-sm">© 2025 Ultima Milla. Todos los derechos reservados.</p>
+        <div class="flex gap-4 sm:gap-6 text-xs sm:text-sm">
+          <a href="#" class="hover:text-white transition-colors">Privacidad</a>
+          <a href="#" class="hover:text-white transition-colors">Términos</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript Menú Hamburguesa -->
+  <script>
+    // Menú hamburguesa - toggle con clases CSS
+    const menuToggle = document.getElementById('menuToggle');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const hamburgerIcon = document.getElementById('hamburgerIcon');
+    const closeIcon = document.getElementById('closeIcon');
+
+    menuToggle.addEventListener('click', function() {
+      const isOpen = !mobileMenu.classList.contains('hidden');
+
+      mobileMenu.classList.toggle('hidden');
+      hamburgerIcon.classList.toggle('hidden');
+      closeIcon.classList.toggle('hidden');
+
+      menuToggle.setAttribute('aria-expanded', !isOpen);
+    });
+
+    // Cerrar al click en link
+    mobileMenu.querySelectorAll('a').forEach(function(link) {
+      link.addEventListener('click', function() {
+        mobileMenu.classList.add('hidden');
+        hamburgerIcon.classList.remove('hidden');
+        closeIcon.classList.add('hidden');
+        menuToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+  </script>
+
+</body>
+</html>

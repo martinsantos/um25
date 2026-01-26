@@ -38,7 +38,18 @@ module.exports = {
           700: '#374151',
           800: '#1F2937',
           900: '#111827'
-        }
+        },
+        // V4 Design System Colors
+        'um-primary': '#0ea5e9',
+        'um-primary-dark': '#0284c7',
+        'um-primary-light': '#38bdf8',
+        'um-primary-bg': '#f0f9ff',
+        'um-accent': '#dc2626',
+        'um-accent-dark': '#b91c1c',
+        'um-dark': '#111827',
+        'um-slate': '#1e293b',
+        'um-gray': '#6b7280',
+        'um-gray-light': '#f3f4f6',
       },
       animation: {
         typing: 'typing 3.5s steps(40, end)',

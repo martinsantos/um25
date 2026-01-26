@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 
-const SITE_URL = 'https://ultimamilla.com';
+const SITE_URL = 'https://www.ultimamilla.com.ar';
 
 export const GET: APIRoute = async () => {
     const robotsTxt = `# www.robotstxt.org
@@ -11,7 +11,7 @@ Disallow: /admin/
 Disallow: /api/
 
 # Sitemap
-Sitemap: ${SITE_URL}/sitemap.xml
+Sitemap: ${SITE_URL}/sitemap-index.xml
 
 # Archivos específicos a no indexar
 Disallow: /*.json$
