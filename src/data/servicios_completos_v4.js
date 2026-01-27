@@ -430,6 +430,172 @@ export const serviciosCompletos = {
       'Metodologías probadas (ITIL, COBIT)',
       'Enfoque en resultados medibles'
     ]
+  },
+
+  // ==========================================
+  // ID 107: DETECCIÓN DE INCENDIOS
+  // ==========================================
+  107: {
+    id: 107,
+    Titulo: "Sistemas de Detección y Alarma de Incendios",
+    Subtitulo: "Protección activa contra incendios",
+    Descripcion: "Diseño, instalación y mantenimiento de sistemas de detección y alarma de incendios certificados según IRAM 3517 y NFPA 72. Protección integral para edificios comerciales, industriales, hospitalarios y gubernamentales en Mendoza y Cuyo. Centrales inteligentes, detectores fotoeléctricos y térmicos, sistemas de extinción automática.",
+    Area: "Seguridad",
+    Imagen: prodImage('/images/services/servicio-107-incendios.jpg'),
+    Stats: [
+      { value: '50+', label: 'Instalaciones Activas' },
+      { value: 'IRAM', label: 'Certificación' },
+      { value: '24/7', label: 'Monitoreo' },
+      { value: '100%', label: 'Uptime' }
+    ],
+    Productos: [
+      {
+        titulo: "Centrales de Detección Inteligentes",
+        descripcion: "Centrales direccionables de última generación con capacidad de monitoreo en tiempo real, integración con sistemas BMS y notificaciones automáticas a bomberos y personal de seguridad.",
+        imagen: prodImage('/images/services/productos/incendios/7.1.png'),
+        features: ['Hasta 1000 puntos direccionables', 'Protocolo abierto BACnet/Modbus', 'Redundancia de CPU y fuentes'],
+        destacado: 'Instalación y puesta en marcha de centrales Honeywell, Notifier y Edwards con certificación IRAM 3517.'
+      },
+      {
+        titulo: "Detectores de Humo Fotoeléctricos",
+        descripcion: "Detectores de humo de tecnología fotoeléctrica con algoritmo inteligente que reduce falsas alarmas. Ideales para oficinas, hospitales, hoteles y centros comerciales.",
+        imagen: prodImage('/images/services/productos/incendios/7.2.png'),
+        features: ['Autocompensación de sensibilidad', 'Identificación única por dirección', 'Test remoto desde central'],
+        destacado: 'Provisión e instalación de detectores con lazo analógico direccionable según NFPA 72.'
+      },
+      {
+        titulo: "Detectores de Temperatura",
+        descripcion: "Detectores térmicos fijos y termovelocimétricos certificados para zonas donde el humo genera falsas alarmas: cocinas industriales, talleres, depósitos con polvo.",
+        imagen: prodImage('/images/services/productos/incendios/7.3.png'),
+        features: ['Rango -30°C a +150°C', 'Velocidad de incremento ajustable', 'Resistente a ambientes corrosivos'],
+        destacado: 'Selección técnica e instalación según riesgo y tipo de actividad conforme IRAM 3501.'
+      },
+      {
+        titulo: "Pulsadores Manuales de Alarma",
+        descripcion: "Estaciones manuales de alarma con protección antivandalismo, diseño ergonómico y alta visibilidad. Direccionables e identificables desde la central.",
+        imagen: prodImage('/images/services/productos/incendios/7.4.png'),
+        features: ['Vidrio rompible de seguridad', 'LED de indicación de estado', 'Reset remoto desde central'],
+        destacado: 'Instalación estratégica en rutas de evacuación a menos de 30 metros según normativa vigente.'
+      },
+      {
+        titulo: "Sirenas y Balizas Estroboscópicas",
+        descripcion: "Dispositivos de notificación audiovisual con potencia regulable, tonos configurables y sincronización de destellos. Cumple accesibilidad ADA para personas con discapacidad auditiva.",
+        imagen: prodImage('/images/services/productos/incendios/7.5.png'),
+        features: ['Potencia hasta 110 dB a 1 metro', '15 tonos programables', 'Sincronización de flash temporal'],
+        destacado: 'Cálculo de cobertura acústica y lumínica según normas NFPA 72 y ADA.'
+      },
+      {
+        titulo: "Módulos de Control y Supervisión",
+        descripcion: "Módulos entrada/salida para comandar válvulas de diluvio, compuertas cortafuego, extractores de humo, corte de energía y sistemas de extinción automática (sprinklers, gas, espuma).",
+        imagen: prodImage('/images/services/productos/incendios/7.6.png'),
+        features: ['Salidas supervisadas 24V/2A', 'Entradas monitoreadas EOL', 'Aislamiento de lazo incorporado'],
+        destacado: 'Configuración e integración con equipos de extinción y sistemas de gestión edilicia.'
+      },
+      {
+        titulo: "Detectores Especiales VESDA",
+        descripcion: "Sistemas de detección por aspiración de humo VESDA (Very Early Smoke Detection Apparatus) para ambientes críticos: CPD, salas eléctricas, archivos, museos. Detecta antes que sistemas convencionales.",
+        imagen: prodImage('/images/services/productos/incendios/7.7.png'),
+        features: ['Detección hasta 100x más rápida', 'Cobertura hasta 2000 m² por unidad', '4 niveles de alarma configurables'],
+        destacado: 'Diseño de red de tuberías, cálculo de caudal y configuración de umbrales según riesgo.'
+      },
+      {
+        titulo: "Software de Gestión y Reportes",
+        descripcion: "Plataforma de gestión centralizada para múltiples edificios con visualización de planos, históricos de eventos, generación de reportes automáticos y cumplimiento normativo.",
+        imagen: prodImage('/images/services/productos/incendios/7.8.png'),
+        features: ['Visualización de planos CAD/BIM', 'Reportes automáticos mensuales', 'Integración con sistemas CCTV/control accesos'],
+        destacado: 'Implementación de servidor dedicado, configuración de usuarios y capacitación al personal.'
+      }
+    ],
+    Marcas: ['Honeywell', 'Notifier', 'Edwards', 'Xtralis VESDA', 'Hochiki', 'Apollo'],
+    PorQueElegirnos: [
+      'Certificación IRAM 3517 y NFPA 72',
+      'Más de 50 instalaciones activas en Cuyo',
+      'Mantenimiento preventivo programado',
+      'Respuesta de emergencia 24/7'
+    ]
+  },
+
+  // ==========================================
+  // ID 108: SERVICIOS ELÉCTRICOS
+  // ==========================================
+  108: {
+    id: 108,
+    Titulo: "Servicios Eléctricos para IT",
+    Subtitulo: "Energía confiable para infraestructura crítica",
+    Descripcion: "Instalaciones eléctricas especializadas para infraestructura IT: tableros, puesta a tierra, UPS, grupos electrógenos, energía solar, corrección de factor de potencia. Certificación AEA 90364. Termografía y análisis de calidad de energía. Protección de equipos críticos en data centers, hospitales, industria y comercio.",
+    Area: "Infraestructura",
+    Imagen: prodImage('/images/services/servicio-108-electricos.jpg'),
+    Stats: [
+      { value: '80+', label: 'Instalaciones' },
+      { value: 'AEA', label: 'Certificación' },
+      { value: '<5Ω', label: 'Resistencia PAT' },
+      { value: '99.9%', label: 'Disponibilidad' }
+    ],
+    Productos: [
+      {
+        titulo: "Tableros Eléctricos Principales",
+        descripcion: "Tableros eléctricos fabricados según normas IEC 61439 con barrajes de cobre electrolítico, interruptores termomagnéticos de marca premium y gabinetes metálicos con tratamiento anticorrosivo.",
+        imagen: prodImage('/images/services/productos/electricos/8.1.png'),
+        features: ['Capacidad hasta 4000A', 'Grado de protección IP54/IP65', 'Certificación de cortocircuito 50kA'],
+        destacado: 'Diseño, fabricación, montaje y puesta en servicio con protocolo de mediciones y ensayos.'
+      },
+      {
+        titulo: "Sistemas de Puesta a Tierra",
+        descripcion: "Instalación de jabalinas, dispersores, soldaduras exotérmicas y medición de resistividad de suelo. Garantizamos valores de resistencia menores a 5 Ohms según normativa AEA 90364.",
+        imagen: prodImage('/images/services/productos/electricos/8.2.png'),
+        features: ['Jabalinas cooperweld 5/8" x 3m', 'Soldadura exotérmica CADWELD', 'Certificado de resistencia < 5Ω'],
+        destacado: 'Estudio de suelo, cálculo de malla, instalación certificada y protocolo de medición con telurímetro.'
+      },
+      {
+        titulo: "Instalaciones Eléctricas Industriales",
+        descripcion: "Montaje de bandejas portacables, canalización de cables de potencia, instalación de motores trifásicos, arrancadores suaves y variadores de frecuencia para industria pesada y liviana.",
+        imagen: prodImage('/images/services/productos/electricos/8.3.png'),
+        features: ['Cables tipo LSOH libres de halógenos', 'Bandejas perforadas cincadas', 'Variadores ABB, Siemens, Schneider'],
+        destacado: 'Proyecto eléctrico aprobado por organismo competente, instalación según planos y ensayos de continuidad/aislación.'
+      },
+      {
+        titulo: "Sistemas de Alimentación Ininterrumpida (UPS)",
+        descripcion: "Instalación de UPS online doble conversión de 5 kVA hasta 800 kVA con baterías de larga duración, bypass manual y monitoreo remoto SNMP para proteger equipos críticos.",
+        imagen: prodImage('/images/services/productos/electricos/8.4.png'),
+        features: ['Eficiencia > 95% en modo ECO', 'Factor de potencia salida = 1', 'Autonomía configurable hasta 8 horas'],
+        destacado: 'Dimensionamiento de autonomía, instalación con neutro aislado y puesta en marcha con mediciones de calidad de energía.'
+      },
+      {
+        titulo: "Grupos Electrógenos",
+        descripcion: "Suministro e instalación de grupos electrógenos diésel desde 20 kVA hasta 2000 kVA con transferencia automática ATS, silenciadores industriales y tanques de combustible de larga autonomía.",
+        imagen: prodImage('/images/services/productos/electricos/8.5.png'),
+        features: ['Arranque automático en <10 seg', 'Motores Cummins, Perkins, Volvo', 'Transferencia Asco, Kohler, ComAp'],
+        destacado: 'Cálculo de demanda, instalación de base antivibraciones, puesta en marcha y programa de mantenimiento preventivo.'
+      },
+      {
+        titulo: "Instalaciones Fotovoltaicas",
+        descripcion: "Proyectos llave en mano de energía solar on-grid y off-grid con paneles monocristalinos de alta eficiencia, inversores con monitoreo web y estructuras de montaje certificadas.",
+        imagen: prodImage('/images/services/productos/electricos/8.6.png'),
+        features: ['Paneles > 21% eficiencia', 'Inversores Fronius, SMA, Huawei', 'Garantía 25 años de paneles'],
+        destacado: 'Estudio de radiación solar, diseño 3D, instalación eléctrica y mecánica, gestión de habilitación ante ente regulador.'
+      },
+      {
+        titulo: "Bancos de Capacitores Automáticos",
+        descripcion: "Instalación de bancos automáticos de capacitores con controlador digital, contactores de baja pérdida y protecciones contra armónicas para evitar multas por bajo cos φ y reducir pérdidas.",
+        imagen: prodImage('/images/services/productos/electricos/8.7.png'),
+        features: ['Pasos de 5 kVAr hasta 100 kVAr', 'Controlador 12 pasos automático', 'Reducción de hasta 15% en factura'],
+        destacado: 'Medición de red eléctrica, cálculo de reactivo necesario, instalación y verificación de factor de potencia > 0.95.'
+      },
+      {
+        titulo: "Termografía y Análisis de Calidad de Energía",
+        descripcion: "Servicio de termografía infrarroja para detectar puntos calientes en tableros y conexiones, análisis de armónicas, transitorios y flicker con analizadores de redes clase A según IEC 61000-4-30.",
+        imagen: prodImage('/images/services/productos/electricos/8.8.png'),
+        features: ['Cámara FLIR resolución 640x480', 'Analizador clase A Fluke 1760', 'Reporte según IEEE 519 y IEC 61000'],
+        destacado: 'Inspección termográfica certificada, mediciones de calidad de energía 7 días y reporte técnico con recomendaciones.'
+      }
+    ],
+    Marcas: ['Schneider Electric', 'ABB', 'Siemens', 'Eaton', 'Legrand', 'Fronius', 'SMA'],
+    PorQueElegirnos: [
+      'Certificación AEA 90364',
+      'Más de 80 instalaciones eléctricas en Cuyo',
+      'Termografía y análisis preventivo',
+      'Garantía extendida en equipos críticos'
+    ]
   }
 };
 
@@ -445,7 +611,9 @@ export const servicioIdMap = {
   103: 103,
   104: 104,
   105: 105,
-  106: 106
+  106: 106,
+  107: 107,
+  108: 108
 };
 
 // Obtener servicio por ID
