@@ -10,7 +10,7 @@ import ServiceCard from '../../components/v4/ServiceCard.astro';
 import CTASection from '../../components/v4/CTASection.astro';
 import { generateSlug } from '../../utils/slugUtils.js';
 import { getAllServicios } from '../../utils/directusHelpers';
-import { getHeroBackground } from '../../utils/serviceImageMap';
+import { getHeroBackground, getServiceBackground } from '../../utils/serviceImageMap';
 
 // Get services from Directus (with automatic fallback to JS data)
 const serviciosFromDirectus = await getAllServicios();
@@ -75,8 +75,12 @@ const serviciosPaginados = serviciosFiltrados.slice(startIndex, endIndex);
 const areasUnicas = [...new Set(serviciosReales.map(s => s.Area))].sort();
 const clientesUnicos = [...new Set(serviciosReales.map(s => s.Cliente))].sort();
 
-// Imágenes ya tienen URL completa en serviciosCompletos
-const getAssetUrl = (url) => url || '/images/services/default-service.jpg';
+// Función para obtener URL de imagen de servicio
+// ALWAYS use mapped images (Directus assets return 403 until permissions are fixed)
+const getAssetUrl = (url: string | undefined, servicioId: number) => {
+  // Use mapped image by service ID (ignoring Directus URL until 403 is fixed)
+  return getServiceBackground(servicioId);
+};
 
 // Compute pagination pages
 const computePaginationPages = () => {
@@ -209,11 +213,10 @@ const buildPageUrl = (page: number) => {
                   <!-- Image -->
                   <div class="relative aspect-[16/9] overflow-hidden bg-gray-100">
                     <img
-                      src={getAssetUrl(servicio.Imagen)}
+                      src={getAssetUrl(servicio.Imagen, servicio.id)}
                       alt={servicio.Titulo}
                       class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
-                      onerror="this.src='/images/services/default-service.jpg'"
                     />
                     <div class="absolute top-3 sm:top-4 left-3 sm:left-4">
                       <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-um-dark text-white shadow-sm">
