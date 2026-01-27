@@ -9,8 +9,7 @@ import ServiceCard from '../../../components/v4/ServiceCard.astro';
 import CTASection from '../../../components/v4/CTASection.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getFixedImage } from '../../../utils/imageFixer.js';
-import { getServiciosPorAntecedente } from '../../../utils/directusHelpers';
-import { serviciosCompletos } from '../../../data/servicios_completos_v4.js';
+import { getServiciosPorAntecedente, getServicioById } from '../../../utils/directusHelpers';
 import { getServiceIdFromArea } from '../../../data/areaToServiceMap.js';
 
 // --- Configuration ---
@@ -157,19 +156,23 @@ const getRelatedServices = async (antecedenteId: string, area: string) => {
         console.error('Error fetching related services from Directus:', error);
     }
 
-    // Fallback: Use area-based mapping to find one service
-    const serviceId = getServiceIdFromArea(area);
-    const servicio = serviciosCompletos[serviceId];
+    // Fallback: Use area-based mapping to find one service from Directus
+    try {
+        const serviceId = getServiceIdFromArea(area);
+        const servicio = await getServicioById(serviceId);
 
-    if (servicio) {
-        return [{
-            id: serviceId,
-            Titulo: servicio.Titulo,
-            Descripcion: servicio.Descripcion,
-            Imagen: servicio.Imagen,
-            subtitulo: servicio.Descripcion?.substring(0, 100),
-            slug: generateSlug(servicio.Titulo)
-        }];
+        if (servicio) {
+            return [{
+                id: serviceId,
+                Titulo: servicio.Titulo,
+                Descripcion: servicio.Descripcion,
+                Imagen: servicio.Imagen,
+                subtitulo: servicio.Descripcion?.substring(0, 100),
+                slug: generateSlug(servicio.Titulo)
+            }];
+        }
+    } catch (error) {
+        console.error('Error fetching service by area mapping:', error);
     }
 
     return [];

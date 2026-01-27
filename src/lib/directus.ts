@@ -16,9 +16,9 @@ export const DIRECTUS_CONFIG = {
 type Colecciones = {
   Servicios: ServicioV4; // Nombre correcto con mayúscula (tabla real en DB)
   servicios: ServicioV4; // Alias por compatibilidad legacy
+  productos: ProductoV4; // Colección de productos (migrado de JSON a tabla separada)
   Antecedentes: AntecedenteV4; // Nombre correcto con mayúscula (tabla real en DB)
   antecedentes: AntecedenteV4; // Alias por compatibilidad legacy
-  // NOTA: productos NO existe como tabla separada, está en Servicios.Productos (JSON)
   antecedentes_servicios: AntecedenteServicioRelation; // NUEVO M2M V4
   blog_posts: EntradaBlog;
   casos_de_exito: CasoExito;
@@ -91,8 +91,9 @@ export const getCasosExito = async (limite: number = 10) =>
 // ==========================================
 
 /**
- * Obtiene todos los servicios V4 con sus productos
+ * Obtiene todos los servicios V4
  * Usado en páginas de listado de servicios
+ * Nota: Productos se cargan por separado con getProductosPorServicio()
  */
 export async function getServiciosV4(): Promise<ServicioV4[]> {
   try {
@@ -112,8 +113,7 @@ export async function getServiciosV4(): Promise<ServicioV4[]> {
           'Marcas',
           'PorQueElegirnos',
           'Area',
-          'slug',
-          'Productos' // Campo JSON con productos
+          'slug'
         ],
         sort: ['id']
       })
@@ -129,11 +129,14 @@ export async function getServiciosV4(): Promise<ServicioV4[]> {
 /**
  * Obtiene un servicio específico con todos sus productos
  * Usado en página de detalle de servicio (/servicios/[id]/[slug])
+ * Carga productos desde colección separada con relación M2O
  */
 export async function getServicioConProductos(id: number | string): Promise<ServicioV4 | null> {
   try {
     const client = getClient();
-    const response = await client.request(
+
+    // Query 1: Obtener servicio
+    const servicio = await client.request(
       readItem('Servicios', id, {
         fields: [
           'id',
@@ -145,13 +148,20 @@ export async function getServicioConProductos(id: number | string): Promise<Serv
           'Marcas',
           'PorQueElegirnos',
           'Area',
-          'slug',
-          'Productos' // Campo JSON con todos los productos
+          'slug'
         ]
       })
     );
 
-    return response as ServicioV4;
+    if (!servicio) return null;
+
+    // Query 2: Obtener productos del servicio
+    const productos = await getProductosPorServicio(Number(id));
+
+    return {
+      ...servicio,
+      productos
+    } as ServicioV4;
   } catch (error) {
     console.error(`Error fetching servicio ${id}:`, error);
     return null;
@@ -159,22 +169,21 @@ export async function getServicioConProductos(id: number | string): Promise<Serv
 }
 
 /**
- * Obtiene los productos de un servicio específico
- * NOTA: Los productos están almacenados en el campo JSON "Productos" de Servicios, no en una tabla separada
- * Útil para cargar productos de forma lazy
+ * Obtiene los productos de un servicio específico desde la colección "productos"
+ * Migrado de campo JSON a tabla separada con relación M2O
  */
 export async function getProductosPorServicio(servicioId: number): Promise<ProductoV4[]> {
   try {
     const client = getClient();
     const response = await client.request(
-      readItem('Servicios', servicioId, {
-        fields: ['Productos']
+      readItems('productos', {
+        filter: { servicio_id: { _eq: servicioId } },
+        sort: ['orden'],
+        fields: ['*', 'imagen.*']
       })
     );
 
-    // Los productos están en el campo JSON "Productos"
-    const productos = response?.Productos || [];
-    return Array.isArray(productos) ? productos : [];
+    return (response || []) as ProductoV4[];
   } catch (error) {
     console.error(`Error fetching productos for servicio ${servicioId}:`, error);
     return [];
@@ -290,6 +299,28 @@ export async function buscarServicios(query: string, area?: string): Promise<Ser
     return (response || []) as ServicioV4[];
   } catch (error) {
     console.error('Error searching servicios:', error);
+    return [];
+  }
+}
+
+/**
+ * Obtiene todos los productos de la colección productos
+ * Útil para listados generales o análisis
+ */
+export async function getAllProductos(): Promise<ProductoV4[]> {
+  try {
+    const client = getClient();
+    const response = await client.request(
+      readItems('productos', {
+        sort: ['servicio_id', 'orden'],
+        fields: ['*', 'imagen.*'],
+        limit: -1
+      })
+    );
+
+    return (response || []) as ProductoV4[];
+  } catch (error) {
+    console.error('Error fetching all productos:', error);
     return [];
   }
 }

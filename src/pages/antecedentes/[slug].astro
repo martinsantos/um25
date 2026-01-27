@@ -7,7 +7,7 @@
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import { generateSlug } from '../../utils/slugUtils.js';
 import { getFixedImage } from '../../utils/imageFixer.js';
-import { serviciosCompletos } from '../../data/servicios_completos_v4.js';
+import { getServicioById, getProductos } from '../../utils/directusHelpers';
 import { getServiceIdFromArea } from '../../data/areaToServiceMap.js';
 
 // --- Configuration ---
@@ -151,24 +151,31 @@ const extractScopeItems = (descripcion: string): string[] => {
 
 const scopeItems = extractScopeItems(antecedente.Descripcion || '');
 
-const getRelatedServiceProducts = (area: string) => {
+const getRelatedServiceProducts = async (area: string) => {
     const serviceId = getServiceIdFromArea(area);
-    const servicio = serviciosCompletos[serviceId];
 
-    if (!servicio || !servicio.Productos) {
+    try {
+        const servicio = await getServicioById(serviceId);
+        const allProductos = await getProductos(serviceId);
+
+        if (!servicio || !allProductos || allProductos.length === 0) {
+            return { products: [], servicio: null, serviceId: 101 };
+        }
+
+        const products = allProductos.slice(0, 3).map((p: any) => ({
+            imagen: p.imagen,
+            titulo: p.titulo,
+            features: p.features?.slice(0, 2) || []
+        }));
+
+        return { products, servicio, serviceId };
+    } catch (error) {
+        console.error(`Error loading related products for area ${area}:`, error);
         return { products: [], servicio: null, serviceId: 101 };
     }
-
-    const products = servicio.Productos.slice(0, 3).map((p: any) => ({
-        imagen: p.imagen,
-        titulo: p.titulo,
-        features: p.features?.slice(0, 2) || []
-    }));
-
-    return { products, servicio, serviceId };
 };
 
-const { products: relatedProducts, servicio: relatedServicio, serviceId: relatedServiceId } = getRelatedServiceProducts(antecedente.Area || '');
+const { products: relatedProducts, servicio: relatedServicio, serviceId: relatedServiceId } = await getRelatedServiceProducts(antecedente.Area || '');
 
 // SEO
 const siteUrl = 'https://www.ultimamilla.com.ar';
