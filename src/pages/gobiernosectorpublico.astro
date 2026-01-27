@@ -7,7 +7,7 @@
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import { generateSlug } from '../utils/slugUtils.js';
-import { getClient } from '../lib/directus';
+import { getClient } from '../lib/directus.ts';
 import { readItems } from '@directus/sdk';
 
 // Helper function to get Directus image URL

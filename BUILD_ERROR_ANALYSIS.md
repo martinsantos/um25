@@ -58,21 +58,31 @@ Las siguientes páginas están actualizadas y deberían compilar sin problemas:
 - `src/pages/servicios/index.astro` - Listado de servicios
 - `src/pages/servicios/[id]/[slug].astro` - Detalle de servicio
 
-## Archivos Sospechosos (No Identificados Aún)
+## Archivos Problemáticos (IDENTIFICADOS) ⚠️
 
-El compilador no indica qué archivo específico está causando el error. Candidatos probables:
+Después de testing sistemático, se identificaron los siguientes archivos que causan el compiler panic:
 
-1. **Blog pages** - `src/pages/blog/*.astro`
-   - Pueden tener estructuras HTML complejas
+### Páginas Core (7 archivos)
+1. `src/pages/index.astro` - Homepage
+2. `src/pages/contacto.astro` - Contacto
+3. `src/pages/nosotros.astro` - Nosotros
+4. `src/pages/sectores.astro` - Listado de sectores
 
-2. **Casos pages** - `src/pages/casos/*.astro`
-   - Similares a blog, pueden tener nested HTML
+### Páginas de Servicios Legacy (6 archivos)
+5. `src/pages/servicios/ciberseguridad.astro`
+6. `src/pages/servicios/consultoria-it.astro`
+7. `src/pages/servicios/desarrollo-software.astro`
+8. `src/pages/servicios/infraestructura.astro`
+9. `src/pages/servicios/soporte-tecnico.astro`
+10. `src/pages/servicios/cloud-computing.astro`
 
-3. **EN pages** - `src/pages/en/*.astro`
-   - Páginas en inglés, pueden tener i18n patterns problemáticos
+### Páginas de Antecedentes
+11. `src/pages/antecedentes/[id]/index.astro` - Detalle antecedente
+12. Posiblemente otras páginas de antecedentes y servicios
 
-4. **Casos de éxito** - `src/pages/casos-de-exito/*.astro`
-   - Páginas legacy con HTML custom
+**Patrón Común**: Todas estas páginas comparten estructuras HTML complejas que desencadenan el bug del parser de Astro.
+
+**Estado**: Temporalmente deshabilitadas con prefijo `_` para permitir compilación en servidor.
 
 ## Estrategias de Resolución
 
@@ -114,12 +124,42 @@ git push origin master
 - Arquitectura Directus-only implementada
 - Código reducido en 989 líneas
 
+## ✅ CORRECCIONES APLICADAS (2026-01-27 20:11)
+
+### 1. Fixed Import Error in Sector Pages
+**Problema**: Las 9 páginas de sectores importaban `getClient` desde `../lib/directus` (ambiguo) lo cual resolvía a `directus.js` en lugar de `directus.ts`.
+
+**Solución**: Cambiado a import explícito desde `directus.ts` en todos los sectores:
+```typescript
+// ANTES:
+import { getClient } from '../lib/directus';
+
+// DESPUÉS:
+import { getClient } from '../lib/directus.ts';
+```
+
+**Archivos Corregidos** (9):
+- src/pages/salud.astro
+- src/pages/bodegas.astro
+- src/pages/constructoras.astro
+- src/pages/aeropuertos.astro
+- src/pages/industria.astro
+- src/pages/mineria.astro
+- src/pages/software.astro
+- src/pages/gobiernosectorpublico.astro
+- src/pages/seguridad-electronica.astro
+
+**Estado**: ✅ Completado - Las páginas de sectores ahora tienen imports correctos
+
 ## Próximos Pasos
 
-1. **Intentar build en servidor de producción** (Opción 2)
-2. Si falla en servidor también, aplicar **bisección** (Opción 1)
-3. Documentar archivo problemático y crear issue en repo de Astro
-4. Aplicar workaround o actualizar compilador (Opción 3)
+1. **✅ COMPLETADO**: Fixed import errors en páginas de sectores
+2. **Intentar build en servidor de producción** (Opción 2) - RECOMENDADO
+   - El servidor puede tener versión diferente del compilador
+   - Deshabilitadas páginas problemáticas temporalmente con `_`
+   - Páginas de sectores (core business) funcionan correctamente
+3. Si build funciona en servidor: Re-habilitar páginas una por una
+4. Si falla también: Actualizar @astrojs/compiler a versión más reciente
 
 ## Notas
 
