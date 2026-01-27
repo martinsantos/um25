@@ -1,4 +1,4 @@
-import { Directus } from '@directus/sdk';
+import { createDirectus, rest, readItems, readItem } from '@directus/sdk';
 import type {
   ServicioV4,
   ProductoV4,
@@ -14,10 +14,11 @@ export const DIRECTUS_CONFIG = {
 
 // 1. Tipos compatibles con tus colecciones (ACTUALIZADOS V4)
 type Colecciones = {
-  Servicios: ServicioV4; // Nombre correcto con mayúscula
-  servicios: ServicioV4; // Alias por compatibilidad
-  productos: ProductoV4; // NUEVO V4
-  antecedentes: AntecedenteV4; // EXTENDIDO V4
+  Servicios: ServicioV4; // Nombre correcto con mayúscula (tabla real en DB)
+  servicios: ServicioV4; // Alias por compatibilidad legacy
+  Antecedentes: AntecedenteV4; // Nombre correcto con mayúscula (tabla real en DB)
+  antecedentes: AntecedenteV4; // Alias por compatibilidad legacy
+  // NOTA: productos NO existe como tabla separada, está en Servicios.Productos (JSON)
   antecedentes_servicios: AntecedenteServicioRelation; // NUEVO M2M V4
   blog_posts: EntradaBlog;
   casos_de_exito: CasoExito;
@@ -28,9 +29,9 @@ if (!DIRECTUS_CONFIG.url || !DIRECTUS_CONFIG.token) {
   throw new Error('Configuración de Directus incompleta en .env');
 }
 
-// Exportar cliente sin autenticación para casos específicos
+// Exportar cliente con tipos para casos específicos
 export const getClient = () => {
-    return createDirectus(DIRECTUS_CONFIG.url).with(rest());
+    return createDirectus<Colecciones>(DIRECTUS_CONFIG.url).with(rest());
 };
 
 // 5. Tipos según tu estructura actual
@@ -96,27 +97,29 @@ export const getCasosExito = async (limite: number = 10) =>
 export async function getServiciosV4(): Promise<ServicioV4[]> {
   try {
     const client = getClient();
-    const response = await client.items('Servicios').readByQuery({
-      filter: {
-        estado: { _eq: 'publicado' }
-      },
-      fields: [
-        'id',
-        'Titulo',
-        'Descripcion',
-        'Imagen',
-        'subtitulo',
-        'stats',
-        'marcas',
-        'por_que_elegirnos',
-        'area',
-        'slug',
-        'productos.*' // Incluir todos los productos relacionados
-      ],
-      sort: ['id']
-    });
+    const response = await client.request(
+      readItems('Servicios', {
+        filter: {
+          status: { _eq: 'published' }
+        },
+        fields: [
+          'id',
+          'Titulo',
+          'Descripcion',
+          'Imagen',
+          'Subtitulo',
+          'Stats',
+          'Marcas',
+          'PorQueElegirnos',
+          'Area',
+          'slug',
+          'Productos' // Campo JSON con productos
+        ],
+        sort: ['id']
+      })
+    );
 
-    return (response.data || []) as ServicioV4[];
+    return (response || []) as ServicioV4[];
   } catch (error) {
     console.error('Error fetching servicios V4:', error);
     return [];
@@ -130,21 +133,23 @@ export async function getServiciosV4(): Promise<ServicioV4[]> {
 export async function getServicioConProductos(id: number | string): Promise<ServicioV4 | null> {
   try {
     const client = getClient();
-    const response = await client.items('Servicios').readOne(id, {
-      fields: [
-        'id',
-        'Titulo',
-        'Descripcion',
-        'Imagen',
-        'subtitulo',
-        'stats',
-        'marcas',
-        'por_que_elegirnos',
-        'area',
-        'slug',
-        'productos.*' // Incluir todos los productos con todos sus campos
-      ]
-    });
+    const response = await client.request(
+      readItem('Servicios', id, {
+        fields: [
+          'id',
+          'Titulo',
+          'Descripcion',
+          'Imagen',
+          'Subtitulo',
+          'Stats',
+          'Marcas',
+          'PorQueElegirnos',
+          'Area',
+          'slug',
+          'Productos' // Campo JSON con todos los productos
+        ]
+      })
+    );
 
     return response as ServicioV4;
   } catch (error) {
@@ -155,21 +160,21 @@ export async function getServicioConProductos(id: number | string): Promise<Serv
 
 /**
  * Obtiene los productos de un servicio específico
+ * NOTA: Los productos están almacenados en el campo JSON "Productos" de Servicios, no en una tabla separada
  * Útil para cargar productos de forma lazy
  */
 export async function getProductosPorServicio(servicioId: number): Promise<ProductoV4[]> {
   try {
     const client = getClient();
-    const response = await client.items('productos').readByQuery({
-      filter: {
-        servicio_id: { _eq: servicioId },
-        estado: { _eq: 'publicado' }
-      },
-      sort: ['orden', 'id'],
-      fields: ['*']
-    });
+    const response = await client.request(
+      readItem('Servicios', servicioId, {
+        fields: ['Productos']
+      })
+    );
 
-    return (response.data || []) as ProductoV4[];
+    // Los productos están en el campo JSON "Productos"
+    const productos = response?.Productos || [];
+    return Array.isArray(productos) ? productos : [];
   } catch (error) {
     console.error(`Error fetching productos for servicio ${servicioId}:`, error);
     return [];
@@ -183,19 +188,21 @@ export async function getProductosPorServicio(servicioId: number): Promise<Produ
 export async function getAntecedenteConServicios(id: number | string): Promise<AntecedenteV4 | null> {
   try {
     const client = getClient();
-    const response = await client.items('antecedentes').readOne(id, {
-      fields: [
-        '*',
-        'servicios_relacionados.Servicios_id.id',
-        'servicios_relacionados.Servicios_id.Titulo',
-        'servicios_relacionados.Servicios_id.Descripcion',
-        'servicios_relacionados.Servicios_id.Imagen',
-        'servicios_relacionados.Servicios_id.area',
-        'servicios_relacionados.Servicios_id.slug',
-        'servicios_relacionados.orden',
-        'servicios_relacionados.destacado'
-      ]
-    });
+    const response = await client.request(
+      readItem('Antecedentes', id, {
+        fields: [
+          '*',
+          'servicios_relacionados.Servicios_id.id',
+          'servicios_relacionados.Servicios_id.Titulo',
+          'servicios_relacionados.Servicios_id.Descripcion',
+          'servicios_relacionados.Servicios_id.Imagen',
+          'servicios_relacionados.Servicios_id.Area',
+          'servicios_relacionados.Servicios_id.slug',
+          'servicios_relacionados.orden',
+          'servicios_relacionados.destacado'
+        ]
+      })
+    );
 
     return response as AntecedenteV4;
   } catch (error) {
@@ -211,22 +218,24 @@ export async function getAntecedenteConServicios(id: number | string): Promise<A
 export async function getAntecedentesPorServicio(servicioId: number, limit: number = 6): Promise<AntecedenteV4[]> {
   try {
     const client = getClient();
-    const response = await client.items('antecedentes').readByQuery({
-      filter: {
-        'servicios_relacionados.Servicios_id': { _eq: servicioId }
-      },
-      limit,
-      sort: ['-date_created'],
-      fields: [
-        'id',
-        'Nombre',
-        'Descripcion',
-        'Imagen',
-        'slug'
-      ]
-    });
+    const response = await client.request(
+      readItems('Antecedentes', {
+        filter: {
+          'servicios_relacionados.Servicios_id': { _eq: servicioId }
+        },
+        limit,
+        sort: ['-date_created'],
+        fields: [
+          'id',
+          'Titulo',
+          'Descripcion',
+          'Imagen',
+          'slug'
+        ]
+      })
+    );
 
-    return (response.data || []) as AntecedenteV4[];
+    return (response || []) as AntecedenteV4[];
   } catch (error) {
     console.error(`Error fetching antecedentes for servicio ${servicioId}:`, error);
     return [];
@@ -242,13 +251,13 @@ export async function buscarServicios(query: string, area?: string): Promise<Ser
     const client = getClient();
     const filters: any = {
       _and: [
-        { estado: { _eq: 'publicado' } }
+        { status: { _eq: 'published' } }
       ]
     };
 
     // Filtro por área si se especifica
     if (area) {
-      filters._and.push({ area: { _eq: area } });
+      filters._and.push({ Area: { _eq: area } });
     }
 
     // Búsqueda por texto en título o descripción
@@ -257,26 +266,28 @@ export async function buscarServicios(query: string, area?: string): Promise<Ser
         _or: [
           { Titulo: { _icontains: query } },
           { Descripcion: { _icontains: query } },
-          { subtitulo: { _icontains: query } }
+          { Subtitulo: { _icontains: query } }
         ]
       });
     }
 
-    const response = await client.items('Servicios').readByQuery({
-      filter: filters,
-      fields: [
-        'id',
-        'Titulo',
-        'Descripcion',
-        'Imagen',
-        'subtitulo',
-        'area',
-        'slug'
-      ],
-      sort: ['Titulo']
-    });
+    const response = await client.request(
+      readItems('Servicios', {
+        filter: filters,
+        fields: [
+          'id',
+          'Titulo',
+          'Descripcion',
+          'Imagen',
+          'Subtitulo',
+          'Area',
+          'slug'
+        ],
+        sort: ['Titulo']
+      })
+    );
 
-    return (response.data || []) as ServicioV4[];
+    return (response || []) as ServicioV4[];
   } catch (error) {
     console.error('Error searching servicios:', error);
     return [];
