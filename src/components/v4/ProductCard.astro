@@ -8,7 +8,7 @@
  * Props:
  * - titulo: Título del producto
  * - descripcion: Descripción completa del producto
- * - imagen: URL de la imagen
+ * - imagen: URL de la imagen o UUID de Directus
  * - features: Array de strings con características (bullets)
  * - destacado: Texto destacado o diferenciador
  * - marcas: Array de strings con nombres de marcas
@@ -26,6 +26,8 @@
  *   imagePosition="left"
  * />
  */
+
+import { getDirectusImageUrl } from '../../utils/directusHelpers';
 
 export interface Props {
   titulo: string;
@@ -55,8 +57,8 @@ const {
 const position = imagePosition || (orden % 2 === 0 ? 'left' : 'right');
 const flexDirection = position === 'left' ? 'md:flex-row' : 'md:flex-row-reverse';
 
-// Imagen de placeholder si no hay imagen
-const imagenUrl = imagen || '/images/services/default-service.jpg';
+// Imagen de Directus o placeholder
+const imagenUrl = getDirectusImageUrl(imagen, '/images/services/default-service.jpg');
 
 // Validar que haya contenido
 const hasFeatures = features.length > 0;

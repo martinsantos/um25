@@ -18,7 +18,7 @@ import ProductCard from '../../../components/v4/ProductCard.astro';
 import CTASection from '../../../components/v4/CTASection.astro';
 
 import { generateSlug } from '../../../utils/slugUtils.js';
-import { getServicioById } from '../../../utils/directusHelpers';
+import { getServicioById, getDirectusImageUrl } from '../../../utils/directusHelpers';
 
 const { id, slug } = Astro.params;
 
@@ -75,7 +75,7 @@ const iconPaths = {
   <section class="relative bg-um-dark overflow-hidden">
     <div class="absolute inset-0">
       <img
-        src={servicio.Imagen || '/images/services/default-service.jpg'}
+        src={getDirectusImageUrl(servicio.Imagen, '/images/services/default-service.jpg')}
         alt={servicio.Titulo}
         class="w-full h-full object-cover opacity-50"
         loading="eager"

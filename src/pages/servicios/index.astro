@@ -9,7 +9,7 @@ import HeroPageV4 from '../../components/v4/HeroPageV4.astro';
 import ServiceCard from '../../components/v4/ServiceCard.astro';
 import CTASection from '../../components/v4/CTASection.astro';
 import { generateSlug } from '../../utils/slugUtils.js';
-import { getAllServicios } from '../../utils/directusHelpers';
+import { getAllServicios, getDirectusImageUrl } from '../../utils/directusHelpers';
 import { getHeroBackground, getServiceBackground } from '../../utils/serviceImageMap';
 
 // Get services from Directus (with automatic fallback to JS data)
@@ -75,11 +75,10 @@ const serviciosPaginados = serviciosFiltrados.slice(startIndex, endIndex);
 const areasUnicas = [...new Set(serviciosReales.map(s => s.Area))].sort();
 const clientesUnicos = [...new Set(serviciosReales.map(s => s.Cliente))].sort();
 
-// Función para obtener URL de imagen de servicio
-// ALWAYS use mapped images (Directus assets return 403 until permissions are fixed)
+// Función para obtener URL de imagen de servicio desde Directus
 const getAssetUrl = (url: string | undefined, servicioId: number) => {
-  // Use mapped image by service ID (ignoring Directus URL until 403 is fixed)
-  return getServiceBackground(servicioId);
+  // Usar UUID de Directus con fallback a imagen local mapeada
+  return getDirectusImageUrl(url, getServiceBackground(servicioId));
 };
 
 // Compute pagination pages
