@@ -290,13 +290,31 @@ const filterIconPaths: Record<string, string> = {
     ]}
   />
 
-  <!-- FILTER CHIPS SECTION - V4 Design with BUTTONS -->
+  <!-- FILTER CHIPS SECTION - V4 Design with RESPONSIVE filters -->
   <section class="bg-white border-b border-gray-100 sticky top-16 sm:top-20 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
 
-        <!-- Filter Chips - BUTTONS that filter the list -->
-        <div class="flex flex-wrap gap-2" id="filter-chips">
+        <!-- Mobile: Select Dropdown (<1024px) -->
+        <div class="lg:hidden">
+          <label for="sector-filter-mobile" class="sr-only">Filtrar por sector</label>
+          <select
+            id="sector-filter-mobile"
+            class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white text-base focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary min-h-[44px]"
+          >
+            {filterChips.map((chip) => (
+              <option
+                value={chip.id}
+                selected={sectorFilter === chip.id || (chip.id === '' && !sectorFilter)}
+              >
+                {chip.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <!-- Desktop: Filter Chips (≥1024px) -->
+        <div class="hidden lg:flex flex-wrap gap-2" id="filter-chips">
           {filterChips.map((chip) => (
             <a
               href={buildSectorUrl(chip.id)}
@@ -524,6 +542,28 @@ const filterIconPaths: Record<string, string> = {
         url.searchParams.delete('q');
       }
       url.searchParams.set('page', '1');
+      window.location.href = url.toString();
+    });
+  }
+
+  // Mobile filter dropdown handler
+  const mobileFilterSelect = document.getElementById('sector-filter-mobile');
+  if (mobileFilterSelect) {
+    mobileFilterSelect.addEventListener('change', (e) => {
+      const selectedSector = (e.target as HTMLSelectElement).value;
+      const url = new URL(window.location.href);
+
+      // Update sector parameter
+      if (selectedSector) {
+        url.searchParams.set('sector', selectedSector);
+      } else {
+        url.searchParams.delete('sector');
+      }
+
+      // Reset to page 1
+      url.searchParams.set('page', '1');
+
+      // Navigate to new URL
       window.location.href = url.toString();
     });
   }

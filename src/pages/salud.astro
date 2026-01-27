@@ -1,19 +1,30 @@
 ---
 /**
  * Salud Sector Page - V4 Design System
+ * Updated: Uses Directus-only queries, no fallback to JS data
  */
 
 import LayoutV4 from '../layouts/LayoutV4.astro';
+import ProjectCard from '../components/ProjectCard.astro';
 import { generateSlug } from '../utils/slugUtils.js';
-import { antecedentesReales } from '../data/antecedentes_completos.js';
-import { directus, DEFAULT_IMAGE } from '../utils/directus';
+import { getClient } from '../lib/directus';
+import { readItems } from '@directus/sdk';
+
+// Helper function to get Directus image URL
+function getDirectusImageUrl(imageId: string | null | undefined): string {
+  if (!imageId) {
+    return 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
+  }
+  const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
+  return `${directusUrl}/assets/${imageId}`;
+}
 
 const sectorConfig = {
   name: 'Salud',
   emoji: '🏥',
   heroImage: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1920&q=80',
   description: 'Infraestructura tecnológica crítica para hospitales, clínicas y centros de salud que operan las 24 horas.',
-  keywords: ['hospital', 'clinica', 'sanatorio', 'centro medico', 'osep', 'osde', 'swiss medical', 'perrupato', 'lagomaggiore', 'italiano', 'notti', 'laboratorio', 'farmacia', 'emergencia'],
+  keywords: ['hospital', 'clinica', 'sanatorio', 'centro medico', 'osep', 'osde', 'swiss medical', 'perrupato', 'lagomaggiore', 'italiano', 'notti', 'laboratorio', 'farmacia', 'emergencia', 'salud'],
 };
 
 const seoConfig = {
@@ -22,40 +33,36 @@ const seoConfig = {
   keywords: `servicios tecnologicos salud, infraestructura hospitales mendoza cuyo, redes medicas patagonia, telecomunicaciones hospitalarias`,
 };
 
-const filterAntecedentes = (data: any[]) => {
-  return data
-    .filter(item => {
-      const texto = `${item.Cliente} ${item.Titulo} ${item.Area} ${item.Descripcion}`.toLowerCase();
-      return sectorConfig.keywords.some(k => texto.includes(k));
-    })
-    .map(item => ({ ...item, slug: generateSlug(item.Titulo) }))
-    .slice(0, 12);
-};
-
+// Fetch antecedentes from Directus ONLY
 let antecedentes: any[] = [];
 try {
-  const response = await directus.getAntecedentes({ limit: 500, page: 1 });
-  if (response?.data?.length > 0) {
-    const filtered = filterAntecedentes(response.data);
-    antecedentes = await Promise.all(
-      filtered.map(async (proyecto) => ({
-        ...proyecto,
-        imageUrl: await getImageUrl(proyecto)
-      }))
-    );
-  }
-} catch (err) {
-  console.error('Error:', err);
-}
-
-if (antecedentes.length === 0) {
-  const filtered = filterAntecedentes(antecedentesReales);
-  antecedentes = await Promise.all(
-    filtered.map(async (proyecto) => ({
-      ...proyecto,
-      imageUrl: await getImageUrl(proyecto)
-    }))
+  const client = getClient();
+  const allAntecedentes = await client.request(
+    readItems('antecedentes', {
+      filter: {
+        status: { _eq: 'published' }
+      },
+      fields: ['id', 'Nombre', 'Titulo', 'Cliente', 'Descripcion', 'Area', 'imagen', 'Fecha', 'Unidad_de_negocio'],
+      limit: 500
+    })
   );
+
+  // Filter by sector keywords
+  antecedentes = allAntecedentes
+    .filter(item => {
+      const texto = `${item.Cliente || ''} ${item.Titulo || ''} ${item.Area || ''} ${item.Descripcion || ''} ${item.Nombre || ''}`.toLowerCase();
+      return sectorConfig.keywords.some(k => texto.includes(k.toLowerCase()));
+    })
+    .slice(0, 6)
+    .map(item => ({
+      ...item,
+      slug: generateSlug(item.Titulo || item.Nombre || 'proyecto'),
+      imageUrl: getDirectusImageUrl(item.imagen)
+    }));
+
+  console.log(`[SALUD] Found ${antecedentes.length} antecedentes from Directus`);
+} catch (error) {
+  console.error('[SALUD] Error fetching from Directus:', error);
 }
 
 const valueProps = [
@@ -72,26 +79,6 @@ const serviciosRelacionados = [
   { id: 104, nombre: 'Comunicaciones', descripcion: 'Telefonía IP e intercomunicadores' },
   { id: 105, nombre: 'Soporte IT 24/7', descripcion: 'Mesa de ayuda con SLAs para salud' },
 ];
-
-// Función para obtener imagen usando el sistema de mapeo
-async function getImageUrl(proyecto: any): Promise<string> {
-  try {
-    const { buscarImagenPorDatos } = await import('../data/mapeo_imagenes_completo.js');
-    const nombreArchivo = buscarImagenPorDatos(
-      proyecto.Cliente,
-      proyecto.Area || proyecto.Unidad_de_negocio,
-      proyecto.Titulo,
-      proyecto.id
-    );
-
-    if (nombreArchivo) {
-      return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
-    }
-  } catch (error) {
-    console.log('[SALUD] Error en mapeo:', error);
-  }
-  return DEFAULT_IMAGE;
-}
 ---
 
 <LayoutV4 title={seoConfig.title} description={seoConfig.description} keywords={seoConfig.keywords}>
@@ -100,29 +87,21 @@ async function getImageUrl(proyecto: any): Promise<string> {
     <div class="absolute inset-0 bg-gradient-to-b from-um-dark/70 to-um-dark/90"></div>
 
     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <nav class="flex items-center gap-2 text-xs sm:text-sm text-white/70 mb-4 flex-wrap">
-        <a href="/" class="hover:text-white transition-colors">Inicio</a>
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <a href="/sectores" class="hover:text-white transition-colors">Sectores</a>
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <span class="text-white">{sectorConfig.name}</span>
-      </nav>
+      <div class="flex items-center gap-2 mb-4 sm:mb-6">
+        <a href="/" class="text-white/60 hover:text-white text-xs sm:text-sm transition-colors">Inicio</a>
+        <svg class="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <a href="/sectores" class="text-white/60 hover:text-white text-xs sm:text-sm transition-colors">Sectores</a>
+        <svg class="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <span class="text-white text-xs sm:text-sm">{sectorConfig.name}</span>
+      </div>
 
-      <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-        <div>
-          <div class="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-2 sm:py-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-4 sm:mb-5">
-            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg">
-              <span class="text-lg sm:text-2xl">{sectorConfig.emoji}</span>
-            </div>
-            <span class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-300">Sector {sectorConfig.name}</span>
-          </div>
-          <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4 sm:mb-5 leading-tight">
-            Tecnología Médica para<br/>Hospitales y Clínicas
-          </h1>
-          <p class="text-base sm:text-lg lg:text-xl text-gray-200 max-w-xl">{sectorConfig.description}</p>
-        </div>
-
-        <div class="flex flex-wrap justify-center lg:justify-end gap-3 sm:gap-4">
+      <div class="max-w-3xl">
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-4 sm:mb-6">
+          <span class="inline-block mr-2 sm:mr-3">{sectorConfig.emoji}</span>
+          Tecnología para {sectorConfig.name}
+        </h1>
+        <p class="text-base sm:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8">{sectorConfig.description}</p>
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4">
           <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
             <div class="text-2xl sm:text-3xl font-extrabold text-white">{antecedentes.length}+</div>
             <div class="text-xs sm:text-sm text-white/70 mt-1">Proyectos</div>
@@ -194,41 +173,40 @@ async function getImageUrl(proyecto: any): Promise<string> {
           <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">Proyectos en {sectorConfig.name}</h2>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-          {antecedentes.slice(0, 6).map((ant) => (
-            <a href={`/antecedentes/${ant.id}/${ant.slug}`} class="group bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 card-hover">
-              <div class="aspect-video overflow-hidden bg-gray-100">
-                <img src={ant.imageUrl} alt={ant.Titulo} class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy"/>
-              </div>
-              <div class="p-5 sm:p-6">
-                <span class="text-xs font-semibold text-emerald-600 uppercase tracking-wider">{ant.Area || sectorConfig.name}</span>
-                <h3 class="font-bold text-um-dark mt-2 mb-2 group-hover:text-um-primary transition-colors line-clamp-2">{ant.Titulo}</h3>
-                <p class="text-sm text-um-gray mb-4 line-clamp-2">{ant.Descripcion?.substring(0, 100)}...</p>
-                <span class="text-emerald-600 font-semibold text-sm flex items-center gap-1">Ver caso <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></span>
-              </div>
-            </a>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {antecedentes.map((ant) => (
+            <ProjectCard
+              id={String(ant.id)}
+              titulo={ant.Titulo || ant.Nombre || 'Proyecto'}
+              cliente={ant.Cliente || ''}
+              descripcion={ant.Descripcion || ''}
+              fecha={ant.Fecha || new Date().toISOString()}
+              area={ant.Area || ant.Unidad_de_negocio || sectorConfig.name}
+              servicio={ant.Unidad_de_negocio || sectorConfig.name}
+              imagen={ant.imageUrl}
+              slug={ant.slug}
+            />
           ))}
-        </div>
-
-        <div class="text-center mt-8 sm:mt-12">
-          <a href={`/antecedentes?sector=${sectorConfig.name.toLowerCase()}`} class="inline-flex items-center gap-2 px-5 sm:px-6 py-3 border-2 border-emerald-500 text-emerald-600 font-semibold rounded-xl hover:bg-emerald-500 hover:text-white transition-colors text-sm sm:text-base min-h-[44px]">
-            Ver Todos los Casos
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-          </a>
         </div>
       </div>
     </section>
   )}
 
-  <section class="bg-um-dark py-10 sm:py-14 lg:py-20">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <span class="text-emerald-400 font-semibold text-xs sm:text-sm uppercase tracking-wider">Contacto</span>
-      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mt-3 sm:mt-4 mb-3 sm:mb-4">¿Necesita Soluciones para su Centro de Salud?</h2>
-      <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-8">Nuestro equipo especializado en infraestructura hospitalaria está listo para ayudarlo.</p>
-      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-        <a href="/contacto" class="px-6 sm:px-8 py-3 sm:py-4 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/25 min-h-[44px] flex items-center justify-center">Solicitar Cotización</a>
-        <a href="/servicios" class="px-6 sm:px-8 py-3 sm:py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-colors min-h-[44px] flex items-center justify-center">Ver Todos los Servicios</a>
-      </div>
+  <section class="py-10 sm:py-14 lg:py-16 bg-gradient-to-br from-emerald-600 to-emerald-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-6">¿Listo para transformar su infraestructura tecnológica?</h2>
+      <p class="text-base sm:text-lg text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto">Contactenos hoy y descubra cómo podemos ayudar a su institución de salud.</p>
+      <a href="/contacto" class="inline-block px-6 sm:px-8 py-3 sm:py-4 bg-white text-emerald-600 rounded-lg font-bold shadow-xl hover:shadow-2xl transition-all hover:scale-105">Solicitar Consultoría Gratuita</a>
     </div>
   </section>
 </LayoutV4>
+
+<style>
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+  }
+</style>
