@@ -152,13 +152,6 @@ export const serviciosCompletos = {
         destacado: 'Monitoreamos sus instalaciones las 24 horas con personal especializado y protocolos de actuación definidos.'
       },
       {
-        titulo: "Cercos Eléctricos",
-        descripcion: "Protección perimetral activa con cercos eléctricos certificados. Disuasión efectiva con sistemas de detección y alarma integrados.",
-        imagen: prodImage('/images/services/productos/seguridad/2.7.png'),
-        features: ['Alta disuasión', 'Detección de corte', 'Bajo mantenimiento'],
-        destacado: 'Instalamos cercos eléctricos perimetrales con energizadores certificados y detección de intrusión.'
-      },
-      {
         titulo: "Control de Rondas",
         descripcion: "Verifique que su personal de seguridad cumpla con las rondas establecidas. Puntos de control NFC, reportes automáticos y alertas de incumplimiento.",
         imagen: prodImage('/images/services/productos/seguridad/2.8.png'),
