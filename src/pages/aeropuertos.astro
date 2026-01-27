@@ -35,9 +35,30 @@ const filterAntecedentes = (data: any[]) => {
 let antecedentes: any[] = [];
 try {
   const response = await directus.getAntecedentes({ limit: 500, page: 1 });
-  if (response?.data?.length > 0) antecedentes = filterAntecedentes(response.data);
-} catch (err) { console.error('Error:', err); }
-if (antecedentes.length === 0) antecedentes = filterAntecedentes(antecedentesReales);
+  if (response?.data?.length > 0) {
+    const filtered = filterAntecedentes(response.data);
+    // Pre-process images using Promise.all (like antecedentes/index.astro)
+    antecedentes = await Promise.all(
+      filtered.map(async (proyecto) => ({
+        ...proyecto,
+        imageUrl: await getImageUrl(proyecto)
+      }))
+    );
+  }
+} catch (err) {
+  console.error('Error:', err);
+}
+
+if (antecedentes.length === 0) {
+  const filtered = filterAntecedentes(antecedentesReales);
+  // Pre-process images for fallback data too
+  antecedentes = await Promise.all(
+    filtered.map(async (proyecto) => ({
+      ...proyecto,
+      imageUrl: await getImageUrl(proyecto)
+    }))
+  );
+}
 
 const valueProps = [
   { icon: 'shield', title: 'Sistemas de Misión Crítica', description: 'Infraestructura redundante para operación 24/7 sin tolerancia a fallos.' },
@@ -54,12 +75,25 @@ const serviciosRelacionados = [
   { id: 105, nombre: 'Soporte IT 24/7', descripcion: 'Mesa de ayuda con SLAs aeroportuarios' },
 ];
 
-const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://admin.ultimamilla.com.ar';
-const getImageUrl = (ant: any): string => {
-  if (ant.Imagen && typeof ant.Imagen === 'string' && ant.Imagen.includes('-')) return `${DIRECTUS_URL}/assets/${ant.Imagen}`;
-  if (ant.ImagenPrincipal && typeof ant.ImagenPrincipal === 'string' && ant.ImagenPrincipal.includes('-')) return `${DIRECTUS_URL}/assets/${ant.ImagenPrincipal}`;
-  return '/images/default-antecedente.jpg';
-};
+// Función para obtener imagen usando el sistema de mapeo (igual que antecedentes/index.astro)
+async function getImageUrl(proyecto: any): Promise<string> {
+  try {
+    const { buscarImagenPorDatos } = await import('../data/mapeo_imagenes_completo.js');
+    const nombreArchivo = buscarImagenPorDatos(
+      proyecto.Cliente,
+      proyecto.Area || proyecto.Unidad_de_negocio,
+      proyecto.Titulo,
+      proyecto.id
+    );
+
+    if (nombreArchivo) {
+      return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
+    }
+  } catch (error) {
+    console.log('[AEROPUERTOS] Error en mapeo:', error);
+  }
+  return DEFAULT_IMAGE; // Falls back to /images/default.jpg (professional image)
+}
 ---
 
 <LayoutV4 title={seoConfig.title} description={seoConfig.description} keywords={seoConfig.keywords}>
@@ -166,7 +200,7 @@ const getImageUrl = (ant: any): string => {
           {antecedentes.slice(0, 6).map((ant) => (
             <a href={`/antecedentes/${ant.id}/${ant.slug}`} class="group bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 card-hover">
               <div class="aspect-video overflow-hidden bg-gray-100">
-                <img src={getImageUrl(ant)} alt={ant.Titulo} class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" onerror="this.src='/images/default-antecedente.jpg'"/>
+                <img src={ant.imageUrl} alt={ant.Titulo} class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy"/>
               </div>
               <div class="p-5 sm:p-6">
                 <span class="text-xs font-semibold text-sky-600 uppercase tracking-wider">{ant.Area || sectorConfig.name}</span>

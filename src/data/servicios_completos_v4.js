@@ -19,7 +19,7 @@ export const serviciosCompletos = {
     Subtitulo: "Cableado, Fibra Óptica, Radioenlaces",
     Descripcion: "Diseño e implementación de infraestructura de redes de datos en Mendoza, San Juan, San Luis y Cuyo. Soluciones completas: cableado estructurado Cat 6/6A/7, fibra óptica, radioenlaces, LAN/WAN, data centers. +94 proyectos exitosos en minería, bodegas, constructoras, gobierno y salud. Certificación TIA/EIA. Garantía extendida.",
     Area: "Redes",
-    Imagen: prodAsset('a404fe13-25dc-409d-9789-02cbf9fb93c1'),
+    Imagen: prodImage('/images/services/servicio-101-infraestructura.jpg'),
     Stats: [
       { value: '94+', label: 'Proyectos Completados' },
       { value: '22+', label: 'Años de Experiencia' },
@@ -101,7 +101,7 @@ export const serviciosCompletos = {
     Subtitulo: "CCTV, Control de Acceso, Detección de Incendios",
     Descripcion: "Proteja su empresa con sistemas de seguridad electrónica de última generación. CCTV con analítica de video, control de acceso biométrico, alarmas de intrusión y sistemas de detección de incendios. Integración con sistemas de edificios inteligentes (BMS). Monitoreo 24/7.",
     Area: "Seguridad",
-    Imagen: prodAsset('992632c1-5d88-48ea-9bc5-53c59109694e'),
+    Imagen: prodImage('/images/services/servicio-102-seguridad.jpg'),
     Stats: [
       { value: '300+', label: 'Instalaciones Activas' },
       { value: '22+', label: 'Años de Experiencia' },
@@ -183,7 +183,7 @@ export const serviciosCompletos = {
     Subtitulo: "Datos, Voz, Video",
     Descripcion: "Soluciones de telecomunicaciones empresariales: telefonía IP, videoconferencia, comunicaciones unificadas. Reduzca costos y mejore la productividad con tecnología de última generación.",
     Area: "Telecomunicaciones",
-    Imagen: prodAsset('caffbcaa-2457-4fc9-9960-2e0601f27736'),
+    Imagen: prodImage('/images/services/servicio-103-telecomunicaciones.jpg'),
     Stats: [
       { value: '5000+', label: 'Internos Instalados' },
       { value: '22+', label: 'Años de Experiencia' },
@@ -251,7 +251,7 @@ export const serviciosCompletos = {
     Subtitulo: "Web, Mobile, ERP",
     Descripcion: "Desarrollamos software a medida que se adapta 100% a sus procesos de negocio. Aplicaciones web, móviles, sistemas ERP/CRM, automatización de procesos e integración de sistemas. Código fuente de su propiedad, metodologías ágiles y equipo de desarrollo local.",
     Area: "Software",
-    Imagen: prodAsset('be4911d3-7a71-457e-a081-97d0472c4aa9'),
+    Imagen: prodImage('/images/services/servicio-104-software.jpg'),
     Stats: [
       { value: '50+', label: 'Proyectos Entregados' },
       { value: '10+', label: 'Años en Desarrollo' },
@@ -319,7 +319,7 @@ export const serviciosCompletos = {
     Subtitulo: "Mesa de Ayuda, Mantenimiento IT",
     Descripcion: "Soporte técnico profesional para mantener su infraestructura funcionando. Mesa de ayuda, mantenimiento preventivo y correctivo, monitoreo proactivo. SLAs definidos y tiempos de respuesta garantizados.",
     Area: "Soporte",
-    Imagen: prodAsset('d3bfa8eb-8ba4-4791-a05c-51eb4d1933c2'),
+    Imagen: prodImage('/images/services/servicio-105-soporte.jpg'),
     Stats: [
       { value: '24/7', label: 'Disponibilidad' },
       { value: '< 4hs', label: 'Tiempo Respuesta' },
@@ -380,7 +380,7 @@ export const serviciosCompletos = {
     Subtitulo: "Arquitectura, Auditoría",
     Descripcion: "Asesoramiento estratégico para optimizar su infraestructura tecnológica. Auditorías, diseño de arquitectura, planes de transformación digital y acompañamiento en la implementación.",
     Area: "Consultoría",
-    Imagen: prodAsset('b104c9b7-708f-4cc7-ab7f-5f8443a2475e'),
+    Imagen: prodImage('/images/services/servicio-106-consultoria.jpg'),
     Stats: [
       { value: '100+', label: 'Proyectos Asesorados' },
       { value: '22+', label: 'Años de Experiencia' },

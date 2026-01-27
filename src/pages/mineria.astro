@@ -8,7 +8,7 @@ import LayoutV4 from '../layouts/LayoutV4.astro';
 import HeroPageV4 from '../components/v4/HeroPageV4.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { antecedentesReales } from '../data/antecedentes_completos.js';
-import { directus, DEFAULT_IMAGE } from '../utils/directus';
+import { directus } from '../utils/directus';
 
 // Sector configuration
 const sectorConfig = {
@@ -51,13 +51,43 @@ const filterAntecedentes = (data: any[]) => {
     .slice(0, 12);
 };
 
-// Load antecedentes
+// Image URL helper constants and function (must be before antecedentes loading)
+const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://admin.ultimamilla.com.ar';
+const DEFAULT_IMAGE = '/images/default.jpg';
+
+async function getImageUrl(proyecto: any): Promise<string> {
+  try {
+    const { buscarImagenPorDatos } = await import('../data/mapeo_imagenes_completo.js');
+    const nombreArchivo = buscarImagenPorDatos(
+      proyecto.Cliente,
+      proyecto.Area || proyecto.Unidad_de_negocio,
+      proyecto.Titulo,
+      proyecto.id
+    );
+
+    if (nombreArchivo) {
+      return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
+    }
+  } catch (error) {
+    console.log('[MINERIA] Error en mapeo:', error);
+  }
+  return DEFAULT_IMAGE;
+}
+
+// Load antecedentes with Promise.all image pre-processing
 let antecedentes: any[] = [];
 
 try {
   const response = await directus.getAntecedentes({ limit: 500, page: 1 });
   if (response?.data?.length > 0) {
-    antecedentes = filterAntecedentes(response.data);
+    const filtered = filterAntecedentes(response.data);
+    // Pre-process images using Promise.all (like antecedentes/index.astro)
+    antecedentes = await Promise.all(
+      filtered.map(async (proyecto) => ({
+        ...proyecto,
+        imageUrl: await getImageUrl(proyecto)
+      }))
+    );
   }
 } catch (err) {
   console.error('Error loading antecedentes:', err);
@@ -65,7 +95,14 @@ try {
 
 // Fallback to local data
 if (antecedentes.length === 0) {
-  antecedentes = filterAntecedentes(antecedentesReales);
+  const filtered = filterAntecedentes(antecedentesReales);
+  // Pre-process images for fallback data too
+  antecedentes = await Promise.all(
+    filtered.map(async (proyecto) => ({
+      ...proyecto,
+      imageUrl: await getImageUrl(proyecto)
+    }))
+  );
 }
 
 // Value propositions
@@ -96,18 +133,6 @@ const serviciosRelacionados = [
   { id: 105, nombre: 'Soporte IT', descripcion: 'Mantenimiento y soporte técnico 24/7' },
   { id: 104, nombre: 'Software a Medida', descripcion: 'Soluciones de monitoreo y SCADA' },
 ];
-
-// Image URL helper
-const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://admin.ultimamilla.com.ar';
-const getImageUrl = (ant: any): string => {
-  if (ant.Imagen && typeof ant.Imagen === 'string' && ant.Imagen.includes('-')) {
-    return `${DIRECTUS_URL}/assets/${ant.Imagen}`;
-  }
-  if (ant.ImagenPrincipal && typeof ant.ImagenPrincipal === 'string' && ant.ImagenPrincipal.includes('-')) {
-    return `${DIRECTUS_URL}/assets/${ant.ImagenPrincipal}`;
-  }
-  return '/images/default-antecedente.jpg';
-};
 ---
 
 <LayoutV4
@@ -259,11 +284,10 @@ const getImageUrl = (ant: any): string => {
             <a href={`/antecedentes/${ant.id}/${ant.slug}`} class="group bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 card-hover">
               <div class="aspect-video overflow-hidden bg-gray-100">
                 <img
-                  src={getImageUrl(ant)}
+                  src={ant.imageUrl}
                   alt={ant.Titulo}
                   class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   loading="lazy"
-                  onerror="this.src='/images/default-antecedente.jpg'"
                 />
               </div>
               <div class="p-5 sm:p-6">
