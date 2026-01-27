@@ -4,22 +4,22 @@
  */
 
 export const serviceBackgroundImages: Record<string, string> = {
-  // Hero backgrounds (used in HeroPageV4)
-  'hero-default': '/images/services/servicios-it.jpg',
-  'hero-redes': '/images/services/redes-comunicaciones.jpg',
-  'hero-seguridad': '/images/services/ciberseguridad.jpg',
-  'hero-telefonia': '/images/services/telefonia.jpg',
-  'hero-web': '/images/services/servicios-web.jpg',
+  // Hero backgrounds (used in HeroPageV4) - white background versions
+  'hero-default': '/images/services/servicio-101-infraestructura.jpg',
+  'hero-redes': '/images/services/servicio-101-infraestructura.jpg',
+  'hero-seguridad': '/images/services/servicio-102-seguridad.jpg',
+  'hero-telefonia': '/images/services/servicio-103-telecomunicaciones.jpg',
+  'hero-web': '/images/services/servicio-104-software.jpg',
 
-  // Service specific backgrounds
-  '101': '/images/services/redes-comunicaciones.jpg', // Redes
-  '102': '/images/services/ciberseguridad.jpg', // Seguridad
-  '103': '/images/services/telefonia.jpg', // Telecom
-  '104': '/images/services/servicios-web.jpg', // Software
-  '105': '/images/services/servicios-it.jpg', // Consultoría
-  '106': '/images/services/servicios-it.jpg', // Cloud
-  '107': '/images/services/seguridad-informatica.jpg', // Seguridad Informatica
-  '108': '/images/services/servicios-it.jpg', // IoT
+  // Service specific backgrounds - white background versions
+  '101': '/images/services/servicio-101-infraestructura.jpg', // Infraestructura de Redes
+  '102': '/images/services/servicio-102-seguridad.jpg', // Sistemas de Seguridad Electrónica
+  '103': '/images/services/servicio-103-telecomunicaciones.jpg', // Telecomunicaciones
+  '104': '/images/services/servicio-104-software.jpg', // Desarrollo de Software
+  '105': '/images/services/servicio-105-soporte.jpg', // Soporte Técnico 24/7
+  '106': '/images/services/servicio-106-consultoria.jpg', // Consultoría IT
+  '107': '/images/services/servicio-107-incendios.jpg', // Sistemas de Detección de Incendios (fallback)
+  '108': '/images/services/servicio-108-electricos.jpg', // Servicios Eléctricos (fallback)
 };
 
 export const getServiceBackground = (key?: string | number): string => {
