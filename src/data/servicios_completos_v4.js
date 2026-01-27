@@ -262,42 +262,42 @@ export const serviciosCompletos = {
       {
         titulo: "Desarrollo Web Full Stack",
         descripcion: "Desde landing pages hasta aplicaciones empresariales complejas. Desarrollamos con las tecnologías más modernas: React, Vue, Node.js, Python.",
-        imagen: prodImage('/images/services/productos/desarrollo/4.1.png'),
+        imagen: prodImage('/images/services/productos/software/4.1.png'),
         features: ['Diseño responsive', 'APIs REST/GraphQL', 'Despliegue en la nube'],
         destacado: 'Desarrollamos aplicaciones web a medida con tecnologías modernas. UX/UI, desarrollo, testing y deployment incluidos.'
       },
       {
         titulo: "Aplicaciones Móviles",
         descripcion: "Apps nativas e híbridas para iOS y Android. Desde apps de productividad interna hasta aplicaciones de cara al cliente.",
-        imagen: prodImage('/images/services/productos/desarrollo/4.2.png'),
+        imagen: prodImage('/images/services/productos/software/4.2.png'),
         features: ['iOS y Android', 'Notificaciones push', 'Modo offline'],
         destacado: 'Desarrollamos apps móviles con Flutter, React Native o desarrollo nativo. Publicación en stores incluida.'
       },
       {
         titulo: "Sistemas ERP/CRM",
         descripcion: "Software de gestión empresarial a la medida de su operación. Ventas, compras, inventario, contabilidad, RRHH integrados.",
-        imagen: prodImage('/images/services/productos/desarrollo/4.3.png'),
+        imagen: prodImage('/images/services/productos/software/4.3.png'),
         features: ['Módulos integrados', 'Reportes avanzados', 'Multi-sucursal'],
         destacado: 'Implementamos y personalizamos ERP/CRM sobre plataformas existentes o desarrollo 100% a medida.'
       },
       {
         titulo: "Automatización de Procesos",
         descripcion: "RPA y workflows para automatizar lo que no agrega valor. Desde ingreso de datos hasta aprobaciones complejas. ROI medible.",
-        imagen: prodImage('/images/services/productos/desarrollo/4.4.png'),
+        imagen: prodImage('/images/services/productos/software/4.4.png'),
         features: ['ROI medible', 'Integración multi-sistema', 'Monitoreo en tiempo real'],
         destacado: 'Implementamos automatizaciones con Power Automate, Zapier o desarrollo de bots a medida.'
       },
       {
         titulo: "Integración de Sistemas",
         descripcion: "¿Datos en silos? Desarrollamos APIs, middleware y conectores para integrar cualquier sistema: ERP, CRM, e-commerce, bancos.",
-        imagen: prodImage('/images/services/productos/desarrollo/4.5.png'),
+        imagen: prodImage('/images/services/productos/software/4.5.png'),
         features: ['APIs personalizadas', 'ETL de datos', 'Sincronización en tiempo real'],
         destacado: 'Desarrollamos integraciones mediante APIs, web services, ETL y conectores nativos.'
       },
       {
         titulo: "Business Intelligence",
         descripcion: "Dashboards y reportes que muestran lo que realmente importa. KPIs en tiempo real, alertas automáticas, análisis profundo.",
-        imagen: prodImage('/images/services/productos/desarrollo/4.6.png'),
+        imagen: prodImage('/images/services/productos/software/4.6.png'),
         features: ['Dashboards interactivos', 'KPIs en tiempo real', 'Alertas automáticas'],
         destacado: 'Implementamos soluciones BI con Power BI, Tableau o desarrollo propio.'
       }
