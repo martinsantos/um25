@@ -53,6 +53,21 @@ try {
 } catch (error) {
   console.error('[SOFTWARE] Error fetching from Directus:', error);
 }
+
+const valueProps = [
+  { icon: 'code', title: 'Desarrollo a Medida', description: 'Soluciones personalizadas que se adaptan exactamente a los procesos de tu empresa, sin limitaciones de software enlatado.' },
+  { icon: 'shield-check', title: 'Seguridad y Escalabilidad', description: 'Arquitectura robusta con prácticas de código seguro, testing automatizado y capacidad de crecimiento según tus necesidades.' },
+  { icon: 'users', title: 'Soporte Continuo', description: 'Mesa de ayuda técnica 24/7, actualizaciones programadas y capacitación constante para tu equipo.' }
+];
+
+const serviciosRelacionados = [
+  { id: 104, nombre: 'Desarrollo de Software', descripcion: 'Aplicaciones web y móviles a medida' },
+  { id: 105, nombre: 'Mesa de Ayuda IT', descripcion: 'Soporte técnico 24/7 para tu equipo' },
+  { id: 106, nombre: 'Consultoría IT', descripcion: 'Asesoramiento estratégico en tecnología' },
+  { id: 101, nombre: 'Infraestructura de Redes', descripcion: 'Redes corporativas para aplicaciones críticas' },
+  { id: 102, nombre: 'Seguridad Electrónica', descripcion: 'Protección física y lógica de servidores' },
+  { id: 103, nombre: 'Telecomunicaciones', descripcion: 'Conectividad de alta disponibilidad' }
+];
 ---
 
 <LayoutV4 title={seoConfig.title} description={seoConfig.description} keywords={seoConfig.keywords}>
@@ -89,6 +104,54 @@ try {
             <div class="text-xs sm:text-sm text-white/70 mt-1">Entrega</div>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-10 sm:py-14 lg:py-16 border-b border-gray-100 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        {valueProps.map((prop) => (
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 bg-cyan-50 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {prop.icon === 'code' && <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>}
+                {prop.icon === 'shield-check' && <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>}
+                {prop.icon === 'users' && <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>}
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-bold text-um-dark mb-2">{prop.title}</h3>
+              <p class="text-sm text-um-gray">{prop.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="py-10 sm:py-14 lg:py-20 bg-um-gray-light">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-8 sm:mb-12">
+        <span class="text-cyan-600 font-semibold text-xs sm:text-sm uppercase tracking-wider">Servicios</span>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">Soluciones para {sectorConfig.name}</h2>
+        <p class="text-sm sm:text-base text-um-gray max-w-2xl mx-auto">Infraestructura tecnológica completa para empresas de desarrollo.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        {serviciosRelacionados.map((servicio) => (
+          <a href={`/servicios/${servicio.id}/${generateSlug(servicio.nombre)}`} class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover group">
+            <div class="w-12 h-12 bg-cyan-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-cyan-500 transition-colors">
+              <svg class="w-6 h-6 text-cyan-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <h3 class="font-bold text-um-dark mb-2 group-hover:text-um-primary transition-colors">{servicio.nombre}</h3>
+            <p class="text-sm text-um-gray mb-4">{servicio.descripcion}</p>
+            <span class="text-cyan-600 font-semibold text-sm flex items-center gap-1">Ver servicio <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></span>
+          </a>
+        ))}
       </div>
     </div>
   </section>

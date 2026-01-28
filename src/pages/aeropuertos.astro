@@ -53,6 +53,21 @@ try {
 } catch (error) {
   console.error('[AEROPUERTOS] Error fetching from Directus:', error);
 }
+
+const valueProps = [
+  { icon: 'plane', title: 'Alta Disponibilidad 24/7', description: 'Sistemas de misión crítica que garantizan operación continua sin interrupciones, cumpliendo normativas aeroportuarias internacionales.' },
+  { icon: 'shield', title: 'Seguridad Multinivel', description: 'Integración de CCTV, control de accesos biométrico, detección de intrusión y análisis de video inteligente para protección total.' },
+  { icon: 'zap', title: 'Escalabilidad Certificada', description: 'Infraestructura preparada para crecimiento de tráfico aéreo, con certificaciones aeroportuarias y redundancia N+1.' }
+];
+
+const serviciosRelacionados = [
+  { id: 101, nombre: 'Redes Aeroportuarias', descripcion: 'Cableado estructurado y fibra óptica certificada' },
+  { id: 102, nombre: 'CCTV y Vigilancia', descripcion: 'Videovigilancia 4K con análisis inteligente' },
+  { id: 103, nombre: 'Telefonía IP', descripcion: 'Comunicaciones VoIP de alta disponibilidad' },
+  { id: 107, nombre: 'Detección de Incendios', descripcion: 'Sistemas certificados para infraestructura crítica' },
+  { id: 108, nombre: 'Sistemas Eléctricos', descripcion: 'UPS y generadores de respaldo' },
+  { id: 106, nombre: 'Consultoría Aeroportuaria', descripcion: 'Asesoramiento especializado en infraestructura' }
+];
 ---
 
 <LayoutV4 title={seoConfig.title} description={seoConfig.description} keywords={seoConfig.keywords}>
@@ -85,6 +100,54 @@ try {
             <div class="text-xs sm:text-sm text-white/70 mt-1">Uptime</div>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-10 sm:py-14 lg:py-16 border-b border-gray-100 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        {valueProps.map((prop) => (
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 bg-sky-50 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {prop.icon === 'plane' && <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>}
+                {prop.icon === 'shield' && <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>}
+                {prop.icon === 'zap' && <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>}
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-bold text-um-dark mb-2">{prop.title}</h3>
+              <p class="text-sm text-um-gray">{prop.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="py-10 sm:py-14 lg:py-20 bg-um-gray-light">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-8 sm:mb-12">
+        <span class="text-sky-600 font-semibold text-xs sm:text-sm uppercase tracking-wider">Servicios</span>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">Soluciones para {sectorConfig.name}</h2>
+        <p class="text-sm sm:text-base text-um-gray max-w-2xl mx-auto">Infraestructura tecnológica certificada para operaciones aeroportuarias.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        {serviciosRelacionados.map((servicio) => (
+          <a href={`/servicios/${servicio.id}/${generateSlug(servicio.nombre)}`} class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover group">
+            <div class="w-12 h-12 bg-sky-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-sky-500 transition-colors">
+              <svg class="w-6 h-6 text-sky-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <h3 class="font-bold text-um-dark mb-2 group-hover:text-um-primary transition-colors">{servicio.nombre}</h3>
+            <p class="text-sm text-um-gray mb-4">{servicio.descripcion}</p>
+            <span class="text-sky-600 font-semibold text-sm flex items-center gap-1">Ver servicio <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></span>
+          </a>
+        ))}
       </div>
     </div>
   </section>
