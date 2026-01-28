@@ -1,7 +1,7 @@
 ---
 /**
- * Software Sector Page - V4 Design System
- * Updated: Uses Directus-only queries, no fallback to JS data
+ * Constructoras Sector Page - V4 Design System
+ * ✨ NUEVA VERSIÓN: 100% controlado desde Directus
  */
 
 import LayoutV4 from '../layouts/LayoutV4.astro';
@@ -9,23 +9,32 @@ import ProjectCard from '../components/ProjectCard.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getClient, getDirectusImageUrl } from '../lib/directus.ts';
 import { readItems } from '@directus/sdk';
+import { getSectorBySlug, getIconSVGPath } from '../utils/sectoresHelpers.ts';
 
+// Obtener sector desde Directus
+const sectorData = await getSectorBySlug('software');
 
-const sectorConfig = {
-  name: 'Software',
-  emoji: '💻',
-  heroImage: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1920&q=80',
-  description: 'Desarrollo de software a medida, aplicaciones web y móviles, integraciones API y transformación digital para empresas de Argentina.',
-  keywords: ['software a medida', 'software', 'desarrollo', 'aplicacion', 'app', 'web', 'plataforma', 'sistema', 'programacion', 'codigo', 'api', 'integracion', 'automatizacion', 'digital', 'tecnologia', 'base de datos', 'cloud', 'nube', 'saas', 'erp', 'crm'],
-};
+if (!sectorData) {
+  // Fallback si Directus falla
+  return Astro.redirect('/sectores');
+}
 
-const seoConfig = {
-  title: 'Desarrollo de Software a Medida | Mendoza, Cuyo y Patagonia | ULTIMA MILLA',
-  description: 'Servicios de desarrollo de software a medida. Aplicaciones web, móviles, integraciones API y transformación digital.',
-  keywords: 'desarrollo software mendoza, software a medida cuyo patagonia, aplicaciones empresas',
-};
+const {
+  nombre,
+  emoji,
+  hero_image,
+  descripcion,
+  keywords,
+  color_theme,
+  seo_title,
+  seo_description,
+  seo_keywords,
+  stats,
+  value_props,
+  servicios: serviciosRelacionados,
+} = sectorData;
 
-// Fetch antecedentes from Directus ONLY
+// Fetch antecedentes from Directus
 let antecedentes: any[] = [];
 try {
   const client = getClient();
@@ -40,7 +49,7 @@ try {
   antecedentes = allAntecedentes
     .filter(item => {
       const texto = `${item.Cliente || ''} ${item.Titulo || ''} ${item.Area || ''} ${item.Descripcion || ''} ${item.Nombre || ''}`.toLowerCase();
-      return sectorConfig.keywords.some(k => texto.includes(k.toLowerCase()));
+      return keywords.some((k: string) => texto.includes(k.toLowerCase()));
     })
     .slice(0, 6)
     .map(item => ({
@@ -49,30 +58,30 @@ try {
       imageUrl: getDirectusImageUrl(item.Imagen)
     }));
 
-  console.log(`[SOFTWARE] Found ${antecedentes.length} antecedentes from Directus`);
+  console.log(`[${nombre.toUpperCase()}] Found ${antecedentes.length} antecedentes from Directus`);
 } catch (error) {
-  console.error('[SOFTWARE] Error fetching from Directus:', error);
+  console.error(`[${nombre.toUpperCase()}] Error fetching from Directus:`, error);
 }
 
-const valueProps = [
-  { icon: 'code', title: 'Desarrollo a Medida', description: 'Soluciones personalizadas que se adaptan exactamente a los procesos de tu empresa, sin limitaciones de software enlatado.' },
-  { icon: 'shield-check', title: 'Seguridad y Escalabilidad', description: 'Arquitectura robusta con prácticas de código seguro, testing automatizado y capacidad de crecimiento según tus necesidades.' },
-  { icon: 'users', title: 'Soporte Continuo', description: 'Mesa de ayuda técnica 24/7, actualizaciones programadas y capacitación constante para tu equipo.' }
-];
+// Map color theme to Tailwind classes
+const colorMap: Record<string, any> = {
+  sky: { bg: 'bg-sky-50', text: 'text-sky-600', hover: 'hover:bg-sky-500', gradient: 'from-sky-600 to-sky-700' },
+  purple: { bg: 'bg-purple-50', text: 'text-purple-600', hover: 'hover:bg-purple-500', gradient: 'from-purple-600 to-purple-700' },
+  blue: { bg: 'bg-blue-50', text: 'text-blue-600', hover: 'hover:bg-blue-500', gradient: 'from-blue-600 to-blue-700' },
+  emerald: { bg: 'bg-emerald-50', text: 'text-emerald-600', hover: 'hover:bg-emerald-500', gradient: 'from-emerald-600 to-emerald-700' },
+  amber: { bg: 'bg-amber-50', text: 'text-amber-600', hover: 'hover:bg-amber-500', gradient: 'from-amber-600 to-amber-700' },
+  indigo: { bg: 'bg-indigo-50', text: 'text-indigo-600', hover: 'hover:bg-indigo-500', gradient: 'from-indigo-600 to-indigo-700' },
+  cyan: { bg: 'bg-cyan-50', text: 'text-cyan-600', hover: 'hover:bg-cyan-500', gradient: 'from-cyan-600 to-cyan-700' },
+  orange: { bg: 'bg-orange-50', text: 'text-orange-600', hover: 'hover:bg-orange-500', gradient: 'from-orange-600 to-orange-700' },
+  red: { bg: 'bg-red-50', text: 'text-red-600', hover: 'hover:bg-red-500', gradient: 'from-red-600 to-red-700' },
+};
 
-const serviciosRelacionados = [
-  { id: 104, nombre: 'Desarrollo de Software', descripcion: 'Aplicaciones web y móviles a medida' },
-  { id: 105, nombre: 'Mesa de Ayuda IT', descripcion: 'Soporte técnico 24/7 para tu equipo' },
-  { id: 106, nombre: 'Consultoría IT', descripcion: 'Asesoramiento estratégico en tecnología' },
-  { id: 101, nombre: 'Infraestructura de Redes', descripcion: 'Redes corporativas para aplicaciones críticas' },
-  { id: 102, nombre: 'Seguridad Electrónica', descripcion: 'Protección física y lógica de servidores' },
-  { id: 103, nombre: 'Telecomunicaciones', descripcion: 'Conectividad de alta disponibilidad' }
-];
+const colors = colorMap[color_theme] || colorMap.amber;
 ---
 
-<LayoutV4 title={seoConfig.title} description={seoConfig.description} keywords={seoConfig.keywords}>
+<LayoutV4 title={seo_title} description={seo_description} keywords={seo_keywords}>
   <section class="relative bg-um-dark pt-20 sm:pt-24 pb-8 sm:pb-12 lg:pb-16 overflow-hidden">
-    <div class="absolute inset-0 opacity-40" style={`background-image: url('${sectorConfig.heroImage}'); background-position: center; background-size: cover;`}></div>
+    <div class="absolute inset-0 opacity-40" style={`background-image: url('${hero_image}'); background-position: center; background-size: cover;`}></div>
     <div class="absolute inset-0 bg-gradient-to-b from-um-dark/70 to-um-dark/90"></div>
 
     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -81,27 +90,25 @@ const serviciosRelacionados = [
         <svg class="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         <a href="/sectores" class="text-white/60 hover:text-white text-xs sm:text-sm transition-colors">Sectores</a>
         <svg class="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <span class="text-white text-xs sm:text-sm">{sectorConfig.name}</span>
+        <span class="text-white text-xs sm:text-sm">{nombre}</span>
       </div>
 
       <div class="max-w-3xl">
         <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-4 sm:mb-6">
-          <span class="inline-block mr-2 sm:mr-3">{sectorConfig.emoji}</span>
-          Desarrollo de {sectorConfig.name}
+          <span class="inline-block mr-2 sm:mr-3">{emoji}</span>
+          Tecnología para {nombre}
         </h1>
-        <p class="text-base sm:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8">{sectorConfig.description}</p>
+        <p class="text-base sm:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8">{descripcion}</p>
         <div class="flex flex-wrap items-center gap-3 sm:gap-4">
+          {stats.map((stat: any) => (
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
+              <div class="text-2xl sm:text-3xl font-extrabold text-white">{stat.value}</div>
+              <div class="text-xs sm:text-sm text-white/70 mt-1">{stat.label}</div>
+            </div>
+          ))}
           <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
             <div class="text-2xl sm:text-3xl font-extrabold text-white">{antecedentes.length}+</div>
             <div class="text-xs sm:text-sm text-white/70 mt-1">Proyectos</div>
-          </div>
-          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
-            <div class="text-2xl sm:text-3xl font-extrabold text-white">10+</div>
-            <div class="text-xs sm:text-sm text-white/70 mt-1">Años</div>
-          </div>
-          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
-            <div class="text-2xl sm:text-3xl font-extrabold text-white">100%</div>
-            <div class="text-xs sm:text-sm text-white/70 mt-1">Entrega</div>
           </div>
         </div>
       </div>
@@ -111,18 +118,16 @@ const serviciosRelacionados = [
   <section class="py-10 sm:py-14 lg:py-16 border-b border-gray-100 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-        {valueProps.map((prop) => (
+        {value_props && value_props.map((prop: any) => (
           <div class="flex items-start gap-4">
-            <div class="w-12 h-12 bg-cyan-50 rounded-xl flex items-center justify-center flex-shrink-0">
-              <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {prop.icon === 'code' && <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>}
-                {prop.icon === 'shield-check' && <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>}
-                {prop.icon === 'users' && <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>}
+            <div class={`w-12 h-12 ${colors.bg} rounded-xl flex items-center justify-center flex-shrink-0`}>
+              <svg class={`w-6 h-6 ${colors.text}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={getIconSVGPath(prop.icono)}/>
               </svg>
             </div>
             <div>
-              <h3 class="font-bold text-um-dark mb-2">{prop.title}</h3>
-              <p class="text-sm text-um-gray">{prop.description}</p>
+              <h3 class="font-bold text-um-dark mb-2">{prop.titulo}</h3>
+              <p class="text-sm text-um-gray">{prop.descripcion}</p>
             </div>
           </div>
         ))}
@@ -133,23 +138,23 @@ const serviciosRelacionados = [
   <section class="py-10 sm:py-14 lg:py-20 bg-um-gray-light">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-8 sm:mb-12">
-        <span class="text-cyan-600 font-semibold text-xs sm:text-sm uppercase tracking-wider">Servicios</span>
-        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">Soluciones para {sectorConfig.name}</h2>
-        <p class="text-sm sm:text-base text-um-gray max-w-2xl mx-auto">Infraestructura tecnológica completa para empresas de desarrollo.</p>
+        <span class={`${colors.text} font-semibold text-xs sm:text-sm uppercase tracking-wider`}>Servicios</span>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">Soluciones para {nombre}</h2>
+        <p class="text-sm sm:text-base text-um-gray max-w-2xl mx-auto">Tecnología especializada para el sector.</p>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-        {serviciosRelacionados.map((servicio) => (
+        {serviciosRelacionados && serviciosRelacionados.map((servicio: any) => (
           <a href={`/servicios/${servicio.id}/${generateSlug(servicio.nombre)}`} class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover group">
-            <div class="w-12 h-12 bg-cyan-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-cyan-500 transition-colors">
-              <svg class="w-6 h-6 text-cyan-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class={`w-12 h-12 ${colors.bg} rounded-xl flex items-center justify-center mb-4 group-${colors.hover} transition-colors`}>
+              <svg class={`w-6 h-6 ${colors.text} group-hover:text-white transition-colors`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
               </svg>
             </div>
             <h3 class="font-bold text-um-dark mb-2 group-hover:text-um-primary transition-colors">{servicio.nombre}</h3>
             <p class="text-sm text-um-gray mb-4">{servicio.descripcion}</p>
-            <span class="text-cyan-600 font-semibold text-sm flex items-center gap-1">Ver servicio <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></span>
+            <span class={`${colors.text} font-semibold text-sm flex items-center gap-1`}>Ver servicio <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></span>
           </a>
         ))}
       </div>
@@ -160,8 +165,8 @@ const serviciosRelacionados = [
     <section class="py-10 sm:py-14 lg:py-20 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-8 sm:mb-12">
-          <span class="text-cyan-600 font-semibold text-xs sm:text-sm uppercase tracking-wider">Casos de Éxito</span>
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">Proyectos de {sectorConfig.name}</h2>
+          <span class={`${colors.text} font-semibold text-xs sm:text-sm uppercase tracking-wider`}>Casos de Éxito</span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">Proyectos en {nombre}</h2>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
@@ -172,8 +177,8 @@ const serviciosRelacionados = [
               cliente={ant.Cliente || ''}
               descripcion={ant.Descripcion || ''}
               fecha={ant.Fecha || new Date().toISOString()}
-              area={ant.Area || ant.Unidad_de_negocio || sectorConfig.name}
-              servicio={ant.Unidad_de_negocio || sectorConfig.name}
+              area={ant.Area || ant.Unidad_de_negocio || nombre}
+              servicio={ant.Unidad_de_negocio || nombre}
               imagen={ant.imageUrl}
               slug={ant.slug}
             />
@@ -183,11 +188,11 @@ const serviciosRelacionados = [
     </section>
   )}
 
-  <section class="py-10 sm:py-14 lg:py-16 bg-gradient-to-br from-cyan-600 to-cyan-700">
+  <section class={`py-10 sm:py-14 lg:py-16 bg-gradient-to-br ${colors.gradient}`}>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-6">¿Listo para Digitalizar su Negocio?</h2>
-      <p class="text-base sm:text-lg text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto">Contáctenos para diseñar la solución de software perfecta para su empresa.</p>
-      <a href="/contacto" class="inline-block px-6 sm:px-8 py-3 sm:py-4 bg-white text-cyan-600 rounded-lg font-bold shadow-xl hover:shadow-2xl transition-all hover:scale-105">Solicitar Consultoría</a>
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-6">¿Listo para transformar su infraestructura tecnológica?</h2>
+      <p class="text-base sm:text-lg text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto">Contactenos hoy para una consultoría gratuita.</p>
+      <a href="/contacto" class="inline-block px-6 sm:px-8 py-3 sm:py-4 bg-white text-um-dark rounded-lg font-bold shadow-xl hover:shadow-2xl transition-all hover:scale-105">Solicitar Consultoría Gratuita</a>
     </div>
   </section>
 </LayoutV4>
