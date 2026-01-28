@@ -61,6 +61,7 @@ export async function getSectorBySlug(slug: string): Promise<Sector | null> {
   try {
     const client = getAuthenticatedClient();
 
+    // 1. Get base sector data
     const sectores = await client.request(
       readItems('sectores', {
         filter: {
@@ -82,22 +83,6 @@ export async function getSectorBySlug(slug: string): Promise<Sector | null> {
           'stats',
           'activo',
           'orden',
-          {
-            value_props: [
-              { sector_value_props: ['icono', 'titulo', 'descripcion', 'orden'] }
-            ],
-          },
-          {
-            servicios: [
-              {
-                sectores_servicios: [
-                  'orden',
-                  'descripcion_custom',
-                  { servicios_id: ['id', 'Titulo', 'Descripcion'] }
-                ]
-              }
-            ],
-          },
         ],
         limit: 1,
       })
@@ -110,18 +95,28 @@ export async function getSectorBySlug(slug: string): Promise<Sector | null> {
 
     const sector = sectores[0] as any;
 
-    // Transformar value_props
-    const value_props = (sector.value_props || [])
-      .map((vp: any) => vp.sector_value_props)
-      .filter(Boolean)
-      .sort((a: any, b: any) => a.orden - b.orden);
+    // 2. Get value_props separately
+    const valuePropsData = await client.request(
+      readItems('sector_value_props', {
+        filter: { sector_id: { _eq: sector.id } },
+        fields: ['icono', 'titulo', 'descripcion', 'orden'],
+        sort: ['orden'],
+      })
+    );
 
-    // Transformar servicios
-    const servicios = (sector.servicios || [])
-      .map((rel: any) => {
-        const junction = rel.sectores_servicios;
-        if (!junction || !junction.servicios_id) return null;
+    // 3. Get servicios separately through junction table
+    const serviciosJunction = await client.request(
+      readItems('sectores_servicios', {
+        filter: { sectores_id: { _eq: sector.id } },
+        fields: ['orden', 'descripcion_custom', { servicios_id: ['id', 'Titulo', 'Descripcion'] }],
+        sort: ['orden'],
+      })
+    );
 
+    // Transform servicios
+    const servicios = serviciosJunction
+      .map((junction: any) => {
+        if (!junction.servicios_id) return null;
         return {
           id: junction.servicios_id.id,
           nombre: junction.servicios_id.Titulo,
@@ -129,12 +124,11 @@ export async function getSectorBySlug(slug: string): Promise<Sector | null> {
           orden: junction.orden,
         };
       })
-      .filter(Boolean)
-      .sort((a: any, b: any) => a.orden - b.orden);
+      .filter(Boolean);
 
     return {
       ...sector,
-      value_props,
+      value_props: valuePropsData,
       servicios,
     };
 
