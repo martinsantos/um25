@@ -9,6 +9,7 @@ import ServiceCard from '../components/v4/ServiceCard.astro';
 import CTASection from '../components/v4/CTASection.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getAllServicios } from '../utils/directusHelpers';
+import { getHeroHomeImages, getDirectusImageUrl } from '../lib/directus';
 
 // Import real data
 import { antecedentesReales } from '../data/antecedentes_completos.js';
@@ -16,14 +17,23 @@ import { antecedentesReales } from '../data/antecedentes_completos.js';
 // Production URL for images
 const PROD_URL = 'https://www.ultimamilla.com.ar';
 
-// Hero images - using white background versions
-const heroImages = [
-  { url: '/images/services/servicio-101-infraestructura.jpg', alt: 'Infraestructura de Redes' },
-  { url: '/images/services/servicio-102-seguridad.jpg', alt: 'Seguridad Electrónica' },
-  { url: '/images/services/servicio-103-telecomunicaciones.jpg', alt: 'Telecomunicaciones' },
-  { url: '/images/services/servicio-104-software.jpg', alt: 'Desarrollo de Software' },
-  { url: '/images/services/servicio-105-soporte.jpg', alt: 'Soporte Técnico 24/7' },
-];
+// Hero images - Fetch from Directus Hero_Home collection
+const heroImagesFromDirectus = await getHeroHomeImages();
+console.log('[HOMEPAGE] Hero_Home images fetched:', heroImagesFromDirectus.length);
+
+// Use Directus images if available, otherwise fallback to default images
+const heroImages = heroImagesFromDirectus.length > 0
+  ? heroImagesFromDirectus.map(item => ({
+      url: getDirectusImageUrl(item.imagen),
+      alt: item.titulo || `Hero Image ${item.orden}`
+    }))
+  : [
+      { url: '/images/services/redes-comunicaciones.jpg', alt: 'Infraestructura de Redes' },
+      { url: '/images/services/ciberseguridad.jpg', alt: 'Seguridad Electrónica' },
+      { url: '/images/services/telefonia.jpg', alt: 'Telecomunicaciones' },
+      { url: '/images/services/servicios-web.jpg', alt: 'Desarrollo de Software' },
+      { url: '/images/services/servicios-it.jpg', alt: 'Consultoría IT' }
+    ];
 
 // Helper function to get image URL for antecedentes using mapping system
 async function getImageUrl(proyecto: any): Promise<string> {
@@ -69,12 +79,31 @@ const iconMap: Record<number, { icon: string; iconColor: string }> = {
   108: { icon: 'zap', iconColor: 'bg-yellow-600/90' }
 };
 
-// Enhance services with icon data
-const servicios = serviciosFromDirectus.slice(0, 8).map(s => ({
-  ...s,
-  ...iconMap[s.id],
-  slug: s.slug || generateSlug(s.Titulo)
-}));
+// Función para obtener miniatura numerada de servicio
+const getServiceThumbnail = (servicioId: number) => {
+  // Mapeo directo: servicio 101 → imagen 1.png, servicio 102 → imagen 2.png, etc.
+  const imageNumber = servicioId - 100;
+  return `/images/services/${imageNumber}.png`;
+};
+
+// Enhance services with icon data and thumbnails
+const servicios = serviciosFromDirectus.slice(0, 8).map(s => {
+  const thumbnail = getServiceThumbnail(s.id);
+  console.log(`[SERVICE-${s.id}] Thumbnail mapped:`, thumbnail);
+
+  return {
+    id: s.id,
+    Titulo: s.Titulo,
+    Descripcion: s.Descripcion,
+    subtitulo: s.Subtitulo,
+    ...iconMap[s.id],
+    slug: s.slug || generateSlug(s.Titulo),
+    Imagen: thumbnail, // Miniatura numerada local (NO usar UUID de Directus)
+    imagen: thumbnail  // También en minúsculas para compatibilidad
+  };
+});
+
+console.log('[HOMEPAGE] Servicios after mapping:', JSON.stringify(servicios.map(s => ({ id: s.id, imagen: s.imagen })), null, 2));
 
 // Industries/Sectors data (kept for future sector pages)
 const sectores = [
@@ -117,7 +146,7 @@ const sectorIconPaths: Record<string, string> = {
         <img
           src={img.url}
           alt={img.alt}
-          class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${index === 0 ? 'opacity-100' : 'opacity-0'}`}
+          class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${index === 0 ? 'opacity-50' : 'opacity-0'}`}
           data-index={index}
         />
       ))}
@@ -203,7 +232,7 @@ const sectorIconPaths: Record<string, string> = {
             slug={servicio.slug}
             titulo={servicio.Titulo}
             subtitulo={servicio.subtitulo || servicio.Descripcion?.substring(0, 100)}
-            imagen={servicio.Imagen}
+            imagen={getServiceThumbnail(servicio.id)}
             icon={servicio.icon || 'box'}
             iconColor={servicio.iconColor || 'bg-um-primary/90'}
           />

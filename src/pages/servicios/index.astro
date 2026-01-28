@@ -75,10 +75,16 @@ const serviciosPaginados = serviciosFiltrados.slice(startIndex, endIndex);
 const areasUnicas = [...new Set(serviciosReales.map(s => s.Area))].sort();
 const clientesUnicos = [...new Set(serviciosReales.map(s => s.Cliente))].sort();
 
-// Función para obtener URL de imagen de servicio desde Directus
+// Función para obtener URL de imagen de servicio
+const getServiceThumbnail = (servicioId: number) => {
+  // Mapeo directo: servicio 101 → imagen 1.png, servicio 102 → imagen 2.png, etc.
+  const imageNumber = servicioId - 100;
+  return `/images/services/${imageNumber}.png`;
+};
+
 const getAssetUrl = (url: string | undefined, servicioId: number) => {
-  // Usar UUID de Directus con fallback a imagen local mapeada
-  return getDirectusImageUrl(url, getServiceBackground(servicioId));
+  // Usar miniatura numerada basada en ID del servicio
+  return getServiceThumbnail(servicioId);
 };
 
 // Compute pagination pages

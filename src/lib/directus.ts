@@ -170,6 +170,7 @@ export async function getServicioConProductos(id: number | string): Promise<Serv
 /**
  * Obtiene los productos de un servicio específico desde la colección "productos"
  * Migrado de campo JSON a tabla separada con relación M2O
+ * IMPORTANTE: Filtra duplicados basados en título para evitar mostrar productos repetidos
  */
 export async function getProductosPorServicio(servicioId: number): Promise<ProductoV4[]> {
   try {
@@ -177,12 +178,24 @@ export async function getProductosPorServicio(servicioId: number): Promise<Produ
     const response = await client.request(
       readItems('productos', {
         filter: { servicio_id: { _eq: servicioId } },
-        sort: ['orden'],
+        sort: ['orden', 'id'],
         fields: ['*', 'imagen.*']
       })
     );
 
-    return (response || []) as ProductoV4[];
+    // Deduplicate products by title (keep first occurrence)
+    const productos = (response || []) as ProductoV4[];
+    const seen = new Set<string>();
+    const uniqueProductos = productos.filter((producto) => {
+      const titulo = producto.titulo?.toLowerCase().trim();
+      if (!titulo || seen.has(titulo)) {
+        return false;
+      }
+      seen.add(titulo);
+      return true;
+    });
+
+    return uniqueProductos;
   } catch (error) {
     console.error(`Error fetching productos for servicio ${servicioId}:`, error);
     return [];
