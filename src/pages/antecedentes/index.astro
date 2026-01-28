@@ -8,9 +8,8 @@
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import HeroPageV4 from '../../components/v4/HeroPageV4.astro';
 import CTASection from '../../components/v4/CTASection.astro';
+import { getAllAntecedentes, getDirectusImageUrl } from "../../lib/directus.ts";
 import { directus, PAGE_SIZE, DEFAULT_IMAGE } from '../../utils/directus';
-import { generateSlug } from '../../utils/slugUtils.js';
-import { antecedentesReales } from '../../data/antecedentes_completos.js';
 
 // Obtener parámetros de la URL
 const getUrlParams = (url) => {
@@ -96,92 +95,69 @@ const filterAntecedentes = (antecedentes, filters, searchQuery) => {
   return filtered;
 };
 
-// Función para obtener imagen usando el sistema de mapeo
-async function getImageUrl(proyecto) {
-  try {
-    const { buscarImagenPorDatos } = await import('../../data/mapeo_imagenes_completo.js');
-    const nombreArchivo = buscarImagenPorDatos(
-      proyecto.Cliente,
-      proyecto.Area || proyecto.Unidad_de_negocio,
-      proyecto.Titulo,
-      proyecto.id
-    );
 
-    if (nombreArchivo) {
-      return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
-    }
-  } catch (error) {
-    console.log('[ANTECEDENTES] Error en mapeo:', error.message);
+// Inline slug generation to avoid import issues
+const localGenerateSlug = (text = '') => {
+  if (!text || text === null || typeof text === 'undefined') {
+    return 'item';
   }
-  return DEFAULT_IMAGE;
-}
+
+  const slug = String(text)
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\w\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 100);
+
+  return slug || 'item';
+};
 
 // Lógica de carga de datos
 try {
-  const response = await directus.getAntecedentes({ limit: 500, page: 1 });
-  let allAntecedentes = [];
+  console.log('[ANTECEDENTES-DEBUG] Starting to load antecedentes...');
+  const response = await getAllAntecedentes();
+  console.log('[ANTECEDENTES-DEBUG] Response received:', response ? response.length : 'null', 'items');
 
-  if (response && response.data && response.data.length > 0) {
-    allAntecedentes = response.data.map(item => ({
-      ...item,
-      slug: `${item.id}/${generateSlug(item.Titulo)}`
-    }));
-  } else {
-    throw new Error('No se obtuvieron datos válidos');
-  }
-
-  const filteredAntecedentes = filterAntecedentes(allAntecedentes, pageData.activeFilters, pageData.searchQuery);
-
-  const startIndex = (pageData.currentPage - 1) * PAGE_SIZE;
-  const endIndex = startIndex + PAGE_SIZE;
-  const paginatedAntecedentes = filteredAntecedentes.slice(startIndex, endIndex);
-
-  const antecedentesConImagenes = await Promise.all(
-    paginatedAntecedentes.map(async (proyecto) => ({
-      ...proyecto,
-      imageUrl: await getImageUrl(proyecto)
-    }))
-  );
-
-  pageData = {
-    ...pageData,
-    antecedentes: antecedentesConImagenes,
-    totalItems: filteredAntecedentes.length,
-    totalPages: Math.ceil(filteredAntecedentes.length / PAGE_SIZE),
-    isLoading: false
-  };
-
-} catch (error) {
-  console.error('Error al cargar datos, usando fallback:', error);
-  const allAntecedentes = antecedentesReales.map(item => ({
+  let allAntecedentes = response.map(item => ({
     ...item,
-    slug: `${item.id}/${generateSlug(item.Titulo)}`
+    slug: `${item.id}/${localGenerateSlug(item.Titulo)}`,
+    imageUrl: getDirectusImageUrl(item.Imagen)
   }));
 
+  console.log('[ANTECEDENTES-DEBUG] Mapped', allAntecedentes.length, 'items successfully');
+
   const filteredAntecedentes = filterAntecedentes(allAntecedentes, pageData.activeFilters, pageData.searchQuery);
+
   const startIndex = (pageData.currentPage - 1) * PAGE_SIZE;
   const endIndex = startIndex + PAGE_SIZE;
   const paginatedAntecedentes = filteredAntecedentes.slice(startIndex, endIndex);
 
-  const antecedentesConImagenes = await Promise.all(
-    paginatedAntecedentes.map(async (proyecto) => ({
-      ...proyecto,
-      imageUrl: await getImageUrl(proyecto)
-    }))
-  );
-
   pageData = {
     ...pageData,
-    antecedentes: antecedentesConImagenes,
+    antecedentes: paginatedAntecedentes,
     totalItems: filteredAntecedentes.length,
     totalPages: Math.ceil(filteredAntecedentes.length / PAGE_SIZE),
     error: null,
     isLoading: false
   };
+
+} catch (error) {
+  console.error('[ANTECEDENTES-DEBUG] Error loading antecedentes from Directus:', error);
+  console.error('[ANTECEDENTES-DEBUG] Error stack:', error.stack);
+  pageData = {
+    ...pageData,
+    antecedentes: [],
+    error: 'Error loading projects',
+    isLoading: false
+  };
 }
 
 // Opciones de filtro
-const allDataForFilters = antecedentesReales;
+// Use all antecedentes for filters (loaded from Directus above)
+const allDataForFilters = pageData.antecedentes;
 const filterOptions = {
   unidades: [...new Set(allDataForFilters.map(i => i.Unidad_de_negocio).filter(Boolean))].sort(),
   areas: [...new Set(allDataForFilters.map(i => i.Area).filter(Boolean))].sort(),
@@ -236,6 +212,61 @@ const computePaginationPages = () => {
 };
 
 const paginationPages = computePaginationPages();
+
+// Mapeo de colores por categoría/sector para badges
+const getCategoryBadgeColor = (category: string): string => {
+  const normalizedCategory = category?.toLowerCase().trim() || '';
+
+  const colorMap: Record<string, string> = {
+    'gobierno': 'bg-blue-500',
+    'sector público': 'bg-blue-500',
+    'municipal': 'bg-blue-500',
+    'municipalidad': 'bg-blue-500',
+    'aeropuertos': 'bg-sky-500',
+    'aeropuerto': 'bg-sky-500',
+    'transporte': 'bg-sky-500',
+    'bodegas': 'bg-purple-500',
+    'bodega': 'bg-purple-500',
+    'vitivinícola': 'bg-purple-500',
+    'agroindustria': 'bg-purple-500',
+    'salud': 'bg-green-500',
+    'hospital': 'bg-green-500',
+    'clínica': 'bg-green-500',
+    'médico': 'bg-green-500',
+    'data center': 'bg-orange-500',
+    'datacenter': 'bg-orange-500',
+    'infraestructura': 'bg-orange-500',
+    'ti': 'bg-orange-500',
+    'construcción': 'bg-amber-500',
+    'constructora': 'bg-amber-500',
+    'obra': 'bg-amber-500',
+    'industria': 'bg-indigo-500',
+    'industrial': 'bg-indigo-500',
+    'manufactura': 'bg-indigo-500',
+    'fábrica': 'bg-indigo-500',
+    'software': 'bg-cyan-500',
+    'desarrollo': 'bg-cyan-500',
+    'aplicación': 'bg-cyan-500',
+    'minería': 'bg-slate-500',
+    'minera': 'bg-slate-500',
+    'mining': 'bg-slate-500',
+    'seguridad': 'bg-red-500',
+    'seguridad electrónica': 'bg-red-500',
+    'cctv': 'bg-red-500',
+    'telecomunicaciones': 'bg-teal-500',
+    'redes': 'bg-teal-500',
+    'redes y comunicaciones': 'bg-teal-500',
+    'comunicaciones': 'bg-teal-500',
+  };
+
+  for (const [key, color] of Object.entries(colorMap)) {
+    if (normalizedCategory.includes(key) || key.includes(normalizedCategory)) {
+      return color;
+    }
+  }
+
+  return 'bg-um-primary';
+};
 
 // Filter chips V4 design - BUTTONS not links
 const filterChips = [
@@ -407,7 +438,7 @@ const filterIconPaths: Record<string, string> = {
                   onerror="this.src='/images/default.jpg'"
                 />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                <span class="absolute bottom-3 left-3 px-2.5 py-1 bg-um-primary text-white text-xs font-semibold rounded-md">
+                <span class={`absolute bottom-3 left-3 px-2.5 py-1 ${getCategoryBadgeColor(proyecto.Area || '')} text-white text-xs font-semibold rounded-md`}>
                   {proyecto.Area || 'Proyecto'}
                 </span>
               </div>

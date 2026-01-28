@@ -37,6 +37,7 @@ import {
   Zap,
   Box
 } from 'lucide-astro';
+import { getDirectusImageUrl } from '../../lib/directus.ts';
 
 export interface Props {
   id: number | string;
@@ -65,8 +66,16 @@ const {
 // Generar URL del servicio
 const serviceUrl = href || (slug ? `/servicios/${id}/${slug}` : `/servicios/${id}`);
 
-// Imagen de placeholder si no hay imagen
-const imagenUrl = imagen || '/images/services/default-service.jpg';
+// Procesar imagen: si es UUID usa getDirectusImageUrl, si es URL usa directamente, sino usa placeholder
+let imagenUrl = '/images/services/default-service.jpg';
+if (imagen) {
+  // Check if it's a UUID (format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
+  if (imagen.match(/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i)) {
+    imagenUrl = getDirectusImageUrl(imagen);
+  } else {
+    imagenUrl = imagen;
+  }
+}
 
 // Mapeo de iconos de Lucide a componentes
 const iconComponents: Record<string, any> = {

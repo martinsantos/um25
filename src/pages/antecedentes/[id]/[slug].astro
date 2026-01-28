@@ -11,6 +11,7 @@ import { generateSlug } from '../../../utils/slugUtils.js';
 import { getFixedImage } from '../../../utils/imageFixer.js';
 import { getServicioById } from '../../../utils/directusHelpers';
 import { getServiceIdFromArea } from '../../../data/areaToServiceMap.js';
+import { getDirectusImageUrl } from '../../../lib/directus.ts';
 
 // --- Configuration ---
 const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://ultimamilla.com.ar/admin';
@@ -34,18 +35,25 @@ let usingFallback = false;
 // --- Helper Functions ---
 const getAssetUrl = (assetId: any): string => {
     if (!assetId) return DEFAULT_IMAGE_URL;
+
+    // Handle object with nested ID properties
     if (typeof assetId === 'object') {
-        if (assetId.id) return `${PROD_URL}/directus-assets/${assetId.id}`;
-        if (assetId.directus_files_id) return `${PROD_URL}/directus-assets/${assetId.directus_files_id}`;
-        if (assetId.filename_disk) return `${PROD_URL}/directus-assets/${assetId.filename_disk}`;
+        if (assetId.id) return getDirectusImageUrl(assetId.id);
+        if (assetId.directus_files_id) return getDirectusImageUrl(assetId.directus_files_id);
+        if (assetId.filename_disk) return getDirectusImageUrl(assetId.filename_disk);
     }
+
+    // Handle string UUIDs or filenames
     if (typeof assetId === 'string') {
         if (assetId.startsWith('http')) return assetId;
-        if (assetId.match(/^[a-f0-9-]{36}$/)) return `${PROD_URL}/directus-assets/${assetId}`;
+        // If it's a UUID, use getDirectusImageUrl (will use /assets/ proxy)
+        if (assetId.match(/^[a-f0-9-]{36}$/i)) return getDirectusImageUrl(assetId);
+        // Otherwise it's a filename, use local version
         let filename = assetId.startsWith('/') ? assetId.substring(1) : assetId;
         filename = getFixedImage(filename);
         return `/imagenes_antecedentes_versionproduccion/${filename}`;
     }
+
     return DEFAULT_IMAGE_URL;
 };
 
@@ -143,6 +151,63 @@ const extractScopeItems = (descripcion: string): string[] => {
 
 const scopeItems = extractScopeItems(antecedente.Descripcion || '');
 
+// Mapeo de colores por categoría/sector (mismo que ProjectCard)
+const getCategoryColors = (category: string): { bg: string; text: string; darkBg: string } => {
+  const normalizedCategory = category?.toLowerCase().trim() || '';
+
+  const colorMap: Record<string, { bg: string; text: string; darkBg: string }> = {
+    'gobierno': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
+    'sector público': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
+    'municipal': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
+    'municipalidad': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
+    'aeropuertos': { bg: 'bg-sky-500', text: 'text-white', darkBg: 'bg-sky-600' },
+    'aeropuerto': { bg: 'bg-sky-500', text: 'text-white', darkBg: 'bg-sky-600' },
+    'transporte': { bg: 'bg-sky-500', text: 'text-white', darkBg: 'bg-sky-600' },
+    'bodegas': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
+    'bodega': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
+    'vitivinícola': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
+    'agroindustria': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
+    'salud': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
+    'hospital': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
+    'clínica': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
+    'médico': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
+    'data center': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
+    'datacenter': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
+    'infraestructura': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
+    'ti': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
+    'construcción': { bg: 'bg-amber-500', text: 'text-white', darkBg: 'bg-amber-600' },
+    'constructora': { bg: 'bg-amber-500', text: 'text-white', darkBg: 'bg-amber-600' },
+    'obra': { bg: 'bg-amber-500', text: 'text-white', darkBg: 'bg-amber-600' },
+    'industria': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
+    'industrial': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
+    'manufactura': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
+    'fábrica': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
+    'software': { bg: 'bg-cyan-500', text: 'text-white', darkBg: 'bg-cyan-600' },
+    'desarrollo': { bg: 'bg-cyan-500', text: 'text-white', darkBg: 'bg-cyan-600' },
+    'aplicación': { bg: 'bg-cyan-500', text: 'text-white', darkBg: 'bg-cyan-600' },
+    'minería': { bg: 'bg-slate-500', text: 'text-white', darkBg: 'bg-slate-600' },
+    'minera': { bg: 'bg-slate-500', text: 'text-white', darkBg: 'bg-slate-600' },
+    'mining': { bg: 'bg-slate-500', text: 'text-white', darkBg: 'bg-slate-600' },
+    'seguridad': { bg: 'bg-red-500', text: 'text-white', darkBg: 'bg-red-600' },
+    'seguridad electrónica': { bg: 'bg-red-500', text: 'text-white', darkBg: 'bg-red-600' },
+    'cctv': { bg: 'bg-red-500', text: 'text-white', darkBg: 'bg-red-600' },
+    'telecomunicaciones': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
+    'redes': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
+    'redes y comunicaciones': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
+    'comunicaciones': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
+  };
+
+  for (const [key, colors] of Object.entries(colorMap)) {
+    if (normalizedCategory.includes(key) || key.includes(normalizedCategory)) {
+      return colors;
+    }
+  }
+
+  return { bg: 'bg-um-primary', text: 'text-white', darkBg: 'bg-um-primary-dark' };
+};
+
+const areaCategoryColors = getCategoryColors(antecedente.Area || '');
+
 // Get related services via M2M relationship from Directus (with fallback to area mapping)
 const getRelatedServices = async (antecedenteId: string, area: string) => {
     // TODO: Re-enable M2M relationship when function is available in directusHelpers.ts
@@ -217,7 +282,7 @@ const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').
       </nav>
 
       <!-- Category Badge -->
-      <div class="inline-flex items-center gap-1.5 bg-um-primary px-3 py-1.5 rounded-full mb-4 sm:mb-5">
+      <div class={`inline-flex items-center gap-1.5 ${areaCategoryColors.bg} px-3 py-1.5 rounded-full mb-4 sm:mb-5`}>
         <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
         </svg>

@@ -9,6 +9,8 @@ import ServiceCard from '../components/v4/ServiceCard.astro';
 import CTASection from '../components/v4/CTASection.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getAllServicios } from '../utils/directusHelpers';
+import { getClient, getDirectusImageUrl } from '../lib/directus.ts';
+import { readItems } from '@directus/sdk';
 
 // Import real data
 import { antecedentesReales } from '../data/antecedentes_completos.js';
@@ -16,14 +18,34 @@ import { antecedentesReales } from '../data/antecedentes_completos.js';
 // Production URL for images
 const PROD_URL = 'https://www.ultimamilla.com.ar';
 
-// Hero images - using local assets (Directus assets currently have permission issues)
-const heroImages = [
-  { url: '/images/services/redes-comunicaciones.jpg', alt: 'Infraestructura de Redes' },
-  { url: '/images/services/ciberseguridad.jpg', alt: 'Seguridad Electrónica' },
-  { url: '/images/services/telefonia.jpg', alt: 'Telecomunicaciones' },
-  { url: '/images/services/servicios-web.jpg', alt: 'Desarrollo de Software' },
-  { url: '/images/services/servicios-it.jpg', alt: 'Consultoría IT' },
-];
+// Fetch hero images from Directus Hero_Home collection
+let heroImages = [];
+try {
+  const client = getClient();
+  const heroItems = await client.request(
+    readItems('Hero_Home' as any, {
+      filter: { status: { _eq: 'published' } },
+      sort: ['orden'],
+      limit: 10
+    })
+  );
+
+  heroImages = (heroItems as any[]).map((item: any) => ({
+    url: getDirectusImageUrl(item.imagen),
+    alt: item.titulo || `Hero ${item.orden}`
+  }));
+  console.log(`[HOMEPAGE] Loaded ${heroImages.length} hero images from Directus`);
+} catch (error) {
+  console.error('[HOMEPAGE] Error loading hero images from Directus:', error);
+  // Fallback to local images if Directus fetch fails
+  heroImages = [
+    { url: '/images/services/redes-comunicaciones.jpg', alt: 'Infraestructura de Redes' },
+    { url: '/images/services/ciberseguridad.jpg', alt: 'Seguridad Electrónica' },
+    { url: '/images/services/telefonia.jpg', alt: 'Telecomunicaciones' },
+    { url: '/images/services/servicios-web.jpg', alt: 'Desarrollo de Software' },
+    { url: '/images/services/servicios-it.jpg', alt: 'Consultoría IT' },
+  ];
+}
 
 // Helper function to get image URL for antecedentes using mapping system
 async function getImageUrl(proyecto: any): Promise<string> {

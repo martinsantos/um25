@@ -40,6 +40,87 @@ const formatDate = (dateString: string) => {
     return dateString;
   }
 };
+
+// Mapeo de colores por categoría/sector
+const getCategoryColors = (category: string): { bg: string; text: string } => {
+  const normalizedCategory = category?.toLowerCase().trim() || '';
+
+  // Mapeo de colores basado en categorías
+  const colorMap: Record<string, { bg: string; text: string }> = {
+    // Gobierno y Sector Público
+    'gobierno': { bg: 'bg-blue-100', text: 'text-blue-800' },
+    'sector público': { bg: 'bg-blue-100', text: 'text-blue-800' },
+    'municipal': { bg: 'bg-blue-100', text: 'text-blue-800' },
+    'municipalidad': { bg: 'bg-blue-100', text: 'text-blue-800' },
+
+    // Aeropuertos y Transporte
+    'aeropuertos': { bg: 'bg-sky-100', text: 'text-sky-800' },
+    'aeropuerto': { bg: 'bg-sky-100', text: 'text-sky-800' },
+    'transporte': { bg: 'bg-sky-100', text: 'text-sky-800' },
+
+    // Bodegas y Agricultura
+    'bodegas': { bg: 'bg-purple-100', text: 'text-purple-800' },
+    'bodega': { bg: 'bg-purple-100', text: 'text-purple-800' },
+    'vitivinícola': { bg: 'bg-purple-100', text: 'text-purple-800' },
+    'agroindustria': { bg: 'bg-purple-100', text: 'text-purple-800' },
+
+    // Salud
+    'salud': { bg: 'bg-green-100', text: 'text-green-800' },
+    'hospital': { bg: 'bg-green-100', text: 'text-green-800' },
+    'clínica': { bg: 'bg-green-100', text: 'text-green-800' },
+    'médico': { bg: 'bg-green-100', text: 'text-green-800' },
+
+    // Data Center y TI
+    'data center': { bg: 'bg-orange-100', text: 'text-orange-800' },
+    'datacenter': { bg: 'bg-orange-100', text: 'text-orange-800' },
+    'infraestructura': { bg: 'bg-orange-100', text: 'text-orange-800' },
+    'ti': { bg: 'bg-orange-100', text: 'text-orange-800' },
+
+    // Construcción
+    'construcción': { bg: 'bg-amber-100', text: 'text-amber-800' },
+    'constructora': { bg: 'bg-amber-100', text: 'text-amber-800' },
+    'obra': { bg: 'bg-amber-100', text: 'text-amber-800' },
+
+    // Industria y Manufactura
+    'industria': { bg: 'bg-indigo-100', text: 'text-indigo-800' },
+    'industrial': { bg: 'bg-indigo-100', text: 'text-indigo-800' },
+    'manufactura': { bg: 'bg-indigo-100', text: 'text-indigo-800' },
+    'fábrica': { bg: 'bg-indigo-100', text: 'text-indigo-800' },
+
+    // Software y Desarrollo
+    'software': { bg: 'bg-cyan-100', text: 'text-cyan-800' },
+    'desarrollo': { bg: 'bg-cyan-100', text: 'text-cyan-800' },
+    'aplicación': { bg: 'bg-cyan-100', text: 'text-cyan-800' },
+
+    // Minería
+    'minería': { bg: 'bg-slate-100', text: 'text-slate-800' },
+    'minera': { bg: 'bg-slate-100', text: 'text-slate-800' },
+    'mining': { bg: 'bg-slate-100', text: 'text-slate-800' },
+
+    // Seguridad
+    'seguridad': { bg: 'bg-red-100', text: 'text-red-800' },
+    'seguridad electrónica': { bg: 'bg-red-100', text: 'text-red-800' },
+    'cctv': { bg: 'bg-red-100', text: 'text-red-800' },
+
+    // Telecomunicaciones y Redes
+    'telecomunicaciones': { bg: 'bg-teal-100', text: 'text-teal-800' },
+    'redes': { bg: 'bg-teal-100', text: 'text-teal-800' },
+    'redes y comunicaciones': { bg: 'bg-teal-100', text: 'text-teal-800' },
+    'comunicaciones': { bg: 'bg-teal-100', text: 'text-teal-800' },
+  };
+
+  // Buscar coincidencia exacta o parcial
+  for (const [key, colors] of Object.entries(colorMap)) {
+    if (normalizedCategory.includes(key) || key.includes(normalizedCategory)) {
+      return colors;
+    }
+  }
+
+  // Color por defecto (azul) si no hay coincidencia
+  return { bg: 'bg-blue-100', text: 'text-blue-800' };
+};
+
+const areaColors = getCategoryColors(area);
 ---
 
 <article class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] hover:ring-4 hover:ring-blue-300/50 flex flex-col h-full border-2 border-transparent hover:border-blue-400">
@@ -80,12 +161,12 @@ const formatDate = (dateString: string) => {
   <div class="px-6 pb-4">
     <div class="flex flex-wrap gap-2">
       {area && (
-        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+        <span class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${areaColors.bg} ${areaColors.text}`}>
           {area}
         </span>
       )}
       {servicio && (
-        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
           {servicio}
         </span>
       )}
