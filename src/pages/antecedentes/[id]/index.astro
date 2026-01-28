@@ -1,6 +1,10 @@
-```
 ---
-import { fetchDirectus } from '../../../utils/directus';
+/**
+ * Redirect from /antecedentes/[id]/ to /antecedentes/[id]/[slug]
+ * This page fetches the antecedente title from Directus to generate the slug
+ */
+import { getClient } from '../../../lib/directus.ts';
+import { readItem } from '@directus/sdk';
 import { generateSlug } from '../../../utils/slugUtils';
 
 const { id } = Astro.params;
@@ -10,20 +14,21 @@ if (!id) {
 }
 
 try {
-    // Intentar obtener el título del antecedente para generar el slug
-    const response = await fetchDirectus(`/items/antecedentes/${id}?fields=id,Titulo`);
-    const item = response?.data;
+    const client = getClient();
+    const item = await client.request(
+        readItem('Antecedentes', parseInt(id), {
+            fields: ['id', 'Titulo']
+        })
+    );
 
     if (item && item.Titulo) {
         const slug = generateSlug(item.Titulo);
         return Astro.redirect(`/antecedentes/${id}/${slug}`, 301);
     }
 } catch (error) {
-    console.error(`Error al buscar antecedente ${id} para redirección:`, error);
+    console.error(`Error fetching antecedente ${id} for redirect:`, error);
 }
 
-// Si no se encuentra o hay error, redirigir a la lista general
-// O devolver 404 si preferimos evitar el Soft 404
+// If not found or error, redirect to main list
 return Astro.redirect('/antecedentes', 302);
 ---
-```

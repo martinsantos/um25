@@ -18,7 +18,7 @@ import {
   getAntecedenteConServicios,
   getAntecedentesPorServicio,
   buscarServicios
-} from '../lib/directus';
+} from '../lib/directus.ts';
 
 const IS_DEV = import.meta.env.DEV;
 
