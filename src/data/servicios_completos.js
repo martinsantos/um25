@@ -1527,9 +1527,7 @@ export const serviciosReales = [
   {
     id: 128,
     Titulo: "Cela SA - Soporte IT",
-    Descripcion: "Servicios para conectividad en eventos
- Costos por puesto simple, con y sin electricidad
- Costos por persona conectada al wifi",
+    Descripcion: "Servicios para conectividad en eventos. Costos por puesto simple, con y sin electricidad. Costos por persona conectada al wifi.",
     Imagen: "ccc32af0-df52-4e6e-8ca0-9660dddec095",
     Area: "Soporte IT",
     Cliente: "Cela SA",
@@ -1565,9 +1563,7 @@ export const serviciosReales = [
   {
     id: 131,
     Titulo: "Kristich Desarrollos - SDI",
-    Descripcion: "Adicional para presupuestar a Kristich
- 6 módulos de rele FRM-1
- 4 módulos de monitoreo FMM-101",
+    Descripcion: "Adicional para presupuestar a Kristich: 6 módulos de rele FRM-1, 4 módulos de monitoreo FMM-101.",
     Imagen: "6f535377-5177-4fcd-8c8d-8f41f32ece7c",
     Area: "SDI",
     Cliente: "Kristich Desarrollos",
@@ -1603,11 +1599,7 @@ export const serviciosReales = [
   {
     id: 134,
     Titulo: "Univercidad del Aconcagua - SDI",
-    Descripcion: "provisión de materiales
- 9 Detectores de Humo
- 1 sirena
- 2 Pulsadores
- 2 Detectores de temperatura",
+    Descripcion: "provisión de materiales 9 Detectores de Humo 1 sirena 2 Pulsadores 2 Detectores de temperatura",
     Imagen: "ccc32af0-df52-4e6e-8ca0-9660dddec095",
     Area: "SDI",
     Cliente: "Univercidad del Aconcagua",
@@ -1679,11 +1671,7 @@ export const serviciosReales = [
   {
     id: 140,
     Titulo: "La Agrícola SA - Redes de Cableado Estructurado",
-    Descripcion: "Cableado exterior por postes
- - 3 tendidos nuevos/ 4
- - 1 a recuperar si es posible
- - switch 16b (150W) ubiquiti}
- 1 bandeja fija si no hay switch para contener las fuentes",
+    Descripcion: "Cableado exterior por postes - 3 tendidos nuevos/ 4 - 1 a recuperar si es posible - switch 16b (150W) ubiquiti} 1 bandeja fija si no hay switch para contener las fuentes",
     Imagen: "ccc32af0-df52-4e6e-8ca0-9660dddec095",
     Area: "Redes de Cableado Estructurado",
     Cliente: "La Agrícola SA",
@@ -1791,8 +1779,7 @@ export const serviciosReales = [
   {
     id: 149,
     Titulo: "Hotel Entre Cielos - Fibra Óptica",
-    Descripcion: "Se debe cotizar 2 fusiónes de fibra óptica de 4 pelos multimodo 4x62,5 mas
- la colocación de 2 cajas ots estanca exterior",
+    Descripcion: "Se debe cotizar 2 fusiónes de fibra óptica de 4 pelos multimodo 4x62,5 mas la colocación de 2 cajas ots estanca exterior",
     Imagen: "6f535377-5177-4fcd-8c8d-8f41f32ece7c",
     Area: "Fibra Óptica",
     Cliente: "Hotel Entre Cielos",
@@ -1852,15 +1839,7 @@ export const serviciosReales = [
   {
     id: 154,
     Titulo: "Leoncio Arizu - CCTV",
-    Descripcion: "Cotizar a nombre de ARIZU
- 1) 3 / tres Cámara de 3MP del tipo Bullet (IP y POE).
- con su respectivo transformador debe ser de la marca “Dahua”
- 2) 1 / una Cámara ojo de pez de 2-3MP (IP y POE). con su respectivo transformador
- debe ser de la marca “Dahua”.
- 3) 1 / unNVR de 32 canales.
- con su respectivo transformador debe ser de la marca “Dahua”.Con la mayor cantidad de bahías para discos
- 4) 2 / dos
- Disco rígido de 4Tb. específicos para NVR",
+    Descripcion: "Cotizar a nombre de ARIZU 1) 3 / tres Cámara de 3MP del tipo Bullet (IP y POE). con su respectivo transformador debe ser de la marca “Dahua” 2) 1 / una Cámara ojo de pez de 2-3MP (IP y POE). con su respectivo transformador debe ser de la marca “Dahua”. 3) 1 / unNVR de 32 canales. con su respectivo transformador debe ser de la marca “Dahua”.Con la mayor cantidad de bahías para discos 4) 2 / dos Disco rígido de 4Tb. específicos para NVR",
     Imagen: "689632a4-7b40-4dba-be22-9de6a3a17877",
     Area: "CCTV",
     Cliente: "Leoncio Arizu",
@@ -1872,8 +1851,7 @@ export const serviciosReales = [
   {
     id: 155,
     Titulo: "CERVECERIA Y MALTERIA QUILMES - Electrico",
-    Descripcion: "En Quilmes hay que cotizar el tendido de un cable de 3x70 +1x50 n desde la acometida en la vereda hasta la sala de bombeo que esta aproximadamente a 140 mtrs este tendido se hace por bandejas existentes por lo que solo hay que tener en cuenta como consumibles precintos ... los trabajos son la mayoría en altura y con andamios y escaleras y mucho sobre techos,la cantidad de días que se calculan para este trabajo son 10 aprox
- Por otro lado y en una oferta por separado hay que cotizar el cableado d...",
+    Descripcion: "En Quilmes hay que cotizar el tendido de un cable de 3x70 +1x50 n desde la acometida en la vereda hasta la sala de bombeo que esta aproximadamente a 140 mtrs este tendido se hace por bandejas existentes por lo que solo hay que tener en cuenta como consumibles precintos ... los trabajos son la mayoría en altura y con andamios y escaleras y mucho sobre techos,la cantidad de días que se calculan para este trabajo son 10 aprox Por otro lado y en una oferta por separado hay que cotizar el cableado d...",
     Imagen: "6f535377-5177-4fcd-8c8d-8f41f32ece7c",
     Area: "Electrico",
     Cliente: "CERVECERIA Y MALTERIA QUILMES",
@@ -1909,14 +1887,7 @@ export const serviciosReales = [
   {
     id: 158,
     Titulo: "Municipalidad Guaymallén - Redes de Cableado Estructurado",
-    Descripcion: "30 puestos en 2 oficinas
- 10 puestos en Call center
- 20 puestos en Dirección de Control
- conexión de FO desde el 3 piso
- El trabajo se realizará con Cable canal 100*50 a 60 cm del piso
- se debe tomar la electricidad del tablero en el pasillo y hacer un nuevo tablero para las PC
- Rack y activos responsabilidad del municipio
- 50 mts de cable canal",
+    Descripcion: "30 puestos en 2 oficinas 10 puestos en Call center 20 puestos en Dirección de Control conexión de FO desde el 3 piso El trabajo se realizará con Cable canal 100*50 a 60 cm del piso se debe tomar la electricidad del tablero en el pasillo y hacer un nuevo tablero para las PC Rack y activos responsabilidad del municipio 50 mts de cable canal",
     Imagen: "ccc32af0-df52-4e6e-8ca0-9660dddec095",
     Area: "Redes de Cableado Estructurado",
     Cliente: "Municipalidad Guaymallén",
@@ -2312,8 +2283,7 @@ export const serviciosReales = [
   {
     id: 191,
     Titulo: "Cela SA - SDI",
-    Descripcion: "sdi nuevo sector casino.
- 100 mts caños 1\" 40 curvas 20 cajas 2 parlantes con estrobo 3 sensores bajo cielo raso mas 3 sensores térmicos 70 mts de cable incendio 150 mts de afumex de 2,5 mm",
+ Descripcion: "sdi nuevo sector casino. 100 mts caños 1\" 40 curvas 20 cajas 2 parlantes con estrobo 3 sensores bajo cielo raso mas 3 sensores térmicos 70 mts de cable incendio 150 mts de afumex de 2,5 mm",
     Imagen: "6f535377-5177-4fcd-8c8d-8f41f32ece7c",
     Area: "SDI",
     Cliente: "Cela SA",
@@ -2349,8 +2319,7 @@ export const serviciosReales = [
   {
     id: 194,
     Titulo: "CERVECERIA Y MALTERIA QUILMES - Electrico",
-    Descripcion: "cotizar tres días de trabajo con dos técnicos y un s&h para colocar dos cámaras en el galpón norte..
- El presupuesto debe ser en dos partes distintas uno con el valor de la mano de obras mas 200 mts de utp y acc. y otro con el costo de las cámaras únicamente",
+    Descripcion: "cotizar tres días de trabajo con dos técnicos y un s&h para colocar dos cámaras en el galpón norte.. El presupuesto debe ser en dos partes distintas uno con el valor de la mano de obras mas 200 mts de utp y acc. y otro con el costo de las cámaras únicamente",
     Imagen: "ccc32af0-df52-4e6e-8ca0-9660dddec095",
     Area: "Electrico",
     Cliente: "CERVECERIA Y MALTERIA QUILMES",
@@ -2470,10 +2439,7 @@ export const serviciosReales = [
   {
     id: 204,
     Titulo: "CERVECERIA Y MALTERIA QUILMES - CCTV",
-    Descripcion: "colocación de 5 cámaras en distintos sectores:
- 1° cámara entrada camarines: 2 dias dos personas, 150mts de utp cat 6 interior accesorios para conexiones de cámaras las cuales la provee quilmes marca samsung .
- 2° oficina de elaboración 2 dias dos personas, 150 mts de utp cat 6 interior accesorios para conexiones de cámaras las cuales la provee quilmes marca samsung .
- 3° espacio cafetera mantenimiento: 2 dias dos personas, 180 mts de utp cat 6 interior accesorios para conexiones de cámaras las ...",
+    Descripcion: "colocación de 5 cámaras en distintos sectores: 1° cámara entrada camarines: 2 dias dos personas, 150mts de utp cat 6 interior accesorios para conexiones de cámaras las cuales la provee quilmes marca samsung . 2° oficina de elaboración 2 dias dos personas, 150 mts de utp cat 6 interior accesorios para conexiones de cámaras las cuales la provee quilmes marca samsung . 3° espacio cafetera mantenimiento: 2 dias dos personas, 180 mts de utp cat 6 interior accesorios para conexiones de cámaras las ...",
     Imagen: "b1a91d79-c979-4067-b78a-2cd97166fbcd",
     Area: "CCTV",
     Cliente: "CERVECERIA Y MALTERIA QUILMES",
@@ -3409,8 +3375,7 @@ export const serviciosReales = [
   {
     id: 282,
     Titulo: "PROCON S.R.L. - LAUGERO CONSTRUCCIONES S.A. - UNION TRANSITORIA - Insumo informatico",
-    Descripcion: "75 chapas para módulos jeluz verona 
-25 chapas de datos",
+    Descripcion: "75 chapas para módulos jeluz verona 25 chapas de datos",
     Imagen: "b1a91d79-c979-4067-b78a-2cd97166fbcd",
     Area: "Insumo informatico",
     Cliente: "PROCON S.R.L. - LAUGERO CONSTRUCCIONES S.A. - UNION TRANSITORIA",
@@ -3782,8 +3747,7 @@ export const serviciosReales = [
   {
     id: 313,
     Titulo: "Municipalidad de San Martin - Insumo informatico",
-    Descripcion: "Glc Drop Flat 2core Sm Port Acero
-",
+    Descripcion: "Glc Drop Flat 2core Sm Port Acero",
     Imagen: "6e626d63-c3ca-4982-8ed3-4a5e75e1b179",
     Area: "Insumo informatico",
     Cliente: "Municipalidad de San Martin",
@@ -3867,8 +3831,7 @@ export const serviciosReales = [
   {
     id: 320,
     Titulo: "Jose Nucete e Hijos SA - Redes de Cableado Estructurado",
-    Descripcion: "Cableado y cambio de equipo para enlace
-",
+    Descripcion: "Cableado y cambio de equipo para enlace",
     Imagen: "ccc32af0-df52-4e6e-8ca0-9660dddec095",
     Area: "Redes de Cableado Estructurado",
     Cliente: "Jose Nucete e Hijos SA",
@@ -3928,8 +3891,7 @@ export const serviciosReales = [
   {
     id: 325,
     Titulo: "Bodega Caro - SDI",
-    Descripcion: "Mantenimiento Anual
-",
+    Descripcion: "Mantenimiento Anual",
     Imagen: "6e626d63-c3ca-4982-8ed3-4a5e75e1b179",
     Area: "SDI",
     Cliente: "Bodega Caro",
@@ -4037,8 +3999,7 @@ export const serviciosReales = [
   {
     id: 334,
     Titulo: "Procon SRL - Redes de Cableado Estructurado",
-    Descripcion: "Puesto de datos para obrador
-",
+    Descripcion: "Puesto de datos para obrador",
     Imagen: "689632a4-7b40-4dba-be22-9de6a3a17877",
     Area: "Redes de Cableado Estructurado",
     Cliente: "Procon SRL",
@@ -4086,8 +4047,7 @@ export const serviciosReales = [
   {
     id: 338,
     Titulo: "Gamas - SDI",
-    Descripcion: "Edificio Thays - Panel Remoto
-",
+    Descripcion: "Edificio Thays - Panel Remoto",
     Imagen: "ccc32af0-df52-4e6e-8ca0-9660dddec095",
     Area: "SDI",
     Cliente: "Gamas",
@@ -4111,8 +4071,7 @@ export const serviciosReales = [
   {
     id: 340,
     Titulo: "Aeropuertos Argentina 2000 - SDI",
-    Descripcion: "SDI - Balizamiento - Aeropuerto de Tucuman
-",
+    Descripcion: "SDI - Balizamiento - Aeropuerto de Tucuman",
     Imagen: "689632a4-7b40-4dba-be22-9de6a3a17877",
     Area: "SDI",
     Cliente: "Aeropuertos Argentina 2000",
@@ -4124,8 +4083,7 @@ export const serviciosReales = [
   {
     id: 341,
     Titulo: "Inta - Fibra Óptica",
-    Descripcion: "Tendido de fibra óptica y UTP
-",
+    Descripcion: "Tendido de fibra óptica y UTP",
     Imagen: "6f535377-5177-4fcd-8c8d-8f41f32ece7c",
     Area: "Fibra Óptica",
     Cliente: "Inta",
@@ -4149,8 +4107,7 @@ export const serviciosReales = [
   {
     id: 343,
     Titulo: "Bodegas y Viñedo Santa Elena SRL - Insumo informatico",
-    Descripcion: "Insumo informatica
-",
+    Descripcion: "Insumo informatica",
     Imagen: "6e626d63-c3ca-4982-8ed3-4a5e75e1b179",
     Area: "Insumo informatico",
     Cliente: "Bodegas y Viñedo Santa Elena SRL",
@@ -4162,8 +4119,7 @@ export const serviciosReales = [
   {
     id: 344,
     Titulo: "Aeropuertos Argentina 2000 - SDI",
-    Descripcion: "Insumo de SDI - Aeropuerto de Mendoza
-",
+    Descripcion: "Insumo de SDI - Aeropuerto de Mendoza",
     Imagen: "ccc32af0-df52-4e6e-8ca0-9660dddec095",
     Area: "SDI",
     Cliente: "Aeropuertos Argentina 2000",
@@ -4187,8 +4143,7 @@ export const serviciosReales = [
   {
     id: 346,
     Titulo: "Municipalidad de San Martin - Insumo informatico",
-    Descripcion: "Insumos de red
-",
+    Descripcion: "Insumos de red",
     Imagen: "689632a4-7b40-4dba-be22-9de6a3a17877",
     Area: "Insumo informatico",
     Cliente: "Municipalidad de San Martin",
@@ -4212,8 +4167,7 @@ export const serviciosReales = [
   {
     id: 348,
     Titulo: "Obras SRL - Soporte IT",
-    Descripcion: "Computadora completa
-",
+    Descripcion: "Computadora completa",
     Imagen: "b1a91d79-c979-4067-b78a-2cd97166fbcd",
     Area: "Soporte IT",
     Cliente: "Obras SRL",
@@ -4237,8 +4191,7 @@ export const serviciosReales = [
   {
     id: 350,
     Titulo: "Municipalidad de godoy Cruz - Redes de Cableado Estructurado",
-    Descripcion: "Cableado estructurado - Ex comisaria
-",
+    Descripcion: "Cableado estructurado - Ex comisaria",
     Imagen: "ccc32af0-df52-4e6e-8ca0-9660dddec095",
     Area: "Redes de Cableado Estructurado",
     Cliente: "Municipalidad de godoy Cruz",
@@ -4250,8 +4203,7 @@ export const serviciosReales = [
   {
     id: 351,
     Titulo: "Municipalidad de San Martin - Electrico",
-    Descripcion: "Sistema de Energía eléctrica ininterrumpida, detección de incendios y control de acceso en datacenters
-",
+    Descripcion: "Sistema de Energía eléctrica ininterrumpida, detección de incendios y control de acceso en datacenters",
     Imagen: "4966f1aa-3a35-4ec9-b72a-ee3000e11978",
     Area: "Electrico",
     Cliente: "Municipalidad de San Martin",
@@ -4263,8 +4215,7 @@ export const serviciosReales = [
   {
     id: 352,
     Titulo: "Procon SRL - Soporte IT",
-    Descripcion: "Soporte tecnico - edificio Mitr
-",
+    Descripcion: "Soporte tecnico - edificio Mitr",
     Imagen: "689632a4-7b40-4dba-be22-9de6a3a17877",
     Area: "Soporte IT",
     Cliente: "Procon SRL",
@@ -4276,8 +4227,7 @@ export const serviciosReales = [
   {
     id: 353,
     Titulo: "HOSPITAL TEODORO SCHESTAKOW - Telefonía",
-    Descripcion: "Provisión de 10 telefonos IP
-",
+    Descripcion: "Provisión de 10 telefonos IP",
     Imagen: "6f535377-5177-4fcd-8c8d-8f41f32ece7c",
     Area: "Telefonía",
     Cliente: "HOSPITAL TEODORO SCHESTAKOW",
@@ -4289,8 +4239,7 @@ export const serviciosReales = [
   {
     id: 354,
     Titulo: "Aeropuertos Argentina 2000 - SDI",
-    Descripcion: "Búsqueda y reparación pérdida red de incendio
-",
+    Descripcion: "Búsqueda y reparación pérdida red de incendio",
     Imagen: "b1a91d79-c979-4067-b78a-2cd97166fbcd",
     Area: "SDI",
     Cliente: "Aeropuertos Argentina 2000",
@@ -4302,8 +4251,7 @@ export const serviciosReales = [
   {
     id: 355,
     Titulo: "Municipalidad de San Martin - Insumo informatico",
-    Descripcion: "insumo de informatica
-",
+    Descripcion: "insumo de informatica",
     Imagen: "6e626d63-c3ca-4982-8ed3-4a5e75e1b179",
     Area: "Insumo informatico",
     Cliente: "Municipalidad de San Martin",
@@ -4315,8 +4263,7 @@ export const serviciosReales = [
   {
     id: 356,
     Titulo: "ITC - Fibra Óptica",
-    Descripcion: "Despliegue FTTH Y Ultima Milla
-",
+    Descripcion: "Despliegue FTTH Y Ultima Milla",
     Imagen: "ccc32af0-df52-4e6e-8ca0-9660dddec095",
     Area: "Fibra Óptica",
     Cliente: "ITC",
@@ -4328,8 +4275,7 @@ export const serviciosReales = [
   {
     id: 357,
     Titulo: "Kamet - Redes de Cableado Estructurado",
-    Descripcion: "Traslado de rack
-",
+    Descripcion: "Traslado de rack",
     Imagen: "4966f1aa-3a35-4ec9-b72a-ee3000e11978",
     Area: "Redes de Cableado Estructurado",
     Cliente: "Kamet",
@@ -4353,8 +4299,7 @@ export const serviciosReales = [
   {
     id: 359,
     Titulo: "Allex SA - SDI",
-    Descripcion: "Cambio de central
-",
+    Descripcion: "Cambio de central",
     Imagen: "6f535377-5177-4fcd-8c8d-8f41f32ece7c",
     Area: "SDI",
     Cliente: "Allex SA",
@@ -4366,8 +4311,7 @@ export const serviciosReales = [
   {
     id: 360,
     Titulo: "Obras SRL - Telefonía",
-    Descripcion: "10 Telefonos IP
-",
+    Descripcion: "10 Telefonos IP",
     Imagen: "b1a91d79-c979-4067-b78a-2cd97166fbcd",
     Area: "Telefonía",
     Cliente: "Obras SRL",
@@ -4403,8 +4347,7 @@ export const serviciosReales = [
   {
     id: 363,
     Titulo: "Bodela la Esmeralda - SDI",
-    Descripcion: "Sistema de deteccion de Incendio
-",
+    Descripcion: "Sistema de deteccion de Incendio",
     Imagen: "4966f1aa-3a35-4ec9-b72a-ee3000e11978",
     Area: "SDI",
     Cliente: "Bodela la Esmeralda",
@@ -4416,8 +4359,7 @@ export const serviciosReales = [
   {
     id: 364,
     Titulo: "Aeropuertos Argentina 2000 - CCTV",
-    Descripcion: "Insumo de CCTV
-",
+    Descripcion: "Insumo de CCTV",
     Imagen: "689632a4-7b40-4dba-be22-9de6a3a17877",
     Area: "CCTV",
     Cliente: "Aeropuertos Argentina 2000",
@@ -4429,8 +4371,7 @@ export const serviciosReales = [
   {
     id: 365,
     Titulo: "Gani SA - SDI",
-    Descripcion: "Cambio de central
-",
+    Descripcion: "Cambio de central",
     Imagen: "6f535377-5177-4fcd-8c8d-8f41f32ece7c",
     Area: "SDI",
     Cliente: "Gani SA",
@@ -4478,8 +4419,7 @@ export const serviciosReales = [
   {
     id: 369,
     Titulo: "Hospital A Italo Perrupato - SDI",
-    Descripcion: "Asistencia tecnica SDI
-",
+    Descripcion: "Asistencia tecnica SDI",
     Imagen: "4966f1aa-3a35-4ec9-b72a-ee3000e11978",
     Area: "SDI",
     Cliente: "Hospital A Italo Perrupato",
@@ -4503,8 +4443,7 @@ export const serviciosReales = [
   {
     id: 371,
     Titulo: "DIRECCION PROVINCIAL DE VIALIDAD DE MENDOZA - SDI",
-    Descripcion: "PROYECTO RED DE INCENDIO PARA LA SEDE ADMINISTRATIVA DEL 4º DISTRITO
-",
+    Descripcion: "PROYECTO RED DE INCENDIO PARA LA SEDE ADMINISTRATIVA DEL 4º DISTRITO",
     Imagen: "6f535377-5177-4fcd-8c8d-8f41f32ece7c",
     Area: "SDI",
     Cliente: "DIRECCION PROVINCIAL DE VIALIDAD DE MENDOZA",
@@ -4516,8 +4455,7 @@ export const serviciosReales = [
   {
     id: 372,
     Titulo: "Municipalidad de San Martin - Insumo informatico",
-    Descripcion: "Insumos de cable canal
-",
+    Descripcion: "Insumos de cable canal",
     Imagen: "b1a91d79-c979-4067-b78a-2cd97166fbcd",
     Area: "Insumo informatico",
     Cliente: "Municipalidad de San Martin",
@@ -4529,8 +4467,7 @@ export const serviciosReales = [
   {
     id: 373,
     Titulo: "CAMARA DE COMERCIO INDUSTRIA Y AGRICULTURA DE SAN MARTIN - Soporte IT",
-    Descripcion: "Servicio de infraestructura WIFI para evento
-",
+    Descripcion: "Servicio de infraestructura WIFI para evento",
     Imagen: "6e626d63-c3ca-4982-8ed3-4a5e75e1b179",
     Area: "Soporte IT",
     Cliente: "CAMARA DE COMERCIO INDUSTRIA Y AGRICULTURA DE SAN MARTIN",
@@ -4542,8 +4479,7 @@ export const serviciosReales = [
   {
     id: 374,
     Titulo: "Municipalidad de San Martin - Insumo informatico",
-    Descripcion: "2 Camaras Web y 2 Lector de barra
-",
+    Descripcion: "2 Camaras Web y 2 Lector de barra",
     Imagen: "ccc32af0-df52-4e6e-8ca0-9660dddec095",
     Area: "Insumo informatico",
     Cliente: "Municipalidad de San Martin",
@@ -4555,8 +4491,7 @@ export const serviciosReales = [
   {
     id: 375,
     Titulo: "Obras SRL - Soporte IT",
-    Descripcion: "Puesta en servicios de control de asistencia en planta.
-",
+    Descripcion: "Puesta en servicios de control de asistencia en planta.",
     Imagen: "4966f1aa-3a35-4ec9-b72a-ee3000e11978",
     Area: "Soporte IT",
     Cliente: "Obras SRL",
@@ -4592,8 +4527,7 @@ export const serviciosReales = [
   {
     id: 378,
     Titulo: "Municipalidad Guaymallén - Insumo informatico",
-    Descripcion: "provisión de SFP
-",
+    Descripcion: "provisión de SFP",
     Imagen: "b1a91d79-c979-4067-b78a-2cd97166fbcd",
     Area: "Insumo informatico",
     Cliente: "Municipalidad Guaymallén",
@@ -4605,8 +4539,7 @@ export const serviciosReales = [
   {
     id: 379,
     Titulo: "Municipalidad Guaymallén - CCTV",
-    Descripcion: "Sistema de Barrera para ingreso de auto
-",
+    Descripcion: "Sistema de Barrera para ingreso de auto",
     Imagen: "6e626d63-c3ca-4982-8ed3-4a5e75e1b179",
     Area: "CCTV",
     Cliente: "Municipalidad Guaymallén",
@@ -4618,8 +4551,7 @@ export const serviciosReales = [
   {
     id: 380,
     Titulo: "Jose Nucete e Hijos SA - Insumo informatico",
-    Descripcion: "CPU para coco y CPU para vigilancia
-",
+    Descripcion: "CPU para coco y CPU para vigilancia",
     Imagen: "ccc32af0-df52-4e6e-8ca0-9660dddec095",
     Area: "Insumo informatico",
     Cliente: "Jose Nucete e Hijos SA",
@@ -4631,8 +4563,7 @@ export const serviciosReales = [
   {
     id: 381,
     Titulo: "Kamet - Redes de Cableado Estructurado",
-    Descripcion: "Cableado Estructurado
-",
+    Descripcion: "Cableado Estructurado",
     Imagen: "4966f1aa-3a35-4ec9-b72a-ee3000e11978",
     Area: "Redes de Cableado Estructurado",
     Cliente: "Kamet",
@@ -4644,8 +4575,7 @@ export const serviciosReales = [
   {
     id: 382,
     Titulo: "Canandes SA - SDI",
-    Descripcion: "Equipos de SDI
-",
+    Descripcion: "Equipos de SDI",
     Imagen: "689632a4-7b40-4dba-be22-9de6a3a17877",
     Area: "SDI",
     Cliente: "Canandes SA",
@@ -4669,8 +4599,7 @@ export const serviciosReales = [
   {
     id: 384,
     Titulo: "HOSPITAL TEODORO SCHESTAKOW - SDI",
-    Descripcion: "Mantenimiento de deteccion de incendio
-",
+    Descripcion: "Mantenimiento de deteccion de incendio",
     Imagen: "b1a91d79-c979-4067-b78a-2cd97166fbcd",
     Area: "SDI",
     Cliente: "HOSPITAL TEODORO SCHESTAKOW",
@@ -4682,8 +4611,7 @@ export const serviciosReales = [
   {
     id: 385,
     Titulo: "Procon SRL - Soporte IT",
-    Descripcion: "Soporte tecnico Edificio Mitre
-",
+    Descripcion: "Soporte tecnico Edificio Mitre",
     Imagen: "6e626d63-c3ca-4982-8ed3-4a5e75e1b179",
     Area: "Soporte IT",
     Cliente: "Procon SRL",
@@ -4695,8 +4623,7 @@ export const serviciosReales = [
   {
     id: 386,
     Titulo: "Headcomm S.A - Soporte IT",
-    Descripcion: "Visita tecnica para obra
-",
+    Descripcion: "Visita tecnica para obra",
     Imagen: "ccc32af0-df52-4e6e-8ca0-9660dddec095",
     Area: "Soporte IT",
     Cliente: "Headcomm S.A",
@@ -4720,8 +4647,7 @@ export const serviciosReales = [
   {
     id: 388,
     Titulo: "Jose Nucete e Hijos SA - CCTV",
-    Descripcion: "Remplazo de fuente, conector y Balun
-",
+    Descripcion: "Remplazo de fuente, conector y Balun",
     Imagen: "689632a4-7b40-4dba-be22-9de6a3a17877",
     Area: "CCTV",
     Cliente: "Jose Nucete e Hijos SA",
@@ -4733,8 +4659,7 @@ export const serviciosReales = [
   {
     id: 389,
     Titulo: "Jose Nucete e Hijos SA - CCTV",
-    Descripcion: "Remplazo de 2 camaras de CCTV
-",
+    Descripcion: "Remplazo de 2 camaras de CCTV",
     Imagen: "6f535377-5177-4fcd-8c8d-8f41f32ece7c",
     Area: "CCTV",
     Cliente: "Jose Nucete e Hijos SA",
@@ -4746,8 +4671,7 @@ export const serviciosReales = [
   {
     id: 390,
     Titulo: "Kristich Desarrollos - SDI",
-    Descripcion: "Hotel fuente Mayor Mendoza - 2 detectores de humo con base y soporte técnico SDI
-",
+    Descripcion: "Hotel fuente Mayor Mendoza - 2 detectores de humo con base y soporte técnico SDI",
     Imagen: "b1a91d79-c979-4067-b78a-2cd97166fbcd",
     Area: "SDI",
     Cliente: "Kristich Desarrollos",
@@ -4759,8 +4683,7 @@ export const serviciosReales = [
   {
     id: 391,
     Titulo: "Bodega Antigal - SDI",
-    Descripcion: "SDI - Bodega ANTIGAL
-",
+    Descripcion: "SDI - Bodega ANTIGAL",
     Imagen: "6e626d63-c3ca-4982-8ed3-4a5e75e1b179",
     Area: "SDI",
     Cliente: "Bodega Antigal",
@@ -4784,8 +4707,7 @@ export const serviciosReales = [
   {
     id: 393,
     Titulo: "Procon SRL - Insumo informatico",
-    Descripcion: "insumo de informatica
-",
+    Descripcion: "insumo de informatica",
     Imagen: "4966f1aa-3a35-4ec9-b72a-ee3000e11978",
     Area: "Insumo informatico",
     Cliente: "Procon SRL",
@@ -4809,8 +4731,7 @@ export const serviciosReales = [
   {
     id: 395,
     Titulo: "Procon SRL - SDI",
-    Descripcion: "Adicional Aeropuerto DF Sarmiento
-",
+    Descripcion: "Adicional Aeropuerto DF Sarmiento",
     Imagen: "6f535377-5177-4fcd-8c8d-8f41f32ece7c",
     Area: "SDI",
     Cliente: "Procon SRL",
@@ -4822,8 +4743,7 @@ export const serviciosReales = [
   {
     id: 396,
     Titulo: "Obras SRL - Insumo informatico",
-    Descripcion: "CPU + Disco externo
-",
+    Descripcion: "CPU + Disco externo",
     Imagen: "b1a91d79-c979-4067-b78a-2cd97166fbcd",
     Area: "Insumo informatico",
     Cliente: "Obras SRL",
@@ -4835,8 +4755,7 @@ export const serviciosReales = [
   {
     id: 397,
     Titulo: "Procon SRL - CCTV",
-    Descripcion: "Cámara de CCTV para edificio Mitre
-",
+    Descripcion: "Cámara de CCTV para edificio Mitre",
     Imagen: "6e626d63-c3ca-4982-8ed3-4a5e75e1b179",
     Area: "CCTV",
     Cliente: "Procon SRL",
@@ -4848,8 +4767,7 @@ export const serviciosReales = [
   {
     id: 398,
     Titulo: "FLEXCOLOR - SDI",
-    Descripcion: "Mantenimiento SDI
-",
+    Descripcion: "Mantenimiento SDI",
     Imagen: "ccc32af0-df52-4e6e-8ca0-9660dddec095",
     Area: "SDI",
     Cliente: "FLEXCOLOR",
@@ -4873,8 +4791,7 @@ export const serviciosReales = [
   {
     id: 400,
     Titulo: "Eqalq SRL - Redes de Cableado Estructurado",
-    Descripcion: "Provisión e instalación de rack y AP
-",
+    Descripcion: "Provisión e instalación de rack y AP",
     Imagen: "689632a4-7b40-4dba-be22-9de6a3a17877",
     Area: "Redes de Cableado Estructurado",
     Cliente: "Eqalq SRL",
@@ -4886,8 +4803,7 @@ export const serviciosReales = [
   {
     id: 401,
     Titulo: "Gamas - SDI",
-    Descripcion: "Instalacion de detector de humo
-",
+    Descripcion: "Instalacion de detector de humo",
     Imagen: "6f535377-5177-4fcd-8c8d-8f41f32ece7c",
     Area: "SDI",
     Cliente: "Gamas",
@@ -4911,8 +4827,7 @@ export const serviciosReales = [
   {
     id: 403,
     Titulo: "Procon SRL - CCTV",
-    Descripcion: "soporte tecnico CCTV
-",
+    Descripcion: "soporte tecnico CCTV",
     Imagen: "6e626d63-c3ca-4982-8ed3-4a5e75e1b179",
     Area: "CCTV",
     Cliente: "Procon SRL",
@@ -4972,8 +4887,7 @@ export const serviciosReales = [
   {
     id: 408,
     Titulo: "Luna Maya - Redes de Cableado Estructurado",
-    Descripcion: "Cableado de 2 puestos dobles provisorios
-",
+    Descripcion: "Cableado de 2 puestos dobles provisorios",
     Imagen: "b1a91d79-c979-4067-b78a-2cd97166fbcd",
     Area: "Redes de Cableado Estructurado",
     Cliente: "Luna Maya",
@@ -5009,8 +4923,7 @@ export const serviciosReales = [
   {
     id: 411,
     Titulo: "Premix SA - Redes de Cableado Estructurado",
-    Descripcion: "Cableado Estructurado oficinas
-",
+    Descripcion: "Cableado Estructurado oficinas",
     Imagen: "4966f1aa-3a35-4ec9-b72a-ee3000e11978",
     Area: "Redes de Cableado Estructurado",
     Cliente: "Premix SA",
@@ -5022,8 +4935,7 @@ export const serviciosReales = [
   {
     id: 412,
     Titulo: "Aeropuertos Argentina 2000 - SDI",
-    Descripcion: "Insumos de SDI
-",
+    Descripcion: "Insumos de SDI",
     Imagen: "689632a4-7b40-4dba-be22-9de6a3a17877",
     Area: "SDI",
     Cliente: "Aeropuertos Argentina 2000",
