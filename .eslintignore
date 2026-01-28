@@ -1,0 +1,31 @@
+# Ignore TypeScript files that need proper parser configuration
+src/**/*.ts
+
+# Ignore test files with JSX that need React parser
+src/__tests__/**/*.js
+
+# Ignore JSX components that need React parser
+src/components/**/*.jsx
+
+# Ignore data files with TypeScript syntax
+src/data/**/*.ts
+
+# Ignore utility files with TypeScript syntax
+src/utils/**/*.ts
+
+# Ignore lib files with TypeScript syntax
+src/lib/**/*.ts
+
+# Ignore types directory
+src/types/**
+
+# Ignore pages test files
+src/pages/__tests__/**
+
+# Ignore API routes with TypeScript
+src/pages/api/**/*.ts
+
+# Build output
+dist/
+.astro/
+node_modules/
