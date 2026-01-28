@@ -1,0 +1,386 @@
+---
+/**
+ * Homepage V4 Design System
+ * Main landing page with hero, services, cases, industries, and CTA
+ */
+
+import LayoutV4 from '../layouts/LayoutV4.astro';
+import ServiceCard from '../components/v4/ServiceCard.astro';
+import CTASection from '../components/v4/CTASection.astro';
+import { generateSlug } from '../utils/slugUtils.js';
+import { getAllServicios } from '../utils/directusHelpers';
+
+// Import real data
+import { antecedentesReales } from '../data/antecedentes_completos.js';
+
+// Production URL for images
+const PROD_URL = 'https://www.ultimamilla.com.ar';
+
+// Hero images - using local assets (Directus assets currently have permission issues)
+const heroImages = [
+  { url: '/images/services/redes-comunicaciones.jpg', alt: 'Infraestructura de Redes' },
+  { url: '/images/services/ciberseguridad.jpg', alt: 'Seguridad Electrónica' },
+  { url: '/images/services/telefonia.jpg', alt: 'Telecomunicaciones' },
+  { url: '/images/services/servicios-web.jpg', alt: 'Desarrollo de Software' },
+  { url: '/images/services/servicios-it.jpg', alt: 'Consultoría IT' },
+];
+
+// Helper function to get image URL for antecedentes using mapping system
+async function getImageUrl(proyecto: any): Promise<string> {
+  try {
+    const { buscarImagenPorDatos } = await import('../data/mapeo_imagenes_completo.js');
+    const nombreArchivo = buscarImagenPorDatos(
+      proyecto.Cliente,
+      proyecto.Area || proyecto.Unidad_de_negocio,
+      proyecto.Titulo,
+      proyecto.id
+    );
+
+    if (nombreArchivo) {
+      return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
+    }
+  } catch (error) {
+    console.log('[HOMEPAGE] Error en mapeo:', error);
+  }
+  return '/images/default.jpg'; // Professional default image
+}
+
+// Get 3 featured antecedentes for success cases section with Promise.all for async images
+const antecedentesEnhanced = await Promise.all(
+  antecedentesReales.slice(0, 3).map(async (ant) => ({
+    ...ant,
+    slug: generateSlug(ant.Titulo || ant.Nombre || 'proyecto'),
+    imageUrl: await getImageUrl(ant)
+  }))
+);
+
+// Get services from Directus (with automatic fallback to JS data)
+const serviciosFromDirectus = await getAllServicios();
+
+// Map icon names for ServiceCard component
+const iconMap: Record<number, { icon: string; iconColor: string }> = {
+  101: { icon: 'network', iconColor: 'bg-sky-600/90' },
+  102: { icon: 'shield', iconColor: 'bg-rose-600/90' },
+  103: { icon: 'radio', iconColor: 'bg-cyan-600/90' },
+  104: { icon: 'code', iconColor: 'bg-purple-600/90' },
+  105: { icon: 'headphones', iconColor: 'bg-amber-600/90' },
+  106: { icon: 'lightbulb', iconColor: 'bg-emerald-600/90' },
+  107: { icon: 'flame', iconColor: 'bg-orange-600/90' },
+  108: { icon: 'zap', iconColor: 'bg-yellow-600/90' }
+};
+
+// Función para obtener miniatura numerada de servicio
+const getServiceThumbnail = (servicioId: number) => {
+  const imageNumber = servicioId - 100;
+  return `/images/services/${imageNumber}.png`;
+};
+
+// Enhance services with icon data and thumbnails
+const servicios = serviciosFromDirectus.slice(0, 8).map(s => ({
+  ...s,
+  ...iconMap[s.id],
+  slug: s.slug || generateSlug(s.Titulo),
+  Imagen: getServiceThumbnail(s.id), // Override UUID con miniatura local
+  imagen: getServiceThumbnail(s.id)  // También en minúsculas
+}));
+
+// Industries/Sectors data (kept for future sector pages)
+const sectores = [
+  { slug: 'aeropuertos', name: 'Aeropuertos', icon: 'plane' },
+  { slug: 'bodegas', name: 'Bodegas', icon: 'wine' },
+  { slug: 'constructoras', name: 'Construcción', icon: 'building' },
+  { slug: 'salud', name: 'Salud', icon: 'heart' },
+  { slug: 'gobiernosectorpublico', name: 'Gobierno', icon: 'landmark' },
+  { slug: 'software', name: 'Software', icon: 'monitor' },
+  { slug: 'mineria', name: 'Minería', icon: 'mountain' },
+  { slug: 'industria', name: 'Industria', icon: 'factory' },
+  { slug: 'seguridad-electronica', name: 'Seguridad', icon: 'shield' }
+];
+
+// Icon paths for sectors (SVG paths for each icon type)
+const sectorIconPaths: Record<string, string> = {
+  plane: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>',
+  wine: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 22h8M12 11v11M5.5 3h13l-1.6 7.2a4 4 0 01-3.9 3.2h-2a4 4 0 01-3.9-3.2L5.5 3z"/>',
+  building: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>',
+  heart: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>',
+  landmark: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/>',
+  monitor: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>',
+  mountain: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"/>',
+  factory: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>',
+  shield: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>',
+};
+---
+
+<LayoutV4
+  title="ULTIMA MILLA | Servicios Tecnológicos para Empresas en Mendoza, Cuyo y Patagonia"
+  description="Servicios tecnológicos para empresas y organizaciones argentinas. Zona de incumbencia: Mendoza, Cuyo, Patagonia. Especialistas en Telecomunicaciones, Cableado Estructurado, Corrientes Débiles, Detección de Incendio, Software a Medida. +469 proyectos, +22 años de experiencia."
+  keywords="servicios tecnologicos empresas argentina, zona incumbencia mendoza cuyo patagonia, telecomunicaciones empresas, cableado estructurado, corrientes debiles, deteccion incendio, software a medida organizaciones"
+  image="/nosotros-tech.jpg"
+>
+  <!-- HERO SECTION with rotating background -->
+  <section class="relative bg-um-dark overflow-hidden">
+    <!-- Background Images Container (rotating) -->
+    <div class="absolute inset-0" id="heroImageContainer">
+      {heroImages.map((img, index) => (
+        <img
+          src={img.url}
+          alt={img.alt}
+          class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${index === 0 ? 'opacity-50' : 'opacity-0'}`}
+          data-index={index}
+        />
+      ))}
+      <div class="absolute inset-0 bg-gradient-to-r from-um-dark via-um-dark/80 to-transparent"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-10 sm:pb-14 lg:pb-16">
+      <!-- Badge -->
+      <span class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-um-primary/20 text-um-primary-light rounded-full text-xs sm:text-sm font-semibold mb-4 sm:mb-5">
+        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        22+ Años Transformando Empresas
+      </span>
+
+      <!-- Title -->
+      <h1 class="text-[1.85rem] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-[1.1] mb-4 sm:mb-5 max-w-3xl">
+        Conectamos la <span class="text-um-primary-light">tecnología</span> con el éxito de su empresa
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="text-sm sm:text-base lg:text-lg text-gray-300 mb-6 sm:mb-8 max-w-xl leading-relaxed">
+        Infraestructura IT, seguridad electrónica y desarrollo de software para empresas de Mendoza, Cuyo y Patagonia.
+      </p>
+
+      <!-- CTAs -->
+      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8 sm:mb-10">
+        <a href="/contacto" class="group inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:px-8 sm:py-4 bg-um-accent hover:bg-red-600 text-white text-sm sm:text-base font-bold rounded-xl transition-all shadow-xl shadow-um-accent/30 hover:scale-[1.02] min-h-[48px]">
+          Solicitar Consultoría Gratis
+          <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+          </svg>
+        </a>
+        <a href="/antecedentes" class="inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:px-8 sm:py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white text-sm sm:text-base font-semibold rounded-xl transition-all min-h-[48px]">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          Ver Proyectos
+        </a>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-3 gap-3 sm:gap-4 max-w-lg">
+        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center border border-white/10">
+          <div class="text-xl sm:text-2xl lg:text-3xl font-black text-white">469+</div>
+          <div class="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wide">Proyectos</div>
+        </div>
+        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center border border-white/10">
+          <div class="text-xl sm:text-2xl lg:text-3xl font-black text-white">22</div>
+          <div class="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wide">Años</div>
+        </div>
+        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center border border-white/10">
+          <div class="text-xl sm:text-2xl lg:text-3xl font-black text-um-primary-light">24/7</div>
+          <div class="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wide">Soporte</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES SECTION -->
+  <section class="py-12 sm:py-16 lg:py-24 xl:py-28 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Section Header -->
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-12 lg:mb-16">
+        <div>
+          <span class="text-um-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">Nuestros Servicios</span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-2 sm:mt-3">
+            Soluciones Integrales IT
+          </h2>
+        </div>
+        <a href="/servicios" class="inline-flex items-center gap-2 text-um-primary font-semibold hover:gap-4 transition-all text-sm sm:text-base">
+          Ver todos los servicios
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+          </svg>
+        </a>
+      </div>
+
+      <!-- Services Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {servicios.map((servicio) => (
+          <ServiceCard
+            id={servicio.id}
+            slug={servicio.slug}
+            titulo={servicio.Titulo}
+            subtitulo={servicio.subtitulo || servicio.Descripcion?.substring(0, 100)}
+            imagen={servicio.Imagen}
+            icon={servicio.icon || 'box'}
+            iconColor={servicio.iconColor || 'bg-um-primary/90'}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SUCCESS CASES SECTION -->
+  <section class="py-12 sm:py-16 lg:py-24 xl:py-28 bg-um-gray-light">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-12 lg:mb-16">
+        <span class="text-um-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">Casos de Éxito</span>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-2 sm:mt-3 mb-3 sm:mb-4">
+          Proyectos que nos Enorgullecen
+        </h2>
+        <p class="text-base sm:text-lg text-um-gray">
+          Empresas líderes de la región confían en nosotros para su transformación digital.
+        </p>
+      </div>
+
+      <!-- Cases Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        {antecedentesEnhanced.map((antecedente) => (
+          <a href={`/antecedentes/${antecedente.id}/${antecedente.slug}`} class="card-hover bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+            <div class="relative h-56 overflow-hidden">
+              <img
+                src={antecedente.imageUrl}
+                alt={antecedente.Titulo || antecedente.Nombre}
+                class="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
+                loading="lazy"
+              />
+              <span class="absolute top-4 left-4 px-3 py-1 bg-um-primary text-white text-xs font-bold rounded-md">
+                {antecedente.Cliente || antecedente.Sector || 'Proyecto'}
+              </span>
+            </div>
+            <div class="p-6">
+              <h3 class="text-lg font-bold text-um-dark mb-2 line-clamp-2">{antecedente.Titulo || antecedente.Nombre}</h3>
+              <p class="text-sm text-um-gray mb-4 line-clamp-2">{antecedente.Descripcion?.replace(/\\\\/g, ' ').substring(0, 100)}...</p>
+              <span class="text-um-primary text-sm font-medium flex items-center gap-2">
+                Ver caso completo
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
+              </span>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      <div class="mt-8 sm:mt-12 text-center">
+        <a href="/antecedentes" class="inline-flex items-center gap-2 px-6 py-3 sm:px-8 sm:py-4 bg-um-dark text-white font-bold rounded-xl hover:bg-um-primary transition-colors min-h-[48px]">
+          Ver todos los casos
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- INDUSTRIES SECTION -->
+  <section class="py-12 sm:py-16 lg:py-24 xl:py-28 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-12 lg:mb-16">
+        <span class="text-um-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">Verticales</span>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-2 sm:mt-3 mb-3 sm:mb-4">
+          Soluciones por Industria
+        </h2>
+        <p class="text-base sm:text-lg text-um-gray">
+          Experiencia especializada en los sectores más exigentes de la economía regional.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9 gap-3 sm:gap-4">
+        {sectores.map((sector) => (
+          <a href={`/${sector.slug}`} class="group flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-um-primary hover:shadow-lg transition-all min-h-[90px]">
+            <svg class="w-8 h-8 text-um-gray group-hover:text-white mb-2 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" set:html={sectorIconPaths[sector.icon] || sectorIconPaths.building} />
+            <span class="text-xs font-medium text-um-dark group-hover:text-white text-center transition-colors">{sector.name}</span>
+          </a>
+        ))}
+      </div>
+
+      <div class="mt-6 sm:mt-10 text-center">
+        <a href="/sectores" class="inline-flex items-center gap-2 text-um-primary font-semibold hover:gap-4 transition-all text-sm sm:text-base">
+          Ver todas las industrias
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA SECTION -->
+  <section class="relative py-12 sm:py-16 lg:py-24 xl:py-28 overflow-hidden">
+    <div class="absolute inset-0">
+      <img
+        src="https://ultimamilla.com.ar/directus-assets/caffbcaa-2457-4fc9-9960-2e0601f27736"
+        alt="Background"
+        class="w-full h-full object-cover"
+      />
+      <div class="absolute inset-0 bg-um-dark/90"></div>
+    </div>
+
+    <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <span class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 backdrop-blur text-white rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Comience su transformación
+      </span>
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 sm:mb-6">
+        ¿Listo para modernizar su infraestructura IT?
+      </h2>
+      <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-10 max-w-2xl mx-auto">
+        Contáctenos hoy para una consultoría gratuita y descubra cómo podemos impulsar su negocio.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+        <a href="/contacto" class="px-6 py-3 sm:px-8 sm:py-4 bg-um-accent text-white font-bold rounded-xl hover:bg-um-accent-dark transition-colors shadow-xl shadow-um-accent/25 min-h-[48px] flex items-center justify-center">
+          Agendar Consultoría Gratis
+        </a>
+        <a href="mailto:contacto@ultimamilla.com.ar" class="px-6 py-3 sm:px-8 sm:py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2 min-h-[48px]">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          contacto@ultimamilla.com.ar
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA SECTION -->
+  <CTASection
+    badge="Comience su transformación digital"
+    badgeIcon="rocket"
+    titulo="¿Listo para llevar su empresa al siguiente nivel?"
+    descripcion="Contáctenos hoy para una consultoría gratuita y descubra cómo nuestras soluciones pueden impulsar su negocio."
+    primaryButtonText="Solicitar Consultoría Gratis"
+    primaryButtonUrl="/contacto"
+    secondaryButtonText="+54 261 623 4567"
+    secondaryButtonUrl="tel:+542616234567"
+    secondaryButtonIcon="phone"
+    backgroundImage="https://ultimamilla.com.ar/directus-assets/a404fe13-25dc-409d-9789-02cbf9fb93c1"
+    darkOverlay={85}
+  />
+
+  <!-- Hero Image Rotation Script -->
+  <script>
+    // Rotate hero images every 5 seconds
+    document.addEventListener('DOMContentLoaded', () => {
+      const images = document.querySelectorAll('.hero-image');
+      if (images.length <= 1) return;
+
+      let currentIndex = 0;
+      const totalImages = images.length;
+
+      setInterval(() => {
+        // Fade out current
+        images[currentIndex].classList.remove('opacity-50');
+        images[currentIndex].classList.add('opacity-0');
+
+        // Move to next
+        currentIndex = (currentIndex + 1) % totalImages;
+
+        // Fade in next
+        images[currentIndex].classList.remove('opacity-0');
+        images[currentIndex].classList.add('opacity-50');
+      }, 5000);
+    });
+  </script>
+</LayoutV4>
