@@ -85,11 +85,15 @@ const descripcionTruncada = descripcion.length > 150
           alt={titulo}
           class="w-full h-full object-cover"
           loading="lazy"
+          onerror="this.onerror=null; this.src='/images/default.jpg'"
         />
       ) : (
-        <div class="w-full h-full flex items-center justify-center bg-um-gray text-um-dark">
-          <p class="text-sm">Imagen no disponible</p>
-        </div>
+        <img
+          src="/images/default.jpg"
+          alt={titulo}
+          class="w-full h-full object-cover"
+          loading="lazy"
+        />
       )}
 
       {badge && (
