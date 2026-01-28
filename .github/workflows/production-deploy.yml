@@ -52,10 +52,11 @@ jobs:
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
+        continue-on-error: true  # Don't fail build if storage quota exceeded
         with:
           name: dist-build
           path: dist/
-          retention-days: 7
+          retention-days: 1
 
   #===========================================================================
   # JOB 2: DEPLOY TO PRODUCTION
@@ -74,9 +75,18 @@ jobs:
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
+        continue-on-error: true  # Continue if artifacts not available
         with:
           name: dist-build
           path: dist/
+
+      - name: Build locally if artifacts not available
+        if: failure()
+        run: |
+          npm ci
+          npm run build
+        env:
+          NODE_ENV: production
 
       - name: Setup SSH key
         uses: webfactory/ssh-agent@v0.9.0
