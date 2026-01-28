@@ -38,11 +38,8 @@ let antecedentes: any[] = [];
 try {
   const client = getClient();
   const allAntecedentes = await client.request(
-    readItems('antecedentes', {
-      filter: {
-        status: { _eq: 'published' }
-      },
-      fields: ['id', 'Nombre', 'Titulo', 'Cliente', 'Descripcion', 'Area', 'imagen', 'Fecha', 'Unidad_de_negocio'],
+    readItems('Antecedentes', {
+      fields: ['id', 'Titulo', 'Cliente', 'Descripcion', 'Area', 'Imagen', 'Fecha', 'Unidad_de_negocio'],
       limit: 500
     })
   );
@@ -56,8 +53,8 @@ try {
     .slice(0, 6)
     .map(item => ({
       ...item,
-      slug: generateSlug(item.Titulo || item.Nombre || 'proyecto'),
-      imageUrl: getDirectusImageUrl(item.imagen)
+      slug: generateSlug(item.Titulo || 'proyecto'),
+      imageUrl: getDirectusImageUrl(item.Imagen)
     }));
 
   console.log(`[SOFTWARE] Found ${antecedentes.length} antecedentes from Directus`);
