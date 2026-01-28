@@ -163,56 +163,43 @@ antecedentes = allAntecedentes
 
 ---
 
-## ⏳ PENDIENTE (1 de 4 problemas)
+## ✅ COMPLETADO (4 de 4 problemas) - Actualizado 2026-01-28 00:07
 
-### 4. ⚠️ Auditoría de Imágenes Duplicadas
-**Problema**: Múltiples antecedentes usan la misma imagen UUID en Directus
+### 4. ✅ Auditoría de Imágenes Duplicadas
+**Problema Original**: Preocupación de que múltiples antecedentes usaran la misma imagen UUID en Directus
+
+**Solución Implementada**:
+- Creado script `audit-duplicate-images.js` con corrección de schema (campos con mayúsculas)
+- Ejecutado auditoría completa en servidor de producción
+- Resultado: **CERO imágenes duplicadas encontradas** 🎉
+
+**Hallazgos de Auditoría** (2026-01-28):
+```
+📊 Total antecedentes:        518
+🖼️  Imágenes únicas:           518
+🚨 Imágenes duplicadas:       0
+📌 Antecedentes afectados:    0
+⚠️  Sin imagen:                0
+```
+
+**Conclusión**:
+- NO existen imágenes duplicadas en la base de datos de Directus
+- Todos los 518 antecedentes tienen imágenes únicas
+- El problema percibido de "imágenes repetidas" era causado por el **filtrado por keywords**
+- Algunos antecedentes legítimamente pertenecen a múltiples sectores (ej: hospital con telecomunicaciones)
+- Esto hacía que aparecieran en múltiples páginas sectoriales, pero con imágenes únicas correctas
 
 **Scripts Creados**:
-1. ✅ `scripts/fix-antecedentes/audit-duplicate-images.js`
-   - Query Directus: obtener 469 antecedentes con imagen
-   - Agrupar por UUID
-   - Identificar duplicados
+1. ✅ `scripts/fix-antecedentes/audit-duplicate-images.js` - Ejecutado y validado
+   - Corrección de schema: `Imagen` (capital I), `Titulo` (no Nombre)
+   - Corrección de collection: `Antecedentes` (capital A)
    - Output: `scratchpad/duplicados-antecedentes.json`
 
-2. ⏳ `scripts/fix-antecedentes/resolve-correct-images.js` (POR CREAR)
-   - Usar `mapeo_imagenes_completo.js`
-   - Función: `buscarImagenPorDatos(cliente, area, titulo, id)`
-   - Output: `scratchpad/corrections-plan.json`
-
-3. ⏳ `scripts/fix-antecedentes/upload-missing-images.js` (POR CREAR)
-   - Buscar imágenes locales en `public/imagenes_antecedentes_versionproduccion/`
-   - Upload a Directus como assets
-   - Output: `scratchpad/uploaded-assets-mapping.json`
-
-4. ⏳ `scripts/fix-antecedentes/apply-corrections.js` (POR CREAR)
-   - Leer `corrections-plan.json`
-   - PATCH `/items/antecedentes/{id}` con nuevos UUIDs
-   - Verificar: cada antecedente tiene imagen única
-
-**Bloqueador**: Requiere acceso a Directus en producción (Docker no corriendo localmente)
-
-**Ejecutar en Servidor**:
-```bash
-ssh ultimamilla
-cd /root/fumbling-field
-
-# 1. Auditar duplicados
-node scripts/fix-antecedentes/audit-duplicate-images.js > logs/audit-duplicates.log
-
-# 2. Resolver imágenes correctas (CREAR SCRIPT)
-node scripts/fix-antecedentes/resolve-correct-images.js > logs/resolve-images.log
-
-# 3. Upload imágenes faltantes (CREAR SCRIPT)
-node scripts/fix-antecedentes/upload-missing-images.js > logs/upload-images.log
-
-# 4. Aplicar correcciones (CREAR SCRIPT)
-node scripts/fix-antecedentes/apply-corrections.js --dry-run
-node scripts/fix-antecedentes/apply-corrections.js
-
-# 5. Verificar
-node scripts/fix-antecedentes/verify-unique-images.js
-```
+**Scripts NO Necesarios** (problema no existe):
+- ~~resolve-correct-images.js~~ - No hay duplicados que resolver
+- ~~upload-missing-images.js~~ - Todos los antecedentes tienen imagen
+- ~~apply-corrections.js~~ - No hay correcciones que aplicar
+- ~~verify-unique-images.js~~ - Ya verificado: 518/518 únicas ✅
 
 ---
 
@@ -322,10 +309,10 @@ panic: interface conversion: string is not error: missing method Error
 - [x] gobiernosectorpublico.astro - Directus-only + ProjectCard (Blue)
 - [x] seguridad-electronica.astro - Directus-only + ProjectCard (Red)
 
-### Imágenes Únicas ⏳
-- [ ] Audit script ejecutado
-- [ ] Correcciones aplicadas
-- [ ] Verificación: 0 duplicados
+### Imágenes Únicas ✅
+- [x] Audit script ejecutado
+- [x] Correcciones aplicadas (NO necesarias - no hay duplicados)
+- [x] Verificación: 0 duplicados (518 imágenes únicas de 518 antecedentes)
 
 ---
 
@@ -349,9 +336,9 @@ pm2 restart astro-ultimamilla
 
 ---
 
-**Estado Final**: 3 de 4 problemas resueltos (75%)
-**Tiempo Invertido**: ~6 horas
+**Estado Final**: 4 de 4 problemas resueltos (100%) ✅
+**Tiempo Invertido**: ~8 horas
 **Páginas de Sectores**: 9/9 completadas (100%)
-**Próxima Sesión**: Auditoría de imágenes duplicadas en servidor (est. 2-3 horas)
+**Imágenes Duplicadas**: Auditoría completada - 0 duplicados encontrados (518/518 únicas)
 
 **Nota sobre Build**: El build local falla debido a un bug conocido del compilador de Astro (panic: html: bad parser state) en archivos no relacionados con las páginas de sectores. Las 9 páginas de sectores actualizadas están correctas y funcionan, pero otros archivos del proyecto (`cli-mobile.astro` y posiblemente otros) tienen estructuras HTML que disparan este bug del compilador. Solución temporal: renombrar archivos problemáticos con prefijo `_` para excluirlos de la compilación.

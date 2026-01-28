@@ -51,19 +51,16 @@ async function getAllAntecedentes() {
     console.log('📥 Obteniendo antecedentes de Directus...');
 
     const antecedentes = await directus.request(
-      readItems('antecedentes', {
+      readItems('Antecedentes', {
         fields: [
           'id',
-          'Nombre',
+          'Titulo',
           'Cliente',
           'Area',
-          'Titulo',
-          'imagen'
+          'Unidad_de_negocio',
+          'Imagen'
         ],
-        limit: -1, // Obtener todos
-        filter: {
-          status: { _eq: 'published' }
-        }
+        limit: -1 // Obtener todos (sin filtro por status)
       })
     );
 
@@ -85,7 +82,7 @@ function groupByImage(antecedentes) {
   let withoutImage = 0;
 
   for (const ant of antecedentes) {
-    const imageUuid = ant.imagen;
+    const imageUuid = ant.Imagen;
 
     if (!imageUuid) {
       withoutImage++;
@@ -98,10 +95,10 @@ function groupByImage(antecedentes) {
 
     imageMap.get(imageUuid).push({
       id: ant.id,
-      nombre: ant.Nombre,
+      titulo: ant.Titulo,
       cliente: ant.Cliente,
       area: ant.Area,
-      titulo: ant.Titulo
+      unidad: ant.Unidad_de_negocio
     });
   }
 
@@ -181,7 +178,7 @@ function printSummary(duplicates) {
   for (const dup of top10) {
     console.log(`🖼️  Imagen: ${dup.imagen_uuid.substring(0, 8)}... (${dup.count} antecedentes)`);
     for (const ant of dup.antecedentes) {
-      console.log(`   - [${ant.id}] ${ant.nombre} (${ant.cliente || 'Sin cliente'})`);
+      console.log(`   - [${ant.id}] ${ant.titulo} (${ant.cliente || 'Sin cliente'})`);
     }
     console.log('');
   }

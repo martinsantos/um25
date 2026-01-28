@@ -220,13 +220,44 @@ import { getClient } from '../lib/directus.ts';
 
 **Workaround**: Usuarios pueden ver listado de antecedentes pero no detalle individual temporalmente
 
+## ✅ AUDITORÍA DE IMÁGENES COMPLETADA (2026-01-28 00:07)
+
+### Resultado: CERO Duplicados Encontrados 🎉
+
+**Script Ejecutado**: `scripts/fix-antecedentes/audit-duplicate-images.js`
+
+**Correcciones Aplicadas al Script**:
+1. Collection name: `'antecedentes'` → `'Antecedentes'` (case-sensitive)
+2. Field names corregidos:
+   - `'imagen'` → `'Imagen'` (capital I)
+   - `'Nombre'` → `'Titulo'` (campo correcto)
+3. Eliminado filtro por `status` (campo no accesible por Public Policy)
+
+**Resultados de Auditoría**:
+```
+📊 Total antecedentes:        518
+🖼️  Imágenes únicas:           518
+🚨 Imágenes duplicadas:       0
+📌 Antecedentes afectados:    0
+⚠️  Sin imagen:                0
+```
+
+**Conclusión Crítica**:
+- NO existen imágenes duplicadas en Directus
+- El problema percibido era por **filtrado por keywords** en páginas sectoriales
+- Algunos antecedentes legítimamente pertenecen a múltiples sectores
+- Todas las 518 imágenes son únicas y correctamente asignadas
+
+**Reporte Guardado**: `/private/tmp/claude/.../scratchpad/duplicados-antecedentes.json`
+
 ## Próximos Pasos
 
 1. **✅ COMPLETADO**: Build en servidor exitoso
 2. **✅ COMPLETADO**: Resolver permisos/nombre de colección Directus
 3. **✅ COMPLETADO**: Re-habilitar gradualmente páginas (35+ activas)
-4. **⏳ PENDIENTE**: Actualizar @astrojs/compiler para resolver bug en páginas [id]
-5. **⏳ PENDIENTE**: Re-habilitar /antecedentes/[id]/* cuando se resuelva bug
+4. **✅ COMPLETADO**: Auditoría de imágenes duplicadas (0 encontrados)
+5. **⏳ PENDIENTE**: Actualizar @astrojs/compiler para resolver bug en páginas [id]
+6. **⏳ PENDIENTE**: Re-habilitar /antecedentes/[id]/* cuando se resuelva bug
 
 ## Notas
 
