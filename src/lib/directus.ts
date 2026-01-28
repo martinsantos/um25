@@ -7,9 +7,11 @@ import type {
 } from '../types/directus-v4';
 
 // Export only the configuration, not the client
+// PRODUCTION: Use localhost for server-side requests (same machine as Directus)
+// Client-side image URLs will use public admin URL
 export const DIRECTUS_CONFIG = {
-  url: import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055',
-  token: import.meta.env.PUBLIC_DIRECTUS_TOKEN
+  url: 'http://localhost:8055',
+  token: import.meta.env.PUBLIC_DIRECTUS_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky'
 };
 
 // 1. Tipos compatibles con tus colecciones (ACTUALIZADOS V4)
@@ -100,9 +102,6 @@ export async function getServiciosV4(): Promise<ServicioV4[]> {
     const client = getClient();
     const response = await client.request(
       readItems('Servicios', {
-        filter: {
-          status: { _eq: 'published' }
-        },
         fields: [
           'id',
           'Titulo',
@@ -110,10 +109,10 @@ export async function getServiciosV4(): Promise<ServicioV4[]> {
           'Imagen',
           'Subtitulo',
           'Stats',
-          'Marcas',
           'PorQueElegirnos',
           'Area',
-          'slug'
+          'Cliente',
+          'Productos'
         ],
         sort: ['id']
       })
@@ -145,10 +144,10 @@ export async function getServicioConProductos(id: number | string): Promise<Serv
           'Imagen',
           'Subtitulo',
           'Stats',
-          'Marcas',
           'PorQueElegirnos',
           'Area',
-          'slug'
+          'Cliente',
+          'Productos'
         ]
       })
     );
@@ -206,7 +205,6 @@ export async function getAntecedenteConServicios(id: number | string): Promise<A
           'servicios_relacionados.Servicios_id.Descripcion',
           'servicios_relacionados.Servicios_id.Imagen',
           'servicios_relacionados.Servicios_id.Area',
-          'servicios_relacionados.Servicios_id.slug',
           'servicios_relacionados.orden',
           'servicios_relacionados.destacado'
         ]
@@ -259,9 +257,7 @@ export async function buscarServicios(query: string, area?: string): Promise<Ser
   try {
     const client = getClient();
     const filters: any = {
-      _and: [
-        { status: { _eq: 'published' } }
-      ]
+      _and: []
     };
 
     // Filtro por área si se especifica
@@ -282,7 +278,7 @@ export async function buscarServicios(query: string, area?: string): Promise<Ser
 
     const response = await client.request(
       readItems('Servicios', {
-        filter: filters,
+        filter: filters._and.length > 0 ? filters : undefined,
         fields: [
           'id',
           'Titulo',
@@ -290,7 +286,8 @@ export async function buscarServicios(query: string, area?: string): Promise<Ser
           'Imagen',
           'Subtitulo',
           'Area',
-          'slug'
+          'Cliente',
+          'Productos'
         ],
         sort: ['Titulo']
       })
@@ -325,8 +322,92 @@ export async function getAllProductos(): Promise<ProductoV4[]> {
   }
 }
 
+/**
+ * Obtiene las imágenes del Hero de la página principal
+ * Ordenadas por el campo 'orden'
+ */
+export async function getHeroHomeImages() {
+  try {
+    const client = getClient();
+    const response = await client.request(
+      readItems('Hero_Home', {
+        sort: ['orden'],
+        fields: ['id', 'titulo', 'orden', 'imagen'],
+        limit: -1
+      })
+    );
+
+    return (response || []) as Array<{
+      id: number;
+      titulo: string;
+      orden: number;
+      imagen: string;
+    }>;
+  } catch (error) {
+    console.error('Error fetching Hero_Home images:', error);
+    return [];
+  }
+}
+
 // ==========================================
 // 8. EXPORT TYPES (para usar en páginas)
 // ==========================================
 
 export type { ServicioV4, ProductoV4, AntecedenteV4, AntecedenteServicioRelation };
+
+// ==========================================
+// 9. HELPER FUNCTION - Directus Image URL
+// ==========================================
+
+/**
+ * Convierte un UUID de imagen de Directus a URL completa
+ * Ahora usa URLs relativas para aprovechar el proxy de Nginx
+ */
+export function getDirectusImageUrl(imageId: string | null | undefined): string {
+  if (!imageId) {
+    return '/images/default.jpg';
+  }
+
+  // Validar que imageId es un UUID válido (formato: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
+  const uuidRegex = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+  if (!uuidRegex.test(imageId)) {
+    console.warn(`Invalid UUID format for image: ${imageId}`);
+    return '/images/default.jpg';
+  }
+
+  // Usar URL relativa - Nginx hará proxy a Directus
+  return `/assets/${imageId}`;
+}
+
+/**
+ * Obtiene todos los antecedentes V4 desde Directus
+ * Usado en página de listado de antecedentes con todas las imágenes únicas
+ */
+export async function getAllAntecedentes(): Promise<AntecedenteV4[]> {
+  try {
+    const client = getClient();
+    const response = await client.request(
+      readItems('Antecedentes', {
+        fields: [
+          'id',
+          'Titulo',
+          'Descripcion',
+          'Cliente',
+          'Imagen',
+          'Area',
+          'Unidad_de_negocio',
+          'Fecha',
+          'Presupuesto',
+          'original_id'
+        ],
+        sort: ['-Fecha', '-id'],
+        limit: -1
+      })
+    );
+
+    return (response || []) as AntecedenteV4[];
+  } catch (error) {
+    console.error('Error fetching antecedentes V4:', error);
+    return [];
+  }
+}
