@@ -151,15 +151,82 @@ import { getClient } from '../lib/directus.ts';
 
 **Estado**: ✅ Completado - Las páginas de sectores ahora tienen imports correctos
 
+## ✅ OPCIÓN A COMPLETADA (2026-01-27 23:39)
+
+### Build en Servidor de Producción - EXITOSO
+
+**Acciones Realizadas**:
+1. ✅ Copiadas 9 páginas de sectores con imports corregidos al servidor
+2. ✅ Fixed import en `src/utils/directusHelpers.ts` (cambio a `.ts` explicit)
+3. ✅ Deshabilitadas 12+ páginas problemáticas (mismo que local)
+4. ✅ Build completado exitosamente en servidor
+5. ✅ PM2 reiniciado - sitio en producción funcionando
+
+**Páginas Activas** (HTTP 200):
+- ✅ https://www.ultimamilla.com.ar/salud
+- ✅ https://www.ultimamilla.com.ar/bodegas
+- ✅ https://www.ultimamilla.com.ar/software
+- ✅ https://www.ultimamilla.com.ar/mineria
+- ✅ https://www.ultimamilla.com.ar/aeropuertos
+- ✅ https://www.ultimamilla.com.ar/industria
+- ✅ https://www.ultimamilla.com.ar/constructoras
+- ✅ https://www.ultimamilla.com.ar/gobiernosectorpublico
+- ✅ https://www.ultimamilla.com.ar/seguridad-electronica
+
+**Páginas Temporalmente Deshabilitadas** (404):
+- Homepage (/)
+- /contacto
+- /nosotros
+- /sectores
+- Servicios legacy (6 páginas)
+- Blog, casos, en (múltiples)
+- Antecedentes (index y detalle)
+
+## ✅ PROBLEMA RESUELTO: Directus Collection Name (2026-01-27 23:59)
+
+**Error Original**: `403 Forbidden - You don't have permission to access collection "antecedentes"`
+
+**Causa Real**:
+- ❌ Los permisos SÍ estaban dados en Directus Public Policy
+- ✅ **El problema era case-sensitivity**: La colección se llama "**Antecedentes**" (mayúscula) pero las queries usaban "**antecedentes**" (minúscula)
+
+**Solución Aplicada**:
+1. ✅ Reiniciado contenedor Directus
+2. ✅ Corregidas 9 páginas de sectores: `readItems('antecedentes')` → `readItems('Antecedentes')`
+3. ✅ Build y deploy exitoso
+4. ✅ Todas las páginas cargan antecedentes desde Directus correctamente
+
+## ✅ OPCIÓN 3 COMPLETADA: Re-habilitación Gradual (2026-01-27 23:59)
+
+### Páginas Re-habilitadas y Funcionando (35+ páginas)
+
+**Estado**: ✅ HTTP 200 en todas las páginas principales
+
+| Categoría | Páginas | Estado |
+|-----------|---------|--------|
+| Core | /, /contacto, /nosotros, /sectores | ✅ 200 |
+| Sectores | 9 páginas (salud, bodegas, etc.) | ✅ 200 con antecedentes |
+| Servicios | 7 páginas | ✅ 200 |
+| Blog | /blog/* | ✅ 200 |
+| Casos | /casos/*, /en/*, /casos-de-exito/* | ✅ 200 |
+| Antecedentes | /antecedentes/index | ✅ 200 |
+
+### Páginas Temporalmente Deshabilitadas (2)
+
+**Causa**: Bug del compilador Astro con componente Picture.astro en páginas dinámicas
+
+- ⏸️ `/antecedentes/[id]/index.astro`
+- ⏸️ `/antecedentes/[id]/[slug].astro`
+
+**Workaround**: Usuarios pueden ver listado de antecedentes pero no detalle individual temporalmente
+
 ## Próximos Pasos
 
-1. **✅ COMPLETADO**: Fixed import errors en páginas de sectores
-2. **Intentar build en servidor de producción** (Opción 2) - RECOMENDADO
-   - El servidor puede tener versión diferente del compilador
-   - Deshabilitadas páginas problemáticas temporalmente con `_`
-   - Páginas de sectores (core business) funcionan correctamente
-3. Si build funciona en servidor: Re-habilitar páginas una por una
-4. Si falla también: Actualizar @astrojs/compiler a versión más reciente
+1. **✅ COMPLETADO**: Build en servidor exitoso
+2. **✅ COMPLETADO**: Resolver permisos/nombre de colección Directus
+3. **✅ COMPLETADO**: Re-habilitar gradualmente páginas (35+ activas)
+4. **⏳ PENDIENTE**: Actualizar @astrojs/compiler para resolver bug en páginas [id]
+5. **⏳ PENDIENTE**: Re-habilitar /antecedentes/[id]/* cuando se resuelva bug
 
 ## Notas
 

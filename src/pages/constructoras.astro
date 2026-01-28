@@ -38,7 +38,7 @@ let antecedentes: any[] = [];
 try {
   const client = getClient();
   const allAntecedentes = await client.request(
-    readItems('antecedentes', {
+    readItems('Antecedentes', {
       filter: {
         status: { _eq: 'published' }
       },
