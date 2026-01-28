@@ -93,7 +93,7 @@ const iconMap: Record<number, { icon: string; iconColor: string }> = {
   108: { icon: 'zap', iconColor: 'bg-yellow-600/90' }
 };
 
-// Enhance services with icon data, badges and colors - IMAGES FROM DIRECTUS ONLY
+// Enhance services with badges, colors, icons - ALL from Directus
 const servicios = serviciosFromDirectus.slice(0, 8).map(s => {
   const sector = serviceToSectorMap[s.id] || 'tecnologia';
   const colors = getSectorColors(sector);
@@ -102,9 +102,6 @@ const servicios = serviciosFromDirectus.slice(0, 8).map(s => {
     ...s,
     ...iconMap[s.id],
     slug: s.slug || generateSlug(s.Titulo),
-    // Use Imagen from Directus (UUID) - NO local fallbacks
-    Imagen: s.Imagen,
-    imagen: s.Imagen,
     badge: serviceBadgeMap[s.id] || 'Tecnología',
     badgeColor: colors.icon
   };
@@ -236,12 +233,11 @@ const sectorIconPaths: Record<string, string> = {
             id={servicio.id}
             slug={servicio.slug}
             titulo={servicio.Titulo}
-            subtitulo={servicio.subtitulo || servicio.Descripcion?.substring(0, 100)}
+            descripcion={servicio.Descripcion}
             imagen={servicio.Imagen}
-            icon={servicio.icon || 'box'}
-            iconColor={servicio.iconColor || 'bg-um-primary/90'}
             badge={servicio.badge}
             badgeColor={servicio.badgeColor}
+            cliente={servicio.Cliente}
           />
         ))}
       </div>

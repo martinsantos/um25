@@ -376,18 +376,24 @@ export type { ServicioV4, ProductoV4, AntecedenteV4, AntecedenteServicioRelation
  * Convierte un UUID de imagen de Directus a URL completa
  * Usa URLs relativas para aprovechar el proxy de Nginx
  * NO FALLBACKS - La imagen DEBE existir en Directus
+ *
+ * POLÍTICA DIRECTUS-ONLY (2026-01-28):
+ * - NO devuelve fallbacks locales
+ * - NO usa placeholders genéricos
+ * - Devuelve string vacío si UUID inválido
+ * - Los componentes deben manejar string vacío mostrando "Imagen no disponible"
  */
 export function getDirectusImageUrl(imageId: string | null | undefined): string {
   if (!imageId) {
     console.error('[getDirectusImageUrl] Missing imageId');
-    return ''; // Return empty string - NO fallback
+    return ''; // ✅ Empty string, NO fallback
   }
 
   // Validar que imageId es un UUID válido (formato: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
   const uuidRegex = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
   if (!uuidRegex.test(imageId)) {
     console.error(`[getDirectusImageUrl] Invalid UUID format: ${imageId}`);
-    return ''; // Return empty string - NO fallback
+    return ''; // ✅ Empty string, NO fallback
   }
 
   // Usar URL relativa - Nginx hará proxy a Directus
