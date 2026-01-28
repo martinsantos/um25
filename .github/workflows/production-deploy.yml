@@ -84,10 +84,8 @@ jobs:
       - name: Build locally if artifacts not available
         if: steps.download-artifact.outcome == 'failure' || !hashFiles('dist/**')
         run: |
-          npm ci
+          npm ci --include=dev
           npm run build
-        env:
-          NODE_ENV: production
 
       - name: Setup SSH key
         uses: webfactory/ssh-agent@v0.9.0
