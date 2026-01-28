@@ -11,6 +11,8 @@ import { generateSlug } from '../utils/slugUtils.js';
 import { getAllServicios } from '../utils/directusHelpers';
 import { getClient, getDirectusImageUrl } from '../lib/directus.ts';
 import { readItems } from '@directus/sdk';
+import { serviceBadgeMap, serviceToSectorMap } from '../data/serviceBadgeMap';
+import { getSectorColors } from '../data/colorSystem';
 
 // Import real data
 import { antecedentesReales } from '../data/antecedentes_completos.js';
@@ -91,20 +93,22 @@ const iconMap: Record<number, { icon: string; iconColor: string }> = {
   108: { icon: 'zap', iconColor: 'bg-yellow-600/90' }
 };
 
-// Función para obtener miniatura numerada de servicio
-const getServiceThumbnail = (servicioId: number) => {
-  const imageNumber = servicioId - 100;
-  return `/images/services/${imageNumber}.png`;
-};
+// Enhance services with icon data, badges and colors - IMAGES FROM DIRECTUS ONLY
+const servicios = serviciosFromDirectus.slice(0, 8).map(s => {
+  const sector = serviceToSectorMap[s.id] || 'tecnologia';
+  const colors = getSectorColors(sector);
 
-// Enhance services with icon data and thumbnails
-const servicios = serviciosFromDirectus.slice(0, 8).map(s => ({
-  ...s,
-  ...iconMap[s.id],
-  slug: s.slug || generateSlug(s.Titulo),
-  Imagen: getServiceThumbnail(s.id), // Override UUID con miniatura local
-  imagen: getServiceThumbnail(s.id)  // También en minúsculas
-}));
+  return {
+    ...s,
+    ...iconMap[s.id],
+    slug: s.slug || generateSlug(s.Titulo),
+    // Use Imagen from Directus (UUID) - NO local fallbacks
+    Imagen: s.Imagen,
+    imagen: s.Imagen,
+    badge: serviceBadgeMap[s.id] || 'Tecnología',
+    badgeColor: colors.icon
+  };
+});
 
 // Industries/Sectors data (kept for future sector pages)
 const sectores = [
@@ -236,6 +240,8 @@ const sectorIconPaths: Record<string, string> = {
             imagen={servicio.Imagen}
             icon={servicio.icon || 'box'}
             iconColor={servicio.iconColor || 'bg-um-primary/90'}
+            badge={servicio.badge}
+            badgeColor={servicio.badgeColor}
           />
         ))}
       </div>

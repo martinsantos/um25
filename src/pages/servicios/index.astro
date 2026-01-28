@@ -11,6 +11,8 @@ import CTASection from '../../components/v4/CTASection.astro';
 import { generateSlug } from '../../utils/slugUtils.js';
 import { getAllServicios, getDirectusImageUrl } from '../../utils/directusHelpers';
 import { getHeroBackground, getServiceBackground } from '../../utils/serviceImageMap';
+import { serviceBadgeMap, serviceToSectorMap } from '../../data/serviceBadgeMap';
+import { getSectorColors } from '../../data/colorSystem';
 
 // Get services from Directus (with automatic fallback to JS data)
 const serviciosFromDirectus = await getAllServicios();
@@ -27,13 +29,21 @@ const iconMap: Record<number, { icon: string; iconColor: string }> = {
   108: { icon: 'zap', iconColor: 'bg-yellow-600/90' }
 };
 
-// Enhance services with icons and slugs
-const serviciosReales = serviciosFromDirectus.map(s => ({
-  ...s,
-  ...iconMap[s.id],
-  slug: s.slug || generateSlug(s.Titulo),
-  Area: s.area || 'Tecnología' // Fallback for filtering
-}));
+// Enhance services with icons, slugs, badges and colors - IMAGES FROM DIRECTUS ONLY
+const serviciosReales = serviciosFromDirectus.map(s => {
+  const sector = serviceToSectorMap[s.id] || 'tecnologia';
+  const colors = getSectorColors(sector);
+
+  return {
+    ...s,
+    ...iconMap[s.id],
+    slug: s.slug || generateSlug(s.Titulo),
+    Area: s.area || 'Tecnología', // Fallback for filtering
+    badge: serviceBadgeMap[s.id] || 'Tecnología',
+    badgeColor: colors.icon,
+    imagen: s.Imagen  // Use Directus UUID - NO local fallbacks
+  };
+});
 
 // Configuración de paginación
 const PAGE_SIZE = 12;
@@ -74,18 +84,6 @@ const serviciosPaginados = serviciosFiltrados.slice(startIndex, endIndex);
 // Generar opciones de filtros dinámicamente
 const areasUnicas = [...new Set(serviciosReales.map(s => s.Area))].sort();
 const clientesUnicos = [...new Set(serviciosReales.map(s => s.Cliente))].sort();
-
-// Función para obtener URL de imagen de servicio
-const getServiceThumbnail = (servicioId: number) => {
-  // Mapeo directo: servicio 101 → imagen 1.png, servicio 102 → imagen 2.png, etc.
-  const imageNumber = servicioId - 100;
-  return `/images/services/${imageNumber}.png`;
-};
-
-const getAssetUrl = (url: string | undefined, servicioId: number) => {
-  // Usar miniatura numerada basada en ID del servicio
-  return getServiceThumbnail(servicioId);
-};
 
 // Compute pagination pages
 const computePaginationPages = () => {
@@ -210,52 +208,19 @@ const buildPageUrl = (page: number) => {
         </div>
       ) : (
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-          {serviciosPaginados.map((servicio) => {
-            const slug = generateSlug(servicio.Titulo);
-            return (
-              <a href={`/servicios/${servicio.id}/${slug}`} class="group flex flex-col h-full">
-                <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 card-hover">
-                  <!-- Image -->
-                  <div class="relative aspect-[16/9] overflow-hidden bg-gray-100">
-                    <img
-                      src={getAssetUrl(servicio.Imagen, servicio.id)}
-                      alt={servicio.Titulo}
-                      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    <div class="absolute top-3 sm:top-4 left-3 sm:left-4">
-                      <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-um-dark text-white shadow-sm">
-                        {servicio.Area}
-                      </span>
-                    </div>
-                  </div>
-
-                  <!-- Content -->
-                  <div class="flex flex-col flex-grow p-4 sm:p-6">
-                    <h3 class="text-lg sm:text-xl font-bold text-um-dark mb-2 sm:mb-3 group-hover:text-um-primary transition-colors line-clamp-2">
-                      {servicio.Titulo}
-                    </h3>
-
-                    <p class="text-um-gray text-sm mb-4 sm:mb-6 line-clamp-3 flex-grow leading-relaxed">
-                      {servicio.Descripcion.replace(/\\\\/g, ' ')}
-                    </p>
-
-                    <div class="pt-3 sm:pt-4 border-t border-gray-100 mt-auto flex items-center justify-between">
-                      <span class="text-xs font-medium text-um-gray uppercase tracking-wide">
-                        {servicio.Cliente}
-                      </span>
-                      <span class="text-um-primary text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
-                        Ver detalles
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
-                      </span>
-                    </div>
-                  </div>
-                </article>
-              </a>
-            );
-          })}
+          {serviciosPaginados.map((servicio) => (
+            <ServiceCard
+              id={servicio.id}
+              slug={servicio.slug}
+              titulo={servicio.Titulo}
+              subtitulo={servicio.Descripcion?.substring(0, 100)}
+              imagen={servicio.imagen}
+              icon={servicio.icon || 'box'}
+              iconColor={servicio.iconColor || 'bg-um-primary/90'}
+              badge={servicio.badge}
+              badgeColor={servicio.badgeColor}
+            />
+          ))}
         </div>
       )}
 

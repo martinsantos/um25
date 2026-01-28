@@ -1,4 +1,6 @@
 ---
+import { getSectorColors } from '../data/colorSystem';
+
 interface Props {
   id: string;
   titulo: string;
@@ -23,8 +25,11 @@ const {
   slug 
 } = Astro.props;
 
-const defaultImage = 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80';
-const imageUrl = imagen || defaultImage;
+// NO fallbacks - image must come from Directus
+if (!imagen) {
+  console.error(`[ProjectCard] Missing image for: ${titulo} (ID: ${id})`);
+}
+const imageUrl = imagen;
 
 // Formatear fecha
 const formatDate = (dateString: string) => {
@@ -41,98 +46,79 @@ const formatDate = (dateString: string) => {
   }
 };
 
-// Mapeo de colores por categoría/sector
-const getCategoryColors = (category: string): { bg: string; text: string } => {
-  const normalizedCategory = category?.toLowerCase().trim() || '';
+/**
+ * Normaliza un área/categoría a una clave de sector
+ * Busca keywords en el área para determinar el sector correcto
+ */
+function normalizeSector(area: string): string {
+  const keywords = area?.toLowerCase().trim() || '';
 
-  // Mapeo de colores basado en categorías
-  const colorMap: Record<string, { bg: string; text: string }> = {
-    // Gobierno y Sector Público
-    'gobierno': { bg: 'bg-blue-100', text: 'text-blue-800' },
-    'sector público': { bg: 'bg-blue-100', text: 'text-blue-800' },
-    'municipal': { bg: 'bg-blue-100', text: 'text-blue-800' },
-    'municipalidad': { bg: 'bg-blue-100', text: 'text-blue-800' },
+  // Sectores principales (prioridad alta - keywords más específicos primero)
+  if (keywords.includes('aeropuerto')) return 'aeropuertos';
+  if (keywords.includes('bodega') || keywords.includes('vitivinícola')) return 'bodegas';
+  if (keywords.includes('gobierno') || keywords.includes('municipal') || keywords.includes('público')) return 'gobierno';
+  if (keywords.includes('salud') || keywords.includes('hospital') || keywords.includes('clínica')) return 'salud';
+  if (keywords.includes('construcción') || keywords.includes('constructora') || keywords.includes('obra')) return 'construccion';
+  if (keywords.includes('industria') || keywords.includes('industrial') || keywords.includes('fábrica')) return 'industria';
+  if (keywords.includes('software') || keywords.includes('desarrollo') || keywords.includes('aplicación') || keywords.includes('soporte')) return 'software';
+  if (keywords.includes('minería') || keywords.includes('minera') || keywords.includes('mining')) return 'mineria';
+  if (keywords.includes('seguridad') || keywords.includes('cctv') || keywords.includes('vigilancia')) return 'seguridad';
 
-    // Aeropuertos y Transporte
-    'aeropuertos': { bg: 'bg-sky-100', text: 'text-sky-800' },
-    'aeropuerto': { bg: 'bg-sky-100', text: 'text-sky-800' },
-    'transporte': { bg: 'bg-sky-100', text: 'text-sky-800' },
+  // Telecomunicaciones (ampliado)
+  if (keywords.includes('telecomunicaciones') ||
+      keywords.includes('redes') ||
+      keywords.includes('telefonía') ||
+      keywords.includes('comunicaciones')) return 'telecomunicaciones';
 
-    // Bodegas y Agricultura
-    'bodegas': { bg: 'bg-purple-100', text: 'text-purple-800' },
-    'bodega': { bg: 'bg-purple-100', text: 'text-purple-800' },
-    'vitivinícola': { bg: 'bg-purple-100', text: 'text-purple-800' },
-    'agroindustria': { bg: 'bg-purple-100', text: 'text-purple-800' },
+  // Nuevos sectores
+  if (keywords.includes('data center') ||
+      keywords.includes('datacenter') ||
+      keywords.includes('centro de datos')) return 'datacenter';
 
-    // Salud
-    'salud': { bg: 'bg-green-100', text: 'text-green-800' },
-    'hospital': { bg: 'bg-green-100', text: 'text-green-800' },
-    'clínica': { bg: 'bg-green-100', text: 'text-green-800' },
-    'médico': { bg: 'bg-green-100', text: 'text-green-800' },
+  if (keywords.includes('hotel') ||
+      keywords.includes('hotelería') ||
+      keywords.includes('turismo')) return 'hoteleria';
 
-    // Data Center y TI
-    'data center': { bg: 'bg-orange-100', text: 'text-orange-800' },
-    'datacenter': { bg: 'bg-orange-100', text: 'text-orange-800' },
-    'infraestructura': { bg: 'bg-orange-100', text: 'text-orange-800' },
-    'ti': { bg: 'bg-orange-100', text: 'text-orange-800' },
+  if (keywords.includes('retail') ||
+      keywords.includes('comercio') ||
+      keywords.includes('tienda') ||
+      keywords.includes('shopping')) return 'retail';
 
-    // Construcción
-    'construcción': { bg: 'bg-amber-100', text: 'text-amber-800' },
-    'constructora': { bg: 'bg-amber-100', text: 'text-amber-800' },
-    'obra': { bg: 'bg-amber-100', text: 'text-amber-800' },
+  if (keywords.includes('energía') ||
+      keywords.includes('eléctrica') ||
+      keywords.includes('renovable') ||
+      keywords.includes('distribuidora')) return 'energia';
 
-    // Industria y Manufactura
-    'industria': { bg: 'bg-indigo-100', text: 'text-indigo-800' },
-    'industrial': { bg: 'bg-indigo-100', text: 'text-indigo-800' },
-    'manufactura': { bg: 'bg-indigo-100', text: 'text-indigo-800' },
-    'fábrica': { bg: 'bg-indigo-100', text: 'text-indigo-800' },
+  if (keywords.includes('educación') ||
+      keywords.includes('universidad') ||
+      keywords.includes('escuela') ||
+      keywords.includes('instituto')) return 'educacion';
 
-    // Software y Desarrollo
-    'software': { bg: 'bg-cyan-100', text: 'text-cyan-800' },
-    'desarrollo': { bg: 'bg-cyan-100', text: 'text-cyan-800' },
-    'aplicación': { bg: 'bg-cyan-100', text: 'text-cyan-800' },
+  // Fallback genérico (SOLO si no hay match)
+  return 'tecnologia';
+}
 
-    // Minería
-    'minería': { bg: 'bg-slate-100', text: 'text-slate-800' },
-    'minera': { bg: 'bg-slate-100', text: 'text-slate-800' },
-    'mining': { bg: 'bg-slate-100', text: 'text-slate-800' },
-
-    // Seguridad
-    'seguridad': { bg: 'bg-red-100', text: 'text-red-800' },
-    'seguridad electrónica': { bg: 'bg-red-100', text: 'text-red-800' },
-    'cctv': { bg: 'bg-red-100', text: 'text-red-800' },
-
-    // Telecomunicaciones y Redes
-    'telecomunicaciones': { bg: 'bg-teal-100', text: 'text-teal-800' },
-    'redes': { bg: 'bg-teal-100', text: 'text-teal-800' },
-    'redes y comunicaciones': { bg: 'bg-teal-100', text: 'text-teal-800' },
-    'comunicaciones': { bg: 'bg-teal-100', text: 'text-teal-800' },
-  };
-
-  // Buscar coincidencia exacta o parcial
-  for (const [key, colors] of Object.entries(colorMap)) {
-    if (normalizedCategory.includes(key) || key.includes(normalizedCategory)) {
-      return colors;
-    }
-  }
-
-  // Color por defecto (azul) si no hay coincidencia
-  return { bg: 'bg-blue-100', text: 'text-blue-800' };
-};
-
-const areaColors = getCategoryColors(area);
+// Obtener colores del sector normalizado
+const sector = normalizeSector(area);
+const colors = getSectorColors(sector);
+const areaColors = colors.badge;
 ---
 
 <article class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] hover:ring-4 hover:ring-blue-300/50 flex flex-col h-full border-2 border-transparent hover:border-blue-400">
   <a href={`/antecedentes/${id}/${slug}`} class="block group h-full flex flex-col cursor-pointer">
     <div class="relative overflow-hidden h-48 bg-gray-100">
-      <img 
-        src={imageUrl}
-        alt={titulo}
-        loading="lazy"
-        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        onError="this.src='/images/placeholder-project.jpg'"
-      />
+      {imageUrl ? (
+        <img
+          src={imageUrl}
+          alt={titulo}
+          loading="lazy"
+          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      ) : (
+        <div class="w-full h-full flex items-center justify-center bg-um-gray text-um-dark">
+          <p class="text-sm">Imagen no disponible</p>
+        </div>
+      )}
     </div>
     
     <div class="p-6 flex-1 flex flex-col">

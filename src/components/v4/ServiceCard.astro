@@ -49,6 +49,8 @@ export interface Props {
   iconColor?: string;
   href?: string;
   className?: string;
+  badge?: string;
+  badgeColor?: string;
 }
 
 const {
@@ -60,21 +62,31 @@ const {
   icon = 'box',
   iconColor = 'bg-um-primary/90',
   href,
-  className = ''
+  className = '',
+  badge,
+  badgeColor = 'bg-gray-900'
 } = Astro.props;
 
 // Generar URL del servicio
 const serviceUrl = href || (slug ? `/servicios/${id}/${slug}` : `/servicios/${id}`);
 
-// Procesar imagen: si es UUID usa getDirectusImageUrl, si es URL usa directamente, sino usa placeholder
-let imagenUrl = '/images/services/default-service.jpg';
+// Process image: ONLY from Directus - NO local fallbacks
+let imagenUrl = '';
+
 if (imagen) {
   // Check if it's a UUID (format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
   if (imagen.match(/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i)) {
     imagenUrl = getDirectusImageUrl(imagen);
-  } else {
+  } else if (imagen.startsWith('http')) {
+    // If it's already a full URL, use it
     imagenUrl = imagen;
+  } else {
+    console.error(`[ServiceCard] Invalid image format for ${titulo}: ${imagen}`);
   }
+}
+
+if (!imagenUrl) {
+  console.error(`[ServiceCard] Missing image for service: ${titulo} (ID: ${id})`);
 }
 
 // Mapeo de iconos de Lucide a componentes
@@ -100,13 +112,19 @@ const IconComponent = iconComponents[icon] || Box;
   class={`card-hover group relative rounded-2xl overflow-hidden aspect-square sm:aspect-[4/5] block ${className}`}
   aria-label={`Ver servicio: ${titulo}`}
 >
-  <!-- Imagen de fondo -->
-  <img
-    src={imagenUrl}
-    alt={titulo}
-    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-    loading="lazy"
-  />
+  <!-- Imagen de fondo desde Directus -->
+  {imagenUrl ? (
+    <img
+      src={imagenUrl}
+      alt={titulo}
+      class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+      loading="lazy"
+    />
+  ) : (
+    <div class="w-full h-full flex items-center justify-center bg-um-gray text-um-dark">
+      <p class="text-sm">Imagen no disponible</p>
+    </div>
+  )}
 
   <!-- Overlay con gradiente -->
   <div class="absolute inset-0 bg-gradient-to-t from-um-dark via-um-dark/40 to-transparent"></div>
@@ -128,6 +146,15 @@ const IconComponent = iconComponents[icon] || Box;
       <p class="text-xs sm:text-sm text-gray-300 line-clamp-2">
         {subtitulo}
       </p>
+    )}
+
+    <!-- Badge -->
+    {badge && (
+      <div class="mt-auto pt-4">
+        <span class={`inline-flex items-center px-2.5 py-1 ${badgeColor} text-white text-xs font-bold uppercase tracking-wide rounded-md`}>
+          {badge}
+        </span>
+      </div>
     )}
   </div>
 </a>
