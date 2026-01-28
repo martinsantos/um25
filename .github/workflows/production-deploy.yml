@@ -74,14 +74,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download build artifacts
+        id: download-artifact
         uses: actions/download-artifact@v4
-        continue-on-error: true  # Continue if artifacts not available
+        continue-on-error: true
         with:
           name: dist-build
           path: dist/
 
       - name: Build locally if artifacts not available
-        if: failure()
+        if: steps.download-artifact.outcome == 'failure' || !hashFiles('dist/**')
         run: |
           npm ci
           npm run build
@@ -134,10 +135,11 @@ jobs:
 
       - name: Health check
         run: |
-          echo "Waiting 10s for app to start..."
-          sleep 10
+          echo "Waiting 15s for app to start..."
+          sleep 15
 
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://www.ultimamilla.com.ar)
+          # Follow redirects with -L flag
+          HTTP_STATUS=$(curl -sL -o /dev/null -w "%{http_code}" https://www.ultimamilla.com.ar)
 
           if [ "$HTTP_STATUS" == "200" ]; then
             echo "✅ Health check passed (HTTP $HTTP_STATUS)"
