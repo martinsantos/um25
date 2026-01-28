@@ -6,8 +6,14 @@
  * Reemplaza el contenido hardcodeado en las páginas de sectores
  */
 
-import { getClient } from '../lib/directus.ts';
-import { readItems } from '@directus/sdk';
+import { createDirectus, rest, staticToken, readItems } from '@directus/sdk';
+
+const DIRECTUS_URL = 'http://localhost:8055';
+const DIRECTUS_TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+
+function getAuthenticatedClient() {
+  return createDirectus(DIRECTUS_URL).with(staticToken(DIRECTUS_TOKEN)).with(rest());
+}
 
 export interface SectorValueProp {
   icono: string;
@@ -53,7 +59,7 @@ export interface Sector {
  */
 export async function getSectorBySlug(slug: string): Promise<Sector | null> {
   try {
-    const client = getClient();
+    const client = getAuthenticatedClient();
 
     const sectores = await client.request(
       readItems('sectores', {
@@ -143,7 +149,7 @@ export async function getSectorBySlug(slug: string): Promise<Sector | null> {
  */
 export async function getAllSectores(): Promise<Sector[]> {
   try {
-    const client = getClient();
+    const client = getAuthenticatedClient();
 
     const sectores = await client.request(
       readItems('sectores', {
