@@ -11,12 +11,12 @@
  * USO: node scripts/migrate-to-directus.mjs
  */
 
-import { createDirectus, rest, createCollection, createField, createItem, updateItem, readItems } from '@directus/sdk';
+import { createDirectus, rest, staticToken, createCollection, createField, createItem, updateItem, readItems } from '@directus/sdk';
 
 const DIRECTUS_URL = process.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-const DIRECTUS_TOKEN = process.env.DIRECTUS_ADMIN_TOKEN || '';
+const DIRECTUS_TOKEN = process.env.DIRECTUS_ADMIN_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
 
-const client = createDirectus(DIRECTUS_URL).with(rest());
+const client = createDirectus(DIRECTUS_URL).with(staticToken(DIRECTUS_TOKEN)).with(rest());
 
 console.log('🚀 Iniciando migración completa a Directus...\n');
 
@@ -477,7 +477,7 @@ async function cargarSectores() {
       console.log(`     → ${serviciosIds.length} servicios relacionados`);
 
     } catch (error) {
-      console.error(`  ❌ Error cargando sector ${sectorData.nombre}:`, error.message);
+      console.error(`  ❌ Error cargando sector ${sectorData.nombre}:`, JSON.stringify(error, null, 2));
     }
   }
 
