@@ -12,17 +12,6 @@ import { generateSlug } from '../../utils/slugUtils.js';
 import { getAllServicios } from '../../utils/directusHelpers';
 import { getHeroBackground, getServiceBackground } from '../../utils/serviceImageMap';
 
-// Local service images map - use these instead of Directus until asset proxy is fixed
-const localServiceImages: Record<number, string> = {
-  101: '/images/services/servicio-101-infraestructura.jpg',
-  102: '/images/services/servicio-102-seguridad.jpg',
-  103: '/images/services/servicio-103-telecomunicaciones.jpg',
-  104: '/images/services/servicio-104-software.jpg',
-  105: '/images/services/servicio-105-soporte.jpg',
-  106: '/images/services/servicio-106-consultoria.jpg',
-  107: '/images/services/servicio-107-incendios.jpg',
-  108: '/images/services/servicio-108-electricos.jpg',
-};
 import { serviceBadgeMap, serviceToSectorMap } from '../../data/serviceBadgeMap';
 import { getSectorColors } from '../../data/colorSystem';
 
@@ -225,7 +214,7 @@ const buildPageUrl = (page: number) => {
               slug={servicio.slug}
               titulo={servicio.Titulo}
               descripcion={servicio.Descripcion.replace(/\\\\/g, ' ')}
-              imagen={localServiceImages[servicio.id] || servicio.Imagen}
+              imagen={servicio.Imagen}
               badge={servicio.badge}
               badgeColor={servicio.badgeColor}
               cliente={servicio.Cliente}
