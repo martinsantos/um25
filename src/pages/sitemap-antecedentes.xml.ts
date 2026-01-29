@@ -34,10 +34,11 @@ export const GET: APIRoute = async () => {
     try {
         // Obtener todos los antecedentes desde Directus
         const directusUrl = (import.meta.env.PUBLIC_DIRECTUS_URL as string) || 'http://localhost:8055';
-        const token = (import.meta.env as any)['DIRECTUS_TOKEN'] || (import.meta.env as any)['PUBLIC_DIRECTUS_TOKEN'] || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+        // Use static API token (not JWT which expires)
+        const token = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
 
         const response = await fetch(
-            `${directusUrl}/items/Antecedentes?limit=-1&fields=id,Titulo,fecha_modificacion`,
+            `${directusUrl}/items/Antecedentes?limit=-1&fields=id,Titulo`,
             {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -53,7 +54,8 @@ export const GET: APIRoute = async () => {
             antecedentes = data.data || [];
         } else {
             // Fallback: usar datos estáticos si Directus no está disponible
-            console.warn('Directus no disponible, usando datos estáticos');
+            const errorText = await response.text().catch(() => 'unknown');
+            console.error(`[SITEMAP-ANTECEDENTES] Directus returned ${response.status}: ${errorText.slice(0, 300)}`);
             antecedentes = [
                 { id: 10768, Titulo: 'ISI Solutions - Redes y Comunicaciones' },
                 { id: 10769, Titulo: 'Ministerio de Deportes Gobierno de Mendoza - Redes y' },

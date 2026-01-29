@@ -109,15 +109,15 @@ const servicios = serviciosFromDirectus.slice(0, 8).map(s => {
 
 // Industries/Sectors data (kept for future sector pages)
 const sectores = [
-  { slug: 'aeropuertos', name: 'Aeropuertos', icon: 'plane' },
-  { slug: 'bodegas', name: 'Bodegas', icon: 'wine' },
-  { slug: 'constructoras', name: 'Construcción', icon: 'building' },
-  { slug: 'salud', name: 'Salud', icon: 'heart' },
-  { slug: 'gobiernosectorpublico', name: 'Gobierno', icon: 'landmark' },
-  { slug: 'software', name: 'Software', icon: 'monitor' },
-  { slug: 'mineria', name: 'Minería', icon: 'mountain' },
-  { slug: 'industria', name: 'Industria', icon: 'factory' },
-  { slug: 'seguridad-electronica', name: 'Seguridad', icon: 'shield' }
+  { slug: 'aeropuertos', name: 'Aeropuertos', icon: 'plane', color: '#0ea5e9' },
+  { slug: 'bodegas', name: 'Bodegas', icon: 'wine', color: '#a855f7' },
+  { slug: 'constructoras', name: 'Construcción', icon: 'building', color: '#f59e0b' },
+  { slug: 'salud', name: 'Salud', icon: 'heart', color: '#22c55e' },
+  { slug: 'gobiernosectorpublico', name: 'Gobierno', icon: 'landmark', color: '#10b981' },
+  { slug: 'software', name: 'Software', icon: 'monitor', color: '#6366f1' },
+  { slug: 'mineria', name: 'Minería', icon: 'mountain', color: '#f97316' },
+  { slug: 'industria', name: 'Industria', icon: 'factory', color: '#64748b' },
+  { slug: 'seguridad-electronica', name: 'Seguridad', icon: 'shield', color: '#06b6d4' }
 ];
 
 // Icon paths for sectors (SVG paths for each icon type)
@@ -148,11 +148,11 @@ const sectorIconPaths: Record<string, string> = {
         <img
           src={img.url}
           alt={img.alt}
-          class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${index === 0 ? 'opacity-50' : 'opacity-0'}`}
+          class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${index === 0 ? 'opacity-80' : 'opacity-0'}`}
           data-index={index}
         />
       ))}
-      <div class="absolute inset-0 bg-gradient-to-r from-um-dark via-um-dark/80 to-transparent"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-um-dark/90 via-um-dark/50 to-transparent"></div>
     </div>
 
     <!-- Content -->
@@ -312,7 +312,7 @@ const sectorIconPaths: Record<string, string> = {
 
       <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9 gap-3 sm:gap-4">
         {sectores.map((sector) => (
-          <a href={`/${sector.slug}`} class="group flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-um-primary hover:shadow-lg transition-all min-h-[90px]">
+          <a href={`/${sector.slug}`} class="sector-icon group flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:shadow-lg transition-all min-h-[90px]" style={`--sector-color: ${sector.color}`}>
             <svg class="w-8 h-8 text-um-gray group-hover:text-white mb-2 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" set:html={sectorIconPaths[sector.icon] || sectorIconPaths.building} />
             <span class="text-xs font-medium text-um-dark group-hover:text-white text-center transition-colors">{sector.name}</span>
           </a>
@@ -380,7 +380,7 @@ const sectorIconPaths: Record<string, string> = {
 
       setInterval(() => {
         // Fade out current
-        images[currentIndex].classList.remove('opacity-50');
+        images[currentIndex].classList.remove('opacity-80');
         images[currentIndex].classList.add('opacity-0');
 
         // Move to next
@@ -388,8 +388,14 @@ const sectorIconPaths: Record<string, string> = {
 
         // Fade in next
         images[currentIndex].classList.remove('opacity-0');
-        images[currentIndex].classList.add('opacity-50');
+        images[currentIndex].classList.add('opacity-80');
       }, 5000);
     });
   </script>
+
+  <style>
+    .sector-icon:hover {
+      background-color: var(--sector-color);
+    }
+  </style>
 </LayoutV4>

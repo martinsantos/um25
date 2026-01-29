@@ -49,7 +49,6 @@ const serviciosReales = serviciosFromDirectus.map(s => {
 const PAGE_SIZE = 12;
 const currentPage = parseInt(Astro.url.searchParams.get('page') || '1');
 const searchQuery = Astro.url.searchParams.get('search') || '';
-const areaFilter = Astro.url.searchParams.get('area') || '';
 const clienteFilter = Astro.url.searchParams.get('cliente') || '';
 
 // Filtrar servicios
@@ -59,12 +58,6 @@ if (searchQuery) {
   serviciosFiltrados = serviciosFiltrados.filter(servicio =>
     servicio.Titulo.toLowerCase().includes(searchQuery.toLowerCase()) ||
     servicio.Descripcion.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-}
-
-if (areaFilter) {
-  serviciosFiltrados = serviciosFiltrados.filter(servicio =>
-    servicio.Area === areaFilter
   );
 }
 
@@ -82,7 +75,6 @@ const endIndex = startIndex + PAGE_SIZE;
 const serviciosPaginados = serviciosFiltrados.slice(startIndex, endIndex);
 
 // Generar opciones de filtros dinámicamente
-const areasUnicas = [...new Set(serviciosReales.map(s => s.Area))].sort();
 const clientesUnicos = [...new Set(serviciosReales.map(s => s.Cliente))].sort();
 
 // Compute pagination pages
@@ -112,7 +104,6 @@ const paginationPages = computePaginationPages();
 const buildPageUrl = (page: number) => {
   let url = `/servicios?page=${page}`;
   if (searchQuery) url += `&search=${searchQuery}`;
-  if (areaFilter) url += `&area=${areaFilter}`;
   if (clienteFilter) url += `&cliente=${clienteFilter}`;
   return url;
 };
@@ -135,7 +126,6 @@ const buildPageUrl = (page: number) => {
     backgroundImage={getHeroBackground('servicios')}
     stats={[
       { value: `${serviciosReales.length}+`, label: 'Servicios' },
-      { value: String(areasUnicas.length), label: 'Áreas' },
       { value: `${clientesUnicos.length}+`, label: 'Sectores' },
     ]}
   />
@@ -161,16 +151,6 @@ const buildPageUrl = (page: number) => {
         </div>
 
         <div class="flex flex-wrap gap-2 sm:gap-3 w-full md:w-auto">
-          <select
-            name="area"
-            class="bg-white border border-gray-300 text-um-dark py-2.5 px-4 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-um-primary focus:border-um-primary text-sm min-h-[44px] flex-1 md:flex-none"
-          >
-            <option value="">Todas las áreas</option>
-            {areasUnicas.map(area => (
-              <option value={area} selected={areaFilter === area}>{area}</option>
-            ))}
-          </select>
-
           <select
             name="cliente"
             class="bg-white border border-gray-300 text-um-dark py-2.5 px-4 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-um-primary focus:border-um-primary text-sm min-h-[44px] flex-1 md:flex-none"
