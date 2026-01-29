@@ -28,6 +28,7 @@
  */
 
 import { getDirectusImageUrl } from '../../lib/directus.ts';
+import { getProductImage } from '../../utils/serviceImageMap';
 
 export interface Props {
   titulo: string;
@@ -38,6 +39,7 @@ export interface Props {
   marcas?: string[];
   imagePosition?: 'left' | 'right';
   orden?: number;
+  serviceId?: string | number;
   className?: string;
 }
 
@@ -50,6 +52,7 @@ const {
   marcas = [],
   imagePosition,
   orden = 0,
+  serviceId,
   className = ''
 } = Astro.props;
 
@@ -57,11 +60,10 @@ const {
 const position = imagePosition || (orden % 2 === 0 ? 'left' : 'right');
 const flexDirection = position === 'left' ? 'md:flex-row' : 'md:flex-row-reverse';
 
-// Process image: ONLY from Directus - NO fallbacks
-const imagenUrl = imagen ? getDirectusImageUrl(imagen) : '';
-if (!imagenUrl && imagen) {
-  console.error(`[ProductCard] Invalid image for ${titulo}: ${imagen}`);
-}
+// Use local product image (Directus files don't exist on disk)
+const imagenUrl = serviceId
+  ? getProductImage(serviceId, orden)
+  : (imagen ? getDirectusImageUrl(imagen) : '');
 
 // Validar que haya contenido
 const hasFeatures = features.length > 0;
