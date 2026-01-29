@@ -29,7 +29,12 @@ export default defineConfig({
     }),
     mdx(),
     tailwind(),
-    sitemap(),
+    sitemap({
+      filter: (page) =>
+        !page.includes('/admin/') &&
+        !page.includes('/constructoras-directus') &&
+        !page.includes('/seguridad/')
+    }),
     alpinejs()
   ],
 

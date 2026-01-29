@@ -82,6 +82,58 @@ function generateSitemapXml(posts: any[]): string {
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
+    <url>
+        <loc>${SITE_URL}/software</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>${SITE_URL}/antecedentes</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+
+    <!-- Servicios detalle -->
+    <url>
+        <loc>${SITE_URL}/servicios/101/infraestructura-de-redes</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>${SITE_URL}/servicios/102/sistemas-de-seguridad-electronica</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>${SITE_URL}/servicios/103/telecomunicaciones</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>${SITE_URL}/servicios/104/desarrollo-de-software-a-medida</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>${SITE_URL}/servicios/105/soporte-tecnico-24-7</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>${SITE_URL}/servicios/106/consultoria-it-y-transformacion-digital</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>${SITE_URL}/servicios/107/sistemas-de-deteccion-y-alarma-de-incendios</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>${SITE_URL}/servicios/108/servicios-electricos-para-it</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
 
     <!-- Posts del blog -->
     ${posts.map(post => `

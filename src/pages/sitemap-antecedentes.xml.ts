@@ -33,11 +33,11 @@ function generateSitemapXml(antecedentes: any[]): string {
 export const GET: APIRoute = async () => {
     try {
         // Obtener todos los antecedentes desde Directus
-        const directusUrl = (import.meta.env.PUBLIC_DIRECTUS_URL as string) || 'http://directus:8055';
-        const token = (import.meta.env as any)['DIRECTUS_TOKEN'] || '';
-        
+        const directusUrl = (import.meta.env.PUBLIC_DIRECTUS_URL as string) || 'http://localhost:8055';
+        const token = (import.meta.env as any)['DIRECTUS_TOKEN'] || (import.meta.env as any)['PUBLIC_DIRECTUS_TOKEN'] || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+
         const response = await fetch(
-            `${directusUrl}/items/antecedentes?limit=500&fields=id,Titulo,fecha_modificacion`,
+            `${directusUrl}/items/Antecedentes?limit=-1&fields=id,Titulo,fecha_modificacion`,
             {
                 headers: {
                     'Authorization': `Bearer ${token}`,
