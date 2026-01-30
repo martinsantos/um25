@@ -3,10 +3,12 @@
  * =====================================
  *
  * Funciones para obtener datos de sectores desde Directus
- * Reemplaza el contenido hardcodeado en las páginas de sectores
+ * Con fallback a snapshots JSON cuando Directus no responde
  */
 
 import { createDirectus, rest, staticToken, readItems } from '@directus/sdk';
+import { getAllAntecedentes, getDirectusImageUrl } from '../lib/directus.ts';
+import { generateSlug } from './slugUtils.js';
 
 const DIRECTUS_URL = 'http://localhost:8055';
 const DIRECTUS_TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
@@ -133,9 +135,64 @@ export async function getSectorBySlug(slug: string): Promise<Sector | null> {
     };
 
   } catch (error) {
-    console.error(`[sectoresHelpers] Error obteniendo sector "${slug}":`, error);
-    return null;
+    console.error(`[sectoresHelpers] Error obteniendo sector "${slug}", trying snapshot:`, error);
+    try {
+      const snapshot = await import('../data/snapshots/sectores.json');
+      const allSectores = (snapshot.data || snapshot.default?.data || []) as Sector[];
+      const sector = allSectores.find((s: any) => s.slug === slug && s.activo !== false);
+      return sector || null;
+    } catch {
+      return null;
+    }
   }
+}
+
+/**
+ * Obtiene antecedentes filtrados por keywords de un sector
+ * Con fallback automático a snapshot de antecedentes
+ */
+export async function getAntecedentesForSector(
+  keywords: string[],
+  sectorName: string,
+  limit: number = 6
+): Promise<any[]> {
+  try {
+    const client = getAuthenticatedClient();
+    const allAntecedentes = await client.request(
+      readItems('Antecedentes', {
+        fields: ['id', 'Titulo', 'Cliente', 'Descripcion', 'Area', 'Imagen', 'Fecha', 'Unidad_de_negocio'],
+        limit: 500
+      })
+    );
+
+    const filtered = filterAntecedentesByKeywords(allAntecedentes as any[], keywords, limit);
+    console.log(`[${sectorName.toUpperCase()}] Found ${filtered.length} antecedentes from Directus`);
+    return filtered;
+  } catch (error) {
+    console.error(`[${sectorName.toUpperCase()}] Error fetching from Directus, trying snapshot:`, error);
+    try {
+      const allAntecedentes = await getAllAntecedentes();
+      const filtered = filterAntecedentesByKeywords(allAntecedentes as any[], keywords, limit);
+      console.log(`[${sectorName.toUpperCase()}] Found ${filtered.length} antecedentes from snapshot`);
+      return filtered;
+    } catch {
+      return [];
+    }
+  }
+}
+
+function filterAntecedentesByKeywords(items: any[], keywords: string[], limit: number): any[] {
+  return items
+    .filter(item => {
+      const texto = `${item.Cliente || ''} ${item.Titulo || ''} ${item.Area || ''} ${item.Descripcion || ''} ${item.Nombre || ''}`.toLowerCase();
+      return keywords.some((k: string) => texto.includes(k.toLowerCase()));
+    })
+    .slice(0, limit)
+    .map(item => ({
+      ...item,
+      slug: generateSlug(item.Titulo || 'proyecto'),
+      imageUrl: getDirectusImageUrl(item.Imagen)
+    }));
 }
 
 /**
@@ -167,8 +224,13 @@ export async function getAllSectores(): Promise<Sector[]> {
     return sectores as Sector[];
 
   } catch (error) {
-    console.error('[sectoresHelpers] Error obteniendo sectores:', error);
-    return [];
+    console.error('[sectoresHelpers] Error obteniendo sectores, trying snapshot:', error);
+    try {
+      const snapshot = await import('../data/snapshots/sectores.json');
+      return (snapshot.data || snapshot.default?.data || []) as Sector[];
+    } catch {
+      return [];
+    }
   }
 }
 

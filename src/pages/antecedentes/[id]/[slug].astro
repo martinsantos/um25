@@ -85,8 +85,10 @@ try {
 } catch (error) {
     usingFallback = true;
     try {
-        const { antecedentesReales } = await import('../../../data/antecedentes_completos.js');
-        antecedente = antecedentesReales.find((item: any) => item.id.toString() === id);
+        // Fallback: buscar en snapshot completo (518 antecedentes)
+        const snapshot = await import('../../../data/snapshots/antecedentes.json');
+        const allAntecedentes = (snapshot.data || snapshot.default?.data || []) as any[];
+        antecedente = allAntecedentes.find((item: any) => item.id?.toString() === id);
         if (antecedente) {
             const expectedSlug = generateSlug(antecedente.Titulo);
             if (expectedSlug !== slugFromUrl) {

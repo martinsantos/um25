@@ -134,6 +134,7 @@ export async function getServiciosV4(): Promise<ServicioV4[]> {
  * Carga productos desde colección separada con relación M2O
  */
 export async function getServicioConProductos(id: number | string): Promise<ServicioV4 | null> {
+  const numId = Number(id);
   try {
     const client = getClient();
 
@@ -158,15 +159,25 @@ export async function getServicioConProductos(id: number | string): Promise<Serv
     if (!servicio) return null;
 
     // Query 2: Obtener productos del servicio
-    const productos = await getProductosPorServicio(Number(id));
+    const productos = await getProductosPorServicio(numId);
 
     return {
       ...servicio,
       productos
     } as ServicioV4;
   } catch (error) {
-    console.error(`Error fetching servicio ${id}:`, error);
-    return null;
+    console.error(`Error fetching servicio ${id}, trying snapshot:`, error);
+    try {
+      const serviciosSnapshot = await import('../data/snapshots/servicios.json');
+      const allServicios = (serviciosSnapshot.data || serviciosSnapshot.default?.data || []) as ServicioV4[];
+      const servicio = allServicios.find((s: any) => Number(s.id) === numId);
+      if (!servicio) return null;
+
+      const productos = await getProductosPorServicio(numId);
+      return { ...servicio, productos } as ServicioV4;
+    } catch {
+      return null;
+    }
   }
 }
 
@@ -221,6 +232,7 @@ export async function getProductosPorServicio(servicioId: number): Promise<Produ
  * Usado en página de detalle de antecedente (/antecedentes/[id]/[slug])
  */
 export async function getAntecedenteConServicios(id: number | string): Promise<AntecedenteV4 | null> {
+  const numId = Number(id);
   try {
     const client = getClient();
     const response = await client.request(
@@ -240,8 +252,15 @@ export async function getAntecedenteConServicios(id: number | string): Promise<A
 
     return response as AntecedenteV4;
   } catch (error) {
-    console.error(`Error fetching antecedente ${id} with services:`, error);
-    return null;
+    console.error(`Error fetching antecedente ${id} with services, trying snapshot:`, error);
+    try {
+      const snapshot = await import('../data/snapshots/antecedentes.json');
+      const allAntecedentes = (snapshot.data || snapshot.default?.data || []) as AntecedenteV4[];
+      const antecedente = allAntecedentes.find((a: any) => Number(a.id) === numId);
+      return antecedente || null;
+    } catch {
+      return null;
+    }
   }
 }
 
@@ -371,8 +390,18 @@ export async function getHeroHomeImages() {
       imagen: string;
     }>;
   } catch (error) {
-    console.error('Error fetching Hero_Home images:', error);
-    return [];
+    console.error('Error fetching Hero_Home images, trying snapshot:', error);
+    try {
+      const snapshot = await import('../data/snapshots/hero.json');
+      return (snapshot.data || snapshot.default?.data || []) as Array<{
+        id: number;
+        titulo: string;
+        orden: number;
+        imagen: string;
+      }>;
+    } catch {
+      return [];
+    }
   }
 }
 
@@ -387,31 +416,66 @@ export type { ServicioV4, ProductoV4, AntecedenteV4, AntecedenteServicioRelation
 // ==========================================
 
 /**
- * Convierte un UUID de imagen de Directus a URL completa
- * Usa URLs relativas para aprovechar el proxy de Nginx
- * NO FALLBACKS - La imagen DEBE existir en Directus
+ * Convierte un UUID de imagen de Directus a URL utilizable.
  *
- * POLÍTICA DIRECTUS-ONLY (2026-01-28):
- * - NO devuelve fallbacks locales
- * - NO usa placeholders genéricos
- * - Devuelve string vacío si UUID inválido
- * - Los componentes deben manejar string vacío mostrando "Imagen no disponible"
+ * Estrategia:
+ * 1. Si el UUID tiene imagen local mapeada → usa la local (más confiable)
+ * 2. Si no → usa /assets/{uuid} (Nginx proxy a Directus)
+ *
+ * El mapa local se genera con: node scripts/generate-image-map.mjs
  */
+const uuidRegex = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+
+// Mapa de UUIDs a imágenes locales (servicios, productos, hero)
+let imageLocalMap: Record<string, string> = {};
+try {
+  const mapModule = await import('../data/image-local-map.json');
+  imageLocalMap = mapModule.default || mapModule;
+} catch {
+  // No map available, will use Directus URLs
+}
+
+// Probe Directus assets once at startup to know if /assets/ URLs will work
+let directusAssetsAvailable = false;
+try {
+  const testResp = await fetch(`${DIRECTUS_CONFIG.url}/server/health`, {
+    signal: AbortSignal.timeout(3000)
+  });
+  directusAssetsAvailable = testResp.ok;
+} catch {
+  directusAssetsAvailable = false;
+}
+if (!directusAssetsAvailable) {
+  console.warn('[directus] Directus assets NOT available — using local images only');
+}
+
 export function getDirectusImageUrl(imageId: string | null | undefined): string {
-  if (!imageId) {
-    console.error('[getDirectusImageUrl] Missing imageId');
-    return ''; // ✅ Empty string, NO fallback
+  if (!imageId) return '';
+  if (!uuidRegex.test(imageId)) return '';
+
+  // Si hay imagen local mapeada, usarla siempre (más confiable)
+  const localPath = imageLocalMap[imageId];
+  if (localPath) return localPath;
+
+  // Si Directus assets están disponibles, usar proxy /assets/
+  if (directusAssetsAvailable) {
+    return `/assets/${imageId}`;
   }
 
-  // Validar que imageId es un UUID válido (formato: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
-  const uuidRegex = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
-  if (!uuidRegex.test(imageId)) {
-    console.error(`[getDirectusImageUrl] Invalid UUID format: ${imageId}`);
-    return ''; // ✅ Empty string, NO fallback
-  }
+  // Directus caído y sin imagen local → default
+  return '/images/default-background.jpg';
+}
 
-  // Usar URL relativa - Nginx hará proxy a Directus
-  return `/assets/${imageId}`;
+/**
+ * Devuelve la URL de fallback local para una imagen de Directus.
+ * Para uso en onerror de <img> tags.
+ */
+export function getDirectusImageFallback(imageId: string | null | undefined): string {
+  if (!imageId) return '/images/default-background.jpg';
+  if (!uuidRegex.test(imageId)) return '/images/default-background.jpg';
+  const localPath = imageLocalMap[imageId];
+  if (localPath) return localPath;
+  return '/images/default-background.jpg';
 }
 
 /**

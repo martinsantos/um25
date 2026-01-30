@@ -7,9 +7,7 @@
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import { generateSlug } from '../utils/slugUtils.js';
-import { getClient, getDirectusImageUrl } from '../lib/directus.ts';
-import { readItems } from '@directus/sdk';
-import { getSectorBySlug, getIconSVGPath } from '../utils/sectoresHelpers.ts';
+import { getSectorBySlug, getIconSVGPath, getAntecedentesForSector } from '../utils/sectoresHelpers.ts';
 
 // Obtener sector desde Directus
 const sectorData = await getSectorBySlug('salud');
@@ -34,34 +32,8 @@ const {
   servicios: serviciosRelacionados,
 } = sectorData;
 
-// Fetch antecedentes from Directus
-let antecedentes: any[] = [];
-try {
-  const client = getClient();
-  const allAntecedentes = await client.request(
-    readItems('Antecedentes', {
-      fields: ['id', 'Titulo', 'Cliente', 'Descripcion', 'Area', 'Imagen', 'Fecha', 'Unidad_de_negocio'],
-      limit: 500
-    })
-  );
-
-  // Filter by sector keywords
-  antecedentes = allAntecedentes
-    .filter(item => {
-      const texto = `${item.Cliente || ''} ${item.Titulo || ''} ${item.Area || ''} ${item.Descripcion || ''} ${item.Nombre || ''}`.toLowerCase();
-      return keywords.some((k: string) => texto.includes(k.toLowerCase()));
-    })
-    .slice(0, 6)
-    .map(item => ({
-      ...item,
-      slug: generateSlug(item.Titulo || 'proyecto'),
-      imageUrl: getDirectusImageUrl(item.Imagen)
-    }));
-
-  console.log(`[${nombre.toUpperCase()}] Found ${antecedentes.length} antecedentes from Directus`);
-} catch (error) {
-  console.error(`[${nombre.toUpperCase()}] Error fetching from Directus:`, error);
-}
+// Fetch antecedentes with automatic fallback to snapshots
+const antecedentes = await getAntecedentesForSector(keywords, nombre);
 
 // Map color theme to Tailwind classes
 const colorMap: Record<string, any> = {

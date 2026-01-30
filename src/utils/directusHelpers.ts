@@ -1,13 +1,15 @@
 /**
- * DIRECTUS HELPERS V4 - Directus-only (sin fallback)
+ * DIRECTUS HELPERS V4 - Con fallback a snapshots JSON
  *
  * Funciones de alto nivel para obtener datos de Directus.
- * Todo el contenido se sirve desde Directus CMS, sin sistema de fallback.
+ * Fallback automático a snapshots JSON cuando Directus no responde.
  *
  * Migrado: 2026-01-27
- * - Eliminado sistema de fallback a datos JS
  * - Todos los productos migrados a colección "productos"
  * - Imágenes migradas a Directus assets
+ * Actualizado: 2026-01-30
+ * - Restaurado fallback via snapshots en directus.ts
+ * - Helpers no propagan errores, degradan gracefully
  */
 
 import type { ServicioV4, ProductoV4, AntecedenteV4 } from '../types/directus-v4';
@@ -45,7 +47,7 @@ export async function getAllServicios(): Promise<ServicioV4[]> {
     return servicios;
   } catch (error) {
     console.error('❌ Error fetching servicios from Directus:', error);
-    throw error;
+    return [];
   }
 }
 
@@ -70,7 +72,7 @@ export async function getServicioById(id: number | string): Promise<ServicioV4 |
     return servicio;
   } catch (error) {
     console.error(`❌ Error fetching servicio ${numId}:`, error);
-    throw error;
+    return null;
   }
 }
 
@@ -88,7 +90,7 @@ export async function getProductos(servicioId: number): Promise<ProductoV4[]> {
     return productos;
   } catch (error) {
     console.error(`❌ Error fetching productos for servicio ${servicioId}:`, error);
-    throw error;
+    return [];
   }
 }
 
@@ -162,7 +164,7 @@ export async function searchServicios(query: string, area?: string): Promise<Ser
     return servicios;
   } catch (error) {
     console.error('❌ Error searching servicios:', error);
-    throw error;
+    return [];
   }
 }
 
