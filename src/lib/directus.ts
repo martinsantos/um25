@@ -120,8 +120,11 @@ export async function getServiciosV4(): Promise<ServicioV4[]> {
 
     return (response || []) as ServicioV4[];
   } catch (error) {
-    console.error('Error fetching servicios V4:', error);
-    return [];
+    console.error('Error fetching servicios V4, trying snapshot:', error);
+    try {
+      const snapshot = await import('../data/snapshots/servicios.json');
+      return (snapshot.data || snapshot.default?.data || []) as ServicioV4[];
+    } catch { return []; }
   }
 }
 
@@ -197,8 +200,19 @@ export async function getProductosPorServicio(servicioId: number): Promise<Produ
 
     return uniqueProductos;
   } catch (error) {
-    console.error(`Error fetching productos for servicio ${servicioId}:`, error);
-    return [];
+    console.error(`Error fetching productos for servicio ${servicioId}, trying snapshot:`, error);
+    try {
+      const snapshot = await import('../data/snapshots/productos.json');
+      const allProductos = (snapshot.data || snapshot.default?.data || []) as ProductoV4[];
+      const filtered = allProductos.filter((p: any) => p.servicio_id === servicioId);
+      const seen = new Set<string>();
+      return filtered.filter((p) => {
+        const titulo = p.titulo?.toLowerCase().trim();
+        if (!titulo || seen.has(titulo)) return false;
+        seen.add(titulo);
+        return true;
+      });
+    } catch { return []; }
   }
 }
 
@@ -428,7 +442,10 @@ export async function getAllAntecedentes(): Promise<AntecedenteV4[]> {
 
     return (response || []) as AntecedenteV4[];
   } catch (error) {
-    console.error('Error fetching antecedentes V4:', error);
-    return [];
+    console.error('Error fetching antecedentes V4, trying snapshot:', error);
+    try {
+      const snapshot = await import('../data/snapshots/antecedentes.json');
+      return (snapshot.data || snapshot.default?.data || []) as AntecedenteV4[];
+    } catch { return []; }
   }
 }
