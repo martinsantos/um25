@@ -9,7 +9,8 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
 import HeroPageV4 from '../../components/v4/HeroPageV4.astro';
 import CTASection from '../../components/v4/CTASection.astro';
 import { getAllAntecedentes, getDirectusImageUrl } from "../../lib/directus.ts";
-import { directus, PAGE_SIZE, DEFAULT_IMAGE } from '../../utils/directus';
+const PAGE_SIZE = 20;
+const DEFAULT_IMAGE = '/images/default.jpg';
 
 // Obtener parámetros de la URL
 const getUrlParams = (url) => {

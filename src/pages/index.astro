@@ -49,34 +49,17 @@ try {
   ];
 }
 
-// Helper function to get image URL for antecedentes using mapping system
-async function getImageUrl(proyecto: any): Promise<string> {
-  try {
-    const { buscarImagenPorDatos } = await import('../data/mapeo_imagenes_completo.js');
-    const nombreArchivo = buscarImagenPorDatos(
-      proyecto.Cliente,
-      proyecto.Area || proyecto.Unidad_de_negocio,
-      proyecto.Titulo,
-      proyecto.id
-    );
-
-    if (nombreArchivo) {
-      return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
-    }
-  } catch (error) {
-    console.log('[HOMEPAGE] Error en mapeo:', error);
-  }
-  return '/images/default.jpg'; // Professional default image
+// Get image URL for antecedentes — Directus-first (all 518 have valid UUIDs)
+function getImageUrl(proyecto: any): string {
+  return getDirectusImageUrl(proyecto.Imagen) || '/images/default.jpg';
 }
 
-// Get 3 featured antecedentes for success cases section with Promise.all for async images
-const antecedentesEnhanced = await Promise.all(
-  antecedentesReales.slice(0, 3).map(async (ant) => ({
-    ...ant,
-    slug: generateSlug(ant.Titulo || ant.Nombre || 'proyecto'),
-    imageUrl: await getImageUrl(ant)
-  }))
-);
+// Get 3 featured antecedentes for success cases section
+const antecedentesEnhanced = antecedentesReales.slice(0, 3).map((ant) => ({
+  ...ant,
+  slug: generateSlug(ant.Titulo || ant.Nombre || 'proyecto'),
+  imageUrl: getImageUrl(ant)
+}));
 
 // Get services from Directus (with automatic fallback to JS data)
 const serviciosFromDirectus = await getAllServicios();

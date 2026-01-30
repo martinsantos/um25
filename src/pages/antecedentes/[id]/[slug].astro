@@ -8,7 +8,6 @@ import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import ServiceCard from '../../../components/v4/ServiceCard.astro';
 import CTASection from '../../../components/v4/CTASection.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
-import { getFixedImage } from '../../../utils/imageFixer.js';
 import { getServicioById } from '../../../utils/directusHelpers';
 import { getServiceIdFromArea } from '../../../data/areaToServiceMap.js';
 import { getDirectusImageUrl } from '../../../lib/directus.ts';
@@ -40,18 +39,13 @@ const getAssetUrl = (assetId: any): string => {
     if (typeof assetId === 'object') {
         if (assetId.id) return getDirectusImageUrl(assetId.id);
         if (assetId.directus_files_id) return getDirectusImageUrl(assetId.directus_files_id);
-        if (assetId.filename_disk) return getDirectusImageUrl(assetId.filename_disk);
     }
 
-    // Handle string UUIDs or filenames
+    // Handle string UUIDs
     if (typeof assetId === 'string') {
         if (assetId.startsWith('http')) return assetId;
-        // If it's a UUID, use getDirectusImageUrl (will use /assets/ proxy)
-        if (assetId.match(/^[a-f0-9-]{36}$/i)) return getDirectusImageUrl(assetId);
-        // Otherwise it's a filename, use local version
-        let filename = assetId.startsWith('/') ? assetId.substring(1) : assetId;
-        filename = getFixedImage(filename);
-        return `/imagenes_antecedentes_versionproduccion/${filename}`;
+        const url = getDirectusImageUrl(assetId);
+        if (url) return url;
     }
 
     return DEFAULT_IMAGE_URL;
@@ -108,30 +102,8 @@ try {
 
 if (!antecedente) return Astro.redirect('/404');
 
-// --- Prepare data for UI ---
-const getMainImageUrl = async (): Promise<string> => {
-    try {
-        const { buscarImagenPorDatos } = await import('../../../data/mapeo_imagenes_completo.js');
-        const nombreArchivo = buscarImagenPorDatos(antecedente.Cliente, antecedente.Area, antecedente.Titulo, id);
-        if (nombreArchivo) return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
-    } catch (e) {}
-
-    const imagenesConocidas: Record<string, string> = {
-        '11125': 'ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png',
-        '10770': 'ultimamilla_telecombtw_sa_-_redes_y_comunicaciones_20250415_201308_s4071923973.png',
-        '1': 'ultimamilla_municipalidad_de_maipú_-_software_servicios_20250415_182056_s1379068004.png',
-        '2': 'ultimamilla_municipalidad_de_guaymallén_-_redes_y_comunicaciones_redes_y_20250415_182333_s1075915836.png',
-        '3': 'ultimamilla_patrulleros_inteligentes_-_redes_y_comunicaciones_20250415_182524_s1196678540.png'
-    };
-    if (imagenesConocidas[id]) return `/imagenes_antecedentes_versionproduccion/${imagenesConocidas[id]}`;
-
-    if (!usingFallback && (antecedente.Imagen || antecedente.ImagenPrincipal)) {
-        return getAssetUrl(antecedente.Imagen || antecedente.ImagenPrincipal);
-    }
-    return DEFAULT_IMAGE_URL;
-};
-
-const mainImageUrl = await getMainImageUrl();
+// --- Prepare data for UI (Directus-first) ---
+const mainImageUrl = getAssetUrl(antecedente.Imagen || antecedente.ImagenPrincipal);
 
 const formatDate = (dateString: string): string => {
     if (!dateString) return 'No especificada';
