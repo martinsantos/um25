@@ -9,12 +9,11 @@ import ServiceCard from '../components/v4/ServiceCard.astro';
 import CTASection from '../components/v4/CTASection.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getAllServicios } from '../utils/directusHelpers';
-import { getClient, getDirectusImageUrl, getAllAntecedentes } from '../lib/directus.ts';
-import { readItems } from '@directus/sdk';
+import { getDirectusImageUrl, getAllAntecedentes, getHeroHomeImages } from '../lib/directus.ts';
 import { serviceBadgeMap, serviceToSectorMap } from '../data/serviceBadgeMap';
 import { getSectorColors } from '../data/colorSystem';
 
-// Fetch hero images from Directus Hero_Home collection
+// Fetch hero images from Directus Hero_Home (with snapshot fallback)
 const localHeroFallback = [
   { url: '/images/services/redes-comunicaciones.jpg', alt: 'Infraestructura de Redes' },
   { url: '/images/services/ciberseguridad.jpg', alt: 'Seguridad Electrónica' },
@@ -25,16 +24,8 @@ const localHeroFallback = [
 
 let heroImages: { url: string; alt: string }[] = [];
 try {
-  const client = getClient();
-  const heroItems = await client.request(
-    readItems('Hero_Home' as any, {
-      filter: { status: { _eq: 'published' } },
-      sort: ['orden'],
-      limit: 10
-    })
-  );
-
-  heroImages = (heroItems as any[])
+  const heroItems = await getHeroHomeImages();
+  heroImages = heroItems
     .map((item: any) => ({
       url: getDirectusImageUrl(item.imagen),
       alt: item.titulo || `Hero ${item.orden}`
@@ -44,7 +35,7 @@ try {
   console.error('[HOMEPAGE] Error loading hero images:', error);
 }
 
-// Use local fallback if no valid hero images from Directus
+// Use local fallback if no valid hero images
 if (heroImages.length === 0) {
   heroImages = localHeroFallback;
 }

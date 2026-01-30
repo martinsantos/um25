@@ -150,6 +150,50 @@ jobs:
             exit 1
           fi
 
+      - name: Smoke test - verify content integrity
+        run: |
+          HOMEPAGE=$(curl -sL https://www.ultimamilla.com.ar)
+          ERRORS=0
+
+          # 1. Service images must be .jpg (not default-background)
+          SVC_IMGS=$(echo "$HOMEPAGE" | grep -oE 'src="[^"]*productos[^"]*\.jpg"' | wc -l)
+          if [ "$SVC_IMGS" -lt 4 ]; then
+            echo "❌ Only $SVC_IMGS service images found (expected >= 4)"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "✅ Service images: $SVC_IMGS found"
+          fi
+
+          # 2. Antecedente images must have /assets/ or /uploads/ URLs
+          ANT_IMGS=$(echo "$HOMEPAGE" | grep -oE 'src="/(assets|uploads)/[^"]*"' | wc -l)
+          if [ "$ANT_IMGS" -lt 3 ]; then
+            echo "❌ Only $ANT_IMGS antecedente images found (expected >= 3)"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "✅ Antecedente images: $ANT_IMGS found"
+          fi
+
+          # 3. Hero section must have background images
+          HERO_IMGS=$(echo "$HOMEPAGE" | grep -oE 'hero-image' | wc -l)
+          if [ "$HERO_IMGS" -lt 1 ]; then
+            echo "❌ No hero images found"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "✅ Hero images: $HERO_IMGS found"
+          fi
+
+          # 4. No default-background as primary image
+          DEFAULTS=$(echo "$HOMEPAGE" | grep -oE 'src="[^"]*default-background[^"]*"' | wc -l)
+          if [ "$DEFAULTS" -gt 0 ]; then
+            echo "⚠️ $DEFAULTS default-background images found (acceptable as onerror fallback)"
+          fi
+
+          if [ "$ERRORS" -gt 0 ]; then
+            echo "❌ Smoke test failed with $ERRORS errors"
+            exit 1
+          fi
+          echo "✅ All smoke tests passed"
+
       - name: Send deployment notification
         if: always()
         run: |
@@ -181,7 +225,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ${{ env.DEPLOY_PATH }}
-            git checkout v0.0.1-production-baseline
+            git fetch --tags
+            git checkout v1.0.0-mvp
+            npm ci --production
             pm2 restart astro-ultimamilla
 
       - name: Verify rollback
