@@ -21,7 +21,7 @@
  * - cliente: Nombre del cliente/área
  */
 
-import { getServiceBackground } from '../../utils/serviceImageMap';
+import { getDirectusImageUrl } from '../../lib/directus.ts';
 
 export interface Props {
   id: number | string;
@@ -50,8 +50,8 @@ const {
 // Generar URL del servicio
 const serviceUrl = href || (slug ? `/servicios/${id}/${slug}` : `/servicios/${id}`);
 
-// Use local service images (Directus asset files don't exist on disk)
-const imagenUrl = getServiceBackground(id);
+// 100% Directus — imagen es UUID del archivo en Directus
+const imagenUrl = getDirectusImageUrl(imagen);
 
 // Truncar descripción a 150 caracteres
 const descripcionTruncada = descripcion.length > 150

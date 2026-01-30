@@ -10,7 +10,7 @@ import ServiceCard from '../../components/v4/ServiceCard.astro';
 import CTASection from '../../components/v4/CTASection.astro';
 import { generateSlug } from '../../utils/slugUtils.js';
 import { getAllServicios } from '../../utils/directusHelpers';
-import { getHeroBackground, getServiceBackground } from '../../utils/serviceImageMap';
+import { getDirectusImageUrl } from '../../lib/directus.ts';
 
 import { serviceBadgeMap, serviceToSectorMap } from '../../data/serviceBadgeMap';
 import { getSectorColors } from '../../data/colorSystem';
@@ -123,7 +123,7 @@ const buildPageUrl = (page: number) => {
       { label: 'Servicios', href: '/servicios' },
     ]}
     badge={{ icon: 'briefcase', text: 'Soluciones Integrales' }}
-    backgroundImage={getHeroBackground('servicios')}
+    backgroundImage={getDirectusImageUrl(serviciosReales[0]?.Imagen)}
     stats={[
       { value: `${serviciosReales.length}+`, label: 'Servicios' },
       { value: `${clientesUnicos.length}+`, label: 'Sectores' },

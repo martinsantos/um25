@@ -20,7 +20,6 @@ import CTASection from '../../../components/v4/CTASection.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
 import { getDirectusImageUrl } from '../../../lib/directus.ts';
-import { getServiceBackground } from '../../../utils/serviceImageMap';
 
 const { id, slug } = Astro.params;
 
@@ -77,7 +76,7 @@ const iconPaths = {
   <section class="relative bg-um-dark overflow-hidden">
     <div class="absolute inset-0">
       <img
-        src={getServiceBackground(id)}
+        src={getDirectusImageUrl(servicio.Imagen)}
         alt={servicio.Titulo}
         class="w-full h-full object-cover opacity-50"
         loading="eager"
@@ -311,7 +310,7 @@ const iconPaths = {
     secondaryButtonText="+54 261 623 4567"
     secondaryButtonUrl="tel:+542616234567"
     secondaryButtonIcon="phone"
-    backgroundImage={getServiceBackground(id)}
+    backgroundImage={getDirectusImageUrl(servicio.Imagen)}
   />
 </LayoutV4>
 
