@@ -108,6 +108,7 @@ jobs:
             --exclude='backups' \
             --exclude='.local_production_files' \
             --exclude='public/cache' \
+            --exclude='uploads' \
             --exclude='*.log' \
             ./ root@23.105.176.45:${{ env.DEPLOY_PATH }}/
 
@@ -120,6 +121,9 @@ jobs:
           script: |
             cd ${{ env.DEPLOY_PATH }}
             npm ci --production
+            # Ensure Directus uploads dir is writable by container (uid 1000)
+            chown -R 1000:1000 ${{ env.DEPLOY_PATH }}/uploads/ 2>/dev/null || true
+            chmod 775 ${{ env.DEPLOY_PATH }}/uploads/ 2>/dev/null || true
 
       - name: Restart PM2 process
         uses: appleboy/ssh-action@v1.2.0
