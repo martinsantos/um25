@@ -9,16 +9,10 @@ import ServiceCard from '../components/v4/ServiceCard.astro';
 import CTASection from '../components/v4/CTASection.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getAllServicios } from '../utils/directusHelpers';
-import { getClient, getDirectusImageUrl } from '../lib/directus.ts';
+import { getClient, getDirectusImageUrl, getAllAntecedentes } from '../lib/directus.ts';
 import { readItems } from '@directus/sdk';
 import { serviceBadgeMap, serviceToSectorMap } from '../data/serviceBadgeMap';
 import { getSectorColors } from '../data/colorSystem';
-
-// Import real data
-import { antecedentesReales } from '../data/antecedentes_completos.js';
-
-// Production URL for images
-const PROD_URL = 'https://www.ultimamilla.com.ar';
 
 // Fetch hero images from Directus Hero_Home collection
 let heroImages = [];
@@ -49,17 +43,18 @@ try {
   ];
 }
 
-// Get image URL for antecedentes — local map first, then Directus, then fallback
-function getImageUrl(proyecto: any): string {
-  const url = getDirectusImageUrl(proyecto.Imagen);
-  return url || '/images/default-background.jpg';
+// Get 3 featured antecedentes from Directus (con fallback a snapshot JSON)
+let antecedentesData: any[] = [];
+try {
+  antecedentesData = await getAllAntecedentes();
+} catch {
+  antecedentesData = [];
 }
 
-// Get 3 featured antecedentes for success cases section
-const antecedentesEnhanced = antecedentesReales.slice(0, 3).map((ant) => ({
+const antecedentesEnhanced = antecedentesData.slice(0, 3).map((ant: any) => ({
   ...ant,
   slug: generateSlug(ant.Titulo || ant.Nombre || 'proyecto'),
-  imageUrl: getImageUrl(ant)
+  imageUrl: getDirectusImageUrl(ant.Imagen) || '/images/default-background.jpg'
 }));
 
 // Get services from Directus (with automatic fallback to JS data)

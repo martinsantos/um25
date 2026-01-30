@@ -435,10 +435,12 @@ try {
   // No map available, will use Directus URLs
 }
 
-// Probe Directus assets once at startup to know if /assets/ URLs will work
+// Probe Directus at startup to know if /assets/ URLs will work
+// Use /server/ping (lightweight) instead of /server/health (returns 503 when cache is degraded
+// even though assets work fine)
 let directusAssetsAvailable = false;
 try {
-  const testResp = await fetch(`${DIRECTUS_CONFIG.url}/server/health`, {
+  const testResp = await fetch(`${DIRECTUS_CONFIG.url}/server/ping`, {
     signal: AbortSignal.timeout(3000)
   });
   directusAssetsAvailable = testResp.ok;
