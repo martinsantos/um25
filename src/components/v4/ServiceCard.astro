@@ -67,16 +67,22 @@ const descripcionTruncada = descripcion.length > 150
         <img
           src={imagenUrl}
           alt={titulo}
-          class="w-full h-full object-cover"
+          width="640"
+          height="360"
+          class="w-full h-full object-cover service-img"
           loading="lazy"
+          decoding="async"
           onerror="this.onerror=null; this.src='/images/default.jpg'"
         />
       ) : (
         <img
           src="/images/default.jpg"
           alt={titulo}
-          class="w-full h-full object-cover"
+          width="640"
+          height="360"
+          class="w-full h-full object-cover service-img"
           loading="lazy"
+          decoding="async"
         />
       )}
 
@@ -138,6 +144,14 @@ const descripcionTruncada = descripcion.length > 150
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  /* High-quality image downscaling */
+  .service-img {
+    image-rendering: auto;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transform: translateZ(0);
   }
 
   /* Animación reducida para accesibilidad */

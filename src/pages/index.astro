@@ -15,7 +15,15 @@ import { serviceBadgeMap, serviceToSectorMap } from '../data/serviceBadgeMap';
 import { getSectorColors } from '../data/colorSystem';
 
 // Fetch hero images from Directus Hero_Home collection
-let heroImages = [];
+const localHeroFallback = [
+  { url: '/images/services/redes-comunicaciones.jpg', alt: 'Infraestructura de Redes' },
+  { url: '/images/services/ciberseguridad.jpg', alt: 'Seguridad Electrónica' },
+  { url: '/images/services/telefonia.jpg', alt: 'Telecomunicaciones' },
+  { url: '/images/services/servicios-web.jpg', alt: 'Desarrollo de Software' },
+  { url: '/images/services/servicios-it.jpg', alt: 'Consultoría IT' },
+];
+
+let heroImages: { url: string; alt: string }[] = [];
 try {
   const client = getClient();
   const heroItems = await client.request(
@@ -26,21 +34,19 @@ try {
     })
   );
 
-  heroImages = (heroItems as any[]).map((item: any) => ({
-    url: getDirectusImageUrl(item.imagen),
-    alt: item.titulo || `Hero ${item.orden}`
-  }));
-  console.log(`[HOMEPAGE] Loaded ${heroImages.length} hero images from Directus`);
+  heroImages = (heroItems as any[])
+    .map((item: any) => ({
+      url: getDirectusImageUrl(item.imagen),
+      alt: item.titulo || `Hero ${item.orden}`
+    }))
+    .filter((img: any) => img.url && img.url !== '' && img.url !== '/images/default-background.jpg');
 } catch (error) {
-  console.error('[HOMEPAGE] Error loading hero images from Directus:', error);
-  // Fallback to local images if Directus fetch fails
-  heroImages = [
-    { url: '/images/services/redes-comunicaciones.jpg', alt: 'Infraestructura de Redes' },
-    { url: '/images/services/ciberseguridad.jpg', alt: 'Seguridad Electrónica' },
-    { url: '/images/services/telefonia.jpg', alt: 'Telecomunicaciones' },
-    { url: '/images/services/servicios-web.jpg', alt: 'Desarrollo de Software' },
-    { url: '/images/services/servicios-it.jpg', alt: 'Consultoría IT' },
-  ];
+  console.error('[HOMEPAGE] Error loading hero images:', error);
+}
+
+// Use local fallback if no valid hero images from Directus
+if (heroImages.length === 0) {
+  heroImages = localHeroFallback;
 }
 
 // Get 3 featured antecedentes from Directus (con fallback a snapshot JSON)
