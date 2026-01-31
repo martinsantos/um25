@@ -419,8 +419,8 @@ export type { ServicioV4, ProductoV4, AntecedenteV4, AntecedenteServicioRelation
  * Convierte un UUID de imagen de Directus a URL utilizable.
  *
  * Estrategia:
- * 1. Si el UUID tiene imagen local mapeada → usa la local (más confiable)
- * 2. Si no → usa /assets/{uuid} (Nginx proxy a Directus)
+ * 1. Si Directus disponible → usa /assets/{uuid} (siempre actualizado)
+ * 2. Si no → fallback a imagen local mapeada
  *
  * El mapa local se genera con: node scripts/generate-image-map.mjs
  */
@@ -433,6 +433,35 @@ try {
   imageLocalMap = mapModule.default || mapModule;
 } catch {
   // No map available, will use Directus URLs
+}
+
+// Set de UUIDs de antecedentes con imagen local en /public/uploads/antecedentes/
+let antecedenteLocalUuids: Set<string> = new Set();
+try {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  // Check both dev (public/) and production (dist/client/) paths
+  const candidates = [
+    path.join(process.cwd(), 'public', 'uploads', 'antecedentes'),
+    path.join(process.cwd(), 'dist', 'client', 'uploads', 'antecedentes'),
+  ];
+  for (const dir of candidates) {
+    try {
+      const files = fs.readdirSync(dir);
+      for (const f of files) {
+        const uuid = f.replace(/\.(jpg|jpeg|png|webp)$/i, '');
+        if (uuidRegex.test(uuid)) {
+          antecedenteLocalUuids.add(uuid);
+        }
+      }
+      if (antecedenteLocalUuids.size > 0) break;
+    } catch { /* dir not found, try next */ }
+  }
+  if (antecedenteLocalUuids.size > 0) {
+    console.log(`[directus] Found ${antecedenteLocalUuids.size} local antecedente images`);
+  }
+} catch {
+  // Filesystem not available
 }
 
 // Probe Directus at startup to know if /assets/ URLs will work
@@ -455,16 +484,21 @@ export function getDirectusImageUrl(imageId: string | null | undefined): string 
   if (!imageId) return '';
   if (!uuidRegex.test(imageId)) return '';
 
-  // Si hay imagen local mapeada, usarla siempre (más confiable)
+  // Prioridad 1: imágenes locales de antecedentes (siempre disponibles, no depende de Directus)
+  if (antecedenteLocalUuids.has(imageId)) {
+    return `/uploads/antecedentes/${imageId}.jpg`;
+  }
+
+  // Prioridad 2: mapa local (servicios, productos, hero)
   const localPath = imageLocalMap[imageId];
   if (localPath) return localPath;
 
-  // Si Directus assets están disponibles, usar proxy /assets/
+  // Prioridad 3: Directus /assets/ (para imágenes no mapeadas localmente)
   if (directusAssetsAvailable) {
     return `/assets/${imageId}`;
   }
 
-  // Directus caído y sin imagen local → default
+  // Sin imagen local ni Directus → default
   return '/images/default-background.jpg';
 }
 
@@ -475,8 +509,16 @@ export function getDirectusImageUrl(imageId: string | null | undefined): string 
 export function getDirectusImageFallback(imageId: string | null | undefined): string {
   if (!imageId) return '/images/default-background.jpg';
   if (!uuidRegex.test(imageId)) return '/images/default-background.jpg';
+
+  // Fallback 1: mapa local (servicios, productos, hero)
   const localPath = imageLocalMap[imageId];
   if (localPath) return localPath;
+
+  // Fallback 2: imágenes locales de antecedentes
+  if (antecedenteLocalUuids.has(imageId)) {
+    return `/uploads/antecedentes/${imageId}.jpg`;
+  }
+
   return '/images/default-background.jpg';
 }
 
