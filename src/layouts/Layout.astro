@@ -240,6 +240,9 @@ const currentYear = new Date().getFullYear();
     <link rel="alternate" hreflang="es" href={currentUrl} />
     <link rel="alternate" hreflang="x-default" href={currentUrl} />
 
+    <!-- Sitemap discovery (backup — Cloudflare overrides robots.txt Sitemap directive) -->
+    <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png" />
