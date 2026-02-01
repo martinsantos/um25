@@ -451,13 +451,16 @@ if (!directusAssetsAvailable) {
   console.warn('[directus] Directus assets NOT available — using local images only');
 }
 
+// Cache-bust version: incrementar cuando se actualizan imágenes en Directus
+const IMAGE_CACHE_VERSION = '20260201';
+
 export function getDirectusImageUrl(imageId: string | null | undefined): string {
   if (!imageId) return '';
   if (!uuidRegex.test(imageId)) return '';
 
   // Prioridad 1: Directus /assets/ (producción — Nginx proxy a Directus, 518 imágenes únicas)
   if (directusAssetsAvailable) {
-    return `/assets/${imageId}`;
+    return `/assets/${imageId}?v=${IMAGE_CACHE_VERSION}`;
   }
 
   // Prioridad 2: fallback local si Directus no disponible
