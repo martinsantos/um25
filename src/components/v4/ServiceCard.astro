@@ -21,7 +21,7 @@
  * - cliente: Nombre del cliente/área
  */
 
-import { getDirectusImageUrl } from '../../lib/directus.ts';
+import { getDirectusImageUrl, getDirectusImageFallback } from '../../lib/directus.ts';
 
 export interface Props {
   id: number | string;
@@ -52,6 +52,7 @@ const serviceUrl = href || (slug ? `/servicios/${id}/${slug}` : `/servicios/${id
 
 // 100% Directus — imagen es UUID del archivo en Directus
 const imagenUrl = getDirectusImageUrl(imagen);
+const fallbackUrl = getDirectusImageFallback(imagen);
 
 // Truncar descripción a 150 caracteres
 const descripcionTruncada = descripcion.length > 150
@@ -72,11 +73,11 @@ const descripcionTruncada = descripcion.length > 150
           class="w-full h-full object-cover service-img"
           loading="lazy"
           decoding="async"
-          onerror="this.onerror=null; this.src='/images/default.jpg'"
+          onerror={`this.onerror=null; this.src='${fallbackUrl}'`}
         />
       ) : (
         <img
-          src="/images/default.jpg"
+          src={fallbackUrl}
           alt={titulo}
           width="640"
           height="360"
