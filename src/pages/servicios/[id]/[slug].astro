@@ -40,6 +40,9 @@ if (slug !== expectedSlug) {
   return Astro.redirect(`/servicios/${id}/${expectedSlug}`);
 }
 
+// Productos del servicio (viene de Directus o de JS)
+const productos = servicio.productos || [];
+
 // SEO
 const siteUrl = 'https://ultimamilla.com.ar';
 const pageTitle = `${servicio.Titulo} | Servicios - ULTIMA MILLA`;
@@ -81,9 +84,6 @@ const serviceStructuredData = {
   }),
   "inLanguage": "es"
 };
-
-// Productos del servicio (viene de Directus o de JS)
-const productos = servicio.productos || [];
 
 // SVG icon paths para soluciones
 const iconPaths = {
