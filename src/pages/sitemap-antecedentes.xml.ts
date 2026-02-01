@@ -10,21 +10,38 @@ function formatDate(date: Date): string {
     return parts[0] || new Date().toISOString().split('T')[0];
 }
 
+function getImageUrl(imagen: any): string | null {
+    if (!imagen) return null;
+    if (typeof imagen === 'string') {
+        if (imagen.startsWith('http')) return imagen;
+        return `${SITE_URL}/admin/assets/${imagen}`;
+    }
+    if (typeof imagen === 'object' && imagen.id) {
+        return `${SITE_URL}/admin/assets/${imagen.id}`;
+    }
+    return null;
+}
+
 function generateSitemapXml(antecedentes: any[]): string {
     const today = formatDate(new Date());
-    
+
     return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
     ${antecedentes.map(item => {
         const slug = generateSlug(item.Titulo || item.titulo || 'antecedente');
         const id = item.id || item.ID || 'unknown';
+        const lastmod = item.Fecha ? formatDate(new Date(item.Fecha)) : today;
+        const imageUrl = getImageUrl(item.Imagen);
+        const imageTag = imageUrl ? `
+        <image:image>
+            <image:loc>${imageUrl}</image:loc>
+            <image:title>${(item.Titulo || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</image:title>
+        </image:image>` : '';
         return `
     <url>
         <loc>${SITE_URL}/antecedentes/${id}/${slug}</loc>
-        <lastmod>${today}</lastmod>
-        <changefreq>yearly</changefreq>
-        <priority>0.7</priority>
+        <lastmod>${lastmod}</lastmod>${imageTag}
     </url>`;
     }).join('')}
 </urlset>`;
@@ -38,7 +55,7 @@ export const GET: APIRoute = async () => {
         const token = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
 
         const response = await fetch(
-            `${directusUrl}/items/Antecedentes?limit=-1&fields=id,Titulo`,
+            `${directusUrl}/items/Antecedentes?limit=-1&fields=id,Titulo,Fecha,Imagen`,
             {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -80,8 +97,6 @@ export const GET: APIRoute = async () => {
     <url>
         <loc>${SITE_URL}/antecedentes</loc>
         <lastmod>${formatDate(new Date())}</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.9</priority>
     </url>
 </urlset>`;
 

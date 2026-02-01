@@ -8,9 +8,11 @@ import LayoutV4 from '../layouts/LayoutV4.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getSectorBySlug, getIconSVGPath, getAntecedentesForSector } from '../utils/sectoresHelpers.ts';
+import { getFAQSchema, sectorFAQs } from '../data/sectorFAQs';
 
 // Obtener sector desde Directus
-const sectorData = await getSectorBySlug('mineria');
+const sectorSlug = 'mineria';
+const sectorData = await getSectorBySlug(sectorSlug);
 
 if (!sectorData) {
   // Fallback si Directus falla
@@ -49,9 +51,10 @@ const colorMap: Record<string, any> = {
 };
 
 const colors = colorMap[color_theme] || colorMap.amber;
+const faqSchema = getFAQSchema(sectorSlug);
 ---
 
-<LayoutV4 title={seo_title} description={seo_description} keywords={seo_keywords}>
+<LayoutV4 title={seo_title} description={seo_description} keywords={seo_keywords} image={hero_image} structuredData={faqSchema}>
   <section class="relative bg-um-dark pt-20 sm:pt-24 pb-8 sm:pb-12 lg:pb-16 overflow-hidden">
     <div class="absolute inset-0 opacity-40" style={`background-image: url('${hero_image}'); background-position: center; background-size: cover;`}></div>
     <div class="absolute inset-0 bg-gradient-to-b from-um-dark/70 to-um-dark/90"></div>
@@ -66,8 +69,8 @@ const colors = colorMap[color_theme] || colorMap.amber;
       </div>
 
       <div class="max-w-3xl">
+        <div class="text-4xl sm:text-5xl mb-3" aria-hidden="true">{emoji}</div>
         <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-4 sm:mb-6">
-          <span class="inline-block mr-2 sm:mr-3">{emoji}</span>
           Tecnología para {nombre}
         </h1>
         <p class="text-base sm:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8">{descripcion}</p>
@@ -154,6 +157,27 @@ const colors = colorMap[color_theme] || colorMap.amber;
               imagen={ant.imageUrl}
               slug={ant.slug}
             />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {sectorFAQs[sectorSlug] && sectorFAQs[sectorSlug].length > 0 && (
+    <section class="py-10 sm:py-14 lg:py-20 bg-white border-t border-gray-100">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8 sm:mb-12">
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark">Preguntas Frecuentes</h2>
+        </div>
+        <div class="space-y-4">
+          {sectorFAQs[sectorSlug].map((faq: any) => (
+            <details class="group bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
+              <summary class="flex items-center justify-between p-5 sm:p-6 cursor-pointer font-semibold text-um-dark hover:bg-gray-100 transition-colors">
+                <span class="pr-4">{faq.question}</span>
+                <svg class="w-5 h-5 shrink-0 text-gray-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="px-5 sm:px-6 pb-5 sm:pb-6 text-um-gray leading-relaxed">{faq.answer}</div>
+            </details>
           ))}
         </div>
       </div>

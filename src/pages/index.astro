@@ -84,6 +84,21 @@ const servicios = serviciosFromDirectus.slice(0, 8).map(s => {
 });
 
 // Industries/Sectors data with pseudomorphic emojis
+// WebSite schema with SearchAction for sitelinks search box
+const websiteSchema = {
+  "@type": "WebSite",
+  "name": "ULTIMA MILLA",
+  "url": "https://www.ultimamilla.com.ar",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://www.ultimamilla.com.ar/antecedentes?q={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
+};
+
 const sectores = [
   { slug: 'aeropuertos', name: 'Aeropuertos', emoji: '✈️', color: '#0ea5e9' },
   { slug: 'bodegas', name: 'Bodegas', emoji: '🍷', color: '#a855f7' },
@@ -102,6 +117,7 @@ const sectores = [
   description="Servicios tecnológicos para empresas y organizaciones argentinas. Zona de incumbencia: Mendoza, Cuyo, Patagonia. Especialistas en Telecomunicaciones, Cableado Estructurado, Corrientes Débiles, Detección de Incendio, Software a Medida. +469 proyectos, +22 años de experiencia."
   keywords="servicios tecnologicos empresas argentina, zona incumbencia mendoza cuyo patagonia, telecomunicaciones empresas, cableado estructurado, corrientes debiles, deteccion incendio, software a medida organizaciones"
   image="/nosotros-tech.jpg"
+  structuredData={websiteSchema}
 >
   <!-- HERO SECTION with rotating background -->
   <section class="relative bg-um-dark overflow-hidden">
@@ -299,7 +315,7 @@ const sectores = [
   <section class="relative py-12 sm:py-16 lg:py-24 xl:py-28 overflow-hidden">
     <div class="absolute inset-0">
       <img
-        src="https://ultimamilla.com.ar/directus-assets/caffbcaa-2457-4fc9-9960-2e0601f27736"
+        src="https://www.ultimamilla.com.ar/directus-assets/caffbcaa-2457-4fc9-9960-2e0601f27736"
         alt="Background"
         class="w-full h-full object-cover"
       />

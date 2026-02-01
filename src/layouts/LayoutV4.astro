@@ -41,7 +41,9 @@ const pageTitle = title ?? defaultTitle;
 const metaTitle = pageTitle.includes('ULTIMA MILLA') ? pageTitle : `${pageTitle} | ULTIMA MILLA`;
 const pageDescription = description ?? defaultDescription;
 const pageKeywords = keywords ?? defaultKeywords;
-const pageImage = image || `${siteUrl}/nosotros-tech.jpg`;
+// Ensure OG image is always absolute URL
+const rawImage = image || '/nosotros-tech.jpg';
+const pageImage = rawImage.startsWith('http') ? rawImage : `${siteUrl}${rawImage}`;
 
 const hasHeadSlot = Astro.slots.has('head');
 
@@ -60,7 +62,7 @@ const defaultStructuredData = {
     streetAddress: "Houssay 1159",
     addressLocality: "Guaymallén",
     addressRegion: "Mendoza",
-    postalCode: "M5500",
+    postalCode: "M5519",
     addressCountry: "AR",
   },
   areaServed: [
@@ -137,7 +139,7 @@ const localBusinessSchema = Astro.url.pathname === "/" ? {
     streetAddress: "Houssay 1159",
     addressLocality: "Guaymallén",
     addressRegion: "Mendoza",
-    postalCode: "M5500",
+    postalCode: "M5519",
     addressCountry: "AR",
   },
   geo: {
@@ -236,6 +238,11 @@ const currentYear = new Date().getFullYear();
 
     <!-- Canonical URL -->
     <link rel="canonical" href={currentUrl} />
+
+    <!-- Hreflang self-referencing -->
+    <link rel="alternate" hreflang="es-AR" href={currentUrl} />
+    <link rel="alternate" hreflang="es" href={currentUrl} />
+    <link rel="alternate" hreflang="x-default" href={currentUrl} />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
