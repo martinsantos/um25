@@ -79,7 +79,7 @@ class ContactSystem {
    ✉️  <a href="mailto:${this.contactData.email}?subject=${encodeURIComponent(this.contactData.emailSubject)}" style="color: #00d4aa; text-decoration: underline;">${this.contactData.email}</a>
 
 🌐 WEB:
-   🔗 <a href="https://www.ultimamilla.com.ar" target="_blank" style="color: #00d4aa; text-decoration: underline;">www.ultimamilla.com.ar</a>
+   🔗 <a href="https://ultimamilla.com.ar" target="_blank" style="color: #00d4aa; text-decoration: underline;">ultimamilla.com.ar</a>
 
 ⏰ HORARIOS DE ATENCIÓN:
    📅 ${this.contactData.hours}

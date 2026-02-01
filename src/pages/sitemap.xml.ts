@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 
-const SITE_URL = 'https://www.ultimamilla.com.ar';
+const SITE_URL = 'https://ultimamilla.com.ar';
 
 function generateSitemapXml(): string {
     // Stable date for static pages — update when content changes are deployed

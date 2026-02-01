@@ -13,7 +13,7 @@ export default defineConfig({
   }),
 
   // URL base para generación de sitemap y rutas absolutas
-  site: 'https://www.ultimamilla.com.ar',
+  site: 'https://ultimamilla.com.ar',
   trailingSlash: 'never',
 
   // Integraciones
@@ -53,7 +53,7 @@ export default defineConfig({
         'localhost',
         '127.0.0.1',
         'ultimamilla.com.ar',
-        'www.ultimamilla.com.ar',
+        'ultimamilla.com.ar',
         '.ultimamilla.com.ar'
       ]
     }

@@ -51,7 +51,7 @@ const localBusinessSchema = {
   "@type": "LocalBusiness",
   "name": "ULTIMA MILLA",
   "description": "Especialistas en servicios IT, comunicaciones y sistemas en Mendoza, Argentina",
-  "url": "https://www.ultimamilla.com.ar",
+  "url": "https://ultimamilla.com.ar",
   "email": "contacto@ultimamilla.com.ar",
   "address": {
     "@type": "PostalAddress",
@@ -135,7 +135,7 @@ const breadcrumbSchema = breadcrumbs.length > 0 ? {
     "@type": "ListItem",
     "position": index + 1,
     "name": crumb.name,
-    "item": `https://www.ultimamilla.com.ar${crumb.url}`
+    "item": `https://ultimamilla.com.ar${crumb.url}`
   }))
 } : null;
 
@@ -170,7 +170,7 @@ const combinedSchema = {
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:title" content={seoTitle} />
   <meta property="og:description" content={seoDescription} />
-  <meta property="og:image" content={`https://www.ultimamilla.com.ar${ogImage}`} />
+  <meta property="og:image" content={`https://ultimamilla.com.ar${ogImage}`} />
   <meta property="og:site_name" content="ULTIMA MILLA" />
   <meta property="og:locale" content="es_AR" />
 
@@ -179,7 +179,7 @@ const combinedSchema = {
   <meta name="twitter:url" content={canonicalUrl} />
   <meta name="twitter:title" content={seoTitle} />
   <meta name="twitter:description" content={seoDescription} />
-  <meta name="twitter:image" content={`https://www.ultimamilla.com.ar${ogImage}`} />
+  <meta name="twitter:image" content={`https://ultimamilla.com.ar${ogImage}`} />
 
   <!-- Local Business Meta Tags -->
   <meta name="geo.region" content="AR-M" />

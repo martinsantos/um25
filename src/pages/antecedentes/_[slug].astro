@@ -178,7 +178,7 @@ const getRelatedServiceProducts = async (area: string) => {
 const { products: relatedProducts, servicio: relatedServicio, serviceId: relatedServiceId } = await getRelatedServiceProducts(antecedente.Area || '');
 
 // SEO
-const siteUrl = 'https://www.ultimamilla.com.ar';
+const siteUrl = 'https://ultimamilla.com.ar';
 // Canonical points to THIS clean URL (or prefer ID based? Let's point to ID based to be consistent with sitemap)
 const canonicalUrl = `${siteUrl}/antecedentes/${id}/${slugFromUrl}`;
 const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').substring(0, 160) + '...';
