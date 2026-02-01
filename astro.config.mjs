@@ -2,7 +2,6 @@ import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
 import mdx from '@astrojs/mdx';
 import tailwind from '@astrojs/tailwind';
-import sitemap from '@astrojs/sitemap';
 import alpinejs from '@astrojs/alpinejs';
 import sentry from '@sentry/astro';
 
@@ -15,6 +14,7 @@ export default defineConfig({
 
   // URL base para generación de sitemap y rutas absolutas
   site: 'https://www.ultimamilla.com.ar',
+  trailingSlash: 'never',
 
   // Integraciones
   integrations: [
@@ -29,12 +29,6 @@ export default defineConfig({
     }),
     mdx(),
     tailwind(),
-    sitemap({
-      filter: (page) =>
-        !page.includes('/admin/') &&
-        !page.includes('/constructoras-directus') &&
-        !page.includes('/seguridad/')
-    }),
     alpinejs()
   ],
 
