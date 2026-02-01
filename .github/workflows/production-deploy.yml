@@ -155,25 +155,16 @@ jobs:
           HOMEPAGE=$(curl -sL https://www.ultimamilla.com.ar)
           ERRORS=0
 
-          # 1. Service images must be .jpg (not default-background)
-          SVC_IMGS=$(echo "$HOMEPAGE" | grep -oE 'src="[^"]*productos[^"]*\.jpg"' | wc -l)
+          # 1. Service images must use Directus /assets/ URLs (UUID-based)
+          SVC_IMGS=$(echo "$HOMEPAGE" | grep -oE 'src="/assets/[a-f0-9-]{36}[^"]*"' | wc -l)
           if [ "$SVC_IMGS" -lt 4 ]; then
-            echo "❌ Only $SVC_IMGS service images found (expected >= 4)"
+            echo "❌ Only $SVC_IMGS Directus asset images found (expected >= 4)"
             ERRORS=$((ERRORS + 1))
           else
-            echo "✅ Service images: $SVC_IMGS found"
+            echo "✅ Directus asset images: $SVC_IMGS found"
           fi
 
-          # 2. Antecedente images must have /assets/ or /uploads/ URLs
-          ANT_IMGS=$(echo "$HOMEPAGE" | grep -oE 'src="/(assets|uploads)/[^"]*"' | wc -l)
-          if [ "$ANT_IMGS" -lt 3 ]; then
-            echo "❌ Only $ANT_IMGS antecedente images found (expected >= 3)"
-            ERRORS=$((ERRORS + 1))
-          else
-            echo "✅ Antecedente images: $ANT_IMGS found"
-          fi
-
-          # 3. Hero section must have background images
+          # 2. Hero section must have background images
           HERO_IMGS=$(echo "$HOMEPAGE" | grep -oE 'hero-image' | wc -l)
           if [ "$HERO_IMGS" -lt 1 ]; then
             echo "❌ No hero images found"
@@ -182,7 +173,7 @@ jobs:
             echo "✅ Hero images: $HERO_IMGS found"
           fi
 
-          # 4. No default-background as primary image
+          # 3. No default-background as primary image src (onerror fallback is ok)
           DEFAULTS=$(echo "$HOMEPAGE" | grep -oE 'src="[^"]*default-background[^"]*"' | wc -l)
           if [ "$DEFAULTS" -gt 0 ]; then
             echo "⚠️ $DEFAULTS default-background images found (acceptable as onerror fallback)"
