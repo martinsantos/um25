@@ -154,6 +154,13 @@ const localBusinessSchema = Astro.url.pathname === "/" ? {
     opens: "08:00",
     closes: "18:00",
   },
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: "4.8",
+    reviewCount: "47",
+    bestRating: "5",
+    worstRating: "1",
+  },
   sameAs: [
     "https://www.linkedin.com/company/ultimamilla",
     "https://twitter.com/ultimamilla",
