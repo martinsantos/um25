@@ -51,8 +51,8 @@ export const GET: APIRoute = async () => {
     try {
         // Obtener todos los antecedentes desde Directus
         const directusUrl = (import.meta.env.PUBLIC_DIRECTUS_URL as string) || 'http://localhost:8055';
-        // Use static API token (not JWT which expires)
-        const token = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+        // Use static API token from env variable
+        const token = (import.meta.env.PUBLIC_DIRECTUS_TOKEN as string) || '';
 
         const response = await fetch(
             `${directusUrl}/items/Antecedentes?limit=-1&fields=id,Titulo,Fecha,Imagen`,

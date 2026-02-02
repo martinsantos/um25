@@ -81,7 +81,6 @@ const defaultStructuredData = {
   sameAs: [
     "https://www.linkedin.com/company/ultimamilla",
     "https://twitter.com/ultimamilla",
-    "https://www.facebook.com/ultimamilla",
   ],
 };
 
@@ -143,7 +142,7 @@ const localBusinessSchema = Astro.url.pathname === "/" ? {
   openingHoursSpecification: {
     "@type": "OpeningHoursSpecification",
     dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-    opens: "09:00",
+    opens: "08:00",
     closes: "18:00",
   },
   aggregateRating: {
@@ -156,7 +155,6 @@ const localBusinessSchema = Astro.url.pathname === "/" ? {
   sameAs: [
     "https://www.linkedin.com/company/ultimamilla",
     "https://twitter.com/ultimamilla",
-    "https://www.facebook.com/ultimamilla",
   ],
 } : undefined;
 
