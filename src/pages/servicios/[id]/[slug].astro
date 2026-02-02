@@ -55,7 +55,7 @@ const serviceStructuredData = {
   "name": servicio.Titulo,
   "description": pageDescription,
   "url": canonicalUrl,
-  ...(servicio.Imagen && { "image": getDirectusImageUrl(servicio.Imagen) }),
+  ...(servicio.Imagen && { "image": (() => { const imgUrl = getDirectusImageUrl(servicio.Imagen); return imgUrl.startsWith('http') ? imgUrl : `${siteUrl}${imgUrl}`; })() }),
   "provider": {
     "@type": "Organization",
     "name": "ULTIMA MILLA",
@@ -108,7 +108,7 @@ const iconPaths = {
 <LayoutV4
   title={pageTitle}
   description={pageDescription}
-  keywords={`${servicio.Titulo.toLowerCase()}, ${servicio.area?.toLowerCase()}, servicios tecnologicos mendoza`}
+  keywords={`${servicio.Titulo.toLowerCase()}${servicio.area ? `, ${servicio.area.toLowerCase()}` : ''}, servicios tecnologicos mendoza`}
   canonical={canonicalUrl}
   structuredData={serviceStructuredData}
 >

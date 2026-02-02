@@ -43,7 +43,6 @@ const pageImage = image || `${siteUrl}/nosotros-tech.jpg`;
 const hasHeadSlot = Astro.slots.has('head');
 
 const defaultStructuredData = {
-  "@context": "https://schema.org",
   "@type": "Organization",
   name: "ULTIMA MILLA",
   alternateName: "Ultima Milla Comunicaciones",
@@ -112,13 +111,11 @@ if (Astro.url.pathname !== "/") {
 }
 
 const breadcrumbStructuredData = {
-  "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   itemListElement: breadcrumbItems,
 };
 
 const localBusinessSchema = Astro.url.pathname === "/" ? {
-  "@context": "https://schema.org",
   "@type": "LocalBusiness",
   name: "ULTIMA MILLA",
   image: `${siteUrl}/images/um-logo.png`,
