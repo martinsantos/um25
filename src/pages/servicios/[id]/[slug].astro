@@ -75,7 +75,7 @@ const serviceStructuredData = {
       "itemListElement": productos.map((p: any, i: number) => ({
         "@type": "Offer",
         "itemOffered": {
-          "@type": "Product",
+          "@type": "Service",
           "name": p.titulo,
           ...(p.descripcion && { "description": p.descripcion })
         }
