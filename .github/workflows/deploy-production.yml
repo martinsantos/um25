@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 env:
-  DRY_RUN: true  # Cambiar a 'false' cuando se apruebe migración
+  DRY_RUN: false  # Cambiar a 'false' cuando se apruebe migración
 
 jobs:
   deploy-astro:
