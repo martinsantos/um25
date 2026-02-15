@@ -1,0 +1,230 @@
+/**
+ * Terminal Básico CSS - Estilos simples para fallback
+ */
+
+.terminal-window {
+    background: #1a1a2e;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+    max-width: 100%;
+    margin: 20px 0;
+}
+
+.terminal-header {
+    background: #16213e;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #0f1419;
+}
+
+.terminal-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.control {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.control.close { background: #ff5f57; }
+.control.minimize { background: #ffbd2e; }
+.control.maximize { background: #28ca42; }
+
+.terminal-title {
+    color: #8892b0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.terminal-content {
+    padding: 20px;
+}
+
+.terminal-output {
+    min-height: 300px;
+    max-height: 500px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    color: #ccd6f6;
+    line-height: 1.6;
+}
+
+.terminal-input-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.terminal-prompt {
+    color: #00d4aa;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.terminal-input {
+    background: transparent;
+    border: none;
+    color: #ccd6f6;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    flex: 1;
+    padding: 4px 0;
+}
+
+.terminal-input::placeholder {
+    color: #8892b0;
+}
+
+/* Estilos para contenido */
+.command-line {
+    margin: 8px 0;
+}
+
+.command-line .prompt {
+    color: #00d4aa;
+    font-weight: bold;
+}
+
+.command-line .command {
+    color: #ccd6f6;
+    margin-left: 10px;
+}
+
+.command-result {
+    margin: 10px 0 20px 0;
+}
+
+.error {
+    color: #ff6b6b;
+}
+
+.success {
+    color: #51cf66;
+}
+
+.info {
+    color: #74c0fc;
+}
+
+.highlight {
+    color: #00d4aa;
+    font-weight: bold;
+}
+
+.cmd {
+    color: #00d4aa;
+    font-weight: bold;
+}
+
+/* Welcome message */
+.welcome-message {
+    text-align: center;
+    margin: 20px 0 30px 0;
+}
+
+.ascii-art {
+    color: #00d4aa;
+    font-size: 12px;
+    margin: 20px 0;
+}
+
+.welcome-text p {
+    margin: 8px 0;
+}
+
+/* Listas de comandos y contenido */
+.help-content h3 {
+    color: #00d4aa;
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+}
+
+.command-list {
+    display: grid;
+    gap: 6px;
+    margin: 16px 0;
+}
+
+.command-list div {
+    padding: 4px 0;
+}
+
+.directory-listing,
+.company-info,
+.contact-info,
+.services-info,
+.history-list {
+    margin: 16px 0;
+}
+
+.dir-header {
+    color: #00d4aa;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.file-list {
+    margin-left: 20px;
+}
+
+.file {
+    margin: 4px 0;
+    color: #ccd6f6;
+}
+
+.service-list div {
+    margin: 8px 0;
+    padding-left: 16px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .terminal-window {
+        border-radius: 8px;
+        margin: 10px 0;
+    }
+    
+    .terminal-content {
+        padding: 15px;
+    }
+    
+    .terminal-output {
+        min-height: 200px;
+        max-height: 350px;
+    }
+    
+    .ascii-art {
+        font-size: 10px;
+    }
+    
+    .terminal-input {
+        font-size: 16px; /* Evita zoom en móviles */
+    }
+}
+
+/* Scrollbar personalizada */
+.terminal-output::-webkit-scrollbar {
+    width: 8px;
+}
+
+.terminal-output::-webkit-scrollbar-track {
+    background: #16213e;
+}
+
+.terminal-output::-webkit-scrollbar-thumb {
+    background: #00d4aa;
+    border-radius: 4px;
+}
+
+.terminal-output::-webkit-scrollbar-thumb:hover {
+    background: #00b894;
+}

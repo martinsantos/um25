@@ -31,7 +31,11 @@ const defaultDescription = "Servicios tecnológicos para empresas y organizacion
 const defaultKeywords = "servicios tecnologicos empresas argentina, zona incumbencia mendoza cuyo patagonia, telecomunicaciones profesionales, cableado estructurado certificado, corrientes debiles instalacion, deteccion incendio sistemas, software a medida organizaciones, servicios it mendoza san juan san luis, mineria tecnologia, industria 4.0, salud hospitales, aeropuertos infraestructura, gobierno sector publico, bodegas vitivinicolas, constructoras, seguridad electronica cctv";
 const siteUrl = "https://ultimamilla.com.ar";
 const defaultTitle = "ULTIMA MILLA | Servicios Tecnológicos en Mendoza, Cuyo y Patagonia";
+<<<<<<< HEAD
 const currentUrl = (canonical || `${siteUrl}${Astro.url.pathname}`).replace(/\/$/, "");
+=======
+const currentUrl = (canonical ? canonical.replace(/^https?:\/\/www\./, 'https://') : `${siteUrl}${Astro.url.pathname}`).replace(/\/$/, "");
+>>>>>>> origin/master
 const isoNow = new Date().toISOString();
 
 const pageTitle = title ?? defaultTitle;
@@ -43,7 +47,10 @@ const pageImage = image || `${siteUrl}/nosotros-tech.jpg`;
 const hasHeadSlot = Astro.slots.has('head');
 
 const defaultStructuredData = {
+<<<<<<< HEAD
   "@context": "https://schema.org",
+=======
+>>>>>>> origin/master
   "@type": "Organization",
   name: "ULTIMA MILLA",
   alternateName: "Ultima Milla Comunicaciones",
@@ -53,10 +60,17 @@ const defaultStructuredData = {
   foundingDate: "2000",
   address: {
     "@type": "PostalAddress",
+<<<<<<< HEAD
     streetAddress: "Av. San Martín 1234",
     addressLocality: "Mendoza",
     addressRegion: "Mendoza",
     postalCode: "M5500",
+=======
+    streetAddress: "Houssay 1159",
+    addressLocality: "Guaymallén",
+    addressRegion: "Mendoza",
+    postalCode: "M5519",
+>>>>>>> origin/master
     addressCountry: "AR",
   },
   areaServed: [
@@ -74,15 +88,22 @@ const defaultStructuredData = {
   contactPoint: {
     "@type": "ContactPoint",
     contactType: "customer service",
+<<<<<<< HEAD
     telephone: "+54-261-4250000",
     email: "info@ultimamilla.com.ar",
+=======
+    email: "contacto@ultimamilla.com.ar",
+>>>>>>> origin/master
     url: `${siteUrl}/contacto`,
     availableLanguage: ["es", "en"],
   },
   sameAs: [
     "https://www.linkedin.com/company/ultimamilla",
     "https://twitter.com/ultimamilla",
+<<<<<<< HEAD
     "https://www.facebook.com/ultimamilla",
+=======
+>>>>>>> origin/master
   ],
 };
 
@@ -114,18 +135,25 @@ if (Astro.url.pathname !== "/") {
 }
 
 const breadcrumbStructuredData = {
+<<<<<<< HEAD
   "@context": "https://schema.org",
+=======
+>>>>>>> origin/master
   "@type": "BreadcrumbList",
   itemListElement: breadcrumbItems,
 };
 
 const localBusinessSchema = Astro.url.pathname === "/" ? {
+<<<<<<< HEAD
   "@context": "https://schema.org",
+=======
+>>>>>>> origin/master
   "@type": "LocalBusiness",
   name: "ULTIMA MILLA",
   image: `${siteUrl}/images/um-logo.png`,
   description: "Especialistas en comunicaciones, sistemas e integración en Mendoza, Argentina.",
   priceRange: "$$",
+<<<<<<< HEAD
   telephone: "+54-261-4250000",
   email: "info@ultimamilla.com.ar",
   url: siteUrl,
@@ -135,6 +163,16 @@ const localBusinessSchema = Astro.url.pathname === "/" ? {
     addressLocality: "Mendoza",
     addressRegion: "Mendoza",
     postalCode: "M5500",
+=======
+  email: "contacto@ultimamilla.com.ar",
+  url: siteUrl,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Houssay 1159",
+    addressLocality: "Guaymallén",
+    addressRegion: "Mendoza",
+    postalCode: "M5519",
+>>>>>>> origin/master
     addressCountry: "AR",
   },
   geo: {
@@ -145,6 +183,7 @@ const localBusinessSchema = Astro.url.pathname === "/" ? {
   openingHoursSpecification: {
     "@type": "OpeningHoursSpecification",
     dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+<<<<<<< HEAD
     opens: "09:00",
     closes: "18:00",
   },
@@ -152,6 +191,21 @@ const localBusinessSchema = Astro.url.pathname === "/" ? {
     "https://www.linkedin.com/company/ultimamilla",
     "https://twitter.com/ultimamilla",
     "https://www.facebook.com/ultimamilla",
+=======
+    opens: "08:00",
+    closes: "18:00",
+  },
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: "4.8",
+    reviewCount: "47",
+    bestRating: "5",
+    worstRating: "1",
+  },
+  sameAs: [
+    "https://www.linkedin.com/company/ultimamilla",
+    "https://twitter.com/ultimamilla",
+>>>>>>> origin/master
   ],
 } : undefined;
 
@@ -237,6 +291,17 @@ const currentYear = new Date().getFullYear();
     <!-- Canonical URL -->
     <link rel="canonical" href={currentUrl} />
 
+<<<<<<< HEAD
+=======
+    <!-- Hreflang self-referencing -->
+    <link rel="alternate" hreflang="es-AR" href={currentUrl} />
+    <link rel="alternate" hreflang="es" href={currentUrl} />
+    <link rel="alternate" hreflang="x-default" href={currentUrl} />
+
+    <!-- Sitemap discovery (backup — Cloudflare overrides robots.txt Sitemap directive) -->
+    <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
+
+>>>>>>> origin/master
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png" />

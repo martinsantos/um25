@@ -1,6 +1,7 @@
 # build output
 dist/
 .output/
+.astro/
 
 # dependencies
 node_modules/
@@ -19,6 +20,7 @@ pnpm-debug.log*
 
 # macOS-specific files
 .DS_Store
+._*
 
 # Directus uploads and backups
 directus-admin/uploads/
@@ -40,7 +42,10 @@ temp/
 .windsurfrules
 imagenes_ultrarealistas/
 venv/
+<<<<<<< HEAD
 
 # macOS metadata files
 ._*
 .DS_Store
+=======
+>>>>>>> origin/master

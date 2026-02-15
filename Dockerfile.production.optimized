@@ -1,0 +1,117 @@
+# ================================================
+# Dockerfile optimizado para producción - UMBot
+# ================================================
+
+# Usar imagen oficial de Node.js Alpine (más ligera)
+FROM node:18-alpine AS base
+
+# Instalar dependencias del sistema necesarias para Sharp y otras herramientas
+RUN apk add --no-cache \
+    libc6-compat \
+    vips-dev \
+    build-base \
+    gcc \
+    g++ \
+    make \
+    python3 \
+    py3-pip \
+    && rm -rf /var/cache/apk/*
+
+# Establecer directorio de trabajo
+WORKDIR /app
+
+# Configurar variables de entorno para optimización
+ENV NODE_ENV=production
+ENV ASTRO_TELEMETRY_DISABLED=1
+ENV SHARP_CACHE_SIZE=50MB
+ENV SHARP_CONCURRENCY=1
+ENV NODE_MAX_OLD_SPACE_SIZE=2048
+ENV UV_THREADPOOL_SIZE=4
+
+# ================================================
+# Stage 1: Instalación de dependencias
+# ================================================
+FROM base AS dependencies
+
+# Copiar archivos de configuración de paquetes
+COPY package*.json ./
+
+# Instalar dependencias con optimizaciones de producción
+RUN npm ci --only=production --no-audit --no-fund \
+    && npm cache clean --force
+
+# ================================================  
+# Stage 2: Build de la aplicación
+# ================================================
+FROM base AS build
+
+# Copiar dependencias desde stage anterior
+COPY --from=dependencies /app/node_modules ./node_modules
+
+# Copiar código fuente
+COPY . .
+
+# Ejecutar optimización de imágenes y build
+RUN npm run process-images \
+    && npm run build \
+    && npm prune --production
+
+# Optimizar el build final
+RUN find dist -name "*.map" -type f -delete \
+    && find dist -name "*.test.*" -type f -delete \
+    && find dist -name "*.spec.*" -type f -delete
+
+# ================================================
+# Stage 3: Runtime optimizada
+# ================================================
+FROM node:18-alpine AS runtime
+
+# Instalar solo las dependencias runtime necesarias
+RUN apk add --no-cache \
+    vips \
+    && rm -rf /var/cache/apk/*
+
+# Crear usuario no-root para seguridad
+RUN addgroup -g 1001 -S nodejs \
+    && adduser -S astro -u 1001
+
+# Establecer directorio de trabajo
+WORKDIR /app
+
+# Configurar variables de entorno optimizadas para producción
+ENV NODE_ENV=production
+ENV PORT=4321
+ENV HOST=0.0.0.0
+ENV ASTRO_TELEMETRY_DISABLED=1
+ENV NODE_OPTIONS="--max-old-space-size=2048"
+
+# Copiar build y dependencias desde stages anteriores
+COPY --from=build --chown=astro:nodejs /app/dist ./dist
+COPY --from=build --chown=astro:nodejs /app/node_modules ./node_modules
+COPY --from=build --chown=astro:nodejs /app/package*.json ./
+
+# Crear directorios necesarios con permisos correctos
+RUN mkdir -p /app/uploads /app/cache \
+    && chown -R astro:nodejs /app/uploads /app/cache
+
+# Cambiar a usuario no-root
+USER astro
+
+# Exponer puerto de la aplicación
+EXPOSE 4321
+
+# Configurar healthcheck optimizado
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD node -e "fetch('http://localhost:4321').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"
+
+# Comando de inicio optimizado
+CMD ["node", "./dist/server/entry.mjs"]
+
+# ================================================
+# Labels para metadatos
+# ================================================
+LABEL org.opencontainers.image.title="UMBot Production"
+LABEL org.opencontainers.image.description="UMBot website optimized for production"
+LABEL org.opencontainers.image.version="1.0.0"
+LABEL org.opencontainers.image.authors="UMBot Team"
+LABEL org.opencontainers.image.source="https://github.com/umbot/website"

@@ -1,0 +1,496 @@
+---
+import Layout from '../layouts/Layout-SEO-Optimized.astro';
+import PerformanceOptimized from '../components/PerformanceOptimized.astro';
+import ServicesList from '../components/ServicesList.astro';
+import FeaturedAntecedentes from '../components/FeaturedAntecedentes.astro';
+
+// Critical CSS para above-the-fold
+const criticalCSS = `
+  .hero-section { min-height: 100vh; background: linear-gradient(135deg, #1e40af, #7c3aed, #1e40af); }
+  .hero-text { font-family: 'Inter', sans-serif; font-weight: 700; }
+  .terminal-text { font-family: 'Courier New', monospace; color: #00cc00; text-shadow: 1px 1px 0px rgba(0,0,0,0.8); }
+  .btn-primary { background: #dc2626; padding: 1rem 2rem; border-radius: 0.5rem; transition: all 0.3s; }
+  .btn-primary:hover { background: #b91c1c; transform: translateY(-2px); }
+`;
+
+// Preload critical images
+const preloadImages = [
+  '/images/ultima-milla-hero.jpg',
+  '/images/services/seguridad-informatica.jpg',
+  '/images/services/redes-comunicaciones.jpg'
+];
+
+// Servicios optimizados para performance
+const services = {
+  data: [
+    {
+      id: 1,
+      Titulo: "Servicios IT",
+      Descripcion: "Soluciones integrales de tecnología para empresas líderes",
+      Imagen: "servicios-it.jpg"
+    },
+    {
+      id: 2,
+      Titulo: "Redes y Comunicaciones",
+      Descripcion: "Infraestructura de red avanzada para comunicaciones empresariales",
+      Imagen: "redes-comunicaciones.jpg"
+    },
+    {
+      id: 3,
+      Titulo: "Seguridad Informática",
+      Descripcion: "Protección integral de sistemas y datos empresariales",
+      Imagen: "seguridad-informatica.jpg"
+    },
+    {
+      id: 4,
+      Titulo: "Desarrollo de Software",
+      Descripcion: "Software personalizado para optimizar procesos de negocio",
+      Imagen: "desarrollo-software.jpg"
+    },
+    {
+      id: 5,
+      Titulo: "Consultoría Tecnológica", 
+      Descripcion: "Asesoramiento estratégico en transformación digital",
+      Imagen: "consultoria-tecnologica.jpg"
+    },
+    {
+      id: 6,
+      Titulo: "Servicios Web",
+      Descripcion: "Alojamiento web, APIs y administración de recursos digitales",
+      Imagen: "servicios-web.jpg"
+    }
+  ]
+};
+
+// Antecedentes destacados optimizados
+const antecedentes = {
+  data: [
+    {
+      id: 97,
+      Cliente: "Suprema Corte de Justicia - Poder Judicial Mendoza",
+      Titulo: "Portal Web y Servicios Blockchain",
+      Descripcion: "Desarrollo del nuevo portal web con servicios de validación, certificación Blockchain y chatbot integrado",
+      Area: "Desarrollo de Software",
+      Fecha: "2019-01-01",
+      Imagen: "suprema-corte-justicia.jpg"
+    },
+    {
+      id: 99,
+      Cliente: "Ministerio de Ambiente de la Nación - APN",
+      Titulo: "APP de Altas de Visitas Parques Nacionales",
+      Descripcion: "Aplicación móvil para gestión de visitas en parques nacionales argentinos",
+      Area: "Desarrollo de Software",
+      Fecha: "2023-01-01",
+      Imagen: "parques-nacionales.jpg"
+    },
+    {
+      id: 96,
+      Cliente: "Gobierno de Mendoza",
+      Titulo: "Portal Web Gubernamental",
+      Descripcion: "Desarrollo del nuevo portal web del Gobierno de la provincia de Mendoza",
+      Area: "Desarrollo Web",
+      Fecha: "2013-01-01",
+      Imagen: "gobierno-mendoza.jpg"
+    }
+  ]
+};
+
+const pageTitle = "ULTIMA MILLA - Empresa Líder en Servicios IT y Transformación Digital";
+const pageDescription = "ULTIMA MILLA es la empresa líder en Argentina especializada en servicios IT, telecomunicaciones, seguridad informática, desarrollo de software y consultoría tecnológica. Transformamos empresas con tecnología accesible.";
+const pageKeywords = "ULTIMA MILLA, servicios IT Argentina, telecomunicaciones, seguridad informática, desarrollo software, transformación digital, consultoría tecnológica, Mendoza";
+---
+
+<Layout 
+  title={pageTitle}
+  description={pageDescription}
+  keywords={pageKeywords}
+  ogType="website"
+>
+  <PerformanceOptimized 
+    preloadImages={preloadImages}
+    criticalCSS={criticalCSS}
+  />
+
+  <!-- Hero Section Optimizado -->
+  <section class="hero-section relative w-full min-h-screen flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-blue-900/90 via-purple-900/80 to-blue-800/90"></div>
+    <div class="absolute inset-0">
+      <img 
+        src="/images/ultima-milla-hero.jpg" 
+        alt="ULTIMA MILLA - Tecnología Empresarial"
+        class="w-full h-full object-cover"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </div>
+    
+    <div class="relative z-10 text-center text-white px-4 max-w-5xl mx-auto">
+      <h1 id="dynamicText" class="hero-text text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight drop-shadow-lg">
+        ULTIMA MILLA
+      </h1>
+      <p class="text-xl md:text-2xl lg:text-3xl mb-8 font-light drop-shadow-md">
+        Empresa líder en servicios IT y transformación digital
+      </p>
+      <p class="text-lg md:text-xl mb-10 max-w-3xl mx-auto opacity-90">
+        Transformamos empresas con tecnología de vanguardia, soluciones personalizadas y el respaldo de más de 10 años de experiencia en el mercado argentino.
+      </p>
+      
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <a 
+          href="#servicios" 
+          class="btn-primary text-white font-semibold rounded-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 px-8 py-4"
+          aria-label="Ver nuestros servicios IT"
+        >
+          Conoce Nuestros Servicios
+        </a>
+        <a 
+          href="#contacto" 
+          class="border-2 border-white text-white hover:bg-white hover:text-blue-900 px-8 py-4 rounded-lg font-semibold transition-all duration-300"
+          aria-label="Contactar con ULTIMA MILLA"
+        >
+          Solicitar Cotización
+        </a>
+      </div>
+    </div>
+    
+    <!-- Scroll Indicator -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+      <div class="w-6 h-10 border-4 border-white/50 rounded-full flex justify-center">
+        <div class="w-1 h-2 bg-white rounded-full mt-2"></div>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <!-- Trust Indicators -->
+    <section class="py-8 bg-gray-50 border-b">
+      <div class="container mx-auto px-4">
+        <div class="flex flex-wrap justify-center items-center gap-8 text-center text-gray-600">
+          <div class="flex items-center">
+            <span class="text-2xl font-bold text-blue-600 mr-2">+10</span>
+            <span class="text-sm">Años de Experiencia</span>
+          </div>
+          <div class="flex items-center">
+            <span class="text-2xl font-bold text-green-600 mr-2">469</span>
+            <span class="text-sm">Proyectos Completados</span>
+          </div>
+          <div class="flex items-center">
+            <span class="text-2xl font-bold text-purple-600 mr-2">100%</span>
+            <span class="text-sm">Clientes Satisfechos</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sobre ULTIMA MILLA -->
+    <section id="about" class="py-20 bg-white">
+      <div class="container mx-auto px-4">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 class="text-4xl font-bold text-gray-900 mb-6">
+              ¿Por qué elegir <span class="text-blue-600">ULTIMA MILLA</span>?
+            </h2>
+            <p class="text-lg text-gray-700 mb-6 leading-relaxed">
+              Somos la empresa líder en Argentina especializada en servicios IT, telecomunicaciones y transformación digital. Con más de 10 años de experiencia, hemos ayudado a cientos de empresas a optimizar sus procesos tecnológicos.
+            </p>
+            <div class="grid md:grid-cols-2 gap-4 mb-8">
+              <div class="flex items-center">
+                <div class="w-3 h-3 bg-blue-600 rounded-full mr-3"></div>
+                <span class="text-gray-700">Tecnología de Vanguardia</span>
+              </div>
+              <div class="flex items-center">
+                <div class="w-3 h-3 bg-green-600 rounded-full mr-3"></div>
+                <span class="text-gray-700">Soporte 24/7</span>
+              </div>
+              <div class="flex items-center">
+                <div class="w-3 h-3 bg-purple-600 rounded-full mr-3"></div>
+                <span class="text-gray-700">Equipo Especializado</span>
+              </div>
+              <div class="flex items-center">
+                <div class="w-3 h-3 bg-red-600 rounded-full mr-3"></div>
+                <span class="text-gray-700">Precios Competitivos</span>
+              </div>
+            </div>
+            <a 
+              href="/nosotros" 
+              class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-300"
+            >
+              Conoce Más Sobre Nosotros
+            </a>
+          </div>
+          <div class="relative">
+            <img 
+              data-src="/images/ultima-milla-team.jpg" 
+              alt="Equipo ULTIMA MILLA - Especialistas en IT"
+              class="lazy w-full h-auto rounded-2xl shadow-2xl loading-skeleton"
+              loading="lazy"
+            />
+            <div class="absolute -bottom-6 -right-6 bg-blue-600 text-white p-6 rounded-xl shadow-xl">
+              <div class="text-2xl font-bold">+469</div>
+              <div class="text-sm">Proyectos Exitosos</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Servicios Profesionales -->
+    <section id="servicios" class="py-20 bg-gray-50">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+          <span class="text-blue-600 font-semibold text-sm uppercase tracking-wide">Nuestras Especialidades</span>
+          <h2 class="text-4xl lg:text-5xl font-bold text-gray-900 mt-3 mb-6">
+            Servicios IT de <span class="text-blue-600">Clase Mundial</span>
+          </h2>
+          <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Ofrecemos soluciones tecnológicas integrales diseñadas para impulsar el crecimiento y la eficiencia de tu empresa en el mercado digital actual.
+          </p>
+          <div class="w-20 h-1 bg-blue-600 mx-auto mt-6"></div>
+        </div>
+        
+        <ServicesList services={services.data} />
+        
+        <div class="text-center mt-12">
+          <a 
+            href="/servicios" 
+            class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+          >
+            Ver Todos Nuestros Servicios
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Casos de Éxito -->
+    <section id="antecedentes" class="py-20 bg-white">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+          <span class="text-blue-600 font-semibold text-sm uppercase tracking-wide">Portfolio</span>
+          <h2 class="text-4xl lg:text-5xl font-bold text-gray-900 mt-3 mb-6">
+            Casos de <span class="text-blue-600">Éxito</span>
+          </h2>
+          <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Hemos trabajado con organizaciones líderes en Argentina, desde el sector público hasta empresas privadas, entregando soluciones que transforman negocios.
+          </p>
+          <div class="w-20 h-1 bg-blue-600 mx-auto mt-6"></div>
+        </div>
+        
+        <FeaturedAntecedentes antecedentes={antecedentes.data} />
+        
+        <div class="text-center mt-12">
+          <a 
+            href="/antecedentes" 
+            class="inline-block border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-4 rounded-lg font-semibold transition-all duration-300"
+          >
+            Ver Todos los Casos de Éxito
+          </a>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Contacto -->
+    <section id="contacto" class="py-20 bg-gradient-to-br from-blue-900 to-purple-900 text-white">
+      <div class="container mx-auto px-4">
+        <div class="max-w-6xl mx-auto">
+          <div class="text-center mb-12">
+            <h2 class="text-4xl lg:text-5xl font-bold mb-6">
+              ¿Listo para transformar tu empresa?
+            </h2>
+            <p class="text-xl opacity-90 max-w-3xl mx-auto">
+              Contacta con los especialistas de ULTIMA MILLA y descubre cómo podemos impulsar tu negocio con tecnología de vanguardia.
+            </p>
+          </div>
+          
+          <div class="grid lg:grid-cols-2 gap-12">
+            <div>
+              <h3 class="text-2xl font-bold mb-8">Información de Contacto</h3>
+              <div class="space-y-6">
+                <div class="flex items-start">
+                  <div class="w-6 h-6 text-blue-300 mr-4 mt-1">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold mb-1">Email</h4>
+                    <p class="text-blue-200">contacto@ultimamilla.com.ar</p>
+                  </div>
+                </div>
+                
+                <div class="flex items-start">
+                  <div class="w-6 h-6 text-blue-300 mr-4 mt-1">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold mb-1">Teléfono</h4>
+                    <p class="text-blue-200">+54 261 456 7890</p>
+                  </div>
+                </div>
+                
+                <div class="flex items-start">
+                  <div class="w-6 h-6 text-blue-300 mr-4 mt-1">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold mb-1">Ubicación</h4>
+                    <p class="text-blue-200">Mendoza, Argentina</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8">
+              <h3 class="text-2xl font-bold mb-6">Solicita una Cotización</h3>
+              <form class="space-y-6" action="/contacto" method="POST">
+                <div class="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label for="name" class="block text-sm font-medium mb-2">Nombre</label>
+                    <input 
+                      type="text" 
+                      id="name" 
+                      name="name" 
+                      required 
+                      class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-transparent text-white placeholder-gray-300"
+                      placeholder="Tu nombre completo"
+                    />
+                  </div>
+                  <div>
+                    <label for="company" class="block text-sm font-medium mb-2">Empresa</label>
+                    <input 
+                      type="text" 
+                      id="company" 
+                      name="company"
+                      class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-transparent text-white placeholder-gray-300"
+                      placeholder="Nombre de tu empresa"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label for="email" class="block text-sm font-medium mb-2">Email</label>
+                  <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    required 
+                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-transparent text-white placeholder-gray-300"
+                    placeholder="tu@email.com"
+                  />
+                </div>
+                
+                <div>
+                  <label for="service" class="block text-sm font-medium mb-2">Servicio de Interés</label>
+                  <select 
+                    id="service" 
+                    name="service"
+                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-transparent text-white"
+                  >
+                    <option value="">Selecciona un servicio</option>
+                    <option value="servicios-it">Servicios IT</option>
+                    <option value="redes-comunicaciones">Redes y Comunicaciones</option>
+                    <option value="seguridad-informatica">Seguridad Informática</option>
+                    <option value="desarrollo-software">Desarrollo de Software</option>
+                    <option value="consultoria-tecnologica">Consultoría Tecnológica</option>
+                    <option value="servicios-web">Servicios Web</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label for="message" class="block text-sm font-medium mb-2">Mensaje</label>
+                  <textarea 
+                    id="message" 
+                    name="message" 
+                    rows="4" 
+                    required 
+                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-transparent text-white placeholder-gray-300"
+                    placeholder="Cuéntanos sobre tu proyecto o necesidades tecnológicas..."
+                  ></textarea>
+                </div>
+                
+                <button 
+                  type="submit" 
+                  class="w-full bg-white text-blue-900 font-bold py-4 px-6 rounded-lg hover:bg-gray-100 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                >
+                  Enviar Solicitud
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Structured Data for Local Business -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": "https://ultimamilla.com.ar/#business",
+    "name": "ULTIMA MILLA",
+    "description": "Empresa líder en servicios IT, telecomunicaciones, seguridad informática y desarrollo de software en Argentina",
+    "url": "https://ultimamilla.com.ar",
+    "telephone": "+54-261-456-7890",
+    "email": "contacto@ultimamilla.com.ar",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "AR",
+      "addressRegion": "Mendoza",
+      "addressLocality": "Mendoza"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": -32.8895,
+      "longitude": -68.8458
+    },
+    "openingHours": "Mo-Fr 09:00-18:00",
+    "serviceArea": {
+      "@type": "Country",
+      "name": "Argentina"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Servicios IT",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Servicios IT",
+            "description": "Soluciones integrales de tecnología para empresas"
+          }
+        },
+        {
+          "@type": "Offer", 
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Seguridad Informática",
+            "description": "Protección integral de sistemas y datos empresariales"
+          }
+        }
+      ]
+    }
+  }
+  </script>
+
+  <style>
+    .hero-section {
+      position: relative;
+    }
+    
+    .hero-text {
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    
+    @media (max-width: 768px) {
+      .hero-text {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+</Layout>

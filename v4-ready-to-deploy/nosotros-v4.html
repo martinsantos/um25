@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nosotros | Ultima Milla - Soluciones IT de Clase Mundial</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            // DOMINANTE - Azul celeste
+            'um-primary': '#0ea5e9',
+            'um-primary-dark': '#0284c7',
+            'um-primary-light': '#38bdf8',
+            'um-primary-bg': '#f0f9ff',
+            // COMPLEMENTARIO - Rojo (solo CTAs)
+            'um-accent': '#dc2626',
+            'um-accent-dark': '#b91c1c',
+            // ESTRUCTURAL
+            'um-dark': '#111827',
+            'um-slate': '#1e293b',
+            // NEUTRALES
+            'um-gray': '#6b7280',
+            'um-gray-light': '#f3f4f6'
+          },
+          fontFamily: {
+            'opensans': ['Open Sans', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Open Sans', sans-serif; }
+
+    /* ===== MOBILE-FIRST RESPONSIVE STYLES ===== */
+    html, body { overflow-x: hidden; max-width: 100vw; }
+    .touch-target { min-height: 44px; min-width: 44px; }
+    #mobileMenu { transition: opacity 0.3s ease, transform 0.3s ease; }
+    #mobileMenu.hidden { opacity: 0; transform: translateY(-10px); pointer-events: none; }
+    #mobileMenu:not(.hidden) { opacity: 1; transform: translateY(0); }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body class="bg-white">
+
+  <!-- NAVBAR -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20">
+        <a href="index-v4.html" class="flex items-center">
+          <img src="https://ultimamilla.com.ar/images/um-logo.png" alt="Ultima Milla" class="h-10 sm:h-14" style="mix-blend-mode: multiply;">
+        </a>
+        <div class="hidden md:flex items-center gap-6 lg:gap-8">
+          <a href="index-v4.html" class="text-um-gray hover:text-um-primary font-medium transition-colors">Inicio</a>
+          <a href="servicios-v4.html" class="text-um-gray hover:text-um-primary font-medium transition-colors">Servicios</a>
+          <a href="antecedentes-index-v4.html" class="text-um-gray hover:text-um-primary font-medium transition-colors">Antecedentes</a>
+          <a href="sectores-v4.html" class="text-um-gray hover:text-um-primary font-medium transition-colors">Sectores</a>
+          <a href="nosotros-v4.html" class="text-um-primary font-semibold">Nosotros</a>
+          <a href="contacto-v4.html" class="px-5 py-2.5 bg-um-accent text-white rounded-lg font-semibold hover:bg-um-accent-dark transition-colors shadow-lg shadow-um-accent/25">
+            Contacto
+          </a>
+        </div>
+        <button id="menuToggle" class="md:hidden p-2 touch-target" aria-label="Toggle menu" aria-expanded="false">
+          <svg id="hamburgerIcon" class="w-6 h-6 text-um-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+          <svg id="closeIcon" class="w-6 h-6 text-um-dark hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-100 shadow-lg">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-3">
+        <a href="index-v4.html" class="block py-3 text-um-gray hover:text-um-primary font-medium transition-colors touch-target">Inicio</a>
+        <a href="servicios-v4.html" class="block py-3 text-um-gray hover:text-um-primary font-medium transition-colors touch-target">Servicios</a>
+        <a href="antecedentes-index-v4.html" class="block py-3 text-um-gray hover:text-um-primary font-medium transition-colors touch-target">Antecedentes</a>
+        <a href="sectores-v4.html" class="block py-3 text-um-gray hover:text-um-primary font-medium transition-colors touch-target">Sectores</a>
+        <a href="nosotros-v4.html" class="block py-3 text-um-primary font-semibold touch-target">Nosotros</a>
+        <a href="contacto-v4.html" class="block py-3 px-5 bg-um-accent text-white text-center rounded-lg font-semibold hover:bg-um-accent-dark transition-colors shadow-lg shadow-um-accent/25 touch-target">
+          Contacto
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <section class="relative bg-um-dark overflow-hidden pt-20 sm:pt-24 pb-6 sm:pb-10 lg:pb-12">
+    <div class="absolute inset-0 opacity-50">
+      <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;0.4&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+    </div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 lg:px-8 w-full">
+      <nav class="flex items-center gap-2 text-sm text-gray-400 mb-3 sm:mb-4">
+        <a href="index-v4.html" class="hover:text-white transition-colors">Inicio</a>
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        <span class="text-white">Nosotros</span>
+      </nav>
+
+      <span class="inline-flex items-center gap-2 px-4 py-2 bg-um-primary/30 text-um-primary-light rounded-full text-sm font-semibold mb-6">
+        <i data-lucide="building" class="w-4 h-4"></i>
+        Nuestra Historia
+      </span>
+
+      <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white mb-6 max-w-4xl leading-tight">
+        +22 Años Transformando<br>
+        <span class="text-um-primary-light">Empresas en la Región</span>
+      </h1>
+      <p class="text-base sm:text-lg lg:text-xl text-gray-300 max-w-2xl">
+        Desde el año 2000, conectamos organizaciones con tecnología de punta desde Mendoza hacia todo el país.
+      </p>
+    </div>
+  </section>
+
+  <!-- STATS SECTION -->
+  <section class="bg-white py-8 sm:py-10 lg:py-12 border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+        <div class="text-center">
+          <div class="text-4xl md:text-5xl font-extrabold text-um-primary">469+</div>
+          <div class="text-um-gray mt-2">Proyectos Completados</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl md:text-5xl font-extrabold text-um-primary">22+</div>
+          <div class="text-um-gray mt-2">Años de Experiencia</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl md:text-5xl font-extrabold text-um-primary">100%</div>
+          <div class="text-um-gray mt-2">Satisfacción Cliente</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl md:text-5xl font-extrabold text-um-primary">8</div>
+          <div class="text-um-gray mt-2">Verticales de Industria</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HISTORIA -->
+  <section class="py-10 sm:py-14 lg:py-20 xl:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
+        <div>
+          <span class="text-um-primary font-semibold text-sm uppercase tracking-wider">Nuestra Historia</span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-4 mb-6">
+            De Mendoza al Mundo
+          </h2>
+          <div class="prose prose-lg text-um-gray">
+            <p>
+              <strong>Ultima Milla</strong> nació en el año 2000 en Guaymallén, Mendoza, con una visión clara: acercar la tecnología de vanguardia a las empresas de la región que hasta entonces dependían exclusivamente de proveedores de Buenos Aires.
+            </p>
+            <p>
+              Comenzamos con servicios de cableado estructurado y rápidamente expandimos nuestra oferta para cubrir todas las necesidades de infraestructura tecnológica de nuestros clientes: seguridad electrónica, telecomunicaciones, desarrollo de software, consultoría y más.
+            </p>
+            <p>
+              Hoy, después de más de dos décadas, nos enorgullece haber implementado más de 469 proyectos exitosos en sectores como gobierno, salud, industria, bodegas, aeropuertos, minería y construcción.
+            </p>
+          </div>
+        </div>
+        <div class="relative">
+          <div class="absolute -inset-4 bg-um-red/10 rounded-3xl"></div>
+          <img
+            src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=500&fit=crop"
+            alt="Oficinas Ultima Milla"
+            class="relative rounded-2xl shadow-xl w-full"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTORES ATENDIDOS -->
+  <section class="bg-gray-50 py-10 sm:py-14 lg:py-20 xl:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <span class="text-um-primary font-semibold text-sm uppercase tracking-wider">Experiencia</span>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-4 mb-4">Sectores que Atendemos</h2>
+        <p class="text-um-gray max-w-2xl mx-auto">
+          Nuestra experiencia atraviesa múltiples industrias, permitiéndonos entender las necesidades específicas de cada sector.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+        <!-- Gobierno -->
+        <div class="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
+          <div class="w-14 h-14 bg-um-red-bg rounded-xl flex items-center justify-center mb-6">
+            <i data-lucide="landmark" class="w-7 h-7 text-um-primary"></i>
+          </div>
+          <h3 class="text-xl font-bold text-um-dark mb-3">Gobierno y Sector Público</h3>
+          <p class="text-um-gray mb-4">
+            Municipalidades, ministerios y organismos públicos confían en nosotros para sus sistemas críticos.
+          </p>
+          <ul class="text-sm text-um-gray space-y-2">
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+              Municipalidad de Guaymallén
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+              Municipalidad de Maipú
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+              Gobierno de Mendoza
+            </li>
+          </ul>
+        </div>
+
+        <!-- Privado -->
+        <div class="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
+          <div class="w-14 h-14 bg-um-red-bg rounded-xl flex items-center justify-center mb-6">
+            <i data-lucide="building-2" class="w-7 h-7 text-um-primary"></i>
+          </div>
+          <h3 class="text-xl font-bold text-um-dark mb-3">Industria y Empresas</h3>
+          <p class="text-um-gray mb-4">
+            Bodegas, fábricas, constructoras y empresas de todos los tamaños cuentan con nuestra tecnología.
+          </p>
+          <ul class="text-sm text-um-gray space-y-2">
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+              Bodega Chandon
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+              Aluar
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+              Impsa
+            </li>
+          </ul>
+        </div>
+
+        <!-- Salud y Educación -->
+        <div class="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
+          <div class="w-14 h-14 bg-um-red-bg rounded-xl flex items-center justify-center mb-6">
+            <i data-lucide="heart-pulse" class="w-7 h-7 text-um-primary"></i>
+          </div>
+          <h3 class="text-xl font-bold text-um-dark mb-3">Salud y Educación</h3>
+          <p class="text-um-gray mb-4">
+            Hospitales, clínicas y universidades requieren infraestructura confiable 24/7.
+          </p>
+          <ul class="text-sm text-um-gray space-y-2">
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+              Hospital Central
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+              Clínica de Cuyo
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+              Universidad de Mendoza
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROPUESTA DE VALOR -->
+  <section class="py-10 sm:py-14 lg:py-20 xl:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <span class="text-um-primary font-semibold text-sm uppercase tracking-wider">Por Qué Elegirnos</span>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-4 mb-4">Nuestra Propuesta de Valor</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+        <!-- Pilar 1 -->
+        <div class="text-center p-8">
+          <div class="w-16 h-16 bg-um-red rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <i data-lucide="map-pin" class="w-8 h-8 text-white"></i>
+          </div>
+          <h3 class="text-xl font-bold text-um-dark mb-4">Presencia Local, Capacidad Nacional</h3>
+          <p class="text-um-gray">
+            Base en Mendoza con cobertura en todo Cuyo, Patagonia y proyectos a nivel nacional. Respuesta inmediata sin depender de Buenos Aires.
+          </p>
+        </div>
+
+        <!-- Pilar 2 -->
+        <div class="text-center p-8">
+          <div class="w-16 h-16 bg-um-red rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <i data-lucide="unlock" class="w-8 h-8 text-white"></i>
+          </div>
+          <h3 class="text-xl font-bold text-um-dark mb-4">Tecnología Abierta, Sin Vendor Lock-in</h3>
+          <p class="text-um-gray">
+            Trabajamos con múltiples fabricantes para ofrecerle la mejor solución técnica y económica, no la que nos deja más comisión.
+          </p>
+        </div>
+
+        <!-- Pilar 3 -->
+        <div class="text-center p-8">
+          <div class="w-16 h-16 bg-um-red rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <i data-lucide="file-text" class="w-8 h-8 text-white"></i>
+          </div>
+          <h3 class="text-xl font-bold text-um-dark mb-4">Transparencia y Documentación Completa</h3>
+          <p class="text-um-gray">
+            Cada proyecto se entrega con documentación as-built, certificaciones y capacitación. Sin sorpresas, sin dependencias ocultas.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM (Optional visual) -->
+  <section class="bg-um-dark py-10 sm:py-14 lg:py-20 xl:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 items-center">
+        <div>
+          <span class="text-um-primary-light font-semibold text-sm uppercase tracking-wider">Nuestro Equipo</span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mt-4 mb-6">
+            Ingenieros Certificados y Comprometidos
+          </h2>
+          <p class="text-gray-300 text-lg mb-8">
+            Contamos con un equipo de más de 15 profesionales especializados en diferentes áreas de la tecnología, todos con certificaciones vigentes de los principales fabricantes.
+          </p>
+
+          <div class="grid grid-cols-2 gap-6">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-um-red rounded-lg flex items-center justify-center">
+                <i data-lucide="award" class="w-5 h-5 text-white"></i>
+              </div>
+              <div>
+                <div class="text-white font-semibold">Cisco</div>
+                <div class="text-sm text-gray-400">CCNA, CCNP</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-um-red rounded-lg flex items-center justify-center">
+                <i data-lucide="award" class="w-5 h-5 text-white"></i>
+              </div>
+              <div>
+                <div class="text-white font-semibold">Microsoft</div>
+                <div class="text-sm text-gray-400">Azure, M365</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-um-red rounded-lg flex items-center justify-center">
+                <i data-lucide="award" class="w-5 h-5 text-white"></i>
+              </div>
+              <div>
+                <div class="text-white font-semibold">Ubiquiti</div>
+                <div class="text-sm text-gray-400">UBWA, UEWA</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-um-red rounded-lg flex items-center justify-center">
+                <i data-lucide="award" class="w-5 h-5 text-white"></i>
+              </div>
+              <div>
+                <div class="text-white font-semibold">Fluke</div>
+                <div class="text-sm text-gray-400">CFOT, CCTT</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="relative">
+          <img
+            src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&h=450&fit=crop"
+            alt="Equipo Ultima Milla"
+            class="rounded-2xl shadow-2xl"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="bg-um-red py-10 sm:py-14 lg:py-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4">¿Listo para Transformar su Empresa?</h2>
+      <p class="text-base sm:text-lg lg:text-xl text-blue-100 mb-8">
+        Converse con nuestro equipo y descubra cómo podemos ayudarlo
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="contacto-v4.html" class="px-8 py-4 bg-white text-um-primary font-bold rounded-xl hover:bg-gray-100 transition-colors">
+          Agendar Consulta
+        </a>
+        <a href="antecedentes-index-v4.html" class="px-8 py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-colors">
+          Ver Nuestros Casos
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-um-dark text-gray-400 py-10 sm:py-12 lg:py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 mb-12">
+        <div class="text-center sm:text-left">
+          <div class="flex items-center justify-center sm:justify-start gap-3 mb-6">
+            <img src="https://ultimamilla.com.ar/images/um-logo.png" alt="Ultima Milla" class="h-10 brightness-0 invert">
+          </div>
+          <p class="text-sm leading-relaxed">
+            Soluciones IT de clase mundial para empresas de Mendoza, Cuyo y Patagonia desde el año 2000.
+          </p>
+        </div>
+        <div class="text-center sm:text-left">
+          <h4 class="font-bold text-white mb-4">Servicios</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="servicio-single-v4.html?id=101" class="hover:text-white transition-colors">Infraestructura de Redes</a></li>
+            <li><a href="servicio-single-v4.html?id=102" class="hover:text-white transition-colors">Seguridad Electrónica</a></li>
+            <li><a href="servicio-single-v4.html?id=103" class="hover:text-white transition-colors">Telecomunicaciones</a></li>
+            <li><a href="servicio-single-v4.html?id=104" class="hover:text-white transition-colors">Desarrollo de Software</a></li>
+          </ul>
+        </div>
+        <div class="text-center sm:text-left">
+          <h4 class="font-bold text-white mb-4">Empresa</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="nosotros-v4.html" class="hover:text-white transition-colors">Nosotros</a></li>
+            <li><a href="antecedentes-index-v4.html" class="hover:text-white transition-colors">Antecedentes</a></li>
+            <li><a href="sectores-v4.html" class="hover:text-white transition-colors">Sectores</a></li>
+            <li><a href="contacto-v4.html" class="hover:text-white transition-colors">Contacto</a></li>
+          </ul>
+        </div>
+        <div class="text-center sm:text-left">
+          <h4 class="font-bold text-white mb-4">Contacto</h4>
+          <ul class="space-y-3 text-sm">
+            <li class="flex items-start justify-center sm:justify-start gap-3">
+              <i data-lucide="map-pin" class="w-4 h-4 mt-0.5 text-um-primary-light flex-shrink-0"></i>
+              <span>Houssay 1159, Guaymallén<br>Mendoza 5500</span>
+            </li>
+            <li class="flex items-center justify-center sm:justify-start gap-3">
+              <i data-lucide="phone" class="w-4 h-4 text-um-primary-light flex-shrink-0"></i>
+              <span>+54 261 400-0000</span>
+            </li>
+            <li class="flex items-center justify-center sm:justify-start gap-3">
+              <i data-lucide="mail" class="w-4 h-4 text-um-primary-light flex-shrink-0"></i>
+              <span>info@ultimamilla.com.ar</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="text-sm">© 2024 Ultima Milla. Todos los derechos reservados.</p>
+        <div class="flex gap-4">
+          <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-um-primary transition-colors">
+            <i data-lucide="linkedin" class="w-5 h-5"></i>
+          </a>
+          <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-um-primary transition-colors">
+            <i data-lucide="instagram" class="w-5 h-5"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+  </script>
+
+  <!-- Mobile Menu Toggle Script -->
+  <script>
+    (function() {
+      const menuToggle = document.getElementById('menuToggle');
+      const mobileMenu = document.getElementById('mobileMenu');
+      const hamburgerIcon = document.getElementById('hamburgerIcon');
+      const closeIcon = document.getElementById('closeIcon');
+
+      if (menuToggle && mobileMenu && hamburgerIcon && closeIcon) {
+        menuToggle.addEventListener('click', function() {
+          const isOpen = !mobileMenu.classList.contains('hidden');
+
+          if (isOpen) {
+            mobileMenu.classList.add('hidden');
+            hamburgerIcon.classList.remove('hidden');
+            closeIcon.classList.add('hidden');
+            menuToggle.setAttribute('aria-expanded', 'false');
+          } else {
+            mobileMenu.classList.remove('hidden');
+            hamburgerIcon.classList.add('hidden');
+            closeIcon.classList.remove('hidden');
+            menuToggle.setAttribute('aria-expanded', 'true');
+          }
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+          if (!menuToggle.contains(event.target) && !mobileMenu.contains(event.target)) {
+            mobileMenu.classList.add('hidden');
+            hamburgerIcon.classList.remove('hidden');
+            closeIcon.classList.add('hidden');
+            menuToggle.setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        // Close menu on escape key
+        document.addEventListener('keydown', function(event) {
+          if (event.key === 'Escape' && !mobileMenu.classList.contains('hidden')) {
+            mobileMenu.classList.add('hidden');
+            hamburgerIcon.classList.remove('hidden');
+            closeIcon.classList.add('hidden');
+            menuToggle.setAttribute('aria-expanded', 'false');
+            menuToggle.focus();
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

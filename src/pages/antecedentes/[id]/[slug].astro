@@ -1,22 +1,46 @@
 ---
+<<<<<<< HEAD
 import Layout from '../../../layouts/Layout.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getFixedImage } from '../../../utils/imageFixer.js';
 
 // --- Configuración ---
 const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://ultimamilla.com.ar/admin';
+=======
+/**
+ * Antecedente Detail Page - V4 Design System
+ * Case study/project detail with enhanced design matching V4 template
+ */
+
+import LayoutV4 from '../../../layouts/LayoutV4.astro';
+import ServiceCard from '../../../components/v4/ServiceCard.astro';
+import CTASection from '../../../components/v4/CTASection.astro';
+import { generateSlug } from '../../../utils/slugUtils.js';
+import { getServicioById } from '../../../utils/directusHelpers';
+import { getServiceIdFromArea } from '../../../data/areaToServiceMap.js';
+import { getDirectusImageUrl } from '../../../lib/directus.ts';
+
+// --- Configuration ---
+const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://ultimamilla.com.ar/admin';
+const PROD_URL = 'https://ultimamilla.com.ar';
+>>>>>>> origin/master
 const DEFAULT_IMAGE_URL = `/images/default-background.jpg`;
 const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
 
 export const prerender = false;
 
+<<<<<<< HEAD
 // Parámetros de URL
+=======
+// URL params
+>>>>>>> origin/master
 const { id, slug: slugFromUrl } = Astro.params;
 
 if (!id || !slugFromUrl) {
     return Astro.redirect('/404');
 }
 
+<<<<<<< HEAD
 // --- Estado ---
 let antecedente = null;
 let usingFallback = false;
@@ -41,6 +65,34 @@ const getAssetUrl = (assetId) => {
 
 // --- Fetch de Datos ---
 async function fetchAntecedenteById(itemId) {
+=======
+// --- State ---
+let antecedente: any = null;
+let usingFallback = false;
+
+// --- Helper Functions ---
+const getAssetUrl = (assetId: any): string => {
+    if (!assetId) return DEFAULT_IMAGE_URL;
+
+    // Handle object with nested ID properties
+    if (typeof assetId === 'object') {
+        if (assetId.id) return getDirectusImageUrl(assetId.id);
+        if (assetId.directus_files_id) return getDirectusImageUrl(assetId.directus_files_id);
+    }
+
+    // Handle string UUIDs
+    if (typeof assetId === 'string') {
+        if (assetId.startsWith('http')) return assetId;
+        const url = getDirectusImageUrl(assetId);
+        if (url) return url;
+    }
+
+    return DEFAULT_IMAGE_URL;
+};
+
+// --- Fetch Data ---
+async function fetchAntecedenteById(itemId: string) {
+>>>>>>> origin/master
     try {
         const response = await fetch(`${DIRECTUS_URL}/items/Antecedentes/${itemId}?fields=*,Imagen.*,ImagenPrincipal.*,Imagenes.*,Imagenes.directus_files_id`, {
             headers: {
@@ -57,7 +109,11 @@ async function fetchAntecedenteById(itemId) {
     }
 }
 
+<<<<<<< HEAD
 // --- Obtención de datos y validación ---
+=======
+// --- Get data and validate ---
+>>>>>>> origin/master
 try {
     if (DIRECTUS_STATIC_TOKEN) {
         antecedente = await fetchAntecedenteById(id);
@@ -73,8 +129,15 @@ try {
 } catch (error) {
     usingFallback = true;
     try {
+<<<<<<< HEAD
         const { antecedentesReales } = await import('../../../data/antecedentes_completos.js');
         antecedente = antecedentesReales.find(item => item.id.toString() === id);
+=======
+        // Fallback: buscar en snapshot completo (518 antecedentes)
+        const snapshot = await import('../../../data/snapshots/antecedentes.json');
+        const allAntecedentes = (snapshot.data || snapshot.default?.data || []) as any[];
+        antecedente = allAntecedentes.find((item: any) => item.id?.toString() === id);
+>>>>>>> origin/master
         if (antecedente) {
             const expectedSlug = generateSlug(antecedente.Titulo);
             if (expectedSlug !== slugFromUrl) {
@@ -90,6 +153,7 @@ try {
 
 if (!antecedente) return Astro.redirect('/404');
 
+<<<<<<< HEAD
 // --- Preparación de datos para la UI ---
 const getMainImageUrl = async () => {
     try {
@@ -128,16 +192,142 @@ const formatCurrency = (amount) => {
 };
 
 const siteUrl = 'https://ultimamilla.com.ar';
+=======
+// --- Prepare data for UI (Directus-first) ---
+const mainImageUrl = getAssetUrl(antecedente.Imagen || antecedente.ImagenPrincipal);
+
+const formatDate = (dateString: string): string => {
+    if (!dateString) return 'No especificada';
+    try {
+        return new Date(dateString).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' });
+    } catch { return dateString; }
+};
+
+// Extract scope items from description (bullet points)
+const extractScopeItems = (descripcion: string): string[] => {
+    if (!descripcion) return [];
+    const items: string[] = [];
+    // Try to extract bullet points or sentences
+    const sentences = descripcion.split(/[.;]/).filter(s => s.trim().length > 10 && s.trim().length < 150);
+    return sentences.slice(0, 5).map(s => s.trim());
+};
+
+const scopeItems = extractScopeItems(antecedente.Descripcion || '');
+
+// Mapeo de colores por categoría/sector (mismo que ProjectCard)
+const getCategoryColors = (category: string): { bg: string; text: string; darkBg: string } => {
+  const normalizedCategory = category?.toLowerCase().trim() || '';
+
+  const colorMap: Record<string, { bg: string; text: string; darkBg: string }> = {
+    'gobierno': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
+    'sector público': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
+    'municipal': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
+    'municipalidad': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
+    'aeropuertos': { bg: 'bg-sky-500', text: 'text-white', darkBg: 'bg-sky-600' },
+    'aeropuerto': { bg: 'bg-sky-500', text: 'text-white', darkBg: 'bg-sky-600' },
+    'transporte': { bg: 'bg-sky-500', text: 'text-white', darkBg: 'bg-sky-600' },
+    'bodegas': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
+    'bodega': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
+    'vitivinícola': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
+    'agroindustria': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
+    'salud': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
+    'hospital': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
+    'clínica': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
+    'médico': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
+    'data center': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
+    'datacenter': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
+    'infraestructura': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
+    'ti': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
+    'construcción': { bg: 'bg-amber-500', text: 'text-white', darkBg: 'bg-amber-600' },
+    'constructora': { bg: 'bg-amber-500', text: 'text-white', darkBg: 'bg-amber-600' },
+    'obra': { bg: 'bg-amber-500', text: 'text-white', darkBg: 'bg-amber-600' },
+    'industria': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
+    'industrial': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
+    'manufactura': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
+    'fábrica': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
+    'software': { bg: 'bg-cyan-500', text: 'text-white', darkBg: 'bg-cyan-600' },
+    'desarrollo': { bg: 'bg-cyan-500', text: 'text-white', darkBg: 'bg-cyan-600' },
+    'aplicación': { bg: 'bg-cyan-500', text: 'text-white', darkBg: 'bg-cyan-600' },
+    'minería': { bg: 'bg-slate-500', text: 'text-white', darkBg: 'bg-slate-600' },
+    'minera': { bg: 'bg-slate-500', text: 'text-white', darkBg: 'bg-slate-600' },
+    'mining': { bg: 'bg-slate-500', text: 'text-white', darkBg: 'bg-slate-600' },
+    'seguridad': { bg: 'bg-red-500', text: 'text-white', darkBg: 'bg-red-600' },
+    'seguridad electrónica': { bg: 'bg-red-500', text: 'text-white', darkBg: 'bg-red-600' },
+    'cctv': { bg: 'bg-red-500', text: 'text-white', darkBg: 'bg-red-600' },
+    'telecomunicaciones': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
+    'redes': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
+    'redes y comunicaciones': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
+    'comunicaciones': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
+  };
+
+  for (const [key, colors] of Object.entries(colorMap)) {
+    if (normalizedCategory.includes(key) || key.includes(normalizedCategory)) {
+      return colors;
+    }
+  }
+
+  return { bg: 'bg-um-primary', text: 'text-white', darkBg: 'bg-um-primary-dark' };
+};
+
+const areaCategoryColors = getCategoryColors(antecedente.Area || '');
+
+// Get related services via M2M relationship from Directus (with fallback to area mapping)
+const getRelatedServices = async (antecedenteId: string, area: string) => {
+    // TODO: Re-enable M2M relationship when function is available in directusHelpers.ts
+    // try {
+    //     // Try to get M2M related services from Directus
+    //     const serviciosFromDirectus = await getServiciosPorAntecedente(parseInt(antecedenteId));
+    //
+    //     if (serviciosFromDirectus && serviciosFromDirectus.length > 0) {
+    //         return serviciosFromDirectus.slice(0, 4); // Max 4 services
+    //     }
+    // } catch (error) {
+    //     console.error('Error fetching related services from Directus:', error);
+    // }
+
+    // Fallback: Use area-based mapping to find one service from Directus
+    try {
+        const serviceId = getServiceIdFromArea(area);
+        const servicio = await getServicioById(serviceId);
+
+        if (servicio) {
+            return [{
+                id: serviceId,
+                Titulo: servicio.Titulo,
+                Descripcion: servicio.Descripcion,
+                Imagen: servicio.Imagen,
+                subtitulo: servicio.Descripcion?.substring(0, 100),
+                slug: generateSlug(servicio.Titulo)
+            }];
+        }
+    } catch (error) {
+        console.error('Error fetching service by area mapping:', error);
+    }
+
+    return [];
+};
+
+const relatedServices = await getRelatedServices(id, antecedente.Area || '');
+
+// SEO
+const siteUrl = 'https://www.ultimamilla.com.ar';
+>>>>>>> origin/master
 const canonicalUrl = `${siteUrl}/antecedentes/${id}/${slugFromUrl}`;
 const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').substring(0, 160) + '...';
 ---
 
+<<<<<<< HEAD
 <Layout
   title={`${antecedente.Titulo} | Caso de Éxito - Ultima Milla`}
+=======
+<LayoutV4
+  title={`${antecedente.Titulo} | Caso de Éxito - ULTIMA MILLA`}
+>>>>>>> origin/master
   description={metaDescription}
   image={mainImageUrl}
   canonical={canonicalUrl}
 >
+<<<<<<< HEAD
   <main class="min-h-screen bg-white">
     <!-- Hero Section V3 (Immersive, Full-Screen) -->
     <section class="relative h-[70vh] md:h-[85vh] flex items-end md:items-center overflow-hidden bg-slate-900">
@@ -332,3 +522,302 @@ const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').
     }
   }
 </style>
+=======
+  <!-- HERO SECTION -->
+  <section class="relative overflow-hidden bg-um-dark">
+    <!-- Background Image -->
+    <img
+      src={mainImageUrl}
+      alt={antecedente.Titulo}
+      class="absolute inset-0 w-full h-full object-cover opacity-50"
+      onerror="this.src='/images/default-background.jpg'"
+    />
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-gradient-to-t from-um-dark via-um-dark/70 to-um-dark/40"></div>
+
+    <!-- Content -->
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-6 sm:pb-10 lg:pb-12">
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 text-xs mb-3 sm:mb-4">
+        <a href="/" class="text-white/60 hover:text-white/80 font-medium">Inicio</a>
+        <span class="text-white/30">/</span>
+        <a href="/antecedentes" class="text-white/60 hover:text-white/80 font-medium">Antecedentes</a>
+        <span class="text-white/30">/</span>
+        <span class="text-white font-medium">{antecedente.Area || 'Proyecto'}</span>
+      </nav>
+
+      <!-- Category Badge -->
+      <div class={`inline-flex items-center gap-1.5 ${areaCategoryColors.bg} px-3 py-1.5 rounded-full mb-4 sm:mb-5`}>
+        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+        </svg>
+        <span class="text-white text-[10px] font-bold tracking-wider uppercase">{antecedente.Area || 'Proyecto'}</span>
+      </div>
+
+      <!-- Title -->
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold text-white leading-tight max-w-4xl mb-4 sm:mb-5">
+        {antecedente.Titulo}
+      </h1>
+
+      <!-- Subtitle (from description) -->
+      <p class="text-sm sm:text-base lg:text-lg text-white/80 max-w-2xl leading-relaxed mb-5 sm:mb-6">
+        {antecedente.Descripcion?.replace(/<[^>]+>/g, '').substring(0, 150)}...
+      </p>
+
+      <!-- Meta Info -->
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:text-sm">
+        <div class="flex items-center gap-2 text-white/80">
+          <svg class="w-4 h-4 text-um-primary-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+          <span>{antecedente.Cliente}</span>
+        </div>
+        {antecedente.Fecha && (
+          <>
+            <span class="text-white/30">•</span>
+            <div class="flex items-center gap-2 text-white/80">
+              <svg class="w-4 h-4 text-um-primary-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              <span>{formatDate(antecedente.Fecha)}</span>
+            </div>
+          </>
+        )}
+        <span class="text-white/30">•</span>
+        <div class="flex items-center gap-2 text-white/80">
+          <svg class="w-4 h-4 text-um-primary-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <span>Mendoza, Argentina</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTENT SECTION -->
+  <section class="px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12 xl:gap-16">
+      <!-- Left Column (Main Content) -->
+      <div class="flex-1 flex flex-col gap-8 sm:gap-10 lg:gap-12 order-2 lg:order-1">
+
+        <!-- Description Section -->
+        <div class="flex flex-col gap-4 sm:gap-5">
+          <div class="flex items-center gap-3">
+            <div class="w-1 h-5 sm:h-6 bg-um-primary rounded-sm"></div>
+            <h2 class="text-lg sm:text-xl lg:text-[22px] font-bold text-gray-900">Descripción del Proyecto</h2>
+          </div>
+          <div class="text-gray-600 leading-relaxed text-sm sm:text-base prose prose-lg max-w-none">
+            <div set:html={antecedente.Descripcion || antecedente.descripcion || '<p>Información detallada del proyecto no disponible.</p>'} />
+          </div>
+
+          <!-- Callout Box -->
+          <div class="flex items-start sm:items-center gap-3 bg-um-primary-bg px-4 sm:px-5 py-3 sm:py-4 rounded-r-lg border-l-4 border-um-primary">
+            <span class="text-base sm:text-lg flex-shrink-0">💡</span>
+            <span class="text-um-primary text-[10px] sm:text-xs font-semibold tracking-wide leading-tight uppercase">
+              Proyecto de {antecedente.Area || 'tecnología'} para {antecedente.Cliente}
+            </span>
+          </div>
+        </div>
+
+        <!-- Alcance del Proyecto Section -->
+        {scopeItems.length > 0 && (
+          <div class="flex flex-col gap-4 sm:gap-5">
+            <div class="flex items-center gap-3">
+              <div class="w-1 h-5 sm:h-6 bg-um-primary rounded-sm"></div>
+              <h2 class="text-lg sm:text-xl lg:text-[22px] font-bold text-gray-900">Alcance del Proyecto</h2>
+            </div>
+            <div class="flex flex-col gap-3 sm:gap-3.5">
+              {scopeItems.map((item) => (
+                <div class="flex items-start gap-3">
+                  <div class="w-5 sm:w-[22px] h-5 sm:h-[22px] rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg class="w-3 sm:w-3.5 h-3 sm:h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </div>
+                  <span class="text-gray-700 text-sm sm:text-[15px] font-medium">{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <!-- Servicios Relacionados -->
+        {relatedServices.length > 0 && (
+          <div class="flex flex-col gap-4 sm:gap-5">
+            <div class="flex items-center gap-3">
+              <div class="w-1 h-5 sm:h-6 bg-um-primary rounded-sm"></div>
+              <h2 class="text-lg sm:text-xl lg:text-[22px] font-bold text-gray-900">Servicios Relacionados</h2>
+            </div>
+            <p class="text-gray-600 text-sm sm:text-base">
+              Este proyecto utilizó los siguientes servicios de ULTIMA MILLA:
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              {relatedServices.map((servicio) => (
+                <ServiceCard
+                  id={servicio.id}
+                  slug={servicio.slug}
+                  titulo={servicio.Titulo}
+                  subtitulo={servicio.subtitulo || servicio.Descripcion?.substring(0, 100)}
+                  imagen={servicio.Imagen}
+                  icon="box"
+                  iconColor="bg-um-primary/90"
+                />
+              ))}
+            </div>
+
+            <a
+              href="/servicios"
+              class="inline-flex items-center gap-2 text-um-primary font-semibold text-sm hover:underline"
+            >
+              Ver todos nuestros servicios
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+              </svg>
+            </a>
+          </div>
+        )}
+
+        <!-- Gallery (if has additional images from Directus) -->
+        {antecedente.Imagenes && antecedente.Imagenes.length > 0 && (
+          <div class="flex flex-col gap-4 sm:gap-5">
+            <div class="flex items-center gap-3">
+              <div class="w-1 h-5 sm:h-6 bg-purple-600 rounded-sm"></div>
+              <h2 class="text-lg sm:text-xl lg:text-[22px] font-bold text-gray-900">Galería del Proyecto</h2>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {antecedente.Imagenes.map((img: any) => (
+                <div class="aspect-video rounded-xl overflow-hidden bg-gray-100 group">
+                  <img
+                    src={getAssetUrl(img)}
+                    alt="Galería"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                    onerror="this.src='/images/default-background.jpg'"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <!-- Sidebar -->
+      <div class="w-full lg:w-[320px] xl:w-[360px] flex flex-col gap-4 sm:gap-6 order-1 lg:order-2">
+
+        <!-- Ficha Técnica Card -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
+          <div class="flex items-center gap-2.5 px-4 sm:px-5 py-3 sm:py-4 bg-gray-50 border-b border-gray-200">
+            <svg class="w-4 sm:w-[18px] h-4 sm:h-[18px] text-um-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span class="text-sm font-bold text-gray-900">Ficha Técnica</span>
+          </div>
+          <div class="p-4 sm:p-5 flex flex-col gap-3 sm:gap-4">
+            <div class="flex flex-col gap-1">
+              <span class="text-[10px] font-semibold text-gray-500 tracking-wider uppercase">Organización</span>
+              <span class="text-sm sm:text-[15px] font-semibold text-gray-900">{antecedente.Cliente}</span>
+            </div>
+            <div class="h-px bg-gray-100"></div>
+            <div class="flex flex-col gap-1">
+              <span class="text-[10px] font-semibold text-gray-500 tracking-wider uppercase">Vertical</span>
+              <span class="text-sm sm:text-[15px] font-semibold text-gray-900">{antecedente.Area || 'Tecnología'}</span>
+            </div>
+            <div class="h-px bg-gray-100"></div>
+            <div class="flex flex-col gap-1">
+              <span class="text-[10px] font-semibold text-gray-500 tracking-wider uppercase">Unidad de Negocio</span>
+              <span class="text-sm sm:text-[15px] font-semibold text-gray-900">{antecedente.Unidad_de_negocio || 'Consultoría'}</span>
+            </div>
+            <div class="h-px bg-gray-100"></div>
+            <div class="flex flex-col gap-1">
+              <span class="text-[10px] font-semibold text-gray-500 tracking-wider uppercase">Ubicación</span>
+              <span class="text-sm sm:text-[15px] font-semibold text-gray-900">Mendoza, Argentina</span>
+            </div>
+            {antecedente.Fecha && (
+              <>
+                <div class="h-px bg-gray-100"></div>
+                <div class="flex flex-col gap-1">
+                  <span class="text-[10px] font-semibold text-gray-500 tracking-wider uppercase">Finalización</span>
+                  <span class="text-sm sm:text-[15px] font-semibold text-gray-900">{formatDate(antecedente.Fecha)}</span>
+                </div>
+              </>
+            )}
+            <div class="h-px bg-gray-100"></div>
+            <div class="flex flex-col gap-1">
+              <span class="text-[10px] font-semibold text-gray-500 tracking-wider uppercase">Código Proyecto</span>
+              <span class="text-sm sm:text-[15px] font-semibold text-um-primary font-mono">ANT-{id}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA Widget -->
+        <div class="bg-gradient-to-br from-um-primary to-um-primary-dark rounded-2xl p-5 sm:p-6 flex flex-col items-center gap-3 sm:gap-4">
+          <div class="w-12 sm:w-14 h-12 sm:h-14 rounded-full bg-white/20 flex items-center justify-center">
+            <svg class="w-6 sm:w-7 h-6 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+          </div>
+          <h3 class="text-base sm:text-lg font-bold text-white text-center">¿Necesita una solución similar?</h3>
+          <p class="text-xs sm:text-sm text-white/80 text-center leading-relaxed">
+            Contáctenos para una evaluación gratuita de su proyecto
+          </p>
+          <div class="w-full flex flex-col gap-2 sm:gap-2.5">
+            <a href="/contacto" class="flex items-center justify-center gap-2 bg-white text-um-primary font-semibold py-3 sm:py-3.5 px-4 sm:px-5 rounded-lg hover:bg-gray-50 transition-colors min-h-[44px] text-sm sm:text-base">
+              <svg class="w-4 sm:w-[18px] h-4 sm:h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+              </svg>
+              Solicitar Cotización
+            </a>
+            <a href="mailto:contacto@ultimamilla.com.ar" class="flex items-center justify-center gap-2 bg-white/20 text-white font-semibold py-3 sm:py-3.5 px-4 sm:px-5 rounded-lg border border-white/30 hover:bg-white/30 transition-colors min-h-[44px] text-sm sm:text-base">
+              <svg class="w-4 sm:w-[18px] h-4 sm:h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              Enviar Email
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED SECTION -->
+  <section class="bg-um-gray-light border-t border-gray-200 py-10 sm:py-14 lg:py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Proyectos Relacionados</h2>
+        <a href="/antecedentes" class="flex items-center gap-1.5 text-um-primary font-semibold text-sm hover:underline">
+          Ver portfolio completo
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+          </svg>
+        </a>
+      </div>
+
+      <div class="text-center py-8">
+        <a href="/antecedentes" class="inline-flex items-center gap-2 px-6 py-3 bg-um-dark text-white font-bold rounded-xl hover:bg-um-primary transition-colors">
+          Explorar más proyectos
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA SECTION -->
+  <CTASection
+    badge="¿Necesita una solución similar?"
+    badgeIcon="rocket"
+    titulo={`Implemente ${antecedente.Area || 'soluciones tecnológicas'} en su organización`}
+    descripcion="Contáctenos para una consultoría gratuita y descubra cómo podemos ayudarle a alcanzar sus objetivos."
+    primaryButtonText="Solicitar Consulta Gratuita"
+    primaryButtonUrl="/contacto"
+    secondaryButtonText="Ver Más Casos"
+    secondaryButtonUrl="/antecedentes"
+    secondaryButtonIcon="arrow-right"
+    backgroundImage={mainImageUrl}
+    darkOverlay={85}
+  />
+</LayoutV4>
+>>>>>>> origin/master

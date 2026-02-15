@@ -1,0 +1,197 @@
+# docker-compose.production.optimized.yml
+# Configuración optimizada para producción según arquitectura ultimamilla.com.ar
+# Puerto 3000 para Astro (no 4321), healthchecks mejorados, seguridad reforzada
+
+services:
+  # =================================
+  # 1. Base de Datos PostgreSQL
+  # =================================
+  database:
+    image: postgres:15-alpine
+    container_name: um-postgres-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      # Configuraciones de rendimiento para producción
+      POSTGRES_SHARED_BUFFERS: 256MB
+      POSTGRES_MAX_CONNECTIONS: 200
+      POSTGRES_INITDB_ARGS: --data-checksums
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ultimamilla_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # =================================
+  # 2. Directus CMS (Puerto 8055)
+  # =================================
+  directus-app:
+    image: directus/directus:11.7.2
+    container_name: um-directus-prod
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8055:8055"  # Solo localhost por seguridad
+    environment:
+      # Database
+      DB_CLIENT: pg
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      
+      # Directus Core
+      KEY: ${DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET}
+      DIRECTUS_STATIC_TOKEN: ${DIRECTUS_STATIC_TOKEN}
+      
+      # Admin User
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      
+      # Production Settings
+      NODE_ENV: production
+      LOG_LEVEL: info
+      CACHE_ENABLED: true
+      CACHE_STORE: memory
+      
+      # Security
+      CORS_ENABLED: true
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      
+      # Upload Settings
+      STORAGE_LOCATIONS: local
+      STORAGE_LOCAL_ROOT: /directus/uploads
+      MAX_PAYLOAD_SIZE: 16mb
+      
+      # Rate Limiting
+      RATE_LIMITER_ENABLED: true
+      RATE_LIMITER_STORE: memory
+      RATE_LIMITER_POINTS: 100
+      RATE_LIMITER_DURATION: 60
+      
+      # Public URL
+      PUBLIC_URL: ${SITE_URL}
+      
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - directus_uploads:/directus/uploads
+      - directus_extensions:/directus/extensions
+    networks:
+      - ultimamilla_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8055/server/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # =================================
+  # 3. Astro App (Puerto 3000) - ARQUITECTURA CORRECTA
+  # =================================
+  astro-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.astro.production
+    container_name: um-astro-prod
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"  # Puerto 3000 según arquitectura
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOST: 0.0.0.0
+      
+      # Directus Connection
+      PUBLIC_DIRECTUS_URL: http://directus-app:8055
+      DIRECTUS_STATIC_TOKEN: ${DIRECTUS_STATIC_TOKEN}
+      
+      # Site Configuration
+      SITE_URL: ${SITE_URL}
+      SITE_TITLE: ${SITE_TITLE}
+      
+      # Performance
+      NODE_OPTIONS: "--max-old-space-size=2048"
+      
+    depends_on:
+      directus-app:
+        condition: service_healthy
+    networks:
+      - ultimamilla_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# =================================
+# Volúmenes Persistentes
+# =================================
+volumes:
+  postgres_data:
+    name: um_postgres_data
+    driver: local
+  directus_uploads:
+    name: um_directus_uploads
+    driver: local
+  directus_extensions:
+    name: um_directus_extensions
+    driver: local
+
+# =================================
+# Red Interna
+# =================================
+networks:
+  ultimamilla_net:
+    name: ultimamilla_network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

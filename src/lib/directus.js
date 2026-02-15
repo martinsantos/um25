@@ -42,3 +42,40 @@ directus.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Helper functions for API endpoints
+export async function getServicios(limit = 50) {
+  try {
+    const response = await directus.get('/items/Servicios', {
+      params: { limit, sort: '-id' }
+    });
+    return response.data?.data || [];
+  } catch (error) {
+    console.error('Error fetching servicios:', error);
+    return [];
+  }
+}
+
+export async function getCasosExito(limit = 50) {
+  try {
+    const response = await directus.get('/items/antecedentes', {
+      params: { limit, sort: '-id' }
+    });
+    return response.data?.data || [];
+  } catch (error) {
+    console.error('Error fetching antecedentes:', error);
+    return [];
+  }
+}
+
+export async function getBlogPosts(limit = 50) {
+  try {
+    const response = await directus.get('/items/blog_posts', {
+      params: { limit, sort: '-date_created' }
+    });
+    return response.data?.data || [];
+  } catch (error) {
+    console.error('Error fetching blog posts:', error);
+    return [];
+  }
+}

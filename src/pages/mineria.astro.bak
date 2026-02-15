@@ -1,0 +1,148 @@
+---
+/**
+ * Minería Sector Page - V4 Design System
+ * Updated: Uses Directus-only queries, no fallback to JS data
+ */
+
+import LayoutV4 from '../layouts/LayoutV4.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { generateSlug } from '../utils/slugUtils.js';
+import { getClient } from '../lib/directus.ts';
+import { readItems } from '@directus/sdk';
+
+// Helper function to get Directus image URL
+function getDirectusImageUrl(imageId: string | null | undefined): string {
+  if (!imageId) {
+    return 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
+  }
+  const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
+  return `${directusUrl}/assets/${imageId}`;
+}
+
+const sectorConfig = {
+  name: 'Minería',
+  emoji: '⛏️',
+  heroImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1920&q=80',
+  description: 'Soluciones de conectividad, seguridad y automatización diseñadas para operar en las condiciones más exigentes de la minería.',
+  keywords: ['telecomunicaciones', 'radioenlace', 'fibra optica', 'cctv', 'radio enlace', 'satelital', 'remoto', 'campamento', 'scada', 'telemetria', 'monitoreo', 'iot', 'minera', 'mina', 'yacimiento', 'minería', 'mineria'],
+};
+
+const seoConfig = {
+  title: 'Tecnología y Telecomunicaciones para Minería | Mendoza, San Juan y Patagonia | ULTIMA MILLA',
+  description: 'Servicios tecnológicos para empresas mineras. Telecomunicaciones críticas, corrientes débiles, detección de incendio y conectividad remota.',
+  keywords: 'servicios tecnologicos mineria, telecomunicaciones mineras, conectividad satelital',
+};
+
+// Fetch antecedentes from Directus ONLY
+let antecedentes: any[] = [];
+try {
+  const client = getClient();
+  const allAntecedentes = await client.request(
+    readItems('Antecedentes', {
+      fields: ['id', 'Titulo', 'Cliente', 'Descripcion', 'Area', 'Imagen', 'Fecha', 'Unidad_de_negocio'],
+      limit: 500
+    })
+  );
+
+  // Filter by sector keywords
+  antecedentes = allAntecedentes
+    .filter(item => {
+      const texto = `${item.Cliente || ''} ${item.Titulo || ''} ${item.Area || ''} ${item.Descripcion || ''} ${item.Nombre || ''}`.toLowerCase();
+      return sectorConfig.keywords.some(k => texto.includes(k.toLowerCase()));
+    })
+    .slice(0, 6)
+    .map(item => ({
+      ...item,
+      slug: generateSlug(item.Titulo || item.Nombre || 'proyecto'),
+      imageUrl: getDirectusImageUrl(item.imagen)
+    }));
+
+  console.log(`[MINERÍA] Found ${antecedentes.length} antecedentes from Directus`);
+} catch (error) {
+  console.error('[MINERÍA] Error fetching from Directus:', error);
+}
+---
+
+<LayoutV4 title={seoConfig.title} description={seoConfig.description} keywords={seoConfig.keywords}>
+  <section class="relative bg-um-dark pt-20 sm:pt-24 pb-8 sm:pb-12 lg:pb-16 overflow-hidden">
+    <div class="absolute inset-0 opacity-40" style={`background-image: url('${sectorConfig.heroImage}'); background-position: center; background-size: cover;`}></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-um-dark/70 to-um-dark/90"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center gap-2 mb-4 sm:mb-6">
+        <a href="/" class="text-white/60 hover:text-white text-xs sm:text-sm transition-colors">Inicio</a>
+        <svg class="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <a href="/sectores" class="text-white/60 hover:text-white text-xs sm:text-sm transition-colors">Sectores</a>
+        <svg class="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <span class="text-white text-xs sm:text-sm">{sectorConfig.name}</span>
+      </div>
+
+      <div class="max-w-3xl">
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-4 sm:mb-6">
+          <span class="inline-block mr-2 sm:mr-3">{sectorConfig.emoji}</span>
+          Tecnología para {sectorConfig.name}
+        </h1>
+        <p class="text-base sm:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8">{sectorConfig.description}</p>
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4">
+          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
+            <div class="text-2xl sm:text-3xl font-extrabold text-white">{antecedentes.length}+</div>
+            <div class="text-xs sm:text-sm text-white/70 mt-1">Proyectos</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
+            <div class="text-2xl sm:text-3xl font-extrabold text-white">99.9%</div>
+            <div class="text-xs sm:text-sm text-white/70 mt-1">Uptime</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
+            <div class="text-2xl sm:text-3xl font-extrabold text-white">24/7</div>
+            <div class="text-xs sm:text-sm text-white/70 mt-1">Soporte</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {antecedentes.length > 0 && (
+    <section class="py-10 sm:py-14 lg:py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8 sm:mb-12">
+          <span class="text-amber-600 font-semibold text-xs sm:text-sm uppercase tracking-wider">Casos de Éxito</span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">Proyectos en {sectorConfig.name}</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {antecedentes.map((ant) => (
+            <ProjectCard
+              id={String(ant.id)}
+              titulo={ant.Titulo || ant.Nombre || 'Proyecto'}
+              cliente={ant.Cliente || ''}
+              descripcion={ant.Descripcion || ''}
+              fecha={ant.Fecha || new Date().toISOString()}
+              area={ant.Area || ant.Unidad_de_negocio || sectorConfig.name}
+              servicio={ant.Unidad_de_negocio || sectorConfig.name}
+              imagen={ant.imageUrl}
+              slug={ant.slug}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="py-10 sm:py-14 lg:py-16 bg-gradient-to-br from-amber-600 to-amber-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-6">¿Necesita Soluciones para su Operación Minera?</h2>
+      <p class="text-base sm:text-lg text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto">Nuestro equipo especializado en infraestructura para minería está listo para ayudarlo.</p>
+      <a href="/contacto" class="inline-block px-6 sm:px-8 py-3 sm:py-4 bg-white text-amber-600 rounded-lg font-bold shadow-xl hover:shadow-2xl transition-all hover:scale-105">Solicitar Cotización</a>
+    </div>
+  </section>
+</LayoutV4>
+
+<style>
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+  }
+</style>

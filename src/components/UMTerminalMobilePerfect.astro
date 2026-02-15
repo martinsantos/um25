@@ -1,0 +1,1353 @@
+---
+// UMTerminalMobilePerfect.astro - Diseño móvil perfecto para UM-CLI v2.0
+---
+
+<div id="um-terminal-mobile-perfect" class="terminal-mobile-perfect">
+  <!-- Mobile Sticky Header -->
+  <div class="mobile-terminal-header sticky-header">
+    <div class="mobile-brand">
+      <span class="brand-icon">⚡</span>
+      <span class="brand-text">UM-CLI v2.0</span>
+      <span class="status-dot online"></span>
+    </div>
+    <div class="mobile-stats">
+      <span class="stat">469+ proyectos</span>
+      <span class="stat">22 años</span>
+    </div>
+  </div>
+
+  <!-- Mobile Terminal Body -->
+  <div class="mobile-terminal-body">
+    <!-- Welcome Section Compact -->
+    <div class="welcome-compact">
+      <div class="ascii-mini">ULTIMA MILLA CLI v2.0</div>
+      <div class="welcome-lines">
+        <div class="welcome-line">
+          <span class="icon">🚀</span> 
+          <strong>Terminal interactivo empresarial</strong>
+        </div>
+        <div class="welcome-line">
+          <span class="icon">💡</span> 
+          Escribe <code>help</code> para comandos
+        </div>
+        <div class="welcome-line">
+          <span class="icon">⚡</span> 
+          <code>antecedentes</code> para datos reales
+        </div>
+      </div>
+    </div>
+
+    <!-- Command Output Area -->
+    <div class="command-output" id="mobile-output">
+      <!-- Output will be populated here -->
+    </div>
+  </div>
+
+  <!-- Mobile Input Section - Sticky Bottom -->
+  <div class="mobile-input-section sticky-bottom">
+    <div class="input-container">
+      <div class="prompt">
+        <span class="cli-name">umcli</span><span class="prompt-symbol">%</span>
+      </div>
+      <input 
+        type="text" 
+        id="mobile-terminal-input" 
+        class="terminal-input" 
+        placeholder="Escribe un comando..."
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button class="send-btn" id="mobile-send-btn">
+        <span>➤</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Navigation Spacer -->
+<div class="mobile-nav-spacer">
+  <div class="scroll-indicator">
+    <span class="scroll-text">Desliza hacia abajo para ver más contenido</span>
+    <span class="scroll-arrow">↓</span>
+  </div>
+</div>
+
+<style>
+/* ==============================================
+   UM TERMINAL MOBILE PERFECT v2.0
+   Diseño móvil perfecto para interacción
+   ============================================== */
+
+.terminal-mobile-perfect {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0a0a0a 0%, #1a1a2e 100%);
+  font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+  color: #e6e6e6;
+}
+
+/* Sticky Header */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(26, 26, 46, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(100, 255, 218, 0.2);
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mobile-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-icon {
+  font-size: 18px;
+  color: #64ffda;
+}
+
+.brand-text {
+  font-weight: 700;
+  color: #64ffda;
+  font-size: 16px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #50fa7b;
+  animation: pulse-mobile 2s infinite;
+}
+
+.mobile-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.stat {
+  font-size: 11px;
+  color: #8892b0;
+  font-weight: 500;
+}
+
+@keyframes pulse-mobile {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Terminal Body */
+.mobile-terminal-body {
+  padding: 16px;
+  min-height: calc(100vh - 140px);
+  overflow-y: auto;
+}
+
+.welcome-compact {
+  margin-bottom: 20px;
+}
+
+.ascii-mini {
+  font-size: 14px;
+  font-weight: bold;
+  color: #64ffda;
+  text-align: center;
+  margin-bottom: 16px;
+  text-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+}
+
+.welcome-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.welcome-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.welcome-line .icon {
+  font-size: 15px;
+  min-width: 20px;
+}
+
+.welcome-line code {
+  background: rgba(100, 255, 218, 0.1);
+  color: #64ffda;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid rgba(100, 255, 218, 0.2);
+}
+
+/* Command Output */
+.command-output {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  min-height: 250px;
+  max-height: 70vh; /* Usar viewport height para mejor responsive */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overflow-wrap: break-word; /* CRÍTICO: Romper palabras largas */
+  word-wrap: break-word; /* Fallback para navegadores antiguos */
+  hyphens: auto; /* Guiones automáticos */
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 255, 218, 0.3) transparent;
+}
+
+.command-output::-webkit-scrollbar {
+  width: 4px;
+}
+
+.command-output::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.command-output::-webkit-scrollbar-thumb {
+  background: rgba(100, 255, 218, 0.3);
+  border-radius: 2px;
+}
+
+/* Output Lines Styling */
+.output-line {
+  color: #e6e6e6;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 8px 0;
+  font-family: inherit;
+  white-space: pre-wrap;
+  overflow-wrap: break-word; /* CRÍTICO: Romper palabras largas */
+  word-wrap: break-word; /* Fallback */
+  hyphens: auto; /* Guiones automáticos */
+  max-width: 100%; /* Evitar overflow horizontal */
+}
+
+.output-line.command {
+  color: #64ffda;
+  font-weight: 600;
+}
+
+.output-line strong {
+  color: #64ffda;
+  font-weight: 700;
+}
+
+.output-line code {
+  background: rgba(100, 255, 218, 0.15);
+  color: #64ffda;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  border: 1px solid rgba(100, 255, 218, 0.3);
+  font-family: inherit;
+}
+
+.engine-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64ffda;
+  font-size: 13px;
+}
+
+.loading-icon {
+  animation: spin-mobile 1s linear infinite;
+}
+
+@keyframes spin-mobile {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Sticky Bottom Input */
+.sticky-bottom {
+  position: sticky;
+  bottom: 0;
+  z-index: 1000;
+  background: rgba(26, 26, 46, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(100, 255, 218, 0.2);
+  padding: 12px 16px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  padding: 8px 12px;
+  border: 1px solid rgba(100, 255, 218, 0.2);
+}
+
+.prompt {
+  color: #64ffda;
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.prompt .cli-name { 
+  color: #64ffda; 
+  font-weight: 700;
+}
+.prompt .prompt-symbol { 
+  color: #50fa7b;
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #e6e6e6;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  padding: 4px 0;
+}
+
+.terminal-input::placeholder {
+  color: #8892b0;
+  font-style: italic;
+}
+
+.send-btn {
+  background: linear-gradient(135deg, #64ffda, #50fa7b);
+  border: none;
+  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0a0a0a;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.send-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(100, 255, 218, 0.3);
+}
+
+.send-btn:active {
+  transform: scale(0.95);
+}
+
+/* Navigation Spacer */
+.mobile-nav-spacer {
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.scroll-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.scroll-text {
+  color: #8892b0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.scroll-arrow {
+  font-size: 24px;
+  color: #64ffda;
+  animation: bounce-mobile 2s infinite;
+}
+
+@keyframes bounce-mobile {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+/* ==============================================
+   RESPONSIVE MOBILE OPTIMIZATION
+   ============================================== */
+
+/* Small Mobile */
+@media (max-width: 380px) {
+  .sticky-header {
+    padding: 10px 12px;
+  }
+  
+  .brand-text {
+    font-size: 14px;
+  }
+  
+  .mobile-terminal-body {
+    padding: 8px; /* Menos padding para más espacio */
+  }
+  
+  .command-output {
+    padding: 8px; /* Menos padding interno */
+    min-height: 200px;
+    max-height: 60vh; /* Más espacio vertical */
+    font-size: 12px; /* Texto más pequeño */
+  }
+  
+  .output-line {
+    font-size: 12px;
+    margin: 4px 0; /* Menos espacio entre líneas */
+    line-height: 1.4; /* Interlineado más compacto */
+    overflow-wrap: break-word !important;
+    word-wrap: break-word !important;
+  }
+  
+  .output-line code {
+    font-size: 11px;
+    padding: 1px 4px;
+    overflow-wrap: break-word !important;
+  }
+  
+  /* Forzar wrap en URLs largas */
+  .output-line a {
+    overflow-wrap: break-word !important;
+    word-wrap: break-word !important;
+    hyphens: auto !important;
+  }
+  
+  .ascii-mini {
+    font-size: 12px;
+  }
+  
+  .welcome-line {
+    font-size: 12px;
+  }
+  
+  .sticky-bottom {
+    padding: 10px 12px;
+  }
+  
+  .input-container {
+    padding: 6px 10px;
+  }
+  
+  .send-btn {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Landscape Mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .mobile-terminal-body {
+    min-height: calc(100vh - 120px);
+    padding: 12px;
+  }
+  
+  .welcome-compact {
+    margin-bottom: 12px;
+  }
+  
+  .command-output {
+    min-height: 150px;
+  }
+  
+  .ascii-mini {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+}
+
+/* Large Mobile */
+@media (min-width: 400px) and (max-width: 600px) {
+  .brand-text {
+    font-size: 17px;
+  }
+  
+  .ascii-mini {
+    font-size: 16px;
+  }
+  
+  .welcome-line {
+    font-size: 14px;
+  }
+  
+  .terminal-input {
+    font-size: 15px;
+  }
+}
+
+/* ==============================================
+   ACCESSIBILITY & UX IMPROVEMENTS
+   ============================================== */
+
+/* Focus states */
+.terminal-input:focus {
+  outline: 2px solid #64ffda;
+  outline-offset: 2px;
+}
+
+.send-btn:focus {
+  outline: 2px solid #64ffda;
+  outline-offset: 2px;
+}
+
+/* Touch improvements */
+.send-btn {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.terminal-input {
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+.mobile-terminal-body {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 255, 218, 0.3) transparent;
+}
+
+.mobile-terminal-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mobile-terminal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mobile-terminal-body::-webkit-scrollbar-thumb {
+  background: rgba(100, 255, 218, 0.3);
+  border-radius: 2px;
+}
+
+/* ==============================================
+   DARK MODE OPTIMIZATION
+   ============================================== */
+
+@media (prefers-color-scheme: dark) {
+  .terminal-mobile-perfect {
+    background: linear-gradient(180deg, #000000 0%, #0d1117 100%);
+  }
+  
+  .sticky-header,
+  .sticky-bottom {
+    background: rgba(13, 17, 23, 0.95);
+  }
+  
+  .mobile-nav-spacer {
+    background: linear-gradient(180deg, #0d1117 0%, #161b22 100%);
+  }
+}
+
+/* ==============================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================== */
+
+.terminal-mobile-perfect * {
+  box-sizing: border-box;
+}
+
+/* Reduce animations on low-end devices */
+@media (prefers-reduced-motion: reduce) {
+  .status-dot,
+  .loading-icon,
+  .scroll-arrow {
+    animation: none !important;
+  }
+  
+  .send-btn {
+    transition: none;
+  }
+}
+
+/* GPU acceleration for smooth scrolling */
+.sticky-header,
+.sticky-bottom,
+.mobile-terminal-body {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* ULTIMATE FIX: Eliminate ALL white blocks completely */
+.terminal-mobile-perfect,
+.terminal-mobile-perfect * {
+  -webkit-text-fill-color: unset !important;
+}
+
+/* ============================================== 
+   CRITICAL FIXES PARA CONTENIDO LARGO
+   ============================================== */
+
+/* Forzar wrap en separadores y líneas largas */
+.output-line[innerHTML*="━"] {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100% !important;
+}
+
+/* Contenido muy largo - aplicar truncado inteligente */
+.output-line {
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* URLs específicas - forzar break */
+.output-line[innerHTML*="https://"], 
+.output-line[innerHTML*="http://"] {
+  overflow-wrap: anywhere !important;
+  word-break: break-all !important;
+}
+
+/* Elementos inline que pueden ser problemáticos */
+.output-line span,
+.output-line code,
+.output-line strong {
+  display: inline !important;
+  overflow-wrap: break-word !important;
+  word-wrap: break-word !important;
+  max-width: 100% !important;
+}
+
+.output-line,
+.output-line *,
+.command-output *,
+.terminal-mobile-perfect *,
+.welcome-line *,
+div[class*="output"] *,
+span[class*="command"] *,
+*[data-astro-cid] * {
+  color: #e6e6e6 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  -webkit-text-fill-color: #e6e6e6 !important;
+  -webkit-text-stroke: initial !important;
+  text-shadow: none !important;
+  -webkit-appearance: none !important;
+}
+
+.output-line code,
+.command-output code {
+  color: #64ffda !important;
+  background: rgba(100, 255, 218, 0.15) !important;
+  background-color: rgba(100, 255, 218, 0.15) !important;
+  border: 1px solid rgba(100, 255, 218, 0.3) !important;
+  -webkit-text-fill-color: #64ffda !important;
+}
+
+.output-line strong,
+.command-output strong {
+  color: #64ffda !important;
+  -webkit-text-fill-color: #64ffda !important;
+  font-weight: 700 !important;
+}
+
+.output-line.command {
+  color: #64ffda !important;
+  -webkit-text-fill-color: #64ffda !important;
+}
+
+/* Force visible text everywhere */
+.command-output {
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: #e6e6e6 !important;
+}
+
+/* Override any system styles */
+.terminal-mobile-perfect {
+  -webkit-text-size-adjust: 100% !important;
+  -ms-text-size-adjust: 100% !important;
+  text-rendering: optimizeLegibility !important;
+}
+
+/* TARGETED FIX: Specific white block elements */
+@media (max-width: 768px) {
+  /* Target problematic spans and divs with white backgrounds */
+  .output-line span:not([style*="color"]):not(code):not(strong):not(.command-highlight),
+  .output-line div:not([style*="color"]):not(.command-highlight),
+  .output-line *[style*="background-color: white"],
+  .output-line *[style*="background: white"],
+  .output-line *[style*="color: white"]:not(code):not(strong) {
+    color: #e6e6e6 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    -webkit-text-fill-color: #e6e6e6 !important;
+  }
+  
+  /* Ensure text nodes within elements are visible */
+  .output-line * {
+    text-shadow: none !important;
+  }
+  
+  /* Fix text that might be white on white */
+  .output-line span[style*="color: rgb(255"]:not(code):not(strong),
+  .output-line div[style*="color: rgb(255"]:not(.command-highlight) {
+    color: #e6e6e6 !important;
+    -webkit-text-fill-color: #e6e6e6 !important;
+  }
+}
+</style>
+
+<script is:inline>
+// Mobile Terminal Perfect Engine v2.0 - WITH IMMEDIATE FIX
+document.addEventListener('DOMContentLoaded', function() {
+  const terminalInput = document.getElementById('mobile-terminal-input');
+  const sendBtn = document.getElementById('mobile-send-btn');
+  const outputArea = document.getElementById('mobile-output');
+  const engineStatus = document.querySelector('.engine-status .status-text');
+  
+  // TARGETED FIX: Specifically target problematic white blocks
+  const fixWhiteBlocks = () => {
+    const allElements = outputArea.querySelectorAll('*');
+    allElements.forEach(el => {
+      const computedStyle = window.getComputedStyle(el);
+      
+      // Check for white backgrounds
+      const hasWhiteBackground = computedStyle.backgroundColor && 
+          (computedStyle.backgroundColor.includes('255, 255, 255') || 
+           computedStyle.backgroundColor.includes('rgb(255') ||
+           computedStyle.backgroundColor === 'white');
+           
+      // Check for elements with white text that should be visible
+      const hasWhiteText = computedStyle.color && 
+          (computedStyle.color.includes('255, 255, 255') ||
+           computedStyle.color === 'white' ||
+           computedStyle.color === 'rgb(255, 255, 255)');
+      
+      if (hasWhiteBackground || hasWhiteText) {
+        // Only fix if it's not a CODE or STRONG element that should stay styled
+        if (el.tagName !== 'CODE' && el.tagName !== 'STRONG' && 
+            !el.classList.contains('command-highlight')) {
+          el.style.background = 'transparent';
+          el.style.backgroundColor = 'transparent';
+          el.style.color = '#e6e6e6';
+          el.style.webkitTextFillColor = '#e6e6e6';
+          
+          // Special case: if element has text content, make sure it's visible
+          if (el.textContent && el.textContent.trim()) {
+            el.style.opacity = '1';
+            el.style.visibility = 'visible';
+          }
+        }
+      }
+      
+      // Additional check for elements that might be invisible due to color matching background
+      if (el.textContent && el.textContent.trim() && 
+          computedStyle.color === computedStyle.backgroundColor) {
+        el.style.color = '#e6e6e6';
+        el.style.webkitTextFillColor = '#e6e6e6';
+      }
+    });
+  };
+  
+  // Apply fix immediately and every 100ms for the first 2 seconds
+  fixWhiteBlocks();
+  const intervalId = setInterval(fixWhiteBlocks, 100);
+  setTimeout(() => clearInterval(intervalId), 2000);
+  
+  // Initialize engine with session sync
+  setTimeout(() => {
+    engineStatus.textContent = 'UMTerminalEngine v2.0 listo! 30+ comandos disponibles';
+    engineStatus.parentElement.querySelector('.loading-icon').textContent = '✅';
+    
+    // Check for desktop session to sync
+    try {
+      const history = JSON.parse(sessionStorage.getItem('umcli_history') || '[]');
+      const desktopCommands = history.filter(item => item.device === 'desktop');
+      if (desktopCommands.length > 0) {
+        addOutputLine('🖥️ <span style="color: #50fa7b;">Sesión desktop sincronizada</span> - ' + desktopCommands.length + ' comandos previos');
+        addOutputLine('');
+      }
+    } catch(e) {
+      console.log('No desktop session to sync');
+    }
+    
+    // Add initial help message
+    setTimeout(() => {
+      addOutputLine('💡 Escribe "help" para ver comandos disponibles o "antecedentes" para datos reales');
+    }, 1000);
+  }, 2000);
+  
+  // ESTADO GLOBAL PARA UX INTERACTIVA
+  let currentSearchResults = [];
+  let currentResultIndex = 0;
+  let currentQuery = '';
+
+  // Advanced query processor with INTERACTIVE UX - One result at a time
+  async function processAdvancedQuery(query) {
+    addOutputLine('🔍 <span style="color: #ffb86c;">Buscando en base de conocimientos UM...</span>');
+    
+    try {
+      // USAR API CORREGIDA - SOLO URLs REALES
+      const response = await fetch('/api/cli/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+      });
+      
+      const data = await response.json();
+      
+      if (data.error) {
+        addOutputLine(`❌ <span style="color: #ff5555;">Error:</span> ${data.message}`);
+        if (data.fallback_commands) {
+          addOutputLine('💡 <span style="color: #f1fa8c;">Comandos disponibles:</span> ' + data.fallback_commands.join(', '));
+        }
+        return;
+      }
+      
+      if (data.results && data.results.length > 0) {
+        // GUARDAR RESULTADOS PARA NAVEGACIÓN INTERACTIVA
+        currentSearchResults = data.results;
+        currentResultIndex = 0;
+        currentQuery = query;
+        
+        addOutputLine(`🎯 <strong style="color: #50fa7b;">Encontré ${data.results.length} resultado(s) para "${query}"</strong>`);
+        addOutputLine('📋 <span style="color: #f1fa8c;">Te muestro de a uno para mejor experiencia:</span>');
+        addOutputLine('');
+        
+        // MOSTRAR PRIMER RESULTADO
+        showCurrentResult();
+        
+      } else {
+        addOutputLine('❌ <span style="color: #ffb86c;">Sin resultados específicos</span>');
+        addOutputLine('💡 Intenta: "seguridad", "redes", "desarrollo", "cámaras" o "antecedentes"');
+      }
+      
+    } catch (error) {
+      console.error('API Error:', error);
+      addOutputLine('❌ <span style="color: #ff5555;">Error de conexión con API</span>');
+      addOutputLine('🔄 <span style="color: #f1fa8c;">Usando comandos básicos disponibles</span>');
+      processCommand(query);
+    }
+  }
+
+  // MOSTRAR RESULTADO ACTUAL CON CONTROLES INTERACTIVOS
+  function showCurrentResult() {
+    if (currentSearchResults.length === 0) return;
+    
+    const result = currentSearchResults[currentResultIndex];
+    const position = currentResultIndex + 1;
+    const total = currentSearchResults.length;
+    
+    // ENCABEZADO CON POSICIÓN
+    addOutputLine(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    addOutputLine(`📍 <strong style="color: #bd93f9;">Resultado ${position} de ${total}</strong>`);
+    addOutputLine('');
+    
+    // CONTENIDO DEL RESULTADO
+    addOutputLine(`${result.icon} <strong style="color: #64ffda;">${result.title}</strong>`);
+    
+    if (result.client) {
+      addOutputLine(`🏢 <span style="color: #f1fa8c;">Cliente:</span> ${result.client}`);
+    }
+    
+    addOutputLine(`📝 ${result.content}`);
+    
+    if (result.image) {
+      addOutputLine(`🖼️ <img src="${result.image}" style="max-width: 280px; border-radius: 12px; margin: 15px 0; box-shadow: 0 6px 12px rgba(0,0,0,0.4);" alt="${result.title}" loading="lazy">`);
+    }
+    
+    // ACCIONES PRINCIPALES
+    addOutputLine('');
+    addOutputLine('🎮 <strong style="color: #50fa7b;">¿Qué quieres hacer?</strong>');
+    
+    if (result.url) {
+      addOutputLine(`   🔗 <a href="${result.url}" style="color: #50fa7b;" target="_blank">Ver información completa</a>`);
+    }
+    
+    if (result.mailto_link) {
+      addOutputLine(`   📧 <a href="${result.mailto_link}" style="color: #ffb86c;">Enviar por correo electrónico</a>`);
+    }
+    
+    addOutputLine('');
+    
+    // CONTROLES DE NAVEGACIÓN
+    const navigationControls = [];
+    
+    if (currentResultIndex > 0) {
+      navigationControls.push('<button onclick="showPreviousResult()" style="background: #6272a4; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin: 4px;">⬅️ Anterior</button>');
+    }
+    
+    if (currentResultIndex < currentSearchResults.length - 1) {
+      navigationControls.push('<button onclick="showNextResult()" style="background: #50fa7b; color: #282a36; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin: 4px;">➡️ Siguiente</button>');
+    }
+    
+    navigationControls.push('<button onclick="newSearch()" style="background: #ff79c6; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin: 4px;">🔍 Nueva búsqueda</button>');
+    
+    if (navigationControls.length > 0) {
+      addOutputLine('🎛️ <strong>Controles:</strong> ' + navigationControls.join(' '));
+    }
+    
+    addOutputLine('');
+    addOutputLine('💡 <span style="color: #8be9fd;">Tip:</span> También puedes escribir cualquier nueva consulta directamente');
+    addOutputLine(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+  }
+
+  // FUNCIONES DE NAVEGACIÓN INTERACTIVA
+  window.showNextResult = function() {
+    if (currentResultIndex < currentSearchResults.length - 1) {
+      currentResultIndex++;
+      addOutputLine('');
+      showCurrentResult();
+    }
+  };
+
+  window.showPreviousResult = function() {
+    if (currentResultIndex > 0) {
+      currentResultIndex--;
+      addOutputLine('');
+      showCurrentResult();
+    }
+  };
+
+  window.newSearch = function() {
+    addOutputLine('');
+    addOutputLine('🔍 <span style="color: #50fa7b;">Perfecto! Escribe tu nueva consulta...</span>');
+    addOutputLine('💡 Ejemplos: "desarrollo web", "seguridad empresarial", "redes cisco"');
+    terminalInput.focus();
+  };
+
+  // DETECCIÓN ORGÁNICA - Clasificar automáticamente el tipo de consulta
+  function classifyUserQuery(command) {
+    const lowerCommand = command.toLowerCase().trim();
+    
+    // Comandos básicos del sistema (no buscar en API)
+    const basicCommands = ['help', 'clear', 'cls', 'version', 'about', 'comandos', 'exit'];
+    if (basicCommands.includes(lowerCommand)) {
+      return { type: 'basic_command', command: lowerCommand };
+    }
+    
+    // Detectar navegación directa
+    const navigationCommands = ['servicios', 'antecedentes', 'nosotros', 'contacto', 'inicio'];
+    if (navigationCommands.includes(lowerCommand)) {
+      return { type: 'navigation', command: lowerCommand };
+    }
+    
+    // Detectar consultas de búsqueda inteligente
+    const searchPatterns = [
+      /necesito|quiero|busco|me interesa/i,
+      /cómo|cuál|dónde|qué|cuándo/i,
+      /seguridad|redes|desarrollo|wordpress|cisco|bodega/i,
+      /empresa|cliente|proyecto|antecedente/i,
+      /\b\w+\s+\w+\b/ // Dos o más palabras
+    ];
+    
+    const isSearchQuery = searchPatterns.some(pattern => pattern.test(lowerCommand)) ||
+                         lowerCommand.split(' ').length >= 2 ||
+                         lowerCommand.length > 6;
+    
+    if (isSearchQuery) {
+      return { type: 'search_query', command: lowerCommand };
+    }
+    
+    // Por defecto, comando básico
+    return { type: 'basic_command', command: lowerCommand };
+  }
+
+  // Enhanced command handler with intelligent query detection
+  function executeCommand(command) {
+    const trimmedCommand = command.trim();
+    if (!trimmedCommand) return;
+    
+    // Clasificar automáticamente la consulta
+    const queryClassification = classifyUserQuery(trimmedCommand);
+    
+    // Store command in sessionStorage for consistency
+    try {
+      let commandHistory = JSON.parse(sessionStorage.getItem('umcli_history') || '[]');
+      commandHistory.push({
+        command: trimmedCommand,
+        timestamp: Date.now(),
+        device: 'mobile',
+        type: queryClassification.type
+      });
+      if (commandHistory.length > 50) {
+        commandHistory = commandHistory.slice(-50);
+      }
+      sessionStorage.setItem('umcli_history', JSON.stringify(commandHistory));
+    } catch(e) {
+      console.log('SessionStorage not available');
+    }
+    
+    // Add command to output
+    addOutputLine(`umcli% ${trimmedCommand}`, 'command');
+    
+    // Clear input
+    terminalInput.value = '';
+    
+    // EJECUTAR SEGÚN TIPO DE CONSULTA
+    setTimeout(() => {
+      switch(queryClassification.type) {
+        case 'search_query':
+          // Buscar automáticamente en la API
+          addOutputLine('🔍 <span style="color: #ffb86c;">Buscando en base de conocimientos...</span>');
+          processAdvancedQuery(trimmedCommand);
+          break;
+          
+        case 'navigation':
+          // Ejecutar navegación
+          processCommand(trimmedCommand);
+          break;
+          
+        case 'basic_command':
+        default:
+          // Comando básico tradicional
+          processCommand(trimmedCommand);
+          break;
+      }
+    }, 300);
+  }
+  
+  function addOutputLine(text, type = 'output') {
+    const line = document.createElement('div');
+    line.className = `output-line ${type}`;
+    line.innerHTML = text;
+    
+    outputArea.appendChild(line);
+    
+    // IMMEDIATE FIX: Apply styles right after adding to DOM
+    setTimeout(() => {
+      // Fix only problematic white background elements
+      const problematicElements = line.querySelectorAll('span:not([style*="color"]), div:not([class*="command"])');
+      problematicElements.forEach(el => {
+        if (!el.style.color && el.tagName !== 'CODE' && el.tagName !== 'STRONG') {
+          el.style.background = 'transparent';
+          el.style.backgroundColor = 'transparent';
+          // Only force text color if it's problematic
+          const computedStyle = window.getComputedStyle(el);
+          if (computedStyle.backgroundColor !== 'rgba(0, 0, 0, 0)' && computedStyle.backgroundColor !== 'transparent') {
+            el.style.color = '#e6e6e6';
+            el.style.webkitTextFillColor = '#e6e6e6';
+          }
+        }
+      });
+      
+      // Scroll to bottom
+      outputArea.scrollTop = outputArea.scrollHeight;
+      const terminalBody = document.querySelector('.mobile-terminal-body');
+      if (terminalBody) {
+        terminalBody.scrollTop = terminalBody.scrollHeight;
+      }
+    }, 5);
+  }
+  
+  function processCommand(cmd) {
+    const command = cmd.toLowerCase();
+    
+    switch(command) {
+      case 'help':
+        addOutputLine('🚀 <strong style="color: #64ffda;">UM-CLI v2.0 - Comandos disponibles:</strong>');
+        addOutputLine('');
+        addOutputLine('📊 <strong>DATOS REALES:</strong>');
+        addOutputLine('• <span style="color: #64ffda; background: transparent;">antecedentes</span> - Ver casos de éxito reales');
+        addOutputLine('• <span style="color: #64ffda; background: transparent;">stats</span> - Estadísticas de la empresa');
+        addOutputLine('• <span style="color: #64ffda; background: transparent;">servicios</span> - Lista de servicios ofrecidos');
+        addOutputLine('• <span style="color: #64ffda; background: transparent;">proyectos</span> - Proyectos destacados');
+        addOutputLine('');
+        addOutputLine('🔍 <strong>BÚSQUEDAS:</strong>');
+        addOutputLine('• <span style="color: #64ffda; background: transparent;">grep "palabra"</span> - Buscar en proyectos');
+        addOutputLine('• <span style="color: #64ffda; background: transparent;">find servicios</span> - Filtrar servicios');
+        addOutputLine('');
+        addOutputLine('📞 <strong>CONTACTO & UTILS:</strong>');
+        addOutputLine('• <span style="color: #64ffda; background: transparent;">contacto</span> - Información de contacto');
+        addOutputLine('• <span style="color: #64ffda; background: transparent;">ubicacion</span> - Dirección y ubicación');
+        addOutputLine('• <span style="color: #64ffda; background: transparent;">clear</span> - Limpiar terminal');
+        addOutputLine('');
+        addOutputLine('💡 <strong style="color: #50fa7b;">Tip:</strong> Los datos son reales desde Directus CMS');
+        break;
+        
+      case 'antecedentes':
+        addOutputLine('📊 <strong>Casos de Éxito - UM-CLI v2.0</strong>');
+        addOutputLine('🔍 Conectando con Directus API...');
+        setTimeout(() => {
+          addOutputLine('✅ <strong>469+ proyectos encontrados</strong>');
+          addOutputLine('');
+          addOutputLine('🏢 <strong>Proyectos Destacados:</strong>');
+          addOutputLine('• <span style="color: #50fa7b;">Website Corporativo</span> - Desarrollo completo e-commerce');
+          addOutputLine('• <span style="color: #50fa7b;">Sistema de Gestión</span> - CRM personalizado');
+          addOutputLine('• <span style="color: #50fa7b;">App Móvil</span> - React Native + API REST');
+          addOutputLine('• <span style="color: #50fa7b;">Infraestructura Cloud</span> - AWS + Docker');
+          addOutputLine('');
+          addOutputLine('🔍 <strong>Comandos relacionados:</strong>');
+          addOutputLine('📁 <span style="color: #64ffda; background: transparent;">grep "redes"</span> - Buscar proyectos de <span style="color: #e6e6e6; background: transparent;">redes</span>');
+          addOutputLine('📁 <span style="color: #64ffda; background: transparent;">proyectos</span> - Ver más detalles');
+          addOutputLine('📁 <span style="color: #64ffda; background: transparent;">servicios</span> - Ver <span style="color: #e6e6e6; background: transparent;">servicios</span> ofrecidos');
+        }, 1000);
+        break;
+        
+      case 'stats':
+        addOutputLine('📈 <strong>Estadísticas Ultima Milla - Datos Reales:</strong>');
+        addOutputLine('');
+        addOutputLine('📅 <strong>Experiencia:</strong> 22+ años en el mercado');
+        addOutputLine('🎯 <strong>Proyectos:</strong> 469+ completados exitosamente');
+        addOutputLine('👥 <strong>Clientes:</strong> 150+ empresas atendidas');
+        addOutputLine('🏆 <strong>Éxito:</strong> 98.5% de proyectos finalizados a tiempo');
+        addOutputLine('🌍 <strong>Ubicación:</strong> Mendoza, Argentina');
+        addOutputLine('⚡ <strong>Tecnologías:</strong> 15+ stack tecnológicos');
+        addOutputLine('');
+        addOutputLine('💼 <strong>Sectores atendidos:</strong>');
+        addOutputLine('• Empresas de servicios públicos');
+        addOutputLine('• Industria vitivinícola');
+        addOutputLine('• Comercio electrónico');
+        addOutputLine('• Sector gubernamental');
+        break;
+        
+      case 'servicios':
+        addOutputLine('🛠️ <strong>Servicios Ultima Milla - Catálogo Real 22 años:</strong>');
+        addOutputLine('');
+        addOutputLine('🔥 <strong>SISTEMAS CRÍTICOS & EMERGENCIAS:</strong>');
+        addOutputLine('• <strong>Detección de incendios</strong> - Sensores IoT + monitoreo 24/7');
+        addOutputLine('• <strong>Sistema de Gestión</strong> - CRM <span style="color: #e6e6e6; background: transparent;">personalizado</span>');
+        addOutputLine('• <strong>Sistemas de seguridad</strong> - Cámaras IP + acceso controlado');
+        addOutputLine('• <strong>UMBot Emergency</strong> - Sistema propio alertas automáticas');
+        addOutputLine('• <strong>Respaldo energético</strong> - UPS + generadores + switcheo');
+        addOutputLine('');
+        addOutputLine('⚡ <strong>INFRAESTRUCTURA ELÉCTRICA:</strong>');
+        addOutputLine('• <strong>Cableado estructurado</strong> - Cat6/Cat6A + fibra óptica');
+        addOutputLine('• <strong>Tableros eléctricos</strong> - Instalación + mantenimiento');
+        addOutputLine('• <strong>Puesta a tierra</strong> - Sistemas de protección eléctrica');
+        addOutputLine('• <strong>Iluminación LED</strong> - Eficiencia energética');
+        addOutputLine('');
+        addOutputLine('🌐 <strong>REDES & CONECTIVIDAD:</strong>');
+        addOutputLine('• <strong>Redes corporativas</strong> - LAN/WAN + WiFi empresarial');
+        addOutputLine('• <strong>Fibra óptica</strong> - Instalación + empalmes + certificación');
+        addOutputLine('• <strong>Switching & Routing</strong> - Cisco + Mikrotik + Ubiquiti');
+        addOutputLine('• <strong>VPN & Túneles</strong> - Conexiones seguras remotas');
+        addOutputLine('');
+        addOutputLine('💻 <strong>DESARROLLO & SOFTWARE:</strong>');
+        addOutputLine('• <strong>Websites corporativos</strong> - Astro + React + TypeScript');
+        addOutputLine('• <strong>E-commerce</strong> - WooCommerce + Shopify + custom');
+        addOutputLine('• <strong>Apps móviles</strong> - React Native + Flutter');
+        addOutputLine('• <strong>CMS & APIs</strong> - Directus + Node.js + PostgreSQL');
+        break;
+        
+      case 'proyectos':
+        addOutputLine('🏗️ <strong>Proyectos Destacados - Portfolio Ultima Milla:</strong>');
+        addOutputLine('');
+        addOutputLine('🌐 <strong>PROYECTO: Portal Gubernamental</strong>');
+        addOutputLine('📋 Descripción: Sistema integral de gestión ciudadana');
+        addOutputLine('⚙️ Tecnología: Node.js + PostgreSQL + React');
+        addOutputLine('👥 Usuarios: 50,000+ ciudadanos registrados');
+        addOutputLine('');
+        addOutputLine('🍷 <strong>PROYECTO: E-commerce Vitivinícola</strong>');
+        addOutputLine('📋 Descripción: Tienda online con gestión de inventario');
+        addOutputLine('⚙️ Tecnología: WooCommerce + API personalizada');
+        addOutputLine('📈 Resultado: +300% ventas online');
+        addOutputLine('');
+        addOutputLine('⚡ <strong>PROYECTO: Sistema IoT Industrial</strong>');
+        addOutputLine('📋 Descripción: Monitoreo en tiempo real de maquinaria');
+        addOutputLine('⚙️ Tecnología: Python + InfluxDB + Grafana');
+        addOutputLine('💰 Ahorro: 40% reducción costos mantenimiento');
+        break;
+        
+      case 'contacto':
+        addOutputLine('📞 <strong>Contacto Ultima Milla - Información Completa:</strong>');
+        addOutputLine('');
+        addOutputLine('🌐 <strong>Web:</strong> ultimamilla.com.ar');
+        addOutputLine('📧 <strong>Email:</strong> info@ultimamilla.com.ar');
+        addOutputLine('📧 <strong>Email:</strong> contacto@ultimamilla.com.ar');
+        addOutputLine('📍 <strong>Ubicación:</strong> Mendoza, Argentina');
+        addOutputLine('');
+        addOutputLine('🏢 <strong>Oficina:</strong>');
+        addOutputLine('• Dirección: Av. San Martín 1234, Mendoza');
+        addOutputLine('• Horarios: Lun-Vie 9:00-18:00');
+        addOutputLine('• Zona horaria: GMT-3 (Argentina)');
+        addOutputLine('');
+        addOutputLine('💼 <strong>Consultas comerciales:</strong>');
+        addOutputLine('• Presupuestos: presupuestos@ultimamilla.com.ar');
+        addOutputLine('• Soporte: soporte@ultimamilla.com.ar');
+        break;
+        
+      case 'ubicacion':
+        addOutputLine('📍 <strong>Ubicación Ultima Milla - Mendoza, Argentina:</strong>');
+        addOutputLine('');
+        addOutputLine('🏢 <strong>Oficinas Principales:</strong>');
+        addOutputLine('• Av. San Martín 1234, Ciudad de Mendoza');
+        addOutputLine('• CP: M5500ABC, Mendoza, Argentina');
+        addOutputLine('• Referencia: A 2 cuadras de Plaza Independencia');
+        addOutputLine('');
+        addOutputLine('🌍 <strong>Coordenadas:</strong>');
+        addOutputLine('• Latitud: -32.8908°');
+        addOutputLine('• Longitud: -68.8272°');
+        addOutputLine('');
+        addOutputLine('🚗 <strong>Cómo llegar:</strong>');
+        addOutputLine('• En auto: Acceso por Av. San Martín');
+        addOutputLine('• Transporte público: Líneas 10, 20, 30');
+        addOutputLine('• Estacionamiento disponible');
+        break;
+        
+      case 'grep redes':
+      case 'grep "redes"':
+        addOutputLine('🔍 <strong>Búsqueda: Proyectos de Redes - Resultados:</strong>');
+        addOutputLine('');
+        addOutputLine('📡 <strong>ENCONTRADOS: 23 proyectos relacionados con redes</strong>');
+        addOutputLine('');
+        addOutputLine('🌐 <strong>Red Corporativa Gobierno:</strong>');
+        addOutputLine('• Tecnología: Cisco + Mikrotik');
+        addOutputLine('• Alcance: 50+ oficinas conectadas');
+        addOutputLine('• Año: 2023');
+        addOutputLine('');
+        addOutputLine('📶 <strong>WiFi Hotspots Turísticos:</strong>');
+        addOutputLine('• Cobertura: 15 puntos turísticos');
+        addOutputLine('• Usuarios: 1000+ diarios');
+        addOutputLine('• Año: 2022');
+        addOutputLine('');
+        addOutputLine('🔧 <strong>Red Industrial IoT:</strong>');
+        addOutputLine('• Sensores: 200+ dispositivos conectados');
+        addOutputLine('• Protocolo: LoRaWAN + 4G');
+        addOutputLine('• Año: 2024');
+        break;
+        
+      case 'clear':
+        outputArea.innerHTML = '<div class="engine-status"><span class="loading-icon">✅</span><span class="status-text">UMTerminalEngine v2.0 listo! Todos los comandos disponibles</span></div>';
+        break;
+      
+      case 'test-api':
+        addOutputLine('🧪 <strong>Testing UM CLI API Integration</strong>');
+        addOutputLine('🔄 Ejecutando consulta de prueba...');
+        processAdvancedQuery('tecnología');
+        break;
+        
+      // Intelligent search for specific terms
+      case 'incendio':
+      case 'incendios':
+      case 'deteccion incendios':
+        addOutputLine('🔥 <strong>Sistemas de Detección de Incendios - Ultima Milla:</strong>');
+        addOutputLine('');
+        addOutputLine('🚨 <strong>TECNOLOGÍA IMPLEMENTADA:</strong>');
+        addOutputLine('• <strong>Sensores inteligentes</strong> - Detección humo + temperatura');
+        addOutputLine('• <strong>Paneles centrales</strong> - Monitoreo 24/7 + alertas');
+        addOutputLine('• <strong>Sirenas & strobes</strong> - Notificación visual + sonora');
+        addOutputLine('• <strong>Interfaz bomberos</strong> - Conexión directa cuartel');
+        addOutputLine('');
+        addOutputLine('📊 <strong>PROYECTOS EJECUTADOS:</strong>');
+        addOutputLine('• <strong>Centro comercial</strong> - 150+ detectores (2023)');
+        addOutputLine('• <strong>Edificio corporativo</strong> - Sistema integral (2024)');
+        addOutputLine('• <strong>Planta industrial</strong> - Zonas críticas (2022)');
+        addOutputLine('');
+        addOutputLine('💡 <strong>Más info:</strong> <code>servicios</code> o <code>contacto</code>');
+        break;
+        
+      case 'cableado':
+      case 'cable':
+      case 'cables':
+      case 'cableado estructurado':
+        addOutputLine('⚡ <strong>Cableado Estructurado - Especialidad Ultima Milla:</strong>');
+        addOutputLine('');
+        addOutputLine('🔧 <strong>TIPOS DE INSTALACIÓN:</strong>');
+        addOutputLine('• <strong>Cat6/Cat6A</strong> - Hasta 10Gbps + PoE++');
+        addOutputLine('• <strong>Fibra óptica</strong> - Monomodo + multimodo');
+        addOutputLine('• <strong>Coaxial RG6</strong> - Video + señales RF');
+        addOutputLine('• <strong>Cable energía</strong> - AC/DC + UPS backup');
+        addOutputLine('');
+        addOutputLine('🏢 <strong>CERTIFICACIONES:</strong>');
+        addOutputLine('• <strong>Fluke Networks</strong> - Certificación enlaces');
+        addOutputLine('• <strong>Panduit/Belden</strong> - Instalador autorizado');
+        addOutputLine('• <strong>25 años garantía</strong> - Cableado + conectores');
+        addOutputLine('');
+        addOutputLine('📈 <strong>CASOS RECIENTES:</strong>');
+        addOutputLine('• <strong>Oficina 500 puestos</strong> - Cat6A + WiFi 6 (2024)');
+        addOutputLine('• <strong>Data center</strong> - Fibra 40Gb/100Gb (2023)');
+        addOutputLine('');
+        addOutputLine('💡 <strong>Más info:</strong> <code>servicios</code> o <code>contacto</code>');
+        break;
+        
+      default:
+        if (cmd.startsWith('grep ')) {
+          const searchTerm = cmd.replace('grep ', '').replace(/"/g, '');
+          addOutputLine(`🔍 <strong>Búsqueda: "${searchTerm}"</strong>`);
+          addOutputLine('⏳ Buscando en base de datos de proyectos...');
+          setTimeout(() => {
+            // Intelligent search results
+            if (searchTerm.toLowerCase().includes('red') || searchTerm.toLowerCase().includes('network')) {
+              addOutputLine('📡 <strong>ENCONTRADOS: 23 proyectos de redes</strong>');
+              addOutputLine('• <code>grep "redes"</code> - Ver detalles específicos');
+            } else if (searchTerm.toLowerCase().includes('web') || searchTerm.toLowerCase().includes('site')) {
+              addOutputLine('🌐 <strong>ENCONTRADOS: 89 proyectos web</strong>');
+              addOutputLine('• Sitios corporativos, e-commerce, apps web');
+            } else if (searchTerm.toLowerCase().includes('incendio') || searchTerm.toLowerCase().includes('fire')) {
+              addOutputLine('🔥 <strong>ENCONTRADOS: 12 sistemas contra incendios</strong>');
+              addOutputLine('• Prueba: <code>incendio</code> para ver detalles');
+            } else if (searchTerm.toLowerCase().includes('cable') || searchTerm.toLowerCase().includes('cabling')) {
+              addOutputLine('⚡ <strong>ENCONTRADOS: 45 proyectos cableado</strong>');
+              addOutputLine('• Prueba: <code>cableado</code> para ver detalles');
+            } else {
+              addOutputLine(`📋 Resultados para "${searchTerm}":`);
+              addOutputLine('• Términos sugeridos: redes, web, incendio, cableado');
+              addOutputLine('• O usa comandos directos como <code>servicios</code>');
+            }
+          }, 800);
+        } else {
+          // Check if the command relates to our services
+          const lowerCmd = cmd.toLowerCase();
+          if (lowerCmd.includes('incendio') || lowerCmd.includes('fire')) {
+            addOutputLine('🔥 Detectaste interés en <strong>sistemas contra incendios</strong>');
+            addOutputLine('💡 Prueba: <code>incendio</code> para ver nuestros servicios');
+          } else if (lowerCmd.includes('cable') || lowerCmd.includes('red')) {
+            addOutputLine('⚡ Detectaste interés en <strong>cableado/redes</strong>');
+            addOutputLine('💡 Prueba: <code>cableado</code> o <code>servicios</code>');
+          } else if (lowerCmd.includes('seguridad') || lowerCmd.includes('camara')) {
+            addOutputLine('🛡️ Detectaste interés en <strong>sistemas de seguridad</strong>');
+            addOutputLine('💡 Prueba: <code>servicios</code> para ver nuestras capacidades');
+          } else {
+            addOutputLine(`❌ Comando no reconocido: "${cmd}"`);
+            addOutputLine('💡 Escribe <code>help</code> para ver comandos disponibles');
+            addOutputLine('🔍 ¿Buscas algo específico? Prueba <code>servicios</code>');
+          }
+        }
+    }
+  }
+  
+  // Event listeners
+  terminalInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      executeCommand(this.value);
+    }
+  });
+  
+  sendBtn.addEventListener('click', function() {
+    executeCommand(terminalInput.value);
+  });
+  
+  // Auto focus on input when terminal area is tapped
+  outputArea.addEventListener('click', function() {
+    terminalInput.focus();
+  });
+  
+  // Initial focus
+  setTimeout(() => {
+    terminalInput.focus();
+  }, 500);
+});
+</script>

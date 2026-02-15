@@ -521,16 +521,25 @@ ${this.commandHistory.slice(0, 10).map((cmd, index) =>
    Mendoza, Argentina
    Zona Centro - Ciudad de Mendoza
 
+<<<<<<< HEAD
 📱 TELÉFONO/WHATSAPP:
    <a href="tel:+542612345678" style="color: #00d4aa;">+54 261 234-5678</a>
    <a href="https://wa.me/542612345678" target="_blank" style="color: #00d4aa;">WhatsApp Directo</a>
+=======
+📧 EMAIL:
+   <a href="mailto:contacto@ultimamilla.com.ar" style="color: #00d4aa;">contacto@ultimamilla.com.ar</a>
+>>>>>>> origin/master
 
 📧 EMAIL:
    <a href="mailto:info@ultimamilla.com.ar" style="color: #00d4aa;">info@ultimamilla.com.ar</a>
    <a href="mailto:ventas@ultimamilla.com.ar" style="color: #00d4aa;">ventas@ultimamilla.com.ar</a>
 
 🌐 WEB:
+<<<<<<< HEAD
    <a href="https://www.ultimamilla.com.ar" target="_blank" style="color: #00d4aa;">www.ultimamilla.com.ar</a>
+=======
+   <a href="https://ultimamilla.com.ar" target="_blank" style="color: #00d4aa;">ultimamilla.com.ar</a>
+>>>>>>> origin/master
 
 💼 HORARIOS DE ATENCIÓN:
    Lunes a Viernes: 9:00 - 18:00 hs
@@ -555,7 +564,11 @@ ${this.commandHistory.slice(0, 10).map((cmd, index) =>
 
 Para enviar un mensaje directo:
 1. Email: <a href="mailto:info@ultimamilla.com.ar?subject=Consulta desde CLI" style="color: #00d4aa;">Abrir cliente de email</a>
+<<<<<<< HEAD
 2. WhatsApp: <a href="https://wa.me/542612345678?text=Hola! Vengo desde el CLI de su sitio web" target="_blank" style="color: #00d4aa;">Mensaje directo</a>
+=======
+2. Email: <a href="mailto:contacto@ultimamilla.com.ar" style="color: #00d4aa;">contacto@ultimamilla.com.ar</a>
+>>>>>>> origin/master
 
 💡 También puede completar el formulario de contacto en la sección correspondiente del sitio.
 </div>`;

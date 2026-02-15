@@ -1,0 +1,22 @@
+# ZONAS DNS CRÍTICAS PARA ULTIMAMILLA.COM.AR
+# ==========================================
+
+# REGISTROS A PRINCIPALES (IP: 23.105.176.45)
+ultimamilla.com.ar                   A    23.105.176.45
+www.ultimamilla.com.ar              A    23.105.176.45
+umw.ultimamilla.com.ar              A    23.105.176.45
+sello.ultimamilla.com.ar            A    23.105.176.45
+
+# REGISTROS MX (GMAIL)
+ultimamilla.com.ar    MX    1     aspmx.l.google.com
+ultimamilla.com.ar    MX    5     alt1.aspmx.l.google.com
+ultimamilla.com.ar    MX    5     alt2.aspmx.l.google.com
+ultimamilla.com.ar    MX    10    aspmx2.googlemail.com
+ultimamilla.com.ar    MX    30    aspmx3.googlemail.com
+
+# REGISTROS CNAME PRINCIPALES
+drive.ultimamilla.com.ar           CNAME    ghs.googlehosted.com
+correo.ultimamilla.com.ar          CNAME    ghs.googlehosted.com
+
+# SUBDOMINIO ESPECIAL
+t57rgr35hbdm.ultimamilla.com.ar    CNAME    gv-z4cxzzhe5v5ix6.dv.googlehosted.com

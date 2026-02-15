@@ -1,0 +1,11 @@
+---
+export const prerender = false;
+import { redirect } from 'astro:transitions/client';
+
+// Redirigir automáticamente a la página principal de servicios-master
+---
+
+<script>
+  // Redirigir usando JavaScript del lado del cliente
+  window.location.href = '/servicios-master/servicios-it';
+</script>

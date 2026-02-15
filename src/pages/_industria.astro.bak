@@ -1,0 +1,267 @@
+---
+/**
+ * Industria Sector Page - V4 Design System
+ * Industry 4.0 and manufacturing sector landing page with V4 components
+ */
+
+import LayoutV4 from '../layouts/LayoutV4.astro';
+import HeroPageV4 from '../components/v4/HeroPageV4.astro';
+import { generateSlug } from '../utils/slugUtils.js';
+import { antecedentesReales } from '../data/antecedentes_completos.js';
+
+// Sector configuration
+const sectorConfig = {
+  name: 'Industria',
+  emoji: '🏭',
+  heroImage: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1920&q=80',
+  description: 'Impulsamos la eficiencia operativa mediante automatización, IoT industrial y conectividad avanzada para plantas manufactureras.',
+  keywords: [
+    'industria', 'industrial', 'fabrica', 'planta', 'manufactura',
+    'produccion', 'parque industrial', 'polo industrial',
+    'minera', 'mineria', 'petroleo', 'gas', 'energia',
+    'cerveceria', 'malteria', 'quilmes', 'brahma', 'andes',
+    'aceitera', 'molino', 'frigorif', 'alimenticia', 'alimentos',
+    'textil', 'metalurgica', 'siderur', 'quimica', 'petroquimica',
+    'automotriz', 'autopartes', 'maquinaria', 'herramientas',
+    'farmaceutica', 'laboratorio', 'biotecnologia',
+    'procesamiento', 'empaque', 'logistica industrial'
+  ],
+};
+
+// SEO configuration
+const seoConfig = {
+  title: `Industria 4.0 y Automatización Industrial | Mendoza, Cuyo y Patagonia | ULTIMA MILLA`,
+  description: sectorConfig.description,
+  keywords: 'industria 4.0 mendoza, automatizacion industrial cuyo, iot empresas patagonia, servicios tecnologicos manufactura, redes industriales',
+};
+
+// Filter antecedentes for this sector
+const filterAntecedentes = (data: any[]) => {
+  return data
+    .filter(item => {
+      const texto = `${item.Cliente} ${item.Titulo} ${item.Area} ${item.Descripcion}`.toLowerCase();
+      return sectorConfig.keywords.some(k => texto.includes(k));
+    })
+    .map(item => ({ ...item, slug: generateSlug(item.Titulo) }))
+    .slice(0, 12);
+};
+
+// Try Directus first, fallback to local data
+let antecedentes: any[] = [];
+const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://admin.ultimamilla.com.ar';
+
+try {
+  const response = await fetch(`${DIRECTUS_URL}/items/antecedentes?limit=500`, {
+    headers: { 'Authorization': `Bearer ${import.meta.env.DIRECTUS_TOKEN || ''}` }
+  });
+  if (response.ok) {
+    const data = await response.json();
+    if (data?.data?.length > 0) {
+      antecedentes = filterAntecedentes(data.data);
+    }
+  }
+} catch (e) {
+  console.log('Using local data for Industria');
+}
+
+if (antecedentes.length === 0) {
+  antecedentes = filterAntecedentes(antecedentesReales);
+}
+
+// Helper function for image URLs
+const getImageUrl = (ant: any): string => {
+  if (ant.Imagen && typeof ant.Imagen === 'string' && ant.Imagen.includes('-')) {
+    return `${DIRECTUS_URL}/assets/${ant.Imagen}`;
+  }
+  if (ant.ImagenPrincipal && typeof ant.ImagenPrincipal === 'string' && ant.ImagenPrincipal.includes('-')) {
+    return `${DIRECTUS_URL}/assets/${ant.ImagenPrincipal}`;
+  }
+  return '/images/default-antecedente.jpg';
+};
+
+// Value propositions for this sector
+const valueProps = [
+  {
+    icon: `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>`,
+    title: 'Automatización',
+    description: 'Control de procesos y sistemas SCADA para optimizar la producción.',
+  },
+  {
+    icon: `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>`,
+    title: 'Ciberseguridad OT',
+    description: 'Protección de redes industriales y sistemas de control crítico.',
+  },
+  {
+    icon: `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>`,
+    title: 'Eficiencia Energética',
+    description: 'Monitoreo y optimización del consumo energético en planta.',
+  },
+];
+
+// Related services
+const serviciosRelacionados = [
+  { id: 1, nombre: 'IoT Industrial', descripcion: 'Sensores inteligentes y análisis en tiempo real', icon: 'cpu' },
+  { id: 2, nombre: 'Redes Industriales', descripcion: 'Infraestructura robusta para plantas', icon: 'network' },
+  { id: 3, nombre: 'Seguridad OT', descripcion: 'Protección de sistemas de control', icon: 'shield' },
+  { id: 4, nombre: 'Video Analítica', descripcion: 'Control de calidad y seguridad', icon: 'video' },
+  { id: 5, nombre: 'Automatización', descripcion: 'Sistemas SCADA y control', icon: 'settings' },
+  { id: 6, nombre: 'Soporte Técnico 24/7', descripcion: 'Asistencia continua industrial', icon: 'support' },
+];
+---
+
+<LayoutV4
+  title={seoConfig.title}
+  description={seoConfig.description}
+  keywords={seoConfig.keywords}
+>
+  <HeroPageV4
+    title="Industria 4.0 y"
+    titleHighlight="Transformación Digital"
+    subtitle={sectorConfig.description}
+    breadcrumb={[
+      { label: 'Inicio', href: '/' },
+      { label: 'Sectores', href: '/sectores' },
+      { label: sectorConfig.name, href: '/industria' },
+    ]}
+    badge={{ icon: 'factory', text: 'Sector Industrial' }}
+    stats={[
+      { value: `${antecedentes.length}+`, label: 'Proyectos' },
+      { value: '50+', label: 'Plantas' },
+      { value: '24/7', label: 'Soporte' },
+    ]}
+  />
+
+  <!-- Value Propositions -->
+  <section class="py-12 sm:py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+        {valueProps.map((prop) => (
+          <div class="text-center p-6 sm:p-8 bg-um-gray-light rounded-xl">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 bg-white rounded-full flex items-center justify-center border-2 border-gray-200 text-um-dark">
+              <Fragment set:html={prop.icon} />
+            </div>
+            <h3 class="text-lg sm:text-xl font-bold text-um-dark mb-2 sm:mb-3">{prop.title}</h3>
+            <p class="text-sm sm:text-base text-um-gray leading-relaxed">{prop.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Grid -->
+  <section class="py-12 sm:py-16 lg:py-20 bg-um-gray-light">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-10 sm:mb-12">
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mb-3 sm:mb-4">Soluciones Industriales</h2>
+        <p class="text-base sm:text-lg text-um-gray max-w-2xl mx-auto">
+          Tecnología aplicada para maximizar la productividad y seguridad en entornos industriales.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        {serviciosRelacionados.map((servicio) => (
+          <a href={`/servicios/${servicio.id}/${servicio.nombre.toLowerCase().replace(/\s+/g, '-')}`} class="group block">
+            <div class="bg-white p-5 sm:p-6 rounded-xl border-l-4 border-emerald-600 shadow-sm hover:shadow-md transition-all duration-300 group-hover:-translate-y-1 min-h-[120px]">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 bg-emerald-600 rounded-lg flex items-center justify-center mb-3 sm:mb-4">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                </svg>
+              </div>
+              <h3 class="text-base sm:text-lg font-bold text-um-dark mb-2 group-hover:text-emerald-600 transition-colors">{servicio.nombre}</h3>
+              <p class="text-sm text-um-gray">{servicio.descripcion}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Cases Grid -->
+  {antecedentes.length > 0 && (
+    <section class="py-12 sm:py-16 lg:py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10 sm:mb-12">
+          <span class="inline-block px-4 py-1.5 bg-emerald-100 text-emerald-700 text-xs sm:text-sm font-bold rounded-full mb-3 sm:mb-4">
+            Experiencia Industrial
+          </span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mb-3 sm:mb-4">Proyectos Industriales</h2>
+          <p class="text-base sm:text-lg text-um-gray max-w-2xl mx-auto">
+            Casos de éxito en plantas industriales y manufactura.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+          {antecedentes.slice(0, 6).map((ant) => (
+            <a href={`/antecedentes/${ant.id}/${ant.slug}`} class="group block">
+              <article class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 group-hover:-translate-y-1">
+                <div class="relative aspect-[16/10] overflow-hidden bg-gray-100">
+                  <img
+                    src={getImageUrl(ant)}
+                    alt={ant.Titulo}
+                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                    onerror="this.src='/images/default-antecedente.jpg'"
+                  />
+                  <div class="absolute top-3 left-3">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-600 text-white text-xs font-bold rounded-lg">
+                      {sectorConfig.emoji} {sectorConfig.name}
+                    </span>
+                  </div>
+                </div>
+                <div class="p-4 sm:p-5">
+                  <h3 class="text-base sm:text-lg font-bold text-um-dark mb-2 line-clamp-2 group-hover:text-emerald-600 transition-colors">
+                    {ant.Titulo}
+                  </h3>
+                  {ant.Cliente && (
+                    <p class="text-sm text-um-gray mb-2">{ant.Cliente}</p>
+                  )}
+                  <p class="text-sm text-um-gray line-clamp-2">
+                    {ant.Descripcion?.substring(0, 100)}...
+                  </p>
+                </div>
+              </article>
+            </a>
+          ))}
+        </div>
+
+        {antecedentes.length > 6 && (
+          <div class="text-center mt-8 sm:mt-10">
+            <a
+              href="/antecedentes?sector=industria"
+              class="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-um-dark text-white font-bold rounded-xl hover:bg-um-dark/90 transition-colors min-h-[44px]"
+            >
+              Ver todos los proyectos
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </a>
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  <!-- CTA Section -->
+  <section class="bg-um-dark py-12 sm:py-16 lg:py-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">Impulse su Industria al Siguiente Nivel</h2>
+      <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-8">
+        Contáctenos para descubrir cómo nuestras soluciones de Industria 4.0 pueden optimizar su producción
+      </p>
+      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+        <a
+          href="/contacto"
+          class="px-6 sm:px-8 py-3 sm:py-4 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-colors shadow-lg min-h-[44px] flex items-center justify-center"
+        >
+          Solicitar Contacto
+        </a>
+        <a
+          href="/servicios"
+          class="px-6 sm:px-8 py-3 sm:py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-colors min-h-[44px] flex items-center justify-center"
+        >
+          Ver Servicios
+        </a>
+      </div>
+    </div>
+  </section>
+</LayoutV4>

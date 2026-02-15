@@ -1,0 +1,168 @@
+---
+/**
+ * ServiceCard Component V4 - DISEÑO ESTÁNDAR
+ *
+ * Card de servicio estilo article card:
+ * - Imagen arriba (aspect-[16/9])
+ * - Badge específico en top-left de la imagen
+ * - Título + descripción abajo
+ * - Footer con Cliente y "Ver detalles"
+ *
+ * USADO EN: Homepage, /servicios, antecedentes relacionados
+ *
+ * Props:
+ * - id: ID del servicio
+ * - slug: Slug URL-friendly
+ * - titulo: Título del servicio
+ * - descripcion: Descripción (se trunca a 150 chars)
+ * - imagen: UUID de Directus o URL completa
+ * - badge: Badge descriptor (ej: "Redes", "Seguridad")
+ * - badgeColor: Color del badge (opcional, default: bg-um-dark)
+ * - cliente: Nombre del cliente/área
+ */
+
+import { getDirectusImageUrl, getDirectusImageFallback } from '../../lib/directus.ts';
+
+export interface Props {
+  id: number | string;
+  slug?: string;
+  titulo: string;
+  descripcion?: string;
+  imagen?: string;
+  badge?: string;
+  badgeColor?: string;
+  cliente?: string;
+  href?: string;
+}
+
+const {
+  id,
+  slug,
+  titulo,
+  descripcion = '',
+  imagen,
+  badge,
+  badgeColor = 'bg-um-dark',
+  cliente = 'Tecnología',
+  href
+} = Astro.props;
+
+// Generar URL del servicio
+const serviceUrl = href || (slug ? `/servicios/${id}/${slug}` : `/servicios/${id}`);
+
+// 100% Directus — imagen es UUID del archivo en Directus
+const imagenUrl = getDirectusImageUrl(imagen);
+const fallbackUrl = getDirectusImageFallback(imagen);
+
+// Truncar descripción a 150 caracteres
+const descripcionTruncada = descripcion.length > 150
+  ? descripcion.substring(0, 150) + '...'
+  : descripcion;
+---
+
+<a href={serviceUrl} class="group flex flex-col h-full">
+  <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 card-hover">
+    <!-- Image -->
+    <div class="relative aspect-[16/9] overflow-hidden bg-gray-100">
+      {imagenUrl ? (
+        <img
+          src={imagenUrl}
+          alt={titulo}
+          width="640"
+          height="360"
+          class="w-full h-full object-cover service-img"
+          loading="lazy"
+          decoding="async"
+          onerror={`this.onerror=null; this.src='${fallbackUrl}'`}
+        />
+      ) : (
+        <img
+          src={fallbackUrl}
+          alt={titulo}
+          width="640"
+          height="360"
+          class="w-full h-full object-cover service-img"
+          loading="lazy"
+          decoding="async"
+        />
+      )}
+
+      {badge && (
+        <div class="absolute top-3 sm:top-4 left-3 sm:left-4">
+          <span class={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold ${badgeColor} text-white shadow-sm`}>
+            {badge}
+          </span>
+        </div>
+      )}
+    </div>
+
+    <!-- Content -->
+    <div class="flex flex-col flex-grow p-4 sm:p-6">
+      <h3 class="text-lg sm:text-xl font-bold text-um-dark mb-2 sm:mb-3 group-hover:text-um-primary transition-colors line-clamp-2">
+        {titulo}
+      </h3>
+
+      <p class="text-um-gray text-sm mb-4 sm:mb-6 line-clamp-3 flex-grow leading-relaxed">
+        {descripcionTruncada}
+      </p>
+
+      <div class="pt-3 sm:pt-4 border-t border-gray-100 mt-auto flex items-center justify-between">
+        <span class="text-xs font-medium text-um-gray uppercase tracking-wide">
+          {cliente}
+        </span>
+        <span class="text-um-primary text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
+          Ver detalles
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </span>
+      </div>
+    </div>
+  </article>
+</a>
+
+<style>
+  /* Hover effect */
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Line clamp */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* High-quality image downscaling */
+  .service-img {
+    image-rendering: auto;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+  }
+
+  /* Animación reducida para accesibilidad */
+  @media (prefers-reduced-motion: reduce) {
+    .card-hover,
+    .card-hover:hover,
+    img,
+    div {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+</style>

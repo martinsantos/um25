@@ -1,33 +1,34 @@
 ---
-// Página de redirección para antecedentes individuales
-// Redirige a la página principal de antecedentes hasta que se solucionen las páginas dinámicas
-
-export const prerender = true;
-
-export async function getStaticPaths() {
-    // Generar rutas para todos los IDs de antecedentes disponibles
-    const allIds = [];
-    
-    // Rango principal de IDs (basado en los datos disponibles)
-    for (let i = 10768; i <= 10850; i++) {
-        allIds.push(i.toString());
-    }
-    
-    // IDs adicionales comunes que podrían existir
-    const additionalIds = [
-        '1', '2', '3', '4', '5', '10', '15', '20', '25', '30',
-        '100', '200', '300', '400', '500', '1000', '2000', '3000'
-    ];
-    
-    allIds.push(...additionalIds);
-    
-    return allIds.map(id => ({
-        params: { id }
-    }));
-}
+/**
+ * Redirect from /antecedentes/[id]/ to /antecedentes/[id]/[slug]
+ * This page fetches the antecedente title from Directus to generate the slug
+ */
+import { getClient } from '../../../lib/directus.ts';
+import { readItem } from '@directus/sdk';
+import { generateSlug } from '../../../utils/slugUtils';
 
 const { id } = Astro.params;
 
-// Redirigir a la página principal de antecedentes
-return Astro.redirect('/antecedentes');
---- 
+if (!id) {
+    return Astro.redirect('/antecedentes');
+}
+
+try {
+    const client = getClient();
+    const item = await client.request(
+        readItem('Antecedentes', parseInt(id), {
+            fields: ['id', 'Titulo']
+        })
+    );
+
+    if (item && item.Titulo) {
+        const slug = generateSlug(item.Titulo);
+        return Astro.redirect(`/antecedentes/${id}/${slug}`, 301);
+    }
+} catch (error) {
+    console.error(`Error fetching antecedente ${id} for redirect:`, error);
+}
+
+// If not found or error, redirect to main list
+return Astro.redirect('/antecedentes', 302);
+---

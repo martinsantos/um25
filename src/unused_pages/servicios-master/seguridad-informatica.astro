@@ -1,0 +1,170 @@
+---
+export const prerender = true;
+import Layout from '../../layouts/Layout.astro';
+---
+<Layout title="Seguridad Informática - Versión Completa | ULTIMA MILLA">
+<style>
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes slideIn{from{width:0}to{width:100%}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+input::placeholder,textarea::placeholder{color:#64748b}
+.video-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:60px;height:60px;background:rgba(6,182,212,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s}
+.video-play:hover{background:#06b6d4;transform:translate(-50%,-50%) scale(1.1)}
+</style>
+
+<!-- HERO CON ESTADÍSTICAS -->
+<section style="position:relative;min-height:700px;background:linear-gradient(135deg,#1e1b4b 0%,#0f172a 100%);color:white;overflow:hidden">
+<div style="position:absolute;inset:0;opacity:.05;background-image:url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath d=%22M30 0L60 30L30 60L0 30z%22 fill=%22%2306b6d4%22/%3E%3C/svg%3E')"></div>
+<div style="position:absolute;top:-150px;right:-150px;width:700px;height:700px;background:radial-gradient(circle,rgba(6,182,212,.2) 0%,transparent 70%);filter:blur(100px)"></div>
+<div style="max-width:1400px;margin:0 auto;padding:100px 40px;position:relative;z-index:10">
+<div style="max-width:900px;margin-bottom:80px">
+<div style="display:inline-flex;align-items:center;gap:10px;padding:10px 24px;background:rgba(6,182,212,.15);border:1px solid rgba(6,182,212,.3);border-radius:50px;margin-bottom:32px">
+<div style="width:8px;height:8px;background:#06b6d4;border-radius:50%;animation:pulse 2s ease-in-out infinite"></div>
+<span style="font-size:13px;font-weight:700;color:#06b6d4;text-transform:uppercase;letter-spacing:1.5px">Defensa Cibernética</span>
+</div>
+<h1 style="font-size:clamp(48px,7vw,72px);font-weight:900;line-height:1.1;margin-bottom:28px;letter-spacing:-.02em">Cada segundo cuenta. Previene la próxima brecha antes de que ocurra.</h1>
+<p style="font-size:20px;line-height:1.7;color:#cbd5e1;margin-bottom:40px">Visualiza el panorama de amenazas en tiempo real y descubre cómo protegemos tus activos más críticos.</p>
+<a href="#contacto" style="display:inline-flex;align-items:center;gap:12px;padding:18px 36px;background:linear-gradient(135deg,#06b6d4,#0ea5e9);color:white;font-weight:700;font-size:16px;border-radius:12px;text-decoration:none;box-shadow:0 10px 40px rgba(6,182,212,.3)">Hable con un Experto<svg style="width:20px;height:20px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg></a>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:32px">
+<div style="background:linear-gradient(135deg,rgba(6,182,212,.1) 0%,rgba(15,23,42,.5) 100%);border:1px solid rgba(6,182,212,.2);border-radius:24px;padding:40px;text-align:center">
+<div style="font-size:56px;font-weight:900;color:#06b6d4;margin-bottom:12px">64.1M</div>
+<div style="font-size:18px;font-weight:700;color:white;margin-bottom:8px">Casos Frenados</div>
+<div style="font-size:14px;color:#06b6d4;font-weight:600">+15% vs año anterior</div>
+</div>
+<div style="background:linear-gradient(135deg,rgba(6,182,212,.1) 0%,rgba(15,23,42,.5) 100%);border:1px solid rgba(6,182,212,.2);border-radius:24px;padding:40px;text-align:center">
+<div style="font-size:56px;font-weight:900;color:#06b6d4;margin-bottom:12px">212</div>
+<div style="font-size:18px;font-weight:700;color:white;margin-bottom:8px">Tiempo Medio Detección</div>
+<div style="font-size:14px;color:#06b6d4;font-weight:600">-5% vs año anterior</div>
+</div>
+<div style="background:linear-gradient(135deg,rgba(6,182,212,.1) 0%,rgba(15,23,42,.5) 100%);border:1px solid rgba(6,182,212,.2);border-radius:24px;padding:40px;text-align:center">
+<div style="font-size:56px;font-weight:900;color:#06b6d4;margin-bottom:12px">150%</div>
+<div style="font-size:18px;font-weight:700;color:white;margin-bottom:8px">Aumento Ransomware</div>
+<div style="font-size:14px;color:#06b6d4;font-weight:600">Último trimestre</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- QUIZ INTERACTIVO -->
+<section style="background:#0f172a;padding:100px 40px;border-top:1px solid rgba(255,255,255,.05)">
+<div style="max-width:1200px;margin:0 auto">
+<div style="text-align:center;margin-bottom:80px">
+<h2 style="font-size:clamp(40px,5vw,56px);font-weight:900;color:white;margin-bottom:24px">¿Cuál es tu Nivel de Riesgo Real?</h2>
+<p style="font-size:20px;color:#94a3b8;max-width:800px;margin:0 auto">Responde para obtener una evaluación preliminar de tu postura de seguridad</p>
+</div>
+<div style="max-width:900px;margin:0 auto;background:rgba(15,23,42,.5);border:1px solid rgba(6,182,212,.2);border-radius:24px;padding:60px">
+<h3 style="font-size:24px;font-weight:800;color:white;margin-bottom:32px">¿Utiliza su organización autenticación multifactor (MFA) para todos los accesos críticos?</h3>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:40px">
+<button style="padding:16px 24px;background:rgba(6,182,212,.1);border:2px solid rgba(6,182,212,.3);border-radius:12px;color:white;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s" onmouseover="this.style.background='rgba(6,182,212,.2)';this.style.borderColor='#06b6d4'" onmouseout="this.style.background='rgba(6,182,212,.1)';this.style.borderColor='rgba(6,182,212,.3)'">✓ Sí, en todo</button>
+<button style="padding:16px 24px;background:rgba(255,193,7,.1);border:2px solid rgba(255,193,7,.3);border-radius:12px;color:white;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s" onmouseover="this.style.background='rgba(255,193,7,.2)';this.style.borderColor='#ffc107'" onmouseout="this.style.background='rgba(255,193,7,.1)';this.style.borderColor='rgba(255,193,7,.3)'">⚠ Parcialmente</button>
+<button style="padding:16px 24px;background:rgba(239,68,68,.1);border:2px solid rgba(239,68,68,.3);border-radius:12px;color:white;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s" onmouseover="this.style.background='rgba(239,68,68,.2)';this.style.borderColor='#ef4444'" onmouseout="this.style.background='rgba(239,68,68,.1)';this.style.borderColor='rgba(239,68,68,.3)'">✗ No</button>
+</div>
+<div style="margin-top:40px">
+<p style="font-size:14px;color:#94a3b8;margin-bottom:12px;font-weight:600">Tu nivel de riesgo estimado:</p>
+<div style="width:100%;height:12px;background:rgba(255,255,255,.05);border-radius:6px;overflow:hidden;border:1px solid rgba(6,182,212,.2)">
+<div style="width:35%;height:100%;background:linear-gradient(90deg,#06b6d4,#0ea5e9);animation:slideIn 2s ease-out"></div>
+</div>
+<p style="font-size:14px;color:#06b6d4;margin-top:12px;font-weight:700">RIESGO MODERADO (35%)</p>
+</div>
+<div style="text-align:center;margin-top:40px">
+<a href="#contacto" style="display:inline-flex;align-items:center;gap:10px;padding:16px 32px;background:linear-gradient(135deg,#06b6d4,#0ea5e9);color:white;font-weight:700;font-size:16px;border-radius:10px;text-decoration:none">Obtener Evaluación Completa →</a>
+</div>
+</div>
+</div>
+</section>
+
+<!-- TESTIMONIOS CON VIDEO -->
+<section style="background:linear-gradient(180deg,#0f172a 0%,#1e293b 100%);padding:100px 40px">
+<div style="max-width:1400px;margin:0 auto">
+<div style="text-align:center;margin-bottom:80px">
+<h2 style="font-size:clamp(40px,5vw,56px);font-weight:900;color:white;margin-bottom:24px">La Confianza de Nuestros Clientes</h2>
+<p style="font-size:20px;color:#94a3b8;max-width:800px;margin:0 auto">Escucha directamente de nuestros clientes cómo hemos transformado su seguridad</p>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:32px">
+<div style="background:rgba(15,23,42,.5);border:1px solid rgba(6,182,212,.2);border-radius:24px;overflow:hidden;transition:all .3s" onmouseover="this.style.transform='translateY(-8px)';this.style.boxShadow='0 20px 60px rgba(6,182,212,.2)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+<div style="position:relative;width:100%;padding-bottom:56.25%;background:linear-gradient(135deg,rgba(6,182,212,.2) 0%,rgba(15,23,42,.5) 100%);overflow:hidden">
+<div class="video-play"><svg style="width:24px;height:24px;fill:white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+</div>
+<div style="padding:32px">
+<p style="font-size:16px;color:#cbd5e1;line-height:1.7;margin-bottom:24px;font-style:italic">"Detectó una brecha que otros sistemas no vieron. Respuesta inmediata y profesional."</p>
+<div style="display:flex;align-items:center;gap:16px">
+<div style="width:50px;height:50px;background:linear-gradient(135deg,#06b6d4,#0ea5e9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px">👤</div>
+<div><p style="font-size:16px;font-weight:700;color:white">Juan Pérez</p><p style="font-size:14px;color:#94a3b8">CTO, Empresa Tech</p></div>
+</div>
+</div>
+</div>
+<div style="background:rgba(15,23,42,.5);border:1px solid rgba(6,182,212,.2);border-radius:24px;overflow:hidden;transition:all .3s" onmouseover="this.style.transform='translateY(-8px)';this.style.boxShadow='0 20px 60px rgba(6,182,212,.2)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+<div style="position:relative;width:100%;padding-bottom:56.25%;background:linear-gradient(135deg,rgba(6,182,212,.2) 0%,rgba(15,23,42,.5) 100%);overflow:hidden">
+<div class="video-play"><svg style="width:24px;height:24px;fill:white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+</div>
+<div style="padding:32px">
+<p style="font-size:16px;color:#cbd5e1;line-height:1.7;margin-bottom:24px;font-style:italic">"Monitoreo 24/7 nos permite dormir tranquilos. Sabemos que nuestros datos están protegidos."</p>
+<div style="display:flex;align-items:center;gap:16px">
+<div style="width:50px;height:50px;background:linear-gradient(135deg,#06b6d4,#0ea5e9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px">👤</div>
+<div><p style="font-size:16px;font-weight:700;color:white">María García</p><p style="font-size:14px;color:#94a3b8">CEO, Fintech Solutions</p></div>
+</div>
+</div>
+</div>
+<div style="background:rgba(15,23,42,.5);border:1px solid rgba(6,182,212,.2);border-radius:24px;overflow:hidden;transition:all .3s" onmouseover="this.style.transform='translateY(-8px)';this.style.boxShadow='0 20px 60px rgba(6,182,212,.2)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+<div style="position:relative;width:100%;padding-bottom:56.25%;background:linear-gradient(135deg,rgba(6,182,212,.2) 0%,rgba(15,23,42,.5) 100%);overflow:hidden">
+<div class="video-play"><svg style="width:24px;height:24px;fill:white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+</div>
+<div style="padding:32px">
+<p style="font-size:16px;color:#cbd5e1;line-height:1.7;margin-bottom:24px;font-style:italic">"Cumplir regulaciones de seguridad nunca fue tan fácil. Equipo nos guió en cada paso."</p>
+<div style="display:flex;align-items:center;gap:16px">
+<div style="width:50px;height:50px;background:linear-gradient(135deg,#06b6d4,#0ea5e9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px">👤</div>
+<div><p style="font-size:16px;font-weight:700;color:white">Carlos López</p><p style="font-size:14px;color:#94a3b8">Director Compliance, Banco</p></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ARQUITECTURA EN CAPAS -->
+<section style="background:#0f172a;padding:100px 40px;border-top:1px solid rgba(255,255,255,.05)">
+<div style="max-width:1200px;margin:0 auto">
+<div style="text-align:center;margin-bottom:80px">
+<h2 style="font-size:clamp(40px,5vw,56px);font-weight:900;color:white;margin-bottom:24px">Arquitectura de Seguridad en Capas</h2>
+<p style="font-size:20px;color:#94a3b8;max-width:800px;margin:0 auto">Defensa en profundidad con múltiples capas</p>
+</div>
+<div style="background:rgba(15,23,42,.5);border:1px solid rgba(6,182,212,.2);border-radius:24px;padding:60px;max-width:900px;margin:0 auto">
+<div style="display:grid;gap:24px">
+<div style="display:grid;grid-template-columns:100px 1fr;gap:24px;align-items:center;padding:24px;background:linear-gradient(90deg,rgba(6,182,212,.05) 0%,transparent 100%);border-left:4px solid #06b6d4;border-radius:12px">
+<div style="font-size:48px;font-weight:900;color:#06b6d4">01</div>
+<div><h3 style="font-size:22px;font-weight:800;color:white;margin-bottom:8px">Perímetro</h3><p style="font-size:15px;color:#94a3b8;line-height:1.6">Firewalls avanzados y filtrado de tráfico</p></div>
+</div>
+<div style="display:grid;grid-template-columns:100px 1fr;gap:24px;align-items:center;padding:24px;background:linear-gradient(90deg,rgba(6,182,212,.05) 0%,transparent 100%);border-left:4px solid #0ea5e9;border-radius:12px">
+<div style="font-size:48px;font-weight:900;color:#0ea5e9">02</div>
+<div><h3 style="font-size:22px;font-weight:800;color:white;margin-bottom:8px">Detección</h3><p style="font-size:15px;color:#94a3b8;line-height:1.6">IDS/IPS y análisis de comportamiento con IA</p></div>
+</div>
+<div style="display:grid;grid-template-columns:100px 1fr;gap:24px;align-items:center;padding:24px;background:linear-gradient(90deg,rgba(6,182,212,.05) 0%,transparent 100%);border-left:4px solid #10b981;border-radius:12px">
+<div style="font-size:48px;font-weight:900;color:#10b981">03</div>
+<div><h3 style="font-size:22px;font-weight:800;color:white;margin-bottom:8px">Respuesta</h3><p style="font-size:15px;color:#94a3b8;line-height:1.6">Automatización de respuesta a incidentes</p></div>
+</div>
+<div style="display:grid;grid-template-columns:100px 1fr;gap:24px;align-items:center;padding:24px;background:linear-gradient(90deg,rgba(6,182,212,.05) 0%,transparent 100%);border-left:4px solid #f59e0b;border-radius:12px">
+<div style="font-size:48px;font-weight:900;color:#f59e0b">04</div>
+<div><h3 style="font-size:22px;font-weight:800;color:white;margin-bottom:8px">Recuperación</h3><p style="font-size:15px;color:#94a3b8;line-height:1.6">Backup y recuperación ante desastres</p></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- CTA FINAL -->
+<section id="contacto" style="background:#0f172a;padding:120px 40px;border-top:1px solid rgba(255,255,255,.05)">
+<div style="max-width:900px;margin:0 auto;text-align:center">
+<h2 style="font-size:clamp(36px,4vw,48px);font-weight:900;color:white;margin-bottom:24px">Proteja su Empresa Hoy</h2>
+<p style="font-size:18px;color:#94a3b8;margin-bottom:40px">Evaluación de seguridad gratuita</p>
+<form action="/api/contact" method="POST" style="max-width:600px;margin:0 auto">
+<div style="display:grid;gap:20px">
+<input type="text" name="nombre" placeholder="Nombre completo" required style="padding:18px 24px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:white;font-size:16px">
+<input type="email" name="email" placeholder="Email corporativo" required style="padding:18px 24px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:white;font-size:16px">
+<textarea name="mensaje" placeholder="Cuéntenos sobre sus necesidades..." rows="4" required style="padding:18px 24px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:white;font-size:16px"></textarea>
+<button type="submit" style="padding:20px;background:linear-gradient(135deg,#06b6d4,#0ea5e9);color:white;font-weight:700;font-size:18px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 10px 40px rgba(6,182,212,.3)">Solicitar Evaluación Gratuita</button>
+</div>
+</form>
+</div>
+</section>
+</Layout>

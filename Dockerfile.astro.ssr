@@ -1,0 +1,64 @@
+# Dockerfile para SSR de Astro - UM25-0.3
+FROM node:18-alpine AS base
+
+# Instalar dependencias necesarias
+RUN apk add --no-cache libc6-compat curl
+
+# Establecer directorio de trabajo
+WORKDIR /app
+
+# Copiar archivos de configuración
+COPY package*.json ./
+COPY astro.config.mjs ./
+COPY tailwind.config.mjs ./
+COPY tsconfig.json ./
+
+# Instalar dependencias
+RUN npm ci
+
+# Etapa de construcción
+FROM base AS builder
+WORKDIR /app
+
+# Copiar código fuente
+COPY . .
+
+# Variables de entorno para build
+ENV NODE_ENV=production
+ENV ASTRO_TELEMETRY_DISABLED=1
+
+# Construir la aplicación
+RUN npm run build
+
+# Etapa de producción - Servir con Node.js
+FROM node:18-alpine AS runner
+WORKDIR /app
+
+# Instalar dependencias de producción
+RUN apk add --no-cache libc6-compat curl
+
+# Copiar archivos necesarios
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/astro.config.mjs ./
+
+# Crear enlace simbólico completo del directorio _astro para resolver el problema de rutas de Astro
+RUN ln -sf /app/dist/client/_astro /app/dist/server/_astro
+
+# Instalar dependencias de producción
+RUN npm ci --only=production
+
+# Exponer puerto
+EXPOSE 4321
+
+# Variables de entorno
+ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+ENV PORT=4321
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:4321/ || exit 1
+
+# Comando de inicio
+CMD ["node", "./dist/server/entry.mjs"]

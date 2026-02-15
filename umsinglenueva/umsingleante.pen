@@ -1,0 +1,3256 @@
+{
+  "version": "2.6",
+  "children": [
+    {
+      "type": "frame",
+      "id": "XqTF9",
+      "x": 5700,
+      "y": 3500,
+      "name": "V3 - Hero Full Image - Desktop",
+      "metadata": {
+        "type": "unsplash",
+        "username": "lawsonlee",
+        "link": "https://unsplash.com/@lawsonlee",
+        "author": "Lee Lawson"
+      },
+      "width": 1440,
+      "fill": "$--um-white",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "Udbrb",
+          "name": "Hero Section Full",
+          "metadata": {
+            "type": "unsplash",
+            "username": "itsomidarmin",
+            "link": "https://unsplash.com/@itsomidarmin",
+            "author": "omid armin"
+          },
+          "clip": true,
+          "width": "fill_container",
+          "height": 480,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "https://images.unsplash.com/photo-1606202629042-6f1d80b2c1d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NjkxMTQ5MDN8&ixlib=rb-4.1.0&q=80&w=1080",
+            "mode": "fill"
+          },
+          "layout": "none",
+          "children": [
+            {
+              "type": "frame",
+              "id": "BsdMw",
+              "x": 0,
+              "y": 0,
+              "name": "Content",
+              "width": 1440,
+              "height": 480,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "https://images.unsplash.com/photo-1663681837878-55c67d6a2692?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NjkxMTQ1Nzl8&ixlib=rb-4.1.0&q=80&w=1080",
+                "mode": "fill"
+              },
+              "layout": "vertical",
+              "gap": 20,
+              "padding": [
+                60,
+                120
+              ],
+              "justifyContent": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "9qdN0",
+                  "name": "Breadcrumb",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "R2wna",
+                      "name": "bc1",
+                      "fill": "#FFFFFFAA",
+                      "content": "Inicio",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "EIhg4",
+                      "name": "bcSep1",
+                      "fill": "#FFFFFF66",
+                      "content": ">",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "rM3ss",
+                      "name": "bc2",
+                      "fill": "#FFFFFFAA",
+                      "content": "Antecedentes",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "49ARw",
+                      "name": "bcSep2",
+                      "fill": "#FFFFFF66",
+                      "content": ">",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "KbzFl",
+                      "name": "bc3",
+                      "fill": "#FFFFFF66",
+                      "content": "Caso",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "GlSGa",
+                  "name": "Category",
+                  "gap": 6,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "ellipse",
+                      "id": "qsL4X",
+                      "name": "categoryDot",
+                      "fill": "#00B4D8",
+                      "width": 8,
+                      "height": 8
+                    },
+                    {
+                      "type": "text",
+                      "id": "aLcSz",
+                      "name": "categoryText",
+                      "fill": "#00B4D8",
+                      "content": "REDES",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "iIuu8",
+                  "name": "title",
+                  "fill": "#FFFFFF",
+                  "textGrowth": "fixed-width",
+                  "width": 700,
+                  "content": "Implementación de Redes de Datos y Fibra Óptica",
+                  "lineHeight": 1.2,
+                  "fontFamily": "Inter",
+                  "fontSize": 42,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "zdJwA",
+                  "name": "subtitle",
+                  "fill": "#FFFFFFDD",
+                  "textGrowth": "fixed-width",
+                  "width": 700,
+                  "content": "Cableado estructurado Cat 6/6A/7 y tendido de fibra óptica",
+                  "lineHeight": 1.4,
+                  "fontFamily": "Inter",
+                  "fontSize": 18,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "DinZ9",
+                  "name": "desc",
+                  "fill": "#FFFFFFAA",
+                  "textGrowth": "fixed-width",
+                  "width": 600,
+                  "content": "Cableado exterior por postes - 3 tendidos nuevos / 4 a recuperar - switch 16b (150W) Ubiquiti.",
+                  "lineHeight": 1.6,
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "8FmMM",
+                  "name": "CTA Button",
+                  "fill": "#00B4D8",
+                  "cornerRadius": 6,
+                  "padding": [
+                    14,
+                    28
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "SBATk",
+                      "name": "ctaBtnText",
+                      "fill": "#FFFFFF",
+                      "content": "Solicitar Cotización",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "XJ1Uq",
+          "name": "contentSection",
+          "width": "fill_container",
+          "gap": 80,
+          "padding": [
+            48,
+            120
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "jdvRG",
+              "name": "Content Left",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 48,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "8WpeC",
+                  "name": "alcanceSection",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 20,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "NA1Bp",
+                      "name": "alcanceTitle",
+                      "fill": "$--um-text-dark",
+                      "content": "Alcance del Proyecto",
+                      "fontFamily": "$--um-font",
+                      "fontSize": 28,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "JcUyQ",
+                      "name": "alcanceDesc",
+                      "fill": "$--um-text-gray",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Diseño e implementación de sistema de seguridad electrónica integral para las instalaciones aeroportuarias, incluyendo videovigilancia, control de acceso y detección de incendios con monitoreo centralizado 24/7.",
+                      "lineHeight": 1.7,
+                      "fontFamily": "$--um-font",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "g0jgV",
+                      "name": "checkList",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 16,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "9CSfr",
+                          "name": "check1",
+                          "gap": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "rsMb1",
+                              "name": "check1Icon",
+                              "fill": "$--um-blue",
+                              "content": "✓",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 18,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "CvN0j",
+                              "name": "check1Text",
+                              "fill": "$--um-text-dark",
+                              "content": "Más de 200 cámaras CCTV IP instaladas",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 16,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "9xyE9",
+                          "name": "check2",
+                          "gap": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "VEQpw",
+                              "name": "check2Icon",
+                              "fill": "$--um-blue",
+                              "content": "✓",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 18,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "gIjeP",
+                              "name": "check2Text",
+                              "fill": "$--um-text-dark",
+                              "content": "Control de acceso biométrico en 45 puntos",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 16,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "KJbXq",
+                          "name": "check3",
+                          "gap": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "j4snw",
+                              "name": "check3Icon",
+                              "fill": "$--um-blue",
+                              "content": "✓",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 18,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "uA95t",
+                              "name": "check3Text",
+                              "fill": "$--um-text-dark",
+                              "content": "Sistema de detección de incendios certificado",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 16,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Edxnd",
+                          "name": "check4",
+                          "gap": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "NfsVJ",
+                              "name": "check4Icon",
+                              "fill": "$--um-blue",
+                              "content": "✓",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 18,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "lYjlq",
+                              "name": "check4Text",
+                              "fill": "$--um-text-dark",
+                              "content": "Centro de monitoreo 24/7 con redundancia",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 16,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "e52GS",
+                          "name": "callout2",
+                          "width": "fill_container",
+                          "fill": "$--um-blue-bg",
+                          "cornerRadius": [
+                            0,
+                            4,
+                            4,
+                            0
+                          ],
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": {
+                              "left": 4
+                            },
+                            "fill": "$--um-blue"
+                          },
+                          "gap": 12,
+                          "padding": [
+                            16,
+                            20
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "o3xnq",
+                              "name": "callout2Icon",
+                              "content": "🛡️",
+                              "fontFamily": "Inter",
+                              "fontSize": 16,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "9LCg6",
+                              "name": "callout2Text",
+                              "fill": "$--um-text-gray",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Instalamos sistemas de seguridad certificados con monitoreo remoto y respuesta ante incidentes en tiempo real.",
+                              "lineHeight": 1.5,
+                              "fontFamily": "$--um-font",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "AVmYv",
+                  "name": "imgSection",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 16,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "2RSJr",
+                      "name": "imgTitle",
+                      "fill": "$--um-text-dark",
+                      "content": "Equipamiento Instalado",
+                      "fontFamily": "$--um-font",
+                      "fontSize": 24,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "BEa3s",
+                      "name": "imgGrid",
+                      "width": "fill_container",
+                      "gap": 16,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "xZBXD",
+                          "name": "img1",
+                          "metadata": {
+                            "type": "unsplash",
+                            "username": "tylergm",
+                            "link": "https://unsplash.com/@tylergm",
+                            "author": "Tyler"
+                          },
+                          "width": "fill_container",
+                          "height": 200,
+                          "fill": {
+                            "type": "image",
+                            "enabled": true,
+                            "url": "https://images.unsplash.com/photo-1680992044138-ce4864c2b962?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NjkxMTIxNjZ8&ixlib=rb-4.1.0&q=80&w=1080",
+                            "mode": "fill"
+                          },
+                          "cornerRadius": 8
+                        },
+                        {
+                          "type": "frame",
+                          "id": "DutEy",
+                          "name": "img2",
+                          "metadata": {
+                            "type": "unsplash",
+                            "username": "jakubzerdzicki",
+                            "link": "https://unsplash.com/@jakubzerdzicki",
+                            "author": "Jakub Żerdzicki"
+                          },
+                          "width": "fill_container",
+                          "height": 200,
+                          "fill": {
+                            "type": "image",
+                            "enabled": true,
+                            "url": "https://images.unsplash.com/photo-1715869428589-366729e7fdcd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NjkxMTIxNjZ8&ixlib=rb-4.1.0&q=80&w=1080",
+                            "mode": "fill"
+                          },
+                          "cornerRadius": 8
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "q818M",
+              "name": "Content Right - Ficha",
+              "width": 380,
+              "layout": "vertical",
+              "gap": 24,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "tcHFw",
+                  "name": "Ficha Tecnica Card",
+                  "width": "fill_container",
+                  "fill": "$--um-white",
+                  "cornerRadius": 8,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$--um-gray-200"
+                  },
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#0000000a",
+                    "offset": {
+                      "x": 0,
+                      "y": 4
+                    },
+                    "blur": 16
+                  },
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "90gzc",
+                      "name": "fichaHeader",
+                      "width": "fill_container",
+                      "fill": "$--um-gray-50",
+                      "cornerRadius": [
+                        8,
+                        8,
+                        0,
+                        0
+                      ],
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": {
+                          "bottom": 1
+                        },
+                        "fill": "$--um-gray-200"
+                      },
+                      "padding": [
+                        16,
+                        20
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "qRhA3",
+                          "name": "fichaHeaderText",
+                          "fill": "$--um-text-dark",
+                          "content": "Ficha Técnica",
+                          "fontFamily": "$--um-font",
+                          "fontSize": 16,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "1jZrx",
+                      "name": "fichaBody",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 16,
+                      "padding": 20,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "UR6nW",
+                          "name": "fichaItem1",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 4,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "FGOBC",
+                              "name": "fichaLabel1",
+                              "fill": "$--um-text-light",
+                              "content": "Cliente",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 12,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "maDba",
+                              "name": "fichaValue1",
+                              "fill": "$--um-text-dark",
+                              "content": "Aeropuertos Argentina 2000",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "uZpsK",
+                          "name": "fichaItem2",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 4,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "DZ7lR",
+                              "name": "fichaLabel2",
+                              "fill": "$--um-text-light",
+                              "content": "Vertical",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 12,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Ngi5i",
+                              "name": "fichaValue2",
+                              "fill": "$--um-text-dark",
+                              "content": "Transporte & Logística",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "2TaLU",
+                          "name": "fichaItem3",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 4,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Cv15N",
+                              "name": "fichaLabel3",
+                              "fill": "$--um-text-light",
+                              "content": "Ubicación",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 12,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "0zezc",
+                              "name": "fichaValue3",
+                              "fill": "$--um-text-dark",
+                              "content": "Mendoza, Argentina",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "UK2MX",
+                          "name": "fichaItem4",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 4,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "cy2QH",
+                              "name": "fichaLabel4",
+                              "fill": "$--um-text-light",
+                              "content": "Fecha",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 12,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "mdEea",
+                              "name": "fichaValue4",
+                              "fill": "$--um-text-dark",
+                              "content": "Octubre 2018",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Tl4Ax",
+                          "name": "fichaItem5",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "494De",
+                              "name": "fichaLabel5",
+                              "fill": "$--um-text-light",
+                              "content": "Servicios",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 12,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "ZwvW0",
+                              "name": "fichaTags",
+                              "width": "fill_container",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "NCBVl",
+                                  "name": "fichaTag1",
+                                  "fill": "$--um-blue-bg",
+                                  "cornerRadius": 4,
+                                  "padding": [
+                                    4,
+                                    10
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "uOEoe",
+                                      "name": "fichaTag1Text",
+                                      "fill": "$--um-blue",
+                                      "content": "Seguridad",
+                                      "fontFamily": "$--um-font",
+                                      "fontSize": 12,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "HiiDm",
+                                  "name": "fichaTag2",
+                                  "fill": "$--um-blue-bg",
+                                  "cornerRadius": 4,
+                                  "padding": [
+                                    4,
+                                    10
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "VDb2f",
+                                      "name": "fichaTag2Text",
+                                      "fill": "$--um-blue",
+                                      "content": "CCTV",
+                                      "fontFamily": "$--um-font",
+                                      "fontSize": 12,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "zE2gp",
+                                  "name": "fichaTag3",
+                                  "fill": "$--um-blue-bg",
+                                  "cornerRadius": 4,
+                                  "padding": [
+                                    4,
+                                    10
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "Y6FCe",
+                                      "name": "fichaTag3Text",
+                                      "fill": "$--um-blue",
+                                      "content": "SDI",
+                                      "fontFamily": "$--um-font",
+                                      "fontSize": 12,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "4a02R",
+                  "name": "Contact Widget Desktop",
+                  "width": "fill_container",
+                  "fill": {
+                    "type": "gradient",
+                    "gradientType": "linear",
+                    "enabled": true,
+                    "rotation": 135,
+                    "size": {
+                      "height": 1
+                    },
+                    "colors": [
+                      {
+                        "color": "#0077B6",
+                        "position": 0
+                      },
+                      {
+                        "color": "#00B4D8",
+                        "position": 1
+                      }
+                    ]
+                  },
+                  "cornerRadius": 8,
+                  "layout": "vertical",
+                  "gap": 16,
+                  "padding": 24,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "2dag0",
+                      "name": "Icon Circle",
+                      "width": 64,
+                      "height": 64,
+                      "fill": "#FFFFFF22",
+                      "cornerRadius": 32,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "yprrY",
+                          "name": "contactDIconInner",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "phone",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "yjfh4",
+                      "name": "contactDTitle",
+                      "fill": "#FFFFFF",
+                      "content": "¿Necesitas asesoría?",
+                      "textAlign": "center",
+                      "fontFamily": "$--um-font",
+                      "fontSize": 18,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "7HHbF",
+                      "name": "contactDDesc",
+                      "fill": "#FFFFFFCC",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Contáctanos para una evaluación gratuita de tu proyecto de redes",
+                      "lineHeight": 1.5,
+                      "textAlign": "center",
+                      "fontFamily": "$--um-font",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "PzyXJ",
+                      "name": "Contact Buttons",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 10,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "hqcJF",
+                          "name": "Btn Llamar",
+                          "width": "fill_container",
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 6,
+                          "gap": 8,
+                          "padding": [
+                            14,
+                            20
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "OHZOQ",
+                              "name": "btnDLlamarIcon",
+                              "width": 18,
+                              "height": 18,
+                              "iconFontName": "phone",
+                              "iconFontFamily": "lucide",
+                              "fill": "$--um-blue"
+                            },
+                            {
+                              "type": "text",
+                              "id": "zHhPH",
+                              "name": "btnDLlamarText",
+                              "fill": "$--um-blue",
+                              "content": "Llamar Ahora",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "t6lKE",
+                          "name": "Btn WhatsApp",
+                          "width": "fill_container",
+                          "fill": "#25D366",
+                          "cornerRadius": 6,
+                          "gap": 8,
+                          "padding": [
+                            14,
+                            20
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "wrwmc",
+                              "name": "btnDWaIcon",
+                              "width": 18,
+                              "height": 18,
+                              "iconFontName": "message-circle",
+                              "iconFontFamily": "lucide",
+                              "fill": "#FFFFFF"
+                            },
+                            {
+                              "type": "text",
+                              "id": "TFoU1",
+                              "name": "btnDWaText",
+                              "fill": "#FFFFFF",
+                              "content": "WhatsApp",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "uGorL",
+          "name": "relatedSection",
+          "width": "fill_container",
+          "fill": "$--um-gray-50",
+          "stroke": {
+            "align": "inside",
+            "thickness": {
+              "top": 1
+            },
+            "fill": "$--um-gray-200"
+          },
+          "layout": "vertical",
+          "gap": 32,
+          "padding": [
+            48,
+            120
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "inuj6",
+              "name": "relatedHeader",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "IxSqX",
+                  "name": "relatedTitle",
+                  "fill": "$--um-text-dark",
+                  "content": "Proyectos Relacionados",
+                  "fontFamily": "$--um-font",
+                  "fontSize": 24,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "frame",
+                  "id": "6nsgn",
+                  "name": "relatedLink",
+                  "gap": 4,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "gPf2B",
+                      "name": "relatedLinkText",
+                      "fill": "$--um-blue",
+                      "content": "Ver detalles",
+                      "fontFamily": "$--um-font",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "lSV1P",
+                      "name": "relatedLinkArrow",
+                      "fill": "$--um-blue",
+                      "content": "→",
+                      "fontFamily": "$--um-font",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "bJA3f",
+              "name": "relatedGrid",
+              "width": "fill_container",
+              "gap": 24,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "LBBvr",
+                  "name": "Related Card 1",
+                  "width": "fill_container",
+                  "fill": "$--um-white",
+                  "cornerRadius": 8,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$--um-gray-200"
+                  },
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#0000000a",
+                    "offset": {
+                      "x": 0,
+                      "y": 2
+                    },
+                    "blur": 8
+                  },
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "F4OJF",
+                      "name": "card1Img",
+                      "metadata": {
+                        "type": "unsplash",
+                        "username": "robert_clark",
+                        "link": "https://unsplash.com/@robert_clark",
+                        "author": "Robert Clark"
+                      },
+                      "width": "fill_container",
+                      "height": 180,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "https://images.unsplash.com/photo-1729258782903-c4b817c71120?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NjkxMTIyMzd8&ixlib=rb-4.1.0&q=80&w=1080",
+                        "mode": "fill"
+                      },
+                      "cornerRadius": [
+                        8,
+                        8,
+                        0,
+                        0
+                      ],
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "zjnCA",
+                          "x": 12,
+                          "y": 12,
+                          "name": "card1Badge",
+                          "fill": "#1f2937",
+                          "cornerRadius": 4,
+                          "padding": [
+                            4,
+                            10
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "9nz9o",
+                              "name": "card1BadgeText",
+                              "fill": "$--um-white",
+                              "content": "Redes",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 11,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "39aAp",
+                      "name": "card1Content",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 20,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Aus9E",
+                          "name": "card1Title",
+                          "fill": "$--um-text-dark",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Infraestructura de Redes | Cableado, Fibra Óptica, Radioenlaces",
+                          "lineHeight": 1.4,
+                          "fontFamily": "$--um-font",
+                          "fontSize": 16,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "PQxTR",
+                          "name": "card1Desc",
+                          "fill": "$--um-text-gray",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Diseño e implementación de infraestructura de redes de datos en Mendoza, San Juan, San Luis y Cuyo.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$--um-font",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "e7O5K",
+                          "name": "card1Link",
+                          "gap": 4,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "0Vomy",
+                              "name": "card1LinkText",
+                              "fill": "$--um-blue",
+                              "content": "Ver detalles",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "DMYYL",
+                              "name": "card1LinkArrow",
+                              "fill": "$--um-blue",
+                              "content": "→",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "5GdF1",
+                  "name": "Related Card 2",
+                  "width": "fill_container",
+                  "fill": "$--um-white",
+                  "cornerRadius": 8,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$--um-gray-200"
+                  },
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#0000000a",
+                    "offset": {
+                      "x": 0,
+                      "y": 2
+                    },
+                    "blur": 8
+                  },
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "pSVqT",
+                      "name": "card2Img",
+                      "metadata": {
+                        "type": "unsplash",
+                        "username": "mak_jp",
+                        "link": "https://unsplash.com/@mak_jp",
+                        "author": "MAK"
+                      },
+                      "width": "fill_container",
+                      "height": 180,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "https://images.unsplash.com/photo-1693054367198-31790c9a24ec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NjkxMTIyMzd8&ixlib=rb-4.1.0&q=80&w=1080",
+                        "mode": "fill"
+                      },
+                      "cornerRadius": [
+                        8,
+                        8,
+                        0,
+                        0
+                      ],
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "71chd",
+                          "x": 12,
+                          "y": 12,
+                          "name": "card2Badge",
+                          "fill": "#1f2937",
+                          "cornerRadius": 4,
+                          "padding": [
+                            4,
+                            10
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "pyD7i",
+                              "name": "card2BadgeText",
+                              "fill": "$--um-white",
+                              "content": "Seguridad",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 11,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "zYatH",
+                      "name": "card2Content",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 20,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "WjHFV",
+                          "name": "card2Title",
+                          "fill": "$--um-text-dark",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Sistemas de Seguridad Electrónica | CCTV, Control Acceso",
+                          "lineHeight": 1.4,
+                          "fontFamily": "$--um-font",
+                          "fontSize": 16,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Wn6p5",
+                          "name": "card2Desc",
+                          "fill": "$--um-text-gray",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Protección inteligente para lo que más importa. Soluciones integrales de seguridad.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$--um-font",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "haNRG",
+                          "name": "card2Link",
+                          "gap": 4,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "lDxIN",
+                              "name": "card2LinkText",
+                              "fill": "$--um-blue",
+                              "content": "Ver detalles",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Fugnc",
+                              "name": "card2LinkArrow",
+                              "fill": "$--um-blue",
+                              "content": "→",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "KMVa5",
+                  "name": "Related Card 3",
+                  "width": "fill_container",
+                  "fill": "$--um-white",
+                  "cornerRadius": 8,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$--um-gray-200"
+                  },
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#0000000a",
+                    "offset": {
+                      "x": 0,
+                      "y": 2
+                    },
+                    "blur": 8
+                  },
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "fAiN1",
+                      "name": "card3Img",
+                      "metadata": {
+                        "type": "unsplash",
+                        "username": "flyvk",
+                        "link": "https://unsplash.com/@flyvk",
+                        "author": "Daniil Onischenko"
+                      },
+                      "width": "fill_container",
+                      "height": 180,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "https://images.unsplash.com/photo-1699619093296-b5f5e20a1e5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NjkxMTIyMzd8&ixlib=rb-4.1.0&q=80&w=1080",
+                        "mode": "fill"
+                      },
+                      "cornerRadius": [
+                        8,
+                        8,
+                        0,
+                        0
+                      ],
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "tV6jf",
+                          "x": 12,
+                          "y": 12,
+                          "name": "card3Badge",
+                          "fill": "#1f2937",
+                          "cornerRadius": 4,
+                          "padding": [
+                            4,
+                            10
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "XEOOd",
+                              "name": "card3BadgeText",
+                              "fill": "$--um-white",
+                              "content": "Telecomunicaciones",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 11,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "OasiW",
+                      "name": "card3Content",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 20,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "5P5yB",
+                          "name": "card3Title",
+                          "fill": "$--um-text-dark",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Telecomunicaciones | Datos, Voz, Video",
+                          "lineHeight": 1.4,
+                          "fontFamily": "$--um-font",
+                          "fontSize": 16,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "QPBky",
+                          "name": "card3Desc",
+                          "fill": "$--um-text-gray",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Diseño e implementación de planes de convergencia para redes de datos, voz y video.",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$--um-font",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "7EB0w",
+                          "name": "card3Link",
+                          "gap": 4,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "7948L",
+                              "name": "card3LinkText",
+                              "fill": "$--um-blue",
+                              "content": "Ver detalles",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "PQybT",
+                              "name": "card3LinkArrow",
+                              "fill": "$--um-blue",
+                              "content": "→",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "i2Ytv",
+      "x": 7300,
+      "y": 3500,
+      "name": "V3 - Hero Full Image - Mobile",
+      "width": 390,
+      "fill": "$--um-white",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "amCsC",
+          "name": "V3 Mobile Hero Full",
+          "metadata": {
+            "type": "unsplash",
+            "username": "carrier_lost",
+            "link": "https://unsplash.com/@carrier_lost",
+            "author": "Ian Taylor"
+          },
+          "clip": true,
+          "width": "fill_container",
+          "height": 420,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "https://images.unsplash.com/photo-1669529459278-df273b6472c1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NjkxMTU3MDR8&ixlib=rb-4.1.0&q=80&w=1080",
+            "mode": "fill"
+          },
+          "layout": "none",
+          "children": [
+            {
+              "type": "frame",
+              "id": "BzQPt",
+              "x": 0,
+              "y": 0,
+              "name": "Overlay",
+              "width": 390,
+              "height": 420,
+              "fill": {
+                "type": "gradient",
+                "gradientType": "linear",
+                "enabled": true,
+                "rotation": 180,
+                "size": {
+                  "height": 1
+                },
+                "colors": [
+                  {
+                    "color": "#000000EE",
+                    "position": 0
+                  },
+                  {
+                    "color": "#00000088",
+                    "position": 0.5
+                  },
+                  {
+                    "color": "#000000BB",
+                    "position": 1
+                  }
+                ]
+              },
+              "layout": "none"
+            },
+            {
+              "type": "frame",
+              "id": "kf9kA",
+              "x": 0,
+              "y": 0,
+              "name": "Hero Content",
+              "width": 390,
+              "height": 420,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": [
+                32,
+                24
+              ],
+              "justifyContent": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "g8coU",
+                  "name": "Breadcrumb",
+                  "gap": 6,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "vajQW",
+                      "name": "bc1",
+                      "fill": "#FFFFFFAA",
+                      "content": "Inicio",
+                      "fontFamily": "$--um-font",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "xVRDi",
+                      "name": "bcSep",
+                      "fill": "#FFFFFF66",
+                      "content": ">",
+                      "fontFamily": "$--um-font",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "tsUK1",
+                      "name": "bc2",
+                      "fill": "#FFFFFFAA",
+                      "content": "Antecedentes",
+                      "fontFamily": "$--um-font",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "onLY8",
+                  "name": "Category",
+                  "gap": 6,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "ellipse",
+                      "id": "ZGieX",
+                      "name": "categoryDot",
+                      "fill": "$--um-blue",
+                      "width": 6,
+                      "height": 6
+                    },
+                    {
+                      "type": "text",
+                      "id": "dYbzp",
+                      "name": "categoryText",
+                      "fill": "$--um-blue",
+                      "content": "REDES",
+                      "fontFamily": "$--um-font",
+                      "fontSize": 11,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "NaJMB",
+                  "name": "Title",
+                  "fill": "#FFFFFF",
+                  "textGrowth": "fixed-width",
+                  "width": 340,
+                  "content": "Implementación de Redes de Datos y Fibra Óptica",
+                  "lineHeight": 1.2,
+                  "fontFamily": "$--um-font",
+                  "fontSize": 24,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "lj970",
+                  "name": "Subtitle",
+                  "fill": "#FFFFFFDD",
+                  "textGrowth": "fixed-width",
+                  "width": 340,
+                  "content": "Cableado estructurado Cat 6/6A/7 y tendido de fibra óptica",
+                  "lineHeight": 1.4,
+                  "fontFamily": "$--um-font",
+                  "fontSize": 14,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "AXKZ3",
+                  "name": "Desc",
+                  "fill": "#FFFFFFAA",
+                  "textGrowth": "fixed-width",
+                  "width": 340,
+                  "content": "3 tendidos nuevos / 4 a recuperar",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$--um-font",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "EvLqd",
+          "name": "mobileContent",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 24,
+          "padding": [
+            24,
+            20
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "d6OdG",
+              "name": "mDesc",
+              "fill": "$--um-text-gray",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Diseño e implementación de infraestructura de redes de datos con cableado estructurado Cat 6/6A/7 y tendido de fibra óptica para empresas en Mendoza y Cuyo.",
+              "lineHeight": 1.6,
+              "fontFamily": "$--um-font",
+              "fontSize": 15,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "lHPll",
+              "name": "mCallout",
+              "width": "fill_container",
+              "fill": "$--um-blue-bg",
+              "cornerRadius": [
+                0,
+                4,
+                4,
+                0
+              ],
+              "stroke": {
+                "align": "inside",
+                "thickness": {
+                  "left": 3
+                },
+                "fill": "$--um-blue"
+              },
+              "gap": 10,
+              "padding": [
+                12,
+                16
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "V3sXO",
+                  "name": "mCalloutIcon",
+                  "content": "🔌",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "zyUer",
+                  "name": "mCalloutText",
+                  "fill": "$--um-text-dark",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "CABLEADO ESTRUCTURADO Y FIBRA ÓPTICA DE ALTA VELOCIDAD",
+                  "fontFamily": "$--um-font",
+                  "fontSize": 11,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "TKAfb",
+              "name": "mCtaBtn",
+              "width": "fill_container",
+              "fill": "$--um-blue",
+              "cornerRadius": 6,
+              "padding": [
+                12,
+                20
+              ],
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "muySi",
+                  "name": "mCtaBtnText",
+                  "fill": "$--um-white",
+                  "content": "Solicitar Cotización",
+                  "fontFamily": "$--um-font",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "vX6ld",
+              "name": "Mobile Ficha",
+              "width": "fill_container",
+              "fill": "$--um-white",
+              "cornerRadius": 8,
+              "stroke": {
+                "align": "inside",
+                "thickness": 1,
+                "fill": "$--um-gray-200"
+              },
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#0000000a",
+                "offset": {
+                  "x": 0,
+                  "y": 2
+                },
+                "blur": 8
+              },
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "cNYut",
+                  "name": "mFichaHeader",
+                  "width": "fill_container",
+                  "fill": "$--um-gray-50",
+                  "cornerRadius": [
+                    8,
+                    8,
+                    0,
+                    0
+                  ],
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": {
+                      "bottom": 1
+                    },
+                    "fill": "$--um-gray-200"
+                  },
+                  "padding": [
+                    12,
+                    16
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Q3tXh",
+                      "name": "mFichaHeaderText",
+                      "fill": "$--um-text-dark",
+                      "content": "Ficha Técnica",
+                      "fontFamily": "$--um-font",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "4apdj",
+                  "name": "mFichaBody",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 16,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "NQost",
+                      "name": "mFichaItem1",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "PzTEx",
+                          "name": "mFichaLabel1",
+                          "fill": "$--um-text-light",
+                          "content": "Cliente",
+                          "fontFamily": "$--um-font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "xsFaS",
+                          "name": "mFichaValue1",
+                          "fill": "$--um-text-dark",
+                          "content": "Aeropuertos Argentina 2000",
+                          "fontFamily": "$--um-font",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "8Rsec",
+                      "name": "mFichaItem2",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ncFE5",
+                          "name": "mFichaLabel2",
+                          "fill": "$--um-text-light",
+                          "content": "Vertical",
+                          "fontFamily": "$--um-font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "TOVV6",
+                          "name": "mFichaValue2",
+                          "fill": "$--um-text-dark",
+                          "content": "Transporte & Logística",
+                          "fontFamily": "$--um-font",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "I6hMu",
+                      "name": "mFichaItem3",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "dW0ED",
+                          "name": "mFichaLabel3",
+                          "fill": "$--um-text-light",
+                          "content": "Fecha",
+                          "fontFamily": "$--um-font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "W26KT",
+                          "name": "mFichaValue3",
+                          "fill": "$--um-text-dark",
+                          "content": "Octubre 2018",
+                          "fontFamily": "$--um-font",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "bOhGs",
+                      "name": "mFichaItem4",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "tX97W",
+                          "name": "mFichaLabel4",
+                          "fill": "$--um-text-light",
+                          "content": "Servicios",
+                          "fontFamily": "$--um-font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "wDEOc",
+                          "name": "mFichaTags",
+                          "width": "fill_container",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "WCq0J",
+                              "name": "mFichaTag1",
+                              "fill": "$--um-blue-bg",
+                              "cornerRadius": 4,
+                              "padding": [
+                                4,
+                                8
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "BCGcQ",
+                                  "name": "mFichaTag1Text",
+                                  "fill": "$--um-blue",
+                                  "content": "Seguridad",
+                                  "fontFamily": "$--um-font",
+                                  "fontSize": 11,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "qib1C",
+                              "name": "mFichaTag2",
+                              "fill": "$--um-blue-bg",
+                              "cornerRadius": 4,
+                              "padding": [
+                                4,
+                                8
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "TGXmU",
+                                  "name": "mFichaTag2Text",
+                                  "fill": "$--um-blue",
+                                  "content": "CCTV",
+                                  "fontFamily": "$--um-font",
+                                  "fontSize": 11,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "yguwe",
+                              "name": "mFichaTag3",
+                              "fill": "$--um-blue-bg",
+                              "cornerRadius": 4,
+                              "padding": [
+                                4,
+                                8
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "JEMT3",
+                                  "name": "mFichaTag3Text",
+                                  "fill": "$--um-blue",
+                                  "content": "SDI",
+                                  "fontFamily": "$--um-font",
+                                  "fontSize": 11,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "X5SUF",
+              "name": "Contact Widget",
+              "width": "fill_container",
+              "fill": {
+                "type": "gradient",
+                "gradientType": "linear",
+                "enabled": true,
+                "rotation": 90,
+                "size": {
+                  "height": 1
+                },
+                "colors": [
+                  {
+                    "color": "#0077B6",
+                    "position": 0
+                  },
+                  {
+                    "color": "#00B4D8",
+                    "position": 1
+                  }
+                ]
+              },
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "2QOxo",
+                  "name": "Icon Circle",
+                  "width": 56,
+                  "height": 56,
+                  "fill": "#FFFFFF22",
+                  "cornerRadius": 28,
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "f1fk6",
+                      "name": "contactIconInner",
+                      "width": 26,
+                      "height": 26,
+                      "iconFontName": "phone",
+                      "iconFontFamily": "lucide",
+                      "fill": "#FFFFFF"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "n3ZVd",
+                  "name": "contactTitle",
+                  "fill": "#FFFFFF",
+                  "content": "¿Necesitas asesoría personalizada?",
+                  "textAlign": "center",
+                  "fontFamily": "$--um-font",
+                  "fontSize": 16,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "eRJo2",
+                  "name": "contactDesc",
+                  "fill": "#FFFFFFCC",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Contáctanos para una evaluación gratuita de tu proyecto",
+                  "lineHeight": 1.4,
+                  "textAlign": "center",
+                  "fontFamily": "$--um-font",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "wisXK",
+                  "name": "Contact Buttons",
+                  "width": "fill_container",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "jRdun",
+                      "name": "Btn Llamar",
+                      "width": "fill_container",
+                      "fill": "#FFFFFF",
+                      "cornerRadius": 6,
+                      "gap": 8,
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "DYLGO",
+                          "name": "btnLlamarIcon",
+                          "width": 16,
+                          "height": 16,
+                          "iconFontName": "phone",
+                          "iconFontFamily": "lucide",
+                          "fill": "$--um-blue"
+                        },
+                        {
+                          "type": "text",
+                          "id": "p1wGO",
+                          "name": "btnLlamarText",
+                          "fill": "$--um-blue",
+                          "content": "Llamar",
+                          "fontFamily": "$--um-font",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "PZrGh",
+                      "name": "Btn WhatsApp",
+                      "width": "fill_container",
+                      "fill": "#25D366",
+                      "cornerRadius": 6,
+                      "gap": 8,
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "tIKDM",
+                          "name": "btnWaIcon",
+                          "width": 16,
+                          "height": 16,
+                          "iconFontName": "message-circle",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF"
+                        },
+                        {
+                          "type": "text",
+                          "id": "STVD1",
+                          "name": "btnWaText",
+                          "fill": "#FFFFFF",
+                          "content": "WhatsApp",
+                          "fontFamily": "$--um-font",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "3M073",
+              "name": "mAlcanceSection",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "r2JJJ",
+                  "name": "mAlcanceTitle",
+                  "fill": "$--um-text-dark",
+                  "content": "Alcance del Proyecto",
+                  "fontFamily": "$--um-font",
+                  "fontSize": 20,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "fZLdz",
+                  "name": "mAlcanceDesc",
+                  "fill": "$--um-text-gray",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Diseño e implementación de sistema de redes de datos con cableado exterior por postes, incluyendo 3 tendidos nuevos y 4 a recuperar con switch 16b (150W) Ubiquiti.",
+                  "lineHeight": 1.6,
+                  "fontFamily": "$--um-font",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "01LNC",
+                  "name": "mCheckList",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "524Lg",
+                      "name": "mCheck1",
+                      "gap": 10,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ARj4n",
+                          "name": "mCheck1Icon",
+                          "fill": "$--um-blue",
+                          "content": "✓",
+                          "fontFamily": "$--um-font",
+                          "fontSize": 16,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "9UTob",
+                          "name": "mCheck1Text",
+                          "fill": "$--um-text-dark",
+                          "content": "Más de 200 cámaras CCTV IP instaladas",
+                          "fontFamily": "$--um-font",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "n9AVv",
+                      "name": "mCheck2",
+                      "gap": 10,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "sx203",
+                          "name": "mCheck2Icon",
+                          "fill": "$--um-blue",
+                          "content": "✓",
+                          "fontFamily": "$--um-font",
+                          "fontSize": 16,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "FPf2w",
+                          "name": "mCheck2Text",
+                          "fill": "$--um-text-dark",
+                          "content": "Control de acceso biométrico en 45 puntos",
+                          "fontFamily": "$--um-font",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "jEyQn",
+                      "name": "mCheck3",
+                      "gap": 10,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "WHUV1",
+                          "name": "mCheck3Icon",
+                          "fill": "$--um-blue",
+                          "content": "✓",
+                          "fontFamily": "$--um-font",
+                          "fontSize": 16,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "wvZqz",
+                          "name": "mCheck3Text",
+                          "fill": "$--um-text-dark",
+                          "content": "Sistema de detección de incendios certificado",
+                          "fontFamily": "$--um-font",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "L2JVr",
+          "name": "mobileRelated",
+          "width": "fill_container",
+          "fill": "$--um-gray-50",
+          "stroke": {
+            "align": "inside",
+            "thickness": {
+              "top": 1
+            },
+            "fill": "$--um-gray-200"
+          },
+          "layout": "vertical",
+          "gap": 20,
+          "padding": [
+            24,
+            20
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "YjjAO",
+              "name": "mRelatedHeader",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "E62hK",
+                  "name": "mRelatedTitle",
+                  "fill": "$--um-text-dark",
+                  "content": "Proyectos Relacionados",
+                  "fontFamily": "$--um-font",
+                  "fontSize": 18,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "JeZno",
+                  "name": "mRelatedLink",
+                  "fill": "$--um-blue",
+                  "content": "Ver todos →",
+                  "fontFamily": "$--um-font",
+                  "fontSize": 13,
+                  "fontWeight": "500"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Od1Yq",
+              "name": "mRelatedGrid",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "fKhPX",
+                  "name": "mCard1",
+                  "width": "fill_container",
+                  "fill": "$--um-white",
+                  "cornerRadius": 8,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$--um-gray-200"
+                  },
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#0000000a",
+                    "offset": {
+                      "x": 0,
+                      "y": 2
+                    },
+                    "blur": 6
+                  },
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "SIFZM",
+                      "name": "mCard1Img",
+                      "metadata": {
+                        "type": "unsplash",
+                        "username": "kierinsightarchives",
+                        "link": "https://unsplash.com/@kierinsightarchives",
+                        "author": "Kier in Sight Archives"
+                      },
+                      "width": 100,
+                      "height": 100,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "https://images.unsplash.com/photo-1761507320645-b11a00bfcc34?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NjkxMTIzMzd8&ixlib=rb-4.1.0&q=80&w=1080",
+                        "mode": "fill"
+                      },
+                      "cornerRadius": [
+                        8,
+                        0,
+                        0,
+                        8
+                      ],
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Xov6s",
+                          "x": 6,
+                          "y": 6,
+                          "name": "mCard1Badge",
+                          "fill": "#1f2937",
+                          "cornerRadius": 3,
+                          "padding": [
+                            2,
+                            6
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "UihG9",
+                              "name": "mCard1BadgeText",
+                              "fill": "$--um-white",
+                              "content": "Redes",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 9,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "WN9T3",
+                      "name": "mCard1Content",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "padding": 12,
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ds2yh",
+                          "name": "mCard1Title",
+                          "fill": "$--um-text-dark",
+                          "content": "Infraestructura de Redes",
+                          "fontFamily": "$--um-font",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "mUTeG",
+                          "name": "mCard1Desc",
+                          "fill": "$--um-text-gray",
+                          "content": "Diseño e implementación de redes de datos.",
+                          "lineHeight": 1.4,
+                          "fontFamily": "$--um-font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Kyc1n",
+                  "name": "mCard2",
+                  "width": "fill_container",
+                  "fill": "$--um-white",
+                  "cornerRadius": 8,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$--um-gray-200"
+                  },
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#0000000a",
+                    "offset": {
+                      "x": 0,
+                      "y": 2
+                    },
+                    "blur": 6
+                  },
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "F7uDr",
+                      "name": "mCard2Img",
+                      "metadata": {
+                        "type": "unsplash",
+                        "username": "matgocman",
+                        "link": "https://unsplash.com/@matgocman",
+                        "author": "Matúš Gocman"
+                      },
+                      "width": 100,
+                      "height": 100,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "https://images.unsplash.com/photo-1755436613258-51103b96c88d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NjkxMTIzMzd8&ixlib=rb-4.1.0&q=80&w=1080",
+                        "mode": "fill"
+                      },
+                      "cornerRadius": [
+                        8,
+                        0,
+                        0,
+                        8
+                      ],
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "dvNLk",
+                          "x": 6,
+                          "y": 6,
+                          "name": "mCard2Badge",
+                          "fill": "#1f2937",
+                          "cornerRadius": 3,
+                          "padding": [
+                            2,
+                            6
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "S2ztg",
+                              "name": "mCard2BadgeText",
+                              "fill": "$--um-white",
+                              "content": "Telecom",
+                              "fontFamily": "$--um-font",
+                              "fontSize": 9,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "iPQKt",
+                      "name": "mCard2Content",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "padding": 12,
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "sHcj9",
+                          "name": "mCard2Title",
+                          "fill": "$--um-text-dark",
+                          "content": "Telecomunicaciones",
+                          "fontFamily": "$--um-font",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "8UGX7",
+                          "name": "mCard2Desc",
+                          "fill": "$--um-text-gray",
+                          "content": "Planes de convergencia datos, voz y video.",
+                          "lineHeight": 1.4,
+                          "fontFamily": "$--um-font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ellipse",
+      "id": "Xva20",
+      "x": 4842,
+      "y": 817,
+      "fill": "#CCCCCC",
+      "width": 1832,
+      "height": 26
+    }
+  ],
+  "themes": {
+    "Mode": [
+      "Light",
+      "Dark"
+    ]
+  },
+  "variables": {
+    "--sidebar": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#E7E8E5"
+        },
+        {
+          "value": "#18181b",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--sidebar-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#666666"
+        },
+        {
+          "value": "#fafafa",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--sidebar-primary": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#18181b"
+        },
+        {
+          "value": "#18181b",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--sidebar-primary-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#fafafa"
+        },
+        {
+          "value": "#fafafa",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--sidebar-border": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#CBCCC9"
+        },
+        {
+          "value": "#ffffff1a",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--sidebar-accent": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#CBCCC9"
+        },
+        {
+          "value": "#2a2a30",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--sidebar-accent-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#18181b"
+        },
+        {
+          "value": "#fafafa",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--sidebar-ring": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#71717a"
+        },
+        {
+          "value": "#71717a",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--background": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#F2F3F0"
+        },
+        {
+          "value": "#111111",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#111111"
+        },
+        {
+          "value": "#FFFFFF",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--card": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#FFFFFF"
+        },
+        {
+          "value": "#1A1A1A",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--card-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#111111"
+        },
+        {
+          "value": "#FFFFFF",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--popover": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#FFFFFF"
+        },
+        {
+          "value": "#1A1A1A",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--popover-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#111111"
+        },
+        {
+          "value": "#FFFFFF",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--primary": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#FF8400"
+        },
+        {
+          "value": "#FF8400",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--primary-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#111111"
+        },
+        {
+          "value": "#111111",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--secondary": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#E7E8E5"
+        },
+        {
+          "value": "#2E2E2E",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--secondary-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#111111"
+        },
+        {
+          "value": "#FFFFFF",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--muted": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#F2F3F0"
+        },
+        {
+          "value": "#2E2E2E",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--muted-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#666666"
+        },
+        {
+          "value": "#B8B9B6",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--accent": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#F2F3F0"
+        },
+        {
+          "value": "#111111",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--accent-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#111111"
+        },
+        {
+          "value": "#F2F3F0",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--destructive": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#D93C15"
+        },
+        {
+          "value": "#FF5C33",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--border": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#CBCCC9"
+        },
+        {
+          "value": "#2E2E2E",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--input": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#CBCCC9"
+        },
+        {
+          "value": "#2E2E2E",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--ring": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#666666"
+        },
+        {
+          "value": "#666666",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--white": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "--black": {
+      "type": "color",
+      "value": "#000000"
+    },
+    "--font-primary": {
+      "type": "string",
+      "value": "JetBrains Mono"
+    },
+    "--font-secondary": {
+      "type": "string",
+      "value": "Geist"
+    },
+    "--radius-none": {
+      "type": "number",
+      "value": 0
+    },
+    "--radius-pill": {
+      "type": "number",
+      "value": 999
+    },
+    "--color-success": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#DFE6E1"
+        },
+        {
+          "value": "#222924",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--color-success-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#004D1A"
+        },
+        {
+          "value": "#B6FFCE",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--color-warning": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#E9E3D8"
+        },
+        {
+          "value": "#291C0F",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--color-warning-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#804200"
+        },
+        {
+          "value": "#FF8400",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--color-error": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#E5DCDA"
+        },
+        {
+          "value": "#24100B",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--color-error-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#8C1C00"
+        },
+        {
+          "value": "#FF5C33",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--color-info": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#DFDFE6"
+        },
+        {
+          "value": "#222229",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--color-info-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#000066"
+        },
+        {
+          "value": "#B2B2FF",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "--radius-m": {
+      "type": "number",
+      "value": 16
+    },
+    "--um-cyan": {
+      "type": "color",
+      "value": "#06b6d4"
+    },
+    "--um-dark": {
+      "type": "color",
+      "value": "#1a1a2e"
+    },
+    "--um-darker": {
+      "type": "color",
+      "value": "#0f0f1a"
+    },
+    "--um-font-mono": {
+      "type": "string",
+      "value": "JetBrains Mono"
+    },
+    "--um-font-sans": {
+      "type": "string",
+      "value": "Inter"
+    },
+    "--um-gray-border": {
+      "type": "color",
+      "value": "#e5e7eb"
+    },
+    "--um-gray-light": {
+      "type": "color",
+      "value": "#f3f4f6"
+    },
+    "--um-primary": {
+      "type": "color",
+      "value": "#007bff"
+    },
+    "--um-red": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#dc2626"
+        },
+        {
+          "value": "#dc2626"
+        }
+      ]
+    },
+    "--um-terminal-green": {
+      "type": "color",
+      "value": "#00cc00"
+    },
+    "--um-text": {
+      "type": "color",
+      "value": "#333333"
+    },
+    "--um-text-light": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#666666"
+        },
+        {
+          "value": "#9ca3af"
+        }
+      ]
+    },
+    "--um-white": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#ffffff"
+        },
+        {
+          "value": "#ffffff"
+        }
+      ]
+    },
+    "--um-blue": {
+      "type": "color",
+      "value": "#1e40af"
+    },
+    "--um-blue-bg": {
+      "type": "color",
+      "value": "#eff6ff"
+    },
+    "--um-blue-light": {
+      "type": "color",
+      "value": "#3b82f6"
+    },
+    "--um-font": {
+      "type": "string",
+      "value": "Inter"
+    },
+    "--um-gray-100": {
+      "type": "color",
+      "value": "#f3f4f6"
+    },
+    "--um-gray-200": {
+      "type": "color",
+      "value": "#e5e7eb"
+    },
+    "--um-gray-300": {
+      "type": "color",
+      "value": "#d1d5db"
+    },
+    "--um-gray-50": {
+      "type": "color",
+      "value": "#f9fafb"
+    },
+    "--um-text-dark": {
+      "type": "color",
+      "value": "#1f2937"
+    },
+    "--um-text-gray": {
+      "type": "color",
+      "value": "#6b7280"
+    }
+  }
+}

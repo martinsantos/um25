@@ -1,0 +1,741 @@
+---
+// cli-demo.astro - Página de demostración standalone del UM CLI
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="UM CLI - Terminal Interactivo | ULTIMA MILLA">
+  <div class="cli-demo-page">
+    <!-- Header -->
+    <header class="demo-header">
+      <div class="container">
+        <div class="header-content">
+          <div class="logo-section">
+            <h1>
+              <span class="logo-icon">⚡</span>
+              ULTIMA MILLA CLI
+            </h1>
+            <p>Terminal interactivo con 22 años de datos empresariales</p>
+          </div>
+          
+          <div class="demo-controls">
+            <button id="fullscreen-btn" class="control-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+              </svg>
+              Pantalla completa
+            </button>
+            
+            <button id="reset-btn" class="control-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+              </svg>
+              Reiniciar
+            </button>
+
+            <button id="embed-btn" class="control-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0L19.2 12l-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
+              </svg>
+              Código embed
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Terminal principal -->
+    <main class="demo-main">
+      <div class="container">
+        <div class="terminal-wrapper">
+          <div id="um-cli-container"></div>
+        </div>
+        
+        <!-- Panel de información -->
+        <div class="info-panel">
+          <div class="info-cards">
+            <div class="info-card">
+              <h3>🚀 Comandos destacados</h3>
+              <ul>
+                <li><code>sudo ultimamilla.py --demo</code> - Demo completa</li>
+                <li><code>ls servicios</code> - Nuestros servicios</li>
+                <li><code>grep "empresa"</code> - Buscar en proyectos</li>
+                <li><code>stats --all</code> - Estadísticas generales</li>
+                <li><code>top --clientes</code> - Principales clientes</li>
+              </ul>
+            </div>
+            
+            <div class="info-card">
+              <h3>⌨️ Atajos de teclado</h3>
+              <ul>
+                <li><kbd>TAB</kbd> - Autocompletar comando</li>
+                <li><kbd>↑</kbd><kbd>↓</kbd> - Navegar historial</li>
+                <li><kbd>Ctrl+L</kbd> - Limpiar pantalla</li>
+                <li><kbd>Ctrl+C</kbd> - Cancelar comando</li>
+                <li><kbd>F11</kbd> - Pantalla completa</li>
+              </ul>
+            </div>
+            
+            <div class="info-card">
+              <h3>📊 Datos reales</h3>
+              <ul>
+                <li>22 años de historia empresarial</li>
+                <li>+150 proyectos documentados</li>
+                <li>+50 clientes registrados</li>
+                <li>6 áreas de servicios principales</li>
+                <li>Datos actualizados en tiempo real</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="demo-footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-info">
+            <p>© 2003-2024 ULTIMA MILLA - Conectando el futuro desde hace 22 años</p>
+            <p>Terminal interactivo desarrollado con React y datos empresariales reales</p>
+          </div>
+          
+          <div class="footer-links">
+            <a href="mailto:info@ultimamilla.com">✉️ Contacto</a>
+            <a href="tel:+542614000000">📞 Llamar</a>
+            <a href="https://www.ultimamilla.com" target="_blank">🌐 Web oficial</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Modal para código embed -->
+  <div id="embed-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🔗 Código de inserción (iframe)</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <p>Copia este código para insertar el UM CLI en tu sitio web:</p>
+        
+        <div class="code-container">
+          <pre id="embed-code"><code>&lt;iframe src="https://ultimamilla.com/cli-demo?embed=true" 
+        width="100%" 
+        height="600" 
+        frameborder="0"
+        title="ULTIMA MILLA CLI"&gt;
+&lt;/iframe&gt;</code></pre>
+          <button id="copy-embed-btn" class="copy-btn">📋 Copiar</button>
+        </div>
+        
+        <div class="embed-options">
+          <h4>Personalización:</h4>
+          <label>
+            <input type="checkbox" id="embed-fullscreen"> Permitir pantalla completa
+          </label>
+          <label>
+            <input type="checkbox" id="embed-minimal"> Modo minimalista
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  /* Reset y variables */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  :root {
+    --primary: #00d4aa;
+    --secondary: #79c0ff;
+    --bg-dark: #0f1419;
+    --bg-darker: #0a0d11;
+    --text-light: #e6edf3;
+    --text-muted: #8b949e;
+    --border: #30363d;
+    --border-active: var(--primary);
+  }
+
+  .cli-demo-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+    color: var(--text-light);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* Header */
+  .demo-header {
+    background: rgba(15, 20, 25, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    gap: 20px;
+  }
+
+  .logo-section h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+
+  .logo-icon {
+    font-size: 2rem;
+    filter: drop-shadow(0 0 10px var(--primary));
+  }
+
+  .logo-section p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .demo-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .control-btn {
+    background: rgba(33, 38, 45, 0.8);
+    border: 1px solid var(--border);
+    color: var(--text-light);
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .control-btn:hover {
+    background: rgba(33, 38, 45, 1);
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(0, 212, 170, 0.2);
+  }
+
+  /* Main content */
+  .demo-main {
+    padding: 40px 0 80px;
+  }
+
+  .terminal-wrapper {
+    background: rgba(21, 26, 33, 0.8);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 40px;
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Info panel */
+  .info-panel {
+    margin-top: 40px;
+  }
+
+  .info-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+  }
+
+  .info-card {
+    background: rgba(33, 38, 45, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    transition: all 0.3s ease;
+  }
+
+  .info-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 16px rgba(0, 212, 170, 0.1);
+  }
+
+  .info-card h3 {
+    color: var(--primary);
+    margin-bottom: 16px;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .info-card ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .info-card li {
+    padding: 6px 0;
+    color: var(--text-muted);
+    border-bottom: 1px solid rgba(48, 54, 61, 0.5);
+  }
+
+  .info-card li:last-child {
+    border-bottom: none;
+  }
+
+  .info-card code {
+    background: rgba(110, 118, 129, 0.15);
+    color: var(--secondary);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+  }
+
+  .info-card kbd {
+    background: rgba(110, 118, 129, 0.2);
+    color: var(--text-light);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Footer */
+  .demo-footer {
+    background: rgba(10, 13, 17, 0.9);
+    border-top: 1px solid var(--border);
+    padding: 30px 0;
+  }
+
+  .footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .footer-info p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 20px;
+  }
+
+  .footer-links a {
+    color: var(--text-light);
+    text-decoration: none;
+    transition: color 0.3s ease;
+    font-size: 0.9rem;
+  }
+
+  .footer-links a:hover {
+    color: var(--primary);
+  }
+
+  /* Modal */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+  }
+
+  .modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-content {
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .modal-header h3 {
+    color: var(--primary);
+    margin: 0;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-close:hover {
+    color: var(--text-light);
+  }
+
+  .modal-body {
+    padding: 24px;
+  }
+
+  .code-container {
+    position: relative;
+    margin: 20px 0;
+  }
+
+  .code-container pre {
+    background: var(--bg-darker);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+
+  .copy-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: opacity 0.3s ease;
+  }
+
+  .copy-btn:hover {
+    opacity: 0.8;
+  }
+
+  .embed-options {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .embed-options h4 {
+    color: var(--text-light);
+    margin-bottom: 12px;
+  }
+
+  .embed-options label {
+    display: block;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+
+  .embed-options input[type="checkbox"] {
+    margin-right: 8px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .header-content {
+      flex-direction: column;
+      text-align: center;
+      gap: 16px;
+    }
+
+    .demo-controls {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .info-cards {
+      grid-template-columns: 1fr;
+    }
+
+    .footer-content {
+      flex-direction: column;
+      text-align: center;
+      gap: 16px;
+    }
+
+    .footer-links {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
+
+  /* Animaciones */
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .terminal-wrapper,
+  .info-card {
+    animation: slideInUp 0.6s ease-out backwards;
+  }
+
+  .info-card:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .info-card:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+</style>
+
+<script>
+  // Importar el plugin UM CLI
+// Verificar que el UMCliPlugin esté disponible globalmente
+    if (typeof UMCliPlugin !== 'undefined') {
+      const umCliPlugin = UMCliPlugin;
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      // Configuración según parámetros URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const isEmbed = urlParams.get('embed') === 'true';
+      const isMinimal = urlParams.get('minimal') === 'true';
+      
+      // Ocultar header y footer si es embed
+      if (isEmbed) {
+        document.querySelector('.demo-header').style.display = 'none';
+        document.querySelector('.demo-footer').style.display = 'none';
+        document.querySelector('.info-panel').style.display = isMinimal ? 'none' : 'block';
+        document.body.style.margin = '0';
+        document.body.style.padding = '20px';
+      }
+
+      // Crear instancia del CLI
+      const umCli = new UMCliPlugin({
+        container: '#um-cli-container',
+        theme: 'dark',
+        showWelcome: !isEmbed, // No mostrar bienvenida en embed
+        autoFocus: true,
+        fullscreen: !isEmbed, // No fullscreen en embed
+        customCommands: {
+          'demo': async () => ({
+            success: true,
+            output: `
+🎯 BIENVENIDO A LA DEMO DE UM CLI
+
+Esta es una demostración interactiva del terminal de ULTIMA MILLA.
+Explora nuestros 22 años de historia empresarial a través de comandos Linux.
+
+🚀 COMANDOS RECOMENDADOS:
+• help - Lista completa de comandos
+• ls servicios - Ver nuestros servicios  
+• grep "Quilmes" - Buscar proyectos de Quilmes
+• stats --all - Estadísticas generales
+• top --clientes - Principales clientes
+• sudo ultimamilla.py --demo - Demo completa
+
+¡Comienza escribiendo cualquier comando!
+            `
+          }),
+
+          'embed-info': async () => ({
+            success: true,
+            output: `
+🔗 INFORMACIÓN DE EMBEDDING
+
+Para insertar este terminal en tu sitio web:
+
+1. Usa el iframe proporcionado en el botón "Código embed"
+2. Personaliza el tamaño y opciones según tus necesidades
+3. El terminal funciona completamente independiente
+
+📋 PARÁMETROS URL DISPONIBLES:
+• ?embed=true - Modo embedding (sin header/footer)
+• ?minimal=true - Modo minimalista (solo terminal)
+• ?theme=light - Tema claro (por defecto: dark)
+• ?autorun=comando - Ejecutar comando al cargar
+
+💻 COMPATIBLE CON:
+• WordPress, Drupal, Joomla
+• React, Vue, Angular
+• HTML estático
+• Cualquier CMS moderno
+            `
+          })
+        }
+      });
+
+      // Controles del demo
+      const fullscreenBtn = document.getElementById('fullscreen-btn');
+      const resetBtn = document.getElementById('reset-btn');
+      const embedBtn = document.getElementById('embed-btn');
+      const embedModal = document.getElementById('embed-modal');
+      const modalClose = document.querySelector('.modal-close');
+      const copyEmbedBtn = document.getElementById('copy-embed-btn');
+
+      // Fullscreen toggle
+      if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', () => {
+          umCli.toggleFullscreen();
+        });
+      }
+
+      // Reset terminal
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+          umCli.clear();
+          setTimeout(() => {
+            umCli.executeCommandProgrammatically('demo');
+          }, 500);
+        });
+      }
+
+      // Show embed modal
+      if (embedBtn) {
+        embedBtn.addEventListener('click', () => {
+          embedModal.classList.add('show');
+          updateEmbedCode();
+        });
+      }
+
+      // Close modal
+      if (modalClose) {
+        modalClose.addEventListener('click', () => {
+          embedModal.classList.remove('show');
+        });
+      }
+
+      // Close modal on backdrop click
+      embedModal?.addEventListener('click', (e) => {
+        if (e.target === embedModal) {
+          embedModal.classList.remove('show');
+        }
+      });
+
+      // Copy embed code
+      if (copyEmbedBtn) {
+        copyEmbedBtn.addEventListener('click', async () => {
+          const embedCode = document.getElementById('embed-code');
+          try {
+            await navigator.clipboard.writeText(embedCode.textContent);
+            copyEmbedBtn.textContent = '✅ Copiado!';
+            setTimeout(() => {
+              copyEmbedBtn.textContent = '📋 Copiar';
+            }, 2000);
+          } catch (err) {
+            console.error('Error copiando código:', err);
+            // Fallback para navegadores sin clipboard API
+            embedCode.select();
+            document.execCommand('copy');
+            copyEmbedBtn.textContent = '✅ Copiado!';
+            setTimeout(() => {
+              copyEmbedBtn.textContent = '📋 Copiar';
+            }, 2000);
+          }
+        });
+      }
+
+      // Update embed code based on options
+      function updateEmbedCode() {
+        const fullscreenOption = document.getElementById('embed-fullscreen')?.checked;
+        const minimalOption = document.getElementById('embed-minimal')?.checked;
+        
+        let url = `${window.location.origin}/cli-demo?embed=true`;
+        if (minimalOption) url += '&minimal=true';
+        
+        const allowfullscreen = fullscreenOption ? ' allowfullscreen' : '';
+        
+        const embedCode = `<iframe src="${url}" 
+        width="100%" 
+        height="600" 
+        frameborder="0"
+        title="ULTIMA MILLA CLI"${allowfullscreen}>
+</iframe>`;
+
+        document.getElementById('embed-code').textContent = embedCode;
+      }
+
+      // Update embed code when options change
+      document.getElementById('embed-fullscreen')?.addEventListener('change', updateEmbedCode);
+      document.getElementById('embed-minimal')?.addEventListener('change', updateEmbedCode);
+
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'F11') {
+          e.preventDefault();
+          umCli.toggleFullscreen();
+        }
+      });
+
+      // Auto-run command from URL parameter
+      const autoRun = urlParams.get('autorun');
+      if (autoRun && !isEmbed) {
+        setTimeout(() => {
+          umCli.executeCommandProgrammatically(autoRun);
+        }, 1500);
+      } else if (!isEmbed) {
+        // Mostrar demo por defecto
+        setTimeout(() => {
+          umCli.executeCommandProgrammatically('demo');
+        }, 1000);
+      }
+
+      // Analytics events
+      umCli.on('commandExecuted', (event) => {
+        if (typeof gtag !== 'undefined') {
+          gtag('event', 'cli_demo_command', {
+            'command': event.detail.command.raw || 'unknown',
+            'success': event.detail.command.success,
+            'embed_mode': isEmbed
+          });
+        }
+      });
+    });
+  } else {
+    console.warn('UMCliPlugin no está disponible');
+  }
+</script>
+</Layout>

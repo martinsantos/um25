@@ -1,0 +1,201 @@
+{
+  "collection": "productos",
+  "meta": {
+    "collection": "productos",
+    "icon": "inventory_2",
+    "note": "Productos de servicios - Migrado desde fallback JS",
+    "display_template": "{{titulo}} (Servicio {{servicio_id}})",
+    "hidden": false,
+    "singleton": false,
+    "translations": null,
+    "archive_field": null,
+    "archive_value": null,
+    "unarchive_value": null,
+    "archive_app_filter": true,
+    "sort_field": "orden"
+  },
+  "schema": {
+    "name": "productos"
+  },
+  "fields": [
+    {
+      "field": "id",
+      "type": "integer",
+      "meta": {
+        "hidden": true,
+        "interface": "input",
+        "readonly": true
+      },
+      "schema": {
+        "is_primary_key": true,
+        "has_auto_increment": true,
+        "is_nullable": false
+      }
+    },
+    {
+      "field": "servicio_id",
+      "type": "integer",
+      "meta": {
+        "interface": "select-dropdown-m2o",
+        "display": "related-values",
+        "display_options": {
+          "template": "{{id}} - {{Titulo}}"
+        },
+        "options": {
+          "template": "{{id}} - {{Titulo}}"
+        },
+        "special": [
+          "m2o"
+        ],
+        "required": true,
+        "note": "Relación con tabla Servicios"
+      },
+      "schema": {
+        "is_nullable": false,
+        "foreign_key_table": "Servicios",
+        "foreign_key_column": "id"
+      }
+    },
+    {
+      "field": "titulo",
+      "type": "string",
+      "meta": {
+        "interface": "input",
+        "width": "full",
+        "required": true,
+        "note": "Nombre del producto"
+      },
+      "schema": {
+        "max_length": 255,
+        "is_nullable": false
+      }
+    },
+    {
+      "field": "descripcion",
+      "type": "text",
+      "meta": {
+        "interface": "input-multiline",
+        "width": "full",
+        "note": "Descripción del producto"
+      },
+      "schema": {
+        "is_nullable": true
+      }
+    },
+    {
+      "field": "imagen",
+      "type": "uuid",
+      "meta": {
+        "interface": "file-image",
+        "special": [
+          "file"
+        ],
+        "width": "half",
+        "note": "Imagen del producto (Directus asset)"
+      },
+      "schema": {
+        "is_nullable": true,
+        "foreign_key_table": "directus_files",
+        "foreign_key_column": "id"
+      }
+    },
+    {
+      "field": "features",
+      "type": "json",
+      "meta": {
+        "interface": "list",
+        "width": "full",
+        "note": "Lista de características (array de strings)"
+      },
+      "schema": {
+        "is_nullable": true
+      }
+    },
+    {
+      "field": "destacado",
+      "type": "text",
+      "meta": {
+        "interface": "input-multiline",
+        "width": "full",
+        "note": "Texto destacado del producto"
+      },
+      "schema": {
+        "is_nullable": true
+      }
+    },
+    {
+      "field": "orden",
+      "type": "integer",
+      "meta": {
+        "interface": "input",
+        "width": "half",
+        "note": "Orden de visualización del producto"
+      },
+      "schema": {
+        "is_nullable": true,
+        "default_value": 0
+      }
+    },
+    {
+      "field": "status",
+      "type": "string",
+      "meta": {
+        "interface": "select-dropdown",
+        "width": "half",
+        "options": {
+          "choices": [
+            {
+              "text": "Publicado",
+              "value": "published"
+            },
+            {
+              "text": "Borrador",
+              "value": "draft"
+            },
+            {
+              "text": "Archivado",
+              "value": "archived"
+            }
+          ]
+        }
+      },
+      "schema": {
+        "default_value": "published",
+        "max_length": 255,
+        "is_nullable": false
+      }
+    },
+    {
+      "field": "date_created",
+      "type": "timestamp",
+      "meta": {
+        "special": [
+          "date-created"
+        ],
+        "interface": "datetime",
+        "readonly": true,
+        "hidden": true,
+        "width": "half"
+      },
+      "schema": {
+        "is_nullable": true
+      }
+    },
+    {
+      "field": "date_updated",
+      "type": "timestamp",
+      "meta": {
+        "special": [
+          "date-updated"
+        ],
+        "interface": "datetime",
+        "readonly": true,
+        "hidden": true,
+        "width": "half"
+      },
+      "schema": {
+        "is_nullable": true
+      }
+    }
+  ]
+}
