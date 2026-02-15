@@ -24,10 +24,17 @@ jobs:
           npm ci
           npm run build
 
+      - name: Prepare Production Dependencies
+        run: |
+          npm ci --production
+
       - name: Package Site
         run: |
-          cd dist
-          tar czf /tmp/ultimamilla-deploy.tar.gz .
+          tar czf /tmp/ultimamilla-deploy.tar.gz \
+            dist/ \
+            node_modules/ \
+            package.json \
+            package-lock.json
 
       - name: Setup SSH Key
         run: |
