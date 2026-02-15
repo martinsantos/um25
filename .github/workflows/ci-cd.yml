@@ -2,7 +2,7 @@ name: 🚀 CI/CD Pipeline - ULTiMA MILLA
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ develop ]  # Disabled on main - use deploy-production.yml instead
     tags: [ 'v*' ]
   pull_request:
     branches: [ main ]
