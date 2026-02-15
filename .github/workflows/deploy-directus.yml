@@ -1,0 +1,63 @@
+name: Deploy Directus CMS to Production
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'directus-admin/**'
+      - '.github/workflows/deploy-directus.yml'
+
+env:
+  DRY_RUN: true  # Cambiar a 'false' cuando se apruebe
+
+jobs:
+  deploy-directus:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Package Directus Configuration
+        run: |
+          cd directus-admin
+          tar czf /tmp/directus-config.tar.gz \
+            docker-compose.yml \
+            extensions/ \
+            .env.example
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY_BASE64 }}" | base64 -d > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Upload to VPS
+        run: |
+          scp -i ~/.ssh/deploy_key /tmp/directus-config.tar.gz root@${{ secrets.VPS_HOST }}:/tmp/
+
+      - name: Deploy Directus
+        env:
+          DRY_RUN_MODE: ${{ env.DRY_RUN }}
+        run: |
+          ssh -i ~/.ssh/deploy_key root@${{ secrets.VPS_HOST }} << 'ENDSSH'
+            export DRY_RUN="${DRY_RUN_MODE}"
+            bash /opt/scripts-cicd/deploy_directus.sh
+          ENDSSH
+
+      - name: Health Check
+        if: env.DRY_RUN == 'false'
+        run: |
+          ssh -i ~/.ssh/deploy_key root@${{ secrets.VPS_HOST }} << 'ENDSSH'
+            # Wait for Directus to start
+            sleep 10
+
+            # Check health
+            if curl -f http://localhost:8055/server/health > /dev/null 2>&1; then
+              echo "✅ Directus is healthy"
+              exit 0
+            else
+              echo "❌ Directus health check failed"
+              docker logs directus-admin-directus-app-1 --tail 50
+              exit 1
+            fi
+          ENDSSH
