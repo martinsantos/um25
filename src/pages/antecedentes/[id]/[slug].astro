@@ -1,12 +1,4 @@
 ---
-<<<<<<< HEAD
-import Layout from '../../../layouts/Layout.astro';
-import { generateSlug } from '../../../utils/slugUtils.js';
-import { getFixedImage } from '../../../utils/imageFixer.js';
-
-// --- Configuración ---
-const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://ultimamilla.com.ar/admin';
-=======
 /**
  * Antecedente Detail Page - V4 Design System
  * Case study/project detail with enhanced design matching V4 template
@@ -23,49 +15,18 @@ import { getDirectusImageUrl } from '../../../lib/directus.ts';
 // --- Configuration ---
 const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://ultimamilla.com.ar/admin';
 const PROD_URL = 'https://ultimamilla.com.ar';
->>>>>>> origin/master
 const DEFAULT_IMAGE_URL = `/images/default-background.jpg`;
 const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
 
 export const prerender = false;
 
-<<<<<<< HEAD
-// Parámetros de URL
-=======
 // URL params
->>>>>>> origin/master
 const { id, slug: slugFromUrl } = Astro.params;
 
 if (!id || !slugFromUrl) {
     return Astro.redirect('/404');
 }
 
-<<<<<<< HEAD
-// --- Estado ---
-let antecedente = null;
-let usingFallback = false;
-
-// --- Funciones Auxiliares ---
-const getAssetUrl = (assetId) => {
-    if (!assetId) return DEFAULT_IMAGE_URL;
-    if (typeof assetId === 'object') {
-        if (assetId.id) return `${DIRECTUS_URL}/assets/${assetId.id}?width=1200&quality=80`;
-        if (assetId.directus_files_id) return `${DIRECTUS_URL}/assets/${assetId.directus_files_id}?width=1200&quality=80`;
-        if (assetId.filename_disk) return `${DIRECTUS_URL}/assets/${assetId.filename_disk}?width=1200&quality=80`;
-    }
-    if (typeof assetId === 'string') {
-        if (assetId.startsWith('http')) return assetId;
-        if (assetId.match(/^[a-f0-9-]{36}$/)) return `${DIRECTUS_URL}/assets/${assetId}?width=1200&quality=80`;
-        let filename = assetId.startsWith('/') ? assetId.substring(1) : assetId;
-        filename = getFixedImage(filename);
-        return `/imagenes_antecedentes_versionproduccion/${filename}`;
-    }
-    return DEFAULT_IMAGE_URL;
-};
-
-// --- Fetch de Datos ---
-async function fetchAntecedenteById(itemId) {
-=======
 // --- State ---
 let antecedente: any = null;
 let usingFallback = false;
@@ -92,7 +53,6 @@ const getAssetUrl = (assetId: any): string => {
 
 // --- Fetch Data ---
 async function fetchAntecedenteById(itemId: string) {
->>>>>>> origin/master
     try {
         const response = await fetch(`${DIRECTUS_URL}/items/Antecedentes/${itemId}?fields=*,Imagen.*,ImagenPrincipal.*,Imagenes.*,Imagenes.directus_files_id`, {
             headers: {
@@ -109,11 +69,7 @@ async function fetchAntecedenteById(itemId: string) {
     }
 }
 
-<<<<<<< HEAD
-// --- Obtención de datos y validación ---
-=======
 // --- Get data and validate ---
->>>>>>> origin/master
 try {
     if (DIRECTUS_STATIC_TOKEN) {
         antecedente = await fetchAntecedenteById(id);
@@ -129,15 +85,10 @@ try {
 } catch (error) {
     usingFallback = true;
     try {
-<<<<<<< HEAD
-        const { antecedentesReales } = await import('../../../data/antecedentes_completos.js');
-        antecedente = antecedentesReales.find(item => item.id.toString() === id);
-=======
         // Fallback: buscar en snapshot completo (518 antecedentes)
         const snapshot = await import('../../../data/snapshots/antecedentes.json');
         const allAntecedentes = (snapshot.data || snapshot.default?.data || []) as any[];
         antecedente = allAntecedentes.find((item: any) => item.id?.toString() === id);
->>>>>>> origin/master
         if (antecedente) {
             const expectedSlug = generateSlug(antecedente.Titulo);
             if (expectedSlug !== slugFromUrl) {
@@ -153,46 +104,6 @@ try {
 
 if (!antecedente) return Astro.redirect('/404');
 
-<<<<<<< HEAD
-// --- Preparación de datos para la UI ---
-const getMainImageUrl = async () => {
-    try {
-        const { buscarImagenPorDatos } = await import('../../../data/mapeo_imagenes_completo.js');
-        const nombreArchivo = buscarImagenPorDatos(antecedente.Cliente, antecedente.Area, antecedente.Titulo, id);
-        if (nombreArchivo) return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
-    } catch (e) {}
-    
-    const imagenesConocidas = {
-        '11125': 'ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png',
-        '10770': 'ultimamilla_telecombtw_sa_-_redes_y_comunicaciones_20250415_201308_s4071923973.png',
-        '1': 'ultimamilla_municipalidad_de_maipú_-_software_servicios_20250415_182056_s1379068004.png',
-        '2': 'ultimamilla_municipalidad_de_guaymallén_-_redes_y_comunicaciones_redes_y_20250415_182333_s1075915836.png',
-        '3': 'ultimamilla_patrulleros_inteligentes_-_redes_y_comunicaciones_20250415_182524_s1196678540.png'
-    };
-    if (imagenesConocidas[id]) return `/imagenes_antecedentes_versionproduccion/${imagenesConocidas[id]}`;
-    
-    if (!usingFallback && (antecedente.Imagen || antecedente.ImagenPrincipal)) {
-        return getAssetUrl(antecedente.Imagen || antecedente.ImagenPrincipal);
-    }
-    return DEFAULT_IMAGE_URL;
-};
-
-const mainImageUrl = await getMainImageUrl();
-
-const formatDate = (dateString) => {
-    if (!dateString) return 'No especificada';
-    try {
-        return new Date(dateString).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
-    } catch { return dateString; }
-};
-
-const formatCurrency = (amount) => {
-    if (!amount) return 'No especificado';
-    return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
-};
-
-const siteUrl = 'https://ultimamilla.com.ar';
-=======
 // --- Prepare data for UI (Directus-first) ---
 const mainImageUrl = getAssetUrl(antecedente.Imagen || antecedente.ImagenPrincipal);
 
@@ -311,218 +222,16 @@ const relatedServices = await getRelatedServices(id, antecedente.Area || '');
 
 // SEO
 const siteUrl = 'https://www.ultimamilla.com.ar';
->>>>>>> origin/master
 const canonicalUrl = `${siteUrl}/antecedentes/${id}/${slugFromUrl}`;
 const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').substring(0, 160) + '...';
 ---
 
-<<<<<<< HEAD
-<Layout
-  title={`${antecedente.Titulo} | Caso de Éxito - Ultima Milla`}
-=======
 <LayoutV4
   title={`${antecedente.Titulo} | Caso de Éxito - ULTIMA MILLA`}
->>>>>>> origin/master
   description={metaDescription}
   image={mainImageUrl}
   canonical={canonicalUrl}
 >
-<<<<<<< HEAD
-  <main class="min-h-screen bg-white">
-    <!-- Hero Section V3 (Immersive, Full-Screen) -->
-    <section class="relative h-[70vh] md:h-[85vh] flex items-end md:items-center overflow-hidden bg-slate-900">
-      <!-- Background Image -->
-      <div class="absolute inset-0 z-0">
-        <img
-          src={mainImageUrl}
-          alt={antecedente.Titulo}
-          class="w-full h-full object-cover"
-          onerror="this.src='/images/default-background.jpg'"
-        />
-      </div>
-      
-      <!-- Gradient Overlay (Dark, Dramatic) -->
-      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30 z-10"></div>
-
-      <!-- Content -->
-      <div class="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-24">
-        <div class="max-w-4xl animate-fade-in-up">
-          <!-- Breadcrumb / Badge -->
-          <div class="flex items-center space-x-4 mb-6 text-sm font-medium text-white/80">
-            <a href="/antecedentes" class="hover:text-white transition-colors flex items-center">
-              <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-              Volver
-            </a>
-            <span class="text-white/30">|</span>
-            <span class="text-blue-400 uppercase tracking-wider">{antecedente.Area || 'Proyecto'}</span>
-          </div>
-
-          <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
-            {antecedente.Titulo}
-          </h1>
-
-          <div class="flex flex-wrap items-center gap-6 text-lg text-white/90">
-            <div class="flex items-center">
-              <span class="font-bold text-blue-400 mr-2">Cliente:</span>
-              {antecedente.Cliente}
-            </div>
-            {antecedente.Fecha && (
-              <div class="flex items-center">
-                <span class="w-1.5 h-1.5 bg-white/50 rounded-full mr-6"></span>
-                {formatDate(antecedente.Fecha)}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <!-- Scroll Indicator -->
-      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 animate-bounce hidden md:block">
-        <svg class="w-6 h-6 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </svg>
-      </div>
-    </section>
-
-    <!-- Content Section -->
-    <section class="py-16 md:py-24 bg-slate-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          <!-- Main Content -->
-          <div class="lg:col-span-2 space-y-12">
-            <!-- Descripción -->
-            <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100">
-              <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center">
-                <span class="w-1 h-8 bg-blue-600 mr-4 rounded-full"></span>
-                Sobre el Proyecto
-              </h2>
-              <div class="prose prose-lg prose-slate max-w-none text-slate-600 leading-relaxed">
-                <div set:html={antecedente.Descripcion || antecedente.descripcion || '<p>Información detallada del proyecto no disponible.</p>'} />
-              </div>
-            </div>
-
-            <!-- Galería (Si hay imágenes adicionales) -->
-            {antecedente.Imagenes && antecedente.Imagenes.length > 0 && (
-              <div class="space-y-6">
-                <h3 class="text-xl font-bold text-slate-900">Galería del Proyecto</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {antecedente.Imagenes.map((img) => (
-                    <div class="aspect-video rounded-xl overflow-hidden bg-slate-100 group">
-                      <img 
-                        src={getAssetUrl(img)} 
-                        alt="Galería" 
-                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <!-- Sidebar (Sticky) -->
-          <div class="lg:col-span-1">
-            <div class="sticky top-24 space-y-6">
-              <!-- Info Card -->
-              <div class="bg-white rounded-xl shadow-lg border border-slate-100 p-6">
-                <h3 class="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">
-                  Ficha Técnica
-                </h3>
-                <ul class="space-y-5">
-                  <li class="flex items-start">
-                    <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 mr-4">
-                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-slate-500">Cliente</p>
-                      <p class="text-base font-semibold text-slate-900 mt-0.5">{antecedente.Cliente}</p>
-                    </div>
-                  </li>
-                  
-                  <li class="flex items-start">
-                    <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 mr-4">
-                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-slate-500">Área de Servicio</p>
-                      <p class="text-base font-semibold text-slate-900 mt-0.5">{antecedente.Area}</p>
-                    </div>
-                  </li>
-
-                  <li class="flex items-start">
-                    <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 mr-4">
-                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-slate-500">Unidad</p>
-                      <p class="text-base font-semibold text-slate-900 mt-0.5">{antecedente.Unidad_de_negocio || 'Consultoría'}</p>
-                    </div>
-                  </li>
-
-                  {antecedente.Fecha && (
-                    <li class="flex items-start">
-                      <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 mr-4">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                      </div>
-                      <div>
-                        <p class="text-sm font-medium text-slate-500">Fecha</p>
-                        <p class="text-base font-semibold text-slate-900 mt-0.5">{formatDate(antecedente.Fecha)}</p>
-                      </div>
-                    </li>
-                  )}
-
-                  {antecedente.Presupuesto && (
-                    <li class="flex items-start">
-                      <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center text-green-600 mr-4">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                      </div>
-                      <div>
-                        <p class="text-sm font-medium text-slate-500">Inversión</p>
-                        <p class="text-base font-semibold text-green-700 mt-0.5">{formatCurrency(antecedente.Presupuesto)}</p>
-                      </div>
-                    </li>
-                  )}
-                </ul>
-              </div>
-
-              <!-- CTA Card -->
-              <div class="bg-slate-900 rounded-xl shadow-lg p-6 text-center relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 z-0"></div>
-                <div class="relative z-10">
-                  <h3 class="text-lg font-bold text-white mb-2">¿Necesitas algo similar?</h3>
-                  <p class="text-slate-400 text-sm mb-6">Contáctanos para evaluar tu proyecto.</p>
-                  <a 
-                    href="/contacto" 
-                    class="block w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors shadow-lg hover:shadow-blue-500/30"
-                  >
-                    Iniciar Conversación
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-</Layout>
-
-<style>
-  .animate-fade-in-up {
-    animation: fadeInUp 0.8s ease-out forwards;
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  
-  @keyframes fadeInUp {
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-</style>
-=======
   <!-- HERO SECTION -->
   <section class="relative overflow-hidden bg-um-dark">
     <!-- Background Image -->
@@ -820,4 +529,3 @@ const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').
     darkOverlay={85}
   />
 </LayoutV4>
->>>>>>> origin/master

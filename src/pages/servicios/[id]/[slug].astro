@@ -27,100 +27,19 @@ if (!id || !slug) {
   return Astro.redirect('/404');
 }
 
-<<<<<<< HEAD
-const servicio = serviciosPorId[id];
-=======
 // Obtener servicio de Directus con fallback automático a JS
 const servicio = await getServicioById(id);
->>>>>>> origin/master
 
 if (!servicio) {
   return Astro.redirect('/404');
 }
 
-<<<<<<< HEAD
-const expectedSlug = generateSlug(servicio.Titulo);
-=======
 // Validar slug
 const expectedSlug = servicio.slug || generateSlug(servicio.Titulo);
->>>>>>> origin/master
 if (slug !== expectedSlug) {
   return Astro.redirect(`/servicios/${id}/${expectedSlug}`);
 }
 
-<<<<<<< HEAD
-const getAssetUrl = getServiceImageUrl;
-
-// Servicios relacionados (misma área)
-const serviciosRelacionados = serviciosReales
-  .filter(s => s.Area === servicio.Area && s.id !== servicio.id)
-  .slice(0, 3);
----
-
-<Layout title={`${servicio.Titulo} - Servicios - Ultima Milla`}>
-  <main class="min-h-screen bg-white">
-    <!-- Breadcrumb -->
-    <nav class="bg-white border-b border-slate-200">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <ol class="flex items-center space-x-2 text-sm text-slate-600">
-          <li><a href="/" class="hover:text-blue-600 transition-colors">Inicio</a></li>
-          <li><span class="mx-2">/</span></li>
-          <li><a href="/servicios" class="hover:text-blue-600 transition-colors">Servicios</a></li>
-          <li><span class="mx-2">/</span></li>
-          <li class="text-blue-600 font-medium truncate">{servicio.Titulo}</li>
-        </ol>
-      </div>
-    </nav>
-
-    <!-- Hero Section V3 (Immersive, Full-Screen) -->
-    <section class="relative h-[70vh] md:h-[85vh] flex items-end md:items-center overflow-hidden bg-slate-900">
-      <!-- Background Image (Service Specific) -->
-      <div class="absolute inset-0 z-0">
-        <img
-          src={getAssetUrl(servicio.Imagen)}
-          alt={servicio.Titulo}
-          class="w-full h-full object-cover"
-          onerror="this.src='/images/default-service.jpg'"
-        />
-      </div>
-      
-      <!-- Gradient Overlay (Dark, Dramatic) -->
-      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30 z-10"></div>
-
-      <!-- Content -->
-      <div class="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-24">
-        <div class="max-w-4xl">
-          <!-- Tags -->
-          <div class="flex flex-wrap gap-3 mb-6 animate-fade-in-up">
-            <span class="px-4 py-2 bg-blue-600 text-white text-xs font-bold uppercase tracking-wider rounded shadow-lg">
-              {servicio.Area}
-            </span>
-            <span class="px-4 py-2 bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider rounded shadow-lg">
-              {servicio.Cliente}
-            </span>
-            <span class="px-4 py-2 bg-slate-700 text-white text-xs font-bold uppercase tracking-wider rounded shadow-lg">
-              {servicio.Unidad_de_negocio}
-            </span>
-          </div>
-          
-          <!-- Title (Huge, Bold, Provocative) -->
-          <h1 class="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-none tracking-tight animate-fade-in-up delay-100">
-            {servicio.Titulo}
-          </h1>
-          
-          <!-- Description -->
-          <p class="text-xl md:text-2xl text-slate-200 leading-relaxed max-w-3xl mb-8 font-light animate-fade-in-up delay-200">
-            {servicio.Descripcion.replace(/\\\\/g, '\n')}
-          </p>
-
-          <!-- CTAs -->
-          <div class="flex flex-wrap gap-4 animate-fade-in-up delay-300">
-            <a href="#servicios-incluidos" class="px-8 py-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-all shadow-xl shadow-blue-900/50 transform hover:-translate-y-1 text-sm md:text-base">
-              Explorar Servicios
-            </a>
-            <a href="#contacto" class="px-8 py-4 bg-white text-slate-900 font-bold rounded-lg hover:bg-slate-100 transition-all shadow-xl text-sm md:text-base">
-              Solicitar Cotización
-=======
 // Productos del servicio (viene de Directus o de JS)
 const productos = servicio.productos || [];
 
@@ -369,7 +288,6 @@ const iconPaths = {
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
               </svg>
               contacto@ultimamilla.com.ar
->>>>>>> origin/master
             </a>
           </div>
 
@@ -386,164 +304,6 @@ const iconPaths = {
           )}
         </div>
       </div>
-<<<<<<< HEAD
-
-      <!-- Scroll Indicator -->
-      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 animate-bounce hidden md:block">
-        <svg class="w-6 h-6 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </svg>
-      </div>
-    </section>
-
-    <!-- Content Section -->
-    <section class="py-16 md:py-24 bg-slate-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          <!-- Main Content -->
-          <div class="lg:col-span-2 space-y-12">
-            <!-- Servicios Incluidos -->
-            <div id="servicios-incluidos" class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 md:p-10">
-              <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-8 flex items-center">
-                <span class="w-1 h-8 bg-blue-600 mr-4"></span>
-                Servicios Incluidos
-              </h2>
-              
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {servicio.Servicios.map((servicio_item) => (
-                  <div class="flex items-start space-x-3 p-4 bg-slate-50 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
-                    <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <span class="text-slate-700 font-medium text-sm">{servicio_item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <!-- Características -->
-            {servicio.Caracteristicas && servicio.Caracteristicas.length > 0 && (
-              <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 md:p-10">
-                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-8 flex items-center">
-                  <span class="w-1 h-8 bg-purple-600 mr-4"></span>
-                  Características Destacadas
-                </h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {servicio.Caracteristicas.map((caracteristica) => (
-                    <div class="flex items-start space-x-3 p-4 bg-purple-50 rounded-lg border border-purple-200">
-                      <svg class="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                      </svg>
-                      <span class="text-slate-700 font-medium text-sm">{caracteristica}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <!-- Servicios Relacionados -->
-            {serviciosRelacionados.length > 0 && (
-              <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 md:p-10">
-                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-8 flex items-center">
-                  <span class="w-1 h-8 bg-emerald-600 mr-4"></span>
-                  Servicios Relacionados
-                </h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {serviciosRelacionados.map((relacionado) => {
-                    const relSlug = generateSlug(relacionado.Titulo);
-                    return (
-                      <a href={`/servicios/${relacionado.id}/${relSlug}`} class="group">
-                        <article class="bg-slate-50 rounded-lg overflow-hidden border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all">
-                          <div class="aspect-video bg-slate-200 overflow-hidden">
-                            <img
-                              src={getAssetUrl(relacionado.Imagen)}
-                              alt={relacionado.Titulo}
-                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                              loading="lazy"
-                              onerror="this.src='/images/default-service.jpg'"
-                            />
-                          </div>
-                          <div class="p-4">
-                            <h3 class="font-bold text-slate-900 text-sm mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
-                              {relacionado.Titulo}
-                            </h3>
-                            <span class="text-xs text-slate-500 uppercase tracking-wide">{relacionado.Area}</span>
-                          </div>
-                        </article>
-                      </a>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <!-- Sidebar (Sticky) -->
-          <div class="lg:col-span-1">
-            <div class="sticky top-24 space-y-6">
-              <!-- Info Card -->
-              <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <h3 class="font-bold text-slate-900 text-lg mb-4">Información del Servicio</h3>
-                
-                <div class="space-y-4">
-                  <div class="flex items-start space-x-3">
-                    <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                    </svg>
-                    <div>
-                      <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Área</p>
-                      <p class="text-sm font-semibold text-slate-900">{servicio.Area}</p>
-                    </div>
-                  </div>
-                  
-                  <div class="flex items-start space-x-3">
-                    <svg class="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    <div>
-                      <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Cliente</p>
-                      <p class="text-sm font-semibold text-slate-900">{servicio.Cliente}</p>
-                    </div>
-                  </div>
-                  
-                  <div class="flex items-start space-x-3">
-                    <svg class="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m8 0h-8m8 0a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2" />
-                    </svg>
-                    <div>
-                      <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Unidad</p>
-                      <p class="text-sm font-semibold text-slate-900">{servicio.Unidad_de_negocio}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Contact Card -->
-              <div id="contacto" class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl shadow-xl p-6 text-white">
-                <h3 class="font-bold text-xl mb-4">¿Interesado en este servicio?</h3>
-                <p class="text-blue-100 mb-6 text-sm">Contáctanos para recibir una cotización personalizada.</p>
-                
-                <a href="/contacto" class="block w-full py-3 bg-white text-blue-600 font-bold rounded-lg text-center hover:bg-blue-50 transition-colors shadow-lg">
-                  Solicitar Cotización
-                </a>
-                
-                <div class="mt-6 pt-6 border-t border-blue-500/30">
-                  <p class="text-xs text-blue-200 mb-2">O llámanos directamente:</p>
-                  <a href="tel:+542614250000" class="text-white font-bold text-lg hover:text-blue-100 transition-colors">
-                    +54 261 425-0000
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-</Layout>
-=======
     </div>
   </section>
 
@@ -593,7 +353,6 @@ const iconPaths = {
     backgroundImage={getDirectusImageUrl(servicio.Imagen)}
   />
 </LayoutV4>
->>>>>>> origin/master
 
 <style>
   /* Line clamp utility */

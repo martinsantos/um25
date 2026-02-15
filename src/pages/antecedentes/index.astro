@@ -1,10 +1,4 @@
 ---
-<<<<<<< HEAD
-import Layout from '../../layouts/Layout.astro';
-import { directus, PAGE_SIZE, DEFAULT_IMAGE } from '../../utils/directus';
-import { generateSlug } from '../../utils/slugUtils.js';
-import { antecedentesReales } from '../../data/antecedentes_completos.js';
-=======
 /**
  * Antecedentes Index - V4 Design System
  * Case studies listing page with FILTER BUTTONS (not links)
@@ -17,7 +11,6 @@ import CTASection from '../../components/v4/CTASection.astro';
 import { getAllAntecedentes, getDirectusImageUrl } from "../../lib/directus.ts";
 const PAGE_SIZE = 20;
 const DEFAULT_IMAGE = '/images/default.jpg';
->>>>>>> origin/master
 
 // Obtener parámetros de la URL
 const getUrlParams = (url) => {
@@ -79,8 +72,6 @@ const filterAntecedentes = (antecedentes, filters, searchQuery) => {
     );
   }
 
-<<<<<<< HEAD
-=======
   // Filter by sector (using keywords)
   if (filters.sector && sectorKeywords[filters.sector]) {
     const keywords = sectorKeywords[filters.sector];
@@ -90,7 +81,6 @@ const filterAntecedentes = (antecedentes, filters, searchQuery) => {
     });
   }
 
->>>>>>> origin/master
   if (filters.unidad_negocio) {
     filtered = filtered.filter(item => item.Unidad_de_negocio === filters.unidad_negocio);
   }
@@ -106,54 +96,6 @@ const filterAntecedentes = (antecedentes, filters, searchQuery) => {
   return filtered;
 };
 
-<<<<<<< HEAD
-// ✅ FUNCIÓN MEJORADA: Obtener imagen usando el sistema de mapeo
-async function getImageUrl(proyecto) {
-  try {
-    const { buscarImagenPorDatos } = await import('../../data/mapeo_imagenes_completo.js');
-    const nombreArchivo = buscarImagenPorDatos(
-      proyecto.Cliente,
-      proyecto.Area || proyecto.Unidad_de_negocio, 
-      proyecto.Titulo,
-      proyecto.id
-    );
-    
-    if (nombreArchivo) {
-      return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
-    }
-  } catch (error) {
-    console.log('[ANTECEDENTES] Error en mapeo:', error.message);
-  }
-  return DEFAULT_IMAGE;
-};
-
-// Lógica de carga de datos
-try {
-  const response = await directus.getAntecedentes({ limit: 500, page: 1 });
-  let allAntecedentes = [];
-
-  if (response && response.data && response.data.length > 0) {
-    allAntecedentes = response.data.map(item => ({
-      ...item,
-      slug: `${item.id}/${generateSlug(item.Titulo)}`
-    }));
-  } else {
-    throw new Error('No se obtuvieron datos válidos');
-  }
-
-  const filteredAntecedentes = filterAntecedentes(allAntecedentes, pageData.activeFilters, pageData.searchQuery);
-  
-  const startIndex = (pageData.currentPage - 1) * PAGE_SIZE;
-  const endIndex = startIndex + PAGE_SIZE;
-  const paginatedAntecedentes = filteredAntecedentes.slice(startIndex, endIndex);
-  
-  const antecedentesConImagenes = await Promise.all(
-    paginatedAntecedentes.map(async (proyecto) => ({
-      ...proyecto,
-      imageUrl: await getImageUrl(proyecto)
-    }))
-  );
-=======
 
 // Inline slug generation to avoid import issues
 const localGenerateSlug = (text = '') => {
@@ -193,65 +135,30 @@ try {
   const startIndex = (pageData.currentPage - 1) * PAGE_SIZE;
   const endIndex = startIndex + PAGE_SIZE;
   const paginatedAntecedentes = filteredAntecedentes.slice(startIndex, endIndex);
->>>>>>> origin/master
 
   pageData = {
     ...pageData,
     antecedentes: paginatedAntecedentes,
     totalItems: filteredAntecedentes.length,
     totalPages: Math.ceil(filteredAntecedentes.length / PAGE_SIZE),
-<<<<<<< HEAD
-=======
     error: null,
->>>>>>> origin/master
     isLoading: false
   };
 
 } catch (error) {
-<<<<<<< HEAD
-  console.error('Error al cargar datos, usando fallback:', error);
-  const allAntecedentes = antecedentesReales.map(item => ({
-    ...item,
-    slug: `${item.id}/${generateSlug(item.Titulo)}`
-  }));
-
-  const filteredAntecedentes = filterAntecedentes(allAntecedentes, pageData.activeFilters, pageData.searchQuery);
-  const startIndex = (pageData.currentPage - 1) * PAGE_SIZE;
-  const endIndex = startIndex + PAGE_SIZE;
-  const paginatedAntecedentes = filteredAntecedentes.slice(startIndex, endIndex);
-
-  const antecedentesConImagenes = await Promise.all(
-    paginatedAntecedentes.map(async (proyecto) => ({
-      ...proyecto,
-      imageUrl: await getImageUrl(proyecto)
-    }))
-  );
-
-  pageData = {
-    ...pageData,
-    antecedentes: antecedentesConImagenes,
-    totalItems: filteredAntecedentes.length,
-    totalPages: Math.ceil(filteredAntecedentes.length / PAGE_SIZE),
-    error: null,
-=======
   console.error('[ANTECEDENTES-DEBUG] Error loading antecedentes from Directus:', error);
   console.error('[ANTECEDENTES-DEBUG] Error stack:', error.stack);
   pageData = {
     ...pageData,
     antecedentes: [],
     error: 'Error loading projects',
->>>>>>> origin/master
     isLoading: false
   };
 }
 
 // Opciones de filtro
-<<<<<<< HEAD
-const allDataForFilters = antecedentesReales;
-=======
 // Use all antecedentes for filters (loaded from Directus above)
 const allDataForFilters = pageData.antecedentes;
->>>>>>> origin/master
 const filterOptions = {
   unidades: [...new Set(allDataForFilters.map(i => i.Unidad_de_negocio).filter(Boolean))].sort(),
   areas: [...new Set(allDataForFilters.map(i => i.Area).filter(Boolean))].sort(),
@@ -261,219 +168,6 @@ const filterOptions = {
 // Helpers de URL
 const buildPageUrl = (page) => {
   const url = new URL(Astro.request.url);
-<<<<<<< HEAD
-  url.searchParams.set('page', page);
-  return url.pathname + url.search;
-};
-
-// Extract filter values for the new filter bar structure
-const searchQuery = pageData.searchQuery;
-const areaFilter = pageData.activeFilters.area;
-const unidadFilter = pageData.activeFilters.unidad_negocio;
-const areas = filterOptions.areas;
-const unidades = filterOptions.unidades;
----
-
-<Layout title="Antecedentes - Casos de Éxito | Ultima Milla" description="Explore nuestros casos de éxito y proyectos realizados en telecomunicaciones, desarrollo de software y soluciones tecnológicas.">
-  
-  <!-- Hero Section V3 (Immersive, Dark, with Background) -->
-  <section class="relative h-[50vh] md:h-[60vh] flex items-center overflow-hidden bg-slate-900">
-    <!-- Background Image -->
-    <div class="absolute inset-0 z-0">
-      <img 
-        src="/images/services/servicios-it.jpg" 
-        alt="Antecedentes Background" 
-        class="w-full h-full object-cover opacity-40"
-      />
-      <div class="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/60 to-slate-900/90"></div>
-    </div>
-
-    <div class="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <span class="inline-block py-1 px-3 rounded-full bg-blue-500/20 text-blue-300 text-sm font-medium mb-6 backdrop-blur-sm border border-blue-500/30">
-        Nuestra Experiencia
-      </span>
-      <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight mb-6">
-        Casos de <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Éxito Real</span>
-      </h1>
-      <p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
-        Descubra cómo hemos transformado desafíos complejos en soluciones tecnológicas robustas para empresas líderes.
-      </p>
-    </div>
-  </section>
-
-  <!-- Filtros y Búsqueda (Compact & Sticky) -->
-  <section class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm transition-all duration-300" id="filter-bar">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-      <form id="filter-form" class="flex flex-col md:flex-row gap-3 items-center justify-between">
-        
-        <!-- Search -->
-        <div class="relative w-full md:w-96 group">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg class="h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-          <input
-            type="text"
-            name="q"
-            value={searchQuery}
-            placeholder="Buscar por cliente, título..."
-            class="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg leading-5 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all shadow-sm"
-          />
-        </div>
-
-        <!-- Filters Group -->
-        <div class="flex flex-wrap gap-2 w-full md:w-auto justify-center md:justify-end">
-          <!-- Area Filter -->
-          <div class="relative">
-            <select
-              name="area"
-              class="appearance-none block w-full pl-3 pr-8 py-2 border border-slate-200 rounded-lg bg-white text-slate-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 cursor-pointer hover:bg-slate-50 transition-colors shadow-sm"
-              onchange="this.form.submit()"
-            >
-              <option value="">Todas las Áreas</option>
-              {areas.map((a) => (
-                <option value={a} selected={a === areaFilter}>{a}</option>
-              ))}
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
-              <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-              </svg>
-            </div>
-          </div>
-
-          <!-- Unit Filter -->
-          <div class="relative">
-            <select
-              name="unidad"
-              class="appearance-none block w-full pl-3 pr-8 py-2 border border-slate-200 rounded-lg bg-white text-slate-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 cursor-pointer hover:bg-slate-50 transition-colors shadow-sm"
-              onchange="this.form.submit()"
-            >
-              <option value="">Todas las Unidades</option>
-              {unidades.map((u) => (
-                <option value={u} selected={u === unidadFilter}>{u}</option>
-              ))}
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
-              <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-      </form>
-    </div>
-  </section>
-
-    <!-- Grid de Proyectos (Solid, Clean V3) -->
-    <section class="py-16 md:py-24 bg-slate-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {pageData.antecedentes.length === 0 ? (
-          <div class="text-center py-20">
-            <h3 class="text-xl font-medium text-slate-900">No se encontraron proyectos</h3>
-            <p class="text-slate-500 mt-2">Intenta ajustar tus filtros de búsqueda.</p>
-          </div>
-        ) : (
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {pageData.antecedentes.map((proyecto) => (
-              <a href={`/antecedentes/${proyecto.slug}`} class="group flex flex-col h-full">
-                <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1">
-                  <!-- Image -->
-                  <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
-                    <img
-                      src={proyecto.imageUrl}
-                      alt={proyecto.Titulo}
-                      class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      loading="lazy"
-                      onerror="this.src='/images/default.jpg'"
-                    />
-                    <div class="absolute top-4 left-4">
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-slate-900 text-white shadow-sm">
-                        {proyecto.Area || 'Proyecto'}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <!-- Content -->
-                  <div class="flex flex-col flex-grow p-6">
-                    <div class="mb-2">
-                      <span class="text-xs font-bold text-blue-600 uppercase tracking-wide">
-                        {proyecto.Cliente}
-                      </span>
-                    </div>
-                    
-                    <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors line-clamp-2">
-                      {proyecto.Titulo}
-                    </h3>
-                    
-                    <p class="text-slate-600 text-sm mb-6 line-clamp-3 flex-grow leading-relaxed">
-                      {proyecto.Descripcion ? proyecto.Descripcion.replace(/<[^>]*>/g, '').substring(0, 150) + '...' : ''}
-                    </p>
-                    
-                    <div class="pt-4 border-t border-slate-100 mt-auto flex items-center justify-between">
-                      <span class="text-xs font-medium text-slate-500">
-                        {proyecto.Unidad_de_negocio}
-                      </span>
-                      <span class="text-blue-600 text-sm font-semibold group-hover:underline flex items-center">
-                        Ver caso <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                      </span>
-                    </div>
-                  </div>
-                </article>
-              </a>
-            ))}
-          </div>
-        )}
-
-        <!-- Pagination -->
-        {pageData.totalPages > 1 && (
-          <div class="mt-12 flex justify-center space-x-2">
-            {Array.from({ length: pageData.totalPages }, (_, i) => i + 1).map(page => (
-              <a
-                href={buildPageUrl(page)}
-                class={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  page === pageData.currentPage
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
-                }`}
-              >
-                {page}
-              </a>
-            ))}
-          </div>
-        )}
-      </div>
-    </section>
-  </main>
-</Layout>
-
-<style>
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  
-  .animate-fade-in-up {
-    animation: fadeInUp 0.8s ease-out forwards;
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  
-  .delay-100 { animation-delay: 0.1s; }
-  .delay-200 { animation-delay: 0.2s; }
-  
-  @keyframes fadeInUp {
-=======
   url.searchParams.set('page', page.toString());
   return url.pathname + url.search;
 };
@@ -849,13 +543,10 @@ const filterIconPaths: Record<string, string> = {
   }
 
   @keyframes fadeIn {
->>>>>>> origin/master
     to {
       opacity: 1;
       transform: translateY(0);
     }
-<<<<<<< HEAD
-=======
   }
 
   /* Card hover */
@@ -865,7 +556,6 @@ const filterIconPaths: Record<string, string> = {
   .card-hover:hover {
     transform: translateY(-8px);
     box-shadow: 0 20px 40px rgba(0,0,0,0.12);
->>>>>>> origin/master
   }
 </style>
 
