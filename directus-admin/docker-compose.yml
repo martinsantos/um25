@@ -1,30 +1,51 @@
 version: '3'
 services:
-  directus-app:
-    image: directus/directus:latest
+  database:
+    image: postgres:15-alpine
+    container_name: directus-admin-database-1
     restart: unless-stopped
     environment:
-      KEY: '1.2345678901234567e+31'
-      SECRET: 'S3cr3tK3yForDirectusConfig2025sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 cat /root/fumbling-field/directus-admin/docker-compose.yml'
+      POSTGRES_DB: directus
+      POSTGRES_USER: directus
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - directus_db_data:/var/lib/postgresql/data
+    networks:
+      - fumbling-field_umbot-network
+
+  directus-app:
+    image: directus/directus:latest
+    container_name: directus-admin-directus-app-1
+    restart: unless-stopped
+    environment:
+      KEY: ${DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET}
       DB_CLIENT: 'pg'
-      DB_HOST: 'umbot-postgres-prod'
+      DB_HOST: 'directus-admin-database-1'
       DB_PORT: '5432'
       DB_USER: 'directus'
-      DB_PASSWORD: 'umbot_directus_2025!'
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_DATABASE: 'directus'
-      ADMIN_EMAIL: 'admin@example.com'
-      ADMIN_PASSWORD: 'adminpassword'
-      PUBLIC_URL: 'https://www.ultimamilla.com.ar/admin'
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      PUBLIC_URL: 'https://ultimamilla.com.ar'
       ASSETS_TRANSFORM_IMAGE_MAX_DIMENSION: '8000'
       ASSETS_TRANSFORM_MAX_MAP_SIZE: '500mp'
     ports:
       - "8055:8055"
     volumes:
-      - ../uploads:/directus/uploads
+      - ./uploads:/directus/uploads
       - ./extensions:/directus/extensions
+    depends_on:
+      - database
     networks:
       - fumbling-field_umbot-network
 
 networks:
   fumbling-field_umbot-network:
     external: true
+
+volumes:
+  directus_db_data:

@@ -8,7 +8,7 @@ on:
       - '.github/workflows/deploy-directus.yml'
 
 env:
-  DRY_RUN: true  # Cambiar a 'false' cuando se apruebe
+  DRY_RUN: false  # ✅ Activado después de verificar contenido restaurado
 
 jobs:
   deploy-directus:
