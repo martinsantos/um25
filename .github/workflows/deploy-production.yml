@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 env:
-  DRY_RUN: false  # Cambiar a 'false' cuando se apruebe migración
+  DRY_RUN: false  # Set to true for testing
 
 jobs:
   deploy-astro:
@@ -13,27 +13,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Build Astro Site
+      - name: Package Astro Source
         run: |
-          npm ci
-          npm run build
-        env:
-          PUBLIC_SITE_URL: https://ultimamilla.com.ar
-          NODE_ENV: production
-
-      - name: Package Site
-        run: |
-          tar czf /tmp/ultimamilla-deploy.tar.gz \
-            dist/ \
-            node_modules/ \
-            package.json \
-            package-lock.json
+          tar czf /tmp/ultimamilla-source.tar.gz \
+            --exclude=node_modules \
+            --exclude=dist \
+            --exclude=.astro \
+            --exclude=.git \
+            .
 
       - name: Setup SSH Key
         run: |
@@ -42,13 +29,13 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Upload to VPS
+      - name: Upload Source to VPS
         run: |
-          scp -i ~/.ssh/deploy_key /tmp/ultimamilla-deploy.tar.gz root@${{ secrets.VPS_HOST }}:/tmp/
+          scp -i ~/.ssh/deploy_key /tmp/ultimamilla-source.tar.gz root@${{ secrets.VPS_HOST }}:/tmp/
 
-      - name: Deploy Astro Site (Dry-Run)
+      - name: Build and Deploy Astro Site on VPS
         run: |
           ssh -i ~/.ssh/deploy_key root@${{ secrets.VPS_HOST }} << 'ENDSSH'
             export DRY_RUN=${{ env.DRY_RUN }}
-            bash /opt/scripts-cicd/deploy_ultimamilla.sh
+            bash /opt/scripts-cicd/deploy_ultimamilla_with_build.sh
           ENDSSH
