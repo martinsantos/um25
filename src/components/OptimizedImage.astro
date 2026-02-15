@@ -29,7 +29,7 @@ const sizes = [width, width * 2].filter(w => w <= 1920); // Limitar el tamaño m
 const imageUrls = await Promise.all(
     formats.flatMap(format =>
         sizes.map(async size => ({
-            url: (await processAndCacheImage(imageSrc, size, height, format)).replace(/^public/, ''),
+            url: await processAndCacheImage(imageSrc, size, height, format),
             size,
             format
         }))

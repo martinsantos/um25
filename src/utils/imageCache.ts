@@ -39,18 +39,19 @@ export async function processAndCacheImage(
 
     const cacheKey = generateImageKey(imagePath, width, height, format);
     const cachedPath = path.join(CACHE_DIR, `${cacheKey}.${format}`);
+    const webPath = `/cache/${cacheKey}.${format}`;
 
     // Verificar si la imagen está en caché
     if (cache.has(cacheKey)) {
-        return cachedPath;
+        return webPath;
     }
 
     try {
         // Verificar si el archivo cacheado existe
         try {
             await fs.access(cachedPath);
-            cache.set(cacheKey, cachedPath);
-            return cachedPath;
+            cache.set(cacheKey, webPath);
+            return webPath;
         } catch {
             // El archivo no existe, procesarlo
         }
@@ -90,9 +91,9 @@ export async function processAndCacheImage(
         await sharpInstance.toFile(cachedPath);
 
         // Almacenar en caché
-        cache.set(cacheKey, cachedPath);
+        cache.set(cacheKey, webPath);
 
-        return cachedPath;
+        return webPath;
     } catch (error) {
         console.error('Error procesando imagen:', error);
         throw error;
