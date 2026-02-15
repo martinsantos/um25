@@ -27,10 +27,6 @@ jobs:
           PUBLIC_SITE_URL: https://ultimamilla.com.ar
           NODE_ENV: production
 
-      - name: Prepare Production Dependencies
-        run: |
-          npm ci --production
-
       - name: Package Site
         run: |
           tar czf /tmp/ultimamilla-deploy.tar.gz \
