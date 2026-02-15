@@ -10,6 +10,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Critical**: This is a PRODUCTION system serving 5 live websites with 24/7 uptime requirements. Follow strict server architecture rules documented in `.windsurf/rules/arquitectura-servidor-reglas.md`.
 
+**📚 Documentación Unificada**: Ver [`../INFRAESTRUCTURA.md`](../INFRAESTRUCTURA.md) para arquitectura completa de ambos servidores (Producción + Preview) y stack tecnológico compartido.
+
+**Última actualización CI/CD**: 2026-02-15 - Directus workflow activado con atomic deployments + rollback automático.
+
 ---
 
 ## Development Commands
@@ -558,3 +562,85 @@ Before merging to master:
 - Monitor health checks for 30 minutes post-deploy
 
 **This is a production system with zero-downtime requirements. When in doubt, ask for review before proceeding.**
+
+---
+
+## CI/CD Status (Updated 2026-02-15)
+
+### ✅ Active Workflows
+
+| Workflow | Status | Last Deploy | Deploy Time |
+|----------|--------|-------------|-------------|
+| **Deploy Astro Site** | ✅ Active | 2026-02-15 11:18 | ~2-3 min |
+| **Deploy Directus CMS** | ✅ Active | 2026-02-15 (fixed) | ~1-2 min |
+
+### Directus CI/CD Implementation
+
+**Atomic Deployment Pattern**:
+```bash
+1. GitHub Actions builds in cloud (FREE)
+2. Package docker-compose.yml + extensions/
+3. SCP to VPS /tmp/
+4. Deploy script:
+   - Backup DB automatically (/opt/directus-backups/)
+   - Extract to /opt/directus-releases/YYYYMMDD-HHMMSS/
+   - Copy .env from /opt/directus-admin/
+   - Symlink /opt/directus-current → new release
+   - docker-compose down && docker-compose up -d
+   - Health check http://localhost:8055/server/health
+   - ROLLBACK if health fails (automatic, 2 seconds)
+   - Cleanup (keep last 5 releases)
+```
+
+**Data Protection**:
+- ✅ Persistent Docker volume: `directus-admin_directus_db_data`
+- ✅ Content: 518 Antecedentes + 8 Servicios
+- ✅ Automatic backup BEFORE each deploy
+- ✅ Daily backup (cron 2 AM): DB + uploads (674 MB) + extensions
+- ✅ 30-day retention
+
+**Files**:
+- Workflow: `.github/workflows/deploy-directus.yml` (DRY_RUN=false)
+- Deploy script: `/opt/scripts-cicd/deploy_directus.sh`
+- Backup script: `/opt/scripts-cicd/backup_directus.sh`
+- Config: `/opt/directus-admin/docker-compose.yml`
+- Secrets: `/opt/directus-admin/.env` (production only, NOT in repo)
+
+### Shared PostgreSQL Database
+
+**IMPORTANT**: Directus and SITREP now share the same PostgreSQL container:
+```yaml
+Container: directus-admin-database-1
+Image: postgres:15-alpine
+Port: 5432 (mapped to localhost)
+Databases:
+  - directus (Directus CMS)
+  - trazabilidad_rrpp (SITREP backend)
+Volume: directus-admin_directus_db_data (persistent)
+```
+
+**Connection Strings**:
+```bash
+# Directus
+DB_HOST=directus-admin-database-1  # Within Docker network
+DB_PORT=5432
+
+# SITREP (from PM2, outside Docker)
+DATABASE_URL=postgresql://directus:password@localhost:5432/trazabilidad_rrpp
+```
+
+### Test All Deployments
+
+Run comprehensive test suite (18 tests):
+```bash
+cd /Volumes/SDTERA/ultima\ milla/LICITACIONES/PRESENTADAS2025/AMBIENTE
+bash test-all-simple.sh
+
+# Tests:
+# - ultimamilla.com.ar (5 pages)
+# - Directus CMS (health, containers, backups)
+# - SITREP backend (health, PM2, Prisma)
+# - CI/CD scripts (3 deploy scripts, 2 releases dirs)
+```
+
+Last test result: **18/18 passed** ✅ (2026-02-15 11:30)
