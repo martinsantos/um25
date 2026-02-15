@@ -23,6 +23,9 @@ jobs:
         run: |
           npm ci
           npm run build
+        env:
+          PUBLIC_SITE_URL: https://ultimamilla.com.ar
+          NODE_ENV: production
 
       - name: Prepare Production Dependencies
         run: |
