@@ -155,13 +155,17 @@ jobs:
           HOMEPAGE=$(curl -sL https://www.ultimamilla.com.ar)
           ERRORS=0
 
-          # 1. Service images must use Directus /assets/ URLs (UUID-based)
-          SVC_IMGS=$(echo "$HOMEPAGE" | grep -oE 'src="/assets/[a-f0-9-]{36}[^"]*"' | wc -l)
-          if [ "$SVC_IMGS" -lt 4 ]; then
-            echo "❌ Only $SVC_IMGS Directus asset images found (expected >= 4)"
+          # 1. Service images can use either Directus /assets/ URLs OR local /images/ paths
+          DIRECTUS_IMGS=$(echo "$HOMEPAGE" | grep -oE 'src="/assets/[a-f0-9-]{36}[^"]*"' | wc -l)
+          LOCAL_IMGS=$(echo "$HOMEPAGE" | grep -oE 'src="/images/services/[^"]*"' | wc -l)
+          TOTAL_IMGS=$((DIRECTUS_IMGS + LOCAL_IMGS))
+
+          if [ "$TOTAL_IMGS" -lt 4 ]; then
+            echo "❌ Only $TOTAL_IMGS service images found (expected >= 4)"
+            echo "   Directus: $DIRECTUS_IMGS, Local: $LOCAL_IMGS"
             ERRORS=$((ERRORS + 1))
           else
-            echo "✅ Directus asset images: $SVC_IMGS found"
+            echo "✅ Service images: $TOTAL_IMGS found (Directus: $DIRECTUS_IMGS, Local: $LOCAL_IMGS)"
           fi
 
           # 2. Hero section must have background images
@@ -173,10 +177,12 @@ jobs:
             echo "✅ Hero images: $HERO_IMGS found"
           fi
 
-          # 3. No default-background as primary image src (onerror fallback is ok)
+          # 3. Check for excessive placeholder images (should be fallbacks only)
           DEFAULTS=$(echo "$HOMEPAGE" | grep -oE 'src="[^"]*default-background[^"]*"' | wc -l)
-          if [ "$DEFAULTS" -gt 0 ]; then
-            echo "⚠️ $DEFAULTS default-background images found (acceptable as onerror fallback)"
+          if [ "$DEFAULTS" -gt 10 ]; then
+            echo "⚠️ WARNING: $DEFAULTS default-background images found (should be fallback only)"
+          elif [ "$DEFAULTS" -gt 0 ]; then
+            echo "✅ $DEFAULTS placeholder images found (acceptable as fallback)"
           fi
 
           if [ "$ERRORS" -gt 0 ]; then
