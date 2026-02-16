@@ -438,15 +438,22 @@ try {
 }
 
 // Probe Directus at startup to know if /assets/ URLs will work
-// Use /server/ping (lightweight) instead of /server/health (returns 503 when cache is degraded
-// even though assets work fine)
+// Test actual asset endpoint with known service image UUID instead of /server/ping
+// This ensures assets are truly accessible, not just that Directus service is running
 let directusAssetsAvailable = false;
 try {
-  const testResp = await fetch(`${DIRECTUS_CONFIG.url}/server/ping`, {
+  const testAssetId = '444d0889-3a56-4caa-bb5a-61a921a8bc79'; // Service 101 thumbnail
+  const testResp = await fetch(`${DIRECTUS_CONFIG.url}/assets/${testAssetId}`, {
+    method: 'HEAD', // Faster than GET, just checks if file exists
     signal: AbortSignal.timeout(3000)
   });
-  directusAssetsAvailable = testResp.ok;
-} catch {
+  directusAssetsAvailable = testResp.ok && testResp.headers.get('content-type')?.startsWith('image/');
+
+  if (!directusAssetsAvailable) {
+    console.warn('[directus] Assets endpoint test failed — using local images');
+  }
+} catch (err) {
+  console.warn('[directus] Assets probe error:', err);
   directusAssetsAvailable = false;
 }
 if (!directusAssetsAvailable) {
