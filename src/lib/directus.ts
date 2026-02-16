@@ -433,7 +433,10 @@ let imageLocalMap: Record<string, string> = {};
 try {
   const mapModule = await import('../data/image-local-map.json');
   imageLocalMap = mapModule.default || mapModule;
-} catch {
+  const mapSize = Object.keys(imageLocalMap).length;
+  console.log(`[directus] Loaded ${mapSize} image mappings from local map`);
+} catch (error) {
+  console.error('[directus] Failed to load image-local-map.json:', error);
   // No map available, will use Directus URLs
 }
 
@@ -447,19 +450,29 @@ console.log('[directus] Using local images for all service content (Directus ass
 const IMAGE_CACHE_VERSION = '20260201';
 
 export function getDirectusImageUrl(imageId: string | null | undefined): string {
-  if (!imageId) return '';
-  if (!uuidRegex.test(imageId)) return '';
+  if (!imageId) {
+    console.warn('[directus] getDirectusImageUrl called with empty imageId');
+    return '';
+  }
+  if (!uuidRegex.test(imageId)) {
+    console.warn(`[directus] Invalid UUID format: ${imageId}`);
+    return '';
+  }
 
-  // Prioridad 1: Directus /assets/ (producción — Nginx proxy a Directus, 518 imágenes únicas)
+  // Prioridad 1: Directus /assets/ (deshabilitado por 403 auth)
   if (directusAssetsAvailable) {
     return `/assets/${imageId}?v=${IMAGE_CACHE_VERSION}`;
   }
 
   // Prioridad 2: fallback local si Directus no disponible
   const localPath = imageLocalMap[imageId];
-  if (localPath) return localPath;
+  if (localPath) {
+    console.log(`[directus] Found local image for ${imageId}: ${localPath}`);
+    return localPath;
+  }
 
   // Sin Directus ni imagen local → default
+  console.warn(`[directus] No local mapping for UUID ${imageId}, using default placeholder`);
   return '/images/default-background.jpg';
 }
 
