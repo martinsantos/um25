@@ -437,28 +437,11 @@ try {
   // No map available, will use Directus URLs
 }
 
-// Probe Directus at startup to know if /assets/ URLs will work
-// Test actual asset endpoint with known service image UUID instead of /server/ping
-// This ensures assets are truly accessible, not just that Directus service is running
-let directusAssetsAvailable = false;
-try {
-  const testAssetId = '444d0889-3a56-4caa-bb5a-61a921a8bc79'; // Service 101 thumbnail
-  const testResp = await fetch(`${DIRECTUS_CONFIG.url}/assets/${testAssetId}`, {
-    method: 'HEAD', // Faster than GET, just checks if file exists
-    signal: AbortSignal.timeout(3000)
-  });
-  directusAssetsAvailable = testResp.ok && testResp.headers.get('content-type')?.startsWith('image/');
-
-  if (!directusAssetsAvailable) {
-    console.warn('[directus] Assets endpoint test failed — using local images');
-  }
-} catch (err) {
-  console.warn('[directus] Assets probe error:', err);
-  directusAssetsAvailable = false;
-}
-if (!directusAssetsAvailable) {
-  console.warn('[directus] Directus assets NOT available — using local images only');
-}
+// IMPORTANT: Directus /assets/ endpoint requires authentication (403 Forbidden)
+// We always use local images for service thumbnails instead of Directus assets
+// This avoids build-time vs runtime inconsistencies and auth issues
+const directusAssetsAvailable = false;
+console.log('[directus] Using local images for all service content (Directus assets require auth)');
 
 // Cache-bust version: incrementar cuando se actualizan imágenes en Directus
 const IMAGE_CACHE_VERSION = '20260201';
