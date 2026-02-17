@@ -25,12 +25,15 @@ const localHeroFallback = [
 let heroImages: { url: string; alt: string }[] = [];
 try {
   const heroItems = await getHeroHomeImages();
+  // Hero images use /assets/{uuid} directly (Nginx proxies to Directus)
+  // This bypasses getDirectusImageUrl which has assets disabled for service thumbnails
+  const uuidRe = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
   heroImages = heroItems
+    .filter((item: any) => item.imagen && uuidRe.test(item.imagen))
     .map((item: any) => ({
-      url: getDirectusImageUrl(item.imagen),
+      url: `/assets/${item.imagen}`,
       alt: item.titulo || `Hero ${item.orden}`
-    }))
-    .filter((img: any) => img.url && img.url !== '' && img.url !== '/images/default-background.jpg');
+    }));
 } catch (error) {
   console.error('[HOMEPAGE] Error loading hero images:', error);
 }
@@ -245,7 +248,7 @@ const sectores = [
               <img
                 src={antecedente.imageUrl}
                 alt={antecedente.Titulo || antecedente.Nombre}
-                class="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
+                class="w-full h-full object-cover transition-transform duration-700"
                 loading="lazy"
                 onerror="this.onerror=null;this.src='/images/default-background.jpg'"
               />
