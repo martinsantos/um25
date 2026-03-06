@@ -118,12 +118,19 @@ export async function getServiciosV4(): Promise<ServicioV4[]> {
       })
     );
 
-    return (response || []) as ServicioV4[];
+    const servicios = (response || []) as ServicioV4[];
+
+    // If Directus returns empty (permissions issue, empty collection, etc.) fall back to snapshot
+    if (servicios.length === 0) {
+      throw new Error('Directus returned empty Servicios collection');
+    }
+
+    return servicios;
   } catch (error) {
     console.error('Error fetching servicios V4, trying snapshot:', error);
     try {
       const snapshot = await import('../data/snapshots/servicios.json');
-      return (snapshot.data || snapshot.default?.data || []) as ServicioV4[];
+      return (snapshot.default?.data || (snapshot as any).data || []) as ServicioV4[];
     } catch { return []; }
   }
 }

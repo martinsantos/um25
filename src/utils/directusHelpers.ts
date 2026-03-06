@@ -36,7 +36,17 @@ export async function getAllServicios(): Promise<ServicioV4[]> {
     const servicios = await getServiciosV4();
 
     if (!servicios || servicios.length === 0) {
-      console.warn('⚠️ No services found in Directus');
+      console.warn('⚠️ No services found — trying snapshot fallback');
+      try {
+        const snapshot = await import('../data/snapshots/servicios.json');
+        const snapshotData = (snapshot.default?.data || (snapshot as any).data || []) as ServicioV4[];
+        if (snapshotData.length > 0) {
+          console.warn(`✅ Snapshot fallback loaded ${snapshotData.length} servicios`);
+          return snapshotData;
+        }
+      } catch (snapshotError) {
+        console.error('❌ Snapshot fallback failed:', snapshotError);
+      }
       return [];
     }
 
