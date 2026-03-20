@@ -449,6 +449,13 @@ console.log('[directus] Using local images for all service content (Directus ass
 // Cache-bust version: incrementar cuando se actualizan imágenes en Directus
 const IMAGE_CACHE_VERSION = '20260201';
 
+// Base URL path: '/' in production, '/um25/' in GitHub Pages preview
+function withBase(path: string): string {
+  const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
+  if (!base || base === '') return path;
+  return `${base}${path}`;
+}
+
 export function getDirectusImageUrl(imageId: string | null | undefined): string {
   if (!imageId) {
     console.warn('[directus] getDirectusImageUrl called with empty imageId');
@@ -461,19 +468,19 @@ export function getDirectusImageUrl(imageId: string | null | undefined): string 
 
   // Prioridad 1: Directus /assets/ (deshabilitado por 403 auth)
   if (directusAssetsAvailable) {
-    return `/assets/${imageId}?v=${IMAGE_CACHE_VERSION}`;
+    return withBase(`/assets/${imageId}?v=${IMAGE_CACHE_VERSION}`);
   }
 
   // Prioridad 2: fallback local si Directus no disponible
   const localPath = imageLocalMap[imageId];
   if (localPath) {
     console.log(`[directus] Found local image for ${imageId}: ${localPath}`);
-    return localPath;
+    return withBase(localPath);
   }
 
   // Sin Directus ni imagen local → default
   console.warn(`[directus] No local mapping for UUID ${imageId}, using default placeholder`);
-  return '/images/default-background.jpg';
+  return withBase('/images/default-background.jpg');
 }
 
 /**
@@ -481,11 +488,11 @@ export function getDirectusImageUrl(imageId: string | null | undefined): string 
  * Para uso en onerror de <img> tags.
  */
 export function getDirectusImageFallback(imageId: string | null | undefined): string {
-  if (!imageId) return '/images/default-background.jpg';
-  if (!uuidRegex.test(imageId)) return '/images/default-background.jpg';
+  if (!imageId) return withBase('/images/default-background.jpg');
+  if (!uuidRegex.test(imageId)) return withBase('/images/default-background.jpg');
   const localPath = imageLocalMap[imageId];
-  if (localPath) return localPath;
-  return '/images/default-background.jpg';
+  if (localPath) return withBase(localPath);
+  return withBase('/images/default-background.jpg');
 }
 
 /**
