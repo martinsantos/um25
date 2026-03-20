@@ -10,18 +10,12 @@ on:
     types: [opened, synchronize, reopened]
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: 'pages'
-  cancel-in-progress: true
+  contents: write
 
 jobs:
-  build-preview:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    name: Build Preview
+    name: Build & Deploy Preview
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,22 +34,11 @@ jobs:
         env:
           PUBLIC_DIRECTUS_URL: ''
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          path: dist
-
-  deploy-preview:
-    needs: build-preview
-    runs-on: ubuntu-latest
-    name: Deploy Preview
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
-      - name: Preview URL
-        run: echo "Preview URL - ${{ steps.deployment.outputs.page_url }}"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          force_orphan: true
+          commit_message: "deploy: preview from ${{ github.ref_name }} (${{ github.sha }})"
