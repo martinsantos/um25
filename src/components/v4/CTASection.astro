@@ -1,37 +1,9 @@
 ---
 /**
- * CTASection Component V4
- *
- * Sección de llamada a la acción (Call To Action) con fondo de imagen,
- * badge, título, descripción y botones.
- *
- * Usado en homepage y páginas de servicio para promover conversión.
- *
- * Props:
- * - badge: Texto del badge superior (opcional)
- * - badgeIcon: Nombre del ícono de Lucide para el badge
- * - titulo: Título principal del CTA
- * - descripcion: Descripción/subtítulo
- * - primaryButtonText: Texto del botón principal
- * - primaryButtonUrl: URL del botón principal
- * - secondaryButtonText: Texto del botón secundario (opcional)
- * - secondaryButtonUrl: URL del botón secundario
- * - secondaryButtonIcon: Ícono del botón secundario
- * - backgroundImage: URL de imagen de fondo
- * - darkOverlay: Opacidad del overlay oscuro (0-100)
- *
- * Ejemplo de uso:
- * <CTASection
- *   badge="Comience su transformación"
- *   badgeIcon="rocket"
- *   titulo="¿Listo para modernizar su infraestructura IT?"
- *   descripcion="Contáctenos hoy para una consultoría gratuita"
- *   primaryButtonText="Agendar Consultoría Gratis"
- *   primaryButtonUrl="/contacto"
- *   secondaryButtonText="contacto@ultimamilla.com.ar"
- *   secondaryButtonUrl="mailto:contacto@ultimamilla.com.ar"
- *   secondaryButtonIcon="mail"
- * />
+ * CTASection Component V5 - Clean Statement CTA
+ * Two variants:
+ * - Light (default): subtle bg, dark text
+ * - Dark: slate-900 bg, white text — use sparingly for contrast
  */
 
 import { Rocket, Phone, Mail, ArrowRight } from 'lucide-astro';
@@ -49,6 +21,7 @@ export interface Props {
   backgroundImage?: string;
   darkOverlay?: number;
   className?: string;
+  variant?: 'light' | 'dark';
 }
 
 const {
@@ -63,10 +36,10 @@ const {
   secondaryButtonIcon = 'phone',
   backgroundImage,
   darkOverlay = 90,
-  className = ''
+  className = '',
+  variant = 'light'
 } = Astro.props;
 
-// Mapeo de iconos
 const badgeIcons: Record<string, any> = {
   'rocket': Rocket,
   'arrow-right': ArrowRight,
@@ -81,142 +54,84 @@ const buttonIcons: Record<string, any> = {
 
 const BadgeIcon = badgeIcons[badgeIcon] || Rocket;
 const SecondaryIcon = buttonIcons[secondaryButtonIcon] || Phone;
-
-// Calcular opacidad del overlay (inline style — Tailwind JIT can't generate dynamic opacity classes)
-const overlayOpacity = Math.min(Math.max(darkOverlay, 0), 100);
-const overlayStyle = `background-color: rgba(17, 24, 39, ${overlayOpacity / 100})`;
-
-// Imagen de fondo por defecto
-const bgImage = backgroundImage || 'https://ultimamilla.com.ar/directus-assets/caffbcaa-2457-4fc9-9960-2e0601f27736';
-
-// Validar que haya botón secundario
 const hasSecondaryButton = secondaryButtonText && secondaryButtonUrl;
+
+const isDark = variant === 'dark';
 ---
 
-<section class={`relative py-12 sm:py-16 lg:py-24 xl:py-28 overflow-hidden ${className}`}>
-  <!-- Background Image -->
-  <div class="absolute inset-0">
-    <img
-      src={bgImage}
-      alt="Background"
-      class="w-full h-full object-cover"
-      loading="lazy"
-    />
-    <div class="absolute inset-0" style={overlayStyle}></div>
-  </div>
+<section class={`relative py-16 sm:py-20 lg:py-28 overflow-hidden ${isDark ? 'bg-um-dark' : 'bg-um-surface'} ${className}`}>
+  {/* Background image for dark variant */}
+  {isDark && backgroundImage && (
+    <div class="absolute inset-0">
+      <img
+        src={backgroundImage}
+        alt=""
+        class="w-full h-full object-cover opacity-20"
+        loading="lazy"
+        aria-hidden="true"
+      />
+      <div class="absolute inset-0 bg-um-dark/80"></div>
+    </div>
+  )}
 
-  <!-- Content -->
-  <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-    <!-- Badge -->
+  <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    {/* Accent line */}
+    <div class="flex justify-center mb-8">
+      <div class={`w-12 h-0.5 rounded-full ${isDark ? 'bg-um-primary' : 'bg-um-primary'}`}></div>
+    </div>
+
+    {/* Badge */}
     {badge && (
-      <span class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 backdrop-blur text-white rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6">
-        <BadgeIcon class="w-4 h-4" />
+      <span class={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-6 ${
+        isDark ? 'bg-white/10 text-white/80' : 'bg-um-primary-light text-um-primary'
+      }`}>
+        <BadgeIcon class="w-3.5 h-3.5" />
         {badge}
       </span>
     )}
 
-    <!-- Título -->
-    <h2 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 sm:mb-6">
+    {/* Title */}
+    <h2 class={`text-2xl sm:text-3xl lg:text-4xl font-bold mb-5 leading-tight ${
+      isDark ? 'text-white' : 'text-um-dark'
+    }`}>
       {titulo}
     </h2>
 
-    <!-- Descripción -->
+    {/* Description */}
     {descripcion && (
-      <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-10 max-w-2xl mx-auto">
+      <p class={`text-base sm:text-lg mb-10 max-w-2xl mx-auto leading-relaxed ${
+        isDark ? 'text-slate-400' : 'text-um-text-tertiary'
+      }`}>
         {descripcion}
       </p>
     )}
 
-    <!-- Botones -->
-    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-      <!-- Botón Principal -->
+    {/* Buttons */}
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
       <a
         href={primaryButtonUrl}
-        class="px-6 py-3 sm:px-8 sm:py-4 bg-um-accent text-white font-bold rounded-xl hover:bg-um-accent-dark transition-all shadow-xl shadow-um-accent/25 min-h-[48px] flex items-center justify-center hover:scale-105"
+        class={`px-7 py-3.5 font-semibold rounded-xl transition-all min-h-[48px] flex items-center justify-center text-sm ${
+          isDark
+            ? 'bg-white text-um-dark hover:bg-slate-100 shadow-elevated'
+            : 'bg-um-primary text-white hover:bg-um-primary-dark shadow-red hover:shadow-red-lg'
+        }`}
       >
         {primaryButtonText}
       </a>
 
-      <!-- Botón Secundario -->
       {hasSecondaryButton && (
         <a
           href={secondaryButtonUrl}
-          class="px-6 py-3 sm:px-8 sm:py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-all flex items-center justify-center gap-2 min-h-[48px] hover:scale-105"
+          class={`px-7 py-3.5 font-semibold rounded-xl transition-all flex items-center justify-center gap-2 min-h-[48px] text-sm ${
+            isDark
+              ? 'border border-white/20 text-white hover:bg-white/10'
+              : 'border border-um-border text-um-text-secondary hover:border-um-border-strong hover:bg-white'
+          }`}
         >
-          <SecondaryIcon class="w-5 h-5" />
+          <SecondaryIcon class="w-4 h-4" />
           {secondaryButtonText}
         </a>
       )}
     </div>
   </div>
 </section>
-
-<style>
-  /* Animación de entrada para el CTA */
-  @media (prefers-reduced-motion: no-preference) {
-    .relative > div {
-      animation: fadeInUp 0.8s ease-out;
-    }
-
-    h2 {
-      animation: fadeInUp 0.8s ease-out 0.2s both;
-    }
-
-    p {
-      animation: fadeInUp 0.8s ease-out 0.4s both;
-    }
-
-    .flex {
-      animation: fadeInUp 0.8s ease-out 0.6s both;
-    }
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Hover effects más pronunciados */
-  a {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* Backdrop blur para badge */
-  .backdrop-blur {
-    backdrop-filter: blur(12px);
-  }
-
-  /* Sombra del botón principal animada */
-  .bg-um-accent {
-    box-shadow: 0 10px 25px rgba(220, 38, 38, 0.25);
-    transition: all 0.3s ease;
-  }
-
-  .bg-um-accent:hover {
-    box-shadow: 0 15px 35px rgba(220, 38, 38, 0.35);
-  }
-
-  /* Accesibilidad */
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
-
-  /* Touch targets mínimos para móvil */
-  @media (max-width: 640px) {
-    a {
-      min-height: 48px;
-      min-width: 48px;
-    }
-  }
-</style>

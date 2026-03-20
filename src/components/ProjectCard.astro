@@ -13,16 +13,16 @@ interface Props {
   slug: string;
 }
 
-const { 
+const {
   id,
-  titulo, 
-  cliente, 
-  descripcion, 
-  fecha, 
-  area, 
+  titulo,
+  cliente,
+  descripcion,
+  fecha,
+  area,
   servicio,
   imagen,
-  slug 
+  slug
 } = Astro.props;
 
 // NO fallbacks - image must come from Directus
@@ -48,12 +48,10 @@ const formatDate = (dateString: string) => {
 
 /**
  * Normaliza un área/categoría a una clave de sector
- * Busca keywords en el área para determinar el sector correcto
  */
 function normalizeSector(area: string): string {
   const keywords = area?.toLowerCase().trim() || '';
 
-  // Sectores principales (prioridad alta - keywords más específicos primero)
   if (keywords.includes('aeropuerto')) return 'aeropuertos';
   if (keywords.includes('bodega') || keywords.includes('vitivinícola')) return 'bodegas';
   if (keywords.includes('gobierno') || keywords.includes('municipal') || keywords.includes('público')) return 'gobierno';
@@ -63,100 +61,81 @@ function normalizeSector(area: string): string {
   if (keywords.includes('software') || keywords.includes('desarrollo') || keywords.includes('aplicación') || keywords.includes('soporte')) return 'software';
   if (keywords.includes('minería') || keywords.includes('minera') || keywords.includes('mining')) return 'mineria';
   if (keywords.includes('seguridad') || keywords.includes('cctv') || keywords.includes('vigilancia')) return 'seguridad';
+  if (keywords.includes('telecomunicaciones') || keywords.includes('redes') || keywords.includes('telefonía') || keywords.includes('comunicaciones')) return 'telecomunicaciones';
+  if (keywords.includes('data center') || keywords.includes('datacenter') || keywords.includes('centro de datos')) return 'datacenter';
+  if (keywords.includes('hotel') || keywords.includes('hotelería') || keywords.includes('turismo')) return 'hoteleria';
+  if (keywords.includes('retail') || keywords.includes('comercio') || keywords.includes('tienda') || keywords.includes('shopping')) return 'retail';
+  if (keywords.includes('energía') || keywords.includes('eléctrica') || keywords.includes('renovable') || keywords.includes('distribuidora')) return 'energia';
+  if (keywords.includes('educación') || keywords.includes('universidad') || keywords.includes('escuela') || keywords.includes('instituto')) return 'educacion';
 
-  // Telecomunicaciones (ampliado)
-  if (keywords.includes('telecomunicaciones') ||
-      keywords.includes('redes') ||
-      keywords.includes('telefonía') ||
-      keywords.includes('comunicaciones')) return 'telecomunicaciones';
-
-  // Nuevos sectores
-  if (keywords.includes('data center') ||
-      keywords.includes('datacenter') ||
-      keywords.includes('centro de datos')) return 'datacenter';
-
-  if (keywords.includes('hotel') ||
-      keywords.includes('hotelería') ||
-      keywords.includes('turismo')) return 'hoteleria';
-
-  if (keywords.includes('retail') ||
-      keywords.includes('comercio') ||
-      keywords.includes('tienda') ||
-      keywords.includes('shopping')) return 'retail';
-
-  if (keywords.includes('energía') ||
-      keywords.includes('eléctrica') ||
-      keywords.includes('renovable') ||
-      keywords.includes('distribuidora')) return 'energia';
-
-  if (keywords.includes('educación') ||
-      keywords.includes('universidad') ||
-      keywords.includes('escuela') ||
-      keywords.includes('instituto')) return 'educacion';
-
-  // Fallback genérico (SOLO si no hay match)
   return 'tecnologia';
 }
 
-// Obtener colores del sector normalizado
 const sector = normalizeSector(area);
 const colors = getSectorColors(sector);
 const areaColors = colors.badge;
 ---
 
-<article class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] hover:ring-4 hover:ring-blue-300/50 flex flex-col h-full border-2 border-transparent hover:border-blue-400">
-  <a href={`/antecedentes/${id}/${slug}`} class="block group h-full flex flex-col cursor-pointer">
-    <div class="relative overflow-hidden h-48 bg-gray-100">
+<article class="group bg-white rounded-2xl overflow-hidden border border-um-border hover:border-um-primary/20 transition-all duration-300 hover:shadow-elevated flex flex-col h-full">
+  <a href={`/antecedentes/${id}/${slug}`} class="block h-full flex flex-col">
+    <!-- Image -->
+    <div class="relative overflow-hidden aspect-[4/3] bg-um-elevated">
       {imageUrl ? (
         <img
           src={imageUrl}
           alt={titulo}
           loading="lazy"
-          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           onerror="this.onerror=null;this.src='/images/default-background.jpg'"
         />
       ) : (
-        <div class="w-full h-full flex items-center justify-center bg-um-gray text-um-dark">
+        <div class="w-full h-full flex items-center justify-center bg-um-elevated text-um-text-muted">
           <p class="text-sm">Imagen no disponible</p>
         </div>
       )}
     </div>
-    
-    <div class="p-6 flex-1 flex flex-col">
-      <div class="flex-1">
-        <h3 class="text-xl font-black text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">{titulo}</h3>
-        <p class="text-gray-600 mb-4 line-clamp-2">{descripcion}</p>
+
+    <!-- Content -->
+    <div class="p-5 sm:p-6 flex-1 flex flex-col">
+      {/* Tags */}
+      <div class="flex flex-wrap gap-2 mb-3">
+        {area && (
+          <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${areaColors.bg} ${areaColors.text}`}>
+            {area}
+          </span>
+        )}
+        {servicio && (
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-um-elevated text-um-text-tertiary">
+            {servicio}
+          </span>
+        )}
       </div>
-      
-      <div class="mt-4 pt-4 border-t border-gray-100">
-        <div class="flex items-center text-sm text-gray-500 mb-2">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+
+      <h3 class="text-base sm:text-lg font-semibold text-um-dark mb-2 line-clamp-2 group-hover:text-um-primary transition-colors leading-snug">
+        {titulo}
+      </h3>
+      <p class="text-sm text-um-text-tertiary mb-4 line-clamp-2 leading-relaxed">{descripcion}</p>
+
+      {/* Meta */}
+      <div class="mt-auto pt-4 border-t border-um-border-subtle flex items-center justify-between">
+        <span class="text-xs text-um-text-muted font-mono uppercase tracking-wider" style="font-family:'JetBrains Mono',monospace;">
+          {cliente ? cliente.substring(0, 25) : ''}
+        </span>
+        <span class="text-um-primary text-xs font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
+          Ver proyecto
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
           </svg>
-          <span>{formatDate(fecha)}</span>
-        </div>
-        <div class="flex items-center text-sm text-gray-500">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-          </svg>
-          <span class="truncate">{cliente}</span>
-        </div>
+        </span>
       </div>
     </div>
   </a>
-  
-  <div class="px-6 pb-4">
-    <div class="flex flex-wrap gap-2">
-      {area && (
-        <span class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${areaColors.bg} ${areaColors.text}`}>
-          {area}
-        </span>
-      )}
-      {servicio && (
-        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-          {servicio}
-        </span>
-      )}
-    </div>
-  </div>
 </article>
+
+<style>
+  @media (prefers-reduced-motion: reduce) {
+    article, img {
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>

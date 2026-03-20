@@ -31,88 +31,92 @@ import CTASection from '../components/v4/CTASection.astro';
     ]}
   />
 
-	<div class="max-w-7xl mx-auto px-4 py-16">
-		
-		<!-- 2. IMAGEN PRINCIPAL (Requerimiento de usuario) -->
-		<div class="mb-20">
-			<img src="/nosotros-tech.jpg" alt="Infraestructura tecnológica ULTIMA MILLA" class="w-full h-[500px] object-cover rounded-2xl shadow-2xl transform hover:scale-[1.01] transition-transform duration-500">
+	<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 section-padding">
+
+		<!-- Imagen Principal -->
+		<div class="mb-16 sm:mb-20 reveal">
+			<img src="/nosotros-tech.jpg" alt="Infraestructura tecnológica ULTIMA MILLA" class="w-full h-[400px] sm:h-[500px] object-cover rounded-2xl">
 		</div>
 
-		<!-- 3. PROCESO DE DESARROLLO (Recuperado de diseño anterior) -->
-		<div class="mb-20">
-			<div class="text-center mb-12">
-				<h2 class="text-4xl font-black text-gray-900 mb-4">
-					Nuestro enfoque <span class="text-blue-600">profesional</span>
+		<!-- Proceso de Desarrollo -->
+		<div class="mb-16 sm:mb-20">
+			<div class="text-center mb-10 sm:mb-14 reveal">
+				<div class="flex justify-center mb-4"><div class="section-accent"></div></div>
+				<h2 class="text-fluid-title text-um-dark mb-3">
+					Nuestro enfoque <span class="text-um-primary">profesional</span>
 				</h2>
-				<p class="text-xl text-gray-600 max-w-3xl mx-auto">
+				<p class="text-um-text-tertiary max-w-2xl mx-auto">
 					Metodología probada para garantizar resultados excepcionales en cada proyecto de infraestructura y software.
 				</p>
 			</div>
 
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-				<div class="relative bg-white p-6 rounded-2xl shadow-lg border-2 border-transparent hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-500/25 transform hover:-translate-y-2 transition-all duration-300">
-					<div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-						<span class="text-blue-600 font-bold text-xl">1</span>
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 reveal-stagger">
+				<div class="reveal bg-white p-6 rounded-2xl border border-um-border hover:border-um-primary/20 hover:shadow-elevated transition-all duration-300">
+					<div class="w-10 h-10 bg-um-elevated rounded-full flex items-center justify-center mb-4">
+						<span class="text-um-dark font-bold text-sm" style="font-family:'JetBrains Mono',monospace;">1</span>
 					</div>
-					<h3 class="text-xl font-black text-gray-900 mb-3">Consultoría</h3>
-					<p class="text-gray-600">Análisis profundo de necesidades y objetivos operativos.</p>
+					<h3 class="text-lg font-semibold text-um-dark mb-2">Consultoría</h3>
+					<p class="text-sm text-um-text-tertiary leading-relaxed">Análisis profundo de necesidades y objetivos operativos.</p>
 				</div>
 
-				<div class="relative bg-white p-6 rounded-2xl shadow-lg border-2 border-transparent hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-500/25 transform hover:-translate-y-2 transition-all duration-300">
-					<div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-						<span class="text-purple-600 font-bold text-xl">2</span>
+				<div class="reveal bg-white p-6 rounded-2xl border border-um-border hover:border-um-primary/20 hover:shadow-elevated transition-all duration-300">
+					<div class="w-10 h-10 bg-um-elevated rounded-full flex items-center justify-center mb-4">
+						<span class="text-um-dark font-bold text-sm" style="font-family:'JetBrains Mono',monospace;">2</span>
 					</div>
-					<h3 class="text-xl font-black text-gray-900 mb-3">Diseño</h3>
-					<p class="text-gray-600">Arquitectura de soluciones a medida, escalables y eficientes.</p>
+					<h3 class="text-lg font-semibold text-um-dark mb-2">Diseño</h3>
+					<p class="text-sm text-um-text-tertiary leading-relaxed">Arquitectura de soluciones a medida, escalables y eficientes.</p>
 				</div>
 
-				<div class="relative bg-white p-6 rounded-2xl shadow-lg border-2 border-transparent hover:border-orange-400 hover:shadow-2xl hover:shadow-orange-500/25 transform hover:-translate-y-2 transition-all duration-300">
-					<div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-						<span class="text-orange-600 font-bold text-xl">3</span>
+				<div class="reveal bg-white p-6 rounded-2xl border border-um-border hover:border-um-primary/20 hover:shadow-elevated transition-all duration-300">
+					<div class="w-10 h-10 bg-um-elevated rounded-full flex items-center justify-center mb-4">
+						<span class="text-um-dark font-bold text-sm" style="font-family:'JetBrains Mono',monospace;">3</span>
 					</div>
-					<h3 class="text-xl font-black text-gray-900 mb-3">Implementación</h3>
-					<p class="text-gray-600">Despliegue técnico con estándares de calidad internacionales.</p>
+					<h3 class="text-lg font-semibold text-um-dark mb-2">Implementación</h3>
+					<p class="text-sm text-um-text-tertiary leading-relaxed">Despliegue técnico con estándares de calidad internacionales.</p>
 				</div>
 
-				<div class="relative bg-white p-6 rounded-2xl shadow-lg border-2 border-transparent hover:border-green-400 hover:shadow-2xl hover:shadow-green-500/25 transform hover:-translate-y-2 transition-all duration-300">
-					<div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
-						<span class="text-green-600 font-bold text-xl">4</span>
+				<div class="reveal bg-white p-6 rounded-2xl border border-um-border hover:border-um-primary/20 hover:shadow-elevated transition-all duration-300">
+					<div class="w-10 h-10 bg-um-elevated rounded-full flex items-center justify-center mb-4">
+						<span class="text-um-dark font-bold text-sm" style="font-family:'JetBrains Mono',monospace;">4</span>
 					</div>
-					<h3 class="text-xl font-black text-gray-900 mb-3">Soporte</h3>
-					<p class="text-gray-600">Mantenimiento proactivo y garantía de continuidad operativa.</p>
+					<h3 class="text-lg font-semibold text-um-dark mb-2">Soporte</h3>
+					<p class="text-sm text-um-text-tertiary leading-relaxed">Mantenimiento proactivo y garantía de continuidad operativa.</p>
 				</div>
 			</div>
 		</div>
 
-		<!-- 4. CONTENIDO CORPORATIVO DETALLADO -->
-		<div class="prose prose-lg mx-auto mb-20 text-gray-600">
-			<h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">Nuestra Historia y Visión</h2>
-			<p class="leading-relaxed mb-6">
-				<strong>ULTIMA MILLA</strong> nació como un equipo de especialistas en comunicaciones, sistemas e integración para transformar necesidades operativas en soluciones tecnológicas concretas. Nuestra trayectoria incluye proyectos desde inicios de los 2000 hasta la actualidad, con presencia en sectores: gobierno provincial y nacional, salud, educación, agronegocios y obra civil (estadio, torres, desarrollos inmobiliarios), además de clientes privados como bancos y medios.
+		<!-- Contenido Corporativo -->
+		<div class="max-w-4xl mx-auto mb-16 sm:mb-20 reveal">
+			<div class="text-center mb-10">
+				<div class="flex justify-center mb-4"><div class="section-accent"></div></div>
+				<h2 class="text-fluid-title text-um-dark">Nuestra Historia y Visión</h2>
+			</div>
+			<p class="text-um-text-secondary leading-relaxed mb-8">
+				<strong class="text-um-dark">ULTIMA MILLA</strong> nació como un equipo de especialistas en comunicaciones, sistemas e integración para transformar necesidades operativas en soluciones tecnológicas concretas. Nuestra trayectoria incluye proyectos desde inicios de los 2000 hasta la actualidad, con presencia en sectores: gobierno provincial y nacional, salud, educación, agronegocios y obra civil, además de clientes privados como bancos y medios.
 			</p>
-			
-			<div class="grid md:grid-cols-2 gap-12 mt-12">
+
+			<div class="grid md:grid-cols-2 gap-10 mt-12">
 				<div>
-					<h3 class="text-2xl font-bold text-gray-900 mb-4">Qué Ofrecemos</h3>
-					<ul class="space-y-3">
-						<li class="flex items-start"><span class="text-blue-500 mr-2">●</span> Ingeniería y operación de redes y telecomunicaciones.</li>
-						<li class="flex items-start"><span class="text-blue-500 mr-2">●</span> Desarrollo de software a medida e integraciones API.</li>
-						<li class="flex items-start"><span class="text-blue-500 mr-2">●</span> Seguridad física y digital, gestión de incidentes.</li>
-						<li class="flex items-start"><span class="text-blue-500 mr-2">●</span> Servicios gestionados y soporte operativo.</li>
-						<li class="flex items-start"><span class="text-blue-500 mr-2">●</span> Migraciones y optimización de infraestructura.</li>
+					<h3 class="text-xl font-semibold text-um-dark mb-4">Qué Ofrecemos</h3>
+					<ul class="space-y-3 text-sm">
+						<li class="flex items-start gap-3"><span class="w-1.5 h-1.5 rounded-full bg-um-primary mt-2 shrink-0"></span><span class="text-um-text-secondary">Ingeniería y operación de redes y telecomunicaciones.</span></li>
+						<li class="flex items-start gap-3"><span class="w-1.5 h-1.5 rounded-full bg-um-primary mt-2 shrink-0"></span><span class="text-um-text-secondary">Desarrollo de software a medida e integraciones API.</span></li>
+						<li class="flex items-start gap-3"><span class="w-1.5 h-1.5 rounded-full bg-um-primary mt-2 shrink-0"></span><span class="text-um-text-secondary">Seguridad física y digital, gestión de incidentes.</span></li>
+						<li class="flex items-start gap-3"><span class="w-1.5 h-1.5 rounded-full bg-um-primary mt-2 shrink-0"></span><span class="text-um-text-secondary">Servicios gestionados y soporte operativo.</span></li>
+						<li class="flex items-start gap-3"><span class="w-1.5 h-1.5 rounded-full bg-um-primary mt-2 shrink-0"></span><span class="text-um-text-secondary">Migraciones y optimización de infraestructura.</span></li>
 					</ul>
 				</div>
 				<div>
-					<h3 class="text-2xl font-bold text-gray-900 mb-4">Diferencial Competitivo</h3>
-					<ul class="space-y-4">
+					<h3 class="text-xl font-semibold text-um-dark mb-4">Diferencial Competitivo</h3>
+					<ul class="space-y-4 text-sm">
 						<li>
-							<strong class="text-gray-900">ADN regional:</strong> Operación desde Mendoza con capacidad nacional.
+							<strong class="text-um-dark">ADN regional:</strong> <span class="text-um-text-secondary">Operación desde Mendoza con capacidad nacional.</span>
 						</li>
 						<li>
-							<strong class="text-gray-900">Tecnología abierta:</strong> Sin dependencia de licencias restrictivas.
+							<strong class="text-um-dark">Tecnología abierta:</strong> <span class="text-um-text-secondary">Sin dependencia de licencias restrictivas.</span>
 						</li>
 						<li>
-							<strong class="text-gray-900">Transparencia:</strong> Documentación pública y trazabilidad total.
+							<strong class="text-um-dark">Transparencia:</strong> <span class="text-um-text-secondary">Documentación pública y trazabilidad total.</span>
 						</li>
 					</ul>
 				</div>
@@ -122,6 +126,7 @@ import CTASection from '../components/v4/CTASection.astro';
 
 	<!-- 5. CTA SECTION -->
 	<CTASection
+		variant="dark"
 		badge="¿Necesita un socio tecnológico?"
 		badgeIcon="rocket"
 		titulo="Construyamos el Futuro de su Infraestructura Juntos"
@@ -131,8 +136,6 @@ import CTASection from '../components/v4/CTASection.astro';
 		secondaryButtonText="Ver Casos de Éxito"
 		secondaryButtonUrl="/antecedentes"
 		secondaryButtonIcon="arrow-right"
-		backgroundImage="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80"
-		darkOverlay={90}
 	/>
 
 	<!-- 6. FORMULARIO COMPLEJO INTEGRADO -->

@@ -36,38 +36,38 @@ const stats = [
   />
 
   <!-- Proceso de Trabajo Section -->
-  <section class="bg-um-primary-bg border-b border-um-primary/10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
+  <section class="bg-um-surface border-b border-um-border">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
       <div class="text-center mb-6 sm:mb-8">
-        <h2 class="text-lg sm:text-xl font-bold text-um-dark">Nuestro Proceso de Trabajo</h2>
+        <h2 class="text-lg sm:text-xl font-semibold text-um-dark">Nuestro Proceso de Trabajo</h2>
       </div>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
         <div class="flex items-center gap-3 sm:gap-4">
-          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-um-accent rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 text-sm sm:text-base">1</div>
+          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-um-dark rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0 text-sm" style="font-family:'JetBrains Mono',monospace;">1</div>
           <div>
             <div class="font-semibold text-um-dark text-sm sm:text-base">Consulta</div>
-            <div class="text-xs sm:text-sm text-um-gray">Análisis de necesidades</div>
+            <div class="text-xs sm:text-sm text-um-text-tertiary">Análisis de necesidades</div>
           </div>
         </div>
         <div class="flex items-center gap-3 sm:gap-4">
-          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-um-accent rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 text-sm sm:text-base">2</div>
+          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-um-dark rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0 text-sm" style="font-family:'JetBrains Mono',monospace;">2</div>
           <div>
             <div class="font-semibold text-um-dark text-sm sm:text-base">Propuesta</div>
-            <div class="text-xs sm:text-sm text-um-gray">Diseño técnico y cotización</div>
+            <div class="text-xs sm:text-sm text-um-text-tertiary">Diseño técnico y cotización</div>
           </div>
         </div>
         <div class="flex items-center gap-3 sm:gap-4">
-          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-um-accent rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 text-sm sm:text-base">3</div>
+          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-um-dark rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0 text-sm" style="font-family:'JetBrains Mono',monospace;">3</div>
           <div>
             <div class="font-semibold text-um-dark text-sm sm:text-base">Desarrollo</div>
-            <div class="text-xs sm:text-sm text-um-gray">Implementación y testing</div>
+            <div class="text-xs sm:text-sm text-um-text-tertiary">Implementación y testing</div>
           </div>
         </div>
         <div class="flex items-center gap-3 sm:gap-4">
-          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-um-accent rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 text-sm sm:text-base">4</div>
+          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-um-dark rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0 text-sm" style="font-family:'JetBrains Mono',monospace;">4</div>
           <div>
             <div class="font-semibold text-um-dark text-sm sm:text-base">Entrega</div>
-            <div class="text-xs sm:text-sm text-um-gray">Documentación y soporte</div>
+            <div class="text-xs sm:text-sm text-um-text-tertiary">Documentación y soporte</div>
           </div>
         </div>
       </div>
@@ -76,12 +76,12 @@ const stats = [
 
   <!-- Contact Form + Info Section -->
   <section class="py-10 sm:py-14 lg:py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 sm:gap-10 lg:gap-12">
 
         <!-- Form (3 cols) -->
-        <div class="lg:col-span-3">
-          <h2 class="text-xl sm:text-2xl font-bold text-um-dark mb-4 sm:mb-6">Cuéntenos sobre su Proyecto</h2>
+        <div class="lg:col-span-3 bg-white rounded-3xl border border-um-border p-6 sm:p-8 lg:p-10 shadow-soft">
+          <h2 class="text-xl sm:text-2xl font-bold text-um-dark mb-6 sm:mb-8">Cuéntenos sobre su Proyecto</h2>
 
           <form id="contactForm" class="space-y-4 sm:space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -221,7 +221,7 @@ const stats = [
 
             <button
               type="submit"
-              class="w-full py-4 bg-um-accent text-white font-bold rounded-xl hover:bg-um-accent-dark transition-colors flex items-center justify-center gap-2 min-h-[48px]"
+              class="w-full py-4 bg-um-primary text-white font-semibold rounded-xl hover:bg-um-primary-dark transition-all shadow-red hover:shadow-red-lg flex items-center justify-center gap-2 min-h-[48px]"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
@@ -243,30 +243,30 @@ const stats = [
         <div class="lg:col-span-2 space-y-6 sm:space-y-8">
 
           <!-- Direct Contact -->
-          <div class="bg-gray-50 rounded-2xl p-6 sm:p-8">
-            <h3 class="font-bold text-um-dark mb-4 sm:mb-6 text-base sm:text-lg">Contacto Directo</h3>
+          <div class="bg-um-surface rounded-2xl p-6 sm:p-8 border border-um-border">
+            <h3 class="text-xs font-semibold uppercase tracking-widest text-um-text-muted mb-5">Contacto Directo</h3>
 
             <div class="space-y-4 sm:space-y-5">
               <a href="mailto:contacto@ultimamilla.com.ar" class="flex items-start gap-4 group">
-                <div class="w-12 h-12 bg-um-primary rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-um-primary-dark transition-colors">
-                  <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                <div class="w-10 h-10 bg-um-elevated rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-um-primary group-hover:text-white transition-colors text-um-text-tertiary">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                   </svg>
                 </div>
                 <div>
-                  <div class="text-sm text-um-gray">Email</div>
-                  <div class="font-semibold text-um-dark group-hover:text-um-primary transition-colors">contacto@ultimamilla.com.ar</div>
+                  <div class="text-xs text-um-text-muted">Email</div>
+                  <div class="font-medium text-um-dark group-hover:text-um-primary transition-colors">contacto@ultimamilla.com.ar</div>
                 </div>
               </a>
             </div>
           </div>
 
           <!-- Address -->
-          <div class="bg-gray-50 rounded-2xl p-6 sm:p-8">
-            <h3 class="font-bold text-um-dark mb-4 sm:mb-6 text-base sm:text-lg">Nuestra Oficina</h3>
+          <div class="bg-um-surface rounded-2xl p-6 sm:p-8 border border-um-border">
+            <h3 class="text-xs font-semibold uppercase tracking-widest text-um-text-muted mb-5">Nuestra Oficina</h3>
 
             <div class="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
-              <div class="w-12 h-12 bg-um-primary rounded-xl flex items-center justify-center flex-shrink-0">
+              <div class="w-10 h-10 bg-um-elevated rounded-xl flex items-center justify-center flex-shrink-0 text-um-text-tertiary">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>

@@ -322,9 +322,9 @@ const filterIconPaths: Record<string, string> = {
     ]}
   />
 
-  <!-- FILTER CHIPS SECTION - V4 Design with RESPONSIVE filters -->
-  <section class="bg-white border-b border-gray-100 sticky top-16 sm:top-20 z-40">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+  <!-- FILTER CHIPS SECTION -->
+  <section class="bg-white/90 backdrop-blur-xl border-b border-um-border sticky top-20 sm:top-24 z-40">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
       <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
 
         <!-- Mobile: Select Dropdown (<1024px) -->
@@ -350,10 +350,10 @@ const filterIconPaths: Record<string, string> = {
           {filterChips.map((chip) => (
             <a
               href={buildSectorUrl(chip.id)}
-              class={`filter-chip px-4 py-2 rounded-full text-sm font-medium border border-gray-200 flex items-center gap-2 transition-all min-h-[44px] ${
+              class={`filter-chip px-4 py-2 rounded-full text-sm font-medium border flex items-center gap-2 transition-all min-h-[44px] ${
                 sectorFilter === chip.id || (chip.id === '' && !sectorFilter)
-                  ? 'bg-um-primary text-white border-um-primary'
-                  : 'text-um-gray hover:bg-um-primary hover:text-white hover:border-um-primary'
+                  ? 'bg-um-dark text-white border-um-dark'
+                  : 'border-um-border text-um-text-tertiary hover:bg-um-elevated hover:text-um-text-secondary'
               }`}
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" set:html={filterIconPaths[chip.icon]} />
@@ -382,8 +382,8 @@ const filterIconPaths: Record<string, string> = {
   </section>
 
   <!-- RESULTS INFO -->
-  <section class="bg-um-primary-bg/50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+  <section class="bg-um-surface">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
       <div class="flex items-center justify-between">
         <p class="text-sm text-um-gray">
           Mostrando <span class="font-semibold text-um-dark">{((pageData.currentPage - 1) * PAGE_SIZE) + 1}-{Math.min(pageData.currentPage * PAGE_SIZE, pageData.totalItems)}</span> de <span class="font-semibold text-um-dark">{pageData.totalItems}</span> proyectos
@@ -409,8 +409,8 @@ const filterIconPaths: Record<string, string> = {
   </section>
 
   <!-- Grid de Proyectos -->
-  <section class="py-10 sm:py-14 lg:py-20 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <section class="section-padding bg-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       {pageData.antecedentes.length === 0 ? (
         <div class="text-center py-16 sm:py-20">
           <svg class="w-16 h-16 text-um-gray mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -427,34 +427,33 @@ const filterIconPaths: Record<string, string> = {
           {pageData.antecedentes.map((proyecto, index) => (
             <a
               href={`/antecedentes/${proyecto.slug}`}
-              class="card-hover bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 animate-fade-in"
-              style={`animation-delay: ${0.1 + index * 0.05}s`}
+              class="group bg-white rounded-2xl overflow-hidden border border-um-border hover:border-um-primary/20 transition-all duration-300 hover:shadow-elevated reveal"
+              style={`transition-delay: ${0.05 + index * 0.03}s`}
             >
-              <div class="relative h-48 overflow-hidden">
+              <div class="relative aspect-[4/3] overflow-hidden bg-um-elevated">
                 <img
                   src={proyecto.imageUrl}
                   alt={proyecto.Titulo}
-                  class="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                   loading="lazy"
                   onerror="this.src='/images/default.jpg'"
                 />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                <span class={`absolute bottom-3 left-3 px-2.5 py-1 ${getCategoryBadgeColor(proyecto.Area || '')} text-white text-xs font-semibold rounded-md`}>
-                  {proyecto.Area || 'Proyecto'}
-                </span>
               </div>
               <div class="p-5">
-                <h3 class="font-bold text-um-dark mb-2 line-clamp-2 group-hover:text-um-primary transition-colors">
+                <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryBadgeColor(proyecto.Area || '')} text-white mb-3`}>
+                  {proyecto.Area || 'Proyecto'}
+                </span>
+                <h3 class="font-semibold text-um-dark mb-2 line-clamp-2 group-hover:text-um-primary transition-colors leading-snug">
                   {proyecto.Titulo}
                 </h3>
-                <p class="text-sm text-um-gray line-clamp-2 mb-4">
+                <p class="text-sm text-um-text-tertiary line-clamp-2 leading-relaxed">
                   {proyecto.Descripcion ? proyecto.Descripcion.replace(/<[^>]*>/g, '').substring(0, 100) + '...' : ''}
                 </p>
-                <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                  <span class="text-xs text-um-gray">{proyecto.Cliente}</span>
-                  <span class="text-um-primary text-sm font-medium flex items-center gap-1">
+                <div class="flex items-center justify-between pt-4 mt-4 border-t border-um-border-subtle">
+                  <span class="text-xs text-um-text-muted font-mono" style="font-family:'JetBrains Mono',monospace;">{proyecto.Cliente}</span>
+                  <span class="text-um-primary text-xs font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
                     Ver detalle
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                     </svg>
                   </span>
@@ -476,7 +475,7 @@ const filterIconPaths: Record<string, string> = {
             {pageData.currentPage > 1 && (
               <a
                 href={buildPageUrl(pageData.currentPage - 1)}
-                class="p-2 rounded-lg border border-gray-200 text-um-gray hover:bg-gray-50 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                class="p-2 rounded-lg border border-um-border text-um-text-tertiary hover:bg-um-elevated min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -487,10 +486,10 @@ const filterIconPaths: Record<string, string> = {
             {paginationPages.map((pageNum) => (
               <a
                 href={buildPageUrl(pageNum)}
-                class={`w-10 h-10 rounded-lg font-medium flex items-center justify-center min-h-[44px] ${
+                class={`w-10 h-10 rounded-lg font-medium flex items-center justify-center min-h-[44px] transition-colors ${
                   pageData.currentPage === pageNum
-                    ? 'bg-um-primary text-white'
-                    : 'border border-gray-200 text-um-gray hover:bg-gray-50'
+                    ? 'bg-um-dark text-white'
+                    : 'border border-um-border text-um-text-tertiary hover:bg-um-elevated'
                 }`}
               >
                 {pageNum}
@@ -500,7 +499,7 @@ const filterIconPaths: Record<string, string> = {
             {pageData.currentPage < pageData.totalPages && (
               <a
                 href={buildPageUrl(pageData.currentPage + 1)}
-                class="p-2 rounded-lg border border-gray-200 text-um-gray hover:bg-gray-50 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                class="p-2 rounded-lg border border-um-border text-um-text-tertiary hover:bg-um-elevated min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -515,6 +514,7 @@ const filterIconPaths: Record<string, string> = {
 
   <!-- CTA Section -->
   <CTASection
+    variant="dark"
     badge="Comience su proyecto"
     badgeIcon="rocket"
     titulo="¿Tiene un proyecto en mente?"
@@ -524,8 +524,6 @@ const filterIconPaths: Record<string, string> = {
     secondaryButtonText="contacto@ultimamilla.com.ar"
     secondaryButtonUrl="mailto:contacto@ultimamilla.com.ar"
     secondaryButtonIcon="mail"
-    backgroundImage="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80"
-    darkOverlay={90}
   />
 </LayoutV4>
 

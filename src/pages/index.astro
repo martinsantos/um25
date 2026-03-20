@@ -1,7 +1,7 @@
 ---
 /**
- * Homepage V4 Design System
- * Main landing page with hero, services, cases, industries, and CTA
+ * Homepage V5 Light Sofisticado Design System
+ * Typography-first hero, clean sections, refined aesthetics
  */
 
 import LayoutV4 from '../layouts/LayoutV4.astro';
@@ -25,8 +25,6 @@ const localHeroFallback = [
 let heroImages: { url: string; alt: string }[] = [];
 try {
   const heroItems = await getHeroHomeImages();
-  // Hero images use /assets/{uuid} directly (Nginx proxies to Directus)
-  // This bypasses getDirectusImageUrl which has assets disabled for service thumbnails
   const uuidRe = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
   heroImages = heroItems
     .filter((item: any) => item.imagen && uuidRe.test(item.imagen))
@@ -38,12 +36,11 @@ try {
   console.error('[HOMEPAGE] Error loading hero images:', error);
 }
 
-// Use local fallback if no valid hero images
 if (heroImages.length === 0) {
   heroImages = localHeroFallback;
 }
 
-// Get 3 featured antecedentes from Directus (con fallback a snapshot JSON)
+// Get 3 featured antecedentes from Directus
 let antecedentesData: any[] = [];
 try {
   antecedentesData = await getAllAntecedentes();
@@ -57,10 +54,9 @@ const antecedentesEnhanced = antecedentesData.slice(0, 3).map((ant: any) => ({
   imageUrl: getDirectusImageUrl(ant.Imagen) || '/images/default-background.jpg'
 }));
 
-// Get services from Directus (with automatic fallback to JS data)
+// Get services from Directus
 const serviciosFromDirectus = await getAllServicios();
 
-// Map icon names for ServiceCard component
 const iconMap: Record<number, { icon: string; iconColor: string }> = {
   101: { icon: 'network', iconColor: 'bg-sky-600/90' },
   102: { icon: 'shield', iconColor: 'bg-rose-600/90' },
@@ -72,11 +68,9 @@ const iconMap: Record<number, { icon: string; iconColor: string }> = {
   108: { icon: 'zap', iconColor: 'bg-yellow-600/90' }
 };
 
-// Enhance services with badges, colors, icons - ALL from Directus
 const servicios = serviciosFromDirectus.slice(0, 8).map(s => {
   const sector = serviceToSectorMap[s.id] || 'tecnologia';
   const colors = getSectorColors(sector);
-
   return {
     ...s,
     ...iconMap[s.id],
@@ -86,8 +80,7 @@ const servicios = serviciosFromDirectus.slice(0, 8).map(s => {
   };
 });
 
-// Industries/Sectors data with pseudomorphic emojis
-// WebSite schema with SearchAction for sitelinks search box
+// WebSite schema
 const websiteSchema = {
   "@type": "WebSite",
   "name": "ULTIMA MILLA",
@@ -102,16 +95,17 @@ const websiteSchema = {
   }
 };
 
+// Sectors with SVG icon paths (replacing emojis)
 const sectores = [
-  { slug: 'aeropuertos', name: 'Aeropuertos', emoji: '✈️', color: '#0ea5e9' },
-  { slug: 'bodegas', name: 'Bodegas', emoji: '🍷', color: '#a855f7' },
-  { slug: 'constructoras', name: 'Construcción', emoji: '🏗️', color: '#f59e0b' },
-  { slug: 'salud', name: 'Salud', emoji: '🏥', color: '#22c55e' },
-  { slug: 'gobiernosectorpublico', name: 'Gobierno', emoji: '🏛️', color: '#10b981' },
-  { slug: 'software', name: 'Software', emoji: '💻', color: '#6366f1' },
-  { slug: 'mineria', name: 'Minería', emoji: '⛏️', color: '#f97316' },
-  { slug: 'industria', name: 'Industria', emoji: '🏭', color: '#64748b' },
-  { slug: 'seguridad-electronica', name: 'Seguridad', emoji: '🔒', color: '#06b6d4' }
+  { slug: 'aeropuertos', name: 'Aeropuertos', icon: 'M12 19V5m-7 7l7-7 7 7', iconAlt: 'M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z' },
+  { slug: 'bodegas', name: 'Bodegas', icon: 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
+  { slug: 'constructoras', name: 'Construcción', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
+  { slug: 'salud', name: 'Salud', icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' },
+  { slug: 'gobiernosectorpublico', name: 'Gobierno', icon: 'M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21' },
+  { slug: 'software', name: 'Software', icon: 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4' },
+  { slug: 'mineria', name: 'Minería', icon: 'M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z' },
+  { slug: 'industria', name: 'Industria', icon: 'M4.5 12a7.5 7.5 0 0015 0m-15 0a7.5 7.5 0 1115 0m-15 0H3m16.5 0H21m-1.5 0H12m-8.457 3.077l1.41-.513m14.095-5.13l1.41-.513M5.106 17.785l1.15-.964m11.49-9.642l1.149-.964M7.501 19.795l.75-1.3m7.5-12.99l.75-1.3m-6.063 16.658l.26-1.477m2.605-14.772l.26-1.477m0 17.726l-.26-1.477M10.698 4.614l-.26-1.477M16.5 19.794l-.75-1.299M7.5 4.205L12 12' },
+  { slug: 'seguridad-electronica', name: 'Seguridad', icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' }
 ];
 ---
 
@@ -122,144 +116,133 @@ const sectores = [
   image="/nosotros-tech.jpg"
   structuredData={websiteSchema}
 >
-  <!-- HERO SECTION with rotating background -->
-  <section class="relative bg-um-dark overflow-hidden">
-    <!-- Background Images Container (rotating) -->
-    <div class="absolute inset-0" id="heroImageContainer">
-      {heroImages.map((img, index) => (
-        <img
-          src={img.url}
-          alt={img.alt}
-          class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${index === 0 ? 'opacity-80' : 'opacity-0'}`}
-          data-index={index}
-          onerror="this.onerror=null;this.src='/images/default-background.jpg'"
-        />
-      ))}
-      <div class="absolute inset-0 bg-gradient-to-r from-um-dark/90 via-um-dark/50 to-transparent"></div>
-    </div>
-
-    <!-- Content -->
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-10 sm:pb-14 lg:pb-16">
+  <!-- HERO — Typography First -->
+  <section class="relative overflow-hidden" style="background: radial-gradient(ellipse at top center, #F1F5F9 0%, #FFFFFF 60%);">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 lg:pt-28 pb-16 sm:pb-24 lg:pb-32">
       <!-- Badge -->
-      <span class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-um-primary/20 text-um-primary-light rounded-full text-xs sm:text-sm font-semibold mb-4 sm:mb-5">
-        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-um-primary-light text-um-primary rounded-full text-xs font-semibold mb-6 sm:mb-8 reveal">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
         </svg>
         22+ Años Transformando Empresas
       </span>
 
       <!-- Title -->
-      <h1 class="text-[1.85rem] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-[1.1] mb-4 sm:mb-5 max-w-3xl">
-        Conectamos la <span class="text-um-primary-light">tecnología</span> con el éxito de su empresa
+      <h1 class="text-fluid-display text-um-dark max-w-4xl mb-6 reveal">
+        Conectamos la <span class="text-um-primary">tecnología</span> con el éxito de su empresa
       </h1>
 
       <!-- Subtitle -->
-      <p class="text-sm sm:text-base lg:text-lg text-gray-300 mb-6 sm:mb-8 max-w-xl leading-relaxed">
+      <p class="text-lg sm:text-xl text-um-text-tertiary mb-10 sm:mb-12 max-w-2xl leading-relaxed reveal">
         Infraestructura IT, seguridad electrónica y desarrollo de software para empresas de Mendoza, Cuyo y Patagonia.
       </p>
 
       <!-- CTAs -->
-      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8 sm:mb-10">
-        <a href="/contacto" class="group inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:px-8 sm:py-4 bg-um-accent hover:bg-red-600 text-white text-sm sm:text-base font-bold rounded-xl transition-all shadow-xl shadow-um-accent/30 hover:scale-[1.02] min-h-[48px]">
+      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-14 sm:mb-16 reveal">
+        <a href="/contacto" class="group inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-um-primary hover:bg-um-primary-dark text-white text-sm font-semibold rounded-xl transition-all shadow-red hover:shadow-red-lg min-h-[48px]">
           Solicitar Consultoría Gratis
-          <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
           </svg>
         </a>
-        <a href="/antecedentes" class="inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:px-8 sm:py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white text-sm sm:text-base font-semibold rounded-xl transition-all min-h-[48px]">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <a href="/antecedentes" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 border border-um-border text-um-text-secondary text-sm font-semibold rounded-xl hover:border-um-border-strong hover:bg-white transition-all min-h-[48px]">
           Ver Proyectos
         </a>
       </div>
 
-      <!-- Stats Cards -->
-      <div class="grid grid-cols-3 gap-3 sm:gap-4 max-w-lg">
-        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center border border-white/10">
-          <div class="text-xl sm:text-2xl lg:text-3xl font-black text-white">469+</div>
-          <div class="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wide">Proyectos</div>
+      <!-- Stats — inline -->
+      <div class="flex items-center gap-8 sm:gap-12 reveal">
+        <div>
+          <div class="text-3xl sm:text-4xl font-bold text-um-dark" style="font-family:'JetBrains Mono',monospace;">469+</div>
+          <div class="text-xs text-um-text-muted uppercase tracking-wider mt-1">Proyectos</div>
         </div>
-        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center border border-white/10">
-          <div class="text-xl sm:text-2xl lg:text-3xl font-black text-white">22</div>
-          <div class="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wide">Años</div>
+        <div class="w-px h-12 bg-um-border"></div>
+        <div>
+          <div class="text-3xl sm:text-4xl font-bold text-um-dark" style="font-family:'JetBrains Mono',monospace;">22</div>
+          <div class="text-xs text-um-text-muted uppercase tracking-wider mt-1">Años</div>
         </div>
-        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center border border-white/10">
-          <div class="text-xl sm:text-2xl lg:text-3xl font-black text-um-primary-light">24/7</div>
-          <div class="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wide">Soporte</div>
+        <div class="w-px h-12 bg-um-border"></div>
+        <div>
+          <div class="text-3xl sm:text-4xl font-bold text-um-primary" style="font-family:'JetBrains Mono',monospace;">24/7</div>
+          <div class="text-xs text-um-text-muted uppercase tracking-wider mt-1">Soporte</div>
         </div>
       </div>
     </div>
+
+    <!-- Bottom accent -->
+    <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-um-border to-transparent"></div>
   </section>
 
   <!-- SERVICES SECTION -->
-  <section class="py-12 sm:py-16 lg:py-24 xl:py-28 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Section Header -->
-      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-12 lg:mb-16">
-        <div>
-          <span class="text-um-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">Nuestros Servicios</span>
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-2 sm:mt-3">
+  <section class="section-padding bg-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-10 sm:mb-14">
+        <div class="reveal">
+          <div class="section-accent mb-4"></div>
+          <h2 class="text-fluid-title text-um-dark">
             Soluciones Integrales IT
           </h2>
+          <p class="text-um-text-tertiary mt-2 max-w-lg">Tecnología de punta para cada necesidad de su organización.</p>
         </div>
-        <a href="/servicios" class="inline-flex items-center gap-2 text-um-primary font-semibold hover:gap-4 transition-all text-sm sm:text-base">
+        <a href="/servicios" class="inline-flex items-center gap-2 text-um-primary font-medium text-sm hover:gap-3 transition-all reveal">
           Ver todos los servicios
-          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
           </svg>
         </a>
       </div>
 
-      <!-- Services Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 reveal-stagger">
         {servicios.map((servicio) => (
-          <ServiceCard
-            id={servicio.id}
-            slug={servicio.slug}
-            titulo={servicio.Titulo}
-            descripcion={servicio.Descripcion}
-            imagen={servicio.Imagen}
-            badge={servicio.badge}
-            badgeColor={servicio.badgeColor}
-            cliente={servicio.Cliente}
-          />
+          <div class="reveal">
+            <ServiceCard
+              id={servicio.id}
+              slug={servicio.slug}
+              titulo={servicio.Titulo}
+              descripcion={servicio.Descripcion}
+              imagen={servicio.Imagen}
+              badge={servicio.badge}
+              badgeColor={servicio.badgeColor}
+              cliente={servicio.Cliente}
+            />
+          </div>
         ))}
       </div>
     </div>
   </section>
 
   <!-- SUCCESS CASES SECTION -->
-  <section class="py-12 sm:py-16 lg:py-24 xl:py-28 bg-um-gray-light">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-12 lg:mb-16">
-        <span class="text-um-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">Casos de Éxito</span>
-        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-2 sm:mt-3 mb-3 sm:mb-4">
+  <section class="section-padding bg-um-surface">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14 reveal">
+        <div class="flex justify-center mb-4"><div class="section-accent"></div></div>
+        <h2 class="text-fluid-title text-um-dark mb-3">
           Proyectos que nos Enorgullecen
         </h2>
-        <p class="text-base sm:text-lg text-um-gray">
+        <p class="text-um-text-tertiary">
           Empresas líderes de la región confían en nosotros para su transformación digital.
         </p>
       </div>
 
-      <!-- Cases Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 reveal-stagger">
         {antecedentesEnhanced.map((antecedente) => (
-          <a href={`/antecedentes/${antecedente.id}/${antecedente.slug}`} class="card-hover bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-            <div class="relative h-56 overflow-hidden">
+          <a href={`/antecedentes/${antecedente.id}/${antecedente.slug}`} class="reveal group bg-white rounded-2xl overflow-hidden border border-um-border hover:border-um-primary/20 transition-all duration-300 hover:shadow-elevated">
+            <div class="relative aspect-[4/3] overflow-hidden bg-um-elevated">
               <img
                 src={antecedente.imageUrl}
                 alt={antecedente.Titulo || antecedente.Nombre}
-                class="w-full h-full object-cover transition-transform duration-700"
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                 loading="lazy"
                 onerror="this.onerror=null;this.src='/images/default-background.jpg'"
               />
-              <span class="absolute top-4 left-4 px-3 py-1 bg-um-primary text-white text-xs font-bold rounded-md">
-                {antecedente.Cliente || antecedente.Sector || 'Proyecto'}
-              </span>
             </div>
             <div class="p-6">
-              <h3 class="text-lg font-bold text-um-dark mb-2 line-clamp-2">{antecedente.Titulo || antecedente.Nombre}</h3>
-              <p class="text-sm text-um-gray mb-4 line-clamp-2">{antecedente.Descripcion?.replace(/\\\\/g, ' ').substring(0, 100)}...</p>
-              <span class="text-um-primary text-sm font-medium flex items-center gap-2">
+              <span class="text-xs font-medium text-um-text-muted uppercase tracking-wider">
+                {antecedente.Cliente || antecedente.Sector || 'Proyecto'}
+              </span>
+              <h3 class="text-lg font-semibold text-um-dark mt-2 mb-2 line-clamp-2 group-hover:text-um-primary transition-colors">{antecedente.Titulo || antecedente.Nombre}</h3>
+              <p class="text-sm text-um-text-tertiary line-clamp-2 leading-relaxed">{antecedente.Descripcion?.replace(/\\\\/g, ' ').substring(0, 100)}...</p>
+              <span class="inline-flex items-center gap-1.5 text-um-primary text-sm font-medium mt-4 group-hover:gap-2.5 transition-all">
                 Ver caso completo
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
@@ -270,10 +253,10 @@ const sectores = [
         ))}
       </div>
 
-      <div class="mt-8 sm:mt-12 text-center">
-        <a href="/antecedentes" class="inline-flex items-center gap-2 px-6 py-3 sm:px-8 sm:py-4 bg-um-dark text-white font-bold rounded-xl hover:bg-um-primary transition-colors min-h-[48px]">
+      <div class="mt-10 sm:mt-14 text-center reveal">
+        <a href="/antecedentes" class="inline-flex items-center gap-2 px-7 py-3.5 bg-um-dark text-white font-semibold rounded-xl hover:bg-slate-800 transition-colors min-h-[48px] text-sm">
           Ver todos los casos
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
           </svg>
         </a>
@@ -281,32 +264,34 @@ const sectores = [
     </div>
   </section>
 
-  <!-- INDUSTRIES SECTION -->
-  <section class="py-12 sm:py-16 lg:py-24 xl:py-28 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-12 lg:mb-16">
-        <span class="text-um-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">Verticales</span>
-        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-2 sm:mt-3 mb-3 sm:mb-4">
+  <!-- INDUSTRIES SECTION — SVG icons instead of emojis -->
+  <section class="section-padding bg-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14 reveal">
+        <div class="flex justify-center mb-4"><div class="section-accent"></div></div>
+        <h2 class="text-fluid-title text-um-dark mb-3">
           Soluciones por Industria
         </h2>
-        <p class="text-base sm:text-lg text-um-gray">
+        <p class="text-um-text-tertiary">
           Experiencia especializada en los sectores más exigentes de la economía regional.
         </p>
       </div>
 
-      <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9 gap-3 sm:gap-4">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4 max-w-3xl mx-auto reveal-stagger">
         {sectores.map((sector) => (
-          <a href={`/${sector.slug}`} class="sector-icon group flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:shadow-lg transition-all min-h-[90px]" style={`--sector-color: ${sector.color}`}>
-            <span class="text-2xl sm:text-3xl mb-1">{sector.emoji}</span>
-            <span class="text-xs font-medium text-um-dark group-hover:text-white text-center transition-colors">{sector.name}</span>
+          <a href={`/${sector.slug}`} class="reveal group flex items-center gap-3 px-5 py-4 rounded-xl border border-um-border hover:border-um-primary/30 hover:bg-um-primary-light/50 transition-all">
+            <svg class="w-5 h-5 text-um-text-muted group-hover:text-um-primary transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d={sector.icon}/>
+            </svg>
+            <span class="text-sm font-medium text-um-text-secondary group-hover:text-um-dark transition-colors">{sector.name}</span>
           </a>
         ))}
       </div>
 
-      <div class="mt-6 sm:mt-10 text-center">
-        <a href="/sectores" class="inline-flex items-center gap-2 text-um-primary font-semibold hover:gap-4 transition-all text-sm sm:text-base">
+      <div class="mt-8 sm:mt-10 text-center reveal">
+        <a href="/sectores" class="inline-flex items-center gap-2 text-um-primary font-medium text-sm hover:gap-3 transition-all">
           Ver todas las industrias
-          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
           </svg>
         </a>
@@ -314,72 +299,17 @@ const sectores = [
     </div>
   </section>
 
-  <!-- CTA SECTION -->
-  <section class="relative py-12 sm:py-16 lg:py-24 xl:py-28 overflow-hidden">
-    <div class="absolute inset-0">
-      <img
-        src="https://ultimamilla.com.ar/directus-assets/caffbcaa-2457-4fc9-9960-2e0601f27736"
-        alt="Background"
-        class="w-full h-full object-cover"
-      />
-      <div class="absolute inset-0 bg-um-dark/90"></div>
-    </div>
-
-    <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <span class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 backdrop-blur text-white rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-        </svg>
-        Comience su transformación
-      </span>
-      <h2 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 sm:mb-6">
-        ¿Listo para modernizar su infraestructura IT?
-      </h2>
-      <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-10 max-w-2xl mx-auto">
-        Contáctenos hoy para una consultoría gratuita y descubra cómo podemos impulsar su negocio.
-      </p>
-      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-        <a href="/contacto" class="px-6 py-3 sm:px-8 sm:py-4 bg-um-accent text-white font-bold rounded-xl hover:bg-um-accent-dark transition-colors shadow-xl shadow-um-accent/25 min-h-[48px] flex items-center justify-center">
-          Agendar Consultoría Gratis
-        </a>
-        <a href="mailto:contacto@ultimamilla.com.ar" class="px-6 py-3 sm:px-8 sm:py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2 min-h-[48px]">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-          </svg>
-          contacto@ultimamilla.com.ar
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Hero Image Rotation Script -->
-  <script>
-    // Rotate hero images every 5 seconds
-    document.addEventListener('DOMContentLoaded', () => {
-      const images = document.querySelectorAll('.hero-image');
-      if (images.length <= 1) return;
-
-      let currentIndex = 0;
-      const totalImages = images.length;
-
-      setInterval(() => {
-        // Fade out current
-        images[currentIndex].classList.remove('opacity-80');
-        images[currentIndex].classList.add('opacity-0');
-
-        // Move to next
-        currentIndex = (currentIndex + 1) % totalImages;
-
-        // Fade in next
-        images[currentIndex].classList.remove('opacity-0');
-        images[currentIndex].classList.add('opacity-80');
-      }, 5000);
-    });
-  </script>
-
-  <style>
-    .sector-icon:hover {
-      background-color: var(--sector-color);
-    }
-  </style>
+  <!-- CTA SECTION — Dark variant for contrast -->
+  <CTASection
+    variant="dark"
+    badge="Comience su transformación"
+    badgeIcon="rocket"
+    titulo="¿Listo para modernizar su infraestructura IT?"
+    descripcion="Contáctenos hoy para una consultoría gratuita y descubra cómo podemos impulsar su negocio."
+    primaryButtonText="Agendar Consultoría Gratis"
+    primaryButtonUrl="/contacto"
+    secondaryButtonText="contacto@ultimamilla.com.ar"
+    secondaryButtonUrl="mailto:contacto@ultimamilla.com.ar"
+    secondaryButtonIcon="mail"
+  />
 </LayoutV4>

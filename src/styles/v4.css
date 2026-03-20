@@ -1,34 +1,34 @@
 /**
- * V4 Design System Styles
- * Clean stylesheet without legacy conflicts
+ * V5 Light Sofisticado Design System
+ * Clean, refined aesthetic inspired by Apple/Notion/Stripe
  */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* V4 Base Layer - Reset conflicts */
+/* V5 Base Layer */
 @layer base {
   html {
-    font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
   }
 
   body {
     margin: 0;
     padding: 0;
-    background-color: #ffffff;
-    color: #111827;
+    background-color: #FFFFFF;
+    color: #0F172A;
     font-size: 16px;
-    line-height: 1.5;
+    line-height: 1.6;
     overflow-x: hidden;
     max-width: 100vw;
-    /* Reset any gradient backgrounds */
     background-image: none !important;
+    letter-spacing: -0.011em;
   }
 
-  /* Reset main element to not interfere with full-width sections */
   main {
     width: 100%;
     max-width: none;
@@ -36,19 +36,22 @@
     padding: 0;
   }
 
-  /* Reset link colors for V4 */
   a {
     color: inherit;
     text-decoration: none;
   }
 
-  /* Reset heading margins */
   h1, h2, h3, h4, h5, h6 {
     margin: 0;
     font-weight: 700;
-    line-height: 1.2;
-    color: inherit;
+    line-height: 1.15;
+    color: #0F172A;
+    letter-spacing: -0.025em;
   }
+
+  h1 { font-weight: 800; }
+  h2 { letter-spacing: -0.02em; }
+  h3 { letter-spacing: -0.015em; }
 
   p {
     margin: 0;
@@ -61,15 +64,56 @@
   }
 }
 
-/* V4 Component Layer */
+/* V5 Component Layer */
 @layer components {
-  /* Card hover animation */
+  /* Card hover — refined */
   .card-hover {
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .card-hover:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Glass morphism */
+  .glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(226, 232, 240, 0.5);
+  }
+
+  .glass-dark {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Animated underline for links */
+  .link-underline {
+    position: relative;
+  }
+  .link-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background-color: #DC2626;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .link-underline:hover::after {
+    width: 100%;
+  }
+
+  /* Section divider line */
+  .section-accent {
+    width: 3rem;
+    height: 2px;
+    background-color: #DC2626;
+    border-radius: 1px;
   }
 
   /* Touch targets */
@@ -91,19 +135,62 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Staggered children */
+  .reveal-stagger > .reveal:nth-child(1) { transition-delay: 0.05s; }
+  .reveal-stagger > .reveal:nth-child(2) { transition-delay: 0.1s; }
+  .reveal-stagger > .reveal:nth-child(3) { transition-delay: 0.15s; }
+  .reveal-stagger > .reveal:nth-child(4) { transition-delay: 0.2s; }
+  .reveal-stagger > .reveal:nth-child(5) { transition-delay: 0.25s; }
+  .reveal-stagger > .reveal:nth-child(6) { transition-delay: 0.3s; }
+  .reveal-stagger > .reveal:nth-child(7) { transition-delay: 0.35s; }
+  .reveal-stagger > .reveal:nth-child(8) { transition-delay: 0.4s; }
+  .reveal-stagger > .reveal:nth-child(9) { transition-delay: 0.45s; }
+
+  /* Pill filter style */
+  .filter-pill {
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: 1px solid #E2E8F0;
+    color: #64748B;
+    background: transparent;
+  }
+  .filter-pill:hover {
+    background: #F1F5F9;
+    color: #334155;
+  }
+  .filter-pill.active {
+    background: #0F172A;
+    color: #FFFFFF;
+    border-color: #0F172A;
+  }
 }
 
-/* V4 Utility Layer */
+/* V5 Utility Layer */
 @layer utilities {
   /* Animations */
   .animate-fade-in {
-    animation: fadeIn 0.8s ease forwards;
+    animation: fadeIn 0.6s ease forwards;
     opacity: 0;
   }
   .animate-slide-up {
-    animation: slideUp 0.8s ease forwards;
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
 
   @keyframes fadeIn {
@@ -111,6 +198,10 @@
   }
   @keyframes slideUp {
     to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 
   /* Safe area for iPhone notch */
@@ -127,12 +218,16 @@
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-/* DISABLE dark mode override - V4 uses explicit colors */
+/* DISABLE dark mode override */
 @media (prefers-color-scheme: dark) {
   html, body {
     background-color: #ffffff;
-    color: #111827;
+    color: #0F172A;
   }
 }

@@ -1,10 +1,10 @@
 ---
 /**
- * NavbarV4 - Navbar responsivo V4 Design System
- * - Fixed position con backdrop blur
- * - Menu hamburguesa para móvil
+ * NavbarV4 - Floating Glass Navbar (V5 Light Sofisticado)
+ * - Floating con rounded corners y glass morphism
+ * - Transitions to solid on scroll
  * - Touch targets 44px mínimo
- * - Highlight de página activa
+ * - Highlight de página activa con underline
  */
 
 interface Props {
@@ -28,23 +28,70 @@ const isActive = (href: string) => {
 };
 ---
 
-<nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100/50 shadow-sm">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16 sm:h-20">
-      <!-- Logo responsive -->
-      <a href="/" class="flex items-center">
-        <span class="um-logo" style="font-family:'Futura PT','Futura',sans-serif;font-weight:600;letter-spacing:-0.02em;font-size:24px;line-height:1;color:#000000;white-space:nowrap;">ultimamilla<span style="color:#DC2626;">.</span>com<span style="color:#DC2626;">.</span>ar</span>
-      </a>
+<header id="navHeader" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+  <div id="navContainer" class="max-w-6xl mx-auto mt-4 mx-4 sm:mx-6 lg:mx-auto rounded-2xl bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-soft transition-all duration-300">
+    <div class="px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2 group">
+          <span class="font-brand text-xl font-semibold tracking-tight text-um-dark" style="font-family:'Futura PT','Futura',sans-serif;letter-spacing:-0.02em;">
+            ultima<span class="text-um-primary font-bold">milla</span>
+          </span>
+        </a>
 
-      <!-- Desktop Menu (oculto en móvil) -->
-      <div class="hidden md:flex items-center gap-6 lg:gap-8">
+        <!-- Desktop Menu -->
+        <div class="hidden md:flex items-center gap-1">
+          {navItems.map((item) => (
+            <a
+              href={item.href}
+              class={`relative px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                isActive(item.href)
+                  ? 'text-um-dark'
+                  : 'text-um-text-tertiary hover:text-um-dark hover:bg-slate-50'
+              }`}
+            >
+              {item.label}
+              {isActive(item.href) && (
+                <span class="absolute bottom-0.5 left-4 right-4 h-0.5 bg-um-primary rounded-full"></span>
+              )}
+            </a>
+          ))}
+          <a
+            href="/contacto"
+            class="ml-4 px-5 py-2 bg-um-primary text-white rounded-full text-sm font-semibold hover:bg-um-primary-dark transition-all shadow-red hover:shadow-red-lg"
+          >
+            Contacto
+          </a>
+        </div>
+
+        <!-- Hamburger Button -->
+        <button
+          id="menuToggle"
+          class="md:hidden p-2 -mr-2 rounded-xl hover:bg-slate-50 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors"
+          aria-label="Abrir menú"
+          aria-expanded="false"
+          aria-controls="mobileMenu"
+        >
+          <svg id="hamburgerIcon" class="w-5 h-5 text-um-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+          <svg id="closeIcon" class="w-5 h-5 text-um-dark hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="mobile-menu-hidden md:hidden border-t border-slate-100">
+      <div class="px-4 py-3 space-y-1">
         {navItems.map((item) => (
           <a
             href={item.href}
-            class={`font-medium transition-colors ${
+            class={`block px-4 py-3 rounded-xl min-h-[44px] flex items-center text-sm font-medium transition-colors ${
               isActive(item.href)
-                ? 'text-um-primary font-semibold'
-                : 'text-um-gray hover:text-um-primary'
+                ? 'text-um-dark bg-slate-50 font-semibold'
+                : 'text-um-text-tertiary hover:bg-slate-50 hover:text-um-dark'
             }`}
           >
             {item.label}
@@ -52,73 +99,38 @@ const isActive = (href: string) => {
         ))}
         <a
           href="/contacto"
-          class="px-5 py-2.5 bg-um-accent text-white rounded-lg font-semibold hover:bg-um-accent-dark transition-colors shadow-lg shadow-um-accent/25"
+          class="block px-4 py-3 mt-2 rounded-xl min-h-[44px] flex items-center justify-center text-sm font-semibold bg-um-primary text-white hover:bg-um-primary-dark transition-colors"
         >
           Contacto
         </a>
       </div>
-
-      <!-- Hamburger Button (visible solo móvil) -->
-      <button
-        id="menuToggle"
-        class="md:hidden p-2 -mr-2 rounded-lg hover:bg-gray-100 min-h-[44px] min-w-[44px] flex items-center justify-center"
-        aria-label="Abrir menú"
-        aria-expanded="false"
-        aria-controls="mobileMenu"
-      >
-        <svg id="hamburgerIcon" class="w-6 h-6 text-um-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-        <svg id="closeIcon" class="w-6 h-6 text-um-dark hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      </button>
     </div>
   </div>
+</header>
 
-  <!-- Mobile Menu Dropdown -->
-  <div id="mobileMenu" class="mobile-menu-hidden md:hidden bg-white border-t border-gray-100 shadow-xl">
-    <div class="px-4 py-4 space-y-1">
-      {navItems.map((item) => (
-        <a
-          href={item.href}
-          class={`block px-4 py-3 rounded-lg min-h-[44px] flex items-center font-medium transition-colors ${
-            isActive(item.href)
-              ? 'text-um-primary font-semibold bg-um-primary-bg'
-              : 'text-um-dark hover:bg-um-primary-bg'
-          }`}
-        >
-          {item.label}
-        </a>
-      ))}
-      <a
-        href="/contacto"
-        class={`block px-4 py-3 mt-2 rounded-lg min-h-[44px] flex items-center justify-center font-semibold transition-colors ${
-          isActive('/contacto')
-            ? 'bg-um-accent-dark text-white'
-            : 'bg-um-accent text-white hover:bg-um-accent-dark'
-        }`}
-      >
-        Contacto
-      </a>
-    </div>
-  </div>
-</nav>
-
-<!-- Spacer to compensate for fixed navbar -->
-<div class="h-16 sm:h-20"></div>
+<!-- Spacer -->
+<div class="h-20 sm:h-24"></div>
 
 <style>
-  /* Mobile menu animation */
   .mobile-menu-hidden {
     display: none;
   }
-
   .mobile-menu-visible {
     display: block;
   }
 
-  /* Respect reduced motion preferences */
+  /* Scrolled state — full width solid bar */
+  .nav-scrolled {
+    margin-top: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-color: rgba(226, 232, 240, 0.8) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .mobile-menu-hidden,
     .mobile-menu-visible {
@@ -128,16 +140,16 @@ const isActive = (href: string) => {
 </style>
 
 <script>
-  // Mobile menu toggle functionality
+  // Mobile menu toggle
   const menuToggle = document.getElementById('menuToggle');
   const mobileMenu = document.getElementById('mobileMenu');
   const hamburgerIcon = document.getElementById('hamburgerIcon');
   const closeIcon = document.getElementById('closeIcon');
+  const navContainer = document.getElementById('navContainer');
 
   if (menuToggle && mobileMenu && hamburgerIcon && closeIcon) {
     menuToggle.addEventListener('click', function() {
       const isHidden = mobileMenu.classList.contains('mobile-menu-hidden');
-
       if (isHidden) {
         mobileMenu.classList.remove('mobile-menu-hidden');
         mobileMenu.classList.add('mobile-menu-visible');
@@ -155,7 +167,6 @@ const isActive = (href: string) => {
       }
     });
 
-    // Close menu when clicking a link
     mobileMenu.querySelectorAll('a').forEach(function(link) {
       link.addEventListener('click', function() {
         mobileMenu.classList.remove('mobile-menu-visible');
@@ -167,7 +178,6 @@ const isActive = (href: string) => {
       });
     });
 
-    // Close menu on Escape key
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape' && mobileMenu.classList.contains('mobile-menu-visible')) {
         mobileMenu.classList.remove('mobile-menu-visible');
@@ -180,7 +190,6 @@ const isActive = (href: string) => {
       }
     });
 
-    // Close menu when clicking outside
     document.addEventListener('click', function(e) {
       const target = e.target as Node;
       if (!menuToggle.contains(target) && !mobileMenu.contains(target) && mobileMenu.classList.contains('mobile-menu-visible')) {
@@ -192,5 +201,19 @@ const isActive = (href: string) => {
         menuToggle.setAttribute('aria-label', 'Abrir menú');
       }
     });
+  }
+
+  // Scroll behavior — floating → solid
+  if (navContainer) {
+    let lastScrollY = 0;
+    window.addEventListener('scroll', function() {
+      const scrollY = window.scrollY;
+      if (scrollY > 80) {
+        navContainer.classList.add('nav-scrolled');
+      } else {
+        navContainer.classList.remove('nav-scrolled');
+      }
+      lastScrollY = scrollY;
+    }, { passive: true });
   }
 </script>
