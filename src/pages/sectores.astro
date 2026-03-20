@@ -1,93 +1,74 @@
 ---
 /**
- * Sectores - V4 Design System
- * Industry sectors page with 9 sector cards
+ * Sectores - V6 Dark Premium Design System
+ * Industry sectors page with neutral, icon-based cards
  */
 
 import LayoutV4 from '../layouts/LayoutV4.astro';
-import HeroPageV4 from '../components/v4/HeroPageV4.astro';
 
 const sectores = [
   {
     slug: 'aeropuertos',
-    emoji: '✈️',
     title: 'Aeropuertos',
     description: 'Sistemas críticos de comunicación, CCTV de alta seguridad, control de accesos y redes de misión crítica para operaciones aeroportuarias 24/7.',
     projects: '15+',
-    gradient: 'from-sky-400 to-sky-600',
-    hoverColor: 'hover:text-sky-600',
+    icon: 'M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z',
   },
   {
     slug: 'bodegas',
-    emoji: '🍷',
     title: 'Bodegas',
     description: 'Automatización de líneas de producción, monitoreo de tanques, control de temperatura y sistemas de trazabilidad para la industria vitivinícola.',
     projects: '45+',
-    gradient: 'from-purple-400 to-purple-600',
-    hoverColor: 'hover:text-purple-600',
+    icon: 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
   },
   {
     slug: 'gobiernosectorpublico',
-    emoji: '🏛️',
     title: 'Gobierno y Sector Público',
     description: 'Infraestructura para municipios, data centers gubernamentales, sistemas de videovigilancia urbana y redes WAN interinstitucionales.',
     projects: '80+',
-    gradient: 'from-emerald-400 to-emerald-600',
-    hoverColor: 'hover:text-emerald-600',
+    icon: 'M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21',
   },
   {
     slug: 'salud',
-    emoji: '🏥',
     title: 'Salud',
     description: 'Redes hospitalarias de alta disponibilidad, sistemas de llamado enfermera, CCTV en áreas críticas e integración con equipamiento médico.',
     projects: '35+',
-    gradient: 'from-green-400 to-green-600',
-    hoverColor: 'hover:text-green-600',
+    icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
   },
   {
     slug: 'constructoras',
-    emoji: '🏗️',
     title: 'Construcción',
     description: 'Pre-cableado estructurado para edificios, sistemas de automatización de edificios inteligentes y soluciones para obra en construcción.',
     projects: '60+',
-    gradient: 'from-amber-400 to-amber-600',
-    hoverColor: 'hover:text-amber-600',
+    icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
   },
   {
     slug: 'industria',
-    emoji: '🏭',
     title: 'Industria',
     description: 'Redes industriales robustas, cableado en ambientes hostiles, integración IT/OT y soluciones de conectividad para plantas de producción.',
     projects: '50+',
-    gradient: 'from-slate-400 to-slate-600',
-    hoverColor: 'hover:text-slate-600',
+    icon: 'M4.5 12a7.5 7.5 0 0015 0m-15 0a7.5 7.5 0 1115 0m-15 0H3m16.5 0H21m-1.5 0H12m-8.457 3.077l1.41-.513m14.095-5.13l1.41-.513M5.106 17.785l1.15-.964m11.49-9.642l1.149-.964M7.501 19.795l.75-1.3m7.5-12.99l.75-1.3m-6.063 16.658l.26-1.477m2.605-14.772l.26-1.477m0 17.726l-.26-1.477M10.698 4.614l-.26-1.477M16.5 19.794l-.75-1.299M7.5 4.205L12 12',
   },
   {
     slug: 'mineria',
-    emoji: '⛏️',
     title: 'Minería',
     description: 'Comunicaciones en zonas remotas, radioenlaces de largo alcance, sistemas anti-intrusión perimetral y redes para campamentos mineros.',
     projects: '25+',
-    gradient: 'from-orange-400 to-orange-600',
-    hoverColor: 'hover:text-orange-600',
+    icon: 'M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z',
   },
   {
     slug: 'seguridad-electronica',
-    emoji: '🔒',
     title: 'Seguridad Electrónica',
     description: 'CCTV analítico con IA, control de accesos biométrico, detección perimetral y centros de monitoreo profesionales.',
     projects: '120+',
-    gradient: 'from-cyan-400 to-cyan-600',
-    hoverColor: 'hover:text-cyan-600',
+    icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
   },
   {
     slug: 'software',
-    emoji: '💻',
     title: 'Desarrollo de Software',
     description: 'Sistemas a medida, aplicaciones web y móviles, integraciones API, automatización de procesos y consultoría tecnológica.',
     projects: '40+',
-    gradient: 'from-indigo-400 to-indigo-600',
-    hoverColor: 'hover:text-indigo-600',
+    icon: 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4',
   },
 ];
 
@@ -105,76 +86,63 @@ const stats = [
   description="Conocemos los desafíos específicos de cada sector. Nuestra experiencia nos permite ofrecer soluciones tecnológicas especializadas para aeropuertos, bodegas, gobierno, salud, construcción, industria, minería y más."
   keywords="sectores industria tecnologia, aeropuertos, bodegas vitivinicolas, gobierno sector publico, salud hospitales, construccion edificios, industria mineria, seguridad electronica, software a medida"
 >
-  <!-- HERO SECTION -->
-  <section class="bg-um-dark pt-4 sm:pt-6 pb-6 sm:pb-10 lg:pb-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <!-- HERO SECTION — Dark -->
+  <section class="bg-gray-900 pt-4 sm:pt-6 pb-6 sm:pb-10 lg:pb-12">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Breadcrumb -->
-      <nav class="flex items-center gap-2 text-sm text-gray-400 mb-3 sm:mb-4" aria-label="Breadcrumb">
-        <a href="/" class="hover:text-white transition-colors">Inicio</a>
-        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-        </svg>
-        <span class="text-white">Sectores</span>
+      <nav class="flex items-center gap-2 text-sm text-gray-500 mb-3 sm:mb-4" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-gray-300 transition-colors">Inicio</a>
+        <span class="text-gray-600">/</span>
+        <span class="text-gray-400">Sectores</span>
       </nav>
 
-      <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
-        <div>
-          <span class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-um-primary/20 text-um-primary-light rounded-full text-xs sm:text-sm font-semibold mb-4 sm:mb-6">
-            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-            </svg>
-            Industrias
-          </span>
-          <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white mb-4 sm:mb-6 leading-tight">
-            Soluciones por<br>
-            <span class="text-um-primary-light">Industria</span>
-          </h1>
-          <p class="text-base sm:text-lg lg:text-xl text-gray-300 max-w-xl">
-            Conocemos los desafíos específicos de cada sector. Nuestra experiencia nos permite ofrecer soluciones especializadas que realmente funcionan.
-          </p>
-        </div>
-
-        <!-- Hero Icons Grid (hidden on mobile) -->
-        <div class="hidden lg:grid grid-cols-3 gap-4">
-          {sectores.map((sector) => (
-            <a href={`/${sector.slug}`} class="bg-white/5 border border-white/10 rounded-xl p-4 text-center hover:bg-white/10 transition-colors">
-              <span class="text-2xl block mx-auto mb-2">{sector.emoji}</span>
-              <div class="text-white text-sm font-medium">{sector.title}</div>
-            </a>
-          ))}
-        </div>
+      <div class="max-w-3xl">
+        <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 text-white/80 rounded-full text-xs font-semibold mb-5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          </svg>
+          Industrias
+        </span>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-4 sm:mb-5 leading-tight">
+          Soluciones por <span class="text-um-primary">Industria</span>
+        </h1>
+        <p class="text-base sm:text-lg text-gray-400 max-w-2xl">
+          Conocemos los desafíos específicos de cada sector. Nuestra experiencia nos permite ofrecer soluciones especializadas que realmente funcionan.
+        </p>
       </div>
     </div>
   </section>
 
   <!-- SECTORS GRID -->
-  <section class="py-10 sm:py-14 lg:py-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+  <section class="py-10 sm:py-14 lg:py-20 bg-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
         {sectores.map((sector) => (
           <a
             href={`/${sector.slug}`}
-            class="sector-card bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 group"
+            class="group bg-white rounded-xl overflow-hidden shadow-soft hover:shadow-elevated transition-all duration-300"
           >
-            <div class={`h-40 sm:h-48 bg-gradient-to-br ${sector.gradient} flex items-center justify-center relative`}>
-              <span class="text-5xl sm:text-7xl">{sector.emoji}</span>
-              <div class="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
-                <span class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">{sector.projects} proyectos</span>
+            <div class="p-6 sm:p-8">
+              <div class="flex items-start justify-between mb-5">
+                <div class="w-12 h-12 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center group-hover:bg-red-50 group-hover:border-red-100 transition-colors">
+                  <svg class="w-6 h-6 text-gray-400 group-hover:text-red-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d={sector.icon}/>
+                  </svg>
+                </div>
+                <span class="text-xs font-mono text-gray-400" style="font-family:'JetBrains Mono',monospace;">{sector.projects}</span>
               </div>
-            </div>
-            <div class="p-4 sm:p-6">
-              <h3 class={`text-lg sm:text-xl font-bold text-um-dark mb-2 sm:mb-3 group-hover:text-um-primary transition-colors`}>
+              <h3 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-um-primary transition-colors">
                 {sector.title}
               </h3>
-              <p class="text-um-gray text-sm mb-3 sm:mb-4 line-clamp-3">
+              <p class="text-gray-500 text-sm leading-relaxed line-clamp-3 mb-5">
                 {sector.description}
               </p>
-              <div class="flex items-center gap-2 text-um-primary font-semibold text-sm">
+              <span class="text-um-primary text-sm font-medium flex items-center gap-1.5 group-hover:gap-2.5 transition-all">
                 Ver soluciones
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                 </svg>
-              </div>
+              </span>
             </div>
           </a>
         ))}
@@ -183,19 +151,19 @@ const stats = [
   </section>
 
   <!-- STATS SECTION -->
-  <section class="bg-um-primary-bg py-10 sm:py-14 lg:py-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <section class="bg-gray-50 py-10 sm:py-14 lg:py-20">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-8 sm:mb-12">
-        <h2 class="text-2xl sm:text-3xl font-bold text-um-dark mb-3 sm:mb-4">Experiencia Multisectorial</h2>
-        <p class="text-sm sm:text-base text-um-gray max-w-2xl mx-auto">
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">Experiencia Multisectorial</h2>
+        <p class="text-gray-500 max-w-2xl mx-auto">
           Nuestra experiencia en múltiples industrias nos permite aplicar las mejores prácticas de cada sector a todos nuestros proyectos.
         </p>
       </div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
         {stats.map((stat) => (
           <div class="text-center">
-            <div class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-um-primary">{stat.value}</div>
-            <div class="text-sm sm:text-base text-um-gray mt-1 sm:mt-2">{stat.label}</div>
+            <div class="text-3xl sm:text-4xl font-bold text-gray-900" style="font-family:'JetBrains Mono',monospace;">{stat.value}</div>
+            <div class="text-sm text-gray-500 mt-1">{stat.label}</div>
           </div>
         ))}
       </div>
@@ -203,22 +171,22 @@ const stats = [
   </section>
 
   <!-- CTA SECTION -->
-  <section class="bg-um-dark py-10 sm:py-14 lg:py-20">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">¿No Encuentra su Industria?</h2>
-      <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-8">
+  <section class="bg-gray-900 py-10 sm:py-14 lg:py-20">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4">¿No Encuentra su Industria?</h2>
+      <p class="text-base sm:text-lg text-gray-400 mb-8">
         Contáctenos. Nuestra experiencia nos permite adaptarnos a cualquier sector.
       </p>
-      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
         <a
           href="/contacto"
-          class="px-6 sm:px-8 py-3 sm:py-4 bg-um-accent text-white font-bold rounded-xl hover:bg-um-accent-dark transition-colors shadow-lg shadow-um-accent/25 min-h-[44px] flex items-center justify-center"
+          class="px-7 py-3.5 bg-white text-gray-900 font-semibold rounded-xl hover:bg-gray-100 transition-colors shadow-elevated min-h-[48px] flex items-center justify-center text-sm"
         >
           Contactar Ahora
         </a>
         <a
           href="/antecedentes"
-          class="px-6 sm:px-8 py-3 sm:py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-colors min-h-[44px] flex items-center justify-center"
+          class="px-7 py-3.5 border border-gray-600 text-gray-300 font-semibold rounded-xl hover:text-white hover:border-gray-400 transition-colors min-h-[48px] flex items-center justify-center text-sm"
         >
           Ver Todos los Casos
         </a>
@@ -226,13 +194,3 @@ const stats = [
     </div>
   </section>
 </LayoutV4>
-
-<style>
-  .sector-card {
-    transition: all 0.3s ease;
-  }
-  .sector-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-  }
-</style>

@@ -1,9 +1,10 @@
 ---
 /**
- * HeroPageV4 - Clean Typography Hero (V5 Light Sofisticado)
- * - Light background with subtle radial gradient
- * - Typography-first design — no background images
- * - Clean breadcrumb, stats inline
+ * HeroPageV4 - Dark Bold Hero (V6 Dark Premium)
+ * - Dark background (#111827)
+ * - White bold typography
+ * - Red accent for highlights
+ * - Stats in white on dark
  */
 
 interface BreadcrumbItem {
@@ -55,19 +56,27 @@ const iconMap: Record<string, string> = {
 };
 ---
 
-<section class={`relative overflow-hidden ${compact ? 'pb-8 sm:pb-10' : 'pb-12 sm:pb-16 lg:pb-20'}`} style="background: radial-gradient(ellipse at top center, #F1F5F9, #FFFFFF 70%);">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10">
+<section class={`relative overflow-hidden bg-gray-900 ${compact ? 'pb-8 sm:pb-10' : 'pb-12 sm:pb-16 lg:pb-20'}`}>
+  {/* Background image overlay */}
+  {backgroundImage && (
+    <div class="absolute inset-0">
+      <img src={backgroundImage} alt="" class="w-full h-full object-cover opacity-10" loading="eager" aria-hidden="true" />
+      <div class="absolute inset-0 bg-gray-900/90"></div>
+    </div>
+  )}
+
+  <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10">
     {/* Breadcrumb */}
-    <nav class="flex items-center gap-2 text-sm text-um-text-muted mb-6 sm:mb-8" aria-label="Breadcrumb">
+    <nav class="flex items-center gap-2 text-sm text-gray-500 mb-6 sm:mb-8" aria-label="Breadcrumb">
       {breadcrumb.map((item, index) => (
         <>
           {index > 0 && (
-            <span class="text-um-border-strong">/</span>
+            <span class="text-gray-600">/</span>
           )}
           {index === breadcrumb.length - 1 ? (
-            <span class="text-um-text-tertiary" aria-current="page">{item.label}</span>
+            <span class="text-gray-400" aria-current="page">{item.label}</span>
           ) : (
-            <a href={item.href} class="hover:text-um-text-secondary transition-colors">{item.label}</a>
+            <a href={item.href} class="hover:text-gray-300 transition-colors">{item.label}</a>
           )}
         </>
       ))}
@@ -78,7 +87,7 @@ const iconMap: Record<string, string> = {
       <div class="max-w-3xl">
         {/* Badge */}
         {badge && (
-          <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-um-primary-light text-um-primary rounded-full text-xs font-semibold mb-5">
+          <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 text-white/80 rounded-full text-xs font-semibold mb-5">
             {badge.icon && (
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" set:html={iconMap[badge.icon]} />
             )}
@@ -87,7 +96,7 @@ const iconMap: Record<string, string> = {
         )}
 
         {/* Title */}
-        <h1 class="text-fluid-hero text-um-dark mb-4 sm:mb-5">
+        <h1 class="text-fluid-hero text-white mb-4 sm:mb-5">
           {title}
           {titleHighlight && (
             <>
@@ -99,7 +108,7 @@ const iconMap: Record<string, string> = {
 
         {/* Subtitle */}
         {subtitle && (
-          <p class="text-base sm:text-lg text-um-text-tertiary leading-relaxed max-w-2xl">
+          <p class="text-base sm:text-lg text-gray-400 leading-relaxed max-w-2xl">
             {subtitle}
           </p>
         )}
@@ -111,11 +120,11 @@ const iconMap: Record<string, string> = {
           {stats.map((stat, index) => (
             <>
               {index > 0 && (
-                <div class="w-px h-10 bg-um-border"></div>
+                <div class="w-px h-10 bg-gray-700"></div>
               )}
               <div class="text-center">
-                <div class="text-2xl sm:text-3xl font-bold text-um-dark font-mono" style="font-family:'JetBrains Mono',monospace;">{stat.value}</div>
-                <div class="text-xs text-um-text-muted mt-1 uppercase tracking-wider">{stat.label}</div>
+                <div class="text-2xl sm:text-3xl font-bold text-white font-mono" style="font-family:'JetBrains Mono',monospace;">{stat.value}</div>
+                <div class="text-xs text-gray-400 mt-1 uppercase tracking-wider">{stat.label}</div>
               </div>
             </>
           ))}
@@ -123,7 +132,4 @@ const iconMap: Record<string, string> = {
       )}
     </div>
   </div>
-
-  {/* Bottom accent line */}
-  <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-um-border to-transparent"></div>
 </section>

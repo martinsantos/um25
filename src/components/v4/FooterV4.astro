@@ -1,9 +1,8 @@
 ---
 /**
- * FooterV4 - Light Clean Footer (V5 Light Sofisticado)
- * - Light background with subtle border
- * - Refined typography hierarchy
- * - Clean grid layout
+ * FooterV4 - Dark Footer (V6 Dark Premium)
+ * - bg-gray-900 with white text
+ * - Clean grid, refined typography
  */
 
 const currentYear = new Date().getFullYear();
@@ -44,18 +43,18 @@ const socialLinks = [
 ];
 ---
 
-<footer class="bg-um-surface border-t border-um-border">
+<footer class="bg-gray-900 text-white">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
 
       <!-- Brand Column -->
       <div>
         <div class="mb-6">
-          <span class="font-brand text-xl font-semibold text-um-dark" style="font-family:'Futura PT','Futura',sans-serif;letter-spacing:-0.02em;">
+          <span class="font-brand text-xl font-semibold text-white" style="font-family:'Futura PT','Futura',sans-serif;letter-spacing:-0.02em;">
             ultima<span class="text-um-primary font-bold">milla</span>
           </span>
         </div>
-        <p class="text-sm text-um-text-tertiary leading-relaxed mb-6">
+        <p class="text-sm text-gray-400 leading-relaxed mb-6">
           Transformación digital para empresas en Mendoza, Cuyo y Patagonia. +22 años de experiencia en soluciones IT.
         </p>
         <div class="flex gap-3">
@@ -64,7 +63,7 @@ const socialLinks = [
               href={social.href}
               target="_blank"
               rel="noopener noreferrer nofollow"
-              class="w-9 h-9 rounded-lg bg-um-elevated flex items-center justify-center hover:bg-um-primary hover:text-white text-um-text-tertiary transition-all min-h-[44px] min-w-[44px]"
+              class="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center hover:bg-um-primary text-gray-400 hover:text-white transition-all min-h-[44px] min-w-[44px]"
               aria-label={`Seguir a Ultima Milla en ${social.label}`}
             >
               {social.icon === 'linkedin' && (
@@ -84,11 +83,11 @@ const socialLinks = [
 
       <!-- Servicios Column -->
       <div>
-        <h4 class="text-xs font-semibold uppercase tracking-widest text-um-text-muted mb-5">{footerSections.servicios.title}</h4>
+        <h4 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-5">{footerSections.servicios.title}</h4>
         <ul class="space-y-3 text-sm">
           {footerSections.servicios.links.map((link) => (
             <li>
-              <a href={link.href} class="text-um-text-tertiary hover:text-um-primary transition-colors">
+              <a href={link.href} class="text-gray-400 hover:text-white transition-colors">
                 {link.label}
               </a>
             </li>
@@ -98,11 +97,11 @@ const socialLinks = [
 
       <!-- Empresa Column -->
       <div>
-        <h4 class="text-xs font-semibold uppercase tracking-widest text-um-text-muted mb-5">{footerSections.empresa.title}</h4>
+        <h4 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-5">{footerSections.empresa.title}</h4>
         <ul class="space-y-3 text-sm">
           {footerSections.empresa.links.map((link) => (
             <li>
-              <a href={link.href} class="text-um-text-tertiary hover:text-um-primary transition-colors">
+              <a href={link.href} class="text-gray-400 hover:text-white transition-colors">
                 {link.label}
               </a>
             </li>
@@ -112,20 +111,20 @@ const socialLinks = [
 
       <!-- Contacto Column -->
       <div>
-        <h4 class="text-xs font-semibold uppercase tracking-widest text-um-text-muted mb-5">Contacto</h4>
+        <h4 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-5">Contacto</h4>
         <ul class="space-y-4 text-sm">
           <li class="flex items-start gap-3">
-            <svg class="w-4 h-4 text-um-text-muted shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 text-gray-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>
-            <span class="text-um-text-tertiary">Houssay 1159, Guaymallén<br/>Mendoza M5519, Argentina</span>
+            <span class="text-gray-400">Houssay 1159, Guaymallén<br/>Mendoza M5519, Argentina</span>
           </li>
           <li class="flex items-center gap-3">
-            <svg class="w-4 h-4 text-um-text-muted shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
             </svg>
-            <a href="mailto:contacto@ultimamilla.com.ar" class="text-um-text-tertiary hover:text-um-primary transition-colors">
+            <a href="mailto:contacto@ultimamilla.com.ar" class="text-gray-400 hover:text-white transition-colors">
               contacto@ultimamilla.com.ar
             </a>
           </li>
@@ -134,11 +133,11 @@ const socialLinks = [
     </div>
 
     <!-- Bottom Bar -->
-    <div class="border-t border-um-border mt-10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-      <p class="text-xs text-um-text-muted">&copy; {currentYear} Ultima Milla. Todos los derechos reservados.</p>
-      <div class="flex gap-6 text-xs text-um-text-muted">
-        <a href="/privacidad" class="hover:text-um-primary transition-colors">Privacidad</a>
-        <a href="/terminos" class="hover:text-um-primary transition-colors">Términos</a>
+    <div class="border-t border-gray-800 mt-10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <p class="text-xs text-gray-500">&copy; {currentYear} Ultima Milla. Todos los derechos reservados.</p>
+      <div class="flex gap-6 text-xs text-gray-500">
+        <a href="/privacidad" class="hover:text-white transition-colors">Privacidad</a>
+        <a href="/terminos" class="hover:text-white transition-colors">Términos</a>
       </div>
     </div>
   </div>

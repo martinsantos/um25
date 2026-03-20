@@ -142,8 +142,8 @@ import CTASection from '../components/v4/CTASection.astro';
 	<div class="bg-gray-50 py-16 border-t border-gray-200">
 		<div class="max-w-7xl mx-auto px-4">
 			<div class="text-center mb-12">
-				<h2 class="text-3xl font-black text-gray-900 mb-4">Solicitar Presupuesto / Contacto</h2>
-				<p class="text-xl text-gray-600 max-w-3xl mx-auto">
+				<h2 class="text-3xl font-bold text-gray-900 mb-4">Solicitar Presupuesto / Contacto</h2>
+				<p class="text-xl text-gray-500 max-w-3xl mx-auto">
 					Cuéntanos sobre tu proyecto. Te responderemos con una propuesta detallada.
 				</p>
 			</div>
@@ -151,89 +151,89 @@ import CTASection from '../components/v4/CTASection.astro';
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-8" id="contact-layout">
 				<!-- Formulario -->
 				<div class="relative">
-					<div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 h-full">
-						<h2 class="text-2xl font-black text-gray-900 mb-6">Detalles del Proyecto</h2>
-						
+					<div class="bg-white p-8 rounded-2xl shadow-elevated border border-gray-100 h-full">
+						<h2 class="text-2xl font-bold text-gray-900 mb-6">Detalles del Proyecto</h2>
+
 						<form id="contactForm" class="space-y-6">
 							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div>
 									<label for="name" class="block text-sm font-semibold text-gray-700 mb-2">Nombre *</label>
-									<input type="text" id="name" name="name" required placeholder="Tu nombre completo" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200" />
+									<input type="text" id="name" name="name" required placeholder="Tu nombre completo" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 transition-all" />
 									<span class="text-red-500 text-sm hidden" id="nameError"></span>
 								</div>
 								<div>
 									<label for="company" class="block text-sm font-semibold text-gray-700 mb-2">Empresa</label>
-									<input type="text" id="company" name="company" placeholder="Nombre de tu empresa" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200" />
+									<input type="text" id="company" name="company" placeholder="Nombre de tu empresa" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 transition-all" />
 								</div>
 							</div>
 
 							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div>
 									<label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
-									<input type="email" id="email" name="email" required placeholder="tu@email.com" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200" />
+									<input type="email" id="email" name="email" required placeholder="tu@email.com" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 transition-all" />
 									<span class="text-red-500 text-sm hidden" id="emailError"></span>
 								</div>
 								<div>
 									<label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Teléfono</label>
-									<input type="tel" id="phone" name="phone" placeholder="+54 (11) 1234-5678" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200" />
+									<input type="tel" id="phone" name="phone" placeholder="+54 (11) 1234-5678" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 transition-all" />
 								</div>
 							</div>
 
 							<div>
 								<label for="projectType" class="block text-sm font-semibold text-gray-700 mb-2">Tipo de proyecto *</label>
 								<div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-									<label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+									<label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-gray-900 transition-colors">
 										<input type="checkbox" name="projectType" value="datos" class="sr-only">
-										<div class="w-4 h-4 border-2 border-gray-300 rounded mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-blue-500 rounded hidden"></div></div>
+										<div class="w-4 h-4 border-2 border-gray-300 rounded mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-gray-900 rounded hidden"></div></div>
 										<span class="text-sm font-medium">Datos</span>
 									</label>
-									<label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+									<label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-gray-900 transition-colors">
 										<input type="checkbox" name="projectType" value="control" class="sr-only">
-										<div class="w-4 h-4 border-2 border-gray-300 rounded mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-blue-500 rounded hidden"></div></div>
+										<div class="w-4 h-4 border-2 border-gray-300 rounded mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-gray-900 rounded hidden"></div></div>
 										<span class="text-sm font-medium">Control</span>
 									</label>
-									<label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+									<label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-gray-900 transition-colors">
 										<input type="checkbox" name="projectType" value="incendio" class="sr-only">
-										<div class="w-4 h-4 border-2 border-gray-300 rounded mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-blue-500 rounded hidden"></div></div>
+										<div class="w-4 h-4 border-2 border-gray-300 rounded mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-gray-900 rounded hidden"></div></div>
 										<span class="text-sm font-medium">Incendio</span>
 									</label>
-									<label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+									<label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-gray-900 transition-colors">
 										<input type="checkbox" name="projectType" value="software" class="sr-only">
-										<div class="w-4 h-4 border-2 border-gray-300 rounded mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-blue-500 rounded hidden"></div></div>
+										<div class="w-4 h-4 border-2 border-gray-300 rounded mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-gray-900 rounded hidden"></div></div>
 										<span class="text-sm font-medium">Software</span>
 									</label>
-									<label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+									<label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-gray-900 transition-colors">
 										<input type="checkbox" name="projectType" value="soporte" class="sr-only">
-										<div class="w-4 h-4 border-2 border-gray-300 rounded mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-blue-500 rounded hidden"></div></div>
+										<div class="w-4 h-4 border-2 border-gray-300 rounded mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-gray-900 rounded hidden"></div></div>
 										<span class="text-sm font-medium">Soporte</span>
 									</label>
 								</div>
 								<span class="text-red-500 text-sm hidden" id="projectTypeError"></span>
 							</div>
-							
+
 							<input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off" />
 
 							<div>
 								<label for="budget" class="block text-sm font-semibold text-gray-700 mb-2">Presupuesto estimado *</label>
 								<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-									<label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+									<label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-gray-900 transition-colors">
 										<input type="radio" name="budget" value="5000-15000" class="sr-only">
-										<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-blue-500 rounded-full hidden"></div></div>
+										<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-gray-900 rounded-full hidden"></div></div>
 										<span class="text-sm font-medium">$5k-$15k</span>
 									</label>
-									<label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+									<label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-gray-900 transition-colors">
 										<input type="radio" name="budget" value="15000-35000" class="sr-only">
-										<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-blue-500 rounded-full hidden"></div></div>
+										<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-gray-900 rounded-full hidden"></div></div>
 										<span class="text-sm font-medium">$15k-$35k</span>
 									</label>
-									<label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+									<label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-gray-900 transition-colors">
 										<input type="radio" name="budget" value="35000-75000" class="sr-only">
-										<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-blue-500 rounded-full hidden"></div></div>
+										<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-gray-900 rounded-full hidden"></div></div>
 										<span class="text-sm font-medium">$35k-$75k</span>
 									</label>
-									<label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+									<label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-gray-900 transition-colors">
 										<input type="radio" name="budget" value="75000+" class="sr-only">
-										<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-blue-500 rounded-full hidden"></div></div>
+										<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center"><div class="w-2 h-2 bg-gray-900 rounded-full hidden"></div></div>
 										<span class="text-sm font-medium">$75k+</span>
 									</label>
 								</div>
@@ -242,19 +242,19 @@ import CTASection from '../components/v4/CTASection.astro';
 							<div>
 								<label for="timeline" class="block text-sm font-semibold text-gray-700 mb-2">Timeline preferido *</label>
 								<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-									<label class="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+									<label class="flex flex-col items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-gray-900 transition-colors">
 										<input type="radio" name="timeline" value="1-2-meses" class="sr-only">
 										<span class="text-sm font-medium">1-2 meses</span>
 									</label>
-									<label class="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+									<label class="flex flex-col items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-gray-900 transition-colors">
 										<input type="radio" name="timeline" value="2-4-meses" class="sr-only">
 										<span class="text-sm font-medium">2-4 meses</span>
 									</label>
-									<label class="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+									<label class="flex flex-col items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-gray-900 transition-colors">
 										<input type="radio" name="timeline" value="4-6-meses" class="sr-only">
 										<span class="text-sm font-medium">4-6 meses</span>
 									</label>
-									<label class="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+									<label class="flex flex-col items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-gray-900 transition-colors">
 										<input type="radio" name="timeline" value="6+-meses" class="sr-only">
 										<span class="text-sm font-medium">6+ meses</span>
 									</label>
@@ -263,20 +263,20 @@ import CTASection from '../components/v4/CTASection.astro';
 
 							<div>
 								<label for="message" class="block text-sm font-semibold text-gray-700 mb-2">Descripción del proyecto *</label>
-								<textarea id="message" name="message" required rows="4" placeholder="Describe tu proyecto, objetivos, funcionalidades necesarias..." class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200"></textarea>
+								<textarea id="message" name="message" required rows="4" placeholder="Describe tu proyecto, objetivos, funcionalidades necesarias..." class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 transition-all"></textarea>
 								<span class="text-red-500 text-sm hidden" id="messageError"></span>
 							</div>
 
 							<div class="w-full flex justify-end">
-								<button type="submit" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg">
+								<button type="submit" class="bg-gray-900 hover:bg-gray-800 text-white font-semibold py-4 px-8 rounded-xl transition-colors">
 									ENVIAR SOLICITUD
 								</button>
 							</div>
 
-							<div id="successMessage" class="hidden bg-green-50 border border-green-200 text-green-700 p-4 rounded-lg">
+							<div id="successMessage" class="hidden bg-green-50 border border-green-200 text-green-700 p-4 rounded-xl">
 								Mensaje enviado exitosamente. Nos pondremos en contacto contigo pronto.
 							</div>
-							<div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
+							<div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl">
 								Hubo un error al enviar el mensaje. Por favor, intenta nuevamente.
 							</div>
 						</form>
@@ -285,24 +285,24 @@ import CTASection from '../components/v4/CTASection.astro';
 
 				<!-- Canales de Contacto -->
 				<div class="sticky top-8 space-y-8">
-					<div class="bg-white p-6 rounded-2xl shadow-lg">
-						<h2 class="text-2xl font-black text-gray-900 mb-3">
-							Contacto directo en <span class="text-blue-600">Mendoza</span>
+					<div class="bg-white p-6 rounded-2xl shadow-soft">
+						<h2 class="text-2xl font-bold text-gray-900 mb-3">
+							Contacto directo en <span class="text-um-primary">Mendoza</span>
 						</h2>
-						<p class="text-gray-600 text-sm">
+						<p class="text-gray-500 text-sm">
 							Presencia local con atención personalizada. Estamos disponibles a través de múltiples canales para empresas mendocinas.
 						</p>
 					</div>
 
-					<div class="bg-white p-6 rounded-2xl shadow-lg border-2 border-transparent hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-500/25 transform hover:-translate-y-1 transition-all duration-300">
+					<div class="bg-white p-6 rounded-2xl shadow-soft hover:shadow-elevated transition-all duration-300">
 						<div class="flex items-center space-x-4">
-							<div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
-								<svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+							<div class="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center">
+								<svg class="w-7 h-7 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
 							</div>
 							<div class="flex-1">
-								<h3 class="text-xl font-black text-gray-900">Email Mendoza</h3>
-								<p class="text-gray-600 text-sm mb-2">Escríbenos directamente</p>
-								<p class="text-blue-600 font-semibold">contacto@ultimamilla.com.ar</p>
+								<h3 class="text-xl font-bold text-gray-900">Email Mendoza</h3>
+								<p class="text-gray-500 text-sm mb-2">Escríbenos directamente</p>
+								<p class="text-um-primary font-semibold">contacto@ultimamilla.com.ar</p>
 							</div>
 						</div>
 					</div>
@@ -310,16 +310,16 @@ import CTASection from '../components/v4/CTASection.astro';
 					<div class="bg-gray-50 p-6 rounded-2xl">
 						<div class="flex items-center mb-4">
 							<svg class="w-6 h-6 text-gray-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-							<h3 class="text-xl font-black text-gray-900">Horarios de atención</h3>
+							<h3 class="text-xl font-bold text-gray-900">Horarios de atención</h3>
 						</div>
 						<div class="grid grid-cols-2 gap-4 text-sm">
 							<div>
 								<p class="font-semibold text-gray-900">Lunes - Viernes</p>
-								<p class="text-gray-600">9:00 AM - 6:00 PM</p>
+								<p class="text-gray-500">9:00 AM - 6:00 PM</p>
 							</div>
 							<div>
 								<p class="font-semibold text-gray-900">Fines de semana</p>
-								<p class="text-gray-600">Emergencias</p>
+								<p class="text-gray-500">Emergencias</p>
 							</div>
 						</div>
 					</div>
@@ -345,10 +345,10 @@ import CTASection from '../components/v4/CTASection.astro';
 				const label = this.closest('label');
 				const indicator = label?.querySelector('div > div');
 				if ((this as HTMLInputElement).checked) {
-					label?.classList.add('border-blue-500', 'bg-blue-50');
+					label?.classList.add('border-gray-900', 'bg-gray-50');
 					indicator?.classList.remove('hidden');
 				} else {
-					label?.classList.remove('border-blue-500', 'bg-blue-50');
+					label?.classList.remove('border-gray-900', 'bg-gray-50');
 					indicator?.classList.add('hidden');
 				}
 			});
@@ -360,13 +360,13 @@ import CTASection from '../components/v4/CTASection.astro';
 				document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
 					const label = r.closest('label');
 					const indicator = label?.querySelector('div > div');
-					label?.classList.remove('border-blue-500', 'bg-blue-50');
+					label?.classList.remove('border-gray-900', 'bg-gray-50');
 					indicator?.classList.add('hidden');
 				});
 				
 				const label = this.closest('label');
 				const indicator = label?.querySelector('div > div');
-				label?.classList.add('border-blue-500', 'bg-blue-50');
+				label?.classList.add('border-gray-900', 'bg-gray-50');
 				indicator?.classList.remove('hidden');
 			});
 		});
@@ -444,7 +444,7 @@ import CTASection from '../components/v4/CTASection.astro';
 						successMessage.classList.remove('hidden');
 						form.reset();
 						document.querySelectorAll('label').forEach(label => {
-							label.classList.remove('border-blue-500', 'bg-blue-50');
+							label.classList.remove('border-gray-900', 'bg-gray-50');
 							const indicator = label.querySelector('div > div');
 							indicator?.classList.add('hidden');
 						});

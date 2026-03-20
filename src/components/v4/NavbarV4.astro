@@ -1,10 +1,10 @@
 ---
 /**
- * NavbarV4 - Floating Glass Navbar (V5 Light Sofisticado)
- * - Floating con rounded corners y glass morphism
- * - Transitions to solid on scroll
- * - Touch targets 44px mínimo
- * - Highlight de página activa con underline
+ * NavbarV4 - Solid Clean Bar (V6 Dark Premium)
+ * - Solid white with border-bottom
+ * - Black CTA button (not red — more elegant)
+ * - Shadow on scroll
+ * - Touch targets 44px min
  */
 
 interface Props {
@@ -13,7 +13,6 @@ interface Props {
 
 const { currentPath = Astro.url.pathname } = Astro.props;
 
-// Navigation items
 const navItems = [
   { href: '/servicios', label: 'Servicios' },
   { href: '/antecedentes', label: 'Antecedentes' },
@@ -21,77 +20,31 @@ const navItems = [
   { href: '/nosotros', label: 'Nosotros' },
 ];
 
-// Helper to check if current page
 const isActive = (href: string) => {
   if (href === '/') return currentPath === '/';
   return currentPath.startsWith(href);
 };
 ---
 
-<header id="navHeader" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
-  <div id="navContainer" class="max-w-6xl mx-auto mt-4 mx-4 sm:mx-6 lg:mx-auto rounded-2xl bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-soft transition-all duration-300">
-    <div class="px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        <!-- Logo -->
-        <a href="/" class="flex items-center gap-2 group">
-          <span class="font-brand text-xl font-semibold tracking-tight text-um-dark" style="font-family:'Futura PT','Futura',sans-serif;letter-spacing:-0.02em;">
-            ultima<span class="text-um-primary font-bold">milla</span>
-          </span>
-        </a>
+<header id="navHeader" class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 transition-shadow duration-300">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-2 group">
+        <span class="font-brand text-xl font-semibold tracking-tight text-gray-900" style="font-family:'Futura PT','Futura',sans-serif;letter-spacing:-0.02em;">
+          ultima<span class="text-um-primary font-bold">milla</span>
+        </span>
+      </a>
 
-        <!-- Desktop Menu -->
-        <div class="hidden md:flex items-center gap-1">
-          {navItems.map((item) => (
-            <a
-              href={item.href}
-              class={`relative px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                isActive(item.href)
-                  ? 'text-um-dark'
-                  : 'text-um-text-tertiary hover:text-um-dark hover:bg-slate-50'
-              }`}
-            >
-              {item.label}
-              {isActive(item.href) && (
-                <span class="absolute bottom-0.5 left-4 right-4 h-0.5 bg-um-primary rounded-full"></span>
-              )}
-            </a>
-          ))}
-          <a
-            href="/contacto"
-            class="ml-4 px-5 py-2 bg-um-primary text-white rounded-full text-sm font-semibold hover:bg-um-primary-dark transition-all shadow-red hover:shadow-red-lg"
-          >
-            Contacto
-          </a>
-        </div>
-
-        <!-- Hamburger Button -->
-        <button
-          id="menuToggle"
-          class="md:hidden p-2 -mr-2 rounded-xl hover:bg-slate-50 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors"
-          aria-label="Abrir menú"
-          aria-expanded="false"
-          aria-controls="mobileMenu"
-        >
-          <svg id="hamburgerIcon" class="w-5 h-5 text-um-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-          </svg>
-          <svg id="closeIcon" class="w-5 h-5 text-um-dark hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Mobile Menu -->
-    <div id="mobileMenu" class="mobile-menu-hidden md:hidden border-t border-slate-100">
-      <div class="px-4 py-3 space-y-1">
+      <!-- Desktop Menu -->
+      <div class="hidden md:flex items-center gap-1">
         {navItems.map((item) => (
           <a
             href={item.href}
-            class={`block px-4 py-3 rounded-xl min-h-[44px] flex items-center text-sm font-medium transition-colors ${
+            class={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
               isActive(item.href)
-                ? 'text-um-dark bg-slate-50 font-semibold'
-                : 'text-um-text-tertiary hover:bg-slate-50 hover:text-um-dark'
+                ? 'text-gray-900 font-semibold'
+                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
             }`}
           >
             {item.label}
@@ -99,17 +52,57 @@ const isActive = (href: string) => {
         ))}
         <a
           href="/contacto"
-          class="block px-4 py-3 mt-2 rounded-xl min-h-[44px] flex items-center justify-center text-sm font-semibold bg-um-primary text-white hover:bg-um-primary-dark transition-colors"
+          class="ml-4 px-5 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
         >
           Contacto
         </a>
       </div>
+
+      <!-- Hamburger Button -->
+      <button
+        id="menuToggle"
+        class="md:hidden p-2 -mr-2 rounded-xl hover:bg-gray-50 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors"
+        aria-label="Abrir menú"
+        aria-expanded="false"
+        aria-controls="mobileMenu"
+      >
+        <svg id="hamburgerIcon" class="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        <svg id="closeIcon" class="w-5 h-5 text-gray-900 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="mobile-menu-hidden md:hidden border-t border-gray-100">
+    <div class="px-4 py-3 space-y-1 bg-white">
+      {navItems.map((item) => (
+        <a
+          href={item.href}
+          class={`block px-4 py-3 rounded-xl min-h-[44px] flex items-center text-sm font-medium transition-colors ${
+            isActive(item.href)
+              ? 'text-gray-900 bg-gray-50 font-semibold'
+              : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+          }`}
+        >
+          {item.label}
+        </a>
+      ))}
+      <a
+        href="/contacto"
+        class="block px-4 py-3 mt-2 rounded-xl min-h-[44px] flex items-center justify-center text-sm font-semibold bg-gray-900 text-white hover:bg-gray-800 transition-colors"
+      >
+        Contacto
+      </a>
     </div>
   </div>
 </header>
 
 <!-- Spacer -->
-<div class="h-20 sm:h-24"></div>
+<div class="h-16"></div>
 
 <style>
   .mobile-menu-hidden {
@@ -119,16 +112,9 @@ const isActive = (href: string) => {
     display: block;
   }
 
-  /* Scrolled state — full width solid bar */
+  /* Scrolled state — add shadow */
   .nav-scrolled {
-    margin-top: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    max-width: 100% !important;
-    border-radius: 0 !important;
-    background: rgba(255, 255, 255, 0.95) !important;
-    border-color: rgba(226, 232, 240, 0.8) !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -140,12 +126,11 @@ const isActive = (href: string) => {
 </style>
 
 <script>
-  // Mobile menu toggle
   const menuToggle = document.getElementById('menuToggle');
   const mobileMenu = document.getElementById('mobileMenu');
   const hamburgerIcon = document.getElementById('hamburgerIcon');
   const closeIcon = document.getElementById('closeIcon');
-  const navContainer = document.getElementById('navContainer');
+  const navHeader = document.getElementById('navHeader');
 
   if (menuToggle && mobileMenu && hamburgerIcon && closeIcon) {
     menuToggle.addEventListener('click', function() {
@@ -203,17 +188,14 @@ const isActive = (href: string) => {
     });
   }
 
-  // Scroll behavior — floating → solid
-  if (navContainer) {
-    let lastScrollY = 0;
+  // Scroll behavior — add shadow
+  if (navHeader) {
     window.addEventListener('scroll', function() {
-      const scrollY = window.scrollY;
-      if (scrollY > 80) {
-        navContainer.classList.add('nav-scrolled');
+      if (window.scrollY > 10) {
+        navHeader.classList.add('nav-scrolled');
       } else {
-        navContainer.classList.remove('nav-scrolled');
+        navHeader.classList.remove('nav-scrolled');
       }
-      lastScrollY = scrollY;
     }, { passive: true });
   }
 </script>

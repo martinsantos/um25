@@ -1,7 +1,7 @@
 ---
 /**
- * Homepage V5 Light Sofisticado Design System
- * Typography-first hero, clean sections, refined aesthetics
+ * Homepage V6 Dark Premium + White Content Design System
+ * Dark hero, white content sections, zero sky-blue
  */
 
 import LayoutV4 from '../layouts/LayoutV4.astro';
@@ -11,34 +11,6 @@ import { generateSlug } from '../utils/slugUtils.js';
 import { getAllServicios } from '../utils/directusHelpers';
 import { getDirectusImageUrl, getAllAntecedentes, getHeroHomeImages } from '../lib/directus.ts';
 import { serviceBadgeMap, serviceToSectorMap } from '../data/serviceBadgeMap';
-import { getSectorColors } from '../data/colorSystem';
-
-// Fetch hero images from Directus Hero_Home (with snapshot fallback)
-const localHeroFallback = [
-  { url: '/images/services/redes-comunicaciones.jpg', alt: 'Infraestructura de Redes' },
-  { url: '/images/services/ciberseguridad.jpg', alt: 'Seguridad Electrónica' },
-  { url: '/images/services/telefonia.jpg', alt: 'Telecomunicaciones' },
-  { url: '/images/services/servicios-web.jpg', alt: 'Desarrollo de Software' },
-  { url: '/images/services/servicios-it.jpg', alt: 'Consultoría IT' },
-];
-
-let heroImages: { url: string; alt: string }[] = [];
-try {
-  const heroItems = await getHeroHomeImages();
-  const uuidRe = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
-  heroImages = heroItems
-    .filter((item: any) => item.imagen && uuidRe.test(item.imagen))
-    .map((item: any) => ({
-      url: `/assets/${item.imagen}`,
-      alt: item.titulo || `Hero ${item.orden}`
-    }));
-} catch (error) {
-  console.error('[HOMEPAGE] Error loading hero images:', error);
-}
-
-if (heroImages.length === 0) {
-  heroImages = localHeroFallback;
-}
 
 // Get 3 featured antecedentes from Directus
 let antecedentesData: any[] = [];
@@ -57,28 +29,23 @@ const antecedentesEnhanced = antecedentesData.slice(0, 3).map((ant: any) => ({
 // Get services from Directus
 const serviciosFromDirectus = await getAllServicios();
 
-const iconMap: Record<number, { icon: string; iconColor: string }> = {
-  101: { icon: 'network', iconColor: 'bg-sky-600/90' },
-  102: { icon: 'shield', iconColor: 'bg-rose-600/90' },
-  103: { icon: 'radio', iconColor: 'bg-cyan-600/90' },
-  104: { icon: 'code', iconColor: 'bg-purple-600/90' },
-  105: { icon: 'headphones', iconColor: 'bg-amber-600/90' },
-  106: { icon: 'lightbulb', iconColor: 'bg-emerald-600/90' },
-  107: { icon: 'flame', iconColor: 'bg-orange-600/90' },
-  108: { icon: 'zap', iconColor: 'bg-yellow-600/90' }
+const iconMap: Record<number, { icon: string }> = {
+  101: { icon: 'network' },
+  102: { icon: 'shield' },
+  103: { icon: 'radio' },
+  104: { icon: 'code' },
+  105: { icon: 'headphones' },
+  106: { icon: 'settings' },
+  107: { icon: 'flame' },
+  108: { icon: 'zap' }
 };
 
-const servicios = serviciosFromDirectus.slice(0, 8).map(s => {
-  const sector = serviceToSectorMap[s.id] || 'tecnologia';
-  const colors = getSectorColors(sector);
-  return {
-    ...s,
-    ...iconMap[s.id],
-    slug: s.slug || generateSlug(s.Titulo),
-    badge: serviceBadgeMap[s.id] || 'Tecnología',
-    badgeColor: colors.icon
-  };
-});
+const servicios = serviciosFromDirectus.slice(0, 8).map(s => ({
+  ...s,
+  ...iconMap[s.id],
+  slug: s.slug || generateSlug(s.Titulo),
+  badge: serviceBadgeMap[s.id] || 'Tecnología',
+}));
 
 // WebSite schema
 const websiteSchema = {
@@ -95,9 +62,9 @@ const websiteSchema = {
   }
 };
 
-// Sectors with SVG icon paths (replacing emojis)
+// Sectors with SVG icon paths
 const sectores = [
-  { slug: 'aeropuertos', name: 'Aeropuertos', icon: 'M12 19V5m-7 7l7-7 7 7', iconAlt: 'M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z' },
+  { slug: 'aeropuertos', name: 'Aeropuertos', icon: 'M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z' },
   { slug: 'bodegas', name: 'Bodegas', icon: 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
   { slug: 'constructoras', name: 'Construcción', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
   { slug: 'salud', name: 'Salud', icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' },
@@ -116,36 +83,28 @@ const sectores = [
   image="/nosotros-tech.jpg"
   structuredData={websiteSchema}
 >
-  <!-- HERO — Typography First -->
-  <section class="relative overflow-hidden" style="background: radial-gradient(ellipse at top center, #F1F5F9 0%, #FFFFFF 60%);">
+  <!-- HERO — Dark Typography Hero -->
+  <section class="relative overflow-hidden bg-gray-900">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 lg:pt-28 pb-16 sm:pb-24 lg:pb-32">
-      <!-- Badge -->
-      <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-um-primary-light text-um-primary rounded-full text-xs font-semibold mb-6 sm:mb-8 reveal">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-        </svg>
-        22+ Años Transformando Empresas
-      </span>
-
       <!-- Title -->
-      <h1 class="text-fluid-display text-um-dark max-w-4xl mb-6 reveal">
+      <h1 class="text-fluid-display text-white max-w-4xl mb-6 reveal">
         Conectamos la <span class="text-um-primary">tecnología</span> con el éxito de su empresa
       </h1>
 
       <!-- Subtitle -->
-      <p class="text-lg sm:text-xl text-um-text-tertiary mb-10 sm:mb-12 max-w-2xl leading-relaxed reveal">
+      <p class="text-lg sm:text-xl text-gray-400 mb-10 sm:mb-12 max-w-2xl leading-relaxed reveal">
         Infraestructura IT, seguridad electrónica y desarrollo de software para empresas de Mendoza, Cuyo y Patagonia.
       </p>
 
       <!-- CTAs -->
       <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-14 sm:mb-16 reveal">
-        <a href="/contacto" class="group inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-um-primary hover:bg-um-primary-dark text-white text-sm font-semibold rounded-xl transition-all shadow-red hover:shadow-red-lg min-h-[48px]">
+        <a href="/contacto" class="group inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white hover:bg-gray-100 text-gray-900 text-sm font-semibold rounded-xl transition-all shadow-elevated min-h-[48px]">
           Solicitar Consultoría Gratis
           <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
           </svg>
         </a>
-        <a href="/antecedentes" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 border border-um-border text-um-text-secondary text-sm font-semibold rounded-xl hover:border-um-border-strong hover:bg-white transition-all min-h-[48px]">
+        <a href="/antecedentes" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 border border-gray-600 text-gray-300 text-sm font-semibold rounded-xl hover:text-white hover:border-gray-400 transition-all min-h-[48px]">
           Ver Proyectos
         </a>
       </div>
@@ -153,24 +112,21 @@ const sectores = [
       <!-- Stats — inline -->
       <div class="flex items-center gap-8 sm:gap-12 reveal">
         <div>
-          <div class="text-3xl sm:text-4xl font-bold text-um-dark" style="font-family:'JetBrains Mono',monospace;">469+</div>
-          <div class="text-xs text-um-text-muted uppercase tracking-wider mt-1">Proyectos</div>
+          <div class="text-3xl sm:text-4xl font-bold text-white" style="font-family:'JetBrains Mono',monospace;">469+</div>
+          <div class="text-xs text-gray-400 uppercase tracking-wider mt-1">Proyectos</div>
         </div>
-        <div class="w-px h-12 bg-um-border"></div>
+        <div class="w-px h-12 bg-gray-700"></div>
         <div>
-          <div class="text-3xl sm:text-4xl font-bold text-um-dark" style="font-family:'JetBrains Mono',monospace;">22</div>
-          <div class="text-xs text-um-text-muted uppercase tracking-wider mt-1">Años</div>
+          <div class="text-3xl sm:text-4xl font-bold text-white" style="font-family:'JetBrains Mono',monospace;">22</div>
+          <div class="text-xs text-gray-400 uppercase tracking-wider mt-1">Años</div>
         </div>
-        <div class="w-px h-12 bg-um-border"></div>
+        <div class="w-px h-12 bg-gray-700"></div>
         <div>
           <div class="text-3xl sm:text-4xl font-bold text-um-primary" style="font-family:'JetBrains Mono',monospace;">24/7</div>
-          <div class="text-xs text-um-text-muted uppercase tracking-wider mt-1">Soporte</div>
+          <div class="text-xs text-gray-400 uppercase tracking-wider mt-1">Soporte</div>
         </div>
       </div>
     </div>
-
-    <!-- Bottom accent -->
-    <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-um-border to-transparent"></div>
   </section>
 
   <!-- SERVICES SECTION -->
@@ -178,11 +134,10 @@ const sectores = [
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-10 sm:mb-14">
         <div class="reveal">
-          <div class="section-accent mb-4"></div>
-          <h2 class="text-fluid-title text-um-dark">
+          <h2 class="text-fluid-title text-gray-900">
             Soluciones Integrales IT
           </h2>
-          <p class="text-um-text-tertiary mt-2 max-w-lg">Tecnología de punta para cada necesidad de su organización.</p>
+          <p class="text-gray-500 mt-2 max-w-lg">Tecnología de punta para cada necesidad de su organización.</p>
         </div>
         <a href="/servicios" class="inline-flex items-center gap-2 text-um-primary font-medium text-sm hover:gap-3 transition-all reveal">
           Ver todos los servicios
@@ -202,7 +157,6 @@ const sectores = [
               descripcion={servicio.Descripcion}
               imagen={servicio.Imagen}
               badge={servicio.badge}
-              badgeColor={servicio.badgeColor}
               cliente={servicio.Cliente}
               icon={servicio.icon}
             />
@@ -213,36 +167,35 @@ const sectores = [
   </section>
 
   <!-- SUCCESS CASES SECTION -->
-  <section class="section-padding bg-um-surface">
+  <section class="section-padding bg-gray-50">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14 reveal">
-        <div class="flex justify-center mb-4"><div class="section-accent"></div></div>
-        <h2 class="text-fluid-title text-um-dark mb-3">
+        <h2 class="text-fluid-title text-gray-900 mb-3">
           Proyectos que nos Enorgullecen
         </h2>
-        <p class="text-um-text-tertiary">
+        <p class="text-gray-500">
           Empresas líderes de la región confían en nosotros para su transformación digital.
         </p>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 reveal-stagger">
         {antecedentesEnhanced.map((antecedente) => (
-          <a href={`/antecedentes/${antecedente.id}/${antecedente.slug}`} class="reveal group bg-white rounded-2xl overflow-hidden border border-um-border hover:border-um-primary/20 transition-all duration-300 hover:shadow-elevated">
-            <div class="relative aspect-[4/3] overflow-hidden bg-um-elevated">
+          <a href={`/antecedentes/${antecedente.id}/${antecedente.slug}`} class="reveal group bg-white rounded-xl overflow-hidden shadow-soft hover:shadow-elevated transition-all duration-300">
+            <div class="relative aspect-[4/3] overflow-hidden bg-gray-100">
               <img
                 src={antecedente.imageUrl}
                 alt={antecedente.Titulo || antecedente.Nombre}
-                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                 loading="lazy"
                 onerror="this.onerror=null;this.src='/images/default-background.jpg'"
               />
             </div>
             <div class="p-6">
-              <span class="text-xs font-medium text-um-text-muted uppercase tracking-wider">
+              <span class="text-xs font-medium text-gray-400 uppercase tracking-wider">
                 {antecedente.Cliente || antecedente.Sector || 'Proyecto'}
               </span>
-              <h3 class="text-lg font-semibold text-um-dark mt-2 mb-2 line-clamp-2 group-hover:text-um-primary transition-colors">{antecedente.Titulo || antecedente.Nombre}</h3>
-              <p class="text-sm text-um-text-tertiary line-clamp-2 leading-relaxed">{antecedente.Descripcion?.replace(/\\\\/g, ' ').substring(0, 100)}...</p>
+              <h3 class="text-lg font-semibold text-gray-900 mt-2 mb-2 line-clamp-2 group-hover:text-um-primary transition-colors">{antecedente.Titulo || antecedente.Nombre}</h3>
+              <p class="text-sm text-gray-500 line-clamp-2 leading-relaxed">{antecedente.Descripcion?.replace(/\\\\/g, ' ').substring(0, 100)}...</p>
               <span class="inline-flex items-center gap-1.5 text-um-primary text-sm font-medium mt-4 group-hover:gap-2.5 transition-all">
                 Ver caso completo
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -255,7 +208,7 @@ const sectores = [
       </div>
 
       <div class="mt-10 sm:mt-14 text-center reveal">
-        <a href="/antecedentes" class="inline-flex items-center gap-2 px-7 py-3.5 bg-um-dark text-white font-semibold rounded-xl hover:bg-slate-800 transition-colors min-h-[48px] text-sm">
+        <a href="/antecedentes" class="inline-flex items-center gap-2 px-7 py-3.5 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-800 transition-colors min-h-[48px] text-sm">
           Ver todos los casos
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
@@ -265,26 +218,25 @@ const sectores = [
     </div>
   </section>
 
-  <!-- INDUSTRIES SECTION — SVG icons instead of emojis -->
+  <!-- INDUSTRIES SECTION — Simple Icon List -->
   <section class="section-padding bg-white">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14 reveal">
-        <div class="flex justify-center mb-4"><div class="section-accent"></div></div>
-        <h2 class="text-fluid-title text-um-dark mb-3">
+        <h2 class="text-fluid-title text-gray-900 mb-3">
           Soluciones por Industria
         </h2>
-        <p class="text-um-text-tertiary">
+        <p class="text-gray-500">
           Experiencia especializada en los sectores más exigentes de la economía regional.
         </p>
       </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4 max-w-3xl mx-auto reveal-stagger">
         {sectores.map((sector) => (
-          <a href={`/${sector.slug}`} class="reveal group flex items-center gap-3 px-5 py-4 rounded-xl border border-um-border hover:border-um-primary/30 hover:bg-um-primary-light/50 transition-all">
-            <svg class="w-5 h-5 text-um-text-muted group-hover:text-um-primary transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <a href={`/${sector.slug}`} class="reveal group flex items-center gap-3 px-5 py-4 rounded-lg hover:bg-gray-50 transition-all">
+            <svg class="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d={sector.icon}/>
             </svg>
-            <span class="text-sm font-medium text-um-text-secondary group-hover:text-um-dark transition-colors">{sector.name}</span>
+            <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">{sector.name}</span>
           </a>
         ))}
       </div>

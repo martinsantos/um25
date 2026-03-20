@@ -1,8 +1,8 @@
 ---
 /**
- * ServiceCard Component V6 - Icon-First Minimal
- * - Large icon as visual anchor (never breaks like images)
- * - Clean white card with refined border
+ * ServiceCard Component V6 - Icon-First Minimal (Dark Premium palette)
+ * - Large icon as visual anchor
+ * - Clean white card with gray border
  * - Hover: border-red, shadow, icon color shift
  * - Arrow link that slides on hover
  */
@@ -27,7 +27,7 @@ const {
   descripcion = '',
   imagen,
   badge,
-  badgeColor = 'bg-slate-800',
+  badgeColor = 'bg-gray-800',
   cliente = 'Tecnología',
   href,
   icon = 'globe'
@@ -58,31 +58,31 @@ const iconSvg = iconPaths[icon] || iconPaths['globe'];
 ---
 
 <a href={serviceUrl} class="group flex flex-col h-full">
-  <article class="flex flex-col h-full bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-red-200 transition-all duration-300 hover:shadow-lg">
+  <article class="flex flex-col h-full bg-white rounded-2xl overflow-hidden border border-gray-200 hover:border-red-200 transition-all duration-300 hover:shadow-elevated">
     <!-- Icon + Badge Header -->
     <div class="p-6 pb-0 sm:p-8 sm:pb-0">
       <div class="flex items-start justify-between mb-5">
-        <div class="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center group-hover:bg-red-50 group-hover:border-red-100 transition-colors duration-300">
-          <svg class="w-6 h-6 text-slate-400 group-hover:text-red-600 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" set:html={iconSvg} />
+        <div class="w-12 h-12 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center group-hover:bg-red-50 group-hover:border-red-100 transition-colors duration-300">
+          <svg class="w-6 h-6 text-gray-400 group-hover:text-red-600 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" set:html={iconSvg} />
         </div>
         {badge && (
-          <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-slate-100 text-slate-600">
+          <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-gray-100 text-gray-600">
             {badge}
           </span>
         )}
       </div>
 
-      <h3 class="text-base sm:text-lg font-semibold text-slate-900 mb-2 group-hover:text-red-600 transition-colors leading-snug line-clamp-2">
+      <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-2 group-hover:text-red-600 transition-colors leading-snug line-clamp-2">
         {titulo}
       </h3>
 
-      <p class="text-slate-500 text-sm leading-relaxed line-clamp-3 mb-6">
+      <p class="text-gray-500 text-sm leading-relaxed line-clamp-3 mb-6">
         {descripcionTruncada}
       </p>
     </div>
 
     <!-- Footer -->
-    <div class="mt-auto px-6 sm:px-8 py-4 border-t border-slate-100">
+    <div class="mt-auto px-6 sm:px-8 py-4 border-t border-gray-100">
       <span class="text-red-600 text-sm font-medium flex items-center gap-1.5 group-hover:gap-2.5 transition-all">
         Ver detalles
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

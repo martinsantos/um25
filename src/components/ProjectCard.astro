@@ -1,6 +1,4 @@
 ---
-import { getSectorColors } from '../data/colorSystem';
-
 interface Props {
   id: string;
   titulo: string;
@@ -25,13 +23,11 @@ const {
   slug
 } = Astro.props;
 
-// NO fallbacks - image must come from Directus
 if (!imagen) {
   console.error(`[ProjectCard] Missing image for: ${titulo} (ID: ${id})`);
 }
 const imageUrl = imagen;
 
-// Formatear fecha
 const formatDate = (dateString: string) => {
   if (!dateString) return '';
   try {
@@ -45,51 +41,22 @@ const formatDate = (dateString: string) => {
     return dateString;
   }
 };
-
-/**
- * Normaliza un área/categoría a una clave de sector
- */
-function normalizeSector(area: string): string {
-  const keywords = area?.toLowerCase().trim() || '';
-
-  if (keywords.includes('aeropuerto')) return 'aeropuertos';
-  if (keywords.includes('bodega') || keywords.includes('vitivinícola')) return 'bodegas';
-  if (keywords.includes('gobierno') || keywords.includes('municipal') || keywords.includes('público')) return 'gobierno';
-  if (keywords.includes('salud') || keywords.includes('hospital') || keywords.includes('clínica')) return 'salud';
-  if (keywords.includes('construcción') || keywords.includes('constructora') || keywords.includes('obra')) return 'construccion';
-  if (keywords.includes('industria') || keywords.includes('industrial') || keywords.includes('fábrica')) return 'industria';
-  if (keywords.includes('software') || keywords.includes('desarrollo') || keywords.includes('aplicación') || keywords.includes('soporte')) return 'software';
-  if (keywords.includes('minería') || keywords.includes('minera') || keywords.includes('mining')) return 'mineria';
-  if (keywords.includes('seguridad') || keywords.includes('cctv') || keywords.includes('vigilancia')) return 'seguridad';
-  if (keywords.includes('telecomunicaciones') || keywords.includes('redes') || keywords.includes('telefonía') || keywords.includes('comunicaciones')) return 'telecomunicaciones';
-  if (keywords.includes('data center') || keywords.includes('datacenter') || keywords.includes('centro de datos')) return 'datacenter';
-  if (keywords.includes('hotel') || keywords.includes('hotelería') || keywords.includes('turismo')) return 'hoteleria';
-  if (keywords.includes('retail') || keywords.includes('comercio') || keywords.includes('tienda') || keywords.includes('shopping')) return 'retail';
-  if (keywords.includes('energía') || keywords.includes('eléctrica') || keywords.includes('renovable') || keywords.includes('distribuidora')) return 'energia';
-  if (keywords.includes('educación') || keywords.includes('universidad') || keywords.includes('escuela') || keywords.includes('instituto')) return 'educacion';
-
-  return 'tecnologia';
-}
-
-const sector = normalizeSector(area);
-const colors = getSectorColors(sector);
-const areaColors = colors.badge;
 ---
 
-<article class="group bg-white rounded-2xl overflow-hidden border border-um-border hover:border-um-primary/20 transition-all duration-300 hover:shadow-elevated flex flex-col h-full">
+<article class="group bg-white rounded-xl overflow-hidden shadow-soft hover:shadow-elevated transition-all duration-300 flex flex-col h-full">
   <a href={`/antecedentes/${id}/${slug}`} class="block h-full flex flex-col">
     <!-- Image -->
-    <div class="relative overflow-hidden aspect-[4/3] bg-um-elevated">
+    <div class="relative overflow-hidden aspect-[4/3] bg-gray-100">
       {imageUrl ? (
         <img
           src={imageUrl}
           alt={titulo}
           loading="lazy"
-          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
           onerror="this.onerror=null;this.src='/images/default-background.jpg'"
         />
       ) : (
-        <div class="w-full h-full flex items-center justify-center bg-um-elevated text-um-text-muted">
+        <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
           <p class="text-sm">Imagen no disponible</p>
         </div>
       )}
@@ -100,25 +67,25 @@ const areaColors = colors.badge;
       {/* Tags */}
       <div class="flex flex-wrap gap-2 mb-3">
         {area && (
-          <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${areaColors.bg} ${areaColors.text}`}>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
             {area}
           </span>
         )}
         {servicio && (
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-um-elevated text-um-text-tertiary">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
             {servicio}
           </span>
         )}
       </div>
 
-      <h3 class="text-base sm:text-lg font-semibold text-um-dark mb-2 line-clamp-2 group-hover:text-um-primary transition-colors leading-snug">
+      <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-um-primary transition-colors leading-snug">
         {titulo}
       </h3>
-      <p class="text-sm text-um-text-tertiary mb-4 line-clamp-2 leading-relaxed">{descripcion}</p>
+      <p class="text-sm text-gray-500 mb-4 line-clamp-2 leading-relaxed">{descripcion}</p>
 
       {/* Meta */}
-      <div class="mt-auto pt-4 border-t border-um-border-subtle flex items-center justify-between">
-        <span class="text-xs text-um-text-muted font-mono uppercase tracking-wider" style="font-family:'JetBrains Mono',monospace;">
+      <div class="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
+        <span class="text-xs text-gray-400 font-mono uppercase tracking-wider" style="font-family:'JetBrains Mono',monospace;">
           {cliente ? cliente.substring(0, 25) : ''}
         </span>
         <span class="text-um-primary text-xs font-medium flex items-center gap-1 group-hover:gap-2 transition-all">

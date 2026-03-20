@@ -214,59 +214,9 @@ const computePaginationPages = () => {
 
 const paginationPages = computePaginationPages();
 
-// Mapeo de colores por categoría/sector para badges
-const getCategoryBadgeColor = (category: string): string => {
-  const normalizedCategory = category?.toLowerCase().trim() || '';
-
-  const colorMap: Record<string, string> = {
-    'gobierno': 'bg-blue-500',
-    'sector público': 'bg-blue-500',
-    'municipal': 'bg-blue-500',
-    'municipalidad': 'bg-blue-500',
-    'aeropuertos': 'bg-sky-500',
-    'aeropuerto': 'bg-sky-500',
-    'transporte': 'bg-sky-500',
-    'bodegas': 'bg-purple-500',
-    'bodega': 'bg-purple-500',
-    'vitivinícola': 'bg-purple-500',
-    'agroindustria': 'bg-purple-500',
-    'salud': 'bg-green-500',
-    'hospital': 'bg-green-500',
-    'clínica': 'bg-green-500',
-    'médico': 'bg-green-500',
-    'data center': 'bg-orange-500',
-    'datacenter': 'bg-orange-500',
-    'infraestructura': 'bg-orange-500',
-    'ti': 'bg-orange-500',
-    'construcción': 'bg-amber-500',
-    'constructora': 'bg-amber-500',
-    'obra': 'bg-amber-500',
-    'industria': 'bg-indigo-500',
-    'industrial': 'bg-indigo-500',
-    'manufactura': 'bg-indigo-500',
-    'fábrica': 'bg-indigo-500',
-    'software': 'bg-cyan-500',
-    'desarrollo': 'bg-cyan-500',
-    'aplicación': 'bg-cyan-500',
-    'minería': 'bg-slate-500',
-    'minera': 'bg-slate-500',
-    'mining': 'bg-slate-500',
-    'seguridad': 'bg-red-500',
-    'seguridad electrónica': 'bg-red-500',
-    'cctv': 'bg-red-500',
-    'telecomunicaciones': 'bg-teal-500',
-    'redes': 'bg-teal-500',
-    'redes y comunicaciones': 'bg-teal-500',
-    'comunicaciones': 'bg-teal-500',
-  };
-
-  for (const [key, color] of Object.entries(colorMap)) {
-    if (normalizedCategory.includes(key) || key.includes(normalizedCategory)) {
-      return color;
-    }
-  }
-
-  return 'bg-um-primary';
+// Neutral badge color for all categories (V6 Dark Premium)
+const getCategoryBadgeColor = (_category: string): string => {
+  return 'bg-gray-600';
 };
 
 // Filter chips V4 design - BUTTONS not links

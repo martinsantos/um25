@@ -19,15 +19,15 @@ import { getSectorColors } from '../../data/colorSystem';
 const serviciosFromDirectus = await getAllServicios();
 
 // Icon mapping for ServiceCard
-const iconMap: Record<number, { icon: string; iconColor: string }> = {
-  101: { icon: 'network', iconColor: 'bg-sky-600/90' },
-  102: { icon: 'shield', iconColor: 'bg-rose-600/90' },
-  103: { icon: 'radio', iconColor: 'bg-cyan-600/90' },
-  104: { icon: 'code', iconColor: 'bg-purple-600/90' },
-  105: { icon: 'headphones', iconColor: 'bg-amber-600/90' },
-  106: { icon: 'lightbulb', iconColor: 'bg-emerald-600/90' },
-  107: { icon: 'flame', iconColor: 'bg-orange-600/90' },
-  108: { icon: 'zap', iconColor: 'bg-yellow-600/90' }
+const iconMap: Record<number, { icon: string }> = {
+  101: { icon: 'network' },
+  102: { icon: 'shield' },
+  103: { icon: 'radio' },
+  104: { icon: 'code' },
+  105: { icon: 'headphones' },
+  106: { icon: 'settings' },
+  107: { icon: 'flame' },
+  108: { icon: 'zap' }
 };
 
 // Enhance services with icons, badges, and slugs

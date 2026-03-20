@@ -4,43 +4,39 @@ export default {
 	theme: {
 		extend: {
 			colors: {
-				// V5 Light Sofisticado Design System
+				// V6 Dark Premium + White Content Design System
 				'um-primary': '#DC2626',
 				'um-primary-dark': '#B91C1C',
-				'um-primary-light': '#FEF2F2',
+				'um-primary-light': '#FEE2E2',
 				'um-primary-bg': '#FEF2F2',
 
-				// Legacy alias (accent = primary in V5)
+				// Legacy alias
 				'um-accent': '#DC2626',
 				'um-accent-dark': '#B91C1C',
 
-				// Surfaces
+				// Surfaces — warm neutrals, ZERO sky-blue
 				'um-bg': '#FFFFFF',
-				'um-surface': '#FAFBFC',
-				'um-elevated': '#F1F5F9',
+				'um-surface': '#FAFAFA',
+				'um-elevated': '#F5F5F5',
 
-				// Text hierarchy
-				'um-text': '#0F172A',
-				'um-text-secondary': '#334155',
-				'um-text-tertiary': '#64748B',
-				'um-text-muted': '#94A3B8',
+				// Text hierarchy — warm grays
+				'um-text': '#111827',
+				'um-text-secondary': '#4B5563',
+				'um-text-tertiary': '#6B7280',
+				'um-text-muted': '#9CA3AF',
 
-				// Borders
-				'um-border': '#E2E8F0',
-				'um-border-subtle': '#F1F5F9',
-				'um-border-strong': '#CBD5E1',
+				// Borders — neutral grays
+				'um-border': '#E5E7EB',
+				'um-border-subtle': '#F3F4F6',
+				'um-border-strong': '#D1D5DB',
 
 				// Dark sections
-				'um-dark': '#0F172A',
-				'um-slate': '#1E293B',
+				'um-dark': '#111827',
+				'um-slate': '#1F2937',
 
 				// Legacy compatibility
-				'um-gray': '#64748B',
-				'um-gray-light': '#F1F5F9',
-
-				// Info/links
-				'um-info': '#1E40AF',
-				'um-info-light': '#DBEAFE',
+				'um-gray': '#6B7280',
+				'um-gray-light': '#F5F5F5',
 			},
 			fontFamily: {
 				'inter': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
@@ -51,10 +47,10 @@ export default {
 				'4xl': '2rem',
 			},
 			boxShadow: {
-				'soft': '0 2px 8px rgba(0, 0, 0, 0.04)',
-				'medium': '0 4px 16px rgba(0, 0, 0, 0.06)',
-				'elevated': '0 8px 32px rgba(0, 0, 0, 0.08)',
-				'prominent': '0 16px 48px rgba(0, 0, 0, 0.12)',
+				'soft': '0 1px 3px rgba(0, 0, 0, 0.08)',
+				'medium': '0 4px 12px rgba(0, 0, 0, 0.08)',
+				'elevated': '0 8px 24px rgba(0, 0, 0, 0.1)',
+				'prominent': '0 16px 40px rgba(0, 0, 0, 0.14)',
 				'red': '0 8px 24px rgba(220, 38, 38, 0.2)',
 				'red-lg': '0 12px 32px rgba(220, 38, 38, 0.25)',
 			},
