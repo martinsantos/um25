@@ -1,0 +1,52 @@
+name: Preview Deploy to Netlify
+
+on:
+  push:
+    branches:
+      - 'feature/*'
+      - 'claude/*'
+      - 'develop'
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  preview-deploy:
+    runs-on: ubuntu-latest
+    name: Deploy Preview
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for Netlify
+        run: npm run build:preview
+        env:
+          PUBLIC_DIRECTUS_URL: ${{ secrets.PUBLIC_DIRECTUS_URL || 'https://admin.ultimamilla.com.ar' }}
+
+      - name: Deploy to Netlify
+        id: netlify-deploy
+        uses: nwtgck/actions-netlify@v3
+        with:
+          publish-dir: './dist'
+          functions-dir: './dist/functions'
+          production-deploy: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Preview deploy from ${{ github.ref_name }} - ${{ github.sha }}"
+          enable-pull-request-comment: true
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        timeout-minutes: 5
+
+      - name: Preview URL
+        run: echo "Preview URL - ${{ steps.netlify-deploy.outputs.deploy-url }}"
