@@ -83,69 +83,83 @@ const sectores = [
   image="/nosotros-tech.jpg"
   structuredData={websiteSchema}
 >
-  <!-- HERO — Cinematic Dark Hero -->
-  <section class="relative overflow-hidden bg-gray-900">
+  <!-- HERO — Cinematic Full-Impact -->
+  <section class="relative overflow-hidden bg-gray-900 min-h-[85vh] flex items-center">
     <!-- Atmospheric effects -->
     <div class="hero-glow"></div>
     <div class="hero-grid"></div>
+    <!-- Animated gradient orb -->
+    <div class="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full opacity-[0.07] blur-[100px] animate-pulse-slow" style="background: radial-gradient(circle, #DC2626, transparent 70%);"></div>
+    <div class="absolute -bottom-20 -left-20 w-[400px] h-[400px] rounded-full opacity-[0.04] blur-[80px]" style="background: radial-gradient(circle, #3B82F6, transparent 70%);"></div>
 
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 lg:pt-28 pb-16 sm:pb-24 lg:pb-32">
-      <!-- Title -->
-      <h1 class="text-fluid-display text-white max-w-4xl mb-6 reveal">
-        Conectamos la <span class="text-gradient-red">tecnología</span> con el éxito de su empresa
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-16 lg:pt-20 pb-16 sm:pb-24 lg:pb-28 w-full">
+      <!-- Overline -->
+      <div class="reveal mb-6 sm:mb-8">
+        <span class="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">
+          <span class="w-8 h-px bg-um-primary"></span>
+          Servicios Tecnológicos
+        </span>
+      </div>
+
+      <!-- Title — Massive Syne typography -->
+      <h1 class="text-fluid-display text-white max-w-5xl mb-8 reveal" style="text-wrap: balance;">
+        Conectamos la<br class="hidden sm:block" />
+        <span class="text-gradient-red">tecnología</span> con<br class="hidden lg:block" />
+        el éxito de su empresa
       </h1>
 
       <!-- Subtitle -->
-      <p class="text-lg sm:text-xl text-gray-400 mb-10 sm:mb-12 max-w-2xl leading-relaxed reveal">
+      <p class="text-base sm:text-lg lg:text-xl text-gray-400 mb-10 sm:mb-14 max-w-xl leading-relaxed reveal">
         Infraestructura IT, seguridad electrónica y desarrollo de software para empresas de Mendoza, Cuyo y Patagonia.
       </p>
 
-      <!-- CTAs -->
-      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-14 sm:mb-16 reveal">
-        <a href="/contacto" class="group inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white hover:bg-gray-50 text-gray-900 text-sm font-semibold rounded-xl transition-all duration-300 shadow-elevated hover:shadow-prominent min-h-[48px]">
-          Solicitar Consultoría Gratis
-          <svg class="w-4 h-4 transition-transform duration-300 ease-spring group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <!-- CTAs — more dramatic -->
+      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-16 sm:mb-20 reveal">
+        <a href="/contacto" class="group relative inline-flex items-center justify-center gap-2 px-8 py-4 bg-um-primary hover:bg-red-700 text-white text-sm font-semibold rounded-xl transition-all duration-300 shadow-red hover:shadow-red-lg min-h-[52px] overflow-hidden">
+          <span class="relative z-10">Solicitar Consultoría Gratis</span>
+          <svg class="relative z-10 w-4 h-4 transition-transform duration-300 ease-spring group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
           </svg>
         </a>
-        <a href="/antecedentes" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 border border-gray-600 text-gray-300 text-sm font-semibold rounded-xl hover:text-white hover:border-gray-400 transition-all min-h-[48px]">
-          Ver Proyectos
+        <a href="/antecedentes" class="inline-flex items-center justify-center gap-2 px-8 py-4 border border-gray-600 text-gray-300 text-sm font-semibold rounded-xl hover:text-white hover:border-gray-400 transition-all min-h-[52px]">
+          Ver 469+ Proyectos
         </a>
       </div>
 
-      <!-- Stats — inline -->
-      <div class="flex items-center gap-8 sm:gap-12 reveal">
-        <div>
-          <div class="text-3xl sm:text-4xl font-bold text-white" style="font-family:'JetBrains Mono',monospace;">469+</div>
-          <div class="text-xs text-gray-400 uppercase tracking-wider mt-1">Proyectos</div>
+      <!-- Stats — with accent borders -->
+      <div class="flex flex-wrap items-start gap-10 sm:gap-16 reveal">
+        <div class="relative pl-4 border-l-2 border-um-primary/40">
+          <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white font-mono" style="font-family:'JetBrains Mono',monospace;">469+</div>
+          <div class="text-[11px] text-gray-500 uppercase tracking-[0.15em] mt-1.5">Proyectos entregados</div>
         </div>
-        <div class="w-px h-12 bg-gray-700"></div>
-        <div>
-          <div class="text-3xl sm:text-4xl font-bold text-white" style="font-family:'JetBrains Mono',monospace;">22</div>
-          <div class="text-xs text-gray-400 uppercase tracking-wider mt-1">Años</div>
+        <div class="relative pl-4 border-l-2 border-gray-700">
+          <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white font-mono" style="font-family:'JetBrains Mono',monospace;">22+</div>
+          <div class="text-[11px] text-gray-500 uppercase tracking-[0.15em] mt-1.5">Años de experiencia</div>
         </div>
-        <div class="w-px h-12 bg-gray-700"></div>
-        <div>
-          <div class="text-3xl sm:text-4xl font-bold text-um-primary" style="font-family:'JetBrains Mono',monospace;">24/7</div>
-          <div class="text-xs text-gray-400 uppercase tracking-wider mt-1">Soporte</div>
+        <div class="relative pl-4 border-l-2 border-gray-700">
+          <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-um-primary font-mono" style="font-family:'JetBrains Mono',monospace;">24/7</div>
+          <div class="text-[11px] text-gray-500 uppercase tracking-[0.15em] mt-1.5">Soporte continuo</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- SERVICES SECTION -->
+  <!-- SERVICES SECTION — Editorial layout -->
   <section class="section-padding bg-white">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-10 sm:mb-14">
-        <div class="reveal">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12 sm:mb-16">
+        <div class="reveal max-w-2xl">
+          <span class="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400 mb-4">
+            <span class="w-8 h-px bg-um-primary"></span>
+            Servicios
+          </span>
           <h2 class="text-fluid-title text-gray-900">
-            Soluciones Integrales IT
+            Soluciones que<br class="hidden sm:block" /> transforman industrias
           </h2>
-          <p class="text-gray-500 mt-2 max-w-lg">Tecnología de punta para cada necesidad de su organización.</p>
         </div>
-        <a href="/servicios" class="inline-flex items-center gap-2 text-um-primary font-medium text-sm hover:gap-3 transition-all reveal">
-          Ver todos los servicios
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <a href="/servicios" class="group inline-flex items-center gap-2 text-gray-900 font-medium text-sm hover:text-um-primary transition-colors reveal">
+          Ver todos
+          <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
           </svg>
         </a>
@@ -170,88 +184,82 @@ const sectores = [
     </div>
   </section>
 
-  <!-- SUCCESS CASES SECTION -->
-  <section class="section-padding bg-gray-50">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14 reveal">
-        <h2 class="text-fluid-title text-gray-900 mb-3">
-          Proyectos que nos Enorgullecen
-        </h2>
-        <p class="text-gray-500">
-          Empresas líderes de la región confían en nosotros para su transformación digital.
-        </p>
+  <!-- SUCCESS CASES — Dark editorial band -->
+  <section class="relative section-padding bg-gray-900 overflow-hidden">
+    <div class="hero-glow"></div>
+    <div class="hero-grid"></div>
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12 sm:mb-16 reveal">
+        <div>
+          <span class="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500 mb-4">
+            <span class="w-8 h-px bg-um-primary"></span>
+            Casos de Éxito
+          </span>
+          <h2 class="text-fluid-title text-white">
+            Proyectos que<br class="hidden sm:block" /> hablan por nosotros
+          </h2>
+        </div>
+        <a href="/antecedentes" class="group inline-flex items-center gap-2 text-gray-400 hover:text-white font-medium text-sm transition-colors">
+          Ver los 469+ casos
+          <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+          </svg>
+        </a>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 reveal-stagger">
         {antecedentesEnhanced.map((antecedente) => (
-          <a href={`/antecedentes/${antecedente.id}/${antecedente.slug}`} class="reveal group bg-white rounded-xl overflow-hidden shadow-soft hover:shadow-elevated transition-all duration-400 ease-spring hover:-translate-y-0.5">
-            <div class="relative aspect-[4/3] overflow-hidden bg-gray-100">
+          <a href={`/antecedentes/${antecedente.id}/${antecedente.slug}`} class="reveal group bg-gray-800/50 rounded-2xl overflow-hidden border border-gray-700/50 hover:border-gray-600 transition-all duration-400 ease-spring hover:-translate-y-1 backdrop-blur-sm">
+            <div class="relative aspect-[16/10] overflow-hidden">
               <img
                 src={antecedente.imageUrl}
                 alt={antecedente.Titulo || antecedente.Nombre}
-                class="w-full h-full object-cover transition-transform duration-700 ease-spring group-hover:scale-[1.03]"
+                class="w-full h-full object-cover transition-transform duration-700 ease-spring group-hover:scale-[1.05] opacity-80 group-hover:opacity-100"
                 loading="lazy"
                 onerror="this.onerror=null;this.src='/images/default-background.jpg'"
               />
+              <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent"></div>
             </div>
-            <div class="p-6">
-              <span class="text-xs font-medium text-gray-400 uppercase tracking-wider">
+            <div class="p-5 sm:p-6">
+              <span class="text-[10px] font-semibold text-um-primary uppercase tracking-[0.15em]">
                 {antecedente.Cliente || antecedente.Sector || 'Proyecto'}
               </span>
-              <h3 class="text-lg font-semibold text-gray-900 mt-2 mb-2 line-clamp-2 group-hover:text-um-primary transition-colors">{antecedente.Titulo || antecedente.Nombre}</h3>
-              <p class="text-sm text-gray-500 line-clamp-2 leading-relaxed">{antecedente.Descripcion?.replace(/\\\\/g, ' ').substring(0, 100)}...</p>
-              <span class="inline-flex items-center gap-1.5 text-um-primary text-sm font-medium mt-4 group-hover:gap-2.5 transition-all">
-                Ver caso completo
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                </svg>
-              </span>
+              <h3 class="text-base font-display font-bold text-white mt-2 mb-2 line-clamp-2 group-hover:text-um-primary transition-colors" style="font-family:'Syne','Inter',sans-serif;">{antecedente.Titulo || antecedente.Nombre}</h3>
+              <p class="text-sm text-gray-400 line-clamp-2 leading-relaxed">{antecedente.Descripcion?.replace(/\\\\/g, ' ').substring(0, 100)}...</p>
             </div>
           </a>
         ))}
-      </div>
-
-      <div class="mt-10 sm:mt-14 text-center reveal">
-        <a href="/antecedentes" class="inline-flex items-center gap-2 px-7 py-3.5 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-800 transition-colors min-h-[48px] text-sm">
-          Ver todos los casos
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-          </svg>
-        </a>
       </div>
     </div>
   </section>
 
-  <!-- INDUSTRIES SECTION — Simple Icon List -->
+  <!-- INDUSTRIES SECTION — Bold grid with hover effects -->
   <section class="section-padding bg-white">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14 reveal">
-        <h2 class="text-fluid-title text-gray-900 mb-3">
-          Soluciones por Industria
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-2xl mb-12 sm:mb-16 reveal">
+        <span class="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400 mb-4">
+          <span class="w-8 h-px bg-um-primary"></span>
+          Industrias
+        </span>
+        <h2 class="text-fluid-title text-gray-900">
+          Experiencia en los sectores<br class="hidden sm:block" /> más exigentes
         </h2>
-        <p class="text-gray-500">
-          Experiencia especializada en los sectores más exigentes de la economía regional.
-        </p>
       </div>
 
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4 max-w-3xl mx-auto reveal-stagger">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4 max-w-4xl reveal-stagger">
         {sectores.map((sector) => (
-          <a href={`/${sector.slug}`} class="reveal group flex items-center gap-3 px-5 py-4 rounded-lg hover:bg-gray-50 transition-all">
-            <svg class="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d={sector.icon}/>
+          <a href={`/${sector.slug}`} class="reveal group relative flex items-center gap-4 px-5 py-5 rounded-xl border border-transparent hover:border-gray-200 hover:shadow-medium transition-all duration-300 ease-spring">
+            <div class="w-10 h-10 rounded-lg bg-gray-100 group-hover:bg-um-primary/10 flex items-center justify-center transition-colors duration-300 shrink-0">
+              <svg class="w-5 h-5 text-gray-400 group-hover:text-um-primary transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d={sector.icon}/>
+              </svg>
+            </div>
+            <span class="text-sm font-semibold text-gray-700 group-hover:text-gray-900 transition-colors">{sector.name}</span>
+            <svg class="w-4 h-4 text-gray-300 group-hover:text-um-primary ml-auto opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-[-4px] group-hover:translate-x-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
             </svg>
-            <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">{sector.name}</span>
           </a>
         ))}
-      </div>
-
-      <div class="mt-8 sm:mt-10 text-center reveal">
-        <a href="/sectores" class="inline-flex items-center gap-2 text-um-primary font-medium text-sm hover:gap-3 transition-all">
-          Ver todas las industrias
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-          </svg>
-        </a>
       </div>
     </div>
   </section>

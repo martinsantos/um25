@@ -86,9 +86,11 @@ const stats = [
   description="Conocemos los desafíos específicos de cada sector. Nuestra experiencia nos permite ofrecer soluciones tecnológicas especializadas para aeropuertos, bodegas, gobierno, salud, construcción, industria, minería y más."
   keywords="sectores industria tecnologia, aeropuertos, bodegas vitivinicolas, gobierno sector publico, salud hospitales, construccion edificios, industria mineria, seguridad electronica, software a medida"
 >
-  <!-- HERO SECTION — Dark -->
-  <section class="bg-gray-900 pt-4 sm:pt-6 pb-6 sm:pb-10 lg:pb-12">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  <!-- HERO SECTION — Dark with glow -->
+  <section class="relative bg-gray-900 pt-4 sm:pt-6 pb-6 sm:pb-10 lg:pb-12 overflow-hidden">
+    <div class="hero-glow"></div>
+    <div class="hero-grid"></div>
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Breadcrumb -->
       <nav class="flex items-center gap-2 text-sm text-gray-500 mb-3 sm:mb-4" aria-label="Breadcrumb">
         <a href="/" class="hover:text-gray-300 transition-colors">Inicio</a>
@@ -103,8 +105,8 @@ const stats = [
           </svg>
           Industrias
         </span>
-        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-4 sm:mb-5 leading-tight">
-          Soluciones por <span class="text-um-primary">Industria</span>
+        <h1 class="text-fluid-hero text-white mb-4 sm:mb-5">
+          Soluciones por <span class="text-gradient-red">Industria</span>
         </h1>
         <p class="text-base sm:text-lg text-gray-400 max-w-2xl">
           Conocemos los desafíos específicos de cada sector. Nuestra experiencia nos permite ofrecer soluciones especializadas que realmente funcionan.
@@ -120,25 +122,25 @@ const stats = [
         {sectores.map((sector) => (
           <a
             href={`/${sector.slug}`}
-            class="group bg-white rounded-xl overflow-hidden shadow-soft hover:shadow-elevated transition-all duration-300"
+            class="group relative bg-white rounded-2xl overflow-hidden border border-gray-200/60 hover:border-gray-300 transition-all duration-500 ease-spring hover:shadow-elevated hover:-translate-y-1"
           >
             <div class="p-6 sm:p-8">
               <div class="flex items-start justify-between mb-5">
-                <div class="w-12 h-12 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center group-hover:bg-red-50 group-hover:border-red-100 transition-colors">
-                  <svg class="w-6 h-6 text-gray-400 group-hover:text-red-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-14 h-14 rounded-2xl bg-gray-900 flex items-center justify-center group-hover:bg-um-primary transition-colors duration-500 ease-spring">
+                  <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d={sector.icon}/>
                   </svg>
                 </div>
                 <span class="text-xs font-mono text-gray-400" style="font-family:'JetBrains Mono',monospace;">{sector.projects}</span>
               </div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-um-primary transition-colors">
+              <h3 class="text-lg font-bold text-gray-900 mb-2 group-hover:text-um-primary transition-colors" style="font-family:'Syne','Inter',sans-serif;">
                 {sector.title}
               </h3>
-              <p class="text-gray-500 text-sm leading-relaxed line-clamp-3 mb-5">
+              <p class="text-gray-500 text-[13px] leading-relaxed line-clamp-3 mb-5">
                 {sector.description}
               </p>
-              <span class="text-um-primary text-sm font-medium flex items-center gap-1.5 group-hover:gap-2.5 transition-all">
-                Ver soluciones
+              <span class="text-gray-900 group-hover:text-um-primary text-sm font-semibold flex items-center gap-1.5 group-hover:gap-2.5 transition-all duration-300 ease-spring">
+                Explorar
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                 </svg>
@@ -154,7 +156,7 @@ const stats = [
   <section class="bg-gray-50 py-10 sm:py-14 lg:py-20">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-8 sm:mb-12">
-        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">Experiencia Multisectorial</h2>
+        <h2 class="text-fluid-title text-gray-900 mb-3">Experiencia Multisectorial</h2>
         <p class="text-gray-500 max-w-2xl mx-auto">
           Nuestra experiencia en múltiples industrias nos permite aplicar las mejores prácticas de cada sector a todos nuestros proyectos.
         </p>

@@ -143,8 +143,6 @@ const getCategoryColors = (_category: string): { bg: string; text: string; darkB
   return { bg: 'bg-gray-600', text: 'text-white', darkBg: 'bg-gray-700' };
 };
 
-;
-
 const areaCategoryColors = getCategoryColors(antecedente.Area || '');
 
 // Get related services via M2M relationship from Directus (with fallback to area mapping)

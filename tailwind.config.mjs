@@ -39,6 +39,7 @@ export default {
 				'um-gray-light': '#F5F5F5',
 			},
 			fontFamily: {
+				'display': ['Syne', 'Inter', 'system-ui', 'sans-serif'],
 				'inter': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
 				'mono': ['JetBrains Mono', 'ui-monospace', 'monospace'],
 				'brand': ['Futura PT', 'Futura', 'sans-serif'],
