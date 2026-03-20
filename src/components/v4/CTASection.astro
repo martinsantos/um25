@@ -1,9 +1,7 @@
 ---
 /**
- * CTASection Component V6 - Bold Statement CTA (Dark Premium)
- * Two variants:
- * - Dark (default): gray-900 bg, white text, white primary button
- * - Light: gray-50 bg, dark text, red primary button
+ * CTASection V8 — Clean, impactful CTA
+ * Aurora gradient effect for dark variant
  */
 
 import { Rocket, Phone, Mail, ArrowRight } from 'lucide-astro';
@@ -59,11 +57,15 @@ const hasSecondaryButton = secondaryButtonText && secondaryButtonUrl;
 const isDark = variant === 'dark';
 ---
 
-<section class={`relative py-16 sm:py-20 lg:py-28 overflow-hidden ${isDark ? 'bg-gray-900' : 'bg-gray-50 border-t border-gray-200'} ${className}`} style={isDark ? 'background: radial-gradient(ellipse at center, #1F2937 0%, #111827 70%);' : ''}>
-  {/* Radial glow for dark variant */}
+<section class={`relative py-20 sm:py-24 lg:py-32 overflow-hidden ${isDark ? 'bg-gray-950' : 'bg-gray-50 border-t border-gray-100'} ${className}`}>
+  {/* Aurora glow for dark variant */}
   {isDark && (
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-red-600/[0.03] rounded-full blur-3xl pointer-events-none"></div>
+    <>
+      <div class="aurora-bg"></div>
+      <div class="noise-overlay"></div>
+    </>
   )}
+
   {/* Background image for dark variant */}
   {isDark && backgroundImage && (
     <div class="absolute inset-0">
@@ -74,15 +76,15 @@ const isDark = variant === 'dark';
         loading="lazy"
         aria-hidden="true"
       />
-      <div class="absolute inset-0 bg-gray-900/90"></div>
+      <div class="absolute inset-0 bg-gray-950/90"></div>
     </div>
   )}
 
-  <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+  <div class="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
     {/* Badge */}
     {badge && (
-      <span class={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-6 ${
-        isDark ? 'bg-white/10 text-white/80' : 'bg-gray-900 text-white'
+      <span class={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium mb-6 ${
+        isDark ? 'bg-white/[0.06] border border-white/[0.08] text-gray-300' : 'bg-gray-900 text-white'
       }`}>
         <BadgeIcon class="w-3.5 h-3.5" />
         {badge}
@@ -90,7 +92,7 @@ const isDark = variant === 'dark';
     )}
 
     {/* Title */}
-    <h2 class={`text-fluid-title mb-5 ${
+    <h2 class={`text-fluid-title mb-4 ${
       isDark ? 'text-white' : 'text-gray-900'
     }`}>
       {titulo}
@@ -98,7 +100,7 @@ const isDark = variant === 'dark';
 
     {/* Description */}
     {descripcion && (
-      <p class={`text-base sm:text-lg mb-10 max-w-2xl mx-auto leading-relaxed ${
+      <p class={`text-base mb-10 max-w-lg mx-auto leading-relaxed ${
         isDark ? 'text-gray-400' : 'text-gray-500'
       }`}>
         {descripcion}
@@ -109,10 +111,10 @@ const isDark = variant === 'dark';
     <div class="flex flex-col sm:flex-row gap-3 justify-center">
       <a
         href={primaryButtonUrl}
-        class={`px-7 py-3.5 font-semibold rounded-xl transition-all duration-300 min-h-[48px] flex items-center justify-center text-sm ${
+        class={`px-7 py-3.5 font-semibold rounded-xl transition-all duration-200 min-h-[48px] flex items-center justify-center text-sm ${
           isDark
-            ? 'bg-white text-gray-900 hover:bg-gray-100 shadow-elevated hover:shadow-prominent'
-            : 'bg-um-primary text-white hover:bg-um-primary-dark shadow-red hover:shadow-red-lg'
+            ? 'bg-white text-gray-900 hover:bg-gray-100 shadow-lg shadow-white/10'
+            : 'bg-red-600 text-white hover:bg-red-700'
         }`}
       >
         {primaryButtonText}
@@ -121,10 +123,10 @@ const isDark = variant === 'dark';
       {hasSecondaryButton && (
         <a
           href={secondaryButtonUrl}
-          class={`px-7 py-3.5 font-semibold rounded-xl transition-all flex items-center justify-center gap-2 min-h-[48px] text-sm ${
+          class={`px-7 py-3.5 font-medium rounded-xl transition-all flex items-center justify-center gap-2 min-h-[48px] text-sm ${
             isDark
-              ? 'border border-gray-600 text-gray-300 hover:text-white hover:border-gray-400'
-              : 'border border-gray-300 text-gray-600 hover:border-gray-400 hover:bg-white'
+              ? 'border border-white/15 text-gray-300 hover:text-white hover:border-white/25 hover:bg-white/[0.05]'
+              : 'border border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-white'
           }`}
         >
           <SecondaryIcon class="w-4 h-4" />
