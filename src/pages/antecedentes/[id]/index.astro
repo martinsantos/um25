@@ -7,10 +7,29 @@ import { getClient } from '../../../lib/directus.ts';
 import { readItem } from '@directus/sdk';
 import { generateSlug } from '../../../utils/slugUtils';
 
+// getStaticPaths for static mode (GitHub Pages preview)
+export async function getStaticPaths() {
+  const snapshot = await import('../../../data/snapshots/antecedentes.json');
+  const items = (snapshot.data || snapshot.default?.data || []) as any[];
+  return items
+    .filter((item: any) => item.id && item.Titulo)
+    .map((item: any) => ({
+      params: { id: item.id.toString() },
+      props: { titulo: item.Titulo }
+    }));
+}
+
 const { id } = Astro.params;
+const { titulo } = Astro.props as { titulo?: string };
 
 if (!id) {
     return Astro.redirect('/antecedentes');
+}
+
+// Use prop from getStaticPaths if available (static mode)
+if (titulo) {
+    const slug = generateSlug(titulo);
+    return Astro.redirect(`/antecedentes/${id}/${slug}`, 301);
 }
 
 try {

@@ -21,14 +21,27 @@ import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
 import { getDirectusImageUrl } from '../../../lib/directus.ts';
 
+// getStaticPaths for static mode (GitHub Pages preview)
+export async function getStaticPaths() {
+  const snapshot = await import('../../../data/snapshots/servicios.json');
+  const items = (snapshot.data || snapshot.default?.data || []) as any[];
+  return items
+    .filter((item: any) => item.id && item.Titulo)
+    .map((item: any) => ({
+      params: { id: item.id.toString(), slug: item.slug || generateSlug(item.Titulo) },
+      props: { snapshotServicio: item }
+    }));
+}
+
 const { id, slug } = Astro.params;
+const { snapshotServicio } = Astro.props as { snapshotServicio?: any };
 
 if (!id || !slug) {
   return Astro.redirect('/404');
 }
 
 // Obtener servicio de Directus con fallback automático a JS
-const servicio = await getServicioById(id);
+const servicio = snapshotServicio || await getServicioById(id);
 
 if (!servicio) {
   return Astro.redirect('/404');

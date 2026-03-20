@@ -7,7 +7,7 @@
     "dev": "astro dev",
     "start": "astro preview --host",
     "build": "astro build",
-    "build:preview": "astro build --config astro.config.netlify.mjs",
+    "build:preview": "node scripts/build-preview.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "process-images": "node scripts/process-images.js",

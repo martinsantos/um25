@@ -18,18 +18,29 @@ const PROD_URL = 'https://ultimamilla.com.ar';
 const DEFAULT_IMAGE_URL = `/images/default-background.jpg`;
 const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
 
-export const prerender = false;
+// getStaticPaths is used when building in static mode (e.g. GitHub Pages preview)
+export async function getStaticPaths() {
+  const snapshot = await import('../../../data/snapshots/antecedentes.json');
+  const items = (snapshot.data || snapshot.default?.data || []) as any[];
+  return items
+    .filter((item: any) => item.id && item.Titulo)
+    .map((item: any) => ({
+      params: { id: item.id.toString(), slug: generateSlug(item.Titulo) },
+      props: { snapshotAntecedente: item }
+    }));
+}
 
-// URL params
+// URL params & props (props come from getStaticPaths in static mode)
 const { id, slug: slugFromUrl } = Astro.params;
+const { snapshotAntecedente } = Astro.props as { snapshotAntecedente?: any };
 
 if (!id || !slugFromUrl) {
     return Astro.redirect('/404');
 }
 
 // --- State ---
-let antecedente: any = null;
-let usingFallback = false;
+let antecedente: any = snapshotAntecedente || null;
+let usingFallback = !!snapshotAntecedente;
 
 // --- Helper Functions ---
 const getAssetUrl = (assetId: any): string => {
@@ -70,36 +81,38 @@ async function fetchAntecedenteById(itemId: string) {
 }
 
 // --- Get data and validate ---
-try {
-    if (DIRECTUS_STATIC_TOKEN) {
-        antecedente = await fetchAntecedenteById(id);
-        if (antecedente) {
-            const expectedSlug = generateSlug(antecedente.Titulo);
-            if (expectedSlug !== slugFromUrl) {
-                return Astro.redirect(`/antecedentes/${id}/${expectedSlug}`, 301);
-            }
-        }
-    } else {
-        throw new Error('No token');
-    }
-} catch (error) {
-    usingFallback = true;
-    try {
-        // Fallback: buscar en snapshot completo (518 antecedentes)
-        const snapshot = await import('../../../data/snapshots/antecedentes.json');
-        const allAntecedentes = (snapshot.data || snapshot.default?.data || []) as any[];
-        antecedente = allAntecedentes.find((item: any) => item.id?.toString() === id);
-        if (antecedente) {
-            const expectedSlug = generateSlug(antecedente.Titulo);
-            if (expectedSlug !== slugFromUrl) {
-                return Astro.redirect(`/antecedentes/${id}/${expectedSlug}`, 301);
-            }
-        } else {
-            return Astro.redirect('/404');
-        }
-    } catch (fallbackError) {
-        return Astro.redirect('/404');
-    }
+if (!antecedente) {
+  try {
+      if (DIRECTUS_STATIC_TOKEN) {
+          antecedente = await fetchAntecedenteById(id);
+          if (antecedente) {
+              const expectedSlug = generateSlug(antecedente.Titulo);
+              if (expectedSlug !== slugFromUrl) {
+                  return Astro.redirect(`/antecedentes/${id}/${expectedSlug}`, 301);
+              }
+          }
+      } else {
+          throw new Error('No token');
+      }
+  } catch (error) {
+      usingFallback = true;
+      try {
+          // Fallback: buscar en snapshot completo (518 antecedentes)
+          const snapshot = await import('../../../data/snapshots/antecedentes.json');
+          const allAntecedentes = (snapshot.data || snapshot.default?.data || []) as any[];
+          antecedente = allAntecedentes.find((item: any) => item.id?.toString() === id);
+          if (antecedente) {
+              const expectedSlug = generateSlug(antecedente.Titulo);
+              if (expectedSlug !== slugFromUrl) {
+                  return Astro.redirect(`/antecedentes/${id}/${expectedSlug}`, 301);
+              }
+          } else {
+              return Astro.redirect('/404');
+          }
+      } catch (fallbackError) {
+          return Astro.redirect('/404');
+      }
+  }
 }
 
 if (!antecedente) return Astro.redirect('/404');

@@ -1,18 +1,14 @@
 import { defineConfig } from 'astro/config';
-import netlify from '@astrojs/netlify';
-import mdx from '@astrojs/mdx';
 import tailwind from '@astrojs/tailwind';
 import alpinejs from '@astrojs/alpinejs';
 
 export default defineConfig({
-  output: 'server',
-  adapter: netlify(),
-
-  site: 'https://ultimamilla.com.ar',
-  trailingSlash: 'never',
+  output: 'static',
+  site: 'https://martinsantos.github.io',
+  base: '/um25/',
+  trailingSlash: 'always',
 
   integrations: [
-    mdx(),
     tailwind(),
     alpinejs()
   ],

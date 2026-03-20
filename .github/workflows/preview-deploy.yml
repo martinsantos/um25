@@ -1,4 +1,4 @@
-name: Preview Deploy to Netlify
+name: Preview Deploy to GitHub Pages
 
 on:
   push:
@@ -9,10 +9,19 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
 jobs:
-  preview-deploy:
+  build-preview:
     runs-on: ubuntu-latest
-    name: Deploy Preview
+    name: Build Preview
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,27 +35,27 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build for Netlify
+      - name: Build static preview
         run: npm run build:preview
         env:
-          PUBLIC_DIRECTUS_URL: ${{ secrets.PUBLIC_DIRECTUS_URL || 'https://admin.ultimamilla.com.ar' }}
+          PUBLIC_DIRECTUS_URL: ''
 
-      - name: Deploy to Netlify
-        id: netlify-deploy
-        uses: nwtgck/actions-netlify@v3
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          publish-dir: './dist'
-          functions-dir: './dist/functions'
-          production-deploy: false
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Preview deploy from ${{ github.ref_name }} - ${{ github.sha }}"
-          enable-pull-request-comment: true
-          enable-commit-comment: true
-          overwrites-pull-request-comment: true
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        timeout-minutes: 5
+          path: dist
+
+  deploy-preview:
+    needs: build-preview
+    runs-on: ubuntu-latest
+    name: Deploy Preview
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
       - name: Preview URL
-        run: echo "Preview URL - ${{ steps.netlify-deploy.outputs.deploy-url }}"
+        run: echo "Preview URL - ${{ steps.deployment.outputs.page_url }}"
