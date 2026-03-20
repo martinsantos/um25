@@ -7,7 +7,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* V6 Base Layer */
+/* V7 World-Class Base Layer */
 @layer base {
   html {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -15,6 +15,22 @@
     -moz-osx-font-smoothing: grayscale;
     scroll-behavior: smooth;
   }
+
+  /* Custom selection — subtle red tint */
+  ::selection {
+    background-color: rgba(220, 38, 38, 0.12);
+    color: inherit;
+  }
+  ::-moz-selection {
+    background-color: rgba(220, 38, 38, 0.12);
+    color: inherit;
+  }
+
+  /* Slim custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
 
   body {
     margin: 0;
@@ -66,13 +82,14 @@
 
 /* V6 Component Layer */
 @layer components {
-  /* Card hover — refined */
+  /* Card hover — spring easing, subtler lift */
   .card-hover {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .card-hover:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02), 0 12px 28px rgba(0,0,0,0.08);
   }
 
   /* Glass morphism — more opaque */
@@ -177,6 +194,44 @@
     background: #111827;
     color: #FFFFFF;
     border-color: #111827;
+  }
+
+  /* Focus-visible — accent ring for accessibility */
+  :focus-visible {
+    outline: 2px solid #DC2626;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Gradient text utility */
+  .text-gradient-red {
+    background: linear-gradient(135deg, #EF4444 0%, #DC2626 50%, #B91C1C 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Radial glow — for dark hero sections */
+  .hero-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 600px;
+    background: radial-gradient(ellipse, rgba(220, 38, 38, 0.04) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Subtle grid pattern for dark sections */
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect width='60' height='60' fill='none' stroke='white' stroke-width='0.5'/%3E%3C/svg%3E");
+    background-size: 60px 60px;
+    pointer-events: none;
   }
 }
 

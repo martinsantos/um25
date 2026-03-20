@@ -138,60 +138,12 @@ const extractScopeItems = (descripcion: string): string[] => {
 
 const scopeItems = extractScopeItems(antecedente.Descripcion || '');
 
-// Mapeo de colores por categoría/sector (mismo que ProjectCard)
-const getCategoryColors = (category: string): { bg: string; text: string; darkBg: string } => {
-  const normalizedCategory = category?.toLowerCase().trim() || '';
-
-  const colorMap: Record<string, { bg: string; text: string; darkBg: string }> = {
-    'gobierno': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
-    'sector público': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
-    'municipal': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
-    'municipalidad': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
-    'aeropuertos': { bg: 'bg-sky-500', text: 'text-white', darkBg: 'bg-sky-600' },
-    'aeropuerto': { bg: 'bg-sky-500', text: 'text-white', darkBg: 'bg-sky-600' },
-    'transporte': { bg: 'bg-sky-500', text: 'text-white', darkBg: 'bg-sky-600' },
-    'bodegas': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
-    'bodega': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
-    'vitivinícola': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
-    'agroindustria': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
-    'salud': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
-    'hospital': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
-    'clínica': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
-    'médico': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
-    'data center': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
-    'datacenter': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
-    'infraestructura': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
-    'ti': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
-    'construcción': { bg: 'bg-amber-500', text: 'text-white', darkBg: 'bg-amber-600' },
-    'constructora': { bg: 'bg-amber-500', text: 'text-white', darkBg: 'bg-amber-600' },
-    'obra': { bg: 'bg-amber-500', text: 'text-white', darkBg: 'bg-amber-600' },
-    'industria': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
-    'industrial': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
-    'manufactura': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
-    'fábrica': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
-    'software': { bg: 'bg-cyan-500', text: 'text-white', darkBg: 'bg-cyan-600' },
-    'desarrollo': { bg: 'bg-cyan-500', text: 'text-white', darkBg: 'bg-cyan-600' },
-    'aplicación': { bg: 'bg-cyan-500', text: 'text-white', darkBg: 'bg-cyan-600' },
-    'minería': { bg: 'bg-slate-500', text: 'text-white', darkBg: 'bg-slate-600' },
-    'minera': { bg: 'bg-slate-500', text: 'text-white', darkBg: 'bg-slate-600' },
-    'mining': { bg: 'bg-slate-500', text: 'text-white', darkBg: 'bg-slate-600' },
-    'seguridad': { bg: 'bg-red-500', text: 'text-white', darkBg: 'bg-red-600' },
-    'seguridad electrónica': { bg: 'bg-red-500', text: 'text-white', darkBg: 'bg-red-600' },
-    'cctv': { bg: 'bg-red-500', text: 'text-white', darkBg: 'bg-red-600' },
-    'telecomunicaciones': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
-    'redes': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
-    'redes y comunicaciones': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
-    'comunicaciones': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
-  };
-
-  for (const [key, colors] of Object.entries(colorMap)) {
-    if (normalizedCategory.includes(key) || key.includes(normalizedCategory)) {
-      return colors;
-    }
-  }
-
-  return { bg: 'bg-um-primary', text: 'text-white', darkBg: 'bg-um-primary-dark' };
+// Mapeo de colores por categoría/sector — V7 neutral (zero rainbow)
+const getCategoryColors = (_category: string): { bg: string; text: string; darkBg: string } => {
+  return { bg: 'bg-gray-600', text: 'text-white', darkBg: 'bg-gray-700' };
 };
+
+;
 
 const areaCategoryColors = getCategoryColors(antecedente.Area || '');
 

@@ -83,12 +83,16 @@ const sectores = [
   image="/nosotros-tech.jpg"
   structuredData={websiteSchema}
 >
-  <!-- HERO — Dark Typography Hero -->
+  <!-- HERO — Cinematic Dark Hero -->
   <section class="relative overflow-hidden bg-gray-900">
+    <!-- Atmospheric effects -->
+    <div class="hero-glow"></div>
+    <div class="hero-grid"></div>
+
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 lg:pt-28 pb-16 sm:pb-24 lg:pb-32">
       <!-- Title -->
       <h1 class="text-fluid-display text-white max-w-4xl mb-6 reveal">
-        Conectamos la <span class="text-um-primary">tecnología</span> con el éxito de su empresa
+        Conectamos la <span class="text-gradient-red">tecnología</span> con el éxito de su empresa
       </h1>
 
       <!-- Subtitle -->
@@ -98,9 +102,9 @@ const sectores = [
 
       <!-- CTAs -->
       <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-14 sm:mb-16 reveal">
-        <a href="/contacto" class="group inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white hover:bg-gray-100 text-gray-900 text-sm font-semibold rounded-xl transition-all shadow-elevated min-h-[48px]">
+        <a href="/contacto" class="group inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white hover:bg-gray-50 text-gray-900 text-sm font-semibold rounded-xl transition-all duration-300 shadow-elevated hover:shadow-prominent min-h-[48px]">
           Solicitar Consultoría Gratis
-          <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 transition-transform duration-300 ease-spring group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
           </svg>
         </a>
@@ -180,12 +184,12 @@ const sectores = [
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 reveal-stagger">
         {antecedentesEnhanced.map((antecedente) => (
-          <a href={`/antecedentes/${antecedente.id}/${antecedente.slug}`} class="reveal group bg-white rounded-xl overflow-hidden shadow-soft hover:shadow-elevated transition-all duration-300">
+          <a href={`/antecedentes/${antecedente.id}/${antecedente.slug}`} class="reveal group bg-white rounded-xl overflow-hidden shadow-soft hover:shadow-elevated transition-all duration-400 ease-spring hover:-translate-y-0.5">
             <div class="relative aspect-[4/3] overflow-hidden bg-gray-100">
               <img
                 src={antecedente.imageUrl}
                 alt={antecedente.Titulo || antecedente.Nombre}
-                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                class="w-full h-full object-cover transition-transform duration-700 ease-spring group-hover:scale-[1.03]"
                 loading="lazy"
                 onerror="this.onerror=null;this.src='/images/default-background.jpg'"
               />

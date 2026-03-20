@@ -89,12 +89,12 @@ const hasMarcas = marcas.length > 0;
   <!-- Contenido -->
   <div class="w-full md:w-1/2 space-y-6">
     <!-- Título -->
-    <h3 class="text-2xl font-bold text-slate-900">
+    <h3 class="text-2xl font-bold text-gray-900">
       {titulo}
     </h3>
 
     <!-- Descripción -->
-    <p class="text-slate-600 leading-relaxed text-lg">
+    <p class="text-gray-600 leading-relaxed text-lg">
       {descripcion}
     </p>
 
@@ -104,7 +104,7 @@ const hasMarcas = marcas.length > 0;
         {features.map((feature) => (
           <li class="flex items-start space-x-3">
             <span class="text-um-primary font-bold text-xl leading-none mt-0.5">✓</span>
-            <span class="text-slate-700">{feature}</span>
+            <span class="text-gray-700">{feature}</span>
           </li>
         ))}
       </ul>
@@ -112,14 +112,14 @@ const hasMarcas = marcas.length > 0;
 
     <!-- Destacado con marcas -->
     {(destacado || hasMarcas) && (
-      <div class="p-4 bg-sky-50 border-l-4 border-um-primary rounded-r-lg">
+      <div class="p-4 bg-gray-50 border-l-4 border-gray-300 rounded-r-lg">
         {destacado && (
-          <p class="text-sky-900 text-sm mb-2">
+          <p class="text-gray-900 text-sm mb-2">
             {destacado}
           </p>
         )}
         {hasMarcas && (
-          <p class="text-sky-900 font-medium text-sm">
+          <p class="text-gray-900 font-medium text-sm">
             <strong>Marcas:</strong> {marcas.join(', ')}
           </p>
         )}
