@@ -261,12 +261,10 @@ const currentYear = new Date().getFullYear();
     <link rel="icon" type="image/svg+xml" sizes="512x512" href="/favicon-512.svg" />
     <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- Fonts - Syne (display) + Inter (body) + JetBrains Mono (data) + Futura PT (marca) -->
+    <!-- Fonts - Inter (all) optimized loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
-    <link href="https://fonts.cdnfonts.com/css/futura-pt" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
     {hasHeadSlot && <slot name="head" />}
 
@@ -337,7 +335,7 @@ const currentYear = new Date().getFullYear();
       }
     </style>
 
-    <!-- Scroll reveal observer -->
+    <!-- Scroll reveal observer — observes all reveal variants -->
     <script>
       if (typeof IntersectionObserver !== 'undefined') {
         const observer = new IntersectionObserver((entries) => {
@@ -347,15 +345,16 @@ const currentYear = new Date().getFullYear();
               observer.unobserve(entry.target);
             }
           });
-        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
 
-        document.addEventListener('DOMContentLoaded', () => {
-          document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-        });
+        function observeAll() {
+          document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-blur').forEach(el => {
+            if (!el.classList.contains('visible')) observer.observe(el);
+          });
+        }
 
-        document.addEventListener('astro:page-load', () => {
-          document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-        });
+        document.addEventListener('DOMContentLoaded', observeAll);
+        document.addEventListener('astro:page-load', observeAll);
       }
     </script>
   </head>
