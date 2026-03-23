@@ -116,98 +116,87 @@ const sectorIcons: Record<string, string> = {
   structuredData={websiteSchema}
 >
 
-  <!-- ════════════════════════════════════════════════════════════ -->
-  <!-- HERO: Split — LEFT giant type (60%) + RIGHT mega photo (40%) -->
-  <!-- ════════════════════════════════════════════════════════════ -->
-  <section class="bg-white min-h-[100vh] flex flex-col">
-    <div class="flex-1 grid grid-cols-1 lg:grid-cols-5 min-h-[85vh]">
-      <!-- LEFT: Type-dominant -->
-      <div class="lg:col-span-3 flex flex-col justify-center px-6 sm:px-10 lg:px-16 xl:px-24 py-16 sm:py-20 lg:py-0">
-        <div class="flex items-center gap-3 mb-8">
-          <span class="w-10 h-[3px] bg-red-600"></span>
-          <span class="text-[10px] font-mono uppercase tracking-[0.3em] text-gray-400">Desde 2002</span>
+  <!-- ════════════════════════ HERO: Split layout ════════════════════════ -->
+  <section class="bg-white min-h-[100svh] flex flex-col">
+    <div class="flex-1 grid grid-cols-1 lg:grid-cols-2 min-h-[80svh]">
+
+      <!-- LEFT: Typography -->
+      <div class="flex flex-col justify-center px-6 sm:px-10 lg:px-14 xl:px-20 py-12 sm:py-16 lg:py-0 order-2 lg:order-1">
+        <div class="flex items-center gap-3 mb-6 lg:mb-8">
+          <span class="w-8 h-[2px] bg-red-600"></span>
+          <span class="text-[11px] font-mono uppercase tracking-[0.2em] text-gray-400">Desde 2002 — Mendoza, Argentina</span>
         </div>
 
-        <h1 class="text-[2.8rem] sm:text-[4rem] md:text-[5rem] lg:text-[5.5rem] xl:text-[6.5rem] font-black text-gray-900 leading-[0.88] tracking-tighter text-balance" style="letter-spacing:-0.045em;">
-          Infraestructura<br>
-          IT para<br>
-          empresas que<br>
+        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-[1.0] tracking-tight mb-6 lg:mb-8">
+          Infraestructura IT<br>
+          <span class="text-gray-400">para empresas que</span><br>
           no se conforman<span class="text-red-600">.</span>
         </h1>
 
-        <p class="text-gray-500 text-base sm:text-lg mt-6 sm:mt-8 max-w-md leading-relaxed">
+        <p class="text-gray-500 text-base sm:text-lg max-w-md leading-relaxed mb-8 lg:mb-10">
           Telecomunicaciones, seguridad electrónica, desarrollo de software y soporte 24/7 para las empresas más exigentes de Argentina.
         </p>
 
-        <div class="flex flex-col sm:flex-row gap-4 mt-8 sm:mt-10">
-          <a href={withBase("/contacto")} class="inline-flex items-center gap-3 px-8 py-4 bg-gray-900 text-white font-black rounded-2xl hover:bg-red-600 transition-colors text-sm uppercase tracking-wider">
+        <div class="flex flex-wrap gap-3 mb-10 lg:mb-14">
+          <a href={withBase("/contacto")} class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-semibold rounded-xl hover:bg-red-600 transition-colors text-sm">
             Consultoría Gratuita
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
           </a>
-          <a href={withBase("/antecedentes")} class="inline-flex items-center gap-2 px-8 py-4 border-2 border-gray-200 text-gray-900 font-bold rounded-2xl hover:border-gray-900 transition-colors text-sm">
+          <a href={withBase("/antecedentes")} class="inline-flex items-center px-6 py-3 border border-gray-200 text-gray-700 font-semibold rounded-xl hover:border-gray-900 transition-colors text-sm">
             469+ Proyectos
           </a>
         </div>
+
+        <!-- Stats: compact, inline -->
+        <div class="flex gap-8 lg:gap-10 border-t border-gray-100 pt-6">
+          <div class="scroll-counter">
+            <div class="text-xl sm:text-2xl font-bold text-gray-900">469+</div>
+            <div class="text-[10px] font-mono uppercase tracking-[0.15em] text-gray-400 mt-0.5">Proyectos</div>
+          </div>
+          <div class="scroll-counter" style="animation-delay:0.1s">
+            <div class="text-xl sm:text-2xl font-bold text-gray-900">22</div>
+            <div class="text-[10px] font-mono uppercase tracking-[0.15em] text-gray-400 mt-0.5">Años</div>
+          </div>
+          <div class="scroll-counter" style="animation-delay:0.2s">
+            <div class="text-xl sm:text-2xl font-bold text-gray-900">9</div>
+            <div class="text-[10px] font-mono uppercase tracking-[0.15em] text-gray-400 mt-0.5">Industrias</div>
+          </div>
+          <div class="scroll-counter" style="animation-delay:0.3s">
+            <div class="text-xl sm:text-2xl font-bold text-red-600">24/7</div>
+            <div class="text-[10px] font-mono uppercase tracking-[0.15em] text-gray-400 mt-0.5">Soporte</div>
+          </div>
+        </div>
       </div>
 
-      <!-- RIGHT: Photo-dominant (rotates) -->
-      <div class="lg:col-span-2 relative overflow-hidden bg-gray-100 min-h-[50vh] lg:min-h-0" id="heroImageContainer">
+      <!-- RIGHT: Rotating photo -->
+      <div class="relative overflow-hidden bg-gray-100 min-h-[40svh] lg:min-h-0 order-1 lg:order-2 lg:rounded-bl-[3rem]" id="heroImageContainer">
         {heroImages.map((img, i) => (
           <img src={img.url} alt={img.alt}
-            class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-[2500ms] ${i === 0 ? 'opacity-100' : 'opacity-0'}`}
+            class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ${i === 0 ? 'opacity-100' : 'opacity-0'}`}
             data-index={i} />
         ))}
-        <!-- Subtle number overlay on photo -->
-        <div class="absolute bottom-6 right-6 text-white/20 text-[8rem] sm:text-[10rem] font-black leading-none" style="letter-spacing:-0.05em;">469</div>
-      </div>
-    </div>
-
-    <!-- Stats bar — full width, black -->
-    <div class="bg-gray-900">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex">
-        <div class="flex-1 py-5 border-r border-gray-800 pr-4">
-          <div class="text-2xl sm:text-3xl font-black text-white">469<span class="text-red-500">+</span></div>
-          <div class="text-[9px] font-mono uppercase tracking-[0.2em] text-gray-500 mt-0.5">Proyectos</div>
-        </div>
-        <div class="flex-1 py-5 border-r border-gray-800 px-4">
-          <div class="text-2xl sm:text-3xl font-black text-white">22</div>
-          <div class="text-[9px] font-mono uppercase tracking-[0.2em] text-gray-500 mt-0.5">Años</div>
-        </div>
-        <div class="flex-1 py-5 border-r border-gray-800 px-4">
-          <div class="text-2xl sm:text-3xl font-black text-white">9</div>
-          <div class="text-[9px] font-mono uppercase tracking-[0.2em] text-gray-500 mt-0.5">Industrias</div>
-        </div>
-        <div class="flex-1 py-5 pl-4">
-          <div class="text-2xl sm:text-3xl font-black text-red-500">24/7</div>
-          <div class="text-[9px] font-mono uppercase tracking-[0.2em] text-gray-500 mt-0.5">Soporte</div>
-        </div>
       </div>
     </div>
   </section>
 
-  <!-- ════════════════════════════════════════════════════════════ -->
-  <!-- SERVICES: INVERTED — photo-dominant with small type inside -->
-  <!-- ════════════════════════════════════════════════════════════ -->
-  <section class="py-16 sm:py-20 lg:py-28 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-10 lg:mb-14">
+  <!-- ════════════════════════ SERVICES ════════════════════════ -->
+  <section class="py-14 sm:py-18 lg:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-14">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-10 lg:mb-12">
         <div>
-          <div class="flex items-center gap-3 mb-3">
-            <span class="w-10 h-[3px] bg-red-600"></span>
-            <span class="text-[10px] font-mono uppercase tracking-[0.3em] text-gray-400">Servicios</span>
-          </div>
-          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 tracking-tighter" style="letter-spacing:-0.03em;">
+          <span class="text-[11px] font-mono uppercase tracking-[0.2em] text-red-600 block mb-2">Servicios</span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight leading-[1.1]">
             8 áreas de expertise<span class="text-red-600">.</span>
           </h2>
         </div>
-        <a href={withBase("/servicios")} class="text-xs font-black text-gray-900 hover:text-red-600 transition-colors uppercase tracking-[0.2em]">
-          Todos los servicios →
+        <a href={withBase("/servicios")} class="text-[11px] font-semibold text-gray-500 hover:text-red-600 transition-colors uppercase tracking-[0.15em] flex items-center gap-1.5">
+          Ver todos →
         </a>
       </div>
 
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
         {servicios.map((servicio, i) => (
-          <div class="scroll-reveal" style={`animation-delay:${i*0.06}s`}>
+          <div class="scroll-reveal" style={`animation-delay:${i*0.05}s`}>
             <ServiceCard
               id={servicio.id} slug={servicio.slug} titulo={servicio.Titulo}
               descripcion={servicio.Descripcion} imagen={servicio.Imagen}
@@ -220,95 +209,76 @@ const sectorIcons: Record<string, string> = {
     </div>
   </section>
 
-  <!-- ════════════════════════════════════════════════════════════ -->
-  <!-- CASES: REVERSED — Photo fills, type is GIANT overlaid -->
-  <!-- This alternates the rhythm: here the PHOTO dominates -->
-  <!-- ════════════════════════════════════════════════════════════ -->
-  <section class="bg-gray-900 py-16 sm:py-20 lg:py-28">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center gap-3 mb-3 scroll-reveal">
-        <span class="w-10 h-[3px] bg-red-500"></span>
-        <span class="text-[10px] font-mono uppercase tracking-[0.3em] text-gray-500">Casos de éxito</span>
+  <!-- ════════════════════════ CASES ════════════════════════ -->
+  <section class="py-14 sm:py-18 lg:py-24 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-14">
+      <span class="text-[11px] font-mono uppercase tracking-[0.2em] text-red-600 block mb-2 scroll-reveal">Antecedentes</span>
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-10 lg:mb-12">
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight leading-[1.1] scroll-reveal">
+          Proyectos que hablan<br>por sí solos<span class="text-red-600">.</span>
+        </h2>
+        <a href={withBase("/antecedentes")} class="text-[11px] font-semibold text-gray-500 hover:text-red-600 transition-colors uppercase tracking-[0.15em] flex items-center gap-1.5 scroll-reveal">
+          Ver los 469+ →
+        </a>
       </div>
-      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tighter mb-10 lg:mb-14 scroll-reveal" style="letter-spacing:-0.03em;">
-        Proyectos que hablan<br>por sí solos<span class="text-red-500">.</span>
-      </h2>
 
       {antecedentesEnhanced.length > 0 && (
-        <div class="space-y-4 sm:space-y-5">
-          <!-- Main case: MEGA landscape photo -->
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
+          <!-- Main case: 3/5 width -->
           <a href={withBase(`/antecedentes/${antecedentesEnhanced[0].id}/${antecedentesEnhanced[0].slug}`)}
-            class="group block relative rounded-3xl overflow-hidden aspect-[21/9] min-h-[300px] scroll-reveal bg-gray-800">
+            class="group lg:col-span-3 relative rounded-2xl overflow-hidden min-h-[280px] lg:min-h-[420px] flex items-end scroll-reveal bg-gray-200">
             <img src={antecedentesEnhanced[0].imageUrl} alt={antecedentesEnhanced[0].Titulo}
-              class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-1000" />
-            <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent"></div>
-            <div class="absolute inset-0 flex items-center px-8 sm:px-12 lg:px-16">
-              <div class="max-w-xl">
-                <span class="text-red-400 text-[10px] font-black uppercase tracking-[0.2em]">{antecedentesEnhanced[0].Area}</span>
-                <h3 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black text-white leading-[0.9] mt-3 tracking-tight" style="letter-spacing:-0.03em;">
-                  {antecedentesEnhanced[0].Titulo}
-                </h3>
-                <p class="text-white/40 text-xs font-mono uppercase tracking-[0.2em] mt-4">{antecedentesEnhanced[0].Cliente} →</p>
-              </div>
+              class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
+            <div class="relative p-5 sm:p-7">
+              <span class="text-red-400 text-[10px] font-bold uppercase tracking-[0.15em]">{antecedentesEnhanced[0].Area}</span>
+              <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-white leading-tight mt-1.5">{antecedentesEnhanced[0].Titulo}</h3>
+              <p class="text-white/50 text-xs mt-2 font-mono uppercase tracking-wider">{antecedentesEnhanced[0].Cliente}</p>
             </div>
           </a>
 
-          <!-- Two side-by-side cards -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+          <!-- Side cases: 2/5 width, stacked -->
+          <div class="lg:col-span-2 grid grid-cols-1 gap-4">
             {antecedentesEnhanced.slice(1, 3).map((ant, i) => (
               <a href={withBase(`/antecedentes/${ant.id}/${ant.slug}`)}
-                class="group block relative rounded-2xl overflow-hidden aspect-[16/10] min-h-[220px] scroll-reveal bg-gray-800"
-                style={`animation-delay:${(i+1)*0.15}s`}>
+                class="group relative rounded-2xl overflow-hidden min-h-[180px] lg:min-h-[200px] flex items-end scroll-reveal bg-gray-200"
+                style={`animation-delay:${(i+1)*0.12}s`}>
                 <img src={ant.imageUrl} alt={ant.Titulo}
-                  class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700" />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                <div class="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
-                  <span class="text-red-400 text-[10px] font-black uppercase tracking-[0.15em]">{ant.Area}</span>
-                  <h3 class="text-lg sm:text-xl lg:text-2xl font-black text-white leading-tight mt-1 tracking-tight">{ant.Titulo}</h3>
+                  class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent"></div>
+                <div class="relative p-4 sm:p-5">
+                  <span class="text-red-400 text-[10px] font-bold uppercase tracking-[0.15em]">{ant.Area}</span>
+                  <h3 class="text-base sm:text-lg font-bold text-white leading-snug mt-1">{ant.Titulo}</h3>
                 </div>
               </a>
             ))}
           </div>
         </div>
       )}
-
-      <div class="mt-10 sm:mt-14 flex justify-center scroll-reveal">
-        <a href={withBase("/antecedentes")} class="inline-flex items-center gap-3 px-8 py-4 bg-white text-gray-900 font-black rounded-2xl hover:bg-red-600 hover:text-white transition-all text-sm uppercase tracking-wider">
-          Ver los 469+ proyectos →
-        </a>
-      </div>
     </div>
   </section>
 
-  <!-- ════════════════════════════════════════════════════════════ -->
-  <!-- INDUSTRIES: Back to TYPE-dominant on white bg -->
-  <!-- ════════════════════════════════════════════════════════════ -->
-  <section class="py-16 sm:py-20 lg:py-28 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-        <!-- LEFT: Giant type -->
-        <div>
-          <div class="flex items-center gap-3 mb-3 scroll-reveal">
-            <span class="w-10 h-[3px] bg-red-600"></span>
-            <span class="text-[10px] font-mono uppercase tracking-[0.3em] text-gray-400">Industrias</span>
-          </div>
-          <h2 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-gray-900 tracking-tighter scroll-reveal" style="letter-spacing:-0.04em;">
+  <!-- ════════════════════════ INDUSTRIES ════════════════════════ -->
+  <section class="py-14 sm:py-18 lg:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-14">
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-14 items-center">
+        <div class="lg:col-span-2">
+          <span class="text-[11px] font-mono uppercase tracking-[0.2em] text-red-600 block mb-2 scroll-reveal">Industrias</span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 tracking-tight leading-[1.05] scroll-reveal">
             9 verticales<span class="text-red-600">,</span><br>
-            un solo<br>
-            equipo<span class="text-red-600">.</span>
+            un solo equipo<span class="text-red-600">.</span>
           </h2>
         </div>
 
-        <!-- RIGHT: Tags -->
-        <div class="flex flex-wrap gap-3 scroll-reveal">
+        <div class="lg:col-span-3 flex flex-wrap gap-2.5 scroll-reveal">
           {sectores.map((sector, i) => (
             <a href={withBase(`/${sector.slug}`)}
-              class="group flex items-center gap-2.5 px-5 py-3 border-2 border-gray-200 rounded-xl hover:border-gray-900 hover:bg-gray-900 transition-all duration-300"
-              style={`animation-delay:${i*0.04}s`}>
+              class="group flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl hover:border-gray-900 hover:bg-gray-900 transition-all duration-200"
+              style={`animation-delay:${i*0.03}s`}>
               <svg class="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d={sectorIcons[sector.slug] || 'M13 10V3L4 14h7v7l9-11h-7z'}/>
               </svg>
-              <span class="font-black text-sm text-gray-900 group-hover:text-white transition-colors uppercase tracking-wide">{sector.name}</span>
+              <span class="font-semibold text-sm text-gray-800 group-hover:text-white transition-colors">{sector.name}</span>
             </a>
           ))}
         </div>
@@ -316,37 +286,33 @@ const sectorIcons: Record<string, string> = {
     </div>
   </section>
 
-  <!-- ════════════════════════════════════════════════════════════ -->
-  <!-- CTA: PHOTO-dominant (inverted from industries) -->
-  <!-- ════════════════════════════════════════════════════════════ -->
-  <section class="relative py-24 sm:py-32 lg:py-40 overflow-hidden">
+  <!-- ════════════════════════ CTA ════════════════════════ -->
+  <section class="relative py-16 sm:py-20 lg:py-28 overflow-hidden">
     <img src={withBase("/images/hero/foto-software.jpg")} alt="" class="absolute inset-0 w-full h-full object-cover" />
-    <div class="absolute inset-0 bg-black/75"></div>
-    <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="max-w-2xl">
-        <h2 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-white tracking-tighter leading-[0.9]" style="letter-spacing:-0.04em;">
-          El próximo<br>
-          proyecto exitoso<br>
-          puede ser<br>
-          el suyo<span class="text-red-500">.</span>
-        </h2>
-        <div class="flex flex-col sm:flex-row gap-4 mt-10">
-          <a href={withBase("/contacto")} class="px-10 py-4 bg-white text-gray-900 font-black rounded-2xl hover:bg-red-600 hover:text-white transition-all text-sm uppercase tracking-wider">
-            Agendar Consultoría
-          </a>
-          <a href="mailto:contacto@ultimamilla.com.ar" class="px-10 py-4 border-2 border-white/30 text-white font-bold rounded-2xl hover:border-white transition-all text-sm">
-            contacto@ultimamilla.com.ar
-          </a>
-        </div>
-        <div class="mt-12 pt-6 border-t border-white/10">
-          <div class="flex flex-wrap gap-x-5 gap-y-1 text-xs text-white/30 font-mono uppercase tracking-wider">
-            <span>Aeropuertos Argentina 2000</span>
-            <span>Gobierno de Mendoza</span>
-            <span>Hospital Central</span>
-            <span>Bodega La Esmeralda</span>
-            <span>Premix SA</span>
-          </div>
-        </div>
+    <div class="absolute inset-0 bg-gray-900/80"></div>
+    <div class="relative max-w-4xl mx-auto px-6 sm:px-10 lg:px-14 text-center">
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white tracking-tight leading-[1.05] mb-5">
+        El próximo proyecto exitoso<br>puede ser el suyo<span class="text-red-500">.</span>
+      </h2>
+      <p class="text-gray-400 text-sm sm:text-base mb-8 max-w-lg mx-auto">
+        Más de 200 organizaciones ya confían en nosotros.
+      </p>
+      <div class="flex flex-wrap gap-3 justify-center mb-10">
+        <a href={withBase("/contacto")} class="px-7 py-3 bg-white text-gray-900 font-semibold rounded-xl hover:bg-red-600 hover:text-white transition-all text-sm">
+          Agendar Consultoría
+        </a>
+        <a href="mailto:contacto@ultimamilla.com.ar" class="px-7 py-3 border border-white/25 text-white/80 font-medium rounded-xl hover:border-white hover:text-white transition-all text-sm">
+          contacto@ultimamilla.com.ar
+        </a>
+      </div>
+      <div class="flex flex-wrap justify-center gap-x-4 gap-y-1 text-[11px] text-white/30 font-mono uppercase tracking-wider">
+        <span>Aeropuertos Argentina 2000</span>
+        <span>·</span>
+        <span>Gobierno de Mendoza</span>
+        <span>·</span>
+        <span>Hospital Central</span>
+        <span>·</span>
+        <span>Bodega La Esmeralda</span>
       </div>
     </div>
   </section>
