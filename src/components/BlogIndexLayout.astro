@@ -57,7 +57,7 @@ const description = "Explora nuestro blog de tecnología y servicios IT. Encuent
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {posts.map((post, index) => (
                 <article
-                    class={`bg-white rounded-lg shadow-lg overflow-hidden transition-transform hover:scale-105 post-card
+                    class={`bg-white rounded-lg shadow-lg overflow-hidden transition-transform post-card
                         ${index === 0 && currentPage === 1 ? 'md:col-span-2 lg:col-span-3' : ''}`}
                     data-categories={JSON.stringify(post.categories)}
                 >

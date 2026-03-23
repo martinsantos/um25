@@ -6,16 +6,9 @@ export const GET: APIRoute = async () => {
     const robotsTxt = `# robots.txt — ultimamilla.com.ar
 
 User-agent: *
-Allow: /
 Disallow: /admin/
 Disallow: /api/
-
-# Contenido principal
-Allow: /servicios/
-Allow: /antecedentes/
-Allow: /nosotros/
-Allow: /contacto/
-Allow: /sectores/
+Disallow: /_image
 
 # Sitemap
 Sitemap: ${SITE_URL}/sitemap-index.xml`;

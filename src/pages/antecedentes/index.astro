@@ -8,7 +8,7 @@
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import HeroPageV4 from '../../components/v4/HeroPageV4.astro';
 import CTASection from '../../components/v4/CTASection.astro';
-import { getAllAntecedentes, getDirectusImageUrl } from "../../lib/directus.ts";
+import { getAllAntecedentes, getDirectusImageUrl, getDirectusImageFallback } from "../../lib/directus.ts";
 const PAGE_SIZE = 20;
 const DEFAULT_IMAGE = '/images/default.jpg';
 
@@ -125,7 +125,8 @@ try {
   let allAntecedentes = response.map(item => ({
     ...item,
     slug: `${item.id}/${localGenerateSlug(item.Titulo)}`,
-    imageUrl: getDirectusImageUrl(item.Imagen)
+    imageUrl: getDirectusImageUrl(item.Imagen),
+    imageFallback: getDirectusImageFallback(item.Imagen)
   }));
 
   console.log('[ANTECEDENTES-DEBUG] Mapped', allAntecedentes.length, 'items successfully');
@@ -434,9 +435,10 @@ const filterIconPaths: Record<string, string> = {
                 <img
                   src={proyecto.imageUrl}
                   alt={proyecto.Titulo}
-                  class="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                  class="w-full h-full object-cover transition-transform duration-500"
                   loading="lazy"
-                  onerror="this.src='/images/default.jpg'"
+                  data-fallback={proyecto.imageFallback}
+                  onerror="this.onerror=null;this.src=this.dataset.fallback||'/images/default.jpg'"
                 />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                 <span class={`absolute bottom-3 left-3 px-2.5 py-1 ${getCategoryBadgeColor(proyecto.Area || '')} text-white text-xs font-semibold rounded-md`}>

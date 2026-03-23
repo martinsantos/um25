@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **ULTIMA MILLA Corporate Website** - Production Astro SSR application with Directus headless CMS backend, serving www.ultimamilla.com.ar and related services.
 
-**Critical**: This is a PRODUCTION system serving 5 live websites with 24/7 uptime requirements. Follow strict server architecture rules documented in `.windsurf/rules/arquitectura-servidor-reglas.md`.
+**Critical**: This is a PRODUCTION system serving 6+ live websites with 24/7 uptime requirements. Follow strict server architecture rules documented in `.windsurf/rules/ultimamillaarquitecturaservidores.md` and `.agent/rules/servidorarquitectura.md`.
 
 ---
 
@@ -97,13 +97,16 @@ If production site is down:
 ssh ultimamilla
 pm2 restart astro-ultimamilla
 
-# If that fails:
+# If that fails, use CI/CD rollback:
+/opt/scripts-cicd/rollback_to_manual.sh
+
+# Last resort:
 cd /root/fumbling-field
 git checkout v0.0.1-production-baseline
 pm2 restart astro-ultimamilla
 ```
 
-**Full rules**: See `REGLAS_ARQUITECTURA_SERVIDOR.md` and `.windsurf/rules/arquitectura-servidor-reglas.md`
+**Full rules**: See `.windsurf/rules/ultimamillaarquitecturaservidores.md` and `.agent/rules/servidorarquitectura.md`
 
 ---
 
@@ -121,17 +124,22 @@ Frontend:
 
 Backend:
   CMS: Directus 10.8.3
-  Database: PostgreSQL 15 (Docker)
-  Cache: Redis 7 (Docker)
+  Database: PostgreSQL 15.14 (Docker)
+  Cache: Redis 6.2.20 (local, not Docker)
 
 Web Server:
   Proxy: Nginx (reverse proxy)
   Ports: 80/443 (HTTP/HTTPS)
   SSL: Let's Encrypt
 
+Server:
+  OS: AlmaLinux 9.7
+  Node: v20.19.4
+
 Process Management:
   PM2: astro-ultimamilla (port 4321)
-  Node: 18.x
+  Runtime: /root/ultimamilla-releases/{timestamp} (NOT /root/fumbling-field)
+  Deploy: /opt/scripts-cicd/deploy_ultimamilla.sh (release-based with symlinks)
 ```
 
 ### Data Flow
@@ -280,12 +288,14 @@ DIRECTUS_SECRET=...
 ```javascript
 {
   name: 'astro-ultimamilla',
-  script: './dist/server/entry.mjs',
+  script: './dist/server/entry.mjs',  // runs from /root/ultimamilla-releases/{timestamp}/
   instances: 1,
   exec_mode: 'fork',
   env: { NODE_ENV: 'production', PORT: 4321 }
 }
 ```
+
+**Note**: In production, PM2 runs from `/root/ultimamilla-releases/{timestamp}/` not from `/root/fumbling-field/`. The repo dir is for development/git only.
 
 ---
 
@@ -388,10 +398,18 @@ npm run test:ci
 Production server runs cron jobs:
 ```bash
 # Health checks every 5 minutes
-*/5 * * * * /root/scripts/health-check.sh
+*/5 * * * * /root/health-check.sh
+*/5 * * * * /root/scripts/memory-monitor.sh
+*/5 * * * * /root/scripts/ensure-pm2-processes.sh
 
 # Server metrics every hour
 0 * * * * /root/scripts/server-metrics.sh
+
+# Automated backups (daily)
+0 2 * * * /opt/scripts-cicd/backup_directus.sh
+0 3 * * * /opt/scripts-cicd/backup_sitrep.sh
+0 3 * * * /root/scripts/snapshot-directus-data.sh
+0 4 * * * /root/scripts/mirror-directus-images.sh
 ```
 
 ### Health Check Logs
@@ -414,12 +432,16 @@ pm2 logs astro-ultimamilla
 ### Services Monitored
 
 ```
-✅ www.ultimamilla.com.ar
-✅ sgi.ultimamilla.com.ar
-✅ www.umbot.com.ar
-✅ viveroloscocos.com.ar
-✅ PM2 processes
-✅ PostgreSQL Docker container
+www.ultimamilla.com.ar
+sitrep.ultimamilla.com.ar
+admin.ultimamilla.com.ar (Directus)
+sgi.ultimamilla.com.ar
+wiki.ultimamilla.com.ar
+www.umbot.com.ar
+viveroloscocos.com.ar
+vecinorabioso.com.ar
+PM2 processes (astro-ultimamilla, sgi, sitrep-backend x2)
+Docker containers (Directus, PostgreSQL)
 ```
 
 ---
@@ -463,6 +485,28 @@ export const imageFixMap = {
 };
 ```
 
+### Issue: Product/Service Images Showing Wrong Content
+
+**Root cause**: Two UUID mapping files exist that can fall out of sync:
+- `src/data/image-local-map.json` — Source of truth (UUID → local path, 520 entries)
+- `scripts/data/image-uuid-mapping.json` — Used by sync scripts (filename → UUID, 54 entries)
+
+If `upload-service-images.mjs` is run, it creates NEW file entries in Directus (new UUIDs), then writes these to `image-uuid-mapping.json`. When `sync-productos-marketing.mjs --execute` runs next, it reads these wrong UUIDs and overwrites the correct product image assignments.
+
+**To fix image content without changing UUIDs**:
+```bash
+# PATCH existing file UUID with correct content (preserves UUID):
+curl -X PATCH "http://23.105.176.45:8055/files/{uuid}" \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "file=@serviciosimg/limpias/N.N.png"
+```
+
+**Prevention rules**:
+1. NEVER run `scripts/upload-service-images.mjs` — it creates duplicate UUIDs
+2. Before running `sync-productos-marketing.mjs --execute`, verify that `image-uuid-mapping.json` matches the UUIDs in `image-local-map.json`
+3. To update image content, use `PATCH /files/{uuid}` with the existing UUID
+4. Source images live in `serviciosimg/limpias/` (1.1.png through 8.8.png)
+
 ### Issue: PM2 Process Crashed
 
 ```bash
@@ -496,8 +540,8 @@ npm run build
 ## Important Documentation
 
 **Must Read Before Making Changes**:
-1. `REGLAS_ARQUITECTURA_SERVIDOR.md` - Complete server rules
-2. `.windsurf/rules/arquitectura-servidor-reglas.md` - Quick reference
+1. `.windsurf/rules/ultimamillaarquitecturaservidores.md` - Complete server architecture (updated 2026-03-22)
+2. `.agent/rules/servidorarquitectura.md` - Same content for agent rules
 3. `WORKFLOW_GITFLOW.md` - Git Flow workflow
 4. `MONITORING_SETUP.md` - Monitoring configuration
 5. `IMPLEMENTATION_COMPLETE.md` - System overview
@@ -537,6 +581,9 @@ Before merging to master:
 - Main: https://www.ultimamilla.com.ar
 - Admin: https://admin.ultimamilla.com.ar
 - SGI: https://sgi.ultimamilla.com.ar
+- SITREP: https://sitrep.ultimamilla.com.ar
+- Wiki: https://wiki.ultimamilla.com.ar
+- Vecino Rabioso: https://vecinorabioso.com.ar
 
 ---
 

@@ -59,10 +59,18 @@ def process_images(input_dir, output_dir):
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
+        print("\n🎨 Image Background Remover Tool")
+        print("=================================")
         print("Uso: python3 limpiar_imagenes.py <directorio_entrada> <directorio_salida>")
+        print("\nEjemplo:")
+        print("  python3 limpiar_imagenes.py ./fotos_originales ./fotos_sin_fondo")
         sys.exit(1)
         
     input_directory = sys.argv[1]
     output_directory = sys.argv[2]
+    
+    if not os.path.exists(input_directory):
+        print(f"❌ Error: El directorio de entrada '{input_directory}' no existe.")
+        sys.exit(1)
     
     process_images(input_directory, output_directory)

@@ -2,145 +2,222 @@
 trigger: always_on
 ---
 
-# URLs Principales:
-- `www.ultimamilla.com.ar` → Sitio Principal Astro (PRODUCCIÓN) ✅
-- `sgi.ultimamilla.com.ar` → Sistema de Gestión Interna (Autenticado) ✅
-- `viveroloscocos.com.ar` → WordPress Vivero Los Cocos ✅
-- `admin.ultimamilla.com.ar` → Panel de Administración Directus ✅
+# ARQUITECTURA SERVIDOR PRODUCCION - 23.105.176.45
 
-## 🛠️ Configuración Actual
+**DOCUMENTO ACTUALIZADO**: 2026-03-22
+**PROPOSITO**: Regla general para NO pisar servicios en produccion
 
-## Servidor Principal 23.105.176.45:
+---
 
-23.105.176.45 (Servidor Principal)
-│
-├── 🌐 Nginx (Puertos 80/443) - Proxy Inverso Principal
-│   ├── www.ultimamilla.com.ar → Astro App (puerto 3000) ✅
-│   ├── sgi.ultimamilla.com.ar → SGI System (puerto 3456) ✅
-│   ├── viveroloscocos.com.ar → WordPress (PHP-FPM 9000) ✅
-│   └── admin.ultimamilla.com.ar → Directus (puerto 8055) ✅
-│
-├── 🚀 Aplicaciones Principales - PRODUCCIÓN
-│   ├── 📦 Astro App (Puerto 3000) - Modo Producción via PM2
-│   ├── 🗄️  Directus CMS (Puerto 8055) - Contenedor Docker
-│   ├── 🐘 PostgreSQL (Contenedor Docker) - Base de Datos
-│   ├── 🟥 Redis (Contenedor Docker) - Caché
-│   └── 🚨 UMBot Emergency (Puerto 8092) - Sistema de Emergencia
-│
-├── ⚙️ Sistema de Gestión Interna (SGI)
-│   └── 📊 Node.js + PM2 (Puerto 3456) - Sistema Autenticado
-│
-└── 🌐 Sitio WordPress Externo
-    └── 🌱 Vivero Los Cocos (PHP-FPM 9000) - WordPress Completo
+## DATOS DEL SERVIDOR
 
-## 🛠️ Configuración Actual
-
-### Nginx (Proxy Inverso)
-```nginx
-server {
-    listen 80;
-    server_name ultimamilla.com.ar www.ultimamilla.com.ar;
-    return 301 https://$host$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name ultimamilla.com.ar www.ultimamilla.com.ar;
-    
-    # Configuración SSL
-    ssl_certificate /etc/letsencrypt/live/ultimamilla.com.ar/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/ultimamilla.com.ar/privkey.pem;
-    
-    # Proxy a Astro
-    location / {
-        proxy_pass http://localhost:4321;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-    
-    # Proxy a Directus
-    location /admin/ {
-        proxy_pass http://localhost:8055/;
-        # ... configuración adicional de proxy
-    }
-}
 ```
-
-### Servicios en Docker
-```bash
-# Contenedores activos
-$ docker ps
-CONTAINER ID   NAMES                  PORTS                    
-xxxxxxxxxxxx   directus-app          0.0.0.0:8055->8055/tcp   
-yyyyyyyyyyyy   umbot-postgres-prod    5432/tcp                
-zzzzzzzzzzzz   umbot-redis-prod      6379/tcp                
-aaaaaaaaaaaa   umbot-emergency       0.0.0.0:8092->8092/tcp
-```
-
-### Procesos PM2
-```bash
-# Aplicaciones gestionadas por PM2
-$ pm2 list
-┌─────┬────────────────┬─────────────┬─────────┬──────┬────────────┐
-│ id  │ name           │ namespace   │ version │ mode │ pid        │
-├─────┼────────────────┼─────────────┼─────────┼──────┼────────────┤
-│ 0   │ sgi-system     │ default     │ 1.0.0   │ fork │ 138689     │
-└─────┴────────────────┴─────────────┴─────────┴──────┴────────────┘
-```
-
-## ✅ ARQUITECTURA FINAL IMPLEMENTADA
-
-### 🎯 Estado Actual - PRODUCCIÓN
-
-| Servicio | URL | Backend | Puerto | Estado |
-|----------|-----|---------|--------|---------|
-| **Ultima Milla** | ultimamilla.com.ar | Astro (Producción) | 3000 | ✅ HTTP 200 |
-| **SGI System** | sgi.ultimamilla.com.ar | Node.js PM2 | 3456 | ✅ HTTP 401 (Auth) |
-| **Vivero Los Cocos** | viveroloscocos.com.ar | WordPress | 9000 (PHP-FPM) | ✅ HTTP 200 |
-| **Admin Panel** | admin.ultimamilla.com.ar | Directus CMS | 8055 | ✅ Activo |
-
-### 🔧 Configuración Nginx
-- **Archivos separados**: `/etc/nginx/sites-available/` y `/etc/nginx/sites-enabled/`
-- **SSL/TLS**: Certificados Let's Encrypt configurados
-- **Proxy Headers**: Configuración completa para aplicaciones
-- **PHP-FPM**: Integración WordPress funcional
-
-## 🚀 SERVICIOS EN PRODUCCIÓN
-
-### PM2 Configuration
-```bash
-# Estado actual PM2
-id │ name │ status │ cpu │ memory │ port
-3  │ sgi  │ online │ 0%  │ 92.7mb │ 3456
-
-# Astro ejecutándose directamente en puerto 3000
-PID: 102055 | Status: LISTEN | Port: 3000
-```
-
-### Archivos de Configuración
-- **SGI**: `/home/sgi.ultimamilla.com.ar/ecosystem.config.js`
-- **Astro**: Proceso directo con `astro dev --port 3000`
-- **Nginx**: Configuraciones en `/etc/nginx/sites-available/`
-- **WordPress**: `/home/viveroloscocos.com.ar/public_html/`
-
-## 📋 Mantenimiento
-
-### Comandos de Gestión
-```bash
-# Reiniciar servicios
-pm2 restart sgi
-systemctl reload nginx
-
-# Verificar estado
-pm2 list
-netstat -tulpn | grep -E ':3000|:3456|:9000'
-
-# Logs
-pm2 logs sgi
-tail -f /var/log/nginx/access.log
+IP: 23.105.176.45
+OS: AlmaLinux 9.7 (Moss Jungle Cat) (5.14.0-611.16.1.el9_7.x86_64)
+RAM: 3.6 GB total
+Swap: 1.9 GB
+Disco: 80 GB (/dev/sda4) - 88% usado (9.8 GB libres)
+vCPU: 1
+Node.js: v20.19.4
+PostgreSQL: 15.14 (Docker)
+Redis: 6.2.20
 ```
 
 ---
+
+## SISTEMA DE DEPLOYMENT (RELEASE-BASED)
+
+El servidor usa un sistema de releases con symlinks. Los deployments crean un directorio con timestamp y luego actualizan el symlink.
+
+### Directorios de releases
+
+| Servicio | Symlink | Apunta a | Scripts CI/CD |
+|----------|---------|----------|---------------|
+| **ultimamilla** | /root/fumbling-field (repo) | /root/ultimamilla-releases/{timestamp} (runtime) | /opt/scripts-cicd/deploy_ultimamilla.sh |
+| **sitrep frontend** | /var/www/sitrep | /var/www/sitrep-releases/{timestamp} | /opt/scripts-cicd/deploy_sitrep_frontend.sh |
+| **sitrep backend** | /var/www/sitrep-backend | /var/www/sitrep-backend-releases/{timestamp} | /opt/scripts-cicd/deploy_sitrep_backend.sh |
+| **SGI** | /home/sgi.ultimamilla.com.ar | /home/sgi-releases/{timestamp} | /opt/scripts-cicd/deploy_sgi.sh |
+
+**IMPORTANTE**: astro-ultimamilla NO corre desde /root/fumbling-field/ sino desde /root/ultimamilla-releases/20260215-115052/
+
+---
+
+## SERVICIOS PM2 - NO TOCAR
+
+| ID | Nombre | Puerto | Directorio | Modo | Memoria | Restarts | Estado |
+|----|--------|--------|------------|------|---------|----------|--------|
+| 0 | pm2-logrotate | - | ~/.pm2/modules | fork | 35MB | 0 | OK |
+| 1 | **sgi** | 3000 | /home/sgi-releases/20260215-221316 | fork | 66MB | 139 | ESTABLE |
+| 31 | **astro-ultimamilla** | 4321 | /root/ultimamilla-releases/20260215-115052 | fork | 83MB | 9 | ESTABLE |
+| 42 | **sitrep-backend** | 3002 | /var/www/sitrep-backend-releases/20260321-184258 | cluster | 120MB | 1 | ESTABLE |
+| 43 | **sitrep-backend** | 3002 | /var/www/sitrep-backend-releases/20260321-184258 | cluster | 123MB | 1 | ESTABLE |
+
+**Nota**: sitrep-backend corre en modo cluster con 2 instancias (~243MB total).
+
+---
+
+## CONTENEDORES DOCKER - NO TOCAR
+
+| Nombre | Estado | Puertos | RAM | Descripcion |
+|--------|--------|---------|-----|-------------|
+| **directus-admin-directus-app-1** | Up 5 weeks | 8055 | 175MB | CMS Directus |
+| **directus-admin-database-1** | Up 5 weeks | 5432 | 150MB | PostgreSQL 15 (Directus) |
+| remnanode | Up 7 weeks | - | 8MB | Monitoreo |
+
+---
+
+## PUERTOS EN USO - MAPA COMPLETO
+
+| Puerto | Servicio | Proceso | Descripcion | CRITICO |
+|--------|----------|---------|-------------|---------|
+| 21 | FTP | pure-ftpd | Servidor FTP | NO |
+| 22 | SSH | sshd | Acceso remoto | SI |
+| 25 | SMTP | postfix (master) | Servidor mail | NO |
+| 53 | DNS | pdns_server | PowerDNS | NO |
+| 80 | HTTP | nginx | Web server | SI |
+| 443 | HTTPS | nginx | Web server SSL | SI |
+| 2222 | SSH Web | FastAPI (MainThread) | Terminal web | NO |
+| **3000** | **SGI** | **node** | **App SGI** | SI |
+| **3002** | **SITREP API** | **node (cluster x2)** | **Backend Trazabilidad** | SI |
+| 3306 | MySQL | mariadbd | Base de datos | NO |
+| **4321** | **Astro** | **node** | **Frontend UM** | SI |
+| 5432 | PostgreSQL | docker-proxy | Base de datos Directus | SI |
+| 6379 | Redis | redis-server | Cache | SI |
+| 7080 | LiteSpeed | litespeed | Web server alt | NO |
+| **8055** | **Directus** | docker-proxy | **CMS** | SI |
+| 8081 | PowerDNS | pdns_server | API DNS | NO |
+| 8090 | LiteSpeed CP | lscpd | Panel control | NO |
+| 8091 | PHP-FPM | php | FastCGI | NO |
+| 8888 | Python | python3 | Servicio interno | NO |
+| 8891 | OpenDKIM | opendkim | Firma DKIM email | NO |
+| 9000 | PHP-FPM | php-fpm | Pool www | NO |
+| 11211 | Memcached | memcached | Cache | NO |
+
+---
+
+## CONFIGURACION NGINX - TODOS LOS SITIOS
+
+### 1. ultimamilla.com.ar (PRINCIPAL)
+
+```nginx
+/demoambiente/           -> /var/www/demoambiente/ (estaticos)
+/demoambiente/assets/    -> /var/www/demoambiente/assets/ (cache 1y)
+/demoambiente/api/       -> localhost:3457 (proxy)
+/api/(auth|manifiestos|catalogos|pdf|reportes|actores|analytics|notificaciones)
+                         -> localhost:3010
+/status                  -> localhost:4321 (Astro)
+/directus-assets/        -> localhost:8055/assets/
+/imagenes_antecedentes_versionproduccion/ -> /var/www/html
+```
+
+### 2. sitrep.ultimamilla.com.ar (PRODUCCION)
+
+```nginx
+upstream sitrep_backend { server localhost:3002; }
+/               -> /var/www/sitrep (symlink -> sitrep-releases/{timestamp})
+/assets         -> cache 1y
+/api            -> localhost:3002 (sitrep-backend cluster)
+```
+
+### 3. admin.ultimamilla.com.ar -> localhost:8055 (Directus)
+
+### 4. sgi.ultimamilla.com.ar -> localhost:3000 (SGI, max body 50M)
+
+### 5. wiki.ultimamilla.com.ar -> MediaWiki (PHP 7.4, /home/wiki.ultimamilla.com.ar)
+
+### 6. umbot.com.ar -> /home/umbot.com.ar/public_html (SPA estatico)
+
+### 7. viveroloscocos.com.ar -> WordPress (PHP 7.4, /home/viveroloscocos.com.ar/public_html)
+
+### 8. vecinorabioso.com.ar -> WordPress/PHP (php-fpm :9000, /home/vecinorabioso.com.ar/public_html, SSL Let's Encrypt)
+
+---
+
+## CRON JOBS ACTIVOS
+
+```bash
+# SSL SGI (cada 10 min)
+*/10 * * * * /root/setup-sgi-ssl.sh
+
+# Metricas servidor (cada hora)
+0 * * * * /root/scripts/server-metrics.sh
+
+# Health check y monitoreo (cada 5 min)
+*/5 * * * * /root/health-check.sh
+*/5 * * * * /root/scripts/memory-monitor.sh
+*/5 * * * * /root/scripts/ensure-pm2-processes.sh
+
+# Backups automaticos (diarios)
+0 2 * * * /opt/scripts-cicd/backup_directus.sh
+0 3 * * * /opt/scripts-cicd/backup_sitrep.sh
+0 3 * * * /root/scripts/snapshot-directus-data.sh
+0 4 * * * /root/scripts/mirror-directus-images.sh
+```
+
+---
+
+## SERVICIOS SYSTEMD ACTIVOS
+
+### CRITICOS (NO TOCAR)
+- nginx.service - Web server
+- docker.service - Contenedores
+- pm2-root.service - PM2 process manager
+- redis.service - Cache local
+- mariadb.service - Base datos MariaDB
+- postfix.service - Email
+- fail2ban.service - Seguridad
+
+### AUXILIARES
+- php-fpm.service - PHP 8.x
+- php74-php-fpm.service - PHP 7.4 (WordPress/Wiki)
+- memcached.service - Cache
+- pdns.service - DNS
+- pure-ftpd.service - FTP
+- emergency-dashboard.service - Dashboard emergencia
+- fastapi_ssh_server.service - Terminal web
+
+---
+
+## BASES DE DATOS
+
+### PostgreSQL (Docker - puerto 5432)
+- **directus-admin-database-1**: BD Directus CMS (PostgreSQL 15.14)
+
+### MariaDB (Local - puerto 3306)
+- Bases de datos WordPress (viveroloscocos, vecinorabioso), wiki, otros
+
+### Redis
+- **Local**: redis-server 6.2.20 (127.0.0.1:6379)
+
+---
+
+## REGLAS GENERALES
+
+```bash
+# NUNCA:
+- Cambiar puertos sin actualizar Nginx
+- Eliminar configuraciones de Nginx activas
+- Detener contenedores Docker sin razon
+- Modificar bases de datos directamente
+- Reiniciar todo el servidor sin necesidad
+- Usar pm2 delete sin pm2 save despues
+- Borrar directorios de releases sin verificar cual es el activo
+```
+
+---
+
+## CONTACTOS Y ACCESOS
+
+```
+SSH: root@23.105.176.45
+SITREP Prod: https://sitrep.ultimamilla.com.ar
+SITREP Demo: https://ultimamilla.com.ar/demoambiente/
+Admin Directus: https://admin.ultimamilla.com.ar
+SGI: https://sgi.ultimamilla.com.ar
+Wiki: https://wiki.ultimamilla.com.ar
+Vecino Rabioso: https://vecinorabioso.com.ar
+```
+
+---
+
+*Documento actualizado: 2026-03-22 - Actualizar al hacer cambios en el servidor*

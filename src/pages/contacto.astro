@@ -92,19 +92,18 @@ const stats = [
                   id="name"
                   name="name"
                   required
-                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary transition-colors"
+                  class="w-full px-5 py-3.5 border border-gray-100 bg-gray-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/10 focus:border-um-primary/50 transition-all placeholder:text-gray-400"
                   placeholder="Juan Pérez"
                 />
                 <span class="text-red-500 text-sm hidden" id="nameError"></span>
               </div>
               <div>
-                <label for="company" class="block text-sm font-medium text-um-dark mb-2">Empresa *</label>
+                <label for="company" class="block text-sm font-medium text-um-dark mb-2">Empresa <span class="text-um-gray font-normal">(Opcional)</span></label>
                 <input
                   type="text"
                   id="company"
                   name="company"
-                  required
-                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary transition-colors"
+                  class="w-full px-5 py-3.5 border border-gray-100 bg-gray-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/10 focus:border-um-primary/50 transition-all placeholder:text-gray-400"
                   placeholder="Su Empresa S.A."
                 />
               </div>
@@ -118,30 +117,29 @@ const stats = [
                   id="email"
                   name="email"
                   required
-                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary transition-colors"
+                  class="w-full px-5 py-3.5 border border-gray-100 bg-gray-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/10 focus:border-um-primary/50 transition-all placeholder:text-gray-400"
                   placeholder="juan@empresa.com"
                 />
                 <span class="text-red-500 text-sm hidden" id="emailError"></span>
               </div>
               <div>
-                <label for="phone" class="block text-sm font-medium text-um-dark mb-2">Teléfono</label>
+                <label for="phone" class="block text-sm font-medium text-um-dark mb-2">Teléfono <span class="text-um-gray font-normal">(Opcional)</span></label>
                 <input
                   type="tel"
                   id="phone"
                   name="phone"
-                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary transition-colors"
+                  class="w-full px-5 py-3.5 border border-gray-100 bg-gray-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/10 focus:border-um-primary/50 transition-all placeholder:text-gray-400"
                   placeholder="+54 261 000-0000"
                 />
               </div>
             </div>
 
             <div>
-              <label for="projectType" class="block text-sm font-medium text-um-dark mb-2">Tipo de Proyecto *</label>
+              <label for="projectType" class="block text-sm font-medium text-um-dark mb-2">Tipo de Proyecto <span class="text-um-gray font-normal">(Opcional)</span></label>
               <select
                 id="projectType"
                 name="projectType"
-                required
-                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary bg-white transition-colors"
+                class="w-full px-5 py-3.5 border border-gray-100 bg-gray-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/10 focus:border-um-primary/50 transition-all text-um-dark"
               >
                 <option value="">Seleccione una opción</option>
                 <option value="redes">Infraestructura de Redes</option>
@@ -159,26 +157,27 @@ const stats = [
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label for="budget" class="block text-sm font-medium text-um-dark mb-2">Presupuesto Estimado</label>
+                <label for="budget" class="block text-sm font-medium text-um-dark mb-2">Presupuesto Estimado <span class="text-um-gray font-normal">(Opcional)</span></label>
                 <select
                   id="budget"
                   name="budget"
-                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary bg-white transition-colors"
+                  class="w-full px-5 py-3.5 border border-gray-100 bg-gray-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/10 focus:border-um-primary/50 transition-all text-um-dark"
                 >
                   <option value="">Seleccione un rango</option>
-                  <option value="10k">Menos de USD 10.000</option>
-                  <option value="10-50k">USD 10.000 - 50.000</option>
-                  <option value="50-100k">USD 50.000 - 100.000</option>
-                  <option value="100k+">Más de USD 100.000</option>
+                  <option value="<1k">Menos de USD 1.000</option>
+                  <option value="1k-5k">USD 1.000 - 5.000</option>
+                  <option value="5k-10k">USD 5.000 - 10.000</option>
+                  <option value="10k-50k">USD 10.000 - 50.000</option>
+                  <option value="50k+">Más de USD 50.000</option>
                   <option value="ns">No estoy seguro</option>
                 </select>
               </div>
               <div>
-                <label for="timeline" class="block text-sm font-medium text-um-dark mb-2">Timeline Preferido</label>
+                <label for="timeline" class="block text-sm font-medium text-um-dark mb-2">Timeline Preferido <span class="text-um-gray font-normal">(Opcional)</span></label>
                 <select
                   id="timeline"
                   name="timeline"
-                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary bg-white transition-colors"
+                  class="w-full px-5 py-3.5 border border-gray-100 bg-gray-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/10 focus:border-um-primary/50 transition-all text-um-dark"
                 >
                   <option value="">Seleccione una opción</option>
                   <option value="urgente">Urgente (menos de 1 mes)</option>
@@ -197,7 +196,7 @@ const stats = [
                 name="message"
                 required
                 rows="5"
-                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary resize-none transition-colors"
+                class="w-full px-5 py-3.5 border border-gray-100 bg-gray-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/10 focus:border-um-primary/50 resize-none transition-all placeholder:text-gray-400"
                 placeholder="Describa brevemente su proyecto, necesidades actuales y objetivos..."
               ></textarea>
               <span class="text-red-500 text-sm hidden" id="messageError"></span>
@@ -205,19 +204,30 @@ const stats = [
 
             <!-- Campo honeypot oculto para detectar bots -->
             <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off" />
-
-            <div class="flex items-start gap-3">
-              <input
-                type="checkbox"
-                id="privacy"
-                name="privacy"
-                required
-                class="mt-1 w-4 h-4 rounded border-gray-300 text-um-accent focus:ring-um-accent"
-              />
-              <label for="privacy" class="text-sm text-um-gray">
-                Acepto la <a href="/privacidad" class="text-um-primary hover:underline">política de privacidad</a> y autorizo el tratamiento de mis datos para recibir información comercial.
+            
+            <!-- Time-based challenge (hidden timestamp) -->
+            <input type="hidden" name="formLoadTime" id="formLoadTime" value="" />
+            
+            <!-- Math CAPTCHA -->
+            <input type="hidden" name="mathCaptchaAnswer" id="mathCaptchaAnswer" value="" />
+            <div class="space-y-2">
+              <label for="mathCaptcha" class="text-sm font-medium text-um-gray">
+                Verificación de seguridad: <span id="mathQuestion" class="font-semibold text-um-primary"></span>
               </label>
+              <input
+                type="number"
+                id="mathCaptcha"
+                name="mathCaptcha"
+                required
+                class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary transition-all"
+                placeholder="Ingresa el resultado"
+              />
+              <p id="mathCaptchaError" class="text-red-500 text-sm hidden"></p>
             </div>
+
+            <p class="text-sm text-um-gray">
+              Al enviar acepta la <a href="/privacidad" class="text-um-primary hover:underline">política de privacidad</a> y autoriza el tratamiento de sus datos para recibir información comercial.
+            </p>
 
             <button
               type="submit"
@@ -350,6 +360,26 @@ const stats = [
     errorMessage?.classList.add('hidden');
   }
 
+  // Time-based challenge: record when form loads
+  const formLoadTimeInput = document.getElementById('formLoadTime') as HTMLInputElement;
+  if (formLoadTimeInput) {
+    formLoadTimeInput.value = Date.now().toString();
+  }
+
+  // Math CAPTCHA: generate random question
+  const mathQuestionSpan = document.getElementById('mathQuestion');
+  const mathCaptchaAnswerInput = document.getElementById('mathCaptchaAnswer') as HTMLInputElement;
+  const mathCaptchaError = document.getElementById('mathCaptchaError');
+  
+  if (mathQuestionSpan && mathCaptchaAnswerInput) {
+    const num1 = Math.floor(Math.random() * 10) + 1; // 1-10
+    const num2 = Math.floor(Math.random() * 10) + 1; // 1-10
+    const answer = num1 + num2;
+    
+    mathQuestionSpan.textContent = `¿Cuánto es ${num1} + ${num2}?`;
+    mathCaptchaAnswerInput.value = answer.toString();
+  }
+
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -358,6 +388,17 @@ const stats = [
       const formData = new FormData(form);
       const data = Object.fromEntries(formData);
       let hasErrors = false;
+
+      // Math CAPTCHA validation
+      const userAnswer = data.mathCaptcha?.toString();
+      const correctAnswer = data.mathCaptchaAnswer?.toString();
+      if (!userAnswer || !correctAnswer || userAnswer !== correctAnswer) {
+        if (mathCaptchaError) {
+          mathCaptchaError.textContent = 'Respuesta incorrecta. Por favor, verifica el cálculo.';
+          mathCaptchaError.classList.remove('hidden');
+        }
+        return;
+      }
 
       // Validations
       if (!data.name) {
@@ -390,7 +431,10 @@ const stats = [
           budget: data.budget || '',
           timeline: data.timeline || '',
           message: data.message,
-          website: data.website || '' // Honeypot field
+          website: data.website || '', // Honeypot field
+          mathCaptcha: data.mathCaptcha, // Math CAPTCHA user answer
+          mathCaptchaAnswer: data.mathCaptchaAnswer, // Correct answer
+          formLoadTime: data.formLoadTime // Time-based challenge timestamp
         };
 
         const response = await fetch('/api/contact', {
@@ -425,3 +469,31 @@ const stats = [
     });
   }
 </script>
+
+<style>
+  /* Fix dropdown options responsive on mobile */
+  select {
+    max-width: 100%;
+    text-overflow: ellipsis;
+  }
+  
+  select option {
+    max-width: 100vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0.5rem;
+  }
+  
+  /* Mobile-specific fixes */
+  @media (max-width: 640px) {
+    select {
+      font-size: 14px;
+    }
+    
+    select option {
+      font-size: 14px;
+      padding: 0.75rem 0.5rem;
+    }
+  }
+</style>

@@ -440,39 +440,24 @@ try {
   // No map available, will use Directus URLs
 }
 
-// IMPORTANT: Directus /assets/ endpoint requires authentication (403 Forbidden)
-// We always use local images for service thumbnails instead of Directus assets
-// This avoids build-time vs runtime inconsistencies and auth issues
-const directusAssetsAvailable = false;
-console.log('[directus] Using local images for all service content (Directus assets require auth)');
-
-// Cache-bust version: incrementar cuando se actualizan imágenes en Directus
-const IMAGE_CACHE_VERSION = '20260201';
+// Directus assets: usar proxy Nginx /directus-assets/ que agrega auth server-side
+// Habilitado como fallback para UUIDs que no tienen imagen local mapeada
+const directusAssetsAvailable = true;
 
 export function getDirectusImageUrl(imageId: string | null | undefined): string {
-  if (!imageId) {
-    console.warn('[directus] getDirectusImageUrl called with empty imageId');
-    return '';
-  }
-  if (!uuidRegex.test(imageId)) {
-    console.warn(`[directus] Invalid UUID format: ${imageId}`);
-    return '';
-  }
+  if (!imageId) return '';
+  if (!uuidRegex.test(imageId)) return '';
 
-  // Prioridad 1: Directus /assets/ (deshabilitado por 403 auth)
-  if (directusAssetsAvailable) {
-    return `/assets/${imageId}?v=${IMAGE_CACHE_VERSION}`;
-  }
-
-  // Prioridad 2: fallback local si Directus no disponible
+  // Prioridad 1: imagen local mapeada (más rápido y confiable)
   const localPath = imageLocalMap[imageId];
-  if (localPath) {
-    console.log(`[directus] Found local image for ${imageId}: ${localPath}`);
-    return localPath;
+  if (localPath) return localPath;
+
+  // Prioridad 2: Directus assets via Nginx proxy (para UUIDs sin mapeo local)
+  if (directusAssetsAvailable) {
+    return `/directus-assets/${imageId}`;
   }
 
-  // Sin Directus ni imagen local → default
-  console.warn(`[directus] No local mapping for UUID ${imageId}, using default placeholder`);
+  // Sin imagen → default
   return '/images/default-background.jpg';
 }
 

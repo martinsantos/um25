@@ -49,35 +49,46 @@ function generateSitemapXml(antecedentes: any[]): string {
 
 export const GET: APIRoute = async () => {
     try {
-        // Obtener todos los antecedentes desde Directus
+        // 1. Intentar obtener datos frescos desde Directus
         const directusUrl = (import.meta.env.PUBLIC_DIRECTUS_URL as string) || 'http://localhost:8055';
-        // Use static API token from env variable
         const token = (import.meta.env.PUBLIC_DIRECTUS_TOKEN as string) || '';
 
-        const response = await fetch(
-            `${directusUrl}/items/Antecedentes?limit=-1&fields=id,Titulo,Fecha,Imagen`,
-            {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            }
-        );
-
         let antecedentes = [];
-        
-        if (response.ok) {
-            const data = await response.json();
-            antecedentes = data.data || [];
-        } else {
-            // Fallback: usar datos estáticos si Directus no está disponible
-            const errorText = await response.text().catch(() => 'unknown');
-            console.error(`[SITEMAP-ANTECEDENTES] Directus returned ${response.status}: ${errorText.slice(0, 300)}`);
-            antecedentes = [
-                { id: 10768, Titulo: 'ISI Solutions - Redes y Comunicaciones' },
-                { id: 10769, Titulo: 'Ministerio de Deportes Gobierno de Mendoza - Redes y' },
-                { id: 10770, Titulo: 'TelecombTW SA - Redes y Comunicaciones' }
-            ];
+        let source = 'api';
+
+        try {
+            const response = await fetch(
+                `${directusUrl}/items/Antecedentes?limit=-1&fields=id,Titulo,Fecha,Imagen`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    signal: AbortSignal.timeout(5000) // Timeout de 5s para no colgar el sitemap
+                }
+            );
+
+            if (response.ok) {
+                const data = await response.json();
+                antecedentes = data.data || [];
+            } else {
+                throw new Error(`Main API failed: ${response.status}`);
+            }
+        } catch (apiError) {
+            console.warn('[SITEMAP] API fail/timeout, switching to snapshot fallback:', apiError);
+            source = 'snapshot';
+        }
+
+        // 2. Fallback Blindado: Si la API falló o trajo 0 resultados, usar snapshot local
+        if (antecedentes.length === 0) {
+            try {
+                // @ts-ignore
+                const snapshot = await import('../data/snapshots/antecedentes.json');
+                antecedentes = snapshot.data || snapshot.default?.data || [];
+                console.log(`[SITEMAP] Served ${antecedentes.length} items from local snapshot.`);
+            } catch (snapError) {
+                console.error('[SITEMAP] Critical: Snapshot load failed', snapError);
+            }
         }
 
         const sitemap = generateSitemapXml(antecedentes);
@@ -85,26 +96,25 @@ export const GET: APIRoute = async () => {
         return new Response(sitemap, {
             headers: {
                 'Content-Type': 'application/xml; charset=utf-8',
-                'Cache-Control': 'public, max-age=86400'
+                'Cache-Control': 'public, max-age=86400',
+                'X-Sitemap-Source': source
             },
         });
     } catch (error) {
         console.error('Error generando sitemap de antecedentes:', error);
         
-        // Retornar sitemap mínimo en caso de error
-        const minimalSitemap = `<?xml version="1.0" encoding="UTF-8"?>
+        // Retornar sitemap estático de emergencia
+        const emergencySitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    <url>
-        <loc>${SITE_URL}/antecedentes</loc>
-        <lastmod>${formatDate(new Date())}</lastmod>
-    </url>
+    <url><loc>${SITE_URL}/antecedentes</loc></url>
 </urlset>`;
 
-        return new Response(minimalSitemap, {
+        return new Response(emergencySitemap, {
             headers: {
                 'Content-Type': 'application/xml; charset=utf-8',
-                'Cache-Control': 'public, max-age=3600'
+                'Cache-Control': 'no-cache'
             },
+            status: 500
         });
     }
 }
