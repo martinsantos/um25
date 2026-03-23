@@ -9,17 +9,17 @@ import ServiceCard from '../components/v4/ServiceCard.astro';
 import CTASection from '../components/v4/CTASection.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getAllServicios } from '../utils/directusHelpers';
-import { getDirectusImageUrl, getAllAntecedentes, getHeroHomeImages } from '../lib/directus.ts';
+import { getDirectusImageUrl, getAllAntecedentes, getHeroHomeImages, withBase } from '../lib/directus.ts';
 import { serviceBadgeMap, serviceToSectorMap } from '../data/serviceBadgeMap';
 import { getSectorColors } from '../data/colorSystem';
 
 // Hero images — use local service images (works on both production and GitHub Pages)
 const heroImages = [
-  { url: '/images/services/servicio-101-infraestructura.jpg', alt: 'Infraestructura de Redes' },
-  { url: '/images/services/servicio-102-seguridad.jpg', alt: 'Seguridad Electrónica' },
-  { url: '/images/services/servicio-103-telecomunicaciones.jpg', alt: 'Telecomunicaciones' },
-  { url: '/images/services/servicio-104-software.jpg', alt: 'Desarrollo de Software' },
-  { url: '/images/services/servicio-106-consultoria.jpg', alt: 'Consultoría IT' },
+  { url: withBase('/images/services/servicio-101-infraestructura.jpg'), alt: 'Infraestructura de Redes' },
+  { url: withBase('/images/services/servicio-102-seguridad.jpg'), alt: 'Seguridad Electrónica' },
+  { url: withBase('/images/services/servicio-103-telecomunicaciones.jpg'), alt: 'Telecomunicaciones' },
+  { url: withBase('/images/services/servicio-104-software.jpg'), alt: 'Desarrollo de Software' },
+  { url: withBase('/images/services/servicio-106-consultoria.jpg'), alt: 'Consultoría IT' },
 ];
 
 // Get 3 featured antecedentes from Directus (con fallback a snapshot JSON)
@@ -141,13 +141,13 @@ const sectores = [
 
       <!-- CTAs -->
       <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8 sm:mb-10">
-        <a href="/contacto" class="group inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:px-8 sm:py-4 bg-um-accent hover:bg-red-600 text-white text-sm sm:text-base font-bold rounded-xl transition-all shadow-xl shadow-um-accent/30 hover:scale-[1.02] min-h-[48px]" transition:name="cta-primary">
+        <a href={withBase("/contacto")} class="group inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:px-8 sm:py-4 bg-um-accent hover:bg-red-600 text-white text-sm sm:text-base font-bold rounded-xl transition-all shadow-xl shadow-um-accent/30 hover:scale-[1.02] min-h-[48px]" transition:name="cta-primary">
           Solicitar Consultoría Gratis
           <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
           </svg>
         </a>
-        <a href="/antecedentes" class="inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:px-8 sm:py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white text-sm sm:text-base font-semibold rounded-xl transition-all min-h-[48px]">
+        <a href={withBase("/antecedentes")} class="inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:px-8 sm:py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white text-sm sm:text-base font-semibold rounded-xl transition-all min-h-[48px]">
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
           Ver Proyectos
         </a>
@@ -182,7 +182,7 @@ const sectores = [
             Soluciones Integrales IT
           </h2>
         </div>
-        <a href="/servicios" class="inline-flex items-center gap-2 text-um-primary font-semibold hover:gap-4 transition-all text-sm sm:text-base">
+        <a href={withBase("/servicios")} class="inline-flex items-center gap-2 text-um-primary font-semibold hover:gap-4 transition-all text-sm sm:text-base">
           Ver todos los servicios
           <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
@@ -226,7 +226,7 @@ const sectores = [
       <!-- Cases Grid (scroll reveal staggered) -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 cards-grid">
         {antecedentesEnhanced.map((antecedente, i) => (
-          <a href={`/antecedentes/${antecedente.id}/${antecedente.slug}`} class="card-hover spotlight-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 scroll-reveal" style={`animation-delay: ${i * 0.1}s`}>
+          <a href={withBase(`/antecedentes/${antecedente.id}/${antecedente.slug}`)} class="card-hover spotlight-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 scroll-reveal" style={`animation-delay: ${i * 0.1}s`}>
             <div class="relative h-56 overflow-hidden">
               <img
                 src={antecedente.imageUrl}
@@ -254,7 +254,7 @@ const sectores = [
       </div>
 
       <div class="mt-8 sm:mt-12 text-center">
-        <a href="/antecedentes" class="inline-flex items-center gap-2 px-6 py-3 sm:px-8 sm:py-4 bg-um-dark text-white font-bold rounded-xl hover:bg-um-primary transition-colors min-h-[48px]">
+        <a href={withBase("/antecedentes")} class="inline-flex items-center gap-2 px-6 py-3 sm:px-8 sm:py-4 bg-um-dark text-white font-bold rounded-xl hover:bg-um-primary transition-colors min-h-[48px]">
           Ver todos los casos
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
@@ -279,7 +279,7 @@ const sectores = [
 
       <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9 gap-3 sm:gap-4">
         {sectores.map((sector, i) => (
-          <a href={`/${sector.slug}`} class="sector-icon group flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:shadow-lg transition-all min-h-[90px] scroll-reveal-scale" style={`--sector-color: ${sector.color}; animation-delay: ${i * 0.04}s`}>
+          <a href={withBase(`/${sector.slug}`)} class="sector-icon group flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:shadow-lg transition-all min-h-[90px] scroll-reveal-scale" style={`--sector-color: ${sector.color}; animation-delay: ${i * 0.04}s`}>
             <span class="text-2xl sm:text-3xl mb-1">{sector.emoji}</span>
             <span class="text-xs font-medium text-um-dark group-hover:text-white text-center transition-colors">{sector.name}</span>
           </a>
@@ -287,7 +287,7 @@ const sectores = [
       </div>
 
       <div class="mt-6 sm:mt-10 text-center">
-        <a href="/sectores" class="inline-flex items-center gap-2 text-um-primary font-semibold hover:gap-4 transition-all text-sm sm:text-base">
+        <a href={withBase("/sectores")} class="inline-flex items-center gap-2 text-um-primary font-semibold hover:gap-4 transition-all text-sm sm:text-base">
           Ver todas las industrias
           <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
@@ -322,7 +322,7 @@ const sectores = [
         Contáctenos hoy para una consultoría gratuita y descubra cómo podemos impulsar su negocio.
       </p>
       <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-        <a href="/contacto" class="px-6 py-3 sm:px-8 sm:py-4 bg-um-accent text-white font-bold rounded-xl hover:bg-um-accent-dark transition-colors shadow-xl shadow-um-accent/25 min-h-[48px] flex items-center justify-center">
+        <a href={withBase("/contacto")} class="px-6 py-3 sm:px-8 sm:py-4 bg-um-accent text-white font-bold rounded-xl hover:bg-um-accent-dark transition-colors shadow-xl shadow-um-accent/25 min-h-[48px] flex items-center justify-center">
           Agendar Consultoría Gratis
         </a>
         <a href="mailto:contacto@ultimamilla.com.ar" class="px-6 py-3 sm:px-8 sm:py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2 min-h-[48px]">

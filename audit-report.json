@@ -1,0 +1,321 @@
+{
+  "timestamp": "2026-01-28T20:12:25.691Z",
+  "summary": {
+    "serviciosEnDirectus": 8,
+    "serviciosEsperados": 8,
+    "productosEnDirectus": 0,
+    "productosEsperados": 54,
+    "imagenesLocales": 54,
+    "imagenesEnDirectus": 0
+  },
+  "servicios": [
+    {
+      "id": 101,
+      "titulo": "Infraestructura de Redes | Cableado, Fibra Óptica, Radioenlaces",
+      "area": "Redes",
+      "unidadMatch": "Infraestructura",
+      "unidadNum": 1,
+      "productosActuales": 0,
+      "productosEsperados": 8,
+      "tieneImagen": true,
+      "productos": []
+    },
+    {
+      "id": 102,
+      "titulo": "Sistemas de Seguridad Electrónica | CCTV, Control Acceso, Sistemas de Detección de Incendios (SDI)",
+      "area": "Seguridad",
+      "unidadMatch": "Incendios",
+      "unidadNum": 7,
+      "productosActuales": 0,
+      "productosEsperados": 8,
+      "tieneImagen": true,
+      "productos": []
+    },
+    {
+      "id": 103,
+      "titulo": "Telecomunicaciones. | Datos, Voz, Video",
+      "area": "Telecomunicaciones",
+      "unidadMatch": "Telecomunicaciones",
+      "unidadNum": 3,
+      "productosActuales": 0,
+      "productosEsperados": 6,
+      "tieneImagen": true,
+      "productos": []
+    },
+    {
+      "id": 104,
+      "titulo": "Desarrollo de Software a Medida | Web, Mobile, ERP",
+      "area": "Desarrollo",
+      "unidadMatch": "Software",
+      "unidadNum": 4,
+      "productosActuales": 0,
+      "productosEsperados": 6,
+      "tieneImagen": true,
+      "productos": []
+    },
+    {
+      "id": 105,
+      "titulo": "Soporte Técnico 24/7 | Mesa de Ayuda, Mantenimiento IT",
+      "area": "Soporte",
+      "unidadMatch": "Soporte",
+      "unidadNum": 5,
+      "productosActuales": 0,
+      "productosEsperados": 5,
+      "tieneImagen": true,
+      "productos": []
+    },
+    {
+      "id": 106,
+      "titulo": "Consultoría IT y Transformación Digital | Arquitectura, Auditoría",
+      "area": "Consultoría",
+      "unidadMatch": "Consultoría",
+      "unidadNum": 6,
+      "productosActuales": 0,
+      "productosEsperados": 5,
+      "tieneImagen": true,
+      "productos": []
+    },
+    {
+      "id": 107,
+      "titulo": "Sistemas de Detección y Alarma de Incendios",
+      "area": "Seguridad",
+      "unidadMatch": "Incendios",
+      "unidadNum": 7,
+      "productosActuales": 0,
+      "productosEsperados": 8,
+      "tieneImagen": true,
+      "productos": []
+    },
+    {
+      "id": 108,
+      "titulo": "Servicios Eléctricos para IT",
+      "area": "Infraestructura",
+      "unidadMatch": "Eléctricos",
+      "unidadNum": 8,
+      "productosActuales": 0,
+      "productosEsperados": 8,
+      "tieneImagen": true,
+      "productos": []
+    }
+  ],
+  "localImages": {
+    "Infraestructura": {
+      "expected": [
+        "1.1.png",
+        "1.2.png",
+        "1.3.png",
+        "1.4.png",
+        "1.5.png",
+        "1.6.png",
+        "1.7.png",
+        "1.8.png"
+      ],
+      "found": [
+        "1.1.png",
+        "1.2.png",
+        "1.3.png",
+        "1.4.png",
+        "1.5.png",
+        "1.6.png",
+        "1.7.png",
+        "1.8.png"
+      ],
+      "missing": []
+    },
+    "Seguridad": {
+      "expected": [
+        "2.1.png",
+        "2.2.png",
+        "2.3.png",
+        "2.4.png",
+        "2.5.png",
+        "2.6.png",
+        "2.7.png",
+        "2.8.png"
+      ],
+      "found": [
+        "2.1.png",
+        "2.2.png",
+        "2.3.png",
+        "2.4.png",
+        "2.5.png",
+        "2.6.png",
+        "2.7.png",
+        "2.8.png"
+      ],
+      "missing": []
+    },
+    "Telecomunicaciones": {
+      "expected": [
+        "3.1.png",
+        "3.2.png",
+        "3.3.png",
+        "3.4.png",
+        "3.5.png",
+        "3.6.png"
+      ],
+      "found": [
+        "3.1.png",
+        "3.2.png",
+        "3.3.png",
+        "3.4.png",
+        "3.5.png",
+        "3.6.png"
+      ],
+      "missing": []
+    },
+    "Software": {
+      "expected": [
+        "4.1.png",
+        "4.2.png",
+        "4.3.png",
+        "4.4.png",
+        "4.5.png",
+        "4.6.png"
+      ],
+      "found": [
+        "4.1.png",
+        "4.2.png",
+        "4.3.png",
+        "4.4.png",
+        "4.5.png",
+        "4.6.png"
+      ],
+      "missing": []
+    },
+    "Soporte": {
+      "expected": [
+        "5.1.png",
+        "5.2.png",
+        "5.3.png",
+        "5.4.png",
+        "5.5.png"
+      ],
+      "found": [
+        "5.1.png",
+        "5.2.png",
+        "5.3.png",
+        "5.4.png",
+        "5.5.png"
+      ],
+      "missing": []
+    },
+    "Consultoría": {
+      "expected": [
+        "6.1.png",
+        "6.2.png",
+        "6.3.png",
+        "6.4.png",
+        "6.5.png"
+      ],
+      "found": [
+        "6.1.png",
+        "6.2.png",
+        "6.3.png",
+        "6.4.png",
+        "6.5.png"
+      ],
+      "missing": []
+    },
+    "Incendios": {
+      "expected": [
+        "7.1.png",
+        "7.2.png",
+        "7.3.png",
+        "7.4.png",
+        "7.5.png",
+        "7.6.png",
+        "7.7.png",
+        "7.8.png"
+      ],
+      "found": [
+        "7.1.png",
+        "7.2.png",
+        "7.3.png",
+        "7.4.png",
+        "7.5.png",
+        "7.6.png",
+        "7.7.png",
+        "7.8.png"
+      ],
+      "missing": []
+    },
+    "Eléctricos": {
+      "expected": [
+        "8.1.png",
+        "8.2.png",
+        "8.3.png",
+        "8.4.png",
+        "8.5.png",
+        "8.6.png",
+        "8.7.png",
+        "8.8.png"
+      ],
+      "found": [
+        "8.1.png",
+        "8.2.png",
+        "8.3.png",
+        "8.4.png",
+        "8.5.png",
+        "8.6.png",
+        "8.7.png",
+        "8.8.png"
+      ],
+      "missing": []
+    },
+    "extra": [
+      "1.1ejemplo.png",
+      "1.png",
+      "1alt.png",
+      "1alt2.png",
+      "2.png",
+      "2alt.png",
+      "2alt2.png",
+      "3.png",
+      "3alt.png",
+      "3alt2.png",
+      "4.png",
+      "4alt.png",
+      "4alt2.png",
+      "5.png",
+      "5alt.png",
+      "5alt2.png",
+      "6.png",
+      "7.5alt.png",
+      "7.png",
+      "7alt2.png",
+      "8.png",
+      "8alt.png",
+      "8alt2.png",
+      "9339d83b-c1c1-43f8-b9b8-6de053f0c2e8.png",
+      "WhatsApp Image 2026-01-17 at 14.56.45.png",
+      "logopegado.png",
+      "portada1.png",
+      "portada11.png",
+      "portada2.png",
+      "portada21.png",
+      "portada3.png",
+      "portada31.png",
+      "portada4.png",
+      "portada41.png",
+      "portada5.png",
+      "portada51.png",
+      "portada6.png",
+      "portada61.png",
+      "portada7.png",
+      "portada71.png",
+      "portada8.png",
+      "portada81.png",
+      "portada811.png",
+      "portada8111.png",
+      "portada81111.png",
+      "portada811111.png",
+      "portada9.png",
+      "portada91.png",
+      "ultimamillacomar7.png",
+      "ultimamillacomar9.png",
+      "um2026.png"
+    ]
+  },
+  "directusImages": []
+}

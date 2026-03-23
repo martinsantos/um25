@@ -1,0 +1,205 @@
+[TAILING] Tailing last 100 lines for [astro-ultimamilla] process (change the value with --lines option)
+/root/.pm2/logs/astro-ultimamilla-error.log last 100 lines:
+16|astro-u |     redirected: false,
+16|astro-u |     type: 'basic',
+16|astro-u |     url: 'http://localhost:8055/items/Antecedentes/NaN?fields=id%2CTitulo'
+16|astro-u |   }
+16|astro-u | }
+16|astro-u | Error fetching antecedente desarrollo-de-software-y-digitalizacion-de-procesos-hospital-central for redirect: {
+16|astro-u |   errors: [
+16|astro-u |     {
+16|astro-u |       message: "You don't have permission to access this.",
+16|astro-u |       extensions: [Object]
+16|astro-u |     }
+16|astro-u |   ],
+16|astro-u |   response: Response {
+16|astro-u |     status: 403,
+16|astro-u |     statusText: 'Forbidden',
+16|astro-u |     headers: Headers {
+16|astro-u |       'content-security-policy': "script-src 'self' 'unsafe-eval';worker-src 'self' blob:;child-src 'self' blob:;img-src 'self' data: blob: https://raw.githubusercontent.com https://avatars.githubusercontent.com;media-src 'self';connect-src 'self' https://* wss://*;default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';object-src 'none';script-src-attr 'none';style-src 'self' https: 'unsafe-inline'",
+16|astro-u |       'x-powered-by': 'Directus',
+16|astro-u |       'content-type': 'application/json; charset=utf-8',
+16|astro-u |       'content-length': '102',
+16|astro-u |       etag: 'W/"66-OPr7zxcJy7+HqVGdrFe1XpeEIao"',
+16|astro-u |       date: 'Thu, 12 Feb 2026 16:21:56 GMT',
+16|astro-u |       connection: 'keep-alive',
+16|astro-u |       'keep-alive': 'timeout=5'
+16|astro-u |     },
+16|astro-u |     body: ReadableStream { locked: true, state: 'closed', supportsBYOB: true },
+16|astro-u |     bodyUsed: true,
+16|astro-u |     ok: false,
+16|astro-u |     redirected: false,
+16|astro-u |     type: 'basic',
+16|astro-u |     url: 'http://localhost:8055/items/Antecedentes/NaN?fields=id%2CTitulo'
+16|astro-u |   }
+16|astro-u | }
+16|astro-u | Error fetching item 10804: Error: API Error: 403
+16|astro-u |     at fetchAntecedenteById (file:///root/fumbling-field/dist/server/pages/antecedentes/_id_/_slug_.astro.mjs:127:31)
+16|astro-u |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+16|astro-u |     at async file:///root/fumbling-field/dist/server/pages/antecedentes/_id_/_slug_.astro.mjs:137:21
+16|astro-u |     at async callComponentAsTemplateResultOrResponse (file:///root/fumbling-field/dist/server/chunks/astro/server_BjflU0Em.mjs:2002:25)
+16|astro-u |     at async renderToAsyncIterable (file:///root/fumbling-field/dist/server/chunks/astro/server_BjflU0Em.mjs:2044:26)
+16|astro-u |     at async renderPage (file:///root/fumbling-field/dist/server/chunks/astro/server_BjflU0Em.mjs:2787:24)
+16|astro-u |     at async lastNext (file:///root/fumbling-field/dist/server/chunks/index_BhZTka7Y.mjs:2620:25)
+16|astro-u |     at async file:///root/fumbling-field/node_modules/@sentry/astro/build/esm/server/middleware.js:201:42
+16|astro-u |     at async file:///root/fumbling-field/node_modules/@sentry/astro/build/esm/server/middleware.js:193:23
+16|astro-u |     at async callMiddleware (file:///root/fumbling-field/dist/server/chunks/index_BhZTka7Y.mjs:1410:10)
+16|astro-u | Error fetching antecedente hospital-central-mendoza for redirect: {
+16|astro-u |   errors: [
+16|astro-u |     {
+16|astro-u |       message: "You don't have permission to access this.",
+16|astro-u |       extensions: [Object]
+16|astro-u |     }
+16|astro-u |   ],
+16|astro-u |   response: Response {
+16|astro-u |     status: 403,
+16|astro-u |     statusText: 'Forbidden',
+16|astro-u |     headers: Headers {
+16|astro-u |       'content-security-policy': "script-src 'self' 'unsafe-eval';worker-src 'self' blob:;child-src 'self' blob:;img-src 'self' data: blob: https://raw.githubusercontent.com https://avatars.githubusercontent.com;media-src 'self';connect-src 'self' https://* wss://*;default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';object-src 'none';script-src-attr 'none';style-src 'self' https: 'unsafe-inline'",
+16|astro-u |       'x-powered-by': 'Directus',
+16|astro-u |       'content-type': 'application/json; charset=utf-8',
+16|astro-u |       'content-length': '102',
+16|astro-u |       etag: 'W/"66-OPr7zxcJy7+HqVGdrFe1XpeEIao"',
+16|astro-u |       date: 'Thu, 12 Feb 2026 16:22:09 GMT',
+16|astro-u |       connection: 'keep-alive',
+16|astro-u |       'keep-alive': 'timeout=5'
+16|astro-u |     },
+16|astro-u |     body: ReadableStream { locked: true, state: 'closed', supportsBYOB: true },
+16|astro-u |     bodyUsed: true,
+16|astro-u |     ok: false,
+16|astro-u |     redirected: false,
+16|astro-u |     type: 'basic',
+16|astro-u |     url: 'http://localhost:8055/items/Antecedentes/NaN?fields=id%2CTitulo'
+16|astro-u |   }
+16|astro-u | }
+16|astro-u | Error fetching antecedente hospital-central-mendoza for redirect: {
+16|astro-u |   errors: [
+16|astro-u |     {
+16|astro-u |       message: "You don't have permission to access this.",
+16|astro-u |       extensions: [Object]
+16|astro-u |     }
+16|astro-u |   ],
+16|astro-u |   response: Response {
+16|astro-u |     status: 403,
+16|astro-u |     statusText: 'Forbidden',
+16|astro-u |     headers: Headers {
+16|astro-u |       'content-security-policy': "script-src 'self' 'unsafe-eval';worker-src 'self' blob:;child-src 'self' blob:;img-src 'self' data: blob: https://raw.githubusercontent.com https://avatars.githubusercontent.com;media-src 'self';connect-src 'self' https://* wss://*;default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';object-src 'none';script-src-attr 'none';style-src 'self' https: 'unsafe-inline'",
+16|astro-u |       'x-powered-by': 'Directus',
+16|astro-u |       'content-type': 'application/json; charset=utf-8',
+16|astro-u |       'content-length': '102',
+16|astro-u |       etag: 'W/"66-OPr7zxcJy7+HqVGdrFe1XpeEIao"',
+16|astro-u |       date: 'Thu, 12 Feb 2026 16:22:53 GMT',
+16|astro-u |       connection: 'keep-alive',
+16|astro-u |       'keep-alive': 'timeout=5'
+16|astro-u |     },
+16|astro-u |     body: ReadableStream { locked: true, state: 'closed', supportsBYOB: true },
+16|astro-u |     bodyUsed: true,
+16|astro-u |     ok: false,
+16|astro-u |     redirected: false,
+16|astro-u |     type: 'basic',
+16|astro-u |     url: 'http://localhost:8055/items/Antecedentes/NaN?fields=id%2CTitulo'
+16|astro-u |   }
+16|astro-u | }
+
+/root/.pm2/logs/astro-ultimamilla-out.log last 100 lines:
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [INDUSTRIA] Found 6 antecedentes from Directus
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [MINERÍA] Found 5 antecedentes from Directus
+16|astro-u | [MINERÍA] Found 5 antecedentes from Directus
+16|astro-u | [SOFTWARE] Found 6 antecedentes from Directus
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [MINERÍA] Found 5 antecedentes from Directus
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | 14:47:24 [@astrojs/node] Server listening on 
+16|astro-u |   local: http://localhost:4321 	
+16|astro-u |   network: http://23.105.176.45:4321
+16|astro-u | 
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [BODEGAS] Found 6 antecedentes from Directus
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [SALUD] Found 6 antecedentes from Directus
+16|astro-u | [SALUD] Found 6 antecedentes from Directus
+16|astro-u | [SEGURIDAD ELECTRÓNICA] Found 6 antecedentes from Directus
+16|astro-u | [SEGURIDAD ELECTRÓNICA] Found 6 antecedentes from Directus
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | 16:18:40 [@astrojs/node] Server listening on 
+16|astro-u |   local: http://localhost:4321 	
+16|astro-u |   network: http://23.105.176.45:4321
+16|astro-u | 
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+16|astro-u | [ANTECEDENTES-DEBUG] Starting to load antecedentes...
+16|astro-u | [ANTECEDENTES-DEBUG] Response received: 516 items
+16|astro-u | [ANTECEDENTES-DEBUG] Mapped 516 items successfully
+

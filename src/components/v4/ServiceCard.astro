@@ -35,15 +35,15 @@ const {
   iconColor = 'bg-sky-600/90'
 } = Astro.props;
 
-const serviceUrl = href || (slug ? `/servicios/${id}/${slug}` : `/servicios/${id}`);
+const BASE = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
+const serviceUrl = href || (slug ? `${BASE}/servicios/${id}/${slug}` : `${BASE}/servicios/${id}`);
 
 // Try Directus UUID first, then direct local path
 let imagenUrl = getDirectusImageUrl(imagen);
 // Fallback: local service image by ID
 if (!imagenUrl || imagenUrl === '/images/default-background.jpg') {
-  imagenUrl = `/images/services/servicio-${id}-${slug?.split('-')[0] || 'default'}.jpg`;
+  imagenUrl = `${BASE}/images/services/servicio-${id}-${slug?.split('-')[0] || 'default'}.jpg`;
 }
-const localFallback = `/images/services/servicio-${id}-${(titulo || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/[\s|,]+/)[0] || 'default'}.jpg`;
 
 // Gradient per service category
 const gradientMap: Record<string, string> = {

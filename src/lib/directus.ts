@@ -441,24 +441,31 @@ try {
 }
 
 // Directus assets: usar proxy Nginx /directus-assets/ que agrega auth server-side
-// Habilitado como fallback para UUIDs que no tienen imagen local mapeada
 const directusAssetsAvailable = true;
+
+// Base URL prefix for GitHub Pages deployments (e.g., '/um25')
+// In production (SSR), BASE_URL is '/' so this is empty string
+const BASE = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
+
+/** Prefix a path with the Astro base URL (for GitHub Pages compatibility) */
+export function withBase(path: string): string {
+  if (!path || path.startsWith('http') || path.startsWith('data:')) return path;
+  if (BASE && !path.startsWith(BASE)) return `${BASE}${path}`;
+  return path;
+}
 
 export function getDirectusImageUrl(imageId: string | null | undefined): string {
   if (!imageId) return '';
   if (!uuidRegex.test(imageId)) return '';
 
-  // Prioridad 1: imagen local mapeada (más rápido y confiable)
   const localPath = imageLocalMap[imageId];
-  if (localPath) return localPath;
+  if (localPath) return withBase(localPath);
 
-  // Prioridad 2: Directus assets via Nginx proxy (para UUIDs sin mapeo local)
   if (directusAssetsAvailable) {
-    return `/directus-assets/${imageId}`;
+    return withBase(`/directus-assets/${imageId}`);
   }
 
-  // Sin imagen → default
-  return '/images/default-background.jpg';
+  return withBase('/images/default-background.jpg');
 }
 
 /**

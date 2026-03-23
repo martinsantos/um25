@@ -7,24 +7,28 @@
  * - Highlight de página activa
  */
 
+import { withBase } from '../../lib/directus.ts';
+
 interface Props {
   currentPath?: string;
 }
 
 const { currentPath = Astro.url.pathname } = Astro.props;
+const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
 
-// Navigation items
+// Navigation items (with base path prefix)
 const navItems = [
-  { href: '/servicios', label: 'Servicios' },
-  { href: '/antecedentes', label: 'Antecedentes' },
-  { href: '/sectores', label: 'Sectores' },
-  { href: '/nosotros', label: 'Nosotros' },
+  { href: withBase('/servicios'), label: 'Servicios' },
+  { href: withBase('/antecedentes'), label: 'Antecedentes' },
+  { href: withBase('/sectores'), label: 'Sectores' },
+  { href: withBase('/nosotros'), label: 'Nosotros' },
 ];
 
-// Helper to check if current page
 const isActive = (href: string) => {
-  if (href === '/') return currentPath === '/';
-  return currentPath.startsWith(href);
+  const path = currentPath.replace(base, '') || '/';
+  const hrefClean = href.replace(base, '') || '/';
+  if (hrefClean === '/') return path === '/';
+  return path.startsWith(hrefClean);
 };
 ---
 
@@ -32,7 +36,7 @@ const isActive = (href: string) => {
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16 sm:h-20">
       <!-- Logo responsive -->
-      <a href="/" class="flex items-center">
+      <a href={withBase('/')} class="flex items-center">
         <span class="um-logo" style="font-family:'Futura PT','Futura',sans-serif;font-weight:600;letter-spacing:-0.02em;font-size:24px;line-height:1;color:#000000;white-space:nowrap;">ultimamilla<span style="color:#DC2626;">.</span>com<span style="color:#DC2626;">.</span>ar</span>
       </a>
 
@@ -51,7 +55,7 @@ const isActive = (href: string) => {
           </a>
         ))}
         <a
-          href="/contacto"
+          href={withBase('/contacto')}
           class="px-5 py-2.5 bg-um-accent text-white rounded-lg font-semibold hover:bg-um-accent-dark transition-colors shadow-lg shadow-um-accent/25"
         >
           Contacto
@@ -92,9 +96,9 @@ const isActive = (href: string) => {
         </a>
       ))}
       <a
-        href="/contacto"
+        href={withBase('/contacto')}
         class={`block px-4 py-3 mt-2 rounded-lg min-h-[44px] flex items-center justify-center font-semibold transition-colors ${
-          isActive('/contacto')
+          isActive(withBase('/contacto'))
             ? 'bg-um-accent-dark text-white'
             : 'bg-um-accent text-white hover:bg-um-accent-dark'
         }`}

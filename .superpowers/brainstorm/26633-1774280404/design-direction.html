@@ -1,0 +1,71 @@
+<h2>Dirección de Diseño — Preview UI</h2>
+<p class="subtitle">El preview no tiene acceso a imágenes de Directus. ¿Cómo resolvemos las cards y heros sin fotos?</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a;padding:24px;display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <!-- CSS Gradient Cards -->
+      <div style="width:100%;height:60px;border-radius:12px;background:linear-gradient(135deg,#0ea5e9 0%,#6366f1 50%,#dc2626 100%);opacity:0.8;"></div>
+      <div style="display:flex;gap:8px;width:100%;">
+        <div style="flex:1;height:40px;border-radius:8px;background:linear-gradient(135deg,#0ea5e9,#06b6d4);opacity:0.6;"></div>
+        <div style="flex:1;height:40px;border-radius:8px;background:linear-gradient(135deg,#dc2626,#f97316);opacity:0.6;"></div>
+        <div style="flex:1;height:40px;border-radius:8px;background:linear-gradient(135deg,#8b5cf6,#6366f1);opacity:0.6;"></div>
+      </div>
+      <p style="color:#94a3b8;font-size:11px;margin:0;">Iconos SVG + gradientes por categoría</p>
+    </div>
+    <div class="card-body">
+      <h3>A. Gradientes + Iconos SVG (Recomendado)</h3>
+      <p>Cada servicio/sector tiene un gradiente único y un icono SVG. Hero con animated gradient mesh. Cards con glassmorphism. Sin dependencia de fotos. Looks premium y moderno.</p>
+      <div class="pros-cons" style="margin-top:8px;">
+        <div class="pros"><h4>Pros</h4><ul><li>100% CSS, cero dependencia de servidor</li><li>Consistente visualmente</li><li>Animaciones @property posibles</li><li>Profesional y tech</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Sin fotos reales de proyectos</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a;padding:24px;display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <!-- Unsplash generic tech images -->
+      <div style="width:100%;height:60px;border-radius:12px;background:url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=120&fit=crop') center/cover;opacity:0.7;"></div>
+      <div style="display:flex;gap:8px;width:100%;">
+        <div style="flex:1;height:40px;border-radius:8px;background:url('https://images.unsplash.com/photo-1573164713988-8665fc963095?w=200&h=80&fit=crop') center/cover;opacity:0.6;"></div>
+        <div style="flex:1;height:40px;border-radius:8px;background:url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=200&h=80&fit=crop') center/cover;opacity:0.6;"></div>
+        <div style="flex:1;height:40px;border-radius:8px;background:url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=200&h=80&fit=crop') center/cover;opacity:0.6;"></div>
+      </div>
+      <p style="color:#94a3b8;font-size:11px;margin:0;">Fotos genéricas de Unsplash por categoría</p>
+    </div>
+    <div class="card-body">
+      <h3>B. Imágenes Stock (Unsplash)</h3>
+      <p>Usar fotos de stock de Unsplash para cada servicio/sector. Hero con foto tech. Cards con imágenes genéricas de data centers, redes, etc.</p>
+      <div class="pros-cons" style="margin-top:8px;">
+        <div class="pros"><h4>Pros</h4><ul><li>Fotos reales, más "humano"</li><li>CDN de Unsplash rápido</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Dependencia de CDN externo</li><li>Genérico, no refleja proyectos reales</li><li>Menos innovador visualmente</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a;padding:24px;display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <!-- Hybrid: gradient base + optional Unsplash overlay -->
+      <div style="width:100%;height:60px;border-radius:12px;background:linear-gradient(135deg,#0ea5e9 0%,#6366f1 100%);position:relative;overflow:hidden;">
+        <div style="position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=120&fit=crop') center/cover;opacity:0.3;mix-blend-mode:overlay;"></div>
+      </div>
+      <div style="display:flex;gap:8px;width:100%;">
+        <div style="flex:1;height:40px;border-radius:8px;background:linear-gradient(135deg,#0ea5e9,#06b6d4);position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1573164713988-8665fc963095?w=200&h=80&fit=crop') center/cover;opacity:0.2;mix-blend-mode:luminosity;"></div>
+        </div>
+        <div style="flex:1;height:40px;border-radius:8px;background:linear-gradient(135deg,#dc2626,#f97316);"></div>
+        <div style="flex:1;height:40px;border-radius:8px;background:linear-gradient(135deg,#8b5cf6,#6366f1);"></div>
+      </div>
+      <p style="color:#94a3b8;font-size:11px;margin:0;">Gradiente base + foto superpuesta con blend mode</p>
+    </div>
+    <div class="card-body">
+      <h3>C. Híbrido: Gradientes + Fotos en Overlay</h3>
+      <p>Base de gradiente animado por categoría, con foto de Unsplash superpuesta en mix-blend-mode. Si la foto no carga, el gradiente se ve perfecto solo. Best of both worlds.</p>
+      <div class="pros-cons" style="margin-top:8px;">
+        <div class="pros"><h4>Pros</h4><ul><li>Funciona con y sin fotos</li><li>Visualmente único</li><li>Gradientes animables con @property</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Más complejo de implementar</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

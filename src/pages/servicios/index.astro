@@ -10,7 +10,7 @@ import ServiceCard from '../../components/v4/ServiceCard.astro';
 import CTASection from '../../components/v4/CTASection.astro';
 import { generateSlug } from '../../utils/slugUtils.js';
 import { getAllServicios } from '../../utils/directusHelpers';
-import { getDirectusImageUrl } from '../../lib/directus.ts';
+import { getDirectusImageUrl, withBase } from '../../lib/directus.ts';
 
 import { serviceBadgeMap, serviceToSectorMap } from '../../data/serviceBadgeMap';
 import { getSectorColors } from '../../data/colorSystem';
@@ -123,7 +123,7 @@ const buildPageUrl = (page: number) => {
       { label: 'Servicios', href: '/servicios' },
     ]}
     badge={{ icon: 'briefcase', text: 'Soluciones Integrales' }}
-    backgroundImage="/images/services/servicio-101-infraestructura.jpg"
+    backgroundImage={withBase("/images/services/servicio-101-infraestructura.jpg")}
     stats={[
       { value: `${serviciosReales.length}+`, label: 'Servicios' },
       { value: `${clientesUnicos.length}+`, label: 'Sectores' },
@@ -182,7 +182,7 @@ const buildPageUrl = (page: number) => {
           </svg>
           <h3 class="text-xl font-bold text-um-dark mb-2">No se encontraron resultados</h3>
           <p class="text-um-gray">Intenta ajustar tus filtros de búsqueda.</p>
-          <a href="/servicios" class="inline-block mt-6 px-6 py-3 bg-um-primary text-white font-semibold rounded-lg hover:bg-um-primary-dark transition-colors">
+          <a href={withBase("/servicios")} class="inline-block mt-6 px-6 py-3 bg-um-primary text-white font-semibold rounded-lg hover:bg-um-primary-dark transition-colors">
             Ver todos los servicios
           </a>
         </div>

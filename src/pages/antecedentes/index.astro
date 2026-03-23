@@ -8,7 +8,7 @@
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import HeroPageV4 from '../../components/v4/HeroPageV4.astro';
 import CTASection from '../../components/v4/CTASection.astro';
-import { getAllAntecedentes, getDirectusImageUrl, getDirectusImageFallback } from "../../lib/directus.ts";
+import { getAllAntecedentes, getDirectusImageUrl, getDirectusImageFallback, withBase } from "../../lib/directus.ts";
 const PAGE_SIZE = 20;
 const DEFAULT_IMAGE = '/images/default.jpg';
 
@@ -396,7 +396,7 @@ const filterIconPaths: Record<string, string> = {
         </p>
         {(sectorFilter || searchQuery || areaFilter || unidadFilter) && (
           <a
-            href="/antecedentes?reset=1"
+            href={withBase("/antecedentes?reset=1")}
             class="text-sm text-um-primary hover:text-um-primary-dark font-medium flex items-center gap-1"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -419,7 +419,7 @@ const filterIconPaths: Record<string, string> = {
           </svg>
           <h3 class="text-xl font-bold text-um-dark mb-2">No se encontraron proyectos</h3>
           <p class="text-um-gray">Intenta ajustar tus filtros de búsqueda.</p>
-          <a href="/antecedentes?reset=1" class="inline-block mt-6 px-6 py-3 bg-um-primary text-white font-semibold rounded-lg hover:bg-um-primary-dark transition-colors">
+          <a href={withBase("/antecedentes?reset=1")} class="inline-block mt-6 px-6 py-3 bg-um-primary text-white font-semibold rounded-lg hover:bg-um-primary-dark transition-colors">
             Ver todos los proyectos
           </a>
         </div>
@@ -427,7 +427,7 @@ const filterIconPaths: Record<string, string> = {
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 cards-grid">
           {pageData.antecedentes.map((proyecto, index) => (
             <a
-              href={`/antecedentes/${proyecto.slug}`}
+              href={withBase(`/antecedentes/${proyecto.slug}`)}
               class="group spotlight-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100/80 scroll-reveal transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/5"
               style={`animation-delay: ${index * 0.03}s`}
             >

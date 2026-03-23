@@ -8,26 +8,26 @@
  */
 
 const currentYear = new Date().getFullYear();
+const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
 
-// Footer navigation sections
 const footerSections = {
   servicios: {
     title: 'Servicios',
     links: [
-      { href: '/servicios/101/infraestructura-de-redes-cableado-fibra-optica-radioenlaces', label: 'Infraestructura de Redes' },
-      { href: '/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi', label: 'Seguridad Electrónica' },
-      { href: '/servicios/103/telecomunicaciones-datos-voz-video', label: 'Telecomunicaciones' },
-      { href: '/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp', label: 'Desarrollo de Software' },
-      { href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it', label: 'Soporte Técnico 24/7' },
+      { href: `${base}/servicios`, label: 'Infraestructura de Redes' },
+      { href: `${base}/servicios`, label: 'Seguridad Electrónica' },
+      { href: `${base}/servicios`, label: 'Telecomunicaciones' },
+      { href: `${base}/servicios`, label: 'Desarrollo de Software' },
+      { href: `${base}/servicios`, label: 'Soporte Técnico 24/7' },
     ],
   },
   empresa: {
     title: 'Empresa',
     links: [
-      { href: '/nosotros', label: 'Nosotros' },
-      { href: '/antecedentes', label: 'Antecedentes' },
-      { href: '/sectores', label: 'Sectores' },
-      { href: '/contacto', label: 'Contacto' },
+      { href: `${base}/nosotros`, label: 'Nosotros' },
+      { href: `${base}/antecedentes`, label: 'Antecedentes' },
+      { href: `${base}/sectores`, label: 'Sectores' },
+      { href: `${base}/contacto`, label: 'Contacto' },
     ],
   },
 };
