@@ -108,90 +108,93 @@ const sectorIcons: Record<string, string> = {
 ---
 
 <LayoutV4
-  title="ULTIMA MILLA | Servicios Tecnológicos para Empresas en Mendoza, Cuyo y Patagonia"
-  description="Servicios tecnológicos para empresas y organizaciones argentinas. Zona de incumbencia: Mendoza, Cuyo, Patagonia. Especialistas en Telecomunicaciones, Cableado Estructurado, Corrientes Débiles, Detección de Incendio, Software a Medida. +469 proyectos, +22 años de experiencia."
-  keywords="servicios tecnologicos empresas argentina, zona incumbencia mendoza cuyo patagonia, telecomunicaciones empresas, cableado estructurado, corrientes debiles, deteccion incendio, software a medida organizaciones"
+  title="ULTIMA MILLA — Infraestructura IT, Seguridad y Software | Mendoza"
+  description="469+ proyectos de infraestructura IT, seguridad electrónica y desarrollo de software para empresas en Mendoza, Cuyo y Patagonia. 22 años de experiencia."
+  keywords="infraestructura IT mendoza, seguridad electronica, software a medida, telecomunicaciones"
   image="/nosotros-tech.jpg"
   structuredData={websiteSchema}
 >
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- HERO — Full-screen photo, visible, impactful -->
-  <!-- ═══════════════════════════════════════════════ -->
-  <section class="relative bg-um-dark overflow-hidden min-h-[90vh] flex items-end pb-12 sm:pb-16 lg:pb-20">
-    <div class="absolute inset-0 hero-parallax" id="heroImageContainer">
-      {heroImages.map((img, index) => (
-        <img src={img.url} alt={img.alt}
-          class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ${index === 0 ? 'opacity-60' : 'opacity-0'}`}
-          data-index={index} />
-      ))}
-      <div class="absolute inset-0 bg-gradient-to-t from-um-dark via-um-dark/40 to-um-dark/20"></div>
-      <div class="absolute inset-0 hero-gradient-animated opacity-60"></div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- HERO — Brutalist Editorial: White bg, giant type, mega photo -->
+  <!-- ════════════════════════════════════════════ -->
+  <section class="bg-white pt-6 sm:pt-10 lg:pt-14">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Eyebrow -->
+      <div class="flex items-center gap-3 mb-6 sm:mb-8">
+        <span class="w-12 h-[2px] bg-red-600"></span>
+        <span class="text-xs font-mono uppercase tracking-[0.25em] text-gray-400">Desde 2002 — Mendoza, Cuyo, Patagonia</span>
+      </div>
+
+      <!-- Giant headline -->
+      <h1 class="text-[2.5rem] sm:text-6xl md:text-7xl lg:text-8xl xl:text-[7rem] font-black text-gray-900 leading-[0.95] tracking-tight mb-8 sm:mb-10 text-balance" style="letter-spacing: -0.03em;">
+        Infraestructura IT<br>para empresas que<br>no se conforman<span class="text-red-600">.</span>
+      </h1>
+
+      <!-- Sub + CTA inline -->
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-8 sm:mb-12">
+        <p class="text-base sm:text-lg text-gray-500 max-w-md leading-relaxed">
+          Telecomunicaciones, seguridad electrónica, desarrollo de software y soporte 24/7.
+        </p>
+        <a href={withBase("/contacto")} class="inline-flex items-center gap-3 px-8 py-4 bg-gray-900 text-white font-bold rounded-2xl hover:bg-red-600 transition-colors min-h-[52px] shrink-0">
+          Consultoría Gratuita
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
+        </a>
+      </div>
+
+      <!-- Stats bar: monumental numbers, horizontal, separated by lines -->
+      <div class="flex border-t-[3px] border-gray-900 scroll-reveal">
+        <div class="flex-1 py-5 sm:py-6 border-r border-gray-200 pr-4">
+          <div class="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 scroll-counter">469</div>
+          <div class="text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-gray-400 mt-1">Proyectos</div>
+        </div>
+        <div class="flex-1 py-5 sm:py-6 border-r border-gray-200 px-4">
+          <div class="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 scroll-counter" style="animation-delay:0.1s">22</div>
+          <div class="text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-gray-400 mt-1">Años</div>
+        </div>
+        <div class="flex-1 py-5 sm:py-6 border-r border-gray-200 px-4">
+          <div class="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 scroll-counter" style="animation-delay:0.2s">9</div>
+          <div class="text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-gray-400 mt-1">Industrias</div>
+        </div>
+        <div class="flex-1 py-5 sm:py-6 pl-4">
+          <div class="text-3xl sm:text-4xl lg:text-5xl font-black text-red-600 scroll-counter" style="animation-delay:0.3s">24/7</div>
+          <div class="text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-gray-400 mt-1">Soporte</div>
+        </div>
+      </div>
     </div>
 
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-      <div class="max-w-3xl">
-        <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md text-white rounded-full text-sm font-medium mb-6 border border-white/10">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          Operando desde 2002 — Mendoza, Cuyo y Patagonia
-        </div>
-
-        <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[1.05] mb-6 text-balance">
-          Infraestructura IT<br>
-          <span class="bg-gradient-to-r from-sky-400 to-cyan-300 bg-clip-text text-transparent">de clase mundial</span>
-        </h1>
-
-        <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-8 max-w-2xl leading-relaxed text-pretty">
-          Telecomunicaciones, seguridad electrónica, desarrollo de software y soporte 24/7 para las empresas más exigentes de Argentina.
-        </p>
-
-        <div class="flex flex-col sm:flex-row gap-4 mb-12">
-          <a href={withBase("/contacto")} class="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-gray-900 text-base font-bold rounded-2xl transition-all hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-0.5 min-h-[52px]">
-            Consultoría Gratuita
-            <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-          </a>
-          <a href={withBase("/antecedentes")} class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 hover:bg-white/10 backdrop-blur border border-white/15 text-white text-base font-semibold rounded-2xl transition-all min-h-[52px]">
-            469+ Proyectos Realizados
-          </a>
-        </div>
-
-        <!-- Stats: large, horizontal, with icons -->
-        <div class="flex flex-wrap gap-8 sm:gap-12">
-          <div class="scroll-counter">
-            <div class="text-3xl sm:text-4xl lg:text-5xl font-black text-white">469<span class="text-sky-400">+</span></div>
-            <div class="text-xs sm:text-sm text-gray-400 mt-1">Proyectos entregados</div>
-          </div>
-          <div class="scroll-counter" style="animation-delay:0.1s">
-            <div class="text-3xl sm:text-4xl lg:text-5xl font-black text-white">22<span class="text-sky-400">+</span></div>
-            <div class="text-xs sm:text-sm text-gray-400 mt-1">Años de experiencia</div>
-          </div>
-          <div class="scroll-counter" style="animation-delay:0.2s">
-            <div class="text-3xl sm:text-4xl lg:text-5xl font-black text-white">9</div>
-            <div class="text-xs sm:text-sm text-gray-400 mt-1">Industrias atendidas</div>
-          </div>
-        </div>
+    <!-- MEGA PHOTO: Full-width, rounded, project image -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 sm:mt-12">
+      <div class="relative rounded-3xl overflow-hidden aspect-[21/9] bg-gray-100" id="heroImageContainer">
+        {heroImages.map((img, index) => (
+          <img src={img.url} alt={img.alt}
+            class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ${index === 0 ? 'opacity-100' : 'opacity-0'}`}
+            data-index={index} />
+        ))}
       </div>
     </div>
   </section>
 
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- SERVICES — Icon-first cards, clean and premium -->
-  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ════════════════════════════════════════════ -->
+  <!-- SERVICES — Numbered, with large photos -->
+  <!-- ════════════════════════════════════════════ -->
   <section class="py-16 sm:py-20 lg:py-28 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12 lg:mb-16 scroll-reveal">
-        <div class="max-w-2xl">
-          <span class="text-um-primary font-bold text-xs uppercase tracking-[0.2em]">Servicios</span>
-          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 mt-3 text-balance leading-tight">
-            Todo lo que su empresa necesita en <span class="text-um-primary">un solo lugar</span>
-          </h2>
-        </div>
-        <a href={withBase("/servicios")} class="inline-flex items-center gap-2 text-um-primary font-bold hover:gap-4 transition-all">
-          Ver catálogo completo
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+      <div class="flex items-center gap-3 mb-4 scroll-reveal">
+        <span class="w-12 h-[2px] bg-red-600"></span>
+        <span class="text-xs font-mono uppercase tracking-[0.25em] text-gray-400">Servicios</span>
+      </div>
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-12 lg:mb-16">
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 tracking-tight text-balance" style="letter-spacing: -0.02em;">
+          8 áreas de expertise<span class="text-red-600">.</span>
+        </h2>
+        <a href={withBase("/servicios")} class="text-sm font-bold text-gray-900 hover:text-red-600 transition-colors flex items-center gap-2 uppercase tracking-wider">
+          Ver todos
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
         </a>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 cards-grid">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
         {servicios.map((servicio, i) => (
           <div class="scroll-reveal" style={`animation-delay: ${i * 0.06}s`}>
             <ServiceCard
@@ -203,6 +206,7 @@ const sectorIcons: Record<string, string> = {
               badge={servicio.badge}
               cliente={servicio.Cliente}
               icon={servicio.icon}
+              index={i}
             />
           </div>
         ))}
@@ -210,54 +214,48 @@ const sectorIcons: Record<string, string> = {
     </div>
   </section>
 
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- CASES — 1 hero + 2 side cards layout -->
-  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ════════════════════════════════════════════ -->
+  <!-- CASES — 1 mega photo + 2 large photos -->
+  <!-- ════════════════════════════════════════════ -->
   <section class="py-16 sm:py-20 lg:py-28 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="max-w-2xl mb-12 lg:mb-16 scroll-reveal">
-        <span class="text-um-primary font-bold text-xs uppercase tracking-[0.2em]">Casos de Éxito</span>
-        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 mt-3 text-balance">
-          Proyectos que hablan por sí solos
-        </h2>
+      <div class="flex items-center gap-3 mb-4 scroll-reveal">
+        <span class="w-12 h-[2px] bg-red-600"></span>
+        <span class="text-xs font-mono uppercase tracking-[0.25em] text-gray-400">Casos de éxito</span>
       </div>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 tracking-tight mb-12 lg:mb-16 text-balance scroll-reveal" style="letter-spacing: -0.02em;">
+        Proyectos que hablan<br>por sí solos<span class="text-red-600">.</span>
+      </h2>
 
       {antecedentesEnhanced.length > 0 && (
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-          <!-- Hero card (first project, large) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
+          <!-- Hero case: mega photo -->
           <a href={withBase(`/antecedentes/${antecedentesEnhanced[0].id}/${antecedentesEnhanced[0].slug}`)}
-            class="group relative rounded-3xl overflow-hidden min-h-[400px] lg:min-h-[500px] flex items-end scroll-reveal">
+            class="group relative rounded-3xl overflow-hidden min-h-[350px] lg:min-h-[480px] flex items-end scroll-reveal bg-gray-200">
             <img src={antecedentesEnhanced[0].imageUrl} alt={antecedentesEnhanced[0].Titulo}
-              class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              onerror="this.style.display='none'" />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+              class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
             <div class="relative p-6 sm:p-8 lg:p-10">
-              <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-bold rounded-full mb-3 border border-white/10">
-                {antecedentesEnhanced[0].Area || 'Proyecto Destacado'}
+              <span class="inline-block px-3 py-1 bg-red-600 text-white text-[10px] font-black rounded-lg mb-3 uppercase tracking-wider">
+                {antecedentesEnhanced[0].Area || 'Proyecto'}
               </span>
-              <h3 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2 text-balance">{antecedentesEnhanced[0].Titulo}</h3>
-              <p class="text-sm text-gray-300 mb-4 max-w-lg">{antecedentesEnhanced[0].Descripcion?.replace(/<[^>]+>/g, '').substring(0, 150)}...</p>
-              <span class="text-white font-bold text-sm flex items-center gap-2 group-hover:gap-4 transition-all">
-                Ver proyecto completo
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-              </span>
+              <h3 class="text-xl sm:text-2xl lg:text-3xl font-black text-white leading-tight text-balance">{antecedentesEnhanced[0].Titulo}</h3>
+              <p class="text-sm text-white/70 mt-2">{antecedentesEnhanced[0].Cliente}</p>
             </div>
           </a>
 
-          <!-- Side cards (2nd and 3rd projects) -->
-          <div class="grid grid-cols-1 gap-6">
+          <!-- Side cases: 2 stacked photos -->
+          <div class="grid grid-cols-1 gap-5 lg:gap-6">
             {antecedentesEnhanced.slice(1, 3).map((ant, i) => (
               <a href={withBase(`/antecedentes/${ant.id}/${ant.slug}`)}
-                class="group relative rounded-2xl overflow-hidden min-h-[200px] lg:min-h-[240px] flex items-end scroll-reveal" style={`animation-delay: ${(i+1)*0.15}s`}>
+                class="group relative rounded-2xl overflow-hidden min-h-[200px] lg:min-h-[230px] flex items-end scroll-reveal bg-gray-200"
+                style={`animation-delay: ${(i+1)*0.15}s`}>
                 <img src={ant.imageUrl} alt={ant.Titulo}
-                  class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  onerror="this.style.display='none'" />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                  class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent"></div>
                 <div class="relative p-5 sm:p-6">
-                  <span class="inline-block px-2.5 py-0.5 bg-white/20 backdrop-blur-sm text-white text-[10px] font-bold rounded-full mb-2 border border-white/10 uppercase tracking-wide">
-                    {ant.Area || ant.Cliente}
-                  </span>
-                  <h3 class="text-lg sm:text-xl font-bold text-white text-balance">{ant.Titulo}</h3>
+                  <span class="text-[10px] font-black text-red-400 uppercase tracking-wider">{ant.Area || ant.Cliente}</span>
+                  <h3 class="text-lg sm:text-xl font-black text-white mt-1 text-balance">{ant.Titulo}</h3>
                 </div>
               </a>
             ))}
@@ -265,93 +263,79 @@ const sectorIcons: Record<string, string> = {
         </div>
       )}
 
-      <div class="mt-10 sm:mt-14 text-center scroll-reveal">
-        <a href={withBase("/antecedentes")} class="inline-flex items-center gap-3 px-8 py-4 bg-gray-900 text-white font-bold rounded-2xl hover:bg-um-primary transition-colors min-h-[52px]">
-          Explorar los 469+ proyectos
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+      <div class="mt-10 sm:mt-14 flex justify-center scroll-reveal">
+        <a href={withBase("/antecedentes")} class="inline-flex items-center gap-3 px-8 py-4 bg-gray-900 text-white font-bold rounded-2xl hover:bg-red-600 transition-colors text-sm uppercase tracking-wider">
+          Ver los 469+ proyectos
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
         </a>
       </div>
     </div>
   </section>
 
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- INDUSTRIES — SVG icons, no emojis, 3x3 premium -->
-  <!-- ═══════════════════════════════════════════════ -->
-  <section class="py-16 sm:py-20 lg:py-28 bg-white">
+  <!-- ════════════════════════════════════════════ -->
+  <!-- INDUSTRIES — Tags/chips, editorial style -->
+  <!-- ════════════════════════════════════════════ -->
+  <section class="py-16 sm:py-20 lg:py-28 bg-white border-t border-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center max-w-2xl mx-auto mb-12 lg:mb-16 scroll-reveal">
-        <span class="text-um-primary font-bold text-xs uppercase tracking-[0.2em]">Industrias</span>
-        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 mt-3 text-balance">
-          Expertise en cada vertical
-        </h2>
+      <div class="flex items-center gap-3 mb-4 scroll-reveal">
+        <span class="w-12 h-[2px] bg-red-600"></span>
+        <span class="text-xs font-mono uppercase tracking-[0.25em] text-gray-400">Industrias</span>
       </div>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 tracking-tight mb-12 lg:mb-16 text-balance scroll-reveal" style="letter-spacing: -0.02em;">
+        9 verticales<span class="text-red-600">,</span><br>un solo equipo<span class="text-red-600">.</span>
+      </h2>
 
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 max-w-4xl mx-auto">
+      <div class="flex flex-wrap gap-3 sm:gap-4 scroll-reveal">
         {sectores.map((sector, i) => (
           <a href={withBase(`/${sector.slug}`)}
-            class="group relative p-6 sm:p-8 rounded-2xl border-2 border-gray-100 hover:border-transparent transition-all duration-500 hover:shadow-2xl hover:shadow-black/5 hover:-translate-y-1 scroll-reveal-scale overflow-hidden"
-            style={`animation-delay: ${i * 0.05}s; --sector-color: ${sector.color}`}>
-            <!-- Hover gradient background -->
-            <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" style={`background: linear-gradient(135deg, ${sector.color}10, ${sector.color}05)`}></div>
-            <div class="relative">
-              <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center mb-4 transition-colors duration-300" style={`background: ${sector.color}15`}>
-                <svg class="w-6 h-6 sm:w-7 sm:h-7 transition-colors duration-300" style={`color: ${sector.color}`} fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d={sectorIcons[sector.slug] || 'M13 10V3L4 14h7v7l9-11h-7z'}/>
-                </svg>
-              </div>
-              <h3 class="font-bold text-gray-900 group-hover:text-gray-900 mb-1">{sector.name}</h3>
-              <span class="text-xs text-gray-400 font-medium">{sector.name === 'Gobierno' ? '80+ proyectos' : sector.name === 'Seguridad' ? '120+ proyectos' : '45+ proyectos'}</span>
-            </div>
+            class="group flex items-center gap-3 px-5 sm:px-6 py-3 sm:py-4 border-2 border-gray-200 rounded-2xl hover:border-gray-900 hover:bg-gray-900 hover:text-white transition-all duration-300 scroll-reveal-scale"
+            style={`animation-delay: ${i * 0.04}s`}>
+            <svg class="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d={sectorIcons[sector.slug] || 'M13 10V3L4 14h7v7l9-11h-7z'}/>
+            </svg>
+            <span class="font-bold text-sm sm:text-base text-gray-900 group-hover:text-white transition-colors">{sector.name}</span>
           </a>
         ))}
       </div>
 
-      <div class="mt-10 text-center scroll-reveal">
-        <a href={withBase("/sectores")} class="inline-flex items-center gap-2 text-um-primary font-bold hover:gap-4 transition-all">
+      <div class="mt-8 scroll-reveal">
+        <a href={withBase("/sectores")} class="text-sm font-bold text-gray-400 hover:text-red-600 transition-colors flex items-center gap-2 uppercase tracking-wider">
           Ver todas las industrias
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
         </a>
       </div>
     </div>
   </section>
 
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- CTA — Gradient mesh, social proof -->
-  <!-- ═══════════════════════════════════════════════ -->
-  <section class="relative py-20 sm:py-24 lg:py-32 overflow-hidden scroll-reveal">
-    <div class="absolute inset-0 bg-gray-900"></div>
-    <div class="absolute inset-0 hero-gradient-animated opacity-40"></div>
-    <div class="absolute inset-0" style="background-image: radial-gradient(circle at 30% 50%, rgba(14,165,233,0.15), transparent 50%), radial-gradient(circle at 70% 30%, rgba(220,38,38,0.1), transparent 40%);"></div>
-
-    <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <h2 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white mb-6 text-balance">
-        El próximo proyecto exitoso puede ser el suyo
+  <!-- ════════════════════════════════════════════ -->
+  <!-- CTA — Dark, minimal, with social proof -->
+  <!-- ════════════════════════════════════════════ -->
+  <section class="bg-gray-900 py-20 sm:py-24 lg:py-32 scroll-reveal">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-white tracking-tight mb-6 text-balance" style="letter-spacing: -0.02em;">
+        El próximo proyecto<br>exitoso puede ser<br>el suyo<span class="text-red-600">.</span>
       </h2>
-      <p class="text-lg sm:text-xl text-gray-400 mb-10 max-w-2xl mx-auto text-pretty">
-        Gobiernos, aeropuertos, hospitales, bodegas y más de 200 organizaciones ya confían en Ultima Milla.
+      <p class="text-gray-400 text-base sm:text-lg mb-10 max-w-xl mx-auto">
+        Más de 200 organizaciones ya confían en nosotros.
       </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a href={withBase("/contacto")} class="px-10 py-4 bg-white text-gray-900 font-bold rounded-2xl hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-0.5 transition-all min-h-[52px] flex items-center justify-center text-base">
-          Agendar Consultoría Gratis
+      <div class="flex flex-col sm:flex-row gap-4 justify-center mb-14">
+        <a href={withBase("/contacto")} class="px-10 py-4 bg-white text-gray-900 font-bold rounded-2xl hover:bg-red-600 hover:text-white transition-all min-h-[52px] flex items-center justify-center text-base">
+          Agendar Consultoría
         </a>
-        <a href={withBase("/antecedentes")} class="px-10 py-4 border-2 border-white/20 text-white font-bold rounded-2xl hover:bg-white/5 transition-all min-h-[52px] flex items-center justify-center gap-2 text-base">
-          Ver Portfolio Completo
+        <a href="mailto:contacto@ultimamilla.com.ar" class="px-10 py-4 border-2 border-gray-700 text-gray-300 font-bold rounded-2xl hover:border-white hover:text-white transition-all min-h-[52px] flex items-center justify-center text-base">
+          contacto@ultimamilla.com.ar
         </a>
       </div>
 
-      <!-- Social proof -->
-      <div class="mt-12 pt-8 border-t border-white/10">
-        <p class="text-sm text-gray-500 mb-4">Empresas que confían en nosotros</p>
-        <div class="flex flex-wrap justify-center gap-x-8 gap-y-3 text-gray-400 text-sm font-medium">
+      <div class="border-t border-gray-800 pt-8">
+        <p class="text-xs font-mono uppercase tracking-[0.3em] text-gray-600 mb-5">Confían en nosotros</p>
+        <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-gray-500 font-medium">
           <span>Aeropuertos Argentina 2000</span>
-          <span class="text-gray-600">|</span>
           <span>Gobierno de Mendoza</span>
-          <span class="text-gray-600">|</span>
           <span>Hospital Central</span>
-          <span class="text-gray-600">|</span>
           <span>Bodega La Esmeralda</span>
-          <span class="text-gray-600">|</span>
           <span>Premix SA</span>
+          <span>Municipalidad de Guaymallén</span>
         </div>
       </div>
     </div>
@@ -361,14 +345,14 @@ const sectorIcons: Record<string, string> = {
     document.addEventListener('DOMContentLoaded', () => {
       const images = document.querySelectorAll('.hero-image');
       if (images.length > 1) {
-        let current = 0;
+        let c = 0;
         setInterval(() => {
-          images[current].classList.remove('opacity-60');
-          images[current].classList.add('opacity-0');
-          current = (current + 1) % images.length;
-          images[current].classList.remove('opacity-0');
-          images[current].classList.add('opacity-60');
-        }, 6000);
+          images[c].classList.remove('opacity-100');
+          images[c].classList.add('opacity-0');
+          c = (c + 1) % images.length;
+          images[c].classList.remove('opacity-0');
+          images[c].classList.add('opacity-100');
+        }, 5000);
       }
     });
   </script>
