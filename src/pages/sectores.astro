@@ -125,8 +125,8 @@ const stats = [
             </svg>
             Industrias
           </span>
-          <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white mb-4 sm:mb-6 leading-tight">
-            Soluciones por<br>
+          <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white mb-4 sm:mb-6 leading-tight text-balance">
+            Soluciones por
             <span class="text-um-primary-light">Industria</span>
           </h1>
           <p class="text-base sm:text-lg lg:text-xl text-gray-300 max-w-xl">
@@ -150,13 +150,14 @@ const stats = [
   <!-- SECTORS GRID -->
   <section class="py-10 sm:py-14 lg:py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-        {sectores.map((sector) => (
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 cards-grid">
+        {sectores.map((sector, i) => (
           <a
             href={`/${sector.slug}`}
-            class="sector-card bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 group"
+            class="spotlight-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100/80 group scroll-reveal transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/5"
+            style={`animation-delay: ${i * 0.06}s`}
           >
-            <div class={`h-40 sm:h-48 bg-gradient-to-br ${sector.gradient} flex items-center justify-center relative`}>
+            <div class={`h-40 sm:h-48 bg-gradient-to-br ${sector.gradient} flex items-center justify-center relative overflow-hidden`}>
               <span class="text-5xl sm:text-7xl">{sector.emoji}</span>
               <div class="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
                 <span class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">{sector.projects} proyectos</span>

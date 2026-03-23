@@ -13,35 +13,14 @@ import { getDirectusImageUrl, getAllAntecedentes, getHeroHomeImages } from '../l
 import { serviceBadgeMap, serviceToSectorMap } from '../data/serviceBadgeMap';
 import { getSectorColors } from '../data/colorSystem';
 
-// Fetch hero images from Directus Hero_Home (with snapshot fallback)
-const localHeroFallback = [
-  { url: '/images/services/redes-comunicaciones.jpg', alt: 'Infraestructura de Redes' },
-  { url: '/images/services/ciberseguridad.jpg', alt: 'Seguridad Electrónica' },
-  { url: '/images/services/telefonia.jpg', alt: 'Telecomunicaciones' },
-  { url: '/images/services/servicios-web.jpg', alt: 'Desarrollo de Software' },
-  { url: '/images/services/servicios-it.jpg', alt: 'Consultoría IT' },
+// Hero images — use local service images (works on both production and GitHub Pages)
+const heroImages = [
+  { url: '/images/services/servicio-101-infraestructura.jpg', alt: 'Infraestructura de Redes' },
+  { url: '/images/services/servicio-102-seguridad.jpg', alt: 'Seguridad Electrónica' },
+  { url: '/images/services/servicio-103-telecomunicaciones.jpg', alt: 'Telecomunicaciones' },
+  { url: '/images/services/servicio-104-software.jpg', alt: 'Desarrollo de Software' },
+  { url: '/images/services/servicio-106-consultoria.jpg', alt: 'Consultoría IT' },
 ];
-
-let heroImages: { url: string; alt: string }[] = [];
-try {
-  const heroItems = await getHeroHomeImages();
-  // Hero images use /assets/{uuid} directly (Nginx proxies to Directus)
-  // This bypasses getDirectusImageUrl which has assets disabled for service thumbnails
-  const uuidRe = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
-  heroImages = heroItems
-    .filter((item: any) => item.imagen && uuidRe.test(item.imagen))
-    .map((item: any) => ({
-      url: `/assets/${item.imagen}`,
-      alt: item.titulo || `Hero ${item.orden}`
-    }));
-} catch (error) {
-  console.error('[HOMEPAGE] Error loading hero images:', error);
-}
-
-// Use local fallback if no valid hero images
-if (heroImages.length === 0) {
-  heroImages = localHeroFallback;
-}
 
 // Get 3 featured antecedentes from Directus (con fallback a snapshot JSON)
 let antecedentesData: any[] = [];

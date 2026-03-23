@@ -123,7 +123,7 @@ const buildPageUrl = (page: number) => {
       { label: 'Servicios', href: '/servicios' },
     ]}
     badge={{ icon: 'briefcase', text: 'Soluciones Integrales' }}
-    backgroundImage={getDirectusImageUrl(serviciosReales[0]?.Imagen)}
+    backgroundImage="/images/services/servicio-101-infraestructura.jpg"
     stats={[
       { value: `${serviciosReales.length}+`, label: 'Servicios' },
       { value: `${clientesUnicos.length}+`, label: 'Sectores' },
@@ -187,18 +187,22 @@ const buildPageUrl = (page: number) => {
           </a>
         </div>
       ) : (
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-          {serviciosPaginados.map((servicio) => (
-            <ServiceCard
-              id={servicio.id}
-              slug={servicio.slug}
-              titulo={servicio.Titulo}
-              descripcion={servicio.Descripcion.replace(/\\\\/g, ' ')}
-              imagen={servicio.Imagen}
-              badge={servicio.badge}
-              badgeColor={servicio.badgeColor}
-              cliente={servicio.Cliente}
-            />
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 cards-grid">
+          {serviciosPaginados.map((servicio, i) => (
+            <div class="scroll-reveal" style={`animation-delay: ${i * 0.06}s`}>
+              <ServiceCard
+                id={servicio.id}
+                slug={servicio.slug}
+                titulo={servicio.Titulo}
+                descripcion={servicio.Descripcion.replace(/\\\\/g, ' ')}
+                imagen={servicio.Imagen}
+                badge={servicio.badge}
+                badgeColor={servicio.badgeColor}
+                cliente={servicio.Cliente}
+                icon={servicio.icon}
+                iconColor={servicio.iconColor}
+              />
+            </div>
           ))}
         </div>
       )}

@@ -424,37 +424,37 @@ const filterIconPaths: Record<string, string> = {
           </a>
         </div>
       ) : (
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 cards-grid">
           {pageData.antecedentes.map((proyecto, index) => (
             <a
               href={`/antecedentes/${proyecto.slug}`}
-              class="card-hover bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 animate-fade-in"
-              style={`animation-delay: ${0.1 + index * 0.05}s`}
+              class="group spotlight-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100/80 scroll-reveal transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/5"
+              style={`animation-delay: ${index * 0.03}s`}
             >
-              <div class="relative h-48 overflow-hidden">
+              <div class="relative h-48 overflow-hidden bg-gradient-to-br from-sky-600 via-blue-700 to-indigo-800">
                 <img
                   src={proyecto.imageUrl}
                   alt={proyecto.Titulo}
-                  class="w-full h-full object-cover transition-transform duration-500"
+                  class="w-full h-full object-cover mix-blend-luminosity opacity-40 group-hover:opacity-60 group-hover:mix-blend-overlay transition-all duration-500 group-hover:scale-105"
                   loading="lazy"
                   data-fallback={proyecto.imageFallback}
-                  onerror="this.onerror=null;this.src=this.dataset.fallback||'/images/default.jpg'"
+                  onerror="this.style.display='none'"
                 />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                <span class={`absolute bottom-3 left-3 px-2.5 py-1 ${getCategoryBadgeColor(proyecto.Area || '')} text-white text-xs font-semibold rounded-md`}>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                <span class={`absolute bottom-3 left-3 px-2.5 py-1 bg-black/30 backdrop-blur-sm border border-white/10 text-white text-[11px] font-bold tracking-wide rounded-lg uppercase`}>
                   {proyecto.Area || 'Proyecto'}
                 </span>
               </div>
               <div class="p-5">
-                <h3 class="font-bold text-um-dark mb-2 line-clamp-2 group-hover:text-um-primary transition-colors">
+                <h3 class="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-um-primary transition-colors text-pretty">
                   {proyecto.Titulo}
                 </h3>
-                <p class="text-sm text-um-gray line-clamp-2 mb-4">
+                <p class="text-sm text-gray-500 line-clamp-2 mb-4">
                   {proyecto.Descripcion ? proyecto.Descripcion.replace(/<[^>]*>/g, '').substring(0, 100) + '...' : ''}
                 </p>
                 <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                  <span class="text-xs text-um-gray">{proyecto.Cliente}</span>
-                  <span class="text-um-primary text-sm font-medium flex items-center gap-1">
+                  <span class="text-[11px] text-gray-400 font-medium uppercase tracking-wider">{proyecto.Cliente}</span>
+                  <span class="text-um-primary text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
                     Ver detalle
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>

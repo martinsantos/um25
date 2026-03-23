@@ -1,24 +1,8 @@
 ---
 /**
- * ServiceCard Component V4 - DISEÑO ESTÁNDAR
- *
- * Card de servicio estilo article card:
- * - Imagen arriba (aspect-[16/9])
- * - Badge específico en top-left de la imagen
- * - Título + descripción abajo
- * - Footer con Cliente y "Ver detalles"
- *
- * USADO EN: Homepage, /servicios, antecedentes relacionados
- *
- * Props:
- * - id: ID del servicio
- * - slug: Slug URL-friendly
- * - titulo: Título del servicio
- * - descripcion: Descripción (se trunca a 150 chars)
- * - imagen: UUID de Directus o URL completa
- * - badge: Badge descriptor (ej: "Redes", "Seguridad")
- * - badgeColor: Color del badge (opcional, default: bg-um-dark)
- * - cliente: Nombre del cliente/área
+ * ServiceCard V4 — Hybrid Design (Gradient + Real Image Overlay)
+ * Uses local images with gradient base + mix-blend-mode overlay
+ * Falls back to pure gradient if image doesn't load
  */
 
 import { getDirectusImageUrl, getDirectusImageFallback } from '../../lib/directus.ts';
@@ -33,6 +17,8 @@ export interface Props {
   badgeColor?: string;
   cliente?: string;
   href?: string;
+  icon?: string;
+  iconColor?: string;
 }
 
 const {
@@ -44,52 +30,85 @@ const {
   badge,
   badgeColor = 'bg-um-dark',
   cliente = 'Tecnología',
-  href
+  href,
+  icon,
+  iconColor = 'bg-sky-600/90'
 } = Astro.props;
 
-// Generar URL del servicio
 const serviceUrl = href || (slug ? `/servicios/${id}/${slug}` : `/servicios/${id}`);
 
-// 100% Directus — imagen es UUID del archivo en Directus
-const imagenUrl = getDirectusImageUrl(imagen);
-const fallbackUrl = getDirectusImageFallback(imagen);
+// Try Directus UUID first, then direct local path
+let imagenUrl = getDirectusImageUrl(imagen);
+// Fallback: local service image by ID
+if (!imagenUrl || imagenUrl === '/images/default-background.jpg') {
+  imagenUrl = `/images/services/servicio-${id}-${slug?.split('-')[0] || 'default'}.jpg`;
+}
+const localFallback = `/images/services/servicio-${id}-${(titulo || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/[\s|,]+/)[0] || 'default'}.jpg`;
 
-// Truncar descripción a 150 caracteres
+// Gradient per service category
+const gradientMap: Record<string, string> = {
+  '101': 'from-sky-600 via-blue-700 to-indigo-800',
+  '102': 'from-rose-600 via-red-700 to-pink-800',
+  '103': 'from-cyan-500 via-teal-600 to-emerald-700',
+  '104': 'from-purple-600 via-violet-700 to-indigo-800',
+  '105': 'from-amber-500 via-orange-600 to-red-700',
+  '106': 'from-emerald-500 via-green-600 to-teal-700',
+  '107': 'from-orange-500 via-red-600 to-rose-700',
+  '108': 'from-yellow-500 via-amber-600 to-orange-700',
+};
+const gradient = gradientMap[String(id)] || 'from-gray-600 via-gray-700 to-gray-800';
+
 const descripcionTruncada = descripcion.length > 150
   ? descripcion.substring(0, 150) + '...'
   : descripcion;
+
+// Icon SVG paths
+const iconSvgMap: Record<string, string> = {
+  'network': 'M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z',
+  'shield': 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+  'radio': 'M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.858 15.355-5.858 21.213 0',
+  'code': 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4',
+  'headphones': 'M3 18v-6a9 9 0 0118 0v6M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z',
+  'lightbulb': 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z',
+  'flame': 'M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z',
+  'zap': 'M13 10V3L4 14h7v7l9-11h-7z',
+};
+const iconPath = iconSvgMap[icon || ''] || iconSvgMap['network'];
 ---
 
-<a href={serviceUrl} class="group flex flex-col h-full">
-  <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 card-hover">
-    <!-- Image -->
-    <div class="relative aspect-[16/9] overflow-hidden bg-gray-100">
-      {imagenUrl ? (
-        <img
-          src={imagenUrl}
-          alt={titulo}
-          width="640"
-          height="360"
-          class="w-full h-full object-cover service-img"
-          loading="lazy"
-          decoding="async"
-          onerror={`this.onerror=null; this.src='${fallbackUrl}'`}
-        />
-      ) : (
-        <img
-          src={fallbackUrl}
-          alt={titulo}
-          width="640"
-          height="360"
-          class="w-full h-full object-cover service-img"
-          loading="lazy"
-          decoding="async"
-        />
-      )}
+<a href={serviceUrl} class="group flex flex-col h-full spotlight-card" style={`--vt-name: service-${id}`}>
+  <article class="flex flex-col h-full bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100/80 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl group-hover:shadow-black/5">
+    <!-- Image with Gradient Base + Real Photo Overlay -->
+    <div class={`relative aspect-[16/9] overflow-hidden bg-gradient-to-br ${gradient}`}>
+      <!-- Gradient base (always visible) -->
+      <div class="absolute inset-0 opacity-100"></div>
 
+      <!-- Real image overlay with blend mode -->
+      <img
+        src={imagenUrl}
+        alt={titulo}
+        width="640"
+        height="360"
+        class="absolute inset-0 w-full h-full object-cover mix-blend-luminosity opacity-40 group-hover:opacity-60 group-hover:mix-blend-overlay transition-all duration-500"
+        loading="lazy"
+        decoding="async"
+        onerror="this.style.display='none'"
+      />
+
+      <!-- Gradient overlay for text readability -->
+      <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+
+      <!-- Icon -->
+      <div class="absolute top-4 right-4 w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d={iconPath}/>
+        </svg>
+      </div>
+
+      <!-- Badge -->
       {badge && (
-        <div class="absolute top-3 sm:top-4 left-3 sm:left-4">
-          <span class={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold ${badgeColor} text-white shadow-sm`}>
+        <div class="absolute bottom-3 left-3">
+          <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold tracking-wide text-white bg-black/30 backdrop-blur-sm border border-white/10 uppercase">
             {badge}
           </span>
         </div>
@@ -97,17 +116,17 @@ const descripcionTruncada = descripcion.length > 150
     </div>
 
     <!-- Content -->
-    <div class="flex flex-col flex-grow p-4 sm:p-6">
-      <h3 class="text-lg sm:text-xl font-bold text-um-dark mb-2 sm:mb-3 group-hover:text-um-primary transition-colors line-clamp-2">
+    <div class="flex flex-col flex-grow p-4 sm:p-5">
+      <h3 class="text-base sm:text-lg font-bold text-gray-900 mb-2 group-hover:text-um-primary transition-colors line-clamp-2 text-pretty">
         {titulo}
       </h3>
 
-      <p class="text-um-gray text-sm mb-4 sm:mb-6 line-clamp-3 flex-grow leading-relaxed">
+      <p class="text-gray-500 text-sm mb-4 line-clamp-3 flex-grow leading-relaxed">
         {descripcionTruncada}
       </p>
 
-      <div class="pt-3 sm:pt-4 border-t border-gray-100 mt-auto flex items-center justify-between">
-        <span class="text-xs font-medium text-um-gray uppercase tracking-wide">
+      <div class="pt-3 border-t border-gray-100 mt-auto flex items-center justify-between">
+        <span class="text-[11px] font-medium text-gray-400 uppercase tracking-wider">
           {cliente}
         </span>
         <span class="text-um-primary text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
@@ -120,49 +139,3 @@ const descripcionTruncada = descripcion.length > 150
     </div>
   </article>
 </a>
-
-<style>
-  /* Hover effect */
-  .card-hover {
-    transition: all 0.3s ease;
-  }
-
-  .card-hover:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-  }
-
-  /* Line clamp */
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  /* High-quality image downscaling */
-  .service-img {
-    image-rendering: auto;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    transform: translateZ(0);
-  }
-
-  /* Animación reducida para accesibilidad */
-  @media (prefers-reduced-motion: reduce) {
-    .card-hover,
-    .card-hover:hover,
-    img,
-    div {
-      transition-duration: 0.01ms !important;
-      animation-duration: 0.01ms !important;
-    }
-  }
-</style>
