@@ -1,9 +1,9 @@
 ---
 /**
- * ServiceCard — Brutalist Editorial Style
- * Giant number + service name + real photo with rounded corners
+ * ServiceCard — Brutalist: Full photo + giant type overlay
+ * Like a magazine cover: photo fills everything, type sits on top
  */
-import { getDirectusImageUrl, withBase } from '../../lib/directus.ts';
+import { withBase } from '../../lib/directus.ts';
 
 export interface Props {
   id: number | string;
@@ -20,41 +20,56 @@ export interface Props {
   index?: number;
 }
 
-const { id, slug, titulo, descripcion = '', imagen, badge, cliente = 'Tecnología', href, index = 0 } = Astro.props;
+const { id, slug, titulo, descripcion = '', badge, cliente, href, index = 0 } = Astro.props;
 
 const BASE = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
 const serviceUrl = href || (slug ? `${BASE}/servicios/${id}/${slug}` : `${BASE}/servicios/${id}`);
 
-let imagenUrl = getDirectusImageUrl(imagen);
-if (!imagenUrl || imagenUrl.includes('default-background')) {
-  imagenUrl = withBase(`/images/services/servicio-${id}-${slug?.split('-')[0] || 'default'}.jpg`);
-}
-
 const num = String(index + 1).padStart(2, '0');
-const desc = descripcion.replace(/<[^>]+>/g, '').substring(0, 90);
+
+// Map service IDs to the new hero images
+const heroImageMap: Record<string, string> = {
+  '101': 'hero-redes', '102': 'hero-seguridad', '103': 'hero-telecom', '104': 'hero-software',
+  '105': 'hero-soporte', '106': 'hero-consultoria', '107': 'hero-incendios', '108': 'hero-electricos',
+};
+const imgName = heroImageMap[String(id)] || 'hero-redes';
+const imagenUrl = withBase(`/images/hero/${imgName}.jpg`);
+
+// Short service name for overlay
+const shortNames: Record<string, string> = {
+  '101': 'Redes', '102': 'Seguridad', '103': 'Telecom', '104': 'Software',
+  '105': 'Soporte', '106': 'Consultoría', '107': 'Incendios', '108': 'Eléctricos',
+};
+const shortName = shortNames[String(id)] || badge || 'Servicio';
 ---
 
 <a href={serviceUrl} class="group block">
-  <article class="h-full">
-    <!-- Photo: large, visible, rounded -->
-    <div class="relative aspect-[4/3] rounded-2xl overflow-hidden mb-4 bg-gray-100">
-      <img
-        src={imagenUrl}
-        alt={titulo}
-        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-        loading="lazy"
-        onerror="this.parentElement.style.background='#f1f5f9'"
-      />
-    </div>
+  <article class="relative rounded-2xl overflow-hidden aspect-[3/4] sm:aspect-[4/5] bg-gray-900">
+    <!-- Full photo -->
+    <img
+      src={imagenUrl}
+      alt={titulo}
+      class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+      loading="lazy"
+    />
 
-    <!-- Number + Title -->
-    <div class="flex gap-3 items-baseline mb-2">
-      <span class="text-gray-300 text-xs font-mono tracking-wider">{num}</span>
-      <h3 class="text-base sm:text-lg font-bold text-gray-900 group-hover:text-red-600 transition-colors leading-snug text-pretty">
-        {titulo}
-      </h3>
-    </div>
+    <!-- Darkening gradient for text readability -->
+    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/20"></div>
 
-    <p class="text-gray-500 text-sm leading-relaxed pl-8">{desc}...</p>
+    <!-- Giant type overlay -->
+    <div class="absolute inset-0 flex flex-col justify-between p-4 sm:p-5">
+      <!-- Number top-left -->
+      <span class="text-white/30 text-5xl sm:text-6xl font-black leading-none" style="letter-spacing:-0.04em;">{num}</span>
+
+      <!-- Name + description bottom -->
+      <div>
+        <h3 class="text-white text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-tight leading-none mb-1" style="letter-spacing:-0.02em;">
+          {shortName}
+        </h3>
+        <span class="text-white/50 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] group-hover:text-white/80 transition-colors">
+          Ver servicio →
+        </span>
+      </div>
+    </div>
   </article>
 </a>
