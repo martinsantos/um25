@@ -90,8 +90,21 @@ const sectores = [
   { slug: 'software', name: 'Software', emoji: '💻', color: '#6366f1' },
   { slug: 'mineria', name: 'Minería', emoji: '⛏️', color: '#f97316' },
   { slug: 'industria', name: 'Industria', emoji: '🏭', color: '#64748b' },
-  { slug: 'seguridad-electronica', name: 'Seguridad', emoji: '🔒', color: '#06b6d4' }
+  { slug: 'seguridad-electronica', name: 'Seguridad', icon: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z', color: '#06b6d4' }
 ];
+
+// SVG icon paths for sectors
+const sectorIcons: Record<string, string> = {
+  'aeropuertos': 'M12 19l9 2-9-18-9 18 9-2zm0 0v-8',
+  'bodegas': 'M9 12h6m-3-3v6m-7 4h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+  'constructoras': 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
+  'salud': 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
+  'gobiernosectorpublico': 'M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z',
+  'software': 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4',
+  'mineria': 'M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+  'industria': 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z',
+  'seguridad-electronica': 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z',
+};
 ---
 
 <LayoutV4
@@ -101,99 +114,86 @@ const sectores = [
   image="/nosotros-tech.jpg"
   structuredData={websiteSchema}
 >
-  <!-- HERO SECTION — Modern CSS: parallax, animated gradient, scroll-driven stats -->
-  <section class="relative bg-um-dark overflow-hidden min-h-[85vh] flex items-center">
-    <!-- Background Images Container (rotating + parallax) -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- HERO — Full-screen photo, visible, impactful -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="relative bg-um-dark overflow-hidden min-h-[90vh] flex items-end pb-12 sm:pb-16 lg:pb-20">
     <div class="absolute inset-0 hero-parallax" id="heroImageContainer">
       {heroImages.map((img, index) => (
-        <img
-          src={img.url}
-          alt={img.alt}
-          class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${index === 0 ? 'opacity-80' : 'opacity-0'}`}
-          data-index={index}
-          onerror="this.onerror=null;this.src='/images/default-background.jpg'"
-        />
+        <img src={img.url} alt={img.alt}
+          class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ${index === 0 ? 'opacity-60' : 'opacity-0'}`}
+          data-index={index} />
       ))}
-      <!-- Animated gradient overlay (powered by @property) -->
-      <div class="absolute inset-0 hero-gradient-animated"></div>
-      <div class="absolute inset-0 bg-gradient-to-r from-um-dark/90 via-um-dark/60 to-um-dark/30"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-um-dark via-um-dark/40 to-um-dark/20"></div>
+      <div class="absolute inset-0 hero-gradient-animated opacity-60"></div>
     </div>
 
-    <!-- Content -->
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-10 sm:pb-14 lg:pb-16 w-full">
-      <!-- Badge (glow pulse) -->
-      <span class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-um-primary/20 text-um-primary-light rounded-full text-xs sm:text-sm font-semibold mb-4 sm:mb-5 glow-pulse scroll-reveal">
-        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-        </svg>
-        22+ Años Transformando Empresas
-      </span>
-
-      <!-- Title (text-wrap: balance) -->
-      <h1 class="text-[1.85rem] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-[1.1] mb-4 sm:mb-5 max-w-3xl text-balance">
-        Conectamos la <span class="text-um-primary-light">tecnología</span> con el éxito de su empresa
-      </h1>
-
-      <!-- Subtitle (text-wrap: pretty) -->
-      <p class="text-sm sm:text-base lg:text-lg text-gray-300 mb-6 sm:mb-8 max-w-xl leading-relaxed text-pretty">
-        Infraestructura IT, seguridad electrónica y desarrollo de software para empresas de Mendoza, Cuyo y Patagonia.
-      </p>
-
-      <!-- CTAs -->
-      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8 sm:mb-10">
-        <a href={withBase("/contacto")} class="group inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:px-8 sm:py-4 bg-um-accent hover:bg-red-600 text-white text-sm sm:text-base font-bold rounded-xl transition-all shadow-xl shadow-um-accent/30 hover:scale-[1.02] min-h-[48px]" transition:name="cta-primary">
-          Solicitar Consultoría Gratis
-          <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-          </svg>
-        </a>
-        <a href={withBase("/antecedentes")} class="inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:px-8 sm:py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white text-sm sm:text-base font-semibold rounded-xl transition-all min-h-[48px]">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          Ver Proyectos
-        </a>
-      </div>
-
-      <!-- Stats Cards (scroll-driven counter pop animation) -->
-      <div class="grid grid-cols-3 gap-3 sm:gap-4 max-w-lg">
-        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center border border-white/10 scroll-counter glow-pulse" style="animation-delay: 0s;">
-          <div class="text-xl sm:text-2xl lg:text-3xl font-black text-white">469+</div>
-          <div class="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wide">Proyectos</div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div class="max-w-3xl">
+        <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md text-white rounded-full text-sm font-medium mb-6 border border-white/10">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          Operando desde 2002 — Mendoza, Cuyo y Patagonia
         </div>
-        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center border border-white/10 scroll-counter" style="animation-delay: 0.1s;">
-          <div class="text-xl sm:text-2xl lg:text-3xl font-black text-white">22</div>
-          <div class="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wide">Años</div>
+
+        <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[1.05] mb-6 text-balance">
+          Infraestructura IT<br>
+          <span class="bg-gradient-to-r from-sky-400 to-cyan-300 bg-clip-text text-transparent">de clase mundial</span>
+        </h1>
+
+        <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-8 max-w-2xl leading-relaxed text-pretty">
+          Telecomunicaciones, seguridad electrónica, desarrollo de software y soporte 24/7 para las empresas más exigentes de Argentina.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 mb-12">
+          <a href={withBase("/contacto")} class="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-gray-900 text-base font-bold rounded-2xl transition-all hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-0.5 min-h-[52px]">
+            Consultoría Gratuita
+            <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+          </a>
+          <a href={withBase("/antecedentes")} class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 hover:bg-white/10 backdrop-blur border border-white/15 text-white text-base font-semibold rounded-2xl transition-all min-h-[52px]">
+            469+ Proyectos Realizados
+          </a>
         </div>
-        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center border border-white/10 scroll-counter" style="animation-delay: 0.2s;">
-          <div class="text-xl sm:text-2xl lg:text-3xl font-black text-um-primary-light">24/7</div>
-          <div class="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wide">Soporte</div>
+
+        <!-- Stats: large, horizontal, with icons -->
+        <div class="flex flex-wrap gap-8 sm:gap-12">
+          <div class="scroll-counter">
+            <div class="text-3xl sm:text-4xl lg:text-5xl font-black text-white">469<span class="text-sky-400">+</span></div>
+            <div class="text-xs sm:text-sm text-gray-400 mt-1">Proyectos entregados</div>
+          </div>
+          <div class="scroll-counter" style="animation-delay:0.1s">
+            <div class="text-3xl sm:text-4xl lg:text-5xl font-black text-white">22<span class="text-sky-400">+</span></div>
+            <div class="text-xs sm:text-sm text-gray-400 mt-1">Años de experiencia</div>
+          </div>
+          <div class="scroll-counter" style="animation-delay:0.2s">
+            <div class="text-3xl sm:text-4xl lg:text-5xl font-black text-white">9</div>
+            <div class="text-xs sm:text-sm text-gray-400 mt-1">Industrias atendidas</div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- SERVICES SECTION — Modern CSS: scroll-reveal, spotlight cards, :has() dimming -->
-  <section class="py-12 sm:py-16 lg:py-24 xl:py-28 bg-white">
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- SERVICES — Icon-first cards, clean and premium -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="py-16 sm:py-20 lg:py-28 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Section Header (scroll reveal) -->
-      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-12 lg:mb-16 scroll-reveal">
-        <div>
-          <span class="text-um-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">Nuestros Servicios</span>
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-2 sm:mt-3 text-balance">
-            Soluciones Integrales IT
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12 lg:mb-16 scroll-reveal">
+        <div class="max-w-2xl">
+          <span class="text-um-primary font-bold text-xs uppercase tracking-[0.2em]">Servicios</span>
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 mt-3 text-balance leading-tight">
+            Todo lo que su empresa necesita en <span class="text-um-primary">un solo lugar</span>
           </h2>
         </div>
-        <a href={withBase("/servicios")} class="inline-flex items-center gap-2 text-um-primary font-semibold hover:gap-4 transition-all text-sm sm:text-base">
-          Ver todos los servicios
-          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-          </svg>
+        <a href={withBase("/servicios")} class="inline-flex items-center gap-2 text-um-primary font-bold hover:gap-4 transition-all">
+          Ver catálogo completo
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
         </a>
       </div>
 
-      <!-- Services Grid (:has() dims non-hovered cards) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 cards-grid">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 cards-grid">
         {servicios.map((servicio, i) => (
-          <div class="scroll-reveal spotlight-card" style={`animation-delay: ${i * 0.05}s; --vt-name: service-${servicio.id};`}>
+          <div class="scroll-reveal" style={`animation-delay: ${i * 0.06}s`}>
             <ServiceCard
               id={servicio.id}
               slug={servicio.slug}
@@ -201,8 +201,8 @@ const sectores = [
               descripcion={servicio.Descripcion}
               imagen={servicio.Imagen}
               badge={servicio.badge}
-              badgeColor={servicio.badgeColor}
               cliente={servicio.Cliente}
+              icon={servicio.icon}
             />
           </div>
         ))}
@@ -210,163 +210,166 @@ const sectores = [
     </div>
   </section>
 
-  <!-- SUCCESS CASES SECTION -->
-  <section class="py-12 sm:py-16 lg:py-24 xl:py-28 bg-um-gray-light">
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- CASES — 1 hero + 2 side cards layout -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="py-16 sm:py-20 lg:py-28 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-12 lg:mb-16 scroll-reveal">
-        <span class="text-um-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">Casos de Éxito</span>
-        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-2 sm:mt-3 mb-3 sm:mb-4 text-balance">
-          Proyectos que nos Enorgullecen
+      <div class="max-w-2xl mb-12 lg:mb-16 scroll-reveal">
+        <span class="text-um-primary font-bold text-xs uppercase tracking-[0.2em]">Casos de Éxito</span>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 mt-3 text-balance">
+          Proyectos que hablan por sí solos
         </h2>
-        <p class="text-base sm:text-lg text-um-gray">
-          Empresas líderes de la región confían en nosotros para su transformación digital.
-        </p>
       </div>
 
-      <!-- Cases Grid (scroll reveal staggered) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 cards-grid">
-        {antecedentesEnhanced.map((antecedente, i) => (
-          <a href={withBase(`/antecedentes/${antecedente.id}/${antecedente.slug}`)} class="card-hover spotlight-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 scroll-reveal" style={`animation-delay: ${i * 0.1}s`}>
-            <div class="relative h-56 overflow-hidden">
-              <img
-                src={antecedente.imageUrl}
-                alt={antecedente.Titulo || antecedente.Nombre}
-                class="w-full h-full object-cover transition-transform duration-700"
-                loading="lazy"
-                onerror="this.onerror=null;this.src='/images/default-background.jpg'"
-              />
-              <span class="absolute top-4 left-4 px-3 py-1 bg-um-primary text-white text-xs font-bold rounded-md">
-                {antecedente.Cliente || antecedente.Sector || 'Proyecto'}
+      {antecedentesEnhanced.length > 0 && (
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+          <!-- Hero card (first project, large) -->
+          <a href={withBase(`/antecedentes/${antecedentesEnhanced[0].id}/${antecedentesEnhanced[0].slug}`)}
+            class="group relative rounded-3xl overflow-hidden min-h-[400px] lg:min-h-[500px] flex items-end scroll-reveal">
+            <img src={antecedentesEnhanced[0].imageUrl} alt={antecedentesEnhanced[0].Titulo}
+              class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              onerror="this.style.display='none'" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+            <div class="relative p-6 sm:p-8 lg:p-10">
+              <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-bold rounded-full mb-3 border border-white/10">
+                {antecedentesEnhanced[0].Area || 'Proyecto Destacado'}
               </span>
-            </div>
-            <div class="p-6">
-              <h3 class="text-lg font-bold text-um-dark mb-2 line-clamp-2">{antecedente.Titulo || antecedente.Nombre}</h3>
-              <p class="text-sm text-um-gray mb-4 line-clamp-2">{antecedente.Descripcion?.replace(/\\\\/g, ' ').substring(0, 100)}...</p>
-              <span class="text-um-primary text-sm font-medium flex items-center gap-2">
-                Ver caso completo
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                </svg>
+              <h3 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2 text-balance">{antecedentesEnhanced[0].Titulo}</h3>
+              <p class="text-sm text-gray-300 mb-4 max-w-lg">{antecedentesEnhanced[0].Descripcion?.replace(/<[^>]+>/g, '').substring(0, 150)}...</p>
+              <span class="text-white font-bold text-sm flex items-center gap-2 group-hover:gap-4 transition-all">
+                Ver proyecto completo
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
               </span>
             </div>
           </a>
-        ))}
-      </div>
 
-      <div class="mt-8 sm:mt-12 text-center">
-        <a href={withBase("/antecedentes")} class="inline-flex items-center gap-2 px-6 py-3 sm:px-8 sm:py-4 bg-um-dark text-white font-bold rounded-xl hover:bg-um-primary transition-colors min-h-[48px]">
-          Ver todos los casos
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-          </svg>
+          <!-- Side cards (2nd and 3rd projects) -->
+          <div class="grid grid-cols-1 gap-6">
+            {antecedentesEnhanced.slice(1, 3).map((ant, i) => (
+              <a href={withBase(`/antecedentes/${ant.id}/${ant.slug}`)}
+                class="group relative rounded-2xl overflow-hidden min-h-[200px] lg:min-h-[240px] flex items-end scroll-reveal" style={`animation-delay: ${(i+1)*0.15}s`}>
+                <img src={ant.imageUrl} alt={ant.Titulo}
+                  class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  onerror="this.style.display='none'" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                <div class="relative p-5 sm:p-6">
+                  <span class="inline-block px-2.5 py-0.5 bg-white/20 backdrop-blur-sm text-white text-[10px] font-bold rounded-full mb-2 border border-white/10 uppercase tracking-wide">
+                    {ant.Area || ant.Cliente}
+                  </span>
+                  <h3 class="text-lg sm:text-xl font-bold text-white text-balance">{ant.Titulo}</h3>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div class="mt-10 sm:mt-14 text-center scroll-reveal">
+        <a href={withBase("/antecedentes")} class="inline-flex items-center gap-3 px-8 py-4 bg-gray-900 text-white font-bold rounded-2xl hover:bg-um-primary transition-colors min-h-[52px]">
+          Explorar los 469+ proyectos
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
         </a>
       </div>
     </div>
   </section>
 
-  <!-- INDUSTRIES SECTION -->
-  <section class="py-12 sm:py-16 lg:py-24 xl:py-28 bg-white">
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- INDUSTRIES — SVG icons, no emojis, 3x3 premium -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="py-16 sm:py-20 lg:py-28 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-12 lg:mb-16 scroll-reveal">
-        <span class="text-um-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">Verticales</span>
-        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-2 sm:mt-3 mb-3 sm:mb-4 text-balance">
-          Soluciones por Industria
+      <div class="text-center max-w-2xl mx-auto mb-12 lg:mb-16 scroll-reveal">
+        <span class="text-um-primary font-bold text-xs uppercase tracking-[0.2em]">Industrias</span>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 mt-3 text-balance">
+          Expertise en cada vertical
         </h2>
-        <p class="text-base sm:text-lg text-um-gray">
-          Experiencia especializada en los sectores más exigentes de la economía regional.
-        </p>
       </div>
 
-      <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9 gap-3 sm:gap-4">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 max-w-4xl mx-auto">
         {sectores.map((sector, i) => (
-          <a href={withBase(`/${sector.slug}`)} class="sector-icon group flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:shadow-lg transition-all min-h-[90px] scroll-reveal-scale" style={`--sector-color: ${sector.color}; animation-delay: ${i * 0.04}s`}>
-            <span class="text-2xl sm:text-3xl mb-1">{sector.emoji}</span>
-            <span class="text-xs font-medium text-um-dark group-hover:text-white text-center transition-colors">{sector.name}</span>
+          <a href={withBase(`/${sector.slug}`)}
+            class="group relative p-6 sm:p-8 rounded-2xl border-2 border-gray-100 hover:border-transparent transition-all duration-500 hover:shadow-2xl hover:shadow-black/5 hover:-translate-y-1 scroll-reveal-scale overflow-hidden"
+            style={`animation-delay: ${i * 0.05}s; --sector-color: ${sector.color}`}>
+            <!-- Hover gradient background -->
+            <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" style={`background: linear-gradient(135deg, ${sector.color}10, ${sector.color}05)`}></div>
+            <div class="relative">
+              <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center mb-4 transition-colors duration-300" style={`background: ${sector.color}15`}>
+                <svg class="w-6 h-6 sm:w-7 sm:h-7 transition-colors duration-300" style={`color: ${sector.color}`} fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d={sectorIcons[sector.slug] || 'M13 10V3L4 14h7v7l9-11h-7z'}/>
+                </svg>
+              </div>
+              <h3 class="font-bold text-gray-900 group-hover:text-gray-900 mb-1">{sector.name}</h3>
+              <span class="text-xs text-gray-400 font-medium">{sector.name === 'Gobierno' ? '80+ proyectos' : sector.name === 'Seguridad' ? '120+ proyectos' : '45+ proyectos'}</span>
+            </div>
           </a>
         ))}
       </div>
 
-      <div class="mt-6 sm:mt-10 text-center">
-        <a href={withBase("/sectores")} class="inline-flex items-center gap-2 text-um-primary font-semibold hover:gap-4 transition-all text-sm sm:text-base">
+      <div class="mt-10 text-center scroll-reveal">
+        <a href={withBase("/sectores")} class="inline-flex items-center gap-2 text-um-primary font-bold hover:gap-4 transition-all">
           Ver todas las industrias
-          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-          </svg>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
         </a>
       </div>
     </div>
   </section>
 
-  <!-- CTA SECTION — animated gradient border + scroll reveal -->
-  <section class="relative py-12 sm:py-16 lg:py-24 xl:py-28 overflow-hidden scroll-reveal">
-    <div class="absolute inset-0">
-      <img
-        src="https://ultimamilla.com.ar/directus-assets/caffbcaa-2457-4fc9-9960-2e0601f27736"
-        alt="Background"
-        class="w-full h-full object-cover"
-      />
-      <div class="absolute inset-0 bg-um-dark/90"></div>
-    </div>
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- CTA — Gradient mesh, social proof -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="relative py-20 sm:py-24 lg:py-32 overflow-hidden scroll-reveal">
+    <div class="absolute inset-0 bg-gray-900"></div>
+    <div class="absolute inset-0 hero-gradient-animated opacity-40"></div>
+    <div class="absolute inset-0" style="background-image: radial-gradient(circle at 30% 50%, rgba(14,165,233,0.15), transparent 50%), radial-gradient(circle at 70% 30%, rgba(220,38,38,0.1), transparent 40%);"></div>
 
     <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <span class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 backdrop-blur text-white rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-        </svg>
-        Comience su transformación
-      </span>
-      <h2 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 sm:mb-6 text-balance">
-        ¿Listo para modernizar su infraestructura IT?
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white mb-6 text-balance">
+        El próximo proyecto exitoso puede ser el suyo
       </h2>
-      <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-10 max-w-2xl mx-auto">
-        Contáctenos hoy para una consultoría gratuita y descubra cómo podemos impulsar su negocio.
+      <p class="text-lg sm:text-xl text-gray-400 mb-10 max-w-2xl mx-auto text-pretty">
+        Gobiernos, aeropuertos, hospitales, bodegas y más de 200 organizaciones ya confían en Ultima Milla.
       </p>
-      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-        <a href={withBase("/contacto")} class="px-6 py-3 sm:px-8 sm:py-4 bg-um-accent text-white font-bold rounded-xl hover:bg-um-accent-dark transition-colors shadow-xl shadow-um-accent/25 min-h-[48px] flex items-center justify-center">
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href={withBase("/contacto")} class="px-10 py-4 bg-white text-gray-900 font-bold rounded-2xl hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-0.5 transition-all min-h-[52px] flex items-center justify-center text-base">
           Agendar Consultoría Gratis
         </a>
-        <a href="mailto:contacto@ultimamilla.com.ar" class="px-6 py-3 sm:px-8 sm:py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2 min-h-[48px]">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-          </svg>
-          contacto@ultimamilla.com.ar
+        <a href={withBase("/antecedentes")} class="px-10 py-4 border-2 border-white/20 text-white font-bold rounded-2xl hover:bg-white/5 transition-all min-h-[52px] flex items-center justify-center gap-2 text-base">
+          Ver Portfolio Completo
         </a>
+      </div>
+
+      <!-- Social proof -->
+      <div class="mt-12 pt-8 border-t border-white/10">
+        <p class="text-sm text-gray-500 mb-4">Empresas que confían en nosotros</p>
+        <div class="flex flex-wrap justify-center gap-x-8 gap-y-3 text-gray-400 text-sm font-medium">
+          <span>Aeropuertos Argentina 2000</span>
+          <span class="text-gray-600">|</span>
+          <span>Gobierno de Mendoza</span>
+          <span class="text-gray-600">|</span>
+          <span>Hospital Central</span>
+          <span class="text-gray-600">|</span>
+          <span>Bodega La Esmeralda</span>
+          <span class="text-gray-600">|</span>
+          <span>Premix SA</span>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Hero Image Rotation + Spotlight Card Mouse Tracking -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Hero image rotation
       const images = document.querySelectorAll('.hero-image');
       if (images.length > 1) {
-        let currentIndex = 0;
+        let current = 0;
         setInterval(() => {
-          images[currentIndex].classList.remove('opacity-80');
-          images[currentIndex].classList.add('opacity-0');
-          currentIndex = (currentIndex + 1) % images.length;
-          images[currentIndex].classList.remove('opacity-0');
-          images[currentIndex].classList.add('opacity-80');
-        }, 5000);
+          images[current].classList.remove('opacity-60');
+          images[current].classList.add('opacity-0');
+          current = (current + 1) % images.length;
+          images[current].classList.remove('opacity-0');
+          images[current].classList.add('opacity-60');
+        }, 6000);
       }
-
-      // Spotlight card mouse tracking (updates CSS custom properties)
-      document.querySelectorAll('.spotlight-card').forEach(card => {
-        card.addEventListener('mousemove', (e) => {
-          const rect = card.getBoundingClientRect();
-          const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
-          const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
-          card.style.setProperty('--spotlight-x', x + '%');
-          card.style.setProperty('--spotlight-y', y + '%');
-        });
-      });
     });
   </script>
-
-  <style>
-    .sector-icon:hover {
-      background-color: var(--sector-color);
-    }
-  </style>
 </LayoutV4>
