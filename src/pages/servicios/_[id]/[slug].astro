@@ -1,0 +1,365 @@
+---
+/**
+ * Service Detail Page - V4 Design System + Directus Integration
+ * FASE 4: Conectado a Directus con fallback automático a datos JS
+ *
+ * Usa componentes V4:
+ * - StatsBar
+ * - ProductCard
+ * - CTASection
+ *
+ * Usa helpers de Directus con fallback:
+ * - getServicioById() con fallback a servicios_completos_v4.js
+ */
+
+import LayoutV4 from '../../../layouts/LayoutV4.astro';
+import StatsBar from '../../../components/v4/StatsBar.astro';
+import ProductCard from '../../../components/v4/ProductCard.astro';
+import CTASection from '../../../components/v4/CTASection.astro';
+
+import { generateSlug } from '../../../utils/slugUtils.js';
+import { getServicioById } from '../../../utils/directusHelpers';
+import { getDirectusImageUrl } from '../../../lib/directus.ts';
+
+const { id, slug } = Astro.params;
+
+if (!id || !slug) {
+  return Astro.redirect('/404');
+}
+
+// Obtener servicio de Directus con fallback automático a JS
+const servicio = await getServicioById(id);
+
+if (!servicio) {
+  return Astro.redirect('/404');
+}
+
+// Validar slug
+const expectedSlug = servicio.slug || generateSlug(servicio.Titulo);
+if (slug !== expectedSlug) {
+  return Astro.redirect(`/servicios/${id}/${expectedSlug}`);
+}
+
+// Productos del servicio (viene de Directus o de JS)
+const productos = servicio.productos || [];
+
+// SEO
+const siteUrl = 'https://ultimamilla.com.ar';
+const pageTitle = `${servicio.Titulo} | Servicios - ULTIMA MILLA`;
+const pageDescription = servicio.Descripcion?.replace(/\\/g, ' ').substring(0, 160) || `${servicio.Titulo} - Servicios tecnológicos profesionales en Mendoza, Cuyo y Patagonia.`;
+const canonicalUrl = `${siteUrl}/servicios/${id}/${slug}`;
+
+// Structured Data - Service schema
+const serviceStructuredData = {
+  "@type": "Service",
+  "name": servicio.Titulo,
+  "description": pageDescription,
+  "url": canonicalUrl,
+  ...(servicio.Imagen && { "image": (() => { const imgUrl = getDirectusImageUrl(servicio.Imagen); return imgUrl.startsWith('http') ? imgUrl : `${siteUrl}${imgUrl}`; })() }),
+  "provider": {
+    "@type": "Organization",
+    "name": "ULTIMA MILLA",
+    "url": siteUrl
+  },
+  "areaServed": [
+    { "@type": "City", "name": "Mendoza" },
+    { "@type": "City", "name": "San Juan" },
+    { "@type": "City", "name": "San Luis" },
+    { "@type": "AdministrativeArea", "name": "Patagonia" }
+  ],
+  ...(servicio.area && { "serviceType": servicio.area }),
+  ...(productos.length > 0 && {
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": `Productos de ${servicio.Titulo}`,
+      "itemListElement": productos.map((p: any, i: number) => ({
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": p.titulo,
+          ...(p.descripcion && { "description": p.descripcion })
+        }
+      }))
+    }
+  }),
+  "inLanguage": "es"
+};
+
+// SVG icon paths para soluciones
+const iconPaths = {
+  'monitor': '<rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>',
+  'headphones': '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>',
+  'cloud': '<path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>',
+  'shield': '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  'cable': '<path d="M4 9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2"/><path d="M6 9v12"/><path d="M14 15a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2"/><path d="M18 13v-2"/><path d="M6 13h8"/>',
+  'zap': '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+  'radio': '<circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/>',
+  'wifi': '<path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>',
+  'server': '<rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/>',
+  'globe': '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  'code': '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
+  'database': '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>',
+  'smartphone': '<rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>',
+  'cpu': '<rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/>',
+  'flame': '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>'
+};
+---
+
+<LayoutV4
+  title={pageTitle}
+  description={pageDescription}
+  keywords={`${servicio.Titulo.toLowerCase()}${servicio.area ? `, ${servicio.area.toLowerCase()}` : ''}, servicios tecnologicos mendoza`}
+  canonical={canonicalUrl}
+  structuredData={serviceStructuredData}
+>
+  <!-- HERO SECTION -->
+  <section class="relative bg-um-dark overflow-hidden">
+    <div class="absolute inset-0">
+      <img
+        src={getDirectusImageUrl(servicio.Imagen)}
+        alt={servicio.Titulo}
+        class="w-full h-full object-cover opacity-50"
+        loading="eager"
+      />
+      <div class="absolute inset-0 bg-gradient-to-t from-um-dark via-um-dark/60 to-um-dark/30"></div>
+    </div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-6 sm:pb-10 lg:pb-12">
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 text-xs sm:text-sm text-gray-300 mb-3 sm:mb-4">
+        <a href="/" class="hover:text-white transition-colors">Inicio</a>
+        <span class="text-white/30">/</span>
+        <a href="/servicios" class="hover:text-white transition-colors">Servicios</a>
+        <span class="text-white/30">/</span>
+        <span class="text-white font-medium">{servicio.Titulo}</span>
+      </nav>
+
+      <!-- Badge -->
+      {servicio.area && (
+        <span class="inline-flex items-center gap-2 px-4 py-2 bg-um-primary text-white rounded-full text-xs font-bold uppercase tracking-wide mb-4 sm:mb-5">
+          {servicio.area}
+        </span>
+      )}
+
+      <!-- Title -->
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold text-white mb-4 max-w-4xl leading-tight">
+        {servicio.Titulo}
+      </h1>
+
+      <!-- Subtitle -->
+      {servicio.subtitulo && (
+        <p class="text-sm sm:text-base lg:text-lg text-white/80 max-w-2xl leading-relaxed">
+          {servicio.subtitulo}
+        </p>
+      )}
+    </div>
+  </section>
+
+  <!-- STATS BAR - Componente V4 -->
+  {servicio.stats && servicio.stats.length > 0 && (
+    <StatsBar stats={servicio.stats} />
+  )}
+
+  <!-- MAIN CONTENT -->
+  <section class="py-10 sm:py-14 lg:py-20 xl:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-3 gap-8 lg:gap-12">
+
+        <!-- Main Content -->
+        <div class="lg:col-span-2 order-2 lg:order-1">
+          <!-- Description -->
+          <h2 class="text-2xl sm:text-3xl font-bold text-um-dark mb-4 sm:mb-6">Descripción del Servicio</h2>
+          <div class="prose prose-lg max-w-none text-um-gray mb-12">
+            <p class="whitespace-pre-line leading-relaxed">
+              {servicio.Descripcion?.replace(/\\/g, '\n')}
+            </p>
+          </div>
+
+          <!-- Soluciones que Ofrecemos (si existen en formato JS) -->
+          {servicio.Soluciones && servicio.Soluciones.length > 0 && (
+            <div class="mb-8 sm:mb-12">
+              <h3 class="text-xl sm:text-2xl font-bold text-um-dark mb-4 sm:mb-6">Soluciones que Ofrecemos</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                {servicio.Soluciones.map((solucion) => (
+                  <div class="bg-um-primary-bg rounded-xl p-6 border border-um-primary/10">
+                    <div class="w-12 h-12 bg-um-primary rounded-lg flex items-center justify-center mb-4">
+                      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" set:html={iconPaths[solucion.icon] || iconPaths['globe']} />
+                    </div>
+                    <h4 class="font-bold text-um-dark mb-2">{solucion.titulo}</h4>
+                    <p class="text-sm text-um-gray">{solucion.descripcion}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <!-- Nuestro Proceso -->
+          <h3 class="text-xl sm:text-2xl font-bold text-um-dark mb-4 sm:mb-6">Nuestro Proceso</h3>
+          <div class="space-y-4 sm:space-y-6 mb-8 sm:mb-12">
+            <div class="flex gap-4">
+              <div class="flex-shrink-0 w-10 h-10 bg-um-primary rounded-full flex items-center justify-center text-white font-bold">1</div>
+              <div>
+                <h4 class="font-bold text-um-dark">Relevamiento</h4>
+                <p class="text-um-gray">Análisis completo de su infraestructura actual y requerimientos futuros.</p>
+              </div>
+            </div>
+            <div class="flex gap-4">
+              <div class="flex-shrink-0 w-10 h-10 bg-um-primary rounded-full flex items-center justify-center text-white font-bold">2</div>
+              <div>
+                <h4 class="font-bold text-um-dark">Diseño</h4>
+                <p class="text-um-gray">Propuesta técnica con planos, materiales y cronograma detallado.</p>
+              </div>
+            </div>
+            <div class="flex gap-4">
+              <div class="flex-shrink-0 w-10 h-10 bg-um-primary rounded-full flex items-center justify-center text-white font-bold">3</div>
+              <div>
+                <h4 class="font-bold text-um-dark">Implementación</h4>
+                <p class="text-um-gray">Ejecución por técnicos certificados con mínima interrupción operativa.</p>
+              </div>
+            </div>
+            <div class="flex gap-4">
+              <div class="flex-shrink-0 w-10 h-10 bg-um-primary rounded-full flex items-center justify-center text-white font-bold">4</div>
+              <div>
+                <h4 class="font-bold text-um-dark">Certificación</h4>
+                <p class="text-um-gray">Testing completo con equipos especializados y entrega de documentación.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Por Qué Elegirnos -->
+          {servicio.por_que_elegirnos && servicio.por_que_elegirnos.length > 0 && (
+            <div class="bg-um-primary-bg rounded-2xl p-6 sm:p-8 mb-8 sm:mb-12">
+              <h3 class="text-xl sm:text-2xl font-bold text-um-dark mb-4 sm:mb-6">Por Qué Elegirnos</h3>
+              <ul class="space-y-3">
+                {servicio.por_que_elegirnos.map((item) => (
+                  <li class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-um-primary flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <span class="text-um-dark">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1 order-1 lg:order-2">
+          <!-- Quick Info Card -->
+          <div class="bg-gray-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 lg:sticky lg:top-24">
+            <h3 class="font-bold text-um-dark mb-4 text-lg">Información del Servicio</h3>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-um-primary mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <div>
+                  <div class="text-sm text-um-gray">Tiempo de Implementación</div>
+                  <div class="font-semibold text-um-dark">2-8 semanas</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-um-primary mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div>
+                  <div class="text-sm text-um-gray">Garantía</div>
+                  <div class="font-semibold text-um-dark">5 años en materiales</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-um-primary mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <div>
+                  <div class="text-sm text-um-gray">Cobertura</div>
+                  <div class="font-semibold text-um-dark">Mendoza, Cuyo y Patagonia</div>
+                </div>
+              </div>
+            </div>
+
+            <a href="/contacto" class="block w-full py-3 bg-um-accent text-white text-center font-semibold rounded-xl hover:bg-um-accent-dark transition-colors shadow-lg shadow-um-accent/25 mb-3">
+              Solicitar Presupuesto
+            </a>
+            <a href="mailto:contacto@ultimamilla.com.ar" class="flex items-center justify-center gap-2 w-full py-3 border border-um-primary text-um-primary font-semibold rounded-xl hover:bg-um-primary-bg transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              contacto@ultimamilla.com.ar
+            </a>
+          </div>
+
+          <!-- Brands -->
+          {servicio.marcas && servicio.marcas.length > 0 && (
+            <div class="bg-gray-50 rounded-2xl p-6">
+              <h3 class="font-bold text-um-dark mb-4 text-lg">Marcas que Trabajamos</h3>
+              <div class="flex flex-wrap gap-3">
+                {servicio.marcas.map((marca) => (
+                  <span class="px-3 py-1 bg-white rounded-full text-sm text-um-gray border">{marca}</span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTOS Y EQUIPAMIENTO - Usando componente ProductCard V4 -->
+  {productos.length > 0 && (
+    <section class="py-12 sm:py-16 lg:py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8 sm:mb-12 lg:mb-16">
+          <span class="text-um-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">Equipamiento Especializado</span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-2 sm:mt-3 mb-3 sm:mb-4">
+            Productos y Soluciones
+          </h2>
+          <p class="text-base sm:text-lg text-um-gray max-w-2xl mx-auto">
+            Trabajamos con equipamiento de primera línea para garantizar el máximo rendimiento y durabilidad.
+          </p>
+        </div>
+
+        <div class="space-y-12 sm:space-y-16 lg:space-y-24">
+          {productos.map((producto, index) => (
+            <ProductCard
+              titulo={producto.titulo}
+              descripcion={producto.descripcion}
+              imagen={producto.imagen}
+              features={producto.features}
+              destacado={producto.destacado}
+              marcas={producto.marcas}
+              orden={index}
+              serviceId={id}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- CTA SECTION - Componente V4 -->
+  <CTASection
+    badge="Solicite su consultoría gratuita"
+    badgeIcon="rocket"
+    titulo={`¿Listo para implementar ${servicio.Titulo}?`}
+    descripcion="Contáctenos hoy para una consultoría técnica gratuita y descubra cómo podemos ayudar a su empresa."
+    primaryButtonText="Solicitar Consultoría"
+    primaryButtonUrl="/contacto"
+    secondaryButtonText="contacto@ultimamilla.com.ar"
+    secondaryButtonUrl="mailto:contacto@ultimamilla.com.ar"
+    secondaryButtonIcon="mail"
+    backgroundImage={getDirectusImageUrl(servicio.Imagen)}
+  />
+</LayoutV4>
+
+<style>
+  /* Line clamp utility */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

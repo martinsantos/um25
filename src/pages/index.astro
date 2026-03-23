@@ -122,10 +122,10 @@ const sectores = [
   image="/nosotros-tech.jpg"
   structuredData={websiteSchema}
 >
-  <!-- HERO SECTION with rotating background -->
-  <section class="relative bg-um-dark overflow-hidden">
-    <!-- Background Images Container (rotating) -->
-    <div class="absolute inset-0" id="heroImageContainer">
+  <!-- HERO SECTION — Modern CSS: parallax, animated gradient, scroll-driven stats -->
+  <section class="relative bg-um-dark overflow-hidden min-h-[85vh] flex items-center">
+    <!-- Background Images Container (rotating + parallax) -->
+    <div class="absolute inset-0 hero-parallax" id="heroImageContainer">
       {heroImages.map((img, index) => (
         <img
           src={img.url}
@@ -135,32 +135,34 @@ const sectores = [
           onerror="this.onerror=null;this.src='/images/default-background.jpg'"
         />
       ))}
-      <div class="absolute inset-0 bg-gradient-to-r from-um-dark/90 via-um-dark/50 to-transparent"></div>
+      <!-- Animated gradient overlay (powered by @property) -->
+      <div class="absolute inset-0 hero-gradient-animated"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-um-dark/90 via-um-dark/60 to-um-dark/30"></div>
     </div>
 
     <!-- Content -->
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-10 sm:pb-14 lg:pb-16">
-      <!-- Badge -->
-      <span class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-um-primary/20 text-um-primary-light rounded-full text-xs sm:text-sm font-semibold mb-4 sm:mb-5">
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-10 sm:pb-14 lg:pb-16 w-full">
+      <!-- Badge (glow pulse) -->
+      <span class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-um-primary/20 text-um-primary-light rounded-full text-xs sm:text-sm font-semibold mb-4 sm:mb-5 glow-pulse scroll-reveal">
         <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
         </svg>
         22+ Años Transformando Empresas
       </span>
 
-      <!-- Title -->
-      <h1 class="text-[1.85rem] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-[1.1] mb-4 sm:mb-5 max-w-3xl">
+      <!-- Title (text-wrap: balance) -->
+      <h1 class="text-[1.85rem] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-[1.1] mb-4 sm:mb-5 max-w-3xl text-balance">
         Conectamos la <span class="text-um-primary-light">tecnología</span> con el éxito de su empresa
       </h1>
 
-      <!-- Subtitle -->
-      <p class="text-sm sm:text-base lg:text-lg text-gray-300 mb-6 sm:mb-8 max-w-xl leading-relaxed">
+      <!-- Subtitle (text-wrap: pretty) -->
+      <p class="text-sm sm:text-base lg:text-lg text-gray-300 mb-6 sm:mb-8 max-w-xl leading-relaxed text-pretty">
         Infraestructura IT, seguridad electrónica y desarrollo de software para empresas de Mendoza, Cuyo y Patagonia.
       </p>
 
       <!-- CTAs -->
       <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8 sm:mb-10">
-        <a href="/contacto" class="group inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:px-8 sm:py-4 bg-um-accent hover:bg-red-600 text-white text-sm sm:text-base font-bold rounded-xl transition-all shadow-xl shadow-um-accent/30 hover:scale-[1.02] min-h-[48px]">
+        <a href="/contacto" class="group inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:px-8 sm:py-4 bg-um-accent hover:bg-red-600 text-white text-sm sm:text-base font-bold rounded-xl transition-all shadow-xl shadow-um-accent/30 hover:scale-[1.02] min-h-[48px]" transition:name="cta-primary">
           Solicitar Consultoría Gratis
           <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
@@ -172,17 +174,17 @@ const sectores = [
         </a>
       </div>
 
-      <!-- Stats Cards -->
+      <!-- Stats Cards (scroll-driven counter pop animation) -->
       <div class="grid grid-cols-3 gap-3 sm:gap-4 max-w-lg">
-        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center border border-white/10">
+        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center border border-white/10 scroll-counter glow-pulse" style="animation-delay: 0s;">
           <div class="text-xl sm:text-2xl lg:text-3xl font-black text-white">469+</div>
           <div class="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wide">Proyectos</div>
         </div>
-        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center border border-white/10">
+        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center border border-white/10 scroll-counter" style="animation-delay: 0.1s;">
           <div class="text-xl sm:text-2xl lg:text-3xl font-black text-white">22</div>
           <div class="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wide">Años</div>
         </div>
-        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center border border-white/10">
+        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center border border-white/10 scroll-counter" style="animation-delay: 0.2s;">
           <div class="text-xl sm:text-2xl lg:text-3xl font-black text-um-primary-light">24/7</div>
           <div class="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wide">Soporte</div>
         </div>
@@ -190,14 +192,14 @@ const sectores = [
     </div>
   </section>
 
-  <!-- SERVICES SECTION -->
+  <!-- SERVICES SECTION — Modern CSS: scroll-reveal, spotlight cards, :has() dimming -->
   <section class="py-12 sm:py-16 lg:py-24 xl:py-28 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Section Header -->
-      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-12 lg:mb-16">
+      <!-- Section Header (scroll reveal) -->
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-12 lg:mb-16 scroll-reveal">
         <div>
           <span class="text-um-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">Nuestros Servicios</span>
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-2 sm:mt-3">
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-2 sm:mt-3 text-balance">
             Soluciones Integrales IT
           </h2>
         </div>
@@ -209,19 +211,21 @@ const sectores = [
         </a>
       </div>
 
-      <!-- Services Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {servicios.map((servicio) => (
-          <ServiceCard
-            id={servicio.id}
-            slug={servicio.slug}
-            titulo={servicio.Titulo}
-            descripcion={servicio.Descripcion}
-            imagen={servicio.Imagen}
-            badge={servicio.badge}
-            badgeColor={servicio.badgeColor}
-            cliente={servicio.Cliente}
-          />
+      <!-- Services Grid (:has() dims non-hovered cards) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 cards-grid">
+        {servicios.map((servicio, i) => (
+          <div class="scroll-reveal spotlight-card" style={`animation-delay: ${i * 0.05}s; --vt-name: service-${servicio.id};`}>
+            <ServiceCard
+              id={servicio.id}
+              slug={servicio.slug}
+              titulo={servicio.Titulo}
+              descripcion={servicio.Descripcion}
+              imagen={servicio.Imagen}
+              badge={servicio.badge}
+              badgeColor={servicio.badgeColor}
+              cliente={servicio.Cliente}
+            />
+          </div>
         ))}
       </div>
     </div>
@@ -230,9 +234,9 @@ const sectores = [
   <!-- SUCCESS CASES SECTION -->
   <section class="py-12 sm:py-16 lg:py-24 xl:py-28 bg-um-gray-light">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-12 lg:mb-16">
+      <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-12 lg:mb-16 scroll-reveal">
         <span class="text-um-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">Casos de Éxito</span>
-        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-2 sm:mt-3 mb-3 sm:mb-4">
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-2 sm:mt-3 mb-3 sm:mb-4 text-balance">
           Proyectos que nos Enorgullecen
         </h2>
         <p class="text-base sm:text-lg text-um-gray">
@@ -240,10 +244,10 @@ const sectores = [
         </p>
       </div>
 
-      <!-- Cases Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-        {antecedentesEnhanced.map((antecedente) => (
-          <a href={`/antecedentes/${antecedente.id}/${antecedente.slug}`} class="card-hover bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+      <!-- Cases Grid (scroll reveal staggered) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 cards-grid">
+        {antecedentesEnhanced.map((antecedente, i) => (
+          <a href={`/antecedentes/${antecedente.id}/${antecedente.slug}`} class="card-hover spotlight-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 scroll-reveal" style={`animation-delay: ${i * 0.1}s`}>
             <div class="relative h-56 overflow-hidden">
               <img
                 src={antecedente.imageUrl}
@@ -284,9 +288,9 @@ const sectores = [
   <!-- INDUSTRIES SECTION -->
   <section class="py-12 sm:py-16 lg:py-24 xl:py-28 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-12 lg:mb-16">
+      <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-12 lg:mb-16 scroll-reveal">
         <span class="text-um-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">Verticales</span>
-        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-2 sm:mt-3 mb-3 sm:mb-4">
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-2 sm:mt-3 mb-3 sm:mb-4 text-balance">
           Soluciones por Industria
         </h2>
         <p class="text-base sm:text-lg text-um-gray">
@@ -295,8 +299,8 @@ const sectores = [
       </div>
 
       <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9 gap-3 sm:gap-4">
-        {sectores.map((sector) => (
-          <a href={`/${sector.slug}`} class="sector-icon group flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:shadow-lg transition-all min-h-[90px]" style={`--sector-color: ${sector.color}`}>
+        {sectores.map((sector, i) => (
+          <a href={`/${sector.slug}`} class="sector-icon group flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:shadow-lg transition-all min-h-[90px] scroll-reveal-scale" style={`--sector-color: ${sector.color}; animation-delay: ${i * 0.04}s`}>
             <span class="text-2xl sm:text-3xl mb-1">{sector.emoji}</span>
             <span class="text-xs font-medium text-um-dark group-hover:text-white text-center transition-colors">{sector.name}</span>
           </a>
@@ -314,8 +318,8 @@ const sectores = [
     </div>
   </section>
 
-  <!-- CTA SECTION -->
-  <section class="relative py-12 sm:py-16 lg:py-24 xl:py-28 overflow-hidden">
+  <!-- CTA SECTION — animated gradient border + scroll reveal -->
+  <section class="relative py-12 sm:py-16 lg:py-24 xl:py-28 overflow-hidden scroll-reveal">
     <div class="absolute inset-0">
       <img
         src="https://ultimamilla.com.ar/directus-assets/caffbcaa-2457-4fc9-9960-2e0601f27736"
@@ -332,7 +336,7 @@ const sectores = [
         </svg>
         Comience su transformación
       </span>
-      <h2 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 sm:mb-6">
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 sm:mb-6 text-balance">
         ¿Listo para modernizar su infraestructura IT?
       </h2>
       <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-10 max-w-2xl mx-auto">
@@ -352,28 +356,32 @@ const sectores = [
     </div>
   </section>
 
-  <!-- Hero Image Rotation Script -->
+  <!-- Hero Image Rotation + Spotlight Card Mouse Tracking -->
   <script>
-    // Rotate hero images every 5 seconds
     document.addEventListener('DOMContentLoaded', () => {
+      // Hero image rotation
       const images = document.querySelectorAll('.hero-image');
-      if (images.length <= 1) return;
+      if (images.length > 1) {
+        let currentIndex = 0;
+        setInterval(() => {
+          images[currentIndex].classList.remove('opacity-80');
+          images[currentIndex].classList.add('opacity-0');
+          currentIndex = (currentIndex + 1) % images.length;
+          images[currentIndex].classList.remove('opacity-0');
+          images[currentIndex].classList.add('opacity-80');
+        }, 5000);
+      }
 
-      let currentIndex = 0;
-      const totalImages = images.length;
-
-      setInterval(() => {
-        // Fade out current
-        images[currentIndex].classList.remove('opacity-80');
-        images[currentIndex].classList.add('opacity-0');
-
-        // Move to next
-        currentIndex = (currentIndex + 1) % totalImages;
-
-        // Fade in next
-        images[currentIndex].classList.remove('opacity-0');
-        images[currentIndex].classList.add('opacity-80');
-      }, 5000);
+      // Spotlight card mouse tracking (updates CSS custom properties)
+      document.querySelectorAll('.spotlight-card').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
+          const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
+          card.style.setProperty('--spotlight-x', x + '%');
+          card.style.setProperty('--spotlight-y', y + '%');
+        });
+      });
     });
   </script>
 

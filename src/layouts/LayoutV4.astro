@@ -10,6 +10,8 @@
 import NavbarV4 from '../components/v4/NavbarV4.astro';
 import FooterV4 from '../components/v4/FooterV4.astro';
 import '../styles/v4.css';
+import '../styles/modern-css.css';
+import { ViewTransitions } from 'astro:transitions';
 
 export interface Props {
   title?: string;
@@ -268,6 +270,9 @@ const currentYear = new Date().getFullYear();
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <link href="https://fonts.cdnfonts.com/css/futura-pt" rel="stylesheet" />
 
+    <!-- View Transitions API -->
+    <ViewTransitions />
+
     {hasHeadSlot && <slot name="head" />}
 
     <!-- Structured Data -->
@@ -375,6 +380,9 @@ const currentYear = new Date().getFullYear();
     </style>
   </head>
   <body>
+    <!-- Scroll Progress Bar (CSS scroll-driven animation, no JS) -->
+    <div class="scroll-progress-bar" aria-hidden="true"></div>
+
     <NavbarV4 />
 
     <main>

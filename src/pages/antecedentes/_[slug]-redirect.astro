@@ -1,0 +1,65 @@
+---
+/**
+ * Universal Redirector for Antecedentes
+ * Handles:
+ * 1. Legacy Slugs: /antecedentes/my-old-project -> /antecedentes/123/my-old-project
+ * 2. Short IDs: /antecedentes/123 -> /antecedentes/123/correct-slug
+ */
+
+import { generateSlug } from '../../utils/slugUtils';
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+
+let targetUrl = '/404';
+let found = false;
+
+try {
+  // @ts-ignore
+  const snapshot = await import('../../data/snapshots/antecedentes.json');
+  const allAntecedentes = snapshot.data || snapshot.default?.data || [];
+
+  let match = null;
+
+  // Case A: Input is a Numeric ID (e.g. /antecedentes/1054)
+  if (/^\d+$/.test(slug)) {
+    match = allAntecedentes.find((item: any) => item.id == slug);
+  } 
+  // Case B: Input is a Text Slug (e.g. /antecedentes/hospital-central)
+  else {
+    // 1. Exact Match on Title slug
+    match = allAntecedentes.find((item: any) => {
+      const itemSlug = generateSlug(item.Titulo);
+      return itemSlug === slug;
+    });
+
+    // 2. Fuzzy Match (fallback)
+    if (!match && slug) {
+      match = allAntecedentes.find((item: any) => {
+          const itemSlug = generateSlug(item.Titulo);
+          return itemSlug.includes(slug) || slug.includes(itemSlug);
+      });
+    }
+  }
+
+  if (match) {
+    const correctSlug = generateSlug(match.Titulo);
+    targetUrl = `/antecedentes/${match.id}/${correctSlug}`;
+    found = true;
+  } else {
+    console.warn(`[REDIRECTOR] No match found for: ${slug}`);
+  }
+
+} catch (error) {
+  console.error('[REDIRECTOR] Error loading snapshot:', error);
+}
+
+if (found) {
+  return Astro.redirect(targetUrl, 301);
+} else {
+  // Only redirect to 404 if definitely not found. 
+  // Default to index if unsure to preserve LX? No, 404 is better for SEO if it's junk.
+  return Astro.redirect('/404');
+}
+---
