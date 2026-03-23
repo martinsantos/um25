@@ -15,12 +15,12 @@ import { getSectorColors } from '../data/colorSystem';
 
 // PORTADA images — curated service photography
 const heroImages = [
-  { url: withBase('/images/hero/portada-redes.jpg'), alt: 'Infraestructura de Redes' },
-  { url: withBase('/images/hero/portada-seguridad.jpg'), alt: 'Seguridad Electrónica' },
-  { url: withBase('/images/hero/portada-software.jpg'), alt: 'Desarrollo de Software' },
-  { url: withBase('/images/hero/portada-soporte.jpg'), alt: 'Soporte Técnico' },
-  { url: withBase('/images/hero/portada-incendios.jpg'), alt: 'Detección de Incendios' },
-  { url: withBase('/images/hero/portada-general.jpg'), alt: 'Ultima Milla' },
+  { url: withBase('/images/hero/foto-redes.jpg'), alt: 'Infraestructura de Redes' },
+  { url: withBase('/images/hero/foto-seguridad.jpg'), alt: 'Seguridad Electrónica' },
+  { url: withBase('/images/hero/foto-software.jpg'), alt: 'Desarrollo de Software' },
+  { url: withBase('/images/hero/foto-soporte.jpg'), alt: 'Soporte Técnico' },
+  { url: withBase('/images/hero/foto-incendios.jpg'), alt: 'Detección de Incendios' },
+  { url: withBase('/images/hero/foto-general.jpg'), alt: 'Ultima Milla' },
 ];
 
 // Get 3 featured antecedentes from Directus (con fallback a snapshot JSON)
@@ -320,7 +320,7 @@ const sectorIcons: Record<string, string> = {
   <!-- CTA: PHOTO-dominant (inverted from industries) -->
   <!-- ════════════════════════════════════════════════════════════ -->
   <section class="relative py-24 sm:py-32 lg:py-40 overflow-hidden">
-    <img src={withBase("/images/hero/portada-software.jpg")} alt="" class="absolute inset-0 w-full h-full object-cover" />
+    <img src={withBase("/images/hero/foto-software.jpg")} alt="" class="absolute inset-0 w-full h-full object-cover" />
     <div class="absolute inset-0 bg-black/75"></div>
     <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="max-w-2xl">

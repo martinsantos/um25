@@ -29,8 +29,8 @@ const num = String(index + 1).padStart(2, '0');
 
 // Map service IDs to the new hero images
 const heroImageMap: Record<string, string> = {
-  '101': 'portada-redes', '102': 'portada-seguridad', '103': 'portada-telecom', '104': 'portada-software',
-  '105': 'portada-soporte', '106': 'portada-consultoria', '107': 'portada-incendios', '108': 'portada-electricos',
+  '101': 'foto-redes', '102': 'foto-seguridad', '103': 'foto-telecom', '104': 'foto-software',
+  '105': 'foto-soporte', '106': 'foto-consultoria', '107': 'foto-incendios', '108': 'foto-electricos',
 };
 const imgName = heroImageMap[String(id)] || 'hero-redes';
 const imagenUrl = withBase(`/images/hero/${imgName}.jpg`);
