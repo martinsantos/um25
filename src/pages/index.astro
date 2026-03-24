@@ -1,226 +1,224 @@
 ---
 /**
- * Homepage — Professional photos from Unsplash + clean layout
+ * ULTIMA MILLA — Homepage
+ * Reset from scratch. Clean, verified, no legacy.
  */
 import LayoutV4 from '../layouts/LayoutV4.astro';
-import ServiceCard from '../components/v4/ServiceCard.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getAllServicios } from '../utils/directusHelpers';
 import { getDirectusImageUrl, getAllAntecedentes, withBase } from '../lib/directus.ts';
 import { serviceBadgeMap, serviceToSectorMap } from '../data/serviceBadgeMap';
 import { getSectorColors } from '../data/colorSystem';
 
-// Professional Unsplash photos — real infrastructure, high res, landscape
-const heroPhoto = 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1600&h=900&fit=crop&q=80';
-const servicesPhoto = 'https://images.unsplash.com/photo-1573164713988-8665fc963095?w=1600&h=600&fit=crop&q=80';
-const casesPhoto = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1600&h=600&fit=crop&q=80';
-
-let antecedentesData: any[] = [];
-try { antecedentesData = await getAllAntecedentes(); } catch { antecedentesData = []; }
-const antecedentesEnhanced = antecedentesData.slice(0, 3).map((ant: any) => ({
-  ...ant,
-  slug: generateSlug(ant.Titulo || ant.Nombre || 'proyecto'),
-  imageUrl: getDirectusImageUrl(ant.Imagen) || withBase('/images/default-background.jpg')
+// --- DATA ---
+let antecedentes: any[] = [];
+try { antecedentes = (await getAllAntecedentes()).slice(0, 6); } catch {}
+const cases = antecedentes.map(a => ({
+  ...a,
+  slug: generateSlug(a.Titulo || 'proyecto'),
+  img: getDirectusImageUrl(a.Imagen) || withBase('/images/default-background.jpg')
 }));
 
-const serviciosFromDirectus = await getAllServicios();
-const iconMap: Record<number, { icon: string; iconColor: string }> = {
-  101: { icon: 'network', iconColor: 'bg-sky-600/90' }, 102: { icon: 'shield', iconColor: 'bg-rose-600/90' },
-  103: { icon: 'radio', iconColor: 'bg-cyan-600/90' }, 104: { icon: 'code', iconColor: 'bg-purple-600/90' },
-  105: { icon: 'headphones', iconColor: 'bg-amber-600/90' }, 106: { icon: 'lightbulb', iconColor: 'bg-emerald-600/90' },
-  107: { icon: 'flame', iconColor: 'bg-orange-600/90' }, 108: { icon: 'zap', iconColor: 'bg-yellow-600/90' }
-};
-const servicios = serviciosFromDirectus.slice(0, 8).map(s => {
-  const sector = serviceToSectorMap[s.id] || 'tecnologia';
-  const colors = getSectorColors(sector);
-  return { ...s, ...iconMap[s.id], slug: s.slug || generateSlug(s.Titulo), badge: serviceBadgeMap[s.id] || 'Tecnología', badgeColor: colors.icon };
-});
+const allServices = await getAllServicios();
+const services = allServices.slice(0, 8).map((s, i) => ({
+  id: s.id,
+  title: s.Titulo?.split('|')[0]?.trim() || s.Titulo,
+  slug: s.slug || generateSlug(s.Titulo),
+  desc: (s.Descripcion || '').replace(/<[^>]+>/g, '').substring(0, 100),
+  num: String(i + 1).padStart(2, '0'),
+}));
 
-const websiteSchema = { "@type": "WebSite", "name": "ULTIMA MILLA", "url": "https://ultimamilla.com.ar", "potentialAction": { "@type": "SearchAction", "target": { "@type": "EntryPoint", "urlTemplate": "https://ultimamilla.com.ar/antecedentes?q={search_term_string}" }, "query-input": "required name=search_term_string" } };
-
-const sectores = [
-  { slug: 'aeropuertos', name: 'Aeropuertos', color: '#0ea5e9' }, { slug: 'bodegas', name: 'Bodegas', color: '#a855f7' },
-  { slug: 'constructoras', name: 'Construcción', color: '#f59e0b' }, { slug: 'salud', name: 'Salud', color: '#22c55e' },
-  { slug: 'gobiernosectorpublico', name: 'Gobierno', color: '#10b981' }, { slug: 'software', name: 'Software', color: '#6366f1' },
-  { slug: 'mineria', name: 'Minería', color: '#f97316' }, { slug: 'industria', name: 'Industria', color: '#64748b' },
-  { slug: 'seguridad-electronica', name: 'Seguridad', color: '#06b6d4' }
+const sectors = [
+  { slug: 'aeropuertos', name: 'Aeropuertos' },
+  { slug: 'bodegas', name: 'Bodegas' },
+  { slug: 'constructoras', name: 'Construcción' },
+  { slug: 'salud', name: 'Salud' },
+  { slug: 'gobiernosectorpublico', name: 'Gobierno' },
+  { slug: 'software', name: 'Software' },
+  { slug: 'mineria', name: 'Minería' },
+  { slug: 'industria', name: 'Industria' },
+  { slug: 'seguridad-electronica', name: 'Seguridad' },
 ];
-const sectorIcons: Record<string, string> = {
-  'aeropuertos': 'M12 19l9 2-9-18-9 18 9-2zm0 0v-8', 'bodegas': 'M9 12h6m-3-3v6m-7 4h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
-  'constructoras': 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
-  'salud': 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
-  'gobiernosectorpublico': 'M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z',
-  'software': 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4',
-  'mineria': 'M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
-  'industria': 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z',
-  'seguridad-electronica': 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z',
+
+// Unsplash professional photos — reliable CDN, landscape, high quality
+const photos = {
+  hero: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1920&h=1080&fit=crop&q=80',
+  services: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1600&h=700&fit=crop&q=80',
+  cases: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1600&h=700&fit=crop&q=80',
+  cta: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1600&h=900&fit=crop&q=80',
 };
+
+const schema = { "@type": "WebSite", "name": "ULTIMA MILLA", "url": "https://ultimamilla.com.ar" };
 ---
 
 <LayoutV4
-  title="ULTIMA MILLA — Infraestructura IT, Seguridad y Software | Mendoza"
-  description="469+ proyectos de infraestructura IT, seguridad electrónica y desarrollo de software en Mendoza, Cuyo y Patagonia."
-  keywords="infraestructura IT mendoza, seguridad electronica, software a medida"
+  title="ULTIMA MILLA — Infraestructura IT | Mendoza, Cuyo y Patagonia"
+  description="469+ proyectos de infraestructura IT, seguridad electrónica y desarrollo de software."
   image="/nosotros-tech.jpg"
-  structuredData={websiteSchema}
+  structuredData={schema}
 >
 
-  <!-- ═══ HERO ═══ -->
-  <section class="relative flex items-center bg-gray-900" style="min-height:92vh;">
-    <img src={heroPhoto} alt="Data center infrastructure" class="absolute inset-0 w-full h-full object-cover" />
-    <div class="absolute inset-0 bg-black/55"></div>
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  HERO                                                       ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<section class="relative min-h-[92vh] flex items-center">
+  <img src={photos.hero} alt="" class="absolute inset-0 w-full h-full object-cover" />
+  <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"></div>
 
-    <div class="relative w-full max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-24 sm:py-32">
-      <div class="flex items-center gap-2 mb-6">
-        <span class="w-2 h-2 rounded-full bg-emerald-400" style="animation:um-pulse 2s ease-in-out infinite;"></span>
-        <span class="text-xs font-mono text-white/40 tracking-wide">ultimamilla.com.ar — Mendoza, Argentina — Est. 2002</span>
-      </div>
+  <div class="relative w-full max-w-5xl mx-auto px-6 sm:px-8 py-24 sm:py-32 lg:py-36">
+    <p class="text-[11px] font-mono text-white/40 tracking-widest uppercase mb-8">
+      <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-2 align-middle" style="animation:um-dot 2s ease-in-out infinite;"></span>
+      Mendoza, Argentina — Est. 2002
+    </p>
 
-      <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-6"
-        style="font-family:'Futura PT','Futura','Trebuchet MS',sans-serif;">
-        La infraestructura que mueve<br>
-        a las empresas argentinas<span class="text-red-500">.</span><span class="um-cursor"></span>
-      </h1>
+    <h1 class="um-h text-[2rem] sm:text-[2.75rem] md:text-[3.5rem] lg:text-[4.25rem] text-white leading-[1.05] tracking-tight mb-6">
+      La infraestructura que mueve a las empresas argentinas<span class="text-red-500">.</span><span class="um-cursor"></span>
+    </h1>
 
-      <p class="text-white/50 text-sm sm:text-base max-w-lg leading-relaxed mb-8">
-        Telecomunicaciones, seguridad electrónica, desarrollo de software y soporte 24/7.
-      </p>
+    <p class="text-white/50 text-[15px] sm:text-base max-w-md leading-relaxed mb-10">
+      Telecomunicaciones, seguridad electrónica, desarrollo de software y soporte 24/7.
+    </p>
 
-      <div class="flex flex-wrap gap-3 mb-12">
-        <a href={withBase("/contacto")} class="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-900 font-semibold rounded-xl hover:bg-red-600 hover:text-white transition-all text-sm">
-          Solicitar consultoría
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
-        </a>
-        <a href={withBase("/antecedentes")} class="inline-flex items-center px-6 py-3 border border-white/20 text-white/70 font-medium rounded-xl hover:border-white/40 hover:text-white transition-all text-sm">
-          469+ Proyectos
-        </a>
-      </div>
+    <div class="flex flex-wrap gap-3 mb-16">
+      <a href={withBase("/contacto")} class="px-6 py-3 bg-white text-gray-900 font-semibold rounded-xl hover:bg-red-600 hover:text-white transition-all text-sm inline-flex items-center gap-2">
+        Solicitar consultoría
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+      </a>
+      <a href={withBase("/antecedentes")} class="px-6 py-3 border border-white/20 text-white/60 rounded-xl hover:border-white/40 hover:text-white transition-all text-sm">
+        Ver proyectos
+      </a>
+    </div>
 
-      <div class="flex gap-8 sm:gap-10 pt-6 border-t border-white/10">
-        <div><span class="text-xl font-bold text-white font-mono tabular-nums">469+</span> <span class="text-[9px] font-mono uppercase tracking-wider text-white/30">proyectos</span></div>
-        <div><span class="text-xl font-bold text-white font-mono tabular-nums">22</span> <span class="text-[9px] font-mono uppercase tracking-wider text-white/30">años</span></div>
-        <div><span class="text-xl font-bold text-white font-mono tabular-nums">9</span> <span class="text-[9px] font-mono uppercase tracking-wider text-white/30">industrias</span></div>
-        <div><span class="text-xl font-bold text-red-500 font-mono tabular-nums">24/7</span> <span class="text-[9px] font-mono uppercase tracking-wider text-white/30">soporte</span></div>
+    <div class="flex gap-10 pt-6 border-t border-white/10">
+      <div><span class="text-2xl font-bold text-white font-mono">469+</span><span class="text-[9px] font-mono text-white/30 uppercase tracking-wider ml-2">proyectos</span></div>
+      <div><span class="text-2xl font-bold text-white font-mono">22</span><span class="text-[9px] font-mono text-white/30 uppercase tracking-wider ml-2">años</span></div>
+      <div><span class="text-2xl font-bold text-white font-mono">9</span><span class="text-[9px] font-mono text-white/30 uppercase tracking-wider ml-2">industrias</span></div>
+      <div><span class="text-2xl font-bold text-red-500 font-mono">24/7</span><span class="text-[9px] font-mono text-white/30 uppercase tracking-wider ml-2">soporte</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  SERVICES                                                   ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<section>
+  <!-- Banner -->
+  <div class="relative h-60 sm:h-72">
+    <img src={photos.services} alt="" class="absolute inset-0 w-full h-full object-cover" />
+    <div class="absolute inset-0 bg-black/50"></div>
+    <div class="relative h-full max-w-5xl mx-auto px-6 sm:px-8 flex items-end pb-8">
+      <div>
+        <p class="text-[10px] font-mono uppercase tracking-[0.25em] text-red-400 mb-1">Servicios</p>
+        <h2 class="um-h text-2xl sm:text-3xl lg:text-4xl text-white tracking-tight">
+          Ocho disciplinas, una misión<span class="text-red-500">.</span>
+        </h2>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ═══ SERVICES ═══ -->
-  <section class="bg-white">
-    <div class="relative h-56 sm:h-64 lg:h-72 overflow-hidden">
-      <img src={servicesPhoto} alt="Servicios IT" class="absolute inset-0 w-full h-full object-cover" />
-      <div class="absolute inset-0 bg-black/50"></div>
-      <div class="relative h-full max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 flex items-end pb-8">
-        <div>
-          <span class="text-[10px] font-mono uppercase tracking-[0.2em] text-red-400 block mb-1">Servicios</span>
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight" style="font-family:'Futura PT','Futura',sans-serif;">
-            Ocho disciplinas, una misión<span class="text-red-500">.</span>
-          </h2>
-        </div>
+  <!-- Grid -->
+  <div class="bg-white py-12 sm:py-16">
+    <div class="max-w-5xl mx-auto px-6 sm:px-8">
+      <div class="flex justify-end mb-8">
+        <a href={withBase("/servicios")} class="text-[11px] font-semibold text-gray-400 hover:text-red-600 transition-colors uppercase tracking-widest">Catálogo completo →</a>
       </div>
-    </div>
-    <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-12 sm:py-16">
-      <div class="flex justify-end mb-6">
-        <a href={withBase("/servicios")} class="text-[11px] font-semibold text-gray-400 hover:text-red-600 transition-colors uppercase tracking-[0.15em]">Ver catálogo →</a>
-      </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-        {servicios.map((s, i) => (
-          <div class="scroll-reveal" style={`animation-delay:${i * 0.05}s`}>
-            <ServiceCard id={s.id} slug={s.slug} titulo={s.Titulo} descripcion={s.Descripcion} imagen={s.Imagen} badge={s.badge} cliente={s.Cliente} icon={s.icon} index={i} />
-          </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-gray-100 rounded-2xl overflow-hidden">
+        {services.map((s) => (
+          <a href={withBase(`/servicios/${s.id}/${s.slug}`)} class="group bg-white p-6 hover:bg-gray-50 transition-colors">
+            <span class="text-3xl font-bold text-gray-100 block mb-3 group-hover:text-red-100 transition-colors" style="font-family:'Futura PT',sans-serif;">{s.num}</span>
+            <h3 class="um-h text-sm font-bold text-gray-900 group-hover:text-red-600 transition-colors leading-snug mb-2">{s.title}</h3>
+            <p class="text-xs text-gray-400 leading-relaxed">{s.desc}…</p>
+          </a>
         ))}
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- ═══ CASES ═══ -->
-  <section class="bg-gray-50">
-    <div class="relative h-56 sm:h-64 lg:h-72 overflow-hidden">
-      <img src={casesPhoto} alt="Proyectos de infraestructura" class="absolute inset-0 w-full h-full object-cover" />
-      <div class="absolute inset-0 bg-black/50"></div>
-      <div class="relative h-full max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 flex items-end pb-8">
-        <div>
-          <span class="text-[10px] font-mono uppercase tracking-[0.2em] text-red-400 block mb-1">Antecedentes</span>
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight" style="font-family:'Futura PT','Futura',sans-serif;">
-            Proyectos que hablan por sí solos<span class="text-red-500">.</span>
-          </h2>
-        </div>
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  CASES                                                      ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<section>
+  <div class="relative h-60 sm:h-72">
+    <img src={photos.cases} alt="" class="absolute inset-0 w-full h-full object-cover" />
+    <div class="absolute inset-0 bg-black/50"></div>
+    <div class="relative h-full max-w-5xl mx-auto px-6 sm:px-8 flex items-end pb-8">
+      <div>
+        <p class="text-[10px] font-mono uppercase tracking-[0.25em] text-red-400 mb-1">Antecedentes</p>
+        <h2 class="um-h text-2xl sm:text-3xl lg:text-4xl text-white tracking-tight">
+          469 proyectos entregados<span class="text-red-500">.</span>
+        </h2>
       </div>
     </div>
-    <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-12 sm:py-16">
-      <div class="flex justify-end mb-6">
-        <a href={withBase("/antecedentes")} class="text-[11px] font-semibold text-gray-400 hover:text-red-600 transition-colors uppercase tracking-[0.15em]">Explorar 469+ →</a>
+  </div>
+
+  <div class="bg-gray-50 py-12 sm:py-16">
+    <div class="max-w-5xl mx-auto px-6 sm:px-8">
+      <div class="flex justify-end mb-8">
+        <a href={withBase("/antecedentes")} class="text-[11px] font-semibold text-gray-400 hover:text-red-600 transition-colors uppercase tracking-widest">Explorar todos →</a>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {antecedentesEnhanced.map((ant, i) => (
-          <a href={withBase(`/antecedentes/${ant.id}/${ant.slug}`)}
-            class="group relative rounded-2xl overflow-hidden aspect-square flex items-end bg-gray-200 scroll-reveal"
-            style={`animation-delay:${i * 0.1}s`}>
-            <img src={ant.imageUrl} alt={ant.Titulo}
-              class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700" />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent"></div>
-            <div class="relative p-5">
-              <span class="text-red-400 text-[9px] font-mono uppercase tracking-[0.2em]">{ant.Area}</span>
-              <h3 class="text-base sm:text-lg font-bold text-white leading-snug mt-1" style="font-family:'Futura PT',sans-serif;">{ant.Titulo}</h3>
-              <span class="text-white/30 text-[10px] font-mono mt-1 block">{ant.Cliente}</span>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+        {cases.slice(0, 6).map((c) => (
+          <a href={withBase(`/antecedentes/${c.id}/${c.slug}`)} class="group relative rounded-xl overflow-hidden aspect-square bg-gray-200">
+            <img src={c.img} alt={c.Titulo} class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" loading="lazy" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+              <p class="text-[8px] font-mono uppercase tracking-widest text-red-400">{c.Area}</p>
+              <h3 class="text-xs sm:text-sm font-bold text-white leading-snug mt-0.5 line-clamp-2">{c.Titulo}</h3>
             </div>
           </a>
         ))}
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- ═══ INDUSTRIES ═══ -->
-  <section class="py-14 sm:py-20 lg:py-24 bg-white">
-    <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
-      <div class="mb-10">
-        <span class="text-[10px] font-mono uppercase tracking-[0.2em] text-red-600 block mb-2">Industrias</span>
-        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight" style="font-family:'Futura PT','Futura',sans-serif;">
-          9 verticales, un solo equipo<span class="text-red-600">.</span>
-        </h2>
-      </div>
-      <div class="grid grid-cols-3 gap-3">
-        {sectores.map((sector) => (
-          <a href={withBase(`/${sector.slug}`)}
-            class="group p-4 sm:p-5 rounded-xl border border-gray-200 hover:border-gray-900 hover:bg-gray-900 transition-all duration-200 flex items-center gap-3">
-            <svg class="w-5 h-5 text-gray-300 group-hover:text-red-500 transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d={sectorIcons[sector.slug] || 'M13 10V3L4 14h7v7l9-11h-7z'}/>
-            </svg>
-            <span class="font-semibold text-sm text-gray-700 group-hover:text-white transition-colors">{sector.name}</span>
-          </a>
-        ))}
-      </div>
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  INDUSTRIES                                                 ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<section class="py-16 sm:py-20 bg-white">
+  <div class="max-w-5xl mx-auto px-6 sm:px-8">
+    <p class="text-[10px] font-mono uppercase tracking-[0.25em] text-red-600 mb-2">Industrias</p>
+    <h2 class="um-h text-2xl sm:text-3xl lg:text-4xl text-gray-900 tracking-tight mb-10">
+      9 verticales, un solo equipo<span class="text-red-600">.</span>
+    </h2>
+
+    <div class="flex flex-wrap gap-2">
+      {sectors.map((s) => (
+        <a href={withBase(`/${s.slug}`)} class="group px-5 py-3 border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-all duration-200">
+          {s.name}
+        </a>
+      ))}
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- ═══ CTA ═══ -->
-  <section class="py-16 sm:py-20 lg:py-28 bg-gray-900">
-    <div class="max-w-4xl mx-auto px-6 sm:px-8 text-center">
-      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight leading-tight mb-5" style="font-family:'Futura PT','Futura',sans-serif;">
-        El próximo proyecto exitoso puede ser el suyo<span class="text-red-500">.</span>
-      </h2>
-      <p class="text-gray-500 text-sm sm:text-base mb-8 max-w-md mx-auto">Más de 200 organizaciones ya confían en nosotros.</p>
-      <div class="flex flex-wrap gap-3 justify-center mb-10">
-        <a href={withBase("/contacto")} class="px-6 py-3 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-500 transition-colors text-sm">Agendar consultoría</a>
-        <a href="mailto:contacto@ultimamilla.com.ar" class="px-6 py-3 border border-gray-700 text-gray-400 rounded-xl hover:border-gray-500 hover:text-white transition-all text-sm">contacto@ultimamilla.com.ar</a>
-      </div>
-      <div class="flex flex-wrap justify-center gap-x-3 text-[10px] text-gray-600 font-mono uppercase tracking-wider">
-        <span>Aeropuertos Argentina 2000</span><span class="text-gray-700">·</span>
-        <span>Gobierno de Mendoza</span><span class="text-gray-700">·</span>
-        <span>Hospital Central</span><span class="text-gray-700">·</span>
-        <span>Bodega La Esmeralda</span>
-      </div>
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  CTA                                                        ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<section class="relative py-20 sm:py-28">
+  <img src={photos.cta} alt="" class="absolute inset-0 w-full h-full object-cover" />
+  <div class="absolute inset-0 bg-black/65"></div>
+  <div class="relative max-w-3xl mx-auto px-6 sm:px-8 text-center">
+    <h2 class="um-h text-2xl sm:text-3xl lg:text-4xl text-white tracking-tight mb-5">
+      El próximo proyecto exitoso puede ser el suyo<span class="text-red-500">.</span>
+    </h2>
+    <p class="text-white/40 text-sm mb-8">Más de 200 organizaciones ya confían en nosotros.</p>
+    <div class="flex flex-wrap gap-3 justify-center mb-12">
+      <a href={withBase("/contacto")} class="px-7 py-3 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-500 transition-colors text-sm">Agendar consultoría</a>
+      <a href="mailto:contacto@ultimamilla.com.ar" class="px-7 py-3 border border-white/20 text-white/50 rounded-xl hover:text-white hover:border-white/40 transition-all text-sm">contacto@ultimamilla.com.ar</a>
     </div>
-  </section>
+    <p class="text-[10px] font-mono text-white/20 uppercase tracking-widest">
+      Aeropuertos Argentina 2000 · Gobierno de Mendoza · Hospital Central · Bodega La Esmeralda
+    </p>
+  </div>
+</section>
 
-  <style>
-    @keyframes um-blink-cursor { 0%,49%{opacity:1} 50%,100%{opacity:0} }
-    @keyframes um-pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    .um-cursor::after {
-      content: '▎';
-      color: #ef4444;
-      font-weight: 300;
-      animation: um-blink-cursor 0.8s steps(1) infinite;
-    }
-  </style>
+<style>
+  .um-h { font-family: 'Futura PT', 'Futura', 'Trebuchet MS', sans-serif; font-weight: 700; }
+  .um-cursor::after { content: '▎'; color: #ef4444; animation: um-blink 0.8s steps(1) infinite; }
+  @keyframes um-blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+  @keyframes um-dot { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+</style>
 </LayoutV4>
