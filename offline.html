@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTIMA MILLA - Modo Offline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(145deg, #0a0e1a 0%, #1a1f2e 50%, #0d1117 100%);
+            color: #e6edf3;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .offline-container {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+        }
+        
+        .offline-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .offline-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #00d4aa;
+            text-shadow: 0 0 20px rgba(0, 212, 170, 0.5);
+        }
+        
+        .offline-message {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .feature-list {
+            text-align: left;
+            margin: 30px 0;
+            padding: 0 20px;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+        
+        .feature-icon {
+            margin-right: 12px;
+            font-size: 1.2em;
+        }
+        
+        .retry-section {
+            margin-top: 40px;
+        }
+        
+        .retry-btn {
+            background: linear-gradient(135deg, #00d4aa 0%, #00a085 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px 10px 0;
+            display: inline-block;
+        }
+        
+        .retry-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 170, 0.3);
+        }
+        
+        .secondary-btn {
+            background: transparent;
+            color: var(--terminal-primary);
+            border: 2px solid var(--terminal-primary);
+        }
+        
+        .secondary-btn:hover {
+            background: var(--terminal-primary);
+            color: white;
+        }
+        
+        .connection-status {
+            margin-top: 30px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .status-offline {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+        
+        .status-online {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+        }
+        
+        .logo {
+            font-family: 'Fira Code', monospace;
+            font-size: 1.2rem;
+            color: #00d4aa;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(0, 212, 170, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .offline-container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+            
+            .offline-title {
+                font-size: 2rem;
+            }
+            
+            .offline-message {
+                font-size: 1.1rem;
+            }
+            
+            .retry-btn {
+                padding: 12px 24px;
+                font-size: 1rem;
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="logo">ULTIMA MILLA</div>
+        
+        <div class="offline-icon">📱</div>
+        
+        <h1 class="offline-title">Modo Offline</h1>
+        
+        <p class="offline-message">
+            No hay conexión a internet disponible. Algunas funcionalidades están disponibles en modo offline.
+        </p>
+        
+        <div class="feature-list">
+            <div class="feature-item">
+                <span class="feature-icon">💾</span>
+                <span>Datos almacenados localmente disponibles</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">⚡</span>
+                <span>Terminal CLI funcional con cache</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">📝</span>
+                <span>Formularios guardados para envío posterior</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">🎨</span>
+                <span>Temas y configuración personalizados</span>
+            </div>
+        </div>
+        
+        <div class="connection-status" id="connectionStatus">
+            <span id="statusIcon">🔴</span>
+            <span id="statusText">Sin conexión a internet</span>
+        </div>
+        
+        <div class="retry-section">
+            <button class="retry-btn" onclick="retryConnection()">
+                <span id="retryText">Reintentar Conexión</span>
+            </button>
+            <button class="retry-btn secondary-btn" onclick="goToHomepage()">
+                Ir a Inicio
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Check connection status
+        function updateConnectionStatus() {
+            const statusIcon = document.getElementById('statusIcon');
+            const statusText = document.getElementById('statusText');
+            const connectionStatus = document.getElementById('connectionStatus');
+            
+            if (navigator.onLine) {
+                statusIcon.textContent = '🟢';
+                statusText.textContent = 'Conexión restaurada';
+                connectionStatus.className = 'connection-status status-online';
+                
+                // Auto redirect after 2 seconds
+                setTimeout(() => {
+                    goToHomepage();
+                }, 2000);
+            } else {
+                statusIcon.textContent = '🔴';
+                statusText.textContent = 'Sin conexión a internet';
+                connectionStatus.className = 'connection-status status-offline';
+            }
+        }
+        
+        // Retry connection
+        async function retryConnection() {
+            const retryText = document.getElementById('retryText');
+            retryText.textContent = 'Verificando...';
+            
+            try {
+                // Try to fetch a small resource
+                const response = await fetch('/', { 
+                    method: 'HEAD',
+                    cache: 'no-cache',
+                    signal: AbortSignal.timeout(3000)
+                });
+                
+                if (response.ok) {
+                    retryText.textContent = '¡Conectado!';
+                    updateConnectionStatus();
+                    setTimeout(goToHomepage, 1000);
+                } else {
+                    throw new Error('Network error');
+                }
+            } catch (error) {
+                retryText.textContent = 'Sin conexión';
+                setTimeout(() => {
+                    retryText.textContent = 'Reintentar Conexión';
+                }, 2000);
+            }
+        }
+        
+        // Go to homepage
+        function goToHomepage() {
+            window.location.href = '/';
+        }
+        
+        // Listen for online/offline events
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        
+        // Initial status check
+        updateConnectionStatus();
+        
+        // Periodic connection check
+        setInterval(() => {
+            if (!navigator.onLine) {
+                updateConnectionStatus();
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
