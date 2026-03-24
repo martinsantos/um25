@@ -1,7 +1,7 @@
 ---
 /**
- * Homepage — "Monograph" Design
- * Dense, layered, authoritative. Like an architecture firm's portfolio.
+ * Homepage — Subtle technical elegance
+ * Console-style title loading, clean layout, real activity photos
  */
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import ServiceCard from '../components/v4/ServiceCard.astro';
@@ -69,215 +69,97 @@ const sectorIcons: Record<string, string> = {
   structuredData={websiteSchema}
 >
 
-  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       HERO — "Network Topology": Technical diagram with live photos
-       The hero IS the proof of expertise
-       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-  <section class="relative bg-[#0a0e17] overflow-hidden" style="min-height:100svh;">
-    <!-- Background: animated grid pattern -->
-    <div class="absolute inset-0 um-grid-bg"></div>
+  <!-- ═══════ HERO — Clean, balanced, console-typed title ═══════ -->
+  <section class="bg-white pt-8 sm:pt-12 lg:pt-16 pb-12 sm:pb-16 lg:pb-20">
+    <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
 
-    <!-- Animated connection lines (CSS-only) -->
-    <svg class="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true">
-      <defs>
-        <linearGradient id="pulse-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" style="stop-color:#dc2626;stop-opacity:0" />
-          <stop offset="50%" style="stop-color:#dc2626;stop-opacity:0.6" />
-          <stop offset="100%" style="stop-color:#dc2626;stop-opacity:0" />
-        </linearGradient>
-      </defs>
-      <!-- Horizontal lines with traveling pulse -->
-      <line x1="0" y1="35%" x2="100%" y2="35%" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
-      <line x1="0" y1="65%" x2="100%" y2="65%" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
-      <line x1="30%" y1="0" x2="30%" y2="100%" stroke="rgba(255,255,255,0.02)" stroke-width="1"/>
-      <line x1="70%" y1="0" x2="70%" y2="100%" stroke="rgba(255,255,255,0.02)" stroke-width="1"/>
-      <!-- Pulse traveling on horizontal line -->
-      <rect class="um-pulse-h" x="-60" y="34.7%" width="60" height="2" rx="1" fill="url(#pulse-grad)" />
-      <rect class="um-pulse-h2" x="-80" y="64.7%" width="80" height="2" rx="1" fill="url(#pulse-grad)" />
-    </svg>
-
-    <!-- Floating data nodes (pure CSS circles with glow) -->
-    <div class="absolute top-[30%] left-[25%] um-node" style="animation-delay:0s;"></div>
-    <div class="absolute top-[30%] right-[25%] um-node" style="animation-delay:1.5s;"></div>
-    <div class="absolute bottom-[30%] left-[40%] um-node um-node-red" style="animation-delay:0.7s;"></div>
-    <div class="absolute bottom-[35%] right-[35%] um-node" style="animation-delay:2.2s;"></div>
-
-    <div class="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-      <!-- Top bar: system-status style -->
-      <div class="flex items-center justify-between pt-6 sm:pt-8 pb-10 sm:pb-16 border-b border-white/5">
-        <div class="flex items-center gap-3">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 um-blink"></span>
-          <span class="text-[10px] font-mono uppercase tracking-[0.2em] text-emerald-500/70">Sistemas operativos</span>
-        </div>
-        <span class="text-[10px] font-mono tracking-[0.15em] text-white/20">MZA · SJN · SLS · PAT</span>
+      <!-- Top line -->
+      <div class="flex items-center gap-3 mb-8 sm:mb-10">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span class="text-[11px] font-mono text-gray-400 tracking-wide">ultimamilla.com.ar — Mendoza, Argentina — Est. 2002</span>
       </div>
 
-      <!-- Main content grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center py-10 sm:py-14 lg:py-16">
+      <!-- Headline: types in like a console -->
+      <h1 id="hero-title" class="um-type text-[1.75rem] sm:text-[2.5rem] md:text-[3rem] lg:text-[3.5rem] font-bold text-gray-900 leading-[1.1] tracking-tight mb-8 sm:mb-10"
+        style="font-family:'Futura PT','Futura','Trebuchet MS',sans-serif;">
+        <span class="um-type-line" style="--delay:0">La infraestructura que mueve</span><br>
+        <span class="um-type-line" style="--delay:1">a las empresas argentinas</span>
+        <span class="text-red-600 um-type-line" style="--delay:2">.</span>
+        <span class="um-cursor"></span>
+      </h1>
 
-        <!-- Left: Headline + description (5 cols) -->
-        <div class="lg:col-span-5">
-          <div class="text-[10px] font-mono uppercase tracking-[0.25em] text-white/25 mb-4">
-            Infraestructura IT · Seguridad · Software
-          </div>
+      <!-- Subtitle -->
+      <p class="text-gray-400 text-sm sm:text-base max-w-lg leading-relaxed mb-8" style="text-wrap:pretty;">
+        Telecomunicaciones, seguridad electrónica, desarrollo de software y soporte técnico 24/7 para aeropuertos, hospitales, bodegas, gobiernos e industrias.
+      </p>
 
-          <h1 style="font-family:'Futura PT','Futura','Trebuchet MS',sans-serif; text-wrap:balance;"
-            class="text-[1.75rem] sm:text-[2.25rem] md:text-[2.75rem] lg:text-[3rem] font-bold text-white leading-[1.05] tracking-tight mb-5 sm:mb-6">
-            La infraestructura que mueve a las empresas argentinas<span class="text-red-500">.</span>
-          </h1>
+      <!-- CTAs -->
+      <div class="flex flex-wrap gap-3 mb-12 sm:mb-16">
+        <a href={withBase("/contacto")} class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-semibold rounded-xl hover:bg-red-600 transition-colors text-sm">
+          Solicitar consultoría
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
+        </a>
+        <a href={withBase("/antecedentes")} class="inline-flex items-center px-6 py-3 border border-gray-200 text-gray-600 font-medium rounded-xl hover:border-gray-400 transition-colors text-sm">
+          Ver 469+ proyectos
+        </a>
+      </div>
 
-          <p class="text-white/35 text-[13px] sm:text-sm leading-relaxed mb-6 sm:mb-8 max-w-sm" style="text-wrap:pretty;">
-            Diseñamos, construimos y mantenemos la columna vertebral tecnológica de aeropuertos, hospitales, bodegas y gobiernos desde Mendoza hasta la Patagonia.
-          </p>
-
-          <div class="flex flex-wrap gap-3 mb-8 sm:mb-10">
-            <a href={withBase("/contacto")} class="um-cta-btn inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 text-white font-semibold rounded-lg text-sm hover:bg-red-500 transition-colors">
-              Solicitar consultoría
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
-            </a>
-            <a href={withBase("/antecedentes")} class="inline-flex items-center px-5 py-2.5 border border-white/10 text-white/50 font-medium rounded-lg hover:border-white/25 hover:text-white/80 transition-all text-sm">
-              Ver proyectos
-            </a>
-          </div>
-
-          <!-- Stats row: monospaced, technical feel -->
-          <div class="flex gap-6 sm:gap-8 pt-6 border-t border-white/5">
-            <div>
-              <div class="text-lg sm:text-xl font-bold text-white tabular-nums font-mono">469<span class="text-red-500">+</span></div>
-              <div class="text-[8px] font-mono uppercase tracking-[0.2em] text-white/20 mt-0.5">proyectos</div>
-            </div>
-            <div>
-              <div class="text-lg sm:text-xl font-bold text-white tabular-nums font-mono">22</div>
-              <div class="text-[8px] font-mono uppercase tracking-[0.2em] text-white/20 mt-0.5">años</div>
-            </div>
-            <div>
-              <div class="text-lg sm:text-xl font-bold text-white tabular-nums font-mono">9</div>
-              <div class="text-[8px] font-mono uppercase tracking-[0.2em] text-white/20 mt-0.5">industrias</div>
-            </div>
-            <div>
-              <div class="text-lg sm:text-xl font-bold text-red-500 tabular-nums font-mono">24/7</div>
-              <div class="text-[8px] font-mono uppercase tracking-[0.2em] text-white/20 mt-0.5">soporte</div>
-            </div>
-          </div>
+      <!-- Photo row: 3 activity photos, equal, rounded, clean -->
+      <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-10 sm:mb-14" id="heroImageContainer">
+        <div class="rounded-2xl overflow-hidden aspect-[4/3] bg-gray-100">
+          {heroImages.slice(0, 3).map((img, i) => (
+            <img src={img.url} alt={img.alt}
+              class={`hero-image w-full h-full object-cover transition-opacity duration-[2000ms] ${i === 0 ? 'opacity-100' : 'opacity-0 absolute inset-0'}`}
+              style={i > 0 ? 'position:absolute;inset:0;' : ''}
+              data-index={i} />
+          ))}
         </div>
-
-        <!-- Right: Photo "nodes" in network layout (7 cols) -->
-        <div class="lg:col-span-7 relative" id="heroImageContainer">
-          <!-- Main photo: large, center -->
-          <div class="relative rounded-2xl overflow-hidden aspect-[16/10] bg-gray-800/50 border border-white/5 shadow-2xl shadow-black/50 um-photo-main">
-            {heroImages.slice(0, 4).map((img, i) => (
-              <img src={img.url} alt={img.alt}
-                class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ${i === 0 ? 'opacity-100' : 'opacity-0'}`}
-                data-index={i} />
-            ))}
-            <!-- Technical overlay on photo -->
-            <div class="absolute top-3 left-3 flex items-center gap-2 px-2.5 py-1 bg-black/40 backdrop-blur-sm rounded-md border border-white/10">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 um-blink"></span>
-              <span class="text-[9px] font-mono text-white/60 uppercase tracking-wider">Live Feed</span>
-            </div>
-            <div class="absolute bottom-3 right-3 px-2.5 py-1 bg-black/40 backdrop-blur-sm rounded-md border border-white/10">
-              <span class="text-[9px] font-mono text-white/40">CAM-01 · 1920×1080 · 30fps</span>
-            </div>
-          </div>
-
-          <!-- Two smaller photos flanking below with connectors -->
-          <div class="grid grid-cols-2 gap-3 mt-3">
-            <div class="relative rounded-xl overflow-hidden aspect-[4/3] bg-gray-800/50 border border-white/5">
-              <img src={heroImages[4]?.url || heroImages[0].url} alt="Proyecto" class="w-full h-full object-cover" loading="lazy" />
-              <div class="absolute bottom-2 left-2 px-2 py-0.5 bg-black/50 backdrop-blur-sm rounded border border-white/10">
-                <span class="text-[8px] font-mono text-white/50">NODE-02 · ACTIVO</span>
-              </div>
-            </div>
-            <div class="relative rounded-xl overflow-hidden aspect-[4/3] bg-gray-800/50 border border-white/5">
-              <img src={heroImages[5]?.url || heroImages[1].url} alt="Proyecto" class="w-full h-full object-cover" loading="lazy" />
-              <div class="absolute bottom-2 left-2 px-2 py-0.5 bg-black/50 backdrop-blur-sm rounded border border-white/10">
-                <span class="text-[8px] font-mono text-white/50">NODE-03 · ACTIVO</span>
-              </div>
-            </div>
-          </div>
+        <div class="rounded-2xl overflow-hidden aspect-[4/3] bg-gray-100">
+          <img src={heroImages[3]?.url} alt="Proyecto" class="w-full h-full object-cover" loading="lazy" />
+        </div>
+        <div class="rounded-2xl overflow-hidden aspect-[4/3] bg-gray-100">
+          <img src={heroImages[4]?.url} alt="Proyecto" class="w-full h-full object-cover" loading="lazy" />
         </div>
       </div>
 
-      <!-- Client ticker -->
-      <div class="border-t border-white/5 py-4 flex items-center gap-6 overflow-hidden">
-        <span class="text-[8px] font-mono uppercase tracking-[0.25em] text-white/15 shrink-0">Clientes</span>
-        <div class="flex gap-5 text-[10px] text-white/20 font-mono whitespace-nowrap um-ticker">
-          <span>Aeropuertos Argentina 2000</span><span class="text-white/8">·</span>
-          <span>Gobierno de Mendoza</span><span class="text-white/8">·</span>
-          <span>Hospital Central</span><span class="text-white/8">·</span>
-          <span>Bodega La Esmeralda</span><span class="text-white/8">·</span>
-          <span>Premix SA</span><span class="text-white/8">·</span>
-          <span>Municipalidad de Guaymallén</span><span class="text-white/8">·</span>
-          <span>Jose Nucete e Hijos</span><span class="text-white/8">·</span>
-          <span>Consorcio Torre Thays</span><span class="text-white/8">·</span>
-          <span>Aeropuertos Argentina 2000</span><span class="text-white/8">·</span>
-          <span>Gobierno de Mendoza</span><span class="text-white/8">·</span>
-          <span>Hospital Central</span>
+      <!-- Stats: clean horizontal with subtle separators -->
+      <div class="flex items-center gap-6 sm:gap-10 pt-8 border-t border-gray-100">
+        <div>
+          <span class="text-xl sm:text-2xl font-bold text-gray-900 tabular-nums font-mono">469+</span>
+          <span class="text-[10px] font-mono uppercase tracking-[0.15em] text-gray-300 ml-2">proyectos</span>
         </div>
-      </div>
-            </div>
-          </div>
+        <span class="w-px h-5 bg-gray-200"></span>
+        <div>
+          <span class="text-xl sm:text-2xl font-bold text-gray-900 tabular-nums font-mono">22</span>
+          <span class="text-[10px] font-mono uppercase tracking-[0.15em] text-gray-300 ml-2">años</span>
         </div>
-
-        <!-- Right column: photo mosaic (3 photos in L-shape) -->
-        <div class="grid grid-cols-2 gap-3" id="heroImageContainer">
-          <div class="col-span-2 relative rounded-2xl overflow-hidden aspect-[2/1] bg-gray-800">
-            {heroImages.slice(0, 3).map((img, i) => (
-              <img src={img.url} alt={img.alt}
-                class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ${i === 0 ? 'opacity-100' : 'opacity-0'}`}
-                data-index={i} />
-            ))}
-          </div>
-          <div class="rounded-2xl overflow-hidden aspect-square bg-gray-800">
-            <img src={heroImages[3]?.url} alt="Proyecto" class="w-full h-full object-cover" loading="lazy" />
-          </div>
-          <div class="rounded-2xl overflow-hidden aspect-square bg-gray-800">
-            <img src={heroImages[4]?.url} alt="Proyecto" class="w-full h-full object-cover" loading="lazy" />
-          </div>
+        <span class="w-px h-5 bg-gray-200"></span>
+        <div>
+          <span class="text-xl sm:text-2xl font-bold text-gray-900 tabular-nums font-mono">9</span>
+          <span class="text-[10px] font-mono uppercase tracking-[0.15em] text-gray-300 ml-2">industrias</span>
         </div>
-      </div>
-
-      <!-- Client ticker -->
-      <div class="border-t border-white/5 py-5 flex items-center gap-6 overflow-hidden">
-        <span class="text-[9px] font-mono uppercase tracking-[0.25em] text-white/20 shrink-0">Confían en nosotros</span>
-        <div class="flex gap-6 text-[11px] text-white/25 font-medium whitespace-nowrap um-ticker">
-          <span>Aeropuertos Argentina 2000</span><span class="text-white/10">—</span>
-          <span>Gobierno de Mendoza</span><span class="text-white/10">—</span>
-          <span>Hospital Central</span><span class="text-white/10">—</span>
-          <span>Bodega La Esmeralda</span><span class="text-white/10">—</span>
-          <span>Premix SA</span><span class="text-white/10">—</span>
-          <span>Municipalidad de Guaymallén</span><span class="text-white/10">—</span>
-          <span>Jose Nucete e Hijos</span><span class="text-white/10">—</span>
-          <span>Consorcio Torre Thays</span>
+        <span class="w-px h-5 bg-gray-200"></span>
+        <div>
+          <span class="text-xl sm:text-2xl font-bold text-red-600 tabular-nums font-mono">24/7</span>
+          <span class="text-[10px] font-mono uppercase tracking-[0.15em] text-gray-300 ml-2">soporte</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       SERVICES — Dense card grid with photo overlays
-       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-  <section class="py-16 sm:py-20 lg:py-28 bg-white">
-    <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-      <!-- Section header with rule -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-12 sm:mb-16 items-end">
-        <div class="lg:col-span-2">
-          <div class="flex items-center gap-3 mb-3">
-            <span class="w-10 h-[2px] bg-red-600"></span>
-            <span class="text-[10px] font-mono uppercase tracking-[0.25em] text-gray-400">Servicios</span>
-          </div>
-          <h2 style="font-family:'Futura PT','Futura',sans-serif;"
-            class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight leading-tight">
-            Ocho disciplinas<span class="text-red-600">,</span><br>
-            una sola misión<span class="text-red-600">.</span>
+  <!-- ═══════ SERVICES ═══════ -->
+  <section class="py-14 sm:py-20 lg:py-24 bg-gray-50">
+    <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 sm:mb-14">
+        <div>
+          <span class="text-[10px] font-mono uppercase tracking-[0.2em] text-red-600 block mb-2">Servicios</span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight" style="font-family:'Futura PT','Futura',sans-serif;">
+            Ocho disciplinas, una misión<span class="text-red-600">.</span>
           </h2>
         </div>
-        <div class="lg:text-right">
-          <a href={withBase("/servicios")} class="text-[11px] font-semibold text-gray-400 hover:text-red-600 transition-colors uppercase tracking-[0.15em] inline-flex items-center gap-1.5">
-            Catálogo completo
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
-          </a>
-        </div>
+        <a href={withBase("/servicios")} class="text-[11px] font-semibold text-gray-400 hover:text-red-600 transition-colors uppercase tracking-[0.15em]">
+          Ver catálogo →
+        </a>
       </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -290,217 +172,148 @@ const sectorIcons: Record<string, string> = {
     </div>
   </section>
 
-  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       CASES — Dark section, asymmetric bento grid
-       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-  <section class="py-16 sm:py-20 lg:py-28 bg-gray-950 relative overflow-hidden">
-    <!-- Subtle grain texture -->
-    <div class="absolute inset-0 opacity-[0.015]" style="background-image:url('data:image/svg+xml,%3Csvg viewBox=%270 0 256 256%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27noise%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.9%27 numOctaves=%274%27 stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23noise)%27/%3E%3C/svg%3E');"></div>
-
-    <div class="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-12 sm:mb-16 items-end">
-        <div class="lg:col-span-2">
-          <div class="flex items-center gap-3 mb-3">
-            <span class="w-10 h-[2px] bg-red-500"></span>
-            <span class="text-[10px] font-mono uppercase tracking-[0.25em] text-white/30">Antecedentes</span>
-          </div>
-          <h2 style="font-family:'Futura PT','Futura',sans-serif;"
-            class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight leading-tight">
-            469 proyectos<span class="text-red-500">.</span><br>
-            <span class="text-white/30">Cada uno cuenta una historia.</span>
+  <!-- ═══════ CASES ═══════ -->
+  <section class="py-14 sm:py-20 lg:py-24 bg-white">
+    <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 sm:mb-14">
+        <div>
+          <span class="text-[10px] font-mono uppercase tracking-[0.2em] text-red-600 block mb-2">Antecedentes</span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight" style="font-family:'Futura PT','Futura',sans-serif;">
+            Proyectos que hablan por sí solos<span class="text-red-600">.</span>
           </h2>
         </div>
-        <div class="lg:text-right">
-          <a href={withBase("/antecedentes")} class="text-[11px] font-semibold text-white/30 hover:text-red-500 transition-colors uppercase tracking-[0.15em] inline-flex items-center gap-1.5">
-            Explorar todos
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
-          </a>
-        </div>
+        <a href={withBase("/antecedentes")} class="text-[11px] font-semibold text-gray-400 hover:text-red-600 transition-colors uppercase tracking-[0.15em]">
+          Explorar 469+ →
+        </a>
       </div>
 
-      {antecedentesEnhanced.length > 0 && (
-        <div class="grid grid-cols-6 sm:grid-cols-12 gap-3 sm:gap-4">
-          <!-- Main case: 7 of 12 -->
-          <a href={withBase(`/antecedentes/${antecedentesEnhanced[0].id}/${antecedentesEnhanced[0].slug}`)}
-            class="group col-span-6 sm:col-span-7 relative rounded-2xl overflow-hidden aspect-[4/3] flex items-end bg-gray-800 scroll-reveal">
-            <img src={antecedentesEnhanced[0].imageUrl} alt={antecedentesEnhanced[0].Titulo}
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {antecedentesEnhanced.map((ant, i) => (
+          <a href={withBase(`/antecedentes/${ant.id}/${ant.slug}`)}
+            class="group relative rounded-2xl overflow-hidden aspect-[3/4] flex items-end scroll-reveal bg-gray-100"
+            style={`animation-delay:${i * 0.1}s`}>
+            <img src={ant.imageUrl} alt={ant.Titulo}
               class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700" />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-            <div class="relative p-5 sm:p-7">
-              <span class="text-red-400 text-[9px] font-bold uppercase tracking-[0.2em]">{antecedentesEnhanced[0].Area}</span>
-              <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-white leading-snug mt-1.5" style="text-wrap:balance; font-family:'Futura PT',sans-serif;">{antecedentesEnhanced[0].Titulo}</h3>
-              <span class="text-white/30 text-[10px] font-mono uppercase tracking-wider mt-2 block">{antecedentesEnhanced[0].Cliente}</span>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent"></div>
+            <div class="relative p-5 sm:p-6">
+              <span class="text-red-400 text-[9px] font-mono uppercase tracking-[0.2em]">{ant.Area}</span>
+              <h3 class="text-base sm:text-lg font-bold text-white leading-snug mt-1.5" style="text-wrap:balance; font-family:'Futura PT',sans-serif;">{ant.Titulo}</h3>
+              <span class="text-white/30 text-[10px] font-mono mt-2 block">{ant.Cliente}</span>
             </div>
           </a>
-
-          <!-- Side cases: 5 of 12 each stacked -->
-          <div class="col-span-6 sm:col-span-5 grid grid-rows-2 gap-3 sm:gap-4">
-            {antecedentesEnhanced.slice(1, 3).map((ant, i) => (
-              <a href={withBase(`/antecedentes/${ant.id}/${ant.slug}`)}
-                class="group relative rounded-2xl overflow-hidden flex items-end bg-gray-800 scroll-reveal"
-                style={`animation-delay:${(i+1)*0.12}s`}>
-                <img src={ant.imageUrl} alt={ant.Titulo}
-                  class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700" />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent"></div>
-                <div class="relative p-4 sm:p-5">
-                  <span class="text-red-400 text-[9px] font-bold uppercase tracking-[0.2em]">{ant.Area}</span>
-                  <h3 class="text-sm sm:text-base font-bold text-white leading-snug mt-1" style="font-family:'Futura PT',sans-serif;">{ant.Titulo}</h3>
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  </section>
-
-  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       INDUSTRIES — Tight grid of industry badges
-       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-  <section class="py-16 sm:py-20 lg:py-28 bg-white">
-    <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-      <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-16 items-start">
-        <div class="lg:col-span-2">
-          <div class="flex items-center gap-3 mb-3">
-            <span class="w-10 h-[2px] bg-red-600"></span>
-            <span class="text-[10px] font-mono uppercase tracking-[0.25em] text-gray-400">Industrias</span>
-          </div>
-          <h2 style="font-family:'Futura PT','Futura',sans-serif;"
-            class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight leading-tight mb-4">
-            Expertise sectorial<span class="text-red-600">.</span>
-          </h2>
-          <p class="text-gray-400 text-sm leading-relaxed">
-            22 años nos dieron conocimiento profundo de los desafíos específicos de cada industria.
-          </p>
-        </div>
-
-        <div class="lg:col-span-3">
-          <div class="grid grid-cols-3 gap-2 sm:gap-3">
-            {sectores.map((sector) => (
-              <a href={withBase(`/${sector.slug}`)}
-                class="group relative p-4 sm:p-5 rounded-xl border border-gray-100 hover:border-gray-900 hover:bg-gray-900 transition-all duration-300 text-center">
-                <svg class="w-5 h-5 text-gray-300 group-hover:text-red-500 transition-colors mx-auto mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d={sectorIcons[sector.slug] || 'M13 10V3L4 14h7v7l9-11h-7z'}/>
-                </svg>
-                <span class="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-white transition-colors block">{sector.name}</span>
-              </a>
-            ))}
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   </section>
 
-  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       CTA — Split: type left, photo right, dark bg
-       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-  <section class="bg-gray-950 relative overflow-hidden">
-    <div class="absolute inset-0 um-glow"></div>
+  <!-- ═══════ INDUSTRIES ═══════ -->
+  <section class="py-14 sm:py-20 lg:py-24 bg-gray-50">
+    <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
+      <div class="mb-10 sm:mb-14">
+        <span class="text-[10px] font-mono uppercase tracking-[0.2em] text-red-600 block mb-2">Industrias</span>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight" style="font-family:'Futura PT','Futura',sans-serif;">
+          9 verticales, un solo equipo<span class="text-red-600">.</span>
+        </h2>
+      </div>
 
-    <div class="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-16 sm:py-20 lg:py-28">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-        <div>
-          <h2 style="font-family:'Futura PT','Futura',sans-serif; text-wrap:balance;"
-            class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight leading-tight mb-5">
-            El próximo proyecto exitoso puede ser el suyo<span class="text-red-500">.</span>
-          </h2>
-          <p class="text-white/40 text-sm leading-relaxed mb-8 max-w-md">
-            Hablemos sobre cómo podemos transformar la infraestructura tecnológica de su organización.
-          </p>
-          <div class="flex flex-wrap gap-3">
-            <a href={withBase("/contacto")} class="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-500 transition-colors text-sm">
-              Agendar consultoría
-            </a>
-            <a href="mailto:contacto@ultimamilla.com.ar" class="px-6 py-3 border border-white/15 text-white/60 rounded-lg hover:border-white/30 hover:text-white transition-all text-sm">
-              contacto@ultimamilla.com.ar
-            </a>
-          </div>
-        </div>
+      <div class="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-3 gap-3">
+        {sectores.map((sector) => (
+          <a href={withBase(`/${sector.slug}`)}
+            class="group p-4 sm:p-5 rounded-xl border border-gray-200 hover:border-gray-900 hover:bg-gray-900 transition-all duration-200 flex items-center gap-3">
+            <svg class="w-5 h-5 text-gray-300 group-hover:text-red-500 transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d={sectorIcons[sector.slug] || 'M13 10V3L4 14h7v7l9-11h-7z'}/>
+            </svg>
+            <span class="font-semibold text-sm text-gray-700 group-hover:text-white transition-colors">{sector.name}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
 
-        <div class="rounded-2xl overflow-hidden aspect-[4/3] bg-gray-800">
-          <img src={heroImages[5]?.url || heroImages[0].url} alt="Ultima Milla" class="w-full h-full object-cover" loading="lazy" />
-        </div>
+  <!-- ═══════ CTA ═══════ -->
+  <section class="py-16 sm:py-20 lg:py-28 bg-gray-900">
+    <div class="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 text-center">
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight leading-tight mb-5" style="text-wrap:balance; font-family:'Futura PT','Futura',sans-serif;">
+        El próximo proyecto exitoso puede ser el suyo<span class="text-red-500">.</span>
+      </h2>
+      <p class="text-gray-500 text-sm sm:text-base mb-8 max-w-md mx-auto">
+        Más de 200 organizaciones ya confían en nosotros.
+      </p>
+      <div class="flex flex-wrap gap-3 justify-center mb-10">
+        <a href={withBase("/contacto")} class="px-6 py-3 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-500 transition-colors text-sm">
+          Agendar consultoría
+        </a>
+        <a href="mailto:contacto@ultimamilla.com.ar" class="px-6 py-3 border border-gray-700 text-gray-400 rounded-xl hover:border-gray-500 hover:text-white transition-all text-sm">
+          contacto@ultimamilla.com.ar
+        </a>
+      </div>
+      <div class="flex flex-wrap justify-center gap-x-3 text-[10px] text-gray-600 font-mono uppercase tracking-wider">
+        <span>Aeropuertos Argentina 2000</span><span class="text-gray-700">·</span>
+        <span>Gobierno de Mendoza</span><span class="text-gray-700">·</span>
+        <span>Hospital Central</span><span class="text-gray-700">·</span>
+        <span>Bodega La Esmeralda</span>
       </div>
     </div>
   </section>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const imgs = document.querySelectorAll('.hero-image');
-      if (imgs.length > 1) {
-        let c = 0;
-        setInterval(() => {
-          imgs[c].classList.remove('opacity-100');
-          imgs[c].classList.add('opacity-0');
-          c = (c + 1) % imgs.length;
-          imgs[c].classList.remove('opacity-0');
-          imgs[c].classList.add('opacity-100');
-        }, 4000);
+      // Hero image rotation (first photo slot only)
+      const container = document.querySelector('#heroImageContainer .rounded-2xl');
+      if (container) {
+        const imgs = container.querySelectorAll('.hero-image');
+        if (imgs.length > 1) {
+          let c = 0;
+          setInterval(() => {
+            imgs[c].style.opacity = '0';
+            c = (c + 1) % imgs.length;
+            imgs[c].style.opacity = '1';
+          }, 4000);
+        }
       }
+
+      // Typewriter effect on hero title lines
+      const lines = document.querySelectorAll('.um-type-line');
+      lines.forEach((line, i) => {
+        const el = line as HTMLElement;
+        const text = el.textContent || '';
+        el.textContent = '';
+        el.style.visibility = 'visible';
+        const delay = i * 600;
+        setTimeout(() => {
+          let charIndex = 0;
+          const interval = setInterval(() => {
+            el.textContent = text.slice(0, charIndex + 1);
+            charIndex++;
+            if (charIndex >= text.length) clearInterval(interval);
+          }, 30);
+        }, delay + 300);
+      });
+
+      // Hide cursor after typing
+      setTimeout(() => {
+        const cursor = document.querySelector('.um-cursor');
+        if (cursor) (cursor as HTMLElement).style.animationIterationCount = '3';
+      }, 3000);
     });
   </script>
 
   <style>
-    /* ═══ CTA Glow ═══ */
-    @property --glow-x { syntax: '<percentage>'; initial-value: 30%; inherits: false; }
-    @keyframes glow-move { 0%,100%{--glow-x:20%} 50%{--glow-x:80%} }
-    .um-glow {
-      background: radial-gradient(600px ellipse at var(--glow-x) 50%, rgba(220,38,38,0.05), transparent 70%);
-      animation: glow-move 12s ease-in-out infinite;
+    /* Typewriter cursor */
+    .um-cursor::after {
+      content: '▌';
+      color: #dc2626;
+      font-weight: 300;
+      animation: cursor-blink 0.7s steps(1) infinite;
     }
+    @keyframes cursor-blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
 
-    /* ═══ Hero: Network topology background grid ═══ */
-    .um-grid-bg {
-      background-image:
-        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-      background-size: 60px 60px;
-    }
-
-    /* ═══ Animated data pulse traveling across lines ═══ */
-    @keyframes pulse-travel {
-      0% { transform: translateX(-100px); }
-      100% { transform: translateX(calc(100vw + 100px)); }
-    }
-    .um-pulse-h { animation: pulse-travel 6s linear infinite; }
-    .um-pulse-h2 { animation: pulse-travel 8s linear infinite; animation-delay: 3s; animation-direction: reverse; }
-
-    /* ═══ Network nodes: breathing glow ═══ */
-    @property --node-glow { syntax: '<number>'; initial-value: 0.3; inherits: false; }
-    @keyframes node-breathe {
-      0%, 100% { --node-glow: 0.2; }
-      50% { --node-glow: 0.8; }
-    }
-    .um-node {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: rgba(255,255,255, var(--node-glow));
-      box-shadow: 0 0 12px rgba(255,255,255, calc(var(--node-glow) * 0.3));
-      animation: node-breathe 3s ease-in-out infinite;
-    }
-    .um-node-red {
-      background: rgba(220,38,38, var(--node-glow));
-      box-shadow: 0 0 16px rgba(220,38,38, calc(var(--node-glow) * 0.4));
-    }
-
-    /* ═══ Blinking status indicator ═══ */
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    .um-blink { animation: blink 2s ease-in-out infinite; }
-
-    /* ═══ Photo main: subtle border glow on hover ═══ */
-    .um-photo-main { transition: box-shadow 0.5s ease; }
-    .um-photo-main:hover { box-shadow: 0 0 40px rgba(220,38,38,0.1), 0 25px 50px rgba(0,0,0,0.5); }
-
-    /* ═══ CTA button hover ═══ */
-    .um-cta-btn { transition: all 0.2s ease; }
-    .um-cta-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(220,38,38,0.3); }
-
-    /* ═══ Ticker ═══ */
-    .um-ticker { animation: ticker-slide 35s linear infinite; }
-    @keyframes ticker-slide { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    /* Lines start invisible */
+    .um-type-line { visibility: hidden; }
 
     @media (prefers-reduced-motion: reduce) {
-      .um-glow, .um-ticker, .um-pulse-h, .um-pulse-h2, .um-node, .um-node-red, .um-blink { animation: none !important; }
-      .um-node, .um-node-red { opacity: 0.4; }
+      .um-type-line { visibility: visible !important; }
+      .um-cursor::after { display: none; }
     }
   </style>
 </LayoutV4>
