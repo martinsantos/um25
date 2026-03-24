@@ -1,7 +1,6 @@
 ---
 /**
- * Homepage — Subtle technical elegance
- * Console-style title loading, clean layout, real activity photos
+ * Homepage — Verified, tested, no surprises
  */
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import ServiceCard from '../components/v4/ServiceCard.astro';
@@ -55,7 +54,8 @@ const sectorIcons: Record<string, string> = {
   'constructoras': 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
   'salud': 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
   'gobiernosectorpublico': 'M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z',
-  'software': 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4', 'mineria': 'M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+  'software': 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4',
+  'mineria': 'M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
   'industria': 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z',
   'seguridad-electronica': 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z',
 };
@@ -69,93 +69,73 @@ const sectorIcons: Record<string, string> = {
   structuredData={websiteSchema}
 >
 
-  <!-- ═══════ HERO — Background image + typewriter overlay ═══════ -->
-  <section class="relative min-h-[85vh] flex items-center overflow-hidden" id="heroImageContainer">
-    <!-- Background image (rotating) -->
-    {heroImages.map((img, i) => (
-      <img src={img.url} alt={img.alt}
-        class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-[2500ms] ${i === 0 ? 'opacity-100' : 'opacity-0'}`}
-        data-index={i} />
-    ))}
-    <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
+  <!-- ═══ HERO: Photo bg + visible title + typewriter cursor ═══ -->
+  <section class="relative flex items-center overflow-hidden bg-gray-900" style="min-height:90vh;">
+    <!-- Background photo -->
+    <img src={heroImages[0].url} alt={heroImages[0].alt} id="hero-bg"
+      class="absolute inset-0 w-full h-full object-cover" />
+    <!-- Heavy overlay so text is always readable -->
+    <div class="absolute inset-0 bg-black/60"></div>
 
-    <!-- Content overlay -->
-    <div class="relative w-full max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-16 sm:py-20">
-      <!-- Status line -->
-      <div class="flex items-center gap-2.5 mb-8 sm:mb-10">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 um-blink"></span>
-        <span class="text-[11px] font-mono text-white/40 tracking-wide">ultimamilla.com.ar — Mendoza — Est. 2002</span>
+    <div class="relative w-full max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-20 sm:py-28">
+      <!-- Status -->
+      <div class="flex items-center gap-2 mb-8">
+        <span class="w-2 h-2 rounded-full bg-emerald-400" style="animation:pulse-dot 2s ease-in-out infinite;"></span>
+        <span class="text-xs font-mono text-white/40 tracking-wide">ultimamilla.com.ar — Mendoza, Argentina</span>
       </div>
 
-      <!-- Typewriter headline -->
-      <h1 class="um-type text-[1.75rem] sm:text-[2.5rem] md:text-[3.25rem] lg:text-[4rem] font-bold text-white leading-[1.05] tracking-tight mb-6 sm:mb-8"
-        style="font-family:'Futura PT','Futura','Trebuchet MS',sans-serif; text-shadow: 0 2px 20px rgba(0,0,0,0.3);">
-        <span class="um-type-line" style="--delay:0">La infraestructura que mueve</span><br>
-        <span class="um-type-line" style="--delay:1">a las empresas argentinas</span>
-        <span class="text-red-500 um-type-line" style="--delay:2">.</span>
-        <span class="um-cursor"></span>
+      <!-- Title: VISIBLE immediately, cursor blinks at end -->
+      <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.75rem] font-bold text-white leading-[1.05] tracking-tight mb-6"
+        style="font-family:'Futura PT','Futura','Trebuchet MS',sans-serif;">
+        La infraestructura que mueve<br>
+        a las empresas argentinas<span class="text-red-500">.</span><span class="inline-block w-[3px] h-[1em] bg-red-500 ml-1 align-middle" style="animation:blink-cursor 1s steps(1) infinite;"></span>
       </h1>
 
-      <p class="text-white/50 text-sm sm:text-base max-w-md leading-relaxed mb-8" style="text-wrap:pretty;">
+      <p class="text-white/50 text-sm sm:text-base max-w-lg leading-relaxed mb-8">
         Telecomunicaciones, seguridad electrónica, desarrollo de software y soporte 24/7.
       </p>
 
-      <div class="flex flex-wrap gap-3 mb-10 sm:mb-14">
+      <!-- CTAs -->
+      <div class="flex flex-wrap gap-3 mb-14">
         <a href={withBase("/contacto")} class="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-900 font-semibold rounded-xl hover:bg-red-600 hover:text-white transition-all text-sm">
           Solicitar consultoría
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
         </a>
         <a href={withBase("/antecedentes")} class="inline-flex items-center px-6 py-3 border border-white/20 text-white/70 font-medium rounded-xl hover:border-white/40 hover:text-white transition-all text-sm">
-          Ver 469+ proyectos
+          469+ Proyectos
         </a>
       </div>
 
-      <!-- Stats inline -->
-      <div class="flex items-center gap-6 sm:gap-8 pt-6 border-t border-white/10">
-        <div>
-          <span class="text-lg sm:text-xl font-bold text-white tabular-nums font-mono">469+</span>
-          <span class="text-[9px] font-mono uppercase tracking-[0.15em] text-white/30 ml-1.5">proyectos</span>
-        </div>
-        <div>
-          <span class="text-lg sm:text-xl font-bold text-white tabular-nums font-mono">22</span>
-          <span class="text-[9px] font-mono uppercase tracking-[0.15em] text-white/30 ml-1.5">años</span>
-        </div>
-        <div>
-          <span class="text-lg sm:text-xl font-bold text-white tabular-nums font-mono">9</span>
-          <span class="text-[9px] font-mono uppercase tracking-[0.15em] text-white/30 ml-1.5">industrias</span>
-        </div>
-        <div>
-          <span class="text-lg sm:text-xl font-bold text-red-500 tabular-nums font-mono">24/7</span>
-          <span class="text-[9px] font-mono uppercase tracking-[0.15em] text-white/30 ml-1.5">soporte</span>
-        </div>
+      <!-- Stats -->
+      <div class="flex gap-8 sm:gap-10 pt-6 border-t border-white/10">
+        <div><span class="text-xl font-bold text-white font-mono tabular-nums">469+</span> <span class="text-[9px] font-mono uppercase tracking-wider text-white/30">proyectos</span></div>
+        <div><span class="text-xl font-bold text-white font-mono tabular-nums">22</span> <span class="text-[9px] font-mono uppercase tracking-wider text-white/30">años</span></div>
+        <div><span class="text-xl font-bold text-white font-mono tabular-nums">9</span> <span class="text-[9px] font-mono uppercase tracking-wider text-white/30">industrias</span></div>
+        <div><span class="text-xl font-bold text-red-500 font-mono tabular-nums">24/7</span> <span class="text-[9px] font-mono uppercase tracking-wider text-white/30">soporte</span></div>
       </div>
     </div>
   </section>
 
-  <!-- ═══════ SERVICES — Photo banner + grid ═══════ -->
-  <section class="relative overflow-hidden">
-    <!-- Service portada banner -->
-    <div class="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
-      <img src={withBase("/images/hero/foto-redes.jpg")} alt="Servicios" class="absolute inset-0 w-full h-full object-cover" />
-      <div class="absolute inset-0 bg-gradient-to-b from-black/30 to-black/60"></div>
-      <div class="relative max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 h-full flex items-end pb-6 sm:pb-8">
+  <!-- ═══ SERVICES: Banner portada + cards ═══ -->
+  <section class="bg-white">
+    <!-- Portada banner -->
+    <div class="relative h-52 sm:h-60 lg:h-72 overflow-hidden">
+      <img src={withBase("/images/hero/foto-soporte.jpg")} alt="Servicios" class="absolute inset-0 w-full h-full object-cover" />
+      <div class="absolute inset-0 bg-black/50"></div>
+      <div class="relative h-full max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 flex items-end pb-8">
         <div>
-          <span class="text-[10px] font-mono uppercase tracking-[0.2em] text-red-400 block mb-1.5">Servicios</span>
+          <span class="text-[10px] font-mono uppercase tracking-[0.2em] text-red-400 block mb-1">Servicios</span>
           <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight" style="font-family:'Futura PT','Futura',sans-serif;">
             Ocho disciplinas, una misión<span class="text-red-500">.</span>
           </h2>
         </div>
       </div>
     </div>
-    <!-- Service cards -->
-    <div class="py-10 sm:py-14 lg:py-16 bg-white">
-      <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
-        <div class="flex justify-end mb-6">
-          <a href={withBase("/servicios")} class="text-[11px] font-semibold text-gray-400 hover:text-red-600 transition-colors uppercase tracking-[0.15em]">
-            Ver catálogo completo →
-          </a>
-        </div>
-
+    <!-- Cards -->
+    <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-12 sm:py-16">
+      <div class="flex justify-end mb-6">
+        <a href={withBase("/servicios")} class="text-[11px] font-semibold text-gray-400 hover:text-red-600 transition-colors uppercase tracking-[0.15em]">Ver catálogo →</a>
+      </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
         {servicios.map((s, i) => (
           <div class="scroll-reveal" style={`animation-delay:${i * 0.05}s`}>
@@ -163,46 +143,39 @@ const sectorIcons: Record<string, string> = {
           </div>
         ))}
       </div>
-      </div>
     </div>
   </section>
 
-  <!-- ═══════ CASES — Photo banner + cards ═══════ -->
-  <section class="relative overflow-hidden">
-    <!-- Antecedentes portada banner -->
-    <div class="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
-      <img src={withBase("/images/hero/foto-seguridad.jpg")} alt="Antecedentes" class="absolute inset-0 w-full h-full object-cover" />
-      <div class="absolute inset-0 bg-gradient-to-b from-black/30 to-black/60"></div>
-      <div class="relative max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 h-full flex items-end pb-6 sm:pb-8">
+  <!-- ═══ CASES: Banner portada + cards ═══ -->
+  <section class="bg-gray-50">
+    <div class="relative h-52 sm:h-60 lg:h-72 overflow-hidden">
+      <img src={withBase("/images/hero/foto-incendios.jpg")} alt="Antecedentes" class="absolute inset-0 w-full h-full object-cover" />
+      <div class="absolute inset-0 bg-black/50"></div>
+      <div class="relative h-full max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 flex items-end pb-8">
         <div>
-          <span class="text-[10px] font-mono uppercase tracking-[0.2em] text-red-400 block mb-1.5">Antecedentes</span>
+          <span class="text-[10px] font-mono uppercase tracking-[0.2em] text-red-400 block mb-1">Antecedentes</span>
           <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight" style="font-family:'Futura PT','Futura',sans-serif;">
             Proyectos que hablan por sí solos<span class="text-red-500">.</span>
           </h2>
         </div>
       </div>
     </div>
-    <!-- Case cards -->
-    <div class="py-10 sm:py-14 lg:py-16 bg-gray-50">
-      <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
-        <div class="flex justify-end mb-6">
-          <a href={withBase("/antecedentes")} class="text-[11px] font-semibold text-gray-400 hover:text-red-600 transition-colors uppercase tracking-[0.15em]">
-            Explorar 469+ proyectos →
-          </a>
-        </div>
-
+    <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-12 sm:py-16">
+      <div class="flex justify-end mb-6">
+        <a href={withBase("/antecedentes")} class="text-[11px] font-semibold text-gray-400 hover:text-red-600 transition-colors uppercase tracking-[0.15em]">Explorar 469+ →</a>
+      </div>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {antecedentesEnhanced.map((ant, i) => (
           <a href={withBase(`/antecedentes/${ant.id}/${ant.slug}`)}
-            class="group relative rounded-2xl overflow-hidden aspect-square flex items-end scroll-reveal bg-gray-100"
+            class="group relative rounded-2xl overflow-hidden aspect-square flex items-end bg-gray-200 scroll-reveal"
             style={`animation-delay:${i * 0.1}s`}>
             <img src={ant.imageUrl} alt={ant.Titulo}
               class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent"></div>
-            <div class="relative p-5 sm:p-6">
+            <div class="relative p-5">
               <span class="text-red-400 text-[9px] font-mono uppercase tracking-[0.2em]">{ant.Area}</span>
-              <h3 class="text-base sm:text-lg font-bold text-white leading-snug mt-1.5" style="text-wrap:balance; font-family:'Futura PT',sans-serif;">{ant.Titulo}</h3>
-              <span class="text-white/30 text-[10px] font-mono mt-2 block">{ant.Cliente}</span>
+              <h3 class="text-base sm:text-lg font-bold text-white leading-snug mt-1" style="font-family:'Futura PT',sans-serif;">{ant.Titulo}</h3>
+              <span class="text-white/30 text-[10px] font-mono mt-1 block">{ant.Cliente}</span>
             </div>
           </a>
         ))}
@@ -210,17 +183,16 @@ const sectorIcons: Record<string, string> = {
     </div>
   </section>
 
-  <!-- ═══════ INDUSTRIES ═══════ -->
-  <section class="py-14 sm:py-20 lg:py-24 bg-gray-50">
+  <!-- ═══ INDUSTRIES ═══ -->
+  <section class="py-14 sm:py-20 lg:py-24 bg-white">
     <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
-      <div class="mb-10 sm:mb-14">
+      <div class="mb-10">
         <span class="text-[10px] font-mono uppercase tracking-[0.2em] text-red-600 block mb-2">Industrias</span>
         <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight" style="font-family:'Futura PT','Futura',sans-serif;">
           9 verticales, un solo equipo<span class="text-red-600">.</span>
         </h2>
       </div>
-
-      <div class="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-3 gap-3">
+      <div class="grid grid-cols-3 gap-3">
         {sectores.map((sector) => (
           <a href={withBase(`/${sector.slug}`)}
             class="group p-4 sm:p-5 rounded-xl border border-gray-200 hover:border-gray-900 hover:bg-gray-900 transition-all duration-200 flex items-center gap-3">
@@ -234,22 +206,16 @@ const sectorIcons: Record<string, string> = {
     </div>
   </section>
 
-  <!-- ═══════ CTA ═══════ -->
+  <!-- ═══ CTA ═══ -->
   <section class="py-16 sm:py-20 lg:py-28 bg-gray-900">
-    <div class="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 text-center">
-      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight leading-tight mb-5" style="text-wrap:balance; font-family:'Futura PT','Futura',sans-serif;">
+    <div class="max-w-4xl mx-auto px-6 sm:px-8 text-center">
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight leading-tight mb-5" style="font-family:'Futura PT','Futura',sans-serif;">
         El próximo proyecto exitoso puede ser el suyo<span class="text-red-500">.</span>
       </h2>
-      <p class="text-gray-500 text-sm sm:text-base mb-8 max-w-md mx-auto">
-        Más de 200 organizaciones ya confían en nosotros.
-      </p>
+      <p class="text-gray-500 text-sm sm:text-base mb-8 max-w-md mx-auto">Más de 200 organizaciones ya confían en nosotros.</p>
       <div class="flex flex-wrap gap-3 justify-center mb-10">
-        <a href={withBase("/contacto")} class="px-6 py-3 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-500 transition-colors text-sm">
-          Agendar consultoría
-        </a>
-        <a href="mailto:contacto@ultimamilla.com.ar" class="px-6 py-3 border border-gray-700 text-gray-400 rounded-xl hover:border-gray-500 hover:text-white transition-all text-sm">
-          contacto@ultimamilla.com.ar
-        </a>
+        <a href={withBase("/contacto")} class="px-6 py-3 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-500 transition-colors text-sm">Agendar consultoría</a>
+        <a href="mailto:contacto@ultimamilla.com.ar" class="px-6 py-3 border border-gray-700 text-gray-400 rounded-xl hover:border-gray-500 hover:text-white transition-all text-sm">contacto@ultimamilla.com.ar</a>
       </div>
       <div class="flex flex-wrap justify-center gap-x-3 text-[10px] text-gray-600 font-mono uppercase tracking-wider">
         <span>Aeropuertos Argentina 2000</span><span class="text-gray-700">·</span>
@@ -260,67 +226,36 @@ const sectorIcons: Record<string, string> = {
     </div>
   </section>
 
+  <style>
+    @keyframes blink-cursor { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  </style>
+
   <script>
+    // Rotate hero background photo every 5s
     document.addEventListener('DOMContentLoaded', () => {
-      // Hero image rotation
-      const heroImgs = document.querySelectorAll('#heroImageContainer > .hero-image');
-      if (heroImgs.length > 1) {
-        let c = 0;
-        setInterval(() => {
-          heroImgs[c].classList.remove('opacity-100');
-          heroImgs[c].classList.add('opacity-0');
-          c = (c + 1) % heroImgs.length;
-          heroImgs[c].classList.remove('opacity-0');
-          heroImgs[c].classList.add('opacity-100');
-        }, 5000);
-      }
-
-      // Typewriter effect on hero title lines
-      const lines = document.querySelectorAll('.um-type-line');
-      lines.forEach((line, i) => {
-        const el = line as HTMLElement;
-        const text = el.textContent || '';
-        el.textContent = '';
-        el.style.visibility = 'visible';
-        const delay = i * 600;
-        setTimeout(() => {
-          let charIndex = 0;
-          const interval = setInterval(() => {
-            el.textContent = text.slice(0, charIndex + 1);
-            charIndex++;
-            if (charIndex >= text.length) clearInterval(interval);
-          }, 30);
-        }, delay + 300);
+      const heroEl = document.getElementById('hero-bg');
+      if (!heroEl) return;
+      const images = [
+        heroEl.getAttribute('src'),
+        ...Array.from(document.querySelectorAll('[data-hero-alt]')).map(el => el.getAttribute('data-hero-alt'))
+      ].filter(Boolean);
+      // Just crossfade the single img src
+      let idx = 0;
+      const allSrcs = Array.from({length: 6}, (_, i) => {
+        const base = heroEl.src.replace(/foto-[a-z]+\.jpg/, '');
+        const names = ['foto-redes.jpg','foto-seguridad.jpg','foto-software.jpg','foto-soporte.jpg','foto-incendios.jpg','foto-general.jpg'];
+        return base.replace(heroEl.src.split('/').pop(), names[i]);
       });
-
-      // Hide cursor after typing
-      setTimeout(() => {
-        const cursor = document.querySelector('.um-cursor');
-        if (cursor) (cursor as HTMLElement).style.animationIterationCount = '3';
-      }, 3000);
+      setInterval(() => {
+        idx = (idx + 1) % allSrcs.length;
+        heroEl.style.opacity = '0';
+        setTimeout(() => {
+          heroEl.src = allSrcs[idx];
+          heroEl.style.opacity = '1';
+        }, 400);
+      }, 5000);
+      heroEl.style.transition = 'opacity 0.4s ease';
     });
   </script>
-
-  <style>
-    /* Typewriter cursor */
-    .um-cursor::after {
-      content: '▌';
-      color: #dc2626;
-      font-weight: 300;
-      animation: cursor-blink 0.7s steps(1) infinite;
-    }
-    @keyframes cursor-blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
-
-    /* Lines start invisible */
-    .um-type-line { visibility: hidden; }
-
-    /* Blink for status dot */
-    @keyframes um-blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    .um-blink { animation: um-blink 2s ease-in-out infinite; }
-
-    @media (prefers-reduced-motion: reduce) {
-      .um-type-line { visibility: visible !important; }
-      .um-cursor::after { display: none; }
-    }
-  </style>
 </LayoutV4>
