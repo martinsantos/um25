@@ -1,9 +1,7 @@
 ---
 /**
- * Homepage — Brutalist Editorial with Cutting-Edge CSS
- * Asymmetric grid, overlapping elements, scroll-driven reveals
+ * Homepage — Clean Editorial. No overcomplicated grids.
  */
-
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import ServiceCard from '../components/v4/ServiceCard.astro';
 import { generateSlug } from '../utils/slugUtils.js';
@@ -23,7 +21,6 @@ const heroImages = [
 
 let antecedentesData: any[] = [];
 try { antecedentesData = await getAllAntecedentes(); } catch { antecedentesData = []; }
-
 const antecedentesEnhanced = antecedentesData.slice(0, 3).map((ant: any) => ({
   ...ant,
   slug: generateSlug(ant.Titulo || ant.Nombre || 'proyecto'),
@@ -32,52 +29,32 @@ const antecedentesEnhanced = antecedentesData.slice(0, 3).map((ant: any) => ({
 
 const serviciosFromDirectus = await getAllServicios();
 const iconMap: Record<number, { icon: string; iconColor: string }> = {
-  101: { icon: 'network', iconColor: 'bg-sky-600/90' },
-  102: { icon: 'shield', iconColor: 'bg-rose-600/90' },
-  103: { icon: 'radio', iconColor: 'bg-cyan-600/90' },
-  104: { icon: 'code', iconColor: 'bg-purple-600/90' },
-  105: { icon: 'headphones', iconColor: 'bg-amber-600/90' },
-  106: { icon: 'lightbulb', iconColor: 'bg-emerald-600/90' },
-  107: { icon: 'flame', iconColor: 'bg-orange-600/90' },
-  108: { icon: 'zap', iconColor: 'bg-yellow-600/90' }
+  101: { icon: 'network', iconColor: 'bg-sky-600/90' }, 102: { icon: 'shield', iconColor: 'bg-rose-600/90' },
+  103: { icon: 'radio', iconColor: 'bg-cyan-600/90' }, 104: { icon: 'code', iconColor: 'bg-purple-600/90' },
+  105: { icon: 'headphones', iconColor: 'bg-amber-600/90' }, 106: { icon: 'lightbulb', iconColor: 'bg-emerald-600/90' },
+  107: { icon: 'flame', iconColor: 'bg-orange-600/90' }, 108: { icon: 'zap', iconColor: 'bg-yellow-600/90' }
 };
-
 const servicios = serviciosFromDirectus.slice(0, 8).map(s => {
   const sector = serviceToSectorMap[s.id] || 'tecnologia';
   const colors = getSectorColors(sector);
-  return {
-    ...s, ...iconMap[s.id],
-    slug: s.slug || generateSlug(s.Titulo),
-    badge: serviceBadgeMap[s.id] || 'Tecnología',
-    badgeColor: colors.icon
-  };
+  return { ...s, ...iconMap[s.id], slug: s.slug || generateSlug(s.Titulo), badge: serviceBadgeMap[s.id] || 'Tecnología', badgeColor: colors.icon };
 });
 
-const websiteSchema = {
-  "@type": "WebSite", "name": "ULTIMA MILLA", "url": "https://ultimamilla.com.ar",
-  "potentialAction": { "@type": "SearchAction", "target": { "@type": "EntryPoint", "urlTemplate": "https://ultimamilla.com.ar/antecedentes?q={search_term_string}" }, "query-input": "required name=search_term_string" }
-};
+const websiteSchema = { "@type": "WebSite", "name": "ULTIMA MILLA", "url": "https://ultimamilla.com.ar", "potentialAction": { "@type": "SearchAction", "target": { "@type": "EntryPoint", "urlTemplate": "https://ultimamilla.com.ar/antecedentes?q={search_term_string}" }, "query-input": "required name=search_term_string" } };
 
 const sectores = [
-  { slug: 'aeropuertos', name: 'Aeropuertos', color: '#0ea5e9' },
-  { slug: 'bodegas', name: 'Bodegas', color: '#a855f7' },
-  { slug: 'constructoras', name: 'Construcción', color: '#f59e0b' },
-  { slug: 'salud', name: 'Salud', color: '#22c55e' },
-  { slug: 'gobiernosectorpublico', name: 'Gobierno', color: '#10b981' },
-  { slug: 'software', name: 'Software', color: '#6366f1' },
-  { slug: 'mineria', name: 'Minería', color: '#f97316' },
-  { slug: 'industria', name: 'Industria', color: '#64748b' },
+  { slug: 'aeropuertos', name: 'Aeropuertos', color: '#0ea5e9' }, { slug: 'bodegas', name: 'Bodegas', color: '#a855f7' },
+  { slug: 'constructoras', name: 'Construcción', color: '#f59e0b' }, { slug: 'salud', name: 'Salud', color: '#22c55e' },
+  { slug: 'gobiernosectorpublico', name: 'Gobierno', color: '#10b981' }, { slug: 'software', name: 'Software', color: '#6366f1' },
+  { slug: 'mineria', name: 'Minería', color: '#f97316' }, { slug: 'industria', name: 'Industria', color: '#64748b' },
   { slug: 'seguridad-electronica', name: 'Seguridad', color: '#06b6d4' }
 ];
-
 const sectorIcons: Record<string, string> = {
-  'aeropuertos': 'M12 19l9 2-9-18-9 18 9-2zm0 0v-8',
-  'bodegas': 'M9 12h6m-3-3v6m-7 4h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+  'aeropuertos': 'M12 19l9 2-9-18-9 18 9-2zm0 0v-8', 'bodegas': 'M9 12h6m-3-3v6m-7 4h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
   'constructoras': 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
   'salud': 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
   'gobiernosectorpublico': 'M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z',
-  'software': 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4',
-  'mineria': 'M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+  'software': 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4', 'mineria': 'M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
   'industria': 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z',
   'seguridad-electronica': 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z',
 };
@@ -91,247 +68,180 @@ const sectorIcons: Record<string, string> = {
   structuredData={websiteSchema}
 >
 
-  <!-- ══════════════════════════════════════════════════════════════
-       HERO — Overlapping grid: photo bleeds under text, stats anchored
-       ══════════════════════════════════════════════════════════════ -->
-  <section class="um-hero relative bg-white overflow-hidden">
-    <div class="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12 pt-6 sm:pt-10 lg:pt-14 pb-10 sm:pb-14 lg:pb-20">
+  <!-- ▌HERO — Full-width photo with type overlay, properly centered -->
+  <section class="relative min-h-[92vh] flex items-center bg-gray-900 overflow-hidden">
+    <!-- Rotating photos -->
+    <div class="absolute inset-0" id="heroImageContainer">
+      {heroImages.map((img, i) => (
+        <img src={img.url} alt={img.alt}
+          class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-[2500ms] ${i === 0 ? 'opacity-100' : 'opacity-0'}`}
+          data-index={i} />
+      ))}
+      <div class="absolute inset-0 bg-gradient-to-b from-gray-900/50 via-gray-900/30 to-gray-900/80"></div>
+    </div>
 
-      <!-- Photo grid: 2 images stacked right, overlapping into text area -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-0 items-start">
+    <!-- Centered content -->
+    <div class="relative w-full max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-20">
+      <span class="inline-flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.25em] text-white/50 mb-6 sm:mb-8">
+        <span class="w-6 h-px bg-red-500"></span>
+        Desde 2002 · Mendoza, Argentina
+      </span>
 
-        <!-- Text column: spans 7 cols, overlaps photo -->
-        <div class="lg:col-span-7 relative z-10 lg:pr-8 xl:pr-0">
-          <div class="flex items-center gap-3 mb-5 sm:mb-7">
-            <span class="w-8 h-[2px] bg-red-600"></span>
-            <span class="text-[11px] font-mono uppercase tracking-[0.2em] text-gray-400">Desde 2002 · Mendoza, Cuyo, Patagonia</span>
-          </div>
+      <h1 class="text-[2.5rem] sm:text-[3.5rem] md:text-[4.5rem] lg:text-[5.5rem] font-bold text-white leading-[0.92] tracking-tight mb-8" style="text-wrap:balance; font-family:'Futura PT','Futura','Trebuchet MS',sans-serif;">
+        Infraestructura IT<br>
+        para empresas que<br>
+        no se conforman<span class="text-red-500">.</span>
+      </h1>
 
-          <h1 class="um-headline text-[2.25rem] sm:text-[3rem] md:text-[3.75rem] lg:text-[4.25rem] xl:text-[4.75rem] font-bold text-gray-900 leading-[0.95] tracking-tight mb-6 sm:mb-8">
-            Infraestructura IT
-            <span class="block text-gray-300">para empresas que</span>
-            no se conforman<span class="text-red-600">.</span>
-          </h1>
+      <p class="text-white/60 text-base sm:text-lg max-w-lg leading-relaxed mb-8" style="text-wrap:pretty;">
+        Telecomunicaciones, seguridad electrónica, desarrollo de software y soporte 24/7.
+      </p>
 
-          <p class="text-gray-500 text-sm sm:text-base lg:text-lg max-w-[28rem] leading-relaxed mb-7 sm:mb-9" style="text-wrap:pretty;">
-            Telecomunicaciones, seguridad electrónica, desarrollo de software y soporte 24/7 para las empresas más exigentes de Argentina.
-          </p>
+      <div class="flex flex-wrap gap-3 mb-12 sm:mb-16">
+        <a href={withBase("/contacto")} class="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-900 font-semibold rounded-xl hover:bg-red-500 hover:text-white transition-all text-sm">
+          Consultoría Gratuita
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
+        </a>
+        <a href={withBase("/antecedentes")} class="inline-flex items-center px-6 py-3 border border-white/20 text-white font-medium rounded-xl hover:border-white/50 transition-colors text-sm">
+          469+ Proyectos
+        </a>
+      </div>
 
-          <div class="flex flex-wrap gap-3 mb-10 sm:mb-14">
-            <a href={withBase("/contacto")} class="um-btn inline-flex items-center gap-2.5 px-7 py-3.5 bg-gray-900 text-white font-semibold rounded-xl hover:bg-red-600 transition-all text-sm">
-              Consultoría Gratuita
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
-            </a>
-            <a href={withBase("/antecedentes")} class="inline-flex items-center px-7 py-3.5 border border-gray-200 text-gray-700 font-medium rounded-xl hover:border-gray-400 transition-colors text-sm">
-              469+ Proyectos
-            </a>
-          </div>
-
-          <!-- Stats: anchored to bottom of text, integrated -->
-          <div class="grid grid-cols-4 gap-0 border-t-2 border-gray-900 pt-5 max-w-md">
-            <div class="scroll-counter">
-              <div class="text-2xl sm:text-3xl font-bold text-gray-900 tabular-nums">469+</div>
-              <div class="text-[9px] font-mono uppercase tracking-[0.15em] text-gray-400 mt-1">Proyectos</div>
-            </div>
-            <div class="scroll-counter" style="animation-delay:0.08s">
-              <div class="text-2xl sm:text-3xl font-bold text-gray-900 tabular-nums">22</div>
-              <div class="text-[9px] font-mono uppercase tracking-[0.15em] text-gray-400 mt-1">Años</div>
-            </div>
-            <div class="scroll-counter" style="animation-delay:0.16s">
-              <div class="text-2xl sm:text-3xl font-bold text-gray-900 tabular-nums">9</div>
-              <div class="text-[9px] font-mono uppercase tracking-[0.15em] text-gray-400 mt-1">Industrias</div>
-            </div>
-            <div class="scroll-counter" style="animation-delay:0.24s">
-              <div class="text-2xl sm:text-3xl font-bold text-red-600 tabular-nums">24/7</div>
-              <div class="text-[9px] font-mono uppercase tracking-[0.15em] text-gray-400 mt-1">Soporte</div>
-            </div>
-          </div>
+      <!-- Stats row: aligned, proportional -->
+      <div class="flex gap-8 sm:gap-12 border-t border-white/10 pt-6">
+        <div>
+          <div class="text-2xl sm:text-3xl font-bold text-white tabular-nums">469+</div>
+          <div class="text-[9px] font-mono uppercase tracking-[0.2em] text-white/40 mt-1">Proyectos</div>
         </div>
-
-        <!-- Photo column: spans 6 cols, starts at col 7 (overlaps 1 col with text) -->
-        <div class="lg:col-span-6 lg:col-start-7 lg:-ml-8 relative" id="heroImageContainer">
-          <div class="grid grid-cols-2 gap-3">
-            <!-- Main rotating photo: large -->
-            <div class="col-span-2 relative rounded-2xl overflow-hidden aspect-[16/10] bg-gray-100">
-              {heroImages.slice(0, 4).map((img, i) => (
-                <img src={img.url} alt={img.alt}
-                  class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ${i === 0 ? 'opacity-100' : 'opacity-0'}`}
-                  data-index={i} />
-              ))}
-            </div>
-            <!-- Two smaller photos below -->
-            <div class="rounded-2xl overflow-hidden aspect-square bg-gray-100">
-              <img src={heroImages[4]?.url || heroImages[0].url} alt="Proyecto" class="w-full h-full object-cover" />
-            </div>
-            <div class="rounded-2xl overflow-hidden aspect-square bg-gray-100">
-              <img src={heroImages[5]?.url || heroImages[1].url} alt="Proyecto" class="w-full h-full object-cover" />
-            </div>
-          </div>
+        <div>
+          <div class="text-2xl sm:text-3xl font-bold text-white tabular-nums">22</div>
+          <div class="text-[9px] font-mono uppercase tracking-[0.2em] text-white/40 mt-1">Años</div>
+        </div>
+        <div>
+          <div class="text-2xl sm:text-3xl font-bold text-white tabular-nums">9</div>
+          <div class="text-[9px] font-mono uppercase tracking-[0.2em] text-white/40 mt-1">Industrias</div>
+        </div>
+        <div>
+          <div class="text-2xl sm:text-3xl font-bold text-red-500 tabular-nums">24/7</div>
+          <div class="text-[9px] font-mono uppercase tracking-[0.2em] text-white/40 mt-1">Soporte</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════════════════════════════
-       SERVICES — Staggered grid with photo cards
-       ══════════════════════════════════════════════════════════════ -->
-  <section class="um-section py-14 sm:py-20 lg:py-24 bg-gray-50">
-    <div class="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
-      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-10 lg:mb-12">
+  <!-- ▌SERVICES — Clean 4-col grid with photo cards -->
+  <section class="py-16 sm:py-20 lg:py-28 bg-white">
+    <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 sm:mb-14">
         <div>
-          <span class="text-[11px] font-mono uppercase tracking-[0.2em] text-red-600 block mb-2">Servicios</span>
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight leading-tight">
-            8 áreas de expertise<span class="text-red-600">.</span>
+          <span class="text-[11px] font-mono uppercase tracking-[0.25em] text-red-500 block mb-2">Servicios</span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight" style="font-family:'Futura PT','Futura',sans-serif;">
+            8 áreas de expertise<span class="text-red-500">.</span>
           </h2>
         </div>
-        <a href={withBase("/servicios")} class="text-[11px] font-semibold text-gray-500 hover:text-red-600 transition-colors uppercase tracking-[0.15em]">
-          Ver catálogo completo →
+        <a href={withBase("/servicios")} class="text-xs font-semibold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-[0.15em]">
+          Ver catálogo →
         </a>
       </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-        {servicios.map((servicio, i) => (
+        {servicios.map((s, i) => (
           <div class="scroll-reveal" style={`animation-delay:${i * 0.05}s`}>
-            <ServiceCard
-              id={servicio.id} slug={servicio.slug} titulo={servicio.Titulo}
-              descripcion={servicio.Descripcion} imagen={servicio.Imagen}
-              badge={servicio.badge} cliente={servicio.Cliente}
-              icon={servicio.icon} index={i}
-            />
+            <ServiceCard id={s.id} slug={s.slug} titulo={s.Titulo} descripcion={s.Descripcion} imagen={s.Imagen} badge={s.badge} cliente={s.Cliente} icon={s.icon} index={i} />
           </div>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════════════════════════════
-       CASES — Cinematic photo layout with overlapping type
-       ══════════════════════════════════════════════════════════════ -->
-  <section class="um-section py-14 sm:py-20 lg:py-24 bg-white">
-    <div class="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
-      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-10 lg:mb-12">
+  <!-- ▌CASES — 3 photos in clean row, all same height -->
+  <section class="py-16 sm:py-20 lg:py-28 bg-gray-50">
+    <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 sm:mb-14">
         <div>
-          <span class="text-[11px] font-mono uppercase tracking-[0.2em] text-red-600 block mb-2">Antecedentes</span>
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight leading-tight scroll-reveal">
-            Proyectos que hablan<br>por sí solos<span class="text-red-600">.</span>
+          <span class="text-[11px] font-mono uppercase tracking-[0.25em] text-red-500 block mb-2">Antecedentes</span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight" style="font-family:'Futura PT','Futura',sans-serif;">
+            Proyectos que hablan por sí solos<span class="text-red-500">.</span>
           </h2>
         </div>
-        <a href={withBase("/antecedentes")} class="text-[11px] font-semibold text-gray-500 hover:text-red-600 transition-colors uppercase tracking-[0.15em] scroll-reveal">
-          Explorar 469+ proyectos →
+        <a href={withBase("/antecedentes")} class="text-xs font-semibold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-[0.15em]">
+          Ver 469+ proyectos →
         </a>
       </div>
 
-      {antecedentesEnhanced.length > 0 && (
-        <div class="grid grid-cols-12 gap-3 sm:gap-4">
-          <!-- Hero case: 8 of 12 cols -->
-          <a href={withBase(`/antecedentes/${antecedentesEnhanced[0].id}/${antecedentesEnhanced[0].slug}`)}
-            class="um-case-card group col-span-12 lg:col-span-8 relative rounded-2xl overflow-hidden min-h-[280px] sm:min-h-[360px] lg:min-h-[440px] flex items-end scroll-reveal bg-gray-200">
-            <img src={antecedentesEnhanced[0].imageUrl} alt={antecedentesEnhanced[0].Titulo}
-              class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700" />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"></div>
-            <div class="relative p-5 sm:p-7 lg:p-8">
-              <span class="text-red-400 text-[10px] font-bold uppercase tracking-[0.15em]">{antecedentesEnhanced[0].Area}</span>
-              <h3 class="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-white leading-tight mt-1.5" style="text-wrap:balance;">{antecedentesEnhanced[0].Titulo}</h3>
-              <p class="text-white/50 text-xs mt-2 font-mono uppercase tracking-wider">{antecedentesEnhanced[0].Cliente} →</p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {antecedentesEnhanced.map((ant, i) => (
+          <a href={withBase(`/antecedentes/${ant.id}/${ant.slug}`)}
+            class="group relative rounded-2xl overflow-hidden aspect-[4/5] flex items-end scroll-reveal bg-gray-200"
+            style={`animation-delay:${i * 0.1}s`}>
+            <img src={ant.imageUrl} alt={ant.Titulo}
+              class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            <div class="relative p-5 sm:p-6">
+              <span class="text-red-400 text-[10px] font-bold uppercase tracking-[0.15em]">{ant.Area}</span>
+              <h3 class="text-base sm:text-lg font-bold text-white leading-snug mt-1.5" style="text-wrap:balance;">{ant.Titulo}</h3>
+              <span class="text-white/40 text-[10px] font-mono uppercase tracking-wider mt-2 block group-hover:text-white/70 transition-colors">{ant.Cliente} →</span>
             </div>
           </a>
-
-          <!-- Side cases: 4 of 12 cols, stacked -->
-          {antecedentesEnhanced.slice(1, 3).map((ant, i) => (
-            <a href={withBase(`/antecedentes/${ant.id}/${ant.slug}`)}
-              class="um-case-card group col-span-6 lg:col-span-4 relative rounded-2xl overflow-hidden min-h-[200px] lg:min-h-[214px] flex items-end scroll-reveal bg-gray-200"
-              style={`animation-delay:${(i + 1) * 0.12}s`}>
-              <img src={ant.imageUrl} alt={ant.Titulo}
-                class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700" />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent"></div>
-              <div class="relative p-4 sm:p-5">
-                <span class="text-red-400 text-[10px] font-bold uppercase tracking-[0.15em]">{ant.Area}</span>
-                <h3 class="text-sm sm:text-base lg:text-lg font-bold text-white leading-snug mt-1">{ant.Titulo}</h3>
-              </div>
-            </a>
-          ))}
-        </div>
-      )}
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════════════════════════════
-       INDUSTRIES — Horizontal scroll tags + large type
-       ══════════════════════════════════════════════════════════════ -->
-  <section class="um-section py-14 sm:py-20 lg:py-24 bg-gray-50 overflow-hidden">
-    <div class="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-        <div class="lg:col-span-5">
-          <span class="text-[11px] font-mono uppercase tracking-[0.2em] text-red-600 block mb-2 scroll-reveal">Industrias</span>
-          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 tracking-tight leading-[1.0] scroll-reveal">
-            9 verticales<span class="text-red-600">,</span><br>
-            un solo equipo<span class="text-red-600">.</span>
-          </h2>
-        </div>
-
-        <div class="lg:col-span-7 flex flex-wrap gap-2.5 scroll-reveal">
-          {sectores.map((sector, i) => (
-            <a href={withBase(`/${sector.slug}`)}
-              class="um-tag group flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl hover:border-gray-900 hover:bg-gray-900 transition-all duration-200"
-              style={`animation-delay:${i * 0.03}s`}>
-              <svg class="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d={sectorIcons[sector.slug] || 'M13 10V3L4 14h7v7l9-11h-7z'}/>
-              </svg>
-              <span class="font-semibold text-sm text-gray-800 group-hover:text-white transition-colors">{sector.name}</span>
-            </a>
-          ))}
-        </div>
+        ))}
       </div>
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════════════════════════════
-       CTA — Dark cinematic with photo peek
-       ══════════════════════════════════════════════════════════════ -->
-  <section class="um-cta relative py-16 sm:py-22 lg:py-28 overflow-hidden bg-gray-900">
-    <!-- Subtle ambient glow -->
-    <div class="absolute inset-0 um-ambient-glow"></div>
+  <!-- ▌INDUSTRIES — Simple tag row -->
+  <section class="py-16 sm:py-20 lg:py-28 bg-white">
+    <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
+      <div class="max-w-2xl mb-10 sm:mb-14">
+        <span class="text-[11px] font-mono uppercase tracking-[0.25em] text-red-500 block mb-2">Industrias</span>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight" style="font-family:'Futura PT','Futura',sans-serif;">
+          9 verticales, un solo equipo<span class="text-red-500">.</span>
+        </h2>
+      </div>
 
-    <div class="relative max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-        <div class="lg:col-span-7">
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white tracking-tight leading-[1.05]" style="text-wrap:balance;">
-            El próximo proyecto exitoso puede ser el suyo<span class="text-red-500">.</span>
-          </h2>
-          <p class="text-gray-400 text-sm sm:text-base mt-4 mb-8 max-w-md">
-            Más de 200 organizaciones en Argentina ya confían en nosotros.
-          </p>
-          <div class="flex flex-wrap gap-3">
-            <a href={withBase("/contacto")} class="px-7 py-3.5 bg-white text-gray-900 font-semibold rounded-xl hover:bg-red-600 hover:text-white transition-all text-sm">
-              Agendar Consultoría
-            </a>
-            <a href="mailto:contacto@ultimamilla.com.ar" class="px-7 py-3.5 border border-gray-700 text-gray-400 font-medium rounded-xl hover:border-white hover:text-white transition-all text-sm">
-              contacto@ultimamilla.com.ar
-            </a>
-          </div>
-
-          <div class="flex flex-wrap gap-x-4 gap-y-1 mt-10 pt-6 border-t border-gray-800 text-[10px] text-gray-500 font-mono uppercase tracking-wider">
-            <span>Aeropuertos Argentina 2000</span>
-            <span class="text-gray-700">·</span>
-            <span>Gobierno de Mendoza</span>
-            <span class="text-gray-700">·</span>
-            <span>Hospital Central</span>
-            <span class="text-gray-700">·</span>
-            <span>Bodega La Esmeralda</span>
-          </div>
-        </div>
-
-        <!-- Photo peek -->
-        <div class="lg:col-span-5 relative">
-          <div class="rounded-2xl overflow-hidden aspect-[4/3] bg-gray-800">
-            <img src={withBase("/images/hero/foto-redes.jpg")} alt="Proyecto" class="w-full h-full object-cover opacity-80" />
-          </div>
-        </div>
+      <div class="flex flex-wrap gap-2.5">
+        {sectores.map((sector) => (
+          <a href={withBase(`/${sector.slug}`)}
+            class="group flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl hover:border-gray-900 hover:bg-gray-900 transition-all duration-200">
+            <svg class="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d={sectorIcons[sector.slug] || 'M13 10V3L4 14h7v7l9-11h-7z'}/>
+            </svg>
+            <span class="font-semibold text-sm text-gray-800 group-hover:text-white transition-colors">{sector.name}</span>
+          </a>
+        ))}
       </div>
     </div>
   </section>
 
-  <!-- Minimal JS: hero rotation only -->
+  <!-- ▌CTA — Full-width photo background, centered -->
+  <section class="relative py-20 sm:py-28 lg:py-36 overflow-hidden">
+    <img src={withBase("/images/hero/foto-redes.jpg")} alt="" class="absolute inset-0 w-full h-full object-cover" />
+    <div class="absolute inset-0 bg-gray-900/80"></div>
+    <div class="absolute inset-0 um-glow"></div>
+
+    <div class="relative max-w-3xl mx-auto px-6 sm:px-8 text-center">
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white tracking-tight leading-tight mb-5" style="text-wrap:balance; font-family:'Futura PT','Futura',sans-serif;">
+        El próximo proyecto exitoso puede ser el suyo<span class="text-red-500">.</span>
+      </h2>
+      <p class="text-white/50 text-sm sm:text-base mb-8 max-w-md mx-auto">
+        Más de 200 organizaciones ya confían en nosotros.
+      </p>
+      <div class="flex flex-wrap gap-3 justify-center mb-12">
+        <a href={withBase("/contacto")} class="px-7 py-3.5 bg-white text-gray-900 font-semibold rounded-xl hover:bg-red-500 hover:text-white transition-all text-sm">
+          Agendar Consultoría
+        </a>
+        <a href="mailto:contacto@ultimamilla.com.ar" class="px-7 py-3.5 border border-white/20 text-white/70 rounded-xl hover:border-white hover:text-white transition-all text-sm">
+          contacto@ultimamilla.com.ar
+        </a>
+      </div>
+      <div class="flex flex-wrap justify-center gap-x-3 text-[10px] text-white/30 font-mono uppercase tracking-wider">
+        <span>Aeropuertos Argentina 2000</span>
+        <span>·</span><span>Gobierno de Mendoza</span>
+        <span>·</span><span>Hospital Central</span>
+        <span>·</span><span>Bodega La Esmeralda</span>
+      </div>
+    </div>
+  </section>
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const imgs = document.querySelectorAll('.hero-image');
@@ -343,92 +253,27 @@ const sectorIcons: Record<string, string> = {
           c = (c + 1) % imgs.length;
           imgs[c].classList.remove('opacity-0');
           imgs[c].classList.add('opacity-100');
-        }, 4500);
+        }, 5000);
       }
     });
   </script>
 
   <style>
-    /* @property for ambient CTA glow */
-    @property --glow-x {
+    @property --glow-pos {
       syntax: '<percentage>';
       initial-value: 30%;
       inherits: false;
     }
-    @property --glow-y {
-      syntax: '<percentage>';
-      initial-value: 50%;
-      inherits: false;
+    @keyframes glow-drift {
+      0%, 100% { --glow-pos: 25%; }
+      50% { --glow-pos: 75%; }
     }
-
-    @keyframes drift-glow {
-      0% { --glow-x: 20%; --glow-y: 30%; }
-      33% { --glow-x: 70%; --glow-y: 60%; }
-      66% { --glow-x: 40%; --glow-y: 20%; }
-      100% { --glow-x: 20%; --glow-y: 30%; }
+    .um-glow {
+      background: radial-gradient(800px ellipse at var(--glow-pos) 50%, rgba(220,38,38,0.06), transparent 70%);
+      animation: glow-drift 10s ease-in-out infinite;
     }
-
-    .um-ambient-glow {
-      background: radial-gradient(
-        600px ellipse at var(--glow-x) var(--glow-y),
-        rgba(14, 165, 233, 0.07),
-        transparent 70%
-      );
-      animation: drift-glow 12s ease-in-out infinite;
-    }
-
-    /* Headline: Futura with optical kerning */
-    .um-headline {
-      font-family: 'Futura PT', 'Futura', 'Trebuchet MS', sans-serif;
-      font-weight: 700;
-      letter-spacing: -0.025em;
-    }
-
-    /* Button hover lift */
-    .um-btn {
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .um-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    /* Case card: subtle inner shadow on hover */
-    .um-case-card::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-      pointer-events: none;
-      transition: box-shadow 0.3s;
-    }
-    .um-case-card:hover::after {
-      box-shadow: inset 0 0 0 2px rgba(220, 38, 38, 0.4);
-    }
-
-    /* Tag hover: scale micro-bounce */
-    .um-tag {
-      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .um-tag:hover {
-      transform: scale(1.03);
-    }
-
-    /* Scroll-driven section reveals */
-    .um-section {
-      animation: reveal-up ease-out both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 25%;
-    }
-
-    @keyframes reveal-up {
-      from { opacity: 0.4; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
     @media (prefers-reduced-motion: reduce) {
-      .um-section, .um-ambient-glow { animation: none !important; }
+      .um-glow { animation: none; }
     }
   </style>
 </LayoutV4>
