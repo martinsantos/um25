@@ -69,92 +69,92 @@ const sectorIcons: Record<string, string> = {
   structuredData={websiteSchema}
 >
 
-  <!-- ═══════ HERO — Clean, balanced, console-typed title ═══════ -->
-  <section class="bg-white pt-8 sm:pt-12 lg:pt-16 pb-12 sm:pb-16 lg:pb-20">
-    <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
+  <!-- ═══════ HERO — Background image + typewriter overlay ═══════ -->
+  <section class="relative min-h-[85vh] flex items-center overflow-hidden" id="heroImageContainer">
+    <!-- Background image (rotating) -->
+    {heroImages.map((img, i) => (
+      <img src={img.url} alt={img.alt}
+        class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-[2500ms] ${i === 0 ? 'opacity-100' : 'opacity-0'}`}
+        data-index={i} />
+    ))}
+    <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
 
-      <!-- Top line -->
-      <div class="flex items-center gap-3 mb-8 sm:mb-10">
-        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-        <span class="text-[11px] font-mono text-gray-400 tracking-wide">ultimamilla.com.ar — Mendoza, Argentina — Est. 2002</span>
+    <!-- Content overlay -->
+    <div class="relative w-full max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-16 sm:py-20">
+      <!-- Status line -->
+      <div class="flex items-center gap-2.5 mb-8 sm:mb-10">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 um-blink"></span>
+        <span class="text-[11px] font-mono text-white/40 tracking-wide">ultimamilla.com.ar — Mendoza — Est. 2002</span>
       </div>
 
-      <!-- Headline: types in like a console -->
-      <h1 id="hero-title" class="um-type text-[1.75rem] sm:text-[2.5rem] md:text-[3rem] lg:text-[3.5rem] font-bold text-gray-900 leading-[1.1] tracking-tight mb-8 sm:mb-10"
-        style="font-family:'Futura PT','Futura','Trebuchet MS',sans-serif;">
+      <!-- Typewriter headline -->
+      <h1 class="um-type text-[1.75rem] sm:text-[2.5rem] md:text-[3.25rem] lg:text-[4rem] font-bold text-white leading-[1.05] tracking-tight mb-6 sm:mb-8"
+        style="font-family:'Futura PT','Futura','Trebuchet MS',sans-serif; text-shadow: 0 2px 20px rgba(0,0,0,0.3);">
         <span class="um-type-line" style="--delay:0">La infraestructura que mueve</span><br>
         <span class="um-type-line" style="--delay:1">a las empresas argentinas</span>
-        <span class="text-red-600 um-type-line" style="--delay:2">.</span>
+        <span class="text-red-500 um-type-line" style="--delay:2">.</span>
         <span class="um-cursor"></span>
       </h1>
 
-      <!-- Subtitle -->
-      <p class="text-gray-400 text-sm sm:text-base max-w-lg leading-relaxed mb-8" style="text-wrap:pretty;">
-        Telecomunicaciones, seguridad electrónica, desarrollo de software y soporte técnico 24/7 para aeropuertos, hospitales, bodegas, gobiernos e industrias.
+      <p class="text-white/50 text-sm sm:text-base max-w-md leading-relaxed mb-8" style="text-wrap:pretty;">
+        Telecomunicaciones, seguridad electrónica, desarrollo de software y soporte 24/7.
       </p>
 
-      <!-- CTAs -->
-      <div class="flex flex-wrap gap-3 mb-12 sm:mb-16">
-        <a href={withBase("/contacto")} class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-semibold rounded-xl hover:bg-red-600 transition-colors text-sm">
+      <div class="flex flex-wrap gap-3 mb-10 sm:mb-14">
+        <a href={withBase("/contacto")} class="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-900 font-semibold rounded-xl hover:bg-red-600 hover:text-white transition-all text-sm">
           Solicitar consultoría
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
         </a>
-        <a href={withBase("/antecedentes")} class="inline-flex items-center px-6 py-3 border border-gray-200 text-gray-600 font-medium rounded-xl hover:border-gray-400 transition-colors text-sm">
+        <a href={withBase("/antecedentes")} class="inline-flex items-center px-6 py-3 border border-white/20 text-white/70 font-medium rounded-xl hover:border-white/40 hover:text-white transition-all text-sm">
           Ver 469+ proyectos
         </a>
       </div>
 
-      <!-- Photo strip: small thumbnails as visual accent, not protagonists -->
-      <div class="flex gap-2 sm:gap-3 mb-10 sm:mb-14 overflow-hidden" id="heroImageContainer">
-        {heroImages.map((img, i) => (
-          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-gray-100 shrink-0">
-            <img src={img.url} alt={img.alt} class="w-full h-full object-cover" loading="lazy" />
-          </div>
-        ))}
-        <div class="flex items-center pl-2">
-          <span class="text-[10px] font-mono text-gray-300 uppercase tracking-wider">+469 proyectos</span>
-        </div>
-      </div>
-
-      <!-- Stats: clean horizontal with subtle separators -->
-      <div class="flex items-center gap-6 sm:gap-10 pt-8 border-t border-gray-100">
+      <!-- Stats inline -->
+      <div class="flex items-center gap-6 sm:gap-8 pt-6 border-t border-white/10">
         <div>
-          <span class="text-xl sm:text-2xl font-bold text-gray-900 tabular-nums font-mono">469+</span>
-          <span class="text-[10px] font-mono uppercase tracking-[0.15em] text-gray-300 ml-2">proyectos</span>
+          <span class="text-lg sm:text-xl font-bold text-white tabular-nums font-mono">469+</span>
+          <span class="text-[9px] font-mono uppercase tracking-[0.15em] text-white/30 ml-1.5">proyectos</span>
         </div>
-        <span class="w-px h-5 bg-gray-200"></span>
         <div>
-          <span class="text-xl sm:text-2xl font-bold text-gray-900 tabular-nums font-mono">22</span>
-          <span class="text-[10px] font-mono uppercase tracking-[0.15em] text-gray-300 ml-2">años</span>
+          <span class="text-lg sm:text-xl font-bold text-white tabular-nums font-mono">22</span>
+          <span class="text-[9px] font-mono uppercase tracking-[0.15em] text-white/30 ml-1.5">años</span>
         </div>
-        <span class="w-px h-5 bg-gray-200"></span>
         <div>
-          <span class="text-xl sm:text-2xl font-bold text-gray-900 tabular-nums font-mono">9</span>
-          <span class="text-[10px] font-mono uppercase tracking-[0.15em] text-gray-300 ml-2">industrias</span>
+          <span class="text-lg sm:text-xl font-bold text-white tabular-nums font-mono">9</span>
+          <span class="text-[9px] font-mono uppercase tracking-[0.15em] text-white/30 ml-1.5">industrias</span>
         </div>
-        <span class="w-px h-5 bg-gray-200"></span>
         <div>
-          <span class="text-xl sm:text-2xl font-bold text-red-600 tabular-nums font-mono">24/7</span>
-          <span class="text-[10px] font-mono uppercase tracking-[0.15em] text-gray-300 ml-2">soporte</span>
+          <span class="text-lg sm:text-xl font-bold text-red-500 tabular-nums font-mono">24/7</span>
+          <span class="text-[9px] font-mono uppercase tracking-[0.15em] text-white/30 ml-1.5">soporte</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ═══════ SERVICES ═══════ -->
-  <section class="py-14 sm:py-20 lg:py-24 bg-gray-50">
-    <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 sm:mb-14">
+  <!-- ═══════ SERVICES — Photo banner + grid ═══════ -->
+  <section class="relative overflow-hidden">
+    <!-- Service portada banner -->
+    <div class="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
+      <img src={withBase("/images/hero/foto-redes.jpg")} alt="Servicios" class="absolute inset-0 w-full h-full object-cover" />
+      <div class="absolute inset-0 bg-gradient-to-b from-black/30 to-black/60"></div>
+      <div class="relative max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 h-full flex items-end pb-6 sm:pb-8">
         <div>
-          <span class="text-[10px] font-mono uppercase tracking-[0.2em] text-red-600 block mb-2">Servicios</span>
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight" style="font-family:'Futura PT','Futura',sans-serif;">
-            Ocho disciplinas, una misión<span class="text-red-600">.</span>
+          <span class="text-[10px] font-mono uppercase tracking-[0.2em] text-red-400 block mb-1.5">Servicios</span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight" style="font-family:'Futura PT','Futura',sans-serif;">
+            Ocho disciplinas, una misión<span class="text-red-500">.</span>
           </h2>
         </div>
-        <a href={withBase("/servicios")} class="text-[11px] font-semibold text-gray-400 hover:text-red-600 transition-colors uppercase tracking-[0.15em]">
-          Ver catálogo →
-        </a>
       </div>
+    </div>
+    <!-- Service cards -->
+    <div class="py-10 sm:py-14 lg:py-16 bg-white">
+      <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
+        <div class="flex justify-end mb-6">
+          <a href={withBase("/servicios")} class="text-[11px] font-semibold text-gray-400 hover:text-red-600 transition-colors uppercase tracking-[0.15em]">
+            Ver catálogo completo →
+          </a>
+        </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
         {servicios.map((s, i) => (
@@ -163,23 +163,33 @@ const sectorIcons: Record<string, string> = {
           </div>
         ))}
       </div>
+      </div>
     </div>
   </section>
 
-  <!-- ═══════ CASES ═══════ -->
-  <section class="py-14 sm:py-20 lg:py-24 bg-white">
-    <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 sm:mb-14">
+  <!-- ═══════ CASES — Photo banner + cards ═══════ -->
+  <section class="relative overflow-hidden">
+    <!-- Antecedentes portada banner -->
+    <div class="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
+      <img src={withBase("/images/hero/foto-seguridad.jpg")} alt="Antecedentes" class="absolute inset-0 w-full h-full object-cover" />
+      <div class="absolute inset-0 bg-gradient-to-b from-black/30 to-black/60"></div>
+      <div class="relative max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 h-full flex items-end pb-6 sm:pb-8">
         <div>
-          <span class="text-[10px] font-mono uppercase tracking-[0.2em] text-red-600 block mb-2">Antecedentes</span>
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight" style="font-family:'Futura PT','Futura',sans-serif;">
-            Proyectos que hablan por sí solos<span class="text-red-600">.</span>
+          <span class="text-[10px] font-mono uppercase tracking-[0.2em] text-red-400 block mb-1.5">Antecedentes</span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight" style="font-family:'Futura PT','Futura',sans-serif;">
+            Proyectos que hablan por sí solos<span class="text-red-500">.</span>
           </h2>
         </div>
-        <a href={withBase("/antecedentes")} class="text-[11px] font-semibold text-gray-400 hover:text-red-600 transition-colors uppercase tracking-[0.15em]">
-          Explorar 469+ →
-        </a>
       </div>
+    </div>
+    <!-- Case cards -->
+    <div class="py-10 sm:py-14 lg:py-16 bg-gray-50">
+      <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
+        <div class="flex justify-end mb-6">
+          <a href={withBase("/antecedentes")} class="text-[11px] font-semibold text-gray-400 hover:text-red-600 transition-colors uppercase tracking-[0.15em]">
+            Explorar 469+ proyectos →
+          </a>
+        </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {antecedentesEnhanced.map((ant, i) => (
@@ -252,6 +262,19 @@ const sectorIcons: Record<string, string> = {
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Hero image rotation
+      const heroImgs = document.querySelectorAll('#heroImageContainer > .hero-image');
+      if (heroImgs.length > 1) {
+        let c = 0;
+        setInterval(() => {
+          heroImgs[c].classList.remove('opacity-100');
+          heroImgs[c].classList.add('opacity-0');
+          c = (c + 1) % heroImgs.length;
+          heroImgs[c].classList.remove('opacity-0');
+          heroImgs[c].classList.add('opacity-100');
+        }, 5000);
+      }
+
       // Typewriter effect on hero title lines
       const lines = document.querySelectorAll('.um-type-line');
       lines.forEach((line, i) => {
@@ -290,6 +313,10 @@ const sectorIcons: Record<string, string> = {
 
     /* Lines start invisible */
     .um-type-line { visibility: hidden; }
+
+    /* Blink for status dot */
+    @keyframes um-blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .um-blink { animation: um-blink 2s ease-in-out infinite; }
 
     @media (prefers-reduced-motion: reduce) {
       .um-type-line { visibility: visible !important; }
