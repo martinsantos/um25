@@ -70,65 +70,151 @@ const sectorIcons: Record<string, string> = {
 >
 
   <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       HERO — "Monograph cover": Ghost number + headline + photo mosaic
+       HERO — "Network Topology": Technical diagram with live photos
+       The hero IS the proof of expertise
        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-  <section class="relative bg-gray-950 overflow-hidden" style="min-height:100svh;">
-    <!-- Giant ghost number as texture -->
-    <div class="absolute top-1/2 -translate-y-1/2 -right-[5%] select-none pointer-events-none um-ghost-num" aria-hidden="true"
-      style="font-family:'Futura PT','Futura',sans-serif; font-size:clamp(20rem,40vw,50rem); font-weight:800; line-height:0.8; color:rgba(255,255,255,0.03); letter-spacing:-0.04em;">
-      469
-    </div>
+  <section class="relative bg-[#0a0e17] overflow-hidden" style="min-height:100svh;">
+    <!-- Background: animated grid pattern -->
+    <div class="absolute inset-0 um-grid-bg"></div>
+
+    <!-- Animated connection lines (CSS-only) -->
+    <svg class="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true">
+      <defs>
+        <linearGradient id="pulse-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#dc2626;stop-opacity:0" />
+          <stop offset="50%" style="stop-color:#dc2626;stop-opacity:0.6" />
+          <stop offset="100%" style="stop-color:#dc2626;stop-opacity:0" />
+        </linearGradient>
+      </defs>
+      <!-- Horizontal lines with traveling pulse -->
+      <line x1="0" y1="35%" x2="100%" y2="35%" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+      <line x1="0" y1="65%" x2="100%" y2="65%" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+      <line x1="30%" y1="0" x2="30%" y2="100%" stroke="rgba(255,255,255,0.02)" stroke-width="1"/>
+      <line x1="70%" y1="0" x2="70%" y2="100%" stroke="rgba(255,255,255,0.02)" stroke-width="1"/>
+      <!-- Pulse traveling on horizontal line -->
+      <rect class="um-pulse-h" x="-60" y="34.7%" width="60" height="2" rx="1" fill="url(#pulse-grad)" />
+      <rect class="um-pulse-h2" x="-80" y="64.7%" width="80" height="2" rx="1" fill="url(#pulse-grad)" />
+    </svg>
+
+    <!-- Floating data nodes (pure CSS circles with glow) -->
+    <div class="absolute top-[30%] left-[25%] um-node" style="animation-delay:0s;"></div>
+    <div class="absolute top-[30%] right-[25%] um-node" style="animation-delay:1.5s;"></div>
+    <div class="absolute bottom-[30%] left-[40%] um-node um-node-red" style="animation-delay:0.7s;"></div>
+    <div class="absolute bottom-[35%] right-[35%] um-node" style="animation-delay:2.2s;"></div>
 
     <div class="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-      <!-- Top bar: mono label + year -->
-      <div class="flex items-center justify-between pt-8 pb-16 sm:pb-24 border-b border-white/5">
-        <span class="text-[10px] font-mono uppercase tracking-[0.3em] text-white/30">Infraestructura IT · Seguridad · Software</span>
-        <span class="text-[10px] font-mono uppercase tracking-[0.3em] text-white/30">Est. 2002</span>
+      <!-- Top bar: system-status style -->
+      <div class="flex items-center justify-between pt-6 sm:pt-8 pb-10 sm:pb-16 border-b border-white/5">
+        <div class="flex items-center gap-3">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 um-blink"></span>
+          <span class="text-[10px] font-mono uppercase tracking-[0.2em] text-emerald-500/70">Sistemas operativos</span>
+        </div>
+        <span class="text-[10px] font-mono tracking-[0.15em] text-white/20">MZA · SJN · SLS · PAT</span>
       </div>
 
-      <!-- Main grid: type left, photo mosaic right -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center py-12 sm:py-16 lg:py-20">
+      <!-- Main content grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center py-10 sm:py-14 lg:py-16">
 
-        <!-- Left column: headline + CTA -->
-        <div>
+        <!-- Left: Headline + description (5 cols) -->
+        <div class="lg:col-span-5">
+          <div class="text-[10px] font-mono uppercase tracking-[0.25em] text-white/25 mb-4">
+            Infraestructura IT · Seguridad · Software
+          </div>
+
           <h1 style="font-family:'Futura PT','Futura','Trebuchet MS',sans-serif; text-wrap:balance;"
-            class="text-[2rem] sm:text-[2.75rem] md:text-[3.25rem] lg:text-[3.75rem] font-bold text-white leading-[1.0] tracking-tight mb-6 sm:mb-8">
-            La infraestructura que<br>
-            mueve a las empresas<br>
-            argentinas<span class="text-red-500">.</span>
+            class="text-[1.75rem] sm:text-[2.25rem] md:text-[2.75rem] lg:text-[3rem] font-bold text-white leading-[1.05] tracking-tight mb-5 sm:mb-6">
+            La infraestructura que mueve a las empresas argentinas<span class="text-red-500">.</span>
           </h1>
 
-          <p class="text-white/45 text-sm sm:text-base leading-relaxed max-w-md mb-8" style="text-wrap:pretty;">
-            Diseñamos, construimos y mantenemos la columna vertebral tecnológica de aeropuertos, hospitales, bodegas, gobiernos y empresas industriales desde Mendoza hasta la Patagonia.
+          <p class="text-white/35 text-[13px] sm:text-sm leading-relaxed mb-6 sm:mb-8 max-w-sm" style="text-wrap:pretty;">
+            Diseñamos, construimos y mantenemos la columna vertebral tecnológica de aeropuertos, hospitales, bodegas y gobiernos desde Mendoza hasta la Patagonia.
           </p>
 
-          <div class="flex flex-wrap gap-3 mb-12">
-            <a href={withBase("/contacto")} class="inline-flex items-center gap-2 px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-500 transition-colors text-sm">
+          <div class="flex flex-wrap gap-3 mb-8 sm:mb-10">
+            <a href={withBase("/contacto")} class="um-cta-btn inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 text-white font-semibold rounded-lg text-sm hover:bg-red-500 transition-colors">
               Solicitar consultoría
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
             </a>
-            <a href={withBase("/antecedentes")} class="inline-flex items-center px-6 py-3 border border-white/15 text-white/70 font-medium rounded-lg hover:border-white/30 hover:text-white transition-all text-sm">
+            <a href={withBase("/antecedentes")} class="inline-flex items-center px-5 py-2.5 border border-white/10 text-white/50 font-medium rounded-lg hover:border-white/25 hover:text-white/80 transition-all text-sm">
               Ver proyectos
             </a>
           </div>
 
-          <!-- Stats: 4 numbers in tight grid -->
-          <div class="grid grid-cols-4 gap-px bg-white/5 rounded-lg overflow-hidden">
-            <div class="bg-gray-950 p-4 text-center">
-              <div class="text-xl sm:text-2xl font-bold text-white tabular-nums">469+</div>
-              <div class="text-[8px] font-mono uppercase tracking-[0.2em] text-white/30 mt-1">Proyectos</div>
+          <!-- Stats row: monospaced, technical feel -->
+          <div class="flex gap-6 sm:gap-8 pt-6 border-t border-white/5">
+            <div>
+              <div class="text-lg sm:text-xl font-bold text-white tabular-nums font-mono">469<span class="text-red-500">+</span></div>
+              <div class="text-[8px] font-mono uppercase tracking-[0.2em] text-white/20 mt-0.5">proyectos</div>
             </div>
-            <div class="bg-gray-950 p-4 text-center">
-              <div class="text-xl sm:text-2xl font-bold text-white tabular-nums">22</div>
-              <div class="text-[8px] font-mono uppercase tracking-[0.2em] text-white/30 mt-1">Años</div>
+            <div>
+              <div class="text-lg sm:text-xl font-bold text-white tabular-nums font-mono">22</div>
+              <div class="text-[8px] font-mono uppercase tracking-[0.2em] text-white/20 mt-0.5">años</div>
             </div>
-            <div class="bg-gray-950 p-4 text-center">
-              <div class="text-xl sm:text-2xl font-bold text-white tabular-nums">9</div>
-              <div class="text-[8px] font-mono uppercase tracking-[0.2em] text-white/30 mt-1">Industrias</div>
+            <div>
+              <div class="text-lg sm:text-xl font-bold text-white tabular-nums font-mono">9</div>
+              <div class="text-[8px] font-mono uppercase tracking-[0.2em] text-white/20 mt-0.5">industrias</div>
             </div>
-            <div class="bg-gray-950 p-4 text-center">
-              <div class="text-xl sm:text-2xl font-bold text-red-500 tabular-nums">24/7</div>
-              <div class="text-[8px] font-mono uppercase tracking-[0.2em] text-white/30 mt-1">Soporte</div>
+            <div>
+              <div class="text-lg sm:text-xl font-bold text-red-500 tabular-nums font-mono">24/7</div>
+              <div class="text-[8px] font-mono uppercase tracking-[0.2em] text-white/20 mt-0.5">soporte</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Photo "nodes" in network layout (7 cols) -->
+        <div class="lg:col-span-7 relative" id="heroImageContainer">
+          <!-- Main photo: large, center -->
+          <div class="relative rounded-2xl overflow-hidden aspect-[16/10] bg-gray-800/50 border border-white/5 shadow-2xl shadow-black/50 um-photo-main">
+            {heroImages.slice(0, 4).map((img, i) => (
+              <img src={img.url} alt={img.alt}
+                class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ${i === 0 ? 'opacity-100' : 'opacity-0'}`}
+                data-index={i} />
+            ))}
+            <!-- Technical overlay on photo -->
+            <div class="absolute top-3 left-3 flex items-center gap-2 px-2.5 py-1 bg-black/40 backdrop-blur-sm rounded-md border border-white/10">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 um-blink"></span>
+              <span class="text-[9px] font-mono text-white/60 uppercase tracking-wider">Live Feed</span>
+            </div>
+            <div class="absolute bottom-3 right-3 px-2.5 py-1 bg-black/40 backdrop-blur-sm rounded-md border border-white/10">
+              <span class="text-[9px] font-mono text-white/40">CAM-01 · 1920×1080 · 30fps</span>
+            </div>
+          </div>
+
+          <!-- Two smaller photos flanking below with connectors -->
+          <div class="grid grid-cols-2 gap-3 mt-3">
+            <div class="relative rounded-xl overflow-hidden aspect-[4/3] bg-gray-800/50 border border-white/5">
+              <img src={heroImages[4]?.url || heroImages[0].url} alt="Proyecto" class="w-full h-full object-cover" loading="lazy" />
+              <div class="absolute bottom-2 left-2 px-2 py-0.5 bg-black/50 backdrop-blur-sm rounded border border-white/10">
+                <span class="text-[8px] font-mono text-white/50">NODE-02 · ACTIVO</span>
+              </div>
+            </div>
+            <div class="relative rounded-xl overflow-hidden aspect-[4/3] bg-gray-800/50 border border-white/5">
+              <img src={heroImages[5]?.url || heroImages[1].url} alt="Proyecto" class="w-full h-full object-cover" loading="lazy" />
+              <div class="absolute bottom-2 left-2 px-2 py-0.5 bg-black/50 backdrop-blur-sm rounded border border-white/10">
+                <span class="text-[8px] font-mono text-white/50">NODE-03 · ACTIVO</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Client ticker -->
+      <div class="border-t border-white/5 py-4 flex items-center gap-6 overflow-hidden">
+        <span class="text-[8px] font-mono uppercase tracking-[0.25em] text-white/15 shrink-0">Clientes</span>
+        <div class="flex gap-5 text-[10px] text-white/20 font-mono whitespace-nowrap um-ticker">
+          <span>Aeropuertos Argentina 2000</span><span class="text-white/8">·</span>
+          <span>Gobierno de Mendoza</span><span class="text-white/8">·</span>
+          <span>Hospital Central</span><span class="text-white/8">·</span>
+          <span>Bodega La Esmeralda</span><span class="text-white/8">·</span>
+          <span>Premix SA</span><span class="text-white/8">·</span>
+          <span>Municipalidad de Guaymallén</span><span class="text-white/8">·</span>
+          <span>Jose Nucete e Hijos</span><span class="text-white/8">·</span>
+          <span>Consorcio Torre Thays</span><span class="text-white/8">·</span>
+          <span>Aeropuertos Argentina 2000</span><span class="text-white/8">·</span>
+          <span>Gobierno de Mendoza</span><span class="text-white/8">·</span>
+          <span>Hospital Central</span>
+        </div>
+      </div>
             </div>
           </div>
         </div>
@@ -355,6 +441,7 @@ const sectorIcons: Record<string, string> = {
   </script>
 
   <style>
+    /* ═══ CTA Glow ═══ */
     @property --glow-x { syntax: '<percentage>'; initial-value: 30%; inherits: false; }
     @keyframes glow-move { 0%,100%{--glow-x:20%} 50%{--glow-x:80%} }
     .um-glow {
@@ -362,25 +449,58 @@ const sectorIcons: Record<string, string> = {
       animation: glow-move 12s ease-in-out infinite;
     }
 
-    /* Ghost number parallax on scroll */
-    .um-ghost-num {
-      animation: ghost-drift linear;
-      animation-timeline: scroll(root);
-      animation-range: 0vh 100vh;
+    /* ═══ Hero: Network topology background grid ═══ */
+    .um-grid-bg {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
     }
-    @keyframes ghost-drift { to { transform: translateY(-30%) translateX(-5%); } }
 
-    /* Ticker subtle animation */
-    .um-ticker {
-      animation: ticker-slide 30s linear infinite;
+    /* ═══ Animated data pulse traveling across lines ═══ */
+    @keyframes pulse-travel {
+      0% { transform: translateX(-100px); }
+      100% { transform: translateX(calc(100vw + 100px)); }
     }
-    @keyframes ticker-slide {
-      from { transform: translateX(0); }
-      to { transform: translateX(-50%); }
+    .um-pulse-h { animation: pulse-travel 6s linear infinite; }
+    .um-pulse-h2 { animation: pulse-travel 8s linear infinite; animation-delay: 3s; animation-direction: reverse; }
+
+    /* ═══ Network nodes: breathing glow ═══ */
+    @property --node-glow { syntax: '<number>'; initial-value: 0.3; inherits: false; }
+    @keyframes node-breathe {
+      0%, 100% { --node-glow: 0.2; }
+      50% { --node-glow: 0.8; }
     }
+    .um-node {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: rgba(255,255,255, var(--node-glow));
+      box-shadow: 0 0 12px rgba(255,255,255, calc(var(--node-glow) * 0.3));
+      animation: node-breathe 3s ease-in-out infinite;
+    }
+    .um-node-red {
+      background: rgba(220,38,38, var(--node-glow));
+      box-shadow: 0 0 16px rgba(220,38,38, calc(var(--node-glow) * 0.4));
+    }
+
+    /* ═══ Blinking status indicator ═══ */
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .um-blink { animation: blink 2s ease-in-out infinite; }
+
+    /* ═══ Photo main: subtle border glow on hover ═══ */
+    .um-photo-main { transition: box-shadow 0.5s ease; }
+    .um-photo-main:hover { box-shadow: 0 0 40px rgba(220,38,38,0.1), 0 25px 50px rgba(0,0,0,0.5); }
+
+    /* ═══ CTA button hover ═══ */
+    .um-cta-btn { transition: all 0.2s ease; }
+    .um-cta-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(220,38,38,0.3); }
+
+    /* ═══ Ticker ═══ */
+    .um-ticker { animation: ticker-slide 35s linear infinite; }
+    @keyframes ticker-slide { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
     @media (prefers-reduced-motion: reduce) {
-      .um-glow, .um-ghost-num, .um-ticker { animation: none !important; }
+      .um-glow, .um-ticker, .um-pulse-h, .um-pulse-h2, .um-node, .um-node-red, .um-blink { animation: none !important; }
+      .um-node, .um-node-red { opacity: 0.4; }
     }
   </style>
 </LayoutV4>
