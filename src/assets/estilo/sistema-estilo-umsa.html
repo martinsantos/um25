@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Estilo — ULTIMA MILLA S.A.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --negro:#000000;--rojo:#DC2626;--azul:#1A56C0;--blanco:#FFFFFF;
+  --gris-o:#333333;--gris-t:#666666;--gris-f:#F5F5F5;--gris-b:#DDDDDD;
+  --verde:#2D8A2D;--azul-bg:#EFF4FF;--verde-bg:#EEF7EE;--rojo-bg:#FFF5F5;
+  --sidebar-w:280px;--header-h:64px;
+  --font-head:'Poppins','Century Gothic',sans-serif;
+  --font-body:'Arial','Inter',system-ui,sans-serif;
+  --font-code:'Fira Code','Consolas','Courier New',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);font-size:15px;color:var(--negro);background:#fff;line-height:1.6}
+
+/* ── TOP HEADER ─────────────────────────────────────── */
+#top-header{
+  position:fixed;top:0;left:0;right:0;height:var(--header-h);
+  background:var(--negro);z-index:100;
+  display:flex;align-items:center;padding:0 24px;gap:24px;
+  border-bottom:3px solid var(--rojo);
+}
+#top-header .logo{
+  font-family:var(--font-head);font-weight:700;font-size:20px;
+  color:#fff;letter-spacing:-0.02em;white-space:nowrap;text-decoration:none;
+}
+#top-header .logo span{color:var(--rojo)}
+#top-header .doc-label{
+  font-family:var(--font-head);font-size:11px;font-weight:600;
+  color:var(--gris-t);text-transform:uppercase;letter-spacing:0.08em;
+  border-left:1px solid #333;padding-left:20px;
+}
+#top-header .version-badge{
+  margin-left:auto;background:#1a1a1a;color:var(--gris-t);
+  font-family:var(--font-code);font-size:11px;padding:4px 10px;
+  border:1px solid #333;border-radius:3px;
+}
+
+/* ── SIDEBAR ─────────────────────────────────────────── */
+#sidebar{
+  position:fixed;top:var(--header-h);left:0;bottom:0;width:var(--sidebar-w);
+  background:#0a0a0a;overflow-y:auto;z-index:90;padding:0 0 32px;
+  border-right:1px solid #1a1a1a;
+}
+#sidebar::-webkit-scrollbar{width:4px}
+#sidebar::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+.nav-section-label{
+  font-family:var(--font-head);font-size:9px;font-weight:700;
+  color:#444;text-transform:uppercase;letter-spacing:0.12em;
+  padding:20px 20px 6px;
+}
+.nav-section-label:first-child{padding-top:16px}
+#sidebar a{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 20px;color:#aaa;text-decoration:none;
+  font-family:var(--font-body);font-size:13px;line-height:1.3;
+  border-left:3px solid transparent;transition:all .15s;
+}
+#sidebar a:hover{color:#fff;background:#111;border-left-color:#333}
+#sidebar a.active{color:#fff;background:#111;border-left-color:var(--rojo)}
+#sidebar a .nav-num{
+  font-family:var(--font-head);font-size:10px;font-weight:700;
+  color:var(--azul);min-width:18px;
+}
+#sidebar .sub-link{
+  padding-left:42px;font-size:12px;color:#666;
+}
+#sidebar .sub-link:hover{color:#ccc}
+#sidebar .sub-link.active{color:#ccc;border-left-color:var(--azul)}
+
+/* ── MAIN CONTENT ────────────────────────────────────── */
+#main{
+  margin-left:var(--sidebar-w);padding-top:var(--header-h);
+  min-height:100vh;
+}
+.content-wrap{max-width:860px;margin:0 auto;padding:48px 40px 80px}
+
+/* Hero */
+.hero{
+  background:var(--negro);color:#fff;padding:56px 40px;
+  margin:-48px -40px 48px;
+  border-bottom:4px solid var(--rojo);
+}
+.hero h1{
+  font-family:var(--font-head);font-size:36px;font-weight:800;
+  line-height:1.1;margin-bottom:12px;
+}
+.hero h1 span{color:var(--rojo)}
+.hero p{color:#999;font-size:15px;max-width:540px;line-height:1.7}
+.hero .meta{
+  display:flex;gap:24px;margin-top:24px;flex-wrap:wrap;
+}
+.hero .meta-item{
+  display:flex;flex-direction:column;gap:2px;
+}
+.hero .meta-item .lbl{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.08em;font-family:var(--font-head)}
+.hero .meta-item .val{font-size:13px;color:#ccc;font-family:var(--font-code)}
+
+/* Sección */
+.section-anchor{display:block;margin-top:-20px;padding-top:20px}
+.section-header{
+  display:flex;align-items:center;gap:12px;
+  border-bottom:3px solid var(--rojo);padding-bottom:10px;
+  margin:48px 0 24px;
+}
+.section-header:first-of-type{margin-top:0}
+.sec-badge{
+  background:var(--azul);color:#fff;
+  font-family:var(--font-head);font-weight:700;font-size:13px;
+  padding:4px 12px;white-space:nowrap;
+}
+.section-header h2{
+  font-family:var(--font-head);font-weight:700;font-size:18px;
+  text-transform:uppercase;letter-spacing:0.04em;color:var(--negro);
+}
+h3{
+  font-family:var(--font-head);font-size:13px;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.06em;color:var(--negro);
+  margin:28px 0 12px;padding-bottom:6px;
+  border-bottom:1px solid var(--gris-b);
+}
+h4{
+  font-family:var(--font-head);font-size:12px;font-weight:600;
+  color:var(--gris-o);margin:20px 0 8px;
+}
+p{margin-bottom:14px;color:var(--gris-o);line-height:1.7}
+
+/* ── COLOR SWATCHES ──────────────────────────────────── */
+.color-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin:16px 0 24px}
+.swatch{border-radius:4px;overflow:hidden;border:1px solid rgba(0,0,0,.08)}
+.swatch-color{height:64px;position:relative;display:flex;align-items:flex-end;padding:6px 8px}
+.swatch-copy{
+  font-family:var(--font-code);font-size:10px;font-weight:700;
+  cursor:pointer;padding:2px 5px;border-radius:2px;
+  background:rgba(0,0,0,.25);color:#fff;transition:background .15s;
+  user-select:none;
+}
+.swatch-copy:hover{background:rgba(0,0,0,.5)}
+.swatch-info{padding:8px 10px;background:#fff}
+.swatch-name{font-family:var(--font-head);font-size:11px;font-weight:700;color:var(--negro)}
+.swatch-role{font-size:10px;color:var(--gris-t);margin-top:2px;line-height:1.4}
+.swatch-wcag{
+  font-size:9px;font-family:var(--font-code);margin-top:4px;
+  display:flex;gap:4px;flex-wrap:wrap;
+}
+.badge-pass{background:#EEF7EE;color:#2D8A2D;padding:1px 5px;border-radius:2px}
+.badge-fail{background:#FFF5F5;color:#DC2626;padding:1px 5px;border-radius:2px}
+
+/* ── TYPOGRAPHY SCALE ────────────────────────────────── */
+.type-scale{margin:16px 0;border:1px solid var(--gris-b);border-radius:4px;overflow:hidden}
+.type-row{
+  display:grid;grid-template-columns:100px 1fr 110px;
+  align-items:center;border-bottom:1px solid var(--gris-b);
+  padding:16px 20px;gap:16px;
+}
+.type-row:last-child{border-bottom:none}
+.type-row:nth-child(even){background:var(--gris-f)}
+.type-label{font-family:var(--font-head);font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.06em;color:var(--gris-t)}
+.type-preview{line-height:1.1;font-family:var(--font-head);font-weight:700;color:var(--negro)}
+.type-meta{
+  font-family:var(--font-code);font-size:10px;color:var(--gris-t);
+  text-align:right;line-height:1.6;
+}
+
+/* ── SPACING SCALE ───────────────────────────────────── */
+.spacing-grid{display:flex;flex-direction:column;gap:8px;margin:16px 0}
+.sp-row{display:flex;align-items:center;gap:14px}
+.sp-label{font-family:var(--font-code);font-size:11px;color:var(--gris-t);width:36px;text-align:right}
+.sp-bar{background:var(--azul);height:12px;border-radius:2px;min-width:4px}
+.sp-desc{font-size:12px;color:var(--gris-t)}
+
+/* ── TABLES ──────────────────────────────────────────── */
+.um-table{width:100%;border-collapse:collapse;font-family:var(--font-body);font-size:13px;margin:16px 0 24px}
+.um-table thead tr{background:var(--negro);color:#fff}
+.um-table th{
+  padding:10px 14px;text-align:left;
+  font-family:var(--font-head);font-size:11px;font-weight:700;
+  border-left:1px solid #333;
+}
+.um-table th:first-child{border-left:none}
+.um-table td{padding:9px 14px;border-bottom:1px solid var(--gris-b);color:var(--gris-o)}
+.um-table tr:nth-child(even) td{background:var(--gris-f)}
+.um-table .total-row td{
+  background:var(--negro);color:#fff;font-weight:700;
+  border-top:3px solid var(--rojo);
+}
+.um-table .ok{color:var(--verde);font-weight:700}
+.um-table .fail{color:var(--rojo);font-weight:700}
+.um-table code{font-family:var(--font-code);font-size:11px;
+  background:rgba(0,0,0,.06);padding:1px 5px;border-radius:2px}
+
+/* ── CODE BLOCKS ─────────────────────────────────────── */
+pre{
+  background:#0d1117;border-radius:6px;overflow-x:auto;
+  margin:12px 0 20px;border:1px solid #1e2730;
+}
+pre code{
+  display:block;padding:20px 22px;
+  font-family:var(--font-code);font-size:12.5px;line-height:1.7;
+  color:#e6edf3;tab-size:2;
+}
+.code-header{
+  background:#161b22;padding:8px 16px;
+  display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid #1e2730;border-radius:6px 6px 0 0;
+}
+.code-lang{font-family:var(--font-head);font-size:10px;font-weight:700;
+  color:#8b949e;text-transform:uppercase;letter-spacing:0.08em}
+.copy-btn{
+  font-family:var(--font-head);font-size:10px;font-weight:700;
+  color:#8b949e;background:none;border:1px solid #30363d;
+  padding:3px 10px;border-radius:3px;cursor:pointer;
+  text-transform:uppercase;letter-spacing:0.06em;transition:all .15s;
+}
+.copy-btn:hover{color:#fff;border-color:#555}
+/* Syntax colors */
+.kw{color:#ff7b72}.fn{color:#d2a8ff}.st{color:#a5d6ff}
+.cm{color:#8b949e;font-style:italic}.nm{color:#ffa657}
+.op{color:#79c0ff}.prop{color:#79c0ff}.val{color:#a5d6ff}
+
+/* ── CALLOUTS ────────────────────────────────────────── */
+.callout{
+  border-left:4px solid;padding:14px 18px;margin:14px 0 20px;
+  border-radius:0 4px 4px 0;
+}
+.callout--info{background:var(--azul-bg);border-color:var(--azul)}
+.callout--ok{background:var(--verde-bg);border-color:var(--verde)}
+.callout--alert{background:var(--rojo-bg);border-color:var(--rojo)}
+.callout p{margin:0;font-size:13px;line-height:1.6}
+.callout strong{font-family:var(--font-head);font-size:11px;
+  text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:4px}
+.callout--info strong{color:var(--azul)}
+.callout--ok strong{color:var(--verde)}
+.callout--alert strong{color:var(--rojo)}
+
+/* ── COMPONENT PREVIEWS ──────────────────────────────── */
+.preview-box{
+  border:1px solid var(--gris-b);border-radius:6px;overflow:hidden;margin:16px 0 24px;
+}
+.preview-label{
+  background:var(--gris-f);padding:8px 16px;
+  font-family:var(--font-head);font-size:10px;font-weight:700;
+  color:var(--gris-t);text-transform:uppercase;letter-spacing:0.08em;
+  border-bottom:1px solid var(--gris-b);
+}
+.preview-content{padding:24px}
+
+/* ── RULE CARDS ──────────────────────────────────────── */
+.rule-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+@media(max-width:700px){.rule-grid{grid-template-columns:1fr}}
+.rule-card{
+  border:1px solid var(--gris-b);border-radius:6px;overflow:hidden;
+}
+.rule-card-head{
+  background:var(--negro);color:#fff;padding:10px 16px;
+  display:flex;align-items:center;gap:10px;
+}
+.rule-num{
+  background:var(--rojo);color:#fff;
+  font-family:var(--font-head);font-weight:800;font-size:12px;
+  width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;flex-shrink:0;
+}
+.rule-card-head span{
+  font-family:var(--font-head);font-size:12px;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.04em;
+}
+.rule-card-body{padding:14px 16px;font-size:13px;color:var(--gris-o);line-height:1.6}
+.rule-card-body code{
+  font-family:var(--font-code);font-size:11px;
+  background:rgba(0,0,0,.06);padding:1px 5px;border-radius:2px;
+}
+
+/* ── CHECKLIST ───────────────────────────────────────── */
+.checklist{margin:12px 0 20px;display:flex;flex-direction:column;gap:8px}
+.check-group{margin-bottom:4px}
+.check-group-label{
+  font-family:var(--font-head);font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.08em;color:var(--gris-t);
+  padding:6px 0 4px;border-bottom:1px solid var(--gris-b);margin-bottom:6px;
+}
+.check-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:7px 12px;border-radius:4px;
+  font-size:13px;color:var(--gris-o);cursor:pointer;
+  transition:background .12s;
+}
+.check-item:hover{background:var(--gris-f)}
+.check-item input[type=checkbox]{
+  margin-top:2px;accent-color:var(--verde);
+  width:15px;height:15px;cursor:pointer;flex-shrink:0;
+}
+.check-item.checked{color:var(--gris-t);text-decoration:line-through}
+.check-item .check-code{
+  font-family:var(--font-code);font-size:11px;color:var(--azul);
+  background:var(--azul-bg);padding:1px 6px;border-radius:2px;
+  white-space:nowrap;
+}
+
+/* ── LOGO PREVIEW ────────────────────────────────────── */
+.logo-preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--gris-b);border:1px solid var(--gris-b);border-radius:6px;overflow:hidden;margin:16px 0}
+.logo-variant{
+  padding:32px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:12px;background:#fff;
+}
+.logo-variant.dark{background:var(--negro)}
+.logo-variant .logo-text{
+  font-family:var(--font-head);font-weight:700;font-size:24px;
+  letter-spacing:-0.02em;color:var(--negro);white-space:nowrap;
+}
+.logo-variant.dark .logo-text{color:#fff}
+.logo-variant .logo-text .dot{color:var(--rojo)}
+.logo-variant .variant-label{
+  font-size:10px;color:var(--gris-t);font-family:var(--font-head);
+  text-transform:uppercase;letter-spacing:0.08em;
+}
+.logo-variant.dark .variant-label{color:#555}
+
+/* ── COMPONENT DEMO: Header ──────────────────────────── */
+.demo-page-header{
+  border-bottom:3px solid var(--rojo);padding-bottom:8px;
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-family:var(--font-head);
+}
+.demo-page-header .dph-logo{font-weight:700;font-size:18px;letter-spacing:-0.02em}
+.demo-page-header .dph-logo span{color:var(--rojo)}
+.demo-page-header .dph-ref{font-size:11px;font-weight:600;color:var(--gris-t)}
+
+/* ── COMPONENT DEMO: Section badge ──────────────────── */
+.demo-sec{
+  border-bottom:3px solid var(--rojo);padding-bottom:8px;
+  display:flex;align-items:center;gap:10px;
+}
+.demo-sec .dsb{
+  background:var(--azul);color:#fff;
+  font-family:var(--font-head);font-weight:700;font-size:12px;
+  padding:3px 10px;
+}
+.demo-sec .dst{
+  font-family:var(--font-head);font-weight:700;font-size:14px;
+  text-transform:uppercase;color:var(--negro);
+}
+
+/* ── MISC ────────────────────────────────────────────── */
+.tag{
+  display:inline-block;font-family:var(--font-code);font-size:11px;
+  background:var(--gris-f);color:var(--gris-o);border:1px solid var(--gris-b);
+  padding:2px 8px;border-radius:3px;margin:2px;
+}
+.tag.red{background:var(--rojo-bg);color:var(--rojo);border-color:#fcc}
+.tag.green{background:var(--verde-bg);color:var(--verde);border-color:#c3e6c3}
+.tag.blue{background:var(--azul-bg);color:var(--azul);border-color:#c5d8f8}
+hr.section-hr{border:none;border-top:1px solid var(--gris-b);margin:40px 0}
+.pip{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.back-to-top{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--negro);color:#fff;
+  font-family:var(--font-head);font-size:11px;font-weight:700;
+  padding:10px 16px;border:2px solid var(--rojo);cursor:pointer;
+  border-radius:3px;text-decoration:none;letter-spacing:0.04em;
+  opacity:0;transition:opacity .3s;pointer-events:none;
+  text-transform:uppercase;
+}
+.back-to-top.visible{opacity:1;pointer-events:auto}
+</style>
+</head>
+<body>
+
+<!-- TOP HEADER -->
+<header id="top-header">
+  <a href="#top" class="logo">ultimamilla<span>.</span>com<span>.</span>ar</a>
+  <span class="doc-label">Sistema de Estilo</span>
+  <span class="version-badge">v1.0 · Enero 2026</span>
+</header>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="nav-section-label">Fundamentos</div>
+  <a href="#identidad"><span class="nav-num">1</span> Identidad de marca</a>
+  <a href="#color"><span class="nav-num">2</span> Sistema de color</a>
+  <a href="#tipo"><span class="nav-num">3</span> Tipografía</a>
+  <a href="#espacio"><span class="nav-num">4</span> Espaciado</a>
+
+  <div class="nav-section-label">Componentes</div>
+  <a href="#componentes"><span class="nav-num">5</span> Componentes</a>
+  <a href="#componentes" class="sub-link">Header de página</a>
+  <a href="#comp-badge" class="sub-link">Badge de sección</a>
+  <a href="#comp-table" class="sub-link">Tablas</a>
+  <a href="#comp-callout" class="sub-link">Callouts</a>
+  <a href="#comp-meta" class="sub-link">Grid de metadata</a>
+
+  <div class="nav-section-label">Formatos</div>
+  <a href="#docx"><span class="nav-num">6</span> DOCX / Node.js</a>
+  <a href="#html"><span class="nav-num">7</span> HTML / React</a>
+  <a href="#charts"><span class="nav-num">8</span> Gráficos</a>
+  <a href="#pptx"><span class="nav-num">9</span> PPTX</a>
+  <a href="#xlsx"><span class="nav-num">10</span> XLSX</a>
+  <a href="#pdf"><span class="nav-num">11</span> PDF directo</a>
+
+  <div class="nav-section-label">Reglas y QA</div>
+  <a href="#reglas"><span class="nav-num">12</span> Reglas críticas</a>
+  <a href="#checklist"><span class="nav-num">13</span> Checklist</a>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+<div class="content-wrap">
+
+  <!-- HERO -->
+  <div class="hero" id="top">
+    <h1>Sistema de Estilo<br><span>ULTIMA MILLA S.A.</span></h1>
+    <p>Regla maestra de identidad visual corporativa. Aplica a todos los formatos de salida: DOCX, PDF, HTML, React, PPTX, XLSX, gráficos y dashboards.</p>
+    <div class="meta">
+      <div class="meta-item"><span class="lbl">Fuente</span><span class="val">Manual de Marca v1.0</span></div>
+      <div class="meta-item"><span class="lbl">Versión</span><span class="val">1.0 — Enero 2026</span></div>
+      <div class="meta-item"><span class="lbl">Signatario</span><span class="val">Martín Santos</span></div>
+      <div class="meta-item"><span class="lbl">CUIT</span><span class="val">30-71008591-5</span></div>
+    </div>
+  </div>
+
+  <!-- ── SECCIÓN 1: IDENTIDAD ──────────────────────── -->
+  <div class="section-anchor" id="identidad"></div>
+  <div class="section-header">
+    <span class="sec-badge">1</span>
+    <h2>Identidad de marca</h2>
+  </div>
+
+  <h3>El logotipo</h3>
+  <p>El logo es siempre texto tipográfico. Los dos puntos en <strong style="color:var(--rojo)">Rojo UMSA #DC2626</strong> representan los nodos de conexión — nunca se cambian de color. Siempre en minúsculas, Futura PT Demi 600, letter-spacing <code style="font-family:var(--font-code);font-size:12px;background:#f5f5f5;padding:1px 5px">-0.02em</code>.</p>
+
+  <div class="logo-preview-grid">
+    <div class="logo-variant">
+      <div class="logo-text">ultimamilla<span class="dot">.</span>com<span class="dot">.</span>ar</div>
+      <div class="variant-label">Principal — sobre fondo claro</div>
+    </div>
+    <div class="logo-variant dark">
+      <div class="logo-text">ultimamilla<span class="dot">.</span>com<span class="dot">.</span>ar</div>
+      <div class="variant-label">Invertida — sobre fondo negro</div>
+    </div>
+    <div class="logo-variant" style="background:#F5F5F5">
+      <div class="logo-text" style="font-size:32px">ultimamilla<span class="dot">.</span>com<span class="dot">.</span>ar</div>
+      <div class="variant-label">Display grande — cover de documento</div>
+    </div>
+    <div class="logo-variant dark" style="background:#1A56C0">
+      <div class="logo-text" style="color:#fff">ultimamilla<span class="dot">.</span>com<span class="dot">.</span>ar</div>
+      <div class="variant-label">Sobre fondo azul sección</div>
+    </div>
+  </div>
+
+  <div class="callout callout--alert">
+    <strong>❌ Usos prohibidos</strong>
+    <p>ULTIMAMILLA (mayúsculas) · puntos en otro color · separar en múltiples líneas · aplicar sombras, degradados o rotación · encerrar en formas geométricas · modificar el espaciado entre letras.</p>
+  </div>
+
+  <!-- ── SECCIÓN 2: COLOR ──────────────────────────── -->
+  <div class="section-anchor" id="color"></div>
+  <div class="section-header">
+    <span class="sec-badge">2</span>
+    <h2>Sistema de color</h2>
+  </div>
+
+  <h3>Paleta oficial — Manual de Marca v1.0</h3>
+  <div class="color-grid">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#000000">
+        <span class="swatch-copy" onclick="copyColor('#000000',this)">#000000</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Negro</div>
+        <div class="swatch-role">Texto principal · logo base · fondos de tabla</div>
+        <div class="swatch-wcag">
+          <span class="badge-pass">21:1 ✓</span>
+        </div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#DC2626">
+        <span class="swatch-copy" onclick="copyColor('#DC2626',this)">#DC2626</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Rojo UMSA ★</div>
+        <div class="swatch-role">Puntos del logo · separadores · acentos</div>
+        <div class="swatch-wcag">
+          <span class="badge-pass">BLANC 4.9:1 ✓</span>
+          <span class="badge-fail">NEGRO 4.3:1 ✗</span>
+        </div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#1A56C0">
+        <span class="swatch-copy" onclick="copyColor('#1A56C0',this)">#1A56C0</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Azul sección</div>
+        <div class="swatch-role">Badge numérico · callout info</div>
+        <div class="swatch-wcag">
+          <span class="badge-pass">BLANC 6.9:1 ✓</span>
+        </div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#FFFFFF;border:1px solid #ddd">
+        <span class="swatch-copy" style="background:rgba(0,0,0,.1);color:#333" onclick="copyColor('#FFFFFF',this)">#FFFFFF</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Blanco</div>
+        <div class="swatch-role">Fondos de página · texto invertido</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#333333">
+        <span class="swatch-copy">#333333</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Gris oscuro</div>
+        <div class="swatch-role">Texto secundario · body copy</div>
+        <div class="swatch-wcag"><span class="badge-pass">12.6:1 ✓</span></div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#666666">
+        <span class="swatch-copy">#666666</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Gris medio</div>
+        <div class="swatch-role">Labels · captions · metadata</div>
+        <div class="swatch-wcag"><span class="badge-pass">5.7:1 ✓</span></div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#F5F5F5;border:1px solid #eee">
+        <span class="swatch-copy" style="background:rgba(0,0,0,.1);color:#333">#F5F5F5</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Gris claro</div>
+        <div class="swatch-role">Filas alternas · fondos de card</div>
+        <div class="swatch-wcag"><span class="badge-pass">19:1 ✓</span></div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#2D8A2D">
+        <span class="swatch-copy">#2D8A2D</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Verde ok</div>
+        <div class="swatch-role">Callout verificado · estado ok</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Auditoría WCAG 2.2 AA</h3>
+  <table class="um-table">
+    <thead><tr>
+      <th>Texto</th><th>Fondo</th><th>Ratio</th><th>Normal (4.5:1)</th><th>Grande (3:1)</th>
+    </tr></thead>
+    <tbody>
+      <tr><td><span class="pip" style="background:#fff;border:1px solid #ccc"></span>BLANC</td><td><span class="pip" style="background:#000"></span>NEGRO</td><td>21.0:1</td><td class="ok">✅</td><td class="ok">✅</td></tr>
+      <tr><td><span class="pip" style="background:#fff;border:1px solid #ccc"></span>BLANC</td><td><span class="pip" style="background:#1A56C0"></span>AZUL</td><td>6.9:1</td><td class="ok">✅</td><td class="ok">✅</td></tr>
+      <tr><td><span class="pip" style="background:#fff;border:1px solid #ccc"></span>BLANC</td><td><span class="pip" style="background:#DC2626"></span>ROJO</td><td>4.9:1</td><td class="ok">✅</td><td class="ok">✅</td></tr>
+      <tr><td><span class="pip" style="background:#000"></span>NEGRO</td><td><span class="pip" style="background:#F5F5F5;border:1px solid #ddd"></span>GRIS_F</td><td>19.0:1</td><td class="ok">✅</td><td class="ok">✅</td></tr>
+      <tr><td><span class="pip" style="background:#666"></span>GRIS_T</td><td><span class="pip" style="background:#fff;border:1px solid #ccc"></span>BLANC</td><td>5.7:1</td><td class="ok">✅</td><td class="ok">✅</td></tr>
+      <tr style="background:#FFF5F5"><td><strong style="color:var(--rojo)"><span class="pip" style="background:#000"></span>NEGRO</strong></td><td><strong style="color:var(--rojo)"><span class="pip" style="background:#DC2626"></span>ROJO</strong></td><td><strong style="color:var(--rojo)">4.3:1</strong></td><td class="fail">❌ FALLA</td><td class="ok">✅ ≥14pt bold</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout--alert">
+    <strong>⚠️ Regla crítica de contraste</strong>
+    <p>Nunca usar texto <strong>NEGRO</strong> sobre fondo <strong>ROJO</strong> para cuerpo de texto (ratio 4.3:1 falla WCAG AA normal). Sobre ROJO usar siempre <strong>BLANC</strong> (ratio 4.9:1 ✅). Esta regla aplica a todos los formatos.</p>
+  </div>
+
+  <!-- ── SECCIÓN 3: TIPOGRAFÍA ─────────────────────── -->
+  <div class="section-anchor" id="tipo"></div>
+  <div class="section-header">
+    <span class="sec-badge">3</span>
+    <h2>Sistema tipográfico</h2>
+  </div>
+
+  <h3>Familias tipográficas</h3>
+  <table class="um-table">
+    <thead><tr><th>Rol</th><th>Principal</th><th>Fallbacks</th><th>Pesos UMSA</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Headings / Logo</strong></td><td>Futura PT</td><td>Poppins, Century Gothic</td><td>Demi 600 · Bold 700 · Heavy 800</td></tr>
+      <tr><td><strong>Cuerpo / Datos</strong></td><td>Arial</td><td>Inter, system-ui</td><td>Regular 400 · Bold 700</td></tr>
+      <tr><td><strong>Código</strong></td><td>Fira Code</td><td>Consolas, Courier New</td><td>Regular 400</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Escala tipográfica formal (GOV.UK-inspired)</h3>
+  <div class="type-scale">
+    <div class="type-row" style="background:#fff">
+      <div class="type-label">Display</div>
+      <div class="type-preview" style="font-size:36px;font-weight:800">ultimamilla</div>
+      <div class="type-meta">36pt · 72hp<br>Bold 800</div>
+    </div>
+    <div class="type-row">
+      <div class="type-label">H1</div>
+      <div class="type-preview" style="font-size:24px;font-weight:700">Título Principal</div>
+      <div class="type-meta">24pt · 48hp<br>Bold 700</div>
+    </div>
+    <div class="type-row" style="background:#fff">
+      <div class="type-label">H2 Sección</div>
+      <div class="type-preview" style="font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.04em">ANÁLISIS TÉCNICO</div>
+      <div class="type-meta">14pt · 28hp<br>Bold 700</div>
+    </div>
+    <div class="type-row">
+      <div class="type-label">H3</div>
+      <div class="type-preview" style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em">Subsección</div>
+      <div class="type-meta">12pt · 24hp<br>Demi 600</div>
+    </div>
+    <div class="type-row" style="background:#fff">
+      <div class="type-label">Body</div>
+      <div class="type-preview" style="font-size:12px;font-weight:400;font-family:var(--font-body);color:var(--gris-o)">Texto de cuerpo del documento — mínimo absoluto en todos los formatos.</div>
+      <div class="type-meta">12pt · 24hp<br>Regular 400</div>
+    </div>
+    <div class="type-row">
+      <div class="type-label">Small</div>
+      <div class="type-preview" style="font-size:10px;font-weight:400;font-family:var(--font-body);color:var(--gris-o)">Contenido de tabla, notas técnicas, valores numéricos</div>
+      <div class="type-meta">10pt · 20hp<br>Regular 400</div>
+    </div>
+    <div class="type-row" style="background:#fff">
+      <div class="type-label">Caption</div>
+      <div class="type-preview" style="font-size:9px;font-weight:400;font-family:var(--font-body);color:var(--gris-t);text-transform:uppercase;letter-spacing:.05em">DESTINATARIO · EXPEDIENTE · FECHA</div>
+      <div class="type-meta">9pt · 18hp<br>Regular 400</div>
+    </div>
+  </div>
+
+  <!-- ── SECCIÓN 4: ESPACIADO ──────────────────────── -->
+  <div class="section-anchor" id="espacio"></div>
+  <div class="section-header">
+    <span class="sec-badge">4</span>
+    <h2>Sistema de espaciado</h2>
+  </div>
+
+  <p>10 unidades (0–9), base 5px. Inspirado en la escala GOV.UK. <strong>Prohibido usar valores arbitrarios</strong> fuera de esta escala.</p>
+
+  <div class="spacing-grid">
+    <div class="sp-row"><span class="sp-label">SP0</span><div class="sp-bar" style="width:4px"></div><span class="sp-desc">0px · 0 DXA — sin espaciado</span></div>
+    <div class="sp-row"><span class="sp-label">SP1</span><div class="sp-bar" style="width:10px"></div><span class="sp-desc">5px · 100 DXA — párrafos en celdas de tabla</span></div>
+    <div class="sp-row"><span class="sp-label">SP2</span><div class="sp-bar" style="width:20px"></div><span class="sp-desc">10px · 200 DXA — espacio mínimo post-run</span></div>
+    <div class="sp-row"><span class="sp-label">SP3</span><div class="sp-bar" style="width:30px"></div><span class="sp-desc">15px · 280 DXA — separación entre runs</span></div>
+    <div class="sp-row"><span class="sp-label" style="color:var(--azul);font-weight:700">SP4</span><div class="sp-bar" style="width:44px;background:var(--rojo)"></div><span class="sp-desc" style="color:var(--negro);font-weight:600">20px · 400 DXA — <strong>estándar entre párrafos (Regla 3)</strong></span></div>
+    <div class="sp-row"><span class="sp-label">SP5</span><div class="sp-bar" style="width:56px"></div><span class="sp-desc">25px · 500 DXA — antes de cuerpo post-cabecera</span></div>
+    <div class="sp-row"><span class="sp-label">SP6</span><div class="sp-bar" style="width:70px"></div><span class="sp-desc">30px · 600 DXA — antes de sección H2</span></div>
+    <div class="sp-row"><span class="sp-label">SP7</span><div class="sp-bar" style="width:90px"></div><span class="sp-desc">40px · 800 DXA — pre-sección con page break</span></div>
+    <div class="sp-row"><span class="sp-label">SP8</span><div class="sp-bar" style="width:112px"></div><span class="sp-desc">50px · 1000 DXA — entre bloques mayores</span></div>
+    <div class="sp-row"><span class="sp-label">SP9</span><div class="sp-bar" style="width:136px"></div><span class="sp-desc">60px · 1200 DXA — post-encabezado, pre-firma</span></div>
+  </div>
+
+  <div class="code-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+  <pre><code><span class="cm">// Escala de espaciado UMSA — array canónico</span>
+<span class="kw">const</span> <span class="nm">SP</span> = [<span class="nm">0</span>, <span class="nm">100</span>, <span class="nm">200</span>, <span class="nm">280</span>, <span class="nm">400</span>, <span class="nm">500</span>, <span class="nm">600</span>, <span class="nm">800</span>, <span class="nm">1000</span>, <span class="nm">1200</span>];
+<span class="kw">const</span> <span class="fn">sp</span> = (b = <span class="nm">0</span>, a = SP[<span class="nm">2</span>]) => ({ before: b, after: a });
+<span class="cm">// Uso: sp(SP[4], SP[2]) → { before: 400, after: 200 }</span></code></pre>
+
+  <!-- ── SECCIÓN 5: COMPONENTES ────────────────────── -->
+  <div class="section-anchor" id="componentes"></div>
+  <div class="section-header">
+    <span class="sec-badge">5</span>
+    <h2>Componentes de documento</h2>
+  </div>
+
+  <h3>Header de página</h3>
+  <div class="preview-box">
+    <div class="preview-label">Preview</div>
+    <div class="preview-content">
+      <div class="demo-page-header">
+        <div class="dph-logo">ultimamilla<span>.</span>com<span>.</span>ar</div>
+        <div class="dph-ref">NOTA N.º 03/2026 — PLIEG-2025-07544314</div>
+      </div>
+    </div>
+  </div>
+  <p>Línea separadora: siempre <strong>ROJO #DC2626</strong>, grosor 3px/size 6. Logo a la izquierda, referencia del documento a la derecha alineada con tab-stop RIGHT.</p>
+
+  <div class="section-anchor" id="comp-badge"></div>
+  <h3>Badge de sección</h3>
+  <div class="preview-box">
+    <div class="preview-label">Preview</div>
+    <div class="preview-content" style="display:flex;flex-direction:column;gap:16px">
+      <div class="demo-sec">
+        <div class="dsb">1</div>
+        <div class="dst">Antecedentes del Contrato</div>
+      </div>
+      <div class="demo-sec">
+        <div class="dsb">3</div>
+        <div class="dst">Análisis Técnico Detallado</div>
+      </div>
+    </div>
+  </div>
+  <div class="callout callout--info">
+    <strong>Implementación DOCX</strong>
+    <p>El badge se construye con <code style="font-family:var(--font-code);font-size:12px">TextRun.shading</code> dentro de un <code style="font-family:var(--font-code);font-size:12px">Paragraph</code> — <strong>nunca como tabla</strong> (Regla 7). Las tablas en LibreOffice heredan el tema de color del documento, produciendo un tinte rosa/cálido en las celdas.</p>
+  </div>
+
+  <div class="section-anchor" id="comp-table"></div>
+  <h3>Tabla de datos</h3>
+  <div class="preview-box">
+    <div class="preview-label">Preview — tabla de análisis técnico</div>
+    <div class="preview-content" style="padding:16px">
+      <table class="um-table" style="margin:0">
+        <thead><tr>
+          <th style="width:40px">#</th>
+          <th>Módulo</th>
+          <th>Descripción</th>
+          <th style="width:110px;text-align:center">Estado</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>1</td><td><strong>A1 — Blockchain</strong></td><td>Arquitectura de red blockchain para trazabilidad de activos físicos</td><td style="text-align:center;color:var(--verde);font-weight:700">COMPLETADO</td></tr>
+          <tr><td>2</td><td><strong>A2 — Gestión de Actores</strong></td><td>Módulo de roles y permisos para administradores, operadores y auditores</td><td style="text-align:center;color:var(--verde);font-weight:700">COMPLETADO</td></tr>
+          <tr><td>3</td><td><strong>A3 — API REST</strong></td><td>Endpoints de integración con sistemas externos SAYOT</td><td style="text-align:center;color:var(--azul);font-weight:700">EN CURSO</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h3>Tabla financiera</h3>
+  <div class="preview-box">
+    <div class="preview-label">Preview — tabla de importes ARS</div>
+    <div class="preview-content" style="padding:16px">
+      <table class="um-table" style="margin:0">
+        <thead><tr>
+          <th>Concepto</th>
+          <th style="text-align:right">Importe</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Módulos A1–A3 (Etapa 1)</td><td style="text-align:right">$ 4.328.000</td></tr>
+          <tr><td>Módulos A4–A6 (Etapa 2)</td><td style="text-align:right">$ 4.782.000</td></tr>
+          <tr><td>Módulos A7–A9 (Etapa 3)</td><td style="text-align:right">$ 3.829.000</td></tr>
+          <tr class="total-row">
+            <td>TOTAL CONTRATO</td>
+            <td style="text-align:right">$ 12.939.000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-anchor" id="comp-callout"></div>
+  <h3>Callouts</h3>
+  <div class="preview-box">
+    <div class="preview-label">Preview — tres variantes</div>
+    <div class="preview-content" style="display:flex;flex-direction:column;gap:12px">
+      <div class="callout callout--info" style="margin:0">
+        <strong>Informativo</strong>
+        <p>Observaciones o información técnica complementaria que no requiere acción inmediata.</p>
+      </div>
+      <div class="callout callout--ok" style="margin:0">
+        <strong>Verificado</strong>
+        <p>Estado confirmado, entregable aprobado, condición cumplida dentro del contrato.</p>
+      </div>
+      <div class="callout callout--alert" style="margin:0">
+        <strong>Alerta</strong>
+        <p>Riesgo identificado, desviación del plan, o condición que requiere atención inmediata.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-anchor" id="comp-meta"></div>
+  <h3>Grid de metadata</h3>
+  <div class="preview-box">
+    <div class="preview-label">Preview — grilla del expediente</div>
+    <div class="preview-content" style="padding:12px">
+      <table style="width:100%;border-collapse:collapse;font-family:var(--font-body)">
+        <tr>
+          <td style="background:var(--gris-f);padding:8px 10px;font-size:9px;color:var(--gris-t);text-transform:uppercase;letter-spacing:.06em;width:18%;border:1px solid var(--gris-b)">Expediente</td>
+          <td style="padding:8px 10px;font-size:11px;font-weight:700;border:1px solid var(--gris-b);width:32%">PLIEG-2025-07544314-GDEMZA</td>
+          <td style="background:var(--gris-f);padding:8px 10px;font-size:9px;color:var(--gris-t);text-transform:uppercase;letter-spacing:.06em;width:18%;border:1px solid var(--gris-b)">Destinatario</td>
+          <td style="padding:8px 10px;font-size:11px;font-weight:700;border:1px solid var(--gris-b);width:32%">Lic. Leonardo Fernandez</td>
+        </tr>
+        <tr>
+          <td style="background:var(--gris-f);padding:8px 10px;font-size:9px;color:var(--gris-t);text-transform:uppercase;letter-spacing:.06em;border:1px solid var(--gris-b)">Fecha</td>
+          <td style="padding:8px 10px;font-size:11px;font-weight:700;border:1px solid var(--gris-b)">19 de abril de 2026</td>
+          <td style="background:var(--gris-f);padding:8px 10px;font-size:9px;color:var(--gris-t);text-transform:uppercase;letter-spacing:.06em;border:1px solid var(--gris-b)">N.º Nota</td>
+          <td style="padding:8px 10px;font-size:11px;font-weight:700;border:1px solid var(--gris-b)">03/2026</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="callout callout--info" style="margin-top:8px">
+    <strong>Regla 11</strong>
+    <p>Columna label: mínimo <strong>1600 DXA</strong>. "DESTINATARIO" en Arial 9pt necesita ese ancho para no quebrarse ("DESTINATAR / IO"). Par label+valor: <code style="font-family:var(--font-code);font-size:12px">1600 + 2913 = 4513 DXA</code> por mitad de ancho.</p>
+  </div>
+
+  <!-- ── SECCIÓN 6: DOCX ───────────────────────────── -->
+  <div class="section-anchor" id="docx"></div>
+  <div class="section-header">
+    <span class="sec-badge">6</span>
+    <h2>DOCX — Node.js</h2>
+  </div>
+
+  <p>Pipeline: <span class="tag">Node.js</span> <span class="tag">docx v9.6.1</span> → <span class="tag">.docx</span> → <span class="tag">LibreOffice headless</span> → <span class="tag">.pdf</span></p>
+  <p>Archivo base: <code style="font-family:var(--font-code);font-size:12px;background:#f5f5f5;padding:2px 6px">/sessions/nice-trusting-bardeen/notas_docx/generar_nota_adicional_v5.js</code></p>
+
+  <h3>Constantes de color y medidas</h3>
+  <div class="code-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+  <pre><code><span class="cm">// Colores — sin # (formato DOCX hex)</span>
+<span class="kw">const</span> NEGRO = <span class="st">'000000'</span>, ROJO = <span class="st">'DC2626'</span>, BLANC = <span class="st">'FFFFFF'</span>;
+<span class="kw">const</span> AZUL  = <span class="st">'1A56C0'</span>, GRIS_F = <span class="st">'F5F5F5'</span>, GRIS_B = <span class="st">'DDDDDD'</span>;
+<span class="kw">const</span> GRIS_T = <span class="st">'666666'</span>, VERDE = <span class="st">'2D8A2D'</span>;
+
+<span class="cm">// Fuentes</span>
+<span class="kw">const</span> F_HEAD = <span class="st">'Poppins'</span>, F_BODY = <span class="st">'Arial'</span>;
+
+<span class="cm">// Página A4</span>
+<span class="kw">const</span> W = <span class="nm">9026</span>; <span class="cm">// ancho útil en DXA</span>
+
+<span class="cm">// Escala tipográfica (half-points)</span>
+<span class="kw">const</span> SZ = { display:<span class="nm">72</span>, h1:<span class="nm">48</span>, h2:<span class="nm">28</span>, h3:<span class="nm">24</span>, body:<span class="nm">24</span>, sm:<span class="nm">20</span>, caption:<span class="nm">18</span> };
+
+<span class="cm">// Escala de espaciado (DXA)</span>
+<span class="kw">const</span> SP = [<span class="nm">0</span>,<span class="nm">100</span>,<span class="nm">200</span>,<span class="nm">280</span>,<span class="nm">400</span>,<span class="nm">500</span>,<span class="nm">600</span>,<span class="nm">800</span>,<span class="nm">1000</span>,<span class="nm">1200</span>];
+<span class="kw">const</span> <span class="fn">sp</span> = (b=<span class="nm">0</span>, a=SP[<span class="nm">2</span>]) => ({ before: b, after: a });
+
+<span class="cm">// Widths de tabla técnica (total = W = 9026)</span>
+<span class="kw">const</span> WT = [<span class="nm">400</span>, <span class="nm">2400</span>, <span class="nm">4226</span>, <span class="nm">2000</span>]; <span class="cm">// #|Módulo|Descripción|Estado</span></code></pre>
+
+  <h3>Componente sec() — sección numerada</h3>
+  <div class="code-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+  <pre><code><span class="kw">function</span> <span class="fn">sec</span>(num, titulo, pb = <span class="kw">false</span>) {
+  <span class="kw">const</span> items = [];
+  <span class="kw">if</span> (!pb) {
+    items.push(<span class="kw">new</span> Paragraph({ spacing: { before: SP[<span class="nm">4</span>], after: <span class="nm">0</span> }, children: [] }));
+  } <span class="kw">else</span> {
+    items.push(<span class="kw">new</span> Paragraph({ spacing: sp(<span class="nm">0</span>,<span class="nm">0</span>), children: [<span class="kw">new</span> PageBreak()] }));
+  }
+  items.push(<span class="kw">new</span> Paragraph({
+    border: { bottom: { style: BorderStyle.SINGLE, size: <span class="nm">8</span>, color: ROJO, space: <span class="nm">4</span> } },
+    spacing: sp(<span class="nm">0</span>, SP[<span class="nm">3</span>]),
+    children: [
+      <span class="kw">new</span> TextRun({    <span class="cm">// Badge azul — TextRun.shading, NO tabla (Regla 7)</span>
+        text: <span class="st">'\u00A0'</span> + num + <span class="st">'\u00A0'</span>,
+        font: F_HEAD, size: SZ.h2, bold: <span class="kw">true</span>, color: BLANC,
+        shading: { type: ShadingType.CLEAR, fill: AZUL }
+      }),
+      <span class="kw">new</span> TextRun({
+        text: <span class="st">'\u2002\u2002'</span> + titulo.toUpperCase(),
+        font: F_HEAD, size: SZ.h2, bold: <span class="kw">true</span>, color: NEGRO
+      })
+    ]
+  }));
+  <span class="kw">return</span> items;
+}</code></pre>
+
+  <h3>Fila de tabla con cantSplit</h3>
+  <div class="code-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+  <pre><code><span class="cm">// Regla 10: cantSplit: true en TODAS las filas de datos</span>
+<span class="kw">const</span> <span class="fn">filaE</span> = (d, par) => <span class="kw">new</span> TableRow({
+  cantSplit: <span class="kw">true</span>,   <span class="cm">// ← evita que la fila se corte entre páginas</span>
+  children: [
+    <span class="fn">tc</span>(d[<span class="nm">0</span>], WT[<span class="nm">0</span>], { center: <span class="kw">true</span>, bg: par ? GRIS_F : BLANC }),
+    <span class="fn">tcMulti</span>([[d[<span class="nm">1</span>], <span class="kw">true</span>]], WT[<span class="nm">1</span>], { bg: par ? GRIS_F : BLANC }),
+    <span class="fn">tcMulti</span>([[d[<span class="nm">2</span>], <span class="kw">false</span>]], WT[<span class="nm">2</span>], { bg: par ? GRIS_F : BLANC }),
+    <span class="fn">tc</span>(d[<span class="nm">3</span>], WT[<span class="nm">3</span>], { center: <span class="kw">true</span>, bold: <span class="kw">true</span>, color: VERDE, bg: par ? GRIS_F : BLANC }),
+  ]
+});</code></pre>
+
+  <!-- ── SECCIÓN 7: HTML / REACT ───────────────────── -->
+  <div class="section-anchor" id="html"></div>
+  <div class="section-header">
+    <span class="sec-badge">7</span>
+    <h2>HTML / React</h2>
+  </div>
+
+  <h3>Design tokens CSS</h3>
+  <div class="code-header"><span class="code-lang">CSS</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+  <pre><code><span class="prop">:root</span> {
+  <span class="cm">/* Paleta oficial */</span>
+  <span class="prop">--um-negro</span>:   <span class="st">#000000</span>;  <span class="prop">--um-rojo</span>:    <span class="st">#DC2626</span>;
+  <span class="prop">--um-azul</span>:    <span class="st">#1A56C0</span>;  <span class="prop">--um-verde</span>:   <span class="st">#2D8A2D</span>;
+  <span class="prop">--um-blanco</span>:  <span class="st">#FFFFFF</span>;  <span class="prop">--um-gris-f</span>:  <span class="st">#F5F5F5</span>;
+  <span class="prop">--um-gris-b</span>:  <span class="st">#DDDDDD</span>;  <span class="prop">--um-gris-t</span>:  <span class="st">#666666</span>;
+  <span class="prop">--um-azul-bg</span>: <span class="st">#EFF4FF</span>;  <span class="prop">--um-verde-bg</span>:<span class="st">#EEF7EE</span>;
+  <span class="prop">--um-rojo-bg</span>: <span class="st">#FFF5F5</span>;
+
+  <span class="cm">/* Tipografía */</span>
+  <span class="prop">--um-font-head</span>: <span class="st">'Futura PT', 'Poppins', 'Century Gothic', sans-serif</span>;
+  <span class="prop">--um-font-body</span>: <span class="st">'Arial', 'Inter', system-ui, sans-serif</span>;
+
+  <span class="cm">/* Escala tipográfica */</span>
+  <span class="prop">--um-sz-display</span>: <span class="nm">36pt</span>; <span class="prop">--um-sz-h1</span>: <span class="nm">24pt</span>;
+  <span class="prop">--um-sz-h2</span>: <span class="nm">14pt</span>;    <span class="prop">--um-sz-body</span>: <span class="nm">12pt</span>;
+  <span class="prop">--um-sz-small</span>: <span class="nm">10pt</span>; <span class="prop">--um-sz-caption</span>: <span class="nm">9pt</span>;
+
+  <span class="cm">/* Espaciado */</span>
+  <span class="prop">--um-sp-4</span>: <span class="nm">20px</span>;  <span class="prop">--um-sp-6</span>: <span class="nm">30px</span>;  <span class="prop">--um-sp-8</span>: <span class="nm">50px</span>;
+}</code></pre>
+
+  <h3>Componentes React canónicos</h3>
+  <div class="code-header"><span class="code-lang">JSX</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+  <pre><code><span class="kw">const</span> UMSA = {
+  c: { negro:<span class="st">'#000'</span>, rojo:<span class="st">'#DC2626'</span>, azul:<span class="st">'#1A56C0'</span>, grisF:<span class="st">'#F5F5F5'</span>,
+       grisB:<span class="st">'#DDDDDD'</span>, grisT:<span class="st">'#666'</span>, verde:<span class="st">'#2D8A2D'</span>, blanco:<span class="st">'#FFF'</span> },
+  f: { head:<span class="st">"'Poppins','Century Gothic',sans-serif"</span>,
+       body:<span class="st">"'Arial','Inter',system-ui,sans-serif"</span> }
+};
+
+<span class="cm">// Logo</span>
+<span class="kw">const</span> <span class="fn">UMLogo</span> = ({ size=<span class="nm">22</span> }) => (
+  &lt;<span class="kw">span</span> style={{ fontFamily:UMSA.f.head, fontWeight:<span class="nm">700</span>, fontSize:size,
+    letterSpacing:<span class="st">'-0.02em'</span>, color:UMSA.c.negro, whiteSpace:<span class="st">'nowrap'</span> }}&gt;
+    ultimamilla&lt;<span class="kw">span</span> style={{ color:UMSA.c.rojo }}&gt;.&lt;/<span class="kw">span</span>&gt;
+    com&lt;<span class="kw">span</span> style={{ color:UMSA.c.rojo }}&gt;.&lt;/<span class="kw">span</span>&gt;ar
+  &lt;/<span class="kw">span</span>&gt;
+);
+
+<span class="cm">// Sección numerada</span>
+<span class="kw">const</span> <span class="fn">UMSection</span> = ({ num, title }) => (
+  &lt;<span class="kw">div</span> style={{ borderBottom:<span class="st">`3px solid ${UMSA.c.rojo}`</span>, paddingBottom:<span class="nm">8</span>,
+    margin:<span class="st">'28px 0 12px'</span>, display:<span class="st">'flex'</span>, alignItems:<span class="st">'center'</span>, gap:<span class="nm">10</span> }}&gt;
+    &lt;<span class="kw">span</span> style={{ background:UMSA.c.azul, color:<span class="st">'#fff'</span>, padding:<span class="st">'3px 10px'</span>,
+      fontFamily:UMSA.f.head, fontWeight:<span class="nm">700</span>, fontSize:<span class="nm">12</span> }}&gt;{num}&lt;/<span class="kw">span</span>&gt;
+    &lt;<span class="kw">span</span> style={{ fontFamily:UMSA.f.head, fontWeight:<span class="nm">700</span>, fontSize:<span class="nm">14</span>,
+      textTransform:<span class="st">'uppercase'</span> }}&gt;{title}&lt;/<span class="kw">span</span>&gt;
+  &lt;/<span class="kw">div</span>&gt;
+);</code></pre>
+
+  <!-- ── SECCIÓN 8: CHARTS ─────────────────────────── -->
+  <div class="section-anchor" id="charts"></div>
+  <div class="section-header">
+    <span class="sec-badge">8</span>
+    <h2>Gráficos y visualizaciones</h2>
+  </div>
+
+  <h3>Paleta de series — orden estricto</h3>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin:16px 0">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="width:48px;height:48px;background:#000;border-radius:4px"></div>
+      <span style="font-size:10px;font-family:var(--font-code);color:var(--gris-t)">Serie 1</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="width:48px;height:48px;background:#DC2626;border-radius:4px"></div>
+      <span style="font-size:10px;font-family:var(--font-code);color:var(--gris-t)">Serie 2</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="width:48px;height:48px;background:#1A56C0;border-radius:4px"></div>
+      <span style="font-size:10px;font-family:var(--font-code);color:var(--gris-t)">Serie 3</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="width:48px;height:48px;background:#333;border-radius:4px"></div>
+      <span style="font-size:10px;font-family:var(--font-code);color:var(--gris-t)">Serie 4</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="width:48px;height:48px;background:#666;border-radius:4px"></div>
+      <span style="font-size:10px;font-family:var(--font-code);color:var(--gris-t)">Serie 5</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="width:48px;height:48px;background:#2D8A2D;border-radius:4px"></div>
+      <span style="font-size:10px;font-family:var(--font-code);color:var(--gris-t)">OK ✓</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="width:48px;height:48px;background:#DDDDDD;border-radius:4px;border:1px solid #ccc"></div>
+      <span style="font-size:10px;font-family:var(--font-code);color:var(--gris-t)">Grid</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="width:48px;height:48px;background:#F5F5F5;border-radius:4px;border:1px solid #ddd"></div>
+      <span style="font-size:10px;font-family:var(--font-code);color:var(--gris-t)">BG área</span>
+    </div>
+  </div>
+
+  <div class="code-header"><span class="code-lang">JavaScript — Chart.js</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+  <pre><code><span class="kw">const</span> UMSA_CHART_COLORS = [<span class="st">'#000000'</span>,<span class="st">'#DC2626'</span>,<span class="st">'#1A56C0'</span>,<span class="st">'#333333'</span>,<span class="st">'#666666'</span>,<span class="st">'#2D8A2D'</span>];
+
+<span class="kw">const</span> umsaChartDefaults = {
+  plugins: {
+    legend: { labels: { font: { family:<span class="st">'Poppins'</span>, size:<span class="nm">11</span> }, color:<span class="st">'#333'</span> } }
+  },
+  scales: {
+    x: { grid: { color:<span class="st">'#DDDDDD'</span>, lineWidth:<span class="nm">1</span> },
+         ticks: { font: { family:<span class="st">'Arial'</span>, size:<span class="nm">11</span> }, color:<span class="st">'#666666'</span> } },
+    y: { grid: { color:<span class="st">'#DDDDDD'</span>, lineWidth:<span class="nm">1</span> },
+         ticks: { font: { family:<span class="st">'Arial'</span>, size:<span class="nm">11</span> }, color:<span class="st">'#666666'</span> } }
+  }
+};
+
+<span class="cm">// Formateo de números UMSA</span>
+<span class="kw">const</span> fmt = {
+  ars:  n => <span class="st">`$ </span><span class="nm">${n.toLocaleString(<span class="st">'es-AR'</span>)}</span><span class="st">`</span>,  <span class="cm">// $ 12.939.000</span>
+  dias: n => <span class="st">`</span><span class="nm">${n}</span><span class="st"> días`</span>,
+  pct:  n => <span class="st">`</span><span class="nm">${n.toFixed(<span class="nm">1</span>).replace(<span class="st">'.'</span>,<span class="st">','</span>)}</span><span class="st"> %`</span>,    <span class="cm">// 47,2 %</span>
+};</code></pre>
+
+  <!-- ── SECCIÓN 9-11: PPTX / XLSX / PDF ──────────── -->
+  <div class="section-anchor" id="pptx"></div>
+  <div class="section-header">
+    <span class="sec-badge">9</span>
+    <h2>PPTX — Presentaciones</h2>
+  </div>
+  <p>Usar junto con la <span class="tag blue">SKILL pptx</span>. Esta sección define las reglas de marca UMSA aplicables.</p>
+  <table class="um-table">
+    <thead><tr><th>Elemento</th><th>Fuente</th><th>Tamaño</th><th>Color</th></tr></thead>
+    <tbody>
+      <tr><td>Título de slide</td><td>Poppins Bold</td><td>28–32pt</td><td><span class="pip" style="background:#000"></span>#000000</td></tr>
+      <tr><td>Subtítulo</td><td>Poppins SemiBold</td><td>20–24pt</td><td><span class="pip" style="background:#333"></span>#333333</td></tr>
+      <tr><td>Bullets / cuerpo</td><td>Arial</td><td>18pt</td><td><span class="pip" style="background:#333"></span>#333333</td></tr>
+      <tr><td>Dato destacado</td><td>Poppins Bold</td><td>36–48pt</td><td><span class="pip" style="background:#000"></span>#000000 o <span class="pip" style="background:#DC2626"></span>#DC2626</td></tr>
+      <tr><td>Nota al pie</td><td>Arial</td><td>11pt</td><td><span class="pip" style="background:#666"></span>#666666</td></tr>
+      <tr><td>Cabecera tabla</td><td>Poppins Bold</td><td>11pt</td><td><span class="pip" style="background:#fff;border:1px solid #ccc"></span>#FFFFFF sobre <span class="pip" style="background:#000"></span>#000000</td></tr>
+    </tbody>
+  </table>
+  <div class="callout callout--info">
+    <strong>Separador de marca en slides</strong>
+    <p>Línea horizontal <strong>#DC2626</strong>, 3pt, debajo del título. O banda roja de 6px en la parte superior del slide. Fondo de slide siempre <strong>#FFFFFF</strong> — nunca negro completo.</p>
+  </div>
+
+  <div class="section-anchor" id="xlsx"></div>
+  <div class="section-header">
+    <span class="sec-badge">10</span>
+    <h2>XLSX — Planillas</h2>
+  </div>
+  <p>Usar junto con la <span class="tag blue">SKILL xlsx</span>. Estructura estándar de planilla UMSA:</p>
+  <div class="preview-box">
+    <div class="preview-label">Estructura de planilla</div>
+    <div class="preview-content" style="padding:12px">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <tr style="background:#000;color:#fff">
+          <td colspan="2" style="padding:8px 12px;font-family:var(--font-head);font-weight:700">ultimamilla.com.ar — Reporte de Módulos SITREP 2026</td>
+        </tr>
+        <tr style="background:#000;color:#fff;border-top:1px solid #333">
+          <td style="padding:7px 12px;font-family:var(--font-head);font-size:11px;border-left:1px solid #333">Concepto</td>
+          <td style="padding:7px 12px;font-family:var(--font-head);font-size:11px;border-left:1px solid #333">Importe ARS</td>
+        </tr>
+        <tr style="background:#fff"><td style="padding:6px 12px;border-bottom:1px solid #ddd">Módulo A1 — Blockchain</td><td style="padding:6px 12px;border-bottom:1px solid #ddd">$ 4.328.000</td></tr>
+        <tr style="background:#F5F5F5"><td style="padding:6px 12px;border-bottom:1px solid #ddd">Módulo A2 — Actores</td><td style="padding:6px 12px;border-bottom:1px solid #ddd">$ 3.782.000</td></tr>
+        <tr style="background:#000;border-top:3px solid #DC2626">
+          <td style="padding:8px 12px;color:#fff;font-weight:700">TOTAL</td>
+          <td style="padding:8px 12px;color:#fff;font-weight:700">$ 8.110.000</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-anchor" id="pdf"></div>
+  <div class="section-header">
+    <span class="sec-badge">11</span>
+    <h2>PDF directo</h2>
+  </div>
+  <div class="code-header"><span class="code-lang">CSS — @page A4</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+  <pre><code><span class="prop">@page</span> {
+  size: A4;
+  margin: <span class="nm">21mm 20mm 25mm 30mm</span>; <span class="cm">/* igual que DOCX */</span>
+}
+<span class="prop">@media print</span> {
+  body { font-family: Arial, sans-serif; font-size: <span class="nm">12pt</span>; }
+  <span class="prop">.no-break</span> { page-break-inside: avoid; }  <span class="cm">/* equivale a cantSplit */</span>
+  <span class="prop">.page-break</span> { page-break-before: always; }
+  thead { display: table-header-group; }   <span class="cm">/* repite cabecera */</span>
+}</code></pre>
+  <div class="code-header"><span class="code-lang">Bash — pipelines</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+  <pre><code><span class="cm"># LibreOffice (texto+tablas)</span>
+libreoffice --headless --convert-to pdf documento.html --outdir ./
+
+<span class="cm"># wkhtmltopdf (CSS moderno)</span>
+wkhtmltopdf --page-size A4 \
+  --margin-top 21mm --margin-right 20mm \
+  --margin-bottom 25mm --margin-left 30mm \
+  documento.html salida.pdf
+
+<span class="cm"># Puppeteer (React/charts)</span>
+<span class="cm"># await page.pdf({ format:'A4', printBackground:true,</span>
+<span class="cm">#   margin:{top:'21mm',right:'20mm',bottom:'25mm',left:'30mm'} })</span></code></pre>
+
+  <!-- ── SECCIÓN 12: REGLAS ─────────────────────────── -->
+  <div class="section-anchor" id="reglas"></div>
+  <div class="section-header">
+    <span class="sec-badge">12</span>
+    <h2>Reglas críticas</h2>
+  </div>
+  <p>Resultado de errores reales detectados en producción. Todas son <strong>obligatorias</strong> en todos los formatos.</p>
+
+  <div class="rule-grid">
+    <div class="rule-card">
+      <div class="rule-card-head"><span class="rule-num">1</span><span>Columna numérica ≥ 1700 DXA</span></div>
+      <div class="rule-card-body">La columna de importes ARS nunca puede ser &lt; 1700 DXA. "$ 12.939.000" en Arial 10pt necesita ~1730 DXA mínimo. Usar <code>W_MONTO = 2000</code> como valor seguro.</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-card-head"><span class="rule-num">2</span><span>Sin colores fuera de paleta</span></div>
+      <div class="rule-card-body">Prohibido: <code>#FFF3F3</code> (rosa), <code>#1a3a6b</code> (marino), <code>#f0f4fb</code> (azul claro). Fondo alterno oficial: solo <code>#F5F5F5</code>.</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-card-head"><span class="rule-num">3</span><span>Aire antes de secciones</span></div>
+      <div class="rule-card-body">Todo encabezado de sección necesita <code>spacing.before = SP[4] = 400 DXA</code> como mínimo. Implementar con párrafo vacío previo en <code>sec()</code>.</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-card-head"><span class="rule-num">4</span><span>Page breaks en sección ≥ 3</span></div>
+      <div class="rule-card-body">Secciones 3, 4, 5+ deben comenzar en página propia. Usar <code>sec(3,'Título', true)</code> — el parámetro <code>pb=true</code> inserta <code>new PageBreak()</code>.</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-card-head"><span class="rule-num">5</span><span>Body mínimo 12pt (24hp)</span></div>
+      <div class="rule-card-body">El texto de cuerpo nunca puede ser &lt; 12pt. En DOCX: <code>size: 24</code> mínimo. Celdas de tabla: <code>size: 20</code> (10pt) como excepción permitida.</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-card-head"><span class="rule-num">6</span><span>ROJO nunca como fill de celda</span></div>
+      <div class="rule-card-body">LibreOffice puede ignorar el color de TextRun sobre fondo ROJO → texto negro ilegible. ROJO solo como borde, línea, texto o acento. Fondo oscuro: usar NEGRO.</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-card-head"><span class="rule-num">7</span><span>Secciones como Paragraph, no tabla</span></div>
+      <div class="rule-card-body">Tablas con ShadingType.CLEAR en LibreOffice heredan el tema de color → tinte rosa/cálido. Badge de sección: usar <code>TextRun.shading</code> dentro de un Paragraph.</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-card-head"><span class="rule-num">8</span><span>Separadores en filaCab</span></div>
+      <div class="rule-card-body">En cabecera NEGRO, los bordes NEGRO son invisibles. Usar <code>color: '555555'</code> en el borde izquierdo de las columnas 2..N de la cabecera.</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-card-head"><span class="rule-num">9</span><span>\n no genera salto de línea</span></div>
+      <div class="rule-card-body">En DOCX, el salto de línea es <code>&lt;w:br/&gt;</code>, no <code>\n</code>. Hacer <code>split('\n')</code> y crear un Paragraph por línea en <code>tcMulti()</code>.</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-card-head"><span class="rule-num">10</span><span>cantSplit en filas de datos</span></div>
+      <div class="rule-card-body">Todas las filas de tabla con &gt;1 línea deben tener <code>cantSplit: true</code>. Una fila partida entre páginas es ilegible. Excepción: filas &gt; 2/3 del alto de página.</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-card-head"><span class="rule-num">11</span><span>gridMeta label ≥ 1600 DXA</span></div>
+      <div class="rule-card-body">"DESTINATARIO" en Arial 9pt necesita mínimo 1600 DXA. Con menos, se quiebra como "DESTINATAR / IO". Par label+valor: <code>1600 + 2913 = 4513 DXA</code>.</div>
+    </div>
+    <div class="rule-card" style="border-color:var(--rojo)">
+      <div class="rule-card-head" style="background:var(--rojo)"><span class="rule-num" style="background:var(--negro)">!</span><span>WCAG: BLANC sobre ROJO siempre</span></div>
+      <div class="rule-card-body">NEGRO/ROJO = 4.3:1 → falla WCAG AA para texto normal. Texto sobre fondo ROJO siempre en BLANC (4.9:1 ✅). Sin excepciones para cuerpo de texto.</div>
+    </div>
+  </div>
+
+  <!-- ── SECCIÓN 13: CHECKLIST ─────────────────────── -->
+  <div class="section-anchor" id="checklist"></div>
+  <div class="section-header">
+    <span class="sec-badge">13</span>
+    <h2>Checklist de conformidad</h2>
+  </div>
+  <p>Marcar antes de entregar cualquier output UMSA. El checklist persiste mientras la página esté abierta.</p>
+
+  <div class="checklist">
+    <div class="check-group">
+      <div class="check-group-label">Identidad y marca</div>
+      <label class="check-item"><input type="checkbox"> Rojo es exactamente <code style="font-family:var(--font-code);font-size:11px">#DC2626</code> — no #CC0000, no #1a3a6b</label>
+      <label class="check-item"><input type="checkbox"> Logo: <code style="font-family:var(--font-code);font-size:11px">ultimamilla.com.ar</code> minúsculas, puntos ROJOS #DC2626</label>
+      <label class="check-item"><input type="checkbox"> Separador de header: línea #DC2626 (nunca gris, nunca azul)</label>
+      <label class="check-item"><input type="checkbox"> Badge de sección: fondo #1A56C0, nunca otro azul</label>
+    </div>
+    <div class="check-group">
+      <div class="check-group-label">Tipografía</div>
+      <label class="check-item"><input type="checkbox"> Display/cover: Poppins Bold 36pt / 72hp</label>
+      <label class="check-item"><input type="checkbox"> Secciones H2: Poppins Bold 14pt / 28hp</label>
+      <label class="check-item"><input type="checkbox"> Body: Arial mínimo 12pt / 24hp <span class="check-code">Regla 5</span></label>
+      <label class="check-item"><input type="checkbox"> Labels/metadata: Arial 9pt, color #666666</label>
+      <label class="check-item"><input type="checkbox"> Jerarquía en orden: Display → H1 → H2 → H3 (sin saltos)</label>
+    </div>
+    <div class="check-group">
+      <div class="check-group-label">Espaciado</div>
+      <label class="check-item"><input type="checkbox"> Todo spacing.after ≥ SP[2] = 200 DXA</label>
+      <label class="check-item"><input type="checkbox"> Aire antes de sección: SP[4] = 400 DXA <span class="check-code">Regla 3</span></label>
+      <label class="check-item"><input type="checkbox"> Sin valores ad-hoc (80, 120, 130, 175 DXA)</label>
+    </div>
+    <div class="check-group">
+      <div class="check-group-label">Color y accesibilidad</div>
+      <label class="check-item"><input type="checkbox"> Sin colores fuera de paleta (#FFF3F3, #1a3a6b) <span class="check-code">Regla 2</span></label>
+      <label class="check-item"><input type="checkbox"> ROJO nunca como fill de celda <span class="check-code">Regla 6</span></label>
+      <label class="check-item"><input type="checkbox"> Texto sobre ROJO: siempre BLANC (4.9:1 ✅)</label>
+      <label class="check-item"><input type="checkbox"> NEGRO sobre ROJO solo ≥14pt bold (4.3:1 ❌ normal)</label>
+    </div>
+    <div class="check-group">
+      <div class="check-group-label">Tablas DOCX</div>
+      <label class="check-item"><input type="checkbox"> Secciones como Paragraph + TextRun.shading, no tabla <span class="check-code">Regla 7</span></label>
+      <label class="check-item"><input type="checkbox"> Columna numérica ≥ 1700 DXA <span class="check-code">Regla 1</span></label>
+      <label class="check-item"><input type="checkbox"> Separadores #555555 en filaCab <span class="check-code">Regla 8</span></label>
+      <label class="check-item"><input type="checkbox"> split('\n') → Paragraphs separados <span class="check-code">Regla 9</span></label>
+      <label class="check-item"><input type="checkbox"> cantSplit: true en todas las filas de datos <span class="check-code">Regla 10</span></label>
+      <label class="check-item"><input type="checkbox"> Columna label gridMeta ≥ 1600 DXA <span class="check-code">Regla 11</span></label>
+      <label class="check-item"><input type="checkbox"> Secciones ≥ 3: pb = true <span class="check-code">Regla 4</span></label>
+    </div>
+    <div class="check-group">
+      <div class="check-group-label">Generación y entrega</div>
+      <label class="check-item"><input type="checkbox"> Ejecutado: node generar_nota.js && libreoffice --headless --convert-to pdf *.docx</label>
+      <label class="check-item"><input type="checkbox"> PDF revisado visualmente (no solo en LibreOffice)</label>
+      <label class="check-item"><input type="checkbox"> Fonts Poppins/Arial embebidos en el PDF</label>
+    </div>
+  </div>
+
+  <hr class="section-hr">
+  <p style="font-size:12px;color:var(--gris-t);text-align:center">
+    SISTEMA-ESTILO-UMSA.md — ULTIMA MILLA S.A. — Versión 1.0 — Enero 2026<br>
+    Fuente de verdad: Manual de Marca v1.0 + SKILL.md secciones 1–25
+  </p>
+
+</div><!-- /content-wrap -->
+</main>
+
+<a href="#top" class="back-to-top" id="btt">↑ Inicio</a>
+
+<script>
+// Sidebar active state
+const sections = document.querySelectorAll('.section-anchor');
+const navLinks = document.querySelectorAll('#sidebar a');
+function updateActive() {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 80) current = s.id;
+  });
+  navLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+}
+window.addEventListener('scroll', updateActive);
+updateActive();
+
+// Back to top
+const btt = document.getElementById('btt');
+window.addEventListener('scroll', () => {
+  btt.classList.toggle('visible', window.scrollY > 400);
+});
+
+// Copy color to clipboard
+function copyColor(hex, el) {
+  navigator.clipboard.writeText(hex).then(() => {
+    const old = el.textContent;
+    el.textContent = '✓ copiado';
+    setTimeout(() => el.textContent = old, 1200);
+  });
+}
+
+// Copy code block
+function copyCode(btn) {
+  const pre = btn.closest('.code-header').nextElementSibling;
+  const text = pre.querySelector('code').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const old = btn.textContent;
+    btn.textContent = '✓ OK';
+    setTimeout(() => btn.textContent = old, 1200);
+  });
+}
+
+// Checklist persistence (session memory only)
+document.querySelectorAll('.check-item input').forEach(cb => {
+  cb.addEventListener('change', () => {
+    cb.closest('.check-item').classList.toggle('checked', cb.checked);
+  });
+});
+</script>
+</body>
+</html>
