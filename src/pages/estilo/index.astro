@@ -46,6 +46,7 @@ if (!auth.ok) {
     status: 200,
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
+      'X-Robots-Tag': 'noindex, nofollow, noarchive, nosnippet',
       'Set-Cookie': clearCookie(),
     },
   });
@@ -57,7 +58,7 @@ return new Response(htmlContent, {
   headers: {
     'Content-Type': 'text/html; charset=utf-8',
     'Cache-Control': 'private, no-store',
-    // Refrescar cookie si vino por cookie (extiende la sesión)
+    'X-Robots-Tag': 'noindex, nofollow, noarchive, nosnippet',
     ...(auth.source === 'cookie' && auth.token
       ? { 'Set-Cookie': sessionCookie(auth.token) }
       : {}),
