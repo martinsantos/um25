@@ -52,8 +52,8 @@ const schema = {
   <main class="min-h-screen bg-[#0a0f1e] py-16">
     <div class="max-w-5xl mx-auto px-6 sm:px-8">
 
-      <p class="text-[10px] font-mono text-white/30 uppercase tracking-widest mb-10">
-        <a href={'/blog'} class="hover:text-white/50 transition-colors">Blog</a>
+      <p class="text-xs font-mono text-white/50 uppercase tracking-widest mb-10">
+        <a href={'/blog'} class="hover:text-white/70 transition-colors">Blog</a>
         {' '}/ {label}
       </p>
 
@@ -66,12 +66,12 @@ const schema = {
           <header class="mb-8">
             <div class="flex items-center gap-2 mb-4">
               <span
-                class="text-[9px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded"
-                style={`color: ${color}; background: ${color}20; border: 1px solid ${color}40`}
+                class="text-[11px] font-mono font-bold uppercase tracking-widest px-2.5 py-1 rounded"
+                style={`color: ${color}; background: ${color}25; border: 1px solid ${color}50`}
               >{label}</span>
-              <span class="text-white/30 text-xs">{post.tiempo_lectura} min lectura</span>
-              <span class="text-white/30 text-xs">·</span>
-              <span class="text-white/30 text-xs">{date}</span>
+              <span class="text-white/60 text-[13px]">{post.tiempo_lectura} min lectura</span>
+              <span class="text-white/45 text-xs">·</span>
+              <span class="text-white/60 text-[13px]">{date}</span>
             </div>
 
             <h1 class="um-h text-3xl sm:text-4xl text-white font-bold leading-tight mb-6">
@@ -141,51 +141,47 @@ const schema = {
   /* ── Base del artículo — igual que body en /estilo ────────────────── */
   .blog-prose {
     font-family: 'Arial', 'Inter', system-ui, sans-serif;
-    font-size: 15px;
-    line-height: 1.7;
-    color: #c8d3e0;            /* gris claro — equivalente a --gris-o en dark */
+    font-size: 16px;
+    line-height: 1.75;
+    color: #cdd8e6;
     font-weight: 400;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* ── Párrafos — exacto del /estilo: 14px margin, 1.7 line-height ─── */
   .blog-prose p {
-    margin-bottom: 14px;
-    line-height: 1.7;
-    color: #c8d3e0;
+    margin-bottom: 18px;
+    line-height: 1.75;
+    color: #cdd8e6;
   }
 
-  /* Primer párrafo levemente destacado — patrón del /estilo */
   .blog-prose > p:first-of-type {
-    font-size: 16px;
-    color: #d6e0ec;
-    line-height: 1.7;
+    font-size: 17px;
+    color: #dde6f0;
+    line-height: 1.75;
   }
 
-  /* ── Headings — Poppins igual que --font-head del /estilo ─────────── */
   .blog-prose h2 {
     font-family: 'Poppins', 'Century Gothic', sans-serif;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 700;
-    letter-spacing: -0.02em;   /* exacto del /estilo */
+    letter-spacing: -0.02em;
     line-height: 1.3;
     color: #f1f5f9;
-    margin-top: 40px;
-    margin-bottom: 12px;
+    margin-top: 44px;
+    margin-bottom: 14px;
     scroll-margin-top: 6rem;
   }
 
   .blog-prose h3 {
     font-family: 'Poppins', 'Century Gothic', sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 700;
-    letter-spacing: -0.01em;
-    line-height: 1.35;
     text-transform: uppercase;
-    letter-spacing: 0.04em;    /* /estilo usa uppercase + 0.04em para subtítulos */
+    letter-spacing: 0.04em;
+    line-height: 1.35;
     color: #94a3b8;
-    margin-top: 28px;
-    margin-bottom: 8px;
+    margin-top: 32px;
+    margin-bottom: 10px;
     scroll-margin-top: 6rem;
   }
 

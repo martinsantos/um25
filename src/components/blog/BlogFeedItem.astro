@@ -14,33 +14,33 @@ const label = getCategoryLabel(post.categoria);
 const date = formatBlogDate(post.fecha_publicacion);
 ---
 
-<article class="py-8 border-b border-[#1e3a5f] last:border-0">
-  <div class="flex gap-5">
+<article class="py-9 border-b border-[#1e3a5f] last:border-0">
+  <div class="flex gap-6">
     <div class="flex-1 min-w-0">
-      <div class="flex items-center gap-2 mb-2">
+      <div class="flex items-center gap-2 mb-3">
         <span
-          class="text-[9px] font-mono font-bold uppercase tracking-widest"
+          class="text-[11px] font-mono font-bold uppercase tracking-widest"
           style={`color: ${color}`}
         >{label}</span>
-        <span class="text-white/25 text-xs">·</span>
-        <span class="text-white/25 text-xs">{post.tiempo_lectura} min</span>
-        <span class="text-white/25 text-xs">·</span>
-        <span class="text-white/25 text-xs">{date}</span>
+        <span class="text-white/50 text-xs">·</span>
+        <span class="text-white/50 text-[13px]">{post.tiempo_lectura} min</span>
+        <span class="text-white/50 text-xs">·</span>
+        <span class="text-white/50 text-[13px]">{date}</span>
       </div>
 
-      <h2 style="font-family:'Poppins','Century Gothic',sans-serif;font-size:16px;font-weight:700;letter-spacing:-0.02em;line-height:1.3;color:#e8edf4;margin-bottom:6px;">
+      <h2 style="font-family:'Poppins','Century Gothic',sans-serif;font-size:19px;font-weight:700;letter-spacing:-0.02em;line-height:1.3;color:#e8edf4;margin-bottom:8px;">
         <a href={`/blog/${post.slug}`} class="hover:text-blue-300 transition-colors">
           {post.titulo}
         </a>
       </h2>
 
-      <p style="font-family:'Arial','Inter',system-ui,sans-serif;font-size:14px;line-height:1.65;color:#8fa3bb;margin:0;">
-        {post.resumen.substring(0, 180)}{post.resumen.length > 180 ? '…' : ''}
+      <p style="font-family:'Arial','Inter',system-ui,sans-serif;font-size:16px;line-height:1.7;color:#b8cde0;margin:0;">
+        {post.resumen.substring(0, 200)}{post.resumen.length > 200 ? '…' : ''}
       </p>
 
       <a
         href={`/blog/${post.slug}`}
-        class="inline-block mt-3 text-blue-400 hover:text-blue-300 text-sm transition-colors"
+        class="inline-block mt-4 text-blue-400 hover:text-blue-300 text-base font-medium transition-colors"
       >
         leer más →
       </a>
@@ -52,8 +52,8 @@ const date = formatBlogDate(post.fecha_publicacion);
           <img
             src={imgUrl}
             alt={post.titulo}
-            class="w-32 object-cover rounded-lg opacity-75 hover:opacity-100 transition-opacity"
-            style="height: 88px;"
+            class="w-36 object-cover rounded-lg opacity-80 hover:opacity-100 transition-opacity"
+            style="height: 100px;"
             loading="lazy"
           />
         </a>
