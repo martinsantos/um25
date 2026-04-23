@@ -1,0 +1,511 @@
+---
+/**
+ * PRETEXT DEMO — 3 approaches to text layout with @chenglou/pretext
+ * A) Line-by-line reveal
+ * B) Canvas rendering with glow
+ * C) Responsive text fit (auto font-size)
+ */
+import LayoutV4 from '../layouts/LayoutV4.astro';
+---
+
+<LayoutV4 title="Pretext Demo — Text Layout Lab">
+
+<!-- Header -->
+<section class="bg-gray-950 pt-28 pb-10 px-6">
+  <div class="max-w-5xl mx-auto">
+    <p class="text-[10px] font-mono uppercase tracking-[0.3em] text-red-500 mb-2">Laboratorio</p>
+    <h1 class="um-h text-3xl sm:text-4xl text-white tracking-tight">
+      @chenglou/pretext — 3 enfoques<span class="text-red-500">.</span>
+    </h1>
+    <p class="text-white/40 text-sm mt-3 max-w-xl">
+      Motor de medición y layout de texto sin DOM reflow. Canvas measureText + aritmética pura.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     A) LINE-BY-LINE REVEAL
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="relative min-h-[70vh] flex items-center bg-gray-950 border-t border-white/5">
+  <img
+    src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1920&h=1080&fit=crop&q=80"
+    alt=""
+    class="absolute inset-0 w-full h-full object-cover opacity-40"
+  />
+  <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"></div>
+
+  <div class="relative w-full max-w-5xl mx-auto px-6 sm:px-8 py-20">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="px-2 py-0.5 bg-red-600 text-white text-[9px] font-mono font-bold uppercase tracking-wider rounded">A</span>
+      <span class="text-[10px] font-mono text-white/30 uppercase tracking-widest">Line-by-line reveal</span>
+    </div>
+
+    <!-- Container where pretext calculates lines and reveals them -->
+    <div id="reveal-container" class="min-h-[200px]" data-text="La infraestructura que mueve a las empresas argentinas.">
+      <div id="reveal-lines" class="space-y-1"></div>
+    </div>
+
+    <div class="mt-8 flex gap-3">
+      <button id="reveal-replay" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-mono rounded-lg transition-colors">
+        Replay
+      </button>
+      <button id="reveal-speed" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-mono rounded-lg transition-colors">
+        Speed: Normal
+      </button>
+    </div>
+
+    <div id="reveal-debug" class="mt-4 text-[10px] font-mono text-white/20"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     B) CANVAS RENDERING
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="relative bg-gray-950 border-t border-white/5 py-20">
+  <div class="max-w-5xl mx-auto px-6 sm:px-8">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="px-2 py-0.5 bg-emerald-600 text-white text-[9px] font-mono font-bold uppercase tracking-wider rounded">B</span>
+      <span class="text-[10px] font-mono text-white/30 uppercase tracking-widest">Canvas rendering + glow</span>
+    </div>
+
+    <div class="relative rounded-2xl overflow-hidden bg-black border border-white/10">
+      <canvas id="canvas-text" class="w-full" style="height: 400px;"></canvas>
+    </div>
+
+    <div class="mt-4 flex gap-3">
+      <button id="canvas-glow" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-mono rounded-lg transition-colors">
+        Effect: Glow
+      </button>
+      <button id="canvas-scanline" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-mono rounded-lg transition-colors">
+        Effect: Scanline
+      </button>
+      <button id="canvas-typewriter" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-mono rounded-lg transition-colors">
+        Effect: Typewriter
+      </button>
+    </div>
+
+    <div id="canvas-debug" class="mt-4 text-[10px] font-mono text-white/20"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     C) RESPONSIVE TEXT FIT
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="relative bg-gray-950 border-t border-white/5 py-20">
+  <div class="max-w-5xl mx-auto px-6 sm:px-8">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="px-2 py-0.5 bg-blue-600 text-white text-[9px] font-mono font-bold uppercase tracking-wider rounded">C</span>
+      <span class="text-[10px] font-mono text-white/30 uppercase tracking-widest">Responsive text fit (auto font-size)</span>
+    </div>
+
+    <p class="text-white/30 text-xs mb-6">Arrastrá el borde para cambiar el ancho — pretext recalcula el font-size para que siempre sean exactamente 2 líneas.</p>
+
+    <!-- Resizable container -->
+    <div id="fit-wrapper" class="relative rounded-2xl overflow-hidden bg-black border border-white/10" style="resize: horizontal; overflow: hidden; min-width: 280px; max-width: 100%; width: 100%; padding: 3rem 2rem;">
+      <div id="fit-text" class="um-h text-white tracking-tight leading-[1.1]" style="font-size: 48px;">
+        La infraestructura que mueve a las empresas argentinas.
+      </div>
+      <div class="absolute bottom-2 right-3 text-[9px] font-mono text-white/15">drag to resize</div>
+    </div>
+
+    <div class="mt-4 flex gap-3 flex-wrap">
+      <button id="fit-2lines" class="px-4 py-2 bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 text-xs font-mono rounded-lg transition-colors border border-blue-500/30">
+        Target: 2 líneas
+      </button>
+      <button id="fit-3lines" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-mono rounded-lg transition-colors">
+        Target: 3 líneas
+      </button>
+      <button id="fit-1line" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-mono rounded-lg transition-colors">
+        Target: 1 línea
+      </button>
+    </div>
+
+    <div id="fit-debug" class="mt-4 text-[10px] font-mono text-white/20"></div>
+  </div>
+</section>
+
+<!-- Metrics comparison panel -->
+<section class="bg-gray-950 border-t border-white/5 py-16">
+  <div class="max-w-5xl mx-auto px-6 sm:px-8">
+    <h2 class="um-h text-xl text-white mb-6">Métricas de pretext</h2>
+    <div id="metrics-panel" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="bg-white/5 rounded-xl p-5 border border-white/10">
+        <p class="text-[9px] font-mono uppercase tracking-widest text-red-400 mb-1">A — Reveal</p>
+        <p id="metric-a" class="text-white font-mono text-sm">—</p>
+      </div>
+      <div class="bg-white/5 rounded-xl p-5 border border-white/10">
+        <p class="text-[9px] font-mono uppercase tracking-widest text-emerald-400 mb-1">B — Canvas</p>
+        <p id="metric-b" class="text-white font-mono text-sm">—</p>
+      </div>
+      <div class="bg-white/5 rounded-xl p-5 border border-white/10">
+        <p class="text-[9px] font-mono uppercase tracking-widest text-blue-400 mb-1">C — Fit</p>
+        <p id="metric-c" class="text-white font-mono text-sm">—</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .um-h { font-family: 'Futura PT', 'Futura', 'Trebuchet MS', sans-serif; font-weight: 700; }
+
+  .reveal-line {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .reveal-line.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal-cursor::after {
+    content: '▎';
+    color: #ef4444;
+    animation: blink 0.7s steps(1) infinite;
+  }
+  @keyframes blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+
+  #canvas-text { image-rendering: auto; }
+
+  #fit-wrapper::-webkit-resizer { display: none; }
+  #fit-wrapper { cursor: ew-resize; }
+</style>
+
+<script>
+  import { prepareWithSegments, layoutWithLines, prepare, layout } from '@chenglou/pretext';
+
+  const HERO_TEXT = 'La infraestructura que mueve a las empresas argentinas.';
+  const FONT_FAMILY = '"Futura PT", "Futura", "Trebuchet MS", sans-serif';
+
+  // ─── A) LINE-BY-LINE REVEAL ────────────────────────────────────
+  function initReveal() {
+    const container = document.getElementById('reveal-container');
+    const linesEl = document.getElementById('reveal-lines');
+    const debugEl = document.getElementById('reveal-debug');
+    const metricEl = document.getElementById('metric-a');
+    if (!container || !linesEl) return;
+
+    let speed = 400;
+    const speeds = [
+      { label: 'Speed: Slow', ms: 800 },
+      { label: 'Speed: Normal', ms: 400 },
+      { label: 'Speed: Fast', ms: 150 },
+    ];
+    let speedIdx = 1;
+
+    function runReveal() {
+      const width = container.clientWidth - 48;
+      const fontSize = Math.min(Math.max(window.innerWidth * 0.055, 28), 68);
+      const font = `700 ${fontSize}px ${FONT_FAMILY}`;
+      const lineHeight = fontSize * 1.08;
+
+      const t0 = performance.now();
+      const prepared = prepareWithSegments(HERO_TEXT, font);
+      const result = layoutWithLines(prepared, width, lineHeight);
+      const elapsed = (performance.now() - t0).toFixed(3);
+
+      // Clear using safe DOM method
+      linesEl.replaceChildren();
+
+      result.lines.forEach((line: any, i: number) => {
+        const div = document.createElement('div');
+        div.className = 'reveal-line';
+        div.style.fontSize = `${fontSize}px`;
+        div.style.lineHeight = `${lineHeight}px`;
+        div.style.fontFamily = FONT_FAMILY;
+        div.style.fontWeight = '700';
+        div.style.color = 'white';
+        div.style.letterSpacing = '-0.02em';
+
+        const textSpan = document.createElement('span');
+        textSpan.textContent = line.text;
+        div.appendChild(textSpan);
+
+        // Red dot + cursor on last line
+        if (i === result.lines.length - 1) {
+          const dot = document.createElement('span');
+          dot.textContent = '.';
+          dot.style.color = '#ef4444';
+          div.appendChild(dot);
+
+          const cursor = document.createElement('span');
+          cursor.className = 'reveal-cursor';
+          div.appendChild(cursor);
+        }
+
+        linesEl.appendChild(div);
+        setTimeout(() => div.classList.add('visible'), speed * (i + 1));
+      });
+
+      if (debugEl) debugEl.textContent = `pretext: ${result.lineCount} lines, ${elapsed}ms | font: ${Math.round(fontSize)}px | width: ${Math.round(width)}px`;
+      if (metricEl) metricEl.textContent = `${result.lineCount} lines · ${elapsed}ms · ${Math.round(fontSize)}px`;
+    }
+
+    runReveal();
+
+    document.getElementById('reveal-replay')?.addEventListener('click', runReveal);
+    document.getElementById('reveal-speed')?.addEventListener('click', (e) => {
+      speedIdx = (speedIdx + 1) % speeds.length;
+      speed = speeds[speedIdx].ms;
+      (e.target as HTMLElement).textContent = speeds[speedIdx].label;
+      runReveal();
+    });
+
+    let resizeTimer: number;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(runReveal, 200);
+    });
+  }
+
+  // ─── B) CANVAS RENDERING ───────────────────────────────────────
+  function initCanvas() {
+    const canvas = document.getElementById('canvas-text') as HTMLCanvasElement;
+    const debugEl = document.getElementById('canvas-debug');
+    const metricEl = document.getElementById('metric-b');
+    if (!canvas) return;
+
+    let currentEffect = 'glow';
+    let animFrame: number;
+
+    function render() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      const ctx = canvas.getContext('2d')!;
+      ctx.scale(dpr, dpr);
+
+      const w = rect.width;
+      const h = rect.height;
+      const padding = 40;
+      const maxWidth = w - padding * 2;
+      const fontSize = Math.min(Math.max(w * 0.05, 24), 56);
+      const font = `700 ${fontSize}px ${FONT_FAMILY}`;
+      const lineHeight = fontSize * 1.15;
+
+      const t0 = performance.now();
+      const prepared = prepareWithSegments(HERO_TEXT, font);
+      const result = layoutWithLines(prepared, maxWidth, lineHeight);
+      const elapsed = (performance.now() - t0).toFixed(3);
+
+      // Clear
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, w, h);
+
+      const totalTextHeight = result.lineCount * lineHeight;
+      const startY = (h - totalTextHeight) / 2 + fontSize;
+
+      ctx.font = font;
+      ctx.textBaseline = 'alphabetic';
+
+      if (currentEffect === 'glow') {
+        renderGlow(ctx, result, padding, startY, lineHeight, fontSize);
+      } else if (currentEffect === 'scanline') {
+        renderScanline(ctx, result, padding, startY, lineHeight, w, h);
+        animFrame = requestAnimationFrame(render);
+      } else if (currentEffect === 'typewriter') {
+        renderTypewriter(ctx, font, maxWidth, lineHeight, padding, startY, fontSize, h);
+        animFrame = requestAnimationFrame(render);
+      }
+
+      if (debugEl) debugEl.textContent = `pretext: ${result.lineCount} lines, ${elapsed}ms | effect: ${currentEffect} | canvas: ${canvas.width}x${canvas.height}`;
+      if (metricEl) metricEl.textContent = `${result.lineCount} lines · ${elapsed}ms · ${currentEffect}`;
+    }
+
+    function renderGlow(ctx: CanvasRenderingContext2D, result: any, padding: number, startY: number, lineHeight: number, fontSize: number) {
+      result.lines.forEach((line: any, i: number) => {
+        const y = startY + i * lineHeight;
+        ctx.shadowColor = '#ef4444';
+        ctx.shadowBlur = 30;
+        ctx.fillStyle = '#ef444440';
+        ctx.fillText(line.text, padding, y);
+
+        ctx.shadowBlur = 15;
+        ctx.fillStyle = '#ef444480';
+        ctx.fillText(line.text, padding, y);
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(line.text, padding, y);
+      });
+
+      // Red period on last line
+      if (result.lines.length > 0) {
+        const last = result.lines[result.lines.length - 1];
+        const lastY = startY + (result.lineCount - 1) * lineHeight;
+        const lastWidth = ctx.measureText(last.text).width;
+        ctx.shadowColor = '#ef4444';
+        ctx.shadowBlur = 20;
+        ctx.fillStyle = '#ef4444';
+        ctx.fillText('.', padding + lastWidth, lastY);
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    function renderScanline(ctx: CanvasRenderingContext2D, result: any, padding: number, startY: number, lineHeight: number, w: number, h: number) {
+      result.lines.forEach((line: any, i: number) => {
+        const y = startY + i * lineHeight;
+        ctx.fillStyle = '#22d3ee';
+        ctx.fillText(line.text, padding, y);
+      });
+
+      // Animated scanline
+      const scanY = ((Date.now() * 0.08) % h);
+      const grad = ctx.createLinearGradient(0, scanY - 4, 0, scanY + 4);
+      grad.addColorStop(0, 'rgba(34,211,238,0)');
+      grad.addColorStop(0.5, 'rgba(34,211,238,0.15)');
+      grad.addColorStop(1, 'rgba(34,211,238,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, scanY - 4, w, 8);
+
+      // CRT lines
+      ctx.fillStyle = 'rgba(0,0,0,0.05)';
+      for (let y = 0; y < h; y += 3) {
+        ctx.fillRect(0, y, w, 1);
+      }
+    }
+
+    function renderTypewriter(ctx: CanvasRenderingContext2D, font: string, maxWidth: number, lineHeight: number, padding: number, startY: number, fontSize: number, h: number) {
+      const totalChars = HERO_TEXT.length;
+      const progress = ((Date.now() * 0.002) % (totalChars + 10)) / totalChars;
+      const charsToShow = Math.min(Math.floor(progress * totalChars), totalChars);
+      const partialText = HERO_TEXT.substring(0, charsToShow);
+
+      const partialPrepared = prepareWithSegments(partialText, font);
+      const partialResult = layoutWithLines(partialPrepared, maxWidth, lineHeight);
+
+      partialResult.lines.forEach((line: any, i: number) => {
+        const y = startY + i * lineHeight;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(line.text, padding, y);
+      });
+
+      // Blinking cursor
+      if (Math.floor(Date.now() / 500) % 2 === 0) {
+        const lastLine = partialResult.lines[partialResult.lines.length - 1];
+        if (lastLine) {
+          const lastY = startY + (partialResult.lineCount - 1) * lineHeight;
+          const cursorX = padding + ctx.measureText(lastLine.text).width + 2;
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(cursorX, lastY - fontSize * 0.8, 3, fontSize);
+        }
+      }
+    }
+
+    function setEffect(effect: string) {
+      cancelAnimationFrame(animFrame);
+      currentEffect = effect;
+
+      // Update active button
+      const buttons = ['canvas-glow', 'canvas-scanline', 'canvas-typewriter'];
+      buttons.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.className = 'px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-mono rounded-lg transition-colors';
+      });
+      const activeBtn = document.getElementById(`canvas-${effect}`);
+      if (activeBtn) activeBtn.className = 'px-4 py-2 bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 text-xs font-mono rounded-lg transition-colors border border-emerald-500/30';
+
+      render();
+    }
+
+    document.getElementById('canvas-glow')?.addEventListener('click', () => setEffect('glow'));
+    document.getElementById('canvas-scanline')?.addEventListener('click', () => setEffect('scanline'));
+    document.getElementById('canvas-typewriter')?.addEventListener('click', () => setEffect('typewriter'));
+
+    setEffect('glow');
+
+    let resizeTimer: number;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(render, 100);
+    });
+  }
+
+  // ─── C) RESPONSIVE TEXT FIT ────────────────────────────────────
+  function initFit() {
+    const wrapper = document.getElementById('fit-wrapper');
+    const textEl = document.getElementById('fit-text');
+    const debugEl = document.getElementById('fit-debug');
+    const metricEl = document.getElementById('metric-c');
+    if (!wrapper || !textEl) return;
+
+    let targetLines = 2;
+
+    function fitText() {
+      const padding = 64; // 2rem * 2
+      const maxWidth = wrapper.clientWidth - padding;
+
+      // Binary search for font size that gives exactly targetLines
+      let lo = 12, hi = 200, bestSize = 32;
+      const t0 = performance.now();
+      let iterations = 0;
+
+      while (hi - lo > 0.5) {
+        const mid = (lo + hi) / 2;
+        const font = `700 ${mid}px ${FONT_FAMILY}`;
+        const prepared = prepare(HERO_TEXT, font);
+        const result = layout(prepared, maxWidth, mid * 1.1);
+        iterations++;
+
+        if (result.lineCount <= targetLines) {
+          bestSize = mid;
+          lo = mid;
+        } else {
+          hi = mid;
+        }
+      }
+
+      const elapsed = (performance.now() - t0).toFixed(3);
+
+      // Verify final
+      const finalFont = `700 ${bestSize}px ${FONT_FAMILY}`;
+      const finalPrepared = prepare(HERO_TEXT, finalFont);
+      const finalResult = layout(finalPrepared, maxWidth, bestSize * 1.1);
+
+      textEl.style.fontSize = `${Math.round(bestSize)}px`;
+      textEl.style.lineHeight = `${Math.round(bestSize * 1.1)}px`;
+
+      if (debugEl) debugEl.textContent = `pretext: ${finalResult.lineCount} lines, ${elapsed}ms (${iterations} iters) | font: ${Math.round(bestSize)}px | target: ${targetLines} | width: ${Math.round(maxWidth)}px`;
+      if (metricEl) metricEl.textContent = `${Math.round(bestSize)}px → ${finalResult.lineCount} lines · ${elapsed}ms · ${iterations} iters`;
+    }
+
+    fitText();
+
+    // Observe resize
+    const ro = new ResizeObserver(() => fitText());
+    ro.observe(wrapper);
+
+    function setTarget(n: number) {
+      targetLines = n;
+      fitText();
+      const buttons = ['fit-1line', 'fit-2lines', 'fit-3lines'];
+      buttons.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.className = 'px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-mono rounded-lg transition-colors';
+      });
+      const suffix = n === 1 ? '1line' : `${n}lines`;
+      const activeBtn = document.getElementById(`fit-${suffix}`);
+      if (activeBtn) activeBtn.className = 'px-4 py-2 bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 text-xs font-mono rounded-lg transition-colors border border-blue-500/30';
+    }
+
+    document.getElementById('fit-1line')?.addEventListener('click', () => setTarget(1));
+    document.getElementById('fit-2lines')?.addEventListener('click', () => setTarget(2));
+    document.getElementById('fit-3lines')?.addEventListener('click', () => setTarget(3));
+  }
+
+  // ─── INIT ──────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    initReveal();
+    initCanvas();
+    initFit();
+  });
+
+  document.addEventListener('astro:page-load', () => {
+    initReveal();
+    initCanvas();
+    initFit();
+  });
+</script>
+
+</LayoutV4>

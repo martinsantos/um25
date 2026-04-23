@@ -4,6 +4,7 @@
  * Reset from scratch. Clean, verified, no legacy.
  */
 import LayoutV4 from '../layouts/LayoutV4.astro';
+import BlogBand from '../components/blog/BlogBand.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getAllServicios } from '../utils/directusHelpers';
 import { getDirectusImageUrl, getAllAntecedentes, withBase } from '../lib/directus.ts';
@@ -213,6 +214,8 @@ const schema = { "@type": "WebSite", "name": "ULTIMA MILLA", "url": "https://ult
     </p>
   </div>
 </section>
+
+<BlogBand />
 
 <style>
   .um-h { font-family: 'Futura PT', 'Futura', 'Trebuchet MS', sans-serif; font-weight: 700; }
