@@ -61,13 +61,16 @@ export interface CasoExito {
 
 export interface EntradaBlog {
   id: string;
-  titulo: string;
+  status: 'published' | 'draft' | 'scheduled';
   slug: string;
-  descripcion_corta: string;
-  imagen_principal: ArchivoDirectus | null;
+  titulo: string;
+  resumen: string;
   contenido: string;
-  estado: 'publicado' | 'borrador';
+  imagen_portada: string | null;
+  categoria: 'noticias' | 'proyectos' | 'tecnico' | 'empresa';
+  tags: string[];
   fecha_publicacion: string;
+  tiempo_lectura: number;
 }
 
 type ArchivoDirectus = {

@@ -1,0 +1,43 @@
+---
+interface Heading {
+  level: number;
+  id: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+}
+
+const { headings } = Astro.props;
+---
+
+{headings.length > 1 && (
+  <nav
+    class="hidden lg:block sticky top-24 w-48 flex-shrink-0 self-start"
+    x-data="{ active: '' }"
+    x-init="
+      const els = document.querySelectorAll('h2[id], h3[id]');
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) active = e.target.id; });
+      }, { rootMargin: '-20% 0px -70% 0px' });
+      els.forEach(el => obs.observe(el));
+    "
+    aria-label="Tabla de contenidos"
+  >
+    <p class="text-[9px] font-mono text-white/25 uppercase tracking-widest mb-4">Contenidos</p>
+    <ul class="space-y-1.5">
+      {headings.map(h => (
+        <li style={h.level === 3 ? 'padding-left: 0.75rem' : ''}>
+          <a
+            href={`#${h.id}`}
+            class="block text-xs leading-snug py-0.5 transition-colors hover:text-white"
+            :class={`active === '${h.id}' ? 'text-blue-400' : 'text-white/30'`}
+          >
+            {h.text}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}

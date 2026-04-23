@@ -1,0 +1,54 @@
+---
+import type { EntradaBlog } from '../../lib/directus';
+import { blogImageUrl } from '../../utils/blogHelpers';
+import { getCategoryColor, getCategoryLabel, formatBlogDate } from '../../utils/blogUtils';
+
+interface Props {
+  post: EntradaBlog;
+}
+
+const { post } = Astro.props;
+const imgUrl = blogImageUrl(post.imagen_portada) || 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&h=480&fit=crop&q=80';
+const color = getCategoryColor(post.categoria);
+const label = getCategoryLabel(post.categoria);
+const date = formatBlogDate(post.fecha_publicacion);
+---
+
+<article class="relative w-full h-[380px] sm:h-[460px] rounded-xl overflow-hidden mb-10 group">
+  <img
+    src={imgUrl}
+    alt={post.titulo}
+    class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+  />
+  <div class="absolute inset-0 bg-gradient-to-t from-[#0a0f1e] via-[#0a0f1e]/55 to-transparent"></div>
+
+  <div class="absolute bottom-0 left-0 right-0 p-7 sm:p-10">
+    <div class="flex items-center gap-3 mb-3">
+      <span
+        class="text-[9px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded"
+        style={`color: ${color}; background: ${color}20; border: 1px solid ${color}40`}
+      >{label}</span>
+      <span class="text-white/40 text-xs">{post.tiempo_lectura} min</span>
+      <span class="text-white/40 text-xs">·</span>
+      <span class="text-white/40 text-xs">{date}</span>
+    </div>
+
+    <h2 style="font-family:'Poppins','Century Gothic',sans-serif;font-size:26px;font-weight:800;letter-spacing:-0.02em;line-height:1.2;color:#f1f5f9;margin-bottom:10px;max-width:640px;">
+      {post.titulo}
+    </h2>
+
+    <p style="font-family:'Arial','Inter',system-ui,sans-serif;font-size:15px;line-height:1.65;color:rgba(200,211,224,0.85);max-width:520px;margin-bottom:20px;" class="line-clamp-2">
+      {post.resumen}
+    </p>
+
+    <a
+      href={`/blog/${post.slug}`}
+      class="inline-flex items-center gap-2 px-5 py-2.5 border border-blue-500/60 text-blue-400 hover:bg-blue-500/10 text-sm font-medium rounded-lg transition-colors"
+    >
+      Leer artículo completo
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+    </a>
+  </div>
+</article>

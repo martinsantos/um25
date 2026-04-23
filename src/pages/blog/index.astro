@@ -1,0 +1,63 @@
+---
+import LayoutV4 from '../../layouts/LayoutV4.astro';
+import BlogHero from '../../components/blog/BlogHero.astro';
+import BlogFeedItem from '../../components/blog/BlogFeedItem.astro';
+import BlogCategoryTabs from '../../components/blog/BlogCategoryTabs.astro';
+import BlogPagination from '../../components/blog/BlogPagination.astro';
+import { fetchBlogListing } from '../../utils/getBlogData';
+
+const PAGE_SIZE = 10;
+const page = Number(Astro.url.searchParams.get('page') || '1');
+const { posts, total } = await fetchBlogListing(page, PAGE_SIZE);
+const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+const [hero, ...feedPosts] = posts;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  name: 'Blog ULTIMA MILLA',
+  url: 'https://ultimamilla.com.ar/blog',
+};
+---
+
+<LayoutV4
+  title="Blog — ULTIMA MILLA"
+  description="Noticias, proyectos y artículos técnicos sobre infraestructura IT, seguridad electrónica y telecomunicaciones."
+  structuredData={schema}
+>
+  <main class="min-h-screen bg-[#0a0f1e]">
+    <div class="max-w-3xl mx-auto px-6 sm:px-8 py-16">
+
+      <header class="mb-10">
+        <p class="text-[10px] font-mono text-white/30 uppercase tracking-widest mb-3">ULTIMA MILLA</p>
+        <h1 class="um-h text-4xl sm:text-5xl text-white font-bold mb-2">Blog</h1>
+        <p class="text-white/35 text-sm">Noticias, proyectos y artículos técnicos.</p>
+      </header>
+
+      <BlogCategoryTabs />
+
+      {hero && <BlogHero post={hero} />}
+
+      {feedPosts.length > 0 && (
+        <div>
+          {feedPosts.map(post => <BlogFeedItem post={post} />)}
+        </div>
+      )}
+
+      {posts.length === 0 && (
+        <div class="text-center py-24 border border-[#1e3a5f] rounded-xl">
+          <p class="text-white/25 text-sm mb-2">No hay artículos publicados aún.</p>
+          <p class="text-white/15 text-xs font-mono">Publicá el primer post en Directus → blog_posts</p>
+        </div>
+      )}
+
+      <BlogPagination page={page} totalPages={totalPages} baseHref="/blog" />
+
+    </div>
+  </main>
+</LayoutV4>
+
+<style>
+  .um-h { font-family: 'Futura PT', 'Futura', 'Trebuchet MS', sans-serif; font-weight: 700; }
+</style>

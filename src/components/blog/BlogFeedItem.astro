@@ -1,0 +1,63 @@
+---
+import type { EntradaBlog } from '../../lib/directus';
+import { blogImageUrl } from '../../utils/blogHelpers';
+import { getCategoryColor, getCategoryLabel, formatBlogDate } from '../../utils/blogUtils';
+
+interface Props {
+  post: EntradaBlog;
+}
+
+const { post } = Astro.props;
+const imgUrl = blogImageUrl(post.imagen_portada);
+const color = getCategoryColor(post.categoria);
+const label = getCategoryLabel(post.categoria);
+const date = formatBlogDate(post.fecha_publicacion);
+---
+
+<article class="py-8 border-b border-[#1e3a5f] last:border-0">
+  <div class="flex gap-5">
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center gap-2 mb-2">
+        <span
+          class="text-[9px] font-mono font-bold uppercase tracking-widest"
+          style={`color: ${color}`}
+        >{label}</span>
+        <span class="text-white/25 text-xs">·</span>
+        <span class="text-white/25 text-xs">{post.tiempo_lectura} min</span>
+        <span class="text-white/25 text-xs">·</span>
+        <span class="text-white/25 text-xs">{date}</span>
+      </div>
+
+      <h2 style="font-family:'Poppins','Century Gothic',sans-serif;font-size:16px;font-weight:700;letter-spacing:-0.02em;line-height:1.3;color:#e8edf4;margin-bottom:6px;">
+        <a href={`/blog/${post.slug}`} class="hover:text-blue-300 transition-colors">
+          {post.titulo}
+        </a>
+      </h2>
+
+      <p style="font-family:'Arial','Inter',system-ui,sans-serif;font-size:14px;line-height:1.65;color:#8fa3bb;margin:0;">
+        {post.resumen.substring(0, 180)}{post.resumen.length > 180 ? '…' : ''}
+      </p>
+
+      <a
+        href={`/blog/${post.slug}`}
+        class="inline-block mt-3 text-blue-400 hover:text-blue-300 text-sm transition-colors"
+      >
+        leer más →
+      </a>
+    </div>
+
+    {imgUrl && (
+      <div class="flex-shrink-0 hidden sm:block">
+        <a href={`/blog/${post.slug}`}>
+          <img
+            src={imgUrl}
+            alt={post.titulo}
+            class="w-32 object-cover rounded-lg opacity-75 hover:opacity-100 transition-opacity"
+            style="height: 88px;"
+            loading="lazy"
+          />
+        </a>
+      </div>
+    )}
+  </div>
+</article>
