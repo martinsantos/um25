@@ -44,6 +44,11 @@ const schema = {
   image={imgUrl || undefined}
   structuredData={schema}
 >
+  <link
+    slot="head"
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
   <main class="min-h-screen bg-[#0a0f1e] py-16">
     <div class="max-w-5xl mx-auto px-6 sm:px-8">
 
@@ -123,64 +128,189 @@ const schema = {
 </LayoutV4>
 
 <style>
+  /*
+   * Tipografía UMSA — adaptada a dark theme
+   * --font-head: 'Poppins' (igual al sistema de estilo)
+   * --font-body: 'Arial','Inter' (igual al sistema de estilo)
+   * --font-code: 'Fira Code','Consolas' (igual al sistema de estilo)
+   * Tamaños, line-height y spacing directamente del /estilo
+   */
+
   .um-h { font-family: 'Futura PT', 'Futura', 'Trebuchet MS', sans-serif; font-weight: 700; }
 
+  /* ── Base del artículo — igual que body en /estilo ────────────────── */
   .blog-prose {
-    color: rgba(226, 232, 240, 0.75);
-    font-size: 1.05rem;
-    line-height: 1.85;
+    font-family: 'Arial', 'Inter', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #c8d3e0;            /* gris claro — equivalente a --gris-o en dark */
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
   }
+
+  /* ── Párrafos — exacto del /estilo: 14px margin, 1.7 line-height ─── */
+  .blog-prose p {
+    margin-bottom: 14px;
+    line-height: 1.7;
+    color: #c8d3e0;
+  }
+
+  /* Primer párrafo levemente destacado — patrón del /estilo */
+  .blog-prose > p:first-of-type {
+    font-size: 16px;
+    color: #d6e0ec;
+    line-height: 1.7;
+  }
+
+  /* ── Headings — Poppins igual que --font-head del /estilo ─────────── */
   .blog-prose h2 {
-    font-family: 'Futura PT', 'Futura', 'Trebuchet MS', sans-serif;
-    font-size: 1.5rem;
+    font-family: 'Poppins', 'Century Gothic', sans-serif;
+    font-size: 18px;
     font-weight: 700;
+    letter-spacing: -0.02em;   /* exacto del /estilo */
+    line-height: 1.3;
     color: #f1f5f9;
-    margin: 2.5rem 0 1rem;
-    padding-top: 0.5rem;
+    margin-top: 40px;
+    margin-bottom: 12px;
     scroll-margin-top: 6rem;
   }
+
   .blog-prose h3 {
-    font-family: 'Futura PT', 'Futura', 'Trebuchet MS', sans-serif;
-    font-size: 1.15rem;
+    font-family: 'Poppins', 'Century Gothic', sans-serif;
+    font-size: 14px;
     font-weight: 700;
-    color: #e2e8f0;
-    margin: 2rem 0 0.75rem;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;    /* /estilo usa uppercase + 0.04em para subtítulos */
+    color: #94a3b8;
+    margin-top: 28px;
+    margin-bottom: 8px;
     scroll-margin-top: 6rem;
   }
-  .blog-prose p { margin-bottom: 1.25rem; }
-  .blog-prose a { color: #3b82f6; text-decoration: underline; text-underline-offset: 3px; }
-  .blog-prose a:hover { color: #60a5fa; }
-  .blog-prose ul, .blog-prose ol { margin: 1rem 0 1.25rem 1.5rem; }
-  .blog-prose li { margin-bottom: 0.4rem; }
-  .blog-prose blockquote {
-    border-left: 3px solid #1d4ed8;
-    padding-left: 1.25rem;
-    margin: 1.5rem 0;
-    color: rgba(226, 232, 240, 0.45);
-    font-style: italic;
+
+  /* ── Links — azul del sistema UMSA ────────────────────────────────── */
+  .blog-prose a {
+    color: #4b89d4;            /* --azul: #1A56C0 aclarado para dark */
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: rgba(75, 137, 212, 0.4);
+    text-decoration-thickness: 1px;
+    transition: color 0.15s;
   }
+  .blog-prose a:hover {
+    color: #7aabee;
+  }
+
+  /* ── Listas — igual a body, 14px margin ───────────────────────────── */
+  .blog-prose ul,
+  .blog-prose ol {
+    margin: 6px 0 14px 20px;
+    padding: 0;
+  }
+  .blog-prose li {
+    margin-bottom: 5px;
+    line-height: 1.65;
+    color: #c8d3e0;
+  }
+  .blog-prose ul { list-style-type: disc; }
+  .blog-prose ol { list-style-type: decimal; }
+  .blog-prose li::marker { color: #4b89d4; }
+
+  /* ── Blockquote — patrón callout del /estilo ──────────────────────── */
+  .blog-prose blockquote {
+    border-left: 3px solid #1A56C0;
+    padding: 10px 0 10px 16px;
+    margin: 20px 0;
+    color: #8fa3bb;
+    font-style: italic;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  /* ── Strong / Em ───────────────────────────────────────────────────── */
+  .blog-prose strong {
+    font-family: 'Poppins', 'Century Gothic', sans-serif;
+    font-weight: 700;
+    color: #dce6f0;
+    font-size: 13px;            /* /estilo usa Poppins 700 13px para strong */
+  }
+  .blog-prose em { font-style: italic; color: #a0b4c8; }
+
+  /* ── Código inline — exacto del /estilo ───────────────────────────── */
+  .blog-prose code {
+    font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
+    font-size: 11px;            /* exacto: /estilo usa 11px */
+    background: rgba(17, 24, 39, 0.8);
+    border: 1px solid #1e3a5f;
+    border-radius: 3px;
+    padding: 1px 5px;          /* exacto del /estilo */
+    color: #79c0ff;
+    letter-spacing: 0;
+  }
+
+  /* ── Pre / bloques de código — igual al .code-block del /estilo ───── */
   .blog-prose pre {
-    background: #111827;
+    font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
+    font-size: 12.5px;         /* exacto del /estilo */
+    line-height: 1.7;          /* exacto del /estilo */
+    background: #0d1117;
     border: 1px solid #1e3a5f;
     border-radius: 8px;
-    padding: 1.25rem;
+    padding: 16px 20px;
     overflow-x: auto;
-    margin: 1.5rem 0;
-    font-size: 0.875rem;
+    margin: 20px 0;
+    letter-spacing: 0;
   }
-  .blog-prose code {
-    background: #111827;
+  .blog-prose pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+    color: #e2e8f0;
+  }
+
+  /* ── Imágenes ──────────────────────────────────────────────────────── */
+  .blog-prose img {
+    width: 100%;
+    border-radius: 8px;
+    margin: 24px 0;
+    opacity: 0.9;
+  }
+
+  /* ── HR — separador del /estilo ────────────────────────────────────── */
+  .blog-prose hr {
+    border: none;
+    border-top: 1px solid #1e3a5f;
+    margin: 32px 0;
+  }
+
+  /* ── Tablas — igual que .um-table del /estilo ─────────────────────── */
+  .blog-prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Arial', 'Inter', system-ui, sans-serif;
+    font-size: 13px;           /* exacto del /estilo */
+    margin: 16px 0 24px;       /* exacto del /estilo */
+    line-height: 1.6;
+  }
+  .blog-prose th {
+    font-family: 'Poppins', 'Century Gothic', sans-serif;
+    font-size: 11px;           /* exacto del /estilo */
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;    /* exacto del /estilo */
+    color: #6b7f99;
+    background: #0d1526;
+    padding: 8px 12px;
     border: 1px solid #1e3a5f;
-    border-radius: 4px;
-    padding: 0.1em 0.4em;
-    font-size: 0.875em;
-    color: #60a5fa;
+    text-align: left;
   }
-  .blog-prose pre code { background: none; border: none; padding: 0; color: #e2e8f0; }
-  .blog-prose img { width: 100%; border-radius: 8px; margin: 1.5rem 0; }
-  .blog-prose strong { color: #f1f5f9; }
-  .blog-prose hr { border: none; border-top: 1px solid #1e3a5f; margin: 2rem 0; }
-  .blog-prose table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
-  .blog-prose th { background: #111827; color: #94a3b8; font-weight: 600; padding: 0.6rem 1rem; border: 1px solid #1e3a5f; text-align: left; }
-  .blog-prose td { padding: 0.6rem 1rem; border: 1px solid #1e3a5f; }
+  .blog-prose td {
+    padding: 8px 12px;
+    border: 1px solid #1e3a5f;
+    color: #c8d3e0;
+    vertical-align: top;
+  }
+  .blog-prose tr:nth-child(even) td { background: rgba(30, 58, 95, 0.15); }
 </style>
