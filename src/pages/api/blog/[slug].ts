@@ -1,9 +1,9 @@
 import type { APIRoute } from 'astro';
 
-const API_USER = import.meta.env.BLOG_API_USER;
-const API_PASS = import.meta.env.BLOG_API_PASS;
-const DIRECTUS_URL = import.meta.env.DIRECTUS_INTERNAL_URL || 'http://localhost:8055';
-const DIRECTUS_TOKEN = import.meta.env.DIRECTUS_ADMIN_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+const API_USER = process.env.BLOG_API_USER ?? import.meta.env.BLOG_API_USER;
+const API_PASS = process.env.BLOG_API_PASS ?? import.meta.env.BLOG_API_PASS;
+const DIRECTUS_URL = process.env.DIRECTUS_INTERNAL_URL ?? import.meta.env.DIRECTUS_INTERNAL_URL ?? 'http://localhost:8055';
+const DIRECTUS_TOKEN = process.env.DIRECTUS_ADMIN_TOKEN ?? import.meta.env.DIRECTUS_ADMIN_TOKEN ?? '1d70b2841dd6365c676ab42e879c5fdfc044ec1adfc146552a99b2d7e23baa5e';
 
 function checkAuth(request: Request): boolean {
   const auth = request.headers.get('Authorization') || '';
