@@ -1,0 +1,186 @@
+---
+import LayoutV4 from '../../layouts/LayoutV4.astro';
+import BlogTOC from '../../components/blog/BlogTOC.astro';
+import { fetchBlogPost, fetchBlogListing } from '../../utils/getBlogData';
+import { blogImageUrl } from '../../utils/blogHelpers';
+import { addHeadingIds, getCategoryColor, getCategoryLabel, formatBlogDate } from '../../utils/blogUtils';
+
+const slug = Astro.params.slug || '';
+const post = await fetchBlogPost(slug);
+
+if (!post) {
+  return Astro.redirect('/blog');
+}
+
+const { html: contentHtml, headings } = addHeadingIds(post.contenido || '');
+const imgUrl = blogImageUrl(post.imagen_portada);
+const color = getCategoryColor(post.categoria);
+const label = getCategoryLabel(post.categoria);
+const date = formatBlogDate(post.fecha_publicacion);
+
+const { posts: allRecent } = await fetchBlogListing(1, 20);
+const idx = allRecent.findIndex(p => p.slug === slug);
+const prevPost = idx > 0 ? allRecent[idx - 1] : null;
+const nextPost = idx < allRecent.length - 1 ? allRecent[idx + 1] : null;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.titulo,
+  description: post.resumen,
+  datePublished: post.fecha_publicacion,
+  image: imgUrl || undefined,
+  publisher: {
+    '@type': 'Organization',
+    name: 'ULTIMA MILLA',
+    url: 'https://ultimamilla.com.ar',
+  },
+};
+---
+
+<LayoutV4
+  title={`${post.titulo} — ULTIMA MILLA Blog`}
+  description={post.resumen?.substring(0, 160)}
+  image={imgUrl || undefined}
+  structuredData={schema}
+>
+  <main class="min-h-screen bg-[#0a0f1e] py-16">
+    <div class="max-w-5xl mx-auto px-6 sm:px-8">
+
+      <p class="text-[10px] font-mono text-white/30 uppercase tracking-widest mb-10">
+        <a href={'/blog'} class="hover:text-white/50 transition-colors">Blog</a>
+        {' '}/ {label}
+      </p>
+
+      <div class="flex gap-12 items-start">
+
+        <BlogTOC headings={headings} />
+
+        <article class="flex-1 min-w-0 max-w-[720px]">
+
+          <header class="mb-8">
+            <div class="flex items-center gap-2 mb-4">
+              <span
+                class="text-[9px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded"
+                style={`color: ${color}; background: ${color}20; border: 1px solid ${color}40`}
+              >{label}</span>
+              <span class="text-white/30 text-xs">{post.tiempo_lectura} min lectura</span>
+              <span class="text-white/30 text-xs">·</span>
+              <span class="text-white/30 text-xs">{date}</span>
+            </div>
+
+            <h1 class="um-h text-3xl sm:text-4xl text-white font-bold leading-tight mb-6">
+              {post.titulo}
+            </h1>
+
+            {imgUrl && (
+              <img
+                src={imgUrl}
+                alt={post.titulo}
+                class="w-full rounded-xl object-cover max-h-96 mb-8"
+              />
+            )}
+          </header>
+
+          <div class="blog-prose" set:html={contentHtml} />
+
+          {post.tags && post.tags.length > 0 && (
+            <div class="flex flex-wrap gap-2 mt-10 pt-6 border-t border-[#1e3a5f]">
+              {post.tags.map((tag: string) => (
+                <span class="text-[11px] text-white/35 border border-[#1e3a5f] rounded px-2 py-0.5">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <nav class="grid grid-cols-2 gap-4 mt-10 pt-8 border-t border-[#1e3a5f]">
+            {prevPost ? (
+              <a
+                href={`/blog/${prevPost.slug}`}
+                class="group p-4 border border-[#1e3a5f] rounded-lg hover:border-white/20 transition-colors"
+              >
+                <p class="text-[10px] font-mono text-white/25 uppercase tracking-widest mb-1">← anterior</p>
+                <p class="text-white/60 text-sm group-hover:text-white transition-colors line-clamp-2">{prevPost.titulo}</p>
+              </a>
+            ) : <div></div>}
+
+            {nextPost && (
+              <a
+                href={`/blog/${nextPost.slug}`}
+                class="group p-4 border border-[#1e3a5f] rounded-lg hover:border-white/20 transition-colors text-right"
+              >
+                <p class="text-[10px] font-mono text-white/25 uppercase tracking-widest mb-1">siguiente →</p>
+                <p class="text-white/60 text-sm group-hover:text-white transition-colors line-clamp-2">{nextPost.titulo}</p>
+              </a>
+            )}
+          </nav>
+
+        </article>
+      </div>
+    </div>
+  </main>
+</LayoutV4>
+
+<style>
+  .um-h { font-family: 'Futura PT', 'Futura', 'Trebuchet MS', sans-serif; font-weight: 700; }
+
+  .blog-prose {
+    color: rgba(226, 232, 240, 0.75);
+    font-size: 1.05rem;
+    line-height: 1.85;
+  }
+  .blog-prose h2 {
+    font-family: 'Futura PT', 'Futura', 'Trebuchet MS', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin: 2.5rem 0 1rem;
+    padding-top: 0.5rem;
+    scroll-margin-top: 6rem;
+  }
+  .blog-prose h3 {
+    font-family: 'Futura PT', 'Futura', 'Trebuchet MS', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #e2e8f0;
+    margin: 2rem 0 0.75rem;
+    scroll-margin-top: 6rem;
+  }
+  .blog-prose p { margin-bottom: 1.25rem; }
+  .blog-prose a { color: #3b82f6; text-decoration: underline; text-underline-offset: 3px; }
+  .blog-prose a:hover { color: #60a5fa; }
+  .blog-prose ul, .blog-prose ol { margin: 1rem 0 1.25rem 1.5rem; }
+  .blog-prose li { margin-bottom: 0.4rem; }
+  .blog-prose blockquote {
+    border-left: 3px solid #1d4ed8;
+    padding-left: 1.25rem;
+    margin: 1.5rem 0;
+    color: rgba(226, 232, 240, 0.45);
+    font-style: italic;
+  }
+  .blog-prose pre {
+    background: #111827;
+    border: 1px solid #1e3a5f;
+    border-radius: 8px;
+    padding: 1.25rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    font-size: 0.875rem;
+  }
+  .blog-prose code {
+    background: #111827;
+    border: 1px solid #1e3a5f;
+    border-radius: 4px;
+    padding: 0.1em 0.4em;
+    font-size: 0.875em;
+    color: #60a5fa;
+  }
+  .blog-prose pre code { background: none; border: none; padding: 0; color: #e2e8f0; }
+  .blog-prose img { width: 100%; border-radius: 8px; margin: 1.5rem 0; }
+  .blog-prose strong { color: #f1f5f9; }
+  .blog-prose hr { border: none; border-top: 1px solid #1e3a5f; margin: 2rem 0; }
+  .blog-prose table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+  .blog-prose th { background: #111827; color: #94a3b8; font-weight: 600; padding: 0.6rem 1rem; border: 1px solid #1e3a5f; text-align: left; }
+  .blog-prose td { padding: 0.6rem 1rem; border: 1px solid #1e3a5f; }
+</style>

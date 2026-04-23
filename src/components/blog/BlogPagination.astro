@@ -1,0 +1,42 @@
+---
+interface Props {
+  page: number;
+  totalPages: number;
+  baseHref: string;
+}
+
+const { page, totalPages, baseHref } = Astro.props;
+
+const prevHref = page > 1 ? `${baseHref}?page=${page - 1}` : null;
+const nextHref = page < totalPages ? `${baseHref}?page=${page + 1}` : null;
+---
+
+{totalPages > 1 && (
+  <nav class="flex items-center justify-center gap-4 py-10 border-t border-[#1e3a5f] mt-4" aria-label="Paginación">
+    {prevHref ? (
+      <a href={prevHref} class="flex items-center gap-2 px-4 py-2 border border-[#1e3a5f] text-white/50 hover:text-white hover:border-white/20 rounded-lg text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        anterior
+      </a>
+    ) : (
+      <span class="flex items-center gap-2 px-4 py-2 text-white/20 text-sm select-none">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        anterior
+      </span>
+    )}
+
+    <span class="text-white/30 text-xs font-mono">{page} / {totalPages}</span>
+
+    {nextHref ? (
+      <a href={nextHref} class="flex items-center gap-2 px-4 py-2 border border-[#1e3a5f] text-white/50 hover:text-white hover:border-white/20 rounded-lg text-sm transition-colors">
+        siguiente
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </a>
+    ) : (
+      <span class="flex items-center gap-2 px-4 py-2 text-white/20 text-sm select-none">
+        siguiente
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </span>
+    )}
+  </nav>
+)}

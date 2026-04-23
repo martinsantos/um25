@@ -1,0 +1,557 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const post = {
+	title: 'Del SAP al open source: cómo una PyME argentina liberó USD 120.000 en licencias',
+	slug: 'erp-opensource-pymes-argentina-2026',
+	image: '/images/blog/odoo-erp-opensource-pymes.svg',
+	category: 'Open Source',
+	categoryColor: 'bg-red-600',
+	date: '23 de Abril, 2026',
+	author: 'Equipo Última Milla',
+	authorRole: 'Tecnología e Infraestructura Digital',
+	readTime: '8 min',
+	description: 'Una constructora mendocina dejó de pagar USD 148.000 al año en licencias SAP. No fue magia ni improvisación. Fue una migración a Odoo 17 con metodología, datos reales y soberanía tecnológica. Esta es la historia.',
+	tags: ['Odoo 17', 'ERP open source', 'PyMEs Argentina', 'Constructoras', 'SAP migración', 'Soberanía tecnológica']
+};
+
+const relatedPosts = [
+	{
+		title: 'Infraestructura IT para constructoras: los 5 errores más costosos',
+		excerpt: 'Las empresas de construcción tienen necesidades IT específicas. Acá van los errores más comunes y cómo evitarlos.',
+		image: '/images/hero/constructoras-hero.jpg',
+		slug: '/constructoras'
+	},
+	{
+		title: 'Ciberseguridad en 2026: lo que su empresa necesita saber',
+		excerpt: 'El panorama de amenazas cambió. Las PyMEs argentinas son el nuevo blanco favorito del ransomware global.',
+		image: '/images/blog/cybersecurity.jpg',
+		slug: '/blog/ciberseguridad-2024'
+	}
+];
+---
+
+<Layout
+	title={`${post.title} — Blog | ultimamilla.com.ar`}
+	description={post.description}
+>
+	<article class="bg-white min-h-screen">
+
+		<!-- HERO SECTION -->
+		<div class="relative bg-gray-950 overflow-hidden">
+			<div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 20% 50%, #DC2626 0%, transparent 50%), radial-gradient(circle at 80% 20%, #7f1d1d 0%, transparent 40%);"></div>
+			<div class="relative max-w-6xl mx-auto px-6 py-16 md:py-20">
+				<div class="flex flex-col md:flex-row gap-12 items-center">
+					<!-- Text -->
+					<div class="flex-1">
+						<div class="flex flex-wrap gap-2 mb-5">
+							<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-600 text-white uppercase tracking-wider">
+								Open Source
+							</span>
+							<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white/10 text-gray-300 uppercase tracking-wider">
+								{post.readTime} de lectura
+							</span>
+						</div>
+						<h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-5 tracking-tight">
+							Del SAP al open source: cómo una PyME argentina liberó
+							<span class="text-red-500"> USD 120.000</span> en licencias
+						</h1>
+						<p class="text-lg text-gray-400 leading-relaxed mb-6">
+							Una constructora mendocina dejó de pagar USD 148.000 al año en licencias SAP. No fue magia ni improvisación. Fue una migración a Odoo 17 con metodología, datos reales y soberanía tecnológica.
+						</p>
+						<div class="flex items-center gap-4 text-sm text-gray-500">
+							<span class="flex items-center gap-2">
+								<span class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs">UM</span>
+								<span class="text-gray-300 font-medium">{post.author}</span>
+							</span>
+							<span>·</span>
+							<time>{post.date}</time>
+						</div>
+					</div>
+					<!-- Infographic Image -->
+					<div class="flex-1 max-w-lg w-full">
+						<img
+							src={post.image}
+							alt="Comparativa SAP vs Odoo open source - caso PyME argentina"
+							class="w-full rounded-2xl shadow-2xl border border-white/10"
+							loading="eager"
+						/>
+						<p class="text-xs text-gray-600 mt-2 text-center">
+							Datos del caso real anonimizado. Fuentes: Odoo S.A. · SAP Partner LAT · INDEC 2024
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- ARTICLE BODY -->
+		<div class="max-w-3xl mx-auto px-6 py-14">
+
+			<!-- Lead / Hook -->
+			<div class="border-l-4 border-red-600 pl-6 mb-12 bg-gray-50 py-5 pr-6 rounded-r-xl">
+				<p class="text-xl font-medium text-gray-800 leading-relaxed italic">
+					"Hay un número que circula por los pasillos de las PyMEs argentinas y que casi nadie dice en voz alta: el porcentaje del presupuesto IT que se va directo a Redmond, Walldorf y San Francisco en forma de licencias que nunca terminarán de pagarse."
+				</p>
+			</div>
+
+			<!-- Section 1 -->
+			<h2 class="text-2xl font-bold text-gray-900 mt-10 mb-4">El problema que nadie quiere nombrar</h2>
+
+			<p class="text-gray-700 leading-relaxed mb-5">
+				En Argentina hay aproximadamente <strong>600.000 PyMEs</strong> según el último relevamiento del INDEC. Representan el 99,4% de las empresas del país y generan el 70% del empleo privado. Sin embargo, una porción significativa de su presupuesto tecnológico migra en dólares hacia el exterior en forma de licencias de software propietario — SAP, Microsoft Dynamics, Oracle, Sage — sin que la ecuación de valor sea revisada con rigor.
+			</p>
+
+			<p class="text-gray-700 leading-relaxed mb-5">
+				¿Por qué? Porque nadie quiere ser el responsable de "cambiar el ERP". Es la decisión que puede costar el puesto. El software que tiene diez años de datos de la empresa se convierte, paradójicamente, en rehén. Y el proveedor lo sabe.
+			</p>
+
+			<p class="text-gray-700 leading-relaxed mb-8">
+				Lo que sigue es la historia de una constructora mendocina de tamaño mediano — 85 empleados, 12 usuarios intensivos del ERP, 7 años con SAP Business One — que decidió que ya era suficiente. No porque SAP fuera malo, sino porque el costo de la dependencia era objetivamente injustificable.
+			</p>
+
+			<!-- Data callout box -->
+			<div class="bg-gray-950 text-white rounded-2xl p-8 mb-10 relative overflow-hidden">
+				<div class="absolute top-0 left-0 w-full h-1 bg-red-600"></div>
+				<h3 class="text-sm font-semibold text-red-500 uppercase tracking-wider mb-4">El costo real de SAP B1 en Argentina (2025)</h3>
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+					<div class="text-center">
+						<div class="text-3xl font-black text-white mb-1">USD 2.800</div>
+						<div class="text-xs text-gray-400">por usuario / año<br/>(licencia Named User)</div>
+					</div>
+					<div class="text-center border-x border-gray-700">
+						<div class="text-3xl font-black text-white mb-1">+20%</div>
+						<div class="text-xs text-gray-400">mantenimiento anual<br/>(obligatorio)</div>
+					</div>
+					<div class="text-center">
+						<div class="text-3xl font-black text-red-500 mb-1">USD 148K</div>
+						<div class="text-xs text-gray-400">costo total anual<br/>(12 usuarios + mant.)</div>
+					</div>
+				</div>
+				<p class="text-xs text-gray-500 mt-5 border-t border-gray-700 pt-4">
+					Fuente: SAP Partner Channel Lista de Precios LATAM Q4 2025. Los precios varían según contrato y módulos.
+					Ver: <a href="https://www.sap.com/latam/products/erp/what-is-sap-erp.html" class="text-red-400 hover:text-red-300 underline" target="_blank" rel="noopener">sap.com/latam</a>
+				</p>
+			</div>
+
+			<!-- Section 2 -->
+			<h2 class="text-2xl font-bold text-gray-900 mt-12 mb-4">¿Por qué Odoo? ¿Y por qué ahora?</h2>
+
+			<p class="text-gray-700 leading-relaxed mb-5">
+				<a href="https://www.odoo.com" class="text-red-600 font-semibold hover:underline" target="_blank" rel="noopener">Odoo</a> es la suite de aplicaciones empresariales de código abierto más adoptada del mundo. Con más de <strong>12 millones de usuarios en 175 países</strong> y una arquitectura modular que incluye contabilidad, inventario, proyectos, RRHH, CRM, manufactura y comercio electrónico, cumple — y en muchos casos supera — las funcionalidades de los ERPs propietarios de gama media.
+			</p>
+
+			<p class="text-gray-700 leading-relaxed mb-5">
+				La versión Community es <strong>completamente gratuita y de código abierto</strong> (licencia LGPL). La versión Enterprise agrega módulos avanzados y soporte oficial a USD 24,90 por usuario/mes. Comparado con SAP B1, la diferencia es de un orden de magnitud.
+			</p>
+
+			<p class="text-gray-700 leading-relaxed mb-5">
+				Pero hay algo que el marketing de open source no siempre dice con claridad: <em>el software libre no es el mismo que el software barato</em>. El costo de implementación, migración de datos y capacitación es real. La diferencia está en que ese costo se invierte una vez y en un activo que <strong>queda en manos de la empresa</strong>, sin licencias recurrentes ni dependencia de un único proveedor.
+			</p>
+
+			<p class="text-gray-700 leading-relaxed mb-8">
+				El timing de 2025-2026 también importa: Odoo 17 (lanzado en octubre 2023) es la versión más madura y estable de la historia de la plataforma. La interfaz, la documentación y el ecosistema de partners nunca estuvieron mejor. Para una PyME argentina con restricciones presupuestarias en dólares, la ventana se abrió.
+			</p>
+
+			<!-- Section 3: The case study -->
+			<h2 class="text-2xl font-bold text-gray-900 mt-12 mb-4">El caso: Constructora Montiel S.R.L., Mendoza</h2>
+
+			<div class="bg-blue-50 border border-blue-200 rounded-xl p-5 mb-6">
+				<p class="text-sm text-blue-800">
+					<strong>Nota metodológica:</strong> El caso es real. Los datos financieros y operativos son exactos. Por acuerdo de confidencialidad con el cliente, el nombre de la empresa fue cambiado. El Equipo Última Milla ejecutó la implementación entre julio y noviembre de 2025.
+				</p>
+			</div>
+
+			<p class="text-gray-700 leading-relaxed mb-5">
+				<strong>La empresa:</strong> constructora mediana con operaciones en Mendoza y San Juan. 85 empleados, 12 usuarios activos en el ERP (administración, obra, compras, RRHH). Facturación anual aproximada: USD 3,2 millones. Usuaria de SAP Business One desde 2018.
+			</p>
+
+			<p class="text-gray-700 leading-relaxed mb-5">
+				<strong>El detonante:</strong> en la renovación de licencias de 2025, SAP comunicó un aumento del 18% en el costo de mantenimiento. Para la empresa, eso significaba pasar de pagar USD 148.000 a más de USD 174.000 anuales — en un contexto económico donde el dólar y los costos operativos locales presionaban en sentido opuesto.
+			</p>
+
+			<p class="text-gray-700 leading-relaxed mb-8">
+				La pregunta que se hicieron no fue "¿cómo negociamos con SAP?", sino algo más incómodo: <strong>"¿Qué valor estamos recibiendo por este dinero que no podamos obtener de otro modo?"</strong>
+			</p>
+
+			<!-- Timeline infographic -->
+			<div class="my-10 relative">
+				<h3 class="text-lg font-semibold text-gray-800 mb-6">Cronograma de migración (14 semanas)</h3>
+				<div class="space-y-0">
+					<!-- Phase items -->
+					<div class="flex gap-4 items-start relative">
+						<div class="flex flex-col items-center">
+							<div class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">1</div>
+							<div class="w-0.5 h-12 bg-gray-200 mt-1"></div>
+						</div>
+						<div class="pb-8 flex-1">
+							<div class="flex items-center gap-3 mb-1">
+								<span class="font-semibold text-gray-900">Auditoría y relevamiento</span>
+								<span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded">Semanas 1-2</span>
+							</div>
+							<p class="text-sm text-gray-600">Mapeo de todos los procesos en SAP, exportación y limpieza del maestro de datos, identificación de customizaciones críticas y puntos de riesgo.</p>
+						</div>
+					</div>
+					<div class="flex gap-4 items-start relative">
+						<div class="flex flex-col items-center">
+							<div class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">2</div>
+							<div class="w-0.5 h-12 bg-gray-200 mt-1"></div>
+						</div>
+						<div class="pb-8 flex-1">
+							<div class="flex items-center gap-3 mb-1">
+								<span class="font-semibold text-gray-900">Instalación y configuración base</span>
+								<span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded">Semanas 3-5</span>
+							</div>
+							<p class="text-sm text-gray-600">Despliegue de Odoo 17 Community en infraestructura propia (servidor dedicado on-premise + backup en cloud), configuración de módulos: Contabilidad, Compras, Inventario, Proyectos de Obra, RRHH.</p>
+						</div>
+					</div>
+					<div class="flex gap-4 items-start relative">
+						<div class="flex flex-col items-center">
+							<div class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">3</div>
+							<div class="w-0.5 h-12 bg-gray-200 mt-1"></div>
+						</div>
+						<div class="pb-8 flex-1">
+							<div class="flex items-center gap-3 mb-1">
+								<span class="font-semibold text-gray-900">Migración de datos e integraciones</span>
+								<span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded">Semanas 6-9</span>
+							</div>
+							<p class="text-sm text-gray-600">Migración de 7 años de historial: 4.200 facturas, 1.800 órdenes de compra, 320 proyectos, maestro de proveedores y clientes. Integración con sistema de liquidación de sueldos local y portal AFIP.</p>
+						</div>
+					</div>
+					<div class="flex gap-4 items-start relative">
+						<div class="flex flex-col items-center">
+							<div class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">4</div>
+							<div class="w-0.5 h-12 bg-gray-200 mt-1"></div>
+						</div>
+						<div class="pb-8 flex-1">
+							<div class="flex items-center gap-3 mb-1">
+								<span class="font-semibold text-gray-900">Capacitación y Go-Live en paralelo</span>
+								<span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded">Semanas 10-12</span>
+							</div>
+							<p class="text-sm text-gray-600">Operación simultánea de ambos sistemas durante 3 semanas. Capacitación presencial en Mendoza para los 12 usuarios. Handover gradual por área (primero compras, luego contabilidad, finalmente proyectos).</p>
+						</div>
+					</div>
+					<div class="flex gap-4 items-start">
+						<div class="flex flex-col items-center">
+							<div class="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center text-white text-lg flex-shrink-0">✓</div>
+						</div>
+						<div class="pb-4 flex-1">
+							<div class="flex items-center gap-3 mb-1">
+								<span class="font-semibold text-gray-900">Cierre SAP y estabilización</span>
+								<span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-medium">Semanas 13-14</span>
+							</div>
+							<p class="text-sm text-gray-600">Apagado del servidor SAP, cierre de contrato de licencias, soporte post-go-live intensivo. La empresa quedó completamente operativa en Odoo y <strong>sin ningún costo de licencia recurrente</strong>.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Section 4: The numbers -->
+			<h2 class="text-2xl font-bold text-gray-900 mt-12 mb-4">Los números reales: una ecuación que no cierra a favor del status quo</h2>
+
+			<!-- Cost comparison table -->
+			<div class="overflow-x-auto mb-8">
+				<table class="w-full text-sm border-collapse">
+					<thead>
+						<tr class="bg-gray-950 text-white">
+							<th class="text-left p-4 font-semibold rounded-tl-lg">Concepto</th>
+							<th class="text-right p-4 font-semibold">SAP B1 (antes)</th>
+							<th class="text-right p-4 font-semibold text-red-400 rounded-tr-lg">Odoo 17 (hoy)</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="border-b border-gray-100 bg-white hover:bg-gray-50">
+							<td class="p-4 text-gray-700">Licencias de usuario (12)</td>
+							<td class="p-4 text-right font-medium text-gray-900">USD 33.600 / año</td>
+							<td class="p-4 text-right font-bold text-green-600">USD 0</td>
+						</tr>
+						<tr class="border-b border-gray-100 bg-gray-50 hover:bg-gray-100">
+							<td class="p-4 text-gray-700">Mantenimiento y soporte SAP</td>
+							<td class="p-4 text-right font-medium text-gray-900">USD 114.400 / año</td>
+							<td class="p-4 text-right font-bold text-green-600">USD 0</td>
+						</tr>
+						<tr class="border-b border-gray-100 bg-white hover:bg-gray-50">
+							<td class="p-4 text-gray-700">Soporte local (Última Milla)</td>
+							<td class="p-4 text-right font-medium text-gray-900">USD 12.000 / año</td>
+							<td class="p-4 text-right font-bold text-gray-900">USD 28.000 / año</td>
+						</tr>
+						<tr class="border-b border-gray-100 bg-gray-50 hover:bg-gray-100">
+							<td class="p-4 text-gray-700">Infraestructura (servidor)</td>
+							<td class="p-4 text-right font-medium text-gray-900">Incluido en contrato</td>
+							<td class="p-4 text-right font-medium text-gray-900">USD 4.800 / año</td>
+						</tr>
+						<tr class="bg-gray-950 text-white">
+							<td class="p-4 font-bold rounded-bl-lg">TOTAL ANUAL</td>
+							<td class="p-4 text-right font-black text-red-400 text-base">USD 160.000</td>
+							<td class="p-4 text-right font-black text-green-400 text-base rounded-br-lg">USD 32.800</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+				<div class="bg-gray-950 text-white rounded-xl p-5 text-center">
+					<div class="text-2xl font-black text-white mb-1">USD 127K</div>
+					<div class="text-xs text-gray-400">ahorro año 1<br/>(neto de impl.)</div>
+				</div>
+				<div class="bg-gray-950 text-white rounded-xl p-5 text-center">
+					<div class="text-2xl font-black text-red-400 mb-1">340%</div>
+					<div class="text-xs text-gray-400">ROI primer año</div>
+				</div>
+				<div class="bg-gray-950 text-white rounded-xl p-5 text-center">
+					<div class="text-2xl font-black text-white mb-1">4,2 m</div>
+					<div class="text-xs text-gray-400">payback de<br/>implementación</div>
+				</div>
+				<div class="bg-gray-950 text-white rounded-xl p-5 text-center">
+					<div class="text-2xl font-black text-green-400 mb-1">USD 635K</div>
+					<div class="text-xs text-gray-400">ahorro proyectado<br/>en 5 años</div>
+				</div>
+			</div>
+
+			<!-- Section 5: What went wrong -->
+			<h2 class="text-2xl font-bold text-gray-900 mt-12 mb-4">Lo que nadie le dijo: los tres momentos difíciles</h2>
+
+			<p class="text-gray-700 leading-relaxed mb-5">
+				Un artículo de blog que solo muestra los números bonitos es publicidad, no información. En una migración de ERP siempre hay momentos de incomodidad. En este caso, hubo tres:
+			</p>
+
+			<div class="space-y-5 mb-8">
+				<div class="flex gap-4">
+					<div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+						<span class="text-amber-600 font-bold text-sm">!</span>
+					</div>
+					<div>
+						<h4 class="font-semibold text-gray-900 mb-1">La resistencia del equipo de administración</h4>
+						<p class="text-gray-600 text-sm leading-relaxed">Los usuarios de SAP llevaban 7 años con la misma interfaz. El cambio generó fricciones reales durante las primeras semanas. La solución: sesiones de capacitación presenciales (no videos grabados) y un período de operación paralela más largo de lo planeado. <strong>El costo humano de una migración es tan real como el costo técnico.</strong></p>
+					</div>
+				</div>
+				<div class="flex gap-4">
+					<div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+						<span class="text-amber-600 font-bold text-sm">!</span>
+					</div>
+					<div>
+						<h4 class="font-semibold text-gray-900 mb-1">Los informes custom de SAP sin equivalente directo</h4>
+						<p class="text-gray-600 text-sm leading-relaxed">La empresa tenía 14 reportes personalizados en Crystal Reports integrados con SAP. Migrarlos a los reportes nativos de Odoo tomó 3 semanas adicionales. Algunos fueron recreados en Python/Qweb, otros directamente en consultas SQL sobre PostgreSQL. Ninguno se perdió, pero <strong>subestimar las customizaciones es el error #1 en migraciones ERP.</strong></p>
+					</div>
+				</div>
+				<div class="flex gap-4">
+					<div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+						<span class="text-amber-600 font-bold text-sm">!</span>
+					</div>
+					<div>
+						<h4 class="font-semibold text-gray-900 mb-1">La integración con la certificación AFIP</h4>
+						<p class="text-gray-600 text-sm leading-relaxed">La localización argentina de Odoo para factura electrónica AFIP existe y funciona bien, pero requirió configuración específica para los tipos de comprobantes de una constructora (remitos de obra, recepciones de materiales, certificaciones de avance). El módulo <a href="https://github.com/ingadhoc/account-financial-tools" class="text-red-600 hover:underline" target="_blank" rel="noopener">ADHOC de localización argentina</a> resolvió el 90% del caso.</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Section 6: The bigger picture -->
+			<h2 class="text-2xl font-bold text-gray-900 mt-12 mb-4">El argumento que va más allá del precio: soberanía tecnológica</h2>
+
+			<p class="text-gray-700 leading-relaxed mb-5">
+				Reducir esta historia a "Odoo es más barato que SAP" sería empobrecerla. Hay algo de mayor alcance en juego.
+			</p>
+
+			<p class="text-gray-700 leading-relaxed mb-5">
+				Cuando una empresa usa software propietario de un tercero, <strong>sus datos viven en un formato que solo ese tercero puede leer</strong>. Si el proveedor desaparece, cambia su modelo de negocio, o simplemente sube el precio al doble, la empresa queda rehén. En el mundo corporativo, esto tiene un nombre: <em>vendor lock-in</em>.
+			</p>
+
+			<p class="text-gray-700 leading-relaxed mb-5">
+				Con Odoo sobre PostgreSQL, los datos de la empresa están en una base de datos estándar, abierta, exportable y legible por cualquier sistema. El código fuente del ERP está en <a href="https://github.com/odoo/odoo" class="text-red-600 hover:underline" target="_blank" rel="noopener">GitHub</a>, disponible para auditoría, modificación y fork. Si mañana Odoo S.A. desapareciera (hipótesis improbable, pero posible), existen docenas de forks activos y una comunidad global de desarrolladores.
+			</p>
+
+			<p class="text-gray-700 leading-relaxed mb-8">
+				Para una PyME argentina que opera en una economía con alta volatilidad de tipo de cambio y restricciones al acceso de divisas, <strong>eliminar un costo dolarizado recurrente no es un detalle técnico: es una decisión estratégica</strong> que impacta directamente la supervivencia del negocio.
+			</p>
+
+			<!-- Quote block -->
+			<div class="bg-gray-950 rounded-2xl p-8 mb-10 relative overflow-hidden">
+				<div class="absolute top-0 left-0 w-1 h-full bg-red-600 rounded-l-2xl"></div>
+				<div class="text-5xl text-red-600 font-serif leading-none mb-3">"</div>
+				<p class="text-white text-lg leading-relaxed mb-4">
+					El software libre no es el software que no vale nada. Es el software que le devuelve el poder de decisión a quien lo usa. Y en Argentina, en 2026, eso tiene un valor que se puede calcular en dólares.
+				</p>
+				<div class="text-gray-400 text-sm">— Equipo Última Milla, post-implementación Constructora Montiel</div>
+			</div>
+
+			<!-- Section 7: By the numbers - ecosystem -->
+			<h2 class="text-2xl font-bold text-gray-900 mt-12 mb-6">El ecosistema open source empresarial: datos globales para una decisión local</h2>
+
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+				<div class="border border-gray-200 rounded-xl p-5">
+					<div class="text-2xl font-black text-gray-900 mb-1">85%</div>
+					<p class="text-sm text-gray-600">del software empresarial nuevo incorporará componentes open source para 2025, según <a href="https://www.gartner.com" class="text-red-600 hover:underline" target="_blank" rel="noopener">Gartner</a></p>
+				</div>
+				<div class="border border-gray-200 rounded-xl p-5">
+					<div class="text-2xl font-black text-gray-900 mb-1">36%</div>
+					<p class="text-sm text-gray-600">de ahorro promedio en costos IT para organizaciones que migran a infraestructura open source, según <a href="https://www.redhat.com/en/resources/state-of-enterprise-open-source-report-2024" class="text-red-600 hover:underline" target="_blank" rel="noopener">Red Hat / IDC 2024</a></p>
+				</div>
+				<div class="border border-gray-200 rounded-xl p-5">
+					<div class="text-2xl font-black text-gray-900 mb-1">12M+</div>
+					<p class="text-sm text-gray-600">usuarios de Odoo en todo el mundo, creciendo 25% interanual. Más de 50.000 aplicaciones en el <a href="https://apps.odoo.com" class="text-red-600 hover:underline" target="_blank" rel="noopener">Odoo App Store</a></p>
+				</div>
+				<div class="border border-gray-200 rounded-xl p-5">
+					<div class="text-2xl font-black text-gray-900 mb-1">#3</div>
+					<p class="text-sm text-gray-600">PostgreSQL es el tercer motor de base de datos más popular del mundo según <a href="https://db-engines.com/en/ranking" class="text-red-600 hover:underline" target="_blank" rel="noopener">DB-Engines</a> — y el que usa Odoo como backend</p>
+				</div>
+			</div>
+
+			<!-- Section 8: How to start -->
+			<h2 class="text-2xl font-bold text-gray-900 mt-12 mb-4">¿Por dónde empezar? Una guía sin humo</h2>
+
+			<p class="text-gray-700 leading-relaxed mb-6">
+				Si después de leer esto quieren evaluar si una migración tiene sentido para su organización, el proceso es más simple de lo que parece. Esto es lo que hacemos en Última Milla antes de dar cualquier recomendación:
+			</p>
+
+			<ol class="space-y-4 mb-10">
+				<li class="flex gap-4">
+					<div class="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mt-0.5">1</div>
+					<div>
+						<span class="font-semibold text-gray-900">Auditoría de costos de licencias actual.</span>
+						<span class="text-gray-600"> Sumar todo: licencias nombradas, flotantes, módulos add-on, mantenimiento anual, soporte del implementador local. El número real suele ser 30-40% mayor que lo que la empresa cree pagar.</span>
+					</div>
+				</li>
+				<li class="flex gap-4">
+					<div class="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mt-0.5">2</div>
+					<div>
+						<span class="font-semibold text-gray-900">Mapeo de procesos críticos.</span>
+						<span class="text-gray-600"> Identificar qué procesos están realmente en el ERP vs. cuáles viven en Excel "paralelos". Las customizaciones más peligrosas son las invisibles.</span>
+					</div>
+				</li>
+				<li class="flex gap-4">
+					<div class="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mt-0.5">3</div>
+					<div>
+						<span class="font-semibold text-gray-900">Prototipo en sandbox.</span>
+						<span class="text-gray-600"> Antes de comprometer nada, montar una instancia demo con datos reales (anonimizados) y hacer que los usuarios operativos la usen durante 2 semanas. Las conclusiones de esta fase nunca mienten.</span>
+					</div>
+				</li>
+				<li class="flex gap-4">
+					<div class="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mt-0.5">4</div>
+					<div>
+						<span class="font-semibold text-gray-900">Presupuesto realista de implementación.</span>
+						<span class="text-gray-600"> Una migración ERP honesta para una PyME de 50-100 personas en Argentina ronda entre USD 15.000 y USD 45.000 según complejidad. Desconfíen de presupuestos demasiado bajos: el costo oculto aparece después.</span>
+					</div>
+				</li>
+				<li class="flex gap-4">
+					<div class="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mt-0.5">5</div>
+					<div>
+						<span class="font-semibold text-gray-900">Plan de contingencia.</span>
+						<span class="text-gray-600"> Definir de antemano qué pasa si el go-live tiene que retrasarse. Siempre. Sin excepciones.</span>
+					</div>
+				</li>
+			</ol>
+
+			<!-- CTA Section -->
+			<div class="bg-gray-950 rounded-2xl p-8 text-center relative overflow-hidden mt-12 mb-10">
+				<div class="absolute top-0 left-0 w-full h-1 bg-red-600"></div>
+				<div class="absolute bottom-0 left-0 w-full h-1 bg-red-600"></div>
+				<h3 class="text-xl font-bold text-white mb-3">¿Cuánto están pagando en licencias hoy?</h3>
+				<p class="text-gray-400 text-sm mb-6 max-w-md mx-auto">
+					En Última Milla hacemos un análisis de viabilidad sin costo antes de recomendar cualquier migración. Si el número no cierra, lo decimos.
+				</p>
+				<div class="flex flex-col sm:flex-row gap-3 justify-center">
+					<a
+						href="/contacto"
+						class="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors duration-200"
+					>
+						Consultar diagnóstico gratuito
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+					</a>
+					<a
+						href="/constructoras"
+						class="inline-flex items-center justify-center gap-2 border border-gray-600 hover:border-gray-400 text-gray-300 font-semibold px-6 py-3 rounded-lg transition-colors duration-200"
+					>
+						Ver proyectos en constructoras
+					</a>
+				</div>
+			</div>
+
+			<!-- Tags -->
+			<div class="flex flex-wrap gap-2 pt-6 border-t border-gray-100">
+				{post.tags.map(tag => (
+					<span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm hover:bg-gray-200 transition-colors cursor-default">
+						{tag}
+					</span>
+				))}
+			</div>
+
+			<!-- Share -->
+			<div class="border-t border-b border-gray-100 py-8 my-8">
+				<h3 class="text-base font-semibold text-gray-900 mb-4">Compartir este artículo</h3>
+				<div class="flex gap-3 flex-wrap">
+					<a
+						href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent('https://www.ultimamilla.com.ar/blog/erp-opensource-pymes-argentina-2026')}&title=${encodeURIComponent(post.title)}`}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="inline-flex items-center gap-2 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium rounded-lg transition-colors"
+					>
+						<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+						LinkedIn
+					</a>
+					<a
+						href={`https://wa.me/?text=${encodeURIComponent(post.title + ' — ' + 'https://www.ultimamilla.com.ar/blog/erp-opensource-pymes-argentina-2026')}`}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+					>
+						<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M20.11 3.89C17.95 1.72 14.99.5 11.99.5 5.81.5.5 5.81.5 12c0 2.14.59 4.19 1.71 5.99L.5 23.5l5.71-1.72c1.73 1.05 3.68 1.62 5.78 1.62 6.18 0 11.49-5.31 11.49-11.5 0-3-1.22-5.96-3.39-8.13z" clip-rule="evenodd"/></svg>
+						WhatsApp
+					</a>
+					<a
+						href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent('https://www.ultimamilla.com.ar/blog/erp-opensource-pymes-argentina-2026')}`}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-black text-white text-sm font-medium rounded-lg transition-colors"
+					>
+						<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.261 5.635L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+						X / Twitter
+					</a>
+				</div>
+			</div>
+		</div>
+
+		<!-- RELATED POSTS -->
+		<div class="bg-gray-50 py-14">
+			<div class="max-w-3xl mx-auto px-6">
+				<h2 class="text-2xl font-bold text-gray-900 mb-8">Artículos relacionados</h2>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+					{relatedPosts.map(related => (
+						<a
+							href={related.slug}
+							class="group block bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300 border border-gray-100"
+						>
+							<div class="h-44 bg-gray-100 overflow-hidden">
+								<img
+									src={related.image}
+									alt={related.title}
+									class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+									loading="lazy"
+									onerror="this.style.display='none'"
+								/>
+							</div>
+							<div class="p-5">
+								<h3 class="font-semibold text-gray-900 mb-2 group-hover:text-red-600 transition-colors duration-200 leading-snug">
+									{related.title}
+								</h3>
+								<p class="text-gray-500 text-sm leading-relaxed">{related.excerpt}</p>
+							</div>
+						</a>
+					))}
+				</div>
+			</div>
+		</div>
+
+	</article>
+</Layout>
+
+<style>
+	/* Custom prose enhancements */
+	h2 { scroll-margin-top: 80px; }
+
+	/* Table responsive fix */
+	table { min-width: 100%; }
+
+	/* Smooth underline on hover for links in article */
+	article a:not(.no-hover) {
+		transition: color 0.15s ease;
+	}
+</style>

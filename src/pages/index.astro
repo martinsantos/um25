@@ -7,6 +7,7 @@
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import ServiceCard from '../components/v4/ServiceCard.astro';
 import CTASection from '../components/v4/CTASection.astro';
+import BlogBand from '../components/blog/BlogBand.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getAllServicios } from '../utils/directusHelpers';
 import { getDirectusImageUrl, getAllAntecedentes, getHeroHomeImages } from '../lib/directus.ts';
@@ -314,6 +315,7 @@ const sectores = [
     </div>
   </section>
 
+<<<<<<< HEAD
   <!-- CTA SECTION -->
   <section class="relative py-12 sm:py-16 lg:py-24 xl:py-28 overflow-hidden">
     <div class="absolute inset-0">
@@ -382,4 +384,6 @@ const sectores = [
       background-color: var(--sector-color);
     }
   </style>
+
+  <BlogBand />
 </LayoutV4>
