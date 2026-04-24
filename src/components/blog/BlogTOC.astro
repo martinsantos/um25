@@ -14,25 +14,25 @@ const { headings } = Astro.props;
 
 {headings.length > 1 && (
   <nav
-    class="hidden lg:block sticky top-28 w-52 flex-shrink-0 self-start"
+    class="toc-nav"
     x-data="{ active: '' }"
     x-init="
       const els = document.querySelectorAll('h2[id], h3[id]');
       const obs = new IntersectionObserver(entries => {
         entries.forEach(e => { if (e.isIntersecting) active = e.target.id; });
-      }, { rootMargin: '-15% 0px -70% 0px' });
+      }, { rootMargin: '-10% 0px -65% 0px' });
       els.forEach(el => obs.observe(el));
     "
     aria-label="Tabla de contenidos"
   >
-    <p class="text-[10px] font-mono text-white/35 uppercase tracking-widest mb-5">Contenidos</p>
-    <ul class="space-y-2">
+    <p class="toc-label">Contenidos</p>
+    <ul class="toc-list">
       {headings.map(h => (
-        <li style={h.level === 3 ? 'padding-left: 0.875rem' : ''}>
+        <li class={h.level === 3 ? 'toc-item toc-item--sub' : 'toc-item'}>
           <a
             href={`#${h.id}`}
-            class="block text-[13px] leading-snug py-0.5 transition-colors hover:text-white/80"
-            :class={`active === '${h.id}' ? 'text-blue-400 font-medium' : 'text-white/35'`}
+            class="toc-link"
+            :class={`active === '${h.id}' ? 'toc-link--active' : ''`}
           >
             {h.text}
           </a>
@@ -41,3 +41,59 @@ const { headings } = Astro.props;
     </ul>
   </nav>
 )}
+
+<style>
+  .toc-nav {
+    display: none;
+    position: sticky;
+    top: 7rem;
+    width: 200px;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+  @media (min-width: 1024px) {
+    .toc-nav { display: block; }
+  }
+
+  .toc-label {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: #9ca3af;
+    margin: 0 0 16px;
+  }
+
+  .toc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .toc-item { }
+  .toc-item--sub { padding-left: 12px; }
+
+  .toc-link {
+    display: block;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 13px;
+    line-height: 1.45;
+    padding: 4px 0;
+    color: #9ca3af;
+    text-decoration: none;
+    transition: color .15s;
+    border-left: 2px solid transparent;
+    padding-left: 10px;
+    margin-left: -10px;
+  }
+  .toc-link:hover { color: #374151; }
+  .toc-link--active {
+    color: #111827 !important;
+    font-weight: 500;
+    border-left-color: #111827;
+  }
+</style>
