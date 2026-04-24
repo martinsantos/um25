@@ -66,7 +66,7 @@ const schema = {
     </div>
   </div>
 
-  <main style="min-height:100vh;background:#fff;">
+  <main class="um-article" style="min-height:100vh;background:#fff;">
     <div style="max-width:1160px;margin:0 auto;padding:40px 24px 96px;">
       <div style="display:flex;gap:80px;align-items:flex-start;">
 
@@ -186,7 +186,9 @@ const schema = {
 </LayoutV4>
 
 <style is:global>
-  .article-title {
+  /* All styles scoped to .um-article — prevents bleeding to other pages */
+
+  .um-article .article-title {
     font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
     font-size: clamp(28px, 5vw, 42px);
     font-weight: 700;
@@ -196,7 +198,7 @@ const schema = {
     margin: 0 0 24px;
   }
 
-  .article-lead {
+  .um-article .article-lead {
     font-family: 'Merriweather', Georgia, serif;
     font-size: 20px;
     font-weight: 300;
@@ -206,8 +208,7 @@ const schema = {
     font-style: italic;
   }
 
-  /* ── Body prose ────────────────────────────────────────────── */
-  .blog-prose {
+  .um-article .blog-prose {
     font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
     font-size: 19px;
     line-height: 1.85;
@@ -217,19 +218,18 @@ const schema = {
     word-spacing: 0.01em;
   }
 
-  .blog-prose p {
+  .um-article .blog-prose p {
     margin: 0 0 28px;
     line-height: 1.85;
     color: #1f2937;
   }
 
-  .blog-prose > p:first-child {
+  .um-article .blog-prose > p:first-child {
     font-size: 20px;
     color: #111827;
   }
 
-  /* ── Headings ────────────────────────────────────────────── */
-  .blog-prose h2 {
+  .um-article .blog-prose h2 {
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 26px;
     font-weight: 700;
@@ -240,7 +240,7 @@ const schema = {
     scroll-margin-top: 5rem;
   }
 
-  .blog-prose h3 {
+  .um-article .blog-prose h3 {
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 20px;
     font-weight: 600;
@@ -251,7 +251,7 @@ const schema = {
     scroll-margin-top: 5rem;
   }
 
-  .blog-prose h4 {
+  .um-article .blog-prose h4 {
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 17px;
     font-weight: 600;
@@ -260,8 +260,7 @@ const schema = {
     scroll-margin-top: 5rem;
   }
 
-  /* ── Links ───────────────────────────────────────────────── */
-  .blog-prose a {
+  .um-article .blog-prose a {
     color: #1d4ed8;
     text-decoration: underline;
     text-underline-offset: 3px;
@@ -269,28 +268,26 @@ const schema = {
     text-decoration-thickness: 1px;
     transition: color 0.15s, text-decoration-color 0.15s;
   }
-  .blog-prose a:hover {
+  .um-article .blog-prose a:hover {
     color: #1e40af;
     text-decoration-color: rgba(30, 64, 175, 0.7);
   }
 
-  /* ── Lists ───────────────────────────────────────────────── */
-  .blog-prose ul,
-  .blog-prose ol {
+  .um-article .blog-prose ul,
+  .um-article .blog-prose ol {
     margin: 0 0 28px 28px;
     padding: 0;
   }
-  .blog-prose li {
+  .um-article .blog-prose li {
     margin-bottom: 10px;
     line-height: 1.75;
     color: #1f2937;
   }
-  .blog-prose ul { list-style-type: disc; }
-  .blog-prose ol { list-style-type: decimal; }
-  .blog-prose li::marker { color: #9ca3af; }
+  .um-article .blog-prose ul { list-style-type: disc; }
+  .um-article .blog-prose ol { list-style-type: decimal; }
+  .um-article .blog-prose li::marker { color: #9ca3af; }
 
-  /* ── Blockquote ──────────────────────────────────────────── */
-  .blog-prose blockquote {
+  .um-article .blog-prose blockquote {
     border-left: 3px solid #d1d5db;
     padding: 2px 0 2px 28px;
     margin: 44px 0;
@@ -300,17 +297,12 @@ const schema = {
     line-height: 1.7;
     font-weight: 300;
   }
-  .blog-prose blockquote p { margin-bottom: 0; color: inherit; }
+  .um-article .blog-prose blockquote p { margin-bottom: 0; color: inherit; }
 
-  /* ── Emphasis ────────────────────────────────────────────── */
-  .blog-prose strong {
-    font-weight: 700;
-    color: #111827;
-  }
-  .blog-prose em { font-style: italic; }
+  .um-article .blog-prose strong { font-weight: 700; color: #111827; }
+  .um-article .blog-prose em { font-style: italic; }
 
-  /* ── Code ────────────────────────────────────────────────── */
-  .blog-prose code {
+  .um-article .blog-prose code {
     font-family: ui-monospace, 'Fira Code', 'Consolas', monospace;
     font-size: 15px;
     background: #f3f4f6;
@@ -321,7 +313,7 @@ const schema = {
     font-style: normal;
   }
 
-  .blog-prose pre {
+  .um-article .blog-prose pre {
     font-family: ui-monospace, 'Fira Code', 'Consolas', monospace;
     font-size: 14px;
     line-height: 1.65;
@@ -332,16 +324,12 @@ const schema = {
     margin: 36px 0;
     color: #e2e8f0;
   }
-  .blog-prose pre code {
-    background: none;
-    border: none;
-    padding: 0;
-    font-size: inherit;
-    color: inherit;
+  .um-article .blog-prose pre code {
+    background: none; border: none; padding: 0;
+    font-size: inherit; color: inherit;
   }
 
-  /* ── Images ──────────────────────────────────────────────── */
-  .blog-prose img {
+  .um-article .blog-prose img {
     width: 100%;
     border-radius: 8px;
     margin: 44px 0;
@@ -349,13 +337,9 @@ const schema = {
     box-shadow: 0 1px 4px rgba(0,0,0,.07);
   }
 
-  .blog-prose figure {
-    margin: 44px 0;
-  }
-  .blog-prose figure img {
-    margin: 0 0 10px;
-  }
-  .blog-prose figcaption {
+  .um-article .blog-prose figure { margin: 44px 0; }
+  .um-article .blog-prose figure img { margin: 0 0 10px; }
+  .um-article .blog-prose figcaption {
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 13px;
     color: #9ca3af;
@@ -363,8 +347,7 @@ const schema = {
     font-style: italic;
   }
 
-  /* ── HR ──────────────────────────────────────────────────── */
-  .blog-prose hr {
+  .um-article .blog-prose hr {
     border: none;
     margin: 64px auto;
     width: 40px;
@@ -372,8 +355,7 @@ const schema = {
     background: #d1d5db;
   }
 
-  /* ── Tables ──────────────────────────────────────────────── */
-  .blog-prose table {
+  .um-article .blog-prose table {
     width: 100%;
     border-collapse: collapse;
     font-size: 16px;
@@ -384,7 +366,7 @@ const schema = {
     border-radius: 8px;
     box-shadow: 0 0 0 1px #e5e7eb;
   }
-  .blog-prose th {
+  .um-article .blog-prose th {
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
@@ -395,12 +377,12 @@ const schema = {
     border-bottom: 1px solid #e5e7eb;
     text-align: left;
   }
-  .blog-prose td {
+  .um-article .blog-prose td {
     padding: 12px 16px;
     border-bottom: 1px solid #f3f4f6;
     color: #374151;
     vertical-align: top;
   }
-  .blog-prose tr:last-child td { border-bottom: none; }
-  .blog-prose tr:nth-child(even) td { background: #fafafa; }
+  .um-article .blog-prose tr:last-child td { border-bottom: none; }
+  .um-article .blog-prose tr:nth-child(even) td { background: #fafafa; }
 </style>
