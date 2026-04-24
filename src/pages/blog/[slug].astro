@@ -134,51 +134,53 @@ const schema = {
   </main>
 </LayoutV4>
 
-<style>
+<style is:global>
   .um-h { font-family: 'Futura PT', 'Futura', 'Trebuchet MS', sans-serif; font-weight: 700; }
 
   .blog-prose {
-    font-family: 'Arial', 'Inter', system-ui, sans-serif;
-    font-size: 17px;
-    line-height: 1.65;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 18px;
+    line-height: 1.75;
     color: #c8d8ea;
     font-weight: 400;
     -webkit-font-smoothing: antialiased;
   }
 
   .blog-prose p {
-    margin-bottom: 20px;
-    line-height: 1.65;
+    margin-bottom: 22px;
+    line-height: 1.75;
     color: #c8d8ea;
   }
 
   .blog-prose > p:first-child {
-    font-size: 18px;
+    font-size: 19px;
     color: #dde8f2;
-    line-height: 1.65;
+    line-height: 1.75;
+    font-style: italic;
   }
 
   .blog-prose h2 {
-    font-family: 'Poppins', 'Century Gothic', sans-serif;
-    font-size: 28px;
+    font-family: 'Poppins', 'Century Gothic', 'Trebuchet MS', sans-serif;
+    font-size: 26px;
     font-weight: 700;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.02em;
     line-height: 1.25;
-    color: #ffffff;
-    margin-top: 64px;
-    margin-bottom: 14px;
+    color: #f0f6ff;
+    margin-top: 60px;
+    margin-bottom: 16px;
+    padding-top: 4px;
     scroll-margin-top: 6rem;
   }
 
   .blog-prose h3 {
-    font-family: 'Poppins', 'Century Gothic', sans-serif;
-    font-size: 19px;
+    font-family: 'Poppins', 'Century Gothic', 'Trebuchet MS', sans-serif;
+    font-size: 20px;
     font-weight: 600;
     letter-spacing: -0.01em;
     line-height: 1.35;
-    color: #7ec8f0;
-    margin-top: 40px;
-    margin-bottom: 10px;
+    color: #60a5fa;
+    margin-top: 44px;
+    margin-bottom: 12px;
     scroll-margin-top: 6rem;
   }
 
@@ -194,52 +196,52 @@ const schema = {
 
   .blog-prose ul,
   .blog-prose ol {
-    margin: 4px 0 24px 24px;
+    margin: 4px 0 22px 26px;
     padding: 0;
   }
   .blog-prose li {
-    margin-bottom: 10px;
-    line-height: 1.75;
+    margin-bottom: 8px;
+    line-height: 1.7;
     color: #bfcfdf;
   }
-  .blog-prose li + li { }
   .blog-prose ul { list-style-type: disc; }
   .blog-prose ol { list-style-type: decimal; }
   .blog-prose li::marker { color: #5b9bd4; }
 
   .blog-prose blockquote {
     border-left: 3px solid #2563eb;
-    background: rgba(37, 99, 235, 0.06);
-    padding: 16px 20px;
+    background: rgba(37, 99, 235, 0.07);
+    padding: 18px 22px;
     margin: 32px 0;
     color: #94afc8;
     font-style: italic;
-    font-size: 17px;
-    line-height: 1.75;
-    border-radius: 0 6px 6px 0;
+    font-size: 18px;
+    line-height: 1.7;
+    border-radius: 0 8px 8px 0;
   }
   .blog-prose blockquote p { margin-bottom: 0; color: inherit; }
 
   .blog-prose strong {
     font-weight: 700;
-    color: #e2ecf5;
+    color: #e8f0f8;
+    font-style: normal;
   }
   .blog-prose em { font-style: italic; color: #a0b8cc; }
 
   .blog-prose code {
     font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
-    font-size: 13px;
+    font-size: 14px;
     background: rgba(13, 17, 23, 0.8);
     border: 1px solid #1e3a5f;
     border-radius: 4px;
-    padding: 2px 6px;
+    padding: 2px 7px;
     color: #79c0ff;
   }
 
   .blog-prose pre {
     font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
-    font-size: 13px;
-    line-height: 1.7;
+    font-size: 14px;
+    line-height: 1.65;
     background: #0d1117;
     border: 1px solid #1e3a5f;
     border-radius: 10px;
@@ -265,7 +267,7 @@ const schema = {
   .blog-prose hr {
     border: none;
     border-top: 1px solid #1e3a5f;
-    margin: 48px 0;
+    margin: 52px 0;
   }
 
   .blog-prose table {
