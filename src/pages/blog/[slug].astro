@@ -50,165 +50,279 @@ const schema = {
     rel="stylesheet"
   />
 
-  <!-- Reading progress bar -->
-  <div id="read-progress" style="position:fixed;top:0;left:0;height:2px;background:#111;width:0%;z-index:100;transition:width 0.1s linear;"></div>
+  <div id="read-bar" class="read-bar"></div>
 
-  <!-- Sticky article bar -->
-  <div
-    id="sticky-bar"
-    style="position:fixed;top:0;left:0;right:0;z-index:90;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e5e7eb;transform:translateY(-100%);transition:transform 0.25s ease;"
-  >
-    <div style="max-width:900px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;gap:16px;">
-      <a href="/blog" style="font-size:13px;color:#6b7280;text-decoration:none;white-space:nowrap;flex-shrink:0;" onmouseover="this.style.color='#111'" onmouseout="this.style.color='#6b7280'">← Blog</a>
-      <span style="color:#e5e7eb;flex-shrink:0;">|</span>
-      <span style="font-size:13px;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;">{post.titulo}</span>
-      <span style="font-size:12px;color:#9ca3af;white-space:nowrap;flex-shrink:0;">{post.tiempo_lectura} min</span>
-    </div>
-  </div>
+  <main class="article-page">
 
-  <main class="um-article" style="min-height:100vh;background:#fff;">
-    <div style="max-width:1160px;margin:0 auto;padding:40px 24px 96px;">
-      <div style="display:flex;gap:80px;align-items:flex-start;">
+    <div class="article-layout">
+      <BlogTOC headings={headings} />
 
-        <!-- TOC sidebar -->
-        <BlogTOC headings={headings} />
+      <article class="article-body">
 
-        <!-- Article -->
-        <article style="flex:1;min-width:0;max-width:680px;margin:0 auto;">
+        <div class="article-meta-top">
+          <a href="/blog" class="back-link">← Blog</a>
+          <span class="category-pill" style={`color:${color};border-color:${color}40;background:${color}0d`}>{label}</span>
+        </div>
 
-          <!-- Category + back -->
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
-            <a href="/blog" style="font-size:13px;color:#9ca3af;text-decoration:none;" onmouseover="this.style.color='#374151'" onmouseout="this.style.color='#9ca3af'">← Blog</a>
-            <span style="color:#e5e7eb;">·</span>
-            <span style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;" class:list={[]} set:html={`<span style="color:${color}">${label}</span>`} />
+        <h1 class="article-title">{post.titulo}</h1>
+
+        {post.resumen && <p class="article-lead">{post.resumen}</p>}
+
+        <div class="author-row">
+          <div class="author-avatar">UM</div>
+          <div>
+            <p class="author-name">ULTIMA MILLA</p>
+            <p class="author-meta">{date} · {post.tiempo_lectura} min de lectura</p>
           </div>
+        </div>
 
-          <!-- Title -->
-          <h1 class="article-title">{post.titulo}</h1>
+        <hr class="article-divider" />
 
-          <!-- Lead / resumen -->
-          {post.resumen && (
-            <p class="article-lead">{post.resumen}</p>
-          )}
+        {imgUrl && (
+          <figure class="hero-figure">
+            <img src={imgUrl} alt={post.titulo} class="hero-img" />
+          </figure>
+        )}
 
-          <!-- Author meta row -->
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid #f3f4f6;">
-            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <span style="color:#fff;font-size:12px;font-weight:700;font-family:Inter,system-ui,sans-serif;">UM</span>
-            </div>
-            <div>
-              <p style="font-size:14px;font-weight:600;color:#111827;margin:0;font-family:Inter,system-ui,sans-serif;">ULTIMA MILLA</p>
-              <p style="font-size:13px;color:#9ca3af;margin:0;font-family:Inter,system-ui,sans-serif;">{date} · {post.tiempo_lectura} min de lectura</p>
-            </div>
+        <div class="prose" set:html={contentHtml} />
+
+        {post.tags && post.tags.length > 0 && (
+          <div class="tags-row">
+            {post.tags.map((tag: string) => (
+              <span class="tag">#{tag}</span>
+            ))}
           </div>
+        )}
 
-          <!-- Hero image -->
-          {imgUrl && (
-            <figure style="margin:0 0 48px;">
-              <img
-                src={imgUrl}
-                alt={post.titulo}
-                style="width:100%;border-radius:12px;object-fit:cover;max-height:480px;box-shadow:0 1px 4px rgba(0,0,0,.08);"
-              />
-            </figure>
+        <nav class="post-nav">
+          {prevPost ? (
+            <a href={`/blog/${prevPost.slug}`} class="post-nav-item">
+              <span class="post-nav-label">← Anterior</span>
+              <span class="post-nav-title">{prevPost.titulo}</span>
+            </a>
+          ) : <div></div>}
+          {nextPost && (
+            <a href={`/blog/${nextPost.slug}`} class="post-nav-item post-nav-item--right">
+              <span class="post-nav-label">Siguiente →</span>
+              <span class="post-nav-title">{nextPost.titulo}</span>
+            </a>
           )}
+        </nav>
 
-          <!-- Content -->
-          <div class="blog-prose" set:html={contentHtml} />
-
-          <!-- Tags -->
-          {post.tags && post.tags.length > 0 && (
-            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:64px;padding-top:32px;border-top:1px solid #f3f4f6;">
-              {post.tags.map((tag: string) => (
-                <span style="font-size:12px;color:#6b7280;border:1px solid #e5e7eb;border-radius:999px;padding:4px 14px;font-family:Inter,system-ui,sans-serif;">#{tag}</span>
-              ))}
-            </div>
-          )}
-
-          <!-- Prev / Next -->
-          <nav style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:48px;padding-top:32px;border-top:1px solid #f3f4f6;">
-            {prevPost ? (
-              <a
-                href={`/blog/${prevPost.slug}`}
-                style="display:block;padding:20px;border:1px solid #e5e7eb;border-radius:12px;text-decoration:none;transition:all .15s;"
-                onmouseover="this.style.borderColor='#d1d5db';this.style.background='#f9fafb'"
-                onmouseout="this.style.borderColor='#e5e7eb';this.style.background='#fff'"
-              >
-                <p style="font-size:10px;font-family:Inter,monospace;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;margin:0 0 6px;">← Anterior</p>
-                <p style="font-size:14px;color:#374151;margin:0;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{prevPost.titulo}</p>
-              </a>
-            ) : <div></div>}
-
-            {nextPost && (
-              <a
-                href={`/blog/${nextPost.slug}`}
-                style="display:block;padding:20px;border:1px solid #e5e7eb;border-radius:12px;text-decoration:none;transition:all .15s;text-align:right;"
-                onmouseover="this.style.borderColor='#d1d5db';this.style.background='#f9fafb'"
-                onmouseout="this.style.borderColor='#e5e7eb';this.style.background='#fff'"
-              >
-                <p style="font-size:10px;font-family:Inter,monospace;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;margin:0 0 6px;">Siguiente →</p>
-                <p style="font-size:14px;color:#374151;margin:0;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{nextPost.titulo}</p>
-              </a>
-            )}
-          </nav>
-
-        </article>
-      </div>
+      </article>
     </div>
   </main>
 
   <script>
-    // Reading progress bar
-    const bar = document.getElementById('read-progress');
-    const stickyBar = document.getElementById('sticky-bar');
-    const article = document.querySelector('article');
-
-    function onScroll() {
-      if (!bar || !article) return;
-      const rect = article.getBoundingClientRect();
-      const total = article.scrollHeight - window.innerHeight;
-      const scrolled = -rect.top;
-      const pct = Math.max(0, Math.min(100, (scrolled / total) * 100));
+    const bar = document.getElementById('read-bar');
+    const art = document.querySelector('.article-body');
+    function tick() {
+      if (!bar || !art) return;
+      const r = art.getBoundingClientRect();
+      const pct = Math.max(0, Math.min(100, (-r.top / (art.scrollHeight - window.innerHeight)) * 100));
       bar.style.width = pct + '%';
-
-      if (stickyBar) {
-        if (scrolled > 300) {
-          stickyBar.style.transform = 'translateY(0)';
-        } else {
-          stickyBar.style.transform = 'translateY(-100%)';
-        }
-      }
     }
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
+    window.addEventListener('scroll', tick, { passive: true });
+    tick();
   </script>
 </LayoutV4>
 
-<style is:global>
-  /* All styles scoped to .um-article — prevents bleeding to other pages */
+<style>
+  /* Page shell */
+  .read-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 0%;
+    background: #111827;
+    z-index: 9999;
+    transition: width 0.1s linear;
+  }
 
-  .um-article .article-title {
-    font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
-    font-size: clamp(28px, 5vw, 42px);
+  .article-page {
+    min-height: 100vh;
+    background: #fff;
+    padding: 48px 24px 96px;
+  }
+
+  .article-layout {
+    max-width: 1160px;
+    margin: 0 auto;
+    display: flex;
+    gap: 72px;
+    align-items: flex-start;
+  }
+
+  /* Article body */
+  .article-body {
+    flex: 1;
+    min-width: 0;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  /* Top meta */
+  .article-meta-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .back-link {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 13px;
+    color: #9ca3af;
+    text-decoration: none;
+    transition: color .15s;
+  }
+  .back-link:hover { color: #374151; }
+  .category-pill {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    padding: 3px 10px;
+    border: 1px solid;
+    border-radius: 999px;
+  }
+
+  /* Title & lead */
+  .article-title {
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: clamp(26px, 4.5vw, 42px);
     font-weight: 700;
     line-height: 1.2;
     letter-spacing: -0.02em;
     color: #111827;
-    margin: 0 0 24px;
+    margin: 0 0 20px;
   }
-
-  .um-article .article-lead {
+  .article-lead {
     font-family: 'Merriweather', Georgia, serif;
     font-size: 20px;
     font-weight: 300;
+    font-style: italic;
     line-height: 1.7;
     color: #4b5563;
-    margin: 0 0 28px;
-    font-style: italic;
+    margin: 0 0 24px;
   }
 
-  .um-article .blog-prose {
+  /* Author */
+  .author-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,#1e40af,#3b82f6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .author-name {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+  }
+  .author-meta {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 13px;
+    color: #9ca3af;
+    margin: 0;
+  }
+
+  .article-divider {
+    border: none;
+    border-top: 1px solid #f3f4f6;
+    margin: 0 0 32px;
+  }
+
+  /* Hero image */
+  .hero-figure { margin: 0 0 48px; }
+  .hero-img {
+    width: 100%;
+    max-height: 480px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  }
+
+  /* Tags */
+  .tags-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid #f3f4f6;
+  }
+  .tag {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 12px;
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    padding: 4px 14px;
+  }
+
+  /* Prev/next nav */
+  .post-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid #f3f4f6;
+  }
+  .post-nav-item {
+    display: block;
+    padding: 20px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: border-color .15s, background .15s;
+  }
+  .post-nav-item:hover { border-color: #d1d5db; background: #f9fafb; }
+  .post-nav-item--right { text-align: right; }
+  .post-nav-label {
+    display: block;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #9ca3af;
+    margin-bottom: 6px;
+  }
+  .post-nav-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.4;
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     PROSE — all scoped via :global() so set:html content gets
+     these styles without leaking to other pages via a shared
+     CSS chunk (unlike is:global which does leak)
+  ────────────────────────────────────────────────────────── */
+
+  :global(.prose) {
     font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
     font-size: 19px;
     line-height: 1.85;
@@ -218,92 +332,89 @@ const schema = {
     word-spacing: 0.01em;
   }
 
-  .um-article .blog-prose p {
-    margin: 0 0 28px;
+  :global(.prose p) {
+    margin: 0 0 26px;
     line-height: 1.85;
     color: #1f2937;
   }
 
-  .um-article .blog-prose > p:first-child {
+  :global(.prose > p:first-child) {
     font-size: 20px;
     color: #111827;
   }
 
-  .um-article .blog-prose h2 {
+  :global(.prose h2) {
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 26px;
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.25;
     color: #111827;
-    margin: 72px 0 16px;
+    margin: 68px 0 14px;
     scroll-margin-top: 5rem;
   }
 
-  .um-article .blog-prose h3 {
+  :global(.prose h3) {
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 20px;
     font-weight: 600;
     letter-spacing: -0.01em;
     line-height: 1.35;
     color: #1f2937;
-    margin: 48px 0 12px;
+    margin: 44px 0 10px;
     scroll-margin-top: 5rem;
   }
 
-  .um-article .blog-prose h4 {
+  :global(.prose h4) {
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 17px;
     font-weight: 600;
     color: #374151;
-    margin: 36px 0 10px;
+    margin: 32px 0 8px;
     scroll-margin-top: 5rem;
   }
 
-  .um-article .blog-prose a {
+  :global(.prose a) {
     color: #1d4ed8;
     text-decoration: underline;
     text-underline-offset: 3px;
-    text-decoration-color: rgba(29, 78, 216, 0.35);
+    text-decoration-color: rgba(29,78,216,.3);
     text-decoration-thickness: 1px;
-    transition: color 0.15s, text-decoration-color 0.15s;
+    transition: color .15s;
   }
-  .um-article .blog-prose a:hover {
-    color: #1e40af;
-    text-decoration-color: rgba(30, 64, 175, 0.7);
-  }
+  :global(.prose a:hover) { color: #1e40af; }
 
-  .um-article .blog-prose ul,
-  .um-article .blog-prose ol {
-    margin: 0 0 28px 28px;
+  :global(.prose ul),
+  :global(.prose ol) {
+    margin: 0 0 26px 28px;
     padding: 0;
   }
-  .um-article .blog-prose li {
-    margin-bottom: 10px;
+  :global(.prose li) {
+    margin-bottom: 8px;
     line-height: 1.75;
     color: #1f2937;
   }
-  .um-article .blog-prose ul { list-style-type: disc; }
-  .um-article .blog-prose ol { list-style-type: decimal; }
-  .um-article .blog-prose li::marker { color: #9ca3af; }
+  :global(.prose ul) { list-style-type: disc; }
+  :global(.prose ol) { list-style-type: decimal; }
+  :global(.prose li::marker) { color: #9ca3af; }
 
-  .um-article .blog-prose blockquote {
+  :global(.prose blockquote) {
     border-left: 3px solid #d1d5db;
     padding: 2px 0 2px 28px;
-    margin: 44px 0;
+    margin: 40px 0;
     color: #6b7280;
     font-style: italic;
     font-size: 21px;
     line-height: 1.7;
     font-weight: 300;
   }
-  .um-article .blog-prose blockquote p { margin-bottom: 0; color: inherit; }
+  :global(.prose blockquote p) { margin-bottom: 0; color: inherit; }
 
-  .um-article .blog-prose strong { font-weight: 700; color: #111827; }
-  .um-article .blog-prose em { font-style: italic; }
+  :global(.prose strong) { font-weight: 700; color: #111827; }
+  :global(.prose em) { font-style: italic; }
 
-  .um-article .blog-prose code {
-    font-family: ui-monospace, 'Fira Code', 'Consolas', monospace;
+  :global(.prose code) {
+    font-family: ui-monospace, 'Fira Code', Consolas, monospace;
     font-size: 15px;
     background: #f3f4f6;
     border: 1px solid #e5e7eb;
@@ -313,76 +424,75 @@ const schema = {
     font-style: normal;
   }
 
-  .um-article .blog-prose pre {
-    font-family: ui-monospace, 'Fira Code', 'Consolas', monospace;
+  :global(.prose pre) {
+    font-family: ui-monospace, 'Fira Code', Consolas, monospace;
     font-size: 14px;
     line-height: 1.65;
     background: #1e293b;
     border-radius: 10px;
     padding: 24px 28px;
     overflow-x: auto;
-    margin: 36px 0;
+    margin: 32px 0;
     color: #e2e8f0;
   }
-  .um-article .blog-prose pre code {
+  :global(.prose pre code) {
     background: none; border: none; padding: 0;
     font-size: inherit; color: inherit;
   }
 
-  .um-article .blog-prose img {
+  :global(.prose img) {
     width: 100%;
     border-radius: 8px;
-    margin: 44px 0;
+    margin: 40px 0;
     display: block;
     box-shadow: 0 1px 4px rgba(0,0,0,.07);
   }
-
-  .um-article .blog-prose figure { margin: 44px 0; }
-  .um-article .blog-prose figure img { margin: 0 0 10px; }
-  .um-article .blog-prose figcaption {
-    font-family: 'Inter', system-ui, sans-serif;
+  :global(.prose figure) { margin: 40px 0; }
+  :global(.prose figure img) { margin: 0 0 10px; }
+  :global(.prose figcaption) {
+    font-family: Inter, system-ui, sans-serif;
     font-size: 13px;
     color: #9ca3af;
     text-align: center;
     font-style: italic;
   }
 
-  .um-article .blog-prose hr {
+  :global(.prose hr) {
     border: none;
-    margin: 64px auto;
+    margin: 60px auto;
     width: 40px;
     height: 2px;
     background: #d1d5db;
   }
 
-  .um-article .blog-prose table {
+  :global(.prose table) {
     width: 100%;
     border-collapse: collapse;
     font-size: 16px;
-    margin: 32px 0 40px;
+    margin: 28px 0 36px;
     line-height: 1.6;
-    font-family: 'Inter', system-ui, sans-serif;
-    overflow: hidden;
-    border-radius: 8px;
+    font-family: Inter, system-ui, sans-serif;
     box-shadow: 0 0 0 1px #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
   }
-  .um-article .blog-prose th {
+  :global(.prose th) {
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: .06em;
     color: #6b7280;
     background: #f9fafb;
     padding: 12px 16px;
     border-bottom: 1px solid #e5e7eb;
     text-align: left;
   }
-  .um-article .blog-prose td {
+  :global(.prose td) {
     padding: 12px 16px;
     border-bottom: 1px solid #f3f4f6;
     color: #374151;
     vertical-align: top;
   }
-  .um-article .blog-prose tr:last-child td { border-bottom: none; }
-  .um-article .blog-prose tr:nth-child(even) td { background: #fafafa; }
+  :global(.prose tr:last-child td) { border-bottom: none; }
+  :global(.prose tr:nth-child(even) td) { background: #fafafa; }
 </style>
