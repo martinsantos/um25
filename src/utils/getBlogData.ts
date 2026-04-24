@@ -1,12 +1,18 @@
-import { createDirectus, rest, readItems } from '@directus/sdk';
 import type { EntradaBlog } from '../lib/directus';
 import { MOCK_POSTS } from '../data/blog-mock';
 
-const DIRECTUS_URL = 'http://localhost:8055';
-const DIRECTUS_TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+const DIRECTUS_URL =
+  (typeof process !== 'undefined' ? process.env.DIRECTUS_INTERNAL_URL : undefined) ??
+  import.meta.env.DIRECTUS_INTERNAL_URL ??
+  'http://localhost:8055';
 
-function getClient() {
-  return createDirectus(DIRECTUS_URL).with(rest());
+const DIRECTUS_TOKEN =
+  (typeof process !== 'undefined' ? process.env.DIRECTUS_ADMIN_TOKEN : undefined) ??
+  import.meta.env.DIRECTUS_ADMIN_TOKEN ??
+  '1d70b2841dd6365c676ab42e879c5fdfc044ec1adfc146552a99b2d7e23baa5e';
+
+function authHeaders() {
+  return { Authorization: `Bearer ${DIRECTUS_TOKEN}` };
 }
 
 export async function fetchBlogListing(
@@ -14,49 +20,42 @@ export async function fetchBlogListing(
   limit = 10,
   categoria?: string
 ): Promise<{ posts: EntradaBlog[]; total: number }> {
-  const filter: Record<string, unknown> = { status: { _eq: 'published' } };
-  if (categoria) filter.categoria = { _eq: categoria };
+  const catFilter = categoria ? `&filter[categoria][_eq]=${encodeURIComponent(categoria)}` : '';
+  const fields = 'id,slug,titulo,resumen,imagen_portada,categoria,fecha_publicacion,tiempo_lectura';
+  const offset = (page - 1) * limit;
 
   try {
-    const client = getClient();
-    const posts = await client.request(
-      readItems('blog_posts' as any, {
-        filter,
-        sort: ['-fecha_publicacion'],
-        limit,
-        offset: (page - 1) * limit,
-        fields: ['id', 'slug', 'titulo', 'resumen', 'imagen_portada', 'categoria', 'fecha_publicacion', 'tiempo_lectura']
-      })
-    );
+    const [itemsRes, countRes] = await Promise.all([
+      fetch(
+        `${DIRECTUS_URL}/items/blog_posts?filter[status][_eq]=published${catFilter}&sort=-fecha_publicacion&limit=${limit}&offset=${offset}&fields=${fields}`,
+        { headers: authHeaders() }
+      ),
+      fetch(
+        `${DIRECTUS_URL}/items/blog_posts?aggregate[count]=id&filter[status][_eq]=published${catFilter}`,
+        { headers: authHeaders() }
+      ),
+    ]);
 
-    const catParam = categoria ? `&filter[categoria][_eq]=${categoria}` : '';
-    const countRes = await fetch(
-      `${DIRECTUS_URL}/items/blog_posts?aggregate[count]=id&filter[status][_eq]=published${catParam}`,
-      { headers: { Authorization: `Bearer ${DIRECTUS_TOKEN}` } }
-    );
-    const countData = await countRes.json();
+    const [itemsData, countData] = await Promise.all([itemsRes.json(), countRes.json()]);
+    const posts = (itemsData.data || []) as EntradaBlog[];
     const total = Number(countData.data?.[0]?.count?.id || 0);
 
-    const result = (posts || []) as EntradaBlog[];
-    if (result.length > 0) return { posts: result, total };
+    if (posts.length > 0) return { posts, total };
     throw new Error('empty');
   } catch {
     const filtered = categoria ? MOCK_POSTS.filter(p => p.categoria === categoria) : MOCK_POSTS;
-    return { posts: filtered.slice((page - 1) * limit, page * limit), total: filtered.length };
+    return { posts: filtered.slice(offset, offset + limit), total: filtered.length };
   }
 }
 
 export async function fetchBlogPost(slug: string): Promise<EntradaBlog | null> {
   try {
-    const client = getClient();
-    const result = await client.request(
-      readItems('blog_posts' as any, {
-        filter: { slug: { _eq: slug }, status: { _eq: 'published' } },
-        limit: 1,
-        fields: ['*']
-      })
+    const res = await fetch(
+      `${DIRECTUS_URL}/items/blog_posts?filter[slug][_eq]=${encodeURIComponent(slug)}&filter[status][_eq]=published&limit=1&fields=*`,
+      { headers: authHeaders() }
     );
-    const post = ((result || []) as EntradaBlog[])[0];
+    const data = await res.json();
+    const post = (data.data || [])[0] as EntradaBlog | undefined;
     if (post) return post;
     throw new Error('not found');
   } catch {
@@ -66,16 +65,12 @@ export async function fetchBlogPost(slug: string): Promise<EntradaBlog | null> {
 
 export async function fetchBlogBand(limit = 3): Promise<EntradaBlog[]> {
   try {
-    const client = getClient();
-    const result = await client.request(
-      readItems('blog_posts' as any, {
-        filter: { status: { _eq: 'published' } },
-        sort: ['-fecha_publicacion'],
-        limit,
-        fields: ['id', 'slug', 'titulo', 'imagen_portada', 'categoria', 'fecha_publicacion']
-      })
+    const res = await fetch(
+      `${DIRECTUS_URL}/items/blog_posts?filter[status][_eq]=published&sort=-fecha_publicacion&limit=${limit}&fields=id,slug,titulo,imagen_portada,categoria,fecha_publicacion`,
+      { headers: authHeaders() }
     );
-    const posts = (result || []) as EntradaBlog[];
+    const data = await res.json();
+    const posts = (data.data || []) as EntradaBlog[];
     if (posts.length > 0) return posts;
     throw new Error('empty');
   } catch {
