@@ -12,7 +12,7 @@ if (!post) {
   return Astro.redirect('/blog');
 }
 
-const { html: contentHtml, headings } = addHeadingIds(post.contenido || '');
+const { html: contentHtml, headings } = await addHeadingIds(post.contenido || '');
 const imgUrl = blogImageUrl(post.imagen_portada);
 const color = getCategoryColor(post.categoria);
 const label = getCategoryLabel(post.categoria);
@@ -49,40 +49,47 @@ const schema = {
     href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
     rel="stylesheet"
   />
-  <main class="min-h-screen bg-[#0a0f1e] py-16">
-    <div class="max-w-5xl mx-auto px-6 sm:px-8">
+  <main class="min-h-screen bg-[#0a0f1e] pt-12 pb-24">
+    <div class="max-w-5xl mx-auto px-6 sm:px-10">
 
-      <p class="text-xs font-mono text-white/50 uppercase tracking-widest mb-10">
+      <p class="text-xs font-mono text-white/45 uppercase tracking-widest mb-12">
         <a href={'/blog'} class="hover:text-white/70 transition-colors">Blog</a>
-        {' '}/ {label}
+        {' '}<span class="text-white/25">/ {label}</span>
       </p>
 
-      <div class="flex gap-12 items-start">
+      <div class="flex gap-16 items-start">
 
         <BlogTOC headings={headings} />
 
-        <article class="flex-1 min-w-0 max-w-[720px]">
+        <article class="flex-1 min-w-0 max-w-[700px]">
 
-          <header class="mb-8">
-            <div class="flex items-center gap-2 mb-4">
+          <header class="mb-10">
+            <div class="flex items-center gap-3 mb-5">
               <span
                 class="text-[11px] font-mono font-bold uppercase tracking-widest px-2.5 py-1 rounded"
-                style={`color: ${color}; background: ${color}25; border: 1px solid ${color}50`}
+                style={`color: ${color}; background: ${color}18; border: 1px solid ${color}40`}
               >{label}</span>
-              <span class="text-white/60 text-[13px]">{post.tiempo_lectura} min lectura</span>
-              <span class="text-white/45 text-xs">·</span>
-              <span class="text-white/60 text-[13px]">{date}</span>
+              <span class="text-white/55 text-sm">{post.tiempo_lectura} min de lectura</span>
+              <span class="text-white/30">·</span>
+              <span class="text-white/55 text-sm">{date}</span>
             </div>
 
-            <h1 class="um-h text-3xl sm:text-4xl text-white font-bold leading-tight mb-6">
+            <h1 class="um-h text-3xl sm:text-[2.4rem] text-white font-bold leading-tight mb-5" style="letter-spacing:-0.02em;line-height:1.2">
               {post.titulo}
             </h1>
+
+            {post.resumen && (
+              <p class="text-lg text-white/60 leading-relaxed mb-8 border-l-2 border-blue-600/50 pl-4">
+                {post.resumen}
+              </p>
+            )}
 
             {imgUrl && (
               <img
                 src={imgUrl}
                 alt={post.titulo}
-                class="w-full rounded-xl object-cover max-h-96 mb-8"
+                class="w-full rounded-2xl object-cover mb-10"
+                style="max-height: 420px;"
               />
             )}
           </header>
@@ -90,33 +97,33 @@ const schema = {
           <div class="blog-prose" set:html={contentHtml} />
 
           {post.tags && post.tags.length > 0 && (
-            <div class="flex flex-wrap gap-2 mt-10 pt-6 border-t border-[#1e3a5f]">
+            <div class="flex flex-wrap gap-2 mt-14 pt-7 border-t border-[#1e3a5f]">
               {post.tags.map((tag: string) => (
-                <span class="text-[11px] text-white/35 border border-[#1e3a5f] rounded px-2 py-0.5">
+                <span class="text-xs text-white/40 border border-[#1e3a5f] rounded-full px-3 py-1 hover:border-white/20 hover:text-white/60 transition-colors">
                   #{tag}
                 </span>
               ))}
             </div>
           )}
 
-          <nav class="grid grid-cols-2 gap-4 mt-10 pt-8 border-t border-[#1e3a5f]">
+          <nav class="grid grid-cols-2 gap-4 mt-12 pt-8 border-t border-[#1e3a5f]">
             {prevPost ? (
               <a
                 href={`/blog/${prevPost.slug}`}
-                class="group p-4 border border-[#1e3a5f] rounded-lg hover:border-white/20 transition-colors"
+                class="group p-5 border border-[#1e3a5f] rounded-xl hover:border-blue-500/30 hover:bg-blue-500/5 transition-all"
               >
-                <p class="text-[10px] font-mono text-white/25 uppercase tracking-widest mb-1">← anterior</p>
-                <p class="text-white/60 text-sm group-hover:text-white transition-colors line-clamp-2">{prevPost.titulo}</p>
+                <p class="text-[10px] font-mono text-white/30 uppercase tracking-widest mb-2">← Anterior</p>
+                <p class="text-white/65 text-sm leading-snug group-hover:text-white transition-colors line-clamp-2">{prevPost.titulo}</p>
               </a>
             ) : <div></div>}
 
             {nextPost && (
               <a
                 href={`/blog/${nextPost.slug}`}
-                class="group p-4 border border-[#1e3a5f] rounded-lg hover:border-white/20 transition-colors text-right"
+                class="group p-5 border border-[#1e3a5f] rounded-xl hover:border-blue-500/30 hover:bg-blue-500/5 transition-all text-right"
               >
-                <p class="text-[10px] font-mono text-white/25 uppercase tracking-widest mb-1">siguiente →</p>
-                <p class="text-white/60 text-sm group-hover:text-white transition-colors line-clamp-2">{nextPost.titulo}</p>
+                <p class="text-[10px] font-mono text-white/30 uppercase tracking-widest mb-2">Siguiente →</p>
+                <p class="text-white/65 text-sm leading-snug group-hover:text-white transition-colors line-clamp-2">{nextPost.titulo}</p>
               </a>
             )}
           </nav>
@@ -128,135 +135,120 @@ const schema = {
 </LayoutV4>
 
 <style>
-  /*
-   * Tipografía UMSA — adaptada a dark theme
-   * --font-head: 'Poppins' (igual al sistema de estilo)
-   * --font-body: 'Arial','Inter' (igual al sistema de estilo)
-   * --font-code: 'Fira Code','Consolas' (igual al sistema de estilo)
-   * Tamaños, line-height y spacing directamente del /estilo
-   */
-
   .um-h { font-family: 'Futura PT', 'Futura', 'Trebuchet MS', sans-serif; font-weight: 700; }
 
-  /* ── Base del artículo — igual que body en /estilo ────────────────── */
   .blog-prose {
     font-family: 'Arial', 'Inter', system-ui, sans-serif;
-    font-size: 16px;
-    line-height: 1.75;
-    color: #cdd8e6;
+    font-size: 17px;
+    line-height: 1.85;
+    color: #c8d8ea;
     font-weight: 400;
     -webkit-font-smoothing: antialiased;
   }
 
   .blog-prose p {
-    margin-bottom: 18px;
-    line-height: 1.75;
-    color: #cdd8e6;
+    margin-bottom: 24px;
+    line-height: 1.85;
+    color: #c8d8ea;
   }
 
-  .blog-prose > p:first-of-type {
-    font-size: 17px;
-    color: #dde6f0;
-    line-height: 1.75;
+  .blog-prose > p:first-child {
+    font-size: 18px;
+    color: #dde8f2;
+    line-height: 1.8;
   }
 
   .blog-prose h2 {
     font-family: 'Poppins', 'Century Gothic', sans-serif;
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.3;
     color: #f1f5f9;
-    margin-top: 44px;
-    margin-bottom: 14px;
+    margin-top: 56px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(30, 58, 95, 0.6);
     scroll-margin-top: 6rem;
   }
 
   .blog-prose h3 {
     font-family: 'Poppins', 'Century Gothic', sans-serif;
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     line-height: 1.35;
-    color: #94a3b8;
-    margin-top: 32px;
-    margin-bottom: 10px;
+    color: #7fa8cc;
+    margin-top: 40px;
+    margin-bottom: 12px;
     scroll-margin-top: 6rem;
   }
 
-  /* ── Links — azul del sistema UMSA ────────────────────────────────── */
   .blog-prose a {
-    color: #4b89d4;            /* --azul: #1A56C0 aclarado para dark */
+    color: #5b9bd4;
     text-decoration: underline;
     text-underline-offset: 3px;
-    text-decoration-color: rgba(75, 137, 212, 0.4);
+    text-decoration-color: rgba(91, 155, 212, 0.4);
     text-decoration-thickness: 1px;
     transition: color 0.15s;
   }
-  .blog-prose a:hover {
-    color: #7aabee;
-  }
+  .blog-prose a:hover { color: #88bce8; }
 
-  /* ── Listas — igual a body, 14px margin ───────────────────────────── */
   .blog-prose ul,
   .blog-prose ol {
-    margin: 6px 0 14px 20px;
+    margin: 4px 0 24px 24px;
     padding: 0;
   }
   .blog-prose li {
-    margin-bottom: 5px;
-    line-height: 1.65;
-    color: #c8d3e0;
+    margin-bottom: 10px;
+    line-height: 1.75;
+    color: #bfcfdf;
   }
+  .blog-prose li + li { }
   .blog-prose ul { list-style-type: disc; }
   .blog-prose ol { list-style-type: decimal; }
-  .blog-prose li::marker { color: #4b89d4; }
+  .blog-prose li::marker { color: #5b9bd4; }
 
-  /* ── Blockquote — patrón callout del /estilo ──────────────────────── */
   .blog-prose blockquote {
-    border-left: 3px solid #1A56C0;
-    padding: 10px 0 10px 16px;
-    margin: 20px 0;
-    color: #8fa3bb;
+    border-left: 3px solid #2563eb;
+    background: rgba(37, 99, 235, 0.06);
+    padding: 16px 20px;
+    margin: 32px 0;
+    color: #94afc8;
     font-style: italic;
-    font-size: 14px;
-    line-height: 1.65;
+    font-size: 17px;
+    line-height: 1.75;
+    border-radius: 0 6px 6px 0;
   }
+  .blog-prose blockquote p { margin-bottom: 0; color: inherit; }
 
-  /* ── Strong / Em ───────────────────────────────────────────────────── */
   .blog-prose strong {
-    font-family: 'Poppins', 'Century Gothic', sans-serif;
     font-weight: 700;
-    color: #dce6f0;
-    font-size: 13px;            /* /estilo usa Poppins 700 13px para strong */
+    color: #e2ecf5;
   }
-  .blog-prose em { font-style: italic; color: #a0b4c8; }
+  .blog-prose em { font-style: italic; color: #a0b8cc; }
 
-  /* ── Código inline — exacto del /estilo ───────────────────────────── */
   .blog-prose code {
     font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
-    font-size: 11px;            /* exacto: /estilo usa 11px */
-    background: rgba(17, 24, 39, 0.8);
+    font-size: 13px;
+    background: rgba(13, 17, 23, 0.8);
     border: 1px solid #1e3a5f;
-    border-radius: 3px;
-    padding: 1px 5px;          /* exacto del /estilo */
+    border-radius: 4px;
+    padding: 2px 6px;
     color: #79c0ff;
-    letter-spacing: 0;
   }
 
-  /* ── Pre / bloques de código — igual al .code-block del /estilo ───── */
   .blog-prose pre {
     font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
-    font-size: 12.5px;         /* exacto del /estilo */
-    line-height: 1.7;          /* exacto del /estilo */
+    font-size: 13px;
+    line-height: 1.7;
     background: #0d1117;
     border: 1px solid #1e3a5f;
-    border-radius: 8px;
-    padding: 16px 20px;
+    border-radius: 10px;
+    padding: 20px 24px;
     overflow-x: auto;
-    margin: 20px 0;
-    letter-spacing: 0;
+    margin: 28px 0;
   }
   .blog-prose pre code {
     background: none;
@@ -266,47 +258,44 @@ const schema = {
     color: #e2e8f0;
   }
 
-  /* ── Imágenes ──────────────────────────────────────────────────────── */
   .blog-prose img {
     width: 100%;
-    border-radius: 8px;
-    margin: 24px 0;
-    opacity: 0.9;
+    border-radius: 10px;
+    margin: 32px 0;
+    opacity: 0.92;
   }
 
-  /* ── HR — separador del /estilo ────────────────────────────────────── */
   .blog-prose hr {
     border: none;
     border-top: 1px solid #1e3a5f;
-    margin: 32px 0;
+    margin: 48px 0;
   }
 
-  /* ── Tablas — igual que .um-table del /estilo ─────────────────────── */
   .blog-prose table {
     width: 100%;
     border-collapse: collapse;
-    font-family: 'Arial', 'Inter', system-ui, sans-serif;
-    font-size: 13px;           /* exacto del /estilo */
-    margin: 16px 0 24px;       /* exacto del /estilo */
+    font-size: 15px;
+    margin: 24px 0 32px;
     line-height: 1.6;
   }
   .blog-prose th {
     font-family: 'Poppins', 'Century Gothic', sans-serif;
-    font-size: 11px;           /* exacto del /estilo */
+    font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.06em;    /* exacto del /estilo */
+    letter-spacing: 0.06em;
     color: #6b7f99;
     background: #0d1526;
-    padding: 8px 12px;
+    padding: 10px 14px;
     border: 1px solid #1e3a5f;
     text-align: left;
   }
   .blog-prose td {
-    padding: 8px 12px;
+    padding: 10px 14px;
     border: 1px solid #1e3a5f;
-    color: #c8d3e0;
+    color: #bfcfdf;
     vertical-align: top;
+    font-size: 15px;
   }
-  .blog-prose tr:nth-child(even) td { background: rgba(30, 58, 95, 0.15); }
+  .blog-prose tr:nth-child(even) td { background: rgba(30, 58, 95, 0.12); }
 </style>

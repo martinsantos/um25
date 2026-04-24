@@ -27,12 +27,12 @@ const schema = {
   structuredData={schema}
 >
   <main class="min-h-screen bg-[#0a0f1e]">
-    <div class="max-w-3xl mx-auto px-6 sm:px-8 py-16">
+    <div class="max-w-3xl mx-auto px-6 sm:px-10 pt-16 pb-24">
 
-      <header class="mb-10">
-        <p class="text-xs font-mono text-white/50 uppercase tracking-widest mb-3">ULTIMA MILLA</p>
-        <h1 class="um-h text-4xl sm:text-5xl text-white font-bold mb-3">Blog</h1>
-        <p class="text-white/65 text-base">Noticias, proyectos y artículos técnicos.</p>
+      <header class="mb-12">
+        <p class="text-xs font-mono text-white/40 uppercase tracking-widest mb-4">ULTIMA MILLA</p>
+        <h1 class="um-h text-4xl sm:text-5xl text-white font-bold mb-4">Blog</h1>
+        <p class="text-white/60 text-lg leading-relaxed">Noticias, proyectos y artículos técnicos sobre infraestructura y tecnología.</p>
       </header>
 
       <BlogCategoryTabs />
@@ -40,15 +40,15 @@ const schema = {
       {hero && <BlogHero post={hero} />}
 
       {feedPosts.length > 0 && (
-        <div>
+        <div class="mt-2">
           {feedPosts.map(post => <BlogFeedItem post={post} />)}
         </div>
       )}
 
       {posts.length === 0 && (
-        <div class="text-center py-24 border border-[#1e3a5f] rounded-xl">
-          <p class="text-white/25 text-sm mb-2">No hay artículos publicados aún.</p>
-          <p class="text-white/15 text-xs font-mono">Publicá el primer post en Directus → blog_posts</p>
+        <div class="text-center py-28 border border-[#1e3a5f] rounded-2xl">
+          <p class="text-white/30 text-base mb-2">No hay artículos publicados aún.</p>
+          <p class="text-white/15 text-sm font-mono">Publicá el primer post en Directus → blog_posts</p>
         </div>
       )}
 

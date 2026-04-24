@@ -1,3 +1,10 @@
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
+import remarkRehype from 'remark-rehype';
+import rehypeRaw from 'rehype-raw';
+import rehypeStringify from 'rehype-stringify';
+
 const CATEGORY_COLORS: Record<string, string> = {
   noticias: '#3b82f6',
   proyectos: '#10b981',
@@ -26,14 +33,23 @@ export function formatBlogDate(dateStr: string): string {
   return d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-/**
- * Injects id attributes into h2/h3 tags in HTML content.
- * Returns the processed HTML and an array of headings for TOC generation.
- */
-export function addHeadingIds(html: string): {
+async function markdownToHtml(markdown: string): Promise<string> {
+  const result = await unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkRehype, { allowDangerousHtml: true })
+    .use(rehypeRaw)
+    .use(rehypeStringify)
+    .process(markdown);
+  return String(result);
+}
+
+export async function addHeadingIds(content: string): Promise<{
   html: string;
   headings: Array<{ level: number; id: string; text: string }>;
-} {
+}> {
+  const html = await markdownToHtml(content);
+
   const headings: Array<{ level: number; id: string; text: string }> = [];
 
   const processed = html.replace(
