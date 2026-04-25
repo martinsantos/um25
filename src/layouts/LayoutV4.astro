@@ -17,6 +17,7 @@ export interface Props {
   keywords?: string;
   image?: string;
   canonical?: string;
+  ogType?: string;
   structuredData?: Record<string, unknown> | Record<string, unknown>[];
 }
 
@@ -26,6 +27,7 @@ const {
   keywords,
   image,
   canonical,
+  ogType = 'website',
   structuredData,
 } = Astro.props;
 
@@ -209,7 +211,7 @@ const currentYear = new Date().getFullYear();
     <meta name="revisit-after" content="7 days" />
     <meta name="rating" content="general" />
     <meta name="distribution" content="global" />
-    <meta name="theme-color" content="#0ea5e9" />
+    <meta name="theme-color" content="#DC2626" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -219,7 +221,7 @@ const currentYear = new Date().getFullYear();
     <meta name="format-detection" content="telephone=yes" />
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:url" content={currentUrl} />
     <meta property="og:title" content={metaTitle} />
     <meta property="og:description" content={pageDescription} />

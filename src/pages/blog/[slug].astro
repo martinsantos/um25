@@ -3,7 +3,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
 import BlogTOC from '../../components/blog/BlogTOC.astro';
 import { fetchBlogPost, fetchBlogListing } from '../../utils/getBlogData';
 import { blogImageUrl } from '../../utils/blogHelpers';
-import { addHeadingIds, getCategoryColor, getCategoryLabel, formatBlogDate } from '../../utils/blogUtils';
+import { addHeadingIds, getCategoryColor, getCategoryLabel, formatBlogDate, extractFaqSchema } from '../../utils/blogUtils';
 
 const slug = Astro.params.slug || '';
 const post = await fetchBlogPost(slug);
@@ -13,7 +13,9 @@ if (!post) {
 }
 
 const { html: contentHtml, headings } = await addHeadingIds(post.contenido || '');
+const faqSchema = extractFaqSchema(contentHtml);
 const imgUrl = blogImageUrl(post.imagen_portada);
+const socialImg = post.social_image ? blogImageUrl(post.social_image) : imgUrl;
 const color = getCategoryColor(post.categoria);
 const label = getCategoryLabel(post.categoria);
 const date = formatBlogDate(post.fecha_publicacion);
@@ -23,27 +25,74 @@ const idx = allRecent.findIndex(p => p.slug === slug);
 const prevPost = idx > 0 ? allRecent[idx - 1] : null;
 const nextPost = idx < allRecent.length - 1 ? allRecent[idx + 1] : null;
 
+const siteUrl = 'https://ultimamilla.com.ar';
+const articleUrl = `${siteUrl}/blog/${slug}`;
+const wordCount = contentHtml.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
+
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
+  '@id': `${articleUrl}#article`,
   headline: post.titulo,
   description: post.resumen,
+  url: articleUrl,
   datePublished: post.fecha_publicacion,
-  image: imgUrl || undefined,
+  dateModified: post.fecha_modificacion || post.fecha_publicacion,
+  wordCount,
+  inLanguage: 'es-AR',
+  articleSection: label,
+  keywords: (post.tags || []).join(', '),
+  image: imgUrl ? {
+    '@type': 'ImageObject',
+    url: imgUrl.startsWith('http') ? imgUrl : `${siteUrl}${imgUrl}`,
+    name: post.imagen_portada_alt || post.titulo,
+  } : undefined,
+  author: {
+    '@type': 'Organization',
+    name: 'ULTIMA MILLA',
+    url: siteUrl,
+    logo: { '@type': 'ImageObject', url: `${siteUrl}/images/um-logo.png` },
+    sameAs: ['https://www.linkedin.com/company/ultimamilla'],
+  },
   publisher: {
     '@type': 'Organization',
     name: 'ULTIMA MILLA',
-    url: 'https://ultimamilla.com.ar',
+    url: siteUrl,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${siteUrl}/images/um-logo.png`,
+      width: 600,
+      height: 60,
+    },
+  },
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': articleUrl,
+  },
+  isPartOf: {
+    '@type': 'Blog',
+    '@id': `${siteUrl}/blog`,
+    name: 'Blog ULTIMA MILLA',
   },
 };
 ---
 
 <LayoutV4
-  title={`${post.titulo} — ULTIMA MILLA Blog`}
-  description={post.resumen?.substring(0, 160)}
-  image={imgUrl || undefined}
-  structuredData={schema}
+  title={post.meta_title || `${post.titulo} | ULTIMA MILLA`}
+  description={post.meta_description || post.resumen?.substring(0, 158)}
+  keywords={post.meta_keywords || (post.tags || []).slice(0, 6).join(', ')}
+  image={socialImg || imgUrl || undefined}
+  ogType="article"
+  canonical={articleUrl}
+  structuredData={faqSchema ? [schema, faqSchema] : schema}
 >
+  <!-- Article meta -->
+  <meta slot="head" property="article:published_time" content={post.fecha_publicacion} />
+  <meta slot="head" property="article:author" content="ULTIMA MILLA" />
+  <meta slot="head" property="article:section" content={label} />
+  {post.tags && post.tags.map((tag: string) => (
+    <meta slot="head" property="article:tag" content={tag} />
+  ))}
   <link
     slot="head"
     href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Inter:wght@400;500;600;700;800&display=swap"
@@ -55,14 +104,17 @@ const schema = {
   <main class="article-page">
 
     <div class="article-layout">
-      <BlogTOC headings={headings} />
+      <BlogTOC headings={headings} title={post.titulo} />
 
       <article class="article-body">
 
-        <div class="article-meta-top">
-          <a href="/blog" class="back-link">← Blog</a>
-          <span class="category-pill" style={`color:${color};border-color:${color}40;background:${color}0d`}>{label}</span>
-        </div>
+        <nav class="breadcrumbs" aria-label="Navegación">
+          <a href="/" class="bc-link">ULTIMA MILLA</a>
+          <span class="bc-sep">/</span>
+          <a href="/blog" class="bc-link">Blog</a>
+          <span class="bc-sep">/</span>
+          <span class="bc-cat" style={`color:${color}`}>{label}</span>
+        </nav>
 
         <h1 class="article-title">{post.titulo}</h1>
 
@@ -128,7 +180,7 @@ const schema = {
 </LayoutV4>
 
 <style>
-  /* Page shell */
+  /* Reading progress */
   .read-bar {
     position: fixed;
     top: 0;
@@ -140,6 +192,7 @@ const schema = {
     transition: width 0.1s linear;
   }
 
+  /* Page shell */
   .article-page {
     min-height: 100vh;
     background: #fff;
@@ -162,30 +215,26 @@ const schema = {
     margin: 0 auto;
   }
 
-  /* Top meta */
-  .article-meta-top {
+  /* Breadcrumbs */
+  .breadcrumbs {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     margin-bottom: 28px;
   }
-  .back-link {
+  .bc-link {
     font-family: Inter, system-ui, sans-serif;
     font-size: 13px;
     color: #9ca3af;
     text-decoration: none;
     transition: color .15s;
   }
-  .back-link:hover { color: #374151; }
-  .category-pill {
+  .bc-link:hover { color: #374151; text-decoration: underline; text-underline-offset: 3px; }
+  .bc-sep { color: #d1d5db; font-size: 13px; }
+  .bc-cat {
     font-family: Inter, system-ui, sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    padding: 3px 10px;
-    border: 1px solid;
-    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
   }
 
   /* Title & lead */
@@ -250,13 +299,13 @@ const schema = {
   }
 
   /* Hero image */
-  .hero-figure { margin: 0 0 48px; }
+  .hero-figure { margin: 0 0 40px; }
   .hero-img {
     width: 100%;
-    max-height: 480px;
+    max-height: 460px;
     object-fit: cover;
-    border-radius: 12px;
-    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.07);
   }
 
   /* Tags */
@@ -264,8 +313,8 @@ const schema = {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 64px;
-    padding-top: 32px;
+    margin-top: 56px;
+    padding-top: 28px;
     border-top: 1px solid #f3f4f6;
   }
   .tag {
@@ -282,15 +331,15 @@ const schema = {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
-    margin-top: 48px;
-    padding-top: 32px;
+    margin-top: 40px;
+    padding-top: 28px;
     border-top: 1px solid #f3f4f6;
   }
   .post-nav-item {
     display: block;
-    padding: 20px;
+    padding: 18px;
     border: 1px solid #e5e7eb;
-    border-radius: 12px;
+    border-radius: 10px;
     text-decoration: none;
     transition: border-color .15s, background .15s;
   }
@@ -316,61 +365,68 @@ const schema = {
     line-height: 1.4;
   }
 
-  /* ──────────────────────────────────────────────────────────
-     PROSE — all scoped via :global() so set:html content gets
-     these styles without leaking to other pages via a shared
-     CSS chunk (unlike is:global which does leak)
-  ────────────────────────────────────────────────────────── */
+  /* ── PROSE ──────────────────────────────────────────────────────
+     :global() keeps styles in this page's bundle (not shared).
+     ────────────────────────────────────────────────────────────── */
 
   :global(.prose) {
     font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
-    font-size: 19px;
-    line-height: 1.85;
+    font-size: 18px;
+    line-height: 1.8;
     color: #1f2937;
     font-weight: 400;
     -webkit-font-smoothing: antialiased;
-    word-spacing: 0.01em;
   }
 
   :global(.prose p) {
-    margin: 0 0 26px;
-    line-height: 1.85;
+    margin: 0 0 22px;
+    line-height: 1.8;
     color: #1f2937;
   }
 
+  /* Suppress empty paragraphs and lone BRs from rich-text editors */
+  :global(.prose p:empty),
+  :global(.prose p > br:only-child) {
+    display: none;
+  }
+
   :global(.prose > p:first-child) {
-    font-size: 20px;
+    font-size: 19px;
     color: #111827;
   }
 
   :global(.prose h2) {
     font-family: 'Inter', system-ui, sans-serif;
-    font-size: 26px;
+    font-size: 24px;
     font-weight: 700;
     letter-spacing: -0.02em;
-    line-height: 1.25;
+    line-height: 1.3;
     color: #111827;
-    margin: 68px 0 14px;
+    margin: 52px 0 12px;
     scroll-margin-top: 5rem;
   }
 
+  /* Eliminate double-spacing when heading follows a paragraph */
+  :global(.prose p + h2) { margin-top: 48px; }
+  :global(.prose p + h3) { margin-top: 32px; }
+
   :global(.prose h3) {
     font-family: 'Inter', system-ui, sans-serif;
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 600;
     letter-spacing: -0.01em;
     line-height: 1.35;
     color: #1f2937;
-    margin: 44px 0 10px;
+    margin: 36px 0 8px;
     scroll-margin-top: 5rem;
   }
 
   :global(.prose h4) {
     font-family: 'Inter', system-ui, sans-serif;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 600;
     color: #374151;
-    margin: 32px 0 8px;
+    margin: 28px 0 6px;
     scroll-margin-top: 5rem;
   }
 
@@ -386,12 +442,12 @@ const schema = {
 
   :global(.prose ul),
   :global(.prose ol) {
-    margin: 0 0 26px 28px;
+    margin: 0 0 22px 24px;
     padding: 0;
   }
   :global(.prose li) {
-    margin-bottom: 8px;
-    line-height: 1.75;
+    margin-bottom: 6px;
+    line-height: 1.7;
     color: #1f2937;
   }
   :global(.prose ul) { list-style-type: disc; }
@@ -400,12 +456,12 @@ const schema = {
 
   :global(.prose blockquote) {
     border-left: 3px solid #d1d5db;
-    padding: 2px 0 2px 28px;
-    margin: 40px 0;
+    padding: 2px 0 2px 24px;
+    margin: 36px 0;
     color: #6b7280;
     font-style: italic;
-    font-size: 21px;
-    line-height: 1.7;
+    font-size: 20px;
+    line-height: 1.65;
     font-weight: 300;
   }
   :global(.prose blockquote p) { margin-bottom: 0; color: inherit; }
@@ -415,11 +471,11 @@ const schema = {
 
   :global(.prose code) {
     font-family: ui-monospace, 'Fira Code', Consolas, monospace;
-    font-size: 15px;
+    font-size: 14px;
     background: #f3f4f6;
     border: 1px solid #e5e7eb;
     border-radius: 4px;
-    padding: 2px 7px;
+    padding: 2px 6px;
     color: #dc2626;
     font-style: normal;
   }
@@ -430,9 +486,9 @@ const schema = {
     line-height: 1.65;
     background: #1e293b;
     border-radius: 10px;
-    padding: 24px 28px;
+    padding: 22px 26px;
     overflow-x: auto;
-    margin: 32px 0;
+    margin: 28px 0;
     color: #e2e8f0;
   }
   :global(.prose pre code) {
@@ -443,12 +499,12 @@ const schema = {
   :global(.prose img) {
     width: 100%;
     border-radius: 8px;
-    margin: 40px 0;
+    margin: 36px 0;
     display: block;
     box-shadow: 0 1px 4px rgba(0,0,0,.07);
   }
-  :global(.prose figure) { margin: 40px 0; }
-  :global(.prose figure img) { margin: 0 0 10px; }
+  :global(.prose figure) { margin: 36px 0; }
+  :global(.prose figure img) { margin: 0 0 8px; }
   :global(.prose figcaption) {
     font-family: Inter, system-ui, sans-serif;
     font-size: 13px;
@@ -459,7 +515,7 @@ const schema = {
 
   :global(.prose hr) {
     border: none;
-    margin: 60px auto;
+    margin: 52px auto;
     width: 40px;
     height: 2px;
     background: #d1d5db;
@@ -468,8 +524,8 @@ const schema = {
   :global(.prose table) {
     width: 100%;
     border-collapse: collapse;
-    font-size: 16px;
-    margin: 28px 0 36px;
+    font-size: 15px;
+    margin: 24px 0 32px;
     line-height: 1.6;
     font-family: Inter, system-ui, sans-serif;
     box-shadow: 0 0 0 1px #e5e7eb;
@@ -483,12 +539,12 @@ const schema = {
     letter-spacing: .06em;
     color: #6b7280;
     background: #f9fafb;
-    padding: 12px 16px;
+    padding: 10px 14px;
     border-bottom: 1px solid #e5e7eb;
     text-align: left;
   }
   :global(.prose td) {
-    padding: 12px 16px;
+    padding: 10px 14px;
     border-bottom: 1px solid #f3f4f6;
     color: #374151;
     vertical-align: top;

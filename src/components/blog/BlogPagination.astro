@@ -12,31 +12,74 @@ const nextHref = page < totalPages ? `${baseHref}?page=${page + 1}` : null;
 ---
 
 {totalPages > 1 && (
-  <nav class="flex items-center justify-center gap-4 py-10 border-t border-[#1e3a5f] mt-4" aria-label="Paginación">
+  <nav class="pagination" aria-label="Paginación">
     {prevHref ? (
-      <a href={prevHref} class="flex items-center gap-2 px-4 py-2 border border-[#1e3a5f] text-white/50 hover:text-white hover:border-white/20 rounded-lg text-sm transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-        anterior
+      <a href={prevHref} class="pag-btn">
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Anterior
       </a>
     ) : (
-      <span class="flex items-center gap-2 px-4 py-2 text-white/20 text-sm select-none">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-        anterior
+      <span class="pag-btn pag-btn--disabled">
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Anterior
       </span>
     )}
 
-    <span class="text-white/30 text-xs font-mono">{page} / {totalPages}</span>
+    <span class="pag-info">{page} / {totalPages}</span>
 
     {nextHref ? (
-      <a href={nextHref} class="flex items-center gap-2 px-4 py-2 border border-[#1e3a5f] text-white/50 hover:text-white hover:border-white/20 rounded-lg text-sm transition-colors">
-        siguiente
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      <a href={nextHref} class="pag-btn">
+        Siguiente
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
       </a>
     ) : (
-      <span class="flex items-center gap-2 px-4 py-2 text-white/20 text-sm select-none">
-        siguiente
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      <span class="pag-btn pag-btn--disabled">
+        Siguiente
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
       </span>
     )}
   </nav>
 )}
+
+<style>
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 36px 0 0;
+    border-top: 1px solid #f3f4f6;
+    margin-top: 4px;
+  }
+
+  .pag-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    text-decoration: none;
+    padding: 8px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    transition: border-color .15s, background .15s;
+  }
+  .pag-btn:hover { border-color: #d1d5db; background: #f9fafb; }
+  .pag-btn--disabled { color: #d1d5db; pointer-events: none; border-color: #f3f4f6; }
+
+  .pag-info {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 13px;
+    color: #9ca3af;
+  }
+</style>

@@ -20,21 +20,96 @@ const { posts, total } = await fetchBlogListing(page, PAGE_SIZE, cat);
 const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 const [hero, ...feedPosts] = posts;
 const catLabel = getCategoryLabel(cat);
+
+const siteUrl = 'https://ultimamilla.com.ar';
+const catUrl = `${siteUrl}/blog/categoria/${cat}`;
+const canonicalUrl = page === 1 ? catUrl : `${catUrl}?page=${page}`;
+const prevUrl = page > 1 ? (page === 2 ? catUrl : `${catUrl}?page=${page - 1}`) : null;
+const nextUrl = page < totalPages ? `${catUrl}?page=${page + 1}` : null;
+
+const categoryMeta: Record<string, { desc: string; intro: string; keywords: string }> = {
+  noticias: {
+    desc: 'Novedades IT, telecomunicaciones y seguridad en Argentina. Normativas, tendencias y actualidad del sector tecnológico.',
+    intro: 'Las últimas novedades en infraestructura IT, telecomunicaciones y seguridad electrónica para empresas argentinas. Análisis de normativas, casos de actualidad y tendencias del sector.',
+    keywords: 'noticias IT argentina, telecomunicaciones, seguridad electronica, infraestructura, tendencias tecnologia',
+  },
+  proyectos: {
+    desc: 'Casos de éxito reales: proyectos IT, telecomunicaciones y seguridad en aeropuertos, hospitales, mineras y empresas de toda Argentina.',
+    intro: 'Estudios de caso con datos reales: cómo ULTIMA MILLA resuelve desafíos de infraestructura IT, telecomunicaciones y seguridad en los sectores más exigentes de Argentina — desde aeropuertos hasta minas y hospitales.',
+    keywords: 'proyectos IT argentina, casos de exito, telecomunicaciones empresas, infraestructura redes, implementacion IT',
+  },
+  tecnico: {
+    desc: 'Guías técnicas sobre redes, seguridad, telecomunicaciones y software para profesionales IT en Argentina.',
+    intro: 'Guías técnicas y análisis para profesionales IT: estándares de redes, comparativas tecnológicas, mejores prácticas y tutoriales aplicados a infraestructura empresarial en Argentina.',
+    keywords: 'guia tecnica redes, IT profesional argentina, telecomunicaciones tecnico, fibra optica, CCTV, cableado estructurado',
+  },
+  empresa: {
+    desc: 'Noticias de ULTIMA MILLA: servicios, certificaciones y evolución de la empresa IT en Mendoza, Argentina.',
+    intro: 'Novedades de ULTIMA MILLA: nuevos servicios, certificaciones del equipo, proyectos destacados y la evolución de la empresa en el mercado tecnológico argentino — con más de 20 años y 400 proyectos.',
+    keywords: 'ULTIMA MILLA empresa, servicios IT Mendoza, empresa telecomunicaciones argentina, infraestructura cuyo patagonia',
+  },
+};
+
+const meta = categoryMeta[cat] || { desc: '', intro: '', keywords: '' };
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  '@id': catUrl,
+  name: `${catLabel} — Blog ULTIMA MILLA`,
+  description: meta.desc,
+  url: canonicalUrl,
+  inLanguage: 'es-AR',
+  breadcrumb: {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${siteUrl}/blog` },
+      { '@type': 'ListItem', position: 3, name: catLabel, item: catUrl },
+    ],
+  },
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: total,
+    itemListElement: posts.map((p, idx) => ({
+      '@type': 'ListItem',
+      position: (page - 1) * PAGE_SIZE + idx + 1,
+      url: `${siteUrl}/blog/${p.slug}`,
+      name: p.titulo,
+    })),
+  },
+};
 ---
 
 <LayoutV4
   title={`${catLabel} — Blog ULTIMA MILLA`}
-  description={`Artículos de ${catLabel.toLowerCase()} sobre infraestructura IT, seguridad electrónica y telecomunicaciones.`}
+  description={meta.desc}
+  keywords={meta.keywords}
+  canonical={canonicalUrl}
+  structuredData={schema}
 >
-  <main class="min-h-screen bg-[#0a0f1e]">
-    <div class="max-w-3xl mx-auto px-6 sm:px-8 py-16">
+  <link
+    slot="head"
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  {prevUrl && <link slot="head" rel="prev" href={prevUrl} />}
+  {nextUrl && <link slot="head" rel="next" href={nextUrl} />}
 
-      <header class="mb-10">
-        <p class="text-[10px] font-mono text-white/30 uppercase tracking-widest mb-3">
-          <a href="/blog" class="hover:text-white/50 transition-colors">BLOG</a>
-          {' '}/ {catLabel}
-        </p>
-        <h1 class="um-h text-4xl sm:text-5xl text-white font-bold mb-2">{catLabel}</h1>
+  <main class="blog-cat">
+    <div class="blog-container">
+
+      <header class="blog-header">
+        <nav class="blog-breadcrumb" aria-label="Navegación">
+          <a href="/" class="bc-link">ULTIMA MILLA</a>
+          <span class="bc-sep">/</span>
+          <a href="/blog" class="bc-link">Blog</a>
+          <span class="bc-sep">/</span>
+          <span class="bc-current">{catLabel}</span>
+        </nav>
+        <h1 class="blog-title">{catLabel}</h1>
+        <p class="blog-subtitle">{meta.intro}</p>
+        {total > 0 && <p class="blog-count">{total} artículo{total !== 1 ? 's' : ''}</p>}
       </header>
 
       <BlogCategoryTabs current={cat} />
@@ -42,14 +117,14 @@ const catLabel = getCategoryLabel(cat);
       {hero && <BlogHero post={hero} />}
 
       {feedPosts.length > 0 && (
-        <div>
+        <div class="feed">
           {feedPosts.map(post => <BlogFeedItem post={post} />)}
         </div>
       )}
 
       {posts.length === 0 && (
-        <div class="text-center py-24 border border-[#1e3a5f] rounded-xl">
-          <p class="text-white/25 text-sm">No hay artículos en esta categoría aún.</p>
+        <div class="empty-state">
+          <p>No hay artículos en esta categoría aún.</p>
         </div>
       )}
 
@@ -60,5 +135,80 @@ const catLabel = getCategoryLabel(cat);
 </LayoutV4>
 
 <style>
-  .um-h { font-family: 'Futura PT', 'Futura', 'Trebuchet MS', sans-serif; font-weight: 700; }
+  .blog-cat {
+    min-height: 100vh;
+    background: #fff;
+    padding: 48px 24px 96px;
+  }
+
+  .blog-container {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .blog-header {
+    margin-bottom: 32px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .blog-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .bc-link {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: #9ca3af;
+    text-decoration: none;
+    transition: color .15s;
+  }
+  .bc-link:hover { color: #374151; text-decoration: underline; text-underline-offset: 3px; }
+  .bc-sep { color: #d1d5db; font-size: 12px; }
+  .bc-current {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 12px;
+    color: #374151;
+    font-weight: 500;
+  }
+
+  .blog-title {
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: clamp(30px, 5vw, 44px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: #111827;
+    margin: 0 0 12px;
+  }
+
+  .blog-subtitle {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    color: #6b7280;
+    margin: 0 0 10px;
+  }
+
+  .blog-count {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 13px;
+    color: #9ca3af;
+    margin: 0;
+  }
+
+  .feed { margin-top: 0; }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 0;
+    color: #9ca3af;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 15px;
+    border: 1px solid #f3f4f6;
+    border-radius: 12px;
+  }
 </style>

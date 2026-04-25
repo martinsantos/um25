@@ -67,10 +67,18 @@ export interface EntradaBlog {
   resumen: string;
   contenido: string;
   imagen_portada: string | null;
+  imagen_portada_alt?: string;
   categoria: 'noticias' | 'proyectos' | 'tecnico' | 'empresa';
   tags: string[];
   fecha_publicacion: string;
+  fecha_modificacion?: string;
   tiempo_lectura: number;
+  // SEO override fields (optional — filled via Directus admin)
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string;
+  // Social overrides
+  social_image?: string;
 }
 
 type ArchivoDirectus = {

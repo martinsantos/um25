@@ -24,6 +24,12 @@ function generateSitemapIndexXml(): string {
         <loc>${SITE_URL}/sitemap-antecedentes.xml</loc>
         <lastmod>${today}</lastmod>
     </sitemap>
+
+    <!-- Sitemap del blog (posts + categorías) -->
+    <sitemap>
+        <loc>${SITE_URL}/sitemap-blog.xml</loc>
+        <lastmod>${today}</lastmod>
+    </sitemap>
 </sitemapindex>`;
 }
 

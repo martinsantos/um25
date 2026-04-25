@@ -3,15 +3,14 @@ import type { APIRoute } from 'astro';
 const SITE_URL = 'https://ultimamilla.com.ar';
 
 function generateSitemapXml(): string {
-    // Stable date for static pages — update when content changes are deployed
-    const lastDeploy = '2026-02-02';
+    const today = new Date().toISOString().split('T')[0];
 
-    // All verified, existing pages (no /blog — does not exist yet)
     const pages: Array<{ loc: string; priority: string; changefreq: string }> = [
         // Core pages
         { loc: '', priority: '1.0', changefreq: 'weekly' },
         { loc: '/servicios', priority: '0.9', changefreq: 'weekly' },
         { loc: '/antecedentes', priority: '0.8', changefreq: 'weekly' },
+        { loc: '/blog', priority: '0.8', changefreq: 'daily' },
         { loc: '/sectores', priority: '0.7', changefreq: 'monthly' },
         { loc: '/nosotros', priority: '0.6', changefreq: 'monthly' },
         { loc: '/contacto', priority: '0.7', changefreq: 'monthly' },
@@ -39,7 +38,7 @@ function generateSitemapXml(): string {
     const urlEntries = pages.map(p => `
     <url>
         <loc>${SITE_URL}${p.loc}</loc>
-        <lastmod>${lastDeploy}</lastmod>
+        <lastmod>${today}</lastmod>
         <changefreq>${p.changefreq}</changefreq>
         <priority>${p.priority}</priority>
     </url>`).join('');

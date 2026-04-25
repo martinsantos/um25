@@ -13,26 +13,60 @@ const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
 const [hero, ...feedPosts] = posts;
 
+const siteUrl = 'https://ultimamilla.com.ar';
+const canonicalUrl = page === 1 ? `${siteUrl}/blog` : `${siteUrl}/blog?page=${page}`;
+const prevUrl = page > 1 ? (page === 2 ? `${siteUrl}/blog` : `${siteUrl}/blog?page=${page - 1}`) : null;
+const nextUrl = page < totalPages ? `${siteUrl}/blog?page=${page + 1}` : null;
+
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'Blog',
+  '@id': `${siteUrl}/blog`,
   name: 'Blog ULTIMA MILLA',
-  url: 'https://ultimamilla.com.ar/blog',
+  url: `${siteUrl}/blog`,
+  description: 'Noticias, proyectos y artículos técnicos sobre infraestructura IT, seguridad electrónica y telecomunicaciones en Argentina.',
+  inLanguage: 'es-AR',
+  publisher: {
+    '@type': 'Organization',
+    name: 'ULTIMA MILLA',
+    url: siteUrl,
+    logo: { '@type': 'ImageObject', url: `${siteUrl}/images/um-logo.png` },
+  },
+  blogPost: posts.map(p => ({
+    '@type': 'BlogPosting',
+    '@id': `${siteUrl}/blog/${p.slug}#article`,
+    headline: p.titulo,
+    datePublished: p.fecha_publicacion,
+    url: `${siteUrl}/blog/${p.slug}`,
+  })),
 };
 ---
 
 <LayoutV4
-  title="Blog — ULTIMA MILLA"
-  description="Noticias, proyectos y artículos técnicos sobre infraestructura IT, seguridad electrónica y telecomunicaciones."
+  title="Blog — ULTIMA MILLA | Infraestructura IT, Telecomunicaciones y Seguridad"
+  description="Artículos técnicos, casos de éxito y novedades sobre infraestructura IT, telecomunicaciones, seguridad electrónica y software para empresas en Argentina."
+  canonical={canonicalUrl}
   structuredData={schema}
 >
-  <main style="min-height:100vh;background:#0a0f1e;">
-    <div class="max-w-3xl mx-auto px-6 sm:px-10 pt-16 pb-24">
+  {prevUrl && <link slot="head" rel="prev" href={prevUrl} />}
+  {nextUrl && <link slot="head" rel="next" href={nextUrl} />}
+  <link
+    slot="head"
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
 
-      <header class="mb-12">
-        <p class="text-xs font-mono text-white/40 uppercase tracking-widest mb-4">ULTIMA MILLA</p>
-        <h1 class="um-h text-4xl sm:text-5xl text-white font-bold mb-4">Blog</h1>
-        <p class="text-white/60 text-lg leading-relaxed">Noticias, proyectos y artículos técnicos sobre infraestructura y tecnología.</p>
+  <main class="blog-index">
+    <div class="blog-container">
+
+      <header class="blog-header">
+        <nav class="blog-breadcrumb" aria-label="Navegación">
+          <a href="/" class="bc-link">ULTIMA MILLA</a>
+          <span class="bc-sep">/</span>
+          <span class="bc-current">Blog</span>
+        </nav>
+        <h1 class="blog-title">Blog</h1>
+        <p class="blog-subtitle">Noticias, proyectos y artículos técnicos sobre infraestructura y tecnología.</p>
       </header>
 
       <BlogCategoryTabs />
@@ -40,15 +74,14 @@ const schema = {
       {hero && <BlogHero post={hero} />}
 
       {feedPosts.length > 0 && (
-        <div class="mt-2">
+        <div class="feed">
           {feedPosts.map(post => <BlogFeedItem post={post} />)}
         </div>
       )}
 
       {posts.length === 0 && (
-        <div class="text-center py-28 border border-[#1e3a5f] rounded-2xl">
-          <p class="text-white/30 text-base mb-2">No hay artículos publicados aún.</p>
-          <p class="text-white/15 text-sm font-mono">Publicá el primer post en Directus → blog_posts</p>
+        <div class="empty-state">
+          <p>No hay artículos publicados aún.</p>
         </div>
       )}
 
@@ -59,5 +92,70 @@ const schema = {
 </LayoutV4>
 
 <style>
-  .um-h { font-family: 'Futura PT', 'Futura', 'Trebuchet MS', sans-serif; font-weight: 700; }
+  .blog-index {
+    min-height: 100vh;
+    background: #fff;
+    padding: 48px 24px 96px;
+  }
+
+  .blog-container {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .blog-header {
+    margin-bottom: 32px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .blog-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .bc-link {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: #9ca3af;
+    text-decoration: none;
+    transition: color .15s;
+  }
+  .bc-link:hover { color: #374151; }
+  .bc-sep { color: #d1d5db; font-size: 12px; }
+  .bc-current {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  .blog-title {
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: clamp(34px, 5.5vw, 48px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: #111827;
+    margin: 0 0 12px;
+  }
+
+  .blog-subtitle {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    color: #6b7280;
+    margin: 0;
+  }
+
+  .feed { margin-top: 0; }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 0;
+    color: #9ca3af;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 15px;
+  }
 </style>

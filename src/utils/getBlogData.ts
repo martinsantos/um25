@@ -21,7 +21,7 @@ export async function fetchBlogListing(
   categoria?: string
 ): Promise<{ posts: EntradaBlog[]; total: number }> {
   const catFilter = categoria ? `&filter[categoria][_eq]=${encodeURIComponent(categoria)}` : '';
-  const fields = 'id,slug,titulo,resumen,imagen_portada,categoria,fecha_publicacion,tiempo_lectura';
+  const fields = 'id,slug,titulo,resumen,imagen_portada,imagen_portada_alt,categoria,tags,fecha_publicacion,fecha_modificacion,tiempo_lectura,meta_title,meta_description,meta_keywords';
   const offset = (page - 1) * limit;
 
   try {

@@ -69,3 +69,29 @@ export async function addHeadingIds(content: string): Promise<{
 
   return { html: processed, headings };
 }
+
+export function extractFaqSchema(html: string): object | null {
+  const pairs: Array<{ question: string; answer: string }> = [];
+
+  const h3Regex = /<h3[^>]*>(.*?)<\/h3>\s*<p[^>]*>(.*?)<\/p>/gis;
+  let match: RegExpExecArray | null;
+  while ((match = h3Regex.exec(html)) !== null) {
+    const question = match[1].replace(/<[^>]+>/g, '').trim();
+    const answer = match[2].replace(/<[^>]+>/g, '').trim();
+    if ((question.includes('¿') || question.endsWith('?')) && answer.length > 20) {
+      pairs.push({ question, answer });
+    }
+  }
+
+  if (pairs.length === 0) return null;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: pairs.map(({ question, answer }) => ({
+      '@type': 'Question',
+      name: question,
+      acceptedAnswer: { '@type': 'Answer', text: answer },
+    })),
+  };
+}

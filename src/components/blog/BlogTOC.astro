@@ -6,11 +6,12 @@ interface Heading {
 }
 interface Props {
   headings: Heading[];
+  title?: string;
 }
-const { headings } = Astro.props;
+const { headings, title } = Astro.props;
 ---
 
-{headings.length > 1 && (
+{headings.length > 0 && (
   <nav
     class="toc"
     x-data="{ active: '' }"
@@ -23,8 +24,20 @@ const { headings } = Astro.props;
     "
     aria-label="Tabla de contenidos"
   >
-    <p class="toc__label">Contenidos</p>
+    <p class="toc__label">Índice</p>
     <ul class="toc__list">
+      {title && (
+        <li class="toc__item">
+          <a
+            href="#"
+            class="toc__link toc__link--title"
+            :class={`active === '' ? 'toc__link--active' : ''`}
+            onclick="window.scrollTo({top:0,behavior:'smooth'});return false;"
+          >
+            {title}
+          </a>
+        </li>
+      )}
       {headings.map(h => (
         <li class={h.level === 3 ? 'toc__item toc__item--sub' : 'toc__item'}>
           <a
@@ -44,8 +57,8 @@ const { headings } = Astro.props;
   .toc {
     display: none;
     position: sticky;
-    top: 5rem;
-    width: 200px;
+    top: 5.5rem;
+    width: 196px;
     flex-shrink: 0;
     align-self: flex-start;
   }
@@ -54,38 +67,56 @@ const { headings } = Astro.props;
   .toc__label {
     font-family: Inter, system-ui, sans-serif;
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: .1em;
-    color: #9ca3af;
-    margin: 0 0 16px;
+    letter-spacing: .12em;
+    color: #6b7280;
+    margin: 0 0 10px;
+    padding-left: 12px;
   }
 
   .toc__list {
     list-style: none;
     margin: 0;
     padding: 0;
+    border-left: 2px solid #e5e7eb;
   }
 
-  .toc__item { margin-bottom: 2px; }
-  .toc__item--sub { padding-left: 12px; }
+  .toc__item { margin-bottom: 0; }
+  .toc__item--sub { padding-left: 10px; }
 
   .toc__link {
     display: block;
     font-family: Inter, system-ui, sans-serif;
     font-size: 13px;
-    line-height: 1.45;
-    padding: 4px 0 4px 10px;
-    margin-left: -10px;
-    color: #9ca3af;
+    line-height: 1.5;
+    padding: 5px 0 5px 12px;
+    margin-left: -2px;
+    color: #6b7280;
     text-decoration: none;
     border-left: 2px solid transparent;
     transition: color .15s, border-color .15s;
   }
-  .toc__link:hover { color: #374151; }
+  .toc__link:hover {
+    color: #111827;
+    border-left-color: #9ca3af;
+  }
   .toc__link--active {
     color: #111827;
-    font-weight: 500;
+    font-weight: 600;
     border-left-color: #111827;
+  }
+
+  /* Title item is slightly bolder */
+  .toc__link--title {
+    font-size: 12px;
+    font-weight: 500;
+    color: #4b5563;
+    padding-bottom: 8px;
+    margin-bottom: 2px;
+  }
+  .toc__link--title.toc__link--active {
+    color: #111827;
+    font-weight: 700;
   }
 </style>
