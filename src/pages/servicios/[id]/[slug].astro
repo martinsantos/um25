@@ -45,8 +45,16 @@ const productos = servicio.productos || [];
 
 // SEO
 const siteUrl = 'https://ultimamilla.com.ar';
-const pageTitle = `${servicio.Titulo} | Servicios - ULTIMA MILLA`;
-const pageDescription = servicio.Descripcion?.replace(/\\/g, ' ').substring(0, 160) || `${servicio.Titulo} - Servicios tecnológicos profesionales en Mendoza, Cuyo y Patagonia.`;
+let pageTitle = `${servicio.Titulo} | Servicios - ULTIMA MILLA`;
+// Keep title under 60 chars for SEO
+if (pageTitle.length > 60) {
+  const shortTitle = servicio.Titulo.split('|')[0]?.trim() || servicio.Titulo;
+  pageTitle = shortTitle.length > 45 ? `${shortTitle.slice(0, 45)}... | ULTIMA MILLA` : `${shortTitle} | ULTIMA MILLA`;
+}
+const rawDesc = servicio.Descripcion?.replace(/\\/g, ' ') || '';
+const pageDescription = rawDesc.length > 155 ? rawDesc.slice(0, 155) + '...' :
+  rawDesc.length > 0 && rawDesc.length < 120 ? `${rawDesc} Servicios profesionales de ULTIMA MILLA en Mendoza, Cuyo y Patagonia.`.slice(0, 155) :
+  rawDesc || `${servicio.Titulo} - Servicios tecnológicos en Mendoza, Cuyo y Patagonia.`;
 const canonicalUrl = `${siteUrl}/servicios/${id}/${slug}`;
 
 // Structured Data - Service schema

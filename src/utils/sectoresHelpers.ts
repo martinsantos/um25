@@ -128,8 +128,27 @@ export async function getSectorBySlug(slug: string): Promise<Sector | null> {
       })
       .filter(Boolean);
 
+    // Trim SEO title to ≤60 chars — remove ", Mendoza, Cuyo y Patagonia" first
+    let seoTitle: string = sector.seo_title || sector.nombre || '';
+    if (seoTitle.length > 60) {
+      seoTitle = seoTitle.replace(/\s*\|\s*Mendoza,?\s*Cuyo\s*y\s*Patagonia\s*/gi, '');
+    }
+    if (seoTitle.length > 60) {
+      seoTitle = seoTitle.slice(0, 57) + '...';
+    }
+
+    // Ensure description is 120-160 chars
+    let seoDesc: string = sector.seo_description || '';
+    if (seoDesc.length > 160) {
+      seoDesc = seoDesc.slice(0, 157) + '...';
+    } else if (seoDesc.length > 0 && seoDesc.length < 120) {
+      seoDesc = `${seoDesc} Tecnología profesional, infraestructura IT y soporte especializado en Argentina.`.slice(0, 157) + '...';
+    }
+
     return {
       ...sector,
+      seo_title: seoTitle,
+      seo_description: seoDesc,
       value_props: valuePropsData,
       servicios,
     };

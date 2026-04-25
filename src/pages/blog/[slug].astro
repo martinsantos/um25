@@ -75,11 +75,17 @@ const schema = {
     name: 'Blog ULTIMA MILLA',
   },
 };
+
+// SEO title/description with length limits
+const rawBlogTitle = post.meta_title || `${post.titulo} | ULTIMA MILLA`;
+const seoTitle = rawBlogTitle.length > 60 ? `${post.titulo.slice(0, 45).trimEnd()}... | ULTIMA MILLA` : rawBlogTitle;
+const rawBlogDesc = post.meta_description || post.resumen?.substring(0, 158) || '';
+const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : rawBlogDesc;
 ---
 
 <LayoutV4
-  title={post.meta_title || `${post.titulo} | ULTIMA MILLA`}
-  description={post.meta_description || post.resumen?.substring(0, 158)}
+  title={seoTitle}
+  description={seoDesc}
   keywords={post.meta_keywords || (post.tags || []).slice(0, 6).join(', ')}
   image={socialImg || imgUrl || undefined}
   ogType="article"

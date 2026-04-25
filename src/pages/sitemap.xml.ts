@@ -25,12 +25,12 @@ function generateSitemapXml(): string {
         { loc: '/gobiernosectorpublico', priority: '0.7', changefreq: 'monthly' },
         { loc: '/software', priority: '0.7', changefreq: 'monthly' },
         // Service detail pages
-        { loc: '/servicios/101/infraestructura-de-redes', priority: '0.8', changefreq: 'monthly' },
-        { loc: '/servicios/102/sistemas-de-seguridad-electronica', priority: '0.8', changefreq: 'monthly' },
-        { loc: '/servicios/103/telecomunicaciones', priority: '0.8', changefreq: 'monthly' },
-        { loc: '/servicios/104/desarrollo-de-software-a-medida', priority: '0.8', changefreq: 'monthly' },
-        { loc: '/servicios/105/soporte-tecnico-24-7', priority: '0.8', changefreq: 'monthly' },
-        { loc: '/servicios/106/consultoria-it-y-transformacion-digital', priority: '0.8', changefreq: 'monthly' },
+        { loc: '/servicios/101/infraestructura-de-redes-cableado-fibra-optica-radioenlaces', priority: '0.8', changefreq: 'monthly' },
+        { loc: '/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi', priority: '0.8', changefreq: 'monthly' },
+        { loc: '/servicios/103/telecomunicaciones-datos-voz-video', priority: '0.8', changefreq: 'monthly' },
+        { loc: '/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp', priority: '0.8', changefreq: 'monthly' },
+        { loc: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it', priority: '0.8', changefreq: 'monthly' },
+        { loc: '/servicios/106/consultoria-it-y-transformacion-digital-arquitectura-auditoria', priority: '0.8', changefreq: 'monthly' },
         { loc: '/servicios/107/sistemas-de-deteccion-y-alarma-de-incendios', priority: '0.8', changefreq: 'monthly' },
         { loc: '/servicios/108/servicios-electricos-para-it', priority: '0.8', changefreq: 'monthly' },
     ];

@@ -50,9 +50,8 @@ function generateSitemapXml(antecedentes: any[]): string {
 export const GET: APIRoute = async () => {
     try {
         // Obtener todos los antecedentes desde Directus
-        const directusUrl = (import.meta.env.PUBLIC_DIRECTUS_URL as string) || 'http://localhost:8055';
-        // Use static API token from env variable
-        const token = (import.meta.env.PUBLIC_DIRECTUS_TOKEN as string) || '';
+        const directusUrl = (typeof process !== 'undefined' ? process.env.DIRECTUS_INTERNAL_URL : undefined) ?? import.meta.env.DIRECTUS_INTERNAL_URL ?? 'http://localhost:8055';
+        const token = (typeof process !== 'undefined' ? process.env.DIRECTUS_ADMIN_TOKEN : undefined) ?? import.meta.env.DIRECTUS_ADMIN_TOKEN ?? '1d70b2841dd6365c676ab42e879c5fdfc044ec1adfc146552a99b2d7e23baa5e';
 
         const response = await fetch(
             `${directusUrl}/items/Antecedentes?limit=-1&fields=id,Titulo,Fecha,Imagen`,
