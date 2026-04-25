@@ -151,7 +151,8 @@ function trimSectorSEO(sector: Sector): Sector {
   // Trim SEO title to ≤60 chars — remove ", Mendoza, Cuyo y Patagonia" first
   let seoTitle: string = sector.seo_title || sector.nombre || '';
   if (seoTitle.length > 60) {
-    seoTitle = seoTitle.replace(/\s*\|\s*Mendoza,?\s*Cuyo\s*y\s*Patagonia\s*/gi, '');
+    seoTitle = seoTitle.replace(/\s*\|\s*Mendoza,?\s*Cuyo\s*y\s*Patagonia/gi, '');
+    seoTitle = seoTitle.replace(/\|\s*\|/, '|');
   }
   if (seoTitle.length > 60) {
     seoTitle = seoTitle.slice(0, 57) + '...';
