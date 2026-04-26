@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ULTIMA MILLA</title>
+<style>
+@import url('https://fonts.cdnfonts.com/css/futura-pt');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#fff;color:#111;overflow-x:hidden;font-family:'Inter',sans-serif;}
+.container{max-width:1400px;padding:0 64px;}
+
+/* Canvas — ONLY in hero banner */
+#net{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;cursor:crosshair;}
+
+/* Aurora — only in hero */
+.aurora-wrap{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:hidden;}
+.au{position:absolute;border-radius:50%;filter:blur(80px);will-change:transform;}
+.au1{width:600px;height:600px;background:radial-gradient(circle,rgba(200,20,20,.14),transparent 55%);top:-10%;right:-5%;animation:a1 9s ease-in-out infinite alternate;}
+.au2{width:450px;height:450px;background:radial-gradient(circle,rgba(200,20,20,.11),transparent 55%);bottom:-10%;left:15%;animation:a2 11s ease-in-out infinite alternate;}
+.au3{width:350px;height:350px;background:radial-gradient(circle,rgba(220,40,40,.09),transparent 55%);top:25%;left:3%;animation:a3 8s ease-in-out infinite alternate;}
+@keyframes a1{to{transform:translate(25px,-22px) scale(1.1)}}
+@keyframes a2{to{transform:translate(-18px,15px) scale(1.08)}}
+@keyframes a3{to{transform:translate(12px,-25px) scale(1.12)}}
+
+/* Grid overlay — hero only */
+.grid-ov{position:absolute;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,0,0,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.025) 1px,transparent 1px);background-size:60px 60px;}
+
+/* Sections above canvas */
+.section{position:relative;z-index:10;pointer-events:none;}
+.section a,.section button,.section .svc-card,.section .ant-card,.section .sec-card{pointer-events:auto;}
+.section-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#dc2626;margin-bottom:8px;}
+.section-title{font-family:'Futura PT',sans-serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;letter-spacing:-.03em;color:#111;}
+.accent{color:#dc2626;}
+
+/* NAVBAR */
+.navbar{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(255,255,255,.93);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,0,0,.06);height:72px;display:flex;align-items:center;}
+.nav-flex{display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-family:'Futura PT','Futura',sans-serif;font-weight:700;font-size:30px;letter-spacing:-.02em;color:#111;text-decoration:none;white-space:nowrap;}
+.nav-logo .dot{color:#dc2626;}
+.nav-links{display:flex;align-items:center;gap:32px;}
+.nav-links a{font-size:14px;font-weight:500;color:rgba(0,0,0,.5);text-decoration:none;transition:color .2s;}
+.nav-links a:hover{color:#111;}
+.nav-cta{padding:10px 24px;background:#111;color:#fff;font-size:13px;font-weight:700;border-radius:10px;text-decoration:none;transition:all .3s;}
+.nav-cta:hover{background:#dc2626;}
+.nav-spacer{height:72px;}
+
+/* HERO */
+.hero{min-height:calc(100vh - 72px);display:flex;align-items:center;position:relative;overflow:hidden;}
+.hero-inner{max-width:600px;}
+.hero-tag{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(0,0,0,.3);margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+.dot-live{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 10px rgba(34,197,94,.5);animation:pdot 2s ease-in-out infinite;}
+@keyframes pdot{0%,100%{opacity:1}50%{opacity:.5}}
+.hero-title{font-family:'Futura PT',sans-serif;font-size:clamp(2.8rem,5.5vw,4.5rem);font-weight:800;letter-spacing:-.035em;line-height:1.06;color:#111;margin-bottom:24px;}
+.cursor-el{display:inline-block;width:3px;height:.85em;background:#dc2626;margin-left:4px;vertical-align:text-bottom;animation:cblink .7s step-end infinite;}
+@keyframes cblink{0%,49%{opacity:1}50%,100%{opacity:0}}
+.hero-sub{font-size:16px;color:rgba(0,0,0,.45);line-height:1.65;max-width:480px;margin-bottom:36px;opacity:0;transform:translateY(10px);transition:all .5s;}
+.hero-sub.show{opacity:1;transform:translateY(0);}
+.hero-actions{display:flex;gap:14px;margin-bottom:52px;opacity:0;transform:translateY(10px);transition:all .5s .1s;}
+.hero-actions.show{opacity:1;transform:translateY(0);}
+.btn-p{padding:16px 32px;background:#111;color:#fff;font-weight:700;font-size:14px;border-radius:12px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .3s;text-decoration:none;position:relative;z-index:20;}
+.btn-p:hover{background:#dc2626;transform:translateY(-2px);box-shadow:0 12px 30px rgba(220,38,38,.2);}
+.btn-s{padding:16px 32px;background:transparent;color:rgba(0,0,0,.4);font-weight:600;font-size:14px;border-radius:12px;border:1px solid rgba(0,0,0,.1);cursor:pointer;transition:all .3s;text-decoration:none;position:relative;z-index:20;}
+.btn-s:hover{border-color:rgba(0,0,0,.25);color:#111;}
+.hero-stats{display:flex;gap:48px;padding-top:28px;border-top:1px solid rgba(0,0,0,.08);opacity:0;transform:translateY(10px);transition:all .5s .2s;}
+.hero-stats.show{opacity:1;transform:translateY(0);}
+.st-n{font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;color:#111;display:block;line-height:1;}
+.st-n.red{color:#dc2626;}
+.st-l{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(0,0,0,.25);margin-top:5px;}
+.scroll-h{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:10;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.scroll-h span{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(0,0,0,.15);}
+.scroll-ln{width:1px;height:28px;background:linear-gradient(to bottom,rgba(220,38,38,.5),transparent);animation:scd 2s ease-in-out infinite;}
+@keyframes scd{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}50.01%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* SERVICES */
+.svc-section{padding:100px 0 80px;}
+.svc-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;}
+.svc-link{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#bbb;text-decoration:none;transition:color .3s;position:relative;z-index:20;}
+.svc-link:hover{color:#dc2626;}
+.svc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.svc-grid+.svc-grid{margin-top:6px;}
+.svc-card{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:3/4;cursor:pointer;background:#eee;}
+.svc-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s;}
+.svc-card:hover img{transform:scale(1.06);}
+.svc-card .ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,rgba(0,0,0,.08) 45%,rgba(0,0,0,.12) 100%);}
+.svc-card .info{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:20px;}
+.svc-card .sn{font-family:'Futura PT',sans-serif;font-size:52px;font-weight:900;color:rgba(255,255,255,.12);line-height:1;transition:color .3s;}
+.svc-card:hover .sn{color:rgba(220,38,38,.25);}
+.svc-card .nm{font-family:'Futura PT',sans-serif;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;line-height:1.2;margin-bottom:4px;}
+.svc-card .ct{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:rgba(255,255,255,.3);transition:color .3s;}
+.svc-card:hover .ct{color:rgba(255,255,255,.7);}
+
+/* ANTECEDENTES */
+.ant-section{padding:100px 0 80px;border-top:1px solid rgba(0,0,0,.06);}
+.ant-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:40px;}
+.ant-card{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:1;cursor:pointer;background:#eee;}
+.ant-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s;}
+.ant-card:hover img{transform:scale(1.04);}
+.ant-card .ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 50%);}
+.ant-card .ant-info{position:absolute;bottom:0;left:0;right:0;padding:20px;}
+.ant-area{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#dc2626;margin-bottom:4px;}
+.ant-name{font-family:'Futura PT',sans-serif;font-size:16px;font-weight:700;color:#fff;line-height:1.2;}
+
+/* SECTORES */
+.sec-section{padding:100px 0 80px;border-top:1px solid rgba(0,0,0,.06);}
+.sec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:40px;}
+.sec-card{padding:40px 32px;background:#f7f7f7;border-radius:12px;transition:all .3s;cursor:pointer;text-decoration:none;color:inherit;display:block;}
+.sec-card:hover{background:#111;color:#fff;transform:translateY(-2px);}
+.sec-name{font-family:'Futura PT',sans-serif;font-size:20px;font-weight:700;margin-bottom:6px;}
+.sec-desc{font-size:13px;opacity:.5;line-height:1.5;}
+.sec-arrow{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#dc2626;margin-top:12px;display:block;opacity:0;transition:opacity .3s;}
+.sec-card:hover .sec-arrow{opacity:1;}
+
+/* CTA */
+.cta-section{padding:120px 0;border-top:1px solid rgba(0,0,0,.06);}
+.cta-title{font-family:'Futura PT',sans-serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:800;letter-spacing:-.03em;color:#111;margin-bottom:16px;}
+.cta-sub{font-size:15px;color:rgba(0,0,0,.4);margin-bottom:40px;}
+.cta-actions{display:flex;gap:14px;margin-bottom:48px;}
+.cta-clients{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;color:rgba(0,0,0,.15);text-transform:uppercase;}
+
+/* FOOTER */
+.footer{background:#111;color:rgba(255,255,255,.5);padding:60px 0 40px;position:relative;z-index:10;pointer-events:auto;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1.5fr;gap:48px;}
+.footer-logo{font-family:'Futura PT',sans-serif;font-weight:700;font-size:24px;color:#fff;margin-bottom:12px;}
+.footer-logo .dot{color:#dc2626;}
+.footer-desc{font-size:13px;line-height:1.6;max-width:280px;}
+.footer-heading{font-family:'Futura PT',sans-serif;font-weight:700;font-size:14px;color:#fff;margin-bottom:16px;}
+.footer ul{list-style:none;}
+.footer li{margin-bottom:8px;}
+.footer a{color:rgba(255,255,255,.4);text-decoration:none;font-size:13px;transition:color .2s;}
+.footer a:hover{color:#fff;}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.08);margin-top:40px;padding-top:24px;display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.25);}
+.footer-bottom a{color:rgba(255,255,255,.25);text-decoration:none;}
+</style>
+</head>
+<body>
+<nav class="navbar"><div class="container nav-flex">
+  <a href="#" class="nav-logo">ultimamilla<span class="dot">.</span>com<span class="dot">.</span>ar</a>
+  <div class="nav-links"><a href="#servicios">Servicios</a><a href="#antecedentes">Antecedentes</a><a href="#sectores">Sectores</a><a href="#contacto">Nosotros</a><a href="#contacto" class="nav-cta">Contacto</a></div>
+</div></nav>
+<div class="nav-spacer"></div>
+
+<section class="hero section" id="heroBanner">
+  <div class="aurora-wrap"><div class="au au1"></div><div class="au au2"></div><div class="au au3"></div></div>
+  <div class="grid-ov"></div>
+  <canvas id="net"></canvas>
+  <div class="container"><div class="hero-inner">
+  <p class="hero-tag"><span class="dot-live"></span> Mendoza, Argentina &mdash; Est. 2002</p>
+  <div class="hero-title" id="heroTitle"></div>
+  <p class="hero-sub" id="heroSub">Telecomunicaciones, seguridad electr&oacute;nica, desarrollo de software y soporte t&eacute;cnico 24/7 para las organizaciones m&aacute;s exigentes del pa&iacute;s.</p>
+  <div class="hero-actions" id="heroActions">
+    <a href="#contacto" class="btn-p">Solicitar consultor&iacute;a <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></a>
+    <a href="#antecedentes" class="btn-s">Ver proyectos</a>
+  </div>
+  <div class="hero-stats" id="heroStats">
+    <div><span class="st-n">469+</span><div class="st-l">proyectos</div></div>
+    <div><span class="st-n">22</span><div class="st-l">a&ntilde;os</div></div>
+    <div><span class="st-n">9</span><div class="st-l">industrias</div></div>
+    <div><span class="st-n red">24/7</span><div class="st-l">soporte</div></div>
+  </div>
+</div></div><div class="scroll-h"><div class="scroll-ln"></div><span>scroll</span></div></section>
+
+<section class="svc-section section" id="servicios"><div class="container">
+  <div class="svc-header"><div><div class="section-label">Servicios</div><h2 class="section-title">Ocho disciplinas, una misi&oacute;n<span class="accent">.</span></h2></div><a href="#" class="svc-link">Cat&aacute;logo completo &rarr;</a></div>
+  <div class="svc-grid">
+    <div class="svc-card"><img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&h=800&fit=crop&q=80" alt=""/><div class="ov"></div><div class="info"><div class="sn">01</div><div><div class="nm">Infraestructura<br/>de Redes</div><div class="ct">Ver &rarr;</div></div></div></div>
+    <div class="svc-card"><img src="https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=600&h=800&fit=crop&q=80" alt=""/><div class="ov"></div><div class="info"><div class="sn">02</div><div><div class="nm">Seguridad<br/>Electr&oacute;nica</div><div class="ct">Ver &rarr;</div></div></div></div>
+    <div class="svc-card"><img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=600&h=800&fit=crop&q=80" alt=""/><div class="ov"></div><div class="info"><div class="sn">03</div><div><div class="nm">Telecomu-<br/>nicaciones</div><div class="ct">Ver &rarr;</div></div></div></div>
+    <div class="svc-card"><img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&h=800&fit=crop&q=80" alt=""/><div class="ov"></div><div class="info"><div class="sn">04</div><div><div class="nm">Desarrollo<br/>de Software</div><div class="ct">Ver &rarr;</div></div></div></div>
+  </div>
+  <div class="svc-grid">
+    <div class="svc-card"><img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&h=800&fit=crop&q=80" alt=""/><div class="ov"></div><div class="info"><div class="sn">05</div><div><div class="nm">Soporte<br/>T&eacute;cnico 24/7</div><div class="ct">Ver &rarr;</div></div></div></div>
+    <div class="svc-card"><img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&h=800&fit=crop&q=80" alt=""/><div class="ov"></div><div class="info"><div class="sn">06</div><div><div class="nm">Consultor&iacute;a<br/>IT</div><div class="ct">Ver &rarr;</div></div></div></div>
+    <div class="svc-card"><img src="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=600&h=800&fit=crop&q=80" alt=""/><div class="ov"></div><div class="info"><div class="sn">07</div><div><div class="nm">Detecci&oacute;n<br/>de Incendio</div><div class="ct">Ver &rarr;</div></div></div></div>
+    <div class="svc-card"><img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&h=800&fit=crop&q=80" alt=""/><div class="ov"></div><div class="info"><div class="sn">08</div><div><div class="nm">Corrientes<br/>D&eacute;biles</div><div class="ct">Ver &rarr;</div></div></div></div>
+  </div>
+</div></section>
+
+<section class="ant-section section" id="antecedentes"><div class="container">
+  <div class="svc-header"><div><div class="section-label">Antecedentes</div><h2 class="section-title">469 proyectos entregados<span class="accent">.</span></h2></div><a href="#" class="svc-link">Explorar todos &rarr;</a></div>
+  <div class="ant-grid">
+    <div class="ant-card"><img src="https://images.unsplash.com/photo-1606765962248-7ff407b51667?w=600&h=600&fit=crop&q=80" alt=""/><div class="ov"></div><div class="ant-info"><div class="ant-area">Aeropuertos</div><div class="ant-name">Aeropuertos Argentina 2000</div></div></div>
+    <div class="ant-card"><img src="https://images.unsplash.com/photo-1551076805-e1869033e561?w=600&h=600&fit=crop&q=80" alt=""/><div class="ov"></div><div class="ant-info"><div class="ant-area">Salud</div><div class="ant-name">Hospital Central — Red de datos</div></div></div>
+    <div class="ant-card"><img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=600&fit=crop&q=80" alt=""/><div class="ov"></div><div class="ant-info"><div class="ant-area">Miner&iacute;a</div><div class="ant-name">Barrick Gold — Veladero</div></div></div>
+    <div class="ant-card"><img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=600&fit=crop&q=80" alt=""/><div class="ov"></div><div class="ant-info"><div class="ant-area">Bodegas</div><div class="ant-name">Bodega La Esmeralda — CCTV</div></div></div>
+    <div class="ant-card"><img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=600&fit=crop&q=80" alt=""/><div class="ov"></div><div class="ant-info"><div class="ant-area">Gobierno</div><div class="ant-name">Gobierno de Mendoza</div></div></div>
+    <div class="ant-card"><img src="https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=600&h=600&fit=crop&q=80" alt=""/><div class="ov"></div><div class="ant-info"><div class="ant-area">Industria</div><div class="ant-name">Planta Industrial — Fibra</div></div></div>
+  </div>
+</div></section>
+
+<section class="sec-section section" id="sectores"><div class="container">
+  <div class="section-label">Industrias</div>
+  <h2 class="section-title">9 verticales, un solo equipo<span class="accent">.</span></h2>
+  <div class="sec-grid">
+    <a href="#" class="sec-card"><div class="sec-name">Aeropuertos</div><div class="sec-desc">AA2000, terminales, hangares</div><span class="sec-arrow">Explorar &rarr;</span></a>
+    <a href="#" class="sec-card"><div class="sec-name">Bodegas</div><div class="sec-desc">Seguridad perimetral, CCTV</div><span class="sec-arrow">Explorar &rarr;</span></a>
+    <a href="#" class="sec-card"><div class="sec-name">Construcci&oacute;n</div><div class="sec-desc">Cableado estructurado</div><span class="sec-arrow">Explorar &rarr;</span></a>
+    <a href="#" class="sec-card"><div class="sec-name">Salud</div><div class="sec-desc">Hospitales, redes cr&iacute;ticas</div><span class="sec-arrow">Explorar &rarr;</span></a>
+    <a href="#" class="sec-card"><div class="sec-name">Gobierno</div><div class="sec-desc">Infraestructura p&uacute;blica</div><span class="sec-arrow">Explorar &rarr;</span></a>
+    <a href="#" class="sec-card"><div class="sec-name">Software</div><div class="sec-desc">Desarrollo a medida, SaaS</div><span class="sec-arrow">Explorar &rarr;</span></a>
+    <a href="#" class="sec-card"><div class="sec-name">Miner&iacute;a</div><div class="sec-desc">Telecomunicaciones en mina</div><span class="sec-arrow">Explorar &rarr;</span></a>
+    <a href="#" class="sec-card"><div class="sec-name">Industria</div><div class="sec-desc">Plantas, automatizaci&oacute;n</div><span class="sec-arrow">Explorar &rarr;</span></a>
+    <a href="#" class="sec-card"><div class="sec-name">Seguridad</div><div class="sec-desc">Seguridad electr&oacute;nica integral</div><span class="sec-arrow">Explorar &rarr;</span></a>
+  </div>
+</div></section>
+
+<section class="cta-section section" id="contacto"><div class="container">
+  <div class="section-label">Contacto</div>
+  <h2 class="cta-title">El pr&oacute;ximo proyecto exitoso puede ser el suyo<span class="accent">.</span></h2>
+  <p class="cta-sub">M&aacute;s de 200 organizaciones ya conf&iacute;an en nosotros.</p>
+  <div class="cta-actions">
+    <a href="#" class="btn-p">Agendar consultor&iacute;a</a>
+    <a href="mailto:contacto@ultimamilla.com.ar" class="btn-s">contacto@ultimamilla.com.ar</a>
+  </div>
+  <p class="cta-clients">Aeropuertos Argentina 2000 &middot; Gobierno de Mendoza &middot; Hospital Central &middot; Bodega La Esmeralda &middot; YPF</p>
+</div></section>
+
+<footer class="footer"><div class="container">
+  <div class="footer-grid">
+    <div><div class="footer-logo">ultimamilla<span class="dot">.</span>com<span class="dot">.</span>ar</div><p class="footer-desc">Transformaci&oacute;n digital para empresas en Mendoza, Cuyo y Patagonia. +22 a&ntilde;os.</p></div>
+    <div><div class="footer-heading">Servicios</div><ul><li><a href="#">Redes</a></li><li><a href="#">Seguridad</a></li><li><a href="#">Telecomunicaciones</a></li><li><a href="#">Software</a></li><li><a href="#">Soporte 24/7</a></li></ul></div>
+    <div><div class="footer-heading">Empresa</div><ul><li><a href="#">Nosotros</a></li><li><a href="#">Antecedentes</a></li><li><a href="#">Sectores</a></li><li><a href="#">Contacto</a></li></ul></div>
+    <div><div class="footer-heading">Contacto</div><p style="font-size:13px;line-height:1.8;">Houssay 1159, Guaymall&eacute;n<br/>Mendoza M5519<br/><a href="mailto:contacto@ultimamilla.com.ar">contacto@ultimamilla.com.ar</a></p></div>
+  </div>
+  <div class="footer-bottom"><span>&copy; 2026 Ultima Milla.</span><span><a href="#">Privacidad</a> &middot; <a href="#">T&eacute;rminos</a></span></div>
+</div></footer>
+
+<script>
+(function(){
+var c=document.getElementById('net'),ctx=c.getContext('2d');
+var hero=document.getElementById('heroBanner');
+var W,H,dpr=Math.max(window.devicePixelRatio||1,2); // force min 2x for sharpness
+var mouse={x:-9e3,y:-9e3},raw={x:-9e3,y:-9e3},active=false,down=false,drag=null;
+var MAG=300,CONNECT=220,STICKY=270,BREAK=380;
+var nodes=[],links=[],pulses=[];
+var heroRect={top:0,left:0};
+
+function resize(){W=hero.offsetWidth;H=hero.offsetHeight;c.width=W*dpr;c.height=H*dpr;c.style.width=W+'px';c.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);heroRect=hero.getBoundingClientRect();}
+function R(a,b){return a+Math.random()*(b-a)}
+
+function mk(x,y,red){
+  return{x:x,y:y,hx:x,hy:y,vx:R(-.25,.25),vy:R(-.25,.25),r:R(3.5,7),red:red!==undefined?red:Math.random()<.5,ph:R(0,6.28),conn:0,pulse:1};
+}
+function seed(n){nodes=[];links=[];pulses=[];for(var i=0;i<n;i++){var rb=Math.random()<.55;nodes.push(mk(rb?R(W*.35,W*.97):R(W*.03,W*.97),R(H*.05,H*.95)));}}
+
+// Spawn pulse on a link — circulates forever
+function addPulse(link){
+  pulses.push({link:link,t:0,sp:R(.008,.018),fwd:true});
+}
+
+// When pulse reaches end, route to random connected link
+function routePulse(p){
+  var endNode=p.fwd?p.link.b:p.link.a;
+  var opts=[];
+  for(var i=0;i<links.length;i++){
+    var l=links[i];
+    if(l===p.link)continue;
+    if(l.a===endNode)opts.push({lk:l,fwd:true});
+    else if(l.b===endNode)opts.push({lk:l,fwd:false});
+  }
+  if(opts.length>0){
+    var pick=opts[Math.floor(Math.random()*opts.length)];
+    p.link=pick.lk;p.fwd=pick.fwd;p.t=0;
+  } else {
+    // Bounce back
+    p.fwd=!p.fwd;p.t=0;
+  }
+}
+
+function update(){
+  var t=Date.now()*.001;
+  if(active){mouse.x+=(raw.x-mouse.x)*.08;mouse.y+=(raw.y-mouse.y)*.08;}
+  else{mouse.x+=(-9e3-mouse.x)*.01;mouse.y+=(-9e3-mouse.y)*.01;}
+
+  for(var i=0;i<nodes.length;i++){
+    var n=nodes[i];
+    n.pulse=.85+.15*Math.sin(t*1.3+n.ph);
+    n.hx+=n.vx;n.hy+=n.vy;
+    if(n.hx<10||n.hx>W-10)n.vx*=-1;
+    if(n.hy<10||n.hy>H-10)n.vy*=-1;
+    n.hx=Math.max(5,Math.min(W-5,n.hx));
+    n.hy=Math.max(5,Math.min(H-5,n.hy));
+    if(drag===n){n.x=mouse.x;n.y=mouse.y;n.hx=mouse.x;n.hy=mouse.y;continue;}
+    var dx=mouse.x-n.hx,dy=mouse.y-n.hy,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<MAG&&d>1){var f=Math.pow(1-d/MAG,2)*55;n.x=n.hx+(dx/d)*f;n.y=n.hy+(dy/d)*f;}
+    else{n.x+=(n.hx-n.x)*.08;n.y+=(n.hy-n.y)*.08;}
+    n.conn=0;
+  }
+
+  // Form magnetic links near cursor
+  for(var i=0;i<nodes.length;i++){for(var j=i+1;j<nodes.length;j++){
+    var a=nodes[i],b=nodes[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.sqrt(dx*dx+dy*dy);
+    var am=Math.sqrt((a.x-mouse.x)**2+(a.y-mouse.y)**2);
+    var bm=Math.sqrt((b.x-mouse.x)**2+(b.y-mouse.y)**2);
+    if(d<STICKY&&am<MAG&&bm<MAG){
+      var exists=false;
+      for(var k=0;k<links.length;k++){if((links[k].a===a&&links[k].b===b)||(links[k].a===b&&links[k].b===a)){exists=true;links[k].str=Math.min(links[k].str+.015,1);break;}}
+      if(!exists){var lk={a:a,b:b,str:.15,flash:1};links.push(lk);addPulse(lk);}
+    }
+  }}
+
+  // Update links
+  for(var s=links.length-1;s>=0;s--){
+    var lk=links[s];lk.flash=Math.max(0,lk.flash-.02);
+    var d2=Math.sqrt((lk.a.x-lk.b.x)**2+(lk.a.y-lk.b.y)**2);
+    if(d2>BREAK){lk.str-=.015;if(lk.str<=0){
+      // Remove pulses on this link
+      for(var p=pulses.length-1;p>=0;p--)if(pulses[p].link===lk)pulses.splice(p,1);
+      links.splice(s,1);continue;
+    }}
+    lk.a.conn++;lk.b.conn++;
+  }
+
+  // Update pulses — they circulate forever
+  for(var p=0;p<pulses.length;p++){
+    pulses[p].t+=pulses[p].sp;
+    if(pulses[p].t>=1)routePulse(pulses[p]);
+  }
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+
+  // Base proximity connections
+  for(var i=0;i<nodes.length;i++){for(var j=i+1;j<nodes.length;j++){
+    var a=nodes[i],b=nodes[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<CONNECT){var al=1-d/CONNECT;
+      ctx.strokeStyle=a.red&&b.red?'rgba(180,10,10,'+(al*.2)+')':'rgba(0,0,0,'+(al*.08)+')';
+      ctx.lineWidth=.5+al*.6;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}
+  }}
+
+  // Magnetic links — BOLD, CRISP
+  for(var s=0;s<links.length;s++){
+    var lk=links[s],al=lk.str,fl=lk.flash,both=lk.a.red&&lk.b.red;
+    ctx.strokeStyle=both?'rgba(190,15,15,'+(al*.7+fl*.3)+')':'rgba(30,30,30,'+(al*.45+fl*.2)+')';
+    ctx.lineWidth=2+al*3+fl*2;
+    ctx.beginPath();ctx.moveTo(lk.a.x,lk.a.y);ctx.lineTo(lk.b.x,lk.b.y);ctx.stroke();
+    if(fl>.05){ctx.strokeStyle='rgba(200,10,10,'+(fl*.15)+')';ctx.lineWidth=fl*12;ctx.beginPath();ctx.moveTo(lk.a.x,lk.a.y);ctx.lineTo(lk.b.x,lk.b.y);ctx.stroke();}
+  }
+
+  // Mouse connection lines
+  if(active){for(var i=0;i<nodes.length;i++){
+    var n=nodes[i],dx=n.x-mouse.x,dy=n.y-mouse.y,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<MAG*.55){var a2=1-d/(MAG*.55);
+      ctx.strokeStyle=n.red?'rgba(190,10,10,'+(a2*.35)+')':'rgba(0,0,0,'+(a2*.12)+')';
+      ctx.lineWidth=.6+a2*1.5;ctx.beginPath();ctx.moveTo(mouse.x,mouse.y);ctx.lineTo(n.x,n.y);ctx.stroke();}
+  }
+  ctx.beginPath();ctx.arc(mouse.x,mouse.y,3.5,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,.25)';ctx.fill();
+  ctx.beginPath();ctx.arc(mouse.x,mouse.y,1.5,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,.6)';ctx.fill();}
+
+  // PULSES — SHARP black with tight red glow
+  for(var p=0;p<pulses.length;p++){
+    var pk=pulses[p],lk=pk.link,t=pk.fwd?pk.t:1-pk.t;
+    t=Math.max(0,Math.min(1,t));
+    var px=lk.a.x+(lk.b.x-lk.a.x)*t,py=lk.a.y+(lk.b.y-lk.a.y)*t;
+    // Tight red glow
+    ctx.beginPath();ctx.arc(px,py,7,0,Math.PI*2);ctx.fillStyle='rgba(200,10,10,.12)';ctx.fill();
+    // Black core — SOLID
+    ctx.beginPath();ctx.arc(px,py,3.5,0,Math.PI*2);ctx.fillStyle='#111';ctx.fill();
+    // White spark
+    ctx.beginPath();ctx.arc(px,py,1.2,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.8)';ctx.fill();
+    // Sharp trail
+    for(var tb=1;tb<=3;tb++){var bt=t-(pk.fwd?1:-1)*tb*.02;bt=Math.max(0,Math.min(1,bt));
+      var bx=lk.a.x+(lk.b.x-lk.a.x)*bt,by=lk.a.y+(lk.b.y-lk.a.y)*bt;
+      ctx.beginPath();ctx.arc(bx,by,2.5*(1-tb*.25),0,Math.PI*2);ctx.fillStyle='rgba(17,17,17,'+(0.6*(1-tb*.28))+')';ctx.fill();}
+  }
+
+  // NODES — SHARP, HIGH CONTRAST
+  for(var ni=0;ni<nodes.length;ni++){
+    var n=nodes[ni],dx=n.x-mouse.x,dy=n.y-mouse.y,md=Math.sqrt(dx*dx+dy*dy);
+    var near=md<MAG?1-md/MAG:0,sm=1+near*.6,r=n.r*n.pulse*sm;
+    var dens=Math.min(n.conn/4,1);
+    if(n.red){
+      // Glow — tighter, less washed
+      ctx.beginPath();ctx.arc(n.x,n.y,r*2,0,Math.PI*2);ctx.fillStyle='rgba(190,10,10,'+(0.06+near*.1+dens*.05)+')';ctx.fill();
+      // Solid red node
+      var rv=140+Math.floor(dens*100);
+      ctx.beginPath();ctx.arc(n.x,n.y,r,0,Math.PI*2);ctx.fillStyle='rgb('+rv+',12,12)';ctx.fill();
+      // Sharp white core
+      ctx.beginPath();ctx.arc(n.x,n.y,r*.32,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,'+(0.55+near*.4)+')';ctx.fill();
+      // Ring near cursor
+      if(near>.3){var rr=r*2+Math.sin(Date.now()*.004+n.ph)*r*.8;ctx.beginPath();ctx.arc(n.x,n.y,rr,0,Math.PI*2);ctx.strokeStyle='rgba(190,10,10,'+(near*.22)+')';ctx.lineWidth=1.5;ctx.stroke();}
+    } else {
+      // Dark solid node
+      ctx.beginPath();ctx.arc(n.x,n.y,r*.75,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,'+(0.25+near*.25+dens*.12)+')';ctx.fill();
+    }
+  }
+}
+
+function frame(){update();draw();requestAnimationFrame(frame);}
+
+hero.addEventListener('mousemove',function(e){var r=hero.getBoundingClientRect();raw.x=e.clientX-r.left;raw.y=e.clientY-r.top;active=true;});
+hero.addEventListener('mouseleave',function(){active=false;down=false;drag=null;});
+c.addEventListener('mousedown',function(e){
+  var r=hero.getBoundingClientRect();
+  down=true;var mx=e.clientX-r.left,my=e.clientY-r.top,cl=null,cd=30;
+  nodes.forEach(function(n){var d=Math.sqrt((n.x-mx)**2+(n.y-my)**2);if(d<cd){cd=d;cl=n;}});
+  if(cl)drag=cl;
+  else{var nn=mk(mx,my,true);nn.r=R(4,7);nodes.push(nn);}
+});
+c.addEventListener('mouseup',function(){down=false;drag=null;});
+window.addEventListener('resize',function(){resize();seed(30);});
+window.addEventListener('scroll',function(){heroRect=hero.getBoundingClientRect();});
+resize();seed(30);frame();
+})();
+
+// Typewriter
+(function(){
+  var lines=['La infraestructura','que mueve a las','empresas argentinas.'];
+  var tgt=document.getElementById('heroTitle');
+  function sl(ms){return new Promise(function(r){setTimeout(r,ms)})}
+  async function run(){
+    await sl(600);
+    for(var li=0;li<lines.length;li++){
+      var ln=lines[li],el=document.createElement('div');tgt.appendChild(el);
+      var cur=document.createElement('span');cur.className='cursor-el';el.appendChild(cur);
+      for(var ci=0;ci<ln.length;ci++){el.insertBefore(document.createTextNode(ln[ci]),cur);await sl(38);}
+      if(li===lines.length-1){var ch=el.childNodes;for(var n=ch.length-1;n>=0;n--){if(ch[n].nodeType===3&&ch[n].textContent.endsWith('.')){ch[n].textContent=ch[n].textContent.slice(0,-1);var d=document.createElement('span');d.className='accent';d.textContent='.';el.insertBefore(d,cur);break;}}}
+      if(li<lines.length-1){el.removeChild(cur);await sl(150);}
+    }
+    await sl(400);document.getElementById('heroSub').classList.add('show');
+    await sl(200);document.getElementById('heroActions').classList.add('show');
+    await sl(200);document.getElementById('heroStats').classList.add('show');
+  }
+  run();
+})();
+</script>
+</body>
+</html>

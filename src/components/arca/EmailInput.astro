@@ -1,0 +1,132 @@
+---
+// EmailInput.astro - Componente de entrada de email para envío de facturas
+// - Checkbox: "Enviar por Email"
+// - Input de email (oculto por defecto)
+// - Función window.getEmailToSend() para obtener el email
+
+interface Props {
+  onEmailChange?: (email: string | null) => void;
+}
+
+const { onEmailChange } = Astro.props;
+---
+
+<div class="email-input space-y-3">
+  <!-- Checkbox para habilitar envío -->
+  <div class="flex items-center">
+    <input
+      id="send-email-checkbox"
+      type="checkbox"
+      name="send_email"
+      class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+    />
+    <label for="send-email-checkbox" class="ml-2 text-sm font-medium text-gray-700">
+      Enviar factura por Email
+    </label>
+  </div>
+
+  <!-- Input de email (oculto por defecto) -->
+  <div id="email-input-container" class="hidden pl-6 space-y-2">
+    <label for="email-input" class="block text-sm font-medium text-gray-700">
+      Email de destino
+    </label>
+    <input
+      id="email-input"
+      type="email"
+      name="email_destino"
+      placeholder="usuario@example.com"
+      class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+    />
+    <small id="email-error" class="text-red-600 hidden"></small>
+  </div>
+</div>
+
+<script is:inline>
+  const checkbox = document.querySelector('#send-email-checkbox');
+  const emailContainer = document.querySelector('#email-input-container');
+  const emailInput = document.querySelector('#email-input');
+  const emailError = document.querySelector('#email-error');
+
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // Mostrar/ocultar input de email
+  checkbox.addEventListener('change', () => {
+    if (checkbox.checked) {
+      emailContainer.classList.remove('hidden');
+      emailInput.focus();
+    } else {
+      emailContainer.classList.add('hidden');
+      emailInput.value = '';
+      emailError.textContent = '';
+      emailError.classList.add('hidden');
+    }
+  });
+
+  // Validar email en tiempo real
+  emailInput.addEventListener('blur', () => {
+    validateEmail();
+  });
+
+  emailInput.addEventListener('input', () => {
+    if (emailError.textContent) {
+      validateEmail();
+    }
+  });
+
+  function validateEmail() {
+    const email = emailInput.value.trim();
+
+    if (!email) {
+      emailError.textContent = 'Email requerido';
+      emailError.classList.remove('hidden');
+      return false;
+    }
+
+    if (!EMAIL_REGEX.test(email)) {
+      emailError.textContent = 'Email inválido';
+      emailError.classList.remove('hidden');
+      return false;
+    }
+
+    emailError.textContent = '';
+    emailError.classList.add('hidden');
+    return true;
+  }
+
+  // Función global para obtener el email
+  window.getEmailToSend = () => {
+    if (!checkbox.checked) {
+      return null;
+    }
+
+    const email = emailInput.value.trim();
+
+    if (!email) {
+      return null;
+    }
+
+    if (!EMAIL_REGEX.test(email)) {
+      return null;
+    }
+
+    return email;
+  };
+
+  // Función global para validar email
+  window.validateEmail = validateEmail;
+
+  // Función global para obtener todos los datos de email
+  window.getEmailData = () => {
+    return {
+      send: checkbox.checked,
+      email: emailInput.value.trim(),
+      isValid: checkbox.checked ? EMAIL_REGEX.test(emailInput.value.trim()) : true,
+    };
+  };
+</script>
+
+<style>
+  #email-input:focus {
+    @apply outline-none ring-2 ring-blue-500 border-blue-500;
+  }
+</style>

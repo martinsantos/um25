@@ -1,0 +1,273 @@
+---
+// TemplateManager.astro - Gestor de plantillas de empresas almacenadas en localStorage
+// - Guardar nuevas plantillas
+// - Cargar plantillas existentes
+// - Eliminar plantillas
+// - Selector para cambiar entre plantillas
+
+interface Template {
+  id: string;
+  nombre: string;
+  cuit: string;
+  razon_social: string;
+  domicilio: string;
+  condicion_iva: string;
+  logo_url?: string | null;
+  fecha_creacion: string;
+}
+
+interface Props {
+  onTemplateSelect?: (template: Template) => void;
+  onTemplateSave?: (template: Template) => void;
+}
+
+const { onTemplateSelect, onTemplateSave } = Astro.props;
+---
+
+<div class="template-manager space-y-4">
+  <!-- Sección de Selector de Plantillas -->
+  <div class="selector-section">
+    <label for="template-select" class="block text-sm font-medium text-gray-700 mb-2">
+      Cargar Plantilla Guardada
+    </label>
+    <select
+      id="template-select"
+      class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+    >
+      <option value="">-- Crear nueva --</option>
+    </select>
+  </div>
+
+  <!-- Sección de Acciones -->
+  <div class="actions space-y-2">
+    <button
+      id="save-template-btn"
+      type="button"
+      class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      disabled
+    >
+      Guardar como Plantilla
+    </button>
+
+    <button
+      id="delete-template-btn"
+      type="button"
+      class="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      disabled
+    >
+      Eliminar Plantilla
+    </button>
+  </div>
+
+  <!-- Diálogo de Guardar Plantilla -->
+  <dialog id="save-dialog" class="p-6 rounded-lg shadow-xl max-w-md mx-auto">
+    <h3 class="text-lg font-bold mb-4">Guardar Plantilla</h3>
+
+    <div class="space-y-4">
+      <div>
+        <label for="template-name" class="block text-sm font-medium text-gray-700 mb-1">
+          Nombre de la Plantilla
+        </label>
+        <input
+          id="template-name"
+          type="text"
+          placeholder="p.ej. Mi Empresa, Oficina 2, etc."
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+
+      <div class="flex gap-2">
+        <button
+          id="confirm-save"
+          type="button"
+          class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+          Guardar
+        </button>
+        <button
+          id="cancel-save"
+          type="button"
+          class="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </dialog>
+</div>
+
+<script is:inline>
+  const STORAGE_KEY = 'plantilla_arca_templates';
+
+  // Elementos del DOM
+  const selector = document.querySelector('#template-select');
+  const saveBtn = document.querySelector('#save-template-btn');
+  const deleteBtn = document.querySelector('#delete-template-btn');
+  const saveDialog = document.querySelector('#save-dialog');
+  const templateNameInput = document.querySelector('#template-name');
+  const confirmSaveBtn = document.querySelector('#confirm-save');
+  const cancelSaveBtn = document.querySelector('#cancel-save');
+
+  // Estado actual
+  let currentFormData = {};
+  let selectedTemplateId = null;
+
+  // Cargar plantillas al iniciar - SEGURO CONTRA XSS
+  function loadTemplates() {
+    const templates = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+    // Limpiar opciones excepto la primera
+    while (selector.options.length > 1) {
+      selector.remove(1);
+    }
+
+    templates.forEach((template) => {
+      const option = document.createElement('option');
+      option.value = template.id;
+      option.textContent = `${template.nombre} (${template.cuit})`;
+      option.dataset.template = JSON.stringify(template);
+      selector.appendChild(option);
+    });
+  }
+
+  // Escuchar cambios en el formulario
+  const form = document.querySelector('#formulario-arca');
+  if (form) {
+    form.addEventListener('formDataChange', (e) => {
+      currentFormData = e.detail;
+      // Habilitar botón Guardar si hay datos
+      saveBtn.disabled = !currentFormData.cuit || !currentFormData.razon_social;
+    });
+  }
+
+  // Selector de plantilla
+  selector.addEventListener('change', (e) => {
+    if (e.target.value) {
+      selectedTemplateId = e.target.value;
+      const option = e.target.querySelector(`option[value="${e.target.value}"]`);
+      const template = JSON.parse(option.dataset.template);
+
+      // Disparar evento para cargar los datos en el formulario
+      const event = new CustomEvent('loadTemplate', {
+        detail: template,
+        bubbles: true,
+      });
+      document.dispatchEvent(event);
+
+      deleteBtn.disabled = false;
+    } else {
+      selectedTemplateId = null;
+      deleteBtn.disabled = true;
+    }
+  });
+
+  // Botón Guardar Plantilla
+  saveBtn.addEventListener('click', () => {
+    templateNameInput.value = currentFormData.razon_social || '';
+    saveDialog.showModal();
+  });
+
+  // Confirmar guardar
+  confirmSaveBtn.addEventListener('click', () => {
+    const nombre = templateNameInput.value.trim();
+
+    if (!nombre) {
+      alert('Ingrese un nombre para la plantilla');
+      return;
+    }
+
+    const template = {
+      id: `${nombre.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`,
+      nombre,
+      cuit: currentFormData.cuit || '',
+      razon_social: currentFormData.razon_social || '',
+      domicilio: currentFormData.domicilio || '',
+      condicion_iva: currentFormData.condicion_iva || '',
+      logo_url: window.currentLogoUrl || null,
+      fecha_creacion: new Date().toISOString(),
+    };
+
+    const templates = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    templates.push(template);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(templates));
+
+    saveDialog.close();
+    loadTemplates();
+
+    // Disparar evento
+    const event = new CustomEvent('templateSaved', {
+      detail: template,
+      bubbles: true,
+    });
+    document.dispatchEvent(event);
+  });
+
+  // Cancelar guardar
+  cancelSaveBtn.addEventListener('click', () => {
+    saveDialog.close();
+  });
+
+  // Botón Eliminar Plantilla
+  deleteBtn.addEventListener('click', () => {
+    if (!selectedTemplateId) return;
+
+    if (!confirm('¿Eliminar esta plantilla?')) return;
+
+    const templates = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const filtered = templates.filter((t) => t.id !== selectedTemplateId);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+
+    selectedTemplateId = null;
+    selector.value = '';
+    deleteBtn.disabled = true;
+    loadTemplates();
+
+    const event = new CustomEvent('templateDeleted', {
+      detail: { id: selectedTemplateId },
+      bubbles: true,
+    });
+    document.dispatchEvent(event);
+  });
+
+  // Exponer función global para obtener plantillas
+  window.getTemplates = () => {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  };
+
+  window.getTemplate = (id) => {
+    const templates = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    return templates.find((t) => t.id === id);
+  };
+
+  window.saveTemplate = (data) => {
+    const template = {
+      id: `template-${Date.now()}`,
+      nombre: data.nombre || '',
+      cuit: data.cuit || '',
+      razon_social: data.razon_social || '',
+      domicilio: data.domicilio || '',
+      condicion_iva: data.condicion_iva || '',
+      logo_url: data.logo_url || null,
+      fecha_creacion: new Date().toISOString(),
+    };
+
+    const templates = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    templates.push(template);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(templates));
+
+    return template;
+  };
+
+  // Inicializar
+  loadTemplates();
+</script>
+
+<style>
+  dialog {
+    @apply backdrop:bg-black/50;
+  }
+
+  dialog::backdrop {
+    @apply bg-black/50;
+  }
+</style>

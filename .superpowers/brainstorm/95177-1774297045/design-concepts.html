@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3 Conceptos — Ultima Milla Redesign</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #0a0a0a; color: #fff; }
+  .header { padding: 40px 24px 20px; text-align: center; }
+  .header h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+  .header p { color: #888; font-size: 14px; }
+
+  .concepts { display: flex; flex-direction: column; gap: 40px; padding: 20px 24px 60px; max-width: 1200px; margin: 0 auto; }
+
+  .concept { border: 2px solid #222; border-radius: 20px; overflow: hidden; cursor: pointer; transition: all 0.3s; }
+  .concept:hover { border-color: #555; transform: translateY(-2px); }
+  .concept.selected { border-color: #0ea5e9; box-shadow: 0 0 40px rgba(14,165,233,0.2); }
+
+  .concept-header { padding: 24px 28px; display: flex; align-items: center; gap: 16px; }
+  .concept-letter { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 20px; }
+  .concept-meta h2 { font-size: 20px; font-weight: 700; }
+  .concept-meta p { color: #888; font-size: 13px; margin-top: 2px; }
+
+  .concept-preview { padding: 0 28px 28px; }
+  .mockup { border-radius: 12px; overflow: hidden; position: relative; }
+
+  /* ===== CONCEPT A: BRUTALIST EDITORIAL ===== */
+  .concept-a .concept-letter { background: #fff; color: #000; }
+  .mockup-a {
+    background: #fff; color: #000; padding: 0;
+  }
+  .mockup-a .hero-a {
+    padding: 60px 40px 40px;
+    background: #fff;
+  }
+  .mockup-a .hero-a h1 {
+    font-size: 56px; font-weight: 900; line-height: 1.0; letter-spacing: -3px; color: #000;
+    mix-blend-mode: normal;
+  }
+  .mockup-a .hero-a h1 span { color: #dc2626; }
+  .mockup-a .hero-a .stat-bar {
+    display: flex; gap: 0; margin-top: 32px; border-top: 3px solid #000;
+  }
+  .mockup-a .hero-a .stat-bar .stat {
+    flex: 1; padding: 16px 0; border-right: 1px solid #ddd;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #666;
+  }
+  .mockup-a .hero-a .stat-bar .stat strong {
+    display: block; font-size: 32px; letter-spacing: -1px; color: #000; font-weight: 900;
+  }
+  .mockup-a .services-a {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+    border-top: 1px solid #eee;
+  }
+  .mockup-a .services-a .svc {
+    padding: 24px 20px; border-right: 1px solid #eee; border-bottom: 1px solid #eee;
+  }
+  .mockup-a .services-a .svc .num { font-size: 48px; font-weight: 200; color: #ddd; line-height: 1; }
+  .mockup-a .services-a .svc h3 { font-size: 13px; font-weight: 700; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px; }
+  .tags-a { display: flex; flex-wrap: wrap; gap: 8px; padding: 24px 40px; }
+  .tags-a span { padding: 6px 14px; border: 1px solid #ddd; border-radius: 20px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #666; }
+
+  /* ===== CONCEPT B: DARK CINEMATIC ===== */
+  .concept-b .concept-letter { background: linear-gradient(135deg, #0ea5e9, #6366f1); color: #fff; }
+  .mockup-b {
+    background: #0f0f1a; color: #fff; position: relative; overflow: hidden;
+  }
+  .mockup-b::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 30% 40%, rgba(14,165,233,0.15), transparent 60%),
+                radial-gradient(ellipse at 70% 60%, rgba(139,92,246,0.1), transparent 50%);
+  }
+  .mockup-b .hero-b {
+    position: relative; padding: 60px 40px 40px;
+  }
+  .mockup-b .hero-b .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 100px; font-size: 12px; color: #94a3b8; margin-bottom: 24px;
+  }
+  .mockup-b .hero-b .eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; }
+  .mockup-b .hero-b h1 {
+    font-size: 48px; font-weight: 800; line-height: 1.1; letter-spacing: -1px;
+    background: linear-gradient(135deg, #fff 40%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .mockup-b .cards-b {
+    position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 0 40px 32px;
+  }
+  .mockup-b .cards-b .card-b {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px; padding: 24px 18px; text-align: center;
+    transition: all 0.3s;
+  }
+  .mockup-b .cards-b .card-b:hover { background: rgba(255,255,255,0.08); border-color: rgba(14,165,233,0.3); }
+  .mockup-b .cards-b .card-b .icon-b {
+    width: 48px; height: 48px; border-radius: 14px; margin: 0 auto 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 22px;
+  }
+  .mockup-b .cards-b .card-b h3 { font-size: 13px; font-weight: 600; }
+  .mockup-b .cards-b .card-b p { font-size: 11px; color: #64748b; margin-top: 4px; }
+
+  /* ===== CONCEPT C: BENTO GRID ===== */
+  .concept-c .concept-letter { background: #000; color: #fff; border: 2px solid #333; }
+  .mockup-c {
+    background: #fafafa; color: #000; padding: 24px;
+  }
+  .mockup-c .bento {
+    display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: auto auto auto;
+    gap: 12px;
+  }
+  .mockup-c .bento .cell {
+    border-radius: 16px; padding: 24px; min-height: 120px;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    position: relative; overflow: hidden;
+  }
+  .mockup-c .bento .hero-cell {
+    grid-column: 1 / 3; grid-row: 1 / 3;
+    background: #111; color: #fff; min-height: 280px;
+  }
+  .mockup-c .bento .hero-cell h1 {
+    font-size: 36px; font-weight: 900; line-height: 1.1; letter-spacing: -1px;
+  }
+  .mockup-c .bento .hero-cell h1 span { color: #0ea5e9; }
+  .mockup-c .bento .stat-cell {
+    background: #fff; border: 1px solid #e5e7eb;
+  }
+  .mockup-c .bento .stat-cell strong {
+    font-size: 36px; font-weight: 900; display: block; line-height: 1;
+  }
+  .mockup-c .bento .stat-cell span { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+  .mockup-c .bento .img-cell {
+    grid-column: 3 / 5; grid-row: 2 / 4;
+    background: linear-gradient(135deg, #0ea5e9, #6366f1); min-height: 200px;
+    color: #fff;
+  }
+  .mockup-c .bento .img-cell::before {
+    content: ''; position: absolute; inset: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="white" stroke-width="0.5" opacity="0.2"/><circle cx="50" cy="50" r="25" fill="none" stroke="white" stroke-width="0.3" opacity="0.15"/></svg>') center/cover;
+  }
+  .mockup-c .bento .svc-row {
+    grid-column: 1 / 5; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  }
+  .mockup-c .bento .svc-cell {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px;
+  }
+  .mockup-c .bento .svc-cell h3 { font-size: 13px; font-weight: 700; margin-top: 8px; }
+  .mockup-c .bento .svc-cell .svc-icon {
+    width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+
+  .choice-indicator {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: #0ea5e9; color: #fff; padding: 12px 28px; border-radius: 12px;
+    font-weight: 700; display: none; z-index: 100;
+  }
+  .choice-indicator.visible { display: block; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>3 Conceptos Radicalmente Diferentes</h1>
+    <p>Hacé click en el que te atraiga. Ninguno es "el típico diseño de AI".</p>
+  </div>
+
+  <div class="concepts">
+    <!-- CONCEPT A: BRUTALIST EDITORIAL -->
+    <div class="concept concept-a" data-choice="a" onclick="select(this)">
+      <div class="concept-header">
+        <div class="concept-letter">A</div>
+        <div class="concept-meta">
+          <h2>Brutalist Editorial</h2>
+          <p>Fondo blanco. Tipografía gigante. Sin gradientes. Sin bordes redondeados. Solo datos y tipografía pesada. Inspira: Bloomberg, Stripe Press, Figma.</p>
+        </div>
+      </div>
+      <div class="concept-preview">
+        <div class="mockup mockup-a">
+          <div class="hero-a">
+            <h1>Infraestructura<br>IT para empresas<br>que no se<br>conforman<span>.</span></h1>
+            <div class="stat-bar">
+              <div class="stat"><strong>469</strong>Proyectos</div>
+              <div class="stat"><strong>22</strong>Años</div>
+              <div class="stat"><strong>9</strong>Industrias</div>
+              <div class="stat"><strong>24/7</strong>Soporte</div>
+            </div>
+          </div>
+          <div class="services-a">
+            <div class="svc"><div class="num">01</div><h3>Redes</h3></div>
+            <div class="svc"><div class="num">02</div><h3>Seguridad</h3></div>
+            <div class="svc"><div class="num">03</div><h3>Telecom</h3></div>
+            <div class="svc"><div class="num">04</div><h3>Software</h3></div>
+          </div>
+          <div class="tags-a">
+            <span>Aeropuertos</span><span>Bodegas</span><span>Gobierno</span><span>Salud</span><span>Construcción</span><span>Minería</span><span>Industria</span><span>Seguridad</span><span>Software</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONCEPT B: DARK CINEMATIC -->
+    <div class="concept concept-b" data-choice="b" onclick="select(this)">
+      <div class="concept-header">
+        <div class="concept-letter">B</div>
+        <div class="concept-meta">
+          <h2>Dark Cinematic</h2>
+          <p>Todo oscuro. Ambient glow sutil. Cards glassmorphic. Fotos reales como piezas de cine. Inspira: Linear, Vercel, Raycast.</p>
+        </div>
+      </div>
+      <div class="concept-preview">
+        <div class="mockup mockup-b">
+          <div class="hero-b">
+            <div class="eyebrow"><div class="dot"></div> Operando 24/7 desde Mendoza</div>
+            <h1>La infraestructura<br>que mueve a las<br>empresas argentinas</h1>
+          </div>
+          <div class="cards-b">
+            <div class="card-b">
+              <div class="icon-b" style="background:rgba(14,165,233,0.1)">🔌</div>
+              <h3>Redes & FO</h3>
+              <p>95+ proyectos</p>
+            </div>
+            <div class="card-b">
+              <div class="icon-b" style="background:rgba(239,68,68,0.1)">🛡️</div>
+              <h3>Seguridad</h3>
+              <p>120+ proyectos</p>
+            </div>
+            <div class="card-b">
+              <div class="icon-b" style="background:rgba(139,92,246,0.1)">💻</div>
+              <h3>Software</h3>
+              <p>40+ proyectos</p>
+            </div>
+            <div class="card-b">
+              <div class="icon-b" style="background:rgba(16,185,129,0.1)">📡</div>
+              <h3>Telecom</h3>
+              <p>75+ proyectos</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONCEPT C: BENTO GRID -->
+    <div class="concept concept-c" data-choice="c" onclick="select(this)">
+      <div class="concept-header">
+        <div class="concept-letter">C</div>
+        <div class="concept-meta">
+          <h2>Bento Grid</h2>
+          <p>Inspirado en Apple. Celdas de diferentes tamaños. Mezcla de stats, texto y visual en una grilla dinámica. No lineal. Inspira: Apple, Arc Browser, Notion.</p>
+        </div>
+      </div>
+      <div class="concept-preview">
+        <div class="mockup mockup-c">
+          <div class="bento">
+            <div class="cell hero-cell">
+              <h1>Infraestructura<br><span>IT</span> de clase<br>mundial</h1>
+            </div>
+            <div class="cell stat-cell">
+              <strong>469+</strong>
+              <span>Proyectos</span>
+            </div>
+            <div class="cell stat-cell">
+              <strong>22</strong>
+              <span>Años</span>
+            </div>
+            <div class="cell img-cell" style="position:relative;">
+              <div style="position:relative;z-index:1;">
+                <div style="font-size:11px;text-transform:uppercase;letter-spacing:2px;opacity:0.7;margin-bottom:8px;">Caso Destacado</div>
+                <div style="font-weight:800;font-size:18px;">Aeropuertos Argentina 2000</div>
+                <div style="font-size:12px;opacity:0.7;margin-top:4px;">CCTV + Redes + Detección</div>
+              </div>
+            </div>
+            <div class="cell stat-cell" style="grid-column: 1 / 3;">
+              <span>Mendoza · San Juan · San Luis · Patagonia</span>
+              <strong style="font-size:20px;margin-top:8px;">Zona de incumbencia</strong>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px;">
+            <div class="svc-cell"><div class="svc-icon" style="background:#0ea5e910;">🔌</div><h3>Redes</h3></div>
+            <div class="svc-cell"><div class="svc-icon" style="background:#ef444410;">🛡️</div><h3>Seguridad</h3></div>
+            <div class="svc-cell"><div class="svc-icon" style="background:#8b5cf610;">💻</div><h3>Software</h3></div>
+            <div class="svc-cell"><div class="svc-icon" style="background:#10b98110;">📡</div><h3>Telecom</h3></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="choice-indicator" id="indicator"></div>
+
+  <script>
+    function select(el) {
+      document.querySelectorAll('.concept').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      const choice = el.dataset.choice;
+      const names = {a: 'Brutalist Editorial', b: 'Dark Cinematic', c: 'Bento Grid'};
+      const ind = document.getElementById('indicator');
+      ind.textContent = '✓ ' + names[choice] + ' seleccionado';
+      ind.classList.add('visible');
+
+      // Record event
+      fetch('/.events', {method:'POST', body: JSON.stringify({type:'click',choice,text:names[choice],timestamp:Date.now()})}).catch(()=>{});
+    }
+  </script>
+</body>
+</html>

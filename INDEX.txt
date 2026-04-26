@@ -1,0 +1,353 @@
+═══════════════════════════════════════════════════════════════════════════════
+  AUDITORÍA EDITORIAL - ÍNDICE MAESTRO DE DOCUMENTACIÓN Y SCRIPTS
+═══════════════════════════════════════════════════════════════════════════════
+
+📋 RESUMEN EJECUTIVO
+─────────────────────────────────────────────────────────────────────────────
+✓ 20 artículos escaneados
+✓ 17 artículos sin problemas (ok)
+✓ 3 artículos requieren corrección automática
+✓ 0 artículos fallidos en persistencia
+✓ 5 reescrituras totales identificadas
+
+FECHA: 2026-04-26
+USUARIO: santosma@gmail.com
+PROYECTO: ultimamilla.com.ar/blog
+
+
+📂 ESTRUCTURA DE ARCHIVOS
+─────────────────────────────────────────────────────────────────────────────
+
+1. RESULTADOS DE AUDITORÍA (consulta antes de ejecutar)
+   ├── correccion_auditoria.json          [Resumen estadístico]
+   ├── correccion_diff.md                 [Cambios propuestos: antes/después]
+   ├── correccion_pendientes.md           [Artículos a corregir con enlaces]
+   ├── correccion_fallidas.md             [Diagnóstico de errores]
+   └── log_correccion.jsonl               [Bitácora línea por línea]
+
+2. COPIAS DE SEGURIDAD (respaldo antes de cambios)
+   ├── backup_correccion/clinica-de-godoy-cruz...original.json
+   ├── backup_correccion/mautic-5-vs-hubspot...original.json
+   └── backup_correccion/arca-5824-2026...original.json
+
+3. SCRIPTS DE EJECUCIÓN (elige uno)
+   ├── fix_articles.sh                    [AUTOMATIZADO - 10 segundos]
+   ├── fix_interactive.sh                 [INTERACTIVO - con confirmaciones]
+   ├── COMANDOS_RAPIDOS.sh                [COPY-PASTE - comandos curl]
+   └── GUIA_TERMINAL_CORRECCIONES.md      [Documentación completa]
+
+4. GUÍAS DE REFERENCIA
+   ├── README_TERMINAL.md                 [Quick start + troubleshooting]
+   ├── REESCRITURAS.txt                   [5 cambios exactos a aplicar]
+   └── INSTRUCCIONES_API.txt              [Detalles Directus API]
+
+
+🚀 GUÍA RÁPIDA DE EJECUCIÓN
+─────────────────────────────────────────────────────────────────────────────
+
+OPCIÓN 1: AUTOMATIZADO (Recomendado para CI/CD)
+  $ bash fix_articles.sh
+  ⏱ Tiempo: ~10 segundos
+  ✓ Sin confirmaciones humanas
+  ✓ Resultado: 3 artículos corregidos
+
+OPCIÓN 2: INTERACTIVO (Recomendado para primera vez)
+  $ bash fix_interactive.sh
+  ⏱ Tiempo: ~2-3 minutos (con pausas)
+  ✓ Pausas entre pasos
+  ✓ Confirmaciones antes de cada corrección
+  ✓ Salida coloreada
+
+OPCIÓN 3: MANUAL VÍA CURL (Para debugging)
+  Véase COMANDOS_RAPIDOS.sh para lista de comandos
+  ⏱ Tiempo: ~5 minutos
+  ✓ Control total de cada paso
+  ✓ Visualización de respuestas JSON
+
+
+📄 DESCRIPCIÓN DE ARCHIVOS
+─────────────────────────────────────────────────────────────────────────────
+
+AUDITORIA
+─────────
+correccion_auditoria.json
+  Estadísticas resumidas en JSON
+  Campos: total_escaneadas, total_ok, total_corregidas,
+          total_requiere_revision, total_fallidas
+  Uso: Verificar conteos antes de ejecutar correcciones
+
+correccion_diff.md
+  Propuestas de cambio en formato markdown
+  Muestra antes/después para cada reescritura
+  Organizado por artículo
+  Uso: Revisar exactamente qué cambiará
+
+correccion_pendientes.md
+  Lista de artículos a corregir con:
+  - Slug del artículo
+  - Enlace directo a producción
+  - Cantidad de coincidencias encontradas
+  - Categoría de matches (1, 2, o 3)
+  Uso: Navegación rápida a artículos problemáticos
+
+correccion_fallidas.md
+  Diagnóstico de intentos fallidos
+  Contiene: error messages, códigos HTTP, recomendaciones
+  Nota: HTTP 301 bloqueó persistencia en intento anterior
+  Uso: Entender qué debe resolverse
+
+log_correccion.jsonl
+  Bitácora línea por línea, un JSON por línea
+  Cada línea contiene: timestamp, slug, status, matches, error
+  Formato JSONL para procesamiento con jq
+  Uso: Análisis detallado post-ejecución
+
+
+BACKUPS
+───────
+backup_correccion/*original.json
+  Payload JSON completo de cada artículo ANTES de correcciones
+  Creados automáticamente como medida de seguridad
+  Nombres contienen: slug + "original.json"
+  Uso: Rollback si las correcciones resultan en problemas
+  Comando de restauración (si es necesario):
+    jq '.' backup_correccion/[archivo].json | \
+    curl -X PATCH https://admin.ultimamilla.com.ar/api/blog/[slug]/ \
+         -H "Authorization: Bearer $TOKEN" -d @-
+
+
+SCRIPTS DE EJECUCIÓN
+────────────────────
+fix_articles.sh
+  Script bash que:
+  - Descarga el payload JSON de cada artículo vía curl
+  - Aplica reescrituras usando jq (preserva estructura JSON)
+  - Persiste cambios con PATCH a Directus API
+  - Implementa fallback: si PATCH falla, intenta DELETE+POST
+  - Rate limiting: 0.3s entre llamadas
+  - Genera log de ejecución
+
+  Requisitos previos:
+  - jq instalado (procesar JSON)
+  - curl instalado
+  - Variable $DIRECTUS_TOKEN configurada O credenciales base64
+
+  Ejecución:
+    export DIRECTUS_TOKEN="tu_token_o_credenciales"
+    bash fix_articles.sh
+
+fix_interactive.sh
+  Script bash que:
+  - Mismo flujo que fix_articles.sh
+  - Añade pausas y menús interactivos
+  - Colores para legibilidad
+  - Confirmación antes de cada persistencia
+  - Progress bar para descarga/procesamiento
+
+  Uso: Ideal para primera ejecución o verificación manual
+  Ejecución:
+    bash fix_interactive.sh
+
+COMANDOS_RAPIDOS.sh
+  Archivo que contiene:
+  - Comandos curl listos para copy-paste
+  - Un comando por reescritura
+  - Organizados por artículo
+  - Incluye autenticación base64 inline
+
+  Uso: Para ejecución manual o debugging individual
+
+
+DOCUMENTACIÓN
+──────────────
+README_TERMINAL.md
+  Guía de inicio rápido (2 páginas)
+  Contiene:
+  - Descripción de 3 opciones de ejecución
+  - Índice de archivos
+  - Resumen de 3 artículos problemáticos
+  - Comandos de validación post-ejecución
+  - Sección de troubleshooting detallada
+
+  Errores comunes cubiertos:
+  - curl: command not found
+  - HTTP 401 Unauthorized
+  - HTTP 301 redirect loops
+  - jq: parse error
+  - JSON validation failures
+
+GUIA_TERMINAL_CORRECCIONES.md
+  Documentación completa (5 páginas)
+  Opciones detalladas:
+
+  A. VÍA DIRECTUS ADMIN PANEL
+     - Pasos manuales en interfaz web
+     - Búsqueda y reemplazo en editor HTML
+     - Guardado manual
+     - Tiempo: ~10 minutos
+
+  B. VÍA CURL CON REDIRECTS
+     - Explicación del problema HTTP 301
+     - Solución: usar -L para seguir redirects
+     - Ejemplo completo de PATCH request
+     - Validación post-ejecución
+     - Tiempo: ~5 minutos
+
+  C. VÍA BASH SCRIPT
+     - Descripción técnica del script
+     - Explicación de cada sección
+     - Variables de entorno necesarias
+     - Implementación de fallback workflow
+     - Tiempo: ~30 segundos
+
+
+🔐 SEGURIDAD Y CREDENCIALES
+─────────────────────────────────────────────────────────────────────────────
+
+AUTENTICACIÓN DIRECTUS
+  Usuario: admin@umbot.com.ar
+  Base64 encoding: YWRtaW5AdW1ib3QuY29tLmFyOm1vbmlzZTIwMjQ=
+
+  Métodos de autenticación:
+  1. Token (más seguro): DIRECTUS_TOKEN env var
+  2. Basic Auth (fallback): Authorization: Basic [base64]
+  3. Cookie session (si ya autenticado)
+
+VARIABLES DE ENTORNO
+  export DIRECTUS_URL="https://admin.ultimamilla.com.ar"
+  export DIRECTUS_TOKEN="tu_token_aqui"
+  export BLOG_BASE_URL="https://ultimamilla.com.ar/blog"
+
+⚠ ADVERTENCIA DE SEGURIDAD
+  ✗ NUNCA commits credenciales al git
+  ✗ NUNCA ejecutes scripts en máquina pública sin credenciales protegidas
+  ✗ NUNCA compartas tokens en Slack/email
+  ✓ Usa .env.local para almacenar tokens
+  ✓ Añade .env.local a .gitignore
+  ✓ Rota tokens cada 30 días
+
+
+✅ CHECKLIST PRE-EJECUCIÓN
+─────────────────────────────────────────────────────────────────────────────
+
+Antes de ejecutar ANY script:
+
+[ ] He revisado correccion_diff.md (entiendo exactamente qué cambiará)
+[ ] He revisado correccion_pendientes.md (conozco los 3 artículos)
+[ ] He verificado que jq está instalado: `jq --version`
+[ ] He verificado que curl está instalado: `curl --version`
+[ ] He configurado DIRECTUS_TOKEN o credenciales básicas
+[ ] He hecho backup de la rama actual: `git checkout -b backup-pre-correction`
+[ ] He confirmado que estoy en rama `develop` (no `master`)
+[ ] He revisado el CHANGELOG para cambios recientes en API
+
+Si algo no está listo, ver sección TROUBLESHOOTING en README_TERMINAL.md
+
+
+📊 TABLA DE CAMBIOS (5 REESCRITURAS)
+─────────────────────────────────────────────────────────────────────────────
+
+Artículo #1: mautic-5-vs-hubspot-la-cuota-fantasma-del-crm-en-pymes
+  Cambio 1:
+    ❌ "Hay un giro Michael Lewis en esta historia."
+    ✅ "Hay un giro narrativo en esta historia."
+
+  Cambio 2:
+    ❌ "Es la asimetría que Daniel Kahneman describiría como un sesgo..."
+    ✅ "Es la asimetría descrita en la literatura sobre sesgos cognitivos..."
+
+Artículo #2: arca-5824-2026-el-director-que-nunca-facturo-tiene-fecha
+  Cambio 3:
+    ❌ "Hay un giro Lewis en este negocio."
+    ✅ "Hay un giro inesperado en este negocio."
+
+  Cambio 4:
+    ❌ "Acá entra el antagonista nombrado: las dos cajas..."
+    ✅ "Acá entra el conflicto central: las dos cajas..."
+
+Artículo #3: clinica-de-godoy-cruz-vs-receta-electronica-la-receta-del-medio
+  Cambio 5:
+    ❌ "Para una pyme de salud cuyana, el dato puente significa..."
+    ✅ "Para una pyme de salud cuyana, esa integración de datos significa..."
+
+
+🔍 VALIDACIÓN POST-EJECUCIÓN
+─────────────────────────────────────────────────────────────────────────────
+
+Después de ejecutar el script, validar cambios:
+
+1. Revisar log de ejecución
+   $ cat log_correccion.jsonl | jq '.'
+
+2. Verificar en producción (blog public)
+   $ curl -s https://ultimamilla.com.ar/blog/mautic-5-vs-hubspot-la-cuota-fantasma-del-crm-en-pymes/ \
+     | grep -i "michael lewis"
+   (Resultado esperado: sin coincidencias)
+
+3. Comprobar en Directus Admin
+   Navegar a: https://admin.ultimamilla.com.ar
+   Buscar artículo → Ver que cambios se aplicaron
+
+4. Verificar git status
+   $ git status
+   (Verificar que ningún archivo de codebase fue modificado)
+
+5. Grep en branch para confirmar cambios
+   $ grep -r "Michael Lewis" src/
+   (Esperado: sin coincidencias en código)
+
+
+⚠️ TROUBLESHOOTING RÁPIDO
+─────────────────────────────────────────────────────────────────────────────
+
+Problema: "command not found: jq"
+Solución:
+  macOS: brew install jq
+  Linux: apt-get install jq
+  Windows: Descargar de https://stedolan.github.io/jq/
+
+Problema: "HTTP 401 Unauthorized"
+Solución:
+  - Verificar DIRECTUS_TOKEN válido
+  - Verificar que no expiró (< 24h de antigüedad)
+  - Regenerar token en Directus Admin si es necesario
+
+Problema: "HTTP 301 Moved Permanently"
+Solución:
+  - Los scripts ya incluyen -L para seguir redirects
+  - Si usas curl manual, añade -L al comando
+
+Problema: "jq: parse error"
+Solución:
+  - Verificar JSON válido: curl | jq '.' primero
+  - Posible issue de encoding UTF-8
+  - Ver sección JSON en README_TERMINAL.md
+
+Problema: "PATCH/POST retorna 400 Bad Request"
+Solución:
+  - Verificar que JSON es válido (jq '.' primero)
+  - Verificar que el slug es correcto
+  - Revisar correccion_fallidas.md para detalles
+
+Para más detalles, véase: README_TERMINAL.md (sección TROUBLESHOOTING)
+
+
+📞 SOPORTE
+─────────────────────────────────────────────────────────────────────────────
+
+Si algo falla:
+1. Consultar log_correccion.jsonl para errores exactos
+2. Revisar sección TROUBLESHOOTING en README_TERMINAL.md
+3. Contactar a DevOps si problema persiste
+
+Información de debugging:
+- Sistema: macOS / Linux / Windows (especificar)
+- curl version: `curl --version`
+- jq version: `jq --version`
+- Bash version: `bash --version`
+- Exacto error message de log o pantalla
+
+
+═══════════════════════════════════════════════════════════════════════════════
+SIGUIENTE PASO: Elige una opción de ejecución y corre el script correspondiente
+═══════════════════════════════════════════════════════════════════════════════

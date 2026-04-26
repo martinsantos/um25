@@ -1,0 +1,91 @@
+{
+  "fecha_corrida": "2026-04-24",
+  "modo": "PRUEBA — transgresion autorizada del limite de 1 nota/dia",
+  "estado": "EXITO_4_DE_4",
+  "endpoint_api": "https://ultimamilla.com.ar/api/blog",
+  "observacion_tecnica_endpoint": "www.ultimamilla.com.ar hace 301 a ultimamilla.com.ar (sin www). curl por defecto no reenvia Authorization al seguir redireccion cross-host; apuntar directo al dominio sin www resuelve el 401.",
+  "notas_publicadas": [
+    {
+      "id": 23,
+      "slug": "ley-27-506-la-pyme-que-factura-230-millones-y-no-puede-entrar-al-regimen",
+      "titulo": "Ley 27.506: la pyme que factura 230 millones y no puede entrar al Régimen",
+      "categoria": "noticias",
+      "fecha_publicacion": "2026-04-24",
+      "palabras": 730,
+      "tiempo_lectura": 4,
+      "http_post": 201,
+      "http_verify": 200,
+      "url": "https://www.ultimamilla.com.ar/blog/ley-27-506-la-pyme-que-factura-230-millones-y-no-puede-entrar-al-regimen",
+      "docx": "blog_umsa_2026-04-24_ley-27-506-la-pyme-que-factura-230-millones-y-no-puede-entra.docx",
+      "fuentes_citadas": [
+        "https://www.argentina.gob.ar/normativa/nacional/ley-27506-324101/actualizacion",
+        "https://www.argencon.org/ley-economia-conocimiento/",
+        "https://www.argentina.gob.ar/servicio/acceder-los-beneficios-del-regimen-de-promocion-de-la-economia-del-conocimiento"
+      ]
+    },
+    {
+      "id": 24,
+      "slug": "immich-2-6-en-municipios-el-archivo-de-fotos-que-google-no-deberia-tener",
+      "titulo": "Immich 2.6 en municipios: el archivo de fotos que Google no debería tener",
+      "categoria": "proyectos",
+      "fecha_publicacion": "2026-04-27",
+      "palabras": 797,
+      "tiempo_lectura": 4,
+      "http_post": 201,
+      "http_verify": 200,
+      "url": "https://www.ultimamilla.com.ar/blog/immich-2-6-en-municipios-el-archivo-de-fotos-que-google-no-deberia-tener",
+      "docx": "blog_umsa_2026-04-27_immich-2-6-en-municipios-el-archivo-de-fotos-que-google-no-d.docx",
+      "fuentes_citadas": [
+        "https://immich.app/",
+        "https://github.com/immich-app/immich",
+        "https://www.argentina.gob.ar/normativa/nacional/ley-25326-64790/actualizacion"
+      ]
+    },
+    {
+      "id": 25,
+      "slug": "keycloak-26-6-y-passkeys-federar-identidad-sin-pagar-entra-por-usuario",
+      "titulo": "Keycloak 26.6 y passkeys: federar identidad sin pagar Entra por usuario",
+      "categoria": "tecnico",
+      "fecha_publicacion": "2026-04-28",
+      "palabras": 866,
+      "tiempo_lectura": 5,
+      "http_post": 201,
+      "http_verify": 200,
+      "url": "https://www.ultimamilla.com.ar/blog/keycloak-26-6-y-passkeys-federar-identidad-sin-pagar-entra-por-usuario",
+      "docx": "blog_umsa_2026-04-28_keycloak-26-6-y-passkeys-federar-identidad-sin-pagar-entra-p.docx",
+      "fuentes_citadas": [
+        "https://www.keycloak.org/2026/04/keycloak-2660-released",
+        "https://www.cncf.io/blog/2025/11/07/self-hosted-human-and-machine-identities-in-keycloak-26-4/",
+        "https://www.microsoft.com/es-es/security/business/microsoft-entra-pricing"
+      ]
+    },
+    {
+      "id_original": 26,
+      "id_vigente": 39,
+      "slug_original_despublicado": "nextcloud-hub-9-en-un-colegio-profesional-1-800-matriculados-sin-drive",
+      "slug": "colegio-profesional-con-1-800-matriculados-el-software-a-medida-que-drive-y-nextcloud-no-cubren",
+      "titulo": "Colegio profesional con 1.800 matriculados: el software a medida que Drive y Nextcloud no cubren",
+      "categoria": "proyectos",
+      "fecha_publicacion": "2026-04-29",
+      "palabras": 858,
+      "tiempo_lectura": 5,
+      "http_post": 201,
+      "http_verify": 200,
+      "url": "https://www.ultimamilla.com.ar/blog/colegio-profesional-con-1-800-matriculados-el-software-a-medida-que-drive-y-nextcloud-no-cubren",
+      "docx": "blog_umsa_2026-04-29_colegio-profesional-con-1-800-matriculados-el-software-a-med.docx",
+      "cambio_pedido_por_usuario": "Re-redactar para posicionar a Ultima Milla (software a medida sobre stack abierto + operacion con SLA) como la salida, en lugar de Nextcloud Hub 9 genérico.",
+      "nota_tecnica": "La primera version se despublico via DELETE (HTTP 200). El POST con el titulo original generaba 502 por conflicto en la DB a pesar del DELETE. Se cambio el titulo para generar un slug nuevo y el POST funciono a la primera.",
+      "fuentes_citadas": [
+        "https://www.argentina.gob.ar/normativa/nacional/ley-25326-64790/actualizacion",
+        "https://nextcloud.com/blog/nextcloud-hub9/",
+        "https://www.ultimamilla.com.ar/"
+      ]
+    }
+  ],
+  "distribucion_categorias_4_notas": {
+    "noticias": 1,
+    "tecnico": 1,
+    "proyectos": 2,
+    "empresa": 0
+  }
+}

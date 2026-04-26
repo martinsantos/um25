@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ULTIMA MILLA &mdash; Infraestructura IT</title>
+<style>
+/* ═══════════════════════════════════════════════
+   ULTIMA MILLA — Swiss Precision Design System
+   Grid: 80px side gutters, 8px baseline
+   ═══════════════════════════════════════════════ */
+
+@import url('https://fonts.cdnfonts.com/css/futura-pt');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --red: #c81414;
+  --black: #0a0a0a;
+  --white: #ffffff;
+  --gray-50: #fafafa;
+  --gray-100: #f3f3f3;
+  --gray-200: #e5e5e5;
+  --gray-400: #a3a3a3;
+  --gray-500: #737373;
+  --gray-700: #404040;
+  --gutter: 80px;
+  --font-display: 'Futura PT', 'Futura', 'Trebuchet MS', sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+body { background: var(--white); color: var(--black); font-family: var(--font-body); font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+
+/* ── Layout ── */
+.wrap { padding-left: var(--gutter); padding-right: var(--gutter); }
+
+/* ── NAVBAR — matches production (ultimamilla.com.ar) ── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+  height: 80px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  display: flex; align-items: center;
+}
+.nav-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.nav-brand {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+  color: var(--black);
+  text-decoration: none;
+  line-height: 1;
+}
+.nav-brand .dot { color: var(--red); }
+.nav-menu { display: flex; align-items: center; gap: 32px; }
+.nav-menu a {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--gray-500);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-menu a:hover { color: var(--black); }
+.nav-menu .cta {
+  padding: 10px 20px;
+  background: var(--red);
+  color: var(--white);
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 8px;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(200,20,20,0.25);
+}
+.nav-menu .cta:hover {
+  background: #a01010;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(200,20,20,0.3);
+}
+.nav-space { height: 80px; }
+
+/* ── HERO ── */
+.hero {
+  position: relative;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: var(--white);
+}
+.hero canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1;
+  cursor: crosshair;
+}
+.hero .aurora {
+  position: absolute; border-radius: 50%;
+  filter: blur(80px); pointer-events: none; z-index: 0;
+}
+.hero .au1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(200,20,20,0.13), transparent 55%); top: -8%; right: -4%; animation: aur1 9s ease-in-out infinite alternate; }
+.hero .au2 { width: 450px; height: 450px; background: radial-gradient(circle, rgba(200,20,20,0.10), transparent 55%); bottom: -8%; left: 12%; animation: aur2 11s ease-in-out infinite alternate; }
+.hero .au3 { width: 320px; height: 360px; background: radial-gradient(circle, rgba(220,40,40,0.08), transparent 55%); top: 22%; left: 2%; animation: aur3 8s ease-in-out infinite alternate; }
+@keyframes aur1 { to { transform: translate(20px, -18px) scale(1.08); } }
+@keyframes aur2 { to { transform: translate(-15px, 12px) scale(1.06); } }
+@keyframes aur3 { to { transform: translate(10px, -20px) scale(1.1); } }
+.hero .grid-bg {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+.hero-content {
+  position: relative; z-index: 10;
+  max-width: 620px;
+  pointer-events: none;
+}
+.hero-content a, .hero-content button { pointer-events: auto; }
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gray-400);
+  margin-bottom: 32px;
+  display: flex; align-items: center; gap: 12px;
+}
+.pulse-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #16a34a;
+  box-shadow: 0 0 0 0 rgba(22,163,74,0.4);
+  animation: pulse-ring 2s ease-in-out infinite;
+}
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(22,163,74,0.4); }
+  70% { box-shadow: 0 0 0 8px rgba(22,163,74,0); }
+  100% { box-shadow: 0 0 0 0 rgba(22,163,74,0); }
+}
+
+.hero-heading {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 5.5vw, 4.8rem);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  color: var(--black);
+  margin-bottom: 28px;
+}
+.hero-heading .red { color: var(--red); }
+.type-cursor {
+  display: inline-block;
+  width: 3px; height: 0.82em;
+  background: var(--red);
+  margin-left: 3px;
+  vertical-align: text-bottom;
+  animation: caret-blink 0.7s step-end infinite;
+}
+@keyframes caret-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+.hero-desc {
+  font-size: 17px;
+  color: var(--gray-500);
+  line-height: 1.7;
+  max-width: 480px;
+  margin-bottom: 40px;
+  opacity: 0; transform: translateY(12px);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-desc.on { opacity: 1; transform: translateY(0); }
+
+.hero-btns {
+  display: flex; gap: 16px;
+  margin-bottom: 56px;
+  opacity: 0; transform: translateY(12px);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+}
+.hero-btns.on { opacity: 1; transform: translateY(0); }
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 16px 36px;
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-weight: 600; font-size: 15px;
+  border: none; border-radius: 10px;
+  cursor: pointer; text-decoration: none;
+  transition: all 0.3s;
+}
+.btn-primary:hover {
+  background: var(--red);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(200,20,20,0.2);
+}
+.btn-ghost {
+  display: inline-flex; align-items: center;
+  padding: 16px 36px;
+  background: transparent;
+  color: var(--gray-500);
+  font-family: var(--font-body);
+  font-weight: 600; font-size: 15px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 10px;
+  cursor: pointer; text-decoration: none;
+  transition: all 0.3s;
+}
+.btn-ghost:hover { border-color: var(--gray-400); color: var(--black); }
+
+.hero-kpis {
+  display: flex; gap: 52px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  opacity: 0; transform: translateY(12px);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+}
+.hero-kpis.on { opacity: 1; transform: translateY(0); }
+.kpi-val {
+  font-family: var(--font-mono);
+  font-size: 34px;
+  font-weight: 600;
+  color: var(--black);
+  line-height: 1;
+}
+.kpi-val.red { color: var(--red); }
+.kpi-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gray-400);
+  margin-top: 8px;
+}
+
+/* ── SECTION SYSTEM ── */
+.sect {
+  position: relative;
+  z-index: 10;
+  padding: 120px 0;
+}
+.sect + .sect { border-top: 1px solid var(--gray-200); }
+.sect-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 12px;
+}
+.sect-heading {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--black);
+  line-height: 1.1;
+}
+.sect-heading .red { color: var(--red); }
+.sect-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 48px;
+}
+.sect-link {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gray-400);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.sect-link:hover { color: var(--red); }
+
+/* ── SERVICES GRID ── */
+.svc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.svc-grid + .svc-grid { margin-top: 8px; }
+.svc-item {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 3/4;
+  cursor: pointer;
+  background: var(--gray-100);
+}
+.svc-item img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.svc-item:hover img { transform: scale(1.05); }
+.svc-item .shade {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.1) 100%);
+}
+.svc-item .label-wrap {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  padding: 24px;
+}
+.svc-item .num {
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.1);
+  line-height: 1;
+  transition: color 0.3s;
+}
+.svc-item:hover .num { color: rgba(200,20,20,0.25); }
+.svc-item .name {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--white);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  line-height: 1.25;
+  margin-bottom: 6px;
+}
+.svc-item .arrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  transition: color 0.3s;
+}
+.svc-item:hover .arrow { color: rgba(255,255,255,0.8); }
+
+/* ── ANTECEDENTES ── */
+.ant-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.ant-item {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 1;
+  cursor: pointer;
+  background: var(--gray-100);
+}
+.ant-item img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ant-item:hover img { transform: scale(1.04); }
+.ant-item .shade {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 55%);
+}
+.ant-item .meta {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 24px;
+}
+.ant-item .tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 6px;
+}
+.ant-item .title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.25;
+}
+
+/* ── SECTORES — rich cards with icon, number, border accent ── */
+.sec-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.sec-item {
+  display: block;
+  padding: 40px 32px 36px;
+  background: var(--white);
+  border-radius: 14px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--gray-200);
+  position: relative;
+  overflow: hidden;
+}
+.sec-item::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 3px;
+  background: var(--red);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sec-item:hover::before { transform: scaleX(1); }
+.sec-item::after {
+  content: attr(data-num);
+  position: absolute;
+  top: 24px; right: 28px;
+  font-family: var(--font-display);
+  font-size: 64px;
+  font-weight: 800;
+  color: rgba(0,0,0,0.03);
+  line-height: 1;
+  transition: color 0.4s;
+}
+.sec-item:hover::after { color: rgba(200,20,20,0.08); }
+.sec-item:hover {
+  background: var(--black);
+  color: var(--white);
+  border-color: var(--black);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+.sec-item .sec-icon {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px;
+  font-size: 20px;
+  transition: all 0.4s;
+}
+.sec-item:hover .sec-icon {
+  background: rgba(200,20,20,0.15);
+  border-color: rgba(200,20,20,0.3);
+}
+.sec-item .sec-name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+  position: relative;
+}
+.sec-item .sec-desc {
+  font-size: 14px;
+  opacity: 0.45;
+  line-height: 1.6;
+}
+.sec-item:hover .sec-desc { opacity: 0.55; }
+.sec-item .sec-go {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-top: 20px;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: all 0.3s 0.05s;
+}
+.sec-item:hover .sec-go { opacity: 1; transform: translateX(0); }
+.sec-go svg { transition: transform 0.3s; }
+.sec-item:hover .sec-go svg { transform: translateX(3px); }
+
+/* ── CTA ── */
+.cta-heading {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--black);
+  line-height: 1.1;
+  margin-bottom: 16px;
+  max-width: 600px;
+}
+.cta-sub {
+  font-size: 16px;
+  color: var(--gray-500);
+  margin-bottom: 40px;
+}
+.cta-actions { display: flex; gap: 16px; margin-bottom: 56px; }
+.cta-trust {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--gray-400);
+  text-transform: uppercase;
+}
+
+/* ── FOOTER ── */
+.footer {
+  background: var(--black);
+  color: rgba(255,255,255,0.45);
+  padding: 72px 0 48px;
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2.5fr 1fr 1fr 1.5fr;
+  gap: 56px;
+}
+.footer-brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 26px;
+  color: var(--white);
+  margin-bottom: 16px;
+}
+.footer-brand .dot { color: var(--red); }
+.footer-about {
+  font-size: 14px;
+  line-height: 1.7;
+  max-width: 300px;
+}
+.footer-col-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--white);
+  margin-bottom: 20px;
+  letter-spacing: 0.02em;
+}
+.footer ul { list-style: none; }
+.footer li { margin-bottom: 10px; }
+.footer a {
+  color: rgba(255,255,255,0.4);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+.footer a:hover { color: var(--white); }
+.footer-bar {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  margin-top: 48px;
+  padding-top: 28px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: rgba(255,255,255,0.2);
+}
+.footer-bar a { color: rgba(255,255,255,0.2); }
+.footer-bar a:hover { color: rgba(255,255,255,0.5); }
+
+/* ── Scroll indicator ── */
+.scroll-ind {
+  position: absolute; bottom: 36px;
+  left: var(--gutter);
+  z-index: 10; pointer-events: none;
+  display: flex; align-items: center; gap: 12px;
+}
+.scroll-ind .line {
+  width: 40px; height: 1px;
+  background: var(--gray-200);
+  position: relative; overflow: hidden;
+}
+.scroll-ind .line::after {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: var(--red);
+  transform: translateX(-100%);
+  animation: scroll-slide 2s ease-in-out infinite;
+}
+@keyframes scroll-slide { 0% { transform: translateX(-100%); } 50% { transform: translateX(0); } 100% { transform: translateX(100%); } }
+.scroll-ind span {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gray-400);
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav class="nav"><div class="wrap nav-inner">
+  <a href="#" class="nav-brand">ultimamilla<span class="dot">.</span>com<span class="dot">.</span>ar</a>
+  <div class="nav-menu">
+    <a href="#servicios">Servicios</a>
+    <a href="#antecedentes">Antecedentes</a>
+    <a href="#sectores">Sectores</a>
+    <a href="#contacto">Nosotros</a>
+    <a href="#contacto" class="cta">Contacto</a>
+  </div>
+</div></nav>
+<div class="nav-space"></div>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero" id="heroBanner">
+  <div class="aurora au1"></div>
+  <div class="aurora au2"></div>
+  <div class="aurora au3"></div>
+  <div class="grid-bg"></div>
+  <canvas id="net"></canvas>
+
+  <div class="wrap hero-content">
+    <p class="hero-eyebrow"><span class="pulse-dot"></span> Mendoza, Argentina &mdash; Est. 2002</p>
+    <div class="hero-heading" id="heroTitle"></div>
+    <p class="hero-desc" id="heroDesc">Telecomunicaciones, seguridad electr&oacute;nica, desarrollo de software y soporte t&eacute;cnico 24/7 para las organizaciones m&aacute;s exigentes del pa&iacute;s.</p>
+    <div class="hero-btns" id="heroBtns">
+      <a href="#contacto" class="btn-primary">Solicitar consultor&iacute;a <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></a>
+      <a href="#antecedentes" class="btn-ghost">Ver proyectos</a>
+    </div>
+    <div class="hero-kpis" id="heroKpis">
+      <div><span class="kpi-val">469+</span><div class="kpi-label">Proyectos</div></div>
+      <div><span class="kpi-val">22</span><div class="kpi-label">A&ntilde;os</div></div>
+      <div><span class="kpi-val">9</span><div class="kpi-label">Industrias</div></div>
+      <div><span class="kpi-val red">24/7</span><div class="kpi-label">Soporte</div></div>
+    </div>
+  </div>
+
+  <div class="scroll-ind"><div class="line"></div><span>Scroll</span></div>
+</section>
+
+<!-- ═══ SERVICIOS ═══ -->
+<section class="sect" id="servicios"><div class="wrap">
+  <div class="sect-top">
+    <div><div class="sect-eyebrow">Servicios</div><h2 class="sect-heading">Ocho disciplinas, una misi&oacute;n<span class="red">.</span></h2></div>
+    <a href="#" class="sect-link">Cat&aacute;logo completo &rarr;</a>
+  </div>
+  <div class="svc-grid">
+    <div class="svc-item"><img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&h=800&fit=crop&q=80" alt=""/><div class="shade"></div><div class="label-wrap"><div class="num">01</div><div><div class="name">Infraestructura<br>de Redes</div><div class="arrow">Ver &rarr;</div></div></div></div>
+    <div class="svc-item"><img src="https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=600&h=800&fit=crop&q=80" alt=""/><div class="shade"></div><div class="label-wrap"><div class="num">02</div><div><div class="name">Seguridad<br>Electr&oacute;nica</div><div class="arrow">Ver &rarr;</div></div></div></div>
+    <div class="svc-item"><img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=600&h=800&fit=crop&q=80" alt=""/><div class="shade"></div><div class="label-wrap"><div class="num">03</div><div><div class="name">Telecomu-<br>nicaciones</div><div class="arrow">Ver &rarr;</div></div></div></div>
+    <div class="svc-item"><img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&h=800&fit=crop&q=80" alt=""/><div class="shade"></div><div class="label-wrap"><div class="num">04</div><div><div class="name">Desarrollo<br>de Software</div><div class="arrow">Ver &rarr;</div></div></div></div>
+  </div>
+  <div class="svc-grid">
+    <div class="svc-item"><img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&h=800&fit=crop&q=80" alt=""/><div class="shade"></div><div class="label-wrap"><div class="num">05</div><div><div class="name">Soporte<br>T&eacute;cnico 24/7</div><div class="arrow">Ver &rarr;</div></div></div></div>
+    <div class="svc-item"><img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&h=800&fit=crop&q=80" alt=""/><div class="shade"></div><div class="label-wrap"><div class="num">06</div><div><div class="name">Consultor&iacute;a<br>IT</div><div class="arrow">Ver &rarr;</div></div></div></div>
+    <div class="svc-item"><img src="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=600&h=800&fit=crop&q=80" alt=""/><div class="shade"></div><div class="label-wrap"><div class="num">07</div><div><div class="name">Detecci&oacute;n<br>de Incendio</div><div class="arrow">Ver &rarr;</div></div></div></div>
+    <div class="svc-item"><img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&h=800&fit=crop&q=80" alt=""/><div class="shade"></div><div class="label-wrap"><div class="num">08</div><div><div class="name">Corrientes<br>D&eacute;biles</div><div class="arrow">Ver &rarr;</div></div></div></div>
+  </div>
+</div></section>
+
+<!-- ═══ ANTECEDENTES ═══ -->
+<section class="sect" id="antecedentes"><div class="wrap">
+  <div class="sect-top">
+    <div><div class="sect-eyebrow">Antecedentes</div><h2 class="sect-heading">469 proyectos entregados<span class="red">.</span></h2></div>
+    <a href="#" class="sect-link">Explorar todos &rarr;</a>
+  </div>
+  <div class="ant-grid">
+    <div class="ant-item"><img src="https://images.unsplash.com/photo-1606765962248-7ff407b51667?w=600&h=600&fit=crop&q=80" alt=""/><div class="shade"></div><div class="meta"><div class="tag">Aeropuertos</div><div class="title">Aeropuertos Argentina 2000</div></div></div>
+    <div class="ant-item"><img src="https://images.unsplash.com/photo-1551076805-e1869033e561?w=600&h=600&fit=crop&q=80" alt=""/><div class="shade"></div><div class="meta"><div class="tag">Salud</div><div class="title">Hospital Central &mdash; Red de datos</div></div></div>
+    <div class="ant-item"><img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=600&fit=crop&q=80" alt=""/><div class="shade"></div><div class="meta"><div class="tag">Miner&iacute;a</div><div class="title">Barrick Gold &mdash; Veladero</div></div></div>
+    <div class="ant-item"><img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=600&fit=crop&q=80" alt=""/><div class="shade"></div><div class="meta"><div class="tag">Bodegas</div><div class="title">Bodega La Esmeralda &mdash; CCTV</div></div></div>
+    <div class="ant-item"><img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=600&fit=crop&q=80" alt=""/><div class="shade"></div><div class="meta"><div class="tag">Gobierno</div><div class="title">Gobierno de Mendoza</div></div></div>
+    <div class="ant-item"><img src="https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=600&h=600&fit=crop&q=80" alt=""/><div class="shade"></div><div class="meta"><div class="tag">Industria</div><div class="title">Planta Industrial &mdash; Fibra</div></div></div>
+  </div>
+</div></section>
+
+<!-- ═══ SECTORES ═══ -->
+<section class="sect" id="sectores"><div class="wrap">
+  <div class="sect-top">
+    <div><div class="sect-eyebrow">Industrias</div><h2 class="sect-heading">9 verticales, un solo equipo<span class="red">.</span></h2></div>
+  </div>
+  <div class="sec-grid">
+    <a href="#" class="sec-item" data-num="01"><div class="sec-icon">&#9992;</div><div class="sec-name">Aeropuertos</div><div class="sec-desc">AA2000, terminales, hangares, torres de control y pistas</div><span class="sec-go">Explorar <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14m-6-6l6 6-6 6"/></svg></span></a>
+    <a href="#" class="sec-item" data-num="02"><div class="sec-icon">&#127863;</div><div class="sec-name">Bodegas</div><div class="sec-desc">Seguridad perimetral, control de acceso, CCTV, alarmas</div><span class="sec-go">Explorar <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14m-6-6l6 6-6 6"/></svg></span></a>
+    <a href="#" class="sec-item" data-num="03"><div class="sec-icon">&#127959;</div><div class="sec-name">Construcci&oacute;n</div><div class="sec-desc">Cableado estructurado, corrientes d&eacute;biles, integraciones</div><span class="sec-go">Explorar <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14m-6-6l6 6-6 6"/></svg></span></a>
+    <a href="#" class="sec-item" data-num="04"><div class="sec-icon">&#9877;</div><div class="sec-name">Salud</div><div class="sec-desc">Hospitales, cl&iacute;nicas, redes cr&iacute;ticas de alta disponibilidad</div><span class="sec-go">Explorar <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14m-6-6l6 6-6 6"/></svg></span></a>
+    <a href="#" class="sec-item" data-num="05"><div class="sec-icon">&#127963;</div><div class="sec-name">Gobierno</div><div class="sec-desc">Infraestructura p&uacute;blica, municipios, provincias</div><span class="sec-go">Explorar <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14m-6-6l6 6-6 6"/></svg></span></a>
+    <a href="#" class="sec-item" data-num="06"><div class="sec-icon">&#128187;</div><div class="sec-name">Software</div><div class="sec-desc">Desarrollo a medida, integraciones API, plataformas SaaS</div><span class="sec-go">Explorar <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14m-6-6l6 6-6 6"/></svg></span></a>
+    <a href="#" class="sec-item" data-num="07"><div class="sec-icon">&#9935;</div><div class="sec-name">Miner&iacute;a</div><div class="sec-desc">Telecomunicaciones en mina, radioenlaces, monitoreo</div><span class="sec-go">Explorar <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14m-6-6l6 6-6 6"/></svg></span></a>
+    <a href="#" class="sec-item" data-num="08"><div class="sec-icon">&#9881;</div><div class="sec-name">Industria</div><div class="sec-desc">Plantas, log&iacute;stica, automatizaci&oacute;n, industria 4.0</div><span class="sec-go">Explorar <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14m-6-6l6 6-6 6"/></svg></span></a>
+    <a href="#" class="sec-item" data-num="09"><div class="sec-icon">&#128274;</div><div class="sec-name">Seguridad</div><div class="sec-desc">Seguridad electr&oacute;nica integral, anal&iacute;tica de video</div><span class="sec-go">Explorar <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14m-6-6l6 6-6 6"/></svg></span></a>
+  </div>
+</div></section>
+
+<!-- ═══ CONTACTO ═══ -->
+<section class="sect" id="contacto"><div class="wrap">
+  <div class="sect-eyebrow">Contacto</div>
+  <h2 class="cta-heading">El pr&oacute;ximo proyecto exitoso puede ser el suyo<span class="red">.</span></h2>
+  <p class="cta-sub">M&aacute;s de 200 organizaciones ya conf&iacute;an en nosotros.</p>
+  <div class="cta-actions">
+    <a href="#" class="btn-primary">Agendar consultor&iacute;a</a>
+    <a href="mailto:contacto@ultimamilla.com.ar" class="btn-ghost">contacto@ultimamilla.com.ar</a>
+  </div>
+  <p class="cta-trust">Aeropuertos Argentina 2000 &middot; Gobierno de Mendoza &middot; Hospital Central &middot; Bodega La Esmeralda &middot; YPF</p>
+</div></section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="footer"><div class="wrap">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">ultimamilla<span class="dot">.</span>com<span class="dot">.</span>ar</div>
+      <p class="footer-about">Transformaci&oacute;n digital para empresas en Mendoza, Cuyo y Patagonia. +22 a&ntilde;os de experiencia en soluciones IT.</p>
+    </div>
+    <div>
+      <div class="footer-col-title">Servicios</div>
+      <ul><li><a href="#">Redes</a></li><li><a href="#">Seguridad</a></li><li><a href="#">Telecomunicaciones</a></li><li><a href="#">Software</a></li><li><a href="#">Soporte 24/7</a></li></ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Empresa</div>
+      <ul><li><a href="#">Nosotros</a></li><li><a href="#">Antecedentes</a></li><li><a href="#">Sectores</a></li><li><a href="#">Contacto</a></li></ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Contacto</div>
+      <p style="font-size:14px;line-height:1.8;">Houssay 1159, Guaymall&eacute;n<br>Mendoza M5519, Argentina<br><a href="mailto:contacto@ultimamilla.com.ar">contacto@ultimamilla.com.ar</a></p>
+    </div>
+  </div>
+  <div class="footer-bar">
+    <span>&copy; 2026 Ultima Milla. Todos los derechos reservados.</span>
+    <span><a href="#">Privacidad</a> &middot; <a href="#">T&eacute;rminos</a></span>
+  </div>
+</div></footer>
+
+<script>
+/* ═══ NETWORK CANVAS — hero only ═══ */
+(function(){
+var c=document.getElementById('net'),ctx=c.getContext('2d');
+var hero=document.getElementById('heroBanner');
+var W,H,dpr=Math.max(window.devicePixelRatio||1,2);
+var mouse={x:-9e3,y:-9e3},raw={x:-9e3,y:-9e3},active=false,down=false,drag=null;
+var MAG=300,CONNECT=220,STICKY=270,BREAK=380;
+var nodes=[],links=[],pulses=[];
+
+function resize(){
+  W=hero.offsetWidth;H=hero.offsetHeight;
+  c.width=W*dpr;c.height=H*dpr;
+  c.style.width=W+'px';c.style.height=H+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+function R(a,b){return a+Math.random()*(b-a)}
+function mk(x,y,red){
+  return{x:x,y:y,hx:x,hy:y,vx:R(-.25,.25),vy:R(-.25,.25),r:R(3.5,7),red:red!==undefined?red:Math.random()<.5,ph:R(0,6.28),conn:0,pulse:1};
+}
+function seed(n){nodes=[];links=[];pulses=[];for(var i=0;i<n;i++){var rb=Math.random()<.55;nodes.push(mk(rb?R(W*.35,W*.97):R(W*.03,W*.97),R(H*.05,H*.95)));}}
+function addPulse(lk){pulses.push({link:lk,t:0,sp:R(.008,.018),fwd:true});}
+function routePulse(p){
+  var end=p.fwd?p.link.b:p.link.a;var opts=[];
+  for(var i=0;i<links.length;i++){var l=links[i];if(l===p.link)continue;if(l.a===end)opts.push({lk:l,fwd:true});else if(l.b===end)opts.push({lk:l,fwd:false});}
+  if(opts.length>0){var pk=opts[Math.floor(Math.random()*opts.length)];p.link=pk.lk;p.fwd=pk.fwd;p.t=0;}else{p.fwd=!p.fwd;p.t=0;}
+}
+
+function update(){
+  var t=Date.now()*.001;
+  if(active){mouse.x+=(raw.x-mouse.x)*.08;mouse.y+=(raw.y-mouse.y)*.08;}
+  else{mouse.x+=(-9e3-mouse.x)*.01;mouse.y+=(-9e3-mouse.y)*.01;}
+  for(var i=0;i<nodes.length;i++){
+    var n=nodes[i];n.pulse=.85+.15*Math.sin(t*1.3+n.ph);
+    n.hx+=n.vx;n.hy+=n.vy;
+    if(n.hx<10||n.hx>W-10)n.vx*=-1;if(n.hy<10||n.hy>H-10)n.vy*=-1;
+    n.hx=Math.max(5,Math.min(W-5,n.hx));n.hy=Math.max(5,Math.min(H-5,n.hy));
+    if(drag===n){n.x=mouse.x;n.y=mouse.y;n.hx=mouse.x;n.hy=mouse.y;continue;}
+    var dx=mouse.x-n.hx,dy=mouse.y-n.hy,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<MAG&&d>1){var f=Math.pow(1-d/MAG,2)*55;n.x=n.hx+(dx/d)*f;n.y=n.hy+(dy/d)*f;}
+    else{n.x+=(n.hx-n.x)*.08;n.y+=(n.hy-n.y)*.08;}
+    n.conn=0;
+  }
+  for(var i=0;i<nodes.length;i++){for(var j=i+1;j<nodes.length;j++){
+    var a=nodes[i],b=nodes[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.sqrt(dx*dx+dy*dy);
+    var am=Math.sqrt((a.x-mouse.x)**2+(a.y-mouse.y)**2);
+    var bm=Math.sqrt((b.x-mouse.x)**2+(b.y-mouse.y)**2);
+    if(d<STICKY&&am<MAG&&bm<MAG){
+      var exists=false;
+      for(var k=0;k<links.length;k++){if((links[k].a===a&&links[k].b===b)||(links[k].a===b&&links[k].b===a)){exists=true;links[k].str=Math.min(links[k].str+.015,1);break;}}
+      if(!exists){var lk={a:a,b:b,str:.15,flash:1};links.push(lk);addPulse(lk);}
+    }
+  }}
+  for(var s=links.length-1;s>=0;s--){
+    var lk=links[s];lk.flash=Math.max(0,lk.flash-.02);
+    var d2=Math.sqrt((lk.a.x-lk.b.x)**2+(lk.a.y-lk.b.y)**2);
+    if(d2>BREAK){lk.str-=.015;if(lk.str<=0){for(var p=pulses.length-1;p>=0;p--)if(pulses[p].link===lk)pulses.splice(p,1);links.splice(s,1);continue;}}
+    lk.a.conn++;lk.b.conn++;
+  }
+  for(var p=0;p<pulses.length;p++){pulses[p].t+=pulses[p].sp;if(pulses[p].t>=1)routePulse(pulses[p]);}
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  // Base connections
+  for(var i=0;i<nodes.length;i++){for(var j=i+1;j<nodes.length;j++){
+    var a=nodes[i],b=nodes[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<CONNECT){var al=1-d/CONNECT;
+      ctx.strokeStyle=a.red&&b.red?'rgba(180,10,10,'+(al*.2)+')':'rgba(0,0,0,'+(al*.08)+')';
+      ctx.lineWidth=.5+al*.6;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}
+  }}
+  // Magnetic links
+  for(var s=0;s<links.length;s++){
+    var lk=links[s],al=lk.str,fl=lk.flash,both=lk.a.red&&lk.b.red;
+    ctx.strokeStyle=both?'rgba(190,15,15,'+(al*.7+fl*.3)+')':'rgba(30,30,30,'+(al*.45+fl*.2)+')';
+    ctx.lineWidth=2+al*3+fl*2;ctx.beginPath();ctx.moveTo(lk.a.x,lk.a.y);ctx.lineTo(lk.b.x,lk.b.y);ctx.stroke();
+    if(fl>.05){ctx.strokeStyle='rgba(200,10,10,'+(fl*.15)+')';ctx.lineWidth=fl*12;ctx.beginPath();ctx.moveTo(lk.a.x,lk.a.y);ctx.lineTo(lk.b.x,lk.b.y);ctx.stroke();}
+  }
+  // Mouse lines
+  if(active){for(var i=0;i<nodes.length;i++){
+    var n=nodes[i],dx=n.x-mouse.x,dy=n.y-mouse.y,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<MAG*.55){var a2=1-d/(MAG*.55);ctx.strokeStyle=n.red?'rgba(190,10,10,'+(a2*.35)+')':'rgba(0,0,0,'+(a2*.12)+')';ctx.lineWidth=.6+a2*1.5;ctx.beginPath();ctx.moveTo(mouse.x,mouse.y);ctx.lineTo(n.x,n.y);ctx.stroke();}
+  }ctx.beginPath();ctx.arc(mouse.x,mouse.y,3,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,.2)';ctx.fill();}
+  // Pulses
+  for(var p=0;p<pulses.length;p++){
+    var pk=pulses[p],lk=pk.link,t=pk.fwd?pk.t:1-pk.t;t=Math.max(0,Math.min(1,t));
+    var px=lk.a.x+(lk.b.x-lk.a.x)*t,py=lk.a.y+(lk.b.y-lk.a.y)*t;
+    ctx.beginPath();ctx.arc(px,py,7,0,Math.PI*2);ctx.fillStyle='rgba(200,10,10,.1)';ctx.fill();
+    ctx.beginPath();ctx.arc(px,py,3.5,0,Math.PI*2);ctx.fillStyle='#111';ctx.fill();
+    ctx.beginPath();ctx.arc(px,py,1.2,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.8)';ctx.fill();
+    for(var tb=1;tb<=3;tb++){var bt=t-(pk.fwd?1:-1)*tb*.02;bt=Math.max(0,Math.min(1,bt));var bx=lk.a.x+(lk.b.x-lk.a.x)*bt,by=lk.a.y+(lk.b.y-lk.a.y)*bt;ctx.beginPath();ctx.arc(bx,by,2.5*(1-tb*.25),0,Math.PI*2);ctx.fillStyle='rgba(17,17,17,'+(0.6*(1-tb*.28))+')';ctx.fill();}
+  }
+  // Nodes
+  for(var ni=0;ni<nodes.length;ni++){
+    var n=nodes[ni],dx=n.x-mouse.x,dy=n.y-mouse.y,md=Math.sqrt(dx*dx+dy*dy);
+    var near=md<MAG?1-md/MAG:0,sm=1+near*.6,r=n.r*n.pulse*sm;var dens=Math.min(n.conn/4,1);
+    if(n.red){
+      ctx.beginPath();ctx.arc(n.x,n.y,r*2,0,Math.PI*2);ctx.fillStyle='rgba(190,10,10,'+(0.06+near*.1+dens*.05)+')';ctx.fill();
+      ctx.beginPath();ctx.arc(n.x,n.y,r,0,Math.PI*2);ctx.fillStyle='rgb('+(140+Math.floor(dens*100))+',12,12)';ctx.fill();
+      ctx.beginPath();ctx.arc(n.x,n.y,r*.32,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,'+(0.55+near*.4)+')';ctx.fill();
+      if(near>.3){var rr=r*2+Math.sin(Date.now()*.004+n.ph)*r*.8;ctx.beginPath();ctx.arc(n.x,n.y,rr,0,Math.PI*2);ctx.strokeStyle='rgba(190,10,10,'+(near*.22)+')';ctx.lineWidth=1.5;ctx.stroke();}
+    } else {
+      ctx.beginPath();ctx.arc(n.x,n.y,r*.75,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,'+(0.25+near*.25+dens*.12)+')';ctx.fill();
+    }
+  }
+}
+function frame(){update();draw();requestAnimationFrame(frame);}
+
+hero.addEventListener('mousemove',function(e){var r=hero.getBoundingClientRect();raw.x=e.clientX-r.left;raw.y=e.clientY-r.top;active=true;});
+hero.addEventListener('mouseleave',function(){active=false;down=false;drag=null;});
+c.addEventListener('mousedown',function(e){var r=hero.getBoundingClientRect();down=true;var mx=e.clientX-r.left,my=e.clientY-r.top,cl=null,cd=30;nodes.forEach(function(n){var d=Math.sqrt((n.x-mx)**2+(n.y-my)**2);if(d<cd){cd=d;cl=n;}});if(cl)drag=cl;else{var nn=mk(mx,my,true);nn.r=R(4,7);nodes.push(nn);}});
+c.addEventListener('mouseup',function(){down=false;drag=null;});
+window.addEventListener('resize',function(){resize();seed(30);});
+resize();seed(30);frame();
+})();
+
+/* ═══ TYPEWRITER ═══ */
+(function(){
+  var lines=['La infraestructura','que mueve a las','empresas argentinas.'];
+  var tgt=document.getElementById('heroTitle');
+  function sl(ms){return new Promise(function(r){setTimeout(r,ms)})}
+  async function run(){
+    await sl(600);
+    for(var li=0;li<lines.length;li++){
+      var ln=lines[li],el=document.createElement('div');tgt.appendChild(el);
+      var cur=document.createElement('span');cur.className='type-cursor';el.appendChild(cur);
+      for(var ci=0;ci<ln.length;ci++){el.insertBefore(document.createTextNode(ln[ci]),cur);await sl(36);}
+      if(li===lines.length-1){var ch=el.childNodes;for(var n=ch.length-1;n>=0;n--){if(ch[n].nodeType===3&&ch[n].textContent.endsWith('.')){ch[n].textContent=ch[n].textContent.slice(0,-1);var d=document.createElement('span');d.className='red';d.textContent='.';el.insertBefore(d,cur);break;}}}
+      if(li<lines.length-1){el.removeChild(cur);await sl(120);}
+    }
+    await sl(400);document.getElementById('heroDesc').classList.add('on');
+    await sl(200);document.getElementById('heroBtns').classList.add('on');
+    await sl(200);document.getElementById('heroKpis').classList.add('on');
+  }
+  run();
+})();
+</script>
+</body>
+</html>

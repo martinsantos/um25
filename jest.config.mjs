@@ -7,7 +7,12 @@ export default {
     '^(\\.(css|less|scss|sass))$': 'identity-obj-proxy',
     '^(\.{1,2}/.*)\\.js$': '$1',
   },
-  transform: {},
+  transform: {
+    '^.+\\.(ts|tsx|js|jsx)$': ['babel-jest', {
+      configFile: './babel.config.js',
+      rootMode: 'upward'
+    }],
+  },
   transformIgnorePatterns: [
     'node_modules/(?!(node-fetch|@directus|@babel/runtime/helpers/esm)/)',
   ],

@@ -1,0 +1,177 @@
+<h2>Direccion de Diseno: Cual es tu ULTIMA MILLA?</h2>
+<p class="subtitle">Hay 3 caminos para llegar a nivel mundial. Cada uno comunica algo distinto sobre la empresa.</p>
+
+<style>
+  .dir-preview {
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 12px;
+  }
+  .dir-hero {
+    padding: 40px 32px;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    position: relative;
+  }
+  .dir-hero h4 {
+    margin: 0 0 4px;
+    font-size: 28px;
+    line-height: 1.1;
+  }
+  .dir-hero p {
+    margin: 0;
+    font-size: 13px;
+    opacity: 0.7;
+  }
+  .dir-stats {
+    display: flex;
+    gap: 24px;
+    padding: 16px 32px;
+    font-size: 12px;
+  }
+  .dir-stats span {
+    font-size: 20px;
+    font-weight: 800;
+    display: block;
+  }
+  .dir-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 2px;
+    padding: 2px;
+  }
+  .dir-grid-item {
+    padding: 20px 16px;
+    font-size: 11px;
+  }
+  .dir-grid-item strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .references {
+    font-size: 11px;
+    opacity: 0.5;
+    margin-top: 8px;
+    font-style: italic;
+  }
+</style>
+
+<div class="cards" style="grid-template-columns: 1fr;">
+
+  <!-- OPTION A: DARK AUTHORITY -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)" style="border: 2px solid transparent;">
+    <div class="card-body" style="padding: 0;">
+      <div style="padding: 20px 24px 12px;">
+        <div class="letter" style="display: inline-block; margin-bottom: 8px;">A</div>
+        <h3 style="margin: 0 0 4px;">Dark Authority</h3>
+        <p style="margin: 0; opacity: 0.6; font-size: 13px;">Como Linear, Vercel, Raycast. Fondo oscuro, tipografia masiva, animacion cinematica.</p>
+        <p class="references">Referencias: linear.app, vercel.com, raycast.com</p>
+      </div>
+      <div class="dir-preview">
+        <div class="dir-hero" style="background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0f0f0f 100%); color: #fff;">
+          <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 70% 30%, rgba(220,38,38,0.15), transparent 60%);"></div>
+          <p style="font-family: monospace; font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 16px; position: relative;">Mendoza, Argentina &mdash; Est. 2002</p>
+          <h4 style="font-size: 42px; font-weight: 800; letter-spacing: -0.03em; color: #fff; position: relative;">La infraestructura<br/>que mueve a las<br/>empresas argentinas<span style="color: #dc2626;">.</span></h4>
+          <p style="color: rgba(255,255,255,0.4); position: relative; margin-top: 12px;">Telecomunicaciones / Seguridad / Software / Soporte 24/7</p>
+        </div>
+        <div class="dir-stats" style="background: #111; color: #fff;">
+          <div><span style="color:#dc2626;">469+</span><span style="font-size:9px;opacity:0.4;font-weight:400;">proyectos</span></div>
+          <div><span>22</span><span style="font-size:9px;opacity:0.4;font-weight:400;">anos</span></div>
+          <div><span>9</span><span style="font-size:9px;opacity:0.4;font-weight:400;">industrias</span></div>
+          <div><span style="color:#dc2626;">24/7</span><span style="font-size:9px;opacity:0.4;font-weight:400;">soporte</span></div>
+        </div>
+        <div class="dir-grid" style="background: #0a0a0a;">
+          <div class="dir-grid-item" style="background:#111;color:#999;border-left:2px solid #dc2626;"><strong style="color:#fff;">01</strong>Telecom</div>
+          <div class="dir-grid-item" style="background:#111;color:#999;border-left:2px solid #dc2626;"><strong style="color:#fff;">02</strong>Seguridad</div>
+          <div class="dir-grid-item" style="background:#111;color:#999;border-left:2px solid #dc2626;"><strong style="color:#fff;">03</strong>Redes</div>
+          <div class="dir-grid-item" style="background:#111;color:#999;border-left:2px solid #dc2626;"><strong style="color:#fff;">04</strong>Software</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION B: EDITORIAL BRUTALIST -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)" style="border: 2px solid transparent;">
+    <div class="card-body" style="padding: 0;">
+      <div style="padding: 20px 24px 12px;">
+        <div class="letter" style="display: inline-block; margin-bottom: 8px;">B</div>
+        <h3 style="margin: 0 0 4px;">Editorial Brutalist</h3>
+        <p style="margin: 0; opacity: 0.6; font-size: 13px;">Como Pentagram, ETQ, Balenciaga. Tipografia gigante, grillas asimetricas, whitespace agresivo.</p>
+        <p class="references">Referencias: pentagram.com, etq-amsterdam.com, studiodumbar.com</p>
+      </div>
+      <div class="dir-preview">
+        <div class="dir-hero" style="background: #fafafa; color: #000; padding: 48px 32px 32px;">
+          <p style="font-family: monospace; font-size: 9px; letter-spacing: 0.4em; text-transform: uppercase; color: #999; margin-bottom: 24px;">Infraestructura IT &mdash; Desde 2002</p>
+          <h4 style="font-size: 64px; font-weight: 900; letter-spacing: -0.04em; line-height: 0.95; color: #000;">ULTIMA<br/>MILLA<span style="color:#dc2626;">.</span></h4>
+          <div style="display:flex;gap:40px;margin-top:20px;padding-top:16px;border-top:1px solid #e5e5e5;">
+            <div style="font-size:11px;color:#666;">469 proyectos entregados en 9 industrias. Mendoza, Cuyo y Patagonia.</div>
+            <div style="display:flex;gap:4px;flex-shrink:0;">
+              <div style="width:40px;height:40px;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;">TLC</div>
+              <div style="width:40px;height:40px;background:#dc2626;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;">SEG</div>
+              <div style="width:40px;height:40px;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;">SW</div>
+              <div style="width:40px;height:40px;background:#333;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;">24/7</div>
+            </div>
+          </div>
+        </div>
+        <div class="dir-grid" style="background:#f0f0f0;grid-template-columns:1fr 1fr;">
+          <div style="padding:24px;background:#fff;"><strong style="font-size:48px;font-weight:900;letter-spacing:-0.04em;">469</strong><br/><span style="font-size:10px;text-transform:uppercase;letter-spacing:0.2em;color:#999;">proyectos</span></div>
+          <div style="padding:24px;background:#000;color:#fff;"><strong style="font-size:48px;font-weight:900;letter-spacing:-0.04em;">22</strong><br/><span style="font-size:10px;text-transform:uppercase;letter-spacing:0.2em;color:#666;">anos</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION C: CINEMATIC IMMERSIVE -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)" style="border: 2px solid transparent;">
+    <div class="card-body" style="padding: 0;">
+      <div style="padding: 20px 24px 12px;">
+        <div class="letter" style="display: inline-block; margin-bottom: 8px;">C</div>
+        <h3 style="margin: 0 0 4px;">Cinematic Immersive</h3>
+        <p style="margin: 0; opacity: 0.6; font-size: 13px;">Como Apple, Porsche, Aesop. Full-bleed fotografia, scroll storytelling, transiciones cinematicas.</p>
+        <p class="references">Referencias: apple.com, porsche.com, aesop.com</p>
+      </div>
+      <div class="dir-preview">
+        <div class="dir-hero" style="background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7)), linear-gradient(135deg, #2a3a4a, #1a2a3a, #0a1a2a); min-height: 240px; color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+          <p style="font-size: 10px; letter-spacing: 0.5em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 20px;">Mendoza &middot; Cuyo &middot; Patagonia</p>
+          <h4 style="font-size: 36px; font-weight: 300; letter-spacing: 0.05em; color: #fff; text-transform: uppercase;">Infraestructura</h4>
+          <h4 style="font-size: 36px; font-weight: 700; letter-spacing: 0.05em; color: #fff; text-transform: uppercase; margin-top: -4px;">que trasciende<span style="color:#dc2626;">.</span></h4>
+          <div style="width:60px;height:1px;background:#dc2626;margin:20px auto 16px;"></div>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.5); letter-spacing: 0.1em;">469 proyectos &middot; 22 anos &middot; 9 industrias</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:#e5e5e5;">
+          <div style="background:#fff;padding:20px;text-align:center;">
+            <div style="width:40px;height:40px;background:#f5f5f5;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:16px;">&#9878;</div>
+            <strong style="font-size:12px;display:block;">Telecomunicaciones</strong>
+            <span style="font-size:10px;color:#999;">Fibra, RF, enlaces</span>
+          </div>
+          <div style="background:#fff;padding:20px;text-align:center;">
+            <div style="width:40px;height:40px;background:#f5f5f5;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:16px;">&#9881;</div>
+            <strong style="font-size:12px;display:block;">Seguridad</strong>
+            <span style="font-size:10px;color:#999;">CCTV, control acceso</span>
+          </div>
+          <div style="background:#fff;padding:20px;text-align:center;">
+            <div style="width:40px;height:40px;background:#f5f5f5;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:16px;">&#10070;</div>
+            <strong style="font-size:12px;display:block;">Software</strong>
+            <span style="font-size:10px;color:#999;">A medida, SaaS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top: 24px; padding: 20px; background: rgba(220,38,38,0.05); border-radius: 12px; border: 1px solid rgba(220,38,38,0.1);">
+  <h3 style="margin: 0 0 8px; font-size: 14px;">Por que tu version actual no llega a nivel mundial?</h3>
+  <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8; opacity: 0.8;">
+    <li><strong>Fotos stock de Unsplash</strong> &mdash; son las mismas que usan 10.000 sitios. Mata credibilidad.</li>
+    <li><strong>Ritmo repetitivo</strong> &mdash; banner-foto > grilla > banner-foto > grilla. Sin variedad.</li>
+    <li><strong>Sin animacion scroll</strong> &mdash; tenes modern-css.css con scroll-driven animations pero no se usan.</li>
+    <li><strong>Sin social proof</strong> &mdash; ningun logo de cliente, ningun testimonio.</li>
+    <li><strong>Tipografia timida</strong> &mdash; Futura PT es una fuente brutal pero se usa en tamanos chicos.</li>
+    <li><strong>Industrias = solo pills</strong> &mdash; la seccion mas debil de toda la pagina.</li>
+  </ul>
+</div>

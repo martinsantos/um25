@@ -1,0 +1,143 @@
+---
+// LogoUpload.astro - Componente de carga de logos con validación
+// - Input file para imágenes (máx 2MB)
+// - Convierte a data URL y almacena en window.currentLogoUrl
+// - Muestra preview
+// - Botón para quitar logo
+
+interface Props {
+  maxSizeMB?: number;
+}
+
+const { maxSizeMB = 2 } = Astro.props;
+const maxSizeBytes = maxSizeMB * 1024 * 1024;
+---
+
+<div class="logo-upload space-y-4">
+  <div>
+    <label for="logo-input" class="block text-sm font-medium text-gray-700 mb-2">
+      Logo de tu Empresa (Opcional)
+    </label>
+    <input
+      id="logo-input"
+      type="file"
+      accept="image/*"
+      class="block w-full text-sm text-gray-500
+        file:mr-4 file:py-2 file:px-4
+        file:rounded-md file:border-0
+        file:text-sm file:font-semibold
+        file:bg-blue-50 file:text-blue-700
+        hover:file:bg-blue-100"
+    />
+    <small class="text-gray-500">PNG, JPG, GIF, WebP máximo {maxSizeMB}MB</small>
+  </div>
+
+  <!-- Preview del Logo -->
+  <div id="logo-preview" class="hidden">
+    <p class="text-sm font-medium text-gray-700 mb-2">Vista previa:</p>
+    <div class="flex items-center gap-4">
+      <img
+        id="logo-preview-img"
+        src=""
+        alt="Vista previa del logo"
+        class="max-w-xs h-auto rounded-md border border-gray-200"
+      />
+      <button
+        id="remove-logo-btn"
+        type="button"
+        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+      >
+        Quitar Logo
+      </button>
+    </div>
+  </div>
+
+  <!-- Mensajes de Error -->
+  <div id="logo-error" class="hidden text-sm text-red-600 p-3 bg-red-50 rounded-md">
+  </div>
+</div>
+
+<script is:inline>
+  const MAX_SIZE_BYTES = {maxSizeMB} * 1024 * 1024;
+  const VALID_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
+
+  const logoInput = document.querySelector('#logo-input');
+  const logoPreview = document.querySelector('#logo-preview');
+  const logoPreviewImg = document.querySelector('#logo-preview-img');
+  const removeLogoBtn = document.querySelector('#remove-logo-btn');
+  const logoError = document.querySelector('#logo-error');
+
+  // Manejar carga de archivo
+  logoInput.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+
+    // Limpiar errores previos
+    logoError.classList.add('hidden');
+    logoError.textContent = '';
+
+    if (!file) {
+      logoPreview.classList.add('hidden');
+      window.currentLogoUrl = null;
+      return;
+    }
+
+    // Validar tipo
+    if (!VALID_TYPES.includes(file.type)) {
+      showError('Solo se aceptan imágenes (PNG, JPG, GIF, WebP)');
+      logoInput.value = '';
+      return;
+    }
+
+    // Validar tamaño
+    if (file.size > MAX_SIZE_BYTES) {
+      showError(`El archivo es muy grande. Máximo ${MAX_SIZE_BYTES / 1024 / 1024}MB`);
+      logoInput.value = '';
+      return;
+    }
+
+    // Convertir a Data URL
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      const dataUrl = event.target.result;
+      window.currentLogoUrl = dataUrl;
+
+      // Mostrar preview
+      logoPreviewImg.src = dataUrl;
+      logoPreview.classList.remove('hidden');
+    };
+
+    reader.onerror = () => {
+      showError('Error al leer el archivo');
+      logoInput.value = '';
+    };
+
+    reader.readAsDataURL(file);
+  });
+
+  // Botón quitar logo
+  removeLogoBtn.addEventListener('click', () => {
+    logoInput.value = '';
+    window.currentLogoUrl = null;
+    logoPreview.classList.add('hidden');
+    logoError.classList.add('hidden');
+  });
+
+  // Función auxiliar para mostrar errores
+  function showError(message) {
+    logoError.textContent = message;
+    logoError.classList.remove('hidden');
+    logoPreview.classList.add('hidden');
+  }
+
+  // Inicializar window.currentLogoUrl si no existe
+  if (!window.currentLogoUrl) {
+    window.currentLogoUrl = null;
+  }
+</script>
+
+<style>
+  #logo-input::file-selector-button {
+    cursor: pointer;
+  }
+</style>

@@ -2,6 +2,174 @@ import type { EntradaBlog } from '../lib/directus';
 
 export const MOCK_POSTS: EntradaBlog[] = [
   {
+    id: '0',
+    status: 'published',
+    slug: 'plantilla-arca-facturacion-electronica-gratis',
+    titulo: 'Plantilla ARCA: Facturación Electrónica Gratis con RG 5824 (Open Source)',
+    resumen: 'Herramienta open source (MIT) para generar facturas electrónicas según RG 5824 de AFIP. Sin Tango, sin Bejerman. Probá gratis en 5 minutos. Facturación sin estrés, auditoría sin pedir permiso, libertad sin lock-in.',
+    meta_title: 'Plantilla ARCA: Facturación Electrónica Gratis | RG 5824 | Open Source MIT',
+    meta_description: 'Generador de facturas electrónicas open source para cumplir RG 5824 de AFIP. Gratis, auditable, sin dependencias de terceros. Demo online disponible.',
+    meta_keywords: 'Plantilla ARCA, facturación electrónica RG 5824, generador facturas Argentina, AFIP Web Services, facturación gratis, open source MIT, herramientas pymes',
+    contenido: `<h2>El Gancho: Martín y los $500 Mensuales</h2>
+<p>Martín es contador independiente en La Plata. Tiene 50 clientes pequeños, desde almacenes hasta profesionales liberales. Hace tres años, AFIP le obligó a cumplir con <strong>RG 5824</strong>: todas las facturas tienen que ser electrónicas, con CAE (Código de Autorización Electrónica).</p>
+<p>El problema: la solución obvia era pagar $500/mes a Tango o Bejerman. Martín lo hizo durante un año. Luego se enfureció.</p>
+<p>«¿Por qué estoy pagando $6.000 al año por un sistema que <strong>no me deja ver el código</strong>, que <strong>me bloquea si me quiero ir</strong>, y que literalmente <strong>le pide permiso a un servidor remoto para cada factura?</strong> Eso no es solución, eso es extorsión». Tuvo razón. Y así empezó esto.</p>
+<p><strong>Hoy, Martín genera 200 facturas mensuales, sin pagar licencias, auditando cada línea de código.</strong></p>
+
+<h2>El Problema: RG 5824 — La Regulación que Cambió Todo</h2>
+<p>Si sos <strong>contador, director, abogado, profesional independiente o dueño de pyme en Argentina</strong>, la <strong>Resolución General 5824 de AFIP</strong> te alcanza. No es opcional.</p>
+<p>Desde 2024, AFIP exige que <strong>todas las facturas emitidas en Argentina cumplan con estándares de facturación electrónica</strong>. No solo es «emitir un PDF»: tenés que conectarte a los <strong>Web Services de ARCA</strong> (Aplicación de Registro de Código de Autorización), solicitar un <strong>CAE</strong> (código único de autorización), y grabar el comprobante en la base de datos oficial de AFIP.</p>
+<p>Si no cumplís:</p>
+<ul>
+<li><strong>Multas</strong> desde $5.000 hasta $1.000.000+</li>
+<li><strong>Clausura</strong> del punto de venta</li>
+<li><strong>Antecedentes</strong> fiscal que afectan futuras auditorías</li>
+<li><strong>Impugnación</strong> de facturas por AFIP</li>
+</ul>
+<p><strong>¿A quién le afecta?</strong> Contadores, directores y socios, abogados e ingenieros, pymes, y freelancers con CUIT — si emitís recibos, entra en RG 5824.</p>
+
+<h2>La Solución: Plantilla ARCA</h2>
+<p>Acaba de nacer una herramienta open source, totalmente gratuita, que automatiza RG 5824 sin intermediarios.</p>
+<p>Se llama <strong>Plantilla ARCA</strong>. Es un generador de facturas electrónicas que:</p>
+<ul>
+<li>✅ <strong>Se conecta directo a AFIP</strong> (sin Tango, sin Bejerman, sin plataformas caras)</li>
+<li>✅ <strong>Solicita CAE automáticamente</strong> en 2-3 segundos</li>
+<li>✅ <strong>Genera PDFs válidos</strong> con QR de verificación</li>
+<li>✅ <strong>Guarda auditoría</strong> en base de datos propia</li>
+<li>✅ <strong>Corre localmente o en la nube</strong> (tú decides)</li>
+<li>✅ <strong>Totalmente gratis</strong> (licencia MIT)</li>
+<li>✅ <strong>100% auditable</strong>: podés ver cada línea de código</li>
+</ul>
+
+<h2>Cómo Funciona (Técnico, pero entendible)</h2>
+<p>La arquitectura en 30 segundos:</p>
+<p><strong>Cliente (tu navegador) → Validación RG 5824 (Python) → Tres procesos en paralelo:</strong> Solicita CAE a Web Service ARCA, Genera PDF con ReportLab, Registra en PostgreSQL → Retorna PDF + Número de CAE</p>
+<table>
+<tr>
+<th>Componente</th>
+<th>Herramienta</th>
+<th>Razón</th>
+</tr>
+<tr>
+<td><strong>Lenguaje principal</strong></td>
+<td>Python 3.10+</td>
+<td>Simple, usado en AFIP, escalable</td>
+</tr>
+<tr>
+<td><strong>Cliente ARCA</strong></td>
+<td><code>arca_arg</code></td>
+<td>Abstrae certificados, SOAP, WSAA</td>
+</tr>
+<tr>
+<td><strong>Base de datos</strong></td>
+<td>PostgreSQL</td>
+<td>Auditable, escalable, open source</td>
+</tr>
+<tr>
+<td><strong>PDFs con QR</strong></td>
+<td>ReportLab</td>
+<td>Control total, QR embebido, sin dependencias</td>
+</tr>
+<tr>
+<td><strong>Interfaz usuario</strong></td>
+<td>Streamlit</td>
+<td>Prototipo rápido, funcional, zero config</td>
+</tr>
+<tr>
+<td><strong>Contenedores</strong></td>
+<td>Docker</td>
+<td>Levantás todo con <code>docker-compose up</code></td>
+</tr>
+</table>
+
+<h2>Casos de Uso: Cuatro Personas, Cuatro Soluciones</h2>
+<h3>María: Contadora con 50 clientes pequeños</h3>
+<p>Maria asesora pymes. Hoy descargó Plantilla ARCA. La instala en su VPS por $10/mes. Sus clientes se conectan, cargan datos JSON, presionan un botón, obtienen PDF en 3 segundos. <strong>Antes</strong>: Gastaba 2-3 horas/mes asesorando clientes. <strong>Ahora</strong>: Usa una herramienta, la entiende 100%.</p>
+
+<h3>Juan: Director de PyME que recién se entero de RG 5824</h3>
+<p>Juan vende repuestos automotrices. Encontró Plantilla ARCA, pasó 30 minutos: solicitó certificado AFIP, clonó el repo, <code>docker-compose up</code>, probó con 5 facturas en Homologación. Hoy genera 400 facturas/mes. El software le cuesta $0.</p>
+
+<h3>Laura: Abogada con 8 profesionales en estudio</h3>
+<p>Laura tiene estudio con 8 abogados. Cada uno factura clientes. Instaló Plantilla ARCA en servidor compartido. Los 8 abogados tienen usuario. Integró con sistema de turnos: cuando marca «facturado», genera PDF automático.</p>
+
+<h3>Pablo: Freelancer que recién empieza</h3>
+<p>Pablo es desarrollador. Emite pocas facturas (10-20/mes). Fue a la demo online de Plantilla ARCA. Cargó datos de una factura, presionó botón, descargó PDF en 3 segundos. Sin instalar nada. Sin pagar nada.</p>
+
+<h2>Preguntas Frecuentes (Las que realmente te importan)</h2>
+<h3>¿Es legal? ¿AFIP lo permite?</h3>
+<p>Completamente legal. Usamos los mismos Web Services que Tango, Bejerman, ARCA directo. AFIP no prohíbe escribir tu propia herramienta. Ley de software libre (Ley 27.454) te respalda.</p>
+
+<h3>¿Qué pasa si cargo datos incorrectos?</h3>
+<p>ARCA valida antes de emitir CAE. Si algo está mal, rechaza la solicitud y <strong>te muestra el error exacto</strong>. No se emite nada inválido.</p>
+
+<h3>¿Necesito certificado AFIP?</h3>
+<p>Sí, pero es gratis. Tardás 3-5 días en obtener desde https://www.afip.gob.ar. Es X.509 (estándar de seguridad). Sin este certificado, no podés conectarte a ARCA.</p>
+
+<h3>¿Puedo emitir en Producción desde el primer día?</h3>
+<p>No recomendado. Plantilla ARCA default está en <strong>Homologación</strong> (entorno de prueba de AFIP). Probá ahí primero. Cuando estés seguro, cambias <code>ARCA_ENV=produccion</code>.</p>
+
+<h3>¿Puedo usar la herramienta para dos empresas?</h3>
+<p>Sí. Cada empresa configura su CUIT, su certificado, su base de datos. Cero interferencia. Es open source, podés forkear para cada caso.</p>
+
+<h3>¿Es seguro guardar datos en mi BD?</h3>
+<p>Más seguro que confiar en terceros. La base de datos está <strong>en tu máquina o en tu VPS</strong>. AFIP nunca ve tus datos de cliente, solo el comprobante fiscal.</p>
+
+<h3>¿Puedo integrar con mi ERP / sistema de ventas?</h3>
+<p>Completamente. API JSON. Enviás datos, recibes PDF + CAE. Es open source, podés customizar.</p>
+
+<h3>¿Cuál es el catch? ¿En dónde monetizas?</h3>
+<p>La herramienta es <strong>100% gratis, MIT, forever</strong>. Ultima Milla monetiza con consultoría, workshops, soporte profesional e integraciones. Creemos que el cumplimiento fiscal <strong>no debería tener costo de software</strong>. El expertise, sí.</p>
+
+<h2>Roadmap: Lo que viene (y por qué)</h2>
+<p><strong>Q2 2026 (Ahora)</strong>: ✅ Generador básico de facturas (A/B/C), ✅ Demo online, ✅ Documentación RG 5824</p>
+<p><strong>Q3 2026</strong>: 🚀 Notas de Crédito / Débito, 🚀 API REST, 🚀 Batch processing, 🚀 Dashboard histórico</p>
+<p><strong>Q4 2026</strong>: 🚀 Móvil (React Native), 🚀 Machine learning, 🚀 Webhooks</p>
+
+<h2>Cómo Empezar: Tres Caminos</h2>
+<h3>Opción 1: Online (5 minutos, sin instalar)</h3>
+<p>La demo corre en nuestro servidor. Cargas datos, presionas botón, descargas PDF.</p>
+<p><strong><a href="https://ultimamilla.com.ar/plantilla-arca/">👉 Probá Plantilla ARCA online →</a></strong></p>
+
+<h3>Opción 2: Docker Local (15 minutos, para producción)</h3>
+<p>Clonas, levantas con Docker, tenés todo en tu máquina.</p>
+<pre><code># Clonar repositorio
+git clone https://github.com/UltimaMilla/plantilla-arca.git
+cd plantilla-arca
+
+# Crear archivo .env
+cp .env.example .env
+nano .env
+
+# Levantar servicios
+docker-compose up
+
+# Abrí navegador: http://localhost:8501</code></pre>
+
+<h3>Opción 3: Servidor Propio (30 minutos, para escala)</h3>
+<p>Si tenés VPS (AWS, DigitalOcean, Azure), hay guía en el README para desplegar con systemd + Nginx.</p>
+
+<h2>Reflexión Final: Consistencia en la Facturación</h2>
+<p>Hace tres años escribimos sobre integraciones complejas con AFIP. Hace dos años hablamos de RG 5824. Hace un año asesoramos contadores sobre qué herramientas usar.</p>
+<p>Hoy <strong>entregamos la herramienta</strong>.</p>
+<p>Eso es consistencia: no solo identificar problemas, resolverlos.</p>
+<p><strong>Facturación sin estrés. Auditoría sin pedir permiso. Libertad sin lock-in.</strong></p>
+<p>Creemos en Argentina. Creemos en pymes. Creemos que el <strong>cumplimiento fiscal no debería ser un negocio extractivo</strong>, sino una utilidad.</p>
+
+<h2>Links Útiles y Recursos</h2>
+<ul>
+<li><strong>Herramienta online (demo):</strong> https://ultimamilla.com.ar/plantilla-arca/</li>
+<li><strong>GitHub (código fuente, MIT):</strong> https://github.com/UltimaMilla/plantilla-arca</li>
+<li><strong>AFIP Web Services (oficial):</strong> https://www.afip.gob.ar/ws/</li>
+<li><strong>Solicitar certificado AFIP:</strong> https://www.afip.gob.ar/administracion/</li>
+</ul>
+<p><strong>¿Preguntas? Escribinos:</strong> hola@ultimamilla.com.ar</p>`,
+    imagen_portada: null,
+    categoria: 'tecnologia',
+    tags: ['ARCA', 'RG-5824', 'facturación', 'AFIP', 'Python', 'open-source', 'pymes'],
+    fecha_publicacion: '2026-04-26T10:00:00Z',
+    tiempo_lectura: 10,
+  },
+  {
     id: '1',
     status: 'published',
     slug: 'nueva-normativa-camara-vigilancia-edificios-2024',

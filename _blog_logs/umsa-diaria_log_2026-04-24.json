@@ -1,0 +1,39 @@
+{
+  "fecha_ejecucion": "2026-04-24",
+  "hora_ejecucion_ART": "08:30",
+  "estado": "skipped_no_publica",
+  "motivo": "Ya existe nota publicada para la fecha de hoy. Regla §9 del SKILL (umsa-diaria): límite duro de 1 publicación por día.",
+  "nota_existente_hoy": {
+    "slug": "140-gb-del-jefe-de-gabinete-radiografia-de-una-arquitectura-rota",
+    "titulo": "140 GB del Jefe de Gabinete: radiografía de una arquitectura rota",
+    "fecha_publicacion": "2026-04-24T00:00:00.000Z",
+    "categoria": "noticias"
+  },
+  "ultimas_notas_revisadas": [
+    {"slug": "140-gb-del-jefe-de-gabinete-radiografia-de-una-arquitectura-rota", "fecha": "2026-04-24", "categoria": "noticias"},
+    {"slug": "software-libre-en-la-empresa-lo-que-cuesta-y-lo-que-ahorra-sin-cuentos", "fecha": "2026-04-23", "categoria": "tecnico"},
+    {"slug": "tu-ia-en-tu-servidor-que-es-ollama-y-por-que-importa-en-argentina", "fecha": "2026-04-22", "categoria": "tecnico"},
+    {"slug": "migrar-de-saas-a-self-hosted-cuando-tiene-sentido-y-como-empezar", "fecha": "2026-04-22", "categoria": "tecnico"},
+    {"slug": "bienvenidos", "fecha": "2026-04-20", "categoria": "empresa"}
+  ],
+  "distribucion_semanal_actual": {
+    "noticias": 1,
+    "tecnico": 3,
+    "proyectos": 0,
+    "empresa": 1,
+    "objetivo_semanal": "1 noticias / 2 tecnico / 1 proyectos / 1 empresa",
+    "gap_detectado": "Falta una nota de categoria 'proyectos' para cumplir la distribucion semanal objetivo. Recomendacion para la proxima corrida (lunes 2026-04-27): priorizar 'proyectos' (caso UMSA: PSICOLE o trazabilidad DGFA Mendoza)."
+  },
+  "proxima_corrida_sugerida": {
+    "fecha": "2026-04-27",
+    "categoria_recomendada": "proyectos",
+    "tema_sugerido_1": "Trazabilidad de residuos patogenicos en Mendoza: como se arma una cadena de custodia con PostgreSQL + firma digital (caso DGFA anonimizado)",
+    "tema_sugerido_2": "PSICOLE: que pasa cuando un colegio profesional de Cuyo reemplaza 4 sistemas por una plataforma integrada (patrones y antipatrones)",
+    "keywords_libres": ["trazabilidad-residuos", "colegios-profesionales", "postgresql", "mendoza", "firma-digital"]
+  },
+  "verificaciones_realizadas": [
+    "GET /api/blog → 200 OK",
+    "Chequeo de ultimos 14 slugs → solo 5 notas existentes, ninguna repite keyword en 10 dias",
+    "Chequeo de fecha de hoy → EXISTE nota publicada hoy"
+  ]
+}
