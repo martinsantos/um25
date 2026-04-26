@@ -1,0 +1,146 @@
+---
+// PDFPreview.astro - Modal para preview de PDF antes de generar
+// - Se muestra cuando se dispara evento 'showPDFPreview'
+// - Permite confirmar generación o cancelar
+// - Estilo: overlay oscuro, centrado
+
+interface Props {
+  onConfirm?: () => void;
+  onCancel?: () => void;
+}
+
+const { onConfirm, onCancel } = Astro.props;
+---
+
+<dialog
+  id="pdf-preview-modal"
+  class="fixed inset-0 flex items-center justify-center backdrop:bg-black/50 p-4"
+>
+  <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-xl font-bold text-gray-900">Vista Previa de Factura</h2>
+    </div>
+
+    <!-- Content -->
+    <div class="px-6 py-6">
+      <div id="pdf-preview-container" class="bg-gray-50 rounded-md p-4 min-h-96">
+        <p class="text-center text-gray-500">
+          Cargando vista previa del PDF...
+        </p>
+      </div>
+
+      <!-- Info -->
+      <div class="mt-4 p-4 bg-blue-50 rounded-md border border-blue-200">
+        <p class="text-sm text-blue-800">
+          <strong>Nota:</strong> Esta es una vista previa de los datos que serán incluidos en tu factura.
+          Al confirmar, se generará el PDF final con el CAE correspondiente.
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer con botones -->
+    <div class="px-6 py-4 border-t border-gray-200 flex gap-3 justify-end">
+      <button
+        id="cancel-preview-btn"
+        type="button"
+        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+      >
+        Cancelar
+      </button>
+      <button
+        id="confirm-generate-btn"
+        type="button"
+        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+      >
+        Confirmar y Generar
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<script is:inline>
+  const modal = document.querySelector('#pdf-preview-modal');
+  const confirmBtn = document.querySelector('#confirm-generate-btn');
+  const cancelBtn = document.querySelector('#cancel-preview-btn');
+  const previewContainer = document.querySelector('#pdf-preview-container');
+
+  // Mostrar modal cuando se dispara showPDFPreview
+  document.addEventListener('showPDFPreview', (e) => {
+    const { data } = e.detail || {};
+
+    // Actualizar contenido del preview - SEGURO CONTRA XSS
+    if (previewContainer && data) {
+      // Limpiar el contenedor
+      while (previewContainer.firstChild) {
+        previewContainer.removeChild(previewContainer.firstChild);
+      }
+
+      // Crear tabla con datos de la factura
+      const table = document.createElement('table');
+      table.className = 'w-full text-sm';
+
+      const rows = [
+        ['CUIT', data.cuit || ''],
+        ['Empresa', data.razon_social || ''],
+        ['Domicilio', data.domicilio || ''],
+        ['Condición IVA', data.condicion_iva || ''],
+        ['Tipo Comprobante', data.tipo_comprobante || ''],
+        ['Fecha Emisión', data.fecha_emision || ''],
+        ['Descripción', data.descripcion || ''],
+        ['Importe Total', `$${parseFloat(data.importe_total || 0).toFixed(2)}`],
+      ];
+
+      rows.forEach(([label, value]) => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-gray-200';
+
+        const tdLabel = document.createElement('td');
+        tdLabel.className = 'py-2 px-3 font-medium text-gray-700 w-1/3';
+        tdLabel.textContent = label;
+
+        const tdValue = document.createElement('td');
+        tdValue.className = 'py-2 px-3 text-gray-900';
+        tdValue.textContent = value;
+
+        tr.appendChild(tdLabel);
+        tr.appendChild(tdValue);
+        table.appendChild(tr);
+      });
+
+      previewContainer.appendChild(table);
+    }
+
+    modal.showModal();
+  });
+
+  // Botón Cancelar
+  cancelBtn.addEventListener('click', () => {
+    modal.close();
+
+    const event = new CustomEvent('previewCancelled', {
+      bubbles: true,
+    });
+    document.dispatchEvent(event);
+  });
+
+  // Botón Confirmar
+  confirmBtn.addEventListener('click', () => {
+    modal.close();
+
+    const event = new CustomEvent('previewConfirmed', {
+      bubbles: true,
+    });
+    document.dispatchEvent(event);
+  });
+</script>
+
+<style>
+  dialog::backdrop {
+    @apply bg-black/50;
+  }
+
+  dialog {
+    @apply max-w-2xl w-full;
+  }
+</style>
