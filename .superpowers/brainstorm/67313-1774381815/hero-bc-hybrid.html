@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hero B+C Hybrid</title>
+<style>
+  @import url('https://fonts.cdnfonts.com/css/futura-pt');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    color: #fff;
+    overflow-x: hidden;
+  }
+
+  /* ===== HERO SECTION ===== */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: #050508;
+  }
+
+  /* --- Layer 1: Aurora blobs --- */
+  .aurora {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    will-change: transform;
+  }
+  .aurora-1 {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(220,38,38,0.45), transparent 65%);
+    top: -15%; right: -5%;
+    animation: aurora-a 8s ease-in-out infinite alternate;
+  }
+  .aurora-2 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(220,38,38,0.3), transparent 65%);
+    bottom: -10%; left: 25%;
+    animation: aurora-b 10s ease-in-out infinite alternate;
+  }
+  .aurora-3 {
+    width: 300px; height: 350px;
+    background: radial-gradient(circle, rgba(255,80,80,0.18), transparent 65%);
+    top: 30%; left: 5%;
+    animation: aurora-c 7s ease-in-out infinite alternate;
+  }
+  .aurora-4 {
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(180,20,20,0.2), transparent 65%);
+    top: 10%; right: 30%;
+    animation: aurora-a 12s ease-in-out infinite alternate-reverse;
+  }
+
+  @keyframes aurora-a {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(30px, -25px) scale(1.15); }
+  }
+  @keyframes aurora-b {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-25px, 20px) scale(1.1); }
+  }
+  @keyframes aurora-c {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(15px, -30px) scale(1.2); }
+  }
+
+  /* --- Layer 2: Grid overlay --- */
+  .grid-overlay {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* --- Layer 3: Network SVG --- */
+  .network-layer {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .network-layer svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* --- Layer 4: Noise texture --- */
+  .noise {
+    position: absolute;
+    inset: 0;
+    opacity: 0.08;
+    background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4"/></filter><rect width="100%" height="100%" filter="url(%23n)"/></svg>');
+    pointer-events: none;
+  }
+
+  /* --- Layer 5: Vignette --- */
+  .vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 40% 50%, transparent 30%, rgba(5,5,8,0.6) 100%);
+    pointer-events: none;
+  }
+
+  /* --- Content --- */
+  .hero-content {
+    position: relative;
+    z-index: 10;
+    max-width: 720px;
+    padding: 0 64px;
+  }
+
+  .hero-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 12px rgba(34,197,94,0.6);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 12px rgba(34,197,94,0.6); }
+    50% { opacity: 0.6; box-shadow: 0 0 6px rgba(34,197,94,0.3); }
+  }
+
+  .hero-title {
+    font-family: 'Futura PT', 'Inter', sans-serif;
+    font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    color: #fff;
+    margin-bottom: 20px;
+  }
+  .hero-title .accent { color: #dc2626; }
+
+  .hero-sub {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.6;
+    max-width: 420px;
+    margin-bottom: 36px;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 48px;
+  }
+  .btn-primary {
+    padding: 14px 28px;
+    background: #fff;
+    color: #0a0a0a;
+    font-weight: 700;
+    font-size: 14px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+    text-decoration: none;
+  }
+  .btn-primary:hover {
+    background: #dc2626;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(220,38,38,0.3);
+  }
+  .btn-secondary {
+    padding: 14px 28px;
+    background: transparent;
+    color: rgba(255,255,255,0.5);
+    font-weight: 600;
+    font-size: 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.12);
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+  }
+  .btn-secondary:hover {
+    border-color: rgba(255,255,255,0.3);
+    color: #fff;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+    padding-top: 28px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .stat-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    display: block;
+    line-height: 1;
+  }
+  .stat-num.red { color: #dc2626; }
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    margin-top: 6px;
+  }
+
+  /* ===== SCROLL INDICATOR ===== */
+  .scroll-hint {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .scroll-hint span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+  }
+  .scroll-line {
+    width: 1px;
+    height: 32px;
+    background: linear-gradient(to bottom, rgba(220,38,38,0.6), transparent);
+    animation: scroll-down 2s ease-in-out infinite;
+  }
+  @keyframes scroll-down {
+    0% { transform: scaleY(0); transform-origin: top; opacity: 1; }
+    50% { transform: scaleY(1); transform-origin: top; opacity: 1; }
+    50.01% { transform: scaleY(1); transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; opacity: 0.5; }
+  }
+
+  /* ===== BELOW THE FOLD TEASER ===== */
+  .below-fold {
+    background: #0a0a0a;
+    padding: 80px 64px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  .services-preview {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    border-radius: 16px;
+    overflow: hidden;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .svc-card {
+    background: #111;
+    padding: 28px 24px;
+    transition: all 0.3s;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+  }
+  .svc-card:hover {
+    background: #1a1a1a;
+    border-left-color: #dc2626;
+  }
+  .svc-num {
+    font-family: 'Futura PT', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.06);
+    margin-bottom: 8px;
+    transition: color 0.3s;
+  }
+  .svc-card:hover .svc-num { color: rgba(220,38,38,0.2); }
+  .svc-name {
+    font-family: 'Futura PT', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .svc-desc {
+    font-size: 12px;
+    color: #555;
+    line-height: 1.5;
+  }
+
+  .info-bar {
+    text-align: center;
+    padding: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #333;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO: Aurora (C) + Network Constellation (B) -->
+<section class="hero">
+  <!-- Layer 1: Aurora blobs -->
+  <div class="aurora aurora-1"></div>
+  <div class="aurora aurora-2"></div>
+  <div class="aurora aurora-3"></div>
+  <div class="aurora aurora-4"></div>
+
+  <!-- Layer 2: Grid -->
+  <div class="grid-overlay"></div>
+
+  <!-- Layer 3: Network -->
+  <div class="network-layer">
+    <svg viewBox="0 0 1400 800" preserveAspectRatio="xMidYMid slice">
+      <!-- Pulse rings -->
+      <circle cx="900" cy="200" r="60" fill="none" stroke="#dc2626" stroke-width="0.8" opacity="0.25">
+        <animate attributeName="r" values="50;90;50" dur="4s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.25;0.05;0.25" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="1050" cy="450" r="40" fill="none" stroke="#dc2626" stroke-width="0.5" opacity="0.2">
+        <animate attributeName="r" values="30;60;30" dur="5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.2;0.05;0.2" dur="5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="750" cy="500" r="35" fill="none" stroke="#dc2626" stroke-width="0.5" opacity="0.15">
+        <animate attributeName="r" values="25;50;25" dur="6s" repeatCount="indefinite"/>
+      </circle>
+
+      <!-- Connection lines -->
+      <line x1="900" y1="200" x2="1050" y2="450" stroke="url(#lg1)" stroke-width="1.5" opacity="0.5"/>
+      <line x1="900" y1="200" x2="1150" y2="280" stroke="url(#lg1)" stroke-width="1" opacity="0.3"/>
+      <line x1="1050" y1="450" x2="1200" y2="350" stroke="#dc2626" stroke-width="0.8" opacity="0.25"/>
+      <line x1="1050" y1="450" x2="750" y2="500" stroke="url(#lg2)" stroke-width="1.2" opacity="0.35"/>
+      <line x1="750" y1="500" x2="850" y2="650" stroke="#dc2626" stroke-width="0.6" opacity="0.2"/>
+      <line x1="900" y1="200" x2="800" y2="100" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+      <line x1="1150" y1="280" x2="1200" y2="350" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+      <line x1="750" y1="500" x2="600" y2="400" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+      <line x1="1200" y1="350" x2="1300" y2="500" stroke="rgba(255,255,255,0.05)" stroke-width="0.4"/>
+      <line x1="800" y1="100" x2="950" y2="50" stroke="rgba(255,255,255,0.04)" stroke-width="0.4"/>
+      <line x1="600" y1="400" x2="500" y2="300" stroke="rgba(255,255,255,0.03)" stroke-width="0.3"/>
+
+      <!-- Data flow particles -->
+      <circle r="2.5" fill="#dc2626" opacity="0.9" filter="url(#glow)">
+        <animateMotion dur="2.5s" repeatCount="indefinite" path="M900,200 Q975,325 1050,450"/>
+      </circle>
+      <circle r="2" fill="#fff" opacity="0.5">
+        <animateMotion dur="3.5s" repeatCount="indefinite" path="M1050,450 Q900,475 750,500"/>
+      </circle>
+      <circle r="1.5" fill="#dc2626" opacity="0.6">
+        <animateMotion dur="3s" repeatCount="indefinite" path="M900,200 L1150,280"/>
+      </circle>
+      <circle r="1.5" fill="#fff" opacity="0.3">
+        <animateMotion dur="4s" repeatCount="indefinite" path="M750,500 L850,650"/>
+      </circle>
+
+      <!-- Nodes with glow -->
+      <circle cx="900" cy="200" r="7" fill="#dc2626" filter="url(#glow)"/>
+      <circle cx="900" cy="200" r="3.5" fill="#fff"/>
+
+      <circle cx="1050" cy="450" r="6" fill="#dc2626" filter="url(#glow)"/>
+      <circle cx="1050" cy="450" r="3" fill="#fff"/>
+
+      <circle cx="1150" cy="280" r="4" fill="#dc2626" opacity="0.7"/>
+      <circle cx="1150" cy="280" r="2" fill="#fff" opacity="0.7"/>
+
+      <circle cx="1200" cy="350" r="3.5" fill="#dc2626" opacity="0.5"/>
+      <circle cx="750" cy="500" r="5" fill="#dc2626" filter="url(#glow)" opacity="0.8"/>
+      <circle cx="750" cy="500" r="2.5" fill="#fff" opacity="0.7"/>
+
+      <circle cx="850" cy="650" r="3" fill="#dc2626" opacity="0.4"/>
+      <circle cx="800" cy="100" r="2.5" fill="rgba(255,255,255,0.3)"/>
+      <circle cx="950" cy="50" r="2" fill="rgba(255,255,255,0.15)"/>
+      <circle cx="600" cy="400" r="2" fill="rgba(255,255,255,0.15)"/>
+      <circle cx="500" cy="300" r="1.5" fill="rgba(255,255,255,0.08)"/>
+      <circle cx="1300" cy="500" r="2" fill="rgba(255,255,255,0.08)"/>
+
+      <defs>
+        <linearGradient id="lg1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#dc2626" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#dc2626" stop-opacity="0.1"/>
+        </linearGradient>
+        <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#dc2626" stop-opacity="0.5"/>
+          <stop offset="100%" stop-color="#fff" stop-opacity="0.1"/>
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="5" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+    </svg>
+  </div>
+
+  <!-- Layer 4: Noise -->
+  <div class="noise"></div>
+
+  <!-- Layer 5: Vignette -->
+  <div class="vignette"></div>
+
+  <!-- Content -->
+  <div class="hero-content">
+    <p class="hero-tag">
+      <span class="status-dot"></span>
+      Mendoza, Argentina &mdash; Est. 2002
+    </p>
+
+    <h1 class="hero-title">
+      La infraestructura<br/>
+      que mueve a las<br/>
+      empresas argentinas<span class="accent">.</span>
+    </h1>
+
+    <p class="hero-sub">
+      Telecomunicaciones, seguridad electrónica, desarrollo de software y soporte técnico 24/7 para las organizaciones más exigentes del país.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#" class="btn-primary">
+        Solicitar consultoría
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+      </a>
+      <a href="#" class="btn-secondary">Ver proyectos</a>
+    </div>
+
+    <div class="hero-stats">
+      <div>
+        <span class="stat-num">469+</span>
+        <div class="stat-label">proyectos</div>
+      </div>
+      <div>
+        <span class="stat-num">22</span>
+        <div class="stat-label">años</div>
+      </div>
+      <div>
+        <span class="stat-num">9</span>
+        <div class="stat-label">industrias</div>
+      </div>
+      <div>
+        <span class="stat-num red">24/7</span>
+        <div class="stat-label">soporte</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll hint -->
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    <span>scroll</span>
+  </div>
+</section>
+
+<!-- BELOW: Services teaser -->
+<section class="below-fold">
+  <div class="services-preview">
+    <div class="svc-card">
+      <div class="svc-num">01</div>
+      <div class="svc-name">Telecomunicaciones</div>
+      <div class="svc-desc">Fibra óptica, radioenlaces, redes WAN/LAN corporativas</div>
+    </div>
+    <div class="svc-card">
+      <div class="svc-num">02</div>
+      <div class="svc-name">Seguridad Electrónica</div>
+      <div class="svc-desc">CCTV, control de acceso, detección de incendio</div>
+    </div>
+    <div class="svc-card">
+      <div class="svc-num">03</div>
+      <div class="svc-name">Infraestructura</div>
+      <div class="svc-desc">Data centers, cableado estructurado, racks</div>
+    </div>
+    <div class="svc-card">
+      <div class="svc-num">04</div>
+      <div class="svc-name">Software</div>
+      <div class="svc-desc">Desarrollo a medida, integraciones, SaaS</div>
+    </div>
+  </div>
+  <div class="info-bar">
+    Aeropuertos Argentina 2000 &middot; Gobierno de Mendoza &middot; Hospital Central &middot; Bodega La Esmeralda &middot; +200 organizaciones
+  </div>
+</section>
+
+</body>
+</html>

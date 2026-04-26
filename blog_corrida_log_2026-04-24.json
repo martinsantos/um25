@@ -1,0 +1,54 @@
+{
+  "fecha_corrida": "2026-04-24",
+  "fecha_publicacion_post": "2026-04-30",
+  "slug": "n8n-en-pymes-la-arquitectura-que-saca-a-zapier-de-la-factura",
+  "id": 40,
+  "categoria": "tecnico",
+  "titulo": "n8n en pymes: la arquitectura que saca a Zapier de la factura",
+  "tags": ["n8n", "automatizacion", "pymes-ar", "docker", "self-hosted"],
+  "palabras": 851,
+  "tiempo_lectura_min": 4,
+  "meta_title_chars": 46,
+  "meta_description_chars": 132,
+  "fuentes_primarias": [
+    "https://n8n.io/pricing/",
+    "https://github.com/n8n-io/n8n",
+    "https://www.argentina.gob.ar/aaip/datospersonales/proyecto-ley-datos-personales",
+    "https://www.diariojudicial.com/news-103126-proteccion-de-datos-personales-sigue-siendo-suficiente-la-ley-25326-en-2026",
+    "https://www.digitalapplied.com/blog/zapier-vs-make-vs-n8n-2026-automation-comparison",
+    "https://zapier.com/blog/n8n-vs-make/",
+    "https://duotach.com/en/blog/automatizacion-n8n-argentina-pymes-startups"
+  ],
+  "api": {
+    "endpoint": "https://ultimamilla.com.ar/api/blog",
+    "http_status_post": 201,
+    "respuesta": { "ok": true, "slug": "n8n-en-pymes-la-arquitectura-que-saca-a-zapier-de-la-factura", "id": 40 }
+  },
+  "verificacion_get": {
+    "url": "https://www.ultimamilla.com.ar/blog/n8n-en-pymes-la-arquitectura-que-saca-a-zapier-de-la-factura",
+    "http_status": 200,
+    "size_bytes": 33830
+  },
+  "imagen_portada": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&h=480&fit=crop&q=80",
+  "docx_espejo": {
+    "outputs": "/sessions/compassionate-tender-archimedes/mnt/outputs/blog_umsa_2026-04-30_n8n-en-pymes-la-arquitectura-que-saca-a-zapier-de-la-factura.docx",
+    "workspace": "/Users/Shared/Files From d.localized/D/ultima milla/2024/MKT 2024/umw141024/umw46-main/fumbling-field/blog_umsa_2026-04-30_n8n-en-pymes-la-arquitectura-que-saca-a-zapier-de-la-factura.docx"
+  },
+  "checklist_voz_estructura": {
+    "escena_arranque": true,
+    "cifra_sorprendente_primeros_2_parrafos": true,
+    "frase_contraintuitiva": true,
+    "empresas_herramientas_leyes_reales_nombradas": true,
+    "humor_seco_sin_emojis": true,
+    "cierre_consecuencia_o_pregunta_incomoda": true,
+    "frases_prohibidas_encontradas": 0,
+    "umsa_mencionado_antes_50pct": false,
+    "links_externos_dofollow": 4,
+    "link_interno": 0,
+    "categoria_correcta": "tecnico",
+    "tag_geo_incluido": "pymes-ar",
+    "tag_stack_incluido": "n8n"
+  },
+  "estado_corrida": "exito",
+  "notas_operador": "Hoy (24 abril) ya tenía 7 posts. Failsafe §9 impone 1 post/día. Publiqué con fecha_publicacion = 2026-04-30 (próximo hueco editorial, jueves). API devuelve 301 www->apex; usar https://ultimamilla.com.ar directo para evitar drop de Authorization en el redirect."
+}

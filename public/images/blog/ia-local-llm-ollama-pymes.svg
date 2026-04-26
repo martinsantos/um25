@@ -1,0 +1,132 @@
+<svg viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a0a"/>
+      <stop offset="55%" style="stop-color:#0f1620"/>
+      <stop offset="100%" style="stop-color:#1a0505"/>
+    </linearGradient>
+    <linearGradient id="redLine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#DC2626;stop-opacity:0"/>
+      <stop offset="50%" style="stop-color:#DC2626;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#DC2626;stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="cardL" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1c2534"/>
+      <stop offset="100%" style="stop-color:#111827"/>
+    </linearGradient>
+    <linearGradient id="cardR" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a0d0d"/>
+      <stop offset="100%" style="stop-color:#0f0808"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softglow">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" stroke-width="0.25" opacity="0.06"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+
+  <!-- Top red bar -->
+  <rect x="0" y="0" width="1200" height="4" fill="url(#redLine)"/>
+
+  <!-- Decorative nodes left -->
+  <circle cx="60" cy="160" r="4" fill="#DC2626" opacity="0.7" filter="url(#glow)"/>
+  <circle cx="120" cy="220" r="3" fill="#DC2626" opacity="0.4"/>
+  <circle cx="50" cy="300" r="5" fill="#DC2626" opacity="0.3"/>
+  <line x1="60" y1="160" x2="120" y2="220" stroke="#DC2626" stroke-width="1" opacity="0.25"/>
+  <line x1="50" y1="300" x2="120" y2="220" stroke="#DC2626" stroke-width="1" opacity="0.2"/>
+  <circle cx="80" cy="460" r="3" fill="#DC2626" opacity="0.3"/>
+  <circle cx="140" cy="510" r="4" fill="#DC2626" opacity="0.4" filter="url(#glow)"/>
+  <line x1="80" y1="460" x2="140" y2="510" stroke="#DC2626" stroke-width="1" opacity="0.2"/>
+
+  <!-- Decorative nodes right -->
+  <circle cx="1140" cy="130" r="4" fill="#DC2626" opacity="0.5"/>
+  <circle cx="1080" cy="190" r="3" fill="#DC2626" opacity="0.35"/>
+  <circle cx="1160" cy="380" r="5" fill="#DC2626" opacity="0.5" filter="url(#glow)"/>
+  <line x1="1140" y1="130" x2="1080" y2="190" stroke="#DC2626" stroke-width="1" opacity="0.25"/>
+  <line x1="1080" y1="190" x2="1160" y2="380" stroke="#DC2626" stroke-width="1" opacity="0.2"/>
+
+  <!-- Main title area -->
+  <text x="600" y="72" text-anchor="middle" font-size="11" fill="#DC2626" font-weight="700" letter-spacing="4" opacity="0.9">ULTIMA MILLA — BLOG 2026</text>
+  <text x="600" y="118" text-anchor="middle" font-size="38" fill="#ffffff" font-weight="800" letter-spacing="-1">Tu propio ChatGPT.</text>
+  <text x="600" y="162" text-anchor="middle" font-size="38" fill="#ffffff" font-weight="800" letter-spacing="-1">En tu servidor. <tspan fill="#DC2626">En pesos.</tspan></text>
+
+  <!-- Red separator -->
+  <rect x="200" y="182" width="800" height="2" fill="url(#redLine)" opacity="0.6"/>
+
+  <!-- Subtitle -->
+  <text x="600" y="212" text-anchor="middle" font-size="15" fill="#9ca3af" letter-spacing="0.5">LLMs open source para PyMEs argentinas · Stack completo · Datos reales 2026</text>
+
+  <!-- LEFT CARD: CLOUD AI (bad) -->
+  <rect x="100" y="245" width="420" height="280" rx="12" fill="url(#cardL)" stroke="#1e3a5f" stroke-width="1.5"/>
+  <rect x="100" y="245" width="420" height="4" rx="2" fill="#374151" opacity="0.8"/>
+
+  <text x="200" y="282" text-anchor="middle" font-size="11" fill="#6b7280" letter-spacing="3" font-weight="600">SIN MIGRACIÓN</text>
+  <text x="200" y="308" text-anchor="middle" font-size="19" fill="#e5e7eb" font-weight="700">API Cloud (OpenAI)</text>
+
+  <!-- Cost breakdown left -->
+  <text x="130" y="342" font-size="12" fill="#6b7280">ChatGPT Plus × 10 usuarios</text>
+  <text x="490" y="342" text-anchor="end" font-size="12" fill="#9ca3af">$200 USD/mes</text>
+  <text x="130" y="366" font-size="12" fill="#6b7280">API usage (moderado)</text>
+  <text x="490" y="366" text-anchor="end" font-size="12" fill="#9ca3af">$180 USD/mes</text>
+  <text x="130" y="390" font-size="12" fill="#6b7280">Copilot / herramientas IA</text>
+  <text x="490" y="390" text-anchor="end" font-size="12" fill="#9ca3af">$120 USD/mes</text>
+  <line x1="130" y1="400" x2="490" y2="400" stroke="#374151" stroke-width="1"/>
+  <text x="130" y="422" font-size="13" fill="#e5e7eb" font-weight="600">Total mensual</text>
+  <text x="490" y="422" text-anchor="end" font-size="13" fill="#DC2626" font-weight="700">$500 USD/mes</text>
+  <text x="130" y="445" font-size="13" fill="#e5e7eb" font-weight="600">Total anual</text>
+  <text x="490" y="445" text-anchor="end" font-size="16" fill="#DC2626" font-weight="800">$6.000 USD/año</text>
+
+  <!-- Data leaves note -->
+  <rect x="120" y="460" width="380" height="34" rx="6" fill="#1f1010" stroke="#DC2626" stroke-width="1" opacity="0.7"/>
+  <text x="310" y="481" text-anchor="middle" font-size="11" fill="#fca5a5">⚠  Datos de clientes procesados en servidores de EE.UU.</text>
+
+  <!-- RIGHT CARD: LOCAL AI (good) -->
+  <rect x="680" y="245" width="420" height="280" rx="12" fill="#0d1410" stroke="#1a3a22" stroke-width="1.5"/>
+  <rect x="680" y="245" width="420" height="4" rx="2" fill="#DC2626"/>
+
+  <text x="890" y="282" text-anchor="middle" font-size="11" fill="#DC2626" letter-spacing="3" font-weight="600">CON ÚLTIMA MILLA</text>
+  <text x="890" y="308" text-anchor="middle" font-size="19" fill="#e5e7eb" font-weight="700">LLM Local (Ollama + Llama)</text>
+
+  <!-- Cost breakdown right -->
+  <text x="710" y="342" font-size="12" fill="#6b7280">Open WebUI (50 usuarios)</text>
+  <text x="1070" y="342" text-anchor="end" font-size="12" fill="#4ade80">$0 USD/mes</text>
+  <text x="710" y="366" font-size="12" fill="#6b7280">Ollama + Llama 3.3 70B</text>
+  <text x="1070" y="366" text-anchor="end" font-size="12" fill="#4ade80">$0 USD/mes</text>
+  <text x="710" y="390" font-size="12" fill="#6b7280">Servidor dedicado (amortizado)</text>
+  <text x="1070" y="390" text-anchor="end" font-size="12" fill="#86efac">~$140 USD/mes</text>
+  <line x1="710" y1="400" x2="1070" y2="400" stroke="#1a3a22" stroke-width="1"/>
+  <text x="710" y="422" font-size="13" fill="#e5e7eb" font-weight="600">Total mensual</text>
+  <text x="1070" y="422" text-anchor="end" font-size="13" fill="#4ade80" font-weight="700">~$140 USD/mes</text>
+  <text x="710" y="445" font-size="13" fill="#e5e7eb" font-weight="600">Total anual</text>
+  <text x="1070" y="445" text-anchor="end" font-size="16" fill="#4ade80" font-weight="800">~$1.680 USD/año</text>
+
+  <!-- Private note -->
+  <rect x="700" y="460" width="380" height="34" rx="6" fill="#0a1f0f" stroke="#4ade80" stroke-width="1" opacity="0.8"/>
+  <text x="890" y="481" text-anchor="middle" font-size="11" fill="#86efac">✓  100% de tus datos quedan en tu servidor</text>
+
+  <!-- VS divider -->
+  <circle cx="600" cy="385" r="28" fill="#111827" stroke="#374151" stroke-width="2"/>
+  <text x="600" y="392" text-anchor="middle" font-size="16" fill="#ffffff" font-weight="800">VS</text>
+
+  <!-- Arrow connector -->
+  <line x1="525" y1="385" x2="568" y2="385" stroke="#374151" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="635" y1="385" x2="672" y2="385" stroke="#374151" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+  <!-- Bottom savings callout -->
+  <rect x="350" y="548" width="500" height="52" rx="10" fill="#0d1f0d" stroke="#4ade80" stroke-width="1.5"/>
+  <text x="600" y="570" text-anchor="middle" font-size="12" fill="#4ade80" font-weight="600" letter-spacing="1">AHORRO POTENCIAL ANUAL</text>
+  <text x="600" y="590" text-anchor="middle" font-size="20" fill="#ffffff" font-weight="800">$4.320 USD · ~$5.600.000 ARS (abr. 2026)</text>
+
+  <!-- Logo bottom right -->
+  <text x="1150" y="618" text-anchor="end" font-size="13" fill="#374151" font-weight="700">ultimamilla<tspan fill="#DC2626">.</tspan>com<tspan fill="#DC2626">.</tspan>ar</text>
+</svg>

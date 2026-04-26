@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ULTIMA MILLA — Infraestructura IT</title>
+<style>
+@import url('https://fonts.cdnfonts.com/css/futura-pt');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#fff;color:#111;overflow-x:hidden;font-family:'Inter',sans-serif;position:relative;}
+
+/* ===== GLOBAL GRID: everything aligns to this ===== */
+.container{max-width:1400px;padding:0 64px;}
+
+/* ===== FULL-PAGE NETWORK CANVAS ===== */
+#networkCanvas{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:1;pointer-events:auto;cursor:crosshair;}
+
+/* ===== NAVBAR ===== */
+.navbar{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(255,255,255,0.93);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,0,0,0.06);height:72px;display:flex;align-items:center;}
+.nav-logo{font-family:'Futura PT','Futura',sans-serif;font-weight:700;font-size:30px;letter-spacing:-0.02em;color:#111;text-decoration:none;white-space:nowrap;}
+.nav-logo .dot{color:#dc2626;}
+.nav-links{display:flex;align-items:center;gap:32px;}
+.nav-links a{font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:rgba(0,0,0,0.5);text-decoration:none;transition:color .2s;}
+.nav-links a:hover{color:#111;}
+.nav-cta{padding:10px 24px;background:#111;color:#fff;font-size:13px;font-weight:700;border-radius:10px;text-decoration:none;transition:all .3s;}
+.nav-cta:hover{background:#dc2626;transform:translateY(-1px);box-shadow:0 8px 20px rgba(220,38,38,.2);}
+.nav-spacer{height:72px;}
+.nav-flex{display:flex;align-items:center;justify-content:space-between;}
+
+/* ===== AURORA (behind everything) ===== */
+.aurora-wrap{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none;overflow:hidden;}
+.aurora{position:absolute;border-radius:50%;filter:blur(100px);will-change:transform;}
+.a1{width:700px;height:700px;background:radial-gradient(circle,rgba(220,38,38,.11),transparent 60%);top:-10%;right:-5%;animation:ad1 9s ease-in-out infinite alternate;}
+.a2{width:550px;height:550px;background:radial-gradient(circle,rgba(220,38,38,.08),transparent 60%);top:40%;left:8%;animation:ad2 11s ease-in-out infinite alternate;}
+.a3{width:400px;height:450px;background:radial-gradient(circle,rgba(255,80,80,.06),transparent 60%);top:70%;right:15%;animation:ad3 8s ease-in-out infinite alternate;}
+@keyframes ad1{to{transform:translate(25px,-22px) scale(1.1)}}
+@keyframes ad2{to{transform:translate(-18px,15px) scale(1.08)}}
+@keyframes ad3{to{transform:translate(12px,-25px) scale(1.12)}}
+
+/* ===== CONTENT SECTIONS — sit above canvas ===== */
+.section{position:relative;z-index:10;pointer-events:none;}
+.section a,.section button,.section input,.section .svc-card,.section .ant-card,.section .sec-card{pointer-events:auto;}
+.section-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#dc2626;margin-bottom:8px;}
+.section-title{font-family:'Futura PT',sans-serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;letter-spacing:-.03em;color:#111;}
+.section-title .accent{color:#dc2626;}
+
+/* ===== HERO ===== */
+.hero{min-height:calc(100vh - 72px);display:flex;align-items:center;position:relative;}
+.hero-inner{max-width:600px;}
+.hero-tag{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(0,0,0,.3);margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+.dot-live{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 10px rgba(34,197,94,.5);animation:pdot 2s ease-in-out infinite;}
+@keyframes pdot{0%,100%{opacity:1}50%{opacity:.5}}
+.hero-title{font-family:'Futura PT','Inter',sans-serif;font-size:clamp(2.8rem,5.5vw,4.5rem);font-weight:800;letter-spacing:-.035em;line-height:1.06;color:#111;margin-bottom:24px;}
+.cursor-el{display:inline-block;width:3px;height:.85em;background:#dc2626;margin-left:4px;vertical-align:text-bottom;animation:cblink .7s step-end infinite;}
+.accent{color:#dc2626;}
+@keyframes cblink{0%,49%{opacity:1}50%,100%{opacity:0}}
+.hero-sub{font-size:16px;color:rgba(0,0,0,.45);line-height:1.65;max-width:480px;margin-bottom:36px;opacity:0;transform:translateY(10px);transition:all .5s ease;}
+.hero-sub.show{opacity:1;transform:translateY(0);}
+.hero-actions{display:flex;gap:14px;margin-bottom:52px;opacity:0;transform:translateY(10px);transition:all .5s ease .1s;}
+.hero-actions.show{opacity:1;transform:translateY(0);}
+.btn-p{padding:16px 32px;background:#111;color:#fff;font-weight:700;font-size:14px;border-radius:12px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .3s;text-decoration:none;position:relative;z-index:20;}
+.btn-p:hover{background:#dc2626;transform:translateY(-2px);box-shadow:0 12px 30px rgba(220,38,38,.2);}
+.btn-s{padding:16px 32px;background:transparent;color:rgba(0,0,0,.4);font-weight:600;font-size:14px;border-radius:12px;border:1px solid rgba(0,0,0,.1);cursor:pointer;transition:all .3s;text-decoration:none;position:relative;z-index:20;}
+.btn-s:hover{border-color:rgba(0,0,0,.25);color:#111;}
+.hero-stats{display:flex;gap:48px;padding-top:28px;border-top:1px solid rgba(0,0,0,.08);opacity:0;transform:translateY(10px);transition:all .5s ease .2s;}
+.hero-stats.show{opacity:1;transform:translateY(0);}
+.st-n{font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;color:#111;display:block;line-height:1;}
+.st-n.red{color:#dc2626;}
+.st-l{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(0,0,0,.25);margin-top:5px;}
+
+/* ===== SERVICES ===== */
+.svc-section{padding:100px 0 80px;}
+.svc-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;}
+.svc-link{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#bbb;text-decoration:none;transition:color .3s;position:relative;z-index:20;}
+.svc-link:hover{color:#dc2626;}
+.svc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.svc-grid+.svc-grid{margin-top:6px;}
+.svc-card{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:3/4;cursor:pointer;background:#eee;}
+.svc-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s ease;}
+.svc-card:hover img{transform:scale(1.06);}
+.svc-card .ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,rgba(0,0,0,.08) 45%,rgba(0,0,0,.12) 100%);transition:background .3s;}
+.svc-card:hover .ov{background:linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.15) 45%,rgba(0,0,0,.08) 100%);}
+.svc-card .info{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:20px;}
+.svc-card .sn{font-family:'Futura PT',sans-serif;font-size:52px;font-weight:900;color:rgba(255,255,255,.12);line-height:1;transition:color .3s;}
+.svc-card:hover .sn{color:rgba(220,38,38,.25);}
+.svc-card .nm{font-family:'Futura PT',sans-serif;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.02em;line-height:1.2;margin-bottom:4px;}
+.svc-card .ct{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:rgba(255,255,255,.3);transition:color .3s;}
+.svc-card:hover .ct{color:rgba(255,255,255,.7);}
+
+/* ===== ANTECEDENTES ===== */
+.ant-section{padding:100px 0 80px;border-top:1px solid rgba(0,0,0,.06);}
+.ant-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;}
+.ant-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.ant-card{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:1;cursor:pointer;background:#eee;}
+.ant-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s ease;}
+.ant-card:hover img{transform:scale(1.04);}
+.ant-card .ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 50%);}
+.ant-card .ant-info{position:absolute;bottom:0;left:0;right:0;padding:20px;}
+.ant-card .ant-area{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#dc2626;margin-bottom:4px;}
+.ant-card .ant-name{font-family:'Futura PT',sans-serif;font-size:16px;font-weight:700;color:#fff;line-height:1.2;}
+
+/* ===== SECTORES ===== */
+.sec-section{padding:100px 0 80px;border-top:1px solid rgba(0,0,0,.06);}
+.sec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:40px;}
+.sec-card{padding:40px 32px;background:#f7f7f7;border-radius:12px;transition:all .3s;cursor:pointer;position:relative;z-index:20;text-decoration:none;color:inherit;display:block;}
+.sec-card:hover{background:#111;color:#fff;transform:translateY(-2px);}
+.sec-card .sec-name{font-family:'Futura PT',sans-serif;font-size:20px;font-weight:700;margin-bottom:6px;}
+.sec-card .sec-desc{font-size:13px;opacity:.5;line-height:1.5;}
+.sec-card:hover .sec-desc{opacity:.6;}
+.sec-card .sec-arrow{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#dc2626;margin-top:12px;display:block;opacity:0;transition:opacity .3s;}
+.sec-card:hover .sec-arrow{opacity:1;}
+
+/* ===== CTA / CONTACTO ===== */
+.cta-section{padding:120px 0;border-top:1px solid rgba(0,0,0,.06);}
+.cta-title{font-family:'Futura PT',sans-serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:800;letter-spacing:-.03em;color:#111;margin-bottom:16px;}
+.cta-sub{font-size:15px;color:rgba(0,0,0,.4);margin-bottom:40px;}
+.cta-actions{display:flex;gap:14px;margin-bottom:48px;}
+.cta-clients{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;color:rgba(0,0,0,.15);text-transform:uppercase;}
+
+/* ===== FOOTER ===== */
+.footer{background:#111;color:rgba(255,255,255,.5);padding:60px 0 40px;position:relative;z-index:10;pointer-events:auto;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1.5fr;gap:48px;}
+.footer-logo{font-family:'Futura PT',sans-serif;font-weight:700;font-size:24px;color:#fff;margin-bottom:12px;}
+.footer-logo .dot{color:#dc2626;}
+.footer-desc{font-size:13px;line-height:1.6;max-width:280px;}
+.footer-heading{font-family:'Futura PT',sans-serif;font-weight:700;font-size:14px;color:#fff;margin-bottom:16px;}
+.footer ul{list-style:none;}
+.footer li{margin-bottom:8px;}
+.footer a{color:rgba(255,255,255,.4);text-decoration:none;font-size:13px;transition:color .2s;}
+.footer a:hover{color:#fff;}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.08);margin-top:40px;padding-top:24px;display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.25);}
+.footer-bottom a{color:rgba(255,255,255,.25);text-decoration:none;}
+.footer-bottom a:hover{color:rgba(255,255,255,.5);}
+
+/* ===== SCROLL HINT ===== */
+.scroll-h{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:10;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.scroll-h span{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(0,0,0,.15);}
+.scroll-ln{width:1px;height:28px;background:linear-gradient(to bottom,rgba(220,38,38,.5),transparent);animation:scd 2s ease-in-out infinite;}
+@keyframes scd{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}50.01%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+</style>
+</head>
+<body>
+
+<!-- Aurora background -->
+<div class="aurora-wrap"><div class="aurora a1"></div><div class="aurora a2"></div><div class="aurora a3"></div></div>
+
+<!-- Network canvas — FULL PAGE -->
+<canvas id="networkCanvas"></canvas>
+
+<!-- NAVBAR -->
+<nav class="navbar"><div class="container nav-flex">
+  <a href="#" class="nav-logo">ultimamilla<span class="dot">.</span>com<span class="dot">.</span>ar</a>
+  <div class="nav-links"><a href="#servicios">Servicios</a><a href="#antecedentes">Antecedentes</a><a href="#sectores">Sectores</a><a href="#contacto">Nosotros</a><a href="#contacto" class="nav-cta">Contacto</a></div>
+</div></nav>
+<div class="nav-spacer"></div>
+
+<!-- HERO -->
+<section class="hero section">
+  <div class="container">
+    <div class="hero-inner">
+      <p class="hero-tag"><span class="dot-live"></span> Mendoza, Argentina &mdash; Est. 2002</p>
+      <div class="hero-title" id="heroTitle"></div>
+      <p class="hero-sub" id="heroSub">Telecomunicaciones, seguridad electr&oacute;nica, desarrollo de software y soporte t&eacute;cnico 24/7 para las organizaciones m&aacute;s exigentes del pa&iacute;s.</p>
+      <div class="hero-actions" id="heroActions">
+        <a href="#contacto" class="btn-p">Solicitar consultor&iacute;a <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></a>
+        <a href="#antecedentes" class="btn-s">Ver proyectos</a>
+      </div>
+      <div class="hero-stats" id="heroStats">
+        <div><span class="st-n">469+</span><div class="st-l">proyectos</div></div>
+        <div><span class="st-n">22</span><div class="st-l">a&ntilde;os</div></div>
+        <div><span class="st-n">9</span><div class="st-l">industrias</div></div>
+        <div><span class="st-n red">24/7</span><div class="st-l">soporte</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-h"><div class="scroll-ln"></div><span>scroll</span></div>
+</section>
+
+<!-- SERVICIOS -->
+<section class="svc-section section" id="servicios">
+  <div class="container">
+    <div class="svc-header">
+      <div><div class="section-label">Servicios</div><h2 class="section-title">Ocho disciplinas, una misi&oacute;n<span class="accent">.</span></h2></div>
+      <a href="#" class="svc-link">Cat&aacute;logo completo &rarr;</a>
+    </div>
+    <div class="svc-grid">
+      <div class="svc-card"><img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&h=800&fit=crop&q=80" alt=""/><div class="ov"></div><div class="info"><div class="sn">01</div><div><div class="nm">Infraestructura<br/>de Redes</div><div class="ct">Ver &rarr;</div></div></div></div>
+      <div class="svc-card"><img src="https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=600&h=800&fit=crop&q=80" alt=""/><div class="ov"></div><div class="info"><div class="sn">02</div><div><div class="nm">Seguridad<br/>Electr&oacute;nica</div><div class="ct">Ver &rarr;</div></div></div></div>
+      <div class="svc-card"><img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=600&h=800&fit=crop&q=80" alt=""/><div class="ov"></div><div class="info"><div class="sn">03</div><div><div class="nm">Telecomu-<br/>nicaciones</div><div class="ct">Ver &rarr;</div></div></div></div>
+      <div class="svc-card"><img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&h=800&fit=crop&q=80" alt=""/><div class="ov"></div><div class="info"><div class="sn">04</div><div><div class="nm">Desarrollo<br/>de Software</div><div class="ct">Ver &rarr;</div></div></div></div>
+    </div>
+    <div class="svc-grid">
+      <div class="svc-card"><img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&h=800&fit=crop&q=80" alt=""/><div class="ov"></div><div class="info"><div class="sn">05</div><div><div class="nm">Soporte<br/>T&eacute;cnico 24/7</div><div class="ct">Ver &rarr;</div></div></div></div>
+      <div class="svc-card"><img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&h=800&fit=crop&q=80" alt=""/><div class="ov"></div><div class="info"><div class="sn">06</div><div><div class="nm">Consultor&iacute;a<br/>IT</div><div class="ct">Ver &rarr;</div></div></div></div>
+      <div class="svc-card"><img src="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=600&h=800&fit=crop&q=80" alt=""/><div class="ov"></div><div class="info"><div class="sn">07</div><div><div class="nm">Detecci&oacute;n<br/>de Incendio</div><div class="ct">Ver &rarr;</div></div></div></div>
+      <div class="svc-card"><img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&h=800&fit=crop&q=80" alt=""/><div class="ov"></div><div class="info"><div class="sn">08</div><div><div class="nm">Corrientes<br/>D&eacute;biles</div><div class="ct">Ver &rarr;</div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ANTECEDENTES -->
+<section class="ant-section section" id="antecedentes">
+  <div class="container">
+    <div class="ant-header">
+      <div><div class="section-label">Antecedentes</div><h2 class="section-title">469 proyectos entregados<span class="accent">.</span></h2></div>
+      <a href="#" class="svc-link">Explorar todos &rarr;</a>
+    </div>
+    <div class="ant-grid">
+      <div class="ant-card"><img src="https://images.unsplash.com/photo-1606765962248-7ff407b51667?w=600&h=600&fit=crop&q=80" alt=""/><div class="ov"></div><div class="ant-info"><div class="ant-area">Aeropuertos</div><div class="ant-name">Aeropuertos Argentina 2000 — Mendoza</div></div></div>
+      <div class="ant-card"><img src="https://images.unsplash.com/photo-1551076805-e1869033e561?w=600&h=600&fit=crop&q=80" alt=""/><div class="ov"></div><div class="ant-info"><div class="ant-area">Salud</div><div class="ant-name">Hospital Central — Red de datos</div></div></div>
+      <div class="ant-card"><img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=600&fit=crop&q=80" alt=""/><div class="ov"></div><div class="ant-info"><div class="ant-area">Miner&iacute;a</div><div class="ant-name">Barrick Gold — Veladero</div></div></div>
+      <div class="ant-card"><img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=600&fit=crop&q=80" alt=""/><div class="ov"></div><div class="ant-info"><div class="ant-area">Bodegas</div><div class="ant-name">Bodega La Esmeralda — CCTV</div></div></div>
+      <div class="ant-card"><img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=600&fit=crop&q=80" alt=""/><div class="ov"></div><div class="ant-info"><div class="ant-area">Gobierno</div><div class="ant-name">Gobierno de Mendoza — Infraestructura</div></div></div>
+      <div class="ant-card"><img src="https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=600&h=600&fit=crop&q=80" alt=""/><div class="ov"></div><div class="ant-info"><div class="ant-area">Industria</div><div class="ant-name">Planta Industrial — Red de fibra</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTORES -->
+<section class="sec-section section" id="sectores">
+  <div class="container">
+    <div class="section-label">Industrias</div>
+    <h2 class="section-title">9 verticales, un solo equipo<span class="accent">.</span></h2>
+    <div class="sec-grid">
+      <a href="#" class="sec-card"><div class="sec-name">Aeropuertos</div><div class="sec-desc">AA2000, terminales, hangares, torres de control</div><span class="sec-arrow">Explorar &rarr;</span></a>
+      <a href="#" class="sec-card"><div class="sec-name">Bodegas</div><div class="sec-desc">Seguridad perimetral, control de acceso, CCTV</div><span class="sec-arrow">Explorar &rarr;</span></a>
+      <a href="#" class="sec-card"><div class="sec-name">Construcci&oacute;n</div><div class="sec-desc">Cableado estructurado, corrientes d&eacute;biles</div><span class="sec-arrow">Explorar &rarr;</span></a>
+      <a href="#" class="sec-card"><div class="sec-name">Salud</div><div class="sec-desc">Hospitales, cl&iacute;nicas, redes cr&iacute;ticas</div><span class="sec-arrow">Explorar &rarr;</span></a>
+      <a href="#" class="sec-card"><div class="sec-name">Gobierno</div><div class="sec-desc">Infraestructura p&uacute;blica, municipios, provincias</div><span class="sec-arrow">Explorar &rarr;</span></a>
+      <a href="#" class="sec-card"><div class="sec-name">Software</div><div class="sec-desc">Desarrollo a medida, integraciones, SaaS</div><span class="sec-arrow">Explorar &rarr;</span></a>
+      <a href="#" class="sec-card"><div class="sec-name">Miner&iacute;a</div><div class="sec-desc">Telecomunicaciones en mina, enlaces, monitoreo</div><span class="sec-arrow">Explorar &rarr;</span></a>
+      <a href="#" class="sec-card"><div class="sec-name">Industria</div><div class="sec-desc">Plantas, log&iacute;stica, automatizaci&oacute;n</div><span class="sec-arrow">Explorar &rarr;</span></a>
+      <a href="#" class="sec-card"><div class="sec-name">Seguridad</div><div class="sec-desc">Seguridad electr&oacute;nica integral, anal&iacute;tica video</div><span class="sec-arrow">Explorar &rarr;</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACTO / CTA -->
+<section class="cta-section section" id="contacto">
+  <div class="container">
+    <div class="section-label">Contacto</div>
+    <h2 class="cta-title">El pr&oacute;ximo proyecto exitoso<br/>puede ser el suyo<span class="accent">.</span></h2>
+    <p class="cta-sub">M&aacute;s de 200 organizaciones ya conf&iacute;an en nosotros.</p>
+    <div class="cta-actions">
+      <a href="#" class="btn-p">Agendar consultor&iacute;a</a>
+      <a href="mailto:contacto@ultimamilla.com.ar" class="btn-s">contacto@ultimamilla.com.ar</a>
+    </div>
+    <p class="cta-clients">Aeropuertos Argentina 2000 &middot; Gobierno de Mendoza &middot; Hospital Central &middot; Bodega La Esmeralda &middot; YPF</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">ultimamilla<span class="dot">.</span>com<span class="dot">.</span>ar</div>
+        <p class="footer-desc">Transformaci&oacute;n digital para empresas en Mendoza, Cuyo y Patagonia. +22 a&ntilde;os de experiencia.</p>
+      </div>
+      <div>
+        <div class="footer-heading">Servicios</div>
+        <ul><li><a href="#">Redes</a></li><li><a href="#">Seguridad</a></li><li><a href="#">Telecomunicaciones</a></li><li><a href="#">Software</a></li><li><a href="#">Soporte 24/7</a></li></ul>
+      </div>
+      <div>
+        <div class="footer-heading">Empresa</div>
+        <ul><li><a href="#">Nosotros</a></li><li><a href="#">Antecedentes</a></li><li><a href="#">Sectores</a></li><li><a href="#">Contacto</a></li></ul>
+      </div>
+      <div>
+        <div class="footer-heading">Contacto</div>
+        <p style="font-size:13px;line-height:1.8;">Houssay 1159, Guaymall&eacute;n<br/>Mendoza M5519, Argentina<br/><a href="mailto:contacto@ultimamilla.com.ar">contacto@ultimamilla.com.ar</a></p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 Ultima Milla. Todos los derechos reservados.</span>
+      <span><a href="#">Privacidad</a> &middot; <a href="#">T&eacute;rminos</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ====== FULL-PAGE NETWORK — follows scroll + cursor ======
+(function(){
+var canvas=document.getElementById('networkCanvas'),ctx=canvas.getContext('2d');
+var W,H,dpr=window.devicePixelRatio||1;
+var rawMouse={x:-9999,y:-9999},mouse={x:-9999,y:-9999},mouseActive=false,mouseDown=false,dragNode=null;
+var scrollY=0;
+var MAGNETIC=280,CONNECT=200,STICKY=250,BREAK=370;
+var nodes=[],links=[],packets=[],ripples=[];
+var RESET_INTERVAL=28000,lastReset=Date.now();
+var zoomState={active:false,timer:0,scale:1,cx:0,cy:0};
+
+function resize(){
+  W=window.innerWidth;H=window.innerHeight;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  canvas.style.width=W+'px';canvas.style.height=H+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+function rand(a,b){return a+Math.random()*(b-a)}
+
+function makeNode(x,y){
+  return{x:x,y:y,hx:x,hy:y,vx:rand(-.3,.3),vy:rand(-.3,.3),
+    r:rand(3,7),red:Math.random()<.5,ph:Math.random()*Math.PI*2,conn:0,pulse:1};
+}
+
+function seedNetwork(n){
+  nodes=[];links=[];packets=[];
+  for(var i=0;i<n;i++){
+    var rb=Math.random()<.55;
+    nodes.push(makeNode(rb?rand(W*.35,W*.97):rand(W*.03,W*.97),rand(H*.05,H*.95)));
+  }
+}
+
+// Convert page coords to viewport coords
+function toView(py){return py-scrollY;}
+
+function spawnPacket(a,b){
+  packets.push({a:a,b:b,t:0,sp:rand(.012,.028),fromA:Math.random()<.5,forwarded:false});
+}
+
+function autoPackets(){
+  if(links.length>0&&Math.random()<.1){
+    var lk=links[Math.floor(Math.random()*links.length)];
+    spawnPacket(lk.a,lk.b);
+  }
+  // Forward packets at end
+  for(var i=0;i<packets.length;i++){
+    var p=packets[i];
+    if(p.t>=1&&!p.forwarded&&Math.random()<.4){
+      p.forwarded=true;
+      var end=p.fromA?p.b:p.a;
+      var cands=[];
+      for(var j=0;j<links.length;j++){
+        var l=links[j];
+        if(l.a===end||l.b===end)cands.push({lk:l,fromA:l.a===end});
+      }
+      if(cands.length>0){var pick=cands[Math.floor(Math.random()*cands.length)];spawnPacket(pick.lk.a,pick.lk.b);}
+    }
+  }
+}
+
+function triggerZoom(){
+  if(zoomState.active)return;
+  zoomState.active=true;zoomState.timer=0;
+  var cn=nodes[Math.floor(Math.random()*nodes.length)];
+  zoomState.cx=cn.x;zoomState.cy=cn.y;zoomState.scale=1;
+}
+
+function update(){
+  scrollY=window.scrollY||window.pageYOffset;
+  var t=Date.now()*.001;
+
+  if(mouseActive){mouse.x+=(rawMouse.x-mouse.x)*.07;mouse.y+=(rawMouse.y-mouse.y)*.07;}
+  else{mouse.x+=(-9999-mouse.x)*.01;mouse.y+=(-9999-mouse.y)*.01;}
+
+  // Move nodes to follow scroll — their home positions drift toward visible area
+  var viewCenter=H/2;
+  for(var i=0;i<nodes.length;i++){
+    var n=nodes[i];
+    n.pulse=.8+.2*Math.sin(t*1.3+n.ph);
+    n.hx+=n.vx;n.hy+=n.vy;
+    if(n.hx<10||n.hx>W-10)n.vx*=-1;
+    if(n.hy<10||n.hy>H-10)n.vy*=-1;
+    n.hx=Math.max(5,Math.min(W-5,n.hx));
+    n.hy=Math.max(5,Math.min(H-5,n.hy));
+
+    if(dragNode===n){n.x=mouse.x;n.y=mouse.y;n.hx=mouse.x;n.hy=mouse.y;continue;}
+    var dx=mouse.x-n.hx,dy=mouse.y-n.hy,dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist<MAGNETIC&&dist>1){var f=Math.pow(1-dist/MAGNETIC,2)*50;n.x=n.hx+(dx/dist)*f;n.y=n.hy+(dy/dist)*f;}
+    else{n.x+=(n.hx-n.x)*.08;n.y+=(n.hy-n.y)*.08;}
+    n.conn=0;
+  }
+
+  // Sticky links
+  for(var i=0;i<nodes.length;i++){
+    for(var j=i+1;j<nodes.length;j++){
+      var a=nodes[i],b=nodes[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.sqrt(dx*dx+dy*dy);
+      var ai=Math.sqrt((a.x-mouse.x)**2+(a.y-mouse.y)**2);
+      var bi=Math.sqrt((b.x-mouse.x)**2+(b.y-mouse.y)**2);
+      if(d<STICKY&&ai<MAGNETIC&&bi<MAGNETIC){
+        var exists=false;
+        for(var k=0;k<links.length;k++){if((links[k].a===a&&links[k].b===b)||(links[k].a===b&&links[k].b===a)){exists=true;links[k].str=Math.min(links[k].str+.02,1);break;}}
+        if(!exists){links.push({a:a,b:b,str:.1,flash:1});spawnPacket(a,b);}
+      }
+    }
+  }
+  for(var s=links.length-1;s>=0;s--){
+    var lk=links[s];lk.flash=Math.max(0,lk.flash-.02);
+    var dx2=lk.a.x-lk.b.x,dy2=lk.a.y-lk.b.y,d2=Math.sqrt(dx2*dx2+dy2*dy2);
+    if(d2>BREAK){lk.str-=.02;if(lk.str<=0)links.splice(s,1);}
+    lk.a.conn++;lk.b.conn++;
+  }
+
+  autoPackets();
+  for(var p=packets.length-1;p>=0;p--){packets[p].t+=packets[p].sp;if(packets[p].t>1.3)packets.splice(p,1);}
+  for(var ri=ripples.length-1;ri>=0;ri--){ripples[ri].r+=4;ripples[ri].al-=.015;if(ripples[ri].al<=0)ripples.splice(ri,1);else{var rp=ripples[ri];nodes.forEach(function(n){var dx=n.x-rp.x,dy=n.y-rp.y,d=Math.sqrt(dx*dx+dy*dy);if(Math.abs(d-rp.r)<30&&d>1){var push=2.5*(1-Math.abs(d-rp.r)/30);n.hx+=dx/d*push;n.hy+=dy/d*push;}});}}
+
+  if(!zoomState.active&&Date.now()-lastReset>RESET_INTERVAL&&nodes.length>22)triggerZoom();
+  if(zoomState.active){
+    zoomState.timer++;
+    if(zoomState.timer<60)zoomState.scale=1+Math.pow(zoomState.timer/60,2)*15;
+    else if(zoomState.timer===70){seedNetwork(14);links=[];packets=[];lastReset=Date.now();}
+    else if(zoomState.timer>70&&zoomState.timer<130){var out=(zoomState.timer-70)/60;zoomState.scale=16-out*15;zoomState.cx=W/2;zoomState.cy=H/2;}
+    else if(zoomState.timer>=130){zoomState.active=false;zoomState.scale=1;}
+  }
+}
+
+function draw(){
+  ctx.save();
+  if(zoomState.active&&zoomState.scale!==1){ctx.translate(zoomState.cx,zoomState.cy);ctx.scale(zoomState.scale,zoomState.scale);ctx.translate(-zoomState.cx,-zoomState.cy);}
+  ctx.clearRect(-W,-H,W*3,H*3);
+
+  // Base connections
+  for(var i=0;i<nodes.length;i++){for(var j=i+1;j<nodes.length;j++){
+    var a=nodes[i],b=nodes[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<CONNECT){var al=1-d/CONNECT;var both=a.red&&b.red;
+      ctx.strokeStyle=both?'rgba(180,25,25,'+(al*.25)+')':'rgba(0,0,0,'+(al*.08)+')';
+      ctx.lineWidth=both?(1+al*1.2):(.4+al*.5);
+      ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+    }
+  }}
+
+  // Sticky links
+  for(var s=0;s<links.length;s++){
+    var lk=links[s],both=lk.a.red&&lk.b.red,al=lk.str,fl=lk.flash;
+    if(both){ctx.strokeStyle='rgba(190,30,30,'+(al*.55+fl*.3)+')';ctx.lineWidth=1.5+al*2+fl*2;}
+    else{ctx.strokeStyle='rgba(80,30,30,'+(al*.3+fl*.2)+')';ctx.lineWidth=.8+al+fl;}
+    ctx.beginPath();ctx.moveTo(lk.a.x,lk.a.y);ctx.lineTo(lk.b.x,lk.b.y);ctx.stroke();
+    if(fl>.1){ctx.strokeStyle='rgba(180,20,20,'+(fl*.12)+')';ctx.lineWidth=fl*8;ctx.beginPath();ctx.moveTo(lk.a.x,lk.a.y);ctx.lineTo(lk.b.x,lk.b.y);ctx.stroke();}
+  }
+
+  // Mouse lines
+  if(mouseActive){
+    for(var i=0;i<nodes.length;i++){var n=nodes[i],dx=n.x-mouse.x,dy=n.y-mouse.y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<MAGNETIC*.6){var a2=1-d/(MAGNETIC*.6);ctx.strokeStyle=n.red?'rgba(180,20,20,'+(a2*.3)+')':'rgba(0,0,0,'+(a2*.1)+')';ctx.lineWidth=n.red?(.8+a2*1.5):(.3+a2*.8);ctx.beginPath();ctx.moveTo(mouse.x,mouse.y);ctx.lineTo(n.x,n.y);ctx.stroke();}
+    }
+    ctx.beginPath();ctx.arc(mouse.x,mouse.y,4,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,.15)';ctx.fill();
+    ctx.beginPath();ctx.arc(mouse.x,mouse.y,2,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,.4)';ctx.fill();
+  }
+
+  // PACKETS — BLACK pulses with red glow
+  for(var p=0;p<packets.length;p++){
+    var pk=packets[p];var tt=pk.fromA?pk.t:1-pk.t;tt=Math.max(0,Math.min(1,tt));
+    var px=pk.a.x+(pk.b.x-pk.a.x)*tt,py=pk.a.y+(pk.b.y-pk.a.y)*tt;
+    var al3=pk.t<.5?pk.t*2:(pk.t<1?(1-pk.t)*2:0);
+    // Red glow behind
+    ctx.beginPath();ctx.arc(px,py,8,0,Math.PI*2);
+    ctx.fillStyle='rgba(220,38,38,'+(al3*.12)+')';ctx.fill();
+    // Black core
+    ctx.beginPath();ctx.arc(px,py,3,0,Math.PI*2);
+    ctx.fillStyle='rgba(0,0,0,'+(al3*.85)+')';ctx.fill();
+    // White spark center
+    ctx.beginPath();ctx.arc(px,py,1.2,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,255,255,'+(al3*.6)+')';ctx.fill();
+    // Trail
+    for(var tb=1;tb<=3;tb++){var bt=tt-tb*.025*(pk.fromA?1:-1);bt=Math.max(0,Math.min(1,bt));var bx=pk.a.x+(pk.b.x-pk.a.x)*bt,by=pk.a.y+(pk.b.y-pk.a.y)*bt;
+      ctx.beginPath();ctx.arc(bx,by,2*(1-tb*.25),0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,'+(al3*.4*(1-tb*.3))+')';ctx.fill();}
+  }
+
+  // NODES — sharp, high contrast
+  for(var ni=0;ni<nodes.length;ni++){
+    var n=nodes[ni],mdx=n.x-mouse.x,mdy=n.y-mouse.y,mD=Math.sqrt(mdx*mdx+mdy*mdy);
+    var near=mD<MAGNETIC?1-mD/MAGNETIC:0;var sm=1+near*.7;var r=n.r*n.pulse*sm;
+    var density=Math.min(n.conn/5,1);
+    if(n.red){
+      // Sharp glow
+      ctx.beginPath();ctx.arc(n.x,n.y,r*2.5,0,Math.PI*2);
+      ctx.fillStyle='rgba(200,30,30,'+(0.05+near*.1+density*.05)+')';ctx.fill();
+      // Solid node — OPAQUE
+      var ri2=Math.floor(160+density*80);
+      ctx.beginPath();ctx.arc(n.x,n.y,r,0,Math.PI*2);
+      ctx.fillStyle='rgb('+ri2+',25,25)';ctx.fill();
+      // White core
+      ctx.beginPath();ctx.arc(n.x,n.y,r*.35,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,'+(0.5+near*.4)+')';ctx.fill();
+      // Ring
+      if(near>.3){var rr=r*2.2+Math.sin(Date.now()*.004+n.ph)*r;ctx.beginPath();ctx.arc(n.x,n.y,rr,0,Math.PI*2);ctx.strokeStyle='rgba(200,30,30,'+(near*.2)+')';ctx.lineWidth=1.2;ctx.stroke();}
+    } else {
+      // Dark gray nodes — SOLID
+      ctx.beginPath();ctx.arc(n.x,n.y,r*.75,0,Math.PI*2);
+      ctx.fillStyle='rgba(0,0,0,'+(0.2+near*.2+density*.1)+')';ctx.fill();
+      ctx.beginPath();ctx.arc(n.x,n.y,r*.25,0,Math.PI*2);
+      ctx.fillStyle='rgba(0,0,0,'+(0.08+near*.15)+')';ctx.fill();
+    }
+  }
+
+  // Ripples
+  for(var ri3=0;ri3<ripples.length;ri3++){var rp=ripples[ri3];ctx.beginPath();ctx.arc(rp.x,rp.y,rp.r,0,Math.PI*2);ctx.strokeStyle='rgba(0,0,0,'+rp.al+')';ctx.lineWidth=1.5*rp.al;ctx.stroke();}
+
+  ctx.restore();
+
+  // White flash overlay for zoom
+  if(zoomState.active&&zoomState.timer>55&&zoomState.timer<130){
+    var flashA=0;
+    if(zoomState.timer<70)flashA=(zoomState.timer-55)/15;
+    else if(zoomState.timer<85)flashA=1;
+    else flashA=1-(zoomState.timer-85)/45;
+    flashA=Math.max(0,Math.min(1,flashA));
+    ctx.fillStyle='rgba(255,255,255,'+flashA+')';ctx.fillRect(0,0,W,H);
+  }
+}
+
+function frame(){update();draw();requestAnimationFrame(frame);}
+
+document.addEventListener('mousemove',function(e){rawMouse.x=e.clientX;rawMouse.y=e.clientY;mouseActive=true;});
+document.addEventListener('mouseleave',function(){mouseActive=false;mouseDown=false;dragNode=null;});
+canvas.addEventListener('mousedown',function(e){
+  mouseDown=true;var mx=e.clientX,my=e.clientY;
+  var closest=null,cd=30;
+  nodes.forEach(function(n){var d=Math.sqrt((n.x-mx)**2+(n.y-my)**2);if(d<cd){cd=d;closest=n;}});
+  if(closest){dragNode=closest;e.preventDefault();}
+  else{ripples.push({x:mx,y:my,r:5,al:.4});}
+});
+canvas.addEventListener('mouseup',function(e){
+  if(mouseDown&&!dragNode){var mx=e.clientX,my=e.clientY;var nn=makeNode(mx,my);nn.red=true;nn.r=rand(4,6.5);nodes.push(nn);ripples.push({x:mx,y:my,r:5,al:.3});}
+  mouseDown=false;dragNode=null;
+});
+
+window.addEventListener('resize',function(){resize();seedNetwork(30);links=[];});
+resize();seedNetwork(30);frame();
+})();
+
+// ====== TYPEWRITER ======
+(function(){
+  var lines=['La infraestructura','que mueve a las','empresas argentinas.'];
+  var target=document.getElementById('heroTitle');
+  function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
+  async function run(){
+    await sleep(600);
+    for(var li=0;li<lines.length;li++){
+      var line=lines[li],el=document.createElement('div');
+      target.appendChild(el);
+      var cur=document.createElement('span');cur.className='cursor-el';el.appendChild(cur);
+      for(var ci=0;ci<line.length;ci++){el.insertBefore(document.createTextNode(line[ci]),cur);await sleep(38);}
+      if(li===lines.length-1){var ch=el.childNodes;for(var n=ch.length-1;n>=0;n--){if(ch[n].nodeType===3&&ch[n].textContent.endsWith('.')){ch[n].textContent=ch[n].textContent.slice(0,-1);var dot=document.createElement('span');dot.className='accent';dot.textContent='.';el.insertBefore(dot,cur);break;}}}
+      if(li<lines.length-1){el.removeChild(cur);await sleep(150);}
+    }
+    await sleep(400);
+    document.getElementById('heroSub').classList.add('show');
+    await sleep(200);document.getElementById('heroActions').classList.add('show');
+    await sleep(200);document.getElementById('heroStats').classList.add('show');
+  }
+  run();
+})();
+</script>
+</body>
+</html>

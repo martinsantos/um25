@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hero Visual Options</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #111;
+    color: #fff;
+    padding: 20px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 400;
+    margin-bottom: 8px;
+    color: #fff;
+  }
+  .subtitle {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 32px;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .option-card {
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid #333;
+    transition: border-color 0.3s, transform 0.2s;
+  }
+  .option-card:hover {
+    border-color: #dc2626;
+    transform: scale(1.01);
+  }
+  .option-card.selected {
+    border-color: #dc2626;
+    box-shadow: 0 0 30px rgba(220,38,38,0.3);
+  }
+
+  .hero-mock {
+    position: relative;
+    min-height: 340px;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    padding: 32px;
+  }
+
+  .hero-text {
+    position: relative;
+    z-index: 10;
+  }
+  .hero-text .tag {
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 12px;
+    font-family: monospace;
+  }
+  .hero-text .tag .dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  .hero-text h2 {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    color: #fff;
+  }
+  .hero-text h2 .accent { color: #dc2626; }
+
+  .option-label {
+    padding: 16px 20px;
+    background: #1a1a1a;
+  }
+  .option-label h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .option-label p {
+    font-size: 12px;
+    color: #888;
+    line-height: 1.5;
+  }
+  .option-label .letter {
+    display: inline-block;
+    background: #dc2626;
+    color: #fff;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    text-align: center;
+    line-height: 22px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  /* ====== OPTION A: ISOMETRIC BLOCKS ====== */
+  .hero-iso {
+    background: #0a0a0a;
+  }
+  .iso-container {
+    position: absolute;
+    top: 0; right: 0;
+    width: 55%;
+    height: 100%;
+  }
+  .iso-block {
+    position: absolute;
+    transform: rotate(-15deg) skewX(15deg);
+    border-radius: 6px;
+    animation: iso-float 4s ease-in-out infinite alternate;
+  }
+  @keyframes iso-float {
+    0% { transform: rotate(-15deg) skewX(15deg) translateY(0); }
+    100% { transform: rotate(-15deg) skewX(15deg) translateY(-8px); }
+  }
+
+  /* ====== OPTION B: NETWORK CONSTELLATION ====== */
+  .hero-network {
+    background: radial-gradient(ellipse at 70% 40%, #1a0505 0%, #0a0a0a 70%);
+  }
+
+  /* ====== OPTION C: AURORA GRADIENT ====== */
+  .hero-aurora {
+    background: #0a0a0a;
+  }
+  .aurora-layer {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    animation: aurora-drift 6s ease-in-out infinite alternate;
+  }
+  @keyframes aurora-drift {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(20px, -15px) scale(1.1); }
+  }
+
+  /* ====== OPTION D: HYBRID LAYERS ====== */
+  .hero-hybrid {
+    background: #0a0a0a;
+  }
+
+  .selected-indicator {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #dc2626;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    display: none;
+    z-index: 100;
+    box-shadow: 0 8px 30px rgba(220,38,38,0.4);
+  }
+  .selected-indicator.show { display: block; }
+</style>
+</head>
+<body>
+
+<h1>Hero Visual: 4 opciones realmente distintas</h1>
+<p class="subtitle">Click para elegir. Cada una tiene una personalidad visual unica.</p>
+
+<div class="options-grid">
+
+  <!-- A: ISOMETRIC BLOCKS -->
+  <div class="option-card" onclick="selectOption(this, 'A')">
+    <div class="hero-mock hero-iso">
+      <!-- Isometric 3D blocks -->
+      <div class="iso-container">
+        <div class="iso-block" style="width:80px;height:80px;background:linear-gradient(135deg,#dc2626,#991b1b);top:15%;left:20%;opacity:0.9;animation-delay:0s;box-shadow:0 20px 40px rgba(220,38,38,0.3);"></div>
+        <div class="iso-block" style="width:60px;height:100px;background:linear-gradient(135deg,#fff,#e5e5e5);top:30%;left:45%;opacity:0.15;animation-delay:0.5s;"></div>
+        <div class="iso-block" style="width:100px;height:50px;background:linear-gradient(135deg,#dc2626,#7f1d1d);top:55%;left:15%;opacity:0.5;animation-delay:1s;box-shadow:0 15px 30px rgba(220,38,38,0.2);"></div>
+        <div class="iso-block" style="width:70px;height:70px;background:linear-gradient(135deg,#fff,#d4d4d4);top:10%;left:60%;opacity:0.08;animation-delay:1.5s;"></div>
+        <div class="iso-block" style="width:90px;height:40px;background:linear-gradient(135deg,#dc2626,#b91c1c);top:70%;left:50%;opacity:0.35;animation-delay:2s;box-shadow:0 10px 25px rgba(220,38,38,0.15);"></div>
+        <div class="iso-block" style="width:50px;height:90px;background:linear-gradient(135deg,#fff,#ccc);top:45%;left:70%;opacity:0.06;animation-delay:0.8s;"></div>
+        <div class="iso-block" style="width:120px;height:30px;background:linear-gradient(135deg,#dc2626,#991b1b);top:85%;left:25%;opacity:0.2;animation-delay:1.2s;"></div>
+      </div>
+      <div class="hero-text">
+        <p class="tag"><span class="dot"></span> Mendoza, Argentina</p>
+        <h2>La infraestructura<br/>que mueve a las<br/>empresas argentinas<span class="accent">.</span></h2>
+      </div>
+    </div>
+    <div class="option-label">
+      <h3><span class="letter">A</span> Bloques Isometricos</h3>
+      <p>Bloques 3D flotantes en rojo y blanco. Evocan servidores, racks, infraestructura fisica. Movimiento sutil. Ningun otro sitio de IT tiene esto.</p>
+    </div>
+  </div>
+
+  <!-- B: NETWORK CONSTELLATION -->
+  <div class="option-card" onclick="selectOption(this, 'B')">
+    <div class="hero-mock hero-network">
+      <svg style="position:absolute;inset:0;width:100%;height:100%;" viewBox="0 0 600 340">
+        <!-- Animated pulse circles -->
+        <circle cx="420" cy="80" r="60" fill="none" stroke="#dc2626" stroke-width="0.5" opacity="0.3">
+          <animate attributeName="r" values="40;70;40" dur="3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.3;0.1;0.3" dur="3s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="320" cy="180" r="40" fill="none" stroke="#dc2626" stroke-width="0.5" opacity="0.2">
+          <animate attributeName="r" values="30;50;30" dur="4s" repeatCount="indefinite"/>
+        </circle>
+
+        <!-- Connection lines with glow -->
+        <line x1="420" y1="80" x2="320" y2="180" stroke="url(#lineGrad)" stroke-width="2" opacity="0.6"/>
+        <line x1="320" y1="180" x2="500" y2="220" stroke="url(#lineGrad)" stroke-width="1.5" opacity="0.4"/>
+        <line x1="420" y1="80" x2="550" y2="140" stroke="#dc2626" stroke-width="1" opacity="0.3"/>
+        <line x1="320" y1="180" x2="450" y2="280" stroke="#dc2626" stroke-width="1" opacity="0.25"/>
+        <line x1="550" y1="140" x2="500" y2="220" stroke="#fff" stroke-width="0.5" opacity="0.15"/>
+        <line x1="420" y1="80" x2="350" y2="40" stroke="#fff" stroke-width="0.5" opacity="0.2"/>
+        <line x1="500" y1="220" x2="450" y2="280" stroke="#dc2626" stroke-width="0.8" opacity="0.2"/>
+
+        <!-- Nodes with glow -->
+        <circle cx="420" cy="80" r="6" fill="#dc2626" filter="url(#glow)"/>
+        <circle cx="420" cy="80" r="3" fill="#fff"/>
+        <circle cx="320" cy="180" r="5" fill="#dc2626" filter="url(#glow)"/>
+        <circle cx="320" cy="180" r="2.5" fill="#fff"/>
+        <circle cx="500" cy="220" r="4" fill="#dc2626" opacity="0.8"/>
+        <circle cx="500" cy="220" r="2" fill="#fff" opacity="0.8"/>
+        <circle cx="550" cy="140" r="3" fill="#dc2626" opacity="0.6"/>
+        <circle cx="450" cy="280" r="3.5" fill="#dc2626" opacity="0.5"/>
+        <circle cx="350" cy="40" r="2.5" fill="#fff" opacity="0.3"/>
+
+        <!-- Data flow animation -->
+        <circle r="2" fill="#dc2626" opacity="0.9">
+          <animateMotion dur="2s" repeatCount="indefinite" path="M420,80 L320,180"/>
+        </circle>
+        <circle r="1.5" fill="#fff" opacity="0.6">
+          <animateMotion dur="3s" repeatCount="indefinite" path="M320,180 L500,220"/>
+        </circle>
+
+        <defs>
+          <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#dc2626"/>
+            <stop offset="100%" stop-color="#dc2626" stop-opacity="0.2"/>
+          </linearGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+      </svg>
+      <div class="hero-text">
+        <p class="tag"><span class="dot"></span> Mendoza, Argentina</p>
+        <h2>La infraestructura<br/>que mueve a las<br/>empresas argentinas<span class="accent">.</span></h2>
+      </div>
+    </div>
+    <div class="option-label">
+      <h3><span class="letter">B</span> Constelacion de Red</h3>
+      <p>Nodos brillantes con glow, datos que fluyen por las lineas, pulsos de energia. Como un NOC (Network Operations Center) en vivo. SVG animado.</p>
+    </div>
+  </div>
+
+  <!-- C: AURORA / LAVA LAMP -->
+  <div class="option-card" onclick="selectOption(this, 'C')">
+    <div class="hero-mock hero-aurora">
+      <!-- Bright colorful auroras -->
+      <div class="aurora-layer" style="width:350px;height:350px;background:radial-gradient(circle,rgba(220,38,38,0.5),transparent 60%);top:-80px;right:-40px;"></div>
+      <div class="aurora-layer" style="width:280px;height:280px;background:radial-gradient(circle,rgba(220,38,38,0.35),transparent 60%);bottom:-60px;left:30%;animation-delay:2s;animation-direction:reverse;"></div>
+      <div class="aurora-layer" style="width:200px;height:200px;background:radial-gradient(circle,rgba(255,100,100,0.2),transparent 60%);top:20%;left:10%;animation-delay:1s;"></div>
+      <div class="aurora-layer" style="width:150px;height:300px;background:radial-gradient(circle,rgba(255,50,50,0.15),transparent 60%);top:0;right:30%;animation-delay:3s;animation-direction:reverse;"></div>
+      <!-- Grid overlay -->
+      <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);background-size:50px 50px;"></div>
+      <!-- Noise texture -->
+      <div style="position:absolute;inset:0;opacity:0.15;background:url('data:image/svg+xml;utf8,<svg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22><filter id=%22n%22><feTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22/></filter><rect width=%22100%%22 height=%22100%%22 filter=%22url(%23n)%22/></svg>');"></div>
+      <div class="hero-text">
+        <p class="tag"><span class="dot"></span> Mendoza, Argentina</p>
+        <h2>La infraestructura<br/>que mueve a las<br/>empresas argentinas<span class="accent">.</span></h2>
+      </div>
+    </div>
+    <div class="option-label">
+      <h3><span class="letter">C</span> Aurora Viva</h3>
+      <p>Masas de luz roja brillante que se mueven lentamente, como una aurora boreal o lava lamp de lujo. Grid fino. Texture de ruido. Organico y premium.</p>
+    </div>
+  </div>
+
+  <!-- D: ARCHITECTURAL / BLUEPRINT -->
+  <div class="option-card" onclick="selectOption(this, 'D')">
+    <div class="hero-mock" style="background:linear-gradient(160deg, #0a0a12 0%, #0a0a0a 40%, #120a0a 100%);">
+      <!-- Blueprint/schematic lines -->
+      <svg style="position:absolute;inset:0;width:100%;height:100%;" viewBox="0 0 600 340">
+        <!-- Blueprint grid -->
+        <defs>
+          <pattern id="smallGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(220,38,38,0.06)" stroke-width="0.5"/>
+          </pattern>
+          <pattern id="bigGrid" width="100" height="100" patternUnits="userSpaceOnUse">
+            <rect width="100" height="100" fill="url(#smallGrid)"/>
+            <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(220,38,38,0.12)" stroke-width="0.8"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bigGrid)"/>
+
+        <!-- Architectural/technical drawing lines -->
+        <g opacity="0.7">
+          <!-- Horizontal measurement line -->
+          <line x1="350" y1="60" x2="560" y2="60" stroke="#dc2626" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="350" y1="55" x2="350" y2="65" stroke="#dc2626" stroke-width="1.5"/>
+          <line x1="560" y1="55" x2="560" y2="65" stroke="#dc2626" stroke-width="1.5"/>
+          <text x="455" y="53" fill="#dc2626" font-size="8" font-family="monospace" text-anchor="middle">469 PROYECTOS</text>
+
+          <!-- Vertical measurement -->
+          <line x1="580" y1="80" x2="580" y2="260" stroke="rgba(255,255,255,0.15)" stroke-width="0.5" stroke-dasharray="2,4"/>
+          <text x="585" y="170" fill="rgba(255,255,255,0.2)" font-size="7" font-family="monospace" transform="rotate(90,585,170)">22 ANOS</text>
+
+          <!-- Technical rectangles -->
+          <rect x="340" y="100" width="120" height="70" fill="none" stroke="#dc2626" stroke-width="1.2" rx="2" opacity="0.5"/>
+          <rect x="345" y="105" width="110" height="60" fill="rgba(220,38,38,0.05)" stroke="none" rx="1"/>
+          <text x="400" y="138" fill="#dc2626" font-size="9" font-family="monospace" text-anchor="middle" opacity="0.8">TELECOM</text>
+
+          <rect x="480" y="130" width="90" height="55" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" rx="2"/>
+          <text x="525" y="162" fill="rgba(255,255,255,0.25)" font-size="8" font-family="monospace" text-anchor="middle">SEGURIDAD</text>
+
+          <rect x="370" y="190" width="100" height="50" fill="none" stroke="#dc2626" stroke-width="0.8" rx="2" opacity="0.35"/>
+          <text x="420" y="219" fill="#dc2626" font-size="8" font-family="monospace" text-anchor="middle" opacity="0.5">SOFTWARE</text>
+
+          <!-- Connection arrows -->
+          <line x1="460" y1="135" x2="480" y2="145" stroke="#dc2626" stroke-width="0.8" opacity="0.4" marker-end="url(#arrowRed)"/>
+          <line x1="400" y1="170" x2="410" y2="190" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+
+          <!-- Decorative corner brackets -->
+          <path d="M335,90 L335,80 L345,80" fill="none" stroke="#dc2626" stroke-width="1" opacity="0.6"/>
+          <path d="M575,90 L575,80 L565,80" fill="none" stroke="#dc2626" stroke-width="1" opacity="0.3"/>
+          <path d="M335,270 L335,280 L345,280" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+        </g>
+
+        <defs>
+          <marker id="arrowRed" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#dc2626" stroke-width="0.8"/>
+          </marker>
+        </defs>
+      </svg>
+
+      <!-- Subtle radial glow -->
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 65% 45%, rgba(220,38,38,0.08), transparent 60%);"></div>
+
+      <div class="hero-text">
+        <p class="tag"><span class="dot"></span> Mendoza, Argentina</p>
+        <h2>La infraestructura<br/>que mueve a las<br/>empresas argentinas<span class="accent">.</span></h2>
+      </div>
+    </div>
+    <div class="option-label">
+      <h3><span class="letter">D</span> Blueprint Tecnico</h3>
+      <p>Plano tecnico / blueprint con grilla de ingenieria, medidas, diagramas de servicios. Como un plano de red real. Comunica precision, expertise, "sabemos lo que hacemos."</p>
+    </div>
+  </div>
+
+</div>
+
+<div id="selectedIndicator" class="selected-indicator"></div>
+
+<script>
+  let selectedCard = null;
+  function selectOption(el, letter) {
+    document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedCard = letter;
+    const ind = document.getElementById('selectedIndicator');
+    ind.textContent = 'Seleccionado: Opcion ' + letter;
+    ind.classList.add('show');
+
+    // Record event
+    fetch('/event', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({type:'click', choice: letter.toLowerCase(), text: 'Option ' + letter})
+    }).catch(() => {});
+  }
+</script>
+
+</body>
+</html>
