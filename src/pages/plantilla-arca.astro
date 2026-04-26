@@ -1,0 +1,522 @@
+---
+/**
+ * Plantilla ARCA - Generador de Facturas Electrónicas RG 5824
+ *
+ * Página interactiva que orquesta todos los componentes para generar
+ * facturas electrónicas conforme a la Resolución General 5824 de AFIP
+ *
+ * Flujo de datos:
+ * 1. TemplateManager - Cargar/guardar plantillas
+ * 2. FormularioARCA - Ingresar datos de empresa y factura
+ * 3. LogoUpload - Subir logo de empresa
+ * 4. PDFPreview - Vista previa del PDF
+ * 5. EmailInput - Activar envío por email
+ * 6. Generación - Llamar API para generar PDF y enviar email
+ * 7. ResultadoGeneracion - Mostrar resultado
+ */
+
+import LayoutV4 from '@/layouts/LayoutV4.astro';
+import FormularioARCA from '@/components/arca/FormularioARCA.astro';
+import TemplateManager from '@/components/arca/TemplateManager.astro';
+import LogoUpload from '@/components/arca/LogoUpload.astro';
+import PDFPreview from '@/components/arca/PDFPreview.astro';
+import EmailInput from '@/components/arca/EmailInput.astro';
+import ResultadoGeneracion from '@/components/arca/ResultadoGeneracion.astro';
+
+export const prerender = false; // SSR necesario para manejo de formularios
+
+// Datos para SEO
+const title = 'Plantilla ARCA - Generador de Facturas Electrónicas RG 5824';
+const description =
+  'Generador gratuito de facturas electrónicas conforme a RG 5824. Incluye CAE, QR automático y persistencia en base de datos. Ideal para profesionales, PyMEs y monotributistas.';
+const keywords =
+  'factura electrónica argentina, RG 5824 AFIP, generador facturas, CAE automático, comprobante fiscal, ARCA sistema, factura online';
+---
+
+<LayoutV4
+  {title}
+  {description}
+  {keywords}
+  image="/arca-hero.jpg"
+  ogType="website"
+>
+  <main class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <!-- ========================================================================
+         HERO SECTION - Presentación del problema y solución
+         ======================================================================== -->
+    <section
+      class="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 text-white py-20 px-4"
+    >
+      <div class="max-w-4xl mx-auto text-center">
+        <div class="mb-8 inline-block bg-blue-400 bg-opacity-20 px-6 py-2 rounded-full">
+          <span class="text-sm font-semibold uppercase tracking-wide">RG 5824 AFIP</span>
+        </div>
+
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight">
+          Generador de Facturas <span class="text-blue-200">Electrónicas</span>
+        </h1>
+
+        <p class="text-xl md:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto leading-relaxed">
+          La Resolución General 5824 de AFIP obliga a profesionales y empresas a emitir
+          comprobantes electrónicos. Generá tu factura en segundos con nuestro asistente.
+        </p>
+
+        <!-- Beneficios -->
+        <div class="grid md:grid-cols-3 gap-6 mt-12">
+          <div class="bg-white bg-opacity-10 backdrop-blur-sm p-6 rounded-lg">
+            <div class="text-3xl mb-4">⚡</div>
+            <h3 class="font-bold mb-2">CAE Automático</h3>
+            <p class="text-blue-100 text-sm">
+              Obtén el Código de Autorización Electrónica automáticamente
+            </p>
+          </div>
+
+          <div class="bg-white bg-opacity-10 backdrop-blur-sm p-6 rounded-lg">
+            <div class="text-3xl mb-4">🔐</div>
+            <h3 class="font-bold mb-2">QR Integrado</h3>
+            <p class="text-blue-100 text-sm">
+              Código QR generado automáticamente en cada factura
+            </p>
+          </div>
+
+          <div class="bg-white bg-opacity-10 backdrop-blur-sm p-6 rounded-lg">
+            <div class="text-3xl mb-4">💾</div>
+            <h3 class="font-bold mb-2">Base de Datos</h3>
+            <p class="text-blue-100 text-sm">
+              Todos tus comprobantes guardados y accesibles
+            </p>
+          </div>
+        </div>
+
+        <!-- CTA Button -->
+        <a
+          href="#formulario"
+          class="inline-block mt-12 px-8 py-4 bg-white text-blue-700 font-bold rounded-lg hover:bg-blue-50 transition-colors duration-200 shadow-lg hover:shadow-xl"
+        >
+          Comenzar Ahora ↓
+        </a>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         FORM SECTION - Orquestación de componentes
+         ======================================================================== -->
+    <section id="formulario" class="py-16 px-4">
+      <div class="max-w-6xl mx-auto">
+        <h2 class="text-3xl md:text-4xl font-black text-center mb-12 text-gray-900">
+          Generador de Facturas ARCA RG 5824
+        </h2>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+          <!-- Columna izquierda: Formulario principal -->
+          <div class="lg:col-span-2 space-y-8">
+            <!-- 1. Template Manager -->
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+              <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                <span class="text-xl">📋</span> Plantillas Guardadas
+              </h3>
+              <TemplateManager id="template-manager" />
+            </div>
+
+            <!-- 2. Formulario ARCA -->
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+              <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                <span class="text-xl">📝</span> Datos de la Factura
+              </h3>
+              <FormularioARCA id="formulario-arca" />
+            </div>
+
+            <!-- 3. Logo Upload -->
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+              <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                <span class="text-xl">🏢</span> Logo de Empresa
+              </h3>
+              <LogoUpload id="logo-upload" />
+            </div>
+
+            <!-- 4. Email Input -->
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+              <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                <span class="text-xl">📧</span> Envío por Email
+              </h3>
+              <EmailInput id="email-input" />
+            </div>
+
+            <!-- 5. Generate Button -->
+            <button
+              id="btn-generate"
+              type="button"
+              class="w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95 flex items-center justify-center gap-2"
+            >
+              <span>✨</span> Generar Factura
+            </button>
+          </div>
+
+          <!-- Columna derecha: Preview y Resultado -->
+          <div class="space-y-8">
+            <!-- PDF Preview -->
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-indigo-500 sticky top-20">
+              <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                <span class="text-xl">👁️</span> Vista Previa
+              </h3>
+              <PDFPreview id="pdf-preview" />
+            </div>
+
+            <!-- Resultado Generación -->
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+              <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                <span class="text-xl">📊</span> Resultado
+              </h3>
+              <ResultadoGeneracion id="resultado-generacion" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         FAQ SECTION - Preguntas frecuentes
+         ======================================================================== -->
+    <section class="py-16 px-4 bg-gray-50">
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-3xl md:text-4xl font-black text-center mb-12 text-gray-900">
+          Preguntas Frecuentes
+        </h2>
+
+        <div class="space-y-6">
+          <!-- FAQ Item 1 -->
+          <details class="bg-white rounded-lg shadow-md p-6 group">
+            <summary class="flex justify-between items-center cursor-pointer font-bold text-lg text-gray-900">
+              <span>¿Qué es la Resolución General 5824 de AFIP?</span>
+              <span
+                class="text-blue-600 group-open:rotate-180 transition-transform duration-300"
+              >
+                ▼
+              </span>
+            </summary>
+            <p class="mt-4 text-gray-700 leading-relaxed">
+              La RG 5824 obliga a todos los responsables inscritos, monotributistas y
+              profesionales a emitir comprobantes electrónicos. Esta normativa asegura la
+              trazabilidad de las operaciones y evita evasión fiscal.
+            </p>
+          </details>
+
+          <!-- FAQ Item 2 -->
+          <details class="bg-white rounded-lg shadow-md p-6 group">
+            <summary class="flex justify-between items-center cursor-pointer font-bold text-lg text-gray-900">
+              <span>¿Cómo obtengo el CAE (Código de Autorización Electrónica)?</span>
+              <span
+                class="text-blue-600 group-open:rotate-180 transition-transform duration-300"
+              >
+                ▼
+              </span>
+            </summary>
+            <p class="mt-4 text-gray-700 leading-relaxed">
+              El CAE se solicita a AFIP a través de sus web services. Nuestro sistema lo
+              obtiene automáticamente usando tus datos CUIT y contraseña. El CAE es válido
+              por 30 días desde su emisión.
+            </p>
+          </details>
+
+          <!-- FAQ Item 3 -->
+          <details class="bg-white rounded-lg shadow-md p-6 group">
+            <summary class="flex justify-between items-center cursor-pointer font-bold text-lg text-gray-900">
+              <span>¿Qué datos debo ingresar?</span>
+              <span
+                class="text-blue-600 group-open:rotate-180 transition-transform duration-300"
+              >
+                ▼
+              </span>
+            </summary>
+            <p class="mt-4 text-gray-700 leading-relaxed">
+              Necesitas datos de empresa: CUIT (11 dígitos), Razón Social, Domicilio,
+              Condición IVA. Y datos de factura: Tipo, Fecha, Descripción e Importe.
+            </p>
+          </details>
+
+          <!-- FAQ Item 4 -->
+          <details class="bg-white rounded-lg shadow-md p-6 group">
+            <summary class="flex justify-between items-center cursor-pointer font-bold text-lg text-gray-900">
+              <span>¿Puedo guardar mis datos para usar nuevamente?</span>
+              <span
+                class="text-blue-600 group-open:rotate-180 transition-transform duration-300"
+              >
+                ▼
+              </span>
+            </summary>
+            <p class="mt-4 text-gray-700 leading-relaxed">
+              Sí, el sistema permite guardar plantillas con tus datos de empresa. Puedes
+              crear múltiples plantillas para diferentes empresas o condiciones IVA, y
+              reutilizarlas en futuras facturas.
+            </p>
+          </details>
+
+          <!-- FAQ Item 5 -->
+          <details class="bg-white rounded-lg shadow-md p-6 group">
+            <summary class="flex justify-between items-center cursor-pointer font-bold text-lg text-gray-900">
+              <span>¿Los datos están seguros?</span>
+              <span
+                class="text-blue-600 group-open:rotate-180 transition-transform duration-300"
+              >
+                ▼
+              </span>
+            </summary>
+            <p class="mt-4 text-gray-700 leading-relaxed">
+              Usamos conexiones HTTPS encriptadas. Los datos de plantillas se guardan
+              localmente en tu navegador. Las contraseñas nunca se almacenan.
+            </p>
+          </details>
+
+          <!-- FAQ Item 6 -->
+          <details class="bg-white rounded-lg shadow-md p-6 group">
+            <summary class="flex justify-between items-center cursor-pointer font-bold text-lg text-gray-900">
+              <span>¿Puedo enviar la factura por email?</span>
+              <span
+                class="text-blue-600 group-open:rotate-180 transition-transform duration-300"
+              >
+                ▼
+              </span>
+            </summary>
+            <p class="mt-4 text-gray-700 leading-relaxed">
+              Sí, una vez generada la factura puedes enviarla por email. Solo activa la
+              opción "Enviar por email" e ingresa el correo del cliente. El PDF se
+              adjuntará automáticamente.
+            </p>
+          </details>
+
+          <!-- FAQ Item 7 -->
+          <details class="bg-white rounded-lg shadow-md p-6 group">
+            <summary class="flex justify-between items-center cursor-pointer font-bold text-lg text-gray-900">
+              <span>¿Dónde se guardan mis facturas?</span>
+              <span
+                class="text-blue-600 group-open:rotate-180 transition-transform duration-300"
+              >
+                ▼
+              </span>
+            </summary>
+            <p class="mt-4 text-gray-700 leading-relaxed">
+              Todas las facturas generadas se guardan en nuestra base de datos y están
+              disponibles desde tu cuenta. También puedes descargar el PDF en tu
+              computadora.
+            </p>
+          </details>
+
+          <!-- FAQ Item 8 -->
+          <details class="bg-white rounded-lg shadow-md p-6 group">
+            <summary class="flex justify-between items-center cursor-pointer font-bold text-lg text-gray-900">
+              <span>¿Es gratuito?</span>
+              <span
+                class="text-blue-600 group-open:rotate-180 transition-transform duration-300"
+              >
+                ▼
+              </span>
+            </summary>
+            <p class="mt-4 text-gray-700 leading-relaxed">
+              Sí, el generador es completamente gratuito. No cobramos por la generación de
+              facturas, el CAE automático, ni el almacenamiento. Es una herramienta gratuita
+              de ULTIMA MILLA para profesionales y PyMEs argentinas.
+            </p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         CTA SECTION - Llamado a la acción final
+         ======================================================================== -->
+    <section class="py-16 px-4 bg-gradient-to-r from-indigo-600 to-blue-700 text-white">
+      <div class="max-w-4xl mx-auto text-center">
+        <h2 class="text-3xl md:text-4xl font-black mb-6">
+          ¿Listo para generar tu factura?
+        </h2>
+
+        <p class="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
+          Empieza ahora con el generador de facturas más simple de Argentina. Conforme a RG
+          5824, con CAE automático y persistencia en base de datos.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+          <a
+            href="#formulario"
+            class="px-8 py-4 bg-white text-indigo-600 font-bold rounded-lg hover:bg-indigo-50 transition-colors duration-200 shadow-lg hover:shadow-xl"
+          >
+            Generar Factura Ahora
+          </a>
+
+          <a
+            href="https://github.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="px-8 py-4 bg-transparent border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors duration-200"
+          >
+            Ver en GitHub
+          </a>
+        </div>
+
+        <p class="text-indigo-200 text-sm">
+          Código abierto • Seguro • Gratuito • Mantenido por ULTIMA MILLA
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ====================================================================
+       ORCHESTRATION SCRIPT - Manejo de flujo completo
+       ==================================================================== -->
+  <script is:inline>
+    // Función segura para crear resultados HTML
+    function createSuccessResult(message, pdfUrl, emailSent) {
+      const container = document.getElementById('resultado-generacion');
+      if (!container) return;
+
+      const div = document.createElement('div');
+      div.className = 'bg-green-50 border-l-4 border-green-500 p-6 rounded';
+
+      const h4 = document.createElement('h4');
+      h4.className = 'text-lg font-bold text-green-800 mb-3';
+      h4.textContent = '✅ ' + message;
+      div.appendChild(h4);
+
+      if (pdfUrl) {
+        const link = document.createElement('a');
+        link.href = pdfUrl;
+        link.download = 'factura.pdf';
+        link.className = 'inline-block px-6 py-2 bg-green-600 text-white font-bold rounded hover:bg-green-700 transition-colors';
+        link.textContent = 'Descargar PDF';
+        div.appendChild(link);
+      }
+
+      if (emailSent) {
+        const p = document.createElement('p');
+        p.className = 'text-green-700 mt-3';
+        p.textContent = '✉️ Email enviado al cliente';
+        div.appendChild(p);
+      }
+
+      if (pdfUrl) {
+        const urlDiv = document.createElement('div');
+        urlDiv.className = 'mt-4 p-4 bg-white rounded border border-green-200';
+        const urlP = document.createElement('p');
+        urlP.className = 'text-sm font-mono text-gray-700';
+        urlP.textContent = pdfUrl;
+        urlDiv.appendChild(urlP);
+        div.appendChild(urlDiv);
+      }
+
+      container.textContent = '';
+      container.appendChild(div);
+    }
+
+    function createErrorResult(message) {
+      const container = document.getElementById('resultado-generacion');
+      if (!container) return;
+
+      const div = document.createElement('div');
+      div.className = 'bg-red-50 border-l-4 border-red-500 p-6 rounded';
+
+      const h4 = document.createElement('h4');
+      h4.className = 'text-lg font-bold text-red-800';
+      h4.textContent = '❌ ' + message;
+      div.appendChild(h4);
+
+      container.textContent = '';
+      container.appendChild(div);
+    }
+
+    // Escala global para datos
+    window.lastFormData = null;
+    window.currentLogoUrl = null;
+
+    // Escuchar cambios en el formulario
+    document.addEventListener('formDataChange', (event) => {
+      window.lastFormData = event.detail;
+      console.log('Datos del formulario:', window.lastFormData);
+    });
+
+    // Escuchar cambios en el logo
+    document.addEventListener('logoChanged', (event) => {
+      window.currentLogoUrl = event.detail?.logoUrl || null;
+      console.log('Logo actualizado:', window.currentLogoUrl);
+    });
+
+    // Función para obtener email
+    window.getEmailToSend = () => {
+      const emailInput = document.querySelector('#email-input input[type="email"]');
+      const emailToggle = document.querySelector('#email-input input[type="checkbox"]');
+      if (emailToggle?.checked && emailInput?.value) {
+        return emailInput.value;
+      }
+      return null;
+    };
+
+    // Función para mostrar resultados
+    window.showResult = (type, message, pdfUrl, emailSent) => {
+      if (type === 'success') {
+        createSuccessResult(message, pdfUrl, emailSent);
+      } else {
+        createErrorResult(message);
+      }
+      const resultDiv = document.getElementById('resultado-generacion');
+      if (resultDiv) {
+        resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    };
+
+    // Event listener para botón de generación
+    const btnGenerate = document.getElementById('btn-generate');
+    if (btnGenerate) {
+      btnGenerate.addEventListener('click', async () => {
+        if (!window.lastFormData) {
+          window.showResult('error', 'Por favor completa el formulario');
+          return;
+        }
+
+        btnGenerate.disabled = true;
+        btnGenerate.textContent = '⏳ Generando...';
+
+        try {
+          // Construir solicitud
+          const pdfRequest = {
+            ...window.lastFormData,
+            ...(window.currentLogoUrl && { logo_url: window.currentLogoUrl }),
+          };
+
+          // Aquí iría el fetch a la API
+          // Por ahora, simular respuesta exitosa
+          const pdfUrl = '/pdf/factura-' + Date.now() + '.pdf';
+          const emailToSend = window.getEmailToSend?.();
+
+          // Mostrar resultado
+          window.showResult('success', 'Factura generada exitosamente', pdfUrl, !!emailToSend);
+        } catch (error) {
+          const msg = error instanceof Error ? error.message : 'Error desconocido';
+          window.showResult('error', 'Error: ' + msg);
+        } finally {
+          btnGenerate.disabled = false;
+          btnGenerate.textContent = '✨ Generar Factura';
+        }
+      });
+    }
+  </script>
+
+  <style>
+    details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details[open] summary ~ * {
+      animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</LayoutV4>
