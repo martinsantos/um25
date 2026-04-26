@@ -1,0 +1,202 @@
+---
+// ResultadoGeneracion.astro - Componente para mostrar resultado de generación
+// - Éxito: PDF descarga, información de email
+// - Error: mensaje de error claro
+// - Botón "Nueva Factura" para resetear
+// - Usa textContent para seguridad contra XSS
+
+interface Props {
+  onNewInvoice?: () => void;
+}
+
+const { onNewInvoice } = Astro.props;
+---
+
+<div id="resultado-generacion" class="hidden space-y-4">
+  <!-- Loader -->
+  <div id="result-loader" class="hidden flex items-center justify-center space-x-2">
+    <div class="animate-spin rounded-full h-6 w-6 border border-blue-600 border-t-transparent"></div>
+    <span class="text-gray-700">Generando factura...</span>
+  </div>
+
+  <!-- Resultado Success -->
+  <div id="result-success" class="hidden">
+    <div class="p-4 bg-green-50 border border-green-200 rounded-md">
+      <h3 class="text-lg font-semibold text-green-800 mb-2">Factura Generada Exitosamente</h3>
+      <p id="success-message" class="text-green-700 mb-4"></p>
+
+      <!-- Información de CAE -->
+      <div class="bg-white p-3 rounded border border-green-100 mb-4 space-y-2">
+        <p class="text-sm">
+          <strong>CAE:</strong>
+          <span id="cae-value" class="font-mono text-gray-900"></span>
+        </p>
+        <p class="text-sm">
+          <strong>Vencimiento CAE:</strong>
+          <span id="cae-expiry" class="text-gray-900"></span>
+        </p>
+      </div>
+
+      <!-- Información de Email -->
+      <div id="email-info" class="hidden p-3 bg-blue-50 rounded border border-blue-100 mb-4">
+        <p class="text-sm text-blue-700">
+          <span id="email-sent-msg"></span>
+        </p>
+      </div>
+
+      <!-- Botones de Acción -->
+      <div class="flex gap-3">
+        <a
+          id="download-pdf-btn"
+          href=""
+          download=""
+          class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-center"
+        >
+          Descargar PDF
+        </a>
+        <button
+          id="new-invoice-btn"
+          type="button"
+          class="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+        >
+          Nueva Factura
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resultado Error -->
+  <div id="result-error" class="hidden">
+    <div class="p-4 bg-red-50 border border-red-200 rounded-md">
+      <h3 class="text-lg font-semibold text-red-800 mb-2">Error al Generar Factura</h3>
+      <p id="error-message" class="text-red-700 mb-4"></p>
+
+      <button
+        id="retry-btn"
+        type="button"
+        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+      >
+        Intentar de Nuevo
+      </button>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  const container = document.querySelector('#resultado-generacion');
+  const loader = document.querySelector('#result-loader');
+  const successBox = document.querySelector('#result-success');
+  const errorBox = document.querySelector('#result-error');
+
+  const successMessage = document.querySelector('#success-message');
+  const caeValue = document.querySelector('#cae-value');
+  const caeExpiry = document.querySelector('#cae-expiry');
+  const emailInfo = document.querySelector('#email-info');
+  const emailSentMsg = document.querySelector('#email-sent-msg');
+  const downloadBtn = document.querySelector('#download-pdf-btn');
+  const newInvoiceBtn = document.querySelector('#new-invoice-btn');
+  const errorMessage = document.querySelector('#error-message');
+  const retryBtn = document.querySelector('#retry-btn');
+
+  // Función global para mostrar resultado
+  window.showResult = (type, message, pdfUrl, emailSent) => {
+    // Ocultar todo
+    loader.classList.add('hidden');
+    successBox.classList.add('hidden');
+    errorBox.classList.add('hidden');
+    container.classList.remove('hidden');
+
+    if (type === 'success') {
+      // Mostrar resultado de éxito
+      successBox.classList.remove('hidden');
+      successMessage.textContent = message || 'Tu factura ha sido generada correctamente.';
+
+      if (pdfUrl) {
+        downloadBtn.href = pdfUrl;
+        downloadBtn.download = `factura_${new Date().getTime()}.pdf`;
+      }
+
+      if (emailSent) {
+        emailInfo.classList.remove('hidden');
+        emailSentMsg.textContent = 'Email enviado exitosamente a la dirección especificada.';
+      } else {
+        emailInfo.classList.add('hidden');
+      }
+    } else if (type === 'error') {
+      // Mostrar resultado de error
+      errorBox.classList.remove('hidden');
+      errorMessage.textContent = message || 'Ocurrió un error al generar la factura.';
+    }
+
+    return { type, message, pdfUrl, emailSent };
+  };
+
+  // Función para mostrar loader
+  window.showLoader = () => {
+    container.classList.remove('hidden');
+    loader.classList.remove('hidden');
+    successBox.classList.add('hidden');
+    errorBox.classList.add('hidden');
+  };
+
+  // Función para actualizar CAE
+  window.setCae = (cae, vencimiento) => {
+    caeValue.textContent = cae || '--';
+    caeExpiry.textContent = vencimiento || '--';
+  };
+
+  // Botón Nueva Factura
+  newInvoiceBtn.addEventListener('click', () => {
+    // Limpiar formulario
+    const form = document.querySelector('#formulario-arca');
+    if (form) {
+      form.reset();
+      form.dispatchEvent(new Event('reset', { bubbles: true }));
+    }
+
+    // Ocultar resultado
+    container.classList.add('hidden');
+    successBox.classList.add('hidden');
+    errorBox.classList.add('hidden');
+
+    // Disparar evento personalizado
+    const event = new CustomEvent('newInvoiceStarted', {
+      bubbles: true,
+    });
+    document.dispatchEvent(event);
+  });
+
+  // Botón Reintentar
+  retryBtn.addEventListener('click', () => {
+    container.classList.add('hidden');
+    errorBox.classList.add('hidden');
+
+    const event = new CustomEvent('retryGeneration', {
+      bubbles: true,
+    });
+    document.dispatchEvent(event);
+  });
+
+  // Exposer funciones globales
+  window.clearResult = () => {
+    container.classList.add('hidden');
+    loader.classList.add('hidden');
+    successBox.classList.add('hidden');
+    errorBox.classList.add('hidden');
+  };
+</script>
+
+<style>
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+</style>
