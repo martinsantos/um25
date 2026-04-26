@@ -1,0 +1,365 @@
+---
+/**
+ * BannerHero v5 — 3-layer banner with scroll-driven parallax + staged choreography
+ *
+ * Layers:
+ *   bg (30% scroll speed)     ← Background photo
+ *   overlay (60% scroll speed) ← Thematic CSS overlay
+ *   content (static)          ← Breadcrumb, badge, title effect, description, stats
+ *
+ * Stagger timeline:
+ *   t=0    bg fade-in
+ *   t=100  overlay fade-in
+ *   t=250  breadcrumb slide-in
+ *   t=350  badge/emoji scale-in
+ *   t=500  title effect starts
+ *   onDone description fade
+ *   onDone+150 stats fade
+ */
+import '../styles/banner-overlays.css';
+
+export interface Props {
+  title: string;
+  theme: string;
+  bgImage: string;
+  color: string;
+  effect: string;
+  speed?: number;
+  breadcrumb?: { label: string; href: string }[];
+  badge?: string;
+  emoji?: string;
+  description?: string;
+  stats?: { value: string; label: string }[];
+}
+
+const {
+  title,
+  theme,
+  bgImage,
+  color,
+  effect,
+  speed = 18,
+  breadcrumb = [],
+  badge,
+  emoji,
+  description,
+  stats = [],
+} = Astro.props;
+
+const overlayClass = `overlay-${theme}`;
+const isMineria = theme === 'mineria';
+const particles = isMineria
+  ? Array.from({ length: 18 }, () => ({
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      size: `${2 + Math.random() * 3}px`,
+      delay: `${Math.random() * 5}s`,
+      duration: `${3 + Math.random() * 4}s`,
+    }))
+  : [];
+---
+
+<section class="banner-section relative bg-um-dark pt-20 sm:pt-24 pb-8 sm:pb-12 lg:pb-16 overflow-hidden">
+  <!-- Layer 1: Background photo (parallax) -->
+  <div
+    class="banner-bg absolute inset-0 opacity-0"
+    style={`background-image:url('${bgImage}');background-position:center;background-size:cover;will-change:transform,opacity;`}
+  ></div>
+  <div class="absolute inset-0 bg-gradient-to-b from-um-dark/70 to-um-dark/90"></div>
+
+  <!-- Layer 2: Thematic overlay (parallax) -->
+  <div class={`banner-overlay ${overlayClass} opacity-0`} style="will-change:transform,opacity">
+    {isMineria &&
+      particles.map((p) => (
+        <div
+          style={`position:absolute;left:${p.left};top:${p.top};width:${p.size};height:${p.size};background:rgba(249,115,22,0.35);border-radius:50%;animation:_dust ${p.duration} ease-in-out ${p.delay} infinite;`}
+        ></div>
+      ))}
+  </div>
+
+  <!-- Layer 2b: Cursor-reactive spotlight -->
+  <div class="banner-spotlight" aria-hidden="true"></div>
+
+  <!-- Layer 2c: Hairline crop marks (4 corners) -->
+  <div class="banner-crops" style={`--bc:${color}`} aria-hidden="true">
+    <div class="crop crop-tl"></div>
+    <div class="crop crop-tr"></div>
+    <div class="crop crop-bl"></div>
+    <div class="crop crop-br"></div>
+  </div>
+
+  <!-- Layer 2d: Live tick sweep -->
+  <div class="banner-tick" style={`--bc:${color}`} aria-hidden="true"></div>
+
+  <!-- Layer 3: Content (static) -->
+  <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    {theme === 'software' && <div class="h-8"></div>}
+
+    {breadcrumb.length > 0 && (
+      <nav class="banner-breadcrumb flex items-center gap-2 mb-4 sm:mb-6" style="opacity:0;transform:translateX(-12px)">
+        {breadcrumb.map((item, i) => (
+          <>
+            {i > 0 && (
+              <svg class="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            )}
+            {item.href ? (
+              <a href={item.href} class="text-white/60 hover:text-white text-xs sm:text-sm transition-colors">
+                {item.label}
+              </a>
+            ) : (
+              <span class="text-white text-xs sm:text-sm">{item.label}</span>
+            )}
+          </>
+        ))}
+      </nav>
+    )}
+
+    <div class="max-w-3xl">
+      {badge && (
+        <span
+          class="banner-badge inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wide mb-4 sm:mb-5"
+          style={`background:${color}22;color:${color};opacity:0;transform:scale(.85)`}
+        >
+          {badge}
+        </span>
+      )}
+
+      {emoji && (
+        <div class="banner-emoji text-4xl sm:text-5xl mb-3" style="opacity:0;transform:scale(.85)" aria-hidden="true">
+          {emoji}
+        </div>
+      )}
+
+      <div
+        id="hero-fx"
+        class="mb-4 sm:mb-6"
+        data-title={title}
+        data-effect={effect}
+        data-color={color}
+        data-speed={String(speed)}
+      ></div>
+      <h1 class="sr-only">{title}</h1>
+
+      {description && (
+        <p class="hero-fade text-base sm:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8" style="opacity:0;">
+          {description}
+        </p>
+      )}
+
+      {stats.length > 0 && (
+        <div class="hero-fade flex flex-wrap items-center gap-3 sm:gap-4" style="opacity:0;">
+          {stats.map((stat) => (
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
+              <div class="text-3xl sm:text-4xl font-extrabold text-white">{stat.value}</div>
+              <div class="text-xs sm:text-sm text-white/70 mt-1">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Staged enter transitions */
+  .banner-bg {
+    transition: opacity .8s ease;
+    translate: var(--mx, 0) var(--my, 0);
+  }
+  .banner-bg.show {
+    opacity: .35;
+    animation: bgDrift 60s ease-in-out infinite alternate;
+  }
+  @keyframes bgDrift {
+    0%   { transform: scale(1.02) translate3d(0, 0, 0); }
+    100% { transform: scale(1.06) translate3d(-1.5%, 1%, 0); }
+  }
+  .banner-overlay {
+    transition: opacity .6s ease;
+    translate: calc(var(--mx, 0px) * 0.4) calc(var(--my, 0px) * 0.4);
+  }
+  .banner-overlay.show { opacity: 1; }
+  .banner-breadcrumb { transition: opacity .45s ease, transform .45s cubic-bezier(.22,1,.36,1); }
+  .banner-breadcrumb.show { opacity: 1 !important; transform: translateX(0) !important; }
+  .banner-badge, .banner-emoji { transition: opacity .4s ease, transform .45s cubic-bezier(.34,1.56,.64,1); }
+  .banner-badge.show, .banner-emoji.show { opacity: 1 !important; transform: scale(1) !important; }
+  .hero-fade { transition: opacity .8s ease, transform .6s ease; transform: translateY(8px); }
+  .hero-fade.show { opacity: 1 !important; transform: translateY(0); }
+
+  /* ═══ Ambient life layer (v6) ═══ */
+  .banner-spotlight {
+    position: absolute; inset: 0; z-index: 15; pointer-events: none;
+    background: radial-gradient(
+      circle 320px at var(--cx, 50%) var(--cy, 40%),
+      rgba(255,255,255,0.06) 0%,
+      rgba(255,255,255,0) 62%
+    );
+    opacity: 0;
+    transition: opacity .5s ease;
+    mix-blend-mode: screen;
+  }
+  .banner-spotlight.active { opacity: 1; }
+
+  .banner-crops {
+    position: absolute;
+    inset: 80px 32px;
+    z-index: 25;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .6s ease .3s;
+  }
+  .banner-crops.show { opacity: 1; }
+  .crop { position: absolute; width: 22px; height: 22px; opacity: .5; }
+  .crop-tl { top: 0;    left: 0;    border-top:    1px solid var(--bc); border-left:  1px solid var(--bc); }
+  .crop-tr { top: 0;    right: 0;   border-top:    1px solid var(--bc); border-right: 1px solid var(--bc); }
+  .crop-bl { bottom: 0; left: 0;    border-bottom: 1px solid var(--bc); border-left:  1px solid var(--bc); }
+  .crop-br { bottom: 0; right: 0;   border-bottom: 1px solid var(--bc); border-right: 1px solid var(--bc); }
+
+  .banner-tick {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    height: 1px;
+    background: var(--bc);
+    opacity: 0;
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: opacity .6s ease .4s;
+    z-index: 26;
+  }
+  .banner-tick.show {
+    opacity: .42;
+    animation: tickSweep 8s linear infinite;
+  }
+  @keyframes tickSweep {
+    0%   { transform: scaleX(0); }
+    70%  { transform: scaleX(1); opacity: .42; }
+    85%  { transform: scaleX(1); opacity: .42; }
+    90%  { opacity: 0; }
+    100% { transform: scaleX(0); opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .banner-bg, .banner-overlay, .banner-breadcrumb,
+    .banner-badge, .banner-emoji, .hero-fade,
+    .banner-spotlight, .banner-crops, .banner-tick {
+      transition: opacity .3s ease !important;
+      transform: none !important;
+      animation: none !important;
+    }
+    .banner-bg.show { animation: none !important; }
+    .banner-tick.show { animation: none !important; opacity: .25; transform: scaleX(1); }
+  }
+</style>
+
+<script>
+  import { heroFx } from '../utils/pretextFx';
+  import type { WritingStyle } from '../utils/pretextFx';
+
+  function init() {
+    const section = document.querySelector('.banner-section') as HTMLElement;
+    const el = document.getElementById('hero-fx');
+    if (!section || !el) return;
+
+    const title = el.dataset.title || '';
+    const effect = (el.dataset.effect || 'typewriter') as WritingStyle;
+    const color = el.dataset.color || '#ef4444';
+    const speed = parseInt(el.dataset.speed || '18');
+    if (!title) return;
+
+    let started = false;
+
+    function stagedEnter() {
+      if (started) return;
+      started = true;
+
+      // t=0 bg
+      setTimeout(() => section.querySelector('.banner-bg')?.classList.add('show'), 0);
+      // t=100 overlay
+      setTimeout(() => section.querySelector('.banner-overlay')?.classList.add('show'), 100);
+      // t=250 breadcrumb
+      setTimeout(() => section.querySelector('.banner-breadcrumb')?.classList.add('show'), 250);
+      // t=350 badge + emoji
+      setTimeout(() => {
+        section.querySelector('.banner-badge')?.classList.add('show');
+        section.querySelector('.banner-emoji')?.classList.add('show');
+      }, 350);
+      // t=500 title effect
+      setTimeout(() => {
+        heroFx(el!, title, {
+          lines: 3,
+          color,
+          speed,
+          style: effect,
+          ambient: 'scan',
+          onDone: () => {
+            const fades = section.querySelectorAll('.hero-fade');
+            fades.forEach((f, i) => setTimeout(() => f.classList.add('show'), i * 150));
+          },
+        });
+      }, 500);
+      // t=800 hairline life layer
+      setTimeout(() => {
+        section.querySelector('.banner-crops')?.classList.add('show');
+        section.querySelector('.banner-tick')?.classList.add('show');
+      }, 800);
+    }
+
+    // Ambient life: cursor spotlight + mouse parallax (hover-capable, motion-ok)
+    const hoverFine = matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (hoverFine && !reduced) {
+      const bg = section.querySelector('.banner-bg') as HTMLElement | null;
+      const overlay = section.querySelector('.banner-overlay') as HTMLElement | null;
+      const spotlight = section.querySelector('.banner-spotlight') as HTMLElement | null;
+      let tx = 0, ty = 0, cx = 0, cy = 0;
+      section.addEventListener('mousemove', (e) => {
+        const r = section.getBoundingClientRect();
+        const nx = (e.clientX - r.left) / r.width;
+        const ny = (e.clientY - r.top) / r.height;
+        tx = (nx - 0.5) * -8;
+        ty = (ny - 0.5) * -8;
+        if (spotlight) {
+          spotlight.style.setProperty('--cx', (nx * 100).toFixed(2) + '%');
+          spotlight.style.setProperty('--cy', (ny * 100).toFixed(2) + '%');
+        }
+      }, { passive: true });
+      section.addEventListener('mouseenter', () => spotlight?.classList.add('active'));
+      section.addEventListener('mouseleave', () => {
+        tx = 0; ty = 0;
+        spotlight?.classList.remove('active');
+      });
+      (function loop() {
+        cx += (tx - cx) * 0.06;
+        cy += (ty - cy) * 0.06;
+        bg?.style.setProperty('--mx', cx.toFixed(2) + 'px');
+        bg?.style.setProperty('--my', cy.toFixed(2) + 'px');
+        overlay?.style.setProperty('--mx', cx.toFixed(2) + 'px');
+        overlay?.style.setProperty('--my', cy.toFixed(2) + 'px');
+        requestAnimationFrame(loop);
+      })();
+    }
+
+    // Fire when banner enters viewport (first intersection)
+    const io = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          stagedEnter();
+          io.disconnect();
+          break;
+        }
+      }
+    }, { threshold: 0.1 });
+    io.observe(section);
+
+    // Fallback: if banner is above the fold at load, fire immediately
+    const rect = section.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      stagedEnter();
+      io.disconnect();
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('astro:page-load', init);
+</script>

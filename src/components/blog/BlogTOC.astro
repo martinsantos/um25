@@ -1,0 +1,122 @@
+---
+interface Heading {
+  level: number;
+  id: string;
+  text: string;
+}
+interface Props {
+  headings: Heading[];
+  title?: string;
+}
+const { headings, title } = Astro.props;
+---
+
+{headings.length > 0 && (
+  <nav
+    class="toc"
+    x-data="{ active: '' }"
+    x-init="
+      const els = document.querySelectorAll('h2[id], h3[id]');
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) active = e.target.id; });
+      }, { rootMargin: '-10% 0px -65% 0px' });
+      els.forEach(el => obs.observe(el));
+    "
+    aria-label="Tabla de contenidos"
+  >
+    <p class="toc__label">Índice</p>
+    <ul class="toc__list">
+      {title && (
+        <li class="toc__item">
+          <a
+            href="#"
+            class="toc__link toc__link--title"
+            :class={`active === '' ? 'toc__link--active' : ''`}
+            onclick="window.scrollTo({top:0,behavior:'smooth'});return false;"
+          >
+            {title}
+          </a>
+        </li>
+      )}
+      {headings.map(h => (
+        <li class={h.level === 3 ? 'toc__item toc__item--sub' : 'toc__item'}>
+          <a
+            href={`#${h.id}`}
+            class="toc__link"
+            :class={`active === '${h.id}' ? 'toc__link--active' : ''`}
+          >
+            {h.text}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}
+
+<style>
+  .toc {
+    display: none;
+    position: sticky;
+    top: 5.5rem;
+    width: 196px;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+  @media (min-width: 1024px) { .toc { display: block; } }
+
+  .toc__label {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: #6b7280;
+    margin: 0 0 10px;
+    padding-left: 12px;
+  }
+
+  .toc__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-left: 2px solid #e5e7eb;
+  }
+
+  .toc__item { margin-bottom: 0; }
+  .toc__item--sub { padding-left: 10px; }
+
+  .toc__link {
+    display: block;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 5px 0 5px 12px;
+    margin-left: -2px;
+    color: #6b7280;
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: color .15s, border-color .15s;
+  }
+  .toc__link:hover {
+    color: #111827;
+    border-left-color: #9ca3af;
+  }
+  .toc__link--active {
+    color: #111827;
+    font-weight: 600;
+    border-left-color: #111827;
+  }
+
+  /* Title item is slightly bolder */
+  .toc__link--title {
+    font-size: 12px;
+    font-weight: 500;
+    color: #4b5563;
+    padding-bottom: 8px;
+    margin-bottom: 2px;
+  }
+  .toc__link--title.toc__link--active {
+    color: #111827;
+    font-weight: 700;
+  }
+</style>

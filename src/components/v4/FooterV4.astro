@@ -14,11 +14,11 @@ const footerSections = {
   servicios: {
     title: 'Servicios',
     links: [
-      { href: '/servicios/redes', label: 'Infraestructura de Redes' },
-      { href: '/servicios/seguridad', label: 'Seguridad Electrónica' },
-      { href: '/servicios/telecomunicaciones', label: 'Telecomunicaciones' },
-      { href: '/servicios/software', label: 'Desarrollo de Software' },
-      { href: '/servicios/soporte', label: 'Soporte Técnico 24/7' },
+      { href: '/servicios/101/infraestructura-de-redes-cableado-fibra-optica-radioenlaces', label: 'Infraestructura de Redes' },
+      { href: '/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi', label: 'Seguridad Electrónica' },
+      { href: '/servicios/103/telecomunicaciones-datos-voz-video', label: 'Telecomunicaciones' },
+      { href: '/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp', label: 'Desarrollo de Software' },
+      { href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it', label: 'Soporte Técnico 24/7' },
     ],
   },
   empresa: {
@@ -51,15 +51,9 @@ const socialLinks = [
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12">
 
       <!-- Brand Column -->
-      <div class="text-center sm:text-left">
-        <div class="flex items-center justify-center sm:justify-start mb-4 sm:mb-6">
-          <img
-            src="/images/um-logo.png"
-            alt="Ultima Milla"
-            class="h-8 sm:h-10 brightness-0 invert"
-            width="120"
-            height="40"
-          />
+      <div class="sm:text-left">
+        <div class="flex items-center justify-start mb-4 sm:mb-6">
+          <span style="font-family:'Futura PT','Futura',sans-serif;font-weight:600;letter-spacing:-0.02em;font-size:24px;line-height:1;color:#ffffff;white-space:nowrap;">ultimamilla<span style="color:#DC2626;">.</span>com<span style="color:#DC2626;">.</span>ar</span>
         </div>
         <p class="text-sm leading-relaxed mb-4 sm:mb-6">
           Transformación digital para empresas en Mendoza, Cuyo y Patagonia. +22 años de experiencia en soluciones IT.
@@ -69,7 +63,7 @@ const socialLinks = [
             <a
               href={social.href}
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener noreferrer nofollow"
               class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-um-primary transition-colors min-h-[44px] min-w-[44px]"
               aria-label={`Seguir a Ultima Milla en ${social.label}`}
             >
@@ -125,7 +119,7 @@ const socialLinks = [
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>
-            <span class="text-left">Houssay 1159, Guaymallén<br/>Mendoza 5500, Argentina</span>
+            <span class="text-left">Houssay 1159, Guaymallén<br/>Mendoza M5519, Argentina</span>
           </li>
           <li class="flex items-center gap-3 justify-center sm:justify-start">
             <svg class="w-5 h-5 text-um-primary-light shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

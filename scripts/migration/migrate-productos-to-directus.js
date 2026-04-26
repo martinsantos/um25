@@ -20,6 +20,7 @@ import { createDirectus, rest, createItem } from '@directus/sdk';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fetch from 'node-fetch';
 
 // ESM fix para __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -31,9 +32,23 @@ dotenv.config({ path: path.join(__dirname, '../../.env') });
 // Importar datos de servicios
 const { default: serviciosCompletos } = await import('../../src/data/servicios_completos_v4.js');
 
+// Cargar mapping de imágenes (UUID)
+import fs from 'fs';
+const mappingPath = path.join(__dirname, '../../scratchpad/uploaded-assets-mapping.json');
+let assetsMapping = {};
+
+if (fs.existsSync(mappingPath)) {
+  const mappingData = JSON.parse(fs.readFileSync(mappingPath, 'utf-8'));
+  assetsMapping = mappingData.mapping || {};
+  console.log(`📂 Mapping de assets cargado: ${Object.keys(assetsMapping).length} imágenes\n`);
+} else {
+  console.warn('⚠️  Warning: No se encontró uploaded-assets-mapping.json');
+  console.warn('   Las imágenes no se vincularán. Ejecutar primero: upload-product-images.js\n');
+}
+
 // Configuración
 const DIRECTUS_URL = process.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-const DIRECTUS_TOKEN = process.env.PUBLIC_DIRECTUS_TOKEN;
+const DIRECTUS_TOKEN = process.env.DIRECTUS_STATIC_TOKEN || process.env.PUBLIC_DIRECTUS_TOKEN;
 const DRY_RUN = process.argv.includes('--dry-run');
 
 // Validación
@@ -50,16 +65,27 @@ const directus = createDirectus(DIRECTUS_URL).with(rest());
 // ==========================================
 
 /**
- * Convierte imagen JS a formato Directus
- * Nota: Las imágenes deben estar previamente subidas a Directus
+ * Convierte imagen JS a formato Directus (UUID)
+ * Usa el mapping generado por upload-product-images.js
  */
 function convertImagePath(jsImagePath) {
   // Formato JS: '/images/services/productos/infraestructura/1.1.png'
-  // Formato Directus: UUID del archivo subido
+  // Extraer: 'infraestructura/1.1.png'
 
-  // Por ahora, devolvemos null y usaremos el script de upload de imágenes primero
-  // TODO: Implementar mapeo de rutas JS → UUIDs de Directus
-  return null;
+  if (!jsImagePath) return null;
+
+  const match = jsImagePath.match(/\/productos\/(.+\.png)/);
+  if (!match) return null;
+
+  const tag = match[1]; // e.g., 'infraestructura/1.1.png'
+  const uuid = assetsMapping[tag];
+
+  if (!uuid) {
+    console.warn(`   ⚠️  Imagen no encontrada en mapping: ${tag}`);
+    return null;
+  }
+
+  return uuid;
 }
 
 /**
@@ -73,9 +99,8 @@ async function migrateProducto(producto, servicioId, orden) {
     imagen: convertImagePath(producto.imagen),
     features: producto.features || [],
     destacado: producto.destacado || null,
-    marcas: producto.marcas || [],
     orden: orden,
-    estado: 'publicado'
+    status: 'published'
   };
 
   if (DRY_RUN) {
@@ -85,14 +110,28 @@ async function migrateProducto(producto, servicioId, orden) {
   }
 
   try {
-    const result = await directus.request(
-      createItem('productos', productoData)
-    );
+    // Usar fetch directamente en vez del SDK
+    const response = await fetch(`${DIRECTUS_URL}/items/productos`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${DIRECTUS_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(productoData)
+    });
 
-    console.log(`  ✅ Creado: ${productoData.titulo} (ID: ${result.id})`);
-    return { success: true, id: result.id };
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    }
+
+    const result = await response.json();
+    const productId = result.data.id;
+
+    console.log(`  ✅ Creado: ${productoData.titulo} (ID: ${productId})`);
+    return { success: true, id: productId };
   } catch (error) {
-    console.error(`  ❌ Error en "${productoData.titulo}":`, error.message);
+    console.error(`  ❌ Error en "${productoData.titulo}":`, error.message.substring(0, 200));
     return { success: false, error: error.message };
   }
 }

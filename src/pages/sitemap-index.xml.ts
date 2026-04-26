@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 
-const SITE_URL = 'https://www.ultimamilla.com.ar';
+const SITE_URL = 'https://ultimamilla.com.ar';
 
 function formatDate(date: Date): string {
     const isoString = date.toISOString();
@@ -22,6 +22,12 @@ function generateSitemapIndexXml(): string {
     <!-- Sitemap con todos los antecedentes (469 URLs) -->
     <sitemap>
         <loc>${SITE_URL}/sitemap-antecedentes.xml</loc>
+        <lastmod>${today}</lastmod>
+    </sitemap>
+
+    <!-- Sitemap del blog (posts + categorías) -->
+    <sitemap>
+        <loc>${SITE_URL}/sitemap-blog.xml</loc>
         <lastmod>${today}</lastmod>
     </sitemap>
 </sitemapindex>`;

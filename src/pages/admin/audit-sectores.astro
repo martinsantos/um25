@@ -1,0 +1,221 @@
+---
+/**
+ * Página de auditoría de sectores - SOLO PARA DESARROLLO
+ * Acceder en: http://localhost:4321/admin/audit-sectores
+ */
+
+import { getAllAntecedentes } from '../../lib/directus.ts';
+
+// Sectores existentes en colorSystem
+const EXISTING_SECTORS = [
+  'aeropuertos',
+  'bodegas',
+  'gobierno',
+  'salud',
+  'construccion',
+  'industria',
+  'software',
+  'mineria',
+  'seguridad',
+  'telecomunicaciones',
+  'datacenter',
+  'hoteleria',
+  'retail',
+  'energia',
+  'educacion'
+];
+
+/**
+ * Normaliza un área a sector (misma lógica que ProjectCard.astro)
+ */
+function normalizeSector(area: string): string {
+  const keywords = area?.toLowerCase().trim() || '';
+
+  if (keywords.includes('aeropuerto')) return 'aeropuertos';
+  if (keywords.includes('bodega') || keywords.includes('vitivinícola')) return 'bodegas';
+  if (keywords.includes('gobierno') || keywords.includes('municipal') || keywords.includes('público')) return 'gobierno';
+  if (keywords.includes('salud') || keywords.includes('hospital') || keywords.includes('clínica')) return 'salud';
+  if (keywords.includes('construcción') || keywords.includes('constructora') || keywords.includes('obra')) return 'construccion';
+  if (keywords.includes('industria') || keywords.includes('industrial') || keywords.includes('fábrica')) return 'industria';
+  if (keywords.includes('software') || keywords.includes('desarrollo') || keywords.includes('aplicación')) return 'software';
+  if (keywords.includes('minería') || keywords.includes('minera') || keywords.includes('mining')) return 'mineria';
+  if (keywords.includes('seguridad') || keywords.includes('cctv') || keywords.includes('vigilancia')) return 'seguridad';
+  if (keywords.includes('telecomunicaciones') || keywords.includes('redes') || keywords.includes('telefonía') || keywords.includes('comunicaciones')) return 'telecomunicaciones';
+  if (keywords.includes('data center') || keywords.includes('datacenter') || keywords.includes('centro de datos')) return 'datacenter';
+  if (keywords.includes('hotel') || keywords.includes('hotelería') || keywords.includes('turismo')) return 'hoteleria';
+  if (keywords.includes('retail') || keywords.includes('comercio') || keywords.includes('tienda') || keywords.includes('shopping')) return 'retail';
+  if (keywords.includes('energía') || keywords.includes('eléctrica') || keywords.includes('renovable') || keywords.includes('distribuidora')) return 'energia';
+  if (keywords.includes('educación') || keywords.includes('universidad') || keywords.includes('escuela') || keywords.includes('instituto')) return 'educacion';
+
+  return 'tecnologia'; // fallback
+}
+
+// Obtener todos los antecedentes
+const antecedentes = await getAllAntecedentes();
+
+// Contar ocurrencias por Area
+const areaCounts: Record<string, number> = {};
+antecedentes.forEach(ant => {
+  const area = ant.Area || 'Sin Area';
+  areaCounts[area] = (areaCounts[area] || 0) + 1;
+});
+
+// Ordenar por cantidad descendente
+const sortedAreas = Object.entries(areaCounts).sort((a, b) => b[1] - a[1]);
+
+// Analizar cobertura
+const sectorCounts: Record<string, number> = {};
+let unmappedCount = 0;
+
+antecedentes.forEach(ant => {
+  const sector = normalizeSector(ant.Area || '');
+  sectorCounts[sector] = (sectorCounts[sector] || 0) + 1;
+  if (sector === 'tecnologia') {
+    unmappedCount++;
+  }
+});
+
+const sortedSectors = Object.entries(sectorCounts).sort((a, b) => b[1] - a[1]);
+
+const coveragePercent = ((antecedentes.length - unmappedCount) / antecedentes.length * 100).toFixed(1);
+
+// Áreas sin mapear
+const unmappedAreas = sortedAreas.filter(([area]) => normalizeSector(area) === 'tecnologia');
+
+// Sugerencias de nuevos sectores
+const suggestions = unmappedAreas.filter(([area, count]) => count >= 6 && area !== 'Sin Area');
+
+// Sectores sin uso
+const unusedSectors = EXISTING_SECTORS.filter(sector => !sectorCounts[sector] || sectorCounts[sector] === 0);
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auditoría de Sectores - Ultima Milla</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #f5f5f5;
+    }
+    h1 { color: #1a1a1a; margin-bottom: 0.5rem; }
+    h2 { color: #333; margin-top: 2rem; border-bottom: 2px solid #0066cc; padding-bottom: 0.5rem; }
+    .stats { background: white; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+    .card { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .item { display: flex; justify-content: space-between; padding: 0.5rem; border-bottom: 1px solid #eee; }
+    .item:last-child { border-bottom: none; }
+    .badge { background: #0066cc; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.875rem; }
+    .badge.unmapped { background: #ff6b6b; }
+    .badge.mapped { background: #51cf66; }
+    .badge.warning { background: #ff922b; }
+    .emoji { margin-right: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>🔍 Auditoría de Sectores - Directus Antecedentes</h1>
+  <div class="stats">
+    <p><strong>Total de antecedentes:</strong> {antecedentes.length}</p>
+    <p><strong>Cobertura de sectores:</strong> <span class="badge mapped">{coveragePercent}%</span> ({antecedentes.length - unmappedCount}/{antecedentes.length} antecedentes mapeados)</p>
+    <p><strong>Antecedentes sin mapear:</strong> <span class="badge unmapped">{unmappedCount}</span></p>
+  </div>
+
+  <h2>📊 Distribución por Sector</h2>
+  <div class="grid">
+    {sortedSectors.map(([sector, count]) => {
+      const percentage = ((count / antecedentes.length) * 100).toFixed(1);
+      const isUnmapped = sector === 'tecnologia';
+      return (
+        <div class="card">
+          <div class="item">
+            <span>{isUnmapped ? '❌' : '✅'} <strong>{sector}</strong></span>
+            <span class={isUnmapped ? 'badge unmapped' : 'badge mapped'}>{count} ({percentage}%)</span>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+
+  <h2>📋 Top 30 Áreas Originales</h2>
+  <div class="card">
+    {sortedAreas.slice(0, 30).map(([area, count]) => {
+      const sector = normalizeSector(area);
+      const isUnmapped = sector === 'tecnologia';
+      return (
+        <div class="item">
+          <span>{isUnmapped ? '⚠️' : '✅'} {area}</span>
+          <span>
+            <span class="badge">{count}</span>
+            <span style="margin-left: 0.5rem; color: #666;">→ {sector}</span>
+          </span>
+        </div>
+      );
+    })}
+  </div>
+
+  {unmappedAreas.length > 0 && (
+    <>
+      <h2>⚠️ Áreas sin Mapear (fallback a "tecnologia")</h2>
+      <div class="card">
+        {unmappedAreas.map(([area, count]) => {
+          if (area !== 'Sin Area') {
+            return (
+              <div class="item">
+                <span>{area}</span>
+                <span class="badge unmapped">{count} antecedentes</span>
+              </div>
+            );
+          }
+        })}
+      </div>
+    </>
+  )}
+
+  {suggestions.length > 0 ? (
+    <>
+      <h2>💡 Sugerencias para Nuevos Sectores (≥6 antecedentes)</h2>
+      <div class="card">
+        {suggestions.map(([area, count]) => (
+          <div class="item">
+            <span>🆕 <strong>{area}</strong></span>
+            <span class="badge warning">{count} antecedentes - Crear nuevo sector</span>
+          </div>
+        ))}
+      </div>
+    </>
+  ) : (
+    <>
+      <h2>💡 Sugerencias para Nuevos Sectores</h2>
+      <div class="stats">
+        <p>✅ No hay sugerencias - Todas las áreas con ≥6 antecedentes están mapeadas!</p>
+      </div>
+    </>
+  )}
+
+  {unusedSectors.length > 0 && (
+    <>
+      <h2>🔍 Sectores Definidos pero Sin Antecedentes</h2>
+      <div class="card">
+        {unusedSectors.map(sector => (
+          <div class="item">
+            <span>⚪ {sector}</span>
+            <span style="color: #999;">Sin antecedentes</span>
+          </div>
+        ))}
+      </div>
+    </>
+  )}
+
+  <div class="stats" style="margin-top: 2rem; background: #e3f2fd;">
+    <p style="margin: 0;"><strong>✅ Auditoría completada</strong></p>
+    <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem; color: #666;">
+      Generado: {new Date().toLocaleString('es-AR')}
+    </p>
+  </div>
+</body>
+</html>

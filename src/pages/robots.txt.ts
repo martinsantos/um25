@@ -1,35 +1,20 @@
 import type { APIRoute } from 'astro';
 
-const SITE_URL = 'https://www.ultimamilla.com.ar';
+const SITE_URL = 'https://ultimamilla.com.ar';
 
 export const GET: APIRoute = async () => {
-    const robotsTxt = `# www.robotstxt.org
+    const robotsTxt = `# robots.txt — ultimamilla.com.ar
 
 User-agent: *
-Allow: /
-Disallow: /admin/
+Disallow: /estilo
+Disallow: /estilo/
 Disallow: /api/
 
-# Sitemap
-Sitemap: ${SITE_URL}/sitemap-index.xml
-
-# Archivos específicos a no indexar
-Disallow: /*.json$
-Disallow: /*.js$
-Disallow: /*.css$
-
-# Permitir principales directorios
-Allow: /blog/
-Allow: /servicios/
-Allow: /nosotros/
-Allow: /contacto/
-
-# Crawl-delay
-Crawl-delay: 10`;
+Sitemap: ${SITE_URL}/sitemap-index.xml`;
 
     return new Response(robotsTxt, {
         headers: {
-            'Content-Type': 'text/plain',
+            'Content-Type': 'text/plain; charset=utf-8',
             'Cache-Control': 'public, max-age=3600'
         },
     });

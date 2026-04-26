@@ -1,138 +1,560 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import OptimizedImage from '../../components/OptimizedImage.astro';
-import BlogSidebar from '../../components/BlogSidebar.astro';
-import Comments from '../../components/Comments.astro';
-import { getAllPosts } from '../../data/blog';
-import { formatDate } from '../../utils/date';
+import LayoutV4 from '../../layouts/LayoutV4.astro';
+import BlogTOC from '../../components/blog/BlogTOC.astro';
+import { fetchBlogPost, fetchBlogListing } from '../../utils/getBlogData';
+import { blogImageUrl } from '../../utils/blogHelpers';
+import { addHeadingIds, getCategoryColor, getCategoryLabel, formatBlogDate, extractFaqSchema } from '../../utils/blogUtils';
 
-export const prerender = true;
+const slug = Astro.params.slug || '';
+const post = await fetchBlogPost(slug);
 
-export const getStaticPaths = (() => {
-    const posts = getAllPosts();
-    return posts.map(post => ({
-        params: { slug: post.slug },
-        props: { post },
-    }));
-});
+if (!post) {
+  return Astro.redirect('/blog');
+}
 
-const { post } = Astro.props;
+const { html: contentHtml, headings } = await addHeadingIds(post.contenido || '');
+const faqSchema = extractFaqSchema(contentHtml);
+const imgUrl = blogImageUrl(post.imagen_portada);
+const socialImg = post.social_image ? blogImageUrl(post.social_image) : imgUrl;
+const color = getCategoryColor(post.categoria);
+const label = getCategoryLabel(post.categoria);
+const date = formatBlogDate(post.fecha_publicacion);
 
-// Botones de compartir
-const shareUrl = new URL(Astro.url.pathname, Astro.site).toString();
-const shareText = `Lee "${post.title}" en Última Milla`;
-const socialLinks = [
-    {
-        name: 'Twitter',
-        url: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
-        icon: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path>
-        </svg>`
+const { posts: allRecent } = await fetchBlogListing(1, 20);
+const idx = allRecent.findIndex(p => p.slug === slug);
+const prevPost = idx > 0 ? allRecent[idx - 1] : null;
+const nextPost = idx < allRecent.length - 1 ? allRecent[idx + 1] : null;
+
+const siteUrl = 'https://ultimamilla.com.ar';
+const articleUrl = `${siteUrl}/blog/${slug}`;
+const wordCount = contentHtml.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  '@id': `${articleUrl}#article`,
+  headline: post.titulo,
+  description: post.resumen,
+  url: articleUrl,
+  datePublished: post.fecha_publicacion,
+  dateModified: post.fecha_modificacion || post.fecha_publicacion,
+  wordCount,
+  inLanguage: 'es-AR',
+  articleSection: label,
+  keywords: (post.tags || []).join(', '),
+  image: imgUrl ? {
+    '@type': 'ImageObject',
+    url: imgUrl.startsWith('http') ? imgUrl : `${siteUrl}${imgUrl}`,
+    name: post.imagen_portada_alt || post.titulo,
+  } : undefined,
+  author: {
+    '@type': 'Organization',
+    name: 'ULTIMA MILLA',
+    url: siteUrl,
+    logo: { '@type': 'ImageObject', url: `${siteUrl}/images/um-logo.png` },
+    sameAs: ['https://www.linkedin.com/company/ultimamilla'],
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'ULTIMA MILLA',
+    url: siteUrl,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${siteUrl}/images/um-logo.png`,
+      width: 600,
+      height: 60,
     },
-    {
-        name: 'LinkedIn',
-        url: `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(post.title)}`,
-        icon: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path>
-        </svg>`
-    },
-    {
-        name: 'Facebook',
-        url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
-        icon: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd"></path>
-        </svg>`
-    },
-    {
-        name: 'WhatsApp',
-        url: `https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`,
-        icon: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path fill-rule="evenodd" d="M20.11 3.89C17.95 1.72 14.99.5 11.99.5 5.81.5.5 5.81.5 12c0 2.14.59 4.19 1.71 5.99L.5 23.5l5.71-1.72c1.73 1.05 3.68 1.62 5.78 1.62 6.18 0 11.49-5.31 11.49-11.5 0-3-1.22-5.96-3.39-8.13zM12 21.85c-1.89 0-3.74-.48-5.35-1.4l-.39-.23-3.97 1.19 1.19-3.97-.25-.4c-1.02-1.62-1.58-3.49-1.58-5.44 0-5.42 4.41-9.83 9.83-9.83 2.63 0 5.09 1.02 6.95 2.88 1.86 1.86 2.88 4.32 2.88 6.95 0 5.42-4.41 9.83-9.83 9.83zm5.48-7.26c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.48-.5-.67-.51-.17-.01-.37-.01-.57-.01-.2 0-.52.07-.8.37-.27.3-1.04.97-1.04 2.37 0 1.4.97 2.74 1.1 2.94.13.2 1.86 3.02 4.6 4.11.64.28 1.14.44 1.53.57.64.2 1.23.17 1.69.1.52-.07 1.6-.65 1.82-1.27.22-.62.22-1.15.15-1.27-.07-.12-.27-.19-.57-.34z" clip-rule="evenodd"></path>
-        </svg>`
-    }
-];
+  },
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': articleUrl,
+  },
+  isPartOf: {
+    '@type': 'Blog',
+    '@id': `${siteUrl}/blog`,
+    name: 'Blog ULTIMA MILLA',
+  },
+};
+
+// SEO title/description with length limits
+const rawBlogTitle = post.meta_title || `${post.titulo} | ULTIMA MILLA`;
+const seoTitle = rawBlogTitle.length > 60 ? `${post.titulo.slice(0, 42).trimEnd()}... | ULTIMA MILLA` : rawBlogTitle;
+const rawBlogDesc = post.meta_description || post.resumen?.substring(0, 158) || '';
+const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : rawBlogDesc;
 ---
 
-<Layout title={`${post.title} | Blog | Última Milla`}>
-    <main class="container mx-auto px-4 py-12">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                <!-- Contenido Principal -->
-                <article class="lg:col-span-2">
-                    <header class="mb-8">
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            {post.categories?.map(category => (
-                                <a
-                                    href={`/blog?category=${encodeURIComponent(category)}`}
-                                    class="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm hover:bg-primary-200 transition-colors"
-                                >
-                                    {category}
-                                </a>
-                            ))}
-                        </div>
-                        <h1 class="text-4xl font-bold text-gray-900 mb-4">{post.title}</h1>
-                        <div class="flex items-center gap-4 text-gray-600">
-                            <time datetime={post.date} class="flex items-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                                </svg>
-                                {formatDate(post.date)}
-                            </time>
-                            <span class="flex items-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                </svg>
-                                {post.author}
-                            </span>
-                        </div>
-                    </header>
+<LayoutV4
+  title={seoTitle}
+  description={seoDesc}
+  keywords={post.meta_keywords || (post.tags || []).slice(0, 6).join(', ')}
+  image={socialImg || imgUrl || undefined}
+  ogType="article"
+  canonical={articleUrl}
+  structuredData={faqSchema ? [schema, faqSchema] : schema}
+>
+  <!-- Article meta -->
+  <meta slot="head" property="article:published_time" content={post.fecha_publicacion} />
+  <meta slot="head" property="article:author" content="ULTIMA MILLA" />
+  <meta slot="head" property="article:section" content={label} />
+  {post.tags && post.tags.map((tag: string) => (
+    <meta slot="head" property="article:tag" content={tag} />
+  ))}
+  <link
+    slot="head"
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
 
-                    <div class="prose prose-lg max-w-none mb-12">
-                        <div class="mb-8 rounded-lg overflow-hidden">
-                            <OptimizedImage
-                                src={post.image}
-                                alt={post.title}
-                                class="w-full h-auto"
-                            />
-                        </div>
-                        
-                        <div set:html={post.content} />
-                    </div>
+  <div id="read-bar" class="read-bar"></div>
 
-                    <!-- Botones de compartir -->
-                    <div class="border-t border-b border-gray-200 py-6 mb-12">
-                        <h3 class="text-lg font-semibold mb-4">Comparte este artículo</h3>
-                        <div class="flex gap-4">
-                            {socialLinks.map(link => (
-                                <a
-                                    href={link.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="p-2 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-colors"
-                                    aria-label={`Compartir en ${link.name}`}
-                                >
-                                    <Fragment set:html={link.icon} />
-                                </a>
-                            ))}
-                        </div>
-                    </div>
+  <main class="article-page">
 
-                    <!-- Sección de comentarios -->
-                    <Comments postSlug={post.slug} />
-                </article>
+    <div class="article-layout">
+      <BlogTOC headings={headings} title={post.titulo} />
 
-                <!-- Barra lateral -->
-                <div class="lg:col-span-1">
-                    <BlogSidebar currentSlug={post.slug} currentCategories={post.categories} />
-                </div>
-            </div>
+      <article class="article-body">
+
+        <nav class="breadcrumbs" aria-label="Navegación">
+          <a href="/" class="bc-link">ULTIMA MILLA</a>
+          <span class="bc-sep">/</span>
+          <a href="/blog" class="bc-link">Blog</a>
+          <span class="bc-sep">/</span>
+          <span class="bc-cat" style={`color:${color}`}>{label}</span>
+        </nav>
+
+        <h1 class="article-title">{post.titulo}</h1>
+
+        {post.resumen && <p class="article-lead">{post.resumen}</p>}
+
+        <div class="author-row">
+          <div class="author-avatar">UM</div>
+          <div>
+            <p class="author-name">ULTIMA MILLA</p>
+            <p class="author-meta">{date} · {post.tiempo_lectura} min de lectura</p>
+          </div>
         </div>
-    </main>
-</Layout>
+
+        <hr class="article-divider" />
+
+        {imgUrl && (
+          <figure class="hero-figure">
+            <img src={imgUrl} alt={post.titulo} class="hero-img" />
+          </figure>
+        )}
+
+        <div class="prose" set:html={contentHtml} />
+
+        {post.tags && post.tags.length > 0 && (
+          <div class="tags-row">
+            {post.tags.map((tag: string) => (
+              <span class="tag">#{tag}</span>
+            ))}
+          </div>
+        )}
+
+        <nav class="post-nav">
+          {prevPost ? (
+            <a href={`/blog/${prevPost.slug}`} class="post-nav-item">
+              <span class="post-nav-label">← Anterior</span>
+              <span class="post-nav-title">{prevPost.titulo}</span>
+            </a>
+          ) : <div></div>}
+          {nextPost && (
+            <a href={`/blog/${nextPost.slug}`} class="post-nav-item post-nav-item--right">
+              <span class="post-nav-label">Siguiente →</span>
+              <span class="post-nav-title">{nextPost.titulo}</span>
+            </a>
+          )}
+        </nav>
+
+      </article>
+    </div>
+  </main>
+
+  <script>
+    const bar = document.getElementById('read-bar');
+    const art = document.querySelector('.article-body');
+    function tick() {
+      if (!bar || !art) return;
+      const r = art.getBoundingClientRect();
+      const pct = Math.max(0, Math.min(100, (-r.top / (art.scrollHeight - window.innerHeight)) * 100));
+      bar.style.width = pct + '%';
+    }
+    window.addEventListener('scroll', tick, { passive: true });
+    tick();
+  </script>
+</LayoutV4>
 
 <style>
-    /* Estilos adicionales para el contenido del post */
-    .prose img {
-        @apply rounded-lg;
-    }
+  /* Reading progress */
+  .read-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 0%;
+    background: #111827;
+    z-index: 9999;
+    transition: width 0.1s linear;
+  }
+
+  /* Page shell */
+  .article-page {
+    min-height: 100vh;
+    background: #fff;
+    padding: 48px 24px 96px;
+  }
+
+  .article-layout {
+    max-width: 1160px;
+    margin: 0 auto;
+    display: flex;
+    gap: 72px;
+    align-items: flex-start;
+  }
+
+  /* Article body */
+  .article-body {
+    flex: 1;
+    min-width: 0;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  /* Breadcrumbs */
+  .breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  .bc-link {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 13px;
+    color: #9ca3af;
+    text-decoration: none;
+    transition: color .15s;
+  }
+  .bc-link:hover { color: #374151; text-decoration: underline; text-underline-offset: 3px; }
+  .bc-sep { color: #d1d5db; font-size: 13px; }
+  .bc-cat {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* Title & lead */
+  .article-title {
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: clamp(26px, 4.5vw, 42px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: #111827;
+    margin: 0 0 20px;
+  }
+  .article-lead {
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: 20px;
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.7;
+    color: #4b5563;
+    margin: 0 0 24px;
+  }
+
+  /* Author */
+  .author-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,#1e40af,#3b82f6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .author-name {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+  }
+  .author-meta {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 13px;
+    color: #9ca3af;
+    margin: 0;
+  }
+
+  .article-divider {
+    border: none;
+    border-top: 1px solid #f3f4f6;
+    margin: 0 0 32px;
+  }
+
+  /* Hero image */
+  .hero-figure { margin: 0 0 40px; }
+  .hero-img {
+    width: 100%;
+    max-height: 460px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.07);
+  }
+
+  /* Tags */
+  .tags-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 56px;
+    padding-top: 28px;
+    border-top: 1px solid #f3f4f6;
+  }
+  .tag {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 12px;
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    padding: 4px 14px;
+  }
+
+  /* Prev/next nav */
+  .post-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 28px;
+    border-top: 1px solid #f3f4f6;
+  }
+  .post-nav-item {
+    display: block;
+    padding: 18px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: border-color .15s, background .15s;
+  }
+  .post-nav-item:hover { border-color: #d1d5db; background: #f9fafb; }
+  .post-nav-item--right { text-align: right; }
+  .post-nav-label {
+    display: block;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #9ca3af;
+    margin-bottom: 6px;
+  }
+  .post-nav-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.4;
+  }
+
+  /* ── PROSE ──────────────────────────────────────────────────────
+     :global() keeps styles in this page's bundle (not shared).
+     ────────────────────────────────────────────────────────────── */
+
+  :global(.prose) {
+    font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
+    font-size: 18px;
+    line-height: 1.8;
+    color: #1f2937;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :global(.prose p) {
+    margin: 0 0 22px;
+    line-height: 1.8;
+    color: #1f2937;
+  }
+
+  /* Suppress empty paragraphs and lone BRs from rich-text editors */
+  :global(.prose p:empty),
+  :global(.prose p > br:only-child) {
+    display: none;
+  }
+
+  :global(.prose > p:first-child) {
+    font-size: 19px;
+    color: #111827;
+  }
+
+  :global(.prose h2) {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    color: #111827;
+    margin: 52px 0 12px;
+    scroll-margin-top: 5rem;
+  }
+
+  /* Eliminate double-spacing when heading follows a paragraph */
+  :global(.prose p + h2) { margin-top: 48px; }
+  :global(.prose p + h3) { margin-top: 32px; }
+
+  :global(.prose h3) {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+    color: #1f2937;
+    margin: 36px 0 8px;
+    scroll-margin-top: 5rem;
+  }
+
+  :global(.prose h4) {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+    margin: 28px 0 6px;
+    scroll-margin-top: 5rem;
+  }
+
+  :global(.prose a) {
+    color: #1d4ed8;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: rgba(29,78,216,.3);
+    text-decoration-thickness: 1px;
+    transition: color .15s;
+  }
+  :global(.prose a:hover) { color: #1e40af; }
+
+  :global(.prose ul),
+  :global(.prose ol) {
+    margin: 0 0 22px 24px;
+    padding: 0;
+  }
+  :global(.prose li) {
+    margin-bottom: 6px;
+    line-height: 1.7;
+    color: #1f2937;
+  }
+  :global(.prose ul) { list-style-type: disc; }
+  :global(.prose ol) { list-style-type: decimal; }
+  :global(.prose li::marker) { color: #9ca3af; }
+
+  :global(.prose blockquote) {
+    border-left: 3px solid #d1d5db;
+    padding: 2px 0 2px 24px;
+    margin: 36px 0;
+    color: #6b7280;
+    font-style: italic;
+    font-size: 20px;
+    line-height: 1.65;
+    font-weight: 300;
+  }
+  :global(.prose blockquote p) { margin-bottom: 0; color: inherit; }
+
+  :global(.prose strong) { font-weight: 700; color: #111827; }
+  :global(.prose em) { font-style: italic; }
+
+  :global(.prose code) {
+    font-family: ui-monospace, 'Fira Code', Consolas, monospace;
+    font-size: 14px;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 2px 6px;
+    color: #dc2626;
+    font-style: normal;
+  }
+
+  :global(.prose pre) {
+    font-family: ui-monospace, 'Fira Code', Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.65;
+    background: #1e293b;
+    border-radius: 10px;
+    padding: 22px 26px;
+    overflow-x: auto;
+    margin: 28px 0;
+    color: #e2e8f0;
+  }
+  :global(.prose pre code) {
+    background: none; border: none; padding: 0;
+    font-size: inherit; color: inherit;
+  }
+
+  :global(.prose img) {
+    width: 100%;
+    border-radius: 8px;
+    margin: 36px 0;
+    display: block;
+    box-shadow: 0 1px 4px rgba(0,0,0,.07);
+  }
+  :global(.prose figure) { margin: 36px 0; }
+  :global(.prose figure img) { margin: 0 0 8px; }
+  :global(.prose figcaption) {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 13px;
+    color: #9ca3af;
+    text-align: center;
+    font-style: italic;
+  }
+
+  :global(.prose hr) {
+    border: none;
+    margin: 52px auto;
+    width: 40px;
+    height: 2px;
+    background: #d1d5db;
+  }
+
+  :global(.prose table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    margin: 24px 0 32px;
+    line-height: 1.6;
+    font-family: Inter, system-ui, sans-serif;
+    box-shadow: 0 0 0 1px #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  :global(.prose th) {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: #6b7280;
+    background: #f9fafb;
+    padding: 10px 14px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+  }
+  :global(.prose td) {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f3f4f6;
+    color: #374151;
+    vertical-align: top;
+  }
+  :global(.prose tr:last-child td) { border-bottom: none; }
+  :global(.prose tr:nth-child(even) td) { background: #fafafa; }
 </style>

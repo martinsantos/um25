@@ -8,10 +8,9 @@ import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import ServiceCard from '../../../components/v4/ServiceCard.astro';
 import CTASection from '../../../components/v4/CTASection.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
-import { getFixedImage } from '../../../utils/imageFixer.js';
-import { getServiciosPorAntecedente } from '../../../utils/directusHelpers';
-import { serviciosCompletos } from '../../../data/servicios_completos_v4.js';
+import { getServicioById } from '../../../utils/directusHelpers';
 import { getServiceIdFromArea } from '../../../data/areaToServiceMap.js';
+import { getDirectusImageUrl } from '../../../lib/directus.ts';
 
 // --- Configuration ---
 const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://ultimamilla.com.ar/admin';
@@ -35,18 +34,20 @@ let usingFallback = false;
 // --- Helper Functions ---
 const getAssetUrl = (assetId: any): string => {
     if (!assetId) return DEFAULT_IMAGE_URL;
+
+    // Handle object with nested ID properties
     if (typeof assetId === 'object') {
-        if (assetId.id) return `${PROD_URL}/directus-assets/${assetId.id}`;
-        if (assetId.directus_files_id) return `${PROD_URL}/directus-assets/${assetId.directus_files_id}`;
-        if (assetId.filename_disk) return `${PROD_URL}/directus-assets/${assetId.filename_disk}`;
+        if (assetId.id) return getDirectusImageUrl(assetId.id);
+        if (assetId.directus_files_id) return getDirectusImageUrl(assetId.directus_files_id);
     }
+
+    // Handle string UUIDs
     if (typeof assetId === 'string') {
         if (assetId.startsWith('http')) return assetId;
-        if (assetId.match(/^[a-f0-9-]{36}$/)) return `${PROD_URL}/directus-assets/${assetId}`;
-        let filename = assetId.startsWith('/') ? assetId.substring(1) : assetId;
-        filename = getFixedImage(filename);
-        return `/imagenes_antecedentes_versionproduccion/${filename}`;
+        const url = getDirectusImageUrl(assetId);
+        if (url) return url;
     }
+
     return DEFAULT_IMAGE_URL;
 };
 
@@ -84,8 +85,10 @@ try {
 } catch (error) {
     usingFallback = true;
     try {
-        const { antecedentesReales } = await import('../../../data/antecedentes_completos.js');
-        antecedente = antecedentesReales.find((item: any) => item.id.toString() === id);
+        // Fallback: buscar en snapshot completo (518 antecedentes)
+        const snapshot = await import('../../../data/snapshots/antecedentes.json');
+        const allAntecedentes = (snapshot.data || snapshot.default?.data || []) as any[];
+        antecedente = allAntecedentes.find((item: any) => item.id?.toString() === id);
         if (antecedente) {
             const expectedSlug = generateSlug(antecedente.Titulo);
             if (expectedSlug !== slugFromUrl) {
@@ -101,30 +104,8 @@ try {
 
 if (!antecedente) return Astro.redirect('/404');
 
-// --- Prepare data for UI ---
-const getMainImageUrl = async (): Promise<string> => {
-    try {
-        const { buscarImagenPorDatos } = await import('../../../data/mapeo_imagenes_completo.js');
-        const nombreArchivo = buscarImagenPorDatos(antecedente.Cliente, antecedente.Area, antecedente.Titulo, id);
-        if (nombreArchivo) return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
-    } catch (e) {}
-
-    const imagenesConocidas: Record<string, string> = {
-        '11125': 'ultimamilla_procon_srl_-_sdi_20250416_083646_s3451025673.png',
-        '10770': 'ultimamilla_telecombtw_sa_-_redes_y_comunicaciones_20250415_201308_s4071923973.png',
-        '1': 'ultimamilla_municipalidad_de_maipú_-_software_servicios_20250415_182056_s1379068004.png',
-        '2': 'ultimamilla_municipalidad_de_guaymallén_-_redes_y_comunicaciones_redes_y_20250415_182333_s1075915836.png',
-        '3': 'ultimamilla_patrulleros_inteligentes_-_redes_y_comunicaciones_20250415_182524_s1196678540.png'
-    };
-    if (imagenesConocidas[id]) return `/imagenes_antecedentes_versionproduccion/${imagenesConocidas[id]}`;
-
-    if (!usingFallback && (antecedente.Imagen || antecedente.ImagenPrincipal)) {
-        return getAssetUrl(antecedente.Imagen || antecedente.ImagenPrincipal);
-    }
-    return DEFAULT_IMAGE_URL;
-};
-
-const mainImageUrl = await getMainImageUrl();
+// --- Prepare data for UI (Directus-first) ---
+const mainImageUrl = getAssetUrl(antecedente.Imagen || antecedente.ImagenPrincipal);
 
 const formatDate = (dateString: string): string => {
     if (!dateString) return 'No especificada';
@@ -144,32 +125,94 @@ const extractScopeItems = (descripcion: string): string[] => {
 
 const scopeItems = extractScopeItems(antecedente.Descripcion || '');
 
+// Mapeo de colores por categoría/sector (mismo que ProjectCard)
+const getCategoryColors = (category: string): { bg: string; text: string; darkBg: string } => {
+  const normalizedCategory = category?.toLowerCase().trim() || '';
+
+  const colorMap: Record<string, { bg: string; text: string; darkBg: string }> = {
+    'gobierno': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
+    'sector público': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
+    'municipal': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
+    'municipalidad': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
+    'aeropuertos': { bg: 'bg-sky-500', text: 'text-white', darkBg: 'bg-sky-600' },
+    'aeropuerto': { bg: 'bg-sky-500', text: 'text-white', darkBg: 'bg-sky-600' },
+    'transporte': { bg: 'bg-sky-500', text: 'text-white', darkBg: 'bg-sky-600' },
+    'bodegas': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
+    'bodega': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
+    'vitivinícola': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
+    'agroindustria': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
+    'salud': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
+    'hospital': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
+    'clínica': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
+    'médico': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
+    'data center': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
+    'datacenter': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
+    'infraestructura': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
+    'ti': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
+    'construcción': { bg: 'bg-amber-500', text: 'text-white', darkBg: 'bg-amber-600' },
+    'constructora': { bg: 'bg-amber-500', text: 'text-white', darkBg: 'bg-amber-600' },
+    'obra': { bg: 'bg-amber-500', text: 'text-white', darkBg: 'bg-amber-600' },
+    'industria': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
+    'industrial': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
+    'manufactura': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
+    'fábrica': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
+    'software': { bg: 'bg-cyan-500', text: 'text-white', darkBg: 'bg-cyan-600' },
+    'desarrollo': { bg: 'bg-cyan-500', text: 'text-white', darkBg: 'bg-cyan-600' },
+    'aplicación': { bg: 'bg-cyan-500', text: 'text-white', darkBg: 'bg-cyan-600' },
+    'minería': { bg: 'bg-slate-500', text: 'text-white', darkBg: 'bg-slate-600' },
+    'minera': { bg: 'bg-slate-500', text: 'text-white', darkBg: 'bg-slate-600' },
+    'mining': { bg: 'bg-slate-500', text: 'text-white', darkBg: 'bg-slate-600' },
+    'seguridad': { bg: 'bg-red-500', text: 'text-white', darkBg: 'bg-red-600' },
+    'seguridad electrónica': { bg: 'bg-red-500', text: 'text-white', darkBg: 'bg-red-600' },
+    'cctv': { bg: 'bg-red-500', text: 'text-white', darkBg: 'bg-red-600' },
+    'telecomunicaciones': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
+    'redes': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
+    'redes y comunicaciones': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
+    'comunicaciones': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
+  };
+
+  for (const [key, colors] of Object.entries(colorMap)) {
+    if (normalizedCategory.includes(key) || key.includes(normalizedCategory)) {
+      return colors;
+    }
+  }
+
+  return { bg: 'bg-um-primary', text: 'text-white', darkBg: 'bg-um-primary-dark' };
+};
+
+const areaCategoryColors = getCategoryColors(antecedente.Area || '');
+
 // Get related services via M2M relationship from Directus (with fallback to area mapping)
 const getRelatedServices = async (antecedenteId: string, area: string) => {
-    try {
-        // Try to get M2M related services from Directus
-        const serviciosFromDirectus = await getServiciosPorAntecedente(parseInt(antecedenteId));
+    // TODO: Re-enable M2M relationship when function is available in directusHelpers.ts
+    // try {
+    //     // Try to get M2M related services from Directus
+    //     const serviciosFromDirectus = await getServiciosPorAntecedente(parseInt(antecedenteId));
+    //
+    //     if (serviciosFromDirectus && serviciosFromDirectus.length > 0) {
+    //         return serviciosFromDirectus.slice(0, 4); // Max 4 services
+    //     }
+    // } catch (error) {
+    //     console.error('Error fetching related services from Directus:', error);
+    // }
 
-        if (serviciosFromDirectus && serviciosFromDirectus.length > 0) {
-            return serviciosFromDirectus.slice(0, 4); // Max 4 services
+    // Fallback: Use area-based mapping to find one service from Directus
+    try {
+        const serviceId = getServiceIdFromArea(area);
+        const servicio = await getServicioById(serviceId);
+
+        if (servicio) {
+            return [{
+                id: serviceId,
+                Titulo: servicio.Titulo,
+                Descripcion: servicio.Descripcion,
+                Imagen: servicio.Imagen,
+                subtitulo: servicio.Descripcion?.substring(0, 100),
+                slug: generateSlug(servicio.Titulo)
+            }];
         }
     } catch (error) {
-        console.error('Error fetching related services from Directus:', error);
-    }
-
-    // Fallback: Use area-based mapping to find one service
-    const serviceId = getServiceIdFromArea(area);
-    const servicio = serviciosCompletos[serviceId];
-
-    if (servicio) {
-        return [{
-            id: serviceId,
-            Titulo: servicio.Titulo,
-            Descripcion: servicio.Descripcion,
-            Imagen: servicio.Imagen,
-            subtitulo: servicio.Descripcion?.substring(0, 100),
-            slug: generateSlug(servicio.Titulo)
-        }];
+        console.error('Error fetching service by area mapping:', error);
     }
 
     return [];
@@ -213,7 +256,7 @@ const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').
       </nav>
 
       <!-- Category Badge -->
-      <div class="inline-flex items-center gap-1.5 bg-um-primary px-3 py-1.5 rounded-full mb-4 sm:mb-5">
+      <div class={`inline-flex items-center gap-1.5 ${areaCategoryColors.bg} px-3 py-1.5 rounded-full mb-4 sm:mb-5`}>
         <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
         </svg>

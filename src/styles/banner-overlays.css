@@ -1,0 +1,336 @@
+/* src/styles/banner-overlays.css — v5 premium thematic overlays */
+
+/* ═══ BASE ═══ */
+.banner-overlay {
+  position: absolute; inset: 0; z-index: 20; pointer-events: none; overflow: hidden;
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  /* Edge vignette — focuses attention on text center */
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 50%, black 55%, rgba(0,0,0,0.65) 100%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 50%, black 55%, rgba(0,0,0,0.65) 100%);
+}
+
+/* Top + bottom edge fade */
+.banner-overlay::before {
+  content: '';
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(10,10,12,0.4) 0%, transparent 48px, transparent calc(100% - 48px), rgba(10,10,12,0.4) 100%);
+  z-index: 1;
+}
+
+/* ═══ SALUD — Medical monitor grid + vitals HUD + idle ECG line ═══ */
+.overlay-salud {
+  background:
+    linear-gradient(rgba(34,197,94,0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34,197,94,0.08) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.overlay-salud::after {
+  content: '♥ 72 bpm     SpO₂ 98%     BP 120/80';
+  position: absolute; top: 20px; right: 20px;
+  font: 600 10px/1 'SF Mono','Fira Code',monospace;
+  color: #22c55e; opacity: 0.55; letter-spacing: 0.08em;
+  animation: _bpm 1.05s steps(1) infinite;
+  z-index: 2;
+}
+@keyframes _bpm { 0%,70%{opacity:.55} 71%,100%{opacity:.25} }
+
+/* ═══ AEROPUERTOS — Split-flap board cells + row separators ═══ */
+.overlay-aeropuertos {
+  background:
+    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 80px 50px;
+}
+.overlay-aeropuertos::after {
+  content: 'GATE B12 · ON TIME';
+  position: absolute; top: 20px; right: 20px;
+  font: 700 10px/1 'SF Mono',monospace;
+  color: #fbbf24; opacity: 0.55; letter-spacing: 0.12em; text-transform: uppercase;
+  z-index: 2;
+}
+
+/* ═══ BODEGAS — Aged paper + golden rule + noise ═══ */
+.overlay-bodegas {
+  background:
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(168,85,247,0.08) 100%),
+    repeating-linear-gradient(45deg, transparent 0, transparent 3px, rgba(197,165,90,0.015) 3px, rgba(197,165,90,0.015) 4px);
+}
+.overlay-bodegas::after {
+  content: '';
+  position: absolute; bottom: 24%; left: 5%; right: 55%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #c5a55a, transparent);
+  opacity: 0.5;
+  animation: _rule 2.2s ease forwards;
+  transform-origin: left;
+  transform: scaleX(0);
+  z-index: 2;
+}
+@keyframes _rule { to { transform: scaleX(1); } }
+
+/* ═══ CONSTRUCCION — Blueprint grid + dimension ticks ═══ */
+.overlay-constructoras {
+  background:
+    linear-gradient(rgba(0,188,212,0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,188,212,0.09) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.overlay-constructoras::after {
+  content: 'PLANO Nº 2024-UM-001  ·  ESC 1:100  ·  A3';
+  position: absolute; bottom: 16px; right: 20px;
+  font: 600 9px/1 monospace;
+  color: rgba(0,188,212,0.35); letter-spacing: 0.1em; text-transform: uppercase;
+  z-index: 2;
+}
+
+/* ═══ GOBIERNO — Official paper + diagonal watermark ═══ */
+.overlay-gobierno {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 39px,
+      rgba(16,185,129,0.05) 39px,
+      rgba(16,185,129,0.05) 40px
+    );
+}
+.overlay-gobierno::after {
+  content: 'DOCUMENTO · OFICIAL · DOCUMENTO · OFICIAL';
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%) rotate(-25deg);
+  font: 800 44px/1 'Futura PT','Futura',sans-serif;
+  color: rgba(16,185,129,0.05);
+  letter-spacing: 0.25em; text-transform: uppercase;
+  white-space: nowrap; pointer-events: none;
+  z-index: 2;
+}
+
+/* ═══ INDUSTRIA — Hazard stripes + conveyor animation ═══ */
+.overlay-industria::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 8px;
+  background: repeating-linear-gradient(
+    -45deg,
+    #fbbf24 0px, #fbbf24 12px,
+    #111 12px, #111 24px
+  );
+  opacity: 0.55;
+  animation: _belt 2s linear infinite;
+  background-size: 34px 8px;
+  z-index: 2;
+}
+.overlay-industria {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent 0px, transparent 12px,
+    rgba(251,191,36,0.025) 12px, rgba(251,191,36,0.025) 13px
+  );
+}
+@keyframes _belt { to { background-position: -34px 0; } }
+.overlay-industria > .strip-bottom {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 8px;
+  background: repeating-linear-gradient(
+    -45deg,
+    #fbbf24 0px, #fbbf24 12px,
+    #111 12px, #111 24px
+  );
+  opacity: 0.55;
+}
+
+/* ═══ MINERIA — Ambient + earth strata ═══ */
+.overlay-mineria {
+  background:
+    radial-gradient(circle at 30% 70%, rgba(249,115,22,0.08) 0%, transparent 50%),
+    linear-gradient(180deg,
+      transparent 0%,
+      transparent 60%,
+      rgba(90,40,10,0.15) 80%,
+      rgba(50,20,5,0.25) 100%);
+}
+
+/* ═══ SEGURIDAD — CRT scanlines + camera brackets + vignette ═══ */
+.overlay-seguridad {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+}
+.overlay-seguridad::after {
+  content: '';
+  position: absolute; top: 14px; left: 14px; width: 28px; height: 28px;
+  border-top: 2px solid rgba(34,211,238,0.45);
+  border-left: 2px solid rgba(34,211,238,0.45);
+  z-index: 2;
+  box-shadow:
+    calc(100vw - 56px) 0 0 0 transparent,
+    0 calc(100vh - 56px) 0 0 transparent;
+}
+
+/* ═══ SOFTWARE — Terminal chrome + status bar ═══ */
+.overlay-software {
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  margin: 10px;
+  background: rgba(13,17,23,0.45);
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+.overlay-software::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 30px;
+  background: rgba(40,45,55,0.7);
+  border-radius: 7px 7px 0 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  z-index: 2;
+}
+/* Terminal dots via stacked shadows */
+.overlay-software::before {
+  content: '';
+  position: absolute; top: 11px; left: 16px;
+  width: 10px; height: 10px;
+  background: #ff5f57;
+  border-radius: 50%;
+  box-shadow:
+    16px 0 0 #ffbd2e,
+    32px 0 0 #27c93f;
+  z-index: 3;
+}
+
+/* ═══ SERVICE OVERLAYS ═══ */
+
+/* REDES — Data flow horizontal lines */
+.overlay-redes {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 59px,
+      rgba(249,115,22,0.07) 59px,
+      rgba(249,115,22,0.07) 60px
+    );
+}
+.overlay-redes::after {
+  content: '○ ── ○ ── ○ ── ○ ── ○';
+  position: absolute; bottom: 18px; left: 20px;
+  font: 10px/1 monospace; color: rgba(249,115,22,0.35); letter-spacing: 3px;
+  animation: _flow 3s linear infinite;
+  z-index: 2;
+}
+@keyframes _flow { 0%{opacity:.25} 50%{opacity:.55} 100%{opacity:.25} }
+
+/* TELECOM — Signal waves */
+.overlay-telecom {
+  background: radial-gradient(ellipse at 80% 50%, rgba(56,189,248,0.08) 0%, transparent 60%);
+}
+.overlay-telecom::after {
+  content: ')))';
+  position: absolute; top: 22px; right: 22px;
+  font: 700 26px/1 sans-serif; color: rgba(56,189,248,0.25);
+  animation: _wave 2.2s ease-in-out infinite;
+  z-index: 2;
+}
+@keyframes _wave { 0%,100%{opacity:.2;transform:scale(1)} 50%{opacity:.5;transform:scale(1.12)} }
+
+/* SOPORTE — Uptime dots + status */
+.overlay-soporte {}
+.overlay-soporte::after {
+  content: '● ● ● ● ● ● ● ● ● ●  99.99% UPTIME';
+  position: absolute; top: 20px; right: 20px;
+  font: 9px/1 'SF Mono',monospace; letter-spacing: 2px; color: #22c55e; opacity: 0.5;
+  animation: _uptime 2s ease-in-out infinite;
+  z-index: 2;
+}
+@keyframes _uptime { 0%,100%{opacity:.35} 50%{opacity:.7} }
+
+/* CONSULTORIA — Official blue + CONFIDENCIAL watermark */
+.overlay-consultoria {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 39px,
+      rgba(99,102,241,0.05) 39px,
+      rgba(99,102,241,0.05) 40px
+    );
+}
+.overlay-consultoria::after {
+  content: 'CONFIDENCIAL · INTERNAL USE';
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%) rotate(-25deg);
+  font: 800 42px/1 'Futura PT','Futura',sans-serif;
+  color: rgba(99,102,241,0.05);
+  letter-spacing: 0.25em; text-transform: uppercase;
+  white-space: nowrap; pointer-events: none;
+  z-index: 2;
+}
+
+/* INCENDIOS — Emergency strobe border + warning icon */
+.overlay-incendios {}
+.overlay-incendios::after {
+  content: '⚠ ALARM · TRIGGERED';
+  position: absolute; top: 20px; right: 20px;
+  font: 700 10px/1 'SF Mono',monospace; color: rgba(239,68,68,0.55);
+  letter-spacing: 0.12em;
+  animation: _strobe 1.2s ease-in-out infinite;
+  z-index: 2;
+}
+@keyframes _strobe { 0%,60%,100%{opacity:.3} 70%,90%{opacity:.8} }
+
+/* ELECTRICOS — Circuit traces + ⚡ */
+.overlay-electricos {
+  background:
+    linear-gradient(90deg, transparent 49%, rgba(245,158,11,0.06) 49%, rgba(245,158,11,0.06) 51%, transparent 51%),
+    linear-gradient(0deg, transparent 49%, rgba(245,158,11,0.06) 49%, rgba(245,158,11,0.06) 51%, transparent 51%);
+  background-size: 60px 60px;
+}
+.overlay-electricos::after {
+  content: '⚡ 220V · 50Hz';
+  position: absolute; top: 22px; right: 22px;
+  font: 700 11px/1 'SF Mono',monospace; color: rgba(245,158,11,0.55);
+  letter-spacing: 0.1em;
+  animation: _epulse 2s ease-in-out infinite;
+  z-index: 2;
+}
+@keyframes _epulse { 0%,100%{opacity:.35} 50%{opacity:.7} }
+
+/* ═══ DUST PARTICLES (mineria) ═══ */
+@keyframes _dust {
+  0%,100% { transform: translateY(0) scale(1); opacity: .35; }
+  50%     { transform: translateY(-22px) scale(1.15); opacity: .1; }
+}
+
+/* ═══ REDUCED MOTION ═══ */
+@media (prefers-reduced-motion: reduce) {
+  .banner-overlay,
+  .overlay-salud,
+  .overlay-aeropuertos,
+  .overlay-bodegas,
+  .overlay-constructoras,
+  .overlay-gobierno,
+  .overlay-mineria,
+  .overlay-seguridad,
+  .overlay-redes,
+  .overlay-telecom,
+  .overlay-soporte,
+  .overlay-consultoria,
+  .overlay-incendios,
+  .overlay-electricos {
+    animation: none !important;
+  }
+  .overlay-salud::after,
+  .overlay-bodegas::after,
+  .overlay-redes::after,
+  .overlay-telecom::after,
+  .overlay-soporte::after,
+  .overlay-incendios::after,
+  .overlay-electricos::after,
+  .overlay-industria::after {
+    animation: none !important;
+  }
+}

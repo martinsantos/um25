@@ -1,0 +1,62 @@
+---
+import { fetchBlogBand } from '../../utils/getBlogData';
+import { blogImageUrl, bp } from '../../utils/blogHelpers';
+import { getCategoryColor, getCategoryLabel, formatBlogDate } from '../../utils/blogUtils';
+
+const posts = await fetchBlogBand(3);
+if (posts.length === 0) return;
+---
+
+<section class="bg-[#0d1526] border-t border-[#1e3a5f] py-12">
+  <div class="max-w-6xl mx-auto px-6 sm:px-8">
+
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center gap-3">
+        <div class="w-6 h-px bg-[#1e3a5f]"></div>
+        <span class="text-[10px] font-mono text-white/30 uppercase tracking-widest">Lo último</span>
+        <div class="w-16 h-px bg-[#1e3a5f]"></div>
+      </div>
+      <a href="/blog" class="text-xs text-blue-400 hover:text-blue-300 transition-colors font-medium">
+        Ver todo →
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      {posts.map(post => {
+        const imgUrl = blogImageUrl(post.imagen_portada);
+        const color = getCategoryColor(post.categoria);
+        const label = getCategoryLabel(post.categoria);
+        const date = formatBlogDate(post.fecha_publicacion);
+        return (
+          <a
+            href={`/blog/${post.slug}`}
+            class="group flex gap-3 items-start hover:bg-white/[0.03] rounded-lg p-2 -m-2 transition-colors"
+          >
+            {imgUrl ? (
+              <img
+                src={imgUrl}
+                alt=""
+                class="w-16 h-16 rounded-md object-cover flex-shrink-0 opacity-80 group-hover:opacity-100 transition-opacity"
+                loading="lazy"
+              />
+            ) : (
+              <div class="w-16 h-16 rounded-md flex-shrink-0 bg-[#1e3a5f]/40 flex items-center justify-center">
+                <span class="text-2xl opacity-40">📰</span>
+              </div>
+            )}
+            <div class="min-w-0">
+              <span
+                class="text-[9px] font-mono font-semibold uppercase tracking-widest"
+                style={`color: ${color}`}
+              >{label}</span>
+              <p class="text-white/80 text-sm font-medium leading-snug mt-0.5 line-clamp-2 group-hover:text-white transition-colors">
+                {post.titulo}
+              </p>
+              <p class="text-white/30 text-[11px] mt-1">{date}</p>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+</section>

@@ -17,9 +17,9 @@ const {
   title, 
   description = "ULTIMA MILLA - Empresa líder en servicios IT, telecomunicaciones, seguridad informática, desarrollo de software y soluciones tecnológicas empresariales en Argentina.",
   keywords = "ULTIMA MILLA, servicios IT, telecomunicaciones, seguridad informática, desarrollo software, redes datos, telefonia IP, ciberseguridad, consultoría tecnológica, Argentina",
-  image = "https://www.ultimamilla.com.ar/images/ultima-milla-og.jpg",
+  image = "https://ultimamilla.com.ar/images/ultima-milla-og.jpg",
   services,
-  canonicalUrl = `https://www.ultimamilla.com.ar${Astro.url.pathname}`,
+  canonicalUrl = `https://ultimamilla.com.ar${Astro.url.pathname}`,
   ogType = "website"
 } = Astro.props;
 
@@ -70,8 +70,8 @@ const currentYear = new Date().getFullYear();
       "@type": "Corporation",
       "name": "ULTIMA MILLA",
       "legalName": "ULTIMA MILLA S.A.",
-      "url": "https://www.ultimamilla.com.ar",
-      "logo": "https://www.ultimamilla.com.ar/images/logo-ultima-milla.png",
+      "url": "https://ultimamilla.com.ar",
+      "logo": "https://ultimamilla.com.ar/images/logo-ultima-milla.png",
       "description": "Empresa líder en servicios IT, telecomunicaciones, seguridad informática y desarrollo de software en Argentina",
       "foundingDate": "2010",
       "areaServed": "Argentina",
@@ -84,8 +84,11 @@ const currentYear = new Date().getFullYear();
       },
       "address": {
         "@type": "PostalAddress",
+        "streetAddress": "Houssay 1159",
+        "addressLocality": "Guaymallén",
         "addressCountry": "AR",
-        "addressRegion": "Mendoza"
+        "addressRegion": "Mendoza",
+        "postalCode": "M5519"
       },
       "sameAs": [
         "https://www.linkedin.com/company/ultima-milla",
@@ -113,7 +116,7 @@ const currentYear = new Date().getFullYear();
     <!-- Performance optimizations -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="dns-prefetch" href="//www.ultimamilla.com.ar" />
+    <link rel="dns-prefetch" href="//ultimamilla.com.ar" />
     
     <!-- Security headers -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />

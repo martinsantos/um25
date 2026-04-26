@@ -1,0 +1,59 @@
+---
+interface Props {
+  current?: string;
+}
+
+const { current } = Astro.props;
+
+const tabs = [
+  { label: 'Todos', href: '/blog', key: undefined },
+  { label: 'Noticias', href: '/blog/categoria/noticias', key: 'noticias' },
+  { label: 'Proyectos', href: '/blog/categoria/proyectos', key: 'proyectos' },
+  { label: 'Técnico', href: '/blog/categoria/tecnico', key: 'tecnico' },
+  { label: 'Empresa', href: '/blog/categoria/empresa', key: 'empresa' },
+];
+---
+
+<nav class="cat-tabs" aria-label="Categorías del blog">
+  {tabs.map(tab => {
+    const isActive = tab.key === current;
+    return (
+      <a
+        href={tab.href}
+        class:list={['cat-tab', isActive && 'cat-tab--active']}
+        aria-current={isActive ? 'page' : undefined}
+      >
+        {tab.label}
+      </a>
+    );
+  })}
+</nav>
+
+<style>
+  .cat-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-bottom: 32px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .cat-tab {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #6b7280;
+    text-decoration: none;
+    padding: 8px 14px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color .15s, border-color .15s;
+    white-space: nowrap;
+  }
+  .cat-tab:hover { color: #111827; }
+  .cat-tab--active {
+    color: #111827;
+    border-bottom-color: #111827;
+    font-weight: 600;
+  }
+</style>

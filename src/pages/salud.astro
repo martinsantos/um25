@@ -1,107 +1,89 @@
 ---
 /**
- * Salud Sector Page - V4 Design System
+ * Constructoras Sector Page - V4 Design System
+ * ✨ NUEVA VERSIÓN: 100% controlado desde Directus
  */
 
 import LayoutV4 from '../layouts/LayoutV4.astro';
+import ProjectCard from '../components/ProjectCard.astro';
 import { generateSlug } from '../utils/slugUtils.js';
-import { antecedentesReales } from '../data/antecedentes_completos.js';
-import { directus, DEFAULT_IMAGE } from '../utils/directus';
+import { getSectorBySlug, getIconSVGPath, getAntecedentesForSector } from '../utils/sectoresHelpers.ts';
+import { getFAQSchema, sectorFAQs } from '../data/sectorFAQs';
 
-const sectorConfig = {
-  name: 'Salud',
-  emoji: '🏥',
-  heroImage: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1920&q=80',
-  description: 'Infraestructura tecnológica crítica para hospitales, clínicas y centros de salud que operan las 24 horas.',
-  keywords: ['hospital', 'clinica', 'sanatorio', 'centro medico', 'osep', 'osde', 'swiss medical', 'perrupato', 'lagomaggiore', 'italiano', 'notti', 'laboratorio', 'farmacia', 'emergencia'],
+// Obtener sector desde Directus
+const sectorSlug = 'salud';
+const sectorData = await getSectorBySlug(sectorSlug);
+
+if (!sectorData) {
+  // Fallback si Directus falla
+  return Astro.redirect('/sectores');
+}
+
+const {
+  nombre,
+  emoji,
+  hero_image,
+  descripcion,
+  keywords,
+  color_theme,
+  seo_title,
+  seo_description,
+  seo_keywords,
+  stats,
+  value_props,
+  servicios: serviciosRelacionados,
+} = sectorData;
+
+// Fetch antecedentes with automatic fallback to snapshots
+const antecedentes = await getAntecedentesForSector(keywords, nombre);
+
+// Map color theme to Tailwind classes
+const colorMap: Record<string, any> = {
+  sky: { bg: 'bg-sky-50', text: 'text-sky-600', hover: 'hover:bg-sky-500', gradient: 'from-sky-600 to-sky-700' },
+  purple: { bg: 'bg-purple-50', text: 'text-purple-600', hover: 'hover:bg-purple-500', gradient: 'from-purple-600 to-purple-700' },
+  blue: { bg: 'bg-blue-50', text: 'text-blue-600', hover: 'hover:bg-blue-500', gradient: 'from-blue-600 to-blue-700' },
+  emerald: { bg: 'bg-emerald-50', text: 'text-emerald-600', hover: 'hover:bg-emerald-500', gradient: 'from-emerald-600 to-emerald-700' },
+  amber: { bg: 'bg-amber-50', text: 'text-amber-600', hover: 'hover:bg-amber-500', gradient: 'from-amber-600 to-amber-700' },
+  indigo: { bg: 'bg-indigo-50', text: 'text-indigo-600', hover: 'hover:bg-indigo-500', gradient: 'from-indigo-600 to-indigo-700' },
+  cyan: { bg: 'bg-cyan-50', text: 'text-cyan-600', hover: 'hover:bg-cyan-500', gradient: 'from-cyan-600 to-cyan-700' },
+  orange: { bg: 'bg-orange-50', text: 'text-orange-600', hover: 'hover:bg-orange-500', gradient: 'from-orange-600 to-orange-700' },
+  red: { bg: 'bg-red-50', text: 'text-red-600', hover: 'hover:bg-red-500', gradient: 'from-red-600 to-red-700' },
 };
 
-const seoConfig = {
-  title: `Tecnología para ${sectorConfig.name} y Hospitales | Mendoza, Cuyo y Patagonia | ULTIMA MILLA`,
-  description: `Servicios tecnológicos para instituciones de salud en Argentina. Redes hospitalarias, telecomunicaciones médicas, seguridad de datos de pacientes y sistemas críticos certificados.`,
-  keywords: `servicios tecnologicos salud, infraestructura hospitales mendoza cuyo, redes medicas patagonia, telecomunicaciones hospitalarias`,
-};
-
-const filterAntecedentes = (data: any[]) => {
-  return data
-    .filter(item => {
-      const texto = `${item.Cliente} ${item.Titulo} ${item.Area} ${item.Descripcion}`.toLowerCase();
-      return sectorConfig.keywords.some(k => texto.includes(k));
-    })
-    .map(item => ({ ...item, slug: generateSlug(item.Titulo) }))
-    .slice(0, 12);
-};
-
-let antecedentes: any[] = [];
-try {
-  const response = await directus.getAntecedentes({ limit: 500, page: 1 });
-  if (response?.data?.length > 0) antecedentes = filterAntecedentes(response.data);
-} catch (err) { console.error('Error:', err); }
-if (antecedentes.length === 0) antecedentes = filterAntecedentes(antecedentesReales);
-
-const valueProps = [
-  { icon: 'heart', title: 'Sistemas de Misión Crítica', description: 'Infraestructura redundante para operación 24/7 en ambientes hospitalarios.' },
-  { icon: 'shield', title: 'Cumplimiento Normativo', description: 'Soluciones que cumplen con normativas de salud y protección de datos médicos.' },
-  { icon: 'clock', title: 'Respuesta Inmediata', description: 'Soporte técnico prioritario con tiempos de respuesta críticos.' }
-];
-
-const serviciosRelacionados = [
-  { id: 101, nombre: 'Redes Hospitalarias', descripcion: 'Cableado estructurado y WiFi de alta disponibilidad' },
-  { id: 102, nombre: 'CCTV y Seguridad', descripcion: 'Videovigilancia para áreas críticas y perímetros' },
-  { id: 103, nombre: 'Control de Accesos', descripcion: 'Sistemas biométricos para zonas restringidas' },
-  { id: 107, nombre: 'Detección de Incendios', descripcion: 'Sistemas de alarma y detección temprana' },
-  { id: 104, nombre: 'Comunicaciones', descripcion: 'Telefonía IP e intercomunicadores' },
-  { id: 105, nombre: 'Soporte IT 24/7', descripcion: 'Mesa de ayuda con SLAs para salud' },
-];
-
-const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://admin.ultimamilla.com.ar';
-const getImageUrl = (ant: any): string => {
-  if (ant.Imagen && typeof ant.Imagen === 'string' && ant.Imagen.includes('-')) return `${DIRECTUS_URL}/assets/${ant.Imagen}`;
-  if (ant.ImagenPrincipal && typeof ant.ImagenPrincipal === 'string' && ant.ImagenPrincipal.includes('-')) return `${DIRECTUS_URL}/assets/${ant.ImagenPrincipal}`;
-  return '/images/default-antecedente.jpg';
-};
+const colors = colorMap[color_theme] || colorMap.amber;
+const faqSchema = getFAQSchema(sectorSlug);
 ---
 
-<LayoutV4 title={seoConfig.title} description={seoConfig.description} keywords={seoConfig.keywords}>
+<LayoutV4 title={seo_title} description={seo_description} keywords={seo_keywords} image={hero_image} structuredData={faqSchema}>
   <section class="relative bg-um-dark pt-20 sm:pt-24 pb-8 sm:pb-12 lg:pb-16 overflow-hidden">
-    <div class="absolute inset-0 opacity-40" style={`background-image: url('${sectorConfig.heroImage}'); background-position: center; background-size: cover;`}></div>
+    <div class="absolute inset-0 opacity-40" style={`background-image: url('${hero_image}'); background-position: center; background-size: cover;`}></div>
     <div class="absolute inset-0 bg-gradient-to-b from-um-dark/70 to-um-dark/90"></div>
 
     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <nav class="flex items-center gap-2 text-xs sm:text-sm text-white/70 mb-4 flex-wrap">
-        <a href="/" class="hover:text-white transition-colors">Inicio</a>
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <a href="/sectores" class="hover:text-white transition-colors">Sectores</a>
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <span class="text-white">{sectorConfig.name}</span>
-      </nav>
+      <div class="flex items-center gap-2 mb-4 sm:mb-6">
+        <a href="/" class="text-white/60 hover:text-white text-xs sm:text-sm transition-colors">Inicio</a>
+        <svg class="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <a href="/sectores" class="text-white/60 hover:text-white text-xs sm:text-sm transition-colors">Sectores</a>
+        <svg class="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <span class="text-white text-xs sm:text-sm">{nombre}</span>
+      </div>
 
-      <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-        <div>
-          <div class="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-2 sm:py-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-4 sm:mb-5">
-            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg">
-              <span class="text-lg sm:text-2xl">{sectorConfig.emoji}</span>
+      <div class="max-w-3xl">
+        <div class="text-4xl sm:text-5xl mb-3" aria-hidden="true">{emoji}</div>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-4 sm:mb-6">
+          Tecnología para {nombre}
+        </h1>
+        <p class="text-base sm:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8">{descripcion}</p>
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4">
+          {stats.map((stat: any) => (
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
+              <div class="text-2xl sm:text-3xl font-extrabold text-white">{stat.value}</div>
+              <div class="text-xs sm:text-sm text-white/70 mt-1">{stat.label}</div>
             </div>
-            <span class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-300">Sector {sectorConfig.name}</span>
-          </div>
-          <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4 sm:mb-5 leading-tight">
-            Tecnología Médica para<br/>Hospitales y Clínicas
-          </h1>
-          <p class="text-base sm:text-lg lg:text-xl text-gray-200 max-w-xl">{sectorConfig.description}</p>
-        </div>
-
-        <div class="flex flex-wrap justify-center lg:justify-end gap-3 sm:gap-4">
+          ))}
           <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
             <div class="text-2xl sm:text-3xl font-extrabold text-white">{antecedentes.length}+</div>
             <div class="text-xs sm:text-sm text-white/70 mt-1">Proyectos</div>
-          </div>
-          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
-            <div class="text-2xl sm:text-3xl font-extrabold text-white">99.9%</div>
-            <div class="text-xs sm:text-sm text-white/70 mt-1">Uptime</div>
-          </div>
-          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
-            <div class="text-2xl sm:text-3xl font-extrabold text-white">24/7</div>
-            <div class="text-xs sm:text-sm text-white/70 mt-1">Soporte</div>
           </div>
         </div>
       </div>
@@ -111,16 +93,16 @@ const getImageUrl = (ant: any): string => {
   <section class="py-10 sm:py-14 lg:py-16 border-b border-gray-100 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-        {valueProps.map((prop) => (
+        {value_props && value_props.map((prop: any) => (
           <div class="flex items-start gap-4">
-            <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center flex-shrink-0">
-              <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            <div class={`w-12 h-12 ${colors.bg} rounded-xl flex items-center justify-center flex-shrink-0`}>
+              <svg class={`w-6 h-6 ${colors.text}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={getIconSVGPath(prop.icono)}/>
               </svg>
             </div>
             <div>
-              <h3 class="font-bold text-um-dark mb-2">{prop.title}</h3>
-              <p class="text-sm text-um-gray">{prop.description}</p>
+              <p class="font-bold text-um-dark mb-2">{prop.titulo}</p>
+              <p class="text-sm text-um-gray">{prop.descripcion}</p>
             </div>
           </div>
         ))}
@@ -131,23 +113,23 @@ const getImageUrl = (ant: any): string => {
   <section class="py-10 sm:py-14 lg:py-20 bg-um-gray-light">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-8 sm:mb-12">
-        <span class="text-emerald-600 font-semibold text-xs sm:text-sm uppercase tracking-wider">Servicios</span>
-        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">Soluciones para {sectorConfig.name}</h2>
-        <p class="text-sm sm:text-base text-um-gray max-w-2xl mx-auto">Infraestructura tecnológica diseñada para hospitales y centros de salud.</p>
+        <span class={`${colors.text} font-semibold text-xs sm:text-sm uppercase tracking-wider`}>Servicios</span>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">Soluciones para {nombre}</h2>
+        <p class="text-sm sm:text-base text-um-gray max-w-2xl mx-auto">Tecnología especializada para el sector.</p>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-        {serviciosRelacionados.map((servicio) => (
+        {serviciosRelacionados && serviciosRelacionados.map((servicio: any) => (
           <a href={`/servicios/${servicio.id}/${generateSlug(servicio.nombre)}`} class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover group">
-            <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-emerald-500 transition-colors">
-              <svg class="w-6 h-6 text-emerald-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class={`w-12 h-12 ${colors.bg} rounded-xl flex items-center justify-center mb-4 group-${colors.hover} transition-colors`}>
+              <svg class={`w-6 h-6 ${colors.text} group-hover:text-white transition-colors`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
               </svg>
             </div>
             <h3 class="font-bold text-um-dark mb-2 group-hover:text-um-primary transition-colors">{servicio.nombre}</h3>
             <p class="text-sm text-um-gray mb-4">{servicio.descripcion}</p>
-            <span class="text-emerald-600 font-semibold text-sm flex items-center gap-1">Ver servicio <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></span>
+            <span class={`${colors.text} font-semibold text-sm flex items-center gap-1`}>Ver servicio <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></span>
           </a>
         ))}
       </div>
@@ -158,45 +140,65 @@ const getImageUrl = (ant: any): string => {
     <section class="py-10 sm:py-14 lg:py-20 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-8 sm:mb-12">
-          <span class="text-emerald-600 font-semibold text-xs sm:text-sm uppercase tracking-wider">Casos de Éxito</span>
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">Proyectos en {sectorConfig.name}</h2>
+          <span class={`${colors.text} font-semibold text-xs sm:text-sm uppercase tracking-wider`}>Casos de Éxito</span>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">Proyectos en {nombre}</h2>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-          {antecedentes.slice(0, 6).map((ant) => (
-            <a href={`/antecedentes/${ant.id}/${ant.slug}`} class="group bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 card-hover">
-              <div class="aspect-video overflow-hidden bg-gray-100">
-                <img src={getImageUrl(ant)} alt={ant.Titulo} class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" onerror="this.src='/images/default-antecedente.jpg'"/>
-              </div>
-              <div class="p-5 sm:p-6">
-                <span class="text-xs font-semibold text-emerald-600 uppercase tracking-wider">{ant.Area || sectorConfig.name}</span>
-                <h3 class="font-bold text-um-dark mt-2 mb-2 group-hover:text-um-primary transition-colors line-clamp-2">{ant.Titulo}</h3>
-                <p class="text-sm text-um-gray mb-4 line-clamp-2">{ant.Descripcion?.substring(0, 100)}...</p>
-                <span class="text-emerald-600 font-semibold text-sm flex items-center gap-1">Ver caso <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></span>
-              </div>
-            </a>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {antecedentes.map((ant) => (
+            <ProjectCard
+              id={String(ant.id)}
+              titulo={ant.Titulo || ant.Nombre || 'Proyecto'}
+              cliente={ant.Cliente || ''}
+              descripcion={ant.Descripcion || ''}
+              fecha={ant.Fecha || new Date().toISOString()}
+              area={ant.Area || ant.Unidad_de_negocio || nombre}
+              servicio={ant.Unidad_de_negocio || nombre}
+              imagen={ant.imageUrl}
+              slug={ant.slug}
+            />
           ))}
-        </div>
-
-        <div class="text-center mt-8 sm:mt-12">
-          <a href={`/antecedentes?sector=${sectorConfig.name.toLowerCase()}`} class="inline-flex items-center gap-2 px-5 sm:px-6 py-3 border-2 border-emerald-500 text-emerald-600 font-semibold rounded-xl hover:bg-emerald-500 hover:text-white transition-colors text-sm sm:text-base min-h-[44px]">
-            Ver Todos los Casos
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-          </a>
         </div>
       </div>
     </section>
   )}
 
-  <section class="bg-um-dark py-10 sm:py-14 lg:py-20">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <span class="text-emerald-400 font-semibold text-xs sm:text-sm uppercase tracking-wider">Contacto</span>
-      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mt-3 sm:mt-4 mb-3 sm:mb-4">¿Necesita Soluciones para su Centro de Salud?</h2>
-      <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-8">Nuestro equipo especializado en infraestructura hospitalaria está listo para ayudarlo.</p>
-      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-        <a href="/contacto" class="px-6 sm:px-8 py-3 sm:py-4 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/25 min-h-[44px] flex items-center justify-center">Solicitar Cotización</a>
-        <a href="/servicios" class="px-6 sm:px-8 py-3 sm:py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-colors min-h-[44px] flex items-center justify-center">Ver Todos los Servicios</a>
+  {sectorFAQs[sectorSlug] && sectorFAQs[sectorSlug].length > 0 && (
+    <section class="py-10 sm:py-14 lg:py-20 bg-white border-t border-gray-100">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8 sm:mb-12">
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark">Preguntas Frecuentes</h2>
+        </div>
+        <div class="space-y-4">
+          {sectorFAQs[sectorSlug].map((faq: any) => (
+            <details class="group bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
+              <summary class="flex items-center justify-between p-5 sm:p-6 cursor-pointer font-semibold text-um-dark hover:bg-gray-100 transition-colors">
+                <span class="pr-4">{faq.question}</span>
+                <svg class="w-5 h-5 shrink-0 text-gray-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="px-5 sm:px-6 pb-5 sm:pb-6 text-um-gray leading-relaxed">{faq.answer}</div>
+            </details>
+          ))}
+        </div>
       </div>
+    </section>
+  )}
+
+  <section class={`py-10 sm:py-14 lg:py-16 bg-gradient-to-br ${colors.gradient}`}>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-6">¿Listo para transformar su infraestructura tecnológica?</h2>
+      <p class="text-base sm:text-lg text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto">Contactenos hoy para una consultoría gratuita.</p>
+      <a href="/contacto" class="inline-block px-6 sm:px-8 py-3 sm:py-4 bg-white text-um-dark rounded-lg font-bold shadow-xl hover:shadow-2xl transition-all hover:scale-105">Solicitar Consultoría Gratuita</a>
     </div>
   </section>
 </LayoutV4>
+
+<style>
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+  }
+</style>

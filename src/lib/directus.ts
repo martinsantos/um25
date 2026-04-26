@@ -1,4 +1,4 @@
-import { Directus } from '@directus/sdk';
+import { createDirectus, rest, readItems, readItem } from '@directus/sdk';
 import type {
   ServicioV4,
   ProductoV4,
@@ -7,17 +7,20 @@ import type {
 } from '../types/directus-v4';
 
 // Export only the configuration, not the client
+// PRODUCTION: Use localhost for server-side requests (same machine as Directus)
+// Client-side image URLs will use public admin URL
 export const DIRECTUS_CONFIG = {
-  url: import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055',
-  token: import.meta.env.PUBLIC_DIRECTUS_TOKEN
+  url: 'http://localhost:8055',
+  token: import.meta.env.PUBLIC_DIRECTUS_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky'
 };
 
 // 1. Tipos compatibles con tus colecciones (ACTUALIZADOS V4)
 type Colecciones = {
-  Servicios: ServicioV4; // Nombre correcto con mayúscula
-  servicios: ServicioV4; // Alias por compatibilidad
-  productos: ProductoV4; // NUEVO V4
-  antecedentes: AntecedenteV4; // EXTENDIDO V4
+  Servicios: ServicioV4; // Nombre correcto con mayúscula (tabla real en DB)
+  servicios: ServicioV4; // Alias por compatibilidad legacy
+  productos: ProductoV4; // Colección de productos (migrado de JSON a tabla separada)
+  Antecedentes: AntecedenteV4; // Nombre correcto con mayúscula (tabla real en DB)
+  antecedentes: AntecedenteV4; // Alias por compatibilidad legacy
   antecedentes_servicios: AntecedenteServicioRelation; // NUEVO M2M V4
   blog_posts: EntradaBlog;
   casos_de_exito: CasoExito;
@@ -28,9 +31,9 @@ if (!DIRECTUS_CONFIG.url || !DIRECTUS_CONFIG.token) {
   throw new Error('Configuración de Directus incompleta en .env');
 }
 
-// Exportar cliente sin autenticación para casos específicos
+// Exportar cliente con tipos para casos específicos
 export const getClient = () => {
-    return createDirectus(DIRECTUS_CONFIG.url).with(rest());
+    return createDirectus<Colecciones>(DIRECTUS_CONFIG.url).with(rest());
 };
 
 // 5. Tipos según tu estructura actual
@@ -58,13 +61,24 @@ export interface CasoExito {
 
 export interface EntradaBlog {
   id: string;
-  titulo: string;
+  status: 'published' | 'draft' | 'scheduled';
   slug: string;
-  descripcion_corta: string;
-  imagen_principal: ArchivoDirectus | null;
+  titulo: string;
+  resumen: string;
   contenido: string;
-  estado: 'publicado' | 'borrador';
+  imagen_portada: string | null;
+  imagen_portada_alt?: string;
+  categoria: 'noticias' | 'proyectos' | 'tecnico' | 'empresa';
+  tags: string[];
   fecha_publicacion: string;
+  fecha_modificacion?: string;
+  tiempo_lectura: number;
+  // SEO override fields (optional — filled via Directus admin)
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string;
+  // Social overrides
+  social_image?: string;
 }
 
 type ArchivoDirectus = {
@@ -90,89 +104,137 @@ export const getCasosExito = async (limite: number = 10) =>
 // ==========================================
 
 /**
- * Obtiene todos los servicios V4 con sus productos
+ * Obtiene todos los servicios V4
  * Usado en páginas de listado de servicios
+ * Nota: Productos se cargan por separado con getProductosPorServicio()
  */
 export async function getServiciosV4(): Promise<ServicioV4[]> {
   try {
     const client = getClient();
-    const response = await client.items('Servicios').readByQuery({
-      filter: {
-        estado: { _eq: 'publicado' }
-      },
-      fields: [
-        'id',
-        'Titulo',
-        'Descripcion',
-        'Imagen',
-        'subtitulo',
-        'stats',
-        'marcas',
-        'por_que_elegirnos',
-        'area',
-        'slug',
-        'productos.*' // Incluir todos los productos relacionados
-      ],
-      sort: ['id']
-    });
+    const response = await client.request(
+      readItems('Servicios', {
+        fields: [
+          'id',
+          'Titulo',
+          'Descripcion',
+          'Imagen',
+          'Subtitulo',
+          'Stats',
+          'PorQueElegirnos',
+          'Area',
+          'Cliente',
+          'Productos'
+        ],
+        sort: ['id']
+      })
+    );
 
-    return (response.data || []) as ServicioV4[];
+    return (response || []) as ServicioV4[];
   } catch (error) {
-    console.error('Error fetching servicios V4:', error);
-    return [];
+    console.error('Error fetching servicios V4, trying snapshot:', error);
+    try {
+      const snapshot = await import('../data/snapshots/servicios.json');
+      return (snapshot.data || snapshot.default?.data || []) as ServicioV4[];
+    } catch { return []; }
   }
 }
 
 /**
  * Obtiene un servicio específico con todos sus productos
  * Usado en página de detalle de servicio (/servicios/[id]/[slug])
+ * Carga productos desde colección separada con relación M2O
  */
 export async function getServicioConProductos(id: number | string): Promise<ServicioV4 | null> {
+  const numId = Number(id);
   try {
     const client = getClient();
-    const response = await client.items('Servicios').readOne(id, {
-      fields: [
-        'id',
-        'Titulo',
-        'Descripcion',
-        'Imagen',
-        'subtitulo',
-        'stats',
-        'marcas',
-        'por_que_elegirnos',
-        'area',
-        'slug',
-        'productos.*' // Incluir todos los productos con todos sus campos
-      ]
-    });
 
-    return response as ServicioV4;
+    // Query 1: Obtener servicio
+    const servicio = await client.request(
+      readItem('Servicios', id, {
+        fields: [
+          'id',
+          'Titulo',
+          'Descripcion',
+          'Imagen',
+          'Subtitulo',
+          'Stats',
+          'PorQueElegirnos',
+          'Area',
+          'Cliente',
+          'Productos'
+        ]
+      })
+    );
+
+    if (!servicio) return null;
+
+    // Query 2: Obtener productos del servicio
+    const productos = await getProductosPorServicio(numId);
+
+    return {
+      ...servicio,
+      productos
+    } as ServicioV4;
   } catch (error) {
-    console.error(`Error fetching servicio ${id}:`, error);
-    return null;
+    console.error(`Error fetching servicio ${id}, trying snapshot:`, error);
+    try {
+      const serviciosSnapshot = await import('../data/snapshots/servicios.json');
+      const allServicios = (serviciosSnapshot.data || serviciosSnapshot.default?.data || []) as ServicioV4[];
+      const servicio = allServicios.find((s: any) => Number(s.id) === numId);
+      if (!servicio) return null;
+
+      const productos = await getProductosPorServicio(numId);
+      return { ...servicio, productos } as ServicioV4;
+    } catch {
+      return null;
+    }
   }
 }
 
 /**
- * Obtiene los productos de un servicio específico
- * Útil para cargar productos de forma lazy
+ * Obtiene los productos de un servicio específico desde la colección "productos"
+ * Migrado de campo JSON a tabla separada con relación M2O
+ * IMPORTANTE: Filtra duplicados basados en título para evitar mostrar productos repetidos
  */
 export async function getProductosPorServicio(servicioId: number): Promise<ProductoV4[]> {
   try {
     const client = getClient();
-    const response = await client.items('productos').readByQuery({
-      filter: {
-        servicio_id: { _eq: servicioId },
-        estado: { _eq: 'publicado' }
-      },
-      sort: ['orden', 'id'],
-      fields: ['*']
+    const response = await client.request(
+      readItems('productos', {
+        filter: { servicio_id: { _eq: servicioId } },
+        sort: ['orden', 'id'],
+        fields: ['*', 'imagen.*']
+      })
+    );
+
+    // Deduplicate products by title (keep first occurrence)
+    const productos = (response || []) as ProductoV4[];
+    const seen = new Set<string>();
+    const uniqueProductos = productos.filter((producto) => {
+      const titulo = producto.titulo?.toLowerCase().trim();
+      if (!titulo || seen.has(titulo)) {
+        return false;
+      }
+      seen.add(titulo);
+      return true;
     });
 
-    return (response.data || []) as ProductoV4[];
+    return uniqueProductos;
   } catch (error) {
-    console.error(`Error fetching productos for servicio ${servicioId}:`, error);
-    return [];
+    console.error(`Error fetching productos for servicio ${servicioId}, trying snapshot:`, error);
+    try {
+      const snapshot = await import('../data/snapshots/productos.json');
+      const allProductos = (snapshot.data || snapshot.default?.data || []) as ProductoV4[];
+      const filtered = allProductos.filter((p: any) => p.servicio_id === servicioId);
+      const seen = new Set<string>();
+      return filtered.filter((p) => {
+        const titulo = p.titulo?.toLowerCase().trim();
+        if (!titulo || seen.has(titulo)) return false;
+        seen.add(titulo);
+        return true;
+      });
+    } catch { return []; }
   }
 }
 
@@ -181,26 +243,35 @@ export async function getProductosPorServicio(servicioId: number): Promise<Produ
  * Usado en página de detalle de antecedente (/antecedentes/[id]/[slug])
  */
 export async function getAntecedenteConServicios(id: number | string): Promise<AntecedenteV4 | null> {
+  const numId = Number(id);
   try {
     const client = getClient();
-    const response = await client.items('antecedentes').readOne(id, {
-      fields: [
-        '*',
-        'servicios_relacionados.Servicios_id.id',
-        'servicios_relacionados.Servicios_id.Titulo',
-        'servicios_relacionados.Servicios_id.Descripcion',
-        'servicios_relacionados.Servicios_id.Imagen',
-        'servicios_relacionados.Servicios_id.area',
-        'servicios_relacionados.Servicios_id.slug',
-        'servicios_relacionados.orden',
-        'servicios_relacionados.destacado'
-      ]
-    });
+    const response = await client.request(
+      readItem('Antecedentes', id, {
+        fields: [
+          '*',
+          'servicios_relacionados.Servicios_id.id',
+          'servicios_relacionados.Servicios_id.Titulo',
+          'servicios_relacionados.Servicios_id.Descripcion',
+          'servicios_relacionados.Servicios_id.Imagen',
+          'servicios_relacionados.Servicios_id.Area',
+          'servicios_relacionados.orden',
+          'servicios_relacionados.destacado'
+        ]
+      })
+    );
 
     return response as AntecedenteV4;
   } catch (error) {
-    console.error(`Error fetching antecedente ${id} with services:`, error);
-    return null;
+    console.error(`Error fetching antecedente ${id} with services, trying snapshot:`, error);
+    try {
+      const snapshot = await import('../data/snapshots/antecedentes.json');
+      const allAntecedentes = (snapshot.data || snapshot.default?.data || []) as AntecedenteV4[];
+      const antecedente = allAntecedentes.find((a: any) => Number(a.id) === numId);
+      return antecedente || null;
+    } catch {
+      return null;
+    }
   }
 }
 
@@ -211,22 +282,26 @@ export async function getAntecedenteConServicios(id: number | string): Promise<A
 export async function getAntecedentesPorServicio(servicioId: number, limit: number = 6): Promise<AntecedenteV4[]> {
   try {
     const client = getClient();
-    const response = await client.items('antecedentes').readByQuery({
-      filter: {
-        'servicios_relacionados.Servicios_id': { _eq: servicioId }
-      },
-      limit,
-      sort: ['-date_created'],
-      fields: [
-        'id',
-        'Nombre',
-        'Descripcion',
-        'Imagen',
-        'slug'
-      ]
-    });
+    const response = await client.request(
+      readItems('Antecedentes', {
+        filter: {
+          'servicios_relacionados.Servicios_id': { _eq: servicioId }
+        },
+        limit,
+        sort: ['-destacado', '-orden', '-Fecha', '-id'],
+        fields: [
+          'id',
+          'Titulo',
+          'Descripcion',
+          'Imagen',
+          'slug',
+          'destacado',
+          'orden'
+        ]
+      })
+    );
 
-    return (response.data || []) as AntecedenteV4[];
+    return (response || []) as AntecedenteV4[];
   } catch (error) {
     console.error(`Error fetching antecedentes for servicio ${servicioId}:`, error);
     return [];
@@ -241,14 +316,12 @@ export async function buscarServicios(query: string, area?: string): Promise<Ser
   try {
     const client = getClient();
     const filters: any = {
-      _and: [
-        { estado: { _eq: 'publicado' } }
-      ]
+      _and: []
     };
 
     // Filtro por área si se especifica
     if (area) {
-      filters._and.push({ area: { _eq: area } });
+      filters._and.push({ Area: { _eq: area } });
     }
 
     // Búsqueda por texto en título o descripción
@@ -257,29 +330,91 @@ export async function buscarServicios(query: string, area?: string): Promise<Ser
         _or: [
           { Titulo: { _icontains: query } },
           { Descripcion: { _icontains: query } },
-          { subtitulo: { _icontains: query } }
+          { Subtitulo: { _icontains: query } }
         ]
       });
     }
 
-    const response = await client.items('Servicios').readByQuery({
-      filter: filters,
-      fields: [
-        'id',
-        'Titulo',
-        'Descripcion',
-        'Imagen',
-        'subtitulo',
-        'area',
-        'slug'
-      ],
-      sort: ['Titulo']
-    });
+    const response = await client.request(
+      readItems('Servicios', {
+        filter: filters._and.length > 0 ? filters : undefined,
+        fields: [
+          'id',
+          'Titulo',
+          'Descripcion',
+          'Imagen',
+          'Subtitulo',
+          'Area',
+          'Cliente',
+          'Productos'
+        ],
+        sort: ['Titulo']
+      })
+    );
 
-    return (response.data || []) as ServicioV4[];
+    return (response || []) as ServicioV4[];
   } catch (error) {
     console.error('Error searching servicios:', error);
     return [];
+  }
+}
+
+/**
+ * Obtiene todos los productos de la colección productos
+ * Útil para listados generales o análisis
+ */
+export async function getAllProductos(): Promise<ProductoV4[]> {
+  try {
+    const client = getClient();
+    const response = await client.request(
+      readItems('productos', {
+        sort: ['servicio_id', 'orden'],
+        fields: ['*', 'imagen.*'],
+        limit: -1
+      })
+    );
+
+    return (response || []) as ProductoV4[];
+  } catch (error) {
+    console.error('Error fetching all productos:', error);
+    return [];
+  }
+}
+
+/**
+ * Obtiene las imágenes del Hero de la página principal
+ * Ordenadas por el campo 'orden'
+ */
+export async function getHeroHomeImages() {
+  try {
+    const client = getClient();
+    const response = await client.request(
+      readItems('Hero_Home', {
+        sort: ['orden'],
+        fields: ['id', 'titulo', 'orden', 'imagen'],
+        limit: -1
+      })
+    );
+
+    return (response || []) as Array<{
+      id: number;
+      titulo: string;
+      orden: number;
+      imagen: string;
+    }>;
+  } catch (error) {
+    console.error('Error fetching Hero_Home images, trying snapshot:', error);
+    try {
+      const snapshot = await import('../data/snapshots/hero.json');
+      return (snapshot.data || snapshot.default?.data || []) as Array<{
+        id: number;
+        titulo: string;
+        orden: number;
+        imagen: string;
+      }>;
+    } catch {
+      return [];
+    }
   }
 }
 
@@ -288,3 +423,122 @@ export async function buscarServicios(query: string, area?: string): Promise<Ser
 // ==========================================
 
 export type { ServicioV4, ProductoV4, AntecedenteV4, AntecedenteServicioRelation };
+
+// ==========================================
+// 9. HELPER FUNCTION - Directus Image URL
+// ==========================================
+
+/**
+ * Convierte un UUID de imagen de Directus a URL utilizable.
+ *
+ * Estrategia:
+ * 1. Si Directus disponible → /assets/{uuid} (Nginx proxy, 518 imágenes únicas)
+ * 2. Si Directus caído → fallback a imagen local mapeada (image-local-map.json)
+ *
+ * El mapa local se genera con: node scripts/generate-image-map.mjs
+ */
+const uuidRegex = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+
+// Mapa de UUIDs a imágenes locales (servicios, productos, hero)
+let imageLocalMap: Record<string, string> = {};
+try {
+  const mapModule = await import('../data/image-local-map.json');
+  imageLocalMap = mapModule.default || mapModule;
+  const mapSize = Object.keys(imageLocalMap).length;
+  console.log(`[directus] Loaded ${mapSize} image mappings from local map`);
+} catch (error) {
+  console.error('[directus] Failed to load image-local-map.json:', error);
+  // No map available, will use Directus URLs
+}
+
+// IMPORTANT: Directus /assets/ endpoint requires authentication (403 Forbidden)
+// We always use local images for service thumbnails instead of Directus assets
+// This avoids build-time vs runtime inconsistencies and auth issues
+const directusAssetsAvailable = false;
+console.log('[directus] Using local images for all service content (Directus assets require auth)');
+
+// Cache-bust version: incrementar cuando se actualizan imágenes en Directus
+const IMAGE_CACHE_VERSION = '20260201';
+
+export function getDirectusImageUrl(imageId: string | null | undefined): string {
+  if (!imageId) {
+    console.warn('[directus] getDirectusImageUrl called with empty imageId');
+    return '';
+  }
+  if (!uuidRegex.test(imageId)) {
+    console.warn(`[directus] Invalid UUID format: ${imageId}`);
+    return '';
+  }
+
+  // Prioridad 1: Directus /assets/ (deshabilitado por 403 auth)
+  if (directusAssetsAvailable) {
+    return `/assets/${imageId}?v=${IMAGE_CACHE_VERSION}`;
+  }
+
+  // Prioridad 2: fallback local si Directus no disponible
+  const localPath = imageLocalMap[imageId];
+  if (localPath) {
+    console.log(`[directus] Found local image for ${imageId}: ${localPath}`);
+    return localPath;
+  }
+
+  // Sin Directus ni imagen local → default
+  console.warn(`[directus] No local mapping for UUID ${imageId}, using default placeholder`);
+  return '/images/default-background.jpg';
+}
+
+/**
+ * Devuelve la URL de fallback local para una imagen de Directus.
+ * Para uso en onerror de <img> tags.
+ */
+export function getDirectusImageFallback(imageId: string | null | undefined): string {
+  if (!imageId) return '/images/default-background.jpg';
+  if (!uuidRegex.test(imageId)) return '/images/default-background.jpg';
+  const localPath = imageLocalMap[imageId];
+  if (localPath) return localPath;
+  return '/images/default-background.jpg';
+}
+
+/**
+ * Obtiene todos los antecedentes V4 desde Directus
+ * Usado en página de listado de antecedentes con todas las imágenes únicas
+ */
+export async function getAllAntecedentes(): Promise<AntecedenteV4[]> {
+  try {
+    const client = getClient();
+    const response = await client.request(
+      readItems('Antecedentes', {
+        fields: [
+          'id',
+          'Titulo',
+          'Descripcion',
+          'Cliente',
+          'Imagen',
+          'Area',
+          'Unidad_de_negocio',
+          'Fecha',
+          'Presupuesto',
+          'original_id',
+          'destacado',
+          'orden'
+        ],
+        sort: ['-destacado', '-orden', '-Fecha', '-id'],
+        limit: -1
+      })
+    );
+
+    return (response || []) as AntecedenteV4[];
+  } catch (error) {
+    console.error('Error fetching antecedentes V4, trying snapshot:', error);
+    try {
+      const snapshot = await import('../data/snapshots/antecedentes.json');
+      const items = (snapshot.data || snapshot.default?.data || []) as AntecedenteV4[];
+      // Sort snapshot data the same way: destacados first, then by orden, then by date
+      return items.sort((a, b) => {
+        if ((b.destacado ? 1 : 0) !== (a.destacado ? 1 : 0)) return (b.destacado ? 1 : 0) - (a.destacado ? 1 : 0);
+        if ((b.orden || 0) !== (a.orden || 0)) return (b.orden || 0) - (a.orden || 0);
+        return (b.Fecha || '').localeCompare(a.Fecha || '');
+      });
+    } catch { return []; }
+  }
+}

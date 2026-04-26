@@ -7,11 +7,9 @@
 class ContactSystem {
     constructor() {
         this.contactData = {
-            phone: '+542614250000',
-            email: 'info@ultimamilla.com.ar',
+            email: 'contacto@ultimamilla.com.ar',
             address: 'Av. España 1234, Mendoza, Argentina',
             hours: 'Lunes a Viernes: 9:00-18:00, Sábados: 9:00-13:00',
-            whatsappMessage: 'Hola! Vengo desde el terminal CLI de su sitio web. Me interesa conocer más sobre sus servicios.',
             emailSubject: 'Consulta desde Terminal CLI - ULTIMA MILLA'
         };
         
@@ -77,16 +75,11 @@ class ContactSystem {
    📍 ${this.contactData.address}
    🌐 Zona Centro - Ciudad de Mendoza
 
-📱 TELÉFONO/WHATSAPP:
-   ☎️  <a href="tel:${this.contactData.phone}" style="color: #00d4aa; text-decoration: underline;">${this.contactData.phone}</a>
-   💬 <a href="https://wa.me/${this.contactData.phone.replace('+', '')}?text=${encodeURIComponent(this.contactData.whatsappMessage)}" target="_blank" style="color: #00d4aa; text-decoration: underline;">WhatsApp Directo</a>
-
 📧 EMAIL:
    ✉️  <a href="mailto:${this.contactData.email}?subject=${encodeURIComponent(this.contactData.emailSubject)}" style="color: #00d4aa; text-decoration: underline;">${this.contactData.email}</a>
-   📬 <a href="mailto:ventas@ultimamilla.com.ar" style="color: #00d4aa; text-decoration: underline;">ventas@ultimamilla.com.ar</a>
 
 🌐 WEB:
-   🔗 <a href="https://www.ultimamilla.com.ar" target="_blank" style="color: #00d4aa; text-decoration: underline;">www.ultimamilla.com.ar</a>
+   🔗 <a href="https://ultimamilla.com.ar" target="_blank" style="color: #00d4aa; text-decoration: underline;">ultimamilla.com.ar</a>
 
 ⏰ HORARIOS DE ATENCIÓN:
    📅 ${this.contactData.hours}
@@ -95,9 +88,7 @@ class ContactSystem {
 
 💡 COMANDOS DISPONIBLES:
    • contacto email           - Enviar email directo
-   • contacto whatsapp        - Abrir WhatsApp
    • contacto form           - Formulario interactivo
-   • contacto phone          - Información telefónica
    • contacto hours          - Horarios detallados
 
 🚀 ACCESO RÁPIDO:
@@ -139,30 +130,22 @@ class ContactSystem {
     }
 
     handleWhatsAppCommand(args) {
-        const message = args.length > 0 ? args.join(' ') : this.contactData.whatsappMessage;
-        const whatsappUrl = `https://wa.me/${this.contactData.phone.replace('+', '')}?text=${encodeURIComponent(message)}`;
-        
-        window.open(whatsappUrl, '_blank');
-        
+        // WhatsApp removed - redirect to email
+        const emailUrl = `mailto:${this.contactData.email}?subject=${encodeURIComponent(this.contactData.emailSubject)}`;
+
+        window.open(emailUrl, '_self');
+
         return `<div class="command-success">
-💬 WHATSAPP ABIERTO
+📧 REDIRIGIDO A EMAIL
 
-✅ Se ha abierto WhatsApp con:
-   📱 Número: ${this.contactData.phone}
-   💭 Mensaje: "${message}"
-
-🚀 VENTAJAS DEL WHATSAPP:
-   • Respuesta inmediata en horarios de atención
-   • Compartir archivos y capturas fácilmente
-   • Comunicación directa con el equipo comercial
-   • Historial de conversación guardado
+✅ Se ha abierto su cliente de email:
+   ✉️  Destinatario: ${this.contactData.email}
 
 💡 Si no se abrió automáticamente:
-   • Verifique si tiene WhatsApp instalado
-   • Copie el número: ${this.contactData.phone}
-   • Busque "ULTIMA MILLA" en sus contactos
+   • Copie manualmente: ${this.contactData.email}
+   • Use el comando 'contacto form' como alternativa
 
-⏰ Horarios de atención WhatsApp:
+⏰ Horarios de atención:
    ${this.contactData.hours}
 
 </div>`;
@@ -313,11 +296,10 @@ class ContactSystem {
 📬 ¿QUÉ SIGUE?
    • Recibirá confirmación por email en breve
    • Nuestro equipo responderá en 24-48 horas hábiles
-   • Para consultas urgentes, use WhatsApp: ${this.contactData.phone}
+   • Para consultas urgentes, escriba a: ${this.contactData.email}
 
 🔄 OTRAS OPCIONES:
-   • contacto whatsapp - Para contacto inmediato
-   • contacto phone - Llamada directa
+   • contacto email - Para contacto inmediato
    • help - Volver al menú principal
 
 ¡Gracias por contactarnos! 🚀
@@ -336,11 +318,9 @@ class ContactSystem {
 🔧 ALTERNATIVAS DISPONIBLES:
    1️⃣ Reintentar: contacto form
    2️⃣ Email directo: contacto email
-   3️⃣ WhatsApp: contacto whatsapp  
-   4️⃣ Teléfono: ${this.contactData.phone}
 
 💡 RECOMENDACIÓN:
-   Para contacto inmediato use WhatsApp o llame directamente.
+   Para contacto inmediato use email: ${this.contactData.email}
    El formulario web principal también está disponible.
 
 </div>`;
@@ -361,8 +341,7 @@ El formulario de contacto ha sido cancelado.
 No se enviaron datos.
 
 💡 OTRAS OPCIONES:
-   • contacto email - Cliente de email directo
-   • contacto whatsapp - WhatsApp inmediato
+   • contacto email - Email directo
    • contacto info - Ver toda la información
 
 </div>`;
@@ -385,28 +364,22 @@ No se enviaron datos.
 
     showPhoneInfo() {
         return `<div class="command-success">
-📞 INFORMACIÓN TELEFÓNICA
+📧 INFORMACIÓN DE CONTACTO
 ═══════════════════════════════════════════════════════════════
 
-📱 NÚMEROS DE CONTACTO:
-   Principal: <a href="tel:${this.contactData.phone}" style="color: #00d4aa;">${this.contactData.phone}</a>
-   WhatsApp: <a href="https://wa.me/${this.contactData.phone.replace('+', '')}" target="_blank" style="color: #00d4aa;">Mensaje directo</a>
+✉️ EMAIL:
+   <a href="mailto:${this.contactData.email}" style="color: #00d4aa;">${this.contactData.email}</a>
 
 ⏰ HORARIOS DE ATENCIÓN:
    ${this.contactData.hours}
-   
+
 🌎 ZONA HORARIA:
    Argentina (GMT-3)
 
-💡 MEJORES HORARIOS PARA LLAMAR:
-   • Mañanas: 9:00 - 12:00 hs
-   • Tardes: 14:00 - 17:00 hs
-   • Evite llamar durante almuerzo (12:00 - 14:00)
-
-📞 TIPS PARA LLAMADAS:
-   • Tenga preparada su consulta específica
+💡 TIPS PARA CONSULTAS:
+   • Sea específico en su consulta
    • Mencione que viene del CLI web
-   • Para presupuestos, prepare detalles del proyecto
+   • Para presupuestos, incluya detalles del proyecto
 
 </div>`;
     }
@@ -447,8 +420,7 @@ No se enviaron datos.
    Hora local: ${now.toLocaleTimeString('es-AR')}
    Fecha: ${now.toLocaleDateString('es-AR')}
 
-📞 FUERA DE HORARIO:
-   • WhatsApp: Respuesta al siguiente día hábil
+📧 FUERA DE HORARIO:
    • Email: Respuesta en 24-48 hs hábiles
    • Emergencias: Solo para clientes actuales
 
@@ -469,9 +441,7 @@ No se enviaron datos.
    contacto                 - Información general
    contacto info           - Información completa
    contacto email          - Abrir cliente de email
-   contacto whatsapp       - Abrir WhatsApp
    contacto form           - Formulario interactivo
-   contacto phone          - Info telefónica detallada
    contacto hours          - Horarios de atención
 
 📝 FORMULARIO INTERACTIVO:
@@ -481,15 +451,14 @@ No se enviaron datos.
    contacto form status    - Ver progreso
 
 💡 TIPS DE USO:
-   • Use 'email' o 'whatsapp' para contacto inmediato
+   • Use 'email' para contacto inmediato
    • El formulario 'form' permite consultas detalladas
    • Todos los enlaces son clickeables
    • Los horarios se ajustan a zona horaria argentina
 
 🔗 ACCESOS DIRECTOS:
-   • Haga clic en teléfonos y emails
+   • Haga clic en los emails para contacto directo
    • Los enlaces se abren automáticamente
-   • WhatsApp incluye mensaje predefinido
 
 </div>`;
     }
@@ -503,10 +472,8 @@ No se enviaron datos.
    contacto email          - Abrir cliente predeterminado
    contacto email send     - Formulario de envío
    
-✉️ DIRECCIONES DISPONIBLES:
-   General: ${this.contactData.email}
-   Ventas: ventas@ultimamilla.com.ar
-   Soporte: soporte@ultimamilla.com.ar
+✉️ DIRECCIÓN DE CONTACTO:
+   ${this.contactData.email}
 
 📝 PLANTILLAS INCLUIDAS:
    • Asunto optimizado para respuesta rápida

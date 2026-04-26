@@ -7,51 +7,59 @@
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import ServiceCard from '../components/v4/ServiceCard.astro';
 import CTASection from '../components/v4/CTASection.astro';
+import BlogBand from '../components/blog/BlogBand.astro';
 import { generateSlug } from '../utils/slugUtils.js';
-import { getServicios } from '../utils/directusHelpers';
+import { getAllServicios } from '../utils/directusHelpers';
+import { getDirectusImageUrl, getAllAntecedentes, getHeroHomeImages } from '../lib/directus.ts';
+import { serviceBadgeMap, serviceToSectorMap } from '../data/serviceBadgeMap';
+import { getSectorColors } from '../data/colorSystem';
 
-// Import real data
-import { antecedentesReales } from '../data/antecedentes_completos.js';
-
-// Production URL for images
-const PROD_URL = 'https://www.ultimamilla.com.ar';
-
-// Hero images from Directus (rotate every 5 seconds)
-const heroImages = [
-  { url: `${PROD_URL}/directus-assets/a404fe13-25dc-409d-9789-02cbf9fb93c1`, alt: 'Infraestructura de Redes' },
-  { url: `${PROD_URL}/directus-assets/992632c1-5d88-48ea-9bc5-53c59109694e`, alt: 'Seguridad Electrónica' },
-  { url: `${PROD_URL}/directus-assets/caffbcaa-2457-4fc9-9960-2e0601f27736`, alt: 'Telecomunicaciones' },
-  { url: `${PROD_URL}/directus-assets/be4911d3-7a71-457e-a081-97d0472c4aa9`, alt: 'Desarrollo de Software' },
-  { url: `${PROD_URL}/directus-assets/b104c9b7-708f-4cc7-ab7f-5f8443a2475e`, alt: 'Consultoría IT' },
+// Fetch hero images from Directus Hero_Home (with snapshot fallback)
+const localHeroFallback = [
+  { url: '/images/services/redes-comunicaciones.jpg', alt: 'Infraestructura de Redes' },
+  { url: '/images/services/ciberseguridad.jpg', alt: 'Seguridad Electrónica' },
+  { url: '/images/services/telefonia.jpg', alt: 'Telecomunicaciones' },
+  { url: '/images/services/servicios-web.jpg', alt: 'Desarrollo de Software' },
+  { url: '/images/services/servicios-it.jpg', alt: 'Consultoría IT' },
 ];
 
-// Helper function to get image URL for antecedentes
-const getImageUrl = (ant: any): string => {
-  // Try Directus UUID first - use production URL
-  if (ant.Imagen && typeof ant.Imagen === 'string' && ant.Imagen.includes('-')) {
-    return `${PROD_URL}/directus-assets/${ant.Imagen}`;
-  }
-  // Try ImagenPrincipal
-  if (ant.ImagenPrincipal && typeof ant.ImagenPrincipal === 'string' && ant.ImagenPrincipal.includes('-')) {
-    return `${PROD_URL}/directus-assets/${ant.ImagenPrincipal}`;
-  }
-  // Try local image path
-  if (ant.imagenLocal) {
-    return `/imagenes_antecedentes_versionproduccion/${ant.imagenLocal}`;
-  }
-  // Fallback to placeholder
-  return '/images/default-antecedente.jpg';
-};
+let heroImages: { url: string; alt: string }[] = [];
+try {
+  const heroItems = await getHeroHomeImages();
+  // Hero images use /assets/{uuid} directly (Nginx proxies to Directus)
+  // This bypasses getDirectusImageUrl which has assets disabled for service thumbnails
+  const uuidRe = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+  heroImages = heroItems
+    .filter((item: any) => item.imagen && uuidRe.test(item.imagen))
+    .map((item: any) => ({
+      url: `/assets/${item.imagen}`,
+      alt: item.titulo || `Hero ${item.orden}`
+    }));
+} catch (error) {
+  console.error('[HOMEPAGE] Error loading hero images:', error);
+}
 
-// Get 3 featured antecedentes for success cases section
-const antecedentesEnhanced = antecedentesReales.slice(0, 3).map(ant => ({
+// Use local fallback if no valid hero images
+if (heroImages.length === 0) {
+  heroImages = localHeroFallback;
+}
+
+// Get 3 featured antecedentes from Directus (con fallback a snapshot JSON)
+let antecedentesData: any[] = [];
+try {
+  antecedentesData = await getAllAntecedentes();
+} catch {
+  antecedentesData = [];
+}
+
+const antecedentesEnhanced = antecedentesData.slice(0, 3).map((ant: any) => ({
   ...ant,
   slug: generateSlug(ant.Titulo || ant.Nombre || 'proyecto'),
-  imageUrl: getImageUrl(ant)
+  imageUrl: getDirectusImageUrl(ant.Imagen) || '/images/default-background.jpg'
 }));
 
 // Get services from Directus (with automatic fallback to JS data)
-const serviciosFromDirectus = await getServicios();
+const serviciosFromDirectus = await getAllServicios();
 
 // Map icon names for ServiceCard component
 const iconMap: Record<number, { icon: string; iconColor: string }> = {
@@ -65,32 +73,55 @@ const iconMap: Record<number, { icon: string; iconColor: string }> = {
   108: { icon: 'zap', iconColor: 'bg-yellow-600/90' }
 };
 
-// Enhance services with icon data
-const servicios = serviciosFromDirectus.slice(0, 8).map(s => ({
-  ...s,
-  ...iconMap[s.id],
-  slug: s.slug || generateSlug(s.Titulo)
-}));
+// Enhance services with badges, colors, icons - ALL from Directus
+const servicios = serviciosFromDirectus.slice(0, 8).map(s => {
+  const sector = serviceToSectorMap[s.id] || 'tecnologia';
+  const colors = getSectorColors(sector);
 
-// Industries/Sectors data (kept for future sector pages)
+  return {
+    ...s,
+    ...iconMap[s.id],
+    slug: s.slug || generateSlug(s.Titulo),
+    badge: serviceBadgeMap[s.id] || 'Tecnología',
+    badgeColor: colors.icon
+  };
+});
+
+// Industries/Sectors data with pseudomorphic emojis
+// WebSite schema with SearchAction for sitelinks search box
+const websiteSchema = {
+  "@type": "WebSite",
+  "name": "ULTIMA MILLA",
+  "url": "https://ultimamilla.com.ar",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://ultimamilla.com.ar/antecedentes?q={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
+};
+
 const sectores = [
-  { slug: 'aeropuertos', name: 'Aeropuertos', icon: 'plane' },
-  { slug: 'bodegas', name: 'Bodegas', icon: 'wine' },
-  { slug: 'constructoras', name: 'Construcción', icon: 'building' },
-  { slug: 'salud', name: 'Salud', icon: 'heart' },
-  { slug: 'gobiernosectorpublico', name: 'Gobierno', icon: 'landmark' },
-  { slug: 'software', name: 'Software', icon: 'monitor' },
-  { slug: 'mineria', name: 'Minería', icon: 'mountain' },
-  { slug: 'industria', name: 'Industria', icon: 'factory' },
-  { slug: 'seguridad-electronica', name: 'Seguridad', icon: 'shield' }
+  { slug: 'aeropuertos', name: 'Aeropuertos', emoji: '✈️', color: '#0ea5e9' },
+  { slug: 'bodegas', name: 'Bodegas', emoji: '🍷', color: '#a855f7' },
+  { slug: 'constructoras', name: 'Construcción', emoji: '🏗️', color: '#f59e0b' },
+  { slug: 'salud', name: 'Salud', emoji: '🏥', color: '#22c55e' },
+  { slug: 'gobiernosectorpublico', name: 'Gobierno', emoji: '🏛️', color: '#10b981' },
+  { slug: 'software', name: 'Software', emoji: '💻', color: '#6366f1' },
+  { slug: 'mineria', name: 'Minería', emoji: '⛏️', color: '#f97316' },
+  { slug: 'industria', name: 'Industria', emoji: '🏭', color: '#64748b' },
+  { slug: 'seguridad-electronica', name: 'Seguridad', emoji: '🔒', color: '#06b6d4' }
 ];
 ---
 
 <LayoutV4
-  title="ULTIMA MILLA | Servicios Tecnológicos para Empresas en Mendoza, Cuyo y Patagonia"
-  description="Servicios tecnológicos para empresas y organizaciones argentinas. Zona de incumbencia: Mendoza, Cuyo, Patagonia. Especialistas en Telecomunicaciones, Cableado Estructurado, Corrientes Débiles, Detección de Incendio, Software a Medida. +469 proyectos, +22 años de experiencia."
+  title="ULTIMA MILLA | Servicios Tecnológicos para Empresas"
+  description="Servicios IT para empresas en Mendoza, Cuyo y Patagonia. Telecomunicaciones, cableado, seguridad electrónica, software a medida. +469 proyectos."
   keywords="servicios tecnologicos empresas argentina, zona incumbencia mendoza cuyo patagonia, telecomunicaciones empresas, cableado estructurado, corrientes debiles, deteccion incendio, software a medida organizaciones"
   image="/nosotros-tech.jpg"
+  structuredData={websiteSchema}
 >
   <!-- HERO SECTION with rotating background -->
   <section class="relative bg-um-dark overflow-hidden">
@@ -100,11 +131,12 @@ const sectores = [
         <img
           src={img.url}
           alt={img.alt}
-          class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${index === 0 ? 'opacity-50' : 'opacity-0'}`}
+          class={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${index === 0 ? 'opacity-80' : 'opacity-0'}`}
           data-index={index}
+          onerror="this.onerror=null;this.src='/images/default-background.jpg'"
         />
       ))}
-      <div class="absolute inset-0 bg-gradient-to-r from-um-dark via-um-dark/80 to-transparent"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-um-dark/90 via-um-dark/50 to-transparent"></div>
     </div>
 
     <!-- Content -->
@@ -185,10 +217,11 @@ const sectores = [
             id={servicio.id}
             slug={servicio.slug}
             titulo={servicio.Titulo}
-            subtitulo={servicio.subtitulo || servicio.Descripcion?.substring(0, 100)}
+            descripcion={servicio.Descripcion}
             imagen={servicio.Imagen}
-            icon={servicio.icon || 'box'}
-            iconColor={servicio.iconColor || 'bg-um-primary/90'}
+            badge={servicio.badge}
+            badgeColor={servicio.badgeColor}
+            cliente={servicio.Cliente}
           />
         ))}
       </div>
@@ -216,9 +249,9 @@ const sectores = [
               <img
                 src={antecedente.imageUrl}
                 alt={antecedente.Titulo || antecedente.Nombre}
-                class="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
+                class="w-full h-full object-cover transition-transform duration-700"
                 loading="lazy"
-                onerror="this.src='/images/default-antecedente.jpg'"
+                onerror="this.onerror=null;this.src='/images/default-background.jpg'"
               />
               <span class="absolute top-4 left-4 px-3 py-1 bg-um-primary text-white text-xs font-bold rounded-md">
                 {antecedente.Cliente || antecedente.Sector || 'Proyecto'}
@@ -264,8 +297,8 @@ const sectores = [
 
       <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9 gap-3 sm:gap-4">
         {sectores.map((sector) => (
-          <a href={`/${sector.slug}`} class="group flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-um-primary hover:shadow-lg transition-all min-h-[90px]">
-            <svg class="w-8 h-8 text-um-gray group-hover:text-white mb-2 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" set:html={sectorIconPaths[sector.icon] || sectorIconPaths.building} />
+          <a href={`/${sector.slug}`} class="sector-icon group flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:shadow-lg transition-all min-h-[90px]" style={`--sector-color: ${sector.color}`}>
+            <span class="text-2xl sm:text-3xl mb-1">{sector.emoji}</span>
             <span class="text-xs font-medium text-um-dark group-hover:text-white text-center transition-colors">{sector.name}</span>
           </a>
         ))}
@@ -320,21 +353,6 @@ const sectores = [
     </div>
   </section>
 
-  <!-- CTA SECTION -->
-  <CTASection
-    badge="Comience su transformación digital"
-    badgeIcon="rocket"
-    titulo="¿Listo para llevar su empresa al siguiente nivel?"
-    descripcion="Contáctenos hoy para una consultoría gratuita y descubra cómo nuestras soluciones pueden impulsar su negocio."
-    primaryButtonText="Solicitar Consultoría Gratis"
-    primaryButtonUrl="/contacto"
-    secondaryButtonText="+54 261 623 4567"
-    secondaryButtonUrl="tel:+542616234567"
-    secondaryButtonIcon="phone"
-    backgroundImage="https://ultimamilla.com.ar/directus-assets/a404fe13-25dc-409d-9789-02cbf9fb93c1"
-    darkOverlay={85}
-  />
-
   <!-- Hero Image Rotation Script -->
   <script>
     // Rotate hero images every 5 seconds
@@ -347,7 +365,7 @@ const sectores = [
 
       setInterval(() => {
         // Fade out current
-        images[currentIndex].classList.remove('opacity-50');
+        images[currentIndex].classList.remove('opacity-80');
         images[currentIndex].classList.add('opacity-0');
 
         // Move to next
@@ -355,8 +373,16 @@ const sectores = [
 
         // Fade in next
         images[currentIndex].classList.remove('opacity-0');
-        images[currentIndex].classList.add('opacity-50');
+        images[currentIndex].classList.add('opacity-80');
       }, 5000);
     });
   </script>
+
+  <style>
+    .sector-icon:hover {
+      background-color: var(--sector-color);
+    }
+  </style>
+
+  <BlogBand />
 </LayoutV4>

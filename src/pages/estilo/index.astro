@@ -1,0 +1,12 @@
+---
+import htmlContent from '../../assets/estilo/sistema-estilo-umsa.html?raw';
+
+return new Response(htmlContent, {
+  status: 200,
+  headers: {
+    'Content-Type': 'text/html; charset=utf-8',
+    'Cache-Control': 'public, max-age=3600',
+    'X-Robots-Tag': 'noindex, nofollow, noarchive, nosnippet',
+  },
+});
+---

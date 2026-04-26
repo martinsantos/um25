@@ -72,8 +72,8 @@ const sectores = [
     hoverColor: 'hover:text-orange-600',
   },
   {
-    slug: 'seguridad',
-    emoji: '🛡️',
+    slug: 'seguridad-electronica',
+    emoji: '🔒',
     title: 'Seguridad Electrónica',
     description: 'CCTV analítico con IA, control de accesos biométrico, detección perimetral y centros de monitoreo profesionales.',
     projects: '120+',
@@ -98,29 +98,11 @@ const stats = [
   { value: '100%', label: 'Satisfacción' },
 ];
 
-const heroIcons = [
-  { icon: 'plane', label: 'Aeropuertos' },
-  { icon: 'wine', label: 'Bodegas' },
-  { icon: 'landmark', label: 'Gobierno' },
-  { icon: 'heart', label: 'Salud' },
-  { icon: 'factory', label: 'Industria' },
-  { icon: 'building', label: 'Construcción' },
-];
-
-// SVG paths for hero icons
-const iconPaths: Record<string, string> = {
-  plane: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>',
-  wine: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16l-3 3m14-3l3 3M7 12h10M12 12V6c0-1.5 1.5-3 3-3M9 6c0-1.5-1.5-3-3-3"/>',
-  landmark: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l8-4 8 4v14"/>',
-  heart: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>',
-  factory: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/>',
-  building: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1"/>',
-};
 ---
 
 <LayoutV4
   title="Sectores | ULTIMA MILLA - Soluciones por Industria"
-  description="Conocemos los desafíos específicos de cada sector. Nuestra experiencia nos permite ofrecer soluciones tecnológicas especializadas para aeropuertos, bodegas, gobierno, salud, construcción, industria, minería y más."
+  description="Conocemos los desafíos de cada sector. Soluciones tecnológicas especializadas para aeropuertos, bodegas, gobierno, salud, construcción, industria, minería."
   keywords="sectores industria tecnologia, aeropuertos, bodegas vitivinicolas, gobierno sector publico, salud hospitales, construccion edificios, industria mineria, seguridad electronica, software a medida"
 >
   <!-- HERO SECTION -->
@@ -154,11 +136,11 @@ const iconPaths: Record<string, string> = {
 
         <!-- Hero Icons Grid (hidden on mobile) -->
         <div class="hidden lg:grid grid-cols-3 gap-4">
-          {heroIcons.map((item) => (
-            <div class="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
-              <svg class="w-8 h-8 text-um-primary-light mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" set:html={iconPaths[item.icon]} />
-              <div class="text-white text-sm font-medium">{item.label}</div>
-            </div>
+          {sectores.map((sector) => (
+            <a href={`/${sector.slug}`} class="bg-white/5 border border-white/10 rounded-xl p-4 text-center hover:bg-white/10 transition-colors">
+              <span class="text-2xl block mx-auto mb-2">{sector.emoji}</span>
+              <div class="text-white text-sm font-medium">{sector.title}</div>
+            </a>
           ))}
         </div>
       </div>

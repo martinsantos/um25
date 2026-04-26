@@ -8,7 +8,7 @@
  * Props:
  * - titulo: Título del producto
  * - descripcion: Descripción completa del producto
- * - imagen: URL de la imagen
+ * - imagen: URL de la imagen o UUID de Directus
  * - features: Array de strings con características (bullets)
  * - destacado: Texto destacado o diferenciador
  * - marcas: Array de strings con nombres de marcas
@@ -27,6 +27,8 @@
  * />
  */
 
+import { getDirectusImageUrl } from '../../lib/directus.ts';
+
 export interface Props {
   titulo: string;
   descripcion: string;
@@ -36,6 +38,7 @@ export interface Props {
   marcas?: string[];
   imagePosition?: 'left' | 'right';
   orden?: number;
+  serviceId?: string | number;
   className?: string;
 }
 
@@ -48,6 +51,7 @@ const {
   marcas = [],
   imagePosition,
   orden = 0,
+  serviceId,
   className = ''
 } = Astro.props;
 
@@ -55,8 +59,8 @@ const {
 const position = imagePosition || (orden % 2 === 0 ? 'left' : 'right');
 const flexDirection = position === 'left' ? 'md:flex-row' : 'md:flex-row-reverse';
 
-// Imagen de placeholder si no hay imagen
-const imagenUrl = imagen || '/images/placeholder-product.jpg';
+// 100% Directus — imagen es UUID del archivo en Directus
+const imagenUrl = getDirectusImageUrl(imagen);
 
 // Validar que haya contenido
 const hasFeatures = features.length > 0;
@@ -67,12 +71,18 @@ const hasMarcas = marcas.length > 0;
   <!-- Imagen -->
   <div class="w-full md:w-1/2">
     <div class="relative">
-      <img
-        src={imagenUrl}
-        alt={titulo}
-        class="w-full rounded-2xl shadow-xl product-image"
-        loading="lazy"
-      />
+      {imagenUrl ? (
+        <img
+          src={imagenUrl}
+          alt={titulo}
+          class="w-full rounded-2xl shadow-xl product-image"
+          loading="lazy"
+        />
+      ) : (
+        <div class="w-full aspect-video rounded-2xl bg-gray-100 flex items-center justify-center">
+          <p class="text-gray-400 text-sm">Imagen no disponible</p>
+        </div>
+      )}
     </div>
   </div>
 

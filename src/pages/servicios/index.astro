@@ -9,10 +9,14 @@ import HeroPageV4 from '../../components/v4/HeroPageV4.astro';
 import ServiceCard from '../../components/v4/ServiceCard.astro';
 import CTASection from '../../components/v4/CTASection.astro';
 import { generateSlug } from '../../utils/slugUtils.js';
-import { getServicios } from '../../utils/directusHelpers';
+import { getAllServicios } from '../../utils/directusHelpers';
+import { getDirectusImageUrl } from '../../lib/directus.ts';
+
+import { serviceBadgeMap, serviceToSectorMap } from '../../data/serviceBadgeMap';
+import { getSectorColors } from '../../data/colorSystem';
 
 // Get services from Directus (with automatic fallback to JS data)
-const serviciosFromDirectus = await getServicios();
+const serviciosFromDirectus = await getAllServicios();
 
 // Icon mapping for ServiceCard
 const iconMap: Record<number, { icon: string; iconColor: string }> = {
@@ -26,19 +30,25 @@ const iconMap: Record<number, { icon: string; iconColor: string }> = {
   108: { icon: 'zap', iconColor: 'bg-yellow-600/90' }
 };
 
-// Enhance services with icons and slugs
-const serviciosReales = serviciosFromDirectus.map(s => ({
-  ...s,
-  ...iconMap[s.id],
-  slug: s.slug || generateSlug(s.Titulo),
-  Area: s.area || 'Tecnología' // Fallback for filtering
-}));
+// Enhance services with icons, badges, and slugs
+const serviciosReales = serviciosFromDirectus.map(s => {
+  const sector = serviceToSectorMap[s.id] || 'tecnologia';
+  const colors = getSectorColors(sector);
+
+  return {
+    ...s,
+    ...iconMap[s.id],
+    slug: s.slug || generateSlug(s.Titulo),
+    Area: s.area || 'Tecnología',
+    badge: serviceBadgeMap[s.id] || 'Tecnología',
+    badgeColor: colors.icon
+  };
+});
 
 // Configuración de paginación
 const PAGE_SIZE = 12;
 const currentPage = parseInt(Astro.url.searchParams.get('page') || '1');
 const searchQuery = Astro.url.searchParams.get('search') || '';
-const areaFilter = Astro.url.searchParams.get('area') || '';
 const clienteFilter = Astro.url.searchParams.get('cliente') || '';
 
 // Filtrar servicios
@@ -48,12 +58,6 @@ if (searchQuery) {
   serviciosFiltrados = serviciosFiltrados.filter(servicio =>
     servicio.Titulo.toLowerCase().includes(searchQuery.toLowerCase()) ||
     servicio.Descripcion.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-}
-
-if (areaFilter) {
-  serviciosFiltrados = serviciosFiltrados.filter(servicio =>
-    servicio.Area === areaFilter
   );
 }
 
@@ -71,11 +75,7 @@ const endIndex = startIndex + PAGE_SIZE;
 const serviciosPaginados = serviciosFiltrados.slice(startIndex, endIndex);
 
 // Generar opciones de filtros dinámicamente
-const areasUnicas = [...new Set(serviciosReales.map(s => s.Area))].sort();
 const clientesUnicos = [...new Set(serviciosReales.map(s => s.Cliente))].sort();
-
-// Imágenes ya tienen URL completa en serviciosCompletos
-const getAssetUrl = (url) => url || '/images/default-service.jpg';
 
 // Compute pagination pages
 const computePaginationPages = () => {
@@ -104,15 +104,14 @@ const paginationPages = computePaginationPages();
 const buildPageUrl = (page: number) => {
   let url = `/servicios?page=${page}`;
   if (searchQuery) url += `&search=${searchQuery}`;
-  if (areaFilter) url += `&area=${areaFilter}`;
   if (clienteFilter) url += `&cliente=${clienteFilter}`;
   return url;
 };
 ---
 
 <LayoutV4
-  title="Servicios | ULTIMA MILLA - Soluciones Tecnológicas Integrales"
-  description="Catálogo completo de servicios tecnológicos: telecomunicaciones, cableado estructurado, seguridad electrónica, desarrollo de software, detección de incendio y más. +469 proyectos exitosos en Mendoza, Cuyo y Patagonia."
+  title="Servicios | ULTIMA MILLA - Soluciones IT Integrales"
+  description="Servicios IT: telecomunicaciones, cableado, seguridad electrónica, software a medida y detección de incendio. +469 proyectos en Mendoza, Cuyo y Patagonia."
   keywords="servicios tecnologicos mendoza, telecomunicaciones profesionales, cableado estructurado certificado, seguridad electronica cctv, desarrollo software a medida, deteccion incendio sistemas"
 >
   <HeroPageV4
@@ -124,10 +123,9 @@ const buildPageUrl = (page: number) => {
       { label: 'Servicios', href: '/servicios' },
     ]}
     badge={{ icon: 'briefcase', text: 'Soluciones Integrales' }}
-    backgroundImage="https://www.ultimamilla.com.ar/directus-assets/b104c9b7-708f-4cc7-ab7f-5f8443a2475e"
+    backgroundImage={getDirectusImageUrl(serviciosReales[0]?.Imagen)}
     stats={[
       { value: `${serviciosReales.length}+`, label: 'Servicios' },
-      { value: String(areasUnicas.length), label: 'Áreas' },
       { value: `${clientesUnicos.length}+`, label: 'Sectores' },
     ]}
   />
@@ -153,16 +151,6 @@ const buildPageUrl = (page: number) => {
         </div>
 
         <div class="flex flex-wrap gap-2 sm:gap-3 w-full md:w-auto">
-          <select
-            name="area"
-            class="bg-white border border-gray-300 text-um-dark py-2.5 px-4 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-um-primary focus:border-um-primary text-sm min-h-[44px] flex-1 md:flex-none"
-          >
-            <option value="">Todas las áreas</option>
-            {areasUnicas.map(area => (
-              <option value={area} selected={areaFilter === area}>{area}</option>
-            ))}
-          </select>
-
           <select
             name="cliente"
             class="bg-white border border-gray-300 text-um-dark py-2.5 px-4 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-um-primary focus:border-um-primary text-sm min-h-[44px] flex-1 md:flex-none"
@@ -200,53 +188,18 @@ const buildPageUrl = (page: number) => {
         </div>
       ) : (
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-          {serviciosPaginados.map((servicio) => {
-            const slug = generateSlug(servicio.Titulo);
-            return (
-              <a href={`/servicios/${servicio.id}/${slug}`} class="group flex flex-col h-full">
-                <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 card-hover">
-                  <!-- Image -->
-                  <div class="relative aspect-[16/9] overflow-hidden bg-gray-100">
-                    <img
-                      src={getAssetUrl(servicio.Imagen)}
-                      alt={servicio.Titulo}
-                      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                      onerror="this.src='/images/default-service.jpg'"
-                    />
-                    <div class="absolute top-3 sm:top-4 left-3 sm:left-4">
-                      <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-um-dark text-white shadow-sm">
-                        {servicio.Area}
-                      </span>
-                    </div>
-                  </div>
-
-                  <!-- Content -->
-                  <div class="flex flex-col flex-grow p-4 sm:p-6">
-                    <h3 class="text-lg sm:text-xl font-bold text-um-dark mb-2 sm:mb-3 group-hover:text-um-primary transition-colors line-clamp-2">
-                      {servicio.Titulo}
-                    </h3>
-
-                    <p class="text-um-gray text-sm mb-4 sm:mb-6 line-clamp-3 flex-grow leading-relaxed">
-                      {servicio.Descripcion.replace(/\\\\/g, ' ')}
-                    </p>
-
-                    <div class="pt-3 sm:pt-4 border-t border-gray-100 mt-auto flex items-center justify-between">
-                      <span class="text-xs font-medium text-um-gray uppercase tracking-wide">
-                        {servicio.Cliente}
-                      </span>
-                      <span class="text-um-primary text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
-                        Ver detalles
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
-                      </span>
-                    </div>
-                  </div>
-                </article>
-              </a>
-            );
-          })}
+          {serviciosPaginados.map((servicio) => (
+            <ServiceCard
+              id={servicio.id}
+              slug={servicio.slug}
+              titulo={servicio.Titulo}
+              descripcion={servicio.Descripcion.replace(/\\\\/g, ' ')}
+              imagen={servicio.Imagen}
+              badge={servicio.badge}
+              badgeColor={servicio.badgeColor}
+              cliente={servicio.Cliente}
+            />
+          ))}
         </div>
       )}
 
@@ -305,7 +258,7 @@ const buildPageUrl = (page: number) => {
     secondaryButtonText="Ver Casos de Éxito"
     secondaryButtonUrl="/antecedentes"
     secondaryButtonIcon="arrow-right"
-    backgroundImage="https://ultimamilla.com.ar/directus-assets/b104c9b7-708f-4cc7-ab7f-5f8443a2475e"
+    backgroundImage="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1920&q=80"
     darkOverlay={90}
   />
 </LayoutV4>

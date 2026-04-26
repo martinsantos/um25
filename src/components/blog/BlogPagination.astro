@@ -1,0 +1,85 @@
+---
+interface Props {
+  page: number;
+  totalPages: number;
+  baseHref: string;
+}
+
+const { page, totalPages, baseHref } = Astro.props;
+
+const prevHref = page > 1 ? `${baseHref}?page=${page - 1}` : null;
+const nextHref = page < totalPages ? `${baseHref}?page=${page + 1}` : null;
+---
+
+{totalPages > 1 && (
+  <nav class="pagination" aria-label="Paginación">
+    {prevHref ? (
+      <a href={prevHref} class="pag-btn">
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Anterior
+      </a>
+    ) : (
+      <span class="pag-btn pag-btn--disabled">
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Anterior
+      </span>
+    )}
+
+    <span class="pag-info">{page} / {totalPages}</span>
+
+    {nextHref ? (
+      <a href={nextHref} class="pag-btn">
+        Siguiente
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+    ) : (
+      <span class="pag-btn pag-btn--disabled">
+        Siguiente
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </span>
+    )}
+  </nav>
+)}
+
+<style>
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 36px 0 0;
+    border-top: 1px solid #f3f4f6;
+    margin-top: 4px;
+  }
+
+  .pag-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    text-decoration: none;
+    padding: 8px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    transition: border-color .15s, background .15s;
+  }
+  .pag-btn:hover { border-color: #d1d5db; background: #f9fafb; }
+  .pag-btn--disabled { color: #d1d5db; pointer-events: none; border-color: #f3f4f6; }
+
+  .pag-info {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 13px;
+    color: #9ca3af;
+  }
+</style>

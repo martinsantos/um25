@@ -105,7 +105,18 @@ export interface AntecedenteV4 {
   Nombre: string;
   Descripcion?: string;
   Imagen?: string;
-  // ... otros campos existentes
+  Titulo?: string;
+  Cliente?: string;
+  Area?: string;
+  Unidad_de_negocio?: string;
+  Fecha?: string;
+  Presupuesto?: string;
+  original_id?: number;
+  slug?: string;
+
+  // Campos de ordenamiento por importancia
+  destacado?: boolean; // true = aparece primero en listados
+  orden?: number; // Mayor = más importante (0 = sin prioridad)
 
   // Relación M2M (NUEVA)
   servicios_relacionados?: AntecedenteServicioRelation[]; // M2M junction

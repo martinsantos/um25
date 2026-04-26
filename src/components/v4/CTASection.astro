@@ -28,9 +28,9 @@
  *   descripcion="Contáctenos hoy para una consultoría gratuita"
  *   primaryButtonText="Agendar Consultoría Gratis"
  *   primaryButtonUrl="/contacto"
- *   secondaryButtonText="+54 261 623 4567"
- *   secondaryButtonUrl="tel:+542616234567"
- *   secondaryButtonIcon="phone"
+ *   secondaryButtonText="contacto@ultimamilla.com.ar"
+ *   secondaryButtonUrl="mailto:contacto@ultimamilla.com.ar"
+ *   secondaryButtonIcon="mail"
  * />
  */
 
@@ -82,9 +82,9 @@ const buttonIcons: Record<string, any> = {
 const BadgeIcon = badgeIcons[badgeIcon] || Rocket;
 const SecondaryIcon = buttonIcons[secondaryButtonIcon] || Phone;
 
-// Calcular opacidad del overlay
+// Calcular opacidad del overlay (inline style — Tailwind JIT can't generate dynamic opacity classes)
 const overlayOpacity = Math.min(Math.max(darkOverlay, 0), 100);
-const overlayClass = `bg-um-dark/${overlayOpacity}`;
+const overlayStyle = `background-color: rgba(17, 24, 39, ${overlayOpacity / 100})`;
 
 // Imagen de fondo por defecto
 const bgImage = backgroundImage || 'https://ultimamilla.com.ar/directus-assets/caffbcaa-2457-4fc9-9960-2e0601f27736';
@@ -102,7 +102,7 @@ const hasSecondaryButton = secondaryButtonText && secondaryButtonUrl;
       class="w-full h-full object-cover"
       loading="lazy"
     />
-    <div class={`absolute inset-0 ${overlayClass}`}></div>
+    <div class="absolute inset-0" style={overlayStyle}></div>
   </div>
 
   <!-- Content -->

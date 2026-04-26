@@ -52,10 +52,11 @@ jobs:
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
+        continue-on-error: true  # Don't fail build if storage quota exceeded
         with:
           name: dist-build
           path: dist/
-          retention-days: 7
+          retention-days: 1
 
   #===========================================================================
   # JOB 2: DEPLOY TO PRODUCTION
@@ -73,10 +74,18 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download build artifacts
+        id: download-artifact
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: dist-build
           path: dist/
+
+      - name: Build locally if artifacts not available
+        if: steps.download-artifact.outcome == 'failure' || !hashFiles('dist/**')
+        run: |
+          npm ci --include=dev
+          npm run build
 
       - name: Setup SSH key
         uses: webfactory/ssh-agent@v0.9.0
@@ -99,6 +108,7 @@ jobs:
             --exclude='backups' \
             --exclude='.local_production_files' \
             --exclude='public/cache' \
+            --exclude='uploads' \
             --exclude='*.log' \
             ./ root@23.105.176.45:${{ env.DEPLOY_PATH }}/
 
@@ -111,6 +121,9 @@ jobs:
           script: |
             cd ${{ env.DEPLOY_PATH }}
             npm ci --production
+            # Ensure Directus uploads dir is writable by container (uid 1000)
+            chown -R 1000:1000 ${{ env.DEPLOY_PATH }}/uploads/ 2>/dev/null || true
+            chmod 775 ${{ env.DEPLOY_PATH }}/uploads/ 2>/dev/null || true
 
       - name: Restart PM2 process
         uses: appleboy/ssh-action@v1.2.0
@@ -124,10 +137,11 @@ jobs:
 
       - name: Health check
         run: |
-          echo "Waiting 10s for app to start..."
-          sleep 10
+          echo "Waiting 15s for app to start..."
+          sleep 15
 
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://www.ultimamilla.com.ar)
+          # Follow redirects with -L flag
+          HTTP_STATUS=$(curl -sL -o /dev/null -w "%{http_code}" https://www.ultimamilla.com.ar)
 
           if [ "$HTTP_STATUS" == "200" ]; then
             echo "✅ Health check passed (HTTP $HTTP_STATUS)"
@@ -135,6 +149,47 @@ jobs:
             echo "❌ Health check failed (HTTP $HTTP_STATUS)"
             exit 1
           fi
+
+      - name: Smoke test - verify content integrity
+        run: |
+          HOMEPAGE=$(curl -sL https://www.ultimamilla.com.ar)
+          ERRORS=0
+
+          # 1. Service images can use either Directus /assets/ URLs OR local /images/ paths
+          DIRECTUS_IMGS=$(echo "$HOMEPAGE" | grep -oE 'src="/assets/[a-f0-9-]{36}[^"]*"' | wc -l)
+          LOCAL_IMGS=$(echo "$HOMEPAGE" | grep -oE 'src="/images/services/[^"]*"' | wc -l)
+          TOTAL_IMGS=$((DIRECTUS_IMGS + LOCAL_IMGS))
+
+          if [ "$TOTAL_IMGS" -lt 4 ]; then
+            echo "❌ Only $TOTAL_IMGS service images found (expected >= 4)"
+            echo "   Directus: $DIRECTUS_IMGS, Local: $LOCAL_IMGS"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "✅ Service images: $TOTAL_IMGS found (Directus: $DIRECTUS_IMGS, Local: $LOCAL_IMGS)"
+          fi
+
+          # 2. Hero section must have background images
+          HERO_IMGS=$(echo "$HOMEPAGE" | grep -oE 'hero-image' | wc -l)
+          if [ "$HERO_IMGS" -lt 1 ]; then
+            echo "❌ No hero images found"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "✅ Hero images: $HERO_IMGS found"
+          fi
+
+          # 3. Check for excessive placeholder images (should be fallbacks only)
+          DEFAULTS=$(echo "$HOMEPAGE" | grep -oE 'src="[^"]*default-background[^"]*"' | wc -l)
+          if [ "$DEFAULTS" -gt 10 ]; then
+            echo "⚠️ WARNING: $DEFAULTS default-background images found (should be fallback only)"
+          elif [ "$DEFAULTS" -gt 0 ]; then
+            echo "✅ $DEFAULTS placeholder images found (acceptable as fallback)"
+          fi
+
+          if [ "$ERRORS" -gt 0 ]; then
+            echo "❌ Smoke test failed with $ERRORS errors"
+            exit 1
+          fi
+          echo "✅ All smoke tests passed"
 
       - name: Send deployment notification
         if: always()
@@ -167,7 +222,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ${{ env.DEPLOY_PATH }}
-            git checkout v0.0.1-production-baseline
+            git fetch --tags
+            git checkout v1.0.0-mvp
+            npm ci --production
             pm2 restart astro-ultimamilla
 
       - name: Verify rollback
