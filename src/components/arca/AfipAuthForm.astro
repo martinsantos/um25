@@ -1,0 +1,272 @@
+---
+// AfipAuthForm.astro - AFIP Authorization form with dual auth methods
+// - Option A: Digital certificate upload (.crt + .key + passphrase)
+// - Option B: CUIT + Clave Fiscal
+
+interface Props {
+  id?: string;
+}
+
+const { id = 'afip-auth-form' } = Astro.props;
+---
+
+<div {id} class="afip-auth-form space-y-6">
+  <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-indigo-500">
+    <h3 class="text-xl font-bold text-gray-900 mb-2">Autorizacion AFIP</h3>
+    <p class="text-sm text-gray-600 mb-6">
+      Para generar facturas con validez fiscal, necesitas autorizar la conexion con ARCA/AFIP.
+      Elegi uno de los metodos:
+    </p>
+
+    <!-- Method Tabs -->
+    <div class="flex border-b border-gray-200 mb-6">
+      <button
+        id="auth-tab-cert"
+        type="button"
+        class="auth-tab px-6 py-3 text-sm font-medium border-b-2 border-indigo-600 text-indigo-600"
+      >
+        Certificado Digital
+      </button>
+      <button
+        id="auth-tab-pass"
+        type="button"
+        class="auth-tab px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700"
+      >
+        CUIT + Clave Fiscal
+      </button>
+    </div>
+
+    <!-- Option A: Digital Certificate -->
+    <div id="auth-method-cert" class="space-y-4">
+      <div class="p-4 bg-amber-50 rounded-md border border-amber-200 mb-4">
+        <p class="text-sm text-amber-800">
+          <strong>No tenes certificado?</strong> Necesitas obtener un certificado digital de
+          ARCA/AFIP. Consulta los requisitos en el
+          <a href="https://www.arca.gob.ar" target="_blank" rel="noopener noreferrer"
+             class="underline font-medium">sitio oficial</a>.
+        </p>
+      </div>
+
+      <div>
+        <label for="auth-cert-file" class="block text-sm font-medium text-gray-700 mb-1">Certificado (.crt)</label>
+        <input id="auth-cert-file" type="file" accept=".crt,.cer,.pem"
+          class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+      </div>
+
+      <div>
+        <label for="auth-key-file" class="block text-sm font-medium text-gray-700 mb-1">Clave Privada (.key)</label>
+        <input id="auth-key-file" type="file" accept=".key,.pem"
+          class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+      </div>
+
+      <div>
+        <label for="auth-passphrase" class="block text-sm font-medium text-gray-700 mb-1">Passphrase</label>
+        <input id="auth-passphrase" type="password" placeholder="••••••••"
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" />
+      </div>
+
+      <button id="auth-verify-cert" type="button" disabled
+        class="w-full px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+        Verificar Certificado
+      </button>
+    </div>
+
+    <!-- Option B: CUIT + Clave Fiscal -->
+    <div id="auth-method-pass" class="hidden space-y-4">
+      <div class="p-4 bg-blue-50 rounded-md border border-blue-200 mb-4">
+        <p class="text-sm text-blue-800">
+          Usa tu CUIT y Clave Fiscal de AFIP. La clave se envia de forma segura y
+          <strong>no se almacena</strong> en nuestros servidores.
+        </p>
+      </div>
+
+      <div>
+        <label for="auth-cuit" class="block text-sm font-medium text-gray-700 mb-1">CUIT</label>
+        <input id="auth-cuit" type="text" placeholder="20123456789" maxlength="11"
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" />
+      </div>
+
+      <div>
+        <label for="auth-clave-fiscal" class="block text-sm font-medium text-gray-700 mb-1">Clave Fiscal</label>
+        <input id="auth-clave-fiscal" type="password" placeholder="••••••••"
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" />
+        <small class="text-gray-500">Tu Clave Fiscal de AFIP. Nunca la almacenamos.</small>
+      </div>
+
+      <button id="auth-login-afip" type="button"
+        class="w-full px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors">
+        Autenticar con AFIP
+      </button>
+    </div>
+
+    <!-- Status area (loading/error/success) -->
+    <div id="auth-status" class="hidden mt-4"></div>
+  </div>
+</div>
+
+<script is:inline>
+  // Tab switching
+  document.querySelector('#auth-tab-cert')?.addEventListener('click', function() {
+    var tabCert = document.querySelector('#auth-tab-cert');
+    var tabPass = document.querySelector('#auth-tab-pass');
+    tabCert.className = 'auth-tab px-6 py-3 text-sm font-medium border-b-2 border-indigo-600 text-indigo-600';
+    tabPass.className = 'auth-tab px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700';
+    document.querySelector('#auth-method-cert').classList.remove('hidden');
+    document.querySelector('#auth-method-pass').classList.add('hidden');
+  });
+
+  document.querySelector('#auth-tab-pass')?.addEventListener('click', function() {
+    var tabCert = document.querySelector('#auth-tab-cert');
+    var tabPass = document.querySelector('#auth-tab-pass');
+    tabPass.className = 'auth-tab px-6 py-3 text-sm font-medium border-b-2 border-indigo-600 text-indigo-600';
+    tabCert.className = 'auth-tab px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700';
+    document.querySelector('#auth-method-pass').classList.remove('hidden');
+    document.querySelector('#auth-method-cert').classList.add('hidden');
+  });
+
+  // Enable verify button when files selected
+  function checkCertFiles() {
+    var btn = document.querySelector('#auth-verify-cert');
+    if (btn) {
+      btn.disabled = !(document.querySelector('#auth-cert-file')?.files?.length > 0 && document.querySelector('#auth-key-file')?.files?.length > 0);
+    }
+  }
+  document.querySelector('#auth-cert-file')?.addEventListener('change', checkCertFiles);
+  document.querySelector('#auth-key-file')?.addEventListener('change', checkCertFiles);
+
+  // Show status message using textContent for XSS safety
+  window.showAuthStatus = function(type, message) {
+    var status = document.querySelector('#auth-status');
+    if (!status) return;
+
+    while (status.firstChild) status.removeChild(status.firstChild);
+    status.classList.remove('hidden');
+
+    if (type === 'loading') {
+      var div = document.createElement('div');
+      div.style.display = 'flex';
+      div.style.alignItems = 'center';
+      div.style.gap = '8px';
+      div.className = 'text-indigo-600';
+      var spinner = document.createElement('div');
+      spinner.className = 'animate-spin rounded-full h-4 w-4 border border-indigo-600 border-t-transparent';
+      div.appendChild(spinner);
+      div.appendChild(document.createTextNode(' Autenticando...'));
+      status.appendChild(div);
+    } else if (type === 'error') {
+      var div = document.createElement('div');
+      div.className = 'p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700';
+      div.textContent = message || 'Error desconocido';
+      status.appendChild(div);
+    } else if (type === 'success') {
+      var div = document.createElement('div');
+      div.className = 'p-3 bg-green-50 border border-green-200 rounded-md text-sm text-green-700';
+      div.textContent = message || 'Operacion exitosa';
+      status.appendChild(div);
+    }
+  };
+
+  // Auth: CUIT + Clave Fiscal
+  document.querySelector('#auth-login-afip')?.addEventListener('click', async function() {
+    var cuitInput = document.querySelector('#auth-cuit');
+    var claveInput = document.querySelector('#auth-clave-fiscal');
+    var cuit = (cuitInput?.value || '').replace(/\D/g, '');
+    var claveFiscal = claveInput?.value || '';
+
+    if (cuit.length !== 11) {
+      window.showAuthStatus('error', 'CUIT invalido — debe tener 11 digitos');
+      return;
+    }
+    if (!claveFiscal) {
+      window.showAuthStatus('error', 'Ingresa tu Clave Fiscal');
+      return;
+    }
+
+    window.showAuthStatus('loading', '');
+
+    try {
+      var response = await fetch('/plantilla-arca/api/auth/afip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ method: 'clave_fiscal', cuit: cuit, clave_fiscal: claveFiscal }),
+      });
+
+      if (!response.ok) {
+        var err = await response.json().catch(function() { return { error: 'Error de autenticacion' }; });
+        window.showAuthStatus('error', err.error || 'Error de autenticacion con AFIP');
+        return;
+      }
+
+      var data = await response.json();
+      window.showAuthStatus('success', 'Autenticacion exitosa con AFIP');
+
+      sessionStorage.setItem('afip_token', data.token);
+      sessionStorage.setItem('afip_token_expiry', data.expiry);
+      window.afipAuthToken = data.token;
+
+      var event = new CustomEvent('afipAuthSuccess', {
+        detail: { method: 'clave_fiscal', token: data.token, expiry: data.expiry },
+        bubbles: true,
+      });
+      document.dispatchEvent(event);
+    } catch (_err) {
+      window.showAuthStatus('error', 'Error de conexion. Verifica e intenta de nuevo.');
+    }
+  });
+
+  // Auth: Certificate
+  document.querySelector('#auth-verify-cert')?.addEventListener('click', async function() {
+    var certFile = document.querySelector('#auth-cert-file');
+    var keyFile = document.querySelector('#auth-key-file');
+    var passphrase = document.querySelector('#auth-passphrase')?.value || '';
+
+    if (!certFile?.files?.length || !keyFile?.files?.length) {
+      window.showAuthStatus('error', 'Selecciona el certificado y la clave privada');
+      return;
+    }
+
+    window.showAuthStatus('loading', '');
+
+    try {
+      var formData = new FormData();
+      formData.append('cert', certFile.files[0]);
+      formData.append('key', keyFile.files[0]);
+      formData.append('passphrase', passphrase);
+      formData.append('method', 'certificate');
+
+      var response = await fetch('/plantilla-arca/api/auth/afip', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        var err = await response.json().catch(function() { return { error: 'Error de autenticacion' }; });
+        window.showAuthStatus('error', err.error || 'Error al verificar el certificado');
+        return;
+      }
+
+      var data = await response.json();
+      window.showAuthStatus('success', 'Certificado verificado exitosamente');
+
+      sessionStorage.setItem('afip_token', data.token);
+      sessionStorage.setItem('afip_token_expiry', data.expiry);
+      window.afipAuthToken = data.token;
+
+      var event = new CustomEvent('afipAuthSuccess', {
+        detail: { method: 'certificate', token: data.token, expiry: data.expiry },
+        bubbles: true,
+      });
+      document.dispatchEvent(event);
+    } catch (_err) {
+      window.showAuthStatus('error', 'Error de conexion. Verifica e intenta de nuevo.');
+    }
+  });
+
+  // Pre-fill CUIT from form data
+  document.addEventListener('formDataChange', function(e) {
+    var cuitField = document.querySelector('#auth-cuit');
+    if (cuitField && e.detail?.cuit && !cuitField.value) {
+      cuitField.value = e.detail.cuit;
+    }
+  });
+</script>
