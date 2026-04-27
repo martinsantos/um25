@@ -210,12 +210,12 @@ const { id = 'formulario-arca' } = Astro.props;
     var cuit = (document.querySelector('#cuit')?.value || '').replace(/\D/g, '');
     var cuitVal = validarCUIT(cuit);
     if (!cuitVal.valido) {
-      errores.push({ campo: 'cuit', mensaje: cuitVal.error || 'CUIT invalido' });
+      errores.push({ campo: 'cuit', mensaje: cuitVal.error || 'CUIT inválido' });
     }
 
     var razonSocial = (document.querySelector('#razon_social')?.value || '').trim();
     if (!razonSocial) {
-      errores.push({ campo: 'razon_social', mensaje: 'Razon Social es requerida' });
+      errores.push({ campo: 'razon_social', mensaje: 'Razón Social es requerida' });
     }
 
     var domicilio = (document.querySelector('#domicilio')?.value || '').trim();
@@ -225,23 +225,23 @@ const { id = 'formulario-arca' } = Astro.props;
 
     var condicionIva = document.querySelector('#condicion_iva')?.value || '';
     if (!condicionIva) {
-      errores.push({ campo: 'condicion_iva', mensaje: 'Selecciona una condicion frente al IVA' });
+      errores.push({ campo: 'condicion_iva', mensaje: 'Seleccioná una condición frente al IVA' });
     }
 
     var tipoComp = document.querySelector('#tipo_comprobante')?.value || '';
     if (!tipoComp) {
-      errores.push({ campo: 'tipo_comprobante', mensaje: 'Selecciona un tipo de comprobante' });
+      errores.push({ campo: 'tipo_comprobante', mensaje: 'Seleccioná un tipo de comprobante' });
     }
 
     var fecha = document.querySelector('#fecha_emision')?.value || '';
     if (!fecha) {
-      errores.push({ campo: 'fecha_emision', mensaje: 'Fecha de emision es requerida' });
+      errores.push({ campo: 'fecha_emision', mensaje: 'Fecha de emisión es requerida' });
     } else {
       var fechaDate = new Date(fecha + 'T12:00:00');
       var dentroDeUnMes = new Date();
       dentroDeUnMes.setMonth(dentroDeUnMes.getMonth() + 1);
       if (fechaDate > dentroDeUnMes) {
-        errores.push({ campo: 'fecha_emision', mensaje: 'La fecha no puede ser mas de un mes en el futuro' });
+        errores.push({ campo: 'fecha_emision', mensaje: 'La fecha no puede ser más de un mes en el futuro' });
       }
     }
 
