@@ -204,6 +204,81 @@ const { id = 'formulario-arca' } = Astro.props;
     if (existingError) existingError.remove();
   }
 
+  function validarFormulario() {
+    var errores = [];
+
+    var cuit = (document.querySelector('#cuit')?.value || '').replace(/\D/g, '');
+    var cuitVal = validarCUIT(cuit);
+    if (!cuitVal.valido) {
+      errores.push({ campo: 'cuit', mensaje: cuitVal.error || 'CUIT invalido' });
+    }
+
+    var razonSocial = (document.querySelector('#razon_social')?.value || '').trim();
+    if (!razonSocial) {
+      errores.push({ campo: 'razon_social', mensaje: 'Razon Social es requerida' });
+    }
+
+    var domicilio = (document.querySelector('#domicilio')?.value || '').trim();
+    if (!domicilio) {
+      errores.push({ campo: 'domicilio', mensaje: 'Domicilio es requerido' });
+    }
+
+    var condicionIva = document.querySelector('#condicion_iva')?.value || '';
+    if (!condicionIva) {
+      errores.push({ campo: 'condicion_iva', mensaje: 'Selecciona una condicion frente al IVA' });
+    }
+
+    var tipoComp = document.querySelector('#tipo_comprobante')?.value || '';
+    if (!tipoComp) {
+      errores.push({ campo: 'tipo_comprobante', mensaje: 'Selecciona un tipo de comprobante' });
+    }
+
+    var fecha = document.querySelector('#fecha_emision')?.value || '';
+    if (!fecha) {
+      errores.push({ campo: 'fecha_emision', mensaje: 'Fecha de emision es requerida' });
+    } else {
+      var fechaDate = new Date(fecha + 'T12:00:00');
+      var dentroDeUnMes = new Date();
+      dentroDeUnMes.setMonth(dentroDeUnMes.getMonth() + 1);
+      if (fechaDate > dentroDeUnMes) {
+        errores.push({ campo: 'fecha_emision', mensaje: 'La fecha no puede ser mas de un mes en el futuro' });
+      }
+    }
+
+    var importe = parseFloat(document.querySelector('#importe_total')?.value || '0');
+    if (isNaN(importe) || importe <= 0) {
+      errores.push({ campo: 'importe_total', mensaje: 'El importe debe ser mayor a 0' });
+    }
+
+    return errores;
+  }
+  window.validarFormularioARCA = validarFormulario;
+
+  function mostrarErroresFormulario(errores) {
+    document.querySelectorAll('.cuit-error, .form-error').forEach(function(el) { el.remove(); });
+    document.querySelectorAll('.input-field').forEach(function(el) {
+      el.classList.remove('border-red-500', 'ring-red-500');
+    });
+
+    errores.forEach(function(err) {
+      var input = document.querySelector('#' + err.campo);
+      if (input) {
+        input.classList.add('border-red-500', 'ring-red-500');
+        var error = document.createElement('p');
+        error.className = 'form-error text-sm text-red-600 mt-1';
+        error.textContent = err.mensaje;
+        input.parentElement.appendChild(error);
+      }
+    });
+
+    var firstError = document.querySelector('.border-red-500');
+    if (firstError) {
+      firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      firstError.focus();
+    }
+  }
+  window.mostrarErroresFormulario = mostrarErroresFormulario;
+
   // Emitir evento formDataChange cuando cambien los datos del formulario
   const form = document.querySelector('#formulario-arca');
 

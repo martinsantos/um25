@@ -465,36 +465,33 @@ const keywords =
     // Event listener para botón de generación
     const btnGenerate = document.getElementById('btn-generate');
     if (btnGenerate) {
-      btnGenerate.addEventListener('click', async () => {
+      btnGenerate.addEventListener('click', async function() {
+        // Validate form first
+        if (window.validarFormularioARCA) {
+          var errores = window.validarFormularioARCA();
+          if (errores.length > 0) {
+            window.mostrarErroresFormulario(errores);
+            return;
+          }
+        }
+
         if (!window.lastFormData) {
           window.showResult('error', 'Por favor completa el formulario');
           return;
         }
 
+        // Show PDF preview instead of auto-generating
         btnGenerate.disabled = true;
-        btnGenerate.textContent = '⏳ Generando...';
+        btnGenerate.textContent = 'Preparando vista previa...';
 
-        try {
-          // Construir solicitud
-          const pdfRequest = {
-            ...window.lastFormData,
-            ...(window.currentLogoUrl && { logo_url: window.currentLogoUrl }),
-          };
+        var previewEvent = new CustomEvent('showPDFPreview', {
+          detail: { data: window.lastFormData },
+          bubbles: true,
+        });
+        document.dispatchEvent(previewEvent);
 
-          // Aquí iría el fetch a la API
-          // Por ahora, simular respuesta exitosa
-          const pdfUrl = '/pdf/factura-' + Date.now() + '.pdf';
-          const emailToSend = window.getEmailToSend?.();
-
-          // Mostrar resultado
-          window.showResult('success', 'Factura generada exitosamente', pdfUrl, !!emailToSend);
-        } catch (error) {
-          const msg = error instanceof Error ? error.message : 'Error desconocido';
-          window.showResult('error', 'Error: ' + msg);
-        } finally {
-          btnGenerate.disabled = false;
-          btnGenerate.textContent = '✨ Generar Factura';
-        }
+        btnGenerate.textContent = 'Generar Factura';
+        btnGenerate.disabled = false;
       });
     }
   </script>
