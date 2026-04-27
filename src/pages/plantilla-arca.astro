@@ -364,64 +364,6 @@ const keywords =
        ORCHESTRATION SCRIPT - Manejo de flujo completo
        ==================================================================== -->
   <script is:inline>
-    // Función segura para crear resultados HTML
-    function createSuccessResult(message, pdfUrl, emailSent) {
-      const container = document.getElementById('resultado-generacion');
-      if (!container) return;
-
-      const div = document.createElement('div');
-      div.className = 'bg-green-50 border-l-4 border-green-500 p-6 rounded';
-
-      const h4 = document.createElement('h4');
-      h4.className = 'text-lg font-bold text-green-800 mb-3';
-      h4.textContent = '✅ ' + message;
-      div.appendChild(h4);
-
-      if (pdfUrl) {
-        const link = document.createElement('a');
-        link.href = pdfUrl;
-        link.download = 'factura.pdf';
-        link.className = 'inline-block px-6 py-2 bg-green-600 text-white font-bold rounded hover:bg-green-700 transition-colors';
-        link.textContent = 'Descargar PDF';
-        div.appendChild(link);
-      }
-
-      if (emailSent) {
-        const p = document.createElement('p');
-        p.className = 'text-green-700 mt-3';
-        p.textContent = '✉️ Email enviado al cliente';
-        div.appendChild(p);
-      }
-
-      if (pdfUrl) {
-        const urlDiv = document.createElement('div');
-        urlDiv.className = 'mt-4 p-4 bg-white rounded border border-green-200';
-        const urlP = document.createElement('p');
-        urlP.className = 'text-sm font-mono text-gray-700';
-        urlP.textContent = pdfUrl;
-        urlDiv.appendChild(urlP);
-        div.appendChild(urlDiv);
-      }
-
-      container.textContent = '';
-      container.appendChild(div);
-    }
-
-    function createErrorResult(message) {
-      const container = document.getElementById('resultado-generacion');
-      if (!container) return;
-
-      const div = document.createElement('div');
-      div.className = 'bg-red-50 border-l-4 border-red-500 p-6 rounded';
-
-      const h4 = document.createElement('h4');
-      h4.className = 'text-lg font-bold text-red-800';
-      h4.textContent = '❌ ' + message;
-      div.appendChild(h4);
-
-      container.textContent = '';
-      container.appendChild(div);
-    }
 
     // Escala global para datos
     window.lastFormData = null;
@@ -449,18 +391,6 @@ const keywords =
       return null;
     };
 
-    // Función para mostrar resultados
-    window.showResult = (type, message, pdfUrl, emailSent) => {
-      if (type === 'success') {
-        createSuccessResult(message, pdfUrl, emailSent);
-      } else {
-        createErrorResult(message);
-      }
-      const resultDiv = document.getElementById('resultado-generacion');
-      if (resultDiv) {
-        resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    };
 
     // Event listener para botón de generación
     const btnGenerate = document.getElementById('btn-generate');
@@ -494,6 +424,18 @@ const keywords =
         btnGenerate.disabled = false;
       });
     }
+
+    // Escuchar evento de CTA para conectar con AFIP
+    document.addEventListener('afipAuthRequested', function() {
+      var resultContainer = document.getElementById('resultado-generacion');
+      if (resultContainer) resultContainer.classList.add('hidden');
+
+      var authSection = document.querySelector('#afip-auth-section');
+      if (authSection) {
+        authSection.classList.remove('hidden');
+        authSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
   </script>
 
   <style>
