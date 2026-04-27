@@ -154,6 +154,131 @@ const { id = 'formulario-arca' } = Astro.props;
 </form>
 
 <script is:inline>
+  // --- CUIT check-digit validation (AFIP algorithm) ---
+  function validarCUIT(cuit) {
+    if (!/^\d{11}$/.test(cuit)) return { valido: false, error: 'CUIT debe tener 11 dígitos' };
+
+    var pesos = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
+    var suma = 0;
+    for (var i = 0; i < 10; i++) {
+      suma += parseInt(cuit[i]) * pesos[i];
+    }
+    var resto = suma % 11;
+    var dvCalculado = resto === 0 ? 0 : resto === 1 ? 9 : 11 - resto;
+    var dvIngresado = parseInt(cuit[10]);
+
+    if (dvCalculado !== dvIngresado) {
+      return { valido: false, error: 'El digito verificador del CUIT no es valido' };
+    }
+
+    var prefijo = parseInt(cuit.substring(0, 2));
+    var prefijosValidos = [20, 23, 24, 27, 30, 33, 34];
+    if (!prefijosValidos.includes(prefijo)) {
+      return { valido: false, error: 'El prefijo del CUIT no corresponde a un tipo valido' };
+    }
+
+    return { valido: true, error: null };
+  }
+
+  function mostrarErrorCUIT(inputId, mensaje) {
+    var input = document.querySelector(inputId);
+    if (!input) return;
+
+    var existingError = input.parentElement.querySelector('.cuit-error');
+    if (existingError) existingError.remove();
+
+    input.classList.add('border-red-500', 'ring-red-500');
+
+    var error = document.createElement('p');
+    error.className = 'cuit-error text-sm text-red-600 mt-1';
+    error.textContent = mensaje;
+    input.parentElement.appendChild(error);
+  }
+
+  function limpiarErrorCUIT(inputId) {
+    var input = document.querySelector(inputId);
+    if (!input) return;
+
+    input.classList.remove('border-red-500', 'ring-red-500');
+    var existingError = input.parentElement.querySelector('.cuit-error');
+    if (existingError) existingError.remove();
+  }
+
+  function validarFormulario() {
+    var errores = [];
+
+    var cuit = (document.querySelector('#cuit')?.value || '').replace(/\D/g, '');
+    var cuitVal = validarCUIT(cuit);
+    if (!cuitVal.valido) {
+      errores.push({ campo: 'cuit', mensaje: cuitVal.error || 'CUIT inválido' });
+    }
+
+    var razonSocial = (document.querySelector('#razon_social')?.value || '').trim();
+    if (!razonSocial) {
+      errores.push({ campo: 'razon_social', mensaje: 'Razón Social es requerida' });
+    }
+
+    var domicilio = (document.querySelector('#domicilio')?.value || '').trim();
+    if (!domicilio) {
+      errores.push({ campo: 'domicilio', mensaje: 'Domicilio es requerido' });
+    }
+
+    var condicionIva = document.querySelector('#condicion_iva')?.value || '';
+    if (!condicionIva) {
+      errores.push({ campo: 'condicion_iva', mensaje: 'Seleccioná una condición frente al IVA' });
+    }
+
+    var tipoComp = document.querySelector('#tipo_comprobante')?.value || '';
+    if (!tipoComp) {
+      errores.push({ campo: 'tipo_comprobante', mensaje: 'Seleccioná un tipo de comprobante' });
+    }
+
+    var fecha = document.querySelector('#fecha_emision')?.value || '';
+    if (!fecha) {
+      errores.push({ campo: 'fecha_emision', mensaje: 'Fecha de emisión es requerida' });
+    } else {
+      var fechaDate = new Date(fecha + 'T12:00:00');
+      var dentroDeUnMes = new Date();
+      dentroDeUnMes.setMonth(dentroDeUnMes.getMonth() + 1);
+      if (fechaDate > dentroDeUnMes) {
+        errores.push({ campo: 'fecha_emision', mensaje: 'La fecha no puede ser más de un mes en el futuro' });
+      }
+    }
+
+    var importe = parseFloat(document.querySelector('#importe_total')?.value || '0');
+    if (isNaN(importe) || importe <= 0) {
+      errores.push({ campo: 'importe_total', mensaje: 'El importe debe ser mayor a 0' });
+    }
+
+    return errores;
+  }
+  window.validarFormularioARCA = validarFormulario;
+
+  function mostrarErroresFormulario(errores) {
+    document.querySelectorAll('.cuit-error, .form-error').forEach(function(el) { el.remove(); });
+    document.querySelectorAll('.input-field').forEach(function(el) {
+      el.classList.remove('border-red-500', 'ring-red-500');
+    });
+
+    errores.forEach(function(err) {
+      var input = document.querySelector('#' + err.campo);
+      if (input) {
+        input.classList.add('border-red-500', 'ring-red-500');
+        var error = document.createElement('p');
+        error.className = 'form-error text-sm text-red-600 mt-1';
+        error.textContent = err.mensaje;
+        input.parentElement.appendChild(error);
+      }
+    });
+
+    var firstError = document.querySelector('.border-red-500');
+    if (firstError) {
+      firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      firstError.focus();
+    }
+  }
+  window.mostrarErroresFormulario = mostrarErroresFormulario;
+
   // Emitir evento formDataChange cuando cambien los datos del formulario
   const form = document.querySelector('#formulario-arca');
 
@@ -175,6 +300,36 @@ const { id = 'formulario-arca' } = Astro.props;
     // Escuchar cambios en todos los inputs y selects
     form.querySelectorAll('input, select').forEach((field) => {
       field.addEventListener('change', handleChange);
+    });
+  }
+
+  // --- CUIT validation listeners ---
+  var cuitInput = document.querySelector('#cuit');
+  if (cuitInput) {
+    cuitInput.addEventListener('blur', function(e) {
+      var value = e.target.value.replace(/\D/g, '');
+      if (value.length === 11) {
+        var result = validarCUIT(value);
+        if (!result.valido) {
+          mostrarErrorCUIT('#cuit', result.error);
+        } else {
+          limpiarErrorCUIT('#cuit');
+        }
+      } else if (value.length > 0) {
+        mostrarErrorCUIT('#cuit', 'El CUIT debe tener exactamente 11 dígitos');
+      } else {
+        limpiarErrorCUIT('#cuit');
+      }
+    });
+
+    cuitInput.addEventListener('input', function(e) {
+      var cleaned = e.target.value.replace(/\D/g, '');
+      if (cleaned !== e.target.value) {
+        e.target.value = cleaned;
+      }
+      if (cleaned.length === 11) {
+        limpiarErrorCUIT('#cuit');
+      }
     });
   }
 </script>
