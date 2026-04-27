@@ -132,7 +132,7 @@
   const retryBtn = document.querySelector('#retry-btn');
 
   // Función global para mostrar resultado
-  window.showResult = (type, message, pdfUrl, emailSent) => {
+  window.showResult = (type, message, pdfUrl, emailSent, caeData) => {
     // Ocultar todo
     loader.classList.add('hidden');
     successBox.classList.add('hidden');
@@ -156,6 +156,12 @@
         emailInfo.classList.add('hidden');
       }
 
+      // Show CAE data if provided (real CAE generation)
+      if (caeData && caeData.cae) {
+        caeValue.textContent = caeData.cae;
+        caeExpiry.textContent = caeData.vencimiento || '--';
+      }
+
       // Show AFIP CTA only if not already authenticated
       if (!window.afipAuthToken) {
         window.mostrarCTA();
@@ -166,7 +172,7 @@
       errorMessage.textContent = message || 'Ocurrió un error al generar la factura.';
     }
 
-    return { type, message, pdfUrl, emailSent };
+    return { type, message, pdfUrl, emailSent, caeData };
   };
 
   // Función para mostrar loader
