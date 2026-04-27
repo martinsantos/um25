@@ -399,7 +399,7 @@ const keywords =
 
 
     // Event listener para botón de generación
-    const btnGenerate = document.getElementById('btn-generate');
+    var btnGenerate = document.getElementById('btn-generate');
     if (btnGenerate) {
       btnGenerate.addEventListener('click', async function() {
         // Validate form first
@@ -416,18 +416,58 @@ const keywords =
           return;
         }
 
-        // Show PDF preview instead of auto-generating
         btnGenerate.disabled = true;
-        btnGenerate.textContent = 'Preparando vista previa...';
 
-        var previewEvent = new CustomEvent('showPDFPreview', {
-          detail: { data: window.lastFormData },
-          bubbles: true,
-        });
-        document.dispatchEvent(previewEvent);
+        var hasAfipAuth = !!(window.afipAuthToken || sessionStorage.getItem('afip_token'));
 
-        btnGenerate.textContent = 'Generar Factura';
-        btnGenerate.disabled = false;
+        if (hasAfipAuth) {
+          // Real CAE generation
+          btnGenerate.textContent = 'Generando factura con validez fiscal...';
+          var token = window.afipAuthToken || sessionStorage.getItem('afip_token');
+
+          try {
+            var response = await fetch('/plantilla-arca/api/facturar/cae', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                ...window.lastFormData,
+                token: token,
+                logo_url: window.currentLogoUrl || null,
+              }),
+            });
+
+            if (!response.ok) {
+              var err = await response.json().catch(function() { return { error: 'Error al generar factura' }; });
+              window.showResult('error', err.error || 'Error al generar factura ante AFIP');
+              btnGenerate.textContent = 'Facturar ante AFIP';
+              btnGenerate.disabled = false;
+              return;
+            }
+
+            var result = await response.json();
+            window.showResult('success', 'Factura generada con validez fiscal', result.pdf_url, !!window.getEmailToSend?.(), {
+              cae: result.cae,
+              vencimiento: result.vencimiento,
+            });
+            if (window.setCae) window.setCae(result.cae, result.vencimiento);
+            btnGenerate.textContent = 'Facturado ante AFIP';
+            btnGenerate.disabled = true;
+          } catch (_err) {
+            window.showResult('error', 'Error de conexion al generar factura');
+            btnGenerate.textContent = 'Facturar ante AFIP';
+            btnGenerate.disabled = false;
+          }
+        } else {
+          // Simulated mode — show preview
+          btnGenerate.textContent = 'Preparando vista previa...';
+          var previewEvent = new CustomEvent('showPDFPreview', {
+            detail: { data: window.lastFormData },
+            bubbles: true,
+          });
+          document.dispatchEvent(previewEvent);
+          btnGenerate.textContent = 'Generar Factura';
+          btnGenerate.disabled = false;
+        }
       });
     }
 
@@ -442,6 +482,103 @@ const keywords =
         authSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     });
+
+    // Manejar autenticacion exitosa con AFIP
+    document.addEventListener('afipAuthSuccess', function(e) {
+      var detail = e.detail || {};
+      window.afipAuthToken = detail.token;
+      window.afipAuthMethod = detail.method;
+
+      var authSection = document.querySelector('#afip-auth-section');
+      if (authSection) {
+        while (authSection.firstChild) authSection.removeChild(authSection.firstChild);
+
+        var wrapper = document.createElement('div');
+        wrapper.className = 'bg-green-50 border border-green-200 rounded-lg p-6 text-center';
+
+        var checkEl = document.createElement('div');
+        checkEl.className = 'text-4xl mb-3';
+        checkEl.textContent = '✅';
+        wrapper.appendChild(checkEl);
+
+        var title = document.createElement('h3');
+        title.className = 'text-lg font-bold text-green-800 mb-2';
+        title.textContent = 'Conectado a AFIP';
+        wrapper.appendChild(title);
+
+        var msg = document.createElement('p');
+        msg.className = 'text-sm text-green-700 mb-4';
+        msg.textContent = 'Autenticacion exitosa. Ya podes generar facturas con validez fiscal.';
+        wrapper.appendChild(msg);
+
+        var expiryP = document.createElement('p');
+        expiryP.className = 'text-xs text-green-600';
+        var expiryDate = detail.expiry ? new Date(detail.expiry).toLocaleString('es-AR') : '--';
+        expiryP.textContent = 'Token valido hasta: ' + expiryDate;
+        wrapper.appendChild(expiryP);
+
+        var btnGroup = document.createElement('div');
+        btnGroup.style.display = 'flex';
+        btnGroup.style.gap = '8px';
+        btnGroup.style.justifyContent = 'center';
+        btnGroup.className = 'mt-4';
+
+        var disconnectBtn = document.createElement('button');
+        disconnectBtn.id = 'afip-disconnect';
+        disconnectBtn.className = 'px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300';
+        disconnectBtn.textContent = 'Desconectar';
+        btnGroup.appendChild(disconnectBtn);
+
+        var backBtn = document.createElement('button');
+        backBtn.id = 'afip-show-form';
+        backBtn.className = 'px-4 py-2 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700';
+        backBtn.textContent = 'Volver al formulario';
+        btnGroup.appendChild(backBtn);
+
+        wrapper.appendChild(btnGroup);
+        authSection.appendChild(wrapper);
+
+        disconnectBtn.addEventListener('click', function() {
+          window.afipAuthToken = null;
+          window.afipAuthMethod = null;
+          sessionStorage.removeItem('afip_token');
+          sessionStorage.removeItem('afip_token_expiry');
+          location.reload();
+        });
+
+        backBtn.addEventListener('click', function() {
+          authSection.classList.add('hidden');
+          var formSection = document.querySelector('#formulario');
+          if (formSection) formSection.scrollIntoView({ behavior: 'smooth' });
+        });
+      }
+
+      // Update generate button
+      var btn = document.getElementById('btn-generate');
+      if (btn) {
+        btn.textContent = 'Facturar ante AFIP';
+        btn.className = 'w-full px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold text-lg rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95';
+        btn.style.display = 'flex';
+        btn.style.alignItems = 'center';
+        btn.style.justifyContent = 'center';
+      }
+    });
+
+    // Restore AFIP session from sessionStorage
+    (function() {
+      var token = sessionStorage.getItem('afip_token');
+      if (token) {
+        window.afipAuthToken = token;
+        var event = new CustomEvent('afipAuthSuccess', {
+          detail: {
+            token: token,
+            expiry: sessionStorage.getItem('afip_token_expiry') || null,
+          },
+          bubbles: true,
+        });
+        document.dispatchEvent(event);
+      }
+    })();
   </script>
 
   <style>
