@@ -154,6 +154,56 @@ const { id = 'formulario-arca' } = Astro.props;
 </form>
 
 <script is:inline>
+  // --- CUIT check-digit validation (AFIP algorithm) ---
+  function validarCUIT(cuit) {
+    if (!/^\d{11}$/.test(cuit)) return { valido: false, error: 'CUIT debe tener 11 dígitos' };
+
+    var pesos = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
+    var suma = 0;
+    for (var i = 0; i < 10; i++) {
+      suma += parseInt(cuit[i]) * pesos[i];
+    }
+    var resto = suma % 11;
+    var dvCalculado = resto === 0 ? 0 : resto === 1 ? 9 : 11 - resto;
+    var dvIngresado = parseInt(cuit[10]);
+
+    if (dvCalculado !== dvIngresado) {
+      return { valido: false, error: 'El digito verificador del CUIT no es valido' };
+    }
+
+    var prefijo = parseInt(cuit.substring(0, 2));
+    var prefijosValidos = [20, 23, 24, 27, 30, 33, 34];
+    if (!prefijosValidos.includes(prefijo)) {
+      return { valido: false, error: 'El prefijo del CUIT no corresponde a un tipo valido' };
+    }
+
+    return { valido: true, error: null };
+  }
+
+  function mostrarErrorCUIT(inputId, mensaje) {
+    var input = document.querySelector(inputId);
+    if (!input) return;
+
+    var existingError = input.parentElement.querySelector('.cuit-error');
+    if (existingError) existingError.remove();
+
+    input.classList.add('border-red-500', 'ring-red-500');
+
+    var error = document.createElement('p');
+    error.className = 'cuit-error text-sm text-red-600 mt-1';
+    error.textContent = mensaje;
+    input.parentElement.appendChild(error);
+  }
+
+  function limpiarErrorCUIT(inputId) {
+    var input = document.querySelector(inputId);
+    if (!input) return;
+
+    input.classList.remove('border-red-500', 'ring-red-500');
+    var existingError = input.parentElement.querySelector('.cuit-error');
+    if (existingError) existingError.remove();
+  }
+
   // Emitir evento formDataChange cuando cambien los datos del formulario
   const form = document.querySelector('#formulario-arca');
 
@@ -175,6 +225,36 @@ const { id = 'formulario-arca' } = Astro.props;
     // Escuchar cambios en todos los inputs y selects
     form.querySelectorAll('input, select').forEach((field) => {
       field.addEventListener('change', handleChange);
+    });
+  }
+
+  // --- CUIT validation listeners ---
+  var cuitInput = document.querySelector('#cuit');
+  if (cuitInput) {
+    cuitInput.addEventListener('blur', function(e) {
+      var value = e.target.value.replace(/\D/g, '');
+      if (value.length === 11) {
+        var result = validarCUIT(value);
+        if (!result.valido) {
+          mostrarErrorCUIT('#cuit', result.error);
+        } else {
+          limpiarErrorCUIT('#cuit');
+        }
+      } else if (value.length > 0) {
+        mostrarErrorCUIT('#cuit', 'El CUIT debe tener exactamente 11 dígitos');
+      } else {
+        limpiarErrorCUIT('#cuit');
+      }
+    });
+
+    cuitInput.addEventListener('input', function(e) {
+      var cleaned = e.target.value.replace(/\D/g, '');
+      if (cleaned !== e.target.value) {
+        e.target.value = cleaned;
+      }
+      if (cleaned.length === 11) {
+        limpiarErrorCUIT('#cuit');
+      }
     });
   }
 </script>
