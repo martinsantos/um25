@@ -22,6 +22,7 @@ import LogoUpload from '@/components/arca/LogoUpload.astro';
 import PDFPreview from '@/components/arca/PDFPreview.astro';
 import EmailInput from '@/components/arca/EmailInput.astro';
 import ResultadoGeneracion from '@/components/arca/ResultadoGeneracion.astro';
+import AfipAuthForm from '@/components/arca/AfipAuthForm.astro';
 
 export const prerender = false; // SSR necesario para manejo de formularios
 
@@ -168,6 +169,11 @@ const keywords =
                 <span class="text-xl">📊</span> Resultado
               </h3>
               <ResultadoGeneracion id="resultado-generacion" />
+            </div>
+
+            <!-- AFIP Authorization (hidden by default) -->
+            <div id="afip-auth-section" class="hidden">
+              <AfipAuthForm id="afip-auth-form" />
             </div>
           </div>
         </div>
