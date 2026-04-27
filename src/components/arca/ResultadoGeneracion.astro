@@ -5,11 +5,7 @@
 // - Botón "Nueva Factura" para resetear
 // - Usa textContent para seguridad contra XSS
 
-interface Props {
-  onNewInvoice?: () => void;
-}
-
-const { onNewInvoice } = Astro.props;
+// No props needed — all state via window globals
 ---
 
 <div id="resultado-generacion" class="hidden space-y-4">
@@ -80,6 +76,43 @@ const { onNewInvoice } = Astro.props;
       </button>
     </div>
   </div>
+
+  <!-- CTA: Queres facturar ante AFIP? -->
+  <div id="afip-cta-section" class="hidden mt-6 p-6 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg border border-indigo-200">
+    <h3 class="text-lg font-bold text-indigo-900 mb-3">
+      Queres facturar ante AFIP?
+    </h3>
+    <p class="text-sm text-gray-700 mb-4 leading-relaxed">
+      ARCA (Agencia de Recaudacion y Control Aduanero) es el organismo que unifico AFIP en 2025.
+      Para que tus facturas tengan <strong>validez fiscal</strong> ante la AFIP, necesitan un
+      CAE (Codigo de Autorizacion Electronico) generado por sus servicios web. Este proceso
+      requiere autorizacion previa.
+    </p>
+    <a
+      href="https://www.arca.gob.ar"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="text-sm text-blue-600 hover:text-blue-800 underline mb-4 inline-block"
+    >
+      Sitio oficial de ARCA/AFIP →
+    </a>
+    <div class="flex flex-col sm:flex-row gap-3 mt-4">
+      <button
+        id="afip-cta-yes"
+        type="button"
+        class="flex-1 px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors shadow-md"
+      >
+        Si, conectar con AFIP — facturar con validez fiscal
+      </button>
+      <button
+        id="afip-cta-no"
+        type="button"
+        class="flex-1 px-6 py-3 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-colors"
+      >
+        No por ahora, solo estaba probando
+      </button>
+    </div>
+  </div>
 </div>
 
 <script is:inline>
@@ -122,6 +155,11 @@ const { onNewInvoice } = Astro.props;
       } else {
         emailInfo.classList.add('hidden');
       }
+
+      // Show AFIP CTA only if not already authenticated
+      if (!window.afipAuthToken) {
+        window.mostrarCTA();
+      }
     } else if (type === 'error') {
       // Mostrar resultado de error
       errorBox.classList.remove('hidden');
@@ -147,6 +185,7 @@ const { onNewInvoice } = Astro.props;
 
   // Botón Nueva Factura
   newInvoiceBtn.addEventListener('click', () => {
+    window.ocultarCTA();
     // Limpiar formulario
     const form = document.querySelector('#formulario-arca');
     if (form) {
@@ -177,13 +216,38 @@ const { onNewInvoice } = Astro.props;
     document.dispatchEvent(event);
   });
 
-  // Exposer funciones globales
+  // Funciones globales
   window.clearResult = () => {
     container.classList.add('hidden');
     loader.classList.add('hidden');
     successBox.classList.add('hidden');
     errorBox.classList.add('hidden');
+    if (window.ocultarCTA) window.ocultarCTA();
   };
+
+  // Mostrar/ocultar CTA de AFIP
+  window.mostrarCTA = function() {
+    const cta = document.querySelector('#afip-cta-section');
+    if (cta) {
+      cta.classList.remove('hidden');
+      cta.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  };
+
+  window.ocultarCTA = function() {
+    const cta = document.querySelector('#afip-cta-section');
+    if (cta) cta.classList.add('hidden');
+  };
+
+  document.querySelector('#afip-cta-yes')?.addEventListener('click', function() {
+    document.querySelector('#afip-cta-section')?.classList.add('hidden');
+    const event = new CustomEvent('afipAuthRequested', { bubbles: true });
+    document.dispatchEvent(event);
+  });
+
+  document.querySelector('#afip-cta-no')?.addEventListener('click', function() {
+    document.querySelector('#afip-cta-section')?.classList.add('hidden');
+  });
 </script>
 
 <style>
