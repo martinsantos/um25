@@ -25,13 +25,6 @@ import ResultadoGeneracion from '@/components/arca/ResultadoGeneracion.astro';
 
 export const prerender = false; // SSR necesario para manejo de formularios
 
-// Desactivar cache en CDN/navegador
-if (Astro.response) {
-  Astro.response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
-  Astro.response.headers.set('Pragma', 'no-cache');
-  Astro.response.headers.set('Expires', '0');
-}
-
 // Datos para SEO
 const title = 'Plantilla ARCA - Generador de Facturas Electrónicas RG 5824';
 const description =
