@@ -411,10 +411,14 @@ const keywords =
           }
         }
 
-        if (!window.lastFormData) {
-          window.showResult('error', 'Por favor completa el formulario');
+        // Leer datos directamente del formulario (no depender de eventos change)
+        var form = document.querySelector('#formulario-arca');
+        if (!form) {
+          window.showResult('error', 'Formulario no encontrado');
           return;
         }
+        var formData = new FormData(form);
+        window.lastFormData = Object.fromEntries(formData);
 
         btnGenerate.disabled = true;
 
