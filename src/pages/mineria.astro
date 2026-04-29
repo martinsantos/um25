@@ -16,7 +16,7 @@ const sectorData = await getSectorBySlug(sectorSlug);
 
 if (!sectorData) {
   // Fallback si Directus falla
-  return Astro.redirect('/sectores');
+  return Astro.redirect('/sectores', 301);
 }
 
 const {

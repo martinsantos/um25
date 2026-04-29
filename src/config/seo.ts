@@ -1,8 +1,9 @@
 /**
  * SEO Configuration — Single source of truth for site URL and identity.
  *
- * IMPORTANT: The canonical domain is https://ultimamilla.com.ar (www).
- * All canonical URLs, sitemaps, structured data, and OG tags MUST use this www domain.
+ * IMPORTANT: The canonical domain is https://ultimamilla.com.ar (non-www).
+ * All canonical URLs, sitemaps, structured data, and OG tags MUST use this domain.
+ * The www subdomain is NOT used and will be stripped if present.
  */
 export const SITE_URL = 'https://ultimamilla.com.ar';
 export const SITE_NAME = 'ULTIMA MILLA';

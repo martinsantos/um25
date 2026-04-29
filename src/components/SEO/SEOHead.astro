@@ -1,224 +1,308 @@
 ---
+/**
+ * SEOHead — Single source of truth for ALL <head> meta/SEO content used by LayoutV4.
+ *
+ * Usage from any layout:
+ *   <SEOHead slot="head" title="..." description="..." canonical={Astro.url.href} />
+ *
+ * This component handles purely <head> meta/seo tags only.
+ * Font links, GA4 tracking, and <style> blocks stay in the layout.
+ */
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, BUSINESS_ADDRESS } from '../../config/seo';
+
 export interface Props {
   title?: string;
   description?: string;
   keywords?: string;
   canonical?: string;
   ogImage?: string;
-  ogType?: 'website' | 'article' | 'service' | 'organization';
-  structuredData?: object;
+  ogType?: string;
+  structuredData?: Record<string, unknown> | Record<string, unknown>[];
   noindex?: boolean;
+  hreflang?: boolean;
+  gscVerification?: string;
   service?: {
     name: string;
     area: string;
     description: string;
   };
-  breadcrumbs?: Array<{
-    name: string;
-    url: string;
-  }>;
+  breadcrumbs?: Array<{ name: string; url: string }>;
 }
 
 const {
-  title = "ULTIMA MILLA | Especialistas en Comunicaciones, Sistemas e Integración - Mendoza",
-  description = "ULTIMA MILLA: transformación digital y tecnología desde los 2000. +400 proyectos con Gobierno de Mendoza, AFIP, Banco Credicoop. Redes, software, seguridad y servicios gestionados.",
-  keywords = "ultima milla, servicios IT mendoza, empresa tecnología mendoza, transformación digital, comunicaciones, sistemas, redes, telecomunicaciones, software a medida, seguridad informática, argentina",
+  title,
+  description,
+  keywords,
   canonical,
-  ogImage = "/images/og-ultima-milla-mendoza.jpg",
-  ogType = "website",
+  ogImage,
+  ogType = 'website',
   structuredData,
   noindex = false,
+  hreflang = false,
+  gscVerification,
   service,
-  breadcrumbs = []
+  breadcrumbs = [],
 } = Astro.props;
 
-// Generar título optimizado para SEO local
-const seoTitle = service 
-  ? `${service.name} en Mendoza - ${service.area} | ULTIMA MILLA`
-  : title;
+// ---------------------------------------------------------------------------
+// Normalise current URL — strip www. and trailing slash
+// ---------------------------------------------------------------------------
+const currentUrl = canonical
+  ? canonical.replace(/^https?:\/\/www\./, 'https://').replace(/\/$/, '')
+  : `${SITE_URL}${Astro.url.pathname}`.replace(/\/$/, '');
 
-// Generar descripción optimizada para SEO local
+// ---------------------------------------------------------------------------
+// Title
+// ---------------------------------------------------------------------------
+const defaultTitle = `${SITE_NAME} | Servicios Tecnológicos en Mendoza, Cuyo y Patagonia`;
+const rawTitle = title ?? defaultTitle;
+
+const seoTitle = service
+  ? `${service.name} en Mendoza - ${service.area} | ${SITE_NAME}`
+  : rawTitle.includes(SITE_NAME)
+    ? rawTitle
+    : `${rawTitle} | ${SITE_NAME}`;
+
+// ---------------------------------------------------------------------------
+// Description
+// ---------------------------------------------------------------------------
+const rawDescription = description ?? SITE_DESCRIPTION;
+
 const seoDescription = service
   ? `${service.description} Servicios de ${service.area.toLowerCase()} para empresas en Mendoza, Argentina. +20 años de experiencia. Consulta gratuita.`
-  : description;
+  : rawDescription;
 
-// URL canónica
-const canonicalUrl = canonical || Astro.url.href;
+// ---------------------------------------------------------------------------
+// Keywords
+// ---------------------------------------------------------------------------
+const defaultKeywords =
+  'servicios tecnologicos empresas argentina, zona incumbencia mendoza cuyo patagonia, telecomunicaciones profesionales, cableado estructurado certificado, corrientes debiles instalacion, deteccion incendio sistemas, software a medida organizaciones, servicios it mendoza san juan san luis, mineria tecnologia, industria 4.0, salud hospitales, aeropuertos infraestructura, gobierno sector publico, bodegas vitivinicolas, constructoras, seguridad electronica cctv';
+const pageKeywords = keywords ?? defaultKeywords;
 
-// Schema.org LocalBusiness base
-const localBusinessSchema = {
-  "@context": "https://schema.org",
-  "@type": "LocalBusiness",
-  "name": "ULTIMA MILLA",
-  "description": "Especialistas en servicios IT, comunicaciones y sistemas en Mendoza, Argentina",
-  "url": "https://ultimamilla.com.ar",
-  "email": "contacto@ultimamilla.com.ar",
-  "address": {
+// ---------------------------------------------------------------------------
+// OG Image — ensure absolute URL
+// ---------------------------------------------------------------------------
+const rawImage = ogImage || '/nosotros-tech.jpg';
+const pageImage = rawImage.startsWith('http') ? rawImage : `${SITE_URL}${rawImage}`;
+
+// ---------------------------------------------------------------------------
+// Timestamps
+// ---------------------------------------------------------------------------
+const currentYear = new Date().getFullYear();
+const isoNow = new Date().toISOString();
+
+// ---------------------------------------------------------------------------
+// Schema.org entities
+// ---------------------------------------------------------------------------
+
+/** Base organisation — always present */
+const organizationSchema = {
+  "@type": "Organization",
+  name: SITE_NAME,
+  alternateName: "Ultima Milla Comunicaciones",
+  url: SITE_URL,
+  logo: `${SITE_URL}/images/um-logo.png`,
+  description: SITE_DESCRIPTION,
+  foundingDate: "2000",
+  address: {
     "@type": "PostalAddress",
-    "streetAddress": "Houssay 1159",
-    "addressLocality": "Guaymallén",
-    "addressRegion": "Mendoza",
-    "postalCode": "M5519",
-    "addressCountry": "AR"
+    ...BUSINESS_ADDRESS,
   },
-  "geo": {
+  areaServed: [
+    { "@type": "City", name: "Mendoza" },
+    { "@type": "City", name: "San Juan" },
+    { "@type": "City", name: "San Luis" },
+    { "@type": "AdministrativeArea", name: "Patagonia" },
+    { "@type": "Country", name: "Argentina" },
+  ],
+  geo: {
     "@type": "GeoCoordinates",
-    "latitude": -32.8908,
-    "longitude": -68.8272
+    latitude: "-32.8908",
+    longitude: "-68.8272",
   },
-  "areaServed": {
-    "@type": "City", 
-    "name": "Mendoza"
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "customer service",
+    email: "contacto@ultimamilla.com.ar",
+    url: `${SITE_URL}/contacto`,
+    availableLanguage: ["es", "en"],
   },
-  "foundingDate": "2000",
-  "slogan": "Transformamos tu negocio con tecnología que puedes pagar",
-  "priceRange": "$$",
-  "hasOfferCatalog": {
-    "@type": "OfferCatalog",
-    "name": "Servicios IT Empresariales",
-    "itemListElement": [
-      {
-        "@type": "Offer",
-        "itemOffered": {
-          "@type": "Service",
-          "name": "Servicios IT",
-          "description": "Infraestructura IT empresarial completa"
-        }
-      },
-      {
-        "@type": "Offer", 
-        "itemOffered": {
-          "@type": "Service",
-          "name": "Redes de Datos",
-          "description": "Cableado estructurado y redes empresariales"
-        }
-      },
-      {
-        "@type": "Offer",
-        "itemOffered": {
-          "@type": "Service", 
-          "name": "Seguridad Informática",
-          "description": "Ciberseguridad y protección de datos"
-        }
-      }
-    ]
-  },
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": "4.8",
-    "reviewCount": "47",
-    "bestRating": "5",
-    "worstRating": "1"
-  }
+  sameAs: [
+    "https://www.linkedin.com/company/ultimamilla",
+    "https://x.com/ultimamilla",
+  ],
 };
 
-// Schema.org Service específico si se proporciona
-const serviceSchema = service ? {
-  "@context": "https://schema.org",
-  "@type": "Service",
-  "name": `${service.name} en Mendoza`,
-  "description": service.description,
-  "provider": {
-    "@type": "LocalBusiness",
-    "name": "ULTIMA MILLA",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "Mendoza",
-      "addressCountry": "AR"
+/** LocalBusiness — always present (physical office in Mendoza) */
+const localBusinessSchema = {
+  "@type": "LocalBusiness",
+  name: SITE_NAME,
+  description: SITE_DESCRIPTION,
+  url: SITE_URL,
+  email: "contacto@ultimamilla.com.ar",
+  address: {
+    "@type": "PostalAddress",
+    ...BUSINESS_ADDRESS,
+  },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: -32.8908,
+    longitude: -68.8272,
+  },
+  areaServed: { "@type": "City", name: "Mendoza" },
+  foundingDate: "2000",
+  slogan: "Transformamos tu negocio con tecnología que puedes pagar",
+  priceRange: "$$",
+  openingHoursSpecification: {
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    opens: "08:00",
+    closes: "18:00",
+  },
+  hasOfferCatalog: {
+    "@type": "OfferCatalog",
+    name: "Servicios IT Empresariales",
+    itemListElement: [
+      {
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: "Servicios IT",
+          description: "Infraestructura IT empresarial completa",
+        },
+      },
+      {
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: "Redes de Datos",
+          description: "Cableado estructurado y redes empresariales",
+        },
+      },
+      {
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: "Seguridad Informática",
+          description: "Ciberseguridad y protección de datos",
+        },
+      },
+    ],
+  },
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: "4.8",
+    reviewCount: "47",
+    bestRating: "5",
+    worstRating: "1",
+  },
+  sameAs: [
+    "https://www.linkedin.com/company/ultimamilla",
+    "https://x.com/ultimamilla",
+  ],
+};
+
+/** Service-specific schema (only when `service` prop is provided) */
+const serviceSchema = service
+  ? {
+      "@type": "Service",
+      name: `${service.name} en Mendoza`,
+      description: service.description,
+      provider: {
+        "@type": "LocalBusiness",
+        name: SITE_NAME,
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: "Mendoza",
+          addressCountry: "AR",
+        },
+      },
+      areaServed: { "@type": "City", name: "Mendoza" },
+      serviceType: service.area,
     }
-  },
-  "areaServed": {
-    "@type": "City",
-    "name": "Mendoza"
-  },
-  "serviceType": service.area
-} : null;
+  : null;
 
-// Schema.org Breadcrumbs
-const breadcrumbSchema = breadcrumbs.length > 0 ? {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": breadcrumbs.map((crumb, index) => ({
-    "@type": "ListItem",
-    "position": index + 1,
-    "name": crumb.name,
-    "item": `https://ultimamilla.com.ar${crumb.url}`
-  }))
-} : null;
+/** BreadcrumbList (only when `breadcrumbs` prop has entries) */
+const breadcrumbSchema = breadcrumbs.length > 0
+  ? {
+      "@type": "BreadcrumbList",
+      itemListElement: breadcrumbs.map((crumb, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: crumb.name,
+        item: crumb.url.startsWith("http")
+          ? crumb.url.replace(/^https?:\/\/www\./, "https://")
+          : `${SITE_URL}${crumb.url}`,
+      })),
+    }
+  : null;
 
-// Combinar schemas
+/** Additional structured data passed via prop — normalise to array */
+const additionalStructuredData = Array.isArray(structuredData)
+  ? structuredData
+  : structuredData
+    ? [structuredData]
+    : [];
+
+// ---------------------------------------------------------------------------
+// Combined @graph
+// ---------------------------------------------------------------------------
 const combinedSchema = {
   "@context": "https://schema.org",
   "@graph": [
+    organizationSchema,
     localBusinessSchema,
     ...(serviceSchema ? [serviceSchema] : []),
     ...(breadcrumbSchema ? [breadcrumbSchema] : []),
-    ...(structuredData ? [structuredData] : [])
-  ]
+    ...additionalStructuredData,
+  ],
 };
 ---
 
 <Fragment slot="head">
-  <!-- Meta Tags Básicos -->
-  <title>{seoTitle}</title>
-  <meta name="description" content={seoDescription} />
-  <meta name="keywords" content={keywords} />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Charset & Viewport -->
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
 
-  <!-- Canonical URL -->
-  <link rel="canonical" href={canonicalUrl} />
+  <!-- Primary Meta -->
+  <title>{seoTitle}</title>
+  <meta name="title" content={seoTitle} />
+  <meta name="description" content={seoDescription} />
+  <meta name="keywords" content={pageKeywords} />
+  <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
+  <meta name="author" content={SITE_NAME} />
+  <meta name="publisher" content={SITE_NAME} />
+  <meta name="copyright" content={`© ${currentYear} ${SITE_NAME}`} />
+  <meta name="language" content="es-AR" />
+  <meta name="revisit-after" content="7 days" />
+  <meta name="rating" content="general" />
+  <meta name="distribution" content="global" />
+  <meta name="theme-color" content="#DC2626" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content={SITE_NAME} />
+  <meta name="application-name" content={SITE_NAME} />
+  <meta name="msapplication-TileColor" content="#0ea5e9" />
+  <meta name="format-detection" content="telephone=yes" />
 
-  <!-- Robots -->
-  {noindex && <meta name="robots" content="noindex, nofollow" />}
+  <!-- Google Search Console Verification -->
+  {gscVerification && <meta name="google-site-verification" content={gscVerification} />}
 
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content={ogType} />
-  <meta property="og:url" content={canonicalUrl} />
-  <meta property="og:title" content={seoTitle} />
-  <meta property="og:description" content={seoDescription} />
-  <meta property="og:image" content={`https://ultimamilla.com.ar${ogImage}`} />
-  <meta property="og:site_name" content="ULTIMA MILLA" />
-  <meta property="og:locale" content="es_AR" />
-
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:url" content={canonicalUrl} />
-  <meta name="twitter:title" content={seoTitle} />
-  <meta name="twitter:description" content={seoDescription} />
-  <meta name="twitter:image" content={`https://ultimamilla.com.ar${ogImage}`} />
-
-  <!-- Local Business Meta Tags -->
+  <!-- Geo Meta -->
   <meta name="geo.region" content="AR-M" />
   <meta name="geo.placename" content="Mendoza" />
   <meta name="geo.position" content="-32.8908;-68.8272" />
   <meta name="ICBM" content="-32.8908, -68.8272" />
 
-  <!-- Business Info -->
-  <meta name="business:contact_data:street_address" content="Houssay 1159" />
-  <meta name="business:contact_data:locality" content="Guaymallén" />
-  <meta name="business:contact_data:region" content="Mendoza" />
-  <meta name="business:contact_data:postal_code" content="M5519" />
+  <!-- Business Contact Info -->
+  <meta name="business:contact_data:street_address" content={BUSINESS_ADDRESS.streetAddress} />
+  <meta name="business:contact_data:locality" content={BUSINESS_ADDRESS.addressLocality} />
+  <meta name="business:contact_data:region" content={BUSINESS_ADDRESS.addressRegion} />
+  <meta name="business:contact_data:postal_code" content={BUSINESS_ADDRESS.postalCode} />
   <meta name="business:contact_data:country_name" content="Argentina" />
 
-  <!-- Preconnect para Performance -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-  <!-- DNS Prefetch -->
-  <link rel="dns-prefetch" href="//www.google-analytics.com" />
-  <link rel="dns-prefetch" href="//www.googletagmanager.com" />
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-
-  <!-- Structured Data -->
-  <script type="application/ld+json" set:html={JSON.stringify(combinedSchema)} />
-
-  <!-- Additional SEO Meta Tags for Mendoza -->
+  <!-- Dublin Core -->
   <meta name="dc.title" content={seoTitle} />
   <meta name="dc.description" content={seoDescription} />
   <meta name="dc.subject" content="Servicios IT, Tecnología, Mendoza" />
@@ -227,9 +311,61 @@ const combinedSchema = {
   <meta name="dc.format" content="text/html" />
   <meta name="dc.language" content="es" />
 
-  <!-- Verificación de Google (si tienes Google Search Console) -->
-  <!-- <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE" /> -->
+  <!-- Canonical URL -->
+  <link rel="canonical" href={currentUrl} />
 
-  <!-- Microsoft Clarity (Analytics alternativo) -->
-  <!-- Agregar si se requiere analytics adicional -->
+  <!-- Hreflang (self-referencing) — controlled by `hreflang` prop -->
+  {hreflang && (
+    <>
+      <link rel="alternate" hreflang="es-AR" href={currentUrl} />
+      <link rel="alternate" hreflang="es" href={currentUrl} />
+      <link rel="alternate" hreflang="x-default" href={currentUrl} />
+    </>
+  )}
+
+  <!-- Sitemap Discovery -->
+  <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content={ogType} />
+  <meta property="og:url" content={currentUrl} />
+  <meta property="og:title" content={seoTitle} />
+  <meta property="og:description" content={seoDescription} />
+  <meta property="og:image" content={pageImage} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content={seoTitle} />
+  <meta property="og:site_name" content={SITE_NAME} />
+  <meta property="og:locale" content="es_AR" />
+  <meta property="og:updated_time" content={isoNow} />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content={currentUrl} />
+  <meta name="twitter:title" content={seoTitle} />
+  <meta name="twitter:description" content={seoDescription} />
+  <meta name="twitter:image" content={pageImage} />
+  <meta name="twitter:image:alt" content={seoTitle} />
+  <meta name="twitter:site" content="@ultimamilla" />
+  <meta name="twitter:creator" content="@ultimamilla" />
+
+  <!-- Performance: DNS Prefetch (analytics domains) -->
+  <link rel="dns-prefetch" href="//www.google-analytics.com" />
+  <link rel="dns-prefetch" href="//www.googletagmanager.com" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/svg+xml" sizes="16x16" href="/favicon-16.svg" />
+  <link rel="icon" type="image/svg+xml" sizes="32x32" href="/favicon-32.svg" />
+  <link rel="icon" type="image/svg+xml" sizes="192x192" href="/favicon-192.svg" />
+  <link rel="icon" type="image/svg+xml" sizes="512x512" href="/favicon-512.svg" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.svg" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json" set:html={JSON.stringify(combinedSchema)} />
 </Fragment>
