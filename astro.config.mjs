@@ -4,7 +4,7 @@ import mdx from '@astrojs/mdx';
 import tailwind from '@astrojs/tailwind';
 import alpinejs from '@astrojs/alpinejs';
 import sentry from '@sentry/astro';
-import sitemap from '@astrojs/sitemap';
+
 
 export default defineConfig({
   // Configuración SSR y Adaptador
@@ -31,20 +31,6 @@ export default defineConfig({
     mdx(),
     tailwind(),
     alpinejs(),
-    sitemap({
-      filter: (page) => {
-        // Páginas que redirigen (no incluir en sitemap)
-        const redirecting = ['/aeropuertos', '/bodegas', '/constructoras',
-          '/constructoras-directus', '/gobiernosectorpublico', '/industria',
-          '/mineria', '/salud', '/software', '/seguridad'];
-        if (redirecting.some(r => page === 'https://ultimamilla.com.ar' + r) ||
-            page.includes('/admin/') || page.includes('/api/') ||
-            page.includes('/_') || page.includes('/estilo')) {
-          return false;
-        }
-        return true;
-      },
-    }),
   ],
 
   // Configuración del servidor
