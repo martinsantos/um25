@@ -4,6 +4,7 @@ import mdx from '@astrojs/mdx';
 import tailwind from '@astrojs/tailwind';
 import alpinejs from '@astrojs/alpinejs';
 import sentry from '@sentry/astro';
+import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   // Configuración SSR y Adaptador
@@ -29,7 +30,16 @@ export default defineConfig({
     }),
     mdx(),
     tailwind(),
-    alpinejs()
+    alpinejs(),
+    sitemap({
+      filter: (page) => {
+        if (page.includes('/admin/') || page.includes('/api/') ||
+            page.includes('/_') || page.includes('/estilo')) {
+          return false;
+        }
+        return true;
+      },
+    }),
   ],
 
   // Configuración del servidor
