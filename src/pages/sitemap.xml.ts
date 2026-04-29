@@ -15,15 +15,7 @@ function generateSitemapXml(): string {
         { loc: '/nosotros', priority: '0.6', changefreq: 'monthly' },
         { loc: '/contacto', priority: '0.7', changefreq: 'monthly' },
         // Sector verticals
-        { loc: '/mineria', priority: '0.7', changefreq: 'monthly' },
-        { loc: '/industria', priority: '0.7', changefreq: 'monthly' },
         { loc: '/seguridad-electronica', priority: '0.7', changefreq: 'monthly' },
-        { loc: '/constructoras', priority: '0.7', changefreq: 'monthly' },
-        { loc: '/bodegas', priority: '0.7', changefreq: 'monthly' },
-        { loc: '/aeropuertos', priority: '0.7', changefreq: 'monthly' },
-        { loc: '/salud', priority: '0.7', changefreq: 'monthly' },
-        { loc: '/gobiernosectorpublico', priority: '0.7', changefreq: 'monthly' },
-        { loc: '/software', priority: '0.7', changefreq: 'monthly' },
         // Service detail pages
         { loc: '/servicios/101/infraestructura-de-redes-cableado-fibra-optica-radioenlaces', priority: '0.8', changefreq: 'monthly' },
         { loc: '/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi', priority: '0.8', changefreq: 'monthly' },
