@@ -33,7 +33,12 @@ export default defineConfig({
     alpinejs(),
     sitemap({
       filter: (page) => {
-        if (page.includes('/admin/') || page.includes('/api/') ||
+        // Páginas que redirigen (no incluir en sitemap)
+        const redirecting = ['/aeropuertos', '/bodegas', '/constructoras',
+          '/constructoras-directus', '/gobiernosectorpublico', '/industria',
+          '/mineria', '/salud', '/software', '/seguridad'];
+        if (redirecting.some(r => page === 'https://ultimamilla.com.ar' + r) ||
+            page.includes('/admin/') || page.includes('/api/') ||
             page.includes('/_') || page.includes('/estilo')) {
           return false;
         }
