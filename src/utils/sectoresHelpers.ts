@@ -6,16 +6,9 @@
  * Con fallback a snapshots JSON cuando Directus no responde
  */
 
-import { createDirectus, rest, staticToken, readItems } from '@directus/sdk';
-import { getAllAntecedentes, getDirectusImageUrl } from '../lib/directus.ts';
+import { readItems } from '@directus/sdk';
+import { getClient, getAllAntecedentes, getDirectusImageUrl } from '../lib/directus.ts';
 import { generateSlug } from './slugUtils.js';
-
-const DIRECTUS_URL = 'http://localhost:8055';
-const DIRECTUS_TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
-
-function getAuthenticatedClient() {
-  return createDirectus(DIRECTUS_URL).with(staticToken(DIRECTUS_TOKEN)).with(rest());
-}
 
 export interface SectorValueProp {
   icono: string;
@@ -61,7 +54,7 @@ export interface Sector {
  */
 export async function getSectorBySlug(slug: string): Promise<Sector | null> {
   try {
-    const client = getAuthenticatedClient();
+    const client = getClient();
 
     // 1. Get base sector data
     const sectores = await client.request(
@@ -179,7 +172,7 @@ export async function getAntecedentesForSector(
   limit: number = 6
 ): Promise<any[]> {
   try {
-    const client = getAuthenticatedClient();
+    const client = getClient();
     const allAntecedentes = await client.request(
       readItems('Antecedentes', {
         fields: ['id', 'Titulo', 'Cliente', 'Descripcion', 'Area', 'Imagen', 'Fecha', 'Unidad_de_negocio', 'destacado', 'orden'],
@@ -223,7 +216,7 @@ function filterAntecedentesByKeywords(items: any[], keywords: string[], limit: n
  */
 export async function getAllSectores(): Promise<Sector[]> {
   try {
-    const client = getAuthenticatedClient();
+    const client = getClient();
 
     const sectores = await client.request(
       readItems('sectores', {
