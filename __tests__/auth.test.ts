@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { mockDirectusAuth, mockDirectusUser, setupTestEnv, resetTestEnv } from './utils/authTestUtils';
 
 // Mock the Directus SDK
@@ -39,10 +39,11 @@ describe('Authentication', () => {
 
     it('should handle authentication errors', async () => {
       const { createDirectus } = require('@directus/sdk');
+      const client = createDirectus();
       const error = new Error('Authentication failed');
-      createDirectus().login.mockRejectedValueOnce(error);
+      client.login.mockRejectedValueOnce(error);
 
-      await expect(createDirectus().login()).rejects.toThrow('Authentication failed');
+      await expect(client.login()).rejects.toThrow('Authentication failed');
     });
   });
 
