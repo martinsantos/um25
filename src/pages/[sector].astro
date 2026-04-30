@@ -1,21 +1,20 @@
 ---
 /**
- * Constructoras Sector Page - V4 Design System
- * ✨ NUEVA VERSIÓN: 100% controlado desde Directus
+ * Sector Page — Dynamic Route (SSR)
+ * Handles all sector slugs using Directus data.
+ * Explicit pages (nosotros, contacto, etc.) take priority.
  */
 
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import { generateSlug } from '../utils/slugUtils.js';
-import { getClient, getDirectusImageUrl } from '../lib/directus.ts';
-import { readItems } from '@directus/sdk';
-import { getSectorBySlug, getIconSVGPath } from '../utils/sectoresHelpers.ts';
+import { getSectorBySlug, getIconSVGPath, getAntecedentesForSector } from '../utils/sectoresHelpers.ts';
+import { getFAQSchema, sectorFAQs } from '../data/sectorFAQs';
 
-// Obtener sector desde Directus
-const sectorData = await getSectorBySlug('constructoras');
+const sectorSlug = Astro.params.sector || '';
+const sectorData = await getSectorBySlug(sectorSlug);
 
 if (!sectorData) {
-  // Fallback si Directus falla
   return Astro.redirect('/sectores', 301);
 }
 
@@ -34,36 +33,8 @@ const {
   servicios: serviciosRelacionados,
 } = sectorData;
 
-// Fetch antecedentes from Directus
-let antecedentes: any[] = [];
-try {
-  const client = getClient();
-  const allAntecedentes = await client.request(
-    readItems('Antecedentes', {
-      fields: ['id', 'Titulo', 'Cliente', 'Descripcion', 'Area', 'Imagen', 'Fecha', 'Unidad_de_negocio'],
-      limit: 500
-    })
-  );
+const antecedentes = await getAntecedentesForSector(keywords, nombre);
 
-  // Filter by sector keywords
-  antecedentes = allAntecedentes
-    .filter(item => {
-      const texto = `${item.Cliente || ''} ${item.Titulo || ''} ${item.Area || ''} ${item.Descripcion || ''} ${item.Nombre || ''}`.toLowerCase();
-      return keywords.some((k: string) => texto.includes(k.toLowerCase()));
-    })
-    .slice(0, 6)
-    .map(item => ({
-      ...item,
-      slug: generateSlug(item.Titulo || 'proyecto'),
-      imageUrl: getDirectusImageUrl(item.Imagen)
-    }));
-
-  console.log(`[${nombre.toUpperCase()}] Found ${antecedentes.length} antecedentes from Directus`);
-} catch (error) {
-  console.error(`[${nombre.toUpperCase()}] Error fetching from Directus:`, error);
-}
-
-// Map color theme to Tailwind classes
 const colorMap: Record<string, any> = {
   sky: { bg: 'bg-sky-50', text: 'text-sky-600', hover: 'hover:bg-sky-500', gradient: 'from-sky-600 to-sky-700' },
   purple: { bg: 'bg-purple-50', text: 'text-purple-600', hover: 'hover:bg-purple-500', gradient: 'from-purple-600 to-purple-700' },
@@ -77,9 +48,10 @@ const colorMap: Record<string, any> = {
 };
 
 const colors = colorMap[color_theme] || colorMap.amber;
+const faqSchema = getFAQSchema(sectorSlug);
 ---
 
-<LayoutV4 title={seo_title} description={seo_description} keywords={seo_keywords}>
+<LayoutV4 title={seo_title} description={seo_description} keywords={seo_keywords} image={hero_image} structuredData={faqSchema}>
   <section class="relative bg-um-dark pt-20 sm:pt-24 pb-8 sm:pb-12 lg:pb-16 overflow-hidden">
     <div class="absolute inset-0 opacity-40" style={`background-image: url('${hero_image}'); background-position: center; background-size: cover;`}></div>
     <div class="absolute inset-0 bg-gradient-to-b from-um-dark/70 to-um-dark/90"></div>
@@ -94,8 +66,8 @@ const colors = colorMap[color_theme] || colorMap.amber;
       </div>
 
       <div class="max-w-3xl">
+        <div class="text-4xl sm:text-5xl mb-3" aria-hidden="true">{emoji}</div>
         <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-4 sm:mb-6">
-          <span class="inline-block mr-2 sm:mr-3">{emoji}</span>
           Tecnología para {nombre}
         </h1>
         <p class="text-base sm:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8">{descripcion}</p>
@@ -126,7 +98,7 @@ const colors = colorMap[color_theme] || colorMap.amber;
               </svg>
             </div>
             <div>
-              <h3 class="font-bold text-um-dark mb-2">{prop.titulo}</h3>
+              <p class="font-bold text-um-dark mb-2">{prop.titulo}</p>
               <p class="text-sm text-um-gray">{prop.descripcion}</p>
             </div>
           </div>
@@ -182,6 +154,27 @@ const colors = colorMap[color_theme] || colorMap.amber;
               imagen={ant.imageUrl}
               slug={ant.slug}
             />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {sectorFAQs[sectorSlug] && sectorFAQs[sectorSlug].length > 0 && (
+    <section class="py-10 sm:py-14 lg:py-20 bg-white border-t border-gray-100">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8 sm:mb-12">
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark">Preguntas Frecuentes</h2>
+        </div>
+        <div class="space-y-4">
+          {sectorFAQs[sectorSlug].map((faq: any) => (
+            <details class="group bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
+              <summary class="flex items-center justify-between p-5 sm:p-6 cursor-pointer font-semibold text-um-dark hover:bg-gray-100 transition-colors">
+                <span class="pr-4">{faq.question}</span>
+                <svg class="w-5 h-5 shrink-0 text-gray-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="px-5 sm:px-6 pb-5 sm:pb-6 text-um-gray leading-relaxed">{faq.answer}</div>
+            </details>
           ))}
         </div>
       </div>
