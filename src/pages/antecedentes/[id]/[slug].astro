@@ -10,7 +10,8 @@ import CTASection from '../../../components/v4/CTASection.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
 import { getServiceIdFromArea } from '../../../data/areaToServiceMap.js';
-import { getDirectusImageUrl } from '../../../lib/directus.ts';
+import ProjectCard from '../../../components/ProjectCard.astro';
+import { getDirectusImageUrl, getAllAntecedentes } from '../../../lib/directus.ts';
 
 // --- Configuration ---
 const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://ultimamilla.com.ar/admin';
@@ -219,6 +220,30 @@ const getRelatedServices = async (antecedenteId: string, area: string) => {
 };
 
 const relatedServices = await getRelatedServices(id, antecedente.Area || '');
+
+const getRelatedAntecedentes = async (area: string, excludeId: string, limit: number = 3) => {
+  try {
+    const all = await getAllAntecedentes();
+    return all
+      .filter(item => {
+        if (String(item.id) === excludeId) return false;
+        const itemArea = (item.Area || '').toLowerCase();
+        const searchArea = (area || '').toLowerCase();
+        return itemArea.includes(searchArea) || searchArea.includes(itemArea);
+      })
+      .slice(0, limit)
+      .map(item => ({
+        ...item,
+        slug: generateSlug(item.Titulo || 'proyecto'),
+        imageUrl: getDirectusImageUrl(item.Imagen)
+      }));
+  } catch {
+    return [];
+  }
+};
+
+const relatedAntecedentes = await getRelatedAntecedentes(antecedente.Area || '', id);
+
 
 // SEO
 const siteUrl = 'https://www.ultimamilla.com.ar';
@@ -491,28 +516,46 @@ const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').
   </section>
 
   <!-- RELATED SECTION -->
-  <section class="bg-um-gray-light border-t border-gray-200 py-10 sm:py-14 lg:py-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Proyectos Relacionados</h2>
-        <a href="/antecedentes" class="flex items-center gap-1.5 text-um-primary font-semibold text-sm hover:underline">
-          Ver portfolio completo
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-          </svg>
-        </a>
-      </div>
+  {relatedAntecedentes.length > 0 && (
+    <section class="bg-um-gray-light border-t border-gray-200 py-10 sm:py-14 lg:py-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Proyectos Relacionados</h2>
+          <a href="/antecedentes" class="flex items-center gap-1.5 text-um-primary font-semibold text-sm hover:underline">
+            Ver portfolio completo
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+            </svg>
+          </a>
+        </div>
 
-      <div class="text-center py-8">
-        <a href="/antecedentes" class="inline-flex items-center gap-2 px-6 py-3 bg-um-dark text-white font-bold rounded-xl hover:bg-um-primary transition-colors">
-          Explorar más proyectos
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-          </svg>
-        </a>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {relatedAntecedentes.map((ant) => (
+            <ProjectCard
+              id={String(ant.id)}
+              titulo={ant.Titulo || 'Proyecto'}
+              cliente={ant.Cliente || ''}
+              descripcion={ant.Descripcion || ''}
+              fecha={ant.Fecha || new Date().toISOString()}
+              area={ant.Area || ''}
+              servicio={ant.Unidad_de_negocio || ''}
+              imagen={ant.imageUrl}
+              slug={ant.slug}
+            />
+          ))}
+        </div>
+
+        <div class="text-center mt-8">
+          <a href="/antecedentes" class="inline-flex items-center gap-2 px-6 py-3 bg-um-dark text-white font-bold rounded-xl hover:bg-um-primary transition-colors">
+            Explorar más proyectos
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </a>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  )}
 
   <!-- CTA SECTION -->
   <CTASection
