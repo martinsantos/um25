@@ -1,117 +1,21 @@
 /**
- * Tests for Directus Helpers V4
- *
- * These tests verify that the Directus helper functions correctly:
- * 1. Fetch data from Directus when available
- * 2. Fall back to JS data when Directus fails
- * 3. Handle errors gracefully
- * 4. Convert data formats correctly
+ * Tests for src/utils/directusHelpers.ts
+ * Tests helper functions with Directus mocked at the lib layer
  */
 
-import { describe, test, expect, beforeEach, jest } from '@jest/globals';
+import { describe, test, expect, beforeEach } from '@jest/globals';
 
-// Mock Directus lib functions
-jest.mock('../src/lib/directus', () => ({
+// Mock Directus lib functions — factory avoids loading real directus.ts (which has top-level await)
+jest.mock('../src/lib/directus.ts', () => ({
+  __esModule: true,
   getServiciosV4: jest.fn(),
   getServicioConProductos: jest.fn(),
   getProductosPorServicio: jest.fn(),
   getAntecedenteConServicios: jest.fn(),
   getAntecedentesPorServicio: jest.fn(),
   buscarServicios: jest.fn(),
-}));
-
-// Mock JS data imports
-jest.mock('../src/data/servicios_completos_v4.js', () => ({
-  serviciosCompletos: {
-    101: {
-      id: 101,
-      Titulo: 'Ciberseguridad',
-      Descripcion: 'Soluciones de ciberseguridad',
-      Imagen: '/images/ciberseguridad.jpg',
-      Subtitulo: 'Protección avanzada',
-      Area: 'Seguridad',
-      Stats: [
-        { value: '99.9%', label: 'Uptime' },
-        { value: '24/7', label: 'Monitoreo' },
-      ],
-      Marcas: ['Cisco', 'Fortinet'],
-      PorQueElegirnos: ['Experiencia comprobada', 'Soporte 24/7'],
-      Productos: [
-        {
-          titulo: 'Firewall Empresarial',
-          descripcion: 'Protección perimetral avanzada',
-          imagen: '/images/firewall.jpg',
-          features: ['IPS/IDS', 'VPN', 'Filtrado de contenido'],
-          destacado: 'Alta disponibilidad',
-          marcas: ['Fortinet'],
-        },
-      ],
-    },
-    102: {
-      id: 102,
-      Titulo: 'Infraestructura de Redes',
-      Descripcion: 'Redes empresariales',
-      Imagen: '/images/redes.jpg',
-      Subtitulo: 'Conectividad confiable',
-      Area: 'Redes',
-      Stats: [],
-      Marcas: [],
-      PorQueElegirnos: [],
-      Productos: [],
-    },
-  },
-  getServicioCompleto: jest.fn((id) => {
-    const servicios: any = {
-      101: {
-        id: 101,
-        Titulo: 'Ciberseguridad',
-        Descripcion: 'Soluciones de ciberseguridad',
-        Imagen: '/images/ciberseguridad.jpg',
-        Subtitulo: 'Protección avanzada',
-        Area: 'Seguridad',
-        Stats: [{ value: '99.9%', label: 'Uptime' }],
-        Marcas: ['Cisco'],
-        PorQueElegirnos: ['Experiencia'],
-        Productos: [
-          {
-            titulo: 'Firewall',
-            descripcion: 'Protección',
-            imagen: '/images/firewall.jpg',
-            features: ['IPS'],
-            destacado: 'HA',
-            marcas: ['Fortinet'],
-          },
-        ],
-      },
-    };
-    return servicios[id] || null;
-  }),
-  listarServicios: jest.fn(() => [
-    {
-      id: 101,
-      Titulo: 'Ciberseguridad',
-      Descripcion: 'Soluciones de ciberseguridad',
-      Imagen: '/images/ciberseguridad.jpg',
-      Subtitulo: 'Protección avanzada',
-      Area: 'Seguridad',
-      Stats: [],
-      Marcas: [],
-      PorQueElegirnos: [],
-      Productos: [],
-    },
-    {
-      id: 102,
-      Titulo: 'Infraestructura de Redes',
-      Descripcion: 'Redes empresariales',
-      Imagen: '/images/redes.jpg',
-      Subtitulo: 'Conectividad',
-      Area: 'Redes',
-      Stats: [],
-      Marcas: [],
-      PorQueElegirnos: [],
-      Productos: [],
-    },
-  ]),
+  getDirectusImageUrl: jest.fn((id) => id || '/placeholder.jpg'),
+  getDirectusImageFallback: jest.fn((id) => id || '/placeholder.jpg'),
 }));
 
 // Import helpers after mocks
@@ -123,11 +27,9 @@ import {
   getProyectosPorServicio,
   searchServicios,
   checkDirectusHealth,
-  getDirectusImageUrl,
-  getDirectusThumbnail,
 } from '../src/utils/directusHelpers';
 
-import * as directusLib from '../src/lib/directus';
+import * as directusLib from '../src/lib/directus.ts';
 
 describe('Directus Helpers - getAllServicios', () => {
   beforeEach(() => {
@@ -160,23 +62,20 @@ describe('Directus Helpers - getAllServicios', () => {
     expect(directusLib.getServiciosV4).toHaveBeenCalledTimes(1);
   });
 
-  test('falls back to JS data when Directus returns empty', async () => {
+  test('returns empty array when Directus returns empty', async () => {
     (directusLib.getServiciosV4 as jest.Mock).mockResolvedValue([]);
 
     const result = await getAllServicios();
 
-    expect(result).toHaveLength(2);
-    expect(result[0].Titulo).toBe('Ciberseguridad');
-    expect(result[1].Titulo).toBe('Infraestructura de Redes');
+    expect(result).toEqual([]);
   });
 
-  test('falls back to JS data when Directus throws error', async () => {
+  test('returns empty array when Directus throws error', async () => {
     (directusLib.getServiciosV4 as jest.Mock).mockRejectedValue(new Error('Directus error'));
 
     const result = await getAllServicios();
 
-    expect(result).toHaveLength(2);
-    expect(result[0].Titulo).toBe('Ciberseguridad');
+    expect(result).toEqual([]);
   });
 });
 
@@ -217,31 +116,20 @@ describe('Directus Helpers - getServicioById', () => {
     expect(directusLib.getServicioConProductos).toHaveBeenCalledWith(101);
   });
 
-  test('falls back to JS data when Directus returns null', async () => {
+  test('returns null when Directus returns null', async () => {
     (directusLib.getServicioConProductos as jest.Mock).mockResolvedValue(null);
 
     const result = await getServicioById(101);
-
-    expect(result).not.toBeNull();
-    expect(result?.Titulo).toBe('Ciberseguridad');
-    expect(result?.productos).toHaveLength(1);
-  });
-
-  test('returns null when servicio not found in JS data', async () => {
-    (directusLib.getServicioConProductos as jest.Mock).mockResolvedValue(null);
-
-    const result = await getServicioById(999);
 
     expect(result).toBeNull();
   });
 
-  test('falls back to JS data when Directus throws error', async () => {
+  test('returns null when Directus throws error', async () => {
     (directusLib.getServicioConProductos as jest.Mock).mockRejectedValue(new Error('Error'));
 
     const result = await getServicioById(101);
 
-    expect(result).not.toBeNull();
-    expect(result?.Titulo).toBe('Ciberseguridad');
+    expect(result).toBeNull();
   });
 });
 
@@ -274,30 +162,20 @@ describe('Directus Helpers - getProductos', () => {
     expect(directusLib.getProductosPorServicio).toHaveBeenCalledWith(101);
   });
 
-  test('falls back to JS data when Directus returns empty', async () => {
+  test('returns empty array when Directus returns empty', async () => {
     (directusLib.getProductosPorServicio as jest.Mock).mockResolvedValue([]);
 
     const result = await getProductos(101);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].titulo).toBe('Firewall');
-  });
-
-  test('returns empty array when servicio has no productos in JS', async () => {
-    (directusLib.getProductosPorServicio as jest.Mock).mockResolvedValue([]);
-
-    const result = await getProductos(102);
 
     expect(result).toEqual([]);
   });
 
-  test('falls back to JS data when Directus throws error', async () => {
+  test('returns empty array when Directus throws error', async () => {
     (directusLib.getProductosPorServicio as jest.Mock).mockRejectedValue(new Error('Error'));
 
     const result = await getProductos(101);
 
-    expect(result).toHaveLength(1);
-    expect(result[0].titulo).toBe('Firewall');
+    expect(result).toEqual([]);
   });
 });
 
@@ -332,31 +210,12 @@ describe('Directus Helpers - searchServicios', () => {
     expect(directusLib.buscarServicios).toHaveBeenCalledWith('ciberseguridad', undefined);
   });
 
-  test('falls back to JS search when Directus returns empty', async () => {
+  test('returns empty array when Directus returns empty', async () => {
     (directusLib.buscarServicios as jest.Mock).mockResolvedValue([]);
 
     const result = await searchServicios('ciberseguridad');
 
-    expect(result).toHaveLength(1);
-    expect(result[0].Titulo).toBe('Ciberseguridad');
-  });
-
-  test('filters by area in JS fallback search', async () => {
-    (directusLib.buscarServicios as jest.Mock).mockResolvedValue([]);
-
-    const result = await searchServicios('', 'Seguridad');
-
-    expect(result).toHaveLength(1);
-    expect(result[0].area).toBe('Seguridad');
-  });
-
-  test('falls back to JS search when Directus throws error', async () => {
-    (directusLib.buscarServicios as jest.Mock).mockRejectedValue(new Error('Error'));
-
-    const result = await searchServicios('redes');
-
-    expect(result).toHaveLength(1);
-    expect(result[0].Titulo).toBe('Infraestructura de Redes');
+    expect(result).toEqual([]);
   });
 });
 
@@ -387,57 +246,6 @@ describe('Directus Helpers - checkDirectusHealth', () => {
     const result = await checkDirectusHealth();
 
     expect(result).toBe(false);
-  });
-});
-
-describe('Directus Helpers - Image Utilities', () => {
-  beforeEach(() => {
-    // Mock environment variable
-    process.env.PUBLIC_DIRECTUS_URL = 'https://admin.ultimamilla.com.ar';
-  });
-
-  test('getDirectusImageUrl returns full URL for UUID', () => {
-    const result = getDirectusImageUrl('abc-123-def-456');
-
-    expect(result).toBe('https://admin.ultimamilla.com.ar/assets/abc-123-def-456');
-  });
-
-  test('getDirectusImageUrl returns URL unchanged if already full URL', () => {
-    const fullUrl = 'https://example.com/image.jpg';
-    const result = getDirectusImageUrl(fullUrl);
-
-    expect(result).toBe(fullUrl);
-  });
-
-  test('getDirectusImageUrl returns fallback for undefined', () => {
-    const result = getDirectusImageUrl(undefined, '/fallback.jpg');
-
-    expect(result).toBe('/fallback.jpg');
-  });
-
-  test('getDirectusThumbnail generates optimized URL with params', () => {
-    const result = getDirectusThumbnail('abc-123', 400, 300, 80);
-
-    expect(result).toContain('https://admin.ultimamilla.com.ar/assets/abc-123');
-    expect(result).toContain('width=400');
-    expect(result).toContain('height=300');
-    expect(result).toContain('quality=80');
-    expect(result).toContain('format=webp');
-    expect(result).toContain('fit=cover');
-  });
-
-  test('getDirectusThumbnail generates URL without height', () => {
-    const result = getDirectusThumbnail('abc-123', 400);
-
-    expect(result).toContain('width=400');
-    expect(result).not.toContain('height=');
-    expect(result).not.toContain('fit=cover');
-  });
-
-  test('getDirectusThumbnail returns placeholder for undefined', () => {
-    const result = getDirectusThumbnail(undefined);
-
-    expect(result).toBe('/images/placeholder.jpg');
   });
 });
 

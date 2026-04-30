@@ -22,6 +22,7 @@ module.exports = {
     '<rootDir>/node_modules/',
     '<rootDir>/dist/',
     '<rootDir>/.cache/',
+    '<rootDir>/.claude/',
     '<rootDir>/src/test/__mocks__',
   ],
   clearMocks: true,

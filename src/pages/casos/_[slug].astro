@@ -1,5 +1,6 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+import LayoutV4 from '../../layouts/LayoutV4.astro';
+import '../../styles/global.css';
 import { getCasoBySlug, getAllCasos, getCasosRelacionados } from '../../data/casos';
 import type { GetStaticPaths } from 'astro';
 import OptimizedImage from '../../components/OptimizedImage.astro';
@@ -20,7 +21,7 @@ const casosRelacionados = getCasosRelacionados(slug || '');
 if (!caso) return Astro.redirect('/404');
 ---
 
-<Layout title={`${caso.titulo} | Ultima Milla`} description={caso.descripcionCorta}>
+<LayoutV4 title={`${caso.titulo} | Ultima Milla`} description={caso.descripcionCorta}>
     <main class="container mx-auto px-4 py-8">
         <!-- Hero Section -->
         <div class="relative h-[400px] mb-8 rounded-xl overflow-hidden">
@@ -157,4 +158,4 @@ if (!caso) return Astro.redirect('/404');
             </div>
         )}
     </main>
-</Layout>
+</LayoutV4>
