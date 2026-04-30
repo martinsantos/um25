@@ -132,7 +132,7 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            pm2 restart astro-ultimamilla || pm2 start ecosystem.config.js
+            pm2 delete astro-ultimamilla 2>/dev/null; pm2 start ecosystem.config.cjs
             pm2 save
 
       - name: Health check
