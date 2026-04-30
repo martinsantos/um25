@@ -5,6 +5,7 @@ import tailwind from '@astrojs/tailwind';
 import alpinejs from '@astrojs/alpinejs';
 import sentry from '@sentry/astro';
 
+
 export default defineConfig({
   // Configuración SSR y Adaptador
   output: 'server',
@@ -29,7 +30,7 @@ export default defineConfig({
     }),
     mdx(),
     tailwind(),
-    alpinejs()
+    alpinejs(),
   ],
 
   // Configuración del servidor

@@ -7,7 +7,9 @@ module.exports = {
     env: {
       NODE_ENV: 'production',
       PORT: 4321,
-      HOST: '0.0.0.0'
+      HOST: '0.0.0.0',
+      BLOG_API_USER: 'admin@umbot.com.ar',
+      BLOG_API_PASS: 'UmbotAdmin2025!',
     },
     error_file: '/root/.pm2/logs/astro-ultimamilla-error.log',
     out_file: '/root/.pm2/logs/astro-ultimamilla-out.log',

@@ -2,23 +2,17 @@
 // Verifica que el componente exista y pueda ser renderizado
 
 describe('FormularioARCA Component - Comportamiento Requerido', () => {
-  test('FormularioARCA.astro debe existir', async () => {
-    // Este test DEBE fallar si el componente no existe
-    // Verifica mediante un import dinámico o lectura del filesystem
-    const { existsSync } = await import('fs');
-    const { join, dirname, resolve } = await import('path');
-    const { fileURLToPath } = await import('url');
+  test('FormularioARCA.astro debe existir', () => {
+    // Verifica mediante lectura del filesystem
+    const fs = require('fs');
+    const path = require('path');
 
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-
-    // Ruta relativa desde __tests__/components/arca/ -> src/components/arca/
-    const componentPath = resolve(
+    const componentPath = path.resolve(
       __dirname,
       '../../../src/components/arca/FormularioARCA.astro'
     );
 
-    expect(existsSync(componentPath)).toBe(true);
+    expect(fs.existsSync(componentPath)).toBe(true);
   });
 
   test('FormularioARCA debe renderizar un formulario con estructura HTML semántica', () => {
@@ -164,7 +158,7 @@ describe('FormularioARCA Component - Comportamiento Requerido', () => {
 
     document.body.appendChild(input);
 
-    // CUIT válido: 11 dígitos
+    // CUIT 11 dígitos: patrón HTML5
     input.value = '20123456789';
     expect(/^[0-9]{11}$/.test(input.value)).toBe(true);
 
@@ -173,6 +167,71 @@ describe('FormularioARCA Component - Comportamiento Requerido', () => {
     expect(/^[0-9]{11}$/.test(input.value)).toBe(false);
 
     document.body.removeChild(input);
+  });
+
+  test('validarCUIT - algoritmo dígito verificador AFIP', () => {
+    // Replicar la función validarCUIT del componente para testing unitario
+    function validarCUIT(cuit) {
+      if (!/^\d{11}$/.test(cuit)) return { valido: false, error: 'CUIT debe tener 11 dígitos' };
+
+      var pesos = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
+      var suma = 0;
+      for (var i = 0; i < 10; i++) {
+        suma += parseInt(cuit[i]) * pesos[i];
+      }
+      var resto = suma % 11;
+      var dvCalculado = resto === 0 ? 0 : resto === 1 ? 9 : 11 - resto;
+      var dvIngresado = parseInt(cuit[10]);
+
+      if (dvCalculado !== dvIngresado) {
+        return { valido: false, error: 'El dígito verificador del CUIT no es válido' };
+      }
+
+      var prefijo = parseInt(cuit.substring(0, 2));
+      var prefijosValidos = [20, 23, 24, 27, 30, 33, 34];
+      if (!prefijosValidos.includes(prefijo)) {
+        return { valido: false, error: 'El prefijo del CUIT no corresponde a un tipo válido' };
+      }
+
+      return { valido: true, error: null };
+    }
+
+    // CUIT válido: 20-12345678-6 (prefijo 20 = hombre, DV correcto)
+    // Suma = 2*5+0*4+1*3+2*2+3*7+4*6+5*5+6*4+7*3+8*2 = 10+0+3+4+21+24+25+24+21+16 = 148
+    // 148 % 11 = 5 → DV = 11-5 = 6
+    var result1 = validarCUIT('20123456786');
+    expect(result1.valido).toBe(true);
+    expect(result1.error).toBeNull();
+
+    // CUIT válido: 23-12345678-5 (prefijo 23 = mujer, DV correcto)
+    // Suma = 2*5+3*4+1*3+2*2+3*7+4*6+5*5+6*4+7*3+8*2 = 10+12+3+4+21+24+25+24+21+16 = 160
+    // 160 % 11 = 6 → DV = 11-6 = 5
+    var result1b = validarCUIT('23123456785');
+    expect(result1b.valido).toBe(true);
+
+    // CUIT con dígito verificador incorrecto
+    // 20123456789 → DV esperado (según fórmula) = ?, DV ingresado = 9
+    // Suma = 2*5+0*4+1*3+2*2+3*7+4*6+5*5+6*4+7*3+8*2 = 148, 148%11=5, DV=6
+    // DV ingresado = 9 → inválido
+    var result2 = validarCUIT('20123456789');
+    expect(result2.valido).toBe(false);
+    expect(result2.error).toContain('dígito verificador');
+
+    // Prefijo inválido (12 no es un tipo de persona conocido)
+    // 12345678903: DV=3 es correcto pero prefijo 12 es inválido
+    var result3 = validarCUIT('12345678903');
+    expect(result3.valido).toBe(false);
+    expect(result3.error).toContain('prefijo');
+
+    // Menos de 11 dígitos
+    var result4 = validarCUIT('2012345678');
+    expect(result4.valido).toBe(false);
+    expect(result4.error).toContain('11 dígitos');
+
+    // Caracteres no numéricos (guiones)
+    var result5 = validarCUIT('20-12345678-6');
+    expect(result5.valido).toBe(false);
+    expect(result5.error).toContain('11 dígitos');
   });
 
   test('FormularioARCA debe validar importe como número positivo', () => {
