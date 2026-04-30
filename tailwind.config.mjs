@@ -30,9 +30,13 @@ export default {
 				'um-gray-light': '#f3f4f6',
 			},
 			fontFamily: {
-				'opensans': ['Open Sans', 'sans-serif'],
+				sans: ['"Open Sans"', 'system-ui', '-apple-system', 'sans-serif'],
 			},
 		},
 	},
-	plugins: [],
+	plugins: [
+		require('@tailwindcss/typography'),
+		require('@tailwindcss/forms'),
+		require('@tailwindcss/aspect-ratio'),
+	],
 }
