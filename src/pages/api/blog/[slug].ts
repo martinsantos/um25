@@ -1,9 +1,9 @@
 import type { APIRoute } from 'astro';
 
-const API_USER = process.env.BLOG_API_USER ?? import.meta.env.BLOG_API_USER;
-const API_PASS = process.env.BLOG_API_PASS ?? import.meta.env.BLOG_API_PASS;
-const DIRECTUS_URL = process.env.DIRECTUS_INTERNAL_URL ?? import.meta.env.DIRECTUS_INTERNAL_URL ?? 'http://localhost:8055';
-const DIRECTUS_TOKEN = process.env.DIRECTUS_ADMIN_TOKEN ?? import.meta.env.DIRECTUS_ADMIN_TOKEN ?? '1d70b2841dd6365c676ab42e879c5fdfc044ec1adfc146552a99b2d7e23baa5e';
+const API_USER = process.env['BLOG_API_USER'] ?? import.meta.env['BLOG_API_USER'];
+const API_PASS = process.env['BLOG_API_PASS'] ?? import.meta.env['BLOG_API_PASS'];
+const DIRECTUS_URL = process.env['DIRECTUS_INTERNAL_URL'] ?? import.meta.env['DIRECTUS_INTERNAL_URL'] ?? 'http://localhost:8055';
+const DIRECTUS_TOKEN = process.env['DIRECTUS_ADMIN_TOKEN'] ?? import.meta.env['DIRECTUS_ADMIN_TOKEN'] ?? '';
 
 function checkAuth(request: Request): boolean {
   const auth = request.headers.get('Authorization') || '';
@@ -15,6 +15,13 @@ function checkAuth(request: Request): boolean {
 }
 
 export const DELETE: APIRoute = async ({ request, params }) => {
+  if (!DIRECTUS_TOKEN) {
+    return new Response(JSON.stringify({ error: 'Directus token not configured' }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   if (!checkAuth(request)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
@@ -25,7 +32,7 @@ export const DELETE: APIRoute = async ({ request, params }) => {
     });
   }
 
-  const slug = params.slug;
+  const slug = params['slug'];
 
   const searchRes = await fetch(
     `${DIRECTUS_URL}/items/blog_posts?filter[slug][_eq]=${encodeURIComponent(slug!)}&fields=id&limit=1`,

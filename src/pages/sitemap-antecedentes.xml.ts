@@ -1,29 +1,27 @@
 import type { APIRoute } from 'astro';
 
 import { generateSlug } from '../utils/slugUtils.js';
-
-const SITE_URL = 'https://ultimamilla.com.ar';
-
-function formatDate(date: Date): string {
-    const isoString = date.toISOString();
-    const parts = isoString.split('T');
-    return parts[0] || new Date().toISOString().split('T')[0];
-}
+import { SITE_URL } from '../config/seo';
+import { canonicalUrl, escapeXml, formatSitemapDate, publicImageUrl } from '../utils/seoUrl';
+import antecedentesSnapshot from '../data/snapshots/antecedentes.json';
+import imageLocalMap from '../data/image-local-map.json';
 
 function getImageUrl(imagen: any): string | null {
     if (!imagen) return null;
     if (typeof imagen === 'string') {
-        if (imagen.startsWith('http')) return imagen;
-        return `${SITE_URL}/admin/assets/${imagen}`;
+        if (imagen.startsWith('http')) return publicImageUrl(imagen);
+        const localPath = (imageLocalMap as Record<string, string>)[imagen];
+        return publicImageUrl(localPath || `/assets/${imagen}`);
     }
     if (typeof imagen === 'object' && imagen.id) {
-        return `${SITE_URL}/admin/assets/${imagen.id}`;
+        const localPath = (imageLocalMap as Record<string, string>)[imagen.id];
+        return publicImageUrl(localPath || `/assets/${imagen.id}`);
     }
     return null;
 }
 
 function generateSitemapXml(antecedentes: any[]): string {
-    const today = formatDate(new Date());
+    const today = formatSitemapDate();
 
     return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -31,16 +29,16 @@ function generateSitemapXml(antecedentes: any[]): string {
     ${antecedentes.map(item => {
         const slug = generateSlug(item.Titulo || item.titulo || 'antecedente');
         const id = item.id || item.ID || 'unknown';
-        const lastmod = item.Fecha ? formatDate(new Date(item.Fecha)) : today;
+        const lastmod = item.Fecha ? formatSitemapDate(item.Fecha) : today;
         const imageUrl = getImageUrl(item.Imagen);
         const imageTag = imageUrl ? `
         <image:image>
-            <image:loc>${imageUrl}</image:loc>
-            <image:title>${(item.Titulo || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</image:title>
+            <image:loc>${escapeXml(imageUrl)}</image:loc>
+            <image:title>${escapeXml(item.Titulo || '')}</image:title>
         </image:image>` : '';
         return `
     <url>
-        <loc>${SITE_URL}/antecedentes/${id}/${slug}</loc>
+        <loc>${escapeXml(canonicalUrl(`/antecedentes/${id}/${slug}`))}</loc>
         <lastmod>${lastmod}</lastmod>${imageTag}
     </url>`;
     }).join('')}
@@ -50,17 +48,16 @@ function generateSitemapXml(antecedentes: any[]): string {
 export const GET: APIRoute = async () => {
     try {
         // Obtener todos los antecedentes desde Directus
-        const directusUrl = (typeof process !== 'undefined' ? process.env.DIRECTUS_INTERNAL_URL : undefined) ?? import.meta.env.DIRECTUS_INTERNAL_URL ?? 'http://localhost:8055';
-        const token = (typeof process !== 'undefined' ? process.env.DIRECTUS_ADMIN_TOKEN : undefined) ?? import.meta.env.DIRECTUS_ADMIN_TOKEN ?? '1d70b2841dd6365c676ab42e879c5fdfc044ec1adfc146552a99b2d7e23baa5e';
+        const directusUrl = (typeof process !== 'undefined' ? process.env['DIRECTUS_INTERNAL_URL'] : undefined) ?? import.meta.env['DIRECTUS_INTERNAL_URL'] ?? 'http://localhost:8055';
+        const token = (typeof process !== 'undefined' ? process.env['DIRECTUS_ADMIN_TOKEN'] : undefined) ?? import.meta.env['DIRECTUS_ADMIN_TOKEN'] ?? '';
+        const headers: HeadersInit = {
+            'Content-Type': 'application/json'
+        };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
 
         const response = await fetch(
             `${directusUrl}/items/Antecedentes?limit=-1&fields=id,Titulo,Fecha,Imagen`,
-            {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            }
+            { headers }
         );
 
         let antecedentes = [];
@@ -72,11 +69,7 @@ export const GET: APIRoute = async () => {
             // Fallback: usar datos estáticos si Directus no está disponible
             const errorText = await response.text().catch(() => 'unknown');
             console.error(`[SITEMAP-ANTECEDENTES] Directus returned ${response.status}: ${errorText.slice(0, 300)}`);
-            antecedentes = [
-                { id: 10768, Titulo: 'ISI Solutions - Redes y Comunicaciones' },
-                { id: 10769, Titulo: 'Ministerio de Deportes Gobierno de Mendoza - Redes y' },
-                { id: 10770, Titulo: 'TelecombTW SA - Redes y Comunicaciones' }
-            ];
+            antecedentes = (antecedentesSnapshot as any).data || [];
         }
 
         const sitemap = generateSitemapXml(antecedentes);
@@ -95,7 +88,7 @@ export const GET: APIRoute = async () => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>${SITE_URL}/antecedentes</loc>
-        <lastmod>${formatDate(new Date())}</lastmod>
+        <lastmod>${formatSitemapDate()}</lastmod>
     </url>
 </urlset>`;
 

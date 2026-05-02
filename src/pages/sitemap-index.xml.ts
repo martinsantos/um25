@@ -1,33 +1,27 @@
 import type { APIRoute } from 'astro';
-
-const SITE_URL = 'https://ultimamilla.com.ar';
-
-function formatDate(date: Date): string {
-    const isoString = date.toISOString();
-    const parts = isoString.split('T');
-    return parts[0] || new Date().toISOString().split('T')[0];
-}
+import { SITE_URL } from '../config/seo';
+import { escapeXml, formatSitemapDate } from '../utils/seoUrl';
 
 function generateSitemapIndexXml(): string {
-    const today = formatDate(new Date());
+    const today = formatSitemapDate();
     
     return `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <!-- Sitemap principal con páginas estáticas -->
     <sitemap>
-        <loc>${SITE_URL}/sitemap.xml</loc>
+        <loc>${escapeXml(`${SITE_URL}/sitemap.xml`)}</loc>
         <lastmod>${today}</lastmod>
     </sitemap>
     
     <!-- Sitemap con todos los antecedentes (469 URLs) -->
     <sitemap>
-        <loc>${SITE_URL}/sitemap-antecedentes.xml</loc>
+        <loc>${escapeXml(`${SITE_URL}/sitemap-antecedentes.xml`)}</loc>
         <lastmod>${today}</lastmod>
     </sitemap>
 
     <!-- Sitemap del blog (posts + categorías) -->
     <sitemap>
-        <loc>${SITE_URL}/sitemap-blog.xml</loc>
+        <loc>${escapeXml(`${SITE_URL}/sitemap-blog.xml`)}</loc>
         <lastmod>${today}</lastmod>
     </sitemap>
 </sitemapindex>`;

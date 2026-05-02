@@ -12,12 +12,13 @@ import { getServicioById } from '../../../utils/directusHelpers';
 import { getServiceIdFromArea } from '../../../data/areaToServiceMap.js';
 import ProjectCard from '../../../components/ProjectCard.astro';
 import { getDirectusImageUrl, getAllAntecedentes } from '../../../lib/directus.ts';
+import { canonicalUrl as toCanonicalUrl, publicImageUrl } from '../../../utils/seoUrl';
 
 // --- Configuration ---
 const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://ultimamilla.com.ar/admin';
 const PROD_URL = 'https://ultimamilla.com.ar';
 const DEFAULT_IMAGE_URL = `/images/default-background.jpg`;
-const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN || import.meta.env.PUBLIC_DIRECTUS_TOKEN || '';
 
 export const prerender = false;
 
@@ -246,9 +247,25 @@ const relatedAntecedentes = await getRelatedAntecedentes(antecedente.Area || '',
 
 
 // SEO
-const siteUrl = 'https://www.ultimamilla.com.ar';
-const canonicalUrl = `${siteUrl}/antecedentes/${id}/${slugFromUrl}`;
+const siteUrl = 'https://ultimamilla.com.ar';
+const canonicalUrl = toCanonicalUrl(`/antecedentes/${id}/${slugFromUrl}`);
 const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').substring(0, 160) + '...';
+const antecedenteStructuredData = {
+  "@type": "CreativeWork",
+  "name": antecedente.Titulo,
+  "headline": antecedente.Titulo,
+  "description": metaDescription,
+  "url": canonicalUrl,
+  "image": publicImageUrl(mainImageUrl) || toCanonicalUrl(DEFAULT_IMAGE_URL),
+  "datePublished": antecedente.Fecha || undefined,
+  "inLanguage": "es-AR",
+  "about": antecedente.Area || undefined,
+  "provider": {
+    "@type": "Organization",
+    "name": "ULTIMA MILLA",
+    "url": siteUrl
+  }
+};
 ---
 
 <LayoutV4
@@ -256,6 +273,7 @@ const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').
   description={metaDescription}
   image={mainImageUrl}
   canonical={canonicalUrl}
+  structuredData={antecedenteStructuredData}
 >
   <!-- HERO SECTION -->
   <section class="relative overflow-hidden bg-um-dark">

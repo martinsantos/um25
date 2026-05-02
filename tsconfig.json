@@ -104,8 +104,7 @@
     "**/*.js",
     "**/*.jsx",
     "**/*.mjs",
-    "**/*.cjs",
-    "**/*.json"
+    "**/*.cjs"
   ],
   
   /* Excluir archivos de la compilación */
@@ -133,7 +132,15 @@
     "**/.husky",
     "**/.github",
     "**/.vscode",
+    "**/.claude",
     "**/public",
+    "**/outputs",
+    "**/_blog_*",
+    "**/blog_umsa*",
+    "**/blog_docx_*",
+    "**/*.docx",
+    "**/*.pdf",
+    "**/*.json",
     "**/coverage",
     "**/__snapshots__",
     "**/*.test.*",
