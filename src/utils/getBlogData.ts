@@ -2,17 +2,18 @@ import type { EntradaBlog } from '../lib/directus';
 import { MOCK_POSTS } from '../data/blog-mock';
 
 const DIRECTUS_URL =
-  (typeof process !== 'undefined' ? process.env.DIRECTUS_INTERNAL_URL : undefined) ??
-  import.meta.env.DIRECTUS_INTERNAL_URL ??
+  (typeof process !== 'undefined' ? process.env['DIRECTUS_INTERNAL_URL'] : undefined) ??
+  import.meta.env['DIRECTUS_INTERNAL_URL'] ??
   'http://localhost:8055';
 
 const DIRECTUS_TOKEN =
-  (typeof process !== 'undefined' ? process.env.DIRECTUS_ADMIN_TOKEN : undefined) ??
-  import.meta.env.DIRECTUS_ADMIN_TOKEN ??
-  '1d70b2841dd6365c676ab42e879c5fdfc044ec1adfc146552a99b2d7e23baa5e';
+  (typeof process !== 'undefined' ? process.env['DIRECTUS_ADMIN_TOKEN'] : undefined) ??
+  import.meta.env['DIRECTUS_ADMIN_TOKEN'] ??
+  import.meta.env['PUBLIC_DIRECTUS_TOKEN'] ??
+  '';
 
-function authHeaders() {
-  return { Authorization: `Bearer ${DIRECTUS_TOKEN}` };
+function authHeaders(): HeadersInit {
+  return DIRECTUS_TOKEN ? { Authorization: `Bearer ${DIRECTUS_TOKEN}` } : {};
 }
 
 export async function fetchBlogListing(

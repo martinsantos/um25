@@ -1,12 +1,13 @@
 import type { APIRoute } from 'astro';
+import { SITE_URL } from '../config/seo';
+import { blogPosts as fallbackBlogPosts } from '../data/blog-posts';
+import { canonicalUrl, escapeXml, formatSitemapDate, publicImageUrl } from '../utils/seoUrl';
 
-const SITE_URL = 'https://ultimamilla.com.ar';
 const DIRECTUS_URL =
-  (typeof process !== 'undefined' ? process.env.DIRECTUS_INTERNAL_URL : undefined) ??
+  (typeof process !== 'undefined' ? process.env['DIRECTUS_INTERNAL_URL'] : undefined) ??
   'http://localhost:8055';
 const DIRECTUS_TOKEN =
-  (typeof process !== 'undefined' ? process.env.DIRECTUS_ADMIN_TOKEN : undefined) ??
-  '1d70b2841dd6365c676ab42e879c5fdfc044ec1adfc146552a99b2d7e23baa5e';
+  (typeof process !== 'undefined' ? process.env['DIRECTUS_ADMIN_TOKEN'] : undefined) ?? '';
 
 interface BlogPost {
   slug: string;
@@ -17,45 +18,42 @@ interface BlogPost {
 
 async function fetchPublishedPosts(): Promise<BlogPost[]> {
   try {
+    const headers = DIRECTUS_TOKEN ? { Authorization: `Bearer ${DIRECTUS_TOKEN}` } : undefined;
     const res = await fetch(
       `${DIRECTUS_URL}/items/blog_posts?filter[status][_eq]=published&sort=-fecha_publicacion&limit=200&fields=slug,titulo,fecha_publicacion,imagen_portada`,
-      { headers: { Authorization: `Bearer ${DIRECTUS_TOKEN}` } }
+      { headers }
     );
+    if (!res.ok) throw new Error(`Directus blog sitemap returned ${res.status}`);
     const data = await res.json();
     return (data.data || []) as BlogPost[];
   } catch {
-    return [];
+    return fallbackBlogPosts.map((post) => ({
+      slug: post.slug,
+      titulo: post.title,
+      fecha_publicacion: new Date().toISOString(),
+      imagen_portada: post.image,
+    }));
   }
-}
-
-function escapeXml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
 }
 
 export const GET: APIRoute = async () => {
   const posts = await fetchPublishedPosts();
-  const today = new Date().toISOString().split('T')[0];
+  const today = formatSitemapDate();
 
   const urls = posts
     .map(post => {
-      const loc = `${SITE_URL}/blog/${escapeXml(post.slug)}`;
-      const lastmod = post.fecha_publicacion
-        ? post.fecha_publicacion.split('T')[0]
-        : today;
-      const imageTag = post.imagen_portada && post.imagen_portada.startsWith('http')
+      const loc = canonicalUrl(`/blog/${post.slug}`);
+      const lastmod = formatSitemapDate(post.fecha_publicacion) || today;
+      const imageUrl = publicImageUrl(post.imagen_portada);
+      const imageTag = imageUrl
         ? `
     <image:image>
-      <image:loc>${escapeXml(post.imagen_portada)}</image:loc>
+      <image:loc>${escapeXml(imageUrl)}</image:loc>
       <image:title>${escapeXml(post.titulo)}</image:title>
     </image:image>`
         : '';
       return `  <url>
-    <loc>${loc}</loc>
+    <loc>${escapeXml(loc)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>${imageTag}

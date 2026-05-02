@@ -1,11 +1,19 @@
 import type { APIRoute } from 'astro';
+import { generateSlug } from '../utils/slugUtils.js';
+import { canonicalUrl, escapeXml, formatSitemapDate } from '../utils/seoUrl';
+import serviciosSnapshot from '../data/snapshots/servicios.json';
 
-const SITE_URL = 'https://ultimamilla.com.ar';
+type SitemapPage = { loc: string; priority: string; changefreq: string; lastmod?: string };
+
+function getSnapshotServices(): Array<{ id: number; Titulo: string; slug?: string }> {
+    const snapshot = serviciosSnapshot as { data?: Array<{ id: number; Titulo: string; slug?: string }> };
+    return snapshot.data || [];
+}
 
 function generateSitemapXml(): string {
-    const today = new Date().toISOString().split('T')[0];
+    const today = formatSitemapDate();
 
-    const pages: Array<{ loc: string; priority: string; changefreq: string }> = [
+    const staticPages: SitemapPage[] = [
         // Core pages
         { loc: '', priority: '1.0', changefreq: 'weekly' },
         { loc: '/servicios', priority: '0.9', changefreq: 'weekly' },
@@ -15,22 +23,29 @@ function generateSitemapXml(): string {
         { loc: '/nosotros', priority: '0.6', changefreq: 'monthly' },
         { loc: '/contacto', priority: '0.7', changefreq: 'monthly' },
         // Sector verticals
+        { loc: '/aeropuertos', priority: '0.7', changefreq: 'monthly' },
+        { loc: '/bodegas', priority: '0.7', changefreq: 'monthly' },
+        { loc: '/constructoras', priority: '0.7', changefreq: 'monthly' },
+        { loc: '/salud', priority: '0.7', changefreq: 'monthly' },
+        { loc: '/gobiernosectorpublico', priority: '0.7', changefreq: 'monthly' },
+        { loc: '/software', priority: '0.7', changefreq: 'monthly' },
+        { loc: '/mineria', priority: '0.7', changefreq: 'monthly' },
+        { loc: '/industria', priority: '0.7', changefreq: 'monthly' },
         { loc: '/seguridad-electronica', priority: '0.7', changefreq: 'monthly' },
-        // Service detail pages
-        { loc: '/servicios/101/infraestructura-de-redes-cableado-fibra-optica-radioenlaces', priority: '0.8', changefreq: 'monthly' },
-        { loc: '/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi', priority: '0.8', changefreq: 'monthly' },
-        { loc: '/servicios/103/telecomunicaciones-datos-voz-video', priority: '0.8', changefreq: 'monthly' },
-        { loc: '/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp', priority: '0.8', changefreq: 'monthly' },
-        { loc: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it', priority: '0.8', changefreq: 'monthly' },
-        { loc: '/servicios/106/consultoria-it-y-transformacion-digital-arquitectura-auditoria', priority: '0.8', changefreq: 'monthly' },
-        { loc: '/servicios/107/sistemas-de-deteccion-y-alarma-de-incendios', priority: '0.8', changefreq: 'monthly' },
-        { loc: '/servicios/108/servicios-electricos-para-it', priority: '0.8', changefreq: 'monthly' },
     ];
+
+    const servicePages: SitemapPage[] = getSnapshotServices().map((service) => ({
+        loc: `/servicios/${service.id}/${service.slug || generateSlug(service.Titulo)}`,
+        priority: '0.8',
+        changefreq: 'monthly',
+    }));
+
+    const pages = [...staticPages, ...servicePages];
 
     const urlEntries = pages.map(p => `
     <url>
-        <loc>${SITE_URL}${p.loc}</loc>
-        <lastmod>${today}</lastmod>
+        <loc>${escapeXml(canonicalUrl(p.loc))}</loc>
+        <lastmod>${p.lastmod || today}</lastmod>
         <changefreq>${p.changefreq}</changefreq>
         <priority>${p.priority}</priority>
     </url>`).join('');

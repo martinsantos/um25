@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "composite": false,
+    "incremental": false,
+    "noEmit": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": true,
+    "allowImportingTsExtensions": true
+  },
+  "include": [
+    "src/env.d.ts",
+    "src/utils/seoUrl.ts",
+    "src/pages/sitemap.xml.ts",
+    "src/pages/sitemap-index.xml.ts",
+    "src/pages/sitemap-blog.xml.ts",
+    "src/pages/sitemap-antecedentes.xml.ts",
+    "src/pages/api/blog.ts",
+    "src/pages/api/blog/[slug].ts"
+  ]
+}

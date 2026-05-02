@@ -9,6 +9,7 @@
  * Font links, GA4 tracking, and <style> blocks stay in the layout.
  */
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, BUSINESS_ADDRESS } from '../../config/seo';
+import { canonicalUrl as toCanonicalUrl, clampText, publicImageUrl, stripWww } from '../../utils/seoUrl';
 
 export interface Props {
   title?: string;
@@ -21,6 +22,7 @@ export interface Props {
   noindex?: boolean;
   hreflang?: boolean;
   gscVerification?: string;
+  updatedTime?: string | Date;
   service?: {
     name: string;
     area: string;
@@ -40,6 +42,7 @@ const {
   noindex = false,
   hreflang = false,
   gscVerification,
+  updatedTime,
   service,
   breadcrumbs = [],
 } = Astro.props;
@@ -48,8 +51,8 @@ const {
 // Normalise current URL — strip www. and trailing slash
 // ---------------------------------------------------------------------------
 const currentUrl = canonical
-  ? canonical.replace(/^https?:\/\/www\./, 'https://').replace(/\/$/, '')
-  : `${SITE_URL}${Astro.url.pathname}`.replace(/\/$/, '');
+  ? toCanonicalUrl(canonical)
+  : toCanonicalUrl(Astro.url.pathname);
 
 // ---------------------------------------------------------------------------
 // Title
@@ -62,6 +65,7 @@ const seoTitle = service
   : rawTitle.includes(SITE_NAME)
     ? rawTitle
     : `${rawTitle} | ${SITE_NAME}`;
+const metaTitle = clampText(seoTitle, 65);
 
 // ---------------------------------------------------------------------------
 // Description
@@ -71,6 +75,7 @@ const rawDescription = description ?? SITE_DESCRIPTION;
 const seoDescription = service
   ? `${service.description} Servicios de ${service.area.toLowerCase()} para empresas en Mendoza, Argentina. +20 años de experiencia. Consulta gratuita.`
   : rawDescription;
+const metaDescription = clampText(seoDescription, 160);
 
 // ---------------------------------------------------------------------------
 // Keywords
@@ -83,13 +88,13 @@ const pageKeywords = keywords ?? defaultKeywords;
 // OG Image — ensure absolute URL
 // ---------------------------------------------------------------------------
 const rawImage = ogImage || '/nosotros-tech.jpg';
-const pageImage = rawImage.startsWith('http') ? rawImage : `${SITE_URL}${rawImage}`;
+const pageImage = publicImageUrl(rawImage) || `${SITE_URL}/nosotros-tech.jpg`;
 
 // ---------------------------------------------------------------------------
 // Timestamps
 // ---------------------------------------------------------------------------
 const currentYear = new Date().getFullYear();
-const isoNow = new Date().toISOString();
+const stableUpdatedTime = updatedTime ? new Date(updatedTime).toISOString() : null;
 
 // ---------------------------------------------------------------------------
 // Schema.org entities
@@ -103,6 +108,7 @@ const organizationSchema = {
   url: SITE_URL,
   logo: `${SITE_URL}/images/um-logo.png`,
   description: SITE_DESCRIPTION,
+  inLanguage: "es-AR",
   foundingDate: "2000",
   address: {
     "@type": "PostalAddress",
@@ -138,6 +144,7 @@ const localBusinessSchema = {
   "@type": "LocalBusiness",
   name: SITE_NAME,
   description: SITE_DESCRIPTION,
+  inLanguage: "es-AR",
   url: SITE_URL,
   email: "contacto@ultimamilla.com.ar",
   address: {
@@ -189,13 +196,6 @@ const localBusinessSchema = {
       },
     ],
   },
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: "4.8",
-    reviewCount: "47",
-    bestRating: "5",
-    worstRating: "1",
-  },
   sameAs: [
     "https://www.linkedin.com/company/ultimamilla",
     "https://x.com/ultimamilla",
@@ -208,6 +208,7 @@ const serviceSchema = service
       "@type": "Service",
       name: `${service.name} en Mendoza`,
       description: service.description,
+      inLanguage: "es-AR",
       provider: {
         "@type": "LocalBusiness",
         name: SITE_NAME,
@@ -231,8 +232,8 @@ const breadcrumbSchema = breadcrumbs.length > 0
         position: index + 1,
         name: crumb.name,
         item: crumb.url.startsWith("http")
-          ? crumb.url.replace(/^https?:\/\/www\./, "https://")
-          : `${SITE_URL}${crumb.url}`,
+          ? stripWww(crumb.url)
+          : toCanonicalUrl(crumb.url),
       })),
     }
   : null;
@@ -265,9 +266,9 @@ const combinedSchema = {
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
 
   <!-- Primary Meta -->
-  <title>{seoTitle}</title>
-  <meta name="title" content={seoTitle} />
-  <meta name="description" content={seoDescription} />
+  <title>{metaTitle}</title>
+  <meta name="title" content={metaTitle} />
+  <meta name="description" content={metaDescription} />
   <meta name="keywords" content={pageKeywords} />
   <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
   <meta name="author" content={SITE_NAME} />
@@ -303,8 +304,8 @@ const combinedSchema = {
   <meta name="business:contact_data:country_name" content="Argentina" />
 
   <!-- Dublin Core -->
-  <meta name="dc.title" content={seoTitle} />
-  <meta name="dc.description" content={seoDescription} />
+  <meta name="dc.title" content={metaTitle} />
+  <meta name="dc.description" content={metaDescription} />
   <meta name="dc.subject" content="Servicios IT, Tecnología, Mendoza" />
   <meta name="dc.coverage" content="Mendoza, Argentina" />
   <meta name="dc.type" content="Service" />
@@ -329,23 +330,23 @@ const combinedSchema = {
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content={ogType} />
   <meta property="og:url" content={currentUrl} />
-  <meta property="og:title" content={seoTitle} />
-  <meta property="og:description" content={seoDescription} />
+  <meta property="og:title" content={metaTitle} />
+  <meta property="og:description" content={metaDescription} />
   <meta property="og:image" content={pageImage} />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content={seoTitle} />
+  <meta property="og:image:alt" content={metaTitle} />
   <meta property="og:site_name" content={SITE_NAME} />
   <meta property="og:locale" content="es_AR" />
-  <meta property="og:updated_time" content={isoNow} />
+  {stableUpdatedTime && <meta property="og:updated_time" content={stableUpdatedTime} />}
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:url" content={currentUrl} />
-  <meta name="twitter:title" content={seoTitle} />
-  <meta name="twitter:description" content={seoDescription} />
+  <meta name="twitter:title" content={metaTitle} />
+  <meta name="twitter:description" content={metaDescription} />
   <meta name="twitter:image" content={pageImage} />
-  <meta name="twitter:image:alt" content={seoTitle} />
+  <meta name="twitter:image:alt" content={metaTitle} />
   <meta name="twitter:site" content="@ultimamilla" />
   <meta name="twitter:creator" content="@ultimamilla" />
 
