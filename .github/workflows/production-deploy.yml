@@ -95,7 +95,11 @@ jobs:
       - name: Add server to known hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H 23.105.176.45 >> ~/.ssh/known_hosts
+          for attempt in 1 2 3; do
+            ssh-keyscan -T 30 -H 23.105.176.45 >> ~/.ssh/known_hosts && break
+            if [ "$attempt" = "3" ]; then exit 1; fi
+            sleep 10
+          done
 
       - name: Deploy to server via rsync
         run: |
