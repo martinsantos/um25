@@ -1,8 +1,15 @@
 import type { APIRoute } from 'astro';
+import { AI_CRAWLERS } from '../data/geoKnowledge';
 
 const SITE_URL = 'https://ultimamilla.com.ar';
 
 export const GET: APIRoute = async () => {
+    const aiCrawlerRules = AI_CRAWLERS.map((crawler) => `User-agent: ${crawler}
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /geo/
+Allow: /sitemap-geo.xml`).join('\n\n');
+
     const robotsTxt = `# robots.txt — ultimamilla.com.ar
 
 User-agent: *
@@ -17,7 +24,20 @@ Disallow: /_sectores
 Disallow: /_cli-mobile
 Disallow: /_test-components-v4
 
-Sitemap: ${SITE_URL}/sitemap-index.xml`;
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /geo/
+Allow: /sitemap-geo.xml
+
+# AI and LLM discovery resources
+${aiCrawlerRules}
+
+LLMs: ${SITE_URL}/llms.txt
+LLMs-Full: ${SITE_URL}/llms-full.txt
+GEO-Knowledge: ${SITE_URL}/geo/brand-facts.json
+
+Sitemap: ${SITE_URL}/sitemap-index.xml
+Sitemap: ${SITE_URL}/sitemap-geo.xml`;
 
     return new Response(robotsTxt, {
         headers: {
