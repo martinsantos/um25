@@ -45,11 +45,15 @@ describe('GEO layer', () => {
   test('adds GEO URLs to sitemap and robots discovery', () => {
     const sitemapIndex = fs.readFileSync(path.join(repoRoot, 'src/pages/sitemap-index.xml.ts'), 'utf8');
     const robots = fs.readFileSync(path.join(repoRoot, 'src/pages/robots.txt.ts'), 'utf8');
+    const staticRobots = fs.readFileSync(path.join(repoRoot, 'public/robots.txt'), 'utf8');
     const geoUrls = getGeoSitemapUrls().map((entry) => entry.loc);
 
     expect(sitemapIndex).toContain('/sitemap-geo.xml');
     expect(robots).toContain('LLMs:');
     expect(robots).toContain('GEO-Knowledge:');
+    expect(staticRobots).toContain('LLMs:');
+    expect(staticRobots).toContain('GEO-Knowledge:');
+    expect(staticRobots).toContain('Sitemap: https://ultimamilla.com.ar/sitemap-geo.xml');
     expect(AI_CRAWLERS).toEqual(expect.arrayContaining(['GPTBot', 'ClaudeBot', 'PerplexityBot']));
     expect(geoUrls).toEqual(expect.arrayContaining([
       'https://ultimamilla.com.ar/llms.txt',
