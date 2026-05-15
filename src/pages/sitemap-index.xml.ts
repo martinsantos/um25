@@ -24,6 +24,12 @@ function generateSitemapIndexXml(): string {
         <loc>${escapeXml(`${SITE_URL}/sitemap-blog.xml`)}</loc>
         <lastmod>${today}</lastmod>
     </sitemap>
+
+    <!-- Sitemap GEO para LLMs, recursos estructurados y URLs de autoridad -->
+    <sitemap>
+        <loc>${escapeXml(`${SITE_URL}/sitemap-geo.xml`)}</loc>
+        <lastmod>${today}</lastmod>
+    </sitemap>
 </sitemapindex>`;
 }
 
