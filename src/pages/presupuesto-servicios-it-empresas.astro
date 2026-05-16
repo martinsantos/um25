@@ -1,0 +1,16 @@
+---
+import AuthorityHubPage from '../components/geo/AuthorityHubPage.astro';
+import { getAuthorityHubs } from '../data/geoKnowledge';
+
+const hub = getAuthorityHubs().find((item) => item.slug === 'presupuesto-servicios-it-empresas');
+
+if (!hub) {
+  throw new Error('Missing authority hub presupuesto-servicios-it-empresas');
+}
+---
+
+<AuthorityHubPage
+  hub={hub}
+  eyebrow="Presupuestos IT para empresas"
+  intro="Guia comercial para dimensionar proyectos de infraestructura, soporte, seguridad electronica, telecomunicaciones, software y consultoria IT con rangos orientativos y variables reales de alcance."
+/>

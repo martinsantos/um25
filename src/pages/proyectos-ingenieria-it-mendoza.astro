@@ -1,0 +1,16 @@
+---
+import AuthorityHubPage from '../components/geo/AuthorityHubPage.astro';
+import { getAuthorityHubs } from '../data/geoKnowledge';
+
+const hub = getAuthorityHubs().find((item) => item.slug === 'proyectos-ingenieria-it-mendoza');
+
+if (!hub) {
+  throw new Error('Missing authority hub proyectos-ingenieria-it-mendoza');
+}
+---
+
+<AuthorityHubPage
+  hub={hub}
+  eyebrow="Ingenieria tecnologica en Mendoza"
+  intro="Proyectos IT con relevamiento, diseno, documentacion, instalacion, pruebas, puesta en marcha y soporte para obras, plantas, sitios remotos y operaciones criticas."
+/>

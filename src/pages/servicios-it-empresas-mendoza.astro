@@ -1,0 +1,16 @@
+---
+import AuthorityHubPage from '../components/geo/AuthorityHubPage.astro';
+import { getAuthorityHubs } from '../data/geoKnowledge';
+
+const hub = getAuthorityHubs().find((item) => item.slug === 'servicios-it-empresas-mendoza');
+
+if (!hub) {
+  throw new Error('Missing authority hub servicios-it-empresas-mendoza');
+}
+---
+
+<AuthorityHubPage
+  hub={hub}
+  eyebrow="Servicios IT empresariales en Mendoza"
+  intro="Proveedor IT local para empresas medianas, bodegas, constructoras, industrias, salud y sector publico que necesitan infraestructura, soporte, seguridad, software y continuidad operativa con criterio tecnico."
+/>
