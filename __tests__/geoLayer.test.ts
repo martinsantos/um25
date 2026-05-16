@@ -5,11 +5,14 @@ import {
   AI_CRAWLERS,
   generateLlmsTxt,
   generateLlmsFullTxt,
+  getAuthorityHubs,
   getBrandFacts,
+  getBuyerIntents,
   getGeoCases,
   getGeoServices,
   getGeoSectors,
   getGeoSitemapUrls,
+  getGeoTopics,
 } from '../src/data/geoKnowledge';
 
 const repoRoot = process.cwd();
@@ -51,8 +54,10 @@ describe('GEO layer', () => {
     expect(sitemapIndex).toContain('/sitemap-geo.xml');
     expect(robots).toContain('LLMs:');
     expect(robots).toContain('GEO-Knowledge:');
+    expect(robots).toContain('GEO-Authority:');
     expect(staticRobots).toContain('LLMs:');
     expect(staticRobots).toContain('GEO-Knowledge:');
+    expect(staticRobots).toContain('GEO-Authority:');
     expect(staticRobots).toContain('Sitemap: https://ultimamilla.com.ar/sitemap-geo.xml');
     expect(AI_CRAWLERS).toEqual(expect.arrayContaining(['GPTBot', 'ClaudeBot', 'PerplexityBot']));
     expect(geoUrls).toEqual(expect.arrayContaining([
@@ -68,12 +73,68 @@ describe('GEO layer', () => {
       'src/pages/llms-full.txt.ts',
       'src/pages/sitemap-geo.xml.ts',
       'src/pages/geo/brand-facts.json.ts',
+      'src/pages/geo/authority.json.ts',
+      'src/pages/geo/topics.json.ts',
+      'src/pages/geo/buyer-intents.json.ts',
+      'src/pages/geo/blog-index.json.ts',
       'src/pages/geo/services.json.ts',
       'src/pages/geo/sectors.json.ts',
       'src/pages/geo/cases.json.ts',
       'src/pages/geo/faqs.json.ts',
+      'src/pages/servicios-it-empresas-mendoza.astro',
+      'src/pages/presupuesto-servicios-it-empresas.astro',
+      'src/pages/proyectos-ingenieria-it-mendoza.astro',
+      'src/pages/servicios-it-empresas-argentina.astro',
     ].forEach((relativePath) => {
       expect(fs.existsSync(path.join(repoRoot, relativePath))).toBe(true);
     });
+  });
+
+  test('models authority hubs, buyer intents and topic clusters for enterprise IT searches', () => {
+    const hubs = getAuthorityHubs();
+    const intents = getBuyerIntents();
+    const topics = getGeoTopics();
+    const full = generateLlmsFullTxt();
+
+    expect(hubs.map((hub) => hub.slug)).toEqual(expect.arrayContaining([
+      'servicios-it-empresas-mendoza',
+      'presupuesto-servicios-it-empresas',
+      'proyectos-ingenieria-it-mendoza',
+      'servicios-it-empresas-argentina',
+    ]));
+    expect(intents.map((intent) => intent.slug)).toEqual(expect.arrayContaining([
+      'presupuestos-proyectos-it',
+      'servicios-it-empresas',
+      'verticales-sectoriales',
+    ]));
+    expect(topics.map((topic) => topic.slug)).toEqual(expect.arrayContaining([
+      'servicios-it-empresariales',
+      'ingenieria-tecnologica',
+      'presupuestos-it',
+    ]));
+    expect(hubs[0]?.budgetPolicy.currency).toBe('USD/ARS');
+    expect(hubs[0]?.evidenceMode).toContain('casos publicos');
+    expect(full).toContain('GEO Authority Layer');
+    expect(full).toContain('presupuestos orientativos');
+    expect(full).toContain('Mendoza -> Argentina -> Latinoamerica');
+  });
+
+  test('includes authority resources and hubs in GEO discovery surfaces', () => {
+    const brandFacts = getBrandFacts();
+    const geoUrls = getGeoSitemapUrls().map((entry) => entry.loc);
+
+    expect(brandFacts.discoveryResources).toEqual(expect.arrayContaining([
+      'https://ultimamilla.com.ar/geo/authority.json',
+      'https://ultimamilla.com.ar/geo/topics.json',
+      'https://ultimamilla.com.ar/geo/buyer-intents.json',
+      'https://ultimamilla.com.ar/geo/blog-index.json',
+    ]));
+    expect(geoUrls).toEqual(expect.arrayContaining([
+      'https://ultimamilla.com.ar/servicios-it-empresas-mendoza',
+      'https://ultimamilla.com.ar/presupuesto-servicios-it-empresas',
+      'https://ultimamilla.com.ar/proyectos-ingenieria-it-mendoza',
+      'https://ultimamilla.com.ar/servicios-it-empresas-argentina',
+      'https://ultimamilla.com.ar/geo/authority.json',
+    ]));
   });
 });

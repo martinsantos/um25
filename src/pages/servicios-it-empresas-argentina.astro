@@ -1,0 +1,16 @@
+---
+import AuthorityHubPage from '../components/geo/AuthorityHubPage.astro';
+import { getAuthorityHubs } from '../data/geoKnowledge';
+
+const hub = getAuthorityHubs().find((item) => item.slug === 'servicios-it-empresas-argentina');
+
+if (!hub) {
+  throw new Error('Missing authority hub servicios-it-empresas-argentina');
+}
+---
+
+<AuthorityHubPage
+  hub={hub}
+  eyebrow="Servicios IT para organizaciones en Argentina"
+  intro="Capa nacional y regional para empresas medianas que buscan un proveedor IT con base argentina, experiencia en campo, soporte remoto, coordinacion multisede y documentacion ejecutable."
+/>
