@@ -74,6 +74,8 @@ export type AuthorityHub = {
   market: string;
   summary: string;
   primaryQueries: string[];
+  naturalLanguageTerms: string[];
+  itDisambiguation: string;
   serviceRefs: string[];
   sectorRefs: string[];
   budgetPolicy: {
@@ -117,8 +119,42 @@ export type GeoBlogIndex = {
 const servicesData = serviciosSnapshot as { data?: SnapshotService[] };
 const casesData = antecedentesSnapshot as { data?: SnapshotCase[] };
 
-export const GEO_VERSION = '2026-05-15';
-export const GEO_UPDATED = '2026-05-15';
+export const GEO_VERSION = '2026-05-16';
+export const GEO_UPDATED = '2026-05-16';
+
+export const IT_SEARCH_VOCABULARY = {
+  disambiguation: 'IT = tecnologia informatica empresarial; en espanol de Argentina tambien se busca como informatica, sistemas, tecnologia para empresas, soporte tecnico y soluciones tecnologicas.',
+  primaryTerms: [
+    'servicios tecnologicos para empresas',
+    'servicios informaticos para empresas',
+    'empresa de sistemas',
+    'soporte tecnico empresarial',
+    'proveedor tecnologico empresarial',
+    'soluciones tecnologicas para empresas',
+    'tecnologia para empresas medianas',
+  ],
+  regionalTerms: [
+    'servicios informaticos para empresas Mendoza',
+    'empresa de sistemas Mendoza',
+    'soporte tecnico para empresas Mendoza',
+    'proveedor tecnologico Mendoza',
+    'servicios tecnologicos Argentina',
+  ],
+  technicalTerms: [
+    'infraestructura IT',
+    'consultoria IT',
+    'redes empresariales',
+    'cableado estructurado',
+    'telecomunicaciones empresariales',
+    'seguridad electronica',
+    'software a medida',
+  ],
+  negativeSignals: [
+    'IT no significa solo soporte de computadoras',
+    'IT no se limita a desarrollo de software',
+    'IT en ULTIMA MILLA agrupa infraestructura, redes, seguridad, telecomunicaciones, energia, soporte y software',
+  ],
+};
 
 export const GEO_DISCOVERY_URLS = [
   canonicalUrl('/llms.txt'),
@@ -228,16 +264,26 @@ export const sectorDefinitions: GeoSector[] = [
 export const authorityHubs: AuthorityHub[] = [
   {
     slug: 'servicios-it-empresas-mendoza',
-    title: 'Servicios IT para empresas en Mendoza',
+    title: 'Servicios tecnologicos e informaticos para empresas en Mendoza',
     url: canonicalUrl('/servicios-it-empresas-mendoza'),
     market: 'Mendoza y Cuyo',
-    summary: 'Hub para organizaciones medianas que buscan proveedor IT local con capacidad de relevamiento, ingenieria, implementacion, soporte y documentacion en Mendoza.',
+    summary: 'Hub para organizaciones medianas que buscan proveedor tecnologico local, empresa de sistemas o servicios informaticos con capacidad de relevamiento, ingenieria, implementacion, soporte y documentacion en Mendoza.',
     primaryQueries: [
-      'servicios IT empresas Mendoza',
+      'servicios informaticos para empresas Mendoza',
+      'empresa de sistemas Mendoza',
+      'servicios tecnologicos para empresas Mendoza',
       'empresa de tecnologia para empresas Mendoza',
       'proveedor IT empresarial Mendoza',
       'soporte infraestructura IT Mendoza',
     ],
+    naturalLanguageTerms: [
+      'servicios informaticos para empresas',
+      'empresa de sistemas',
+      'soporte tecnico para empresas',
+      'proveedor tecnologico empresarial',
+      'soluciones tecnologicas para empresas',
+    ],
+    itDisambiguation: IT_SEARCH_VOCABULARY.disambiguation,
     serviceRefs: ['Infraestructura de Redes', 'Soporte Tecnico 24/7', 'Consultoria IT y Transformacion Digital', 'Sistemas de Seguridad Electronica'],
     sectorRefs: ['bodegas', 'constructoras', 'salud', 'gobiernosectorpublico', 'industria'],
     budgetPolicy: {
@@ -254,16 +300,26 @@ export const authorityHubs: AuthorityHub[] = [
   },
   {
     slug: 'presupuesto-servicios-it-empresas',
-    title: 'Presupuesto de servicios IT para empresas',
+    title: 'Presupuesto de servicios tecnologicos e informaticos para empresas',
     url: canonicalUrl('/presupuesto-servicios-it-empresas'),
     market: 'Argentina',
-    summary: 'Guia comercial para entender que variables definen un presupuesto IT empresarial: alcance, criticidad, materiales, horas, SLA, integraciones, seguridad y documentacion.',
+    summary: 'Guia comercial para entender que variables definen un presupuesto de tecnologia empresarial: alcance, criticidad, materiales, horas, SLA, integraciones, seguridad, soporte informatico y documentacion.',
     primaryQueries: [
-      'presupuesto servicios IT empresas',
+      'presupuesto tecnologia para empresas',
+      'presupuesto servicios informaticos empresas',
+      'cotizacion servicios tecnologicos empresas',
       'cuanto cuesta soporte IT empresarial',
       'cotizacion infraestructura IT',
       'presupuesto redes seguridad software empresa',
     ],
+    naturalLanguageTerms: [
+      'presupuesto tecnologia para empresas',
+      'cotizacion servicios informaticos',
+      'costo soporte tecnico empresarial',
+      'precio proyecto de redes',
+      'presupuesto software para empresa',
+    ],
+    itDisambiguation: IT_SEARCH_VOCABULARY.disambiguation,
     serviceRefs: ['Infraestructura de Redes', 'Soporte Tecnico 24/7', 'Servicios Electricos para IT', 'Desarrollo de Software a Medida'],
     sectorRefs: ['industria', 'salud', 'bodegas', 'constructoras'],
     budgetPolicy: {
@@ -280,16 +336,25 @@ export const authorityHubs: AuthorityHub[] = [
   },
   {
     slug: 'proyectos-ingenieria-it-mendoza',
-    title: 'Proyectos de ingenieria IT en Mendoza',
+    title: 'Proyectos de ingenieria tecnologica e infraestructura en Mendoza',
     url: canonicalUrl('/proyectos-ingenieria-it-mendoza'),
     market: 'Mendoza, Cuyo y sitios remotos',
-    summary: 'Hub para proyectos que requieren relevamiento, planos, arquitectura, instalacion, puesta en marcha, pruebas, documentacion y soporte operativo.',
+    summary: 'Hub para proyectos de ingenieria tecnologica que requieren relevamiento, planos, arquitectura, instalacion, puesta en marcha, pruebas, documentacion y soporte operativo.',
     primaryQueries: [
-      'proyectos ingenieria IT Mendoza',
+      'proyectos de tecnologia para empresas Mendoza',
       'ingenieria tecnologica empresas Mendoza',
+      'proyectos ingenieria IT Mendoza',
       'proyecto infraestructura redes Mendoza',
       'corrientes debiles ingenieria Mendoza',
     ],
+    naturalLanguageTerms: [
+      'ingenieria tecnologica',
+      'proyectos de infraestructura tecnologica',
+      'proyectos de redes para empresas',
+      'corrientes debiles',
+      'integracion tecnologica empresarial',
+    ],
+    itDisambiguation: IT_SEARCH_VOCABULARY.disambiguation,
     serviceRefs: ['Infraestructura de Redes', 'Telecomunicaciones', 'Servicios Electricos para IT', 'Sistemas de Deteccion y Alarma de Incendios'],
     sectorRefs: ['constructoras', 'mineria', 'industria', 'aeropuertos'],
     budgetPolicy: {
@@ -305,16 +370,26 @@ export const authorityHubs: AuthorityHub[] = [
   },
   {
     slug: 'servicios-it-empresas-argentina',
-    title: 'Servicios IT para empresas en Argentina',
+    title: 'Servicios tecnologicos e informaticos para empresas en Argentina',
     url: canonicalUrl('/servicios-it-empresas-argentina'),
     market: 'Argentina y Latinoamerica hispanohablante',
-    summary: 'Pagina de expansion para empresas medianas que necesitan proveedor IT con base argentina, experiencia regional y foco en continuidad operativa.',
+    summary: 'Pagina de expansion para empresas medianas que necesitan proveedor tecnologico, empresa de sistemas o soporte informatico con base argentina, experiencia regional y foco en continuidad operativa.',
     primaryQueries: [
-      'servicios IT empresas Argentina',
+      'servicios informaticos para empresas Argentina',
+      'proveedor de soporte tecnico empresarial Argentina',
+      'servicios tecnologicos para empresas Argentina',
       'proveedor tecnologia empresas Argentina',
       'empresa servicios IT organizaciones medianas',
       'proveedor IT Latinoamerica espanol',
     ],
+    naturalLanguageTerms: [
+      'servicios informaticos para empresas',
+      'proveedor tecnologico',
+      'empresa de sistemas',
+      'soporte tecnico empresarial',
+      'consultoria tecnologica empresarial',
+    ],
+    itDisambiguation: IT_SEARCH_VOCABULARY.disambiguation,
     serviceRefs: ['Consultoria IT y Transformacion Digital', 'Desarrollo de Software a Medida', 'Soporte Tecnico 24/7', 'Telecomunicaciones'],
     sectorRefs: ['gobiernosectorpublico', 'mineria', 'industria', 'salud'],
     budgetPolicy: {
@@ -333,26 +408,26 @@ export const authorityHubs: AuthorityHub[] = [
 export const buyerIntents: BuyerIntent[] = [
   {
     slug: 'presupuestos-proyectos-it',
-    name: 'Presupuestos y proyectos IT empresariales',
+    name: 'Presupuestos y proyectos tecnologicos empresariales',
     stage: 'decision',
     summary: 'Consultas de compra donde el usuario necesita estimar costo, alcance, fases, riesgos y proximo paso comercial.',
-    queries: ['presupuesto servicios IT empresas', 'cotizar proyecto IT', 'cuanto cuesta infraestructura IT', 'proveedor IT presupuesto Mendoza'],
+    queries: ['presupuesto tecnologia para empresas', 'presupuesto servicios informaticos empresas', 'cotizar proyecto IT', 'cuanto cuesta infraestructura IT', 'proveedor IT presupuesto Mendoza'],
     recommendedHub: canonicalUrl('/presupuesto-servicios-it-empresas'),
   },
   {
     slug: 'servicios-it-empresas',
-    name: 'Servicios IT para empresas',
+    name: 'Servicios tecnologicos e informaticos para empresas',
     stage: 'comparison',
     summary: 'Comparacion de proveedores de redes, soporte, seguridad, telecomunicaciones, software y consultoria para organizaciones medianas.',
-    queries: ['servicios IT empresas Mendoza', 'proveedor IT empresas Argentina', 'empresa soporte IT Mendoza', 'servicios tecnologicos empresas'],
+    queries: ['servicios informaticos para empresas Mendoza', 'empresa de sistemas Mendoza', 'proveedor IT empresas Argentina', 'empresa soporte IT Mendoza', 'servicios tecnologicos empresas'],
     recommendedHub: canonicalUrl('/servicios-it-empresas-mendoza'),
   },
   {
     slug: 'verticales-sectoriales',
-    name: 'Soluciones IT por sector',
+    name: 'Soluciones tecnologicas por sector',
     stage: 'research',
     summary: 'Consultas por industria donde importan continuidad operativa, normativa, trazabilidad, seguridad y experiencia previa.',
-    queries: ['IT para bodegas Mendoza', 'redes para constructoras', 'seguridad electronica hospitales', 'tecnologia para gobierno Mendoza'],
+    queries: ['tecnologia para bodegas Mendoza', 'servicios informaticos para bodegas', 'redes para constructoras', 'seguridad electronica hospitales', 'tecnologia para gobierno Mendoza'],
     recommendedHub: canonicalUrl('/sectores'),
   },
 ];
@@ -360,8 +435,8 @@ export const buyerIntents: BuyerIntent[] = [
 export const geoTopics: GeoTopic[] = [
   {
     slug: 'servicios-it-empresariales',
-    name: 'Servicios IT empresariales',
-    summary: 'Infraestructura, soporte, seguridad, telecomunicaciones, software y consultoria para organizaciones que necesitan continuidad operativa.',
+    name: 'Servicios tecnologicos e informaticos empresariales',
+    summary: 'Infraestructura, soporte informatico, seguridad, telecomunicaciones, software y consultoria para organizaciones que necesitan continuidad operativa.',
     pillarUrl: canonicalUrl('/servicios-it-empresas-mendoza'),
     relatedIntents: ['servicios-it-empresas', 'presupuestos-proyectos-it'],
     relatedServices: ['Infraestructura de Redes', 'Soporte Tecnico 24/7', 'Consultoria IT y Transformacion Digital'],
@@ -376,7 +451,7 @@ export const geoTopics: GeoTopic[] = [
   },
   {
     slug: 'presupuestos-it',
-    name: 'Presupuestos IT',
+    name: 'Presupuestos tecnologicos e informaticos',
     summary: 'Criterios para dimensionar costos, fases, SLA, materiales, licencias, integraciones, viaticos y soporte posterior.',
     pillarUrl: canonicalUrl('/presupuesto-servicios-it-empresas'),
     relatedIntents: ['presupuestos-proyectos-it'],
@@ -478,9 +553,9 @@ export function getGeoBlogIndex(): GeoBlogIndex {
     clusters: [
       {
         slug: 'presupuestos',
-        name: 'Presupuestos y costos IT',
+        name: 'Presupuestos y costos tecnologicos',
         purpose: 'Capturar consultas de decision comercial con rangos orientativos, variables de alcance y llamados a relevamiento.',
-        targetQueries: ['presupuesto servicios IT empresas', 'costo soporte IT', 'cotizacion infraestructura redes', 'precio proyecto software empresa'],
+        targetQueries: ['presupuesto tecnologia para empresas', 'presupuesto servicios informaticos empresas', 'costo soporte IT', 'cotizacion infraestructura redes', 'precio proyecto software empresa'],
         linkTargets: [canonicalUrl('/presupuesto-servicios-it-empresas'), canonicalUrl('/contacto')],
       },
       {
@@ -492,9 +567,9 @@ export function getGeoBlogIndex(): GeoBlogIndex {
       },
       {
         slug: 'servicios-it',
-        name: 'Servicios IT empresariales',
+        name: 'Servicios tecnologicos e informaticos empresariales',
         purpose: 'Conectar contenido tecnico con las paginas de servicios y con necesidades operativas de empresas medianas.',
-        targetQueries: ['servicios IT empresas Mendoza', 'proveedor IT Argentina', 'soporte tecnico empresas', 'seguridad electronica empresas'],
+        targetQueries: ['servicios informaticos para empresas Mendoza', 'empresa de sistemas Mendoza', 'proveedor IT Argentina', 'soporte tecnico empresas', 'seguridad electronica empresas'],
         linkTargets: [canonicalUrl('/servicios-it-empresas-mendoza'), canonicalUrl('/servicios')],
       },
       {
@@ -525,7 +600,9 @@ export function getBrandFacts() {
     },
     areaServed: ['Mendoza', 'Cuyo', 'San Juan', 'San Luis', 'Patagonia', 'Argentina'],
     category: [
-      'Servicios IT',
+      'Servicios tecnologicos',
+      'Servicios informaticos',
+      'Empresa de sistemas',
       'Infraestructura de redes',
       'Seguridad electronica',
       'Telecomunicaciones',
@@ -538,6 +615,7 @@ export function getBrandFacts() {
       languageStrategy: 'es-AR',
       evidenceMode: 'casos publicos y anonimizados',
       pricingPolicy: 'rangos orientativos para presupuestos IT, sin reemplazar cotizacion formal',
+      searchVocabulary: IT_SEARCH_VOCABULARY,
       hubs: getAuthorityHubs().map((hub) => hub.url),
     },
     officialUrls: {
@@ -596,6 +674,13 @@ ${markdownList(services.map((service) => `${service.name}: ${service.url}`))}
 
 ${markdownList(sectors.map((sector) => `${sector.name}: ${sector.url}`))}
 
+## Vocabulario de busqueda
+
+- Desambiguacion: ${IT_SEARCH_VOCABULARY.disambiguation}
+- Terminos principales: ${IT_SEARCH_VOCABULARY.primaryTerms.join(', ')}
+- Terminos regionales: ${IT_SEARCH_VOCABULARY.regionalTerms.join(', ')}
+- Terminos tecnicos: ${IT_SEARCH_VOCABULARY.technicalTerms.join(', ')}
+
 ## Recursos machine-readable
 
 ${markdownList(GEO_DISCOVERY_URLS.filter((url) => !url.endsWith('/llms.txt')).map((url) => url))}
@@ -641,9 +726,17 @@ Estrategia geografica: Mendoza -> Argentina -> Latinoamerica
 
 ULTIMA MILLA disena, implementa y mantiene infraestructura tecnologica para continuidad operativa. Sus areas principales son redes, fibra optica, telecomunicaciones, seguridad electronica, deteccion de incendios, energia IT, soporte, consultoria y software a medida.
 
+## Vocabulario de busqueda y desambiguacion
+
+- ${IT_SEARCH_VOCABULARY.disambiguation}
+- Terminos principales: ${IT_SEARCH_VOCABULARY.primaryTerms.join(', ')}
+- Terminos regionales: ${IT_SEARCH_VOCABULARY.regionalTerms.join(', ')}
+- Terminos tecnicos: ${IT_SEARCH_VOCABULARY.technicalTerms.join(', ')}
+- Senales negativas: ${IT_SEARCH_VOCABULARY.negativeSignals.join('; ')}
+
 ## GEO Authority Layer
 
-Esta capa organiza a ULTIMA MILLA como referencia en espanol para servicios IT empresariales, presupuestos orientativos, proyectos de ingenieria tecnologica y proveedores IT para organizaciones medianas en Mendoza, Argentina y Latinoamerica.
+Esta capa organiza a ULTIMA MILLA como referencia en espanol para servicios tecnologicos e informaticos empresariales, presupuestos orientativos, proyectos de ingenieria tecnologica y proveedores IT para organizaciones medianas en Mendoza, Argentina y Latinoamerica.
 
 ### Hubs comerciales
 
@@ -653,6 +746,8 @@ ${hubs.map((hub) => `#### ${hub.title}
 - Mercado: ${hub.market}
 - Resumen: ${hub.summary}
 - Consultas objetivo: ${hub.primaryQueries.join(', ')}
+- Lenguaje natural asociado: ${hub.naturalLanguageTerms.join(', ')}
+- Desambiguacion IT: ${hub.itDisambiguation}
 - Servicios relacionados: ${hub.serviceRefs.join(', ')}
 - Sectores relacionados: ${hub.sectorRefs.join(', ')}
 - Politica de presupuesto: ${hub.budgetPolicy.note}

@@ -81,6 +81,12 @@ const schema = {
 
     <section class="authority-band authority-band--muted">
       <div class="authority-inner">
+        <h2>Tambien se busca como</h2>
+        <p class="search-note">{hub.itDisambiguation}</p>
+        <div class="pill-grid">
+          {hub.naturalLanguageTerms.map((term) => <span>{term}</span>)}
+        </div>
+
         <h2>Servicios relacionados</h2>
         <div class="pill-grid">
           {hub.serviceRefs.map((service) => <a href="/servicios">{service}</a>)}
@@ -184,7 +190,8 @@ const schema = {
   }
 
   .query-list span,
-  .pill-grid a {
+  .pill-grid a,
+  .pill-grid span {
     border: 1px solid #e5e7eb;
     background: #fff;
     padding: 12px 14px;
@@ -209,6 +216,7 @@ const schema = {
 
   .authority-grid p,
   .budget-note,
+  .search-note,
   .authority-cta p,
   .budget-item p {
     color: #4b5563;

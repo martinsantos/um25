@@ -95,6 +95,7 @@ describe('GEO layer', () => {
     const intents = getBuyerIntents();
     const topics = getGeoTopics();
     const full = generateLlmsFullTxt();
+    const allHubQueries = hubs.flatMap((hub) => hub.primaryQueries);
 
     expect(hubs.map((hub) => hub.slug)).toEqual(expect.arrayContaining([
       'servicios-it-empresas-mendoza',
@@ -117,6 +118,15 @@ describe('GEO layer', () => {
     expect(full).toContain('GEO Authority Layer');
     expect(full).toContain('presupuestos orientativos');
     expect(full).toContain('Mendoza -> Argentina -> Latinoamerica');
+    expect(full).toContain('IT = tecnologia informatica empresarial');
+    expect(full).toContain('servicios informaticos para empresas');
+    expect(full).toContain('empresa de sistemas');
+    expect(allHubQueries).toEqual(expect.arrayContaining([
+      'servicios informaticos para empresas Mendoza',
+      'empresa de sistemas Mendoza',
+      'presupuesto tecnologia para empresas',
+      'proveedor de soporte tecnico empresarial Argentina',
+    ]));
   });
 
   test('includes authority resources and hubs in GEO discovery surfaces', () => {
@@ -135,6 +145,23 @@ describe('GEO layer', () => {
       'https://ultimamilla.com.ar/proyectos-ingenieria-it-mendoza',
       'https://ultimamilla.com.ar/servicios-it-empresas-argentina',
       'https://ultimamilla.com.ar/geo/authority.json',
+    ]));
+  });
+
+  test('desambiguates IT with natural business search vocabulary', () => {
+    const brandFacts = getBrandFacts();
+
+    expect(brandFacts.authority.searchVocabulary.primaryTerms).toEqual(expect.arrayContaining([
+      'servicios tecnologicos para empresas',
+      'servicios informaticos para empresas',
+      'empresa de sistemas',
+      'soporte tecnico empresarial',
+      'proveedor tecnologico empresarial',
+    ]));
+    expect(brandFacts.authority.searchVocabulary.disambiguation).toContain('IT = tecnologia informatica empresarial');
+    expect(brandFacts.authority.searchVocabulary.technicalTerms).toEqual(expect.arrayContaining([
+      'infraestructura IT',
+      'consultoria IT',
     ]));
   });
 });
