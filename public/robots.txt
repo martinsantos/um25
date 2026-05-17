@@ -46,6 +46,12 @@ Allow: /llms-full.txt
 Allow: /geo/
 Allow: /sitemap-geo.xml
 
+User-agent: Claude-SearchBot
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /geo/
+Allow: /sitemap-geo.xml
+
 User-agent: PerplexityBot
 Allow: /llms.txt
 Allow: /llms-full.txt
@@ -90,6 +96,7 @@ Allow: /sitemap-geo.xml
 
 LLMs: https://ultimamilla.com.ar/llms.txt
 LLMs-Full: https://ultimamilla.com.ar/llms-full.txt
+GEO-Index: https://ultimamilla.com.ar/geo
 GEO-Knowledge: https://ultimamilla.com.ar/geo/brand-facts.json
 GEO-Authority: https://ultimamilla.com.ar/geo/authority.json
 

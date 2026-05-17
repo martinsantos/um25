@@ -59,7 +59,8 @@ describe('GEO layer', () => {
     expect(staticRobots).toContain('GEO-Knowledge:');
     expect(staticRobots).toContain('GEO-Authority:');
     expect(staticRobots).toContain('Sitemap: https://ultimamilla.com.ar/sitemap-geo.xml');
-    expect(AI_CRAWLERS).toEqual(expect.arrayContaining(['GPTBot', 'ClaudeBot', 'PerplexityBot']));
+    expect(AI_CRAWLERS).toEqual(expect.arrayContaining(['GPTBot', 'ClaudeBot', 'Claude-SearchBot', 'PerplexityBot']));
+    expect(staticRobots).toContain('Claude-SearchBot');
     expect(geoUrls).toEqual(expect.arrayContaining([
       'https://ultimamilla.com.ar/llms.txt',
       'https://ultimamilla.com.ar/geo/services.json',
@@ -81,6 +82,7 @@ describe('GEO layer', () => {
       'src/pages/geo/sectors.json.ts',
       'src/pages/geo/cases.json.ts',
       'src/pages/geo/faqs.json.ts',
+      'src/pages/geo/index.astro',
       'src/pages/servicios-it-empresas-mendoza.astro',
       'src/pages/presupuesto-servicios-it-empresas.astro',
       'src/pages/proyectos-ingenieria-it-mendoza.astro',
@@ -144,6 +146,7 @@ describe('GEO layer', () => {
       'https://ultimamilla.com.ar/presupuesto-servicios-it-empresas',
       'https://ultimamilla.com.ar/proyectos-ingenieria-it-mendoza',
       'https://ultimamilla.com.ar/servicios-it-empresas-argentina',
+      'https://ultimamilla.com.ar/geo',
       'https://ultimamilla.com.ar/geo/authority.json',
     ]));
   });
@@ -163,5 +166,19 @@ describe('GEO layer', () => {
       'infraestructura IT',
       'consultoria IT',
     ]));
+  });
+
+  test('publishes a human-readable GEO landing page for AI search crawlers', () => {
+    const geoPage = fs.readFileSync(path.join(repoRoot, 'src/pages/geo/index.astro'), 'utf8');
+
+    expect(geoPage).toContain('Centro GEO para asistentes y buscadores IA');
+    expect(geoPage).toContain('/llms.txt');
+    expect(geoPage).toContain('/llms-full.txt');
+    expect(geoPage).toContain('/geo/authority.json');
+    expect(geoPage).toContain('/geo/brand-facts.json');
+    expect(geoPage).toContain('/servicios-it-empresas-mendoza');
+    expect(geoPage).toContain('OAI-SearchBot');
+    expect(geoPage).toContain('Claude-SearchBot');
+    expect(geoPage).toContain('servicios informaticos para empresas');
   });
 });
