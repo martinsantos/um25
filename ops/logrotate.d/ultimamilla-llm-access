@@ -5,7 +5,7 @@
     notifempty
     compress
     delaycompress
-    create 0640 www-data adm
+    create 0640 nginx root
     sharedscripts
     postrotate
         if [ -s /run/nginx.pid ]; then

@@ -36,6 +36,8 @@ describe('LLM access logging operations', () => {
     expect(workflow).toContain('scripts/ops/install-llm-nginx-logging.sh');
     expect(logrotate).toContain('/var/log/nginx/ultimamilla-llm-access.log');
     expect(logrotate).toContain('rotate 30');
+    expect(logrotate).toContain('create 0640 nginx root');
+    expect(installer).toContain('chown nginx:root /var/log/nginx/ultimamilla-llm-access.log');
   });
 
   test('reports LLM bot and referral activity from JSON access logs', () => {

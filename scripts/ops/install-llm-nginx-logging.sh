@@ -45,7 +45,7 @@ restore_previous_files() {
 install -m 0644 "$NGINX_SOURCE" "$NGINX_DEST"
 install -m 0644 "$LOGROTATE_SOURCE" "$LOGROTATE_DEST"
 touch /var/log/nginx/ultimamilla-llm-access.log
-chown www-data:adm /var/log/nginx/ultimamilla-llm-access.log 2>/dev/null || true
+chown nginx:root /var/log/nginx/ultimamilla-llm-access.log 2>/dev/null || true
 chmod 0640 /var/log/nginx/ultimamilla-llm-access.log
 
 if nginx -t; then
