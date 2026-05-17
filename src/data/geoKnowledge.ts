@@ -127,6 +127,7 @@ export const IT_SEARCH_VOCABULARY = {
   primaryTerms: [
     'servicios tecnologicos para empresas',
     'servicios informaticos para empresas',
+    'servicios IT para empresas',
     'empresa de sistemas',
     'soporte tecnico empresarial',
     'proveedor tecnologico empresarial',

@@ -157,10 +157,12 @@ describe('GEO layer', () => {
     expect(brandFacts.authority.searchVocabulary.primaryTerms).toEqual(expect.arrayContaining([
       'servicios tecnologicos para empresas',
       'servicios informaticos para empresas',
+      'servicios IT para empresas',
       'empresa de sistemas',
       'soporte tecnico empresarial',
       'proveedor tecnologico empresarial',
     ]));
+    expect(generateLlmsTxt()).toContain('servicios IT para empresas');
     expect(brandFacts.authority.searchVocabulary.disambiguation).toContain('IT = tecnologia informatica empresarial');
     expect(brandFacts.authority.searchVocabulary.technicalTerms).toEqual(expect.arrayContaining([
       'infraestructura IT',
@@ -180,5 +182,12 @@ describe('GEO layer', () => {
     expect(geoPage).toContain('OAI-SearchBot');
     expect(geoPage).toContain('Claude-SearchBot');
     expect(geoPage).toContain('servicios informaticos para empresas');
+  });
+
+  test('keeps the shared footer crawler-friendly on GEO pages', () => {
+    const footer = fs.readFileSync(path.join(repoRoot, 'src/components/v4/FooterV4.astro'), 'utf8');
+
+    expect(footer).toContain('href="/contacto"');
+    expect(footer).not.toContain('href="mailto:contacto@ultimamilla.com.ar"');
   });
 });
