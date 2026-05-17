@@ -159,6 +159,7 @@ export const IT_SEARCH_VOCABULARY = {
 export const GEO_DISCOVERY_URLS = [
   canonicalUrl('/llms.txt'),
   canonicalUrl('/llms-full.txt'),
+  canonicalUrl('/geo'),
   canonicalUrl('/geo/brand-facts.json'),
   canonicalUrl('/geo/services.json'),
   canonicalUrl('/geo/sectors.json'),
@@ -177,6 +178,7 @@ export const AI_CRAWLERS = [
   'OAI-SearchBot',
   'ClaudeBot',
   'Claude-User',
+  'Claude-SearchBot',
   'PerplexityBot',
   'Perplexity-User',
   'Google-Extended',

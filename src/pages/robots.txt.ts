@@ -34,6 +34,7 @@ ${aiCrawlerRules}
 
 LLMs: ${SITE_URL}/llms.txt
 LLMs-Full: ${SITE_URL}/llms-full.txt
+GEO-Index: ${SITE_URL}/geo
 GEO-Knowledge: ${SITE_URL}/geo/brand-facts.json
 GEO-Authority: ${SITE_URL}/geo/authority.json
 
