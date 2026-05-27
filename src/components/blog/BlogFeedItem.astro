@@ -1,23 +1,30 @@
 ---
 import type { EntradaBlog } from '../../lib/directus';
-import { blogImageUrl } from '../../utils/blogHelpers';
-import { getCategoryColor, getCategoryLabel, formatBlogDate } from '../../utils/blogUtils';
+import { blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
+import { getCategoryLabel, formatBlogDate } from '../../utils/blogUtils';
 
 interface Props {
   post: EntradaBlog;
+  variant?: 'row' | 'compact';
+  index?: number;
 }
 
-const { post } = Astro.props;
-const imgUrl = blogImageUrl(post.imagen_portada);
-const color = getCategoryColor(post.categoria);
+const { post, variant = 'row', index } = Astro.props;
+const imgUrl = blogPostImageUrl(post);
+const imgAlt = blogPostImageAlt(post);
 const label = getCategoryLabel(post.categoria);
 const date = formatBlogDate(post.fecha_publicacion);
+const issue = typeof index === 'number' ? String(index).padStart(2, '0') : '';
 ---
 
-<article class="feed-item">
+<article class:list={['feed-item', `feed-item--${variant}`, !imgUrl && 'feed-item--no-image']}>
+  <div class="feed-index" aria-hidden="true">
+    <span>{issue || 'UM'}</span>
+  </div>
+
   <div class="feed-body">
     <div class="feed-meta">
-      <span class="category-pill" style={`color:${color};border-color:${color}40;background:${color}0d`}>{label}</span>
+      <span class="category-mark">{label}</span>
       <span class="meta-sep">·</span>
       <span class="meta-text">{post.tiempo_lectura} min</span>
       <span class="meta-sep">·</span>
@@ -40,97 +47,257 @@ const date = formatBlogDate(post.fecha_publicacion);
 
   {imgUrl && (
     <a href={`/blog/${post.slug}`} class="feed-thumb-wrap">
-      <img src={imgUrl} alt={post.titulo} class="feed-thumb" loading="lazy" />
+      <img src={imgUrl} alt={imgAlt} class="feed-thumb" loading="lazy" />
     </a>
   )}
 </article>
 
 <style>
   .feed-item {
-    display: flex;
-    gap: 28px;
-    align-items: flex-start;
-    padding: 32px 0;
-    border-bottom: 1px solid #f3f4f6;
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr) minmax(160px, 210px);
+    gap: clamp(20px, 3vw, 36px);
+    align-items: center;
+    padding: clamp(28px, 3.4vw, 38px) 0;
+    border-bottom: 0;
   }
 
-  .feed-body { flex: 1; min-width: 0; }
+  .feed-item--no-image {
+    grid-template-columns: 64px minmax(0, 1fr) minmax(160px, 210px);
+  }
+
+  .feed-item--compact {
+    grid-template-columns: 86px minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+    padding: 20px clamp(16px, 1.8vw, 22px);
+  }
+
+  .feed-item--compact .feed-index {
+    display: none;
+  }
+
+  .feed-item--compact .feed-body {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .feed-item--compact .feed-thumb-wrap {
+    display: block;
+    grid-column: 1;
+    grid-row: 1;
+    min-height: 82px;
+    aspect-ratio: 1 / 1;
+  }
+
+  .feed-item--compact .feed-thumb {
+    min-height: 82px;
+    height: 100%;
+  }
+
+  .feed-item--compact .feed-excerpt {
+    display: none;
+  }
+
+  .feed-item--compact .feed-link {
+    margin-top: 4px;
+  }
+
+  .feed-index {
+    align-self: stretch;
+    display: flex;
+    justify-content: flex-start;
+    padding-top: 6px;
+    border-right: 0;
+  }
+
+  .feed-index span {
+    color: #8b949e;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .feed-body { min-width: 0; }
 
   .feed-meta {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
 
-  .category-pill {
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 11px;
+  .category-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--um-font-body);
+    font-size: 16px;
     font-weight: 700;
+    color: #4b5563;
     text-transform: uppercase;
-    letter-spacing: .08em;
-    padding: 3px 10px;
-    border: 1px solid;
-    border-radius: 999px;
   }
 
-  .meta-sep { color: #d1d5db; font-size: 12px; }
+  .category-mark::before {
+    content: "";
+    width: 22px;
+    height: 2px;
+    background: var(--um-red);
+  }
+
+  .meta-sep { color: #c9ced6; font-size: 16px; }
   .meta-text {
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 13px;
-    color: #9ca3af;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    color: #5f6874;
   }
 
   .feed-title {
-    font-family: 'Merriweather', Georgia, serif;
-    font-size: 19px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    line-height: 1.3;
-    color: #111827;
-    margin: 0 0 8px;
+    width: fit-content;
+    max-width: 100%;
+    font-family: var(--um-font-display);
+    font-size: clamp(1.22rem, 1.34vw, 1.48rem);
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.16;
+    color: var(--skin-text);
+    margin: 0 0 12px;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
   }
   .feed-title a {
+    display: inline;
     color: inherit;
     text-decoration: none;
     transition: color .15s;
+    overflow-wrap: anywhere;
   }
-  .feed-title a:hover { color: #1d4ed8; }
+  .feed-title a:hover { color: var(--um-red); }
 
   .feed-excerpt {
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 14px;
-    line-height: 1.65;
-    color: #6b7280;
-    margin: 0 0 12px;
+    font-family: var(--um-font-body);
+    font-size: clamp(1rem, 1.04vw, 1.06rem);
+    line-height: 1.72;
+    color: var(--skin-muted);
+    margin: 0 0 14px;
+    overflow-wrap: anywhere;
+  }
+
+  :global(body[data-skin] main .blog-index .feed-title),
+  :global(body[data-skin] main .blog-cat .feed-title) {
+    font-size: clamp(1.28rem, 1.42vw, 1.58rem) !important;
+    line-height: 1.16 !important;
+    font-weight: 600 !important;
   }
 
   .feed-link {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    color: #1d4ed8;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--um-red);
     text-decoration: none;
     transition: color .15s;
   }
-  .feed-link:hover { color: #1e40af; }
+  .feed-link:hover { color: #DC2626; }
 
   .feed-thumb-wrap {
     flex-shrink: 0;
-    display: none;
+    display: grid;
+    align-content: end;
+    min-height: 168px;
+    overflow: hidden;
+    background: #f4f6f8;
+    text-decoration: none;
+    border: 0;
   }
-  @media (min-width: 540px) { .feed-thumb-wrap { display: block; } }
 
   .feed-thumb {
-    width: 128px;
-    height: 90px;
+    width: 100%;
+    height: 100%;
+    min-height: 168px;
     object-fit: cover;
-    border-radius: 8px;
+    color: transparent;
+    border-radius: 0;
     display: block;
     transition: opacity .2s;
   }
   .feed-thumb-wrap:hover .feed-thumb { opacity: .85; }
+
+  .feed-item--compact .feed-title {
+    font-size: clamp(1.04rem, 1.08vw, 1.14rem);
+    line-height: 1.18;
+  }
+
+  :global(body[data-skin] main .blog-index .feed-item--compact .feed-title),
+  :global(body[data-skin] main .blog-cat .feed-item--compact .feed-title) {
+    font-size: clamp(1.08rem, 1.16vw, 1.2rem) !important;
+    line-height: 1.18 !important;
+  }
+
+  @media (max-width: 760px) {
+    .feed-item {
+      grid-template-columns: 42px minmax(0, 1fr);
+      gap: 14px;
+      padding: 24px 0;
+    }
+
+    .feed-item--no-image {
+      grid-template-columns: 42px minmax(0, 1fr);
+    }
+
+    .feed-item--compact {
+      grid-template-columns: 82px minmax(0, 1fr);
+    }
+
+    .feed-thumb-wrap {
+      grid-column: 1 / -1;
+      min-height: 184px;
+      margin-top: 6px;
+    }
+
+    .feed-thumb {
+      min-height: 184px;
+    }
+
+    .feed-meta {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      align-items: start;
+    }
+
+    .feed-meta .meta-sep {
+      display: none;
+    }
+
+    .feed-title {
+      font-size: clamp(1.22rem, 5vw, 1.48rem);
+      line-height: 1.16;
+    }
+
+    :global(body[data-skin] main .blog-index .feed-title),
+    :global(body[data-skin] main .blog-cat .feed-title) {
+      font-size: clamp(1.22rem, 5vw, 1.48rem) !important;
+      line-height: 1.16 !important;
+    }
+
+    .feed-index {
+      border-right: 0;
+      border-top: 2px solid var(--um-red);
+      padding-top: 10px;
+    }
+
+    .feed-item--compact .feed-thumb-wrap {
+      grid-column: auto;
+      min-height: 82px;
+    }
+
+    .feed-item--compact .feed-thumb {
+      min-height: 82px;
+    }
+  }
 </style>

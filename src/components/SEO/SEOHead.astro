@@ -73,7 +73,7 @@ const metaTitle = clampText(seoTitle, 65);
 const rawDescription = description ?? SITE_DESCRIPTION;
 
 const seoDescription = service
-  ? `${service.description} Servicios de ${service.area.toLowerCase()} para empresas en Mendoza, Argentina. +20 años de experiencia. Consulta gratuita.`
+  ? `${service.description} Servicios de ${service.area.toLowerCase()} para empresas en Mendoza, Cuyo y Patagonia. Relevamiento técnico y alcance operativo.`
   : rawDescription;
 const metaDescription = clampText(seoDescription, 160);
 
@@ -158,8 +158,7 @@ const localBusinessSchema = {
   },
   areaServed: { "@type": "City", name: "Mendoza" },
   foundingDate: "2000",
-  slogan: "Transformamos tu negocio con tecnología que puedes pagar",
-  priceRange: "$$",
+  slogan: "Servicios IT para operaciones que no pueden detenerse",
   openingHoursSpecification: {
     "@type": "OpeningHoursSpecification",
     dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
@@ -174,8 +173,8 @@ const localBusinessSchema = {
         "@type": "Offer",
         itemOffered: {
           "@type": "Service",
-          name: "Servicios IT",
-          description: "Infraestructura IT empresarial completa",
+          name: "Servicios IT integrales",
+          description: "Redes, seguridad electrónica, telecomunicaciones, software, soporte y energía IT",
         },
       },
       {
@@ -183,15 +182,15 @@ const localBusinessSchema = {
         itemOffered: {
           "@type": "Service",
           name: "Redes de Datos",
-          description: "Cableado estructurado y redes empresariales",
+          description: "Cableado estructurado, fibra óptica, switching y radioenlaces",
         },
       },
       {
         "@type": "Offer",
         itemOffered: {
           "@type": "Service",
-          name: "Seguridad Informática",
-          description: "Ciberseguridad y protección de datos",
+          name: "Seguridad electrónica",
+          description: "CCTV, control de accesos, intrusión, monitoreo y sistemas de detección",
         },
       },
     ],
@@ -284,7 +283,7 @@ const combinedSchema = {
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content={SITE_NAME} />
   <meta name="application-name" content={SITE_NAME} />
-  <meta name="msapplication-TileColor" content="#0ea5e9" />
+  <meta name="msapplication-TileColor" content="#DC2626" />
   <meta name="format-detection" content="telephone=yes" />
 
   <!-- Google Search Console Verification -->

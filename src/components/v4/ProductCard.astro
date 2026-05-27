@@ -28,6 +28,7 @@
  */
 
 import { getDirectusImageUrl } from '../../lib/directus.ts';
+import { getServiceVisualSpec } from '../../data/serviceVisualSystem';
 
 export interface Props {
   titulo: string;
@@ -55,56 +56,58 @@ const {
   className = ''
 } = Astro.props;
 
-// Alternar posición automáticamente si no se especifica
+// Alternar posicion automaticamente si no se especifica
 const position = imagePosition || (orden % 2 === 0 ? 'left' : 'right');
-const flexDirection = position === 'left' ? 'md:flex-row' : 'md:flex-row-reverse';
+const positionClass = position === 'left' ? 'product-card-v4--left' : 'product-card-v4--right';
+const visual = serviceId ? getServiceVisualSpec(serviceId) : undefined;
 
 // 100% Directus — imagen es UUID del archivo en Directus
-const imagenUrl = getDirectusImageUrl(imagen);
+const imagenUrl = getDirectusImageUrl(imagen) || visual?.image || '';
 
 // Validar que haya contenido
 const hasFeatures = features.length > 0;
 const hasMarcas = marcas.length > 0;
 ---
 
-<div class={`flex flex-col ${flexDirection} items-center gap-6 sm:gap-8 lg:gap-12 ${className}`}>
+<article class={`product-card-v4 ${positionClass} ${className}`}>
   <!-- Imagen -->
-  <div class="w-full md:w-1/2">
-    <div class="relative">
-      {imagenUrl ? (
-        <img
-          src={imagenUrl}
-          alt={titulo}
-          class="w-full rounded-2xl shadow-xl product-image"
-          loading="lazy"
-        />
-      ) : (
-        <div class="w-full aspect-video rounded-2xl bg-gray-100 flex items-center justify-center">
-          <p class="text-gray-400 text-sm">Imagen no disponible</p>
-        </div>
-      )}
-    </div>
+  <div class="product-card-v4__media">
+    {imagenUrl ? (
+      <img
+        src={imagenUrl}
+        alt={titulo}
+        class="product-card-v4__image"
+        loading="lazy"
+        decoding="async"
+      />
+    ) : (
+      <div class="product-card-v4__fallback">
+        <span>{titulo}</span>
+        <p>Referencia visual pendiente</p>
+      </div>
+    )}
   </div>
 
   <!-- Contenido -->
-  <div class="w-full md:w-1/2 space-y-6">
+  <div class="product-card-v4__content">
+    <span class="product-card-v4__eyebrow">{String(orden + 1).padStart(2, '0')}</span>
     <!-- Título -->
-    <h3 class="text-2xl font-bold text-slate-900">
+    <h3>
       {titulo}
     </h3>
 
     <!-- Descripción -->
-    <p class="text-slate-600 leading-relaxed text-lg">
+    <p class="product-card-v4__description">
       {descripcion}
     </p>
 
     <!-- Features (bullets con checkmarks) -->
     {hasFeatures && (
-      <ul class="space-y-3">
+      <ul class="product-card-v4__features">
         {features.map((feature) => (
-          <li class="flex items-start space-x-3">
-            <span class="text-um-primary font-bold text-xl leading-none mt-0.5">✓</span>
-            <span class="text-slate-700">{feature}</span>
+          <li>
+            <span aria-hidden="true">/</span>
+            <span>{feature}</span>
           </li>
         ))}
       </ul>
@@ -112,72 +115,186 @@ const hasMarcas = marcas.length > 0;
 
     <!-- Destacado con marcas -->
     {(destacado || hasMarcas) && (
-      <div class="p-4 bg-sky-50 border-l-4 border-um-primary rounded-r-lg">
+      <div class="product-card-v4__note">
         {destacado && (
-          <p class="text-sky-900 text-sm mb-2">
+          <p>
             {destacado}
           </p>
         )}
         {hasMarcas && (
-          <p class="text-sky-900 font-medium text-sm">
+          <p>
             <strong>Marcas:</strong> {marcas.join(', ')}
           </p>
         )}
       </div>
     )}
   </div>
-</div>
+</article>
 
 <style>
-  /* Efecto de imagen con máscara radial (como en HTML original) */
-  .product-image {
-    mix-blend-mode: multiply;
-    -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 70%, transparent 100%);
-    mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 70%, transparent 100%);
+  .product-card-v4 {
+    display: grid;
+    grid-template-columns: minmax(280px, 0.48fr) minmax(0, 0.52fr);
+    gap: clamp(24px, 5vw, 68px);
+    align-items: center;
+    padding-block: clamp(10px, 2vw, 20px);
+    border-top: 1px solid var(--skin-line);
+    color: var(--skin-text);
   }
 
-  /* Hover effect sutil en imagen */
-  .product-image {
-    transition: transform 0.4s ease, box-shadow 0.4s ease;
+  .product-card-v4--right .product-card-v4__media {
+    order: 2;
   }
 
-  .product-image:hover {
-    transform: scale(1.02);
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  .product-card-v4__media {
+    height: clamp(260px, 34vw, 430px);
+    min-height: 260px;
+    overflow: hidden;
+    background: transparent;
   }
 
-  /* Animación para features */
-  @media (prefers-reduced-motion: no-preference) {
-    ul li {
-      animation: fadeInLeft 0.5s ease-out;
-      animation-fill-mode: both;
-    }
-
-    ul li:nth-child(1) { animation-delay: 0.1s; }
-    ul li:nth-child(2) { animation-delay: 0.2s; }
-    ul li:nth-child(3) { animation-delay: 0.3s; }
-    ul li:nth-child(4) { animation-delay: 0.4s; }
-    ul li:nth-child(5) { animation-delay: 0.5s; }
+  .product-card-v4__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    border: 0;
+    box-shadow: none;
+    object-fit: cover;
+    transition: none;
   }
 
-  @keyframes fadeInLeft {
-    from {
-      opacity: 0;
-      transform: translateX(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
+  .product-card-v4:hover .product-card-v4__image {
+    transform: none;
+  }
+
+  .product-card-v4__fallback {
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 0.7rem;
+    min-height: 280px;
+    padding: 1.8rem;
+    border: 1px solid var(--skin-line);
+    background: var(--skin-panel-strong);
+    color: var(--skin-muted);
+    font-size: 1rem;
+    text-align: center;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0)),
+      linear-gradient(135deg, rgba(220,38,38,0.06), rgba(17,17,17,0.02)),
+      var(--skin-panel-strong);
+  }
+
+  .product-card-v4__fallback span {
+    color: var(--skin-text);
+    font-size: 1.18rem;
+    line-height: 1.26;
+    font-weight: 600;
+    text-wrap: balance;
+  }
+
+  .product-card-v4__fallback p {
+    color: var(--skin-muted);
+    line-height: 1.48;
+  }
+
+  .product-card-v4__content {
+    max-width: 620px;
+  }
+
+  .product-card-v4__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+    color: #DC2626;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .product-card-v4__eyebrow::after {
+    content: "";
+    width: 32px;
+    height: 2px;
+    background: #DC2626;
+  }
+
+  .product-card-v4 h3 {
+    color: var(--skin-text);
+    font-size: clamp(1.28rem, 1.72vw, 1.78rem);
+    line-height: 1.16;
+    font-weight: 600;
+    text-wrap: balance;
+  }
+
+  .product-card-v4__description {
+    margin-top: 1rem;
+    color: var(--skin-muted);
+    font-size: clamp(1rem, 1.06vw, 1.1rem);
+    line-height: 1.68;
+  }
+
+  .product-card-v4__features {
+    display: grid;
+    gap: 0.7rem;
+    margin-top: 1.2rem;
+  }
+
+  .product-card-v4__features li {
+    display: grid;
+    grid-template-columns: 18px 1fr;
+    gap: 0.75rem;
+    color: var(--skin-text);
+    font-size: 1rem;
+    line-height: 1.48;
+  }
+
+  .product-card-v4__features li > span:first-child {
+    color: #DC2626;
+    font-weight: 700;
+  }
+
+  .product-card-v4__note {
+    margin-top: 1.35rem;
+    padding: 1rem 1.1rem;
+    border-left: 3px solid #DC2626;
+    background: var(--skin-panel-strong);
+  }
+
+  .product-card-v4__note p {
+    color: var(--skin-text);
+    font-size: 1rem;
+    line-height: 1.58;
+  }
+
+  .product-card-v4__note p + p {
+    margin-top: 0.45rem;
   }
 
   /* Accesibilidad: reducir animaciones */
   @media (prefers-reduced-motion: reduce) {
-    .product-image,
-    .product-image:hover,
-    ul li {
+    .product-card-v4__image,
+    .product-card-v4:hover .product-card-v4__image,
+    .product-card-v4__features li {
       transition-duration: 0.01ms !important;
       animation-duration: 0.01ms !important;
+    }
+  }
+
+  @media (max-width: 840px) {
+    .product-card-v4 {
+      grid-template-columns: 1fr;
+    }
+
+    .product-card-v4--right .product-card-v4__media {
+      order: 0;
+    }
+
+    .product-card-v4__media {
+      height: clamp(220px, 56vw, 280px);
+      min-height: 220px;
     }
   }
 </style>

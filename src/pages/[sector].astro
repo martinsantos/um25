@@ -2,158 +2,310 @@
 /**
  * Sector Page — Dynamic Route (SSR)
  * Handles all sector slugs using Directus data.
- * Explicit pages (nosotros, contacto, etc.) take priority.
  */
 
 import LayoutV4 from '../layouts/LayoutV4.astro';
-import ProjectCard from '../components/ProjectCard.astro';
+import SectorTemplateEditorial from '../components/templates/SectorTemplateEditorial.astro';
+import SectorTemplateAtlas from '../components/templates/SectorTemplateAtlas.astro';
+import GeoHubDossier from '../components/templates/GeoHubDossier.astro';
 import { generateSlug } from '../utils/slugUtils.js';
-import { getSectorBySlug, getIconSVGPath, getAntecedentesForSector } from '../utils/sectoresHelpers.ts';
+import { getSectorBySlug, getAntecedentesForSector } from '../utils/sectoresHelpers.ts';
 import { getFAQSchema, sectorFAQs } from '../data/sectorFAQs';
+import { getSectorVisualSpec } from '../data/sectorVisualSystem';
+import { getDevTemplateVariant } from '../utils/templateVariant';
+import { buildGeoHubStructuredData, getGeoCommercialHub } from '../data/geoCommercialHubs';
 
 const sectorSlug = Astro.params.sector || '';
-const sectorData = await getSectorBySlug(sectorSlug);
+const geoHub = getGeoCommercialHub(sectorSlug);
+const sectorData = geoHub ? null : await getSectorBySlug(sectorSlug);
 
-if (!sectorData) {
+if (!geoHub && !sectorData) {
   return Astro.redirect('/sectores', 301);
 }
 
 const {
-  nombre,
-  emoji,
+  nombre = '',
   hero_image,
-  descripcion,
-  keywords,
-  color_theme,
+  descripcion = '',
+  keywords = [],
   seo_title,
   seo_description,
   seo_keywords,
   stats,
   value_props,
   servicios: serviciosRelacionados,
-} = sectorData;
+} = sectorData || {};
 
-const antecedentes = await getAntecedentesForSector(keywords, nombre);
-
-const colorMap: Record<string, any> = {
-  sky: { bg: 'bg-sky-50', text: 'text-sky-600', hover: 'hover:bg-sky-500', gradient: 'from-sky-600 to-sky-700' },
-  purple: { bg: 'bg-purple-50', text: 'text-purple-600', hover: 'hover:bg-purple-500', gradient: 'from-purple-600 to-purple-700' },
-  blue: { bg: 'bg-blue-50', text: 'text-blue-600', hover: 'hover:bg-blue-500', gradient: 'from-blue-600 to-blue-700' },
-  emerald: { bg: 'bg-emerald-50', text: 'text-emerald-600', hover: 'hover:bg-emerald-500', gradient: 'from-emerald-600 to-emerald-700' },
-  amber: { bg: 'bg-amber-50', text: 'text-amber-600', hover: 'hover:bg-amber-500', gradient: 'from-amber-600 to-amber-700' },
-  indigo: { bg: 'bg-indigo-50', text: 'text-indigo-600', hover: 'hover:bg-indigo-500', gradient: 'from-indigo-600 to-indigo-700' },
-  cyan: { bg: 'bg-cyan-50', text: 'text-cyan-600', hover: 'hover:bg-cyan-500', gradient: 'from-cyan-600 to-cyan-700' },
-  orange: { bg: 'bg-orange-50', text: 'text-orange-600', hover: 'hover:bg-orange-500', gradient: 'from-orange-600 to-orange-700' },
-  red: { bg: 'bg-red-50', text: 'text-red-600', hover: 'hover:bg-red-500', gradient: 'from-red-600 to-red-700' },
-};
-
-const colors = colorMap[color_theme] || colorMap.amber;
+const visual = getSectorVisualSpec(sectorSlug);
+const heroImage = visual?.image || hero_image;
+const pageHeadline = visual?.headline || `Tecnología para ${nombre}`;
+const pageSummary = visual?.summary || descripcion;
+const antecedentes = geoHub ? [] : await getAntecedentesForSector(keywords, nombre);
+const displayedAntecedentes = antecedentes.slice(0, 3);
+const displayedServiciosRelacionados = (serviciosRelacionados || []).slice(0, 3);
+const sanitizeSectorStats = (items: any[] = []) => items.map((stat: any) => {
+  const label = String(stat?.label || '');
+  const value = String(stat?.value || '');
+  if (/99[\.,]\d+%/.test(value) || /uptime|disponibilidad/i.test(label)) {
+    return { ...stat, label: 'Operación', value: '24/7' };
+  }
+  return stat;
+});
+const displayStats = sanitizeSectorStats(stats || []);
 const faqSchema = getFAQSchema(sectorSlug);
+const formatYear = (value: string | Date | undefined) => {
+  if (!value) return 'S/D';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? String(value).slice(0, 4) : String(date.getFullYear());
+};
+const templateVariant = getDevTemplateVariant(Astro.url, import.meta.env.DEV);
+const templateSector = {
+  ...(visual || {}),
+  ...sectorData,
+  nombre,
+  label: visual?.label || nombre,
+  slug: sectorSlug,
+  pageHeadline,
+  pageSummary,
+  heroImage,
+  image: visual?.image || heroImage,
+  stats: displayStats,
+  operatingNeed: visual?.operatingNeed,
+  proof: visual?.proof,
+  services: visual?.services,
+};
+const templateServiciosRelacionados = (serviciosRelacionados || []).map((servicio: any) => ({
+  ...servicio,
+  slug: generateSlug(servicio.nombre || servicio.Titulo || 'servicio')
+}));
+const compactServiceTitle = (value: unknown): string => {
+  const title = String(value || '')
+    .replace(/\s*\|.*$/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const replacements: Record<string, string> = {
+    'Infraestructura de Redes': 'Redes e infraestructura',
+    'Sistemas de Seguridad Electrónica': 'Seguridad electrónica',
+    'Telecomunicaciones.': 'Telecomunicaciones',
+    'Desarrollo de Software a Medida': 'Software operativo',
+    'Soporte Técnico 24/7': 'Soporte técnico 24/7',
+    'Consultoría IT y Transformación Digital': 'Consultoría IT',
+    'Sistemas de Detección y Alarma de Incendios': 'Detección de incendios',
+    'Servicios Eléctricos para IT': 'Energía para IT'
+  };
+  return replacements[title] || title || 'Servicio IT';
+};
+const compactCaseTitle = (value: unknown, client?: unknown): string => {
+  const title = String(value || '')
+    .replace(/Sistena/gi, 'Sistema')
+    .replace(/\s+\(\d+\)$/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const organization = String(client || '').replace(/\s+/g, ' ').trim();
+  if (!title) return organization || 'Proyecto técnico';
+
+  const parts = title.split(/\s[-–]\s/).map((part) => part.trim()).filter(Boolean);
+  let base = parts[0] || title;
+  base = base
+    .replace(/Soporte de Infraestructura IT de Alta Disponibilidad/gi, 'Soporte IT de alta disponibilidad')
+    .replace(/Implementación de Redes de Datos y Fibra Óptica/gi, 'Redes y fibra óptica')
+    .replace(/Instalación eléctrica para Data Center/gi, 'Energía para data center')
+    .replace(/Sistema Detección de Incendios/gi, 'Detección de incendios');
+
+  const target = parts[1] && !/^\d{4}|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre/i.test(parts[1])
+    ? parts[1]
+    : organization;
+  const composed = target ? `${base}: ${target}` : base;
+  return composed.length > 78 ? `${composed.slice(0, 75).trimEnd()}...` : composed;
+};
 ---
 
-<LayoutV4 title={seo_title} description={seo_description} keywords={seo_keywords} image={hero_image} structuredData={faqSchema}>
-  <section class="relative bg-um-dark pt-20 sm:pt-24 pb-8 sm:pb-12 lg:pb-16 overflow-hidden">
-    <div class="absolute inset-0 opacity-40" style={`background-image: url('${hero_image}'); background-position: center; background-size: cover;`}></div>
-    <div class="absolute inset-0 bg-gradient-to-b from-um-dark/70 to-um-dark/90"></div>
+{geoHub ? (
+<LayoutV4
+  title={geoHub.seoTitle}
+  description={geoHub.description}
+  keywords={geoHub.keywords}
+  structuredData={buildGeoHubStructuredData(geoHub)}
+>
+  <GeoHubDossier hub={geoHub} />
+</LayoutV4>
+) : (
+<LayoutV4 title={seo_title} description={seo_description} keywords={seo_keywords} image={heroImage} structuredData={faqSchema}>
+  {templateVariant === 'editorial' && (
+    <SectorTemplateEditorial
+      mode="detail"
+      sector={templateSector}
+      antecedentes={antecedentes}
+      valueProps={value_props || []}
+      serviciosRelacionados={templateServiciosRelacionados}
+    />
+  )}
+  {templateVariant === 'atlas' && (
+    <SectorTemplateAtlas
+      mode="detail"
+      sector={templateSector}
+      antecedentes={antecedentes}
+      valueProps={value_props || []}
+      serviciosRelacionados={templateServiciosRelacionados}
+    />
+  )}
 
-    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center gap-2 mb-4 sm:mb-6">
-        <a href="/" class="text-white/60 hover:text-white text-xs sm:text-sm transition-colors">Inicio</a>
-        <svg class="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <a href="/sectores" class="text-white/60 hover:text-white text-xs sm:text-sm transition-colors">Sectores</a>
-        <svg class="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <span class="text-white text-xs sm:text-sm">{nombre}</span>
-      </div>
+  {!templateVariant && (
+  <div>
+  <section class="sector-detail-hero">
+    <div class="sector-detail-hero__image" style={`background-image: url('${heroImage}');`}></div>
+    <div class="sector-detail-hero__wash"></div>
 
-      <div class="max-w-3xl">
-        <div class="text-4xl sm:text-5xl mb-3" aria-hidden="true">{emoji}</div>
-        <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-4 sm:mb-6">
-          Tecnología para {nombre}
-        </h1>
-        <p class="text-base sm:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8">{descripcion}</p>
-        <div class="flex flex-wrap items-center gap-3 sm:gap-4">
-          {stats.map((stat: any) => (
-            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
-              <div class="text-2xl sm:text-3xl font-extrabold text-white">{stat.value}</div>
-              <div class="text-xs sm:text-sm text-white/70 mt-1">{stat.label}</div>
+    <div class="um-container sector-detail-hero__content">
+      <nav class="sector-detail-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Inicio</a>
+        <span>/</span>
+        <a href="/sectores">Sectores</a>
+        <span>/</span>
+        <span>{nombre}</span>
+      </nav>
+
+      <div class="sector-detail-hero__grid">
+        <div>
+          <span class="sector-detail-label">{visual?.label || nombre}</span>
+          <h1>{pageHeadline}</h1>
+          <p>{pageSummary}</p>
+          <div class="sector-detail-actions">
+            <a href="/contacto">Solicitar diagnóstico</a>
+            <a href="/antecedentes">Ver antecedentes</a>
+          </div>
+        </div>
+        <aside class="sector-detail-proof">
+          <div class="sector-detail-proof__intro">
+            <span>Dossier operativo</span>
+            <p>{visual?.proof || `Capacidades aplicadas a ${nombre}.`}</p>
+          </div>
+          {displayStats.map((stat: any) => (
+            <div>
+              <strong>{stat.value}</strong>
+              <span>{stat.label}</span>
             </div>
           ))}
-          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 text-center border border-white/20 min-w-[100px] sm:min-w-[120px]">
-            <div class="text-2xl sm:text-3xl font-extrabold text-white">{antecedentes.length}+</div>
-            <div class="text-xs sm:text-sm text-white/70 mt-1">Proyectos</div>
+          <div>
+            <strong>{antecedentes.length}+</strong>
+            <span>antecedentes</span>
           </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="sector-operating">
+    <div class="um-container sector-operating__grid">
+      <div>
+        <span class="um-kicker">Contexto operativo</span>
+        <h2>{visual?.operatingNeed || `Necesidades técnicas de ${nombre}`}</h2>
+      </div>
+      <div>
+        <p>{visual?.proof || descripcion}</p>
+        {visual?.services && (
+          <div class="sector-service-tags">
+            {visual.services.map((service) => <span>{service}</span>)}
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+
+  {value_props && value_props.length > 0 && (
+    <section class="sector-value-props">
+      <div class="um-container">
+        <div class="sector-section-head">
+          <span class="um-kicker">Criterios técnicos</span>
+          <h2>Criterios técnicos de operación</h2>
+        </div>
+        <div class="sector-value-grid">
+          {value_props.map((prop: any, index: number) => (
+            <article>
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <h3>{prop.titulo}</h3>
+              <p>{prop.descripcion}</p>
+            </article>
+          ))}
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  )}
 
-  <section class="py-10 sm:py-14 lg:py-16 border-b border-gray-100 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-        {value_props && value_props.map((prop: any) => (
-          <div class="flex items-start gap-4">
-            <div class={`w-12 h-12 ${colors.bg} rounded-xl flex items-center justify-center flex-shrink-0`}>
-              <svg class={`w-6 h-6 ${colors.text}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={getIconSVGPath(prop.icono)}/>
-              </svg>
-            </div>
-            <div>
-              <p class="font-bold text-um-dark mb-2">{prop.titulo}</p>
-              <p class="text-sm text-um-gray">{prop.descripcion}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <section class="py-10 sm:py-14 lg:py-20 bg-um-gray-light">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-8 sm:mb-12">
-        <span class={`${colors.text} font-semibold text-xs sm:text-sm uppercase tracking-wider`}>Servicios</span>
-        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">Soluciones para {nombre}</h2>
-        <p class="text-sm sm:text-base text-um-gray max-w-2xl mx-auto">Tecnología especializada para el sector.</p>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-        {serviciosRelacionados && serviciosRelacionados.map((servicio: any) => (
-          <a href={`/servicios/${servicio.id}/${generateSlug(servicio.nombre)}`} class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover group">
-            <div class={`w-12 h-12 ${colors.bg} rounded-xl flex items-center justify-center mb-4 group-${colors.hover} transition-colors`}>
-              <svg class={`w-6 h-6 ${colors.text} group-hover:text-white transition-colors`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-              </svg>
-            </div>
-            <h3 class="font-bold text-um-dark mb-2 group-hover:text-um-primary transition-colors">{servicio.nombre}</h3>
-            <p class="text-sm text-um-gray mb-4">{servicio.descripcion}</p>
-            <span class={`${colors.text} font-semibold text-sm flex items-center gap-1`}>Ver servicio <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></span>
-          </a>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  {antecedentes.length > 0 && (
-    <section class="py-10 sm:py-14 lg:py-20 bg-white">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-8 sm:mb-12">
-          <span class={`${colors.text} font-semibold text-xs sm:text-sm uppercase tracking-wider`}>Casos de Éxito</span>
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark mt-3 sm:mt-4 mb-3 sm:mb-4">Proyectos en {nombre}</h2>
+  {displayedServiciosRelacionados.length > 0 && (
+    <section class="sector-services">
+      <div class="um-container">
+        <div class="sector-section-head">
+          <span class="um-kicker">Servicios conectados</span>
+          <h2>Servicios aplicados al mercado</h2>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {antecedentes.map((ant) => (
-            <ProjectCard
-              id={String(ant.id)}
-              titulo={ant.Titulo || ant.Nombre || 'Proyecto'}
-              cliente={ant.Cliente || ''}
-              descripcion={ant.Descripcion || ''}
-              fecha={ant.Fecha || new Date().toISOString()}
-              area={ant.Area || ant.Unidad_de_negocio || nombre}
-              servicio={ant.Unidad_de_negocio || nombre}
-              imagen={ant.imageUrl}
-              slug={ant.slug}
-            />
+        <div class="sector-services-grid">
+          {displayedServiciosRelacionados.map((servicio: any) => (
+            <a href={`/servicios/${servicio.id}/${generateSlug(servicio.nombre)}`}>
+              <h3>{compactServiceTitle(servicio.nombre)}</h3>
+              <p>{servicio.descripcion}</p>
+              <span>
+                Ver servicio
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" />
+                </svg>
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {displayedAntecedentes.length > 0 && (
+    <section class="sector-projects">
+      <div class="um-container">
+        <div class="sector-section-head">
+          <span class="um-kicker">Antecedentes</span>
+          <h2>Evidencia en {nombre}</h2>
+        </div>
+
+        <div class="sector-projects-grid">
+          {displayedAntecedentes.map((ant) => (
+            <article class="sector-evidence-card">
+              <a href={`/antecedentes/${ant.id}/${ant.slug || generateSlug(ant.Titulo || ant.Nombre || 'proyecto')}`}>
+                <div class="sector-evidence-card__media">
+                  {ant.imageUrl ? (
+                    <img
+                      src={ant.imageUrl}
+                      alt={ant.Titulo || ant.Nombre || 'Antecedente técnico'}
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div class="sector-evidence-card__folio">
+                      <span>{nombre}</span>
+                    </div>
+                  )}
+                </div>
+                <div class="sector-evidence-card__body">
+                  <span>{ant.Cliente || ant.Area || 'Antecedente técnico'}</span>
+                  <h3>{compactCaseTitle(ant.Titulo || ant.Nombre, ant.Cliente)}</h3>
+                  <p>{ant.Descripcion || 'Alcance técnico documentado para operación empresarial.'}</p>
+                  <dl>
+                    <div>
+                      <dt>Año</dt>
+                      <dd>{formatYear(ant.Fecha)}</dd>
+                    </div>
+                    <div>
+                      <dt>Área</dt>
+                      <dd>{ant.Area || ant.Unidad_de_negocio || nombre}</dd>
+                    </div>
+                  </dl>
+                  <strong>
+                    Ver dossier
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" />
+                    </svg>
+                  </strong>
+                </div>
+              </a>
+            </article>
           ))}
         </div>
       </div>
@@ -161,19 +313,19 @@ const faqSchema = getFAQSchema(sectorSlug);
   )}
 
   {sectorFAQs[sectorSlug] && sectorFAQs[sectorSlug].length > 0 && (
-    <section class="py-10 sm:py-14 lg:py-20 bg-white border-t border-gray-100">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-8 sm:mb-12">
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-um-dark">Preguntas Frecuentes</h2>
-        </div>
-        <div class="space-y-4">
+    <section class="sector-faq">
+      <div class="um-container sector-faq__inner">
+        <h2>Preguntas frecuentes</h2>
+        <div class="sector-faq-list">
           {sectorFAQs[sectorSlug].map((faq: any) => (
-            <details class="group bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
-              <summary class="flex items-center justify-between p-5 sm:p-6 cursor-pointer font-semibold text-um-dark hover:bg-gray-100 transition-colors">
-                <span class="pr-4">{faq.question}</span>
-                <svg class="w-5 h-5 shrink-0 text-gray-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            <details>
+              <summary>
+                <span>{faq.question}</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" />
+                </svg>
               </summary>
-              <div class="px-5 sm:px-6 pb-5 sm:pb-6 text-um-gray leading-relaxed">{faq.answer}</div>
+              <div>{faq.answer}</div>
             </details>
           ))}
         </div>
@@ -181,21 +333,856 @@ const faqSchema = getFAQSchema(sectorSlug);
     </section>
   )}
 
-  <section class={`py-10 sm:py-14 lg:py-16 bg-gradient-to-br ${colors.gradient}`}>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-6">¿Listo para transformar su infraestructura tecnológica?</h2>
-      <p class="text-base sm:text-lg text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto">Contactenos hoy para una consultoría gratuita.</p>
-      <a href="/contacto" class="inline-block px-6 sm:px-8 py-3 sm:py-4 bg-white text-um-dark rounded-lg font-bold shadow-xl hover:shadow-2xl transition-all hover:scale-105">Solicitar Consultoría Gratuita</a>
+  <section class="sector-final">
+    <div class="um-container">
+      <h2>Definamos el alcance técnico para {nombre}.</h2>
+      <div>
+        <a href="/contacto" class="um-btn-primary">Solicitar diagnóstico</a>
+        <a href="/antecedentes" class="um-btn-secondary">Ver antecedentes</a>
+      </div>
     </div>
   </section>
+  </div>
+  )}
 </LayoutV4>
+)}
 
 <style>
-  .card-hover {
-    transition: all 0.3s ease;
+  .sector-detail-hero {
+    position: relative;
+    overflow: hidden;
+    min-height: clamp(500px, 62vh, 640px);
+    background: #080808;
+    color: #fff;
   }
-  .card-hover:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+
+  .sector-detail-hero__image,
+  .sector-detail-hero__wash {
+    position: absolute;
+    inset: 0;
+  }
+
+  .sector-detail-hero__image {
+    background-position: center right;
+    background-size: cover;
+    filter: saturate(0.86) contrast(1.08);
+  }
+
+  .sector-detail-hero__wash {
+    background:
+      linear-gradient(90deg, rgba(8,8,8,0.97) 0%, rgba(8,8,8,0.78) 48%, rgba(8,8,8,0.34) 100%),
+      linear-gradient(0deg, rgba(8,8,8,0.88) 0%, rgba(8,8,8,0.12) 72%);
+  }
+
+  .sector-detail-hero__content {
+    position: relative;
+    z-index: 1;
+    padding-top: clamp(24px, 3.4vw, 48px);
+    padding-bottom: clamp(52px, 7vw, 92px);
+  }
+
+  .sector-detail-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-bottom: clamp(34px, 6vw, 72px);
+    color: rgba(255,255,255,0.58);
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .sector-detail-breadcrumb a:hover {
+    color: #fff;
+  }
+
+  .sector-detail-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.66fr) minmax(330px, 0.34fr);
+    gap: clamp(34px, 6vw, 78px);
+    align-items: center;
+  }
+
+  .sector-detail-hero__grid > * {
+    min-width: 0;
+  }
+
+  .sector-detail-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .sector-detail-label::before {
+    content: "";
+    width: 34px;
+    height: 2px;
+    background: var(--um-red);
+  }
+
+  .sector-detail-hero h1 {
+    max-width: 800px;
+    color: #fff;
+    font-size: clamp(2.5rem, 2.85vw, 3.1rem);
+    line-height: 1.1;
+    font-weight: var(--um-weight-title, 600);
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .sector-detail-hero p {
+    max-width: 680px;
+    margin-top: 1.25rem;
+    color: rgba(255,255,255,0.74);
+    font-size: clamp(1rem, 1.08vw, 1.12rem);
+    line-height: 1.68;
+  }
+
+  .sector-detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: clamp(22px, 3vw, 34px);
+  }
+
+  .sector-detail-actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50px;
+    padding: 0 1.25rem;
+    border: 1px solid rgba(255,255,255,0.32);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .sector-detail-actions a:first-child {
+    border-color: var(--um-red);
+    background: var(--um-red);
+  }
+
+  .sector-detail-actions a:hover {
+    border-color: #fff;
+    background: #fff;
+    color: #080808;
+  }
+
+  .sector-detail-proof {
+    display: grid;
+    width: 100%;
+    border: 0;
+    background: rgba(255,255,255,0.16);
+  }
+
+  .sector-detail-proof__intro {
+    padding: 1.25rem 1.2rem 1.1rem;
+    background: rgba(8,8,8,0.78);
+    border-bottom: 1px solid rgba(255,255,255,0.13);
+  }
+
+  .sector-detail-proof__intro span {
+    display: block;
+    color: #fff;
+    font-family: var(--um-font-display);
+    font-size: 1.14rem;
+    font-weight: var(--um-weight-title, 600);
+    line-height: 1.2;
+  }
+
+  .sector-detail-proof__intro p {
+    margin-top: 0.65rem;
+    color: rgba(255,255,255,0.72);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .sector-detail-proof > div:not(.sector-detail-proof__intro) {
+    padding: 1.1rem 1.25rem 1.2rem;
+    background: rgba(8,8,8,0.68);
+    border-bottom: 1px solid rgba(255,255,255,0.13);
+  }
+
+  .sector-detail-proof > div:last-child {
+    border-bottom: 0;
+  }
+
+  .sector-detail-proof strong {
+    display: block;
+    color: #fff;
+    font-size: clamp(1.18rem, 1.7vw, 1.75rem);
+    line-height: 1.12;
+    font-weight: 700;
+  }
+
+  .sector-detail-proof span {
+    display: block;
+    margin-top: 0.55rem;
+    color: rgba(255,255,255,0.62);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  .sector-operating,
+  .sector-services,
+  .sector-faq {
+    background: #fff;
+    padding: clamp(54px, 7vw, 92px) 0;
+  }
+
+  .sector-operating__grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: clamp(32px, 7vw, 96px);
+    align-items: start;
+  }
+
+  .sector-operating h2,
+  .sector-section-head h2,
+  .sector-faq h2,
+  .sector-final h2 {
+    color: #111;
+    font-size: clamp(1.82rem, 2.35vw, 2.55rem);
+    line-height: 1.12;
+    font-weight: var(--um-weight-title, 600);
+    text-wrap: balance;
+  }
+
+  .sector-operating h2 {
+    margin-top: 1rem;
+  }
+
+  .sector-operating p {
+    color: var(--um-muted);
+    font-size: clamp(1rem, 1.08vw, 1.1rem);
+    line-height: 1.78;
+  }
+
+  .sector-service-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.6rem;
+  }
+
+  .sector-service-tags span {
+    border: 1px solid var(--um-line);
+    padding: 0.55rem 0.7rem;
+    color: #374151;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .sector-value-props {
+    background: #F5F6F7;
+    padding: clamp(54px, 7vw, 92px) 0;
+  }
+
+  .sector-section-head {
+    display: grid;
+    grid-template-columns: 0.6fr 1fr;
+    gap: clamp(24px, 5vw, 70px);
+    align-items: end;
+    margin-bottom: clamp(34px, 6vw, 72px);
+  }
+
+  .sector-value-grid,
+  .sector-services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    border: 1px solid var(--um-line);
+    background: var(--um-line);
+  }
+
+  .sector-value-grid article,
+  .sector-services-grid a {
+    min-height: 250px;
+    padding: clamp(22px, 3vw, 34px);
+    background: #fff;
+  }
+
+  .sector-value-grid span {
+    color: var(--um-red);
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .sector-value-grid h3,
+  .sector-services-grid h3 {
+    margin-top: 1rem;
+    color: #111;
+    font-size: 1.25rem;
+    line-height: 1.2;
+    font-weight: var(--um-weight-title, 600);
+  }
+
+  .sector-value-grid p,
+  .sector-services-grid p {
+    margin-top: 0.9rem;
+    color: var(--um-muted);
+    line-height: 1.68;
+  }
+
+  .sector-services-grid a {
+    display: flex;
+    flex-direction: column;
+    min-height: 330px;
+    transition: background-color 180ms ease;
+  }
+
+  .sector-services-grid a:hover {
+    background: #FAFAFA;
+  }
+
+  .sector-services-grid span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    width: fit-content;
+    margin-top: auto;
+    padding-top: 1.4rem;
+    color: var(--um-red);
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .sector-services-grid p {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+    overflow: hidden;
+  }
+
+  .sector-services-grid svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .sector-projects {
+    background: #F5F6F7;
+    padding: clamp(54px, 7vw, 92px) 0;
+  }
+
+  .sector-projects-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(18px, 2vw, 24px);
+  }
+
+  .sector-evidence-card {
+    background: #fff;
+    min-width: 0;
+    overflow: hidden;
+    border-top: 1px solid var(--um-line);
+  }
+
+  .sector-evidence-card a {
+    display: grid;
+    grid-template-rows: 240px 1fr;
+    min-height: 0;
+    height: 100%;
+    color: #111;
+  }
+
+  .sector-evidence-card:first-child {
+    grid-column: span 7;
+  }
+
+  .sector-evidence-card:first-child a {
+    grid-template-rows: 360px 1fr;
+    min-height: 100%;
+  }
+
+  .sector-evidence-card:nth-child(2),
+  .sector-evidence-card:nth-child(3) {
+    grid-column: span 5;
+  }
+
+  .sector-evidence-card:nth-child(n + 4) {
+    grid-column: span 4;
+  }
+
+  .sector-evidence-card:not(:first-child) a {
+    min-height: 100%;
+  }
+
+  .sector-evidence-card:not(:first-child) h3 {
+    font-size: clamp(1.08rem, 1.25vw, 1.28rem);
+  }
+
+  .sector-evidence-card:not(:first-child) p {
+    -webkit-line-clamp: 3;
+  }
+
+  .sector-evidence-card__media {
+    position: relative;
+    overflow: hidden;
+    background: #E6E8EA;
+  }
+
+  .sector-evidence-card__media::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 3px;
+    background: var(--um-red);
+    transform: scaleX(0.24);
+    transform-origin: left center;
+  }
+
+  .sector-evidence-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.86) contrast(1.04);
+    transition: none;
+  }
+
+  .sector-evidence-card__folio {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 1.5rem;
+    background:
+      linear-gradient(135deg, rgba(17,17,17,0.04), rgba(17,17,17,0.1)),
+      #F5F6F7;
+  }
+
+  .sector-evidence-card__folio span {
+    color: #111;
+    font-family: var(--um-font-display);
+    font-size: 1.25rem;
+    font-weight: var(--um-weight-title);
+    line-height: 1.2;
+  }
+
+  .sector-evidence-card__body {
+    display: flex;
+    flex-direction: column;
+    padding: clamp(22px, 2.8vw, 32px);
+  }
+
+  .sector-evidence-card__body > span {
+    color: #4B5563;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.25;
+    text-transform: none;
+  }
+
+  .sector-evidence-card h3 {
+    margin-top: 0.85rem;
+    color: #111;
+    font-size: clamp(1.22rem, 1.6vw, 1.48rem);
+    line-height: 1.18;
+    font-weight: var(--um-weight-title);
+  }
+
+  .sector-evidence-card p {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    margin-top: 0.95rem;
+    color: var(--um-muted);
+    line-height: 1.62;
+  }
+
+  .sector-evidence-card dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem 1.1rem;
+    margin: 1.4rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--um-line);
+    background: transparent;
+  }
+
+  .sector-evidence-card dl div {
+    min-width: 0;
+    padding: 0;
+    background: transparent;
+  }
+
+  .sector-evidence-card dt {
+    color: #6B7280;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .sector-evidence-card dd {
+    margin: 0.35rem 0 0;
+    color: #111;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .sector-evidence-card strong {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    width: fit-content;
+    margin-top: auto;
+    padding-top: 1.4rem;
+    color: #111;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .sector-evidence-card strong::before {
+    content: "";
+    width: 32px;
+    height: 2px;
+    background: var(--um-red);
+  }
+
+  .sector-evidence-card svg {
+    width: 1rem;
+    height: 1rem;
+    color: var(--um-red);
+  }
+
+  .sector-faq__inner {
+    max-width: 920px;
+  }
+
+  .sector-faq h2 {
+    margin-bottom: 2rem;
+  }
+
+  .sector-faq-list {
+    display: grid;
+    gap: 1px;
+    border: 1px solid var(--um-line);
+    background: var(--um-line);
+  }
+
+  .sector-faq details {
+    background: #fff;
+  }
+
+  .sector-faq summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.2rem 1.3rem;
+    color: #111;
+    cursor: pointer;
+    font-weight: 700;
+    list-style: none;
+  }
+
+  .sector-faq summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .sector-faq svg {
+    width: 1.05rem;
+    height: 1.05rem;
+    color: var(--um-red);
+    transition: color 180ms ease;
+  }
+
+  .sector-faq details[open] svg {
+    transform: rotate(180deg);
+  }
+
+  .sector-faq details > div {
+    padding: 0 1.3rem 1.35rem;
+    color: var(--um-muted);
+    line-height: 1.72;
+  }
+
+  .sector-final {
+    background: #080808;
+    color: #fff;
+    padding: clamp(58px, 8vw, 96px) 0;
+  }
+
+  .sector-final .um-container {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2rem;
+    align-items: end;
+  }
+
+  .sector-final h2 {
+    max-width: 920px;
+    color: #fff;
+  }
+
+  .sector-final div div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    justify-content: flex-end;
+  }
+
+  .sector-final .um-btn-secondary {
+    color: #fff;
+    border-color: rgba(255,255,255,0.44);
+  }
+
+  .sector-final .um-btn-secondary:hover {
+    background: #fff;
+    border-color: #fff;
+    color: #080808;
+  }
+
+  @media (max-width: 980px) {
+    .sector-detail-hero__grid,
+    .sector-operating__grid,
+    .sector-section-head,
+    .sector-final .um-container {
+      grid-template-columns: 1fr;
+    }
+
+    .sector-value-grid,
+    .sector-services-grid,
+    .sector-projects-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sector-evidence-card:first-child {
+      grid-column: span 2;
+    }
+
+    .sector-evidence-card:first-child a,
+    .sector-evidence-card:not(:first-child) a {
+      grid-template-rows: 220px 1fr;
+      min-height: 0;
+    }
+
+    .sector-evidence-card:nth-child(2),
+    .sector-evidence-card:nth-child(3),
+    .sector-evidence-card:nth-child(n + 4) {
+      grid-column: span 1;
+    }
+
+    .sector-evidence-card:not(:first-child) p {
+      -webkit-line-clamp: 3;
+    }
+
+    .sector-final div div {
+      justify-content: flex-start;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .sector-detail-hero {
+      min-height: auto;
+    }
+
+    .sector-detail-hero h1 {
+      max-width: 100%;
+      font-size: clamp(2rem, 7.25vw, 2.28rem);
+      line-height: 1.18;
+      overflow-wrap: anywhere;
+    }
+
+    .sector-detail-hero p {
+      max-width: min(100%, 33ch);
+      line-height: 1.62;
+    }
+
+    .sector-detail-actions {
+      display: grid;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .sector-detail-actions a {
+      width: 100%;
+      min-width: 0;
+      padding-inline: 0.95rem;
+    }
+
+    .sector-detail-proof {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sector-detail-proof__intro {
+      grid-column: 1 / -1;
+      padding: 1.05rem 1rem;
+    }
+
+    .sector-detail-proof > div:not(.sector-detail-proof__intro) {
+      min-height: 92px;
+      padding: 1rem 1.08rem;
+    }
+
+    .sector-detail-proof > div:last-child {
+      display: flex;
+      align-items: baseline;
+      gap: 0.8rem;
+      grid-column: 1 / -1;
+      min-height: 72px;
+    }
+
+    .sector-detail-proof strong {
+      font-size: 1.18rem;
+    }
+
+    .sector-detail-proof span {
+      font-size: 1rem;
+      line-height: 1.22;
+      overflow-wrap: anywhere;
+    }
+
+    .sector-detail-proof > div:last-child span {
+      margin-top: 0;
+    }
+
+    .sector-services-grid a {
+      min-height: auto;
+      padding: 1.25rem 1.35rem;
+    }
+
+    .sector-services-grid h3 {
+      margin-top: 0;
+      font-size: 1.12rem;
+      line-height: 1.22;
+    }
+
+    .sector-services-grid p {
+      margin-top: 0.75rem;
+      -webkit-line-clamp: 3;
+    }
+
+    .sector-services-grid span {
+      padding-top: 1rem;
+    }
+
+    .sector-value-grid,
+    .sector-services-grid,
+    .sector-projects-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .sector-evidence-card:first-child,
+    .sector-evidence-card:nth-child(2),
+    .sector-evidence-card:nth-child(3),
+    .sector-evidence-card:nth-child(n + 4) {
+      grid-column: span 1;
+    }
+
+    .sector-evidence-card a,
+    .sector-evidence-card:first-child a {
+      grid-template-rows: 190px 1fr;
+      min-height: auto;
+    }
+
+    .sector-evidence-card dl {
+      grid-template-columns: 1fr;
+    }
+
+    .sector-final div div {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  .sector-detail-hero,
+  .sector-final {
+    background: #000;
+  }
+
+  .sector-detail-hero h1,
+  .sector-operating h2,
+  .sector-section-head h2,
+  .sector-final h2 {
+    letter-spacing: 0;
+  }
+
+  .sector-detail-proof,
+  .sector-value-grid article,
+  .sector-services-grid a,
+  .sector-faq-list details {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .sector-value-grid article,
+  .sector-services-grid a {
+    border-top: 0;
+  }
+
+  .sector-service-tags span {
+    border-radius: 0;
+    background: #f5f5f5;
+    color: #111;
+  }
+
+  :global(body[data-skin="white"]) .sector-detail-hero {
+    background: #fff !important;
+  }
+
+  :global(body[data-skin="white"]) .sector-detail-hero__image {
+    left: auto !important;
+    width: min(56vw, 820px);
+    filter: saturate(0.84) contrast(1.08) brightness(0.96) !important;
+  }
+
+  :global(body[data-skin="white"]) .sector-detail-hero__wash {
+    background:
+      linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.98) 42%, rgba(255,255,255,0.7) 61%, rgba(255,255,255,0.24) 79%, rgba(255,255,255,0.08) 100%),
+      linear-gradient(0deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.1) 70%) !important;
+  }
+
+  :global(body[data-skin="white"]) .sector-detail-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 58%;
+    width: 1px;
+    background: linear-gradient(180deg, transparent 0%, rgba(17,17,17,0.14) 18%, rgba(17,17,17,0.14) 82%, transparent 100%);
+    pointer-events: none;
+  }
+
+  :global(body[data-skin="white"]) .sector-detail-actions a:first-child {
+    color: #fff !important;
+  }
+
+  :global(body[data-skin="white"]) .sector-detail-actions a:not(:first-child) {
+    background: rgba(255,255,255,0.74) !important;
+    border-color: rgba(17,17,17,0.54) !important;
+    color: #111 !important;
+  }
+
+  :global(body[data-skin="white"]) .sector-detail-actions a:not(:first-child):hover {
+    background: #111 !important;
+    border-color: #111 !important;
+    color: #fff !important;
+  }
+
+  @media (max-width: 640px) {
+    :global(body[data-skin="white"]) .sector-detail-hero__image {
+      left: 0 !important;
+      width: 100%;
+      opacity: 0.28;
+      background-position: 58% top;
+    }
+
+    :global(body[data-skin="white"]) .sector-detail-hero::after {
+      display: none;
+    }
+
+    :global(body[data-skin="white"]) .sector-detail-hero__wash {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.92) 50%, rgba(255,255,255,0.98) 100%),
+        linear-gradient(90deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.74) 100%) !important;
+    }
   }
 </style>

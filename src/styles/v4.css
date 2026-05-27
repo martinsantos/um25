@@ -4,15 +4,199 @@
  * Component-specific files: antecedentes.css, banner-overlays.css, sectors-mobile.css, uiEffects.css
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --um-red: #DC2626;
+  --um-red-dark: #DC2626;
+  --um-white: #FFFFFF;
+  --um-black: #000000;
+  --um-black-soft: #080808;
+  --um-ink: #111111;
+  --um-gray-900: #111111;
+  --um-gray-700: #333333;
+  --um-gray-500: #666666;
+  --um-muted: #5F6368;
+  --um-line: #DDDDDD;
+  --um-soft: #F5F5F5;
+  --um-panel: #FFFFFF;
+  --um-blue-doc: #1A56C0;
+  --um-radius: 4px;
+  --um-radius-lg: 8px;
+  --um-container: 1180px;
+  --um-container-wide: 1280px;
+  --um-font-logo: 'Futura PT', 'Futura', sans-serif;
+  --um-font-display: 'Poppins', 'Futura PT', 'Century Gothic', sans-serif;
+  --um-font-body: 'Open Sans', Arial, system-ui, sans-serif;
+  --um-weight-title: 600;
+  --um-weight-strong: 700;
+  --um-section-y: clamp(72px, 9vw, 120px);
+  --um-section-y-tight: clamp(56px, 7vw, 88px);
+  --um-world-h1: clamp(2.5rem, 2.85vw, 3.35rem);
+  --um-world-h2: clamp(1.72rem, 2.18vw, 2.36rem);
+  --um-world-h3: clamp(1.14rem, 1.24vw, 1.42rem);
+  --um-world-body: clamp(1rem, 1.05vw, 1.12rem);
+  --um-world-lead: clamp(1.08rem, 1.28vw, 1.24rem);
+  --um-world-gutter: clamp(28px, 5vw, 76px);
+  --um-world-rule: 1px solid var(--skin-line);
+  --um-dark-bg: #050505;
+  --um-dark-panel: #101010;
+  --um-dark-panel-soft: #151515;
+  --um-dark-text: #FFFFFF;
+  --um-dark-muted: rgba(255,255,255,0.78);
+  --um-dark-meta: rgba(255,255,255,0.68);
+  --um-dark-line: rgba(255,255,255,0.18);
+  --um-light-bg: #FFFFFF;
+  --um-light-panel: #FFFFFF;
+  --um-light-text: #111111;
+  --um-light-muted: #535A62;
+  --um-light-line: #DADDE1;
+
+  --skin-page: #FFFFFF;
+  --skin-section: #FFFFFF;
+  --skin-section-alt: #F5F6F7;
+  --skin-panel: #FFFFFF;
+  --skin-panel-strong: #F5F6F7;
+  --skin-text: #111111;
+  --skin-muted: #5F6368;
+  --skin-line: #DDDDDD;
+  --skin-hero-bg: #080808;
+  --skin-hero-text: #FFFFFF;
+  --skin-hero-muted: rgba(255,255,255,0.72);
+  --skin-hero-line: rgba(255,255,255,0.18);
+  --skin-hero-panel: rgba(255,255,255,0.08);
+  --skin-hero-panel-solid: rgba(8,8,8,0.68);
+  --skin-hero-wash: linear-gradient(90deg, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0.82) 46%, rgba(8,8,8,0.42) 100%), linear-gradient(0deg, rgba(8,8,8,0.86) 0%, rgba(8,8,8,0.14) 70%);
+  --skin-media-filter: saturate(0.9) contrast(1.06);
+  --skin-nav-bg: rgba(0,0,0,0.94);
+  --skin-nav-text: rgba(255,255,255,0.82);
+  --skin-nav-text-strong: #FFFFFF;
+  --skin-nav-line: rgba(255,255,255,0.1);
+  --skin-footer-bg: #080808;
+  --skin-footer-text: rgba(255,255,255,0.64);
+  --skin-footer-heading: #FFFFFF;
+  --skin-footer-line: rgba(255,255,255,0.12);
+}
+
+body[data-skin="black"] {
+  --skin-page: #050505;
+  --skin-section: #080808;
+  --skin-section-alt: #101113;
+  --skin-panel: #111214;
+  --skin-panel-strong: #151719;
+  --skin-text: #F7F7F7;
+  --skin-muted: rgba(255,255,255,0.66);
+  --skin-line: rgba(255,255,255,0.14);
+  --skin-hero-bg: #050505;
+  --skin-hero-text: #FFFFFF;
+  --skin-hero-muted: rgba(255,255,255,0.72);
+  --skin-hero-line: rgba(255,255,255,0.16);
+  --skin-hero-panel: rgba(255,255,255,0.07);
+  --skin-hero-panel-solid: rgba(5,5,5,0.72);
+  --skin-hero-wash: linear-gradient(90deg, rgba(5,5,5,0.96) 0%, rgba(5,5,5,0.84) 48%, rgba(5,5,5,0.46) 100%), linear-gradient(0deg, rgba(5,5,5,0.9) 0%, rgba(5,5,5,0.18) 70%);
+  --skin-media-filter: saturate(0.82) contrast(1.12) brightness(0.78);
+  --skin-nav-bg: rgba(5,5,5,0.96);
+  --skin-nav-text: rgba(255,255,255,0.78);
+  --skin-nav-text-strong: #FFFFFF;
+  --skin-nav-line: rgba(255,255,255,0.12);
+  --skin-footer-bg: #050505;
+  --skin-footer-text: rgba(255,255,255,0.64);
+  --skin-footer-heading: #FFFFFF;
+  --skin-footer-line: rgba(255,255,255,0.12);
+}
+
+body[data-skin="white"] {
+  --skin-page: #FFFFFF;
+  --skin-section: #FFFFFF;
+  --skin-section-alt: #F5F6F7;
+  --skin-panel: #FFFFFF;
+  --skin-panel-strong: #F5F6F7;
+  --skin-text: #111111;
+  --skin-muted: #535A62;
+  --skin-line: #DADDE1;
+  --skin-hero-bg: #FFFFFF;
+  --skin-hero-text: #111111;
+  --skin-hero-muted: #555D66;
+  --skin-hero-line: #DADDE1;
+  --skin-hero-panel: rgba(17,17,17,0.04);
+  --skin-hero-panel-solid: rgba(255,255,255,0.86);
+  --skin-hero-wash: linear-gradient(90deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.92) 46%, rgba(255,255,255,0.42) 76%, rgba(255,255,255,0.2) 100%), linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.72) 56%, rgba(255,255,255,0.95) 100%);
+  --skin-media-filter: saturate(0.98) contrast(1.06) brightness(1.01);
+  --skin-nav-bg: rgba(255,255,255,0.96);
+  --skin-nav-text: #343A40;
+  --skin-nav-text-strong: #111111;
+  --skin-nav-line: #DADDE1;
+  --skin-footer-bg: #FFFFFF;
+  --skin-footer-text: #5F6368;
+  --skin-footer-heading: #111111;
+  --skin-footer-line: #DADDE1;
+}
+
+body[data-skin="white"] main :where(.blog-index, .blog-cat) {
+  background: #FFFFFF !important;
+}
+
+body[data-skin="hybrid"] {
+  --skin-page: #FFFFFF;
+  --skin-section: #FFFFFF;
+  --skin-section-alt: #F5F6F7;
+  --skin-panel: #FFFFFF;
+  --skin-panel-strong: #F5F6F7;
+  --skin-text: #111111;
+  --skin-muted: #5F6368;
+  --skin-line: #DDDDDD;
+  --skin-hero-bg: #080808;
+  --skin-hero-text: #FFFFFF;
+  --skin-hero-muted: rgba(255,255,255,0.72);
+  --skin-hero-line: rgba(255,255,255,0.18);
+  --skin-hero-panel: rgba(255,255,255,0.08);
+  --skin-hero-panel-solid: rgba(8,8,8,0.68);
+  --skin-hero-wash: linear-gradient(90deg, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0.82) 46%, rgba(8,8,8,0.42) 100%), linear-gradient(0deg, rgba(8,8,8,0.86) 0%, rgba(8,8,8,0.14) 70%);
+  --skin-media-filter: saturate(0.9) contrast(1.06);
+  --skin-nav-bg: rgba(0,0,0,0.94);
+  --skin-nav-text: rgba(255,255,255,0.82);
+  --skin-nav-text-strong: #FFFFFF;
+  --skin-nav-line: rgba(255,255,255,0.1);
+  --skin-footer-bg: #080808;
+  --skin-footer-text: rgba(255,255,255,0.64);
+  --skin-footer-heading: #FFFFFF;
+  --skin-footer-line: rgba(255,255,255,0.12);
+}
+
+body[data-skin="steel"] {
+  --skin-page: #ECEFF2;
+  --skin-section: #F4F6F8;
+  --skin-section-alt: #E6EAEE;
+  --skin-panel: #FFFFFF;
+  --skin-panel-strong: #EEF2F5;
+  --skin-text: #14181D;
+  --skin-muted: #505A64;
+  --skin-line: #C9D0D7;
+  --skin-hero-bg: #101417;
+  --skin-hero-text: #FFFFFF;
+  --skin-hero-muted: rgba(255,255,255,0.72);
+  --skin-hero-line: rgba(255,255,255,0.18);
+  --skin-hero-panel: rgba(255,255,255,0.07);
+  --skin-hero-panel-solid: rgba(16,20,23,0.74);
+  --skin-hero-wash: linear-gradient(90deg, rgba(16,20,23,0.95) 0%, rgba(16,20,23,0.78) 46%, rgba(16,20,23,0.34) 100%), linear-gradient(0deg, rgba(16,20,23,0.82) 0%, rgba(16,20,23,0.12) 72%);
+  --skin-media-filter: saturate(0.78) contrast(1.08) brightness(0.92);
+  --skin-nav-bg: rgba(16,20,23,0.94);
+  --skin-nav-text: rgba(255,255,255,0.78);
+  --skin-nav-text-strong: #FFFFFF;
+  --skin-nav-line: rgba(255,255,255,0.13);
+  --skin-footer-bg: #101417;
+  --skin-footer-text: rgba(255,255,255,0.66);
+  --skin-footer-heading: #FFFFFF;
+  --skin-footer-line: rgba(255,255,255,0.13);
+}
+
 /* V4 Base Layer - Reset conflicts */
 @layer base {
   html {
-    font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+    font-family: var(--um-font-body);
+    font-synthesis: none;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -20,12 +204,14 @@
   body {
     margin: 0;
     padding: 0;
-    background-color: #ffffff;
-    color: #111827;
+    background-color: var(--skin-page);
+    color: var(--skin-text);
     font-size: 16px;
     line-height: 1.5;
+    font-synthesis: none;
     overflow-x: hidden;
-    max-width: 100vw;
+    width: 100%;
+    max-width: 100%;
     /* Reset any gradient backgrounds */
     background-image: none !important;
   }
@@ -47,9 +233,11 @@
   /* Reset heading margins */
   h1, h2, h3, h4, h5, h6 {
     margin: 0;
-    font-weight: 700;
+    font-weight: var(--um-weight-title);
     line-height: 1.2;
     color: inherit;
+    letter-spacing: 0;
+    font-family: var(--um-font-display);
   }
 
   p {
@@ -61,17 +249,279 @@
     height: auto;
     border-radius: 0;
   }
+
+  small {
+    font-size: 1rem;
+  }
 }
 
 /* V4 Component Layer */
 @layer components {
-  /* Card hover animation */
+  .um-container {
+    width: min(var(--um-container), calc(100% - 32px));
+    margin-inline: auto;
+  }
+
+  .um-container-wide {
+    width: min(var(--um-container-wide), calc(100% - 32px));
+    margin-inline: auto;
+  }
+
+  .um-red {
+    color: var(--um-red);
+  }
+
+  .um-section {
+    padding-block: var(--um-section-y);
+  }
+
+  .um-section-compact {
+    padding-block: var(--um-section-y-tight);
+  }
+
+  .um-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    color: var(--um-red);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .um-kicker::before {
+    content: "";
+    display: inline-block;
+    width: 34px;
+    height: 2px;
+    background: var(--um-red);
+  }
+
+  .um-heading-xl {
+    font-family: var(--um-font-display);
+    font-size: var(--um-world-h1);
+    line-height: 1.06;
+    font-weight: var(--um-weight-title);
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .um-heading-lg {
+    font-family: var(--um-font-display);
+    font-size: var(--um-world-h2);
+    line-height: 1.09;
+    font-weight: var(--um-weight-title);
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .um-heading-md {
+    font-family: var(--um-font-display);
+    font-size: var(--um-world-h3);
+    line-height: 1.14;
+    font-weight: var(--um-weight-title);
+    text-wrap: balance;
+  }
+
+  .um-lead {
+    color: var(--skin-muted);
+    font-size: var(--um-world-lead);
+    line-height: 1.66;
+  }
+
+  .um-text {
+    color: var(--skin-muted);
+    font-size: var(--um-world-body);
+    line-height: 1.7;
+  }
+
+  .um-world-head {
+    display: grid;
+    grid-template-columns: minmax(0, 0.62fr) minmax(280px, 0.38fr);
+    gap: var(--um-world-gutter);
+    align-items: end;
+    border-top: var(--um-world-rule);
+    padding-top: clamp(24px, 4vw, 38px);
+    margin-bottom: clamp(34px, 5vw, 62px);
+  }
+
+  .um-world-head h1,
+  .um-world-head h2 {
+    color: var(--skin-text);
+    font-family: var(--um-font-display);
+    font-size: var(--um-world-h2);
+    line-height: 1.08;
+    font-weight: var(--um-weight-title);
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .um-world-head p {
+    color: var(--skin-muted);
+    font-size: var(--um-world-body);
+    line-height: 1.68;
+  }
+
+  .um-world-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--um-red);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .um-world-label::before {
+    content: "";
+    width: 42px;
+    height: 2px;
+    background: currentColor;
+  }
+
+  .um-world-ledger {
+    display: grid;
+    border-top: var(--um-world-rule);
+  }
+
+  .um-world-ledger-row {
+    display: grid;
+    grid-template-columns: 58px minmax(180px, 0.34fr) minmax(0, 1fr) auto;
+    gap: clamp(16px, 3vw, 34px);
+    align-items: start;
+    min-height: 86px;
+    padding: clamp(20px, 3vw, 28px) 0;
+    border-bottom: var(--um-world-rule);
+  }
+
+  @media (max-width: 860px) {
+    .um-world-head {
+      grid-template-columns: 1fr;
+    }
+
+    .um-world-ledger-row {
+      grid-template-columns: 44px minmax(0, 1fr);
+    }
+
+    .um-world-ledger-row > :nth-child(n + 3) {
+      grid-column: 2;
+    }
+  }
+
+  :where(main, nav, footer) :where(.text-xs, .text-sm, .text-\[9px\], .text-\[10px\], .text-\[11px\], .text-\[12px\], .text-\[13px\], .text-\[14px\], .text-\[15px\]) {
+    font-size: 1rem !important;
+    line-height: 1.45 !important;
+  }
+
+  :where(main, nav, footer) :where(p, a, button, input, select, textarea, label, li, dt, dd, span, small) {
+    text-wrap: pretty;
+  }
+
+  .um-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50px;
+    padding: 0.9rem 1.35rem;
+    border: 1px solid transparent;
+    border-radius: var(--um-radius);
+    background: var(--um-red);
+    background-clip: border-box;
+    box-shadow: inset 0 0 0 1px var(--um-red);
+    color: #fff;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+    transition: background-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .um-btn-primary:hover {
+    background: var(--um-red-dark);
+    box-shadow: inset 0 0 0 1px var(--um-red-dark);
+  }
+
+  .um-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50px;
+    padding: 0.9rem 1.35rem;
+    border: 1px solid var(--skin-line);
+    border-radius: var(--um-radius);
+    background: transparent;
+    background-clip: padding-box;
+    color: var(--skin-text);
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+  }
+
+  .um-btn-secondary:hover {
+    background: var(--skin-text);
+    border-color: var(--skin-text);
+    color: var(--skin-page);
+  }
+
+  .um-panel {
+    border: 1px solid var(--skin-line);
+    border-radius: var(--um-radius);
+    background: var(--skin-panel);
+  }
+
+  .um-section-rule {
+    border-top: 1px solid var(--skin-line);
+    padding-top: clamp(24px, 4vw, 36px);
+  }
+
+  .um-red-rule {
+    display: inline-block;
+    width: 56px;
+    height: 3px;
+    background: var(--um-red);
+  }
+
+  .um-arrow-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    color: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .um-arrow-link::after {
+    content: "";
+    width: 30px;
+    height: 12px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: skewX(-35deg);
+  }
+
+  .um-media-frame {
+    overflow: hidden;
+    border-radius: var(--um-radius);
+    background: #111;
+  }
+
+  .um-media-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Static cards: avoid decorative movement and lifted shadows. */
   .card-hover {
-    transition: all 0.3s ease;
+    transition: border-color 0.18s ease, background-color 0.18s ease;
   }
   .card-hover:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    transform: none;
+    box-shadow: none;
   }
 
   /* Touch targets */
@@ -96,10 +546,11 @@
 
   /* Legacy buttons (migrated from global.css) */
   .btn {
-    @apply inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold transition-all duration-200;
+    @apply inline-flex items-center justify-center px-6 py-3 font-semibold transition-all duration-200;
+    border-radius: var(--um-radius);
   }
   .btn-primary {
-    @apply bg-red-600 text-white hover:bg-red-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+    @apply bg-red-600 text-white hover:bg-red-700;
   }
 
   /* Hero gradient (migrated from global.css) */
@@ -119,7 +570,7 @@
     justify-content: space-between;
     padding: 0.5rem 2rem;
     background-color: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: none;
     border-bottom: none;
     margin: 0;
     position: sticky;
@@ -150,7 +601,7 @@
     width: 25px;
     height: 3px;
     background-color: #333;
-    transition: all 0.3s ease;
+    transition: background-color 0.18s ease;
   }
 
   .navigation ul {
@@ -177,7 +628,7 @@
   }
 
   .navigation ul li a:hover {
-    color: #007BFF;
+    color: var(--um-red);
   }
 
   @media (max-width: 768px) {
@@ -193,7 +644,7 @@
       top: 70px;
       left: 0;
       background-color: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: none;
       padding: 1rem;
       gap: 1rem;
     }
@@ -206,7 +657,7 @@
     .hamburger-menu.active span:nth-child(3) {
       transform: rotate(-45deg) translate(5px, -5px);
     }
-    .navigation ul li a { font-size: 0.9rem; }
+    .navigation ul li a { font-size: 1rem; }
   }
 }
 
@@ -214,20 +665,20 @@
 @layer utilities {
   /* Animations */
   .animate-fade-in {
-    animation: fadeIn 0.8s ease forwards;
-    opacity: 0;
+    animation: none;
+    opacity: 1;
   }
   .animate-slide-up {
-    animation: slideUp 0.8s ease forwards;
-    opacity: 0;
-    transform: translateY(30px);
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 
   @keyframes fadeIn {
     to { opacity: 1; }
   }
   @keyframes slideUp {
-    to { opacity: 1; transform: translateY(0); }
+    to { opacity: 1; transform: none; }
   }
 
   /* Safe area for iPhone notch */
@@ -246,10 +697,928 @@
   }
 }
 
+/* Skin compatibility layer
+   This keeps local skin trials token-based even on pages with older scoped styles. */
+body[data-skin] {
+  background: var(--skin-page) !important;
+  color: var(--skin-text) !important;
+}
+
+body[data-skin] main {
+  background: var(--skin-page) !important;
+  color: var(--skin-text) !important;
+}
+
+body[data-skin] main :where(
+  .services-hero,
+  .service-detail-hero,
+  .about-hero,
+  .contact-hero,
+  .sectors-hero,
+  .sector-detail-hero,
+  .case-detail-hero,
+  .blog-header,
+  .blog-hero,
+  .um-home-hero,
+  .antecedentes-hero,
+  .ante-hero,
+  .sector-atlas,
+  .sector-atlas-detail-hero,
+  .ante-atlas,
+  .ante-editorial__hero,
+  .sector-editorial-detail-hero
+) {
+  background: var(--skin-hero-bg) !important;
+  color: var(--skin-hero-text) !important;
+}
+
+body[data-skin] main :where(
+  .services-hero,
+  .service-detail-hero,
+  .about-hero,
+  .contact-hero,
+  .sectors-hero,
+  .sector-detail-hero,
+  .case-detail-hero,
+  .blog-header,
+  .blog-hero,
+  .um-home-hero,
+  .antecedentes-hero,
+  .ante-hero,
+  .sector-atlas-detail-hero,
+  .ante-atlas__header,
+  .sector-editorial-detail-hero
+) :where(h1, h2, h3, strong, dt, dd) {
+  color: var(--skin-hero-text) !important;
+}
+
+body[data-skin] main :where(
+  .services-hero,
+  .service-detail-hero,
+  .about-hero,
+  .contact-hero,
+  .sectors-hero,
+  .sector-detail-hero,
+  .case-detail-hero,
+  .blog-header,
+  .blog-hero,
+  .um-home-hero,
+  .antecedentes-hero,
+  .ante-hero,
+  .sector-atlas-detail-hero,
+  .ante-atlas__header,
+  .sector-editorial-detail-hero
+) :where(p, li, span, small, .blog-subtitle, .bc-link, .bc-sep) {
+  color: var(--skin-hero-muted) !important;
+}
+
+body[data-skin] main .um-home-hero .um-hero-mobile-photo :where(span, strong) {
+  color: #fff !important;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.9) !important;
+}
+
+body[data-skin] main .um-home-hero .um-hero-mobile-photo span {
+  color: rgba(255,255,255,0.82) !important;
+}
+
+body[data-skin] main :where(
+  .service-detail-hero__wash,
+  .case-detail-hero__wash,
+  .sector-detail-hero__wash,
+  .antecedentes-hero__wash
+) {
+  background: var(--skin-hero-wash) !important;
+}
+
+body[data-skin] main .sector-atlas-detail-hero::after,
+body[data-skin] main .sector-editorial-detail-hero::after {
+  background: var(--skin-hero-wash) !important;
+}
+
+body[data-skin] main .um-home-hero::before,
+body[data-skin] main .services-hero::before,
+body[data-skin] main .blog-header::before,
+body[data-skin] main .about-hero::before,
+body[data-skin] main .contact-hero::before,
+body[data-skin] main .sectors-hero::before,
+body[data-skin] main .antecedentes-hero::before {
+  background: var(--skin-hero-wash) !important;
+}
+
+body[data-skin] main :where(
+  .services-index,
+  .services-packages,
+  .services-operating-model,
+  .service-detail-main,
+  .service-products-section,
+  .case-detail-main,
+  .case-related,
+  .blog-index,
+  .blog-cat,
+  .contact-main,
+  .about-body,
+  .sector-operating,
+  .sector-services,
+  .sector-projects,
+  .sector-detail,
+  .um-service-system,
+  .um-package-section,
+  .um-operating-layer,
+  .um-evidence-section,
+  .ante-editorial,
+  .sector-editorial,
+  .sector-atlas-detail,
+  .sector-atlas-service-map,
+  .sector-atlas-criteria,
+  .sector-atlas-evidence,
+  .antecedentes-list,
+  .antecedentes-results,
+  .blog-feed,
+  .blog-container
+) {
+  background: var(--skin-section) !important;
+  color: var(--skin-text) !important;
+}
+
+body[data-skin] main :where(
+  .bg-\[\#F5F6F7\],
+  .bg-um-gray-light,
+  .services-operating-model,
+  .service-products-section,
+  .case-related,
+  .um-package-section,
+  .contact-main,
+  .sector-projects,
+  .blog-index
+) {
+  background: var(--skin-section-alt) !important;
+}
+
+body[data-skin] main :where(
+  .service-row,
+  .service-info-card,
+  .service-solution-card,
+  .operating-step,
+  .product-card-v4,
+  .product-card-v4__note,
+  .case-info-card,
+  .feed-item,
+  .hero-post,
+  .services-package-row,
+  .um-service-unit,
+  .um-evidence-card,
+  .sector-card,
+  .sector-row,
+  .sector-detail-proof,
+  .sector-detail-service,
+  .sector-detail-case,
+  .sector-atlas-row,
+  .sector-atlas-service-map__grid a,
+  .sector-atlas-service-map__grid div,
+  .sector-atlas-criteria__grid article,
+  .sector-editorial-card,
+  .ante-editorial__filters,
+  .ante-editorial-card,
+  .ante-atlas-card,
+  .evidence-item,
+  .contact-card,
+  .contact-form,
+  .about-card,
+  .bg-white
+) {
+  background: var(--skin-panel) !important;
+  border-color: var(--skin-line) !important;
+  color: var(--skin-text) !important;
+}
+
+body[data-skin] main :where(
+  h1, h2, h3, h4, h5, h6,
+  .text-um-dark,
+  .text-gray-900,
+  .text-gray-800,
+  .text-black
+) {
+  color: var(--skin-text) !important;
+}
+
+body[data-skin] main :where(
+  p, li, dd, label, input, textarea, select,
+  .um-lead,
+  .um-text,
+  .text-um-gray,
+  .text-gray-700,
+  .text-gray-600,
+  .text-gray-500,
+  .text-gray-400
+) {
+  color: var(--skin-muted) !important;
+}
+
+body[data-skin] main :where(
+  .services-hero,
+  .service-detail-hero,
+  .about-hero,
+  .contact-hero,
+  .sectors-hero,
+  .sector-detail-hero,
+  .case-detail-hero,
+  .blog-header,
+  .blog-hero,
+  .um-home-hero,
+  .antecedentes-hero,
+  .ante-hero,
+  .sector-atlas-detail-hero,
+  .ante-atlas__header,
+  .sector-editorial-detail-hero,
+  .geo-dossier-hero,
+  .geo-final
+) :where(h1, h2, h3, h4, h5, h6, strong, dt, dd) {
+  color: var(--skin-hero-text) !important;
+}
+
+body[data-skin] main :where(
+  .services-hero,
+  .service-detail-hero,
+  .about-hero,
+  .contact-hero,
+  .sectors-hero,
+  .sector-detail-hero,
+  .case-detail-hero,
+  .blog-header,
+  .blog-hero,
+  .um-home-hero,
+  .antecedentes-hero,
+  .ante-hero,
+  .sector-atlas-detail-hero,
+  .ante-atlas__header,
+  .sector-editorial-detail-hero,
+  .geo-dossier-hero,
+  .geo-final
+) :where(p, li, dd, label, span, .text-gray-400, .text-gray-500, .text-white\/70, .text-white\/60) {
+  color: var(--skin-hero-muted) !important;
+}
+
+body[data-skin] main :where(
+  .services-hero__image img,
+  .service-detail-hero__image img,
+  .case-detail-hero__image,
+  .sector-detail-hero__image,
+  .sector-atlas-detail-hero > img,
+  .sector-editorial-detail-hero > img,
+  .um-hero-media img,
+  .hero-img,
+  .feed-thumb,
+  .product-card-v4__image,
+  .evidence-item img,
+  .sector-atlas-row__media img,
+  .ante-editorial img,
+  .sector-editorial img
+) {
+  filter: var(--skin-media-filter) !important;
+}
+
+body main :where(
+  figure,
+  [class*="media"],
+  [class*="image"],
+  [class*="thumb"],
+  [class*="visual"]
+):has(> img),
+body main :where(
+  figure,
+  [class*="media"],
+  [class*="image"],
+  [class*="thumb"],
+  [class*="visual"]
+):has(img) {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+body main :where(
+  figure,
+  [class*="media"],
+  [class*="image"],
+  [class*="thumb"],
+  [class*="visual"]
+)::before,
+body main :where(
+  figure,
+  [class*="media"],
+  [class*="image"],
+  [class*="thumb"],
+  [class*="visual"]
+)::after {
+  border: 0 !important;
+}
+
+body main :where(img),
+body main :where(a:hover img, a:focus-visible img, .group:hover img, [class*="card"]:hover img, [class*="item"]:hover img, [class*="module"]:hover img) {
+  border: 0 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+body main :where(
+  figure,
+  [class*="media"],
+  [class*="image"],
+  [class*="thumb"],
+  [class*="visual"]
+) img {
+  transition: none !important;
+}
+
+body[data-skin] main :where(input, textarea, select) {
+  background: var(--skin-panel) !important;
+  border-color: var(--skin-line) !important;
+  color: var(--skin-text) !important;
+}
+
+body[data-skin] main :where(input, textarea, select)::placeholder {
+  color: var(--skin-muted) !important;
+}
+
+body[data-skin] main :where(hr, .border-gray-200, .border-gray-300, .border-white\/10, .border-white\/20) {
+  border-color: var(--skin-line) !important;
+}
+
+body[data-skin] main :where(.bg-um-dark, .bg-black, .bg-\[\#050505\], .bg-\[\#080808\]) {
+  background: var(--skin-hero-bg) !important;
+  color: var(--skin-hero-text) !important;
+}
+
+body[data-skin] main :where(.um-btn-secondary) {
+  border-color: var(--skin-line) !important;
+  color: var(--skin-text) !important;
+}
+
+body[data-skin] main :where(.um-btn-secondary:hover) {
+  background: var(--skin-text) !important;
+  border-color: var(--skin-text) !important;
+  color: var(--skin-page) !important;
+}
+
+body[data-skin] :where(main, nav, footer) :where(.um-btn-primary, .um-nav-cta) {
+  border-color: transparent !important;
+  background-clip: border-box !important;
+  box-shadow: inset 0 0 0 1px var(--um-red) !important;
+}
+
+body[data-skin] :where(main, nav, footer) :where(.um-btn-primary:hover, .um-nav-cta:hover) {
+  box-shadow: inset 0 0 0 1px var(--um-red-dark) !important;
+}
+
+body[data-skin] main :where(.um-cta, .stats-bar-v4) {
+  background: var(--skin-hero-bg) !important;
+  color: var(--skin-hero-text) !important;
+}
+
+body[data-skin] main :where(
+  .services-hero,
+  .service-detail-hero,
+  .about-hero,
+  .contact-hero,
+  .sectors-hero,
+  .sector-detail-hero,
+  .case-detail-hero,
+  .blog-header,
+  .blog-hero,
+  .um-home-hero,
+  .antecedentes-hero,
+  .ante-hero
+) :where(.um-btn-secondary) {
+  background: var(--skin-hero-panel) !important;
+  border-color: var(--skin-hero-line) !important;
+  color: var(--skin-hero-text) !important;
+}
+
+body[data-skin] main :where(
+  .services-hero,
+  .service-detail-hero,
+  .about-hero,
+  .contact-hero,
+  .sectors-hero,
+  .sector-detail-hero,
+  .case-detail-hero,
+  .blog-header,
+  .blog-hero,
+  .um-home-hero,
+  .antecedentes-hero,
+  .ante-hero
+) :where(.um-btn-secondary:hover) {
+  background: var(--skin-hero-text) !important;
+  border-color: var(--skin-hero-text) !important;
+  color: var(--skin-hero-bg) !important;
+}
+
+body[data-skin] main .um-hero-proofbar {
+  background: var(--skin-hero-panel-solid) !important;
+  border-color: var(--skin-hero-line) !important;
+}
+
+body[data-skin] main .um-hero-proofbar div {
+  border-color: var(--skin-hero-line) !important;
+}
+
+body[data-skin] main .um-hero-proofbar :where(strong, span) {
+  color: var(--skin-hero-text) !important;
+}
+
+body[data-skin] main .um-hero-proofbar p {
+  color: var(--skin-hero-muted) !important;
+}
+
+body[data-skin] main :where(
+  .services-breadcrumb,
+  .service-detail-breadcrumb,
+  .sector-detail-breadcrumb,
+  .sectors-breadcrumb,
+  .about-breadcrumb,
+  .contact-breadcrumb,
+  .ante-breadcrumb,
+  .case-detail-breadcrumb,
+  .blog-breadcrumb,
+  .breadcrumbs,
+  .um-page-crumbs
+) {
+  color: var(--skin-hero-muted) !important;
+}
+
+body[data-skin] main :where(
+  .services-breadcrumb,
+  .service-detail-breadcrumb,
+  .sector-detail-breadcrumb,
+  .sectors-breadcrumb,
+  .about-breadcrumb,
+  .contact-breadcrumb,
+  .ante-breadcrumb,
+  .case-detail-breadcrumb,
+  .blog-breadcrumb,
+  .breadcrumbs,
+  .um-page-crumbs
+) :where(a, span, svg) {
+  color: inherit !important;
+}
+
+body[data-skin] main :where(
+  .services-breadcrumb,
+  .service-detail-breadcrumb,
+  .sector-detail-breadcrumb,
+  .sectors-breadcrumb,
+  .about-breadcrumb,
+  .contact-breadcrumb,
+  .ante-breadcrumb,
+  .case-detail-breadcrumb,
+  .blog-breadcrumb,
+  .breadcrumbs,
+  .um-page-crumbs
+) :where(a:hover, [aria-current="page"]) {
+  color: var(--skin-hero-text) !important;
+}
+
+body[data-skin] main :where(
+  .evidence-item--feature
+) {
+  background: #050505 !important;
+  color: #fff !important;
+}
+
+body[data-skin] main :where(
+  .evidence-item--feature
+) :where(h2, h3, strong, dd, .evidence-item__cta) {
+  color: #fff !important;
+}
+
+body[data-skin] main :where(
+  .evidence-item--feature
+) :where(p, dt, em) {
+  color: rgba(255,255,255,0.74) !important;
+}
+
+body[data-skin] main :where(
+  .evidence-item--feature .evidence-item__meta
+) {
+  border-color: rgba(255,255,255,0.18) !important;
+  background: rgba(255,255,255,0.16) !important;
+}
+
+body[data-skin] main :where(
+  .evidence-item--feature .evidence-item__meta div
+) {
+  background: rgba(0,0,0,0.28) !important;
+}
+
+/* Dark proof modules must keep their own contrast even in white/steel skins.
+   This prevents the global skin layer from turning black panels into low-contrast gray text. */
+body[data-skin] main :where(
+  .um-surface-light
+) {
+  background: var(--um-light-bg) !important;
+  color: var(--um-light-text) !important;
+}
+
+body[data-skin] main :where(
+  .um-panel-light
+) {
+  background: var(--um-light-panel) !important;
+  border-color: var(--um-light-line) !important;
+  color: var(--um-light-text) !important;
+}
+
+body[data-skin] main :where(
+  .um-surface-light,
+  .um-panel-light
+) :where(h1, h2, h3, h4, h5, h6, strong, b, a, dt, dd, button) {
+  color: var(--um-light-text) !important;
+}
+
+body[data-skin] main :where(
+  .um-surface-light,
+  .um-panel-light
+) :where(p, li, span, small, em, label) {
+  color: var(--um-light-muted) !important;
+}
+
+body[data-skin] main :where(
+  .um-surface-dark,
+  .um-panel-dark,
+  .um-invert,
+  .wd-invert,
+  .contact-quick-card,
+  .contact-proof,
+  .geo-dossier-brief,
+  .geo-final,
+  .dossier-feature--dark,
+  .proof-panel--dark,
+  .sector-detail-proof,
+  .sector-detail-proof div,
+  .service-detail-proof,
+  .service-detail-proof div,
+  .service-detail-hero__panel,
+  .case-detail-hero__panel
+) {
+  background-color: var(--um-dark-bg) !important;
+  border-color: var(--um-dark-line) !important;
+  color: var(--um-dark-text) !important;
+}
+
+body[data-skin] main :where(
+  .um-panel-dark,
+  .um-surface-dark .um-panel-dark,
+  .proof-panel--dark,
+  .sector-detail-proof div,
+  .service-detail-proof div,
+  .service-detail-hero__panel,
+  .case-detail-hero__panel
+) {
+  background-color: var(--um-dark-panel) !important;
+}
+
+body[data-skin] main :where(
+  .um-surface-dark,
+  .um-panel-dark,
+  .um-invert,
+  .wd-invert,
+  .contact-quick-card,
+  .contact-proof,
+  .geo-dossier-brief,
+  .geo-final,
+  .dossier-feature--dark,
+  .proof-panel--dark,
+  .sector-detail-proof,
+  .sector-detail-proof div,
+  .service-detail-proof,
+  .service-detail-proof div,
+  .service-detail-hero__panel,
+  .case-detail-hero__panel
+) :where(h1, h2, h3, h4, h5, h6, strong, b, a, dt, dd, button, .um-kicker, .um-arrow-link) {
+  color: var(--um-dark-text) !important;
+}
+
+body[data-skin] main :where(
+  .um-surface-dark,
+  .um-panel-dark,
+  .um-invert,
+  .wd-invert,
+  .contact-quick-card,
+  .contact-proof,
+  .geo-dossier-brief,
+  .geo-final,
+  .dossier-feature--dark,
+  .proof-panel--dark,
+  .sector-detail-proof,
+  .sector-detail-proof div,
+  .service-detail-proof,
+  .service-detail-proof div,
+  .service-detail-hero__panel,
+  .case-detail-hero__panel
+) :where(p, li, span, small, em, label) {
+  color: var(--um-dark-muted) !important;
+}
+
+body[data-skin] main :where(
+  .um-surface-dark,
+  .um-panel-dark,
+  .um-invert,
+  .wd-invert,
+  .contact-quick-card,
+  .contact-proof,
+  .geo-dossier-brief,
+  .geo-final,
+  .dossier-feature--dark,
+  .proof-panel--dark,
+  .sector-detail-proof,
+  .sector-detail-proof div,
+  .service-detail-proof,
+  .service-detail-proof div,
+  .service-detail-hero__panel,
+  .case-detail-hero__panel
+) :where(.um-kicker, .meta-text, .category-mark) {
+  color: var(--um-dark-meta) !important;
+}
+
+body[data-skin] main :where(
+  .um-surface-dark .um-section-heading
+) {
+  border-color: var(--um-dark-line) !important;
+}
+
+body[data-skin] main :where(
+  .um-surface-dark .um-section-heading > p
+) {
+  color: var(--um-dark-meta) !important;
+}
+
+body[data-skin] main :where(
+  .um-surface-dark .um-section-heading > p
+)::before {
+  background: var(--um-red) !important;
+}
+
+body[data-skin] main :where(
+  .um-surface-dark .um-btn-secondary,
+  .um-panel-dark .um-btn-secondary
+) {
+  border-color: var(--um-dark-line) !important;
+  color: var(--um-dark-text) !important;
+  background: rgba(255,255,255,0.06) !important;
+}
+
+body[data-skin="white"] main :where(.blog-index, .blog-cat) {
+  background: #FFFFFF !important;
+}
+
+/* UMSA 2026 editorial typography gate:
+   Poppins owns content headlines; Futura PT stays reserved for the logo/brand. */
+:where(html, body) {
+  font-synthesis: none;
+}
+
+:where(main) :where(
+  h1,
+  h2,
+  h3,
+  .um-heading-xl,
+  .um-heading-lg,
+  .um-heading-md,
+  .blog-title,
+  .hero-title,
+  .feed-title,
+  .section-title,
+  .page-title,
+  .card-title
+) {
+  font-family: var(--um-font-display) !important;
+  font-weight: var(--um-weight-title) !important;
+  letter-spacing: 0 !important;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+:where(main) h1 {
+  font-size: var(--um-world-h1) !important;
+  line-height: 1.08 !important;
+  max-width: min(100%, 980px);
+}
+
+:where(main) h2 {
+  font-size: var(--um-world-h2) !important;
+  line-height: 1.12 !important;
+  max-width: min(100%, 920px);
+}
+
+:where(main) h3 {
+  font-size: var(--um-world-h3) !important;
+  line-height: 1.18 !important;
+  max-width: min(100%, 820px);
+}
+
+:where(main, nav, footer) :where(
+  button,
+  .um-btn-primary,
+  .um-btn-secondary,
+  .um-arrow-link,
+  .um-kicker,
+  .um-world-label,
+  .category-mark,
+  .cat-tab,
+  .feed-link,
+  .hero-link,
+  .meta-text,
+  dt,
+  label,
+  strong
+) {
+  font-weight: var(--um-weight-strong);
+}
+
+@media (max-width: 640px) {
+  body[data-skin] main .um-hero-copy h1 {
+    max-width: 100% !important;
+    font-size: clamp(2rem, 7.25vw, 2.35rem) !important;
+    line-height: 1.15 !important;
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+  }
+}
+
+/* Forbes-grade proportionality gate: keep hero and section titles inside the
+   approved editorial scale even when page-scoped experiments define larger values. */
+body[data-skin] main :where(
+  .um-hero-copy h1,
+  .services-hero h1,
+  .service-detail-hero h1,
+  .service-detail-copy h1,
+  .geo-dossier-hero h1,
+  .contact-dossier h1,
+  .about-hero h1,
+  .sector-detail-hero h1,
+  .sector-atlas-detail-hero h1,
+  .sector-editorial-detail-hero h1,
+  .antecedentes-hero h1,
+  .ante-dossier__hero h1,
+  .case-detail-hero h1,
+  .case-hero h1,
+  .ante-hero h1,
+  .sector-atlas-exec-hero h1,
+  .sector-editorial__head h1,
+  .blog-header h1,
+  .blog-hero h1,
+  .blog-post h1,
+  .um-page-title
+) {
+  font-size: var(--um-world-h1) !important;
+  line-height: 1.07 !important;
+  font-weight: var(--um-weight-title) !important;
+  letter-spacing: 0 !important;
+}
+
+body[data-skin] main :where(
+  .um-section-heading h2,
+  .um-world-head h2,
+  .services-dossier-head h2,
+  .services-section-head h2,
+  .services-packages h2,
+  .services-operating-model h2,
+  .geo-dossier-two h2,
+  .geo-section-head h2,
+  .geo-final h2,
+  .contact-form-panel h2,
+  .contact-context h2,
+  .um-evidence-head h2,
+  .um-operating-grid h2,
+  .um-package-intro h2,
+  .um-services-command__copy h2,
+  .um-connected-section .um-section-heading h2,
+  .sector-editorial h2,
+  .sector-atlas h2,
+  .sector-detail-page h2,
+  .sector-section-head h2,
+  .sector-operating h2,
+  .sector-final h2,
+  .sector-faq h2,
+  .ante-dossier h2,
+  .ante-editorial h2,
+  .ante-atlas h2,
+  .case-detail h2,
+  .service-detail h2,
+  .service-detail-section-title h2,
+  .blog-post h2,
+  .blog-index h2,
+  .blog-cat h2
+) {
+  font-size: var(--um-world-h2) !important;
+  line-height: 1.1 !important;
+  font-weight: var(--um-weight-title) !important;
+  letter-spacing: 0 !important;
+}
+
+body[data-skin] main :where(
+  .um-service-unit h3,
+  .service-dossier-item strong,
+  .service-row h3,
+  .service-detail h3,
+  .geo-dossier-card h3,
+  .geo-related-case h3,
+  .um-evidence-card h3,
+  .um-evidence-stage__copy h3,
+  .um-evidence-feature__overlay h3,
+  .um-evidence-card__body h3,
+  .um-operating-steps h3,
+  .ante-dossier h3,
+  .sector-editorial h3,
+  .sector-atlas h3,
+  .sector-detail-page h3,
+  .case-detail h3,
+  .blog-post h3,
+  .feed-title,
+  .hero-title
+) {
+  font-size: var(--um-world-h3) !important;
+  line-height: 1.16 !important;
+  font-weight: var(--um-weight-title) !important;
+  letter-spacing: 0 !important;
+}
+
+@media (max-width: 640px) {
+  body[data-skin] main :where(
+    .um-hero-copy h1,
+    .services-hero h1,
+    .service-detail-hero h1,
+    .service-detail-copy h1,
+    .geo-dossier-hero h1,
+    .contact-dossier h1,
+    .about-hero h1,
+    .sector-detail-hero h1,
+    .sector-atlas-detail-hero h1,
+    .sector-editorial-detail-hero h1,
+    .antecedentes-hero h1,
+    .ante-dossier__hero h1,
+    .case-detail-hero h1,
+    .case-hero h1,
+    .ante-hero h1,
+    .sector-atlas-exec-hero h1,
+    .sector-editorial__head h1,
+    .blog-header h1,
+    .blog-hero h1,
+    .blog-post h1,
+    .um-page-title
+  ) {
+    font-size: clamp(2rem, 7vw, 2.32rem) !important;
+    line-height: 1.15 !important;
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+  }
+
+  body[data-skin] main :where(
+    .um-section-heading h2,
+    .um-world-head h2,
+    .services-dossier-head h2,
+    .services-section-head h2,
+    .services-packages h2,
+    .services-operating-model h2,
+    .geo-dossier-two h2,
+    .geo-section-head h2,
+    .geo-final h2,
+    .contact-form-panel h2,
+    .contact-context h2,
+    .um-evidence-head h2,
+    .um-operating-grid h2,
+    .um-package-intro h2,
+    .um-services-command__copy h2,
+    .um-connected-section .um-section-heading h2,
+    .sector-editorial h2,
+    .sector-atlas h2,
+    .sector-detail-page h2,
+    .sector-section-head h2,
+    .sector-operating h2,
+    .sector-final h2,
+    .sector-faq h2,
+    .ante-dossier h2,
+    .ante-editorial h2,
+    .ante-atlas h2,
+    .case-detail h2,
+    .service-detail h2,
+    .service-detail-section-title h2,
+    .blog-post h2,
+    .blog-index h2,
+    .blog-cat h2
+  ) {
+    font-size: clamp(1.5rem, 5.8vw, 1.92rem) !important;
+    line-height: 1.14 !important;
+  }
+
+  :where(main) h3 {
+    font-size: clamp(1.12rem, 4.8vw, 1.38rem) !important;
+  }
+}
+
 /* DISABLE dark mode override - V4 uses explicit colors */
 @media (prefers-color-scheme: dark) {
   html, body {
-    background-color: #ffffff;
-    color: #111827;
+    background-color: var(--skin-page);
+    color: var(--skin-text);
   }
 }

@@ -110,7 +110,7 @@ const unusedSectors = EXISTING_SECTORS.filter(sector => !sectorCounts[sector] ||
     .card { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .item { display: flex; justify-content: space-between; padding: 0.5rem; border-bottom: 1px solid #eee; }
     .item:last-child { border-bottom: none; }
-    .badge { background: #0066cc; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.875rem; }
+    .badge { background: #0066cc; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 1rem; }
     .badge.unmapped { background: #ff6b6b; }
     .badge.mapped { background: #51cf66; }
     .badge.warning { background: #ff922b; }
@@ -213,7 +213,7 @@ const unusedSectors = EXISTING_SECTORS.filter(sector => !sectorCounts[sector] ||
 
   <div class="stats" style="margin-top: 2rem; background: #e3f2fd;">
     <p style="margin: 0;"><strong>✅ Auditoría completada</strong></p>
-    <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem; color: #666;">
+    <p style="margin: 0.5rem 0 0 0; font-size: 1rem; color: #666;">
       Generado: {new Date().toLocaleString('es-AR')}
     </p>
   </div>

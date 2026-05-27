@@ -9,6 +9,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   noticias: '#3b82f6',
   proyectos: '#10b981',
   tecnico: '#f59e0b',
+  tecnologia: '#64748b',
   empresa: '#8b5cf6',
 };
 
@@ -16,6 +17,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   noticias: 'NOTICIAS',
   proyectos: 'PROYECTOS',
   tecnico: 'TÉCNICO',
+  tecnologia: 'TECNOLOGÍA',
   empresa: 'EMPRESA',
 };
 
@@ -34,6 +36,12 @@ export function formatBlogDate(dateStr: string): string {
 }
 
 async function markdownToHtml(markdown: string): Promise<string> {
+  const looksLikeHtml = /<\/?(p|h[1-6]|ul|ol|li|table|thead|tbody|tr|td|th|pre|blockquote|figure|img|a|strong|em|code)\b/i.test(markdown);
+
+  if (looksLikeHtml) {
+    return markdown;
+  }
+
   const result = await unified()
     .use(remarkParse)
     .use(remarkGfm)
@@ -48,12 +56,14 @@ export async function addHeadingIds(content: string): Promise<{
   html: string;
   headings: Array<{ level: number; id: string; text: string }>;
 }> {
-  const html = await markdownToHtml(content);
+  const html = (await markdownToHtml(content))
+    .replace(/<h1([^>]*)>/gi, '<h2$1>')
+    .replace(/<\/h1>/gi, '</h2>');
 
   const headings: Array<{ level: number; id: string; text: string }> = [];
 
   const processed = html.replace(
-    /<h([23])([^>]*)>(.*?)<\/h[23]>/gi,
+    /<h([2-4])([^>]*)>(.*?)<\/h[2-4]>/gi,
     (_match, level, attrs, inner) => {
       const plainText = inner.replace(/<[^>]+>/g, '');
       const id = plainText

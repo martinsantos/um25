@@ -1,12 +1,198 @@
 ---
+import { authenticate, loginDirectus, sessionCookie, clearCookie } from '../../lib/estilo-auth';
 import htmlContent from '../../assets/estilo/sistema-estilo-umsa.html?raw';
 
+// ── Manejo de POST (login desde browser) ─────────────────────────────────────
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const email    = String(form.get('email') || '');
+  const password = String(form.get('password') || '');
+
+  const login = await loginDirectus(email, password);
+
+  if (login.ok && login.token) {
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: '/estilo',
+        'Set-Cookie': sessionCookie(login.token),
+      },
+    });
+  }
+
+  // Login fallido → mostrar formulario con error
+  return new Response(loginPage(login.error || 'Credenciales inválidas'), {
+    status: 401,
+    headers: { 'Content-Type': 'text/html; charset=utf-8' },
+  });
+}
+
+// ── Verificación de auth ──────────────────────────────────────────────────────
+const auth = await authenticate(Astro.request);
+
+if (!auth.ok) {
+  const isService = !Astro.request.headers.get('Accept')?.includes('text/html');
+
+  // Servicios/agentes → 401 JSON limpio
+  if (isService) {
+    return new Response(JSON.stringify({ error: 'Unauthorized', hint: 'Authorization: Bearer <directus_token>' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Browser sin auth → formulario de login
+  return new Response(loginPage(), {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Set-Cookie': clearCookie(),
+    },
+  });
+}
+
+// ── Auth OK → devolver el HTML del sistema de diseño ─────────────────────────
 return new Response(htmlContent, {
   status: 200,
   headers: {
     'Content-Type': 'text/html; charset=utf-8',
-    'Cache-Control': 'public, max-age=3600',
-    'X-Robots-Tag': 'noindex, nofollow, noarchive, nosnippet',
+    'Cache-Control': 'private, no-store',
+    // Refrescar cookie si vino por cookie (extiende la sesión)
+    ...(auth.source === 'cookie' && auth.token
+      ? { 'Set-Cookie': sessionCookie(auth.token) }
+      : {}),
   },
 });
+
+// ── Helper: página de login ───────────────────────────────────────────────────
+function loginPage(error?: string): string {
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceso restringido — ULTIMA MILLA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Open Sans', Arial, sans-serif;
+      background: #ffffff;
+      color: #111111;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #DADDE1;
+      border-radius: 4px;
+      padding: clamp(2rem, 5vw, 3rem);
+      width: 100%;
+      max-width: 430px;
+    }
+    .logo {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 0;
+      color: #111111;
+      margin-bottom: 1.4rem;
+    }
+    .logo span { color: #DC2626; }
+    h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: clamp(1.7rem, 6vw, 2.1rem);
+      font-weight: 600;
+      line-height: 1.1;
+      color: #111111;
+      margin-bottom: 1.8rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid #111111;
+    }
+    label {
+      display: block;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #333333;
+      margin-bottom: 0.45rem;
+    }
+    input {
+      width: 100%;
+      min-height: 48px;
+      background: #ffffff;
+      border: 1px solid #C8CDD2;
+      border-radius: 4px;
+      padding: 0.75rem 0.9rem;
+      font-size: 1rem;
+      color: #111111;
+      margin-bottom: 1.2rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus {
+      border-color: #111111;
+      box-shadow: 0 0 0 3px rgba(220,38,38,0.16);
+    }
+    button {
+      width: 100%;
+      min-height: 48px;
+      background: #DC2626;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.75rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #111111; }
+    .error {
+      background: #FFF1F1;
+      border: 1px solid rgba(220,38,38,0.3);
+      border-radius: 4px;
+      padding: 0.75rem 0.9rem;
+      font-size: 1rem;
+      color: #DC2626;
+      margin-bottom: 1.2rem;
+    }
+    .hint {
+      margin-top: 1.5rem;
+      font-size: 1rem;
+      color: #5F6368;
+      line-height: 1.6;
+    }
+    code {
+      font-family: monospace;
+      background: #F5F6F7;
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+      color: #111111;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">ultimamilla<span>.</span>com<span>.</span>ar</div>
+    <h1>Sistema de Diseño</h1>
+    ${error ? `<div class="error">${error}</div>` : ''}
+    <form method="POST">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required autofocus placeholder="usuario@ultimamilla.com.ar">
+      <label for="password">Contraseña</label>
+      <input type="password" id="password" name="password" required placeholder="••••••••">
+      <button type="submit">Acceder</button>
+    </form>
+    <div class="hint">
+      Para acceso programático:<br>
+      <code>Authorization: Bearer &lt;directus_token&gt;</code>
+    </div>
+  </div>
+</body>
+</html>`;
+}
 ---

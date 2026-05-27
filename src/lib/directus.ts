@@ -68,7 +68,7 @@ export interface EntradaBlog {
   contenido: string;
   imagen_portada: string | null;
   imagen_portada_alt?: string;
-  categoria: 'noticias' | 'proyectos' | 'tecnico' | 'empresa';
+  categoria: 'noticias' | 'proyectos' | 'tecnico' | 'tecnologia' | 'empresa';
   tags: string[];
   fecha_publicacion: string;
   fecha_modificacion?: string;

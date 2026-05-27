@@ -81,7 +81,7 @@
 .overlay-constructoras::after {
   content: 'PLANO Nº 2024-UM-001  ·  ESC 1:100  ·  A3';
   position: absolute; bottom: 16px; right: 20px;
-  font: 600 9px/1 monospace;
+  font: 600 16px/1.15 monospace;
   color: rgba(0,188,212,0.35); letter-spacing: 0.1em; text-transform: uppercase;
   z-index: 2;
 }
@@ -101,7 +101,7 @@
   content: 'DOCUMENTO · OFICIAL · DOCUMENTO · OFICIAL';
   position: absolute; top: 50%; left: 50%;
   transform: translate(-50%,-50%) rotate(-25deg);
-  font: 800 44px/1 'Futura PT','Futura',sans-serif;
+  font: 700 44px/1 var(--um-font-display);
   color: rgba(16,185,129,0.05);
   letter-spacing: 0.25em; text-transform: uppercase;
   white-space: nowrap; pointer-events: none;
@@ -242,7 +242,7 @@
 .overlay-soporte::after {
   content: '● ● ● ● ● ● ● ● ● ●  99.99% UPTIME';
   position: absolute; top: 20px; right: 20px;
-  font: 9px/1 'SF Mono',monospace; letter-spacing: 2px; color: #22c55e; opacity: 0.5;
+  font: 16px/1.15 'SF Mono',monospace; letter-spacing: 2px; color: #22c55e; opacity: 0.5;
   animation: _uptime 2s ease-in-out infinite;
   z-index: 2;
 }
@@ -263,7 +263,7 @@
   content: 'CONFIDENCIAL · INTERNAL USE';
   position: absolute; top: 50%; left: 50%;
   transform: translate(-50%,-50%) rotate(-25deg);
-  font: 800 42px/1 'Futura PT','Futura',sans-serif;
+  font: 700 42px/1 var(--um-font-display);
   color: rgba(99,102,241,0.05);
   letter-spacing: 0.25em; text-transform: uppercase;
   white-space: nowrap; pointer-events: none;

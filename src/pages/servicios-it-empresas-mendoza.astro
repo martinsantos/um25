@@ -1,0 +1,20 @@
+---
+import LayoutV4 from '../layouts/LayoutV4.astro';
+import GeoHubDossier from '../components/templates/GeoHubDossier.astro';
+import { buildGeoHubStructuredData, getGeoCommercialHub } from '../data/geoCommercialHubs';
+
+const hub = getGeoCommercialHub('servicios-it-empresas-mendoza');
+
+if (!hub) {
+  return Astro.redirect('/servicios', 302);
+}
+---
+
+<LayoutV4
+  title={hub.seoTitle}
+  description={hub.description}
+  keywords={hub.keywords}
+  structuredData={buildGeoHubStructuredData(hub)}
+>
+  <GeoHubDossier hub={hub} />
+</LayoutV4>

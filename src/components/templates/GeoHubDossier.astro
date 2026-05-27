@@ -1,0 +1,1185 @@
+---
+import type { GeoCommercialHub } from '../../data/geoCommercialHubs';
+
+interface Props {
+  hub: GeoCommercialHub;
+}
+
+const { hub } = Astro.props;
+const intentLabel = {
+  comparison: 'Comparación de proveedor',
+  decision: 'Decisión de compra',
+  research: 'Investigación técnica'
+}[hub.intent];
+
+const proofItems = hub.proof.map((item, index) => {
+  const supportMatch = item.match(/24\/7/);
+  if (supportMatch) {
+    return {
+      value: '24/7',
+      label: item.replace(/24\/7/g, '').replace(/\s+/g, ' ').trim()
+    };
+  }
+
+  const metricMatch = item.match(/^(\d+\+?|\d+%|\d+\/\d+)\s*(.*)$/);
+  if (metricMatch) {
+    return {
+      value: metricMatch[1],
+      label: metricMatch[2] || item
+    };
+  }
+
+  return {
+    value: String(index + 1).padStart(2, '0'),
+    label: item
+  };
+});
+
+const mediaByHub: Record<string, { src: string; alt: string; caption: string }> = {
+  'servicios-it-empresas-mendoza': {
+    src: '/images/hero/foto-general.jpg',
+    alt: 'Infraestructura técnica y operación IT para empresas',
+    caption: 'Operación local, continuidad nacional'
+  },
+  'presupuesto-servicios-it-empresas': {
+    src: '/images/hero/foto-soporte.jpg',
+    alt: 'Herramientas de diagnóstico para servicios IT empresariales',
+    caption: 'Alcance verificable antes de cotizar'
+  },
+  'proyectos-ingenieria-it-mendoza': {
+    src: '/images/hero/foto-electricos.jpg',
+    alt: 'Infraestructura eléctrica y técnica para proyectos IT',
+    caption: 'Ingeniería, campo y documentación'
+  },
+  'servicios-it-empresas-argentina': {
+    src: '/images/hero/foto-consultoria.jpg',
+    alt: 'Equipo técnico y consultoría IT para organizaciones',
+    caption: 'Cobertura planificada y soporte trazable'
+  }
+};
+
+const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mendoza'];
+---
+
+<article class="geo-dossier">
+  <section class="geo-dossier-hero">
+    <div class="um-container geo-dossier-hero__grid">
+      <div class="geo-dossier-hero__copy">
+        <nav class="geo-dossier-crumb" aria-label="Breadcrumb">
+          <a href="/">Inicio</a>
+          <span>/</span>
+          <span>{hub.h1}</span>
+        </nav>
+        <p class="geo-dossier-kicker">{hub.eyebrow}</p>
+        <h1>{hub.h1}</h1>
+        <p class="geo-dossier-lead">{hub.lead}</p>
+        <div class="geo-dossier-actions">
+          <a class="um-btn-primary" href="/contacto">{hub.primaryCta}</a>
+          <a class="um-btn-secondary" href={hub.secondaryHref}>{hub.secondaryCta}</a>
+        </div>
+      </div>
+
+      <aside class="geo-dossier-side" aria-label="Resumen comercial GEO">
+        <div class="geo-dossier-brief">
+          <div class="geo-dossier-brief__top">
+            <span>Dossier comercial</span>
+            <strong>{hub.market}</strong>
+          </div>
+          <dl>
+            <div>
+              <dt>Intención</dt>
+              <dd>{intentLabel}</dd>
+            </div>
+            <div>
+              <dt>Salida</dt>
+              <dd>{hub.primaryCta}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <figure class="geo-dossier-media">
+          <img src={heroMedia.src} alt={heroMedia.alt} loading="eager" decoding="async" />
+          <figcaption>
+            <span>{heroMedia.caption}</span>
+            <strong>{hub.market}</strong>
+          </figcaption>
+        </figure>
+      </aside>
+    </div>
+  </section>
+
+  <section class="geo-proofline" aria-label="Prueba institucional">
+    <div class="um-container geo-proofline__grid">
+      {proofItems.map((item) => (
+        <div>
+          <span>{item.value}</span>
+          <strong>{item.label}</strong>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="geo-dossier-section">
+    <div class="um-container geo-dossier-two">
+      <div>
+        <p class="geo-dossier-kicker">Criterio de compra</p>
+        <h2>Qué debe resolver el proveedor</h2>
+      </div>
+      <div class="geo-dossier-copy">
+        <p>{hub.buyerNeed}</p>
+        <p>{hub.decisionFrame}</p>
+        <ul class="geo-risk-list">
+          {hub.operatingRisks.map((risk) => <li>{risk}</li>)}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="geo-dossier-section geo-dossier-section--alt">
+    <div class="um-container">
+      <div class="geo-section-head">
+        <p class="geo-dossier-kicker">Servicios conectados</p>
+        <h2>Alcance técnico conectado a la operación</h2>
+        <p>La decisión se ordena por alcance, criticidad, documentación y soporte.</p>
+      </div>
+
+      <div class="geo-service-ledger">
+        {hub.services.map((service, index) => (
+          <a href={service.href}>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <strong>{service.title}</strong>
+            <p>{service.summary}</p>
+            <em>Ver servicio</em>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="geo-dossier-section">
+    <div class="um-container geo-evidence-grid">
+      <div class="geo-evidence-main">
+        <p class="geo-dossier-kicker">Evidencia operativa</p>
+        <h2>Evidencia antes que promesa</h2>
+        <p>Los antecedentes conectan necesidad comercial, experiencia ejecutada y criterio técnico.</p>
+        <a class="um-btn-secondary" href="/antecedentes">Explorar antecedentes</a>
+      </div>
+
+      <div class="geo-evidence-rows">
+        {hub.cases.map((item, index) => (
+          <a href={item.href}>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <div>
+              <strong>{item.client}</strong>
+              <p>{item.title}</p>
+            </div>
+            <em>{item.sector}</em>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="geo-dossier-section geo-dossier-section--alt">
+    <div class="um-container geo-sector-process">
+      <div>
+        <div class="geo-section-head geo-section-head--compact">
+          <p class="geo-dossier-kicker">Sectores relacionados</p>
+          <h2>Contextos donde cambia el riesgo</h2>
+        </div>
+        <div class="geo-sector-list">
+          {hub.sectors.map((sector, index) => (
+            <a href={sector.href}>
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <strong>{sector.title}</strong>
+              <p>{sector.summary}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <aside class="geo-process-card">
+        <p class="geo-dossier-kicker">Método UMSA</p>
+        <ol>
+          {hub.process.map((step) => <li>{step}</li>)}
+        </ol>
+      </aside>
+    </div>
+  </section>
+
+  <section class="geo-dossier-section geo-faq">
+    <div class="um-container geo-faq__grid">
+      <div>
+        <p class="geo-dossier-kicker">Preguntas frecuentes</p>
+        <h2>Respuestas breves para decidir</h2>
+      </div>
+      <div>
+        {hub.faqs.map((faq) => (
+          <details>
+            <summary>{faq.question}</summary>
+            <p>{faq.answer}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="geo-final">
+    <div class="um-container geo-final__inner">
+      <div>
+        <p class="geo-dossier-kicker">Próximo paso</p>
+        <h2>Convertir intención de búsqueda en alcance técnico verificable.</h2>
+      </div>
+      <div>
+        <a class="um-btn-primary" href="/contacto">{hub.primaryCta}</a>
+        <a class="um-btn-secondary" href="/servicios">Ver servicios</a>
+      </div>
+    </div>
+  </section>
+</article>
+
+<style>
+  .geo-dossier {
+    background: var(--skin-page);
+    color: var(--skin-text);
+  }
+
+  .geo-dossier-hero {
+    position: relative;
+    overflow: hidden;
+    background: #080808;
+    color: #fff;
+  }
+
+  .geo-dossier-hero::before {
+    content: "";
+    position: absolute;
+    inset: 80px 0 auto;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  :global(body[data-skin] main .geo-dossier-hero :where(h1, h2, h3, strong)),
+  :global(body[data-skin] main .geo-final :where(h1, h2, h3, strong)) {
+    color: #fff !important;
+  }
+
+  :global(body[data-skin] main .geo-dossier-hero :where(p, span, li, dd)),
+  :global(body[data-skin] main .geo-final :where(p, span, li, dd)) {
+    color: rgba(255, 255, 255, 0.72) !important;
+  }
+
+  :global(body[data-skin] main .geo-dossier-hero .geo-dossier-kicker),
+  :global(body[data-skin] main .geo-final .geo-dossier-kicker) {
+    color: var(--um-red) !important;
+  }
+
+  :global(body[data-skin] main .geo-dossier-panel span) {
+    color: rgba(255, 255, 255, 0.58) !important;
+  }
+
+  :global(body[data-skin] main .geo-dossier-panel strong) {
+    color: #fff !important;
+  }
+
+  .geo-dossier-hero::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.18);
+  }
+
+  .geo-dossier-hero__grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 0.58fr) minmax(360px, 0.42fr);
+    gap: clamp(34px, 5.4vw, 72px);
+    align-items: center;
+    min-height: auto;
+    padding-block: clamp(34px, 4.8vw, 58px) clamp(34px, 4.6vw, 58px);
+  }
+
+  .geo-dossier-hero__copy {
+    max-width: 700px;
+  }
+
+  .geo-dossier-crumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    color: rgba(255, 255, 255, 0.64);
+    font-size: 1rem;
+    margin-bottom: clamp(18px, 3vw, 30px);
+  }
+
+  .geo-dossier-crumb a:hover {
+    color: #fff;
+  }
+
+  .geo-dossier-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    color: var(--um-red) !important;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 1.25;
+    text-transform: none;
+  }
+
+  .geo-dossier-kicker::before {
+    content: "";
+    width: 42px;
+    height: 2px;
+    background: var(--um-red);
+  }
+
+  .geo-dossier-hero h1 {
+    max-width: 14ch;
+    font-size: clamp(2.14rem, 2.9vw, 3rem);
+    line-height: 1.1;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .geo-dossier-lead {
+    max-width: 640px;
+    margin-top: 20px;
+    color: rgba(255, 255, 255, 0.76);
+    font-size: clamp(1.04rem, 1.08vw, 1.16rem);
+    line-height: 1.64;
+  }
+
+  .geo-dossier-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 26px;
+  }
+
+  .geo-dossier-hero .um-btn-primary {
+    background: var(--um-red) !important;
+    border-color: var(--um-red) !important;
+    color: #fff !important;
+    box-shadow: inset 0 0 0 1px var(--um-red);
+  }
+
+  .geo-dossier-hero .um-btn-primary:hover {
+    background: #fff !important;
+    border-color: #fff !important;
+    color: #111 !important;
+  }
+
+  .geo-dossier-hero .um-btn-secondary {
+    border-color: rgba(255, 255, 255, 0.35);
+    color: #fff;
+    color: #fff !important;
+  }
+
+  .geo-dossier-hero .um-btn-secondary:hover {
+    background: #fff;
+    border-color: #fff;
+    color: #111;
+  }
+
+  .geo-dossier-side {
+    display: grid;
+    gap: 14px;
+    align-self: center;
+  }
+
+  .geo-dossier-brief {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(18px, 2vw, 22px) 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    background: #0a0a0a;
+    color: #fff;
+  }
+
+  .geo-dossier-brief::before {
+    display: none;
+  }
+
+  .geo-dossier-brief__top {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  }
+
+  .geo-dossier-brief__top span,
+  .geo-dossier-brief dt {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  .geo-dossier-brief__top strong {
+    color: #fff;
+    font-family: var(--um-font-display);
+    font-size: clamp(1.35rem, 1.9vw, 1.78rem);
+    font-weight: 600;
+    line-height: 1.12;
+  }
+
+  .geo-dossier-brief dl {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.9rem;
+    margin: 16px 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.14);
+    background: transparent;
+  }
+
+  .geo-dossier-brief dl div {
+    min-height: 0;
+    padding: 0;
+    background: transparent;
+  }
+
+  .geo-dossier-brief dd {
+    margin: 8px 0 0;
+    color: #fff;
+    font-family: var(--um-font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.22;
+  }
+
+  .geo-dossier-media {
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 190px;
+    aspect-ratio: 16 / 7.2;
+    margin: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    background: #111;
+  }
+
+  .geo-dossier-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.86) contrast(1.05);
+  }
+
+  .geo-dossier-media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, transparent 36%, rgba(0, 0, 0, 0.82)),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.28), transparent 58%);
+  }
+
+  .geo-dossier-media figcaption {
+    position: absolute;
+    z-index: 1;
+    left: 24px;
+    right: 24px;
+    bottom: 22px;
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    color: #fff;
+    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.58);
+  }
+
+  .geo-dossier-media span {
+    min-width: 0;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 1rem;
+    overflow-wrap: anywhere;
+  }
+
+  .geo-dossier-media strong {
+    min-width: 0;
+    color: #fff;
+    font-size: clamp(1.24rem, 1.6vw, 1.52rem);
+    line-height: 1.14;
+    overflow-wrap: anywhere;
+  }
+
+  .geo-dossier-panel {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(8, 8, 8, 0.58);
+    backdrop-filter: blur(14px);
+  }
+
+  .geo-dossier-panel > div {
+    min-height: 112px;
+    padding: 20px;
+    border-right: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  .geo-dossier-panel > div:last-child {
+    border-right: 0;
+  }
+
+  .geo-dossier-panel span,
+  .geo-dossier-panel strong {
+    display: block;
+  }
+
+  .geo-dossier-panel span {
+    margin-bottom: 12px;
+    color: rgba(255, 255, 255, 0.58);
+    font-size: 1rem;
+  }
+
+  .geo-dossier-panel strong {
+    color: #fff;
+    font-size: clamp(1.08rem, 1.2vw, 1.26rem);
+    line-height: 1.2;
+  }
+
+  :global(body[data-skin="white"] main) .geo-dossier-hero {
+    background: #fff;
+    color: var(--skin-text);
+    border-bottom: 1px solid var(--skin-line);
+  }
+
+  :global(body[data-skin="white"] main) .geo-dossier-hero::before {
+    display: none;
+  }
+
+  :global(body[data-skin="white"] main .geo-dossier-hero :where(h1, h2, h3, strong)) {
+    color: var(--skin-text) !important;
+  }
+
+  :global(body[data-skin="white"] main .geo-dossier-hero :where(p, span, li, dd, .geo-dossier-crumb)) {
+    color: var(--skin-muted) !important;
+  }
+
+  :global(body[data-skin="white"] main .geo-dossier-hero .geo-dossier-kicker) {
+    color: var(--um-red) !important;
+  }
+
+  :global(body[data-skin="white"] main) .geo-dossier-panel {
+    border-color: var(--skin-line);
+    background: var(--skin-section-alt);
+    backdrop-filter: none;
+  }
+
+  :global(body[data-skin="white"] main .geo-dossier-hero .geo-dossier-brief) {
+    border-color: var(--skin-line) !important;
+    background: #fbfbfa !important;
+  }
+
+  :global(body[data-skin="white"] main .geo-dossier-hero .geo-dossier-brief :where(strong, dd)) {
+    color: var(--skin-text) !important;
+  }
+
+  :global(body[data-skin="white"] main .geo-dossier-hero .geo-dossier-brief :where(span, dt)) {
+    color: var(--skin-muted) !important;
+  }
+
+  :global(body[data-skin="white"] main .geo-dossier-hero .geo-dossier-brief dl) {
+    background: transparent !important;
+  }
+
+  :global(body[data-skin="white"] main .geo-dossier-hero .geo-dossier-brief__top) {
+    border-bottom-color: var(--skin-line) !important;
+  }
+
+  :global(body[data-skin="white"] main) .geo-dossier-panel > div {
+    border-color: var(--skin-line);
+  }
+
+  :global(body[data-skin="white"] main .geo-dossier-panel span) {
+    color: var(--skin-muted) !important;
+  }
+
+  :global(body[data-skin="white"] main .geo-dossier-panel strong) {
+    color: var(--skin-text) !important;
+  }
+
+  :global(body[data-skin="white"] main) .geo-dossier-media {
+    border-color: var(--skin-line);
+    background: var(--skin-section-alt);
+  }
+
+  :global(body[data-skin="white"] main .geo-dossier-media figcaption span) {
+    color: rgba(255, 255, 255, 0.76) !important;
+  }
+
+  :global(body[data-skin="white"] main .geo-dossier-media figcaption strong) {
+    color: #fff !important;
+  }
+
+  :global(body[data-skin="white"] main) .geo-dossier-hero .um-btn-secondary {
+    border-color: var(--skin-line);
+    color: var(--skin-text) !important;
+  }
+
+  :global(body[data-skin="white"] main) .geo-dossier-hero .um-btn-primary {
+    background: var(--um-red) !important;
+    border-color: var(--um-red) !important;
+    color: #fff !important;
+  }
+
+  :global(body[data-skin="white"] main) .geo-dossier-hero .um-btn-primary:hover {
+    background: #111 !important;
+    border-color: #111 !important;
+  }
+
+  :global(body[data-skin="white"] main) .geo-dossier-hero .um-btn-secondary:hover {
+    background: var(--skin-text);
+    border-color: var(--skin-text);
+    color: #fff !important;
+  }
+
+  .geo-proofline {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    background: #090909;
+    color: #fff;
+  }
+
+  .geo-proofline__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-left: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  .geo-proofline__grid > div {
+    min-height: 96px;
+    padding: 20px 28px;
+    border-right: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  .geo-proofline span {
+    display: block;
+    color: #fff;
+    font-family: var(--um-font-display);
+    font-size: clamp(1.62rem, 2.35vw, 2.28rem);
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .geo-proofline strong {
+    display: block;
+    margin-top: 10px;
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  :global(body[data-skin="white"] main) .geo-proofline {
+    border-top: 1px solid var(--skin-line);
+    border-bottom: 1px solid var(--skin-line);
+    background: #fff;
+    color: var(--skin-text);
+  }
+
+  :global(body[data-skin="white"] main) .geo-proofline__grid {
+    border-left: 1px solid var(--skin-line);
+  }
+
+  :global(body[data-skin="white"] main) .geo-proofline__grid > div {
+    min-height: 82px;
+    padding: 16px 28px;
+    border-right: 1px solid var(--skin-line);
+  }
+
+  :global(body[data-skin="white"] main) .geo-proofline span {
+    color: var(--skin-text);
+    font-size: clamp(1.42rem, 2vw, 1.92rem);
+  }
+
+  :global(body[data-skin="white"] main) .geo-proofline strong {
+    margin-top: 8px;
+    color: var(--skin-muted);
+  }
+
+  .geo-dossier-section {
+    padding-block: clamp(56px, 6.8vw, 92px);
+    background: var(--skin-section);
+  }
+
+  .geo-dossier-section--alt {
+    background: var(--skin-section-alt);
+  }
+
+  .geo-dossier-two {
+    display: grid;
+    grid-template-columns: minmax(0, 0.46fr) minmax(0, 0.54fr);
+    gap: clamp(36px, 7vw, 96px);
+    align-items: start;
+  }
+
+  .geo-dossier-two h2,
+  .geo-section-head h2,
+  .geo-evidence-main h2,
+  .geo-query-grid h2,
+  .geo-faq h2,
+  .geo-final h2 {
+    color: var(--skin-text);
+    font-size: clamp(1.55rem, 2.05vw, 2.32rem);
+    line-height: 1.14;
+    text-wrap: balance;
+  }
+
+  .geo-dossier-copy p,
+  .geo-section-head p,
+  .geo-evidence-main p {
+    color: var(--skin-muted);
+    font-size: 1.08rem;
+    line-height: 1.78;
+  }
+
+  .geo-risk-list {
+    display: grid;
+    gap: 0;
+    margin: 32px 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--skin-line);
+  }
+
+  .geo-risk-list li {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr);
+    gap: 14px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--skin-line);
+    color: var(--skin-text);
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .geo-risk-list li::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    margin-top: 8px;
+    border-top: 2px solid var(--um-red);
+    border-left: 2px solid var(--um-red);
+  }
+
+  .geo-section-head {
+    display: grid;
+    grid-template-columns: minmax(0, 0.5fr) minmax(280px, 0.34fr);
+    gap: clamp(24px, 5vw, 74px);
+    align-items: end;
+    margin-bottom: clamp(34px, 5vw, 64px);
+  }
+
+  .geo-section-head .geo-dossier-kicker {
+    grid-column: 1 / -1;
+    margin-bottom: 0;
+  }
+
+  .geo-section-head--compact {
+    display: block;
+    margin-bottom: 26px;
+  }
+
+  .geo-service-ledger {
+    display: grid;
+    border-top: 1px solid var(--skin-line);
+  }
+
+  .geo-service-ledger a {
+    display: grid;
+    grid-template-columns: 72px minmax(190px, 0.28fr) minmax(0, 1fr) 120px;
+    gap: 24px;
+    align-items: center;
+    min-height: 104px;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--skin-line);
+  }
+
+  .geo-service-ledger span,
+  .geo-evidence-rows span,
+  .geo-sector-list span {
+    color: var(--um-red);
+    font-family: var(--um-font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .geo-service-ledger strong,
+  .geo-evidence-rows strong,
+  .geo-sector-list strong {
+    color: var(--skin-text);
+    font-size: clamp(1.08rem, 1.2vw, 1.28rem);
+    line-height: 1.24;
+  }
+
+  .geo-service-ledger p,
+  .geo-sector-list p,
+  .geo-evidence-rows p {
+    color: var(--skin-muted);
+    font-size: 1rem;
+    line-height: 1.58;
+  }
+
+  .geo-service-ledger em,
+  .geo-evidence-rows em {
+    color: var(--skin-text);
+    font-size: 1rem;
+    font-style: normal;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .geo-service-ledger em::after,
+  .geo-evidence-rows em::after {
+    content: " \2192";
+    color: var(--um-red);
+  }
+
+  .geo-service-ledger a:hover strong,
+  .geo-service-ledger a:hover em,
+  .geo-evidence-rows a:hover strong,
+  .geo-sector-list a:hover strong {
+    color: var(--um-red);
+  }
+
+  .geo-evidence-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.38fr) minmax(0, 0.62fr);
+    gap: clamp(32px, 7vw, 92px);
+    align-items: start;
+  }
+
+  .geo-evidence-main {
+    position: sticky;
+    top: 110px;
+  }
+
+  .geo-evidence-main .um-btn-secondary {
+    margin-top: 28px;
+  }
+
+  .geo-evidence-rows {
+    display: grid;
+    border-top: 1px solid var(--skin-line);
+  }
+
+  .geo-evidence-rows a {
+    display: grid;
+    grid-template-columns: 54px minmax(0, 1fr) 128px;
+    gap: 22px;
+    align-items: center;
+    min-height: 118px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--skin-line);
+  }
+
+  .geo-sector-process {
+    display: grid;
+    grid-template-columns: minmax(0, 0.62fr) minmax(300px, 0.38fr);
+    gap: clamp(34px, 6vw, 82px);
+    align-items: start;
+  }
+
+  .geo-sector-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 1px solid var(--skin-line);
+    border-left: 1px solid var(--skin-line);
+  }
+
+  .geo-sector-list a {
+    min-height: 182px;
+    padding: 22px;
+    border-right: 1px solid var(--skin-line);
+    border-bottom: 1px solid var(--skin-line);
+  }
+
+  .geo-sector-list strong,
+  .geo-sector-list p {
+    display: block;
+    margin-top: 18px;
+  }
+
+  .geo-process-card {
+    padding: clamp(24px, 3.4vw, 34px);
+    border: 1px solid var(--skin-line);
+    background: var(--skin-panel);
+  }
+
+  .geo-process-card ol {
+    display: grid;
+    gap: 0;
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: process;
+  }
+
+  .geo-process-card li {
+    counter-increment: process;
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 16px;
+    padding: 18px 0;
+    border-top: 1px solid var(--skin-line);
+    color: var(--skin-text);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .geo-process-card li::before {
+    content: counter(process, decimal-leading-zero);
+    color: var(--um-red);
+    font-family: var(--um-font-display);
+    font-weight: 600;
+  }
+
+  .geo-query-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.44fr) minmax(0, 0.56fr);
+    gap: clamp(32px, 6vw, 88px);
+  }
+
+  .geo-query-grid ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .geo-query-grid li {
+    padding: 12px 0;
+    border-top: 1px solid var(--skin-line);
+    color: var(--skin-text);
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  .geo-faq {
+    background: var(--skin-section);
+    border-top: 1px solid var(--skin-line);
+  }
+
+  .geo-faq__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.36fr) minmax(0, 0.64fr);
+    gap: clamp(32px, 7vw, 92px);
+  }
+
+  .geo-faq details {
+    border-top: 1px solid var(--skin-line);
+  }
+
+  .geo-faq details:last-child {
+    border-bottom: 1px solid var(--skin-line);
+  }
+
+  .geo-faq summary {
+    cursor: pointer;
+    padding: 24px 0;
+    color: var(--skin-text);
+    font-family: var(--um-font-display);
+    font-size: clamp(1.12rem, 1.6vw, 1.45rem);
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .geo-faq details p {
+    max-width: 780px;
+    padding: 0 0 24px;
+    color: var(--skin-muted);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .geo-final {
+    background: #080808;
+    color: #fff;
+  }
+
+  .geo-final__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 0.62fr) minmax(260px, 0.38fr);
+    gap: clamp(24px, 5vw, 70px);
+    align-items: center;
+    padding-block: clamp(58px, 8vw, 94px);
+  }
+
+  .geo-final h2 {
+    color: #fff;
+  }
+
+  .geo-final .geo-dossier-kicker {
+    color: #fff;
+  }
+
+  .geo-final .geo-dossier-kicker::before {
+    background: var(--um-red);
+  }
+
+  .geo-final__inner > div:last-child {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: flex-end;
+  }
+
+  .geo-final .um-btn-secondary {
+    border-color: rgba(255, 255, 255, 0.34);
+    color: #fff;
+  }
+
+  .geo-final .um-btn-secondary:hover {
+    background: #fff;
+    border-color: #fff;
+    color: #111;
+  }
+
+  @media (max-width: 980px) {
+    .geo-dossier-hero__grid,
+    .geo-dossier-two,
+    .geo-section-head,
+    .geo-evidence-grid,
+    .geo-sector-process,
+    .geo-query-grid,
+    .geo-faq__grid,
+    .geo-final__inner {
+      grid-template-columns: 1fr;
+    }
+
+    .geo-dossier-panel,
+    .geo-evidence-main {
+      position: static;
+    }
+
+    .geo-dossier-panel {
+      grid-template-columns: 1fr;
+    }
+
+    .geo-query-grid ul {
+      grid-template-columns: 1fr;
+    }
+
+    .geo-dossier-panel > div {
+      border-right: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .geo-dossier-panel > div:last-child {
+      border-bottom: 0;
+    }
+
+    .geo-service-ledger a,
+    .geo-evidence-rows a {
+      grid-template-columns: 46px minmax(0, 1fr);
+    }
+
+    .geo-service-ledger p,
+    .geo-service-ledger em,
+    .geo-evidence-rows em {
+      grid-column: 2;
+      text-align: left;
+    }
+
+    .geo-proofline__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .geo-final__inner > div:last-child {
+      justify-content: flex-start;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .geo-dossier-hero::before {
+      display: none;
+    }
+
+    .geo-dossier-hero__grid {
+      min-height: auto;
+      padding-block: 40px 34px;
+    }
+
+    .geo-dossier-crumb {
+      display: none;
+    }
+
+    .geo-dossier-hero h1 {
+      font-size: clamp(2.06rem, 8vw, 2.38rem);
+      line-height: 1.12;
+    }
+
+    .geo-dossier-lead {
+      margin-top: 18px;
+      font-size: 1rem;
+      line-height: 1.62;
+    }
+
+    .geo-dossier-actions {
+      margin-top: 22px;
+    }
+
+    .geo-dossier-side {
+      display: grid;
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .geo-dossier-brief {
+      display: none;
+    }
+
+    .geo-dossier-media {
+      width: 100%;
+      max-width: 100%;
+      min-height: 210px;
+      aspect-ratio: 16 / 9;
+    }
+
+    .geo-dossier-media figcaption {
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+    }
+
+    .geo-proofline__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      border-left: 1px solid var(--skin-line);
+    }
+
+    .geo-proofline__grid > div {
+      min-height: 94px;
+      padding: 20px 18px;
+      border-right: 1px solid var(--skin-line);
+    }
+
+    .geo-proofline span {
+      font-size: 1.65rem;
+    }
+
+    .geo-sector-list {
+      grid-template-columns: 1fr;
+      border-left: 0;
+    }
+
+    .geo-sector-list a {
+      border-right: 0;
+    }
+
+    .geo-dossier-section {
+      padding-block: 52px;
+    }
+  }
+</style>
