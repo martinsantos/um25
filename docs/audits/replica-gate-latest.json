@@ -1,0 +1,20 @@
+{
+  "generatedAt": "2026-05-29T21:47:00.000Z",
+  "mode": "UMSA_LOCAL_REPLICA=1",
+  "devCommand": "npm run dev:replica",
+  "parityRoutes": 30,
+  "parityMismatches": 0,
+  "e2eVisual": {
+    "totalFailures": 0,
+    "commercialStrict": 0,
+    "heuristicDefectos": 0,
+    "defectScanDefectos": 0,
+    "jestContracts": true
+  },
+  "verdict": "READY_FOR_PRODUCTION_MERGE",
+  "nextSteps": [
+    "Merge codex/umsa-white-dossier-local → master",
+    "Deploy via production-deploy.yml",
+    "Post-deploy: VISUAL_AUDIT_BASE_URL=https://ultimamilla.com.ar npm run audit:visual:commercial"
+  ]
+}

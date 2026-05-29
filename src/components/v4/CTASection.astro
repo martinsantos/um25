@@ -102,7 +102,7 @@ const hasSecondaryButton = secondaryButtonText && secondaryButtonUrl;
       class="um-cta__image w-full h-full object-cover"
       loading="lazy"
     />
-    <div class="absolute inset-0" style={overlayStyle}></div>
+    <div class="absolute inset-0 um-cta__wash" style={overlayStyle}></div>
   </div>
 
   <!-- Content -->
@@ -178,11 +178,17 @@ const hasSecondaryButton = secondaryButtonText && secondaryButtonUrl;
     background: #DC2626;
   }
 
+  .um-cta__wash {
+    background:
+      linear-gradient(90deg, rgba(8, 8, 8, 0.94) 0%, rgba(8, 8, 8, 0.82) 42%, rgba(8, 8, 8, 0.5) 100%),
+      linear-gradient(0deg, rgba(8, 8, 8, 0.88) 0%, rgba(8, 8, 8, 0.35) 100%) !important;
+  }
+
   .um-cta__title {
     max-width: 860px;
-    color: var(--skin-hero-text);
+    color: #ffffff !important;
     font-size: clamp(1.85rem, 2.65vw, 2.72rem);
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: 0;
     line-height: 1.08;
     text-wrap: balance;
@@ -191,7 +197,7 @@ const hasSecondaryButton = secondaryButtonText && secondaryButtonUrl;
   .um-cta__description {
     max-width: 720px;
     margin-top: 1.25rem;
-    color: var(--skin-hero-muted);
+    color: rgba(255, 255, 255, 0.78) !important;
     font-size: clamp(1rem, 1.35vw, 1.22rem);
     line-height: 1.7;
   }

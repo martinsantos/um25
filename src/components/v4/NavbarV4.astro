@@ -39,8 +39,8 @@ const isActive = (href: string) => {
         <span class="um-logo" style="font-family:var(--um-font-logo);font-weight:600;letter-spacing:-0.02em;font-size:24px;line-height:1;color:var(--skin-nav-text-strong);white-space:nowrap;">ultimamilla<span style="color:#DC2626;">.</span>com<span style="color:#DC2626;">.</span>ar</span>
       </a>
 
-      <!-- Desktop Menu (oculto en móvil) -->
-      <div class="um-desktop-menu items-center gap-5 lg:gap-7">
+      <!-- Desktop Menu (visible ≥1180px; ver DESIGN.md § Navbar) -->
+      <div class="um-desktop-menu items-center gap-4 xl:gap-7">
         {navItems.map((item) => (
           <a
             href={item.href}
@@ -213,13 +213,14 @@ const isActive = (href: string) => {
     transition: background-color 160ms ease, color 160ms ease;
   }
 
-  @media (min-width: 1181px) {
+  /* Desktop nav visible from 1180px (Forbes QA: 5 ítems + CTA sin colapsar antes de 1181px). */
+  @media (min-width: 1180px) {
     .um-menu-toggle {
       display: none;
     }
   }
 
-  @media (max-width: 1180px) {
+  @media (max-width: 1179px) {
     .um-desktop-menu {
       display: none !important;
     }

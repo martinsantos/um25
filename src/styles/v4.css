@@ -28,7 +28,7 @@
   --um-container: 1180px;
   --um-container-wide: 1280px;
   --um-font-logo: 'Futura PT', 'Futura', sans-serif;
-  --um-font-display: 'Red Hat Display', 'Open Sans', Arial, system-ui, sans-serif;
+  --um-font-display: 'Poppins', 'Open Sans', Arial, system-ui, sans-serif;
   --um-font-body: 'Open Sans', Arial, system-ui, sans-serif;
   --um-weight-title: 600;
   --um-weight-strong: 700;
@@ -56,12 +56,12 @@
 
   --skin-page: #FFFFFF;
   --skin-section: #FFFFFF;
-  --skin-section-alt: #F5F6F7;
+  --skin-section-alt: #FFFFFF;
   --skin-panel: #FFFFFF;
-  --skin-panel-strong: #F5F6F7;
+  --skin-panel-strong: #FFFFFF;
   --skin-text: #111111;
   --skin-muted: #5F6368;
-  --skin-line: #EAEDF0;
+  --skin-line: #DDDDDD;
   --skin-hero-bg: #080808;
   --skin-hero-text: #FFFFFF;
   --skin-hero-muted: rgba(255,255,255,0.72);
@@ -110,9 +110,9 @@ body[data-skin="black"] {
 body[data-skin="white"] {
   --skin-page: #FFFFFF;
   --skin-section: #FFFFFF;
-  --skin-section-alt: #F5F6F7;
+  --skin-section-alt: #FFFFFF;
   --skin-panel: #FFFFFF;
-  --skin-panel-strong: #F5F6F7;
+  --skin-panel-strong: #FFFFFF;
   --skin-text: #111111;
   --skin-muted: #535A62;
   --skin-line: #ECEFF2;
@@ -141,9 +141,9 @@ body[data-skin="white"] main :where(.blog-index, .blog-cat) {
 body[data-skin="hybrid"] {
   --skin-page: #FFFFFF;
   --skin-section: #FFFFFF;
-  --skin-section-alt: #F5F6F7;
+  --skin-section-alt: #FFFFFF;
   --skin-panel: #FFFFFF;
-  --skin-panel-strong: #F5F6F7;
+  --skin-panel-strong: #FFFFFF;
   --skin-text: #111111;
   --skin-muted: #5F6368;
   --skin-line: #DDDDDD;
@@ -163,6 +163,33 @@ body[data-skin="hybrid"] {
   --skin-footer-text: rgba(255,255,255,0.64);
   --skin-footer-heading: #FFFFFF;
   --skin-footer-line: rgba(255,255,255,0.12);
+}
+
+/* Editorial dossier: continuous white body on hybrid/white commercial surfaces */
+body[data-skin="hybrid"] main :where(
+  .services-operating-model,
+  .case-related,
+  .contact-intents,
+  .um-final-cta,
+  .geo-dossier-section--alt,
+  .geo-dossier-panel,
+  .geo-dossier-media
+),
+body[data-skin="white"] main :where(
+  .services-operating-model,
+  .case-related,
+  .contact-intents,
+  .um-final-cta,
+  .geo-dossier-section--alt,
+  .geo-dossier-panel,
+  .geo-dossier-media
+) {
+  background: #FFFFFF !important;
+}
+
+body[data-skin="hybrid"] main .case-callout,
+body[data-skin="white"] main .case-callout {
+  background: #FFFFFF !important;
 }
 
 body[data-skin="steel"] {
@@ -265,6 +292,48 @@ body[data-skin="steel"] {
   .um-container-wide {
     width: min(var(--um-container-wide), calc(100% - 32px));
     margin-inline: auto;
+  }
+
+  .editorial-body :where(p, ul, ol) {
+    margin: 0 0 1rem;
+    color: var(--um-muted, #5f6368);
+    line-height: 1.78;
+  }
+
+  .editorial-body :where(p:last-child, ul:last-child, ol:last-child) {
+    margin-bottom: 0;
+  }
+
+  .editorial-body :where(strong) {
+    color: var(--um-dark, #111);
+    font-weight: 700;
+  }
+
+  .editorial-body :where(ul, ol) {
+    padding-left: 1.25rem;
+  }
+
+  .editorial-body :where(li) {
+    margin-bottom: 0.45rem;
+  }
+
+  .editorial-body :where(img) {
+    display: block;
+    width: 100%;
+    max-height: 420px;
+    margin: 1.25rem 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    object-fit: contain;
+    object-position: center;
+  }
+
+  .editorial-body--compact :where(p) {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.55;
   }
 
   .um-red {
@@ -480,6 +549,71 @@ body[data-skin="steel"] {
     width: 56px;
     height: 2px;
     background: var(--um-red);
+  }
+
+  .um-section-header {
+    display: grid;
+    gap: 0.75rem;
+    max-width: 52rem;
+  }
+
+  .um-section-header :where(.um-kicker, p:first-child) {
+    margin: 0;
+    color: var(--skin-muted);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.35;
+    text-transform: none;
+  }
+
+  .um-section-header h2 {
+    margin: 0;
+    font-family: var(--um-font-display);
+    font-size: var(--um-world-h2);
+    font-weight: var(--um-weight-title);
+    line-height: 1.12;
+    text-wrap: balance;
+  }
+
+  .um-metric-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .um-metric-strip > * {
+    min-width: 0;
+    padding: 12px 16px 12px 0;
+  }
+
+  .um-metric-strip strong {
+    display: block;
+    font-family: var(--um-font-display);
+    font-size: clamp(1.5rem, 2vw, 2rem);
+    font-weight: var(--um-weight-title);
+    line-height: 1.05;
+  }
+
+  .um-metric-strip span {
+    display: block;
+    margin-top: 4px;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .um-metric-strip p {
+    margin: 6px 0 0;
+    color: var(--skin-muted);
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  .um-arrow-link--muted {
+    color: var(--skin-muted);
   }
 
   .um-arrow-link {
@@ -711,21 +845,17 @@ body[data-skin] main {
 body[data-skin] main :where(
   .services-hero,
   .service-detail-hero,
-  .about-hero,
-  .contact-hero,
   .sectors-hero,
   .sector-detail-hero,
   .case-detail-hero,
-  .blog-header,
-  .blog-hero,
   .um-home-hero,
   .antecedentes-hero,
   .ante-hero,
-  .sector-atlas,
   .sector-atlas-detail-hero,
-  .ante-atlas,
+  .ante-atlas__hero,
   .ante-editorial__hero,
-  .sector-editorial-detail-hero
+  .sector-editorial-detail-hero,
+  .geo-dossier-hero
 ) {
   background: var(--skin-hero-bg) !important;
   color: var(--skin-hero-text) !important;
@@ -734,19 +864,19 @@ body[data-skin] main :where(
 body[data-skin] main :where(
   .services-hero,
   .service-detail-hero,
-  .about-hero,
-  .contact-hero,
   .sectors-hero,
   .sector-detail-hero,
   .case-detail-hero,
-  .blog-header,
-  .blog-hero,
   .um-home-hero,
   .antecedentes-hero,
   .ante-hero,
   .sector-atlas-detail-hero,
-  .ante-atlas__header,
-  .sector-editorial-detail-hero
+  .ante-atlas__hero,
+  .sector-editorial-detail-hero,
+  .geo-dossier-hero,
+  .geo-final,
+  .um-cta,
+  .um-final-cta
 ) :where(h1, h2, h3, strong, dt, dd) {
   color: var(--skin-hero-text) !important;
 }
@@ -754,19 +884,17 @@ body[data-skin] main :where(
 body[data-skin] main :where(
   .services-hero,
   .service-detail-hero,
-  .about-hero,
-  .contact-hero,
   .sectors-hero,
   .sector-detail-hero,
   .case-detail-hero,
-  .blog-header,
-  .blog-hero,
   .um-home-hero,
   .antecedentes-hero,
   .ante-hero,
   .sector-atlas-detail-hero,
-  .ante-atlas__header,
-  .sector-editorial-detail-hero
+  .ante-atlas__hero,
+  .sector-editorial-detail-hero,
+  .geo-dossier-hero,
+  .geo-final
 ) :where(p, li, span, small, .blog-subtitle, .bc-link, .bc-sep) {
   color: var(--skin-hero-muted) !important;
 }
@@ -796,9 +924,6 @@ body[data-skin] main .sector-editorial-detail-hero::after {
 
 body[data-skin] main .um-home-hero::before,
 body[data-skin] main .services-hero::before,
-body[data-skin] main .blog-header::before,
-body[data-skin] main .about-hero::before,
-body[data-skin] main .contact-hero::before,
 body[data-skin] main .sectors-hero::before,
 body[data-skin] main .antecedentes-hero::before {
   background: var(--skin-hero-wash) !important;
@@ -824,8 +949,16 @@ body[data-skin] main :where(
   .um-package-section,
   .um-operating-layer,
   .um-evidence-section,
-  .ante-editorial,
-  .sector-editorial,
+  .ante-atlas,
+  .ante-atlas__archive,
+  .sector-editorial-index-body,
+  .sector-editorial__features,
+  .sector-editorial__support,
+  .sector-editorial-feature,
+  .sector-editorial-row,
+  .sector-editorial-detail,
+  .sector-atlas-exec-feature,
+  .sector-atlas-exec-ledger,
   .sector-atlas-detail,
   .sector-atlas-service-map,
   .sector-atlas-criteria,
@@ -833,7 +966,15 @@ body[data-skin] main :where(
   .antecedentes-list,
   .antecedentes-results,
   .blog-feed,
-  .blog-container
+  .blog-container,
+  .blog-header,
+  .about-hero,
+  .about-image-band,
+  .about-position,
+  .about-principles,
+  .about-capabilities,
+  .about-proof,
+  .contact-dossier
 ) {
   background: var(--skin-section) !important;
   color: var(--skin-text) !important;
@@ -843,14 +984,31 @@ body[data-skin] main :where(
   .bg-\[\#F5F6F7\],
   .bg-um-gray-light,
   .services-operating-model,
-  .service-products-section,
   .case-related,
   .um-package-section,
   .contact-main,
+  .contact-intents,
   .sector-projects,
-  .blog-index
+  .blog-index,
+  .geo-dossier-section--alt
 ) {
-  background: var(--skin-section-alt) !important;
+  background: #ffffff !important;
+}
+
+body[data-skin="hybrid"] main :where(
+  .services-operating-model,
+  .case-related,
+  .contact-intents,
+  .geo-dossier-section--alt,
+  .um-package-section
+),
+body:not([data-skin]) main :where(
+  .services-operating-model,
+  .case-related,
+  .contact-intents,
+  .geo-dossier-section--alt
+) {
+  background: #ffffff !important;
 }
 
 body[data-skin] main :where(
@@ -858,8 +1016,6 @@ body[data-skin] main :where(
   .service-info-card,
   .service-solution-card,
   .operating-step,
-  .product-card-v4,
-  .product-card-v4__note,
   .case-info-card,
   .feed-item,
   .hero-post,
@@ -891,12 +1047,64 @@ body[data-skin] main :where(
 }
 
 body[data-skin] main :where(
-  h1, h2, h3, h4, h5, h6,
   .text-um-dark,
   .text-gray-900,
   .text-gray-800,
   .text-black
 ) {
+  color: var(--skin-text) !important;
+}
+
+/* Editorial headings only — never blanket main h1–h6 (breaks dark heroes/CTA) */
+body[data-skin] main :where(
+  .services-index,
+  .services-packages,
+  .services-operating-model,
+  .service-detail-main,
+  .service-products-section,
+  .case-detail-main,
+  .case-related,
+  .blog-index,
+  .blog-cat,
+  .contact-main,
+  .about-body,
+  .sector-operating,
+  .sector-services,
+  .sector-projects,
+  .sector-detail,
+  .um-service-system,
+  .um-package-section,
+  .um-operating-layer,
+  .um-evidence-section,
+  .ante-atlas,
+  .ante-atlas__archive,
+  .sector-editorial-index-body,
+  .sector-editorial__features,
+  .sector-editorial__support,
+  .sector-editorial-feature,
+  .sector-editorial-row,
+  .sector-editorial-detail,
+  .sector-atlas-exec-feature,
+  .sector-atlas-exec-ledger,
+  .sector-atlas-detail,
+  .sector-atlas-service-map,
+  .sector-atlas-criteria,
+  .sector-atlas-evidence,
+  .antecedentes-list,
+  .antecedentes-results,
+  .blog-feed,
+  .blog-container,
+  .blog-header,
+  .about-hero,
+  .about-image-band,
+  .about-position,
+  .about-principles,
+  .about-capabilities,
+  .about-proof,
+  .contact-dossier,
+  .prose,
+  .editorial-body
+) :where(h1, h2, h3, h4, h5, h6) {
   color: var(--skin-text) !important;
 }
 
@@ -916,21 +1124,21 @@ body[data-skin] main :where(
 body[data-skin] main :where(
   .services-hero,
   .service-detail-hero,
-  .about-hero,
-  .contact-hero,
   .sectors-hero,
   .sector-detail-hero,
   .case-detail-hero,
-  .blog-header,
-  .blog-hero,
   .um-home-hero,
   .antecedentes-hero,
   .ante-hero,
+  .sector-editorial-index-hero,
+  .sector-atlas-index-hero,
   .sector-atlas-detail-hero,
-  .ante-atlas__header,
+  .ante-atlas__hero,
   .sector-editorial-detail-hero,
   .geo-dossier-hero,
-  .geo-final
+  .geo-final,
+  .um-cta,
+  .um-final-cta
 ) :where(h1, h2, h3, h4, h5, h6, strong, dt, dd) {
   color: var(--skin-hero-text) !important;
 }
@@ -938,22 +1146,43 @@ body[data-skin] main :where(
 body[data-skin] main :where(
   .services-hero,
   .service-detail-hero,
-  .about-hero,
-  .contact-hero,
   .sectors-hero,
   .sector-detail-hero,
   .case-detail-hero,
-  .blog-header,
-  .blog-hero,
   .um-home-hero,
   .antecedentes-hero,
   .ante-hero,
+  .sector-editorial-index-hero,
+  .sector-atlas-index-hero,
   .sector-atlas-detail-hero,
-  .ante-atlas__header,
+  .ante-atlas__hero,
   .sector-editorial-detail-hero,
   .geo-dossier-hero,
-  .geo-final
+  .geo-final,
+  .um-cta,
+  .um-final-cta
 ) :where(p, li, dd, label, span, .text-gray-400, .text-gray-500, .text-white\/70, .text-white\/60) {
+  color: var(--skin-hero-muted) !important;
+}
+
+/* CTA band: badge/label stays red accent; never body text color on dark wash */
+body[data-skin] main .um-cta :where(.um-cta__label, .um-cta__label *) {
+  color: #DC2626 !important;
+}
+
+body[data-skin] main .um-cta :where(.um-cta__title, .um-cta__description) {
+  color: var(--skin-hero-text) !important;
+}
+
+body[data-skin] main .um-cta .um-cta__description {
+  color: var(--skin-hero-muted) !important;
+}
+
+body[data-skin] main .service-detail-hero :where(h1, p) {
+  color: var(--skin-hero-text) !important;
+}
+
+body[data-skin] main .service-detail-hero p {
   color: var(--skin-hero-muted) !important;
 }
 
@@ -967,7 +1196,6 @@ body[data-skin] main :where(
   .um-hero-media img,
   .hero-img,
   .feed-thumb,
-  .product-card-v4__image,
   .evidence-item img,
   .sector-atlas-row__media img,
   .ante-editorial img,
@@ -989,8 +1217,45 @@ body main :where(
   [class*="image"],
   [class*="thumb"],
   [class*="visual"]
-):has(img) {
+):has(img),
+body main .product-sheet__frame {
   border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+/* Product dossier — pure white field; no alt-section striping on equipamiento */
+body[data-skin] main :where(.service-products-section),
+body main :where(.service-products-section),
+body main :where(.product-sheet) {
+  background: #ffffff !important;
+}
+
+/* Product sheets — superficie editorial blanca continua (sin zebra ni panel gris) */
+body main .service-products-section,
+body main .service-products-section .product-sheet,
+body main .service-products-list,
+body main .service-products-section .um-container {
+  background: #ffffff !important;
+}
+
+body main .service-products-section {
+  border-top: 0 !important;
+}
+
+body main .product-sheet__media,
+body main .product-sheet__frame,
+body main .product-sheet__image {
+  background: transparent !important;
+}
+
+body main .case-gallery-frame {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
   box-shadow: none !important;
 }
 
@@ -1042,7 +1307,20 @@ body[data-skin] main :where(hr, .border-gray-200, .border-gray-300, .border-whit
   border-color: var(--skin-line) !important;
 }
 
-body[data-skin] main :where(.bg-um-dark, .bg-black, .bg-\[\#050505\], .bg-\[\#080808\]) {
+body[data-skin] main :where(
+  .services-hero,
+  .service-detail-hero,
+  .sector-detail-hero,
+  .case-detail-hero,
+  .um-home-hero,
+  .antecedentes-hero,
+  .ante-hero,
+  .sector-atlas-detail-hero,
+  .ante-atlas__hero,
+  .sector-editorial-detail-hero,
+  .geo-dossier-hero,
+  .geo-final
+) :where(.bg-um-dark, .bg-black, .bg-\[\#050505\], .bg-\[\#080808\]) {
   background: var(--skin-hero-bg) !important;
   color: var(--skin-hero-text) !important;
 }
@@ -1076,16 +1354,17 @@ body[data-skin] main :where(.um-cta, .stats-bar-v4) {
 body[data-skin] main :where(
   .services-hero,
   .service-detail-hero,
-  .about-hero,
-  .contact-hero,
   .sectors-hero,
   .sector-detail-hero,
   .case-detail-hero,
-  .blog-header,
-  .blog-hero,
   .um-home-hero,
   .antecedentes-hero,
-  .ante-hero
+  .ante-hero,
+  .sector-editorial-index-hero,
+  .sector-atlas-index-hero,
+  .sector-atlas-detail-hero,
+  .sector-editorial-detail-hero,
+  .geo-dossier-hero
 ) :where(.um-btn-secondary) {
   background: var(--skin-hero-panel) !important;
   border-color: transparent !important;
@@ -1095,16 +1374,17 @@ body[data-skin] main :where(
 body[data-skin] main :where(
   .services-hero,
   .service-detail-hero,
-  .about-hero,
-  .contact-hero,
   .sectors-hero,
   .sector-detail-hero,
   .case-detail-hero,
-  .blog-header,
-  .blog-hero,
   .um-home-hero,
   .antecedentes-hero,
-  .ante-hero
+  .ante-hero,
+  .sector-editorial-index-hero,
+  .sector-atlas-index-hero,
+  .sector-atlas-detail-hero,
+  .sector-editorial-detail-hero,
+  .geo-dossier-hero
 ) :where(.um-btn-secondary:hover) {
   background: var(--skin-hero-text) !important;
   border-color: transparent !important;
@@ -1129,12 +1409,22 @@ body[data-skin] main .um-hero-proofbar p {
 }
 
 body[data-skin] main :where(
+  .services-hero,
+  .service-detail-hero,
+  .sectors-hero,
+  .sector-detail-hero,
+  .case-detail-hero,
+  .um-home-hero,
+  .antecedentes-hero,
+  .ante-hero,
+  .sector-atlas-detail-hero,
+  .sector-editorial-detail-hero,
+  .geo-dossier-hero
+) :where(
   .services-breadcrumb,
   .service-detail-breadcrumb,
   .sector-detail-breadcrumb,
   .sectors-breadcrumb,
-  .about-breadcrumb,
-  .contact-breadcrumb,
   .ante-breadcrumb,
   .case-detail-breadcrumb,
   .blog-breadcrumb,
@@ -1145,12 +1435,22 @@ body[data-skin] main :where(
 }
 
 body[data-skin] main :where(
+  .services-hero,
+  .service-detail-hero,
+  .sectors-hero,
+  .sector-detail-hero,
+  .case-detail-hero,
+  .um-home-hero,
+  .antecedentes-hero,
+  .ante-hero,
+  .sector-atlas-detail-hero,
+  .sector-editorial-detail-hero,
+  .geo-dossier-hero
+) :where(
   .services-breadcrumb,
   .service-detail-breadcrumb,
   .sector-detail-breadcrumb,
   .sectors-breadcrumb,
-  .about-breadcrumb,
-  .contact-breadcrumb,
   .ante-breadcrumb,
   .case-detail-breadcrumb,
   .blog-breadcrumb,
@@ -1161,12 +1461,22 @@ body[data-skin] main :where(
 }
 
 body[data-skin] main :where(
+  .services-hero,
+  .service-detail-hero,
+  .sectors-hero,
+  .sector-detail-hero,
+  .case-detail-hero,
+  .um-home-hero,
+  .antecedentes-hero,
+  .ante-hero,
+  .sector-atlas-detail-hero,
+  .sector-editorial-detail-hero,
+  .geo-dossier-hero
+) :where(
   .services-breadcrumb,
   .service-detail-breadcrumb,
   .sector-detail-breadcrumb,
   .sectors-breadcrumb,
-  .about-breadcrumb,
-  .contact-breadcrumb,
   .ante-breadcrumb,
   .case-detail-breadcrumb,
   .blog-breadcrumb,
@@ -1632,7 +1942,6 @@ body[data-skin] main :where(
 :where(main) :where(
   .um-panel,
   .service-card-v4,
-  .product-card-v4,
   .geo-dossier-card,
   .geo-related-case,
   .contact-form-panel,
@@ -1661,15 +1970,67 @@ body[data-skin] main :where(
   border-color: color-mix(in srgb, var(--skin-text) 7%, transparent) !important;
 }
 
-:where(main) :where(
+  :where(main) :where(
   img,
   figure,
   .um-media-frame,
   .service-card-v4__media,
   .blog-card__media,
-  .feed-media
+  .feed-media,
+  .product-sheet__image
 ) {
   box-shadow: none !important;
+}
+
+/* Hybrid: reassert light editorial shells — never on wrappers that include dark index heroes */
+body[data-skin="hybrid"] main :where(
+  .sector-editorial-index-body,
+  .sector-editorial__features,
+  .sector-editorial__support,
+  .sector-editorial-feature,
+  .sector-editorial-row,
+  .sector-editorial-detail,
+  .sector-atlas-exec-feature,
+  .sector-atlas-exec-ledger,
+  .sector-atlas-detail,
+  .sector-atlas-service-map,
+  .sector-atlas-criteria,
+  .sector-atlas-evidence,
+  .ante-atlas,
+  .ante-atlas__archive,
+  .about-hero,
+  .about-image-band,
+  .about-position,
+  .about-principles,
+  .about-capabilities,
+  .about-proof,
+  .blog-index,
+  .blog-header,
+  .blog-feed,
+  .contact-dossier
+) {
+  background: var(--skin-section) !important;
+  color: var(--skin-text) !important;
+}
+
+body[data-skin="hybrid"] main :where(
+  .sector-editorial-index-hero,
+  .sector-atlas-index-hero,
+  .sector-editorial-detail-hero,
+  .sector-atlas-detail-hero,
+  .ante-atlas__hero,
+  .services-hero,
+  .service-detail-hero,
+  .um-home-hero,
+  .antecedentes-hero,
+  .ante-hero,
+  .geo-dossier-hero,
+  .um-cta,
+  .um-final-cta,
+  .geo-final
+) {
+  background: var(--skin-hero-bg) !important;
+  color: var(--skin-hero-text) !important;
 }
 
 /* DISABLE dark mode override - V4 uses explicit colors */
@@ -1678,4 +2039,117 @@ body[data-skin] main :where(
     background-color: var(--skin-page);
     color: var(--skin-text);
   }
+}
+
+/* Fase 3 — microinteracciones sobrias + piso tipográfico comercial */
+@layer components {
+  :where(main, nav, footer) :where(a, button, input, textarea, select, summary):focus-visible {
+    outline: 2px solid var(--um-red);
+    outline-offset: 2px;
+  }
+
+  :where(main) :where(
+    .evidence-case-row,
+    .evidence-item,
+    .ante-dossier__feature,
+    .ante-dossier__secondary-item,
+    .ante-dossier__row,
+    .um-world-ledger-row,
+    .sector-editorial-row,
+    .feed-item,
+    .um-evidence-card
+  ) {
+    transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
+  }
+
+  :where(main) :where(
+    .evidence-case-row,
+    .evidence-item--ledger,
+    .ante-dossier__row,
+    .um-world-ledger-row,
+    .sector-editorial-row
+  ):hover {
+    border-color: color-mix(in srgb, var(--um-red) 42%, var(--skin-line, #d9dadd));
+  }
+
+  :where(main) :where(.feed-item, .ante-dossier__feature, .ante-dossier__secondary-item):hover {
+    background-color: color-mix(in srgb, var(--um-red) 3%, #fff);
+  }
+
+  :where(main) :where(.feed-link, .evidence-item__cta, .ante-dossier__feature strong):hover {
+    text-decoration-color: var(--um-red);
+  }
+
+  :where(main, nav, footer) :where(sup, sub) {
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  :where(main, nav, footer) :where(.text-xs, .text-sm, .text-\[9px\], .text-\[10px\], .text-\[11px\], .text-\[12px\], .text-\[13px\], .text-\[14px\], .text-\[15px\], small) {
+    font-size: 1rem !important;
+    line-height: 1.45 !important;
+  }
+
+  body[data-skin="hybrid"] main :where(p, li, dd, dt, label, a, button, input, textarea, select, figcaption, td, th),
+  body[data-skin="white"] main :where(p, li, dd, dt, label, a, button, input, textarea, select, figcaption, td, th) {
+    font-size: max(1rem, 1em) !important;
+  }
+}
+
+/* Contrast guard — dark bands win over editorial tokens and Astro order */
+body[data-skin] main section.um-cta h2.um-cta__title,
+body[data-skin] main section.um-cta .um-cta__title {
+  color: #ffffff !important;
+}
+
+body[data-skin] main section.um-cta p.um-cta__description,
+body[data-skin] main section.um-cta .um-cta__description {
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+body[data-skin] main .service-detail-hero h1 {
+  color: #ffffff !important;
+}
+
+body[data-skin] main .service-detail-hero .service-detail-hero__content p {
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+body[data-skin] main .service-detail-hero .service-detail-label {
+  color: #dc2626 !important;
+}
+
+/* Index/listing dark heroes (sectores, atlas) — explicit cascade guard */
+body[data-skin] main .sector-editorial-index-hero,
+body[data-skin] main .sector-atlas-index-hero {
+  background: var(--skin-hero-bg) !important;
+  color: var(--skin-hero-text) !important;
+}
+
+body[data-skin] main .sector-editorial-index-hero :where(h1, h2, strong, dd),
+body[data-skin] main .sector-atlas-index-hero :where(h1, h2, strong, dd),
+body[data-skin] main .sector-atlas-index-hero .sector-atlas-exec-proof strong {
+  color: #ffffff !important;
+}
+
+body[data-skin] main .sector-editorial-index-hero :where(p, .sector-editorial__lead),
+body[data-skin] main .sector-atlas-index-hero :where(p, .sector-atlas-exec-hero__lead) {
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+body[data-skin] main .sector-editorial-index-hero :where(.sector-editorial__kicker, dt),
+body[data-skin] main .sector-atlas-index-hero :where(.sector-atlas-exec-hero__proofline dt, .sector-atlas-exec-hero p:not(.sector-atlas-exec-hero__lead)) {
+  color: rgba(255, 255, 255, 0.62) !important;
+}
+
+body[data-skin] main .sector-editorial-index-hero .um-btn-secondary,
+body[data-skin] main .sector-atlas-index-hero .um-btn-secondary {
+  color: #ffffff !important;
+  background: color-mix(in srgb, #ffffff 12%, transparent) !important;
+}
+
+body[data-skin] main .sector-editorial-index-hero .um-btn-secondary:hover,
+body[data-skin] main .sector-atlas-index-hero .um-btn-secondary:hover {
+  background: #ffffff !important;
+  color: #111111 !important;
 }

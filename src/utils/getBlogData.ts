@@ -1,21 +1,18 @@
 import type { EntradaBlog } from '../lib/directus';
 import { MOCK_POSTS } from '../data/blog-mock';
+import {
+  allowMockBlogFallback,
+  allowPublicBlogFallback,
+  getDirectusInternalUrl,
+  getDirectusToken,
+  getPublicSiteUrl,
+} from '../config/runtime';
+import { SITE_URL } from '../config/seo';
 
-const DIRECTUS_URL =
-  (typeof process !== 'undefined' ? process.env['DIRECTUS_INTERNAL_URL'] : undefined) ??
-  import.meta.env['DIRECTUS_INTERNAL_URL'] ??
-  'http://localhost:8055';
-
-const DIRECTUS_TOKEN =
-  (typeof process !== 'undefined' ? process.env['DIRECTUS_ADMIN_TOKEN'] : undefined) ??
-  import.meta.env['DIRECTUS_ADMIN_TOKEN'] ??
-  import.meta.env['PUBLIC_DIRECTUS_TOKEN'] ??
-  '';
-
-const PUBLIC_SITE_URL = 'https://www.ultimamilla.com.ar';
-const ENABLE_PUBLIC_BLOG_FALLBACK =
-  import.meta.env.DEV ||
-  (typeof process !== 'undefined' && process.env['UMSA_USE_PUBLIC_BLOG_FALLBACK'] === 'true');
+const DIRECTUS_URL = getDirectusInternalUrl();
+const DIRECTUS_TOKEN = getDirectusToken();
+const PUBLIC_SITE_URL = allowPublicBlogFallback() ? SITE_URL : getPublicSiteUrl();
+const ENABLE_PUBLIC_BLOG_FALLBACK = allowPublicBlogFallback();
 
 const publicBlogIndexCache = new Map<string, Promise<string[]>>();
 
@@ -204,6 +201,10 @@ export async function fetchBlogListing(
     const publicListing = await fetchPublicBlogListing(page, limit, categoria);
     if (publicListing && publicListing.posts.length > 0) return publicListing;
 
+    if (!allowMockBlogFallback()) {
+      return { posts: [], total: 0 };
+    }
+
     const filtered = categoria ? MOCK_POSTS.filter(p => p.categoria === categoria) : MOCK_POSTS;
     return { posts: filtered.slice(offset, offset + limit), total: filtered.length };
   }
@@ -223,6 +224,7 @@ export async function fetchBlogPost(slug: string): Promise<EntradaBlog | null> {
     const publicPost = await fetchPublicBlogPost(slug);
     if (publicPost) return publicPost;
 
+    if (!allowMockBlogFallback()) return null;
     return MOCK_POSTS.find(p => p.slug === slug) || null;
   }
 }
@@ -241,6 +243,7 @@ export async function fetchBlogBand(limit = 3): Promise<EntradaBlog[]> {
     const publicListing = await fetchPublicBlogListing(1, limit);
     if (publicListing && publicListing.posts.length > 0) return publicListing.posts.slice(0, limit);
 
+    if (!allowMockBlogFallback()) return [];
     return MOCK_POSTS.slice(0, limit);
   }
 }

@@ -1,5 +1,7 @@
 ---
 import EvidenceItem from './EvidenceItem.astro';
+import UMButton from '../um/UMButton.astro';
+import { truncateEditorialText } from '../../utils/editorialContent';
 
 interface Props {
   mode?: 'index' | 'detail';
@@ -24,10 +26,12 @@ const {
 } = Astro.props;
 
 const text = (value: unknown) => String(value || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
-const truncate = (value: unknown, length = 150) => {
-  const clean = text(value);
-  return clean.length > length ? `${clean.slice(0, length - 1)}…` : clean;
-};
+const truncate = (value: unknown, length = 150) => truncateEditorialText(value, length);
+const sanitizeCopy = (value: unknown, length = 150) => truncateEditorialText(value, length);
+const sectorSlug = sector.slug || '';
+const sectorAntecedentesHref = sectorSlug
+  ? `/antecedentes?sector=${encodeURIComponent(sectorSlug)}`
+  : '/antecedentes';
 const caseHref = (item: any) => `/antecedentes/${item.id}/${item.slug || ''}`;
 const sectorTitle = sector.pageHeadline || sector.headline || sector.nombre || sector.label || 'Sector';
 const sectorSummary = sector.pageSummary || sector.summary || sector.descripcion || '';
@@ -49,6 +53,7 @@ const buildSectorFilterUrl = (nextSector: string) => {
 
 {mode === 'index' ? (
   <section class="sector-atlas sector-atlas--index">
+    <div class="sector-atlas-index-hero">
     <div class="um-container">
       <header class="sector-atlas-exec-hero">
         <div class="sector-atlas-exec-hero__copy">
@@ -59,9 +64,23 @@ const buildSectorFilterUrl = (nextSector: string) => {
             Un centro de lectura para entender dónde interviene UMSA, qué riesgos operativos
             resuelve y qué antecedentes sostienen cada conversación comercial.
           </p>
+          <dl class="sector-atlas-exec-hero__proofline" aria-label="Prueba institucional">
+            <div>
+              <dt>Mercados</dt>
+              <dd>{sectors.length} verticales</dd>
+            </div>
+            <div>
+              <dt>Archivo</dt>
+              <dd>469+ antecedentes</dd>
+            </div>
+            <div>
+              <dt>Operación</dt>
+              <dd>22+ años / 24-7</dd>
+            </div>
+          </dl>
           <div class="sector-atlas-exec-actions">
-            <a href="/contacto">Solicitar diagnóstico</a>
-            <a href="/antecedentes">Ver antecedentes</a>
+            <UMButton href="/contacto">Solicitar diagnóstico</UMButton>
+            <UMButton href="/antecedentes" variant="secondary">Ver antecedentes</UMButton>
           </div>
         </div>
 
@@ -74,7 +93,10 @@ const buildSectorFilterUrl = (nextSector: string) => {
           <div><span>24/7</span><strong>soporte operativo</strong></div>
         </aside>
       </header>
+    </div>
+    </div>
 
+    <div class="um-container">
       <section class="sector-atlas-exec-feature" aria-label="Lectura ejecutiva por sector">
         <figure>
           <img src={methodSector?.image} alt={methodSector?.imageAlt || 'Infraestructura IT por sector'} loading="lazy" decoding="async" />
@@ -148,8 +170,27 @@ const buildSectorFilterUrl = (nextSector: string) => {
             <span>{sectorName}</span>
           </nav>
           <span class="sector-atlas__rule" aria-hidden="true"></span>
+          <p class="sector-atlas-detail-hero__kicker">Infraestructura crítica · {sectorName}</p>
           <h1>{sectorTitle}</h1>
-          <p>{sectorSummary}</p>
+          <p class="sector-atlas-detail-hero__lead">{sectorSummary}</p>
+          <dl class="sector-atlas-detail-hero__proofline" aria-label="Prueba institucional">
+            <div>
+              <dt>Archivo</dt>
+              <dd>469+ antecedentes</dd>
+            </div>
+            <div>
+              <dt>Trayectoria</dt>
+              <dd>22+ años</dd>
+            </div>
+            <div>
+              <dt>Operación</dt>
+              <dd>24/7</dd>
+            </div>
+          </dl>
+          <div class="sector-atlas-detail-hero__actions">
+            <UMButton href="/contacto">Solicitar diagnóstico</UMButton>
+            <UMButton href={sectorAntecedentesHref} variant="secondary">Ver antecedentes del sector</UMButton>
+          </div>
         </div>
         <aside class="sector-atlas-detail-panel">
           <strong>Blueprint operativo</strong>
@@ -185,7 +226,7 @@ const buildSectorFilterUrl = (nextSector: string) => {
             <a href={`/servicios/${item.id}/${item.slug || ''}`}>
               <span>{String(index + 1).padStart(2, '0')}</span>
               <strong>{item.nombre}</strong>
-              <p>{item.descripcion}</p>
+              <p>{sanitizeCopy(item.descripcion, 130)}</p>
             </a>
           ))}
           {(!serviciosRelacionados || serviciosRelacionados.length === 0) && (sector.services || []).map((item: string, index: number) => (
@@ -209,7 +250,7 @@ const buildSectorFilterUrl = (nextSector: string) => {
               <article>
                 <span>{String(index + 1).padStart(2, '0')}</span>
                 <h3>{item.titulo}</h3>
-                <p>{item.descripcion}</p>
+                <p>{sanitizeCopy(item.descripcion, 180)}</p>
               </article>
             ))}
           </div>
@@ -245,15 +286,46 @@ const buildSectorFilterUrl = (nextSector: string) => {
 
 <style>
   .sector-atlas {
-    background: #050505;
-    color: #fff;
+    background: var(--skin-section, #fff);
+    color: var(--skin-text, #111);
     padding: clamp(58px, 7vw, 96px) 0;
   }
 
   .sector-atlas--index {
     background: var(--skin-page, #fff);
     color: var(--skin-text, #111);
-    padding: clamp(42px, 5.4vw, 76px) 0 clamp(58px, 7vw, 96px);
+    padding: 0 0 clamp(58px, 7vw, 96px);
+  }
+
+  .sector-atlas-index-hero {
+    background: #050505;
+    color: #fff;
+    padding: clamp(28px, 4vw, 48px) 0 clamp(32px, 4.5vw, 52px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: clamp(28px, 4vw, 44px);
+  }
+
+  .sector-atlas-index-hero .sector-atlas-exec-hero {
+    padding-bottom: 0;
+  }
+
+  .sector-atlas-index-hero .sector-atlas-exec-hero p:not(.sector-atlas-exec-hero__lead) {
+    color: rgba(255, 255, 255, 0.62);
+  }
+
+  .sector-atlas-index-hero .sector-atlas-exec-hero h1,
+  .sector-atlas-index-hero .sector-atlas-exec-proof strong {
+    color: #fff;
+  }
+
+  .sector-atlas-index-hero .sector-atlas-exec-hero__lead {
+    color: rgba(255, 255, 255, 0.76);
+  }
+
+  .sector-atlas--detail {
+    background: var(--skin-page, #fff);
+    color: var(--skin-text, #111);
+    padding: 0 0 clamp(72px, 9vw, 120px);
   }
 
   .sector-atlas-exec-hero {
@@ -295,6 +367,44 @@ const buildSectorFilterUrl = (nextSector: string) => {
     color: var(--skin-muted, #555d66);
     font-size: clamp(1.05rem, 1.18vw, 1.18rem);
     line-height: 1.72;
+  }
+
+  .sector-atlas-exec-hero__proofline {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px clamp(16px, 3vw, 28px);
+    margin: 20px 0 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .sector-atlas-exec-hero__proofline div {
+    display: grid;
+    gap: 4px;
+  }
+
+  .sector-atlas-exec-hero__proofline dt {
+    color: var(--skin-muted, #6b7280);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .sector-atlas-exec-hero__proofline dd {
+    margin: 0;
+    color: var(--skin-text, #111);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .sector-atlas-index-hero .sector-atlas-exec-hero__proofline dt {
+    color: rgba(255, 255, 255, 0.62);
+  }
+
+  .sector-atlas-index-hero .sector-atlas-exec-hero__proofline dd {
+    color: #fff;
   }
 
   .sector-atlas-exec-actions {
@@ -633,7 +743,7 @@ const buildSectorFilterUrl = (nextSector: string) => {
 
   .sector-atlas-exec-row__services li {
     padding: 7px 10px;
-    background: color-mix(in srgb, var(--skin-section-alt, #f5f6f7) 52%, white);
+    background: var(--skin-section-alt, #ffffff);
     border: 0;
   }
 
@@ -680,6 +790,13 @@ const buildSectorFilterUrl = (nextSector: string) => {
     font-weight: 700;
     overflow-wrap: anywhere;
     text-wrap: balance;
+  }
+
+  .sector-atlas-detail-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
   }
 
   .sector-atlas__hero dl,
@@ -788,10 +905,6 @@ const buildSectorFilterUrl = (nextSector: string) => {
     text-align: right;
   }
 
-  .sector-atlas--detail {
-    padding: 0 0 clamp(72px, 9vw, 120px);
-  }
-
   .sector-atlas-detail-hero {
     position: relative;
     overflow: hidden;
@@ -827,17 +940,17 @@ const buildSectorFilterUrl = (nextSector: string) => {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(320px, 430px);
     gap: clamp(38px, 7vw, 92px);
-    align-items: end;
-    min-height: clamp(520px, 68vh, 700px);
-    padding-top: 52px;
-    padding-bottom: clamp(58px, 8vw, 96px);
+    align-items: start;
+    min-height: clamp(360px, 46vh, 480px);
+    padding-top: clamp(56px, 7vw, 84px);
+    padding-bottom: clamp(28px, 4vw, 44px);
   }
 
   .sector-atlas__crumb {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    margin-bottom: clamp(44px, 7vw, 82px);
+    margin-bottom: 18px;
     color: rgba(255,255,255,0.62);
     font-size: 1rem;
     font-weight: 700;
@@ -847,9 +960,51 @@ const buildSectorFilterUrl = (nextSector: string) => {
     color: #fff;
   }
 
-  .sector-atlas-detail-hero p {
+  .sector-atlas-detail-hero__kicker {
+    margin-top: 12px;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .sector-atlas-detail-hero__proofline {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px clamp(16px, 3vw, 28px);
+    max-width: 720px;
+    margin: 16px 0 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .sector-atlas-detail-hero__proofline div {
+    display: grid;
+    gap: 4px;
+  }
+
+  .sector-atlas-detail-hero__proofline dt {
+    color: rgba(255, 255, 255, 0.58);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .sector-atlas-detail-hero__proofline dd {
+    margin: 0;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .sector-atlas-detail-hero__lead {
     max-width: 700px;
-    margin-top: 22px;
+    margin-top: 18px;
     color: rgba(255,255,255,0.76);
     font-size: clamp(1.05rem, 1.25vw, 1.22rem);
     line-height: 1.62;
@@ -1177,9 +1332,10 @@ const buildSectorFilterUrl = (nextSector: string) => {
     }
 
     .sector-atlas-exec-row__services li::before {
-      content: "/";
+      content: "—";
       margin-right: 6px;
       color: var(--um-red);
+      font-weight: 600;
     }
 
     .sector-atlas__hero h1,

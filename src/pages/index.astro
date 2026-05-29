@@ -5,7 +5,8 @@
  */
 
 import LayoutV4 from '../layouts/LayoutV4.astro';
-import BlogBand from '../components/blog/BlogBand.astro';
+import EvidenceCaseRow from '../components/um/EvidenceCaseRow.astro';
+import EvidenceItem from '../components/templates/EvidenceItem.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getAllServicios } from '../utils/directusHelpers';
 import { getDirectusImageUrl, getAllAntecedentes } from '../lib/directus.ts';
@@ -75,6 +76,13 @@ const featuredCasesEnhanced = featuredCases.slice(0, 3).map((item) => ({
 const primaryEvidenceCase = featuredCasesEnhanced[0];
 const secondaryEvidenceCases = featuredCasesEnhanced.slice(1);
 
+const evidenceYear = (item: any) => {
+  const raw = item?.Fecha || item?.fecha || item?.anio;
+  if (!raw) return 'documentado';
+  const date = new Date(raw);
+  return Number.isNaN(date.getTime()) ? String(raw) : String(date.getFullYear());
+};
+
 const sectorLinks = [
   { slug: 'aeropuertos', label: 'Aeropuertos', cue: 'operación continua' },
   { slug: 'bodegas', label: 'Bodegas', cue: 'producción conectada' },
@@ -87,49 +95,11 @@ const sectorLinks = [
   { slug: 'seguridad-electronica', label: 'Seguridad', cue: 'monitoreo y acceso' }
 ];
 
-const connectedCapabilities = [
-  {
-    name: 'SGI ULTIMA MILLA',
-    url: 'https://www.sgi.ultimamilla.com.ar',
-    label: 'Sistema interno',
-    text: 'Operaciones, procesos y trazabilidad empresaria como prueba de capacidad propia.'
-  },
-  {
-    name: 'Licitometro',
-    url: 'https://www.licitometro.ar',
-    label: 'Producto conectado',
-    text: 'Lectura de oportunidades, datos públicos y automatización aplicada a gestión comercial.'
-  },
-  {
-    name: 'APIs e integraciones',
-    url: '/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp',
-    label: 'Software a medida',
-    text: 'Conectores, flujos y sistemas propios sin exponer dependencias vivas en la home pública.'
-  }
-];
-
 const proofMetrics = [
   ['8', 'servicios IT', 'red, seguridad, software, energía y soporte'],
   [`${proofCount}+`, 'antecedentes', 'en industrias y organizaciones de todo el país'],
   ['22+', 'años', 'de trayectoria técnica en infraestructura'],
   ['24/7', 'soporte', 'operación y monitoreo continuo']
-];
-
-const commercialPackages = [
-  ['Soporte Base', 'Mesa de ayuda, inventario, checklist y mantenimiento mensual.', 'Cotizar abono'],
-  ['Soporte Operativo', 'Administración de red, visitas preventivas, tickets y reporte ejecutivo.', 'Cotizar abono'],
-  ['Soporte Crítico', 'SLA por severidad, guardia extendida, continuidad y comité mensual.', 'Cotizar abono'],
-  ['Red Express', 'Cableado, rack, patching, testing, WiFi puntual y entrega as-built.', 'Solicitar relevamiento'],
-  ['Sala Técnica', 'Ordenamiento de rack, UPS, tableros IT, energía y documentación.', 'Solicitar relevamiento'],
-  ['CCTV/SDI', 'Cámaras, accesos, detección, protocolo de prueba y mantenimiento.', 'Solicitar relevamiento'],
-  ['Diagnóstico', 'Relevamiento técnico, riesgos, quick wins y presupuesto base.', 'Solicitar relevamiento']
-];
-
-const operatingLayers = [
-  ['01', 'Relevar', 'Sitio, restricciones, riesgos, usuarios, operación y dependencias reales.'],
-  ['02', 'Diseñar', 'Topología, materiales, integración, seguridad, energía y documentación.'],
-  ['03', 'Implementar', 'Instalación, pruebas, transferencia y puesta en marcha controlada.'],
-  ['04', 'Operar', 'Soporte 24/7, mantenimiento, cambios y evidencia para decidir.']
 ];
 
 const iconPaths: Record<string, string> = {
@@ -157,10 +127,6 @@ const websiteSchema = {
   }
 };
 
-const currentSkin = Astro.url.searchParams.get('skin');
-const homeHeroSkinVars = currentSkin === 'white'
-  ? '--skin-hero-bg:#050505;--skin-hero-text:#FFFFFF;--skin-hero-muted:rgba(255,255,255,0.74);--skin-hero-line:rgba(255,255,255,0.18);--skin-hero-panel:rgba(255,255,255,0.08);--skin-hero-panel-solid:rgba(5,5,5,0.62);--skin-hero-wash:linear-gradient(90deg, rgba(5,5,5,0.94) 0%, rgba(5,5,5,0.84) 40%, rgba(5,5,5,0.36) 74%, rgba(5,5,5,0.76) 100%), linear-gradient(180deg, rgba(5,5,5,0.1) 0%, rgba(5,5,5,0.72) 100%);'
-  : '';
 ---
 
 <LayoutV4
@@ -170,7 +136,7 @@ const homeHeroSkinVars = currentSkin === 'white'
   image={homeHeroImage}
   structuredData={websiteSchema}
 >
-  <section class="um-home-hero" style={homeHeroSkinVars}>
+  <section class="um-home-hero">
     <div class="um-hero-media" aria-hidden="true">
       <img src={homeHeroImage} alt="" loading="eager" decoding="async" />
     </div>
@@ -184,7 +150,7 @@ const homeHeroSkinVars = currentSkin === 'white'
           Redes, seguridad electrónica, telecomunicaciones, software, energía y soporte técnico para empresas que necesitan continuidad, evidencia y respuesta en sitio.
         </p>
         <div class="um-hero-actions">
-          <a class="um-btn um-btn-primary" href="/contacto">Hablar con un especialista</a>
+          <a class="um-btn um-btn-primary" href="/contacto">Solicitar diagnóstico</a>
           <a class="um-btn um-btn-secondary" href="/antecedentes">Ver antecedentes</a>
         </div>
         <figure class="um-hero-mobile-photo">
@@ -217,7 +183,10 @@ const homeHeroSkinVars = currentSkin === 'white'
           <p>
             Ocho frentes conectados por una misma forma de trabajo: relevar, diseñar, implementar, documentar y sostener infraestructura para operaciones exigentes.
           </p>
-          <a href="/servicios" class="um-arrow-link">Ver todos los servicios</a>
+          <div class="um-services-command__links">
+            <a href="/servicios" class="um-arrow-link">Ver todos los servicios</a>
+            <a href="/servicios#decision" class="um-arrow-link um-arrow-link--muted">Próximo paso por intención</a>
+          </div>
         </div>
 
         <div class="um-services-command__visual" aria-hidden="true">
@@ -251,46 +220,6 @@ const homeHeroSkinVars = currentSkin === 'white'
     </div>
   </section>
 
-  <section class="um-package-section">
-    <div class="um-home-container um-package-grid">
-      <div class="um-package-intro">
-        <span class="um-red-rule" aria-hidden="true"></span>
-        <h2>Ofertas comprables, sin promesas difusas.</h2>
-        <p>
-          Cada paquete ordena alcance, entregables, exclusiones y criterio de soporte. La cotización se define después del relevamiento, no con precios genéricos publicados.
-        </p>
-      </div>
-      <div class="um-package-list">
-        {commercialPackages.map(([name, text, cta], index) => (
-          <a href="/contacto" class="um-package-row">
-            <span>{String(index + 1).padStart(2, '0')}</span>
-            <strong>{name}</strong>
-            <p>{text}</p>
-            <em>{cta}</em>
-          </a>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <section class="um-operating-layer">
-    <div class="um-home-container um-operating-grid">
-      <div>
-        <p>De la necesidad al servicio operado</p>
-        <h2>El diferencial no es vender tecnología: es dejarla funcionando, documentada y sostenida.</h2>
-      </div>
-      <div class="um-operating-steps">
-        {operatingLayers.map(([number, title, text]) => (
-          <article>
-            <span>{number}</span>
-            <h3>{title}</h3>
-            <p>{text}</p>
-          </article>
-        ))}
-      </div>
-    </div>
-  </section>
-
   <section class="um-evidence-section" id="antecedentes-home">
     <div class="um-home-container um-evidence-layout">
       <div class="um-evidence-main">
@@ -309,35 +238,37 @@ const homeHeroSkinVars = currentSkin === 'white'
         </div>
 
         {primaryEvidenceCase && (
-          <a class="um-evidence-feature" href={`/antecedentes/${primaryEvidenceCase.id}/${primaryEvidenceCase.slug}`}>
-            <img src={primaryEvidenceCase.imageUrl} alt={primaryEvidenceCase.title} loading="lazy" decoding="async" />
-            <div class="um-evidence-feature__overlay">
-              <span>Proyecto destacado</span>
-              <h3>{primaryEvidenceCase.Cliente || primaryEvidenceCase.sector || primaryEvidenceCase.title}</h3>
-              <p>{primaryEvidenceCase.title}</p>
-              <dl>
-                <div><dt>Sector</dt><dd>{primaryEvidenceCase.sector}</dd></div>
-                <div><dt>Alcance</dt><dd>instalación + integración + soporte</dd></div>
-              </dl>
-            </div>
-          </a>
+          <EvidenceItem
+            variant="feature"
+            class="um-evidence-feature-slot"
+            href={`/antecedentes/${primaryEvidenceCase.id}/${primaryEvidenceCase.slug}`}
+            title={primaryEvidenceCase.Cliente || primaryEvidenceCase.sector || primaryEvidenceCase.title}
+            description={primaryEvidenceCase.title}
+            image={primaryEvidenceCase.imageUrl}
+            imageAlt={primaryEvidenceCase.title}
+            eyebrow="Proyecto destacado"
+            sector={primaryEvidenceCase.sector}
+            meta={[{ label: 'Alcance', value: 'instalación + integración + soporte' }]}
+            cta="Ver dossier del proyecto"
+          />
         )}
 
-        <div class="um-evidence-cards">
-          {secondaryEvidenceCases.map((item, index) => (
-            <a class="um-evidence-card" href={`/antecedentes/${item.id}/${item.slug}`}>
-              <div class="um-evidence-card__media">
-                <img src={item.imageUrl} alt={item.title} loading="lazy" decoding="async" />
-                <span>{String(index + 1).padStart(2, '0')}</span>
-              </div>
-              <div class="um-evidence-card__body">
-                <span>Caso de éxito</span>
-                <h3>{item.Cliente || item.sector || item.title}</h3>
-                <p>{item.title}</p>
-              </div>
-            </a>
-          ))}
-        </div>
+        {secondaryEvidenceCases.length > 0 && (
+          <div class="um-evidence-ledger" aria-label="Antecedentes destacados">
+            {secondaryEvidenceCases.map((item, index) => (
+              <EvidenceCaseRow
+                href={`/antecedentes/${item.id}/${item.slug}`}
+                number={String(index + 2).padStart(2, '0')}
+                title={item.Cliente || item.sector || item.title}
+                description={item.title}
+                image={item.imageUrl}
+                imageAlt={item.title}
+                sector={item.sector}
+                year={evidenceYear(item)}
+              />
+            ))}
+          </div>
+        )}
 
         <div class="um-evidence-action">
           <p>Explore más proyectos por sector, servicio y tipo de operación.</p>
@@ -358,28 +289,9 @@ const homeHeroSkinVars = currentSkin === 'white'
             </a>
           ))}
         </nav>
-        <p>Soluciones integrales adaptadas a los estándares y exigencias operativas de cada industria.</p>
+        <p>Mapa de riesgo operativo por industria. Cada sector enlaza a antecedentes y alcance técnico documentado.</p>
       </aside>
       </div>
-  </section>
-
-  <section class="um-connected-section">
-    <div class="um-home-container">
-      <div class="um-section-heading">
-        <p>Capacidades conectadas</p>
-        <h2>Sistemas propios, operación real y software conectado.</h2>
-      </div>
-
-      <div class="um-connected-grid">
-        {connectedCapabilities.map((capability) => (
-          <a href={capability.url} class="um-connected-item" target={capability.url.startsWith('http') ? '_blank' : undefined} rel={capability.url.startsWith('http') ? 'noopener noreferrer' : undefined}>
-            <span>{capability.label}</span>
-            <strong>{capability.name}</strong>
-            <p>{capability.text}</p>
-          </a>
-        ))}
-      </div>
-    </div>
   </section>
 
   <section class="um-final-cta">
@@ -392,8 +304,6 @@ const homeHeroSkinVars = currentSkin === 'white'
     </div>
   </section>
 
-  <BlogBand />
-
   <style>
     :global(.um-home-container) {
       width: min(1180px, calc(100% - 32px));
@@ -402,7 +312,7 @@ const homeHeroSkinVars = currentSkin === 'white'
 
     .um-home-hero {
       position: relative;
-      min-height: min(760px, calc(100svh - 5rem));
+      min-height: min(580px, calc(100svh - 5.5rem));
       overflow: hidden;
       background: #050505;
       color: #ffffff;
@@ -456,8 +366,16 @@ const homeHeroSkinVars = currentSkin === 'white'
       grid-template-columns: minmax(0, 1fr) minmax(330px, 440px);
       gap: clamp(38px, 7vw, 108px);
       align-items: end;
-      min-height: min(760px, calc(100svh - 5rem));
+      min-height: min(640px, calc(100svh - 5.5rem));
       padding: clamp(56px, 7vw, 86px) 0 clamp(34px, 5vw, 58px);
+    }
+
+    @media (min-width: 981px) and (min-height: 700px) {
+      .um-hero-content {
+        align-items: start;
+        min-height: min(620px, calc(100svh - 6rem));
+        padding-top: clamp(28px, 3.5vw, 48px);
+      }
     }
 
     .um-hero-copy h1 {
@@ -714,7 +632,7 @@ const homeHeroSkinVars = currentSkin === 'white'
     .um-service-image {
       position: relative;
       min-height: 100%;
-      background: #f5f5f5;
+      background: #ffffff;
       overflow: hidden;
     }
 
@@ -1181,7 +1099,7 @@ const homeHeroSkinVars = currentSkin === 'white'
     }
 
     .um-final-cta {
-      background: #f5f5f5;
+      background: #FFFFFF;
       color: #050505;
       padding: clamp(54px, 8vw, 88px) 0;
       border-top: 1px solid #d7d7d7;
@@ -1391,7 +1309,7 @@ const homeHeroSkinVars = currentSkin === 'white'
 
     /* UMSA 2026 final visual override: approved dark technical + white editorial system */
     .um-home-hero {
-      min-height: min(760px, calc(100svh - 5rem));
+      min-height: min(640px, calc(100svh - 5.5rem));
       align-content: end;
       background: #000;
     }
@@ -1537,9 +1455,20 @@ const homeHeroSkinVars = currentSkin === 'white'
       line-height: 1.62;
     }
 
-    .um-services-command__copy .um-arrow-link {
+    .um-services-command__links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem 1.5rem;
       margin-top: 28px;
+    }
+
+    .um-services-command__links .um-arrow-link {
+      margin-top: 0;
       color: var(--um-red);
+    }
+
+    .um-services-command__links .um-arrow-link--muted {
+      color: rgba(255, 255, 255, 0.72);
     }
 
     .um-services-command__visual {
@@ -1902,7 +1831,8 @@ const homeHeroSkinVars = currentSkin === 'white'
       padding-bottom: 4px;
     }
 
-    .um-evidence-feature {
+    .um-evidence-feature,
+    .um-evidence-feature-slot {
       position: relative;
       display: block;
       min-height: clamp(420px, 39vw, 520px);
@@ -1988,6 +1918,11 @@ const homeHeroSkinVars = currentSkin === 'white'
       font-size: 1rem;
       font-weight: 700;
       line-height: 1.28;
+    }
+
+    .um-evidence-ledger {
+      margin-top: 18px;
+      border-bottom: 1px solid #d9dadd;
     }
 
     .um-evidence-cards {

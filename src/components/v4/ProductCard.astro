@@ -1,38 +1,24 @@
 ---
 /**
- * ProductCard Component V4
- *
- * Card de producto con imagen, título, descripción, features y marcas.
- * Usado en página de detalle de servicio para mostrar productos/soluciones.
- *
- * Props:
- * - titulo: Título del producto
- * - descripcion: Descripción completa del producto
- * - imagen: URL de la imagen o UUID de Directus
- * - features: Array de strings con características (bullets)
- * - destacado: Texto destacado o diferenciador
- * - marcas: Array de strings con nombres de marcas
- * - imagePosition: 'left' | 'right' - Posición de la imagen
- * - orden: Número de orden (para alternar automáticamente)
- *
- * Ejemplo de uso:
- * <ProductCard
- *   titulo="Fibra Óptica de Alta Capacidad"
- *   descripcion="Implementamos redes de fibra óptica..."
- *   imagen="https://..."
- *   features={['Fusiones certificadas', 'Cables armados', 'Bandeja de empalmes']}
- *   marcas={['Furukawa', 'Commscope', 'Corning']}
- *   destacado="Con garantía de 25 años"
- *   imagePosition="left"
- * />
+ * ProductCard — ficha documental de equipamiento (servicio detalle).
+ * Renderiza Markdown, sanitiza emojis y aplica grid editorial UMSA.
+ * Imagen: sin borde, marco ni sombra decorativa (DESIGN.md §6 — fotos contenidas).
  */
 
 import { getDirectusImageUrl } from '../../lib/directus.ts';
 import { getServiceVisualSpec } from '../../data/serviceVisualSystem';
+import UMButton from '../um/UMButton.astro';
+import {
+  productAnchorId,
+  renderProductDescription,
+  sanitizeFeatureText,
+  sanitizeProductText,
+  sanitizeProductTitle,
+} from '../../utils/productContent';
 
 export interface Props {
   titulo: string;
-  descripcion: string;
+  descripcion?: string;
   imagen?: string;
   features?: string[];
   destacado?: string;
@@ -40,6 +26,13 @@ export interface Props {
   imagePosition?: 'left' | 'right';
   orden?: number;
   serviceId?: string | number;
+  serviceName?: string;
+  serviceTitle?: string;
+  serviceCategory?: string;
+  serviceArea?: string;
+  serviceHref?: string;
+  ctaHref?: string;
+  ctaLabel?: string;
   className?: string;
 }
 
@@ -53,248 +46,382 @@ const {
   imagePosition,
   orden = 0,
   serviceId,
-  className = ''
+  serviceName,
+  serviceTitle,
+  serviceCategory,
+  serviceArea,
+  serviceHref,
+  ctaHref = '/contacto',
+  ctaLabel = 'Solicitar relevamiento',
+  className = '',
 } = Astro.props;
 
-// Alternar posicion automaticamente si no se especifica
 const position = imagePosition || (orden % 2 === 0 ? 'left' : 'right');
-const positionClass = position === 'left' ? 'product-card-v4--left' : 'product-card-v4--right';
+const positionClass = position === 'left' ? 'product-sheet--media-left' : 'product-sheet--media-right';
 const visual = serviceId ? getServiceVisualSpec(serviceId) : undefined;
-
-// 100% Directus — imagen es UUID del archivo en Directus
 const imagenUrl = getDirectusImageUrl(imagen) || visual?.image || '';
-
-// Validar que haya contenido
-const hasFeatures = features.length > 0;
-const hasMarcas = marcas.length > 0;
+const cleanTitulo = sanitizeProductTitle(titulo);
+const descriptionHtml = await renderProductDescription(descripcion ?? '');
+const cleanDestacado = sanitizeProductText(destacado);
+const cleanFeatures = features.map(sanitizeFeatureText).filter(Boolean);
+const cleanMarcas = marcas.map(sanitizeFeatureText).filter(Boolean);
+const anchorId = productAnchorId(cleanTitulo);
+const indexLabel = String(orden + 1).padStart(2, '0');
+const hasFeatures = cleanFeatures.length > 0;
+const hasMarcas = cleanMarcas.length > 0;
+const hasFootnote = hasMarcas;
+const parentLabel = serviceName || serviceTitle;
+const categoryLabel = serviceCategory || serviceArea;
+const metaParts = [categoryLabel, parentLabel].filter(Boolean);
 ---
 
-<article class={`product-card-v4 ${positionClass} ${className}`}>
-  <!-- Imagen -->
-  <div class="product-card-v4__media">
-    {imagenUrl ? (
-      <img
-        src={imagenUrl}
-        alt={titulo}
-        class="product-card-v4__image"
-        loading="lazy"
-        decoding="async"
-      />
-    ) : (
-      <div class="product-card-v4__fallback">
-        <span>{titulo}</span>
-        <p>Referencia visual pendiente</p>
-      </div>
-    )}
-  </div>
-
-  <!-- Contenido -->
-  <div class="product-card-v4__content">
-    <span class="product-card-v4__eyebrow">{String(orden + 1).padStart(2, '0')}</span>
-    <!-- Título -->
-    <h3>
-      {titulo}
-    </h3>
-
-    <!-- Descripción -->
-    <p class="product-card-v4__description">
-      {descripcion}
-    </p>
-
-    <!-- Features (bullets con checkmarks) -->
-    {hasFeatures && (
-      <ul class="product-card-v4__features">
-        {features.map((feature) => (
-          <li>
-            <span aria-hidden="true">/</span>
-            <span>{feature}</span>
-          </li>
-        ))}
-      </ul>
-    )}
-
-    <!-- Destacado con marcas -->
-    {(destacado || hasMarcas) && (
-      <div class="product-card-v4__note">
-        {destacado && (
-          <p>
-            {destacado}
-          </p>
+<article
+  id={anchorId ? `producto-${anchorId}` : undefined}
+  class:list={['product-sheet', positionClass, className]}
+>
+  <div class="product-sheet__grid">
+    <div class="product-sheet__copy">
+      <header class="product-sheet__header">
+        <p class="product-sheet__meta">
+          {metaParts.length > 0 ? (
+            <>
+              {serviceHref && parentLabel ? (
+                <a href={serviceHref} class="product-sheet__meta-link">{parentLabel}</a>
+              ) : (
+                parentLabel && <span>{parentLabel}</span>
+              )}
+              {categoryLabel && parentLabel && <span class="product-sheet__meta-sep" aria-hidden="true">·</span>}
+              {categoryLabel && <span class="product-sheet__meta-category">{categoryLabel}</span>}
+            </>
+          ) : (
+            <span class="product-sheet__meta-category">Equipamiento</span>
+          )}
+          <span class="product-sheet__index" aria-label={`Ítem ${indexLabel}`}>{indexLabel}</span>
+        </p>
+        <h2 class="product-sheet__title">{cleanTitulo}</h2>
+        {cleanDestacado && (
+          <p class="product-sheet__lead">{cleanDestacado}</p>
         )}
-        {hasMarcas && (
-          <p>
-            <strong>Marcas:</strong> {marcas.join(', ')}
-          </p>
+      </header>
+
+      {descriptionHtml && (
+        <div class="product-sheet__description" set:html={descriptionHtml} />
+      )}
+
+      {hasFeatures && (
+        <div class="product-sheet__specs">
+          <h3 class="product-sheet__specs-label">Especificaciones operativas</h3>
+          <ul class="product-sheet__features">
+            {cleanFeatures.map((feature) => (
+              <li>{feature}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div class="product-sheet__actions">
+        <UMButton href={ctaHref}>{ctaLabel}</UMButton>
+        <UMButton href="/presupuesto-servicios-it-empresas" variant="secondary">
+          Cotizar alcance
+        </UMButton>
+      </div>
+
+      {hasFootnote && (
+        <footer class="product-sheet__footnote">
+          {hasMarcas && (
+            <p>
+              <span class="product-sheet__footnote-label">Marcas</span>
+              {cleanMarcas.join(' · ')}
+            </p>
+          )}
+        </footer>
+      )}
+    </div>
+
+    <figure class="product-sheet__media">
+      <div class="product-sheet__frame">
+        {imagenUrl ? (
+          <img
+            src={imagenUrl}
+            alt={titulo}
+            class="product-sheet__image"
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <div class="product-sheet__fallback">
+            <span>{titulo}</span>
+            <p>Referencia visual pendiente</p>
+          </div>
         )}
       </div>
-    )}
+    </figure>
   </div>
 </article>
 
 <style>
-  .product-card-v4 {
-    display: grid;
-    grid-template-columns: minmax(280px, 0.48fr) minmax(0, 0.52fr);
-    gap: clamp(24px, 5vw, 68px);
-    align-items: center;
-    padding-block: clamp(10px, 2vw, 20px);
-    border-top: 1px solid var(--skin-line);
-    color: var(--skin-text);
+  .product-sheet {
+    scroll-margin-top: 96px;
+    padding-block: clamp(28px, 4vw, 44px);
+    border-top: 1px solid var(--um-line, #e5e5e5);
+    background: #ffffff;
+    color: var(--skin-text, #111);
   }
 
-  .product-card-v4--right .product-card-v4__media {
+  .product-sheet:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .product-sheet__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.92fr);
+    gap: clamp(28px, 5vw, 64px);
+    align-items: start;
+  }
+
+  .product-sheet--media-right .product-sheet__media {
     order: 2;
   }
 
-  .product-card-v4__media {
-    height: clamp(260px, 34vw, 430px);
-    min-height: 260px;
-    overflow: hidden;
-    background: transparent;
-  }
-
-  .product-card-v4__image {
-    display: block;
-    width: 100%;
-    height: 100%;
-    min-height: 100%;
-    border: 0;
-    box-shadow: none;
-    object-fit: cover;
-    transition: none;
-  }
-
-  .product-card-v4:hover .product-card-v4__image {
-    transform: none;
-  }
-
-  .product-card-v4__fallback {
-    display: grid;
-    align-content: center;
-    justify-items: center;
-    gap: 0.7rem;
-    min-height: 280px;
-    padding: 1.8rem;
-    border: 1px solid var(--skin-line);
-    background: var(--skin-panel-strong);
-    color: var(--skin-muted);
-    font-size: 1rem;
-    text-align: center;
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0)),
-      linear-gradient(135deg, rgba(220,38,38,0.06), rgba(17,17,17,0.02)),
-      var(--skin-panel-strong);
-  }
-
-  .product-card-v4__fallback span {
-    color: var(--skin-text);
-    font-size: 1.18rem;
-    line-height: 1.26;
-    font-weight: 600;
-    text-wrap: balance;
-  }
-
-  .product-card-v4__fallback p {
-    color: var(--skin-muted);
-    line-height: 1.48;
-  }
-
-  .product-card-v4__content {
-    max-width: 620px;
-  }
-
-  .product-card-v4__eyebrow {
-    display: inline-flex;
+  .product-sheet__meta {
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 0.65rem;
-    margin-bottom: 1rem;
-    color: #DC2626;
+    gap: 0.35rem 0.55rem;
+    margin: 0 0 0.85rem;
+    color: var(--skin-muted, #5f6368);
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .product-sheet__meta-link {
+    color: #111;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .product-sheet__meta-link:hover {
+    color: #dc2626;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .product-sheet__meta-category {
+    color: var(--skin-muted, #5f6368);
+  }
+
+  .product-sheet__meta-sep {
+    color: #c4c4c4;
+  }
+
+  .product-sheet__index {
+    margin-left: auto;
+    color: #dc2626;
     font-size: 1rem;
     font-weight: 700;
-    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
   }
 
-  .product-card-v4__eyebrow::after {
-    content: "";
-    width: 32px;
-    height: 2px;
-    background: #DC2626;
-  }
-
-  .product-card-v4 h3 {
-    color: var(--skin-text);
-    font-size: clamp(1.28rem, 1.72vw, 1.78rem);
-    line-height: 1.16;
+  .product-sheet__title {
+    margin: 0;
+    color: #111;
+    font-size: clamp(1.45rem, 2.1vw, 2rem);
     font-weight: 600;
+    line-height: 1.14;
     text-wrap: balance;
   }
 
-  .product-card-v4__description {
-    margin-top: 1rem;
-    color: var(--skin-muted);
-    font-size: clamp(1rem, 1.06vw, 1.1rem);
-    line-height: 1.68;
+  .product-sheet__lead {
+    margin: 0.85rem 0 0;
+    color: #2b2f33;
+    font-size: clamp(1.02rem, 1.08vw, 1.12rem);
+    font-weight: 600;
+    line-height: 1.5;
   }
 
-  .product-card-v4__features {
-    display: grid;
-    gap: 0.7rem;
-    margin-top: 1.2rem;
+  .product-sheet__description {
+    margin-top: 1.15rem;
+    color: #3a3f45;
+    font-size: clamp(1rem, 1.05vw, 1.0625rem);
+    line-height: 1.72;
   }
 
-  .product-card-v4__features li {
-    display: grid;
-    grid-template-columns: 18px 1fr;
-    gap: 0.75rem;
-    color: var(--skin-text);
+  .product-sheet__description :global(p) {
+    margin: 0 0 0.95rem;
+  }
+
+  .product-sheet__description :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .product-sheet__description :global(strong) {
+    color: #111;
+    font-weight: 600;
+  }
+
+  .product-sheet__description :global(ul),
+  .product-sheet__description :global(ol) {
+    margin: 0.75rem 0 0;
+    padding-left: 1.2rem;
+  }
+
+  .product-sheet__specs {
+    margin-top: 1.45rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--um-line, #e5e5e5);
+  }
+
+  .product-sheet__specs-label {
+    margin: 0 0 0.85rem;
+    color: #111;
     font-size: 1rem;
-    line-height: 1.48;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
   }
 
-  .product-card-v4__features li > span:first-child {
-    color: #DC2626;
-    font-weight: 700;
+  .product-sheet__features {
+    display: grid;
+    gap: 0.65rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .product-card-v4__note {
+  .product-sheet__features li {
+    position: relative;
+    padding-left: 1.35rem;
+    color: #111;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .product-sheet__features li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #dc2626;
+    font-weight: 600;
+  }
+
+  .product-sheet__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.55rem;
+  }
+
+  .product-sheet__actions :global(.um-btn-secondary) {
+    border: 1px solid #d8d8d8;
+    background: #fff;
+    color: #111;
+  }
+
+  .product-sheet__actions :global(.um-btn-secondary:hover) {
+    border-color: #111;
+    background: #111;
+    color: #fff;
+  }
+
+  .product-sheet__footnote {
     margin-top: 1.35rem;
     padding: 1rem 1.1rem;
-    border-left: 3px solid #DC2626;
-    background: var(--skin-panel-strong);
+    border: 1px solid #e5e5e5;
+    border-left: 3px solid #dc2626;
+    background: #f8f8f8;
   }
 
-  .product-card-v4__note p {
-    color: var(--skin-text);
+  .product-sheet__footnote p {
+    margin: 0;
+    color: #2b2f33;
     font-size: 1rem;
     line-height: 1.58;
   }
 
-  .product-card-v4__note p + p {
-    margin-top: 0.45rem;
+  .product-sheet__footnote-lead {
+    color: #111;
+    font-weight: 600;
   }
 
-  /* Accesibilidad: reducir animaciones */
-  @media (prefers-reduced-motion: reduce) {
-    .product-card-v4__image,
-    .product-card-v4:hover .product-card-v4__image,
-    .product-card-v4__features li {
-      transition-duration: 0.01ms !important;
-      animation-duration: 0.01ms !important;
-    }
+  .product-sheet__footnote p + p {
+    margin-top: 0.55rem;
   }
 
-  @media (max-width: 840px) {
-    .product-card-v4 {
+  .product-sheet__footnote-label {
+    display: block;
+    margin-bottom: 0.2rem;
+    color: #111;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .product-sheet__media {
+    margin: 0;
+  }
+
+  .product-sheet__frame {
+    display: grid;
+    place-items: center;
+    min-height: clamp(240px, 32vw, 360px);
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .product-sheet__image {
+    display: block;
+    width: 100%;
+    max-height: min(380px, 52vh);
+    object-fit: contain;
+    object-position: center;
+  }
+
+  .product-sheet__fallback {
+    display: grid;
+    gap: 0.5rem;
+    justify-items: center;
+    padding: 1.5rem;
+    color: var(--skin-muted, #5f6368);
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .product-sheet__fallback span {
+    color: #111;
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+
+  @media (max-width: 900px) {
+    .product-sheet__grid {
       grid-template-columns: 1fr;
     }
 
-    .product-card-v4--right .product-card-v4__media {
+    .product-sheet--media-right .product-sheet__media {
       order: 0;
     }
 
-    .product-card-v4__media {
-      height: clamp(220px, 56vw, 280px);
+    .product-sheet__index {
+      margin-left: 0;
+    }
+
+    .product-sheet__frame {
       min-height: 220px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .product-sheet__image {
+      transition: none;
     }
   }
 </style>

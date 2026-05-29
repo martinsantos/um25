@@ -10,10 +10,11 @@ const FALLBACK_BY_SLUG: Record<string, string> = {
   'comparativa-fibra-optica-multimodo-monomodo': '/uploads/hero/4f9aa0c4-4aeb-4027-a7a0-8a6cfbb14705.jpg',
   'deteccion-incendio-bodegas-vitivinicolas': '/images/services/productos/incendios/7.jpg',
   'hospital-regional-neuquen-cableado-estructurado': '/uploads/hero/f83400c2-c46f-4120-9aad-b44495ecbebe.jpg',
+  'ciberseguridad-2024': '/images/hero/foto-seguridad.jpg',
 };
 
 const FALLBACK_BY_CATEGORY: Record<string, string> = {
-  noticias: '/uploads/hero/c194b40e-925c-4de5-924b-ea61ab835c0e.jpg',
+  noticias: '/images/hero/foto-telecom.jpg',
   proyectos: '/uploads/hero/f83400c2-c46f-4120-9aad-b44495ecbebe.jpg',
   tecnico: '/uploads/hero/4f9aa0c4-4aeb-4027-a7a0-8a6cfbb14705.jpg',
   tecnologia: '/images/hero/foto-software.jpg',

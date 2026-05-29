@@ -1,7 +1,7 @@
 ---
 import type { EntradaBlog } from '../../lib/directus';
 import { blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
-import { getCategoryLabel, formatBlogDate } from '../../utils/blogUtils';
+import { getCategoryColor, getCategoryLabel, formatBlogDate } from '../../utils/blogUtils';
 
 interface Props {
   post: EntradaBlog;
@@ -13,6 +13,7 @@ const { post, variant = 'row', index } = Astro.props;
 const imgUrl = blogPostImageUrl(post);
 const imgAlt = blogPostImageAlt(post);
 const label = getCategoryLabel(post.categoria);
+const categoryColor = getCategoryColor(post.categoria);
 const date = formatBlogDate(post.fecha_publicacion);
 const issue = typeof index === 'number' ? String(index).padStart(2, '0') : '';
 ---
@@ -24,7 +25,7 @@ const issue = typeof index === 'number' ? String(index).padStart(2, '0') : '';
 
   <div class="feed-body">
     <div class="feed-meta">
-      <span class="category-mark">{label}</span>
+      <span class="category-mark" style={`--blog-cat-color: ${categoryColor}`}>{label}</span>
       <span class="meta-sep">·</span>
       <span class="meta-text">{post.tiempo_lectura} min</span>
       <span class="meta-sep">·</span>
@@ -134,14 +135,17 @@ const issue = typeof index === 'number' ? String(index).padStart(2, '0') : '';
     gap: 10px;
     font-family: var(--um-font-body);
     font-size: 16px;
-    font-weight: 600;
-    color: #4b5563;
+    font-weight: 700;
+    color: #111111;
     text-transform: none;
   }
 
   .category-mark::before {
     content: "";
-    display: none;
+    width: 8px;
+    height: 8px;
+    background: var(--blog-cat-color, var(--um-red));
+    flex-shrink: 0;
   }
 
   .meta-sep { color: #c9ced6; font-size: 16px; }

@@ -6,7 +6,7 @@ import { sectorVisualOrder, sectorVisualSystem } from '../data/sectorVisualSyste
 import { getDevTemplateVariant } from '../utils/templateVariant';
 
 const sectores = sectorVisualOrder.map((slug) => sectorVisualSystem[slug]);
-const templateVariant = getDevTemplateVariant(Astro.url, import.meta.env.DEV);
+const templateVariant = getDevTemplateVariant(Astro.url, import.meta.env.DEV) ?? 'editorial';
 const requestedSector = new URL(Astro.request.url).searchParams.get('sector') || '';
 const sectorFilter = sectores.some((sector) => sector.slug === requestedSector) ? requestedSector : '';
 const sectorFilterOptions = [{ id: '', label: 'Todos' }].concat(
@@ -42,15 +42,15 @@ const structuredData = [
   structuredData={structuredData}
 >
   {
-    templateVariant === 'editorial' ? (
-      <SectorTemplateEditorial mode="index" sectors={sectores} />
-    ) : (
+    templateVariant === 'atlas' ? (
       <SectorTemplateAtlas
         mode="index"
         sectors={sectores}
         sectorFilter={sectorFilter}
         sectorFilterOptions={sectorFilterOptions}
       />
+    ) : (
+      <SectorTemplateEditorial mode="index" sectors={sectores} />
     )
   }
 </LayoutV4>

@@ -60,8 +60,8 @@ if (Astro.url.pathname !== "/") {
   });
 }
 
-const skinVariant = getDevSkinVariant(Astro.url, import.meta.env.DEV);
-const skinAttribute = skinVariant || undefined;
+const skinVariant = getDevSkinVariant(Astro.url, import.meta.env.DEV) ?? 'hybrid';
+const skinAttribute = skinVariant;
 ---
 
 <!DOCTYPE html>
@@ -82,11 +82,11 @@ const skinAttribute = skinVariant || undefined;
       breadcrumbs={breadcrumbs}
     />
 
-    <!-- Fonts - Red Hat Display editorial + Open Sans body + Futura PT logo/brand -->
+    <!-- Fonts - Poppins 600 titulares + Open Sans cuerpo + Futura PT logo/marca -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Red+Hat+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.cdnfonts.com/css/futura-pt" rel="stylesheet" />
 
     {hasHeadSlot && <slot name="head" />}

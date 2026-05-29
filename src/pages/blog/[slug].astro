@@ -122,6 +122,8 @@ const buildArticleTitle = (title: string): string => {
 };
 
 const articleTitle = articleTitleOverrides[slug] || buildArticleTitle(post.titulo);
+
+const isArcaPost = slug === 'plantilla-arca-facturacion-electronica-gratis';
 ---
 
 <LayoutV4
@@ -162,6 +164,31 @@ const articleTitle = articleTitleOverrides[slug] || buildArticleTitle(post.titul
 
         {post.resumen && <p class="article-lead">{post.resumen}</p>}
 
+        <aside
+          class="article-commercial-fold"
+          aria-label={isArcaPost ? 'Servicios UMSA para operación fiscal' : 'Contacto comercial UMSA'}
+        >
+          <p class="article-commercial-fold__eyebrow">
+            {isArcaPost ? 'Operación IT + relevamiento' : 'Infraestructura IT · Mendoza y región'}
+          </p>
+          <p class="article-commercial-fold__copy">
+            {isArcaPost
+              ? 'Si tu organización necesita integrar facturación electrónica con redes, soporte 24/7 o continuidad operativa, UMSA releva alcance, riesgos y entregables antes de cotizar.'
+              : 'Para proyectos de CCTV, redes, soporte 24/7 o cumplimiento normativo, UMSA releva alcance operativo y entregables antes de cotizar.'}
+          </p>
+          <div class="article-commercial-fold__actions">
+            <a class="article-commercial-fold__cta article-commercial-fold__cta--primary" href="/contacto">
+              Solicitar relevamiento UMSA
+            </a>
+            <a
+              class="article-commercial-fold__cta article-commercial-fold__cta--secondary"
+              href={isArcaPost ? '/plantilla-arca' : '/servicios'}
+            >
+              {isArcaPost ? 'Probar Plantilla ARCA' : 'Ver servicios'}
+            </a>
+          </div>
+        </aside>
+
         <div class="author-row">
           <p class="author-meta">ULTIMA MILLA · {label} · {date} · {post.tiempo_lectura} min de lectura</p>
         </div>
@@ -193,6 +220,11 @@ const articleTitle = articleTitleOverrides[slug] || buildArticleTitle(post.titul
     </div>
   </main>
 
+  <aside class="article-sticky-cta" id="articleStickyCta" aria-label="Contacto comercial UMSA">
+    <p>{isArcaPost ? '¿Necesitás integrar ARCA con tu operación IT?' : '¿Necesitás soporte IT en tu operación?'}</p>
+    <a href="/contacto">Relevamiento UMSA</a>
+  </aside>
+
   <script>
     const bar = document.getElementById('read-bar');
     const art = document.querySelector('.article-body');
@@ -204,6 +236,15 @@ const articleTitle = articleTitleOverrides[slug] || buildArticleTitle(post.titul
     }
     window.addEventListener('scroll', tick, { passive: true });
     tick();
+
+    const sticky = document.getElementById('articleStickyCta');
+    if (sticky) {
+      const reveal = () => {
+        sticky.classList.toggle('is-visible', window.scrollY > 280);
+      };
+      window.addEventListener('scroll', reveal, { passive: true });
+      reveal();
+    }
   </script>
 </LayoutV4>
 
@@ -239,7 +280,7 @@ const articleTitle = articleTitleOverrides[slug] || buildArticleTitle(post.titul
   .article-body {
     flex: 1;
     min-width: 0;
-    max-width: 740px;
+    max-width: 760px;
     margin: 0 auto;
   }
 
@@ -296,6 +337,127 @@ const articleTitle = articleTitleOverrides[slug] || buildArticleTitle(post.titul
     line-height: 1.76;
     color: #3f4853;
     margin: 0 0 24px;
+  }
+
+  .article-commercial-fold {
+    margin: 0 0 28px;
+    padding: 20px 22px;
+    border-top: 2px solid var(--um-red);
+    background: #f7f8f9;
+  }
+
+  .article-commercial-fold__eyebrow {
+    margin: 0 0 8px;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--um-red);
+  }
+
+  .article-commercial-fold__copy {
+    margin: 0 0 16px;
+    max-width: 62ch;
+    font-family: var(--um-font-body);
+    font-size: 1rem;
+    line-height: 1.65;
+    color: #374151;
+  }
+
+  .article-commercial-fold__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .article-commercial-fold__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0.65rem 1.1rem;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .article-commercial-fold__cta--primary {
+    background: var(--um-red);
+    color: #fff;
+    border: 1px solid var(--um-red);
+  }
+
+  .article-commercial-fold__cta--primary:hover {
+    background: #fff;
+    color: #111;
+    border-color: #111;
+  }
+
+  .article-commercial-fold__cta--secondary {
+    background: #fff;
+    color: #111;
+    border: 1px solid var(--um-line, #d9dadd);
+  }
+
+  .article-commercial-fold__cta--secondary:hover {
+    border-color: var(--um-red);
+    color: var(--um-red);
+  }
+
+  .article-sticky-cta {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 18px calc(12px + env(safe-area-inset-bottom, 0px));
+    background: rgba(17, 17, 17, 0.96);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    transform: translateY(110%);
+    transition: transform 0.2s ease;
+    pointer-events: none;
+  }
+
+  .article-sticky-cta.is-visible {
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .article-sticky-cta p {
+    margin: 0;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    line-height: 1.35;
+    color: rgba(255, 255, 255, 0.88);
+  }
+
+  .article-sticky-cta a {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 1rem;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    color: #fff;
+    background: var(--um-red);
+    border-radius: 4px;
+  }
+
+  .article-sticky-cta a:hover {
+    background: #fff;
+    color: #111;
   }
 
   /* Author */
@@ -504,11 +666,15 @@ const articleTitle = articleTitleOverrides[slug] || buildArticleTitle(post.titul
 
   :global(.prose img) {
     width: 100%;
-    border-radius: 4px;
+    max-height: 420px;
+    border-radius: 0;
     margin: 36px 0;
     display: block;
-    box-shadow: none;
+    padding: 0;
     border: 0;
+    background: transparent;
+    object-fit: contain;
+    object-position: center;
   }
   :global(.prose figure) { margin: 36px 0; }
   :global(.prose figure img) { margin: 0 0 8px; }
@@ -608,6 +774,20 @@ const articleTitle = articleTitleOverrides[slug] || buildArticleTitle(post.titul
 
     .post-nav-item--right {
       text-align: left;
+    }
+
+    .article-sticky-cta {
+      flex-direction: column;
+      align-items: stretch;
+      text-align: center;
+    }
+
+    .article-commercial-fold__actions {
+      flex-direction: column;
+    }
+
+    .article-commercial-fold__cta {
+      width: 100%;
     }
 
     :global(.prose) {

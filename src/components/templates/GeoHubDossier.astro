@@ -72,11 +72,11 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
         </nav>
         <p class="geo-dossier-kicker">{hub.eyebrow}</p>
         <h1>{hub.h1}</h1>
-        <p class="geo-dossier-lead">{hub.lead}</p>
         <div class="geo-dossier-actions">
           <a class="um-btn-primary" href="/contacto">{hub.primaryCta}</a>
           <a class="um-btn-secondary" href={hub.secondaryHref}>{hub.secondaryCta}</a>
         </div>
+        <p class="geo-dossier-lead">{hub.lead}</p>
       </div>
 
       <aside class="geo-dossier-side" aria-label="Resumen comercial GEO">
@@ -573,7 +573,7 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
 
   :global(body[data-skin="white"] main) .geo-dossier-panel {
     border-color: transparent;
-    background: var(--skin-section-alt);
+    background: #ffffff;
     backdrop-filter: none;
   }
 
@@ -612,7 +612,7 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
 
   :global(body[data-skin="white"] main) .geo-dossier-media {
     border-color: transparent;
-    background: var(--skin-section-alt);
+    background: #ffffff;
   }
 
   :global(body[data-skin="white"] main .geo-dossier-media figcaption span) {
@@ -713,7 +713,7 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
   }
 
   .geo-dossier-section--alt {
-    background: var(--skin-section-alt);
+    background: #ffffff;
   }
 
   .geo-dossier-two {
@@ -1121,14 +1121,22 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
       line-height: 1.12;
     }
 
-    .geo-dossier-lead {
-      margin-top: 18px;
-      font-size: 1rem;
-      line-height: 1.62;
+    .geo-dossier-hero__copy {
+      display: flex;
+      flex-direction: column;
     }
 
     .geo-dossier-actions {
-      margin-top: 22px;
+      order: 2;
+      margin-top: 18px;
+      margin-bottom: 4px;
+    }
+
+    .geo-dossier-lead {
+      order: 3;
+      margin-top: 18px;
+      font-size: 1rem;
+      line-height: 1.62;
     }
 
     .geo-dossier-side {

@@ -109,6 +109,25 @@ const localGenerateSlug = (text = '') => {
   return slug || 'item';
 };
 
+const protagonistTargets = [
+  { terms: ['gobierno de mendoza', 'ministerio', 'municipalidad'] },
+  { terms: ['aeropuerto', 'aeropuertos argentina'] },
+  { terms: ['torre thays', 'thays', 'consorcio'] }
+];
+
+function pickProtagonistAntecedente(items: any[]) {
+  for (const target of protagonistTargets) {
+    const match = items.find((item) => {
+      const text = `${item.Cliente || ''} ${item.Titulo || ''} ${item.Area || ''} ${item.Descripcion || ''}`.toLowerCase();
+      return target.terms.some((term) => text.includes(term));
+    });
+    if (match) return match;
+  }
+  return items[0] || null;
+}
+
+let featuredAntecedente: any = null;
+
 try {
   const response = await getAllAntecedentes();
 
@@ -119,14 +138,41 @@ try {
   }));
 
   const filteredAntecedentes = filterAntecedentes(allAntecedentes, pageData.activeFilters, pageData.searchQuery);
-  const startIndex = (pageData.currentPage - 1) * PAGE_SIZE;
-  const endIndex = startIndex + PAGE_SIZE;
+  const hasActiveFilters = Boolean(
+    pageData.searchQuery
+    || pageData.activeFilters.sector
+    || pageData.activeFilters.area
+    || pageData.activeFilters.cliente
+    || pageData.activeFilters.unidad_negocio
+  );
+
+  let spotlightAntecedentes;
+  let archivePool;
+
+  if (pageData.currentPage === 1 && !hasActiveFilters) {
+    featuredAntecedente = pickProtagonistAntecedente(filteredAntecedentes);
+    const remaining = featuredAntecedente
+      ? filteredAntecedentes.filter((item) => item.id !== featuredAntecedente.id)
+      : filteredAntecedentes;
+    spotlightAntecedentes = featuredAntecedente
+      ? [featuredAntecedente, ...remaining.slice(0, 2)]
+      : filteredAntecedentes.slice(0, 3);
+    archivePool = featuredAntecedente ? remaining.slice(2) : filteredAntecedentes.slice(3);
+  } else {
+    spotlightAntecedentes = filteredAntecedentes.slice(0, 3);
+    archivePool = filteredAntecedentes.slice(3);
+  }
+
+  const archiveStartIndex = (pageData.currentPage - 1) * PAGE_SIZE;
+  const archiveEndIndex = archiveStartIndex + PAGE_SIZE;
 
   pageData = {
     ...pageData,
-    antecedentes: filteredAntecedentes.slice(startIndex, endIndex),
+    antecedentes: archivePool.slice(archiveStartIndex, archiveEndIndex),
+    spotlightAntecedentes,
     totalItems: filteredAntecedentes.length,
-    totalPages: Math.ceil(filteredAntecedentes.length / PAGE_SIZE),
+    archiveTotalItems: archivePool.length,
+    totalPages: Math.max(1, Math.ceil(archivePool.length / PAGE_SIZE)),
     error: null,
     isLoading: false
   };
@@ -135,6 +181,8 @@ try {
   pageData = {
     ...pageData,
     antecedentes: [],
+    spotlightAntecedentes: [],
+    archiveTotalItems: 0,
     error: 'Error loading projects',
     isLoading: false
   };
@@ -159,7 +207,7 @@ const filterChips = [
   { id: 'software', name: 'Software', icon: 'code' },
 ];
 
-const templateVariant = getDevTemplateVariant(Astro.url, import.meta.env.DEV);
+const templateVariant = getDevTemplateVariant(Astro.url, import.meta.env.DEV) ?? 'editorial';
 ---
 
 <LayoutV4
@@ -167,7 +215,7 @@ const templateVariant = getDevTemplateVariant(Astro.url, import.meta.env.DEV);
   description="Antecedentes técnicos de ULTIMA MILLA: proyectos reales de redes, seguridad electrónica, telecomunicaciones, software, soporte e infraestructura IT."
   keywords="casos exito tecnologia mendoza, proyectos telecomunicaciones, antecedentes cableado estructurado, portfolio seguridad electronica, software a medida casos"
 >
-  {templateVariant === 'atlas' ? (
+  {templateVariant === 'atlas' && (
     <AntecedentesTemplateAtlas
       pageData={pageData}
       filterChips={filterChips}
@@ -177,9 +225,11 @@ const templateVariant = getDevTemplateVariant(Astro.url, import.meta.env.DEV);
       unidadFilter={unidadFilter}
       pageSize={PAGE_SIZE}
     />
-  ) : (
+  )}
+  {templateVariant !== 'atlas' && (
     <AntecedentesTemplateEditorial
       pageData={pageData}
+      featuredAntecedente={featuredAntecedente}
       filterChips={filterChips}
       sectorFilter={sectorFilter}
       searchQuery={searchQuery}

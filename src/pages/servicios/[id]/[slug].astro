@@ -16,11 +16,22 @@ import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import StatsBar from '../../../components/v4/StatsBar.astro';
 import ProductCard from '../../../components/v4/ProductCard.astro';
 import CTASection from '../../../components/v4/CTASection.astro';
+import SectionHeader from '../../../components/um/SectionHeader.astro';
+import UMButton from '../../../components/um/UMButton.astro';
 
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
 import { getDirectusImageUrl } from '../../../lib/directus.ts';
 import { getServiceVisualSpec } from '../../../data/serviceVisualSystem';
+import {
+  plainTextFromHtml,
+  renderEditorialBody,
+  sanitizeEditorialText,
+  serviceHeroLead,
+  sanitizeServiceStats,
+  sanitizeServicePageTitle,
+  stripBannedLedgerPhrases,
+} from '../../../utils/editorialContent';
 
 const { id, slug } = Astro.params;
 
@@ -56,28 +67,46 @@ const serviceHeroTitles: Record<number, string> = {
   108: 'Energía confiable para sistemas IT'
 };
 const serviceHeroTitle = serviceHeroTitles[Number(id)] || visual?.shortName || servicio.Titulo.split('|')[0]?.trim() || servicio.Titulo;
+const serviceBreadcrumbLabel = visual?.shortName || serviceHeroTitles[Number(id)] || servicio.Titulo.split('|')[0]?.trim() || servicio.Titulo;
 const serviceCtaTitle = visual?.shortName
   ? `Convertir ${visual.shortName.toLowerCase()} en un alcance verificable`
   : 'Convertir este servicio en un alcance verificable';
 
 // SEO
 const siteUrl = 'https://ultimamilla.com.ar';
-let pageTitle = `${servicio.Titulo} | Servicios - ULTIMA MILLA`;
-// Keep title under 60 chars for SEO
+const seoTitleBase = sanitizeServicePageTitle(
+  Number(id),
+  servicio.Titulo,
+  visual?.shortName || serviceHeroTitle,
+);
+let pageTitle = `${seoTitleBase} | ULTIMA MILLA`;
 if (pageTitle.length > 60) {
-  const shortTitle = servicio.Titulo.split('|')[0]?.trim() || servicio.Titulo;
-  pageTitle = shortTitle.length > 45 ? `${shortTitle.slice(0, 45)}... | ULTIMA MILLA` : `${shortTitle} | ULTIMA MILLA`;
+  pageTitle =
+    seoTitleBase.length > 45
+      ? `${seoTitleBase.slice(0, 45)}… | ULTIMA MILLA`
+      : `${seoTitleBase} | ULTIMA MILLA`;
 }
-const rawDesc = servicio.Descripcion?.replace(/\\/g, ' ') || '';
+const serviceBodySource = servicio.Descripcion?.replace(/\\/g, '\n') || '';
+const serviceDescriptionHtml = await renderEditorialBody(serviceBodySource);
+const solutionBodies = servicio.Soluciones?.length
+  ? await Promise.all(
+      servicio.Soluciones.map((solucion: { descripcion?: string }) =>
+        renderEditorialBody(solucion.descripcion || '')
+      )
+    )
+  : [];
+const rawDesc = stripBannedLedgerPhrases(plainTextFromHtml(serviceBodySource, 500));
 const pageDescription = rawDesc.length > 155 ? rawDesc.slice(0, 155) + '...' :
   rawDesc.length > 0 && rawDesc.length < 120 ? `${rawDesc} Servicios profesionales de ULTIMA MILLA en Mendoza, Cuyo y Patagonia.`.slice(0, 155) :
-  rawDesc || `${servicio.Titulo} - Servicios tecnológicos en Mendoza, Cuyo y Patagonia.`;
+  rawDesc || `${seoTitleBase} - Servicios tecnológicos en Mendoza, Cuyo y Patagonia.`;
+const heroLead = serviceHeroLead(servicio.subtitulo, visual?.proof, pageDescription);
+const displayStats = sanitizeServiceStats(servicio.stats || []);
 const canonicalUrl = `${siteUrl}/servicios/${id}/${slug}`;
 
 // Structured Data - Service schema
 const serviceStructuredData = {
   "@type": "Service",
-  "name": servicio.Titulo,
+  "name": seoTitleBase,
   "description": pageDescription,
   "url": canonicalUrl,
   ...(servicio.Imagen && { "image": (() => { const imgUrl = getDirectusImageUrl(servicio.Imagen); return imgUrl.startsWith('http') ? imgUrl : `${siteUrl}${imgUrl}`; })() }),
@@ -102,7 +131,7 @@ const serviceStructuredData = {
         "itemOffered": {
           "@type": "Service",
           "name": p.titulo,
-          ...(p.descripcion && { "description": p.descripcion })
+          ...(p.descripcion && { "description": plainTextFromHtml(p.descripcion, 300) })
         }
       }))
     }
@@ -153,17 +182,17 @@ const iconPaths = {
         <span>/</span>
         <a href="/servicios" class="hover:text-white transition-colors">Servicios</a>
         <span>/</span>
-        <span class="service-detail-breadcrumb__current">{servicio.Titulo}</span>
+        <span class="service-detail-breadcrumb__current">{serviceBreadcrumbLabel}</span>
       </nav>
 
       <div class="service-detail-hero__grid">
         <div>
           <span class="service-detail-label">{visual?.eyebrow || servicio.area || 'Servicio IT integral'}</span>
           <h1>{serviceHeroTitle}</h1>
-          <p>{servicio.subtitulo || visual?.proof || pageDescription}</p>
+          <p>{heroLead}</p>
           <div class="service-detail-hero__actions" aria-label="Acciones principales del servicio">
-            <a class="um-btn-primary" href="/contacto">Solicitar diagnóstico</a>
-            <a class="um-btn-secondary" href="/antecedentes">Ver evidencia</a>
+            <UMButton href="/contacto">Solicitar diagnóstico</UMButton>
+            <UMButton href="/antecedentes" variant="secondary">Ver evidencia</UMButton>
           </div>
         </div>
         <aside class="service-detail-proof">
@@ -181,8 +210,8 @@ const iconPaths = {
   </section>
 
   <!-- STATS BAR - Componente V4 -->
-  {servicio.stats && servicio.stats.length > 0 && (
-    <StatsBar stats={servicio.stats} />
+  {displayStats.length > 0 && (
+    <StatsBar stats={displayStats} />
   )}
 
   <!-- MAIN CONTENT -->
@@ -192,12 +221,13 @@ const iconPaths = {
 
         <!-- Main Content -->
         <div class="service-detail-main__body">
-          <!-- Description -->
           <h2 class="service-detail-section-title">Alcance operativo</h2>
-          <div class="prose prose-lg max-w-none text-um-gray mb-12 service-detail-copy">
-            <p class="whitespace-pre-line leading-relaxed">
-              {servicio.Descripcion?.replace(/\\/g, '\n')}
-            </p>
+          <div class="prose prose-lg max-w-none text-um-gray mb-12 service-detail-copy editorial-body">
+            {serviceDescriptionHtml ? (
+              <div set:html={serviceDescriptionHtml} />
+            ) : (
+              <p>Alcance técnico documentado bajo relevamiento de sitio y criterios operativos verificables.</p>
+            )}
           </div>
 
           <!-- Soluciones que Ofrecemos (si existen en formato JS) -->
@@ -205,13 +235,15 @@ const iconPaths = {
             <div class="mb-8 sm:mb-12">
               <h3 class="service-detail-subtitle">Soluciones que ofrecemos</h3>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                {servicio.Soluciones.map((solucion) => (
+                {servicio.Soluciones.map((solucion, solutionIndex) => (
                   <div class="service-solution-card">
                     <div>
                       <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" set:html={iconPaths[solucion.icon] || iconPaths['globe']} />
                     </div>
                     <h4 class="font-bold text-um-dark mb-2">{solucion.titulo}</h4>
-                    <p class="text-base text-um-gray">{solucion.descripcion}</p>
+                    {solutionBodies[solutionIndex] ? (
+                      <div class="text-base text-um-gray editorial-body editorial-body--compact" set:html={solutionBodies[solutionIndex]} />
+                    ) : null}
                   </div>
                 ))}
               </div>
@@ -261,7 +293,7 @@ const iconPaths = {
                     <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <span class="text-um-dark">{item}</span>
+                    <span class="text-um-dark">{sanitizeEditorialText(item)}</span>
                   </li>
                 ))}
               </ul>
@@ -272,8 +304,8 @@ const iconPaths = {
         <!-- Sidebar -->
         <div class="service-detail-main__aside">
           <!-- Quick Info Card -->
-          <div class="service-info-card">
-            <h3>Ficha rápida</h3>
+          <div class="service-info-card service-info-card--dossier">
+            <SectionHeader kicker="Ficha técnica" title="Metadata del servicio" />
 
             <div class="space-y-4 mb-6">
               <div class="flex items-start gap-3">
@@ -305,9 +337,9 @@ const iconPaths = {
               </div>
             </div>
 
-            <a href="/contacto" class="service-info-primary">
+            <UMButton href="/contacto" class="service-info-primary">
               Solicitar diagnóstico
-            </a>
+            </UMButton>
             <a href="mailto:contacto@ultimamilla.com.ar" class="service-info-secondary">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
@@ -337,26 +369,29 @@ const iconPaths = {
     <section class="service-products-section">
       <div class="um-container">
         <div class="service-products-head">
-          <span>Equipamiento</span>
-          <h2>
-            Equipamiento aplicado
-          </h2>
-          <p>
-            Soluciones, materiales y equipamiento vinculados al alcance real del servicio.
-          </p>
+          <SectionHeader
+            kicker="Equipamiento"
+            title="Equipamiento aplicado"
+            text="Soluciones, materiales y equipamiento vinculados al alcance real del servicio."
+          />
         </div>
 
         <div class="service-products-list">
           {productos.map((producto, index) => (
             <ProductCard
-              titulo={producto.titulo}
-              descripcion={producto.descripcion}
+              titulo={producto.titulo || producto.nombre || 'Equipamiento'}
+              descripcion={producto.descripcion || ''}
               imagen={producto.imagen}
-              features={producto.features}
+              features={producto.features || []}
               destacado={producto.destacado}
-              marcas={producto.marcas}
+              marcas={producto.marcas || []}
               orden={index}
               serviceId={id}
+              serviceName={visual?.shortName || servicio.Titulo.split('|')[0]?.trim() || servicio.Titulo}
+              serviceCategory={servicio.area || servicio.Area || visual?.eyebrow}
+              serviceHref={`/servicios/${id}/${slug}`}
+              ctaLabel={[102, 107].includes(Number(id)) ? 'Solicitar relevamiento' : 'Cotizar solución'}
+              ctaHref="/contacto"
             />
           ))}
         </div>
@@ -480,7 +515,7 @@ const iconPaths = {
 
   .service-detail-hero h1 {
     max-width: 13ch;
-    color: #fff;
+    color: #ffffff !important;
     font-size: clamp(2rem, 2.9vw, 3.15rem);
     line-height: 1.08;
     font-weight: 600;
@@ -492,7 +527,7 @@ const iconPaths = {
   .service-detail-hero p {
     max-width: 58ch;
     margin-top: 1.25rem;
-    color: rgba(255,255,255,0.74);
+    color: rgba(255, 255, 255, 0.78) !important;
     font-size: clamp(1rem, 1.08vw, 1.12rem);
     line-height: 1.68;
     overflow-wrap: anywhere;
@@ -761,17 +796,38 @@ const iconPaths = {
   }
 
   .service-products-section {
-    padding: clamp(54px, 7vw, 92px) 0;
-    background: #fff;
-    border-top: 1px solid var(--um-line);
+    padding: clamp(56px, 7.5vw, 96px) 0 clamp(64px, 8vw, 104px);
+    background: #ffffff;
+    border-top: 0;
+  }
+
+  .service-products-section :global(.product-sheet) {
+    background: #ffffff;
+  }
+
+  .service-products-section .um-container {
+    width: min(1200px, calc(100% - clamp(32px, 5vw, 64px)));
+  }
+
+  .service-info-card--dossier :global(.um-section-header) {
+    margin-bottom: 1rem;
+  }
+
+  .service-info-card--dossier :global(.um-section-header h2) {
+    font-size: 1.08rem;
   }
 
   .service-products-head {
+    margin-bottom: clamp(26px, 4.5vw, 52px);
+  }
+
+  .service-products-head :global(.um-section-header) {
     display: grid;
     grid-template-columns: minmax(220px, 0.34fr) minmax(0, 0.66fr);
     gap: clamp(24px, 5vw, 70px);
     align-items: end;
-    margin-bottom: clamp(26px, 4.5vw, 52px);
+    max-width: none;
+    margin-bottom: 0;
   }
 
   .service-products-head span {

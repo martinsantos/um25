@@ -1,5 +1,6 @@
 ---
 import EvidenceItem from './EvidenceItem.astro';
+import { truncateEditorialText } from '../../utils/editorialContent';
 
 interface Props {
   pageData: any;
@@ -50,11 +51,7 @@ const institutionalProofTotal = 469;
 const showingStart = pageData.totalItems === 0 ? 0 : ((pageData.currentPage - 1) * pageSize) + 1;
 const showingEnd = Math.min(pageData.currentPage * pageSize, pageData.totalItems);
 const activeFilterName = filterChips.find((chip) => chip.id === sectorFilter)?.name || 'Todos los sectores';
-const text = (value: unknown) => String(value || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
-const truncate = (value: unknown, length = 150) => {
-  const clean = text(value);
-  return clean.length > length ? `${clean.slice(0, length - 1)}…` : clean;
-};
+const truncate = (value: unknown, length = 150) => truncateEditorialText(value, length);
 const projectHref = (item: any) => `/antecedentes/${item.slug}`;
 ---
 
@@ -160,8 +157,8 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
 
 <style>
   .ante-atlas {
-    background: #050505;
-    color: #fff;
+    background: var(--skin-section, #fff);
+    color: var(--skin-text, #111);
     padding: clamp(58px, 7vw, 96px) 0;
   }
 
@@ -191,7 +188,7 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
   .ante-atlas__hero h1 {
     max-width: 920px;
     margin-top: 18px;
-    color: #fff;
+    color: var(--skin-hero-text, #fff);
     font-size: clamp(2.5rem, 3.12vw, 3.25rem);
     line-height: 1.1;
     font-weight: var(--um-weight-title, 600);
@@ -200,14 +197,14 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
   }
 
   .ante-atlas__hero aside {
-    border: 0;
+    border: 1px solid var(--skin-hero-line, rgba(255,255,255,0.18));
     padding: clamp(24px, 4vw, 38px);
-    background: rgba(255,255,255,0.06);
+    background: var(--skin-hero-panel-solid, rgba(8,8,8,0.68));
   }
 
   .ante-atlas__hero strong {
     display: block;
-    color: #fff;
+    color: var(--skin-hero-text, #fff);
     font-family: var(--um-font-display);
     font-size: clamp(2.5rem, 4vw, 4rem);
     line-height: 1;
@@ -218,7 +215,7 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
   .ante-atlas__hero aside p {
     display: block;
     margin-top: 12px;
-    color: rgba(255,255,255,0.68);
+    color: var(--skin-hero-muted, rgba(255,255,255,0.68));
     font-size: 1rem;
     font-weight: 700;
     line-height: 1.4;
@@ -234,19 +231,19 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
   .ante-atlas__filters {
     position: sticky;
     top: 104px;
-    border: 0;
-    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--skin-line, #ddd);
+    background: var(--skin-panel, #fff);
   }
 
   .ante-atlas__filters form {
     padding: 20px;
-    border-bottom: 0;
+    border-bottom: 1px solid var(--skin-line, #ddd);
   }
 
   .ante-atlas__filters label {
     display: block;
     margin-bottom: 8px;
-    color: rgba(255,255,255,0.72);
+    color: var(--skin-muted, #5f6368);
     font-size: 1rem;
     font-weight: 700;
   }
@@ -254,11 +251,11 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
   .ante-atlas__filters input {
     width: 100%;
     min-height: 48px;
-    border: 0;
+    border: 1px solid var(--skin-line, #ddd);
     border-radius: 0;
-    background: #000;
+    background: var(--skin-panel, #fff);
     padding: 0 12px;
-    color: #fff;
+    color: var(--skin-text, #111);
     font-size: 1rem;
   }
 
@@ -271,15 +268,16 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
     display: flex;
     align-items: center;
     min-height: 52px;
-    border-bottom: 0;
+    border-bottom: 1px solid var(--skin-line, #ddd);
     padding: 0 20px;
-    color: rgba(255,255,255,0.72);
+    color: var(--skin-text, #111);
     font-size: 1rem;
     font-weight: 700;
   }
 
   .ante-atlas__filters nav a.is-active {
-    color: #fff;
+    color: var(--skin-text, #111);
+    background: #ffffff;
     box-shadow: inset 2px 0 0 var(--um-red);
   }
 
@@ -298,7 +296,7 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
     gap: 18px;
     align-items: end;
     margin-bottom: 20px;
-    color: rgba(255,255,255,0.68);
+    color: var(--skin-muted, #5f6368);
   }
 
   .ante-atlas__archive-head p,
@@ -320,44 +318,44 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
   .ante-atlas__ledger {
     display: grid;
     margin-top: 18px;
-    border-top: 1px solid rgba(255,255,255,0.08);
+    border-top: 1px solid var(--skin-line, #ddd);
   }
 
   .ante-atlas__rows :global(.evidence-item),
   .ante-atlas__ledger :global(.evidence-item) {
-    border-color: rgba(255,255,255,0.08);
-    background: rgba(255,255,255,0.04);
-    color: #fff;
+    border-color: var(--skin-line, #ddd);
+    background: var(--skin-panel, #fff);
+    color: var(--skin-text, #111);
   }
 
   .ante-atlas__rows :global(.evidence-item p),
   .ante-atlas__ledger :global(.evidence-item p),
   .ante-atlas__rows :global(.evidence-item__meta dd),
   .ante-atlas__ledger :global(.evidence-item__meta dd) {
-    color: rgba(255,255,255,0.7);
+    color: var(--skin-muted, #5f6368);
   }
 
   .ante-atlas__rows :global(.evidence-item__meta),
   .ante-atlas__ledger :global(.evidence-item__meta) {
-    border-color: rgba(255,255,255,0.08);
-    background: rgba(255,255,255,0.08);
+    border-color: var(--skin-line, #ddd);
+    background: #ffffff;
   }
 
   .ante-atlas__rows :global(.evidence-item__meta div),
   .ante-atlas__ledger :global(.evidence-item__meta div) {
-    background: rgba(0,0,0,0.48);
+    background: var(--skin-panel, #fff);
   }
 
   .ante-atlas__rows :global(.evidence-item__meta dt),
   .ante-atlas__ledger :global(.evidence-item__meta dt) {
-    color: rgba(255,255,255,0.58);
+    color: var(--skin-muted, #5f6368);
   }
 
   .ante-atlas__rows :global(.evidence-item__cta),
   .ante-atlas__ledger :global(.evidence-item__cta),
   .ante-atlas__rows :global(.evidence-item h3),
   .ante-atlas__ledger :global(.evidence-item h3) {
-    color: #fff;
+    color: var(--skin-text, #111);
   }
 
   .ante-atlas__pagination {
@@ -367,13 +365,13 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
     gap: 18px;
     align-items: center;
     margin-top: 28px;
-    border-top: 1px solid rgba(255,255,255,0.08);
+    border-top: 1px solid var(--skin-line, #ddd);
     padding-top: 24px;
   }
 
   .ante-atlas__pagination span,
   .ante-atlas__pagination a {
-    color: rgba(255,255,255,0.72);
+    color: var(--skin-text, #111);
     font-size: 1rem;
     font-weight: 700;
   }
@@ -399,13 +397,13 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
   }
 
   .ante-atlas__empty {
-    border: 0;
+    border: 1px solid var(--skin-line, #ddd);
     padding: clamp(28px, 5vw, 56px);
-    background: rgba(255,255,255,0.04);
+    background: #ffffff;
   }
 
   .ante-atlas__empty h2 {
-    color: #fff;
+    color: var(--skin-text, #111);
     font-size: clamp(1.6rem, 2.5vw, 2.4rem);
     line-height: 1.1;
   }
@@ -413,7 +411,7 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
   .ante-atlas__empty p,
   .ante-atlas__empty a {
     margin-top: 12px;
-    color: rgba(255,255,255,0.72);
+    color: var(--skin-muted, #5f6368);
     font-size: 1rem;
     line-height: 1.5;
   }

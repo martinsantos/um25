@@ -1,0 +1,20 @@
+---
+interface Props {
+  kicker?: string;
+  title: string;
+  text?: string;
+  href?: string;
+  linkLabel?: string;
+  id?: string;
+  class?: string;
+}
+
+const { kicker, title, text, href, linkLabel, id, class: className } = Astro.props;
+---
+
+<header class:list={['um-section-header', className]}>
+  {kicker && <p class="um-kicker">{kicker}</p>}
+  <h2 id={id}>{title}</h2>
+  {text && <p>{text}</p>}
+  {href && linkLabel && <a class="um-arrow-link" href={href}>{linkLabel}</a>}
+</header>

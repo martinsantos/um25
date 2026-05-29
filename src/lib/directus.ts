@@ -5,13 +5,12 @@ import type {
   AntecedenteV4,
   AntecedenteServicioRelation
 } from '../types/directus-v4';
+import { getDirectusInternalUrl, getDirectusToken, isLocalProdReplica } from '../config/runtime';
 
-// Export only the configuration, not the client
-// PRODUCTION: Use localhost for server-side requests (same machine as Directus)
-// Client-side image URLs will use public admin URL
+// SSR: misma máquina que Directus (prod :8055, réplica local vía túnel o localhost)
 export const DIRECTUS_CONFIG = {
-  url: 'http://localhost:8055',
-  token: import.meta.env.PUBLIC_DIRECTUS_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky'
+  url: getDirectusInternalUrl(),
+  token: getDirectusToken(),
 };
 
 // 1. Tipos compatibles con tus colecciones (ACTUALIZADOS V4)
@@ -26,15 +25,31 @@ type Colecciones = {
   casos_de_exito: CasoExito;
 };
 
-// Validación básica de configuración
-if (!DIRECTUS_CONFIG.url || !DIRECTUS_CONFIG.token) {
-  throw new Error('Configuración de Directus incompleta en .env');
+if (!DIRECTUS_CONFIG.url) {
+  throw new Error('Configuración de Directus incompleta: falta DIRECTUS_INTERNAL_URL o PUBLIC_DIRECTUS_URL');
+}
+
+if (!DIRECTUS_CONFIG.token && !isLocalProdReplica()) {
+  throw new Error('Configuración de Directus incompleta: falta PUBLIC_DIRECTUS_TOKEN o DIRECTUS_STATIC_TOKEN');
 }
 
 // Exportar cliente con tipos para casos específicos
 export const getClient = () => {
-    return createDirectus<Colecciones>(DIRECTUS_CONFIG.url).with(rest());
+  return createDirectus<Colecciones>(DIRECTUS_CONFIG.url).with(rest());
 };
+
+async function loadSnapshotData<T>(fileName: string): Promise<T[]> {
+  const snapshot = await import(`../data/snapshots/${fileName}.json`);
+  return (snapshot.data || snapshot.default?.data || []) as T[];
+}
+
+async function getServicioFromSnapshot(numId: number): Promise<ServicioV4 | null> {
+  const allServicios = await loadSnapshotData<ServicioV4>('servicios');
+  const servicio = allServicios.find((s) => Number(s.id) === numId);
+  if (!servicio) return null;
+  const productos = await getProductosPorServicio(numId);
+  return { ...servicio, productos } as ServicioV4;
+}
 
 // 5. Tipos según tu estructura actual
 export interface Servicio {
@@ -129,13 +144,18 @@ export async function getServiciosV4(): Promise<ServicioV4[]> {
       })
     );
 
-    return (response || []) as ServicioV4[];
+    const list = (response || []) as ServicioV4[];
+    if (list.length > 0) return list;
+
+    console.warn('[directus] Servicios vacíos desde API, usando snapshot');
+    return loadSnapshotData<ServicioV4>('servicios');
   } catch (error) {
     console.error('Error fetching servicios V4, trying snapshot:', error);
     try {
-      const snapshot = await import('../data/snapshots/servicios.json');
-      return (snapshot.data || snapshot.default?.data || []) as ServicioV4[];
-    } catch { return []; }
+      return loadSnapshotData<ServicioV4>('servicios');
+    } catch {
+      return [];
+    }
   }
 }
 
@@ -167,25 +187,20 @@ export async function getServicioConProductos(id: number | string): Promise<Serv
       })
     );
 
-    if (!servicio) return null;
+    if (!servicio) {
+      console.warn(`[directus] Servicio ${id} no encontrado en API, usando snapshot`);
+      return getServicioFromSnapshot(numId);
+    }
 
-    // Query 2: Obtener productos del servicio
     const productos = await getProductosPorServicio(numId);
-
     return {
       ...servicio,
-      productos
+      productos,
     } as ServicioV4;
   } catch (error) {
     console.error(`Error fetching servicio ${id}, trying snapshot:`, error);
     try {
-      const serviciosSnapshot = await import('../data/snapshots/servicios.json');
-      const allServicios = (serviciosSnapshot.data || serviciosSnapshot.default?.data || []) as ServicioV4[];
-      const servicio = allServicios.find((s: any) => Number(s.id) === numId);
-      if (!servicio) return null;
-
-      const productos = await getProductosPorServicio(numId);
-      return { ...servicio, productos } as ServicioV4;
+      return getServicioFromSnapshot(numId);
     } catch {
       return null;
     }
@@ -224,8 +239,7 @@ export async function getProductosPorServicio(servicioId: number): Promise<Produ
   } catch (error) {
     console.error(`Error fetching productos for servicio ${servicioId}, trying snapshot:`, error);
     try {
-      const snapshot = await import('../data/snapshots/productos.json');
-      const allProductos = (snapshot.data || snapshot.default?.data || []) as ProductoV4[];
+      const allProductos = await loadSnapshotData<ProductoV4>('productos');
       const filtered = allProductos.filter((p: any) => p.servicio_id === servicioId);
       const seen = new Set<string>();
       return filtered.filter((p) => {
@@ -265,8 +279,7 @@ export async function getAntecedenteConServicios(id: number | string): Promise<A
   } catch (error) {
     console.error(`Error fetching antecedente ${id} with services, trying snapshot:`, error);
     try {
-      const snapshot = await import('../data/snapshots/antecedentes.json');
-      const allAntecedentes = (snapshot.data || snapshot.default?.data || []) as AntecedenteV4[];
+      const allAntecedentes = await loadSnapshotData<AntecedenteV4>('antecedentes');
       const antecedente = allAntecedentes.find((a: any) => Number(a.id) === numId);
       return antecedente || null;
     } catch {

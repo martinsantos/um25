@@ -1,0 +1,173 @@
+---
+interface Props {
+  href: string;
+  number: string;
+  title: string;
+  description?: string;
+  image?: string;
+  imageAlt?: string;
+  sector?: string;
+  year?: string;
+  actionLabel?: string;
+}
+
+const {
+  href,
+  number,
+  title,
+  description,
+  image,
+  imageAlt = title,
+  sector = '—',
+  year = '—',
+  actionLabel = 'Detalle',
+} = Astro.props;
+---
+
+<a href={href} class="evidence-case-row">
+  <span class="evidence-case-row__number">{number}</span>
+  <div class="evidence-case-row__main">
+    {image && (
+      <figure>
+        <img src={image} alt={imageAlt} loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/images/default.jpg'" />
+      </figure>
+    )}
+    <div>
+      <h3>{title}</h3>
+      {description && <p>{description}</p>}
+    </div>
+  </div>
+  <div class="evidence-case-row__meta">
+    <span>Sector</span>
+    <strong>{sector}</strong>
+  </div>
+  <div class="evidence-case-row__meta">
+    <span>Año</span>
+    <strong>{year}</strong>
+  </div>
+  <em>{actionLabel}</em>
+</a>
+
+<style>
+  .evidence-case-row {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1.4fr) minmax(110px, 0.34fr) minmax(72px, 0.22fr) auto;
+    gap: clamp(14px, 2vw, 28px);
+    align-items: center;
+    padding: clamp(18px, 2.2vw, 24px) 0;
+    border-top: 1px solid var(--skin-line, #d9dadd);
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 180ms ease, background-color 180ms ease;
+  }
+
+  .evidence-case-row:hover {
+    background: rgba(220, 38, 38, 0.03);
+    border-top-color: var(--um-red);
+  }
+
+  .evidence-case-row:focus-visible {
+    outline: 2px solid var(--um-red);
+    outline-offset: 2px;
+  }
+
+  .evidence-case-row__number {
+    color: var(--um-red);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .evidence-case-row__main {
+    display: grid;
+    grid-template-columns: minmax(112px, 140px) minmax(0, 1fr);
+    gap: clamp(14px, 2vw, 22px);
+    align-items: center;
+    min-width: 0;
+  }
+
+  .evidence-case-row__main figure {
+    margin: 0;
+    overflow: hidden;
+    min-height: 112px;
+    min-width: 112px;
+    aspect-ratio: 4 / 3;
+    background: #eceff2;
+  }
+
+  .evidence-case-row__main img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: saturate(0.88) contrast(1.04);
+  }
+
+  .evidence-case-row h3 {
+    margin: 0;
+    color: var(--skin-text, #0b0b0b);
+    font-family: var(--um-font-display);
+    font-size: clamp(1.12rem, 1.28vw, 1.32rem);
+    font-weight: 600;
+    line-height: 1.18;
+  }
+
+  .evidence-case-row p {
+    margin: 8px 0 0;
+    color: var(--skin-muted, #5f6368);
+    font-size: 1rem;
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
+  .evidence-case-row__meta span {
+    display: block;
+    color: var(--skin-muted, #6b7280);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .evidence-case-row__meta strong {
+    display: block;
+    margin-top: 4px;
+    color: var(--skin-text, #111);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .evidence-case-row em {
+    color: var(--um-red);
+    font-size: 1rem;
+    font-style: normal;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: transparent;
+    transition: text-decoration-color 180ms ease;
+  }
+
+  .evidence-case-row:hover em {
+    text-decoration-color: var(--um-red);
+  }
+
+  @media (max-width: 820px) {
+    .evidence-case-row {
+      grid-template-columns: 36px minmax(0, 1fr);
+      gap: 10px 14px;
+    }
+
+    .evidence-case-row__meta,
+    .evidence-case-row em {
+      grid-column: 2;
+    }
+
+    .evidence-case-row__main {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

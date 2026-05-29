@@ -5,14 +5,19 @@
  */
 
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
-import ServiceCard from '../../../components/v4/ServiceCard.astro';
-import CTASection from '../../../components/v4/CTASection.astro';
+import EvidenceCaseRow from '../../../components/um/EvidenceCaseRow.astro';
+import UMButton from '../../../components/um/UMButton.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
 import { getServiceIdFromArea } from '../../../data/areaToServiceMap.js';
-import ProjectCard from '../../../components/ProjectCard.astro';
 import { getDirectusImageUrl, getAllAntecedentes } from '../../../lib/directus.ts';
 import { canonicalUrl as toCanonicalUrl, publicImageUrl } from '../../../utils/seoUrl';
+import {
+  plainTextFromHtml,
+  renderEditorialBody,
+  sanitizeEditorialText,
+  truncateEditorialText,
+} from '../../../utils/editorialContent';
 
 // --- Configuration ---
 const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://ultimamilla.com.ar/admin';
@@ -116,73 +121,18 @@ const formatDate = (dateString: string): string => {
     } catch { return dateString; }
 };
 
-// Extract scope items from description (bullet points)
+const caseBodySource = antecedente.Descripcion || antecedente.descripcion || '';
+const caseDescriptionHtml = await renderEditorialBody(caseBodySource);
+const caseHeroExcerpt = truncateEditorialText(caseBodySource, 170);
+
 const extractScopeItems = (descripcion: string): string[] => {
-    if (!descripcion) return [];
-    const items: string[] = [];
-    // Try to extract bullet points or sentences
-    const sentences = descripcion.split(/[.;]/).filter(s => s.trim().length > 10 && s.trim().length < 150);
-    return sentences.slice(0, 5).map(s => s.trim());
+    const plain = plainTextFromHtml(descripcion, 2000);
+    if (!plain) return [];
+    const sentences = plain.split(/[.;]/).filter(s => s.trim().length > 10 && s.trim().length < 150);
+    return sentences.slice(0, 5).map(s => sanitizeEditorialText(s));
 };
 
-const scopeItems = extractScopeItems(antecedente.Descripcion || '');
-
-// Mapeo de colores por categoría/sector (mismo que ProjectCard)
-const getCategoryColors = (category: string): { bg: string; text: string; darkBg: string } => {
-  const normalizedCategory = category?.toLowerCase().trim() || '';
-
-  const colorMap: Record<string, { bg: string; text: string; darkBg: string }> = {
-    'gobierno': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
-    'sector público': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
-    'municipal': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
-    'municipalidad': { bg: 'bg-blue-500', text: 'text-white', darkBg: 'bg-blue-600' },
-    'aeropuertos': { bg: 'bg-sky-500', text: 'text-white', darkBg: 'bg-sky-600' },
-    'aeropuerto': { bg: 'bg-sky-500', text: 'text-white', darkBg: 'bg-sky-600' },
-    'transporte': { bg: 'bg-sky-500', text: 'text-white', darkBg: 'bg-sky-600' },
-    'bodegas': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
-    'bodega': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
-    'vitivinícola': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
-    'agroindustria': { bg: 'bg-purple-500', text: 'text-white', darkBg: 'bg-purple-600' },
-    'salud': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
-    'hospital': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
-    'clínica': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
-    'médico': { bg: 'bg-green-500', text: 'text-white', darkBg: 'bg-green-600' },
-    'data center': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
-    'datacenter': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
-    'infraestructura': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
-    'ti': { bg: 'bg-orange-500', text: 'text-white', darkBg: 'bg-orange-600' },
-    'construcción': { bg: 'bg-amber-500', text: 'text-white', darkBg: 'bg-amber-600' },
-    'constructora': { bg: 'bg-amber-500', text: 'text-white', darkBg: 'bg-amber-600' },
-    'obra': { bg: 'bg-amber-500', text: 'text-white', darkBg: 'bg-amber-600' },
-    'industria': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
-    'industrial': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
-    'manufactura': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
-    'fábrica': { bg: 'bg-indigo-500', text: 'text-white', darkBg: 'bg-indigo-600' },
-    'software': { bg: 'bg-cyan-500', text: 'text-white', darkBg: 'bg-cyan-600' },
-    'desarrollo': { bg: 'bg-cyan-500', text: 'text-white', darkBg: 'bg-cyan-600' },
-    'aplicación': { bg: 'bg-cyan-500', text: 'text-white', darkBg: 'bg-cyan-600' },
-    'minería': { bg: 'bg-slate-500', text: 'text-white', darkBg: 'bg-slate-600' },
-    'minera': { bg: 'bg-slate-500', text: 'text-white', darkBg: 'bg-slate-600' },
-    'mining': { bg: 'bg-slate-500', text: 'text-white', darkBg: 'bg-slate-600' },
-    'seguridad': { bg: 'bg-red-500', text: 'text-white', darkBg: 'bg-red-600' },
-    'seguridad electrónica': { bg: 'bg-red-500', text: 'text-white', darkBg: 'bg-red-600' },
-    'cctv': { bg: 'bg-red-500', text: 'text-white', darkBg: 'bg-red-600' },
-    'telecomunicaciones': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
-    'redes': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
-    'redes y comunicaciones': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
-    'comunicaciones': { bg: 'bg-teal-500', text: 'text-white', darkBg: 'bg-teal-600' },
-  };
-
-  for (const [key, colors] of Object.entries(colorMap)) {
-    if (normalizedCategory.includes(key) || key.includes(normalizedCategory)) {
-      return colors;
-    }
-  }
-
-  return { bg: 'bg-um-primary', text: 'text-white', darkBg: 'bg-um-primary-dark' };
-};
-
-const areaCategoryColors = getCategoryColors(antecedente.Area || '');
+const scopeItems = extractScopeItems(caseBodySource);
 
 // Get related services via M2M relationship from Directus (with fallback to area mapping)
 const getRelatedServices = async (antecedenteId: string, area: string) => {
@@ -331,7 +281,7 @@ const compactCaseTitle = (value: unknown, client?: unknown): string => {
 // SEO
 const siteUrl = 'https://ultimamilla.com.ar';
 const canonicalUrl = toCanonicalUrl(`/antecedentes/${id}/${slugFromUrl}`);
-const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').substring(0, 160) + '...';
+const metaDescription = truncateEditorialText(caseBodySource, 160);
 const antecedenteStructuredData = {
   "@type": "CreativeWork",
   "name": antecedente.Titulo,
@@ -377,19 +327,19 @@ const antecedenteStructuredData = {
 
       <div class="case-detail-hero__grid">
         <div class="case-detail-hero__copy">
-          <div class={`case-detail-label ${areaCategoryColors.bg}`}>
+          <div class="case-detail-label">
             <span>{antecedente.Area || 'Proyecto'}</span>
           </div>
 
           <h1>{caseHeadline}</h1>
 
           <p>
-            {antecedente.Descripcion?.replace(/<[^>]+>/g, '').substring(0, 170)}...
+            {caseHeroExcerpt || 'Proyecto documentado con alcance técnico verificable.'}
           </p>
 
           <div class="case-detail-actions">
-            <a href="/contacto">Solicitar relevamiento</a>
-            <a href="/antecedentes">Volver al archivo</a>
+            <UMButton href="/contacto">Solicitar relevamiento</UMButton>
+            <UMButton href="/antecedentes" variant="secondary">Volver al archivo</UMButton>
           </div>
         </div>
 
@@ -431,13 +381,15 @@ const antecedenteStructuredData = {
             <span aria-hidden="true"></span>
             <h2>Contexto y ejecución</h2>
           </div>
-          <div class="text-gray-600 leading-relaxed text-base sm:text-base prose prose-lg max-w-none">
-            <div set:html={antecedente.Descripcion || antecedente.descripcion || '<p>Información detallada del proyecto no disponible.</p>'} />
+          <div class="text-gray-600 leading-relaxed text-base sm:text-base prose prose-lg max-w-none editorial-body">
+            {caseDescriptionHtml ? (
+              <div set:html={caseDescriptionHtml} />
+            ) : (
+              <p>Información detallada del proyecto no disponible.</p>
+            )}
           </div>
 
-          <!-- Callout Box -->
           <div class="case-callout">
-            <span aria-hidden="true">/</span>
             <span>Proyecto aplicado en {antecedente.Area || 'tecnología'} para {antecedente.Cliente}</span>
           </div>
         </div>
@@ -449,14 +401,11 @@ const antecedenteStructuredData = {
               <span aria-hidden="true"></span>
               <h2>Alcance ejecutado</h2>
             </div>
-            <div class="case-scope-list">
+            <ul class="case-scope-list">
               {scopeItems.map((item) => (
-                <div>
-                  <span aria-hidden="true">/</span>
-                  <span>{item}</span>
-                </div>
+                <li>{item}</li>
               ))}
-            </div>
+            </ul>
           </div>
         )}
 
@@ -467,29 +416,18 @@ const antecedenteStructuredData = {
               <span aria-hidden="true"></span>
               <h2>Servicios aplicados</h2>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <ul class="case-service-links">
               {relatedServices.map((servicio) => (
-                <ServiceCard
-                  id={servicio.id}
-                  slug={servicio.slug}
-                  titulo={compactServiceTitle(servicio.Titulo)}
-                  subtitulo={servicio.subtitulo || servicio.Descripcion?.substring(0, 100)}
-                  imagen={servicio.Imagen}
-                  icon="box"
-                  iconColor="bg-um-primary/90"
-                />
+                <li>
+                  <a href={`/servicios/${servicio.id}/${servicio.slug}`}>
+                    <strong>{compactServiceTitle(servicio.Titulo)}</strong>
+                    <span>{servicio.subtitulo || truncateEditorialText(servicio.Descripcion, 120)}</span>
+                  </a>
+                </li>
               ))}
-            </div>
+            </ul>
 
-            <a
-              href="/servicios"
-              class="inline-flex items-center gap-2 text-um-primary font-semibold text-base hover:underline"
-            >
-              Ver todos nuestros servicios
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-              </svg>
-            </a>
+            <a href="/servicios" class="case-service-links__all">Ver todos los servicios</a>
           </div>
         )}
 
@@ -500,17 +438,17 @@ const antecedenteStructuredData = {
               <span aria-hidden="true"></span>
               <h2>Galería del proyecto</h2>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="case-gallery-grid">
               {antecedente.Imagenes.map((img: any) => (
-                <div class="aspect-video overflow-hidden bg-gray-100 group">
+                <figure class="case-gallery-frame">
                   <img
                     src={getAssetUrl(img)}
-                    alt="Galería"
-                    class="w-full h-full object-cover"
+                    alt="Galería del proyecto"
+                    class="case-gallery-image"
                     loading="lazy"
                     onerror="this.src='/images/default-background.jpg'"
                   />
-                </div>
+                </figure>
               ))}
             </div>
           </div>
@@ -612,18 +550,17 @@ const antecedenteStructuredData = {
           </a>
         </div>
 
-        <div class="case-related__grid">
-          {relatedAntecedentes.map((ant) => (
-            <ProjectCard
-              id={String(ant.id)}
-              titulo={compactCaseTitle(ant.Titulo || 'Proyecto', ant.Cliente)}
-              cliente={ant.Cliente || ''}
-              descripcion={ant.Descripcion || ''}
-              fecha={ant.Fecha || new Date().toISOString()}
-              area={ant.Area || ''}
-              servicio={ant.Unidad_de_negocio || ''}
-              imagen={ant.imageUrl}
-              slug={ant.slug}
+        <div class="case-related__ledger">
+          {relatedAntecedentes.map((ant, index) => (
+            <EvidenceCaseRow
+              href={`/antecedentes/${ant.id}/${ant.slug}`}
+              number={String(index + 1).padStart(2, '0')}
+              title={compactCaseTitle(ant.Titulo || 'Proyecto', ant.Cliente)}
+              description={truncateEditorialText(ant.Descripcion || ant.Titulo, 150)}
+              image={ant.imageUrl}
+              imageAlt={ant.Titulo || 'Antecedente'}
+              sector={ant.Area || 'Servicios IT'}
+              year={ant.Fecha ? new Date(ant.Fecha).getFullYear().toString() : 'documentado'}
             />
           ))}
         </div>
@@ -640,20 +577,19 @@ const antecedenteStructuredData = {
     </section>
   )}
 
-  <!-- CTA SECTION -->
-  <CTASection
-    badge="Evidencia operativa"
-    badgeIcon="arrow-right"
-    titulo="Convirtamos esta experiencia en un alcance para su operación"
-    descripcion="Revisamos sitio, riesgo, dependencias y prioridad técnica antes de proponer una intervención."
-    primaryButtonText="Solicitar relevamiento"
-    primaryButtonUrl="/contacto"
-    secondaryButtonText="Ver antecedentes"
-    secondaryButtonUrl="/antecedentes"
-    secondaryButtonIcon="arrow-right"
-    backgroundImage={mainImageUrl}
-    darkOverlay={85}
-  />
+  <section class="case-detail-footer-cta">
+    <div class="um-container case-detail-footer-cta__grid">
+      <div>
+        <span class="um-kicker">Siguiente paso</span>
+        <h2>Convertir esta evidencia en un alcance verificable</h2>
+        <p>Relevamos sitio, riesgo, dependencias y prioridad técnica antes de proponer una intervención.</p>
+      </div>
+      <div class="case-detail-footer-cta__actions">
+        <UMButton href="/contacto">Solicitar relevamiento</UMButton>
+        <UMButton href="/antecedentes" variant="secondary">Ver archivo completo</UMButton>
+      </div>
+    </div>
+  </section>
 </LayoutV4>
 
 <style>
@@ -768,29 +704,8 @@ const antecedenteStructuredData = {
     margin-top: clamp(18px, 2.5vw, 28px);
   }
 
-  .case-detail-actions a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 50px;
+  .case-detail-actions :global(.um-btn) {
     min-width: 216px;
-    padding: 0 1.25rem;
-    border: 0;
-    background: #f4f5f6;
-    color: #111;
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1;
-  }
-
-  .case-detail-actions a:first-child {
-    background: #DC2626;
-    color: #fff;
-  }
-
-  .case-detail-actions a:hover {
-    background: #111;
-    color: #fff;
   }
 
   .case-detail-dossier {
@@ -932,41 +847,67 @@ const antecedenteStructuredData = {
   }
 
   .case-callout {
-    display: grid;
-    grid-template-columns: 18px 1fr;
-    gap: 0.8rem;
     padding: 1rem 1.1rem;
     border-left: 3px solid #DC2626;
-    background: #F5F6F7;
+    background: #FFFFFF;
     color: #111;
     font-size: 1rem;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.45;
-    text-transform: uppercase;
-  }
-
-  .case-callout > span:first-child,
-  .case-scope-list > div > span:first-child {
-    color: #DC2626;
-    font-weight: 700;
   }
 
   .case-scope-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
     display: grid;
     gap: 1px;
     border: 0;
     background: color-mix(in srgb, #111 5%, transparent);
   }
 
-  .case-scope-list > div {
-    display: grid;
-    grid-template-columns: 22px 1fr;
-    gap: 0.8rem;
-    padding: 1rem 1.1rem;
+  .case-scope-list li {
+    position: relative;
+    padding: 1rem 1.1rem 1rem 2.2rem;
     background: #fff;
     color: #374151;
     font-size: 1rem;
     line-height: 1.55;
+  }
+
+  .case-scope-list li::before {
+    content: '';
+    position: absolute;
+    left: 1.1rem;
+    top: 1.35rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #DC2626;
+  }
+
+  .case-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+
+  .case-gallery-frame {
+    margin: 0;
+    min-height: 220px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .case-gallery-image {
+    width: 100%;
+    height: 100%;
+    min-height: 180px;
+    object-fit: contain;
+    object-position: center;
+    display: block;
   }
 
   .case-info-card {
@@ -1067,7 +1008,7 @@ const antecedenteStructuredData = {
   .case-related {
     padding: clamp(54px, 7vw, 92px) 0;
     border-top: 1px solid var(--um-line);
-    background: #F5F6F7;
+    background: #FFFFFF;
   }
 
   .case-related__head {
@@ -1105,10 +1046,90 @@ const antecedenteStructuredData = {
     color: #DC2626;
   }
 
-  .case-related__grid {
+  .case-related__ledger {
+    border-top: 1px solid var(--um-line);
+  }
+
+  .case-service-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--um-line);
+  }
+
+  .case-service-links li {
+    border-bottom: 1px solid var(--um-line);
+  }
+
+  .case-service-links a {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1rem;
+    gap: 6px;
+    padding: 1rem 0;
+    color: inherit;
+    text-decoration: none;
+    transition: color 180ms ease;
+  }
+
+  .case-service-links a:hover strong {
+    color: var(--um-red);
+  }
+
+  .case-service-links strong {
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .case-service-links span {
+    color: #5f6368;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .case-service-links__all {
+    display: inline-block;
+    margin-top: 1rem;
+    color: var(--um-red);
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .case-detail-footer-cta {
+    background: #fff;
+    border-top: 1px solid var(--um-line);
+    padding: clamp(48px, 6vw, 88px) 0;
+  }
+
+  .case-detail-footer-cta__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: clamp(24px, 4vw, 48px);
+    align-items: end;
+  }
+
+  .case-detail-footer-cta h2 {
+    margin-top: 0.75rem;
+    color: #111;
+    font-size: clamp(1.6rem, 2.2vw, 2.2rem);
+    font-weight: 600;
+    line-height: 1.12;
+  }
+
+  .case-detail-footer-cta p {
+    max-width: 620px;
+    margin-top: 0.85rem;
+    color: #5f6368;
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+
+  .case-detail-footer-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: flex-end;
   }
 
   .case-related__footer {
@@ -1118,8 +1139,12 @@ const antecedenteStructuredData = {
   @media (max-width: 1120px) {
     .case-detail-hero__grid,
     .case-detail-main__grid,
-    .case-related__grid {
+    .case-detail-footer-cta__grid {
       grid-template-columns: 1fr;
+    }
+
+    .case-detail-footer-cta__actions {
+      justify-content: flex-start;
     }
 
     .case-detail-dossier {
@@ -1144,7 +1169,7 @@ const antecedenteStructuredData = {
       display: grid;
     }
 
-    .case-detail-actions a {
+    .case-detail-actions :global(.um-btn) {
       width: 100%;
       min-width: 0;
     }
@@ -1178,7 +1203,7 @@ const antecedenteStructuredData = {
       display: grid;
     }
 
-    .case-detail-actions a {
+    .case-detail-actions :global(.um-btn) {
       width: 100%;
     }
 

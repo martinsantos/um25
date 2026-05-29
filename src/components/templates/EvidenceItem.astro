@@ -6,6 +6,7 @@ interface EvidenceMeta {
 
 interface Props {
   variant?: 'feature' | 'compact' | 'row' | 'ledger';
+  class?: string;
   href: string;
   title: string;
   image?: string;
@@ -21,6 +22,7 @@ interface Props {
 
 const {
   variant = 'compact',
+  class: className,
   href,
   title,
   image,
@@ -38,7 +40,7 @@ const number = typeof index === 'number' ? String(index + 1).padStart(2, '0') : 
 const hasImage = Boolean(image) && variant !== 'ledger';
 ---
 
-<a href={href} class={`evidence-item evidence-item--${variant}`}>
+<a href={href} class:list={['evidence-item', `evidence-item--${variant}`, className]}>
   {hasImage && (
     <div class="evidence-item__media">
       <img src={image} alt={imageAlt} loading={variant === 'feature' ? 'eager' : 'lazy'} decoding="async" />

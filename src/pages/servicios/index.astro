@@ -43,16 +43,6 @@ const structuredData = [
   }
 ];
 
-const commercialPackages = [
-  ['Soporte Base', 'Mesa de ayuda, inventario, checklist y mantenimiento mensual.', 'Cotizar abono'],
-  ['Soporte Operativo', 'Administración de red, visitas preventivas, tickets y reporte ejecutivo.', 'Cotizar abono'],
-  ['Soporte Crítico', 'SLA por severidad, guardia extendida, continuidad y comité mensual.', 'Cotizar abono'],
-  ['Red Express', 'Cableado, rack, patching, testing, WiFi puntual y entrega as-built.', 'Solicitar relevamiento'],
-  ['Sala Técnica', 'Ordenamiento de rack, UPS, tableros IT, energía y documentación.', 'Solicitar relevamiento'],
-  ['CCTV/SDI', 'Cámaras, accesos, detección, protocolo de prueba y mantenimiento.', 'Solicitar relevamiento'],
-  ['Diagnóstico', 'Relevamiento técnico, riesgos, quick wins y presupuesto base.', 'Solicitar relevamiento']
-];
-
 const serviceIconPaths: Record<string, string> = {
   network: '<path d="M6 9v6"/><path d="M18 9v6"/><path d="M10 12h4"/><rect x="3" y="4" width="6" height="5" rx="1.5"/><rect x="15" y="4" width="6" height="5" rx="1.5"/><rect x="3" y="15" width="6" height="5" rx="1.5"/><rect x="15" y="15" width="6" height="5" rx="1.5"/><path d="M9 6.5h6"/><path d="M9 17.5h6"/>',
   shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
@@ -98,8 +88,9 @@ const serviceIconPaths: Record<string, string> = {
             <dd>22+ años / 24-7</dd>
           </div>
         </dl>
-        <div class="services-actions">
+        <div class="services-actions services-actions--intents">
           <a href="/contacto" class="um-btn-primary">Solicitar diagnóstico</a>
+          <a href="/contacto" class="um-btn-secondary services-secondary-dark">Solicitar relevamiento</a>
           <a href="/antecedentes" class="um-btn-secondary services-secondary-dark">Ver antecedentes</a>
         </div>
       </div>
@@ -170,50 +161,23 @@ const serviceIconPaths: Record<string, string> = {
           ))}
         </div>
       </div>
-    </div>
-  </section>
 
-  <section class="services-packages">
-    <div class="um-container services-packages__grid">
-      <div>
-        <span class="um-kicker">Paquetes</span>
-        <h2>Alcances listos para comprar después de un relevamiento serio</h2>
-        <p>
-          No publicamos precios genéricos. Publicamos alcance, entregables y tipo de decisión para que la conversación empiece por el problema correcto.
-        </p>
-      </div>
-      <div class="services-package-list">
-        {commercialPackages.map(([name, text, cta], index) => (
-          <a href="/contacto" class="services-package-row">
-            <span>{String(index + 1).padStart(2, '0')}</span>
-            <strong>{name}</strong>
-            <p>{text}</p>
-            <em>{cta}</em>
-          </a>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <section class="services-operating-model">
-    <div class="um-container services-operating-grid">
-      <div>
-        <span class="um-kicker">Método</span>
-        <h2>Del relevamiento al soporte, con evidencia técnica</h2>
-      </div>
-      <div class="operating-steps">
-        {[
-          ['01', 'Relevamiento', 'Inventario de sitio, restricciones, riesgos y necesidad operativa.'],
-          ['02', 'Arquitectura', 'Diseño de topología, materiales, integración y documentación.'],
-          ['03', 'Implementación', 'Instalación controlada, pruebas, traspaso y puesta en marcha.'],
-          ['04', 'Operación', 'Soporte, mantenimiento, ajustes y continuidad de servicio.']
-        ].map(([number, title, text]) => (
-          <div class="operating-step">
-            <span>{number}</span>
-            <h3>{title}</h3>
-            <p>{text}</p>
-          </div>
-        ))}
+      <div class="services-intent-ctas" id="decision" aria-label="Próximo paso por intención">
+        <a href="/contacto" class="services-intent-card">
+          <span>01</span>
+          <strong>Solicitar diagnóstico</strong>
+          <p>Relevamiento técnico, riesgos visibles y presupuesto base antes de comprometer alcance.</p>
+        </a>
+        <a href="/contacto" class="services-intent-card">
+          <span>02</span>
+          <strong>Cotizar abono</strong>
+          <p>Soporte mensual con SLA, tickets, visitas preventivas y reporte ejecutivo.</p>
+        </a>
+        <a href="/contacto" class="services-intent-card">
+          <span>03</span>
+          <strong>Solicitar relevamiento</strong>
+          <p>Obra puntual, sala técnica, red express o seguridad con entrega documentada.</p>
+        </a>
       </div>
     </div>
   </section>
@@ -338,8 +302,8 @@ const serviceIconPaths: Record<string, string> = {
 
   .services-hero__visual {
     min-width: 0;
-    border: 0;
-    background: var(--skin-panel, rgba(255,255,255,0.06));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
   }
 
   .services-hero__image {
@@ -381,14 +345,14 @@ const serviceIconPaths: Record<string, string> = {
     border-top-color: transparent !important;
   }
 
-  :global(body[data-skin="white"] main .services-proof-note strong),
-  :global(body[data-skin="steel"] main .services-proof-note strong) {
-    color: #050505 !important;
+  :global(body[data-skin="white"] main .services-hero .services-proof-note strong),
+  :global(body[data-skin="steel"] main .services-hero .services-proof-note strong) {
+    color: #fff !important;
   }
 
-  :global(body[data-skin="white"] main .services-proof-note p),
-  :global(body[data-skin="steel"] main .services-proof-note p) {
-    color: #4b5563 !important;
+  :global(body[data-skin="white"] main .services-hero .services-proof-note p),
+  :global(body[data-skin="steel"] main .services-hero .services-proof-note p) {
+    color: rgba(255, 255, 255, 0.68) !important;
   }
 
   .services-index {
@@ -584,6 +548,50 @@ const serviceIconPaths: Record<string, string> = {
     line-height: 1.2;
   }
 
+  .services-intent-ctas {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: clamp(36px, 5vw, 56px);
+    border: 1px solid var(--um-line);
+    background: var(--um-line);
+  }
+
+  .services-intent-card {
+    display: grid;
+    gap: 10px;
+    min-height: 148px;
+    padding: clamp(20px, 2.4vw, 28px);
+    background: #fff;
+    color: #111;
+    transition: background-color 180ms ease;
+  }
+
+  .services-intent-card:hover {
+    background: #fafafa;
+  }
+
+  .services-intent-card > span {
+    color: var(--um-red);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .services-intent-card strong {
+    font-family: var(--um-font-display);
+    font-size: clamp(1.08rem, 1.18vw, 1.22rem);
+    font-weight: 600;
+    line-height: 1.15;
+  }
+
+  .services-intent-card p {
+    margin: 0;
+    color: var(--um-muted);
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
   :global(body[data-skin] main .services-index .service-dossier-item__body strong) {
     font-size: clamp(1.12rem, 1.22vw, 1.28rem) !important;
     line-height: 1.14 !important;
@@ -755,7 +763,7 @@ const serviceIconPaths: Record<string, string> = {
   }
 
   .services-operating-model {
-    background: #F5F6F7;
+    background: #FFFFFF;
     padding: clamp(54px, 6.5vw, 86px) 0;
   }
 
@@ -898,7 +906,8 @@ const serviceIconPaths: Record<string, string> = {
     }
 
     .services-hero__proofline,
-    .services-dossier__list {
+    .services-dossier__list,
+    .services-intent-ctas {
       grid-template-columns: 1fr;
     }
 

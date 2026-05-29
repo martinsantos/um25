@@ -1,6 +1,7 @@
 ---
 import EnhancedImage from "./EnhancedImage.astro";
 import { generateSlug } from '../utils/slugUtils.js';
+import { truncateEditorialText } from '../utils/editorialContent';
 
 // Componente para mostrar antecedentes destacados
 const { antecedentes } = Astro.props;
@@ -86,7 +87,7 @@ const processedAntecedentes = await Promise.all(
             </h3>
             
             <p class="text-slate-600 text-base mb-6 line-clamp-3 flex-grow leading-relaxed">
-              {proyecto.Descripcion ? proyecto.Descripcion.replace(/<[^>]*>/g, '').substring(0, 150) + '...' : ''}
+              {truncateEditorialText(proyecto.Descripcion, 150)}
             </p>
             
             <div class="pt-4 border-t border-slate-100 mt-auto flex items-center justify-between">

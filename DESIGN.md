@@ -101,6 +101,22 @@ Antes de aceptar una iteracion visual se ejecutan:
 - `npm run audit:visual:strict` para la compuerta exigente en desktop `1440x900`, laptop `1280x800`, tablet `834x1112`, mobile `390x900` y mobile chico `360x740`.
 - `npm run audit:screenshots` para generar capturas comparables fuera del repo.
 
+**Corridas masivas sin falsos `navigation mismatch`:** en batch largo usar `VISUAL_AUDIT_LABEL_ONLY=1` (alias de modo aislado: pausa mayor entre rutas y reintento de navegacion hasta 3 veces) o filtrar con `VISUAL_AUDIT_ROUTE_FILTER` / `VISUAL_AUDIT_VIEWPORT_FILTER` y una ruta por proceso. Ejemplo:
+
+```bash
+VISUAL_AUDIT_STRICT=1 VISUAL_AUDIT_COMMERCIAL_ONLY=1 \
+VISUAL_AUDIT_LABEL_ONLY=1 \
+VISUAL_AUDIT_ROUTE_FILTER='^home default$' \
+VISUAL_AUDIT_VIEWPORT_FILTER='^(desktop|mobile)$' \
+node scripts/visual-contrast-audit.mjs
+```
+
+### Navegacion desktop
+
+- Menu horizontal visible desde `min-width: 1024px` (clase `um-desktop-menu` en `NavbarV4`).
+- Contenedor editorial principal: `--um-container: 1180px` (no confundir con el breakpoint de nav).
+- Entre `1024px` y `1180px` el rail de 8 servicios en home pasa a 4 columnas (`max-width: 1180px` en `index.astro`).
+
 La compuerta estricta falla si detecta:
 
 - texto visible menor a 16px;
@@ -582,6 +598,8 @@ Si falta foto UMSA real:
 ### Navbar
 
 Estado actual: base correcta.
+
+Breakpoint operativo (mayo 2026): menú desktop visible desde **1180px** (`NavbarV4.astro`, media `min-width: 1180px`). Por debajo de 1180px se usa hamburguesa full-width. El contenedor editorial sigue en **1180px** (`--um-container`).
 
 Correcciones:
 

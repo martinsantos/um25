@@ -2,7 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 
-const BASE_URL = process.env.VISUAL_AUDIT_BASE_URL || 'http://localhost:4322';
+const BASE_URL = process.env.VISUAL_AUDIT_BASE_URL || 'http://localhost:4321';
 const CHROME_BIN = process.env.CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const PORT = Number(process.env.VISUAL_SNAPSHOT_CDP_PORT || 9342);
 const OUT_DIR = process.env.VISUAL_SNAPSHOT_DIR || `/tmp/umsa-visual-snapshots-${new Date().toISOString().replace(/[:.]/g, '-')}`;
@@ -30,8 +30,15 @@ const routes = [
   { path: '/sectores?template=atlas&skin=white', label: 'sectores-atlas' },
   { path: '/aeropuertos', label: 'vertical-aeropuertos-default' },
   { path: '/aeropuertos?skin=white', label: 'vertical-aeropuertos' },
+  { path: '/bodegas', label: 'vertical-bodegas-default' },
+  { path: '/gobiernosectorpublico', label: 'vertical-gobierno-default' },
+  { path: '/mineria', label: 'vertical-mineria-default' },
   { path: '/seguridad-electronica', label: 'vertical-seguridad-default' },
   { path: '/seguridad-electronica?skin=white', label: 'vertical-seguridad' },
+  { path: '/industria', label: 'vertical-industria-default' },
+  { path: '/salud', label: 'vertical-salud-default' },
+  { path: '/software', label: 'vertical-software-default' },
+  { path: '/constructoras', label: 'vertical-constructoras-default' },
   { path: '/nosotros', label: 'nosotros-default' },
   { path: '/nosotros?skin=white', label: 'nosotros' },
   { path: '/blog', label: 'blog-default' },

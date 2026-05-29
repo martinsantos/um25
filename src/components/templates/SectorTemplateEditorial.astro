@@ -1,5 +1,9 @@
 ---
 import EvidenceItem from './EvidenceItem.astro';
+import SectionHeader from '../um/SectionHeader.astro';
+import MetricStrip from '../um/MetricStrip.astro';
+import UMButton from '../um/UMButton.astro';
+import { truncateEditorialText } from '../../utils/editorialContent';
 
 interface Props {
   mode?: 'index' | 'detail';
@@ -26,32 +30,62 @@ const secondaryCases = antecedentes.slice(1, 3);
 const archiveCases = antecedentes.slice(3, 6);
 
 const text = (value: unknown) => String(value || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
-const truncate = (value: unknown, length = 150) => {
-  const clean = text(value);
-  return clean.length > length ? `${clean.slice(0, length - 1)}…` : clean;
-};
+const truncate = (value: unknown, length = 150) => truncateEditorialText(value, length);
+const sanitizeCopy = (value: unknown, length = 150) => truncateEditorialText(value, length);
+const sectorSlug = sector.slug || '';
+const sectorAntecedentesHref = sectorSlug
+  ? `/antecedentes?sector=${encodeURIComponent(sectorSlug)}`
+  : '/antecedentes';
 const caseHref = (item: any) => `/antecedentes/${item.id}/${item.slug || ''}`;
 const sectorTitle = sector.pageHeadline || sector.headline || sector.nombre || sector.label || 'Sector';
 const sectorSummary = sector.pageSummary || sector.summary || sector.descripcion || '';
 const sectorName = sector.nombre || sector.label || sectorTitle;
 const sectorImage = sector.heroImage || sector.image;
 const sectorStats = Array.isArray(sector.stats) ? sector.stats : [];
+const sectorMetrics = sectorStats.map((stat: any) => ({
+  value: String(stat.value || ''),
+  label: String(stat.label || ''),
+}));
+if (mode === 'detail' && antecedentes.length > 0) {
+  sectorMetrics.push({ value: `${antecedentes.length}+`, label: 'Antecedentes' });
+}
 ---
 
 {mode === 'index' ? (
-  <section class="sector-editorial">
+  <section class="sector-editorial sector-editorial--index">
+    <div class="sector-editorial-index-hero">
     <div class="um-container">
       <div class="sector-editorial__head">
         <span class="sector-editorial__rule" aria-hidden="true"></span>
         <p class="sector-editorial__kicker">Sectores</p>
-        <h1>Soluciones IT por sector, diseñadas desde la operación.</h1>
+        <h1>Infraestructura IT por sector, con evidencia operativa.</h1>
         <p class="sector-editorial__lead">
           Una lectura directa de riesgos, continuidad y evidencia para priorizar inversiones
           por criticidad operativa.
         </p>
-        <a href="/antecedentes">Ver antecedentes</a>
+        <dl class="sector-editorial__proofline" aria-label="Prueba institucional">
+          <div>
+            <dt>Mercados</dt>
+            <dd>{sectors.length} verticales</dd>
+          </div>
+          <div>
+            <dt>Archivo</dt>
+            <dd>469+ antecedentes</dd>
+          </div>
+          <div>
+            <dt>Operación</dt>
+            <dd>22+ años / 24-7</dd>
+          </div>
+        </dl>
+        <div class="sector-editorial__actions">
+          <UMButton href="/contacto">Solicitar diagnóstico</UMButton>
+          <UMButton href="/antecedentes" variant="secondary">Ver antecedentes</UMButton>
+        </div>
       </div>
+    </div>
+    </div>
 
+    <div class="um-container sector-editorial-index-body">
       <div class="sector-editorial__features">
         {featuredSectors.map((item, index) => (
           <a href={`/${item.slug}`} class="sector-editorial-feature">
@@ -95,8 +129,27 @@ const sectorStats = Array.isArray(sector.stats) ? sector.stats : [];
         </nav>
         <div class="sector-editorial-detail-hero__copy">
           <span class="sector-editorial__rule" aria-hidden="true"></span>
+          <p class="sector-editorial-detail-hero__kicker">Infraestructura crítica · {sectorName}</p>
           <h1>{sectorTitle}</h1>
-          <p>{sectorSummary}</p>
+          <p class="sector-editorial-detail-hero__lead">{sectorSummary}</p>
+          <dl class="sector-editorial-detail-hero__proofline" aria-label="Prueba institucional">
+            <div>
+              <dt>Archivo</dt>
+              <dd>469+ antecedentes</dd>
+            </div>
+            <div>
+              <dt>Trayectoria</dt>
+              <dd>22+ años</dd>
+            </div>
+            <div>
+              <dt>Operación</dt>
+              <dd>24/7</dd>
+            </div>
+          </dl>
+          <div class="sector-editorial-detail-hero__actions">
+            <UMButton href="/contacto">Solicitar diagnóstico</UMButton>
+            <UMButton href={sectorAntecedentesHref} variant="secondary">Ver antecedentes del sector</UMButton>
+          </div>
         </div>
       </div>
     </div>
@@ -109,21 +162,15 @@ const sectorStats = Array.isArray(sector.stats) ? sector.stats : [];
         </div>
         <div>
           <p>{sector.proof || sectorSummary}</p>
-          <dl>
-            {sectorStats.map((stat: any) => (
-              <div><dt>{stat.label}</dt><dd>{stat.value}</dd></div>
-            ))}
-            <div><dt>Antecedentes</dt><dd>{antecedentes.length}+</dd></div>
-          </dl>
+          {sectorMetrics.length > 0 && (
+            <MetricStrip metrics={sectorMetrics} class="sector-editorial-detail__metrics" />
+          )}
         </div>
       </section>
 
       {mainCase && (
         <section class="sector-editorial-detail__evidence">
-          <div class="sector-editorial-detail__section-head">
-            <span class="sector-editorial__rule" aria-hidden="true"></span>
-            <h2>Evidencia aplicada a {sectorName}</h2>
-          </div>
+          <SectionHeader title={`Evidencia aplicada a ${sectorName}`} />
           <EvidenceItem
             variant="feature"
             href={caseHref(mainCase)}
@@ -155,16 +202,13 @@ const sectorStats = Array.isArray(sector.stats) ? sector.stats : [];
       )}
 
       <section class="sector-editorial-detail__services">
-        <div class="sector-editorial-detail__section-head">
-          <span class="sector-editorial__rule" aria-hidden="true"></span>
-          <h2>Servicios aplicados</h2>
-        </div>
+        <SectionHeader title="Servicios aplicados" />
         <div class="sector-editorial-service-list">
           {(serviciosRelacionados || []).map((item: any, index: number) => (
             <a href={`/servicios/${item.id}/${item.slug || ''}`}>
               <span>{String(index + 1).padStart(2, '0')}</span>
               <strong>{item.nombre}</strong>
-              <p>{item.descripcion}</p>
+              <p>{sanitizeCopy(item.descripcion, 130)}</p>
             </a>
           ))}
           {(!serviciosRelacionados || serviciosRelacionados.length === 0) && (sector.services || []).map((item: string, index: number) => (
@@ -179,16 +223,13 @@ const sectorStats = Array.isArray(sector.stats) ? sector.stats : [];
 
       {valueProps.length > 0 && (
         <section class="sector-editorial-detail__criteria">
-          <div class="sector-editorial-detail__section-head">
-            <span class="sector-editorial__rule" aria-hidden="true"></span>
-            <h2>Criterios técnicos</h2>
-          </div>
+          <SectionHeader title="Criterios técnicos" />
           <div class="sector-editorial-criteria-grid">
             {valueProps.map((item: any, index: number) => (
               <article>
                 <span>{String(index + 1).padStart(2, '0')}</span>
                 <h3>{item.titulo}</h3>
-                <p>{item.descripcion}</p>
+                <p>{sanitizeCopy(item.descripcion, 180)}</p>
               </article>
             ))}
           </div>
@@ -223,6 +264,39 @@ const sectorStats = Array.isArray(sector.stats) ? sector.stats : [];
     padding: clamp(32px, 4.8vw, 60px) 0 clamp(44px, 6vw, 72px);
   }
 
+  .sector-editorial--index {
+    padding: 0 0 clamp(44px, 6vw, 72px);
+  }
+
+  .sector-editorial-index-hero {
+    background: #050505;
+    color: #fff;
+    padding: clamp(28px, 4vw, 48px) 0 clamp(36px, 5vw, 56px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .sector-editorial-index-hero .sector-editorial__head {
+    margin-bottom: 0;
+  }
+
+  .sector-editorial-index-hero .sector-editorial__kicker,
+  .sector-editorial-index-hero .sector-editorial__proofline dt {
+    color: rgba(255, 255, 255, 0.62);
+  }
+
+  .sector-editorial-index-hero .sector-editorial__head h1,
+  .sector-editorial-index-hero .sector-editorial__proofline dd {
+    color: #fff;
+  }
+
+  .sector-editorial-index-hero .sector-editorial__lead {
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  .sector-editorial-index-body {
+    padding-top: clamp(28px, 4vw, 44px);
+  }
+
   .sector-editorial__head {
     display: grid;
     grid-template-columns: minmax(0, 0.72fr) minmax(280px, 0.28fr);
@@ -250,7 +324,7 @@ const sectorStats = Array.isArray(sector.stats) ? sector.stats : [];
 
   .sector-editorial__head h1 {
     max-width: 760px;
-    color: #000;
+    color: var(--skin-text, #111111);
     font-size: clamp(2.5rem, 2.78vw, 2.95rem);
     line-height: 1.1;
     font-weight: var(--um-weight-title, 600);
@@ -266,15 +340,52 @@ const sectorStats = Array.isArray(sector.stats) ? sector.stats : [];
     line-height: 1.68;
   }
 
-  .sector-editorial__head a {
-    justify-self: start;
-    width: fit-content;
-    border-bottom: 2px solid var(--um-red);
-    color: #111;
+  .sector-editorial__proofline {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px clamp(16px, 3vw, 28px);
+    margin: 4px 0 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .sector-editorial__proofline div {
+    display: grid;
+    gap: 4px;
+  }
+
+  .sector-editorial__proofline dt {
+    color: var(--um-gray-600);
     font-size: 1rem;
     font-weight: 700;
+    letter-spacing: 0.08em;
     line-height: 1.2;
-    white-space: nowrap;
+    text-transform: uppercase;
+  }
+
+  .sector-editorial__proofline dd {
+    margin: 0;
+    color: #111;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .sector-editorial__actions,
+  .sector-editorial-detail-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .sector-editorial__actions {
+    grid-column: 1 / -1;
+  }
+
+  .sector-editorial-detail-hero__actions {
+    margin-top: 16px;
   }
 
   .sector-editorial__features {
@@ -334,7 +445,7 @@ const sectorStats = Array.isArray(sector.stats) ? sector.stats : [];
     color: #000;
     font-size: clamp(1.42rem, 1.85vw, 2rem);
     line-height: 1.08;
-    font-weight: 700;
+    font-weight: 600;
   }
 
   .sector-editorial-feature p {
@@ -416,7 +527,7 @@ const sectorStats = Array.isArray(sector.stats) ? sector.stats : [];
 
   .sector-editorial-detail-hero {
     position: relative;
-    min-height: clamp(500px, 64vh, 680px);
+    min-height: 0;
     overflow: hidden;
     background: #050505;
     color: #fff;
@@ -445,10 +556,10 @@ const sectorStats = Array.isArray(sector.stats) ? sector.stats : [];
     position: relative;
     z-index: 1;
     display: grid;
-    min-height: inherit;
-    align-content: end;
-    padding-top: 48px;
-    padding-bottom: clamp(54px, 8vw, 92px);
+    min-height: clamp(360px, 46vh, 480px);
+    align-content: start;
+    padding-top: clamp(56px, 7vw, 84px);
+    padding-bottom: clamp(28px, 4vw, 44px);
   }
 
   .sector-editorial__crumb {
@@ -471,19 +582,61 @@ const sectorStats = Array.isArray(sector.stats) ? sector.stats : [];
     max-width: 840px;
   }
 
+  .sector-editorial-detail-hero__kicker {
+    margin-top: 18px;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
   .sector-editorial-detail-hero h1 {
-    margin-top: 24px;
+    margin-top: 14px;
     color: #fff;
     font-size: clamp(2.05rem, 3.12vw, 3.25rem);
     line-height: 1.1;
-    font-weight: 700;
+    font-weight: 600;
     overflow-wrap: anywhere;
     text-wrap: balance;
   }
 
-  .sector-editorial-detail-hero p {
+  .sector-editorial-detail-hero__proofline {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px clamp(16px, 3vw, 28px);
+    max-width: 720px;
+    margin: 18px 0 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .sector-editorial-detail-hero__proofline div {
+    display: grid;
+    gap: 4px;
+  }
+
+  .sector-editorial-detail-hero__proofline dt {
+    color: rgba(255, 255, 255, 0.58);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .sector-editorial-detail-hero__proofline dd {
+    margin: 0;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .sector-editorial-detail-hero__lead {
     max-width: 680px;
-    margin-top: 22px;
+    margin-top: 18px;
     color: rgba(255,255,255,0.78);
     font-size: clamp(1.05rem, 1.25vw, 1.22rem);
     line-height: 1.62;
@@ -666,6 +819,14 @@ const sectorStats = Array.isArray(sector.stats) ? sector.stats : [];
     .sector-editorial-feature,
     .sector-editorial-detail-hero {
       min-height: 0;
+    }
+
+    .sector-editorial-detail-hero__proofline {
+      grid-template-columns: 1fr;
+    }
+
+    .sector-editorial-detail-hero .um-container {
+      padding-top: 64px;
     }
 
     .sector-editorial-feature dl,

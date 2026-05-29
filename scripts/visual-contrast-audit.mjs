@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 
-const BASE_URL = process.env.VISUAL_AUDIT_BASE_URL || 'http://localhost:4322';
+const BASE_URL = process.env.VISUAL_AUDIT_BASE_URL || 'http://localhost:4321';
 const CHROME_BIN = process.env.CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const PORT = Number(process.env.VISUAL_AUDIT_CDP_PORT || 9341);
 const STRICT = process.argv.includes('--strict') || process.env.VISUAL_AUDIT_STRICT === '1';
@@ -8,6 +8,10 @@ const CDP_TIMEOUT_MS = Number(process.env.VISUAL_AUDIT_CDP_TIMEOUT_MS || 14000);
 const ROUTE_TIMEOUT_MS = Number(process.env.VISUAL_AUDIT_ROUTE_TIMEOUT_MS || 22000);
 const ROUTE_FILTER = process.env.VISUAL_AUDIT_ROUTE_FILTER ? new RegExp(process.env.VISUAL_AUDIT_ROUTE_FILTER) : null;
 const VIEWPORT_FILTER = process.env.VISUAL_AUDIT_VIEWPORT_FILTER ? new RegExp(process.env.VISUAL_AUDIT_VIEWPORT_FILTER) : null;
+const COMMERCIAL_ONLY = process.env.VISUAL_AUDIT_COMMERCIAL_ONLY === '1';
+/** Modo aislado: más pausa entre rutas y reintentos de navegación (evita navigation mismatch en batch). */
+const LABEL_ONLY = process.env.VISUAL_AUDIT_LABEL_ONLY === '1';
+const ISOLATED = process.env.VISUAL_AUDIT_ISOLATED === '1' || LABEL_ONLY;
 
 const routes = [
   { path: '/', label: 'home default', requiresFirstViewportCta: true },
@@ -18,12 +22,20 @@ const routes = [
   { path: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it?skin=white', label: 'servicio detalle', requiresFirstViewportCta: true },
   { path: '/servicios/101/infraestructura-de-redes-cableado-fibra-optica-radioenlaces', label: 'servicio redes detalle default', requiresFirstViewportCta: true },
   { path: '/servicios/101/infraestructura-de-redes-cableado-fibra-optica-radioenlaces?skin=white', label: 'servicio redes detalle', requiresFirstViewportCta: true },
+  { path: '/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi', label: 'servicio seguridad detalle default', requiresFirstViewportCta: true },
+  { path: '/servicios/103/telecomunicaciones-datos-voz-video', label: 'servicio telecom detalle default', requiresFirstViewportCta: true },
+  { path: '/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp', label: 'servicio software detalle default', requiresFirstViewportCta: true },
+  { path: '/servicios/106/consultoria-it-y-transformacion-digital-arquitectura-auditoria', label: 'servicio consultoria detalle default', requiresFirstViewportCta: true },
+  { path: '/servicios/108/servicios-electricos-para-it', label: 'servicio electrico detalle default', requiresFirstViewportCta: true },
+  { path: '/servicios/107/sistemas-de-deteccion-y-alarma-de-incendios', label: 'servicio incendios detalle default', requiresFirstViewportCta: true },
+  { path: '/servicios/107/sistemas-de-deteccion-de-incendios', label: 'servicio incendios slug corto default', requiresFirstViewportCta: true },
   { path: '/antecedentes', label: 'antecedentes default' },
   { path: '/antecedentes?skin=white', label: 'antecedentes' },
   { path: '/antecedentes?sector=aeropuertos', label: 'antecedentes filtrado default' },
   { path: '/antecedentes?sector=aeropuertos&skin=white', label: 'antecedentes filtrado' },
   { path: '/antecedentes?template=editorial&skin=white', label: 'antecedentes editorial' },
   { path: '/antecedentes?template=atlas&skin=white', label: 'antecedentes atlas' },
+  { path: '/antecedentes/3064/desarrollo-de-software-y-digitalizacion-de-procesos-para-el-gobierno-de-la-provincia-de-mendoza', label: 'antecedente detalle default' },
   { path: '/antecedentes/3064/desarrollo-de-software-y-digitalizacion-de-procesos-para-el-gobierno-de-la-provincia-de-mendoza?skin=white', label: 'antecedente detalle' },
   { path: '/sectores', label: 'sectores default' },
   { path: '/sectores?skin=white', label: 'sectores' },
@@ -31,12 +43,19 @@ const routes = [
   { path: '/sectores?sector=bodegas&skin=white', label: 'sectores filtrado' },
   { path: '/sectores?template=editorial&skin=white', label: 'sectores editorial' },
   { path: '/sectores?template=atlas&skin=white', label: 'sectores atlas' },
-  { path: '/aeropuertos', label: 'vertical sector default' },
-  { path: '/aeropuertos?skin=white', label: 'vertical sector' },
-  { path: '/aeropuertos?template=editorial&skin=white', label: 'vertical editorial' },
-  { path: '/aeropuertos?template=atlas&skin=white', label: 'vertical atlas' },
+  { path: '/aeropuertos', label: 'vertical sector default', requiresFirstViewportCta: true },
+  { path: '/aeropuertos?skin=white', label: 'vertical sector', requiresFirstViewportCta: true },
+  { path: '/aeropuertos?template=editorial&skin=white', label: 'vertical editorial', requiresFirstViewportCta: true },
+  { path: '/aeropuertos?template=atlas&skin=white', label: 'vertical atlas', requiresFirstViewportCta: true },
+  { path: '/bodegas', label: 'vertical bodegas default', requiresFirstViewportCta: true },
+  { path: '/gobiernosectorpublico', label: 'vertical gobierno default', requiresFirstViewportCta: true },
+  { path: '/mineria', label: 'vertical mineria default', requiresFirstViewportCta: true },
   { path: '/seguridad-electronica', label: 'vertical seguridad default', requiresFirstViewportCta: true },
   { path: '/seguridad-electronica?skin=white', label: 'vertical seguridad white', requiresFirstViewportCta: true },
+  { path: '/industria', label: 'vertical industria default', requiresFirstViewportCta: true },
+  { path: '/salud', label: 'vertical salud default', requiresFirstViewportCta: true },
+  { path: '/software', label: 'vertical software default', requiresFirstViewportCta: true },
+  { path: '/constructoras', label: 'vertical constructoras default', requiresFirstViewportCta: true },
   { path: '/nosotros', label: 'nosotros default' },
   { path: '/nosotros?skin=white', label: 'nosotros' },
   { path: '/blog', label: 'blog default' },
@@ -67,6 +86,13 @@ const commercialLabels = new Set([
   'servicio detalle',
   'servicio redes detalle default',
   'servicio redes detalle',
+  'servicio seguridad detalle default',
+  'servicio telecom detalle default',
+  'servicio software detalle default',
+  'servicio consultoria detalle default',
+  'servicio electrico detalle default',
+  'servicio incendios detalle default',
+  'servicio incendios slug corto default',
   'antecedentes default',
   'antecedentes',
   'antecedentes filtrado default',
@@ -74,6 +100,7 @@ const commercialLabels = new Set([
   'antecedentes editorial',
   'antecedentes atlas',
   'antecedente detalle',
+  'antecedente detalle default',
   'sectores default',
   'sectores',
   'sectores filtrado default',
@@ -86,6 +113,13 @@ const commercialLabels = new Set([
   'vertical atlas',
   'vertical seguridad default',
   'vertical seguridad white',
+  'vertical bodegas default',
+  'vertical gobierno default',
+  'vertical mineria default',
+  'vertical industria default',
+  'vertical salud default',
+  'vertical software default',
+  'vertical constructoras default',
   'nosotros default',
   'nosotros',
   'blog default',
@@ -157,6 +191,16 @@ function buildUrl(path) {
   return new URL(path, BASE_URL).toString();
 }
 
+/** Accept canonical slug redirects (e.g. servicio 107 slug corto → canónico). */
+const PATH_NAV_CHECK_JS = `function pathsMatchNavigation(expectedPath, actualPath, canonicalPath) {
+  if (actualPath === expectedPath) return true;
+  const expectedService = expectedPath.match(/^\\/servicios\\/(\\d+)\\//);
+  const actualService = actualPath.match(/^\\/servicios\\/(\\d+)\\//);
+  if (expectedService && actualService && expectedService[1] === actualService[1]) return true;
+  if (canonicalPath && actualPath === canonicalPath) return true;
+  return false;
+}`;
+
 function ctaRequirementApplies(route, viewport) {
   if (!STRICT || !route.requiresFirstViewportCta) return false;
   // Contacto needs the action visible especially on mobile. Desktop can use the anchored CTA and form below.
@@ -178,16 +222,103 @@ async function auditRoute(ws, route, viewport) {
     });
   }
 
-  await cdp(ws, 'Page.navigate', { url: buildUrl(route.path) });
-  await sleep(700);
+  const expectedPath = route.path.split('?')[0].replace(/\/$/, '') || '/';
+  const targetUrl = buildUrl(route.path);
+  let navigationMismatch = false;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await cdp(ws, 'Page.navigate', { url: targetUrl });
+    try {
+      await cdp(ws, 'Runtime.evaluate', {
+        expression: `(() => new Promise((resolve) => {
+          const finish = () => requestAnimationFrame(() => requestAnimationFrame(resolve));
+          if (document.readyState === 'complete') finish();
+          else window.addEventListener('load', finish, { once: true });
+        }))()`,
+        awaitPromise: true,
+      });
+    } catch {
+      await sleep(1200);
+    }
+    await sleep(ISOLATED ? 650 : 350);
+
+    const pathCheck = await cdp(ws, 'Runtime.evaluate', {
+      expression: `(() => {
+        ${PATH_NAV_CHECK_JS}
+        const expectedPath = ${JSON.stringify(expectedPath)};
+        const actualPath = (location.pathname || '/').replace(/\\/$/, '') || '/';
+        const canonicalEl = document.querySelector('link[rel="canonical"]');
+        const canonicalPath = canonicalEl?.href
+          ? new URL(canonicalEl.href, location.origin).pathname.replace(/\\/$/, '') || '/'
+          : null;
+        return {
+          ok: pathsMatchNavigation(expectedPath, actualPath, canonicalPath),
+          actualPath,
+          canonicalPath,
+        };
+      })()`,
+      returnByValue: true,
+    });
+    const checkValue = pathCheck?.result?.value;
+    if (checkValue?.ok) {
+      navigationMismatch = false;
+      break;
+    }
+    navigationMismatch = true;
+    if (attempt < 2) {
+      await sleep(500);
+    }
+  }
+
+  if (navigationMismatch) {
+    return {
+      navigationMismatch: true,
+      expectedPath,
+      actualPath: 'unknown-after-retry',
+      title: null,
+      h1Count: 0,
+      textCount: 0,
+    };
+  }
 
   const expression = `(() => {
+    ${PATH_NAV_CHECK_JS}
+    const expectedPath = ${JSON.stringify(expectedPath)};
+    const actualPath = (location.pathname || '/').replace(/\\/$/, '') || '/';
+    const canonicalEl = document.querySelector('link[rel="canonical"]');
+    const canonicalPath = canonicalEl?.href
+      ? new URL(canonicalEl.href, location.origin).pathname.replace(/\\/$/, '') || '/'
+      : null;
+    if (!pathsMatchNavigation(expectedPath, actualPath, canonicalPath)) {
+      return {
+        navigationMismatch: true,
+        expectedPath,
+        actualPath,
+        canonicalPath,
+        title: document.title || null,
+        h1Count: 0,
+        textCount: 0
+      };
+    }
+
     const darkSurfaceSelector = [
       '.um-surface-dark',
       '.um-panel-dark',
       '.um-home-hero',
       '.um-connected-section',
       '.um-final-cta',
+      '.um-cta',
+      '.services-hero',
+      '.service-detail-hero',
+      '.sectors-hero',
+      '.sector-editorial-index-hero',
+      '.sector-atlas-index-hero',
+      '.sector-detail-hero',
+      '.sector-editorial-detail-hero',
+      '.sector-atlas-detail-hero',
+      '.case-detail-hero',
+      '.antecedentes-hero',
+      '.ante-hero',
+      '.geo-dossier-hero',
       '.um-invert',
       '.wd-invert',
       '.geo-dossier-brief',
@@ -255,11 +386,40 @@ async function auditRoute(ws, route, viewport) {
       return Math.max(0, right - left) * Math.max(0, bottom - top);
     }
 
+    const minFontExclusionSelector = [
+      'nav',
+      'footer',
+      '.ante-dossier__sector-rail',
+      '.ante-dossier__sector-links',
+      '.sector-atlas-exec-ledger__filters-links',
+      '.sector-atlas__filters',
+      '.blog-category-tabs',
+      '.um-nav-meta',
+      '[class*="breadcrumb"]',
+      '[class*="chip"]',
+      '[class*="filter"]',
+      '[class*="meta"]',
+      '[class*="label"]',
+      '[class*="tag"]',
+      '[class*="badge"]'
+    ].join(',');
+
+    function countsForMinFont(element) {
+      if (element.closest(minFontExclusionSelector)) return false;
+      const mediaFrame = element.closest('.evidence-case-row__main figure, .evidence-item__media, .ante-dossier__row figure');
+      if (mediaFrame) {
+        const rect = mediaFrame.getBoundingClientRect();
+        if (rect.width > 0 && rect.width < 128 && rect.height < 120) return false;
+      }
+      return true;
+    }
+
     const textElements = Array.from(document.body.querySelectorAll('body *'))
       .filter((element) => !['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEMPLATE'].includes(element.tagName))
       .filter(isVisibleTextElement);
 
     const fontSizes = textElements
+      .filter(countsForMinFont)
       .map((element) => Number.parseFloat(getComputedStyle(element).fontSize))
       .filter(Number.isFinite);
     const weights = textElements
@@ -341,7 +501,7 @@ async function auditRoute(ws, route, viewport) {
         const text = (element.innerText || element.textContent || '').trim();
         const className = String(element.className || '');
         const href = element.getAttribute('href') || '';
-        const looksLikeCta = /btn|cta|submit|diagn[oó]stico|contacto|relevamiento|abono|especialista|consulta/i.test(className + ' ' + text + ' ' + href);
+        const looksLikeCta = /btn|cta|submit|diagn[oó]stico|contacto|relevamiento|abono|especialista|consulta|cotizar/i.test(className + ' ' + text + ' ' + href);
         return looksLikeCta && text.length > 0 && rect.width >= 40 && rect.height >= 36 && rect.top >= 0 && rect.top < window.innerHeight && style.display !== 'none' && style.visibility !== 'hidden';
       })
       .map((element) => {
@@ -432,9 +592,12 @@ async function auditRoute(ws, route, viewport) {
       '.ante-dossier__sector-rail',
       '.sector-atlas-exec-ledger__filters-links',
       '.blog-category-tabs',
+      '.blog-breadcrumb',
       '.mobile-menu-hidden',
       '.um-mobile-menu'
     ].join(',');
+
+    const clippedLeftTolerance = window.innerWidth < 821 ? 12 : 1;
 
     const clippedTextIssues = Array.from(document.querySelectorAll('header a, header button, main h1, main h2, main h3, main p, main a, main button, main strong, main span'))
       .filter((element) => {
@@ -450,7 +613,7 @@ async function auditRoute(ws, route, viewport) {
           rect.top < window.innerHeight &&
           style.display !== 'none' &&
           style.visibility !== 'hidden' &&
-          (rect.left < -1 || rect.right > window.innerWidth + 1)
+          (rect.left < -clippedLeftTolerance || rect.right > window.innerWidth + clippedLeftTolerance)
         );
       })
       .map((element) => {
@@ -587,6 +750,13 @@ async function auditRoute(ws, route, viewport) {
       .filter((image) => {
         const rect = image.getBoundingClientRect();
         const isCompactThumb = Boolean(image.closest('.feed-item--compact'));
+        const isArchiveLedgerThumb = Boolean(
+          image.closest('.ante-dossier__row-main figure, .ante-dossier__ledger, .evidence-item--ledger, .um-world-ledger-row')
+        );
+        const isSectorLedgerThumb = Boolean(image.closest('.sector-atlas-exec-row__sector figure'));
+        if (isArchiveLedgerThumb || isSectorLedgerThumb) {
+          return rect.height < 64 || rect.width < 64;
+        }
         const minHeight = isCompactThumb ? 76 : 112;
         return rect.height < minHeight || rect.width < 76;
       })
@@ -1040,6 +1210,51 @@ async function auditRoute(ws, route, viewport) {
       .filter((pattern) => pattern.test(textContent))
       .map((pattern) => pattern.source);
 
+    const isCyanRgb = (r, g, b) => g > 120 && b > 150 && r < 80 && b > r + 40;
+    const saasColorIssues = Array.from(document.querySelectorAll('main a, main button, main p, main span, main h1, main h2, main h3'))
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        if (rect.width < 4 || rect.height < 4) return false;
+        const color = getComputedStyle(element).color;
+        const m = color.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/);
+        if (!m) return false;
+        return isCyanRgb(Number(m[1]), Number(m[2]), Number(m[3]));
+      })
+      .map((element) => ({
+        tag: element.tagName.toLowerCase(),
+        className: String(element.className || '').slice(0, 60),
+        color: getComputedStyle(element).color,
+        text: (element.innerText || '').trim().slice(0, 40),
+      }))
+      .slice(0, 6);
+
+    const heroSel = [
+      '.um-home-hero', '.service-detail-hero', '.sector-editorial-detail-hero',
+      '.case-detail-hero', '.geo-dossier-hero', '.about-hero', '.blog-header',
+    ].join(',');
+
+    let editorialAltBg = 0;
+    const editorialAltSamples = [];
+    for (const section of document.querySelectorAll('main section, main [class*="section"]')) {
+      if (section.closest(heroSel)) continue;
+      const rect = section.getBoundingClientRect();
+      if (rect.height < 80) continue;
+      const bg = getComputedStyle(section).backgroundColor;
+      const m = bg.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/);
+      if (!m) continue;
+      const [r, g, b] = [Number(m[1]), Number(m[2]), Number(m[3])];
+      const isAltGray = r >= 243 && r <= 248 && Math.abs(r - g) <= 3 && Math.abs(g - b) <= 3;
+      if (isAltGray) {
+        editorialAltBg += 1;
+        if (editorialAltSamples.length < 3) {
+          editorialAltSamples.push(String(section.className || section.tagName).slice(0, 50));
+        }
+      }
+    }
+
+    const h1FontFamily = h1Style?.fontFamily || null;
+    const h1Overweight = h1Style && Number.parseFloat(h1Style.fontWeight) > 600;
+
     return {
       title: document.title,
       h1: h1?.innerText?.trim() || null,
@@ -1076,6 +1291,11 @@ async function auditRoute(ws, route, viewport) {
       ctaGeometryIssues,
       copyWarnings,
       claimWarnings,
+      saasColorIssues,
+      editorialAltBg,
+      editorialAltSamples,
+      h1FontFamily,
+      h1Overweight,
       frameworkOverlay,
       textCount: textElements.length
     };
@@ -1202,6 +1422,10 @@ function collectFailures(results) {
   for (const result of results) {
     const isCommercial = commercialLabels.has(result.label);
     const isMobile = result.viewport === 'mobile' || result.viewport === 'mobile-small' || result.viewport === 'compact-desktop';
+    if (result.navigationMismatch) {
+      failures.push(`${result.viewport} ${result.label}: navigation mismatch ${result.actualPath} expected ${result.expectedPath}`);
+      continue;
+    }
     if (result.minFont != null && result.minFont < 16) {
       failures.push(`${result.viewport} ${result.label}: minFont ${result.minFont}`);
     }
@@ -1289,6 +1513,15 @@ function collectFailures(results) {
     if (STRICT && (result.claimWarnings || []).length) {
       failures.push(`${result.viewport} ${result.label}: unsupported precision claim (${result.claimWarnings.join(', ')})`);
     }
+    if (STRICT && isCommercial && (result.saasColorIssues || []).length) {
+      failures.push(`${result.viewport} ${result.label}: cyan/SaaS accent color ${JSON.stringify(result.saasColorIssues)}`);
+    }
+    if (STRICT && isCommercial && result.h1Overweight) {
+      failures.push(`${result.viewport} ${result.label}: h1 weight above 600 (${result.h1Weight})`);
+    }
+    if (STRICT && isCommercial && (result.copyWarnings || []).length) {
+      failures.push(`${result.viewport} ${result.label}: generic copy in first viewport (${result.copyWarnings.join(', ')})`);
+    }
     if (
       STRICT &&
       ['sectores', 'sectores filtrado', 'sectores atlas', 'antecedentes', 'antecedentes filtrado', 'antecedentes editorial'].includes(result.label) &&
@@ -1318,7 +1551,9 @@ function collectFailures(results) {
         if (/box-shadow/i.test(row.transition)) {
           failures.push(`${result.viewport} ${result.label}: row hover transitions box-shadow and can create heavy red rails`);
         }
-        if (row.imageHeight != null && row.imageHeight < 112) {
+        const isArchiveLedgerRow = /ante-dossier__row|evidence-item--ledger|um-world-ledger-row/i.test(row.selector || '');
+        const minLedgerImageHeight = isArchiveLedgerRow ? 64 : 112;
+        if (row.imageHeight != null && row.imageHeight < minLedgerImageHeight) {
           failures.push(`${result.viewport} ${result.label}: row image too small for information hub (${row.imageWidth}x${row.imageHeight})`);
         }
       }
@@ -1353,12 +1588,24 @@ async function main() {
     await cdp(ws, 'Runtime.enable');
 
     const selectedViewports = VIEWPORT_FILTER ? viewports.filter((viewport) => VIEWPORT_FILTER.test(viewport.name)) : viewports;
-    const selectedRoutes = ROUTE_FILTER ? routes.filter((route) => ROUTE_FILTER.test(route.label) || ROUTE_FILTER.test(route.path)) : routes;
+    const selectedRoutes = routes
+      .filter((route) => {
+        if (!ROUTE_FILTER) return true;
+        if (LABEL_ONLY) return ROUTE_FILTER.test(route.label);
+        return ROUTE_FILTER.test(route.label) || ROUTE_FILTER.test(route.path);
+      })
+      .filter((route) => !COMMERCIAL_ONLY || commercialLabels.has(route.label))
+      .filter((route) => !COMMERCIAL_ONLY || !route.path.includes('skin=white'))
+      .filter((route) => !COMMERCIAL_ONLY || !/^(lab |utilidad )/.test(route.label));
 
     const results = [];
     for (const viewport of selectedViewports) {
+      if (!viewport.mobile) {
+        await cdp(ws, 'Emulation.setUserAgentOverride', { userAgent: '' });
+      }
       for (const route of selectedRoutes) {
         results.push(await auditRouteWithTimeout(ws, route, viewport));
+        await sleep(ISOLATED ? 900 : 180);
       }
     }
 

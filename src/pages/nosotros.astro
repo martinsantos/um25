@@ -1,5 +1,8 @@
 ---
 import LayoutV4 from '../layouts/LayoutV4.astro';
+import MetricStrip from '../components/um/MetricStrip.astro';
+import SectionHeader from '../components/um/SectionHeader.astro';
+import UMButton from '../components/um/UMButton.astro';
 
 const principles = [
   ['Ingeniería antes que marketing', 'Cada decisión se justifica por disponibilidad, seguridad, mantenibilidad y costo operativo.'],
@@ -52,20 +55,14 @@ const structuredData = {
           mismo sistema de trabajo.
         </p>
       </div>
-      <div class="about-hero__proof">
-        <div>
-          <strong>22+</strong>
-          <span>trayectoria técnica</span>
-        </div>
-        <div>
-          <strong>469+</strong>
-          <span>antecedentes</span>
-        </div>
-        <div>
-          <strong>24/7</strong>
-          <span>soporte operativo</span>
-        </div>
-      </div>
+      <MetricStrip
+        class="about-hero__proof"
+        metrics={[
+          { value: '22+', label: 'trayectoria técnica' },
+          { value: '469+', label: 'antecedentes' },
+          { value: '24/7', label: 'soporte operativo' },
+        ]}
+      />
     </div>
   </section>
 
@@ -78,8 +75,10 @@ const structuredData = {
   <section class="um-section about-position">
     <div class="um-container about-position__grid">
       <div>
-        <span class="um-kicker">Posicionamiento</span>
-        <h2>Servicios IT integrales, con responsabilidad sobre el resultado</h2>
+        <SectionHeader
+          kicker="Posicionamiento"
+          title="Servicios IT integrales, con responsabilidad sobre el resultado"
+        />
       </div>
       <div>
         <p>
@@ -98,8 +97,7 @@ const structuredData = {
   <section class="about-principles">
     <div class="um-container">
       <div class="about-principles__head">
-        <span class="um-kicker">Criterios</span>
-        <h2>El estándar de trabajo que debe verse en la web</h2>
+        <SectionHeader kicker="Criterios" title="El estándar de trabajo que debe verse en la web" />
       </div>
       <div class="principles-grid">
         {principles.map(([title, text], index) => (
@@ -113,18 +111,82 @@ const structuredData = {
     </div>
   </section>
 
+  <section class="about-timeline">
+    <div class="um-container">
+      <SectionHeader kicker="Trayectoria" title="Hitos que sostienen la continuidad operativa" />
+      <ol class="about-timeline__list">
+        <li>
+          <span>2003</span>
+          <div>
+            <strong>Origen técnico en Mendoza</strong>
+            <p>Inicio en infraestructura, redes y soporte para organizaciones con operación continua.</p>
+          </div>
+        </li>
+        <li>
+          <span>2010–2018</span>
+          <div>
+            <strong>Escala regional y sectores críticos</strong>
+            <p>Expansión a aeropuertos, gobierno, industria, salud y minería con documentación de obra.</p>
+          </div>
+        </li>
+        <li>
+          <span>Hoy</span>
+          <div>
+            <strong>Servicios IT integrales UMSA</strong>
+            <p>Redes, seguridad electrónica, telecomunicaciones, software, energía IT y soporte 24/7 en un solo sistema de trabajo.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
   <section class="about-capabilities">
     <div class="um-container about-capabilities__grid">
       <div class="about-capabilities__media">
         <img src="/uploads/antecedentes/06b069ad-dab6-4d04-84b7-150465976a4a.jpg" alt="Infraestructura eléctrica y de datos para sistemas IT" loading="lazy" />
       </div>
       <div>
-        <span class="um-kicker">Capacidad conectada</span>
-        <h2>Una mesa técnica para resolver el sistema completo</h2>
+        <SectionHeader kicker="Capacidad conectada" title="Una mesa técnica para resolver el sistema completo" />
         <ul>
           {capabilities.map((capability) => <li>{capability}</li>)}
         </ul>
       </div>
+    </div>
+  </section>
+
+  <section class="about-timeline">
+    <div class="um-container">
+      <SectionHeader kicker="Trayectoria" title="Hitos que sostienen la operación en campo" />
+      <ol class="about-timeline__list">
+        <li>
+          <span>2003</span>
+          <div>
+            <strong>Origen en infraestructura y telecomunicaciones</strong>
+            <p>Instalación, tendidos y continuidad para organizaciones con operación presencial.</p>
+          </div>
+        </li>
+        <li>
+          <span>2010</span>
+          <div>
+            <strong>Integración de seguridad electrónica y software operativo</strong>
+            <p>Un solo criterio para red, monitoreo, accesos y sistemas que sostienen el negocio.</p>
+          </div>
+        </li>
+        <li>
+          <span>2018</span>
+          <div>
+            <strong>Soporte 24/7 y documentación de antecedentes</strong>
+            <p>Respuesta en incidentes y archivo verificable por sector y servicio.</p>
+          </div>
+        </li>
+        <li>
+          <span>Hoy</span>
+          <div>
+            <strong>Servicios IT integrales en Argentina</strong>
+            <p>Mendoza, Cuyo, Patagonia y proyectos nacionales con evidencia operativa visible.</p>
+          </div>
+        </li>
+      </ol>
     </div>
   </section>
 
@@ -139,7 +201,7 @@ const structuredData = {
           ocupados, equipos de terceros, documentación incompleta y urgencia operativa. Ahí la experiencia
           no es un claim: es la diferencia entre instalar algo y dejarlo operable.
         </p>
-        <a href="/antecedentes" class="um-btn-primary">Revisar antecedentes</a>
+        <UMButton href="/antecedentes">Revisar antecedentes</UMButton>
       </div>
     </div>
   </section>
@@ -191,32 +253,30 @@ const structuredData = {
     line-height: 1.68;
   }
 
-  .about-hero__proof {
+  .about-hero__proof:global(.um-metric-strip) {
     display: grid;
     border-top: 1px solid var(--skin-line, #DDE2EA);
     border-bottom: 1px solid var(--skin-line, #DDE2EA);
     background: #fff;
   }
 
-  .about-hero__proof div {
+  .about-hero__proof:global(.um-metric-strip) > * {
     padding: 0.95rem 0 1rem;
-    background: #fff;
     border-bottom: 1px solid var(--skin-line, #DDE2EA);
   }
 
-  .about-hero__proof div:last-child {
+  .about-hero__proof:global(.um-metric-strip) > *:last-child {
     border-bottom: 0;
   }
 
-  .about-hero__proof strong {
-    display: block;
+  .about-hero__proof:global(.um-metric-strip) strong {
     color: var(--skin-text, #0B0B0B);
     font-size: clamp(1.35rem, 1.86vw, 1.86rem);
     line-height: 1.1;
     font-weight: 600;
   }
 
-  .about-hero__proof span {
+  .about-hero__proof:global(.um-metric-strip) span {
     display: block;
     margin-top: 0.45rem;
     color: var(--skin-muted, #64748B);
@@ -331,6 +391,50 @@ const structuredData = {
     line-height: 1.68;
   }
 
+  .about-timeline {
+    background: #fff;
+    padding: clamp(48px, 6vw, 88px) 0;
+    border-top: 1px solid var(--um-line);
+    border-bottom: 1px solid var(--um-line);
+  }
+
+  .about-timeline__list {
+    list-style: none;
+    margin: clamp(28px, 4vw, 44px) 0 0;
+    padding: 0;
+    border-top: 1px solid var(--um-line);
+  }
+
+  .about-timeline__list li {
+    display: grid;
+    grid-template-columns: minmax(88px, 120px) minmax(0, 1fr);
+    gap: clamp(18px, 3vw, 36px);
+    padding: clamp(20px, 2.5vw, 28px) 0;
+    border-bottom: 1px solid var(--um-line);
+  }
+
+  .about-timeline__list li > span {
+    color: var(--um-red);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .about-timeline__list strong {
+    display: block;
+    color: #111;
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .about-timeline__list p {
+    margin-top: 0.65rem;
+    color: var(--um-muted);
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+
   .about-capabilities {
     background: #fff;
     padding: clamp(64px, 8vw, 112px) 0;
@@ -411,6 +515,58 @@ const structuredData = {
 
   .about-proof a {
     margin-top: 1.6rem;
+  }
+
+  .about-timeline {
+    background: #fff;
+    padding: clamp(64px, 8vw, 112px) 0;
+    border-top: 1px solid var(--um-line);
+  }
+
+  .about-timeline__list {
+    display: grid;
+    gap: 0;
+    margin: clamp(28px, 4vw, 48px) 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--um-line);
+  }
+
+  .about-timeline__list li {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: clamp(20px, 3vw, 40px);
+    padding: clamp(22px, 2.8vw, 30px) 0;
+    border-bottom: 1px solid var(--um-line);
+    transition: background-color 180ms ease;
+  }
+
+  .about-timeline__list li:hover {
+    background: rgba(220, 38, 38, 0.03);
+  }
+
+  .about-timeline__list li > span {
+    color: var(--um-red);
+    font-family: var(--um-font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .about-timeline__list strong {
+    display: block;
+    color: #111;
+    font-family: var(--um-font-display);
+    font-size: clamp(1.12rem, 1.4vw, 1.28rem);
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .about-timeline__list p {
+    margin: 10px 0 0;
+    color: var(--um-muted);
+    font-size: 1rem;
+    line-height: 1.65;
   }
 
   @media (max-width: 920px) {

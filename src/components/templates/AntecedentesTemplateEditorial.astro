@@ -1,6 +1,11 @@
 ---
+import EvidenceCaseRow from '../um/EvidenceCaseRow.astro';
+import SectionHeader from '../um/SectionHeader.astro';
+import { truncateEditorialText } from '../../utils/editorialContent';
+
 interface Props {
   pageData: any;
+  featuredAntecedente?: any;
   filterChips: any[];
   sectorFilter?: string;
   searchQuery?: string;
@@ -11,6 +16,7 @@ interface Props {
 
 const {
   pageData,
+  featuredAntecedente = null,
   filterChips,
   sectorFilter = '',
   searchQuery = '',
@@ -20,16 +26,18 @@ const {
 } = Astro.props;
 
 const currentUrl = new URL(Astro.request.url);
-const projects = pageData.antecedentes || [];
+const spotlight = pageData.spotlightAntecedentes || [];
+const archive = pageData.antecedentes || [];
 const totalItems = pageData.totalItems || 0;
+const archiveTotalItems = pageData.archiveTotalItems ?? Math.max(0, totalItems - spotlight.length);
 const institutionalProofTotal = 469;
 const totalPages = Math.max(1, pageData.totalPages || 1);
 const currentPage = pageData.currentPage || 1;
-const feature = projects[0];
-const secondary = projects.slice(1, 3);
-const archive = projects.slice(3);
-const showingStart = totalItems === 0 ? 0 : ((currentPage - 1) * pageSize) + 1;
-const showingEnd = Math.min(currentPage * pageSize, totalItems);
+const feature = featuredAntecedente || spotlight[0];
+const secondary = spotlight.slice(1, 3);
+const hasResults = totalItems > 0;
+const showingStart = archiveTotalItems === 0 ? 0 : ((currentPage - 1) * pageSize) + 1;
+const showingEnd = Math.min(currentPage * pageSize, archiveTotalItems);
 const hasActiveFilters = Boolean(sectorFilter || searchQuery || areaFilter || unidadFilter);
 const preservedSearchParams = Array.from(currentUrl.searchParams.entries()).filter(
   ([key]) => !['q', 'page', 'reset'].includes(key)
@@ -65,11 +73,9 @@ const computePaginationPages = () => {
 };
 
 const paginationPages = computePaginationPages();
+
 const cleanText = (value: unknown) => String(value || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-const truncate = (value: unknown, length = 170) => {
-  const clean = cleanText(value);
-  return clean.length > length ? `${clean.slice(0, length - 1)}…` : clean;
-};
+const truncate = (value: unknown, length = 170) => truncateEditorialText(value, length);
 const projectHref = (item: any) => `/antecedentes/${item.slug}`;
 const projectTitle = (item: any) => item?.Cliente || item?.Titulo || 'Antecedente UMSA';
 const projectScope = (item: any) => item?.Area || item?.Unidad_de_negocio || 'Servicios IT';
@@ -118,16 +124,52 @@ const projectYear = (item: any) => {
     </div>
   </header>
 
-  <section class="um-container ante-dossier__evidence" aria-labelledby="evidencia-destacada">
-    <div class="ante-dossier__section-head">
-      <div class="ante-dossier__section-title">
-        <span aria-hidden="true"></span>
-        <h2 id="evidencia-destacada">Evidencia destacada</h2>
-      </div>
-      <p>Casos con contexto, alcance y metadata para entender la escala real del trabajo.</p>
+  <section class="ante-dossier__controls" aria-label="Índice documental de antecedentes">
+      <div class="um-container ante-dossier__controls-grid">
+        <div class="ante-dossier__range">
+          <strong>{showingStart}-{showingEnd}</strong>
+          <span>
+            {hasActiveFilters
+              ? `de ${totalItems} coincidencias en archivo`
+              : `de ${institutionalProofTotal}+ en archivo`}
+          </span>
+        </div>
+
+      <form method="get" action="/antecedentes" class="ante-dossier__search">
+        {preservedSearchParams.map(([key, value]) => <input type="hidden" name={key} value={value} />)}
+        <label for="ante-dossier-search">Afinar archivo</label>
+        <div>
+          <input id="ante-dossier-search" type="search" name="q" value={searchQuery} placeholder="Cliente, sector o alcance" />
+          <button type="submit">Buscar</button>
+        </div>
+      </form>
     </div>
 
-    {projects.length === 0 ? (
+    <nav class="um-container ante-dossier__sector-rail" aria-label="Filtrar antecedentes por sector">
+      <div class="ante-dossier__sector-links">
+        {filterChips.map((chip, index) => (
+          <a
+            href={buildSectorUrl(chip.id)}
+            class={sectorFilter === chip.id || (chip.id === '' && !sectorFilter) ? 'is-active' : ''}
+          >
+            <span>{String(index).padStart(2, '0')}</span>
+            <em>{chip.name}</em>
+          </a>
+        ))}
+        {hasActiveFilters && <a href={buildClearUrl()} class="ante-dossier__clear">Limpiar</a>}
+      </div>
+    </nav>
+  </section>
+
+  <section class="um-container ante-dossier__evidence" aria-labelledby="evidencia-destacada">
+    <SectionHeader
+      id="evidencia-destacada"
+      class="ante-dossier__section-head"
+      title="Evidencia destacada"
+      text="Casos con contexto, alcance y metadata para entender la escala real del trabajo."
+    />
+
+    {!hasResults ? (
       <div class="ante-dossier__empty">
         <h2>No se encontraron proyectos</h2>
         <p>Probá con otro sector o una búsqueda más amplia dentro del archivo.</p>
@@ -193,39 +235,6 @@ const projectYear = (item: any) => {
     )}
   </section>
 
-  <section class="ante-dossier__controls" aria-label="Índice documental de antecedentes">
-      <div class="um-container ante-dossier__controls-grid">
-        <div class="ante-dossier__range">
-          <strong>{showingStart}-{showingEnd}</strong>
-          <span>de {totalItems} registros filtrados</span>
-        </div>
-
-      <form method="get" action="/antecedentes" class="ante-dossier__search">
-        {preservedSearchParams.map(([key, value]) => <input type="hidden" name={key} value={value} />)}
-        <label for="ante-dossier-search">Afinar archivo</label>
-        <div>
-          <input id="ante-dossier-search" type="search" name="q" value={searchQuery} placeholder="Cliente, sector o alcance" />
-          <button type="submit">Buscar</button>
-        </div>
-      </form>
-    </div>
-
-    <nav class="um-container ante-dossier__sector-rail" aria-label="Filtrar antecedentes por sector">
-      <div class="ante-dossier__sector-links">
-        {filterChips.map((chip, index) => (
-          <a
-            href={buildSectorUrl(chip.id)}
-            class={sectorFilter === chip.id || (chip.id === '' && !sectorFilter) ? 'is-active' : ''}
-          >
-            <span>{String(index).padStart(2, '0')}</span>
-            <em>{chip.name}</em>
-          </a>
-        ))}
-        {hasActiveFilters && <a href={buildClearUrl()} class="ante-dossier__clear">Limpiar</a>}
-      </div>
-    </nav>
-  </section>
-
   {archive.length > 0 && (
     <section class="um-container ante-dossier__archive" id="archivo-antecedentes" aria-labelledby="archivo-antecedentes-title">
       <div class="ante-dossier__archive-head">
@@ -241,27 +250,16 @@ const projectYear = (item: any) => {
           <span>Acción</span>
         </div>
         {archive.map((item: any, index: number) => (
-          <a href={projectHref(item)} class="ante-dossier__row">
-            <span class="ante-dossier__row-number">{String(index + 4).padStart(2, '0')}</span>
-            <div class="ante-dossier__row-main">
-              <figure>
-                <img src={item.imageUrl} alt={item.Titulo || projectTitle(item)} loading="eager" decoding="async" onerror="this.onerror=null;this.src='/images/default.jpg'" />
-              </figure>
-              <div>
-                <h3>{projectTitle(item)}</h3>
-                <p>{truncate(item.Descripcion || item.Titulo, 150)}</p>
-              </div>
-            </div>
-            <div class="ante-dossier__row-meta">
-              <span>Sector</span>
-              <strong>{projectScope(item)}</strong>
-            </div>
-            <div class="ante-dossier__row-meta">
-              <span>Año</span>
-              <strong>{projectYear(item)}</strong>
-            </div>
-            <em>Detalle</em>
-          </a>
+          <EvidenceCaseRow
+            href={projectHref(item)}
+            number={String(showingStart + index).padStart(2, '0')}
+            title={projectTitle(item)}
+            description={truncate(item.Descripcion || item.Titulo, 150)}
+            image={item.imageUrl}
+            imageAlt={item.Titulo || projectTitle(item)}
+            sector={projectScope(item)}
+            year={projectYear(item)}
+          />
         ))}
       </div>
     </section>
@@ -285,7 +283,7 @@ const projectYear = (item: any) => {
   .ante-dossier {
     --ante-page: var(--skin-page, #fff);
     --ante-section: var(--skin-section, #fff);
-    --ante-alt: var(--skin-section-alt, #f5f5f5);
+    --ante-alt: #ffffff;
     --ante-text: var(--skin-text, #0b0b0b);
     --ante-muted: var(--skin-muted, #5f6368);
     --ante-line: var(--skin-line, #d9dadd);
@@ -409,13 +407,14 @@ const projectYear = (item: any) => {
 
   .ante-dossier__controls {
     position: sticky;
-    top: 80px;
+    top: 72px;
     z-index: 9;
-    margin-top: clamp(38px, 6vw, 78px);
-    margin-bottom: clamp(48px, 6vw, 76px);
-    background: #fff;
-    border-bottom: 0;
-    box-shadow: 0 -12px 0 #fff;
+    margin-top: 0;
+    margin-bottom: clamp(24px, 3vw, 36px);
+    background: color-mix(in srgb, var(--ante-page) 94%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--ante-line);
+    box-shadow: 0 8px 24px rgba(17, 17, 17, 0.04);
   }
 
   .ante-dossier__controls-grid {
@@ -562,7 +561,9 @@ const projectYear = (item: any) => {
   .ante-dossier__sector-links a em {
     overflow: visible;
     color: inherit;
+    font-size: 1rem;
     font-style: normal;
+    line-height: 1.2;
   }
 
   .ante-dossier__sector-links a.is-active {
