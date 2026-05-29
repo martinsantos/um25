@@ -14,11 +14,11 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
-  noticias: 'NOTICIAS',
-  proyectos: 'PROYECTOS',
-  tecnico: 'TÉCNICO',
-  tecnologia: 'TECNOLOGÍA',
-  empresa: 'EMPRESA',
+  noticias: 'Noticias',
+  proyectos: 'Proyectos',
+  tecnico: 'Técnico',
+  tecnologia: 'Tecnología',
+  empresa: 'Empresa',
 };
 
 export function getCategoryColor(cat: string): string {
@@ -26,7 +26,7 @@ export function getCategoryColor(cat: string): string {
 }
 
 export function getCategoryLabel(cat: string): string {
-  return CATEGORY_LABELS[cat] || cat.toUpperCase();
+  return CATEGORY_LABELS[cat] || cat;
 }
 
 export function formatBlogDate(dateStr: string): string {

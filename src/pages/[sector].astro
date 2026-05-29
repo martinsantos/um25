@@ -455,7 +455,8 @@ const compactCaseTitle = (value: unknown, client?: unknown): string => {
     justify-content: center;
     min-height: 50px;
     padding: 0 1.25rem;
-    border: 1px solid rgba(255,255,255,0.32);
+    border: 0;
+    background: rgba(255,255,255,0.08);
     color: #fff;
     font-size: 1rem;
     font-weight: 700;
@@ -463,12 +464,10 @@ const compactCaseTitle = (value: unknown, client?: unknown): string => {
   }
 
   .sector-detail-actions a:first-child {
-    border-color: var(--um-red);
     background: var(--um-red);
   }
 
   .sector-detail-actions a:hover {
-    border-color: #fff;
     background: #fff;
     color: #080808;
   }
@@ -483,7 +482,7 @@ const compactCaseTitle = (value: unknown, client?: unknown): string => {
   .sector-detail-proof__intro {
     padding: 1.25rem 1.2rem 1.1rem;
     background: rgba(8,8,8,0.78);
-    border-bottom: 1px solid rgba(255,255,255,0.13);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
   }
 
   .sector-detail-proof__intro span {
@@ -505,7 +504,7 @@ const compactCaseTitle = (value: unknown, client?: unknown): string => {
   .sector-detail-proof > div:not(.sector-detail-proof__intro) {
     padding: 1.1rem 1.25rem 1.2rem;
     background: rgba(8,8,8,0.68);
-    border-bottom: 1px solid rgba(255,255,255,0.13);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
   }
 
   .sector-detail-proof > div:last-child {
@@ -573,7 +572,8 @@ const compactCaseTitle = (value: unknown, client?: unknown): string => {
   }
 
   .sector-service-tags span {
-    border: 1px solid var(--um-line);
+    border: 0;
+    background: #f4f5f6;
     padding: 0.55rem 0.7rem;
     color: #374151;
     font-size: 1rem;
@@ -598,8 +598,8 @@ const compactCaseTitle = (value: unknown, client?: unknown): string => {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1px;
-    border: 1px solid var(--um-line);
-    background: var(--um-line);
+    border: 0;
+    background: color-mix(in srgb, #111 5%, transparent);
   }
 
   .sector-value-grid article,
@@ -681,7 +681,7 @@ const compactCaseTitle = (value: unknown, client?: unknown): string => {
     background: #fff;
     min-width: 0;
     overflow: hidden;
-    border-top: 1px solid var(--um-line);
+    border-top: 0;
   }
 
   .sector-evidence-card a {
@@ -803,7 +803,7 @@ const compactCaseTitle = (value: unknown, client?: unknown): string => {
     gap: 0.9rem 1.1rem;
     margin: 1.4rem 0 0;
     padding-top: 1rem;
-    border-top: 1px solid var(--um-line);
+    border-top: 1px solid color-mix(in srgb, #111 7%, transparent);
     background: transparent;
   }
 
@@ -865,8 +865,8 @@ const compactCaseTitle = (value: unknown, client?: unknown): string => {
   .sector-faq-list {
     display: grid;
     gap: 1px;
-    border: 1px solid var(--um-line);
-    background: var(--um-line);
+    border: 0;
+    background: color-mix(in srgb, #111 5%, transparent);
   }
 
   .sector-faq details {

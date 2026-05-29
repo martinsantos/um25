@@ -134,16 +134,14 @@ const issue = typeof index === 'number' ? String(index).padStart(2, '0') : '';
     gap: 10px;
     font-family: var(--um-font-body);
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 600;
     color: #4b5563;
-    text-transform: uppercase;
+    text-transform: none;
   }
 
   .category-mark::before {
     content: "";
-    width: 22px;
-    height: 2px;
-    background: var(--um-red);
+    display: none;
   }
 
   .meta-sep { color: #c9ced6; font-size: 16px; }
@@ -223,9 +221,9 @@ const issue = typeof index === 'number' ? String(index).padStart(2, '0') : '';
     color: transparent;
     border-radius: 0;
     display: block;
-    transition: opacity .2s;
+    transition: opacity .16s;
   }
-  .feed-thumb-wrap:hover .feed-thumb { opacity: .85; }
+  .feed-thumb-wrap:hover .feed-thumb { opacity: .94; }
 
   .feed-item--compact .feed-title {
     font-size: clamp(1.04rem, 1.08vw, 1.14rem);

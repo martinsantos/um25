@@ -396,8 +396,8 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
     position: relative;
     overflow: hidden;
     padding: clamp(18px, 2vw, 22px) 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-top: 0;
+    border-bottom: 0;
     background: #0a0a0a;
     color: #fff;
   }
@@ -411,7 +411,7 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
     grid-template-columns: 1fr;
     gap: 8px;
     padding-bottom: 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    border-bottom: 0;
   }
 
   .geo-dossier-brief__top span,
@@ -436,7 +436,7 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
     gap: 0.9rem;
     margin: 16px 0 0;
     padding-top: 1rem;
-    border-top: 1px solid rgba(255,255,255,0.14);
+    border-top: 0;
     background: transparent;
   }
 
@@ -465,8 +465,8 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
     min-height: 190px;
     aspect-ratio: 16 / 7.2;
     margin: 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.18);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    border-top: 0;
+    border-bottom: 0;
     background: #111;
   }
 
@@ -517,7 +517,7 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
   .geo-dossier-panel {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 0;
     background: rgba(8, 8, 8, 0.58);
     backdrop-filter: blur(14px);
   }
@@ -525,7 +525,7 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
   .geo-dossier-panel > div {
     min-height: 112px;
     padding: 20px;
-    border-right: 1px solid rgba(255, 255, 255, 0.14);
+    border-right: 0;
   }
 
   .geo-dossier-panel > div:last-child {
@@ -552,7 +552,7 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
   :global(body[data-skin="white"] main) .geo-dossier-hero {
     background: #fff;
     color: var(--skin-text);
-    border-bottom: 1px solid var(--skin-line);
+    border-bottom: 0;
   }
 
   :global(body[data-skin="white"] main) .geo-dossier-hero::before {
@@ -572,13 +572,13 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
   }
 
   :global(body[data-skin="white"] main) .geo-dossier-panel {
-    border-color: var(--skin-line);
+    border-color: transparent;
     background: var(--skin-section-alt);
     backdrop-filter: none;
   }
 
   :global(body[data-skin="white"] main .geo-dossier-hero .geo-dossier-brief) {
-    border-color: var(--skin-line) !important;
+    border-color: transparent !important;
     background: #fbfbfa !important;
   }
 
@@ -595,11 +595,11 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
   }
 
   :global(body[data-skin="white"] main .geo-dossier-hero .geo-dossier-brief__top) {
-    border-bottom-color: var(--skin-line) !important;
+    border-bottom-color: transparent !important;
   }
 
   :global(body[data-skin="white"] main) .geo-dossier-panel > div {
-    border-color: var(--skin-line);
+    border-color: transparent;
   }
 
   :global(body[data-skin="white"] main .geo-dossier-panel span) {
@@ -611,7 +611,7 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
   }
 
   :global(body[data-skin="white"] main) .geo-dossier-media {
-    border-color: var(--skin-line);
+    border-color: transparent;
     background: var(--skin-section-alt);
   }
 
@@ -624,7 +624,7 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
   }
 
   :global(body[data-skin="white"] main) .geo-dossier-hero .um-btn-secondary {
-    border-color: var(--skin-line);
+    border-color: transparent;
     color: var(--skin-text) !important;
   }
 
@@ -646,7 +646,7 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
   }
 
   .geo-proofline {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    border-bottom: 0;
     background: #090909;
     color: #fff;
   }
@@ -654,13 +654,13 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
   .geo-proofline__grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    border-left: 1px solid rgba(255, 255, 255, 0.14);
+    border-left: 0;
   }
 
   .geo-proofline__grid > div {
     min-height: 96px;
     padding: 20px 28px;
-    border-right: 1px solid rgba(255, 255, 255, 0.14);
+    border-right: 0;
   }
 
   .geo-proofline span {
@@ -681,20 +681,20 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
   }
 
   :global(body[data-skin="white"] main) .geo-proofline {
-    border-top: 1px solid var(--skin-line);
-    border-bottom: 1px solid var(--skin-line);
+    border-top: 0;
+    border-bottom: 0;
     background: #fff;
     color: var(--skin-text);
   }
 
   :global(body[data-skin="white"] main) .geo-proofline__grid {
-    border-left: 1px solid var(--skin-line);
+    border-left: 0;
   }
 
   :global(body[data-skin="white"] main) .geo-proofline__grid > div {
     min-height: 82px;
     padding: 16px 28px;
-    border-right: 1px solid var(--skin-line);
+    border-right: 0;
   }
 
   :global(body[data-skin="white"] main) .geo-proofline span {
@@ -1074,7 +1074,7 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
 
     .geo-dossier-panel > div {
       border-right: 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+      border-bottom: 0;
     }
 
     .geo-dossier-panel > div:last-child {
@@ -1156,13 +1156,13 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
 
     .geo-proofline__grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      border-left: 1px solid var(--skin-line);
+      border-left: 0;
     }
 
     .geo-proofline__grid > div {
       min-height: 94px;
       padding: 20px 18px;
-      border-right: 1px solid var(--skin-line);
+      border-right: 0;
     }
 
     .geo-proofline span {

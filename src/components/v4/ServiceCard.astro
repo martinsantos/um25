@@ -61,7 +61,7 @@ const descripcionTruncada = descripcion.length > 150
 ---
 
 <a href={serviceUrl} class="group flex flex-col h-full">
-  <article class="service-card-v4 flex flex-col h-full rounded-xl overflow-hidden shadow-sm card-hover">
+  <article class="service-card-v4 flex flex-col h-full overflow-hidden card-hover">
     <!-- Image -->
     <div class="service-card-v4__media relative aspect-[16/9] overflow-hidden">
       {imagenUrl ? (
@@ -89,7 +89,7 @@ const descripcionTruncada = descripcion.length > 150
 
       {badge && (
         <div class="absolute top-3 sm:top-4 left-3 sm:left-4">
-          <span class={`inline-flex items-center px-2.5 py-1 rounded-lg text-base font-semibold ${badgeColor} text-white shadow-sm`}>
+          <span class={`inline-flex items-center px-2.5 py-1 rounded-[4px] text-base font-semibold ${badgeColor} text-white`}>
             {badge}
           </span>
         </div>
@@ -110,7 +110,7 @@ const descripcionTruncada = descripcion.length > 150
         <span class="text-base font-medium uppercase tracking-wide">
           {cliente}
         </span>
-        <span class="text-um-primary text-base font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
+        <span class="text-um-primary text-base font-semibold flex items-center gap-1 transition-colors">
           Ver detalles
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />

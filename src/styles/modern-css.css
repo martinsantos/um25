@@ -259,13 +259,12 @@
 .cards-grid:has(.spotlight-card:hover) .spotlight-card:not(:hover) {
   opacity: 0.7;
   filter: saturate(0.5);
-  transition: all 0.3s ease;
+  transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
 .cards-grid:has(.spotlight-card:hover) .spotlight-card:hover {
-  transform: scale(1.02);
   z-index: 2;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 
 /* Form label highlights when input is focused */

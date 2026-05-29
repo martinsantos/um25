@@ -16,7 +16,7 @@
   --gray-light: 243, 244, 246; /* gray-100 */
   --gray-dark: 31, 41, 55; /* gray-800 */
   --gray-gradient: rgba(var(--gray-light), 50%), #fff;
-  --box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05), 0 8px 24px rgba(0, 0, 0, 0.1);
+  --box-shadow: none;
 }
 
 /* Estilos base de tipografía */
@@ -52,13 +52,6 @@ section {
 /* Contenedor */
 .container {
   @apply px-4 mx-auto w-full max-w-7xl;
-}
-
-/* Transiciones suaves */
-.transition-all {
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 200ms;
 }
 
 body {

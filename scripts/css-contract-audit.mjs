@@ -19,8 +19,11 @@ const files = execFileSync('rg', [
   .filter(Boolean);
 
 const labOrLegacy = [
+  /^src\/components\/arca\//,
+  /^src\/components\/(ServicesList|FeaturedAntecedentes|ProjectCard)\.astro$/,
   /^src\/pages\/(admin|banners|pretext-demo|estilo)\//,
   /^src\/pages\/(banners|pretext-demo|estilo|plantilla-arca)\.astro$/,
+  /^src\/pages\/antecedentes\/_?\[slug\]\.astro$/,
   /^src\/styles\/(modern-css|antecedentes|global|banner-overlays|sectors-mobile)\.css$/,
   /^src\/utils\/pretextFx\.ts$/,
   /^src\/pages\/casos\//,
@@ -47,13 +50,13 @@ const rules = [
   {
     id: 'no-transition-all',
     severity: 'error',
-    pattern: /transition:\s*all\b/,
+    pattern: /(?:transition:\s*all\b|\btransition-all\b)/,
     message: 'Evitar transition: all. Declarar propiedades concretas para no animar layout accidentalmente.',
   },
   {
     id: 'no-hover-zoom',
     severity: 'error',
-    pattern: /(?:(?:hover|focus)[^{]*\{[^}]*transform:\s*scale\(|transform:\s*scale\([^;]+;\s*[^}]*\})/s,
+    pattern: /(?:(?:hover|focus)[^{]*\{[^}]*transform:\s*scale\(|\bhover:scale-\[|\bhover:-translate-|\bgroup-hover:scale-)/s,
     message: 'Evitar zoom/scale en UI comercial. El sistema UMSA pide imagenes estables y sin hover efectista.',
   },
   {
@@ -83,8 +86,14 @@ const rules = [
   {
     id: 'shadow-review',
     severity: 'warning',
-    pattern: /box-shadow:\s*0\s+(?:[2-9]|\d{2,})px\b/,
+    pattern: /(?:box-shadow:\s*0\s+(?:[2-9]|\d{2,})px\b|\bshadow-(?:sm|md|lg|xl|2xl)\b|\bhover:shadow-(?:sm|md|lg|xl|2xl)\b)/,
     message: 'Revisar sombra visible. En UMSA 2026 la separacion debe venir de espacio, linea fina o contraste.',
+  },
+  {
+    id: 'rounded-card-review',
+    severity: 'warning',
+    pattern: /\brounded-(?:xl|2xl|3xl|full)\b/,
+    message: 'Revisar radios grandes. En UMSA 2026 los modulos comerciales deben ser editoriales, no cards SaaS.',
   },
 ];
 

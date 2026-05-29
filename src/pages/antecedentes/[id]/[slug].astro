@@ -502,7 +502,7 @@ const antecedenteStructuredData = {
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {antecedente.Imagenes.map((img: any) => (
-                <div class="aspect-video rounded-xl overflow-hidden bg-gray-100 group">
+                <div class="aspect-video overflow-hidden bg-gray-100 group">
                   <img
                     src={getAssetUrl(img)}
                     alt="Galería"
@@ -775,7 +775,8 @@ const antecedenteStructuredData = {
     min-height: 50px;
     min-width: 216px;
     padding: 0 1.25rem;
-    border: 1px solid #111;
+    border: 0;
+    background: #f4f5f6;
     color: #111;
     font-size: 1rem;
     font-weight: 700;
@@ -783,13 +784,11 @@ const antecedenteStructuredData = {
   }
 
   .case-detail-actions a:first-child {
-    border-color: #DC2626;
     background: #DC2626;
     color: #fff;
   }
 
   .case-detail-actions a:hover {
-    border-color: #111;
     background: #111;
     color: #fff;
   }
@@ -798,8 +797,8 @@ const antecedenteStructuredData = {
     overflow: hidden;
     width: min(100%, 480px);
     justify-self: end;
-    border-top: 1px solid var(--um-line);
-    border-bottom: 1px solid var(--um-line);
+    border-top: 0;
+    border-bottom: 0;
     background: #fff;
   }
 
@@ -846,7 +845,7 @@ const antecedenteStructuredData = {
     gap: 1rem 1.25rem;
     margin-top: 1.4rem;
     padding-top: 1rem;
-    border-top: 1px solid var(--um-line);
+    border-top: 1px solid color-mix(in srgb, #111 7%, transparent);
     background: transparent;
   }
 
@@ -955,8 +954,8 @@ const antecedenteStructuredData = {
   .case-scope-list {
     display: grid;
     gap: 1px;
-    border: 1px solid var(--um-line);
-    background: var(--um-line);
+    border: 0;
+    background: color-mix(in srgb, #111 5%, transparent);
   }
 
   .case-scope-list > div {
@@ -970,14 +969,10 @@ const antecedenteStructuredData = {
     line-height: 1.55;
   }
 
-  .case-detail-body :global(.rounded-xl) {
-    border-radius: 4px !important;
-  }
-
   .case-info-card {
     overflow: hidden;
-    border-top: 1px solid var(--um-line);
-    border-bottom: 1px solid var(--um-line);
+    border-top: 0;
+    border-bottom: 0;
     border-radius: 0;
     background: #fff;
   }
@@ -987,7 +982,7 @@ const antecedenteStructuredData = {
     align-items: center;
     gap: 0.65rem;
     padding: 1rem 0;
-    border-bottom: 1px solid var(--um-line);
+    border-bottom: 1px solid color-mix(in srgb, #111 7%, transparent);
     background: #fff;
     color: #111;
     font-size: 1rem;
@@ -1005,7 +1000,7 @@ const antecedenteStructuredData = {
 
   .case-cta-card {
     padding: 1.35rem;
-    border: 1px solid rgba(255,255,255,0.18);
+    border: 0;
     border-radius: 0;
     background: #080808;
     color: #fff;
@@ -1017,7 +1012,7 @@ const antecedenteStructuredData = {
     height: 42px;
     margin-bottom: 1rem;
     place-items: center;
-    border: 1px solid rgba(255,255,255,0.18);
+    border: 0;
     color: #DC2626;
   }
 
@@ -1052,7 +1047,7 @@ const antecedenteStructuredData = {
     justify-content: center;
     gap: 0.55rem;
     min-height: 46px;
-    border: 1px solid rgba(255,255,255,0.28);
+    border: 0;
     color: #fff;
     font-size: 1rem;
     font-weight: 700;
@@ -1060,7 +1055,6 @@ const antecedenteStructuredData = {
   }
 
   .case-cta-card__actions a:first-child {
-    border-color: #DC2626;
     background: #DC2626;
   }
 

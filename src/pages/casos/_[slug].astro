@@ -24,7 +24,7 @@ if (!caso) return Astro.redirect('/404');
 <LayoutV4 title={`${caso.titulo} | Ultima Milla`} description={caso.descripcionCorta}>
     <main class="container mx-auto px-4 py-8">
         <!-- Hero Section -->
-        <div class="relative h-[400px] mb-8 rounded-xl overflow-hidden">
+        <div class="relative h-[400px] mb-8 overflow-hidden">
             <OptimizedImage
                 src={caso.imagen}
                 alt={caso.titulo}
@@ -47,7 +47,7 @@ if (!caso) return Astro.redirect('/404');
         <!-- Contenido Principal -->
         <div class="grid md:grid-cols-3 gap-8">
             <div class="md:col-span-2">
-                <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <div class="bg-white border border-gray-200 p-8 mb-8">
                     <h2 class="text-2xl font-bold mb-6">Sobre el Proyecto</h2>
                     <p class="text-gray-700 mb-8">{caso.descripcionLarga}</p>
 
@@ -74,7 +74,7 @@ if (!caso) return Astro.redirect('/404');
                 </div>
 
                 {caso.testimonial && (
-                    <div class="bg-primary-50 rounded-xl shadow-lg p-8">
+                    <div class="bg-primary-50 border border-primary-100 p-8">
                         <blockquote class="text-lg text-gray-700 italic mb-4">
                             "{caso.testimonial.texto}"
                         </blockquote>
@@ -94,7 +94,7 @@ if (!caso) return Astro.redirect('/404');
 
             <!-- Sidebar -->
             <div>
-                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <div class="bg-white border border-gray-200 p-6 mb-8">
                     <h3 class="text-xl font-semibold mb-4">Detalles del Proyecto</h3>
                     <div class="space-y-4">
                         <div>
@@ -109,7 +109,7 @@ if (!caso) return Astro.redirect('/404');
                             <div class="text-gray-600 mb-1">Tecnologías Utilizadas</div>
                             <div class="flex flex-wrap gap-2">
                                 {caso.tecnologiasUsadas.map(tech => (
-                                    <span class="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-base">
+                                    <span class="px-3 py-1 bg-primary-100 text-primary-700 rounded-[4px] text-base">
                                         {tech}
                                     </span>
                                 ))}
@@ -119,12 +119,12 @@ if (!caso) return Astro.redirect('/404');
                 </div>
 
                 <!-- CTA -->
-                <div class="bg-primary-600 text-white rounded-xl shadow-lg p-6">
+                <div class="bg-primary-600 text-white p-6">
                     <h3 class="text-xl font-semibold mb-4">¿Te gustaría un resultado similar?</h3>
                     <p class="mb-4">Contáctanos para discutir cómo podemos ayudarte con tu proyecto.</p>
                     <a
                         href="/contacto"
-                        class="block text-center bg-white text-primary-600 py-2 px-4 rounded-lg font-semibold hover:bg-primary-50 transition-colors"
+                        class="block text-center bg-white text-primary-600 py-2 px-4 rounded-[4px] font-semibold hover:bg-primary-50 transition-colors"
                     >
                         Contactar Ahora
                     </a>
@@ -140,7 +140,7 @@ if (!caso) return Astro.redirect('/404');
                     {casosRelacionados.map(caso => (
                         <a
                             href={`/casos/${caso.slug}`}
-                            class="block bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+                            class="block bg-white border border-gray-200 overflow-hidden hover:border-primary-500 transition-colors"
                         >
                             <OptimizedImage
                                 src={caso.imagen}

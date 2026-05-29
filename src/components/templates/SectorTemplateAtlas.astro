@@ -262,7 +262,7 @@ const buildSectorFilterUrl = (nextSector: string) => {
     gap: clamp(32px, 6vw, 88px);
     align-items: start;
     padding-bottom: clamp(34px, 5vw, 58px);
-    border-bottom: 1px solid var(--skin-line, #d8dde3);
+    border-bottom: 0;
   }
 
   .sector-atlas-exec-hero__copy {
@@ -310,25 +310,25 @@ const buildSectorFilterUrl = (nextSector: string) => {
     justify-content: center;
     min-height: 48px;
     padding: 0 22px;
-    border: 1px solid rgba(216, 221, 227, 0.72);
+    border: 0;
+    background: rgba(17,17,17,0.05);
     color: var(--skin-text, #111);
     font-size: 1rem;
-    font-weight: 700;
+    font-weight: 600;
   }
 
   .sector-atlas-exec-actions a:first-child {
     background: var(--um-red);
-    border-color: transparent;
     background-clip: border-box;
-    box-shadow: inset 0 0 0 1px var(--um-red);
+    box-shadow: none;
     color: #fff;
   }
 
   .sector-atlas-exec-proof {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1px;
-    background: rgba(216, 221, 227, 0.86);
+    gap: 0;
+    background: transparent;
   }
 
   .sector-atlas-exec-proof figure {
@@ -387,7 +387,7 @@ const buildSectorFilterUrl = (nextSector: string) => {
     gap: clamp(34px, 5.4vw, 78px);
     align-items: end;
     padding: clamp(34px, 5vw, 58px) 0;
-    border-bottom: 1px solid var(--skin-line, #d8dde3);
+    border-bottom: 0;
   }
 
   .sector-atlas-exec-feature figure {
@@ -467,8 +467,8 @@ const buildSectorFilterUrl = (nextSector: string) => {
     overflow: hidden;
     background: var(--skin-page, #fff);
     padding: 0 0 10px;
-    border-bottom: 1px solid rgba(17, 17, 17, 0.1);
-    box-shadow: 0 -24px 0 var(--skin-page, #fff);
+    border-bottom: 0;
+    box-shadow: 0 -12px 0 var(--skin-page, #fff);
   }
 
   .sector-atlas-exec-ledger__filters {
@@ -477,7 +477,7 @@ const buildSectorFilterUrl = (nextSector: string) => {
     margin-bottom: 0;
     background: #fff;
     border-top: 0;
-    border-bottom: 1px solid rgba(17, 17, 17, 0.12);
+    border-bottom: 0;
   }
 
   .sector-atlas-exec-ledger__filters-links {
@@ -634,7 +634,7 @@ const buildSectorFilterUrl = (nextSector: string) => {
   .sector-atlas-exec-row__services li {
     padding: 7px 10px;
     background: color-mix(in srgb, var(--skin-section-alt, #f5f6f7) 52%, white);
-    border: 1px solid rgba(216, 221, 227, 0.72);
+    border: 0;
   }
 
   .sector-atlas-exec-row strong {
@@ -856,7 +856,7 @@ const buildSectorFilterUrl = (nextSector: string) => {
   }
 
   .sector-atlas-detail-panel {
-    border: 1px solid rgba(255,255,255,0.18);
+    border: 0;
     background: rgba(0,0,0,0.58);
     backdrop-filter: blur(8px);
     padding: 0;
@@ -1003,12 +1003,14 @@ const buildSectorFilterUrl = (nextSector: string) => {
 
     .sector-atlas-exec-ledger__filters-links {
       display: flex;
-      gap: 18px;
-      padding-right: 18px;
+      flex-wrap: wrap;
+      gap: 0 18px;
+      padding-right: 0;
+      overflow: visible;
     }
 
     .sector-atlas-exec-ledger__filters-links a {
-      min-height: 42px;
+      min-height: 40px;
     }
 
     .sector-atlas-exec-proof {

@@ -56,7 +56,7 @@ const processedAntecedentes = await Promise.all(
         class={`group flex flex-col h-full antecedente-item ${index >= 6 ? 'hidden' : ''}`}
         data-index={index}
       >
-        <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1">
+        <article class="flex flex-col h-full bg-white overflow-hidden border border-slate-200 hover:border-red-500 transition-colors duration-200">
           <!-- Image -->
           <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
             <img
@@ -67,7 +67,7 @@ const processedAntecedentes = await Promise.all(
               onerror="this.src='/images/um-logo.png'; this.onerror=null;"
             />
             <div class="absolute top-4 left-4">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded text-base font-medium bg-slate-900 text-white shadow-sm">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-[4px] text-base font-medium bg-slate-900 text-white">
                 {proyecto.Area || 'Proyecto'}
               </span>
             </div>
@@ -106,7 +106,7 @@ const processedAntecedentes = await Promise.all(
   {processedAntecedentes.length > 6 && (
     <div class="mt-12 text-center load-more-container">
       <button 
-        class="load-more-btn inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 shadow-md"
+        class="load-more-btn inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-[4px] text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
         onclick="loadMoreAntecedentes(this)"
       >
         Ver más casos

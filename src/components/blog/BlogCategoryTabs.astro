@@ -16,7 +16,6 @@ const tabs = [
 ---
 
 <nav class="cat-tabs" aria-label="Categorías del blog">
-  <span class="cat-tabs__label">Ejes de lectura</span>
   <div class="cat-tabs__list">
     {tabs.map(tab => {
       const isActive = tab.key === current || (!current && !tab.key);
@@ -35,33 +34,11 @@ const tabs = [
 
 <style>
   .cat-tabs {
-    display: grid;
-    grid-template-columns: minmax(180px, 0.24fr) minmax(0, 0.76fr);
-    gap: clamp(20px, 3vw, 44px);
+    display: block;
     align-items: stretch;
     margin-bottom: clamp(22px, 3vw, 36px);
     border-bottom: 0;
     background: #fff;
-  }
-
-  .cat-tabs__label {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 64px;
-    font-family: var(--um-font-body, 'Open Sans', system-ui, sans-serif);
-    font-size: 16px;
-    font-weight: 700;
-    color: #1f2937;
-    text-transform: uppercase;
-    border-right: 0;
-  }
-
-  .cat-tabs__label::before {
-    content: "";
-    width: 28px;
-    height: 2px;
-    background: var(--um-red);
   }
 
   .cat-tabs__list {
@@ -103,16 +80,7 @@ const tabs = [
 
   @media (max-width: 760px) {
     .cat-tabs {
-      grid-template-columns: 1fr;
-      gap: 0;
       margin-bottom: 26px;
-    }
-
-    .cat-tabs__label {
-      min-height: auto;
-      padding: 16px 0 12px;
-      border-right: 0;
-      border-bottom: 0;
     }
 
     .cat-tabs__list {

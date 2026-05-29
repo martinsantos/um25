@@ -314,7 +314,7 @@ function css() {
 .ptfx-line.stmp{opacity:0;transform:translateY(20px) scale(1.08);transition:opacity .2s,transform .3s cubic-bezier(.34,1.56,.64,1)}
 .ptfx-line.stmp.on{opacity:1;transform:translateY(0) scale(1)}
 
-.ptfx-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--c);opacity:.4;margin-bottom:.5rem}
+.ptfx-lbl{font-size:16px;text-transform:uppercase;letter-spacing:.12em;color:var(--c);opacity:.48;margin-bottom:.5rem}
 
 @media (prefers-reduced-motion: reduce){
   .ptfx-char.beat,.ptfx-char.fi,.ptfx-flap.landed,.ptfx-cctv.cut,.ptfx-surge.go,
@@ -1110,7 +1110,7 @@ export function cardFx(container: string | HTMLElement, _opts?: { color?: string
         const t = dEl.dataset.ptfxDesc || '', mw = dEl.clientWidth;
         const r = layoutWithLines(prepareWithSegments(t, `400 14px ${B_FONT}`), mw, 21.7);
         dEl.replaceChildren();
-        r.lines.forEach((l: any) => { const d = document.createElement('div'); d.style.cssText = 'font-size:14px;line-height:21.7px;color:#6b7280;'; d.textContent = l.text; dEl.appendChild(d); });
+        r.lines.forEach((l: any) => { const d = document.createElement('div'); d.style.cssText = 'font-size:16px;line-height:24px;color:#6b7280;'; d.textContent = l.text; dEl.appendChild(d); });
       }
       obs.unobserve(card);
     });
@@ -1152,7 +1152,7 @@ export function wireCardFx(selector = '[data-ptfx-card]', opts?: { color?: strin
           dEl.replaceChildren();
           r.lines.forEach((l: any) => {
             const d = document.createElement('div');
-            d.style.cssText = 'font-size:14px;line-height:21.7px;color:#6b7280;';
+            d.style.cssText = 'font-size:16px;line-height:24px;color:#6b7280;';
             d.textContent = l.text;
             dEl.appendChild(d);
           });

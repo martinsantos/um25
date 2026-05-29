@@ -507,7 +507,6 @@ const keywords =
 
     .arca-hero {
       padding: clamp(92px, 12vw, 150px) 0 clamp(56px, 8vw, 92px);
-      border-bottom: 1px solid var(--skin-line);
       background:
         linear-gradient(90deg, rgba(255,255,255,0.98), rgba(255,255,255,0.86) 54%, rgba(255,255,255,0.32)),
         url('/images/hero/portada-software.jpg') center / cover;
@@ -587,7 +586,7 @@ const keywords =
       align-items: center;
       justify-content: center;
       padding: 15px 22px;
-      border: 1px solid #111111;
+      border: 0;
     }
 
     .arca-btn-primary,
@@ -597,7 +596,7 @@ const keywords =
     .arca-page .bg-green-600 {
       background: var(--um-red) !important;
       color: #ffffff !important;
-      border-color: var(--um-red) !important;
+      border-color: transparent !important;
       background-image: none !important;
       box-shadow: none !important;
     }
@@ -608,14 +607,13 @@ const keywords =
     .arca-page .bg-indigo-600:hover,
     .arca-page .bg-green-600:hover {
       background: #111111 !important;
-      border-color: #111111 !important;
+      border-color: transparent !important;
       color: #ffffff !important;
     }
 
     .arca-btn-secondary {
-      background: rgba(255,255,255,0.78);
+      background: rgba(255,255,255,0.84);
       color: #111111;
-      border-color: #BFC4CA;
     }
 
     .arca-page #save-template-btn,
@@ -624,8 +622,8 @@ const keywords =
     .arca-page #new-invoice-btn,
     .arca-page #afip-cta-no,
     .arca-page #afip-disconnect {
-      border: 1px solid #C8CDD2 !important;
-      background: #ffffff !important;
+      border: 0 !important;
+      background: #F1F3F5 !important;
       color: #111111 !important;
     }
 
@@ -633,7 +631,7 @@ const keywords =
     .arca-page #download-pdf-btn,
     .arca-page #afip-cta-yes,
     .arca-page #afip-show-form {
-      border: 1px solid #111111 !important;
+      border: 0 !important;
       background: #111111 !important;
       color: #ffffff !important;
       box-shadow: none !important;
@@ -641,18 +639,17 @@ const keywords =
 
     .arca-hero-proof {
       display: grid;
-      border: 1px solid #DADDE1;
       background: rgba(255,255,255,0.86);
       backdrop-filter: blur(10px);
     }
 
     .arca-hero-proof div {
       padding: 22px;
-      border-bottom: 1px solid #DADDE1;
+      background: rgba(255,255,255,0.54);
     }
 
-    .arca-hero-proof div:last-child {
-      border-bottom: 0;
+    .arca-hero-proof div + div {
+      margin-top: 1px;
     }
 
     .arca-hero-proof span,
@@ -698,7 +695,6 @@ const keywords =
       align-items: end;
       margin-bottom: 34px;
       padding-top: 22px;
-      border-top: 1px solid #111111;
     }
 
     .arca-section-head .arca-eyebrow {
@@ -736,7 +732,7 @@ const keywords =
     .arca-card,
     .arca-detail,
     .arca-page dialog {
-      border: 1px solid #DADDE1 !important;
+      border: 0 !important;
       border-radius: 4px !important;
       background: #ffffff !important;
       box-shadow: none !important;
@@ -769,7 +765,7 @@ const keywords =
       align-items: center;
       justify-content: center;
       padding: 17px 22px;
-      border: 1px solid var(--um-red);
+      border: 0;
       cursor: pointer;
     }
 
@@ -797,9 +793,9 @@ const keywords =
 
     .arca-page :where(input, select, textarea) {
       min-height: 46px;
-      border: 1px solid #C8CDD2 !important;
+      border: 0 !important;
       border-radius: 4px !important;
-      background: #ffffff !important;
+      background: #F5F6F7 !important;
       color: #111111 !important;
       font-size: 1rem !important;
       line-height: 1.35;
@@ -807,7 +803,6 @@ const keywords =
     }
 
     .arca-page :where(input:focus, select:focus, textarea:focus) {
-      border-color: #111111 !important;
       outline: 2px solid rgba(220,38,38,0.2) !important;
       outline-offset: 1px;
       --tw-ring-color: rgba(220,38,38,0.22) !important;
@@ -840,11 +835,11 @@ const keywords =
       border-color: var(--um-red) !important;
     }
 
-    .arca-page :where(.rounded-md, .rounded-lg, .rounded-xl) {
+    .arca-page :where([class*="rounded-"]) {
       border-radius: 4px !important;
     }
 
-    .arca-page :where(.shadow-md, .shadow-lg, .shadow-xl) {
+    .arca-page :where([class*="shadow-"]) {
       box-shadow: none !important;
     }
 
@@ -859,8 +854,8 @@ const keywords =
       align-items: center;
       justify-content: center;
       margin: 0 auto 14px;
-      border: 1px solid #17633B;
       border-radius: 50%;
+      background: rgba(23,99,59,0.08);
       color: #17633B;
       font-size: 1rem;
       font-weight: 700;
@@ -868,7 +863,6 @@ const keywords =
 
     .arca-faq {
       background: #ffffff;
-      border-top: 1px solid #DADDE1;
     }
 
     .arca-faq-grid {
@@ -918,7 +912,6 @@ const keywords =
     }
 
     .arca-final-cta {
-      border-top: 1px solid #DADDE1;
       background: #080808;
       color: #ffffff;
     }
@@ -932,9 +925,8 @@ const keywords =
     }
 
     .arca-final-cta .arca-btn-secondary {
-      background: transparent;
+      background: rgba(255,255,255,0.09);
       color: #ffffff;
-      border-color: rgba(255,255,255,0.32);
     }
 
     details summary::-webkit-details-marker {

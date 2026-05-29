@@ -19,7 +19,7 @@
   --um-gray-700: #333333;
   --um-gray-500: #666666;
   --um-muted: #5F6368;
-  --um-line: #DDDDDD;
+  --um-line: #EAEDF0;
   --um-soft: #F5F5F5;
   --um-panel: #FFFFFF;
   --um-blue-doc: #1A56C0;
@@ -28,19 +28,19 @@
   --um-container: 1180px;
   --um-container-wide: 1280px;
   --um-font-logo: 'Futura PT', 'Futura', sans-serif;
-  --um-font-display: 'Poppins', 'Futura PT', 'Century Gothic', sans-serif;
+  --um-font-display: 'Red Hat Display', 'Open Sans', Arial, system-ui, sans-serif;
   --um-font-body: 'Open Sans', Arial, system-ui, sans-serif;
   --um-weight-title: 600;
   --um-weight-strong: 700;
   --um-section-y: clamp(72px, 9vw, 120px);
   --um-section-y-tight: clamp(56px, 7vw, 88px);
-  --um-world-h1: clamp(2.5rem, 2.85vw, 3.35rem);
-  --um-world-h2: clamp(1.72rem, 2.18vw, 2.36rem);
-  --um-world-h3: clamp(1.14rem, 1.24vw, 1.42rem);
-  --um-world-body: clamp(1rem, 1.05vw, 1.12rem);
-  --um-world-lead: clamp(1.08rem, 1.28vw, 1.24rem);
+  --um-world-h1: clamp(2.5rem, 2.62vw, 3.16rem);
+  --um-world-h2: clamp(1.58rem, 1.92vw, 2.08rem);
+  --um-world-h3: clamp(1.08rem, 1.12vw, 1.28rem);
+  --um-world-body: clamp(1rem, 1.01vw, 1.06rem);
+  --um-world-lead: clamp(1.04rem, 1.16vw, 1.16rem);
   --um-world-gutter: clamp(28px, 5vw, 76px);
-  --um-world-rule: 1px solid var(--skin-line);
+  --um-world-rule: 1px solid color-mix(in srgb, var(--skin-text) 8%, transparent);
   --um-dark-bg: #050505;
   --um-dark-panel: #101010;
   --um-dark-panel-soft: #151515;
@@ -61,11 +61,11 @@
   --skin-panel-strong: #F5F6F7;
   --skin-text: #111111;
   --skin-muted: #5F6368;
-  --skin-line: #DDDDDD;
+  --skin-line: #EAEDF0;
   --skin-hero-bg: #080808;
   --skin-hero-text: #FFFFFF;
   --skin-hero-muted: rgba(255,255,255,0.72);
-  --skin-hero-line: rgba(255,255,255,0.18);
+  --skin-hero-line: rgba(255,255,255,0.1);
   --skin-hero-panel: rgba(255,255,255,0.08);
   --skin-hero-panel-solid: rgba(8,8,8,0.68);
   --skin-hero-wash: linear-gradient(90deg, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0.82) 46%, rgba(8,8,8,0.42) 100%), linear-gradient(0deg, rgba(8,8,8,0.86) 0%, rgba(8,8,8,0.14) 70%);
@@ -73,11 +73,11 @@
   --skin-nav-bg: rgba(0,0,0,0.94);
   --skin-nav-text: rgba(255,255,255,0.82);
   --skin-nav-text-strong: #FFFFFF;
-  --skin-nav-line: rgba(255,255,255,0.1);
+  --skin-nav-line: rgba(255,255,255,0.08);
   --skin-footer-bg: #080808;
   --skin-footer-text: rgba(255,255,255,0.64);
   --skin-footer-heading: #FFFFFF;
-  --skin-footer-line: rgba(255,255,255,0.12);
+  --skin-footer-line: rgba(255,255,255,0.08);
 }
 
 body[data-skin="black"] {
@@ -88,11 +88,11 @@ body[data-skin="black"] {
   --skin-panel-strong: #151719;
   --skin-text: #F7F7F7;
   --skin-muted: rgba(255,255,255,0.66);
-  --skin-line: rgba(255,255,255,0.14);
+  --skin-line: rgba(255,255,255,0.09);
   --skin-hero-bg: #050505;
   --skin-hero-text: #FFFFFF;
   --skin-hero-muted: rgba(255,255,255,0.72);
-  --skin-hero-line: rgba(255,255,255,0.16);
+  --skin-hero-line: rgba(255,255,255,0.1);
   --skin-hero-panel: rgba(255,255,255,0.07);
   --skin-hero-panel-solid: rgba(5,5,5,0.72);
   --skin-hero-wash: linear-gradient(90deg, rgba(5,5,5,0.96) 0%, rgba(5,5,5,0.84) 48%, rgba(5,5,5,0.46) 100%), linear-gradient(0deg, rgba(5,5,5,0.9) 0%, rgba(5,5,5,0.18) 70%);
@@ -115,11 +115,11 @@ body[data-skin="white"] {
   --skin-panel-strong: #F5F6F7;
   --skin-text: #111111;
   --skin-muted: #535A62;
-  --skin-line: #DADDE1;
+  --skin-line: #ECEFF2;
   --skin-hero-bg: #FFFFFF;
   --skin-hero-text: #111111;
   --skin-hero-muted: #555D66;
-  --skin-hero-line: #DADDE1;
+  --skin-hero-line: #ECEFF2;
   --skin-hero-panel: rgba(17,17,17,0.04);
   --skin-hero-panel-solid: rgba(255,255,255,0.86);
   --skin-hero-wash: linear-gradient(90deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.92) 46%, rgba(255,255,255,0.42) 76%, rgba(255,255,255,0.2) 100%), linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.72) 56%, rgba(255,255,255,0.95) 100%);
@@ -285,8 +285,8 @@ body[data-skin="steel"] {
     gap: 0.625rem;
     color: var(--um-red);
     font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0;
+    font-weight: 600;
+    letter-spacing: 0.08em;
     line-height: 1;
     text-transform: uppercase;
   }
@@ -295,7 +295,7 @@ body[data-skin="steel"] {
     content: "";
     display: inline-block;
     width: 34px;
-    height: 2px;
+    height: 1px;
     background: var(--um-red);
   }
 
@@ -370,7 +370,7 @@ body[data-skin="steel"] {
     gap: 12px;
     color: var(--um-red);
     font-size: 1rem;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.2;
     text-transform: uppercase;
   }
@@ -378,7 +378,7 @@ body[data-skin="steel"] {
   .um-world-label::before {
     content: "";
     width: 42px;
-    height: 2px;
+    height: 1px;
     background: currentColor;
   }
 
@@ -426,21 +426,20 @@ body[data-skin="steel"] {
     justify-content: center;
     min-height: 50px;
     padding: 0.9rem 1.35rem;
-    border: 1px solid transparent;
+    border: 0;
     border-radius: var(--um-radius);
     background: var(--um-red);
     background-clip: border-box;
-    box-shadow: inset 0 0 0 1px var(--um-red);
+    box-shadow: none;
     color: #fff;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1;
     text-decoration: none;
-    transition: background-color 180ms ease, box-shadow 180ms ease;
+    transition: background-color 180ms ease, color 180ms ease;
   }
 
   .um-btn-primary:hover {
     background: var(--um-red-dark);
-    box-shadow: inset 0 0 0 1px var(--um-red-dark);
   }
 
   .um-btn-secondary {
@@ -449,38 +448,37 @@ body[data-skin="steel"] {
     justify-content: center;
     min-height: 50px;
     padding: 0.9rem 1.35rem;
-    border: 1px solid var(--skin-line);
+    border: 0;
     border-radius: var(--um-radius);
-    background: transparent;
+    background: color-mix(in srgb, var(--skin-text) 7%, transparent);
     background-clip: padding-box;
     color: var(--skin-text);
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1;
     text-decoration: none;
-    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+    transition: background-color 180ms ease, color 180ms ease;
   }
 
   .um-btn-secondary:hover {
     background: var(--skin-text);
-    border-color: var(--skin-text);
     color: var(--skin-page);
   }
 
   .um-panel {
-    border: 1px solid var(--skin-line);
+    border: 0;
     border-radius: var(--um-radius);
     background: var(--skin-panel);
   }
 
   .um-section-rule {
-    border-top: 1px solid var(--skin-line);
+    border-top: 1px solid color-mix(in srgb, var(--skin-text) 8%, transparent);
     padding-top: clamp(24px, 4vw, 36px);
   }
 
   .um-red-rule {
     display: inline-block;
     width: 56px;
-    height: 3px;
+    height: 2px;
     background: var(--um-red);
   }
 
@@ -490,7 +488,7 @@ body[data-skin="steel"] {
     gap: 0.85rem;
     color: inherit;
     font-size: 1rem;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.2;
   }
 
@@ -498,8 +496,8 @@ body[data-skin="steel"] {
     content: "";
     width: 30px;
     height: 12px;
-    border-right: 2px solid currentColor;
-    border-bottom: 2px solid currentColor;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
     transform: skewX(-35deg);
   }
 
@@ -546,7 +544,8 @@ body[data-skin="steel"] {
 
   /* Legacy buttons (migrated from global.css) */
   .btn {
-    @apply inline-flex items-center justify-center px-6 py-3 font-semibold transition-all duration-200;
+    @apply inline-flex items-center justify-center px-6 py-3 font-semibold duration-200;
+    transition-property: background-color, border-color, color;
     border-radius: var(--um-radius);
   }
   .btn-primary {
@@ -1049,24 +1048,24 @@ body[data-skin] main :where(.bg-um-dark, .bg-black, .bg-\[\#050505\], .bg-\[\#08
 }
 
 body[data-skin] main :where(.um-btn-secondary) {
-  border-color: var(--skin-line) !important;
+  border-color: transparent !important;
   color: var(--skin-text) !important;
 }
 
 body[data-skin] main :where(.um-btn-secondary:hover) {
   background: var(--skin-text) !important;
-  border-color: var(--skin-text) !important;
+  border-color: transparent !important;
   color: var(--skin-page) !important;
 }
 
 body[data-skin] :where(main, nav, footer) :where(.um-btn-primary, .um-nav-cta) {
   border-color: transparent !important;
   background-clip: border-box !important;
-  box-shadow: inset 0 0 0 1px var(--um-red) !important;
+  box-shadow: none !important;
 }
 
 body[data-skin] :where(main, nav, footer) :where(.um-btn-primary:hover, .um-nav-cta:hover) {
-  box-shadow: inset 0 0 0 1px var(--um-red-dark) !important;
+  box-shadow: none !important;
 }
 
 body[data-skin] main :where(.um-cta, .stats-bar-v4) {
@@ -1089,7 +1088,7 @@ body[data-skin] main :where(
   .ante-hero
 ) :where(.um-btn-secondary) {
   background: var(--skin-hero-panel) !important;
-  border-color: var(--skin-hero-line) !important;
+  border-color: transparent !important;
   color: var(--skin-hero-text) !important;
 }
 
@@ -1108,7 +1107,7 @@ body[data-skin] main :where(
   .ante-hero
 ) :where(.um-btn-secondary:hover) {
   background: var(--skin-hero-text) !important;
-  border-color: var(--skin-hero-text) !important;
+  border-color: transparent !important;
   color: var(--skin-hero-bg) !important;
 }
 
@@ -1360,9 +1359,8 @@ body[data-skin] main :where(
   .um-surface-dark .um-btn-secondary,
   .um-panel-dark .um-btn-secondary
 ) {
-  border-color: var(--um-dark-line) !important;
   color: var(--um-dark-text) !important;
-  background: rgba(255,255,255,0.06) !important;
+  background: rgba(255,255,255,0.1) !important;
 }
 
 body[data-skin="white"] main :where(.blog-index, .blog-cat) {
@@ -1431,7 +1429,7 @@ body[data-skin="white"] main :where(.blog-index, .blog-cat) {
   label,
   strong
 ) {
-  font-weight: var(--um-weight-strong);
+  font-weight: 600;
 }
 
 @media (max-width: 640px) {
@@ -1613,6 +1611,65 @@ body[data-skin] main :where(
   :where(main) h3 {
     font-size: clamp(1.12rem, 4.8vw, 1.38rem) !important;
   }
+}
+
+/* Executive Industrial Minimal pass:
+   separation comes from rhythm, image weight and spacing; borders stay nearly silent. */
+:where(main) :where(
+  .um-btn,
+  .um-btn-primary,
+  .um-btn-secondary,
+  .um-cta__primary,
+  .um-cta__secondary,
+  .hero-link,
+  .feed-link
+) {
+  border: 0 !important;
+  box-shadow: none !important;
+  font-weight: 600 !important;
+}
+
+:where(main) :where(
+  .um-panel,
+  .service-card-v4,
+  .product-card-v4,
+  .geo-dossier-card,
+  .geo-related-case,
+  .contact-form-panel,
+  .contact-context,
+  .case-detail-card,
+  .ante-dossier__secondary-item,
+  .ante-dossier__row,
+  .sector-atlas-exec-row,
+  .sector-editorial-card,
+  .service-dossier-item
+) {
+  box-shadow: none !important;
+  border-color: color-mix(in srgb, var(--skin-text) 6%, transparent) !important;
+}
+
+:where(main) :where(
+  .um-world-head,
+  .um-world-ledger,
+  .um-world-ledger-row,
+  .service-detail-section,
+  .geo-dossier-section,
+  .contact-dossier-section,
+  .ante-dossier__controls,
+  .sector-atlas-exec-ledger__controls
+) {
+  border-color: color-mix(in srgb, var(--skin-text) 7%, transparent) !important;
+}
+
+:where(main) :where(
+  img,
+  figure,
+  .um-media-frame,
+  .service-card-v4__media,
+  .blog-card__media,
+  .feed-media
+) {
+  box-shadow: none !important;
 }
 
 /* DISABLE dark mode override - V4 uses explicit colors */

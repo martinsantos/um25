@@ -210,31 +210,30 @@ const hasSecondaryButton = secondaryButtonText && secondaryButtonUrl;
     justify-content: center;
     min-height: 48px;
     padding: 0.9rem 1.25rem;
-    border-radius: 6px;
-    font-weight: 700;
+    border-radius: 4px;
+    font-weight: 600;
     line-height: 1;
     transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
   }
 
   .um-cta__primary {
-    border: 1px solid #DC2626;
+    border: 0;
     background: #DC2626;
     color: #fff;
   }
 
   .um-cta__primary:hover {
-    border-color: #DC2626;
     background: #DC2626;
   }
 
   .um-cta__secondary {
     gap: 0.5rem;
-    border: 1px solid var(--skin-hero-line);
+    border: 0;
+    background: color-mix(in srgb, var(--skin-hero-text) 10%, transparent);
     color: var(--skin-hero-text);
   }
 
   .um-cta__secondary:hover {
-    border-color: var(--skin-hero-text);
     background: var(--skin-hero-text);
     color: var(--skin-hero-bg);
   }

@@ -33,8 +33,8 @@ describe('Information hub visual contracts', () => {
     expect(antecedentesEditorial).toMatch(/\.ante-dossier__sector-links\s*\{[\s\S]*flex-wrap:\s*nowrap;/);
     expect(sectorAtlas).toMatch(/\.sector-atlas-exec-ledger__controls\s*\{[\s\S]*background:\s*var\(--skin-page, #fff\);/);
     expect(antecedentesEditorial).toMatch(/\.ante-dossier__controls\s*\{[\s\S]*background:\s*#fff;/);
-    expect(sectorAtlas).toMatch(/\.sector-atlas-exec-ledger__controls\s*\{[\s\S]*0 -24px 0 var\(--skin-page, #fff\)/);
-    expect(antecedentesEditorial).toMatch(/\.ante-dossier__controls\s*\{[\s\S]*0 -24px 0 #fff/);
+    expect(sectorAtlas).toMatch(/\.sector-atlas-exec-ledger__controls\s*\{[\s\S]*0 -1[02]px 0 var\(--skin-page, #fff\)/);
+    expect(antecedentesEditorial).toMatch(/\.ante-dossier__controls\s*\{[\s\S]*0 -1[02]px 0 #fff/);
   });
 
   test('antecedentes filter block stays sticky and opaque while filtering the archive below', () => {

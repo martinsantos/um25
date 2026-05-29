@@ -1306,7 +1306,7 @@ function collectFailures(results) {
         if (item.paddingTop < 0 || (item.backgroundAlpha != null && item.backgroundAlpha < 1)) {
           failures.push(`${result.viewport} ${result.label}: ${item.selector} sticky filter lacks stable background`);
         }
-        if (!/0px -24px 0px/.test(item.boxShadow || '')) {
+        if (!/0px -(?:1[0-9]|2[0-9])px 0px/.test(item.boxShadow || '')) {
           failures.push(`${result.viewport} ${result.label}: ${item.selector} sticky filter does not mask clipped content above it`);
         }
       }
