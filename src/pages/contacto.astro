@@ -3,6 +3,11 @@ import LayoutV4 from '../layouts/LayoutV4.astro';
 import MetricStrip from '../components/um/MetricStrip.astro';
 import UMButton from '../components/um/UMButton.astro';
 import SectionHeader from '../components/um/SectionHeader.astro';
+import { resolveReplicaH1 } from '../utils/replicaProdCopy';
+import { getAntecedentesCountShort } from '../utils/verifiedProof';
+import BudgetBriefFields from '../components/um/BudgetBriefFields.astro';
+
+const contactoH1 = resolveReplicaH1('/contacto', 'Enviá contexto técnico. Respondemos con el próximo paso.');
 
 const seoData = {
   title: 'Contacto | ULTIMA MILLA',
@@ -42,7 +47,7 @@ const structuredData = {
           <span>Contacto</span>
         </nav>
         <span class="um-kicker">Contacto</span>
-        <h1>Enviá contexto técnico. Respondemos con el próximo paso.</h1>
+        <h1>{contactoH1}</h1>
         <p>
           Partner de infraestructura crítica desde Mendoza (Argentina): redes, seguridad, soporte,
           software, energía o licitación. Envíe contexto mínimo y respondemos con el próximo paso técnico.
@@ -57,7 +62,7 @@ const structuredData = {
           class="contact-proofline"
           metrics={[
             { value: '24/7', label: 'soporte para clientes activos' },
-            { value: '469+', label: 'antecedentes documentados' },
+            { value: getAntecedentesCountShort(), label: 'antecedentes documentados' },
             { value: '22+', label: 'años de trayectoria técnica' },
           ]}
         />
@@ -88,6 +93,11 @@ const structuredData = {
             <span>Empresa u organismo</span>
             <input type="text" id="company" name="company" autocomplete="organization" placeholder="Opcional" />
           </label>
+
+          <details class="contact-budget-details">
+            <summary>Contexto de presupuesto (opcional)</summary>
+            <BudgetBriefFields idPrefix="contact" locale="es" singleColumn />
+          </details>
 
           <label>
             <span>Mensaje *</span>
@@ -244,6 +254,19 @@ const structuredData = {
   });
 
   if (form instanceof HTMLFormElement) {
+    const params = new URLSearchParams(window.location.search);
+    for (const name of ['budgetSector', 'budgetScope', 'budgetCriticality', 'budgetSites']) {
+      const value = params.get(name);
+      if (!value) continue;
+      const field = form.querySelector(`[name="${name}"]`);
+      if (field instanceof HTMLSelectElement) {
+        field.value = value;
+      }
+    }
+    if (params.toString()) {
+      document.getElementById('contactForm')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       clearErrors();
@@ -252,7 +275,21 @@ const structuredData = {
       const data = Object.fromEntries(formData.entries());
       const name = String(data.name || '').trim();
       const email = String(data.email || '').trim();
-      const message = String(data.message || '').trim();
+      let message = String(data.message || '').trim();
+
+      const budgetLines = [];
+      const sector = String(data.budgetSector || '').trim();
+      const scope = String(data.budgetScope || '').trim();
+      const criticality = String(data.budgetCriticality || '').trim();
+      const sites = String(data.budgetSites || '').trim();
+      if (sector) budgetLines.push(`Sector: ${sector}`);
+      if (scope) budgetLines.push(`Alcance: ${scope}`);
+      if (criticality) budgetLines.push(`Criticidad: ${criticality}`);
+      if (sites) budgetLines.push(`Sedes: ${sites}`);
+      if (budgetLines.length > 0) {
+        message = `[Contexto presupuesto]\n${budgetLines.join('\n')}\n\n${message}`;
+      }
+      data.message = message;
       let hasErrors = false;
 
       if (name.length < 2) {
@@ -551,6 +588,36 @@ const structuredData = {
     grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.72fr);
     gap: clamp(28px, 5vw, 72px);
     align-items: start;
+  }
+
+  .contact-form-panel,
+  .contact-form,
+  .budget-brief-fields {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .contact-budget-details {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .contact-budget-details summary {
+    cursor: pointer;
+    color: var(--skin-text, #111827);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+    list-style: none;
+  }
+
+  .contact-budget-details summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .contact-budget-details[open] summary {
+    margin-bottom: 12px;
   }
 
   .contact-form-panel {

@@ -23,7 +23,24 @@ const FALLBACK_BY_CATEGORY: Record<string, string> = {
 
 export function blogImageUrl(value: string | null | undefined): string {
   if (!value) return '';
-  if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('/')) {
+  if (value.startsWith('http://') || value.startsWith('https://')) {
+    try {
+      const parsed = new URL(value);
+      if (
+        parsed.hostname.includes('ultimamilla.com.ar') &&
+        /\.(jpg|jpeg|png|webp|gif)$/i.test(parsed.pathname)
+      ) {
+        return parsed.pathname;
+      }
+      if (parsed.pathname.startsWith('/uploads/') || parsed.pathname.startsWith('/images/')) {
+        return parsed.pathname;
+      }
+    } catch {
+      /* keep absolute URL below */
+    }
+    return value;
+  }
+  if (value.startsWith('/')) {
     return value;
   }
   if (UUID_RE.test(value)) {

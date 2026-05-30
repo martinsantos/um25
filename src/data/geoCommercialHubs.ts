@@ -1,4 +1,5 @@
 import { SITE_URL } from '../config/seo';
+import { getInstitutionalProofLines } from '../utils/verifiedProof';
 
 export interface GeoHubServiceLink {
   id: number;
@@ -65,7 +66,7 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
     eyebrow: 'Proveedor IT empresarial en Mendoza',
     h1: 'Operación IT para empresas de Mendoza',
     lead: 'Infraestructura, seguridad, software, soporte y energía IT coordinados por un equipo local que releva, diseña, implementa y sostiene operaciones exigentes.',
-    proof: ['469+ antecedentes', '22+ años de trayectoria', '8 frentes de servicio', 'Soporte y operación 24/7'],
+    proof: getInstitutionalProofLines(),
     searchTerms: ['servicios informáticos para empresas Mendoza', 'empresa de sistemas Mendoza', 'proveedor IT empresarial Mendoza', 'soporte infraestructura IT Mendoza'],
     buyerNeed: 'Elegir un proveedor tecnológico capaz de combinar cercanía local, ingeniería, documentación y soporte sin fragmentar la operación entre contratistas aislados.',
     decisionFrame: 'La comparación no debería empezar por precio unitario: primero hay que entender criticidad, sedes, estado de red, seguridad, documentación, ventanas de trabajo y soporte posterior.',

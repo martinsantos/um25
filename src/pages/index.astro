@@ -7,10 +7,19 @@
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import EvidenceCaseRow from '../components/um/EvidenceCaseRow.astro';
 import EvidenceItem from '../components/templates/EvidenceItem.astro';
+import TrustStrip from '../components/um/TrustStrip.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getAllServicios } from '../utils/directusHelpers';
 import { getDirectusImageUrl, getAllAntecedentes } from '../lib/directus.ts';
 import { getServiceVisualSpec, serviceVisualOrder } from '../data/serviceVisualSystem';
+import { resolveReplicaH1 } from '../utils/replicaProdCopy';
+import { extractCaseMetricsFromAntecedente } from '../utils/caseMetrics';
+import {
+  getAntecedentesCountShort,
+  getAntecedentesCatalogCount,
+} from '../utils/verifiedProof';
+
+const homeH1 = resolveReplicaH1('/', 'Servicios IT para operaciones que no pueden detenerse.');
 
 const serviciosFromDirectus = await getAllServicios();
 
@@ -40,7 +49,8 @@ const serviceModules = serviceVisualOrder
   .filter(Boolean);
 
 const homeHeroImage = '/uploads/hero/c194b40e-925c-4de5-924b-ea61ab835c0e.jpg';
-const proofCount = 469;
+const proofCountShort = getAntecedentesCountShort();
+const proofCountExact = getAntecedentesCatalogCount();
 
 const caseTargets = [
   { label: 'Gobierno de Mendoza', terms: ['gobierno de mendoza', 'ministerio', 'municipalidad'] },
@@ -97,7 +107,7 @@ const sectorLinks = [
 
 const proofMetrics = [
   ['8', 'servicios IT', 'red, seguridad, software, energía y soporte'],
-  [`${proofCount}+`, 'antecedentes', 'en industrias y organizaciones de todo el país'],
+  [proofCountShort, 'antecedentes', `${proofCountExact} proyectos documentados`],
   ['22+', 'años', 'de trayectoria técnica en infraestructura'],
   ['24/7', 'soporte', 'operación y monitoreo continuo']
 ];
@@ -138,13 +148,13 @@ const websiteSchema = {
 >
   <section class="um-home-hero">
     <div class="um-hero-media" aria-hidden="true">
-      <img src={homeHeroImage} alt="" loading="eager" decoding="async" />
+      <img src={homeHeroImage} alt="" loading="eager" fetchpriority="high" decoding="async" width="1920" height="1080" />
     </div>
     <div class="um-hero-grid" aria-hidden="true"></div>
 
     <div class="um-home-container um-hero-content">
       <div class="um-hero-copy">
-        <h1>Servicios IT para operaciones que no pueden detenerse.</h1>
+        <h1>{homeH1}</h1>
         <span class="um-red-rule" aria-hidden="true"></span>
         <p>
           Redes, seguridad electrónica, telecomunicaciones, software, energía y soporte técnico para empresas que necesitan continuidad, evidencia y respuesta en sitio.
@@ -154,7 +164,7 @@ const websiteSchema = {
           <a class="um-btn um-btn-secondary" href="/antecedentes">Ver antecedentes</a>
         </div>
         <figure class="um-hero-mobile-photo">
-          <img src={homeHeroImage} alt="Centro de monitoreo e infraestructura IT operativa" loading="eager" decoding="async" />
+          <img src={homeHeroImage} alt="Centro de monitoreo e infraestructura IT operativa" loading="eager" fetchpriority="high" decoding="async" width="1920" height="1080" />
           <figcaption>
             <span>Operación técnica</span>
             <strong>Mendoza, Cuyo y Patagonia</strong>
@@ -173,6 +183,8 @@ const websiteSchema = {
       ))}
     </div>
   </section>
+
+  <TrustStrip />
 
   <section class="um-service-system" id="servicios-it">
     <div class="um-home-container">
@@ -231,7 +243,7 @@ const websiteSchema = {
           </div>
           <div class="um-evidence-head__side">
             <p>
-              Más de {proofCount}+ proyectos ejecutados en entornos críticos respaldan nuestra forma de trabajar: alcance técnico, evidencia y continuidad posterior.
+              {proofCountExact} proyectos documentados en el catálogo respaldan nuestra forma de trabajar: alcance técnico, evidencia y continuidad posterior.
             </p>
             <a href="/antecedentes">Ver todos los antecedentes</a>
           </div>
@@ -265,6 +277,8 @@ const websiteSchema = {
                 imageAlt={item.title}
                 sector={item.sector}
                 year={evidenceYear(item)}
+                imageLoading="eager"
+                metrics={extractCaseMetricsFromAntecedente(item)}
               />
             ))}
           </div>

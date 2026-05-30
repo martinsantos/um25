@@ -4,6 +4,8 @@ import BlogTOC from '../../components/blog/BlogTOC.astro';
 import { fetchBlogPost, fetchBlogListing } from '../../utils/getBlogData';
 import { blogImageUrl, blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
 import { addHeadingIds, getCategoryLabel, formatBlogDate, extractFaqSchema } from '../../utils/blogUtils';
+import { isReplicaIdenticalCopy, resolveReplicaH1 } from '../../utils/replicaProdCopy';
+import { shouldShowBlogCommercialFold } from '../../data/commercialPlacement';
 
 const slug = Astro.params.slug || '';
 const post = await fetchBlogPost(slug);
@@ -121,9 +123,17 @@ const buildArticleTitle = (title: string): string => {
   return `${clean.slice(0, 72).trimEnd()}…`;
 };
 
-const articleTitle = articleTitleOverrides[slug] || buildArticleTitle(post.titulo);
+const editorialArticleTitle = articleTitleOverrides[slug] || buildArticleTitle(post.titulo);
+const articleTitle = isReplicaIdenticalCopy()
+  ? resolveReplicaH1(`/blog/${slug}`, buildArticleTitle(post.titulo))
+  : editorialArticleTitle;
 
 const isArcaPost = slug === 'plantilla-arca-facturacion-electronica-gratis';
+const showCommercialFold = shouldShowBlogCommercialFold({
+  slug,
+  categoria: post.categoria,
+  tags: post.tags,
+});
 ---
 
 <LayoutV4
@@ -164,31 +174,6 @@ const isArcaPost = slug === 'plantilla-arca-facturacion-electronica-gratis';
 
         {post.resumen && <p class="article-lead">{post.resumen}</p>}
 
-        <aside
-          class="article-commercial-fold"
-          aria-label={isArcaPost ? 'Servicios UMSA para operación fiscal' : 'Contacto comercial UMSA'}
-        >
-          <p class="article-commercial-fold__eyebrow">
-            {isArcaPost ? 'Operación IT + relevamiento' : 'Infraestructura IT · Mendoza y región'}
-          </p>
-          <p class="article-commercial-fold__copy">
-            {isArcaPost
-              ? 'Si tu organización necesita integrar facturación electrónica con redes, soporte 24/7 o continuidad operativa, UMSA releva alcance, riesgos y entregables antes de cotizar.'
-              : 'Para proyectos de CCTV, redes, soporte 24/7 o cumplimiento normativo, UMSA releva alcance operativo y entregables antes de cotizar.'}
-          </p>
-          <div class="article-commercial-fold__actions">
-            <a class="article-commercial-fold__cta article-commercial-fold__cta--primary" href="/contacto">
-              Solicitar relevamiento UMSA
-            </a>
-            <a
-              class="article-commercial-fold__cta article-commercial-fold__cta--secondary"
-              href={isArcaPost ? '/plantilla-arca' : '/servicios'}
-            >
-              {isArcaPost ? 'Probar Plantilla ARCA' : 'Ver servicios'}
-            </a>
-          </div>
-        </aside>
-
         <div class="author-row">
           <p class="author-meta">ULTIMA MILLA · {label} · {date} · {post.tiempo_lectura} min de lectura</p>
         </div>
@@ -200,6 +185,33 @@ const isArcaPost = slug === 'plantilla-arca-facturacion-electronica-gratis';
         </figure>
 
         <div class="prose" set:html={contentHtml} />
+
+        {showCommercialFold && (
+          <aside
+            class="article-commercial-fold"
+            aria-label={isArcaPost ? 'Servicios UMSA para operación fiscal' : 'Contacto comercial UMSA'}
+          >
+            <p class="article-commercial-fold__eyebrow">
+              {isArcaPost ? 'Operación IT + relevamiento' : 'Infraestructura IT · Mendoza y región'}
+            </p>
+            <p class="article-commercial-fold__copy">
+              {isArcaPost
+                ? 'Si tu organización necesita integrar facturación electrónica con redes, soporte 24/7 o continuidad operativa, UMSA releva alcance, riesgos y entregables antes de cotizar.'
+                : 'Para proyectos de CCTV, redes, soporte 24/7 o cumplimiento normativo, UMSA releva alcance operativo y entregables antes de cotizar.'}
+            </p>
+            <div class="article-commercial-fold__actions">
+              <a class="article-commercial-fold__cta article-commercial-fold__cta--primary" href="/contacto">
+                Solicitar relevamiento UMSA
+              </a>
+              <a
+                class="article-commercial-fold__cta article-commercial-fold__cta--secondary"
+                href={isArcaPost ? '/plantilla-arca' : '/servicios'}
+              >
+                {isArcaPost ? 'Probar Plantilla ARCA' : 'Ver servicios'}
+              </a>
+            </div>
+          </aside>
+        )}
 
         <nav class="post-nav">
           {prevPost ? (
@@ -340,7 +352,7 @@ const isArcaPost = slug === 'plantilla-arca-facturacion-electronica-gratis';
   }
 
   .article-commercial-fold {
-    margin: 0 0 28px;
+    margin: 32px 0 28px;
     padding: 20px 22px;
     border-top: 2px solid var(--um-red);
     background: #f7f8f9;

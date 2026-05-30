@@ -3,6 +3,10 @@ import LayoutV4 from '../layouts/LayoutV4.astro';
 import MetricStrip from '../components/um/MetricStrip.astro';
 import SectionHeader from '../components/um/SectionHeader.astro';
 import UMButton from '../components/um/UMButton.astro';
+import { resolveReplicaH1 } from '../utils/replicaProdCopy';
+import { getAntecedentesCountShort } from '../utils/verifiedProof';
+
+const nosotrosH1 = resolveReplicaH1('/nosotros', 'Una empresa técnica para operaciones que no pueden detenerse');
 
 const principles = [
   ['Ingeniería antes que marketing', 'Cada decisión se justifica por disponibilidad, seguridad, mantenibilidad y costo operativo.'],
@@ -48,7 +52,7 @@ const structuredData = {
           <span>/</span>
           <span>Nosotros</span>
         </nav>
-        <h1>Una empresa técnica para operaciones que no pueden detenerse</h1>
+        <h1>{nosotrosH1}</h1>
         <p>
           ULTIMA MILLA integra infraestructura, comunicaciones, seguridad y software con criterio de
           continuidad operativa. Nuestra diferencia está en unir diseño, instalación y soporte en un
@@ -59,7 +63,7 @@ const structuredData = {
         class="about-hero__proof"
         metrics={[
           { value: '22+', label: 'trayectoria técnica' },
-          { value: '469+', label: 'antecedentes' },
+          { value: getAntecedentesCountShort(), label: 'antecedentes' },
           { value: '24/7', label: 'soporte operativo' },
         ]}
       />
@@ -68,7 +72,7 @@ const structuredData = {
 
   <section class="about-image-band" aria-label="Infraestructura ULTIMA MILLA">
     <div class="um-container">
-      <img src="/uploads/antecedentes/0021d14f-3f8a-4e39-9a03-dad7c8681c0d.jpg" alt="Rack de comunicaciones y cableado técnico instalado por ULTIMA MILLA" loading="eager" />
+      <img src="/uploads/antecedentes/0021d14f-3f8a-4e39-9a03-dad7c8681c0d.jpg" alt="Rack de comunicaciones y cableado técnico instalado por ULTIMA MILLA" loading="eager" fetchpriority="high" decoding="async" width="1200" height="675" />
     </div>
   </section>
 

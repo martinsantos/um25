@@ -1,0 +1,117 @@
+---
+/** Campos estructurados de presupuesto (maqueta, sin backend dedicado). */
+interface Props {
+  idPrefix?: string;
+  locale?: 'es' | 'en';
+  /** Una columna en paneles estrechos (p. ej. contacto) */
+  singleColumn?: boolean;
+}
+
+const { idPrefix = 'budget', locale = 'es', singleColumn = false } = Astro.props;
+const isEn = locale === 'en';
+---
+
+<fieldset class:list={['budget-brief-fields', singleColumn && 'budget-brief-fields--single']}>
+  <legend>{isEn ? 'Project context' : 'Contexto del proyecto'}</legend>
+  <div class="budget-brief-fields__grid">
+    <label for={`${idPrefix}-sector`}>
+      <span>{isEn ? 'Sector / industry' : 'Sector'}</span>
+      <select id={`${idPrefix}-sector`} name="budgetSector" data-budget-field>
+        <option value="">{isEn ? 'Select…' : 'Seleccionar…'}</option>
+        <option value="aeropuertos">{isEn ? 'Airports' : 'Aeropuertos'}</option>
+        <option value="salud">{isEn ? 'Healthcare' : 'Salud'}</option>
+        <option value="gobierno">{isEn ? 'Government' : 'Gobierno'}</option>
+        <option value="industria">{isEn ? 'Industry' : 'Industria'}</option>
+        <option value="mineria">{isEn ? 'Mining' : 'Minería'}</option>
+        <option value="constructoras">{isEn ? 'Construction' : 'Constructoras'}</option>
+        <option value="otro">{isEn ? 'Other' : 'Otro'}</option>
+      </select>
+    </label>
+    <label for={`${idPrefix}-alcance`}>
+      <span>{isEn ? 'Scope' : 'Alcance'}</span>
+      <select id={`${idPrefix}-alcance`} name="budgetScope" data-budget-field>
+        <option value="">{isEn ? 'Select…' : 'Seleccionar…'}</option>
+        <option value="diagnostico">{isEn ? 'Initial assessment' : 'Diagnóstico / relevamiento'}</option>
+        <option value="implementacion">{isEn ? 'Implementation' : 'Implementación en sitio'}</option>
+        <option value="soporte">{isEn ? 'Support / SLA' : 'Soporte / abono 24-7'}</option>
+        <option value="licitacion">{isEn ? 'Tender / RFP' : 'Licitación / pliego'}</option>
+      </select>
+    </label>
+    <label for={`${idPrefix}-criticidad`}>
+      <span>{isEn ? 'Criticality' : 'Criticidad'}</span>
+      <select id={`${idPrefix}-criticidad`} name="budgetCriticality" data-budget-field>
+        <option value="">{isEn ? 'Select…' : 'Seleccionar…'}</option>
+        <option value="alta">{isEn ? 'High — operations cannot stop' : 'Alta — operación no puede detenerse'}</option>
+        <option value="media">{isEn ? 'Medium — planned window' : 'Media — ventana planificada'}</option>
+        <option value="baja">{isEn ? 'Low — improvement project' : 'Baja — mejora planificada'}</option>
+      </select>
+    </label>
+    <label for={`${idPrefix}-sedes`}>
+      <span>{isEn ? 'Sites' : 'Sedes'}</span>
+      <select id={`${idPrefix}-sedes`} name="budgetSites" data-budget-field>
+        <option value="">{isEn ? 'Select…' : 'Seleccionar…'}</option>
+        <option value="1">{isEn ? '1 site' : '1 sede'}</option>
+        <option value="2-5">{isEn ? '2–5 sites' : '2–5 sedes'}</option>
+        <option value="6+">{isEn ? '6+ sites' : '6 o más sedes'}</option>
+      </select>
+    </label>
+  </div>
+</fieldset>
+
+<style>
+  .budget-brief-fields {
+    margin: 0 0 20px;
+    padding: 0;
+    border: 0;
+  }
+
+  .budget-brief-fields legend {
+    margin-bottom: 12px;
+    color: var(--skin-muted, #5f6368);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .budget-brief-fields__grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: 1fr;
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
+    .budget-brief-fields:not(.budget-brief-fields--single) .budget-brief-fields__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .budget-brief-fields label {
+    display: grid;
+    gap: 6px;
+  }
+
+  .budget-brief-fields label span {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--skin-text, #111);
+  }
+
+  .budget-brief-fields select {
+    width: 100%;
+    max-width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--skin-line, #d9dadd);
+    border-radius: 4px;
+    font-size: 1rem;
+    background: #fff;
+    color: var(--skin-text, #111);
+  }
+
+  .budget-brief-fields select:focus-visible {
+    outline: 2px solid var(--um-red);
+    outline-offset: 2px;
+  }
+</style>

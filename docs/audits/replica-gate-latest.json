@@ -1,20 +1,60 @@
 {
-  "generatedAt": "2026-05-29T21:47:00.000Z",
+  "generatedAt": "2026-05-30T18:51:11.000Z",
   "mode": "UMSA_LOCAL_REPLICA=1",
   "devCommand": "npm run dev:replica",
-  "parityRoutes": 30,
-  "parityMismatches": 0,
+  "copyPolicy": "editorial-ledger",
+  "honestyPass": "diagnostico-forbes-2026/HONESTIDAD-CONTENIDO.md",
+  "antecedentesSnapshotCount": 518,
+  "publicCountLabel": "500+",
+  "parityRoutes": 31,
+  "parityHttpMismatches": 0,
+  "contentParityH1Mismatches": 0,
+  "contentParityLedger": {
+    "source": "src/data/replica-prod-copy.json",
+    "policy": "H1 local validado contra ledger editorial (Fase A)",
+    "routesValidatedAgainstLedger": 30,
+    "h1Mismatches": 0,
+    "titleHeadWarnings": 22
+  },
+  "imagesAudit": "OK",
+  "antecedenteDetailLayout": {
+    "failureCount": 0
+  },
   "e2eVisual": {
     "totalFailures": 0,
     "commercialStrict": 0,
     "heuristicDefectos": 0,
+    "antecedenteDetailLayout": 0,
     "defectScanDefectos": 0,
     "jestContracts": true
   },
+  "npmCheck": {
+    "lintErrors": 0,
+    "testsPassed": 138,
+    "build": "OK"
+  },
+  "spotCheck": {
+    "routes": ["/", "/certificaciones", "/servicios/107", "/antecedentes/3065", "/antecedentes"],
+    "isoBadgesInventados": false,
+    "trustStripClientesReales": true,
+    "nota": "ISO mencionado solo en /certificaciones como negación explícita (no badge corporativo)"
+  },
   "verdict": "READY_FOR_PRODUCTION_MERGE",
-  "nextSteps": [
-    "Merge codex/umsa-white-dossier-local → master",
-    "Deploy via production-deploy.yml",
-    "Post-deploy: VISUAL_AUDIT_BASE_URL=https://ultimamilla.com.ar npm run audit:visual:commercial"
+  "blockers": [],
+  "passed": [
+    "replica:preflight",
+    "replica:parity-check",
+    "replica:content-parity",
+    "replica:images-audit",
+    "audit:antecedente-layout",
+    "audit:e2e:visual",
+    "replica:gate",
+    "npm run check"
+  ],
+  "notes": [
+    "Pase honestidad: TrustStrip clientes CMS, sin ISO/NFPA corporativos, conteo 518→500+ vía verifiedProof.ts.",
+    "Commercial strict 0 fallos (H1 CMS largos no bloquean en detalle).",
+    "22 títulos <head> difieren del ledger editorial (info, no blocker).",
+    "Fuera de scope público Astro: terminal/CLI con copy 469+ histórico."
   ]
 }

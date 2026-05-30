@@ -9,6 +9,9 @@ interface Props {
   sector?: string;
   year?: string;
   actionLabel?: string;
+  imageLoading?: 'lazy' | 'eager';
+  /** KPIs opcionales (B1) — solo se muestran si hay datos reales */
+  metrics?: Array<{ value: string; label: string }>;
 }
 
 const {
@@ -21,44 +24,65 @@ const {
   sector = '—',
   year = '—',
   actionLabel = 'Detalle',
+  imageLoading = 'lazy',
+  metrics = [],
 } = Astro.props;
+
+const visibleMetrics = (metrics || []).filter((m) => m?.value && m?.label).slice(0, 3);
 ---
 
 <a href={href} class="evidence-case-row">
   <span class="evidence-case-row__number">{number}</span>
-  <div class="evidence-case-row__main">
-    {image && (
-      <figure>
-        <img src={image} alt={imageAlt} loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/images/default.jpg'" />
-      </figure>
+  {image ? (
+    <figure class="evidence-case-row__thumb">
+      <img src={image} alt={imageAlt} loading={imageLoading} decoding="async" onerror="this.onerror=null;this.src='/images/default.jpg'" />
+    </figure>
+  ) : (
+    <span class="evidence-case-row__thumb evidence-case-row__thumb--empty" aria-hidden="true"></span>
+  )}
+  <div class="evidence-case-row__copy">
+    <h3>{title}</h3>
+    {description && <p>{description}</p>}
+    {visibleMetrics.length > 0 && (
+      <ul class="evidence-case-row__metrics" aria-label="Resultados del proyecto">
+        {visibleMetrics.map((metric) => (
+          <li>
+            <strong>{metric.value}</strong>
+            <span>{metric.label}</span>
+          </li>
+        ))}
+      </ul>
     )}
-    <div>
-      <h3>{title}</h3>
-      {description && <p>{description}</p>}
+  </div>
+  <div class="evidence-case-row__meta-group">
+    <div class="evidence-case-row__meta">
+      <span>Sector</span>
+      <strong>{sector}</strong>
+    </div>
+    <div class="evidence-case-row__meta">
+      <span>Año</span>
+      <strong>{year}</strong>
     </div>
   </div>
-  <div class="evidence-case-row__meta">
-    <span>Sector</span>
-    <strong>{sector}</strong>
-  </div>
-  <div class="evidence-case-row__meta">
-    <span>Año</span>
-    <strong>{year}</strong>
-  </div>
-  <em>{actionLabel}</em>
+  <em class="evidence-case-row__action">{actionLabel}</em>
 </a>
 
 <style>
   .evidence-case-row {
     display: grid;
-    grid-template-columns: 44px minmax(0, 1.4fr) minmax(110px, 0.34fr) minmax(72px, 0.22fr) auto;
-    gap: clamp(14px, 2vw, 28px);
+    grid-template-columns: 3rem 136px minmax(0, 1fr) minmax(140px, auto) auto;
+    column-gap: clamp(14px, 2vw, 24px);
+    row-gap: 10px;
     align-items: center;
     padding: clamp(18px, 2.2vw, 24px) 0;
     border-top: 1px solid var(--skin-line, #d9dadd);
     color: inherit;
     text-decoration: none;
     transition: border-color 180ms ease, background-color 180ms ease;
+  }
+
+  .evidence-case-row > * {
+    min-width: 0;
   }
 
   .evidence-case-row:hover {
@@ -72,35 +96,39 @@ const {
   }
 
   .evidence-case-row__number {
+    align-self: center;
     color: var(--um-red);
-    font-size: 1rem;
+    font-size: 1.0625rem;
     font-weight: 700;
     line-height: 1.2;
+    text-align: left;
   }
 
-  .evidence-case-row__main {
-    display: grid;
-    grid-template-columns: minmax(112px, 140px) minmax(0, 1fr);
-    gap: clamp(14px, 2vw, 22px);
-    align-items: center;
-    min-width: 0;
-  }
-
-  .evidence-case-row__main figure {
+  .evidence-case-row__thumb {
     margin: 0;
     overflow: hidden;
-    min-height: 112px;
-    min-width: 112px;
+    width: 136px;
+    height: 102px;
+    min-width: 136px;
+    min-height: 102px;
     aspect-ratio: 4 / 3;
     background: #eceff2;
   }
 
-  .evidence-case-row__main img {
+  .evidence-case-row__thumb--empty {
+    display: block;
+  }
+
+  .evidence-case-row__thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
     filter: saturate(0.88) contrast(1.04);
+  }
+
+  .evidence-case-row__copy {
+    min-width: 0;
   }
 
   .evidence-case-row h3 {
@@ -114,8 +142,8 @@ const {
 
   .evidence-case-row p {
     margin: 8px 0 0;
-    color: var(--skin-muted, #5f6368);
-    font-size: 1rem;
+    color: #4b5563;
+    font-size: 1.0625rem;
     line-height: 1.55;
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -123,51 +151,116 @@ const {
     overflow: hidden;
   }
 
+  .evidence-case-row__metrics {
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+  }
+
+  .evidence-case-row__metrics li {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    font-size: 0.875rem;
+    line-height: 1.3;
+  }
+
+  .evidence-case-row__metrics strong {
+    color: var(--um-red);
+    font-weight: 700;
+  }
+
+  .evidence-case-row__metrics span {
+    color: #6b7280;
+  }
+
+  .evidence-case-row__meta-group {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(3.75rem, 4.75rem);
+    gap: clamp(12px, 1.6vw, 20px);
+    align-items: start;
+    min-width: 0;
+  }
+
   .evidence-case-row__meta span {
     display: block;
-    color: var(--skin-muted, #6b7280);
-    font-size: 1rem;
-    font-weight: 700;
+    color: #6b7280;
+    font-size: 0.8125rem;
+    font-weight: 500;
     line-height: 1.2;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
 
   .evidence-case-row__meta strong {
     display: block;
     margin-top: 4px;
     color: var(--skin-text, #111);
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: 1.0625rem;
+    font-weight: 600;
     line-height: 1.25;
+    overflow-wrap: anywhere;
   }
 
-  .evidence-case-row em {
+  .evidence-case-row__action {
+    justify-self: end;
     color: var(--um-red);
-    font-size: 1rem;
+    font-size: 1.0625rem;
     font-style: normal;
     font-weight: 700;
     text-decoration: underline;
     text-underline-offset: 3px;
     text-decoration-color: transparent;
     transition: text-decoration-color 180ms ease;
+    white-space: nowrap;
   }
 
-  .evidence-case-row:hover em {
+  .evidence-case-row:hover .evidence-case-row__action {
     text-decoration-color: var(--um-red);
   }
 
-  @media (max-width: 820px) {
+  @media (max-width: 900px) {
     .evidence-case-row {
-      grid-template-columns: 36px minmax(0, 1fr);
-      gap: 10px 14px;
+      grid-template-columns: minmax(96px, 112px) minmax(0, 1fr);
+      column-gap: 12px;
+      align-items: start;
     }
 
-    .evidence-case-row__meta,
-    .evidence-case-row em {
+    .evidence-case-row__number {
+      grid-row: 1;
+      grid-column: 1;
+      align-self: start;
+      padding-top: 2px;
+    }
+
+    .evidence-case-row__thumb {
+      grid-column: 1;
+      grid-row: 2;
+      width: 100%;
+      min-width: 96px;
+      max-width: none;
+      height: auto;
+      min-height: 72px;
+      aspect-ratio: 4 / 3;
+    }
+
+    .evidence-case-row__copy {
       grid-column: 2;
+      grid-row: 1 / span 2;
+      align-self: center;
     }
 
-    .evidence-case-row__main {
+    .evidence-case-row__meta-group {
       grid-column: 1 / -1;
+      grid-template-columns: minmax(0, 1fr) minmax(3.5rem, 4.5rem);
+    }
+
+    .evidence-case-row__action {
+      grid-column: 1 / -1;
+      justify-self: start;
     }
   }
 </style>

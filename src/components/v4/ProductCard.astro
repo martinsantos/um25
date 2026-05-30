@@ -33,6 +33,7 @@ export interface Props {
   serviceHref?: string;
   ctaHref?: string;
   ctaLabel?: string;
+  showActions?: boolean;
   className?: string;
 }
 
@@ -53,6 +54,7 @@ const {
   serviceHref,
   ctaHref = '/contacto',
   ctaLabel = 'Solicitar relevamiento',
+  showActions = false,
   className = '',
 } = Astro.props;
 
@@ -82,26 +84,28 @@ const metaParts = [categoryLabel, parentLabel].filter(Boolean);
   <div class="product-sheet__grid">
     <div class="product-sheet__copy">
       <header class="product-sheet__header">
-        <p class="product-sheet__meta">
-          {metaParts.length > 0 ? (
-            <>
-              {serviceHref && parentLabel ? (
-                <a href={serviceHref} class="product-sheet__meta-link">{parentLabel}</a>
-              ) : (
-                parentLabel && <span>{parentLabel}</span>
-              )}
-              {categoryLabel && parentLabel && <span class="product-sheet__meta-sep" aria-hidden="true">·</span>}
-              {categoryLabel && <span class="product-sheet__meta-category">{categoryLabel}</span>}
-            </>
-          ) : (
-            <span class="product-sheet__meta-category">Equipamiento</span>
+        <span class="product-sheet__index" aria-label={`Ítem ${indexLabel}`}>{indexLabel}</span>
+        <div class="product-sheet__header-main">
+          <p class="product-sheet__meta">
+            {metaParts.length > 0 ? (
+              <>
+                {serviceHref && parentLabel ? (
+                  <a href={serviceHref} class="product-sheet__meta-link">{parentLabel}</a>
+                ) : (
+                  parentLabel && <span>{parentLabel}</span>
+                )}
+                {categoryLabel && parentLabel && <span class="product-sheet__meta-sep" aria-hidden="true">·</span>}
+                {categoryLabel && <span class="product-sheet__meta-category">{categoryLabel}</span>}
+              </>
+            ) : (
+              <span class="product-sheet__meta-category">Equipamiento</span>
+            )}
+          </p>
+          <h2 class="product-sheet__title">{cleanTitulo}</h2>
+          {cleanDestacado && (
+            <p class="product-sheet__lead">{cleanDestacado}</p>
           )}
-          <span class="product-sheet__index" aria-label={`Ítem ${indexLabel}`}>{indexLabel}</span>
-        </p>
-        <h2 class="product-sheet__title">{cleanTitulo}</h2>
-        {cleanDestacado && (
-          <p class="product-sheet__lead">{cleanDestacado}</p>
-        )}
+        </div>
       </header>
 
       {descriptionHtml && (
@@ -110,7 +114,7 @@ const metaParts = [categoryLabel, parentLabel].filter(Boolean);
 
       {hasFeatures && (
         <div class="product-sheet__specs">
-          <h3 class="product-sheet__specs-label">Especificaciones operativas</h3>
+          <p class="product-sheet__specs-label">Especificaciones operativas</p>
           <ul class="product-sheet__features">
             {cleanFeatures.map((feature) => (
               <li>{feature}</li>
@@ -119,12 +123,14 @@ const metaParts = [categoryLabel, parentLabel].filter(Boolean);
         </div>
       )}
 
-      <div class="product-sheet__actions">
-        <UMButton href={ctaHref}>{ctaLabel}</UMButton>
-        <UMButton href="/presupuesto-servicios-it-empresas" variant="secondary">
-          Cotizar alcance
-        </UMButton>
-      </div>
+      {showActions && (
+        <div class="product-sheet__actions">
+          <UMButton href={ctaHref}>{ctaLabel}</UMButton>
+          <UMButton href="/presupuesto-servicios-it-empresas" variant="secondary">
+            Cotizar alcance
+          </UMButton>
+        </div>
+      )}
 
       {hasFootnote && (
         <footer class="product-sheet__footnote">
@@ -184,6 +190,17 @@ const metaParts = [categoryLabel, parentLabel].filter(Boolean);
     order: 2;
   }
 
+  .product-sheet__header {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    column-gap: clamp(12px, 2vw, 20px);
+    align-items: start;
+  }
+
+  .product-sheet__header-main {
+    min-width: 0;
+  }
+
   .product-sheet__meta {
     display: flex;
     flex-wrap: wrap;
@@ -216,12 +233,15 @@ const metaParts = [categoryLabel, parentLabel].filter(Boolean);
   }
 
   .product-sheet__index {
-    margin-left: auto;
+    margin: 0;
+    padding-top: 0.1rem;
     color: #dc2626;
     font-size: 1rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.04em;
+    line-height: 1.2;
+    text-align: left;
   }
 
   .product-sheet__title {
@@ -408,10 +428,6 @@ const metaParts = [categoryLabel, parentLabel].filter(Boolean);
 
     .product-sheet--media-right .product-sheet__media {
       order: 0;
-    }
-
-    .product-sheet__index {
-      margin-left: 0;
     }
 
     .product-sheet__frame {

@@ -6,6 +6,7 @@ import { sectorVisualOrder, sectorVisualSystem } from './sectorVisualSystem';
 import { serviceVisualOrder, serviceVisualSystem } from './serviceVisualSystem';
 import antecedentesSnapshot from './snapshots/antecedentes.json';
 import serviciosSnapshot from './snapshots/servicios.json';
+import { getInstitutionalProofLines } from '../utils/verifiedProof';
 
 type Snapshot<T> = { data?: T[] } | T[];
 
@@ -118,7 +119,7 @@ export function buildGeoResource(resource: string) {
         position: 'Servicios IT integrales para operaciones que no pueden detenerse.',
         location: 'Mendoza, Argentina',
         coverage: ['Mendoza', 'Cuyo', 'Patagonia', 'Argentina según alcance'],
-        proof: ['469+ antecedentes', '22+ años de trayectoria', '8 frentes de servicio', 'Soporte 24/7'],
+        proof: getInstitutionalProofLines(),
         accentColor: '#DC2626',
         publicContact: `${SITE_URL}/contacto`,
       };

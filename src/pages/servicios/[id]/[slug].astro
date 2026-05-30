@@ -25,13 +25,23 @@ import { getDirectusImageUrl } from '../../../lib/directus.ts';
 import { getServiceVisualSpec } from '../../../data/serviceVisualSystem';
 import {
   plainTextFromHtml,
+  readServiceSubtitulo,
   renderEditorialBody,
   sanitizeEditorialText,
   serviceHeroLead,
   sanitizeServiceStats,
+  sanitizeServiceBulletList,
   sanitizeServicePageTitle,
   stripBannedLedgerPhrases,
 } from '../../../utils/editorialContent';
+import { shouldShowProductCardActions } from '../../../data/commercialPlacement';
+import {
+  cmsServiceTitle,
+  isReplicaIdenticalCopy,
+  resolveReplicaH1,
+  resolveReplicaTitle,
+} from '../../../utils/replicaProdCopy';
+import { getDatasheetPublicPath } from '../../../utils/datasheets';
 
 const { id, slug } = Astro.params;
 
@@ -66,19 +76,38 @@ const serviceHeroTitles: Record<number, string> = {
   107: 'Detección de incendios para infraestructura crítica',
   108: 'Energía confiable para sistemas IT'
 };
-const serviceHeroTitle = serviceHeroTitles[Number(id)] || visual?.shortName || servicio.Titulo.split('|')[0]?.trim() || servicio.Titulo;
-const serviceBreadcrumbLabel = visual?.shortName || serviceHeroTitles[Number(id)] || servicio.Titulo.split('|')[0]?.trim() || servicio.Titulo;
-const serviceCtaTitle = visual?.shortName
-  ? `Convertir ${visual.shortName.toLowerCase()} en un alcance verificable`
-  : 'Convertir este servicio en un alcance verificable';
+const serviceDetailPath = `/servicios/${id}/${expectedSlug}`;
+const datasheetHref = getDatasheetPublicPath(expectedSlug);
+const replicaProd = isReplicaIdenticalCopy();
+const cmsTitle = cmsServiceTitle(servicio.Titulo);
+const cmsSubtitulo = readServiceSubtitulo(servicio);
+const editorialHeroTitle =
+  serviceHeroTitles[Number(id)] || visual?.shortName || cmsTitle || servicio.Titulo;
+const serviceHeroTitle = replicaProd
+  ? resolveReplicaH1(serviceDetailPath, cmsTitle)
+  : editorialHeroTitle;
+const serviceBreadcrumbLabel = replicaProd
+  ? cmsTitle
+  : visual?.shortName || serviceHeroTitles[Number(id)] || cmsTitle;
+const serviceCtaTitle = replicaProd
+  ? `¿Listo para implementar ${cmsTitle}?`
+  : visual?.shortName
+    ? `Convertir ${visual.shortName.toLowerCase()} en un alcance verificable`
+    : 'Convertir este servicio en un alcance verificable';
+const descriptionSectionTitle = replicaProd ? 'Descripción del Servicio' : 'Alcance operativo';
+const processSectionTitle = replicaProd ? 'Nuestro Proceso' : 'Método de implementación';
+const sidebarInfoTitle = replicaProd ? 'Información del Servicio' : 'Metadata del servicio';
+const productsSectionKicker = replicaProd ? '' : 'Equipamiento';
+const productsSectionTitle = replicaProd ? 'Productos y Soluciones' : 'Equipamiento aplicado';
+const productsSectionText = replicaProd
+  ? ''
+  : 'Soluciones, materiales y equipamiento vinculados al alcance real del servicio.';
 
 // SEO
 const siteUrl = 'https://ultimamilla.com.ar';
-const seoTitleBase = sanitizeServicePageTitle(
-  Number(id),
-  servicio.Titulo,
-  visual?.shortName || serviceHeroTitle,
-);
+const seoTitleBase = replicaProd
+  ? resolveReplicaTitle(serviceDetailPath, cmsTitle)
+  : sanitizeServicePageTitle(Number(id), servicio.Titulo, visual?.shortName || serviceHeroTitle);
 let pageTitle = `${seoTitleBase} | ULTIMA MILLA`;
 if (pageTitle.length > 60) {
   pageTitle =
@@ -99,7 +128,16 @@ const rawDesc = stripBannedLedgerPhrases(plainTextFromHtml(serviceBodySource, 50
 const pageDescription = rawDesc.length > 155 ? rawDesc.slice(0, 155) + '...' :
   rawDesc.length > 0 && rawDesc.length < 120 ? `${rawDesc} Servicios profesionales de ULTIMA MILLA en Mendoza, Cuyo y Patagonia.`.slice(0, 155) :
   rawDesc || `${seoTitleBase} - Servicios tecnológicos en Mendoza, Cuyo y Patagonia.`;
-const heroLead = serviceHeroLead(servicio.subtitulo, visual?.proof, pageDescription);
+const bodyPlainLead = plainTextFromHtml(serviceBodySource, 120);
+const heroLead = serviceHeroLead(
+  cmsSubtitulo,
+  replicaProd ? undefined : visual?.proof,
+  pageDescription,
+  bodyPlainLead,
+);
+const porQueElegirnos = sanitizeServiceBulletList(servicio.por_que_elegirnos || []);
+const showGenericProcess =
+  !replicaProd || porQueElegirnos.length === 0;
 const displayStats = sanitizeServiceStats(servicio.stats || []);
 const canonicalUrl = `${siteUrl}/servicios/${id}/${slug}`;
 
@@ -172,6 +210,10 @@ const iconPaths = {
         src={serviceImage}
         alt={visual?.imageAlt || servicio.Titulo}
         loading="eager"
+        fetchpriority="high"
+        decoding="async"
+        width="1920"
+        height="1080"
       />
     </div>
     <div class="service-detail-hero__wash"></div>
@@ -221,7 +263,7 @@ const iconPaths = {
 
         <!-- Main Content -->
         <div class="service-detail-main__body">
-          <h2 class="service-detail-section-title">Alcance operativo</h2>
+          <h2 class="service-detail-section-title">{descriptionSectionTitle}</h2>
           <div class="prose prose-lg max-w-none text-um-gray mb-12 service-detail-copy editorial-body">
             {serviceDescriptionHtml ? (
               <div set:html={serviceDescriptionHtml} />
@@ -250,45 +292,48 @@ const iconPaths = {
             </div>
           )}
 
-          <!-- Nuestro Proceso -->
-          <h3 class="service-detail-subtitle">Método de implementación</h3>
-          <div class="service-process-list">
-            <div>
-              <span>01</span>
-              <div>
-                <h4 class="font-bold text-um-dark">Relevamiento</h4>
-                <p class="text-um-gray">Inventario técnico, restricciones de sitio, riesgos y requerimientos futuros.</p>
+          {showGenericProcess && (
+            <>
+              <h3 class="service-detail-subtitle">{processSectionTitle}</h3>
+              <div class="service-process-list">
+                <div>
+                  <span>01</span>
+                  <div>
+                    <h4 class="font-bold text-um-dark">Relevamiento</h4>
+                    <p class="text-um-gray">Análisis completo de su infraestructura actual y requerimientos futuros.</p>
+                  </div>
+                </div>
+                <div>
+                  <span>02</span>
+                  <div>
+                    <h4 class="font-bold text-um-dark">Diseño</h4>
+                    <p class="text-um-gray">Propuesta técnica con planos, materiales y cronograma detallado.</p>
+                  </div>
+                </div>
+                <div>
+                  <span>03</span>
+                  <div>
+                    <h4 class="font-bold text-um-dark">Implementación</h4>
+                    <p class="text-um-gray">Ejecución por técnicos especializados con mínima interrupción operativa.</p>
+                  </div>
+                </div>
+                <div>
+                  <span>04</span>
+                  <div>
+                    <h4 class="font-bold text-um-dark">Documentación</h4>
+                    <p class="text-um-gray">Testing completo con equipos especializados y entrega de documentación.</p>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div>
-              <span>02</span>
-              <div>
-                <h4 class="font-bold text-um-dark">Diseño</h4>
-                <p class="text-um-gray">Arquitectura, materiales, dependencias, cronograma y criterios de prueba.</p>
-              </div>
-            </div>
-            <div>
-              <span>03</span>
-              <div>
-                <h4 class="font-bold text-um-dark">Implementación</h4>
-                <p class="text-um-gray">Ejecución controlada por técnicos con mínima interrupción operativa.</p>
-              </div>
-            </div>
-            <div>
-              <span>04</span>
-              <div>
-                <h4 class="font-bold text-um-dark">Documentación</h4>
-                <p class="text-um-gray">Pruebas, evidencia de entrega, documentación y soporte posterior.</p>
-              </div>
-            </div>
-          </div>
+            </>
+          )}
 
           <!-- Por Qué Elegirnos -->
-          {servicio.por_que_elegirnos && servicio.por_que_elegirnos.length > 0 && (
+          {porQueElegirnos.length > 0 && (
             <div class="service-why">
               <h3 class="service-detail-subtitle">Por qué elegirnos</h3>
               <ul class="space-y-3">
-                {servicio.por_que_elegirnos.map((item) => (
+                {porQueElegirnos.map((item) => (
                   <li class="flex items-start gap-3">
                     <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -305,7 +350,7 @@ const iconPaths = {
         <div class="service-detail-main__aside">
           <!-- Quick Info Card -->
           <div class="service-info-card service-info-card--dossier">
-            <SectionHeader kicker="Ficha técnica" title="Metadata del servicio" />
+            <SectionHeader kicker="Ficha técnica" title={sidebarInfoTitle} />
 
             <div class="space-y-4 mb-6">
               <div class="flex items-start gap-3">
@@ -336,6 +381,12 @@ const iconPaths = {
                 </div>
               </div>
             </div>
+
+            {datasheetHref && (
+              <a href={datasheetHref} class="service-datasheet-btn" download>
+                Ficha técnica (PDF)
+              </a>
+            )}
 
             <UMButton href="/contacto" class="service-info-primary">
               Solicitar diagnóstico
@@ -370,9 +421,9 @@ const iconPaths = {
       <div class="um-container">
         <div class="service-products-head">
           <SectionHeader
-            kicker="Equipamiento"
-            title="Equipamiento aplicado"
-            text="Soluciones, materiales y equipamiento vinculados al alcance real del servicio."
+            kicker={productsSectionKicker}
+            title={productsSectionTitle}
+            text={productsSectionText}
           />
         </div>
 
@@ -392,6 +443,7 @@ const iconPaths = {
               serviceHref={`/servicios/${id}/${slug}`}
               ctaLabel={[102, 107].includes(Number(id)) ? 'Solicitar relevamiento' : 'Cotizar solución'}
               ctaHref="/contacto"
+              showActions={shouldShowProductCardActions({ index, total: productos.length })}
             />
           ))}
         </div>
@@ -625,7 +677,12 @@ const iconPaths = {
   }
 
   .service-detail-main__body {
-    max-width: 820px;
+    max-width: none;
+  }
+
+  .service-detail-main__aside {
+    justify-self: end;
+    width: min(100%, 360px);
   }
 
   .service-detail-section-title {
@@ -758,6 +815,34 @@ const iconPaths = {
   .service-info-card .space-y-4 > div + div {
     padding-top: 0.95rem;
     border-top: 1px solid var(--um-line);
+  }
+
+  .service-datasheet-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 44px;
+    margin-bottom: 12px;
+    padding: 12px 16px;
+    border: 1px solid var(--skin-line, #d9dadd);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--skin-text, #111);
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: border-color 180ms ease, background-color 180ms ease;
+  }
+
+  .service-datasheet-btn:hover {
+    border-color: var(--um-red);
+    background: color-mix(in srgb, var(--um-red) 4%, #fff);
+  }
+
+  .service-datasheet-btn:focus-visible {
+    outline: 2px solid var(--um-red);
+    outline-offset: 2px;
   }
 
   .service-info-primary,

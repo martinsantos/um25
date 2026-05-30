@@ -55,6 +55,7 @@ export const E2E_DEFECT_PATHS = [
   '/antecedentes',
   '/antecedentes?sector=aeropuertos',
   '/antecedentes/3064/desarrollo-de-software-y-digitalizacion-de-procesos-para-el-gobierno-de-la-provincia-de-mendoza',
+  '/antecedentes/3065/camara-de-cctv-aeropuerto-de-mendoza',
   '/sectores',
   '/sectores?sector=bodegas',
   '/aeropuertos',

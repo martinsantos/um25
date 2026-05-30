@@ -1,8 +1,13 @@
 ---
 import LayoutV4 from '../../layouts/LayoutV4.astro';
+import TrustStrip from '../../components/um/TrustStrip.astro';
 import { generateSlug } from '../../utils/slugUtils.js';
 import { getAllServicios } from '../../utils/directusHelpers';
 import { getServiceVisualSpec, serviceVisualOrder } from '../../data/serviceVisualSystem';
+import { resolveReplicaH1 } from '../../utils/replicaProdCopy';
+import { getAntecedentesCountExactPhrase } from '../../utils/verifiedProof';
+
+const serviciosIndexH1 = resolveReplicaH1('/servicios', 'Servicios IT integrales para continuidad operativa');
 
 const serviciosFromDirectus = await getAllServicios();
 const byId = new Map(serviciosFromDirectus.map((servicio) => [Number(servicio.id), servicio]));
@@ -69,7 +74,7 @@ const serviceIconPaths: Record<string, string> = {
           <span>/</span>
           <span>Servicios</span>
         </nav>
-        <h1>Servicios IT integrales para continuidad operativa</h1>
+        <h1>{serviciosIndexH1}</h1>
         <p>
           Diseñamos, instalamos y sostenemos infraestructura tecnológica para empresas que necesitan
           redes estables, seguridad física, software operativo y soporte real sobre el terreno.
@@ -81,7 +86,7 @@ const serviceIconPaths: Record<string, string> = {
           </div>
           <div>
             <dt>Archivo</dt>
-            <dd>469+ antecedentes</dd>
+            <dd>{getAntecedentesCountExactPhrase()}</dd>
           </div>
           <div>
             <dt>Operación</dt>
@@ -97,7 +102,7 @@ const serviceIconPaths: Record<string, string> = {
 
       <aside class="services-hero__visual" aria-label="Prueba operativa">
         <div class="services-hero__image">
-          <img src={servicios[0]?.visual.image || '/uploads/antecedentes/0021d14f-3f8a-4e39-9a03-dad7c8681c0d.jpg'} alt="Infraestructura IT operada por ULTIMA MILLA" loading="eager" decoding="async" />
+          <img src={servicios[0]?.visual.image || '/uploads/antecedentes/0021d14f-3f8a-4e39-9a03-dad7c8681c0d.jpg'} alt="Infraestructura IT operada por ULTIMA MILLA" loading="eager" fetchpriority="high" decoding="async" width="1200" height="800" />
         </div>
         <div class="services-proof-note">
           <strong>Diagnóstico, implementación y soporte dentro de una misma cadena operativa.</strong>
@@ -106,6 +111,8 @@ const serviceIconPaths: Record<string, string> = {
       </aside>
     </div>
   </section>
+
+  <TrustStrip />
 
   <section class="um-section services-index">
     <div class="um-container">

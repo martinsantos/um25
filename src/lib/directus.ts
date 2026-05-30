@@ -491,11 +491,14 @@ export function getDirectusImageUrl(imageId: string | null | undefined): string 
   // Prioridad 2: fallback local si Directus no disponible
   const localPath = imageLocalMap[imageId];
   if (localPath) {
-    console.log(`[directus] Found local image for ${imageId}: ${localPath}`);
     return localPath;
   }
 
-  // Sin Directus ni imagen local → default
+  // Réplica: convención pública de prod (/uploads/antecedentes/{uuid}.jpg)
+  if (isLocalProdReplica()) {
+    return `/uploads/antecedentes/${imageId}.jpg`;
+  }
+
   console.warn(`[directus] No local mapping for UUID ${imageId}, using default placeholder`);
   return '/images/default-background.jpg';
 }

@@ -1,6 +1,7 @@
 ---
 import EvidenceItem from './EvidenceItem.astro';
 import { truncateEditorialText } from '../../utils/editorialContent';
+import { getAntecedentesCatalogCount, getAntecedentesCountShort } from '../../utils/verifiedProof';
 
 interface Props {
   pageData: any;
@@ -47,7 +48,8 @@ const paginationPages = computePaginationPages();
 const projects = pageData.antecedentes || [];
 const rowItems = projects.slice(0, 7);
 const ledgerItems = projects.slice(7);
-const institutionalProofTotal = 469;
+const institutionalProofTotal = getAntecedentesCatalogCount();
+const institutionalProofShort = getAntecedentesCountShort();
 const showingStart = pageData.totalItems === 0 ? 0 : ((pageData.currentPage - 1) * pageSize) + 1;
 const showingEnd = Math.min(pageData.currentPage * pageSize, pageData.totalItems);
 const activeFilterName = filterChips.find((chip) => chip.id === sectorFilter)?.name || 'Todos los sectores';
@@ -63,7 +65,7 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
       <h1>Antecedentes como archivo navegable, no como catálogo de cards.</h1>
     </div>
     <aside>
-      <strong>{institutionalProofTotal}+</strong>
+      <strong>{institutionalProofShort}</strong>
       <span>antecedentes institucionales</span>
       <p>{activeFilterName} / página {pageData.currentPage}</p>
     </aside>

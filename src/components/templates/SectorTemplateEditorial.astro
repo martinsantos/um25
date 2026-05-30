@@ -4,6 +4,10 @@ import SectionHeader from '../um/SectionHeader.astro';
 import MetricStrip from '../um/MetricStrip.astro';
 import UMButton from '../um/UMButton.astro';
 import { truncateEditorialText } from '../../utils/editorialContent';
+import { resolveReplicaH1 } from '../../utils/replicaProdCopy';
+import { getAntecedentesCountExactPhrase } from '../../utils/verifiedProof';
+
+const antecedentesProofLabel = getAntecedentesCountExactPhrase();
 
 interface Props {
   mode?: 'index' | 'detail';
@@ -37,7 +41,11 @@ const sectorAntecedentesHref = sectorSlug
   ? `/antecedentes?sector=${encodeURIComponent(sectorSlug)}`
   : '/antecedentes';
 const caseHref = (item: any) => `/antecedentes/${item.id}/${item.slug || ''}`;
-const sectorTitle = sector.pageHeadline || sector.headline || sector.nombre || sector.label || 'Sector';
+const sectorTitleBase = sector.pageHeadline || sector.headline || sector.nombre || sector.label || 'Sector';
+const sectorIndexH1 = resolveReplicaH1('/sectores', 'Infraestructura IT por sector, con evidencia operativa.');
+const sectorTitle = sectorSlug
+  ? resolveReplicaH1(`/${sectorSlug}`, sectorTitleBase)
+  : sectorTitleBase;
 const sectorSummary = sector.pageSummary || sector.summary || sector.descripcion || '';
 const sectorName = sector.nombre || sector.label || sectorTitle;
 const sectorImage = sector.heroImage || sector.image;
@@ -58,7 +66,7 @@ if (mode === 'detail' && antecedentes.length > 0) {
       <div class="sector-editorial__head">
         <span class="sector-editorial__rule" aria-hidden="true"></span>
         <p class="sector-editorial__kicker">Sectores</p>
-        <h1>Infraestructura IT por sector, con evidencia operativa.</h1>
+        <h1>{sectorIndexH1}</h1>
         <p class="sector-editorial__lead">
           Una lectura directa de riesgos, continuidad y evidencia para priorizar inversiones
           por criticidad operativa.
@@ -70,7 +78,7 @@ if (mode === 'detail' && antecedentes.length > 0) {
           </div>
           <div>
             <dt>Archivo</dt>
-            <dd>469+ antecedentes</dd>
+            <dd>{antecedentesProofLabel}</dd>
           </div>
           <div>
             <dt>Operación</dt>
@@ -118,7 +126,7 @@ if (mode === 'detail' && antecedentes.length > 0) {
 ) : (
   <section class="sector-editorial sector-editorial--detail">
     <div class="sector-editorial-detail-hero">
-      {sectorImage && <img src={sectorImage} alt={sectorTitle} loading="eager" decoding="async" />}
+      {sectorImage && <img src={sectorImage} alt={sectorTitle} loading="eager" fetchpriority="high" decoding="async" width="1200" height="800" />}
       <div class="um-container">
         <nav class="sector-editorial__crumb" aria-label="Breadcrumb">
           <a href="/">Inicio</a>
@@ -135,7 +143,7 @@ if (mode === 'detail' && antecedentes.length > 0) {
           <dl class="sector-editorial-detail-hero__proofline" aria-label="Prueba institucional">
             <div>
               <dt>Archivo</dt>
-              <dd>469+ antecedentes</dd>
+              <dd>{antecedentesProofLabel}</dd>
             </div>
             <div>
               <dt>Trayectoria</dt>
@@ -548,8 +556,8 @@ if (mode === 'detail' && antecedentes.length > 0) {
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(90deg, rgba(0,0,0,0.94) 0%, rgba(0,0,0,0.7) 52%, rgba(0,0,0,0.28) 100%),
-      linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.82));
+      linear-gradient(90deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.82) 58%, rgba(0,0,0,0.55) 100%),
+      linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.86));
   }
 
   .sector-editorial-detail-hero .um-container {
@@ -584,7 +592,7 @@ if (mode === 'detail' && antecedentes.length > 0) {
 
   .sector-editorial-detail-hero__kicker {
     margin-top: 18px;
-    color: rgba(255, 255, 255, 0.62);
+    color: rgba(255, 255, 255, 0.78);
     font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -618,7 +626,7 @@ if (mode === 'detail' && antecedentes.length > 0) {
   }
 
   .sector-editorial-detail-hero__proofline dt {
-    color: rgba(255, 255, 255, 0.58);
+    color: rgba(255, 255, 255, 0.74);
     font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -637,7 +645,7 @@ if (mode === 'detail' && antecedentes.length > 0) {
   .sector-editorial-detail-hero__lead {
     max-width: 680px;
     margin-top: 18px;
-    color: rgba(255,255,255,0.78);
+    color: rgba(255,255,255,0.88);
     font-size: clamp(1.05rem, 1.25vw, 1.22rem);
     line-height: 1.62;
   }

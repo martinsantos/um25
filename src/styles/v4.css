@@ -37,8 +37,8 @@
   --um-world-h1: clamp(2.5rem, 2.62vw, 3.16rem);
   --um-world-h2: clamp(1.58rem, 1.92vw, 2.08rem);
   --um-world-h3: clamp(1.08rem, 1.12vw, 1.28rem);
-  --um-world-body: clamp(1rem, 1.01vw, 1.06rem);
-  --um-world-lead: clamp(1.04rem, 1.16vw, 1.16rem);
+  --um-world-body: clamp(1.1875rem, 0.35vw + 1.05rem, 1.25rem);
+  --um-world-lead: clamp(1.25rem, 0.42vw + 1.08rem, 1.3125rem);
   --um-world-gutter: clamp(28px, 5vw, 76px);
   --um-world-rule: 1px solid color-mix(in srgb, var(--skin-text) 8%, transparent);
   --um-dark-bg: #050505;
@@ -294,10 +294,17 @@ body[data-skin="steel"] {
     margin-inline: auto;
   }
 
+  .editorial-body {
+    font-size: var(--um-world-body);
+    line-height: 1.78;
+    color: #374151;
+  }
+
   .editorial-body :where(p, ul, ol) {
     margin: 0 0 1rem;
-    color: var(--um-muted, #5f6368);
-    line-height: 1.78;
+    font-size: inherit;
+    color: inherit;
+    line-height: inherit;
   }
 
   .editorial-body :where(p:last-child, ul:last-child, ol:last-child) {
@@ -1126,7 +1133,6 @@ body[data-skin] main :where(
   .service-detail-hero,
   .sectors-hero,
   .sector-detail-hero,
-  .case-detail-hero,
   .um-home-hero,
   .antecedentes-hero,
   .ante-hero,
@@ -1148,7 +1154,6 @@ body[data-skin] main :where(
   .service-detail-hero,
   .sectors-hero,
   .sector-detail-hero,
-  .case-detail-hero,
   .um-home-hero,
   .antecedentes-hero,
   .ante-hero,
@@ -2092,8 +2097,241 @@ body[data-skin="hybrid"] main :where(
 
   body[data-skin="hybrid"] main :where(p, li, dd, dt, label, a, button, input, textarea, select, figcaption, td, th),
   body[data-skin="white"] main :where(p, li, dd, dt, label, a, button, input, textarea, select, figcaption, td, th) {
-    font-size: max(1rem, 1em) !important;
+    font-size: max(1.125rem, 1em) !important;
   }
+
+  /* Antecedentes — ver bloque sin @layer al final del archivo (gana a <style scoped> de Astro) */
+}
+
+/* Antecedentes — lectura (sin @layer: prioridad sobre estilos scoped de componentes) */
+body[data-skin] main .ante-dossier :where(
+  .ante-dossier__hero p,
+  .ante-dossier__section-head p,
+  .ante-dossier__archive-head p,
+  .ante-dossier__empty p,
+  .ante-dossier__feature p,
+  .ante-dossier__secondary-item p,
+  .ante-dossier__proof span,
+  .ante-dossier__range span,
+  .ante-dossier__search label,
+  .ante-dossier__sector-links a span,
+  .ante-dossier__ledger-head span,
+  .evidence-case-row p,
+  .evidence-case-row__number,
+  .evidence-case-row__meta span,
+  .evidence-case-row__meta strong,
+  .evidence-case-row em
+) {
+  font-size: 1.1875rem !important;
+  line-height: 1.62 !important;
+}
+
+body[data-skin] main .case-detail-main :where(
+  .case-detail-body__copy,
+  .case-detail-body__copy :where(p, li, td, th),
+  .case-callout,
+  .case-callout p
+) {
+  font-size: 1.125rem !important;
+  line-height: 1.72 !important;
+  color: #374151 !important;
+}
+
+body[data-skin] main .case-detail :where(.case-scope-list li) {
+  font-size: 1.125rem !important;
+  line-height: 1.72 !important;
+  color: #1f2937 !important;
+}
+
+body[data-skin] main .case-detail .case-service-card__body h3 {
+  font-size: 1.0625rem !important;
+  line-height: 1.28 !important;
+  color: #111 !important;
+}
+
+body[data-skin] main .case-detail .case-service-card__body p {
+  font-size: 1rem !important;
+  line-height: 1.62 !important;
+  color: #4b5563 !important;
+}
+
+body[data-skin] main .case-detail .case-service-card__cta {
+  font-size: 1rem !important;
+  color: #dc2626 !important;
+}
+
+body[data-skin] main .case-detail .case-service-cards__all {
+  font-size: 1.125rem !important;
+}
+
+body[data-skin] main .case-detail-main :where(.case-section-title h2) {
+  font-size: clamp(1.2rem, 1.15vw, 1.3125rem) !important;
+  line-height: 1.2 !important;
+  color: #111 !important;
+}
+
+body[data-skin] main .case-related__head h2,
+body[data-skin] main .case-detail-footer-cta h2 {
+  font-size: clamp(1.2rem, 1.15vw, 1.3125rem) !important;
+  line-height: 1.2 !important;
+  color: #111 !important;
+}
+
+body[data-skin] main .case-detail-side .case-info-label {
+  font-size: 0.8125rem !important;
+  color: #4b5563 !important;
+}
+
+body[data-skin] main .case-detail-side .case-info-value {
+  font-size: 1.0625rem !important;
+  color: #111 !important;
+}
+
+body[data-skin] main .case-detail-side .case-info-card__head,
+body[data-skin] main .case-detail-side .case-info-card__title {
+  color: #111 !important;
+}
+
+body[data-skin] main .case-detail-side .case-info-card__icon {
+  width: 42px !important;
+  height: 42px !important;
+  color: #dc2626 !important;
+  background: rgba(220, 38, 38, 0.08) !important;
+}
+
+body[data-skin] main .case-detail-side .case-info-card__icon svg {
+  width: 24px !important;
+  height: 24px !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+body[data-skin] main .case-detail-body__copy :where(
+  p[style],
+  li[style],
+  span[style],
+  div[style]
+) {
+  font-size: inherit !important;
+}
+
+body[data-skin] main .case-detail-hero .case-detail-hero__copy h1 {
+  font-size: clamp(2.5rem, 2.45vw, 2.75rem) !important;
+  line-height: 1.1 !important;
+  color: #111 !important;
+}
+
+body[data-skin] main .case-detail-hero .case-detail-hero__copy p {
+  font-size: 1.1875rem !important;
+  line-height: 1.65 !important;
+  color: #535a62 !important;
+}
+
+body[data-skin] main .case-detail-hero .case-detail-breadcrumb,
+body[data-skin] main .case-detail-hero .case-detail-breadcrumb :where(a, span) {
+  font-size: 1rem !important;
+  color: #5f6368 !important;
+}
+
+body[data-skin] main .case-detail-hero .case-detail-label,
+body[data-skin] main .case-detail-hero .case-detail-label span {
+  font-size: 1.0625rem !important;
+  color: #dc2626 !important;
+}
+
+body[data-skin] main .case-detail-hero .case-detail-dossier__body > strong {
+  font-size: clamp(1.28rem, 1.55vw, 1.55rem) !important;
+  line-height: 1.14 !important;
+  color: #111 !important;
+}
+
+body[data-skin] main .case-detail-side .case-info-card__title {
+  font-size: 1.1875rem !important;
+  line-height: 1.35 !important;
+}
+
+/* Panel blanco del hero — no heredar texto muted del fondo oscuro */
+body[data-skin] main .case-detail-hero .case-detail-dossier .case-detail-dossier__body > span {
+  color: #dc2626 !important;
+  font-size: 1rem !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+}
+
+body[data-skin] main .case-detail-hero .case-detail-dossier .case-detail-dossier__body > strong {
+  color: #111 !important;
+}
+
+body[data-skin] main .case-detail-hero .case-detail-dossier .case-detail-meta span {
+  color: #6b7280 !important;
+  font-size: 1rem !important;
+}
+
+body[data-skin] main .case-detail-hero .case-detail-dossier .case-detail-meta strong {
+  color: #111 !important;
+  font-size: 1.0625rem !important;
+}
+
+body[data-skin] main .case-cta-card__icon svg {
+  width: 26px !important;
+  height: 26px !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+body[data-skin] main .case-cta-card__action-icon svg {
+  width: 20px !important;
+  height: 20px !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+/* CTA oscuro en sidebar — anula skin-text / skin-muted globales */
+body[data-skin] main .case-cta-card,
+body[data-skin] main .case-detail-main .case-cta-card {
+  background: #080808 !important;
+  color: #fff !important;
+}
+
+body[data-skin] main .case-cta-card :where(h1, h2, h3, h4, h5, h6) {
+  color: #fff !important;
+}
+
+body[data-skin] main .case-cta-card p {
+  font-size: 1.125rem !important;
+  line-height: 1.62 !important;
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+body[data-skin] main .case-cta-card__actions a {
+  font-size: 1.0625rem !important;
+  line-height: 1.35 !important;
+  color: #fff !important;
+}
+
+body[data-skin] main .case-cta-card__actions a:first-child {
+  background: #dc2626 !important;
+  color: #fff !important;
+}
+
+body[data-skin] main .case-cta-card__actions a:not(:first-child) {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+}
+
+body[data-skin] main .antecedentes-list :where(
+  .evidence-case-row p,
+  .evidence-case-row span,
+  .ante-dossier__row p,
+  .ante-dossier__row span
+),
+body[data-skin] main .antecedentes-results :where(
+  .evidence-case-row p,
+  .evidence-case-row span
+) {
+  font-size: 1.125rem !important;
+  line-height: 1.62 !important;
 }
 
 /* Contrast guard — dark bands win over editorial tokens and Astro order */
@@ -2152,4 +2390,93 @@ body[data-skin] main .sector-editorial-index-hero .um-btn-secondary:hover,
 body[data-skin] main .sector-atlas-index-hero .um-btn-secondary:hover {
   background: #ffffff !important;
   color: #111111 !important;
+}
+
+/* Case detail — editorial light hero (dossier + copy zone; not dark skin band) */
+body[data-skin] main .case-detail-hero {
+  background: #ffffff !important;
+  color: #111111 !important;
+}
+
+body[data-skin] main .case-detail-hero__wash {
+  background:
+    linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.96) 48%, rgba(255, 255, 255, 0.74) 100%),
+    linear-gradient(0deg, #ffffff 0%, rgba(255, 255, 255, 0.48) 72%) !important;
+}
+
+body[data-skin] main .case-detail-hero__image {
+  opacity: 0.1 !important;
+  filter: grayscale(0.18) saturate(0.9) contrast(1.05) !important;
+}
+
+body[data-skin] main .case-detail-hero .case-detail-hero__copy h1,
+body[data-skin] main .case-detail-hero .case-detail-breadcrumb,
+body[data-skin] main .case-detail-hero .case-detail-breadcrumb :where(a, span) {
+  color: #111111 !important;
+}
+
+body[data-skin] main .case-detail-hero .case-detail-hero__copy > p {
+  color: #535a62 !important;
+}
+
+body[data-skin] main .case-detail-hero .case-detail-label,
+body[data-skin] main .case-detail-hero .case-detail-label span {
+  color: #dc2626 !important;
+}
+
+/* Evidencia relacionada — grid estable, sin solapamiento Sector/Año */
+body[data-skin] main .case-related .evidence-case-row {
+  grid-template-columns: 3rem 136px minmax(0, 1fr) minmax(140px, auto) auto !important;
+  column-gap: clamp(14px, 2vw, 24px) !important;
+}
+
+body[data-skin] main .case-related .evidence-case-row > *,
+body[data-skin] main .case-related .evidence-case-row__copy,
+body[data-skin] main .case-related .evidence-case-row__meta-group {
+  min-width: 0 !important;
+}
+
+body[data-skin] main .case-related .evidence-case-row__meta-group {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(3.75rem, 4.75rem) !important;
+  gap: clamp(12px, 1.6vw, 20px) !important;
+}
+
+body[data-skin] main .case-related .evidence-case-row__thumb {
+  width: 136px !important;
+  max-width: 136px !important;
+  min-width: 136px !important;
+  height: 102px !important;
+  min-height: 102px !important;
+}
+
+body[data-skin] main .case-related .evidence-case-row__meta span {
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  color: #6b7280 !important;
+}
+
+body[data-skin] main .case-related .evidence-case-row__meta strong {
+  font-size: 1.0625rem !important;
+  font-weight: 600 !important;
+  color: #111111 !important;
+}
+
+body[data-skin] main .case-related .evidence-case-row p {
+  color: #4b5563 !important;
+  font-size: 1.0625rem !important;
+}
+
+@media (max-width: 900px) {
+  body[data-skin] main .case-related .evidence-case-row {
+    grid-template-columns: minmax(96px, 112px) minmax(0, 1fr) !important;
+  }
+
+  body[data-skin] main .case-related .evidence-case-row__thumb {
+    width: 100% !important;
+    min-width: 96px !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 72px !important;
+  }
 }

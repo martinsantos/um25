@@ -19,6 +19,12 @@ console.log('=== Réplica gate (localhost = prod + tema hybrid) ===\n');
 
 await run('node', ['scripts/replica-preflight.mjs']);
 await run('node', ['scripts/replica-parity-check.mjs']);
+await run('node', ['scripts/replica-content-parity.mjs']);
+await run('node', ['scripts/replica-images-audit.mjs']);
+console.log('\n--- Layout detalle antecedente (miniatura servicio, tipografía) ---\n');
+await run('node', ['scripts/antecedente-detail-layout-audit.mjs'], {
+  VISUAL_AUDIT_BASE_URL: process.env.VISUAL_AUDIT_BASE_URL || 'http://localhost:4321',
+});
 await run('npm', ['run', 'audit:e2e:visual'], {
   VISUAL_AUDIT_BASE_URL: process.env.VISUAL_AUDIT_BASE_URL || 'http://localhost:4321',
 });

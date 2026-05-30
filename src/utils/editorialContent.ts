@@ -106,11 +106,25 @@ export function stripBannedLedgerFromHtml(html: string): string {
   return out;
 }
 
+/** Directus entrega `Subtitulo`; snapshots/JS pueden usar `subtitulo`. */
+export function readServiceSubtitulo(servicio: {
+  subtitulo?: string;
+  Subtitulo?: string;
+}): string {
+  return String(servicio.subtitulo || servicio.Subtitulo || '').trim();
+}
+
 export function sanitizeServicePageTitle(
   serviceId: number,
   cmsTitle: string,
   fallback?: string,
+  preferCms = false,
 ): string {
+  if (preferCms) {
+    const fromCms = stripBannedLedgerPhrases(cmsTitle.split('|')[0]?.trim() || cmsTitle);
+    return fromCms || 'Servicio IT';
+  }
+
   const heroTitles: Record<number, string> = {
     101: 'Redes y conectividad',
     102: 'Seguridad electrónica',
@@ -138,23 +152,55 @@ export function serviceHeroLead(
   subtitulo: unknown,
   visualProof: string | undefined,
   pageDescription: string,
+  bodyPlainPrefix?: string,
 ): string {
   const cleanedSub = subtitulo ? sanitizeMarketingCopy(subtitulo, 220) : '';
   if (cleanedSub && !containsBannedLedgerCopy(cleanedSub)) return cleanedSub;
   if (visualProof && !containsBannedLedgerCopy(visualProof)) return visualProof;
+
   const cleanedPage = sanitizeMarketingCopy(pageDescription, 220);
-  if (cleanedPage && !containsBannedLedgerCopy(cleanedPage)) return cleanedPage;
-  return visualProof || 'Alcance técnico documentado con evidencia y soporte en sitio.';
+  const bodyPrefix = bodyPlainPrefix ? sanitizeMarketingCopy(bodyPlainPrefix, 120) : '';
+  const duplicatesBody =
+    Boolean(bodyPrefix && cleanedPage) &&
+    cleanedPage.slice(0, 72).toLowerCase() === bodyPrefix.slice(0, 72).toLowerCase();
+
+  if (cleanedPage && !containsBannedLedgerCopy(cleanedPage) && !duplicatesBody) {
+    return cleanedPage;
+  }
+  return visualProof || cleanedSub || 'Alcance técnico documentado con evidencia y soporte en sitio.';
 }
 
-export function sanitizeServiceStats(stats: Array<{ value?: string; label?: string }> = []) {
-  return stats.map((stat) => {
-    const value = String(stat?.value || '');
-    const label = String(stat?.label || '');
-    if (/99[\.,]\d+%/.test(value) || /uptime|disponibilidad/i.test(label)) {
-      return { ...stat, value: '24/7', label: 'Operación' };
-    }
-    return stat;
+export function sanitizeServiceStats(stats: Array<{ value?: string; label?: string; valor?: string }> = []) {
+  return stats
+    .map((stat) => {
+      const value = String(stat?.value ?? stat?.valor ?? '');
+      const label = String(stat?.label || '');
+      if (/99[\.,]\d+%/.test(value) || /uptime|disponibilidad/i.test(label)) {
+        return { ...stat, value: '24/7', label: 'Operación' };
+      }
+      if (/100\s*%/.test(value) && /certific/i.test(label)) {
+        return null;
+      }
+      if (/\b469\+|\b518\+/.test(value) || /proyectos ejecutados/i.test(label)) {
+        return null;
+      }
+      if (/\bISO\s*(9001|27001|14001)/i.test(`${value} ${label}`)) {
+        return null;
+      }
+      return stat;
+    })
+    .filter(Boolean) as Array<{ value?: string; label?: string; valor?: string }>;
+}
+
+/** Filtra bullets CMS con certificaciones corporativas no acreditadas en el sitio. */
+export function sanitizeServiceBulletList(items: string[] = []): string[] {
+  return items.filter((item) => {
+    const text = String(item || '');
+    if (!text.trim()) return false;
+    if (/\bISO\s*(9001|27001|14001|45001)\b/i.test(text)) return false;
+    if (/PCI\s*DSS/i.test(text)) return false;
+    if (containsBannedLedgerCopy(text)) return false;
+    return true;
   });
 }
 

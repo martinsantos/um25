@@ -1,11 +1,14 @@
 ---
 import type { GeoCommercialHub } from '../../data/geoCommercialHubs';
+import { resolveReplicaH1 } from '../../utils/replicaProdCopy';
+import BudgetBriefFields from '../um/BudgetBriefFields.astro';
 
 interface Props {
   hub: GeoCommercialHub;
 }
 
 const { hub } = Astro.props;
+const hubH1 = resolveReplicaH1(`/${hub.slug}`, hub.h1);
 const intentLabel = {
   comparison: 'Comparación de proveedor',
   decision: 'Decisión de compra',
@@ -68,10 +71,10 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
         <nav class="geo-dossier-crumb" aria-label="Breadcrumb">
           <a href="/">Inicio</a>
           <span>/</span>
-          <span>{hub.h1}</span>
+          <span>{hubH1}</span>
         </nav>
         <p class="geo-dossier-kicker">{hub.eyebrow}</p>
-        <h1>{hub.h1}</h1>
+        <h1>{hubH1}</h1>
         <div class="geo-dossier-actions">
           <a class="um-btn-primary" href="/contacto">{hub.primaryCta}</a>
           <a class="um-btn-secondary" href={hub.secondaryHref}>{hub.secondaryCta}</a>
@@ -98,7 +101,7 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
         </div>
 
         <figure class="geo-dossier-media">
-          <img src={heroMedia.src} alt={heroMedia.alt} loading="eager" decoding="async" />
+          <img src={heroMedia.src} alt={heroMedia.alt} loading="eager" fetchpriority="high" decoding="async" width="1200" height="800" />
           <figcaption>
             <span>{heroMedia.caption}</span>
             <strong>{hub.market}</strong>
@@ -223,6 +226,25 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
       </div>
     </div>
   </section>
+
+  {hub.slug === 'presupuesto-servicios-it-empresas' && (
+    <section class="geo-dossier-section geo-budget-brief" id="presupuesto-brief" aria-labelledby="geo-budget-title">
+      <div class="um-container geo-budget-brief__grid">
+        <div>
+          <p class="geo-dossier-kicker">Presupuesto por variables</p>
+          <h2 id="geo-budget-title">Definí alcance antes de cotizar</h2>
+          <p>
+            Sin precio en web: sector, criticidad, sedes y tipo de intervención. Completá el contexto y continuá en contacto con el mismo equipo técnico.
+          </p>
+        </div>
+        <form class="geo-budget-brief__form" action="/contacto" method="get">
+          <BudgetBriefFields idPrefix="geo-budget" locale="es" />
+          <button type="submit" class="um-btn-primary geo-budget-brief__submit">Continuar a contacto</button>
+          <p class="geo-budget-brief__note">Los valores se precargan en el formulario de contacto.</p>
+        </form>
+      </div>
+    </section>
+  )}
 
   <section class="geo-final">
     <div class="um-container geo-final__inner">
@@ -1045,6 +1067,36 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
     background: #fff;
     border-color: #fff;
     color: #111;
+  }
+
+  .geo-budget-brief__grid {
+    display: grid;
+    gap: clamp(24px, 4vw, 40px);
+  }
+
+  @media (min-width: 900px) {
+    .geo-budget-brief__grid {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      align-items: start;
+    }
+  }
+
+  .geo-budget-brief__form {
+    padding: clamp(20px, 3vw, 28px);
+    border: 1px solid var(--skin-line, #d9dadd);
+    background: #fff;
+  }
+
+  .geo-budget-brief__submit {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .geo-budget-brief__note {
+    margin: 12px 0 0;
+    font-size: 0.9375rem;
+    color: var(--skin-muted, #5f6368);
+    line-height: 1.45;
   }
 
   @media (max-width: 980px) {

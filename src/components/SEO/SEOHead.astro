@@ -9,6 +9,7 @@
  * Font links, GA4 tracking, and <style> blocks stay in the layout.
  */
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, BUSINESS_ADDRESS } from '../../config/seo';
+import { resolveEnglishPath, resolveSpanishPath } from '../../config/i18nRoutes';
 import { canonicalUrl as toCanonicalUrl, clampText, publicImageUrl, stripWww } from '../../utils/seoUrl';
 
 export interface Props {
@@ -53,6 +54,13 @@ const {
 const currentUrl = canonical
   ? toCanonicalUrl(canonical)
   : toCanonicalUrl(Astro.url.pathname);
+
+const pathname = Astro.url.pathname;
+const isEnglishPath = pathname === '/en' || pathname.startsWith('/en/');
+const spanishPath = resolveSpanishPath(pathname);
+const englishPath = resolveEnglishPath(pathname);
+const hreflangEsUrl = toCanonicalUrl(spanishPath);
+const hreflangEnUrl = toCanonicalUrl(englishPath);
 
 // ---------------------------------------------------------------------------
 // Title
@@ -317,9 +325,10 @@ const combinedSchema = {
   <!-- Hreflang (self-referencing) — controlled by `hreflang` prop -->
   {hreflang && (
     <>
-      <link rel="alternate" hreflang="es-AR" href={currentUrl} />
-      <link rel="alternate" hreflang="es" href={currentUrl} />
-      <link rel="alternate" hreflang="x-default" href={currentUrl} />
+      <link rel="alternate" hreflang="es-AR" href={hreflangEsUrl} />
+      <link rel="alternate" hreflang="es" href={hreflangEsUrl} />
+      <link rel="alternate" hreflang="en" href={hreflangEnUrl} />
+      <link rel="alternate" hreflang="x-default" href={hreflangEsUrl} />
     </>
   )}
 

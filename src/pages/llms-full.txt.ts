@@ -8,6 +8,7 @@ import {
   geoServiceResources,
   geoVersion,
 } from '../data/geoResources';
+import { getInstitutionalProofLines } from '../utils/verifiedProof';
 
 export const GET: APIRoute = async () => {
   const lines = [
@@ -25,7 +26,7 @@ export const GET: APIRoute = async () => {
     `- Website: ${SITE_URL}`,
     '- Location: Mendoza, Argentina',
     '- Services: redes, seguridad electrónica, telecomunicaciones, software, soporte, consultoría, detección de incendios y energía IT.',
-    '- Proof: 469+ antecedentes, 22+ años, 8 frentes de servicio, soporte 24/7.',
+    `- Proof: ${getInstitutionalProofLines().join('; ')}.`,
     '',
     '## Discovery',
     `- ${SITE_URL}/llms.txt`,

@@ -2,6 +2,12 @@
 import EvidenceCaseRow from '../um/EvidenceCaseRow.astro';
 import SectionHeader from '../um/SectionHeader.astro';
 import { truncateEditorialText } from '../../utils/editorialContent';
+import { resolveReplicaH1 } from '../../utils/replicaProdCopy';
+import { extractCaseMetricsFromAntecedente } from '../../utils/caseMetrics';
+import { getAntecedentesCatalogCount, getAntecedentesCountShort } from '../../utils/verifiedProof';
+
+const antecedentesPath = `${Astro.url.pathname}${Astro.url.search}`;
+const antecedentesIndexH1 = resolveReplicaH1(antecedentesPath, 'Evidencia operativa documentada.');
 
 interface Props {
   pageData: any;
@@ -30,7 +36,8 @@ const spotlight = pageData.spotlightAntecedentes || [];
 const archive = pageData.antecedentes || [];
 const totalItems = pageData.totalItems || 0;
 const archiveTotalItems = pageData.archiveTotalItems ?? Math.max(0, totalItems - spotlight.length);
-const institutionalProofTotal = 469;
+const institutionalProofTotal = getAntecedentesCatalogCount();
+const institutionalProofShort = getAntecedentesCountShort();
 const totalPages = Math.max(1, pageData.totalPages || 1);
 const currentPage = pageData.currentPage || 1;
 const feature = featuredAntecedente || spotlight[0];
@@ -92,7 +99,7 @@ const projectYear = (item: any) => {
     <div class="um-container ante-dossier__hero-grid">
       <div class="ante-dossier__hero-copy">
         <span class="ante-dossier__mark" aria-hidden="true"></span>
-        <h1>Evidencia operativa documentada.</h1>
+        <h1>{antecedentesIndexH1}</h1>
         <p>
           Un archivo de proyectos reales para evaluar alcance, continuidad, criticidad y experiencia
           en redes, seguridad electrónica, telecomunicaciones, software, soporte y energía para IT.
@@ -106,7 +113,7 @@ const projectYear = (item: any) => {
       <aside class="ante-dossier__proof" aria-label="Resumen de antecedentes">
         <div>
           <span>Proyectos</span>
-          <strong>{institutionalProofTotal}+</strong>
+          <strong>{institutionalProofShort}</strong>
         </div>
         <div>
           <span>Trayectoria</span>
@@ -131,7 +138,7 @@ const projectYear = (item: any) => {
           <span>
             {hasActiveFilters
               ? `de ${totalItems} coincidencias en archivo`
-              : `de ${institutionalProofTotal}+ en archivo`}
+              : `de ${institutionalProofShort} en archivo`}
           </span>
         </div>
 
@@ -242,7 +249,7 @@ const projectYear = (item: any) => {
         <p>Lectura ejecutiva por cliente, alcance, sector y año para abrir cada dossier con contexto comercial claro.</p>
       </div>
 
-      <div class="ante-dossier__ledger">
+      <div class="ante-dossier__ledger antecedentes-list">
         <div class="ante-dossier__ledger-head" aria-hidden="true">
           <span>Proyecto</span>
           <span>Sector</span>
@@ -259,6 +266,8 @@ const projectYear = (item: any) => {
             imageAlt={item.Titulo || projectTitle(item)}
             sector={projectScope(item)}
             year={projectYear(item)}
+            imageLoading={index < 6 ? 'eager' : 'lazy'}
+            metrics={extractCaseMetricsFromAntecedente(item)}
           />
         ))}
       </div>
@@ -281,6 +290,8 @@ const projectYear = (item: any) => {
 
 <style>
   .ante-dossier {
+    --ante-read: 1.1875rem;
+    --ante-read-lg: 1.25rem;
     --ante-page: var(--skin-page, #fff);
     --ante-section: var(--skin-section, #fff);
     --ante-alt: #ffffff;
@@ -337,7 +348,7 @@ const projectYear = (item: any) => {
     max-width: 760px;
     margin-top: 12px;
     color: var(--ante-muted);
-    font-size: clamp(1rem, 1.16vw, 1.13rem);
+    font-size: clamp(1.125rem, 1.16vw, 1.25rem);
     line-height: 1.68;
   }
 
@@ -389,7 +400,7 @@ const projectYear = (item: any) => {
   .ante-dossier__proof span {
     display: block;
     color: var(--ante-muted);
-    font-size: 1rem;
+    font-size: var(--ante-read);
     font-weight: var(--um-weight-strong, 700);
     line-height: 1.35;
   }
@@ -633,7 +644,7 @@ const projectYear = (item: any) => {
   .ante-dossier__empty p {
     margin-top: 8px;
     color: var(--ante-muted);
-    font-size: 1rem;
+    font-size: var(--ante-read-lg);
     line-height: 1.65;
   }
 
@@ -929,7 +940,7 @@ const projectYear = (item: any) => {
     max-width: 680px;
     margin-top: 8px;
     color: #5d6269;
-    font-size: 1rem;
+    font-size: var(--ante-read);
     line-height: 1.58;
   }
 

@@ -5,6 +5,10 @@ import BlogFeedItem from '../../components/blog/BlogFeedItem.astro';
 import BlogPagination from '../../components/blog/BlogPagination.astro';
 import SectionHeader from '../../components/um/SectionHeader.astro';
 import { fetchBlogListing } from '../../utils/getBlogData';
+import { resolveReplicaH1 } from '../../utils/replicaProdCopy';
+import { getAntecedentesCountExactPhrase } from '../../utils/verifiedProof';
+
+const blogIndexH1 = resolveReplicaH1('/blog', 'Ideas técnicas para decidir mejor');
 
 const PAGE_SIZE = 10;
 const page = Number(Astro.url.searchParams.get('page') || '1');
@@ -68,12 +72,12 @@ const schema = {
             <span class="bc-current">Blog</span>
           </nav>
           <span class="blog-rule" aria-hidden="true"></span>
-          <h1 class="blog-title">Ideas técnicas para decidir mejor</h1>
+          <h1 class="blog-title">{blogIndexH1}</h1>
           <p class="blog-subtitle">
             Lecturas para decidir infraestructura, continuidad, seguridad, software y operación IT con evidencia concreta.
           </p>
           <dl class="blog-proofline" aria-label="Prueba institucional">
-            <div><dt>Archivo</dt><dd>469+ antecedentes</dd></div>
+            <div><dt>Archivo</dt><dd>{getAntecedentesCountExactPhrase()}</dd></div>
             <div><dt>Trayectoria</dt><dd>22+ años</dd></div>
             <div><dt>Operación</dt><dd>Soporte 24/7</dd></div>
           </dl>

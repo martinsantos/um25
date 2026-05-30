@@ -66,3 +66,5 @@ export function allowPublicBlogFallback(): boolean {
 export function allowMockBlogFallback(): boolean {
   return import.meta.env?.DEV && !isLocalProdReplica();
 }
+
+export { isReplicaIdenticalCopy, resolveReplicaH1, resolveReplicaTitle } from '../utils/replicaProdCopy';

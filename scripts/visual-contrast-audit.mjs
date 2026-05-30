@@ -9,6 +9,10 @@ const ROUTE_TIMEOUT_MS = Number(process.env.VISUAL_AUDIT_ROUTE_TIMEOUT_MS || 220
 const ROUTE_FILTER = process.env.VISUAL_AUDIT_ROUTE_FILTER ? new RegExp(process.env.VISUAL_AUDIT_ROUTE_FILTER) : null;
 const VIEWPORT_FILTER = process.env.VISUAL_AUDIT_VIEWPORT_FILTER ? new RegExp(process.env.VISUAL_AUDIT_VIEWPORT_FILTER) : null;
 const COMMERCIAL_ONLY = process.env.VISUAL_AUDIT_COMMERCIAL_ONLY === '1';
+/** Réplica idéntica a prod: H1 largos/CMS y copy legacy son válidos. */
+const REPLICA_IDENTICAL_COPY =
+  process.env.UMSA_REPLICA_IDENTICAL !== '0' &&
+  (process.env.UMSA_REPLICA_IDENTICAL === '1' || process.env.UMSA_LOCAL_REPLICA === '1');
 /** Modo aislado: más pausa entre rutas y reintentos de navegación (evita navigation mismatch en batch). */
 const LABEL_ONLY = process.env.VISUAL_AUDIT_LABEL_ONLY === '1';
 const ISOLATED = process.env.VISUAL_AUDIT_ISOLATED === '1' || LABEL_ONLY;
@@ -37,6 +41,8 @@ const routes = [
   { path: '/antecedentes?template=atlas&skin=white', label: 'antecedentes atlas' },
   { path: '/antecedentes/3064/desarrollo-de-software-y-digitalizacion-de-procesos-para-el-gobierno-de-la-provincia-de-mendoza', label: 'antecedente detalle default' },
   { path: '/antecedentes/3064/desarrollo-de-software-y-digitalizacion-de-procesos-para-el-gobierno-de-la-provincia-de-mendoza?skin=white', label: 'antecedente detalle' },
+  { path: '/antecedentes/3065/camara-de-cctv-aeropuerto-de-mendoza', label: 'antecedente detalle cctv default' },
+  { path: '/antecedentes/3065/camara-de-cctv-aeropuerto-de-mendoza?skin=white', label: 'antecedente detalle cctv' },
   { path: '/sectores', label: 'sectores default' },
   { path: '/sectores?skin=white', label: 'sectores' },
   { path: '/sectores?sector=bodegas', label: 'sectores filtrado default' },
@@ -406,7 +412,7 @@ async function auditRoute(ws, route, viewport) {
 
     function countsForMinFont(element) {
       if (element.closest(minFontExclusionSelector)) return false;
-      const mediaFrame = element.closest('.evidence-case-row__main figure, .evidence-item__media, .ante-dossier__row figure');
+      const mediaFrame = element.closest('.evidence-case-row__thumb, .evidence-item__media, .ante-dossier__row figure');
       if (mediaFrame) {
         const rect = mediaFrame.getBoundingClientRect();
         if (rect.width > 0 && rect.width < 128 && rect.height < 120) return false;
@@ -753,8 +759,10 @@ async function auditRoute(ws, route, viewport) {
         const isArchiveLedgerThumb = Boolean(
           image.closest('.ante-dossier__row-main figure, .ante-dossier__ledger, .evidence-item--ledger, .um-world-ledger-row')
         );
+        const isEvidenceRowThumb = Boolean(image.closest('.evidence-case-row__thumb'));
         const isSectorLedgerThumb = Boolean(image.closest('.sector-atlas-exec-row__sector figure'));
-        if (isArchiveLedgerThumb || isSectorLedgerThumb) {
+        if (isArchiveLedgerThumb || isEvidenceRowThumb || isSectorLedgerThumb) {
+          if (!image.complete || image.naturalWidth === 0) return false;
           return rect.height < 64 || rect.width < 64;
         }
         const minHeight = isCompactThumb ? 76 : 112;
@@ -1453,13 +1461,13 @@ function collectFailures(results) {
     if (STRICT && isCommercial && !isMobile && result.h1FontSize != null && result.h1FontSize < 40) {
       failures.push(`${result.viewport} ${result.label}: desktop/tablet h1 too small (${result.h1FontSize}px)`);
     }
-    if (STRICT && result.h1CompositionIssue) {
+    if (STRICT && result.h1CompositionIssue && !REPLICA_IDENTICAL_COPY) {
       failures.push(`${result.viewport} ${result.label}: h1 composition issue ${JSON.stringify(result.h1CompositionIssue)}`);
     }
-    if (STRICT && result.h1ContentIssue) {
+    if (STRICT && result.h1ContentIssue && !REPLICA_IDENTICAL_COPY) {
       failures.push(`${result.viewport} ${result.label}: h1 content issue ${JSON.stringify(result.h1ContentIssue)}`);
     }
-    if (STRICT && (result.headingIssues || []).length) {
+    if (STRICT && (result.headingIssues || []).length && !REPLICA_IDENTICAL_COPY) {
       failures.push(`${result.viewport} ${result.label}: heading typography issues ${JSON.stringify(result.headingIssues)}`);
     }
     if (result.evaluationError) {
@@ -1519,7 +1527,7 @@ function collectFailures(results) {
     if (STRICT && isCommercial && result.h1Overweight) {
       failures.push(`${result.viewport} ${result.label}: h1 weight above 600 (${result.h1Weight})`);
     }
-    if (STRICT && isCommercial && (result.copyWarnings || []).length) {
+    if (STRICT && isCommercial && (result.copyWarnings || []).length && !REPLICA_IDENTICAL_COPY) {
       failures.push(`${result.viewport} ${result.label}: generic copy in first viewport (${result.copyWarnings.join(', ')})`);
     }
     if (

@@ -24,7 +24,13 @@ const child = spawn('node', ['scripts/snapshot-directus-data.mjs'], {
 child.on('close', (code) => {
   if (code === 0) {
     console.log('\n✅ Snapshots actualizados en src/data/snapshots/');
-    console.log('Opcional: npm run download-images');
+    console.log('Descargando imágenes desde producción (solo GET)…\n');
+    const img = spawn('node', ['scripts/replica-download-images.mjs'], {
+      stdio: 'inherit',
+      env: { ...process.env, REPLICA_PROD_URL: process.env.REPLICA_PROD_URL || 'https://ultimamilla.com.ar' },
+    });
+    img.on('close', (imgCode) => process.exit(imgCode ?? 1));
+    return;
   }
   process.exit(code ?? 1);
 });

@@ -1,0 +1,109 @@
+---
+import LayoutV4 from '../layouts/LayoutV4.astro';
+import SectionHeader from '../components/um/SectionHeader.astro';
+import UMButton from '../components/um/UMButton.astro';
+
+const blocks = [
+  {
+    title: 'Calidad y trazabilidad de obra',
+    body: 'Entregables, protocolos de prueba y documentación de proyecto según el alcance contratado. No publicamos certificados de gestión de la empresa (p. ej. ISO 9001) en el sitio: si su proceso de compras los exige, solicítelos por el canal comercial.',
+  },
+  {
+    title: 'Seguridad de la información en proyectos',
+    body: 'Prácticas de acceso, respaldo y continuidad acordadas por proyecto (corporativo, sector público, planta). Evidencias y políticas se comparten en licitaciones o auditorías de proveedor cuando corresponde — no como certificación ISO 27001 corporativa visible en la web.',
+  },
+  {
+    title: 'Detección de incendios (SDI) y corrientes débiles',
+    body: 'Experiencia en ingeniería, instalación y mantenimiento de SDI en aeropuertos, salud, industria y edificios corporativos (ver antecedentes por sector). Las referencias normativas (IRAM, NFPA u otras) se aplican según el proyecto y el requisito del cliente, no como sello de certificación de ULTIMA MILLA.',
+  },
+  {
+    title: 'Cableado e instalaciones asociadas',
+    body: 'Cableado estructurado y canalizaciones con pruebas de canal y documentación de obra cuando el alcance lo incluye (certificación de puntos, no certificación ISO de la empresa).',
+  },
+];
+---
+
+<LayoutV4
+  title="Documentación técnica y cumplimiento | ULTIMA MILLA"
+  description="Marco de documentación de proyectos, SDI y cableado de ULTIMA MILLA. Certificados y dossiers se entregan bajo solicitud comercial."
+  keywords="documentación técnica proyectos IT, SDI Mendoza, cableado estructurado certificación puntos, cumplimiento licitaciones Argentina"
+>
+  <section class="um-container cert-page">
+    <SectionHeader
+      kicker="Cumplimiento"
+      title="Documentación y marco normativo"
+      text="Qué podemos acreditar en un proceso de compra y qué no figura como certificación corporativa en este sitio."
+    />
+
+    <div class="cert-page__grid">
+      {blocks.map((block) => (
+        <article>
+          <h2>{block.title}</h2>
+          <p>{block.body}</p>
+        </article>
+      ))}
+    </div>
+
+    <div class="cert-page__cta">
+      <p>¿Necesita dossier para licitación, seguro o auditoría de proveedor?</p>
+      <UMButton href="/contacto">Solicitar documentación</UMButton>
+    </div>
+  </section>
+</LayoutV4>
+
+<style>
+  .cert-page {
+    padding: clamp(32px, 5vw, 56px) 0 clamp(48px, 6vw, 72px);
+  }
+
+  .cert-page__grid {
+    display: grid;
+    gap: 20px;
+    margin-top: clamp(28px, 4vw, 40px);
+  }
+
+  @media (min-width: 768px) {
+    .cert-page__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .cert-page__grid article {
+    padding: 22px 24px;
+    border: 1px solid var(--skin-line, #d9dadd);
+    background: var(--skin-section, #fff);
+  }
+
+  .cert-page__grid h2 {
+    margin: 0;
+    font-family: var(--um-font-display);
+    font-size: clamp(1.15rem, 1.4vw, 1.35rem);
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .cert-page__grid p {
+    margin: 10px 0 0;
+    color: var(--skin-muted, #4b5563);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+  }
+
+  .cert-page__cta {
+    margin-top: clamp(32px, 4vw, 48px);
+    padding-top: 24px;
+    border-top: 1px solid var(--skin-line, #d9dadd);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .cert-page__cta p {
+    margin: 0;
+    max-width: 42ch;
+    font-size: 1.0625rem;
+    line-height: 1.55;
+  }
+</style>

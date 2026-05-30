@@ -2,6 +2,10 @@
 import EvidenceItem from './EvidenceItem.astro';
 import UMButton from '../um/UMButton.astro';
 import { truncateEditorialText } from '../../utils/editorialContent';
+import { getAntecedentesCountExactPhrase, getAntecedentesCountShort } from '../../utils/verifiedProof';
+
+const antecedentesProofLabel = getAntecedentesCountExactPhrase();
+const antecedentesProofShort = getAntecedentesCountShort();
 
 interface Props {
   mode?: 'index' | 'detail';
@@ -71,7 +75,7 @@ const buildSectorFilterUrl = (nextSector: string) => {
             </div>
             <div>
               <dt>Archivo</dt>
-              <dd>469+ antecedentes</dd>
+              <dd>{antecedentesProofLabel}</dd>
             </div>
             <div>
               <dt>Operación</dt>
@@ -89,7 +93,7 @@ const buildSectorFilterUrl = (nextSector: string) => {
             <img src={heroSector?.image} alt={heroSector?.imageAlt || 'Infraestructura IT por sector'} loading="eager" decoding="async" />
           </figure>
           <div><span>{sectors.length}</span><strong>mercados priorizados</strong></div>
-          <div><span>469+</span><strong>antecedentes vinculables</strong></div>
+          <div><span>{antecedentesProofShort}</span><strong>antecedentes vinculables</strong></div>
           <div><span>24/7</span><strong>soporte operativo</strong></div>
         </aside>
       </header>
@@ -176,7 +180,7 @@ const buildSectorFilterUrl = (nextSector: string) => {
           <dl class="sector-atlas-detail-hero__proofline" aria-label="Prueba institucional">
             <div>
               <dt>Archivo</dt>
-              <dd>469+ antecedentes</dd>
+              <dd>{antecedentesProofLabel}</dd>
             </div>
             <div>
               <dt>Trayectoria</dt>

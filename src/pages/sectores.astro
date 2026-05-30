@@ -4,9 +4,12 @@ import SectorTemplateEditorial from '../components/templates/SectorTemplateEdito
 import SectorTemplateAtlas from '../components/templates/SectorTemplateAtlas.astro';
 import { sectorVisualOrder, sectorVisualSystem } from '../data/sectorVisualSystem';
 import { getDevTemplateVariant } from '../utils/templateVariant';
+import { isReplicaIdenticalCopy } from '../utils/replicaProdCopy';
 
 const sectores = sectorVisualOrder.map((slug) => sectorVisualSystem[slug]);
-const templateVariant = getDevTemplateVariant(Astro.url, import.meta.env.DEV) ?? 'editorial';
+const templateVariant = isReplicaIdenticalCopy()
+  ? 'editorial'
+  : (getDevTemplateVariant(Astro.url, import.meta.env.DEV) ?? 'editorial');
 const requestedSector = new URL(Astro.request.url).searchParams.get('sector') || '';
 const sectorFilter = sectores.some((sector) => sector.slug === requestedSector) ? requestedSector : '';
 const sectorFilterOptions = [{ id: '', label: 'Todos' }].concat(

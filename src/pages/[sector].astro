@@ -14,6 +14,7 @@ import { getFAQSchema } from '../data/sectorFAQs';
 import { getSectorVisualSpec } from '../data/sectorVisualSystem';
 import { getDevTemplateVariant } from '../utils/templateVariant';
 import { buildGeoHubStructuredData, getGeoCommercialHub } from '../data/geoCommercialHubs';
+import { isReplicaIdenticalCopy, resolveReplicaH1 } from '../utils/replicaProdCopy';
 
 const sectorSlug = Astro.params.sector || '';
 const geoHub = getGeoCommercialHub(sectorSlug);
@@ -38,7 +39,10 @@ const {
 
 const visual = getSectorVisualSpec(sectorSlug);
 const heroImage = visual?.image || hero_image;
-const pageHeadline = visual?.headline || `Tecnología para ${nombre}`;
+const editorialHeadline = visual?.headline || `Tecnología para ${nombre}`;
+const pageHeadline = isReplicaIdenticalCopy()
+  ? resolveReplicaH1(`/${sectorSlug}`, seo_title || editorialHeadline)
+  : editorialHeadline;
 const pageSummary = visual?.summary || descripcion;
 const antecedentes = geoHub ? [] : await getAntecedentesForSector(keywords, nombre);
 const sanitizeSectorStats = (items: any[] = []) => items.map((stat: any) => {
@@ -51,7 +55,9 @@ const sanitizeSectorStats = (items: any[] = []) => items.map((stat: any) => {
 });
 const displayStats = sanitizeSectorStats(stats || []);
 const faqSchema = getFAQSchema(sectorSlug);
-const templateVariant = getDevTemplateVariant(Astro.url, import.meta.env.DEV) ?? 'editorial';
+const templateVariant = isReplicaIdenticalCopy()
+  ? 'editorial'
+  : (getDevTemplateVariant(Astro.url, import.meta.env.DEV) ?? 'editorial');
 const templateSector = {
   ...(visual || {}),
   ...sectorData,

@@ -1,6 +1,20 @@
 # Réplica local = www.ultimamilla.com.ar (tema nuevo)
 
-Objetivo: validar en **http://localhost:4321** la misma experiencia que producción (datos CMS, skin **hybrid**, fallbacks) con el **White Dossier** aplicado. Cuando el gate local esté en **0 fallos**, merge a `master` y deploy.
+Objetivo: validar en **http://localhost:4321** la misma experiencia que producción (datos CMS, skin **hybrid**, fallbacks) con el **White Dossier** aplicado.
+
+## Cero impacto en producción
+
+Esta réplica **no modifica** www.ultimamilla.com.ar ni el VPS:
+
+| Acción | Impacto en prod |
+|--------|-----------------|
+| `npm run dev:replica` | Solo localhost |
+| `replica:sync` / túnel SSH | **Solo lectura** de Directus (export a JSON local) |
+| `replica:parity-check` | Solo GET HTTP (comparar códigos) |
+| Snapshots en `src/data/snapshots/` | Archivos locales en tu Mac |
+| Merge / deploy / `git push` master | **No ejecutar** si querés aislar prod |
+
+El túnel `ssh -L 8055:127.0.0.1:8055` no escribe en el servidor; solo reenvía consultas de lectura a tu máquina.
 
 ---
 
@@ -13,6 +27,14 @@ Objetivo: validar en **http://localhost:4321** la misma experiencia que producci
 | Canonical SEO | localhost | **ultimamilla.com.ar** en meta | igual |
 | Directus vacío | 404 / lista vacía | **snapshots** JSON | live + snapshots en error |
 | Gate visual | opcional | `npm run replica:gate` | post-deploy prod URL |
+| H1 visibles | copy editorial dossier | **idénticos a prod** (`UMSA_REPLICA_IDENTICAL=1`) | CMS legacy |
+| Paridad H1 | — | `npm run replica:content-parity` (30 rutas) | — |
+
+Con `UMSA_REPLICA_IDENTICAL=1` (por defecto en réplica), los H1 salen de `src/data/replica-prod-copy.json`. Regenerar tras cambios en www:
+
+```bash
+npm run replica:scrape-copy   # solo GET a ultimamilla.com.ar
+```
 
 ---
 
@@ -35,8 +57,9 @@ ssh -N -L 8055:127.0.0.1:8055 root@23.105.176.45
 Terminal 2 — snapshots + imágenes:
 
 ```bash
-npm run replica:sync
-npm run download-images   # opcional, recomendado
+npm run replica:sync      # incluye descarga de imágenes (GET prod)
+# o solo imágenes:
+npm run replica:images
 ```
 
 ---
@@ -62,7 +85,9 @@ Incluye:
 
 1. `replica:preflight` — Directus + snapshots + dev up  
 2. `replica:parity-check` — mismos HTTP status prod vs local (30 rutas)  
-3. `audit:e2e:visual` — 64 checks comerciales strict (hybrid, sin `?skin=white`)
+3. `replica:content-parity` — H1 iguales a www (30 rutas)  
+4. `replica:images-audit` — mapa CMS + imágenes locales sin roturas  
+5. `audit:e2e:visual` — 64 checks comerciales (en réplica idéntica no exige H1 editoriales)
 
 Alternativa manual:
 

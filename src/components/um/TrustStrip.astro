@@ -1,0 +1,123 @@
+---
+/**
+ * Banda de confianza — nombres de cliente desde CMS (campo Cliente), sin logos inventados.
+ */
+import { getAntecedentesCatalogCount, getTopClienteNames } from '../../utils/verifiedProof';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+
+const catalogCount = getAntecedentesCatalogCount();
+const clientNames = getTopClienteNames(6);
+---
+
+<section class:list={['um-trust-strip', className]} aria-label="Clientes documentados en antecedentes">
+  <div class="um-trust-strip__inner">
+    <div class="um-trust-strip__block">
+      <p class="um-trust-strip__kicker">Clientes en antecedentes</p>
+      <p class="um-trust-strip__note">
+        Nombres extraídos del catálogo publicado ({catalogCount} proyectos). Sin logos hasta autorización expresa del cliente.
+      </p>
+      <ul class="um-trust-strip__clients">
+        {clientNames.map((name) => (
+          <li>
+            <a href={`/antecedentes?cliente=${encodeURIComponent(name)}`} class="um-trust-strip__client">
+              {name}
+            </a>
+          </li>
+        ))}
+      </ul>
+      <a href="/antecedentes" class="um-trust-strip__more">Ver todos los antecedentes</a>
+    </div>
+    <div class="um-trust-strip__block um-trust-strip__block--docs">
+      <p class="um-trust-strip__kicker">Documentación</p>
+      <p class="um-trust-strip__docs-text">
+        Dossiers técnicos, protocolos de obra y referencias normativas por proyecto se entregan bajo solicitud. Este sitio no lista certificaciones ISO corporativas.
+      </p>
+      <a href="/certificaciones" class="um-trust-strip__more">Documentación y cumplimiento</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .um-trust-strip {
+    border-block: 1px solid var(--skin-line, #d9dadd);
+    background: var(--skin-section, #fff);
+    padding: clamp(20px, 3vw, 28px) 0;
+  }
+
+  .um-trust-strip__inner {
+    width: min(1180px, calc(100% - 32px));
+    margin-inline: auto;
+    display: grid;
+    gap: clamp(18px, 3vw, 28px);
+  }
+
+  @media (min-width: 900px) {
+    .um-trust-strip__inner {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      align-items: start;
+      gap: clamp(24px, 4vw, 48px);
+    }
+  }
+
+  .um-trust-strip__kicker {
+    margin: 0 0 8px;
+    color: var(--skin-muted, #5f6368);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .um-trust-strip__note,
+  .um-trust-strip__docs-text {
+    margin: 0 0 12px;
+    color: var(--skin-muted, #5f6368);
+    font-size: 1rem;
+    line-height: 1.45;
+    max-width: 52ch;
+  }
+
+  .um-trust-strip__clients {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .um-trust-strip__client {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 14px;
+    border: 1px solid var(--skin-line, #d9dadd);
+    border-radius: 4px;
+    color: var(--skin-text, #111);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+    transition: border-color 180ms ease, background-color 180ms ease;
+  }
+
+  .um-trust-strip__client:hover {
+    border-color: var(--um-red);
+    background: color-mix(in srgb, var(--um-red) 4%, #fff);
+  }
+
+  .um-trust-strip__more {
+    display: inline-block;
+    margin-top: 12px;
+    color: var(--um-red);
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>
