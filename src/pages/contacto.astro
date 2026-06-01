@@ -1,337 +1,213 @@
 ---
 import LayoutV4 from '../layouts/LayoutV4.astro';
-import HeroPageV4 from '../components/v4/HeroPageV4.astro';
+import MetricStrip from '../components/um/MetricStrip.astro';
+import UMButton from '../components/um/UMButton.astro';
+import SectionHeader from '../components/um/SectionHeader.astro';
+import { resolveReplicaH1 } from '../utils/replicaProdCopy';
+import { getAntecedentesCountShort } from '../utils/verifiedProof';
 
-// SEO Data optimizado para contacto local
+const contactoH1 = resolveReplicaH1('/contacto', 'Enviá contexto técnico. Respondemos con el próximo paso.');
+
 const seoData = {
-  title: "Contacto | ULTIMA MILLA Mendoza - Consulta IT Gratuita",
-  description: "Contacta con ULTIMA MILLA en Mendoza para una consulta gratuita. +20 años en servicios IT. Presencia local, soporte 24/7. Houssay 1159, Guaymallén, Mendoza.",
-  keywords: "contacto ultima milla mendoza, consulta gratuita IT mendoza, empresa tecnología mendoza, servicios IT mendoza contacto, soporte técnico mendoza, oficina mendoza",
+  title: 'Enviá contexto técnico. Respondemos con el próximo paso | ULTIMA MILLA',
+  description: 'Contacte a ULTIMA MILLA para servicios IT integrales: redes, seguridad electrónica, telecomunicaciones, software, soporte, energía IT e infraestructura crítica.',
+  keywords: 'contacto ultima milla, servicios IT Mendoza, soporte IT, infraestructura tecnologica, seguridad electronica, telecomunicaciones'
 };
 
-// Breadcrumb data
-const breadcrumb = [
-  { label: 'Inicio', href: '/' },
-  { label: 'Contacto', href: '/contacto' },
-];
+const startedAt = Date.now();
 
-// Stats data
-const stats = [
-  { value: '469+', label: 'Proyectos' },
-  { value: '22+', label: 'Años' },
-  { value: '24/7', label: 'Soporte' },
-];
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'ContactPage',
+  name: 'Contacto ULTIMA MILLA',
+  url: 'https://ultimamilla.com.ar/contacto',
+  about: {
+    '@type': 'Organization',
+    name: 'ULTIMA MILLA',
+    email: 'contacto@ultimamilla.com.ar',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Houssay 1159',
+      addressLocality: 'Guaymallén',
+      addressRegion: 'Mendoza',
+      addressCountry: 'AR'
+    }
+  }
+};
 ---
 
-<LayoutV4 title={seoData.title} description={seoData.description} keywords={seoData.keywords}>
+<LayoutV4 title={seoData.title} description={seoData.description} keywords={seoData.keywords} structuredData={structuredData}>
+  <section class="contact-dossier">
+    <div class="um-container contact-dossier__grid">
+      <div class="contact-dossier__copy">
+        <nav class="contact-breadcrumb" aria-label="Breadcrumb">
+          <a href="/">Inicio</a>
+          <span>/</span>
+          <span>Contacto</span>
+        </nav>
+        <span class="um-kicker">Contacto</span>
+        <h1>{contactoH1}</h1>
+        <p>
+          Contanos servicio, sede, urgencia y objetivo. Respondemos con el próximo paso técnico.
+        </p>
 
-  <!-- Hero Section V4 -->
-  <HeroPageV4
-    title="Hablemos de su"
-    titleHighlight="Próximo Proyecto"
-    subtitle="Nuestro equipo está listo para ayudarlo a transformar su infraestructura tecnológica."
-    breadcrumb={breadcrumb}
-    badge={{ icon: 'message', text: 'Contacto' }}
-    stats={stats}
-  />
+        <div class="contact-dossier__actions" aria-label="Acciones principales de contacto">
+          <UMButton href="#contactForm" class="contact-primary-cta">Solicitar diagnóstico</UMButton>
+          <UMButton href="mailto:contacto@ultimamilla.com.ar" variant="secondary">Escribir por email</UMButton>
+        </div>
 
-  <!-- Proceso de Trabajo Section -->
-  <section class="bg-um-primary-bg border-b border-um-primary/10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
-      <div class="text-center mb-6 sm:mb-8">
-        <h2 class="text-lg sm:text-xl font-bold text-um-dark">Nuestro Proceso de Trabajo</h2>
+        <MetricStrip
+          class="contact-proofline"
+          metrics={[
+            { value: '24/7', label: 'soporte para clientes activos' },
+            { value: getAntecedentesCountShort(), label: 'antecedentes documentados' },
+            { value: '22+', label: 'años de trayectoria técnica' },
+          ]}
+        />
       </div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-        <div class="flex items-center gap-3 sm:gap-4">
-          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-um-accent rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 text-sm sm:text-base">1</div>
-          <div>
-            <div class="font-semibold text-um-dark text-sm sm:text-base">Consulta</div>
-            <div class="text-xs sm:text-sm text-um-gray">Análisis de necesidades</div>
+
+      <article class="contact-form-panel contact-form-panel--hero">
+        <span class="um-kicker">Solicitud</span>
+        <h2>Consulta rápida</h2>
+        <p class="contact-form-panel__lead">
+          Cuatro campos visibles alcanzan. Si hay pliego, urgencia o múltiples sedes, dejalo escrito en el mensaje.
+        </p>
+
+        <form id="contactForm" class="contact-form" method="post" action="/api/contact" novalidate>
+          <div class="field-grid">
+            <label>
+              <span>Nombre *</span>
+              <input type="text" id="name" name="name" required autocomplete="name" placeholder="Nombre y apellido" />
+              <small id="nameError" class="field-error hidden"></small>
+            </label>
+            <label>
+              <span>Email *</span>
+              <input type="email" id="email" name="email" required autocomplete="email" placeholder="mail@empresa.com" />
+              <small id="emailError" class="field-error hidden"></small>
+            </label>
           </div>
-        </div>
-        <div class="flex items-center gap-3 sm:gap-4">
-          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-um-accent rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 text-sm sm:text-base">2</div>
-          <div>
-            <div class="font-semibold text-um-dark text-sm sm:text-base">Propuesta</div>
-            <div class="text-xs sm:text-sm text-um-gray">Diseño técnico y cotización</div>
+
+          <label>
+            <span>Empresa u organismo</span>
+            <input type="text" id="company" name="company" autocomplete="organization" placeholder="Opcional" />
+          </label>
+
+          <label>
+            <span>Mensaje *</span>
+            <textarea id="message" name="message" required rows="5" placeholder="Servicio requerido, sitio o sedes, urgencia, restricción principal y objetivo esperado."></textarea>
+            <small id="messageError" class="field-error hidden"></small>
+          </label>
+
+          <input type="text" id="website" name="website" class="contact-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <input type="hidden" id="startedAt" name="startedAt" value={startedAt} />
+
+          <div class="contact-submit-row">
+            <button type="submit" class="um-btn-primary contact-submit">Enviar consulta</button>
           </div>
-        </div>
-        <div class="flex items-center gap-3 sm:gap-4">
-          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-um-accent rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 text-sm sm:text-base">3</div>
-          <div>
-            <div class="font-semibold text-um-dark text-sm sm:text-base">Desarrollo</div>
-            <div class="text-xs sm:text-sm text-um-gray">Implementación y testing</div>
+          <p class="contact-submit-note">No usamos captcha visible. El filtro antispam corre en segundo plano.</p>
+
+          <div id="successMessage" class="form-message success hidden" role="status">
+            Mensaje enviado. Vamos a responder por email con próximos pasos.
           </div>
-        </div>
-        <div class="flex items-center gap-3 sm:gap-4">
-          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-um-accent rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 text-sm sm:text-base">4</div>
-          <div>
-            <div class="font-semibold text-um-dark text-sm sm:text-base">Entrega</div>
-            <div class="text-xs sm:text-sm text-um-gray">Documentación y soporte</div>
+          <div id="errorMessage" class="form-message error hidden" role="alert">
+            No se pudo enviar. Revisá los datos o escribí a contacto@ultimamilla.com.ar.
           </div>
-        </div>
+        </form>
+      </article>
+    </div>
+  </section>
+
+  <section class="contact-intents">
+    <div class="um-container">
+      <SectionHeader kicker="Por intención" title="Elegí el próximo paso según tu situación" />
+      <div class="contact-intents__grid">
+        <a class="contact-intent" href="#contactForm" data-intent="diagnostico">
+          <span>Diagnóstico inicial</span>
+          <strong>Caída, incidente o urgencia operativa</strong>
+          <p>Indicá sistema afectado, sede y ventana de intervención.</p>
+        </a>
+        <a class="contact-intent" href="#contactForm" data-intent="relevamiento">
+          <span>Relevamiento técnico</span>
+          <strong>Red, CCTV, energía o software en sitio</strong>
+          <p>Compartí alcance, cantidad de sedes y restricciones del edificio.</p>
+        </a>
+        <a class="contact-intent" href="#contactForm" data-intent="abono">
+          <span>Abono / soporte</span>
+          <strong>Continuidad 24/7 para operación activa</strong>
+          <p>Detallá activos críticos, SLA esperado y horarios de atención.</p>
+        </a>
+        <a class="contact-intent" href="#contactForm" data-intent="pliego">
+          <span>Licitación / pliego</span>
+          <strong>Documentación y alcance para compras</strong>
+          <p>Adjuntá pliego, fechas y requisitos de certificación en el mensaje.</p>
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- Contact Form + Info Section -->
-  <section class="py-10 sm:py-14 lg:py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 sm:gap-10 lg:gap-12">
+  <section class="contact-action">
+    <div class="um-container contact-action__grid">
 
-        <!-- Form (3 cols) -->
-        <div class="lg:col-span-3">
-          <h2 class="text-xl sm:text-2xl font-bold text-um-dark mb-4 sm:mb-6">Cuéntenos sobre su Proyecto</h2>
-
-          <form id="contactForm" class="space-y-4 sm:space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              <div>
-                <label for="name" class="block text-sm font-medium text-um-dark mb-2">Nombre Completo *</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  required
-                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary transition-colors"
-                  placeholder="Juan Pérez"
-                />
-                <span class="text-red-500 text-sm hidden" id="nameError"></span>
-              </div>
-              <div>
-                <label for="company" class="block text-sm font-medium text-um-dark mb-2">Empresa *</label>
-                <input
-                  type="text"
-                  id="company"
-                  name="company"
-                  required
-                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary transition-colors"
-                  placeholder="Su Empresa S.A."
-                />
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              <div>
-                <label for="email" class="block text-sm font-medium text-um-dark mb-2">Email Corporativo *</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  required
-                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary transition-colors"
-                  placeholder="juan@empresa.com"
-                />
-                <span class="text-red-500 text-sm hidden" id="emailError"></span>
-              </div>
-              <div>
-                <label for="phone" class="block text-sm font-medium text-um-dark mb-2">Teléfono</label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary transition-colors"
-                  placeholder="+54 261 000-0000"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label for="projectType" class="block text-sm font-medium text-um-dark mb-2">Tipo de Proyecto *</label>
-              <select
-                id="projectType"
-                name="projectType"
-                required
-                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary bg-white transition-colors"
-              >
-                <option value="">Seleccione una opción</option>
-                <option value="redes">Infraestructura de Redes</option>
-                <option value="seguridad">Seguridad Electrónica</option>
-                <option value="telecom">Telecomunicaciones</option>
-                <option value="software">Desarrollo de Software</option>
-                <option value="soporte">Soporte IT</option>
-                <option value="consultoria">Consultoría</option>
-                <option value="incendios">Detección de Incendios</option>
-                <option value="electricos">Tableros Eléctricos</option>
-                <option value="otro">Otro</option>
-              </select>
-              <span class="text-red-500 text-sm hidden" id="projectTypeError"></span>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              <div>
-                <label for="budget" class="block text-sm font-medium text-um-dark mb-2">Presupuesto Estimado</label>
-                <select
-                  id="budget"
-                  name="budget"
-                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary bg-white transition-colors"
-                >
-                  <option value="">Seleccione un rango</option>
-                  <option value="10k">Menos de USD 10.000</option>
-                  <option value="10-50k">USD 10.000 - 50.000</option>
-                  <option value="50-100k">USD 50.000 - 100.000</option>
-                  <option value="100k+">Más de USD 100.000</option>
-                  <option value="ns">No estoy seguro</option>
-                </select>
-              </div>
-              <div>
-                <label for="timeline" class="block text-sm font-medium text-um-dark mb-2">Timeline Preferido</label>
-                <select
-                  id="timeline"
-                  name="timeline"
-                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary bg-white transition-colors"
-                >
-                  <option value="">Seleccione una opción</option>
-                  <option value="urgente">Urgente (menos de 1 mes)</option>
-                  <option value="1-3">1 a 3 meses</option>
-                  <option value="3-6">3 a 6 meses</option>
-                  <option value="6+">Más de 6 meses</option>
-                  <option value="flexible">Flexible</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label for="message" class="block text-sm font-medium text-um-dark mb-2">Descripción del Proyecto *</label>
-              <textarea
-                id="message"
-                name="message"
-                required
-                rows="5"
-                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-um-primary/20 focus:border-um-primary resize-none transition-colors"
-                placeholder="Describa brevemente su proyecto, necesidades actuales y objetivos..."
-              ></textarea>
-              <span class="text-red-500 text-sm hidden" id="messageError"></span>
-            </div>
-
-            <!-- Campo honeypot oculto para detectar bots -->
-            <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off" />
-
-            <div class="flex items-start gap-3">
-              <input
-                type="checkbox"
-                id="privacy"
-                name="privacy"
-                required
-                class="mt-1 w-4 h-4 rounded border-gray-300 text-um-accent focus:ring-um-accent"
-              />
-              <label for="privacy" class="text-sm text-um-gray">
-                Acepto la <a href="/privacidad" class="text-um-primary hover:underline">política de privacidad</a> y autorizo el tratamiento de mis datos para recibir información comercial.
-              </label>
-            </div>
-
-            <button
-              type="submit"
-              class="w-full py-4 bg-um-accent text-white font-bold rounded-xl hover:bg-um-accent-dark transition-colors flex items-center justify-center gap-2 min-h-[48px]"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-              </svg>
-              Enviar Consulta
-            </button>
-
-            <!-- Mensajes de estado -->
-            <div id="successMessage" class="hidden bg-green-50 border border-green-200 text-green-700 p-4 rounded-xl">
-              Mensaje enviado exitosamente. Nos pondremos en contacto contigo pronto.
-            </div>
-            <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl">
-              Hubo un error al enviar el mensaje. Por favor, intenta nuevamente.
-            </div>
-          </form>
+      <aside class="contact-context">
+        <div class="contact-context__block">
+          <SectionHeader kicker="Para acelerar la respuesta" title="Qué conviene incluir" />
+          <ul>
+            <li>Servicio principal o sistema afectado.</li>
+            <li>Sede, ciudad o cantidad de sitios involucrados.</li>
+            <li>Urgencia real, ventana de intervención o fecha de pliego.</li>
+            <li>Riesgo operativo: caída, seguridad, auditoría, crecimiento o mantenimiento.</li>
+          </ul>
         </div>
 
-        <!-- Contact Info (2 cols) -->
-        <div class="lg:col-span-2 space-y-6 sm:space-y-8">
-
-          <!-- Direct Contact -->
-          <div class="bg-gray-50 rounded-2xl p-6 sm:p-8">
-            <h3 class="font-bold text-um-dark mb-4 sm:mb-6 text-base sm:text-lg">Contacto Directo</h3>
-
-            <div class="space-y-4 sm:space-y-5">
-              <a href="mailto:contacto@ultimamilla.com.ar" class="flex items-start gap-4 group">
-                <div class="w-12 h-12 bg-um-primary rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-um-primary-dark transition-colors">
-                  <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                  </svg>
-                </div>
-                <div>
-                  <div class="text-sm text-um-gray">Email</div>
-                  <div class="font-semibold text-um-dark group-hover:text-um-primary transition-colors">contacto@ultimamilla.com.ar</div>
-                </div>
-              </a>
-            </div>
-          </div>
-
-          <!-- Address -->
-          <div class="bg-gray-50 rounded-2xl p-6 sm:p-8">
-            <h3 class="font-bold text-um-dark mb-4 sm:mb-6 text-base sm:text-lg">Nuestra Oficina</h3>
-
-            <div class="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
-              <div class="w-12 h-12 bg-um-primary rounded-xl flex items-center justify-center flex-shrink-0">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-              </div>
-              <div>
-                <div class="font-semibold text-um-dark">Houssay 1159</div>
-                <div class="text-um-gray">Guaymallén, Mendoza 5500</div>
-                <div class="text-um-gray">Argentina</div>
-              </div>
-            </div>
-
-            <div class="flex items-start gap-3 sm:gap-4">
-              <div class="w-10 h-10 sm:w-12 sm:h-12 bg-um-primary rounded-xl flex items-center justify-center flex-shrink-0">
-                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-              </div>
-              <div>
-                <div class="font-semibold text-um-dark text-sm sm:text-base">Horario de Atención</div>
-                <div class="text-um-gray text-sm sm:text-base">Lunes a Viernes: 8:00 - 18:00</div>
-                <div class="text-um-gray text-sm sm:text-base">Soporte 24/7 para clientes</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Map -->
-          <div class="bg-gray-200 rounded-2xl h-48 sm:h-56 lg:h-64 overflow-hidden">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3350.5!2d-68.82!3d-32.89!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x967e0f1e9a1a1a1a%3A0x1a1a1a1a1a1a1a1a!2sHoussay%201159%2C%20Guaymall%C3%A9n%2C%20Mendoza!5e0!3m2!1ses!2sar!4v1704067200000"
-              width="100%"
-              height="100%"
-              style="border:0;"
-              allowfullscreen=""
-              loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"
-              class="grayscale hover:grayscale-0 transition-all duration-500"
-              title="Ubicación de Ultima Milla en Mendoza"
-            ></iframe>
-          </div>
-
+        <div class="contact-context__block contact-context__block--line">
+          <span>Alcances frecuentes</span>
+          <p>
+            Abonos de soporte, relevamientos de red, CCTV/SDI, detección de incendios, tableros para
+            salas técnicas, software operativo y documentación para licitaciones.
+          </p>
         </div>
-      </div>
+
+        <div class="contact-address">
+          <span>Dirección</span>
+          <strong>Houssay 1159, Guaymallén, Mendoza</strong>
+          <a href="https://www.google.com/maps/search/?api=1&query=Houssay%201159%20Guaymallen%20Mendoza" target="_blank" rel="noopener">Ver ubicación</a>
+        </div>
+      </aside>
+
+      <aside class="contact-quick-card um-invert">
+        <span>Base operativa</span>
+        <strong>Mendoza, Cuyo y cobertura nacional</strong>
+        <p>
+          Redes, seguridad electrónica, telecomunicaciones, software operativo, soporte y energía
+          para organizaciones que necesitan continuidad.
+        </p>
+        <a href="mailto:contacto@ultimamilla.com.ar">contacto@ultimamilla.com.ar</a>
+      </aside>
     </div>
   </section>
-
 </LayoutV4>
 
 <script>
-  // Form handling
-  const form = document.getElementById('contactForm') as HTMLFormElement;
+  const form = document.getElementById('contactForm');
   const successMessage = document.getElementById('successMessage');
   const errorMessage = document.getElementById('errorMessage');
+  const startedAtInput = document.getElementById('startedAt');
+  const submitButton = form?.querySelector('button[type="submit"]');
   const errorElements = {
     name: document.getElementById('nameError'),
     email: document.getElementById('emailError'),
     message: document.getElementById('messageError')
   };
 
-  function isValidEmail(email: string) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
+  if (startedAtInput instanceof HTMLInputElement) {
+    startedAtInput.value = String(Date.now());
   }
 
-  function showError(field: keyof typeof errorElements, message: string) {
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  function showError(field, message) {
     const errorElement = errorElements[field];
     if (errorElement) {
       errorElement.textContent = message;
@@ -340,7 +216,7 @@ const stats = [
   }
 
   function clearErrors() {
-    Object.values(errorElements).forEach(element => {
+    Object.values(errorElements).forEach((element) => {
       if (element) {
         element.textContent = '';
         element.classList.add('hidden');
@@ -350,78 +226,760 @@ const stats = [
     errorMessage?.classList.add('hidden');
   }
 
-  if (form) {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+  const intentSubjects: Record<string, string> = {
+    diagnostico: 'Diagnóstico / incidente',
+    relevamiento: 'Relevamiento técnico',
+    abono: 'Abono / soporte 24/7',
+    pliego: 'Pliego o licitación'
+  };
+
+  document.querySelectorAll<HTMLAnchorElement>('.contact-intent[data-intent]').forEach((card) => {
+    card.addEventListener('click', () => {
+      const intent = card.dataset.intent;
+      const message = document.getElementById('message');
+      if (!(message instanceof HTMLTextAreaElement) || !intent) return;
+      const prefix = intentSubjects[intent];
+      if (prefix && !message.value.trim().startsWith(prefix)) {
+        message.value = `${prefix}: `;
+        message.focus();
+      }
+    });
+  });
+
+  if (form instanceof HTMLFormElement) {
+    const params = new URLSearchParams(window.location.search);
+
+    const budgetLines = [];
+    const budgetMap = [
+      ['budgetSector', 'Sector'],
+      ['budgetScope', 'Alcance'],
+      ['budgetCriticality', 'Criticidad'],
+      ['budgetSites', 'Sedes']
+    ] as const;
+
+    for (const [name, label] of budgetMap) {
+      const value = String(params.get(name) || '').trim();
+      if (value) budgetLines.push(`${label}: ${value}`);
+    }
+
+    const messageField = document.getElementById('message');
+    if (budgetLines.length > 0 && messageField instanceof HTMLTextAreaElement && !messageField.value.trim()) {
+      messageField.value = `[Contexto presupuesto]\n${budgetLines.join('\n')}\n\n`;
+    }
+
+    if (budgetLines.length > 0) {
+      document.getElementById('contactForm')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
       clearErrors();
 
       const formData = new FormData(form);
-      const data = Object.fromEntries(formData);
+      const data = Object.fromEntries(formData.entries());
+      const name = String(data.name || '').trim();
+      const email = String(data.email || '').trim();
+      let message = String(data.message || '').trim();
+      data.message = message;
       let hasErrors = false;
 
-      // Validations
-      if (!data.name) {
-        showError('name', 'El nombre es requerido');
+      if (name.length < 2) {
+        showError('name', 'Ingresá tu nombre.');
         hasErrors = true;
       }
 
-      if (!data.email) {
-        showError('email', 'El email es requerido');
-        hasErrors = true;
-      } else if (!isValidEmail(data.email.toString())) {
-        showError('email', 'Por favor ingresa un email válido');
+      if (!isValidEmail(email)) {
+        showError('email', 'Ingresá un email válido.');
         hasErrors = true;
       }
 
-      if (!data.message) {
-        showError('message', 'El mensaje es requerido');
+      if (message.length < 12) {
+        showError('message', 'Agregá un poco más de contexto.');
         hasErrors = true;
       }
 
-      if (hasErrors) return;
+      if (hasErrors) {
+        return;
+      }
+
+      if (submitButton instanceof HTMLButtonElement) {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Enviando...';
+      }
 
       try {
-        const submitData = {
-          name: data.name,
-          email: data.email,
-          company: data.company || '',
-          phone: data.phone || '',
-          projectType: data.projectType || '',
-          budget: data.budget || '',
-          timeline: data.timeline || '',
-          message: data.message,
-          website: data.website || '' // Honeypot field
-        };
-
         const response = await fetch('/api/contact', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(submitData)
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
         });
-
         const result = await response.json();
 
-        if (result.success) {
-          if (successMessage) {
-            successMessage.textContent = result.message || 'Mensaje enviado exitosamente. Te contactaremos pronto.';
-            successMessage.classList.remove('hidden');
-            form.reset();
+        if (response.ok && result.success) {
+          form.reset();
+          if (startedAtInput instanceof HTMLInputElement) {
+            startedAtInput.value = String(Date.now());
           }
+          successMessage?.classList.remove('hidden');
         } else {
           if (errorMessage) {
-            errorMessage.textContent = result.message || 'Error al enviar el mensaje. Por favor, intenta nuevamente.';
+            errorMessage.textContent = result.message || 'No se pudo enviar. Revisá los datos.';
             errorMessage.classList.remove('hidden');
           }
         }
-      } catch (error) {
-        console.error('Error al enviar formulario:', error);
-        if (errorMessage) {
-          errorMessage.textContent = 'Error de conexión. Por favor, intenta nuevamente o contacta por email.';
-          errorMessage.classList.remove('hidden');
+      } catch {
+        errorMessage?.classList.remove('hidden');
+      } finally {
+        if (submitButton instanceof HTMLButtonElement) {
+          submitButton.disabled = false;
+          submitButton.textContent = 'Enviar consulta';
         }
       }
     });
   }
 </script>
+
+<style>
+  .contact-dossier {
+    background: var(--skin-page, #fff);
+    border-bottom: 0;
+    padding: clamp(24px, 3.2vw, 42px) 0 clamp(34px, 5vw, 56px);
+    overflow-x: clip;
+  }
+
+  .contact-dossier__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.96fr) minmax(360px, 0.72fr);
+    grid-template-areas:
+      "copy form";
+    gap: clamp(28px, 5vw, 70px);
+    align-items: start;
+  }
+
+  .contact-dossier__copy {
+    grid-area: copy;
+  }
+
+  .contact-breadcrumb {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 28px;
+    color: var(--skin-muted, #64748B);
+    font-size: 16px;
+  }
+
+  .contact-breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .contact-breadcrumb a:hover {
+    color: var(--um-red);
+  }
+
+  .contact-dossier h1 {
+    max-width: 820px;
+    margin: 18px 0 22px;
+    color: var(--skin-text, #0B0B0B);
+    font-family: var(--um-font-display);
+    font-size: clamp(2.1rem, 3.45vw, 3.08rem);
+    font-weight: var(--um-weight-title);
+    line-height: 1.08;
+    letter-spacing: 0;
+  }
+
+  .contact-dossier__copy > p {
+    max-width: 690px;
+    color: var(--skin-muted, #475569);
+    font-size: clamp(1.04rem, 1.4vw, 1.18rem);
+    line-height: 1.7;
+  }
+
+  .contact-dossier__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  .contact-dossier__actions :global(.um-btn-primary),
+  .contact-dossier__actions :global(.um-btn-secondary) {
+    box-sizing: border-box;
+  }
+
+  :global(.contact-proofline.um-metric-strip) {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 24px;
+    padding: 18px 0 0;
+  }
+
+  :global(.contact-proofline.um-metric-strip > *) {
+    min-width: 0;
+    padding-inline: clamp(12px, 1.6vw, 18px);
+  }
+
+  :global(.contact-proofline.um-metric-strip strong) {
+    display: block;
+    color: var(--skin-text, #0B0B0B);
+    font-family: var(--um-font-display);
+    font-size: clamp(1.45rem, 2vw, 1.9rem);
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  :global(.contact-proofline.um-metric-strip span) {
+    display: block;
+    max-width: 170px;
+    margin-top: 8px;
+    color: var(--skin-muted, #64748B);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+
+  .contact-submit-note {
+    max-width: 34ch;
+    margin-top: 10px;
+    color: var(--skin-muted, #64748B);
+    font-size: 16px;
+    line-height: 1.45;
+  }
+
+  .contact-quick-card {
+    position: relative;
+    min-height: 380px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: hidden;
+    background: #050505;
+    padding: clamp(26px, 3vw, 36px);
+    color: #fff;
+    border: 0;
+  }
+
+  .contact-quick-card::before,
+  .contact-quick-card::after {
+    display: none;
+  }
+
+  .contact-quick-card span {
+    position: relative;
+    color: rgba(255,255,255,0.68);
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .contact-quick-card strong {
+    position: relative;
+    display: block;
+    max-width: min(100%, 320px);
+    margin-top: 18px;
+    color: #fff;
+    font-family: var(--um-font-display);
+    font-size: clamp(1.65rem, 2.8vw, 2.45rem);
+    font-weight: 600;
+    line-height: 1.12;
+  }
+
+  .contact-quick-card p {
+    position: relative;
+    max-width: 42ch;
+    margin: 18px 0 28px;
+    color: rgba(255,255,255,0.76);
+    font-size: 16px;
+    line-height: 1.68;
+  }
+
+  .contact-quick-card a {
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    border-bottom: 2px solid var(--um-red);
+    padding-bottom: 6px;
+    overflow-wrap: anywhere;
+  }
+
+  .contact-intents {
+    background: #FFFFFF;
+    border-top: 0;
+    border-bottom: 0;
+    padding: clamp(40px, 5vw, 64px) 0;
+  }
+
+  .contact-intents__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(10px, 1.45vw, 16px);
+    margin-top: clamp(24px, 3vw, 36px);
+    border-top: 0;
+  }
+
+  .contact-intent {
+    display: grid;
+    gap: 8px;
+    min-height: 180px;
+    padding: clamp(18px, 2.2vw, 24px);
+    border-right: 0;
+    background: #f7f8f9;
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 180ms ease;
+  }
+
+  .contact-intent:last-child {
+    border-right: 0;
+  }
+
+  .contact-intent:hover {
+    background: #f1f2f4;
+  }
+
+  .contact-intent:focus-visible {
+    outline: 2px solid var(--um-red);
+    outline-offset: -2px;
+  }
+
+  .contact-intent > span {
+    color: var(--um-red);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .contact-intent strong {
+    color: var(--skin-text, #0b0b0b);
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .contact-intent p {
+    margin: 0;
+    color: var(--skin-muted, #5f6368);
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .contact-action {
+    background: #fff;
+    padding: clamp(44px, 6vw, 76px) 0;
+    overflow-x: clip;
+  }
+
+  .contact-action__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.72fr);
+    gap: clamp(28px, 5vw, 72px);
+    align-items: start;
+  }
+
+  .contact-form-panel,
+  .contact-form {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .contact-form-panel {
+    background: var(--skin-panel, #fff);
+    padding: clamp(24px, 3vw, 34px);
+    border: 0;
+    box-shadow: none;
+  }
+
+  .contact-form-panel--hero {
+    grid-area: form;
+    align-self: start;
+  }
+
+  .contact-form-panel h2,
+  .contact-context h2 {
+    margin: 10px 0 12px;
+    color: var(--skin-text, #0B0B0B);
+    font-family: var(--um-font-display);
+    font-size: clamp(1.45rem, 1.9vw, 1.9rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: 0;
+  }
+
+  .contact-form-panel__lead {
+    max-width: 680px;
+    margin: 0 0 18px;
+    color: var(--skin-muted, #475569);
+    font-size: 16px;
+    line-height: 1.58;
+  }
+
+  .contact-form {
+    display: grid;
+    position: relative;
+    scroll-margin-top: clamp(84px, 10vw, 112px);
+    gap: 12px;
+  }
+
+  .field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .contact-form label {
+    display: grid;
+    gap: 7px;
+  }
+
+  .contact-form label > span {
+    color: var(--skin-text, #111827);
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .contact-form input,
+  .contact-form select,
+  .contact-form textarea {
+    width: 100%;
+    border: 0;
+    border-radius: 0;
+    background: #f7f8f9;
+    color: var(--skin-text, #0B0B0B);
+    font: 400 16px/1.5 var(--um-font-body);
+    padding: 13px 16px;
+    outline: none;
+    box-shadow: inset 0 -1px 0 var(--skin-line, #D6DAE1);
+    transition: box-shadow .18s ease, background-color .18s ease;
+  }
+
+  .contact-form textarea {
+    resize: vertical;
+    min-height: 104px;
+  }
+
+  .contact-form input:focus,
+  .contact-form select:focus,
+  .contact-form textarea:focus {
+    background: #fff;
+    box-shadow: inset 0 -2px 0 var(--um-red);
+  }
+
+  .contact-hp {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  .field-error {
+    color: #DC2626;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  .contact-submit-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 4px;
+  }
+
+  .contact-submit-row p {
+    max-width: 330px;
+    margin: 0;
+    color: var(--skin-muted, #64748B);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .contact-submit:disabled {
+    cursor: wait;
+    opacity: 0.68;
+  }
+
+  .form-message {
+    border: 0;
+    border-left: 3px solid currentColor;
+    padding: 16px 18px;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .form-message.success {
+    border-color: rgba(22,101,52,0.28);
+    background: #F0FDF4;
+    color: #166534;
+  }
+
+  .form-message.error {
+    border-color: rgba(185,28,28,0.28);
+    background: #FEF2F2;
+    color: #111111;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  .contact-context {
+    display: grid;
+    gap: 14px;
+  }
+
+  .contact-context__block,
+  .contact-address {
+    background: var(--skin-panel, #fff);
+    padding: clamp(22px, 2.6vw, 30px);
+    box-shadow: inset 0 1px 0 rgba(216, 221, 227, 0.82);
+  }
+
+  .contact-context__block ul {
+    display: grid;
+    gap: 12px;
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .contact-context__block li {
+    position: relative;
+    padding-left: 22px;
+    color: var(--skin-muted, #475569);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .contact-context__block li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 11px;
+    width: 9px;
+    height: 2px;
+    background: var(--um-red);
+  }
+
+  .contact-context__block--line {
+    box-shadow: inset 3px 0 0 var(--um-red), inset 0 1px 0 rgba(216, 221, 227, 0.82);
+  }
+
+  .contact-context__block--line span,
+  .contact-address span {
+    display: block;
+    color: var(--skin-muted, #64748B);
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .contact-context__block--line p {
+    margin: 10px 0 0;
+    color: var(--skin-text, #0B0B0B);
+    font-size: 16px;
+    line-height: 1.62;
+  }
+
+  .contact-address strong {
+    display: block;
+    margin: 12px 0 20px;
+    color: var(--skin-text, #0B0B0B);
+    font-family: var(--um-font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .contact-address a {
+    color: var(--um-red);
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+  }
+
+  @media (max-width: 1280px) and (max-height: 860px) {
+    .contact-dossier {
+      padding-top: 28px;
+      padding-bottom: 36px;
+    }
+
+    .contact-breadcrumb {
+      margin-bottom: 16px;
+    }
+
+    .contact-dossier h1 {
+      margin: 12px 0 14px;
+      font-size: clamp(1.9rem, 2.6vw, 2.5rem);
+    }
+
+    .contact-dossier__actions {
+      margin-top: 18px;
+    }
+  }
+
+  @media (max-width: 980px) {
+    .contact-dossier__grid,
+    .contact-action__grid {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "copy"
+        "form";
+    }
+
+    .contact-intents__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .contact-intent:nth-child(2) {
+      border-right: 0;
+    }
+
+    .contact-intent:nth-child(odd) {
+      border-right: 0;
+    }
+
+    .contact-quick-card {
+      display: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .contact-intents__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .contact-intent {
+      border-right: 0;
+    }
+
+    .contact-dossier {
+      padding-top: 24px;
+      padding-bottom: 30px;
+    }
+
+    .contact-dossier__grid,
+    .contact-action__grid {
+      width: calc(100% - 32px);
+      max-width: calc(100% - 32px);
+      margin-inline: auto;
+    }
+
+    .contact-dossier__copy,
+    .contact-dossier__copy > p,
+    .contact-form-panel,
+    .contact-context {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .contact-dossier h1 {
+      max-width: 100%;
+      font-size: clamp(1.86rem, 6.45vw, 2.16rem);
+      line-height: 1.12;
+      margin: 10px 0 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .contact-dossier__copy > p {
+      width: 100%;
+      max-width: 100%;
+      font-size: 1rem;
+      line-height: 1.54;
+      white-space: normal !important;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    .contact-dossier__actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      width: 100%;
+      margin-top: 16px;
+    }
+
+    .contact-dossier__actions :global(.um-btn-secondary) {
+      display: none;
+    }
+
+    .contact-dossier__actions :global(.um-btn-primary),
+    .contact-dossier__actions :global(.um-btn-secondary) {
+      width: 100%;
+      justify-content: center;
+      min-height: 50px;
+    }
+
+    .field-grid,
+    .contact-submit-row {
+      grid-template-columns: 1fr;
+    }
+
+    :global(.contact-proofline.um-metric-strip) {
+      display: none;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 18px;
+      gap: 18px 16px;
+    }
+
+    .contact-breadcrumb {
+      margin-bottom: 14px;
+    }
+
+    .contact-form-panel {
+      padding: 22px 18px;
+    }
+
+    .contact-form-panel h2 {
+      margin: 8px 0 10px;
+    }
+
+    .contact-form-panel__lead {
+      margin-bottom: 14px;
+      line-height: 1.48;
+    }
+
+    .contact-form {
+      gap: 12px;
+    }
+
+    :global(.contact-proofline.um-metric-strip > *) {
+      padding-inline: 0;
+      min-width: 0;
+    }
+
+    :global(.contact-proofline.um-metric-strip strong) {
+      font-size: clamp(1.4rem, 6vw, 1.75rem);
+    }
+
+    :global(.contact-proofline.um-metric-strip span) {
+      max-width: none;
+      margin-top: 8px;
+      line-height: 1.35;
+      overflow-wrap: normal;
+    }
+
+    .contact-submit-row {
+      display: grid;
+    }
+
+    .contact-submit-row .um-btn-primary {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>

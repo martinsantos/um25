@@ -1,37 +1,24 @@
 ---
 /**
- * ProductCard Component V4
- *
- * Card de producto con imagen, título, descripción, features y marcas.
- * Usado en página de detalle de servicio para mostrar productos/soluciones.
- *
- * Props:
- * - titulo: Título del producto
- * - descripcion: Descripción completa del producto
- * - imagen: URL de la imagen o UUID de Directus
- * - features: Array de strings con características (bullets)
- * - destacado: Texto destacado o diferenciador
- * - marcas: Array de strings con nombres de marcas
- * - imagePosition: 'left' | 'right' - Posición de la imagen
- * - orden: Número de orden (para alternar automáticamente)
- *
- * Ejemplo de uso:
- * <ProductCard
- *   titulo="Fibra Óptica de Alta Capacidad"
- *   descripcion="Implementamos redes de fibra óptica..."
- *   imagen="https://..."
- *   features={['Fusiones certificadas', 'Cables armados', 'Bandeja de empalmes']}
- *   marcas={['Furukawa', 'Commscope', 'Corning']}
- *   destacado="Con garantía de 25 años"
- *   imagePosition="left"
- * />
+ * ProductCard — ficha documental de equipamiento (servicio detalle).
+ * Renderiza Markdown, sanitiza emojis y aplica grid editorial UMSA.
+ * Imagen: sin borde, marco ni sombra decorativa (DESIGN.md §6 — fotos contenidas).
  */
 
 import { getDirectusImageUrl } from '../../lib/directus.ts';
+import { getServiceVisualSpec } from '../../data/serviceVisualSystem';
+import UMButton from '../um/UMButton.astro';
+import {
+  productAnchorId,
+  renderProductDescription,
+  sanitizeFeatureText,
+  sanitizeProductText,
+  sanitizeProductTitle,
+} from '../../utils/productContent';
 
 export interface Props {
   titulo: string;
-  descripcion: string;
+  descripcion?: string;
   imagen?: string;
   features?: string[];
   destacado?: string;
@@ -39,6 +26,14 @@ export interface Props {
   imagePosition?: 'left' | 'right';
   orden?: number;
   serviceId?: string | number;
+  serviceName?: string;
+  serviceTitle?: string;
+  serviceCategory?: string;
+  serviceArea?: string;
+  serviceHref?: string;
+  ctaHref?: string;
+  ctaLabel?: string;
+  showActions?: boolean;
   className?: string;
 }
 
@@ -52,132 +47,444 @@ const {
   imagePosition,
   orden = 0,
   serviceId,
-  className = ''
+  serviceName,
+  serviceTitle,
+  serviceCategory,
+  serviceArea,
+  serviceHref,
+  ctaHref = '/contacto',
+  ctaLabel = 'Solicitar relevamiento',
+  showActions = false,
+  className = '',
 } = Astro.props;
 
-// Alternar posición automáticamente si no se especifica
 const position = imagePosition || (orden % 2 === 0 ? 'left' : 'right');
-const flexDirection = position === 'left' ? 'md:flex-row' : 'md:flex-row-reverse';
-
-// 100% Directus — imagen es UUID del archivo en Directus
-const imagenUrl = getDirectusImageUrl(imagen);
-
-// Validar que haya contenido
-const hasFeatures = features.length > 0;
-const hasMarcas = marcas.length > 0;
+const positionClass = position === 'left' ? 'product-sheet--media-left' : 'product-sheet--media-right';
+const visual = serviceId ? getServiceVisualSpec(serviceId) : undefined;
+const imagenUrl = getDirectusImageUrl(imagen) || visual?.image || '';
+const cleanTitulo = sanitizeProductTitle(titulo);
+const descriptionHtml = await renderProductDescription(descripcion ?? '');
+const cleanDestacado = sanitizeProductText(destacado);
+const cleanFeatures = features.map(sanitizeFeatureText).filter(Boolean);
+const cleanMarcas = marcas.map(sanitizeFeatureText).filter(Boolean);
+const anchorId = productAnchorId(cleanTitulo);
+const indexLabel = String(orden + 1).padStart(2, '0');
+const hasFeatures = cleanFeatures.length > 0;
+const hasMarcas = cleanMarcas.length > 0;
+const hasFootnote = hasMarcas;
+const parentLabel = serviceName || serviceTitle;
+const categoryLabel = serviceCategory || serviceArea;
+const normalizeMeta = (value?: string) =>
+  sanitizeFeatureText(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+const showCategoryLabel =
+  Boolean(categoryLabel) &&
+  normalizeMeta(categoryLabel) !== normalizeMeta(parentLabel) &&
+  !normalizeMeta(parentLabel).includes(normalizeMeta(categoryLabel));
+const metaParts = [parentLabel, showCategoryLabel ? categoryLabel : undefined].filter(Boolean);
 ---
 
-<div class={`flex flex-col ${flexDirection} items-center gap-6 sm:gap-8 lg:gap-12 ${className}`}>
-  <!-- Imagen -->
-  <div class="w-full md:w-1/2">
-    <div class="relative">
-      {imagenUrl ? (
-        <img
-          src={imagenUrl}
-          alt={titulo}
-          class="w-full rounded-2xl shadow-xl product-image"
-          loading="lazy"
-        />
-      ) : (
-        <div class="w-full aspect-video rounded-2xl bg-gray-100 flex items-center justify-center">
-          <p class="text-gray-400 text-sm">Imagen no disponible</p>
+<article
+  id={anchorId ? `producto-${anchorId}` : undefined}
+  class:list={['product-sheet', positionClass, className]}
+>
+  <div class="product-sheet__grid">
+    <div class="product-sheet__copy">
+      <header class="product-sheet__header">
+        <span class="product-sheet__index" aria-label={`Ítem ${indexLabel}`}>{indexLabel}</span>
+        <div class="product-sheet__header-main">
+          <p class="product-sheet__meta">
+            {metaParts.length > 0 ? (
+              <>
+                {serviceHref && parentLabel ? (
+                  <a href={serviceHref} class="product-sheet__meta-link">{parentLabel}</a>
+                ) : (
+                  parentLabel && <span>{parentLabel}</span>
+                )}
+                {showCategoryLabel && parentLabel && <span class="product-sheet__meta-sep" aria-hidden="true">·</span>}
+                {showCategoryLabel && <span class="product-sheet__meta-category">{categoryLabel}</span>}
+              </>
+            ) : (
+              <span class="product-sheet__meta-category">Equipamiento</span>
+            )}
+          </p>
+          <h2 class="product-sheet__title">{cleanTitulo}</h2>
+          {cleanDestacado && (
+            <p class="product-sheet__lead">{cleanDestacado}</p>
+          )}
+        </div>
+      </header>
+
+      {descriptionHtml && (
+        <div class="product-sheet__description" set:html={descriptionHtml} />
+      )}
+
+      {hasFeatures && (
+        <div class="product-sheet__specs">
+          <p class="product-sheet__specs-label">Especificaciones operativas</p>
+          <ul class="product-sheet__features">
+            {cleanFeatures.map((feature) => (
+              <li>{feature}</li>
+            ))}
+          </ul>
         </div>
       )}
+
+      {showActions && (
+        <div class="product-sheet__actions">
+          <UMButton href={ctaHref}>{ctaLabel}</UMButton>
+          <UMButton href="/presupuesto-servicios-it-empresas" variant="secondary">
+            Cotizar alcance
+          </UMButton>
+        </div>
+      )}
+
+      {hasFootnote && (
+        <footer class="product-sheet__footnote">
+          {hasMarcas && (
+            <p>
+              <span class="product-sheet__footnote-label">Marcas</span>
+              {cleanMarcas.join(' · ')}
+            </p>
+          )}
+        </footer>
+      )}
     </div>
-  </div>
 
-  <!-- Contenido -->
-  <div class="w-full md:w-1/2 space-y-6">
-    <!-- Título -->
-    <h3 class="text-2xl font-bold text-slate-900">
-      {titulo}
-    </h3>
-
-    <!-- Descripción -->
-    <p class="text-slate-600 leading-relaxed text-lg">
-      {descripcion}
-    </p>
-
-    <!-- Features (bullets con checkmarks) -->
-    {hasFeatures && (
-      <ul class="space-y-3">
-        {features.map((feature) => (
-          <li class="flex items-start space-x-3">
-            <span class="text-um-primary font-bold text-xl leading-none mt-0.5">✓</span>
-            <span class="text-slate-700">{feature}</span>
-          </li>
-        ))}
-      </ul>
-    )}
-
-    <!-- Destacado con marcas -->
-    {(destacado || hasMarcas) && (
-      <div class="p-4 bg-sky-50 border-l-4 border-um-primary rounded-r-lg">
-        {destacado && (
-          <p class="text-sky-900 text-sm mb-2">
-            {destacado}
-          </p>
-        )}
-        {hasMarcas && (
-          <p class="text-sky-900 font-medium text-sm">
-            <strong>Marcas:</strong> {marcas.join(', ')}
-          </p>
+    <figure class="product-sheet__media">
+      <div class="product-sheet__frame">
+        {imagenUrl ? (
+          <img
+            src={imagenUrl}
+            alt={titulo}
+            class="product-sheet__image"
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <div class="product-sheet__fallback">
+            <span>{titulo}</span>
+            <p>Referencia visual pendiente</p>
+          </div>
         )}
       </div>
-    )}
+    </figure>
   </div>
-</div>
+</article>
 
 <style>
-  /* Efecto de imagen con máscara radial (como en HTML original) */
-  .product-image {
-    mix-blend-mode: multiply;
-    -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 70%, transparent 100%);
-    mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 70%, transparent 100%);
+  .product-sheet {
+    scroll-margin-top: 96px;
+    padding-block: clamp(28px, 4vw, 44px);
+    border-top: 1px solid var(--um-line, #e5e5e5);
+    background: #ffffff;
+    color: var(--skin-text, #111);
   }
 
-  /* Hover effect sutil en imagen */
-  .product-image {
-    transition: transform 0.4s ease, box-shadow 0.4s ease;
+  .product-sheet:first-child {
+    border-top: 0;
+    padding-top: 0;
   }
 
-  .product-image:hover {
-    transform: scale(1.02);
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  .product-sheet__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.92fr);
+    gap: clamp(28px, 5vw, 64px);
+    align-items: start;
   }
 
-  /* Animación para features */
-  @media (prefers-reduced-motion: no-preference) {
-    ul li {
-      animation: fadeInLeft 0.5s ease-out;
-      animation-fill-mode: both;
+  .product-sheet--media-right .product-sheet__media {
+    order: 2;
+  }
+
+  .product-sheet__header {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    column-gap: clamp(12px, 2vw, 20px);
+    align-items: start;
+  }
+
+  .product-sheet__header-main {
+    min-width: 0;
+  }
+
+  .product-sheet__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.55rem;
+    margin: 0 0 0.85rem;
+    color: var(--skin-muted, #5f6368);
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .product-sheet__meta-link {
+    color: #111;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .product-sheet__meta-link:hover {
+    color: #dc2626;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .product-sheet__meta-category {
+    color: var(--skin-muted, #5f6368);
+  }
+
+  .product-sheet__meta-sep {
+    color: #c4c4c4;
+  }
+
+  .product-sheet__index {
+    margin: 0;
+    padding-top: 0.1rem;
+    color: #dc2626;
+    font-size: 1rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+    text-align: left;
+  }
+
+  .product-sheet__title {
+    margin: 0;
+    color: #111;
+    font-size: clamp(1.45rem, 2.1vw, 2rem);
+    font-weight: 600;
+    line-height: 1.14;
+    text-wrap: balance;
+  }
+
+  .product-sheet__lead {
+    margin: 0.85rem 0 0;
+    color: #2b2f33;
+    font-size: clamp(1.02rem, 1.08vw, 1.12rem);
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  .product-sheet__description {
+    margin-top: 1.15rem;
+    color: #3a3f45;
+    font-size: clamp(1rem, 1.05vw, 1.0625rem);
+    line-height: 1.72;
+  }
+
+  .product-sheet__description :global(p) {
+    margin: 0 0 0.95rem;
+  }
+
+  .product-sheet__description :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .product-sheet__description :global(strong) {
+    color: #111;
+    font-weight: 600;
+  }
+
+  .product-sheet__description :global(ul),
+  .product-sheet__description :global(ol) {
+    margin: 0.75rem 0 0;
+    padding-left: 1.2rem;
+  }
+
+  .product-sheet__specs {
+    margin-top: 1.45rem;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .product-sheet__specs-label {
+    margin: 0 0 0.85rem;
+    color: #111;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .product-sheet__features {
+    display: grid;
+    gap: 0.65rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .product-sheet__features li {
+    position: relative;
+    padding-left: 1.35rem;
+    color: #111;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .product-sheet__features li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #dc2626;
+    font-weight: 600;
+  }
+
+  .product-sheet__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.55rem;
+  }
+
+  .product-sheet__actions :global(.um-btn-secondary) {
+    border: 1px solid #d8d8d8;
+    background: #fff;
+    color: #111;
+  }
+
+  .product-sheet__actions :global(.um-btn-secondary:hover) {
+    border-color: #111;
+    background: #111;
+    color: #fff;
+  }
+
+  .product-sheet__footnote {
+    margin-top: 1.35rem;
+    padding: 0.15rem 0 0.15rem 1rem;
+    border: 0;
+    border-left: 2px solid #dc2626;
+    background: #f8f8f8;
+  }
+
+  .product-sheet__footnote p {
+    margin: 0;
+    color: #2b2f33;
+    font-size: 1rem;
+    line-height: 1.58;
+  }
+
+  .product-sheet__footnote-lead {
+    color: #111;
+    font-weight: 600;
+  }
+
+  .product-sheet__footnote p + p {
+    margin-top: 0.55rem;
+  }
+
+  .product-sheet__footnote-label {
+    display: block;
+    margin-bottom: 0.2rem;
+    color: #111;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .product-sheet__media {
+    margin: 0;
+  }
+
+  .product-sheet__frame {
+    display: grid;
+    place-items: center;
+    min-height: clamp(240px, 32vw, 360px);
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .product-sheet__image {
+    display: block;
+    width: 100%;
+    height: clamp(240px, 32vw, 380px);
+    max-height: min(380px, 52vh);
+    object-fit: contain;
+    object-position: center;
+  }
+
+  .product-sheet__fallback {
+    display: grid;
+    gap: 0.5rem;
+    justify-items: center;
+    padding: 1.5rem;
+    color: var(--skin-muted, #5f6368);
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .product-sheet__fallback span {
+    color: #111;
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+
+  @media (max-width: 900px) {
+    .product-sheet__grid {
+      grid-template-columns: 1fr;
+      gap: 1.35rem;
     }
 
-    ul li:nth-child(1) { animation-delay: 0.1s; }
-    ul li:nth-child(2) { animation-delay: 0.2s; }
-    ul li:nth-child(3) { animation-delay: 0.3s; }
-    ul li:nth-child(4) { animation-delay: 0.4s; }
-    ul li:nth-child(5) { animation-delay: 0.5s; }
+    .product-sheet--media-right .product-sheet__media {
+      order: 0;
+    }
+
+    .product-sheet {
+      padding-block: 2rem;
+    }
+
+    .product-sheet__header {
+      grid-template-columns: 2.5rem minmax(0, 1fr);
+      column-gap: 0.8rem;
+    }
+
+    .product-sheet__meta {
+      margin-bottom: 0.55rem;
+    }
+
+    .product-sheet__title {
+      font-size: clamp(1.35rem, 6vw, 1.7rem);
+      line-height: 1.12;
+    }
+
+    .product-sheet__lead {
+      margin-top: 0.65rem;
+      font-size: 1rem;
+      line-height: 1.48;
+    }
+
+    .product-sheet__description {
+      margin-top: 1rem;
+      line-height: 1.64;
+    }
+
+    .product-sheet__frame {
+      min-height: 220px;
+    }
+
+    .product-sheet__image {
+      height: clamp(220px, 62vw, 320px);
+      max-height: none;
+    }
   }
 
-  @keyframes fadeInLeft {
-    from {
-      opacity: 0;
-      transform: translateX(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  /* Accesibilidad: reducir animaciones */
   @media (prefers-reduced-motion: reduce) {
-    .product-image,
-    .product-image:hover,
-    ul li {
-      transition-duration: 0.01ms !important;
-      animation-duration: 0.01ms !important;
+    .product-sheet__image {
+      transition: none;
     }
   }
 </style>

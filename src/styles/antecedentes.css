@@ -88,14 +88,13 @@
   position: relative;
   overflow: hidden;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(0,0,0,0.08);
+  transition: border-color 0.3s ease, filter 0.3s ease;
   cursor: pointer;
 }
 
 .antecedente-galeria__item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  border-color: rgba(220,38,38,0.45);
 }
 
 .antecedente-galeria__item img {
@@ -138,13 +137,12 @@
   background-color: #f8f9fa;
   border-radius: 8px;
   padding: 2rem;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(0,0,0,0.08);
+  transition: border-color 0.3s ease;
 }
 
 .antecedente-servicios__item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  border-color: rgba(220,38,38,0.45);
 }
 
 .antecedente-servicios__item-title {
@@ -187,7 +185,7 @@
   background-color: #fff;
   border-radius: 8px;
   padding: 2rem;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border: 1px solid rgba(0,0,0,0.08);
 }
 
 .antecedente-meta__item-title {
@@ -235,7 +233,7 @@
   max-height: 90vh;
   object-fit: contain;
   border-radius: 4px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.2);
 }
 
 .lightbox__close {
@@ -247,11 +245,11 @@
   background: none;
   border: none;
   cursor: pointer;
-  transition: transform 0.3s ease;
+  transition: color 0.3s ease;
 }
 
 .lightbox__close:hover {
-  transform: scale(1.2);
+  color: #DC2626;
 }
 
 .lightbox__nav {

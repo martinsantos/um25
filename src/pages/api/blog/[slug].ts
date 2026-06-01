@@ -84,7 +84,7 @@ export const PUT: APIRoute = async ({ request, params }) => {
     meta_title: (body['meta_title'] as string) ?? null,
     meta_description: (body['meta_description'] as string) ?? null,
   };
-  if (body['fecha_publicacion']) update.fecha_publicacion = body['fecha_publicacion'];
+  if (body['fecha_publicacion']) update['fecha_publicacion'] = body['fecha_publicacion'];
 
   const res = await fetch(`${DIRECTUS_URL}/items/blog_posts/${id}`, {
     method: 'PATCH',

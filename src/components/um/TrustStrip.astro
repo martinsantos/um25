@@ -1,0 +1,479 @@
+---
+/**
+ * Banda de evidencia institucional.
+ * Usa datos verificables del snapshot CMS; no inventa logos, certificaciones ni métricas.
+ */
+import {
+  getAntecedentesCatalogCount,
+  getTopClienteRecords,
+} from '../../utils/verifiedProof';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+
+const catalogCount = getAntecedentesCatalogCount();
+const clientRecords = getTopClienteRecords(6);
+---
+
+<section class:list={['um-trust-strip', className]} aria-labelledby="trust-strip-title">
+  <div class="um-trust-strip__inner">
+    <header class="um-trust-strip__head">
+      <span class="um-trust-strip__rule" aria-hidden="true"></span>
+      <p class="um-trust-strip__eyebrow">Evidencia verificable</p>
+      <h2 id="trust-strip-title">Clientes, escala y documentación visibles antes de contratar.</h2>
+      <p>
+        El catálogo público muestra proyectos, organizaciones y verticales donde UMSA ya operó.
+        La confianza se construye con registros, alcance y trazabilidad.
+      </p>
+    </header>
+
+    <div class="um-trust-strip__board">
+      <aside class="um-trust-strip__proof" aria-label={`${catalogCount} antecedentes documentados`}>
+        <span>Archivo publicado</span>
+        <strong>{catalogCount}</strong>
+        <p>antecedentes documentados en el catálogo público.</p>
+        <a href="/antecedentes" class="um-trust-strip__proof-link">Abrir centro de evidencia</a>
+      </aside>
+
+      <div class="um-trust-strip__ledger" aria-label="Clientes con antecedentes documentados">
+        <p class="um-trust-strip__ledger-title">Referencias publicadas</p>
+        <div class="um-trust-strip__ledger-head" aria-hidden="true">
+          <span></span>
+          <span>Cliente</span>
+          <span>Registros</span>
+          <span>Vertical dominante</span>
+        </div>
+        {clientRecords.map((client, index) => (
+          <a href={`/antecedentes?cliente=${encodeURIComponent(client.name)}`} class="um-trust-strip__client">
+            <span class="um-trust-strip__index">{String(index + 1).padStart(2, '0')}</span>
+            <span class="um-trust-strip__name">{client.name}</span>
+            <span class="um-trust-strip__count">{client.count}</span>
+            <span class="um-trust-strip__area">{client.dominantArea}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <div class="um-trust-strip__docs" aria-label="Documentación disponible">
+      <article>
+        <span>01</span>
+        <strong>Dossier por proyecto</strong>
+        <p>Alcance, protocolo, responsables y evidencia técnica cuando el registro lo requiere.</p>
+      </article>
+      <article>
+        <span>02</span>
+        <strong>Cumplimiento por rubro</strong>
+        <p>Normativa y referencias aplicadas al cliente, sin vender certificaciones corporativas no verificadas.</p>
+      </article>
+      <article>
+        <span>03</span>
+        <strong>Compra técnica</strong>
+        <p>Información suficiente para compras, auditoría, licitación o continuidad operativa.</p>
+      </article>
+      <a href="/certificaciones" class="um-trust-strip__docs-link">Ver documentación y cumplimiento</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .um-trust-strip {
+    background: var(--skin-section, #fff);
+    padding: clamp(48px, 5.2vw, 78px) 0;
+  }
+
+  .um-trust-strip__inner {
+    width: min(1180px, calc(100% - 32px));
+    margin-inline: auto;
+    display: grid;
+    gap: clamp(20px, 2.6vw, 32px);
+  }
+
+  .um-trust-strip__head {
+    display: grid;
+    grid-template-columns: minmax(0, 0.58fr) minmax(320px, 0.42fr);
+    column-gap: clamp(36px, 6vw, 88px);
+    row-gap: 12px;
+    align-items: end;
+  }
+
+  .um-trust-strip__rule {
+    grid-column: 1;
+    width: 58px;
+    height: 3px;
+    background: var(--um-red);
+  }
+
+  .um-trust-strip__eyebrow,
+  .um-trust-strip__index {
+    margin: 0;
+    color: var(--um-red);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.15;
+    text-transform: uppercase;
+  }
+
+  .um-trust-strip h2 {
+    grid-column: 1;
+    margin: 14px 0 0;
+    color: var(--skin-text, #111);
+    font-family: var(--um-font-display);
+    font-size: clamp(1.9rem, 2.55vw, 2.58rem);
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.14;
+    text-wrap: balance;
+  }
+
+  .um-trust-strip__head > p:last-child {
+    grid-column: 2;
+    grid-row: 2 / span 2;
+    align-self: end;
+    max-width: 48ch;
+    margin: 0;
+    color: var(--skin-muted, #5f6368);
+    font-size: clamp(1rem, 1.1vw, 1.12rem);
+    line-height: 1.72;
+  }
+
+  .um-trust-strip__board {
+    display: grid;
+    grid-template-columns: minmax(210px, 0.22fr) minmax(0, 1fr);
+    gap: clamp(26px, 4vw, 58px);
+    align-items: start;
+    background: transparent;
+  }
+
+  .um-trust-strip__proof {
+    grid-column: 1;
+    grid-row: 1;
+    display: grid;
+    gap: 10px;
+    min-height: 0;
+    align-content: start;
+    border-top: 2px solid var(--um-red);
+    background: transparent;
+    color: var(--skin-text, #111);
+    padding: 18px 0 0;
+  }
+
+  .um-trust-strip__proof span {
+    color: var(--skin-muted, #5f6368);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .um-trust-strip__proof strong {
+    display: block;
+    margin-top: 0;
+    color: var(--skin-text, #111);
+    font-family: var(--um-font-display);
+    font-size: clamp(2.35rem, 3.7vw, 3.65rem);
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 0.94;
+    white-space: nowrap;
+  }
+
+  .um-trust-strip__proof p {
+    max-width: 28ch;
+    margin: 0;
+    color: var(--skin-muted, #5f6368);
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  .um-trust-strip__proof-link,
+  .um-trust-strip__docs-link {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+    color: var(--um-red);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+  }
+
+  .um-trust-strip__proof-link::after,
+  .um-trust-strip__docs-link::after {
+    content: "";
+    width: 30px;
+    height: 2px;
+    background: currentColor;
+  }
+
+  .um-trust-strip__ledger {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    display: grid;
+    gap: 0;
+    align-content: start;
+    padding: 0;
+    background: transparent;
+  }
+
+  .um-trust-strip__ledger-title {
+    margin: 0 0 14px;
+    color: var(--skin-muted, #5f6368);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .um-trust-strip__ledger-head,
+  .um-trust-strip__client {
+    display: grid;
+    grid-template-columns: 42px minmax(240px, 1.1fr) minmax(72px, 0.2fr) minmax(172px, 0.48fr);
+    gap: clamp(16px, 2vw, 28px);
+    align-items: center;
+  }
+
+  .um-trust-strip__ledger-head {
+    min-height: 40px;
+    border-top: 1px solid rgba(17, 17, 17, 0.14);
+    border-bottom: 1px solid rgba(17, 17, 17, 0.14);
+    color: var(--skin-muted, #5f6368);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .um-trust-strip__client {
+    min-height: 72px;
+    padding: 0;
+    border-bottom: 1px solid rgba(17, 17, 17, 0.09);
+    color: var(--skin-text, #111);
+    background: transparent;
+    text-decoration: none;
+  }
+
+  .um-trust-strip__client:hover,
+  .um-trust-strip__client:focus-visible {
+    background: color-mix(in srgb, var(--um-red) 4%, transparent);
+    outline: 0;
+  }
+
+  .um-trust-strip__name {
+    overflow-wrap: anywhere;
+    font-family: var(--um-font-display);
+    font-size: clamp(1.05rem, 1.18vw, 1.22rem);
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.16;
+  }
+
+  .um-trust-strip__count {
+    color: var(--skin-text, #111);
+    font-family: var(--um-font-display);
+    font-size: 1.18rem;
+    font-weight: 700;
+    line-height: 1.15;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .um-trust-strip__area {
+    color: var(--skin-muted, #5f6368);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.22;
+  }
+
+  .um-trust-strip__docs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(22px, 4vw, 52px);
+    align-items: start;
+    border-top: 1px solid rgba(17, 17, 17, 0.14);
+    padding-top: clamp(22px, 3vw, 34px);
+  }
+
+  .um-trust-strip__docs article {
+    display: grid;
+    gap: 10px;
+    min-width: 0;
+    padding: 0;
+    background: transparent;
+  }
+
+  .um-trust-strip__docs span {
+    color: var(--um-red);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .um-trust-strip__docs strong {
+    color: var(--skin-text, #111);
+    font-family: var(--um-font-display);
+    font-size: 1.08rem;
+    font-weight: 600;
+    line-height: 1.22;
+  }
+
+  .um-trust-strip__docs p {
+    margin: 0;
+    color: var(--skin-muted, #5f6368);
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .um-trust-strip__docs-link {
+    grid-column: 1 / -1;
+    align-self: start;
+    min-height: auto;
+    margin-top: 0;
+    padding: 0;
+    color: var(--um-red);
+    background: transparent;
+  }
+
+  @media (max-width: 1100px) {
+    .um-trust-strip__head,
+    .um-trust-strip__board {
+      grid-template-columns: 1fr;
+    }
+
+    .um-trust-strip h2,
+    .um-trust-strip__head > p:last-child,
+    .um-trust-strip__proof,
+    .um-trust-strip__ledger {
+      grid-column: auto;
+      grid-row: auto;
+    }
+
+    .um-trust-strip__docs {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 760px) {
+    .um-trust-strip {
+      padding: 28px 0;
+    }
+
+    .um-trust-strip__inner {
+      width: min(100% - 28px, 1180px);
+      gap: 14px;
+    }
+
+    .um-trust-strip__head {
+      row-gap: 12px;
+    }
+
+    .um-trust-strip h2 {
+      margin-top: 10px;
+      font-size: clamp(1.72rem, 6.7vw, 2.05rem);
+      line-height: 1.12;
+    }
+
+    .um-trust-strip__head > p:last-child {
+      line-height: 1.54;
+    }
+
+    .um-trust-strip__proof {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 6px 14px;
+      min-height: 0;
+      justify-content: initial;
+      padding: 14px 0 0;
+    }
+
+    .um-trust-strip__proof span {
+      grid-column: 1 / -1;
+    }
+
+    .um-trust-strip__proof strong {
+      grid-column: 1;
+      margin-top: 0;
+      font-size: clamp(2.1rem, 10vw, 2.85rem);
+      line-height: 0.96;
+    }
+
+    .um-trust-strip__proof p {
+      grid-column: 2;
+      align-self: end;
+      max-width: none;
+      margin-top: 0;
+      line-height: 1.42;
+    }
+
+    .um-trust-strip__proof-link {
+      grid-column: 1 / -1;
+      margin-top: 4px;
+    }
+
+    .um-trust-strip__ledger {
+      gap: 0;
+      padding: 0;
+    }
+
+    .um-trust-strip__ledger-head {
+      display: none;
+    }
+
+    .um-trust-strip__client {
+      grid-template-columns: 30px minmax(0, 1fr) auto;
+      gap: 10px;
+      min-height: auto;
+      padding: 12px 0;
+    }
+
+    .um-trust-strip__client:nth-of-type(n+4) {
+      display: none;
+    }
+
+    .um-trust-strip__index,
+    .um-trust-strip__count,
+    .um-trust-strip__area {
+      font-size: 1rem;
+    }
+
+    .um-trust-strip__name {
+      font-size: 1rem;
+      line-height: 1.15;
+    }
+
+    .um-trust-strip__area {
+      display: none;
+    }
+
+    .um-trust-strip__docs {
+      grid-template-columns: 1fr;
+      gap: 0;
+      padding-top: 8px;
+    }
+
+    .um-trust-strip__docs article {
+      grid-template-columns: 32px minmax(0, 1fr);
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(17, 17, 17, 0.09);
+    }
+
+    .um-trust-strip__docs p {
+      display: none;
+    }
+
+    .um-trust-strip__docs-link {
+      min-height: 46px;
+      margin-top: 12px;
+      padding: 0;
+    }
+  }
+</style>

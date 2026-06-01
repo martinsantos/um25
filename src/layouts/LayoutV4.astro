@@ -10,6 +10,7 @@
 import NavbarV4 from '../components/v4/NavbarV4.astro';
 import FooterV4 from '../components/v4/FooterV4.astro';
 import SEOHead from '../components/SEO/SEOHead.astro';
+import { getDevSkinVariant } from '../utils/skinVariant';
 import '../styles/v4.css';
 
 export interface Props {
@@ -59,11 +60,14 @@ if (Astro.url.pathname !== "/") {
   });
 }
 
-const currentYear = new Date().getFullYear();
+const skinVariant = getDevSkinVariant(Astro.url, import.meta.env.DEV) ?? 'hybrid';
+const skinAttribute = skinVariant;
+const pageLang = Astro.url.pathname === '/en' || Astro.url.pathname.startsWith('/en/') ? 'en' : 'es';
+const skipLinkLabel = pageLang === 'en' ? 'Skip to main content' : 'Saltar al contenido principal';
 ---
 
 <!DOCTYPE html>
-<html lang="es">
+<html lang={pageLang}>
   <head>
     <!-- SEOHead — handles all meta, OG, Twitter, schema, canonical, hreflang, favicon -->
     <SEOHead
@@ -80,11 +84,11 @@ const currentYear = new Date().getFullYear();
       breadcrumbs={breadcrumbs}
     />
 
-    <!-- Fonts - Open Sans + Futura PT (marca) -->
+    <!-- Fonts - Poppins 600 titulares + Open Sans cuerpo + Futura PT logo/marca -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.cdnfonts.com/css/futura-pt" rel="stylesheet" />
 
     {hasHeadSlot && <slot name="head" />}
@@ -102,37 +106,39 @@ const currentYear = new Date().getFullYear();
     <style is:global>
       /* V4 Design System - Base Styles */
       body {
-        font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+        font-family: var(--um-font-body);
+        font-synthesis: none;
         margin: 0;
         padding: 0;
         overflow-x: hidden;
-        max-width: 100vw;
-        background-color: #ffffff;
-        color: #111827;
+        width: 100%;
+        max-width: 100%;
+        background-color: var(--skin-page);
+        color: var(--skin-text);
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
       }
 
-      /* Card hover animation */
+      /* Static cards: hierarchy comes from layout, not motion or shadows. */
       .card-hover {
-        transition: all 0.3s ease;
+        transition: border-color 0.18s ease, background-color 0.18s ease;
       }
       .card-hover:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        transform: none;
+        box-shadow: none;
       }
 
 
       /* Typography fluid */
       .text-fluid-hero {
-        font-size: clamp(1.75rem, 6vw, 3.5rem);
+        font-size: clamp(2.125rem, 6vw, 3.8rem);
         line-height: 1.1;
       }
       .text-fluid-title {
-        font-size: clamp(1.5rem, 4vw, 2.25rem);
+        font-size: clamp(1.75rem, 4vw, 2.5rem);
       }
       .text-fluid-body {
-        font-size: clamp(0.9rem, 2.5vw, 1.125rem);
+        font-size: clamp(1rem, 2.5vw, 1.125rem);
       }
 
       /* Section padding fluid */
@@ -181,12 +187,35 @@ const currentYear = new Date().getFullYear();
         color: inherit;
         text-decoration: none;
       }
+
+      .um-skip-link {
+        position: fixed;
+        left: 16px;
+        top: 16px;
+        width: auto;
+        height: auto;
+        transform: translateY(calc(-100% - 32px));
+        overflow: visible;
+        z-index: 10000;
+        padding: 12px 18px;
+        background: #111;
+        color: #fff;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .um-skip-link:focus {
+        transform: translateY(0);
+        outline: 2px solid var(--um-red);
+        outline-offset: 2px;
+      }
     </style>
   </head>
-  <body>
+  <body data-skin={skinAttribute}>
+    <a class="um-skip-link" href="#main-content">{skipLinkLabel}</a>
     <NavbarV4 />
 
-    <main>
+    <main id="main-content">
       <slot />
     </main>
 

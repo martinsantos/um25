@@ -1,6 +1,7 @@
 ---
 import EnhancedImage from "./EnhancedImage.astro";
 import { generateSlug } from '../utils/slugUtils.js';
+import { truncateEditorialText } from '../utils/editorialContent';
 
 // Componente para mostrar antecedentes destacados
 const { antecedentes } = Astro.props;
@@ -56,18 +57,18 @@ const processedAntecedentes = await Promise.all(
         class={`group flex flex-col h-full antecedente-item ${index >= 6 ? 'hidden' : ''}`}
         data-index={index}
       >
-        <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1">
+        <article class="flex flex-col h-full bg-white overflow-hidden border border-slate-200 hover:border-red-500 transition-colors duration-200">
           <!-- Image -->
           <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
             <img
               src={proyecto.imageUrl}
               alt={proyecto.Titulo}
-              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              class="w-full h-full object-cover"
               loading="lazy"
               onerror="this.src='/images/um-logo.png'; this.onerror=null;"
             />
             <div class="absolute top-4 left-4">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-slate-900 text-white shadow-sm">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-[4px] text-base font-medium bg-slate-900 text-white">
                 {proyecto.Area || 'Proyecto'}
               </span>
             </div>
@@ -76,7 +77,7 @@ const processedAntecedentes = await Promise.all(
           <!-- Content -->
           <div class="flex flex-col flex-grow p-6">
             <div class="mb-2">
-              <span class="text-xs font-bold text-blue-600 uppercase tracking-wide">
+              <span class="text-base font-bold text-blue-600 uppercase tracking-wide">
                 {proyecto.Cliente}
               </span>
             </div>
@@ -85,15 +86,15 @@ const processedAntecedentes = await Promise.all(
               {proyecto.Titulo}
             </h3>
             
-            <p class="text-slate-600 text-sm mb-6 line-clamp-3 flex-grow leading-relaxed">
-              {proyecto.Descripcion ? proyecto.Descripcion.replace(/<[^>]*>/g, '').substring(0, 150) + '...' : ''}
+            <p class="text-slate-600 text-base mb-6 line-clamp-3 flex-grow leading-relaxed">
+              {truncateEditorialText(proyecto.Descripcion, 150)}
             </p>
             
             <div class="pt-4 border-t border-slate-100 mt-auto flex items-center justify-between">
-              <span class="text-xs font-medium text-slate-500">
+              <span class="text-base font-medium text-slate-500">
                 {proyecto.Unidad_de_negocio || 'Consultoría'}
               </span>
-              <span class="text-blue-600 text-sm font-semibold group-hover:underline flex items-center">
+              <span class="text-blue-600 text-base font-semibold group-hover:underline flex items-center">
                 Ver caso <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
               </span>
             </div>
@@ -106,7 +107,7 @@ const processedAntecedentes = await Promise.all(
   {processedAntecedentes.length > 6 && (
     <div class="mt-12 text-center load-more-container">
       <button 
-        class="load-more-btn inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 shadow-md"
+        class="load-more-btn inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-[4px] text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
         onclick="loadMoreAntecedentes(this)"
       >
         Ver más casos
@@ -114,7 +115,7 @@ const processedAntecedentes = await Promise.all(
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
-      <p class="mt-2 text-sm text-slate-500">
+      <p class="mt-2 text-base text-slate-500">
         Mostrando <span class="showing-count">6</span> de {processedAntecedentes.length} casos
       </p>
     </div>

@@ -8,7 +8,7 @@ export const GET: APIRoute = async () => {
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",
-    theme_color: "#dc2626",
+    theme_color: "#DC2626",
     orientation: "portrait-primary",
     categories: ["business", "technology", "communications"],
     lang: "es-AR",

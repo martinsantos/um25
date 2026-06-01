@@ -10,50 +10,103 @@ const tabs = [
   { label: 'Noticias', href: '/blog/categoria/noticias', key: 'noticias' },
   { label: 'Proyectos', href: '/blog/categoria/proyectos', key: 'proyectos' },
   { label: 'Técnico', href: '/blog/categoria/tecnico', key: 'tecnico' },
+  { label: 'Tecnología', href: '/blog/categoria/tecnologia', key: 'tecnologia' },
   { label: 'Empresa', href: '/blog/categoria/empresa', key: 'empresa' },
 ];
 ---
 
 <nav class="cat-tabs" aria-label="Categorías del blog">
-  {tabs.map(tab => {
-    const isActive = tab.key === current;
-    return (
-      <a
-        href={tab.href}
-        class:list={['cat-tab', isActive && 'cat-tab--active']}
-        aria-current={isActive ? 'page' : undefined}
-      >
-        {tab.label}
-      </a>
-    );
-  })}
+  <div class="cat-tabs__list">
+    {tabs.map(tab => {
+      const isActive = tab.key === current || (!current && !tab.key);
+      return (
+        <a
+          href={tab.href}
+          class:list={['cat-tab', isActive && 'cat-tab--active']}
+          aria-current={isActive ? 'page' : undefined}
+        >
+          {tab.label}
+        </a>
+      );
+    })}
+  </div>
 </nav>
 
 <style>
   .cat-tabs {
+    display: block;
+    align-items: stretch;
+    margin-bottom: clamp(22px, 3vw, 36px);
+    border-bottom: 0;
+    background: #fff;
+  }
+
+  .cat-tabs__list {
     display: flex;
     flex-wrap: wrap;
-    gap: 0;
-    margin-bottom: 32px;
-    border-bottom: 1px solid #f3f4f6;
+    gap: 8px clamp(18px, 2.4vw, 30px);
+    align-items: center;
+    min-width: 0;
+    padding: 10px 0;
   }
 
   .cat-tab {
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    color: #6b7280;
+    position: relative;
+    font-family: var(--um-font-body, 'Open Sans', system-ui, sans-serif);
+    font-size: 16px;
+    font-weight: 700;
+    color: #5b6470;
     text-decoration: none;
-    padding: 8px 14px;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -1px;
-    transition: color .15s, border-color .15s;
+    padding: 11px 0;
+    border-bottom: 0;
+    transition: color .15s;
     white-space: nowrap;
   }
-  .cat-tab:hover { color: #111827; }
+  .cat-tab:hover { color: #000; }
   .cat-tab--active {
-    color: #111827;
-    border-bottom-color: #111827;
-    font-weight: 600;
+    color: #111111;
+    font-weight: 700;
+  }
+
+  .cat-tab--active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 4px;
+    height: 2px;
+    background: #DC2626;
+  }
+
+  @media (max-width: 760px) {
+    .cat-tabs {
+      margin-bottom: 26px;
+    }
+
+    .cat-tabs__list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0;
+      padding: 0;
+    }
+
+    .cat-tab {
+      min-width: 0;
+      padding: 14px 0;
+      border-bottom: 0;
+      white-space: normal;
+    }
+
+    .cat-tab:nth-last-child(-n + 3) { border-bottom-color: transparent; }
+  }
+
+  @media (max-width: 340px) {
+    .cat-tabs__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cat-tab:nth-last-child(-n + 3) { border-bottom-color: transparent; }
+
+    .cat-tab:nth-last-child(-n + 2) { border-bottom-color: transparent; }
   }
 </style>

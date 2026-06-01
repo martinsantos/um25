@@ -1,0 +1,110 @@
+---
+import LayoutV4 from '../../layouts/LayoutV4.astro';
+import UMButton from '../../components/um/UMButton.astro';
+import TrustStrip from '../../components/um/TrustStrip.astro';
+import { getAntecedentesCatalogCount } from '../../utils/verifiedProof';
+
+---
+
+<LayoutV4
+  title="ULTIMA MILLA | IT services for critical operations"
+  description="Integrated IT services in Mendoza, Cuyo and Patagonia: networks, electronic security, telecom, software, energy and 24/7 support."
+  canonical="https://ultimamilla.com.ar/en/"
+>
+  <section class="um-en-hero um-container">
+    <p class="um-en-hero__badge">English overview</p>
+    <h1>IT services for operations that cannot stop.</h1>
+    <p>
+      Networks, electronic security, telecom, custom software, energy and on-site support for organizations that need continuity, evidence and accountable delivery.
+    </p>
+    <div class="um-en-hero__actions">
+      <UMButton href="/en/contacto">Request assessment</UMButton>
+      <UMButton href="/en/services" variant="secondary">Services</UMButton>
+      <UMButton href="/en/about" variant="secondary">About</UMButton>
+    </div>
+    <p class="um-en-hero__note">
+      Full site in Spanish. This page provides an executive summary for international buyers. <a href="/">Versión en español</a>
+    </p>
+  </section>
+
+  <TrustStrip />
+
+  <section class="um-container um-en-proof">
+    <h2>Evidence</h2>
+    <ul>
+      <li><strong>{getAntecedentesCatalogCount()}</strong> documented projects in catalog — <a href="/antecedentes">portfolio</a></li>
+      <li><strong>22+ years</strong> operating infrastructure — <a href="/nosotros">about us</a></li>
+      <li><strong>24/7</strong> support for critical environments</li>
+    </ul>
+  </section>
+</LayoutV4>
+
+<style>
+  .um-en-hero {
+    padding: clamp(40px, 6vw, 72px) 0 32px;
+    max-width: 720px;
+  }
+
+  .um-en-hero__badge {
+    margin: 0 0 12px;
+    color: var(--um-red);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .um-en-hero h1 {
+    margin: 0;
+    font-family: var(--um-font-display);
+    font-size: clamp(2rem, 4.5vw, 2.75rem);
+    font-weight: 600;
+    line-height: 1.08;
+  }
+
+  .um-en-hero > p {
+    margin: 16px 0 0;
+    font-size: 1.125rem;
+    line-height: 1.65;
+    color: var(--skin-muted, #4b5563);
+  }
+
+  .um-en-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .um-en-hero__note {
+    margin-top: 20px;
+    font-size: 0.9375rem;
+    color: var(--skin-muted, #6b7280);
+  }
+
+  .um-en-hero__note a {
+    color: var(--um-red);
+    font-weight: 600;
+  }
+
+  .um-en-proof {
+    padding-bottom: 56px;
+  }
+
+  .um-en-proof h2 {
+    font-size: 1.35rem;
+    font-weight: 600;
+  }
+
+  .um-en-proof ul {
+    margin: 12px 0 0;
+    padding-left: 1.2rem;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+  }
+
+  .um-en-proof a {
+    color: var(--um-red);
+    font-weight: 600;
+  }
+</style>

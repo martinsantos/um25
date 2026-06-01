@@ -1,0 +1,126 @@
+---
+import LayoutV4 from '../layouts/LayoutV4.astro';
+
+const updatedAt = '31 de mayo de 2026';
+---
+
+<LayoutV4
+  title="Términos de uso | ULTIMA MILLA"
+  description="Condiciones generales de uso del sitio público de ULTIMA MILLA y alcance de la información comercial publicada."
+  noindex={true}
+>
+  <section class="um-container legal-page">
+    <header class="legal-page__hero">
+      <p>Información institucional</p>
+      <h1>Términos de uso del sitio público</h1>
+      <span>Actualizado: {updatedAt}</span>
+    </header>
+
+    <div class="legal-page__body">
+      <article>
+        <h2>Alcance de la información</h2>
+        <p>
+          La información publicada describe servicios, antecedentes, sectores atendidos y capacidades comerciales de ULTIMA MILLA. No reemplaza una propuesta técnica, contrato, relevamiento, pliego ni orden de trabajo.
+        </p>
+      </article>
+
+      <article>
+        <h2>Propuestas y documentación</h2>
+        <p>
+          Los alcances, tiempos, entregables y condiciones se definen caso por caso. La documentación técnica se entrega bajo solicitud comercial cuando corresponde al proyecto, auditoría, seguro o proceso de compra.
+        </p>
+      </article>
+
+      <article>
+        <h2>Uso del contenido</h2>
+        <p>
+          Los textos, imágenes, marcas y materiales del sitio pertenecen a ULTIMA MILLA o a sus fuentes autorizadas. No deben reutilizarse como documentación contractual sin confirmación expresa de la empresa.
+        </p>
+      </article>
+
+      <article>
+        <h2>Canal de contacto</h2>
+        <p>
+          Para consultas comerciales, documentación o pedidos institucionales, escribir a <a href="mailto:contacto@ultimamilla.com.ar">contacto@ultimamilla.com.ar</a> o usar el formulario de contacto.
+        </p>
+      </article>
+    </div>
+  </section>
+</LayoutV4>
+
+<style>
+  .legal-page {
+    padding: clamp(48px, 7vw, 96px) 0 clamp(64px, 8vw, 112px);
+  }
+
+  .legal-page__hero {
+    max-width: 850px;
+  }
+
+  .legal-page__hero p {
+    margin: 0 0 16px;
+    color: var(--um-red);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .legal-page__hero h1 {
+    margin: 0;
+    color: var(--skin-text, #111);
+    font-family: var(--um-font-display);
+    font-size: clamp(2.25rem, 5vw, 3.25rem);
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+
+  .legal-page__hero span {
+    display: block;
+    margin-top: 18px;
+    color: var(--skin-muted, #5f6670);
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  .legal-page__body {
+    display: grid;
+    gap: 0;
+    max-width: 920px;
+    margin-top: clamp(34px, 5vw, 56px);
+  }
+
+  .legal-page__body article {
+    padding: 28px clamp(20px, 3vw, 32px);
+    border-top: 1px solid var(--skin-line, #d9dadd);
+  }
+
+  .legal-page__body h2 {
+    margin: 0;
+    color: var(--skin-text, #111);
+    font-family: var(--um-font-display);
+    font-size: clamp(1.25rem, 2vw, 1.55rem);
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .legal-page__body p {
+    max-width: 74ch;
+    margin: 12px 0 0;
+    color: var(--skin-muted, #4b5563);
+    font-size: 1.0625rem;
+    line-height: 1.68;
+  }
+
+  .legal-page__body a {
+    color: var(--skin-text, #111);
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-color: var(--um-red);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+  }
+</style>

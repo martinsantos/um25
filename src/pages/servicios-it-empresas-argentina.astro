@@ -1,16 +1,21 @@
 ---
-import AuthorityHubPage from '../components/geo/AuthorityHubPage.astro';
-import { getAuthorityHubs } from '../data/geoKnowledge';
+import LayoutV4 from '../layouts/LayoutV4.astro';
+import GeoHubDossier from '../components/templates/GeoHubDossier.astro';
+import { buildGeoHubStructuredData, getGeoCommercialHub } from '../data/geoCommercialHubs';
 
-const hub = getAuthorityHubs().find((item) => item.slug === 'servicios-it-empresas-argentina');
+const hub = getGeoCommercialHub('servicios-it-empresas-argentina');
 
 if (!hub) {
-  throw new Error('Missing authority hub servicios-it-empresas-argentina');
+  return Astro.redirect('/servicios', 302);
 }
 ---
 
-<AuthorityHubPage
-  hub={hub}
-  eyebrow="Servicios tecnologicos e informaticos en Argentina"
-  intro="Capa nacional y regional para empresas medianas que buscan un proveedor tecnologico, empresa de sistemas o soporte informatico con base argentina, experiencia en campo, soporte remoto, coordinacion multisede y documentacion ejecutable."
-/>
+<LayoutV4
+  title={hub.seoTitle}
+  description={hub.description}
+  keywords={hub.keywords}
+  canonical={`https://ultimamilla.com.ar/${hub.slug}`}
+  structuredData={buildGeoHubStructuredData(hub)}
+>
+  <GeoHubDossier hub={hub} />
+</LayoutV4>
