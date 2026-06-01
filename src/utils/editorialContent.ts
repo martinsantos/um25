@@ -214,7 +214,10 @@ export function fixLiteralMarkdownInHtml(html: string): string {
 export async function markdownToHtml(markdown: string): Promise<string> {
   const cleaned = sanitizeEditorialText(markdown);
 
-  if (HTML_TAG_RE.test(cleaned)) {
+  const hasHtml = HTML_TAG_RE.test(cleaned);
+  const hasMarkdownBlocks = /(^|\n)\s{0,3}(#{1,6}\s+|[-*+]\s+|\d+\.\s+)/m.test(cleaned);
+
+  if (hasHtml && !hasMarkdownBlocks) {
     return fixLiteralMarkdownInHtml(cleaned);
   }
 
