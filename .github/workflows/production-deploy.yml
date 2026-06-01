@@ -168,21 +168,23 @@ jobs:
           HOMEPAGE=$(curl -sL https://www.ultimamilla.com.ar)
           ERRORS=0
 
-          # 1. Service images can use either Directus /assets/ URLs OR local /images/ paths
+          # 1. Visual assets can use Directus /assets/, local service images, or
+          #    the White Dossier upload-backed evidence/hero system.
           DIRECTUS_IMGS=$(echo "$HOMEPAGE" | grep -oE 'src="/assets/[a-f0-9-]{36}[^"]*"' | wc -l)
           LOCAL_IMGS=$(echo "$HOMEPAGE" | grep -oE 'src="/images/services/[^"]*"' | wc -l)
-          TOTAL_IMGS=$((DIRECTUS_IMGS + LOCAL_IMGS))
+          UPLOAD_IMGS=$(echo "$HOMEPAGE" | grep -oE 'src="/uploads/(antecedentes|hero)/[^"]*"' | wc -l)
+          TOTAL_IMGS=$((DIRECTUS_IMGS + LOCAL_IMGS + UPLOAD_IMGS))
 
           if [ "$TOTAL_IMGS" -lt 4 ]; then
-            echo "❌ Only $TOTAL_IMGS service images found (expected >= 4)"
-            echo "   Directus: $DIRECTUS_IMGS, Local: $LOCAL_IMGS"
+            echo "❌ Only $TOTAL_IMGS visual images found (expected >= 4)"
+            echo "   Directus: $DIRECTUS_IMGS, Local services: $LOCAL_IMGS, Uploads: $UPLOAD_IMGS"
             ERRORS=$((ERRORS + 1))
           else
-            echo "✅ Service images: $TOTAL_IMGS found (Directus: $DIRECTUS_IMGS, Local: $LOCAL_IMGS)"
+            echo "✅ Visual images: $TOTAL_IMGS found (Directus: $DIRECTUS_IMGS, Local services: $LOCAL_IMGS, Uploads: $UPLOAD_IMGS)"
           fi
 
-          # 2. Hero section must have background images
-          HERO_IMGS=$(echo "$HOMEPAGE" | grep -oE 'hero-image' | wc -l)
+          # 2. Hero section must render the approved White Dossier hero.
+          HERO_IMGS=$(echo "$HOMEPAGE" | grep -oE 'um-home-hero|um-hero-media|/uploads/hero/' | wc -l)
           if [ "$HERO_IMGS" -lt 1 ]; then
             echo "❌ No hero images found"
             ERRORS=$((ERRORS + 1))
