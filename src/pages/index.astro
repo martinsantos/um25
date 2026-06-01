@@ -140,7 +140,7 @@ const websiteSchema = {
 ---
 
 <LayoutV4
-  title="ULTIMA MILLA | Servicios IT integrales para empresas"
+  title="ULTIMA MILLA | Servicios IT para operaciones que no pueden detenerse"
   description="Servicios IT integrales para empresas en Mendoza, Cuyo y Patagonia: redes, seguridad electrónica, telecomunicaciones, software, soporte, consultoría, incendios y energía."
   keywords="servicios IT integrales, redes empresariales, seguridad electrónica, telecomunicaciones, software a medida, soporte técnico 24/7, consultoría IT, detección incendio, energía para IT, Mendoza, Cuyo, Patagonia"
   image={homeHeroImage}
@@ -202,7 +202,7 @@ const websiteSchema = {
         </div>
 
         <div class="um-services-command__visual" aria-hidden="true">
-          <img src="/uploads/antecedentes/00ef116b-3455-4de2-aa10-22ad8803318f.jpg" alt="" loading="lazy" decoding="async" />
+          <img src="/uploads/antecedentes/00ef116b-3455-4de2-aa10-22ad8803318f.jpg" alt="" loading="eager" decoding="async" fetchpriority="low" />
           <div class="um-services-signal">
             <span>Respuesta</span>
             <strong>24/7</strong>
@@ -218,7 +218,6 @@ const websiteSchema = {
             >
               <div class="um-service-unit__head">
                 <span>{String(index + 1).padStart(2, '0')}</span>
-                <i aria-hidden="true"></i>
               </div>
               <div class="um-service-unit__icon" aria-hidden="true">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" set:html={iconPaths[service.visual.icon]} />
@@ -861,7 +860,6 @@ const websiteSchema = {
       grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
       min-height: 430px;
       margin-bottom: 38px;
-      border: 1px solid #d7d7d7;
       background: #fff;
       color: #111;
       overflow: hidden;
@@ -982,14 +980,14 @@ const websiteSchema = {
       align-items: center;
       min-height: 156px;
       padding: 16px 22px 16px 16px;
-      border: 1px solid #d7d7d7;
+      border-top: 1px solid #d7d7d7;
       background: #fff;
       color: #111;
-      transition: border-color 180ms ease;
+      transition: background-color 180ms ease;
     }
 
     .um-evidence-case:hover {
-      border-color: #DC2626;
+      background: #f7f8f9;
       transform: none;
     }
 
@@ -1048,14 +1046,13 @@ const websiteSchema = {
       align-content: start;
       min-height: 108px;
       padding: 18px;
-      border: 1px solid #d7d7d7;
+      border-top: 1px solid #d7d7d7;
       background: #fff;
       color: #111;
-      transition: border-color 180ms ease, background 180ms ease;
+      transition: background 180ms ease;
     }
 
     .um-sector-list a:hover {
-      border-color: #DC2626;
       background: #fbfbfb;
     }
 
@@ -1183,7 +1180,7 @@ const websiteSchema = {
 
     @media (max-width: 760px) {
       .um-home-container {
-        width: min(100% - 24px, 1180px);
+        width: min(100% - 32px, 1180px);
       }
 
       .um-home-hero {
@@ -1543,7 +1540,7 @@ const websiteSchema = {
       background: rgba(0,0,0,0.68);
       color: #fff;
       border-right: 0;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      border-bottom: 0;
       transition: background 180ms ease;
     }
 
@@ -1562,16 +1559,10 @@ const websiteSchema = {
     .um-service-unit__head {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 0;
       color: var(--um-red);
       font-size: 1rem;
       font-weight: 700;
-    }
-
-    .um-service-unit__head i {
-      width: 34px;
-      height: 2px;
-      background: currentColor;
     }
 
     .um-service-unit__icon {
@@ -1905,14 +1896,15 @@ const websiteSchema = {
     .um-evidence-feature__overlay dl {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
       margin: 26px 0 0;
-      border-top: 1px solid rgba(255,255,255,0.22);
+      border-top: 0;
     }
 
     .um-evidence-feature__overlay dl div {
       min-height: 72px;
-      padding: 14px 16px 0 0;
-      border-right: 1px solid rgba(255,255,255,0.16);
+      padding: 14px 0 0;
+      border-right: 0;
       background: transparent;
     }
 
@@ -1936,7 +1928,21 @@ const websiteSchema = {
 
     .um-evidence-ledger {
       margin-top: 18px;
-      border-bottom: 1px solid #d9dadd;
+      border-bottom: 0;
+    }
+
+    @media (min-width: 901px) {
+      .um-evidence-ledger :global(.evidence-case-row) {
+        grid-template-columns: 2.75rem 128px minmax(260px, 1fr) 72px auto;
+      }
+
+      .um-evidence-ledger :global(.evidence-case-row__meta-group) {
+        grid-template-columns: 1fr;
+      }
+
+      .um-evidence-ledger :global(.evidence-case-row__meta:first-child) {
+        display: none;
+      }
     }
 
     .um-evidence-cards {
@@ -2008,7 +2014,7 @@ const websiteSchema = {
     .um-evidence-sector-rail {
       position: sticky;
       top: 112px;
-      border-left: 1px solid var(--um-line);
+      border-left: 0;
       padding-left: clamp(26px, 4vw, 44px);
     }
 
@@ -2027,7 +2033,8 @@ const websiteSchema = {
 
     .um-evidence-sector-rail nav {
       display: grid;
-      border-top: 1px solid var(--um-line);
+      gap: 10px;
+      border-top: 0;
     }
 
     .um-evidence-sector-rail nav a {
@@ -2036,7 +2043,7 @@ const websiteSchema = {
       gap: 14px;
       align-items: center;
       min-height: 76px;
-      border-bottom: 1px solid var(--um-line);
+      border-bottom: 0;
       color: #111;
     }
 
@@ -2130,9 +2137,10 @@ const websiteSchema = {
     }
 
     .um-final-cta {
-      background: #fff;
+      background: #050505;
       border-top: 0;
       border-bottom: 0;
+      color: #fff;
     }
 
     .um-final-cta .um-home-container {
@@ -2142,12 +2150,23 @@ const websiteSchema = {
     }
 
     .um-final-cta p {
-      color: var(--um-red);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.9rem;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .um-final-cta p::before {
+      content: "";
+      display: inline-block;
+      width: 36px;
+      height: 2px;
+      background: var(--um-red);
     }
 
     .um-final-cta h2 {
       max-width: 760px;
-      color: #111;
+      color: #fff;
     }
 
     @media (max-width: 1060px) {
@@ -2187,7 +2206,7 @@ const websiteSchema = {
       }
 
       .um-hero-content {
-        width: calc(100% - 24px);
+        width: calc(100% - 32px);
         padding-top: 88px;
       }
 
@@ -2216,7 +2235,7 @@ const websiteSchema = {
       }
 
       .um-hero-proofbar div {
-        border-bottom: 1px solid rgba(255,255,255,0.16);
+        border-bottom: 0;
       }
 
       .um-package-row {
@@ -2239,7 +2258,7 @@ const websiteSchema = {
 
       .um-evidence-feature__overlay dl div {
         border-right: 0;
-        border-bottom: 1px solid rgba(255,255,255,0.16);
+        border-bottom: 0;
         padding-bottom: 14px;
       }
 
@@ -2382,7 +2401,7 @@ const websiteSchema = {
       background: #fff;
       color: #111;
       padding: clamp(58px, 7vw, 92px) 0;
-      border-bottom: 1px solid var(--um-line);
+      border-bottom: 0;
     }
 
     .um-service-system::before {
@@ -2450,17 +2469,18 @@ const websiteSchema = {
 
     .um-service-rail {
       grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: clamp(10px, 1.35vw, 16px);
       margin-top: 0;
       border-color: var(--um-line);
-      background: #fff;
+      background: transparent;
     }
 
     .um-service-unit {
       min-height: 212px;
       padding: clamp(20px, 2vw, 26px);
-      background: #fff;
+      background: #f7f8f9;
       color: #111;
-      border-right: 1px solid var(--um-line);
+      border-right: 0;
     }
 
     .um-service-unit:last-child {
@@ -2472,22 +2492,17 @@ const websiteSchema = {
     }
 
     .um-service-unit:nth-child(n + 5) {
-      border-top: 1px solid var(--um-line);
+      border-top: 0;
     }
 
     .um-service-unit:hover {
-      background: #f7f7f7;
+      background: #f1f2f4;
     }
 
     .um-service-unit__head {
-      justify-content: space-between;
+      justify-content: flex-start;
       color: #777;
       font-weight: 700;
-    }
-
-    .um-service-unit__head i {
-      width: 22px;
-      background: var(--um-red);
     }
 
     .um-service-unit__icon {
@@ -2606,7 +2621,7 @@ const websiteSchema = {
       }
 
       .um-service-unit:nth-child(n + 3) {
-        border-top: 1px solid var(--um-line);
+        border-top: 0;
       }
     }
 
@@ -2633,7 +2648,7 @@ const websiteSchema = {
       .um-service-unit {
         min-height: 0;
         border-right: 0;
-        border-bottom: 1px solid var(--um-line);
+        border-bottom: 0;
       }
 
       .um-operating-grid {

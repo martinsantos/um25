@@ -12,8 +12,12 @@ const templateVariant = isReplicaIdenticalCopy()
   : (getDevTemplateVariant(Astro.url, import.meta.env.DEV) ?? 'editorial');
 const requestedSector = new URL(Astro.request.url).searchParams.get('sector') || '';
 const sectorFilter = sectores.some((sector) => sector.slug === requestedSector) ? requestedSector : '';
+const compactSectorRailLabels: Record<string, string> = {
+  gobiernosectorpublico: 'Gobierno',
+  'seguridad-electronica': 'Seguridad'
+};
 const sectorFilterOptions = [{ id: '', label: 'Todos' }].concat(
-  sectores.map((sector) => ({ id: sector.slug, label: sector.label }))
+  sectores.map((sector) => ({ id: sector.slug, label: compactSectorRailLabels[sector.slug] ?? sector.label }))
 );
 
 const structuredData = [
@@ -39,7 +43,7 @@ const structuredData = [
 ---
 
 <LayoutV4
-  title="Soluciones IT por sector | ULTIMA MILLA"
+  title="Infraestructura IT por sector, con evidencia operativa | ULTIMA MILLA"
   description="Soluciones IT por industria: infraestructura, seguridad electrónica, telecomunicaciones, software y soporte para aeropuertos, bodegas, gobierno, salud, construcción, industria y minería."
   keywords="soluciones IT por sector, tecnologia para aeropuertos, bodegas, gobierno, salud, construccion, industria, mineria, seguridad electronica, software empresarial"
   structuredData={structuredData}
@@ -53,7 +57,12 @@ const structuredData = [
         sectorFilterOptions={sectorFilterOptions}
       />
     ) : (
-      <SectorTemplateEditorial mode="index" sectors={sectores} />
+      <SectorTemplateEditorial
+        mode="index"
+        sectors={sectores}
+        sectorFilter={sectorFilter}
+        sectorFilterOptions={sectorFilterOptions}
+      />
     )
   }
 </LayoutV4>

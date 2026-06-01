@@ -74,7 +74,18 @@ const hasMarcas = cleanMarcas.length > 0;
 const hasFootnote = hasMarcas;
 const parentLabel = serviceName || serviceTitle;
 const categoryLabel = serviceCategory || serviceArea;
-const metaParts = [categoryLabel, parentLabel].filter(Boolean);
+const normalizeMeta = (value?: string) =>
+  sanitizeFeatureText(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+const showCategoryLabel =
+  Boolean(categoryLabel) &&
+  normalizeMeta(categoryLabel) !== normalizeMeta(parentLabel) &&
+  !normalizeMeta(parentLabel).includes(normalizeMeta(categoryLabel));
+const metaParts = [parentLabel, showCategoryLabel ? categoryLabel : undefined].filter(Boolean);
 ---
 
 <article
@@ -94,8 +105,8 @@ const metaParts = [categoryLabel, parentLabel].filter(Boolean);
                 ) : (
                   parentLabel && <span>{parentLabel}</span>
                 )}
-                {categoryLabel && parentLabel && <span class="product-sheet__meta-sep" aria-hidden="true">·</span>}
-                {categoryLabel && <span class="product-sheet__meta-category">{categoryLabel}</span>}
+                {showCategoryLabel && parentLabel && <span class="product-sheet__meta-sep" aria-hidden="true">·</span>}
+                {showCategoryLabel && <span class="product-sheet__meta-category">{categoryLabel}</span>}
               </>
             ) : (
               <span class="product-sheet__meta-category">Equipamiento</span>
@@ -289,8 +300,8 @@ const metaParts = [categoryLabel, parentLabel].filter(Boolean);
 
   .product-sheet__specs {
     margin-top: 1.45rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--um-line, #e5e5e5);
+    padding-top: 0;
+    border-top: 0;
   }
 
   .product-sheet__specs-label {
@@ -348,9 +359,9 @@ const metaParts = [categoryLabel, parentLabel].filter(Boolean);
 
   .product-sheet__footnote {
     margin-top: 1.35rem;
-    padding: 1rem 1.1rem;
-    border: 1px solid #e5e5e5;
-    border-left: 3px solid #dc2626;
+    padding: 0.15rem 0 0.15rem 1rem;
+    border: 0;
+    border-left: 2px solid #dc2626;
     background: #f8f8f8;
   }
 
@@ -398,6 +409,7 @@ const metaParts = [categoryLabel, parentLabel].filter(Boolean);
   .product-sheet__image {
     display: block;
     width: 100%;
+    height: clamp(240px, 32vw, 380px);
     max-height: min(380px, 52vh);
     object-fit: contain;
     object-position: center;
@@ -424,14 +436,49 @@ const metaParts = [categoryLabel, parentLabel].filter(Boolean);
   @media (max-width: 900px) {
     .product-sheet__grid {
       grid-template-columns: 1fr;
+      gap: 1.35rem;
     }
 
     .product-sheet--media-right .product-sheet__media {
       order: 0;
     }
 
+    .product-sheet {
+      padding-block: 2rem;
+    }
+
+    .product-sheet__header {
+      grid-template-columns: 2.5rem minmax(0, 1fr);
+      column-gap: 0.8rem;
+    }
+
+    .product-sheet__meta {
+      margin-bottom: 0.55rem;
+    }
+
+    .product-sheet__title {
+      font-size: clamp(1.35rem, 6vw, 1.7rem);
+      line-height: 1.12;
+    }
+
+    .product-sheet__lead {
+      margin-top: 0.65rem;
+      font-size: 1rem;
+      line-height: 1.48;
+    }
+
+    .product-sheet__description {
+      margin-top: 1rem;
+      line-height: 1.64;
+    }
+
     .product-sheet__frame {
       min-height: 220px;
+    }
+
+    .product-sheet__image {
+      height: clamp(220px, 62vw, 320px);
+      max-height: none;
     }
   }
 

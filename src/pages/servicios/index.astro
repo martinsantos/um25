@@ -61,7 +61,7 @@ const serviceIconPaths: Record<string, string> = {
 ---
 
 <LayoutV4
-  title="Servicios IT integrales | ULTIMA MILLA"
+  title="Servicios IT integrales para continuidad operativa | ULTIMA MILLA"
   description="Servicios IT integrales para empresas: redes, seguridad electrónica, telecomunicaciones, software, soporte 24/7, consultoría, detección de incendios y eléctricos para IT."
   keywords="servicios IT integrales, redes empresariales, seguridad electronica, telecomunicaciones, software a medida, soporte IT 24/7, consultoria IT, deteccion de incendios, electricos para IT"
   structuredData={structuredData}
@@ -79,6 +79,11 @@ const serviceIconPaths: Record<string, string> = {
           Diseñamos, instalamos y sostenemos infraestructura tecnológica para empresas que necesitan
           redes estables, seguridad física, software operativo y soporte real sobre el terreno.
         </p>
+        <div class="services-actions services-actions--intents">
+          <a href="/contacto" class="um-btn-primary">Solicitar diagnóstico</a>
+          <a href="/contacto" class="um-btn-secondary services-secondary-dark">Solicitar relevamiento</a>
+          <a href="/antecedentes" class="um-btn-secondary services-secondary-dark">Ver antecedentes</a>
+        </div>
         <dl class="services-hero__proofline" aria-label="Prueba institucional">
           <div>
             <dt>Servicios</dt>
@@ -93,11 +98,6 @@ const serviceIconPaths: Record<string, string> = {
             <dd>22+ años / 24-7</dd>
           </div>
         </dl>
-        <div class="services-actions services-actions--intents">
-          <a href="/contacto" class="um-btn-primary">Solicitar diagnóstico</a>
-          <a href="/contacto" class="um-btn-secondary services-secondary-dark">Solicitar relevamiento</a>
-          <a href="/antecedentes" class="um-btn-secondary services-secondary-dark">Ver antecedentes</a>
-        </div>
       </div>
 
       <aside class="services-hero__visual" aria-label="Prueba operativa">
@@ -111,8 +111,6 @@ const serviceIconPaths: Record<string, string> = {
       </aside>
     </div>
   </section>
-
-  <TrustStrip />
 
   <section class="um-section services-index">
     <div class="um-container">
@@ -188,6 +186,8 @@ const serviceIconPaths: Record<string, string> = {
       </div>
     </div>
   </section>
+
+  <TrustStrip />
 
   <section class="services-final-cta">
     <div class="um-container">
@@ -558,10 +558,10 @@ const serviceIconPaths: Record<string, string> = {
   .services-intent-ctas {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1px;
+    gap: clamp(10px, 1.4vw, 16px);
     margin-top: clamp(36px, 5vw, 56px);
-    border: 1px solid var(--um-line);
-    background: var(--um-line);
+    border: 0;
+    background: transparent;
   }
 
   .services-intent-card {
@@ -887,7 +887,8 @@ const serviceIconPaths: Record<string, string> = {
 
   @media (max-width: 640px) {
     .services-hero {
-      padding-top: 42px;
+      padding-top: 30px;
+      padding-bottom: 34px;
     }
 
     .services-hero h1,
@@ -912,25 +913,76 @@ const serviceIconPaths: Record<string, string> = {
       align-items: stretch;
     }
 
-    .services-hero__proofline,
+    .services-actions {
+      margin-top: 18px;
+    }
+
+    .services-actions .um-btn-primary {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .services-actions .services-secondary-dark {
+      display: none;
+    }
+
+    .services-hero__visual {
+      display: none;
+    }
+
     .services-dossier__list,
     .services-intent-ctas {
       grid-template-columns: 1fr;
     }
 
+    .services-hero__proofline {
+      grid-template-columns: 1fr;
+      gap: 0;
+      margin-top: 16px;
+    }
+
     .services-hero__proofline div,
     .services-hero__proofline div + div {
+      display: grid;
+      grid-template-columns: minmax(96px, max-content) minmax(0, 1fr);
+      align-items: baseline;
+      column-gap: 16px;
       border-right: 0;
-      border-bottom: 1px solid var(--skin-hero-line);
-      padding: 14px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 11px 0;
+    }
+
+    .services-hero__proofline div:first-child {
+      padding-top: 0;
     }
 
     .services-hero__proofline div:last-child {
       border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .services-hero__proofline dt {
+      letter-spacing: 0;
+      line-height: 1.15;
+      text-transform: none;
+      white-space: nowrap;
+      overflow-wrap: normal;
+    }
+
+    .services-hero__proofline dd {
+      margin-top: 0;
+      line-height: 1.28;
+      overflow-wrap: normal;
+      word-break: normal;
     }
 
     .services-dossier__folio {
       position: static;
+      order: 1;
+    }
+
+    .services-dossier__list {
+      order: 0;
     }
 
     .service-dossier-item {

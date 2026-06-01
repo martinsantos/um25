@@ -41,6 +41,15 @@ const socialImg = post.social_image ? blogImageUrl(post.social_image) : imgUrl;
 const label = getCategoryLabel(post.categoria);
 const date = formatBlogDate(post.fecha_publicacion);
 
+const buildArticleLead = (value: unknown): string => {
+  const clean = String(value || '').replace(/\s+/g, ' ').trim();
+  if (clean.length <= 190) return clean;
+  const sentence = clean.match(/^(.{96,185}?[.!?])\s/);
+  if (sentence?.[1]) return sentence[1];
+  return `${clean.slice(0, 176).trimEnd()}…`;
+};
+const articleLead = buildArticleLead(post.resumen);
+
 const { posts: allRecent } = await fetchBlogListing(1, 20);
 const idx = allRecent.findIndex(p => p.slug === slug);
 const prevPost = idx > 0 ? allRecent[idx - 1] : null;
@@ -113,14 +122,7 @@ const buildArticleTitle = (title: string): string => {
     .replace(/\bgratis\b/gi, '')
     .replace(/\s+/g, ' ')
     .trim();
-  if (clean.length <= 74) return clean;
-  const [beforeColon, afterColon] = clean.split(':').map((part) => part?.trim()).filter(Boolean);
-  if (beforeColon && afterColon) {
-    const composed = `${beforeColon}: ${afterColon}`;
-    if (composed.length <= 74) return composed;
-    return `${beforeColon}: ${afterColon.slice(0, Math.max(18, 70 - beforeColon.length)).trimEnd()}…`;
-  }
-  return `${clean.slice(0, 72).trimEnd()}…`;
+  return clean;
 };
 
 const editorialArticleTitle = articleTitleOverrides[slug] || buildArticleTitle(post.titulo);
@@ -134,6 +136,10 @@ const showCommercialFold = shouldShowBlogCommercialFold({
   categoria: post.categoria,
   tags: post.tags,
 });
+const heroPrimaryHref = isArcaPost ? '/plantilla-arca' : '/contacto';
+const heroPrimaryLabel = isArcaPost ? 'Probar Plantilla ARCA' : 'Solicitar diagnóstico';
+const heroSecondaryHref = isArcaPost ? '/contacto' : '/servicios';
+const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
 ---
 
 <LayoutV4
@@ -172,7 +178,12 @@ const showCommercialFold = shouldShowBlogCommercialFold({
         <span class="article-rule" aria-hidden="true"></span>
         <h1 class="article-title">{articleTitle}</h1>
 
-        {post.resumen && <p class="article-lead">{post.resumen}</p>}
+        {articleLead && <p class="article-lead">{articleLead}</p>}
+
+        <nav class="article-hero-actions" aria-label="Acciones principales del artículo">
+          <a class="article-hero-actions__primary" href={heroPrimaryHref}>{heroPrimaryLabel}</a>
+          <a class="article-hero-actions__secondary" href={heroSecondaryHref}>{heroSecondaryLabel}</a>
+        </nav>
 
         <div class="author-row">
           <p class="author-meta">ULTIMA MILLA · {label} · {date} · {post.tiempo_lectura} min de lectura</p>
@@ -330,7 +341,7 @@ const showCommercialFold = shouldShowBlogCommercialFold({
   /* Title & lead */
   .article-title {
     font-family: var(--um-font-display);
-    font-size: clamp(2.18rem, 2.46vw, 2.72rem);
+    font-size: clamp(2.5rem, 2.72vw, 2.72rem);
     font-weight: 600;
     line-height: 1.14;
     letter-spacing: 0;
@@ -349,6 +360,50 @@ const showCommercialFold = shouldShowBlogCommercialFold({
     line-height: 1.76;
     color: #3f4853;
     margin: 0 0 24px;
+  }
+
+  .article-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin: 0 0 22px;
+  }
+
+  .article-hero-actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0.78rem 1.18rem;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.15;
+    text-decoration: none;
+    border: 0;
+    box-shadow: none;
+    transition: background 0.16s ease, color 0.16s ease;
+  }
+
+  .article-hero-actions__primary {
+    background: var(--um-red);
+    color: #fff;
+  }
+
+  .article-hero-actions__primary:hover {
+    background: #111;
+    color: #fff;
+  }
+
+  .article-hero-actions__secondary {
+    color: #111827;
+    background: #eef0f2;
+  }
+
+  .article-hero-actions__secondary:hover {
+    color: #111827;
+    background: #e3e6ea;
   }
 
   .article-commercial-fold {
@@ -394,30 +449,31 @@ const showCommercialFold = shouldShowBlogCommercialFold({
     font-weight: 700;
     text-decoration: none;
     border-radius: 4px;
-    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    transition: background 0.15s ease, color 0.15s ease;
   }
 
   .article-commercial-fold__cta--primary {
     background: var(--um-red);
     color: #fff;
-    border: 1px solid var(--um-red);
+    border: 0;
   }
 
   .article-commercial-fold__cta--primary:hover {
     background: #fff;
     color: #111;
-    border-color: #111;
+    box-shadow: inset 0 0 0 1px #111;
   }
 
   .article-commercial-fold__cta--secondary {
-    background: #fff;
-    color: #111;
-    border: 1px solid var(--um-line, #d9dadd);
+    background: #e9ecef;
+    color: #111827;
+    border: 0;
+    box-shadow: none;
   }
 
   .article-commercial-fold__cta--secondary:hover {
-    border-color: var(--um-red);
-    color: var(--um-red);
+    color: #111827;
+    background: #dde1e6;
   }
 
   .article-sticky-cta {
@@ -553,6 +609,8 @@ const showCommercialFold = shouldShowBlogCommercialFold({
     line-height: 1.84;
     color: #1f2937;
     font-weight: 400;
+    overflow-wrap: anywhere;
+    word-break: normal;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -561,6 +619,7 @@ const showCommercialFold = shouldShowBlogCommercialFold({
     margin: 0 0 21px;
     line-height: 1.84;
     color: #1f2937;
+    overflow-wrap: anywhere;
   }
 
   /* Suppress empty paragraphs and lone BRs from rich-text editors */
@@ -615,6 +674,7 @@ const showCommercialFold = shouldShowBlogCommercialFold({
     text-underline-offset: 3px;
     text-decoration-color: rgba(220,38,38,.32);
     text-decoration-thickness: 1px;
+    overflow-wrap: anywhere;
     transition: color .15s;
   }
   :global(.prose a:hover) { color: #DC2626; }
@@ -628,6 +688,7 @@ const showCommercialFold = shouldShowBlogCommercialFold({
     margin-bottom: 8px;
     line-height: 1.74;
     color: #1f2937;
+    overflow-wrap: anywhere;
   }
   :global(.prose ul) { list-style-type: disc; }
   :global(.prose ol) { list-style-type: decimal; }
@@ -760,15 +821,27 @@ const showCommercialFold = shouldShowBlogCommercialFold({
     }
 
     .article-title {
-      font-size: clamp(1.92rem, 6vw, 2.06rem);
-      line-height: 1.16;
+      font-size: clamp(2rem, 8.6vw, 2.28rem);
+      line-height: 1.13;
       margin-bottom: 16px;
     }
 
     .article-lead {
       font-size: 1rem;
       line-height: 1.66;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
+    }
+
+    .article-hero-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .article-hero-actions a {
+      width: 100%;
+      min-height: 50px;
     }
 
     .author-row {

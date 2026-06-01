@@ -293,7 +293,7 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
 
   :global(body[data-skin] main .geo-dossier-hero .geo-dossier-kicker),
   :global(body[data-skin] main .geo-final .geo-dossier-kicker) {
-    color: var(--um-red) !important;
+    color: rgba(255, 255, 255, 0.84) !important;
   }
 
   :global(body[data-skin] main .geo-dossier-panel span) {
@@ -351,6 +351,11 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
     letter-spacing: 0;
     line-height: 1.25;
     text-transform: none;
+  }
+
+  .geo-dossier-hero .geo-dossier-kicker,
+  .geo-final .geo-dossier-kicker {
+    color: rgba(255, 255, 255, 0.84) !important;
   }
 
   .geo-dossier-kicker::before {
@@ -572,25 +577,28 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
   }
 
   :global(body[data-skin="white"] main) .geo-dossier-hero {
-    background: #fff;
-    color: var(--skin-text);
+    background: #050505;
+    color: #fff;
     border-bottom: 0;
   }
 
   :global(body[data-skin="white"] main) .geo-dossier-hero::before {
-    display: none;
+    display: block;
+    background:
+      linear-gradient(90deg, rgba(5,5,5,0.94) 0%, rgba(5,5,5,0.82) 48%, rgba(5,5,5,0.38) 100%),
+      linear-gradient(180deg, rgba(5,5,5,0.28) 0%, rgba(5,5,5,0.84) 100%);
   }
 
   :global(body[data-skin="white"] main .geo-dossier-hero :where(h1, h2, h3, strong)) {
-    color: var(--skin-text) !important;
+    color: #fff !important;
   }
 
   :global(body[data-skin="white"] main .geo-dossier-hero :where(p, span, li, dd, .geo-dossier-crumb)) {
-    color: var(--skin-muted) !important;
+    color: rgba(255, 255, 255, 0.78) !important;
   }
 
   :global(body[data-skin="white"] main .geo-dossier-hero .geo-dossier-kicker) {
-    color: var(--um-red) !important;
+    color: rgba(255, 255, 255, 0.84) !important;
   }
 
   :global(body[data-skin="white"] main) .geo-dossier-panel {
@@ -600,16 +608,16 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
   }
 
   :global(body[data-skin="white"] main .geo-dossier-hero .geo-dossier-brief) {
-    border-color: transparent !important;
-    background: #fbfbfa !important;
+    border-color: rgba(255, 255, 255, 0.14) !important;
+    background: rgba(5, 5, 5, 0.58) !important;
   }
 
   :global(body[data-skin="white"] main .geo-dossier-hero .geo-dossier-brief :where(strong, dd)) {
-    color: var(--skin-text) !important;
+    color: #fff !important;
   }
 
   :global(body[data-skin="white"] main .geo-dossier-hero .geo-dossier-brief :where(span, dt)) {
-    color: var(--skin-muted) !important;
+    color: rgba(255, 255, 255, 0.68) !important;
   }
 
   :global(body[data-skin="white"] main .geo-dossier-hero .geo-dossier-brief dl) {
@@ -647,7 +655,8 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
 
   :global(body[data-skin="white"] main) .geo-dossier-hero .um-btn-secondary {
     border-color: transparent;
-    color: var(--skin-text) !important;
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.1) !important;
   }
 
   :global(body[data-skin="white"] main) .geo-dossier-hero .um-btn-primary {
@@ -662,9 +671,9 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
   }
 
   :global(body[data-skin="white"] main) .geo-dossier-hero .um-btn-secondary:hover {
-    background: var(--skin-text);
-    border-color: var(--skin-text);
-    color: #fff !important;
+    background: #fff;
+    border-color: #fff;
+    color: #111 !important;
   }
 
   .geo-proofline {

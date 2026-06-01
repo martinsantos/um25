@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 
 const BASE_URL = process.env.VISUAL_AUDIT_BASE_URL || 'http://localhost:4321';
 const CHROME_BIN = process.env.CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
@@ -64,8 +64,14 @@ const routes = [
   { path: '/constructoras', label: 'vertical constructoras default', requiresFirstViewportCta: true },
   { path: '/nosotros', label: 'nosotros default' },
   { path: '/nosotros?skin=white', label: 'nosotros' },
+  { path: '/certificaciones', label: 'certificaciones default', requiresFirstViewportCta: true },
+  { path: '/certificaciones?skin=white', label: 'certificaciones', requiresFirstViewportCta: true },
+  { path: '/privacidad', label: 'legal privacidad' },
+  { path: '/terminos', label: 'legal terminos' },
   { path: '/blog', label: 'blog default' },
   { path: '/blog?skin=white', label: 'blog' },
+  { path: '/blog/categoria/tecnico', label: 'blog categoria default' },
+  { path: '/blog/categoria/tecnico?skin=white', label: 'blog categoria' },
   { path: '/blog/plantilla-arca-facturacion-electronica-gratis', label: 'blog detalle default' },
   { path: '/blog/plantilla-arca-facturacion-electronica-gratis?skin=white', label: 'blog detalle' },
   { path: '/contacto', label: 'contacto default', requiresFirstViewportCta: true },
@@ -128,8 +134,12 @@ const commercialLabels = new Set([
   'vertical constructoras default',
   'nosotros default',
   'nosotros',
+  'certificaciones default',
+  'certificaciones',
   'blog default',
   'blog',
+  'blog categoria default',
+  'blog categoria',
   'blog detalle default',
   'blog detalle',
   'contacto default',
@@ -159,11 +169,21 @@ const viewports = STRICT ? [
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+function cleanupAuditChrome(port) {
+  const profilePath = `/tmp/umsa-visual-audit-${port}`;
+  spawnSync('pkill', ['-f', profilePath], { stdio: 'ignore' });
+}
+
 async function getTargets() {
   for (let index = 0; index < 80; index += 1) {
     try {
       const response = await fetch(`http://127.0.0.1:${PORT}/json/list`);
-      if (response.ok) return await response.json();
+      if (response.ok) {
+        const targets = await response.json();
+        if (targets.some((target) => target.type === 'page')) {
+          return targets;
+        }
+      }
     } catch {
       // Chrome is still booting.
     }
@@ -321,7 +341,6 @@ async function auditRoute(ws, route, viewport) {
       '.sector-detail-hero',
       '.sector-editorial-detail-hero',
       '.sector-atlas-detail-hero',
-      '.case-detail-hero',
       '.antecedentes-hero',
       '.ante-hero',
       '.geo-dossier-hero',
@@ -329,7 +348,6 @@ async function auditRoute(ws, route, viewport) {
       '.wd-invert',
       '.geo-dossier-brief',
       '.geo-final',
-      '.ante-dossier__feature',
       '.banner-stage',
       '.bg-gray-950',
       '.contact-quick-card',
@@ -342,6 +360,8 @@ async function auditRoute(ws, route, viewport) {
     const lightSurfaceSelector = [
       '.um-surface-light',
       '.um-panel-light',
+      '.case-detail-hero',
+      '.ante-dossier__feature',
       '.ante-dossier__feature-body',
       '.ante-dossier__secondary-item',
       '.ante-dossier__row',
@@ -353,14 +373,28 @@ async function auditRoute(ws, route, viewport) {
     ].join(',');
 
     function parseRgb(value) {
-      const match = String(value).match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
-      if (!match) return null;
-      return {
-        r: Number(match[1]),
-        g: Number(match[2]),
-        b: Number(match[3]),
-        a: match[4] == null ? 1 : Number(match[4])
-      };
+      const raw = String(value || '').trim();
+      const match = raw.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)(?:,\\s*([\\d.]+))?\\)/);
+      if (match) {
+        return {
+          r: Number(match[1]),
+          g: Number(match[2]),
+          b: Number(match[3]),
+          a: match[4] == null ? 1 : Number(match[4])
+        };
+      }
+
+      const srgb = raw.match(/color\\(srgb\\s+([\\d.]+)\\s+([\\d.]+)\\s+([\\d.]+)(?:\\s*\\/\\s*([\\d.]+))?\\)/);
+      if (srgb) {
+        return {
+          r: Math.round(Number(srgb[1]) * 255),
+          g: Math.round(Number(srgb[2]) * 255),
+          b: Math.round(Number(srgb[3]) * 255),
+          a: srgb[4] == null ? 1 : Number(srgb[4])
+        };
+      }
+
+      return null;
     }
 
     function luminance(rgb) {
@@ -485,7 +519,9 @@ async function auditRoute(ws, route, viewport) {
       const style = getComputedStyle(element);
       const fg = parseRgb(style.color);
       if (!fg) continue;
-      const ratio = contrast(fg, { r: 255, g: 255, b: 255 });
+      const ownBg = parseRgb(style.backgroundColor);
+      const hasOwnSolidBg = ownBg && ownBg.a > 0.6 && !(ownBg.r > 245 && ownBg.g > 245 && ownBg.b > 245);
+      const ratio = contrast(fg, hasOwnSolidBg ? ownBg : { r: 255, g: 255, b: 255 });
       const fontSize = Number.parseFloat(style.fontSize);
       const isLarge = fontSize >= 24;
       const required = isLarge ? 3 : 4.5;
@@ -541,10 +577,23 @@ async function auditRoute(ws, route, viewport) {
     const h1 = document.querySelector('h1');
     const h1Style = h1 ? getComputedStyle(h1) : null;
     const h1Rect = h1 ? h1.getBoundingClientRect() : null;
+    function isInsideIntentionalHorizontalScroller(element) {
+      let node = element.parentElement;
+      while (node && node !== document.body) {
+        const style = getComputedStyle(node);
+        const overflowX = style.overflowX;
+        const canScrollInline = /(auto|scroll|hidden|clip)/.test(overflowX) && node.scrollWidth > node.clientWidth + 1;
+        if (canScrollInline) return true;
+        node = node.parentElement;
+      }
+      return false;
+    }
+
     const overflowOffenders = Array.from(document.querySelectorAll('body *'))
       .map((element) => {
         const rect = element.getBoundingClientRect();
         return {
+          ignoredHorizontalScroller: isInsideIntentionalHorizontalScroller(element),
           tag: element.tagName.toLowerCase(),
           className: String(element.className || '').slice(0, 110),
           text: (element.innerText || element.textContent || '').trim().replace(/\\s+/g, ' ').slice(0, 90),
@@ -553,7 +602,7 @@ async function auditRoute(ws, route, viewport) {
           width: Math.round(rect.width)
         };
       })
-      .filter((item) => item.right > window.innerWidth + 1 || item.left < -1)
+      .filter((item) => !item.ignoredHorizontalScroller && (item.right > window.innerWidth + 1 || item.left < -1))
       .slice(0, 10);
 
     function rectsOverlap(a, b) {
@@ -596,6 +645,7 @@ async function auditRoute(ws, route, viewport) {
 
     const clippingExclusionSelector = [
       '.ante-dossier__sector-rail',
+      '.sector-editorial__market-links',
       '.sector-atlas-exec-ledger__filters-links',
       '.blog-category-tabs',
       '.blog-breadcrumb',
@@ -938,7 +988,7 @@ async function auditRoute(ws, route, viewport) {
 
     const infoHubSelectors = [
       '.sector-atlas-exec-ledger__controls',
-      '.ante-dossier__controls'
+      '.ante-dossier__sector-rail'
     ];
     const infoHubQuality = infoHubSelectors
       .map((selector) => {
@@ -950,6 +1000,7 @@ async function auditRoute(ws, route, viewport) {
         const paddingTop = Number.parseFloat(style.paddingTop);
         const paddingRight = Number.parseFloat(style.paddingRight);
         const boxShadow = style.boxShadow || '';
+        const maskImage = style.maskImage || style.webkitMaskImage || '';
         const borderTopWidth = Number.parseFloat(style.borderTopWidth);
         const background = parseRgb(style.backgroundColor);
         return {
@@ -964,6 +1015,7 @@ async function auditRoute(ws, route, viewport) {
           backgroundAlpha: background ? background.a : null,
           hasBackdrop: style.backdropFilter !== 'none' || style.webkitBackdropFilter !== 'none',
           boxShadow,
+          maskImage,
           hasShadow: boxShadow !== 'none',
           visible: rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden'
         };
@@ -1530,9 +1582,21 @@ function collectFailures(results) {
     if (STRICT && isCommercial && (result.copyWarnings || []).length && !REPLICA_IDENTICAL_COPY) {
       failures.push(`${result.viewport} ${result.label}: generic copy in first viewport (${result.copyWarnings.join(', ')})`);
     }
+    const informationHubLabels = [
+      'sectores default',
+      'sectores',
+      'sectores filtrado default',
+      'sectores filtrado',
+      'sectores atlas',
+      'antecedentes default',
+      'antecedentes',
+      'antecedentes filtrado default',
+      'antecedentes filtrado',
+      'antecedentes editorial'
+    ];
     if (
       STRICT &&
-      ['sectores', 'sectores filtrado', 'sectores atlas', 'antecedentes', 'antecedentes filtrado', 'antecedentes editorial'].includes(result.label) &&
+      informationHubLabels.includes(result.label) &&
       !isMobile
     ) {
       const stickyHeaders = (result.infoHubQuality || []).filter((item) => item.visible);
@@ -1544,10 +1608,10 @@ function collectFailures(results) {
         if (item.top == null || item.top < minStickyTop || item.top > 96) {
           failures.push(`${result.viewport} ${result.label}: ${item.selector} filter sticky top does not align with nav (${item.top}px)`);
         }
-        if (item.paddingTop < 0 || (item.backgroundAlpha != null && item.backgroundAlpha < 1)) {
+        if (item.paddingTop < 0 || item.backgroundAlpha == null || item.backgroundAlpha < 1) {
           failures.push(`${result.viewport} ${result.label}: ${item.selector} sticky filter lacks stable background`);
         }
-        if (!/0px -(?:1[0-9]|2[0-9])px 0px/.test(item.boxShadow || '')) {
+        if (!/0px -(?:1[0-9]|2[0-9])px 0px/.test(item.boxShadow || '') && !/linear-gradient/.test(item.maskImage || '')) {
           failures.push(`${result.viewport} ${result.label}: ${item.selector} sticky filter does not mask clipped content above it`);
         }
       }
@@ -1571,6 +1635,8 @@ function collectFailures(results) {
 }
 
 async function main() {
+  cleanupAuditChrome(PORT);
+
   const chrome = spawn(CHROME_BIN, [
     '--headless=new',
     '--disable-gpu',
@@ -1627,6 +1693,7 @@ async function main() {
     }
   } finally {
     chrome.kill('SIGKILL');
+    cleanupAuditChrome(PORT);
   }
 }
 

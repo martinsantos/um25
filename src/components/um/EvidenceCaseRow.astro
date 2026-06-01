@@ -70,15 +70,15 @@ const visibleMetrics = (metrics || []).filter((m) => m?.value && m?.label).slice
 <style>
   .evidence-case-row {
     display: grid;
-    grid-template-columns: 3rem 136px minmax(0, 1fr) minmax(140px, auto) auto;
-    column-gap: clamp(14px, 2vw, 24px);
+    grid-template-columns: 2.75rem 128px minmax(220px, 1fr) minmax(148px, 0.45fr) auto;
+    column-gap: clamp(12px, 1.6vw, 20px);
     row-gap: 10px;
     align-items: center;
     padding: clamp(18px, 2.2vw, 24px) 0;
-    border-top: 1px solid var(--skin-line, #d9dadd);
+    border-top: 0;
     color: inherit;
     text-decoration: none;
-    transition: border-color 180ms ease, background-color 180ms ease;
+    transition: background-color 180ms ease;
   }
 
   .evidence-case-row > * {
@@ -87,7 +87,6 @@ const visibleMetrics = (metrics || []).filter((m) => m?.value && m?.label).slice
 
   .evidence-case-row:hover {
     background: rgba(220, 38, 38, 0.03);
-    border-top-color: var(--um-red);
   }
 
   .evidence-case-row:focus-visible {
@@ -138,6 +137,9 @@ const visibleMetrics = (metrics || []).filter((m) => m?.value && m?.label).slice
     font-size: clamp(1.12rem, 1.28vw, 1.32rem);
     font-weight: 600;
     line-height: 1.18;
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: none;
   }
 
   .evidence-case-row p {
@@ -164,7 +166,7 @@ const visibleMetrics = (metrics || []).filter((m) => m?.value && m?.label).slice
     display: inline-flex;
     align-items: baseline;
     gap: 6px;
-    font-size: 0.875rem;
+    font-size: 1rem;
     line-height: 1.3;
   }
 
@@ -188,7 +190,7 @@ const visibleMetrics = (metrics || []).filter((m) => m?.value && m?.label).slice
   .evidence-case-row__meta span {
     display: block;
     color: #6b7280;
-    font-size: 0.8125rem;
+    font-size: 1rem;
     font-weight: 500;
     line-height: 1.2;
     letter-spacing: 0.04em;

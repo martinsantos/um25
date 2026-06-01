@@ -3,7 +3,7 @@
  * Requiere: npm run dev -- --port 4321
  */
 import { spawn } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const OUT_DIR = process.env.E2E_VISUAL_OUT_DIR || 'docs/audits/e2e-visual-latest';
@@ -28,6 +28,25 @@ function run(command, args, env = {}) {
   });
 }
 
+function isTransientCdpFailure(result) {
+  const output = `${result?.stdout || ''}\n${result?.stderr || ''}`;
+  return /CDP timeout|CDP not ready|Page\.navigate|Emulation\.setDeviceMetricsOverride/i.test(output);
+}
+
+async function runWithRetry(command, args, env = {}, options = {}) {
+  const attempts = Number(options.attempts || 3);
+  let lastResult = null;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    lastResult = await run(command, args, env);
+    if (lastResult.code === 0) return lastResult;
+    if (!isTransientCdpFailure(lastResult) || attempt === attempts) return lastResult;
+    process.stderr.write(`Retrying ${args.join(' ')} after transient CDP failure (${attempt}/${attempts})...\n`);
+  }
+
+  return lastResult;
+}
+
 async function checkDev() {
   try {
     const res = await fetch(`${BASE}/`);
@@ -44,6 +63,14 @@ const summary = {
 };
 
 await mkdir(OUT_DIR, { recursive: true });
+
+async function readJsonFile(path, fallback) {
+  try {
+    return JSON.parse(await readFile(path, 'utf8'));
+  } catch {
+    return fallback;
+  }
+}
 
 if (!(await checkDev())) {
   console.error(`Dev server no responde en ${BASE}. Ejecutá: npm run dev -- --port 4321`);
@@ -69,21 +96,27 @@ summary.layers.commercialStrict = {
 
 // 2) Heurística (fill-black, emoji, markdown, bordes producto)
 process.stderr.write('\n=== Capa 2: heuristic-visual-scan ===\n');
+const heuristicOut = join(OUT_DIR, 'heuristic-matrix.json');
 const heuristic = await run('node', ['scripts/heuristic-visual-scan.mjs'], {
   VISUAL_AUDIT_BASE_URL: BASE,
-  HEURISTIC_OUT: join(OUT_DIR, 'heuristic-matrix.json'),
+  HEURISTIC_OUT: heuristicOut,
 });
-let heuristicRows = [];
-try {
-  heuristicRows = JSON.parse(heuristic.stdout);
-} catch { /* */ }
+const heuristicRows = await readJsonFile(heuristicOut, []);
 const heuristicDefects = heuristicRows.filter((r) => r.status === 'DEFECTO');
 summary.layers.heuristic = {
   exitCode: heuristic.code,
   total: heuristicRows.length,
   defectos: heuristicDefects.length,
   mejorables: heuristicRows.filter((r) => r.status === 'MEJORABLE').length,
-  failures: heuristicDefects.map((r) => `${r.path}: ${r.defects?.join(', ')}`),
+  failures: [
+    ...heuristicDefects.map((r) => `${r.path}: ${r.defects?.join(', ')}`),
+    ...(heuristic.code !== 0 && heuristicDefects.length === 0
+      ? [`heuristic-visual-scan exit ${heuristic.code}: ${heuristic.stderr || 'sin stderr'}`]
+      : []),
+    ...(heuristicRows.length === 0
+      ? ['heuristic-visual-scan no produjo filas auditables']
+      : []),
+  ],
 };
 
 // 3) Layout detalle antecedente (miniatura servicio, proporción tipográfica)
@@ -109,19 +142,28 @@ summary.layers.antecedenteDetailLayout = {
 
 // 4) Defect scan complementario
 process.stderr.write('\n=== Capa 4: e2e-defect-scan ===\n');
-const defect = await run('node', ['scripts/e2e-defect-scan.mjs'], {
+const defect = await runWithRetry('node', ['scripts/e2e-defect-scan.mjs'], {
   VISUAL_AUDIT_BASE_URL: BASE,
 });
 let defectRows = [];
+let defectParseOk = true;
 try {
   defectRows = JSON.parse(defect.stdout);
-} catch { /* */ }
+} catch {
+  defectParseOk = false;
+}
 const defectFails = defectRows.filter((r) => r.status === 'DEFECTO');
 summary.layers.defectScan = {
   exitCode: defect.code,
   total: defectRows.length,
   defectos: defectFails.length,
-  failures: defectFails.map((r) => `${r.path}: ${r.defects?.join(', ')}`),
+  failures: [
+    ...defectFails.map((r) => `${r.path}: ${r.defects?.join(', ')}`),
+    ...(!defectParseOk ? [`e2e-defect-scan no emitió JSON parseable: ${defect.stderr || 'sin stderr'}`] : []),
+    ...(defect.code !== 0 && defectFails.length === 0
+      ? [`e2e-defect-scan exit ${defect.code}: ${defect.stderr || 'sin stderr'}`]
+      : []),
+  ],
 };
 
 // 5) Contratos CSS hub (Jest)
@@ -142,9 +184,9 @@ const layoutFailures =
       : 0;
 const totalFailures =
   (summary.layers.commercialStrict.failureCount || 0) +
-  summary.layers.heuristic.defectos +
+  summary.layers.heuristic.failures.length +
   layoutFailures +
-  summary.layers.defectScan.defectos +
+  summary.layers.defectScan.failures.length +
   (summary.layers.jestContracts.ok ? 0 : 1);
 
 console.log(JSON.stringify({

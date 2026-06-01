@@ -315,9 +315,10 @@ const buildCaseHeadline = (item: any): string => {
   return `${beforeDash.slice(0, 72).trimEnd()}…`;
 };
 
-const caseHeadline = isReplicaIdenticalCopy()
+const caseHeadlineSource = isReplicaIdenticalCopy()
   ? resolveReplicaH1(Astro.url.pathname, cleanDisplayText(antecedente.Titulo || antecedente.Nombre))
-  : buildCaseHeadline(antecedente);
+  : cleanDisplayText(antecedente.Titulo || antecedente.Nombre);
+const caseHeadline = buildCaseHeadline({ ...antecedente, Titulo: caseHeadlineSource });
 const compactCaseTitle = (value: unknown, client?: unknown): string => {
   const title = cleanDisplayText(value)
     .replace(/Sistena/gi, 'Sistema')
@@ -706,7 +707,7 @@ const antecedenteStructuredData = {
     --case-hero-excerpt: 1.1875rem;
     --case-meta-label: 1rem;
     --case-meta-value: 1rem;
-    --case-sidebar-label: 0.8125rem;
+    --case-sidebar-label: 1rem;
     --case-sidebar-value: 1.0625rem;
     --case-card-title: 1.0625rem;
   }
@@ -715,7 +716,7 @@ const antecedenteStructuredData = {
     position: relative;
     overflow: hidden;
     min-height: 0;
-    border-bottom: 1px solid var(--um-line);
+    border-bottom: 0;
     background: #fff;
     color: #111;
   }
@@ -826,17 +827,29 @@ const antecedenteStructuredData = {
     min-width: 216px;
   }
 
+  .case-detail-actions :global(.um-btn-secondary) {
+    background: #f1f3f5;
+    color: #111;
+  }
+
+  .case-detail-actions :global(.um-btn-secondary:hover) {
+    background: #111;
+    color: #fff;
+  }
+
   .case-detail-dossier {
     overflow: hidden;
     width: min(100%, 480px);
     justify-self: end;
-    border: 1px solid color-mix(in srgb, #111 8%, transparent);
+    border: 0;
     background: #fff;
-    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+    box-shadow: none;
   }
 
   .case-detail-dossier__media {
     aspect-ratio: 16 / 10;
+    width: 100%;
+    max-width: 100%;
     margin: 0;
     min-height: 220px;
     overflow: hidden;
@@ -882,9 +895,9 @@ const antecedenteStructuredData = {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem 1.25rem;
     margin-top: 1.4rem;
-    padding-top: 1rem;
-    border-top: 1px solid color-mix(in srgb, #111 7%, transparent);
-    background: transparent;
+    padding: 1rem;
+    border-top: 0;
+    background: #f7f8f9;
   }
 
   .case-detail-meta div {
@@ -989,8 +1002,8 @@ const antecedenteStructuredData = {
 
   .case-callout {
     padding: 1rem 1.1rem;
-    border-left: 3px solid #DC2626;
-    background: #FFFFFF;
+    border-left: 0;
+    background: linear-gradient(90deg, #DC2626 0 3px, #FFFFFF 3px);
     color: #111;
     font-size: var(--case-body);
     font-weight: 600;
@@ -1002,15 +1015,15 @@ const antecedenteStructuredData = {
     padding: 0;
     list-style: none;
     display: grid;
-    gap: 1px;
+    gap: 10px;
     border: 0;
-    background: color-mix(in srgb, #111 5%, transparent);
+    background: transparent;
   }
 
   .case-scope-list li {
     position: relative;
     padding: 1rem 1.1rem 1rem 2.2rem;
-    background: #fff;
+    background: #f7f8f9;
     color: #1f2937;
     font-size: var(--case-body);
     line-height: var(--case-body-line);
@@ -1038,7 +1051,7 @@ const antecedenteStructuredData = {
     margin: 0;
     min-height: 260px;
     padding: 0;
-    border: 1px solid color-mix(in srgb, #111 8%, transparent);
+    border: 0;
     border-radius: 0;
     background: #f3f4f6;
     overflow: hidden;
@@ -1066,7 +1079,7 @@ const antecedenteStructuredData = {
     align-items: center;
     gap: 0.85rem;
     padding: 1.1rem 0;
-    border-bottom: 1px solid color-mix(in srgb, #111 7%, transparent);
+    border-bottom: 0;
     background: #fff;
     color: #111;
   }
@@ -1102,6 +1115,10 @@ const antecedenteStructuredData = {
 
   .case-info-card :global(.tracking-wider) {
     letter-spacing: 0 !important;
+  }
+
+  .case-info-card :global(.h-px) {
+    display: none !important;
   }
 
   .case-info-label {
@@ -1207,7 +1224,6 @@ const antecedenteStructuredData = {
   }
 
   .case-cta-card__actions a:hover {
-    border-color: #fff;
     background: #fff;
     color: #080808;
   }
@@ -1216,7 +1232,7 @@ const antecedenteStructuredData = {
     position: relative;
     z-index: 2;
     padding: clamp(54px, 7vw, 92px) 0;
-    border-top: 1px solid var(--um-line);
+    border-top: 0;
     background: #FFFFFF;
   }
 
@@ -1273,7 +1289,7 @@ const antecedenteStructuredData = {
   }
 
   .case-related__ledger {
-    border-top: 1px solid var(--um-line);
+    border-top: 0;
     overflow: hidden;
   }
 
@@ -1306,17 +1322,17 @@ const antecedenteStructuredData = {
     display: grid;
     grid-template-columns: minmax(148px, 200px) minmax(0, 1fr);
     gap: 0;
-    border: 1px solid color-mix(in srgb, #111 10%, transparent);
-    background: #fff;
+    border: 0;
+    border-top: 0;
+    background: #f7f8f9;
     color: inherit;
     text-decoration: none;
     overflow: hidden;
-    transition: border-color 180ms ease, box-shadow 180ms ease;
+    transition: background-color 180ms ease;
   }
 
   .case-service-card:hover {
-    border-color: color-mix(in srgb, var(--um-red) 45%, transparent);
-    box-shadow: 0 10px 28px rgba(17, 17, 17, 0.06);
+    background: #f1f3f5;
   }
 
   .case-service-card__media {
@@ -1395,7 +1411,7 @@ const antecedenteStructuredData = {
 
   .case-detail-footer-cta {
     background: #fff;
-    border-top: 1px solid var(--um-line);
+    border-top: 0;
     padding: clamp(48px, 6vw, 88px) 0;
   }
 
@@ -1506,7 +1522,7 @@ const antecedenteStructuredData = {
 
     .case-detail-dossier__media {
       aspect-ratio: 16 / 9;
-      min-height: 200px;
+      min-height: 0;
     }
 
     .case-detail-meta {

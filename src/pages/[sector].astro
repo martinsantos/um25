@@ -14,7 +14,7 @@ import { getFAQSchema } from '../data/sectorFAQs';
 import { getSectorVisualSpec } from '../data/sectorVisualSystem';
 import { getDevTemplateVariant } from '../utils/templateVariant';
 import { buildGeoHubStructuredData, getGeoCommercialHub } from '../data/geoCommercialHubs';
-import { isReplicaIdenticalCopy, resolveReplicaH1 } from '../utils/replicaProdCopy';
+import { getReplicaProdEntry, isReplicaIdenticalCopy, resolveReplicaH1 } from '../utils/replicaProdCopy';
 
 const sectorSlug = Astro.params.sector || '';
 const geoHub = getGeoCommercialHub(sectorSlug);
@@ -40,6 +40,7 @@ const {
 const visual = getSectorVisualSpec(sectorSlug);
 const heroImage = visual?.image || hero_image;
 const editorialHeadline = visual?.headline || `Tecnología para ${nombre}`;
+const editorialSeoTitle = getReplicaProdEntry(`/${sectorSlug}`)?.title || seo_title || editorialHeadline;
 const pageHeadline = isReplicaIdenticalCopy()
   ? resolveReplicaH1(`/${sectorSlug}`, seo_title || editorialHeadline)
   : editorialHeadline;
@@ -90,7 +91,7 @@ const templateServiciosRelacionados = (serviciosRelacionados || []).map((servici
   <GeoHubDossier hub={geoHub} />
 </LayoutV4>
 ) : (
-<LayoutV4 title={seo_title} description={seo_description} keywords={seo_keywords} image={heroImage} structuredData={faqSchema}>
+<LayoutV4 title={editorialSeoTitle} description={seo_description} keywords={seo_keywords} image={heroImage} structuredData={faqSchema}>
   {templateVariant !== 'atlas' && (
     <SectorTemplateEditorial
       mode="detail"

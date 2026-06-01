@@ -6,6 +6,14 @@ Estado: maqueta local iterada en branch `codex/umsa-white-dossier-local`.
 Fuente de marca: Manual UMSA v1.0, `src/assets/estilo/SKILL.md` y skill corporativa `ultima-milla`.
 Alcance: sitio publico Astro, sin cambios de rutas, canonical, SEO estructural ni despliegue productivo.
 
+## GOAL Superador UMSA Global Provider 2026
+
+La direccion activa es **Executive Industrial Evidence**: una web de servicios IT con percepcion de proveedor internacional, capaz de explicar problema operativo, capacidad UMSA, evidencia y siguiente paso en menos de 30 segundos por pantalla.
+
+La aceptacion ya no depende solo de pasar auditorias tecnicas. Una pantalla no esta lista si contiene ruido visual, duplicacion, bordes innecesarios, filtros administrativos, imagenes decorativas, titulares desproporcionados, CTAs corridos, contraste dudoso o copy generico sin prueba.
+
+El sistema debe mantener marca, rutas, canonicals, sitemap, robots, JSON-LD, GEO/LLM, Directus y produccion intactos. Todo se prueba primero en localhost.
+
 ## GOAL UMSA Next Level 2026
 
 Convertir `ultimamilla.com.ar` en una web editorial-comercial de Servicios IT de nivel proveedor Forbes 500: cada pantalla debe explicar en menos de 30 segundos que problema operativo resuelve UMSA, con que evidencia, con que alcance y cual es el proximo paso.
@@ -167,7 +175,7 @@ El redisenio de nivel mundial exige recomponer la interfaz completa:
 
 - jerarquia tipografica consistente: H1, H2, filas, metadata y botones deben convivir sin gritarse;
 - ritmo mixto: protagonista, evidencia secundaria, ledger documental y CTA, no grillas de cards iguales;
-- servicios como arquitectura operativa: ocho familias claras, compactas, escaneables y conectadas;
+- servicios como arquitectura operativa: ocho frentes claros, compactos, escaneables y conectados;
 - antecedentes como prueba: caso destacado, metadata verificable, sectores como rail documental, no miniaturas repetidas;
 - blog como producto editorial tecnico: imagen destacada, miniaturas reales, lectura limpia, feed amplio, categorias sobrias y titulos proporcionados;
 - rojo UMSA como instrumento quirurgico: linea, numero, foco, flecha o CTA; nunca barniz repetido;
@@ -180,6 +188,7 @@ El redisenio de nivel mundial exige recomponer la interfaz completa:
 | Apertura | Imagen real o editorial fuerte, copy breve, CTA claro y prueba compacta. |
 | Servicios | Ledger horizontal/tecnico con iconos lineales, divisores finos y textos de 1-2 lineas. |
 | Evidencia | Un protagonista por viewport; secundarios con menor peso; archivo en filas. |
+| Confianza institucional | Panel de prueba + referencias publicadas en ledger editorial; no logos sin autorizacion, no tabla con recuadros repetidos. |
 | Contenido largo | Ancho de lectura controlado, metadata visible a 16px, titulos sin competir con H1. |
 | Mobile | Una columna clara, sin microtexto, sin tarjetas apiladas con igual peso visual. |
 
@@ -192,7 +201,7 @@ White Dossier queda como prototipo principal de mayo 2026 para validar una web d
 - No es "fondo blanco": es un sistema editorial con aire, jerarquia, datos verificables, fotos contenidas y navegacion sobria.
 - Negro tecnico queda reservado para aperturas criticas, footers, modulos de capacidad o casos protagonistas; no debe ocupar todos los listados.
 - Rojo UMSA se usa como separador, numero, foco activo, flecha o CTA. Quedan prohibidos banners rojos repetidos sobre miniaturas.
-- Servicios se resuelven como dossier: indice compacto de 8 familias, modulo de criterio operativo, prueba institucional y paquetes comprables sin precios.
+- Servicios se resuelven como dossier: indice compacto de 8 frentes, modulo de criterio operativo, prueba institucional y paquetes comprables sin precios.
 - Antecedentes se resuelven como evidencia: caso protagonista visible temprano, dos secundarios, archivo documental y filtros livianos.
 - Sectores se resuelven como mapa de capacidad: fotos + necesidad operativa + servicios aplicados, no cards apretadas ni overlays iguales.
 - Blog se resuelve como archivo tecnico premium: cada nota usa su `imagen_portada` como miniatura y como imagen destacada; las categorias son sobrias y la lectura queda subordinada al sistema UMSA.
@@ -209,7 +218,7 @@ Checklist adicional de aceptacion:
 ### Fusion aplicada en esta iteracion
 
 - White Dossier queda como prototipo principal local, fusionando skins, templates, estrategia comercial y sistema V4.
-- Servicios deja de ser una lista de filas: queda como dossier compacto con hero medido, proofline, folio operativo, ocho familias escaneables y paquetes sin precios.
+- Servicios deja de ser una lista de filas: queda como dossier compacto con hero medido, proofline, folio operativo, ocho frentes escaneables y paquetes sin precios.
 - Sectores editorial adelanta informacion: las fotos son evidencia, no portadas dominantes; el contenido aparece dentro del primer viewport.
 - Antecedentes editorial conserva la logica protagonista/secundarios/archivo y evita filtros con peso administrativo.
 - Blog usa imagen real por nota, superficie blanca real y jerarquia editorial; no usa bloques negros dominantes ni placeholders como solucion primaria.
@@ -254,7 +263,7 @@ Recursos GEO locales incorporados:
 - `/llms-full.txt`: indice extendido con posicionamiento, hubs, servicios, sectores y casos priorizados.
 - `/sitemap-geo.xml`: sitemap especifico para hubs comerciales, JSON de entidades, servicios, sectores y antecedentes priorizados.
 - `/geo/brand-facts.json`: hechos de marca y prueba institucional.
-- `/geo/services.json`: ocho familias de servicios con canonical, resumen y senal operativa.
+- `/geo/services.json`: ocho frentes de servicios con canonical, resumen y senal operativa.
 - `/geo/sectors.json`: verticales con necesidad operativa, prueba, servicios y URL.
 - `/geo/cases.json`: antecedentes priorizados, incluyendo casos enlazados por hubs.
 - `/geo/faqs.json`: FAQs comerciales normalizadas desde los hubs.
@@ -270,7 +279,7 @@ Regla operacional: una pagina GEO no puede sentirse como doorway page. Debe ser 
 El documento de venta `umsa2026- deep-research-report.md` define el giro: la web deja de organizar capacidades sueltas y pasa a convertirlas en ofertas comprables.
 
 - Mensaje base: servicios IT integrales para operaciones que no pueden detenerse.
-- Prueba base: 8 familias tecnicas, 469+ antecedentes, 22+ anos, soporte 24/7.
+- Prueba base: 8 frentes tecnicos, 469+ antecedentes, 22+ anos, soporte 24/7.
 - Oferta publicable sin precios: Soporte Base, Soporte Operativo, Soporte Critico, Red Express, Sala Tecnica, CCTV/SDI y Diagnostico.
 - CTAs por intencion:
   - Soporte: `Cotizar abono`.
@@ -302,7 +311,7 @@ Aplicada sobre la maqueta local en `localhost:4322`:
 - Detalle de antecedente: hero, ficha tecnica, alcance, CTA y relacionados pasan al mismo sistema de evidencia tecnica, sin "consultoria gratis" ni card SaaS blanda.
 - Hero: el H1 baja de escala maxima y gana line-height para dejar de aplastar la lectura; en mobile deja de forzarse a una columna estrecha de `9.4ch`.
 - Prueba institucional: los numeros dejan de competir con el titular; cada metrica usa una pequena grilla interna `numero / etiqueta / evidencia` con cuerpo minimo 16px.
-- Servicios: el H2 y las ocho unidades se compactan. La jerarquia queda `titulo seccion > evidencia visual > familias`, con titulos de familias entre 20-24px y cuerpos de 16px.
+- Servicios: el H2 y las ocho unidades se compactan. La jerarquia queda `titulo seccion > evidencia visual > frentes`, con titulos de frentes entre 20-24px y cuerpos de 16px.
 - Paquetes y metodo: filas menos altas, titulos mas cercanos al cuerpo, sin saltos visuales exagerados.
 - Antecedentes: el caso destacado baja altura maxima, el titulo queda proporcionado y las tarjetas secundarias reducen su peso para no competir.
 - Rail de sectores: se corrige la flecha que saltaba de linea; cada fila queda en tres columnas estables `numero / sector / accion`.
@@ -566,7 +575,7 @@ Regla dura: sectores y servicios no usan emojis. El sitio actual de `/sectores` 
 
 ### Gate de Assets
 
-Cada familia debe tener una imagen aprobada:
+Cada frente debe tener una imagen aprobada:
 
 1. Redes
 2. Seguridad electronica
@@ -737,7 +746,7 @@ Rol: puerta principal de posicionamiento.
 Orden:
 
 1. Hero: "Servicios IT integrales".
-2. Servicios: 8 familias con imagen y prueba.
+2. Servicios: 8 frentes con imagen y prueba.
 3. Antecedentes: evidencia, casos y sectores.
 4. Capacidades conectadas: SGI, Licitometro, APIs.
 5. Blog band.

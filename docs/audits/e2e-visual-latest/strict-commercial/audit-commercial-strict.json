@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-30T18:46:42.503Z",
+  "generatedAt": "2026-06-01T10:06:19.665Z",
   "baseUrl": "http://localhost:4321",
   "labels": [
     "home default",
@@ -27,8 +27,10 @@
     "vertical constructoras default",
     "vertical seguridad default",
     "nosotros default",
+    "certificaciones default",
     "contacto default",
     "blog default",
+    "blog categoria default",
     "blog detalle default",
     "geo mendoza default",
     "geo argentina default",
@@ -39,7 +41,7 @@
     "desktop",
     "mobile"
   ],
-  "checked": 64,
+  "checked": 68,
   "failures": [],
   "results": [
     {
@@ -48,7 +50,7 @@
       "viewport": "desktop",
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
-      "title": "ULTIMA MILLA | Servicios IT integrales para empresas",
+      "title": "ULTIMA MILLA | Servicios IT para operaciones que no pueden detenerse",
       "h1": "Servicios IT para operaciones que no pueden detenerse.",
       "h1Count": 1,
       "h1FontSize": 40,
@@ -59,16 +61,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -89,7 +82,7 @@
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.012,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -100,13 +93,149 @@
       "infoHubRows": [],
       "compositionIssues": [],
       "narrowTextIssues": [],
-      "borderNoiseCount": 1,
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 289
+    },
+    {
+      "route": "/servicios",
+      "label": "servicios default",
+      "viewport": "desktop",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Servicios IT integrales para continuidad operativa | ULTIMA MILLA",
+      "h1": "Servicios IT integrales para continuidad operativa",
+      "h1Count": 1,
+      "h1FontSize": 40,
+      "h1Weight": 600,
+      "h1Top": 175,
+      "canonical": "https://ultimamilla.com.ar/servicios",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 389,
+          "height": 50,
+          "href": "/contacto"
+        },
+        {
+          "text": "Solicitar relevamiento",
+          "top": 389,
+          "height": 50,
+          "href": "/contacto"
+        },
+        {
+          "text": "Ver antecedentes",
+          "top": 389,
+          "height": 50,
+          "href": "/antecedentes"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.012,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 241
+    },
+    {
+      "route": "/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it",
+      "label": "servicio detalle default",
+      "viewport": "desktop",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Soporte 24/7 para continuidad operativa | ULTIMA MILLA",
+      "h1": "Soporte 24/7 para continuidad operativa",
+      "h1Count": 1,
+      "h1FontSize": 40,
+      "h1Weight": 600,
+      "h1Top": 272,
+      "canonical": "https://ultimamilla.com.ar/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 434,
+          "height": 50,
+          "href": "/contacto"
+        },
+        {
+          "text": "Ver evidencia",
+          "top": 434,
+          "height": 50,
+          "href": "/antecedentes"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.012,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 2,
       "borderNoiseSample": [
         {
-          "tag": "section",
-          "className": "um-trust-strip",
-          "area": 496167,
-          "border": 2
+          "tag": "div",
+          "className": "",
+          "area": 17651,
+          "border": 1
+        },
+        {
+          "tag": "div",
+          "className": "",
+          "area": 25582,
+          "border": 1
         }
       ],
       "ctaGeometryIssues": [],
@@ -121,223 +250,13 @@
       "textCount": 256
     },
     {
-      "route": "/servicios",
-      "label": "servicios default",
-      "viewport": "desktop",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": true,
-      "title": "Servicios IT integrales | ULTIMA MILLA",
-      "h1": "Servicios IT integrales para continuidad operativa",
-      "h1Count": 1,
-      "h1FontSize": 40,
-      "h1Weight": 600,
-      "h1Top": 175,
-      "canonical": "https://ultimamilla.com.ar/servicios",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [
-        {
-          "text": "Solicitar diagnóstico",
-          "top": 513,
-          "height": 50,
-          "href": "/contacto"
-        },
-        {
-          "text": "Solicitar relevamiento",
-          "top": 513,
-          "height": 50,
-          "href": "/contacto"
-        },
-        {
-          "text": "Ver antecedentes",
-          "top": 513,
-          "height": 50,
-          "href": "/antecedentes"
-        }
-      ],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": null,
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 7,
-      "borderNoiseSample": [
-        {
-          "tag": "section",
-          "className": "um-trust-strip",
-          "area": 496167,
-          "border": 2
-        },
-        {
-          "tag": "a",
-          "className": "um-trust-strip__client",
-          "area": 9769,
-          "border": 4
-        },
-        {
-          "tag": "a",
-          "className": "um-trust-strip__client",
-          "area": 12084,
-          "border": 4
-        },
-        {
-          "tag": "a",
-          "className": "um-trust-strip__client",
-          "area": 4123,
-          "border": 4
-        },
-        {
-          "tag": "a",
-          "className": "um-trust-strip__client",
-          "area": 6258,
-          "border": 4
-        },
-        {
-          "tag": "a",
-          "className": "um-trust-strip__client",
-          "area": 19348,
-          "border": 4
-        },
-        {
-          "tag": "a",
-          "className": "um-trust-strip__client",
-          "area": 14064,
-          "border": 4
-        }
-      ],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 202
-    },
-    {
-      "route": "/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it",
-      "label": "servicio detalle default",
-      "viewport": "desktop",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": true,
-      "title": "Soporte Técnico 24/7 | ULTIMA MILLA | ULTIMA MILLA",
-      "h1": "Soporte Técnico 24/7 | Mesa de Ayuda, Mantenimiento IT",
-      "h1Count": 1,
-      "h1FontSize": 40,
-      "h1Weight": 600,
-      "h1Top": 272,
-      "canonical": "https://ultimamilla.com.ar/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [
-        {
-          "text": "Solicitar diagnóstico",
-          "top": 563,
-          "height": 50,
-          "href": "/contacto"
-        },
-        {
-          "text": "Ver evidencia",
-          "top": 563,
-          "height": 50,
-          "href": "/antecedentes"
-        }
-      ],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": {
-        "text": "Soporte Técnico 24/7 | Mesa de Ayuda, Mantenimiento IT",
-        "length": 54,
-        "hasCmsSeparator": true,
-        "tooVerbose": false,
-        "generic": false
-      },
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 2,
-      "borderNoiseSample": [
-        {
-          "tag": "div",
-          "className": "",
-          "area": 31329,
-          "border": 1
-        },
-        {
-          "tag": "div",
-          "className": "",
-          "area": 31329,
-          "border": 1
-        }
-      ],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 258
-    },
-    {
       "route": "/servicios/101/infraestructura-de-redes-cableado-fibra-optica-radioenlaces",
       "label": "servicio redes detalle default",
       "viewport": "desktop",
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
-      "title": "Infraestructura de Redes | ULTIMA MILLA | ULTIMA MILLA",
-      "h1": "Infraestructura de Redes | Cableado, Fibra Óptica, Radioenlaces",
+      "title": "Redes y conectividad para operación continua | ULTIMA MILLA",
+      "h1": "Redes y conectividad para operación continua",
       "h1Count": 1,
       "h1FontSize": 40,
       "h1Weight": 600,
@@ -347,16 +266,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -366,29 +276,23 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 563,
+          "top": 434,
           "height": 50,
           "href": "/contacto"
         },
         {
           "text": "Ver evidencia",
-          "top": 563,
+          "top": 434,
           "height": 50,
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.012,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
       "h1CompositionIssue": null,
-      "h1ContentIssue": {
-        "text": "Infraestructura de Redes | Cableado, Fibra Óptica, Radioenlaces",
-        "length": 63,
-        "hasCmsSeparator": true,
-        "tooVerbose": false,
-        "generic": false
-      },
+      "h1ContentIssue": null,
       "headingIssues": [],
       "infoHubQuality": [],
       "infoHubRows": [],
@@ -399,13 +303,13 @@
         {
           "tag": "div",
           "className": "",
-          "area": 31329,
+          "area": 17651,
           "border": 1
         },
         {
           "tag": "div",
           "className": "",
-          "area": 31329,
+          "area": 25582,
           "border": 1
         }
       ],
@@ -418,7 +322,7 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 321
+      "textCount": 319
     },
     {
       "route": "/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi",
@@ -426,8 +330,8 @@
       "viewport": "desktop",
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
-      "title": "Sistemas de Seguridad Electrónica | ULTIMA MI… | ULTIMA MILLA",
-      "h1": "Sistemas de Seguridad Electrónica | CCTV, Control Acceso, Sistemas de Detección de Incendios (SDI)",
+      "title": "Seguridad electrónica para activos críticos | ULTIMA MILLA",
+      "h1": "Seguridad electrónica para activos críticos",
       "h1Count": 1,
       "h1FontSize": 40,
       "h1Weight": 600,
@@ -437,16 +341,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -456,54 +351,24 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 691,
+          "top": 434,
           "height": 50,
           "href": "/contacto"
         },
         {
           "text": "Ver evidencia",
-          "top": 691,
+          "top": 434,
           "height": 50,
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.012,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
-      "h1CompositionIssue": {
-        "text": "Sistemas de Seguridad Electrónica | CCTV, Control Acceso, Sistemas de Detección de Incendios (SDI)",
-        "width": 336,
-        "height": 342,
-        "viewportWidth": 1440,
-        "tooTall": true,
-        "tooNarrow": false,
-        "clipped": false
-      },
-      "h1ContentIssue": {
-        "text": "Sistemas de Seguridad Electrónica | CCTV, Control Acceso, Sistemas de Detección de Incendios (SDI)",
-        "length": 98,
-        "hasCmsSeparator": true,
-        "tooVerbose": true,
-        "generic": false
-      },
-      "headingIssues": [
-        {
-          "tag": "h1",
-          "className": "",
-          "text": "Sistemas de Seguridad Electrónica | CCTV, Control Acceso, Sistemas de Detección de Incendios (SDI)",
-          "fontSize": 40,
-          "fontWeight": 600,
-          "lineRatio": 1.07,
-          "width": 336,
-          "height": 342,
-          "overweight": false,
-          "oversized": false,
-          "cramped": false,
-          "clipped": false,
-          "tooTall": true
-        }
-      ],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
       "infoHubQuality": [],
       "infoHubRows": [],
       "compositionIssues": [],
@@ -513,13 +378,13 @@
         {
           "tag": "div",
           "className": "",
-          "area": 31329,
+          "area": 17651,
           "border": 1
         },
         {
           "tag": "div",
           "className": "",
-          "area": 31329,
+          "area": 25582,
           "border": 1
         }
       ],
@@ -532,7 +397,7 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 321
+      "textCount": 319
     },
     {
       "route": "/servicios/103/telecomunicaciones-datos-voz-video",
@@ -541,7 +406,7 @@
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
       "title": "Telecomunicaciones. | ULTIMA MILLA",
-      "h1": "Telecomunicaciones.",
+      "h1": "Comunicaciones estables para sedes exigentes",
       "h1Count": 1,
       "h1FontSize": 40,
       "h1Weight": 600,
@@ -551,16 +416,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -581,7 +437,7 @@
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.012,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -597,13 +453,13 @@
         {
           "tag": "div",
           "className": "",
-          "area": 31329,
+          "area": 17651,
           "border": 1
         },
         {
           "tag": "div",
           "className": "",
-          "area": 31329,
+          "area": 25582,
           "border": 1
         }
       ],
@@ -616,7 +472,7 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 279
+      "textCount": 277
     },
     {
       "route": "/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp",
@@ -625,7 +481,7 @@
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
       "title": "Desarrollo de Software a Medida | ULTIMA MILLA",
-      "h1": "Desarrollo de Software a Medida",
+      "h1": "Software operativo para procesos reales",
       "h1Count": 1,
       "h1FontSize": 40,
       "h1Weight": 600,
@@ -635,16 +491,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -654,18 +501,18 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 477,
+          "top": 434,
           "height": 50,
           "href": "/contacto"
         },
         {
           "text": "Ver evidencia",
-          "top": 477,
+          "top": 434,
           "height": 50,
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.012,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -681,13 +528,13 @@
         {
           "tag": "div",
           "className": "",
-          "area": 31329,
+          "area": 17651,
           "border": 1
         },
         {
           "tag": "div",
           "className": "",
-          "area": 31329,
+          "area": 25582,
           "border": 1
         }
       ],
@@ -700,7 +547,7 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 278
+      "textCount": 276
     },
     {
       "route": "/servicios/106/consultoria-it-y-transformacion-digital-arquitectura-auditoria",
@@ -709,7 +556,7 @@
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
       "title": "Consultoría IT y Transformación Digital | ULTIMA MILLA",
-      "h1": "Consultoría IT y Transformación Digital",
+      "h1": "Arquitectura IT para decidir con evidencia",
       "h1Count": 1,
       "h1FontSize": 40,
       "h1Weight": 600,
@@ -719,16 +566,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -738,18 +576,18 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 477,
+          "top": 434,
           "height": 50,
           "href": "/contacto"
         },
         {
           "text": "Ver evidencia",
-          "top": 477,
+          "top": 434,
           "height": 50,
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.012,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -765,20 +603,18 @@
         {
           "tag": "div",
           "className": "",
-          "area": 31329,
+          "area": 17651,
           "border": 1
         },
         {
           "tag": "div",
           "className": "",
-          "area": 31329,
+          "area": 25582,
           "border": 1
         }
       ],
       "ctaGeometryIssues": [],
-      "copyWarnings": [
-        "transformaci[oó]n digital"
-      ],
+      "copyWarnings": [],
       "claimWarnings": [],
       "saasColorIssues": [],
       "editorialAltBg": 0,
@@ -786,7 +622,7 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 258
+      "textCount": 256
     },
     {
       "route": "/servicios/108/servicios-electricos-para-it",
@@ -795,7 +631,7 @@
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
       "title": "Servicios Eléctricos para IT | ULTIMA MILLA",
-      "h1": "Servicios Eléctricos para IT",
+      "h1": "Energía confiable para sistemas IT",
       "h1Count": 1,
       "h1FontSize": 40,
       "h1Weight": 600,
@@ -805,16 +641,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -824,18 +651,18 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 507,
+          "top": 464,
           "height": 50,
           "href": "/contacto"
         },
         {
           "text": "Ver evidencia",
-          "top": 507,
+          "top": 464,
           "height": 50,
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.012,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -851,13 +678,13 @@
         {
           "tag": "div",
           "className": "",
-          "area": 31329,
+          "area": 17651,
           "border": 1
         },
         {
           "tag": "div",
           "className": "",
-          "area": 31329,
+          "area": 25582,
           "border": 1
         }
       ],
@@ -870,7 +697,7 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 321
+      "textCount": 319
     },
     {
       "route": "/servicios/107/sistemas-de-deteccion-y-alarma-de-incendios",
@@ -878,8 +705,8 @@
       "viewport": "desktop",
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
-      "title": "Sistemas de Detección y Alarma de Incendios |… | ULTIMA MILLA",
-      "h1": "Sistemas de Detección y Alarma de Incendios",
+      "title": "Detección de incendios para infraestructura c… | ULTIMA MILLA",
+      "h1": "Detección de incendios para infraestructura crítica",
       "h1Count": 1,
       "h1FontSize": 40,
       "h1Weight": 600,
@@ -889,16 +716,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -908,18 +726,18 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 520,
+          "top": 434,
           "height": 50,
           "href": "/contacto"
         },
         {
           "text": "Ver evidencia",
-          "top": 520,
+          "top": 434,
           "height": 50,
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.012,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -935,13 +753,13 @@
         {
           "tag": "div",
           "className": "",
-          "area": 31329,
+          "area": 17651,
           "border": 1
         },
         {
           "tag": "div",
           "className": "",
-          "area": 31329,
+          "area": 25582,
           "border": 1
         }
       ],
@@ -954,7 +772,7 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 321
+      "textCount": 319
     },
     {
       "route": "/antecedentes",
@@ -962,7 +780,7 @@
       "viewport": "desktop",
       "expectedCanonical": null,
       "requiresFirstViewportCta": false,
-      "title": "Antecedentes técnicos | ULTIMA MILLA",
+      "title": "Evidencia operativa documentada | ULTIMA MILLA",
       "h1": "Evidencia operativa documentada.",
       "h1Count": 1,
       "h1FontSize": 40,
@@ -973,16 +791,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -997,7 +806,7 @@
           "href": "/contacto"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.007,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -1006,39 +815,27 @@
       "headingIssues": [],
       "infoHubQuality": [
         {
-          "selector": ".ante-dossier__controls",
+          "selector": ".ante-dossier__sector-rail",
           "display": "block",
           "position": "sticky",
           "top": 72,
-          "height": 143,
+          "height": 56,
           "paddingTop": 0,
           "paddingRight": 0,
           "borderTopWidth": 0,
-          "backgroundAlpha": null,
+          "backgroundAlpha": 1,
           "hasBackdrop": true,
-          "boxShadow": "rgba(17, 17, 17, 0.04) 0px 8px 24px 0px",
-          "hasShadow": true,
+          "boxShadow": "none",
+          "maskImage": "linear-gradient(90deg, rgb(0, 0, 0) 0px, rgb(0, 0, 0) calc(100% - 42px), rgba(0, 0, 0, 0) 100%)",
+          "hasShadow": false,
           "visible": true
         }
       ],
       "infoHubRows": [],
       "compositionIssues": [],
       "narrowTextIssues": [],
-      "borderNoiseCount": 2,
-      "borderNoiseSample": [
-        {
-          "tag": "section",
-          "className": "ante-dossier__controls",
-          "area": 203953,
-          "border": 1
-        },
-        {
-          "tag": "span",
-          "className": "",
-          "area": 6079,
-          "border": 3
-        }
-      ],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
       "ctaGeometryIssues": [],
       "copyWarnings": [],
       "claimWarnings": [],
@@ -1056,7 +853,7 @@
       "viewport": "desktop",
       "expectedCanonical": null,
       "requiresFirstViewportCta": false,
-      "title": "Antecedentes técnicos | ULTIMA MILLA",
+      "title": "Evidencia operativa documentada | ULTIMA MILLA",
       "h1": "Evidencia operativa documentada.",
       "h1Count": 1,
       "h1FontSize": 40,
@@ -1067,16 +864,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -1091,7 +879,7 @@
           "href": "/contacto"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.007,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -1100,39 +888,27 @@
       "headingIssues": [],
       "infoHubQuality": [
         {
-          "selector": ".ante-dossier__controls",
+          "selector": ".ante-dossier__sector-rail",
           "display": "block",
           "position": "sticky",
           "top": 72,
-          "height": 143,
+          "height": 56,
           "paddingTop": 0,
           "paddingRight": 0,
           "borderTopWidth": 0,
-          "backgroundAlpha": null,
+          "backgroundAlpha": 1,
           "hasBackdrop": true,
-          "boxShadow": "rgba(17, 17, 17, 0.04) 0px 8px 24px 0px",
-          "hasShadow": true,
+          "boxShadow": "none",
+          "maskImage": "linear-gradient(90deg, rgb(0, 0, 0) 0px, rgb(0, 0, 0) calc(100% - 42px), rgba(0, 0, 0, 0) 100%)",
+          "hasShadow": false,
           "visible": true
         }
       ],
       "infoHubRows": [],
       "compositionIssues": [],
       "narrowTextIssues": [],
-      "borderNoiseCount": 2,
-      "borderNoiseSample": [
-        {
-          "tag": "section",
-          "className": "ante-dossier__controls",
-          "area": 203953,
-          "border": 1
-        },
-        {
-          "tag": "span",
-          "className": "",
-          "area": 6079,
-          "border": 3
-        }
-      ],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
       "ctaGeometryIssues": [],
       "copyWarnings": [],
       "claimWarnings": [],
@@ -1150,8 +926,8 @@
       "viewport": "desktop",
       "expectedCanonical": null,
       "requiresFirstViewportCta": false,
-      "title": "Desarrollo de Software y Digitalización de Procesos para el…",
-      "h1": "Desarrollo de Software y Digitalización de Procesos para el Gobierno de la Provincia de Mendoza",
+      "title": "Desarrollo de Software y Digitalización de Procesos para el Gobierno de…",
+      "h1": "Software operativo para Gobierno de Mendoza",
       "h1Count": 1,
       "h1FontSize": 40,
       "h1Weight": 600,
@@ -1161,16 +937,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -1180,55 +947,30 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar relevamiento",
-          "top": 555,
+          "top": 423,
           "height": 50,
           "href": "/contacto"
         },
         {
           "text": "Volver al archivo",
-          "top": 555,
+          "top": 423,
           "height": 50,
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.013,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
       "h1CompositionIssue": null,
-      "h1ContentIssue": {
-        "text": "Desarrollo de Software y Digitalización de Procesos para el Gobierno de la Provincia de Mendoza",
-        "length": 95,
-        "hasCmsSeparator": false,
-        "tooVerbose": true,
-        "generic": false
-      },
+      "h1ContentIssue": null,
       "headingIssues": [],
       "infoHubQuality": [],
       "infoHubRows": [],
       "compositionIssues": [],
       "narrowTextIssues": [],
-      "borderNoiseCount": 3,
-      "borderNoiseSample": [
-        {
-          "tag": "section",
-          "className": "case-detail-hero",
-          "area": 1082488,
-          "border": 1
-        },
-        {
-          "tag": "aside",
-          "className": "case-detail-dossier",
-          "area": 268375,
-          "border": 4
-        },
-        {
-          "tag": "div",
-          "className": "case-detail-meta",
-          "area": 63806,
-          "border": 1
-        }
-      ],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
       "ctaGeometryIssues": [],
       "copyWarnings": [],
       "claimWarnings": [],
@@ -1246,7 +988,7 @@
       "viewport": "desktop",
       "expectedCanonical": null,
       "requiresFirstViewportCta": false,
-      "title": "Soluciones IT por sector | ULTIMA MILLA",
+      "title": "Infraestructura IT por sector, con evidencia operativa | ULTIMA MILLA",
       "h1": "Infraestructura IT por sector, con evidencia operativa.",
       "h1Count": 1,
       "h1FontSize": 40,
@@ -1257,16 +999,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -1287,7 +1020,7 @@
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.012,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -1298,27 +1031,8 @@
       "infoHubRows": [],
       "compositionIssues": [],
       "narrowTextIssues": [],
-      "borderNoiseCount": 3,
-      "borderNoiseSample": [
-        {
-          "tag": "div",
-          "className": "sector-editorial-index-hero",
-          "area": 591130,
-          "border": 1
-        },
-        {
-          "tag": "a",
-          "className": "sector-editorial-feature",
-          "area": 315819,
-          "border": 4
-        },
-        {
-          "tag": "a",
-          "className": "sector-editorial-feature",
-          "area": 315819,
-          "border": 4
-        }
-      ],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
       "ctaGeometryIssues": [],
       "copyWarnings": [],
       "claimWarnings": [],
@@ -1328,7 +1042,7 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 145
+      "textCount": 168
     },
     {
       "route": "/sectores?sector=bodegas",
@@ -1336,7 +1050,7 @@
       "viewport": "desktop",
       "expectedCanonical": null,
       "requiresFirstViewportCta": false,
-      "title": "Soluciones IT por sector | ULTIMA MILLA",
+      "title": "Infraestructura IT por sector, con evidencia operativa | ULTIMA MILLA",
       "h1": "Infraestructura IT por sector, con evidencia operativa.",
       "h1Count": 1,
       "h1FontSize": 40,
@@ -1347,16 +1061,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -1377,7 +1082,7 @@
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.012,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -1388,27 +1093,8 @@
       "infoHubRows": [],
       "compositionIssues": [],
       "narrowTextIssues": [],
-      "borderNoiseCount": 3,
-      "borderNoiseSample": [
-        {
-          "tag": "div",
-          "className": "sector-editorial-index-hero",
-          "area": 591130,
-          "border": 1
-        },
-        {
-          "tag": "a",
-          "className": "sector-editorial-feature",
-          "area": 315819,
-          "border": 4
-        },
-        {
-          "tag": "a",
-          "className": "sector-editorial-feature",
-          "area": 315819,
-          "border": 4
-        }
-      ],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
       "ctaGeometryIssues": [],
       "copyWarnings": [],
       "claimWarnings": [],
@@ -1418,7 +1104,7 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 145
+      "textCount": 115
     },
     {
       "route": "/aeropuertos",
@@ -1426,7 +1112,7 @@
       "viewport": "desktop",
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
-      "title": "Tecnología para Aeropuertos | ULTIMA MILLA",
+      "title": "Infraestructura IT para operación aeroportuaria continua | ULTIMA MILLA",
       "h1": "Infraestructura IT para operación aeroportuaria continua",
       "h1Count": 1,
       "h1FontSize": 40,
@@ -1437,16 +1123,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -1456,18 +1133,18 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 512,
+          "top": 420,
           "height": 50,
           "href": "/contacto"
         },
         {
           "text": "Ver antecedentes del sector",
-          "top": 512,
+          "top": 420,
           "height": 50,
           "href": "/antecedentes?sector=aeropuertos"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.012,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -1497,7 +1174,7 @@
       "viewport": "desktop",
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
-      "title": "Tecnología para Bodegas | ULTIMA MILLA",
+      "title": "Conectividad y control para producción vitivinícola | ULTIMA MILLA",
       "h1": "Conectividad y control para producción vitivinícola",
       "h1Count": 1,
       "h1FontSize": 40,
@@ -1508,16 +1185,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -1527,18 +1195,18 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 512,
+          "top": 420,
           "height": 50,
           "href": "/contacto"
         },
         {
           "text": "Ver antecedentes del sector",
-          "top": 512,
+          "top": 420,
           "height": 50,
           "href": "/antecedentes?sector=bodegas"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.012,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -1568,7 +1236,7 @@
       "viewport": "desktop",
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
-      "title": "Tecnología para Gobierno y Sector Público | ULTIMA MILLA",
+      "title": "Plataformas tecnológicas para servicios públicos | ULTIMA MILLA",
       "h1": "Plataformas tecnológicas para servicios públicos",
       "h1Count": 1,
       "h1FontSize": 40,
@@ -1579,16 +1247,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -1598,18 +1257,18 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 512,
+          "top": 420,
           "height": 50,
           "href": "/contacto"
         },
         {
           "text": "Ver antecedentes del sector",
-          "top": 512,
+          "top": 420,
           "height": 50,
           "href": "/antecedentes?sector=gobiernosectorpublico"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.012,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -1639,7 +1298,7 @@
       "viewport": "desktop",
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
-      "title": "Tecnología para Minería | ULTIMA MILLA",
+      "title": "Comunicaciones para sitios remotos y exigentes | ULTIMA MILLA",
       "h1": "Comunicaciones para sitios remotos y exigentes",
       "h1Count": 1,
       "h1FontSize": 40,
@@ -1650,16 +1309,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -1669,302 +1319,18 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 512,
+          "top": 420,
           "height": 50,
           "href": "/contacto"
         },
         {
           "text": "Ver antecedentes del sector",
-          "top": 512,
+          "top": 420,
           "height": 50,
           "href": "/antecedentes?sector=mineria"
         }
       ],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": null,
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 0,
-      "borderNoiseSample": [],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 232
-    },
-    {
-      "route": "/industria",
-      "label": "vertical industria default",
-      "viewport": "desktop",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": true,
-      "title": "Tecnología para Industria | ULTIMA MILLA",
-      "h1": "Redes, control y soporte para plantas activas",
-      "h1Count": 1,
-      "h1FontSize": 40,
-      "h1Weight": 600,
-      "h1Top": 242,
-      "canonical": "https://ultimamilla.com.ar/industria",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [
-        {
-          "text": "Solicitar diagnóstico",
-          "top": 512,
-          "height": 50,
-          "href": "/contacto"
-        },
-        {
-          "text": "Ver antecedentes del sector",
-          "top": 512,
-          "height": 50,
-          "href": "/antecedentes?sector=industria"
-        }
-      ],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": null,
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 0,
-      "borderNoiseSample": [],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 232
-    },
-    {
-      "route": "/salud",
-      "label": "vertical salud default",
-      "viewport": "desktop",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": true,
-      "title": "Tecnología para Salud | ULTIMA MILLA",
-      "h1": "Infraestructura estable para ámbitos clínicos",
-      "h1Count": 1,
-      "h1FontSize": 40,
-      "h1Weight": 600,
-      "h1Top": 242,
-      "canonical": "https://ultimamilla.com.ar/salud",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [
-        {
-          "text": "Solicitar diagnóstico",
-          "top": 512,
-          "height": 50,
-          "href": "/contacto"
-        },
-        {
-          "text": "Ver antecedentes del sector",
-          "top": 512,
-          "height": 50,
-          "href": "/antecedentes?sector=salud"
-        }
-      ],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": null,
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 0,
-      "borderNoiseSample": [],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 232
-    },
-    {
-      "route": "/software",
-      "label": "vertical software default",
-      "viewport": "desktop",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": true,
-      "title": "Desarrollo de Software a Medida | ULTIMA MILLA",
-      "h1": "Sistemas propios conectados a la operación real",
-      "h1Count": 1,
-      "h1FontSize": 40,
-      "h1Weight": 600,
-      "h1Top": 242,
-      "canonical": "https://ultimamilla.com.ar/software",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [
-        {
-          "text": "Solicitar diagnóstico",
-          "top": 512,
-          "height": 50,
-          "href": "/contacto"
-        },
-        {
-          "text": "Ver antecedentes del sector",
-          "top": 512,
-          "height": 50,
-          "href": "/antecedentes?sector=software"
-        }
-      ],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": null,
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 0,
-      "borderNoiseSample": [],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 232
-    },
-    {
-      "route": "/constructoras",
-      "label": "vertical constructoras default",
-      "viewport": "desktop",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": true,
-      "title": "Tecnología para Constructoras | ULTIMA MILLA",
-      "h1": "Tecnología incorporada desde la obra",
-      "h1Count": 1,
-      "h1FontSize": 40,
-      "h1Weight": 600,
-      "h1Top": 242,
-      "canonical": "https://ultimamilla.com.ar/constructoras",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [
-        {
-          "text": "Solicitar diagnóstico",
-          "top": 469,
-          "height": 50,
-          "href": "/contacto"
-        },
-        {
-          "text": "Ver antecedentes del sector",
-          "top": 469,
-          "height": 50,
-          "href": "/antecedentes?sector=constructoras"
-        }
-      ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.012,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -1994,7 +1360,7 @@
       "viewport": "desktop",
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
-      "title": "Seguridad Electrónica | ULTIMA MILLA",
+      "title": "Control visual, acceso y perímetro con criterio operativo | ULTIMA MILLA",
       "h1": "Control visual, acceso y perímetro con criterio operativo",
       "h1Count": 1,
       "h1FontSize": 40,
@@ -2005,16 +1371,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -2024,18 +1381,266 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 512,
+          "top": 420,
           "height": 50,
           "href": "/contacto"
         },
         {
           "text": "Ver antecedentes del sector",
-          "top": 512,
+          "top": 420,
           "height": 50,
           "href": "/antecedentes?sector=seguridad-electronica"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.012,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 232
+    },
+    {
+      "route": "/industria",
+      "label": "vertical industria default",
+      "viewport": "desktop",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Redes, control y soporte para plantas activas | ULTIMA MILLA",
+      "h1": "Redes, control y soporte para plantas activas",
+      "h1Count": 1,
+      "h1FontSize": 40,
+      "h1Weight": 600,
+      "h1Top": 242,
+      "canonical": "https://ultimamilla.com.ar/industria",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 420,
+          "height": 50,
+          "href": "/contacto"
+        },
+        {
+          "text": "Ver antecedentes del sector",
+          "top": 420,
+          "height": 50,
+          "href": "/antecedentes?sector=industria"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.012,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 232
+    },
+    {
+      "route": "/salud",
+      "label": "vertical salud default",
+      "viewport": "desktop",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Infraestructura estable para ámbitos clínicos | ULTIMA MILLA",
+      "h1": "Infraestructura estable para ámbitos clínicos",
+      "h1Count": 1,
+      "h1FontSize": 40,
+      "h1Weight": 600,
+      "h1Top": 242,
+      "canonical": "https://ultimamilla.com.ar/salud",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 420,
+          "height": 50,
+          "href": "/contacto"
+        },
+        {
+          "text": "Ver antecedentes del sector",
+          "top": 420,
+          "height": 50,
+          "href": "/antecedentes?sector=salud"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.012,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 232
+    },
+    {
+      "route": "/software",
+      "label": "vertical software default",
+      "viewport": "desktop",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Sistemas propios conectados a la operación real | ULTIMA MILLA",
+      "h1": "Sistemas propios conectados a la operación real",
+      "h1Count": 1,
+      "h1FontSize": 40,
+      "h1Weight": 600,
+      "h1Top": 242,
+      "canonical": "https://ultimamilla.com.ar/software",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 420,
+          "height": 50,
+          "href": "/contacto"
+        },
+        {
+          "text": "Ver antecedentes del sector",
+          "top": 420,
+          "height": 50,
+          "href": "/antecedentes?sector=software"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.012,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 232
+    },
+    {
+      "route": "/constructoras",
+      "label": "vertical constructoras default",
+      "viewport": "desktop",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Tecnología incorporada desde la obra | ULTIMA MILLA",
+      "h1": "Tecnología incorporada desde la obra",
+      "h1Count": 1,
+      "h1FontSize": 40,
+      "h1Weight": 600,
+      "h1Top": 242,
+      "canonical": "https://ultimamilla.com.ar/constructoras",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 377,
+          "height": 50,
+          "href": "/contacto"
+        },
+        {
+          "text": "Ver antecedentes del sector",
+          "top": 377,
+          "height": 50,
+          "href": "/antecedentes?sector=constructoras"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.012,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -2065,7 +1670,7 @@
       "viewport": "desktop",
       "expectedCanonical": null,
       "requiresFirstViewportCta": false,
-      "title": "Empresa de servicios IT integrales | ULTIMA MILLA",
+      "title": "Una empresa técnica para operaciones que no pueden detenerse | ULTIMA MILLA",
       "h1": "Una empresa técnica para operaciones que no pueden detenerse",
       "h1Count": 1,
       "h1FontSize": 40,
@@ -2076,16 +1681,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -2093,272 +1689,7 @@
       "lightTextIssues": [],
       "redSmallTextIssues": [],
       "firstViewportCtas": [],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": null,
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 1,
-      "borderNoiseSample": [
-        {
-          "tag": "section",
-          "className": "about-hero",
-          "area": 648509,
-          "border": 1
-        }
-      ],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 181
-    },
-    {
-      "route": "/contacto",
-      "label": "contacto default",
-      "viewport": "desktop",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": true,
-      "title": "Contacto | ULTIMA MILLA",
-      "h1": "Enviá contexto técnico. Respondemos con el próximo paso.",
-      "h1Count": 1,
-      "h1FontSize": 40,
-      "h1Weight": 600,
-      "h1Top": 221,
-      "canonical": "https://ultimamilla.com.ar/contacto",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        },
-        {
-          "tag": "input",
-          "className": "contact-hp",
-          "text": "",
-          "left": -10000,
-          "right": -9966,
-          "width": 34
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [
-        {
-          "text": "Solicitar diagnóstico",
-          "top": 491,
-          "height": 50,
-          "href": "#contactForm"
-        },
-        {
-          "text": "Escribir por email",
-          "top": 491,
-          "height": 50,
-          "href": "mailto:contacto@ultimamilla.com.ar"
-        },
-        {
-          "text": "Enviar consulta",
-          "top": 888,
-          "height": 50,
-          "href": null
-        }
-      ],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": null,
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 6,
-      "borderNoiseSample": [
-        {
-          "tag": "input",
-          "className": "",
-          "area": 22424,
-          "border": 4
-        },
-        {
-          "tag": "input",
-          "className": "",
-          "area": 22424,
-          "border": 4
-        },
-        {
-          "tag": "input",
-          "className": "",
-          "area": 22424,
-          "border": 4
-        },
-        {
-          "tag": "select",
-          "className": "",
-          "area": 18754,
-          "border": 4
-        },
-        {
-          "tag": "select",
-          "className": "",
-          "area": 18754,
-          "border": 4
-        },
-        {
-          "tag": "textarea",
-          "className": "",
-          "area": 66456,
-          "border": 4
-        }
-      ],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 166
-    },
-    {
-      "route": "/blog",
-      "label": "blog default",
-      "viewport": "desktop",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": false,
-      "title": "Blog | ULTIMA MILLA - Infraestructura IT y Tecnología",
-      "h1": "Ideas técnicas para decidir mejor",
-      "h1Count": 1,
-      "h1FontSize": 40,
-      "h1Weight": 600,
-      "h1Top": 188,
-      "canonical": "https://ultimamilla.com.ar/blog",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [
-        {
-          "text": "Solicitar diagnóstico",
-          "top": 429,
-          "height": 50,
-          "href": "/contacto"
-        },
-        {
-          "text": "Ver antecedentes",
-          "top": 429,
-          "height": 50,
-          "href": "/antecedentes"
-        }
-      ],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": null,
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 1,
-      "borderNoiseSample": [
-        {
-          "tag": "header",
-          "className": "blog-header",
-          "area": 497473,
-          "border": 1
-        }
-      ],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 235
-    },
-    {
-      "route": "/blog/plantilla-arca-facturacion-electronica-gratis",
-      "label": "blog detalle default",
-      "viewport": "desktop",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": false,
-      "title": "Plantilla ARCA: Facturación Electrónica Gr... | ULTIMA MILLA",
-      "h1": "Plantilla ARCA: Facturación Electrónica Gratis con RG 5824 (Open Source)",
-      "h1Count": 1,
-      "h1FontSize": 40,
-      "h1Weight": 600,
-      "h1Top": 221,
-      "canonical": "https://ultimamilla.com.ar/blog/plantilla-arca-facturacion-electronica-gratis",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.004,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -2380,7 +1711,318 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 325
+      "textCount": 160
+    },
+    {
+      "route": "/certificaciones",
+      "label": "certificaciones default",
+      "viewport": "desktop",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Documentación técnica y cumplimiento | ULTIMA MILLA",
+      "h1": "Documentación técnica para compras, auditorías y licitaciones",
+      "h1Count": 1,
+      "h1FontSize": 56,
+      "h1Weight": 600,
+      "h1Top": 209,
+      "canonical": "https://ultimamilla.com.ar/certificaciones",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar documentación",
+          "top": 551,
+          "height": 50,
+          "href": "/contacto"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.014,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 1,
+      "borderNoiseSample": [
+        {
+          "tag": "article",
+          "className": "",
+          "area": 291571,
+          "border": 1
+        }
+      ],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 104
+    },
+    {
+      "route": "/blog",
+      "label": "blog default",
+      "viewport": "desktop",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": false,
+      "title": "Ideas técnicas para decidir mejor | ULTIMA MILLA",
+      "h1": "Ideas técnicas para decidir mejor",
+      "h1Count": 1,
+      "h1FontSize": 40,
+      "h1Weight": 600,
+      "h1Top": 188,
+      "canonical": "https://ultimamilla.com.ar/blog",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 529,
+          "height": 50,
+          "href": "/contacto"
+        },
+        {
+          "text": "Ver antecedentes",
+          "top": 529,
+          "height": 50,
+          "href": "/antecedentes"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.012,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 229
+    },
+    {
+      "route": "/blog/categoria/tecnico",
+      "label": "blog categoria default",
+      "viewport": "desktop",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": false,
+      "title": "Técnico — Blog ULTIMA MILLA",
+      "h1": "Técnico: decisiones IT con evidencia",
+      "h1Count": 1,
+      "h1FontSize": 40,
+      "h1Weight": 600,
+      "h1Top": 188,
+      "canonical": "https://ultimamilla.com.ar/blog/categoria/tecnico",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 367,
+          "height": 50,
+          "href": "/contacto"
+        },
+        {
+          "text": "Ver todo el blog",
+          "top": 367,
+          "height": 50,
+          "href": "/blog"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.012,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 221
+    },
+    {
+      "route": "/blog/plantilla-arca-facturacion-electronica-gratis",
+      "label": "blog detalle default",
+      "viewport": "desktop",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": false,
+      "title": "Plantilla ARCA: Facturación Electrónica Gr... | ULTIMA MILLA",
+      "h1": "Plantilla ARCA: Facturación Electrónica Gratis con RG 5824 (Open Source)",
+      "h1Count": 1,
+      "h1FontSize": 40,
+      "h1Weight": 600,
+      "h1Top": 221,
+      "canonical": "https://ultimamilla.com.ar/blog/plantilla-arca-facturacion-electronica-gratis",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Relevamiento UMSA",
+          "top": 461,
+          "height": 48,
+          "href": "/contacto"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.012,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 328
+    },
+    {
+      "route": "/contacto",
+      "label": "contacto default",
+      "viewport": "desktop",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Enviá contexto técnico. Respondemos con el próximo paso | ULTIMA MILLA",
+      "h1": "Enviá contexto técnico. Respondemos con el próximo paso.",
+      "h1Count": 1,
+      "h1FontSize": 40,
+      "h1Weight": 600,
+      "h1Top": 221,
+      "canonical": "https://ultimamilla.com.ar/contacto",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 460,
+          "height": 50,
+          "href": "#contactForm"
+        },
+        {
+          "text": "Escribir por email",
+          "top": 460,
+          "height": 50,
+          "href": "mailto:contacto@ultimamilla.com.ar"
+        },
+        {
+          "text": "Enviar consulta",
+          "top": 737,
+          "height": 50,
+          "href": null
+        }
+      ],
+      "redBackgroundAreaRatio": 0.019,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 149
     },
     {
       "route": "/servicios-it-empresas-mendoza",
@@ -2388,7 +2030,7 @@
       "viewport": "desktop",
       "expectedCanonical": "https://ultimamilla.com.ar/servicios-it-empresas-mendoza",
       "requiresFirstViewportCta": true,
-      "title": "Servicios IT para empresas en Mendoza | ULTIMA MILLA",
+      "title": "Servicios tecnológicos para empresas en Mendoza | ULTIMA MILLA",
       "h1": "Operación IT para empresas de Mendoza",
       "h1Count": 1,
       "h1FontSize": 40,
@@ -2399,16 +2041,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -2429,7 +2062,7 @@
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.012,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -2459,7 +2092,7 @@
       "viewport": "desktop",
       "expectedCanonical": "https://ultimamilla.com.ar/servicios-it-empresas-argentina",
       "requiresFirstViewportCta": true,
-      "title": "Servicios IT para empresas en Argentina | ULTIMA MILLA",
+      "title": "Servicios tecnológicos para empresas en Argentina | ULTIMA MILLA",
       "h1": "Servicios IT para sedes en Argentina",
       "h1Count": 1,
       "h1FontSize": 40,
@@ -2470,16 +2103,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -2500,7 +2124,7 @@
           "href": "/servicios"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.014,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -2530,7 +2154,7 @@
       "viewport": "desktop",
       "expectedCanonical": "https://ultimamilla.com.ar/presupuesto-servicios-it-empresas",
       "requiresFirstViewportCta": true,
-      "title": "Presupuesto de servicios IT para empresas | ULTIMA MILLA",
+      "title": "Presupuesto de servicios tecnológicos para empresas | ULTIMA MILLA",
       "h1": "Cotizar servicios IT sin perder alcance",
       "h1Count": 1,
       "h1FontSize": 40,
@@ -2541,16 +2165,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -2571,7 +2186,7 @@
           "href": "/contacto"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.011,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -2601,7 +2216,7 @@
       "viewport": "desktop",
       "expectedCanonical": "https://ultimamilla.com.ar/proyectos-ingenieria-it-mendoza",
       "requiresFirstViewportCta": true,
-      "title": "Proyectos de ingeniería IT en Mendoza | ULTIMA MILLA",
+      "title": "Proyectos de ingeniería tecnológica en Mendoza | ULTIMA MILLA",
       "h1": "Ingeniería IT para obras y operación",
       "h1Count": 1,
       "h1FontSize": 40,
@@ -2612,16 +2227,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -2642,7 +2248,7 @@
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.013,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -2672,7 +2278,7 @@
       "viewport": "mobile",
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
-      "title": "ULTIMA MILLA | Servicios IT integrales para empresas",
+      "title": "ULTIMA MILLA | Servicios IT para operaciones que no pueden detenerse",
       "h1": "Servicios IT para operaciones que no pueden detenerse.",
       "h1Count": 1,
       "h1FontSize": 32,
@@ -2683,16 +2289,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -2713,7 +2310,7 @@
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.049,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -2724,15 +2321,8 @@
       "infoHubRows": [],
       "compositionIssues": [],
       "narrowTextIssues": [],
-      "borderNoiseCount": 1,
-      "borderNoiseSample": [
-        {
-          "tag": "div",
-          "className": "",
-          "area": 37012,
-          "border": 1
-        }
-      ],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
       "ctaGeometryIssues": [],
       "copyWarnings": [],
       "claimWarnings": [],
@@ -2742,7 +2332,7 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 253
+      "textCount": 267
     },
     {
       "route": "/servicios",
@@ -2750,27 +2340,18 @@
       "viewport": "mobile",
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
-      "title": "Servicios IT integrales | ULTIMA MILLA",
+      "title": "Servicios IT integrales para continuidad operativa | ULTIMA MILLA",
       "h1": "Servicios IT integrales para continuidad operativa",
       "h1Count": 1,
       "h1FontSize": 32,
       "h1Weight": 600,
-      "h1Top": 149,
+      "h1Top": 137,
       "canonical": "https://ultimamilla.com.ar/servicios",
       "minFont": 16,
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -2780,18 +2361,12 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 780,
-          "height": 50,
-          "href": "/contacto"
-        },
-        {
-          "text": "Solicitar relevamiento",
-          "top": 842,
+          "top": 500,
           "height": 50,
           "href": "/contacto"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.051,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -2807,19 +2382,19 @@
         {
           "tag": "div",
           "className": "",
-          "area": 29641,
+          "area": 12541,
           "border": 1
         },
         {
           "tag": "div",
           "className": "",
-          "area": 29641,
+          "area": 24724,
           "border": 1
         },
         {
           "tag": "div",
           "className": "",
-          "area": 29641,
+          "area": 16479,
           "border": 1
         }
       ],
@@ -2832,7 +2407,7 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 195
+      "textCount": 203
     },
     {
       "route": "/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it",
@@ -2840,8 +2415,8 @@
       "viewport": "mobile",
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
-      "title": "Soporte Técnico 24/7 | ULTIMA MILLA | ULTIMA MILLA",
-      "h1": "Soporte Técnico 24/7 | Mesa de Ayuda, Mantenimiento IT",
+      "title": "Soporte 24/7 para continuidad operativa | ULTIMA MILLA",
+      "h1": "Soporte 24/7 para continuidad operativa",
       "h1Count": 1,
       "h1FontSize": 32,
       "h1Weight": 600,
@@ -2851,16 +2426,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -2881,38 +2447,19 @@
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.051,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
       "h1CompositionIssue": null,
-      "h1ContentIssue": {
-        "text": "Soporte Técnico 24/7 | Mesa de Ayuda, Mantenimiento IT",
-        "length": 54,
-        "hasCmsSeparator": true,
-        "tooVerbose": false,
-        "generic": false
-      },
+      "h1ContentIssue": null,
       "headingIssues": [],
       "infoHubQuality": [],
       "infoHubRows": [],
       "compositionIssues": [],
       "narrowTextIssues": [],
-      "borderNoiseCount": 2,
-      "borderNoiseSample": [
-        {
-          "tag": "div",
-          "className": "",
-          "area": 30676,
-          "border": 1
-        },
-        {
-          "tag": "div",
-          "className": "",
-          "area": 30676,
-          "border": 1
-        }
-      ],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
       "ctaGeometryIssues": [],
       "copyWarnings": [],
       "claimWarnings": [],
@@ -2922,7 +2469,7 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 250
+      "textCount": 247
     },
     {
       "route": "/servicios/101/infraestructura-de-redes-cableado-fibra-optica-radioenlaces",
@@ -2930,8 +2477,8 @@
       "viewport": "mobile",
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
-      "title": "Infraestructura de Redes | ULTIMA MILLA | ULTIMA MILLA",
-      "h1": "Infraestructura de Redes | Cableado, Fibra Óptica, Radioenlaces",
+      "title": "Redes y conectividad para operación continua | ULTIMA MILLA",
+      "h1": "Redes y conectividad para operación continua",
       "h1Count": 1,
       "h1FontSize": 32,
       "h1Weight": 600,
@@ -2941,16 +2488,379 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
         {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
+          "text": "Solicitar diagnóstico",
+          "top": 397,
+          "height": 50,
+          "href": "/contacto"
+        },
+        {
+          "text": "Ver evidencia",
+          "top": 459,
+          "height": 50,
+          "href": "/antecedentes"
         }
       ],
+      "redBackgroundAreaRatio": 0.051,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 310
+    },
+    {
+      "route": "/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi",
+      "label": "servicio seguridad detalle default",
+      "viewport": "mobile",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Seguridad electrónica para activos críticos | ULTIMA MILLA",
+      "h1": "Seguridad electrónica para activos críticos",
+      "h1Count": 1,
+      "h1FontSize": 32,
+      "h1Weight": 600,
+      "h1Top": 180,
+      "canonical": "https://ultimamilla.com.ar/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 397,
+          "height": 50,
+          "href": "/contacto"
+        },
+        {
+          "text": "Ver evidencia",
+          "top": 459,
+          "height": 50,
+          "href": "/antecedentes"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.051,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 310
+    },
+    {
+      "route": "/servicios/103/telecomunicaciones-datos-voz-video",
+      "label": "servicio telecom detalle default",
+      "viewport": "mobile",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Telecomunicaciones. | ULTIMA MILLA",
+      "h1": "Comunicaciones estables para sedes exigentes",
+      "h1Count": 1,
+      "h1FontSize": 32,
+      "h1Weight": 600,
+      "h1Top": 180,
+      "canonical": "https://ultimamilla.com.ar/servicios/103/telecomunicaciones-datos-voz-video",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 397,
+          "height": 50,
+          "href": "/contacto"
+        },
+        {
+          "text": "Ver evidencia",
+          "top": 459,
+          "height": 50,
+          "href": "/antecedentes"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.051,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 268
+    },
+    {
+      "route": "/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp",
+      "label": "servicio software detalle default",
+      "viewport": "mobile",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Desarrollo de Software a Medida | ULTIMA MILLA",
+      "h1": "Software operativo para procesos reales",
+      "h1Count": 1,
+      "h1FontSize": 32,
+      "h1Weight": 600,
+      "h1Top": 180,
+      "canonical": "https://ultimamilla.com.ar/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 360,
+          "height": 50,
+          "href": "/contacto"
+        },
+        {
+          "text": "Ver evidencia",
+          "top": 422,
+          "height": 50,
+          "href": "/antecedentes"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.051,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 267
+    },
+    {
+      "route": "/servicios/106/consultoria-it-y-transformacion-digital-arquitectura-auditoria",
+      "label": "servicio consultoria detalle default",
+      "viewport": "mobile",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Consultoría IT y Transformación Digital | ULTIMA MILLA",
+      "h1": "Arquitectura IT para decidir con evidencia",
+      "h1Count": 1,
+      "h1FontSize": 32,
+      "h1Weight": 600,
+      "h1Top": 180,
+      "canonical": "https://ultimamilla.com.ar/servicios/106/consultoria-it-y-transformacion-digital-arquitectura-auditoria",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 330,
+          "height": 50,
+          "href": "/contacto"
+        },
+        {
+          "text": "Ver evidencia",
+          "top": 392,
+          "height": 50,
+          "href": "/antecedentes"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.051,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 247
+    },
+    {
+      "route": "/servicios/108/servicios-electricos-para-it",
+      "label": "servicio electrico detalle default",
+      "viewport": "mobile",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Servicios Eléctricos para IT | ULTIMA MILLA",
+      "h1": "Energía confiable para sistemas IT",
+      "h1Count": 1,
+      "h1FontSize": 32,
+      "h1Weight": 600,
+      "h1Top": 180,
+      "canonical": "https://ultimamilla.com.ar/servicios/108/servicios-electricos-para-it",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 360,
+          "height": 50,
+          "href": "/contacto"
+        },
+        {
+          "text": "Ver evidencia",
+          "top": 422,
+          "height": 50,
+          "href": "/antecedentes"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.051,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 310
+    },
+    {
+      "route": "/servicios/107/sistemas-de-deteccion-y-alarma-de-incendios",
+      "label": "servicio incendios detalle default",
+      "viewport": "mobile",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Detección de incendios para infraestructura c… | ULTIMA MILLA",
+      "h1": "Detección de incendios para infraestructura crítica",
+      "h1Count": 1,
+      "h1FontSize": 32,
+      "h1Weight": 600,
+      "h1Top": 180,
+      "canonical": "https://ultimamilla.com.ar/servicios/107/sistemas-de-deteccion-y-alarma-de-incendios",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -2971,187 +2881,7 @@
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": {
-        "text": "Infraestructura de Redes | Cableado, Fibra Óptica, Radioenlaces",
-        "length": 63,
-        "hasCmsSeparator": true,
-        "tooVerbose": false,
-        "generic": false
-      },
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 2,
-      "borderNoiseSample": [
-        {
-          "tag": "div",
-          "className": "",
-          "area": 30676,
-          "border": 1
-        },
-        {
-          "tag": "div",
-          "className": "",
-          "area": 30676,
-          "border": 1
-        }
-      ],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 313
-    },
-    {
-      "route": "/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi",
-      "label": "servicio seguridad detalle default",
-      "viewport": "mobile",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": true,
-      "title": "Sistemas de Seguridad Electrónica | ULTIMA MI… | ULTIMA MILLA",
-      "h1": "Sistemas de Seguridad Electrónica | CCTV, Control Acceso, Sistemas de Detección de Incendios (SDI)",
-      "h1Count": 1,
-      "h1FontSize": 32,
-      "h1Weight": 600,
-      "h1Top": 180,
-      "canonical": "https://ultimamilla.com.ar/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [
-        {
-          "text": "Solicitar diagnóstico",
-          "top": 544,
-          "height": 50,
-          "href": "/contacto"
-        },
-        {
-          "text": "Ver evidencia",
-          "top": 606,
-          "height": 50,
-          "href": "/antecedentes"
-        }
-      ],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": {
-        "text": "Sistemas de Seguridad Electrónica | CCTV, Control Acceso, Sistemas de Detección de Incendios (SDI)",
-        "length": 98,
-        "hasCmsSeparator": true,
-        "tooVerbose": true,
-        "generic": false
-      },
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 2,
-      "borderNoiseSample": [
-        {
-          "tag": "div",
-          "className": "",
-          "area": 30676,
-          "border": 1
-        },
-        {
-          "tag": "div",
-          "className": "",
-          "area": 30676,
-          "border": 1
-        }
-      ],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 313
-    },
-    {
-      "route": "/servicios/103/telecomunicaciones-datos-voz-video",
-      "label": "servicio telecom detalle default",
-      "viewport": "mobile",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": true,
-      "title": "Telecomunicaciones. | ULTIMA MILLA",
-      "h1": "Telecomunicaciones.",
-      "h1Count": 1,
-      "h1FontSize": 32,
-      "h1Weight": 600,
-      "h1Top": 180,
-      "canonical": "https://ultimamilla.com.ar/servicios/103/telecomunicaciones-datos-voz-video",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [
-        {
-          "text": "Solicitar diagnóstico",
-          "top": 323,
-          "height": 50,
-          "href": "/contacto"
-        },
-        {
-          "text": "Ver evidencia",
-          "top": 385,
-          "height": 50,
-          "href": "/antecedentes"
-        }
-      ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.051,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -3162,21 +2892,8 @@
       "infoHubRows": [],
       "compositionIssues": [],
       "narrowTextIssues": [],
-      "borderNoiseCount": 2,
-      "borderNoiseSample": [
-        {
-          "tag": "div",
-          "className": "",
-          "area": 30676,
-          "border": 1
-        },
-        {
-          "tag": "div",
-          "className": "",
-          "area": 30676,
-          "border": 1
-        }
-      ],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
       "ctaGeometryIssues": [],
       "copyWarnings": [],
       "claimWarnings": [],
@@ -3186,345 +2903,7 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 271
-    },
-    {
-      "route": "/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp",
-      "label": "servicio software detalle default",
-      "viewport": "mobile",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": true,
-      "title": "Desarrollo de Software a Medida | ULTIMA MILLA",
-      "h1": "Desarrollo de Software a Medida",
-      "h1Count": 1,
-      "h1FontSize": 32,
-      "h1Weight": 600,
-      "h1Top": 180,
-      "canonical": "https://ultimamilla.com.ar/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [
-        {
-          "text": "Solicitar diagnóstico",
-          "top": 360,
-          "height": 50,
-          "href": "/contacto"
-        },
-        {
-          "text": "Ver evidencia",
-          "top": 422,
-          "height": 50,
-          "href": "/antecedentes"
-        }
-      ],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": null,
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 2,
-      "borderNoiseSample": [
-        {
-          "tag": "div",
-          "className": "",
-          "area": 30676,
-          "border": 1
-        },
-        {
-          "tag": "div",
-          "className": "",
-          "area": 30676,
-          "border": 1
-        }
-      ],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 270
-    },
-    {
-      "route": "/servicios/106/consultoria-it-y-transformacion-digital-arquitectura-auditoria",
-      "label": "servicio consultoria detalle default",
-      "viewport": "mobile",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": true,
-      "title": "Consultoría IT y Transformación Digital | ULTIMA MILLA",
-      "h1": "Consultoría IT y Transformación Digital",
-      "h1Count": 1,
-      "h1FontSize": 32,
-      "h1Weight": 600,
-      "h1Top": 180,
-      "canonical": "https://ultimamilla.com.ar/servicios/106/consultoria-it-y-transformacion-digital-arquitectura-auditoria",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [
-        {
-          "text": "Solicitar diagnóstico",
-          "top": 367,
-          "height": 50,
-          "href": "/contacto"
-        },
-        {
-          "text": "Ver evidencia",
-          "top": 429,
-          "height": 50,
-          "href": "/antecedentes"
-        }
-      ],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": null,
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 2,
-      "borderNoiseSample": [
-        {
-          "tag": "div",
-          "className": "",
-          "area": 30676,
-          "border": 1
-        },
-        {
-          "tag": "div",
-          "className": "",
-          "area": 30676,
-          "border": 1
-        }
-      ],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [
-        "transformaci[oó]n digital"
-      ],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 250
-    },
-    {
-      "route": "/servicios/108/servicios-electricos-para-it",
-      "label": "servicio electrico detalle default",
-      "viewport": "mobile",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": true,
-      "title": "Servicios Eléctricos para IT | ULTIMA MILLA",
-      "h1": "Servicios Eléctricos para IT",
-      "h1Count": 1,
-      "h1FontSize": 32,
-      "h1Weight": 600,
-      "h1Top": 180,
-      "canonical": "https://ultimamilla.com.ar/servicios/108/servicios-electricos-para-it",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [
-        {
-          "text": "Solicitar diagnóstico",
-          "top": 360,
-          "height": 50,
-          "href": "/contacto"
-        },
-        {
-          "text": "Ver evidencia",
-          "top": 422,
-          "height": 50,
-          "href": "/antecedentes"
-        }
-      ],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": null,
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 2,
-      "borderNoiseSample": [
-        {
-          "tag": "div",
-          "className": "",
-          "area": 30676,
-          "border": 1
-        },
-        {
-          "tag": "div",
-          "className": "",
-          "area": 30676,
-          "border": 1
-        }
-      ],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 313
-    },
-    {
-      "route": "/servicios/107/sistemas-de-deteccion-y-alarma-de-incendios",
-      "label": "servicio incendios detalle default",
-      "viewport": "mobile",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": true,
-      "title": "Sistemas de Detección y Alarma de Incendios |… | ULTIMA MILLA",
-      "h1": "Sistemas de Detección y Alarma de Incendios",
-      "h1Count": 1,
-      "h1FontSize": 32,
-      "h1Weight": 600,
-      "h1Top": 180,
-      "canonical": "https://ultimamilla.com.ar/servicios/107/sistemas-de-deteccion-y-alarma-de-incendios",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [
-        {
-          "text": "Solicitar diagnóstico",
-          "top": 397,
-          "height": 50,
-          "href": "/contacto"
-        },
-        {
-          "text": "Ver evidencia",
-          "top": 459,
-          "height": 50,
-          "href": "/antecedentes"
-        }
-      ],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": null,
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 2,
-      "borderNoiseSample": [
-        {
-          "tag": "div",
-          "className": "",
-          "area": 30676,
-          "border": 1
-        },
-        {
-          "tag": "div",
-          "className": "",
-          "area": 30676,
-          "border": 1
-        }
-      ],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 313
+      "textCount": 310
     },
     {
       "route": "/antecedentes",
@@ -3532,7 +2911,7 @@
       "viewport": "mobile",
       "expectedCanonical": null,
       "requiresFirstViewportCta": false,
-      "title": "Antecedentes técnicos | ULTIMA MILLA",
+      "title": "Evidencia operativa documentada | ULTIMA MILLA",
       "h1": "Evidencia operativa documentada.",
       "h1Count": 1,
       "h1FontSize": 32,
@@ -3543,16 +2922,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -3567,7 +2937,7 @@
           "href": "/contacto"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.013,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -3576,51 +2946,27 @@
       "headingIssues": [],
       "infoHubQuality": [
         {
-          "selector": ".ante-dossier__controls",
+          "selector": ".ante-dossier__sector-rail",
           "display": "block",
           "position": "sticky",
           "top": 64,
-          "height": 193,
+          "height": 42,
           "paddingTop": 0,
           "paddingRight": 0,
           "borderTopWidth": 0,
-          "backgroundAlpha": null,
+          "backgroundAlpha": 1,
           "hasBackdrop": true,
-          "boxShadow": "rgb(255, 255, 255) 0px -10px 0px 0px",
-          "hasShadow": true,
+          "boxShadow": "none",
+          "maskImage": "linear-gradient(90deg, rgba(0, 0, 0, 0) 0px, rgb(0, 0, 0) 14px, rgb(0, 0, 0) calc(100% - 28px), rgba(0, 0, 0, 0) 100%)",
+          "hasShadow": false,
           "visible": true
         }
       ],
       "infoHubRows": [],
       "compositionIssues": [],
       "narrowTextIssues": [],
-      "borderNoiseCount": 4,
-      "borderNoiseSample": [
-        {
-          "tag": "div",
-          "className": "",
-          "area": 15165,
-          "border": 2
-        },
-        {
-          "tag": "div",
-          "className": "",
-          "area": 15165,
-          "border": 1
-        },
-        {
-          "tag": "div",
-          "className": "",
-          "area": 14986,
-          "border": 1
-        },
-        {
-          "tag": "section",
-          "className": "ante-dossier__controls",
-          "area": 75270,
-          "border": 1
-        }
-      ],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
       "ctaGeometryIssues": [],
       "copyWarnings": [],
       "claimWarnings": [],
@@ -3630,7 +2976,7 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 323
+      "textCount": 310
     },
     {
       "route": "/antecedentes?sector=aeropuertos",
@@ -3638,7 +2984,7 @@
       "viewport": "mobile",
       "expectedCanonical": null,
       "requiresFirstViewportCta": false,
-      "title": "Antecedentes técnicos | ULTIMA MILLA",
+      "title": "Evidencia operativa documentada | ULTIMA MILLA",
       "h1": "Evidencia operativa documentada.",
       "h1Count": 1,
       "h1FontSize": 32,
@@ -3649,16 +2995,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -3673,7 +3010,7 @@
           "href": "/contacto"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.013,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -3682,51 +3019,27 @@
       "headingIssues": [],
       "infoHubQuality": [
         {
-          "selector": ".ante-dossier__controls",
+          "selector": ".ante-dossier__sector-rail",
           "display": "block",
           "position": "sticky",
           "top": 64,
-          "height": 235,
+          "height": 42,
           "paddingTop": 0,
           "paddingRight": 0,
           "borderTopWidth": 0,
-          "backgroundAlpha": null,
+          "backgroundAlpha": 1,
           "hasBackdrop": true,
-          "boxShadow": "rgb(255, 255, 255) 0px -10px 0px 0px",
-          "hasShadow": true,
+          "boxShadow": "none",
+          "maskImage": "linear-gradient(90deg, rgba(0, 0, 0, 0) 0px, rgb(0, 0, 0) 14px, rgb(0, 0, 0) calc(100% - 28px), rgba(0, 0, 0, 0) 100%)",
+          "hasShadow": false,
           "visible": true
         }
       ],
       "infoHubRows": [],
       "compositionIssues": [],
       "narrowTextIssues": [],
-      "borderNoiseCount": 4,
-      "borderNoiseSample": [
-        {
-          "tag": "div",
-          "className": "",
-          "area": 15165,
-          "border": 2
-        },
-        {
-          "tag": "div",
-          "className": "",
-          "area": 15165,
-          "border": 1
-        },
-        {
-          "tag": "div",
-          "className": "",
-          "area": 14986,
-          "border": 1
-        },
-        {
-          "tag": "section",
-          "className": "ante-dossier__controls",
-          "area": 91650,
-          "border": 1
-        }
-      ],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
       "ctaGeometryIssues": [],
       "copyWarnings": [],
       "claimWarnings": [],
@@ -3736,7 +3049,7 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 331
+      "textCount": 318
     },
     {
       "route": "/antecedentes/3064/desarrollo-de-software-y-digitalizacion-de-procesos-para-el-gobierno-de-la-provincia-de-mendoza",
@@ -3744,10 +3057,10 @@
       "viewport": "mobile",
       "expectedCanonical": null,
       "requiresFirstViewportCta": false,
-      "title": "Desarrollo de Software y Digitalización de Procesos para el…",
-      "h1": "Desarrollo de Software y Digitalización de Procesos para el Gobierno de la Provincia de Mendoza",
+      "title": "Desarrollo de Software y Digitalización de Procesos para el Gobierno de…",
+      "h1": "Software operativo para Gobierno de Mendoza",
       "h1Count": 1,
-      "h1FontSize": 40,
+      "h1FontSize": 32.76,
       "h1Weight": 600,
       "h1Top": 212,
       "canonical": "https://ultimamilla.com.ar/antecedentes/3064/desarrollo-de-software-y-digitalizacion-de-procesos-para-el-gobierno-de-la-provincia-de-mendoza",
@@ -3755,16 +3068,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -3774,65 +3078,30 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar relevamiento",
-          "top": 648,
+          "top": 446,
           "height": 50,
           "href": "/contacto"
         },
         {
           "text": "Volver al archivo",
-          "top": 710,
+          "top": 509,
           "height": 50,
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.051,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
       "h1CompositionIssue": null,
-      "h1ContentIssue": {
-        "text": "Desarrollo de Software y Digitalización de Procesos para el Gobierno de la Provincia de Mendoza",
-        "length": 95,
-        "hasCmsSeparator": false,
-        "tooVerbose": true,
-        "generic": false
-      },
-      "headingIssues": [
-        {
-          "tag": "h1",
-          "className": "",
-          "text": "Desarrollo de Software y Digitalización de Procesos para el Gobierno de la Provincia de Mendoza",
-          "fontSize": 40,
-          "fontWeight": 600,
-          "lineRatio": 1.1,
-          "width": 358,
-          "height": 308,
-          "overweight": false,
-          "oversized": false,
-          "cramped": false,
-          "clipped": false,
-          "tooTall": true
-        }
-      ],
+      "h1ContentIssue": null,
+      "headingIssues": [],
       "infoHubQuality": [],
       "infoHubRows": [],
       "compositionIssues": [],
       "narrowTextIssues": [],
-      "borderNoiseCount": 2,
-      "borderNoiseSample": [
-        {
-          "tag": "section",
-          "className": "case-detail-hero",
-          "area": 500443,
-          "border": 1
-        },
-        {
-          "tag": "aside",
-          "className": "case-detail-dossier",
-          "area": 183212,
-          "border": 4
-        }
-      ],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
       "ctaGeometryIssues": [],
       "copyWarnings": [],
       "claimWarnings": [],
@@ -3850,7 +3119,7 @@
       "viewport": "mobile",
       "expectedCanonical": null,
       "requiresFirstViewportCta": false,
-      "title": "Soluciones IT por sector | ULTIMA MILLA",
+      "title": "Infraestructura IT por sector, con evidencia operativa | ULTIMA MILLA",
       "h1": "Infraestructura IT por sector, con evidencia operativa.",
       "h1Count": 1,
       "h1FontSize": 32,
@@ -3861,16 +3130,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -3880,18 +3140,18 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 531,
+          "top": 481,
           "height": 50,
           "href": "/contacto"
         },
         {
           "text": "Ver antecedentes",
-          "top": 591,
+          "top": 541,
           "height": 50,
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.031,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -3902,21 +3162,8 @@
       "infoHubRows": [],
       "compositionIssues": [],
       "narrowTextIssues": [],
-      "borderNoiseCount": 2,
-      "borderNoiseSample": [
-        {
-          "tag": "div",
-          "className": "sector-editorial-index-hero",
-          "area": 226035,
-          "border": 1
-        },
-        {
-          "tag": "a",
-          "className": "sector-editorial-feature",
-          "area": 213458,
-          "border": 4
-        }
-      ],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
       "ctaGeometryIssues": [],
       "copyWarnings": [],
       "claimWarnings": [],
@@ -3926,7 +3173,7 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 138
+      "textCount": 158
     },
     {
       "route": "/sectores?sector=bodegas",
@@ -3934,27 +3181,18 @@
       "viewport": "mobile",
       "expectedCanonical": null,
       "requiresFirstViewportCta": false,
-      "title": "Soluciones IT por sector | ULTIMA MILLA",
+      "title": "Infraestructura IT por sector, con evidencia operativa | ULTIMA MILLA",
       "h1": "Infraestructura IT por sector, con evidencia operativa.",
       "h1Count": 1,
       "h1FontSize": 32,
       "h1Weight": 600,
-      "h1Top": 179,
+      "h1Top": 167,
       "canonical": "https://ultimamilla.com.ar/sectores",
       "minFont": 16,
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -3964,18 +3202,18 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 531,
-          "height": 50,
+          "top": 447,
+          "height": 62,
           "href": "/contacto"
         },
         {
           "text": "Ver antecedentes",
-          "top": 591,
-          "height": 50,
+          "top": 447,
+          "height": 62,
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.031,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -3986,21 +3224,8 @@
       "infoHubRows": [],
       "compositionIssues": [],
       "narrowTextIssues": [],
-      "borderNoiseCount": 2,
-      "borderNoiseSample": [
-        {
-          "tag": "div",
-          "className": "sector-editorial-index-hero",
-          "area": 226035,
-          "border": 1
-        },
-        {
-          "tag": "a",
-          "className": "sector-editorial-feature",
-          "area": 213458,
-          "border": 4
-        }
-      ],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
       "ctaGeometryIssues": [],
       "copyWarnings": [],
       "claimWarnings": [],
@@ -4010,7 +3235,7 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 138
+      "textCount": 105
     },
     {
       "route": "/aeropuertos",
@@ -4018,27 +3243,18 @@
       "viewport": "mobile",
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
-      "title": "Tecnología para Aeropuertos | ULTIMA MILLA",
+      "title": "Infraestructura IT para operación aeroportuaria continua | ULTIMA MILLA",
       "h1": "Infraestructura IT para operación aeroportuaria continua",
       "h1Count": 1,
       "h1FontSize": 32,
       "h1Weight": 600,
-      "h1Top": 261,
+      "h1Top": 268,
       "canonical": "https://ultimamilla.com.ar/aeropuertos",
       "minFont": 16,
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -4048,18 +3264,18 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 751,
-          "height": 50,
+          "top": 563,
+          "height": 62,
           "href": "/contacto"
         },
         {
           "text": "Ver antecedentes del sector",
-          "top": 811,
-          "height": 50,
+          "top": 553,
+          "height": 81,
           "href": "/antecedentes?sector=aeropuertos"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.031,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -4089,27 +3305,18 @@
       "viewport": "mobile",
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
-      "title": "Tecnología para Bodegas | ULTIMA MILLA",
+      "title": "Conectividad y control para producción vitivinícola | ULTIMA MILLA",
       "h1": "Conectividad y control para producción vitivinícola",
       "h1Count": 1,
       "h1FontSize": 32,
       "h1Weight": 600,
-      "h1Top": 261,
+      "h1Top": 268,
       "canonical": "https://ultimamilla.com.ar/bodegas",
       "minFont": 16,
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -4119,18 +3326,18 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 722,
-          "height": 50,
+          "top": 536,
+          "height": 62,
           "href": "/contacto"
         },
         {
           "text": "Ver antecedentes del sector",
-          "top": 782,
-          "height": 50,
+          "top": 526,
+          "height": 81,
           "href": "/antecedentes?sector=bodegas"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.031,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -4160,27 +3367,18 @@
       "viewport": "mobile",
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
-      "title": "Tecnología para Gobierno y Sector Público | ULTIMA MILLA",
+      "title": "Plataformas tecnológicas para servicios públicos | ULTIMA MILLA",
       "h1": "Plataformas tecnológicas para servicios públicos",
       "h1Count": 1,
       "h1FontSize": 32,
       "h1Weight": 600,
-      "h1Top": 261,
+      "h1Top": 296,
       "canonical": "https://ultimamilla.com.ar/gobiernosectorpublico",
       "minFont": 16,
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -4190,18 +3388,18 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 685,
-          "height": 50,
+          "top": 527,
+          "height": 62,
           "href": "/contacto"
         },
         {
           "text": "Ver antecedentes del sector",
-          "top": 745,
-          "height": 50,
+          "top": 517,
+          "height": 81,
           "href": "/antecedentes?sector=gobiernosectorpublico"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.031,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -4231,27 +3429,18 @@
       "viewport": "mobile",
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
-      "title": "Tecnología para Minería | ULTIMA MILLA",
+      "title": "Comunicaciones para sitios remotos y exigentes | ULTIMA MILLA",
       "h1": "Comunicaciones para sitios remotos y exigentes",
       "h1Count": 1,
       "h1FontSize": 32,
       "h1Weight": 600,
-      "h1Top": 261,
+      "h1Top": 268,
       "canonical": "https://ultimamilla.com.ar/mineria",
       "minFont": 16,
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -4261,302 +3450,18 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 714,
-          "height": 50,
+          "top": 526,
+          "height": 62,
           "href": "/contacto"
         },
         {
           "text": "Ver antecedentes del sector",
-          "top": 774,
-          "height": 50,
+          "top": 516,
+          "height": 81,
           "href": "/antecedentes?sector=mineria"
         }
       ],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": null,
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 0,
-      "borderNoiseSample": [],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 225
-    },
-    {
-      "route": "/industria",
-      "label": "vertical industria default",
-      "viewport": "mobile",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": true,
-      "title": "Tecnología para Industria | ULTIMA MILLA",
-      "h1": "Redes, control y soporte para plantas activas",
-      "h1Count": 1,
-      "h1FontSize": 32,
-      "h1Weight": 600,
-      "h1Top": 261,
-      "canonical": "https://ultimamilla.com.ar/industria",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [
-        {
-          "text": "Solicitar diagnóstico",
-          "top": 685,
-          "height": 50,
-          "href": "/contacto"
-        },
-        {
-          "text": "Ver antecedentes del sector",
-          "top": 745,
-          "height": 50,
-          "href": "/antecedentes?sector=industria"
-        }
-      ],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": null,
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 0,
-      "borderNoiseSample": [],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 225
-    },
-    {
-      "route": "/salud",
-      "label": "vertical salud default",
-      "viewport": "mobile",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": true,
-      "title": "Tecnología para Salud | ULTIMA MILLA",
-      "h1": "Infraestructura estable para ámbitos clínicos",
-      "h1Count": 1,
-      "h1FontSize": 32,
-      "h1Weight": 600,
-      "h1Top": 240,
-      "canonical": "https://ultimamilla.com.ar/salud",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [
-        {
-          "text": "Solicitar diagnóstico",
-          "top": 692,
-          "height": 50,
-          "href": "/contacto"
-        },
-        {
-          "text": "Ver antecedentes del sector",
-          "top": 752,
-          "height": 50,
-          "href": "/antecedentes?sector=salud"
-        }
-      ],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": null,
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 0,
-      "borderNoiseSample": [],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 225
-    },
-    {
-      "route": "/software",
-      "label": "vertical software default",
-      "viewport": "mobile",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": true,
-      "title": "Desarrollo de Software a Medida | ULTIMA MILLA",
-      "h1": "Sistemas propios conectados a la operación real",
-      "h1Count": 1,
-      "h1FontSize": 32,
-      "h1Weight": 600,
-      "h1Top": 261,
-      "canonical": "https://ultimamilla.com.ar/software",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [
-        {
-          "text": "Solicitar diagnóstico",
-          "top": 685,
-          "height": 50,
-          "href": "/contacto"
-        },
-        {
-          "text": "Ver antecedentes del sector",
-          "top": 745,
-          "height": 50,
-          "href": "/antecedentes?sector=software"
-        }
-      ],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": null,
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 0,
-      "borderNoiseSample": [],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 225
-    },
-    {
-      "route": "/constructoras",
-      "label": "vertical constructoras default",
-      "viewport": "mobile",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": true,
-      "title": "Tecnología para Constructoras | ULTIMA MILLA",
-      "h1": "Tecnología incorporada desde la obra",
-      "h1Count": 1,
-      "h1FontSize": 32,
-      "h1Weight": 600,
-      "h1Top": 261,
-      "canonical": "https://ultimamilla.com.ar/constructoras",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [
-        {
-          "text": "Solicitar diagnóstico",
-          "top": 685,
-          "height": 50,
-          "href": "/contacto"
-        },
-        {
-          "text": "Ver antecedentes del sector",
-          "top": 745,
-          "height": 50,
-          "href": "/antecedentes?sector=constructoras"
-        }
-      ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.031,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -4586,27 +3491,18 @@
       "viewport": "mobile",
       "expectedCanonical": null,
       "requiresFirstViewportCta": true,
-      "title": "Seguridad Electrónica | ULTIMA MILLA",
+      "title": "Control visual, acceso y perímetro con criterio operativo | ULTIMA MILLA",
       "h1": "Control visual, acceso y perímetro con criterio operativo",
       "h1Count": 1,
       "h1FontSize": 32,
       "h1Weight": 600,
-      "h1Top": 261,
+      "h1Top": 268,
       "canonical": "https://ultimamilla.com.ar/seguridad-electronica",
       "minFont": 16,
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -4616,18 +3512,266 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 685,
-          "height": 50,
+          "top": 499,
+          "height": 62,
           "href": "/contacto"
         },
         {
           "text": "Ver antecedentes del sector",
-          "top": 745,
-          "height": 50,
+          "top": 489,
+          "height": 81,
           "href": "/antecedentes?sector=seguridad-electronica"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.031,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 225
+    },
+    {
+      "route": "/industria",
+      "label": "vertical industria default",
+      "viewport": "mobile",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Redes, control y soporte para plantas activas | ULTIMA MILLA",
+      "h1": "Redes, control y soporte para plantas activas",
+      "h1Count": 1,
+      "h1FontSize": 32,
+      "h1Weight": 600,
+      "h1Top": 268,
+      "canonical": "https://ultimamilla.com.ar/industria",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 499,
+          "height": 62,
+          "href": "/contacto"
+        },
+        {
+          "text": "Ver antecedentes del sector",
+          "top": 489,
+          "height": 81,
+          "href": "/antecedentes?sector=industria"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.031,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 225
+    },
+    {
+      "route": "/salud",
+      "label": "vertical salud default",
+      "viewport": "mobile",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Infraestructura estable para ámbitos clínicos | ULTIMA MILLA",
+      "h1": "Infraestructura estable para ámbitos clínicos",
+      "h1Count": 1,
+      "h1FontSize": 32,
+      "h1Weight": 600,
+      "h1Top": 246,
+      "canonical": "https://ultimamilla.com.ar/salud",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 504,
+          "height": 62,
+          "href": "/contacto"
+        },
+        {
+          "text": "Ver antecedentes del sector",
+          "top": 494,
+          "height": 81,
+          "href": "/antecedentes?sector=salud"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.031,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 225
+    },
+    {
+      "route": "/software",
+      "label": "vertical software default",
+      "viewport": "mobile",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Sistemas propios conectados a la operación real | ULTIMA MILLA",
+      "h1": "Sistemas propios conectados a la operación real",
+      "h1Count": 1,
+      "h1FontSize": 32,
+      "h1Weight": 600,
+      "h1Top": 268,
+      "canonical": "https://ultimamilla.com.ar/software",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 499,
+          "height": 62,
+          "href": "/contacto"
+        },
+        {
+          "text": "Ver antecedentes del sector",
+          "top": 489,
+          "height": 81,
+          "href": "/antecedentes?sector=software"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.031,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 225
+    },
+    {
+      "route": "/constructoras",
+      "label": "vertical constructoras default",
+      "viewport": "mobile",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Tecnología incorporada desde la obra | ULTIMA MILLA",
+      "h1": "Tecnología incorporada desde la obra",
+      "h1Count": 1,
+      "h1FontSize": 32,
+      "h1Weight": 600,
+      "h1Top": 268,
+      "canonical": "https://ultimamilla.com.ar/constructoras",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 499,
+          "height": 62,
+          "href": "/contacto"
+        },
+        {
+          "text": "Ver antecedentes del sector",
+          "top": 489,
+          "height": 81,
+          "href": "/antecedentes?sector=constructoras"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.031,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -4657,27 +3801,18 @@
       "viewport": "mobile",
       "expectedCanonical": null,
       "requiresFirstViewportCta": false,
-      "title": "Empresa de servicios IT integrales | ULTIMA MILLA",
+      "title": "Una empresa técnica para operaciones que no pueden detenerse | ULTIMA MILLA",
       "h1": "Una empresa técnica para operaciones que no pueden detenerse",
       "h1Count": 1,
       "h1FontSize": 32,
       "h1Weight": 600,
-      "h1Top": 155,
+      "h1Top": 141,
       "canonical": "https://ultimamilla.com.ar/nosotros",
       "minFont": 16,
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -4685,92 +3820,6 @@
       "lightTextIssues": [],
       "redSmallTextIssues": [],
       "firstViewportCtas": [],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": null,
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 1,
-      "borderNoiseSample": [
-        {
-          "tag": "section",
-          "className": "about-hero",
-          "area": 261361,
-          "border": 1
-        }
-      ],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 174
-    },
-    {
-      "route": "/contacto",
-      "label": "contacto default",
-      "viewport": "mobile",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": true,
-      "title": "Contacto | ULTIMA MILLA",
-      "h1": "Enviá contexto técnico. Respondemos con el próximo paso.",
-      "h1Count": 1,
-      "h1FontSize": 32,
-      "h1Weight": 600,
-      "h1Top": 197,
-      "canonical": "https://ultimamilla.com.ar/contacto",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        },
-        {
-          "tag": "input",
-          "className": "contact-hp",
-          "text": "",
-          "left": -10000,
-          "right": -9966,
-          "width": 34
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [
-        {
-          "text": "Solicitar diagnóstico",
-          "top": 547,
-          "height": 50,
-          "href": "#contactForm"
-        },
-        {
-          "text": "Escribir por email",
-          "top": 609,
-          "height": 50,
-          "href": "mailto:contacto@ultimamilla.com.ar"
-        }
-      ],
       "redBackgroundAreaRatio": 0,
       "brokenImages": [],
       "imageAnomalies": [],
@@ -4793,7 +3842,63 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 154
+      "textCount": 153
+    },
+    {
+      "route": "/certificaciones",
+      "label": "certificaciones default",
+      "viewport": "mobile",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Documentación técnica y cumplimiento | ULTIMA MILLA",
+      "h1": "Documentación técnica para compras, auditorías y licitaciones",
+      "h1Count": 1,
+      "h1FontSize": 32.76,
+      "h1Weight": 600,
+      "h1Top": 153,
+      "canonical": "https://ultimamilla.com.ar/certificaciones",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar documentación",
+          "top": 457,
+          "height": 50,
+          "href": "/contacto"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.051,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 97
     },
     {
       "route": "/blog",
@@ -4801,7 +3906,7 @@
       "viewport": "mobile",
       "expectedCanonical": null,
       "requiresFirstViewportCta": false,
-      "title": "Blog | ULTIMA MILLA - Infraestructura IT y Tecnología",
+      "title": "Ideas técnicas para decidir mejor | ULTIMA MILLA",
       "h1": "Ideas técnicas para decidir mejor",
       "h1Count": 1,
       "h1FontSize": 32,
@@ -4812,16 +3917,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -4831,83 +3927,18 @@
       "firstViewportCtas": [
         {
           "text": "Solicitar diagnóstico",
-          "top": 477,
+          "top": 511,
           "height": 50,
           "href": "/contacto"
         },
         {
           "text": "Ver antecedentes",
-          "top": 537,
+          "top": 571,
           "height": 50,
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
-      "brokenImages": [],
-      "imageAnomalies": [],
-      "imageFrameIssues": [],
-      "h1CompositionIssue": null,
-      "h1ContentIssue": null,
-      "headingIssues": [],
-      "infoHubQuality": [],
-      "infoHubRows": [],
-      "compositionIssues": [],
-      "narrowTextIssues": [],
-      "borderNoiseCount": 1,
-      "borderNoiseSample": [
-        {
-          "tag": "header",
-          "className": "blog-header",
-          "area": 196061,
-          "border": 1
-        }
-      ],
-      "ctaGeometryIssues": [],
-      "copyWarnings": [],
-      "claimWarnings": [],
-      "saasColorIssues": [],
-      "editorialAltBg": 0,
-      "editorialAltSamples": [],
-      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
-      "h1Overweight": false,
-      "frameworkOverlay": false,
-      "textCount": 208
-    },
-    {
-      "route": "/blog/plantilla-arca-facturacion-electronica-gratis",
-      "label": "blog detalle default",
-      "viewport": "mobile",
-      "expectedCanonical": null,
-      "requiresFirstViewportCta": false,
-      "title": "Plantilla ARCA: Facturación Electrónica Gr... | ULTIMA MILLA",
-      "h1": "Plantilla ARCA: Facturación Electrónica Gratis con RG 5824 (Open Source)",
-      "h1Count": 1,
-      "h1FontSize": 40,
-      "h1Weight": 600,
-      "h1Top": 163,
-      "canonical": "https://ultimamilla.com.ar/blog/plantilla-arca-facturacion-electronica-gratis",
-      "minFont": 16,
-      "heavyCount": 0,
-      "maxWeight": 700,
-      "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
-      "navCollisionIssues": [],
-      "clippedTextIssues": [],
-      "safeInsetIssues": [],
-      "darkTextIssues": [],
-      "lightTextIssues": [],
-      "redSmallTextIssues": [],
-      "firstViewportCtas": [],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.031,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -4929,7 +3960,181 @@
       "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
       "h1Overweight": false,
       "frameworkOverlay": false,
-      "textCount": 257
+      "textCount": 204
+    },
+    {
+      "route": "/blog/categoria/tecnico",
+      "label": "blog categoria default",
+      "viewport": "mobile",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": false,
+      "title": "Técnico — Blog ULTIMA MILLA",
+      "h1": "Técnico: decisiones IT con evidencia",
+      "h1Count": 1,
+      "h1FontSize": 32,
+      "h1Weight": 600,
+      "h1Top": 148,
+      "canonical": "https://ultimamilla.com.ar/blog/categoria/tecnico",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 315,
+          "height": 50,
+          "href": "/contacto"
+        },
+        {
+          "text": "Ver todo el blog",
+          "top": 375,
+          "height": 50,
+          "href": "/blog"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.031,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 196
+    },
+    {
+      "route": "/blog/plantilla-arca-facturacion-electronica-gratis",
+      "label": "blog detalle default",
+      "viewport": "mobile",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": false,
+      "title": "Plantilla ARCA: Facturación Electrónica Gr... | ULTIMA MILLA",
+      "h1": "Plantilla ARCA: Facturación Electrónica Gratis con RG 5824 (Open Source)",
+      "h1Count": 1,
+      "h1FontSize": 33.54,
+      "h1Weight": 600,
+      "h1Top": 163,
+      "canonical": "https://ultimamilla.com.ar/blog/plantilla-arca-facturacion-electronica-gratis",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Relevamiento UMSA",
+          "top": 536,
+          "height": 50,
+          "href": "/contacto"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.05,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 260
+    },
+    {
+      "route": "/contacto",
+      "label": "contacto default",
+      "viewport": "mobile",
+      "expectedCanonical": null,
+      "requiresFirstViewportCta": true,
+      "title": "Enviá contexto técnico. Respondemos con el próximo paso | ULTIMA MILLA",
+      "h1": "Enviá contexto técnico. Respondemos con el próximo paso.",
+      "h1Count": 1,
+      "h1FontSize": 32,
+      "h1Weight": 600,
+      "h1Top": 165,
+      "canonical": "https://ultimamilla.com.ar/contacto",
+      "minFont": 16,
+      "heavyCount": 0,
+      "maxWeight": 700,
+      "overflowX": false,
+      "overflowOffenders": [],
+      "navCollisionIssues": [],
+      "clippedTextIssues": [],
+      "safeInsetIssues": [],
+      "darkTextIssues": [],
+      "lightTextIssues": [],
+      "redSmallTextIssues": [],
+      "firstViewportCtas": [
+        {
+          "text": "Solicitar diagnóstico",
+          "top": 423,
+          "height": 50,
+          "href": "#contactForm"
+        }
+      ],
+      "redBackgroundAreaRatio": 0.051,
+      "brokenImages": [],
+      "imageAnomalies": [],
+      "imageFrameIssues": [],
+      "h1CompositionIssue": null,
+      "h1ContentIssue": null,
+      "headingIssues": [],
+      "infoHubQuality": [],
+      "infoHubRows": [],
+      "compositionIssues": [],
+      "narrowTextIssues": [],
+      "borderNoiseCount": 0,
+      "borderNoiseSample": [],
+      "ctaGeometryIssues": [],
+      "copyWarnings": [],
+      "claimWarnings": [],
+      "saasColorIssues": [],
+      "editorialAltBg": 0,
+      "editorialAltSamples": [],
+      "h1FontFamily": "Poppins, \"Open Sans\", Arial, system-ui, sans-serif",
+      "h1Overweight": false,
+      "frameworkOverlay": false,
+      "textCount": 126
     },
     {
       "route": "/servicios-it-empresas-mendoza",
@@ -4937,7 +4142,7 @@
       "viewport": "mobile",
       "expectedCanonical": "https://ultimamilla.com.ar/servicios-it-empresas-mendoza",
       "requiresFirstViewportCta": true,
-      "title": "Servicios IT para empresas en Mendoza | ULTIMA MILLA",
+      "title": "Servicios tecnológicos para empresas en Mendoza | ULTIMA MILLA",
       "h1": "Operación IT para empresas de Mendoza",
       "h1Count": 1,
       "h1FontSize": 32,
@@ -4948,16 +4153,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -4978,7 +4174,7 @@
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.031,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -5008,7 +4204,7 @@
       "viewport": "mobile",
       "expectedCanonical": "https://ultimamilla.com.ar/servicios-it-empresas-argentina",
       "requiresFirstViewportCta": true,
-      "title": "Servicios IT para empresas en Argentina | ULTIMA MILLA",
+      "title": "Servicios tecnológicos para empresas en Argentina | ULTIMA MILLA",
       "h1": "Servicios IT para sedes en Argentina",
       "h1Count": 1,
       "h1FontSize": 32,
@@ -5019,16 +4215,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -5049,7 +4236,7 @@
           "href": "/servicios"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.039,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -5079,7 +4266,7 @@
       "viewport": "mobile",
       "expectedCanonical": "https://ultimamilla.com.ar/presupuesto-servicios-it-empresas",
       "requiresFirstViewportCta": true,
-      "title": "Presupuesto de servicios IT para empresas | ULTIMA MILLA",
+      "title": "Presupuesto de servicios tecnológicos para empresas | ULTIMA MILLA",
       "h1": "Cotizar servicios IT sin perder alcance",
       "h1Count": 1,
       "h1FontSize": 32,
@@ -5090,16 +4277,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -5120,7 +4298,7 @@
           "href": "/contacto"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.025,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],
@@ -5150,7 +4328,7 @@
       "viewport": "mobile",
       "expectedCanonical": "https://ultimamilla.com.ar/proyectos-ingenieria-it-mendoza",
       "requiresFirstViewportCta": true,
-      "title": "Proyectos de ingeniería IT en Mendoza | ULTIMA MILLA",
+      "title": "Proyectos de ingeniería tecnológica en Mendoza | ULTIMA MILLA",
       "h1": "Ingeniería IT para obras y operación",
       "h1Count": 1,
       "h1FontSize": 32,
@@ -5161,16 +4339,7 @@
       "heavyCount": 0,
       "maxWeight": 700,
       "overflowX": false,
-      "overflowOffenders": [
-        {
-          "tag": "a",
-          "className": "um-skip-link",
-          "text": "Saltar al contenido principal",
-          "left": -9999,
-          "right": -9963,
-          "width": 36
-        }
-      ],
+      "overflowOffenders": [],
       "navCollisionIssues": [],
       "clippedTextIssues": [],
       "safeInsetIssues": [],
@@ -5191,7 +4360,7 @@
           "href": "/antecedentes"
         }
       ],
-      "redBackgroundAreaRatio": 0,
+      "redBackgroundAreaRatio": 0.033,
       "brokenImages": [],
       "imageAnomalies": [],
       "imageFrameIssues": [],

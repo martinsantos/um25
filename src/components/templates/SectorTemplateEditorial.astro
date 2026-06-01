@@ -5,14 +5,16 @@ import MetricStrip from '../um/MetricStrip.astro';
 import UMButton from '../um/UMButton.astro';
 import { truncateEditorialText } from '../../utils/editorialContent';
 import { resolveReplicaH1 } from '../../utils/replicaProdCopy';
-import { getAntecedentesCountExactPhrase } from '../../utils/verifiedProof';
+import { getAntecedentesCountShort } from '../../utils/verifiedProof';
 
-const antecedentesProofLabel = getAntecedentesCountExactPhrase();
+const antecedentesProofLabel = getAntecedentesCountShort();
 
 interface Props {
   mode?: 'index' | 'detail';
   sectors?: any[];
   sector?: any;
+  sectorFilter?: string;
+  sectorFilterOptions?: Array<{ id: string; label: string }>;
   antecedentes?: any[];
   valueProps?: any[];
   serviciosRelacionados?: any[];
@@ -22,13 +24,19 @@ const {
   mode = 'index',
   sectors = [],
   sector = {},
+  sectorFilter = '',
+  sectorFilterOptions = [],
   antecedentes = [],
   valueProps = [],
   serviciosRelacionados = []
 } = Astro.props;
 
-const featuredSectors = sectors.slice(0, 2);
-const supportingSectors = sectors.slice(2);
+const visibleSectors = mode === 'index' && sectorFilter
+  ? sectors.filter((item) => item.slug === sectorFilter)
+  : sectors;
+const isFilteredIndex = mode === 'index' && Boolean(sectorFilter);
+const featuredSectors = visibleSectors.slice(0, 2);
+const supportingSectors = visibleSectors.slice(2);
 const mainCase = antecedentes[0];
 const secondaryCases = antecedentes.slice(1, 3);
 const archiveCases = antecedentes.slice(3, 6);
@@ -57,10 +65,12 @@ const sectorMetrics = sectorStats.map((stat: any) => ({
 if (mode === 'detail' && antecedentes.length > 0) {
   sectorMetrics.push({ value: `${antecedentes.length}+`, label: 'Antecedentes' });
 }
+
+const buildSectorIndexUrl = (slug: string) => slug ? `/sectores?sector=${encodeURIComponent(slug)}` : '/sectores';
 ---
 
 {mode === 'index' ? (
-  <section class="sector-editorial sector-editorial--index">
+  <section class={`sector-editorial sector-editorial--index${isFilteredIndex ? ' sector-editorial--filtered' : ''}`}>
     <div class="sector-editorial-index-hero">
     <div class="um-container">
       <div class="sector-editorial__head">
@@ -82,7 +92,7 @@ if (mode === 'detail' && antecedentes.length > 0) {
           </div>
           <div>
             <dt>Operación</dt>
-            <dd>22+ años / 24-7</dd>
+            <dd>22+ años / 24/7</dd>
           </div>
         </dl>
         <div class="sector-editorial__actions">
@@ -93,6 +103,23 @@ if (mode === 'detail' && antecedentes.length > 0) {
     </div>
     </div>
 
+    {sectorFilterOptions.length > 0 && (
+      <nav class="sector-editorial__market-rail" aria-label="Filtrar sectores por mercado operativo">
+        <div class="um-container">
+          <div class="sector-editorial__market-links">
+            {sectorFilterOptions.map((item) => (
+              <a
+                href={buildSectorIndexUrl(item.id)}
+                class={(sectorFilter === item.id || (!sectorFilter && item.id === '')) ? 'is-active' : ''}
+              >
+                {item.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      </nav>
+    )}
+
     <div class="um-container sector-editorial-index-body">
       <div class="sector-editorial__features">
         {featuredSectors.map((item, index) => (
@@ -102,10 +129,16 @@ if (mode === 'detail' && antecedentes.length > 0) {
               <span>{String(index + 1).padStart(2, '0')}</span>
               <h2>{item.label}</h2>
               <p>{item.summary}</p>
+              {Array.isArray(item.services) && item.services.length > 0 && (
+                <ul class="sector-editorial-feature__services" aria-label={`Servicios aplicados en ${item.label}`}>
+                  {item.services.map((service: string) => <li>{service}</li>)}
+                </ul>
+              )}
               <dl>
                 <div><dt>Archivo</dt><dd>{item.cases}</dd></div>
                 <div><dt>Necesidad</dt><dd>{item.operatingNeed}</dd></div>
               </dl>
+              <strong class="sector-editorial-feature__link">Abrir dossier del sector</strong>
             </div>
           </a>
         ))}
@@ -140,24 +173,24 @@ if (mode === 'detail' && antecedentes.length > 0) {
           <p class="sector-editorial-detail-hero__kicker">Infraestructura crítica · {sectorName}</p>
           <h1>{sectorTitle}</h1>
           <p class="sector-editorial-detail-hero__lead">{sectorSummary}</p>
+          <div class="sector-editorial-detail-hero__actions">
+            <UMButton href="/contacto">Solicitar diagnóstico</UMButton>
+            <UMButton href={sectorAntecedentesHref} variant="secondary">Ver antecedentes del sector</UMButton>
+          </div>
           <dl class="sector-editorial-detail-hero__proofline" aria-label="Prueba institucional">
             <div>
               <dt>Archivo</dt>
               <dd>{antecedentesProofLabel}</dd>
             </div>
             <div>
-              <dt>Trayectoria</dt>
-              <dd>22+ años</dd>
+              <dt>Años</dt>
+              <dd>22+</dd>
             </div>
             <div>
-              <dt>Operación</dt>
+              <dt>Soporte</dt>
               <dd>24/7</dd>
             </div>
           </dl>
-          <div class="sector-editorial-detail-hero__actions">
-            <UMButton href="/contacto">Solicitar diagnóstico</UMButton>
-            <UMButton href={sectorAntecedentesHref} variant="secondary">Ver antecedentes del sector</UMButton>
-          </div>
         </div>
       </div>
     </div>
@@ -280,7 +313,7 @@ if (mode === 'detail' && antecedentes.length > 0) {
     background: #050505;
     color: #fff;
     padding: clamp(28px, 4vw, 48px) 0 clamp(36px, 5vw, 56px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 0;
   }
 
   .sector-editorial-index-hero .sector-editorial__head {
@@ -301,8 +334,73 @@ if (mode === 'detail' && antecedentes.length > 0) {
     color: rgba(255, 255, 255, 0.78);
   }
 
+  .sector-editorial__market-rail {
+    position: sticky;
+    top: 72px;
+    z-index: 8;
+    background: #fff;
+    box-shadow: 0 -12px 0 #fff;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 42px), transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 42px), transparent 100%);
+  }
+
+  .sector-editorial__market-links {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: clamp(14px, 1.8vw, 24px);
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    padding-right: clamp(32px, 5vw, 72px);
+    scroll-padding-inline: 18px clamp(32px, 5vw, 72px);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sector-editorial__market-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sector-editorial__market-links a {
+    position: relative;
+    flex: 0 0 auto;
+    min-height: 54px;
+    display: inline-flex;
+    align-items: center;
+    color: #1f2937;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .sector-editorial__market-links a.is-active {
+    color: var(--um-red);
+  }
+
+  .sector-editorial__market-links a.is-active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: var(--um-red);
+  }
+
   .sector-editorial-index-body {
     padding-top: clamp(28px, 4vw, 44px);
+  }
+
+  .sector-editorial--filtered .sector-editorial-index-hero {
+    padding-bottom: clamp(30px, 4vw, 48px);
+  }
+
+  .sector-editorial--filtered .sector-editorial-index-body {
+    padding-top: clamp(22px, 3vw, 36px);
   }
 
   .sector-editorial__head {
@@ -360,24 +458,29 @@ if (mode === 'detail' && antecedentes.length > 0) {
 
   .sector-editorial__proofline div {
     display: grid;
+    min-width: 0;
     gap: 4px;
   }
 
   .sector-editorial__proofline dt {
+    min-width: 0;
     color: var(--um-gray-600);
     font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     line-height: 1.2;
     text-transform: uppercase;
+    overflow-wrap: anywhere;
   }
 
   .sector-editorial__proofline dd {
+    min-width: 0;
     margin: 0;
     color: #111;
     font-size: 1rem;
     font-weight: 600;
     line-height: 1.35;
+    overflow-wrap: anywhere;
   }
 
   .sector-editorial__actions,
@@ -402,15 +505,26 @@ if (mode === 'detail' && antecedentes.length > 0) {
     gap: 18px;
   }
 
+  .sector-editorial--filtered .sector-editorial__features {
+    grid-template-columns: 1fr;
+  }
+
   .sector-editorial-feature {
     position: relative;
     display: grid;
     grid-template-rows: auto 1fr;
     min-height: 0;
     overflow: hidden;
-    border: 1px solid var(--um-line);
+    border: 0;
     background: #fff;
     color: #111;
+  }
+
+  .sector-editorial--filtered .sector-editorial-feature {
+    grid-template-columns: minmax(320px, 0.46fr) minmax(0, 0.54fr);
+    grid-template-rows: none;
+    min-height: clamp(360px, 36vw, 440px);
+    background: #f7f8f9;
   }
 
   .sector-editorial-feature:nth-child(2) {
@@ -427,6 +541,11 @@ if (mode === 'detail' && antecedentes.length > 0) {
     filter: grayscale(0.04) contrast(1.04) saturate(0.92);
   }
 
+  .sector-editorial--filtered .sector-editorial-feature img {
+    height: 100%;
+    min-height: clamp(360px, 36vw, 440px);
+  }
+
   .sector-editorial-feature::after {
     display: none;
   }
@@ -436,6 +555,11 @@ if (mode === 'detail' && antecedentes.length > 0) {
     z-index: 0;
     align-self: start;
     padding: clamp(18px, 2.4vw, 28px);
+  }
+
+  .sector-editorial--filtered .sector-editorial-feature > div {
+    align-self: center;
+    padding: clamp(28px, 4vw, 54px);
   }
 
   .sector-editorial-feature span,
@@ -464,22 +588,61 @@ if (mode === 'detail' && antecedentes.length > 0) {
     line-height: 1.5;
   }
 
+  .sector-editorial-feature__services {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sector-editorial-feature__services li {
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    background: #eceff2;
+    color: #111;
+    padding: 0 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+
   .sector-editorial-feature dl {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1px;
+    gap: 12px;
     margin: 18px 0 0;
-    border: 1px solid var(--um-line);
-    background: var(--um-line);
+    border: 0;
+    background: transparent;
+  }
+
+  .sector-editorial-feature__link {
+    display: inline-flex;
+    width: fit-content;
+    margin-top: 18px;
+    color: #111;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .sector-editorial-feature__link::after {
+    content: "";
+    width: 18px;
+    height: 2px;
+    margin: 0.62em 0 0 10px;
+    background: var(--um-red);
   }
 
   .sector-editorial-feature dl div {
     padding: 12px;
-    background: #f8f8f8;
+    background: #f7f8f9;
   }
 
   .sector-editorial-feature dt {
-    color: #777;
+    color: #5f6670;
     font-size: 1rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -495,8 +658,9 @@ if (mode === 'detail' && antecedentes.length > 0) {
 
   .sector-editorial__support {
     display: grid;
+    gap: clamp(10px, 1.5vw, 16px);
     margin-top: clamp(30px, 5vw, 58px);
-    border-top: 1px solid var(--um-line);
+    border-top: 0;
   }
 
   .sector-editorial-row {
@@ -505,7 +669,8 @@ if (mode === 'detail' && antecedentes.length > 0) {
     gap: clamp(18px, 3vw, 34px);
     align-items: start;
     padding: 26px clamp(18px, 2vw, 26px);
-    border-bottom: 1px solid var(--um-line);
+    border-bottom: 0;
+    background: #f8f9fa;
     color: #111;
   }
 
@@ -703,7 +868,7 @@ if (mode === 'detail' && antecedentes.length > 0) {
   }
 
   .sector-editorial-detail__risk dt {
-    color: #777;
+    color: #5f6670;
     font-size: 1rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -808,6 +973,64 @@ if (mode === 'detail' && antecedentes.length > 0) {
       padding: 34px 0 54px;
     }
 
+    .sector-editorial--filtered .sector-editorial-index-hero {
+      padding-top: 24px;
+      padding-bottom: 30px;
+    }
+
+    .sector-editorial--filtered .sector-editorial__head {
+      gap: 12px;
+    }
+
+    .sector-editorial--filtered .sector-editorial__head h1 {
+      max-width: none;
+      font-size: clamp(1.82rem, 7.6vw, 2.18rem);
+      line-height: 1.12;
+    }
+
+    .sector-editorial--filtered .sector-editorial__lead {
+      max-width: none;
+      line-height: 1.5;
+    }
+
+    .sector-editorial--filtered .sector-editorial__actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .sector-editorial--filtered .sector-editorial__actions :global(.um-btn-primary),
+    .sector-editorial--filtered .sector-editorial__actions :global(.um-btn-secondary) {
+      min-width: 0;
+      min-height: 46px;
+      width: 100%;
+      padding: 0.72rem 0.8rem;
+      font-size: 1rem;
+      line-height: 1.08;
+      text-align: center;
+    }
+
+    .sector-editorial--filtered .sector-editorial-index-body {
+      padding-top: 18px;
+    }
+
+    .sector-editorial__market-rail {
+      top: 64px;
+      box-shadow: 0 -6px 0 #fff;
+      -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 28px), transparent 100%);
+      mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 28px), transparent 100%);
+    }
+
+    .sector-editorial__market-links {
+      gap: 18px;
+      padding-inline: 14px 42px;
+      scroll-padding-inline: 14px 42px;
+    }
+
+    .sector-editorial__market-links a {
+      min-height: 46px;
+    }
+
     .sector-editorial__head h1,
     .sector-editorial-detail-hero h1 {
       max-width: 18ch;
@@ -829,18 +1052,175 @@ if (mode === 'detail' && antecedentes.length > 0) {
       min-height: 0;
     }
 
+    .sector-editorial--filtered .sector-editorial-feature {
+      grid-template-columns: 1fr;
+      min-height: 0;
+      background: #fff;
+    }
+
+    .sector-editorial--filtered .sector-editorial-feature img {
+      height: 190px;
+      min-height: 0;
+    }
+
+    .sector-editorial--filtered .sector-editorial-feature > div {
+      padding: 18px 0 0;
+    }
+
+    .sector-editorial-feature__services {
+      gap: 6px;
+      margin-top: 14px;
+    }
+
+    .sector-editorial-feature__services li {
+      min-height: 32px;
+      padding: 0 10px;
+      font-size: 1rem;
+    }
+
+    .sector-editorial__proofline {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 14px;
+    }
+
+    .sector-editorial__proofline div:nth-child(3) {
+      display: none;
+    }
+
+    .sector-editorial__proofline dt {
+      letter-spacing: 0;
+      line-height: 1.15;
+      text-transform: none;
+    }
+
     .sector-editorial-detail-hero__proofline {
       grid-template-columns: 1fr;
     }
 
     .sector-editorial-detail-hero .um-container {
-      padding-top: 64px;
+      min-height: 0;
+      padding-top: 34px;
+      padding-bottom: 28px;
+    }
+
+    .sector-editorial__crumb {
+      position: static;
+      gap: 8px;
+      margin-bottom: 18px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1rem;
+      line-height: 1.25;
+    }
+
+    .sector-editorial-detail-hero__kicker {
+      margin-top: 14px;
+      letter-spacing: 0.04em;
+    }
+
+    .sector-editorial-detail-hero__lead {
+      margin-top: 14px;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .sector-editorial-detail-hero__actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .sector-editorial-detail-hero__actions :global(.um-btn-primary),
+    .sector-editorial-detail-hero__actions :global(.um-btn-secondary) {
+      min-width: 0;
+      min-height: 46px;
+      width: 100%;
+      padding: 0.72rem 0.8rem;
+      font-size: 1rem;
+      line-height: 1.08;
+      text-align: center;
     }
 
     .sector-editorial-feature dl,
-    .sector-editorial-detail__risk dl,
     .sector-editorial-detail__secondary {
       grid-template-columns: 1fr;
     }
+
+    .sector-editorial-detail-hero__proofline {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .sector-editorial-detail-hero__proofline dt,
+    .sector-editorial-detail-hero__proofline dd {
+      font-size: 1rem;
+      letter-spacing: 0;
+      line-height: 1.22;
+      overflow-wrap: normal;
+    }
+
+    .sector-editorial-detail {
+      gap: 44px;
+      padding-top: 48px;
+    }
+
+    .sector-editorial-detail__risk {
+      gap: 18px;
+    }
+
+    .sector-editorial-detail__risk dl {
+      grid-template-columns: 1fr;
+      gap: 0;
+      border: 0;
+      background: transparent;
+    }
+
+    .sector-editorial-detail__risk dl div {
+      padding: 16px 0;
+      border-top: 1px solid var(--um-line);
+      background: transparent;
+    }
+
+    .sector-editorial-service-list,
+    .sector-editorial-criteria-grid {
+      gap: 0;
+      border: 0;
+      background: transparent;
+    }
+
+    .sector-editorial-service-list a,
+    .sector-editorial-service-list div,
+    .sector-editorial-criteria-grid article {
+      min-height: 0;
+      padding: 18px 0;
+      border-top: 1px solid var(--um-line);
+      background: transparent;
+    }
+
+    .sector-editorial-service-list strong,
+    .sector-editorial-criteria-grid h3 {
+      margin-top: 10px;
+      font-size: 1.08rem;
+      line-height: 1.2;
+    }
+
+    .sector-editorial-service-list p,
+    .sector-editorial-criteria-grid p {
+      margin-top: 8px;
+      line-height: 1.48;
+    }
   }
 </style>
+
+<script>
+  document.querySelectorAll('.sector-editorial__market-links').forEach((rail) => {
+    const active = rail.querySelector('.is-active');
+    if (active instanceof HTMLElement) {
+      active.scrollIntoView({
+        block: 'nearest',
+        inline: window.matchMedia('(max-width: 720px)').matches ? 'start' : 'nearest'
+      });
+    }
+  });
+</script>

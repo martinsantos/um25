@@ -27,8 +27,9 @@ interface FormattedResult {
 // CONEXIÓN DIRECTA A DIRECTUS REAL - SOLO URLs VERIFICADAS
 async function queryDirectusRealOnly(searchQuery: string): Promise<FormattedResult[]> {
     try {
-        const token = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
-        const directusUrl = 'http://localhost:8055';
+        const token = import.meta.env.DIRECTUS_STATIC_TOKEN || import.meta.env.PUBLIC_DIRECTUS_TOKEN || '';
+        const directusUrl = import.meta.env.DIRECTUS_INTERNAL_URL || import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
+        if (!token) return [];
         
         // ⚠️ CRÍTICO: URLs REALES CONOCIDAS (de memorias del proyecto)
         // NO GENERAR URLs INVENTADAS - SOLO ESTAS VERIFICADAS

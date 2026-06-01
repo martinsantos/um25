@@ -1,11 +1,13 @@
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { E2E_DEFECT_PATHS } from './e2e-commercial-labels.mjs';
 
 const BASE = process.env.VISUAL_AUDIT_BASE_URL || 'http://localhost:4321';
 const CHROME = process.env.CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-const PORT = Number(process.env.HEURISTIC_CDP_PORT || 9345);
+const PORT = Number(process.env.HEURISTIC_CDP_PORT || (9345 + Math.floor(Math.random() * 1000)));
 const OUT = process.env.HEURISTIC_OUT || 'docs/audits/consistency-pass-2026-05-29/heuristic-matrix.json';
+const CDP_TIMEOUT_MS = Number(process.env.HEURISTIC_CDP_TIMEOUT_MS || 25000);
+const ROUTE_ATTEMPTS = Number(process.env.HEURISTIC_ROUTE_ATTEMPTS || 2);
 
 const routes = E2E_DEFECT_PATHS;
 
@@ -15,6 +17,10 @@ const viewports = [
 ];
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function cleanupHeuristicChrome(port) {
+  spawnSync('pkill', ['-f', `/tmp/umsa-heuristic-${port}`], { stdio: 'ignore' });
+}
 
 const needsCta = (path) => {
   const base = path.split('?')[0];
@@ -124,7 +130,7 @@ const PAGE_PROBE = `(() => {
     return rect.top >= 0
       && rect.top < window.innerHeight
       && rect.height >= 36
-      && /diagn|contact|relevamiento|cotizar|especialista|abono|pliego|presupuesto/i.test(label);
+      && /diagn|contact|relevamiento|cotizar|especialista|abono|pliego|presupuesto|documentaci/i.test(label);
   });
 
   return {
@@ -202,6 +208,7 @@ function evaluate(path, d) {
 }
 
 async function main() {
+  cleanupHeuristicChrome(PORT);
   const chrome = spawn(CHROME, [
     '--headless=new',
     '--disable-gpu',
@@ -210,78 +217,122 @@ async function main() {
     'about:blank',
   ], { stdio: 'ignore' });
 
-  await sleep(900);
-  const targets = await (await fetch(`http://127.0.0.1:${PORT}/json/list`)).json();
-  const pageTarget = targets.find((t) => t.type === 'page');
-  if (!pageTarget) throw new Error('No Chrome page target');
+  let ws;
+  try {
+    let targets = null;
+    for (let attempt = 1; attempt <= 80; attempt += 1) {
+      try {
+        const response = await fetch(`http://127.0.0.1:${PORT}/json/list`);
+        if (response.ok) {
+          targets = await response.json();
+          break;
+        }
+      } catch {
+        // Chrome can take a few seconds to expose CDP under load.
+      }
+      await sleep(125);
+    }
+    if (!targets) throw new Error(`Chrome CDP not ready on ${PORT}`);
+    const pageTarget = targets.find((t) => t.type === 'page');
+    if (!pageTarget) throw new Error('No Chrome page target');
 
-  const ws = new WebSocket(pageTarget.webSocketDebuggerUrl);
-  await new Promise((resolve, reject) => {
-    ws.addEventListener('open', resolve, { once: true });
-    ws.addEventListener('error', reject, { once: true });
-  });
+    ws = new WebSocket(pageTarget.webSocketDebuggerUrl);
+    await new Promise((resolve, reject) => {
+      ws.addEventListener('open', resolve, { once: true });
+      ws.addEventListener('error', reject, { once: true });
+    });
 
-  let commandId = 0;
-  const cdp = (method, params = {}) => new Promise((resolve, reject) => {
-    const id = ++commandId;
-    const timer = setTimeout(() => reject(new Error(`timeout ${method}`)), 25000);
-    const onMessage = (event) => {
-      const message = JSON.parse(event.data);
-      if (message.id !== id) return;
-      clearTimeout(timer);
-      ws.removeEventListener('message', onMessage);
-      if (message.error) reject(new Error(JSON.stringify(message.error)));
-      else resolve(message.result);
+    let commandId = 0;
+    const cdp = (method, params = {}) => new Promise((resolve, reject) => {
+      const id = ++commandId;
+      const timer = setTimeout(() => reject(new Error(`timeout ${method}`)), CDP_TIMEOUT_MS);
+      const onMessage = (event) => {
+        const message = JSON.parse(event.data);
+        if (message.id !== id) return;
+        clearTimeout(timer);
+        ws.removeEventListener('message', onMessage);
+        if (message.error) reject(new Error(JSON.stringify(message.error)));
+        else resolve(message.result);
+      };
+      ws.addEventListener('message', onMessage);
+      ws.send(JSON.stringify({ id, method, params }));
+    });
+
+    const cdpRetry = async (method, params = {}, attempts = 2) => {
+      let lastError;
+      for (let attempt = 1; attempt <= attempts; attempt += 1) {
+        try {
+          return await cdp(method, params);
+        } catch (error) {
+          lastError = error;
+          if (attempt < attempts) await sleep(650 * attempt);
+        }
+      }
+      throw lastError;
     };
-    ws.addEventListener('message', onMessage);
-    ws.send(JSON.stringify({ id, method, params }));
-  });
 
-  await cdp('Page.enable');
-  const matrix = [];
-
-  for (const path of routes) {
-    for (const viewport of viewports) {
-      await cdp('Emulation.setDeviceMetricsOverride', {
+    async function probeRoute(path, viewport) {
+      await cdpRetry('Emulation.setDeviceMetricsOverride', {
         width: viewport.width,
         height: viewport.height,
         deviceScaleFactor: 1,
         mobile: viewport.mobile,
       });
       if (viewport.mobile) {
-        await cdp('Emulation.setUserAgentOverride', {
+        await cdpRetry('Emulation.setUserAgentOverride', {
           userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15',
         });
+      } else {
+        await cdpRetry('Emulation.setUserAgentOverride', { userAgent: '' });
       }
-      await cdp('Page.navigate', { url: new URL(path, BASE).toString() });
+      await cdpRetry('Page.navigate', { url: new URL(path, BASE).toString() });
       await sleep(viewport.mobile ? 2200 : 1800);
 
-      let d;
       for (let attempt = 0; attempt < 2; attempt += 1) {
-        const { result } = await cdp('Runtime.evaluate', {
+        const { result } = await cdpRetry('Runtime.evaluate', {
           expression: PAGE_PROBE,
           returnByValue: true,
         });
-        d = result?.value;
-        if (d) break;
+        const d = result?.value;
+        if (d) return d;
         await sleep(1200);
       }
-      if (!d || typeof d !== 'object') {
-        matrix.push({ path, viewport: viewport.name, status: 'DEFECTO', defects: ['probe falló'], probeError: true });
-        console.log(`${'DEFECTO'.padEnd(9)} ${viewport.name.padEnd(18)} ${path} probe falló`);
-        continue;
-      }
-      const { status, defects } = evaluate(path, d);
-      matrix.push({ path, viewport: viewport.name, status, defects, ...d });
-      console.log(`${status.padEnd(9)} ${viewport.name.padEnd(18)} ${path} ${defects.join('; ') || '-'}`);
+      return null;
     }
-  }
 
-  ws.close();
-  chrome.kill('SIGKILL');
+    await cdpRetry('Page.enable');
+    const matrix = [];
 
-  await mkdir(OUT.replace(/\/[^/]+$/, ''), { recursive: true });
-  await writeFile(OUT, JSON.stringify(matrix, null, 2));
+    for (const path of routes) {
+      for (const viewport of viewports) {
+        let d = null;
+        let lastError = null;
+        for (let routeAttempt = 1; routeAttempt <= ROUTE_ATTEMPTS; routeAttempt += 1) {
+          try {
+            d = await probeRoute(path, viewport);
+            if (d && typeof d === 'object') break;
+          } catch (error) {
+            lastError = error;
+            if (routeAttempt < ROUTE_ATTEMPTS) {
+              console.warn(`Retrying heuristic probe ${path} @ ${viewport.name} after ${error.message}`);
+              await sleep(900 * routeAttempt);
+            }
+          }
+        }
+        if (!d || typeof d !== 'object') {
+          const defect = lastError ? `probe falló: ${lastError.message}` : 'probe falló';
+          matrix.push({ path, viewport: viewport.name, status: 'DEFECTO', defects: [defect], probeError: true });
+          console.log(`${'DEFECTO'.padEnd(9)} ${viewport.name.padEnd(18)} ${path} ${defect}`);
+          continue;
+        }
+        const { status, defects } = evaluate(path, d);
+        matrix.push({ path, viewport: viewport.name, status, defects, ...d });
+        console.log(`${status.padEnd(9)} ${viewport.name.padEnd(18)} ${path} ${defects.join('; ') || '-'}`);
+      }
+    }
+
+    await mkdir(OUT.replace(/\/[^/]+$/, ''), { recursive: true });
+    await writeFile(OUT, JSON.stringify(matrix, null, 2));
 
   const summary = {
     total: matrix.length,
@@ -295,7 +346,12 @@ async function main() {
   await writeFile(OUT.replace(/\.json$/, '-summary.json'), JSON.stringify(summary, null, 2));
   console.log('\nSummary:', JSON.stringify(summary));
 
-  process.exit(summary.defecto ? 1 : 0);
+    process.exit(summary.defecto ? 1 : 0);
+  } finally {
+    try { ws?.close(); } catch { /* noop */ }
+    chrome.kill('SIGKILL');
+    cleanupHeuristicChrome(PORT);
+  }
 }
 
 main().catch((error) => {

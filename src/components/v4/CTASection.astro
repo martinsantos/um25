@@ -152,6 +152,16 @@ const hasSecondaryButton = secondaryButtonText && secondaryButtonUrl;
 </section>
 
 <style>
+  .um-cta {
+    --skin-hero-bg: #050505;
+    --skin-hero-text: #ffffff;
+    --skin-hero-muted: rgba(255, 255, 255, 0.82);
+    --skin-hero-line: rgba(255, 255, 255, 0.18);
+    --skin-hero-panel: rgba(255, 255, 255, 0.1);
+    background: #050505;
+    color: #ffffff;
+  }
+
   .um-cta__content {
     max-width: 980px;
     text-align: left;
@@ -162,7 +172,7 @@ const hasSecondaryButton = secondaryButtonText && secondaryButtonUrl;
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 1.25rem;
-    color: #DC2626;
+    color: rgba(255, 255, 255, 0.82);
     font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0;
@@ -236,7 +246,7 @@ const hasSecondaryButton = secondaryButtonText && secondaryButtonUrl;
     gap: 0.5rem;
     border: 0;
     background: color-mix(in srgb, var(--skin-hero-text) 10%, transparent);
-    color: var(--skin-hero-text);
+    color: #ffffff;
   }
 
   .um-cta__secondary:hover {

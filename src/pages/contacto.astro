@@ -5,12 +5,11 @@ import UMButton from '../components/um/UMButton.astro';
 import SectionHeader from '../components/um/SectionHeader.astro';
 import { resolveReplicaH1 } from '../utils/replicaProdCopy';
 import { getAntecedentesCountShort } from '../utils/verifiedProof';
-import BudgetBriefFields from '../components/um/BudgetBriefFields.astro';
 
 const contactoH1 = resolveReplicaH1('/contacto', 'Enviá contexto técnico. Respondemos con el próximo paso.');
 
 const seoData = {
-  title: 'Contacto | ULTIMA MILLA',
+  title: 'Enviá contexto técnico. Respondemos con el próximo paso | ULTIMA MILLA',
   description: 'Contacte a ULTIMA MILLA para servicios IT integrales: redes, seguridad electrónica, telecomunicaciones, software, soporte, energía IT e infraestructura crítica.',
   keywords: 'contacto ultima milla, servicios IT Mendoza, soporte IT, infraestructura tecnologica, seguridad electronica, telecomunicaciones'
 };
@@ -49,12 +48,11 @@ const structuredData = {
         <span class="um-kicker">Contacto</span>
         <h1>{contactoH1}</h1>
         <p>
-          Partner de infraestructura crítica desde Mendoza (Argentina): redes, seguridad, soporte,
-          software, energía o licitación. Envíe contexto mínimo y respondemos con el próximo paso técnico.
+          Contanos servicio, sede, urgencia y objetivo. Respondemos con el próximo paso técnico.
         </p>
 
         <div class="contact-dossier__actions" aria-label="Acciones principales de contacto">
-          <UMButton href="#contactForm">Solicitar diagnóstico</UMButton>
+          <UMButton href="#contactForm" class="contact-primary-cta">Solicitar diagnóstico</UMButton>
           <UMButton href="mailto:contacto@ultimamilla.com.ar" variant="secondary">Escribir por email</UMButton>
         </div>
 
@@ -84,7 +82,7 @@ const structuredData = {
             </label>
             <label>
               <span>Email *</span>
-              <input type="email" id="email" name="email" required autocomplete="email" placeholder="nombre@empresa.com" />
+              <input type="email" id="email" name="email" required autocomplete="email" placeholder="mail@empresa.com" />
               <small id="emailError" class="field-error hidden"></small>
             </label>
           </div>
@@ -93,11 +91,6 @@ const structuredData = {
             <span>Empresa u organismo</span>
             <input type="text" id="company" name="company" autocomplete="organization" placeholder="Opcional" />
           </label>
-
-          <details class="contact-budget-details">
-            <summary>Contexto de presupuesto (opcional)</summary>
-            <BudgetBriefFields idPrefix="contact" locale="es" singleColumn />
-          </details>
 
           <label>
             <span>Mensaje *</span>
@@ -255,15 +248,26 @@ const structuredData = {
 
   if (form instanceof HTMLFormElement) {
     const params = new URLSearchParams(window.location.search);
-    for (const name of ['budgetSector', 'budgetScope', 'budgetCriticality', 'budgetSites']) {
-      const value = params.get(name);
-      if (!value) continue;
-      const field = form.querySelector(`[name="${name}"]`);
-      if (field instanceof HTMLSelectElement) {
-        field.value = value;
-      }
+
+    const budgetLines = [];
+    const budgetMap = [
+      ['budgetSector', 'Sector'],
+      ['budgetScope', 'Alcance'],
+      ['budgetCriticality', 'Criticidad'],
+      ['budgetSites', 'Sedes']
+    ] as const;
+
+    for (const [name, label] of budgetMap) {
+      const value = String(params.get(name) || '').trim();
+      if (value) budgetLines.push(`${label}: ${value}`);
     }
-    if (params.toString()) {
+
+    const messageField = document.getElementById('message');
+    if (budgetLines.length > 0 && messageField instanceof HTMLTextAreaElement && !messageField.value.trim()) {
+      messageField.value = `[Contexto presupuesto]\n${budgetLines.join('\n')}\n\n`;
+    }
+
+    if (budgetLines.length > 0) {
       document.getElementById('contactForm')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
@@ -276,19 +280,6 @@ const structuredData = {
       const name = String(data.name || '').trim();
       const email = String(data.email || '').trim();
       let message = String(data.message || '').trim();
-
-      const budgetLines = [];
-      const sector = String(data.budgetSector || '').trim();
-      const scope = String(data.budgetScope || '').trim();
-      const criticality = String(data.budgetCriticality || '').trim();
-      const sites = String(data.budgetSites || '').trim();
-      if (sector) budgetLines.push(`Sector: ${sector}`);
-      if (scope) budgetLines.push(`Alcance: ${scope}`);
-      if (criticality) budgetLines.push(`Criticidad: ${criticality}`);
-      if (sites) budgetLines.push(`Sedes: ${sites}`);
-      if (budgetLines.length > 0) {
-        message = `[Contexto presupuesto]\n${budgetLines.join('\n')}\n\n${message}`;
-      }
       data.message = message;
       let hasErrors = false;
 
@@ -412,11 +403,12 @@ const structuredData = {
     margin-top: 28px;
   }
 
-  .contact-dossier__actions :where(.um-btn-primary, .um-btn-secondary) {
+  .contact-dossier__actions :global(.um-btn-primary),
+  .contact-dossier__actions :global(.um-btn-secondary) {
     box-sizing: border-box;
   }
 
-  .contact-proofline:global(.um-metric-strip) {
+  :global(.contact-proofline.um-metric-strip) {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 18px;
@@ -424,12 +416,12 @@ const structuredData = {
     padding: 18px 0 0;
   }
 
-  .contact-proofline:global(.um-metric-strip) > * {
+  :global(.contact-proofline.um-metric-strip > *) {
     min-width: 0;
     padding-inline: clamp(12px, 1.6vw, 18px);
   }
 
-  .contact-proofline:global(.um-metric-strip) strong {
+  :global(.contact-proofline.um-metric-strip strong) {
     display: block;
     color: var(--skin-text, #0B0B0B);
     font-family: var(--um-font-display);
@@ -438,7 +430,7 @@ const structuredData = {
     line-height: 1;
   }
 
-  .contact-proofline:global(.um-metric-strip) span {
+  :global(.contact-proofline.um-metric-strip span) {
     display: block;
     max-width: 170px;
     margin-top: 8px;
@@ -517,17 +509,17 @@ const structuredData = {
 
   .contact-intents {
     background: #FFFFFF;
-    border-top: 1px solid var(--skin-line, #e5e7eb);
-    border-bottom: 1px solid var(--skin-line, #e5e7eb);
+    border-top: 0;
+    border-bottom: 0;
     padding: clamp(40px, 5vw, 64px) 0;
   }
 
   .contact-intents__grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0;
+    gap: clamp(10px, 1.45vw, 16px);
     margin-top: clamp(24px, 3vw, 36px);
-    border-top: 1px solid var(--skin-line, #d9dadd);
+    border-top: 0;
   }
 
   .contact-intent {
@@ -535,11 +527,11 @@ const structuredData = {
     gap: 8px;
     min-height: 180px;
     padding: clamp(18px, 2.2vw, 24px);
-    border-right: 1px solid var(--skin-line, #d9dadd);
-    background: #fff;
+    border-right: 0;
+    background: #f7f8f9;
     color: inherit;
     text-decoration: none;
-    transition: background-color 180ms ease, border-color 180ms ease;
+    transition: background-color 180ms ease;
   }
 
   .contact-intent:last-child {
@@ -547,8 +539,7 @@ const structuredData = {
   }
 
   .contact-intent:hover {
-    background: rgba(220, 38, 38, 0.03);
-    border-color: color-mix(in srgb, var(--um-red) 42%, var(--skin-line, #d9dadd));
+    background: #f1f2f4;
   }
 
   .contact-intent:focus-visible {
@@ -591,40 +582,16 @@ const structuredData = {
   }
 
   .contact-form-panel,
-  .contact-form,
-  .budget-brief-fields {
+  .contact-form {
     min-width: 0;
     max-width: 100%;
-  }
-
-  .contact-budget-details {
-    margin: 0;
-    padding: 0;
-    border: 0;
-  }
-
-  .contact-budget-details summary {
-    cursor: pointer;
-    color: var(--skin-text, #111827);
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 1.4;
-    list-style: none;
-  }
-
-  .contact-budget-details summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .contact-budget-details[open] summary {
-    margin-bottom: 12px;
   }
 
   .contact-form-panel {
     background: var(--skin-panel, #fff);
     padding: clamp(24px, 3vw, 34px);
     border: 0;
-    box-shadow: inset 0 1px 0 rgba(17,17,17,0.08);
+    box-shadow: none;
   }
 
   .contact-form-panel--hero {
@@ -653,13 +620,15 @@ const structuredData = {
 
   .contact-form {
     display: grid;
-    gap: 14px;
+    position: relative;
+    scroll-margin-top: clamp(84px, 10vw, 112px);
+    gap: 12px;
   }
 
   .field-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
 
   .contact-form label {
@@ -674,35 +643,46 @@ const structuredData = {
   }
 
   .contact-form input,
+  .contact-form select,
   .contact-form textarea {
     width: 100%;
-    border: 1px solid var(--skin-line, #D6DAE1);
+    border: 0;
     border-radius: 0;
-    background: var(--skin-panel, #fff);
+    background: #f7f8f9;
     color: var(--skin-text, #0B0B0B);
     font: 400 16px/1.5 var(--um-font-body);
     padding: 13px 16px;
     outline: none;
-    transition: border-color .18s ease, box-shadow .18s ease;
+    box-shadow: inset 0 -1px 0 var(--skin-line, #D6DAE1);
+    transition: box-shadow .18s ease, background-color .18s ease;
   }
 
   .contact-form textarea {
     resize: vertical;
-    min-height: 94px;
+    min-height: 104px;
   }
 
   .contact-form input:focus,
+  .contact-form select:focus,
   .contact-form textarea:focus {
-    border-color: var(--um-red);
-    box-shadow: 0 0 0 3px rgba(220,38,38,0.12);
+    background: #fff;
+    box-shadow: inset 0 -2px 0 var(--um-red);
   }
 
   .contact-hp {
     position: absolute !important;
-    left: -10000px !important;
     width: 1px !important;
     height: 1px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
     opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
   }
 
   .field-error {
@@ -733,7 +713,8 @@ const structuredData = {
   }
 
   .form-message {
-    border: 1px solid;
+    border: 0;
+    border-left: 3px solid currentColor;
     padding: 16px 18px;
     font-size: 16px;
     line-height: 1.55;
@@ -870,7 +851,7 @@ const structuredData = {
     }
 
     .contact-intent:nth-child(odd) {
-      border-right: 1px solid var(--skin-line, #d9dadd);
+      border-right: 0;
     }
 
     .contact-quick-card {
@@ -888,7 +869,8 @@ const structuredData = {
     }
 
     .contact-dossier {
-      padding-top: 34px;
+      padding-top: 24px;
+      padding-bottom: 30px;
     }
 
     .contact-dossier__grid,
@@ -910,12 +892,15 @@ const structuredData = {
       max-width: 100%;
       font-size: clamp(1.86rem, 6.45vw, 2.16rem);
       line-height: 1.12;
+      margin: 10px 0 12px;
       overflow-wrap: anywhere;
     }
 
     .contact-dossier__copy > p {
       width: 100%;
       max-width: 100%;
+      font-size: 1rem;
+      line-height: 1.54;
       white-space: normal !important;
       overflow-wrap: anywhere;
       word-break: normal;
@@ -925,9 +910,15 @@ const structuredData = {
       display: grid;
       grid-template-columns: 1fr;
       width: 100%;
+      margin-top: 16px;
     }
 
-    .contact-dossier__actions :where(.um-btn-primary, .um-btn-secondary) {
+    .contact-dossier__actions :global(.um-btn-secondary) {
+      display: none;
+    }
+
+    .contact-dossier__actions :global(.um-btn-primary),
+    .contact-dossier__actions :global(.um-btn-secondary) {
       width: 100%;
       justify-content: center;
       min-height: 50px;
@@ -938,23 +929,44 @@ const structuredData = {
       grid-template-columns: 1fr;
     }
 
-    .contact-proofline:global(.um-metric-strip) {
-      display: grid;
+    :global(.contact-proofline.um-metric-strip) {
+      display: none;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       margin-top: 18px;
       gap: 18px 16px;
     }
 
-    .contact-proofline:global(.um-metric-strip) > * {
+    .contact-breadcrumb {
+      margin-bottom: 14px;
+    }
+
+    .contact-form-panel {
+      padding: 22px 18px;
+    }
+
+    .contact-form-panel h2 {
+      margin: 8px 0 10px;
+    }
+
+    .contact-form-panel__lead {
+      margin-bottom: 14px;
+      line-height: 1.48;
+    }
+
+    .contact-form {
+      gap: 12px;
+    }
+
+    :global(.contact-proofline.um-metric-strip > *) {
       padding-inline: 0;
       min-width: 0;
     }
 
-    .contact-proofline strong {
+    :global(.contact-proofline.um-metric-strip strong) {
       font-size: clamp(1.4rem, 6vw, 1.75rem);
     }
 
-    .contact-proofline span {
+    :global(.contact-proofline.um-metric-strip span) {
       max-width: none;
       margin-top: 8px;
       line-height: 1.35;

@@ -2,25 +2,33 @@
  * Supplemental localhost defect scan: fill-black, markdown literals, emojis, product borders.
  * Usage: node scripts/e2e-defect-scan.mjs [path...]
  */
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { E2E_DEFECT_PATHS } from './e2e-commercial-labels.mjs';
 
 const BASE_URL = process.env.VISUAL_AUDIT_BASE_URL || 'http://localhost:4321';
 const CHROME_BIN = process.env.CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-const PORT = Number(process.env.E2E_DEFECT_CDP_PORT || 9343);
+const PORT = Number(process.env.E2E_DEFECT_CDP_PORT || (9343 + Math.floor(Math.random() * 1000)));
 
 const paths = process.argv.slice(2).length ? process.argv.slice(2) : E2E_DEFECT_PATHS;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const profilePath = `/tmp/umsa-e2e-defect-${PORT}`;
+
+function cleanupDefectChrome() {
+  spawnSync('pkill', ['-f', profilePath], { stdio: 'ignore' });
+}
 
 async function getTargets() {
-  for (let i = 0; i < 80; i += 1) {
+  for (let i = 0; i < 160; i += 1) {
     try {
       const res = await fetch(`http://127.0.0.1:${PORT}/json/list`);
-      if (res.ok) return res.json();
+      if (res.ok) {
+        const targets = await res.json();
+        if (targets.some((target) => target.type === 'page')) return targets;
+      }
     } catch { /* boot */ }
-    await sleep(100);
+    await sleep(125);
   }
-  throw new Error('CDP not ready');
+  throw new Error(`CDP not ready on ${PORT}`);
 }
 
 let commandId = 0;
@@ -127,10 +135,13 @@ async function scanPath(ws, path) {
 }
 
 async function main() {
+  cleanupDefectChrome();
   const chrome = spawn(CHROME_BIN, [
     '--headless=new', '--disable-gpu', '--no-first-run',
+    '--no-default-browser-check',
+    '--disable-background-networking',
     `--remote-debugging-port=${PORT}`,
-    `--user-data-dir=/tmp/umsa-e2e-defect-${PORT}`,
+    `--user-data-dir=${profilePath}`,
     'about:blank',
   ], { stdio: 'ignore' });
 
@@ -157,6 +168,7 @@ async function main() {
     ws.close();
   } finally {
     chrome.kill('SIGKILL');
+    cleanupDefectChrome();
   }
 
   console.log(JSON.stringify(findings, null, 2));

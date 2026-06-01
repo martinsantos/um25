@@ -22,6 +22,7 @@ function generateSitemapXml(): string {
         { loc: '/sectores', priority: '0.7', changefreq: 'monthly' },
         { loc: '/nosotros', priority: '0.6', changefreq: 'monthly' },
         { loc: '/contacto', priority: '0.7', changefreq: 'monthly' },
+        { loc: '/certificaciones', priority: '0.6', changefreq: 'monthly' },
         // Sector verticals
         { loc: '/aeropuertos', priority: '0.7', changefreq: 'monthly' },
         { loc: '/bodegas', priority: '0.7', changefreq: 'monthly' },

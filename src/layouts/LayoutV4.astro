@@ -189,12 +189,13 @@ const skipLinkLabel = pageLang === 'en' ? 'Skip to main content' : 'Saltar al co
       }
 
       .um-skip-link {
-        position: absolute;
-        left: -9999px;
-        top: auto;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
+        position: fixed;
+        left: 16px;
+        top: 16px;
+        width: auto;
+        height: auto;
+        transform: translateY(calc(-100% - 32px));
+        overflow: visible;
         z-index: 10000;
         padding: 12px 18px;
         background: #111;
@@ -204,11 +205,7 @@ const skipLinkLabel = pageLang === 'en' ? 'Skip to main content' : 'Saltar al co
       }
 
       .um-skip-link:focus {
-        left: 16px;
-        top: 16px;
-        width: auto;
-        height: auto;
-        overflow: visible;
+        transform: translateY(0);
         outline: 2px solid var(--um-red);
         outline-offset: 2px;
       }

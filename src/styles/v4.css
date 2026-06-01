@@ -134,6 +134,34 @@ body[data-skin="white"] {
   --skin-footer-line: #DADDE1;
 }
 
+/* Executive technical openings: the white dossier skin keeps editorial bodies
+   white, but photo/black hero surfaces must remain true dark surfaces. */
+body[data-skin="white"] main :where(
+  .um-home-hero,
+  .services-hero,
+  .service-detail-hero,
+  .sector-editorial-index-hero,
+  .sector-atlas-index-hero,
+  .sector-editorial-detail-hero,
+  .sector-atlas-detail-hero,
+  .geo-dossier-hero,
+  .um-cta,
+  .um-final-cta
+) {
+  --skin-hero-bg: #050505;
+  --skin-hero-text: #FFFFFF;
+  --skin-hero-muted: rgba(255, 255, 255, 0.78);
+  --skin-hero-line: rgba(255, 255, 255, 0.18);
+  --skin-hero-panel: rgba(255, 255, 255, 0.09);
+  --skin-hero-panel-solid: rgba(5, 5, 5, 0.68);
+  --skin-hero-wash:
+    linear-gradient(90deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.84) 44%, rgba(5,5,5,0.42) 74%, rgba(5,5,5,0.78) 100%),
+    linear-gradient(180deg, rgba(5,5,5,0.12) 0%, rgba(5,5,5,0.76) 100%);
+  --skin-media-filter: grayscale(0.12) contrast(1.1) saturate(0.84) brightness(0.82);
+  background: var(--skin-hero-bg) !important;
+  color: var(--skin-hero-text) !important;
+}
+
 body[data-skin="white"] main :where(.blog-index, .blog-cat) {
   background: #FFFFFF !important;
 }
@@ -170,7 +198,6 @@ body[data-skin="hybrid"] main :where(
   .services-operating-model,
   .case-related,
   .contact-intents,
-  .um-final-cta,
   .geo-dossier-section--alt,
   .geo-dossier-panel,
   .geo-dossier-media
@@ -179,7 +206,6 @@ body[data-skin="white"] main :where(
   .services-operating-model,
   .case-related,
   .contact-intents,
-  .um-final-cta,
   .geo-dossier-section--alt,
   .geo-dossier-panel,
   .geo-dossier-media
@@ -854,7 +880,6 @@ body[data-skin] main :where(
   .service-detail-hero,
   .sectors-hero,
   .sector-detail-hero,
-  .case-detail-hero,
   .um-home-hero,
   .antecedentes-hero,
   .ante-hero,
@@ -873,7 +898,6 @@ body[data-skin] main :where(
   .service-detail-hero,
   .sectors-hero,
   .sector-detail-hero,
-  .case-detail-hero,
   .um-home-hero,
   .antecedentes-hero,
   .ante-hero,
@@ -893,7 +917,6 @@ body[data-skin] main :where(
   .service-detail-hero,
   .sectors-hero,
   .sector-detail-hero,
-  .case-detail-hero,
   .um-home-hero,
   .antecedentes-hero,
   .ante-hero,
@@ -1172,7 +1195,7 @@ body[data-skin] main :where(
 
 /* CTA band: badge/label stays red accent; never body text color on dark wash */
 body[data-skin] main .um-cta :where(.um-cta__label, .um-cta__label *) {
-  color: #DC2626 !important;
+  color: rgba(255, 255, 255, 0.82) !important;
 }
 
 body[data-skin] main .um-cta :where(.um-cta__title, .um-cta__description) {
@@ -1361,7 +1384,6 @@ body[data-skin] main :where(
   .service-detail-hero,
   .sectors-hero,
   .sector-detail-hero,
-  .case-detail-hero,
   .um-home-hero,
   .antecedentes-hero,
   .ante-hero,
@@ -1711,20 +1733,20 @@ body[data-skin="white"] main :where(.blog-index, .blog-cat) {
 }
 
 :where(main) h1 {
-  font-size: var(--um-world-h1) !important;
-  line-height: 1.08 !important;
+  font-size: var(--um-world-h1);
+  line-height: 1.08;
   max-width: min(100%, 980px);
 }
 
 :where(main) h2 {
-  font-size: var(--um-world-h2) !important;
-  line-height: 1.12 !important;
+  font-size: var(--um-world-h2);
+  line-height: 1.12;
   max-width: min(100%, 920px);
 }
 
 :where(main) h3 {
-  font-size: var(--um-world-h3) !important;
-  line-height: 1.18 !important;
+  font-size: var(--um-world-h3);
+  line-height: 1.18;
   max-width: min(100%, 820px);
 }
 
@@ -1924,7 +1946,7 @@ body[data-skin] main :where(
   }
 
   :where(main) h3 {
-    font-size: clamp(1.12rem, 4.8vw, 1.38rem) !important;
+    font-size: clamp(1.12rem, 4.8vw, 1.38rem);
   }
 }
 
@@ -2178,7 +2200,7 @@ body[data-skin] main .case-detail-footer-cta h2 {
 }
 
 body[data-skin] main .case-detail-side .case-info-label {
-  font-size: 0.8125rem !important;
+  font-size: 1rem !important;
   color: #4b5563 !important;
 }
 
@@ -2219,6 +2241,14 @@ body[data-skin] main .case-detail-hero .case-detail-hero__copy h1 {
   font-size: clamp(2.5rem, 2.45vw, 2.75rem) !important;
   line-height: 1.1 !important;
   color: #111 !important;
+}
+
+@media (max-width: 720px) {
+  body[data-skin] main .case-detail-hero .case-detail-hero__copy h1 {
+    font-size: clamp(2rem, 8.4vw, 2.18rem) !important;
+    line-height: 1.08 !important;
+    max-width: 100% !important;
+  }
 }
 
 body[data-skin] main .case-detail-hero .case-detail-hero__copy p {
@@ -2335,6 +2365,44 @@ body[data-skin] main .antecedentes-results :where(
 }
 
 /* Contrast guard — dark bands win over editorial tokens and Astro order */
+body[data-skin] main :where(.um-cta, .um-final-cta) {
+  --skin-hero-bg: #050505;
+  --skin-hero-text: #ffffff;
+  --skin-hero-muted: rgba(255, 255, 255, 0.82);
+  --skin-hero-line: rgba(255, 255, 255, 0.18);
+  --skin-hero-panel: rgba(255, 255, 255, 0.1);
+  --skin-hero-panel-solid: rgba(5, 5, 5, 0.72);
+  background: #050505 !important;
+  color: #ffffff !important;
+}
+
+body[data-skin] main :where(.um-cta, .um-final-cta) :where(h1, h2, h3, h4, h5, h6, strong, dt, dd) {
+  color: #ffffff !important;
+}
+
+body[data-skin] main :where(.um-cta, .um-final-cta) :where(p, li, span, small, label) {
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+body[data-skin] main .um-final-cta p {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+body[data-skin] main :where(.um-cta .um-cta__primary, .um-final-cta .um-btn-primary) {
+  background: var(--um-red) !important;
+  color: #ffffff !important;
+}
+
+body[data-skin] main .um-cta .um-cta__secondary {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+body[data-skin] main .um-cta .um-cta__secondary:hover {
+  background: #ffffff !important;
+  color: #111111 !important;
+}
+
 body[data-skin] main section.um-cta h2.um-cta__title,
 body[data-skin] main section.um-cta .um-cta__title {
   color: #ffffff !important;
@@ -2354,7 +2422,7 @@ body[data-skin] main .service-detail-hero .service-detail-hero__content p {
 }
 
 body[data-skin] main .service-detail-hero .service-detail-label {
-  color: #dc2626 !important;
+  color: rgba(255, 255, 255, 0.82) !important;
 }
 
 /* Index/listing dark heroes (sectores, atlas) — explicit cascade guard */
@@ -2378,6 +2446,24 @@ body[data-skin] main .sector-atlas-index-hero :where(p, .sector-atlas-exec-hero_
 body[data-skin] main .sector-editorial-index-hero :where(.sector-editorial__kicker, dt),
 body[data-skin] main .sector-atlas-index-hero :where(.sector-atlas-exec-hero__proofline dt, .sector-atlas-exec-hero p:not(.sector-atlas-exec-hero__lead)) {
   color: rgba(255, 255, 255, 0.62) !important;
+}
+
+/* Noindex labs still inherit the skin contract; keep their dark stages legible. */
+body[data-skin] main :where(.bg-gray-950, .banner-stage, .lab-frame) {
+  background-color: #050505 !important;
+  color: #ffffff !important;
+}
+
+body[data-skin] main :where(.bg-gray-950, .banner-stage, .lab-frame) :where(h1, h2, h3, strong, b, button, a) {
+  color: #ffffff !important;
+}
+
+body[data-skin] main :where(.bg-gray-950, .banner-stage, .lab-frame) :where(p, span, div, li, label, small) {
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+body[data-skin] main :where(.banner-stage, .ptfx-target, .ptfx-target *) {
+  color: #ffffff !important;
 }
 
 body[data-skin] main .sector-editorial-index-hero .um-btn-secondary,
@@ -2451,7 +2537,7 @@ body[data-skin] main .case-related .evidence-case-row__thumb {
 }
 
 body[data-skin] main .case-related .evidence-case-row__meta span {
-  font-size: 0.8125rem !important;
+  font-size: 1rem !important;
   font-weight: 500 !important;
   color: #6b7280 !important;
 }

@@ -1,10 +1,10 @@
 ---
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
-import BlogHero from '../../../components/blog/BlogHero.astro';
 import BlogFeedItem from '../../../components/blog/BlogFeedItem.astro';
 import BlogPagination from '../../../components/blog/BlogPagination.astro';
 import { fetchBlogListing } from '../../../utils/getBlogData';
-import { getCategoryLabel } from '../../../utils/blogUtils';
+import { blogPostImageAlt, blogPostImageUrl } from '../../../utils/blogHelpers';
+import { formatBlogDate, getCategoryLabel } from '../../../utils/blogUtils';
 
 const VALID_CATS = ['noticias', 'proyectos', 'tecnico', 'tecnologia', 'empresa'];
 const cat = Astro.params.cat || '';
@@ -21,6 +21,14 @@ const [hero, ...feedPosts] = posts;
 const archivePosts = feedPosts;
 const catLabel = getCategoryLabel(cat);
 const categoryLead = `${total} lectura${total !== 1 ? 's' : ''} de ${catLabel.toLowerCase()} ordenada${total !== 1 ? 's' : ''} por fecha, imagen y contexto técnico.`;
+const categoryTitle = `${catLabel}: decisiones IT con evidencia`;
+const heroImgUrl = hero ? blogPostImageUrl(hero) : '';
+const heroImgAlt = hero ? blogPostImageAlt(hero) : '';
+const heroCategory = hero ? getCategoryLabel(hero.categoria) : '';
+const heroDate = hero ? formatBlogDate(hero.fecha_publicacion) : '';
+const heroExcerpt = hero?.resumen
+  ? `${hero.resumen.substring(0, 190)}${hero.resumen.length > 190 ? '…' : ''}`
+  : '';
 
 const siteUrl = 'https://ultimamilla.com.ar';
 const catUrl = `${siteUrl}/blog/categoria/${cat}`;
@@ -105,7 +113,7 @@ const schema = {
   <main class="blog-cat">
     <div class="blog-container">
 
-      <header class="blog-header">
+      <header class:list={['blog-header', { 'blog-header--single': !hero }]}>
         <div class="blog-header__copy">
           <nav class="blog-breadcrumb" aria-label="Navegación">
             <a href="/" class="bc-link">ULTIMA MILLA</a>
@@ -115,16 +123,31 @@ const schema = {
             <span class="bc-current">{catLabel}</span>
           </nav>
           <span class="blog-rule" aria-hidden="true"></span>
-          <h1 class="blog-title">Ideas técnicas para decidir mejor</h1>
+          <h1 class="blog-title">{categoryTitle}</h1>
           <p class="blog-subtitle">{categoryLead}</p>
+          <div class="blog-header__actions">
+            <a href="/contacto" class="um-btn-primary">Solicitar diagnóstico</a>
+            <a href="/blog" class="um-btn-secondary blog-btn-secondary">Ver todo el blog</a>
+          </div>
         </div>
-      </header>
 
-      {hero && (
-        <section class="blog-feature" aria-label="Artículo destacado">
-          <BlogHero post={hero} />
-        </section>
-      )}
+        {hero && (
+          <article class="blog-header__feature" aria-label="Lectura destacada">
+            <a href={`/blog/${hero.slug}`} class="blog-header__feature-media" aria-label={`Leer ${hero.titulo}`}>
+              <img src={heroImgUrl} alt={heroImgAlt} loading="eager" decoding="async" />
+            </a>
+            <div class="blog-header__feature-body">
+              <span class="blog-header__feature-kicker">Lectura de {catLabel}</span>
+              <p class="blog-header__feature-meta">{heroCategory} · {hero.tiempo_lectura} min · {heroDate}</p>
+              <h2>
+                <a href={`/blog/${hero.slug}`}>{hero.titulo}</a>
+              </h2>
+              <p>{heroExcerpt}</p>
+              <a href={`/blog/${hero.slug}`} class="blog-header__feature-link">Leer artículo</a>
+            </div>
+          </article>
+        )}
+      </header>
 
       {archivePosts.length > 0 && (
         <section class="blog-archive" aria-label="Archivo de categoría">
@@ -154,7 +177,7 @@ const schema = {
   .blog-cat {
     min-height: 100vh;
     background: var(--skin-section);
-    padding: 0 24px 96px;
+    padding: 0 0 96px;
     overflow-x: clip;
   }
 
@@ -162,21 +185,29 @@ const schema = {
     width: min(100%, 1120px);
     max-width: 1120px;
     margin: 0 auto;
+    padding-inline: clamp(16px, 3vw, 24px);
     overflow-x: clip;
   }
 
   .blog-header {
-    display: block;
-    margin-bottom: clamp(20px, 3vw, 34px);
-    padding: clamp(42px, 5vw, 70px) 0 clamp(32px, 4vw, 52px);
-    background: #ffffff;
-    color: #111111;
+    display: grid;
+    grid-template-columns: minmax(0, 0.48fr) minmax(420px, 0.52fr);
+    gap: clamp(34px, 5vw, 72px);
+    align-items: start;
+    margin: 0 calc(-1 * clamp(16px, 3vw, 24px)) clamp(20px, 3vw, 34px);
+    padding: clamp(32px, 4vw, 52px) clamp(16px, 3vw, 24px) clamp(28px, 3.6vw, 44px);
+    background: var(--skin-section, #ffffff);
+    color: var(--skin-text, #111111);
     border-bottom: 0;
+  }
+
+  .blog-header--single {
+    grid-template-columns: minmax(0, 760px);
   }
 
   .blog-breadcrumb {
     display: flex;
-    align-items: center;
+    align-items: start;
     gap: 8px;
     margin-bottom: 12px;
   }
@@ -198,7 +229,7 @@ const schema = {
     transition: color .15s;
   }
   .bc-link:hover { color: #111111; }
-  .bc-sep { color: #8b949e; font-size: 16px; opacity: 0.78; }
+  .bc-sep { color: #5f6670; font-size: 16px; opacity: 1; }
   .bc-current {
     font-family: var(--um-font-body);
     font-size: 16px;
@@ -208,7 +239,7 @@ const schema = {
 
   .blog-title {
     font-family: var(--um-font-display);
-    font-size: clamp(2rem, 2.8vw, 2.9rem);
+    font-size: clamp(2.15rem, 3.1vw, 3.25rem);
     font-weight: 600;
     letter-spacing: 0;
     line-height: 1.08;
@@ -220,16 +251,111 @@ const schema = {
 
   .blog-subtitle {
     font-family: var(--um-font-body);
-    max-width: 760px;
+    max-width: 690px;
     font-size: clamp(1rem, 1.14vw, 1.12rem);
     line-height: 1.65;
-    color: #47515d;
+    color: #5f6874;
     margin: 0;
     overflow-wrap: anywhere;
   }
 
-  .blog-feature {
+  .blog-header__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+  }
+
+  .blog-btn-secondary {
+    color: #111111;
+  }
+
+  .blog-header__feature {
+    display: grid;
+    grid-template-columns: minmax(170px, 0.46fr) minmax(0, 0.54fr);
+    gap: clamp(18px, 2.6vw, 30px);
+    align-items: center;
+    min-width: 0;
+  }
+
+  .blog-header__feature-media {
     display: block;
+    min-height: clamp(260px, 23vw, 348px);
+    background: #f3f5f7;
+    overflow: hidden;
+    text-decoration: none;
+  }
+
+  .blog-header__feature-media img {
+    width: 100%;
+    height: 100%;
+    min-height: clamp(260px, 23vw, 348px);
+    object-fit: cover;
+    display: block;
+    color: transparent;
+  }
+
+  .blog-header__feature-body {
+    min-width: 0;
+    padding-bottom: 2px;
+  }
+
+  .blog-header__feature-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    color: #111111;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .blog-header__feature-kicker::before {
+    content: "";
+    width: 30px;
+    height: 2px;
+    background: var(--um-red);
+  }
+
+  .blog-header__feature-meta,
+  .blog-header__feature-body > p {
+    margin: 0 0 14px;
+    color: #5f6874;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    line-height: 1.64;
+  }
+
+  .blog-header__feature-body h2 {
+    margin: 0 0 12px;
+    color: #111111;
+    font-family: var(--um-font-display);
+    font-size: clamp(1.5rem, 2.12vw, 2rem);
+    font-weight: 600;
+    line-height: 1.12;
+    letter-spacing: 0;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+  }
+
+  .blog-header__feature-body h2 a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .blog-header__feature-body h2 a:hover,
+  .blog-header__feature-link:hover {
+    color: var(--um-red);
+  }
+
+  .blog-header__feature-link {
+    display: inline-flex;
+    color: var(--um-red);
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
   }
 
   .blog-archive {
@@ -241,8 +367,8 @@ const schema = {
     grid-template-columns: minmax(220px, 0.28fr) minmax(0, 0.72fr);
     gap: clamp(24px, 4vw, 56px);
     align-items: start;
-    padding: 18px 0 22px;
-    border-top: 1px solid #111111;
+    padding: 12px 0 22px;
+    border-top: 0;
     border-bottom: 0;
   }
 
@@ -296,6 +422,8 @@ const schema = {
     }
 
     .blog-header {
+      grid-template-columns: 1fr;
+      gap: 28px;
       padding: 28px 0 24px;
     }
 
@@ -307,6 +435,21 @@ const schema = {
     .archive-head {
       grid-template-columns: 1fr;
       gap: 12px;
+    }
+
+    .blog-header__feature {
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .blog-header__feature-media,
+    .blog-header__feature-media img {
+      min-height: 220px;
+    }
+
+    .blog-header__feature-body h2 {
+      font-size: clamp(1.38rem, 5.4vw, 1.68rem);
+      line-height: 1.14;
     }
   }
 </style>

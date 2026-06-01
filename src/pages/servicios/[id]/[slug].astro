@@ -83,12 +83,8 @@ const cmsTitle = cmsServiceTitle(servicio.Titulo);
 const cmsSubtitulo = readServiceSubtitulo(servicio);
 const editorialHeroTitle =
   serviceHeroTitles[Number(id)] || visual?.shortName || cmsTitle || servicio.Titulo;
-const serviceHeroTitle = replicaProd
-  ? resolveReplicaH1(serviceDetailPath, cmsTitle)
-  : editorialHeroTitle;
-const serviceBreadcrumbLabel = replicaProd
-  ? cmsTitle
-  : visual?.shortName || serviceHeroTitles[Number(id)] || cmsTitle;
+const serviceHeroTitle = resolveReplicaH1(serviceDetailPath, editorialHeroTitle);
+const serviceBreadcrumbLabel = visual?.shortName || cmsTitle;
 const serviceCtaTitle = replicaProd
   ? `¿Listo para implementar ${cmsTitle}?`
   : visual?.shortName
@@ -105,9 +101,10 @@ const productsSectionText = replicaProd
 
 // SEO
 const siteUrl = 'https://ultimamilla.com.ar';
-const seoTitleBase = replicaProd
+const seoTitleRaw = replicaProd
   ? resolveReplicaTitle(serviceDetailPath, cmsTitle)
   : sanitizeServicePageTitle(Number(id), servicio.Titulo, visual?.shortName || serviceHeroTitle);
+const seoTitleBase = seoTitleRaw.replace(/\s*\|\s*ULTIMA MILLA\s*$/i, '').trim();
 let pageTitle = `${seoTitleBase} | ULTIMA MILLA`;
 if (pageTitle.length > 60) {
   pageTitle =
@@ -350,37 +347,25 @@ const iconPaths = {
         <div class="service-detail-main__aside">
           <!-- Quick Info Card -->
           <div class="service-info-card service-info-card--dossier">
-            <SectionHeader kicker="Ficha técnica" title={sidebarInfoTitle} />
+            <header class="service-info-head">
+              <p>Ficha técnica</p>
+              <h2>{sidebarInfoTitle}</h2>
+            </header>
 
-            <div class="space-y-4 mb-6">
-              <div class="flex items-start gap-3">
-                <svg class="w-5 h-5 text-um-primary mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                </svg>
-                <div>
-                  <div class="text-base text-um-gray">Tiempo de Implementación</div>
-                  <div class="font-semibold text-um-dark">2-8 semanas</div>
-                </div>
+            <dl class="service-info-ledger" aria-label="Información operativa del servicio">
+              <div>
+                <dt>Implementación</dt>
+                <dd>2-8 semanas</dd>
               </div>
-              <div class="flex items-start gap-3">
-                <svg class="w-5 h-5 text-um-primary mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <div>
-                  <div class="text-base text-um-gray">Garantía</div>
-                  <div class="font-semibold text-um-dark">5 años en materiales</div>
-                </div>
+              <div>
+                <dt>Garantía</dt>
+                <dd>5 años en materiales</dd>
               </div>
-              <div class="flex items-start gap-3">
-                <svg class="w-5 h-5 text-um-primary mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                <div>
-                  <div class="text-base text-um-gray">Cobertura</div>
-                  <div class="font-semibold text-um-dark">Mendoza, Cuyo, Patagonia</div>
-                </div>
+              <div>
+                <dt>Cobertura</dt>
+                <dd>Mendoza, Cuyo y Patagonia</dd>
               </div>
-            </div>
+            </dl>
 
             {datasheetHref && (
               <a href={datasheetHref} class="service-datasheet-btn" download>
@@ -388,15 +373,14 @@ const iconPaths = {
               </a>
             )}
 
-            <UMButton href="/contacto" class="service-info-primary">
-              Solicitar diagnóstico
-            </UMButton>
-            <a href="mailto:contacto@ultimamilla.com.ar" class="service-info-secondary">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-              </svg>
-              contacto@ultimamilla.com.ar
-            </a>
+            <div class="service-info-actions">
+              <UMButton href="/contacto" class="service-info-primary">
+                Solicitar diagnóstico
+              </UMButton>
+              <a href="mailto:contacto@ultimamilla.com.ar" class="service-info-secondary">
+                contacto@ultimamilla.com.ar
+              </a>
+            </div>
           </div>
 
           <!-- Brands -->
@@ -549,7 +533,7 @@ const iconPaths = {
     align-items: center;
     gap: 0.625rem;
     margin-bottom: 1rem;
-    color: #DC2626;
+    color: rgba(255, 255, 255, 0.82);
     font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0;
@@ -566,7 +550,7 @@ const iconPaths = {
   }
 
   .service-detail-hero h1 {
-    max-width: 13ch;
+    max-width: min(760px, 22ch);
     color: #ffffff !important;
     font-size: clamp(2rem, 2.9vw, 3.15rem);
     line-height: 1.08;
@@ -614,15 +598,15 @@ const iconPaths = {
   }
 
   :global(body[data-skin="white"]) .service-detail-hero__actions .um-btn-secondary {
-    background: rgba(255,255,255,0.72) !important;
+    background: rgba(255,255,255,0.1) !important;
     border-color: transparent !important;
-    color: #111 !important;
+    color: #fff !important;
   }
 
   :global(body[data-skin="white"]) .service-detail-hero__actions .um-btn-secondary:hover {
-    background: #111 !important;
-    border-color: #111 !important;
-    color: #fff !important;
+    background: #fff !important;
+    border-color: #fff !important;
+    color: #111 !important;
   }
 
   .service-detail-proof {
@@ -637,7 +621,7 @@ const iconPaths = {
   .service-detail-proof div {
     padding: 1rem 1.1rem 1.05rem;
     background: rgba(8,8,8,0.76);
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 0;
   }
 
   .service-detail-proof strong {
@@ -713,10 +697,13 @@ const iconPaths = {
     grid-template-columns: 48px minmax(0, 1fr);
     gap: 0.95rem 1rem;
     border: 0;
-    border-top: 1px solid var(--um-line);
     border-radius: 0;
-    padding: 1.2rem 0;
+    padding: 0.85rem 0;
     background: #fff;
+  }
+
+  .service-solution-card + .service-solution-card {
+    margin-top: 0.75rem;
   }
 
   .service-solution-card > div {
@@ -753,25 +740,31 @@ const iconPaths = {
 
   .service-process-list {
     display: grid;
-    gap: 1px;
+    gap: clamp(16px, 2.2vw, 22px);
     margin-bottom: 2.6rem;
-    border-top: 1px solid var(--um-line);
+    border-top: 0;
     background: transparent;
   }
 
-    .service-process-list > div {
-      display: grid;
-      grid-template-columns: 54px 1fr;
-      gap: 1rem;
-      padding: 1.15rem clamp(16px, 2vw, 24px);
-      background: #fff;
-      border-bottom: 1px solid var(--um-line);
-    }
+  .service-process-list > div {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+    padding: 0;
+    background: transparent;
+    border-bottom: 0;
+  }
+
+  .service-process-list > div > div {
+    min-width: 0;
+  }
 
   .service-process-list span {
     color: #DC2626;
     font-size: 1rem;
     font-weight: 700;
+    line-height: 1.25;
   }
 
   .service-why {
@@ -799,22 +792,74 @@ const iconPaths = {
     top: 104px;
   }
 
-  .service-info-card h3,
-  .service-info-card h3 + div,
-  .service-info-card h3 + div + a {
-    border-radius: 0;
+  .service-info-card--dossier {
+    padding: 0;
+    background: transparent;
   }
 
-  .service-info-card h3 {
-    margin-bottom: 0.9rem;
+  .service-info-head {
+    margin-bottom: 1.2rem;
+  }
+
+  .service-info-head p {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin: 0 0 0.8rem;
+    color: #DC2626;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .service-info-head p::before {
+    content: "";
+    width: 28px;
+    height: 2px;
+    background: #DC2626;
+  }
+
+  .service-info-head h2 {
+    margin: 0;
     color: #111;
-    font-size: 1.08rem;
-    font-weight: 700;
+    font-size: clamp(1.15rem, 1.4vw, 1.35rem);
+    font-weight: 600;
+    line-height: 1.18;
   }
 
-  .service-info-card .space-y-4 > div + div {
-    padding-top: 0.95rem;
-    border-top: 1px solid var(--um-line);
+  .service-info-ledger {
+    display: grid;
+    margin: 0 0 1.25rem;
+  }
+
+  .service-info-ledger div {
+    display: grid;
+    grid-template-columns: minmax(116px, 0.44fr) minmax(0, 0.56fr);
+    gap: 1rem;
+    padding: 0.9rem 0;
+    border-top: 1px solid #e2e4e7;
+  }
+
+  .service-info-ledger div:last-child {
+    border-bottom: 1px solid #e2e4e7;
+  }
+
+  .service-info-ledger dt {
+    color: #5f6670;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .service-info-ledger dd {
+    margin: 0;
+    color: #111;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
   }
 
   .service-datasheet-btn {
@@ -845,7 +890,13 @@ const iconPaths = {
     outline-offset: 2px;
   }
 
-  .service-info-primary,
+  .service-info-actions {
+    display: grid;
+    gap: 0.7rem;
+    margin-top: 1rem;
+  }
+
+  :global(.service-info-primary),
   .service-info-secondary {
     display: flex;
     align-items: center;
@@ -853,31 +904,37 @@ const iconPaths = {
     gap: 0.5rem;
     width: 100%;
     min-height: 44px;
-    margin-top: 0.7rem;
+    margin-top: 0;
     border-radius: 0;
     font-weight: 700;
+    text-align: center;
   }
 
-  .service-info-primary {
+  :global(.service-info-primary) {
     background: #DC2626;
     color: #fff;
   }
 
-  .service-info-primary:hover {
+  :global(.service-info-primary:hover) {
     background: #DC2626;
   }
 
   .service-info-secondary {
     border: 0;
-    background: #f4f5f6;
+    background: transparent;
     color: #111;
+    font-size: 1rem;
+    min-height: auto;
+    justify-content: flex-start;
+    padding: 0;
     overflow-wrap: anywhere;
-    text-align: center;
+    text-decoration: underline;
+    text-decoration-color: #DC2626;
+    text-underline-offset: 5px;
   }
 
   .service-info-secondary:hover {
-    background: #111;
-    color: #fff;
+    color: #DC2626;
   }
 
   .service-products-section {
@@ -892,14 +949,6 @@ const iconPaths = {
 
   .service-products-section .um-container {
     width: min(1200px, calc(100% - clamp(32px, 5vw, 64px)));
-  }
-
-  .service-info-card--dossier :global(.um-section-header) {
-    margin-bottom: 1rem;
-  }
-
-  .service-info-card--dossier :global(.um-section-header h2) {
-    font-size: 1.08rem;
   }
 
   .service-products-head {
@@ -974,7 +1023,7 @@ const iconPaths = {
 
     .service-detail-hero__content {
       padding-top: 22px;
-      padding-bottom: 46px;
+      padding-bottom: 38px;
     }
 
     .service-detail-breadcrumb {
@@ -982,6 +1031,10 @@ const iconPaths = {
     }
 
     .service-detail-breadcrumb__current {
+      display: none;
+    }
+
+    .service-detail-breadcrumb span:nth-last-child(2) {
       display: none;
     }
 
@@ -1003,12 +1056,13 @@ const iconPaths = {
       max-width: 100%;
     }
 
-    .service-detail-proof strong {
-      font-size: 1.2rem;
+    .service-detail-proof {
+      display: none;
     }
 
     .service-detail-hero__actions {
       display: grid;
+      margin-top: 1.35rem;
     }
 
     .service-detail-hero__actions :where(.um-btn-primary, .um-btn-secondary) {
@@ -1032,6 +1086,10 @@ const iconPaths = {
 
     .service-info-card {
       padding: 18px 16px;
+    }
+
+    .service-info-card--dossier {
+      padding: 0;
     }
   }
 </style>

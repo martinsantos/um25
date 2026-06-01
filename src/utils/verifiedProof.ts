@@ -7,6 +7,7 @@ import antecedentesSnapshot from '../data/snapshots/antecedentes.json';
 type SnapshotCase = {
   Cliente?: string;
   Titulo?: string;
+  Area?: string;
 };
 
 type Snapshot<T> = { data?: T[] } | T[];
@@ -52,6 +53,36 @@ export function getTopClienteNames(limit = 6): string[] {
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'es'))
     .slice(0, limit)
     .map(([name]) => name);
+}
+
+/** Clientes frecuentes con cantidad de antecedentes documentados y vertical dominante. */
+export function getTopClienteRecords(limit = 6): { name: string; count: number; dominantArea: string }[] {
+  const counts = new Map<string, number>();
+  const areasByClient = new Map<string, Map<string, number>>();
+
+  for (const item of snapshotCases()) {
+    const name = String(item.Cliente || '').trim();
+    if (name.length < 3) continue;
+    counts.set(name, (counts.get(name) || 0) + 1);
+
+    const area = String(item.Area || '').trim();
+    if (area.length >= 3) {
+      const areas = areasByClient.get(name) || new Map<string, number>();
+      areas.set(area, (areas.get(area) || 0) + 1);
+      areasByClient.set(name, areas);
+    }
+  }
+
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'es'))
+    .slice(0, limit)
+    .map(([name, count]) => {
+      const areas = areasByClient.get(name);
+      const dominantArea = areas
+        ? [...areas.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'es'))[0]?.[0]
+        : '';
+      return { name, count, dominantArea: dominantArea || 'Servicios IT' };
+    });
 }
 
 /** Líneas de prueba para hubs GEO / llms — sin ISO ni certificaciones inventadas. */

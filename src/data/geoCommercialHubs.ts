@@ -58,7 +58,7 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
   'servicios-it-empresas-mendoza': {
     slug: 'servicios-it-empresas-mendoza',
     title: 'Servicios tecnológicos e informáticos para empresas en Mendoza',
-    seoTitle: 'Servicios IT para empresas en Mendoza',
+    seoTitle: 'Servicios tecnológicos para empresas en Mendoza',
     description: 'Proveedor tecnológico local para empresas en Mendoza y Cuyo: redes, soporte, seguridad electrónica, software, energía IT, relevamiento y continuidad operativa.',
     keywords: 'servicios informaticos empresas Mendoza, empresa de sistemas Mendoza, proveedor IT Mendoza, soporte infraestructura IT Mendoza, servicios tecnologicos empresas Mendoza',
     market: 'Mendoza y Cuyo',
@@ -102,7 +102,7 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
   'presupuesto-servicios-it-empresas': {
     slug: 'presupuesto-servicios-it-empresas',
     title: 'Presupuesto de servicios tecnológicos e informáticos para empresas',
-    seoTitle: 'Presupuesto de servicios IT para empresas',
+    seoTitle: 'Presupuesto de servicios tecnológicos para empresas',
     description: 'Guía comercial para cotizar servicios IT empresariales: alcance, criticidad, SLA, materiales, documentación, soporte, redes, seguridad, software y energía IT.',
     keywords: 'presupuesto servicios informaticos empresas, cotizar proyecto IT, presupuesto tecnologia empresas, cuanto cuesta infraestructura IT, proveedor IT presupuesto',
     market: 'Argentina',
@@ -146,7 +146,7 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
   'proyectos-ingenieria-it-mendoza': {
     slug: 'proyectos-ingenieria-it-mendoza',
     title: 'Proyectos de ingeniería tecnológica e infraestructura en Mendoza',
-    seoTitle: 'Proyectos de ingeniería IT en Mendoza',
+    seoTitle: 'Proyectos de ingeniería tecnológica en Mendoza',
     description: 'Proyectos de ingeniería tecnológica en Mendoza: relevamiento, arquitectura, redes, telecomunicaciones, energía IT, detección, pruebas, documentación y soporte.',
     keywords: 'proyectos ingenieria IT Mendoza, infraestructura redes Mendoza, corrientes debiles Mendoza, ingenieria tecnologica empresas Mendoza',
     market: 'Mendoza, Cuyo y sitios remotos',
@@ -190,7 +190,7 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
   'servicios-it-empresas-argentina': {
     slug: 'servicios-it-empresas-argentina',
     title: 'Servicios tecnológicos e informáticos para empresas en Argentina',
-    seoTitle: 'Servicios IT para empresas en Argentina',
+    seoTitle: 'Servicios tecnológicos para empresas en Argentina',
     description: 'Servicios IT empresariales para Argentina: consultoría, software, soporte, telecomunicaciones, redes, seguridad y continuidad operativa con base en Mendoza.',
     keywords: 'servicios informaticos empresas Argentina, proveedor IT Argentina, soporte tecnico empresarial Argentina, empresa servicios IT organizaciones medianas',
     market: 'Argentina y Latinoamérica hispanohablante',

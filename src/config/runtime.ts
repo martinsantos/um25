@@ -44,8 +44,10 @@ export function getDirectusToken(): string {
     return '';
   }
 
-  // Legacy dev default (no usar en réplica ni prod)
-  return 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+  if (import.meta.env?.DEV) {
+    console.warn('[runtime] Directus token ausente: se usarán snapshots o respuestas vacías según ruta.');
+  }
+  return '';
 }
 
 /** URL pública para canonical/OG: prod real en réplica, localhost en dev normal. */
