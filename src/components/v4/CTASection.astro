@@ -22,11 +22,11 @@
  *
  * Ejemplo de uso:
  * <CTASection
- *   badge="Comience su transformación"
+ *   badge="Diagnóstico inicial"
  *   badgeIcon="rocket"
  *   titulo="¿Listo para modernizar su infraestructura IT?"
- *   descripcion="Contáctenos hoy para una consultoría gratuita"
- *   primaryButtonText="Agendar Consultoría Gratis"
+ *   descripcion="Contáctenos para relevar alcance, riesgos y próximos pasos"
+ *   primaryButtonText="Solicitar relevamiento"
  *   primaryButtonUrl="/contacto"
  *   secondaryButtonText="contacto@ultimamilla.com.ar"
  *   secondaryButtonUrl="mailto:contacto@ultimamilla.com.ar"
@@ -34,7 +34,7 @@
  * />
  */
 
-import { Rocket, Phone, Mail, ArrowRight } from 'lucide-astro';
+import { Phone, Mail, ArrowRight, ClipboardCheck } from 'lucide-astro';
 
 export interface Props {
   badge?: string;
@@ -52,8 +52,8 @@ export interface Props {
 }
 
 const {
-  badge = 'Comience su transformación',
-  badgeIcon = 'rocket',
+  badge = 'Diagnóstico inicial',
+  badgeIcon = 'clipboard',
   titulo,
   descripcion,
   primaryButtonText,
@@ -68,7 +68,7 @@ const {
 
 // Mapeo de iconos
 const badgeIcons: Record<string, any> = {
-  'rocket': Rocket,
+  'clipboard': ClipboardCheck,
   'arrow-right': ArrowRight,
   'mail': Mail
 };
@@ -79,12 +79,12 @@ const buttonIcons: Record<string, any> = {
   'arrow-right': ArrowRight
 };
 
-const BadgeIcon = badgeIcons[badgeIcon] || Rocket;
+const BadgeIcon = badgeIcons[badgeIcon] || ClipboardCheck;
 const SecondaryIcon = buttonIcons[secondaryButtonIcon] || Phone;
 
 // Calcular opacidad del overlay (inline style — Tailwind JIT can't generate dynamic opacity classes)
 const overlayOpacity = Math.min(Math.max(darkOverlay, 0), 100);
-const overlayStyle = `background-color: rgba(17, 24, 39, ${overlayOpacity / 100})`;
+const overlayStyle = `background: color-mix(in srgb, var(--skin-hero-bg) ${overlayOpacity}%, transparent)`;
 
 // Imagen de fondo por defecto
 const bgImage = backgroundImage || 'https://ultimamilla.com.ar/directus-assets/caffbcaa-2457-4fc9-9960-2e0601f27736';
@@ -93,46 +93,46 @@ const bgImage = backgroundImage || 'https://ultimamilla.com.ar/directus-assets/c
 const hasSecondaryButton = secondaryButtonText && secondaryButtonUrl;
 ---
 
-<section class={`relative py-12 sm:py-16 lg:py-24 xl:py-28 overflow-hidden ${className}`}>
+<section class={`um-cta relative py-12 sm:py-16 lg:py-24 xl:py-28 overflow-hidden ${className}`}>
   <!-- Background Image -->
   <div class="absolute inset-0">
     <img
       src={bgImage}
       alt="Background"
-      class="w-full h-full object-cover"
+      class="um-cta__image w-full h-full object-cover"
       loading="lazy"
     />
-    <div class="absolute inset-0" style={overlayStyle}></div>
+    <div class="absolute inset-0 um-cta__wash" style={overlayStyle}></div>
   </div>
 
   <!-- Content -->
-  <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+  <div class="relative um-container um-cta__content">
     <!-- Badge -->
     {badge && (
-      <span class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 backdrop-blur text-white rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6">
-        <BadgeIcon class="w-4 h-4" />
+      <span class="um-cta__label">
+        <BadgeIcon class="w-4 h-4" aria-hidden="true" />
         {badge}
       </span>
     )}
 
     <!-- Título -->
-    <h2 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 sm:mb-6">
+    <h2 class="um-cta__title">
       {titulo}
     </h2>
 
     <!-- Descripción -->
     {descripcion && (
-      <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-10 max-w-2xl mx-auto">
+      <p class="um-cta__description">
         {descripcion}
       </p>
     )}
 
     <!-- Botones -->
-    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+    <div class="um-cta__actions">
       <!-- Botón Principal -->
       <a
         href={primaryButtonUrl}
-        class="px-6 py-3 sm:px-8 sm:py-4 bg-um-accent text-white font-bold rounded-xl hover:bg-um-accent-dark transition-all shadow-xl shadow-um-accent/25 min-h-[48px] flex items-center justify-center hover:scale-105"
+        class="um-cta__primary"
       >
         {primaryButtonText}
       </a>
@@ -141,7 +141,7 @@ const hasSecondaryButton = secondaryButtonText && secondaryButtonUrl;
       {hasSecondaryButton && (
         <a
           href={secondaryButtonUrl}
-          class="px-6 py-3 sm:px-8 sm:py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-all flex items-center justify-center gap-2 min-h-[48px] hover:scale-105"
+          class="um-cta__secondary"
         >
           <SecondaryIcon class="w-5 h-5" />
           {secondaryButtonText}
@@ -152,54 +152,121 @@ const hasSecondaryButton = secondaryButtonText && secondaryButtonUrl;
 </section>
 
 <style>
-  /* Animación de entrada para el CTA */
-  @media (prefers-reduced-motion: no-preference) {
-    .relative > div {
-      animation: fadeInUp 0.8s ease-out;
-    }
-
-    h2 {
-      animation: fadeInUp 0.8s ease-out 0.2s both;
-    }
-
-    p {
-      animation: fadeInUp 0.8s ease-out 0.4s both;
-    }
-
-    .flex {
-      animation: fadeInUp 0.8s ease-out 0.6s both;
-    }
+  .um-cta {
+    --skin-hero-bg: #050505;
+    --skin-hero-text: #ffffff;
+    --skin-hero-muted: rgba(255, 255, 255, 0.82);
+    --skin-hero-line: rgba(255, 255, 255, 0.18);
+    --skin-hero-panel: rgba(255, 255, 255, 0.1);
+    background: #050505;
+    color: #ffffff;
   }
 
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  .um-cta__content {
+    max-width: 980px;
+    text-align: left;
   }
 
-  /* Hover effects más pronunciados */
+  .um-cta__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .um-cta__label::before {
+    content: "";
+    display: inline-block;
+    width: 34px;
+    height: 2px;
+    background: #DC2626;
+  }
+
+  .um-cta__wash {
+    background:
+      linear-gradient(90deg, rgba(8, 8, 8, 0.94) 0%, rgba(8, 8, 8, 0.82) 42%, rgba(8, 8, 8, 0.5) 100%),
+      linear-gradient(0deg, rgba(8, 8, 8, 0.88) 0%, rgba(8, 8, 8, 0.35) 100%) !important;
+  }
+
+  .um-cta__title {
+    max-width: 860px;
+    color: #ffffff !important;
+    font-size: clamp(1.85rem, 2.65vw, 2.72rem);
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+
+  .um-cta__description {
+    max-width: 720px;
+    margin-top: 1.25rem;
+    color: rgba(255, 255, 255, 0.78) !important;
+    font-size: clamp(1rem, 1.35vw, 1.22rem);
+    line-height: 1.7;
+  }
+
+  .um-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 2rem;
+  }
+
+  .um-cta__primary,
+  .um-cta__secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0.9rem 1.25rem;
+    border-radius: 4px;
+    font-weight: 600;
+    line-height: 1;
+    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+  }
+
+  .um-cta__primary {
+    border: 0;
+    background: #DC2626;
+    color: #fff;
+  }
+
+  .um-cta__primary:hover {
+    background: #DC2626;
+  }
+
+  .um-cta__secondary {
+    gap: 0.5rem;
+    border: 0;
+    background: color-mix(in srgb, var(--skin-hero-text) 10%, transparent);
+    color: #ffffff;
+  }
+
+  .um-cta__secondary:hover {
+    background: var(--skin-hero-text);
+    color: var(--skin-hero-bg);
+  }
+
+  .um-cta__image {
+    filter: var(--skin-media-filter);
+  }
+
+  .um-cta__content,
+  h2,
+  p,
+  .flex {
+    animation: none;
+  }
+
   a {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* Backdrop blur para badge */
-  .backdrop-blur {
-    backdrop-filter: blur(12px);
-  }
-
-  /* Sombra del botón principal animada */
-  .bg-um-accent {
-    box-shadow: 0 10px 25px rgba(220, 38, 38, 0.25);
-    transition: all 0.3s ease;
-  }
-
-  .bg-um-accent:hover {
-    box-shadow: 0 15px 35px rgba(220, 38, 38, 0.35);
+    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
   }
 
   /* Accesibilidad */
@@ -214,9 +281,14 @@ const hasSecondaryButton = secondaryButtonText && secondaryButtonUrl;
 
   /* Touch targets mínimos para móvil */
   @media (max-width: 640px) {
-    a {
-      min-height: 48px;
-      min-width: 48px;
+    .um-cta__actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .um-cta__primary,
+    .um-cta__secondary {
+      width: 100%;
     }
   }
 </style>

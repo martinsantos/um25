@@ -1,0 +1,148 @@
+---
+import LayoutV4 from '../../layouts/LayoutV4.astro';
+import UMButton from '../../components/um/UMButton.astro';
+import MetricStrip from '../../components/um/MetricStrip.astro';
+import { getAntecedentesCountShort } from '../../utils/verifiedProof';
+
+const principles = [
+  ['Engineering before marketing', 'Every decision is justified by availability, security, maintainability and operating cost.'],
+  ['Field execution', 'We design with real knowledge of sites, technical rooms, racks, cabling and daily operations.'],
+  ['Useful documentation', 'Deliverables must be operable, auditable and extensible without informal memory.'],
+  ['Continuity by design', 'Support, maintenance and traceability are part of the architecture, not the sales close.'],
+];
+
+const capabilities = [
+  'Networks, fiber, switching, corporate WiFi and radio links',
+  'Electronic security, CCTV, access and intrusion',
+  'Telecom, voice, data, video and distributed connectivity',
+  'Custom software, SGI, APIs, dashboards and integrations',
+  '24/7 support, preventive maintenance and incident response',
+  'Fire detection and dedicated electrical for IT',
+];
+---
+
+<LayoutV4
+  title="About ULTIMA MILLA | IT infrastructure Argentina"
+  description="ULTIMA MILLA integrates infrastructure, communications, security and software with an operational continuity mindset since 2003."
+  canonical="https://ultimamilla.com.ar/en/about"
+>
+  <section class="um-en-about-hero um-container">
+    <p class="um-en-hero__badge">About</p>
+    <h1>A technical company for operations that cannot stop.</h1>
+    <p>
+      ULTIMA MILLA integrates infrastructure, communications, security and software with operational
+      continuity as the core criterion. Our difference is uniting design, installation and support in one system.
+    </p>
+    <MetricStrip
+      class="um-en-about-proof"
+      metrics={[
+        { value: '22+', label: 'years of technical track record' },
+        { value: getAntecedentesCountShort(), label: 'documented case studies' },
+        { value: '24/7', label: 'operational support' },
+      ]}
+    />
+    <div class="um-en-hero__actions">
+      <UMButton href="/en/contacto">Contact</UMButton>
+      <UMButton href="/nosotros" variant="secondary">Full page (ES)</UMButton>
+    </div>
+  </section>
+
+  <section class="um-container um-en-about-section">
+    <h2>Principles</h2>
+    <ul class="um-en-about-principles">
+      {principles.map(([title, text]) => (
+        <li>
+          <strong>{title}</strong>
+          <p>{text}</p>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="um-container um-en-about-section">
+    <h2>Capabilities</h2>
+    <ul class="um-en-about-capabilities">
+      {capabilities.map((item) => (
+        <li>{item}</li>
+      ))}
+    </ul>
+  </section>
+</LayoutV4>
+
+<style>
+  .um-en-about-hero {
+    padding: clamp(40px, 6vw, 64px) 0 24px;
+    max-width: 720px;
+  }
+
+  .um-en-hero__badge {
+    margin: 0 0 12px;
+    color: var(--um-red);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .um-en-about-hero h1 {
+    margin: 0;
+    font-family: var(--um-font-display);
+    font-size: clamp(2rem, 4.5vw, 2.75rem);
+    font-weight: 600;
+    line-height: 1.08;
+  }
+
+  .um-en-about-hero > p {
+    margin: 16px 0 0;
+    font-size: 1.125rem;
+    line-height: 1.65;
+    color: var(--skin-muted, #4b5563);
+  }
+
+  .um-en-about-proof {
+    margin-top: 24px;
+  }
+
+  .um-en-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .um-en-about-section {
+    padding-bottom: 40px;
+  }
+
+  .um-en-about-section h2 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin: 0 0 16px;
+  }
+
+  .um-en-about-principles {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 16px;
+  }
+
+  .um-en-about-principles strong {
+    display: block;
+    font-size: 1.0625rem;
+  }
+
+  .um-en-about-principles p {
+    margin: 6px 0 0;
+    color: var(--skin-muted, #4b5563);
+    line-height: 1.55;
+  }
+
+  .um-en-about-capabilities {
+    margin: 0;
+    padding-left: 1.2rem;
+    line-height: 1.7;
+    font-size: 1.0625rem;
+  }
+</style>

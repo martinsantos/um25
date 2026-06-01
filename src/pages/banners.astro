@@ -1,0 +1,183 @@
+---
+// Animated Banner Showcase — heroFx + banner overlays + portada images
+import LayoutV4 from '../layouts/LayoutV4.astro';
+import '../styles/banner-overlays.css';
+---
+
+<LayoutV4 title="Banners Animados — pretextFx" noindex={true}>
+
+<style>
+  .banner-stage {
+    position: relative;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.16);
+    background: #0a0a0f;
+    cursor: default;
+  }
+  .banner-stage img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.38;
+    z-index: 0;
+  }
+  .banner-stage::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: linear-gradient(180deg, rgba(0,0,0,0.46), rgba(0,0,0,0.72));
+    pointer-events: none;
+  }
+  .banner-stage .banner-overlay {
+    z-index: 1;
+  }
+  .ptfx-target {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    z-index: 30;
+  }
+  .banner-fallback {
+    display: block;
+    max-width: min(760px, 92%);
+    color: #fff;
+    font-family: var(--um-font-display);
+    font-size: clamp(1.7rem, 4.2vw, 2.55rem);
+    font-weight: 600;
+    line-height: 1.1;
+    text-align: center;
+  }
+  .banner-fallback::after {
+    content: "";
+    display: block;
+    width: 58px;
+    height: 2px;
+    margin: 18px auto 0;
+    background: var(--accent, #DC2626);
+  }
+  .label-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .meta {
+    font: 700 16px/1.2 var(--um-font-body);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.84);
+  }
+</style>
+
+<section class="bg-gray-950 pt-28 pb-20 px-4 sm:px-6">
+  <div class="max-w-6xl mx-auto">
+    <p class="text-base uppercase tracking-[0.12em] text-white/80 font-bold mb-2">Laboratorio visual noindex</p>
+    <h1 class="text-3xl sm:text-4xl text-white font-semibold mb-2">
+      Banners animados para servicios IT
+    </h1>
+    <p class="text-white/70 text-base max-w-2xl mb-12 leading-relaxed">
+      Prueba interna de movimiento tipográfico sobre imágenes técnicas. El rojo UMSA funciona
+      como acento de precisión, no como capa dominante.
+    </p>
+
+    <div class="space-y-8">
+      {
+        [
+          { svc:'consultoria', img:'portada-consultoria', overlay:'consultoria', style:'dossier', color:'#DC2626', text:'Diseño funcional, no decoración', label:'01 Consultoría IT — dossier' },
+          { svc:'electricos',  img:'portada-electricos',  overlay:'electricos',  style:'surge',    color:'#DC2626', text:'Energía confiable para operación IT', label:'02 Servicios eléctricos — surge' },
+          { svc:'incendios',   img:'portada-incendios',   overlay:'incendios',   style:'alarm',     color:'#DC2626', text:'Detección temprana para continuidad', label:'03 Detección de incendios — alarm' },
+          { svc:'redes',       img:'portada-redes',       overlay:'redes',       style:'packets',   color:'#DC2626', text:'Cada enlace sostiene la operación', label:'04 Redes — packets' },
+          { svc:'seguridad',   img:'portada-seguridad',   overlay:'seguridad',   style:'cctv',      color:'#DC2626', text:'Monitoreo activo sin interrupciones', label:'05 Seguridad electrónica — cctv' },
+          { svc:'software',    img:'portada-software',    overlay:'software',    style:'compile',   color:'#DC2626', text:'Software operativo para procesos reales', label:'06 Software — compile' },
+          { svc:'soporte',     img:'portada-soporte',     overlay:'soporte',     style:'ticket',    color:'#DC2626', text:'Soporte técnico con trazabilidad', label:'07 Soporte técnico — ticket' },
+          { svc:'telecom',     img:'portada-telecom',     overlay:'telecom',     style:'tune',      color:'#DC2626', text:'Señal estable para enlaces críticos', label:'08 Telecomunicaciones — tune' },
+          { svc:'general',     img:'portada-general',     overlay:'',            style:'typewriter',color:'#DC2626', text:'Servicios IT integrales para operaciones exigentes', label:'09 UMSA general — typewriter' },
+        ].map((b, i) => (
+          <div>
+            <div class="flex items-center gap-3 mb-2 px-1">
+              <span class="dot" style={`background:${b.color}`}></span>
+              <span class="meta">{b.label}</span>
+            </div>
+            <div class="banner-stage" id={`stage-${b.svc}`}>
+              <img src={`/images/hero/${b.img}.jpg`} alt={b.svc} loading={i > 3 ? 'lazy' : 'eager'} />
+              {b.overlay && <div class={`banner-overlay overlay-${b.overlay}`}></div>}
+              {!b.overlay && <div class="banner-overlay"></div>}
+              <div class="ptfx-target" id={`ptfx-${b.svc}`}>
+                <span class="banner-fallback" style={`--accent:${b.color}`}>{b.text}</span>
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  import { heroFx } from '../utils/pretextFx';
+
+  interface BannerConfig {
+    id: string;
+    text: string;
+    style: any;
+    color: string;
+  }
+
+  const configs: BannerConfig[] = [
+    { id:'ptfx-consultoria', text:'Diseño funcional, no decoración', style:'dossier', color:'#DC2626' },
+    { id:'ptfx-electricos',  text:'Energía confiable para operación IT', style:'surge', color:'#DC2626' },
+    { id:'ptfx-incendios',   text:'Detección temprana para continuidad', style:'alarm', color:'#DC2626' },
+    { id:'ptfx-redes',       text:'Cada enlace sostiene la operación', style:'packets', color:'#DC2626' },
+    { id:'ptfx-seguridad',   text:'Monitoreo activo sin interrupciones', style:'cctv', color:'#DC2626' },
+    { id:'ptfx-software',    text:'Software operativo para procesos reales', style:'compile', color:'#DC2626' },
+    { id:'ptfx-soporte',     text:'Soporte técnico con trazabilidad', style:'ticket', color:'#DC2626' },
+    { id:'ptfx-telecom',     text:'Señal estable para enlaces críticos', style:'tune', color:'#DC2626' },
+    { id:'ptfx-general',     text:'Servicios IT integrales para operaciones exigentes', style:'typewriter', color:'#DC2626' },
+  ];
+
+  // IntersectionObserver — fire effect when banner enters viewport
+  const fired = new Set<string>();
+  const observer = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      const id = (e.target as HTMLElement).id;
+      if (fired.has(id)) continue;
+      fired.add(id);
+
+      const cfg = configs.find(c => c.id === id);
+      if (!cfg) continue;
+
+      // Small delay for dramatic effect
+      setTimeout(() => {
+        heroFx(`#${id}`, cfg.text, {
+          style: cfg.style,
+          color: cfg.color,
+          speed: cfg.style === 'compile' ? 40 : cfg.style === 'cctv' ? 22 : cfg.style === 'tune' ? 15 : 18,
+          lines: 2,
+          weight: 600,
+          ambient: cfg.style === 'cctv' ? 'scan' : cfg.style === 'packets' ? 'pulse' : 'pulse',
+        });
+      }, 300);
+    }
+  }, { threshold: 0.3 });
+
+  // Observe all ptfx targets
+  configs.forEach(c => {
+    const el = document.getElementById(c.id);
+    if (el) observer.observe(el);
+  });
+</script>
+
+</LayoutV4>

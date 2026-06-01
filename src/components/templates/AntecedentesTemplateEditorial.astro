@@ -1,0 +1,1348 @@
+---
+import EvidenceCaseRow from '../um/EvidenceCaseRow.astro';
+import SectionHeader from '../um/SectionHeader.astro';
+import { truncateEditorialText } from '../../utils/editorialContent';
+import { resolveReplicaH1 } from '../../utils/replicaProdCopy';
+import { extractCaseMetricsFromAntecedente } from '../../utils/caseMetrics';
+import { getAntecedentesCatalogCount, getAntecedentesCountShort } from '../../utils/verifiedProof';
+
+const antecedentesPath = `${Astro.url.pathname}${Astro.url.search}`;
+const antecedentesIndexH1 = resolveReplicaH1(antecedentesPath, 'Evidencia operativa documentada.');
+
+interface Props {
+  pageData: any;
+  featuredAntecedente?: any;
+  filterChips: any[];
+  sectorFilter?: string;
+  searchQuery?: string;
+  areaFilter?: string;
+  unidadFilter?: string;
+  pageSize: number;
+}
+
+const {
+  pageData,
+  featuredAntecedente = null,
+  filterChips,
+  sectorFilter = '',
+  searchQuery = '',
+  areaFilter = '',
+  unidadFilter = '',
+  pageSize
+} = Astro.props;
+
+const currentUrl = new URL(Astro.request.url);
+const spotlight = pageData.spotlightAntecedentes || [];
+const archive = pageData.antecedentes || [];
+const totalItems = pageData.totalItems || 0;
+const archiveTotalItems = pageData.archiveTotalItems ?? Math.max(0, totalItems - spotlight.length);
+const institutionalProofTotal = getAntecedentesCatalogCount();
+const institutionalProofShort = getAntecedentesCountShort();
+const totalPages = Math.max(1, pageData.totalPages || 1);
+const currentPage = pageData.currentPage || 1;
+const feature = featuredAntecedente || spotlight[0];
+const secondary = spotlight.slice(1, 3);
+const hasResults = totalItems > 0;
+const showingStart = archiveTotalItems === 0 ? 0 : ((currentPage - 1) * pageSize) + 1;
+const showingEnd = Math.min(currentPage * pageSize, archiveTotalItems);
+const hasActiveFilters = Boolean(sectorFilter || searchQuery || areaFilter || unidadFilter);
+const preservedSearchParams = Array.from(currentUrl.searchParams.entries()).filter(
+  ([key]) => !['q', 'page', 'reset'].includes(key)
+);
+
+const buildSectorUrl = (sector: string) => {
+  const url = new URL(currentUrl);
+  if (sector) url.searchParams.set('sector', sector);
+  else url.searchParams.delete('sector');
+  url.searchParams.delete('page');
+  url.searchParams.delete('reset');
+  return `${url.pathname}${url.search}`;
+};
+
+const buildPageUrl = (page: number) => {
+  const url = new URL(currentUrl);
+  url.searchParams.set('page', String(page));
+  url.searchParams.delete('reset');
+  return `${url.pathname}${url.search}`;
+};
+
+const buildClearUrl = () => {
+  const url = new URL(currentUrl);
+  ['sector', 'area', 'cliente', 'unidad_negocio', 'q', 'page', 'reset'].forEach((key) => url.searchParams.delete(key));
+  return `${url.pathname}${url.search}`;
+};
+
+const computePaginationPages = () => {
+  if (totalPages <= 5) return Array.from({ length: totalPages }, (_, index) => index + 1);
+  if (currentPage <= 3) return [1, 2, 3, 4, 5];
+  if (currentPage >= totalPages - 2) return [totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+  return [currentPage - 2, currentPage - 1, currentPage, currentPage + 1, currentPage + 2];
+};
+
+const paginationPages = computePaginationPages();
+
+const cleanText = (value: unknown) => String(value || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+const truncate = (value: unknown, length = 170) => truncateEditorialText(value, length);
+const projectHref = (item: any) => `/antecedentes/${item.slug}`;
+const projectTitle = (item: any) => item?.Cliente || item?.Titulo || 'Antecedente UMSA';
+const projectScope = (item: any) => item?.Area || item?.Unidad_de_negocio || 'Servicios IT';
+const projectYear = (item: any) => {
+  const raw = item?.Fecha || item?.fecha || item?.anio || item?.year;
+  if (!raw) return 'documentado';
+  const date = new Date(raw);
+  return Number.isNaN(date.getTime()) ? String(raw) : String(date.getFullYear());
+};
+---
+
+<section class="ante-dossier">
+  <header class="ante-dossier__hero">
+    <div class="um-container ante-dossier__hero-grid">
+      <div class="ante-dossier__hero-copy">
+        <span class="ante-dossier__mark" aria-hidden="true"></span>
+        <h1>{antecedentesIndexH1}</h1>
+        <p>
+          Un archivo de proyectos reales para evaluar alcance, continuidad, criticidad y experiencia
+          en redes, seguridad electrónica, telecomunicaciones, software, soporte y energía para IT.
+        </p>
+        <div class="ante-dossier__actions">
+          <a href="#archivo-antecedentes">Ver archivo documental</a>
+          <a href="/contacto">Solicitar relevamiento</a>
+        </div>
+      </div>
+
+      <aside class="ante-dossier__proof" aria-label="Resumen de antecedentes">
+        <div>
+          <span>Proyectos</span>
+          <strong>{institutionalProofShort}</strong>
+        </div>
+        <div>
+          <span>Trayectoria</span>
+          <strong>22+ años</strong>
+        </div>
+        <div>
+          <span>Sectores</span>
+          <strong>{Math.max(filterChips.length - 1, 0)} mercados</strong>
+        </div>
+        <div>
+          <span>Soporte</span>
+          <strong>24/7</strong>
+        </div>
+      </aside>
+    </div>
+  </header>
+
+  <section class="ante-dossier__controls" aria-label="Índice documental de antecedentes">
+      <div class="um-container ante-dossier__controls-grid">
+        <div class="ante-dossier__range">
+          <strong>{showingStart}-{showingEnd}</strong>
+          <span>
+            {hasActiveFilters
+              ? `de ${totalItems} coincidencias en archivo`
+              : `de ${institutionalProofShort} en archivo`}
+          </span>
+        </div>
+
+      <form method="get" action="/antecedentes" class="ante-dossier__search">
+        {preservedSearchParams.map(([key, value]) => <input type="hidden" name={key} value={value} />)}
+        <label for="ante-dossier-search">Afinar archivo</label>
+        <div>
+          <input id="ante-dossier-search" type="search" name="q" value={searchQuery} placeholder="Cliente o alcance" />
+          <button type="submit">Buscar</button>
+        </div>
+      </form>
+    </div>
+
+  </section>
+
+  <nav class="um-container ante-dossier__sector-rail" aria-label="Filtrar antecedentes por sector">
+    <div class="ante-dossier__sector-links">
+      {filterChips.map((chip, index) => (
+        <a
+          href={buildSectorUrl(chip.id)}
+          class={sectorFilter === chip.id || (chip.id === '' && !sectorFilter) ? 'is-active' : ''}
+        >
+          <span>{String(index).padStart(2, '0')}</span>
+          <em>{chip.name}</em>
+        </a>
+      ))}
+      {hasActiveFilters && <a href={buildClearUrl()} class="ante-dossier__clear">Limpiar</a>}
+    </div>
+  </nav>
+
+  <section class="um-container ante-dossier__evidence" aria-labelledby="evidencia-destacada">
+    <SectionHeader
+      id="evidencia-destacada"
+      class="ante-dossier__section-head"
+      title="Evidencia destacada"
+      text="Casos con contexto, alcance y metadata para entender la escala real del trabajo."
+    />
+
+    {!hasResults ? (
+      <div class="ante-dossier__empty">
+        <h2>No se encontraron proyectos</h2>
+        <p>Probá con otro sector o una búsqueda más amplia dentro del archivo.</p>
+        <a href={buildClearUrl()}>Ver todos los proyectos</a>
+      </div>
+    ) : (
+      <>
+        {feature && (
+          <a href={projectHref(feature)} class="ante-dossier__feature">
+            <figure>
+              <img src={feature.imageUrl} alt={feature.Titulo || projectTitle(feature)} loading="eager" decoding="async" onerror="this.src='/images/default.jpg'" />
+            </figure>
+            <div class="ante-dossier__feature-body">
+              <span>Proyecto protagonista</span>
+              <h3>{projectTitle(feature)}</h3>
+              <p>{truncate(feature.Descripcion || feature.Titulo, 210)}</p>
+              <dl>
+                <div>
+                  <dt>Sector</dt>
+                  <dd>{projectScope(feature)}</dd>
+                </div>
+                <div>
+                  <dt>Ubicación / cliente</dt>
+                  <dd>{feature.Cliente || 'UMSA'}</dd>
+                </div>
+                <div>
+                  <dt>Año</dt>
+                  <dd>{projectYear(feature)}</dd>
+                </div>
+              </dl>
+              <strong>Ver dossier del proyecto</strong>
+            </div>
+          </a>
+        )}
+
+        {secondary.length > 0 && (
+          <div class="ante-dossier__secondary" aria-label="Casos secundarios">
+            {secondary.map((item: any, index: number) => (
+              <a href={projectHref(item)} class="ante-dossier__secondary-item">
+                <figure>
+                  <img src={item.imageUrl} alt={item.Titulo || projectTitle(item)} loading="lazy" decoding="async" onerror="this.src='/images/default.jpg'" />
+                </figure>
+                <div>
+                  <span>{String(index + 2).padStart(2, '0')}</span>
+                  <h3>{projectTitle(item)}</h3>
+                  <p>{truncate(item.Descripcion || item.Titulo, 128)}</p>
+                  <dl>
+                    <div>
+                      <dt>Sector</dt>
+                      <dd>{projectScope(item)}</dd>
+                    </div>
+                    <div>
+                      <dt>Año</dt>
+                      <dd>{projectYear(item)}</dd>
+                    </div>
+                  </dl>
+                </div>
+              </a>
+            ))}
+          </div>
+        )}
+      </>
+    )}
+  </section>
+
+  {archive.length > 0 && (
+    <section class="um-container ante-dossier__archive" id="archivo-antecedentes" aria-labelledby="archivo-antecedentes-title">
+      <div class="ante-dossier__archive-head">
+        <h2 id="archivo-antecedentes-title">Centro de evidencia operativa</h2>
+        <p>Lectura ejecutiva por cliente, alcance, sector y año para abrir cada dossier con contexto comercial claro.</p>
+      </div>
+
+      <div class="ante-dossier__ledger antecedentes-list">
+        <div class="ante-dossier__ledger-head" aria-hidden="true">
+          <span>Proyecto</span>
+          <span>Sector</span>
+          <span>Año</span>
+          <span>Acción</span>
+        </div>
+        {archive.map((item: any, index: number) => (
+          <EvidenceCaseRow
+            href={projectHref(item)}
+            number={String(showingStart + index).padStart(2, '0')}
+            title={projectTitle(item)}
+            description={truncate(item.Descripcion || item.Titulo, 150)}
+            image={item.imageUrl}
+            imageAlt={item.Titulo || projectTitle(item)}
+            sector={projectScope(item)}
+            year={projectYear(item)}
+            imageLoading={index < 6 ? 'eager' : 'lazy'}
+            metrics={extractCaseMetricsFromAntecedente(item)}
+          />
+        ))}
+      </div>
+    </section>
+  )}
+
+  {totalPages > 1 && (
+    <nav class="um-container ante-dossier__pagination" aria-label="Paginación de antecedentes">
+      <span>Página {currentPage} de {totalPages}</span>
+      <div>
+        {currentPage > 1 && <a href={buildPageUrl(currentPage - 1)}>Anterior</a>}
+        {paginationPages.map((pageNum) => (
+          <a href={buildPageUrl(pageNum)} class={currentPage === pageNum ? 'is-active' : ''}>{pageNum}</a>
+        ))}
+        {currentPage < totalPages && <a href={buildPageUrl(currentPage + 1)}>Siguiente</a>}
+      </div>
+    </nav>
+  )}
+</section>
+
+<style>
+  .ante-dossier {
+    --ante-read: 1.1875rem;
+    --ante-read-lg: 1.25rem;
+    --ante-page: var(--skin-page, #fff);
+    --ante-section: var(--skin-section, #fff);
+    --ante-alt: #ffffff;
+    --ante-text: var(--skin-text, #0b0b0b);
+    --ante-muted: var(--skin-muted, #5f6368);
+    --ante-line: var(--skin-line, #d9dadd);
+    background: var(--ante-page);
+    color: var(--ante-text);
+    overflow-x: clip;
+  }
+
+  .ante-dossier a {
+    text-decoration: none;
+  }
+
+  .ante-dossier__hero {
+    background: var(--ante-section);
+    border-bottom: 0;
+    padding: clamp(28px, 3.8vw, 48px) 0 clamp(20px, 2.7vw, 30px);
+  }
+
+  .ante-dossier__hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.64fr) minmax(320px, 0.36fr);
+    gap: clamp(30px, 6vw, 86px);
+    align-items: center;
+  }
+
+  .ante-dossier__hero-copy {
+    min-width: 0;
+  }
+
+  .ante-dossier__mark,
+  .ante-dossier__section-title span {
+    display: block;
+    width: 56px;
+    height: 3px;
+    background: var(--um-red);
+  }
+
+  .ante-dossier__hero h1 {
+    max-width: 900px;
+    margin-top: clamp(16px, 2vw, 24px);
+    color: var(--ante-text);
+    font-family: var(--um-font-display);
+    font-size: clamp(2.5rem, 2.88vw, 2.9rem);
+    font-weight: var(--um-weight-title, 600);
+    line-height: 1.1;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .ante-dossier__hero p {
+    max-width: 760px;
+    margin-top: 12px;
+    color: var(--ante-muted);
+    font-size: clamp(1.125rem, 1.16vw, 1.25rem);
+    line-height: 1.68;
+  }
+
+  .ante-dossier__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: clamp(18px, 2.4vw, 26px);
+  }
+
+  .ante-dossier__actions a {
+    display: inline-flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    padding: 0 22px;
+    color: #0b0b0b;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+  }
+
+  .ante-dossier__actions a:first-child {
+    background: #0b0b0b;
+    color: #fff;
+  }
+
+  .ante-dossier__actions a + a {
+    background: #eef0f2;
+    color: #111;
+  }
+
+  .ante-dossier__actions a:first-child:hover {
+    background: #1d1d1f;
+    color: #fff;
+  }
+
+  .ante-dossier__actions a + a:hover {
+    background: #e1e4e8;
+    color: #111;
+  }
+
+  .ante-dossier__proof {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    background: transparent;
+    color: var(--ante-text);
+  }
+
+  .ante-dossier__proof div {
+    min-width: 0;
+    padding: clamp(15px, 2vw, 22px);
+    background: #fff;
+  }
+
+  .ante-dossier__proof span {
+    display: block;
+    color: var(--ante-muted);
+    font-size: var(--ante-read);
+    font-weight: var(--um-weight-strong, 700);
+    line-height: 1.35;
+  }
+
+  .ante-dossier__proof strong {
+    display: block;
+    margin-top: 8px;
+    color: var(--ante-text);
+    font-family: var(--um-font-display);
+    font-size: clamp(1.55rem, 2vw, 2rem);
+    font-weight: var(--um-weight-title, 600);
+    line-height: 1.04;
+    text-wrap: balance;
+  }
+
+  .ante-dossier__controls {
+    position: relative;
+    z-index: 1;
+    margin-top: 0;
+    margin-bottom: 0;
+    background: var(--ante-page);
+    backdrop-filter: none;
+    border-bottom: 0;
+    box-shadow: none;
+  }
+
+  .ante-dossier__controls-grid {
+    display: grid;
+    grid-template-columns: minmax(180px, 0.28fr) minmax(320px, 0.72fr);
+    gap: clamp(18px, 4vw, 56px);
+    align-items: center;
+    padding-top: 14px;
+    padding-bottom: 10px;
+  }
+
+  .ante-dossier__range strong {
+    display: block;
+    color: var(--ante-text);
+    font-family: var(--um-font-display);
+    font-size: clamp(1.45rem, 1.9vw, 1.9rem);
+    font-weight: var(--um-weight-title, 600);
+    line-height: 1;
+  }
+
+  .ante-dossier__range span,
+  .ante-dossier__search label {
+    display: block;
+    margin-top: 4px;
+    color: var(--ante-muted);
+    font-size: 1rem;
+    font-weight: var(--um-weight-strong, 700);
+    line-height: 1.4;
+  }
+
+  .ante-dossier__search {
+    min-width: 0;
+    justify-self: end;
+    width: min(100%, 720px);
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .ante-dossier__search label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .ante-dossier__search div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-width: 0;
+  }
+
+  .ante-dossier__search input,
+  .ante-dossier__search button {
+    min-height: 44px;
+    border-radius: 0;
+    font-family: var(--um-font-body);
+    font-size: 1rem;
+  }
+
+  .ante-dossier__search input {
+    min-width: 0;
+    border: 0;
+    background: #fff;
+    color: var(--ante-text);
+    padding: 0 16px;
+    box-shadow: inset 0 -1px 0 rgba(216, 221, 227, 0.9);
+  }
+
+  .ante-dossier__search input:focus {
+    outline: 2px solid rgba(220, 38, 38, 0.24);
+    outline-offset: 2px;
+  }
+
+  .ante-dossier__search button {
+    border: 0;
+    background: var(--um-red);
+    color: #fff;
+    padding: 0 22px;
+    font-weight: var(--um-weight-strong, 700);
+    cursor: pointer;
+  }
+
+  .ante-dossier__sector-rail {
+    display: block;
+    position: sticky;
+    top: 72px;
+    z-index: 11;
+    min-width: 0;
+    align-items: center;
+    margin-bottom: clamp(24px, 3vw, 36px);
+    padding: 0 0 8px;
+    border-top: 0;
+    border-bottom: 0;
+    background: #fff;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 42px), transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 42px), transparent 100%);
+    scrollbar-width: none;
+  }
+
+  .ante-dossier__sector-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ante-dossier__sector-links {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: clamp(12px, 1.4vw, 20px);
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    padding-right: clamp(32px, 5vw, 72px);
+    scroll-padding-inline: 18px clamp(32px, 5vw, 72px);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ante-dossier__sector-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ante-dossier__sector-links a {
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0;
+    min-height: 48px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ante-text);
+    font-size: 1rem;
+    font-weight: var(--um-weight-title, 600);
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .ante-dossier__sector-links a span {
+    display: none;
+    color: var(--ante-muted);
+    font-family: var(--um-font-display);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  .ante-dossier__sector-links a em {
+    overflow: visible;
+    color: inherit;
+    font-size: 1rem;
+    font-style: normal;
+    line-height: 1.2;
+  }
+
+  .ante-dossier__sector-links a.is-active {
+    color: var(--um-red);
+  }
+
+  .ante-dossier__sector-links a.is-active span {
+    color: var(--um-red);
+  }
+
+  .ante-dossier__sector-links a.is-active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: var(--um-red);
+  }
+
+  .ante-dossier__clear {
+    color: var(--ante-muted);
+    font-size: 1rem;
+    font-weight: var(--um-weight-title, 600);
+    border-bottom: 2px solid var(--um-red);
+    padding-bottom: 2px;
+  }
+
+  @media (max-width: 1080px) {
+    .ante-dossier__sector-links {
+      display: flex;
+      gap: 18px;
+    }
+  }
+
+  .ante-dossier__evidence {
+    padding-top: clamp(28px, 3.8vw, 50px);
+  }
+
+  .ante-dossier__section-head,
+  .ante-dossier__archive-head {
+    display: grid;
+    grid-template-columns: minmax(0, 0.52fr) minmax(280px, 0.48fr);
+    gap: clamp(24px, 5vw, 80px);
+    align-items: start;
+    margin-bottom: clamp(18px, 2.4vw, 28px);
+  }
+
+  .ante-dossier__section-head h2,
+  .ante-dossier__archive-head h2,
+  .ante-dossier__empty h2 {
+    color: var(--ante-text);
+    font-family: var(--um-font-display);
+    font-size: clamp(1.85rem, 2.55vw, 2.7rem);
+    font-weight: var(--um-weight-title, 600);
+    line-height: 1.12;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .ante-dossier__section-title h2 {
+    margin-top: 18px;
+  }
+
+  .ante-dossier__section-head p,
+  .ante-dossier__archive-head p,
+  .ante-dossier__empty p {
+    margin-top: 8px;
+    color: var(--ante-muted);
+    font-size: var(--ante-read-lg);
+    line-height: 1.65;
+  }
+
+  .ante-dossier__feature {
+    display: grid;
+    grid-template-columns: minmax(0, 0.58fr) minmax(360px, 0.42fr);
+    height: clamp(420px, 36vw, 520px);
+    overflow: hidden;
+    background: #fff;
+    color: #111;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .ante-dossier__feature figure,
+  .ante-dossier__secondary figure {
+    min-width: 0;
+    overflow: hidden;
+    background: #111;
+  }
+
+  .ante-dossier__feature figure {
+    height: 100%;
+  }
+
+  .ante-dossier__feature img,
+  .ante-dossier__secondary img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    color: transparent;
+    filter: grayscale(0.08) contrast(1.04) saturate(0.94);
+    transition: none;
+  }
+
+  .ante-dossier__feature:hover img,
+  .ante-dossier__secondary-item:hover img {
+    filter: grayscale(0.08) contrast(1.04) saturate(0.94);
+  }
+
+  .ante-dossier__feature-body {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: center;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,247,247,0.98));
+    padding: clamp(28px, 4vw, 48px);
+  }
+
+  .ante-dossier__feature-body > span,
+  .ante-dossier__secondary-item span {
+    display: inline-flex;
+    width: fit-content;
+    border-top: 0;
+    box-shadow: inset 0 3px 0 var(--um-red);
+    padding-top: 12px;
+    color: var(--um-red);
+    font-size: 1rem;
+    font-weight: var(--um-weight-strong, 700);
+    line-height: 1.2;
+  }
+
+  .ante-dossier__feature h3 {
+    margin-top: 18px;
+    color: #111;
+    font-family: var(--um-font-display);
+    font-size: clamp(1.72rem, 2.34vw, 2.45rem);
+    font-weight: var(--um-weight-title, 600);
+    line-height: 1.12;
+    text-wrap: balance;
+  }
+
+  .ante-dossier__feature p {
+    margin-top: 16px;
+    color: #555d66;
+    font-size: clamp(1rem, 1.12vw, 1.12rem);
+    line-height: 1.65;
+  }
+
+  .ante-dossier__feature dl {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 22px;
+    background: transparent;
+  }
+
+  .ante-dossier__feature dl div {
+    min-width: 0;
+    background: transparent;
+    padding: 0;
+    border-top: 0;
+    padding-top: 14px;
+  }
+
+  .ante-dossier__feature dt,
+  .ante-dossier__secondary dt,
+  .ante-dossier__row-meta span {
+    color: #6b7280;
+    font-size: 1rem;
+    font-weight: var(--um-weight-strong, 700);
+    line-height: 1.3;
+  }
+
+  .ante-dossier__feature dd,
+  .ante-dossier__secondary dd,
+  .ante-dossier__row-meta strong {
+    margin: 6px 0 0;
+    color: #111;
+    font-size: 1rem;
+    font-weight: var(--um-weight-strong, 700);
+    line-height: 1.35;
+  }
+
+  .ante-dossier__feature strong {
+    display: inline-flex;
+    width: fit-content;
+    margin-top: 22px;
+    color: #111;
+    font-size: 1rem;
+    font-weight: var(--um-weight-strong, 700);
+    line-height: 1.2;
+  }
+
+  .ante-dossier__feature strong::after,
+  .ante-dossier__row em::after,
+  .ante-dossier__pagination a:not(.is-active)::after {
+    content: "";
+    width: 18px;
+    height: 1px;
+    margin-left: 10px;
+    background: var(--um-red);
+    align-self: center;
+  }
+
+  .ante-dossier__secondary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 18px;
+  }
+
+  .ante-dossier__secondary-item {
+    display: grid;
+    grid-template-columns: minmax(180px, 0.42fr) minmax(0, 0.58fr);
+    min-height: 250px;
+    background: #fff;
+    color: #111;
+    box-shadow: none;
+  }
+
+  .ante-dossier__secondary-item > div {
+    min-width: 0;
+    padding: clamp(22px, 3vw, 34px);
+  }
+
+  .ante-dossier__secondary-item span {
+    color: var(--um-red);
+  }
+
+  .ante-dossier__secondary h3 {
+    margin-top: 18px;
+    color: #111;
+    font-family: var(--um-font-display);
+    font-size: clamp(1.38rem, 1.75vw, 1.75rem);
+    font-weight: var(--um-weight-title, 600);
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  .ante-dossier__secondary p {
+    margin-top: 12px;
+    color: #555;
+    font-size: 1rem;
+    line-height: 1.58;
+  }
+
+  .ante-dossier__secondary dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: 18px;
+    border-top: 0;
+    padding-top: 14px;
+  }
+
+  .ante-dossier__secondary dt {
+    color: #5f6670;
+  }
+
+  .ante-dossier__secondary dd {
+    color: #111;
+  }
+
+  .ante-dossier__archive {
+    padding-top: clamp(34px, 5vw, 62px);
+    scroll-margin-top: 136px;
+  }
+
+  .ante-dossier__archive-head {
+    border-top: 0;
+    padding-top: clamp(28px, 4vw, 44px);
+  }
+
+  .ante-dossier__ledger {
+    border-top: 0;
+  }
+
+  .ante-dossier__ledger-head {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 56px minmax(320px, 1fr) minmax(170px, 0.2fr) minmax(120px, 0.14fr) auto;
+    gap: clamp(18px, 3.5vw, 46px);
+    align-items: center;
+    margin-bottom: 10px;
+    border-top: 0;
+    border-bottom: 0;
+    padding: 16px 0;
+    background: var(--ante-page, #fff);
+    box-shadow: none;
+  }
+
+  .ante-dossier__ledger-head span {
+    color: var(--ante-muted);
+    font-size: 1rem;
+    font-weight: var(--um-weight-strong, 700);
+    line-height: 1.3;
+  }
+
+  .ante-dossier__ledger-head span:first-child {
+    grid-column: 2;
+  }
+
+  .ante-dossier__row {
+    display: grid;
+    grid-template-columns: 56px minmax(320px, 1fr) minmax(170px, 0.2fr) minmax(120px, 0.14fr) auto;
+    gap: clamp(18px, 3.5vw, 46px);
+    align-items: center;
+    border-bottom: 0;
+    padding: 30px 0;
+    color: #111;
+    transition: background-color 180ms ease;
+  }
+
+  .ante-dossier__row:hover {
+    background: #fafafa;
+  }
+
+  .ante-dossier__row-number {
+    color: var(--um-red);
+    font-family: var(--um-font-display);
+    font-size: 1.1rem;
+    font-weight: var(--um-weight-title, 600);
+    line-height: 1;
+  }
+
+  .ante-dossier__row-main {
+    display: grid;
+    grid-template-columns: 144px minmax(0, 1fr);
+    gap: 20px;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .ante-dossier__row-main figure {
+    width: 144px;
+    height: 116px;
+    margin: 0;
+    overflow: hidden;
+    background: #111;
+    border: 0;
+  }
+
+  .ante-dossier__row-main img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(0.08) contrast(1.04) saturate(0.94);
+  }
+
+  .ante-dossier__row h3 {
+    color: #111;
+    font-family: var(--um-font-display);
+    font-size: clamp(1.18rem, 1.45vw, 1.52rem);
+    font-weight: var(--um-weight-title, 600);
+    line-height: 1.18;
+    text-wrap: balance;
+  }
+
+  .ante-dossier__row p {
+    max-width: 680px;
+    margin-top: 8px;
+    color: #5d6269;
+    font-size: var(--ante-read);
+    line-height: 1.58;
+  }
+
+  .ante-dossier__row-meta span {
+    display: block;
+    color: #5f6670;
+  }
+
+  .ante-dossier__row-meta strong {
+    display: block;
+    color: #111;
+  }
+
+  .ante-dossier__row em {
+    display: inline-flex;
+    align-items: center;
+    justify-self: end;
+    color: #111;
+    font-size: 1rem;
+    font-style: normal;
+    font-weight: var(--um-weight-strong, 700);
+    white-space: nowrap;
+  }
+
+  .ante-dossier__pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: center;
+    padding-top: 28px;
+    padding-bottom: clamp(72px, 9vw, 118px);
+  }
+
+  .ante-dossier__pagination span {
+    color: var(--ante-muted);
+    font-size: 1rem;
+    font-weight: var(--um-weight-strong, 700);
+  }
+
+  .ante-dossier__pagination div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .ante-dossier__pagination a {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: rgba(17,17,17,0.05);
+    padding: 0 14px;
+    color: #111;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .ante-dossier__pagination a.is-active {
+    background: #111;
+    color: #fff;
+  }
+
+  .ante-dossier__empty {
+    border-top: 0;
+    border-bottom: 0;
+    background: #f7f7f7;
+    padding: clamp(30px, 5vw, 62px);
+  }
+
+  .ante-dossier__empty a {
+    display: inline-flex;
+    margin-top: 20px;
+    color: #111;
+    font-size: 1rem;
+    font-weight: var(--um-weight-strong, 700);
+  }
+
+  @media (max-width: 1080px) {
+    .ante-dossier__hero-grid,
+    .ante-dossier__feature,
+    .ante-dossier__secondary-item {
+      grid-template-columns: 1fr;
+    }
+
+    .ante-dossier__feature figure {
+      min-height: 360px;
+    }
+
+    .ante-dossier__feature-body {
+      border-left: 0;
+      border-top: 0;
+    }
+
+    .ante-dossier__secondary figure {
+      min-height: 220px;
+    }
+
+    .ante-dossier__row {
+      grid-template-columns: 52px minmax(0, 1fr) minmax(150px, 0.24fr) auto;
+    }
+
+    .ante-dossier__ledger-head {
+      grid-template-columns: 52px minmax(0, 1fr) minmax(150px, 0.24fr) auto;
+    }
+
+    .ante-dossier__ledger-head span:nth-child(3) {
+      display: none;
+    }
+
+    .ante-dossier__row-meta:nth-of-type(2) {
+      display: none;
+    }
+
+    .ante-dossier__search {
+      justify-self: stretch;
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 780px) {
+    .ante-dossier__hero {
+      padding: 38px 0 34px;
+    }
+
+    .ante-dossier__hero-grid,
+    .ante-dossier__controls-grid,
+    .ante-dossier__section-head,
+    .ante-dossier__archive-head,
+    .ante-dossier__secondary {
+      grid-template-columns: 1fr;
+    }
+
+    .ante-dossier__hero h1 {
+      max-width: 18ch;
+      font-size: clamp(2rem, 7.2vw, 2.32rem);
+      line-height: 1.12;
+      text-wrap: pretty;
+    }
+
+    .ante-dossier__proof {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .ante-dossier__controls {
+      margin-top: 0;
+      margin-bottom: 0;
+      box-shadow: none;
+    }
+
+    .ante-dossier__controls-grid {
+      gap: 10px;
+      padding-top: 10px;
+      padding-bottom: 8px;
+    }
+
+    .ante-dossier__range {
+      display: none;
+    }
+
+    .ante-dossier__range strong {
+      font-size: 1.25rem;
+    }
+
+    .ante-dossier__range span {
+      margin-top: 0;
+      font-size: 1rem;
+      line-height: 1.25;
+    }
+
+    .ante-dossier__search label {
+      margin-bottom: 6px;
+    }
+
+    .ante-dossier__search input,
+    .ante-dossier__search button {
+      min-height: 44px;
+    }
+
+    .ante-dossier__sector-rail {
+      top: 64px;
+      margin-inline: auto;
+      margin-bottom: 22px;
+      padding-bottom: 0;
+      -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 28px), transparent 100%);
+      mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 28px), transparent 100%);
+    }
+
+    .ante-dossier__sector-links {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 18px;
+      padding-inline: 14px 42px;
+      scroll-padding-inline: 14px 42px;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+
+    .ante-dossier__sector-links a {
+      min-height: 42px;
+    }
+
+    .ante-dossier__feature {
+      height: auto;
+      min-height: 0;
+      overflow: visible;
+    }
+
+    .ante-dossier__feature figure {
+      min-height: 260px;
+    }
+
+    .ante-dossier__feature dl {
+      grid-template-columns: 1fr;
+    }
+
+    .ante-dossier__row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+      align-items: start;
+      padding: 28px 0;
+    }
+
+    .ante-dossier__row-main {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .ante-dossier__row-main figure {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 10;
+    }
+
+    .ante-dossier__ledger-head {
+      display: none;
+    }
+
+    .ante-dossier__row-meta,
+    .ante-dossier__row em {
+      grid-column: 1;
+      justify-self: start;
+    }
+
+    .ante-dossier__row-meta {
+      display: inline-grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: 12px;
+      align-items: baseline;
+      width: min(100%, 360px);
+      margin-top: 14px;
+    }
+
+    .ante-dossier__row em {
+      margin-top: 12px;
+    }
+
+    .ante-dossier__pagination {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .ante-dossier__row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+    }
+
+    .ante-dossier__row-main {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .ante-dossier__row-main figure {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 10;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .ante-dossier__hero {
+      padding: 28px 0 24px;
+    }
+
+    .ante-dossier__hero-grid {
+      gap: 22px;
+    }
+
+    .ante-dossier__clear {
+      white-space: nowrap;
+    }
+
+    .ante-dossier__hero h1 {
+      max-width: 16.5ch;
+      font-size: clamp(2rem, 6.9vw, 2.18rem);
+      line-height: 1.14;
+      text-wrap: pretty;
+    }
+
+    .ante-dossier__row-number {
+      display: inline-flex;
+      width: fit-content;
+      margin-bottom: 12px;
+      padding-top: 2px;
+    }
+
+    .ante-dossier__row-main {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .ante-dossier__row-main figure {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 10;
+    }
+
+    .ante-dossier__hero p {
+      max-width: 33ch;
+      line-height: 1.55;
+    }
+
+    .ante-dossier__actions {
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .ante-dossier__actions a {
+      width: 100%;
+      min-height: 48px;
+    }
+
+    .ante-dossier__proof {
+      display: none;
+    }
+
+    .ante-dossier__evidence {
+      padding-top: 24px;
+    }
+
+    .ante-dossier__section-title h2 {
+      margin-top: 12px;
+    }
+
+    .ante-dossier__section-head p {
+      max-width: 34ch;
+    }
+
+    .ante-dossier__feature-body {
+      padding: 24px 18px;
+    }
+
+    .ante-dossier__feature h3 {
+      font-size: clamp(1.42rem, 6.2vw, 1.72rem);
+      line-height: 1.16;
+    }
+
+    .ante-dossier__feature p {
+      line-height: 1.58;
+    }
+
+    .ante-dossier__secondary dl {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('.ante-dossier__sector-links').forEach((rail) => {
+    const active = rail.querySelector('.is-active');
+    if (active instanceof HTMLElement) {
+      active.scrollIntoView({
+        block: 'nearest',
+        inline: window.matchMedia('(max-width: 720px)').matches ? 'start' : 'nearest'
+      });
+    }
+  });
+</script>

@@ -1,38 +1,38 @@
 export const servicios = [
     {
-        title: 'Ciberseguridad',
-        description: 'Protege tu empresa con nuestras soluciones integrales de ciberseguridad',
-        href: '/servicios/ciberseguridad',
-        icon: '🔒'
+        title: 'Seguridad electrónica',
+        description: 'CCTV, accesos, intrusión y monitoreo para operación continua',
+        href: '/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi',
+        icon: 'security'
     },
     {
-        title: 'Cloud Computing',
-        description: 'Soluciones en la nube para optimizar y escalar su negocio',
-        href: '/servicios/cloud-computing',
-        icon: '☁️'
+        title: 'Telecomunicaciones',
+        description: 'Datos, voz, video y enlaces para operaciones distribuidas',
+        href: '/servicios/103/telecomunicaciones-datos-voz-video',
+        icon: 'radio'
     },
     {
         title: 'Desarrollo de Software',
-        description: 'Soluciones de software personalizadas para impulsar su negocio',
-        href: '/servicios/desarrollo-software',
-        icon: '💻'
+        description: 'Sistemas propios, integraciones y automatización de procesos',
+        href: '/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp',
+        icon: 'code'
     },
     {
         title: 'Consultoría IT',
-        description: 'Asesoramiento estratégico para la transformación digital de su empresa',
-        href: '/servicios/consultoria-it',
-        icon: '📊'
+        description: 'Diagnóstico, diseño de arquitectura y planificación técnica',
+        href: '/servicios/106/consultoria-it-transformacion-digital',
+        icon: 'briefcase'
     },
     {
-        title: 'Infraestructura',
-        description: 'Soluciones de infraestructura robustas y escalables',
-        href: '/servicios/infraestructura',
-        icon: '🏗️'
+        title: 'Infraestructura de red',
+        description: 'Fibra, cableado, switching y radioenlaces certificados',
+        href: '/servicios/101/infraestructura-de-redes-cableado-fibra-optica-radioenlaces',
+        icon: 'network'
     },
     {
         title: 'Soporte Técnico',
-        description: 'Asistencia técnica especializada 24/7',
-        href: '/servicios/soporte-tecnico',
-        icon: '🛠️'
+        description: 'Mesa de ayuda, mantenimiento preventivo y respuesta 24/7',
+        href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it',
+        icon: 'headset'
     }
 ]; 

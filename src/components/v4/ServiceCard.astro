@@ -61,9 +61,9 @@ const descripcionTruncada = descripcion.length > 150
 ---
 
 <a href={serviceUrl} class="group flex flex-col h-full">
-  <article class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 card-hover">
+  <article class="service-card-v4 flex flex-col h-full overflow-hidden card-hover">
     <!-- Image -->
-    <div class="relative aspect-[16/9] overflow-hidden bg-gray-100">
+    <div class="service-card-v4__media relative aspect-[16/9] overflow-hidden">
       {imagenUrl ? (
         <img
           src={imagenUrl}
@@ -89,7 +89,7 @@ const descripcionTruncada = descripcion.length > 150
 
       {badge && (
         <div class="absolute top-3 sm:top-4 left-3 sm:left-4">
-          <span class={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold ${badgeColor} text-white shadow-sm`}>
+          <span class={`inline-flex items-center px-2.5 py-1 rounded-[4px] text-base font-semibold ${badgeColor} text-white`}>
             {badge}
           </span>
         </div>
@@ -98,19 +98,19 @@ const descripcionTruncada = descripcion.length > 150
 
     <!-- Content -->
     <div class="flex flex-col flex-grow p-4 sm:p-6">
-      <h3 class="text-lg sm:text-xl font-bold text-um-dark mb-2 sm:mb-3 group-hover:text-um-primary transition-colors line-clamp-2">
+      <h3 class="text-lg sm:text-xl font-bold mb-2 sm:mb-3 group-hover:text-um-primary transition-colors line-clamp-2">
         {titulo}
       </h3>
 
-      <p class="text-um-gray text-sm mb-4 sm:mb-6 line-clamp-3 flex-grow leading-relaxed">
+      <p class="text-base mb-4 sm:mb-6 line-clamp-3 flex-grow leading-relaxed">
         {descripcionTruncada}
       </p>
 
-      <div class="pt-3 sm:pt-4 border-t border-gray-100 mt-auto flex items-center justify-between">
-        <span class="text-xs font-medium text-um-gray uppercase tracking-wide">
+      <div class="service-card-v4__footer pt-3 sm:pt-4 mt-auto flex items-center justify-between">
+        <span class="text-base font-medium uppercase tracking-wide">
           {cliente}
         </span>
-        <span class="text-um-primary text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
+        <span class="text-um-primary text-base font-semibold flex items-center gap-1 transition-colors">
           Ver detalles
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -122,14 +122,37 @@ const descripcionTruncada = descripcion.length > 150
 </a>
 
 <style>
-  /* Hover effect */
+  .service-card-v4 {
+    background: var(--skin-panel);
+    border: 1px solid var(--skin-line);
+    color: var(--skin-text);
+  }
+
+  .service-card-v4__media {
+    background: var(--skin-panel-strong);
+  }
+
+  .service-card-v4 h3 {
+    color: var(--skin-text);
+  }
+
+  .service-card-v4 p,
+  .service-card-v4__footer span:first-child {
+    color: var(--skin-muted);
+  }
+
+  .service-card-v4__footer {
+    border-top: 1px solid var(--skin-line);
+  }
+
+  /* Static editorial card: no lift/zoom effects on the commercial site. */
   .card-hover {
-    transition: all 0.3s ease;
+    transition: border-color 0.18s ease, background-color 0.18s ease;
   }
 
   .card-hover:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    transform: none;
+    box-shadow: none;
   }
 
   /* Line clamp */

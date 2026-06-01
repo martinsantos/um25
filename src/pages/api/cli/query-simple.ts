@@ -29,8 +29,9 @@ async function queryDatabase(sql: string, params: string[] = []) {
 // CONECTAR DIRECTAMENTE CON DIRECTUS REAL - 469 antecedentes + 9 servicios
 async function queryDirectusAPI(searchQuery: string): Promise<any> {
     try {
-        const token = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
-        const directusUrl = 'http://localhost:8055';
+        const token = import.meta.env.DIRECTUS_STATIC_TOKEN || import.meta.env.PUBLIC_DIRECTUS_TOKEN || '';
+        const directusUrl = import.meta.env.DIRECTUS_INTERNAL_URL || import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
+        if (!token) return { antecedentes: [], servicios: [] };
         
         // BUSCAR EN ANTECEDENTES REALES (469 registros)
         const antecedentesResponse = await fetch(`${directusUrl}/items/Antecedentes?limit=50&search=${encodeURIComponent(searchQuery)}&fields=id,title,content,client,date_created,slug`, {
