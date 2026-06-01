@@ -17,7 +17,8 @@ Disallow: /_sectores
 Disallow: /_cli-mobile
 Disallow: /_test-components-v4
 
-Sitemap: ${SITE_URL}/sitemap-index.xml`;
+Sitemap: ${SITE_URL}/sitemap-index.xml
+Sitemap: ${SITE_URL}/sitemap-geo.xml`;
 
     return new Response(robotsTxt, {
         headers: {

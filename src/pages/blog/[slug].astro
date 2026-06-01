@@ -2,8 +2,10 @@
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import BlogTOC from '../../components/blog/BlogTOC.astro';
 import { fetchBlogPost, fetchBlogListing } from '../../utils/getBlogData';
-import { blogImageUrl } from '../../utils/blogHelpers';
-import { addHeadingIds, getCategoryColor, getCategoryLabel, formatBlogDate, extractFaqSchema } from '../../utils/blogUtils';
+import { blogImageUrl, blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
+import { addHeadingIds, getCategoryLabel, formatBlogDate, extractFaqSchema } from '../../utils/blogUtils';
+import { isReplicaIdenticalCopy, resolveReplicaH1 } from '../../utils/replicaProdCopy';
+import { shouldShowBlogCommercialFold } from '../../data/commercialPlacement';
 
 const slug = Astro.params.slug || '';
 const post = await fetchBlogPost(slug);
@@ -12,13 +14,41 @@ if (!post) {
   return Astro.redirect('/blog');
 }
 
-const { html: contentHtml, headings } = await addHeadingIds(post.contenido || '');
+const normalizeArticleContent = (html: string): string => {
+  const replacements: Record<string, string> = {
+    'El Gancho: Martín y los $500 Mensuales': 'El costo real de resolverlo a mano',
+    'El Problema: RG 5824 — La Regulación que Cambió Todo': 'La exigencia operativa de RG 5824',
+    'La Solución: Plantilla ARCA': 'La herramienta propuesta',
+    'Cómo Funciona (Técnico, pero entendible)': 'Cómo funciona',
+    'Casos de Uso: Cuatro Personas, Cuatro Soluciones': 'Casos de uso',
+    'Preguntas Frecuentes (Las que realmente te importan)': 'Preguntas frecuentes',
+    'Roadmap: Lo que viene (y por qué)': 'Roadmap técnico',
+    'Cómo Empezar: Tres Caminos': 'Cómo empezar',
+  };
+
+  return Object.entries(replacements).reduce((acc, [from, to]) => {
+    const escaped = from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return acc.replace(new RegExp(`(<h[2-3][^>]*>)\\s*${escaped}\\s*(<\\/h[2-3]>)`, 'gi'), `$1${to}$2`);
+  }, html || '');
+};
+
+const normalizedContent = normalizeArticleContent(post.contenido || '');
+const { html: contentHtml, headings } = await addHeadingIds(normalizedContent);
 const faqSchema = extractFaqSchema(contentHtml);
-const imgUrl = blogImageUrl(post.imagen_portada);
+const imgUrl = blogPostImageUrl(post);
+const imgAlt = blogPostImageAlt(post);
 const socialImg = post.social_image ? blogImageUrl(post.social_image) : imgUrl;
-const color = getCategoryColor(post.categoria);
 const label = getCategoryLabel(post.categoria);
 const date = formatBlogDate(post.fecha_publicacion);
+
+const buildArticleLead = (value: unknown): string => {
+  const clean = String(value || '').replace(/\s+/g, ' ').trim();
+  if (clean.length <= 190) return clean;
+  const sentence = clean.match(/^(.{96,185}?[.!?])\s/);
+  if (sentence?.[1]) return sentence[1];
+  return `${clean.slice(0, 176).trimEnd()}…`;
+};
+const articleLead = buildArticleLead(post.resumen);
 
 const { posts: allRecent } = await fetchBlogListing(1, 20);
 const idx = allRecent.findIndex(p => p.slug === slug);
@@ -81,6 +111,35 @@ const rawBlogTitle = post.meta_title || `${post.titulo} | ULTIMA MILLA`;
 const seoTitle = rawBlogTitle.length > 60 ? `${post.titulo.slice(0, 42).trimEnd()}... | ULTIMA MILLA` : rawBlogTitle;
 const rawBlogDesc = post.meta_description || post.resumen?.substring(0, 158) || '';
 const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : rawBlogDesc;
+
+const articleTitleOverrides: Record<string, string> = {
+  'plantilla-arca-facturacion-electronica-gratis': 'Plantilla ARCA para facturación electrónica'
+};
+
+const buildArticleTitle = (title: string): string => {
+  const clean = String(title || '')
+    .replace(/\s*\([^)]*\)/g, '')
+    .replace(/\bgratis\b/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return clean;
+};
+
+const editorialArticleTitle = articleTitleOverrides[slug] || buildArticleTitle(post.titulo);
+const articleTitle = isReplicaIdenticalCopy()
+  ? resolveReplicaH1(`/blog/${slug}`, buildArticleTitle(post.titulo))
+  : editorialArticleTitle;
+
+const isArcaPost = slug === 'plantilla-arca-facturacion-electronica-gratis';
+const showCommercialFold = shouldShowBlogCommercialFold({
+  slug,
+  categoria: post.categoria,
+  tags: post.tags,
+});
+const heroPrimaryHref = isArcaPost ? '/plantilla-arca' : '/contacto';
+const heroPrimaryLabel = isArcaPost ? 'Probar Plantilla ARCA' : 'Solicitar diagnóstico';
+const heroSecondaryHref = isArcaPost ? '/contacto' : '/servicios';
+const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
 ---
 
 <LayoutV4
@@ -99,12 +158,6 @@ const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : r
   {post.tags && post.tags.map((tag: string) => (
     <meta slot="head" property="article:tag" content={tag} />
   ))}
-  <link
-    slot="head"
-    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Inter:wght@400;500;600;700;800&display=swap"
-    rel="stylesheet"
-  />
-
   <div id="read-bar" class="read-bar"></div>
 
   <main class="article-page">
@@ -119,37 +172,56 @@ const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : r
           <span class="bc-sep">/</span>
           <a href="/blog" class="bc-link">Blog</a>
           <span class="bc-sep">/</span>
-          <span class="bc-cat" style={`color:${color}`}>{label}</span>
+          <span class="bc-cat">{label}</span>
         </nav>
 
-        <h1 class="article-title">{post.titulo}</h1>
+        <span class="article-rule" aria-hidden="true"></span>
+        <h1 class="article-title">{articleTitle}</h1>
 
-        {post.resumen && <p class="article-lead">{post.resumen}</p>}
+        {articleLead && <p class="article-lead">{articleLead}</p>}
+
+        <nav class="article-hero-actions" aria-label="Acciones principales del artículo">
+          <a class="article-hero-actions__primary" href={heroPrimaryHref}>{heroPrimaryLabel}</a>
+          <a class="article-hero-actions__secondary" href={heroSecondaryHref}>{heroSecondaryLabel}</a>
+        </nav>
 
         <div class="author-row">
-          <div class="author-avatar">UM</div>
-          <div>
-            <p class="author-name">ULTIMA MILLA</p>
-            <p class="author-meta">{date} · {post.tiempo_lectura} min de lectura</p>
-          </div>
+          <p class="author-meta">ULTIMA MILLA · {label} · {date} · {post.tiempo_lectura} min de lectura</p>
         </div>
 
         <hr class="article-divider" />
 
-        {imgUrl && (
-          <figure class="hero-figure">
-            <img src={imgUrl} alt={post.titulo} class="hero-img" />
-          </figure>
-        )}
+        <figure class="hero-figure">
+          <img src={imgUrl} alt={imgAlt} class="hero-img" loading="eager" />
+        </figure>
 
         <div class="prose" set:html={contentHtml} />
 
-        {post.tags && post.tags.length > 0 && (
-          <div class="tags-row">
-            {post.tags.map((tag: string) => (
-              <span class="tag">#{tag}</span>
-            ))}
-          </div>
+        {showCommercialFold && (
+          <aside
+            class="article-commercial-fold"
+            aria-label={isArcaPost ? 'Servicios UMSA para operación fiscal' : 'Contacto comercial UMSA'}
+          >
+            <p class="article-commercial-fold__eyebrow">
+              {isArcaPost ? 'Operación IT + relevamiento' : 'Infraestructura IT · Mendoza y región'}
+            </p>
+            <p class="article-commercial-fold__copy">
+              {isArcaPost
+                ? 'Si tu organización necesita integrar facturación electrónica con redes, soporte 24/7 o continuidad operativa, UMSA releva alcance, riesgos y entregables antes de cotizar.'
+                : 'Para proyectos de CCTV, redes, soporte 24/7 o cumplimiento normativo, UMSA releva alcance operativo y entregables antes de cotizar.'}
+            </p>
+            <div class="article-commercial-fold__actions">
+              <a class="article-commercial-fold__cta article-commercial-fold__cta--primary" href="/contacto">
+                Solicitar relevamiento UMSA
+              </a>
+              <a
+                class="article-commercial-fold__cta article-commercial-fold__cta--secondary"
+                href={isArcaPost ? '/plantilla-arca' : '/servicios'}
+              >
+                {isArcaPost ? 'Probar Plantilla ARCA' : 'Ver servicios'}
+              </a>
+            </div>
+          </aside>
         )}
 
         <nav class="post-nav">
@@ -171,6 +243,11 @@ const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : r
     </div>
   </main>
 
+  <aside class="article-sticky-cta" id="articleStickyCta" aria-label="Contacto comercial UMSA">
+    <p>{isArcaPost ? '¿Necesitás integrar ARCA con tu operación IT?' : '¿Necesitás soporte IT en tu operación?'}</p>
+    <a href="/contacto">Relevamiento UMSA</a>
+  </aside>
+
   <script>
     const bar = document.getElementById('read-bar');
     const art = document.querySelector('.article-body');
@@ -182,6 +259,15 @@ const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : r
     }
     window.addEventListener('scroll', tick, { passive: true });
     tick();
+
+    const sticky = document.getElementById('articleStickyCta');
+    if (sticky) {
+      const reveal = () => {
+        sticky.classList.toggle('is-visible', window.scrollY > 280);
+      };
+      window.addEventListener('scroll', reveal, { passive: true });
+      reveal();
+    }
   </script>
 </LayoutV4>
 
@@ -193,7 +279,7 @@ const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : r
     left: 0;
     height: 2px;
     width: 0%;
-    background: #111827;
+    background: #DC2626;
     z-index: 9999;
     transition: width 0.1s linear;
   }
@@ -202,14 +288,14 @@ const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : r
   .article-page {
     min-height: 100vh;
     background: #fff;
-    padding: 48px 24px 96px;
+    padding: clamp(44px, 5.4vw, 72px) 24px clamp(76px, 8vw, 108px);
   }
 
   .article-layout {
-    max-width: 1160px;
+    max-width: 1120px;
     margin: 0 auto;
     display: flex;
-    gap: 72px;
+    gap: clamp(28px, 4vw, 48px);
     align-items: flex-start;
   }
 
@@ -217,7 +303,7 @@ const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : r
   .article-body {
     flex: 1;
     min-width: 0;
-    max-width: 680px;
+    max-width: 760px;
     margin: 0 auto;
   }
 
@@ -226,110 +312,252 @@ const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : r
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 28px;
+    margin-bottom: 18px;
   }
   .bc-link {
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 13px;
+    font-family: var(--um-font-body);
+    font-size: 16px;
     color: #9ca3af;
     text-decoration: none;
     transition: color .15s;
   }
   .bc-link:hover { color: #374151; text-decoration: underline; text-underline-offset: 3px; }
-  .bc-sep { color: #d1d5db; font-size: 13px; }
+  .bc-sep { color: #d1d5db; font-size: 16px; }
   .bc-cat {
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 13px;
-    font-weight: 600;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    font-weight: 700;
+    color: #DC2626;
+  }
+
+  .article-rule {
+    display: block;
+    width: 42px;
+    height: 2px;
+    margin-bottom: 22px;
+    background: var(--um-red);
   }
 
   /* Title & lead */
   .article-title {
-    font-family: 'Merriweather', Georgia, serif;
-    font-size: clamp(26px, 4.5vw, 42px);
-    font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
-    color: #111827;
-    margin: 0 0 20px;
+    font-family: var(--um-font-display);
+    font-size: clamp(2.5rem, 2.72vw, 2.72rem);
+    font-weight: 600;
+    line-height: 1.14;
+    letter-spacing: 0;
+    color: #000;
+    max-width: 760px;
+    margin: 0 0 16px;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
   }
   .article-lead {
-    font-family: 'Merriweather', Georgia, serif;
-    font-size: 20px;
-    font-weight: 300;
-    font-style: italic;
-    line-height: 1.7;
-    color: #4b5563;
+    font-family: var(--um-font-body);
+    max-width: 62ch;
+    font-size: clamp(1.02rem, 1.08vw, 1.12rem);
+    font-weight: 400;
+    font-style: normal;
+    line-height: 1.76;
+    color: #3f4853;
     margin: 0 0 24px;
+  }
+
+  .article-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin: 0 0 22px;
+  }
+
+  .article-hero-actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0.78rem 1.18rem;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.15;
+    text-decoration: none;
+    border: 0;
+    box-shadow: none;
+    transition: background 0.16s ease, color 0.16s ease;
+  }
+
+  .article-hero-actions__primary {
+    background: var(--um-red);
+    color: #fff;
+  }
+
+  .article-hero-actions__primary:hover {
+    background: #111;
+    color: #fff;
+  }
+
+  .article-hero-actions__secondary {
+    color: #111827;
+    background: #eef0f2;
+  }
+
+  .article-hero-actions__secondary:hover {
+    color: #111827;
+    background: #e3e6ea;
+  }
+
+  .article-commercial-fold {
+    margin: 32px 0 28px;
+    padding: 20px 22px;
+    border-top: 2px solid var(--um-red);
+    background: #f7f8f9;
+  }
+
+  .article-commercial-fold__eyebrow {
+    margin: 0 0 8px;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--um-red);
+  }
+
+  .article-commercial-fold__copy {
+    margin: 0 0 16px;
+    max-width: 62ch;
+    font-family: var(--um-font-body);
+    font-size: 1rem;
+    line-height: 1.65;
+    color: #374151;
+  }
+
+  .article-commercial-fold__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .article-commercial-fold__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0.65rem 1.1rem;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .article-commercial-fold__cta--primary {
+    background: var(--um-red);
+    color: #fff;
+    border: 0;
+  }
+
+  .article-commercial-fold__cta--primary:hover {
+    background: #fff;
+    color: #111;
+    box-shadow: inset 0 0 0 1px #111;
+  }
+
+  .article-commercial-fold__cta--secondary {
+    background: #e9ecef;
+    color: #111827;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .article-commercial-fold__cta--secondary:hover {
+    color: #111827;
+    background: #dde1e6;
+  }
+
+  .article-sticky-cta {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 18px calc(12px + env(safe-area-inset-bottom, 0px));
+    background: rgba(17, 17, 17, 0.96);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    transform: translateY(110%);
+    transition: transform 0.2s ease;
+    pointer-events: none;
+  }
+
+  .article-sticky-cta.is-visible {
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .article-sticky-cta p {
+    margin: 0;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    line-height: 1.35;
+    color: rgba(255, 255, 255, 0.88);
+  }
+
+  .article-sticky-cta a {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 1rem;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    color: #fff;
+    background: var(--um-red);
+    border-radius: 4px;
+  }
+
+  .article-sticky-cta a:hover {
+    background: #fff;
+    color: #111;
   }
 
   /* Author */
   .author-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-  .author-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg,#1e40af,#3b82f6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    color: #fff;
-  }
-  .author-name {
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    color: #111827;
-    margin: 0;
+    display: block;
+    margin-bottom: 18px;
   }
   .author-meta {
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 13px;
-    color: #9ca3af;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    color: #6b7280;
     margin: 0;
+    line-height: 1.45;
   }
 
   .article-divider {
     border: none;
-    border-top: 1px solid #f3f4f6;
-    margin: 0 0 32px;
+    border-top: 1px solid var(--um-line);
+    margin: 0 0 24px;
   }
 
   /* Hero image */
-  .hero-figure { margin: 0 0 40px; }
+  .hero-figure { margin: 0 0 38px; }
   .hero-img {
     width: 100%;
-    max-height: 460px;
+    aspect-ratio: 16 / 9;
+    max-height: 360px;
     object-fit: cover;
-    border-radius: 10px;
-    box-shadow: 0 1px 4px rgba(0,0,0,.07);
-  }
-
-  /* Tags */
-  .tags-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 56px;
-    padding-top: 28px;
-    border-top: 1px solid #f3f4f6;
-  }
-  .tag {
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 12px;
-    color: #6b7280;
-    border: 1px solid #e5e7eb;
-    border-radius: 999px;
-    padding: 4px 14px;
+    border-radius: 0;
+    border: 0;
+    box-shadow: none;
+    display: block;
   }
 
   /* Prev/next nav */
@@ -337,24 +565,24 @@ const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : r
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
-    margin-top: 40px;
-    padding-top: 28px;
-    border-top: 1px solid #f3f4f6;
+    margin-top: 34px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(216, 221, 228, 0.72);
   }
   .post-nav-item {
     display: block;
-    padding: 18px;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
+    padding: 16px 0 0;
     text-decoration: none;
-    transition: border-color .15s, background .15s;
+    background: transparent;
+    box-shadow: inset 0 1px 0 rgba(216, 221, 228, 0.72);
+    transition: color .15s, box-shadow .15s;
   }
-  .post-nav-item:hover { border-color: #d1d5db; background: #f9fafb; }
+  .post-nav-item:hover { box-shadow: inset 0 2px 0 rgba(220,38,38,0.92); }
   .post-nav-item--right { text-align: right; }
   .post-nav-label {
     display: block;
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 10px;
+    font-family: var(--um-font-body);
+    font-size: 16px;
     text-transform: uppercase;
     letter-spacing: .08em;
     color: #9ca3af;
@@ -365,8 +593,8 @@ const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : r
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 14px;
+    font-family: var(--um-font-body);
+    font-size: 16px;
     color: #374151;
     line-height: 1.4;
   }
@@ -376,18 +604,22 @@ const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : r
      ────────────────────────────────────────────────────────────── */
 
   :global(.prose) {
-    font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
-    font-size: 18px;
-    line-height: 1.8;
+    font-family: var(--um-font-body);
+    font-size: 1.0625rem;
+    line-height: 1.84;
     color: #1f2937;
     font-weight: 400;
+    overflow-wrap: anywhere;
+    word-break: normal;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
   :global(.prose p) {
-    margin: 0 0 22px;
-    line-height: 1.8;
+    margin: 0 0 21px;
+    line-height: 1.84;
     color: #1f2937;
+    overflow-wrap: anywhere;
   }
 
   /* Suppress empty paragraphs and lone BRs from rich-text editors */
@@ -397,78 +629,80 @@ const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : r
   }
 
   :global(.prose > p:first-child) {
-    font-size: 19px;
+    font-size: 1.08rem;
     color: #111827;
   }
 
   :global(.prose h2) {
-    font-family: 'Inter', system-ui, sans-serif;
-    font-size: 24px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.3;
-    color: #111827;
-    margin: 52px 0 12px;
+    font-family: var(--um-font-display);
+    font-size: clamp(1.42rem, 1.55vw, 1.68rem);
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.26;
+    color: #000;
+    margin: 46px 0 14px;
     scroll-margin-top: 5rem;
   }
 
   /* Eliminate double-spacing when heading follows a paragraph */
-  :global(.prose p + h2) { margin-top: 48px; }
-  :global(.prose p + h3) { margin-top: 32px; }
+  :global(.prose p + h2) { margin-top: 52px; }
+  :global(.prose p + h3) { margin-top: 34px; }
 
   :global(.prose h3) {
-    font-family: 'Inter', system-ui, sans-serif;
-    font-size: 19px;
+    font-family: var(--um-font-display);
+    font-size: clamp(1.1rem, 1.12vw, 1.18rem);
     font-weight: 600;
-    letter-spacing: -0.01em;
-    line-height: 1.35;
+    letter-spacing: 0;
+    line-height: 1.36;
     color: #1f2937;
-    margin: 36px 0 8px;
+    margin: 30px 0 9px;
     scroll-margin-top: 5rem;
   }
 
   :global(.prose h4) {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: var(--um-font-body);
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
     color: #374151;
     margin: 28px 0 6px;
     scroll-margin-top: 5rem;
   }
 
   :global(.prose a) {
-    color: #1d4ed8;
+    color: #DC2626;
     text-decoration: underline;
     text-underline-offset: 3px;
-    text-decoration-color: rgba(29,78,216,.3);
+    text-decoration-color: rgba(220,38,38,.32);
     text-decoration-thickness: 1px;
+    overflow-wrap: anywhere;
     transition: color .15s;
   }
-  :global(.prose a:hover) { color: #1e40af; }
+  :global(.prose a:hover) { color: #DC2626; }
 
   :global(.prose ul),
   :global(.prose ol) {
-    margin: 0 0 22px 24px;
+    margin: 0 0 24px 26px;
     padding: 0;
   }
   :global(.prose li) {
-    margin-bottom: 6px;
-    line-height: 1.7;
+    margin-bottom: 8px;
+    line-height: 1.74;
     color: #1f2937;
+    overflow-wrap: anywhere;
   }
   :global(.prose ul) { list-style-type: disc; }
   :global(.prose ol) { list-style-type: decimal; }
   :global(.prose li::marker) { color: #9ca3af; }
 
   :global(.prose blockquote) {
-    border-left: 3px solid #d1d5db;
+    border-left: 3px solid #DC2626;
     padding: 2px 0 2px 24px;
     margin: 36px 0;
-    color: #6b7280;
-    font-style: italic;
-    font-size: 20px;
+    color: #374151;
+    font-style: normal;
+    font-size: 1.12rem;
     line-height: 1.65;
-    font-weight: 300;
+    font-weight: 600;
   }
   :global(.prose blockquote p) { margin-bottom: 0; color: inherit; }
 
@@ -477,25 +711,26 @@ const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : r
 
   :global(.prose code) {
     font-family: ui-monospace, 'Fira Code', Consolas, monospace;
-    font-size: 14px;
+    font-size: 16px;
     background: #f3f4f6;
-    border: 1px solid #e5e7eb;
     border-radius: 4px;
     padding: 2px 6px;
-    color: #dc2626;
+    color: #DC2626;
     font-style: normal;
   }
 
   :global(.prose pre) {
     font-family: ui-monospace, 'Fira Code', Consolas, monospace;
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.65;
     background: #1e293b;
-    border-radius: 10px;
+    border-radius: 4px;
     padding: 22px 26px;
     overflow-x: auto;
     margin: 28px 0;
     color: #e2e8f0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
   :global(.prose pre code) {
     background: none; border: none; padding: 0;
@@ -504,16 +739,21 @@ const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : r
 
   :global(.prose img) {
     width: 100%;
-    border-radius: 8px;
+    max-height: 420px;
+    border-radius: 0;
     margin: 36px 0;
     display: block;
-    box-shadow: 0 1px 4px rgba(0,0,0,.07);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    object-fit: contain;
+    object-position: center;
   }
   :global(.prose figure) { margin: 36px 0; }
   :global(.prose figure img) { margin: 0 0 8px; }
   :global(.prose figcaption) {
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 13px;
+    font-family: var(--um-font-body);
+    font-size: 16px;
     color: #9ca3af;
     text-align: center;
     font-style: italic;
@@ -524,22 +764,22 @@ const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : r
     margin: 52px auto;
     width: 40px;
     height: 2px;
-    background: #d1d5db;
+    background: #DC2626;
   }
 
   :global(.prose table) {
     width: 100%;
     border-collapse: collapse;
-    font-size: 15px;
+    font-size: 16px;
     margin: 24px 0 32px;
     line-height: 1.6;
-    font-family: Inter, system-ui, sans-serif;
-    box-shadow: 0 0 0 1px #e5e7eb;
-    border-radius: 8px;
+    font-family: var(--um-font-body);
+    box-shadow: 0 1px 0 0 #e5e7eb inset, 0 -1px 0 0 #e5e7eb inset;
+    border-radius: 4px;
     overflow: hidden;
   }
   :global(.prose th) {
-    font-size: 12px;
+    font-size: 16px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: .06em;
@@ -557,4 +797,132 @@ const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : r
   }
   :global(.prose tr:last-child td) { border-bottom: none; }
   :global(.prose tr:nth-child(even) td) { background: #fafafa; }
+
+  @media (max-width: 900px) {
+    .article-layout {
+      display: block;
+      max-width: 760px;
+    }
+
+    .article-body {
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .article-page {
+      padding: 30px 18px 78px;
+    }
+
+    .breadcrumbs {
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    .article-title {
+      font-size: clamp(2rem, 8.6vw, 2.28rem);
+      line-height: 1.13;
+      margin-bottom: 16px;
+    }
+
+    .article-lead {
+      font-size: 1rem;
+      line-height: 1.66;
+      margin-bottom: 18px;
+    }
+
+    .article-hero-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .article-hero-actions a {
+      width: 100%;
+      min-height: 50px;
+    }
+
+    .author-row {
+      align-items: flex-start;
+      margin-bottom: 22px;
+    }
+
+    .hero-figure {
+      margin-bottom: 32px;
+    }
+
+    .post-nav {
+      grid-template-columns: 1fr;
+    }
+
+    .post-nav-item--right {
+      text-align: left;
+    }
+
+    .article-sticky-cta {
+      flex-direction: column;
+      align-items: stretch;
+      text-align: center;
+    }
+
+    .article-commercial-fold__actions {
+      flex-direction: column;
+    }
+
+    .article-commercial-fold__cta {
+      width: 100%;
+    }
+
+    :global(.prose) {
+      font-size: 1rem;
+      line-height: 1.82;
+    }
+
+    :global(.prose h2) {
+      font-size: clamp(1.3rem, 5.3vw, 1.58rem);
+      line-height: 1.24;
+      margin-top: 42px;
+    }
+
+    :global(.prose h3) {
+      font-size: clamp(1.12rem, 4.8vw, 1.24rem);
+      margin-top: 30px;
+    }
+
+    :global(.prose table) {
+      display: block;
+      overflow: visible;
+      box-shadow: none;
+      border-radius: 0;
+    }
+
+    :global(.prose thead),
+    :global(.prose tbody),
+    :global(.prose tr),
+    :global(.prose th),
+    :global(.prose td) {
+      display: block;
+      width: 100%;
+    }
+
+    :global(.prose thead) {
+      display: none;
+    }
+
+    :global(.prose tr) {
+      margin: 0 0 14px;
+      padding: 14px 0;
+      border-top: 1px solid #e5e7eb;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    :global(.prose td) {
+      padding: 5px 0;
+      border-bottom: 0;
+      background: transparent !important;
+      overflow-wrap: anywhere;
+    }
+  }
 </style>

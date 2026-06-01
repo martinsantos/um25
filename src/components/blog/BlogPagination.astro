@@ -55,31 +55,32 @@ const nextHref = page < totalPages ? `${baseHref}?page=${page + 1}` : null;
     align-items: center;
     justify-content: center;
     gap: 16px;
-    padding: 36px 0 0;
-    border-top: 1px solid #f3f4f6;
-    margin-top: 4px;
+    padding: 34px 0 0;
+    border-top: 0;
+    margin-top: 10px;
   }
 
   .pag-btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 14px;
+    font-family: var(--um-font-body, 'Open Sans', system-ui, sans-serif);
+    font-size: 16px;
     font-weight: 500;
     color: #374151;
     text-decoration: none;
-    padding: 8px 16px;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    transition: border-color .15s, background .15s;
+    padding: 8px 0;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    transition: border-color .15s, color .15s;
   }
-  .pag-btn:hover { border-color: #d1d5db; background: #f9fafb; }
-  .pag-btn--disabled { color: #d1d5db; pointer-events: none; border-color: #f3f4f6; }
+  .pag-btn:hover { border-color: #DC2626; color: #DC2626; }
+  .pag-btn--disabled { color: #b7bec8; pointer-events: none; border-color: transparent; }
 
   .pag-info {
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 13px;
+    font-family: var(--um-font-body, 'Open Sans', system-ui, sans-serif);
+    font-size: 16px;
     color: #9ca3af;
   }
 </style>

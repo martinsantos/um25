@@ -1,0 +1,21 @@
+---
+import LayoutV4 from '../layouts/LayoutV4.astro';
+import GeoHubDossier from '../components/templates/GeoHubDossier.astro';
+import { buildGeoHubStructuredData, getGeoCommercialHub } from '../data/geoCommercialHubs';
+
+const hub = getGeoCommercialHub('proyectos-ingenieria-it-mendoza');
+
+if (!hub) {
+  return Astro.redirect('/servicios', 302);
+}
+---
+
+<LayoutV4
+  title={hub.seoTitle}
+  description={hub.description}
+  keywords={hub.keywords}
+  canonical={`https://ultimamilla.com.ar/${hub.slug}`}
+  structuredData={buildGeoHubStructuredData(hub)}
+>
+  <GeoHubDossier hub={hub} />
+</LayoutV4>

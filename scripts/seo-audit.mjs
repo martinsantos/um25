@@ -1,7 +1,35 @@
 #!/usr/bin/env node
 
 const DEFAULT_BASE_URL = 'https://ultimamilla.com.ar';
-const REQUIRED_PATHS = ['/', '/servicios', '/antecedentes', '/blog', '/contacto'];
+const DEFAULT_CANONICAL_BASE_URL = 'https://ultimamilla.com.ar';
+
+const CORE_HTML_PATHS = ['/', '/servicios', '/antecedentes', '/blog', '/contacto', '/certificaciones'];
+const GEO_COMMERCIAL_HUB_PATHS = [
+  '/servicios-it-empresas-mendoza',
+  '/presupuesto-servicios-it-empresas',
+  '/proyectos-ingenieria-it-mendoza',
+  '/servicios-it-empresas-argentina',
+];
+const REQUIRED_PATHS = [...CORE_HTML_PATHS, ...GEO_COMMERCIAL_HUB_PATHS];
+
+const GEO_RESOURCE_PATHS = [
+  '/geo/brand-facts.json',
+  '/geo/services.json',
+  '/geo/sectors.json',
+  '/geo/cases.json',
+  '/geo/faqs.json',
+  '/geo/authority.json',
+  '/geo/topics.json',
+  '/geo/buyer-intents.json',
+  '/geo/blog-index.json',
+];
+
+const GEO_DISCOVERY_PATHS = [
+  '/llms.txt',
+  '/llms-full.txt',
+  '/sitemap-geo.xml',
+  ...GEO_RESOURCE_PATHS,
+];
 
 function argValue(name, fallback) {
   const index = process.argv.indexOf(name);
@@ -38,7 +66,7 @@ async function fetchText(url, failures) {
   }
 }
 
-async function auditPage(baseUrl, path, failures) {
+async function auditPage(baseUrl, canonicalBaseUrl, path, failures) {
   const url = new URL(path, baseUrl).toString();
   const html = await fetchText(url, failures);
   if (!html) return;
@@ -54,10 +82,10 @@ async function auditPage(baseUrl, path, failures) {
   assert(title.length <= 75, `${path} title too long (${title.length})`, failures);
   assert(description.length >= 70, `${path} meta description too short (${description.length})`, failures);
   assert(description.length <= 170, `${path} meta description too long (${description.length})`, failures);
-  assert(canonical.startsWith(baseUrl), `${path} canonical does not start with ${baseUrl}: ${canonical}`, failures);
+  assert(canonical.startsWith(canonicalBaseUrl), `${path} canonical does not start with ${canonicalBaseUrl}: ${canonical}`, failures);
   assert(!canonical.includes('://www.'), `${path} canonical leaks www: ${canonical}`, failures);
   assert(robots.includes('index') || path === '/404', `${path} robots meta missing index directive`, failures);
-  assert(ogImage.startsWith(baseUrl), `${path} og:image is not absolute canonical URL: ${ogImage}`, failures);
+  assert(ogImage.startsWith(canonicalBaseUrl), `${path} og:image is not absolute canonical URL: ${ogImage}`, failures);
   assert(jsonLdBlocks.length > 0, `${path} missing JSON-LD`, failures);
 
   for (const block of jsonLdBlocks) {
@@ -69,9 +97,9 @@ async function auditPage(baseUrl, path, failures) {
   }
 }
 
-async function auditSitemap(baseUrl, failures) {
+async function auditSitemap(baseUrl, canonicalBaseUrl, failures) {
   const robots = await fetchText(new URL('/robots.txt', baseUrl).toString(), failures);
-  assert(robots.includes(`${baseUrl}/sitemap-index.xml`), 'robots.txt does not point to canonical sitemap-index.xml', failures);
+  assert(robots.includes(`${canonicalBaseUrl}/sitemap-index.xml`), 'robots.txt does not point to canonical sitemap-index.xml', failures);
   assert(!robots.includes('https://www.'), 'robots.txt leaks www URL', failures);
 
   const sitemapIndex = await fetchText(new URL('/sitemap-index.xml', baseUrl).toString(), failures);
@@ -80,18 +108,73 @@ async function auditSitemap(baseUrl, failures) {
 
   const sitemap = await fetchText(new URL('/sitemap.xml', baseUrl).toString(), failures);
   assert(sitemap.includes('<urlset'), 'sitemap.xml missing urlset root', failures);
-  assert(sitemap.includes(`${baseUrl}/servicios`), 'sitemap.xml missing /servicios', failures);
+  assert(sitemap.includes(`${canonicalBaseUrl}/servicios`), 'sitemap.xml missing /servicios', failures);
   assert(!sitemap.includes('https://www.'), 'sitemap.xml leaks www URL', failures);
+}
+
+async function auditGeoDiscovery(baseUrl, canonicalBaseUrl, failures) {
+  const llms = await fetchText(new URL('/llms.txt', baseUrl).toString(), failures);
+  const llmsFull = await fetchText(new URL('/llms-full.txt', baseUrl).toString(), failures);
+  const sitemapGeo = await fetchText(new URL('/sitemap-geo.xml', baseUrl).toString(), failures);
+  const canonicalPaths = [
+    ...GEO_DISCOVERY_PATHS,
+    ...GEO_COMMERCIAL_HUB_PATHS,
+    '/servicios',
+    '/sectores',
+    '/antecedentes',
+    '/blog',
+    '/contacto',
+  ];
+
+  assert(llms.includes(`${canonicalBaseUrl}/llms-full.txt`), 'llms.txt missing llms-full discovery link', failures);
+  assert(llms.includes(`${canonicalBaseUrl}/sitemap-geo.xml`), 'llms.txt missing sitemap-geo discovery link', failures);
+  assert(llmsFull.includes(`${canonicalBaseUrl}/llms.txt`), 'llms-full.txt missing llms discovery link', failures);
+  assert(llmsFull.includes(`${canonicalBaseUrl}/sitemap-geo.xml`), 'llms-full.txt missing sitemap-geo discovery link', failures);
+  assert(sitemapGeo.includes('<urlset'), 'sitemap-geo.xml missing urlset root', failures);
+
+  for (const canonicalPath of canonicalPaths) {
+    const canonical = `${canonicalBaseUrl}${canonicalPath}`;
+    if (canonicalPath !== '/llms.txt') {
+      assert(llmsFull.includes(canonical), `llms-full.txt missing ${canonical}`, failures);
+    }
+    if (!canonicalPath.endsWith('.json') && canonicalPath !== '/sitemap-geo.xml') {
+      assert(llms.includes(canonical) || canonicalPath === '/llms.txt', `llms.txt missing ${canonical}`, failures);
+    }
+    if (canonicalPath !== '/sitemap-geo.xml') {
+      assert(sitemapGeo.includes(canonical), `sitemap-geo.xml missing ${canonical}`, failures);
+    }
+  }
+
+  assert(!llms.includes('https://www.'), 'llms.txt leaks www URL', failures);
+  assert(!llmsFull.includes('https://www.'), 'llms-full.txt leaks www URL', failures);
+  assert(!sitemapGeo.includes('https://www.'), 'sitemap-geo.xml leaks www URL', failures);
+
+  for (const resourcePath of GEO_RESOURCE_PATHS) {
+    const body = await fetchText(new URL(resourcePath, baseUrl).toString(), failures);
+    if (!body) continue;
+
+    try {
+      const payload = JSON.parse(body);
+      assert(payload.canonicalDomain === canonicalBaseUrl, `${resourcePath} canonicalDomain is not ${canonicalBaseUrl}`, failures);
+      assert(payload.language === 'es-AR', `${resourcePath} missing es-AR language marker`, failures);
+      assert(JSON.stringify(payload).includes('ULTIMA MILLA'), `${resourcePath} missing brand signal`, failures);
+      assert(!JSON.stringify(payload).includes('https://www.'), `${resourcePath} leaks www URL`, failures);
+    } catch (error) {
+      failures.push(`${resourcePath} invalid JSON: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
 }
 
 async function main() {
   const baseUrl = argValue('--base-url', DEFAULT_BASE_URL).replace(/\/$/, '');
+  const canonicalBaseUrl = argValue('--canonical-base-url', DEFAULT_CANONICAL_BASE_URL).replace(/\/$/, '');
   const paths = argValue('--paths', REQUIRED_PATHS.join(',')).split(',').map((p) => p.trim()).filter(Boolean);
   const failures = [];
 
-  await auditSitemap(baseUrl, failures);
+  await auditSitemap(baseUrl, canonicalBaseUrl, failures);
+  await auditGeoDiscovery(baseUrl, canonicalBaseUrl, failures);
   for (const path of paths) {
-    await auditPage(baseUrl, path, failures);
+    await auditPage(baseUrl, canonicalBaseUrl, path, failures);
   }
 
   if (failures.length > 0) {
@@ -99,7 +182,17 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(JSON.stringify({ ok: true, baseUrl, checked: { paths, sitemaps: 3 } }, null, 2));
+  console.log(JSON.stringify({
+    ok: true,
+    baseUrl,
+    canonicalBaseUrl,
+    checked: {
+      paths,
+      sitemaps: 4,
+      geoDiscovery: GEO_DISCOVERY_PATHS.length,
+      geoHubs: GEO_COMMERCIAL_HUB_PATHS.length,
+    },
+  }, null, 2));
 }
 
 main().catch((error) => {

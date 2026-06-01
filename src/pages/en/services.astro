@@ -1,0 +1,178 @@
+---
+import LayoutV4 from '../../layouts/LayoutV4.astro';
+import TrustStrip from '../../components/um/TrustStrip.astro';
+import UMButton from '../../components/um/UMButton.astro';
+import { generateSlug } from '../../utils/slugUtils.js';
+import { getAllServicios } from '../../utils/directusHelpers';
+import { getServiceVisualSpec, serviceVisualOrder } from '../../data/serviceVisualSystem';
+
+const serviciosFromDirectus = await getAllServicios();
+const byId = new Map(serviciosFromDirectus.map((servicio) => [Number(servicio.id), servicio]));
+
+const servicios = serviceVisualOrder
+  .map((id) => {
+    const directus = byId.get(id);
+    const visual = getServiceVisualSpec(id);
+    if (!directus || !visual) return undefined;
+    const slug = directus.slug || generateSlug(directus.Titulo);
+    return {
+      id,
+      title: directus.Titulo,
+      href: `/servicios/${id}/${slug}`,
+      summary: String(directus.Descripcion || '')
+        .replace(/\\/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 160),
+      visual,
+    };
+  })
+  .filter(Boolean);
+
+const serviceSummariesEn: Record<number, string> = {
+  101: 'Structured cabling, switching and WiFi for sites that cannot afford downtime.',
+  102: 'CCTV, access control and intrusion for critical assets.',
+  103: 'Voice, data and field connectivity for distributed operations.',
+  104: 'Custom software and integrations tied to real processes.',
+  105: '24/7 support with accountable response on active environments.',
+  106: 'IT architecture and evidence-based decisions.',
+  107: 'Fire detection for critical infrastructure.',
+  108: 'Reliable power for IT systems.',
+};
+---
+
+<LayoutV4
+  title="IT services | ULTIMA MILLA"
+  description="Integrated IT services in Argentina: networks, electronic security, telecom, software, consulting, fire detection and power."
+  canonical="https://ultimamilla.com.ar/en/services"
+>
+  <section class="um-en-page-hero um-container">
+    <p class="um-en-hero__badge">Services</p>
+    <h1>Integrated IT services for operational continuity.</h1>
+    <p>
+      We design, deploy and operate infrastructure for organizations that need stable networks,
+      physical security, operational software and accountable field support.
+    </p>
+    <div class="um-en-hero__actions">
+      <UMButton href="/en/contacto">Request assessment</UMButton>
+      <UMButton href="/antecedentes" variant="secondary">Case studies (ES)</UMButton>
+    </div>
+    <p class="um-en-hero__note"><a href="/servicios">Versión en español</a></p>
+  </section>
+
+  <TrustStrip />
+
+  <section class="um-container um-en-services-list">
+    <h2>Service lines</h2>
+    <ul>
+      {servicios.map((servicio) => (
+        <li>
+          <a href={servicio.href}>
+            <strong>{servicio.title}</strong>
+            <p>{serviceSummariesEn[servicio.id] || servicio.summary}</p>
+            <span>View service →</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+</LayoutV4>
+
+<style>
+  .um-en-page-hero {
+    padding: clamp(40px, 6vw, 64px) 0 24px;
+    max-width: 720px;
+  }
+
+  .um-en-hero__badge {
+    margin: 0 0 12px;
+    color: var(--um-red);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .um-en-page-hero h1 {
+    margin: 0;
+    font-family: var(--um-font-display);
+    font-size: clamp(2rem, 4.5vw, 2.75rem);
+    font-weight: 600;
+    line-height: 1.08;
+  }
+
+  .um-en-page-hero > p {
+    margin: 16px 0 0;
+    font-size: 1.125rem;
+    line-height: 1.65;
+    color: var(--skin-muted, #4b5563);
+  }
+
+  .um-en-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .um-en-hero__note {
+    margin-top: 20px;
+    font-size: 0.9375rem;
+  }
+
+  .um-en-hero__note a {
+    color: var(--um-red);
+    font-weight: 600;
+  }
+
+  .um-en-services-list {
+    padding-bottom: 56px;
+  }
+
+  .um-en-services-list h2 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin: 0 0 16px;
+  }
+
+  .um-en-services-list ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+  }
+
+  .um-en-services-list li a {
+    display: block;
+    padding: 16px 18px;
+    border: 1px solid var(--skin-line, #d9dadd);
+    border-radius: 4px;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .um-en-services-list li a:hover {
+    border-color: var(--um-red);
+  }
+
+  .um-en-services-list strong {
+    display: block;
+    font-size: 1.0625rem;
+  }
+
+  .um-en-services-list p {
+    margin: 8px 0 0;
+    color: var(--skin-muted, #4b5563);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .um-en-services-list span {
+    display: inline-block;
+    margin-top: 10px;
+    color: var(--um-red);
+    font-weight: 700;
+    font-size: 0.9375rem;
+  }
+</style>

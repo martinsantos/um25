@@ -1,0 +1,48 @@
+---
+import LayoutV4 from '../../layouts/LayoutV4.astro';
+import UMButton from '../../components/um/UMButton.astro';
+---
+
+<LayoutV4
+  title="Contact | ULTIMA MILLA"
+  description="Contact ULTIMA MILLA for IT infrastructure, security and support in Argentina."
+  canonical="https://ultimamilla.com.ar/en/contacto"
+>
+  <section class="um-container um-en-contact">
+    <h1>Contact</h1>
+    <p>
+      For proposals, technical assessments or vendor qualification, use the Spanish contact form (same team, same SLA).
+    </p>
+    <UMButton href="/contacto">Open contact form</UMButton>
+    <p class="um-en-contact__back"><a href="/en/">← English overview</a></p>
+  </section>
+</LayoutV4>
+
+<style>
+  .um-en-contact {
+    padding: clamp(40px, 6vw, 64px) 0;
+    max-width: 560px;
+  }
+
+  .um-en-contact h1 {
+    margin: 0;
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    font-weight: 600;
+  }
+
+  .um-en-contact > p {
+    margin: 16px 0 24px;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+  }
+
+  .um-en-contact__back {
+    margin-top: 24px;
+    font-size: 0.9375rem;
+  }
+
+  .um-en-contact__back a {
+    color: var(--um-red);
+    font-weight: 600;
+  }
+</style>

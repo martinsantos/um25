@@ -1,0 +1,24 @@
+---
+interface Metric {
+  value: string;
+  label: string;
+  detail?: string;
+}
+
+interface Props {
+  metrics: Metric[];
+  class?: string;
+}
+
+const { metrics, class: className } = Astro.props;
+---
+
+<dl class:list={['um-metric-strip', className]} role="list">
+  {metrics.map((metric) => (
+    <div role="listitem">
+      <strong>{metric.value}</strong>
+      <span>{metric.label}</span>
+      {metric.detail && <p>{metric.detail}</p>}
+    </div>
+  ))}
+</dl>

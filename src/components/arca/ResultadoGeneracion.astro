@@ -11,7 +11,7 @@
 <div id="resultado-generacion" class="hidden space-y-4">
   <!-- Loader -->
   <div id="result-loader" class="hidden flex items-center justify-center space-x-2">
-    <div class="animate-spin rounded-full h-6 w-6 border border-blue-600 border-t-transparent"></div>
+    <div class="animate-spin h-6 w-6 border border-blue-600 border-t-transparent" style="border-radius:9999px"></div>
     <span class="text-gray-700">Generando factura...</span>
   </div>
 
@@ -23,11 +23,11 @@
 
       <!-- Información de CAE -->
       <div class="bg-white p-3 rounded border border-green-100 mb-4 space-y-2">
-        <p class="text-sm">
+        <p class="text-base">
           <strong>CAE:</strong>
           <span id="cae-value" class="font-mono text-gray-900"></span>
         </p>
-        <p class="text-sm">
+        <p class="text-base">
           <strong>Vencimiento CAE:</strong>
           <span id="cae-expiry" class="text-gray-900"></span>
         </p>
@@ -35,7 +35,7 @@
 
       <!-- Información de Email -->
       <div id="email-info" class="hidden p-3 bg-blue-50 rounded border border-blue-100 mb-4">
-        <p class="text-sm text-blue-700">
+        <p class="text-base text-blue-700">
           <span id="email-sent-msg"></span>
         </p>
       </div>
@@ -82,7 +82,7 @@
     <h3 class="text-lg font-bold text-indigo-900 mb-3">
       Queres facturar ante AFIP?
     </h3>
-    <p class="text-sm text-gray-700 mb-4 leading-relaxed">
+    <p class="text-base text-gray-700 mb-4 leading-relaxed">
       ARCA (Agencia de Recaudacion y Control Aduanero) es el organismo que unifico AFIP en 2025.
       Para que tus facturas tengan <strong>validez fiscal</strong> ante la AFIP, necesitan un
       CAE (Codigo de Autorizacion Electronico) generado por sus servicios web. Este proceso
@@ -92,7 +92,7 @@
       href="https://www.arca.gob.ar"
       target="_blank"
       rel="noopener noreferrer"
-      class="text-sm text-blue-600 hover:text-blue-800 underline mb-4 inline-block"
+      class="text-base text-blue-600 hover:text-blue-800 underline mb-4 inline-block"
     >
       Sitio oficial de ARCA/AFIP →
     </a>
@@ -100,7 +100,7 @@
       <button
         id="afip-cta-yes"
         type="button"
-        class="flex-1 px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors shadow-md"
+        class="flex-1 px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors"
       >
         Si, conectar con AFIP — facturar con validez fiscal
       </button>

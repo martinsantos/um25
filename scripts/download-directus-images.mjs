@@ -23,7 +23,12 @@ const SNAPSHOTS_DIR = join(ROOT, 'src', 'data', 'snapshots');
 const UPLOADS_DIR = join(ROOT, 'public', 'uploads');
 
 const DIRECTUS_URL = process.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-const DIRECTUS_TOKEN = process.env.DIRECTUS_STATIC_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+const DIRECTUS_TOKEN = process.env.DIRECTUS_STATIC_TOKEN || process.env.PUBLIC_DIRECTUS_TOKEN || '';
+
+if (!DIRECTUS_TOKEN) {
+  console.error('Falta DIRECTUS_STATIC_TOKEN o PUBLIC_DIRECTUS_TOKEN para descargar imágenes Directus.');
+  process.exit(1);
+}
 
 const UUID_REGEX = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 const CONCURRENCY = 5; // parallel downloads

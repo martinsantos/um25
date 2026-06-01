@@ -57,59 +57,61 @@ const { headings, title } = Astro.props;
   .toc {
     display: none;
     position: sticky;
-    top: 5.5rem;
-    width: 196px;
+    top: 6rem;
+    width: 198px;
     flex-shrink: 0;
     align-self: flex-start;
+    padding: 4px 0 0 0;
+    background: transparent;
   }
   @media (min-width: 1024px) { .toc { display: block; } }
 
   .toc__label {
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 10px;
-    font-weight: 700;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: .12em;
+    letter-spacing: 0;
     color: #6b7280;
-    margin: 0 0 10px;
-    padding-left: 12px;
+    margin: 0 0 12px;
   }
 
   .toc__list {
     list-style: none;
     margin: 0;
     padding: 0;
-    border-left: 2px solid #e5e7eb;
   }
 
-  .toc__item { margin-bottom: 0; }
-  .toc__item--sub { padding-left: 10px; }
+  .toc__item {
+    margin-bottom: 0;
+  }
+
+  .toc__item--sub {
+    padding-left: 8px;
+  }
 
   .toc__link {
     display: block;
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 13px;
-    line-height: 1.5;
-    padding: 5px 0 5px 12px;
-    margin-left: -2px;
-    color: #6b7280;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    line-height: 1.38;
+    padding: 8px 0;
+    color: #717986;
     text-decoration: none;
-    border-left: 2px solid transparent;
-    transition: color .15s, border-color .15s;
+    transition: color .15s, transform .15s;
   }
   .toc__link:hover {
     color: #111827;
-    border-left-color: #9ca3af;
+    transform: none;
   }
   .toc__link--active {
     color: #111827;
     font-weight: 600;
-    border-left-color: #111827;
   }
 
   /* Title item is slightly bolder */
   .toc__link--title {
-    font-size: 12px;
+    font-size: 16px;
     font-weight: 500;
     color: #4b5563;
     padding-bottom: 8px;
@@ -118,5 +120,19 @@ const { headings, title } = Astro.props;
   .toc__link--title.toc__link--active {
     color: #111827;
     font-weight: 700;
+  }
+
+  .toc__item:has(.toc__link--active) {
+    position: relative;
+  }
+
+  .toc__item:has(.toc__link--active)::before {
+    content: "";
+    position: absolute;
+    left: -8px;
+    top: 11px;
+    bottom: 11px;
+    width: 2px;
+    background: #DC2626;
   }
 </style>

@@ -1,0 +1,173 @@
+---
+interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  namespace: string;
+  title: string;
+  lead?: string;
+  label?: string;
+  backgroundImage?: string;
+  backgroundAlt?: string;
+  breadcrumbs?: BreadcrumbItem[];
+  class?: string;
+}
+
+const {
+  namespace,
+  title,
+  lead = '',
+  label = '',
+  backgroundImage,
+  backgroundAlt = '',
+  breadcrumbs = [],
+  class: className = '',
+} = Astro.props;
+
+const hasMainSlot = Astro.slots.has('main');
+const hasSideSlot = Astro.slots.has('side');
+const blockBase = namespace.endsWith('-hero') ? namespace.replace(/-hero$/, '') : namespace;
+---
+
+<section class:list={[namespace, 'hero-hybrid', className]}>
+  {backgroundImage && (
+    <div class:list={[`${namespace}__image`, 'hero-hybrid__image']}>
+      <img src={backgroundImage} alt={backgroundAlt} loading="eager" fetchpriority="high" decoding="async" width="1920" height="1080" />
+    </div>
+  )}
+  <div class:list={[`${namespace}__wash`, 'hero-hybrid__wash']} aria-hidden="true"></div>
+
+  <div class:list={['um-container', `${namespace}__content`, 'hero-hybrid__content']}>
+    {breadcrumbs.length > 0 && (
+      <nav class:list={[`${blockBase}-breadcrumb`, 'hero-hybrid__breadcrumb']} aria-label="Breadcrumb">
+        {breadcrumbs.map((item, index) => (
+          <>
+            {index > 0 && <span>/</span>}
+            {item.href ? <a href={item.href}>{item.label}</a> : <span>{item.label}</span>}
+          </>
+        ))}
+      </nav>
+    )}
+
+    <div class:list={[`${namespace}__grid`, 'hero-hybrid__grid', { 'hero-hybrid__grid--side': hasSideSlot }]}>
+      <div class:list={[`${namespace}__copy`, 'hero-hybrid__copy']}>
+        {label && <span class:list={[`${blockBase}-label`, 'hero-hybrid__label']}>{label}</span>}
+        <h1>{title}</h1>
+        {lead && <p>{lead}</p>}
+        {hasMainSlot && <slot name="main" />}
+      </div>
+
+      {hasSideSlot && (
+        <aside class:list={[`${namespace}__aside`, 'hero-hybrid__aside']}>
+          <slot name="side" />
+        </aside>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero-hybrid {
+    position: relative;
+    overflow: hidden;
+    background: var(--skin-hero-bg);
+    color: var(--skin-hero-text);
+  }
+
+  .hero-hybrid__image,
+  .hero-hybrid__wash {
+    position: absolute;
+    inset: 0;
+  }
+
+  .hero-hybrid__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: var(--skin-media-filter);
+  }
+
+  .hero-hybrid__wash {
+    background: var(--skin-hero-wash);
+  }
+
+  .hero-hybrid__content {
+    position: relative;
+    z-index: 1;
+    padding-top: var(--um-hero-pad-top, clamp(24px, 3.2vw, 44px));
+    padding-bottom: var(--um-hero-pad-bottom, clamp(40px, 5.5vw, 76px));
+  }
+
+  .hero-hybrid__breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-bottom: var(--um-hero-breadcrumb-gap, clamp(24px, 4vw, 42px));
+    color: var(--skin-hero-muted);
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .hero-hybrid__grid {
+    display: grid;
+    gap: var(--um-hero-grid-gap, clamp(28px, 5vw, 68px));
+    align-items: start;
+  }
+
+  .hero-hybrid__grid--side {
+    grid-template-columns: minmax(0, 0.64fr) minmax(320px, 0.36fr);
+  }
+
+  .hero-hybrid__copy {
+    min-width: 0;
+  }
+
+  .hero-hybrid__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 1rem;
+    color: var(--um-red);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .hero-hybrid__label::before {
+    content: "";
+    width: 34px;
+    height: 2px;
+    background: var(--um-red);
+  }
+
+  .hero-hybrid__copy h1 {
+    color: var(--skin-hero-text);
+    font-size: var(--um-world-h1);
+    line-height: 1.08;
+    font-weight: var(--um-weight-title, 600);
+    letter-spacing: 0;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+
+  .hero-hybrid__copy p {
+    margin-top: 1rem;
+    color: var(--skin-hero-muted);
+    font-size: var(--um-world-body);
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+  }
+
+  .hero-hybrid__aside {
+    min-width: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .hero-hybrid__grid--side {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

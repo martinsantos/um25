@@ -109,6 +109,7 @@ jobs:
             --exclude='.local_production_files' \
             --exclude='public/cache' \
             --exclude='uploads' \
+            --exclude='ecosystem.config.cjs' \
             --exclude='*.log' \
             ./ root@23.105.176.45:${{ env.DEPLOY_PATH }}/
 

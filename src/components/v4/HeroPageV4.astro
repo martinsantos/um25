@@ -58,66 +58,66 @@ const iconMap = {
 };
 ---
 
-<section class={`relative bg-um-dark overflow-hidden ${compact ? 'pb-6 sm:pb-8' : 'pb-8 sm:pb-12 lg:pb-14'}`}>
-  {/* Background image if provided - más visible */}
+<section class={`um-page-hero relative overflow-hidden ${compact ? 'is-compact' : ''}`}>
+  {/* Background image if provided */}
   {backgroundImage && (
     <div class="absolute inset-0">
       <img
         src={backgroundImage}
         alt=""
-        class="w-full h-full object-cover opacity-50"
+        class="um-page-hero__image w-full h-full object-cover"
         aria-hidden="true"
       />
-      <div class="absolute inset-0 bg-gradient-to-r from-um-dark/95 via-um-dark/80 to-um-dark/50"></div>
+      <div class="absolute inset-0 um-page-hero__wash"></div>
     </div>
   )}
 
-  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
+  <div class="relative um-container pt-4 sm:pt-6">
     {/* Breadcrumb */}
-    <nav class="flex items-center gap-2 text-sm text-gray-400 mb-3 sm:mb-4" aria-label="Breadcrumb">
+    <nav class="um-page-crumbs flex items-center gap-2 text-base mb-8 sm:mb-10" aria-label="Breadcrumb">
       {breadcrumb.map((item, index) => (
         <>
           {index > 0 && (
-            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
             </svg>
           )}
           {index === breadcrumb.length - 1 ? (
-            <span class="text-white" aria-current="page">{item.label}</span>
+            <span aria-current="page">{item.label}</span>
           ) : (
-            <a href={item.href} class="hover:text-white transition-colors">{item.label}</a>
+            <a href={item.href} class="transition-colors">{item.label}</a>
           )}
         </>
       ))}
     </nav>
 
-    <div class={`grid grid-cols-1 ${stats && stats.length > 0 ? 'lg:grid-cols-2' : ''} gap-6 sm:gap-8 lg:gap-12 items-center`}>
+    <div class={`um-page-hero__grid ${stats && stats.length > 0 ? 'has-stats' : ''}`}>
       {/* Text Content */}
       <div>
         {/* Badge */}
         {badge && (
-          <span class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-um-primary/20 text-um-primary-light rounded-full text-xs sm:text-sm font-semibold mb-4 sm:mb-5">
+          <span class="um-page-label">
             {badge.icon && (
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" set:html={iconMap[badge.icon]} />
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" set:html={iconMap[badge.icon]} aria-hidden="true" />
             )}
             {badge.text}
           </span>
         )}
 
         {/* Title */}
-        <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4 sm:mb-5 leading-tight">
+        <h1 class="um-page-title">
           {title}
           {titleHighlight && (
             <>
               <br />
-              <span class="text-um-primary-light">{titleHighlight}</span>
+              <span>{titleHighlight}</span>
             </>
           )}
         </h1>
 
         {/* Subtitle */}
         {subtitle && (
-          <p class="text-base sm:text-lg lg:text-xl text-gray-300 leading-relaxed max-w-2xl">
+          <p class="um-page-subtitle">
             {subtitle}
           </p>
         )}
@@ -125,11 +125,11 @@ const iconMap = {
 
       {/* Stats Grid */}
       {stats && stats.length > 0 && (
-        <div class={`grid grid-cols-${Math.min(stats.length, 3)} gap-3 sm:gap-4 lg:gap-6`}>
+        <div class="um-page-stats">
           {stats.map((stat) => (
-            <div class="text-center p-3 sm:p-4 lg:p-6 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
-              <div class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white">{stat.value}</div>
-              <div class="text-xs sm:text-sm text-gray-400 mt-1">{stat.label}</div>
+            <div class="um-page-stat">
+              <div>{stat.value}</div>
+              <span>{stat.label}</span>
             </div>
           ))}
         </div>
@@ -137,3 +137,136 @@ const iconMap = {
     </div>
   </div>
 </section>
+
+<style>
+  .um-page-hero {
+    background: var(--skin-hero-bg);
+    color: var(--skin-hero-text);
+    padding-bottom: clamp(48px, 6vw, 82px);
+  }
+
+  .um-page-hero.is-compact {
+    padding-bottom: clamp(40px, 5vw, 64px);
+  }
+
+  .um-page-hero__wash {
+    background: var(--skin-hero-wash);
+  }
+
+  .um-page-hero__image {
+    filter: var(--skin-media-filter);
+  }
+
+  .um-page-crumbs {
+    color: var(--skin-hero-muted);
+  }
+
+  .um-page-crumbs span {
+    color: var(--skin-hero-text);
+  }
+
+  .um-page-crumbs a:hover {
+    color: var(--skin-hero-text);
+  }
+
+  .um-page-hero__grid {
+    display: grid;
+    gap: clamp(32px, 5vw, 64px);
+    align-items: end;
+  }
+
+  .um-page-hero__grid.has-stats {
+    grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.72fr);
+  }
+
+  .um-page-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    color: #DC2626;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .um-page-label::before {
+    content: "";
+    display: inline-block;
+    width: 34px;
+    height: 2px;
+    background: #DC2626;
+  }
+
+  .um-page-title {
+    max-width: 860px;
+    margin-bottom: clamp(18px, 2vw, 26px);
+    color: var(--skin-hero-text);
+    font-size: clamp(2.3rem, 3.9vw, 4.05rem);
+    font-weight: var(--um-weight-title, 600);
+    letter-spacing: 0;
+    line-height: 1.06;
+    text-wrap: balance;
+  }
+
+  .um-page-title span {
+    color: #DC2626;
+  }
+
+  .um-page-subtitle {
+    max-width: 720px;
+    color: var(--skin-hero-muted);
+    font-size: clamp(1.05rem, 1.25vw, 1.22rem);
+    line-height: 1.62;
+  }
+
+  .um-page-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+    gap: 1px;
+    border: 1px solid var(--skin-hero-line);
+    background: var(--skin-hero-line);
+  }
+
+  .um-page-stat {
+    min-height: 118px;
+    padding: 1.35rem;
+    background: var(--skin-hero-panel-solid);
+  }
+
+  .um-page-stat div {
+    color: var(--skin-hero-text);
+    font-size: clamp(1.7rem, 3vw, 3rem);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .um-page-stat span {
+    display: block;
+    margin-top: 0.65rem;
+    color: var(--skin-hero-muted);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 900px) {
+    .um-page-hero__grid.has-stats {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .um-page-title {
+      font-size: clamp(2.05rem, 9vw, 2.9rem);
+      line-height: 1.08;
+    }
+
+    .um-page-stats {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
