@@ -262,13 +262,11 @@ describe('Information hub visual contracts', () => {
     const blogSingle = read('src/pages/blog/[slug].astro');
 
     const heroSecondaryBlock = cssBlock(blogSingle, '.article-hero-actions__secondary');
-    const commercialSecondaryBlock = cssBlock(blogSingle, '.article-commercial-fold__cta--secondary');
     const mobileHeroActionsBlock = blogSingle.match(/@media[\s\S]*?\.article-hero-actions\s*\{([\s\S]*?)\}/)?.[1] || '';
 
     expect(heroSecondaryBlock).toMatch(/background:\s*#eef0f2/);
     expect(heroSecondaryBlock).not.toMatch(/box-shadow:\s*inset\s+0\s+-[12]px/);
-    expect(commercialSecondaryBlock).toMatch(/background:\s*#e9ecef/);
-    expect(commercialSecondaryBlock).not.toMatch(/box-shadow:\s*inset\s+0\s+-[12]px/);
+    expect(blogSingle).not.toContain('article-commercial-fold');
     expect(mobileHeroActionsBlock).toMatch(/grid-template-columns:\s*1fr/);
     expect(blogSingle).toMatch(/\.article-hero-actions a\s*\{[\s\S]*min-height:\s*48px/);
     expect(blogSingle).toMatch(/\.article-hero-actions a\s*\{[\s\S]*text-decoration:\s*none/);
@@ -299,9 +297,9 @@ describe('Information hub visual contracts', () => {
     expect(blogIndex).toContain('src={heroImgUrl}');
     expect(blogIndex).not.toContain('<BlogHero post={hero} />');
     expect(blogIndex).not.toMatch(/<section class="blog-feature"/);
-    expect(cssBlock(blogIndex, '.blog-header__feature')).toMatch(/align-items:\s*stretch;/);
-    expect(cssBlock(blogIndex, '.blog-header__feature-media')).toMatch(/min-height:\s*100%;/);
-    expect(cssBlock(blogIndex, '.blog-header__feature-body')).toMatch(/min-height:\s*clamp\(260px,\s*23vw,\s*348px\);/);
+    expect(cssBlock(blogIndex, '.blog-header__feature')).toMatch(/align-items:\s*center;/);
+    expect(cssBlock(blogIndex, '.blog-header__feature-media')).toMatch(/aspect-ratio:\s*16\s*\/\s*10;/);
+    expect(cssBlock(blogIndex, '.blog-header__feature-body')).toMatch(/min-height:\s*0;/);
   });
 
   test('blog index mobile proofline keeps labels as single-line document fields', () => {
