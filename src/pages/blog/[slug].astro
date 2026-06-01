@@ -1,11 +1,9 @@
 ---
 import LayoutV4 from '../../layouts/LayoutV4.astro';
-import BlogTOC from '../../components/blog/BlogTOC.astro';
 import { fetchBlogPost, fetchBlogListing } from '../../utils/getBlogData';
 import { blogImageUrl, blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
 import { addHeadingIds, getCategoryLabel, formatBlogDate, extractFaqSchema } from '../../utils/blogUtils';
 import { isReplicaIdenticalCopy, resolveReplicaH1 } from '../../utils/replicaProdCopy';
-import { shouldShowBlogCommercialFold } from '../../data/commercialPlacement';
 
 const slug = Astro.params.slug || '';
 const post = await fetchBlogPost(slug);
@@ -33,7 +31,7 @@ const normalizeArticleContent = (html: string): string => {
 };
 
 const normalizedContent = normalizeArticleContent(post.contenido || '');
-const { html: contentHtml, headings } = await addHeadingIds(normalizedContent);
+const { html: contentHtml } = await addHeadingIds(normalizedContent);
 const faqSchema = extractFaqSchema(contentHtml);
 const imgUrl = blogPostImageUrl(post);
 const imgAlt = blogPostImageAlt(post);
@@ -131,11 +129,6 @@ const articleTitle = isReplicaIdenticalCopy()
   : editorialArticleTitle;
 
 const isArcaPost = slug === 'plantilla-arca-facturacion-electronica-gratis';
-const showCommercialFold = shouldShowBlogCommercialFold({
-  slug,
-  categoria: post.categoria,
-  tags: post.tags,
-});
 const heroPrimaryHref = isArcaPost ? '/plantilla-arca' : '/contacto';
 const heroPrimaryLabel = isArcaPost ? 'Probar Plantilla ARCA' : 'Solicitar diagnóstico';
 const heroSecondaryHref = isArcaPost ? '/contacto' : '/servicios';
@@ -163,8 +156,6 @@ const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
   <main class="article-page">
 
     <div class="article-layout">
-      <BlogTOC headings={headings} title={post.titulo} />
-
       <article class="article-body">
 
         <nav class="breadcrumbs" aria-label="Navegación">
@@ -196,33 +187,6 @@ const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
         </figure>
 
         <div class="prose" set:html={contentHtml} />
-
-        {showCommercialFold && (
-          <aside
-            class="article-commercial-fold"
-            aria-label={isArcaPost ? 'Servicios UMSA para operación fiscal' : 'Contacto comercial UMSA'}
-          >
-            <p class="article-commercial-fold__eyebrow">
-              {isArcaPost ? 'Operación IT + relevamiento' : 'Infraestructura IT · Mendoza y región'}
-            </p>
-            <p class="article-commercial-fold__copy">
-              {isArcaPost
-                ? 'Si tu organización necesita integrar facturación electrónica con redes, soporte 24/7 o continuidad operativa, UMSA releva alcance, riesgos y entregables antes de cotizar.'
-                : 'Para proyectos de CCTV, redes, soporte 24/7 o cumplimiento normativo, UMSA releva alcance operativo y entregables antes de cotizar.'}
-            </p>
-            <div class="article-commercial-fold__actions">
-              <a class="article-commercial-fold__cta article-commercial-fold__cta--primary" href="/contacto">
-                Solicitar relevamiento UMSA
-              </a>
-              <a
-                class="article-commercial-fold__cta article-commercial-fold__cta--secondary"
-                href={isArcaPost ? '/plantilla-arca' : '/servicios'}
-              >
-                {isArcaPost ? 'Probar Plantilla ARCA' : 'Ver servicios'}
-              </a>
-            </div>
-          </aside>
-        )}
 
         <nav class="post-nav">
           {prevPost ? (
@@ -292,18 +256,14 @@ const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
   }
 
   .article-layout {
-    max-width: 1120px;
+    max-width: 820px;
     margin: 0 auto;
-    display: flex;
-    gap: clamp(28px, 4vw, 48px);
-    align-items: flex-start;
   }
 
   /* Article body */
   .article-body {
-    flex: 1;
     min-width: 0;
-    max-width: 760px;
+    max-width: 820px;
     margin: 0 auto;
   }
 
@@ -404,76 +364,6 @@ const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
   .article-hero-actions__secondary:hover {
     color: #111827;
     background: #e3e6ea;
-  }
-
-  .article-commercial-fold {
-    margin: 32px 0 28px;
-    padding: 20px 22px;
-    border-top: 2px solid var(--um-red);
-    background: #f7f8f9;
-  }
-
-  .article-commercial-fold__eyebrow {
-    margin: 0 0 8px;
-    font-family: var(--um-font-body);
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--um-red);
-  }
-
-  .article-commercial-fold__copy {
-    margin: 0 0 16px;
-    max-width: 62ch;
-    font-family: var(--um-font-body);
-    font-size: 1rem;
-    line-height: 1.65;
-    color: #374151;
-  }
-
-  .article-commercial-fold__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .article-commercial-fold__cta {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 44px;
-    padding: 0.65rem 1.1rem;
-    font-family: var(--um-font-body);
-    font-size: 16px;
-    font-weight: 700;
-    text-decoration: none;
-    border-radius: 4px;
-    transition: background 0.15s ease, color 0.15s ease;
-  }
-
-  .article-commercial-fold__cta--primary {
-    background: var(--um-red);
-    color: #fff;
-    border: 0;
-  }
-
-  .article-commercial-fold__cta--primary:hover {
-    background: #fff;
-    color: #111;
-    box-shadow: inset 0 0 0 1px #111;
-  }
-
-  .article-commercial-fold__cta--secondary {
-    background: #e9ecef;
-    color: #111827;
-    border: 0;
-    box-shadow: none;
-  }
-
-  .article-commercial-fold__cta--secondary:hover {
-    color: #111827;
-    background: #dde1e6;
   }
 
   .article-sticky-cta {
@@ -800,7 +690,6 @@ const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
 
   @media (max-width: 900px) {
     .article-layout {
-      display: block;
       max-width: 760px;
     }
 
@@ -865,14 +754,6 @@ const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
       flex-direction: column;
       align-items: stretch;
       text-align: center;
-    }
-
-    .article-commercial-fold__actions {
-      flex-direction: column;
-    }
-
-    .article-commercial-fold__cta {
-      width: 100%;
     }
 
     :global(.prose) {
