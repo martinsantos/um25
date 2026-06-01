@@ -20,7 +20,7 @@ const { id = 'formulario-arca' } = Astro.props;
 
     <div class="grid md:grid-cols-2 gap-4">
       <div class="form-group">
-        <label for="cuit" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="cuit" class="block text-base font-medium text-gray-700 mb-1">
           CUIT
         </label>
         <input
@@ -36,7 +36,7 @@ const { id = 'formulario-arca' } = Astro.props;
       </div>
 
       <div class="form-group">
-        <label for="razon_social" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="razon_social" class="block text-base font-medium text-gray-700 mb-1">
           Razón Social
         </label>
         <input
@@ -50,7 +50,7 @@ const { id = 'formulario-arca' } = Astro.props;
       </div>
 
       <div class="form-group md:col-span-2">
-        <label for="domicilio" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="domicilio" class="block text-base font-medium text-gray-700 mb-1">
           Domicilio
         </label>
         <input
@@ -64,7 +64,7 @@ const { id = 'formulario-arca' } = Astro.props;
       </div>
 
       <div class="form-group md:col-span-2">
-        <label for="condicion_iva" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="condicion_iva" class="block text-base font-medium text-gray-700 mb-1">
           Condición frente al IVA
         </label>
         <select
@@ -89,7 +89,7 @@ const { id = 'formulario-arca' } = Astro.props;
 
     <div class="grid md:grid-cols-2 gap-4">
       <div class="form-group">
-        <label for="tipo_comprobante" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="tipo_comprobante" class="block text-base font-medium text-gray-700 mb-1">
           Tipo de Comprobante
         </label>
         <select
@@ -108,7 +108,7 @@ const { id = 'formulario-arca' } = Astro.props;
       </div>
 
       <div class="form-group">
-        <label for="fecha_emision" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="fecha_emision" class="block text-base font-medium text-gray-700 mb-1">
           Fecha de Emisión
         </label>
         <input
@@ -121,7 +121,7 @@ const { id = 'formulario-arca' } = Astro.props;
       </div>
 
       <div class="form-group md:col-span-2">
-        <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="descripcion" class="block text-base font-medium text-gray-700 mb-1">
           Descripción del Comprobante
         </label>
         <input
@@ -135,7 +135,7 @@ const { id = 'formulario-arca' } = Astro.props;
       </div>
 
       <div class="form-group md:col-span-2">
-        <label for="importe_total" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="importe_total" class="block text-base font-medium text-gray-700 mb-1">
           Importe Total (sin IVA)
         </label>
         <input
@@ -190,7 +190,7 @@ const { id = 'formulario-arca' } = Astro.props;
     input.classList.add('border-red-500', 'ring-red-500');
 
     var error = document.createElement('p');
-    error.className = 'cuit-error text-sm text-red-600 mt-1';
+    error.className = 'cuit-error text-base text-red-600 mt-1';
     error.textContent = mensaje;
     input.parentElement.appendChild(error);
   }
@@ -265,7 +265,7 @@ const { id = 'formulario-arca' } = Astro.props;
       if (input) {
         input.classList.add('border-red-500', 'ring-red-500');
         var error = document.createElement('p');
-        error.className = 'form-error text-sm text-red-600 mt-1';
+        error.className = 'form-error text-base text-red-600 mt-1';
         error.textContent = err.mensaje;
         input.parentElement.appendChild(error);
       }
@@ -280,11 +280,11 @@ const { id = 'formulario-arca' } = Astro.props;
   window.mostrarErroresFormulario = mostrarErroresFormulario;
 
   // Emitir evento formDataChange cuando cambien los datos del formulario
-  const form = document.querySelector('#formulario-arca');
+  var arcaFormElement = document.querySelector('#formulario-arca');
 
-  if (form) {
+  if (arcaFormElement) {
     const handleChange = (event) => {
-      const formData = new FormData(form);
+      const formData = new FormData(arcaFormElement);
       const data = Object.fromEntries(formData);
 
       // Emitir evento personalizado
@@ -294,11 +294,11 @@ const { id = 'formulario-arca' } = Astro.props;
         cancelable: true,
       });
 
-      form.dispatchEvent(customEvent);
+      arcaFormElement.dispatchEvent(customEvent);
     };
 
     // Escuchar cambios en todos los inputs y selects
-    form.querySelectorAll('input, select').forEach((field) => {
+    arcaFormElement.querySelectorAll('input, select').forEach((field) => {
       field.addEventListener('change', handleChange);
     });
   }

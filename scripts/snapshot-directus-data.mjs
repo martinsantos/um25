@@ -20,7 +20,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const SNAPSHOTS_DIR = join(__dirname, '..', 'src', 'data', 'snapshots');
 
 const DIRECTUS_URL = process.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-const DIRECTUS_TOKEN = process.env.DIRECTUS_STATIC_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+const DIRECTUS_TOKEN = process.env.DIRECTUS_STATIC_TOKEN || process.env.PUBLIC_DIRECTUS_TOKEN || '';
+
+if (!DIRECTUS_TOKEN) {
+  console.error('Falta DIRECTUS_STATIC_TOKEN o PUBLIC_DIRECTUS_TOKEN para exportar snapshots Directus.');
+  process.exit(1);
+}
 
 const headers = {
   'Authorization': `Bearer ${DIRECTUS_TOKEN}`,

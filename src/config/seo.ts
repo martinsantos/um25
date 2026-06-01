@@ -7,7 +7,7 @@
  */
 export const SITE_URL = 'https://ultimamilla.com.ar';
 export const SITE_NAME = 'ULTIMA MILLA';
-export const SITE_DESCRIPTION = 'Especialistas en comunicaciones, sistemas e integración tecnológica. Servicios IT para empresas en Mendoza, Cuyo y Patagonia. +469 proyectos, +22 años.';
+export const SITE_DESCRIPTION = 'Servicios IT integrales para continuidad operativa: redes, seguridad electrónica, telecomunicaciones, software, soporte y energía IT en Mendoza, Cuyo y Patagonia.';
 
 /** Canonical business address — single source of truth for all schemas */
 export const BUSINESS_ADDRESS = {

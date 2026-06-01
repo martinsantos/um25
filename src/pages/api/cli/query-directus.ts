@@ -29,8 +29,9 @@ interface FormattedResult {
 // DIRECTUS API CONNECTION - REAL DATA ACCESS
 async function queryDirectusReal(searchQuery: string): Promise<{antecedentes: DirectusItem[], servicios: DirectusItem[]}> {
     try {
-        const token = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
-        const directusUrl = 'http://localhost:8055';
+        const token = import.meta.env.DIRECTUS_STATIC_TOKEN || import.meta.env.PUBLIC_DIRECTUS_TOKEN || '';
+        const directusUrl = import.meta.env.DIRECTUS_INTERNAL_URL || import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
+        if (!token) return { antecedentes: [], servicios: [] };
         
         // BUSCAR EN ANTECEDENTES REALES (469 registros) - AMPLIO ALCANCE
         const antecedentesUrl = `${directusUrl}/items/Antecedentes?limit=20&search=${encodeURIComponent(searchQuery)}&fields=id,title,content,client,date_created,slug&sort=-date_created`;

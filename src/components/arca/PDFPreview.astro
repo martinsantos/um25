@@ -16,7 +16,7 @@ const { onConfirm, onCancel } = Astro.props;
   id="pdf-preview-modal"
   class="p-0 bg-transparent border-0 max-w-2xl w-full"
 >
-  <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+  <div class="bg-white rounded-lg border border-gray-200 max-w-2xl w-full">
     <!-- Header -->
     <div class="px-6 py-4 border-b border-gray-200">
       <h2 class="text-xl font-bold text-gray-900">Vista Previa de Factura</h2>
@@ -32,7 +32,7 @@ const { onConfirm, onCancel } = Astro.props;
 
       <!-- Info -->
       <div class="mt-4 p-4 bg-blue-50 rounded-md border border-blue-200">
-        <p class="text-sm text-blue-800">
+        <p class="text-base text-blue-800">
           <strong>Nota:</strong> Esta es una vista previa de los datos que serán incluidos en tu factura.
           Al confirmar, se generará el PDF final con el CAE correspondiente.
         </p>
@@ -79,7 +79,7 @@ const { onConfirm, onCancel } = Astro.props;
 
     // Outer wrapper
     var wrapper = document.createElement('div');
-    wrapper.className = 'bg-white border border-gray-300 rounded-md shadow-sm';
+    wrapper.className = 'bg-white border border-gray-300 rounded-md';
     wrapper.style.fontSize = '12px';
     container.appendChild(wrapper);
 
@@ -103,7 +103,7 @@ const { onConfirm, onCancel } = Astro.props;
 
     var title = document.createElement('h2');
     title.style.fontSize = '1.1rem';
-    title.style.fontWeight = '800';
+    title.style.fontWeight = '700';
     title.style.color = '#1e3a5f';
     title.textContent = 'FACTURA';
     headerInfo.appendChild(title);
@@ -241,7 +241,7 @@ const { onConfirm, onCancel } = Astro.props;
     var totalDiv = document.createElement('div');
     totalDiv.style.display = 'flex';
     totalDiv.style.justifyContent = 'space-between';
-    totalDiv.style.fontWeight = '800';
+    totalDiv.style.fontWeight = '700';
     totalDiv.style.fontSize = '1rem';
     totalDiv.style.borderTop = '2px solid #000';
     totalDiv.style.paddingTop = '4px';

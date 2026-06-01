@@ -1,16 +1,21 @@
 ---
-import AuthorityHubPage from '../components/geo/AuthorityHubPage.astro';
-import { getAuthorityHubs } from '../data/geoKnowledge';
+import LayoutV4 from '../layouts/LayoutV4.astro';
+import GeoHubDossier from '../components/templates/GeoHubDossier.astro';
+import { buildGeoHubStructuredData, getGeoCommercialHub } from '../data/geoCommercialHubs';
 
-const hub = getAuthorityHubs().find((item) => item.slug === 'presupuesto-servicios-it-empresas');
+const hub = getGeoCommercialHub('presupuesto-servicios-it-empresas');
 
 if (!hub) {
-  throw new Error('Missing authority hub presupuesto-servicios-it-empresas');
+  return Astro.redirect('/servicios', 302);
 }
 ---
 
-<AuthorityHubPage
-  hub={hub}
-  eyebrow="Presupuestos tecnologicos para empresas"
-  intro="Guia comercial para dimensionar proyectos de tecnologia, servicios informaticos, infraestructura, soporte, seguridad electronica, telecomunicaciones, software y consultoria IT con rangos orientativos y variables reales de alcance."
-/>
+<LayoutV4
+  title={hub.seoTitle}
+  description={hub.description}
+  keywords={hub.keywords}
+  canonical={`https://ultimamilla.com.ar/${hub.slug}`}
+  structuredData={buildGeoHubStructuredData(hub)}
+>
+  <GeoHubDossier hub={hub} />
+</LayoutV4>

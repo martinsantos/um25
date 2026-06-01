@@ -2,6 +2,7 @@
 /// <reference types="astro/client" />
 
 interface ImportMetaEnv {
+  readonly UMSA_LOCAL_REPLICA?: string;
   readonly PUBLIC_DIRECTUS_URL: string;
   readonly DIRECTUS_STATIC_TOKEN: string;
   readonly PUBLIC_DIRECTUS_TOKEN?: string;

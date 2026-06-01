@@ -7,7 +7,7 @@
  * @returns {string} Token de autenticación
  */
 export function getStaticToken() {
-  return import.meta.env.PUBLIC_DIRECTUS_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+  return import.meta.env.DIRECTUS_STATIC_TOKEN || import.meta.env.PUBLIC_DIRECTUS_TOKEN || '';
 }
 
 /**
@@ -15,8 +15,10 @@ export function getStaticToken() {
  * @returns {Object} Headers con el token de autenticación
  */
 export function getAuthHeaders() {
+  const token = getStaticToken();
+  if (!token) return {};
   return {
-    'Authorization': `Bearer ${getStaticToken()}`
+    'Authorization': `Bearer ${token}`
   };
 }
 

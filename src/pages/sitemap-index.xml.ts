@@ -25,7 +25,7 @@ function generateSitemapIndexXml(): string {
         <lastmod>${today}</lastmod>
     </sitemap>
 
-    <!-- Sitemap GEO para LLMs, recursos estructurados y URLs de autoridad -->
+    <!-- Sitemap GEO/LLM con hubs comerciales, JSON de entidades y discovery -->
     <sitemap>
         <loc>${escapeXml(`${SITE_URL}/sitemap-geo.xml`)}</loc>
         <lastmod>${today}</lastmod>

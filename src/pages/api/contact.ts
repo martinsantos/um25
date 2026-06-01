@@ -1,296 +1,277 @@
 import type { APIRoute } from 'astro';
 import nodemailer from 'nodemailer';
 
-// Rate limiting (en memoria - para producción usar Redis)
-const rateLimitMap = new Map();
-const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutos
-const MAX_REQUESTS_PER_WINDOW = 3; // 3 envíos máximo por IP en 15 minutos
+const rateLimitMap = new Map<string, number[]>();
+const RATE_LIMIT_WINDOW = 15 * 60 * 1000;
+const MAX_REQUESTS_PER_WINDOW = 3;
+const MIN_FORM_SECONDS = 4;
+const MESSAGE_MIN_LENGTH = 12;
+const MESSAGE_MAX_LENGTH = 2400;
+const MAX_LINKS = 2;
 
-// Configuración del transporte de correo
 const transporter = nodemailer.createTransport({
   host: import.meta.env.SMTP_HOST,
   port: parseInt(import.meta.env.SMTP_PORT),
-  secure: false,  // false para puerto 587, true solo para 465
+  secure: false,
   auth: {
     user: import.meta.env.SMTP_USER,
     pass: import.meta.env.SMTP_PASS,
   },
-  // Permitir autofirma/certificados no válidos en desarrollo
   tls: {
     rejectUnauthorized: false
   }
 });
 
-// Función para validar email
-function isValidEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
-// Función para detectar spam básico
-function isSpam(data: any): boolean {
-  const spamKeywords = ['viagra', 'casino', 'lottery', 'winner', 'congratulations', 'urgent', 'act now', 'free money', 'click here'];
-  const message = (data.message || '').toLowerCase();
-  const name = (data.name || '').toLowerCase();
-  
-  // Detectar spam por keywords
-  for (const keyword of spamKeywords) {
-    if (message.includes(keyword) || name.includes(keyword)) {
-      return true;
+function jsonResponse(body: Record<string, unknown>, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      'Content-Type': 'application/json'
     }
-  }
-  
-  // Detectar mensajes muy cortos o sospechosos
-  if (message.length < 10) {
-    return true;
-  }
-  
-  // Detectar nombres sospechosos (solo números o caracteres especiales)
-  if (/^[0-9@#$%^&*()]+$/.test(name)) {
-    return true;
-  }
-  
-  // Detectar emails sospechosos
-  if (data.email && typeof data.email === 'string' && (
-    data.email.includes('temp') || 
-    data.email.includes('disposable') || 
-    data.email.includes('10minute')
-  )) {
-    return true;
-  }
-  
-  return false;
+  });
 }
 
-// Función para verificar rate limiting
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function trimString(value: unknown, maxLength: number): string {
+  return String(value || '').trim().slice(0, maxLength);
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[char] || char));
+}
+
+function countLinks(message: string): number {
+  return (message.match(/https?:\/\/|www\.|\.com\b|\.ar\b/gi) || []).length;
+}
+
+function isTooFast(startedAt: unknown): boolean {
+  if (!startedAt) {
+    return false;
+  }
+
+  const startedAtMs = Number(startedAt);
+  if (!Number.isFinite(startedAtMs) || startedAtMs <= 0) {
+    return true;
+  }
+
+  return Date.now() - startedAtMs < MIN_FORM_SECONDS * 1000;
+}
+
+function isSpam(data: Record<string, unknown>): boolean {
+  const spamKeywords = [
+    'viagra',
+    'casino',
+    'lottery',
+    'winner',
+    'congratulations',
+    'act now',
+    'free money',
+    'click here',
+    'crypto',
+    'seo backlinks'
+  ];
+  const message = trimString(data.message, MESSAGE_MAX_LENGTH).toLowerCase();
+  const name = trimString(data.name, 120).toLowerCase();
+  const email = trimString(data.email, 140).toLowerCase();
+
+  if (message.length < MESSAGE_MIN_LENGTH) {
+    return true;
+  }
+
+  if (countLinks(message) > MAX_LINKS) {
+    return true;
+  }
+
+  if (/^[0-9@#$%^&*()_+=|\\/:;.,!?-]+$/.test(name)) {
+    return true;
+  }
+
+  if (email.includes('temp') || email.includes('disposable') || email.includes('10minute')) {
+    return true;
+  }
+
+  return spamKeywords.some((keyword) => message.includes(keyword) || name.includes(keyword));
+}
+
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
   const userRequests = rateLimitMap.get(ip) || [];
-  
-  // Filtrar requests dentro del window
-  const recentRequests = userRequests.filter((timestamp: number) => 
-    now - timestamp < RATE_LIMIT_WINDOW
-  );
-  
+  const recentRequests = userRequests.filter((timestamp) => now - timestamp < RATE_LIMIT_WINDOW);
+
   if (recentRequests.length >= MAX_REQUESTS_PER_WINDOW) {
-    return false; // Rate limit exceeded
+    return false;
   }
-  
-  // Actualizar lista de requests
+
   recentRequests.push(now);
   rateLimitMap.set(ip, recentRequests);
-  
+
   return true;
 }
 
-// Función para agregar honeypot (campo oculto para detectar bots)
-function hasHoneypot(data: any): boolean {
-  // Si el campo 'website' (honeypot) está lleno, es un bot
-  return data.website && data.website.length > 0;
+function hasHoneypot(data: Record<string, unknown>): boolean {
+  return trimString(data.website, 500).length > 0;
+}
+
+function buildEmailHtml(data: {
+  name: string;
+  email: string;
+  company: string;
+  message: string;
+  timestamp: string;
+  ip: string;
+}) {
+  const companyRow = data.company
+    ? `
+      <tr>
+        <td style="padding:14px 16px;border-top:1px solid #E5E7EB;color:#6B7280;font-size:16px;">Empresa</td>
+        <td style="padding:14px 16px;border-top:1px solid #E5E7EB;color:#111827;font-size:16px;font-weight:700;">${escapeHtml(data.company)}</td>
+      </tr>`
+    : '';
+
+  return `
+    <div style="font-family:Arial,sans-serif;max-width:680px;margin:0 auto;background:#FFFFFF;color:#111827;border:1px solid #E5E7EB;">
+      <div style="background:#050505;color:#FFFFFF;padding:28px 30px;border-bottom:4px solid #DC2626;">
+        <p style="margin:0 0 10px;color:#A3A3A3;font-size:16px;letter-spacing:.08em;text-transform:uppercase;">ULTIMA MILLA</p>
+        <h1 style="margin:0;color:#FFFFFF;font-size:28px;line-height:1.18;font-weight:700;">Nueva consulta desde la web</h1>
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;">
+        <tr>
+          <td style="padding:14px 16px;color:#6B7280;font-size:16px;">Nombre</td>
+          <td style="padding:14px 16px;color:#111827;font-size:16px;font-weight:700;">${escapeHtml(data.name)}</td>
+        </tr>
+        <tr>
+          <td style="padding:14px 16px;border-top:1px solid #E5E7EB;color:#6B7280;font-size:16px;">Email</td>
+          <td style="padding:14px 16px;border-top:1px solid #E5E7EB;color:#111827;font-size:16px;font-weight:700;">
+            <a href="mailto:${escapeHtml(data.email)}" style="color:#DC2626;text-decoration:none;">${escapeHtml(data.email)}</a>
+          </td>
+        </tr>
+        ${companyRow}
+      </table>
+
+      <div style="padding:24px 30px;border-top:1px solid #E5E7EB;">
+        <p style="margin:0 0 10px;color:#6B7280;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Mensaje</p>
+        <div style="white-space:pre-wrap;color:#111827;font-size:17px;line-height:1.65;">${escapeHtml(data.message)}</div>
+      </div>
+
+      <div style="padding:18px 30px;background:#F8FAFC;border-top:1px solid #E5E7EB;color:#64748B;font-size:16px;line-height:1.55;">
+        <strong style="color:#111827;">Datos técnicos</strong><br>
+        Fecha: ${escapeHtml(data.timestamp)}<br>
+        IP: ${escapeHtml(data.ip)}<br>
+        Formulario: contacto simplificado White Dossier
+      </div>
+    </div>
+  `;
 }
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {
   try {
-    // Obtener IP para rate limiting
     const clientIP = clientAddress || request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
-    
-    // Verificar rate limiting
+
     if (!checkRateLimit(clientIP)) {
-      return new Response(JSON.stringify({
+      return jsonResponse({
         success: false,
         message: 'Demasiadas solicitudes. Intenta nuevamente en 15 minutos.'
-      }), {
-        status: 429,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      }, 429);
     }
 
-    let data: any;
+    let data: Record<string, unknown>;
     const contentType = request.headers.get('content-type') || '';
-    
+
     if (contentType.includes('application/json')) {
       data = await request.json();
     } else {
-      // Manejar FormData (desde formularios HTML)
       const formData = await request.formData();
       data = {};
       for (const [key, value] of formData.entries()) {
         data[key] = value;
       }
     }
-    
-    // Verificar honeypot
+
     if (hasHoneypot(data)) {
-      console.log('Bot detectado por honeypot:', clientIP);
-      return new Response(JSON.stringify({
-        success: true, // Responder como si fuera exitoso para confundir bots
+      return jsonResponse({
+        success: true,
         message: 'Mensaje enviado exitosamente'
-      }), {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json'
-        }
       });
     }
-    
-    const { name, email, company, phone, projectType, budget, timeline, message } = data;
 
-    // Validación básica
+    if (isTooFast(data.startedAt)) {
+      return jsonResponse({
+        success: false,
+        message: 'El formulario fue enviado demasiado rápido. Intenta nuevamente.'
+      }, 400);
+    }
+
+    const rawMessage = String(data.message || '').trim();
+    const name = trimString(data.name, 100);
+    const email = trimString(data.email, 120).toLowerCase();
+    const company = trimString(data.company, 120);
+    const message = rawMessage.slice(0, MESSAGE_MAX_LENGTH);
+
     if (!name || !email || !message) {
-      return new Response(JSON.stringify({
+      return jsonResponse({
         success: false,
-        message: 'Nombre, email y mensaje son campos requeridos'
-      }), {
-        status: 400,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+        message: 'Nombre, email y mensaje son campos requeridos.'
+      }, 400);
     }
 
-    // Validar email
     if (!isValidEmail(email)) {
-      return new Response(JSON.stringify({
+      return jsonResponse({
         success: false,
-        message: 'El formato del email no es válido'
-      }), {
-        status: 400,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+        message: 'El formato del email no es válido.'
+      }, 400);
     }
 
-    // Detectar spam
-    if (isSpam(data)) {
-      console.log('Spam detectado:', { ip: clientIP, email, name });
-      return new Response(JSON.stringify({
+    if (rawMessage.length > MESSAGE_MAX_LENGTH) {
+      return jsonResponse({
         success: false,
-        message: 'Mensaje marcado como spam. Revisa el contenido e intenta nuevamente.'
-      }), {
-        status: 400,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+        message: 'El mensaje es demasiado extenso.'
+      }, 400);
     }
 
-    // Sanitizar datos
+    if (isSpam({ ...data, name, email, message })) {
+      return jsonResponse({
+        success: false,
+        message: 'El mensaje no pasó el filtro antispam. Revisá el contenido e intenta nuevamente.'
+      }, 400);
+    }
+
     const sanitizedData = {
-      name: String(name).trim().slice(0, 100),
-      email: String(email).trim().toLowerCase().slice(0, 100),
-      company: String(company || '').trim().slice(0, 100),
-      phone: String(phone || '').trim().slice(0, 20),
-      projectType: Array.isArray(projectType) ? projectType.slice(0, 5) : [],
-      budget: String(budget || '').trim(),
-      timeline: String(timeline || '').trim(),
-      message: String(message).trim().slice(0, 2000),
+      name,
+      email,
+      company,
+      message,
       timestamp: new Date().toISOString(),
       ip: clientIP
     };
 
-    // Preparar tipos de proyecto para mostrar
-    const projectTypesText = sanitizedData.projectType.length > 0 
-      ? sanitizedData.projectType.join(', ') 
-      : 'No especificado';
-
-    // Configuración del correo
-    const mailOptions = {
-      from: '"Ultima Milla web" <martin@ultimamilla.com.ar>',
+    await transporter.sendMail({
+      from: '"ULTIMA MILLA web" <martin@ultimamilla.com.ar>',
       to: 'martin@ultimamilla.com.ar',
       replyTo: sanitizedData.email,
-      subject: `Nuevo contacto desde web: ${sanitizedData.name} - ${projectTypesText}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">Nuevo mensaje de contacto</h1>
-          
-          <h2 style="color: #374151; margin-top: 30px;">Información del cliente:</h2>
-          <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-            <tr>
-              <td style="padding: 8px; font-weight: bold; background-color: #f3f4f6; border: 1px solid #d1d5db;">Nombre:</td>
-              <td style="padding: 8px; border: 1px solid #d1d5db;">${sanitizedData.name}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px; font-weight: bold; background-color: #f3f4f6; border: 1px solid #d1d5db;">Email:</td>
-              <td style="padding: 8px; border: 1px solid #d1d5db;"><a href="mailto:${sanitizedData.email}">${sanitizedData.email}</a></td>
-            </tr>
-            ${sanitizedData.company ? `
-            <tr>
-              <td style="padding: 8px; font-weight: bold; background-color: #f3f4f6; border: 1px solid #d1d5db;">Empresa:</td>
-              <td style="padding: 8px; border: 1px solid #d1d5db;">${sanitizedData.company}</td>
-            </tr>
-            ` : ''}
-            ${sanitizedData.phone ? `
-            <tr>
-              <td style="padding: 8px; font-weight: bold; background-color: #f3f4f6; border: 1px solid #d1d5db;">Teléfono:</td>
-              <td style="padding: 8px; border: 1px solid #d1d5db;">${sanitizedData.phone}</td>
-            </tr>
-            ` : ''}
-          </table>
-          
-          <h2 style="color: #374151; margin-top: 30px;">Detalles del proyecto:</h2>
-          <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-            <tr>
-              <td style="padding: 8px; font-weight: bold; background-color: #f3f4f6; border: 1px solid #d1d5db;">Tipo de proyecto:</td>
-              <td style="padding: 8px; border: 1px solid #d1d5db;">${projectTypesText}</td>
-            </tr>
-            ${sanitizedData.budget ? `
-            <tr>
-              <td style="padding: 8px; font-weight: bold; background-color: #f3f4f6; border: 1px solid #d1d5db;">Presupuesto:</td>
-              <td style="padding: 8px; border: 1px solid #d1d5db;">${sanitizedData.budget}</td>
-            </tr>
-            ` : ''}
-            ${sanitizedData.timeline ? `
-            <tr>
-              <td style="padding: 8px; font-weight: bold; background-color: #f3f4f6; border: 1px solid #d1d5db;">Timeline:</td>
-              <td style="padding: 8px; border: 1px solid #d1d5db;">${sanitizedData.timeline}</td>
-            </tr>
-            ` : ''}
-          </table>
-          
-          <h2 style="color: #374151; margin-top: 30px;">Mensaje:</h2>
-          <div style="background-color: #f9fafb; border: 1px solid #d1d5db; padding: 15px; border-radius: 5px; margin: 20px 0;">
-            <p style="margin: 0; line-height: 1.6; white-space: pre-wrap;">${sanitizedData.message}</p>
-          </div>
-          
-          <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
-          <p style="font-size: 12px; color: #6b7280; margin: 0;">
-            <strong>Información técnica:</strong><br>
-            Fecha: ${sanitizedData.timestamp}<br>
-            IP: ${sanitizedData.ip}<br>
-            Formulario: Página de contacto web
-          </p>
-        </div>
-      `,
-    };
+      subject: `Consulta web UMSA: ${sanitizedData.company || sanitizedData.name}`,
+      html: buildEmailHtml(sanitizedData),
+    });
 
-    // Enviar el correo
-    await transporter.sendMail(mailOptions);
-
-    return new Response(JSON.stringify({
+    return jsonResponse({
       success: true,
       message: 'Mensaje enviado exitosamente. Te contactaremos pronto.'
-    }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json'
-      }
     });
-  } catch (error) {
-    console.error('Error al enviar el mensaje:', error);
-    return new Response(JSON.stringify({
+  } catch {
+    return jsonResponse({
       success: false,
       message: 'Error interno del servidor. Intenta nuevamente o contacta por email.'
-    }), {
-      status: 500,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
+    }, 500);
   }
 };
 
-// Mantener compatibilidad con método POST en minúsculas
 export const post = POST;

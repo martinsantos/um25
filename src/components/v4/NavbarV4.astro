@@ -29,31 +29,29 @@ const isActive = (href: string) => {
 };
 ---
 
-<nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100/50 shadow-sm">
+<nav
+  class="um-site-nav fixed top-0 left-0 right-0 z-50 backdrop-blur-md"
+>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16 sm:h-20">
       <!-- Logo responsive -->
       <a href="/" class="flex items-center">
-        <span class="um-logo" style="font-family:'Futura PT','Futura',sans-serif;font-weight:600;letter-spacing:-0.02em;font-size:24px;line-height:1;color:#000000;white-space:nowrap;">ultimamilla<span style="color:#DC2626;">.</span>com<span style="color:#DC2626;">.</span>ar</span>
+        <span class="um-logo" style="font-family:var(--um-font-logo);font-weight:600;letter-spacing:-0.02em;font-size:24px;line-height:1;color:var(--skin-nav-text-strong);white-space:nowrap;">ultimamilla<span style="color:#DC2626;">.</span>com<span style="color:#DC2626;">.</span>ar</span>
       </a>
 
-      <!-- Desktop Menu (oculto en móvil) -->
-      <div class="hidden md:flex items-center gap-6 lg:gap-8">
+      <!-- Desktop Menu (visible ≥1180px; ver DESIGN.md § Navbar) -->
+      <div class="um-desktop-menu items-center gap-4 xl:gap-7">
         {navItems.map((item) => (
           <a
             href={item.href}
-            class={`font-medium transition-colors ${
-              isActive(item.href)
-                ? 'text-um-primary font-semibold'
-                : 'text-um-gray hover:text-um-primary'
-            }`}
+            class={`um-nav-link ${isActive(item.href) ? 'is-active' : ''}`}
           >
             {item.label}
           </a>
         ))}
         <a
           href="/contacto"
-          class="px-5 py-2.5 bg-um-accent text-white rounded-lg font-semibold hover:bg-um-accent-dark transition-colors shadow-lg shadow-um-accent/25"
+          class="um-nav-cta px-5 py-2.5 rounded-[4px] text-base font-bold"
         >
           Contacto
         </a>
@@ -62,15 +60,15 @@ const isActive = (href: string) => {
       <!-- Hamburger Button (visible solo móvil) -->
       <button
         id="menuToggle"
-        class="md:hidden p-2 -mr-2 rounded-lg hover:bg-gray-100 min-h-[44px] min-w-[44px] flex items-center justify-center"
+        class="um-menu-toggle md:hidden p-2 -mr-2 rounded-[4px] min-h-[44px] min-w-[44px] flex items-center justify-center"
         aria-label="Abrir menú"
         aria-expanded="false"
         aria-controls="mobileMenu"
       >
-        <svg id="hamburgerIcon" class="w-6 h-6 text-um-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg id="hamburgerIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
-        <svg id="closeIcon" class="w-6 h-6 text-um-dark hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg id="closeIcon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
         </svg>
       </button>
@@ -78,27 +76,19 @@ const isActive = (href: string) => {
   </div>
 
   <!-- Mobile Menu Dropdown -->
-  <div id="mobileMenu" class="mobile-menu-hidden md:hidden bg-white border-t border-gray-100 shadow-xl">
+  <div id="mobileMenu" class="um-mobile-menu mobile-menu-hidden md:hidden">
     <div class="px-4 py-4 space-y-1">
       {navItems.map((item) => (
         <a
           href={item.href}
-          class={`block px-4 py-3 rounded-lg min-h-[44px] flex items-center font-medium transition-colors ${
-            isActive(item.href)
-              ? 'text-um-primary font-semibold bg-um-primary-bg'
-              : 'text-um-dark hover:bg-um-primary-bg'
-          }`}
+          class={`um-mobile-link ${isActive(item.href) ? 'is-active' : ''}`}
         >
           {item.label}
         </a>
       ))}
       <a
         href="/contacto"
-        class={`block px-4 py-3 mt-2 rounded-lg min-h-[44px] flex items-center justify-center font-semibold transition-colors ${
-          isActive('/contacto')
-            ? 'bg-um-accent-dark text-white'
-            : 'bg-um-accent text-white hover:bg-um-accent-dark'
-        }`}
+        class={`um-mobile-cta ${isActive('/contacto') ? 'is-active' : ''}`}
       >
         Contacto
       </a>
@@ -117,6 +107,148 @@ const isActive = (href: string) => {
 
   .mobile-menu-visible {
     display: block;
+  }
+
+  .um-site-nav {
+    background: var(--skin-nav-bg);
+    border-bottom: 1px solid var(--skin-nav-line);
+  }
+
+  .um-desktop-menu {
+    display: flex;
+  }
+
+  .um-nav-link {
+    color: var(--skin-nav-text);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0.5rem 0;
+    border-bottom: 2px solid transparent;
+    transition: color 160ms ease, border-color 160ms ease;
+  }
+
+  .um-nav-link:hover,
+  .um-nav-link.is-active {
+    color: var(--skin-nav-text-strong);
+    border-bottom-color: var(--um-red);
+  }
+
+  .um-nav-cta,
+  .um-mobile-cta {
+    background: var(--um-red);
+    color: #fff;
+  }
+
+  .um-nav-cta:hover,
+  .um-mobile-cta:hover,
+  .um-mobile-cta.is-active {
+    background: var(--um-red-dark);
+    color: #fff;
+  }
+
+  .um-menu-toggle {
+    color: var(--skin-nav-text-strong);
+    position: relative;
+    z-index: 2;
+  }
+
+  .um-menu-toggle:hover {
+    background: color-mix(in srgb, var(--skin-nav-text-strong) 10%, transparent);
+  }
+
+  .um-menu-toggle svg {
+    color: var(--skin-nav-text-strong);
+    stroke: var(--skin-nav-text-strong);
+  }
+
+  .um-menu-toggle::before {
+    content: "";
+    display: block;
+    width: 24px;
+    height: 16px;
+    background:
+      linear-gradient(var(--skin-nav-text-strong), var(--skin-nav-text-strong)) 0 0 / 24px 2px no-repeat,
+      linear-gradient(var(--skin-nav-text-strong), var(--skin-nav-text-strong)) 0 7px / 24px 2px no-repeat,
+      linear-gradient(var(--skin-nav-text-strong), var(--skin-nav-text-strong)) 0 14px / 24px 2px no-repeat;
+  }
+
+  .um-menu-toggle svg {
+    display: none;
+  }
+
+  .um-mobile-menu {
+    background: var(--skin-nav-bg);
+    border-top: 1px solid var(--skin-nav-line);
+  }
+
+  .um-mobile-link {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-left: 2px solid transparent;
+    border-radius: 6px;
+    color: var(--skin-nav-text);
+    font-weight: 700;
+    transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+  }
+
+  .um-mobile-link:hover,
+  .um-mobile-link.is-active {
+    background: color-mix(in srgb, var(--skin-nav-text-strong) 10%, transparent);
+    border-left-color: var(--um-red);
+    color: var(--skin-nav-text-strong);
+  }
+
+  .um-mobile-cta {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-weight: 700;
+    transition: background-color 160ms ease, color 160ms ease;
+  }
+
+  /* Desktop nav visible from 1180px (Forbes QA: 5 ítems + CTA sin colapsar antes de 1181px). */
+  @media (min-width: 1180px) {
+    .um-menu-toggle {
+      display: none;
+    }
+  }
+
+  @media (max-width: 1179px) {
+    .um-desktop-menu {
+      display: none !important;
+    }
+
+    .um-menu-toggle {
+      display: flex !important;
+      position: absolute;
+      top: 10px;
+      right: 16px;
+    }
+
+    .um-mobile-menu {
+      display: none;
+    }
+
+    .um-mobile-menu.mobile-menu-visible {
+      display: block;
+    }
+
+    .um-site-nav .um-logo {
+      font-size: clamp(1.08rem, 4.6vw, 1.5rem) !important;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .um-site-nav .um-logo {
+      font-size: clamp(1rem, 4.2vw, 1.12rem) !important;
+    }
   }
 
   /* Respect reduced motion preferences */
