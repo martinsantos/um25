@@ -182,26 +182,22 @@ else
 fi
 
 check_public_routing() {
-  local www_headers apex_headers
-  www_headers="$(curl -4 -sSI --max-time 20 https://www.ultimamilla.com.ar/ || true)"
-  apex_headers="$(curl -4 -sSI --max-time 20 https://ultimamilla.com.ar/ || true)"
+  local www_check apex_check
+  www_check="$(curl -4 -sS -o /dev/null --max-time 20 -w "%{http_code} %{redirect_url}" https://www.ultimamilla.com.ar/ || true)"
+  apex_check="$(curl -4 -sS -o /dev/null --max-time 20 -w "%{http_code} %{redirect_url}" https://ultimamilla.com.ar/ || true)"
 
-  printf '%s\n%s\n' '--- www headers ---' "$www_headers"
-  printf '%s\n%s\n' '--- apex headers ---' "$apex_headers"
+  printf 'www check: %s\n' "$www_check"
+  printf 'apex check: %s\n' "$apex_check"
 
-  if ! printf '%s\n' "$www_headers" | grep -Eq '^HTTP/[0-9.]+ 200'; then
+  if ! printf '%s\n' "$www_check" | grep -Eq '^200[[:space:]]*$'; then
     log "Expected www.ultimamilla.com.ar to return 200 without redirect"
     return 1
   fi
-  if printf '%s\n' "$www_headers" | grep -Eiq '^location:'; then
-    log "Expected www.ultimamilla.com.ar to avoid Location redirects"
-    return 1
-  fi
-  if ! printf '%s\n' "$apex_headers" | grep -Eq '^HTTP/[0-9.]+ 30(1|8)'; then
+  if ! printf '%s\n' "$apex_check" | grep -Eq '^30(1|8)[[:space:]]+'; then
     log "Expected apex ultimamilla.com.ar to return a permanent redirect"
     return 1
   fi
-  if ! printf '%s\n' "$apex_headers" | grep -Eiq '^location: https://www\.ultimamilla\.com\.ar/'; then
+  if ! printf '%s\n' "$apex_check" | grep -Eq '^30(1|8)[[:space:]]+https://www\.ultimamilla\.com\.ar/'; then
     log "Expected apex Location header to point to https://www.ultimamilla.com.ar/"
     return 1
   fi

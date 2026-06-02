@@ -141,18 +141,18 @@ jobs:
           echo "Waiting 15s for app to start..."
           sleep 15
 
-          WWW_HEADERS=$(curl -4 -sSI --max-time 20 https://www.ultimamilla.com.ar/ || true)
-          APEX_HEADERS=$(curl -4 -sSI --max-time 20 https://ultimamilla.com.ar/ || true)
+          WWW_CHECK=$(curl -4 -sS -o /dev/null --max-time 20 \
+            -w "%{http_code} %{redirect_url}" \
+            https://www.ultimamilla.com.ar/ || true)
+          APEX_CHECK=$(curl -4 -sS -o /dev/null --max-time 20 \
+            -w "%{http_code} %{redirect_url}" \
+            https://ultimamilla.com.ar/ || true)
 
-          echo "--- www headers ---"
-          echo "$WWW_HEADERS"
-          echo "--- apex headers ---"
-          echo "$APEX_HEADERS"
+          echo "www check: $WWW_CHECK"
+          echo "apex check: $APEX_CHECK"
 
-          if echo "$WWW_HEADERS" | grep -Eq '^HTTP/[0-9.]+ 200' && \
-             ! echo "$WWW_HEADERS" | grep -Eiq '^location:' && \
-             echo "$APEX_HEADERS" | grep -Eq '^HTTP/[0-9.]+ 30(1|8)' && \
-             echo "$APEX_HEADERS" | grep -Eiq '^location: https://www\.ultimamilla\.com\.ar/'; then
+          if echo "$WWW_CHECK" | grep -Eq '^200[[:space:]]*$' && \
+             echo "$APEX_CHECK" | grep -Eq '^30(1|8)[[:space:]]+https://www\.ultimamilla\.com\.ar/'; then
             echo "✅ Canonical health check passed: www serves 200 and apex redirects to www"
           else
             echo "❌ Canonical health check failed"
