@@ -146,6 +146,7 @@ jobs:
             export SMTP_PASS='${{ secrets.SMTP_PASS }}'
             export SMTP_FROM='${{ secrets.SMTP_FROM }}'
             pm2 startOrRestart ecosystem.config.cjs --only astro-ultimamilla --update-env
+            pm2 restart astro-ultimamilla --update-env
             pm2 save
 
       - name: Health check
