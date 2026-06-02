@@ -24,7 +24,7 @@ import { isLocalProdReplica } from '../../../config/runtime';
 
 // --- Configuration ---
 const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://ultimamilla.com.ar/admin';
-const PROD_URL = 'https://ultimamilla.com.ar';
+const PROD_URL = 'https://www.ultimamilla.com.ar';
 const DEFAULT_IMAGE_URL = `/images/default-background.jpg`;
 const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN || import.meta.env.PUBLIC_DIRECTUS_TOKEN || '';
 
@@ -343,7 +343,7 @@ const compactCaseTitle = (value: unknown, client?: unknown): string => {
 };
 
 // SEO
-const siteUrl = 'https://ultimamilla.com.ar';
+const siteUrl = 'https://www.ultimamilla.com.ar';
 const canonicalUrl = toCanonicalUrl(`/antecedentes/${id}/${slugFromUrl}`);
 const metaDescription = truncateEditorialText(caseBodySource, 160);
 const antecedenteStructuredData = {

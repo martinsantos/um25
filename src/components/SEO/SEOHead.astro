@@ -49,7 +49,7 @@ const {
 } = Astro.props;
 
 // ---------------------------------------------------------------------------
-// Normalise current URL — strip www. and trailing slash
+// Normalise current URL to the public canonical host and strip trailing slash.
 // ---------------------------------------------------------------------------
 const currentUrl = canonical
   ? toCanonicalUrl(canonical)

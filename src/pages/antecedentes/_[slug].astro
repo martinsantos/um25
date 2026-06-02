@@ -12,7 +12,7 @@ import { getServiceIdFromArea } from '../../data/areaToServiceMap.js';
 
 // --- Configuration ---
 const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://ultimamilla.com.ar/admin';
-const PROD_URL = 'https://ultimamilla.com.ar';
+const PROD_URL = 'https://www.ultimamilla.com.ar';
 const DEFAULT_IMAGE_URL = `/images/default-background.jpg`;
 const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN || import.meta.env.PUBLIC_DIRECTUS_TOKEN || '';
 
@@ -178,7 +178,7 @@ const getRelatedServiceProducts = async (area: string) => {
 const { products: relatedProducts, servicio: relatedServicio, serviceId: relatedServiceId } = await getRelatedServiceProducts(antecedente.Area || '');
 
 // SEO
-const siteUrl = 'https://ultimamilla.com.ar';
+const siteUrl = 'https://www.ultimamilla.com.ar';
 // Canonical points to THIS clean URL (or prefer ID based? Let's point to ID based to be consistent with sitemap)
 const canonicalUrl = `${siteUrl}/antecedentes/${id}/${slugFromUrl}`;
 const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').substring(0, 160) + '...';

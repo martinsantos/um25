@@ -1,8 +1,8 @@
 import type { APIRoute } from 'astro';
-import { getGeoBlogIndex } from '../../data/geoKnowledge';
+import { buildGeoResource } from '../../data/geoResources';
 
 export const GET: APIRoute = async () => {
-  return new Response(JSON.stringify(getGeoBlogIndex(), null, 2), {
+  return new Response(JSON.stringify(buildGeoResource('blog-index'), null, 2), {
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
       'Cache-Control': 'public, max-age=3600',

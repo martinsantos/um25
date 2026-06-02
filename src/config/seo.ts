@@ -1,11 +1,11 @@
 /**
  * SEO Configuration — Single source of truth for site URL and identity.
  *
- * IMPORTANT: The canonical domain is https://ultimamilla.com.ar (non-www).
+ * IMPORTANT: The canonical domain is https://www.ultimamilla.com.ar.
  * All canonical URLs, sitemaps, structured data, and OG tags MUST use this domain.
- * The www subdomain is NOT used and will be stripped if present.
+ * The apex domain is a secondary entrypoint and must not be emitted as canonical.
  */
-export const SITE_URL = 'https://ultimamilla.com.ar';
+export const SITE_URL = 'https://www.ultimamilla.com.ar';
 export const SITE_NAME = 'ULTIMA MILLA';
 export const SITE_DESCRIPTION = 'Servicios IT integrales para continuidad operativa: redes, seguridad electrónica, telecomunicaciones, software, soporte y energía IT en Mendoza, Cuyo y Patagonia.';
 

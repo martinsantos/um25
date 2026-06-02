@@ -1,8 +1,8 @@
 # DESIGN.md — Sistema de Estilo ULTIMA MILLA S.A.
 
-Fuente visual: https://ultimamilla.com.ar/estilo  
-Fuente corporativa: https://ultimamilla.com.ar/estilo/skill.md  
-Fuente editorial blog: https://ultimamilla.com.ar/estilo/blog/blogskill.md  
+Fuente visual: https://www.ultimamilla.com.ar/estilo
+Fuente corporativa: https://www.ultimamilla.com.ar/estilo/skill.md
+Fuente editorial blog: https://www.ultimamilla.com.ar/estilo/blog/blogskill.md
 Version: 1.0  
 Fecha: Enero 2026  
 Aplicacion: DOCX, PDF, HTML, React, PPTX, XLSX, graficos y dashboards
@@ -609,7 +609,7 @@ wkhtmltopdf --page-size A4 \
 
 ## 14. Fuente De Verdad
 
-Este documento Markdown es la version operativa del Sistema de Estilo publicado en https://ultimamilla.com.ar/estilo.
+Este documento Markdown es la version operativa del Sistema de Estilo publicado en https://www.ultimamilla.com.ar/estilo.
 
 La fuente visual sigue siendo el manual interactivo de `/estilo`; este archivo se usa como referencia portable para agentes, automatizaciones y revisiones tecnicas.
 
@@ -621,9 +621,9 @@ Este `DESIGN.md` integra tres superficies publicadas bajo `/estilo`. Cada una cu
 
 | Fuente | Rol | Uso correcto |
 | --- | --- | --- |
-| `https://ultimamilla.com.ar/estilo` | Manual visual interactivo | Consultar identidad, paleta, componentes, previews y reglas de QA visual. |
-| `https://ultimamilla.com.ar/estilo/skill.md` | Skill corporativa UMSA | Generar documentos, DOCX, PDFs, dashboards, presentaciones, planillas y salidas visuales con identidad UMSA. |
-| `https://ultimamilla.com.ar/estilo/blog/blogskill.md` | Skill editorial del blog | Redactar, auditar y publicar notas del blog con voz UMSA, estructura didactica, investigacion y control anti-vicios. |
+| `https://www.ultimamilla.com.ar/estilo` | Manual visual interactivo | Consultar identidad, paleta, componentes, previews y reglas de QA visual. |
+| `https://www.ultimamilla.com.ar/estilo/skill.md` | Skill corporativa UMSA | Generar documentos, DOCX, PDFs, dashboards, presentaciones, planillas y salidas visuales con identidad UMSA. |
+| `https://www.ultimamilla.com.ar/estilo/blog/blogskill.md` | Skill editorial del blog | Redactar, auditar y publicar notas del blog con voz UMSA, estructura didactica, investigacion y control anti-vicios. |
 
 ### Precedencia
 
@@ -657,6 +657,6 @@ Este `DESIGN.md` integra tres superficies publicadas bajo `/estilo`. Cada una cu
 Cuando una automatizacion necesite una unica referencia portable:
 
 1. Leer este `DESIGN.md`.
-2. Si el output es visual, abrir tambien `https://ultimamilla.com.ar/estilo/skill.md`.
-3. Si el output es blog, abrir tambien `https://ultimamilla.com.ar/estilo/blog/blogskill.md`.
+2. Si el output es visual, abrir tambien `https://www.ultimamilla.com.ar/estilo/skill.md`.
+3. Si el output es blog, abrir tambien `https://www.ultimamilla.com.ar/estilo/blog/blogskill.md`.
 4. Validar el resultado contra el checklist de conformidad antes de entregar.

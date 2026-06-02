@@ -28,4 +28,4 @@ else
     echo "Por favor reinicia el proceso manualmente si tiene otro nombre."
 fi
 
-echo "✨ Despliegue finalizado. Verifica https://ultimamilla.com.ar/mineria"
+echo "✨ Despliegue finalizado. Verifica https://www.ultimamilla.com.ar/mineria"
