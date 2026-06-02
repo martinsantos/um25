@@ -95,16 +95,7 @@ jobs:
       - name: Add server to known hosts
         run: |
           mkdir -p ~/.ssh
-          for attempt in 1 2 3 4 5 6 7 8; do
-            echo "ssh-keyscan attempt $attempt/8"
-            if ssh-keyscan -T 60 -H 23.105.176.45 >> ~/.ssh/known_hosts; then
-              sort -u ~/.ssh/known_hosts -o ~/.ssh/known_hosts
-              exit 0
-            fi
-            sleep 30
-          done
-          echo "Unable to reach production SSH host for keyscan after 8 attempts"
-          exit 1
+          ssh-keyscan -H 23.105.176.45 >> ~/.ssh/known_hosts
 
       - name: Deploy to server via rsync
         run: |
@@ -142,10 +133,7 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ${{ env.DEPLOY_PATH }}
-            pm2 delete astro-app 2>/dev/null || true
-            pm2 delete astro-ultimamilla 2>/dev/null || true
-            pm2 start ecosystem.config.cjs
+            pm2 delete astro-ultimamilla 2>/dev/null; pm2 start ecosystem.config.cjs
             pm2 save
 
       - name: Health check
@@ -153,13 +141,21 @@ jobs:
           echo "Waiting 15s for app to start..."
           sleep 15
 
-          # Follow redirects with -L flag
-          HTTP_STATUS=$(curl -sL -o /dev/null -w "%{http_code}" https://www.ultimamilla.com.ar)
+          WWW_HEADERS=$(curl -4 -sSI --max-time 20 https://www.ultimamilla.com.ar/ || true)
+          APEX_HEADERS=$(curl -4 -sSI --max-time 20 https://ultimamilla.com.ar/ || true)
 
-          if [ "$HTTP_STATUS" == "200" ]; then
-            echo "✅ Health check passed (HTTP $HTTP_STATUS)"
+          echo "--- www headers ---"
+          echo "$WWW_HEADERS"
+          echo "--- apex headers ---"
+          echo "$APEX_HEADERS"
+
+          if echo "$WWW_HEADERS" | grep -Eq '^HTTP/[0-9.]+ 200' && \
+             ! echo "$WWW_HEADERS" | grep -Eiq '^location:' && \
+             echo "$APEX_HEADERS" | grep -Eq '^HTTP/[0-9.]+ 30(1|8)' && \
+             echo "$APEX_HEADERS" | grep -Eiq '^location: https://www\.ultimamilla\.com\.ar/'; then
+            echo "✅ Canonical health check passed: www serves 200 and apex redirects to www"
           else
-            echo "❌ Health check failed (HTTP $HTTP_STATUS)"
+            echo "❌ Canonical health check failed"
             exit 1
           fi
 
@@ -168,23 +164,21 @@ jobs:
           HOMEPAGE=$(curl -sL https://www.ultimamilla.com.ar)
           ERRORS=0
 
-          # 1. Visual assets can use Directus /assets/, local service images, or
-          #    the White Dossier upload-backed evidence/hero system.
+          # 1. Service images can use either Directus /assets/ URLs OR local /images/ paths
           DIRECTUS_IMGS=$(echo "$HOMEPAGE" | grep -oE 'src="/assets/[a-f0-9-]{36}[^"]*"' | wc -l)
           LOCAL_IMGS=$(echo "$HOMEPAGE" | grep -oE 'src="/images/services/[^"]*"' | wc -l)
-          UPLOAD_IMGS=$(echo "$HOMEPAGE" | grep -oE 'src="/uploads/(antecedentes|hero)/[^"]*"' | wc -l)
-          TOTAL_IMGS=$((DIRECTUS_IMGS + LOCAL_IMGS + UPLOAD_IMGS))
+          TOTAL_IMGS=$((DIRECTUS_IMGS + LOCAL_IMGS))
 
           if [ "$TOTAL_IMGS" -lt 4 ]; then
-            echo "❌ Only $TOTAL_IMGS visual images found (expected >= 4)"
-            echo "   Directus: $DIRECTUS_IMGS, Local services: $LOCAL_IMGS, Uploads: $UPLOAD_IMGS"
+            echo "❌ Only $TOTAL_IMGS service images found (expected >= 4)"
+            echo "   Directus: $DIRECTUS_IMGS, Local: $LOCAL_IMGS"
             ERRORS=$((ERRORS + 1))
           else
-            echo "✅ Visual images: $TOTAL_IMGS found (Directus: $DIRECTUS_IMGS, Local services: $LOCAL_IMGS, Uploads: $UPLOAD_IMGS)"
+            echo "✅ Service images: $TOTAL_IMGS found (Directus: $DIRECTUS_IMGS, Local: $LOCAL_IMGS)"
           fi
 
-          # 2. Hero section must render the approved White Dossier hero.
-          HERO_IMGS=$(echo "$HOMEPAGE" | grep -oE 'um-home-hero|um-hero-media|/uploads/hero/' | wc -l)
+          # 2. Hero section must have background images
+          HERO_IMGS=$(echo "$HOMEPAGE" | grep -oE 'hero-image' | wc -l)
           if [ "$HERO_IMGS" -lt 1 ]; then
             echo "❌ No hero images found"
             ERRORS=$((ERRORS + 1))
