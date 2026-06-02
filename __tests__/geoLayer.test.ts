@@ -186,8 +186,12 @@ describe('GEO layer', () => {
 
   test('keeps the shared footer crawler-friendly on GEO pages', () => {
     const footer = fs.readFileSync(path.join(repoRoot, 'src/components/v4/FooterV4.astro'), 'utf8');
+    const emailLink = fs.readFileSync(path.join(repoRoot, 'src/components/common/EmailLink.astro'), 'utf8');
 
-    expect(footer).toContain('href="/contacto"');
+    expect(footer).toContain("import EmailLink from '../common/EmailLink.astro'");
+    expect(footer).toContain('<EmailLink');
+    expect(emailLink).toContain("hrefFallback = '/contacto'");
+    expect(emailLink).toContain('href={hrefFallback}');
     expect(footer).not.toContain('href="mailto:contacto@ultimamilla.com.ar"');
   });
 });

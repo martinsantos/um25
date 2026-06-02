@@ -1,0 +1,67 @@
+---
+interface Props {
+  user?: string;
+  domain?: string;
+  subject?: string;
+  label?: string;
+  hrefFallback?: string;
+  class?: string;
+}
+
+const {
+  user = 'contacto',
+  domain = 'ultimamilla.com.ar',
+  subject = '',
+  label,
+  hrefFallback = '/contacto',
+  class: className = '',
+} = Astro.props;
+
+const hasSlot = Astro.slots.has('default');
+---
+
+<a
+  href={hrefFallback}
+  class:list={[className]}
+  data-um-email-link
+  data-email-user={user}
+  data-email-domain={domain}
+  data-email-subject={subject}
+  aria-label={`Escribir a ${user} arroba ${domain}`}
+>
+  {hasSlot ? (
+    <slot />
+  ) : label ? (
+    label
+  ) : (
+    <>
+      <span>{user}</span><span aria-hidden="true">&#64;</span><span>{domain}</span>
+    </>
+  )}
+</a>
+
+<script is:inline>
+  (() => {
+    if (window.__umEmailLinkReady) return;
+    window.__umEmailLinkReady = true;
+
+    const hydrateEmailLinks = () => {
+      document.querySelectorAll('[data-um-email-link]').forEach((link) => {
+        const user = link.getAttribute('data-email-user') || '';
+        const domain = link.getAttribute('data-email-domain') || '';
+        const subject = link.getAttribute('data-email-subject') || '';
+        if (!user || !domain) return;
+
+        const address = `${user}@${domain}`;
+        const query = subject ? `?subject=${encodeURIComponent(subject)}` : '';
+        link.setAttribute('href', `mailto:${address}${query}`);
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', hydrateEmailLinks, { once: true });
+    } else {
+      hydrateEmailLinks();
+    }
+  })();
+</script>
