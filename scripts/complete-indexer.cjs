@@ -9,7 +9,7 @@ const pool = new Pool({
     port: 5432,
 });
 
-const baseUrl = 'https://ultimamilla.com.ar';
+const baseUrl = 'https://www.ultimamilla.com.ar';
 const sitemap = [
     '/',
     '/servicios',

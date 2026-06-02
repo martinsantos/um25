@@ -158,7 +158,7 @@ async function main() {
     console.log('Next steps:');
     console.log('  1. Rebuild application: npm run build');
     console.log('  2. Redeploy to production');
-    console.log('  3. Verify at: https://ultimamilla.com.ar/servicios');
+    console.log('  3. Verify at: https://www.ultimamilla.com.ar/servicios');
     console.log('');
   } else if (successCount > 0) {
     console.log('⚠️  Some images uploaded but issues detected');

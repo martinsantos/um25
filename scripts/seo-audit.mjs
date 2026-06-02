@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const DEFAULT_BASE_URL = 'https://ultimamilla.com.ar';
-const DEFAULT_CANONICAL_BASE_URL = 'https://ultimamilla.com.ar';
+const DEFAULT_BASE_URL = 'https://www.ultimamilla.com.ar';
+const DEFAULT_CANONICAL_BASE_URL = 'https://www.ultimamilla.com.ar';
 
 const CORE_HTML_PATHS = ['/', '/servicios', '/antecedentes', '/blog', '/contacto', '/certificaciones'];
 const GEO_COMMERCIAL_HUB_PATHS = [
@@ -83,7 +83,7 @@ async function auditPage(baseUrl, canonicalBaseUrl, path, failures) {
   assert(description.length >= 70, `${path} meta description too short (${description.length})`, failures);
   assert(description.length <= 170, `${path} meta description too long (${description.length})`, failures);
   assert(canonical.startsWith(canonicalBaseUrl), `${path} canonical does not start with ${canonicalBaseUrl}: ${canonical}`, failures);
-  assert(!canonical.includes('://www.'), `${path} canonical leaks www: ${canonical}`, failures);
+  assert(!canonical.startsWith('https://ultimamilla.com.ar'), `${path} canonical leaks apex domain: ${canonical}`, failures);
   assert(robots.includes('index') || path === '/404', `${path} robots meta missing index directive`, failures);
   assert(ogImage.startsWith(canonicalBaseUrl), `${path} og:image is not absolute canonical URL: ${ogImage}`, failures);
   assert(jsonLdBlocks.length > 0, `${path} missing JSON-LD`, failures);
@@ -100,16 +100,16 @@ async function auditPage(baseUrl, canonicalBaseUrl, path, failures) {
 async function auditSitemap(baseUrl, canonicalBaseUrl, failures) {
   const robots = await fetchText(new URL('/robots.txt', baseUrl).toString(), failures);
   assert(robots.includes(`${canonicalBaseUrl}/sitemap-index.xml`), 'robots.txt does not point to canonical sitemap-index.xml', failures);
-  assert(!robots.includes('https://www.'), 'robots.txt leaks www URL', failures);
+  assert(!robots.includes('https://ultimamilla.com.ar'), 'robots.txt leaks apex URL', failures);
 
   const sitemapIndex = await fetchText(new URL('/sitemap-index.xml', baseUrl).toString(), failures);
   assert(sitemapIndex.includes('<sitemapindex'), 'sitemap-index.xml missing sitemapindex root', failures);
-  assert(!sitemapIndex.includes('https://www.'), 'sitemap-index.xml leaks www URL', failures);
+  assert(!sitemapIndex.includes('https://ultimamilla.com.ar'), 'sitemap-index.xml leaks apex URL', failures);
 
   const sitemap = await fetchText(new URL('/sitemap.xml', baseUrl).toString(), failures);
   assert(sitemap.includes('<urlset'), 'sitemap.xml missing urlset root', failures);
   assert(sitemap.includes(`${canonicalBaseUrl}/servicios`), 'sitemap.xml missing /servicios', failures);
-  assert(!sitemap.includes('https://www.'), 'sitemap.xml leaks www URL', failures);
+  assert(!sitemap.includes('https://ultimamilla.com.ar'), 'sitemap.xml leaks apex URL', failures);
 }
 
 async function auditGeoDiscovery(baseUrl, canonicalBaseUrl, failures) {
@@ -145,9 +145,9 @@ async function auditGeoDiscovery(baseUrl, canonicalBaseUrl, failures) {
     }
   }
 
-  assert(!llms.includes('https://www.'), 'llms.txt leaks www URL', failures);
-  assert(!llmsFull.includes('https://www.'), 'llms-full.txt leaks www URL', failures);
-  assert(!sitemapGeo.includes('https://www.'), 'sitemap-geo.xml leaks www URL', failures);
+  assert(!llms.includes('https://ultimamilla.com.ar'), 'llms.txt leaks apex URL', failures);
+  assert(!llmsFull.includes('https://ultimamilla.com.ar'), 'llms-full.txt leaks apex URL', failures);
+  assert(!sitemapGeo.includes('https://ultimamilla.com.ar'), 'sitemap-geo.xml leaks apex URL', failures);
 
   for (const resourcePath of GEO_RESOURCE_PATHS) {
     const body = await fetchText(new URL(resourcePath, baseUrl).toString(), failures);
@@ -158,7 +158,7 @@ async function auditGeoDiscovery(baseUrl, canonicalBaseUrl, failures) {
       assert(payload.canonicalDomain === canonicalBaseUrl, `${resourcePath} canonicalDomain is not ${canonicalBaseUrl}`, failures);
       assert(payload.language === 'es-AR', `${resourcePath} missing es-AR language marker`, failures);
       assert(JSON.stringify(payload).includes('ULTIMA MILLA'), `${resourcePath} missing brand signal`, failures);
-      assert(!JSON.stringify(payload).includes('https://www.'), `${resourcePath} leaks www URL`, failures);
+      assert(!JSON.stringify(payload).includes('https://ultimamilla.com.ar'), `${resourcePath} leaks apex URL`, failures);
     } catch (error) {
       failures.push(`${resourcePath} invalid JSON: ${error instanceof Error ? error.message : String(error)}`);
     }

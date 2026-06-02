@@ -11,7 +11,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const PUBLIC = join(ROOT, 'public');
 const LOCAL = process.env.REPLICA_LOCAL_URL || 'http://localhost:4321';
-const PROD = process.env.REPLICA_PROD_URL || 'https://ultimamilla.com.ar';
+const PROD = process.env.REPLICA_PROD_URL || 'https://www.ultimamilla.com.ar';
 const UUID_RE = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 
 const map = JSON.parse(readFileSync(join(ROOT, 'src/data/image-local-map.json'), 'utf-8'));

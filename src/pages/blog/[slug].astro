@@ -53,7 +53,7 @@ const idx = allRecent.findIndex(p => p.slug === slug);
 const prevPost = idx > 0 ? allRecent[idx - 1] : null;
 const nextPost = idx < allRecent.length - 1 ? allRecent[idx + 1] : null;
 
-const siteUrl = 'https://ultimamilla.com.ar';
+const siteUrl = 'https://www.ultimamilla.com.ar';
 const articleUrl = `${siteUrl}/blog/${slug}`;
 const wordCount = contentHtml.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
 

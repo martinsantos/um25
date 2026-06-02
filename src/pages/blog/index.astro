@@ -26,7 +26,7 @@ const heroExcerpt = hero?.resumen
   ? `${hero.resumen.substring(0, 190)}${hero.resumen.length > 190 ? '…' : ''}`
   : '';
 
-const siteUrl = 'https://ultimamilla.com.ar';
+const siteUrl = 'https://www.ultimamilla.com.ar';
 const canonicalUrl = page === 1 ? `${siteUrl}/blog` : `${siteUrl}/blog?page=${page}`;
 const prevUrl = page > 1 ? (page === 2 ? `${siteUrl}/blog` : `${siteUrl}/blog?page=${page - 1}`) : null;
 const nextUrl = page < totalPages ? `${siteUrl}/blog?page=${page + 1}` : null;

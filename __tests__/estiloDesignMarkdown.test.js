@@ -7,9 +7,9 @@ describe('estilo DESIGN.md publication', () => {
   test('documents the visual, corporate skill, and blog skill sources', () => {
     const design = fs.readFileSync(path.join(root, 'src/assets/estilo/DESIGN.md'), 'utf8');
 
-    expect(design).toContain('https://ultimamilla.com.ar/estilo');
-    expect(design).toContain('https://ultimamilla.com.ar/estilo/skill.md');
-    expect(design).toContain('https://ultimamilla.com.ar/estilo/blog/blogskill.md');
+    expect(design).toContain('https://www.ultimamilla.com.ar/estilo');
+    expect(design).toContain('https://www.ultimamilla.com.ar/estilo/skill.md');
+    expect(design).toContain('https://www.ultimamilla.com.ar/estilo/blog/blogskill.md');
     expect(design).toContain('## 15. Fuentes Operativas');
   });
 

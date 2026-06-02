@@ -11,11 +11,11 @@ const pool = new Pool({
 
 // URLs REALES a indexar profundamente
 const urls = [
-    'https://ultimamilla.com.ar/',
-    'https://ultimamilla.com.ar/servicios',
-    'https://ultimamilla.com.ar/antecedentes', 
-    'https://ultimamilla.com.ar/nosotros',
-    'https://ultimamilla.com.ar/contacto'
+    'https://www.ultimamilla.com.ar/',
+    'https://www.ultimamilla.com.ar/servicios',
+    'https://www.ultimamilla.com.ar/antecedentes',
+    'https://www.ultimamilla.com.ar/nosotros',
+    'https://www.ultimamilla.com.ar/contacto'
 ];
 
 function extractKeywords(text) {

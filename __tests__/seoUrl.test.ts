@@ -8,10 +8,10 @@ import {
 } from '../src/utils/seoUrl';
 
 describe('seoUrl helpers', () => {
-  test('normalizes canonicals to the non-www production domain', () => {
-    expect(stripWww('https://www.ultimamilla.com.ar/servicios')).toBe('https://ultimamilla.com.ar/servicios');
-    expect(canonicalUrl('/servicios/')).toBe('https://ultimamilla.com.ar/servicios');
-    expect(canonicalUrl('https://www.ultimamilla.com.ar/blog/nota/')).toBe('https://ultimamilla.com.ar/blog/nota');
+  test('normalizes canonicals to the www production domain', () => {
+    expect(stripWww('https://ultimamilla.com.ar/servicios')).toBe('https://www.ultimamilla.com.ar/servicios');
+    expect(canonicalUrl('/servicios/')).toBe('https://www.ultimamilla.com.ar/servicios');
+    expect(canonicalUrl('https://ultimamilla.com.ar/blog/nota/')).toBe('https://www.ultimamilla.com.ar/blog/nota');
   });
 
   test('escapes XML sitemap values', () => {
@@ -24,9 +24,9 @@ describe('seoUrl helpers', () => {
   });
 
   test('builds public image URLs for local paths and Directus UUIDs', () => {
-    expect(publicImageUrl('/images/og.jpg')).toBe('https://ultimamilla.com.ar/images/og.jpg');
+    expect(publicImageUrl('/images/og.jpg')).toBe('https://www.ultimamilla.com.ar/images/og.jpg');
     expect(publicImageUrl('371dc1b5-48d4-4b19-b60d-d884ad178c77')).toBe(
-      'https://ultimamilla.com.ar/assets/371dc1b5-48d4-4b19-b60d-d884ad178c77'
+      'https://www.ultimamilla.com.ar/assets/371dc1b5-48d4-4b19-b60d-d884ad178c77'
     );
   });
 

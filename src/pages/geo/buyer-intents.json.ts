@@ -1,8 +1,8 @@
 import type { APIRoute } from 'astro';
-import { getBuyerIntents } from '../../data/geoKnowledge';
+import { buildGeoResource } from '../../data/geoResources';
 
 export const GET: APIRoute = async () => {
-  return new Response(JSON.stringify({ buyerIntents: getBuyerIntents() }, null, 2), {
+  return new Response(JSON.stringify(buildGeoResource('buyer-intents'), null, 2), {
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
       'Cache-Control': 'public, max-age=3600',

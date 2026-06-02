@@ -1,9 +1,10 @@
 import { SITE_URL } from '../config/seo';
 
 const UUID_RE = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+const PUBLIC_SITE_RE = /^https?:\/\/(?:www\.)?ultimamilla\.com\.ar/i;
 
 export function stripWww(url: string): string {
-  return url.replace(/^https?:\/\/www\./, 'https://');
+  return url.replace(PUBLIC_SITE_RE, SITE_URL);
 }
 
 export function normalizePath(pathname: string): string {
