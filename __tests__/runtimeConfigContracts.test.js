@@ -2,6 +2,24 @@ const fs = require('fs');
 const path = require('path');
 
 describe('Production runtime configuration contracts', () => {
+  test('GitHub workflows opt JavaScript actions into Node 24 before runner deprecation', () => {
+    const workflowsDir = path.join(process.cwd(), '.github/workflows');
+    const workflowFiles = fs.readdirSync(workflowsDir)
+      .filter((file) => file.endsWith('.yml') || file.endsWith('.yaml'));
+
+    const workflowsUsingJavascriptActions = workflowFiles
+      .map((file) => ({
+        file,
+        source: fs.readFileSync(path.join(workflowsDir, file), 'utf8')
+      }))
+      .filter(({ source }) => source.includes('uses: actions/'));
+
+    expect(workflowsUsingJavascriptActions.length).toBeGreaterThan(0);
+    for (const { file, source } of workflowsUsingJavascriptActions) {
+      expect(source).toContain('FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true');
+    }
+  });
+
   test('Directus token resolution prefers PM2 runtime env over build-time public tokens', () => {
     const source = fs.readFileSync(path.join(process.cwd(), 'src/config/runtime.ts'), 'utf8');
     const fn = source.match(/export function getDirectusToken\(\): string \{([\s\S]*?)\n\}/)?.[1] || '';

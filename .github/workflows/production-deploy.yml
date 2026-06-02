@@ -11,6 +11,7 @@ on:
   workflow_dispatch:  # Allow manual triggers
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   NODE_VERSION: '18.x'
   DEPLOY_PATH: '/root/fumbling-field'
 
