@@ -1,6 +1,6 @@
 # Honestidad de contenido — auditoría 30 mayo 2026
 
-**Rama de trabajo:** `codex/umsa-white-dossier-local` (réplica local)  
+**Rama de trabajo:** `codex/umsa-white-dossier-local` (réplica local)
 **Regla:** no publicar ISO corporativas, logos de cliente ni métricas sin fuente en CMS/snapshot.
 
 ---

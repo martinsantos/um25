@@ -1,9 +1,9 @@
 # Informe de cierre — Nivel mundial UMSA (localhost)
 
-**Fecha:** 2026-05-29  
-**Proyecto:** `/Users/santosma/Projects/um25`  
-**Rama:** `codex/umsa-white-dossier-local`  
-**Base:** `http://localhost:4321`  
+**Fecha:** 2026-05-29
+**Proyecto:** `/Users/santosma/Projects/um25`
+**Rama:** `codex/umsa-white-dossier-local`
+**Base:** `http://localhost:4321`
 **Alcance:** solo maqueta local — sin deploy, push ni commits.
 
 ---

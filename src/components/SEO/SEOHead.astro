@@ -49,14 +49,13 @@ const {
 } = Astro.props;
 
 // ---------------------------------------------------------------------------
-// Normalise current URL — strip www. and trailing slash
+// Normalise current URL to the public canonical host and strip trailing slash.
 // ---------------------------------------------------------------------------
 const currentUrl = canonical
   ? toCanonicalUrl(canonical)
   : toCanonicalUrl(Astro.url.pathname);
 
 const pathname = Astro.url.pathname;
-const isEnglishPath = pathname === '/en' || pathname.startsWith('/en/');
 const spanishPath = resolveSpanishPath(pathname);
 const englishPath = resolveEnglishPath(pathname);
 const hreflangEsUrl = toCanonicalUrl(spanishPath);
@@ -334,6 +333,8 @@ const combinedSchema = {
 
   <!-- Sitemap Discovery -->
   <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
+  <link rel="alternate" type="text/plain" href="/llms.txt" title="ULTIMA MILLA LLM discovery" />
+  <link rel="alternate" type="application/json" href="/geo/brand-facts.json" title="ULTIMA MILLA GEO brand facts" />
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content={ogType} />

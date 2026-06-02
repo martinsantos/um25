@@ -205,16 +205,58 @@ export function sanitizeServiceBulletList(items: string[] = []): string[] {
 }
 
 /** CMS a veces entrega HTML con `**negrita**` sin parsear — lo normalizamos. */
+function htmlBlockFromLiteralMarkdown(text: string): string {
+  const clean = text.trim();
+  if (!clean) return '';
+
+  if (/^-\s+/.test(clean)) {
+    const items = clean
+      .replace(/^-\s+/, '')
+      .split(/\s+-\s+/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    if (items.length > 0) {
+      return `<ul>${items.map((item) => `<li>${item}</li>`).join('')}</ul>`;
+    }
+  }
+
+  return `<p>${clean}</p>`;
+}
+
+function fixLiteralMarkdownHeadingsInParagraph(inner: string): string {
+  if (!/\s##\s+/.test(inner)) return `<p>${inner}</p>`;
+
+  const headingRegex = /\s##\s+(.{1,140}?)(?=\s+(?:El|La|Los|Las|Un|Una|En|Si|Cuando|Cada|Zammad|FleetDM|OpenWISP|Caddy|ARCA|ENACOM|Grafana|PostGIS|LibreNMS|GitHub)\s+[a-záéíóúñ]|\s+-\s+<a\b|$)/g;
+  const blocks: string[] = [];
+  let cursor = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = headingRegex.exec(inner)) !== null) {
+    const before = inner.slice(cursor, match.index);
+    blocks.push(htmlBlockFromLiteralMarkdown(before));
+    blocks.push(`<h2>${match[1].trim()}</h2>`);
+    cursor = match.index + match[0].length;
+  }
+
+  blocks.push(htmlBlockFromLiteralMarkdown(inner.slice(cursor)));
+  return blocks.filter(Boolean).join('');
+}
+
 export function fixLiteralMarkdownInHtml(html: string): string {
   return String(html || '')
     .replace(/\*\*([^*<]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/(?<![\w/])__([^_<]+)__(?![\w/])/g, '<strong>$1</strong>');
+    .replace(/(?<![\w/])__([^_<]+)__(?![\w/])/g, '<strong>$1</strong>')
+    .replace(/<p>([\s\S]*?)<\/p>/gi, (_match, inner) => fixLiteralMarkdownHeadingsInParagraph(inner));
 }
 
 export async function markdownToHtml(markdown: string): Promise<string> {
   const cleaned = sanitizeEditorialText(markdown);
 
-  if (HTML_TAG_RE.test(cleaned)) {
+  const hasHtml = HTML_TAG_RE.test(cleaned);
+  const hasMarkdownBlocks = /(^|\n)\s{0,3}(#{1,6}\s+|[-*+]\s+|\d+\.\s+)/m.test(cleaned);
+
+  if (hasHtml && !hasMarkdownBlocks) {
     return fixLiteralMarkdownInHtml(cleaned);
   }
 

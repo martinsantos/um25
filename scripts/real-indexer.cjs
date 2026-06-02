@@ -13,7 +13,7 @@ const pool = new Pool({
 const urls = [
     'https://ultimamilla.com.ar/',
     'https://ultimamilla.com.ar/servicios',
-    'https://ultimamilla.com.ar/antecedentes', 
+    'https://ultimamilla.com.ar/antecedentes',
     'https://ultimamilla.com.ar/nosotros',
     'https://ultimamilla.com.ar/contacto'
 ];

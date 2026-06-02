@@ -806,7 +806,7 @@ ${this.getASCIILogo()}
    📍 Ciudad de Mendoza, Argentina
    ☎️  +54 261 555 0123
    📧 info@ultimamilla.com.ar
-   🌐 www.ultimamilla.com.ar
+   🌐 ultimamilla.com.ar
 
 💬 WHATSAPP COMERCIAL:
    📱 +54 261 555 0123

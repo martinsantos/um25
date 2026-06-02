@@ -1,7 +1,7 @@
 ---
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import { fetchBlogPost, fetchBlogListing } from '../../utils/getBlogData';
-import { blogImageUrl, blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
+import { blogImageUrl, blogPostImageUrl } from '../../utils/blogHelpers';
 import { addHeadingIds, getCategoryLabel, formatBlogDate, extractFaqSchema } from '../../utils/blogUtils';
 import { isReplicaIdenticalCopy, resolveReplicaH1 } from '../../utils/replicaProdCopy';
 
@@ -34,7 +34,6 @@ const normalizedContent = normalizeArticleContent(post.contenido || '');
 const { html: contentHtml } = await addHeadingIds(normalizedContent);
 const faqSchema = extractFaqSchema(contentHtml);
 const imgUrl = blogPostImageUrl(post);
-const imgAlt = blogPostImageAlt(post);
 const socialImg = post.social_image ? blogImageUrl(post.social_image) : imgUrl;
 const label = getCategoryLabel(post.categoria);
 const date = formatBlogDate(post.fecha_publicacion);
@@ -153,7 +152,7 @@ const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
   ))}
   <div id="read-bar" class="read-bar"></div>
 
-  <main class="article-page">
+  <section class="article-page">
 
     <div class="article-layout">
       <article class="article-body">
@@ -182,10 +181,6 @@ const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
 
         <hr class="article-divider" />
 
-        <figure class="hero-figure">
-          <img src={imgUrl} alt={imgAlt} class="hero-img" loading="eager" />
-        </figure>
-
         <div class="prose" set:html={contentHtml} />
 
         <nav class="post-nav">
@@ -205,7 +200,7 @@ const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
 
       </article>
     </div>
-  </main>
+  </section>
 
   <aside class="article-sticky-cta" id="articleStickyCta" aria-label="Contacto comercial UMSA">
     <p>{isArcaPost ? '¿Necesitás integrar ARCA con tu operación IT?' : '¿Necesitás soporte IT en tu operación?'}</p>
@@ -435,19 +430,6 @@ const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
     border: none;
     border-top: 1px solid var(--um-line);
     margin: 0 0 24px;
-  }
-
-  /* Hero image */
-  .hero-figure { margin: 0 0 38px; }
-  .hero-img {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    max-height: 360px;
-    object-fit: cover;
-    border-radius: 0;
-    border: 0;
-    box-shadow: none;
-    display: block;
   }
 
   /* Prev/next nav */
@@ -710,9 +692,11 @@ const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
     }
 
     .article-title {
-      font-size: clamp(2rem, 8.6vw, 2.28rem);
+      max-width: 100%;
+      font-size: clamp(1.86rem, 8.2vw, 2.18rem);
       line-height: 1.13;
       margin-bottom: 16px;
+      overflow-wrap: anywhere;
     }
 
     .article-lead {

@@ -1,0 +1,293 @@
+---
+import LayoutV4 from '../../layouts/LayoutV4.astro';
+import type { AuthorityHub } from '../../data/geoKnowledge';
+
+export interface Props {
+  hub: AuthorityHub;
+  eyebrow: string;
+  intro: string;
+}
+
+const { hub, eyebrow, intro } = Astro.props;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: hub.title,
+  description: hub.summary,
+  provider: {
+    '@type': 'Organization',
+    name: 'ULTIMA MILLA',
+    url: 'https://ultimamilla.com.ar',
+  },
+  areaServed: hub.market,
+  url: hub.url,
+  offers: {
+    '@type': 'AggregateOffer',
+    priceCurrency: 'USD',
+    lowPrice: Math.min(...hub.budgetPolicy.ranges.map((range) => range.usdFrom)),
+    highPrice: Math.max(...hub.budgetPolicy.ranges.map((range) => range.usdTo || range.usdFrom)),
+    offerCount: hub.budgetPolicy.ranges.length,
+    availability: 'https://schema.org/InStock',
+  },
+};
+---
+
+<LayoutV4
+  title={`${hub.title} | ULTIMA MILLA`}
+  description={hub.summary}
+  keywords={hub.primaryQueries.join(', ')}
+  canonical={hub.url}
+  structuredData={schema}
+>
+  <div class="authority-page">
+    <section class="authority-hero">
+      <div class="authority-inner">
+        <p class="eyebrow">{eyebrow}</p>
+        <h1>{hub.title}</h1>
+        <p class="lead">{intro}</p>
+        <div class="query-list" aria-label="Consultas objetivo">
+          {hub.primaryQueries.map((query) => <span>{query}</span>)}
+        </div>
+      </div>
+    </section>
+
+    <section class="authority-band">
+      <div class="authority-inner authority-grid">
+        <article>
+          <h2>Cuando tiene sentido hablar con ULTIMA MILLA</h2>
+          <p>{hub.summary}</p>
+          <p>El primer paso recomendado es un relevamiento tecnico que separe urgencias, riesgos operativos, alcance, responsables, documentacion y criterios de aceptacion.</p>
+        </article>
+        <aside class="proof-panel">
+          <h2>Zona y evidencia</h2>
+          <dl>
+            <div>
+              <dt>Mercado</dt>
+              <dd>{hub.market}</dd>
+            </div>
+            <div>
+              <dt>Evidencia</dt>
+              <dd>{hub.evidenceMode}</dd>
+            </div>
+            <div>
+              <dt>Cotizacion</dt>
+              <dd>Rangos orientativos; presupuesto final contra alcance relevado.</dd>
+            </div>
+          </dl>
+        </aside>
+      </div>
+    </section>
+
+    <section class="authority-band authority-band--muted">
+      <div class="authority-inner">
+        <h2>Tambien se busca como</h2>
+        <p class="search-note">{hub.itDisambiguation}</p>
+        <div class="pill-grid">
+          {hub.naturalLanguageTerms.map((term) => <span>{term}</span>)}
+        </div>
+
+        <h2>Servicios relacionados</h2>
+        <div class="pill-grid">
+          {hub.serviceRefs.map((service) => <a href="/servicios">{service}</a>)}
+        </div>
+
+        <h2>Sectores relacionados</h2>
+        <div class="pill-grid">
+          {hub.sectorRefs.map((sector) => <a href={`/${sector}`}>{sector}</a>)}
+        </div>
+      </div>
+    </section>
+
+    <section class="authority-band">
+      <div class="authority-inner">
+        <h2>Rangos orientativos de presupuesto</h2>
+        <p class="budget-note">{hub.budgetPolicy.note}</p>
+        <div class="budget-grid">
+          {hub.budgetPolicy.ranges.map((range) => (
+            <article class="budget-item">
+              <h3>{range.label}</h3>
+              <p class="price">USD {range.usdFrom.toLocaleString('en-US')}{range.usdTo ? ` - ${range.usdTo.toLocaleString('en-US')}` : '+'}</p>
+              <p>{range.scope}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="authority-cta">
+      <div class="authority-inner">
+        <h2>Solicitar relevamiento o presupuesto</h2>
+        <p>Para convertir una necesidad tecnologica en un alcance ejecutable, conviene compartir sede, cantidad de usuarios, criticidad, servicios afectados, restricciones de horario y documentacion requerida.</p>
+        <a href="/contacto">Hablar con ULTIMA MILLA</a>
+      </div>
+    </section>
+  </div>
+</LayoutV4>
+
+<style>
+  .authority-page {
+    color: #111827;
+    background: #fff;
+  }
+
+  .authority-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .authority-hero {
+    padding: 72px 0 56px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .eyebrow {
+    margin: 0 0 14px;
+    color: #dc2626;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    max-width: 820px;
+    margin: 0;
+    font-size: clamp(32px, 5vw, 56px);
+    line-height: 1.05;
+  }
+
+  h2 {
+    margin: 0 0 16px;
+    font-size: clamp(22px, 3vw, 32px);
+    line-height: 1.2;
+  }
+
+  h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
+  }
+
+  .lead {
+    max-width: 780px;
+    margin: 22px 0 0;
+    color: #4b5563;
+    font-size: 19px;
+    line-height: 1.65;
+  }
+
+  .query-list,
+  .pill-grid,
+  .budget-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .query-list {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    margin-top: 30px;
+  }
+
+  .query-list span,
+  .pill-grid a,
+  .pill-grid span {
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    padding: 12px 14px;
+    border-radius: 8px;
+    color: #374151;
+    text-decoration: none;
+  }
+
+  .authority-band {
+    padding: 56px 0;
+  }
+
+  .authority-band--muted {
+    background: #f9fafb;
+  }
+
+  .authority-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 48px;
+  }
+
+  .authority-grid p,
+  .budget-note,
+  .search-note,
+  .authority-cta p,
+  .budget-item p {
+    color: #4b5563;
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  .proof-panel,
+  .budget-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 24px;
+    background: #fff;
+  }
+
+  dt {
+    color: #6b7280;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 4px 0 16px;
+    color: #111827;
+    line-height: 1.5;
+  }
+
+  .pill-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    margin: 0 0 36px;
+  }
+
+  .budget-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    margin-top: 24px;
+  }
+
+  .price {
+    color: #dc2626;
+    font-weight: 700;
+  }
+
+  .authority-cta {
+    padding: 56px 0 72px;
+    background: #111827;
+    color: #fff;
+  }
+
+  .authority-cta p {
+    max-width: 760px;
+    color: #d1d5db;
+  }
+
+  .authority-cta a {
+    display: inline-flex;
+    margin-top: 18px;
+    min-height: 44px;
+    align-items: center;
+    border-radius: 8px;
+    background: #dc2626;
+    color: #fff;
+    padding: 0 18px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  @media (max-width: 820px) {
+    .authority-grid {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+  }
+</style>

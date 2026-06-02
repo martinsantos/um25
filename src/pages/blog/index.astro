@@ -69,7 +69,7 @@ const schema = {
     rel="stylesheet"
   />
 
-  <main class="blog-index">
+  <section class="blog-index">
     <div class="blog-container">
 
       <header class="blog-header">
@@ -135,7 +135,7 @@ const schema = {
       <BlogPagination page={page} totalPages={totalPages} baseHref="/blog" />
 
     </div>
-  </main>
+  </section>
 </LayoutV4>
 
 <style>
@@ -454,7 +454,7 @@ const schema = {
     }
 
     .blog-proofline div {
-      grid-template-columns: minmax(124px, max-content) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 124px) minmax(0, 1fr);
       align-items: baseline;
       gap: 12px;
       padding-top: 8px;
@@ -464,8 +464,8 @@ const schema = {
     .blog-proofline dt {
       letter-spacing: 0;
       text-transform: none;
-      white-space: nowrap;
-      overflow-wrap: normal;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
 
     .archive-head {

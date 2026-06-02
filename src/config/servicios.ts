@@ -35,4 +35,4 @@ export const servicios = [
         href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it',
         icon: 'headset'
     }
-]; 
+];

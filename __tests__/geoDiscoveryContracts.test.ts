@@ -35,7 +35,7 @@ const expectedCommercialHubs = [
 ];
 
 describe('GEO discovery and commercial hub contracts', () => {
-  test('exposes the complete GEO JSON resource set with non-www canonicals', () => {
+  test('exposes the complete GEO JSON resource set with apex canonicals', () => {
     expect(geoResourceNames).toEqual(expectedGeoResources);
 
     for (const resourceName of expectedGeoResources) {

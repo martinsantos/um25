@@ -8,7 +8,7 @@ import {
 } from '../src/utils/seoUrl';
 
 describe('seoUrl helpers', () => {
-  test('normalizes canonicals to the non-www production domain', () => {
+  test('normalizes canonicals to the apex production domain', () => {
     expect(stripWww('https://www.ultimamilla.com.ar/servicios')).toBe('https://ultimamilla.com.ar/servicios');
     expect(canonicalUrl('/servicios/')).toBe('https://ultimamilla.com.ar/servicios');
     expect(canonicalUrl('https://www.ultimamilla.com.ar/blog/nota/')).toBe('https://ultimamilla.com.ar/blog/nota');

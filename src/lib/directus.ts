@@ -1,4 +1,4 @@
-import { createDirectus, rest, readItems, readItem } from '@directus/sdk';
+import { createDirectus, rest, readItems, readItem, staticToken } from '@directus/sdk';
 import type {
   ServicioV4,
   ProductoV4,
@@ -35,7 +35,13 @@ if (!DIRECTUS_CONFIG.token && !isLocalProdReplica()) {
 
 // Exportar cliente con tipos para casos específicos
 export const getClient = () => {
-  return createDirectus<Colecciones>(DIRECTUS_CONFIG.url).with(rest());
+  const client = createDirectus<Colecciones>(DIRECTUS_CONFIG.url);
+
+  if (DIRECTUS_CONFIG.token) {
+    return client.with(staticToken(DIRECTUS_CONFIG.token)).with(rest());
+  }
+
+  return client.with(rest());
 };
 
 async function loadSnapshotData<T>(fileName: string): Promise<T[]> {
@@ -301,15 +307,13 @@ export async function getAntecedentesPorServicio(servicioId: number, limit: numb
           'servicios_relacionados.Servicios_id': { _eq: servicioId }
         },
         limit,
-        sort: ['-destacado', '-orden', '-Fecha', '-id'],
+        sort: ['-Fecha', '-id'],
         fields: [
           'id',
           'Titulo',
           'Descripcion',
           'Imagen',
-          'slug',
-          'destacado',
-          'orden'
+          'slug'
         ]
       })
     );
@@ -534,11 +538,9 @@ export async function getAllAntecedentes(): Promise<AntecedenteV4[]> {
           'Unidad_de_negocio',
           'Fecha',
           'Presupuesto',
-          'original_id',
-          'destacado',
-          'orden'
+          'original_id'
         ],
-        sort: ['-destacado', '-orden', '-Fecha', '-id'],
+        sort: ['-Fecha', '-id'],
         limit: -1
       })
     );
@@ -549,10 +551,7 @@ export async function getAllAntecedentes(): Promise<AntecedenteV4[]> {
     try {
       const snapshot = await import('../data/snapshots/antecedentes.json');
       const items = (snapshot.data || snapshot.default?.data || []) as AntecedenteV4[];
-      // Sort snapshot data the same way: destacados first, then by orden, then by date
       return items.sort((a, b) => {
-        if ((b.destacado ? 1 : 0) !== (a.destacado ? 1 : 0)) return (b.destacado ? 1 : 0) - (a.destacado ? 1 : 0);
-        if ((b.orden || 0) !== (a.orden || 0)) return (b.orden || 0) - (a.orden || 0);
         return (b.Fecha || '').localeCompare(a.Fecha || '');
       });
     } catch { return []; }

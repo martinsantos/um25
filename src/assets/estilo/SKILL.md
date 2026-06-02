@@ -15,7 +15,7 @@ description: "Sistema de identidad visual completo de ULTIMA MILLA S.A. Usar par
 | Razón social | ULTIMA MILLA S.A. |
 | Nombre comercial | UMSA |
 | CUIT | 30-71008591-5 |
-| Web | www.ultimamilla.com.ar |
+| Web | ultimamilla.com.ar |
 | Ciudad | Mendoza, Argentina |
 | Sector | Tecnología e Infraestructura Digital |
 | Signatario | Martín Santos — Presidente |
@@ -197,7 +197,7 @@ new Footer({ children: [
     border: { top: { style: BorderStyle.SINGLE, size: 4, color: 'DDDDDD', space: 4 } },
     spacing: { before: 80, after: 0 },
     children: [
-      new TextRun({ text: 'www.ultimamilla.com.ar', font: 'Poppins', size: 16, bold: true, color: 'DC2626' }),
+      new TextRun({ text: 'ultimamilla.com.ar', font: 'Poppins', size: 16, bold: true, color: 'DC2626' }),
       new TextRun({ text: '\t', font: 'Arial' }),
       new TextRun({ text: 'Referencia expediente  —  Pág. ', font: 'Arial', size: 15, color: '666666' }),
       new TextRun({ font: 'Arial', size: 15, color: '666666', children: [PageNumber.CURRENT] })

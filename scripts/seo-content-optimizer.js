@@ -82,7 +82,7 @@ const SEO_CONTENT = {
     direccion: "Buenos Aires, Argentina",
     telefono: "+54 11 XXXX-XXXX",
     email: "info@ultimamilla.com.ar",
-    sitio_web: "https://www.ultimamilla.com.ar"
+    sitio_web: "https://ultimamilla.com.ar"
   }
 };
 
@@ -250,8 +250,8 @@ async function createGlobalSEOConfig() {
   const seoConfig = {
     sitio_web: {
       nombre: "ULTIMA MILLA",
-      url_actual: "https://www.ultimamilla.com.ar",
-      url_final: "https://www.ultimamilla.com.ar",
+      url_actual: "https://ultimamilla.com.ar",
+      url_final: "https://ultimamilla.com.ar",
       descripcion: SEO_CONTENT.empresa.descripcion,
       keywords: SEO_CONTENT.empresa.keywords,
       meta_title: SEO_CONTENT.empresa.meta_title,
@@ -267,8 +267,8 @@ async function createGlobalSEOConfig() {
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "ULTIMA MILLA",
-      "url": "https://www.ultimamilla.com.ar",
-      "logo": "https://www.ultimamilla.com.ar/images/logo-ultima-milla.png",
+      "url": "https://ultimamilla.com.ar",
+      "logo": "https://ultimamilla.com.ar/images/logo-ultima-milla.png",
       "description": SEO_CONTENT.empresa.descripcion,
       "address": {
         "@type": "PostalAddress",
@@ -298,8 +298,8 @@ async function runSEOOptimization() {
   const report = {
     inicio: new Date().toISOString(),
     empresa: "ULTIMA MILLA",
-    url_actual: "https://www.ultimamilla.com.ar",
-    url_objetivo: "https://www.ultimamilla.com.ar",
+    url_actual: "https://ultimamilla.com.ar",
+    url_objetivo: "https://ultimamilla.com.ar",
     resultados: {}
   };
 

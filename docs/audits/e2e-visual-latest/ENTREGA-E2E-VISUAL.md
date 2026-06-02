@@ -1,8 +1,8 @@
 # Entrega E2E visual UMSA — gate unificado (localhost)
 
-**Fecha:** 29 mayo 2026  
-**Demo:** http://localhost:4321  
-**Rama:** `codex/umsa-white-dossier-local`  
+**Fecha:** 29 mayo 2026
+**Demo:** http://localhost:4321
+**Rama:** `codex/umsa-white-dossier-local`
 **Alcance:** localhost. Sin deploy, sin push, sin commits en esta entrega.
 
 ---

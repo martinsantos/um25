@@ -1,8 +1,8 @@
 # DESIGN.md — Sistema de Estilo ULTIMA MILLA S.A.
 
-Fuente visual: https://ultimamilla.com.ar/estilo  
-Fuente corporativa: https://ultimamilla.com.ar/estilo/skill.md  
-Fuente editorial blog: https://ultimamilla.com.ar/estilo/blog/blogskill.md  
+Fuente visual: https://ultimamilla.com.ar/estilo
+Fuente corporativa: https://ultimamilla.com.ar/estilo/skill.md
+Fuente editorial blog: https://ultimamilla.com.ar/estilo/blog/blogskill.md
 Version: 1.0  
 Fecha: Enero 2026  
 Aplicacion: DOCX, PDF, HTML, React, PPTX, XLSX, graficos y dashboards

@@ -302,12 +302,12 @@ describe('Information hub visual contracts', () => {
     expect(cssBlock(blogIndex, '.blog-header__feature-body')).toMatch(/min-height:\s*0;/);
   });
 
-  test('blog index mobile proofline keeps labels as single-line document fields', () => {
+  test('blog index mobile proofline wraps long evidence without viewport overflow', () => {
     const blogIndex = read('src/pages/blog/index.astro');
 
-    expect(blogIndex).toMatch(/\.blog-proofline div\s*\{[\s\S]*grid-template-columns:\s*minmax\(124px,\s*max-content\) minmax\(0,\s*1fr\);/);
-    expect(blogIndex).toMatch(/\.blog-proofline dt\s*\{[\s\S]*white-space:\s*nowrap;/);
-    expect(blogIndex).toMatch(/\.blog-proofline dt\s*\{[\s\S]*overflow-wrap:\s*normal;/);
+    expect(blogIndex).toMatch(/\.blog-proofline div\s*\{[\s\S]*grid-template-columns:\s*minmax\(0,\s*124px\) minmax\(0,\s*1fr\);/);
+    expect(blogIndex).toMatch(/\.blog-proofline dt\s*\{[\s\S]*white-space:\s*normal;/);
+    expect(blogIndex).toMatch(/\.blog-proofline dt\s*\{[\s\S]*overflow-wrap:\s*anywhere;/);
   });
 
   test('services mobile proofline avoids narrow three-column word breaks', () => {
@@ -319,9 +319,9 @@ describe('Information hub visual contracts', () => {
     expect(servicios).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-dossier__folio\s*\{[\s\S]*order:\s*1;/);
     expect(servicios).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-dossier__list\s*\{[\s\S]*order:\s*0;/);
     expect(servicios).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-hero__proofline\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
-    expect(servicios).toMatch(/\.services-hero__proofline div,[\s\S]*\.services-hero__proofline div \+ div\s*\{[\s\S]*grid-template-columns:\s*minmax\(96px,\s*max-content\) minmax\(0,\s*1fr\);/);
-    expect(servicios).toMatch(/\.services-hero__proofline dt\s*\{[\s\S]*white-space:\s*nowrap;/);
-    expect(servicios).toMatch(/\.services-hero__proofline dd\s*\{[\s\S]*overflow-wrap:\s*normal;/);
+    expect(servicios).toMatch(/\.services-hero__proofline div,[\s\S]*\.services-hero__proofline div \+ div\s*\{[\s\S]*grid-template-columns:\s*minmax\(0,\s*96px\) minmax\(0,\s*1fr\);/);
+    expect(servicios).toMatch(/\.services-hero__proofline dt\s*\{[\s\S]*white-space:\s*normal;/);
+    expect(servicios).toMatch(/\.services-hero__proofline dd\s*\{[\s\S]*overflow-wrap:\s*anywhere;/);
     expect(servicios).not.toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-hero__proofline\s*\{[\s\S]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
   });
 

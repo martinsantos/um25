@@ -721,7 +721,7 @@ drwxr-xr-x 2 um um  4096 dic  1 10:00 📂 equipo/
 • Certified AWS Solutions
 
 📞 CONTACTO:
-• Web: www.ultimamilla.com.ar
+• Web: ultimamilla.com.ar
 • Email: contacto@ultimamilla.com.ar
 • Tel: +54 261 xxx-xxxx
 
@@ -736,10 +736,10 @@ drwxr-xr-x 2 um um  4096 dic  1 10:00 📂 equipo/
 📞 INFORMACIÓN DE CONTACTO - ULTIMA MILLA
 
 🌐 SITIOS WEB:
-• Principal: https://www.ultimamilla.com.ar
-• Admin: https://www.ultimamilla.com.ar:8055
+• Principal: https://ultimamilla.com.ar
+• Admin: https://ultimamilla.com.ar:8055
 • SGI: https://www.sgi.ultimamilla.com.ar
-• CLI: https://www.ultimamilla.com.ar/cli
+• CLI: https://ultimamilla.com.ar/cli
 
 📧 EMAIL:
 • General: contacto@ultimamilla.com.ar
@@ -799,7 +799,7 @@ if __name__ == "__main__":
     um.demo()
 
 # 💡 Ejecuta: sudo python ultimamilla.py --demo
-# 🔧 Disponible en: www.ultimamilla.com.ar
+# 🔧 Disponible en: ultimamilla.com.ar
             `
         };
     }
@@ -833,7 +833,7 @@ de experiencia en desarrollo tecnológico.
 - Infraestructura: Docker + Nginx
 
 ## 📞 Contacto
-**Web:** www.ultimamilla.com.ar  
+**Web:** ultimamilla.com.ar
 **Email:** contacto@ultimamilla.com.ar
 
 ---
@@ -1166,7 +1166,7 @@ contacto "Tu mensaje aquí"
 
 📧 O contáctanos directamente:
 • Email: contacto@ultimamilla.com.ar
-• Web: www.ultimamilla.com.ar
+• Web: ultimamilla.com.ar
 • Tel: +54 261 xxx-xxxx
 
 🕒 Horarios de atención: Lun-Vie 9:00-18:00

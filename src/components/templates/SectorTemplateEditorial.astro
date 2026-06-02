@@ -1016,15 +1016,18 @@ const buildSectorIndexUrl = (slug: string) => slug ? `/sectores?sector=${encodeU
 
     .sector-editorial__market-rail {
       top: 64px;
+      max-width: 100%;
       box-shadow: 0 -6px 0 #fff;
       -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 28px), transparent 100%);
       mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 28px), transparent 100%);
     }
 
     .sector-editorial__market-links {
+      max-width: 100%;
       gap: 18px;
       padding-inline: 14px 42px;
       scroll-padding-inline: 14px 42px;
+      scrollbar-width: none;
     }
 
     .sector-editorial__market-links a {
