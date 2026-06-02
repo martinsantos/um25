@@ -39,6 +39,18 @@ describe('Production runtime configuration contracts', () => {
     expect(allWorkflows).toContain('actions/github-script@v8');
   });
 
+  test('GitHub workflows use a Node 24-compatible SSH agent action', () => {
+    const workflowsDir = path.join(process.cwd(), '.github/workflows');
+    const allWorkflows = fs.readdirSync(workflowsDir)
+      .filter((file) => file.endsWith('.yml') || file.endsWith('.yaml'))
+      .map((file) => fs.readFileSync(path.join(workflowsDir, file), 'utf8'))
+      .join('\n');
+
+    expect(allWorkflows).not.toContain('webfactory/ssh-agent@v0.9.0');
+    expect(allWorkflows).not.toContain('webfactory/ssh-agent@v0.9.1');
+    expect(allWorkflows).toContain('webfactory/ssh-agent@v0.10.0');
+  });
+
   test('Directus token resolution prefers PM2 runtime env over build-time public tokens', () => {
     const source = fs.readFileSync(path.join(process.cwd(), 'src/config/runtime.ts'), 'utf8');
     const fn = source.match(/export function getDirectusToken\(\): string \{([\s\S]*?)\n\}/)?.[1] || '';
