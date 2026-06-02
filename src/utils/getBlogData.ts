@@ -107,7 +107,11 @@ async function fetchPublicBlogPost(slug: string): Promise<EntradaBlog | null> {
     if (!title) return null;
 
     const lead = stripTags(html.match(/<p[^>]*class=["'][^"']*article-lead[^"']*["'][^>]*>([\s\S]*?)<\/p>/i)?.[1] || '');
-    const prose = html.match(/<div class=["']prose["'][^>]*>([\s\S]*?)<\/div>\s*<div class=["']tags-row/i)?.[1] || '';
+    const prose = (
+      html.match(
+        /<div class=["']prose["'][^>]*>([\s\S]*?)<\/div>\s*(?:<aside\b|<nav\b[^>]*class=["'][^"']*post-nav|<div\b[^>]*class=["'][^"']*tags-row|<\/article>)/i,
+      )?.[1] || ''
+    );
     const category = normalizeCategory(metaContent(html, 'article:section'));
     const tags = Array.from(html.matchAll(/<meta[^>]+property=["']article:tag["'][^>]+content=["']([^"']+)["']/gi)).map((match) => decodeHtml(match[1]));
     const image = metaContent(html, 'og:image');

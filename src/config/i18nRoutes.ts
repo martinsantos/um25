@@ -32,3 +32,13 @@ export function resolveEnglishPath(pathname: string): string {
   if (normalized.startsWith('/en')) return pathname;
   return `/en${normalized}`;
 }
+
+export function hasEnglishAlternate(pathname: string): boolean {
+  const normalized = pathname.endsWith('/') && pathname.length > 1
+    ? pathname.slice(0, -1)
+    : pathname;
+
+  if (normalized === '/') return true;
+  if (normalized.startsWith('/en')) return EN_TO_ES_PATH[normalized] !== undefined;
+  return Object.values(EN_TO_ES_PATH).includes(normalized);
+}
