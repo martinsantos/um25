@@ -12,12 +12,18 @@ describe('Production runtime configuration contracts', () => {
     expect(fn.indexOf("processEnv('DIRECTUS_ADMIN_TOKEN')")).toBeLessThan(fn.indexOf('import.meta.env?.DIRECTUS_ADMIN_TOKEN'));
   });
 
-  test('production smoke test accepts deployed local service visuals', () => {
+  test('production smoke test validates current theme content and Directus-backed collections', () => {
     const workflow = fs.readFileSync(path.join(process.cwd(), '.github/workflows/production-deploy.yml'), 'utf8');
 
-    expect(workflow).toContain('LOCAL_IMGS=');
-    expect(workflow).toContain('src="/images/services/[^"]*"');
-    expect(workflow).toContain('TOTAL_IMGS=$((DIRECTUS_IMGS + LOCAL_IMGS))');
+    expect(workflow).toContain('HOMEPAGE=$(curl -sL https://ultimamilla.com.ar)');
+    expect(workflow).toContain('BLOG=$(curl -sL https://ultimamilla.com.ar/blog)');
+    expect(workflow).toContain('ANTECEDENTES=$(curl -sL https://ultimamilla.com.ar/antecedentes)');
+    expect(workflow).toContain('grep -Eq');
+    expect(workflow).toContain('Homepage canonical points to apex domain');
+    expect(workflow).toContain('BLOG_LINKS=');
+    expect(workflow).toContain('ANTE_LINKS=');
+    expect(workflow).not.toContain('hero-image');
+    expect(workflow).not.toContain('TOTAL_IMGS=$((DIRECTUS_IMGS + LOCAL_IMGS))');
   });
 
   test('production health check matches the live apex canonical redirect policy', () => {
