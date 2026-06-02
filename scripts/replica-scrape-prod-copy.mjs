@@ -8,7 +8,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { E2E_DEFECT_PATHS } from './e2e-commercial-labels.mjs';
 
-const PROD = process.env.REPLICA_PROD_URL || 'https://www.ultimamilla.com.ar';
+const PROD = process.env.REPLICA_PROD_URL || 'https://ultimamilla.com.ar';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT = join(__dirname, '..', 'src', 'data', 'replica-prod-copy.json');
 

@@ -224,7 +224,7 @@ class BasicUMTerminal {
             <div class="contact-info">
                 <h3>📞 INFORMACIÓN DE CONTACTO</h3>
                 <p><strong>Email:</strong> info@ultimamilla.com</p>
-                <p><strong>Web:</strong> www.ultimamilla.com.ar</p>
+                <p><strong>Web:</strong> ultimamilla.com.ar</p>
                 <p><strong>Ubicación:</strong> Mendoza, Argentina</p>
                 <p><strong>Horarios:</strong> Lun-Vie 9:00-18:00</p>
                 <p>📧 Para consultas comerciales: contacto@ultimamilla.com</p>

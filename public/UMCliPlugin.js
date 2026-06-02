@@ -348,7 +348,7 @@ ${filteredResults.map((result, index) =>
    📍 Av. San Martín 1234, Ciudad de Mendoza
    ☎️  +54 261 123 4567
    📧 info@ultimamilla.com.ar
-   🌐 www.ultimamilla.com.ar
+   🌐 ultimamilla.com.ar
 
 💬 WHATSAPP COMERCIAL:
    📱 +54 261 123 4567

@@ -533,7 +533,7 @@ ${this.commandHistory.slice(0, 10).map((cmd, index) =>
    <a href="mailto:ventas@ultimamilla.com.ar" style="color: #00d4aa;">ventas@ultimamilla.com.ar</a>
 
 🌐 WEB:
-   <a href="https://www.ultimamilla.com.ar" target="_blank" style="color: #00d4aa;">www.ultimamilla.com.ar</a>
+   <a href="https://ultimamilla.com.ar" target="_blank" style="color: #00d4aa;">ultimamilla.com.ar</a>
 
 💼 HORARIOS DE ATENCIÓN:
    Lunes a Viernes: 9:00 - 18:00 hs

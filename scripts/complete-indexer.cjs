@@ -9,7 +9,7 @@ const pool = new Pool({
     port: 5432,
 });
 
-const baseUrl = 'https://www.ultimamilla.com.ar';
+const baseUrl = 'https://ultimamilla.com.ar';
 const sitemap = [
     '/',
     '/servicios',
@@ -199,7 +199,7 @@ async function extractEnrichedContent(url, type) {
         // Metadatos para email
         const emailData = {
             subject: `Información sobre: ${title}`,
-            body: `Hola,\n\nTe envío información sobre ${title}:\n\n${cleanContent.slice(0, 800)}...\n\nPuedes ver más detalles en: ${url}\n\nSaludos,\nEquipo Ultima Milla\nwww.ultimamilla.com.ar`,
+            body: `Hola,\n\nTe envío información sobre ${title}:\n\n${cleanContent.slice(0, 800)}...\n\nPuedes ver más detalles en: ${url}\n\nSaludos,\nEquipo Ultima Milla\nultimamilla.com.ar`,
             url: url,
             image: mainImage,
             client: cliente

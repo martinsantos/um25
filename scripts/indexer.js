@@ -11,10 +11,10 @@ const pool = new Pool({
 });
 
 const urls = [
-    { url: 'https://www.ultimamilla.com.ar/servicios', category: 'servicio' },
-    { url: 'https://www.ultimamilla.com.ar/antecedentes', category: 'antecedente' },
-    { url: 'https://www.ultimamilla.com.ar/nosotros', category: 'empresa' },
-    { url: 'https://www.ultimamilla.com.ar/', category: 'inicio' }
+    { url: 'https://ultimamilla.com.ar/servicios', category: 'servicio' },
+    { url: 'https://ultimamilla.com.ar/antecedentes', category: 'antecedente' },
+    { url: 'https://ultimamilla.com.ar/nosotros', category: 'empresa' },
+    { url: 'https://ultimamilla.com.ar/', category: 'inicio' }
 ];
 
 function extractKeywords(text) {
