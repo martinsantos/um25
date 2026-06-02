@@ -128,12 +128,24 @@ jobs:
 
       - name: Restart PM2 process
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_FROM: ${{ secrets.SMTP_FROM }}
         with:
           host: 23.105.176.45
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: SMTP_HOST,SMTP_PORT,SMTP_USER,SMTP_PASS,SMTP_FROM
           script: |
             cd ${{ env.DEPLOY_PATH }}
+            export SMTP_HOST="$SMTP_HOST"
+            export SMTP_PORT="$SMTP_PORT"
+            export SMTP_USER="$SMTP_USER"
+            export SMTP_PASS="$SMTP_PASS"
+            export SMTP_FROM="$SMTP_FROM"
             pm2 startOrRestart ecosystem.config.cjs --only astro-ultimamilla --update-env
             pm2 save
 

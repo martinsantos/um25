@@ -9,18 +9,37 @@ const MESSAGE_MIN_LENGTH = 12;
 const MESSAGE_MAX_LENGTH = 2400;
 const MAX_LINKS = 2;
 
-const transporter = nodemailer.createTransport({
-  host: import.meta.env.SMTP_HOST,
-  port: parseInt(import.meta.env.SMTP_PORT),
-  secure: false,
-  auth: {
-    user: import.meta.env.SMTP_USER,
-    pass: import.meta.env.SMTP_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false
+function processEnv(name: string): string | undefined {
+  return typeof process !== 'undefined' ? process.env[name] : undefined;
+}
+
+function envValue(name: string): string {
+  return processEnv(name) || import.meta.env?.[name] || '';
+}
+
+function createTransporter() {
+  const host = envValue('SMTP_HOST');
+  const port = Number(envValue('SMTP_PORT'));
+  const user = envValue('SMTP_USER');
+  const pass = envValue('SMTP_PASS');
+
+  if (!host || !Number.isFinite(port) || !user || !pass) {
+    throw new Error('SMTP configuration is incomplete');
   }
-});
+
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,
+    auth: {
+      user,
+      pass,
+    },
+    tls: {
+      rejectUnauthorized: false
+    }
+  });
+}
 
 function jsonResponse(body: Record<string, unknown>, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -254,8 +273,10 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       ip: clientIP
     };
 
-    await transporter.sendMail({
-      from: '"ULTIMA MILLA web" <martin@ultimamilla.com.ar>',
+    const fromAddress = envValue('SMTP_FROM') || 'martin@ultimamilla.com.ar';
+
+    await createTransporter().sendMail({
+      from: `"ULTIMA MILLA web" <${fromAddress}>`,
       to: 'martin@ultimamilla.com.ar',
       replyTo: sanitizedData.email,
       subject: `Consulta web UMSA: ${sanitizedData.company || sanitizedData.name}`,
@@ -266,7 +287,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       success: true,
       message: 'Mensaje enviado exitosamente. Te contactaremos pronto.'
     });
-  } catch {
+  } catch (error) {
+    console.error('[contact] Failed to send contact email:', error instanceof Error ? error.message : 'unknown error');
     return jsonResponse({
       success: false,
       message: 'Error interno del servidor. Intenta nuevamente o contacta por email.'
