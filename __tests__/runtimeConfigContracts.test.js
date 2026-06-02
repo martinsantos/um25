@@ -37,7 +37,10 @@ describe('Production runtime configuration contracts', () => {
     expect(workflow).toContain('SMTP_PORT: ${{ secrets.SMTP_PORT }}');
     expect(workflow).toContain('SMTP_USER: ${{ secrets.SMTP_USER }}');
     expect(workflow).toContain('SMTP_PASS: ${{ secrets.SMTP_PASS }}');
-    expect(workflow).toContain('envs: SMTP_HOST,SMTP_PORT,SMTP_USER,SMTP_PASS,SMTP_FROM');
+    expect(workflow).toContain("export SMTP_HOST='${{ secrets.SMTP_HOST }}'");
+    expect(workflow).toContain("export SMTP_PORT='${{ secrets.SMTP_PORT }}'");
+    expect(workflow).toContain("export SMTP_USER='${{ secrets.SMTP_USER }}'");
+    expect(workflow).toContain("export SMTP_PASS='${{ secrets.SMTP_PASS }}'");
     expect(workflow).toContain('pm2 startOrRestart ecosystem.config.cjs --only astro-ultimamilla --update-env');
   });
 });
