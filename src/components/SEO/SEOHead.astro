@@ -56,7 +56,6 @@ const currentUrl = canonical
   : toCanonicalUrl(Astro.url.pathname);
 
 const pathname = Astro.url.pathname;
-const isEnglishPath = pathname === '/en' || pathname.startsWith('/en/');
 const spanishPath = resolveSpanishPath(pathname);
 const englishPath = resolveEnglishPath(pathname);
 const hreflangEsUrl = toCanonicalUrl(spanishPath);

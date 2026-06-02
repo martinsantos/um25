@@ -43,27 +43,34 @@ export async function addHeadingIds(content: string): Promise<{
   headings: Array<{ level: number; id: string; text: string }>;
 }> {
   const normalized = stripMarketingFluff(sanitizeEditorialText(content));
-  const html = (await markdownToHtml(normalized))
+  const html = fixLiteralMarkdownInHtml((await markdownToHtml(normalized))
     .replace(/<h1([^>]*)>/gi, '<h2$1>')
-    .replace(/<\/h1>/gi, '</h2>');
+    .replace(/<\/h1>/gi, '</h2>'));
 
   const headings: Array<{ level: number; id: string; text: string }> = [];
+  const usedIds = new Map<string, number>();
 
-  const processed = fixLiteralMarkdownInHtml(
-    html.replace(
-      /<h([2-4])([^>]*)>(.*?)<\/h[2-4]>/gi,
-      (_match, level, attrs, inner) => {
-        const plainText = inner.replace(/<[^>]+>/g, '');
-        const id = plainText
-          .toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/^-|-$/g, '');
-        headings.push({ level: Number(level), id, text: plainText });
-        return `<h${level}${attrs} id="${id}">${inner}</h${level}>`;
-      },
-    ),
+  const processed = html.replace(
+    /<h([2-4])([^>]*)>([\s\S]*?)<\/h\1>/gi,
+    (_match, level, attrs, inner) => {
+      const plainText = inner.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+      if (!plainText) return _match;
+
+      const baseId = plainText
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')
+        .slice(0, 80) || 'seccion';
+      const count = usedIds.get(baseId) || 0;
+      usedIds.set(baseId, count + 1);
+      const id = count > 0 ? `${baseId}-${count + 1}` : baseId;
+      const cleanAttrs = String(attrs || '').replace(/\s+id=(["']).*?\1/gi, '');
+
+      headings.push({ level: Number(level), id, text: plainText });
+      return `<h${level}${cleanAttrs} id="${id}">${inner}</h${level}>`;
+    },
   );
 
   return { html: processed, headings };

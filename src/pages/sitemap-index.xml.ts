@@ -13,7 +13,7 @@ function generateSitemapIndexXml(): string {
         <lastmod>${today}</lastmod>
     </sitemap>
     
-    <!-- Sitemap con todos los antecedentes (469 URLs) -->
+    <!-- Sitemap con todos los antecedentes publicados -->
     <sitemap>
         <loc>${escapeXml(`${SITE_URL}/sitemap-antecedentes.xml`)}</loc>
         <lastmod>${today}</lastmod>

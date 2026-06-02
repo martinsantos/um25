@@ -2,8 +2,35 @@
 // Endpoint de health check para monitoreo y zero-downtime deployment
 
 import type { APIRoute } from 'astro';
+import { getDirectusInternalUrl } from '../config/runtime';
 
-export const GET: APIRoute = async ({ request }) => {
+async function checkDirectus(startTime: number) {
+  const directusUrl = getDirectusInternalUrl();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const directusResponse = await fetch(`${directusUrl}/server/ping`, {
+      method: 'GET',
+      signal: controller.signal,
+    });
+
+    return {
+      status: directusResponse.ok ? 'healthy' : 'unhealthy',
+      responseTime: Date.now() - startTime,
+    };
+  } catch (error) {
+    return {
+      status: 'unhealthy',
+      error: error instanceof Error ? error.message : 'unknown error',
+      responseTime: Date.now() - startTime,
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export const GET: APIRoute = async () => {
   const startTime = Date.now();
   
   // Health check básico
@@ -19,28 +46,7 @@ export const GET: APIRoute = async ({ request }) => {
 
   // Verificaciones adicionales en producción
   if (process.env.NODE_ENV === 'production') {
-    try {
-      // Verificar conexión a Directus
-      const directusUrl = process.env.PUBLIC_DIRECTUS_URL || 'http://directus-app:8055';
-      const directusHealthUrl = `${directusUrl}/server/health`;
-      
-      const directusResponse = await fetch(directusHealthUrl, {
-        method: 'GET',
-        timeout: 5000, // 5 segundos timeout
-      });
-      
-      healthData.directus = {
-        status: directusResponse.ok ? 'healthy' : 'unhealthy',
-        responseTime: Date.now() - startTime,
-      };
-      
-    } catch (error) {
-      healthData.directus = {
-        status: 'unhealthy',
-        error: error.message,
-        responseTime: Date.now() - startTime,
-      };
-    }
+    healthData.directus = await checkDirectus(startTime);
   }
 
   // Verificar memoria

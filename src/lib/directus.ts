@@ -1,4 +1,4 @@
-import { createDirectus, rest, readItems, readItem } from '@directus/sdk';
+import { createDirectus, rest, readItems, readItem, staticToken } from '@directus/sdk';
 import type {
   ServicioV4,
   ProductoV4,
@@ -35,7 +35,13 @@ if (!DIRECTUS_CONFIG.token && !isLocalProdReplica()) {
 
 // Exportar cliente con tipos para casos específicos
 export const getClient = () => {
-  return createDirectus<Colecciones>(DIRECTUS_CONFIG.url).with(rest());
+  const client = createDirectus<Colecciones>(DIRECTUS_CONFIG.url);
+
+  if (DIRECTUS_CONFIG.token) {
+    return client.with(staticToken(DIRECTUS_CONFIG.token)).with(rest());
+  }
+
+  return client.with(rest());
 };
 
 async function loadSnapshotData<T>(fileName: string): Promise<T[]> {

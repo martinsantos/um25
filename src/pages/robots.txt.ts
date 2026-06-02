@@ -1,13 +1,15 @@
 import type { APIRoute } from 'astro';
-import { AI_CRAWLERS } from '../data/geoKnowledge';
 import { SITE_URL } from '../config/seo';
+import { AI_CRAWLERS } from '../data/geoKnowledge';
+
+const geoAllow = `Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /geo/
+Allow: /sitemap-geo.xml`;
 
 export const GET: APIRoute = async () => {
     const aiCrawlerRules = AI_CRAWLERS.map((crawler) => `User-agent: ${crawler}
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /geo/
-Allow: /sitemap-geo.xml`).join('\n\n');
+${geoAllow}`).join('\n\n');
 
     const robotsTxt = `# robots.txt — ultimamilla.com.ar
 
@@ -23,10 +25,7 @@ Disallow: /_sectores
 Disallow: /_cli-mobile
 Disallow: /_test-components-v4
 
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /geo/
-Allow: /sitemap-geo.xml
+${geoAllow}
 
 # AI and LLM discovery resources
 ${aiCrawlerRules}
