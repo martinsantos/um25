@@ -175,8 +175,8 @@ export async function getAntecedentesForSector(
     const client = getClient();
     const allAntecedentes = await client.request(
       readItems('Antecedentes', {
-        fields: ['id', 'Titulo', 'Cliente', 'Descripcion', 'Area', 'Imagen', 'Fecha', 'Unidad_de_negocio', 'destacado', 'orden'],
-        sort: ['-destacado', '-orden', '-Fecha', '-id'],
+        fields: ['id', 'Titulo', 'Cliente', 'Descripcion', 'Area', 'Imagen', 'Fecha', 'Unidad_de_negocio'],
+        sort: ['-Fecha', '-id'],
         limit: 500
       })
     );
