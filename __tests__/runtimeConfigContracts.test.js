@@ -20,6 +20,25 @@ describe('Production runtime configuration contracts', () => {
     }
   });
 
+  test('GitHub workflows use official actions releases that target Node 24', () => {
+    const workflowsDir = path.join(process.cwd(), '.github/workflows');
+    const allWorkflows = fs.readdirSync(workflowsDir)
+      .filter((file) => file.endsWith('.yml') || file.endsWith('.yaml'))
+      .map((file) => fs.readFileSync(path.join(workflowsDir, file), 'utf8'))
+      .join('\n');
+
+    expect(allWorkflows).not.toContain('actions/checkout@v4');
+    expect(allWorkflows).not.toContain('actions/setup-node@v4');
+    expect(allWorkflows).not.toContain('actions/upload-artifact@v4');
+    expect(allWorkflows).not.toContain('actions/download-artifact@v4');
+    expect(allWorkflows).not.toContain('actions/github-script@v7');
+    expect(allWorkflows).toContain('actions/checkout@v6');
+    expect(allWorkflows).toContain('actions/setup-node@v6');
+    expect(allWorkflows).toContain('actions/upload-artifact@v7');
+    expect(allWorkflows).toContain('actions/download-artifact@v8');
+    expect(allWorkflows).toContain('actions/github-script@v8');
+  });
+
   test('Directus token resolution prefers PM2 runtime env over build-time public tokens', () => {
     const source = fs.readFileSync(path.join(process.cwd(), 'src/config/runtime.ts'), 'utf8');
     const fn = source.match(/export function getDirectusToken\(\): string \{([\s\S]*?)\n\}/)?.[1] || '';
