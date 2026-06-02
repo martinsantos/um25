@@ -118,7 +118,7 @@ function formatResults(directusData: {antecedentes: DirectusItem[], servicios: D
         
         // SOLO incluir si tenemos el slug verificado, sino NO generar URL falsa
         if (knownSlug) {
-            const realUrl = `https://www.ultimamilla.com.ar/antecedentes/${antecedente.id}/${knownSlug}`;
+            const realUrl = `https://ultimamilla.com.ar/antecedentes/${antecedente.id}/${knownSlug}`;
             
             results.push({
                 id: antecedente.id,
@@ -144,7 +144,7 @@ function formatResults(directusData: {antecedentes: DirectusItem[], servicios: D
                 client: antecedente.client || null,
                 image: null,
                 email_link: `/api/cli/email?type=antecedente&id=${antecedente.id}`,
-                mailto_link: `mailto:?subject=${encodeURIComponent(`Consulta sobre: ${antecedente.title}`)}&body=${encodeURIComponent(`Hola,\n\nMe interesa conocer más sobre el proyecto: ${antecedente.title}\n\nMás información en: https://www.ultimamilla.com.ar/antecedentes\n\nSaludos cordiales`)}`
+                mailto_link: `mailto:?subject=${encodeURIComponent(`Consulta sobre: ${antecedente.title}`)}&body=${encodeURIComponent(`Hola,\n\nMe interesa conocer más sobre el proyecto: ${antecedente.title}\n\nMás información en: https://ultimamilla.com.ar/antecedentes\n\nSaludos cordiales`)}`
             });
         }
     });
@@ -154,7 +154,7 @@ function formatResults(directusData: {antecedentes: DirectusItem[], servicios: D
         const knownSlug = knownValidUrls[servicio.id.toString()];
         
         if (knownSlug) {
-            const realUrl = `https://www.ultimamilla.com.ar/servicios/${servicio.id}/${knownSlug}`;
+            const realUrl = `https://ultimamilla.com.ar/servicios/${servicio.id}/${knownSlug}`;
             
             results.push({
                 id: servicio.id,
@@ -180,7 +180,7 @@ function formatResults(directusData: {antecedentes: DirectusItem[], servicios: D
                 client: null,
                 image: null,
                 email_link: `/api/cli/email?type=servicio&id=${servicio.id}`,
-                mailto_link: `mailto:?subject=${encodeURIComponent(`Consulta sobre servicio: ${servicio.title}`)}&body=${encodeURIComponent(`Hola,\n\nMe interesa contratar el servicio: ${servicio.title}\n\nMás información en: https://www.ultimamilla.com.ar/servicios\n\nAguardo su contacto`)}`
+                mailto_link: `mailto:?subject=${encodeURIComponent(`Consulta sobre servicio: ${servicio.title}`)}&body=${encodeURIComponent(`Hola,\n\nMe interesa contratar el servicio: ${servicio.title}\n\nMás información en: https://ultimamilla.com.ar/servicios\n\nAguardo su contacto`)}`
             });
         }
     });

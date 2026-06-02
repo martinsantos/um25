@@ -128,7 +128,7 @@ export const MOCK_POSTS: EntradaBlog[] = [
 <h2>Cómo Empezar: Tres Caminos</h2>
 <h3>Opción 1: Online (5 minutos, sin instalar)</h3>
 <p>La demo corre en nuestro servidor. Cargas datos, presionas botón, descargas PDF.</p>
-<p><strong><a href="https://www.ultimamilla.com.ar/plantilla-arca/">👉 Probá Plantilla ARCA online →</a></strong></p>
+<p><strong><a href="https://ultimamilla.com.ar/plantilla-arca/">👉 Probá Plantilla ARCA online →</a></strong></p>
 
 <h3>Opción 2: Docker Local (15 minutos, para producción)</h3>
 <p>Clonas, levantas con Docker, tenés todo en tu máquina.</p>
@@ -157,7 +157,7 @@ docker-compose up
 
 <h2>Links Útiles y Recursos</h2>
 <ul>
-<li><strong>Herramienta online (demo):</strong> https://www.ultimamilla.com.ar/plantilla-arca/</li>
+<li><strong>Herramienta online (demo):</strong> https://ultimamilla.com.ar/plantilla-arca/</li>
 <li><strong>GitHub (código fuente, MIT):</strong> https://github.com/UltimaMilla/plantilla-arca</li>
 <li><strong>AFIP Web Services (oficial):</strong> https://www.afip.gob.ar/ws/</li>
 <li><strong>Solicitar certificado AFIP:</strong> https://www.afip.gob.ar/administracion/</li>

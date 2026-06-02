@@ -9,7 +9,7 @@ class UMCompleteIndexer {
     constructor() {
         this.directusUrl = 'http://localhost:8055';
         this.token = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
-        this.baseUrl = 'https://www.ultimamilla.com.ar';
+        this.baseUrl = 'https://ultimamilla.com.ar';
         this.stats = {
             antecedentes: 0,
             servicios: 0,

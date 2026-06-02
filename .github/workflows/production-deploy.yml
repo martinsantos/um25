@@ -67,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: https://www.ultimamilla.com.ar
+      url: https://ultimamilla.com.ar
 
     steps:
       - name: Checkout code
@@ -154,19 +154,19 @@ jobs:
           echo "Waiting 15s for app to start..."
           sleep 15
 
-          WWW_CHECK=$(curl -4 -sS -o /dev/null --max-time 20 \
-            -w "%{http_code} %{redirect_url}" \
-            https://www.ultimamilla.com.ar/ || true)
           APEX_CHECK=$(curl -4 -sS -o /dev/null --max-time 20 \
             -w "%{http_code} %{redirect_url}" \
             https://ultimamilla.com.ar/ || true)
+          WWW_CHECK=$(curl -4 -sS -o /dev/null --max-time 20 \
+            -w "%{http_code} %{redirect_url}" \
+            https://www.ultimamilla.com.ar/ || true)
 
-          echo "www check: $WWW_CHECK"
           echo "apex check: $APEX_CHECK"
+          echo "www check: $WWW_CHECK"
 
-          if echo "$WWW_CHECK" | grep -Eq '^200[[:space:]]*$' && \
-             echo "$APEX_CHECK" | grep -Eq '^30(1|8)[[:space:]]+https://www\.ultimamilla\.com\.ar/'; then
-            echo "✅ Canonical health check passed: www serves 200 and apex redirects to www"
+          if echo "$APEX_CHECK" | grep -Eq '^200[[:space:]]*$' && \
+             echo "$WWW_CHECK" | grep -Eq '^30(1|8)[[:space:]]+https://ultimamilla\.com\.ar/'; then
+            echo "✅ Canonical health check passed: apex serves 200 and www redirects to apex"
           else
             echo "❌ Canonical health check failed"
             exit 1
@@ -174,7 +174,7 @@ jobs:
 
       - name: Smoke test - verify content integrity
         run: |
-          HOMEPAGE=$(curl -sL https://www.ultimamilla.com.ar)
+          HOMEPAGE=$(curl -sL https://ultimamilla.com.ar)
           ERRORS=0
 
           # 1. Service images can use either Directus /assets/ URLs OR local /images/ paths
@@ -252,5 +252,5 @@ jobs:
       - name: Verify rollback
         run: |
           sleep 10
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://www.ultimamilla.com.ar)
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://ultimamilla.com.ar)
           echo "Rollback health check: HTTP $HTTP_STATUS"

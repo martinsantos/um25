@@ -27,7 +27,7 @@ child.on('close', (code) => {
     console.log('Descargando imágenes desde producción (solo GET)…\n');
     const img = spawn('node', ['scripts/replica-download-images.mjs'], {
       stdio: 'inherit',
-      env: { ...process.env, REPLICA_PROD_URL: process.env.REPLICA_PROD_URL || 'https://www.ultimamilla.com.ar' },
+      env: { ...process.env, REPLICA_PROD_URL: process.env.REPLICA_PROD_URL || 'https://ultimamilla.com.ar' },
     });
     img.on('close', (imgCode) => process.exit(imgCode ?? 1));
     return;

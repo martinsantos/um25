@@ -5,7 +5,7 @@
  */
 import { E2E_DEFECT_PATHS } from './e2e-commercial-labels.mjs';
 
-const PROD = process.env.REPLICA_PROD_URL || 'https://www.ultimamilla.com.ar';
+const PROD = process.env.REPLICA_PROD_URL || 'https://ultimamilla.com.ar';
 const LOCAL = process.env.REPLICA_LOCAL_URL || 'http://localhost:4321';
 const paths = process.argv.length > 2 ? process.argv.slice(2) : E2E_DEFECT_PATHS;
 

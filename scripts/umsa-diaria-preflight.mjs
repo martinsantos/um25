@@ -3,7 +3,7 @@ import { promises as fs, readFileSync } from 'node:fs';
 import path from 'node:path';
 import dns from 'node:dns/promises';
 
-const DEFAULT_SITE_URL = 'https://www.ultimamilla.com.ar';
+const DEFAULT_SITE_URL = 'https://ultimamilla.com.ar';
 const DEFAULT_MEMORY = '/Users/santosma/.codex/automations/umsa-diaria/memory.md';
 const DEFAULT_OUTPUTS = '/Users/santosma/umsa-codex/outputs';
 

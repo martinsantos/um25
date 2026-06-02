@@ -68,10 +68,10 @@ curl -s 'http://localhost:4321/api/umcli.json' | grep -o '\"modo\"' || echo 'Sin
 # 5. Verificar desde exterior (sitio público)
 echo "🌐 5. VERIFICANDO DESDE EXTERIOR..."
 echo "=== SITIO PRINCIPAL ==="
-curl -s -o /dev/null -w "Status: %{http_code} | Tiempo: %{time_total}s\n" "https://www.ultimamilla.com.ar"
+curl -s -o /dev/null -w "Status: %{http_code} | Tiempo: %{time_total}s\n" "https://ultimamilla.com.ar"
 
 echo "=== API PÚBLICA UMCLI ==="
-curl -s "https://www.ultimamilla.com.ar/api/umcli.json" | head -c 300
+curl -s "https://ultimamilla.com.ar/api/umcli.json" | head -c 300
 
 # 6. Probar comandos específicos del CLI
 echo "🖥️ 6. PROBANDO COMANDOS CLI ESPECÍFICOS..."
@@ -93,4 +93,4 @@ echo ""
 echo "🔍 COMANDOS DE DIAGNÓSTICO ADICIONALES:"
 echo "ssh root@$SERVER 'tail -20 $PROJECT_DIR/astro-dev.log'"
 echo "ssh root@$SERVER 'docker logs directus-app --tail 10'"
-echo "curl -s 'https://www.ultimamilla.com.ar/cli' | grep -o 'UM CLI' | wc -l"
+echo "curl -s 'https://ultimamilla.com.ar/cli' | grep -o 'UM CLI' | wc -l"

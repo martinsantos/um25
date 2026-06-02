@@ -523,9 +523,12 @@ body[data-skin="steel"] {
   }
 
   .um-btn-primary {
+    box-sizing: border-box;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    max-width: 100%;
+    min-width: 0;
     min-height: 50px;
     padding: 0.9rem 1.35rem;
     border: 0;
@@ -537,6 +540,8 @@ body[data-skin="steel"] {
     font-weight: 600;
     line-height: 1;
     text-decoration: none;
+    overflow-wrap: anywhere;
+    white-space: normal;
     transition: background-color 180ms ease, color 180ms ease;
   }
 
@@ -545,9 +550,12 @@ body[data-skin="steel"] {
   }
 
   .um-btn-secondary {
+    box-sizing: border-box;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    max-width: 100%;
+    min-width: 0;
     min-height: 50px;
     padding: 0.9rem 1.35rem;
     border: 0;
@@ -558,6 +566,8 @@ body[data-skin="steel"] {
     font-weight: 600;
     line-height: 1;
     text-decoration: none;
+    overflow-wrap: anywhere;
+    white-space: normal;
     transition: background-color 180ms ease, color 180ms ease;
   }
 

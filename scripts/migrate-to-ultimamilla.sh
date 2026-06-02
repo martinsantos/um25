@@ -163,7 +163,7 @@ cat > INSTRUCCIONES-CYBERPANEL.md << EOF
 ## 2. AGREGAR SUBDOMINIOS
 1. **Websites** → **List Websites** → ultimamilla.com.ar → **Manage**
 2. **Create Child Domain**:
-   - www.ultimamilla.com.ar
+   - ultimamilla.com.ar
    - umw.ultimamilla.com.ar  
    - sello.ultimamilla.com.ar
 
@@ -174,7 +174,7 @@ cat > INSTRUCCIONES-CYBERPANEL.md << EOF
 ### Registros críticos:
 \`\`\`
 ultimamilla.com.ar        A      ${SERVER_IP}
-www.ultimamilla.com.ar    A      ${SERVER_IP}
+ultimamilla.com.ar    A      ${SERVER_IP}
 ultimamilla.com.ar        MX 1   aspmx.l.google.com
 ultimamilla.com.ar        MX 5   alt1.aspmx.l.google.com
 \`\`\`
@@ -190,7 +190,7 @@ ultimamilla.com.ar        MX 5   alt1.aspmx.l.google.com
 3. **Copiar contenido de nginx-ultimamilla.conf**
 
 ## 6. VERIFICAR
-- https://www.ultimamilla.com.ar (debe cargar el sitio)
+- https://ultimamilla.com.ar (debe cargar el sitio)
 - https://ultimamilla.com.ar (redirect a www)
 - Correo: test@ultimamilla.com.ar (debe funcionar)
 EOF
@@ -210,5 +210,5 @@ echo "1. Seguir INSTRUCCIONES-CYBERPANEL.md en tu CyberPanel"
 echo "2. Configurar DNS con dns-zones-ultimamilla.txt"
 echo "3. Ejecutar ./deploy-ultimamilla.sh cuando esté listo"
 echo ""
-echo "🌐 Nuevo dominio: https://www.ultimamilla.com.ar"
+echo "🌐 Nuevo dominio: https://ultimamilla.com.ar"
 echo ""

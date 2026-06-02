@@ -16,7 +16,7 @@ const ROOT = join(__dirname, '..');
 const SNAPSHOTS_DIR = join(ROOT, 'src', 'data', 'snapshots');
 const PUBLIC_DIR = join(ROOT, 'public');
 
-const PROD = process.env.REPLICA_PROD_URL || 'https://www.ultimamilla.com.ar';
+const PROD = process.env.REPLICA_PROD_URL || 'https://ultimamilla.com.ar';
 const DIRECTUS_URL = process.env.DIRECTUS_INTERNAL_URL || process.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
 const DIRECTUS_TOKEN = process.env.DIRECTUS_STATIC_TOKEN || process.env.PUBLIC_DIRECTUS_TOKEN || '';
 const CONCURRENCY = Number(process.env.REPLICA_IMAGE_CONCURRENCY || 12);

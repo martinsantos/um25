@@ -1,7 +1,6 @@
 import type { APIRoute } from 'astro';
 import { AI_CRAWLERS } from '../data/geoKnowledge';
-
-const SITE_URL = 'https://www.ultimamilla.com.ar';
+import { SITE_URL } from '../config/seo';
 
 export const GET: APIRoute = async () => {
     const aiCrawlerRules = AI_CRAWLERS.map((crawler) => `User-agent: ${crawler}

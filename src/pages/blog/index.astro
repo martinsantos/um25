@@ -26,7 +26,7 @@ const heroExcerpt = hero?.resumen
   ? `${hero.resumen.substring(0, 190)}${hero.resumen.length > 190 ? '…' : ''}`
   : '';
 
-const siteUrl = 'https://www.ultimamilla.com.ar';
+const siteUrl = 'https://ultimamilla.com.ar';
 const canonicalUrl = page === 1 ? `${siteUrl}/blog` : `${siteUrl}/blog?page=${page}`;
 const prevUrl = page > 1 ? (page === 2 ? `${siteUrl}/blog` : `${siteUrl}/blog?page=${page - 1}`) : null;
 const nextUrl = page < totalPages ? `${siteUrl}/blog?page=${page + 1}` : null;
@@ -454,7 +454,7 @@ const schema = {
     }
 
     .blog-proofline div {
-      grid-template-columns: minmax(124px, max-content) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 124px) minmax(0, 1fr);
       align-items: baseline;
       gap: 12px;
       padding-top: 8px;
@@ -464,8 +464,8 @@ const schema = {
     .blog-proofline dt {
       letter-spacing: 0;
       text-transform: none;
-      white-space: nowrap;
-      overflow-wrap: normal;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
 
     .archive-head {

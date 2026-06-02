@@ -20,6 +20,16 @@ describe('Production runtime configuration contracts', () => {
     expect(workflow).toContain('TOTAL_IMGS=$((DIRECTUS_IMGS + LOCAL_IMGS))');
   });
 
+  test('production health check matches the live apex canonical redirect policy', () => {
+    const workflow = fs.readFileSync(path.join(process.cwd(), '.github/workflows/production-deploy.yml'), 'utf8');
+
+    expect(workflow).toContain('url: https://ultimamilla.com.ar');
+    expect(workflow).toContain('https://ultimamilla.com.ar/');
+    expect(workflow).toContain('https://www.ultimamilla.com.ar/');
+    expect(workflow).toContain('Canonical health check passed: apex serves 200 and www redirects to apex');
+    expect(workflow).not.toContain('www serves 200 and apex redirects to www');
+  });
+
   test('contact API resolves SMTP settings from runtime-safe environment sources', () => {
     const source = fs.readFileSync(path.join(process.cwd(), 'src/pages/api/contact.ts'), 'utf8');
 
