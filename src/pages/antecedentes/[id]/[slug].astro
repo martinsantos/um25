@@ -7,6 +7,7 @@
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import EvidenceCaseRow from '../../../components/um/EvidenceCaseRow.astro';
 import UMButton from '../../../components/um/UMButton.astro';
+import EmailLink from '../../../components/common/EmailLink.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
 import { getServiceIdFromArea } from '../../../data/areaToServiceMap.js';
@@ -617,14 +618,14 @@ const antecedenteStructuredData = {
               </span>
               Solicitar relevamiento
             </a>
-            <a href="mailto:contacto@ultimamilla.com.ar">
+            <EmailLink label="Enviar email">
               <span class="case-cta-card__action-icon" aria-hidden="true">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                 </svg>
               </span>
               Enviar email
-            </a>
+            </EmailLink>
           </div>
         </div>
       </div>

@@ -18,6 +18,7 @@ import ProductCard from '../../../components/v4/ProductCard.astro';
 import CTASection from '../../../components/v4/CTASection.astro';
 import SectionHeader from '../../../components/um/SectionHeader.astro';
 import UMButton from '../../../components/um/UMButton.astro';
+import EmailLink from '../../../components/common/EmailLink.astro';
 
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
@@ -377,9 +378,7 @@ const iconPaths = {
               <UMButton href="/contacto" class="service-info-primary">
                 Solicitar diagnóstico
               </UMButton>
-              <a href="mailto:contacto@ultimamilla.com.ar" class="service-info-secondary">
-                contacto@ultimamilla.com.ar
-              </a>
+              <EmailLink class="service-info-secondary" />
             </div>
           </div>
 
@@ -443,8 +442,8 @@ const iconPaths = {
     descripcion="Revisamos sitio, riesgos, dependencias y objetivo operativo antes de proponer una solución."
     primaryButtonText="Solicitar diagnóstico"
     primaryButtonUrl="/contacto"
-    secondaryButtonText="contacto@ultimamilla.com.ar"
-    secondaryButtonUrl="mailto:contacto@ultimamilla.com.ar"
+    secondaryButtonText="Escribir por email"
+    secondaryButtonUrl="/contacto"
     secondaryButtonIcon="mail"
     backgroundImage={serviceImage}
   />
