@@ -272,6 +272,18 @@ describe('Information hub visual contracts', () => {
     expect(blogSingle).not.toContain('article-commercial-fold');
   });
 
+  test('blog single canonicalizes internal production links inside article content', () => {
+    const blogSingle = read('src/pages/blog/[slug].astro');
+    const normalizeStart = blogSingle.indexOf('const normalizeArticleContent');
+    const normalizeEnd = blogSingle.indexOf('const normalizedContent');
+    const normalizer = blogSingle.slice(normalizeStart, normalizeEnd);
+
+    expect(normalizer).toContain("const canonicalizedHtml = (html || '').replace");
+    expect(normalizer).toContain('replace(/https?:');
+    expect(normalizer).toContain('ultimamilla');
+    expect(normalizer).toContain('siteUrl');
+  });
+
   test('blog single H1 keeps the complete editorial title instead of truncating with ellipsis', () => {
     const blogSingle = read('src/pages/blog/[slug].astro');
     const titleBuilderStart = blogSingle.indexOf('const buildArticleTitle');

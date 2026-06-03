@@ -8,6 +8,7 @@ import { isReplicaIdenticalCopy, resolveReplicaH1 } from '../../utils/replicaPro
 
 const slug = Astro.params.slug || '';
 const post = await fetchBlogPost(slug);
+const siteUrl = 'https://www.ultimamilla.com.ar';
 
 if (!post) {
   return Astro.redirect('/blog');
@@ -25,10 +26,12 @@ const normalizeArticleContent = (html: string): string => {
     'Cómo Empezar: Tres Caminos': 'Cómo empezar',
   };
 
+  const canonicalizedHtml = (html || '').replace(/https?:\/\/(?:www\.)?ultimamilla\.com\.ar/gi, siteUrl);
+
   return Object.entries(replacements).reduce((acc, [from, to]) => {
     const escaped = from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     return acc.replace(new RegExp(`(<h[2-3][^>]*>)\\s*${escaped}\\s*(<\\/h[2-3]>)`, 'gi'), `$1${to}$2`);
-  }, html || '');
+  }, canonicalizedHtml);
 };
 
 const normalizedContent = normalizeArticleContent(post.contenido || '');
@@ -53,7 +56,6 @@ const idx = allRecent.findIndex(p => p.slug === slug);
 const prevPost = idx > 0 ? allRecent[idx - 1] : null;
 const nextPost = idx < allRecent.length - 1 ? allRecent[idx + 1] : null;
 
-const siteUrl = 'https://www.ultimamilla.com.ar';
 const articleUrl = `${siteUrl}/blog/${slug}`;
 const wordCount = contentHtml.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
 
