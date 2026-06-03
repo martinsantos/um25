@@ -1,6 +1,8 @@
 ---
 import LayoutV4 from '../../layouts/LayoutV4.astro';
+import BlogCategoryTabs from '../../components/blog/BlogCategoryTabs.astro';
 import BlogFeedItem from '../../components/blog/BlogFeedItem.astro';
+import BlogHero from '../../components/blog/BlogHero.astro';
 import BlogPagination from '../../components/blog/BlogPagination.astro';
 import SectionHeader from '../../components/um/SectionHeader.astro';
 import { fetchBlogListing } from '../../utils/getBlogData';
@@ -13,7 +15,8 @@ const PAGE_SIZE = 10;
 const page = Number(Astro.url.searchParams.get('page') || '1');
 const { posts, total } = await fetchBlogListing(page, PAGE_SIZE);
 const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-const archivePosts = posts;
+const featuredPost = page === 1 ? posts[0] : null;
+const archivePosts = featuredPost ? posts.slice(1) : posts;
 
 const siteUrl = 'https://www.ultimamilla.com.ar';
 const canonicalUrl = page === 1 ? `${siteUrl}/blog` : `${siteUrl}/blog?page=${page}`;
@@ -52,11 +55,6 @@ const schema = {
 >
   {prevUrl && <link slot="head" rel="prev" href={prevUrl} />}
   {nextUrl && <link slot="head" rel="next" href={nextUrl} />}
-  <link
-    slot="head"
-    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap"
-    rel="stylesheet"
-  />
 
   <section class="blog-index">
     <div class="blog-container">
@@ -82,15 +80,23 @@ const schema = {
 
       </header>
 
+      <BlogCategoryTabs />
+
+      {featuredPost && (
+        <section class="blog-featured" aria-label="Nota destacada">
+          <BlogHero post={featuredPost} />
+        </section>
+      )}
+
       {archivePosts.length > 0 && (
         <section class="blog-archive" aria-label="Archivo documental">
           <SectionHeader
             class="archive-head"
-            title="Últimas notas"
-            text="Lecturas ordenadas por fecha, imagen y contexto para evaluar riesgos, alcance y decisiones técnicas sin pasos intermedios."
+            title={featuredPost ? 'Archivo técnico' : 'Últimas notas'}
+            text="Lecturas ordenadas por fecha y contexto para evaluar riesgos, alcance y decisiones técnicas sin ruido promocional."
           />
           <div class="feed">
-            {archivePosts.map((post, idx) => <BlogFeedItem post={post} index={idx + 1} />)}
+            {archivePosts.map((post, idx) => <BlogFeedItem post={post} index={(featuredPost ? idx + 2 : idx + 1)} />)}
           </div>
         </section>
       )}
@@ -182,6 +188,10 @@ const schema = {
     overflow-wrap: anywhere;
   }
 
+  .blog-featured {
+    margin: clamp(20px, 3.2vw, 34px) 0 clamp(18px, 3vw, 30px);
+  }
+
   .blog-breadcrumb {
     display: flex;
     align-items: center;
@@ -236,7 +246,7 @@ const schema = {
   }
 
   .blog-archive {
-    margin-top: clamp(28px, 4vw, 46px);
+    margin-top: clamp(24px, 4vw, 44px);
   }
 
   .archive-head:global(.um-section-header) {
