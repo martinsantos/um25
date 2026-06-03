@@ -18,4 +18,19 @@ describe('Nginx operational cleanup', () => {
     expect(workflow).toContain('workflow_dispatch');
     expect(workflow).toContain('cleanup-nginx-enabled-backups.sh');
   });
+
+  test('ships a guarded www canonical Nginx apply step for production deploys', () => {
+    const script = fs.readFileSync(path.join(repoRoot, 'scripts/ops/apply-www-canonical-nginx.sh'), 'utf8');
+    const workflow = fs.readFileSync(path.join(repoRoot, '.github/workflows/production-deploy.yml'), 'utf8');
+
+    expect(script).toContain('Apex to WWW Redirect');
+    expect(script).toContain('NGINX_UMSA_VALIDATE_ONLY');
+    expect(script).toContain('nginx -t');
+    expect(script).toContain('systemctl reload nginx');
+    expect(script).toContain('https://www.ultimamilla.com.ar/directus/server/ping');
+    expect(script).toContain('https://ultimamilla.com.ar/');
+    expect(script).not.toContain('Deprecated operation blocked');
+    expect(workflow).toContain('Apply WWW canonical routing');
+    expect(workflow).toContain('apply-www-canonical-nginx.sh');
+  });
 });

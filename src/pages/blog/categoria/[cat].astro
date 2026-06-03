@@ -21,7 +21,7 @@ const catLabel = getCategoryLabel(cat);
 const categoryLead = `${total} lectura${total !== 1 ? 's' : ''} de ${catLabel.toLowerCase()} ordenada${total !== 1 ? 's' : ''} por fecha, imagen y contexto técnico.`;
 const categoryTitle = `${catLabel}: decisiones IT con evidencia`;
 
-const siteUrl = 'https://ultimamilla.com.ar';
+const siteUrl = 'https://www.ultimamilla.com.ar';
 const catUrl = `${siteUrl}/blog/categoria/${cat}`;
 const canonicalUrl = page === 1 ? catUrl : `${catUrl}?page=${page}`;
 const prevUrl = page > 1 ? (page === 2 ? catUrl : `${catUrl}?page=${page - 1}`) : null;
@@ -116,10 +116,6 @@ const schema = {
           <span class="blog-rule" aria-hidden="true"></span>
           <h1 class="blog-title">{categoryTitle}</h1>
           <p class="blog-subtitle">{categoryLead}</p>
-          <div class="blog-header__actions">
-            <a href="/contacto" class="um-btn-primary">Solicitar diagnóstico</a>
-            <a href="/blog" class="um-btn-secondary blog-btn-secondary">Ver todo el blog</a>
-          </div>
         </div>
 
       </header>
@@ -227,17 +223,6 @@ const schema = {
     color: #5f6874;
     margin: 0;
     overflow-wrap: anywhere;
-  }
-
-  .blog-header__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 22px;
-  }
-
-  .blog-btn-secondary {
-    color: #111111;
   }
 
   .blog-archive {

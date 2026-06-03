@@ -23,8 +23,8 @@ describe('GEO layer', () => {
     const full = generateLlmsFullTxt();
 
     expect(llms).toContain('# ULTIMA MILLA');
-    expect(llms).toContain('https://ultimamilla.com.ar/llms-full.txt');
-    expect(llms).toContain('https://ultimamilla.com.ar/geo/brand-facts.json');
+    expect(llms).toContain('https://www.ultimamilla.com.ar/llms-full.txt');
+    expect(llms).toContain('https://www.ultimamilla.com.ar/geo/brand-facts.json');
     expect(full).toContain('GEO Knowledge Base');
     expect(full).toContain('Servicios oficiales');
     expect(full).toContain('Evidencia publica');
@@ -36,13 +36,13 @@ describe('GEO layer', () => {
     const sectors = getGeoSectors();
     const cases = getGeoCases();
 
-    expect(brandFacts.canonicalDomain).toBe('https://ultimamilla.com.ar');
+    expect(brandFacts.canonicalDomain).toBe('https://www.ultimamilla.com.ar');
     expect(brandFacts.legalName).toBe('ULTIMA MILLA S.A.');
     expect(services.length).toBeGreaterThanOrEqual(8);
-    expect(services[0]?.url).toMatch(/^https:\/\/ultimamilla\.com\.ar\/servicios\/\d+\//);
+    expect(services[0]?.url).toMatch(/^https:\/\/www\.ultimamilla\.com\.ar\/servicios\/\d+\//);
     expect(sectors.map((sector) => sector.slug)).toEqual(expect.arrayContaining(['bodegas', 'salud', 'software']));
     expect(cases.length).toBeGreaterThan(100);
-    expect(cases[0]?.url).toMatch(/^https:\/\/ultimamilla\.com\.ar\/antecedentes\/\d+\//);
+    expect(cases[0]?.url).toMatch(/^https:\/\/www\.ultimamilla\.com\.ar\/antecedentes\/\d+\//);
   });
 
   test('adds GEO URLs to sitemap and robots discovery', () => {
@@ -58,13 +58,13 @@ describe('GEO layer', () => {
     expect(staticRobots).toContain('LLMs:');
     expect(staticRobots).toContain('GEO-Knowledge:');
     expect(staticRobots).toContain('GEO-Authority:');
-    expect(staticRobots).toContain('Sitemap: https://ultimamilla.com.ar/sitemap-geo.xml');
+    expect(staticRobots).toContain('Sitemap: https://www.ultimamilla.com.ar/sitemap-geo.xml');
     expect(AI_CRAWLERS).toEqual(expect.arrayContaining(['GPTBot', 'ClaudeBot', 'Claude-SearchBot', 'PerplexityBot']));
     expect(staticRobots).toContain('Claude-SearchBot');
     expect(geoUrls).toEqual(expect.arrayContaining([
-      'https://ultimamilla.com.ar/llms.txt',
-      'https://ultimamilla.com.ar/geo/services.json',
-      'https://ultimamilla.com.ar/sitemap-geo.xml',
+      'https://www.ultimamilla.com.ar/llms.txt',
+      'https://www.ultimamilla.com.ar/geo/services.json',
+      'https://www.ultimamilla.com.ar/sitemap-geo.xml',
     ]));
   });
 
@@ -136,18 +136,18 @@ describe('GEO layer', () => {
     const geoUrls = getGeoSitemapUrls().map((entry) => entry.loc);
 
     expect(brandFacts.discoveryResources).toEqual(expect.arrayContaining([
-      'https://ultimamilla.com.ar/geo/authority.json',
-      'https://ultimamilla.com.ar/geo/topics.json',
-      'https://ultimamilla.com.ar/geo/buyer-intents.json',
-      'https://ultimamilla.com.ar/geo/blog-index.json',
+      'https://www.ultimamilla.com.ar/geo/authority.json',
+      'https://www.ultimamilla.com.ar/geo/topics.json',
+      'https://www.ultimamilla.com.ar/geo/buyer-intents.json',
+      'https://www.ultimamilla.com.ar/geo/blog-index.json',
     ]));
     expect(geoUrls).toEqual(expect.arrayContaining([
-      'https://ultimamilla.com.ar/servicios-it-empresas-mendoza',
-      'https://ultimamilla.com.ar/presupuesto-servicios-it-empresas',
-      'https://ultimamilla.com.ar/proyectos-ingenieria-it-mendoza',
-      'https://ultimamilla.com.ar/servicios-it-empresas-argentina',
-      'https://ultimamilla.com.ar/geo',
-      'https://ultimamilla.com.ar/geo/authority.json',
+      'https://www.ultimamilla.com.ar/servicios-it-empresas-mendoza',
+      'https://www.ultimamilla.com.ar/presupuesto-servicios-it-empresas',
+      'https://www.ultimamilla.com.ar/proyectos-ingenieria-it-mendoza',
+      'https://www.ultimamilla.com.ar/servicios-it-empresas-argentina',
+      'https://www.ultimamilla.com.ar/geo',
+      'https://www.ultimamilla.com.ar/geo/authority.json',
     ]));
   });
 

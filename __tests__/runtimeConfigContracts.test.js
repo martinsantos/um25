@@ -64,25 +64,25 @@ describe('Production runtime configuration contracts', () => {
   test('production smoke test validates current theme content and Directus-backed collections', () => {
     const workflow = fs.readFileSync(path.join(process.cwd(), '.github/workflows/production-deploy.yml'), 'utf8');
 
-    expect(workflow).toContain('HOMEPAGE=$(curl -sL https://ultimamilla.com.ar)');
-    expect(workflow).toContain('BLOG=$(curl -sL https://ultimamilla.com.ar/blog)');
-    expect(workflow).toContain('ANTECEDENTES=$(curl -sL https://ultimamilla.com.ar/antecedentes)');
+    expect(workflow).toContain('HOMEPAGE=$(curl -sL https://www.ultimamilla.com.ar)');
+    expect(workflow).toContain('BLOG=$(curl -sL https://www.ultimamilla.com.ar/blog)');
+    expect(workflow).toContain('ANTECEDENTES=$(curl -sL https://www.ultimamilla.com.ar/antecedentes)');
     expect(workflow).toContain('grep -Eq');
-    expect(workflow).toContain('Homepage canonical points to apex domain');
+    expect(workflow).toContain('Homepage canonical points to www domain');
     expect(workflow).toContain('BLOG_LINKS=');
     expect(workflow).toContain('ANTE_LINKS=');
     expect(workflow).not.toContain('hero-image');
     expect(workflow).not.toContain('TOTAL_IMGS=$((DIRECTUS_IMGS + LOCAL_IMGS))');
   });
 
-  test('production health check matches the live apex canonical redirect policy', () => {
+  test('production health check matches the live www canonical redirect policy', () => {
     const workflow = fs.readFileSync(path.join(process.cwd(), '.github/workflows/production-deploy.yml'), 'utf8');
 
-    expect(workflow).toContain('url: https://ultimamilla.com.ar');
+    expect(workflow).toContain('url: https://www.ultimamilla.com.ar');
     expect(workflow).toContain('https://ultimamilla.com.ar/');
     expect(workflow).toContain('https://www.ultimamilla.com.ar/');
-    expect(workflow).toContain('Canonical health check passed: apex serves 200 and www redirects to apex');
-    expect(workflow).not.toContain('www serves 200 and apex redirects to www');
+    expect(workflow).toContain('Canonical health check passed: www serves 200 and apex redirects to www');
+    expect(workflow).not.toContain('apex serves 200 and www redirects to apex');
   });
 
   test('contact API resolves SMTP settings from runtime-safe environment sources', () => {

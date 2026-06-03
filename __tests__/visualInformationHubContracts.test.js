@@ -245,31 +245,31 @@ describe('Information hub visual contracts', () => {
     expect(formSource.indexOf('class="contact-submit-row"')).toBeLessThan(formSource.indexOf('id="successMessage"'));
   });
 
-  test('blog single exposes a first-fold commercial action before media and article body', () => {
+  test('blog single keeps the reading sidebar and removes repeated commercial header CTAs', () => {
     const blogSingle = read('src/pages/blog/[slug].astro');
-    const actionsIndex = blogSingle.indexOf('article-hero-actions');
-    const imageIndex = blogSingle.indexOf('hero-figure');
+    const layoutIndex = blogSingle.indexOf('class="article-layout"');
+    const tocIndex = blogSingle.indexOf('<BlogTOC headings={headings} title={articleTitle} />');
     const proseIndex = blogSingle.indexOf('class="prose"');
 
-    expect(actionsIndex).toBeGreaterThan(-1);
-    expect(imageIndex).toBeGreaterThan(actionsIndex);
-    expect(proseIndex).toBeGreaterThan(actionsIndex);
-    expect(blogSingle).toContain('href={heroPrimaryHref}');
-    expect(blogSingle).toContain('href={heroSecondaryHref}');
+    expect(tocIndex).toBeGreaterThan(layoutIndex);
+    expect(proseIndex).toBeGreaterThan(tocIndex);
+    expect(blogSingle).not.toContain('article-hero-actions');
+    expect(blogSingle).not.toContain('article-sticky-cta');
+    expect(blogSingle).not.toContain('href={heroPrimaryHref}');
+    expect(blogSingle).not.toContain('href={heroSecondaryHref}');
+    expect(blogSingle).not.toContain('Solicitar diagnóstico');
+    expect(blogSingle).not.toContain('Ver servicios');
   });
 
-  test('blog single secondary actions render as deliberate buttons, not loose underlined text', () => {
+  test('blog single no longer ships sticky or secondary commercial action styles', () => {
     const blogSingle = read('src/pages/blog/[slug].astro');
 
-    const heroSecondaryBlock = cssBlock(blogSingle, '.article-hero-actions__secondary');
-    const mobileHeroActionsBlock = blogSingle.match(/@media[\s\S]*?\.article-hero-actions\s*\{([\s\S]*?)\}/)?.[1] || '';
-
-    expect(heroSecondaryBlock).toMatch(/background:\s*#eef0f2/);
-    expect(heroSecondaryBlock).not.toMatch(/box-shadow:\s*inset\s+0\s+-[12]px/);
+    expect(cssBlock(blogSingle, '.article-hero-actions__secondary')).toBe('');
+    expect(cssBlock(blogSingle, '.article-sticky-cta')).toBe('');
+    expect(blogSingle).not.toMatch(/@media[\s\S]*?\.article-hero-actions\s*\{/);
+    expect(blogSingle).not.toMatch(/\.article-hero-actions a\s*\{/);
+    expect(blogSingle).not.toContain('const sticky = document.getElementById');
     expect(blogSingle).not.toContain('article-commercial-fold');
-    expect(mobileHeroActionsBlock).toMatch(/grid-template-columns:\s*1fr/);
-    expect(blogSingle).toMatch(/\.article-hero-actions a\s*\{[\s\S]*min-height:\s*48px/);
-    expect(blogSingle).toMatch(/\.article-hero-actions a\s*\{[\s\S]*text-decoration:\s*none/);
   });
 
   test('blog single H1 keeps the complete editorial title instead of truncating with ellipsis', () => {
@@ -285,21 +285,20 @@ describe('Information hub visual contracts', () => {
     expect(blogSingle).toContain('<h1 class="article-title">{articleTitle}</h1>');
   });
 
-  test('blog index places the featured article image inside the first editorial viewport without duplicating the hero section', () => {
+  test('blog index stays readable without a duplicated featured banner or repeated header CTAs', () => {
     const blogIndex = read('src/pages/blog/index.astro');
     const headerIndex = blogIndex.indexOf('class="blog-header"');
-    const featureIndex = blogIndex.indexOf('blog-header__feature');
     const archiveIndex = blogIndex.indexOf('class="blog-archive"');
 
-    expect(blogIndex).toContain("import { blogPostImageAlt, blogPostImageUrl }");
-    expect(featureIndex).toBeGreaterThan(headerIndex);
-    expect(archiveIndex).toBeGreaterThan(featureIndex);
-    expect(blogIndex).toContain('src={heroImgUrl}');
+    expect(headerIndex).toBeGreaterThan(-1);
+    expect(archiveIndex).toBeGreaterThan(headerIndex);
+    expect(blogIndex).not.toContain("import { blogPostImageAlt, blogPostImageUrl }");
+    expect(blogIndex).not.toContain('blog-header__feature');
+    expect(blogIndex).not.toContain('src={heroImgUrl}');
+    expect(blogIndex).not.toContain('blog-header__actions');
+    expect(blogIndex).not.toContain('Solicitar diagnóstico');
     expect(blogIndex).not.toContain('<BlogHero post={hero} />');
     expect(blogIndex).not.toMatch(/<section class="blog-feature"/);
-    expect(cssBlock(blogIndex, '.blog-header__feature')).toMatch(/align-items:\s*center;/);
-    expect(cssBlock(blogIndex, '.blog-header__feature-media')).toMatch(/aspect-ratio:\s*16\s*\/\s*10;/);
-    expect(cssBlock(blogIndex, '.blog-header__feature-body')).toMatch(/min-height:\s*0;/);
   });
 
   test('blog index mobile proofline wraps long evidence without viewport overflow', () => {
@@ -374,18 +373,19 @@ describe('Information hub visual contracts', () => {
     expect(serviceDetail).toMatch(/\.service-info-secondary\s*\{[\s\S]*background:\s*transparent;/);
   });
 
-  test('blog category uses the same first-viewport featured image system as the blog index', () => {
+  test('blog category stays readable without a duplicated featured banner or repeated header CTAs', () => {
     const blogCategory = read('src/pages/blog/categoria/[cat].astro');
     const headerIndex = blogCategory.indexOf('class="blog-header"');
-    const featureIndex = blogCategory.indexOf('blog-header__feature');
     const archiveIndex = blogCategory.indexOf('class="blog-archive"');
 
-    expect(blogCategory).toContain("import { blogPostImageAlt, blogPostImageUrl }");
-    expect(blogCategory).toContain('const heroImgUrl = hero ? blogPostImageUrl(hero)');
-    expect(blogCategory).toContain('const heroDate = hero ? formatBlogDate(hero.fecha_publicacion)');
-    expect(featureIndex).toBeGreaterThan(headerIndex);
-    expect(archiveIndex).toBeGreaterThan(featureIndex);
-    expect(blogCategory).toContain('src={heroImgUrl}');
+    expect(headerIndex).toBeGreaterThan(-1);
+    expect(archiveIndex).toBeGreaterThan(headerIndex);
+    expect(blogCategory).not.toContain("import { blogPostImageAlt, blogPostImageUrl }");
+    expect(blogCategory).not.toContain('const heroImgUrl = hero ? blogPostImageUrl(hero)');
+    expect(blogCategory).not.toContain('blog-header__feature');
+    expect(blogCategory).not.toContain('src={heroImgUrl}');
+    expect(blogCategory).not.toContain('blog-header__actions');
+    expect(blogCategory).not.toContain('Solicitar diagnóstico');
     expect(blogCategory).not.toContain("import BlogHero");
     expect(blogCategory).not.toContain('<BlogHero post={hero} />');
     expect(blogCategory).not.toMatch(/<section class="blog-feature"/);

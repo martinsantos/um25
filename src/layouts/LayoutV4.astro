@@ -10,6 +10,7 @@
 import NavbarV4 from '../components/v4/NavbarV4.astro';
 import FooterV4 from '../components/v4/FooterV4.astro';
 import SEOHead from '../components/SEO/SEOHead.astro';
+import { SITE_URL } from '../config/seo';
 import { hasEnglishAlternate } from '../config/i18nRoutes';
 import { getDevSkinVariant } from '../utils/skinVariant';
 import '../styles/v4.css';
@@ -38,9 +39,8 @@ const {
   gscVerification = 'TSoaOAODUVxCt2ohPOomFxRxF3I_MMKzu_wmbpFVpuw',
 } = Astro.props;
 
-const siteUrl = "https://ultimamilla.com.ar";
-// Always build currentUrl from hardcoded siteUrl to prevent www leaking via Astro.url or canonical prop
-const currentUrl = (canonical ? canonical.replace(/^https?:\/\/www\./, 'https://') : `${siteUrl}${Astro.url.pathname}`).replace(/\/$/, "");
+const siteUrl = SITE_URL;
+const currentUrl = (canonical || `${siteUrl}${Astro.url.pathname}`).replace(/^https?:\/\/(?:www\.)?ultimamilla\.com\.ar/i, siteUrl).replace(/\/$/, "");
 
 const hasHeadSlot = Astro.slots.has('head');
 
