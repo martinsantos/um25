@@ -41,8 +41,8 @@ const footerSections = {
   hubs: {
     title: 'Hubs GEO',
     links: [
-      ...commercialHubFooterLinks,
       { href: '/geo', label: 'Centro GEO / LLM' },
+      ...commercialHubFooterLinks,
     ],
   },
 };
@@ -63,10 +63,10 @@ const socialLinks = [
 
 <footer class="um-site-footer py-10 sm:py-12 lg:py-16">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 lg:gap-8 xl:gap-12">
+    <div class="um-footer-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8 sm:gap-10 lg:gap-8 xl:gap-12">
 
       <!-- Brand Column -->
-      <div class="sm:text-left">
+      <div class="min-w-0 sm:text-left">
         <div class="flex items-center justify-start mb-4 sm:mb-6">
           <span class="um-footer-logo">ultimamilla<span>.</span>com<span>.</span>ar</span>
         </div>
@@ -98,7 +98,7 @@ const socialLinks = [
       </div>
 
       <!-- Servicios Column -->
-      <div class="text-center sm:text-left">
+      <div class="min-w-0 text-center sm:text-left">
         <h4 class="font-bold mb-4 sm:mb-6">{footerSections.servicios.title}</h4>
         <ul class="space-y-2 sm:space-y-3 text-base">
           {footerSections.servicios.links.map((link) => (
@@ -112,7 +112,7 @@ const socialLinks = [
       </div>
 
       <!-- Empresa Column -->
-      <div class="text-center sm:text-left">
+      <div class="min-w-0 text-center sm:text-left">
         <h4 class="font-bold mb-4 sm:mb-6">{footerSections.empresa.title}</h4>
         <ul class="space-y-2 sm:space-y-3 text-base">
           {footerSections.empresa.links.map((link) => (
@@ -125,8 +125,8 @@ const socialLinks = [
         </ul>
       </div>
 
-      <!-- Hubs GEO Column -->
-      <div class="text-center sm:text-left">
+      <!-- Cobertura Column -->
+      <div class="min-w-0 text-center sm:text-left">
         <h4 class="font-bold mb-4 sm:mb-6">{footerSections.hubs.title}</h4>
         <ul class="space-y-2 sm:space-y-3 text-base">
           {footerSections.hubs.links.map((link) => (
@@ -140,7 +140,7 @@ const socialLinks = [
       </div>
 
       <!-- Contacto Column -->
-      <div class="text-center sm:text-left">
+      <div class="min-w-0 text-center sm:text-left">
         <h4 class="font-bold mb-4 sm:mb-6">Contacto</h4>
         <ul class="space-y-3 sm:space-y-4 text-base">
           <li class="flex items-start gap-3 justify-center sm:justify-start">
@@ -154,7 +154,7 @@ const socialLinks = [
             <svg class="w-5 h-5 text-um-primary-light shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
             </svg>
-            <EmailLink class="transition-colors" />
+            <EmailLink class="um-footer-email transition-colors" />
           </li>
         </ul>
       </div>
@@ -166,7 +166,6 @@ const socialLinks = [
       <div class="flex gap-4 sm:gap-6 text-base sm:text-base">
         <a href="/privacidad" class="transition-colors">Privacidad</a>
         <a href="/terminos" class="transition-colors">Términos</a>
-        <a href="/geo" class="transition-colors">GEO</a>
       </div>
     </div>
   </div>
@@ -177,6 +176,11 @@ const socialLinks = [
     background: var(--skin-footer-bg);
     border-top: 1px solid var(--skin-footer-line);
     color: var(--skin-footer-text);
+    overflow-x: clip;
+  }
+
+  .um-footer-grid > * {
+    min-width: 0;
   }
 
   .um-footer-logo,
@@ -203,10 +207,13 @@ const socialLinks = [
   .um-site-footer li,
   .um-site-footer span {
     color: var(--skin-footer-text);
+    min-width: 0;
   }
 
   .um-site-footer a {
     color: inherit;
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
 
   .um-site-footer a:hover {
@@ -221,6 +228,20 @@ const socialLinks = [
   .um-footer-social:hover {
     background: var(--um-red);
     color: #fff;
+  }
+
+  .um-footer-email {
+    display: inline-flex;
+    flex-wrap: wrap;
+    min-width: 0;
+    max-width: 100%;
+    align-items: baseline;
+    line-height: 1.35;
+    word-break: break-word;
+  }
+
+  .um-footer-email span {
+    min-width: 0;
   }
 
   .um-footer-bottom {

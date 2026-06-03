@@ -1,10 +1,15 @@
 ---
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import BlogTOC from '../../components/blog/BlogTOC.astro';
+import IntentLinkGraph from '../../components/um/IntentLinkGraph.astro';
 import { fetchBlogPost, fetchBlogListing } from '../../utils/getBlogData';
 import { blogImageUrl, blogPostImageUrl } from '../../utils/blogHelpers';
 import { addHeadingIds, getCategoryLabel, formatBlogDate, extractFaqSchema } from '../../utils/blogUtils';
 import { isReplicaIdenticalCopy, resolveReplicaH1 } from '../../utils/replicaProdCopy';
+import {
+  buildBlogStrategicLinkGroups,
+  buildStrategicWebPageStructuredData,
+} from '../../data/strategicLinkGraph';
 
 const slug = Astro.params.slug || '';
 const post = await fetchBlogPost(slug);
@@ -129,6 +134,25 @@ const editorialArticleTitle = articleTitleOverrides[slug] || buildArticleTitle(p
 const articleTitle = isReplicaIdenticalCopy()
   ? resolveReplicaH1(`/blog/${slug}`, buildArticleTitle(post.titulo))
   : editorialArticleTitle;
+const articleStrategicLinkGroups = buildBlogStrategicLinkGroups({
+  currentPath: `/blog/${slug}`,
+  title: articleTitle,
+  summary: seoDesc,
+  category: label,
+  tags: post.tags || [],
+  text: normalizedContent.replace(/<[^>]+>/g, ' '),
+  relatedPosts: [prevPost, nextPost].filter(Boolean) as any[],
+});
+const articlePageStructuredData = [
+  schema,
+  ...(faqSchema ? [faqSchema] : []),
+  buildStrategicWebPageStructuredData({
+    url: articleUrl,
+    name: articleTitle,
+    description: seoDesc,
+    groups: articleStrategicLinkGroups,
+  }),
+];
 
 ---
 
@@ -139,7 +163,7 @@ const articleTitle = isReplicaIdenticalCopy()
   image={socialImg || imgUrl || undefined}
   ogType="article"
   canonical={articleUrl}
-  structuredData={faqSchema ? [schema, faqSchema] : schema}
+  structuredData={articlePageStructuredData}
 >
   <!-- Article meta -->
   <meta slot="head" property="article:published_time" content={post.fecha_publicacion} />
@@ -178,15 +202,23 @@ const articleTitle = isReplicaIdenticalCopy()
 
         <div class="prose" set:html={contentHtml} />
 
+        <IntentLinkGraph
+          class="um-intent-link-graph--contained"
+          kicker="Para avanzar"
+          title="Ver también"
+          text="Continuá hacia capacidades técnicas, sectores o notas relacionadas."
+          groups={articleStrategicLinkGroups}
+        />
+
         <nav class="post-nav">
           {prevPost ? (
-            <a href={`/blog/${prevPost.slug}`} class="post-nav-item">
+            <a href={`/blog/${prevPost.slug}`} class="um-click-surface post-nav-item">
               <span class="post-nav-label">← Anterior</span>
               <span class="post-nav-title">{prevPost.titulo}</span>
             </a>
           ) : <div></div>}
           {nextPost && (
-            <a href={`/blog/${nextPost.slug}`} class="post-nav-item post-nav-item--right">
+            <a href={`/blog/${nextPost.slug}`} class="um-click-surface post-nav-item post-nav-item--right">
               <span class="post-nav-label">Siguiente →</span>
               <span class="post-nav-title">{nextPost.titulo}</span>
             </a>
@@ -334,10 +366,11 @@ const articleTitle = isReplicaIdenticalCopy()
     padding: 16px 0 0;
     text-decoration: none;
     background: transparent;
-    box-shadow: inset 0 1px 0 rgba(216, 221, 228, 0.72);
-    transition: color .15s, box-shadow .15s;
+    border-top: 1px solid rgba(216, 221, 228, 0.72);
+    transition: color .15s, border-color .15s;
   }
-  .post-nav-item:hover { box-shadow: inset 0 2px 0 rgba(220,38,38,0.92); }
+  .post-nav-item:hover,
+  .post-nav-item:focus-visible { border-top-color: rgba(220, 38, 38, 0.92); }
   .post-nav-item--right { text-align: right; }
   .post-nav-label {
     display: block;

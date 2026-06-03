@@ -5,6 +5,10 @@ import SectorTemplateAtlas from '../components/templates/SectorTemplateAtlas.ast
 import { sectorVisualOrder, sectorVisualSystem } from '../data/sectorVisualSystem';
 import { getDevTemplateVariant } from '../utils/templateVariant';
 import { isReplicaIdenticalCopy } from '../utils/replicaProdCopy';
+import {
+  buildSectorStrategicLinkGroups,
+  buildStrategicWebPageStructuredData,
+} from '../data/strategicLinkGraph';
 
 const sectores = sectorVisualOrder.map((slug) => sectorVisualSystem[slug]);
 const templateVariant = isReplicaIdenticalCopy()
@@ -19,6 +23,13 @@ const compactSectorRailLabels: Record<string, string> = {
 const sectorFilterOptions = [{ id: '', label: 'Todos' }].concat(
   sectores.map((sector) => ({ id: sector.slug, label: compactSectorRailLabels[sector.slug] ?? sector.label }))
 );
+const sectorIndexStrategicLinkGroups = buildSectorStrategicLinkGroups({
+  currentPath: '/sectores',
+  sectorName: 'Sectores UMSA',
+  title: 'Infraestructura IT por sector',
+  summary: 'Soluciones tecnológicas por industria con evidencia operativa.',
+  text: sectores.map((sector) => `${sector.label} ${sector.summary} ${sector.operatingNeed} ${sector.services.join(' ')}`).join(' '),
+});
 
 const structuredData = [
   {
@@ -38,7 +49,13 @@ const structuredData = [
       name: sector.label,
       url: `https://www.ultimamilla.com.ar/${sector.slug}`
     }))
-  }
+  },
+  buildStrategicWebPageStructuredData({
+    url: 'https://www.ultimamilla.com.ar/sectores',
+    name: 'Infraestructura IT por sector',
+    description: 'Soluciones tecnológicas por industria con evidencia operativa.',
+    groups: sectorIndexStrategicLinkGroups,
+  })
 ];
 ---
 

@@ -3,9 +3,11 @@ import EvidenceItem from './EvidenceItem.astro';
 import SectionHeader from '../um/SectionHeader.astro';
 import MetricStrip from '../um/MetricStrip.astro';
 import UMButton from '../um/UMButton.astro';
+import IntentLinkGraph from '../um/IntentLinkGraph.astro';
 import { truncateEditorialText } from '../../utils/editorialContent';
 import { resolveReplicaH1 } from '../../utils/replicaProdCopy';
 import { getAntecedentesCountShort } from '../../utils/verifiedProof';
+import { buildSectorStrategicLinkGroups } from '../../data/strategicLinkGraph';
 
 const antecedentesProofLabel = getAntecedentesCountShort();
 
@@ -41,7 +43,6 @@ const mainCase = antecedentes[0];
 const secondaryCases = antecedentes.slice(1, 3);
 const archiveCases = antecedentes.slice(3, 6);
 
-const text = (value: unknown) => String(value || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
 const truncate = (value: unknown, length = 150) => truncateEditorialText(value, length);
 const sanitizeCopy = (value: unknown, length = 150) => truncateEditorialText(value, length);
 const sectorSlug = sector.slug || '';
@@ -65,6 +66,21 @@ const sectorMetrics = sectorStats.map((stat: any) => ({
 if (mode === 'detail' && antecedentes.length > 0) {
   sectorMetrics.push({ value: `${antecedentes.length}+`, label: 'Antecedentes' });
 }
+const sectorStrategicLinkGroups = buildSectorStrategicLinkGroups({
+  currentPath: mode === 'detail' && sectorSlug ? `/${sectorSlug}` : '/sectores',
+  sectorSlug,
+  sectorName,
+  title: mode === 'detail' ? sectorTitle : sectorIndexH1,
+  summary: sectorSummary,
+  text: [
+    sector.operatingNeed,
+    sector.proof,
+    Array.isArray(sector.services) ? sector.services.join(' ') : '',
+    sectors.map((item: any) => `${item.label || ''} ${item.summary || ''} ${(item.services || []).join(' ')}`).join(' '),
+  ].filter(Boolean).join(' '),
+  relatedServices: serviciosRelacionados || [],
+  relatedCases: antecedentes.slice(0, 4),
+});
 
 const buildSectorIndexUrl = (slug: string) => slug ? `/sectores?sector=${encodeURIComponent(slug)}` : '/sectores';
 ---
@@ -111,6 +127,7 @@ const buildSectorIndexUrl = (slug: string) => slug ? `/sectores?sector=${encodeU
               <a
                 href={buildSectorIndexUrl(item.id)}
                 class={(sectorFilter === item.id || (!sectorFilter && item.id === '')) ? 'is-active' : ''}
+                aria-current={sectorFilter === item.id || (!sectorFilter && item.id === '') ? 'page' : undefined}
               >
                 {item.label}
               </a>
@@ -123,7 +140,7 @@ const buildSectorIndexUrl = (slug: string) => slug ? `/sectores?sector=${encodeU
     <div class="um-container sector-editorial-index-body">
       <div class="sector-editorial__features">
         {featuredSectors.map((item, index) => (
-          <a href={`/${item.slug}`} class="sector-editorial-feature">
+          <a href={`/${item.slug}`} class="um-click-surface sector-editorial-feature">
             <img src={item.image} alt={item.imageAlt} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />
             <div>
               <span>{String(index + 1).padStart(2, '0')}</span>
@@ -146,7 +163,7 @@ const buildSectorIndexUrl = (slug: string) => slug ? `/sectores?sector=${encodeU
 
       <div class="sector-editorial__support">
         {supportingSectors.map((item, index) => (
-          <a href={`/${item.slug}`} class="sector-editorial-row">
+          <a href={`/${item.slug}`} class="um-click-surface sector-editorial-row">
             <span>{String(index + 3).padStart(2, '0')}</span>
             <strong>{item.label}</strong>
             <p>{item.operatingNeed}</p>
@@ -155,6 +172,13 @@ const buildSectorIndexUrl = (slug: string) => slug ? `/sectores?sector=${encodeU
         ))}
       </div>
     </div>
+
+    <IntentLinkGraph
+      kicker="Para avanzar"
+      title="Entrar por sector"
+      text="Entrá por vertical, servicio aplicado, evidencia o contacto técnico sin perder contexto."
+      groups={sectorStrategicLinkGroups}
+    />
   </section>
 ) : (
   <section class="sector-editorial sector-editorial--detail">
@@ -246,7 +270,7 @@ const buildSectorIndexUrl = (slug: string) => slug ? `/sectores?sector=${encodeU
         <SectionHeader title="Servicios aplicados" />
         <div class="sector-editorial-service-list">
           {(serviciosRelacionados || []).map((item: any, index: number) => (
-            <a href={`/servicios/${item.id}/${item.slug || ''}`}>
+            <a href={`/servicios/${item.id}/${item.slug || ''}`} class="um-click-surface">
               <span>{String(index + 1).padStart(2, '0')}</span>
               <strong>{item.nombre}</strong>
               <p>{sanitizeCopy(item.descripcion, 130)}</p>
@@ -295,6 +319,13 @@ const buildSectorIndexUrl = (slug: string) => slug ? `/sectores?sector=${encodeU
         </section>
       )}
     </div>
+
+    <IntentLinkGraph
+      kicker="Para avanzar"
+      title="Ver también"
+      text="Servicios aplicados, evidencia del vertical y contacto para un relevamiento técnico."
+      groups={sectorStrategicLinkGroups}
+    />
   </section>
 )}
 
@@ -375,20 +406,32 @@ const buildSectorIndexUrl = (slug: string) => slug ? `/sectores?sector=${encodeU
     line-height: 1.2;
     text-decoration: none;
     white-space: nowrap;
+    transition: color 180ms ease;
   }
 
   .sector-editorial__market-links a.is-active {
     color: var(--um-red);
   }
 
-  .sector-editorial__market-links a.is-active::after {
+  .sector-editorial__market-links a::after {
     content: "";
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
     height: 2px;
-    background: var(--um-red);
+    background: currentColor;
+    opacity: 0;
+    transition: opacity 180ms ease;
+  }
+
+  .sector-editorial__market-links a:hover,
+  .sector-editorial__market-links a:focus-visible {
+    color: var(--um-red);
+  }
+
+  .sector-editorial__market-links a.is-active::after {
+    opacity: 1;
   }
 
   .sector-editorial-index-body {

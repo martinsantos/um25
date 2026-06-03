@@ -8,6 +8,7 @@ const PORT = Number(process.env.VISUAL_SNAPSHOT_CDP_PORT || 9342);
 const OUT_DIR = process.env.VISUAL_SNAPSHOT_DIR || `/tmp/umsa-visual-snapshots-${new Date().toISOString().replace(/[:.]/g, '-')}`;
 const ROUTE_FILTER = process.env.VISUAL_SNAPSHOT_ROUTE_FILTER ? new RegExp(process.env.VISUAL_SNAPSHOT_ROUTE_FILTER) : null;
 const VIEWPORT_FILTER = process.env.VISUAL_SNAPSHOT_VIEWPORT_FILTER ? new RegExp(process.env.VISUAL_SNAPSHOT_VIEWPORT_FILTER) : null;
+const CDP_TIMEOUT_MS = Number(process.env.VISUAL_SNAPSHOT_CDP_TIMEOUT_MS || 30000);
 
 const routes = [
   { path: '/', label: 'home-default' },
@@ -20,6 +21,8 @@ const routes = [
   { path: '/antecedentes?skin=white', label: 'antecedentes' },
   { path: '/antecedentes?sector=aeropuertos', label: 'antecedentes-filtrado-default' },
   { path: '/antecedentes?sector=aeropuertos&skin=white', label: 'antecedentes-filtrado' },
+  { path: '/antecedentes?sector=bodegas', label: 'antecedentes-bodegas-default' },
+  { path: '/antecedentes?template=atlas&sector=bodegas', label: 'antecedentes-bodegas-atlas' },
   { path: '/antecedentes/3064/desarrollo-de-software-y-digitalizacion-de-procesos-para-el-gobierno-de-la-provincia-de-mendoza', label: 'antecedente-detalle-default' },
   { path: '/antecedentes/3064/desarrollo-de-software-y-digitalizacion-de-procesos-para-el-gobierno-de-la-provincia-de-mendoza?skin=white', label: 'antecedente-detalle' },
   { path: '/sectores', label: 'sectores-default' },
@@ -77,7 +80,8 @@ const viewports = [
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function getTargets() {
-  for (let index = 0; index < 80; index += 1) {
+  const maxPolls = Math.max(80, Math.ceil(CDP_TIMEOUT_MS / 100));
+  for (let index = 0; index < maxPolls; index += 1) {
     try {
       const response = await fetch(`http://127.0.0.1:${PORT}/json/list`);
       if (response.ok) return await response.json();
@@ -86,7 +90,7 @@ async function getTargets() {
     }
     await sleep(100);
   }
-  throw new Error('Chrome CDP did not start.');
+  throw new Error(`Chrome CDP did not start on port ${PORT} after ${maxPolls * 100}ms.`);
 }
 
 let commandId = 0;
@@ -150,6 +154,9 @@ async function main() {
     '--disable-gpu',
     '--no-first-run',
     '--no-default-browser-check',
+    '--disable-background-networking',
+    '--disable-extensions',
+    '--disable-dev-shm-usage',
     `--remote-debugging-port=${PORT}`,
     `--user-data-dir=/tmp/umsa-visual-snapshots-${PORT}`,
     'about:blank',

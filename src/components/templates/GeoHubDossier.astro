@@ -66,7 +66,7 @@ const mediaByHub: Record<string, { src: string; alt: string; caption: string }> 
 const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mendoza'];
 const relatedHubGroups = [
   {
-    title: 'Rutas relacionadas',
+    title: 'Cobertura relacionada',
     summary: 'Consultas comerciales que suelen aparecer antes o despues de esta decision.',
     items: siblingCommercialHubItems(hub.slug),
   },
@@ -91,7 +91,7 @@ const relatedHubGroups = [
         <p class="geo-dossier-lead">{hub.lead}</p>
       </div>
 
-      <aside class="geo-dossier-side" aria-label="Resumen comercial GEO">
+      <aside class="geo-dossier-side" aria-label="Resumen comercial">
         <div class="geo-dossier-brief">
           <div class="geo-dossier-brief__top">
             <span>Dossier comercial</span>
@@ -157,7 +157,7 @@ const relatedHubGroups = [
 
       <div class="geo-service-ledger">
         {hub.services.map((service, index) => (
-          <a href={service.href}>
+          <a href={service.href} class="um-click-surface">
             <span>{String(index + 1).padStart(2, '0')}</span>
             <strong>{service.title}</strong>
             <p>{service.summary}</p>
@@ -179,7 +179,7 @@ const relatedHubGroups = [
 
       <div class="geo-evidence-rows">
         {hub.cases.map((item, index) => (
-          <a href={item.href}>
+          <a href={item.href} class="um-click-surface">
             <span>{String(index + 1).padStart(2, '0')}</span>
             <div>
               <strong>{item.client}</strong>
@@ -201,7 +201,7 @@ const relatedHubGroups = [
         </div>
         <div class="geo-sector-list">
           {hub.sectors.map((sector, index) => (
-            <a href={sector.href}>
+            <a href={sector.href} class="um-click-surface">
               <span>{String(index + 1).padStart(2, '0')}</span>
               <strong>{sector.title}</strong>
               <p>{sector.summary}</p>
@@ -221,9 +221,9 @@ const relatedHubGroups = [
 
   <IntentLinkGraph
     class="geo-dossier-link-graph"
-    kicker="Vinculación por intención"
-    title="Rutas relacionadas para completar la decisión"
-    text="La página no queda aislada: conecta compra, presupuesto, ingeniería y cobertura para que un decisor o un modelo pueda seguir el recorrido correcto."
+    kicker="Para avanzar"
+    title="Ver también"
+    text="Seguí hacia compra, presupuesto, ingeniería o cobertura para continuar el recorrido correcto."
     groups={relatedHubGroups}
   />
 
@@ -893,10 +893,20 @@ const relatedHubGroups = [
     color: var(--um-red);
   }
 
+  .geo-service-ledger a :where(strong, em),
+  .geo-evidence-rows a :where(strong, em),
+  .geo-sector-list a strong {
+    transition: color 180ms ease;
+  }
+
   .geo-service-ledger a:hover strong,
   .geo-service-ledger a:hover em,
+  .geo-service-ledger a:focus-visible strong,
+  .geo-service-ledger a:focus-visible em,
   .geo-evidence-rows a:hover strong,
-  .geo-sector-list a:hover strong {
+  .geo-evidence-rows a:focus-visible strong,
+  .geo-sector-list a:hover strong,
+  .geo-sector-list a:focus-visible strong {
     color: var(--um-red);
   }
 

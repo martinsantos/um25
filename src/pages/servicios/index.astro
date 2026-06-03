@@ -1,11 +1,16 @@
 ---
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import TrustStrip from '../../components/um/TrustStrip.astro';
+import IntentLinkGraph from '../../components/um/IntentLinkGraph.astro';
 import { generateSlug } from '../../utils/slugUtils.js';
 import { getAllServicios } from '../../utils/directusHelpers';
 import { getServiceVisualSpec, serviceVisualOrder } from '../../data/serviceVisualSystem';
 import { resolveReplicaH1 } from '../../utils/replicaProdCopy';
 import { getAntecedentesCountExactPhrase } from '../../utils/verifiedProof';
+import {
+  buildServiceStrategicLinkGroups,
+  buildStrategicWebPageStructuredData,
+} from '../../data/strategicLinkGraph';
 
 const serviciosIndexH1 = resolveReplicaH1('/servicios', 'Servicios IT integrales para continuidad operativa');
 
@@ -27,6 +32,12 @@ const servicios = serviceVisualOrder
     };
   })
   .filter(Boolean);
+const servicesStrategicLinkGroups = buildServiceStrategicLinkGroups({
+  currentPath: '/servicios',
+  title: serviciosIndexH1,
+  summary: 'Servicios IT integrales para empresas: redes, seguridad, telecomunicaciones, software, soporte, consultoría, detección y energía IT.',
+  text: servicios.map((servicio) => `${servicio.title} ${servicio.description} ${servicio.visual.shortName} ${servicio.visual.proof}`).join(' '),
+});
 
 const structuredData = [
   {
@@ -45,7 +56,13 @@ const structuredData = [
       name: servicio.title,
       url: `https://www.ultimamilla.com.ar${servicio.href}`
     }))
-  }
+  },
+  buildStrategicWebPageStructuredData({
+    url: 'https://www.ultimamilla.com.ar/servicios',
+    name: serviciosIndexH1,
+    description: 'Servicios IT integrales para empresas: redes, seguridad, telecomunicaciones, software, soporte, consultoría, detección y energía IT.',
+    groups: servicesStrategicLinkGroups,
+  })
 ];
 
 const serviceIconPaths: Record<string, string> = {
@@ -149,7 +166,7 @@ const serviceIconPaths: Record<string, string> = {
           {servicios.map((servicio, index) => (
             <a
               href={servicio.href}
-              class="service-dossier-item"
+              class="um-click-surface service-dossier-item"
               style={`--service-accent:${servicio.visual.accent};`}
             >
               <span class="service-dossier-item__num">{String(index + 1).padStart(2, '0')}</span>
@@ -168,17 +185,17 @@ const serviceIconPaths: Record<string, string> = {
       </div>
 
       <div class="services-intent-ctas" id="decision" aria-label="Próximo paso por intención">
-        <a href="/contacto" class="services-intent-card">
+        <a href="/contacto" class="um-click-surface services-intent-card">
           <span>01</span>
           <strong>Solicitar diagnóstico</strong>
           <p>Relevamiento técnico, riesgos visibles y presupuesto base antes de comprometer alcance.</p>
         </a>
-        <a href="/contacto" class="services-intent-card">
+        <a href="/contacto" class="um-click-surface services-intent-card">
           <span>02</span>
           <strong>Cotizar abono</strong>
           <p>Soporte mensual con SLA, tickets, visitas preventivas y reporte ejecutivo.</p>
         </a>
-        <a href="/contacto" class="services-intent-card">
+        <a href="/contacto" class="um-click-surface services-intent-card">
           <span>03</span>
           <strong>Solicitar relevamiento</strong>
           <p>Obra puntual, sala técnica, red express o seguridad con entrega documentada.</p>
@@ -186,6 +203,13 @@ const serviceIconPaths: Record<string, string> = {
       </div>
     </div>
   </section>
+
+  <IntentLinkGraph
+    kicker="Para avanzar"
+    title="Ver también"
+    text="Relacioná los servicios con sectores, casos reales y contacto técnico para definir el alcance."
+    groups={servicesStrategicLinkGroups}
+  />
 
   <TrustStrip />
 
@@ -483,7 +507,8 @@ const serviceIconPaths: Record<string, string> = {
     transition: background-color 180ms ease;
   }
 
-  .service-dossier-item:hover {
+  .service-dossier-item:hover,
+  .service-dossier-item:focus-visible {
     background: color-mix(in srgb, var(--skin-panel) 92%, var(--um-red) 8%);
   }
 
@@ -574,8 +599,9 @@ const serviceIconPaths: Record<string, string> = {
     transition: background-color 180ms ease;
   }
 
-  .services-intent-card:hover {
-    background: #fafafa;
+  .services-intent-card:hover,
+  .services-intent-card:focus-visible {
+    background: color-mix(in srgb, #ffffff 92%, var(--um-red) 8%);
   }
 
   .services-intent-card > span {

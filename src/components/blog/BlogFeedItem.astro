@@ -16,6 +16,7 @@ const label = getCategoryLabel(post.categoria);
 const categoryColor = getCategoryColor(post.categoria);
 const date = formatBlogDate(post.fecha_publicacion);
 const issue = typeof index === 'number' ? String(index).padStart(2, '0') : '';
+const thumbLabel = `Leer artículo: ${post.titulo}`;
 ---
 
 <article class:list={['feed-item', `feed-item--${variant}`, !imgUrl && 'feed-item--no-image']}>
@@ -47,7 +48,7 @@ const issue = typeof index === 'number' ? String(index).padStart(2, '0') : '';
   </div>
 
   {imgUrl && (
-    <a href={`/blog/${post.slug}`} class="feed-thumb-wrap">
+    <a href={`/blog/${post.slug}`} class="um-click-surface feed-thumb-wrap" aria-label={thumbLabel}>
       <img src={imgUrl} alt={imgAlt} class="feed-thumb" loading="lazy" />
     </a>
   )}
@@ -210,6 +211,7 @@ const issue = typeof index === 'number' ? String(index).padStart(2, '0') : '';
   .feed-link:hover { color: #DC2626; }
 
   .feed-thumb-wrap {
+    position: relative;
     flex-shrink: 0;
     display: grid;
     align-content: end;
@@ -218,6 +220,40 @@ const issue = typeof index === 'number' ? String(index).padStart(2, '0') : '';
     background: #f4f6f8;
     text-decoration: none;
     border: 0;
+    isolation: isolate;
+  }
+
+  .feed-thumb-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 42%, rgba(0, 0, 0, 0.68) 100%);
+    opacity: 0;
+    transition: opacity 160ms ease;
+    pointer-events: none;
+  }
+
+  .feed-thumb-wrap::after {
+    content: "Leer";
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    z-index: 2;
+    min-height: 32px;
+    padding: 7px 10px;
+    background: #ffffff;
+    color: #111111;
+    font-family: var(--um-font-body);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 160ms ease,
+      transform 160ms ease;
+    pointer-events: none;
   }
 
   .feed-thumb {
@@ -230,7 +266,26 @@ const issue = typeof index === 'number' ? String(index).padStart(2, '0') : '';
     display: block;
     transition: opacity .16s;
   }
-  .feed-thumb-wrap:hover .feed-thumb { opacity: .94; }
+  .feed-thumb-wrap:hover::before,
+  .feed-thumb-wrap:focus-visible::before {
+    opacity: 1;
+  }
+
+  .feed-thumb-wrap:hover::after,
+  .feed-thumb-wrap:focus-visible::after {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .feed-thumb-wrap:focus-visible {
+    outline: 3px solid rgba(220, 38, 38, 0.38);
+    outline-offset: 3px;
+  }
+
+  .feed-thumb-wrap:hover .feed-thumb,
+  .feed-thumb-wrap:focus-visible .feed-thumb {
+    opacity: .86;
+  }
 
   .feed-item--compact .feed-title {
     font-size: clamp(1.04rem, 1.08vw, 1.14rem);

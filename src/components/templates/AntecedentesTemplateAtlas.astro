@@ -85,6 +85,7 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
           <a
             href={buildSectorUrl(chip.id)}
             class={sectorFilter === chip.id || (chip.id === '' && !sectorFilter) ? 'is-active' : ''}
+            aria-current={sectorFilter === chip.id || (chip.id === '' && !sectorFilter) ? 'page' : undefined}
           >
             <span>{chip.name}</span>
           </a>
@@ -260,6 +261,13 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
     color: var(--skin-text, #111);
     font-size: 1rem;
     box-shadow: inset 0 -1px 0 var(--skin-line, #ddd);
+    transition: background-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .ante-atlas__filters input:hover,
+  .ante-atlas__filters input:focus {
+    background: #fff;
+    box-shadow: inset 0 -2px 0 var(--um-red);
   }
 
   .ante-atlas__filters nav {
@@ -276,6 +284,11 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
     color: var(--skin-text, #111);
     font-size: 1rem;
     font-weight: 700;
+    text-decoration: none;
+    transition:
+      background-color 180ms ease,
+      color 180ms ease,
+      box-shadow 180ms ease;
   }
 
   .ante-atlas__filters nav a.is-active {
@@ -286,6 +299,15 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
 
   .ante-atlas__clear {
     color: var(--um-red);
+  }
+
+  .ante-atlas__filters nav a:hover,
+  .ante-atlas__filters nav a:focus-visible,
+  .ante-atlas__clear:hover,
+  .ante-atlas__clear:focus-visible {
+    background: rgba(220, 38, 38, 0.08);
+    color: var(--um-red);
+    box-shadow: inset 2px 0 0 var(--um-red);
   }
 
   .ante-atlas__archive {
@@ -394,11 +416,27 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
     place-items: center;
     border: 0;
     padding: 0 12px;
+    background: transparent;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.35em;
+    transition:
+      background-color 180ms ease,
+      color 180ms ease,
+      text-decoration-color 180ms ease;
   }
 
   .ante-atlas__pagination a.is-active {
     border-color: var(--um-red);
     color: var(--um-red);
+  }
+
+  .ante-atlas__pagination a:not(.is-active):hover,
+  .ante-atlas__pagination a:not(.is-active):focus-visible {
+    background: rgba(220, 38, 38, 0.08);
+    color: var(--um-red);
+    text-decoration-color: currentColor;
   }
 
   .ante-atlas__empty {

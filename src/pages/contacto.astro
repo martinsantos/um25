@@ -132,22 +132,22 @@ const structuredData = {
     <div class="um-container">
       <SectionHeader kicker="Por intención" title="Elegí el próximo paso según tu situación" />
       <div class="contact-intents__grid">
-        <a class="contact-intent" href="#contactForm" data-intent="diagnostico">
+        <a class="um-click-surface contact-intent" href="#contactForm" data-intent="diagnostico">
           <span>Diagnóstico inicial</span>
           <strong>Caída, incidente o urgencia operativa</strong>
           <p>Indicá sistema afectado, sede y ventana de intervención.</p>
         </a>
-        <a class="contact-intent" href="#contactForm" data-intent="relevamiento">
+        <a class="um-click-surface contact-intent" href="#contactForm" data-intent="relevamiento">
           <span>Relevamiento técnico</span>
           <strong>Red, CCTV, energía o software en sitio</strong>
           <p>Compartí alcance, cantidad de sedes y restricciones del edificio.</p>
         </a>
-        <a class="contact-intent" href="#contactForm" data-intent="abono">
+        <a class="um-click-surface contact-intent" href="#contactForm" data-intent="abono">
           <span>Abono / soporte</span>
           <strong>Continuidad 24/7 para operación activa</strong>
           <p>Detallá activos críticos, SLA esperado y horarios de atención.</p>
         </a>
-        <a class="contact-intent" href="#contactForm" data-intent="pliego">
+        <a class="um-click-surface contact-intent" href="#contactForm" data-intent="pliego">
           <span>Licitación / pliego</span>
           <strong>Documentación y alcance para compras</strong>
           <p>Adjuntá pliego, fechas y requisitos de certificación en el mensaje.</p>
@@ -157,9 +157,9 @@ const structuredData = {
   </section>
 
   <IntentLinkGraph
-    kicker="Vinculación comercial"
-    title="Conectá la consulta con alcance, evidencia y sector"
-    text="Cada pedido puede entrar por compra, capacidad técnica, antecedente probado o vertical operativo. Este mapa evita consultas aisladas y mejora discovery para buscadores y modelos."
+    kicker="Para avanzar"
+    title="Completar la consulta"
+    text="Entrá por alcance técnico, antecedente, sector o presupuesto para que el pedido llegue con información útil."
     groups={contactStrategicLinkGroups}
   />
 
@@ -556,8 +556,9 @@ const structuredData = {
     border-right: 0;
   }
 
-  .contact-intent:hover {
-    background: #f1f2f4;
+  .contact-intent:hover,
+  .contact-intent:focus-visible {
+    background: color-mix(in srgb, #f7f8f9 92%, var(--um-red) 8%);
   }
 
   .contact-intent:focus-visible {

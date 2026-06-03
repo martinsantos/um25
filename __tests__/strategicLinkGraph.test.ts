@@ -31,10 +31,10 @@ describe('strategic SEO/GEO interlinking graph', () => {
 
   test('contact page exposes a balanced visible interlinking surface', () => {
     expect(contactStrategicLinkGroups.map((group) => group.title)).toEqual([
-      'Rutas comerciales',
-      'Capacidades conectadas',
+      'Compra y cobertura',
+      'Servicios relacionados',
       'Evidencia verificable',
-      'Sectores criticos',
+      'Sectores críticos',
     ]);
 
     const kinds = new Set(contactStrategicLinkGroups.flatMap((group) => group.items.map((item) => item.kind)));

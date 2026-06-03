@@ -8,6 +8,7 @@ import LayoutV4 from '../layouts/LayoutV4.astro';
 import EvidenceCaseRow from '../components/um/EvidenceCaseRow.astro';
 import EvidenceItem from '../components/templates/EvidenceItem.astro';
 import TrustStrip from '../components/um/TrustStrip.astro';
+import IntentLinkGraph from '../components/um/IntentLinkGraph.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getAllServicios } from '../utils/directusHelpers';
 import { getAntecedenteImageUrl, getAllAntecedentes } from '../lib/directus.ts';
@@ -18,6 +19,10 @@ import {
   getAntecedentesCountShort,
   getAntecedentesCatalogCount,
 } from '../utils/verifiedProof';
+import {
+  buildServiceStrategicLinkGroups,
+  buildStrategicWebPageStructuredData,
+} from '../data/strategicLinkGraph';
 
 const homeH1 = resolveReplicaH1('/', 'Servicios IT para operaciones que no pueden detenerse.');
 
@@ -136,6 +141,25 @@ const websiteSchema = {
     "query-input": "required name=search_term_string"
   }
 };
+const homeStrategicLinkGroups = buildServiceStrategicLinkGroups({
+  currentPath: '/',
+  title: homeH1,
+  summary: 'Servicios IT para operaciones que no pueden detenerse.',
+  text: [
+    serviceModules.map((service: any) => `${service.visual.shortName} ${service.visual.proof} ${service.description || ''}`).join(' '),
+    featuredCasesEnhanced.map((item: any) => `${item.title} ${item.Cliente || ''} ${item.sector || ''}`).join(' '),
+    sectorLinks.map((sector) => `${sector.label} ${sector.cue}`).join(' '),
+  ].join(' '),
+});
+const homeStructuredData = [
+  websiteSchema,
+  buildStrategicWebPageStructuredData({
+    url: 'https://www.ultimamilla.com.ar/',
+    name: homeH1,
+    description: 'Servicios IT integrales para empresas en Mendoza, Cuyo y Patagonia: redes, seguridad, telecomunicaciones, software, soporte y energía.',
+    groups: homeStrategicLinkGroups,
+  }),
+];
 
 ---
 
@@ -144,7 +168,7 @@ const websiteSchema = {
   description="Servicios IT integrales para empresas en Mendoza, Cuyo y Patagonia: redes, seguridad electrónica, telecomunicaciones, software, soporte, consultoría, incendios y energía."
   keywords="servicios IT integrales, redes empresariales, seguridad electrónica, telecomunicaciones, software a medida, soporte técnico 24/7, consultoría IT, detección incendio, energía para IT, Mendoza, Cuyo, Patagonia"
   image={homeHeroImage}
-  structuredData={websiteSchema}
+  structuredData={homeStructuredData}
 >
   <section class="um-home-hero">
     <div class="um-hero-media" aria-hidden="true">
@@ -196,8 +220,8 @@ const websiteSchema = {
             Ocho frentes conectados por una misma forma de trabajo: relevar, diseñar, implementar, documentar y sostener infraestructura para operaciones exigentes.
           </p>
           <div class="um-services-command__links">
-            <a href="/servicios" class="um-arrow-link">Ver todos los servicios</a>
-            <a href="/servicios#decision" class="um-arrow-link um-arrow-link--muted">Próximo paso por intención</a>
+            <a href="/servicios" class="um-click-surface um-arrow-link">Ver todos los servicios</a>
+            <a href="/servicios#decision" class="um-click-surface um-arrow-link um-arrow-link--muted">Próximo paso por intención</a>
           </div>
         </div>
 
@@ -213,7 +237,7 @@ const websiteSchema = {
           {serviceModules.map((service: any, index: number) => (
             <a
               href={service.href}
-              class="um-service-unit"
+              class="um-click-surface um-service-unit"
               style={`--service-accent:${service.visual.accent};`}
             >
               <div class="um-service-unit__head">
@@ -295,7 +319,7 @@ const websiteSchema = {
         </div>
         <nav aria-label="Sectores con antecedentes">
           {sectorLinks.map((sector, index) => (
-            <a href={`/${sector.slug}`}>
+            <a href={`/${sector.slug}`} class="um-click-surface">
               <span>{String(index + 1).padStart(2, '0')}</span>
               <strong>{sector.label}</strong>
               <em>{sector.cue}</em>
@@ -306,6 +330,13 @@ const websiteSchema = {
       </aside>
       </div>
   </section>
+
+  <IntentLinkGraph
+    kicker="Para avanzar"
+    title="Elegí por dónde avanzar"
+    text="Entrá por servicio, sector, casos reales o contacto técnico. Cuatro accesos claros para no perder tiempo."
+    groups={homeStrategicLinkGroups}
+  />
 
   <section class="um-final-cta">
     <div class="um-home-container">
@@ -1533,19 +1564,24 @@ const websiteSchema = {
     }
 
     .um-service-unit {
+      --um-click-accent: var(--service-accent, var(--um-red));
+      --um-click-hover-bg: color-mix(in srgb, #111111 78%, var(--service-accent, var(--um-red)) 22%);
       display: grid;
       align-content: start;
       min-height: 176px;
       padding: clamp(22px, 2.45vw, 30px);
-      background: rgba(0,0,0,0.68);
+      background-color: rgba(0,0,0,0.68);
       color: #fff;
       border-right: 0;
       border-bottom: 0;
-      transition: background 180ms ease;
+      transition:
+        background-color 180ms ease,
+        color 180ms ease;
     }
 
-    .um-service-unit:hover {
-      background: rgba(255,255,255,0.04);
+    .um-service-unit:hover,
+    .um-service-unit:focus-visible {
+      background-color: color-mix(in srgb, #111111 84%, var(--service-accent, var(--um-red)) 16%);
     }
 
     .um-service-unit:nth-child(4n) {
@@ -1582,6 +1618,12 @@ const websiteSchema = {
       line-height: 1.16;
       font-weight: 600;
       text-wrap: balance;
+      transition: color 180ms ease;
+    }
+
+    .um-service-unit:hover h3,
+    .um-service-unit:focus-visible h3 {
+      color: var(--service-accent, var(--um-red));
     }
 
     .um-service-unit p {
@@ -1933,7 +1975,7 @@ const websiteSchema = {
 
     @media (min-width: 901px) {
       .um-evidence-ledger :global(.evidence-case-row) {
-        grid-template-columns: 2.75rem 128px minmax(260px, 1fr) 72px auto;
+        grid-template-columns: 3rem 136px minmax(0, 1fr) minmax(4.5rem, 5rem) auto;
       }
 
       .um-evidence-ledger :global(.evidence-case-row__meta-group) {
@@ -2476,9 +2518,11 @@ const websiteSchema = {
     }
 
     .um-service-unit {
+      --um-click-accent: var(--service-accent, var(--um-red));
+      --um-click-hover-bg: color-mix(in srgb, #f7f8f9 78%, var(--service-accent, var(--um-red)) 22%);
       min-height: 212px;
       padding: clamp(20px, 2vw, 26px);
-      background: #f7f8f9;
+      background-color: #f7f8f9;
       color: #111;
       border-right: 0;
     }
@@ -2495,19 +2539,20 @@ const websiteSchema = {
       border-top: 0;
     }
 
-    .um-service-unit:hover {
-      background: #f1f2f4;
+    .um-service-unit:hover,
+    .um-service-unit:focus-visible {
+      background-color: color-mix(in srgb, #f7f8f9 84%, var(--service-accent, var(--um-red)) 16%);
     }
 
     .um-service-unit__head {
       justify-content: flex-start;
-      color: #777;
+      color: var(--um-red);
       font-weight: 700;
     }
 
     .um-service-unit__icon {
       margin-top: 24px;
-      color: #111;
+      color: var(--service-accent, var(--um-red));
     }
 
     .um-service-unit__icon svg {
@@ -2521,6 +2566,12 @@ const websiteSchema = {
       font-size: clamp(1.02rem, 1.08vw, 1.16rem);
       line-height: 1.12;
       font-weight: 700;
+      transition: color 180ms ease;
+    }
+
+    .um-service-unit:hover h3,
+    .um-service-unit:focus-visible h3 {
+      color: color-mix(in srgb, var(--service-accent, var(--um-red)) 86%, #111 14%);
     }
 
     .um-service-unit p {

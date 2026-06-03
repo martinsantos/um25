@@ -40,7 +40,7 @@ const number = typeof index === 'number' ? String(index + 1).padStart(2, '0') : 
 const hasImage = Boolean(image) && variant !== 'ledger';
 ---
 
-<a href={href} class:list={['evidence-item', `evidence-item--${variant}`, className]}>
+<a href={href} class:list={['um-click-surface', 'evidence-item', `evidence-item--${variant}`, className]}>
   {hasImage && (
     <div class="evidence-item__media">
       <img src={image} alt={imageAlt} loading={variant === 'feature' ? 'eager' : 'lazy'} decoding="async" />
@@ -101,8 +101,9 @@ const hasImage = Boolean(image) && variant !== 'ledger';
     transition: background-color 180ms ease;
   }
 
-  .evidence-item:hover {
-    background-color: #fafafa;
+  .evidence-item:hover,
+  .evidence-item:focus-visible {
+    background-color: color-mix(in srgb, #ffffff 94%, var(--um-red, #dc2626) 6%);
   }
 
   .evidence-item__media {
@@ -119,7 +120,8 @@ const hasImage = Boolean(image) && variant !== 'ledger';
     transition: none;
   }
 
-  .evidence-item:hover .evidence-item__media img {
+  .evidence-item:hover .evidence-item__media img,
+  .evidence-item:focus-visible .evidence-item__media img {
     filter: grayscale(0.1) contrast(1.05) saturate(0.9);
   }
 

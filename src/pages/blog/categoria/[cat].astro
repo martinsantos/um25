@@ -3,8 +3,13 @@ import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import BlogCategoryTabs from '../../../components/blog/BlogCategoryTabs.astro';
 import BlogFeedItem from '../../../components/blog/BlogFeedItem.astro';
 import BlogPagination from '../../../components/blog/BlogPagination.astro';
+import IntentLinkGraph from '../../../components/um/IntentLinkGraph.astro';
 import { fetchBlogListing } from '../../../utils/getBlogData';
 import { getCategoryLabel } from '../../../utils/blogUtils';
+import {
+  buildBlogStrategicLinkGroups,
+  buildStrategicWebPageStructuredData,
+} from '../../../data/strategicLinkGraph';
 
 const VALID_CATS = ['noticias', 'proyectos', 'tecnico', 'tecnologia', 'empresa'];
 const cat = Astro.params.cat || '';
@@ -57,6 +62,14 @@ const categoryMeta: Record<string, { desc: string; intro: string; keywords: stri
 };
 
 const meta = categoryMeta[cat] || { desc: '', intro: '', keywords: '' };
+const categoryStrategicLinkGroups = buildBlogStrategicLinkGroups({
+  currentPath: `/blog/categoria/${cat}`,
+  title: categoryTitle,
+  summary: meta.desc || categoryLead,
+  category: catLabel,
+  text: posts.map((post) => `${post.titulo} ${post.resumen} ${post.categoria} ${(post.tags || []).join(' ')}`).join(' '),
+  relatedPosts: posts.slice(0, 4),
+});
 
 const schema = {
   '@context': 'https://schema.org',
@@ -85,6 +98,15 @@ const schema = {
     })),
   },
 };
+const categoryStructuredData = [
+  schema,
+  buildStrategicWebPageStructuredData({
+    url: catUrl,
+    name: categoryTitle,
+    description: meta.desc,
+    groups: categoryStrategicLinkGroups,
+  }),
+];
 ---
 
 <LayoutV4
@@ -92,7 +114,7 @@ const schema = {
   description={meta.desc}
   keywords={meta.keywords}
   canonical={canonicalUrl}
-  structuredData={schema}
+  structuredData={categoryStructuredData}
 >
   {prevUrl && <link slot="head" rel="prev" href={prevUrl} />}
   {nextUrl && <link slot="head" rel="next" href={nextUrl} />}
@@ -137,6 +159,14 @@ const schema = {
       )}
 
       <BlogPagination page={page} totalPages={totalPages} baseHref={`/blog/categoria/${cat}`} />
+
+      <IntentLinkGraph
+        class="um-intent-link-graph--contained"
+        kicker="Para avanzar"
+        title={`Ver más sobre ${catLabel.toLowerCase()}`}
+        text="Continuá hacia lecturas cercanas, servicios relacionados o sectores donde aplica."
+        groups={categoryStrategicLinkGroups}
+      />
 
     </div>
   </main>

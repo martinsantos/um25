@@ -299,8 +299,7 @@ const schema = {
     background: #fff;
     transition:
       border-color 180ms ease,
-      box-shadow 180ms ease,
-      transform 180ms ease;
+      background-color 180ms ease;
   }
 
   .facts-panel,
@@ -357,14 +356,13 @@ const schema = {
   .resource-item:hover,
   .resource-item:focus-visible {
     border-color: rgba(220, 38, 38, 0.42);
-    box-shadow: 0 18px 42px rgba(17, 24, 39, 0.08);
-    transform: translateY(-2px);
+    background: color-mix(in srgb, #ffffff 92%, var(--um-red, #dc2626) 8%);
   }
 
   .hub-item:has(a:hover),
   .hub-item:has(a:focus-visible) {
     border-color: rgba(220, 38, 38, 0.42);
-    box-shadow: 0 18px 42px rgba(17, 24, 39, 0.08);
+    background: color-mix(in srgb, #ffffff 94%, var(--um-red, #dc2626) 6%);
   }
 
   .hub-item a {
