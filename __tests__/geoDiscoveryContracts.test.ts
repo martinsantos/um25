@@ -64,13 +64,21 @@ describe('GEO discovery and commercial hub contracts', () => {
       expect(hub.faqs.length).toBeGreaterThanOrEqual(3);
       expect(hub.primaryCta.length).toBeGreaterThanOrEqual(12);
 
-      expect(structuredData.map((node) => node['@type'])).toEqual([
+      const nodeTypes = structuredData.map((node) => node['@type']);
+
+      expect(nodeTypes).toEqual(expect.arrayContaining([
         'WebPage',
         'Service',
         'ItemList',
         'FAQPage',
-      ]);
+        'BreadcrumbList',
+      ]));
+      expect(nodeTypes.filter((type) => type === 'ItemList')).toHaveLength(2);
       expect(serialized).toContain(`${productionDomain}/${slug}`);
+      expect(serialized).toContain('significantLink');
+      expect(serialized).toContain('hasPart');
+      expect(serialized).toContain(`${productionDomain}/geo`);
+      expect(serialized).toContain(`${productionDomain}/contacto`);
       expect(serialized).not.toContain('https://ultimamilla.com.ar');
       expect(serialized).not.toContain('?skin=');
       expect(serialized).not.toContain('?template=');
@@ -128,5 +136,13 @@ describe('GEO discovery and commercial hub contracts', () => {
     expect(footer).toContain("href: '/certificaciones'");
     expect(sitemap).toContain("{ loc: '/certificaciones'");
     expect(seoAudit).toContain("'/certificaciones'");
+  });
+
+  test('global footer exposes GEO hubs as crawlable commercial paths', () => {
+    const footer = fs.readFileSync(path.join(repoRoot, 'src/components/v4/FooterV4.astro'), 'utf8');
+
+    expect(footer).toContain('commercialHubLinkItems');
+    expect(footer).toContain("title: 'Hubs GEO'");
+    expect(footer).toContain("href: '/geo'");
   });
 });

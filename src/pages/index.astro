@@ -10,7 +10,7 @@ import EvidenceItem from '../components/templates/EvidenceItem.astro';
 import TrustStrip from '../components/um/TrustStrip.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getAllServicios } from '../utils/directusHelpers';
-import { getDirectusImageUrl, getAllAntecedentes } from '../lib/directus.ts';
+import { getAntecedenteImageUrl, getAllAntecedentes } from '../lib/directus.ts';
 import { getServiceVisualSpec, serviceVisualOrder } from '../data/serviceVisualSystem';
 import { resolveReplicaH1 } from '../utils/replicaProdCopy';
 import { extractCaseMetricsFromAntecedente } from '../utils/caseMetrics';
@@ -79,7 +79,7 @@ const featuredCasesEnhanced = featuredCases.slice(0, 3).map((item) => ({
   ...item,
   title: item.Titulo || item.Nombre || item.fallbackLabel || 'Proyecto ULTIMA MILLA',
   slug: generateSlug(item.Titulo || item.Nombre || 'proyecto'),
-  imageUrl: getDirectusImageUrl(item.Imagen) || '/images/default-background.jpg',
+  imageUrl: getAntecedenteImageUrl(item),
   sector: item.Area || item.Unidad_de_negocio || item.Sector || 'Servicios IT'
 }));
 

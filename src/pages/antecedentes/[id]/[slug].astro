@@ -11,7 +11,7 @@ import EmailLink from '../../../components/common/EmailLink.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
 import { getServiceIdFromArea } from '../../../data/areaToServiceMap.js';
-import { getDirectusImageUrl, getAllAntecedentes } from '../../../lib/directus.ts';
+import { getAntecedenteImageUrl, getDirectusImageUrl, getGeneratedAntecedenteImageUrl, getAllAntecedentes } from '../../../lib/directus.ts';
 import { canonicalUrl as toCanonicalUrl, publicImageUrl } from '../../../utils/seoUrl';
 import {
   plainTextFromHtml,
@@ -128,7 +128,8 @@ if (isLocalProdReplica() && !antecedente) {
 if (!antecedente) return Astro.redirect('/404');
 
 // --- Prepare data for UI (Directus-first) ---
-const mainImageUrl = getAssetUrl(antecedente.Imagen || antecedente.ImagenPrincipal);
+const generatedMainImageUrl = getGeneratedAntecedenteImageUrl(antecedente.id) || getGeneratedAntecedenteImageUrl(antecedente.original_id);
+const mainImageUrl = generatedMainImageUrl || getAssetUrl(antecedente.Imagen || antecedente.ImagenPrincipal);
 
 const formatDate = (dateString: string): string => {
     if (!dateString) return 'No especificada';
@@ -268,7 +269,7 @@ const getRelatedAntecedentes = async (area: string, excludeId: string, limit: nu
       .map(item => ({
         ...item,
         slug: generateSlug(item.Titulo || 'proyecto'),
-        imageUrl: getDirectusImageUrl(item.Imagen)
+        imageUrl: getAntecedenteImageUrl(item)
       }));
   } catch {
     return [];

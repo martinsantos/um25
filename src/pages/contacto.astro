@@ -3,7 +3,9 @@ import LayoutV4 from '../layouts/LayoutV4.astro';
 import MetricStrip from '../components/um/MetricStrip.astro';
 import UMButton from '../components/um/UMButton.astro';
 import SectionHeader from '../components/um/SectionHeader.astro';
+import IntentLinkGraph from '../components/um/IntentLinkGraph.astro';
 import EmailLink from '../components/common/EmailLink.astro';
+import { contactStrategicLinkGroups } from '../data/strategicLinkGraph';
 import { resolveReplicaH1 } from '../utils/replicaProdCopy';
 import { getAntecedentesCountShort } from '../utils/verifiedProof';
 
@@ -16,6 +18,9 @@ const seoData = {
 };
 
 const startedAt = Date.now();
+const contactSignificantLinks = Array.from(
+  new Set(contactStrategicLinkGroups.flatMap((group) => group.items.map((item) => item.href))),
+).map((href) => new URL(href, 'https://www.ultimamilla.com.ar').toString());
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -33,7 +38,12 @@ const structuredData = {
       addressRegion: 'Mendoza',
       addressCountry: 'AR'
     }
-  }
+  },
+  significantLink: contactSignificantLinks,
+  hasPart: contactSignificantLinks.slice(0, 12).map((url) => ({
+    '@type': 'WebPage',
+    url
+  }))
 };
 ---
 
@@ -145,6 +155,13 @@ const structuredData = {
       </div>
     </div>
   </section>
+
+  <IntentLinkGraph
+    kicker="Vinculación comercial"
+    title="Conectá la consulta con alcance, evidencia y sector"
+    text="Cada pedido puede entrar por compra, capacidad técnica, antecedente probado o vertical operativo. Este mapa evita consultas aisladas y mejora discovery para buscadores y modelos."
+    groups={contactStrategicLinkGroups}
+  />
 
   <section class="contact-action">
     <div class="um-container contact-action__grid">

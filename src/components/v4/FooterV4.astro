@@ -8,8 +8,13 @@
  */
 
 import EmailLink from '../common/EmailLink.astro';
+import { commercialHubLinkItems, commercialHubShortLabels } from '../../data/strategicLinkGraph';
 
 const currentYear = new Date().getFullYear();
+const commercialHubFooterLinks = commercialHubLinkItems.map((link) => ({
+  href: link.href,
+  label: commercialHubShortLabels[link.href] || link.label,
+}));
 
 // Footer navigation sections
 const footerSections = {
@@ -33,6 +38,13 @@ const footerSections = {
       { href: '/contacto', label: 'Contacto' },
     ],
   },
+  hubs: {
+    title: 'Hubs GEO',
+    links: [
+      ...commercialHubFooterLinks,
+      { href: '/geo', label: 'Centro GEO / LLM' },
+    ],
+  },
 };
 
 const socialLinks = [
@@ -51,7 +63,7 @@ const socialLinks = [
 
 <footer class="um-site-footer py-10 sm:py-12 lg:py-16">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 lg:gap-8 xl:gap-12">
 
       <!-- Brand Column -->
       <div class="sm:text-left">
@@ -113,6 +125,20 @@ const socialLinks = [
         </ul>
       </div>
 
+      <!-- Hubs GEO Column -->
+      <div class="text-center sm:text-left">
+        <h4 class="font-bold mb-4 sm:mb-6">{footerSections.hubs.title}</h4>
+        <ul class="space-y-2 sm:space-y-3 text-base">
+          {footerSections.hubs.links.map((link) => (
+            <li>
+              <a href={link.href} class="transition-colors">
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
       <!-- Contacto Column -->
       <div class="text-center sm:text-left">
         <h4 class="font-bold mb-4 sm:mb-6">Contacto</h4>
@@ -140,6 +166,7 @@ const socialLinks = [
       <div class="flex gap-4 sm:gap-6 text-base sm:text-base">
         <a href="/privacidad" class="transition-colors">Privacidad</a>
         <a href="/terminos" class="transition-colors">Términos</a>
+        <a href="/geo" class="transition-colors">GEO</a>
       </div>
     </div>
   </div>
