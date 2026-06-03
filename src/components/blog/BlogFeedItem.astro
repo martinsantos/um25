@@ -119,7 +119,10 @@ const issue = typeof index === 'number' ? String(index).padStart(2, '0') : '';
     font-weight: 700;
   }
 
-  .feed-body { min-width: 0; }
+  .feed-body {
+    min-width: 0;
+    padding-inline-end: clamp(20px, 4vw, 28px);
+  }
 
   .feed-meta {
     display: flex;
