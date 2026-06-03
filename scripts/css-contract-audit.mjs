@@ -1,22 +1,41 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { relative } from 'node:path';
 import { execFileSync } from 'node:child_process';
 
 const root = process.cwd();
 
-const files = execFileSync('rg', [
-  '--files',
-  'src',
-  '-g',
-  '*.astro',
-  '-g',
-  '*.css',
-  '-g',
-  '*.ts',
-], { cwd: root, encoding: 'utf8' })
-  .trim()
-  .split('\n')
-  .filter(Boolean);
+const auditedExtensions = new Set(['.astro', '.css', '.ts']);
+
+function walkFiles(dir) {
+  return readdirSync(dir)
+    .flatMap((entry) => {
+      const full = `${dir}/${entry}`;
+      const stat = statSync(full);
+      if (stat.isDirectory()) return walkFiles(full);
+      return auditedExtensions.has(full.slice(full.lastIndexOf('.'))) ? [full] : [];
+    });
+}
+
+function listAuditedFiles() {
+  try {
+    const output = execFileSync('rg', [
+      '--files',
+      'src',
+      '-g',
+      '*.astro',
+      '-g',
+      '*.css',
+      '-g',
+      '*.ts',
+    ], { cwd: root, encoding: 'utf8' });
+    return output.trim().split('\n').filter(Boolean);
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
+    return walkFiles('src');
+  }
+}
+
+const files = listAuditedFiles();
 
 const labOrLegacy = [
   /^src\/components\/arca\//,
