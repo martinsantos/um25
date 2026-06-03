@@ -42,7 +42,7 @@ const capabilities = [
       ]}
     />
     <div class="um-en-hero__actions">
-      <UMButton href="/en/contacto">Contact</UMButton>
+      <UMButton href="/en/contacto">Contact team</UMButton>
       <UMButton href="/nosotros" variant="secondary">Full page (ES)</UMButton>
     </div>
   </section>
@@ -87,7 +87,7 @@ const capabilities = [
   .um-en-about-hero h1 {
     margin: 0;
     font-family: var(--um-font-display);
-    font-size: clamp(2rem, 4.5vw, 2.75rem);
+    font-size: clamp(2.625rem, 4.5vw, 2.75rem);
     font-weight: 600;
     line-height: 1.08;
   }
@@ -144,5 +144,12 @@ const capabilities = [
     padding-left: 1.2rem;
     line-height: 1.7;
     font-size: 1.0625rem;
+  }
+
+  @media (max-width: 640px) {
+    .um-en-about-hero h1 {
+      font-size: clamp(2.125rem, 8vw, 2.5rem);
+      line-height: 1.12;
+    }
   }
 </style>
