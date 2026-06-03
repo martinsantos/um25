@@ -12,6 +12,8 @@ type GeoSitemapEntry = {
   changefreq: string;
 };
 
+const coreGeoDiscoveryPaths = ['/servicios', '/sectores', '/antecedentes', '/blog', '/contacto'];
+
 function urlEntry(entry: GeoSitemapEntry, lastmod: string) {
   return `
     <url>
@@ -31,6 +33,11 @@ function generateGeoSitemapXml() {
     ...geoResourceNames.map((resource) => ({
       loc: canonicalUrl(`/geo/${resource}.json`),
       priority: '0.8',
+      changefreq: 'weekly',
+    })),
+    ...coreGeoDiscoveryPaths.map((path) => ({
+      loc: canonicalUrl(path),
+      priority: path === '/servicios' ? '0.95' : '0.9',
       changefreq: 'weekly',
     })),
     ...geoHubRoutes.map((hub) => ({ loc: hub.url, priority: '0.92', changefreq: 'weekly' })),
