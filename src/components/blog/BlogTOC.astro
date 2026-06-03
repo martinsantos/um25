@@ -58,13 +58,16 @@ const { headings, title } = Astro.props;
     display: none;
     position: sticky;
     top: 6rem;
-    width: 198px;
+    width: min(100%, 236px);
+    max-height: calc(100svh - 7rem);
     flex-shrink: 0;
     align-self: flex-start;
-    padding: 4px 0 0 0;
+    padding: 4px 0 8px 0;
     background: transparent;
+    overflow-y: auto;
+    scrollbar-width: thin;
   }
-  @media (min-width: 1024px) { .toc { display: block; } }
+  @media (min-width: 900px) { .toc { display: block; } }
 
   .toc__label {
     font-family: var(--um-font-body);
@@ -80,6 +83,7 @@ const { headings, title } = Astro.props;
     list-style: none;
     margin: 0;
     padding: 0;
+    border-top: 1px solid rgba(17, 17, 17, 0.08);
   }
 
   .toc__item {
@@ -95,10 +99,11 @@ const { headings, title } = Astro.props;
     font-family: var(--um-font-body);
     font-size: 16px;
     line-height: 1.38;
-    padding: 8px 0;
+    padding: 8px 4px 8px 0;
     color: #717986;
     text-decoration: none;
     transition: color .15s, transform .15s;
+    overflow-wrap: anywhere;
   }
   .toc__link:hover {
     color: #111827;

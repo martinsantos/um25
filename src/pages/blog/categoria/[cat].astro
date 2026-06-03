@@ -1,5 +1,6 @@
 ---
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
+import BlogCategoryTabs from '../../../components/blog/BlogCategoryTabs.astro';
 import BlogFeedItem from '../../../components/blog/BlogFeedItem.astro';
 import BlogPagination from '../../../components/blog/BlogPagination.astro';
 import { fetchBlogListing } from '../../../utils/getBlogData';
@@ -93,11 +94,6 @@ const schema = {
   canonical={canonicalUrl}
   structuredData={schema}
 >
-  <link
-    slot="head"
-    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap"
-    rel="stylesheet"
-  />
   {prevUrl && <link slot="head" rel="prev" href={prevUrl} />}
   {nextUrl && <link slot="head" rel="next" href={nextUrl} />}
 
@@ -119,6 +115,8 @@ const schema = {
         </div>
 
       </header>
+
+      <BlogCategoryTabs current={cat} />
 
       {archivePosts.length > 0 && (
         <section class="blog-archive" aria-label="Archivo de categoría">
@@ -226,7 +224,7 @@ const schema = {
   }
 
   .blog-archive {
-    margin-top: clamp(26px, 4vw, 48px);
+    margin-top: clamp(24px, 4vw, 44px);
   }
 
   .archive-head {
