@@ -26,7 +26,7 @@ import UMButton from '../../components/um/UMButton.astro';
 
   .um-en-contact h1 {
     margin: 0;
-    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    font-size: clamp(2.625rem, 4vw, 2.625rem);
     font-weight: 600;
   }
 
@@ -38,11 +38,18 @@ import UMButton from '../../components/um/UMButton.astro';
 
   .um-en-contact__back {
     margin-top: 24px;
-    font-size: 0.9375rem;
+    font-size: 1rem;
   }
 
   .um-en-contact__back a {
     color: var(--um-red);
     font-weight: 600;
+  }
+
+  @media (max-width: 640px) {
+    .um-en-contact h1 {
+      font-size: clamp(2.125rem, 8vw, 2.5rem);
+      line-height: 1.12;
+    }
   }
 </style>

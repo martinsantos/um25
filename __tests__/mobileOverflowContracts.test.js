@@ -41,7 +41,7 @@ describe('mobile overflow production contracts', () => {
     const article = source('src/pages/blog/[slug].astro');
     const contact = source('src/pages/contacto.astro');
 
-    expect(article).toContain('font-size: clamp(2rem, 8.2vw, 2.18rem)');
+    expect(article).toContain('font-size: clamp(2.125rem, 8.2vw, 2.32rem)');
     expect(contact).toContain('font-size: clamp(1.78rem, 8vw, 2.08rem)');
   });
 
