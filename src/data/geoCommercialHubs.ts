@@ -245,11 +245,11 @@ export function buildGeoHubStructuredData(hub: GeoCommercialHub) {
     .map((slug) => geoCommercialHubs[slug])
     .filter((candidate) => candidate.slug !== hub.slug);
   const significantLinks = [
+    `${SITE_URL}/geo`,
     ...hub.services.map((service) => absoluteUrl(service.href)),
     ...hub.sectors.map((sector) => absoluteUrl(sector.href)),
     ...hub.cases.map((item) => absoluteUrl(item.href)),
     ...relatedHubs.map((relatedHub) => `${SITE_URL}/${relatedHub.slug}`),
-    `${SITE_URL}/geo`,
     `${SITE_URL}/contacto`,
   ];
   const linkedPages = [
@@ -303,7 +303,15 @@ export function buildGeoHubStructuredData(hub: GeoCommercialHub) {
       },
       significantLink: significantLinks,
       relatedLink: relatedHubs.map((relatedHub) => `${SITE_URL}/${relatedHub.slug}`),
-      hasPart: linkedPages
+      hasPart: [
+        {
+          '@type': 'CollectionPage',
+          name: 'Centro GEO / LLM',
+          url: `${SITE_URL}/geo`,
+          description: 'Mapa de descubrimiento GEO para compradores, buscadores y modelos de lenguaje.',
+        },
+        ...linkedPages,
+      ]
     },
     {
       '@type': 'Service',

@@ -1,8 +1,10 @@
 ---
 import EvidenceItem from './EvidenceItem.astro';
 import UMButton from '../um/UMButton.astro';
+import IntentLinkGraph from '../um/IntentLinkGraph.astro';
 import { truncateEditorialText } from '../../utils/editorialContent';
 import { getAntecedentesCountExactPhrase, getAntecedentesCountShort } from '../../utils/verifiedProof';
+import { buildSectorStrategicLinkGroups } from '../../data/strategicLinkGraph';
 
 const antecedentesProofLabel = getAntecedentesCountExactPhrase();
 const antecedentesProofShort = getAntecedentesCountShort();
@@ -29,7 +31,6 @@ const {
   sectorFilterOptions = []
 } = Astro.props;
 
-const text = (value: unknown) => String(value || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
 const truncate = (value: unknown, length = 150) => truncateEditorialText(value, length);
 const sanitizeCopy = (value: unknown, length = 150) => truncateEditorialText(value, length);
 const sectorSlug = sector.slug || '';
@@ -47,6 +48,21 @@ const heroSector = sectors[0] || {};
 const methodSector = sectors.find((item, index) => index > 0 && item?.image && item.image !== heroSector?.image) || sectors[1] || heroSector;
 const activeSector = sectors.find((item) => item.slug === sectorFilter);
 const filteredSectors = activeSector ? sectors.filter((item) => item.slug === activeSector.slug) : sectors;
+const sectorStrategicLinkGroups = buildSectorStrategicLinkGroups({
+  currentPath: mode === 'detail' && sectorSlug ? `/${sectorSlug}` : '/sectores',
+  sectorSlug,
+  sectorName,
+  title: mode === 'detail' ? sectorTitle : 'Mercados operativos, riesgo y evidencia.',
+  summary: sectorSummary,
+  text: [
+    sector.operatingNeed,
+    sector.proof,
+    Array.isArray(sector.services) ? sector.services.join(' ') : '',
+    sectors.map((item: any) => `${item.label || ''} ${item.summary || ''} ${(item.services || []).join(' ')}`).join(' '),
+  ].filter(Boolean).join(' '),
+  relatedServices: serviciosRelacionados || [],
+  relatedCases: antecedentes.slice(0, 4),
+});
 const buildSectorFilterUrl = (nextSector: string) => {
   const url = new URL(Astro.request.url);
   if (nextSector) url.searchParams.set('sector', nextSector);
@@ -126,6 +142,7 @@ const buildSectorFilterUrl = (nextSector: string) => {
                 <a
                   href={buildSectorFilterUrl(item.id)}
                   class={sectorFilter === item.id || (!sectorFilter && item.id === '') ? 'is-active' : ''}
+                  aria-current={sectorFilter === item.id || (!sectorFilter && item.id === '') ? 'page' : undefined}
                 >
                   <em>{item.label}</em>
                 </a>
@@ -139,7 +156,7 @@ const buildSectorFilterUrl = (nextSector: string) => {
           </div>
         </div>
         {filteredSectors.map((item, index) => (
-          <a href={`/${item.slug}`} class="sector-atlas-exec-row">
+          <a href={`/${item.slug}`} class="um-click-surface sector-atlas-exec-row">
             <span class="sector-atlas-exec-row__num">{String(index + 1).padStart(2, '0')}</span>
             <div class="sector-atlas-exec-row__sector">
               <figure>
@@ -159,6 +176,13 @@ const buildSectorFilterUrl = (nextSector: string) => {
         ))}
       </section>
     </div>
+
+    <IntentLinkGraph
+      kicker="Para avanzar"
+      title="Entrar por sector"
+      text="Entrá por vertical, servicio aplicado, evidencia o contacto técnico sin perder contexto."
+      groups={sectorStrategicLinkGroups}
+    />
   </section>
 ) : (
   <section class="sector-atlas sector-atlas--detail">
@@ -227,7 +251,7 @@ const buildSectorFilterUrl = (nextSector: string) => {
         </div>
         <div class="sector-atlas-service-map__grid">
           {(serviciosRelacionados || []).map((item: any, index: number) => (
-            <a href={`/servicios/${item.id}/${item.slug || ''}`}>
+            <a href={`/servicios/${item.id}/${item.slug || ''}`} class="um-click-surface">
               <span>{String(index + 1).padStart(2, '0')}</span>
               <strong>{item.nombre}</strong>
               <p>{sanitizeCopy(item.descripcion, 130)}</p>
@@ -285,6 +309,13 @@ const buildSectorFilterUrl = (nextSector: string) => {
         </section>
       )}
     </div>
+
+    <IntentLinkGraph
+      kicker="Para avanzar"
+      title="Ver también"
+      text="Servicios aplicados, evidencia del vertical y contacto para un relevamiento técnico."
+      groups={sectorStrategicLinkGroups}
+    />
   </section>
 )}
 
@@ -625,6 +656,8 @@ const buildSectorFilterUrl = (nextSector: string) => {
     line-height: 1.2;
     white-space: nowrap;
     position: relative;
+    text-decoration: none;
+    transition: color 180ms ease;
   }
 
   .sector-atlas-exec-ledger__filters-links a em {
@@ -637,18 +670,34 @@ const buildSectorFilterUrl = (nextSector: string) => {
     color: var(--um-red);
   }
 
-  .sector-atlas-exec-ledger__filters-links a.is-active::after {
+  .sector-atlas-exec-ledger__filters-links a::after {
     content: "";
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
     height: 2px;
-    background: var(--um-red);
+    background: currentColor;
+    opacity: 0;
+    transition: opacity 180ms ease;
+  }
+
+  .sector-atlas-exec-ledger__filters-links a:hover,
+  .sector-atlas-exec-ledger__filters-links a:focus-visible {
+    color: var(--um-red);
+  }
+
+  .sector-atlas-exec-ledger__filters-links a.is-active::after {
+    opacity: 1;
   }
 
   .sector-atlas-exec-ledger__clear {
     color: var(--skin-muted, #555d66) !important;
+  }
+
+  .sector-atlas-exec-ledger__clear:hover,
+  .sector-atlas-exec-ledger__clear:focus-visible {
+    color: var(--um-red) !important;
   }
 
   .sector-atlas-exec-row {

@@ -182,8 +182,8 @@ describe('Information hub visual contracts', () => {
 
     expect(actionsBlock).toMatch(/background:\s*#eef0f2;/);
     expect(actionsBlock).toMatch(/color:\s*#111;/);
-    expect(antecedentesEditorial).toMatch(/\.ante-dossier__actions a:first-child:hover\s*\{[\s\S]*color:\s*#fff;/);
-    expect(antecedentesEditorial).toMatch(/\.ante-dossier__actions a \+ a:hover\s*\{[\s\S]*background:\s*#e1e4e8;/);
+    expect(antecedentesEditorial).toMatch(/\.ante-dossier__actions a:first-child:hover,[\s\S]*\.ante-dossier__actions a:first-child:focus-visible\s*\{[\s\S]*color:\s*#fff;/);
+    expect(antecedentesEditorial).toMatch(/\.ante-dossier__actions a \+ a:hover,[\s\S]*\.ante-dossier__actions a \+ a:focus-visible\s*\{[\s\S]*background:\s*#111;/);
   });
 
   test('evidence case rows reserve enough copy width to avoid broken client names', () => {
@@ -191,7 +191,7 @@ describe('Information hub visual contracts', () => {
     const rowBlock = cssBlock(evidenceRow, '.evidence-case-row');
     const titleBlock = cssBlock(evidenceRow, '.evidence-case-row h3');
 
-    expect(rowBlock).toMatch(/grid-template-columns:\s*2\.75rem 128px minmax\(220px,\s*1fr\) minmax\(148px,\s*0\.45fr\) auto;/);
+    expect(rowBlock).toMatch(/grid-template-columns:\s*3rem 136px minmax\(220px,\s*1fr\) minmax\(148px,\s*0\.45fr\) auto;/);
     expect(titleBlock).toMatch(/overflow-wrap:\s*normal;/);
     expect(titleBlock).toMatch(/word-break:\s*normal;/);
     expect(titleBlock).toMatch(/hyphens:\s*none;/);
@@ -200,7 +200,7 @@ describe('Information hub visual contracts', () => {
   test('home secondary evidence rows remove repeated sector metadata to prevent compressed words', () => {
     const home = read('src/pages/index.astro');
 
-    expect(home).toMatch(/\.um-evidence-ledger :global\(\.evidence-case-row\)\s*\{[\s\S]*grid-template-columns:\s*2\.75rem 128px minmax\(260px,\s*1fr\) 72px auto;/);
+    expect(home).toMatch(/\.um-evidence-ledger :global\(\.evidence-case-row\)\s*\{[\s\S]*grid-template-columns:\s*3rem 136px minmax\(0,\s*1fr\) minmax\(4\.5rem,\s*5rem\) auto;/);
     expect(home).toMatch(/\.um-evidence-ledger :global\(\.evidence-case-row__meta-group\)\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
     expect(home).toMatch(/\.um-evidence-ledger :global\(\.evidence-case-row__meta:first-child\)\s*\{[\s\S]*display:\s*none;/);
   });

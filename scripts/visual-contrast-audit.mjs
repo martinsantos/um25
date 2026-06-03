@@ -37,6 +37,8 @@ const routes = [
   { path: '/antecedentes?skin=white', label: 'antecedentes' },
   { path: '/antecedentes?sector=aeropuertos', label: 'antecedentes filtrado default' },
   { path: '/antecedentes?sector=aeropuertos&skin=white', label: 'antecedentes filtrado' },
+  { path: '/antecedentes?sector=bodegas', label: 'antecedentes bodegas default' },
+  { path: '/antecedentes?template=atlas&sector=bodegas', label: 'antecedentes bodegas atlas' },
   { path: '/antecedentes?template=editorial&skin=white', label: 'antecedentes editorial' },
   { path: '/antecedentes?template=atlas&skin=white', label: 'antecedentes atlas' },
   { path: '/antecedentes/3064/desarrollo-de-software-y-digitalizacion-de-procesos-para-el-gobierno-de-la-provincia-de-mendoza', label: 'antecedente detalle default' },
@@ -114,6 +116,8 @@ const commercialLabels = new Set([
   'antecedentes',
   'antecedentes filtrado default',
   'antecedentes filtrado',
+  'antecedentes bodegas default',
+  'antecedentes bodegas atlas',
   'antecedentes editorial',
   'antecedentes atlas',
   'antecedente detalle',
@@ -184,7 +188,8 @@ function cleanupAuditChrome(port) {
 }
 
 async function getTargets() {
-  for (let index = 0; index < 80; index += 1) {
+  const maxPolls = Math.max(80, Math.ceil(CDP_TIMEOUT_MS / 100));
+  for (let index = 0; index < maxPolls; index += 1) {
     try {
       const response = await fetch(`http://127.0.0.1:${PORT}/json/list`);
       if (response.ok) {
@@ -198,7 +203,7 @@ async function getTargets() {
     }
     await sleep(100);
   }
-  throw new Error('Chrome CDP did not start.');
+  throw new Error(`Chrome CDP did not start on port ${PORT} after ${maxPolls * 100}ms.`);
 }
 
 let commandId = 0;
@@ -656,6 +661,7 @@ async function auditRoute(ws, route, viewport) {
       '.ante-dossier__sector-rail',
       '.sector-editorial__market-links',
       '.sector-atlas-exec-ledger__filters-links',
+      '.cat-tabs',
       '.blog-category-tabs',
       '.blog-breadcrumb',
       '.mobile-menu-hidden',
@@ -1651,6 +1657,9 @@ async function main() {
     '--disable-gpu',
     '--no-first-run',
     '--no-default-browser-check',
+    '--disable-background-networking',
+    '--disable-extensions',
+    '--disable-dev-shm-usage',
     `--remote-debugging-port=${PORT}`,
     `--user-data-dir=/tmp/umsa-visual-audit-${PORT}`,
     'about:blank',

@@ -7,8 +7,13 @@
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import AntecedentesTemplateEditorial from '../../components/templates/AntecedentesTemplateEditorial.astro';
 import AntecedentesTemplateAtlas from '../../components/templates/AntecedentesTemplateAtlas.astro';
+import IntentLinkGraph from '../../components/um/IntentLinkGraph.astro';
 import { getAllAntecedentes, getAntecedenteImageUrl } from '../../lib/directus.ts';
 import { getDevTemplateVariant } from '../../utils/templateVariant';
+import {
+  buildCaseStrategicLinkGroups,
+  buildStrategicWebPageStructuredData,
+} from '../../data/strategicLinkGraph';
 
 const PAGE_SIZE = 12;
 
@@ -208,12 +213,33 @@ const filterChips = [
 ];
 
 const templateVariant = getDevTemplateVariant(Astro.url, import.meta.env.DEV) ?? 'editorial';
+const visibleAntecedentes = [
+  ...(pageData.spotlightAntecedentes || []),
+  ...(pageData.antecedentes || []),
+].slice(0, 6);
+const antecedentesStrategicLinkGroups = buildCaseStrategicLinkGroups({
+  currentPath: '/antecedentes',
+  title: 'Evidencia operativa documentada',
+  summary: 'Antecedentes técnicos de redes, seguridad electrónica, telecomunicaciones, software, soporte e infraestructura IT.',
+  text: visibleAntecedentes.map((item: any) => `${item.Titulo || ''} ${item.Descripcion || ''} ${item.Cliente || ''} ${item.Area || ''}`).join(' '),
+  relatedCases: visibleAntecedentes.map((item: any) => ({
+    ...item,
+    href: item.slug ? `/antecedentes/${item.slug}` : '',
+  })),
+});
+const antecedentesStructuredData = buildStrategicWebPageStructuredData({
+  url: 'https://www.ultimamilla.com.ar/antecedentes',
+  name: 'Evidencia operativa documentada',
+  description: 'Antecedentes técnicos de redes, seguridad electrónica, telecomunicaciones, software, soporte e infraestructura IT.',
+  groups: antecedentesStrategicLinkGroups,
+});
 ---
 
 <LayoutV4
   title="Evidencia operativa documentada | ULTIMA MILLA"
   description="Antecedentes técnicos de ULTIMA MILLA: proyectos reales de redes, seguridad electrónica, telecomunicaciones, software, soporte e infraestructura IT."
   keywords="casos exito tecnologia mendoza, proyectos telecomunicaciones, antecedentes cableado estructurado, portfolio seguridad electronica, software a medida casos"
+  structuredData={antecedentesStructuredData}
 >
   {templateVariant === 'atlas' && (
     <AntecedentesTemplateAtlas
@@ -238,4 +264,10 @@ const templateVariant = getDevTemplateVariant(Astro.url, import.meta.env.DEV) ??
       pageSize={PAGE_SIZE}
     />
   )}
+  <IntentLinkGraph
+    kicker="Para avanzar"
+    title="Usar la evidencia"
+    text="Pasá de casos reales a servicios aplicados, sectores similares o contacto técnico."
+    groups={antecedentesStrategicLinkGroups}
+  />
 </LayoutV4>

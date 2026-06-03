@@ -5,9 +5,14 @@ import BlogFeedItem from '../../components/blog/BlogFeedItem.astro';
 import BlogHero from '../../components/blog/BlogHero.astro';
 import BlogPagination from '../../components/blog/BlogPagination.astro';
 import SectionHeader from '../../components/um/SectionHeader.astro';
+import IntentLinkGraph from '../../components/um/IntentLinkGraph.astro';
 import { fetchBlogListing } from '../../utils/getBlogData';
 import { resolveReplicaH1 } from '../../utils/replicaProdCopy';
 import { getAntecedentesCountExactPhrase } from '../../utils/verifiedProof';
+import {
+  buildBlogStrategicLinkGroups,
+  buildStrategicWebPageStructuredData,
+} from '../../data/strategicLinkGraph';
 
 const blogIndexH1 = resolveReplicaH1('/blog', 'Ideas técnicas para decidir mejor');
 
@@ -22,6 +27,13 @@ const siteUrl = 'https://www.ultimamilla.com.ar';
 const canonicalUrl = page === 1 ? `${siteUrl}/blog` : `${siteUrl}/blog?page=${page}`;
 const prevUrl = page > 1 ? (page === 2 ? `${siteUrl}/blog` : `${siteUrl}/blog?page=${page - 1}`) : null;
 const nextUrl = page < totalPages ? `${siteUrl}/blog?page=${page + 1}` : null;
+const blogStrategicLinkGroups = buildBlogStrategicLinkGroups({
+  currentPath: '/blog',
+  title: blogIndexH1,
+  summary: 'Lecturas técnicas para decidir infraestructura, continuidad, seguridad, software y operación IT.',
+  text: posts.map((post) => `${post.titulo} ${post.resumen} ${post.categoria} ${(post.tags || []).join(' ')}`).join(' '),
+  relatedPosts: posts.slice(0, 4),
+});
 
 const schema = {
   '@context': 'https://schema.org',
@@ -45,13 +57,22 @@ const schema = {
     url: `${siteUrl}/blog/${p.slug}`,
   })),
 };
+const blogPageStructuredData = [
+  schema,
+  buildStrategicWebPageStructuredData({
+    url: `${siteUrl}/blog`,
+    name: blogIndexH1,
+    description: 'Lecturas técnicas para decidir infraestructura, continuidad, seguridad, software y operación IT.',
+    groups: blogStrategicLinkGroups,
+  }),
+];
 ---
 
 <LayoutV4
   title="Ideas técnicas para decidir mejor | ULTIMA MILLA"
   description="Artículos técnicos, casos de éxito y novedades sobre infraestructura IT, telecomunicaciones, seguridad electrónica y software para empresas en Argentina."
   canonical={canonicalUrl}
-  structuredData={schema}
+  structuredData={blogPageStructuredData}
 >
   {prevUrl && <link slot="head" rel="prev" href={prevUrl} />}
   {nextUrl && <link slot="head" rel="next" href={nextUrl} />}
@@ -108,6 +129,14 @@ const schema = {
       )}
 
       <BlogPagination page={page} totalPages={totalPages} baseHref="/blog" />
+
+      <IntentLinkGraph
+        class="um-intent-link-graph--contained"
+        kicker="Para avanzar"
+        title="Ver también"
+        text="Pasá de una nota a servicios relacionados, sectores donde aplica o lecturas cercanas."
+        groups={blogStrategicLinkGroups}
+      />
 
     </div>
   </section>

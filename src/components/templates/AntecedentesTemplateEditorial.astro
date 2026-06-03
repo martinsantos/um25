@@ -160,6 +160,7 @@ const projectYear = (item: any) => {
         <a
           href={buildSectorUrl(chip.id)}
           class={sectorFilter === chip.id || (chip.id === '' && !sectorFilter) ? 'is-active' : ''}
+          aria-current={sectorFilter === chip.id || (chip.id === '' && !sectorFilter) ? 'page' : undefined}
         >
           <span>{String(index).padStart(2, '0')}</span>
           <em>{chip.name}</em>
@@ -186,7 +187,7 @@ const projectYear = (item: any) => {
     ) : (
       <>
         {feature && (
-          <a href={projectHref(feature)} class="ante-dossier__feature">
+          <a href={projectHref(feature)} class="um-click-surface ante-dossier__feature">
             <figure>
               <img src={feature.imageUrl} alt={feature.Titulo || projectTitle(feature)} loading="eager" decoding="async" onerror="this.src='/images/default.jpg'" />
             </figure>
@@ -216,7 +217,7 @@ const projectYear = (item: any) => {
         {secondary.length > 0 && (
           <div class="ante-dossier__secondary" aria-label="Casos secundarios">
             {secondary.map((item: any, index: number) => (
-              <a href={projectHref(item)} class="ante-dossier__secondary-item">
+              <a href={projectHref(item)} class="um-click-surface ante-dossier__secondary-item">
                 <figure>
                   <img src={item.imageUrl} alt={item.Titulo || projectTitle(item)} loading="lazy" decoding="async" onerror="this.src='/images/default.jpg'" />
                 </figure>
@@ -371,7 +372,14 @@ const projectYear = (item: any) => {
     font-size: 1rem;
     font-weight: 600;
     line-height: 1.2;
-    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.34em;
+    transition:
+      background-color 180ms ease,
+      color 180ms ease,
+      text-decoration-color 180ms ease;
   }
 
   .ante-dossier__actions a:first-child {
@@ -384,14 +392,18 @@ const projectYear = (item: any) => {
     color: #111;
   }
 
-  .ante-dossier__actions a:first-child:hover {
-    background: #1d1d1f;
+  .ante-dossier__actions a:first-child:hover,
+  .ante-dossier__actions a:first-child:focus-visible {
+    background: var(--um-red);
     color: #fff;
+    text-decoration-color: currentColor;
   }
 
-  .ante-dossier__actions a + a:hover {
-    background: #e1e4e8;
-    color: #111;
+  .ante-dossier__actions a + a:hover,
+  .ante-dossier__actions a + a:focus-visible {
+    background: #111;
+    color: #fff;
+    text-decoration-color: currentColor;
   }
 
   .ante-dossier__proof {
@@ -505,6 +517,16 @@ const projectYear = (item: any) => {
     color: var(--ante-text);
     padding: 0 16px;
     box-shadow: inset 0 -1px 0 rgba(216, 221, 227, 0.9);
+    transition:
+      background-color 180ms ease,
+      box-shadow 180ms ease,
+      color 180ms ease;
+  }
+
+  .ante-dossier__search input:hover,
+  .ante-dossier__search input:focus {
+    background: #fff;
+    box-shadow: inset 0 -2px 0 var(--um-red);
   }
 
   .ante-dossier__search input:focus {
@@ -519,6 +541,15 @@ const projectYear = (item: any) => {
     padding: 0 22px;
     font-weight: var(--um-weight-strong, 700);
     cursor: pointer;
+    transition:
+      background-color 180ms ease,
+      color 180ms ease;
+  }
+
+  .ante-dossier__search button:hover,
+  .ante-dossier__search button:focus-visible {
+    background: #111;
+    color: #fff;
   }
 
   .ante-dossier__sector-rail {
@@ -578,6 +609,20 @@ const projectYear = (item: any) => {
     font-weight: var(--um-weight-title, 600);
     line-height: 1.2;
     white-space: nowrap;
+    text-decoration: none;
+    transition: color 180ms ease;
+  }
+
+  .ante-dossier__sector-links a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity 180ms ease;
   }
 
   .ante-dossier__sector-links a span {
@@ -600,18 +645,17 @@ const projectYear = (item: any) => {
     color: var(--um-red);
   }
 
+  .ante-dossier__sector-links a:hover,
+  .ante-dossier__sector-links a:focus-visible {
+    color: var(--um-red);
+  }
+
   .ante-dossier__sector-links a.is-active span {
     color: var(--um-red);
   }
 
   .ante-dossier__sector-links a.is-active::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 2px;
-    background: var(--um-red);
+    opacity: 1;
   }
 
   .ante-dossier__clear {
@@ -620,6 +664,12 @@ const projectYear = (item: any) => {
     font-weight: var(--um-weight-title, 600);
     border-bottom: 2px solid var(--um-red);
     padding-bottom: 2px;
+    transition: color 180ms ease, background-color 180ms ease;
+  }
+
+  .ante-dossier__clear:hover,
+  .ante-dossier__clear:focus-visible {
+    color: var(--um-red);
   }
 
   @media (max-width: 1080px) {
@@ -1019,11 +1069,26 @@ const projectYear = (item: any) => {
     color: #111;
     font-size: 1rem;
     font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.35em;
+    transition:
+      background-color 180ms ease,
+      color 180ms ease,
+      text-decoration-color 180ms ease;
   }
 
   .ante-dossier__pagination a.is-active {
     background: #111;
     color: #fff;
+  }
+
+  .ante-dossier__pagination a:not(.is-active):hover,
+  .ante-dossier__pagination a:not(.is-active):focus-visible {
+    background: rgba(220, 38, 38, 0.08);
+    color: var(--um-red);
+    text-decoration-color: currentColor;
   }
 
   .ante-dossier__empty {
@@ -1039,6 +1104,17 @@ const projectYear = (item: any) => {
     color: #111;
     font-size: 1rem;
     font-weight: var(--um-weight-strong, 700);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.36em;
+    transition: color 180ms ease, text-decoration-color 180ms ease;
+  }
+
+  .ante-dossier__empty a:hover,
+  .ante-dossier__empty a:focus-visible {
+    color: var(--um-red);
+    text-decoration-color: currentColor;
   }
 
   @media (max-width: 1080px) {

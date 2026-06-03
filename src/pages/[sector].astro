@@ -14,7 +14,11 @@ import { getFAQSchema } from '../data/sectorFAQs';
 import { getSectorVisualSpec } from '../data/sectorVisualSystem';
 import { getDevTemplateVariant } from '../utils/templateVariant';
 import { buildGeoHubStructuredData, getGeoCommercialHub } from '../data/geoCommercialHubs';
-import { getLegacyRedirectTarget } from '../data/strategicLinkGraph';
+import {
+  buildSectorStrategicLinkGroups,
+  buildStrategicWebPageStructuredData,
+  getLegacyRedirectTarget,
+} from '../data/strategicLinkGraph';
 import { getReplicaProdEntry, isReplicaIdenticalCopy, resolveReplicaH1 } from '../utils/replicaProdCopy';
 
 const sectorSlug = Astro.params.sector || '';
@@ -85,6 +89,29 @@ const templateServiciosRelacionados = (serviciosRelacionados || []).map((servici
   ...servicio,
   slug: generateSlug(servicio.nombre || servicio.Titulo || 'servicio')
 }));
+const sectorStrategicLinkGroups = geoHub ? [] : buildSectorStrategicLinkGroups({
+  currentPath: `/${sectorSlug}`,
+  sectorSlug,
+  sectorName: templateSector.label || nombre,
+  title: pageHeadline,
+  summary: pageSummary || seo_description,
+  text: [
+    templateSector.operatingNeed,
+    templateSector.proof,
+    Array.isArray(templateSector.services) ? templateSector.services.join(' ') : '',
+  ].filter(Boolean).join(' '),
+  relatedServices: templateServiciosRelacionados,
+  relatedCases: antecedentes.slice(0, 4),
+});
+const sectorStructuredData = geoHub ? [] : [
+  ...(faqSchema ? [faqSchema] : []),
+  buildStrategicWebPageStructuredData({
+    url: `https://www.ultimamilla.com.ar/${sectorSlug}`,
+    name: pageHeadline,
+    description: seo_description || pageSummary,
+    groups: sectorStrategicLinkGroups,
+  }),
+];
 ---
 
 {geoHub ? (
@@ -98,7 +125,7 @@ const templateServiciosRelacionados = (serviciosRelacionados || []).map((servici
   <GeoHubDossier hub={geoHub} />
 </LayoutV4>
 ) : (
-<LayoutV4 title={editorialSeoTitle} description={seo_description} keywords={seo_keywords} image={heroImage} structuredData={faqSchema}>
+<LayoutV4 title={editorialSeoTitle} description={seo_description} keywords={seo_keywords} image={heroImage} structuredData={sectorStructuredData}>
   {templateVariant !== 'atlas' && (
     <SectorTemplateEditorial
       mode="detail"

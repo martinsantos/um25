@@ -545,8 +545,10 @@ body[data-skin="steel"] {
     transition: background-color 180ms ease, color 180ms ease;
   }
 
-  .um-btn-primary:hover {
-    background: var(--um-red-dark);
+  .um-btn-primary:hover,
+  .um-btn-primary:focus-visible {
+    background: #111111;
+    color: #ffffff;
   }
 
   .um-btn-secondary {
@@ -663,19 +665,106 @@ body[data-skin="steel"] {
     display: inline-flex;
     align-items: center;
     gap: 0.85rem;
+    width: fit-content;
     color: inherit;
     font-size: 1rem;
     font-weight: 600;
     line-height: 1.2;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.42em;
+    text-decoration-color: transparent;
+    transition:
+      color 180ms ease,
+      text-decoration-color 180ms ease;
   }
 
   .um-arrow-link::after {
     content: "";
+    flex: 0 0 auto;
     width: 30px;
     height: 12px;
     border-right: 1px solid currentColor;
     border-bottom: 1px solid currentColor;
     transform: skewX(-35deg);
+    transition:
+      border-color 180ms ease,
+      transform 180ms ease;
+  }
+
+  .um-arrow-link:hover,
+  .um-arrow-link:focus-visible {
+    color: var(--um-red);
+    text-decoration-color: currentColor;
+  }
+
+  .um-arrow-link:hover::after,
+  .um-arrow-link:focus-visible::after {
+    transform: translateX(5px) skewX(-35deg);
+  }
+
+  .um-click-surface {
+    /* Contract: marks a whole surface as clickable. Components own visual hover. */
+    position: relative;
+    isolation: isolate;
+    cursor: pointer;
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease;
+  }
+
+  .um-click-surface:focus-visible {
+    outline: 3px solid rgba(220, 38, 38, 0.32);
+    outline-offset: 3px;
+  }
+
+  .um-click-surface :where(.um-click-action, .evidence-item__cta, .evidence-case-row__action, .um-evidence-case-link, .service-dossier-item__signal, .services-intent-card strong, .um-service-unit__head, .sector-editorial-feature__link) {
+    transition: color 180ms ease, text-decoration-color 180ms ease, transform 180ms ease;
+  }
+
+  .um-click-surface:hover :where(.um-click-action, .evidence-item__cta, .evidence-case-row__action, .um-evidence-case-link, .service-dossier-item__signal, .services-intent-card strong, .um-service-unit__head, .sector-editorial-feature__link),
+  .um-click-surface:focus-visible :where(.um-click-action, .evidence-item__cta, .evidence-case-row__action, .um-evidence-case-link, .service-dossier-item__signal, .services-intent-card strong, .um-service-unit__head, .sector-editorial-feature__link) {
+    color: var(--um-red);
+      text-decoration-color: currentColor;
+  }
+
+  :where(main) :where(
+    .um-click-surface:not(.um-arrow-link):not(.um-btn):not(.um-btn-primary):not(.um-btn-secondary):not(.um-nav-cta):not(.um-mobile-cta):not(.feed-thumb-wrap):not(.post-nav-item)
+  ):hover,
+  :where(main) :where(
+    .um-click-surface:not(.um-arrow-link):not(.um-btn):not(.um-btn-primary):not(.um-btn-secondary):not(.um-nav-cta):not(.um-mobile-cta):not(.feed-thumb-wrap):not(.post-nav-item)
+  ):focus-visible {
+    background: var(
+      --um-click-hover-bg,
+      color-mix(
+        in srgb,
+        var(--skin-panel, #ffffff) 84%,
+        var(--um-click-accent, var(--service-accent, var(--um-red))) 16%
+      )
+    ) !important;
+    border-color: color-mix(
+      in srgb,
+      var(--um-click-accent, var(--service-accent, var(--um-red))) 42%,
+      var(--skin-line, #d9dadd)
+    ) !important;
+  }
+
+  :where(main) :where(.um-click-surface:hover, .um-click-surface:focus-visible) :where(
+    h2,
+    h3,
+    strong,
+    .um-click-action,
+    .evidence-item__cta,
+    .evidence-case-row__action,
+    .um-evidence-case-link,
+    .service-dossier-item__signal,
+    .services-intent-card strong,
+    .um-service-unit__head,
+    .sector-editorial-feature__link
+  ) {
+    color: var(--um-click-accent, var(--service-accent, var(--um-red))) !important;
+    text-decoration-color: currentColor !important;
   }
 
   .um-media-frame {
@@ -1341,6 +1430,170 @@ body[data-skin] main :where(input, textarea, select)::placeholder {
   color: var(--skin-muted) !important;
 }
 
+/* Interaction contract: every commercial control must reveal hover/focus intent.
+   Keep it quiet and stable: no lift, no zoom, no elevation shadows. */
+body[data-skin] :where(main, nav, footer) :where(
+  a[href],
+  button:not(:disabled),
+  input:not([type="hidden"]),
+  textarea,
+  select
+) {
+  -webkit-tap-highlight-color: rgba(220, 38, 38, 0.14);
+}
+
+body[data-skin] :where(main, nav, footer) :where(
+  a[href],
+  button:not(:disabled),
+  input:not([type="hidden"]),
+  textarea,
+  select
+):focus-visible {
+  outline: 3px solid rgba(220, 38, 38, 0.34) !important;
+  outline-offset: 3px !important;
+}
+
+body[data-skin] main :where(input:not([type="hidden"]), textarea, select) {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease;
+}
+
+body[data-skin] main :where(input:not([type="hidden"]), textarea, select):hover,
+body[data-skin] main :where(input:not([type="hidden"]), textarea, select):focus {
+  border-color: color-mix(in srgb, var(--um-red) 52%, var(--skin-line)) !important;
+}
+
+body[data-skin] main :where(
+  .ante-dossier__clear,
+  .ante-dossier__pagination a,
+  .ante-atlas__clear,
+  .ante-atlas__pagination a,
+  .sector-atlas-exec-ledger__clear,
+  .pagination .pag-btn:not(.pag-btn--disabled)
+) {
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.38em;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    text-decoration-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+body[data-skin] main :where(
+  .ante-dossier__clear,
+  .ante-dossier__pagination a:not(.is-active),
+  .ante-atlas__clear,
+  .ante-atlas__pagination a:not(.is-active),
+  .sector-atlas-exec-ledger__clear,
+  .pagination .pag-btn:not(.pag-btn--disabled)
+):hover,
+body[data-skin] main :where(
+  .ante-dossier__clear,
+  .ante-dossier__pagination a:not(.is-active),
+  .ante-atlas__clear,
+  .ante-atlas__pagination a:not(.is-active),
+  .sector-atlas-exec-ledger__clear,
+  .pagination .pag-btn:not(.pag-btn--disabled)
+):focus-visible {
+  color: var(--um-red) !important;
+  text-decoration-color: currentColor !important;
+}
+
+body[data-skin] main :where(
+  .ante-dossier__sector-links a,
+  .ante-atlas__filters nav a,
+  .sector-editorial__market-links a,
+  .sector-atlas-exec-ledger__filters-links a,
+  .cat-tab
+) {
+  text-decoration-line: none !important;
+}
+
+body[data-skin] main :where(
+  .ante-dossier__sector-rail,
+  .sector-editorial__market-rail,
+  .sector-atlas-exec-ledger__controls
+) {
+  max-width: 100%;
+  background: #ffffff !important;
+  overflow: hidden;
+}
+
+body[data-skin] main :where(
+  .ante-dossier__sector-links,
+  .sector-editorial__market-links,
+  .sector-atlas-exec-ledger__filters-links,
+  .cat-tabs__list
+) {
+  max-width: 100%;
+  min-width: 0;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+}
+
+body[data-skin] main :where(
+  .ante-dossier__sector-links,
+  .sector-editorial__market-links,
+  .sector-atlas-exec-ledger__filters-links,
+  .cat-tabs__list
+)::-webkit-scrollbar {
+  display: none;
+}
+
+body[data-skin] main :where(
+  .ante-dossier__sector-links a,
+  .sector-editorial__market-links a,
+  .sector-atlas-exec-ledger__filters-links a,
+  .cat-tab
+) {
+  box-sizing: border-box;
+  scroll-snap-align: start;
+}
+
+@media (max-width: 760px) {
+  body[data-skin] main .cat-tabs {
+    max-width: 100%;
+    background: #ffffff !important;
+    overflow: hidden !important;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 28px), transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 28px), transparent 100%);
+  }
+
+  body[data-skin] main .cat-tabs .cat-tabs__list {
+    display: flex !important;
+    grid-template-columns: none !important;
+    flex-wrap: nowrap !important;
+    gap: 18px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding-inline: 14px 42px !important;
+    scroll-padding-inline: 14px 42px !important;
+  }
+
+  body[data-skin] main .cat-tabs .cat-tab {
+    flex: 0 0 auto !important;
+    min-height: 42px;
+    padding: 0 !important;
+    align-items: center;
+    white-space: nowrap !important;
+    text-align: left !important;
+    overflow-wrap: normal !important;
+  }
+
+  body[data-skin] main .cat-tabs .cat-tab::after {
+    bottom: 0 !important;
+  }
+}
+
 body[data-skin] main :where(hr, .border-gray-200, .border-gray-300, .border-white\/10, .border-white\/20) {
   border-color: var(--skin-line) !important;
 }
@@ -1382,6 +1635,23 @@ body[data-skin] :where(main, nav, footer) :where(.um-btn-primary, .um-nav-cta) {
 
 body[data-skin] :where(main, nav, footer) :where(.um-btn-primary:hover, .um-nav-cta:hover) {
   box-shadow: none !important;
+}
+
+body[data-skin] main :where(
+  .services-hero,
+  .service-detail-hero,
+  .sector-detail-hero,
+  .case-detail-hero,
+  .um-home-hero,
+  .sector-atlas-detail-hero,
+  .ante-atlas__hero,
+  .sector-editorial-detail-hero,
+  .geo-dossier-hero,
+  .um-cta,
+  .um-final-cta
+) :where(.um-btn-primary:hover, .um-btn-primary:focus-visible, .um-cta__primary:hover, .um-cta__primary:focus-visible) {
+  background: #ffffff !important;
+  color: #111111 !important;
 }
 
 body[data-skin] main :where(.um-cta, .stats-bar-v4) {
@@ -2575,4 +2845,63 @@ body[data-skin] main .case-related .evidence-case-row p {
     height: auto !important;
     min-height: 72px !important;
   }
+}
+
+/* Interaction contract — final override over data-skin normalizers. */
+body main .um-arrow-link:hover,
+body main .um-arrow-link:focus-visible {
+  color: var(--um-red) !important;
+  text-decoration-color: currentColor !important;
+}
+
+body main .um-arrow-link:hover::after,
+body main .um-arrow-link:focus-visible::after {
+  transform: translateX(5px) skewX(-35deg) !important;
+}
+
+body main .um-click-surface:not(.um-arrow-link):not(.um-btn):not(.um-btn-primary):not(.um-btn-secondary):not(.um-nav-cta):not(.um-mobile-cta):not(.feed-thumb-wrap):not(.post-nav-item):hover,
+body main .um-click-surface:not(.um-arrow-link):not(.um-btn):not(.um-btn-primary):not(.um-btn-secondary):not(.um-nav-cta):not(.um-mobile-cta):not(.feed-thumb-wrap):not(.post-nav-item):focus-visible {
+  background: var(
+    --um-click-hover-bg,
+    color-mix(
+      in srgb,
+      var(--skin-panel, #ffffff) 84%,
+      var(--um-click-accent, var(--service-accent, var(--um-red))) 16%
+    )
+  ) !important;
+  border-color: color-mix(
+    in srgb,
+    var(--um-click-accent, var(--service-accent, var(--um-red))) 42%,
+    var(--skin-line, #d9dadd)
+  ) !important;
+}
+
+body main .um-click-surface:hover :where(
+  h2,
+  h3,
+  strong,
+  .um-click-action,
+  .evidence-item__cta,
+  .evidence-case-row__action,
+  .um-evidence-case-link,
+  .service-dossier-item__signal,
+  .services-intent-card strong,
+  .um-service-unit__head,
+  .sector-editorial-feature__link
+),
+body main .um-click-surface:focus-visible :where(
+  h2,
+  h3,
+  strong,
+  .um-click-action,
+  .evidence-item__cta,
+  .evidence-case-row__action,
+  .um-evidence-case-link,
+  .service-dossier-item__signal,
+  .services-intent-card strong,
+  .um-service-unit__head,
+  .sector-editorial-feature__link
+) {
+  color: var(--um-click-accent, var(--service-accent, var(--um-red))) !important;
+  text-decoration-color: currentColor !important;
 }

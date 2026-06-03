@@ -18,6 +18,7 @@ import ProductCard from '../../../components/v4/ProductCard.astro';
 import CTASection from '../../../components/v4/CTASection.astro';
 import SectionHeader from '../../../components/um/SectionHeader.astro';
 import UMButton from '../../../components/um/UMButton.astro';
+import IntentLinkGraph from '../../../components/um/IntentLinkGraph.astro';
 import EmailLink from '../../../components/common/EmailLink.astro';
 
 import { generateSlug } from '../../../utils/slugUtils.js';
@@ -36,6 +37,10 @@ import {
   stripBannedLedgerPhrases,
 } from '../../../utils/editorialContent';
 import { shouldShowProductCardActions } from '../../../data/commercialPlacement';
+import {
+  buildServiceStrategicLinkGroups,
+  buildStrategicWebPageStructuredData,
+} from '../../../data/strategicLinkGraph';
 import {
   cmsServiceTitle,
   isReplicaIdenticalCopy,
@@ -138,6 +143,20 @@ const showGenericProcess =
   !replicaProd || porQueElegirnos.length === 0;
 const displayStats = sanitizeServiceStats(servicio.stats || []);
 const canonicalUrl = `${siteUrl}/servicios/${id}/${slug}`;
+const serviceStrategicLinkGroups = buildServiceStrategicLinkGroups({
+  currentPath: serviceDetailPath,
+  serviceId: id,
+  serviceName: visual?.shortName || cmsTitle,
+  title: serviceHeroTitle,
+  summary: pageDescription,
+  text: [
+    servicio.Titulo,
+    servicio.area,
+    servicio.Area,
+    servicio.Subtitulo,
+    productos.map((producto: any) => `${producto.titulo || producto.nombre || ''} ${producto.descripcion || ''}`).join(' '),
+  ].filter(Boolean).join(' '),
+});
 
 // Structured Data - Service schema
 const serviceStructuredData = {
@@ -174,6 +193,15 @@ const serviceStructuredData = {
   }),
   "inLanguage": "es"
 };
+const servicePageStructuredData = [
+  serviceStructuredData,
+  buildStrategicWebPageStructuredData({
+    url: canonicalUrl,
+    name: pageTitle,
+    description: pageDescription,
+    groups: serviceStrategicLinkGroups,
+  }),
+];
 
 // SVG icon paths para soluciones
 const iconPaths = {
@@ -200,7 +228,7 @@ const iconPaths = {
   description={pageDescription}
   keywords={`${servicio.Titulo.toLowerCase()}${servicio.area ? `, ${servicio.area.toLowerCase()}` : ''}, servicios tecnologicos mendoza`}
   canonical={canonicalUrl}
-  structuredData={serviceStructuredData}
+  structuredData={servicePageStructuredData}
 >
   <section class="service-detail-hero">
     <div class="service-detail-hero__image">
@@ -378,7 +406,7 @@ const iconPaths = {
               <UMButton href="/contacto" class="service-info-primary">
                 Solicitar diagnóstico
               </UMButton>
-              <EmailLink class="service-info-secondary" />
+              <EmailLink class="um-click-surface service-info-secondary" />
             </div>
           </div>
 
@@ -433,6 +461,13 @@ const iconPaths = {
       </div>
     </section>
   )}
+
+  <IntentLinkGraph
+    kicker="Para avanzar"
+    title="Ver también"
+    text="Servicios relacionados, sectores donde aplica, casos comparables y contacto técnico para relevar alcance."
+    groups={serviceStrategicLinkGroups}
+  />
 
   <!-- CTA SECTION - Componente V4 -->
   <CTASection

@@ -1,22 +1,41 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { relative } from 'node:path';
 import { execFileSync } from 'node:child_process';
 
 const root = process.cwd();
 
-const files = execFileSync('rg', [
-  '--files',
-  'src',
-  '-g',
-  '*.astro',
-  '-g',
-  '*.css',
-  '-g',
-  '*.ts',
-], { cwd: root, encoding: 'utf8' })
-  .trim()
-  .split('\n')
-  .filter(Boolean);
+const auditedExtensions = new Set(['.astro', '.css', '.ts']);
+
+function walkFiles(dir) {
+  return readdirSync(dir)
+    .flatMap((entry) => {
+      const full = `${dir}/${entry}`;
+      const stat = statSync(full);
+      if (stat.isDirectory()) return walkFiles(full);
+      return auditedExtensions.has(full.slice(full.lastIndexOf('.'))) ? [full] : [];
+    });
+}
+
+function listAuditedFiles() {
+  try {
+    const output = execFileSync('rg', [
+      '--files',
+      'src',
+      '-g',
+      '*.astro',
+      '-g',
+      '*.css',
+      '-g',
+      '*.ts',
+    ], { cwd: root, encoding: 'utf8' });
+    return output.trim().split('\n').filter(Boolean);
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
+    return walkFiles('src');
+  }
+}
+
+const files = listAuditedFiles();
 
 const labOrLegacy = [
   /^src\/components\/arca\//,
@@ -97,8 +116,47 @@ const rules = [
   },
 ];
 
+const blockRules = [
+  {
+    id: 'no-click-surface-hover-shadow',
+    severity: 'error',
+    selector: /\.um-click-surface[^{]*(?::hover|:focus-visible)/,
+    body: /box-shadow\s*:\s*(?!none\b)[^;}]+/i,
+    message: '.um-click-surface no debe imponer caja/sombra en hover o focus. Es contrato funcional; el feedback visual vive en cada componente.',
+  },
+  {
+    id: 'no-service-surface-hover-shadow',
+    severity: 'error',
+    selector: /\.(?:um-service-unit|service-dossier-item)[^{]*(?::hover|:focus-visible)/,
+    body: /box-shadow\s*:\s*(?!none\b)[^;}]+/i,
+    message: 'Las superficies de servicios no deben usar caja/sombra en hover. Usar fondo suave y acento local consistente.',
+  },
+  {
+    id: 'no-hover-elevation-shadow',
+    severity: 'error',
+    selector: /(?::hover|:focus-visible|:has\([^)]*(?:hover|focus-visible)[^)]*\))/,
+    body: /box-shadow\s*:\s*(?!none\b)(?:0\s+(?:[2-9]|\d{2,})px|[^;}]*rgba\(17,\s*24,\s*39)/i,
+    message: 'No usar sombra de elevacion en hover/focus de superficies comerciales. Usar fondo suave, borde o color.',
+  },
+  {
+    id: 'no-hover-lift',
+    severity: 'error',
+    selector: /(?::hover|:focus-visible|:has\([^)]*(?:hover|focus-visible)[^)]*\))/,
+    body: /transform\s*:\s*translateY\(\s*-\d/i,
+    message: 'No desplazar superficies comerciales hacia arriba en hover/focus. Mantener layout estable.',
+  },
+  {
+    id: 'no-filter-hover-underline',
+    severity: 'error',
+    selector: /\.(?:ante-dossier__sector-links|sector-editorial__market-links|sector-atlas-exec-ledger__filters-links)[^{]*(?:a:hover|a:focus-visible)/,
+    body: /(?:text-decoration-color\s*:\s*currentColor|opacity\s*:\s*1)/i,
+    message: 'Los rails de filtros reservan el subrayado para el estado activo. Hover/focus debe cambiar color o fondo, no dibujar otra linea.',
+  },
+];
+
 const isLabOrLegacy = (file) => labOrLegacy.some((rule) => rule.test(file));
 const isExempt = (line) => commercialExemptions.some(({ pattern }) => pattern.test(line));
+const lineForOffset = (content, offset) => content.slice(0, offset).split(/\r?\n/).length;
 
 const findings = [];
 
@@ -124,6 +182,25 @@ for (const file of files) {
       }
     }
   });
+
+  for (const match of content.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const selector = match[1].trim();
+    const body = match[2].trim();
+
+    for (const rule of blockRules) {
+      if (!rule.selector.test(selector) || !rule.body.test(body)) continue;
+
+      findings.push({
+        scope,
+        severity: scope === 'commercial' ? rule.severity : 'warning',
+        rule: rule.id,
+        file,
+        line: lineForOffset(content, match.index),
+        message: rule.message,
+        excerpt: `${selector} { ${body.replace(/\s+/g, ' ').slice(0, 180)} }`,
+      });
+    }
+  }
 }
 
 const commercialErrors = findings.filter((finding) => (
