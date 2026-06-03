@@ -214,47 +214,24 @@ export async function getServicioConProductos(id: number | string): Promise<Serv
 }
 
 /**
- * Obtiene los productos de un servicio específico desde la colección "productos"
- * Migrado de campo JSON a tabla separada con relación M2O
+ * Obtiene los productos de un servicio específico.
+ * Producción todavía no tiene la colección Directus "productos"; usar snapshot evita
+ * 403 recurrentes hasta que se migre el schema CMS.
  * IMPORTANTE: Filtra duplicados basados en título para evitar mostrar productos repetidos
  */
 export async function getProductosPorServicio(servicioId: number): Promise<ProductoV4[]> {
   try {
-    const client = getClient();
-    const response = await client.request(
-      readItems('productos', {
-        filter: { servicio_id: { _eq: servicioId } },
-        sort: ['orden', 'id'],
-        fields: ['*', 'imagen.*']
-      })
-    );
-
-    // Deduplicate products by title (keep first occurrence)
-    const productos = (response || []) as ProductoV4[];
+    const allProductos = await loadSnapshotData<ProductoV4>('productos');
+    const productos = allProductos.filter((p: any) => p.servicio_id === servicioId);
     const seen = new Set<string>();
-    const uniqueProductos = productos.filter((producto) => {
+    return productos.filter((producto) => {
       const titulo = producto.titulo?.toLowerCase().trim();
-      if (!titulo || seen.has(titulo)) {
-        return false;
-      }
+      if (!titulo || seen.has(titulo)) return false;
       seen.add(titulo);
       return true;
     });
-
-    return uniqueProductos;
-  } catch (error) {
-    console.error(`Error fetching productos for servicio ${servicioId}, trying snapshot:`, error);
-    try {
-      const allProductos = await loadSnapshotData<ProductoV4>('productos');
-      const filtered = allProductos.filter((p: any) => p.servicio_id === servicioId);
-      const seen = new Set<string>();
-      return filtered.filter((p) => {
-        const titulo = p.titulo?.toLowerCase().trim();
-        if (!titulo || seen.has(titulo)) return false;
-        seen.add(titulo);
-        return true;
-      });
-    } catch { return []; }
+  } catch {
+    return [];
   }
 }
 

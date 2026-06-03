@@ -2,8 +2,9 @@
  * HELPERS PARA SECTORES DESDE DIRECTUS
  * =====================================
  *
- * Funciones para obtener datos de sectores desde Directus
- * Con fallback a snapshots JSON cuando Directus no responde
+ * Funciones para obtener datos de sectores.
+ * Producción todavía no tiene la colección Directus "sectores"; los metadatos
+ * salen de snapshots y los antecedentes filtrados sí se consultan desde Directus.
  */
 
 import { readItems } from '@directus/sdk';
@@ -50,93 +51,16 @@ export interface Sector {
 }
 
 /**
- * Obtiene un sector por slug desde Directus
+ * Obtiene un sector por slug desde snapshot local.
  */
 export async function getSectorBySlug(slug: string): Promise<Sector | null> {
   try {
-    const client = getClient();
-
-    // 1. Get base sector data
-    const sectores = await client.request(
-      readItems('sectores', {
-        filter: {
-          slug: { _eq: slug },
-          activo: { _eq: true },
-        },
-        fields: [
-          'id',
-          'slug',
-          'nombre',
-          'emoji',
-          'descripcion',
-          'hero_image',
-          'keywords',
-          'color_theme',
-          'seo_title',
-          'seo_description',
-          'seo_keywords',
-          'stats',
-          'activo',
-          'orden',
-        ],
-        limit: 1,
-      })
-    );
-
-    if (!sectores || sectores.length === 0) {
-      console.warn(`[sectoresHelpers] Sector "${slug}" no encontrado en Directus`);
-      return null;
-    }
-
-    const sector = sectores[0] as any;
-
-    // 2. Get value_props separately
-    const valuePropsData = await client.request(
-      readItems('sector_value_props', {
-        filter: { sector_id: { _eq: sector.id } },
-        fields: ['icono', 'titulo', 'descripcion', 'orden'],
-        sort: ['orden'],
-      })
-    );
-
-    // 3. Get servicios separately through junction table
-    const serviciosJunction = await client.request(
-      readItems('sectores_servicios', {
-        filter: { sectores_id: { _eq: sector.id } },
-        fields: ['orden', 'descripcion_custom', { servicios_id: ['id', 'Titulo', 'Descripcion'] }],
-        sort: ['orden'],
-      })
-    );
-
-    // Transform servicios
-    const servicios = serviciosJunction
-      .map((junction: any) => {
-        if (!junction.servicios_id) return null;
-        return {
-          id: junction.servicios_id.id,
-          nombre: junction.servicios_id.Titulo,
-          descripcion: junction.descripcion_custom || junction.servicios_id.Descripcion,
-          orden: junction.orden,
-        };
-      })
-      .filter(Boolean);
-
-    return trimSectorSEO({
-      ...sector,
-      value_props: valuePropsData,
-      servicios,
-    });
-
-  } catch (error) {
-    console.error(`[sectoresHelpers] Error obteniendo sector "${slug}", trying snapshot:`, error);
-    try {
-      const snapshot = await import('../data/snapshots/sectores.json');
-      const allSectores = (snapshot.data || snapshot.default?.data || []) as Sector[];
-      const sector = allSectores.find((s: any) => s.slug === slug && s.activo !== false);
-      return sector ? trimSectorSEO(sector) : null;
-    } catch {
-      return null;
-    }
+    const snapshot = await import('../data/snapshots/sectores.json');
+    const allSectores = (snapshot.data || snapshot.default?.data || []) as Sector[];
+    const sector = allSectores.find((s: any) => s.slug === slug && s.activo !== false);
+    return sector ? trimSectorSEO(sector) : null;
+  } catch {
+    return null;
   }
 }
 
@@ -212,41 +136,14 @@ function filterAntecedentesByKeywords(items: any[], keywords: string[], limit: n
 }
 
 /**
- * Obtiene todos los sectores activos desde Directus
+ * Obtiene todos los sectores activos desde snapshot local.
  */
 export async function getAllSectores(): Promise<Sector[]> {
   try {
-    const client = getClient();
-
-    const sectores = await client.request(
-      readItems('sectores', {
-        filter: {
-          activo: { _eq: true },
-        },
-        fields: [
-          'id',
-          'slug',
-          'nombre',
-          'emoji',
-          'descripcion',
-          'hero_image',
-          'color_theme',
-          'orden',
-        ],
-        sort: ['orden'],
-      })
-    );
-
-    return sectores as Sector[];
-
-  } catch (error) {
-    console.error('[sectoresHelpers] Error obteniendo sectores, trying snapshot:', error);
-    try {
-      const snapshot = await import('../data/snapshots/sectores.json');
-      return (snapshot.data || snapshot.default?.data || []) as Sector[];
-    } catch {
-      return [];
-    }
+    const snapshot = await import('../data/snapshots/sectores.json');
+    return (snapshot.data || snapshot.default?.data || []) as Sector[];
+  } catch {
+    return [];
   }
 }
 
