@@ -78,8 +78,8 @@ async function queryDirectusRealOnly(searchQuery: string): Promise<FormattedResu
                 
                 // SOLO URLs REALES O GENÉRICAS - NUNCA INVENTADAS
                 const realUrl = knownSlug 
-                    ? `https://ultimamilla.com.ar/antecedentes/${ant.id}/${knownSlug}`
-                    : 'https://ultimamilla.com.ar/antecedentes'; // Página genérica si no conocemos slug específico
+                    ? `https://www.ultimamilla.com.ar/antecedentes/${ant.id}/${knownSlug}`
+                    : 'https://www.ultimamilla.com.ar/antecedentes'; // Página genérica si no conocemos slug específico
                 
                 results.push({
                     id: ant.id,
@@ -105,8 +105,8 @@ async function queryDirectusRealOnly(searchQuery: string): Promise<FormattedResu
                 
                 // SOLO URLs REALES O GENÉRICAS - NUNCA INVENTADAS
                 const realUrl = knownSlug 
-                    ? `https://ultimamilla.com.ar/servicios/${serv.id}/${knownSlug}`
-                    : 'https://ultimamilla.com.ar/servicios'; // Página genérica si no conocemos slug específico
+                    ? `https://www.ultimamilla.com.ar/servicios/${serv.id}/${knownSlug}`
+                    : 'https://www.ultimamilla.com.ar/servicios'; // Página genérica si no conocemos slug específico
                 
                 results.push({
                     id: serv.id,

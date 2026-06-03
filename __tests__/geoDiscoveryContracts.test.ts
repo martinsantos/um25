@@ -13,7 +13,7 @@ import {
 } from '../src/data/geoResources';
 
 const repoRoot = path.resolve(__dirname, '..');
-const productionDomain = 'https://ultimamilla.com.ar';
+const productionDomain = 'https://www.ultimamilla.com.ar';
 
 const expectedGeoResources = [
   'brand-facts',
@@ -35,7 +35,7 @@ const expectedCommercialHubs = [
 ];
 
 describe('GEO discovery and commercial hub contracts', () => {
-  test('exposes the complete GEO JSON resource set with apex canonicals', () => {
+  test('exposes the complete GEO JSON resource set with www canonicals', () => {
     expect(geoResourceNames).toEqual(expectedGeoResources);
 
     for (const resourceName of expectedGeoResources) {
@@ -43,7 +43,7 @@ describe('GEO discovery and commercial hub contracts', () => {
 
       expect(payload).toBeTruthy();
       expect(payload.canonicalDomain).toBe(productionDomain);
-      expect(JSON.stringify(payload)).not.toContain('https://www.ultimamilla.com.ar');
+      expect(JSON.stringify(payload)).not.toContain('https://ultimamilla.com.ar');
     }
   });
 
@@ -71,7 +71,7 @@ describe('GEO discovery and commercial hub contracts', () => {
         'FAQPage',
       ]);
       expect(serialized).toContain(`${productionDomain}/${slug}`);
-      expect(serialized).not.toContain('https://www.ultimamilla.com.ar');
+      expect(serialized).not.toContain('https://ultimamilla.com.ar');
       expect(serialized).not.toContain('?skin=');
       expect(serialized).not.toContain('?template=');
     }
@@ -84,7 +84,7 @@ describe('GEO discovery and commercial hub contracts', () => {
 
       expect(source).toContain(`getGeoCommercialHub('${slug}')`);
       expect(source).toContain('GeoHubDossier');
-      expect(source).toContain('canonical={`https://ultimamilla.com.ar/${hub.slug}`}');
+      expect(source).toContain('canonical={`https://www.ultimamilla.com.ar/${hub.slug}`}');
       expect(source).toContain('structuredData={buildGeoHubStructuredData(hub)}');
     }
   });

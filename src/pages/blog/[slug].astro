@@ -53,7 +53,7 @@ const idx = allRecent.findIndex(p => p.slug === slug);
 const prevPost = idx > 0 ? allRecent[idx - 1] : null;
 const nextPost = idx < allRecent.length - 1 ? allRecent[idx + 1] : null;
 
-const siteUrl = 'https://ultimamilla.com.ar';
+const siteUrl = 'https://www.ultimamilla.com.ar';
 const articleUrl = `${siteUrl}/blog/${slug}`;
 const wordCount = contentHtml.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
 
@@ -128,11 +128,6 @@ const articleTitle = isReplicaIdenticalCopy()
   ? resolveReplicaH1(`/blog/${slug}`, buildArticleTitle(post.titulo))
   : editorialArticleTitle;
 
-const isArcaPost = slug === 'plantilla-arca-facturacion-electronica-gratis';
-const heroPrimaryHref = isArcaPost ? '/plantilla-arca' : '/contacto';
-const heroPrimaryLabel = isArcaPost ? 'Probar Plantilla ARCA' : 'Solicitar diagnóstico';
-const heroSecondaryHref = isArcaPost ? '/contacto' : '/servicios';
-const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
 ---
 
 <LayoutV4
@@ -173,11 +168,6 @@ const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
 
         {articleLead && <p class="article-lead">{articleLead}</p>}
 
-        <nav class="article-hero-actions" aria-label="Acciones principales del artículo">
-          <a class="article-hero-actions__primary" href={heroPrimaryHref}>{heroPrimaryLabel}</a>
-          <a class="article-hero-actions__secondary" href={heroSecondaryHref}>{heroSecondaryLabel}</a>
-        </nav>
-
         <div class="author-row">
           <p class="author-meta">ULTIMA MILLA · {label} · {date} · {post.tiempo_lectura} min de lectura</p>
         </div>
@@ -204,12 +194,6 @@ const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
       </article>
     </div>
   </section>
-
-  <aside class="article-sticky-cta" id="articleStickyCta" aria-label="Contacto comercial UMSA">
-    <p>{isArcaPost ? '¿Necesitás integrar ARCA con tu operación IT?' : '¿Necesitás soporte IT en tu operación?'}</p>
-    <a href="/contacto">Relevamiento UMSA</a>
-  </aside>
-
   <script>
     const bar = document.getElementById('read-bar');
     const art = document.querySelector('.article-body');
@@ -221,15 +205,6 @@ const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
     }
     window.addEventListener('scroll', tick, { passive: true });
     tick();
-
-    const sticky = document.getElementById('articleStickyCta');
-    if (sticky) {
-      const reveal = () => {
-        sticky.classList.toggle('is-visible', window.scrollY > 280);
-      };
-      window.addEventListener('scroll', reveal, { passive: true });
-      reveal();
-    }
   </script>
 </LayoutV4>
 
@@ -322,102 +297,6 @@ const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
     line-height: 1.76;
     color: #3f4853;
     margin: 0 0 24px;
-  }
-
-  .article-hero-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-    margin: 0 0 22px;
-  }
-
-  .article-hero-actions a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 48px;
-    padding: 0.78rem 1.18rem;
-    font-family: var(--um-font-body);
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 1.15;
-    text-decoration: none;
-    border: 0;
-    box-shadow: none;
-    transition: background 0.16s ease, color 0.16s ease;
-  }
-
-  .article-hero-actions__primary {
-    background: var(--um-red);
-    color: #fff;
-  }
-
-  .article-hero-actions__primary:hover {
-    background: #111;
-    color: #fff;
-  }
-
-  .article-hero-actions__secondary {
-    color: #111827;
-    background: #eef0f2;
-  }
-
-  .article-hero-actions__secondary:hover {
-    color: #111827;
-    background: #e3e6ea;
-  }
-
-  .article-sticky-cta {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 60;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 12px 18px calc(12px + env(safe-area-inset-bottom, 0px));
-    background: rgba(17, 17, 17, 0.96);
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-    transform: translateY(110%);
-    transition: transform 0.2s ease;
-    pointer-events: none;
-  }
-
-  .article-sticky-cta.is-visible {
-    transform: translateY(0);
-    pointer-events: auto;
-  }
-
-  .article-sticky-cta p {
-    margin: 0;
-    font-family: var(--um-font-body);
-    font-size: 16px;
-    line-height: 1.35;
-    color: rgba(255, 255, 255, 0.88);
-  }
-
-  .article-sticky-cta a {
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 44px;
-    padding: 0 1rem;
-    font-family: var(--um-font-body);
-    font-size: 16px;
-    font-weight: 700;
-    text-decoration: none;
-    color: #fff;
-    background: var(--um-red);
-    border-radius: 4px;
-  }
-
-  .article-sticky-cta a:hover {
-    background: #fff;
-    color: #111;
   }
 
   /* Author */
@@ -714,18 +593,6 @@ const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
       margin-bottom: 18px;
     }
 
-    .article-hero-actions {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      margin-bottom: 18px;
-    }
-
-    .article-hero-actions a {
-      width: 100%;
-      min-height: 50px;
-    }
-
     .author-row {
       align-items: flex-start;
       margin-bottom: 22px;
@@ -737,12 +604,6 @@ const heroSecondaryLabel = isArcaPost ? 'Relevamiento UMSA' : 'Ver servicios';
 
     .post-nav-item--right {
       text-align: left;
-    }
-
-    .article-sticky-cta {
-      flex-direction: column;
-      align-items: stretch;
-      text-align: center;
     }
 
     :global(.prose) {

@@ -15,7 +15,7 @@ const { posts, total } = await fetchBlogListing(page, PAGE_SIZE);
 const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 const archivePosts = posts;
 
-const siteUrl = 'https://ultimamilla.com.ar';
+const siteUrl = 'https://www.ultimamilla.com.ar';
 const canonicalUrl = page === 1 ? `${siteUrl}/blog` : `${siteUrl}/blog?page=${page}`;
 const prevUrl = page > 1 ? (page === 2 ? `${siteUrl}/blog` : `${siteUrl}/blog?page=${page - 1}`) : null;
 const nextUrl = page < totalPages ? `${siteUrl}/blog?page=${page + 1}` : null;
@@ -78,10 +78,6 @@ const schema = {
             <div><dt>Trayectoria</dt><dd>22+ años</dd></div>
             <div><dt>Operación</dt><dd>Soporte 24/7</dd></div>
           </dl>
-          <div class="blog-header__actions">
-            <a href="/contacto" class="um-btn-primary">Solicitar diagnóstico</a>
-            <a href="/antecedentes" class="um-btn-secondary blog-btn-secondary">Ver antecedentes</a>
-          </div>
         </div>
 
       </header>
@@ -184,17 +180,6 @@ const schema = {
     font-weight: 600;
     min-width: 0;
     overflow-wrap: anywhere;
-  }
-
-  .blog-header__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 22px;
-  }
-
-  .blog-btn-secondary {
-    color: #111111;
   }
 
   .blog-breadcrumb {
