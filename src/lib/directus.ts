@@ -1,4 +1,4 @@
-import { createDirectus, rest, readItems, readItem } from '@directus/sdk';
+import { createDirectus, rest, readItems, readItem, staticToken } from '@directus/sdk';
 import type {
   ServicioV4,
   ProductoV4,
@@ -35,7 +35,13 @@ if (!DIRECTUS_CONFIG.token && !isLocalProdReplica()) {
 
 // Exportar cliente con tipos para casos específicos
 export const getClient = () => {
-  return createDirectus<Colecciones>(DIRECTUS_CONFIG.url).with(rest());
+  const client = createDirectus<Colecciones>(DIRECTUS_CONFIG.url);
+
+  if (DIRECTUS_CONFIG.token) {
+    return client.with(staticToken(DIRECTUS_CONFIG.token)).with(rest());
+  }
+
+  return client.with(rest());
 };
 
 async function loadSnapshotData<T>(fileName: string): Promise<T[]> {
@@ -208,47 +214,24 @@ export async function getServicioConProductos(id: number | string): Promise<Serv
 }
 
 /**
- * Obtiene los productos de un servicio específico desde la colección "productos"
- * Migrado de campo JSON a tabla separada con relación M2O
+ * Obtiene los productos de un servicio específico.
+ * Producción todavía no tiene la colección Directus "productos"; usar snapshot evita
+ * 403 recurrentes hasta que se migre el schema CMS.
  * IMPORTANTE: Filtra duplicados basados en título para evitar mostrar productos repetidos
  */
 export async function getProductosPorServicio(servicioId: number): Promise<ProductoV4[]> {
   try {
-    const client = getClient();
-    const response = await client.request(
-      readItems('productos', {
-        filter: { servicio_id: { _eq: servicioId } },
-        sort: ['orden', 'id'],
-        fields: ['*', 'imagen.*']
-      })
-    );
-
-    // Deduplicate products by title (keep first occurrence)
-    const productos = (response || []) as ProductoV4[];
+    const allProductos = await loadSnapshotData<ProductoV4>('productos');
+    const productos = allProductos.filter((p: any) => p.servicio_id === servicioId);
     const seen = new Set<string>();
-    const uniqueProductos = productos.filter((producto) => {
+    return productos.filter((producto) => {
       const titulo = producto.titulo?.toLowerCase().trim();
-      if (!titulo || seen.has(titulo)) {
-        return false;
-      }
+      if (!titulo || seen.has(titulo)) return false;
       seen.add(titulo);
       return true;
     });
-
-    return uniqueProductos;
-  } catch (error) {
-    console.error(`Error fetching productos for servicio ${servicioId}, trying snapshot:`, error);
-    try {
-      const allProductos = await loadSnapshotData<ProductoV4>('productos');
-      const filtered = allProductos.filter((p: any) => p.servicio_id === servicioId);
-      const seen = new Set<string>();
-      return filtered.filter((p) => {
-        const titulo = p.titulo?.toLowerCase().trim();
-        if (!titulo || seen.has(titulo)) return false;
-        seen.add(titulo);
-        return true;
-      });
-    } catch { return []; }
+  } catch {
+    return [];
   }
 }
 
@@ -301,15 +284,13 @@ export async function getAntecedentesPorServicio(servicioId: number, limit: numb
           'servicios_relacionados.Servicios_id': { _eq: servicioId }
         },
         limit,
-        sort: ['-destacado', '-orden', '-Fecha', '-id'],
+        sort: ['-Fecha', '-id'],
         fields: [
           'id',
           'Titulo',
           'Descripcion',
           'Imagen',
-          'slug',
-          'destacado',
-          'orden'
+          'slug'
         ]
       })
     );
@@ -534,11 +515,9 @@ export async function getAllAntecedentes(): Promise<AntecedenteV4[]> {
           'Unidad_de_negocio',
           'Fecha',
           'Presupuesto',
-          'original_id',
-          'destacado',
-          'orden'
+          'original_id'
         ],
-        sort: ['-destacado', '-orden', '-Fecha', '-id'],
+        sort: ['-Fecha', '-id'],
         limit: -1
       })
     );
@@ -549,10 +528,7 @@ export async function getAllAntecedentes(): Promise<AntecedenteV4[]> {
     try {
       const snapshot = await import('../data/snapshots/antecedentes.json');
       const items = (snapshot.data || snapshot.default?.data || []) as AntecedenteV4[];
-      // Sort snapshot data the same way: destacados first, then by orden, then by date
       return items.sort((a, b) => {
-        if ((b.destacado ? 1 : 0) !== (a.destacado ? 1 : 0)) return (b.destacado ? 1 : 0) - (a.destacado ? 1 : 0);
-        if ((b.orden || 0) !== (a.orden || 0)) return (b.orden || 0) - (a.orden || 0);
         return (b.Fecha || '').localeCompare(a.Fecha || '');
       });
     } catch { return []; }

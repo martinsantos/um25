@@ -3,6 +3,7 @@ import LayoutV4 from '../layouts/LayoutV4.astro';
 import MetricStrip from '../components/um/MetricStrip.astro';
 import UMButton from '../components/um/UMButton.astro';
 import SectionHeader from '../components/um/SectionHeader.astro';
+import EmailLink from '../components/common/EmailLink.astro';
 import { resolveReplicaH1 } from '../utils/replicaProdCopy';
 import { getAntecedentesCountShort } from '../utils/verifiedProof';
 
@@ -20,7 +21,7 @@ const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'ContactPage',
   name: 'Contacto ULTIMA MILLA',
-  url: 'https://ultimamilla.com.ar/contacto',
+  url: 'https://www.ultimamilla.com.ar/contacto',
   about: {
     '@type': 'Organization',
     name: 'ULTIMA MILLA',
@@ -53,7 +54,7 @@ const structuredData = {
 
         <div class="contact-dossier__actions" aria-label="Acciones principales de contacto">
           <UMButton href="#contactForm" class="contact-primary-cta">Solicitar diagnóstico</UMButton>
-          <UMButton href="mailto:contacto@ultimamilla.com.ar" variant="secondary">Escribir por email</UMButton>
+          <EmailLink class="um-btn-secondary" label="Escribir por email" />
         </div>
 
         <MetricStrip
@@ -110,7 +111,7 @@ const structuredData = {
             Mensaje enviado. Vamos a responder por email con próximos pasos.
           </div>
           <div id="errorMessage" class="form-message error hidden" role="alert">
-            No se pudo enviar. Revisá los datos o escribí a contacto@ultimamilla.com.ar.
+            No se pudo enviar. Revisá los datos o usá el canal de email.
           </div>
         </form>
       </article>
@@ -181,7 +182,7 @@ const structuredData = {
           Redes, seguridad electrónica, telecomunicaciones, software operativo, soporte y energía
           para organizaciones que necesitan continuidad.
         </p>
-        <a href="mailto:contacto@ultimamilla.com.ar">contacto@ultimamilla.com.ar</a>
+        <EmailLink />
       </aside>
     </div>
   </section>
@@ -890,7 +891,7 @@ const structuredData = {
 
     .contact-dossier h1 {
       max-width: 100%;
-      font-size: clamp(1.86rem, 6.45vw, 2.16rem);
+      font-size: clamp(1.78rem, 8vw, 2.08rem);
       line-height: 1.12;
       margin: 10px 0 12px;
       overflow-wrap: anywhere;

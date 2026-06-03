@@ -81,7 +81,7 @@ export const POST: APIRoute = async ({ request }) => {
         
         // FORMATEAR ANTECEDENTES REALES CON URLs REALES
         directusData.antecedentes.forEach((antecedente: any) => {
-            const realUrl = `https://ultimamilla.com.ar/antecedentes/${antecedente.id}/${antecedente.slug || 'detalle'}`;
+            const realUrl = `https://www.ultimamilla.com.ar/antecedentes/${antecedente.id}/${antecedente.slug || 'detalle'}`;
             
             formattedResults.push({
                 id: antecedente.id,
@@ -99,7 +99,7 @@ export const POST: APIRoute = async ({ request }) => {
         
         // FORMATEAR SERVICIOS REALES CON URLs REALES  
         directusData.servicios.forEach((servicio: any) => {
-            const realUrl = `https://ultimamilla.com.ar/servicios/${servicio.id}/${servicio.slug || 'detalle'}`;
+            const realUrl = `https://www.ultimamilla.com.ar/servicios/${servicio.id}/${servicio.slug || 'detalle'}`;
             
             formattedResults.push({
                 id: servicio.id,

@@ -1,0 +1,41 @@
+name: Apply WWW Canonical Nginx
+
+on:
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  DEPLOY_PATH: '/root/fumbling-field'
+
+jobs:
+  apply:
+    name: Apply www canonical routing
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://www.ultimamilla.com.ar
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -T 60 -H 23.105.176.45 >> ~/.ssh/known_hosts
+          sort -u ~/.ssh/known_hosts -o ~/.ssh/known_hosts
+
+      - name: Sync ops scripts
+        run: |
+          rsync -avz \
+            scripts/ops/ \
+            root@23.105.176.45:${{ env.DEPLOY_PATH }}/scripts/ops/
+
+      - name: Apply Nginx canonical routing
+        run: |
+          ssh root@23.105.176.45 "bash ${{ env.DEPLOY_PATH }}/scripts/ops/apply-www-canonical-nginx.sh"

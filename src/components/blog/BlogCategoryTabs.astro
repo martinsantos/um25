@@ -39,6 +39,7 @@ const tabs = [
     margin-bottom: clamp(22px, 3vw, 36px);
     border-bottom: 0;
     background: #fff;
+    overflow-x: clip;
   }
 
   .cat-tabs__list {
@@ -61,6 +62,7 @@ const tabs = [
     border-bottom: 0;
     transition: color .15s;
     white-space: nowrap;
+    line-height: 1.25;
   }
   .cat-tab:hover { color: #000; }
   .cat-tab--active {
@@ -95,6 +97,8 @@ const tabs = [
       padding: 14px 0;
       border-bottom: 0;
       white-space: normal;
+      text-align: center;
+      overflow-wrap: anywhere;
     }
 
     .cat-tab:nth-last-child(-n + 3) { border-bottom-color: transparent; }

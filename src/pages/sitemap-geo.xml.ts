@@ -1,11 +1,8 @@
 import type { APIRoute } from 'astro';
 import { SITE_URL } from '../config/seo';
 import {
-  geoCaseResources,
   geoHubRoutes,
   geoResourceNames,
-  geoSectorResources,
-  geoServiceResources,
 } from '../data/geoResources';
 import { canonicalUrl, escapeXml, formatSitemapDate } from '../utils/seoUrl';
 
@@ -14,6 +11,8 @@ type GeoSitemapEntry = {
   priority: string;
   changefreq: string;
 };
+
+const coreGeoDiscoveryPaths = ['/servicios', '/sectores', '/antecedentes', '/blog', '/contacto'];
 
 function urlEntry(entry: GeoSitemapEntry, lastmod: string) {
   return `
@@ -28,6 +27,7 @@ function urlEntry(entry: GeoSitemapEntry, lastmod: string) {
 function generateGeoSitemapXml() {
   const today = formatSitemapDate();
   const entries: GeoSitemapEntry[] = [
+    { loc: canonicalUrl('/geo'), priority: '0.9', changefreq: 'weekly' },
     { loc: canonicalUrl('/llms.txt'), priority: '0.9', changefreq: 'weekly' },
     { loc: canonicalUrl('/llms-full.txt'), priority: '0.9', changefreq: 'weekly' },
     ...geoResourceNames.map((resource) => ({
@@ -35,19 +35,12 @@ function generateGeoSitemapXml() {
       priority: '0.8',
       changefreq: 'weekly',
     })),
-    { loc: canonicalUrl('/servicios'), priority: '0.9', changefreq: 'weekly' },
-    { loc: canonicalUrl('/sectores'), priority: '0.8', changefreq: 'weekly' },
-    { loc: canonicalUrl('/antecedentes'), priority: '0.8', changefreq: 'weekly' },
-    { loc: canonicalUrl('/blog'), priority: '0.7', changefreq: 'daily' },
-    { loc: canonicalUrl('/contacto'), priority: '0.8', changefreq: 'monthly' },
-    ...geoHubRoutes.map((hub) => ({ loc: hub.url, priority: '0.92', changefreq: 'weekly' })),
-    ...geoServiceResources.map((service) => ({ loc: service.url, priority: '0.82', changefreq: 'monthly' })),
-    ...geoSectorResources.map((sector) => ({ loc: sector.url, priority: '0.76', changefreq: 'monthly' })),
-    ...geoCaseResources.map((item) => ({
-      loc: item.url,
-      priority: item.priority === 'high' ? '0.72' : '0.58',
-      changefreq: 'monthly',
+    ...coreGeoDiscoveryPaths.map((path) => ({
+      loc: canonicalUrl(path),
+      priority: path === '/servicios' ? '0.95' : '0.9',
+      changefreq: 'weekly',
     })),
+    ...geoHubRoutes.map((hub) => ({ loc: hub.url, priority: '0.92', changefreq: 'weekly' })),
   ];
 
   const uniqueEntries = Array.from(new Map(entries.map((entry) => [entry.loc, entry])).values());

@@ -1,7 +1,7 @@
 # Entrega mundial UMSA — localhost `codex/umsa-white-dossier-local`
 
-**Fecha:** 2026-05-29  
-**Demo:** http://localhost:4321  
+**Fecha:** 2026-05-29
+**Demo:** http://localhost:4321
 **Alcance:** solo localhost. Sin commits, sin deploy, sin push.
 
 ---

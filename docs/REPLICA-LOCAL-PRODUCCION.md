@@ -83,10 +83,10 @@ npm run replica:gate
 
 Incluye:
 
-1. `replica:preflight` — Directus + snapshots + dev up  
-2. `replica:parity-check` — mismos HTTP status prod vs local (30 rutas)  
-3. `replica:content-parity` — H1 iguales a www (30 rutas)  
-4. `replica:images-audit` — mapa CMS + imágenes locales sin roturas  
+1. `replica:preflight` — Directus + snapshots + dev up
+2. `replica:parity-check` — mismos HTTP status prod vs local (30 rutas)
+3. `replica:content-parity` — H1 iguales a www (30 rutas)
+4. `replica:images-audit` — mapa CMS + imágenes locales sin roturas
 5. `audit:e2e:visual` — 64 checks comerciales (en réplica idéntica no exige H1 editoriales)
 
 Alternativa manual:
@@ -102,27 +102,27 @@ npm run check
 
 ## 5. Pasar a producción
 
-1. Gate local **0 fallos**  
-2. `npm run check`  
-3. Merge `codex/umsa-white-dossier-local` → `master`  
-4. Deploy CI (rsync + PM2)  
-5. Post-deploy: `VISUAL_AUDIT_BASE_URL=https://ultimamilla.com.ar npm run audit:visual:commercial`  
+1. Gate local **0 fallos**
+2. `npm run check`
+3. Merge `codex/umsa-white-dossier-local` → `master`
+4. Deploy CI (rsync + PM2)
+5. Post-deploy: `VISUAL_AUDIT_BASE_URL=https://ultimamilla.com.ar npm run audit:visual:commercial`
 6. Pendiente infra: proxy `/plantilla-arca/api`, tokens en PM2 (no en repo)
 
 ---
 
 ## 6. Archivos clave
 
-- `src/config/runtime.ts` — flags réplica  
-- `src/lib/directus.ts` — fallbacks snapshot si API vacía  
-- `src/utils/getBlogData.ts` — sin mock en réplica  
-- `src/utils/skinVariant.ts` — sin override `?skin` en réplica  
-- `scripts/replica-*.mjs` — sync, parity, gate  
+- `src/config/runtime.ts` — flags réplica
+- `src/lib/directus.ts` — fallbacks snapshot si API vacía
+- `src/utils/getBlogData.ts` — sin mock en réplica
+- `src/utils/skinVariant.ts` — sin override `?skin` en réplica
+- `scripts/replica-*.mjs` — sync, parity, gate
 
 ---
 
 ## 7. Limitaciones conocidas
 
-- **Plantilla ARCA API** sigue sin proxy en nginx local/prod hasta cablear FastAPI.  
-- **Paridad HTTP** no valida contenido textual (usar audit visual).  
+- **Plantilla ARCA API** sigue sin proxy en nginx local/prod hasta cablear FastAPI.
+- **Paridad HTTP** no valida contenido textual (usar audit visual).
 - **GEO sitemap** usa snapshots; refrescar con `replica:sync` tras cambios CMS.

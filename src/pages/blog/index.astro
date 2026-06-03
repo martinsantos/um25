@@ -1,11 +1,11 @@
 ---
 import LayoutV4 from '../../layouts/LayoutV4.astro';
+import BlogCategoryTabs from '../../components/blog/BlogCategoryTabs.astro';
 import BlogFeedItem from '../../components/blog/BlogFeedItem.astro';
+import BlogHero from '../../components/blog/BlogHero.astro';
 import BlogPagination from '../../components/blog/BlogPagination.astro';
 import SectionHeader from '../../components/um/SectionHeader.astro';
 import { fetchBlogListing } from '../../utils/getBlogData';
-import { blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
-import { formatBlogDate, getCategoryLabel } from '../../utils/blogUtils';
 import { resolveReplicaH1 } from '../../utils/replicaProdCopy';
 import { getAntecedentesCountExactPhrase } from '../../utils/verifiedProof';
 
@@ -15,18 +15,10 @@ const PAGE_SIZE = 10;
 const page = Number(Astro.url.searchParams.get('page') || '1');
 const { posts, total } = await fetchBlogListing(page, PAGE_SIZE);
 const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+const featuredPost = page === 1 ? posts[0] : null;
+const archivePosts = featuredPost ? posts.slice(1) : posts;
 
-const [hero, ...feedPosts] = posts;
-const archivePosts = feedPosts;
-const heroImgUrl = hero ? blogPostImageUrl(hero) : '';
-const heroImgAlt = hero ? blogPostImageAlt(hero) : '';
-const heroCategory = hero ? getCategoryLabel(hero.categoria) : '';
-const heroDate = hero ? formatBlogDate(hero.fecha_publicacion) : '';
-const heroExcerpt = hero?.resumen
-  ? `${hero.resumen.substring(0, 190)}${hero.resumen.length > 190 ? '…' : ''}`
-  : '';
-
-const siteUrl = 'https://ultimamilla.com.ar';
+const siteUrl = 'https://www.ultimamilla.com.ar';
 const canonicalUrl = page === 1 ? `${siteUrl}/blog` : `${siteUrl}/blog?page=${page}`;
 const prevUrl = page > 1 ? (page === 2 ? `${siteUrl}/blog` : `${siteUrl}/blog?page=${page - 1}`) : null;
 const nextUrl = page < totalPages ? `${siteUrl}/blog?page=${page + 1}` : null;
@@ -63,13 +55,8 @@ const schema = {
 >
   {prevUrl && <link slot="head" rel="prev" href={prevUrl} />}
   {nextUrl && <link slot="head" rel="next" href={nextUrl} />}
-  <link
-    slot="head"
-    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap"
-    rel="stylesheet"
-  />
 
-  <main class="blog-index">
+  <section class="blog-index">
     <div class="blog-container">
 
       <header class="blog-header">
@@ -89,39 +76,27 @@ const schema = {
             <div><dt>Trayectoria</dt><dd>22+ años</dd></div>
             <div><dt>Operación</dt><dd>Soporte 24/7</dd></div>
           </dl>
-          <div class="blog-header__actions">
-            <a href="/contacto" class="um-btn-primary">Solicitar diagnóstico</a>
-            <a href="/antecedentes" class="um-btn-secondary blog-btn-secondary">Ver antecedentes</a>
-          </div>
         </div>
 
-        {hero && (
-          <article class="blog-header__feature" aria-label="Lectura destacada">
-            <a href={`/blog/${hero.slug}`} class="blog-header__feature-media" aria-label={`Leer ${hero.titulo}`}>
-              <img src={heroImgUrl} alt={heroImgAlt} loading="eager" decoding="async" />
-            </a>
-            <div class="blog-header__feature-body">
-              <span class="blog-header__feature-kicker">Lectura reciente</span>
-              <p class="blog-header__feature-meta">{heroCategory} · {hero.tiempo_lectura} min · {heroDate}</p>
-              <h2>
-                <a href={`/blog/${hero.slug}`}>{hero.titulo}</a>
-              </h2>
-              <p>{heroExcerpt}</p>
-              <a href={`/blog/${hero.slug}`} class="blog-header__feature-link">Leer artículo</a>
-            </div>
-          </article>
-        )}
       </header>
+
+      <BlogCategoryTabs />
+
+      {featuredPost && (
+        <section class="blog-featured" aria-label="Nota destacada">
+          <BlogHero post={featuredPost} />
+        </section>
+      )}
 
       {archivePosts.length > 0 && (
         <section class="blog-archive" aria-label="Archivo documental">
           <SectionHeader
             class="archive-head"
-            title="Archivo documental"
-            text="Lecturas ordenadas por fecha, imagen y contexto para evaluar riesgos, alcance y decisiones técnicas sin pasos intermedios."
+            title={featuredPost ? 'Archivo técnico' : 'Últimas notas'}
+            text="Lecturas ordenadas por fecha y contexto para evaluar riesgos, alcance y decisiones técnicas sin ruido promocional."
           />
           <div class="feed">
-            {archivePosts.map((post, idx) => <BlogFeedItem post={post} index={idx + 4} />)}
+            {archivePosts.map((post, idx) => <BlogFeedItem post={post} index={(featuredPost ? idx + 2 : idx + 1)} />)}
           </div>
         </section>
       )}
@@ -135,7 +110,7 @@ const schema = {
       <BlogPagination page={page} totalPages={totalPages} baseHref="/blog" />
 
     </div>
-  </main>
+  </section>
 </LayoutV4>
 
 <style>
@@ -157,10 +132,9 @@ const schema = {
   .blog-header {
     display: grid;
     grid-template-columns: 1fr;
-    gap: clamp(30px, 4.6vw, 48px);
     align-items: start;
-    margin: 0 calc(-1 * clamp(16px, 3vw, 24px)) clamp(20px, 3vw, 34px);
-    padding: clamp(38px, 4.8vw, 60px) clamp(16px, 3vw, 24px) clamp(32px, 4vw, 52px);
+    margin: 0 0 clamp(22px, 3vw, 36px);
+    padding: clamp(38px, 4.8vw, 60px) 0 clamp(30px, 3.4vw, 46px);
     background: var(--skin-section, #ffffff);
     color: var(--skin-text, #111111);
     border-bottom: 1px solid rgba(17, 17, 17, 0.12);
@@ -214,15 +188,8 @@ const schema = {
     overflow-wrap: anywhere;
   }
 
-  .blog-header__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 22px;
-  }
-
-  .blog-btn-secondary {
-    color: #111111;
+  .blog-featured {
+    margin: clamp(20px, 3.2vw, 34px) 0 clamp(18px, 3vw, 30px);
   }
 
   .blog-breadcrumb {
@@ -278,101 +245,8 @@ const schema = {
     overflow-wrap: anywhere;
   }
 
-  .blog-header__feature {
-    display: grid;
-    grid-template-columns: minmax(320px, 0.48fr) minmax(0, 0.52fr);
-    gap: clamp(24px, 3.4vw, 44px);
-    align-items: center;
-    min-width: 0;
-    padding-top: clamp(24px, 3vw, 34px);
-    border-top: 1px solid rgba(17, 17, 17, 0.14);
-  }
-
-  .blog-header__feature-media {
-    display: block;
-    aspect-ratio: 16 / 10;
-    background: #f3f5f7;
-    overflow: hidden;
-    text-decoration: none;
-  }
-
-  .blog-header__feature-media img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    color: transparent;
-  }
-
-  .blog-header__feature-body {
-    display: flex;
-    min-height: 0;
-    flex-direction: column;
-    justify-content: center;
-    min-width: 0;
-    padding-bottom: 0;
-  }
-
-  .blog-header__feature-kicker {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-    color: #111111;
-    font-family: var(--um-font-body);
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  .blog-header__feature-kicker::before {
-    content: "";
-    width: 30px;
-    height: 2px;
-    background: var(--um-red);
-  }
-
-  .blog-header__feature-meta,
-  .blog-header__feature-body > p {
-    margin: 0 0 14px;
-    color: #5f6874;
-    font-family: var(--um-font-body);
-    font-size: 16px;
-    line-height: 1.64;
-  }
-
-  .blog-header__feature-body h2 {
-    margin: 0 0 12px;
-    color: #111111;
-    font-family: var(--um-font-display);
-    font-size: clamp(1.65rem, 2.45vw, 2.32rem);
-    font-weight: 600;
-    line-height: 1.13;
-    letter-spacing: 0;
-    overflow-wrap: anywhere;
-    text-wrap: balance;
-  }
-
-  .blog-header__feature-body h2 a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .blog-header__feature-body h2 a:hover,
-  .blog-header__feature-link:hover {
-    color: var(--um-red);
-  }
-
-  .blog-header__feature-link {
-    display: inline-flex;
-    color: var(--um-red);
-    font-family: var(--um-font-body);
-    font-size: 16px;
-    font-weight: 700;
-    text-decoration: none;
-  }
-
   .blog-archive {
-    margin-top: clamp(34px, 4.6vw, 58px);
+    margin-top: clamp(24px, 4vw, 44px);
   }
 
   .archive-head:global(.um-section-header) {
@@ -414,7 +288,7 @@ const schema = {
 
   .feed {
     margin-top: 0;
-    max-width: 860px;
+    max-width: 920px;
   }
 
   .empty-state {
@@ -427,7 +301,7 @@ const schema = {
 
   @media (max-width: 820px) {
     .blog-index {
-      padding-inline: 16px;
+      padding-inline: 0;
     }
 
     .blog-container {
@@ -436,7 +310,6 @@ const schema = {
     }
 
     .blog-header {
-      gap: 28px;
       padding: 28px 0 24px;
       align-items: start;
     }
@@ -454,7 +327,7 @@ const schema = {
     }
 
     .blog-proofline div {
-      grid-template-columns: minmax(124px, max-content) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 124px) minmax(0, 1fr);
       align-items: baseline;
       gap: 12px;
       padding-top: 8px;
@@ -464,8 +337,8 @@ const schema = {
     .blog-proofline dt {
       letter-spacing: 0;
       text-transform: none;
-      white-space: nowrap;
-      overflow-wrap: normal;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
 
     .archive-head {
@@ -473,25 +346,5 @@ const schema = {
       gap: 12px;
     }
 
-    .blog-header__feature {
-      grid-template-columns: 1fr;
-      gap: 18px;
-      align-items: start;
-      padding-top: 22px;
-    }
-
-    .blog-header__feature-media,
-    .blog-header__feature-media img {
-      min-height: 220px;
-    }
-
-    .blog-header__feature-body {
-      min-height: 0;
-    }
-
-    .blog-header__feature-body h2 {
-      font-size: clamp(1.38rem, 5.4vw, 1.68rem);
-      line-height: 1.14;
-    }
   }
 </style>

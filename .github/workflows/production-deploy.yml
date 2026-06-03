@@ -11,6 +11,7 @@ on:
   workflow_dispatch:  # Allow manual triggers
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   NODE_VERSION: '18.x'
   DEPLOY_PATH: '/root/fumbling-field'
 
@@ -24,12 +25,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0  # Full history for better caching
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -51,7 +52,7 @@ jobs:
         continue-on-error: true  # No bloquear por ahora
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         continue-on-error: true  # Don't fail build if storage quota exceeded
         with:
           name: dist-build
@@ -71,11 +72,11 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download build artifacts
         id: download-artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           name: dist-build
@@ -88,7 +89,7 @@ jobs:
           npm run build
 
       - name: Setup SSH key
-        uses: webfactory/ssh-agent@v0.9.0
+        uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
@@ -128,62 +129,112 @@ jobs:
 
       - name: Restart PM2 process
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_FROM: ${{ secrets.SMTP_FROM }}
         with:
           host: 23.105.176.45
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            pm2 delete astro-ultimamilla 2>/dev/null; pm2 start ecosystem.config.cjs
+            cd ${{ env.DEPLOY_PATH }}
+            export SMTP_HOST='${{ secrets.SMTP_HOST }}'
+            export SMTP_PORT='${{ secrets.SMTP_PORT }}'
+            export SMTP_USER='${{ secrets.SMTP_USER }}'
+            export SMTP_PASS='${{ secrets.SMTP_PASS }}'
+            export SMTP_FROM='${{ secrets.SMTP_FROM }}'
+            pm2 startOrRestart ecosystem.config.cjs --only astro-ultimamilla --update-env
+            pm2 restart astro-ultimamilla --update-env
             pm2 save
+
+      - name: Apply WWW canonical routing
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: 23.105.176.45
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            bash ${{ env.DEPLOY_PATH }}/scripts/ops/apply-www-canonical-nginx.sh
 
       - name: Health check
         run: |
           echo "Waiting 15s for app to start..."
           sleep 15
 
-          # Follow redirects with -L flag
-          HTTP_STATUS=$(curl -sL -o /dev/null -w "%{http_code}" https://www.ultimamilla.com.ar)
+          APEX_CHECK=$(curl -4 -sS -o /dev/null --max-time 20 \
+            -w "%{http_code} %{redirect_url}" \
+            https://ultimamilla.com.ar/ || true)
+          WWW_CHECK=$(curl -4 -sS -o /dev/null --max-time 20 \
+            -w "%{http_code} %{redirect_url}" \
+            https://www.ultimamilla.com.ar/ || true)
 
-          if [ "$HTTP_STATUS" == "200" ]; then
-            echo "✅ Health check passed (HTTP $HTTP_STATUS)"
+          echo "apex check: $APEX_CHECK"
+          echo "www check: $WWW_CHECK"
+
+          if echo "$WWW_CHECK" | grep -Eq '^200[[:space:]]*$' && \
+             echo "$APEX_CHECK" | grep -Eq '^30(1|8)[[:space:]]+https://www\.ultimamilla\.com\.ar/'; then
+            echo "✅ Canonical health check passed: www serves 200 and apex redirects to www"
           else
-            echo "❌ Health check failed (HTTP $HTTP_STATUS)"
+            echo "❌ Canonical health check failed"
             exit 1
           fi
 
       - name: Smoke test - verify content integrity
         run: |
           HOMEPAGE=$(curl -sL https://www.ultimamilla.com.ar)
+          BLOG=$(curl -sL https://www.ultimamilla.com.ar/blog)
+          ANTECEDENTES=$(curl -sL https://www.ultimamilla.com.ar/antecedentes)
           ERRORS=0
 
-          # 1. Service images can use either Directus /assets/ URLs OR local /images/ paths
-          DIRECTUS_IMGS=$(echo "$HOMEPAGE" | grep -oE 'src="/assets/[a-f0-9-]{36}[^"]*"' | wc -l)
-          LOCAL_IMGS=$(echo "$HOMEPAGE" | grep -oE 'src="/images/services/[^"]*"' | wc -l)
-          TOTAL_IMGS=$((DIRECTUS_IMGS + LOCAL_IMGS))
-
-          if [ "$TOTAL_IMGS" -lt 4 ]; then
-            echo "❌ Only $TOTAL_IMGS service images found (expected >= 4)"
-            echo "   Directus: $DIRECTUS_IMGS, Local: $LOCAL_IMGS"
+          # 1. Current theme must emit www canonical and brand content
+          if ! echo "$HOMEPAGE" | grep -Eq 'href="https://www\.ultimamilla\.com\.ar/?"'; then
+            echo "❌ Homepage canonical does not point to www domain"
             ERRORS=$((ERRORS + 1))
           else
-            echo "✅ Service images: $TOTAL_IMGS found (Directus: $DIRECTUS_IMGS, Local: $LOCAL_IMGS)"
+            echo "✅ Homepage canonical points to www domain"
           fi
 
-          # 2. Hero section must have background images
-          HERO_IMGS=$(echo "$HOMEPAGE" | grep -oE 'hero-image' | wc -l)
-          if [ "$HERO_IMGS" -lt 1 ]; then
-            echo "❌ No hero images found"
+          if echo "$HOMEPAGE" | grep -q 'href="https://ultimamilla.com.ar'; then
+            echo "❌ Homepage leaks apex canonical URL"
             ERRORS=$((ERRORS + 1))
           else
-            echo "✅ Hero images: $HERO_IMGS found"
+            echo "✅ Homepage has no apex canonical leak"
           fi
 
-          # 3. Check for excessive placeholder images (should be fallbacks only)
-          DEFAULTS=$(echo "$HOMEPAGE" | grep -oE 'src="[^"]*default-background[^"]*"' | wc -l)
-          if [ "$DEFAULTS" -gt 10 ]; then
-            echo "⚠️ WARNING: $DEFAULTS default-background images found (should be fallback only)"
-          elif [ "$DEFAULTS" -gt 0 ]; then
-            echo "✅ $DEFAULTS placeholder images found (acceptable as fallback)"
+          if ! echo "$HOMEPAGE" | grep -q 'ULTIMA MILLA'; then
+            echo "❌ Homepage missing brand content"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "✅ Homepage brand content present"
+          fi
+
+          # 2. Directus-backed public collections must render real entries
+          BLOG_LINKS=$(echo "$BLOG" | grep -oE 'href="/blog/[^"]+"' | wc -l)
+          ANTE_LINKS=$(echo "$ANTECEDENTES" | grep -oE 'href="/antecedentes/[0-9]+/[^"]+"' | wc -l)
+
+          if [ "$BLOG_LINKS" -lt 1 ]; then
+            echo "❌ Blog has no rendered article links"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "✅ Blog article links: $BLOG_LINKS"
+          fi
+
+          if [ "$ANTE_LINKS" -lt 1 ]; then
+            echo "❌ Antecedentes has no rendered Directus case links"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "✅ Antecedentes case links: $ANTE_LINKS"
+          fi
+
+          # 3. Avoid obvious empty/mock states on public collection pages
+          if echo "$BLOG$ANTECEDENTES" | grep -qiE 'No hay artículos publicados aún|Lorem ipsum|mock|dummy'; then
+            echo "❌ Public collection pages expose empty/mock content"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "✅ Public collection pages do not expose empty/mock content"
           fi
 
           if [ "$ERRORS" -gt 0 ]; then

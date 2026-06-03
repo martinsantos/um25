@@ -1,7 +1,7 @@
 # Entrega — UMSA White Dossier (local)
 
-**Fecha:** 29 mayo 2026  
-**Rama:** `codex/umsa-white-dossier-local`  
+**Fecha:** 29 mayo 2026
+**Rama:** `codex/umsa-white-dossier-local`
 **Alcance:** Maqueta local en `http://localhost:4321` — sin deploy, sin push, sin commits en esta entrega.
 
 ---

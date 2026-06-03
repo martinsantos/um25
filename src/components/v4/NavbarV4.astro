@@ -35,8 +35,8 @@ const isActive = (href: string) => {
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16 sm:h-20">
       <!-- Logo responsive -->
-      <a href="/" class="flex items-center">
-        <span class="um-logo" style="font-family:var(--um-font-logo);font-weight:600;letter-spacing:-0.02em;font-size:24px;line-height:1;color:var(--skin-nav-text-strong);white-space:nowrap;">ultimamilla<span style="color:#DC2626;">.</span>com<span style="color:#DC2626;">.</span>ar</span>
+      <a href="/" class="um-brand-link flex items-center">
+        <span class="um-logo">ultimamilla<span>.</span>com<span>.</span>ar</span>
       </a>
 
       <!-- Desktop Menu (visible ≥1180px; ver DESIGN.md § Navbar) -->
@@ -112,6 +112,29 @@ const isActive = (href: string) => {
   .um-site-nav {
     background: var(--skin-nav-bg);
     border-bottom: 1px solid var(--skin-nav-line);
+  }
+
+  .um-brand-link {
+    min-width: 0;
+    max-width: calc(100vw - 92px);
+  }
+
+  .um-logo {
+    display: block;
+    max-width: 100%;
+    color: var(--skin-nav-text-strong);
+    font-family: var(--um-font-logo);
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1;
+    overflow: hidden;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+
+  .um-logo span {
+    color: var(--um-red);
   }
 
   .um-desktop-menu {

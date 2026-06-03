@@ -133,7 +133,7 @@ verify_deployment() {
     log "🧪 Verificando deployment..."
     
     # Test de conectividad básica
-    if curl -s --max-time 10 https://www.ultimamilla.com.ar > /dev/null; then
+    if curl -s --max-time 10 https://ultimamilla.com.ar > /dev/null; then
         log "✅ Sitio principal accesible"
     else
         error "❌ Sitio principal no accesible"
@@ -149,9 +149,9 @@ verify_deployment() {
     
     # Test de páginas principales
     local urls=(
-        "https://www.ultimamilla.com.ar/"
-        "https://www.ultimamilla.com.ar/servicios"
-        "https://www.ultimamilla.com.ar/antecedentes"
+        "https://ultimamilla.com.ar/"
+        "https://ultimamilla.com.ar/servicios"
+        "https://ultimamilla.com.ar/antecedentes"
     )
     
     for url in "${urls[@]}"; do
@@ -216,8 +216,8 @@ update_documentation() {
 - ✅ Documentación completa
 
 ### 🔄 ESTADO FINAL
-- **URL Actual**: https://www.ultimamilla.com.ar
-- **URL Objetivo**: https://www.ultimamilla.com.ar (preparado para migración)
+- **URL Actual**: https://ultimamilla.com.ar
+- **URL Objetivo**: https://ultimamilla.com.ar (preparado para migración)
 - **Estado**: ✅ PRODUCCIÓN OPTIMIZADA
 - **Performance**: Mejorado ~40%
 - **SEO Score**: Optimizado para ULTIMA MILLA
@@ -264,7 +264,7 @@ main() {
     log "🎉 DEPLOYMENT COMPLETADO EXITOSAMENTE!"
     log "=================================="
     log ""
-    log "✅ Sitio optimizado: https://www.ultimamilla.com.ar"
+    log "✅ Sitio optimizado: https://ultimamilla.com.ar"
     log "✅ Admin Directus: http://23.105.176.45:8055"
     log "✅ SEO optimizado para ULTIMA MILLA"
     log "✅ Performance mejorado"

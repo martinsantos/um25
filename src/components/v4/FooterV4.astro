@@ -7,6 +7,8 @@
  * - Copyright dinámico
  */
 
+import EmailLink from '../common/EmailLink.astro';
+
 const currentYear = new Date().getFullYear();
 
 // Footer navigation sections
@@ -54,7 +56,7 @@ const socialLinks = [
       <!-- Brand Column -->
       <div class="sm:text-left">
         <div class="flex items-center justify-start mb-4 sm:mb-6">
-          <span class="um-footer-logo" style="font-family:var(--um-font-logo);font-weight:600;letter-spacing:-0.02em;font-size:24px;line-height:1;white-space:nowrap;">ultimamilla<span style="color:#DC2626;">.</span>com<span style="color:#DC2626;">.</span>ar</span>
+          <span class="um-footer-logo">ultimamilla<span>.</span>com<span>.</span>ar</span>
         </div>
         <p class="text-base leading-relaxed mb-4 sm:mb-6">
           Servicios IT integrales para continuidad operativa: redes, seguridad, software, energía y soporte para empresas en Mendoza, Cuyo y Patagonia.
@@ -126,9 +128,7 @@ const socialLinks = [
             <svg class="w-5 h-5 text-um-primary-light shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
             </svg>
-            <a href="mailto:contacto@ultimamilla.com.ar" class="transition-colors">
-              contacto@ultimamilla.com.ar
-            </a>
+            <EmailLink class="transition-colors" />
           </li>
         </ul>
       </div>
@@ -155,6 +155,21 @@ const socialLinks = [
   .um-footer-logo,
   .um-site-footer h4 {
     color: var(--skin-footer-heading);
+  }
+
+  .um-footer-logo {
+    display: block;
+    max-width: 100%;
+    font-family: var(--um-font-logo);
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1;
+    overflow-wrap: anywhere;
+  }
+
+  .um-footer-logo span {
+    color: var(--um-red);
   }
 
   .um-site-footer p,

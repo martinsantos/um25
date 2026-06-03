@@ -1,8 +1,8 @@
 # Handoff — UMSA White Dossier (réplica local + gate honesto)
 
-**Fecha de cierre:** 30 mayo 2026  
-**Rama:** `codex/umsa-white-dossier-local`  
-**PR:** [#39 — UMSA White Dossier](https://github.com/martinsantos/um25/pull/39)  
+**Fecha de cierre:** 30 mayo 2026
+**Rama:** `codex/umsa-white-dossier-local`
+**PR:** [#39 — UMSA White Dossier](https://github.com/martinsantos/um25/pull/39)
 **Base objetivo Git Flow:** `develop` (no merge directo a `master` sin deploy acordado)
 
 ---
@@ -98,7 +98,7 @@ npm run check                # lint + typecheck + test + build
 
 ## Reglas de honestidad (obligatorias)
 
-Leer antes de tocar copy público:  
+Leer antes de tocar copy público:
 `docs/audits/diagnostico-forbes-2026/HONESTIDAD-CONTENIDO.md`
 
 - **No** publicar ISO 9001/27001 ni NFPA como sello corporativo sin PDF/fuente en CMS.
@@ -143,6 +143,6 @@ Leer antes de tocar copy público:
 
 ## Contacto / contexto repo
 
-- Producción: https://www.ultimamilla.com.ar  
-- Reglas servidor: `REGLAS_ARQUITECTURA_SERVIDOR.md`, `CLAUDE.md`  
+- Producción: https://www.ultimamilla.com.ar
+- Reglas servidor: `REGLAS_ARQUITECTURA_SERVIDOR.md`, `CLAUDE.md`
 - Baseline tag: `v0.0.1-production-baseline`
