@@ -14,9 +14,16 @@ import { getFAQSchema } from '../data/sectorFAQs';
 import { getSectorVisualSpec } from '../data/sectorVisualSystem';
 import { getDevTemplateVariant } from '../utils/templateVariant';
 import { buildGeoHubStructuredData, getGeoCommercialHub } from '../data/geoCommercialHubs';
+import { getLegacyRedirectTarget } from '../data/strategicLinkGraph';
 import { getReplicaProdEntry, isReplicaIdenticalCopy, resolveReplicaH1 } from '../utils/replicaProdCopy';
 
 const sectorSlug = Astro.params.sector || '';
+const legacyRedirectTarget = getLegacyRedirectTarget(sectorSlug);
+
+if (legacyRedirectTarget) {
+  return Astro.redirect(legacyRedirectTarget, 301);
+}
+
 const geoHub = getGeoCommercialHub(sectorSlug);
 const sectorData = geoHub ? null : await getSectorBySlug(sectorSlug);
 

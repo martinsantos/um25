@@ -8,7 +8,7 @@
  */
 
 import { readItems } from '@directus/sdk';
-import { getClient, getAllAntecedentes, getDirectusImageUrl } from '../lib/directus.ts';
+import { getClient, getAllAntecedentes, getAntecedenteImageUrl } from '../lib/directus.ts';
 import { generateSlug } from './slugUtils.js';
 
 export interface SectorValueProp {
@@ -131,7 +131,7 @@ function filterAntecedentesByKeywords(items: any[], keywords: string[], limit: n
     .map(item => ({
       ...item,
       slug: generateSlug(item.Titulo || 'proyecto'),
-      imageUrl: getDirectusImageUrl(item.Imagen)
+      imageUrl: getAntecedenteImageUrl(item)
     }));
 }
 

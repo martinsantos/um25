@@ -445,6 +445,16 @@ try {
   // No map available, will use Directus URLs
 }
 
+let generatedAntecedenteImageMap: Record<string, string> = {};
+try {
+  const mapModule = await import('../data/antecedentes-generated-image-map.json');
+  generatedAntecedenteImageMap = mapModule.default || mapModule;
+  const mapSize = Object.keys(generatedAntecedenteImageMap).length;
+  console.log(`[directus] Loaded ${mapSize} generated antecedente image mappings`);
+} catch {
+  generatedAntecedenteImageMap = {};
+}
+
 // IMPORTANT: Directus /assets/ endpoint requires authentication (403 Forbidden)
 // We always use local images for service thumbnails instead of Directus assets
 // This avoids build-time vs runtime inconsistencies and auth issues
@@ -494,6 +504,20 @@ export function getDirectusImageFallback(imageId: string | null | undefined): st
   const localPath = imageLocalMap[imageId];
   if (localPath) return localPath;
   return '/images/default-background.jpg';
+}
+
+export function getGeneratedAntecedenteImageUrl(id: string | number | null | undefined): string {
+  if (id === null || id === undefined || id === '') return '';
+  return generatedAntecedenteImageMap[String(id)] || '';
+}
+
+export function getAntecedenteImageUrl(
+  item: { id?: string | number | null; original_id?: string | number | null; Imagen?: string | null } | null | undefined
+): string {
+  if (!item) return '/images/default-background.jpg';
+  const generatedImage = getGeneratedAntecedenteImageUrl(item.id) || getGeneratedAntecedenteImageUrl(item.original_id);
+  if (generatedImage) return generatedImage;
+  return getDirectusImageUrl(item.Imagen) || '/images/default-background.jpg';
 }
 
 /**

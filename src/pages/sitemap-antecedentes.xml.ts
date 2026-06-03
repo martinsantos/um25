@@ -5,8 +5,13 @@ import { SITE_URL } from '../config/seo';
 import { canonicalUrl, escapeXml, formatSitemapDate, publicImageUrl } from '../utils/seoUrl';
 import antecedentesSnapshot from '../data/snapshots/antecedentes.json';
 import imageLocalMap from '../data/image-local-map.json';
+import generatedAntecedenteImageMap from '../data/antecedentes-generated-image-map.json';
 
-function getImageUrl(imagen: any): string | null {
+function getImageUrl(item: any): string | null {
+    const generatedImage = (generatedAntecedenteImageMap as Record<string, string>)[String(item.id || item.ID || '')];
+    if (generatedImage) return publicImageUrl(generatedImage);
+
+    const imagen = item.Imagen;
     if (!imagen) return null;
     if (typeof imagen === 'string') {
         if (imagen.startsWith('http')) return publicImageUrl(imagen);
@@ -30,7 +35,7 @@ function generateSitemapXml(antecedentes: any[]): string {
         const slug = generateSlug(item.Titulo || item.titulo || 'antecedente');
         const id = item.id || item.ID || 'unknown';
         const lastmod = item.Fecha ? formatSitemapDate(item.Fecha) : today;
-        const imageUrl = getImageUrl(item.Imagen);
+        const imageUrl = getImageUrl(item);
         const imageTag = imageUrl ? `
         <image:image>
             <image:loc>${escapeXml(imageUrl)}</image:loc>
@@ -82,9 +87,18 @@ export const GET: APIRoute = async () => {
         });
     } catch (error) {
         console.error('Error generando sitemap de antecedentes:', error);
-        
-        // Retornar sitemap mínimo en caso de error
-        const minimalSitemap = `<?xml version="1.0" encoding="UTF-8"?>
+
+        try {
+            const fallbackSitemap = generateSitemapXml((antecedentesSnapshot as any).data || []);
+            return new Response(fallbackSitemap, {
+                headers: {
+                    'Content-Type': 'application/xml; charset=utf-8',
+                    'Cache-Control': 'public, max-age=3600'
+                },
+            });
+        } catch {
+            // Retornar sitemap mínimo en caso de error extremo
+            const minimalSitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>${SITE_URL}/antecedentes</loc>
@@ -92,11 +106,12 @@ export const GET: APIRoute = async () => {
     </url>
 </urlset>`;
 
-        return new Response(minimalSitemap, {
-            headers: {
-                'Content-Type': 'application/xml; charset=utf-8',
-                'Cache-Control': 'public, max-age=3600'
-            },
-        });
+            return new Response(minimalSitemap, {
+                headers: {
+                    'Content-Type': 'application/xml; charset=utf-8',
+                    'Cache-Control': 'public, max-age=3600'
+                },
+            });
+        }
     }
 }

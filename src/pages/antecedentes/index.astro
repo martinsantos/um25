@@ -7,7 +7,7 @@
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import AntecedentesTemplateEditorial from '../../components/templates/AntecedentesTemplateEditorial.astro';
 import AntecedentesTemplateAtlas from '../../components/templates/AntecedentesTemplateAtlas.astro';
-import { getAllAntecedentes, getDirectusImageUrl } from '../../lib/directus.ts';
+import { getAllAntecedentes, getAntecedenteImageUrl } from '../../lib/directus.ts';
 import { getDevTemplateVariant } from '../../utils/templateVariant';
 
 const PAGE_SIZE = 12;
@@ -134,7 +134,7 @@ try {
   const allAntecedentes = response.map((item) => ({
     ...item,
     slug: `${item.id}/${localGenerateSlug(item.Titulo)}`,
-    imageUrl: getDirectusImageUrl(item.Imagen)
+    imageUrl: getAntecedenteImageUrl(item)
   }));
 
   const filteredAntecedentes = filterAntecedentes(allAntecedentes, pageData.activeFilters, pageData.searchQuery);
