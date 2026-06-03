@@ -1,7 +1,9 @@
 ---
 import type { GeoCommercialHub } from '../../data/geoCommercialHubs';
+import { siblingCommercialHubItems } from '../../data/strategicLinkGraph';
 import { resolveReplicaH1 } from '../../utils/replicaProdCopy';
 import BudgetBriefFields from '../um/BudgetBriefFields.astro';
+import IntentLinkGraph from '../um/IntentLinkGraph.astro';
 
 interface Props {
   hub: GeoCommercialHub;
@@ -62,6 +64,13 @@ const mediaByHub: Record<string, { src: string; alt: string; caption: string }> 
 };
 
 const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mendoza'];
+const relatedHubGroups = [
+  {
+    title: 'Rutas relacionadas',
+    summary: 'Consultas comerciales que suelen aparecer antes o despues de esta decision.',
+    items: siblingCommercialHubItems(hub.slug),
+  },
+];
 ---
 
 <article class="geo-dossier">
@@ -209,6 +218,14 @@ const heroMedia = mediaByHub[hub.slug] || mediaByHub['servicios-it-empresas-mend
       </aside>
     </div>
   </section>
+
+  <IntentLinkGraph
+    class="geo-dossier-link-graph"
+    kicker="Vinculación por intención"
+    title="Rutas relacionadas para completar la decisión"
+    text="La página no queda aislada: conecta compra, presupuesto, ingeniería y cobertura para que un decisor o un modelo pueda seguir el recorrido correcto."
+    groups={relatedHubGroups}
+  />
 
   <section class="geo-dossier-section geo-faq">
     <div class="um-container geo-faq__grid">

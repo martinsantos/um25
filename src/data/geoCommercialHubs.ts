@@ -240,6 +240,45 @@ export function getGeoCommercialHub(slug: string): GeoCommercialHub | undefined 
 
 export function buildGeoHubStructuredData(hub: GeoCommercialHub) {
   const canonical = `${SITE_URL}/${hub.slug}`;
+  const absoluteUrl = (href: string) => (href.startsWith('http') ? href : `${SITE_URL}${href.startsWith('/') ? href : `/${href}`}`);
+  const relatedHubs = geoCommercialHubSlugs
+    .map((slug) => geoCommercialHubs[slug])
+    .filter((candidate) => candidate.slug !== hub.slug);
+  const significantLinks = [
+    ...hub.services.map((service) => absoluteUrl(service.href)),
+    ...hub.sectors.map((sector) => absoluteUrl(sector.href)),
+    ...hub.cases.map((item) => absoluteUrl(item.href)),
+    ...relatedHubs.map((relatedHub) => `${SITE_URL}/${relatedHub.slug}`),
+    `${SITE_URL}/geo`,
+    `${SITE_URL}/contacto`,
+  ];
+  const linkedPages = [
+    ...hub.services.map((service) => ({
+      '@type': 'WebPage',
+      name: service.title,
+      url: absoluteUrl(service.href),
+      description: service.summary,
+    })),
+    ...hub.sectors.map((sector) => ({
+      '@type': 'WebPage',
+      name: sector.title,
+      url: absoluteUrl(sector.href),
+      description: sector.summary,
+    })),
+    ...hub.cases.map((item) => ({
+      '@type': 'CreativeWork',
+      name: `${item.client}: ${item.title}`,
+      url: absoluteUrl(item.href),
+      about: item.sector,
+    })),
+    ...relatedHubs.map((relatedHub) => ({
+      '@type': 'WebPage',
+      name: relatedHub.title,
+      url: `${SITE_URL}/${relatedHub.slug}`,
+      description: relatedHub.description,
+    })),
+  ];
+
   return [
     {
       '@type': 'WebPage',
@@ -255,12 +294,22 @@ export function buildGeoHubStructuredData(hub: GeoCommercialHub) {
       },
       mainEntity: {
         '@id': `${canonical}#service`
-      }
+      },
+      isPartOf: {
+        '@id': `${SITE_URL}/geo#collection`
+      },
+      breadcrumb: {
+        '@id': `${canonical}#breadcrumb`
+      },
+      significantLink: significantLinks,
+      relatedLink: relatedHubs.map((relatedHub) => `${SITE_URL}/${relatedHub.slug}`),
+      hasPart: linkedPages
     },
     {
       '@type': 'Service',
       '@id': `${canonical}#service`,
       name: hub.title,
+      url: canonical,
       serviceType: 'Servicios IT empresariales',
       description: hub.lead,
       areaServed: hub.market,
@@ -296,6 +345,17 @@ export function buildGeoHubStructuredData(hub: GeoCommercialHub) {
       }))
     },
     {
+      '@type': 'ItemList',
+      '@id': `${canonical}#sectors`,
+      name: 'Sectores relacionados',
+      itemListElement: hub.sectors.map((sector, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: sector.title,
+        url: absoluteUrl(sector.href)
+      }))
+    },
+    {
       '@type': 'FAQPage',
       '@id': `${canonical}#faq`,
       mainEntity: hub.faqs.map((faq) => ({
@@ -306,6 +366,30 @@ export function buildGeoHubStructuredData(hub: GeoCommercialHub) {
           text: faq.answer
         }
       }))
+    },
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${canonical}#breadcrumb`,
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Inicio',
+          item: SITE_URL
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Centro GEO',
+          item: `${SITE_URL}/geo`
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: hub.title,
+          item: canonical
+        }
+      ]
     }
   ];
 }
