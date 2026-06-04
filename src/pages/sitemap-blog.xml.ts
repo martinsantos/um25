@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { SITE_URL } from '../config/seo';
 import { blogPosts as fallbackBlogPosts } from '../data/blog-posts';
+import { isCanonicalBlogSlug } from '../data/seoRedirects';
 import { canonicalUrl, escapeXml, formatSitemapDate, publicImageUrl } from '../utils/seoUrl';
 
 const DIRECTUS_URL =
@@ -16,6 +17,34 @@ interface BlogPost {
   titulo: string;
 }
 
+const spanishMonthNumbers: Record<string, string> = {
+  enero: '01',
+  febrero: '02',
+  marzo: '03',
+  abril: '04',
+  mayo: '05',
+  junio: '06',
+  julio: '07',
+  agosto: '08',
+  septiembre: '09',
+  setiembre: '09',
+  octubre: '10',
+  noviembre: '11',
+  diciembre: '12',
+};
+
+function parseFallbackBlogDate(value: string | undefined): string {
+  const clean = String(value || '').trim().toLowerCase();
+  const match = clean.match(/^(\d{1,2})\s+([a-záéíóúñ]+)\s+(\d{4})$/i);
+  if (!match) return '2024-01-01';
+
+  const day = match[1]?.padStart(2, '0');
+  const month = spanishMonthNumbers[match[2]?.normalize('NFD').replace(/[\u0300-\u036f]/g, '') || ''];
+  const year = match[3];
+
+  return day && month && year ? `${year}-${month}-${day}` : '2024-01-01';
+}
+
 async function fetchPublishedPosts(): Promise<BlogPost[]> {
   try {
     const headers = DIRECTUS_TOKEN ? { Authorization: `Bearer ${DIRECTUS_TOKEN}` } : undefined;
@@ -25,12 +54,12 @@ async function fetchPublishedPosts(): Promise<BlogPost[]> {
     );
     if (!res.ok) throw new Error(`Directus blog sitemap returned ${res.status}`);
     const data = await res.json();
-    return (data.data || []) as BlogPost[];
+    return ((data.data || []) as BlogPost[]).filter((post) => isCanonicalBlogSlug(post.slug));
   } catch {
-    return fallbackBlogPosts.map((post) => ({
+    return fallbackBlogPosts.filter((post) => isCanonicalBlogSlug(post.slug)).map((post) => ({
       slug: post.slug,
       titulo: post.title,
-      fecha_publicacion: new Date().toISOString(),
+      fecha_publicacion: parseFallbackBlogDate(post.date),
       imagen_portada: post.image,
     }));
   }
@@ -38,12 +67,15 @@ async function fetchPublishedPosts(): Promise<BlogPost[]> {
 
 export const GET: APIRoute = async () => {
   const posts = await fetchPublishedPosts();
-  const today = formatSitemapDate();
+  const latestPostLastmod = posts
+    .map((post) => formatSitemapDate(post.fecha_publicacion))
+    .sort()
+    .at(-1) || formatSitemapDate('2024-01-01');
 
   const urls = posts
     .map(post => {
       const loc = canonicalUrl(`/blog/${post.slug}`);
-      const lastmod = formatSitemapDate(post.fecha_publicacion) || today;
+      const lastmod = formatSitemapDate(post.fecha_publicacion) || latestPostLastmod;
       const imageUrl = publicImageUrl(post.imagen_portada);
       const imageTag = imageUrl
         ? `
@@ -66,31 +98,31 @@ export const GET: APIRoute = async () => {
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>${SITE_URL}/blog</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${latestPostLastmod}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>${SITE_URL}/blog/categoria/noticias</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${latestPostLastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>${SITE_URL}/blog/categoria/proyectos</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${latestPostLastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>${SITE_URL}/blog/categoria/tecnico</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${latestPostLastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>${SITE_URL}/blog/categoria/empresa</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${latestPostLastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>

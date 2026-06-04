@@ -18,6 +18,8 @@ export interface Props {
   keywords?: string;
   canonical?: string;
   ogImage?: string;
+  ogImageWidth?: number;
+  ogImageHeight?: number;
   ogType?: string;
   structuredData?: Record<string, unknown> | Record<string, unknown>[];
   noindex?: boolean;
@@ -38,6 +40,8 @@ const {
   keywords,
   canonical,
   ogImage,
+  ogImageWidth,
+  ogImageHeight,
   ogType = 'website',
   structuredData,
   noindex = false,
@@ -96,6 +100,8 @@ const pageKeywords = keywords ?? defaultKeywords;
 // ---------------------------------------------------------------------------
 const rawImage = ogImage || '/nosotros-tech.jpg';
 const pageImage = publicImageUrl(rawImage) || `${SITE_URL}/nosotros-tech.jpg`;
+const normalizedOgImageWidth = typeof ogImageWidth === 'number' && Number.isFinite(ogImageWidth) ? String(ogImageWidth) : null;
+const normalizedOgImageHeight = typeof ogImageHeight === 'number' && Number.isFinite(ogImageHeight) ? String(ogImageHeight) : null;
 
 // ---------------------------------------------------------------------------
 // Timestamps
@@ -342,8 +348,8 @@ const combinedSchema = {
   <meta property="og:title" content={metaTitle} />
   <meta property="og:description" content={metaDescription} />
   <meta property="og:image" content={pageImage} />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
+  {normalizedOgImageWidth && <meta property="og:image:width" content={normalizedOgImageWidth} />}
+  {normalizedOgImageHeight && <meta property="og:image:height" content={normalizedOgImageHeight} />}
   <meta property="og:image:alt" content={metaTitle} />
   <meta property="og:site_name" content={SITE_NAME} />
   <meta property="og:locale" content="es_AR" />

@@ -18,12 +18,17 @@ describe('generated antecedentes image integration', () => {
     expect(generatedMap['3384']).toContain('/lote_033/');
     expect(generatedMap['3393']).toContain('/lote_034/');
     expect(generatedMap['3645']).toContain('/lote_034/');
+    expect(generatedMap['3672']).toContain('/lote_047/');
+    expect(generatedMap['3544']).toContain('/lote_048/');
   });
 
   test('generated image map points to public webp assets', () => {
-    expect(Object.keys(generatedMap).length).toBeGreaterThanOrEqual(340);
+    expect(Object.keys(generatedMap).length).toBeGreaterThanOrEqual(480);
 
-    for (const imagePath of Object.values(generatedMap)) {
+    const imagePaths = Object.values(generatedMap);
+    expect(new Set(imagePaths).size).toBe(imagePaths.length);
+
+    for (const imagePath of imagePaths) {
       expect(imagePath.endsWith('.webp')).toBe(true);
       expect(fs.existsSync(path.join(repoRoot, 'public', imagePath))).toBe(true);
     }

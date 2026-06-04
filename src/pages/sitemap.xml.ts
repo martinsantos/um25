@@ -5,13 +5,15 @@ import serviciosSnapshot from '../data/snapshots/servicios.json';
 
 type SitemapPage = { loc: string; priority: string; changefreq: string; lastmod?: string };
 
+const STATIC_CONTENT_LASTMOD = '2026-06-04';
+
 function getSnapshotServices(): Array<{ id: number; Titulo: string; slug?: string }> {
     const snapshot = serviciosSnapshot as { data?: Array<{ id: number; Titulo: string; slug?: string }> };
     return snapshot.data || [];
 }
 
 function generateSitemapXml(): string {
-    const today = formatSitemapDate();
+    const staticLastmod = formatSitemapDate(STATIC_CONTENT_LASTMOD);
 
     const staticPages: SitemapPage[] = [
         // Core pages
@@ -24,6 +26,7 @@ function generateSitemapXml(): string {
         { loc: '/nosotros', priority: '0.6', changefreq: 'monthly' },
         { loc: '/contacto', priority: '0.7', changefreq: 'monthly' },
         { loc: '/certificaciones', priority: '0.6', changefreq: 'monthly' },
+        { loc: '/plantilla-arca', priority: '0.5', changefreq: 'monthly' },
         // Sector verticals
         { loc: '/aeropuertos', priority: '0.7', changefreq: 'monthly' },
         { loc: '/bodegas', priority: '0.7', changefreq: 'monthly' },
@@ -34,12 +37,18 @@ function generateSitemapXml(): string {
         { loc: '/mineria', priority: '0.7', changefreq: 'monthly' },
         { loc: '/industria', priority: '0.7', changefreq: 'monthly' },
         { loc: '/seguridad-electronica', priority: '0.7', changefreq: 'monthly' },
+        // English public pages
+        { loc: '/en', priority: '0.7', changefreq: 'monthly' },
+        { loc: '/en/services', priority: '0.7', changefreq: 'monthly' },
+        { loc: '/en/about', priority: '0.6', changefreq: 'monthly' },
+        { loc: '/en/contacto', priority: '0.6', changefreq: 'monthly' },
     ];
 
     const servicePages: SitemapPage[] = getSnapshotServices().map((service) => ({
         loc: `/servicios/${service.id}/${service.slug || generateSlug(service.Titulo)}`,
         priority: '0.8',
         changefreq: 'monthly',
+        lastmod: staticLastmod,
     }));
 
     const pages = [...staticPages, ...servicePages];
@@ -47,7 +56,7 @@ function generateSitemapXml(): string {
     const urlEntries = pages.map(p => `
     <url>
         <loc>${escapeXml(canonicalUrl(p.loc))}</loc>
-        <lastmod>${p.lastmod || today}</lastmod>
+        <lastmod>${p.lastmod || staticLastmod}</lastmod>
         <changefreq>${p.changefreq}</changefreq>
         <priority>${p.priority}</priority>
     </url>`).join('');

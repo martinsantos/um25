@@ -71,7 +71,10 @@ function listLotes(selectedLote) {
 
 const args = parseArgs(process.argv.slice(2));
 const selectedLote = args.lote ? String(args.lote) : '';
-const map = {};
+const resetMap = args.reset === true;
+const map = !resetMap && fs.existsSync(MAP_FILE)
+  ? JSON.parse(fs.readFileSync(MAP_FILE, 'utf8'))
+  : {};
 let copied = 0;
 
 for (const lote of listLotes(selectedLote)) {
@@ -103,4 +106,4 @@ for (const lote of listLotes(selectedLote)) {
 
 fs.mkdirSync(path.dirname(MAP_FILE), { recursive: true });
 fs.writeFileSync(MAP_FILE, `${JSON.stringify(map, null, 2)}\n`, 'utf8');
-console.log(JSON.stringify({ copied, mapped: Object.keys(map).length, mapFile: MAP_FILE }, null, 2));
+console.log(JSON.stringify({ copied, mapped: Object.keys(map).length, selectedLote: selectedLote || null, mapFile: MAP_FILE }, null, 2));

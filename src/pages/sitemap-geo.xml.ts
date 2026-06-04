@@ -3,6 +3,7 @@ import { SITE_URL } from '../config/seo';
 import {
   geoHubRoutes,
   geoResourceNames,
+  geoVersion,
 } from '../data/geoResources';
 import { canonicalUrl, escapeXml, formatSitemapDate } from '../utils/seoUrl';
 
@@ -25,7 +26,7 @@ function urlEntry(entry: GeoSitemapEntry, lastmod: string) {
 }
 
 function generateGeoSitemapXml() {
-  const today = formatSitemapDate();
+  const geoLastmod = formatSitemapDate(geoVersion);
   const entries: GeoSitemapEntry[] = [
     { loc: canonicalUrl('/geo'), priority: '0.9', changefreq: 'weekly' },
     { loc: canonicalUrl('/llms.txt'), priority: '0.9', changefreq: 'weekly' },
@@ -48,7 +49,7 @@ function generateGeoSitemapXml() {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- GEO/LLM sitemap for ${escapeXml(SITE_URL)} -->
-${uniqueEntries.map((entry) => urlEntry(entry, today)).join('')}
+${uniqueEntries.map((entry) => urlEntry(entry, geoLastmod)).join('')}
 </urlset>`;
 }
 
