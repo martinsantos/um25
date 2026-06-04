@@ -140,9 +140,9 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
-function isDuplicateSubmission(ip: string, email: string, message: string): boolean {
+function isDuplicateSubmission(email: string, message: string): boolean {
   const now = Date.now();
-  const normalized = `${ip}|${email}|${message.toLowerCase().replace(/\s+/g, ' ').slice(0, 260)}`;
+  const normalized = `${email}|${message.toLowerCase().replace(/\s+/g, ' ').slice(0, 260)}`;
 
   for (const [key, timestamp] of duplicateMap.entries()) {
     if (now - timestamp > DUPLICATE_WINDOW) {
@@ -331,7 +331,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       }, 400);
     }
 
-    if (isDuplicateSubmission(clientIP, email, message)) {
+    if (isDuplicateSubmission(email, message)) {
       return jsonResponse({
         success: true,
         message: 'Mensaje recibido.'

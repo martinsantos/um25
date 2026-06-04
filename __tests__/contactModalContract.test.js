@@ -47,6 +47,8 @@ describe('global contact modal contract', () => {
 
     expect(api).toContain('const duplicateMap = new Map<string, number>();');
     expect(api).toContain('hasInvalidModalProof(data)');
+    expect(api).toContain('function isDuplicateSubmission(email: string, message: string): boolean');
+    expect(api).not.toContain('isDuplicateSubmission(clientIP');
     expect(api).toContain('trimString(data.originPath');
     expect(api).toContain('Contexto de origen');
     expect(api).toContain('trimString(data.contact_phone');
