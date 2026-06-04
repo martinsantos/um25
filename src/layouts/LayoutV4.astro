@@ -21,6 +21,8 @@ export interface Props {
   description?: string;
   keywords?: string;
   image?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   canonical?: string;
   ogType?: string;
   structuredData?: Record<string, unknown> | Record<string, unknown>[];
@@ -33,6 +35,8 @@ const {
   description,
   keywords,
   image,
+  imageWidth,
+  imageHeight,
   canonical,
   ogType = 'website',
   structuredData,
@@ -78,6 +82,8 @@ const shouldEmitHreflang = hasEnglishAlternate(Astro.url.pathname);
       description={description}
       keywords={keywords}
       ogImage={image}
+      ogImageWidth={imageWidth}
+      ogImageHeight={imageHeight}
       canonical={currentUrl}
       ogType={ogType}
       structuredData={structuredData}

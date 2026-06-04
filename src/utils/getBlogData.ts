@@ -8,6 +8,7 @@ import {
   getPublicSiteUrl,
 } from '../config/runtime';
 import { SITE_URL } from '../config/seo';
+import { isCanonicalBlogSlug } from '../data/seoRedirects';
 
 const DIRECTUS_URL = getDirectusInternalUrl();
 const DIRECTUS_TOKEN = getDirectusToken();
@@ -55,7 +56,7 @@ function uniqueSlugsFromBlogHtml(html: string): string[] {
   const slugs = new Set<string>();
   for (const match of html.matchAll(/href=["']\/blog\/(?!categoria\/)([^"'?#/]+)[^"']*["']/gi)) {
     const slug = decodeURIComponent(match[1] || '').trim();
-    if (slug && slug !== 'page') slugs.add(slug);
+    if (slug && slug !== 'page' && isCanonicalBlogSlug(slug)) slugs.add(slug);
   }
   return [...slugs];
 }
@@ -196,10 +197,10 @@ export async function fetchBlogListing(
     ]);
 
     const [itemsData, countData] = await Promise.all([itemsRes.json(), countRes.json()]);
-    const posts = (itemsData.data || []) as EntradaBlog[];
+    const posts = ((itemsData.data || []) as EntradaBlog[]).filter((post) => isCanonicalBlogSlug(post.slug));
     const total = Number(countData.data?.[0]?.count?.id || 0);
 
-    if (posts.length > 0) return { posts, total };
+    if (posts.length > 0) return { posts, total: Math.max(posts.length, total) };
     throw new Error('empty');
   } catch {
     const publicListing = await fetchPublicBlogListing(page, limit, categoria);
@@ -209,7 +210,8 @@ export async function fetchBlogListing(
       return { posts: [], total: 0 };
     }
 
-    const filtered = categoria ? MOCK_POSTS.filter(p => p.categoria === categoria) : MOCK_POSTS;
+    const filtered = (categoria ? MOCK_POSTS.filter(p => p.categoria === categoria) : MOCK_POSTS)
+      .filter((post) => isCanonicalBlogSlug(post.slug));
     return { posts: filtered.slice(offset, offset + limit), total: filtered.length };
   }
 }

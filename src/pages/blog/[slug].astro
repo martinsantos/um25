@@ -6,12 +6,21 @@ import { fetchBlogPost, fetchBlogListing } from '../../utils/getBlogData';
 import { blogImageUrl, blogPostImageUrl } from '../../utils/blogHelpers';
 import { addHeadingIds, getCategoryLabel, formatBlogDate, extractFaqSchema } from '../../utils/blogUtils';
 import { isReplicaIdenticalCopy, resolveReplicaH1 } from '../../utils/replicaProdCopy';
+import { resolveCanonicalBlogSlug } from '../../data/seoRedirects';
+import { blogSeoTitleOverrides } from '../../data/seoTitleOverrides';
+import { buildBlogSeoMeta } from '../../utils/seoMetaPolicy';
 import {
   buildBlogStrategicLinkGroups,
   buildStrategicWebPageStructuredData,
 } from '../../data/strategicLinkGraph';
 
 const slug = Astro.params.slug || '';
+const canonicalSlug = resolveCanonicalBlogSlug(slug);
+
+if (canonicalSlug !== slug) {
+  return Astro.redirect(`/blog/${canonicalSlug}`, 301);
+}
+
 const post = await fetchBlogPost(slug);
 const siteUrl = 'https://www.ultimamilla.com.ar';
 
@@ -46,6 +55,13 @@ const imgUrl = blogPostImageUrl(post);
 const socialImg = post.social_image ? blogImageUrl(post.social_image) : imgUrl;
 const label = getCategoryLabel(post.categoria);
 const date = formatBlogDate(post.fecha_publicacion);
+const blogSeo = buildBlogSeoMeta({
+  title: blogSeoTitleOverrides[slug] || post.meta_title || post.titulo,
+  summary: post.meta_description || post.resumen,
+  category: label,
+});
+const seoTitle = blogSeo.title;
+const seoDesc = blogSeo.description;
 
 const buildArticleLead = (value: unknown): string => {
   const clean = String(value || '').replace(/\s+/g, ' ').trim();
@@ -69,7 +85,7 @@ const schema = {
   '@type': 'BlogPosting',
   '@id': `${articleUrl}#article`,
   headline: post.titulo,
-  description: post.resumen,
+  description: seoDesc,
   url: articleUrl,
   datePublished: post.fecha_publicacion,
   dateModified: post.fecha_modificacion || post.fecha_publicacion,
@@ -110,12 +126,6 @@ const schema = {
     name: 'Blog ULTIMA MILLA',
   },
 };
-
-// SEO title/description with length limits
-const rawBlogTitle = post.meta_title || `${post.titulo} | ULTIMA MILLA`;
-const seoTitle = rawBlogTitle.length > 60 ? `${post.titulo.slice(0, 42).trimEnd()}... | ULTIMA MILLA` : rawBlogTitle;
-const rawBlogDesc = post.meta_description || post.resumen?.substring(0, 158) || '';
-const seoDesc = rawBlogDesc.length > 160 ? rawBlogDesc.slice(0, 157) + '...' : rawBlogDesc;
 
 const articleTitleOverrides: Record<string, string> = {
   'plantilla-arca-facturacion-electronica-gratis': 'Plantilla ARCA para facturación electrónica'

@@ -27,6 +27,7 @@ import {
   buildCaseStrategicLinkGroups,
   buildStrategicWebPageStructuredData,
 } from '../../../data/strategicLinkGraph';
+import { buildCaseSeoMeta } from '../../../utils/seoMetaPolicy';
 
 // --- Configuration ---
 const DIRECTUS_URL = getDirectusInternalUrl();
@@ -348,7 +349,13 @@ const compactCaseTitle = (value: unknown, client?: unknown): string => {
 // SEO
 const siteUrl = 'https://www.ultimamilla.com.ar';
 const canonicalUrl = toCanonicalUrl(`/antecedentes/${id}/${slugFromUrl}`);
-const metaDescription = truncateEditorialText(caseBodySource, 160);
+const caseSeo = buildCaseSeoMeta({
+  title: antecedente.Titulo || antecedente.Nombre,
+  description: caseBodySource,
+  area: antecedente.Area || antecedente.Unidad_de_negocio,
+  date: antecedente.Fecha,
+});
+const metaDescription = caseSeo.description;
 const caseStrategicLinkGroups = buildCaseStrategicLinkGroups({
   currentPath: `/antecedentes/${id}/${slugFromUrl}`,
   title: caseHeadline,
@@ -386,7 +393,7 @@ const antecedentePageStructuredData = [
 ---
 
 <LayoutV4
-  title={`${antecedente.Titulo} | Caso de Éxito - ULTIMA MILLA`}
+  title={caseSeo.title}
   description={metaDescription}
   image={mainImageUrl}
   canonical={canonicalUrl}

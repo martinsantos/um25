@@ -186,6 +186,15 @@ describe('Information hub visual contracts', () => {
     expect(antecedentesEditorial).toMatch(/\.ante-dossier__actions a \+ a:hover,[\s\S]*\.ante-dossier__actions a \+ a:focus-visible\s*\{[\s\S]*background:\s*#111;/);
   });
 
+  test('antecedentes archive exposes a crawlable complete index of case links', () => {
+    const source = read('src/pages/antecedentes/index.astro');
+
+    expect(source).toContain('crawlableAntecedenteIndex');
+    expect(source).toContain('Índice completo de antecedentes');
+    expect(source).toContain('Todos los antecedentes documentados');
+    expect(source).toContain('href={item.href}');
+  });
+
   test('evidence case rows reserve enough copy width to avoid broken client names', () => {
     const evidenceRow = read('src/components/um/EvidenceCaseRow.astro');
     const rowBlock = cssBlock(evidenceRow, '.evidence-case-row');
