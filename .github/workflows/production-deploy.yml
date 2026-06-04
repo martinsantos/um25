@@ -42,6 +42,9 @@ jobs:
         run: npm run lint || echo "Lint check completed"
         continue-on-error: true  # No bloquear por ahora
 
+      - name: Check TypeScript
+        run: npm run typecheck
+
       - name: CSS interaction contract
         run: npm run audit:css
 
