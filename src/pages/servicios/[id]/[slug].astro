@@ -101,19 +101,19 @@ const processSectionTitle = replicaProd ? 'Nuestro Proceso' : 'Método de implem
 const sidebarInfoTitle = replicaProd ? 'Información del Servicio' : 'Metadata del servicio';
 const hasCommercialProducts = productos.some(
   (producto: any) =>
-    String(producto.categoria_comercial || '').toLowerCase() === 'productos' ||
+    ['producto', 'productos'].includes(String(producto.categoria_comercial || '').toLowerCase()) ||
     Boolean(producto.tipo_producto)
 );
-const productsSectionKicker = replicaProd ? '' : hasCommercialProducts ? 'Productos' : 'Equipamiento';
+const productsSectionKicker = replicaProd ? '' : hasCommercialProducts ? 'Producto' : 'Equipamiento';
 const productsSectionTitle = replicaProd
   ? 'Productos y Soluciones'
   : hasCommercialProducts
-    ? 'Equipamiento y productos aplicados'
+    ? 'Equipamiento y producto aplicado'
     : 'Equipamiento aplicado';
 const productsSectionText = replicaProd
   ? ''
   : hasCommercialProducts
-    ? 'Soluciones paquetizadas, materiales y equipamiento vinculados al alcance real del servicio.'
+    ? 'Soluciones, materiales y producto vinculados al alcance real del servicio.'
     : 'Soluciones, materiales y equipamiento vinculados al alcance real del servicio.';
 
 // SEO

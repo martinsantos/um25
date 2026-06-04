@@ -35,11 +35,11 @@ const servicios = serviceVisualOrder
 const seguridadElectronica = servicios.find((servicio) => Number(servicio.id) === 102);
 const cctvAiProduct = {
   title: 'CCTV AI Integrado',
-  eyebrow: 'Productos paquetizados',
+  eyebrow: 'Producto',
   description:
     'Inteligencia artificial para cámaras de seguridad: analítica sobre CCTV existente, alertas operativas, evidencia visual y reportes conectados con sistemas del cliente.',
   proof: 'Piloto recomendado de 30 días sobre 6 cámaras críticas.',
-  image: '/images/services/productos/cctv-ai/cctv-ai-integrado-hero.png',
+  image: '/images/services/productos/cctv-ai/cctv-ai-forense-telefono.png',
   href: `${seguridadElectronica?.href || '/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi'}#producto-cctv-ai-integrado`,
   serviceHref:
     seguridadElectronica?.href ||
@@ -94,7 +94,7 @@ const structuredData = [
     offers: {
       '@type': 'Offer',
       availability: 'https://schema.org/InStock',
-      category: 'Productos',
+      category: 'Producto',
       name: 'Piloto CCTV AI Integrado',
       description: cctvAiProduct.proof,
     },
@@ -666,8 +666,8 @@ const serviceIconPaths: Record<string, string> = {
   .services-products-band {
     margin-top: clamp(38px, 5vw, 64px);
     padding: clamp(18px, 3vw, 28px);
-    background: #080808;
-    color: #fff;
+    background: #050505;
+    color: #ffffff;
   }
 
   .services-product-feature {
@@ -681,7 +681,7 @@ const serviceIconPaths: Record<string, string> = {
     min-width: 0;
     min-height: 100%;
     overflow: hidden;
-    background: #111;
+    background: #111111;
   }
 
   .services-product-feature__media img {
@@ -691,7 +691,7 @@ const serviceIconPaths: Record<string, string> = {
     min-height: 330px;
     object-fit: cover;
     object-position: center;
-    filter: saturate(0.92) contrast(1.06);
+    filter: saturate(0.96) contrast(1.08) brightness(0.86);
   }
 
   .services-product-feature__copy {
@@ -704,16 +704,17 @@ const serviceIconPaths: Record<string, string> = {
 
   .services-product-feature__eyebrow {
     margin: 0 0 12px;
-    color: #f18a74;
+    color: #fca5a5;
     font-size: 1rem;
     font-weight: 700;
+    letter-spacing: 0.08em;
     line-height: 1.2;
     text-transform: uppercase;
   }
 
   .services-product-feature h2 {
     max-width: 680px;
-    color: #fff;
+    color: #ffffff;
     font-family: var(--um-font-display);
     font-size: 2.35rem;
     font-weight: 600;
@@ -724,7 +725,7 @@ const serviceIconPaths: Record<string, string> = {
   .services-product-feature__copy > p:not(.services-product-feature__eyebrow) {
     max-width: 720px;
     margin: 1rem 0 0;
-    color: rgba(255, 255, 255, 0.72);
+    color: rgba(255, 255, 255, 0.82);
     font-size: 1.06rem;
     line-height: 1.62;
   }
@@ -734,17 +735,17 @@ const serviceIconPaths: Record<string, string> = {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1px;
     margin: clamp(18px, 2.6vw, 26px) 0 0;
-    background: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.2);
   }
 
   .services-product-feature__proof div {
     min-width: 0;
     padding: 14px 16px;
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.11);
   }
 
   .services-product-feature__proof dt {
-    color: rgba(255, 255, 255, 0.58);
+    color: rgba(255, 255, 255, 0.72);
     font-size: 0.82rem;
     font-weight: 700;
     line-height: 1.2;
@@ -753,7 +754,7 @@ const serviceIconPaths: Record<string, string> = {
 
   .services-product-feature__proof dd {
     margin: 7px 0 0;
-    color: #fff;
+    color: #ffffff;
     font-size: 1rem;
     font-weight: 700;
     line-height: 1.32;
@@ -767,8 +768,9 @@ const serviceIconPaths: Record<string, string> = {
   }
 
   .services-product-feature__secondary {
-    color: #fff;
+    color: #ffffff;
     border-color: rgba(255, 255, 255, 0.42);
+    background: rgba(255, 255, 255, 0.12);
   }
 
   .services-product-feature__secondary:hover,
@@ -776,6 +778,40 @@ const serviceIconPaths: Record<string, string> = {
     background: #fff;
     color: #080808;
     border-color: #fff;
+  }
+
+  :global(body[data-skin] main .services-products-band) {
+    background: #050505 !important;
+    color: #ffffff !important;
+  }
+
+  :global(body[data-skin] main .services-products-band :where(h1, h2, h3, strong, dt, dd)) {
+    color: #ffffff !important;
+  }
+
+  :global(body[data-skin] main .services-products-band :where(p, span, li)) {
+    color: rgba(255, 255, 255, 0.82) !important;
+  }
+
+  :global(body[data-skin] main .services-products-band .services-product-feature__eyebrow) {
+    color: #fca5a5 !important;
+  }
+
+  :global(body[data-skin] main .services-products-band .services-product-feature__proof dt) {
+    color: rgba(255, 255, 255, 0.72) !important;
+  }
+
+  :global(body[data-skin] main .services-products-band .services-product-feature__secondary) {
+    border: 1px solid rgba(255, 255, 255, 0.36) !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+  }
+
+  :global(body[data-skin] main .services-products-band .services-product-feature__secondary:hover),
+  :global(body[data-skin] main .services-products-band .services-product-feature__secondary:focus-visible) {
+    border-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #050505 !important;
   }
 
   .services-intent-ctas {
