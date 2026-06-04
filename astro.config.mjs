@@ -15,7 +15,7 @@ export default defineConfig({
 
   // URL base para generación de sitemap y rutas absolutas
   site: 'https://www.ultimamilla.com.ar',
-  trailingSlash: 'never',
+  trailingSlash: 'ignore',
   devToolbar: {
     enabled: false,
   },
