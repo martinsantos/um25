@@ -34,13 +34,13 @@ const servicios = serviceVisualOrder
   .filter(Boolean);
 const seguridadElectronica = servicios.find((servicio) => Number(servicio.id) === 102);
 const cctvAiProduct = {
-  title: 'CCTV AI Integrado',
+  title: 'UMSA CCTV AI',
   eyebrow: 'Producto',
   description:
-    'Inteligencia artificial para cámaras de seguridad: analítica sobre CCTV existente, alertas operativas, evidencia visual y reportes conectados con sistemas del cliente.',
-  proof: 'Piloto recomendado de 30 días sobre 6 cámaras críticas.',
-  image: '/images/services/productos/cctv-ai/cctv-ai-forense-telefono.png',
-  href: `${seguridadElectronica?.href || '/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi'}#producto-cctv-ai-integrado`,
+    'Producto UMSA para convertir cámaras existentes en alertas útiles, clips, dashboard e informes forenses verificables.',
+  proof: 'Piloto de 30 días sobre 6 cámaras críticas, con dashboard e informe forense.',
+  image: '/images/services/productos/cctv-ai/cctv-ai-forense-telefono.webp',
+  href: '/cctvai/',
   serviceHref:
     seguridadElectronica?.href ||
     '/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi',
@@ -76,7 +76,7 @@ const structuredData = [
   {
     '@context': 'https://schema.org',
     '@type': 'Service',
-    name: 'CCTV AI Integrado',
+    name: 'UMSA CCTV AI',
     alternateName: 'Inteligencia artificial para cámaras de seguridad',
     description: cctvAiProduct.description,
     url: `https://www.ultimamilla.com.ar${cctvAiProduct.href}`,
@@ -95,7 +95,7 @@ const structuredData = [
       '@type': 'Offer',
       availability: 'https://schema.org/InStock',
       category: 'Producto',
-      name: 'Piloto CCTV AI Integrado',
+      name: 'Piloto UMSA CCTV AI',
       description: cctvAiProduct.proof,
     },
   },
@@ -247,7 +247,7 @@ const serviceIconPaths: Record<string, string> = {
             <dl class="services-product-feature__proof" aria-label="Alcance inicial de CCTV AI">
               <div>
                 <dt>Modo</dt>
-                <dd>Mercado + UMSA</dd>
+                <dd>Producto UMSA</dd>
               </div>
               <div>
                 <dt>Piloto</dt>
@@ -255,7 +255,7 @@ const serviceIconPaths: Record<string, string> = {
               </div>
               <div>
                 <dt>Entrega</dt>
-                <dd>Alertas, clips y reporte</dd>
+                <dd>Dashboard + forense</dd>
               </div>
             </dl>
 

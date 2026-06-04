@@ -17,6 +17,7 @@ function generateSitemapXml(): string {
         // Core pages
         { loc: '', priority: '1.0', changefreq: 'weekly' },
         { loc: '/servicios', priority: '0.9', changefreq: 'weekly' },
+        { loc: '/cctvai', priority: '0.9', changefreq: 'weekly' },
         { loc: '/antecedentes', priority: '0.8', changefreq: 'weekly' },
         { loc: '/blog', priority: '0.8', changefreq: 'daily' },
         { loc: '/sectores', priority: '0.7', changefreq: 'monthly' },
