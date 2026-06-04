@@ -57,6 +57,17 @@ async function getServicioFromSnapshot(numId: number): Promise<ServicioV4 | null
   return { ...servicio, productos } as ServicioV4;
 }
 
+async function getProductoFromSnapshotBySlug(slug: string): Promise<ProductoV4 | null> {
+  const allProductos = await loadSnapshotData<ProductoV4>('productos');
+  return (
+    allProductos.find((producto: any) =>
+      String(producto.slug_producto || producto.slug || '')
+        .replace(/^\/|\/$/g, '')
+        .toLowerCase() === slug.toLowerCase()
+    ) || null
+  );
+}
+
 // 5. Tipos según tu estructura actual
 export interface Servicio {
   id: string;
@@ -232,6 +243,43 @@ export async function getProductosPorServicio(servicioId: number): Promise<Produ
     });
   } catch {
     return [];
+  }
+}
+
+/**
+ * Obtiene un producto comercial con template propio.
+ * Directus-first cuando la colección/fields están disponibles; snapshot-first como
+ * fallback controlado mientras se despliega el schema PRODUCTO en el CMS.
+ */
+export async function getProductoComercialBySlug(slug: string): Promise<ProductoV4 | null> {
+  const fallback = await getProductoFromSnapshotBySlug(slug);
+
+  try {
+    const client = getClient();
+    const response = await client.request(
+      readItems('productos', {
+        filter: {
+          slug_producto: { _eq: slug }
+        },
+        limit: 1,
+        fields: ['*']
+      })
+    );
+
+    const [producto] = (response || []) as ProductoV4[];
+    if (!producto) return fallback;
+
+    return {
+      ...(fallback || {}),
+      ...producto,
+      contenido_producto: producto.contenido_producto || fallback?.contenido_producto,
+      opciones_comerciales: producto.opciones_comerciales || fallback?.opciones_comerciales,
+    } as ProductoV4;
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn(`[directus] Producto ${slug} no disponible desde API, usando snapshot`, error);
+    }
+    return fallback;
   }
 }
 

@@ -83,6 +83,17 @@ export interface ProductoV4 {
   destacado?: string; // Text - Texto destacado/diferenciador
   marcas?: string[]; // JSON - Array de strings (marcas relacionadas)
 
+  // Campos comerciales para productos con template propio
+  categoria_informacion?: 'PRODUCTO' | string; // Nueva categoría de información
+  categoria_comercial?: string; // Ej: Producto
+  tipo_producto?: string; // Ej: Producto
+  slug_producto?: string; // URL-friendly para resolver el producto
+  url_producto?: string; // Alias público/canonical, ej: /cctvai/
+  template_producto?: string; // Ej: cctv-ai-operational-single
+  imagen_publica?: string; // Asset público cuando no se usa UUID Directus
+  contenido_producto?: Record<string, unknown>; // JSON con secciones del template
+  opciones_comerciales?: Array<Record<string, unknown>>; // Tabla comercial legacy/Directus
+
   // Metadatos
   orden?: number; // Integer - Para ordenar productos (default: 0)
   estado?: EstadoPublicacion; // Dropdown - publicado|borrador
@@ -401,6 +412,160 @@ export const PRODUCTOS_COLLECTION_SCHEMA = {
         },
         width: 'half',
         note: 'Marcas específicas para este producto'
+      },
+      schema: {
+        is_nullable: true
+      }
+    },
+    {
+      field: 'categoria_informacion',
+      type: 'string',
+      meta: {
+        interface: 'select-dropdown',
+        options: {
+          choices: [
+            { text: 'Producto', value: 'PRODUCTO' },
+            { text: 'Equipamiento', value: 'EQUIPAMIENTO' },
+            { text: 'Servicio asociado', value: 'SERVICIO_ASOCIADO' }
+          ]
+        },
+        width: 'half',
+        note: 'Categoría editorial/comercial que define cómo se presenta esta información en el sitio'
+      },
+      schema: {
+        default_value: 'EQUIPAMIENTO',
+        max_length: 64,
+        is_nullable: true
+      }
+    },
+    {
+      field: 'categoria_comercial',
+      type: 'string',
+      meta: {
+        interface: 'input',
+        options: {
+          placeholder: 'Producto'
+        },
+        width: 'half',
+        note: 'Etiqueta comercial visible en templates y fichas'
+      },
+      schema: {
+        max_length: 100,
+        is_nullable: true
+      }
+    },
+    {
+      field: 'tipo_producto',
+      type: 'string',
+      meta: {
+        interface: 'input',
+        options: {
+          placeholder: 'Producto'
+        },
+        width: 'half',
+        note: 'Tipo o familia de producto para render y filtros'
+      },
+      schema: {
+        max_length: 100,
+        is_nullable: true
+      }
+    },
+    {
+      field: 'slug_producto',
+      type: 'string',
+      meta: {
+        interface: 'input',
+        options: {
+          slug: true,
+          placeholder: 'cctv-ai-integrado'
+        },
+        width: 'half',
+        note: 'Identificador estable para resolver la página del producto'
+      },
+      schema: {
+        max_length: 255,
+        is_nullable: true,
+        is_unique: true
+      }
+    },
+    {
+      field: 'url_producto',
+      type: 'string',
+      meta: {
+        interface: 'input',
+        options: {
+          placeholder: '/cctvai/'
+        },
+        width: 'half',
+        note: 'URL pública/canonical del producto cuando tiene single propia'
+      },
+      schema: {
+        max_length: 255,
+        is_nullable: true
+      }
+    },
+    {
+      field: 'template_producto',
+      type: 'string',
+      meta: {
+        interface: 'select-dropdown',
+        options: {
+          choices: [
+            { text: 'Producto CCTV AI', value: 'cctv-ai-operational-single' },
+            { text: 'Producto estándar', value: 'producto-standard' }
+          ]
+        },
+        width: 'half',
+        note: 'Template frontend que debe usar este producto'
+      },
+      schema: {
+        max_length: 100,
+        is_nullable: true
+      }
+    },
+    {
+      field: 'imagen_publica',
+      type: 'string',
+      meta: {
+        interface: 'input',
+        options: {
+          placeholder: '/images/services/productos/cctv-ai/cctv-ai-integrado-hero.webp'
+        },
+        width: 'full',
+        note: 'Asset público opcional para imágenes generadas fuera de Directus'
+      },
+      schema: {
+        max_length: 500,
+        is_nullable: true
+      }
+    },
+    {
+      field: 'contenido_producto',
+      type: 'json',
+      meta: {
+        interface: 'input-code',
+        options: {
+          language: 'JSON',
+          template: '{\n  "hero": {},\n  "integrations": [],\n  "options": [],\n  "pilotSteps": [],\n  "demoEvents": [],\n  "limits": []\n}'
+        },
+        width: 'full',
+        note: 'Contenido estructurado que alimenta el template propio del producto'
+      },
+      schema: {
+        is_nullable: true
+      }
+    },
+    {
+      field: 'opciones_comerciales',
+      type: 'json',
+      meta: {
+        interface: 'input-code',
+        options: {
+          language: 'JSON',
+          template: '[\n  {"modelo": "UMSA", "nombre": "Piloto", "precio_desde_usd": 0}\n]'
+        },
+        width: 'full',
+        note: 'Opciones comerciales comparables para pricing, propuestas y dashboards'
       },
       schema: {
         is_nullable: true

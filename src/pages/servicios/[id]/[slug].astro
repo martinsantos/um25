@@ -463,9 +463,9 @@ const iconPaths = {
               serviceName={visual?.shortName || servicio.Titulo.split('|')[0]?.trim() || servicio.Titulo}
               serviceCategory={producto.categoria_comercial || servicio.area || servicio.Area || visual?.eyebrow}
               serviceHref={`/servicios/${id}/${slug}`}
-              ctaLabel={[102, 107].includes(Number(id)) ? 'Solicitar relevamiento' : 'Cotizar solución'}
-              ctaHref="/contacto"
-              showActions={shouldShowProductCardActions({ index, total: productos.length })}
+              ctaLabel={producto.slug_producto === 'cctv-ai-integrado' ? 'Ver producto' : [102, 107].includes(Number(id)) ? 'Solicitar relevamiento' : 'Cotizar solución'}
+              ctaHref={producto.url_producto || (producto.slug_producto === 'cctv-ai-integrado' ? '/cctvai/' : '/contacto')}
+              showActions={producto.slug_producto === 'cctv-ai-integrado' || shouldShowProductCardActions({ index, total: productos.length })}
             />
           ))}
         </div>
