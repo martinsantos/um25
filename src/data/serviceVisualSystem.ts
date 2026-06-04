@@ -22,7 +22,7 @@ export const serviceVisualSystem: Record<number, ServiceVisualSpec> = {
     image: '/uploads/antecedentes/0021d14f-3f8a-4e39-9a03-dad7c8681c0d.jpg',
     imageAlt: 'Sala técnica con racks de comunicaciones y cableado estructurado',
     icon: 'network',
-    signal: 'traza de paquetes'
+    signal: 'traza de red'
   },
   102: {
     serviceId: 102,
