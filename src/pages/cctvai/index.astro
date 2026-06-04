@@ -445,7 +445,7 @@ const {
     margin: 0 0 12px;
     color: #dc2626;
     font-size: 1rem;
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: 0.08em;
     line-height: 1.3;
     text-transform: uppercase;
@@ -479,14 +479,16 @@ const {
   }
 
   .cctvai-btn-dark {
-    border-color: rgba(255, 255, 255, 0.38);
-    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.34) !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #fff !important;
   }
 
-  .cctvai-btn-dark:hover {
-    border-color: #fff;
-    background: #fff;
-    color: #080808;
+  .cctvai-btn-dark:hover,
+  .cctvai-btn-dark:focus-visible {
+    border-color: #fff !important;
+    background: #fff !important;
+    color: #080808 !important;
   }
 
   .cctvai-proof {
@@ -507,7 +509,7 @@ const {
   .cctvai-incident__ledger dt {
     color: rgba(255, 255, 255, 0.58);
     font-size: 0.92rem;
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1.25;
     text-transform: uppercase;
   }
@@ -518,7 +520,7 @@ const {
     margin: 7px 0 0;
     color: #fff;
     font-size: 1.06rem;
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1.32;
   }
 
@@ -553,7 +555,7 @@ const {
   .cctvai-incident__report span {
     color: rgba(255, 255, 255, 0.58);
     font-size: 0.92rem;
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1.3;
     text-transform: uppercase;
   }
@@ -566,7 +568,7 @@ const {
 
   .cctvai-nav {
     position: sticky;
-    top: 0;
+    top: 80px;
     z-index: 20;
     border-bottom: 1px solid #dedede;
     background: rgba(255, 255, 255, 0.96);
@@ -589,7 +591,7 @@ const {
     flex: 0 0 auto;
     color: #27272a;
     font-size: 1rem;
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1.3;
     text-decoration: none;
   }
@@ -607,6 +609,14 @@ const {
 
   .cctvai-section + .cctvai-section {
     border-top: 1px solid #e5e5e5;
+  }
+
+  #valor,
+  #opciones,
+  #piloto,
+  #dashboard-demo,
+  #limites {
+    scroll-margin-top: 150px;
   }
 
   .cctvai-section-head {
@@ -668,7 +678,7 @@ const {
   .cctvai-integration-item span {
     color: #dc2626;
     font-size: 1rem;
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1.2;
   }
 
@@ -739,7 +749,6 @@ const {
   .cctvai-mode-card--umsa {
     background: #0b0b0b;
     border-color: #0b0b0b;
-    box-shadow: 0 18px 46px rgba(0, 0, 0, 0.16);
   }
 
   .cctvai-mode-card--market:hover {
@@ -755,7 +764,7 @@ const {
   .cctvai-mode-grid article > p {
     margin: 0;
     color: #dc2626;
-    font-weight: 800;
+    font-weight: 700;
     text-transform: uppercase;
   }
 
@@ -805,7 +814,7 @@ const {
     padding: 14px 16px;
     border-right: 1px solid rgba(255, 255, 255, 0.16);
     font-size: 0.92rem;
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1.3;
     text-transform: uppercase;
   }
@@ -836,7 +845,7 @@ const {
 
   .cctvai-options-row > span:first-child {
     color: #6b7078;
-    font-weight: 800;
+    font-weight: 700;
     text-transform: uppercase;
   }
 
@@ -846,7 +855,7 @@ const {
 
   .cctvai-options-row strong {
     color: #111;
-    font-weight: 800;
+    font-weight: 700;
   }
 
   .cctvai-pilot {
@@ -1021,7 +1030,7 @@ const {
     margin-bottom: 12px;
     color: rgba(255, 255, 255, 0.72);
     font-size: 1rem;
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1.3;
   }
 
@@ -1067,7 +1076,7 @@ const {
 
   .cctvai-scrub__event span {
     font-size: 0.9rem;
-    font-weight: 800;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
   }
 
@@ -1184,6 +1193,18 @@ const {
   }
 
   @media (max-width: 860px) {
+    .cctvai-nav {
+      top: 64px;
+    }
+
+    #valor,
+    #opciones,
+    #piloto,
+    #dashboard-demo,
+    #limites {
+      scroll-margin-top: 136px;
+    }
+
     .cctvai-hero {
       padding: 24px 0 38px;
     }
@@ -1253,7 +1274,7 @@ const {
       margin-bottom: 4px;
       color: #7a7d83;
       font-size: 0.82rem;
-      font-weight: 800;
+      font-weight: 700;
       text-transform: uppercase;
     }
 
