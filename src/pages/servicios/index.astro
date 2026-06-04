@@ -32,11 +32,27 @@ const servicios = serviceVisualOrder
     };
   })
   .filter(Boolean);
+const seguridadElectronica = servicios.find((servicio) => Number(servicio.id) === 102);
+const cctvAiProduct = {
+  title: 'CCTV AI Integrado',
+  eyebrow: 'Productos paquetizados',
+  description:
+    'Inteligencia artificial para cámaras de seguridad: analítica sobre CCTV existente, alertas operativas, evidencia visual y reportes conectados con sistemas del cliente.',
+  proof: 'Piloto recomendado de 30 días sobre 6 cámaras críticas.',
+  image: '/images/services/productos/cctv-ai/cctv-ai-integrado-hero.png',
+  href: `${seguridadElectronica?.href || '/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi'}#producto-cctv-ai-integrado`,
+  serviceHref:
+    seguridadElectronica?.href ||
+    '/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi',
+};
 const servicesStrategicLinkGroups = buildServiceStrategicLinkGroups({
   currentPath: '/servicios',
   title: serviciosIndexH1,
   summary: 'Servicios IT integrales para empresas: redes, seguridad, telecomunicaciones, software, soporte, consultoría, detección y energía IT.',
-  text: servicios.map((servicio) => `${servicio.title} ${servicio.description} ${servicio.visual.shortName} ${servicio.visual.proof}`).join(' '),
+  text: [
+    servicios.map((servicio) => `${servicio.title} ${servicio.description} ${servicio.visual.shortName} ${servicio.visual.proof}`).join(' '),
+    `${cctvAiProduct.title} ${cctvAiProduct.description}`,
+  ].join(' '),
 });
 
 const structuredData = [
@@ -56,6 +72,32 @@ const structuredData = [
       name: servicio.title,
       url: `https://www.ultimamilla.com.ar${servicio.href}`
     }))
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'CCTV AI Integrado',
+    alternateName: 'Inteligencia artificial para cámaras de seguridad',
+    description: cctvAiProduct.description,
+    url: `https://www.ultimamilla.com.ar${cctvAiProduct.href}`,
+    serviceType: 'CCTV AI, videovigilancia inteligente, analítica de video, seguridad electrónica',
+    provider: {
+      '@type': 'Organization',
+      name: 'ULTIMA MILLA',
+      url: 'https://www.ultimamilla.com.ar',
+    },
+    areaServed: [
+      { '@type': 'City', name: 'Mendoza' },
+      { '@type': 'AdministrativeArea', name: 'Cuyo' },
+      { '@type': 'AdministrativeArea', name: 'Patagonia' },
+    ],
+    offers: {
+      '@type': 'Offer',
+      availability: 'https://schema.org/InStock',
+      category: 'Productos',
+      name: 'Piloto CCTV AI Integrado',
+      description: cctvAiProduct.proof,
+    },
   },
   buildStrategicWebPageStructuredData({
     url: 'https://www.ultimamilla.com.ar/servicios',
@@ -183,6 +225,47 @@ const serviceIconPaths: Record<string, string> = {
           ))}
         </div>
       </div>
+
+      <section class="services-products-band" aria-labelledby="services-products-title">
+        <div class="services-product-feature">
+          <div class="services-product-feature__media" aria-hidden="true">
+            <img
+              src={cctvAiProduct.image}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              width="1200"
+              height="800"
+            />
+          </div>
+
+          <div class="services-product-feature__copy">
+            <p class="services-product-feature__eyebrow">{cctvAiProduct.eyebrow}</p>
+            <h2 id="services-products-title">{cctvAiProduct.title}</h2>
+            <p>{cctvAiProduct.description}</p>
+
+            <dl class="services-product-feature__proof" aria-label="Alcance inicial de CCTV AI">
+              <div>
+                <dt>Modo</dt>
+                <dd>Mercado + UMSA</dd>
+              </div>
+              <div>
+                <dt>Piloto</dt>
+                <dd>30 días / 6 cámaras</dd>
+              </div>
+              <div>
+                <dt>Entrega</dt>
+                <dd>Alertas, clips y reporte</dd>
+              </div>
+            </dl>
+
+            <div class="services-product-feature__actions">
+              <a href={cctvAiProduct.href} class="um-btn-primary">Ver producto</a>
+              <a href="/contacto" class="um-btn-secondary services-product-feature__secondary">Solicitar diagnóstico</a>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <div class="services-intent-ctas" id="decision" aria-label="Próximo paso por intención">
         <a href="/contacto" class="um-click-surface services-intent-card">
@@ -580,6 +663,121 @@ const serviceIconPaths: Record<string, string> = {
     line-height: 1.2;
   }
 
+  .services-products-band {
+    margin-top: clamp(38px, 5vw, 64px);
+    padding: clamp(18px, 3vw, 28px);
+    background: #080808;
+    color: #fff;
+  }
+
+  .services-product-feature {
+    display: grid;
+    grid-template-columns: minmax(260px, 0.42fr) minmax(0, 0.58fr);
+    gap: clamp(22px, 4vw, 54px);
+    align-items: stretch;
+  }
+
+  .services-product-feature__media {
+    min-width: 0;
+    min-height: 100%;
+    overflow: hidden;
+    background: #111;
+  }
+
+  .services-product-feature__media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 330px;
+    object-fit: cover;
+    object-position: center;
+    filter: saturate(0.92) contrast(1.06);
+  }
+
+  .services-product-feature__copy {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(10px, 2vw, 18px) clamp(4px, 1vw, 10px);
+  }
+
+  .services-product-feature__eyebrow {
+    margin: 0 0 12px;
+    color: #f18a74;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .services-product-feature h2 {
+    max-width: 680px;
+    color: #fff;
+    font-family: var(--um-font-display);
+    font-size: 2.35rem;
+    font-weight: 600;
+    line-height: 1.06;
+    text-wrap: balance;
+  }
+
+  .services-product-feature__copy > p:not(.services-product-feature__eyebrow) {
+    max-width: 720px;
+    margin: 1rem 0 0;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 1.06rem;
+    line-height: 1.62;
+  }
+
+  .services-product-feature__proof {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    margin: clamp(18px, 2.6vw, 26px) 0 0;
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  .services-product-feature__proof div {
+    min-width: 0;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .services-product-feature__proof dt {
+    color: rgba(255, 255, 255, 0.58);
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .services-product-feature__proof dd {
+    margin: 7px 0 0;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.32;
+  }
+
+  .services-product-feature__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: clamp(18px, 2.8vw, 28px);
+  }
+
+  .services-product-feature__secondary {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.42);
+  }
+
+  .services-product-feature__secondary:hover,
+  .services-product-feature__secondary:focus-visible {
+    background: #fff;
+    color: #080808;
+    border-color: #fff;
+  }
+
   .services-intent-ctas {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -898,6 +1096,7 @@ const serviceIconPaths: Record<string, string> = {
     .services-section-head,
     .services-dossier-head,
     .services-dossier,
+    .services-product-feature,
     .service-row,
     .service-row:first-child,
     .service-row__content,
@@ -957,8 +1156,34 @@ const serviceIconPaths: Record<string, string> = {
     }
 
     .services-dossier__list,
+    .services-product-feature__proof,
     .services-intent-ctas {
       grid-template-columns: 1fr;
+    }
+
+    .services-products-band {
+      margin-top: 34px;
+      padding: 18px;
+    }
+
+    .services-product-feature__media img {
+      min-height: 240px;
+      aspect-ratio: 16 / 10;
+    }
+
+    .services-product-feature h2 {
+      font-size: 1.9rem;
+      overflow-wrap: anywhere;
+    }
+
+    .services-product-feature__actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .services-product-feature__actions a {
+      justify-content: center;
+      width: 100%;
     }
 
     .services-hero__proofline {
