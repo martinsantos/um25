@@ -99,11 +99,22 @@ const serviceCtaTitle = replicaProd
 const descriptionSectionTitle = replicaProd ? 'Descripción del Servicio' : 'Alcance operativo';
 const processSectionTitle = replicaProd ? 'Nuestro Proceso' : 'Método de implementación';
 const sidebarInfoTitle = replicaProd ? 'Información del Servicio' : 'Metadata del servicio';
-const productsSectionKicker = replicaProd ? '' : 'Equipamiento';
-const productsSectionTitle = replicaProd ? 'Productos y Soluciones' : 'Equipamiento aplicado';
+const hasCommercialProducts = productos.some(
+  (producto: any) =>
+    String(producto.categoria_comercial || '').toLowerCase() === 'productos' ||
+    Boolean(producto.tipo_producto)
+);
+const productsSectionKicker = replicaProd ? '' : hasCommercialProducts ? 'Productos' : 'Equipamiento';
+const productsSectionTitle = replicaProd
+  ? 'Productos y Soluciones'
+  : hasCommercialProducts
+    ? 'Equipamiento y productos aplicados'
+    : 'Equipamiento aplicado';
 const productsSectionText = replicaProd
   ? ''
-  : 'Soluciones, materiales y equipamiento vinculados al alcance real del servicio.';
+  : hasCommercialProducts
+    ? 'Soluciones paquetizadas, materiales y equipamiento vinculados al alcance real del servicio.'
+    : 'Soluciones, materiales y equipamiento vinculados al alcance real del servicio.';
 
 // SEO
 const siteUrl = 'https://www.ultimamilla.com.ar';
@@ -450,7 +461,7 @@ const iconPaths = {
               orden={index}
               serviceId={id}
               serviceName={visual?.shortName || servicio.Titulo.split('|')[0]?.trim() || servicio.Titulo}
-              serviceCategory={servicio.area || servicio.Area || visual?.eyebrow}
+              serviceCategory={producto.categoria_comercial || servicio.area || servicio.Area || visual?.eyebrow}
               serviceHref={`/servicios/${id}/${slug}`}
               ctaLabel={[102, 107].includes(Number(id)) ? 'Solicitar relevamiento' : 'Cotizar solución'}
               ctaHref="/contacto"
