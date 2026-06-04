@@ -9,6 +9,7 @@
 
 import NavbarV4 from '../components/v4/NavbarV4.astro';
 import FooterV4 from '../components/v4/FooterV4.astro';
+import ContactModal from '../components/um/ContactModal.astro';
 import SEOHead from '../components/SEO/SEOHead.astro';
 import { SITE_URL } from '../config/seo';
 import { hasEnglishAlternate } from '../config/i18nRoutes';
@@ -221,6 +222,7 @@ const shouldEmitHreflang = hasEnglishAlternate(Astro.url.pathname);
       <slot />
     </main>
 
+    <ContactModal />
     <FooterV4 />
   </body>
 </html>
