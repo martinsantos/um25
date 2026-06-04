@@ -10,18 +10,18 @@ Fuentes revisadas:
 
 ## Decision de arquitectura
 
-`CCTV AI Integrado` debe publicarse como **producto paquetizado** dentro de `Servicios`, no como un noveno frente de servicio.
+`CCTV AI Integrado` debe publicarse como **producto** dentro de `Servicios`, no como un noveno frente de servicio.
 
 Modelo recomendado:
 
-- Categoria comercial nueva: `Productos`
-- Tipo: `Producto paquetizado / bundle`
+- Categoria comercial nueva: `Producto`
+- Tipo: `Producto`
 - Servicio padre: `102 - Sistemas de Seguridad Electronica`
 - Servicios relacionados: `104 - Software a medida`, `105 - Soporte 24/7`, `106 - Consultoria IT`
 - URL inicial compatible con el sitio actual: `/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi#producto-cctv-ai-integrado`
 - URL futura recomendada si se crea landing de productos: `/productos/cctv-ai-integrado`
 
-Esta decision mantiene a CCTV AI dentro de la linea natural de seguridad electronica, pero permite venderlo como producto cerrado, con paquetes, piloto, limites y pricing.
+Esta decision mantiene a CCTV AI dentro de la linea natural de seguridad electronica, pero permite venderlo como producto cerrado, con piloto, limites, opciones comerciales y pricing.
 
 ## Nombre y posicionamiento
 
@@ -79,17 +79,17 @@ CCTV AI Integrado suma una capa de inteligencia operativa sobre camaras existent
 
 Features:
 
-- Piloto de 30 dias sobre 6 camaras criticas
-- Alertas por cruce, intrusion, permanencia, conducta o evento definido
-- Clips, cuadros clave y reportes forenses u operativos
-- Integracion con NVR/VMS, alarmas, accesos, tableros o sistemas internos
-- Ajuste de reglas para reducir falsos positivos antes de escalar
+- Relevamiento de camaras existentes: compatibilidad, angulos, calidad de imagen y NVR/VMS
+- Piloto controlado de 30 dias sobre 6 camaras criticas
+- Reglas de IA operativas: intrusion, cruce de linea, permanencia, conteo, EPP o evento validado por sitio
+- Alertas con evidencia: clip, cuadro clave, severidad, estado y recomendacion para revision humana
+- Integracion UMSA con alarmas, accesos, tableros, reportes y escalamiento por etapa
 
-## Paquetes comerciales
+## Opciones comerciales
 
 Precios circa en USD. La oferta final queda sujeta a relevamiento, compatibilidad, licencias, almacenamiento, cantidad de camaras y definicion del piloto.
 
-| Familia | Paquete | Precio circa | Cliente cuenta con | Conviene si |
+| Familia | Opcion | Precio circa | Cliente cuenta con | Conviene si |
 |---|---|---:|---|---|
 | Mercado | Perimetro inteligente | desde USD 27,6k | Reglas de cruce, intrusion o entrada a zona restringida. | Necesita control perimetral rapido. |
 | Mercado | Analitica del fabricante | desde USD 38,0k | Funciones avanzadas del equipo y metadata compatible. | Ya tiene equipos compatibles y quiere buscar mejor. |
@@ -99,7 +99,7 @@ Precios circa en USD. La oferta final queda sujeta a relevamiento, compatibilida
 | UMSA | Operacion hibrida | desde USD 66,4k | Procesamiento local + gestion central + metricas + mejora por etapas. | La operacion es critica y requiere escalamiento gradual. |
 | UMSA | Forense UMSA | desde USD 24,0k | Revision posterior de clips, clasificacion y reporte de evidencia. | Necesita auditoria, reclamos o investigacion posterior. |
 
-Paquete recomendado de entrada:
+Entrada recomendada:
 
 **Piloto UMSA de 30 dias sobre 6 camaras criticas.**
 
@@ -184,11 +184,11 @@ El sitio actual carga productos desde `src/data/snapshots/productos.json` median
   "descripcion": "CCTV AI Integrado suma una capa de inteligencia operativa sobre camaras existentes. UMSA releva la instalacion, valida calidad de imagen y angulos, configura reglas utiles, integra alertas con la operacion y entrega evidencia documentada. No reemplaza operadores, protocolos internos ni revision humana: ordena el video para que la respuesta sea mas rapida y trazable.\\n\\n**Implementamos un piloto de 30 dias sobre 6 camaras criticas** para validar eventos utiles, falsos positivos, evidencia visual y forma de reporte antes de escalar por sitio, camara o caso de uso.",
   "imagen": "019e8d32-06c8-73a1-aa89-5f9d40c31f4b",
   "features": [
-    "Piloto de 30 dias — Validacion sobre 6 camaras criticas antes de escalar",
-    "Alertas accionables — Cruce, intrusion, permanencia, conducta o evento definido",
-    "Evidencia documentada — Clips, cuadros clave, severidad, estado y recomendacion",
-    "Integracion operativa — NVR/VMS, alarmas, accesos, tableros y sistemas internos",
-    "Ajuste UMSA — Reglas revisadas para reducir falsos positivos"
+    "Relevamiento de camaras existentes — Compatibilidad, angulos, calidad de imagen y NVR/VMS antes de prometer IA",
+    "Piloto controlado — 30 dias sobre 6 camaras criticas para medir eventos utiles y falsos positivos",
+    "Reglas de IA operativas — Intrusion, cruce de linea, permanencia, conteo, EPP o evento validado por sitio",
+    "Alertas con evidencia — Clip, cuadro clave, severidad, estado y recomendacion para revision humana",
+    "Integracion UMSA — Alarmas, accesos, tableros, reportes y escalamiento por etapa"
   ],
   "destacado": "Video existente convertido en eventos, clips y evidencia accionable",
   "marcas": [
@@ -202,17 +202,17 @@ El sitio actual carga productos desde `src/data/snapshots/productos.json` median
 }
 ```
 
-## Extension recomendada para categoria Productos
+## Extension recomendada para categoria Producto
 
-Para soportar bundles sin meter todo dentro de `descripcion`, conviene agregar una capa de datos propia:
+Para soportar el producto sin meter todo dentro de `descripcion`, conviene agregar una capa de datos propia:
 
 ```json
 {
-  "categoria_comercial": "Productos",
-  "tipo_producto": "bundle",
+  "categoria_comercial": "Producto",
+  "tipo_producto": "producto",
   "slug_producto": "cctv-ai-integrado",
   "servicios_relacionados": [102, 104, 105, 106],
-  "paquetes": [
+  "opciones_comerciales": [
     {
       "familia": "Mercado",
       "nombre": "Perimetro inteligente",
@@ -301,12 +301,12 @@ Interlinking recomendado:
 Fase 1:
 
 - Publicar como producto dentro del servicio `102`.
-- Agregar una seccion breve `Productos paquetizados` en `/servicios`.
+- Agregar una seccion breve `Producto` en `/servicios`.
 - Usar el asset hero y el ancla `#producto-cctv-ai-integrado`.
 
 Fase 2:
 
 - Crear landing `/productos/cctv-ai-integrado`.
-- Mostrar paquetes con comparador Mercado vs UMSA.
+- Mostrar opciones comerciales con comparador Mercado vs UMSA.
 - Agregar demo forense con las dos imagenes de incidente.
 - Incluir FAQ de limites para evitar promesas fragiles.
