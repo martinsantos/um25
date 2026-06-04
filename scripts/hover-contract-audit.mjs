@@ -14,7 +14,18 @@ const SCREENSHOT_LABELS = new Set(
     .filter(Boolean)
 );
 
-const checks = [
+function isLocalAuditTarget(baseUrl) {
+  try {
+    const { hostname } = new URL(baseUrl);
+    return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
+  } catch {
+    return false;
+  }
+}
+
+const isDevAuditTarget = isLocalAuditTarget(BASE_URL);
+
+const allChecks = [
   { path: '/', selector: '.um-service-unit', label: 'home service unit' },
   { path: '/', selector: '.um-services-command__links .um-arrow-link', label: 'home arrow link' },
   { path: '/', selector: '.evidence-case-row', label: 'home evidence row' },
@@ -34,14 +45,16 @@ const checks = [
   { path: '/antecedentes?sector=bodegas', selector: '.ante-dossier__sector-links a:not(.is-active)', label: 'antecedentes sector filter' },
   { path: '/antecedentes?sector=bodegas', selector: '.ante-dossier__clear', label: 'antecedentes clear filter' },
   { path: '/antecedentes?page=2', selector: '.ante-dossier__pagination a:not(.is-active)', label: 'antecedentes pagination' },
-  { path: '/antecedentes?template=atlas&sector=bodegas', selector: '.ante-atlas__filters input', label: 'antecedentes atlas search input' },
-  { path: '/antecedentes?template=atlas&sector=bodegas', selector: '.ante-atlas__filters nav a:not(.is-active)', label: 'antecedentes atlas sector filter' },
-  { path: '/antecedentes?template=atlas&page=2', selector: '.ante-atlas__pagination a:not(.is-active)', label: 'antecedentes atlas pagination' },
+  { path: '/antecedentes?template=atlas&sector=bodegas', selector: '.ante-atlas__filters input', label: 'antecedentes atlas search input', devOnly: true },
+  { path: '/antecedentes?template=atlas&sector=bodegas', selector: '.ante-atlas__filters nav a:not(.is-active)', label: 'antecedentes atlas sector filter', devOnly: true },
+  { path: '/antecedentes?template=atlas&page=2', selector: '.ante-atlas__pagination a:not(.is-active)', label: 'antecedentes atlas pagination', devOnly: true },
   { path: '/sectores', selector: '.sector-editorial-row, .sector-atlas-exec-row, a.um-click-surface', label: 'sectores linked row' },
   { path: '/sectores?sector=bodegas', selector: '.sector-editorial__market-links a:not(.is-active)', label: 'sectores editorial market filter' },
-  { path: '/sectores?template=atlas&sector=bodegas', selector: '.sector-atlas-exec-ledger__filters-links a:not(.is-active)', label: 'sectores atlas market filter' },
+  { path: '/sectores?template=atlas&sector=bodegas', selector: '.sector-atlas-exec-ledger__filters-links a:not(.is-active)', label: 'sectores atlas market filter', devOnly: true },
   { path: '/blog', selector: '.cat-tab:not(.cat-tab--active)', label: 'blog category tab' },
 ];
+
+const checks = allChecks.filter((check) => isDevAuditTarget || !check.devOnly);
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
