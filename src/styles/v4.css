@@ -751,9 +751,6 @@ body[data-skin="steel"] {
   }
 
   :where(main) :where(.um-click-surface:hover, .um-click-surface:focus-visible) :where(
-    h2,
-    h3,
-    strong,
     .um-click-action,
     .evidence-item__cta,
     .evidence-case-row__action,
@@ -1386,6 +1383,53 @@ body main .case-gallery-frame {
   box-shadow: none !important;
 }
 
+/* Service detail equipment heading — production guard against narrow split columns. */
+body main .service-products-section {
+  padding-top: clamp(26px, 4vw, 52px) !important;
+}
+
+body main .service-products-head .um-section-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 780px) !important;
+  grid-template-areas:
+    "kicker"
+    "title"
+    "text" !important;
+  gap: clamp(12px, 1.6vw, 18px) !important;
+  align-items: start !important;
+  max-width: none !important;
+  margin-bottom: 0 !important;
+}
+
+body main .service-products-head .um-section-header .um-kicker {
+  grid-area: kicker !important;
+}
+
+body main .service-products-head .um-section-header h2 {
+  grid-area: title !important;
+  max-width: min(100%, 780px) !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  hyphens: manual !important;
+  text-wrap: balance !important;
+}
+
+body main .service-products-head .um-section-header > p:not(.um-kicker) {
+  grid-area: text !important;
+  max-width: min(100%, 680px) !important;
+  margin-top: 0 !important;
+}
+
+@media (max-width: 640px) {
+  body main .service-products-head .um-section-header h2 {
+    max-width: 100% !important;
+    font-size: clamp(1.75rem, 8vw, 2.25rem) !important;
+    line-height: 1.08 !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+}
+
 body main :where(
   figure,
   [class*="media"],
@@ -1514,6 +1558,37 @@ body[data-skin] main :where(
   .cat-tab
 ) {
   text-decoration-line: none !important;
+}
+
+body[data-skin] main :where(
+  .ante-dossier__sector-links a:not(.is-active),
+  .ante-atlas__filters nav a:not(.is-active),
+  .sector-editorial__market-links a:not(.is-active),
+  .sector-atlas-exec-ledger__filters-links a:not(.is-active),
+  .cat-tab:not(.cat-tab--active)
+):hover,
+body[data-skin] main :where(
+  .ante-dossier__sector-links a:not(.is-active),
+  .ante-atlas__filters nav a:not(.is-active),
+  .sector-editorial__market-links a:not(.is-active),
+  .sector-atlas-exec-ledger__filters-links a:not(.is-active),
+  .cat-tab:not(.cat-tab--active)
+):focus-visible {
+  background: color-mix(in srgb, var(--um-red) 7%, transparent) !important;
+  color: var(--um-red) !important;
+}
+
+body[data-skin] main :where(
+  .ante-dossier__sector-links a:not(.is-active),
+  .sector-editorial__market-links a:not(.is-active),
+  .sector-atlas-exec-ledger__filters-links a:not(.is-active)
+):hover::after,
+body[data-skin] main :where(
+  .ante-dossier__sector-links a:not(.is-active),
+  .sector-editorial__market-links a:not(.is-active),
+  .sector-atlas-exec-ledger__filters-links a:not(.is-active)
+):focus-visible::after {
+  opacity: 0 !important;
 }
 
 body[data-skin] main :where(
@@ -2848,6 +2923,11 @@ body[data-skin] main .case-related .evidence-case-row p {
 }
 
 /* Interaction contract — final override over data-skin normalizers. */
+body main .um-arrow-link {
+  border-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
 body main .um-arrow-link:hover,
 body main .um-arrow-link:focus-visible {
   color: var(--um-red) !important;
@@ -2877,9 +2957,6 @@ body main .um-click-surface:not(.um-arrow-link):not(.um-btn):not(.um-btn-primary
 }
 
 body main .um-click-surface:hover :where(
-  h2,
-  h3,
-  strong,
   .um-click-action,
   .evidence-item__cta,
   .evidence-case-row__action,
