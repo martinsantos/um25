@@ -2,9 +2,12 @@ import type { APIRoute } from 'astro';
 import nodemailer from 'nodemailer';
 
 const rateLimitMap = new Map<string, number[]>();
+const duplicateMap = new Map<string, number>();
 const RATE_LIMIT_WINDOW = 15 * 60 * 1000;
-const MAX_REQUESTS_PER_WINDOW = 3;
-const MIN_FORM_SECONDS = 4;
+const MAX_REQUESTS_PER_WINDOW = 5;
+const DUPLICATE_WINDOW = 2 * 60 * 1000;
+const MIN_FORM_SECONDS = 2.5;
+const MAX_FORM_AGE_MS = 2 * 60 * 60 * 1000;
 const MESSAGE_MIN_LENGTH = 12;
 const MESSAGE_MAX_LENGTH = 2400;
 const MAX_LINKS = 2;
@@ -72,7 +75,7 @@ function countLinks(message: string): number {
   return (message.match(/https?:\/\/|www\.|\.com\b|\.ar\b/gi) || []).length;
 }
 
-function isTooFast(startedAt: unknown): boolean {
+function isInvalidFormTiming(startedAt: unknown): boolean {
   if (!startedAt) {
     return false;
   }
@@ -82,7 +85,8 @@ function isTooFast(startedAt: unknown): boolean {
     return true;
   }
 
-  return Date.now() - startedAtMs < MIN_FORM_SECONDS * 1000;
+  const age = Date.now() - startedAtMs;
+  return age < MIN_FORM_SECONDS * 1000 || age > MAX_FORM_AGE_MS;
 }
 
 function isSpam(data: Record<string, unknown>): boolean {
@@ -136,8 +140,32 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
+function isDuplicateSubmission(ip: string, email: string, message: string): boolean {
+  const now = Date.now();
+  const normalized = `${ip}|${email}|${message.toLowerCase().replace(/\s+/g, ' ').slice(0, 260)}`;
+
+  for (const [key, timestamp] of duplicateMap.entries()) {
+    if (now - timestamp > DUPLICATE_WINDOW) {
+      duplicateMap.delete(key);
+    }
+  }
+
+  const previous = duplicateMap.get(normalized);
+  duplicateMap.set(normalized, now);
+
+  return Boolean(previous && now - previous < DUPLICATE_WINDOW);
+}
+
 function hasHoneypot(data: Record<string, unknown>): boolean {
-  return trimString(data.website, 500).length > 0;
+  return trimString(data.website, 500).length > 0 || trimString(data.contact_phone, 500).length > 0;
+}
+
+function hasInvalidModalProof(data: Record<string, unknown>): boolean {
+  const formVariant = trimString(data.formVariant, 40);
+  if (formVariant !== 'modal') return false;
+
+  const proof = trimString(data.contactProof, 180);
+  return !/^\d{12,}:\d{1,8}(?::[a-z]{2}(?:-[A-Z]{2})?)?$/i.test(proof);
 }
 
 function buildEmailHtml(data: {
@@ -145,6 +173,12 @@ function buildEmailHtml(data: {
   email: string;
   company: string;
   message: string;
+  formVariant: string;
+  originPath: string;
+  originTitle: string;
+  originLabel: string;
+  originIntent: string;
+  originHref: string;
   timestamp: string;
   ip: string;
 }) {
@@ -155,6 +189,20 @@ function buildEmailHtml(data: {
         <td style="padding:14px 16px;border-top:1px solid #E5E7EB;color:#111827;font-size:16px;font-weight:700;">${escapeHtml(data.company)}</td>
       </tr>`
     : '';
+  const contextRows = [
+    ['Origen', data.originTitle],
+    ['Ruta', data.originPath],
+    ['CTA', data.originLabel],
+    ['Intención', data.originIntent],
+    ['URL', data.originHref],
+  ]
+    .filter(([, value]) => value)
+    .map(([label, value]) => `
+      <tr>
+        <td style="padding:12px 16px;border-top:1px solid #E5E7EB;color:#6B7280;font-size:16px;">${escapeHtml(label)}</td>
+        <td style="padding:12px 16px;border-top:1px solid #E5E7EB;color:#111827;font-size:16px;font-weight:700;">${escapeHtml(value)}</td>
+      </tr>`)
+    .join('');
 
   return `
     <div style="font-family:Arial,sans-serif;max-width:680px;margin:0 auto;background:#FFFFFF;color:#111827;border:1px solid #E5E7EB;">
@@ -177,6 +225,12 @@ function buildEmailHtml(data: {
         ${companyRow}
       </table>
 
+      ${contextRows ? `
+      <div style="padding:20px 30px 0;border-top:1px solid #E5E7EB;">
+        <p style="margin:0 0 10px;color:#6B7280;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Contexto de origen</p>
+        <table style="width:100%;border-collapse:collapse;">${contextRows}</table>
+      </div>` : ''}
+
       <div style="padding:24px 30px;border-top:1px solid #E5E7EB;">
         <p style="margin:0 0 10px;color:#6B7280;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Mensaje</p>
         <div style="white-space:pre-wrap;color:#111827;font-size:17px;line-height:1.65;">${escapeHtml(data.message)}</div>
@@ -186,7 +240,7 @@ function buildEmailHtml(data: {
         <strong style="color:#111827;">Datos técnicos</strong><br>
         Fecha: ${escapeHtml(data.timestamp)}<br>
         IP: ${escapeHtml(data.ip)}<br>
-        Formulario: contacto simplificado White Dossier
+        Formulario: ${escapeHtml(data.formVariant || 'contacto simplificado White Dossier')}
       </div>
     </div>
   `;
@@ -223,10 +277,17 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       });
     }
 
-    if (isTooFast(data.startedAt)) {
+    if (isInvalidFormTiming(data.startedAt)) {
       return jsonResponse({
         success: false,
-        message: 'El formulario fue enviado demasiado rápido. Intenta nuevamente.'
+        message: 'El formulario no pudo validarse. Intenta nuevamente.'
+      }, 400);
+    }
+
+    if (hasInvalidModalProof(data)) {
+      return jsonResponse({
+        success: false,
+        message: 'No se pudo validar el formulario. Recarga la página e intenta nuevamente.'
       }, 400);
     }
 
@@ -235,6 +296,12 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     const email = trimString(data.email, 120).toLowerCase();
     const company = trimString(data.company, 120);
     const message = rawMessage.slice(0, MESSAGE_MAX_LENGTH);
+    const formVariant = trimString(data.formVariant, 40);
+    const originPath = trimString(data.originPath, 180);
+    const originTitle = trimString(data.originTitle, 180);
+    const originLabel = trimString(data.originLabel, 120);
+    const originIntent = trimString(data.originIntent, 80);
+    const originHref = trimString(data.originHref, 240);
 
     if (!name || !email || !message) {
       return jsonResponse({
@@ -264,11 +331,24 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       }, 400);
     }
 
+    if (isDuplicateSubmission(clientIP, email, message)) {
+      return jsonResponse({
+        success: true,
+        message: 'Mensaje recibido.'
+      });
+    }
+
     const sanitizedData = {
       name,
       email,
       company,
       message,
+      formVariant,
+      originPath,
+      originTitle,
+      originLabel,
+      originIntent,
+      originHref,
       timestamp: new Date().toISOString(),
       ip: clientIP
     };
@@ -279,7 +359,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       from: `"ULTIMA MILLA web" <${fromAddress}>`,
       to: 'martin@ultimamilla.com.ar',
       replyTo: sanitizedData.email,
-      subject: `Consulta web UMSA: ${sanitizedData.company || sanitizedData.name}`,
+      subject: `Consulta web UMSA: ${sanitizedData.originIntent || sanitizedData.company || sanitizedData.name}`,
       html: buildEmailHtml(sanitizedData),
     });
 
