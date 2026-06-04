@@ -51,6 +51,8 @@ const isActive = (href: string) => {
         ))}
         <a
           href="/contacto"
+          data-contact-open
+          data-contact-intent="general"
           class="um-nav-cta px-5 py-2.5 rounded-[4px] text-base font-bold"
         >
           Contacto
@@ -88,6 +90,8 @@ const isActive = (href: string) => {
       ))}
       <a
         href="/contacto"
+        data-contact-open
+        data-contact-intent="general"
         class={`um-mobile-cta ${isActive('/contacto') ? 'is-active' : ''}`}
       >
         Contacto

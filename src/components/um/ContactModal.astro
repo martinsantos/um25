@@ -1,0 +1,1063 @@
+---
+import { Send, X } from 'lucide-astro';
+---
+
+<div id="umContactModal" class="um-contact-modal" hidden data-contact-modal>
+  <button class="um-contact-modal__backdrop" type="button" aria-label="Cerrar contacto" data-contact-close></button>
+
+  <section
+    class="um-contact-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="umContactTitle"
+    aria-describedby="umContactIntro"
+  >
+    <aside class="um-contact-dialog__rail" aria-label="Contexto de contacto">
+      <p class="um-contact-kicker">Contacto</p>
+      <h2 id="umContactTitle">Contacto rápido.</h2>
+      <p id="umContactIntro">Respondemos por email con el próximo paso.</p>
+
+      <div class="um-contact-context" data-contact-context hidden>
+        <span>Contexto detectado</span>
+        <strong data-contact-context-title>Consulta general</strong>
+        <p data-contact-context-detail>Origen: sitio ULTIMA MILLA</p>
+      </div>
+    </aside>
+
+    <button class="um-contact-close" type="button" aria-label="Cerrar contacto" data-contact-close>
+      <X aria-hidden="true" size={22} />
+    </button>
+
+    <div class="um-contact-dialog__main">
+      <div class="um-contact-mode" role="group" aria-label="Modo de consulta">
+        <button type="button" class="is-active" data-contact-mode="short" aria-pressed="true">Mensaje corto</button>
+        <button type="button" data-contact-mode="guided" aria-pressed="false">Completar mensaje</button>
+      </div>
+
+      <form id="umContactModalForm" class="um-contact-form" method="post" action="/api/contact" novalidate>
+        <div class="um-contact-field-grid">
+          <label>
+            <span>Nombre *</span>
+            <input type="text" name="name" required autocomplete="name" placeholder="Nombre y apellido" />
+            <small class="um-contact-error" data-error-for="name"></small>
+          </label>
+          <label>
+            <span>Email *</span>
+            <input type="email" name="email" required autocomplete="email" placeholder="mail@empresa.com" />
+            <small class="um-contact-error" data-error-for="email"></small>
+          </label>
+        </div>
+
+        <label>
+          <span>Empresa u organismo</span>
+          <input type="text" name="company" autocomplete="organization" placeholder="Opcional" />
+        </label>
+
+        <label>
+          <span>Mensaje *</span>
+          <textarea
+            name="message"
+            required
+            rows="5"
+            maxlength="1200"
+            placeholder="Necesito que me contacten por..."
+          ></textarea>
+          <small class="um-contact-error" data-error-for="message"></small>
+        </label>
+
+        <div class="um-contact-guides" data-contact-guides hidden>
+          <p>Atajos rápidos</p>
+          <div class="um-contact-guide-grid">
+            <button type="button" data-contact-prompt="Quiero coordinar un diagnóstico sobre {context}.">Diagnóstico</button>
+            <button type="button" data-contact-prompt="Quiero cotizar alcance y próximos pasos para {context}.">Cotizar alcance</button>
+            <button type="button" data-contact-prompt="Quiero ver un antecedente similar antes de avanzar con {context}.">Ver caso similar</button>
+            <button type="button" data-contact-prompt="Necesito hablar con un técnico sobre {context}.">Hablar con técnico</button>
+          </div>
+        </div>
+
+        <input type="text" name="website" class="um-contact-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <input type="text" name="contact_phone" class="um-contact-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <input type="hidden" name="startedAt" value="" />
+        <input type="hidden" name="formVariant" value="modal" />
+        <input type="hidden" name="contactProof" value="" />
+        <input type="hidden" name="originPath" value="" />
+        <input type="hidden" name="originTitle" value="" />
+        <input type="hidden" name="originLabel" value="" />
+        <input type="hidden" name="originIntent" value="" />
+        <input type="hidden" name="originHref" value="" />
+
+        <div class="um-contact-submit-row">
+          <button type="submit" class="um-btn-primary um-contact-submit">
+            <Send aria-hidden="true" size={18} />
+            Enviar consulta
+          </button>
+          <p><span data-contact-count>0</span>/1200. El resto lo ordenamos nosotros.</p>
+        </div>
+
+        <div class="um-contact-message um-contact-message--success" role="status" hidden>
+          Mensaje enviado. Respondemos por email con el próximo paso.
+        </div>
+        <div class="um-contact-message um-contact-message--error" role="alert" hidden>
+          No se pudo enviar. Revisá los datos o usá la página de contacto.
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
+
+<script>
+  (() => {
+    const modal = document.querySelector('[data-contact-modal]');
+    const form = document.getElementById('umContactModalForm');
+    if (!(modal instanceof HTMLElement) || !(form instanceof HTMLFormElement)) return;
+
+    const dialog = modal.querySelector('.um-contact-dialog');
+    const closeControls = modal.querySelectorAll('[data-contact-close]');
+    const modeButtons = modal.querySelectorAll('[data-contact-mode]');
+    const guides = modal.querySelector('[data-contact-guides]');
+    const textarea = form.querySelector('textarea[name="message"]');
+    const counter = modal.querySelector('[data-contact-count]');
+    const submitButton = form.querySelector('button[type="submit"]');
+    const successMessage = modal.querySelector('.um-contact-message--success');
+    const errorMessage = modal.querySelector('.um-contact-message--error');
+    const contextBox = modal.querySelector('[data-contact-context]');
+    const contextTitle = modal.querySelector('[data-contact-context-title]');
+    const contextDetail = modal.querySelector('[data-contact-context-detail]');
+    const startedAt = form.querySelector('input[name="startedAt"]');
+    const contactProof = form.querySelector('input[name="contactProof"]');
+    const focusableSelector = [
+      'a[href]',
+      'button:not([disabled])',
+      'input:not([disabled]):not([type="hidden"])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])'
+    ].join(',');
+    let lastActiveElement = null;
+
+    const intentLabels = {
+      diagnostico: 'Diagnostico inicial',
+      relevamiento: 'Relevamiento tecnico',
+      documentacion: 'Documentacion',
+      presupuesto: 'Presupuesto',
+      soporte: 'Soporte',
+      cctvai: 'UMSA CCTV AI',
+      general: 'Consulta general'
+    };
+
+    function field(name) {
+      return form.querySelector(`[name="${name}"]`);
+    }
+
+    function normalizeText(value, fallback = '') {
+      return String(value || fallback).replace(/\s+/g, ' ').trim();
+    }
+
+    function setField(name, value) {
+      const input = field(name);
+      if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
+        input.value = value;
+      }
+    }
+
+    function readPageHeading() {
+      return normalizeText(document.querySelector('h1')?.textContent, document.title);
+    }
+
+    function readSectionHeading(source) {
+      const section = source?.closest?.('section, article, aside, main');
+      return normalizeText(section?.querySelector?.('h1, h2, h3, strong')?.textContent, readPageHeading());
+    }
+
+    function inferIntent(label, path) {
+      const text = `${label} ${path}`.toLowerCase();
+      if (text.includes('cctv') || text.includes('cctvai')) return 'cctvai';
+      if (text.includes('presupuesto') || text.includes('cotizar') || text.includes('costo')) return 'presupuesto';
+      if (text.includes('relevamiento')) return 'relevamiento';
+      if (text.includes('document')) return 'documentacion';
+      if (text.includes('soporte') || text.includes('24/7')) return 'soporte';
+      if (text.includes('diagnostico') || text.includes('diagnóstico') || text.includes('incidente')) return 'diagnostico';
+      return 'general';
+    }
+
+    function contactHref(anchor) {
+      if (!(anchor instanceof HTMLAnchorElement)) return false;
+      if (anchor.target && anchor.target !== '_self') return false;
+      try {
+        const url = new URL(anchor.href, window.location.href);
+        return url.origin === window.location.origin && url.pathname.replace(/\/$/, '') === '/contacto';
+      } catch {
+        return false;
+      }
+    }
+
+    function buildContext(source) {
+      const label = normalizeText(source?.textContent, 'Contacto');
+      const path = window.location.pathname;
+      const sectionTitle = readSectionHeading(source);
+      const declaredIntent = source?.dataset?.contactIntent;
+      const intent = declaredIntent && declaredIntent !== 'general'
+        ? declaredIntent
+        : inferIntent(label, `${path} ${sectionTitle}`);
+      return {
+        path,
+        title: sectionTitle,
+        label,
+        intent,
+        href: source instanceof HTMLAnchorElement ? source.href : window.location.href
+      };
+    }
+
+    function setMode(mode) {
+      const isGuided = mode === 'guided';
+      modeButtons.forEach((button) => {
+        const active = button.getAttribute('data-contact-mode') === mode;
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-pressed', String(active));
+      });
+      if (guides instanceof HTMLElement) {
+        guides.hidden = !isGuided;
+      }
+      if (textarea instanceof HTMLTextAreaElement) {
+        textarea.placeholder = isGuided
+          ? 'Elegí un atajo o escribí tu mensaje.'
+          : 'Necesito que me contacten por...';
+      }
+    }
+
+    function updateCounter() {
+      if (!(textarea instanceof HTMLTextAreaElement) || !counter) return;
+      counter.textContent = String(textarea.value.length);
+    }
+
+    function resetMessages() {
+      form.querySelectorAll('.um-contact-error').forEach((error) => {
+        error.textContent = '';
+      });
+      form.querySelectorAll('[aria-invalid="true"]').forEach((input) => {
+        input.removeAttribute('aria-invalid');
+      });
+      if (successMessage instanceof HTMLElement) successMessage.hidden = true;
+      if (errorMessage instanceof HTMLElement) errorMessage.hidden = true;
+    }
+
+    function showError(name, message) {
+      const input = field(name);
+      const error = form.querySelector(`[data-error-for="${name}"]`);
+      if (input instanceof HTMLElement) input.setAttribute('aria-invalid', 'true');
+      if (error) error.textContent = message;
+    }
+
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function validate() {
+      resetMessages();
+      const name = normalizeText(field('name')?.value);
+      const email = normalizeText(field('email')?.value);
+      const message = normalizeText(field('message')?.value);
+      let valid = true;
+
+      if (name.length < 2) {
+        showError('name', 'Ingresa tu nombre.');
+        valid = false;
+      }
+
+      if (!isValidEmail(email)) {
+        showError('email', 'Ingresa un email valido.');
+        valid = false;
+      }
+
+      if (message.length < 12) {
+        showError('message', 'Agrega una frase corta de contexto.');
+        valid = false;
+      }
+
+      if (message.length > 1200) {
+        showError('message', 'Reduci el mensaje a 1200 caracteres.');
+        valid = false;
+      }
+
+      return valid;
+    }
+
+    function focusFirstField() {
+      const first = form.querySelector('input[name="name"]');
+      if (first instanceof HTMLElement) first.focus({ preventScroll: true });
+    }
+
+    function openContactModal(context = {}) {
+      const resolved = {
+        path: context.path || window.location.pathname,
+        title: context.title || readPageHeading(),
+        label: context.label || 'Contacto',
+        intent: context.intent || inferIntent(context.label || '', window.location.pathname),
+        href: context.href || window.location.href
+      };
+
+      lastActiveElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      modal.hidden = false;
+      document.body.classList.add('um-contact-lock');
+
+      const now = Date.now();
+      setField('startedAt', String(now));
+      setField('contactProof', `${now}:${Math.round(performance.now())}:${navigator.language || 'es-AR'}`);
+      setField('originPath', resolved.path);
+      setField('originTitle', resolved.title);
+      setField('originLabel', resolved.label);
+      setField('originIntent', resolved.intent);
+      setField('originHref', resolved.href);
+
+      if (contextBox instanceof HTMLElement) contextBox.hidden = false;
+      if (contextTitle) contextTitle.textContent = intentLabels[resolved.intent] || intentLabels.general;
+      if (contextDetail) {
+        const displayPath = resolved.path === '/' ? 'Inicio del sitio' : `Página actual: ${resolved.path}`;
+        const displayTitle = resolved.title.replace(/[.。]+$/, '');
+        contextDetail.textContent = `${displayTitle}. ${displayPath}`;
+      }
+
+      resetMessages();
+      setMode(resolved.intent === 'general' ? 'short' : 'guided');
+      updateCounter();
+      window.setTimeout(focusFirstField, 60);
+    }
+
+    function closeContactModal() {
+      modal.hidden = true;
+      document.body.classList.remove('um-contact-lock');
+      if (lastActiveElement) lastActiveElement.focus({ preventScroll: true });
+    }
+
+    closeControls.forEach((control) => control.addEventListener('click', closeContactModal));
+
+    modeButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        setMode(button.getAttribute('data-contact-mode') || 'short');
+      });
+    });
+
+    modal.querySelectorAll('[data-contact-prompt]').forEach((button) => {
+      button.addEventListener('click', () => {
+        if (!(textarea instanceof HTMLTextAreaElement)) return;
+        const template = button.getAttribute('data-contact-prompt') || '';
+        const contextInput = form.querySelector('input[name="originTitle"]');
+        const context = normalizeText(contextInput?.value, 'esta consulta').replace(/[.。]+$/, '');
+        const prompt = template.replace('{context}', context);
+        const value = textarea.value.trim();
+        const wasAutofilled = textarea.dataset.autofilled === 'true';
+        if (!value || wasAutofilled) {
+          textarea.value = prompt;
+          textarea.dataset.autofilled = 'true';
+        } else if (!value.includes(prompt)) {
+          textarea.value = `${value}\n${prompt}`;
+        }
+        modal.querySelectorAll('[data-contact-prompt]').forEach((item) => item.removeAttribute('aria-pressed'));
+        button.setAttribute('aria-pressed', 'true');
+        textarea.focus();
+        updateCounter();
+      });
+    });
+
+    textarea?.addEventListener('input', () => {
+      textarea.dataset.autofilled = 'false';
+      updateCounter();
+    });
+
+    document.addEventListener('click', (event) => {
+      if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const source = event.target instanceof Element ? event.target.closest('a[href], [data-contact-open]') : null;
+      if (!source) return;
+      const isExplicit = source.hasAttribute('data-contact-open');
+      const isContactLink = source instanceof HTMLAnchorElement && contactHref(source);
+      if (!isExplicit && !isContactLink) return;
+      event.preventDefault();
+      openContactModal(buildContext(source));
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (modal.hidden) return;
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeContactModal();
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+      const focusable = Array.from(modal.querySelectorAll(focusableSelector))
+        .filter((element) => element instanceof HTMLElement && element.offsetParent !== null);
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!first || !last) return;
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!validate()) return;
+
+      if (submitButton instanceof HTMLButtonElement) {
+        submitButton.disabled = true;
+        submitButton.dataset.originalText = submitButton.textContent || 'Enviar consulta';
+        submitButton.textContent = 'Enviando...';
+      }
+
+      try {
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(Object.fromEntries(new FormData(form).entries()))
+        });
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || 'No se pudo enviar.');
+        }
+
+        form.reset();
+        setField('startedAt', String(Date.now()));
+        setField('contactProof', `${Date.now()}:${Math.round(performance.now())}`);
+        updateCounter();
+        if (successMessage instanceof HTMLElement) successMessage.hidden = false;
+      } catch (error) {
+        if (errorMessage instanceof HTMLElement) {
+          errorMessage.textContent = error instanceof Error ? error.message : 'No se pudo enviar. Revisa los datos.';
+          errorMessage.hidden = false;
+        }
+      } finally {
+        if (submitButton instanceof HTMLButtonElement) {
+          submitButton.disabled = false;
+          submitButton.innerHTML = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path></svg>Enviar consulta';
+        }
+      }
+    });
+
+    window.addEventListener('umsa:contact:open', (event) => {
+      openContactModal(event.detail || {});
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('contact') === '1') {
+      window.setTimeout(() => openContactModal({
+        intent: params.get('intent') || 'general',
+        label: 'Contacto',
+        title: readPageHeading(),
+        path: window.location.pathname,
+        href: window.location.href
+      }), 320);
+    }
+  })();
+</script>
+
+<style is:global>
+  .um-contact-lock {
+    overflow: hidden;
+  }
+
+  .um-contact-modal[hidden] {
+    display: none !important;
+  }
+
+	  .um-contact-modal {
+	    position: fixed;
+	    inset: 0;
+	    z-index: 120;
+	    display: grid;
+	    place-items: center;
+	    min-height: 100dvh;
+	    overflow: hidden;
+	    padding: clamp(14px, 3vw, 32px);
+	  }
+
+  .um-contact-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: rgba(0, 0, 0, 0.58);
+    backdrop-filter: blur(12px) saturate(0.78);
+    -webkit-backdrop-filter: blur(12px) saturate(0.78);
+    cursor: pointer;
+  }
+
+	  .um-contact-dialog {
+	    position: relative;
+	    display: grid;
+	    grid-template-columns: minmax(250px, 0.52fr) minmax(430px, 1fr);
+	    width: min(100%, 960px);
+	    height: min(720px, calc(100dvh - 32px));
+	    max-height: calc(100dvh - 32px);
+	    min-height: 0;
+	    overflow: hidden;
+	    background: #fff;
+    color: #111;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+  }
+
+	  .um-contact-dialog__rail {
+	    display: flex;
+	    min-height: 0;
+	    flex-direction: column;
+	    justify-content: flex-start;
+	    gap: clamp(18px, 2.4vw, 28px);
+	    overflow: hidden;
+	    background: #050505;
+    color: #fff;
+    padding: clamp(22px, 2.5vw, 30px);
+  }
+
+  .um-contact-kicker {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .um-contact-dialog__rail h2 {
+    max-width: 12ch;
+    margin: 12px 0 0;
+    color: #fff;
+    font-family: var(--um-font-display);
+    font-size: clamp(1.62rem, 2.25vw, 2rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: 0;
+  }
+
+  .um-contact-dialog__rail > p:not(.um-contact-kicker) {
+    max-width: 25ch;
+    margin: 16px 0 0;
+    color: rgba(255, 255, 255, 0.66);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .um-contact-context {
+    display: grid;
+    gap: 6px;
+    margin-top: auto;
+    padding: 16px 0 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  .um-contact-context span {
+    color: rgba(255, 255, 255, 0.54);
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .um-contact-context strong {
+    color: #fff;
+    font-size: 1.06rem;
+    font-weight: 700;
+  }
+
+  .um-contact-context p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.64);
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+	  .um-contact-dialog__main {
+	    position: relative;
+	    min-height: 0;
+	    overflow-y: auto;
+	    overscroll-behavior: contain;
+	    padding: clamp(20px, 2.5vw, 28px);
+	    scrollbar-gutter: stable;
+	  }
+
+	  .um-contact-close {
+	    position: absolute;
+	    top: 18px;
+	    right: 18px;
+	    z-index: 3;
+	    display: inline-flex;
+	    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #DADDE1;
+    border-radius: 4px;
+    background: #fff;
+    color: #111;
+    cursor: pointer;
+  }
+
+  .um-contact-close:hover,
+  .um-contact-close:focus-visible {
+    border-color: var(--um-red);
+    outline: none;
+  }
+
+  .um-contact-mode {
+    display: inline-flex;
+    max-width: calc(100% - 58px);
+    margin-bottom: 18px;
+    background: #f5f5f5;
+    border: 1px solid #DADDE1;
+  }
+
+  .um-contact-mode button {
+    min-height: 44px;
+    border: 0;
+    border-right: 1px solid #DADDE1;
+    background: transparent;
+    color: #333;
+    cursor: pointer;
+    font: 700 1rem/1 var(--um-font-body);
+    padding: 0 16px;
+  }
+
+  .um-contact-mode button:last-child {
+    border-right: 0;
+  }
+
+  .um-contact-mode button.is-active,
+  .um-contact-mode button:hover,
+  .um-contact-mode button:focus-visible {
+    background: #111;
+    color: #fff;
+    outline: none;
+  }
+
+  .um-contact-form {
+    display: grid;
+    gap: 10px;
+  }
+
+  .um-contact-field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .um-contact-form label {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+  }
+
+  .um-contact-form label > span {
+    color: #111;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .um-contact-form input,
+  .um-contact-form textarea {
+    width: 100%;
+    border: 0;
+    border-radius: 0;
+    background: #f7f8f9;
+    color: #111;
+    font: 400 1rem/1.5 var(--um-font-body);
+    outline: none;
+    padding: 12px 16px;
+    box-shadow: inset 0 -1px 0 #D6DAE1;
+    transition: background-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .um-contact-form textarea {
+    min-height: 104px;
+    resize: vertical;
+  }
+
+  .um-contact-form input:focus,
+  .um-contact-form textarea:focus {
+    background: #fff;
+    box-shadow: inset 0 -2px 0 var(--um-red);
+  }
+
+  .um-contact-form input[aria-invalid="true"],
+  .um-contact-form textarea[aria-invalid="true"] {
+    box-shadow: inset 0 -2px 0 var(--um-red);
+  }
+
+	  .um-contact-error {
+	    min-height: 1.35em;
+	    color: var(--um-red);
+	    font-size: 1rem;
+	    line-height: 1.35;
+	  }
+
+	  .um-contact-error:empty {
+	    display: none;
+	    min-height: 0;
+	  }
+
+  .um-contact-guides {
+    display: grid;
+    gap: 12px;
+    padding: 8px 0 2px;
+  }
+
+  .um-contact-guides p {
+    margin: 0;
+    color: #5F6368;
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .um-contact-guide-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .um-contact-guides button {
+    min-height: 44px;
+    border: 1px solid #DADDE1;
+    border-radius: 4px;
+    background: #f7f8f9;
+    color: #111;
+    cursor: pointer;
+    font: 700 1rem/1.2 var(--um-font-body);
+    padding: 0 14px;
+    text-align: left;
+  }
+
+  .um-contact-guides button:hover,
+  .um-contact-guides button:focus-visible,
+  .um-contact-guides button[aria-pressed="true"] {
+    background: #fff;
+    border-color: var(--um-red);
+    color: var(--um-red);
+    outline: none;
+  }
+
+  .um-contact-guides button[aria-pressed="true"] {
+    box-shadow: inset 3px 0 0 var(--um-red);
+  }
+
+  .um-contact-hp {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  .um-contact-submit-row {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 4px;
+  }
+
+  .um-contact-submit-row p {
+    max-width: 240px;
+    margin: 0;
+    color: #5F6368;
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  .um-contact-submit {
+    display: inline-flex;
+    gap: 9px;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+  }
+
+  .um-contact-submit:disabled {
+    cursor: wait;
+    opacity: 0.72;
+  }
+
+  .um-contact-message {
+    border-left: 3px solid currentColor;
+    padding: 14px 16px;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .um-contact-message--success {
+    background: #F0FDF4;
+    color: #166534;
+  }
+
+	  .um-contact-message--error {
+	    background: #FEF2F2;
+	    color: #111;
+	  }
+
+	  @media (max-height: 760px) and (min-width: 861px) {
+	    .um-contact-modal {
+	      padding: 10px 18px;
+	    }
+
+	    .um-contact-dialog {
+	      width: min(100%, 940px);
+	      height: calc(100dvh - 20px);
+	      max-height: calc(100dvh - 20px);
+	      grid-template-columns: minmax(230px, 0.46fr) minmax(420px, 1fr);
+	    }
+
+	    .um-contact-dialog__rail {
+	      gap: 14px;
+	      padding: 18px 22px;
+	    }
+
+	    .um-contact-kicker {
+	      font-size: 0.9rem;
+	      letter-spacing: 0.07em;
+	    }
+
+	    .um-contact-dialog__rail h2 {
+	      max-width: 13ch;
+	      margin-top: 6px;
+	      font-size: clamp(1.36rem, 1.9vw, 1.72rem);
+	      line-height: 1.06;
+	    }
+
+	    .um-contact-dialog__rail > p:not(.um-contact-kicker) {
+	      margin-top: 8px;
+	      font-size: 0.95rem;
+	      line-height: 1.38;
+	    }
+
+	    .um-contact-context {
+	      gap: 4px;
+	      padding-top: 12px;
+	    }
+
+	    .um-contact-context span,
+	    .um-contact-context strong,
+	    .um-contact-context p {
+	      font-size: 0.92rem;
+	      line-height: 1.3;
+	    }
+
+	    .um-contact-dialog__main {
+	      padding: 16px 24px;
+	    }
+
+	    .um-contact-close {
+	      top: 12px;
+	      right: 12px;
+	      width: 40px;
+	      height: 40px;
+	    }
+
+	    .um-contact-mode {
+	      margin-bottom: 10px;
+	    }
+
+	    .um-contact-mode button {
+	      min-height: 38px;
+	      padding: 0 13px;
+	      font-size: 0.94rem;
+	    }
+
+	    .um-contact-form {
+	      gap: 8px;
+	    }
+
+	    .um-contact-field-grid {
+	      gap: 10px;
+	    }
+
+	    .um-contact-form label {
+	      gap: 5px;
+	    }
+
+	    .um-contact-form label > span {
+	      font-size: 0.94rem;
+	    }
+
+	    .um-contact-form input,
+	    .um-contact-form textarea {
+	      padding: 9px 14px;
+	      font-size: 0.95rem;
+	    }
+
+	    .um-contact-form textarea {
+	      min-height: 78px;
+	      max-height: 96px;
+	    }
+
+	    .um-contact-guides {
+	      gap: 7px;
+	      padding: 2px 0 0;
+	    }
+
+	    .um-contact-guides p {
+	      font-size: 0.92rem;
+	      line-height: 1.25;
+	    }
+
+	    .um-contact-guide-grid {
+	      gap: 7px;
+	    }
+
+	    .um-contact-guides button {
+	      min-height: 36px;
+	      padding: 0 12px;
+	      font-size: 0.92rem;
+	    }
+
+	    .um-contact-submit-row {
+	      gap: 12px;
+	      padding-top: 2px;
+	    }
+
+	    .um-contact-submit-row p {
+	      font-size: 0.9rem;
+	      line-height: 1.32;
+	    }
+
+	    .um-contact-submit {
+	      min-height: 42px;
+	    }
+	  }
+
+	  @media (max-width: 860px) {
+	    .um-contact-modal {
+	      place-items: end center;
+	      padding: 0;
+    }
+
+	    .um-contact-dialog {
+	      grid-template-rows: auto minmax(0, 1fr);
+	      grid-template-columns: 1fr;
+	      width: 100%;
+	      height: calc(100dvh - 10px);
+	      max-height: calc(100dvh - 10px);
+	      border-right: 0;
+	      border-bottom: 0;
+	      border-left: 0;
+    }
+
+	    .um-contact-dialog__rail {
+	      min-height: auto;
+	      gap: 8px;
+	      padding: 13px 18px 12px;
+	    }
+
+	    .um-contact-dialog__rail h2 {
+	      max-width: 100%;
+	      margin-top: 4px;
+	      font-size: clamp(1.18rem, 4.9vw, 1.44rem);
+	      line-height: 1.08;
+	    }
+
+    .um-contact-dialog__rail > p:not(.um-contact-kicker) {
+      display: none;
+    }
+
+	    .um-contact-context {
+	      gap: 3px;
+	      margin-top: 3px;
+	      padding-top: 8px;
+	    }
+
+    .um-contact-context span,
+    .um-contact-context strong {
+      font-size: 1rem;
+      line-height: 1.25;
+    }
+
+    .um-contact-context p {
+      display: none;
+    }
+
+	    .um-contact-dialog__main {
+	      min-height: 0;
+	      padding: 14px 16px 16px;
+	    }
+
+	    .um-contact-mode {
+	      display: grid;
+	      grid-template-columns: repeat(2, minmax(0, 1fr));
+	      width: 100%;
+	      max-width: none;
+	      margin-bottom: 12px;
+	    }
+
+	    .um-contact-mode button {
+	      min-height: 40px;
+	      padding: 0 8px;
+	      font-size: 0.92rem;
+	      line-height: 1.08;
+	    }
+
+	    .um-contact-close {
+	      top: 10px;
+	      right: 10px;
+	      width: 40px;
+	      height: 40px;
+	    }
+
+	    .um-contact-form {
+	      gap: 8px;
+	    }
+
+	    .um-contact-form label {
+	      gap: 5px;
+	    }
+
+	    .um-contact-form input,
+	    .um-contact-form textarea {
+	      padding: 10px 13px;
+	    }
+
+	    .um-contact-form textarea {
+	      min-height: 86px;
+	    }
+
+	    .um-contact-guides {
+	      gap: 8px;
+	      padding-top: 2px;
+	    }
+
+	    .um-contact-guides button {
+	      min-height: 40px;
+	    }
+
+    .um-contact-field-grid,
+    .um-contact-submit-row {
+      grid-template-columns: 1fr;
+    }
+
+    .um-contact-field-grid {
+      display: grid;
+    }
+
+    .um-contact-submit-row {
+      display: grid;
+      justify-items: stretch;
+    }
+
+    .um-contact-submit-row p {
+      max-width: none;
+    }
+
+	    .um-contact-submit {
+	      width: 100%;
+	      min-height: 44px;
+	    }
+
+    .um-contact-guide-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
