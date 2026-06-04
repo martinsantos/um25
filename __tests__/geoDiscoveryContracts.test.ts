@@ -128,6 +128,19 @@ describe('GEO discovery and commercial hub contracts', () => {
     }
   });
 
+  test('the GEO index and strategic graph link only published machine-readable resources', () => {
+    const geoIndex = fs.readFileSync(path.join(repoRoot, 'src/pages/geo/index.astro'), 'utf8');
+    const strategicGraph = fs.readFileSync(path.join(repoRoot, 'src/data/strategicLinkGraph.ts'), 'utf8');
+
+    for (const resource of expectedGeoResources) {
+      expect(geoIndex).toContain(`/geo/${resource}.json`);
+    }
+
+    expect(strategicGraph).not.toContain('/geo/discovery.json');
+    expect(strategicGraph).toContain('/geo/brand-facts.json');
+    expect(strategicGraph).toContain('/geo/services.json');
+  });
+
   test('public certification route stays discoverable through sitemap and SEO audit gates', () => {
     const footer = fs.readFileSync(path.join(repoRoot, 'src/components/v4/FooterV4.astro'), 'utf8');
     const sitemap = fs.readFileSync(path.join(repoRoot, 'src/pages/sitemap.xml.ts'), 'utf8');
@@ -136,6 +149,14 @@ describe('GEO discovery and commercial hub contracts', () => {
     expect(footer).toContain("href: '/certificaciones'");
     expect(sitemap).toContain("{ loc: '/certificaciones'");
     expect(seoAudit).toContain("'/certificaciones'");
+  });
+
+  test('public English pages and ARCA utility stay represented in the main sitemap', () => {
+    const sitemap = fs.readFileSync(path.join(repoRoot, 'src/pages/sitemap.xml.ts'), 'utf8');
+
+    for (const route of ['/en', '/en/services', '/en/about', '/en/contacto', '/plantilla-arca']) {
+      expect(sitemap).toContain(`{ loc: '${route}'`);
+    }
   });
 
   test('global footer exposes GEO hubs as crawlable commercial paths', () => {

@@ -132,6 +132,7 @@ function pickProtagonistAntecedente(items: any[]) {
 }
 
 let featuredAntecedente: any = null;
+let allAntecedentesForIndex: any[] = [];
 
 try {
   const response = await getAllAntecedentes();
@@ -141,6 +142,7 @@ try {
     slug: `${item.id}/${localGenerateSlug(item.Titulo)}`,
     imageUrl: getAntecedenteImageUrl(item)
   }));
+  allAntecedentesForIndex = allAntecedentes;
 
   const filteredAntecedentes = filterAntecedentes(allAntecedentes, pageData.activeFilters, pageData.searchQuery);
   const hasActiveFilters = Boolean(
@@ -217,6 +219,14 @@ const visibleAntecedentes = [
   ...(pageData.spotlightAntecedentes || []),
   ...(pageData.antecedentes || []),
 ].slice(0, 6);
+const crawlableAntecedenteIndex = allAntecedentesForIndex
+  .map((item) => ({
+    id: item.id,
+    title: item.Titulo || 'Antecedente técnico',
+    area: item.Area || item.Unidad_de_negocio || '',
+    href: `/antecedentes/${item.slug}`,
+  }))
+  .sort((a, b) => String(a.title).localeCompare(String(b.title), 'es'));
 const antecedentesStrategicLinkGroups = buildCaseStrategicLinkGroups({
   currentPath: '/antecedentes',
   title: 'Evidencia operativa documentada',
@@ -270,4 +280,104 @@ const antecedentesStructuredData = buildStrategicWebPageStructuredData({
     text="Pasá de casos reales a servicios aplicados, sectores similares o contacto técnico."
     groups={antecedentesStrategicLinkGroups}
   />
+  {crawlableAntecedenteIndex.length > 0 && (
+    <section class="antecedentes-crawl-index" aria-labelledby="antecedentes-crawl-index-title">
+      <div class="antecedentes-crawl-index__inner">
+        <details>
+          <summary id="antecedentes-crawl-index-title">
+            Índice completo de antecedentes
+            <span>{crawlableAntecedenteIndex.length} casos documentados</span>
+          </summary>
+          <nav aria-label="Todos los antecedentes documentados">
+            {crawlableAntecedenteIndex.map((item) => (
+              <a href={item.href}>
+                <strong>{item.title}</strong>
+                {item.area && <span>{item.area}</span>}
+              </a>
+            ))}
+          </nav>
+        </details>
+      </div>
+    </section>
+  )}
 </LayoutV4>
+
+<style>
+  .antecedentes-crawl-index {
+    background: #ffffff;
+    border-top: 1px solid #e5e7eb;
+    padding: 28px 0 56px;
+  }
+
+  .antecedentes-crawl-index__inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .antecedentes-crawl-index details {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
+  }
+
+  .antecedentes-crawl-index summary {
+    cursor: pointer;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 20px;
+    color: #111827;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .antecedentes-crawl-index summary span {
+    color: #6b7280;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .antecedentes-crawl-index nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1px;
+    border-top: 1px solid #e5e7eb;
+    background: #e5e7eb;
+  }
+
+  .antecedentes-crawl-index a {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+    padding: 12px 14px;
+    background: #ffffff;
+    color: #111827;
+    text-decoration: none;
+  }
+
+  .antecedentes-crawl-index a:hover,
+  .antecedentes-crawl-index a:focus-visible {
+    background: color-mix(in srgb, #ffffff 92%, var(--um-red, #dc2626) 8%);
+    outline: none;
+  }
+
+  .antecedentes-crawl-index strong,
+  .antecedentes-crawl-index span {
+    overflow-wrap: anywhere;
+  }
+
+  .antecedentes-crawl-index strong {
+    font-size: 16px;
+    line-height: 1.35;
+    font-weight: 700;
+  }
+
+  .antecedentes-crawl-index a span {
+    color: #6b7280;
+    font-size: 16px;
+    line-height: 1.35;
+  }
+</style>

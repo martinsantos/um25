@@ -39,8 +39,7 @@ jobs:
         continue-on-error: true
 
       - name: Check TypeScript
-        run: npx tsc --noEmit || echo "TypeScript check completed"
-        continue-on-error: true
+        run: npm run typecheck
 
       - name: CSS interaction contract
         run: npm run audit:css
