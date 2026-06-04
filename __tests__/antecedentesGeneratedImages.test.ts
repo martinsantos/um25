@@ -13,8 +13,15 @@ describe('generated antecedentes image integration', () => {
     }
   });
 
+  test('publishes the latest approved generated image lots', () => {
+    expect(generatedMap['3374']).toContain('/lote_032/');
+    expect(generatedMap['3384']).toContain('/lote_033/');
+    expect(generatedMap['3393']).toContain('/lote_034/');
+    expect(generatedMap['3645']).toContain('/lote_034/');
+  });
+
   test('generated image map points to public webp assets', () => {
-    expect(Object.keys(generatedMap).length).toBeGreaterThanOrEqual(190);
+    expect(Object.keys(generatedMap).length).toBeGreaterThanOrEqual(340);
 
     for (const imagePath of Object.values(generatedMap)) {
       expect(imagePath.endsWith('.webp')).toBe(true);

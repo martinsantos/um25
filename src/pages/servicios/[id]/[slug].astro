@@ -678,7 +678,7 @@ const iconPaths = {
 
   .service-detail-main {
     background: #fff;
-    padding: clamp(62px, 7vw, 98px) 0;
+    padding: clamp(56px, 6vw, 84px) 0 clamp(22px, 3vw, 40px);
   }
 
   .service-detail-main__grid {
@@ -775,7 +775,7 @@ const iconPaths = {
   .service-process-list {
     display: grid;
     gap: clamp(16px, 2.2vw, 22px);
-    margin-bottom: 2.6rem;
+    margin-bottom: clamp(18px, 2.5vw, 30px);
     border-top: 0;
     background: transparent;
   }
@@ -972,7 +972,7 @@ const iconPaths = {
   }
 
   .service-products-section {
-    padding: clamp(56px, 7.5vw, 96px) 0 clamp(64px, 8vw, 104px);
+    padding: clamp(26px, 4vw, 52px) 0 clamp(64px, 8vw, 104px);
     background: #ffffff;
     border-top: 0;
   }
@@ -991,14 +991,19 @@ const iconPaths = {
 
   .service-products-head :global(.um-section-header) {
     display: grid;
-    grid-template-columns: minmax(220px, 0.34fr) minmax(0, 0.66fr);
-    gap: clamp(24px, 5vw, 70px);
-    align-items: end;
+    grid-template-columns: minmax(0, 780px);
+    grid-template-areas:
+      "kicker"
+      "title"
+      "text";
+    gap: clamp(12px, 1.6vw, 18px);
+    align-items: start;
     max-width: none;
     margin-bottom: 0;
   }
 
-  .service-products-head span {
+  .service-products-head :global(.um-section-header .um-kicker) {
+    grid-area: kicker;
     display: inline-flex;
     align-items: center;
     gap: 0.65rem;
@@ -1010,24 +1015,30 @@ const iconPaths = {
     text-transform: uppercase;
   }
 
-  .service-products-head span::before {
+  .service-products-head :global(.um-section-header .um-kicker)::before {
     content: "";
     width: 34px;
     height: 2px;
     background: #DC2626;
   }
 
-  .service-products-head h2 {
+  .service-products-head :global(.um-section-header h2) {
+    grid-area: title;
     color: #111;
-    font-size: clamp(1.7rem, 2.08vw, 2.22rem);
-    line-height: 1.12;
+    max-width: 720px;
+    color: #111;
+    font-size: clamp(2rem, 2.55vw, 3rem);
+    line-height: 1.05;
     font-weight: 600;
     text-wrap: balance;
+    word-break: normal;
+    overflow-wrap: normal;
   }
 
-  .service-products-head p {
+  .service-products-head :global(.um-section-header > p:not(.um-kicker)) {
+    grid-area: text;
     max-width: 680px;
-    margin-top: 1rem;
+    margin-top: 0;
     color: var(--um-muted);
     font-size: clamp(1rem, 1.08vw, 1.1rem);
     line-height: 1.68;
@@ -1040,8 +1051,7 @@ const iconPaths = {
 
   @media (max-width: 1120px) {
     .service-detail-hero__grid,
-    .service-detail-main__grid,
-    .service-products-head {
+    .service-detail-main__grid {
       grid-template-columns: 1fr;
     }
 
@@ -1111,11 +1121,28 @@ const iconPaths = {
 
     .service-detail-main {
       padding-top: 46px;
-      padding-bottom: 58px;
+      padding-bottom: 22px;
     }
 
     .service-detail-main__grid {
       gap: 32px;
+    }
+
+    .service-products-section {
+      padding-top: 24px;
+    }
+
+    .service-products-head :global(.um-section-header) {
+      gap: 12px;
+    }
+
+    .service-products-head :global(.um-section-header h2) {
+      max-width: 100%;
+      font-size: clamp(1.75rem, 8vw, 2.25rem);
+      line-height: 1.08;
+      overflow-wrap: normal;
+      word-break: normal;
+      text-wrap: balance;
     }
 
     .service-info-card {

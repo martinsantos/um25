@@ -345,6 +345,25 @@ describe('Information hub visual contracts', () => {
     expect(productCard).toMatch(/@media \(max-width:\s*900px\)\s*\{[\s\S]*\.product-sheet__image\s*\{[\s\S]*height:\s*clamp\(220px,\s*62vw,\s*320px\);/);
   });
 
+  test('service detail equipment heading stays in one readable column', () => {
+    const serviceDetail = read('src/pages/servicios/[id]/[slug].astro');
+    const globalCss = read('src/styles/v4.css');
+    const headGrid = cssBlock(serviceDetail, '.service-products-head :global(.um-section-header)');
+    const titleBlock = cssBlock(serviceDetail, '.service-products-head :global(.um-section-header h2)');
+    const globalHeadGrid = cssBlock(globalCss, 'body main .service-products-head .um-section-header');
+    const globalTitleBlock = cssBlock(globalCss, 'body main .service-products-head .um-section-header h2');
+
+    expect(headGrid).toMatch(/grid-template-columns:\s*minmax\(0,\s*780px\);/);
+    expect(headGrid).toMatch(/"kicker"[\s\S]*"title"[\s\S]*"text"/);
+    expect(titleBlock).toMatch(/overflow-wrap:\s*normal;/);
+    expect(titleBlock).toMatch(/word-break:\s*normal;/);
+    expect(globalHeadGrid).toMatch(/grid-template-columns:\s*minmax\(0,\s*780px\)\s*!important;/);
+    expect(globalHeadGrid).toMatch(/"kicker"[\s\S]*"title"[\s\S]*"text"/);
+    expect(globalTitleBlock).toMatch(/overflow-wrap:\s*normal\s*!important;/);
+    expect(globalTitleBlock).toMatch(/word-break:\s*normal\s*!important;/);
+    expect(serviceDetail).not.toMatch(/\.service-products-head\s+:global\(\.um-section-header\)\s*\{[\s\S]*grid-template-columns:\s*minmax\(220px,\s*0\.34fr\)/);
+  });
+
   test('replica service detail H1s use editorial headlines without legacy separators', () => {
     const replicaCopy = JSON.parse(read('src/data/replica-prod-copy.json'));
     const serviceEntries = Object.entries(replicaCopy.paths).filter(([route]) => route.startsWith('/servicios/'));
