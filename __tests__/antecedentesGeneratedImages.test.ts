@@ -23,10 +23,11 @@ describe('generated antecedentes image integration', () => {
     expect(generatedMap['3553']).toContain('/lote_049/');
     expect(generatedMap['3673']).toContain('/lote_050/');
     expect(generatedMap['3573']).toContain('/lote_051/');
+    expect(generatedMap['3674']).toContain('/lote_052/');
   });
 
   test('generated image map points to public webp assets', () => {
-    expect(Object.keys(generatedMap).length).toBeGreaterThanOrEqual(510);
+    expect(Object.keys(generatedMap).length).toBe(518);
 
     const imagePaths = Object.values(generatedMap);
     expect(new Set(imagePaths).size).toBe(imagePaths.length);

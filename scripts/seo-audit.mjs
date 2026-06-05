@@ -122,7 +122,7 @@ async function auditSitemap(baseUrl, canonicalBaseUrl, failures) {
   assert(imageSitemap.includes('<image:loc>'), 'sitemap-images.xml missing image loc entries', failures);
   assert(imageSitemap.includes('/images/antecedentes/generated/'), 'sitemap-images.xml missing generated antecedente image paths', failures);
   assert(!imageSitemap.includes('<image:title>'), 'sitemap-images.xml still emits deprecated image:title tags', failures);
-  assert(imageCount >= 500, `sitemap-images.xml exposes too few images (${imageCount})`, failures);
+  assert(imageCount >= 518, `sitemap-images.xml exposes too few images (${imageCount})`, failures);
   assert(!imageSitemap.includes(NON_CANONICAL_APEX_URL), 'sitemap-images.xml leaks apex URL', failures);
 }
 
