@@ -32,6 +32,7 @@ export const GET: APIRoute = async () => {
     `- ${SITE_URL}/llms.txt`,
     `- ${SITE_URL}/llms-full.txt`,
     `- ${SITE_URL}/sitemap-geo.xml`,
+    `- ${SITE_URL}/sitemap-images.xml`,
     ...geoResourceNames.map((resource) => `- ${SITE_URL}/geo/${resource}.json`),
     '',
     '## Core Pages',

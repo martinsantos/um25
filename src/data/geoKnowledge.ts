@@ -119,8 +119,8 @@ export type GeoBlogIndex = {
 const servicesData = serviciosSnapshot as { data?: SnapshotService[] };
 const casesData = antecedentesSnapshot as { data?: SnapshotCase[] };
 
-export const GEO_VERSION = '2026-05-16';
-export const GEO_UPDATED = '2026-05-16';
+export const GEO_VERSION = '2026-06-05';
+export const GEO_UPDATED = '2026-06-05';
 
 export const IT_SEARCH_VOCABULARY = {
   disambiguation: 'IT = tecnologia informatica empresarial; en espanol de Argentina tambien se busca como informatica, sistemas, tecnologia para empresas, soporte tecnico y soluciones tecnologicas.',
@@ -165,11 +165,13 @@ export const GEO_DISCOVERY_URLS = [
   canonicalUrl('/geo/services.json'),
   canonicalUrl('/geo/sectors.json'),
   canonicalUrl('/geo/cases.json'),
+  canonicalUrl('/geo/image-evidence.json'),
   canonicalUrl('/geo/faqs.json'),
   canonicalUrl('/geo/authority.json'),
   canonicalUrl('/geo/topics.json'),
   canonicalUrl('/geo/buyer-intents.json'),
   canonicalUrl('/geo/blog-index.json'),
+  canonicalUrl('/sitemap-images.xml'),
   canonicalUrl('/sitemap-geo.xml'),
 ];
 

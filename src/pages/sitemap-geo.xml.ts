@@ -13,7 +13,14 @@ type GeoSitemapEntry = {
   changefreq: string;
 };
 
-const coreGeoDiscoveryPaths = ['/servicios', '/sectores', '/antecedentes', '/blog', '/contacto'];
+const coreGeoDiscoveryPaths = [
+  '/sitemap-images.xml',
+  '/servicios',
+  '/sectores',
+  '/antecedentes',
+  '/blog',
+  '/contacto',
+];
 
 function urlEntry(entry: GeoSitemapEntry, lastmod: string) {
   return `

@@ -5,6 +5,7 @@ import { AI_CRAWLERS } from '../data/geoKnowledge';
 const geoAllow = `Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /geo/
+Allow: /sitemap-images.xml
 Allow: /sitemap-geo.xml`;
 
 export const GET: APIRoute = async () => {
@@ -37,6 +38,7 @@ GEO-Knowledge: ${SITE_URL}/geo/brand-facts.json
 GEO-Authority: ${SITE_URL}/geo/authority.json
 
 Sitemap: ${SITE_URL}/sitemap-index.xml
+Sitemap: ${SITE_URL}/sitemap-images.xml
 Sitemap: ${SITE_URL}/sitemap-geo.xml`;
 
     return new Response(robotsTxt, {
