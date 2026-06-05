@@ -31,6 +31,7 @@ export const GET: APIRoute = async () => {
     '## Discovery',
     `- ${SITE_URL}/llms-full.txt`,
     `- ${SITE_URL}/sitemap-geo.xml`,
+    `- ${SITE_URL}/sitemap-images.xml`,
     `- ${SITE_URL}/geo`,
     '',
     '## GEO JSON',

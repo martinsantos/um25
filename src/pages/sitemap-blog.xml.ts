@@ -81,7 +81,6 @@ export const GET: APIRoute = async () => {
         ? `
     <image:image>
       <image:loc>${escapeXml(imageUrl)}</image:loc>
-      <image:title>${escapeXml(post.titulo)}</image:title>
     </image:image>`
         : '';
       return `  <url>

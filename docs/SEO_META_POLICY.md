@@ -34,6 +34,7 @@ Esta politica aplica a paginas institucionales, servicios, sectores, blog, antec
 - Metatitulo: titulo real del antecedente + marca.
 - Metadescripcion: descripcion del antecedente; si falta, usar titulo, area y fecha real.
 - Imagen social: priorizar imagen generada unica cuando exista; no usar imagen inventada ni generica como si fuera evidencia.
+- Imagen de evidencia: solo publicar en el mapa si el archivo `.webp` existe y esta asociado al ID real del antecedente.
 - Schema: describir como `CreativeWork` o evidencia documentada, no como venta agresiva.
 
 ## Blog
@@ -57,6 +58,8 @@ Esta politica aplica a paginas institucionales, servicios, sectores, blog, antec
 - Los recursos JSON deben tener canonicals con `www.ultimamilla.com.ar`.
 - Los sitemaps no deben declarar `lastmod` dinamico por build; usar fechas reales o versionadas.
 - Cada recurso GEO publicado debe estar enlazado desde `/geo` y estar incluido en `sitemap-geo.xml`.
+- Las imagenes aprobadas deben estar en `sitemap-images.xml` y en `/geo/image-evidence.json`.
+- Los sitemaps de imagenes usan solo campos vigentes: `image:image` e `image:loc`; no usar tags deprecados como `image:title`.
 
 ## Control antes de publicar
 
@@ -66,3 +69,4 @@ Esta politica aplica a paginas institucionales, servicios, sectores, blog, antec
 - 404 y paginas internas no estrategicas usan `noindex` cuando corresponde.
 - Sitemaps contienen solo URLs canonicas y publicas.
 - Las imagenes de antecedentes apuntan a archivos `.webp` existentes.
+- El auditor SEO debe fallar si `sitemap-images.xml` baja del umbral de cobertura visual aprobado.

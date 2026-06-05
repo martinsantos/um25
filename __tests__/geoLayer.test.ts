@@ -52,6 +52,7 @@ describe('GEO layer', () => {
     const geoUrls = getGeoSitemapUrls().map((entry) => entry.loc);
 
     expect(sitemapIndex).toContain('/sitemap-geo.xml');
+    expect(sitemapIndex).toContain('/sitemap-images.xml');
     expect(robots).toContain('LLMs:');
     expect(robots).toContain('GEO-Knowledge:');
     expect(robots).toContain('GEO-Authority:');
@@ -59,11 +60,14 @@ describe('GEO layer', () => {
     expect(staticRobots).toContain('GEO-Knowledge:');
     expect(staticRobots).toContain('GEO-Authority:');
     expect(staticRobots).toContain('Sitemap: https://www.ultimamilla.com.ar/sitemap-geo.xml');
+    expect(staticRobots).toContain('Sitemap: https://www.ultimamilla.com.ar/sitemap-images.xml');
     expect(AI_CRAWLERS).toEqual(expect.arrayContaining(['GPTBot', 'ClaudeBot', 'Claude-SearchBot', 'PerplexityBot']));
     expect(staticRobots).toContain('Claude-SearchBot');
     expect(geoUrls).toEqual(expect.arrayContaining([
       'https://www.ultimamilla.com.ar/llms.txt',
       'https://www.ultimamilla.com.ar/geo/services.json',
+      'https://www.ultimamilla.com.ar/geo/image-evidence.json',
+      'https://www.ultimamilla.com.ar/sitemap-images.xml',
       'https://www.ultimamilla.com.ar/sitemap-geo.xml',
     ]));
   });
@@ -73,6 +77,7 @@ describe('GEO layer', () => {
       'src/pages/llms.txt.ts',
       'src/pages/llms-full.txt.ts',
       'src/pages/sitemap-geo.xml.ts',
+      'src/pages/sitemap-images.xml.ts',
       'src/pages/geo/brand-facts.json.ts',
       'src/pages/geo/authority.json.ts',
       'src/pages/geo/topics.json.ts',
@@ -81,6 +86,7 @@ describe('GEO layer', () => {
       'src/pages/geo/services.json.ts',
       'src/pages/geo/sectors.json.ts',
       'src/pages/geo/cases.json.ts',
+      'src/pages/geo/image-evidence.json.ts',
       'src/pages/geo/faqs.json.ts',
       'src/pages/geo/index.astro',
       'src/pages/servicios-it-empresas-mendoza.astro',

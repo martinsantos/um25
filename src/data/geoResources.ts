@@ -7,6 +7,10 @@ import { serviceVisualOrder, serviceVisualSystem } from './serviceVisualSystem';
 import antecedentesSnapshot from './snapshots/antecedentes.json';
 import serviciosSnapshot from './snapshots/servicios.json';
 import { getInstitutionalProofLines } from '../utils/verifiedProof';
+import {
+  getAntecedentesImageEvidenceCoverage,
+  getAntecedentesImageEvidenceEntries,
+} from '../utils/antecedentesImageEvidence';
 
 type Snapshot<T> = { data?: T[] } | T[];
 
@@ -30,7 +34,7 @@ const snapshotData = <T>(snapshot: Snapshot<T>): T[] => (
   Array.isArray(snapshot) ? snapshot : snapshot.data || []
 );
 
-export const geoVersion = '2026-05-17';
+export const geoVersion = '2026-06-05';
 
 export const geoHubRoutes = Object.values(geoCommercialHubs).map((hub) => ({
   slug: hub.slug,
@@ -133,6 +137,31 @@ export function buildGeoResource(resource: string) {
     case 'cases':
       return { ...common, cases: geoCaseResources };
 
+    case 'image-evidence': {
+      const imageEvidence = getAntecedentesImageEvidenceEntries();
+
+      return {
+        ...common,
+        role: 'Mapa verificable de imagenes generadas, aprobadas y asociadas a antecedentes publicos.',
+        policy: [
+          'No inventar nombres de clientes, ubicaciones ni resultados a partir de la imagen.',
+          'Usar pageUrl como fuente canonica del antecedente y imageUrl como evidencia visual asociada.',
+          'Si un campo aparece como null, tratarlo como no publicado.',
+        ],
+        coverage: getAntecedentesImageEvidenceCoverage(),
+        sitemap: canonicalUrl('/sitemap-images.xml'),
+        images: imageEvidence.map((entry) => ({
+          id: entry.id,
+          title: entry.title,
+          pageUrl: entry.pageUrl,
+          imageUrl: entry.imageUrl,
+          client: entry.client,
+          sector: entry.sector,
+          date: entry.date,
+        })),
+      };
+    }
+
     case 'faqs':
       return {
         ...common,
@@ -203,6 +232,7 @@ export const geoResourceNames = [
   'services',
   'sectors',
   'cases',
+  'image-evidence',
   'faqs',
   'authority',
   'topics',

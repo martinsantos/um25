@@ -13,6 +13,7 @@ Disallow: /_test-components-v4
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /geo/
+Allow: /sitemap-images.xml
 Allow: /sitemap-geo.xml
 
 # AI and LLM discovery resources
@@ -20,78 +21,91 @@ User-agent: GPTBot
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /geo/
+Allow: /sitemap-images.xml
 Allow: /sitemap-geo.xml
 
 User-agent: ChatGPT-User
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /geo/
+Allow: /sitemap-images.xml
 Allow: /sitemap-geo.xml
 
 User-agent: OAI-SearchBot
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /geo/
+Allow: /sitemap-images.xml
 Allow: /sitemap-geo.xml
 
 User-agent: ClaudeBot
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /geo/
+Allow: /sitemap-images.xml
 Allow: /sitemap-geo.xml
 
 User-agent: Claude-User
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /geo/
+Allow: /sitemap-images.xml
 Allow: /sitemap-geo.xml
 
 User-agent: Claude-SearchBot
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /geo/
+Allow: /sitemap-images.xml
 Allow: /sitemap-geo.xml
 
 User-agent: PerplexityBot
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /geo/
+Allow: /sitemap-images.xml
 Allow: /sitemap-geo.xml
 
 User-agent: Perplexity-User
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /geo/
+Allow: /sitemap-images.xml
 Allow: /sitemap-geo.xml
 
 User-agent: Google-Extended
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /geo/
+Allow: /sitemap-images.xml
 Allow: /sitemap-geo.xml
 
 User-agent: Googlebot
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /geo/
+Allow: /sitemap-images.xml
 Allow: /sitemap-geo.xml
 
 User-agent: Bingbot
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /geo/
+Allow: /sitemap-images.xml
 Allow: /sitemap-geo.xml
 
 User-agent: Applebot
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /geo/
+Allow: /sitemap-images.xml
 Allow: /sitemap-geo.xml
 
 User-agent: DuckAssistBot
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /geo/
+Allow: /sitemap-images.xml
 Allow: /sitemap-geo.xml
 
 LLMs: https://www.ultimamilla.com.ar/llms.txt
@@ -101,4 +115,5 @@ GEO-Knowledge: https://www.ultimamilla.com.ar/geo/brand-facts.json
 GEO-Authority: https://www.ultimamilla.com.ar/geo/authority.json
 
 Sitemap: https://www.ultimamilla.com.ar/sitemap-index.xml
+Sitemap: https://www.ultimamilla.com.ar/sitemap-images.xml
 Sitemap: https://www.ultimamilla.com.ar/sitemap-geo.xml

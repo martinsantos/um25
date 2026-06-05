@@ -20,6 +20,7 @@ const expectedGeoResources = [
   'services',
   'sectors',
   'cases',
+  'image-evidence',
   'faqs',
   'authority',
   'topics',
@@ -85,6 +86,21 @@ describe('GEO discovery and commercial hub contracts', () => {
     }
   });
 
+  test('GEO image evidence publishes visual coverage without invented claims', () => {
+    const payload = buildGeoResource('image-evidence') as {
+      coverage: { generatedImages: number; totalAntecedentes: number; missingGeneratedImages: number };
+      images: Array<{ pageUrl: string; imageUrl: string; client: string | null; sector: string | null }>;
+      policy: string[];
+    };
+
+    expect(payload.coverage.generatedImages).toBeGreaterThanOrEqual(510);
+    expect(payload.coverage.totalAntecedentes).toBeGreaterThanOrEqual(518);
+    expect(payload.coverage.missingGeneratedImages).toBeLessThanOrEqual(8);
+    expect(payload.images[0]?.pageUrl).toMatch(/^https:\/\/www\.ultimamilla\.com\.ar\/antecedentes\//);
+    expect(payload.images[0]?.imageUrl).toMatch(/^https:\/\/www\.ultimamilla\.com\.ar\/images\/antecedentes\/generated\//);
+    expect(payload.policy.join(' ')).toContain('No inventar nombres de clientes');
+  });
+
   test('commercial hub pages use the shared dossier, canonical and JSON-LD builder', () => {
     for (const slug of expectedCommercialHubs) {
       const sourcePath = path.join(repoRoot, 'src/pages', `${slug}.astro`);
@@ -104,6 +120,7 @@ describe('GEO discovery and commercial hub contracts', () => {
       '/llms.txt',
       '/llms-full.txt',
       '/sitemap-geo.xml',
+      '/sitemap-images.xml',
       ...expectedGeoResources.map((resource) => `/geo/${resource}.json`),
       ...expectedCommercialHubs.map((slug) => `/${slug}`),
     ]) {
@@ -118,6 +135,7 @@ describe('GEO discovery and commercial hub contracts', () => {
       '/llms.txt',
       '/llms-full.txt',
       '/sitemap-geo.xml',
+      '/sitemap-images.xml',
       '/servicios',
       '/sectores',
       '/antecedentes',
@@ -139,6 +157,22 @@ describe('GEO discovery and commercial hub contracts', () => {
     expect(strategicGraph).not.toContain('/geo/discovery.json');
     expect(strategicGraph).toContain('/geo/brand-facts.json');
     expect(strategicGraph).toContain('/geo/services.json');
+  });
+
+  test('image sitemap is discoverable and uses current Google image sitemap fields', () => {
+    const sitemapIndex = fs.readFileSync(path.join(repoRoot, 'src/pages/sitemap-index.xml.ts'), 'utf8');
+    const robots = fs.readFileSync(path.join(repoRoot, 'src/pages/robots.txt.ts'), 'utf8');
+    const imageSitemap = fs.readFileSync(path.join(repoRoot, 'src/pages/sitemap-images.xml.ts'), 'utf8');
+    const antecedentesSitemap = fs.readFileSync(path.join(repoRoot, 'src/pages/sitemap-antecedentes.xml.ts'), 'utf8');
+    const blogSitemap = fs.readFileSync(path.join(repoRoot, 'src/pages/sitemap-blog.xml.ts'), 'utf8');
+
+    expect(sitemapIndex).toContain('/sitemap-images.xml');
+    expect(robots).toContain('/sitemap-images.xml');
+    expect(imageSitemap).toContain('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"');
+    expect(imageSitemap).toContain('<image:loc>');
+    expect(imageSitemap).not.toContain('<image:title>');
+    expect(antecedentesSitemap).not.toContain('<image:title>');
+    expect(blogSitemap).not.toContain('<image:title>');
   });
 
   test('public certification route stays discoverable through sitemap and SEO audit gates', () => {
