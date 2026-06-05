@@ -18,6 +18,7 @@ const GEO_RESOURCE_PATHS = [
   '/geo/services.json',
   '/geo/sectors.json',
   '/geo/cases.json',
+  '/geo/image-evidence.json',
   '/geo/faqs.json',
   '/geo/authority.json',
   '/geo/topics.json',
@@ -29,6 +30,7 @@ const GEO_DISCOVERY_PATHS = [
   '/llms.txt',
   '/llms-full.txt',
   '/sitemap-geo.xml',
+  '/sitemap-images.xml',
   ...GEO_RESOURCE_PATHS,
 ];
 
@@ -101,16 +103,27 @@ async function auditPage(baseUrl, canonicalBaseUrl, path, failures) {
 async function auditSitemap(baseUrl, canonicalBaseUrl, failures) {
   const robots = await fetchText(new URL('/robots.txt', baseUrl).toString(), failures);
   assert(robots.includes(`${canonicalBaseUrl}/sitemap-index.xml`), 'robots.txt does not point to canonical sitemap-index.xml', failures);
+  assert(robots.includes(`${canonicalBaseUrl}/sitemap-images.xml`), 'robots.txt does not point to canonical sitemap-images.xml', failures);
   assert(!robots.includes(NON_CANONICAL_APEX_URL), 'robots.txt leaks apex URL', failures);
 
   const sitemapIndex = await fetchText(new URL('/sitemap-index.xml', baseUrl).toString(), failures);
   assert(sitemapIndex.includes('<sitemapindex'), 'sitemap-index.xml missing sitemapindex root', failures);
+  assert(sitemapIndex.includes(`${canonicalBaseUrl}/sitemap-images.xml`), 'sitemap-index.xml missing sitemap-images.xml', failures);
   assert(!sitemapIndex.includes(NON_CANONICAL_APEX_URL), 'sitemap-index.xml leaks apex URL', failures);
 
   const sitemap = await fetchText(new URL('/sitemap.xml', baseUrl).toString(), failures);
   assert(sitemap.includes('<urlset'), 'sitemap.xml missing urlset root', failures);
   assert(sitemap.includes(`${canonicalBaseUrl}/servicios`), 'sitemap.xml missing /servicios', failures);
   assert(!sitemap.includes(NON_CANONICAL_APEX_URL), 'sitemap.xml leaks apex URL', failures);
+
+  const imageSitemap = await fetchText(new URL('/sitemap-images.xml', baseUrl).toString(), failures);
+  const imageCount = (imageSitemap.match(/<image:image>/g) || []).length;
+  assert(imageSitemap.includes('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"'), 'sitemap-images.xml missing image namespace', failures);
+  assert(imageSitemap.includes('<image:loc>'), 'sitemap-images.xml missing image loc entries', failures);
+  assert(imageSitemap.includes('/images/antecedentes/generated/'), 'sitemap-images.xml missing generated antecedente image paths', failures);
+  assert(!imageSitemap.includes('<image:title>'), 'sitemap-images.xml still emits deprecated image:title tags', failures);
+  assert(imageCount >= 500, `sitemap-images.xml exposes too few images (${imageCount})`, failures);
+  assert(!imageSitemap.includes(NON_CANONICAL_APEX_URL), 'sitemap-images.xml leaks apex URL', failures);
 }
 
 async function auditGeoDiscovery(baseUrl, canonicalBaseUrl, failures) {
@@ -189,7 +202,7 @@ async function main() {
     canonicalBaseUrl,
     checked: {
       paths,
-      sitemaps: 4,
+      sitemaps: 5,
       geoDiscovery: GEO_DISCOVERY_PATHS.length,
       geoHubs: GEO_COMMERCIAL_HUB_PATHS.length,
     },

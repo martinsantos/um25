@@ -39,7 +39,6 @@ function generateSitemapXml(antecedentes: any[]): string {
         const imageTag = imageUrl ? `
         <image:image>
             <image:loc>${escapeXml(imageUrl)}</image:loc>
-            <image:title>${escapeXml(item.Titulo || '')}</image:title>
         </image:image>` : '';
         return `
     <url>

@@ -19,6 +19,12 @@ function generateSitemapIndexXml(): string {
         <lastmod>${today}</lastmod>
     </sitemap>
 
+    <!-- Sitemap dedicado a imagenes de antecedentes generadas y aprobadas -->
+    <sitemap>
+        <loc>${escapeXml(`${SITE_URL}/sitemap-images.xml`)}</loc>
+        <lastmod>${today}</lastmod>
+    </sitemap>
+
     <!-- Sitemap del blog (posts + categorías) -->
     <sitemap>
         <loc>${escapeXml(`${SITE_URL}/sitemap-blog.xml`)}</loc>
