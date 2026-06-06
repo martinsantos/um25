@@ -7,7 +7,7 @@ type ProdCopyEntry = { status?: number; title?: string; h1?: string };
 export function isReplicaIdenticalCopy(): boolean {
   if (!isLocalProdReplica()) return false;
   const v =
-    import.meta.env?.UMSA_REPLICA_IDENTICAL ??
+    import.meta.env?.['UMSA_REPLICA_IDENTICAL'] ??
     (typeof process !== 'undefined' ? process.env['UMSA_REPLICA_IDENTICAL'] : undefined);
   if (v === '0' || v === 'false') return false;
   return true;

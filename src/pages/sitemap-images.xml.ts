@@ -1,11 +1,9 @@
 import type { APIRoute } from 'astro';
 
-import { getAntecedentesImageEvidenceEntries } from '../utils/antecedentesImageEvidence';
+import { getAntecedentesImageEvidenceEntriesFromDirectus } from '../utils/antecedentesImageEvidence';
 import { escapeXml, formatSitemapDate } from '../utils/seoUrl';
 
-function generateImageSitemapXml(): string {
-  const entries = getAntecedentesImageEvidenceEntries();
-
+function generateImageSitemapXml(entries: Awaited<ReturnType<typeof getAntecedentesImageEvidenceEntriesFromDirectus>>): string {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
@@ -21,10 +19,23 @@ function generateImageSitemapXml(): string {
 }
 
 export const GET: APIRoute = async () => {
-  return new Response(generateImageSitemapXml(), {
-    headers: {
-      'Content-Type': 'application/xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=86400',
-    },
-  });
+  try {
+    const entries = await getAntecedentesImageEvidenceEntriesFromDirectus();
+
+    return new Response(generateImageSitemapXml(entries), {
+      headers: {
+        'Content-Type': 'application/xml; charset=utf-8',
+        'Cache-Control': 'public, max-age=86400',
+      },
+    });
+  } catch (error) {
+    console.error('[SITEMAP-IMAGES] Directus unavailable:', error);
+    return new Response('Directus unavailable for image sitemap', {
+      status: 503,
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-store',
+      },
+    });
+  }
 };

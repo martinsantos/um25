@@ -87,8 +87,7 @@ function trimSectorSEO(sector: Sector): Sector {
 }
 
 /**
- * Obtiene antecedentes filtrados por keywords de un sector
- * Con fallback automático a snapshot de antecedentes
+ * Obtiene antecedentes filtrados por keywords de un sector desde Directus.
  */
 export async function getAntecedentesForSector(
   keywords: string[],
@@ -109,11 +108,11 @@ export async function getAntecedentesForSector(
     console.log(`[${sectorName.toUpperCase()}] Found ${filtered.length} antecedentes from Directus`);
     return filtered;
   } catch (error) {
-    console.error(`[${sectorName.toUpperCase()}] Error fetching from Directus, trying snapshot:`, error);
+    console.error(`[${sectorName.toUpperCase()}] Error fetching sector query from Directus, retrying shared Directus loader:`, error);
     try {
       const allAntecedentes = await getAllAntecedentes();
       const filtered = filterAntecedentesByKeywords(allAntecedentes as any[], keywords, limit);
-      console.log(`[${sectorName.toUpperCase()}] Found ${filtered.length} antecedentes from snapshot`);
+      console.log(`[${sectorName.toUpperCase()}] Found ${filtered.length} antecedentes from shared Directus loader`);
       return filtered;
     } catch {
       return [];

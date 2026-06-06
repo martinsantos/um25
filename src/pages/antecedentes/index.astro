@@ -11,6 +11,13 @@ import IntentLinkGraph from '../../components/um/IntentLinkGraph.astro';
 import { getAllAntecedentes, getAntecedenteImageUrl } from '../../lib/directus.ts';
 import { getDevTemplateVariant } from '../../utils/templateVariant';
 import {
+  buildAntecedenteListItemStructuredData,
+  curateAntecedente,
+  isPromotableAntecedente,
+  sortAntecedentesForPublicList,
+} from '../../utils/antecedentesCuration';
+import { canonicalUrl } from '../../utils/seoUrl';
+import {
   buildCaseStrategicLinkGroups,
   buildStrategicWebPageStructuredData,
 } from '../../data/strategicLinkGraph';
@@ -68,7 +75,7 @@ const filterAntecedentes = (antecedentes, filters, searchQuery) => {
   if (searchQuery) {
     const query = safeText(searchQuery);
     filtered = filtered.filter((item) => {
-      const searchText = `${item.Titulo || ''} ${item.Descripcion || ''} ${item.Cliente || ''} ${item.Area || ''}`.toLowerCase();
+      const searchText = `${item.displayTitle || item.Titulo || ''} ${item.displayDescription || item.Descripcion || ''} ${item.Cliente || ''} ${item.Area || ''}`.toLowerCase();
       return searchText.includes(query);
     });
   }
@@ -76,7 +83,7 @@ const filterAntecedentes = (antecedentes, filters, searchQuery) => {
   if (filters.sector && sectorKeywords[filters.sector]) {
     const keywords = sectorKeywords[filters.sector];
     filtered = filtered.filter((item) => {
-      const searchText = `${item.Titulo || ''} ${item.Descripcion || ''} ${item.Cliente || ''} ${item.Area || ''}`.toLowerCase();
+      const searchText = `${item.displayTitle || item.Titulo || ''} ${item.displayDescription || item.Descripcion || ''} ${item.Cliente || ''} ${item.Area || ''}`.toLowerCase();
       return keywords.some((keyword) => searchText.includes(keyword.toLowerCase()));
     });
   }
@@ -137,14 +144,22 @@ let allAntecedentesForIndex: any[] = [];
 try {
   const response = await getAllAntecedentes();
 
-  const allAntecedentes = response.map((item) => ({
-    ...item,
-    slug: `${item.id}/${localGenerateSlug(item.Titulo)}`,
-    imageUrl: getAntecedenteImageUrl(item)
+  const allAntecedentes = sortAntecedentesForPublicList(response.map((item) => {
+    const curated = curateAntecedente({
+      ...item,
+      imageUrl: getAntecedenteImageUrl(item),
+    });
+
+    return {
+      ...curated,
+      slug: `${item.id}/${localGenerateSlug(item.Titulo)}`,
+    };
   }));
   allAntecedentesForIndex = allAntecedentes;
 
-  const filteredAntecedentes = filterAntecedentes(allAntecedentes, pageData.activeFilters, pageData.searchQuery);
+  const filteredAntecedentes = sortAntecedentesForPublicList(
+    filterAntecedentes(allAntecedentes, pageData.activeFilters, pageData.searchQuery)
+  );
   const hasActiveFilters = Boolean(
     pageData.searchQuery
     || pageData.activeFilters.sector
@@ -157,14 +172,17 @@ try {
   let archivePool;
 
   if (pageData.currentPage === 1 && !hasActiveFilters) {
-    featuredAntecedente = pickProtagonistAntecedente(filteredAntecedentes);
+    const promotableAntecedentes = filteredAntecedentes.filter(isPromotableAntecedente);
+    const spotlightSource = promotableAntecedentes.length > 0 ? promotableAntecedentes : filteredAntecedentes;
+    featuredAntecedente = pickProtagonistAntecedente(spotlightSource);
     const remaining = featuredAntecedente
       ? filteredAntecedentes.filter((item) => item.id !== featuredAntecedente.id)
       : filteredAntecedentes;
-    spotlightAntecedentes = featuredAntecedente
-      ? [featuredAntecedente, ...remaining.slice(0, 2)]
-      : filteredAntecedentes.slice(0, 3);
-    archivePool = featuredAntecedente ? remaining.slice(2) : filteredAntecedentes.slice(3);
+    const secondarySource = remaining.filter(isPromotableAntecedente);
+    const secondarySpotlight = secondarySource.length >= 2 ? secondarySource.slice(0, 2) : remaining.slice(0, 2);
+    spotlightAntecedentes = featuredAntecedente ? [featuredAntecedente, ...secondarySpotlight] : filteredAntecedentes.slice(0, 3);
+    const spotlightIds = new Set(spotlightAntecedentes.map((item) => item.id));
+    archivePool = filteredAntecedentes.filter((item) => !spotlightIds.has(item.id));
   } else {
     spotlightAntecedentes = filteredAntecedentes.slice(0, 3);
     archivePool = filteredAntecedentes.slice(3);
@@ -178,6 +196,7 @@ try {
     antecedentes: archivePool.slice(archiveStartIndex, archiveEndIndex),
     spotlightAntecedentes,
     totalItems: filteredAntecedentes.length,
+    catalogTotalItems: allAntecedentes.length,
     archiveTotalItems: archivePool.length,
     totalPages: Math.max(1, Math.ceil(archivePool.length / PAGE_SIZE)),
     error: null,
@@ -222,16 +241,17 @@ const visibleAntecedentes = [
 const crawlableAntecedenteIndex = allAntecedentesForIndex
   .map((item) => ({
     id: item.id,
-    title: item.Titulo || 'Antecedente técnico',
+    title: item.displayTitle || item.Titulo || 'Antecedente técnico',
     area: item.Area || item.Unidad_de_negocio || '',
     href: `/antecedentes/${item.slug}`,
+    quality: item.curation?.quality || '',
   }))
   .sort((a, b) => String(a.title).localeCompare(String(b.title), 'es'));
 const antecedentesStrategicLinkGroups = buildCaseStrategicLinkGroups({
   currentPath: '/antecedentes',
   title: 'Evidencia operativa documentada',
   summary: 'Antecedentes técnicos de redes, seguridad electrónica, telecomunicaciones, software, soporte e infraestructura IT.',
-  text: visibleAntecedentes.map((item: any) => `${item.Titulo || ''} ${item.Descripcion || ''} ${item.Cliente || ''} ${item.Area || ''}`).join(' '),
+  text: visibleAntecedentes.map((item: any) => `${item.displayTitle || item.Titulo || ''} ${item.displayDescription || item.Descripcion || ''} ${item.Cliente || ''} ${item.Area || ''}`).join(' '),
   relatedCases: visibleAntecedentes.map((item: any) => ({
     ...item,
     href: item.slug ? `/antecedentes/${item.slug}` : '',
@@ -243,13 +263,30 @@ const antecedentesStructuredData = buildStrategicWebPageStructuredData({
   description: 'Antecedentes técnicos de redes, seguridad electrónica, telecomunicaciones, software, soporte e infraestructura IT.',
   groups: antecedentesStrategicLinkGroups,
 });
+const antecedentesCollectionStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Evidencia operativa documentada',
+  description: 'Archivo curado de antecedentes técnicos de ULTIMA MILLA con cliente, sector, fecha, imagen asociada y enlace canónico.',
+  url: canonicalUrl('/antecedentes'),
+  inLanguage: 'es-AR',
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: allAntecedentesForIndex.length,
+    itemListOrder: 'https://schema.org/ItemListOrderDescending',
+    itemListElement: allAntecedentesForIndex
+      .filter(isPromotableAntecedente)
+      .slice(0, 48)
+      .map((item, index) => buildAntecedenteListItemStructuredData(item, index + 1)),
+  },
+};
 ---
 
 <LayoutV4
   title="Evidencia operativa documentada | ULTIMA MILLA"
   description="Antecedentes técnicos de ULTIMA MILLA: proyectos reales de redes, seguridad electrónica, telecomunicaciones, software, soporte e infraestructura IT."
   keywords="casos exito tecnologia mendoza, proyectos telecomunicaciones, antecedentes cableado estructurado, portfolio seguridad electronica, software a medida casos"
-  structuredData={antecedentesStructuredData}
+  structuredData={[antecedentesStructuredData, antecedentesCollectionStructuredData]}
 >
   {templateVariant === 'atlas' && (
     <AntecedentesTemplateAtlas

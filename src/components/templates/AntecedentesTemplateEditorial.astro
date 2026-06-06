@@ -4,7 +4,6 @@ import SectionHeader from '../um/SectionHeader.astro';
 import { truncateEditorialText } from '../../utils/editorialContent';
 import { resolveReplicaH1 } from '../../utils/replicaProdCopy';
 import { extractCaseMetricsFromAntecedente } from '../../utils/caseMetrics';
-import { getAntecedentesCatalogCount, getAntecedentesCountShort } from '../../utils/verifiedProof';
 
 const antecedentesPath = `${Astro.url.pathname}${Astro.url.search}`;
 const antecedentesIndexH1 = resolveReplicaH1(antecedentesPath, 'Evidencia operativa documentada.');
@@ -36,8 +35,10 @@ const spotlight = pageData.spotlightAntecedentes || [];
 const archive = pageData.antecedentes || [];
 const totalItems = pageData.totalItems || 0;
 const archiveTotalItems = pageData.archiveTotalItems ?? Math.max(0, totalItems - spotlight.length);
-const institutionalProofTotal = getAntecedentesCatalogCount();
-const institutionalProofShort = getAntecedentesCountShort();
+const institutionalProofTotal = Number(pageData.catalogTotalItems || totalItems || 0);
+const institutionalProofShort = institutionalProofTotal >= 500
+  ? `${Math.floor(institutionalProofTotal / 100) * 100}+`
+  : String(institutionalProofTotal);
 const totalPages = Math.max(1, pageData.totalPages || 1);
 const currentPage = pageData.currentPage || 1;
 const feature = featuredAntecedente || spotlight[0];
@@ -84,13 +85,18 @@ const paginationPages = computePaginationPages();
 const cleanText = (value: unknown) => String(value || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 const truncate = (value: unknown, length = 170) => truncateEditorialText(value, length);
 const projectHref = (item: any) => `/antecedentes/${item.slug}`;
-const projectTitle = (item: any) => item?.Cliente || item?.Titulo || 'Antecedente UMSA';
+const projectTitle = (item: any) => item?.displayTitle || item?.Titulo || item?.Cliente || 'Antecedente UMSA';
+const projectDescription = (item: any) => item?.displayDescription || item?.Descripcion || item?.Titulo || '';
 const projectScope = (item: any) => item?.Area || item?.Unidad_de_negocio || 'Servicios IT';
 const projectYear = (item: any) => {
+  if (item?.displayYear && item.displayYear !== 'Invalid Date') return item.displayYear;
   const raw = item?.Fecha || item?.fecha || item?.anio || item?.year;
   if (!raw) return 'documentado';
+  if (/invalid date/i.test(String(raw))) return 'documentado';
   const date = new Date(raw);
-  return Number.isNaN(date.getTime()) ? String(raw) : String(date.getFullYear());
+  if (!Number.isNaN(date.getTime())) return String(date.getFullYear());
+  const year = String(raw).match(/\b(19\d{2}|20\d{2})\b/)?.[1];
+  return year || 'documentado';
 };
 ---
 
@@ -194,15 +200,15 @@ const projectYear = (item: any) => {
             <div class="ante-dossier__feature-body">
               <span>Proyecto protagonista</span>
               <h3>{projectTitle(feature)}</h3>
-              <p>{truncate(feature.Descripcion || feature.Titulo, 210)}</p>
+              <p>{truncate(projectDescription(feature), 210)}</p>
               <dl>
                 <div>
                   <dt>Sector</dt>
                   <dd>{projectScope(feature)}</dd>
                 </div>
                 <div>
-                  <dt>Ubicación / cliente</dt>
-                  <dd>{feature.Cliente || 'UMSA'}</dd>
+                  <dt>Cliente</dt>
+                  <dd>{feature.Cliente || `ANT-${feature.id}`}</dd>
                 </div>
                 <div>
                   <dt>Año</dt>
@@ -224,7 +230,7 @@ const projectYear = (item: any) => {
                 <div>
                   <span>{String(index + 2).padStart(2, '0')}</span>
                   <h3>{projectTitle(item)}</h3>
-                  <p>{truncate(item.Descripcion || item.Titulo, 128)}</p>
+                  <p>{truncate(projectDescription(item), 128)}</p>
                   <dl>
                     <div>
                       <dt>Sector</dt>
@@ -263,7 +269,7 @@ const projectYear = (item: any) => {
             href={projectHref(item)}
             number={String(showingStart + index).padStart(2, '0')}
             title={projectTitle(item)}
-            description={truncate(item.Descripcion || item.Titulo, 150)}
+            description={truncate(projectDescription(item), 150)}
             image={item.imageUrl}
             imageAlt={item.Titulo || projectTitle(item)}
             sector={projectScope(item)}

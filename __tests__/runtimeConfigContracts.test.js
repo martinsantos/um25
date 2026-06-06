@@ -56,9 +56,9 @@ describe('Production runtime configuration contracts', () => {
     const fn = source.match(/export function getDirectusToken\(\): string \{([\s\S]*?)\n\}/)?.[1] || '';
 
     expect(fn).toContain("processEnv('DIRECTUS_ADMIN_TOKEN')");
-    expect(fn.indexOf("processEnv('DIRECTUS_STATIC_TOKEN')")).toBeLessThan(fn.indexOf('import.meta.env?.DIRECTUS_STATIC_TOKEN'));
-    expect(fn.indexOf("processEnv('PUBLIC_DIRECTUS_TOKEN')")).toBeLessThan(fn.indexOf('import.meta.env?.PUBLIC_DIRECTUS_TOKEN'));
-    expect(fn.indexOf("processEnv('DIRECTUS_ADMIN_TOKEN')")).toBeLessThan(fn.indexOf('import.meta.env?.DIRECTUS_ADMIN_TOKEN'));
+    expect(fn.indexOf("processEnv('DIRECTUS_STATIC_TOKEN')")).toBeLessThan(fn.indexOf("import.meta.env?.['DIRECTUS_STATIC_TOKEN']"));
+    expect(fn.indexOf("processEnv('PUBLIC_DIRECTUS_TOKEN')")).toBeLessThan(fn.indexOf("import.meta.env?.['PUBLIC_DIRECTUS_TOKEN']"));
+    expect(fn.indexOf("processEnv('DIRECTUS_ADMIN_TOKEN')")).toBeLessThan(fn.indexOf("import.meta.env?.['DIRECTUS_ADMIN_TOKEN']"));
   });
 
   test('production smoke test validates current theme content and Directus-backed collections', () => {

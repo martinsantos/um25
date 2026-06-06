@@ -1,9 +1,22 @@
 import type { APIRoute } from 'astro';
-import { buildGeoResource } from '../../data/geoResources';
+import { buildGeoResourceAsync } from '../../data/geoResources';
 
 export const GET: APIRoute = async ({ params }) => {
   const resource = params.resource || '';
-  const payload = buildGeoResource(resource);
+  let payload = null;
+
+  try {
+    payload = await buildGeoResourceAsync(resource);
+  } catch (error) {
+    console.error(`[GEO-${resource}] Directus unavailable:`, error);
+    return new Response(JSON.stringify({ error: 'Directus unavailable for GEO resource' }), {
+      status: 503,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'no-store',
+      },
+    });
+  }
 
   if (!payload) {
     return new Response(JSON.stringify({ error: 'GEO resource not found' }), {
