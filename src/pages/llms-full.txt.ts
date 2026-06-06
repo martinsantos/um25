@@ -3,6 +3,7 @@ import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '../config/seo';
 import {
   geoCaseResources,
   geoHubRoutes,
+  getGeoCaseResources,
   geoResourceNames,
   geoSectorResources,
   geoServiceResources,
@@ -11,6 +12,20 @@ import {
 import { getInstitutionalProofLines } from '../utils/verifiedProof';
 
 export const GET: APIRoute = async () => {
+  let directusCaseResources = geoCaseResources;
+  try {
+    directusCaseResources = await getGeoCaseResources();
+  } catch (error) {
+    console.error('[LLMS-FULL] Directus unavailable for cases:', error);
+    return new Response('Directus unavailable for LLM cases index', {
+      status: 503,
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-store',
+      },
+    });
+  }
+
   const lines = [
     `# ${SITE_NAME} — GEO/LLM Index`,
     '',
@@ -60,7 +75,7 @@ export const GET: APIRoute = async () => {
     ...geoSectorResources.map((sector) => `- ${sector.name}: ${sector.operatingNeed} (${sector.url})`),
     '',
     '## Prioritized Cases',
-    ...geoCaseResources.slice(0, 24).map((item) => `- ${item.client}: ${item.title} (${item.url})`),
+    ...directusCaseResources.slice(0, 32).map((item) => `- ${item.client ? `${item.client}: ` : ''}${item.title} (${item.url})`),
     '',
     '## Contact',
     `- ${SITE_URL}/contacto`,

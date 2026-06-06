@@ -16,10 +16,6 @@ import { getServiceVisualSpec, serviceVisualOrder } from '../data/serviceVisualS
 import { resolveReplicaH1 } from '../utils/replicaProdCopy';
 import { extractCaseMetricsFromAntecedente } from '../utils/caseMetrics';
 import {
-  getAntecedentesCountShort,
-  getAntecedentesCatalogCount,
-} from '../utils/verifiedProof';
-import {
   buildServiceStrategicLinkGroups,
   buildStrategicWebPageStructuredData,
 } from '../data/strategicLinkGraph';
@@ -54,8 +50,8 @@ const serviceModules = serviceVisualOrder
   .filter(Boolean);
 
 const homeHeroImage = '/uploads/hero/c194b40e-925c-4de5-924b-ea61ab835c0e.jpg';
-const proofCountShort = getAntecedentesCountShort();
-const proofCountExact = getAntecedentesCatalogCount();
+const proofCountExact = antecedentesData.length;
+const proofCountShort = proofCountExact >= 500 ? '500+' : String(proofCountExact);
 
 const caseTargets = [
   { label: 'Gobierno de Mendoza', terms: ['gobierno de mendoza', 'ministerio', 'municipalidad'] },

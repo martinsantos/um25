@@ -12,8 +12,13 @@ import EmailLink from '../../../components/common/EmailLink.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
 import { getServiceIdFromArea } from '../../../data/areaToServiceMap.js';
-import { getAntecedenteImageUrl, getDirectusImageUrl, getGeneratedAntecedenteImageUrl, getAllAntecedentes } from '../../../lib/directus.ts';
+import { getAntecedenteConServicios, getAntecedenteImageUrl, getDirectusImageUrl, getGeneratedAntecedenteImageUrl, getAllAntecedentes } from '../../../lib/directus.ts';
 import { canonicalUrl as toCanonicalUrl, publicImageUrl } from '../../../utils/seoUrl';
+import {
+  curateAntecedente,
+  formatAntecedenteDate,
+  formatAntecedenteYear,
+} from '../../../utils/antecedentesCuration';
 import {
   plainTextFromHtml,
   renderEditorialBody,
@@ -22,7 +27,6 @@ import {
   truncateEditorialText,
 } from '../../../utils/editorialContent';
 import { isReplicaIdenticalCopy, resolveReplicaH1 } from '../../../utils/replicaProdCopy';
-import { getDirectusInternalUrl, isLocalProdReplica } from '../../../config/runtime';
 import {
   buildCaseStrategicLinkGroups,
   buildStrategicWebPageStructuredData,
@@ -30,9 +34,7 @@ import {
 import { buildCaseSeoMeta } from '../../../utils/seoMetaPolicy';
 
 // --- Configuration ---
-const DIRECTUS_URL = getDirectusInternalUrl();
 const DEFAULT_IMAGE_URL = `/images/default-background.jpg`;
-const DIRECTUS_STATIC_TOKEN = import.meta.env.DIRECTUS_STATIC_TOKEN || import.meta.env.PUBLIC_DIRECTUS_TOKEN || '';
 
 export const prerender = false;
 
@@ -66,98 +68,62 @@ const getAssetUrl = (assetId: any): string => {
     return DEFAULT_IMAGE_URL;
 };
 
-// --- Fetch Data ---
-async function fetchAntecedenteById(itemId: string) {
-    try {
-        const response = await fetch(`${DIRECTUS_URL}/items/Antecedentes/${itemId}?fields=*,Imagen.*,ImagenPrincipal.*,Imagenes.*,Imagenes.directus_files_id`, {
-            headers: {
-                'Authorization': `Bearer ${DIRECTUS_STATIC_TOKEN}`,
-                'Accept': 'application/json'
-            }
-        });
-        if (!response.ok) throw new Error(`API Error: ${response.status}`);
-        const data = await response.json();
-        return data?.data || null;
-    } catch (error) {
-        console.error(`Error fetching item ${itemId}:`, error);
-        throw error;
-    }
-}
-
-async function loadAntecedenteFromSnapshot(itemId: string) {
-    const snapshot = await import('../../../data/snapshots/antecedentes.json');
-    const allAntecedentes = (snapshot.data || snapshot.default?.data || []) as any[];
-    return allAntecedentes.find((item: any) => item.id?.toString() === itemId) || null;
-}
-
-// --- Get data and validate (réplica: snapshot primero; evita 401 con token viejo) ---
+// --- Get data and validate: Directus is the only public source for antecedentes. ---
 try {
-    if (isLocalProdReplica()) {
-        antecedente = await loadAntecedenteFromSnapshot(id);
-    } else if (DIRECTUS_STATIC_TOKEN) {
-        antecedente = await fetchAntecedenteById(id);
-    } else {
-        throw new Error('No token');
-    }
+    antecedente = await getAntecedenteConServicios(id);
 
     if (antecedente) {
         const expectedSlug = generateSlug(antecedente.Titulo);
         if (expectedSlug !== slugFromUrl) {
             return Astro.redirect(`/antecedentes/${id}/${expectedSlug}`, 301);
         }
-    } else if (!isLocalProdReplica()) {
-        throw new Error('Not found');
-    }
-} catch (error) {
-    try {
-        antecedente = await loadAntecedenteFromSnapshot(id);
-        if (antecedente) {
-            const expectedSlug = generateSlug(antecedente.Titulo);
-            if (expectedSlug !== slugFromUrl) {
-                return Astro.redirect(`/antecedentes/${id}/${expectedSlug}`, 301);
-            }
-        } else {
-            return Astro.redirect('/404');
-        }
-    } catch {
+    } else {
         return Astro.redirect('/404');
     }
-}
-
-if (isLocalProdReplica() && !antecedente) {
-    return Astro.redirect('/404');
+} catch (error) {
+    console.error(`Error loading antecedente ${id} from Directus:`, error);
+    return new Response('Directus antecedente unavailable', {
+      status: 503,
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+    });
 }
 
 if (!antecedente) return Astro.redirect('/404');
 
+antecedente = curateAntecedente(antecedente);
+
 // --- Prepare data for UI (Directus-first) ---
+const directusMainImageUrl = getAssetUrl(antecedente.Imagen || antecedente.ImagenPrincipal);
 const generatedMainImageUrl = getGeneratedAntecedenteImageUrl(antecedente.id) || getGeneratedAntecedenteImageUrl(antecedente.original_id);
-const mainImageUrl = generatedMainImageUrl || getAssetUrl(antecedente.Imagen || antecedente.ImagenPrincipal);
+const mainImageUrl = directusMainImageUrl && !directusMainImageUrl.includes('default-background')
+    ? directusMainImageUrl
+    : generatedMainImageUrl || DEFAULT_IMAGE_URL;
 
 const formatDate = (dateString: string): string => {
-    if (!dateString) return 'No especificada';
-    try {
-        return new Date(dateString).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' });
-    } catch { return dateString; }
+    const formatted = formatAntecedenteDate(dateString);
+    return formatted || '';
 };
+const caseDateLabel = formatAntecedenteDate(antecedente.Fecha);
+const caseDatePublished = caseDateLabel ? antecedente.Fecha : undefined;
 
 const cleanDisplayText = (value: unknown) => String(value || '')
   .replace(/<[^>]+>/g, '')
   .replace(/\s+/g, ' ')
   .trim();
 
-const caseBodySource = antecedente.Descripcion || antecedente.descripcion || '';
+const caseBodySource = antecedente.displayDescription || antecedente.Descripcion || antecedente.descripcion || '';
 const caseBodyPlain = plainTextFromHtml(caseBodySource, 4000);
 const caseDescriptionHtml = await renderEditorialBody(caseBodySource);
-const caseHeroExcerpt = truncateEditorialText(caseBodySource, 170);
+const caseHeroExcerpt = truncateEditorialText(caseBodySource, 170)
+  || cleanDisplayText(antecedente.displayTitle || antecedente.Titulo || antecedente.Nombre);
 
 const buildStructuredScopeItems = (item: any): string[] => {
   const rows = [
-    item.Titulo ? `Alcance: ${cleanDisplayText(item.Titulo)}` : '',
+    item.displayTitle || item.Titulo ? `Alcance: ${cleanDisplayText(item.displayTitle || item.Titulo)}` : '',
     item.Cliente ? `Cliente: ${cleanDisplayText(item.Cliente)}` : '',
     item.Area ? `Sector: ${cleanDisplayText(item.Area)}` : '',
     item.Unidad_de_negocio ? `Unidad: ${cleanDisplayText(item.Unidad_de_negocio)}` : '',
-    item.Fecha ? `Cierre: ${formatDate(item.Fecha)}` : '',
+    formatAntecedenteDate(item.Fecha) ? `Cierre: ${formatDate(item.Fecha)}` : '',
   ].filter((row) => row.length > 8);
   return rows.slice(0, 5);
 };
@@ -184,10 +150,16 @@ const scopeItems = (() => {
 })();
 
 const isDuplicateCallout = (() => {
-  const callout = `Proyecto aplicado en ${antecedente.Area || 'tecnología'} para ${antecedente.Cliente}`.toLowerCase();
+  const callout = `Proyecto aplicado en ${antecedente.Area || ''} para ${antecedente.Cliente || ''}`.toLowerCase();
   const bodyStart = caseBodyPlain.slice(0, 180).toLowerCase();
   return bodyStart.includes(callout.slice(0, 40)) || caseBodyPlain.length < 90;
 })();
+
+const caseCalloutText = [
+  'Proyecto aplicado',
+  antecedente.Area ? `en ${cleanDisplayText(antecedente.Area)}` : '',
+  antecedente.Cliente ? `para ${cleanDisplayText(antecedente.Cliente)}` : '',
+].filter(Boolean).join(' ');
 
 const resolveServiceImageUrl = (servicio: any): string => {
   const serviceImage = getDirectusImageUrl(servicio?.Imagen);
@@ -270,7 +242,7 @@ const getRelatedAntecedentes = async (area: string, excludeId: string, limit: nu
       })
       .slice(0, limit)
       .map(item => ({
-        ...item,
+        ...curateAntecedente(item),
         slug: generateSlug(item.Titulo || 'proyecto'),
         imageUrl: getAntecedenteImageUrl(item)
       }));
@@ -320,8 +292,8 @@ const buildCaseHeadline = (item: any): string => {
 };
 
 const caseHeadlineSource = isReplicaIdenticalCopy()
-  ? resolveReplicaH1(Astro.url.pathname, cleanDisplayText(antecedente.Titulo || antecedente.Nombre))
-  : cleanDisplayText(antecedente.Titulo || antecedente.Nombre);
+  ? resolveReplicaH1(Astro.url.pathname, cleanDisplayText(antecedente.displayTitle || antecedente.Titulo || antecedente.Nombre))
+  : cleanDisplayText(antecedente.displayTitle || antecedente.Titulo || antecedente.Nombre);
 const caseHeadline = buildCaseHeadline({ ...antecedente, Titulo: caseHeadlineSource });
 const compactCaseTitle = (value: unknown, client?: unknown): string => {
   const title = cleanDisplayText(value)
@@ -350,12 +322,13 @@ const compactCaseTitle = (value: unknown, client?: unknown): string => {
 const siteUrl = 'https://www.ultimamilla.com.ar';
 const canonicalUrl = toCanonicalUrl(`/antecedentes/${id}/${slugFromUrl}`);
 const caseSeo = buildCaseSeoMeta({
-  title: antecedente.Titulo || antecedente.Nombre,
-  description: caseBodySource,
+  title: antecedente.displayTitle || antecedente.Titulo || antecedente.Nombre,
+  description: antecedente.displayDescription || caseBodySource,
   area: antecedente.Area || antecedente.Unidad_de_negocio,
   date: antecedente.Fecha,
 });
 const metaDescription = caseSeo.description;
+const structuredImageUrl = publicImageUrl(mainImageUrl) || toCanonicalUrl(DEFAULT_IMAGE_URL);
 const caseStrategicLinkGroups = buildCaseStrategicLinkGroups({
   currentPath: `/antecedentes/${id}/${slugFromUrl}`,
   title: caseHeadline,
@@ -367,14 +340,29 @@ const caseStrategicLinkGroups = buildCaseStrategicLinkGroups({
 });
 const antecedenteStructuredData = {
   "@type": "CreativeWork",
-  "name": antecedente.Titulo,
-  "headline": antecedente.Titulo,
+  "name": antecedente.displayTitle || antecedente.Titulo,
+  "headline": antecedente.displayTitle || antecedente.Titulo,
   "description": metaDescription,
   "url": canonicalUrl,
-  "image": publicImageUrl(mainImageUrl) || toCanonicalUrl(DEFAULT_IMAGE_URL),
-  "datePublished": antecedente.Fecha || undefined,
+  "image": {
+    "@type": "ImageObject",
+    "url": structuredImageUrl,
+    "caption": [
+      antecedente.displayTitle || antecedente.Titulo,
+      antecedente.Cliente ? `Cliente: ${cleanDisplayText(antecedente.Cliente)}` : '',
+      antecedente.Area ? `Sector: ${cleanDisplayText(antecedente.Area)}` : '',
+    ].filter(Boolean).join(' | '),
+  },
+  "datePublished": caseDatePublished,
   "inLanguage": "es-AR",
-  "about": antecedente.Area || undefined,
+  "about": antecedente.Area ? { "@type": "Thing", "name": cleanDisplayText(antecedente.Area) } : undefined,
+  "mentions": antecedente.Cliente ? [{ "@type": "Organization", "name": cleanDisplayText(antecedente.Cliente) }] : undefined,
+  "identifier": `ANT-${id}`,
+  "isPartOf": {
+    "@type": "CollectionPage",
+    "name": "Evidencia operativa documentada",
+    "url": toCanonicalUrl('/antecedentes')
+  },
   "provider": {
     "@type": "Organization",
     "name": "ULTIMA MILLA",
@@ -426,7 +414,7 @@ const antecedentePageStructuredData = [
           <h1>{caseHeadline}</h1>
 
           <p>
-            {caseHeroExcerpt || 'Proyecto documentado con alcance técnico verificable.'}
+            {caseHeroExcerpt}
           </p>
 
           <div class="case-detail-actions">
@@ -450,21 +438,23 @@ const antecedentePageStructuredData = [
           </figure>
           <div class="case-detail-dossier__body">
             <span>Dossier del proyecto</span>
-            <strong>{antecedente.Cliente || 'ULTIMA MILLA'}</strong>
+            <strong>{antecedente.Cliente || `ANT-${id}`}</strong>
             <div class="case-detail-meta">
-              <div>
-                <span>Vertical</span>
-                <strong>{antecedente.Area || 'Tecnología'}</strong>
-              </div>
-              {antecedente.Fecha && (
+              {antecedente.Area && (
+                <div>
+                  <span>Vertical</span>
+                  <strong>{antecedente.Area}</strong>
+                </div>
+              )}
+              {caseDateLabel && (
                 <div>
                   <span>Fecha</span>
-                  <strong>{formatDate(antecedente.Fecha)}</strong>
+                  <strong>{caseDateLabel}</strong>
                 </div>
               )}
               <div>
-                <span>Ubicación</span>
-                <strong>Mendoza</strong>
+                <span>Registro</span>
+                <strong>ANT-{id}</strong>
               </div>
             </div>
           </div>
@@ -489,13 +479,13 @@ const antecedentePageStructuredData = [
             {caseDescriptionHtml ? (
               <div set:html={caseDescriptionHtml} />
             ) : (
-              <p>{caseHeroExcerpt || 'Información detallada del proyecto no disponible.'}</p>
+              <p>{caseHeroExcerpt}</p>
             )}
           </div>
 
-          {!isDuplicateCallout && (
+          {!isDuplicateCallout && caseCalloutText.length > 'Proyecto aplicado'.length && (
             <div class="case-callout">
-              <span>Proyecto aplicado en {antecedente.Area || 'tecnología'} para {antecedente.Cliente}</span>
+              <span>{caseCalloutText}</span>
             </div>
           )}
         </div>
@@ -589,31 +579,38 @@ const antecedentePageStructuredData = [
             <span class="case-info-card__title">Ficha técnica</span>
           </div>
           <div class="p-0 flex flex-col gap-3 sm:gap-4">
-            <div class="flex flex-col gap-1">
-              <span class="case-info-label">Organización</span>
-              <span class="case-info-value">{antecedente.Cliente}</span>
-            </div>
-            <div class="h-px bg-gray-100"></div>
-            <div class="flex flex-col gap-1">
-              <span class="case-info-label">Vertical</span>
-              <span class="case-info-value">{antecedente.Area || 'Tecnología'}</span>
-            </div>
-            <div class="h-px bg-gray-100"></div>
-            <div class="flex flex-col gap-1">
-              <span class="case-info-label">Unidad de Negocio</span>
-              <span class="case-info-value">{antecedente.Unidad_de_negocio || 'Consultoría'}</span>
-            </div>
-            <div class="h-px bg-gray-100"></div>
-            <div class="flex flex-col gap-1">
-              <span class="case-info-label">Ubicación</span>
-              <span class="case-info-value">Mendoza, Argentina</span>
-            </div>
-            {antecedente.Fecha && (
+            {antecedente.Cliente && (
               <>
+                <div class="flex flex-col gap-1">
+                  <span class="case-info-label">Organización</span>
+                  <span class="case-info-value">{antecedente.Cliente}</span>
+                </div>
                 <div class="h-px bg-gray-100"></div>
+              </>
+            )}
+            {antecedente.Area && (
+              <>
+                <div class="flex flex-col gap-1">
+                  <span class="case-info-label">Vertical</span>
+                  <span class="case-info-value">{antecedente.Area}</span>
+                </div>
+                <div class="h-px bg-gray-100"></div>
+              </>
+            )}
+            {antecedente.Unidad_de_negocio && (
+              <>
+                <div class="flex flex-col gap-1">
+                  <span class="case-info-label">Unidad de Negocio</span>
+                  <span class="case-info-value">{antecedente.Unidad_de_negocio}</span>
+                </div>
+                <div class="h-px bg-gray-100"></div>
+              </>
+            )}
+            {caseDateLabel && (
+              <>
                 <div class="flex flex-col gap-1">
                   <span class="case-info-label">Finalización</span>
-                  <span class="case-info-value">{formatDate(antecedente.Fecha)}</span>
+                  <span class="case-info-value">{caseDateLabel}</span>
                 </div>
               </>
             )}
@@ -683,12 +680,12 @@ const antecedentePageStructuredData = [
             <EvidenceCaseRow
               href={`/antecedentes/${ant.id}/${ant.slug}`}
               number={String(index + 1).padStart(2, '0')}
-              title={compactCaseTitle(ant.Titulo || 'Proyecto', ant.Cliente)}
-              description={truncateEditorialText(ant.Descripcion || ant.Titulo, 150)}
+              title={compactCaseTitle(ant.displayTitle || ant.Titulo || 'Proyecto', ant.Cliente)}
+              description={truncateEditorialText(ant.displayDescription || ant.Descripcion || ant.Titulo, 150)}
               image={ant.imageUrl}
               imageAlt={ant.Titulo || 'Antecedente'}
               sector={ant.Area || 'Servicios IT'}
-              year={ant.Fecha ? new Date(ant.Fecha).getFullYear().toString() : 'documentado'}
+              year={formatAntecedenteYear(ant.Fecha)}
               imageLoading="eager"
             />
           ))}

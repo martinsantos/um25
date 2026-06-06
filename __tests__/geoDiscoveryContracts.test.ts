@@ -146,6 +146,18 @@ describe('GEO discovery and commercial hub contracts', () => {
     }
   });
 
+  test('common antecedentes typo redirects to the canonical evidence archive', () => {
+    const typoRedirect = fs.readFileSync(path.join(repoRoot, 'src/pages/antecedntes.astro'), 'utf8');
+    const detail = fs.readFileSync(path.join(repoRoot, 'src/pages/antecedentes/[id]/[slug].astro'), 'utf8');
+    const directusLib = fs.readFileSync(path.join(repoRoot, 'src/lib/directus.ts'), 'utf8');
+
+    expect(typoRedirect).toContain("Astro.redirect('/antecedentes', 301)");
+    expect(detail).toContain('getAntecedenteConServicios');
+    expect(detail).not.toContain('loadAntecedenteFromSnapshot');
+    expect(directusLib).not.toContain("import('../data/snapshots/antecedentes.json')");
+    expect(directusLib).toContain('Token rechazado');
+  });
+
   test('the GEO index and strategic graph link only published machine-readable resources', () => {
     const geoIndex = fs.readFileSync(path.join(repoRoot, 'src/pages/geo/index.astro'), 'utf8');
     const strategicGraph = fs.readFileSync(path.join(repoRoot, 'src/data/strategicLinkGraph.ts'), 'utf8');
@@ -165,11 +177,18 @@ describe('GEO discovery and commercial hub contracts', () => {
     const imageSitemap = fs.readFileSync(path.join(repoRoot, 'src/pages/sitemap-images.xml.ts'), 'utf8');
     const antecedentesSitemap = fs.readFileSync(path.join(repoRoot, 'src/pages/sitemap-antecedentes.xml.ts'), 'utf8');
     const blogSitemap = fs.readFileSync(path.join(repoRoot, 'src/pages/sitemap-blog.xml.ts'), 'utf8');
+    const casesGeo = fs.readFileSync(path.join(repoRoot, 'src/pages/geo/cases.json.ts'), 'utf8');
+    const imageEvidenceGeo = fs.readFileSync(path.join(repoRoot, 'src/pages/geo/image-evidence.json.ts'), 'utf8');
 
     expect(sitemapIndex).toContain('/sitemap-images.xml');
     expect(robots).toContain('/sitemap-images.xml');
     expect(imageSitemap).toContain('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"');
     expect(imageSitemap).toContain('<image:loc>');
+    expect(imageSitemap).toContain('getAntecedentesImageEvidenceEntriesFromDirectus');
+    expect(antecedentesSitemap).toContain('getAllAntecedentes');
+    expect(antecedentesSitemap).not.toContain('snapshots/antecedentes');
+    expect(casesGeo).toContain("buildGeoResourceAsync('cases')");
+    expect(imageEvidenceGeo).toContain("buildGeoResourceAsync('image-evidence')");
     expect(imageSitemap).not.toContain('<image:title>');
     expect(antecedentesSitemap).not.toContain('<image:title>');
     expect(blogSitemap).not.toContain('<image:title>');
