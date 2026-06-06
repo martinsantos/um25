@@ -47,6 +47,7 @@ const hasResults = totalItems > 0;
 const showingStart = archiveTotalItems === 0 ? 0 : ((currentPage - 1) * pageSize) + 1;
 const showingEnd = Math.min(currentPage * pageSize, archiveTotalItems);
 const hasActiveFilters = Boolean(sectorFilter || searchQuery || areaFilter || unidadFilter);
+const isLandingPage = Boolean(pageData.isLandingPage ?? (currentPage === 1 && !hasActiveFilters && spotlight.length > 0));
 const preservedSearchParams = Array.from(currentUrl.searchParams.entries()).filter(
   ([key]) => !['q', 'page', 'reset'].includes(key)
 );
@@ -82,12 +83,13 @@ const computePaginationPages = () => {
 
 const paginationPages = computePaginationPages();
 
-const cleanText = (value: unknown) => String(value || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 const truncate = (value: unknown, length = 170) => truncateEditorialText(value, length);
 const projectHref = (item: any) => `/antecedentes/${item.slug}`;
 const projectTitle = (item: any) => item?.displayTitle || item?.Titulo || item?.Cliente || 'Antecedente UMSA';
 const projectDescription = (item: any) => item?.displayDescription || item?.Descripcion || item?.Titulo || '';
 const projectScope = (item: any) => item?.Area || item?.Unidad_de_negocio || 'Servicios IT';
+const projectRecordLabel = (item: any) => item?.curation?.recordLabel || 'Registro técnico';
+const projectRecordTone = (item: any) => item?.curation?.recordTone || 'technical-record';
 const projectYear = (item: any) => {
   if (item?.displayYear && item.displayYear !== 'Invalid Date') return item.displayYear;
   const raw = item?.Fecha || item?.fecha || item?.anio || item?.year;
@@ -98,44 +100,96 @@ const projectYear = (item: any) => {
   const year = String(raw).match(/\b(19\d{2}|20\d{2})\b/)?.[1];
   return year || 'documentado';
 };
+const heroImages = [
+  feature,
+  ...secondary,
+  ...archive,
+]
+  .filter((item: any) => item?.imageUrl)
+  .slice(0, 5);
+const archiveTitle = isLandingPage
+  ? 'Centro de evidencia operativa'
+  : currentPage > 1
+    ? `Archivo documental - página ${currentPage}`
+    : 'Archivo documental filtrado';
+const archiveText = isLandingPage
+  ? 'Lectura ejecutiva por cliente, alcance, sector y año para abrir cada dossier con contexto comercial claro.'
+  : 'Registros reales cargados desde Directus, con imagen asociada, cliente, sector, año y jerarquía documental.';
 ---
 
 <section class="ante-dossier">
-  <header class="ante-dossier__hero">
-    <div class="um-container ante-dossier__hero-grid">
-      <div class="ante-dossier__hero-copy">
-        <span class="ante-dossier__mark" aria-hidden="true"></span>
-        <h1>{antecedentesIndexH1}</h1>
-        <p>
-          Un archivo de proyectos reales para evaluar alcance, continuidad, criticidad y experiencia
-          en redes, seguridad electrónica, telecomunicaciones, software, soporte y energía para IT.
-        </p>
-        <div class="ante-dossier__actions">
-          <a href="#archivo-antecedentes">Ver archivo documental</a>
-          <a href="/contacto">Solicitar relevamiento</a>
+  {isLandingPage ? (
+    <header class="ante-dossier__hero">
+      <div class="um-container ante-dossier__hero-grid">
+        <div class="ante-dossier__hero-copy">
+          <span class="ante-dossier__mark" aria-hidden="true"></span>
+          <h1>{antecedentesIndexH1}</h1>
+          <p>
+            Un archivo de proyectos reales para evaluar alcance, continuidad, criticidad y experiencia
+            en redes, seguridad electrónica, telecomunicaciones, software, soporte y energía para IT.
+          </p>
+          <div class="ante-dossier__actions">
+            <a href="#archivo-antecedentes">Ver archivo documental</a>
+            <a href="/contacto">Solicitar relevamiento</a>
+          </div>
         </div>
-      </div>
 
-      <aside class="ante-dossier__proof" aria-label="Resumen de antecedentes">
+        <aside class="ante-dossier__hero-panel" aria-label="Resumen visual de antecedentes">
+          {heroImages.length > 0 && (
+            <div class="ante-dossier__image-wall" aria-label="Imágenes generadas de antecedentes documentados">
+              {heroImages.map((item: any, index: number) => (
+                <figure class={index === 0 ? 'is-main' : ''}>
+                  <img
+                    src={item.imageUrl}
+                    alt={item.Titulo || projectTitle(item)}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    decoding="async"
+                    onerror="this.src='/images/default.jpg'"
+                  />
+                </figure>
+              ))}
+            </div>
+          )}
+          <div class="ante-dossier__proof" aria-label="Resumen de antecedentes">
+            <div>
+              <span>Proyectos</span>
+              <strong>{institutionalProofShort}</strong>
+            </div>
+            <div>
+              <span>Trayectoria</span>
+              <strong>22+ años</strong>
+            </div>
+            <div>
+              <span>Sectores</span>
+              <strong>{Math.max(filterChips.length - 1, 0)} mercados</strong>
+            </div>
+            <div>
+              <span>Soporte</span>
+              <strong>24/7</strong>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </header>
+  ) : (
+    <header class="ante-dossier__archive-intro">
+      <div class="um-container ante-dossier__archive-intro-grid">
         <div>
-          <span>Proyectos</span>
-          <strong>{institutionalProofShort}</strong>
+          <span class="ante-dossier__mark" aria-hidden="true"></span>
+          <h1>{currentPage > 1 ? `Archivo documental de antecedentes. Página ${currentPage}.` : 'Archivo documental de antecedentes.'}</h1>
+          <p>
+            Registros reales cargados desde Directus, ordenados para consultar cliente, sector,
+            año, imagen asociada y calidad documental sin repetir la portada institucional.
+          </p>
         </div>
-        <div>
-          <span>Trayectoria</span>
-          <strong>22+ años</strong>
-        </div>
-        <div>
-          <span>Sectores</span>
-          <strong>{Math.max(filterChips.length - 1, 0)} mercados</strong>
-        </div>
-        <div>
-          <span>Soporte</span>
-          <strong>24/7</strong>
-        </div>
-      </aside>
-    </div>
-  </header>
+        <aside aria-label="Estado del archivo">
+          <span>{showingStart}-{showingEnd}</span>
+          <strong>{hasActiveFilters ? `${totalItems} coincidencias` : `${institutionalProofShort} registros`}</strong>
+          <em>{currentPage > 1 ? `Página ${currentPage} de ${totalPages}` : 'Vista filtrada'}</em>
+        </aside>
+      </div>
+    </header>
+  )}
 
   <section class="ante-dossier__controls" aria-label="Índice documental de antecedentes">
       <div class="um-container ante-dossier__controls-grid">
@@ -176,85 +230,87 @@ const projectYear = (item: any) => {
     </div>
   </nav>
 
-  <section class="um-container ante-dossier__evidence" aria-labelledby="evidencia-destacada">
-    <SectionHeader
-      id="evidencia-destacada"
-      class="ante-dossier__section-head"
-      title="Evidencia destacada"
-      text="Casos con contexto, alcance y metadata para entender la escala real del trabajo."
-    />
+  {isLandingPage && (
+    <section class="um-container ante-dossier__evidence" aria-labelledby="evidencia-destacada">
+      <SectionHeader
+        id="evidencia-destacada"
+        class="ante-dossier__section-head"
+        title="Evidencia destacada"
+        text="Casos con contexto, alcance y metadata para entender la escala real del trabajo."
+      />
 
-    {!hasResults ? (
-      <div class="ante-dossier__empty">
-        <h2>No se encontraron proyectos</h2>
-        <p>Probá con otro sector o una búsqueda más amplia dentro del archivo.</p>
-        <a href={buildClearUrl()}>Ver todos los proyectos</a>
-      </div>
-    ) : (
-      <>
-        {feature && (
-          <a href={projectHref(feature)} class="um-click-surface ante-dossier__feature">
-            <figure>
-              <img src={feature.imageUrl} alt={feature.Titulo || projectTitle(feature)} loading="eager" decoding="async" onerror="this.src='/images/default.jpg'" />
-            </figure>
-            <div class="ante-dossier__feature-body">
-              <span>Proyecto protagonista</span>
-              <h3>{projectTitle(feature)}</h3>
-              <p>{truncate(projectDescription(feature), 210)}</p>
-              <dl>
-                <div>
-                  <dt>Sector</dt>
-                  <dd>{projectScope(feature)}</dd>
-                </div>
-                <div>
-                  <dt>Cliente</dt>
-                  <dd>{feature.Cliente || `ANT-${feature.id}`}</dd>
-                </div>
-                <div>
-                  <dt>Año</dt>
-                  <dd>{projectYear(feature)}</dd>
-                </div>
-              </dl>
-              <strong>Ver dossier del proyecto</strong>
+      {!hasResults ? (
+        <div class="ante-dossier__empty">
+          <h2>No se encontraron proyectos</h2>
+          <p>Probá con otro sector o una búsqueda más amplia dentro del archivo.</p>
+          <a href={buildClearUrl()}>Ver todos los proyectos</a>
+        </div>
+      ) : (
+        <>
+          {feature && (
+            <a href={projectHref(feature)} class="um-click-surface ante-dossier__feature">
+              <figure>
+                <img src={feature.imageUrl} alt={feature.Titulo || projectTitle(feature)} loading="eager" decoding="async" onerror="this.src='/images/default.jpg'" />
+              </figure>
+              <div class="ante-dossier__feature-body">
+                <span>{projectRecordLabel(feature)}</span>
+                <h3>{projectTitle(feature)}</h3>
+                <p>{truncate(projectDescription(feature), 210)}</p>
+                <dl>
+                  <div>
+                    <dt>Sector</dt>
+                    <dd>{projectScope(feature)}</dd>
+                  </div>
+                  <div>
+                    <dt>Cliente</dt>
+                    <dd>{feature.Cliente || `ANT-${feature.id}`}</dd>
+                  </div>
+                  <div>
+                    <dt>Año</dt>
+                    <dd>{projectYear(feature)}</dd>
+                  </div>
+                </dl>
+                <strong>Ver dossier del proyecto</strong>
+              </div>
+            </a>
+          )}
+
+          {secondary.length > 0 && (
+            <div class="ante-dossier__secondary" aria-label="Casos secundarios">
+              {secondary.map((item: any) => (
+                <a href={projectHref(item)} class="um-click-surface ante-dossier__secondary-item">
+                  <figure>
+                    <img src={item.imageUrl} alt={item.Titulo || projectTitle(item)} loading="lazy" decoding="async" onerror="this.src='/images/default.jpg'" />
+                  </figure>
+                  <div>
+                    <span>{projectRecordLabel(item)}</span>
+                    <h3>{projectTitle(item)}</h3>
+                    <p>{truncate(projectDescription(item), 128)}</p>
+                    <dl>
+                      <div>
+                        <dt>Sector</dt>
+                        <dd>{projectScope(item)}</dd>
+                      </div>
+                      <div>
+                        <dt>Año</dt>
+                        <dd>{projectYear(item)}</dd>
+                      </div>
+                    </dl>
+                  </div>
+                </a>
+              ))}
             </div>
-          </a>
-        )}
-
-        {secondary.length > 0 && (
-          <div class="ante-dossier__secondary" aria-label="Casos secundarios">
-            {secondary.map((item: any, index: number) => (
-              <a href={projectHref(item)} class="um-click-surface ante-dossier__secondary-item">
-                <figure>
-                  <img src={item.imageUrl} alt={item.Titulo || projectTitle(item)} loading="lazy" decoding="async" onerror="this.src='/images/default.jpg'" />
-                </figure>
-                <div>
-                  <span>{String(index + 2).padStart(2, '0')}</span>
-                  <h3>{projectTitle(item)}</h3>
-                  <p>{truncate(projectDescription(item), 128)}</p>
-                  <dl>
-                    <div>
-                      <dt>Sector</dt>
-                      <dd>{projectScope(item)}</dd>
-                    </div>
-                    <div>
-                      <dt>Año</dt>
-                      <dd>{projectYear(item)}</dd>
-                    </div>
-                  </dl>
-                </div>
-              </a>
-            ))}
-          </div>
-        )}
-      </>
-    )}
-  </section>
+          )}
+        </>
+      )}
+    </section>
+  )}
 
   {archive.length > 0 && (
     <section class="um-container ante-dossier__archive" id="archivo-antecedentes" aria-labelledby="archivo-antecedentes-title">
       <div class="ante-dossier__archive-head">
-        <h2 id="archivo-antecedentes-title">Centro de evidencia operativa</h2>
-        <p>Lectura ejecutiva por cliente, alcance, sector y año para abrir cada dossier con contexto comercial claro.</p>
+        <h2 id="archivo-antecedentes-title">{archiveTitle}</h2>
+        <p>{archiveText}</p>
       </div>
 
       <div class="ante-dossier__ledger antecedentes-list">
@@ -275,6 +331,8 @@ const projectYear = (item: any) => {
             sector={projectScope(item)}
             year={projectYear(item)}
             imageLoading={index < 6 ? 'eager' : 'lazy'}
+            eyebrow={projectRecordLabel(item)}
+            recordTone={projectRecordTone(item)}
             metrics={extractCaseMetricsFromAntecedente(item)}
           />
         ))}
@@ -323,7 +381,7 @@ const projectYear = (item: any) => {
 
   .ante-dossier__hero-grid {
     display: grid;
-    grid-template-columns: minmax(0, 0.64fr) minmax(320px, 0.36fr);
+    grid-template-columns: minmax(0, 0.54fr) minmax(360px, 0.46fr);
     gap: clamp(30px, 6vw, 86px);
     align-items: center;
   }
@@ -412,6 +470,42 @@ const projectYear = (item: any) => {
     text-decoration-color: currentColor;
   }
 
+  .ante-dossier__hero-panel {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .ante-dossier__image-wall {
+    display: grid;
+    grid-template-columns: minmax(160px, 1.25fr) repeat(2, minmax(90px, 0.75fr));
+    grid-template-rows: repeat(2, minmax(118px, 1fr));
+    gap: 8px;
+    height: clamp(260px, 25vw, 344px);
+    min-width: 0;
+    background: #0b0b0b;
+  }
+
+  .ante-dossier__image-wall figure {
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    overflow: hidden;
+    background: #111;
+  }
+
+  .ante-dossier__image-wall figure.is-main {
+    grid-row: 1 / span 2;
+  }
+
+  .ante-dossier__image-wall img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.9) contrast(1.04);
+  }
+
   .ante-dossier__proof {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -443,6 +537,69 @@ const projectYear = (item: any) => {
     font-weight: var(--um-weight-title, 600);
     line-height: 1.04;
     text-wrap: balance;
+  }
+
+  .ante-dossier__archive-intro {
+    background: #fff;
+    padding: clamp(28px, 4.6vw, 58px) 0 clamp(10px, 2vw, 20px);
+  }
+
+  .ante-dossier__archive-intro-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.68fr) minmax(260px, 0.32fr);
+    gap: clamp(24px, 5vw, 72px);
+    align-items: end;
+  }
+
+  .ante-dossier__archive-intro h1 {
+    max-width: 760px;
+    margin-top: clamp(14px, 2vw, 20px);
+    color: var(--ante-text);
+    font-family: var(--um-font-display);
+    font-size: clamp(2.05rem, 2.45vw, 2.65rem);
+    font-weight: var(--um-weight-title, 600);
+    line-height: 1.1;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .ante-dossier__archive-intro p {
+    max-width: 780px;
+    margin-top: 12px;
+    color: var(--ante-muted);
+    font-size: clamp(1.0625rem, 1.1vw, 1.1875rem);
+    line-height: 1.64;
+  }
+
+  .ante-dossier__archive-intro aside {
+    display: grid;
+    justify-items: start;
+    border-left: 3px solid var(--um-red);
+    padding-left: clamp(18px, 2.2vw, 28px);
+  }
+
+  .ante-dossier__archive-intro aside span {
+    color: var(--um-red);
+    font-family: var(--um-font-display);
+    font-size: clamp(1.55rem, 2vw, 2rem);
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .ante-dossier__archive-intro aside strong,
+  .ante-dossier__archive-intro aside em {
+    display: block;
+    margin-top: 8px;
+    color: #111;
+    font-size: 1.0625rem;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .ante-dossier__archive-intro aside em {
+    color: var(--ante-muted);
+    font-weight: 600;
   }
 
   .ante-dossier__controls {
@@ -1125,6 +1282,7 @@ const projectYear = (item: any) => {
 
   @media (max-width: 1080px) {
     .ante-dossier__hero-grid,
+    .ante-dossier__archive-intro-grid,
     .ante-dossier__feature,
     .ante-dossier__secondary-item {
       grid-template-columns: 1fr;
@@ -1171,6 +1329,7 @@ const projectYear = (item: any) => {
     }
 
     .ante-dossier__hero-grid,
+    .ante-dossier__archive-intro-grid,
     .ante-dossier__controls-grid,
     .ante-dossier__section-head,
     .ante-dossier__archive-head,
@@ -1183,6 +1342,23 @@ const projectYear = (item: any) => {
       font-size: clamp(2rem, 7.2vw, 2.32rem);
       line-height: 1.12;
       text-wrap: pretty;
+    }
+
+    .ante-dossier__image-wall {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      height: auto;
+    }
+
+    .ante-dossier__image-wall figure {
+      min-height: 132px;
+      aspect-ratio: 4 / 3;
+    }
+
+    .ante-dossier__image-wall figure.is-main {
+      grid-column: 1 / -1;
+      grid-row: auto;
+      aspect-ratio: 16 / 9;
     }
 
     .ante-dossier__proof {
@@ -1348,6 +1524,16 @@ const projectYear = (item: any) => {
       font-size: clamp(2rem, 6.9vw, 2.18rem);
       line-height: 1.14;
       text-wrap: pretty;
+    }
+
+    .ante-dossier__archive-intro h1 {
+      max-width: 100%;
+      font-size: clamp(1.82rem, 6.4vw, 2.08rem);
+    }
+
+    .ante-dossier__archive-intro aside {
+      border-left-width: 2px;
+      padding-left: 16px;
     }
 
     .ante-dossier__row-number {
