@@ -92,12 +92,12 @@ if (!antecedente) return Astro.redirect('/404');
 
 antecedente = curateAntecedente(antecedente);
 
-// --- Prepare data for UI (Directus-first) ---
+// --- Prepare data for UI (generated-case image first, Directus as fallback) ---
 const directusMainImageUrl = getAssetUrl(antecedente.Imagen || antecedente.ImagenPrincipal);
 const generatedMainImageUrl = getGeneratedAntecedenteImageUrl(antecedente.id) || getGeneratedAntecedenteImageUrl(antecedente.original_id);
-const mainImageUrl = directusMainImageUrl && !directusMainImageUrl.includes('default-background')
-    ? directusMainImageUrl
-    : generatedMainImageUrl || DEFAULT_IMAGE_URL;
+const mainImageUrl = generatedMainImageUrl
+    || (directusMainImageUrl && !directusMainImageUrl.includes('default-background') ? directusMainImageUrl : '')
+    || DEFAULT_IMAGE_URL;
 
 const formatDate = (dateString: string): string => {
     const formatted = formatAntecedenteDate(dateString);
