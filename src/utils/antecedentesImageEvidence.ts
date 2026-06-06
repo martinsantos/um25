@@ -48,9 +48,12 @@ function getDirectusImageId(image: SnapshotCase['Imagen']): string {
 }
 
 function getEvidenceImagePath(item: SnapshotCase): string {
+  const generatedImage = generatedMap[String(item.id)] || generatedMap[String(item.original_id || '')] || '';
+  if (generatedImage) return generatedImage;
+
   const directusImageId = getDirectusImageId(item.Imagen);
   if (directusImageId) return `/assets/${directusImageId}?v=${directusImageVersion}`;
-  return generatedMap[String(item.id)] || generatedMap[String(item.original_id || '')] || '';
+  return '';
 }
 
 export function getAntecedentesImageEvidenceEntries(): AntecedenteImageEvidenceEntry[] {

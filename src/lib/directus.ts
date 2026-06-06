@@ -623,13 +623,14 @@ export function getAntecedenteImageUrl(
   item: { id?: string | number | null; original_id?: string | number | null; Imagen?: string | { id?: string; directus_files_id?: string } | null } | null | undefined
 ): string {
   if (!item) return '/images/default-background.jpg';
+  const generatedImage = getGeneratedAntecedenteImageUrl(item.id) || getGeneratedAntecedenteImageUrl(item.original_id);
+  if (generatedImage) return generatedImage;
+
   const directusImageId = typeof item.Imagen === 'object'
     ? item.Imagen?.id || item.Imagen?.directus_files_id
     : item.Imagen;
   const directusImage = getDirectusImageUrl(directusImageId);
   if (directusImage && !directusImage.includes('default-background')) return directusImage;
-  const generatedImage = getGeneratedAntecedenteImageUrl(item.id) || getGeneratedAntecedenteImageUrl(item.original_id);
-  if (generatedImage) return generatedImage;
   return '/images/default-background.jpg';
 }
 

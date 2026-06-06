@@ -51,4 +51,18 @@ describe('generated antecedentes image integration', () => {
     expect(detail).toContain('getGeneratedAntecedenteImageUrl(antecedente.id)');
     expect(sectors).toContain('getAntecedenteImageUrl(item)');
   });
+
+  test('generated case images win over legacy Directus assets on public surfaces', () => {
+    const directus = fs.readFileSync(path.join(repoRoot, 'src/lib/directus.ts'), 'utf8');
+    const evidence = fs.readFileSync(path.join(repoRoot, 'src/utils/antecedentesImageEvidence.ts'), 'utf8');
+    const detail = fs.readFileSync(path.join(repoRoot, 'src/pages/antecedentes/[id]/[slug].astro'), 'utf8');
+
+    expect(directus.indexOf('const generatedImage = getGeneratedAntecedenteImageUrl')).toBeLessThan(
+      directus.indexOf('const directusImageId = typeof item.Imagen'),
+    );
+    expect(evidence.indexOf('const generatedImage = generatedMap')).toBeLessThan(
+      evidence.indexOf('const directusImageId = getDirectusImageId'),
+    );
+    expect(detail).toContain('const mainImageUrl = generatedMainImageUrl');
+  });
 });
