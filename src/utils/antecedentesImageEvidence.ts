@@ -12,6 +12,8 @@ interface SnapshotCase {
   Cliente?: string;
   Area?: string;
   Fecha?: string;
+  Imagen?: string | { id?: string; directus_files_id?: string } | null;
+  original_id?: number | string | null;
 }
 
 export interface AntecedenteImageEvidenceEntry {
@@ -32,10 +34,23 @@ function snapshotData<T>(snapshot: SnapshotRoot<T>): T[] {
 const antecedentes = snapshotData<SnapshotCase>(antecedentesSnapshot as SnapshotRoot<SnapshotCase>);
 const antecedentesById = new Map(antecedentes.map((item) => [Number(item.id), item]));
 const generatedMap = generatedAntecedenteImageMap as Record<string, string>;
+const directusImageVersion = '20260201';
 
 function cleanOptionalText(value: string | null | undefined): string | null {
   const normalized = String(value || '').replace(/\s+/g, ' ').trim();
   return normalized || null;
+}
+
+function getDirectusImageId(image: SnapshotCase['Imagen']): string {
+  if (!image) return '';
+  if (typeof image === 'string') return image;
+  return image.id || image.directus_files_id || '';
+}
+
+function getEvidenceImagePath(item: SnapshotCase): string {
+  const directusImageId = getDirectusImageId(item.Imagen);
+  if (directusImageId) return `/assets/${directusImageId}?v=${directusImageVersion}`;
+  return generatedMap[String(item.id)] || generatedMap[String(item.original_id || '')] || '';
 }
 
 export function getAntecedentesImageEvidenceEntries(): AntecedenteImageEvidenceEntry[] {
@@ -72,5 +87,66 @@ export function getAntecedentesImageEvidenceCoverage() {
     totalAntecedentes,
     missingGeneratedImages: Math.max(0, totalAntecedentes - entries.length),
     coverageRatio: Number(coverageRatio.toFixed(4)),
+  };
+}
+
+export function buildAntecedentesImageEvidenceEntries(items: SnapshotCase[]): AntecedenteImageEvidenceEntry[] {
+  return items
+    .map((item) => {
+      const id = Number(item.id);
+      const imagePath = getEvidenceImagePath(item);
+      const imageUrl = publicImageUrl(imagePath);
+
+      if (!Number.isFinite(id) || !item.Titulo || !imageUrl) return null;
+
+      return {
+        id,
+        title: item.Titulo,
+        pageUrl: canonicalUrl(`/antecedentes/${id}/${generateSlug(item.Titulo)}`),
+        imageUrl,
+        imagePath,
+        client: cleanOptionalText(item.Cliente),
+        sector: cleanOptionalText(item.Area),
+        date: cleanOptionalText(item.Fecha),
+      };
+    })
+    .filter((entry): entry is AntecedenteImageEvidenceEntry => Boolean(entry))
+    .sort((a, b) => a.id - b.id);
+}
+
+export function buildAntecedentesImageEvidenceCoverage(
+  entries: AntecedenteImageEvidenceEntry[],
+  totalAntecedentes: number,
+) {
+  const coverageRatio = totalAntecedentes > 0 ? entries.length / totalAntecedentes : 0;
+
+  return {
+    generatedImages: entries.length,
+    totalAntecedentes,
+    missingGeneratedImages: Math.max(0, totalAntecedentes - entries.length),
+    coverageRatio: Number(coverageRatio.toFixed(4)),
+  };
+}
+
+export async function getAntecedentesImageEvidenceEntriesFromDirectus(): Promise<AntecedenteImageEvidenceEntry[]> {
+  const { getAllAntecedentes } = await import('../lib/directus');
+  const items = await getAllAntecedentes();
+  return buildAntecedentesImageEvidenceEntries(items as SnapshotCase[]);
+}
+
+export async function getAntecedentesImageEvidenceCoverageFromDirectus() {
+  const { getAllAntecedentes } = await import('../lib/directus');
+  const items = await getAllAntecedentes();
+  const entries = buildAntecedentesImageEvidenceEntries(items as SnapshotCase[]);
+  return buildAntecedentesImageEvidenceCoverage(entries, items.length);
+}
+
+export async function getAntecedentesImageEvidenceDatasetFromDirectus() {
+  const { getAllAntecedentes } = await import('../lib/directus');
+  const items = await getAllAntecedentes();
+  const entries = buildAntecedentesImageEvidenceEntries(items as SnapshotCase[]);
+  return {
+    entries,
+    coverage: buildAntecedentesImageEvidenceCoverage(entries, items.length),
   };
 }

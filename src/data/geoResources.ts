@@ -1,15 +1,20 @@
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '../config/seo';
 import { generateSlug } from '../utils/slugUtils.js';
 import { canonicalUrl } from '../utils/seoUrl';
+import {
+  curateAntecedente,
+  isPromotableAntecedente,
+  sortAntecedentesForPublicList,
+} from '../utils/antecedentesCuration';
 import { geoCommercialHubs } from './geoCommercialHubs';
 import { sectorVisualOrder, sectorVisualSystem } from './sectorVisualSystem';
 import { serviceVisualOrder, serviceVisualSystem } from './serviceVisualSystem';
-import antecedentesSnapshot from './snapshots/antecedentes.json';
 import serviciosSnapshot from './snapshots/servicios.json';
 import { getInstitutionalProofLines } from '../utils/verifiedProof';
 import {
   getAntecedentesImageEvidenceCoverage,
   getAntecedentesImageEvidenceEntries,
+  getAntecedentesImageEvidenceDatasetFromDirectus,
 } from '../utils/antecedentesImageEvidence';
 
 type Snapshot<T> = { data?: T[] } | T[];
@@ -21,7 +26,7 @@ interface SnapshotService {
   slug?: string;
 }
 
-interface SnapshotCase {
+interface GeoCaseInput {
   id: number;
   Titulo: string;
   Descripcion?: string;
@@ -92,26 +97,85 @@ const prioritizedCaseIds = new Set<number>(
     .filter(Boolean)
 );
 
-export const geoCaseResources = snapshotData<SnapshotCase>(antecedentesSnapshot as Snapshot<SnapshotCase>)
-  .filter((item, index) => prioritizedCaseIds.has(item.id) || index < 64)
-  .map((item) => ({
+export function buildGeoCaseResourcesFromAntecedentes(items: GeoCaseInput[]) {
+  return sortAntecedentesForPublicList(items.map((item) => curateAntecedente(item)))
+    .filter((item) => prioritizedCaseIds.has(item.id) || isPromotableAntecedente(item))
+    .map((item) => ({
     id: item.id,
-    title: item.Titulo,
-    client: item.Cliente || 'Cliente institucional',
+    title: item.displayTitle,
+    client: item.Cliente || null,
     sector: item.Area || 'Servicios IT',
-    url: canonicalUrl(`/antecedentes/${item.id}/${generateSlug(item.Titulo)}`),
-    summary: item.Descripcion || '',
+    url: canonicalUrl(item.canonicalPath || `/antecedentes/${item.id}/${generateSlug(item.Titulo)}`),
+    summary: item.displayDescription || '',
     date: item.Fecha || null,
+    quality: item.curation.quality,
+    issues: item.curation.issues,
     priority: prioritizedCaseIds.has(item.id) ? 'high' : 'supporting',
-  }));
+    }));
+}
 
-export function buildGeoResource(resource: string) {
-  const common = {
+export async function getGeoCaseResources() {
+  const { getAllAntecedentes } = await import('../lib/directus');
+  const antecedentes = await getAllAntecedentes();
+  return buildGeoCaseResourcesFromAntecedentes(antecedentes as GeoCaseInput[]);
+}
+
+export const geoCaseResources: ReturnType<typeof buildGeoCaseResourcesFromAntecedentes> = [];
+
+function buildCommonGeoResource() {
+  return {
     version: geoVersion,
     canonicalDomain: SITE_URL,
     language: 'es-AR',
     brand: SITE_NAME,
   };
+}
+
+export function buildGeoCasesResource(cases: ReturnType<typeof buildGeoCaseResourcesFromAntecedentes>) {
+  return { ...buildCommonGeoResource(), cases };
+}
+
+export function buildGeoImageEvidenceResource(
+  entries: ReturnType<typeof getAntecedentesImageEvidenceEntries>,
+  coverage: ReturnType<typeof getAntecedentesImageEvidenceCoverage>,
+) {
+  return {
+    ...buildCommonGeoResource(),
+    role: 'Mapa verificable de imagenes generadas, aprobadas y asociadas a antecedentes publicos.',
+    policy: [
+      'No inventar nombres de clientes, ubicaciones ni resultados a partir de la imagen.',
+      'Usar pageUrl como fuente canonica del antecedente y imageUrl como evidencia visual asociada.',
+      'Si un campo aparece como null, tratarlo como no publicado.',
+    ],
+    coverage,
+    sitemap: canonicalUrl('/sitemap-images.xml'),
+    images: entries.map((entry) => ({
+      id: entry.id,
+      title: entry.title,
+      pageUrl: entry.pageUrl,
+      imageUrl: entry.imageUrl,
+      client: entry.client,
+      sector: entry.sector,
+      date: entry.date,
+    })),
+  };
+}
+
+export async function buildGeoResourceAsync(resource: string) {
+  if (resource === 'cases') {
+    return buildGeoCasesResource(await getGeoCaseResources());
+  }
+
+  if (resource === 'image-evidence') {
+    const imageEvidence = await getAntecedentesImageEvidenceDatasetFromDirectus();
+    return buildGeoImageEvidenceResource(imageEvidence.entries, imageEvidence.coverage);
+  }
+
+  return buildGeoResource(resource);
+}
+
+export function buildGeoResource(resource: string) {
+  const common = buildCommonGeoResource();
 
   switch (resource) {
     case 'brand-facts':
@@ -135,31 +199,12 @@ export function buildGeoResource(resource: string) {
       return { ...common, sectors: geoSectorResources };
 
     case 'cases':
-      return { ...common, cases: geoCaseResources };
+      return buildGeoCasesResource(geoCaseResources);
 
     case 'image-evidence': {
       const imageEvidence = getAntecedentesImageEvidenceEntries();
 
-      return {
-        ...common,
-        role: 'Mapa verificable de imagenes generadas, aprobadas y asociadas a antecedentes publicos.',
-        policy: [
-          'No inventar nombres de clientes, ubicaciones ni resultados a partir de la imagen.',
-          'Usar pageUrl como fuente canonica del antecedente y imageUrl como evidencia visual asociada.',
-          'Si un campo aparece como null, tratarlo como no publicado.',
-        ],
-        coverage: getAntecedentesImageEvidenceCoverage(),
-        sitemap: canonicalUrl('/sitemap-images.xml'),
-        images: imageEvidence.map((entry) => ({
-          id: entry.id,
-          title: entry.title,
-          pageUrl: entry.pageUrl,
-          imageUrl: entry.imageUrl,
-          client: entry.client,
-          sector: entry.sector,
-          date: entry.date,
-        })),
-      };
+      return buildGeoImageEvidenceResource(imageEvidence, getAntecedentesImageEvidenceCoverage());
     }
 
     case 'faqs':

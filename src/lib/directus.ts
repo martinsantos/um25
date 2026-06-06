@@ -7,6 +7,9 @@ import type {
 } from '../types/directus-v4';
 import { getDirectusInternalUrl, getDirectusToken, isLocalProdReplica } from '../config/runtime';
 
+const readItemsAny = readItems as any;
+const readItemAny = readItem as any;
+
 // SSR: misma máquina que Directus (prod :8055, réplica local vía túnel o localhost)
 export const DIRECTUS_CONFIG = {
   url: getDirectusInternalUrl(),
@@ -30,7 +33,7 @@ if (!DIRECTUS_CONFIG.url) {
 }
 
 if (!DIRECTUS_CONFIG.token && !isLocalProdReplica()) {
-  throw new Error('Configuración de Directus incompleta: falta PUBLIC_DIRECTUS_TOKEN o DIRECTUS_STATIC_TOKEN');
+  console.warn('[directus] Token ausente: se intentará lectura pública del CMS sin snapshots.');
 }
 
 // Exportar cliente con tipos para casos específicos
@@ -43,6 +46,51 @@ export const getClient = () => {
 
   return client.with(rest());
 };
+
+type DirectusJsonOptions = {
+  allowMissing?: boolean;
+};
+
+function getDirectusFetchHeaders(includeToken = true): Record<string, string> {
+  const headers: Record<string, string> = { Accept: 'application/json' };
+  if (includeToken && DIRECTUS_CONFIG.token) {
+    headers['Authorization'] = `Bearer ${DIRECTUS_CONFIG.token}`;
+  }
+  return headers;
+}
+
+async function requestDirectusJson<T>(
+  path: string,
+  options: DirectusJsonOptions = {},
+  includeToken = true,
+): Promise<T | null> {
+  const baseUrl = DIRECTUS_CONFIG.url.replace(/\/$/, '');
+  const response = await fetch(`${baseUrl}${path}`, {
+    headers: getDirectusFetchHeaders(includeToken),
+  });
+
+  if ((response.status === 401 || response.status === 403) && includeToken && DIRECTUS_CONFIG.token) {
+    console.warn(`[directus] Token rechazado para ${path}; reintentando lectura pública.`);
+    return requestDirectusJson<T>(path, options, false);
+  }
+
+  if (response.status === 404 && options.allowMissing) return null;
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => '');
+    throw new Error(`[directus] ${path} respondió ${response.status}: ${body.slice(0, 280)}`);
+  }
+
+  return response.json() as Promise<T>;
+}
+
+function directusDataArray<T>(payload: { data?: T[] } | null): T[] {
+  return Array.isArray(payload?.data) ? payload.data : [];
+}
+
+function directusDataItem<T>(payload: { data?: T } | null): T | null {
+  return payload?.data || null;
+}
 
 async function loadSnapshotData<T>(fileName: string): Promise<T[]> {
   const snapshot = await import(`../data/snapshots/${fileName}.json`);
@@ -121,6 +169,25 @@ type ArchivoDirectus = {
   alto?: number;
 };
 
+async function obtenerContenidoPublicado<T = unknown>(
+  coleccion: keyof Colecciones,
+  options: { limite?: number } = {},
+): Promise<T[]> {
+  try {
+    const client = getClient() as any;
+    const response = await client.request(
+      readItemsAny(coleccion, {
+        limit: options.limite ?? 10,
+        fields: ['*'],
+      }),
+    );
+    return (response || []) as T[];
+  } catch (error) {
+    console.error(`[directus] Error fetching ${String(coleccion)}:`, error);
+    return [];
+  }
+}
+
 // 6. Funciones específicas para cada colección (LEGACY - mantener por compatibilidad)
 export const getServicios = async (limite: number = 10) =>
   obtenerContenidoPublicado('servicios', { limite });
@@ -144,7 +211,7 @@ export async function getServiciosV4(): Promise<ServicioV4[]> {
   try {
     const client = getClient();
     const response = await client.request(
-      readItems('Servicios', {
+      readItemsAny('Servicios', {
         fields: [
           'id',
           'Titulo',
@@ -161,7 +228,7 @@ export async function getServiciosV4(): Promise<ServicioV4[]> {
       })
     );
 
-    const list = (response || []) as ServicioV4[];
+    const list = (response || []) as unknown as ServicioV4[];
     if (list.length > 0) return list;
 
     console.warn('[directus] Servicios vacíos desde API, usando snapshot');
@@ -188,7 +255,7 @@ export async function getServicioConProductos(id: number | string): Promise<Serv
 
     // Query 1: Obtener servicio
     const servicio = await client.request(
-      readItem('Servicios', id, {
+      readItemAny('Servicios', id, {
         fields: [
           'id',
           'Titulo',
@@ -257,7 +324,7 @@ export async function getProductoComercialBySlug(slug: string): Promise<Producto
   try {
     const client = getClient();
     const response = await client.request(
-      readItems('productos', {
+      readItemsAny('productos', {
         filter: {
           slug_producto: { _eq: slug }
         },
@@ -266,7 +333,7 @@ export async function getProductoComercialBySlug(slug: string): Promise<Producto
       })
     );
 
-    const [producto] = (response || []) as ProductoV4[];
+    const [producto] = (response || []) as unknown as ProductoV4[];
     if (!producto) return fallback;
 
     return {
@@ -288,34 +355,30 @@ export async function getProductoComercialBySlug(slug: string): Promise<Producto
  * Usado en página de detalle de antecedente (/antecedentes/[id]/[slug])
  */
 export async function getAntecedenteConServicios(id: number | string): Promise<AntecedenteV4 | null> {
-  const numId = Number(id);
   try {
-    const client = getClient();
-    const response = await client.request(
-      readItem('Antecedentes', id, {
-        fields: [
-          '*',
-          'servicios_relacionados.Servicios_id.id',
-          'servicios_relacionados.Servicios_id.Titulo',
-          'servicios_relacionados.Servicios_id.Descripcion',
-          'servicios_relacionados.Servicios_id.Imagen',
-          'servicios_relacionados.Servicios_id.Area',
-          'servicios_relacionados.orden',
-          'servicios_relacionados.destacado'
-        ]
-      })
+    const fields = [
+      '*',
+      'Imagen.*',
+      'ImagenPrincipal.*',
+      'Imagenes.*',
+      'Imagenes.directus_files_id',
+      'servicios_relacionados.Servicios_id.id',
+      'servicios_relacionados.Servicios_id.Titulo',
+      'servicios_relacionados.Servicios_id.Descripcion',
+      'servicios_relacionados.Servicios_id.Imagen',
+      'servicios_relacionados.Servicios_id.Area',
+      'servicios_relacionados.orden',
+      'servicios_relacionados.destacado',
+    ].join(',');
+    const payload = await requestDirectusJson<{ data?: AntecedenteV4 }>(
+      `/items/Antecedentes/${encodeURIComponent(String(id))}?fields=${encodeURIComponent(fields)}`,
+      { allowMissing: true },
     );
 
-    return response as AntecedenteV4;
+    return directusDataItem<AntecedenteV4>(payload);
   } catch (error) {
-    console.error(`Error fetching antecedente ${id} with services, trying snapshot:`, error);
-    try {
-      const allAntecedentes = await loadSnapshotData<AntecedenteV4>('antecedentes');
-      const antecedente = allAntecedentes.find((a: any) => Number(a.id) === numId);
-      return antecedente || null;
-    } catch {
-      return null;
-    }
+    console.error(`Error fetching antecedente ${id} with services from Directus:`, error);
+    throw error;
   }
 }
 
@@ -327,7 +390,7 @@ export async function getAntecedentesPorServicio(servicioId: number, limit: numb
   try {
     const client = getClient();
     const response = await client.request(
-      readItems('Antecedentes', {
+      readItemsAny('Antecedentes', {
         filter: {
           'servicios_relacionados.Servicios_id': { _eq: servicioId }
         },
@@ -343,7 +406,7 @@ export async function getAntecedentesPorServicio(servicioId: number, limit: numb
       })
     );
 
-    return (response || []) as AntecedenteV4[];
+    return (response || []) as unknown as AntecedenteV4[];
   } catch (error) {
     console.error(`Error fetching antecedentes for servicio ${servicioId}:`, error);
     return [];
@@ -378,7 +441,7 @@ export async function buscarServicios(query: string, area?: string): Promise<Ser
     }
 
     const response = await client.request(
-      readItems('Servicios', {
+      readItemsAny('Servicios', {
         filter: filters._and.length > 0 ? filters : undefined,
         fields: [
           'id',
@@ -394,7 +457,7 @@ export async function buscarServicios(query: string, area?: string): Promise<Ser
       })
     );
 
-    return (response || []) as ServicioV4[];
+    return (response || []) as unknown as ServicioV4[];
   } catch (error) {
     console.error('Error searching servicios:', error);
     return [];
@@ -409,14 +472,14 @@ export async function getAllProductos(): Promise<ProductoV4[]> {
   try {
     const client = getClient();
     const response = await client.request(
-      readItems('productos', {
+      readItemsAny('productos', {
         sort: ['servicio_id', 'orden'],
         fields: ['*', 'imagen.*'],
         limit: -1
       })
     );
 
-    return (response || []) as ProductoV4[];
+    return (response || []) as unknown as ProductoV4[];
   } catch (error) {
     console.error('Error fetching all productos:', error);
     return [];
@@ -431,14 +494,14 @@ export async function getHeroHomeImages() {
   try {
     const client = getClient();
     const response = await client.request(
-      readItems('Hero_Home', {
+      readItemsAny('Hero_Home', {
         sort: ['orden'],
         fields: ['id', 'titulo', 'orden', 'imagen'],
         limit: -1
       })
     );
 
-    return (response || []) as Array<{
+    return (response || []) as unknown as Array<{
       id: number;
       titulo: string;
       orden: number;
@@ -503,11 +566,8 @@ try {
   generatedAntecedenteImageMap = {};
 }
 
-// IMPORTANT: Directus /assets/ endpoint requires authentication (403 Forbidden)
-// We always use local images for service thumbnails instead of Directus assets
-// This avoids build-time vs runtime inconsistencies and auth issues
-const directusAssetsAvailable = false;
-console.log('[directus] Using local images for all service content (Directus assets require auth)');
+const directusAssetsAvailable = !import.meta.env?.DEV || isLocalProdReplica();
+console.log('[directus] Using Directus assets in public runtime; local maps remain development fallback');
 
 // Cache-bust version: incrementar cuando se actualizan imágenes en Directus
 const IMAGE_CACHE_VERSION = '20260201';
@@ -522,7 +582,7 @@ export function getDirectusImageUrl(imageId: string | null | undefined): string 
     return '';
   }
 
-  // Prioridad 1: Directus /assets/ (deshabilitado por 403 auth)
+  // Prioridad 1: Directus /assets/ en runtime público.
   if (directusAssetsAvailable) {
     return `/assets/${imageId}?v=${IMAGE_CACHE_VERSION}`;
   }
@@ -560,12 +620,17 @@ export function getGeneratedAntecedenteImageUrl(id: string | number | null | und
 }
 
 export function getAntecedenteImageUrl(
-  item: { id?: string | number | null; original_id?: string | number | null; Imagen?: string | null } | null | undefined
+  item: { id?: string | number | null; original_id?: string | number | null; Imagen?: string | { id?: string; directus_files_id?: string } | null } | null | undefined
 ): string {
   if (!item) return '/images/default-background.jpg';
+  const directusImageId = typeof item.Imagen === 'object'
+    ? item.Imagen?.id || item.Imagen?.directus_files_id
+    : item.Imagen;
+  const directusImage = getDirectusImageUrl(directusImageId);
+  if (directusImage && !directusImage.includes('default-background')) return directusImage;
   const generatedImage = getGeneratedAntecedenteImageUrl(item.id) || getGeneratedAntecedenteImageUrl(item.original_id);
   if (generatedImage) return generatedImage;
-  return getDirectusImageUrl(item.Imagen) || '/images/default-background.jpg';
+  return '/images/default-background.jpg';
 }
 
 /**
@@ -574,35 +639,25 @@ export function getAntecedenteImageUrl(
  */
 export async function getAllAntecedentes(): Promise<AntecedenteV4[]> {
   try {
-    const client = getClient();
-    const response = await client.request(
-      readItems('Antecedentes', {
-        fields: [
-          'id',
-          'Titulo',
-          'Descripcion',
-          'Cliente',
-          'Imagen',
-          'Area',
-          'Unidad_de_negocio',
-          'Fecha',
-          'Presupuesto',
-          'original_id'
-        ],
-        sort: ['-Fecha', '-id'],
-        limit: -1
-      })
+    const fields = [
+      'id',
+      'Titulo',
+      'Descripcion',
+      'Cliente',
+      'Imagen',
+      'Area',
+      'Unidad_de_negocio',
+      'Fecha',
+      'Presupuesto',
+      'original_id',
+    ].join(',');
+    const response = await requestDirectusJson<{ data?: AntecedenteV4[] }>(
+      `/items/Antecedentes?fields=${encodeURIComponent(fields)}&sort[]=-Fecha&sort[]=-id&limit=-1`,
     );
 
-    return (response || []) as AntecedenteV4[];
+    return directusDataArray<AntecedenteV4>(response);
   } catch (error) {
-    console.error('Error fetching antecedentes V4, trying snapshot:', error);
-    try {
-      const snapshot = await import('../data/snapshots/antecedentes.json');
-      const items = (snapshot.data || snapshot.default?.data || []) as AntecedenteV4[];
-      return items.sort((a, b) => {
-        return (b.Fecha || '').localeCompare(a.Fecha || '');
-      });
-    } catch { return []; }
+    console.error('Error fetching antecedentes V4 from Directus:', error);
+    throw error;
   }
 }
