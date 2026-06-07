@@ -537,8 +537,8 @@ export type { ServicioV4, ProductoV4, AntecedenteV4, AntecedenteServicioRelation
  * Convierte un UUID de imagen de Directus a URL utilizable.
  *
  * Estrategia:
- * 1. Si Directus disponible → /assets/{uuid} (Nginx proxy, 518 imágenes únicas)
- * 2. Si Directus caído → fallback a imagen local mapeada (image-local-map.json)
+ * 1. Si existe copia pública local mapeada → usarla (servicios, productos, hero)
+ * 2. Si no está mapeada y Directus disponible → /assets/{uuid} (Nginx proxy)
  *
  * El mapa local se genera con: node scripts/generate-image-map.mjs
  */
@@ -582,15 +582,16 @@ export function getDirectusImageUrl(imageId: string | null | undefined): string 
     return '';
   }
 
-  // Prioridad 1: Directus /assets/ en runtime público.
-  if (directusAssetsAvailable) {
-    return `/assets/${imageId}?v=${IMAGE_CACHE_VERSION}`;
-  }
-
-  // Prioridad 2: fallback local si Directus no disponible
+  // Prioridad 1: copia pública local cuando existe.
+  // Productos/servicios tienen UUIDs privados en Directus; /assets puede responder 403 en producción.
   const localPath = imageLocalMap[imageId];
   if (localPath) {
     return localPath;
+  }
+
+  // Prioridad 2: Directus /assets/ en runtime público cuando no hay copia local.
+  if (directusAssetsAvailable) {
+    return `/assets/${imageId}?v=${IMAGE_CACHE_VERSION}`;
   }
 
   // Réplica: convención pública de prod (/uploads/antecedentes/{uuid}.jpg)
