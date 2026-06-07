@@ -51,6 +51,19 @@ describe('CCTV AI product contract', () => {
     expect(fs.existsSync(path.join(root, 'public', imagePath))).toBe(true);
   });
 
+  test('directus image resolver prefers mapped public product assets before private /assets URLs', () => {
+    const directusSource = fs.readFileSync(path.join(root, 'src/lib/directus.ts'), 'utf8');
+    const mapLookupIndex = directusSource.indexOf('const localPath = imageLocalMap[imageId]');
+    const assetsFallbackIndex = directusSource.indexOf('return `/assets/${imageId}?v=${IMAGE_CACHE_VERSION}`');
+    const imageMap = require('../src/data/image-local-map.json');
+
+    expect(mapLookupIndex).toBeGreaterThan(-1);
+    expect(assetsFallbackIndex).toBeGreaterThan(-1);
+    expect(mapLookupIndex).toBeLessThan(assetsFallbackIndex);
+    expect(imageMap['07007b33-b8bd-4647-be53-ad7c97ef3ca6']).toBe('/images/services/productos/seguridad/2.1.png');
+    expect(fs.existsSync(path.join(root, 'public', imageMap['07007b33-b8bd-4647-be53-ad7c97ef3ca6']))).toBe(true);
+  });
+
   test('surfaces Producto on the services index', () => {
     const source = fs.readFileSync(path.join(root, 'src/pages/servicios/index.astro'), 'utf8');
 
