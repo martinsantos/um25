@@ -10,6 +10,8 @@ interface Props {
   year?: string;
   actionLabel?: string;
   imageLoading?: 'lazy' | 'eager';
+  eyebrow?: string;
+  recordTone?: 'case' | 'technical-record' | 'documentary-record' | 'editorial-review';
   /** KPIs opcionales (B1) — solo se muestran si hay datos reales */
   metrics?: Array<{ value: string; label: string }>;
 }
@@ -25,6 +27,8 @@ const {
   year = '—',
   actionLabel = 'Detalle',
   imageLoading = 'lazy',
+  eyebrow = '',
+  recordTone = 'case',
   metrics = [],
 } = Astro.props;
 
@@ -41,6 +45,7 @@ const visibleMetrics = (metrics || []).filter((m) => m?.value && m?.label).slice
     <span class="evidence-case-row__thumb evidence-case-row__thumb--empty" aria-hidden="true"></span>
   )}
   <div class="evidence-case-row__copy">
+    {eyebrow && <span class:list={['evidence-case-row__eyebrow', `is-${recordTone}`]}>{eyebrow}</span>}
     <h3>{title}</h3>
     {description && <p>{description}</p>}
     {visibleMetrics.length > 0 && (
@@ -129,6 +134,37 @@ const visibleMetrics = (metrics || []).filter((m) => m?.value && m?.label).slice
 
   .evidence-case-row__copy {
     min-width: 0;
+  }
+
+  .evidence-case-row__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 8px;
+    color: #4b5563;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .evidence-case-row__eyebrow::before {
+    content: "";
+    width: 18px;
+    height: 2px;
+    background: currentColor;
+  }
+
+  .evidence-case-row__eyebrow.is-case {
+    color: var(--um-red);
+  }
+
+  .evidence-case-row__eyebrow.is-documentary-record,
+  .evidence-case-row__eyebrow.is-technical-record {
+    color: #6b7280;
+  }
+
+  .evidence-case-row__eyebrow.is-editorial-review {
+    color: #92400e;
   }
 
   .evidence-case-row h3 {

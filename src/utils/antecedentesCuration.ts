@@ -7,10 +7,19 @@ export type AntecedenteQuality =
   | 'low-value-candidate'
   | 'data-error-candidate';
 
+export type AntecedenteRecordTone =
+  | 'case'
+  | 'technical-record'
+  | 'documentary-record'
+  | 'editorial-review';
+
 export interface AntecedenteCuration {
   quality: AntecedenteQuality;
   issues: string[];
   isPromotable: boolean;
+  recordTone: AntecedenteRecordTone;
+  recordLabel: string;
+  recordSummary: string;
   displayTitle: string;
   displayDescription: string;
   displayYear: string;
@@ -104,10 +113,48 @@ function fixKnownTextErrors(value: string): string {
     .replace(/\bTecnica\b/g, 'Técnica')
     .replace(/\btelefonico\b/g, 'telefónico')
     .replace(/\bTelefonico\b/g, 'Telefónico')
+    .replace(/\bprovision\b/g, 'provisión')
+    .replace(/\bProvision\b/g, 'Provisión')
     .replace(/\bAmpliacion\b/g, 'Ampliación')
     .replace(/\bampliacion\b/g, 'ampliación')
     .replace(/\bmodulo\b/g, 'módulo')
     .replace(/\bModulo\b/g, 'Módulo');
+}
+
+export function getAntecedenteRecordTone(quality: AntecedenteQuality): {
+  tone: AntecedenteRecordTone;
+  label: string;
+  summary: string;
+} {
+  if (quality === 'strong-case') {
+    return {
+      tone: 'case',
+      label: 'Caso operativo',
+      summary: 'Antecedente con cliente, sector, fecha y alcance suficientes para lectura comercial.',
+    };
+  }
+
+  if (quality === 'low-value-candidate') {
+    return {
+      tone: 'documentary-record',
+      label: 'Registro documental',
+      summary: 'Registro real de provisión o intervención menor; se muestra sin sobredimensionar su alcance.',
+    };
+  }
+
+  if (quality === 'data-error-candidate') {
+    return {
+      tone: 'editorial-review',
+      label: 'Revisión editorial',
+      summary: 'Registro real con señal de error o truncamiento en el dato fuente; requiere revisión en CMS.',
+    };
+  }
+
+  return {
+    tone: 'technical-record',
+    label: 'Registro técnico',
+    summary: 'Antecedente real con información útil, pero sin profundidad completa de caso estratégico.',
+  };
 }
 
 function uniqueIssues(issues: string[]): string[] {
@@ -242,6 +289,7 @@ function classifyAntecedente(item: Record<string, any>, issues: string[]): Antec
 export function curateAntecedente<T extends Record<string, any>>(item: T): CuratedAntecedente<T> {
   const issues = getAntecedenteIssues(item);
   const quality = classifyAntecedente(item, issues);
+  const recordTone = getAntecedenteRecordTone(quality);
   const displayTitle = buildDisplayTitle(item);
   const displayDescription = buildDisplayDescription(item, displayTitle);
   const slug = generateSlug(cleanAntecedenteText(item.Titulo || item.Nombre || displayTitle));
@@ -250,6 +298,9 @@ export function curateAntecedente<T extends Record<string, any>>(item: T): Curat
     quality,
     issues,
     isPromotable: quality === 'strong-case',
+    recordTone: recordTone.tone,
+    recordLabel: recordTone.label,
+    recordSummary: recordTone.summary,
     displayTitle,
     displayDescription,
     displayYear: formatAntecedenteYear(item.Fecha),

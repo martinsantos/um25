@@ -26,8 +26,10 @@ describe('antecedentes curation', () => {
     const discoDuro = curateAntecedente(byId(3591));
 
     expect(softwareGobierno.curation.quality).toBe('strong-case');
+    expect(softwareGobierno.curation.recordLabel).toBe('Caso operativo');
     expect(isPromotableAntecedente(softwareGobierno)).toBe(true);
     expect(pcMonitor.curation.quality).toBe('low-value-candidate');
+    expect(pcMonitor.curation.recordLabel).toBe('Registro documental');
     expect(discoDuro.curation.quality).toBe('low-value-candidate');
     expect(isPromotableAntecedente(pcMonitor)).toBe(false);
   });
