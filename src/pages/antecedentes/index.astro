@@ -171,7 +171,9 @@ try {
   let spotlightAntecedentes;
   let archivePool;
 
-  if (pageData.currentPage === 1 && !hasActiveFilters) {
+  const isLandingPage = pageData.currentPage === 1 && !hasActiveFilters;
+
+  if (isLandingPage) {
     const promotableAntecedentes = filteredAntecedentes.filter(isPromotableAntecedente);
     const spotlightSource = promotableAntecedentes.length > 0 ? promotableAntecedentes : filteredAntecedentes;
     featuredAntecedente = pickProtagonistAntecedente(spotlightSource);
@@ -184,8 +186,8 @@ try {
     const spotlightIds = new Set(spotlightAntecedentes.map((item) => item.id));
     archivePool = filteredAntecedentes.filter((item) => !spotlightIds.has(item.id));
   } else {
-    spotlightAntecedentes = filteredAntecedentes.slice(0, 3);
-    archivePool = filteredAntecedentes.slice(3);
+    spotlightAntecedentes = [];
+    archivePool = filteredAntecedentes;
   }
 
   const archiveStartIndex = (pageData.currentPage - 1) * PAGE_SIZE;
@@ -199,6 +201,8 @@ try {
     catalogTotalItems: allAntecedentes.length,
     archiveTotalItems: archivePool.length,
     totalPages: Math.max(1, Math.ceil(archivePool.length / PAGE_SIZE)),
+    hasActiveFilters,
+    isLandingPage,
     error: null,
     isLoading: false
   };
@@ -209,6 +213,8 @@ try {
     antecedentes: [],
     spotlightAntecedentes: [],
     archiveTotalItems: 0,
+    hasActiveFilters: false,
+    isLandingPage: false,
     error: 'Error loading projects',
     isLoading: false
   };
@@ -233,11 +239,56 @@ const filterChips = [
   { id: 'software', name: 'Software', icon: 'code' },
 ];
 
+const hasActiveArchiveFilters = Boolean(searchQuery || areaFilter || unidadFilter || sectorFilter);
+const activeSectorName = sectorFilter
+  ? filterChips.find((chip) => chip.id === sectorFilter)?.name || ''
+  : '';
+const isSearchResultPage = Boolean(searchQuery);
+
+const buildCanonicalPageUrl = (page: number) => {
+  const params = new URLSearchParams();
+  if (!isSearchResultPage) {
+    if (sectorFilter) params.set('sector', sectorFilter);
+    if (areaFilter) params.set('area', areaFilter);
+    if (unidadFilter) params.set('unidad_negocio', unidadFilter);
+  }
+  if (page > 1) params.set('page', String(page));
+  const query = params.toString();
+  return canonicalUrl(`/antecedentes${query ? `?${query}` : ''}`);
+};
+
+const currentCanonicalUrl = isSearchResultPage
+  ? canonicalUrl('/antecedentes')
+  : buildCanonicalPageUrl(pageData.currentPage);
+const previousPageUrl = !isSearchResultPage && pageData.currentPage > 1
+  ? buildCanonicalPageUrl(pageData.currentPage - 1)
+  : '';
+const nextPageUrl = !isSearchResultPage && pageData.currentPage < pageData.totalPages
+  ? buildCanonicalPageUrl(pageData.currentPage + 1)
+  : '';
+
+const pageTitle = pageData.currentPage > 1
+  ? `Archivo de antecedentes - página ${pageData.currentPage} | ULTIMA MILLA`
+  : activeSectorName
+    ? `Antecedentes en ${activeSectorName} | ULTIMA MILLA`
+    : hasActiveArchiveFilters
+      ? 'Archivo filtrado de antecedentes | ULTIMA MILLA'
+      : 'Evidencia operativa documentada | ULTIMA MILLA';
+
+const pageDescription = pageData.currentPage > 1
+  ? `Archivo documental de antecedentes técnicos de ULTIMA MILLA, página ${pageData.currentPage}: registros reales con cliente, sector, fecha e imagen asociada.`
+  : activeSectorName
+    ? `Antecedentes técnicos de ULTIMA MILLA relacionados con ${activeSectorName}: casos y registros reales con cliente, sector, fecha e imagen.`
+    : hasActiveArchiveFilters
+      ? 'Archivo filtrado de antecedentes técnicos de ULTIMA MILLA con registros reales, cliente, sector, fecha e imagen asociada.'
+      : 'Antecedentes técnicos de ULTIMA MILLA: proyectos reales de redes, seguridad electrónica, telecomunicaciones, software, soporte e infraestructura IT.';
+
 const templateVariant = getDevTemplateVariant(Astro.url, import.meta.env.DEV) ?? 'editorial';
 const visibleAntecedentes = [
   ...(pageData.spotlightAntecedentes || []),
   ...(pageData.antecedentes || []),
 ].slice(0, 6);
+const pageOgImage = visibleAntecedentes.find((item: any) => item.imageUrl)?.imageUrl || '/nosotros-tech.jpg';
 const crawlableAntecedenteIndex = allAntecedentesForIndex
   .map((item) => ({
     id: item.id,
@@ -258,36 +309,47 @@ const antecedentesStrategicLinkGroups = buildCaseStrategicLinkGroups({
   })),
 });
 const antecedentesStructuredData = buildStrategicWebPageStructuredData({
-  url: 'https://www.ultimamilla.com.ar/antecedentes',
-  name: 'Evidencia operativa documentada',
-  description: 'Antecedentes técnicos de redes, seguridad electrónica, telecomunicaciones, software, soporte e infraestructura IT.',
+  url: currentCanonicalUrl,
+  name: pageTitle.replace(/\s+\|\s+ULTIMA MILLA$/, ''),
+  description: pageDescription,
   groups: antecedentesStrategicLinkGroups,
 });
+const structuredPageItems = [
+  ...(pageData.spotlightAntecedentes || []),
+  ...(pageData.antecedentes || []),
+];
+const structuredPositionOffset = pageData.currentPage > 1 ? (pageData.currentPage - 1) * PAGE_SIZE : 0;
 const antecedentesCollectionStructuredData = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
-  name: 'Evidencia operativa documentada',
-  description: 'Archivo curado de antecedentes técnicos de ULTIMA MILLA con cliente, sector, fecha, imagen asociada y enlace canónico.',
-  url: canonicalUrl('/antecedentes'),
+  name: pageTitle.replace(/\s+\|\s+ULTIMA MILLA$/, ''),
+  description: pageDescription,
+  url: currentCanonicalUrl,
   inLanguage: 'es-AR',
   mainEntity: {
     '@type': 'ItemList',
     numberOfItems: allAntecedentesForIndex.length,
     itemListOrder: 'https://schema.org/ItemListOrderDescending',
-    itemListElement: allAntecedentesForIndex
-      .filter(isPromotableAntecedente)
-      .slice(0, 48)
-      .map((item, index) => buildAntecedenteListItemStructuredData(item, index + 1)),
+    itemListElement: structuredPageItems
+      .slice(0, 24)
+      .map((item, index) => buildAntecedenteListItemStructuredData(item, structuredPositionOffset + index + 1)),
   },
 };
 ---
 
 <LayoutV4
-  title="Evidencia operativa documentada | ULTIMA MILLA"
-  description="Antecedentes técnicos de ULTIMA MILLA: proyectos reales de redes, seguridad electrónica, telecomunicaciones, software, soporte e infraestructura IT."
+  title={pageTitle}
+  description={pageDescription}
   keywords="casos exito tecnologia mendoza, proyectos telecomunicaciones, antecedentes cableado estructurado, portfolio seguridad electronica, software a medida casos"
+  image={pageOgImage}
+  canonical={currentCanonicalUrl}
+  noindex={isSearchResultPage}
   structuredData={[antecedentesStructuredData, antecedentesCollectionStructuredData]}
 >
+  <Fragment slot="head">
+    {previousPageUrl && <link rel="prev" href={previousPageUrl} />}
+    {nextPageUrl && <link rel="next" href={nextPageUrl} />}
+  </Fragment>
   {templateVariant === 'atlas' && (
     <AntecedentesTemplateAtlas
       pageData={pageData}
