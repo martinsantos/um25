@@ -165,7 +165,7 @@ function hasInvalidModalProof(data: Record<string, unknown>): boolean {
   if (formVariant !== 'modal') return false;
 
   const proof = trimString(data.contactProof, 180);
-  return !/^\d{12,}:\d{1,8}(?::[a-z]{2}(?:-[A-Z]{2})?)?$/i.test(proof);
+  return !/^\d{12,17}:\d{1,16}(?::[A-Za-z0-9-]{2,35})?$/.test(proof);
 }
 
 function buildEmailHtml(data: {
