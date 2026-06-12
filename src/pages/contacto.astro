@@ -115,13 +115,14 @@ const structuredData = {
           <div class="contact-submit-row">
             <button type="submit" class="um-btn-primary contact-submit">Enviar consulta</button>
           </div>
-          <p class="contact-submit-note">No usamos captcha visible. El filtro antispam corre en segundo plano.</p>
+          <p class="contact-submit-note">No usamos captcha visible. Si algo falla, podés enviar el mismo contexto por email.</p>
 
           <div id="successMessage" class="form-message success hidden" role="status">
             Mensaje enviado. Vamos a responder por email con próximos pasos.
           </div>
           <div id="errorMessage" class="form-message error hidden" role="alert">
-            No se pudo enviar. Revisá los datos o usá el canal de email.
+            No se pudo enviar.
+            <a href="mailto:contacto@ultimamilla.com.ar?subject=Consulta%20desde%20la%20web%20ULTIMA%20MILLA">Enviar por email</a>
           </div>
         </form>
       </article>
@@ -244,6 +245,38 @@ const structuredData = {
     errorMessage?.classList.add('hidden');
   }
 
+  function buildFallbackMailto(data = {}) {
+    const name = String(data.name || '').trim();
+    const email = String(data.email || '').trim();
+    const company = String(data.company || '').trim();
+    const message = String(data.message || '').trim();
+    const body = [
+      'Hola ULTIMA MILLA,',
+      '',
+      'No pude enviar el formulario desde la web. Dejo la consulta por email:',
+      '',
+      name ? `Nombre: ${name}` : '',
+      email ? `Email: ${email}` : '',
+      company ? `Empresa u organismo: ${company}` : '',
+      '',
+      message,
+      '',
+      `Origen: ${window.location.href}`
+    ].filter(Boolean).join('\n');
+
+    return `mailto:contacto@ultimamilla.com.ar?subject=${encodeURIComponent('Consulta desde la web ULTIMA MILLA')}&body=${encodeURIComponent(body)}`;
+  }
+
+  function showSubmitError(message, data = {}) {
+    if (!errorMessage) return;
+    errorMessage.textContent = `${message || 'No se pudo enviar.'} `;
+    const link = document.createElement('a');
+    link.href = buildFallbackMailto(data);
+    link.textContent = 'Enviar por email';
+    errorMessage.append(link);
+    errorMessage.classList.remove('hidden');
+  }
+
   const intentSubjects: Record<string, string> = {
     diagnostico: 'Diagnóstico / incidente',
     relevamiento: 'Relevamiento técnico',
@@ -340,13 +373,10 @@ const structuredData = {
           }
           successMessage?.classList.remove('hidden');
         } else {
-          if (errorMessage) {
-            errorMessage.textContent = result.message || 'No se pudo enviar. Revisá los datos.';
-            errorMessage.classList.remove('hidden');
-          }
+          showSubmitError(result.message || 'No se pudo enviar. Revisá los datos.', data);
         }
       } catch {
-        errorMessage?.classList.remove('hidden');
+        showSubmitError('No se pudo enviar. Usá el email directo.', data);
       } finally {
         if (submitButton instanceof HTMLButtonElement) {
           submitButton.disabled = false;
@@ -749,6 +779,13 @@ const structuredData = {
     border-color: rgba(185,28,28,0.28);
     background: #FEF2F2;
     color: #111111;
+  }
+
+  .form-message a {
+    color: #B91C1C;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   .hidden {
