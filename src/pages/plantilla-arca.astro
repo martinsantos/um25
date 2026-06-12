@@ -23,6 +23,7 @@ import PDFPreview from '@/components/arca/PDFPreview.astro';
 import EmailInput from '@/components/arca/EmailInput.astro';
 import ResultadoGeneracion from '@/components/arca/ResultadoGeneracion.astro';
 import AfipAuthForm from '@/components/arca/AfipAuthForm.astro';
+import { editorialImageDimensions, editorialImages } from '@/data/editorialImageSystem';
 
 export const prerender = false; // SSR necesario para manejo de formularios
 
@@ -38,7 +39,9 @@ const keywords =
   {title}
   {description}
   {keywords}
-  image="/arca-hero.jpg"
+  image={editorialImages.sectors.software}
+  imageWidth={editorialImageDimensions.width}
+  imageHeight={editorialImageDimensions.height}
   ogType="website"
 >
   <main class="arca-page">

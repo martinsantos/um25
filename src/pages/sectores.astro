@@ -3,6 +3,7 @@ import LayoutV4 from '../layouts/LayoutV4.astro';
 import SectorTemplateEditorial from '../components/templates/SectorTemplateEditorial.astro';
 import SectorTemplateAtlas from '../components/templates/SectorTemplateAtlas.astro';
 import { sectorVisualOrder, sectorVisualSystem } from '../data/sectorVisualSystem';
+import { editorialImages, editorialImageDimensions } from '../data/editorialImageSystem';
 import { getDevTemplateVariant } from '../utils/templateVariant';
 import { isReplicaIdenticalCopy } from '../utils/replicaProdCopy';
 import {
@@ -63,6 +64,9 @@ const structuredData = [
   title="Infraestructura IT por sector, con evidencia operativa | ULTIMA MILLA"
   description="Soluciones IT por industria: infraestructura, seguridad electrónica, telecomunicaciones, software y soporte para aeropuertos, bodegas, gobierno, salud, construcción, industria y minería."
   keywords="soluciones IT por sector, tecnologia para aeropuertos, bodegas, gobierno, salud, construccion, industria, mineria, seguridad electronica, software empresarial"
+  image={editorialImages.sectors.aeropuertos}
+  imageWidth={editorialImageDimensions.width}
+  imageHeight={editorialImageDimensions.height}
   structuredData={structuredData}
 >
   {

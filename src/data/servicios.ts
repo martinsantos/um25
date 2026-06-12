@@ -1,3 +1,5 @@
+import { editorialImages } from './editorialImageSystem';
+
 export interface Servicio {
     titulo: string;
     slug: string;
@@ -11,7 +13,7 @@ const servicios: Servicio[] = [
         titulo: 'Ciberseguridad',
         slug: 'ciberseguridad',
         descripcionCorta: 'Protege tu empresa con nuestras soluciones integrales de ciberseguridad',
-        imagen: '/img/servicios/ciberseguridad.jpg',
+        imagen: editorialImages.sectors['seguridad-electronica'],
         caracteristicas: [
             'Auditoría de seguridad',
             'Protección contra malware',
@@ -23,7 +25,7 @@ const servicios: Servicio[] = [
         titulo: 'Cloud Computing',
         slug: 'cloud-computing',
         descripcionCorta: 'Soluciones en la nube para optimizar y escalar su negocio',
-        imagen: '/img/servicios/cloud.jpg',
+        imagen: editorialImages.homeHero,
         caracteristicas: [
             'Migración a la nube',
             'IaaS, PaaS, SaaS',
@@ -35,7 +37,7 @@ const servicios: Servicio[] = [
         titulo: 'Desarrollo de Software',
         slug: 'desarrollo-software',
         descripcionCorta: 'Soluciones de software personalizadas para impulsar su negocio',
-        imagen: '/img/servicios/desarrollo.jpg',
+        imagen: editorialImages.sectors.software,
         caracteristicas: [
             'Desarrollo web',
             'Aplicaciones móviles',
@@ -47,7 +49,7 @@ const servicios: Servicio[] = [
         titulo: 'Consultoría IT',
         slug: 'consultoria-it',
         descripcionCorta: 'Asesoramiento estratégico para la transformación digital',
-        imagen: '/img/servicios/consultoria.jpg',
+        imagen: editorialImages.aboutHero,
         caracteristicas: [
             'Transformación digital',
             'Optimización de procesos',
@@ -59,7 +61,7 @@ const servicios: Servicio[] = [
         titulo: 'Infraestructura',
         slug: 'infraestructura',
         descripcionCorta: 'Soluciones de infraestructura robustas y escalables',
-        imagen: '/img/servicios/infraestructura.jpg',
+        imagen: editorialImages.services[101],
         caracteristicas: [
             'Redes y comunicaciones',
             'Servidores y virtualización',
@@ -71,7 +73,7 @@ const servicios: Servicio[] = [
         titulo: 'Soporte Técnico',
         slug: 'soporte-tecnico',
         descripcionCorta: 'Asistencia técnica especializada 24/7',
-        imagen: '/img/servicios/soporte.jpg',
+        imagen: editorialImages.services[105],
         caracteristicas: [
             'Help desk',
             'Soporte remoto',

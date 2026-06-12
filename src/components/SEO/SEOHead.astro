@@ -10,6 +10,7 @@
  */
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, BUSINESS_ADDRESS } from '../../config/seo';
 import { resolveEnglishPath, resolveSpanishPath } from '../../config/i18nRoutes';
+import { editorialImages, editorialImageDimensions } from '../../data/editorialImageSystem';
 import { canonicalUrl as toCanonicalUrl, clampText, publicImageUrl, stripWww } from '../../utils/seoUrl';
 
 export interface Props {
@@ -98,10 +99,10 @@ const pageKeywords = keywords ?? defaultKeywords;
 // ---------------------------------------------------------------------------
 // OG Image — ensure absolute URL
 // ---------------------------------------------------------------------------
-const rawImage = ogImage || '/nosotros-tech.jpg';
-const pageImage = publicImageUrl(rawImage) || `${SITE_URL}/nosotros-tech.jpg`;
-const normalizedOgImageWidth = typeof ogImageWidth === 'number' && Number.isFinite(ogImageWidth) ? String(ogImageWidth) : null;
-const normalizedOgImageHeight = typeof ogImageHeight === 'number' && Number.isFinite(ogImageHeight) ? String(ogImageHeight) : null;
+const rawImage = ogImage || editorialImages.defaultOg;
+const pageImage = publicImageUrl(rawImage) || `${SITE_URL}${editorialImages.defaultOg}`;
+const normalizedOgImageWidth = typeof ogImageWidth === 'number' && Number.isFinite(ogImageWidth) ? String(ogImageWidth) : String(editorialImageDimensions.width);
+const normalizedOgImageHeight = typeof ogImageHeight === 'number' && Number.isFinite(ogImageHeight) ? String(ogImageHeight) : String(editorialImageDimensions.height);
 
 // ---------------------------------------------------------------------------
 // Timestamps
