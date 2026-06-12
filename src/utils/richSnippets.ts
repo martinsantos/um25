@@ -64,7 +64,7 @@ export function generateArticleSchema(post: any, url: URL) {
             name: 'Última Milla',
             logo: {
                 '@type': 'ImageObject',
-                url: new URL('/images/logo.png', url.origin).toString()
+                url: new URL('/images/um-logo.png', url.origin).toString()
             }
         },
         mainEntityOfPage: {
@@ -91,7 +91,7 @@ export function generateServiceSchema(service: any, url: URL) {
             url: url.origin,
             logo: {
                 '@type': 'ImageObject',
-                url: new URL('/images/logo.png', url.origin).toString()
+                url: new URL('/images/um-logo.png', url.origin).toString()
             }
         },
         areaServed: 'Argentina',

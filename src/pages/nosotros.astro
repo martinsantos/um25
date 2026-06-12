@@ -3,6 +3,7 @@ import LayoutV4 from '../layouts/LayoutV4.astro';
 import MetricStrip from '../components/um/MetricStrip.astro';
 import SectionHeader from '../components/um/SectionHeader.astro';
 import UMButton from '../components/um/UMButton.astro';
+import { editorialImages, editorialImageDimensions } from '../data/editorialImageSystem';
 import { resolveReplicaH1 } from '../utils/replicaProdCopy';
 import { getAntecedentesCountShort } from '../utils/verifiedProof';
 
@@ -42,6 +43,9 @@ const structuredData = {
   title="Una empresa técnica para operaciones que no pueden detenerse | ULTIMA MILLA"
   description="ULTIMA MILLA integra redes, telecomunicaciones, seguridad electrónica, software, soporte y consultoría IT para empresas con operación crítica en Argentina."
   keywords="empresa servicios IT, Ultima Milla, infraestructura tecnologica, telecomunicaciones, seguridad electronica, software, soporte IT Mendoza Argentina"
+  image={editorialImages.aboutHero}
+  imageWidth={editorialImageDimensions.width}
+  imageHeight={editorialImageDimensions.height}
   structuredData={structuredData}
 >
   <section class="about-hero">
@@ -72,7 +76,7 @@ const structuredData = {
 
   <section class="about-image-band" aria-label="Infraestructura ULTIMA MILLA">
     <div class="um-container">
-      <img src="/uploads/antecedentes/0021d14f-3f8a-4e39-9a03-dad7c8681c0d.jpg" alt="Rack de comunicaciones y cableado técnico instalado por ULTIMA MILLA" loading="eager" fetchpriority="high" decoding="async" width="1200" height="675" />
+      <img src={editorialImages.aboutHero} alt="Documentación técnica e infraestructura operativa de ULTIMA MILLA" loading="eager" fetchpriority="high" decoding="async" width={editorialImageDimensions.width} height={editorialImageDimensions.height} />
     </div>
   </section>
 
@@ -118,7 +122,7 @@ const structuredData = {
   <section class="about-capabilities">
     <div class="um-container about-capabilities__grid">
       <div class="about-capabilities__media">
-        <img src="/uploads/antecedentes/06b069ad-dab6-4d04-84b7-150465976a4a.jpg" alt="Infraestructura eléctrica y de datos para sistemas IT" loading="lazy" />
+        <img src={editorialImages.aboutCapabilities} alt="Infraestructura eléctrica, cableado y control para sistemas IT" loading="lazy" width={editorialImageDimensions.width} height={editorialImageDimensions.height} />
       </div>
       <div>
         <SectionHeader kicker="Capacidad conectada" title="Una mesa técnica para resolver el sistema completo" />

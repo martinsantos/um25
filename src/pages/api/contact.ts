@@ -4,13 +4,9 @@ import nodemailer from 'nodemailer';
 const rateLimitMap = new Map<string, number[]>();
 const duplicateMap = new Map<string, number>();
 const RATE_LIMIT_WINDOW = 15 * 60 * 1000;
-const MAX_REQUESTS_PER_WINDOW = 5;
+const MAX_REQUESTS_PER_WINDOW = 30;
 const DUPLICATE_WINDOW = 2 * 60 * 1000;
-const MIN_FORM_SECONDS = 2.5;
-const MAX_FORM_AGE_MS = 2 * 60 * 60 * 1000;
-const MESSAGE_MIN_LENGTH = 12;
 const MESSAGE_MAX_LENGTH = 2400;
-const MAX_LINKS = 2;
 
 function processEnv(name: string): string | undefined {
   return typeof process !== 'undefined' ? process.env[name] : undefined;
@@ -71,60 +67,6 @@ function escapeHtml(value: string): string {
   }[char] || char));
 }
 
-function countLinks(message: string): number {
-  return (message.match(/https?:\/\/|www\.|\.com\b|\.ar\b/gi) || []).length;
-}
-
-function isInvalidFormTiming(startedAt: unknown): boolean {
-  if (!startedAt) {
-    return false;
-  }
-
-  const startedAtMs = Number(startedAt);
-  if (!Number.isFinite(startedAtMs) || startedAtMs <= 0) {
-    return true;
-  }
-
-  const age = Date.now() - startedAtMs;
-  return age < MIN_FORM_SECONDS * 1000 || age > MAX_FORM_AGE_MS;
-}
-
-function isSpam(data: Record<string, unknown>): boolean {
-  const spamKeywords = [
-    'viagra',
-    'casino',
-    'lottery',
-    'winner',
-    'congratulations',
-    'act now',
-    'free money',
-    'click here',
-    'crypto',
-    'seo backlinks'
-  ];
-  const message = trimString(data.message, MESSAGE_MAX_LENGTH).toLowerCase();
-  const name = trimString(data.name, 120).toLowerCase();
-  const email = trimString(data.email, 140).toLowerCase();
-
-  if (message.length < MESSAGE_MIN_LENGTH) {
-    return true;
-  }
-
-  if (countLinks(message) > MAX_LINKS) {
-    return true;
-  }
-
-  if (/^[0-9@#$%^&*()_+=|\\/:;.,!?-]+$/.test(name)) {
-    return true;
-  }
-
-  if (email.includes('temp') || email.includes('disposable') || email.includes('10minute')) {
-    return true;
-  }
-
-  return spamKeywords.some((keyword) => message.includes(keyword) || name.includes(keyword));
-}
-
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
   const userRequests = rateLimitMap.get(ip) || [];
@@ -154,18 +96,6 @@ function isDuplicateSubmission(email: string, message: string): boolean {
   duplicateMap.set(normalized, now);
 
   return Boolean(previous && now - previous < DUPLICATE_WINDOW);
-}
-
-function hasHoneypot(data: Record<string, unknown>): boolean {
-  return trimString(data.website, 500).length > 0 || trimString(data.contact_phone, 500).length > 0;
-}
-
-function hasInvalidModalProof(data: Record<string, unknown>): boolean {
-  const formVariant = trimString(data.formVariant, 40);
-  if (formVariant !== 'modal') return false;
-
-  const proof = trimString(data.contactProof, 180);
-  return !/^\d{12,}:\d{1,8}(?::[a-z]{2}(?:-[A-Z]{2})?)?$/i.test(proof);
 }
 
 function buildEmailHtml(data: {
@@ -270,27 +200,6 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       }
     }
 
-    if (hasHoneypot(data)) {
-      return jsonResponse({
-        success: true,
-        message: 'Mensaje enviado exitosamente'
-      });
-    }
-
-    if (isInvalidFormTiming(data.startedAt)) {
-      return jsonResponse({
-        success: false,
-        message: 'El formulario no pudo validarse. Intenta nuevamente.'
-      }, 400);
-    }
-
-    if (hasInvalidModalProof(data)) {
-      return jsonResponse({
-        success: false,
-        message: 'No se pudo validar el formulario. Recarga la página e intenta nuevamente.'
-      }, 400);
-    }
-
     const rawMessage = String(data.message || '').trim();
     const name = trimString(data.name, 100);
     const email = trimString(data.email, 120).toLowerCase();
@@ -321,13 +230,6 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       return jsonResponse({
         success: false,
         message: 'El mensaje es demasiado extenso.'
-      }, 400);
-    }
-
-    if (isSpam({ ...data, name, email, message })) {
-      return jsonResponse({
-        success: false,
-        message: 'El mensaje no pasó el filtro antispam. Revisá el contenido e intenta nuevamente.'
       }, 400);
     }
 

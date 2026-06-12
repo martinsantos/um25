@@ -98,7 +98,8 @@ import { Send, X } from 'lucide-astro';
           Mensaje enviado. Respondemos por email con el próximo paso.
         </div>
         <div class="um-contact-message um-contact-message--error" role="alert" hidden>
-          No se pudo enviar. Revisá los datos o usá la página de contacto.
+          No se pudo enviar.
+          <a href="mailto:contacto@ultimamilla.com.ar?subject=Consulta%20desde%20la%20web%20ULTIMA%20MILLA">Enviar por email</a>
         </div>
       </form>
     </div>
@@ -238,6 +239,41 @@ import { Send, X } from 'lucide-astro';
       });
       if (successMessage instanceof HTMLElement) successMessage.hidden = true;
       if (errorMessage instanceof HTMLElement) errorMessage.hidden = true;
+    }
+
+    function buildFallbackMailto() {
+      const name = normalizeText(field('name')?.value);
+      const email = normalizeText(field('email')?.value);
+      const company = normalizeText(field('company')?.value);
+      const message = normalizeText(field('message')?.value);
+      const originPath = normalizeText(field('originPath')?.value, window.location.pathname);
+      const originTitle = normalizeText(field('originTitle')?.value, document.title);
+      const body = [
+        'Hola ULTIMA MILLA,',
+        '',
+        'No pude enviar el formulario desde la web. Dejo la consulta por email:',
+        '',
+        name ? `Nombre: ${name}` : '',
+        email ? `Email: ${email}` : '',
+        company ? `Empresa u organismo: ${company}` : '',
+        '',
+        message,
+        '',
+        originTitle ? `Contexto: ${originTitle}` : '',
+        `Origen: ${originPath}`
+      ].filter(Boolean).join('\n');
+
+      return `mailto:contacto@ultimamilla.com.ar?subject=${encodeURIComponent('Consulta desde la web ULTIMA MILLA')}&body=${encodeURIComponent(body)}`;
+    }
+
+    function showSubmitError(message) {
+      if (!(errorMessage instanceof HTMLElement)) return;
+      errorMessage.textContent = `${message || 'No se pudo enviar.'} `;
+      const link = document.createElement('a');
+      link.href = buildFallbackMailto();
+      link.textContent = 'Enviar por email';
+      errorMessage.append(link);
+      errorMessage.hidden = false;
     }
 
     function showError(name, message) {
@@ -426,10 +462,7 @@ import { Send, X } from 'lucide-astro';
         updateCounter();
         if (successMessage instanceof HTMLElement) successMessage.hidden = false;
       } catch (error) {
-        if (errorMessage instanceof HTMLElement) {
-          errorMessage.textContent = error instanceof Error ? error.message : 'No se pudo enviar. Revisa los datos.';
-          errorMessage.hidden = false;
-        }
+        showSubmitError(error instanceof Error ? error.message : 'No se pudo enviar. Revisa los datos.');
       } finally {
         if (submitButton instanceof HTMLButtonElement) {
           submitButton.disabled = false;
@@ -798,6 +831,13 @@ import { Send, X } from 'lucide-astro';
 	  .um-contact-message--error {
 	    background: #FEF2F2;
 	    color: #111;
+	  }
+
+	  .um-contact-message a {
+	    color: #B91C1C;
+	    font-weight: 700;
+	    text-decoration: underline;
+	    text-underline-offset: 3px;
 	  }
 
 	  @media (max-height: 760px) and (min-width: 861px) {

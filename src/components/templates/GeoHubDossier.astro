@@ -1,5 +1,6 @@
 ---
 import type { GeoCommercialHub } from '../../data/geoCommercialHubs';
+import { editorialImageDimensions, editorialImages } from '../../data/editorialImageSystem';
 import { siblingCommercialHubItems } from '../../data/strategicLinkGraph';
 import { resolveReplicaH1 } from '../../utils/replicaProdCopy';
 import BudgetBriefFields from '../um/BudgetBriefFields.astro';
@@ -42,22 +43,22 @@ const proofItems = hub.proof.map((item, index) => {
 
 const mediaByHub: Record<string, { src: string; alt: string; caption: string }> = {
   'servicios-it-empresas-mendoza': {
-    src: '/images/hero/foto-general.jpg',
+    src: editorialImages.homeHero,
     alt: 'Infraestructura técnica y operación IT para empresas',
     caption: 'Operación local, continuidad nacional'
   },
   'presupuesto-servicios-it-empresas': {
-    src: '/images/hero/foto-soporte.jpg',
+    src: editorialImages.aboutHero,
     alt: 'Herramientas de diagnóstico para servicios IT empresariales',
     caption: 'Alcance verificable antes de cotizar'
   },
   'proyectos-ingenieria-it-mendoza': {
-    src: '/images/hero/foto-electricos.jpg',
+    src: editorialImages.sectors.constructoras,
     alt: 'Infraestructura eléctrica y técnica para proyectos IT',
     caption: 'Ingeniería, campo y documentación'
   },
   'servicios-it-empresas-argentina': {
-    src: '/images/hero/foto-consultoria.jpg',
+    src: editorialImages.sectors.software,
     alt: 'Equipo técnico y consultoría IT para organizaciones',
     caption: 'Cobertura planificada y soporte trazable'
   }
@@ -110,7 +111,7 @@ const relatedHubGroups = [
         </div>
 
         <figure class="geo-dossier-media">
-          <img src={heroMedia.src} alt={heroMedia.alt} loading="eager" fetchpriority="high" decoding="async" width="1200" height="800" />
+          <img src={heroMedia.src} alt={heroMedia.alt} loading="eager" fetchpriority="high" decoding="async" width={editorialImageDimensions.width} height={editorialImageDimensions.height} />
           <figcaption>
             <span>{heroMedia.caption}</span>
             <strong>{hub.market}</strong>

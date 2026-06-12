@@ -5,6 +5,7 @@ import IntentLinkGraph from '../../components/um/IntentLinkGraph.astro';
 import { generateSlug } from '../../utils/slugUtils.js';
 import { getAllServicios } from '../../utils/directusHelpers';
 import { getServiceVisualSpec, serviceVisualOrder } from '../../data/serviceVisualSystem';
+import { editorialImageDimensions, editorialImages } from '../../data/editorialImageSystem';
 import { resolveReplicaH1 } from '../../utils/replicaProdCopy';
 import { getAntecedentesCountExactPhrase } from '../../utils/verifiedProof';
 import {
@@ -12,7 +13,7 @@ import {
   buildStrategicWebPageStructuredData,
 } from '../../data/strategicLinkGraph';
 
-const serviciosIndexH1 = resolveReplicaH1('/servicios', 'Servicios IT integrales para continuidad operativa');
+const serviciosIndexH1 = resolveReplicaH1('/servicios', 'Servicios IT para continuidad operativa');
 
 const serviciosFromDirectus = await getAllServicios();
 const byId = new Map(serviciosFromDirectus.map((servicio) => [Number(servicio.id), servicio]));
@@ -32,6 +33,7 @@ const servicios = serviceVisualOrder
     };
   })
   .filter(Boolean);
+const servicesIndexImage = servicios[0]?.visual.image || editorialImages.homeServices;
 const seguridadElectronica = servicios.find((servicio) => Number(servicio.id) === 102);
 const cctvAiProduct = {
   title: 'UMSA CCTV AI',
@@ -123,6 +125,9 @@ const serviceIconPaths: Record<string, string> = {
   title="Servicios IT integrales para continuidad operativa | ULTIMA MILLA"
   description="Servicios IT integrales para empresas: redes, seguridad electrónica, telecomunicaciones, software, soporte 24/7, consultoría, detección de incendios y eléctricos para IT."
   keywords="servicios IT integrales, redes empresariales, seguridad electronica, telecomunicaciones, software a medida, soporte IT 24/7, consultoria IT, deteccion de incendios, electricos para IT"
+  image={servicesIndexImage}
+  imageWidth={editorialImageDimensions.width}
+  imageHeight={editorialImageDimensions.height}
   structuredData={structuredData}
 >
   <section class="services-hero">
@@ -135,8 +140,8 @@ const serviceIconPaths: Record<string, string> = {
         </nav>
         <h1>{serviciosIndexH1}</h1>
         <p>
-          Diseñamos, instalamos y sostenemos infraestructura tecnológica para empresas que necesitan
-          redes estables, seguridad física, software operativo y soporte real sobre el terreno.
+          Infraestructura tecnológica para empresas que necesitan redes estables,
+          seguridad, software operativo y soporte real en terreno.
         </p>
         <div class="services-actions services-actions--intents">
           <a href="/contacto" class="um-btn-primary">Solicitar diagnóstico</a>
@@ -161,7 +166,7 @@ const serviceIconPaths: Record<string, string> = {
 
       <aside class="services-hero__visual" aria-label="Prueba operativa">
         <div class="services-hero__image">
-          <img src={servicios[0]?.visual.image || '/uploads/antecedentes/0021d14f-3f8a-4e39-9a03-dad7c8681c0d.jpg'} alt="Infraestructura IT operada por ULTIMA MILLA" loading="eager" fetchpriority="high" decoding="async" width="1200" height="800" />
+          <img src={servicesIndexImage} alt="Infraestructura IT operada por ULTIMA MILLA" loading="eager" fetchpriority="high" decoding="async" width={editorialImageDimensions.width} height={editorialImageDimensions.height} />
         </div>
         <div class="services-proof-note">
           <strong>Diagnóstico, implementación y soporte dentro de una misma cadena operativa.</strong>
@@ -1148,11 +1153,21 @@ const serviceIconPaths: Record<string, string> = {
 
   @media (max-width: 640px) {
     .services-hero {
-      padding-top: 30px;
-      padding-bottom: 34px;
+      padding-top: 34px;
+      padding-bottom: 30px;
     }
 
-    .services-hero h1,
+    .services-breadcrumb {
+      display: none;
+    }
+
+    .services-hero h1 {
+      max-width: 100%;
+      font-size: clamp(1.9rem, 8.3vw, 2.22rem) !important;
+      line-height: 1.1 !important;
+      text-wrap: balance !important;
+    }
+
     .service-row h3 {
       max-width: 320px;
       word-break: normal;
@@ -1162,10 +1177,13 @@ const serviceIconPaths: Record<string, string> = {
     }
 
     .services-hero p {
-      max-width: 320px;
+      max-width: 34ch;
+      margin-top: 0.9rem;
+      font-size: 1.02rem;
+      line-height: 1.58;
       overflow-wrap: anywhere;
       hyphens: none;
-      text-wrap: wrap;
+      text-wrap: pretty;
     }
 
     .services-actions,
@@ -1175,7 +1193,7 @@ const serviceIconPaths: Record<string, string> = {
     }
 
     .services-actions {
-      margin-top: 18px;
+      margin-top: 16px;
     }
 
     .services-actions .um-btn-primary {
@@ -1225,18 +1243,20 @@ const serviceIconPaths: Record<string, string> = {
     .services-hero__proofline {
       grid-template-columns: 1fr;
       gap: 0;
-      margin-top: 16px;
+      margin-top: 18px;
+      background: transparent;
     }
 
     .services-hero__proofline div,
     .services-hero__proofline div + div {
       display: grid;
-      grid-template-columns: minmax(0, 96px) minmax(0, 1fr);
+      grid-template-columns: 106px minmax(0, 1fr);
       align-items: baseline;
-      column-gap: 16px;
+      column-gap: 14px;
       border-right: 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 11px 0;
+      background: transparent;
+      padding: 8px 0;
     }
 
     .services-hero__proofline div:first-child {
@@ -1249,16 +1269,19 @@ const serviceIconPaths: Record<string, string> = {
     }
 
     .services-hero__proofline dt {
+      color: rgba(255, 255, 255, 0.58);
+      font-size: 0.88rem;
       letter-spacing: 0;
       line-height: 1.15;
       text-transform: none;
-      white-space: normal;
-      overflow-wrap: anywhere;
+      white-space: nowrap;
+      overflow-wrap: normal;
     }
 
     .services-hero__proofline dd {
       margin-top: 0;
-      line-height: 1.28;
+      font-size: 0.95rem;
+      line-height: 1.24;
       overflow-wrap: anywhere;
       word-break: normal;
     }

@@ -12,7 +12,9 @@ import { generateSlug } from '../utils/slugUtils.js';
 import { getSectorBySlug, getAntecedentesForSector } from '../utils/sectoresHelpers.ts';
 import { getFAQSchema } from '../data/sectorFAQs';
 import { getSectorVisualSpec } from '../data/sectorVisualSystem';
+import { editorialImageDimensions, editorialImages, getSectorEditorialImage } from '../data/editorialImageSystem';
 import { getDevTemplateVariant } from '../utils/templateVariant';
+import { resolveCmsImageUrl } from '../utils/directusImageResolver';
 import { buildGeoHubStructuredData, getGeoCommercialHub } from '../data/geoCommercialHubs';
 import {
   buildSectorStrategicLinkGroups,
@@ -49,7 +51,7 @@ const {
 } = sectorData || {};
 
 const visual = getSectorVisualSpec(sectorSlug);
-const heroImage = visual?.image || hero_image;
+const heroImage = resolveCmsImageUrl(hero_image, visual?.image || getSectorEditorialImage(sectorSlug));
 const editorialHeadline = visual?.headline || `Tecnología para ${nombre}`;
 const editorialSeoTitle = getReplicaProdEntry(`/${sectorSlug}`)?.title || seo_title || editorialHeadline;
 const pageHeadline = isReplicaIdenticalCopy()
@@ -120,12 +122,15 @@ const sectorStructuredData = geoHub ? [] : [
   description={geoHub.description}
   keywords={geoHub.keywords}
   canonical={`https://www.ultimamilla.com.ar/${geoHub.slug}`}
+  image={editorialImages.defaultOg}
+  imageWidth={editorialImageDimensions.width}
+  imageHeight={editorialImageDimensions.height}
   structuredData={buildGeoHubStructuredData(geoHub)}
 >
   <GeoHubDossier hub={geoHub} />
 </LayoutV4>
 ) : (
-<LayoutV4 title={editorialSeoTitle} description={seo_description} keywords={seo_keywords} image={heroImage} structuredData={sectorStructuredData}>
+<LayoutV4 title={editorialSeoTitle} description={seo_description} keywords={seo_keywords} image={heroImage} imageWidth={editorialImageDimensions.width} imageHeight={editorialImageDimensions.height} structuredData={sectorStructuredData}>
   {templateVariant !== 'atlas' && (
     <SectorTemplateEditorial
       mode="detail"

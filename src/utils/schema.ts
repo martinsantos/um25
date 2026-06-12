@@ -44,7 +44,7 @@ export function generateBlogPostSchema(post: any, url: URL): BlogPosting {
             name: 'Última Milla',
             logo: {
                 '@type': 'ImageObject',
-                url: new URL('/images/logo.png', url.origin).toString()
+                url: new URL('/images/um-logo.png', url.origin).toString()
             }
         },
         mainEntityOfPage: {

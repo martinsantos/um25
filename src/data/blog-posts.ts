@@ -1,4 +1,5 @@
 import type { BlogPost, BlogCategory, BlogSearchResult, BlogFilters } from '../types/blog';
+import { editorialImages } from './editorialImageSystem';
 
 export const blogPosts: BlogPost[] = [
 	{
@@ -6,13 +7,13 @@ export const blogPosts: BlogPost[] = [
 		title: 'Ciberseguridad en 2024: Tendencias y Desafíos',
 		slug: 'ciberseguridad-2024',
 		excerpt: 'Descubre las principales amenazas y soluciones en ciberseguridad para este año.',
-		image: '/images/blog/cybersecurity.jpg',
+		image: editorialImages.sectors['seguridad-electronica'],
 		category: 'Ciberseguridad',
 		categories: ['Ciberseguridad', 'Tecnología'],
 		date: '15 Enero 2024',
 		author: 'Juan Pérez',
 		authorRole: 'Especialista en Ciberseguridad',
-		authorImage: '/images/team/juan-perez.jpg',
+		authorImage: '/images/um-logo.png',
 		tags: ['ciberseguridad', 'seguridad', 'tecnología', '2024'],
 		readTime: 5,
 		content: `
@@ -54,13 +55,13 @@ export const blogPosts: BlogPost[] = [
 		title: 'Cloud Computing: Optimizando Recursos Empresariales',
 		slug: 'cloud-computing-recursos',
 		excerpt: 'Cómo la nube está transformando la gestión de recursos en las empresas modernas.',
-		image: '/images/blog/cloud-computing.jpg',
+		image: editorialImages.homeHero,
 		category: 'Cloud',
 		categories: ['Cloud', 'Tecnología', 'Infraestructura'],
 		date: '10 Enero 2024',
 		author: 'María González',
 		authorRole: 'Arquitecta de Soluciones Cloud',
-			authorImage: '/images/team/maria-gonzalez.jpg',
+			authorImage: '/images/um-logo.png',
 		tags: ['cloud', 'empresas', 'recursos', 'tecnología'],
 		readTime: 6,
 		content: `
@@ -102,13 +103,13 @@ export const blogPosts: BlogPost[] = [
 		title: 'Big Data: Análisis Predictivo para Negocios',
 		slug: 'big-data-analisis',
 		excerpt: 'Implementación de análisis predictivo para mejorar la toma de decisiones.',
-		image: '/images/blog/big-data.jpg',
+		image: editorialImages.sectors.software,
 		category: 'Análisis de Datos',
 		categories: ['Análisis de Datos', 'Big Data', 'Tecnología'],
 		date: '5 Enero 2024',
 		author: 'Carlos Rodríguez',
 		authorRole: 'Científico de Datos Senior',
-		authorImage: '/images/team/carlos-rodriguez.jpg',
+		authorImage: '/images/um-logo.png',
 		tags: ['big data', 'análisis', 'predictivo', 'negocios'],
 		readTime: 7,
 		content: `
@@ -150,13 +151,13 @@ export const blogPosts: BlogPost[] = [
 		title: 'Desarrollo Ágil: Metodologías Modernas',
 		slug: 'desarrollo-agil',
 		excerpt: 'Mejores prácticas en desarrollo de software utilizando metodologías ágiles.',
-		image: '/images/blog/agile.jpg',
+		image: editorialImages.aboutHero,
 		category: 'Desarrollo',
 		categories: ['Desarrollo', 'Metodologías', 'Tecnología'],
 		date: '1 Enero 2024',
 		author: 'Ana Martínez',
 		authorRole: 'Scrum Master',
-		authorImage: '/images/team/ana-martinez.jpg',
+		authorImage: '/images/um-logo.png',
 		tags: ['agile', 'scrum', 'desarrollo', 'metodologías'],
 		readTime: 5,
 		content: `

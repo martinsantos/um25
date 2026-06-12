@@ -11,8 +11,10 @@ import TrustStrip from '../components/um/TrustStrip.astro';
 import IntentLinkGraph from '../components/um/IntentLinkGraph.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getAllServicios } from '../utils/directusHelpers';
-import { getAntecedenteImageUrl, getAllAntecedentes } from '../lib/directus.ts';
+import { getAntecedenteImageUrl, getAllAntecedentes, getHeroHomeImages } from '../lib/directus.ts';
 import { getServiceVisualSpec, serviceVisualOrder } from '../data/serviceVisualSystem';
+import { editorialImages, editorialImageDimensions } from '../data/editorialImageSystem';
+import { resolveCmsImageUrl } from '../utils/directusImageResolver';
 import { resolveReplicaH1 } from '../utils/replicaProdCopy';
 import { extractCaseMetricsFromAntecedente } from '../utils/caseMetrics';
 import {
@@ -23,6 +25,7 @@ import {
 const homeH1 = resolveReplicaH1('/', 'Servicios IT para operaciones que no pueden detenerse.');
 
 const serviciosFromDirectus = await getAllServicios();
+const heroHomeImages = await getHeroHomeImages();
 
 let antecedentesData: any[] = [];
 try {
@@ -49,7 +52,8 @@ const serviceModules = serviceVisualOrder
   })
   .filter(Boolean);
 
-const homeHeroImage = '/uploads/hero/c194b40e-925c-4de5-924b-ea61ab835c0e.jpg';
+const homeHeroImage = resolveCmsImageUrl(heroHomeImages[0]?.imagen, editorialImages.homeHero);
+const homeServicesImage = resolveCmsImageUrl(heroHomeImages[1]?.imagen, editorialImages.homeServices);
 const proofCountExact = antecedentesData.length;
 const proofCountShort = proofCountExact >= 500 ? '500+' : String(proofCountExact);
 
@@ -164,11 +168,13 @@ const homeStructuredData = [
   description="Servicios IT integrales para empresas en Mendoza, Cuyo y Patagonia: redes, seguridad electrónica, telecomunicaciones, software, soporte, consultoría, incendios y energía."
   keywords="servicios IT integrales, redes empresariales, seguridad electrónica, telecomunicaciones, software a medida, soporte técnico 24/7, consultoría IT, detección incendio, energía para IT, Mendoza, Cuyo, Patagonia"
   image={homeHeroImage}
+  imageWidth={editorialImageDimensions.width}
+  imageHeight={editorialImageDimensions.height}
   structuredData={homeStructuredData}
 >
   <section class="um-home-hero">
     <div class="um-hero-media" aria-hidden="true">
-      <img src={homeHeroImage} alt="" loading="eager" fetchpriority="high" decoding="async" width="1920" height="1080" />
+      <img src={homeHeroImage} alt="" loading="eager" fetchpriority="high" decoding="async" width={editorialImageDimensions.width} height={editorialImageDimensions.height} />
     </div>
     <div class="um-hero-grid" aria-hidden="true"></div>
 
@@ -184,7 +190,7 @@ const homeStructuredData = [
           <a class="um-btn um-btn-secondary" href="/antecedentes">Ver antecedentes</a>
         </div>
         <figure class="um-hero-mobile-photo">
-          <img src={homeHeroImage} alt="Centro de monitoreo e infraestructura IT operativa" loading="eager" fetchpriority="high" decoding="async" width="1920" height="1080" />
+          <img src={homeHeroImage} alt="Centro de monitoreo e infraestructura IT operativa" loading="eager" fetchpriority="high" decoding="async" width={editorialImageDimensions.width} height={editorialImageDimensions.height} />
           <figcaption>
             <span>Operación técnica</span>
             <strong>Mendoza, Cuyo y Patagonia</strong>
@@ -222,7 +228,7 @@ const homeStructuredData = [
         </div>
 
         <div class="um-services-command__visual" aria-hidden="true">
-          <img src="/uploads/antecedentes/00ef116b-3455-4de2-aa10-22ad8803318f.jpg" alt="" loading="eager" decoding="async" fetchpriority="low" />
+          <img src={homeServicesImage} alt="" loading="eager" decoding="async" fetchpriority="low" width={editorialImageDimensions.width} height={editorialImageDimensions.height} />
           <div class="um-services-signal">
             <span>Respuesta</span>
             <strong>24/7</strong>

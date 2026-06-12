@@ -21,6 +21,7 @@ import {
   buildCaseStrategicLinkGroups,
   buildStrategicWebPageStructuredData,
 } from '../../data/strategicLinkGraph';
+import { editorialImages, editorialImageDimensions, generatedAntecedenteImageDimensions } from '../../data/editorialImageSystem';
 
 const PAGE_SIZE = 12;
 
@@ -288,7 +289,10 @@ const visibleAntecedentes = [
   ...(pageData.spotlightAntecedentes || []),
   ...(pageData.antecedentes || []),
 ].slice(0, 6);
-const pageOgImage = visibleAntecedentes.find((item: any) => item.imageUrl)?.imageUrl || '/nosotros-tech.jpg';
+const pageOgImage = visibleAntecedentes.find((item: any) => item.imageUrl)?.imageUrl || editorialImages.defaultOg;
+const pageOgDimensions = pageOgImage.startsWith('/images/antecedentes/generated/')
+  ? generatedAntecedenteImageDimensions
+  : editorialImageDimensions;
 const crawlableAntecedenteIndex = allAntecedentesForIndex
   .map((item) => ({
     id: item.id,
@@ -342,6 +346,8 @@ const antecedentesCollectionStructuredData = {
   description={pageDescription}
   keywords="casos exito tecnologia mendoza, proyectos telecomunicaciones, antecedentes cableado estructurado, portfolio seguridad electronica, software a medida casos"
   image={pageOgImage}
+  imageWidth={pageOgDimensions.width}
+  imageHeight={pageOgDimensions.height}
   canonical={currentCanonicalUrl}
   noindex={isSearchResultPage}
   structuredData={[antecedentesStructuredData, antecedentesCollectionStructuredData]}

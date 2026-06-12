@@ -51,6 +51,118 @@ export function truncateEditorialText(value: unknown, maxLength: number): string
   return plainTextFromHtml(value, maxLength);
 }
 
+const DISPLAY_CONNECTORS = new Set([
+  'a',
+  'al',
+  'con',
+  'de',
+  'del',
+  'e',
+  'el',
+  'en',
+  'la',
+  'las',
+  'los',
+  'para',
+  'por',
+  'y',
+]);
+
+const DISPLAY_ACRONYMS = new Map([
+  ['ai', 'AI'],
+  ['api', 'API'],
+  ['cctv', 'CCTV'],
+  ['co2', 'CO2'],
+  ['crm', 'CRM'],
+  ['dvr', 'DVR'],
+  ['erp', 'ERP'],
+  ['ia', 'IA'],
+  ['ip', 'IP'],
+  ['it', 'IT'],
+  ['nvr', 'NVR'],
+  ['odf', 'ODF'],
+  ['pa', 'PA'],
+  ['s.a', 'S.A.'],
+  ['sa', 'SA'],
+  ['s.a.s', 'S.A.S.'],
+  ['sas', 'SAS'],
+  ['sdi', 'SDI'],
+  ['s.r.l', 'S.R.L.'],
+  ['srl', 'SRL'],
+  ['ups', 'UPS'],
+  ['ute', 'UTE'],
+  ['vms', 'VMS'],
+]);
+
+const NAME_LETTER_RE = /[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/g;
+const LOWERCASE_LETTER_RE = /[a-záéíóúüñ]/;
+const TOKEN_CORE_RE = /^([^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]*)(.*?)([^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]*)$/u;
+
+function isUppercaseDisplayCandidate(value: string): boolean {
+  const letters = value.match(NAME_LETTER_RE) || [];
+  if (letters.length < 4) return false;
+  return !LOWERCASE_LETTER_RE.test(value);
+}
+
+function displayTokenKey(value: string): string {
+  return value
+    .toLocaleLowerCase('es-AR')
+    .replace(/[^a-z0-9áéíóúüñ.]/g, '')
+    .replace(/\.+$/g, '');
+}
+
+function capitalizeDisplayCore(core: string, tokenIndex: number): string {
+  const lower = core.toLocaleLowerCase('es-AR');
+  if (tokenIndex > 0 && DISPLAY_CONNECTORS.has(lower)) return lower;
+  return `${lower.charAt(0).toLocaleUpperCase('es-AR')}${lower.slice(1)}`;
+}
+
+/** Capitalización editorial para nombres que llegan del CMS en mayúsculas. */
+export function formatDisplayName(value: unknown): string {
+  const text = stripHtml(value);
+  if (!text || !isUppercaseDisplayCandidate(text)) return text;
+
+  let tokenIndex = 0;
+  return text
+    .split(/(\s+)/)
+    .map((token) => {
+      if (/^\s+$/.test(token)) return token;
+      const key = displayTokenKey(token).replace(/\./g, '');
+      const dottedKey = displayTokenKey(token);
+      const acronym = DISPLAY_ACRONYMS.get(dottedKey) || DISPLAY_ACRONYMS.get(key);
+      if (acronym) {
+        tokenIndex += 1;
+        return acronym;
+      }
+
+      const match = token.match(TOKEN_CORE_RE);
+      if (!match || !match[2]) return token;
+      const [, prefix, core, suffix] = match;
+      const formattedCore = capitalizeDisplayCore(core, tokenIndex);
+      tokenIndex += 1;
+      return `${prefix}${formattedCore}${suffix}`;
+    })
+    .join('');
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/** Reemplaza nombres crudos del CMS por su forma editorial en excerpts visibles. */
+export function applyDisplayNameReplacements(value: unknown, names: unknown[] = []): string {
+  let text = stripHtml(value);
+  const uniqueNames = [...new Set(names.map(stripHtml).filter(Boolean))].sort((a, b) => b.length - a.length);
+
+  for (const rawName of uniqueNames) {
+    const displayName = formatDisplayName(rawName);
+    if (!displayName || displayName === rawName) continue;
+    text = text.replace(new RegExp(`${escapeRegExp(rawName)}(?:\\s*\\(\\d+\\))?`, 'g'), displayName);
+  }
+
+  return text;
+}
+
 /** Elimina frases genéricas de marketing antes de renderizar body copy. */
 export function stripMarketingFluff(value: unknown): string {
   let clean = sanitizeEditorialText(value);
