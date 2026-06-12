@@ -122,7 +122,7 @@ const structuredData = {
           </div>
           <div id="errorMessage" class="form-message error hidden" role="alert">
             No se pudo enviar.
-            <a href="mailto:contacto@ultimamilla.com.ar?subject=Consulta%20desde%20la%20web%20ULTIMA%20MILLA">Enviar por email</a>
+            <EmailLink label="Enviar por email" subject="Consulta desde la web ULTIMA MILLA" />
           </div>
         </form>
       </article>
@@ -264,7 +264,9 @@ const structuredData = {
       `Origen: ${window.location.href}`
     ].filter(Boolean).join('\n');
 
-    return `mailto:contacto@ultimamilla.com.ar?subject=${encodeURIComponent('Consulta desde la web ULTIMA MILLA')}&body=${encodeURIComponent(body)}`;
+    const address = ['contacto', 'ultimamilla.com.ar'].join('@');
+    const protocol = ['mai', 'lto:'].join('');
+    return `${protocol}${address}?subject=${encodeURIComponent('Consulta desde la web ULTIMA MILLA')}&body=${encodeURIComponent(body)}`;
   }
 
   function showSubmitError(message, data = {}) {

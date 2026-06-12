@@ -44,7 +44,7 @@ export function generateBlogPostSchema(post: any, url: URL): BlogPostSchema {
             name: 'Última Milla',
             logo: {
                 '@type': 'ImageObject',
-                url: new URL('/images/logo.png', url.origin).toString()
+                url: new URL('/images/um-logo.png', url.origin).toString()
             }
         },
         mainEntityOfPage: {
@@ -73,7 +73,7 @@ export function generateOrganizationSchema(url: URL) {
         '@type': 'Organization',
         name: 'Última Milla',
         url: url.origin,
-        logo: new URL('/images/logo.png', url.origin).toString(),
+        logo: new URL('/images/um-logo.png', url.origin).toString(),
         sameAs: [
             'https://www.linkedin.com/company/ultima-milla',
             'https://twitter.com/UltimaMilla'
@@ -93,7 +93,7 @@ export function generateWebSiteSchema(url: URL) {
             name: 'Última Milla',
             logo: {
                 '@type': 'ImageObject',
-                url: new URL('/images/logo.png', url.origin).toString()
+                url: new URL('/images/um-logo.png', url.origin).toString()
             }
         },
         potentialAction: {

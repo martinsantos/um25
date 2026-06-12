@@ -1,3 +1,5 @@
+import { editorialImages } from './editorialImageSystem';
+
 export interface ServiceVisualSpec {
   serviceId: number;
   shortName: string;
@@ -19,7 +21,7 @@ export const serviceVisualSystem: Record<number, ServiceVisualSpec> = {
     proof: 'Fibra, cableado, switching y radioenlaces certificados.',
     motif: 'packet-path',
     accent: '#0f766e',
-    image: '/uploads/antecedentes/0021d14f-3f8a-4e39-9a03-dad7c8681c0d.jpg',
+    image: editorialImages.services[101],
     imageAlt: 'Sala técnica con racks de comunicaciones y cableado estructurado',
     icon: 'network',
     signal: 'traza de red'
@@ -31,7 +33,7 @@ export const serviceVisualSystem: Record<number, ServiceVisualSpec> = {
     proof: 'Videovigilancia IP, accesos, intrusión y monitoreo.',
     motif: 'scanline',
     accent: '#DC2626',
-    image: '/uploads/antecedentes/00ef116b-3455-4de2-aa10-22ad8803318f.jpg',
+    image: editorialImages.services[102],
     imageAlt: 'Infraestructura de seguridad electrónica y monitoreo',
     icon: 'shield',
     signal: 'perímetro activo'
@@ -43,7 +45,7 @@ export const serviceVisualSystem: Record<number, ServiceVisualSpec> = {
     proof: 'Convergencia de comunicaciones para operaciones distribuidas.',
     motif: 'frequency',
     accent: '#2563eb',
-    image: '/uploads/antecedentes/029b4855-4aa7-4a3b-98a2-a0152777fb4e.jpg',
+    image: editorialImages.services[103],
     imageAlt: 'Equipamiento de telecomunicaciones para redes empresariales',
     icon: 'radio',
     signal: 'señal estable'
@@ -55,7 +57,7 @@ export const serviceVisualSystem: Record<number, ServiceVisualSpec> = {
     proof: 'Sistemas propios, integraciones y automatización de procesos.',
     motif: 'api-link',
     accent: '#334155',
-    image: '/uploads/antecedentes/05859017-7f0f-4eb8-867c-2fe2d0170b48.jpg',
+    image: editorialImages.services[104],
     imageAlt: 'Puesto de trabajo con software empresarial e integraciones',
     icon: 'code',
     signal: 'flujo integrado'
@@ -67,7 +69,7 @@ export const serviceVisualSystem: Record<number, ServiceVisualSpec> = {
     proof: 'Atención de incidentes, monitoreo y continuidad operativa.',
     motif: 'sla-line',
     accent: '#16a34a',
-    image: '/uploads/antecedentes/05b811c2-937e-4830-b3eb-e578444b9bdd.jpg',
+    image: editorialImages.services[105],
     imageAlt: 'Mesa de soporte técnico para infraestructura IT',
     icon: 'headset',
     signal: 'SLA visible'
@@ -79,7 +81,7 @@ export const serviceVisualSystem: Record<number, ServiceVisualSpec> = {
     proof: 'Diagnóstico, planificación y transferencia técnica.',
     motif: 'blueprint',
     accent: '#475569',
-    image: '/uploads/antecedentes/05bf45b8-637c-4231-9334-9e851c735c5f.jpg',
+    image: editorialImages.services[106],
     imageAlt: 'Documentación y arquitectura para consultoría tecnológica',
     icon: 'briefcase',
     signal: 'decisión trazable'
@@ -91,7 +93,7 @@ export const serviceVisualSystem: Record<number, ServiceVisualSpec> = {
     proof: 'Ingeniería, paneles, sensores y alarmas para activos críticos.',
     motif: 'alarm-zone',
     accent: '#DC2626',
-    image: '/uploads/antecedentes/065f2393-2bf3-4913-b93e-64e528a9c432.jpg',
+    image: editorialImages.services[107],
     imageAlt: 'Sistema de detección y alarma de incendios',
     icon: 'flame',
     signal: 'zona protegida'
@@ -103,7 +105,7 @@ export const serviceVisualSystem: Record<number, ServiceVisualSpec> = {
     proof: 'Energía dedicada, puesta a tierra, racks y continuidad eléctrica.',
     motif: 'power-route',
     accent: '#ca8a04',
-    image: '/uploads/antecedentes/06b069ad-dab6-4d04-84b7-150465976a4a.jpg',
+    image: editorialImages.services[108],
     imageAlt: 'Sistemas eléctricos, UPS y tableros para infraestructura IT',
     icon: 'bolt',
     signal: 'energía continua'

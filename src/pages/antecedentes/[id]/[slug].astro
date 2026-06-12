@@ -20,6 +20,8 @@ import {
   formatAntecedenteYear,
 } from '../../../utils/antecedentesCuration';
 import {
+  applyDisplayNameReplacements,
+  formatDisplayName,
   plainTextFromHtml,
   renderEditorialBody,
   sanitizeEditorialText,
@@ -32,6 +34,7 @@ import {
   buildStrategicWebPageStructuredData,
 } from '../../../data/strategicLinkGraph';
 import { buildCaseSeoMeta } from '../../../utils/seoMetaPolicy';
+import { editorialImages, editorialImageDimensions, generatedAntecedenteImageDimensions } from '../../../data/editorialImageSystem';
 
 // --- Configuration ---
 const DEFAULT_IMAGE_URL = `/images/default-background.jpg`;
@@ -101,6 +104,14 @@ const generatedMainImageUrl = getGeneratedAntecedenteImageUrl(antecedente.id) ||
 const mainImageUrl = generatedMainImageUrl
     || (directusMainImageUrl && !directusMainImageUrl.includes('default-background') ? directusMainImageUrl : '')
     || DEFAULT_IMAGE_URL;
+const hasGeneratedMainImage = mainImageUrl.startsWith('/images/antecedentes/generated/');
+const caseImageDimensions = hasGeneratedMainImage ? generatedAntecedenteImageDimensions : { width: 720, height: 720 };
+const caseSeoImageUrl = mainImageUrl.startsWith('/uploads/antecedentes/') ? editorialImages.defaultOg : mainImageUrl;
+const caseSeoImageDimensions = hasGeneratedMainImage
+  ? generatedAntecedenteImageDimensions
+  : mainImageUrl.startsWith('/uploads/antecedentes/')
+    ? editorialImageDimensions
+    : caseImageDimensions;
 
 const formatDate = (dateString: string): string => {
     const formatted = formatAntecedenteDate(dateString);
@@ -113,17 +124,20 @@ const cleanDisplayText = (value: unknown) => String(value || '')
   .replace(/<[^>]+>/g, '')
   .replace(/\s+/g, ' ')
   .trim();
+const displayClientName = formatDisplayName(antecedente.Cliente);
+const displayCaseText = (value: unknown) => applyDisplayNameReplacements(value, [antecedente.Cliente]);
 
 const caseBodySource = antecedente.displayDescription || antecedente.Descripcion || antecedente.descripcion || '';
 const caseBodyPlain = plainTextFromHtml(caseBodySource, 4000);
 const caseDescriptionHtml = await renderEditorialBody(caseBodySource);
-const caseHeroExcerpt = truncateEditorialText(caseBodySource, 170)
+const rawCaseHeroExcerpt = truncateEditorialText(caseBodySource, 170)
   || cleanDisplayText(antecedente.displayTitle || antecedente.Titulo || antecedente.Nombre);
+const caseHeroExcerpt = displayCaseText(rawCaseHeroExcerpt);
 
 const buildStructuredScopeItems = (item: any): string[] => {
   const rows = [
     item.displayTitle || item.Titulo ? `Alcance: ${cleanDisplayText(item.displayTitle || item.Titulo)}` : '',
-    item.Cliente ? `Cliente: ${cleanDisplayText(item.Cliente)}` : '',
+    item.Cliente ? `Cliente: ${formatDisplayName(item.Cliente)}` : '',
     item.Area ? `Sector: ${cleanDisplayText(item.Area)}` : '',
     item.Unidad_de_negocio ? `Unidad: ${cleanDisplayText(item.Unidad_de_negocio)}` : '',
     formatAntecedenteDate(item.Fecha) ? `Cierre: ${formatDate(item.Fecha)}` : '',
@@ -161,7 +175,7 @@ const isDuplicateCallout = (() => {
 const caseCalloutText = [
   'Proyecto aplicado',
   antecedente.Area ? `en ${cleanDisplayText(antecedente.Area)}` : '',
-  antecedente.Cliente ? `para ${cleanDisplayText(antecedente.Cliente)}` : '',
+  displayClientName ? `para ${displayClientName}` : '',
 ].filter(Boolean).join(' ');
 
 const resolveServiceImageUrl = (servicio: any): string => {
@@ -258,7 +272,7 @@ const relatedAntecedentes = await getRelatedAntecedentes(antecedente.Area || '',
 
 const buildCaseHeadline = (item: any): string => {
   const title = cleanDisplayText(item.Titulo || item.Nombre || 'Proyecto técnico documentado');
-  const client = cleanDisplayText(item.Cliente);
+  const client = formatDisplayName(item.Cliente);
   const area = cleanDisplayText(item.Area);
   const normalized = title.toLowerCase();
 
@@ -312,7 +326,7 @@ const compactCaseTitle = (value: unknown, client?: unknown): string => {
     .replace(/Sistena/gi, 'Sistema')
     .replace(/\s+\(\d+\)$/g, '')
     .trim();
-  const organization = cleanDisplayText(client);
+  const organization = formatDisplayName(client);
   if (!title) return organization || 'Proyecto técnico';
 
   const parts = title.split(/\s[-–]\s/).map((part) => part.trim()).filter(Boolean);
@@ -340,11 +354,11 @@ const caseSeo = buildCaseSeoMeta({
   date: antecedente.Fecha,
 });
 const metaDescription = caseSeo.description;
-const structuredImageUrl = publicImageUrl(mainImageUrl) || toCanonicalUrl(DEFAULT_IMAGE_URL);
+const structuredImageUrl = publicImageUrl(caseSeoImageUrl) || toCanonicalUrl(DEFAULT_IMAGE_URL);
 const caseDossierFacts = [
   { label: 'Registro', value: `ANT-${id}` },
   { label: 'Tipo', value: caseRecordLabel },
-  antecedente.Cliente ? { label: 'Organización', value: cleanDisplayText(antecedente.Cliente) } : null,
+  displayClientName ? { label: 'Organización', value: displayClientName } : null,
   antecedente.Area ? { label: 'Vertical', value: cleanDisplayText(antecedente.Area) } : null,
   caseDateLabel ? { label: 'Fecha', value: caseDateLabel } : null,
 ].filter(Boolean) as Array<{ label: string; value: string }>;
@@ -403,7 +417,9 @@ const antecedentePageStructuredData = [
 <LayoutV4
   title={caseSeo.title}
   description={metaDescription}
-  image={mainImageUrl}
+  image={caseSeoImageUrl}
+  imageWidth={caseSeoImageDimensions.width}
+  imageHeight={caseSeoImageDimensions.height}
   canonical={canonicalUrl}
   structuredData={antecedentePageStructuredData}
 >
@@ -445,14 +461,14 @@ const antecedentePageStructuredData = [
               loading="eager"
               fetchpriority="high"
               decoding="async"
-              width="720"
-              height="720"
+              width={caseImageDimensions.width}
+              height={caseImageDimensions.height}
               onerror="this.src='/images/default-background.jpg'"
             />
           </figure>
           <div class="case-detail-dossier__body">
             <span>{caseRecordLabel}</span>
-            <strong>{antecedente.Cliente || `ANT-${id}`}</strong>
+            <strong>{displayClientName || `ANT-${id}`}</strong>
             <p>{caseRecordSummary}</p>
             <div class="case-detail-meta">
               {antecedente.Area && (
@@ -616,7 +632,7 @@ const antecedentePageStructuredData = [
               <>
                 <div class="flex flex-col gap-1">
                   <span class="case-info-label">Organización</span>
-                  <span class="case-info-value">{antecedente.Cliente}</span>
+                  <span class="case-info-value">{displayClientName}</span>
                 </div>
                 <div class="h-px bg-gray-100"></div>
               </>
@@ -719,7 +735,10 @@ const antecedentePageStructuredData = [
               href={`/antecedentes/${ant.id}/${ant.slug}`}
               number={String(index + 1).padStart(2, '0')}
               title={compactCaseTitle(ant.displayTitle || ant.Titulo || 'Proyecto', ant.Cliente)}
-              description={truncateEditorialText(ant.displayDescription || ant.Descripcion || ant.Titulo, 150)}
+              description={applyDisplayNameReplacements(
+                truncateEditorialText(ant.displayDescription || ant.Descripcion || ant.Titulo, 150),
+                [ant.Cliente]
+              )}
               image={ant.imageUrl}
               imageAlt={ant.Titulo || 'Antecedente'}
               sector={ant.Area || 'Servicios IT'}
@@ -807,15 +826,15 @@ const antecedentePageStructuredData = [
   .case-detail-hero__content {
     position: relative;
     z-index: 1;
-    padding-top: clamp(24px, 3vw, 42px);
-    padding-bottom: clamp(38px, 6vw, 76px);
+    padding-top: clamp(22px, 2.6vw, 36px);
+    padding-bottom: clamp(26px, 4vw, 48px);
   }
 
   .case-detail-breadcrumb {
     display: flex;
     flex-wrap: wrap;
     gap: 0.55rem;
-    margin-bottom: clamp(24px, 4vw, 42px);
+    margin-bottom: clamp(18px, 2.8vw, 30px);
     color: #5f6368;
     font-size: 1rem;
     font-weight: 700;
@@ -828,7 +847,7 @@ const antecedentePageStructuredData = [
   .case-detail-hero__grid {
     display: grid;
     grid-template-columns: minmax(0, 0.58fr) minmax(340px, 0.42fr);
-    gap: clamp(28px, 5vw, 68px);
+    gap: clamp(26px, 4.2vw, 56px);
     align-items: start;
   }
 
@@ -927,11 +946,11 @@ const antecedentePageStructuredData = [
   }
 
   .case-detail-dossier__media {
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 16 / 9;
     width: 100%;
     max-width: 100%;
     margin: 0;
-    min-height: 220px;
+    min-height: 190px;
     overflow: hidden;
     background: #111;
   }
@@ -946,7 +965,7 @@ const antecedentePageStructuredData = [
   }
 
   .case-detail-dossier__body {
-    padding: clamp(18px, 2.2vw, 24px) clamp(18px, 2.2vw, 24px) clamp(20px, 2.4vw, 26px);
+    padding: clamp(16px, 1.8vw, 20px) clamp(16px, 1.9vw, 22px) clamp(17px, 2vw, 22px);
   }
 
   .case-detail-dossier__body > span {
@@ -981,8 +1000,8 @@ const antecedentePageStructuredData = [
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem 1.25rem;
-    margin-top: 1.4rem;
-    padding: 1rem;
+    margin-top: 1.1rem;
+    padding: 0.9rem;
     border-top: 0;
     background: #f7f8f9;
   }
@@ -1015,28 +1034,31 @@ const antecedentePageStructuredData = [
   }
 
   .case-proof-strip {
-    background: #0b0b0b;
-    color: #fff;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    background: #f5f5f5;
+    color: #111;
+    border-top: 1px solid #e4e6e9;
+    border-bottom: 1px solid #e4e6e9;
   }
 
   .case-proof-strip__grid {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 1px;
-    background: rgba(255,255,255,0.1);
+    gap: clamp(10px, 1.4vw, 16px);
+    background: transparent;
+    padding-block: clamp(14px, 2vw, 20px);
   }
 
   .case-proof-strip__grid div {
     min-width: 0;
-    background: #0b0b0b;
-    padding: clamp(16px, 2vw, 22px) clamp(14px, 1.8vw, 20px);
+    border-left: 3px solid #DC2626;
+    background: #fff;
+    padding: clamp(14px, 1.6vw, 18px) clamp(14px, 1.8vw, 20px);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
   }
 
   .case-proof-strip__grid span {
     display: block;
-    color: rgba(255,255,255,0.66);
+    color: #5f6670;
     font-size: 1rem;
     font-weight: 700;
     line-height: 1.25;
@@ -1047,7 +1069,7 @@ const antecedentePageStructuredData = [
   .case-proof-strip__grid strong {
     display: block;
     margin-top: 8px;
-    color: #fff;
+    color: #111;
     font-size: clamp(1.02rem, 1.12vw, 1.16rem);
     font-weight: 700;
     line-height: 1.35;
@@ -1055,7 +1077,7 @@ const antecedentePageStructuredData = [
   }
 
   .case-detail-main {
-    padding: clamp(54px, 7vw, 92px) 0;
+    padding: clamp(42px, 5.5vw, 72px) 0;
     background: #fff;
   }
 
@@ -1381,9 +1403,10 @@ const antecedentePageStructuredData = [
   .case-related {
     position: relative;
     z-index: 2;
-    padding: clamp(54px, 7vw, 92px) 0;
+    padding: clamp(42px, 5.5vw, 72px) 0;
     border-top: 0;
     background: #FFFFFF;
+    scroll-margin-top: 96px;
   }
 
   .case-related__head {
@@ -1441,6 +1464,8 @@ const antecedentePageStructuredData = [
   .case-related__ledger {
     border-top: 0;
     overflow: hidden;
+    display: grid;
+    gap: 0.85rem;
   }
 
   .case-related__ledger :global(.evidence-case-row) {
@@ -1448,12 +1473,12 @@ const antecedentePageStructuredData = [
   }
 
   .case-related__ledger :global(.evidence-case-row__thumb) {
-    width: 136px;
-    height: 102px;
-    min-width: 136px;
-    min-height: 102px;
-    max-width: 136px;
-    aspect-ratio: 4 / 3;
+    width: 100%;
+    height: auto;
+    min-width: 156px;
+    min-height: 112px;
+    max-width: none;
+    aspect-ratio: 16 / 10;
   }
 
   .case-related__ledger :global(.evidence-case-row__copy) {
@@ -1626,19 +1651,45 @@ const antecedentePageStructuredData = [
   }
 
   @media (max-width: 640px) {
+    .case-detail-hero,
+    .case-proof-strip,
+    .case-detail-main.case-detail,
+    .case-related,
+    .case-detail-footer-cta {
+      --case-body: 1.03125rem;
+      --case-body-line: 1.66;
+      --case-section: clamp(1.12rem, 5.2vw, 1.28rem);
+      --case-hero-excerpt: 1.0625rem;
+      --case-meta-label: 0.875rem;
+      --case-meta-value: 0.96875rem;
+      --case-sidebar-label: 0.875rem;
+      --case-sidebar-value: 1rem;
+      --case-card-title: 1.02rem;
+    }
+
     .case-detail-hero__copy h1 {
       max-width: 100%;
-      font-size: clamp(1.88rem, 6.5vw, 2.16rem);
+      font-size: clamp(1.82rem, 6.15vw, 2.08rem);
       line-height: 1.1;
+    }
+
+    .case-detail-hero__copy > p {
+      max-width: 34ch;
+      font-size: var(--case-hero-excerpt);
+      line-height: 1.58;
     }
 
     .case-detail-actions {
       display: grid;
+      gap: 0.65rem;
+      margin-top: 1.05rem;
     }
 
     .case-detail-actions :global(.um-btn) {
       width: 100%;
       min-width: 0;
+      min-height: 48px;
+      font-size: 0.98rem;
     }
   }
 
@@ -1648,12 +1699,12 @@ const antecedentePageStructuredData = [
     }
 
     .case-detail-hero__content {
-      padding-top: 22px;
-      padding-bottom: 46px;
+      padding-top: 30px;
+      padding-bottom: 36px;
     }
 
     .case-detail-breadcrumb {
-      margin-bottom: 28px;
+      display: none;
     }
 
     .case-detail-label::before {
@@ -1661,8 +1712,13 @@ const antecedentePageStructuredData = [
       flex: 0 0 28px;
     }
 
+    .case-detail-label {
+      margin-bottom: 0.7rem;
+      font-size: 0.95rem;
+    }
+
     .case-detail-hero__copy h1 {
-      font-size: clamp(2rem, 7vw, 2.28rem);
+      font-size: clamp(1.82rem, 6.15vw, 2.08rem);
       line-height: 1.1;
     }
 
@@ -1679,12 +1735,34 @@ const antecedentePageStructuredData = [
       min-height: 0;
     }
 
+    .case-detail-dossier__body {
+      padding: 16px 0 0;
+    }
+
+    .case-detail-dossier__body > span {
+      font-size: 0.86rem;
+    }
+
+    .case-detail-dossier__body > strong {
+      font-size: clamp(1.12rem, 5vw, 1.3rem);
+    }
+
     .case-detail-meta {
       grid-template-columns: 1fr;
+      padding: 0.85rem;
     }
 
     .case-proof-strip__grid {
       grid-template-columns: 1fr;
+      padding-block: 10px;
+    }
+
+    .case-proof-strip__grid div {
+      padding: 12px 14px;
+    }
+
+    .case-detail-main {
+      padding: 34px 0 48px;
     }
   }
 </style>

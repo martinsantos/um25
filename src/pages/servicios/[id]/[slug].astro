@@ -25,6 +25,7 @@ import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
 import { getDirectusImageUrl } from '../../../lib/directus.ts';
 import { getServiceVisualSpec } from '../../../data/serviceVisualSystem';
+import { editorialImageDimensions } from '../../../data/editorialImageSystem';
 import {
   plainTextFromHtml,
   readServiceSubtitulo,
@@ -175,7 +176,7 @@ const serviceStructuredData = {
   "name": seoTitleBase,
   "description": pageDescription,
   "url": canonicalUrl,
-  ...(servicio.Imagen && { "image": (() => { const imgUrl = getDirectusImageUrl(servicio.Imagen); return imgUrl.startsWith('http') ? imgUrl : `${siteUrl}${imgUrl}`; })() }),
+  "image": serviceImage.startsWith('http') ? serviceImage : `${siteUrl}${serviceImage}`,
   "provider": {
     "@type": "Organization",
     "name": "ULTIMA MILLA",
@@ -238,6 +239,9 @@ const iconPaths = {
   title={pageTitle}
   description={pageDescription}
   keywords={`${servicio.Titulo.toLowerCase()}${servicio.area ? `, ${servicio.area.toLowerCase()}` : ''}, servicios tecnologicos mendoza`}
+  image={serviceImage}
+  imageWidth={editorialImageDimensions.width}
+  imageHeight={editorialImageDimensions.height}
   canonical={canonicalUrl}
   structuredData={servicePageStructuredData}
 >
@@ -249,8 +253,8 @@ const iconPaths = {
         loading="eager"
         fetchpriority="high"
         decoding="async"
-        width="1920"
-        height="1080"
+        width={editorialImageDimensions.width}
+        height={editorialImageDimensions.height}
       />
     </div>
     <div class="service-detail-hero__wash"></div>
@@ -507,9 +511,10 @@ const iconPaths = {
   .service-detail-hero {
     position: relative;
     overflow: hidden;
-    min-height: clamp(500px, 60vh, 640px);
+    min-height: clamp(360px, 44vh, 470px);
     background: #080808;
     color: #fff;
+    max-width: 100%;
   }
 
   .service-detail-hero__image,
@@ -534,15 +539,15 @@ const iconPaths = {
   .service-detail-hero__content {
     position: relative;
     z-index: 1;
-    padding-top: clamp(24px, 3.4vw, 48px);
-    padding-bottom: clamp(52px, 7vw, 92px);
+    padding-top: clamp(22px, 2.8vw, 38px);
+    padding-bottom: clamp(30px, 3.8vw, 52px);
   }
 
   .service-detail-breadcrumb {
     display: flex;
     flex-wrap: wrap;
     gap: 0.55rem;
-    margin-bottom: clamp(34px, 6vw, 72px);
+    margin-bottom: clamp(18px, 3vw, 34px);
     color: rgba(255,255,255,0.58);
     font-size: 1rem;
     font-weight: 700;
@@ -567,6 +572,7 @@ const iconPaths = {
     grid-template-columns: minmax(0, 0.68fr) minmax(300px, 0.32fr);
     gap: clamp(32px, 5.2vw, 72px);
     align-items: start;
+    min-width: 0;
   }
 
   .service-detail-hero__grid > * {
@@ -619,6 +625,7 @@ const iconPaths = {
     flex-wrap: wrap;
     gap: 12px;
     margin-top: 1.65rem;
+    max-width: 100%;
   }
 
   .service-detail-hero__actions :where(.um-btn-primary, .um-btn-secondary) {
@@ -657,7 +664,8 @@ const iconPaths = {
   .service-detail-proof {
     display: grid;
     width: 100%;
-    max-width: 100%;
+    max-width: 360px;
+    justify-self: end;
     border: 0;
     background: rgba(10,10,10,0.72);
     box-shadow: none;
@@ -689,7 +697,7 @@ const iconPaths = {
 
   .service-detail-main {
     background: #fff;
-    padding: clamp(56px, 6vw, 84px) 0 clamp(22px, 3vw, 40px);
+    padding: clamp(44px, 5vw, 70px) 0 clamp(8px, 1.4vw, 18px);
   }
 
   .service-detail-main__grid {
@@ -881,7 +889,7 @@ const iconPaths = {
 
   .service-info-ledger div {
     display: grid;
-    grid-template-columns: minmax(116px, 0.44fr) minmax(0, 0.56fr);
+    grid-template-columns: minmax(148px, 0.48fr) minmax(0, 0.52fr);
     gap: 1rem;
     padding: 0.9rem 0;
     border-top: 1px solid #e2e4e7;
@@ -983,7 +991,7 @@ const iconPaths = {
   }
 
   .service-products-section {
-    padding: clamp(26px, 4vw, 52px) 0 clamp(64px, 8vw, 104px);
+    padding: clamp(22px, 3.2vw, 42px) 0 clamp(42px, 6vw, 76px);
     background: #ffffff;
     border-top: 0;
   }
@@ -1072,13 +1080,20 @@ const iconPaths = {
   }
 
   @media (max-width: 640px) {
+    :global(html),
+    :global(body) {
+      overflow-x: clip;
+    }
+
     .service-detail-hero {
       min-height: auto;
+      max-width: 100%;
     }
 
     .service-detail-hero__content {
       padding-top: 22px;
       padding-bottom: 38px;
+      overflow-x: clip;
     }
 
     .service-detail-breadcrumb {
@@ -1118,6 +1133,7 @@ const iconPaths = {
     .service-detail-hero__actions {
       display: grid;
       margin-top: 1.35rem;
+      width: 100%;
     }
 
     .service-detail-hero__actions :where(.um-btn-primary, .um-btn-secondary) {

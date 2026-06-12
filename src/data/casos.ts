@@ -1,3 +1,5 @@
+import { editorialImages } from './editorialImageSystem';
+
 export interface Caso {
     id: string;
     titulo: string;
@@ -35,7 +37,7 @@ export const casos: Caso[] = [
             "Mejora del 45% en satisfacción del cliente",
             "Tiempo de entrega reducido en un 60%"
         ],
-        imagen: "/images/casos/retail-transformation.jpg",
+        imagen: editorialImages.sectors.software,
         tecnologiasUsadas: ["React", "Node.js", "AWS", "Elasticsearch", "Redis"],
         testimonial: {
             texto: "La transformación digital ha revolucionado nuestra forma de hacer negocios. Ahora podemos ofrecer una experiencia verdaderamente omnicanal a nuestros clientes.",
@@ -59,7 +61,7 @@ export const casos: Caso[] = [
             "Mejora del 40% en tiempo de respuesta",
             "Cero incidentes de seguridad críticos"
         ],
-        imagen: "/images/casos/bank-security.jpg",
+        imagen: editorialImages.sectors['seguridad-electronica'],
         tecnologiasUsadas: ["Azure Security", "Blockchain", "AI/ML", "Biometrics", "SIEM"],
         testimonial: {
             texto: "La solución implementada nos ha permitido dormir tranquilos sabiendo que nuestros sistemas están protegidos contra las amenazas más sofisticadas.",
@@ -83,7 +85,7 @@ export const casos: Caso[] = [
             "Aumento del 60% en velocidad de procesamiento",
             "ROI positivo en 8 meses"
         ],
-        imagen: "/images/casos/cloud-manufacturing.jpg",
+        imagen: editorialImages.sectors.industria,
         tecnologiasUsadas: ["AWS", "Kubernetes", "Docker", "Terraform", "CI/CD"],
         testimonial: {
             texto: "La migración a la nube ha transformado nuestra capacidad de respuesta y nos ha dado una ventaja competitiva significativa.",
