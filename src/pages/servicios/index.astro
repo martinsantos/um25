@@ -185,7 +185,7 @@ const serviceIconPaths: Record<string, string> = {
         </div>
         <p>
           Ocho frentes técnicos conectados por diagnóstico, ingeniería, implementación,
-          documentación y soporte. El diseño debe poder leerse en minutos y auditarse después.
+          evidencia técnica y soporte. El diseño debe poder leerse en minutos y auditarse después.
         </p>
       </div>
 
@@ -194,7 +194,7 @@ const serviceIconPaths: Record<string, string> = {
           <div class="services-dossier__image">
             <img
               src={servicios[1]?.visual.image || servicios[0]?.visual.image}
-              alt={servicios[1]?.visual.imageAlt || 'Infraestructura IT documentada por ULTIMA MILLA'}
+              alt={servicios[1]?.visual.imageAlt || 'Infraestructura IT operativa de ULTIMA MILLA'}
               loading="lazy"
               decoding="async"
             />
@@ -286,7 +286,7 @@ const serviceIconPaths: Record<string, string> = {
         <a href="/contacto" class="um-click-surface services-intent-card">
           <span>03</span>
           <strong>Solicitar relevamiento</strong>
-          <p>Obra puntual, sala técnica, red express o seguridad con entrega documentada.</p>
+          <p>Obra puntual, sala técnica, red express o seguridad con entrega técnica verificable.</p>
         </a>
       </div>
     </div>
@@ -1250,7 +1250,7 @@ const serviceIconPaths: Record<string, string> = {
     .services-hero__proofline div,
     .services-hero__proofline div + div {
       display: grid;
-      grid-template-columns: 106px minmax(0, 1fr);
+      grid-template-columns: minmax(0, 96px) minmax(0, 1fr);
       align-items: baseline;
       column-gap: 14px;
       border-right: 0;
@@ -1274,8 +1274,8 @@ const serviceIconPaths: Record<string, string> = {
       letter-spacing: 0;
       line-height: 1.15;
       text-transform: none;
-      white-space: nowrap;
-      overflow-wrap: normal;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
 
     .services-hero__proofline dd {

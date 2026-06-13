@@ -85,7 +85,7 @@ try {
     }
 } catch (error) {
     console.error(`Error loading antecedente ${id} from Directus:`, error);
-    return new Response('Directus antecedente unavailable', {
+    return new Response('Contenido temporalmente no disponible', {
       status: 503,
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     });
@@ -94,9 +94,28 @@ try {
 if (!antecedente) return Astro.redirect('/404');
 
 antecedente = curateAntecedente(antecedente);
-const caseRecordLabel = antecedente.curation?.recordLabel || 'Registro técnico';
+const toPublicCaseLabel = (value: unknown): string => {
+  const label = String(value || '')
+    .replace(/\bRegistro\s+[\p{L}]+\b/giu, 'Proyecto técnico')
+    .replace(/\bRegistro\b/gi, 'Proyecto')
+    .replace(/\bDoc[\p{L}]*\b/giu, 'Técnico')
+    .trim();
+  return label || 'Proyecto técnico';
+};
+const toPublicCaseSummary = (value: unknown): string => {
+  const summary = String(value || '').trim();
+  if (!summary || /Directus|registro\s+p[uú]blico|imagen\s+[uú]nica|datos\s+del\s+antecedente/i.test(summary)) {
+    return 'Proyecto técnico de ULTIMA MILLA con alcance, vertical y fecha operativa disponibles.';
+  }
+  return summary
+    .replace(/cargad[oa]s?\s+desde\s+Directus/gi, 'publicados por ULTIMA MILLA')
+    .replace(/\bregistro\s+p[uú]blico\b/gi, 'proyecto')
+    .replace(/\bimagen\s+[uú]nica\s+asociada\b/gi, 'imagen asociada')
+    .trim();
+};
+const caseRecordLabel = toPublicCaseLabel(antecedente.curation?.recordLabel);
 const caseRecordTone = antecedente.curation?.recordTone || 'technical-record';
-const caseRecordSummary = antecedente.curation?.recordSummary || 'Antecedente real cargado desde Directus.';
+const caseRecordSummary = toPublicCaseSummary(antecedente.curation?.recordSummary);
 
 // --- Prepare data for UI (generated-case image first, Directus as fallback) ---
 const directusMainImageUrl = getAssetUrl(antecedente.Imagen || antecedente.ImagenPrincipal);
@@ -271,34 +290,34 @@ const getRelatedAntecedentes = async (area: string, excludeId: string, limit: nu
 const relatedAntecedentes = await getRelatedAntecedentes(antecedente.Area || '', id);
 
 const buildCaseHeadline = (item: any): string => {
-  const title = cleanDisplayText(item.Titulo || item.Nombre || 'Proyecto técnico documentado');
+  const title = cleanDisplayText(item.Titulo || item.Nombre || 'Proyecto técnico');
   const client = formatDisplayName(item.Cliente);
   const area = cleanDisplayText(item.Area);
   const normalized = title.toLowerCase();
 
   if (normalized.includes('digitalización') || normalized.includes('digitalizacion') || normalized.includes('software')) {
     if (client) return `Software operativo para ${client}`;
-    return 'Software operativo documentado';
+    return 'Software operativo implementado';
   }
   if (normalized.includes('soporte')) {
-    if (client) return `Soporte IT documentado para ${client}`;
-    return 'Soporte IT documentado';
+    if (client) return `Soporte IT operativo para ${client}`;
+    return 'Soporte IT operativo';
   }
   if (normalized.includes('cctv') || normalized.includes('cámara') || normalized.includes('camara')) {
     if (client) return `CCTV operativo para ${client}`;
-    return 'CCTV operativo documentado';
+    return 'CCTV operativo';
   }
   if (normalized.includes('detección') || normalized.includes('deteccion') || normalized.includes('incendio')) {
     if (client) return `Detección y seguridad para ${client}`;
-    return 'Detección y seguridad documentada';
+    return 'Detección y seguridad implementada';
   }
   if (normalized.includes('redes') || normalized.includes('fibra')) {
     if (client) return `Redes y fibra para ${client}`;
-    return 'Redes y fibra documentadas';
+    return 'Redes y fibra implementadas';
   }
   if (normalized.includes('eléctrica') || normalized.includes('electrica') || normalized.includes('data center')) {
     if (client) return `Energía IT para ${client}`;
-    return 'Energía IT documentada';
+    return 'Energía IT implementada';
   }
 
   const beforeDash = title.split(/\s[-–]\s/)[0]?.trim() || title;
@@ -314,10 +333,10 @@ const caseHeadlineSource = isReplicaIdenticalCopy()
 const baseCaseHeadline = buildCaseHeadline({ ...antecedente, Titulo: caseHeadlineSource });
 const caseHeadline = (() => {
   if (antecedente.curation?.quality === 'low-value-candidate') {
-    return `Registro documental: ${baseCaseHeadline}`;
+    return baseCaseHeadline;
   }
   if (antecedente.curation?.quality === 'data-error-candidate') {
-    return `Registro técnico en revisión: ${baseCaseHeadline}`;
+    return baseCaseHeadline;
   }
   return baseCaseHeadline;
 })();
@@ -356,7 +375,6 @@ const caseSeo = buildCaseSeoMeta({
 const metaDescription = caseSeo.description;
 const structuredImageUrl = publicImageUrl(caseSeoImageUrl) || toCanonicalUrl(DEFAULT_IMAGE_URL);
 const caseDossierFacts = [
-  { label: 'Registro', value: `ANT-${id}` },
   { label: 'Tipo', value: caseRecordLabel },
   displayClientName ? { label: 'Organización', value: displayClientName } : null,
   antecedente.Area ? { label: 'Vertical', value: cleanDisplayText(antecedente.Area) } : null,
@@ -391,10 +409,9 @@ const antecedenteStructuredData = {
   "genre": caseRecordLabel,
   "about": antecedente.Area ? { "@type": "Thing", "name": cleanDisplayText(antecedente.Area) } : undefined,
   "mentions": antecedente.Cliente ? [{ "@type": "Organization", "name": cleanDisplayText(antecedente.Cliente) }] : undefined,
-  "identifier": `ANT-${id}`,
   "isPartOf": {
     "@type": "CollectionPage",
-    "name": "Evidencia operativa documentada",
+    "name": "Evidencia operativa real",
     "url": toCanonicalUrl('/antecedentes')
   },
   "provider": {
@@ -453,7 +470,7 @@ const antecedentePageStructuredData = [
           </div>
         </div>
 
-        <aside class="case-detail-dossier" aria-label="Dossier documental del antecedente">
+        <aside class="case-detail-dossier" aria-label="Ficha técnica del antecedente">
           <figure class="case-detail-dossier__media">
             <img
               src={mainImageUrl}
@@ -468,7 +485,7 @@ const antecedentePageStructuredData = [
           </figure>
           <div class="case-detail-dossier__body">
             <span>{caseRecordLabel}</span>
-            <strong>{displayClientName || `ANT-${id}`}</strong>
+            <strong>{displayClientName || 'Proyecto técnico'}</strong>
             <p>{caseRecordSummary}</p>
             <div class="case-detail-meta">
               {antecedente.Area && (
@@ -483,10 +500,6 @@ const antecedentePageStructuredData = [
                   <strong>{caseDateLabel}</strong>
                 </div>
               )}
-              <div>
-                <span>Registro</span>
-                <strong>ANT-{id}</strong>
-              </div>
             </div>
           </div>
         </aside>
@@ -537,7 +550,7 @@ const antecedentePageStructuredData = [
           <div class="flex flex-col gap-4 sm:gap-5">
             <div class="case-section-title">
               <span aria-hidden="true"></span>
-              <h2>Alcance documentado</h2>
+              <h2>Alcance técnico</h2>
             </div>
             <ul class="case-scope-list">
               {scopeItems.map((item) => (
@@ -583,7 +596,7 @@ const antecedentePageStructuredData = [
           </div>
         )}
 
-        <!-- Gallery (if has additional images from Directus) -->
+        <!-- Additional project gallery -->
         {antecedente.Imagenes && antecedente.Imagenes.length > 0 && (
           <div class="flex flex-col gap-4 sm:gap-5">
             <div class="case-section-title">
@@ -658,13 +671,8 @@ const antecedentePageStructuredData = [
             )}
             <div class="h-px bg-gray-100"></div>
             <div class="flex flex-col gap-1">
-              <span class="case-info-label">Jerarquía</span>
+              <span class="case-info-label">Tipo de trabajo</span>
               <span class="case-info-value">{caseRecordLabel}</span>
-            </div>
-            <div class="h-px bg-gray-100"></div>
-            <div class="flex flex-col gap-1">
-              <span class="case-info-label">Código Proyecto</span>
-              <span class="case-info-value case-info-value--code">ANT-{id}</span>
             </div>
           </div>
         </div>
@@ -709,7 +717,7 @@ const antecedentePageStructuredData = [
       <div class="um-container">
         <div class="case-related__head">
           <div>
-            <span class="um-kicker">Archivo relacionado</span>
+            <span class="um-kicker">Proyectos relacionados</span>
             <h2>Evidencia relacionada</h2>
           </div>
           <a href="/antecedentes" class="um-click-surface case-related__link">

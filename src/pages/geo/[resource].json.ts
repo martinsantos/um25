@@ -8,8 +8,8 @@ export const GET: APIRoute = async ({ params }) => {
   try {
     payload = await buildGeoResourceAsync(resource);
   } catch (error) {
-    console.error(`[GEO-${resource}] Directus unavailable:`, error);
-    return new Response(JSON.stringify({ error: 'Directus unavailable for GEO resource' }), {
+    console.error(`[GEO-${resource}] Content source unavailable:`, error);
+    return new Response(JSON.stringify({ error: 'Recurso GEO temporalmente no disponible' }), {
       status: 503,
       headers: {
         'Content-Type': 'application/json; charset=utf-8',

@@ -137,8 +137,8 @@ export function getAntecedenteRecordTone(quality: AntecedenteQuality): {
   if (quality === 'low-value-candidate') {
     return {
       tone: 'documentary-record',
-      label: 'Registro documental',
-      summary: 'Registro real de provisión o intervención menor; se muestra sin sobredimensionar su alcance.',
+      label: 'Proyecto técnico',
+      summary: 'Intervención real de provisión o alcance menor; se muestra sin sobredimensionar su escala.',
     };
   }
 
@@ -146,13 +146,13 @@ export function getAntecedenteRecordTone(quality: AntecedenteQuality): {
     return {
       tone: 'editorial-review',
       label: 'Revisión editorial',
-      summary: 'Registro real con señal de error o truncamiento en el dato fuente; requiere revisión en CMS.',
+      summary: 'Antecedente real con señal de error o truncamiento; requiere revisión editorial.',
     };
   }
 
   return {
     tone: 'technical-record',
-    label: 'Registro técnico',
+    label: 'Proyecto técnico',
     summary: 'Antecedente real con información útil, pero sin profundidad completa de caso estratégico.',
   };
 }
@@ -179,11 +179,11 @@ function getDateTime(value: unknown): number {
 
 export function formatAntecedenteYear(value: unknown): string {
   const raw = cleanAntecedenteText(value);
-  if (!raw || /invalid date/i.test(raw)) return 'documentado';
+  if (!raw || /invalid date/i.test(raw)) return 'sin fecha';
   const parsed = new Date(raw);
   if (!Number.isNaN(parsed.getTime())) return String(parsed.getFullYear());
   const year = raw.match(/\b(19\d{2}|20\d{2})\b/)?.[1];
-  return year || 'documentado';
+  return year || 'sin fecha';
 }
 
 export function formatAntecedenteDate(value: unknown): string {
@@ -199,7 +199,7 @@ export function formatAntecedenteDate(value: unknown): string {
 }
 
 function buildDisplayTitle(item: Record<string, any>): string {
-  const title = fixKnownTextErrors(cleanAntecedenteText(item.Titulo || item.Nombre || 'Antecedente técnico documentado'));
+  const title = fixKnownTextErrors(cleanAntecedenteText(item.Titulo || item.Nombre || 'Antecedente técnico'));
   return title
     .replace(/\s+\(\d+\)$/g, '')
     .replace(/\s+/g, ' ')
@@ -276,7 +276,7 @@ function classifyAntecedente(item: Record<string, any>, issues: string[]): Antec
   const hasStrategicSignal = STRATEGIC_PATTERNS.some((pattern) => pattern.test(contentText));
   const hasNamedClient = cleanAntecedenteText(item.Cliente).length >= 3;
   const hasSector = cleanAntecedenteText(item.Area || item.Unidad_de_negocio).length >= 3;
-  const hasDate = formatAntecedenteYear(item.Fecha) !== 'documentado';
+  const hasDate = formatAntecedenteYear(item.Fecha) !== 'sin fecha';
 
   if (hasDataError) return 'data-error-candidate';
   if (hasLowValueSignal && !hasStrategicSignal) return 'low-value-candidate';
@@ -352,7 +352,6 @@ export function buildAntecedenteListItemStructuredData(item: Record<string, any>
       datePublished,
       about: curated.Area ? { '@type': 'Thing', name: cleanAntecedenteText(curated.Area) } : undefined,
       mentions: curated.Cliente ? [{ '@type': 'Organization', name: cleanAntecedenteText(curated.Cliente) }] : undefined,
-      identifier: curated.id ? `ANT-${curated.id}` : undefined,
     },
   };
 }

@@ -37,7 +37,7 @@ El rediseño **híbrido ejecutivo** UMSA (hero oscuro acotado + cuerpo editorial
 | `/antecedentes` | 200 | Dossier + `EvidenceCaseRow` |
 | `/nosotros` | 200 | Claro; timeline institucional; fotos reales |
 | `/contacto` | 200 | Claro; proofline 24/7; CTAs por intención |
-| `/blog` | 200 | Tokens UMSA; archivo documental |
+| `/blog` | 200 | Tokens UMSA; archivo tecnico |
 | `/aeropuertos` | 200 | Hero acotado; cuerpo editorial blanco |
 | `/bodegas` | 200 | Idem |
 | `/gobiernosectorpublico` | 200 | Idem |

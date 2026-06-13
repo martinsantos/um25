@@ -62,6 +62,8 @@ describe('global contact modal contract', () => {
 
     expect(page).toContain('Enviar por email');
     expect(page).toContain('buildFallbackMailto(data = {})');
-    expect(page).toContain('mailto:contacto@ultimamilla.com.ar');
+    expect(page).toContain("['contacto', 'ultimamilla.com.ar'].join('@')");
+    expect(page).toContain("['mai', 'lto:'].join('')");
+    expect(page).not.toContain('mailto:contacto@ultimamilla.com.ar');
   });
 });
