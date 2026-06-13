@@ -74,7 +74,7 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
     services: [
       { id: 101, title: 'Infraestructura de redes', href: serviceHref(101, 'infraestructura-de-redes-cableado-fibra-optica-radioenlaces'), summary: 'Cableado, fibra, switching, WiFi, radioenlaces y documentación.' },
       { id: 105, title: 'Soporte técnico 24/7', href: serviceHref(105, 'soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it'), summary: 'Mesa de ayuda, mantenimiento, monitoreo y continuidad operativa.' },
-      { id: 102, title: 'Seguridad electrónica', href: serviceHref(102, 'sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi'), summary: 'CCTV, accesos, intrusión, SDI y mantenimiento documental.' },
+      { id: 102, title: 'Seguridad electrónica', href: serviceHref(102, 'sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi'), summary: 'CCTV, accesos, intrusión, SDI y mantenimiento técnico.' },
       { id: 104, title: 'Software a medida', href: serviceHref(104, 'desarrollo-de-software-a-medida-web-mobile-erp'), summary: 'Sistemas, APIs, tableros e integraciones para procesos operativos.' }
     ],
     sectors: [
@@ -88,7 +88,7 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
       { title: 'Cámara de CCTV', client: 'Aeropuertos Argentina 2000', href: '/antecedentes/3065/camara-de-cctv-aeropuerto-de-mendoza', sector: 'Aeropuertos' },
       { title: 'Detección y mantenimiento crítico', client: 'Consorcio Torre Thays', href: '/antecedentes/3066/torre-thays-dispositivos-de-deteccion', sector: 'Seguridad' }
     ],
-    process: ['Relevamiento de sitio y criticidad', 'Arquitectura técnica y alcance', 'Implementación documentada', 'Soporte, medición y mejora'],
+    process: ['Relevamiento de sitio y criticidad', 'Arquitectura técnica y alcance', 'Implementación verificada', 'Soporte, medición y mejora'],
     faqs: [
       { question: '¿ULTIMA MILLA trabaja solo en Mendoza?', answer: 'La base operativa está en Mendoza, con cobertura en Cuyo, Patagonia y proyectos en Argentina según alcance, criticidad y necesidad de soporte.' },
       { question: '¿Se puede contratar un solo servicio?', answer: 'Sí. El relevamiento define si conviene resolver una necesidad puntual o construir un plan integrado de red, seguridad, soporte, energía o software.' },
@@ -110,7 +110,7 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
     eyebrow: 'Presupuesto IT empresarial',
     h1: 'Cotizar servicios IT sin perder alcance',
     lead: 'Una cotización tecnológica seria separa diagnóstico, materiales, ingeniería, ejecución, documentación, SLA, soporte posterior e integraciones reales.',
-    proof: ['Alcance técnico verificable', 'Riesgo operativo medido', 'Entregables documentados', 'Próximo paso comercial claro'],
+    proof: ['Alcance técnico verificable', 'Riesgo operativo medido', 'Entregables verificables', 'Próximo paso comercial claro'],
     searchTerms: ['presupuesto tecnología para empresas', 'cotizar proyecto IT', 'presupuesto infraestructura IT', 'costo soporte técnico empresarial'],
     buyerNeed: 'Pasar de una consulta genérica de precio a una conversación de alcance: qué se debe relevar, qué se entrega, qué riesgos se cubren y cómo se sostiene después.',
     decisionFrame: 'Un presupuesto bajo puede ocultar omisiones críticas: certificación, pruebas, documentación, ventanas de trabajo, licencias, viáticos, soporte o integraciones.',
@@ -180,7 +180,7 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
     faqs: [
       { question: '¿Qué diferencia un proyecto de ingeniería IT de una instalación común?', answer: 'La ingeniería define alcance, riesgos, documentación, pruebas, coordinación con otros gremios y soporte posterior; no se limita a instalar equipos.' },
       { question: '¿Trabajan con obras en curso?', answer: 'Sí. La planificación debe coordinar canalizaciones, racks, energía, tableros, seguridad y puesta en marcha con obra civil y mantenimiento.' },
-      { question: '¿Entregan documentación final?', answer: 'El objetivo del proyecto es dejar infraestructura funcionando, probada y documentada para operación y mantenimiento.' }
+      { question: '¿Entregan cierre técnico?', answer: 'El objetivo del proyecto es dejar infraestructura funcionando, probada y lista para operación y mantenimiento.' }
     ],
     primaryCta: 'Solicitar relevamiento',
     secondaryCta: 'Ver proyectos',

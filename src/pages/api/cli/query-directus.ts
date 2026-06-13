@@ -125,7 +125,7 @@ function formatResults(directusData: {antecedentes: DirectusItem[], servicios: D
                 type: 'antecedente',
                 icon: '📊',
                 title: antecedente.title,
-                content: (antecedente.content || 'Proyecto empresarial documentado').slice(0, 280) + '...',
+                content: (antecedente.content || 'Proyecto empresarial técnico').slice(0, 280) + '...',
                 url: realUrl,
                 client: antecedente.client || null,
                 image: null,
@@ -139,7 +139,7 @@ function formatResults(directusData: {antecedentes: DirectusItem[], servicios: D
                 type: 'antecedente',
                 icon: '📊',
                 title: antecedente.title,
-                content: (antecedente.content || 'Proyecto empresarial documentado').slice(0, 280) + '...',
+                content: (antecedente.content || 'Proyecto empresarial técnico').slice(0, 280) + '...',
                 url: '/antecedentes', // URL genérica a la página de antecedentes
                 client: antecedente.client || null,
                 image: null,

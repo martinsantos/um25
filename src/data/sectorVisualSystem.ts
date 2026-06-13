@@ -72,7 +72,7 @@ export const sectorVisualSystem: Record<string, SectorVisualSpec> = {
     image: editorialImages.sectors.constructoras,
     imageAlt: 'Infraestructura eléctrica y de datos en obra tecnológica',
     services: ['Eléctricos para IT', 'Redes', 'Detección de incendios'],
-    operatingNeed: 'Diseño temprano, ejecución limpia y entrega documentada.'
+    operatingNeed: 'Diseño temprano, ejecución limpia y entrega verificable.'
   },
   industria: {
     slug: 'industria',
