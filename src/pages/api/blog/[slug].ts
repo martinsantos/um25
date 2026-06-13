@@ -25,7 +25,7 @@ async function findPostId(slug: string): Promise<number | null> {
 
 export const PUT: APIRoute = async ({ request, params }) => {
   if (!DIRECTUS_TOKEN) {
-    return new Response(JSON.stringify({ error: 'Directus token not configured' }), {
+    return new Response(JSON.stringify({ error: 'Servicio de publicacion no configurado' }), {
       status: 503,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -97,7 +97,7 @@ export const PUT: APIRoute = async ({ request, params }) => {
 
   if (!res.ok) {
     const err = await res.text();
-    return new Response(JSON.stringify({ error: 'Directus error', detail: err }), {
+    return new Response(JSON.stringify({ error: 'No se pudo completar la actualizacion', detail: err }), {
       status: 502,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -111,7 +111,7 @@ export const PUT: APIRoute = async ({ request, params }) => {
 
 export const DELETE: APIRoute = async ({ request, params }) => {
   if (!DIRECTUS_TOKEN) {
-    return new Response(JSON.stringify({ error: 'Directus token not configured' }), {
+    return new Response(JSON.stringify({ error: 'Servicio de publicacion no configurado' }), {
       status: 503,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -145,7 +145,7 @@ export const DELETE: APIRoute = async ({ request, params }) => {
 
   if (!res.ok) {
     const err = await res.text();
-    return new Response(JSON.stringify({ error: 'Directus error', detail: err }), {
+    return new Response(JSON.stringify({ error: 'No se pudo completar la eliminacion', detail: err }), {
       status: 502,
       headers: { 'Content-Type': 'application/json' },
     });

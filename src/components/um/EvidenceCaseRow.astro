@@ -75,16 +75,22 @@ const visibleMetrics = (metrics || []).filter((m) => m?.value && m?.label).slice
 <style>
   .evidence-case-row {
     display: grid;
-    grid-template-columns: 3rem 136px minmax(220px, 1fr) minmax(148px, 0.45fr) auto;
-    column-gap: clamp(12px, 1.6vw, 20px);
-    row-gap: 10px;
+    grid-template-columns: 3rem minmax(156px, 0.2fr) minmax(240px, 1fr) minmax(160px, 0.34fr) auto;
+    column-gap: clamp(14px, 1.8vw, 24px);
+    row-gap: 12px;
     align-items: center;
-    padding: clamp(18px, 2.2vw, 24px) clamp(18px, 2vw, 24px);
-    border-top: 0;
+    margin-bottom: 0.9rem;
+    padding: clamp(14px, 1.8vw, 20px);
+    border: 1px solid #e3e6ea;
+    border-radius: 6px;
+    background: #fff;
     color: inherit;
     text-decoration: none;
     box-sizing: border-box;
-    transition: background-color 180ms ease;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.045);
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease;
   }
 
   .evidence-case-row > * {
@@ -92,7 +98,8 @@ const visibleMetrics = (metrics || []).filter((m) => m?.value && m?.label).slice
   }
 
   .evidence-case-row:hover {
-    background: rgba(220, 38, 38, 0.03);
+    border-color: color-mix(in srgb, var(--um-red) 34%, #e3e6ea);
+    background: color-mix(in srgb, #fff 94%, var(--um-red) 6%);
   }
 
   .evidence-case-row:focus-visible {
@@ -112,11 +119,12 @@ const visibleMetrics = (metrics || []).filter((m) => m?.value && m?.label).slice
   .evidence-case-row__thumb {
     margin: 0;
     overflow: hidden;
-    width: 136px;
-    height: 102px;
-    min-width: 136px;
-    min-height: 102px;
-    aspect-ratio: 4 / 3;
+    width: 100%;
+    height: auto;
+    min-width: 156px;
+    min-height: 112px;
+    aspect-ratio: 16 / 10;
+    border-radius: 4px;
     background: #eceff2;
   }
 
@@ -130,6 +138,11 @@ const visibleMetrics = (metrics || []).filter((m) => m?.value && m?.label).slice
     object-fit: cover;
     display: block;
     filter: saturate(0.88) contrast(1.04);
+    transition: transform 220ms ease;
+  }
+
+  .evidence-case-row:hover .evidence-case-row__thumb img {
+    transform: scale(1.025);
   }
 
   .evidence-case-row__copy {
@@ -218,8 +231,8 @@ const visibleMetrics = (metrics || []).filter((m) => m?.value && m?.label).slice
 
   .evidence-case-row__meta-group {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(3.75rem, 4.75rem);
-    gap: clamp(12px, 1.6vw, 20px);
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
     align-items: start;
     min-width: 0;
   }
@@ -263,10 +276,10 @@ const visibleMetrics = (metrics || []).filter((m) => m?.value && m?.label).slice
 
   @media (max-width: 900px) {
     .evidence-case-row {
-      grid-template-columns: minmax(96px, 112px) minmax(0, 1fr);
-      column-gap: 12px;
+      grid-template-columns: minmax(112px, 0.34fr) minmax(0, 1fr);
+      column-gap: 14px;
       align-items: start;
-      padding-inline: 0;
+      padding: 14px;
     }
 
     .evidence-case-row__number {
@@ -280,7 +293,7 @@ const visibleMetrics = (metrics || []).filter((m) => m?.value && m?.label).slice
       grid-column: 1;
       grid-row: 2;
       width: 100%;
-      min-width: 96px;
+      min-width: 112px;
       max-width: none;
       height: auto;
       min-height: 72px;

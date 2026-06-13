@@ -51,7 +51,7 @@ export async function verifyToken() {
 /**
  * Obtiene los datos de un antecedente por su ID
  * @param {string} id ID del antecedente
- * @returns {Promise<Object>} Datos del antecedente
+ * @returns {Promise<Object>} Datos del proyecto
  */
 export async function fetchAntecedente(id) {
   try {

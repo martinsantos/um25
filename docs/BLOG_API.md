@@ -52,7 +52,7 @@ Content-Type: application/json
 ```json
 { "error": "Campos requeridos: titulo, resumen, contenido" }
 { "error": "Unauthorized" }
-{ "error": "Directus error", "detail": "..." }
+{ "error": "No se pudo completar la publicacion", "detail": "..." }
 ```
 
 ---

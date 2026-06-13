@@ -48,7 +48,7 @@ export const GET: APIRoute = async () => {
         });
     } catch (error) {
         console.error('Error generando sitemap de antecedentes:', error);
-        return new Response('Directus unavailable for antecedentes sitemap', {
+        return new Response('Sitemap de antecedentes temporalmente no disponible', {
             status: 503,
             headers: {
                 'Content-Type': 'text/plain; charset=utf-8',
