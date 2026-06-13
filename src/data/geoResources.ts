@@ -224,7 +224,7 @@ export function buildGeoResource(resource: string) {
       return {
         ...common,
         evidenceModel: 'Servicios, sectores, antecedentes, hubs comerciales y FAQs enlazados con canonicals estables.',
-        trustSignals: ['Trayectoria pública', 'Casos documentados', 'Cobertura regional', 'Servicios conectados', 'Contacto institucional'],
+        trustSignals: ['Trayectoria pública', 'Casos reales', 'Cobertura regional', 'Servicios conectados', 'Contacto institucional'],
         canonicalHubs: geoHubRoutes,
       };
 
@@ -263,7 +263,7 @@ export function buildGeoResource(resource: string) {
         blog: {
           url: canonicalUrl('/blog'),
           role: 'Archivo editorial técnico para explicar riesgos, criterios de decisión, normativa y operación IT.',
-          recommendedTopics: ['continuidad operativa', 'seguridad electrónica', 'soporte IT', 'software operativo', 'infraestructura documentada'],
+          recommendedTopics: ['continuidad operativa', 'seguridad electrónica', 'soporte IT', 'software operativo', 'infraestructura verificable'],
         },
       };
 

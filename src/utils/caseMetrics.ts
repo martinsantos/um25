@@ -41,7 +41,7 @@ const PATTERN_RULES: PatternRule[] = [
   },
   {
     regex: /(\d+(?:[.,]\d+)?)\s*%/,
-    format: (m) => ({ value: `${m[1].replace(',', '.')}%`, label: 'indicador documentado' }),
+    format: (m) => ({ value: `${m[1].replace(',', '.')}%`, label: 'indicador técnico' }),
   },
 ];
 
