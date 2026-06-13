@@ -226,7 +226,7 @@ const defaultContent: Required<TemplateContent> = {
       image: cctvAiProductDefaults.phoneImage,
       box: 'demo-box--report',
       summary: 'UMSA ordena los eventos, adjunta evidencia visual y deja recomendaciones revisables.',
-      recommendation: 'Usar el reporte como soporte documental; la decisión final queda en revisión humana.',
+      recommendation: 'Usar el reporte como soporte técnico; la decisión final queda en revisión humana.',
       evidence: 'Resumen ejecutivo + fichas de incidente',
       duration: 'PDF demo',
     },
