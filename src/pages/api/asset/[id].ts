@@ -12,8 +12,8 @@ export const GET: APIRoute = async ({ params, request }) => {
   // Obtener el token de autenticación de Directus
   const directusToken = import.meta.env.DIRECTUS_STATIC_TOKEN;
   if (!directusToken) {
-    console.error('[API] Directus token not configured');
-    return new Response('Directus token not configured', { status: 500 });
+    console.error('[API] Asset token not configured');
+    return new Response('Servicio de assets no configurado', { status: 500 });
   }
 
   // Construir la URL del asset en Directus

@@ -11,8 +11,8 @@ export const GET: APIRoute = async () => {
       },
     });
   } catch (error) {
-    console.error('[GEO-IMAGE-EVIDENCE] Directus unavailable:', error);
-    return new Response(JSON.stringify({ error: 'Directus unavailable for image evidence' }), {
+    console.error('[GEO-IMAGE-EVIDENCE] Content source unavailable:', error);
+    return new Response(JSON.stringify({ error: 'Evidencia de imagenes temporalmente no disponible' }), {
       status: 503,
       headers: {
         'Content-Type': 'application/json; charset=utf-8',

@@ -24,7 +24,7 @@ function slugify(text: string): string {
 
 export const POST: APIRoute = async ({ request }) => {
   if (!DIRECTUS_TOKEN) {
-    return new Response(JSON.stringify({ error: 'Directus token not configured' }), {
+    return new Response(JSON.stringify({ error: 'Servicio de publicacion no configurado' }), {
       status: 503,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -104,7 +104,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   if (!res.ok) {
     const err = await res.text();
-    return new Response(JSON.stringify({ error: 'Directus error', detail: err }), {
+    return new Response(JSON.stringify({ error: 'No se pudo completar la publicacion', detail: err }), {
       status: 502,
       headers: { 'Content-Type': 'application/json' },
     });

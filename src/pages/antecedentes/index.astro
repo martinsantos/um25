@@ -272,16 +272,16 @@ const pageTitle = pageData.currentPage > 1
   ? `Archivo de antecedentes - página ${pageData.currentPage} | ULTIMA MILLA`
   : activeSectorName
     ? `Antecedentes en ${activeSectorName} | ULTIMA MILLA`
-    : hasActiveArchiveFilters
+  : hasActiveArchiveFilters
       ? 'Archivo filtrado de antecedentes | ULTIMA MILLA'
-      : 'Evidencia operativa documentada | ULTIMA MILLA';
+      : 'Evidencia operativa real | ULTIMA MILLA';
 
 const pageDescription = pageData.currentPage > 1
-  ? `Archivo documental de antecedentes técnicos de ULTIMA MILLA, página ${pageData.currentPage}: registros reales con cliente, sector, fecha e imagen asociada.`
+  ? `Antecedentes técnicos de ULTIMA MILLA, página ${pageData.currentPage}: proyectos reales con cliente, sector, fecha e imagen asociada.`
   : activeSectorName
-    ? `Antecedentes técnicos de ULTIMA MILLA relacionados con ${activeSectorName}: casos y registros reales con cliente, sector, fecha e imagen.`
+    ? `Antecedentes técnicos de ULTIMA MILLA relacionados con ${activeSectorName}: casos y proyectos reales con cliente, sector, fecha e imagen.`
     : hasActiveArchiveFilters
-      ? 'Archivo filtrado de antecedentes técnicos de ULTIMA MILLA con registros reales, cliente, sector, fecha e imagen asociada.'
+      ? 'Archivo filtrado de antecedentes técnicos de ULTIMA MILLA con proyectos reales, cliente, sector, fecha e imagen asociada.'
       : 'Antecedentes técnicos de ULTIMA MILLA: proyectos reales de redes, seguridad electrónica, telecomunicaciones, software, soporte e infraestructura IT.';
 
 const templateVariant = getDevTemplateVariant(Astro.url, import.meta.env.DEV) ?? 'editorial';
@@ -304,7 +304,7 @@ const crawlableAntecedenteIndex = allAntecedentesForIndex
   .sort((a, b) => String(a.title).localeCompare(String(b.title), 'es'));
 const antecedentesStrategicLinkGroups = buildCaseStrategicLinkGroups({
   currentPath: '/antecedentes',
-  title: 'Evidencia operativa documentada',
+  title: 'Evidencia operativa real',
   summary: 'Antecedentes técnicos de redes, seguridad electrónica, telecomunicaciones, software, soporte e infraestructura IT.',
   text: visibleAntecedentes.map((item: any) => `${item.displayTitle || item.Titulo || ''} ${item.displayDescription || item.Descripcion || ''} ${item.Cliente || ''} ${item.Area || ''}`).join(' '),
   relatedCases: visibleAntecedentes.map((item: any) => ({
@@ -391,9 +391,9 @@ const antecedentesCollectionStructuredData = {
         <details>
           <summary id="antecedentes-crawl-index-title">
             Índice completo de antecedentes
-            <span>{crawlableAntecedenteIndex.length} casos documentados</span>
+            <span>{crawlableAntecedenteIndex.length} casos técnicos</span>
           </summary>
-          <nav aria-label="Todos los antecedentes documentados">
+          <nav aria-label="Todos los antecedentes técnicos">
             {crawlableAntecedenteIndex.map((item) => (
               <a href={item.href}>
                 <strong>{item.title}</strong>

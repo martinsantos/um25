@@ -29,8 +29,8 @@ export const GET: APIRoute = async () => {
       },
     });
   } catch (error) {
-    console.error('[SITEMAP-IMAGES] Directus unavailable:', error);
-    return new Response('Directus unavailable for image sitemap', {
+    console.error('[SITEMAP-IMAGES] Content source unavailable:', error);
+    return new Response('Sitemap de imagenes temporalmente no disponible', {
       status: 503,
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',

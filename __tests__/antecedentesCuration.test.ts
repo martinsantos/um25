@@ -29,7 +29,7 @@ describe('antecedentes curation', () => {
     expect(softwareGobierno.curation.recordLabel).toBe('Caso operativo');
     expect(isPromotableAntecedente(softwareGobierno)).toBe(true);
     expect(pcMonitor.curation.quality).toBe('low-value-candidate');
-    expect(pcMonitor.curation.recordLabel).toBe('Registro documental');
+    expect(pcMonitor.curation.recordLabel).toBe('Proyecto técnico');
     expect(discoDuro.curation.quality).toBe('low-value-candidate');
     expect(isPromotableAntecedente(pcMonitor)).toBe(false);
   });
@@ -52,8 +52,8 @@ describe('antecedentes curation', () => {
     const sorted = sortAntecedentesForPublicList(antecedentes);
 
     expect(sorted.slice(0, 12).every((item) => item.curation.quality === 'strong-case')).toBe(true);
-    expect(formatAntecedenteYear('Invalid Date')).toBe('documentado');
-    expect(formatAntecedenteYear('')).toBe('documentado');
+    expect(formatAntecedenteYear('Invalid Date')).toBe('sin fecha');
+    expect(formatAntecedenteYear('')).toBe('sin fecha');
   });
 
   test('GEO cases prefer curated strong evidence over weak inventory records', () => {

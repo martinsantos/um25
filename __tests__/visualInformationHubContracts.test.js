@@ -83,8 +83,8 @@ describe('Information hub visual contracts', () => {
     expect(antecedentesEditorial).toMatch(/\.ante-dossier__sector-rail\s*\{[\s\S]*overflow:\s*hidden;/);
     expect(antecedentesEditorial).toMatch(/\.ante-dossier__sector-rail\s*\{[\s\S]*mask-image:\s*linear-gradient\(90deg,\s*#000 0,\s*#000 calc\(100% - 42px\),\s*transparent 100%\)/);
     expect(antecedentesEditorial).toMatch(/\.ante-dossier__sector-links\s*\{[\s\S]*padding-right:\s*clamp\(32px,\s*5vw,\s*72px\);/);
-    expect(antecedentesEditorial).toMatch(/mask-image:\s*linear-gradient\(90deg,\s*transparent 0,\s*#000 14px,\s*#000 calc\(100% - 28px\),\s*transparent 100%\)/);
-    expect(antecedentesEditorial).toMatch(/window\.matchMedia\('\(max-width: 720px\)'\)\.matches \? 'start' : 'nearest'/);
+    expect(antecedentesEditorial).toMatch(/\.ante-dossier__sector-links\s*\{[\s\S]*overscroll-behavior-inline:\s*contain;/);
+    expect(antecedentesEditorial).toMatch(/rail\.scrollLeft\s*=\s*Math\.max\(0,\s*targetLeft\);/);
   });
 
   test('row hover treatment stays calm and does not add red rails or layout drift', () => {
@@ -191,7 +191,7 @@ describe('Information hub visual contracts', () => {
 
     expect(source).toContain('crawlableAntecedenteIndex');
     expect(source).toContain('Índice completo de antecedentes');
-    expect(source).toContain('Todos los antecedentes documentados');
+    expect(source).toContain('Todos los antecedentes técnicos');
     expect(source).toContain('href={item.href}');
   });
 
@@ -200,7 +200,7 @@ describe('Information hub visual contracts', () => {
     const rowBlock = cssBlock(evidenceRow, '.evidence-case-row');
     const titleBlock = cssBlock(evidenceRow, '.evidence-case-row h3');
 
-    expect(rowBlock).toMatch(/grid-template-columns:\s*3rem 136px minmax\(220px,\s*1fr\) minmax\(148px,\s*0\.45fr\) auto;/);
+    expect(rowBlock).toMatch(/grid-template-columns:\s*3rem minmax\(156px,\s*0\.2fr\) minmax\(240px,\s*1fr\) minmax\(160px,\s*0\.34fr\) auto;/);
     expect(titleBlock).toMatch(/overflow-wrap:\s*normal;/);
     expect(titleBlock).toMatch(/word-break:\s*normal;/);
     expect(titleBlock).toMatch(/hyphens:\s*none;/);
@@ -408,7 +408,7 @@ describe('Information hub visual contracts', () => {
     expect(serviceDetail).toContain('class="service-info-ledger"');
     expect(serviceDetail).not.toContain('<SectionHeader kicker="Ficha técnica" title={sidebarInfoTitle} />');
     expect(cssBlock(serviceDetail, '.service-info-card--dossier')).toMatch(/padding:\s*0;/);
-    expect(cssBlock(serviceDetail, '.service-info-ledger div')).toMatch(/grid-template-columns:\s*minmax\(116px,\s*0\.44fr\) minmax\(0,\s*0\.56fr\);/);
+    expect(cssBlock(serviceDetail, '.service-info-ledger div')).toMatch(/grid-template-columns:\s*minmax\(148px,\s*0\.48fr\) minmax\(0,\s*0\.52fr\);/);
     expect(serviceDetail).toMatch(/:global\(\.service-info-primary\)[\s\S]*width:\s*100%;/);
     expect(serviceDetail).toMatch(/\.service-info-secondary\s*\{[\s\S]*background:\s*transparent;/);
   });

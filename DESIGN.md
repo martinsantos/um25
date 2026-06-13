@@ -202,7 +202,7 @@ White Dossier queda como prototipo principal de mayo 2026 para validar una web d
 - Negro tecnico queda reservado para aperturas criticas, footers, modulos de capacidad o casos protagonistas; no debe ocupar todos los listados.
 - Rojo UMSA se usa como separador, numero, foco activo, flecha o CTA. Quedan prohibidos banners rojos repetidos sobre miniaturas.
 - Servicios se resuelven como dossier: indice compacto de 8 frentes, modulo de criterio operativo, prueba institucional y paquetes comprables sin precios.
-- Antecedentes se resuelven como evidencia: caso protagonista visible temprano, dos secundarios, archivo documental y filtros livianos.
+- Antecedentes se resuelven como evidencia: caso protagonista visible temprano, dos secundarios, archivo tecnico y filtros livianos.
 - Sectores se resuelven como mapa de capacidad: fotos + necesidad operativa + servicios aplicados, no cards apretadas ni overlays iguales.
 - Blog se resuelve como archivo tecnico premium: cada nota usa su `imagen_portada` como miniatura y como imagen destacada; las categorias son sobrias y la lectura queda subordinada al sistema UMSA.
 - Contacto se resuelve como puerta directa: cuatro campos visibles (`nombre`, `email`, `empresa`, `mensaje`), sin selects comerciales ni captcha visible. El antispam corre en segundo plano con honeypot, tiempo minimo, limite de links, validacion de longitud y rate limit.
@@ -324,7 +324,7 @@ Regla operacional: ningun texto visible del sitio publico debe quedar debajo de 
 
 Se agregan dos variantes comparables, solo para desarrollo local:
 
-- `?template=editorial`: composicion editorial con protagonistas, secundarios y archivo documental.
+- `?template=editorial`: composicion editorial con protagonistas, secundarios y archivo tecnico.
 - `?template=atlas`: indice tecnico mas denso, pensado como mapa industrial de evidencia.
 
 Rutas de prueba:
