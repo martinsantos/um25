@@ -810,7 +810,7 @@ ${this.getASCIILogo()}
 
 💬 WHATSAPP COMERCIAL:
    📱 +54 261 555 0123
-   💭 Mensaje sugerido: "Hola! Vengo desde su terminal CLI"
+   Mensaje sugerido: "Hola, vengo desde el sitio web de ULTIMA MILLA"
 
 ⏰ HORARIOS DE ATENCIÓN:
    📅 Lunes a Viernes: 9:00 - 18:00
@@ -834,7 +834,7 @@ ${this.getASCIILogo()}
     if (args.includes('email')) {
       setTimeout(() => {
         if (typeof window !== 'undefined') {
-          window.open('mailto:info@ultimamilla.com.ar?subject=Consulta desde Terminal CLI&body=Hola! Los contacto desde el terminal CLI de su sitio web.');
+          window.open('mailto:info@ultimamilla.com.ar?subject=Consulta desde sitio web ULTIMA MILLA&body=Hola. Los contacto desde el sitio web de ULTIMA MILLA.');
         }
       }, 500);
     }
@@ -842,7 +842,7 @@ ${this.getASCIILogo()}
     if (args.includes('wa')) {
       setTimeout(() => {
         if (typeof window !== 'undefined') {
-          window.open('https://wa.me/5492615550123?text=Hola! Los contacto desde el terminal CLI de su sitio web. Me interesa conocer más sobre sus servicios.');
+          window.open('https://wa.me/5492615550123?text=Hola. Los contacto desde el sitio web de ULTIMA MILLA. Me interesa conocer más sobre sus servicios.');
         }
       }, 500);
     }
@@ -863,20 +863,20 @@ ${this.getASCIILogo()}
     }
 
     return this.formatSuccess(`
-🔴 EFECTO MATRIX - DATOS ULTIMA MILLA
+MODO DATOS - ULTIMA MILLA
 ═══════════════════════════════════════════════════════════════════
 
-<div class="matrix-effect" style="font-family: monospace; color: #00ff00; background: #000; padding: 20px; animation: matrix 2s linear infinite;">
+<div class="matrix-effect" style="font-family: Open Sans, Arial, system-ui, sans-serif; color: #ffffff; background: #111111; border-left: 3px solid #DC2626; padding: 20px;">
 ${matrix}
 </div>
 
-🎭 DECODIFICANDO INFORMACIÓN EMPRESARIAL...
+DECODIFICANDO INFORMACIÓN EMPRESARIAL...
    💾 Proyectos: ${this.companyData.estadisticas.proyectosCompletados}
    👥 Clientes: ${this.companyData.estadisticas.clientesActivos}  
    🕐 Uptime: 99.9%
    🌐 Cobertura: Nacional
 
-⚡ "No hay Matrix, solo código que conecta el futuro" - ULTIMA MILLA
+"No hay Matrix, solo infraestructura que sostiene continuidad operativa" - ULTIMA MILLA
 
 ═══════════════════════════════════════════════════════════════════
     `);
