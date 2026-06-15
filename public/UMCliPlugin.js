@@ -533,8 +533,8 @@ class UMCliPlugin {
   getCSS() {
     return `
       .um-cli-plugin {
-        font-family: 'Fira Code', 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
-        font-size: 14px;
+        font-family: 'Open Sans', Arial, system-ui, sans-serif;
+        font-size: 16px;
         line-height: 1.5;
         width: 100%;
         max-width: 900px;
@@ -543,39 +543,39 @@ class UMCliPlugin {
       }
 
       .um-cli-plugin[data-theme="dark"] {
-        --bg-primary: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
-        --bg-secondary: linear-gradient(90deg, #21262d 0%, #30363d 100%);
-        --border-color: #30363d;
-        --text-primary: #e6edf3;
-        --text-secondary: #8b949e;
-        --accent-color: #00d4aa;
-        --success-color: #7ee787;
-        --error-color: #f85149;
-        --info-color: #79c0ff;
+        --bg-primary: #111111;
+        --bg-secondary: #050505;
+        --border-color: rgba(255, 255, 255, 0.14);
+        --text-primary: #f5f5f5;
+        --text-secondary: #d4d4d4;
+        --accent-color: #DC2626;
+        --success-color: #ffffff;
+        --error-color: #ffffff;
+        --info-color: #ffffff;
       }
 
       .um-cli-plugin[data-theme="light"] {
-        --bg-primary: linear-gradient(135deg, #ffffff 0%, #f6f8fa 100%);
-        --bg-secondary: linear-gradient(90deg, #f6f8fa 0%, #e1e7ef 100%);
-        --border-color: #d1d9e0;
-        --text-primary: #24292f;
-        --text-secondary: #656d76;
-        --accent-color: #0366d6;
-        --success-color: #28a745;
-        --error-color: #d73a49;
-        --info-color: #0366d6;
+        --bg-primary: #ffffff;
+        --bg-secondary: #f5f5f5;
+        --border-color: #e1e4e8;
+        --text-primary: #111111;
+        --text-secondary: #4b5563;
+        --accent-color: #DC2626;
+        --success-color: #111111;
+        --error-color: #111111;
+        --info-color: #111111;
       }
 
       .um-terminal {
         background: var(--bg-primary);
         border: 1px solid var(--border-color);
         border-radius: 8px;
-        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
         height: 500px;
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        transition: all 0.3s ease;
+        transition: border-color 0.24s ease, box-shadow 0.24s ease;
       }
 
       .um-terminal.fullscreen {
@@ -611,12 +611,12 @@ class UMCliPlugin {
         border-radius: 50%;
         border: none;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: transform 0.18s ease-out, filter 0.18s ease-out;
       }
 
-      .um-close { background: #ff5f57; }
-      .um-minimize { background: #ffbd2e; }
-      .um-maximize { background: #28ca42; }
+      .um-close { background: #DC2626; }
+      .um-minimize { background: #ffffff; opacity: 0.64; }
+      .um-maximize { background: #ffffff; opacity: 0.36; }
 
       .um-control:hover {
         transform: scale(1.1);
@@ -624,9 +624,9 @@ class UMCliPlugin {
       }
 
       .um-terminal-title {
-        color: var(--text-secondary);
-        font-size: 12px;
-        font-weight: 500;
+        color: var(--text-primary);
+        font-size: 16px;
+        font-weight: 600;
         text-align: center;
         flex: 1;
         margin-left: -60px;
@@ -637,7 +637,7 @@ class UMCliPlugin {
         padding: 16px;
         overflow-y: auto;
         color: var(--text-primary);
-        background: rgba(13, 17, 23, 0.4);
+        background: transparent;
       }
 
       .um-welcome-message {
@@ -645,10 +645,11 @@ class UMCliPlugin {
       }
 
       .um-ascii-art {
-        color: var(--accent-color);
-        font-size: 10px;
+        color: var(--text-primary);
+        font-size: 16px;
         margin-bottom: 16px;
-        text-shadow: 0 0 10px rgba(0, 212, 170, 0.3);
+        line-height: 1.35;
+        text-shadow: none;
       }
 
       .um-welcome-info p {
@@ -662,17 +663,17 @@ class UMCliPlugin {
       }
 
       .um-welcome-info code {
-        background: rgba(110, 118, 129, 0.15);
-        color: var(--info-color);
+        background: rgba(220, 38, 38, 0.08);
+        color: var(--text-primary);
         padding: 2px 6px;
         border-radius: 3px;
         font-family: inherit;
-        font-size: 0.9em;
+        font-size: 1rem;
       }
 
       .um-terminal-input-line {
         padding: 12px 16px;
-        background: rgba(13, 17, 23, 0.6);
+        background: color-mix(in srgb, var(--bg-secondary) 86%, transparent);
         border-top: 1px solid var(--border-color);
         display: flex;
         align-items: center;
@@ -683,7 +684,7 @@ class UMCliPlugin {
         color: var(--accent-color);
         font-weight: 600;
         white-space: nowrap;
-        text-shadow: 0 0 8px rgba(0, 212, 170, 0.4);
+        text-shadow: none;
       }
 
       .um-input {
@@ -692,7 +693,7 @@ class UMCliPlugin {
         border: none;
         color: var(--text-primary);
         font-family: inherit;
-        font-size: 14px;
+        font-size: 16px;
         outline: none;
         caret-color: var(--accent-color);
       }
@@ -717,10 +718,14 @@ class UMCliPlugin {
 
       .um-command-success {
         color: var(--success-color);
+        border-left: 3px solid var(--accent-color);
+        padding-left: 10px;
       }
 
       .um-command-error {
         color: var(--error-color);
+        border-left: 3px solid var(--accent-color);
+        padding-left: 10px;
       }
 
       .um-command-info {
@@ -737,12 +742,12 @@ class UMCliPlugin {
       }
 
       .um-terminal-body::-webkit-scrollbar-thumb {
-        background: rgba(110, 118, 129, 0.3);
+        background: rgba(220, 38, 38, 0.72);
         border-radius: 3px;
       }
 
       .um-terminal-body::-webkit-scrollbar-thumb:hover {
-        background: rgba(110, 118, 129, 0.5);
+        background: #DC2626;
       }
 
       /* Responsive */
@@ -757,12 +762,12 @@ class UMCliPlugin {
         }
         
         .um-terminal-body {
-          font-size: 12px;
+          font-size: 16px;
           padding: 12px;
         }
         
         .um-ascii-art {
-          font-size: 8px;
+          font-size: 16px;
         }
       }
 
@@ -782,8 +787,10 @@ class UMCliPlugin {
       }
 
       .um-matrix {
-        color: #00ff00;
-        text-shadow: 0 0 5px #00ff00;
+        color: #ffffff;
+        border-left: 3px solid #DC2626;
+        padding-left: 10px;
+        text-shadow: none;
         animation: matrix-glow 1s infinite alternate;
       }
 
@@ -847,21 +854,21 @@ class UMCliPlugin {
 ║              ULTIMA MILLA                  ║
 ║       Conectando el futuro desde 2003      ║
 ║                                            ║
-║  💻 22 años de experiencia tecnológica     ║
-║  🚀 +469 proyectos exitosos               ║
-║  👥 150+ clientes satisfechos              ║
-║  🔧 +30 comandos disponibles               ║
+║     22 años de experiencia técnica         ║
+║     +469 proyectos publicados              ║
+║     150+ clientes y organismos             ║
+║     comandos para explorar evidencia       ║
 ╚════════════════════════════════════════════╝
 
-💡 COMANDOS PARA EMPEZAR:
+COMANDOS PARA EMPEZAR:
    help             → Ver todos los comandos disponibles
    sudo ultimamilla.py --demo → Demo completa de la empresa
    ls servicios     → Explorar nuestros servicios
    grep "Quilmes"   → Buscar proyectos de Quilmes
    stats --clientes → Estadísticas de clientes
-   matrix           → Easter egg divertido
+   matrix           → Modo de lectura alternativa
 
-📋 Escribe un comando o usa los botones de arriba para comenzar...
+Escribe un comando o usa los accesos para comenzar.
 ═══════════════════════════════════════════════════════════════
 `;
     
