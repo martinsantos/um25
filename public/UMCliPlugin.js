@@ -367,10 +367,10 @@ ${filteredResults.map((result, index) =>
 </div>`;
     
     if (args.includes('email')) {
-      window.open('mailto:info@ultimamilla.com.ar?subject=Consulta desde Terminal CLI');
+      window.open('mailto:info@ultimamilla.com.ar?subject=Consulta desde sitio web ULTIMA MILLA');
     }
     if (args.includes('wa')) {
-      window.open('https://wa.me/5492611234567?text=Hola! Vengo desde el terminal CLI de su sitio web');
+      window.open('https://wa.me/5492611234567?text=Hola! Vengo desde el sitio web de ULTIMA MILLA');
     }
     
     return contactInfo;

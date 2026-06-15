@@ -216,11 +216,11 @@ class UMTerminalAdvanced {
 
     updatePromptStyle() {
         const colors = {
-            default: '#00ffaa',
-            matrix: '#00ff00',
-            retro: '#ff00ff',
-            neon: '#00ffff',
-            corporate: '#fbbf24'
+            default: '#DC2626',
+            matrix: '#DC2626',
+            retro: '#DC2626',
+            neon: '#DC2626',
+            corporate: '#DC2626'
         };
         
         if (this.prompt) {
@@ -232,11 +232,11 @@ class UMTerminalAdvanced {
         if (!this.themeSelector) return;
         
         const colors = {
-            default: '#00ffaa',
-            matrix: '#00ff00',
-            retro: '#ff00ff',
-            neon: '#00ffff',
-            corporate: '#fbbf24'
+            default: '#DC2626',
+            matrix: '#DC2626',
+            retro: '#DC2626',
+            neon: '#DC2626',
+            corporate: '#DC2626'
         };
         
         const currentColor = colors[this.currentTheme] || colors.default;
@@ -278,8 +278,8 @@ class UMTerminalAdvanced {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
             ctx.fillRect(0, 0, this.matrixCanvas.width, this.matrixCanvas.height);
             
-            ctx.fillStyle = '#00ff00';
-            ctx.font = `${fontSize}px 'Fira Code', monospace`;
+            ctx.fillStyle = '#DC2626';
+            ctx.font = `${fontSize}px 'Open Sans', Arial, system-ui, sans-serif`;
             
             for (let i = 0; i < drops.length; i++) {
                 const text = chars[Math.floor(Math.random() * chars.length)];
@@ -1528,8 +1528,9 @@ const additionalStyles = `
 }
 
 .command-text {
-    color: #00ffaa;
+    color: #ffffff;
     font-weight: 600;
+    border-bottom: 1px solid #DC2626;
 }
 
 .response-text {
@@ -1541,25 +1542,27 @@ const additionalStyles = `
 }
 
 .error-text {
-    color: #ff6b6b;
+    color: #ffffff;
     font-weight: 500;
+    border-left: 3px solid #DC2626;
+    padding-left: 10px;
 }
 
 /* Theme-specific colors */
 [data-theme="matrix"] .response-text {
-    color: #00ff00;
+    color: #ffffff;
 }
 
 [data-theme="retro"] .response-text {
-    color: #ff00ff;
+    color: #ffffff;
 }
 
 [data-theme="neon"] .response-text {
-    color: #00ffff;
+    color: #ffffff;
 }
 
 [data-theme="corporate"] .response-text {
-    color: #fbbf24;
+    color: #ffffff;
 }
 
 .um-terminal.maximized {
