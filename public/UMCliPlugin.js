@@ -352,7 +352,7 @@ ${filteredResults.map((result, index) =>
 
 💬 WHATSAPP COMERCIAL:
    📱 +54 261 123 4567
-   💭 "Hola! Vengo desde su terminal CLI"
+   💭 "Hola! Vengo desde el sitio web de ULTIMA MILLA"
 
 ⏰ HORARIOS DE ATENCIÓN:
    📅 Lunes a Viernes: 9:00 - 18:00
@@ -791,10 +791,10 @@ class UMCliPlugin {
         border-left: 3px solid #DC2626;
         padding-left: 10px;
         text-shadow: none;
-        animation: matrix-glow 1s infinite alternate;
+        animation: um-data-pulse 1s infinite alternate;
       }
 
-      @keyframes matrix-glow {
+      @keyframes um-data-pulse {
         from { opacity: 0.8; }
         to { opacity: 1; }
       }

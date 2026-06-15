@@ -74,7 +74,7 @@
   padding: 8px 12px;
   margin: 4px 0;
   border-radius: 6px;
-  font-size: 0.9em;
+  font-size: 1rem;
   opacity: 0;
   transform: translateX(-20px);
   transition: opacity var(--animation-speed) ease-out, transform var(--animation-speed) ease-out;
@@ -219,16 +219,16 @@
   box-shadow: 0 0 8px var(--terminal-glow);
 }
 
-/* Matrix Loader */
+/* Data Loader */
 .matrix-loader {
-  font-family: monospace;
-  font-size: 1.2em;
+  font-family: Open Sans, Arial, system-ui, sans-serif;
+  font-size: 1rem;
   color: var(--terminal-primary);
 }
 
 .matrix-loader span {
   animation: matrix-spin 1s linear infinite;
-  text-shadow: 0 0 8px var(--terminal-glow);
+  text-shadow: none;
 }
 
 @keyframes matrix-spin {
@@ -241,7 +241,7 @@
 
 /* Loading Message */
 .loading-message {
-  font-size: 0.9em;
+  font-size: 1rem;
   color: var(--terminal-text);
   text-align: center;
   opacity: 0.8;
@@ -275,9 +275,9 @@
   padding: 8px 12px;
   border-bottom: 1px solid var(--terminal-border);
   display: flex;
-  justify-content: between;
+  justify-content: space-between;
   align-items: center;
-  font-size: 0.8em;
+  font-size: 1rem;
   color: var(--terminal-secondary);
 }
 
@@ -293,7 +293,7 @@
   color: var(--terminal-text);
   padding: 2px 6px;
   border-radius: 10px;
-  font-size: 0.8em;
+  font-size: 1rem;
   min-width: 20px;
   text-align: center;
 }
@@ -315,30 +315,30 @@
 
 .suggestion-item:hover,
 .suggestion-item.active {
-  background: rgba(0, 212, 170, 0.1);
+  background: rgba(220, 38, 38, 0.12);
   border-left-color: var(--terminal-primary);
 }
 
 .suggestion-icon {
-  font-size: 0.9em;
+  font-size: 1rem;
   opacity: 0.7;
 }
 
 .suggestion-text {
   flex: 1;
-  font-family: 'Fira Code', monospace;
-  font-size: 0.9em;
+  font-family: Open Sans, Arial, system-ui, sans-serif;
+  font-size: 1rem;
 }
 
 .suggestion-text mark {
   background: var(--terminal-primary);
-  color: #000;
+  color: #ffffff;
   border-radius: 2px;
   padding: 0 2px;
 }
 
 .suggestion-shortcut {
-  font-size: 0.7em;
+  font-size: 1rem;
   opacity: 0.6;
   background: var(--terminal-border);
   padding: 2px 4px;
@@ -347,7 +347,7 @@
 
 /* THEME SPECIFIC STYLES */
 
-/* Matrix Theme */
+/* Data Theme */
 .theme-matrix {
   --terminal-bg: #050505;
   --terminal-primary: #DC2626;
@@ -374,7 +374,7 @@
   z-index: 1;
 }
 
-/* Retro Theme */
+/* Archive Theme */
 .theme-retro {
   --terminal-bg: #18181b;
   --terminal-primary: #DC2626;
@@ -403,7 +403,7 @@
   z-index: 2;
 }
 
-/* Hacker Theme */
+/* Diagnostics Theme */
 .theme-hacker {
   --terminal-bg: #050505;
   --terminal-primary: #DC2626;
@@ -461,7 +461,7 @@
 }
 
 .fullscreen-control-item:hover {
-  background: rgba(0, 212, 170, 0.2);
+  background: rgba(220, 38, 38, 0.14);
   border-color: var(--terminal-primary);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px var(--terminal-glow);
@@ -472,7 +472,7 @@
 }
 
 .control-label {
-  font-size: 0.7em;
+  font-size: 1rem;
   color: var(--terminal-text);
   opacity: 0.8;
   text-transform: uppercase;
@@ -499,12 +499,12 @@
   }
   
   .command-feedback {
-    font-size: 0.8em;
+    font-size: 1rem;
     padding: 6px 10px;
   }
   
   #input-suggestions {
-    font-size: 0.9em;
+    font-size: 1rem;
   }
   
   .suggestion-item {

@@ -28,7 +28,7 @@ class UIEffectsSystem {
                 glow: 'rgba(220, 38, 38, 0.36)'
             },
             matrix: {
-                name: 'Matrix',
+                name: 'Modo datos',
                 background: '#050505',
                 primary: '#DC2626',
                 secondary: '#ffffff',
@@ -38,7 +38,7 @@ class UIEffectsSystem {
                 glow: 'rgba(220, 38, 38, 0.36)'
             },
             retro: {
-                name: 'Retro',
+                name: 'Archivo',
                 background: '#18181b',
                 primary: '#DC2626',
                 secondary: '#f5f5f5',
@@ -48,7 +48,7 @@ class UIEffectsSystem {
                 glow: 'rgba(220, 38, 38, 0.34)'
             },
             hacker: {
-                name: 'Hacker',
+                name: 'Diagnostico',
                 background: '#050505',
                 primary: '#DC2626',
                 secondary: '#ffffff',
@@ -288,7 +288,7 @@ class UIEffectsSystem {
                 
             case 'matrix':
                 loaderContent = `
-                    <div class="matrix-loader">
+                    <div class="matrix-loader" aria-label="Modo datos">
                         <span>|</span><span>/</span><span>-</span><span>\\</span>
                     </div>
                     <div class="loading-message">${message}</div>
@@ -331,6 +331,13 @@ class UIEffectsSystem {
 
     // THEME SYSTEM
     switchTheme(themeName) {
+        const aliases = {
+            datos: 'matrix',
+            archivo: 'retro',
+            diagnostico: 'hacker'
+        };
+        themeName = aliases[themeName] || themeName;
+
         if (!this.themes[themeName]) {
             console.warn(`Theme ${themeName} not found`);
             return false;
@@ -385,7 +392,7 @@ class UIEffectsSystem {
                 
             case 'hacker':
                 terminal.classList.add('hacker-glitch');
-                this.startHackerGlitch();
+                this.startDiagnosticsSignal();
                 break;
         }
     }
@@ -412,9 +419,9 @@ class UIEffectsSystem {
             canvas.width = terminal.offsetWidth;
             canvas.height = terminal.offsetHeight;
 
-            const matrix = '01ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const signal = '01UMSAREDESSERVICIOSDATOS';
             const drops = [];
-            const columns = canvas.width / 15;
+            const columns = canvas.width / 16;
 
             for (let i = 0; i < columns; i++) {
                 drops[i] = 1;
@@ -425,13 +432,13 @@ class UIEffectsSystem {
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
                 ctx.fillStyle = '#DC2626';
-                ctx.font = '15px monospace';
+                ctx.font = '16px Open Sans, Arial, system-ui, sans-serif';
 
                 for (let i = 0; i < drops.length; i++) {
-                    const text = matrix[Math.floor(Math.random() * matrix.length)];
-                    ctx.fillText(text, i * 15, drops[i] * 15);
+                    const text = signal[Math.floor(Math.random() * signal.length)];
+                    ctx.fillText(text, i * 16, drops[i] * 16);
 
-                    if (drops[i] * 15 > canvas.height && Math.random() > 0.975) {
+                    if (drops[i] * 16 > canvas.height && Math.random() > 0.975) {
                         drops[i] = 0;
                     }
                     drops[i]++;
@@ -445,23 +452,23 @@ class UIEffectsSystem {
         }
     }
 
-    startHackerGlitch() {
+    startDiagnosticsSignal() {
         const terminal = document.getElementById('um-terminal-enhanced');
         if (!terminal) return;
 
-        const glitch = () => {
-            if (Math.random() < 0.1) {
-                terminal.style.filter = 'hue-rotate(' + Math.random() * 360 + 'deg) saturate(2)';
-                terminal.style.transform = 'translate(' + (Math.random() * 4 - 2) + 'px, ' + (Math.random() * 4 - 2) + 'px)';
+        const diagnostics = () => {
+            if (Math.random() < 0.08) {
+                terminal.style.filter = 'contrast(1.04)';
+                terminal.style.transform = 'translateY(-1px)';
                 
                 setTimeout(() => {
                     terminal.style.filter = '';
                     terminal.style.transform = '';
-                }, 100);
+                }, 120);
             }
         };
 
-        const glitchInterval = setInterval(glitch, 500);
+        const glitchInterval = setInterval(diagnostics, 700);
         terminal.dataset.glitchInterval = glitchInterval;
     }
 
