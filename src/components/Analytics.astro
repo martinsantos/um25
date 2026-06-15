@@ -113,17 +113,66 @@ const analyticsId = id || 'G-XXXXXXXXXX';
 
     <!-- Consent Banner para cumplir con GDPR/Privacy (opcional) -->
     {respectPrivacy && (
-      <div id="privacy-notice" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #333; color: white; padding: 15px; text-align: center; z-index: 9999;">
-        <p>
-          🍪 Utilizamos cookies y analíticas para mejorar tu experiencia. Los datos son anónimos y respetan tu privacidad.
-          <button onclick="acceptPrivacy()" style="margin-left: 10px; padding: 5px 15px; background: #00d4aa; color: white; border: none; border-radius: 4px; cursor: pointer;">
+      <div id="privacy-notice" class="um-privacy-notice">
+        <p class="um-privacy-notice__copy">
+          Utilizamos cookies y analíticas para mejorar la experiencia. Los datos son anónimos y respetan tu privacidad.
+          <button class="um-privacy-notice__button um-privacy-notice__button--primary" onclick="acceptPrivacy()">
             Aceptar
           </button>
-          <button onclick="rejectPrivacy()" style="margin-left: 5px; padding: 5px 15px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;">
+          <button class="um-privacy-notice__button um-privacy-notice__button--secondary" onclick="rejectPrivacy()">
             Rechazar
           </button>
         </p>
       </div>
+
+      <style is:inline>
+        .um-privacy-notice {
+          display: none;
+          position: fixed;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          z-index: 9999;
+          background: #111111;
+          color: #ffffff;
+          border-top: 1px solid rgba(255, 255, 255, 0.14);
+          padding: 16px 20px;
+          text-align: center;
+          font-family: 'Open Sans', Arial, system-ui, sans-serif;
+        }
+
+        .um-privacy-notice__copy {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin: 0 auto;
+          max-width: 1040px;
+          font-size: 16px;
+          line-height: 1.5;
+        }
+
+        .um-privacy-notice__button {
+          min-height: 40px;
+          border: 1px solid rgba(255, 255, 255, 0.28);
+          border-radius: 4px;
+          padding: 8px 16px;
+          color: #ffffff;
+          font: inherit;
+          font-weight: 700;
+          cursor: pointer;
+        }
+
+        .um-privacy-notice__button--primary {
+          background: #DC2626;
+          border-color: #DC2626;
+        }
+
+        .um-privacy-notice__button--secondary {
+          background: transparent;
+        }
+      </style>
       
       <script type="text/partytown">
         // Privacy consent management

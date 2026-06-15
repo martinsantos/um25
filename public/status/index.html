@@ -9,18 +9,18 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #4a90e2;
+            --primary-color: #DC2626;
             --secondary-color: #f39c12;
-            --success-color: #27ae60;
+            --success-color: #166534;
             --warning-color: #f39c12;
-            --error-color: #e74c3c;
-            --info-color: #3498db;
-            --bg-color: #f8f9fa;
+            --error-color: #DC2626;
+            --info-color: #333333;
+            --bg-color: #f5f5f5;
             --card-bg: #ffffff;
-            --text-color: #2c3e50;
-            --text-secondary-color: #7f8c8d;
-            --border-color: #e9ecef;
-            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --text-color: #111111;
+            --text-secondary-color: #555555;
+            --border-color: #dddddd;
+            --shadow: 0 8px 20px rgba(0,0,0,0.06);
             --border-radius: 8px;
         }
 
@@ -31,8 +31,8 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Open Sans', Arial, system-ui, sans-serif;
+            background: var(--bg-color);
             min-height: 100vh;
             color: var(--text-color);
             line-height: 1.6;
@@ -61,8 +61,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            opacity: 0.9;
+            background: #111111;
+            opacity: 1;
         }
 
         .header-content {
@@ -72,10 +72,12 @@
         }
 
         .main-title {
-            font-size: 3rem;
-            font-weight: 700;
+            font-family: 'Poppins', 'Futura PT', 'Century Gothic', sans-serif;
+            font-size: clamp(2.25rem, 5vw, 3rem);
+            font-weight: 600;
+            line-height: 1.08;
             margin-bottom: 0.5rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: none;
         }
 
         .subtitle {
@@ -85,7 +87,7 @@
         }
 
         .version-info {
-            font-size: 0.9rem;
+            font-size: 1rem;
             opacity: 0.8;
         }
 
@@ -93,11 +95,11 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.12);
             padding: 0.5rem 1rem;
-            border-radius: 25px;
+            border-radius: 4px;
             margin-top: 1rem;
-            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.24);
         }
 
         .grid {
@@ -140,7 +142,7 @@
 
         .stat-label {
             color: var(--text-secondary-color);
-            font-size: 0.9rem;
+            font-size: 1rem;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -159,9 +161,9 @@
             border: none;
             border-radius: var(--border-radius);
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: 500;
-            transition: all 0.2s;
+            transition: background-color 0.2s, color 0.2s, transform 0.2s;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
@@ -174,7 +176,7 @@
         }
 
         .btn-primary:hover {
-            background: #357abd;
+            background: color-mix(in srgb, var(--primary-color) 82%, #000 18%);
             transform: translateY(-1px);
         }
 
@@ -193,7 +195,7 @@
         }
 
         .btn-emergency:hover {
-            background: #c0392b;
+            background: color-mix(in srgb, var(--error-color) 82%, #000 18%);
         }
 
         .logs-container {
@@ -208,7 +210,7 @@
             padding: 0.75rem;
             border-bottom: 1px solid var(--border-color);
             font-family: 'Monaco', 'Menlo', monospace;
-            font-size: 0.85rem;
+            font-size: 1rem;
             transition: background-color 0.2s;
         }
 
@@ -229,7 +231,7 @@
         .log-type-badge {
             padding: 0.2rem 0.5rem;
             border-radius: 12px;
-            font-size: 0.75rem;
+            font-size: 1rem;
             font-weight: 500;
             margin-right: 0.5rem;
         }
@@ -270,7 +272,7 @@
             border: 1px solid var(--border-color);
             border-radius: var(--border-radius);
             padding: 1rem;
-            transition: all 0.2s;
+            transition: background-color 0.2s, border-color 0.2s;
         }
 
         .service-header {
@@ -287,7 +289,7 @@
         .service-status {
             padding: 0.25rem 0.5rem;
             border-radius: 12px;
-            font-size: 0.75rem;
+            font-size: 1rem;
             font-weight: 500;
         }
 
@@ -325,7 +327,7 @@
             padding: 0.5rem;
             border: 1px solid var(--border-color);
             border-radius: var(--border-radius);
-            font-size: 0.9rem;
+            font-size: 1rem;
         }
 
         .filter-buttons {
@@ -340,8 +342,8 @@
             background: white;
             border-radius: 20px;
             cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.2s;
+            font-size: 1rem;
+            transition: background-color 0.2s, border-color 0.2s, color 0.2s;
         }
 
         .filter-btn.active {
@@ -386,7 +388,7 @@
             border-radius: 4px;
             color: white;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 1rem;
             transition: background 0.2s;
         }
 
@@ -395,7 +397,7 @@
         }
 
         .fade-in {
-            animation: fadeIn 0.3s ease-in;
+            animation: fadeIn 0.24s ease-out;
         }
 
         @keyframes fadeIn {
@@ -404,7 +406,7 @@
         }
 
         .text-center { text-align: center; }
-        .text-sm { font-size: 0.875rem; }
+        .text-sm { font-size: 1rem; }
         .mt-2 { margin-top: 0.5rem; }
         .mt-3 { margin-top: 0.75rem; }
         .mr-1 { margin-right: 0.25rem; }
@@ -560,7 +562,7 @@
                     <span class="quick-cmd" onclick="runDirectCommand('help')">help</span>
                     <span class="quick-cmd" onclick="runDirectCommand('status')">status</span>
                     <span class="quick-cmd" onclick="runDirectCommand('logs')">logs</span>
-                    <span class="quick-cmd" onclick="runDirectCommand('restart nginx')">restart nginx</span>
+                    <span class="quick-cmd" onclick="runDirectCommand('refresh')">refresh</span>
                 </div>
             </div>
         </div>
@@ -575,15 +577,15 @@
             <div class="controls">
                 <button class="btn btn-emergency" onclick="emergencyRestart()">
                     <span class="material-icons mr-1">restart_alt</span>
-                    Reinicio de Emergencia
+                    Verificar Emergencia
                 </button>
                 <button class="btn btn-secondary" onclick="runDiagnostics()">
                     <span class="material-icons mr-1">health_and_safety</span>
-                    Diagnóstico Completo
+                    Diagnóstico Local
                 </button>
                 <button class="btn btn-secondary" onclick="cleanDocker()">
-                    <span class="material-icons mr-1">cleaning_services</span>
-                    Limpiar Docker
+                    <span class="material-icons mr-1">refresh</span>
+                    Refrescar Estado
                 </button>
             </div>
         </div>
@@ -595,14 +597,30 @@
         let filteredLogs = [];
         let currentFilter = '';
 
-        const services = [
-            { name: 'Astro Frontend', port: '4321', endpoint: '/', status: 'checking', critical: true },
-            { name: 'Directus CMS', port: '8055', endpoint: '/server/health', status: 'checking', critical: true },
-            { name: 'PostgreSQL Database', port: '5432', endpoint: null, status: 'checking', critical: true },
-            { name: 'Redis Cache', port: '6379', endpoint: null, status: 'checking', critical: false },
-            { name: 'Nginx Reverse Proxy', port: '80', endpoint: '/', status: 'checking', critical: true },
-            { name: 'CyberPanel', port: '8090', endpoint: '/', status: 'checking', critical: false }
+        let services = [
+            { name: 'Astro Frontend', status: 'checking', critical: true },
+            { name: 'Directus CMS', status: 'checking', critical: true },
+            { name: 'PostgreSQL Database', status: 'checking', critical: true },
+            { name: 'Redis Cache', status: 'checking', critical: false },
+            { name: 'Nginx Reverse Proxy', status: 'checking', critical: true }
         ];
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function normalizeLogType(type) {
+            return ['info', 'success', 'warning', 'error', 'command'].includes(type) ? type : 'info';
+        }
+
+        function normalizeServiceStatus(status) {
+            return ['online', 'offline', 'checking', 'unknown'].includes(status) ? status : 'unknown';
+        }
 
         // Función debug mejorada
         function debug(message, type = 'info') {
@@ -613,8 +631,9 @@
             const debugElement = document.getElementById('debug-console');
             if (debugElement) {
                 const logEntry = document.createElement('div');
-                logEntry.className = `debug-entry debug-${type}`;
-                logEntry.innerHTML = `<span class="debug-time">[${timestamp}]</span> <span class="debug-message">${message}</span>`;
+                const safeType = normalizeLogType(type);
+                logEntry.className = `debug-entry debug-${safeType}`;
+                logEntry.innerHTML = `<span class="debug-time">[${escapeHtml(timestamp)}]</span> <span class="debug-message">${escapeHtml(message)}</span>`;
                 debugElement.appendChild(logEntry);
                 debugElement.scrollTop = debugElement.scrollHeight;
             }
@@ -681,13 +700,11 @@
         });
 
         async function initDashboard() {
-            updateUptime();
             loadServices();
             loadLogs();
             
             // Actualizar cada 30 segundos
             setInterval(() => {
-                updateUptime();
                 loadServices();
                 loadLogs();
             }, 30000);
@@ -725,19 +742,22 @@
                 return;
             }
             
-            container.innerHTML = filteredLogs.map(log => `
-                <div class="log-entry log-${log.type} ${!log.read ? 'unread' : ''} fade-in">
+            container.innerHTML = filteredLogs.map(log => {
+                const type = normalizeLogType(log.type);
+                return `
+                <div class="log-entry log-${type} ${!log.read ? 'unread' : ''} fade-in">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
-                            <span class="log-timestamp">${log.datetime}</span>
-                            <span class="log-type-badge badge-${log.type}">${log.type}</span>
-                            <span class="log-message">${log.message}</span>
-                            ${log.source ? `<span class="text-xs" style="color: var(--text-secondary-color); margin-left: 0.5rem;">[${log.source}]</span>` : ''}
+                            <span class="log-timestamp">${escapeHtml(log.datetime)}</span>
+                            <span class="log-type-badge badge-${type}">${escapeHtml(type)}</span>
+                            <span class="log-message">${escapeHtml(log.message)}</span>
+                            ${log.source ? `<span class="text-xs" style="color: var(--text-secondary-color); margin-left: 0.5rem;">[${escapeHtml(log.source)}]</span>` : ''}
                         </div>
                         ${!log.read ? `<span class="material-icons text-primary" style="font-size: 16px;">fiber_new</span>` : ''}
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
 
         function filterLogs(type) {
@@ -784,64 +804,27 @@
         }
 
         async function markAllAsRead() {
-            try {
-                const unreadIds = allLogs.filter(log => !log.read).map(log => log.id);
-                if (unreadIds.length === 0) return;
-                
-                const response = await fetch('/log/api_logs.php?action=mark-read', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ log_ids: unreadIds })
-                });
-                
-                const data = await response.json();
-                if (data.success) {
-                    allLogs.forEach(log => log.read = true);
-                    updateLogStats();
-                    renderLogs();
-                    addLocalLog('success', `${unreadIds.length} logs marcados como leídos`);
-                }
-            } catch (error) {
-                addLocalLog('error', 'Error al marcar logs como leídos: ' + error.message);
-            }
+            const unreadCount = allLogs.filter(log => !log.read).length;
+            if (unreadCount === 0) return;
+
+            allLogs.forEach(log => log.read = true);
+            updateLogStats();
+            renderLogs();
+            addLocalLog('success', `${unreadCount} logs marcados como leídos localmente`);
         }
 
         async function clearAllLogs() {
             if (!confirm('¿Estás seguro de que quieres limpiar todos los logs?')) return;
-            
-            try {
-                const response = await fetch('/log/api_logs.php?action=clear', {
-                    method: 'DELETE'
-                });
-                
-                const data = await response.json();
-                if (data.success) {
-                    allLogs = [];
-                    filteredLogs = [];
-                    updateLogStats();
-                    renderLogs();
-                    addLocalLog('warning', 'Todos los logs han sido eliminados');
-                }
-            } catch (error) {
-                addLocalLog('error', 'Error al limpiar logs: ' + error.message);
-            }
+
+            allLogs = [];
+            filteredLogs = [];
+            updateLogStats();
+            renderLogs();
+            addLocalLog('warning', 'Logs locales limpiados');
         }
 
         async function addLog(type, message, source = 'dashboard') {
-            try {
-                const response = await fetch('/log/api_logs.php?action=add', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type, message, source })
-                });
-                
-                const data = await response.json();
-                if (data.success) {
-                    loadLogs(); // Recargar logs
-                }
-            } catch (error) {
-                console.error('Error añadiendo log:', error);
-            }
+            addLocalLog(type, `[${source}] ${message}`);
         }
 
         function addLocalLog(type, message) {
@@ -849,7 +832,7 @@
                 id: 'local_' + Date.now(),
                 timestamp: Math.floor(Date.now() / 1000),
                 datetime: new Date().toLocaleString('es-ES'),
-                type: type,
+                type: normalizeLogType(type),
                 message: message,
                 source: 'local',
                 read: false
@@ -861,75 +844,62 @@
             renderLogs();
         }
 
-        // Sistema de Servicios - URLs localhost eliminadas
-        function loadServices() {
+        // Sistema de Servicios
+        async function loadServices() {
             renderServices();
-            
-            services.forEach(async (service, index) => {
-                try {
-                    // Simulamos el estado de los servicios
-                    // En un entorno real, estos deberían ser llamadas a endpoints internos
-                    services[index].status = 'online';
-                } catch (error) {
-                    services[index].status = 'offline';
-                }
-                
-                renderServices();
-            });
+
+            try {
+                const response = await fetch('/api/monitoring/services');
+                const data = await response.json();
+                services = Array.isArray(data.services) ? data.services : services.map(service => ({
+                    ...service,
+                    status: 'unknown'
+                }));
+            } catch (error) {
+                services = services.map(service => ({
+                    ...service,
+                    status: 'unknown'
+                }));
+                addLocalLog('warning', 'No se pudo verificar servicios: ' + error.message);
+            }
+
+            renderServices();
         }
 
         function renderServices() {
             const container = document.getElementById('services-grid');
             
-            container.innerHTML = services.map(service => `
+            container.innerHTML = services.map(service => {
+                const status = normalizeServiceStatus(service.status);
+                const serviceName = escapeHtml(service.name);
+                return `
                 <div class="service-card fade-in">
                     <div class="service-header">
-                        <div class="service-name">${service.name}</div>
-                        <div class="service-status status-${service.status}">
-                            ${service.status === 'online' ? '🟢 Online' : 
-                              service.status === 'offline' ? '🔴 Offline' : 
-                              '🟡 Verificando'}
+                        <div class="service-name">${serviceName}</div>
+                        <div class="service-status status-${status}">
+                            ${status === 'online' ? 'Online' :
+                              status === 'offline' ? 'Offline' :
+                              status === 'checking' ? 'Verificando' :
+                              'Desconocido'}
                         </div>
                     </div>
                     <div class="text-sm" style="color: var(--text-secondary-color);">
-                        Puerto: ${service.port}
-                        ${service.endpoint ? ` | Endpoint: ${service.endpoint}` : ''}
+                        ${service.responseTime ? `Respuesta: ${escapeHtml(service.responseTime)}` : 'Sin evidencia reciente'}
+                        ${service.lastCheck ? ` | Último check: ${escapeHtml(service.lastCheck)}` : ''}
                     </div>
                     <div class="flex space-x-2 mt-3">
-                        <button class="btn btn-secondary" style="flex: 1;" onclick="restartService('${service.name}')">
-                            <span class="material-icons mr-1" style="font-size: 16px;">restart_alt</span>
-                            Reiniciar
-                        </button>
-                        <button class="btn btn-secondary" onclick="checkService('${service.name}')">
+                        <button class="btn btn-secondary" style="flex: 1;" onclick="checkService()">
                             <span class="material-icons" style="font-size: 16px;">refresh</span>
+                            Verificar
                         </button>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
 
-        async function restartService(serviceName) {
-            addLocalLog('info', `Iniciando reinicio de ${serviceName}...`);
-            
-            const commandMap = {
-                'Grafana': 'systemctl restart grafana-server',
-                'Directus CMS': 'docker restart directus_app',
-                'Node Exporter': 'systemctl restart node_exporter',
-                'Nginx Proxy': 'systemctl restart nginx',
-                'PostgreSQL': 'systemctl restart postgresql',
-                'Prometheus': 'systemctl restart prometheus'
-            };
-            
-            const command = commandMap[serviceName];
-            if (command) {
-                await executeCommand(null, command);
-                addLocalLog('success', `${serviceName} reiniciado correctamente`);
-                setTimeout(() => loadServices(), 2000);
-            }
-        }
-
-        function checkService(serviceName) {
-            addLocalLog('info', `Verificando estado de ${serviceName}...`);
+        function checkService() {
+            addLocalLog('info', 'Verificando estado de servicios...');
             loadServices();
         }
 
@@ -952,9 +922,14 @@
             } else if (command === 'status') {
                 addLocalLog('info', 'Sistema operativo, servicios verificándose...');
                 loadServices();
+            } else if (command === 'refresh') {
+                addLocalLog('info', 'Refrescando estado del dashboard...');
+                fetchUptime();
+                loadServices();
+                loadLogs();
             } else if (command.startsWith('restart ')) {
                 const service = command.split(' ')[1];
-                addLocalLog('info', `Reiniciando ${service}...`);
+                addLocalLog('warning', `El reinicio remoto de ${service} no está disponible desde este dashboard`);
             } else if (command === 'logs') {
                 addLocalLog('info', 'Recargando logs del sistema...');
                 loadLogs();
@@ -974,91 +949,26 @@
         function emergencyRestart() {
             if (!confirm('¿Confirmas la activación del modo de emergencia?')) return;
             
-            addLocalLog('error', 'MODO EMERGENCIA ACTIVADO');
-            addLocalLog('warning', 'Reiniciando todos los servicios críticos...');
-            
-            services.forEach(service => {
-                addLocalLog('info', `Reiniciando ${service.name}...`);
-            });
-            
-            setTimeout(() => {
-                addLocalLog('success', 'Recuperación de emergencia completada');
-                loadServices();
-            }, 5000);
+            addLocalLog('warning', 'Verificación de emergencia iniciada. Este dashboard no ejecuta reinicios remotos.');
+            fetchUptime();
+            loadServices();
+            loadLogs();
         }
 
         function runDiagnostics() {
-            addLocalLog('info', 'Iniciando diagnóstico completo del sistema...');
-            
-            const diagnostics = [
-                'Verificando espacio en disco...',
-                'Analizando uso de memoria...',
-                'Comprobando conectividad de red...',
-                'Validando servicios críticos...',
-                'Revisando logs de sistema...',
-                'Verificando configuración de nginx...'
-            ];
-            
-            diagnostics.forEach((step, index) => {
-                setTimeout(() => {
-                    addLocalLog('info', step);
-                    if (index === diagnostics.length - 1) {
-                        setTimeout(() => {
-                            addLocalLog('success', 'Diagnóstico completado - Sistema saludable');
-                        }, 1000);
-                    }
-                }, index * 1000);
-            });
+            addLocalLog('info', 'Ejecutando diagnóstico local con endpoints disponibles...');
+            fetchUptime();
+            loadServices();
+            loadLogs();
         }
 
         function cleanDocker() {
-            addLocalLog('info', 'Iniciando limpieza de Docker...');
-            
-            const cleanupSteps = [
-                'Eliminando contenedores detenidos...',
-                'Limpiando imágenes no utilizadas...',
-                'Eliminando volúmenes huérfanos...',
-                'Liberando cache de construcción...'
-            ];
-            
-            cleanupSteps.forEach((step, index) => {
-                setTimeout(() => {
-                    addLocalLog('info', step);
-                    if (index === cleanupSteps.length - 1) {
-                        setTimeout(() => {
-                            addLocalLog('success', 'Limpieza de Docker completada');
-                        }, 1000);
-                    }
-                }, index * 1500);
-            });
+            addLocalLog('info', 'Refrescando estado local del dashboard...');
+            fetchUptime();
+            loadServices();
+            loadLogs();
         }
 
-        // Uptime del sistema - URL corregida
-        async function updateUptime() {
-            try {
-                const response = await fetch('/log/generate_uptime.php');
-                const data = await response.json();
-                
-                if (data.uptime_formatted) {
-                    document.getElementById('system-uptime').textContent = data.uptime_formatted;
-                }
-            } catch (error) {
-                document.getElementById('system-uptime').textContent = 'Error al obtener uptime';
-            }
-        }
-
-        // Service Worker para PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => {
-                        debug('Service Worker registrado correctamente');
-                    })
-                    .catch(error => {
-                        debug('Error al registrar Service Worker: ' + error.message, 'error');
-                    });
-            });
-        }
     </script>
 </body>
-</html> 
+</html>

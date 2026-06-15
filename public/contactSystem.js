@@ -1,5 +1,5 @@
 /**
- * Enhanced Contact System for UM CLI
+ * Enhanced Contact System for ULTIMA MILLA public contact
  * Integrates email sending, WhatsApp, and real contact functionality
  * Version: 1.0.0
  */
@@ -11,8 +11,8 @@ class ContactSystem {
             email: 'info@ultimamilla.com.ar',
             address: 'Mendoza, Argentina',
             hours: 'Lunes a Viernes: 9:00-18:00, Sábados: 9:00-13:00',
-            whatsappMessage: 'Hola! Vengo desde el terminal CLI de su sitio web. Me interesa conocer más sobre sus servicios.',
-            emailSubject: 'Consulta desde Terminal CLI - ULTIMA MILLA'
+            whatsappMessage: 'Hola! Vengo desde el sitio web de ULTIMA MILLA. Me interesa conocer más sobre sus servicios.',
+            emailSubject: 'Consulta desde sitio web - ULTIMA MILLA'
         };
         
         this.formStates = {
@@ -78,15 +78,15 @@ class ContactSystem {
    🌐 Zona Centro - Ciudad de Mendoza
 
 📱 TELÉFONO/WHATSAPP:
-   ☎️  <a href="tel:${this.contactData.phone}" style="color: #00d4aa; text-decoration: underline;">${this.contactData.phone}</a>
-   💬 <a href="https://wa.me/${this.contactData.phone.replace('+', '')}?text=${encodeURIComponent(this.contactData.whatsappMessage)}" target="_blank" style="color: #00d4aa; text-decoration: underline;">WhatsApp Directo</a>
+   ☎️  <a href="tel:${this.contactData.phone}" style="color: #ffffff; text-decoration: underline; text-decoration-color: #DC2626; text-underline-offset: 3px;">${this.contactData.phone}</a>
+   💬 <a href="https://wa.me/${this.contactData.phone.replace('+', '')}?text=${encodeURIComponent(this.contactData.whatsappMessage)}" target="_blank" style="color: #ffffff; text-decoration: underline; text-decoration-color: #DC2626; text-underline-offset: 3px;">WhatsApp Directo</a>
 
 📧 EMAIL:
-   ✉️  <a href="mailto:${this.contactData.email}?subject=${encodeURIComponent(this.contactData.emailSubject)}" style="color: #00d4aa; text-decoration: underline;">${this.contactData.email}</a>
-   📬 <a href="mailto:ventas@ultimamilla.com.ar" style="color: #00d4aa; text-decoration: underline;">ventas@ultimamilla.com.ar</a>
+   ✉️  <a href="mailto:${this.contactData.email}?subject=${encodeURIComponent(this.contactData.emailSubject)}" style="color: #ffffff; text-decoration: underline; text-decoration-color: #DC2626; text-underline-offset: 3px;">${this.contactData.email}</a>
+   📬 <a href="mailto:ventas@ultimamilla.com.ar" style="color: #ffffff; text-decoration: underline; text-decoration-color: #DC2626; text-underline-offset: 3px;">ventas@ultimamilla.com.ar</a>
 
 🌐 WEB:
-   🔗 <a href="https://ultimamilla.com.ar" target="_blank" style="color: #00d4aa; text-decoration: underline;">ultimamilla.com.ar</a>
+   🔗 <a href="https://ultimamilla.com.ar" target="_blank" style="color: #ffffff; text-decoration: underline; text-decoration-color: #DC2626; text-underline-offset: 3px;">ultimamilla.com.ar</a>
 
 ⏰ HORARIOS DE ATENCIÓN:
    📅 ${this.contactData.hours}
@@ -110,7 +110,7 @@ class ContactSystem {
     handleEmailCommand(args) {
         if (args.length === 0) {
             // Open email client directly
-            const emailUrl = `mailto:${this.contactData.email}?subject=${encodeURIComponent(this.contactData.emailSubject)}&body=${encodeURIComponent('Hola equipo de ULTIMA MILLA,\n\nMe comunico desde su terminal CLI. Me interesa conocer más sobre:\n\n- [Describa su consulta aquí]\n\nMi información de contacto:\n- Nombre: \n- Empresa: \n- Teléfono: \n\nSaludos cordiales.')}`;
+            const emailUrl = `mailto:${this.contactData.email}?subject=${encodeURIComponent(this.contactData.emailSubject)}&body=${encodeURIComponent('Hola equipo de ULTIMA MILLA,\n\nMe comunico desde su sitio web. Me interesa conocer más sobre:\n\n- [Describa su consulta aquí]\n\nMi información de contacto:\n- Nombre: \n- Empresa: \n- Teléfono: \n\nSaludos cordiales.')}`;
             
             window.open(emailUrl, '_self');
             
@@ -270,7 +270,7 @@ class ContactSystem {
             const formData = {
                 name: this.currentForm.data.nombre,
                 email: this.currentForm.data.email,
-                message: `CONTACTO DESDE TERMINAL CLI:\n\n${this.currentForm.data.mensaje}\n\n---\nEnviado desde: Terminal CLI Interactivo\nFecha: ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Mendoza' })}`
+                message: `CONTACTO DESDE SITIO WEB:\n\n${this.currentForm.data.mensaje}\n\n---\nEnviado desde: sitio web ULTIMA MILLA\nFecha: ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Mendoza' })}`
             };
 
             // Send to existing contact API
@@ -389,8 +389,8 @@ No se enviaron datos.
 ═══════════════════════════════════════════════════════════════
 
 📱 NÚMEROS DE CONTACTO:
-   Principal: <a href="tel:${this.contactData.phone}" style="color: #00d4aa;">${this.contactData.phone}</a>
-   WhatsApp: <a href="https://wa.me/${this.contactData.phone.replace('+', '')}" target="_blank" style="color: #00d4aa;">Mensaje directo</a>
+   Principal: <a href="tel:${this.contactData.phone}" style="color: #ffffff; text-decoration: underline; text-decoration-color: #DC2626; text-underline-offset: 3px;">${this.contactData.phone}</a>
+   WhatsApp: <a href="https://wa.me/${this.contactData.phone.replace('+', '')}" target="_blank" style="color: #ffffff; text-decoration: underline; text-decoration-color: #DC2626; text-underline-offset: 3px;">Mensaje directo</a>
 
 ⏰ HORARIOS DE ATENCIÓN:
    ${this.contactData.hours}
@@ -405,7 +405,7 @@ No se enviaron datos.
 
 📞 TIPS PARA LLAMADAS:
    • Tenga preparada su consulta específica
-   • Mencione que viene del CLI web
+   • Mencione que viene del sitio web
    • Para presupuestos, prepare detalles del proyecto
 
 </div>`;

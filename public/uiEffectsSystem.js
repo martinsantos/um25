@@ -19,43 +19,43 @@ class UIEffectsSystem {
         this.themes = {
             professional: {
                 name: 'Professional',
-                background: 'linear-gradient(145deg, #0a0e1a 0%, #1a1f2e 50%, #0d1117 100%)',
-                primary: '#00d4aa',
-                secondary: '#79c0ff',
-                accent: '#ff6b6b',
-                text: '#e6edf3',
-                border: 'rgba(0, 212, 170, 0.3)',
-                glow: 'rgba(0, 212, 170, 0.6)'
+                background: '#111111',
+                primary: '#DC2626',
+                secondary: '#ffffff',
+                accent: '#dddddd',
+                text: '#f5f5f5',
+                border: 'rgba(220, 38, 38, 0.32)',
+                glow: 'rgba(220, 38, 38, 0.36)'
             },
             matrix: {
                 name: 'Matrix',
-                background: 'linear-gradient(145deg, #000000 0%, #001100 50%, #000000 100%)',
-                primary: '#00ff41',
-                secondary: '#00aa00',
-                accent: '#ffff00',
-                text: '#00ff41',
-                border: 'rgba(0, 255, 65, 0.5)',
-                glow: 'rgba(0, 255, 65, 0.8)'
+                background: '#050505',
+                primary: '#DC2626',
+                secondary: '#ffffff',
+                accent: '#dddddd',
+                text: '#f5f5f5',
+                border: 'rgba(220, 38, 38, 0.42)',
+                glow: 'rgba(220, 38, 38, 0.36)'
             },
             retro: {
                 name: 'Retro',
-                background: 'linear-gradient(145deg, #2d1b69 0%, #11001c 50%, #0f0f23 100%)',
-                primary: '#ff6ec7',
-                secondary: '#00d9ff',
-                accent: '#ffff00',
+                background: '#18181b',
+                primary: '#DC2626',
+                secondary: '#f5f5f5',
+                accent: '#dddddd',
                 text: '#ffffff',
-                border: 'rgba(255, 110, 199, 0.5)',
-                glow: 'rgba(255, 110, 199, 0.8)'
+                border: 'rgba(220, 38, 38, 0.38)',
+                glow: 'rgba(220, 38, 38, 0.34)'
             },
             hacker: {
                 name: 'Hacker',
-                background: 'linear-gradient(145deg, #000000 0%, #0f0f0f 50%, #000000 100%)',
-                primary: '#ff0040',
-                secondary: '#00ffff',
-                accent: '#ffff00',
+                background: '#050505',
+                primary: '#DC2626',
+                secondary: '#ffffff',
+                accent: '#dddddd',
                 text: '#ffffff',
-                border: 'rgba(255, 0, 64, 0.5)',
-                glow: 'rgba(255, 0, 64, 0.8)'
+                border: 'rgba(220, 38, 38, 0.42)',
+                glow: 'rgba(220, 38, 38, 0.36)'
             }
         };
         
@@ -424,7 +424,7 @@ class UIEffectsSystem {
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                ctx.fillStyle = '#00ff41';
+                ctx.fillStyle = '#DC2626';
                 ctx.font = '15px monospace';
 
                 for (let i = 0; i < drops.length; i++) {
@@ -708,9 +708,9 @@ class UIEffectsSystem {
         style.textContent = `
             .typing-cursor::after {
                 content: '█';
-                color: var(--terminal-primary, #00d4aa);
+                color: var(--terminal-primary, #DC2626);
                 animation: typing-blink 1s infinite;
-                text-shadow: 0 0 8px var(--terminal-glow, rgba(0, 212, 170, 0.6));
+                text-shadow: 0 0 8px var(--terminal-glow, rgba(220, 38, 38, 0.36));
             }
             
             @keyframes typing-blink {
