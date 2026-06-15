@@ -1,5 +1,5 @@
 /**
- * Terminal Básico UM CLI - FALLBACK SIMPLE
+ * Consola operativa UMSA - fallback simple
  * Versión: 1.0-BASIC (Sin dependencias externas)
  */
 
@@ -33,7 +33,7 @@ class BasicUMTerminal {
                         <span class="control minimize"></span>
                         <span class="control maximize"></span>
                     </div>
-                    <div class="terminal-title">ULTIMA MILLA CLI - Terminal Básico</div>
+                    <div class="terminal-title">ULTIMA MILLA - Consola operativa</div>
                 </div>
                 <div class="terminal-content">
                     <div id="terminal-output" class="terminal-output"></div>
@@ -121,11 +121,11 @@ class BasicUMTerminal {
             'date': () => `<span class="info">${new Date().toLocaleString('es-AR')}</span>`,
             'echo': (args) => `<span class="info">${args.join(' ')}</span>`,
             'historia': () => this.showHistory(),
-            'version': () => `<span class="info">UM CLI Basic v1.0 - Terminal de Fallback</span>`,
+            'version': () => `<span class="info">Consola operativa UMSA v1.0 - fallback publico</span>`,
             'empresa': () => this.showCompany(),
             'contacto': () => this.showContact(),
             'servicios': () => this.showServices(),
-            'hello': () => `<span class="success">¡Hola! Bienvenido a ULTIMA MILLA CLI básico</span>`
+            'hello': () => `<span class="success">Hola. Bienvenido a la consola operativa de ULTIMA MILLA.</span>`
         };
     }
     
@@ -138,10 +138,10 @@ class BasicUMTerminal {
  ╚═╝╩═╝ ╩ ╩╩ ╩╩ ╩  ╩ ╩╩╩═╝╩═╝╩ ╩
                 </pre>
                 <div class="welcome-text">
-                    <p>🚀 <strong>ULTIMA MILLA - Terminal CLI Básico</strong></p>
-                    <p>📍 Especialistas en comunicaciones y sistemas desde 2003</p>
-                    <p>💻 Terminal de fallback - Funcionalidad básica garantizada</p>
-                    <p>⚡ Escribe <span class="highlight">'help'</span> para ver comandos disponibles</p>
+                    <p><strong>ULTIMA MILLA - Consola operativa</strong></p>
+                    <p>Especialistas en comunicaciones y sistemas desde 2003</p>
+                    <p>Fallback publico para consulta de informacion institucional</p>
+                    <p>Escriba <span class="highlight">'help'</span> para ver comandos disponibles</p>
                 </div>
             </div>
         `;
@@ -151,7 +151,7 @@ class BasicUMTerminal {
     showHelp() {
         return `
             <div class="help-content">
-                <h3>📋 COMANDOS DISPONIBLES - UM CLI BÁSICO</h3>
+                <h3>COMANDOS DISPONIBLES</h3>
                 <div class="command-list">
                     <div><span class="cmd">help</span> - Mostrar esta ayuda</div>
                     <div><span class="cmd">clear</span> - Limpiar terminal</div>
@@ -166,7 +166,7 @@ class BasicUMTerminal {
                     <div><span class="cmd">historia</span> - Historial de comandos</div>
                     <div><span class="cmd">echo [texto]</span> - Imprimir texto</div>
                 </div>
-                <p>💡 <em>Use las flechas ↑↓ para navegar por el historial</em></p>
+                <p><em>Use las flechas arriba y abajo para navegar por el historial.</em></p>
             </div>
         `;
     }
@@ -179,14 +179,14 @@ class BasicUMTerminal {
     listDirectory() {
         return `
             <div class="directory-listing">
-                <div class="dir-header">📁 Contenido de ${this.currentDirectory}:</div>
+                <div class="dir-header">Contenido de ${this.currentDirectory}:</div>
                 <div class="file-list">
-                    <div class="file">📂 servicios/</div>
-                    <div class="file">📂 proyectos/</div>
-                    <div class="file">📂 clientes/</div>
-                    <div class="file">📄 empresa.info</div>
-                    <div class="file">📄 contacto.txt</div>
-                    <div class="file">📄 README.md</div>
+                    <div class="file">servicios/</div>
+                    <div class="file">proyectos/</div>
+                    <div class="file">clientes/</div>
+                    <div class="file">empresa.info</div>
+                    <div class="file">contacto.txt</div>
+                    <div class="file">README.md</div>
                 </div>
             </div>
         `;
@@ -197,7 +197,7 @@ class BasicUMTerminal {
             return '<span class="info">Historial vacío</span>';
         }
         
-        let output = '<div class="history-list"><h4>📜 Historial de comandos:</h4>';
+        let output = '<div class="history-list"><h4>Historial de comandos:</h4>';
         this.history.forEach((cmd, index) => {
             output += `<div>${index + 1}: ${cmd}</div>`;
         });
@@ -208,7 +208,7 @@ class BasicUMTerminal {
     showCompany() {
         return `
             <div class="company-info">
-                <h3>🏢 ULTIMA MILLA</h3>
+                <h3>ULTIMA MILLA</h3>
                 <p><strong>Fundada:</strong> 2003</p>
                 <p><strong>Especialidad:</strong> Comunicaciones, Sistemas e Integración</p>
                 <p><strong>Experiencia:</strong> +21 años en el mercado</p>
@@ -222,12 +222,12 @@ class BasicUMTerminal {
     showContact() {
         return `
             <div class="contact-info">
-                <h3>📞 INFORMACIÓN DE CONTACTO</h3>
+                <h3>INFORMACION DE CONTACTO</h3>
                 <p><strong>Email:</strong> info@ultimamilla.com</p>
                 <p><strong>Web:</strong> ultimamilla.com.ar</p>
                 <p><strong>Ubicación:</strong> Mendoza, Argentina</p>
                 <p><strong>Horarios:</strong> Lun-Vie 9:00-18:00</p>
-                <p>📧 Para consultas comerciales: contacto@ultimamilla.com</p>
+                <p>Para consultas comerciales: info@ultimamilla.com.ar</p>
             </div>
         `;
     }
@@ -235,15 +235,15 @@ class BasicUMTerminal {
     showServices() {
         return `
             <div class="services-info">
-                <h3>⚙️ NUESTROS SERVICIOS</h3>
+                <h3>NUESTROS SERVICIOS</h3>
                 <div class="service-list">
-                    <div>🌐 <strong>Redes y Comunicaciones:</strong> Infraestructura de red, WiFi, telefonía IP</div>
-                    <div>💻 <strong>Desarrollo de Software:</strong> Aplicaciones web, sistemas a medida</div>
-                    <div>🔒 <strong>Seguridad Informática:</strong> Auditorías, firewalls, monitoreo</div>
-                    <div>🛠️ <strong>Soporte IT:</strong> Mantenimiento y soporte técnico</div>
-                    <div>📊 <strong>Consultoría:</strong> Análisis y optimización de sistemas</div>
+                    <div><strong>Redes y Comunicaciones:</strong> infraestructura de red, WiFi, telefonia IP</div>
+                    <div><strong>Desarrollo de Software:</strong> aplicaciones web, sistemas a medida</div>
+                    <div><strong>Seguridad Informatica:</strong> auditorias, firewalls, monitoreo</div>
+                    <div><strong>Soporte IT:</strong> mantenimiento y soporte tecnico</div>
+                    <div><strong>Consultoria:</strong> analisis y optimizacion de sistemas</div>
                 </div>
-                <p>💡 <em>+400 proyectos exitosos con clientes públicos y privados</em></p>
+                <p><em>+400 proyectos con clientes publicos y privados.</em></p>
             </div>
         `;
     }
@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
     for (const containerId of terminalContainers) {
         const container = document.getElementById(containerId);
         if (container) {
-            console.log('✅ Terminal Básico inicializado en:', containerId);
+            console.log('Consola operativa UMSA inicializada en:', containerId);
             new BasicUMTerminal(containerId);
             break;
         }

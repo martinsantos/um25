@@ -525,15 +525,15 @@ ${this.commandHistory.slice(0, 10).map((cmd, index) =>
    Zona Centro - Ciudad de Mendoza
 
 📱 TELÉFONO/WHATSAPP:
-   <a href="tel:+542612345678" style="color: #00d4aa;">+54 261 234-5678</a>
-   <a href="https://wa.me/542612345678" target="_blank" style="color: #00d4aa;">WhatsApp Directo</a>
+   <a href="tel:+542612345678" style="color: #ffffff; text-decoration: underline; text-decoration-color: #DC2626; text-underline-offset: 3px;">+54 261 234-5678</a>
+   <a href="https://wa.me/542612345678" target="_blank" style="color: #ffffff; text-decoration: underline; text-decoration-color: #DC2626; text-underline-offset: 3px;">WhatsApp Directo</a>
 
 📧 EMAIL:
-   <a href="mailto:info@ultimamilla.com.ar" style="color: #00d4aa;">info@ultimamilla.com.ar</a>
-   <a href="mailto:ventas@ultimamilla.com.ar" style="color: #00d4aa;">ventas@ultimamilla.com.ar</a>
+   <a href="mailto:info@ultimamilla.com.ar" style="color: #ffffff; text-decoration: underline; text-decoration-color: #DC2626; text-underline-offset: 3px;">info@ultimamilla.com.ar</a>
+   <a href="mailto:ventas@ultimamilla.com.ar" style="color: #ffffff; text-decoration: underline; text-decoration-color: #DC2626; text-underline-offset: 3px;">ventas@ultimamilla.com.ar</a>
 
 🌐 WEB:
-   <a href="https://ultimamilla.com.ar" target="_blank" style="color: #00d4aa;">ultimamilla.com.ar</a>
+   <a href="https://ultimamilla.com.ar" target="_blank" style="color: #ffffff; text-decoration: underline; text-decoration-color: #DC2626; text-underline-offset: 3px;">ultimamilla.com.ar</a>
 
 💼 HORARIOS DE ATENCIÓN:
    Lunes a Viernes: 9:00 - 18:00 hs
@@ -557,8 +557,8 @@ ${this.commandHistory.slice(0, 10).map((cmd, index) =>
 📧 Formulario de contacto:
 
 Para enviar un mensaje directo:
-1. Email: <a href="mailto:info@ultimamilla.com.ar?subject=Consulta desde CLI" style="color: #00d4aa;">Abrir cliente de email</a>
-2. WhatsApp: <a href="https://wa.me/542612345678?text=Hola! Vengo desde el CLI de su sitio web" target="_blank" style="color: #00d4aa;">Mensaje directo</a>
+1. Email: <a href="mailto:info@ultimamilla.com.ar?subject=Consulta desde sitio web" style="color: #ffffff; text-decoration: underline; text-decoration-color: #DC2626; text-underline-offset: 3px;">Abrir cliente de email</a>
+2. WhatsApp: <a href="https://wa.me/542612345678?text=Hola! Vengo desde el sitio web de ULTIMA MILLA" target="_blank" style="color: #ffffff; text-decoration: underline; text-decoration-color: #DC2626; text-underline-offset: 3px;">Mensaje directo</a>
 
 💡 También puede completar el formulario de contacto en la sección correspondiente del sitio.
 </div>`;
@@ -863,7 +863,7 @@ Clientes activos: 150+ | Tasa de satisfacción: 98%
     addCommandToOutput(command) {
         const commandDiv = document.createElement('div');
         commandDiv.className = 'command-input';
-        commandDiv.innerHTML = `<span style="color: #00d4aa; font-weight: 700;">${this.currentUser}@ultimamilla:${this.currentPath}$</span> ${command}`;
+        commandDiv.innerHTML = `<span style="color: #ffffff; font-weight: 700; border-bottom: 1px solid #DC2626;">${this.currentUser}@ultimamilla:${this.currentPath}$</span> ${command}`;
         this.output.appendChild(commandDiv);
     }
 

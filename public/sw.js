@@ -1,10 +1,10 @@
 /**
- * Service Worker for ULTIMA MILLA Terminal CLI
+ * Service Worker for ULTIMA MILLA public site
  * Features: Offline support, caching strategies, background sync
  * Version: 1.0.0
  */
 
-const CACHE_NAME = 'um-terminal-v1.0.0';
+const CACHE_NAME = 'um-public-v1.0.0';
 const DYNAMIC_CACHE = 'um-dynamic-v1.0.0';
 const OFFLINE_FALLBACK_PAGE = '/offline.html';
 

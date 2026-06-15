@@ -71,7 +71,7 @@ const structuredData = {
           class="contact-proofline"
           metrics={[
             { value: '24/7', label: 'soporte para clientes activos' },
-            { value: getAntecedentesCountShort(), label: 'antecedentes técnicos' },
+            { value: getAntecedentesCountShort(), label: 'proyectos técnicos' },
             { value: '22+', label: 'años de trayectoria técnica' },
           ]}
         />
@@ -778,13 +778,13 @@ const structuredData = {
   }
 
   .form-message.error {
-    border-color: rgba(185,28,28,0.28);
+    border-color: rgba(220,38,38,0.28);
     background: #FEF2F2;
     color: #111111;
   }
 
   .form-message a {
-    color: #B91C1C;
+    color: var(--um-red);
     font-weight: 700;
     text-decoration: underline;
     text-underline-offset: 3px;
