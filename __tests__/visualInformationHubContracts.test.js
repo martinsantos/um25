@@ -345,6 +345,74 @@ describe('Information hub visual contracts', () => {
     expect(servicios).not.toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-hero__proofline\s*\{[\s\S]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
   });
 
+  test('services dark product band avoids off-brand red microtext', () => {
+    const servicios = read('src/pages/servicios/index.astro');
+
+    expect(servicios).not.toContain('#fca5a5');
+    expect(cssBlock(servicios, '.services-product-feature__eyebrow')).toMatch(/color:\s*rgba\(255,\s*255,\s*255,\s*0\.72\);/);
+    expect(servicios).toMatch(/\.services-product-feature__eyebrow\)\s*\{[\s\S]*color:\s*rgba\(255,\s*255,\s*255,\s*0\.72\) !important;/);
+  });
+
+  test('contact feedback links use canonical UMSA red only', () => {
+    const contacto = read('src/pages/contacto.astro');
+    const modal = read('src/components/um/ContactModal.astro');
+
+    expect(contacto).not.toContain('#B91C1C');
+    expect(modal).not.toContain('#B91C1C');
+    expect(cssBlock(contacto, '.form-message a')).toMatch(/color:\s*var\(--um-red\);/);
+    expect(cssBlock(modal, '.um-contact-message a')).toMatch(/color:\s*var\(--um-red\);/);
+    expect(cssBlock(contacto, '.form-message.error')).toMatch(/border-color:\s*rgba\(220,38,38,0\.28\);/);
+  });
+
+  test('public utility fallbacks keep UMSA typography and restrained motion', () => {
+    const manifest = JSON.parse(read('public/manifest.json'));
+    const status = read('public/status/index.html');
+    const offline = read('public/offline.html');
+    const effects = read('public/uiEffects.css');
+    const effectsSystem = read('public/uiEffectsSystem.js');
+    const serviceWorker = read('public/sw.js');
+    const publicContactSystem = read('public/contactSystem.js');
+    const sourceContactSystem = read('src/scripts/contactSystem.js');
+    const terminalEnhanced = read('public/terminalEnhanced.js');
+    const terminalBasicCss = read('public/terminal-basic.css');
+    const terminalBasicJs = read('public/terminal-basic.js');
+    const analytics = read('src/components/Analytics.astro');
+
+    expect(manifest.name).toBe('ULTIMA MILLA');
+    expect(manifest.short_name).toBe('ULTIMA MILLA');
+    expect(manifest.theme_color).toBe('#DC2626');
+    expect(manifest.background_color).toBe('#050505');
+    expect(manifest.description).not.toMatch(/terminal cli/i);
+    expect(status).toContain('--primary-color: #DC2626');
+    expect(status).toContain('background: #111111;');
+    expect(status).not.toMatch(/font-size:\s*0\.[0-9]+rem/);
+    expect(status).not.toMatch(/transition:\s*all/);
+    expect(status).not.toMatch(/animation:\s*fadeIn\s+0\.3s\s+ease-in/);
+    expect(status).not.toMatch(/#4a90e2|#667eea|#764ba2|#4CAF50|#45a049|linear-gradient\(135deg,\s*#667eea|linear-gradient\(135deg,\s*#4CAF50/);
+    expect(offline).toContain('--um-red: #DC2626');
+    expect(offline).not.toMatch(/#00d4aa|#00a085|var\(--terminal-primary\)|linear-gradient|transition:\s*all|font-size:\s*0\.[0-9]+rem/);
+    expect(offline).not.toMatch(/Terminal CLI|CLI funcional/);
+    expect(offline).not.toMatch(/[📱💾⚡📝🎨🔴🟢]/);
+    expect(effects).toContain('--terminal-primary: #DC2626');
+    expect(effects).not.toMatch(/transition:\s*all/);
+    expect(effects).not.toContain('scale(0)');
+    expect(effects).not.toContain('rgba(239, 68, 68');
+    expect(`${effects}\n${effectsSystem}`).not.toMatch(/#00d4aa|#00a085|#00ff41|#00aa00|#ff6ec7|#00d9ff|#ff0040|#00ffff|#ffff00/);
+    expect(serviceWorker).toContain("const CACHE_NAME = 'um-public-v1.0.0';");
+    expect(serviceWorker).not.toMatch(/Terminal CLI|um-terminal-v/);
+    expect(`${publicContactSystem}\n${terminalEnhanced}`).not.toMatch(/#00d4aa|color:\s*#00d4aa|Terminal CLI|desde CLI|desde el CLI/);
+    expect(`${publicContactSystem}\n${terminalEnhanced}`).toMatch(/text-decoration-color:\s*#DC2626/);
+    expect(sourceContactSystem).not.toMatch(/#00d4aa|color:\s*#00d4aa|Terminal CLI|desde CLI|desde el CLI/);
+    expect(sourceContactSystem).toMatch(/text-decoration-color:\s*#DC2626/);
+    expect(terminalBasicCss).not.toMatch(/#00d4aa|#00b894|#00ff00|font-size:\s*(1[0-5]px|0\.[0-9]+rem)/);
+    expect(terminalBasicCss).toMatch(/border-bottom:\s*1px solid #DC2626/);
+    expect(terminalBasicJs).not.toMatch(/Terminal CLI|UM CLI Básico|CLI básico|📋|🚀|💻|⚡|📁|📂|📄|📜|🏢|📞|📧|🌐|💡|🔒|🛠️|📊|✅/);
+    expect(terminalBasicJs).toContain('Consola operativa UMSA');
+    expect(analytics).not.toMatch(/#00d4aa|privacy-notice" style=/);
+    expect(analytics).toMatch(/\.um-privacy-notice__copy\s*\{[\s\S]*font-size:\s*16px;/);
+    expect(analytics).toMatch(/\.um-privacy-notice__button--primary\s*\{[\s\S]*background:\s*#DC2626;/);
+  });
+
   test('product sheets keep service detail images visible without decorative frames', () => {
     const productCard = read('src/components/v4/ProductCard.astro');
 
@@ -451,5 +519,12 @@ describe('Information hub visual contracts', () => {
     expect(footer).toContain('href="/terminos"');
     expect(() => read('src/pages/privacidad.astro')).not.toThrow();
     expect(() => read('src/pages/terminos.astro')).not.toThrow();
+  });
+
+  test('commercial GEO dossier does not use sub-16px visible text', () => {
+    const geoHubDossier = read('src/components/templates/GeoHubDossier.astro');
+
+    expect(geoHubDossier).not.toMatch(/font-size:\s*(0\.[0-9]+rem|1[0-5]px)/);
+    expect(cssBlock(geoHubDossier, '.geo-budget-brief__note')).toMatch(/font-size:\s*1rem;/);
   });
 });
