@@ -235,7 +235,7 @@ class UMTerminalEngine {
           presupuesto: 2500000,
           descripcion: 'Implementación de red provincial conectando 18 departamentos',
           tecnologias: ['Fibra óptica', 'MPLS', 'SD-WAN', 'Monitoreo 24/7'],
-          impacto: 'Conectividad de alta velocidad para 500,000+ ciudadanos'
+          impacto: 'Conectividad operativa para servicios públicos provinciales'
         },
         {
           id: 2,
@@ -257,7 +257,7 @@ class UMTerminalEngine {
           presupuesto: 1200000,
           descripcion: 'Sistema de trazabilidad completa del proceso vitivinícola',
           tecnologias: ['SAP', 'IoT', 'Analytics', 'Blockchain'],
-          impacto: 'Optimización del 35% en procesos de producción'
+          impacto: 'Trazabilidad y control del proceso productivo'
         },
         {
           id: 4,
@@ -268,7 +268,7 @@ class UMTerminalEngine {
           presupuesto: 950000,
           descripcion: 'Implementación de arquitectura de seguridad multicapa',
           tecnologias: ['Next-Gen Firewall', 'SIEM', 'Zero Trust', 'MFA'],
-          impacto: '99.98% de disponibilidad y cero incidentes de seguridad'
+          impacto: 'Continuidad y control de seguridad multicapa'
         },
         {
           id: 5,
@@ -306,9 +306,9 @@ class UMTerminalEngine {
         proyectosCompletados: 469,
         clientesActivos: 89,
         clientesTotales: 150,
-        tasaRetencion: '94%',
-        satisfaccionPromedio: '4.8/5',
-        tasaExito: '98.5%',
+        tasaRetencion: 'soporte recurrente',
+        satisfaccionPromedio: 'seguimiento post-implementación',
+        tasaExito: 'seguimiento por hitos',
         cobertura: 'Nacional e Internacional'
       },
       topClientes: [
@@ -420,11 +420,11 @@ class UMTerminalEngine {
   monitor [sistema]       - Monitoreo
   backup [tipo]           - Respaldos
 
-🎊 DIVERSIÓN:
-  fortune                 - Frases motivacionales
-  cowsay [mensaje]        - Arte ASCII
-  matrix                  - Efecto Matrix
-  sl                      - Tren ASCII
+🎛️ UTILIDADES:
+  fortune                 - Frases operativas
+  cowsay [mensaje]        - Mensaje ASCII
+  matrix                  - Modo datos
+  sl                      - Animación ASCII
 
 💡 EJEMPLOS RÁPIDOS:
   • ls servicios          - Ver servicios
@@ -486,21 +486,21 @@ class UMTerminalEngine {
 📋 SERVICIOS ULTIMA MILLA - CATÁLOGO COMPLETO
 ═══════════════════════════════════════════════════════════════════
 ${dynResumen}
-🌐 REDES Y COMUNICACIONES (45% de proyectos):
+🌐 REDES Y COMUNICACIONES:
    📡 Cableado estructurado
    🔌 Redes empresariales  
    📶 WiFi corporativo
    ☎️  Telefonía IP
    🌍 Conectividad WAN
 
-💻 SOFTWARE Y DESARROLLO (30% de proyectos):
+💻 SOFTWARE Y DESARROLLO:
    🖥️  Desarrollo web
    📱 Aplicaciones móviles
    🔗 Integración de sistemas
    🤖 Automatización
    🎛️  Software a medida
 
-🔐 SEGURIDAD INFORMÁTICA (25% de proyectos):
+🔐 SEGURIDAD INFORMÁTICA:
    🛡️  Auditorías de seguridad
    🔥 Implementación firewalls
    📹 CCTV y videovigilancia
@@ -512,7 +512,7 @@ ${dynResumen}
    • Años de experiencia: ${this.companyData.empresa.experiencia}
    • Proyectos completados: ${this.companyData.estadisticas.proyectosCompletados}+
    • Tasa de éxito: ${this.companyData.estadisticas.tasaExito}
-   • Satisfacción cliente: ${this.companyData.estadisticas.satisfaccionPromedio}
+   • Relación cliente: ${this.companyData.estadisticas.satisfaccionPromedio}
 
 💡 Usa 'cd servicios/[área]' para explorar área específica
 ═══════════════════════════════════════════════════════════════════
@@ -524,7 +524,7 @@ ${dynResumen}
 👥 CLIENTES ULTIMA MILLA - BASE ACTIVA
 ═══════════════════════════════════════════════════════════════════
 
-🏛️  SECTOR PÚBLICO (35%):
+🏛️  SECTOR PÚBLICO:
    • Gobierno de Mendoza
    • Municipalidades (12)
    • Hospitales públicos (8)
@@ -532,7 +532,7 @@ ${dynResumen}
    • AFIP Regional
    • Poder Judicial
 
-🏢 SECTOR PRIVADO (65%):
+🏢 SECTOR PRIVADO:
    • Bodegas y viñedos (23)
    • Clínicas privadas (15) 
    • Empresas comerciales (45)
@@ -584,7 +584,7 @@ ${dynResumen}
 📊 MÉTRICAS DE RENDIMIENTO:
    • Tiempo promedio entrega: 6.2 meses
    • Tasa éxito: ${this.companyData.estadisticas.tasaExito}
-   • Satisfacción: ${this.companyData.estadisticas.satisfaccionPromedio}
+   • Relación cliente: ${this.companyData.estadisticas.satisfaccionPromedio}
    • Proyectos por año: 45 promedio
 
 💡 Usa 'top --proyectos' para ver ranking completo
@@ -670,7 +670,7 @@ ${index + 1}. 🏢 ${result.nombre}
    • Proyectos completados: ${data.estadisticas.proyectosCompletados}+
    • Clientes activos: ${data.estadisticas.clientesActivos}
    • Tasa de éxito: ${data.estadisticas.tasaExito}
-   • Satisfacción: ${data.estadisticas.satisfaccionPromedio}
+   • Relación cliente: ${data.estadisticas.satisfaccionPromedio}
    • Tasa retención: ${data.estadisticas.tasaRetencion}
 
 💼 DISTRIBUCIÓN POR ÁREAS:
@@ -756,10 +756,10 @@ ${this.getASCIILogo()}
    • benchmark --performance
 
 🎯 MÉTRICAS CLAVE DE RENDIMIENTO:
-   📈 ROI promedio proyectos: 340%
-   ⚡ Tiempo respuesta promedio: 250ms
-   🛡️  Uptime sistemas: 99.9%
-   🎭 Satisfacción cliente: ${this.companyData.estadisticas.satisfaccionPromedio}
+   📈 Impacto operativo: continuidad y trazabilidad
+   ⚡ Respuesta: seguimiento técnico por canal
+   🛡️  Sistemas: monitoreo y mantenimiento
+   🎭 Relación cliente: ${this.companyData.estadisticas.satisfaccionPromedio}
    🔄 Tasa renovación contratos: ${this.companyData.estadisticas.tasaRetencion}
 
 🌟 CASOS DE ÉXITO DESTACADOS:
@@ -769,10 +769,10 @@ ${this.getASCIILogo()}
    4. Quilmes: Modernización IT integral
 
 🔮 ANÁLISIS PREDICTIVO:
-   • Crecimiento proyectado 2024: +25%
-   • Nuevas tecnologías: IA, IoT, 5G
-   • Expansión geográfica: 3 provincias
-   • Certificaciones planificadas: 2
+   • Prioridad operativa: soporte, seguridad y continuidad
+   • Nuevas tecnologías: automatización, IoT e integración
+   • Cobertura: Cuyo, Patagonia y proyectos nacionales
+   • Documentación: antecedentes y alcance verificable
 
 💬 PRÓXIMOS PASOS SUGERIDOS:
    1. Contacto comercial: 'contacto info'
@@ -873,10 +873,10 @@ ${matrix}
 DECODIFICANDO INFORMACIÓN EMPRESARIAL...
    💾 Proyectos: ${this.companyData.estadisticas.proyectosCompletados}
    👥 Clientes: ${this.companyData.estadisticas.clientesActivos}  
-   🕐 Uptime: 99.9%
+   🕐 Estado: monitoreado
    🌐 Cobertura: Nacional
 
-"No hay Matrix, solo infraestructura que sostiene continuidad operativa" - ULTIMA MILLA
+"No hay simulación: hay infraestructura que sostiene continuidad operativa" - ULTIMA MILLA
 
 ═══════════════════════════════════════════════════════════════════
     `);
@@ -982,10 +982,10 @@ visitante@ultimamilla.com.ar
 🔧 Último mantenimiento: Anoche 02:00 AM
 
 📊 Estadísticas de rendimiento:
-   • Tiempo promedio de respuesta: 250ms
-   • Disponibilidad mensual: 99.9%
-   • Proyectos en ejecución: 12
-   • Uptime sistemas críticos: 99.95%
+   • Respuesta: seguimiento técnico por canal
+   • Disponibilidad: monitoreo y mantenimiento
+   • Proyectos en ejecución: agenda operativa activa
+   • Sistemas críticos: continuidad supervisada
     `);
   }
 

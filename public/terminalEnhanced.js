@@ -623,7 +623,7 @@ Ej: servicios web, servicios apps, servicios marketing
    • Sistema de reservas online
 
 Total proyectos: 469+ | Años de experiencia: 22
-Clientes activos: 150+ | Tasa de satisfacción: 98%
+Clientes activos: 150+ | Seguimiento post-implementación
 
 💡 Use: antecedentes [sector] para filtrar por categoría
 </div>`;
@@ -642,13 +642,13 @@ Clientes activos: 150+ | Tasa de satisfacción: 98%
    • Total completados: 469+
    • Proyectos activos: 23
    • En desarrollo: 8
-   • Tasa de éxito: 98.5%
+   • Seguimiento: por hitos y documentación
 
 👥 CLIENTES:
    • Total clientes: 150+
    • Clientes activos: 89
-   • Clientes recurrentes: 76%
-   • NPS Score: 9.2/10
+   • Clientes recurrentes: soporte y mantenimiento
+   • Indicador relacional: seguimiento post-implementación
 
 🌐 TECNOLOGÍAS:
    • Sitios web: 280+
@@ -657,11 +657,11 @@ Clientes activos: 150+ | Tasa de satisfacción: 98%
    • Campañas marketing: 320+
 
 🎯 SECTORES ATENDIDOS:
-   • Salud: 28%
-   • Educación: 18%  
-   • Empresas: 35%
-   • Turismo: 12%
-   • Otros: 7%
+   • Salud: sistemas críticos
+   • Educación: conectividad y software
+   • Empresas: infraestructura y soporte
+   • Turismo: presencia y operación digital
+   • Otros: proyectos por alcance
 
 ⏱️  TIEMPO PROMEDIO:
    • Sitio web: 3-6 semanas
@@ -808,7 +808,6 @@ Clientes activos: 150+ | Tasa de satisfacción: 98%
             'servicios', 'services', 'antecedentes', 'casos', 'projects',
             'stats', 'estadisticas', 'theme', 'fullscreen',
             'theme professional', 'theme datos', 'theme archivo', 'theme diagnostico',
-            'theme matrix', 'theme retro', 'theme hacker',
             'performance', 'perf', 'cache', 'memory',
             'performance metrics', 'performance clear', 'performance optimize',
             'cache status', 'cache clear', 'cache info',
