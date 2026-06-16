@@ -223,7 +223,6 @@ export async function getServiciosV4(): Promise<ServicioV4[]> {
           'Area',
           'Cliente',
           'Productos',
-          'slug',
         ],
         sort: ['id']
       })
@@ -268,7 +267,6 @@ export async function getServicioConProductos(id: number | string): Promise<Serv
           'Area',
           'Cliente',
           'Productos',
-          'slug',
         ]
       })
     );
@@ -654,7 +652,6 @@ export async function getAllAntecedentes(): Promise<AntecedenteV4[]> {
       'Fecha',
       'Presupuesto',
       'original_id',
-      'slug',
     ].join(',');
     const response = await requestDirectusJson<{ data?: AntecedenteV4[] }>(
       `/items/Antecedentes?fields=${encodeURIComponent(fields)}&sort[]=-Fecha&sort[]=-id&limit=-1`,
