@@ -42,3 +42,7 @@ export function hasEnglishAlternate(pathname: string): boolean {
   if (normalized.startsWith('/en')) return EN_TO_ES_PATH[normalized] !== undefined;
   return Object.values(EN_TO_ES_PATH).includes(normalized);
 }
+
+export function resolvePageLanguage(pathname: string): 'es' | 'en' {
+  return pathname === '/en' || pathname.startsWith('/en/') ? 'en' : 'es';
+}
