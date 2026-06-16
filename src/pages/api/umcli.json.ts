@@ -1,14 +1,41 @@
 import type { APIRoute } from 'astro';
-import { getServicios, getCasosExito, getBlogPosts } from '../../lib/directus';
+import { getServicios, getAllAntecedentes, getBlogPosts } from '../../lib/directus';
 
-export const GET: APIRoute = async ({ request }) => {
+function normalizeServicioForUmCli(servicio: any) {
+  return {
+    ...servicio,
+    titulo: servicio?.titulo || servicio?.Titulo || servicio?.nombre || '',
+    nombre: servicio?.nombre || servicio?.Titulo || servicio?.titulo || '',
+    descripcion: servicio?.descripcion || servicio?.Descripcion || '',
+    area: servicio?.area || servicio?.Area || '',
+  };
+}
+
+function normalizeAntecedenteForUmCli(antecedente: any) {
+  const titulo = antecedente?.titulo || antecedente?.Titulo || antecedente?.Nombre || '';
+  const resumen = antecedente?.resumen || antecedente?.Descripcion || antecedente?.descripcion || '';
+  const fechaPublicacion = antecedente?.fecha_publicacion || antecedente?.Fecha || null;
+
+  return {
+    ...antecedente,
+    titulo,
+    nombre: antecedente?.nombre || antecedente?.Nombre || titulo,
+    resumen,
+    fecha_publicacion: fechaPublicacion,
+    cliente: antecedente?.cliente || antecedente?.Cliente || null,
+    area: antecedente?.area || antecedente?.Area || antecedente?.Unidad_de_negocio || null,
+  };
+}
+
+export const GET: APIRoute = async () => {
   try {
-    // Usar las colecciones correctas: 'servicios' y 'antecedentes'
-    const [servicios, antecedentes, blog_posts] = await Promise.all([
+    const [serviciosRaw, antecedentesRaw, blog_posts] = await Promise.all([
       getServicios(50),
-      getCasosExito(50), // Esto mapea a 'antecedentes' internamente
+      getAllAntecedentes(),
       getBlogPosts(50)
     ]);
+    const servicios = serviciosRaw.map(normalizeServicioForUmCli);
+    const antecedentes = antecedentesRaw.map(normalizeAntecedenteForUmCli);
 
     const payload = {
       timestamp: Date.now(),
