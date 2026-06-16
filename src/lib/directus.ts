@@ -190,13 +190,13 @@ async function obtenerContenidoPublicado<T = unknown>(
 
 // 6. Funciones específicas para cada colección (LEGACY - mantener por compatibilidad)
 export const getServicios = async (limite: number = 10) =>
-  obtenerContenidoPublicado('servicios', { limite });
+  (await getServiciosV4()).slice(0, limite);
 
 export const getBlogPosts = async (limite: number = 10) =>
   obtenerContenidoPublicado('blog_posts', { limite });
 
 export const getCasosExito = async (limite: number = 10) =>
-  obtenerContenidoPublicado('casos_de_exito', { limite });
+  (await getAllAntecedentes()).slice(0, limite);
 
 // ==========================================
 // 7. FUNCIONES V4 - Sistema de Diseño V4
@@ -222,7 +222,8 @@ export async function getServiciosV4(): Promise<ServicioV4[]> {
           'PorQueElegirnos',
           'Area',
           'Cliente',
-          'Productos'
+          'Productos',
+          'slug',
         ],
         sort: ['id']
       })
@@ -266,7 +267,8 @@ export async function getServicioConProductos(id: number | string): Promise<Serv
           'PorQueElegirnos',
           'Area',
           'Cliente',
-          'Productos'
+          'Productos',
+          'slug',
         ]
       })
     );
@@ -652,6 +654,7 @@ export async function getAllAntecedentes(): Promise<AntecedenteV4[]> {
       'Fecha',
       'Presupuesto',
       'original_id',
+      'slug',
     ].join(',');
     const response = await requestDirectusJson<{ data?: AntecedenteV4[] }>(
       `/items/Antecedentes?fields=${encodeURIComponent(fields)}&sort[]=-Fecha&sort[]=-id&limit=-1`,
