@@ -552,10 +552,10 @@ Ejecute 'help' para ver todos los comandos disponibles.
 • history               Historial de comandos
 • ps [--área]           Proyectos activos
 
-🎭 EASTER EGGS:
-• fortune               Frase motivacional
-• matrix                Efecto Matrix UM
-• cowsay [mensaje]      Arte ASCII
+🎭 UTILIDADES:
+• fortune               Frase operativa
+• matrix                Modo datos UM
+• cowsay [mensaje]      Mensaje ASCII
 
 💡 EJEMPLOS:
 • grep "Quilmes"        → Busca proyectos de Quilmes
@@ -607,7 +607,7 @@ Para ayuda específica: help [comando]
   matrix() {
     return {
       output: `
-🔴 Activando Matrix Effect...
+Activando modo datos...
 
 U L T I M A   M I L L A   S Y S T E M S
 █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █
@@ -618,7 +618,7 @@ Q U I L M E S   A F I P   G O B I E R N O
 2 0 0 3   →   2 0 2 4   →   ∞
 █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █
 
-¿Seguir el conejo blanco? [S/n] _
+¿Ver historial tecnico? [S/n] _
       `
     };
   }
