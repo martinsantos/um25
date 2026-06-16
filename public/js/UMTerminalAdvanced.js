@@ -712,7 +712,7 @@ drwxr-xr-x 2 um um  4096 dic  1 10:00 📂 equipo/
 • 469+ Proyectos Completados
 • 150+ Clientes Satisfechos
 • 22 Años de Experiencia
-• 99.9% Uptime Garantizado
+• Continuidad operativa monitoreada
 
 🏆 CERTIFICACIONES:
 • ISO 9001:2015 (Calidad)
@@ -778,7 +778,7 @@ class UltimaMilla:
         self.experiencia = 22
         self.proyectos = 469
         self.clientes = 150
-        self.uptime = 99.9
+        self.estado = "monitoreado"
         
     def demo(self):
         print("🚀 INICIANDO DEMO ULTIMA MILLA...")
@@ -852,27 +852,27 @@ e infraestructura tecnológica.
 📊 PROYECTO: Modernización AFIP (2023)
 🎯 Objetivo: Transformación digital del sistema tributario
 💻 Tecnologías: React, Node.js, PostgreSQL, Redis
-⏱️ Duración: 8 meses
-💰 Presupuesto: $5.000.000
-⭐ Resultado: 40% mejora en eficiencia, 99.9% uptime
+⏱️ Alcance: proyecto por etapas
+💰 Modalidad: relevamiento, implementación y soporte
+⭐ Resultado: operación tributaria con mayor trazabilidad
 
 ═══════════════════════════════════════════════════════════
 
 🌐 PROYECTO: Portal Ciudadano Digital (2023)  
 🎯 Objetivo: Plataforma unificada de servicios gubernamentales
 💻 Tecnologías: Vue.js, Python Django, AWS
-⏱️ Duración: 6 meses
-💰 Presupuesto: $3.500.000
-⭐ Resultado: 500,000+ usuarios registrados
+⏱️ Alcance: servicios digitales integrados
+💰 Modalidad: arquitectura, desarrollo y operación
+⭐ Resultado: canales de atención unificados
 
 ═══════════════════════════════════════════════════════════
 
 📱 PROYECTO: App Municipal Quilmes (2023)
 🎯 Objetivo: Servicios municipales móviles  
 💻 Tecnologías: React Native, Node.js, MongoDB
-⏱️ Duración: 4 meses
-💰 Presupuesto: $2.000.000
-⭐ Resultado: 4.8★ en app stores, 100K+ descargas
+⏱️ Alcance: experiencia móvil y backend operativo
+💰 Modalidad: producto, integración y mantenimiento
+⭐ Resultado: acceso móvil a servicios municipales
 
 ═══════════════════════════════════════════════════════════
 
@@ -949,35 +949,35 @@ ${results.join('\n')}
 • Clientes Atendidos:     ${this.clientes.length}+
 • Sectores:               Público y Privado
 
-💰 MÉTRICAS FINANCIERAS:
-• Facturación Total:      $${totalPresupuesto.toLocaleString()}
-• Proyecto Promedio:      $${Math.round(avgPresupuesto).toLocaleString()}  
-• Crecimiento Anual:      +25% YoY
-• ROI Cliente Promedio:   +340%
+💰 MÉTRICAS OPERATIVAS:
+• Relevamientos:          infraestructura, software y soporte
+• Documentación:          alcance técnico y trazabilidad
+• Modalidad:              diagnóstico, implementación y mantenimiento
+• Continuidad:            seguimiento operativo por etapa
 
 🎯 ÁREAS DE ESPECIALIZACIÓN:
-• Desarrollo Web:         35% de proyectos
-• Aplicaciones Móviles:   25% de proyectos  
-• Ciberseguridad:         20% de proyectos
-• Infraestructura:        20% de proyectos
+• Desarrollo Web:         portales y sistemas operativos
+• Aplicaciones Móviles:   servicios de campo y atención
+• Ciberseguridad:         control, hardening y monitoreo
+• Infraestructura:        redes, energía y continuidad
 
 🌟 INDICADORES DE CALIDAD:
-• Satisfacción Cliente:   98.5%
-• Uptime Promedio:        99.9%
-• Tiempo Entrega:         95% on-time
-• Retención Clientes:     92%
+• Relación Cliente:       seguimiento post-implementación
+• Disponibilidad:         monitoreo y mantenimiento
+• Entrega:                planificación por hitos
+• Retención Clientes:     soporte recurrente
 
-🔥 TECNOLOGÍAS LÍDERES:
-• React/Vue.js:          80% proyectos web
-• Node.js/Python:        70% backends
-• AWS/Azure:             60% cloud deployments
-• Docker/Kubernetes:     85% containerization
+🔥 TECNOLOGÍAS APLICADAS:
+• Frontend:              React, Vue.js y Astro
+• Backend:               Node.js, Python y APIs
+• Infraestructura:       cloud, servidores y redes
+• Operación:             contenedores, monitoreo y backups
 
-📈 PROYECCIÓN 2025:
-• Meta Proyectos:        +100 nuevos proyectos
-• Expansión:             Brasil y Chile
-• Nuevas Tecnologías:    IA, Blockchain, IoT
-• Equipo:                +50% crecimiento
+📈 PRIORIDADES 2026:
+• Continuidad:           soporte y mantenimiento crítico
+• Evidencia:             documentación de antecedentes
+• Integración:           sistemas, redes y seguridad
+• Equipo:                especialistas por frente técnico
 
 ═══════════════════════════════════════════════════════════
 
@@ -1264,13 +1264,13 @@ Mensaje: "${mensaje}"
 📊 DATOS EN TIEMPO REAL:
    • Proyectos Activos: ${this.servicios.length}
    • Clientes Conectados: ${this.clientes.length}
-   • Uptime: 99.9%
+   • Estado: monitoreado
    • Performance: ÓPTIMO
 
 🔧 DEMO COMPLETADA - Explora con comandos:
    • stats (estadísticas detalladas)
    • ls servicios (ver proyectos)
-   • matrix (efecto visual)
+   • matrix (modo datos)
    • contacto (enviar mensaje)
 
 🎯 PRÓXIMO PASO: ¿Listo para un proyecto real?
