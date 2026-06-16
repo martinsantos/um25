@@ -80,6 +80,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
       - name: Download build artifacts
         id: download-artifact
         uses: actions/download-artifact@v8
@@ -248,6 +253,12 @@ jobs:
             exit 1
           fi
           echo "✅ All smoke tests passed"
+
+      - name: SEO and GEO release audit
+        run: node scripts/seo-audit.mjs --base-url https://www.ultimamilla.com.ar
+
+      - name: UMCLI release contract audit
+        run: node scripts/umcli-contract-audit.mjs --base-url https://www.ultimamilla.com.ar
 
       - name: Send deployment notification
         if: always()

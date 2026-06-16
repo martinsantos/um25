@@ -5,13 +5,14 @@ const DEFAULT_CANONICAL_BASE_URL = 'https://www.ultimamilla.com.ar';
 const NON_CANONICAL_APEX_URL = 'https://ultimamilla.com.ar';
 
 const CORE_HTML_PATHS = ['/', '/servicios', '/antecedentes', '/blog', '/contacto', '/certificaciones'];
+const ENGLISH_HTML_PATHS = ['/en', '/en/services', '/en/about', '/en/contacto'];
 const GEO_COMMERCIAL_HUB_PATHS = [
   '/servicios-it-empresas-mendoza',
   '/presupuesto-servicios-it-empresas',
   '/proyectos-ingenieria-it-mendoza',
   '/servicios-it-empresas-argentina',
 ];
-const REQUIRED_PATHS = [...CORE_HTML_PATHS, ...GEO_COMMERCIAL_HUB_PATHS];
+const REQUIRED_PATHS = [...CORE_HTML_PATHS, ...ENGLISH_HTML_PATHS, ...GEO_COMMERCIAL_HUB_PATHS];
 
 const GEO_RESOURCE_PATHS = [
   '/geo/brand-facts.json',
@@ -58,6 +59,24 @@ function contentFromTag(tag) {
   return tag.match(/\scontent=["']([^"']+)["']/i)?.[1] || '';
 }
 
+function expectedLocaleContract(path) {
+  if (path === '/en' || path.startsWith('/en/')) {
+    return {
+      htmlLang: 'en',
+      metaLanguage: 'en',
+      dcLanguage: 'en',
+      ogLocale: 'en_US',
+    };
+  }
+
+  return {
+    htmlLang: 'es',
+    metaLanguage: 'es-AR',
+    dcLanguage: 'es',
+    ogLocale: 'es_AR',
+  };
+}
+
 async function fetchText(url, failures) {
   try {
     const response = await fetch(url, { redirect: 'follow' });
@@ -74,19 +93,28 @@ async function auditPage(baseUrl, canonicalBaseUrl, path, failures) {
   const html = await fetchText(url, failures);
   if (!html) return;
 
+  const localeContract = expectedLocaleContract(path);
+  const htmlLang = html.match(/<html[^>]+lang=["']([^"']+)["'][^>]*>/i)?.[1] || '';
   const title = textBetween(html, /<title>([^<]+)<\/title>/i);
   const description = contentFromTag(attrsForMeta(html, 'name', 'description'));
+  const language = contentFromTag(attrsForMeta(html, 'name', 'language'));
+  const dcLanguage = contentFromTag(attrsForMeta(html, 'name', 'dc.language'));
   const robots = contentFromTag(attrsForMeta(html, 'name', 'robots'));
   const canonical = html.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["'][^>]*>/i)?.[1] || '';
   const ogImage = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["'][^>]*>/i)?.[1] || '';
+  const ogLocale = contentFromTag(attrsForMeta(html, 'property', 'og:locale'));
   const jsonLdBlocks = [...html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
 
+  assert(htmlLang === localeContract.htmlLang, `${path} html lang expected ${localeContract.htmlLang} but got ${htmlLang || '(missing)'}`, failures);
   assert(title.length > 0, `${path} missing <title>`, failures);
   assert(title.length <= 75, `${path} title too long (${title.length})`, failures);
   assert(description.length >= 70, `${path} meta description too short (${description.length})`, failures);
   assert(description.length <= 170, `${path} meta description too long (${description.length})`, failures);
+  assert(language === localeContract.metaLanguage, `${path} meta language expected ${localeContract.metaLanguage} but got ${language || '(missing)'}`, failures);
+  assert(dcLanguage === localeContract.dcLanguage, `${path} dc.language expected ${localeContract.dcLanguage} but got ${dcLanguage || '(missing)'}`, failures);
   assert(canonical.startsWith(canonicalBaseUrl), `${path} canonical does not start with ${canonicalBaseUrl}: ${canonical}`, failures);
   assert(!canonical.startsWith(NON_CANONICAL_APEX_URL), `${path} canonical leaks apex domain: ${canonical}`, failures);
+  assert(ogLocale === localeContract.ogLocale, `${path} og:locale expected ${localeContract.ogLocale} but got ${ogLocale || '(missing)'}`, failures);
   assert(robots.includes('index') || path === '/404', `${path} robots meta missing index directive`, failures);
   assert(ogImage.startsWith(canonicalBaseUrl), `${path} og:image is not absolute canonical URL: ${ogImage}`, failures);
   assert(jsonLdBlocks.length > 0, `${path} missing JSON-LD`, failures);

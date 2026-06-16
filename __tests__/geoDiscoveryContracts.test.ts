@@ -128,6 +128,22 @@ describe('GEO discovery and commercial hub contracts', () => {
     }
   });
 
+  test('the SEO audit gate enforces locale metadata on public English routes', () => {
+    const auditSource = fs.readFileSync(path.join(repoRoot, 'scripts/seo-audit.mjs'), 'utf8');
+
+    for (const route of ['/en', '/en/services', '/en/about', '/en/contacto']) {
+      expect(auditSource).toContain(route);
+    }
+
+    expect(auditSource).toContain("htmlLang: 'en'");
+    expect(auditSource).toContain("metaLanguage: 'en'");
+    expect(auditSource).toContain("dcLanguage: 'en'");
+    expect(auditSource).toContain("ogLocale: 'en_US'");
+    expect(auditSource).toContain("attrsForMeta(html, 'property', 'og:locale')");
+    expect(auditSource).toContain("attrsForMeta(html, 'name', 'dc.language')");
+    expect(auditSource).toContain("attrsForMeta(html, 'name', 'language')");
+  });
+
   test('llms-full lists the discovery endpoints and core commercial indexes explicitly', () => {
     const source = fs.readFileSync(path.join(repoRoot, 'src/pages/llms-full.txt.ts'), 'utf8');
 
