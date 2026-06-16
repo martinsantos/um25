@@ -260,6 +260,9 @@ jobs:
       - name: UMCLI release contract audit
         run: node scripts/umcli-contract-audit.mjs --base-url https://www.ultimamilla.com.ar
 
+      - name: Directus integration release audit
+        run: node scripts/directus-release-audit.mjs --base-url https://www.ultimamilla.com.ar
+
       - name: Send deployment notification
         if: always()
         run: |
