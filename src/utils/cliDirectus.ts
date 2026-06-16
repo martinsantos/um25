@@ -1,7 +1,8 @@
 import { getDirectusInternalUrl, getDirectusToken } from '../config/runtime';
+import { generateSlug } from './slugUtils.js';
 
-export const CLI_ANTECEDENTES_FIELDS = 'id,Titulo,Nombre,Descripcion,Cliente,Fecha,slug';
-export const CLI_SERVICIOS_FIELDS = 'id,Titulo,Descripcion,slug';
+export const CLI_ANTECEDENTES_FIELDS = 'id,Titulo,Nombre,Descripcion,Cliente,Fecha';
+export const CLI_SERVICIOS_FIELDS = 'id,Titulo,Descripcion';
 export const PUBLIC_SITE_URL = 'https://www.ultimamilla.com.ar';
 
 export type CliAntecedente = {
@@ -159,7 +160,7 @@ export function antecedenteClient(item: CliAntecedente): string | null {
 }
 
 export function antecedenteUrl(item: CliAntecedente): string {
-  const slug = cleanText(item.slug);
+  const slug = cleanText(item.slug) || generateSlug(antecedenteTitle(item));
   return slug ? absolutePath(`/antecedentes/${slug}`) : absolutePath('/antecedentes');
 }
 
@@ -176,6 +177,6 @@ export function servicioDescription(item: CliServicio, length = 280): string {
 }
 
 export function servicioUrl(item: CliServicio): string {
-  const slug = cleanText(item.slug);
+  const slug = cleanText(item.slug) || generateSlug(servicioTitle(item));
   return slug ? absolutePath(`/servicios/${item.id}/${slug}`) : absolutePath('/servicios');
 }
