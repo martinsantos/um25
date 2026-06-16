@@ -37,10 +37,9 @@ export const GET: APIRoute = async ({ request }) => {
     return new Response(
       JSON.stringify({ success: false, error: error?.message || 'unknown_error' }),
       {
-        status: 200,
+        status: 502,
         headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }
       }
     );
   }
 };
-

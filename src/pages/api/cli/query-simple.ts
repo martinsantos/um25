@@ -1,6 +1,22 @@
 import type { APIRoute } from 'astro';
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
+import {
+    CLI_ANTECEDENTES_FIELDS,
+    CLI_SERVICIOS_FIELDS,
+    antecedenteClient,
+    antecedenteDescription,
+    antecedenteTitle,
+    antecedenteUrl,
+    getCliDirectusHeaders,
+    getCliDirectusRuntime,
+    readCliSearchQuery,
+    servicioDescription,
+    servicioTitle,
+    servicioUrl,
+    type CliAntecedente,
+    type CliServicio,
+} from '../../../utils/cliDirectus';
 
 // Enable server-side rendering for this endpoint
 export const prerender = false;
@@ -29,24 +45,17 @@ async function queryDatabase(sql: string, params: string[] = []) {
 // CONECTAR DIRECTAMENTE CON DIRECTUS REAL - 469 antecedentes + 9 servicios
 async function queryDirectusAPI(searchQuery: string): Promise<any> {
     try {
-        const token = import.meta.env.DIRECTUS_STATIC_TOKEN || import.meta.env.PUBLIC_DIRECTUS_TOKEN || '';
-        const directusUrl = import.meta.env.DIRECTUS_INTERNAL_URL || import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-        if (!token) return { antecedentes: [], servicios: [] };
+        const { directusUrl, token } = getCliDirectusRuntime();
+        const headers = getCliDirectusHeaders(token);
         
         // BUSCAR EN ANTECEDENTES REALES (469 registros)
-        const antecedentesResponse = await fetch(`${directusUrl}/items/Antecedentes?limit=50&search=${encodeURIComponent(searchQuery)}&fields=id,title,content,client,date_created,slug`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
+        const antecedentesResponse = await fetch(`${directusUrl}/items/Antecedentes?limit=50&search=${encodeURIComponent(searchQuery)}&fields=${CLI_ANTECEDENTES_FIELDS}&sort=-Fecha`, {
+            headers,
         });
         
         // BUSCAR EN SERVICIOS REALES (9 registros)
-        const serviciosResponse = await fetch(`${directusUrl}/items/Servicios?limit=10&search=${encodeURIComponent(searchQuery)}&fields=id,title,description,slug`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
+        const serviciosResponse = await fetch(`${directusUrl}/items/Servicios?limit=10&search=${encodeURIComponent(searchQuery)}&fields=${CLI_SERVICIOS_FIELDS}`, {
+            headers,
         });
         
         const antecedentes = antecedentesResponse.ok ? (await antecedentesResponse.json()).data : [];
@@ -61,18 +70,10 @@ async function queryDirectusAPI(searchQuery: string): Promise<any> {
 
 export const POST: APIRoute = async ({ request }) => {
     try {
-        const { query } = await request.json();
-        
-        if (!query || query.trim().length < 2) {
-            return new Response(JSON.stringify({
-                error: 'Query muy corta. Mínimo 2 caracteres.'
-            }), { 
-                status: 400,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
-        
-        const searchQuery = query.toLowerCase().trim();
+        const parsed = await readCliSearchQuery(request);
+        if (!parsed.ok) return parsed.response;
+
+        const searchQuery = parsed.query.toLowerCase();
         
         // CONSULTAR DIRECTUS REAL - 469 antecedentes + 9 servicios
         const directusData = await queryDirectusAPI(searchQuery);
@@ -80,38 +81,40 @@ export const POST: APIRoute = async ({ request }) => {
         const formattedResults: any[] = [];
         
         // FORMATEAR ANTECEDENTES REALES CON URLs REALES
-        directusData.antecedentes.forEach((antecedente: any) => {
-            const realUrl = `https://www.ultimamilla.com.ar/antecedentes/${antecedente.id}/${antecedente.slug || 'detalle'}`;
+        directusData.antecedentes.forEach((antecedente: CliAntecedente) => {
+            const title = antecedenteTitle(antecedente);
+            const realUrl = antecedenteUrl(antecedente);
             
             formattedResults.push({
                 id: antecedente.id,
                 type: 'antecedente',
                 icon: '📊',
-                title: antecedente.title,
-                content: (antecedente.content || 'Información no disponible').slice(0, 300) + '...',
+                title,
+                content: antecedenteDescription(antecedente, 300),
                 url: realUrl,
-                client: antecedente.client || null,
+                client: antecedenteClient(antecedente),
                 image: null,
                 email_link: `/api/cli/query?action=email&id=${antecedente.id}`,
-                mailto_link: `mailto:?subject=${encodeURIComponent(`Información sobre: ${antecedente.title}`)}&body=${encodeURIComponent(`Hola,\n\nTe envío información sobre el proyecto: ${antecedente.title}\n\nMás detalles: ${realUrl}\n\nSaludos,\nEquipo Ultima Milla`)}`
+                mailto_link: `mailto:?subject=${encodeURIComponent(`Información sobre: ${title}`)}&body=${encodeURIComponent(`Hola,\n\nTe envío información sobre el proyecto: ${title}\n\nMás detalles: ${realUrl}\n\nSaludos,\nEquipo Ultima Milla`)}`
             });
         });
         
         // FORMATEAR SERVICIOS REALES CON URLs REALES  
-        directusData.servicios.forEach((servicio: any) => {
-            const realUrl = `https://www.ultimamilla.com.ar/servicios/${servicio.id}/${servicio.slug || 'detalle'}`;
+        directusData.servicios.forEach((servicio: CliServicio) => {
+            const title = servicioTitle(servicio);
+            const realUrl = servicioUrl(servicio);
             
             formattedResults.push({
                 id: servicio.id,
                 type: 'servicio',
                 icon: '🛠️',
-                title: servicio.title,
-                content: (servicio.description || 'Información no disponible').slice(0, 300) + '...',
+                title,
+                content: servicioDescription(servicio, 300),
                 url: realUrl,
                 client: null,
                 image: null,
                 email_link: `/api/cli/query?action=email&id=${servicio.id}`,
-                mailto_link: `mailto:?subject=${encodeURIComponent(`Información sobre: ${servicio.title}`)}&body=${encodeURIComponent(`Hola,\n\nTe envío información sobre el servicio: ${servicio.title}\n\nMás detalles: ${realUrl}\n\nSaludos,\nEquipo Ultima Milla`)}`
+                mailto_link: `mailto:?subject=${encodeURIComponent(`Información sobre: ${title}`)}&body=${encodeURIComponent(`Hola,\n\nTe envío información sobre el servicio: ${title}\n\nMás detalles: ${realUrl}\n\nSaludos,\nEquipo Ultima Milla`)}`
             });
         });
         
@@ -153,7 +156,7 @@ export const POST: APIRoute = async ({ request }) => {
                 suggestions.push({
                     type: 'help',
                     icon: '💡',
-                    title: `Sin resultados para "${query}"`,
+                    title: `Sin resultados para "${searchQuery}"`,
                     content: 'Intenta con: "seguridad", "redes", "desarrollo", "cámaras", "wifi" o "antecedentes"',
                     url: '/servicios'
                 });
