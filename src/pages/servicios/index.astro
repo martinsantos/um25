@@ -56,6 +56,12 @@ const servicesStrategicLinkGroups = buildServiceStrategicLinkGroups({
     `${cctvAiProduct.title} ${cctvAiProduct.description}`,
   ].join(' '),
 });
+const servicesIndexSignificantLinks = [
+  'https://www.ultimamilla.com.ar/antecedentes',
+  'https://www.ultimamilla.com.ar/sectores',
+  'https://www.ultimamilla.com.ar/contacto',
+  ...servicios.slice(0, 8).map((servicio) => `https://www.ultimamilla.com.ar${servicio.href}`),
+];
 
 const structuredData = [
   {
@@ -63,7 +69,13 @@ const structuredData = [
     '@type': 'CollectionPage',
     name: 'Servicios IT integrales ULTIMA MILLA',
     description: 'Servicios IT integrales: redes, telecomunicaciones, seguridad electrónica, software, soporte, consultoría, detección de incendios y eléctricos para IT.',
-    url: 'https://www.ultimamilla.com.ar/servicios'
+    url: 'https://www.ultimamilla.com.ar/servicios',
+    significantLink: servicesIndexSignificantLinks,
+    hasPart: servicios.slice(0, 8).map((servicio) => ({
+      '@type': 'WebPage',
+      name: servicio.visual.shortName,
+      url: `https://www.ultimamilla.com.ar${servicio.href}`,
+    })),
   },
   {
     '@context': 'https://schema.org',
@@ -145,7 +157,6 @@ const serviceIconPaths: Record<string, string> = {
         </p>
         <div class="services-actions services-actions--intents">
           <a href="/contacto" class="um-btn-primary">Solicitar diagnóstico</a>
-          <a href="/contacto" class="um-btn-secondary services-secondary-dark">Solicitar relevamiento</a>
           <a href="/antecedentes" class="um-btn-secondary services-secondary-dark">Ver antecedentes</a>
         </div>
         <dl class="services-hero__proofline" aria-label="Prueba institucional">
@@ -169,8 +180,8 @@ const serviceIconPaths: Record<string, string> = {
           <img src={servicesIndexImage} alt="Infraestructura IT operada por ULTIMA MILLA" loading="eager" fetchpriority="high" decoding="async" width={editorialImageDimensions.width} height={editorialImageDimensions.height} />
         </div>
         <div class="services-proof-note">
-          <strong>Diagnóstico, implementación y soporte dentro de una misma cadena operativa.</strong>
-          <p>Acá importa ver cómo se sostiene el servicio en terreno, no repetir indicadores.</p>
+          <strong>Diagnóstico, implementación, evidencia y soporte dentro de una misma cadena operativa.</strong>
+          <p>El servicio debe poder verificarse por alcance, sector, antecedente y continuidad posterior.</p>
         </div>
       </aside>
     </div>
@@ -190,33 +201,33 @@ const serviceIconPaths: Record<string, string> = {
       </div>
 
       <div class="services-dossier">
-        <aside class="services-dossier__folio" aria-label="Criterio operativo de servicios">
-          <div class="services-dossier__image">
-            <img
-              src={servicios[1]?.visual.image || servicios[0]?.visual.image}
-              alt={servicios[1]?.visual.imageAlt || 'Infraestructura IT operativa de ULTIMA MILLA'}
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-          <div class="services-dossier__note">
-            <span>criterio de diseño</span>
-            <h3>Continuidad operativa primero.</h3>
-            <p>
-              Se priorizan alcance, riesgo, integración y soporte posterior. Cada servicio debe
-              poder vincularse a un antecedente, un responsable y una evidencia técnica.
-            </p>
-          </div>
-        </aside>
+        <div class="services-dossier__brief services-dossier__folio" aria-label="Criterio operativo de servicios">
+          <span>criterio de diseño</span>
+          <strong>Continuidad operativa primero.</strong>
+          <p>
+            Se priorizan alcance, riesgo, integración y soporte posterior. Cada servicio debe
+            poder vincularse a un antecedente, un responsable y una evidencia técnica.
+          </p>
+        </div>
 
-        <div class="services-dossier__list" aria-label="Frentes de servicios IT">
+        <div class="services-dossier__list services-dossier__list--visual" aria-label="Frentes de servicios IT">
           {servicios.map((servicio, index) => (
             <a
               href={servicio.href}
-              class="um-click-surface service-dossier-item"
+              class="um-click-surface service-dossier-item service-dossier-item--visual"
               style={`--service-accent:${servicio.visual.accent};`}
             >
               <span class="service-dossier-item__num">{String(index + 1).padStart(2, '0')}</span>
+              <span class="service-dossier-item__media" aria-hidden="true">
+                <img
+                  src={servicio.visual.image}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  width={editorialImageDimensions.width}
+                  height={editorialImageDimensions.height}
+                />
+              </span>
               <span class="service-dossier-item__icon" aria-hidden="true">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" set:html={serviceIconPaths[servicio.visual.icon] || serviceIconPaths.network} />
               </span>
@@ -518,36 +529,22 @@ const serviceIconPaths: Record<string, string> = {
 
   .services-dossier {
     display: grid;
-    grid-template-columns: minmax(286px, 0.32fr) minmax(0, 0.68fr);
-    gap: clamp(22px, 3.8vw, 44px);
+    grid-template-columns: 1fr;
+    gap: clamp(18px, 2.8vw, 30px);
     align-items: start;
   }
 
-  .services-dossier__folio {
-    position: sticky;
-    top: 104px;
-    border: 0;
-    background: #fff;
+  .services-dossier__brief {
+    display: grid;
+    grid-template-columns: minmax(180px, 0.28fr) minmax(240px, 0.28fr) minmax(0, 0.44fr);
+    gap: clamp(14px, 2.4vw, 28px);
+    align-items: center;
+    padding: clamp(18px, 2.2vw, 26px) clamp(18px, 2.4vw, 28px);
+    border-top: 1px solid var(--um-line);
+    border-bottom: 1px solid var(--um-line);
   }
 
-  .services-dossier__image {
-    aspect-ratio: 16 / 10;
-    overflow: hidden;
-    background: #111;
-  }
-
-  .services-dossier__image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: saturate(0.92) contrast(1.04);
-  }
-
-  .services-dossier__note {
-    padding: clamp(18px, 2vw, 22px) 0 0;
-  }
-
-  .services-dossier__note span {
+  .services-dossier__brief span {
     display: block;
     color: var(--um-red);
     font-size: 1rem;
@@ -556,17 +553,17 @@ const serviceIconPaths: Record<string, string> = {
     text-transform: uppercase;
   }
 
-  .services-dossier__note h3 {
-    margin-top: 12px;
+  .services-dossier__brief strong {
     color: var(--skin-text);
-    font-size: clamp(1.35rem, 1.85vw, 1.95rem);
+    font-family: var(--um-font-display);
+    font-size: clamp(1.28rem, 1.52vw, 1.62rem);
     line-height: 1.12;
     font-weight: 600;
     text-wrap: balance;
   }
 
-  .services-dossier__note p {
-    margin-top: 12px;
+  .services-dossier__brief p {
+    margin: 0;
     color: var(--skin-muted);
     font-size: 1rem;
     line-height: 1.58;
@@ -574,57 +571,94 @@ const serviceIconPaths: Record<string, string> = {
 
   .services-dossier__list {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    scroll-margin-top: 96px;
     border: 0;
     background: transparent;
-    gap: 1px;
+    gap: clamp(12px, 1.45vw, 18px);
   }
 
   .service-dossier-item {
-    display: grid;
-    grid-template-columns: 34px 42px minmax(0, 1fr);
-    grid-template-areas:
-      "num icon body"
-      ". . signal";
-    gap: 0 14px;
-    min-height: 166px;
-    padding: clamp(18px, 2vw, 23px);
+    position: relative;
+    display: flex;
+    min-height: 100%;
+    flex-direction: column;
     border: 0;
-    background: var(--skin-panel);
+    background: #fff;
     color: var(--skin-text);
     transition: background-color 180ms ease;
   }
 
-  .service-dossier-item:hover,
+  @media (hover: hover) {
+    .service-dossier-item:hover {
+      background: color-mix(in srgb, var(--skin-panel, #fff) 88%, var(--um-red) 12%);
+    }
+  }
+
   .service-dossier-item:focus-visible {
-    background: color-mix(in srgb, var(--skin-panel) 92%, var(--um-red) 8%);
+    outline: 3px solid color-mix(in srgb, var(--um-red) 72%, #fff 28%);
+    outline-offset: 3px;
   }
 
   .service-dossier-item__num {
-    grid-area: num;
+    position: absolute;
+    left: 14px;
+    top: 14px;
+    z-index: 2;
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    background: var(--skin-panel, #fff);
     color: var(--um-red);
     font-size: 1rem;
     font-weight: 700;
-    line-height: 1.2;
+    line-height: 1;
+  }
+
+  .service-dossier-item__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #111;
+  }
+
+  .service-dossier-item__media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(0, 0, 0, 0.34) 0%, transparent 42%),
+      linear-gradient(0deg, rgba(0, 0, 0, 0.24) 0%, transparent 54%);
+    pointer-events: none;
+  }
+
+  .service-dossier-item__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.92) contrast(1.05);
   }
 
   .service-dossier-item__icon {
-    grid-area: icon;
     display: grid;
-    width: 34px;
-    height: 34px;
+    width: 42px;
+    height: 42px;
+    margin: clamp(16px, 1.8vw, 22px) clamp(16px, 1.8vw, 22px) 0;
     place-items: center;
+    background: color-mix(in srgb, var(--service-accent, var(--um-red)) 12%, var(--skin-panel, #fff) 88%);
     color: var(--service-accent, var(--um-red));
   }
 
   .service-dossier-item__icon svg {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
   }
 
   .service-dossier-item__body {
-    grid-area: body;
     min-width: 0;
+    padding: clamp(14px, 1.8vw, 20px) clamp(16px, 1.8vw, 22px) 0;
   }
 
   .service-dossier-item__body > span {
@@ -637,10 +671,10 @@ const serviceIconPaths: Record<string, string> = {
 
   .service-dossier-item__body strong {
     display: block;
-    margin-top: 7px;
+    margin-top: 9px;
     color: var(--skin-text);
     font-family: var(--um-font-display);
-    font-size: clamp(1.12rem, 1.22vw, 1.28rem);
+    font-size: clamp(1.18rem, 1.34vw, 1.5rem);
     line-height: 1.12;
     font-weight: 600;
     text-wrap: balance;
@@ -656,12 +690,11 @@ const serviceIconPaths: Record<string, string> = {
   }
 
   .service-dossier-item__signal {
-    grid-area: signal;
-    align-self: start;
+    align-self: stretch;
     width: fit-content;
-    margin-top: 12px;
+    margin: auto clamp(16px, 1.8vw, 22px) 0;
     border-top: 2px solid var(--um-red);
-    padding-top: 10px;
+    padding: 12px 0 clamp(16px, 1.8vw, 22px);
     color: var(--skin-text);
     font-size: 1rem;
     font-weight: 700;
@@ -1149,23 +1182,56 @@ const serviceIconPaths: Record<string, string> = {
     .services-final-cta div div {
       justify-content: flex-start;
     }
+
+    .services-dossier__brief {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+
+    .services-dossier__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   @media (max-width: 640px) {
+    :global(html),
+    :global(body) {
+      overflow-x: clip;
+    }
+
     .services-hero {
       padding-top: 34px;
       padding-bottom: 30px;
+      max-width: 100%;
+      overflow-x: clip;
     }
 
     .services-breadcrumb {
       display: none;
     }
 
-    .services-hero h1 {
+    .services-hero__grid,
+    .services-dossier-head,
+    .services-dossier__brief,
+    .services-dossier__list,
+    .services-product-feature,
+    .services-intent-ctas {
+      min-width: 0;
       max-width: 100%;
-      font-size: clamp(2.125rem, 8.3vw, 2.22rem) !important;
+    }
+
+    .services-hero h1 {
+      max-width: calc(100vw - 32px);
+      font-size: clamp(2rem, 8.3vw, 2.22rem) !important;
       line-height: 1.1 !important;
-      text-wrap: balance !important;
+      overflow-wrap: anywhere;
+      text-wrap: wrap !important;
+    }
+
+    .services-dossier-head h2 {
+      max-width: calc(100vw - 32px);
+      overflow-wrap: anywhere;
+      text-wrap: wrap;
     }
 
     .service-row h3 {
@@ -1194,14 +1260,22 @@ const serviceIconPaths: Record<string, string> = {
 
     .services-actions {
       margin-top: 16px;
-    }
-
-    .services-actions .um-btn-primary {
       width: 100%;
-      justify-content: center;
+      min-width: 0;
+      max-width: 100%;
     }
 
-    .services-actions .services-secondary-dark {
+    .services-actions :global(.um-btn-primary),
+    .services-actions :global(.um-btn-secondary) {
+      box-sizing: border-box;
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      justify-content: center;
+      white-space: normal;
+    }
+
+    .services-actions :global(.services-secondary-dark) {
       display: none;
     }
 
@@ -1214,6 +1288,15 @@ const serviceIconPaths: Record<string, string> = {
     .services-intent-ctas {
       grid-template-columns: 1fr;
     }
+
+        .services-dossier__list {
+          order: 0;
+          scroll-margin-top: 76px;
+        }
+
+        .services-dossier__folio {
+          order: 1;
+        }
 
     .services-products-band {
       margin-top: 34px;
@@ -1286,24 +1369,13 @@ const serviceIconPaths: Record<string, string> = {
       word-break: normal;
     }
 
-    .services-dossier__folio {
-      position: static;
-      order: 1;
-    }
-
-    .services-dossier__list {
-      order: 0;
-    }
-
     .service-dossier-item {
       min-height: auto;
-      padding: 24px 0;
       border-right: 0;
-      grid-template-columns: auto minmax(0, 1fr);
-      grid-template-areas:
-        "num body"
-        "icon body"
-        "signal signal";
+    }
+
+    .service-dossier-item__media {
+      aspect-ratio: 16 / 10;
     }
 
     .service-row {
