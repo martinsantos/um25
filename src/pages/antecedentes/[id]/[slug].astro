@@ -374,12 +374,23 @@ const caseSeo = buildCaseSeoMeta({
 });
 const metaDescription = caseSeo.description;
 const structuredImageUrl = publicImageUrl(caseSeoImageUrl) || toCanonicalUrl(DEFAULT_IMAGE_URL);
-const caseDossierFacts = [
-  { label: 'Tipo', value: caseRecordLabel },
-  displayClientName ? { label: 'Organización', value: displayClientName } : null,
-  antecedente.Area ? { label: 'Vertical', value: cleanDisplayText(antecedente.Area) } : null,
-  caseDateLabel ? { label: 'Fecha', value: caseDateLabel } : null,
-].filter(Boolean) as Array<{ label: string; value: string }>;
+const caseExecutiveItems = [
+  {
+    label: 'Contexto',
+    value: truncateEditorialText(
+      [displayClientName, antecedente.Area].filter(Boolean).join(' · ') || caseRecordLabel,
+      120,
+    ),
+  },
+  {
+    label: 'Alcance',
+    value: truncateEditorialText(scopeItems[0] || caseCalloutText || caseRecordSummary, 135),
+  },
+  {
+    label: 'Lectura',
+    value: truncateEditorialText(caseRecordSummary, 135),
+  },
+];
 const caseStrategicLinkGroups = buildCaseStrategicLinkGroups({
   currentPath: `/antecedentes/${id}/${slugFromUrl}`,
   title: caseHeadline,
@@ -507,14 +518,20 @@ const antecedentePageStructuredData = [
     </div>
   </section>
 
-  <section class="case-proof-strip" aria-label="Ficha rápida del antecedente">
-    <div class="um-container case-proof-strip__grid">
-      {caseDossierFacts.map((fact) => (
-        <div>
-          <span>{fact.label}</span>
-          <strong>{fact.value}</strong>
-        </div>
-      ))}
+  <section class="case-executive-brief" aria-label="Resumen ejecutivo del antecedente">
+    <div class="um-container case-executive-brief__grid">
+      <div class="case-executive-brief__head">
+        <span>Resumen ejecutivo</span>
+        <h2>Qué mirar antes de entrar al detalle técnico.</h2>
+      </div>
+      <dl class="case-executive-brief__ledger">
+        {caseExecutiveItems.map((item) => (
+          <div>
+            <dt>{item.label}</dt>
+            <dd>{item.value}</dd>
+          </div>
+        ))}
+      </dl>
     </div>
   </section>
 
@@ -788,7 +805,6 @@ const antecedentePageStructuredData = [
 <style>
   /* Escala editorial única — detalle antecedente (cuerpo 18px, sección ~1.11×) */
   .case-detail-hero,
-  .case-proof-strip,
   .case-detail-main.case-detail,
   .case-related,
   .case-detail-footer-cta {
@@ -847,7 +863,7 @@ const antecedentePageStructuredData = [
 
   .case-detail-hero__grid {
     display: grid;
-    grid-template-columns: minmax(0, 0.58fr) minmax(340px, 0.42fr);
+    grid-template-columns: minmax(0, 0.52fr) minmax(380px, 0.48fr);
     gap: clamp(26px, 4.2vw, 56px);
     align-items: start;
   }
@@ -939,19 +955,19 @@ const antecedentePageStructuredData = [
 
   .case-detail-dossier {
     overflow: hidden;
-    width: min(100%, 480px);
+    width: min(100%, 540px);
     justify-self: end;
-    border: 0;
+    border: 1px solid rgba(17, 17, 17, 0.12);
     background: #fff;
     box-shadow: none;
   }
 
   .case-detail-dossier__media {
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 16 / 10;
     width: 100%;
     max-width: 100%;
     margin: 0;
-    min-height: 190px;
+    min-height: 280px;
     overflow: hidden;
     background: #111;
   }
@@ -962,7 +978,7 @@ const antecedentePageStructuredData = [
     height: 100%;
     object-fit: cover;
     object-position: center;
-    filter: saturate(0.92) contrast(1.05);
+    filter: saturate(1.04) contrast(1.06);
   }
 
   .case-detail-dossier__body {
@@ -1034,52 +1050,80 @@ const antecedentePageStructuredData = [
     text-transform: none;
   }
 
-  .case-proof-strip {
-    background: #f5f5f5;
-    color: #111;
-    border-top: 1px solid #e4e6e9;
+  .case-detail-main {
+    padding: clamp(42px, 5.5vw, 72px) 0;
+    background: #fff;
+  }
+
+  .case-executive-brief {
+    background: #fff;
     border-bottom: 1px solid #e4e6e9;
   }
 
-  .case-proof-strip__grid {
+  .case-executive-brief__grid {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: clamp(10px, 1.4vw, 16px);
-    background: transparent;
-    padding-block: clamp(14px, 2vw, 20px);
+    grid-template-columns: minmax(240px, 0.32fr) minmax(0, 0.68fr);
+    gap: clamp(24px, 4.5vw, 62px);
+    padding-block: clamp(28px, 4vw, 48px);
   }
 
-  .case-proof-strip__grid div {
+  .case-executive-brief__head span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: #DC2626;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .case-executive-brief__head span::before {
+    content: "";
+    width: 34px;
+    height: 2px;
+    background: #DC2626;
+  }
+
+  .case-executive-brief__head h2 {
+    max-width: 440px;
+    margin-top: 0.9rem;
+    color: #111;
+    font-size: clamp(1.45rem, 1.8vw, 2rem);
+    font-weight: 600;
+    line-height: 1.14;
+    text-wrap: balance;
+  }
+
+  .case-executive-brief__ledger {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    margin: 0;
+    background: #dfe3e7;
+  }
+
+  .case-executive-brief__ledger div {
     min-width: 0;
-    border-left: 3px solid #DC2626;
-    background: #fff;
-    padding: clamp(14px, 1.6vw, 18px) clamp(14px, 1.8vw, 20px);
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+    padding: clamp(16px, 2vw, 22px);
+    background: #f7f8f9;
   }
 
-  .case-proof-strip__grid span {
-    display: block;
+  .case-executive-brief__ledger dt {
     color: #5f6670;
     font-size: 1rem;
     font-weight: 700;
     line-height: 1.25;
-    letter-spacing: 0.04em;
     text-transform: uppercase;
   }
 
-  .case-proof-strip__grid strong {
-    display: block;
-    margin-top: 8px;
+  .case-executive-brief__ledger dd {
+    margin: 0.65rem 0 0;
     color: #111;
-    font-size: clamp(1.02rem, 1.12vw, 1.16rem);
-    font-weight: 700;
-    line-height: 1.35;
+    font-size: clamp(1.02rem, 1.08vw, 1.12rem);
+    font-weight: 600;
+    line-height: 1.45;
     overflow-wrap: anywhere;
-  }
-
-  .case-detail-main {
-    padding: clamp(42px, 5.5vw, 72px) 0;
-    background: #fff;
   }
 
   .case-detail-main__grid {
@@ -1193,27 +1237,34 @@ const antecedentePageStructuredData = [
 
   .case-gallery-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: clamp(1rem, 2vw, 1.35rem);
   }
 
   .case-gallery-frame {
     margin: 0;
-    min-height: 260px;
+    min-height: 300px;
     padding: 0;
-    border: 0;
+    border: 1px solid rgba(17, 17, 17, 0.12);
     border-radius: 0;
-    background: #f3f4f6;
+    background: #111;
+    box-shadow: none;
     overflow: hidden;
+  }
+
+  .case-gallery-frame:first-child {
+    grid-column: span 2;
+    min-height: 380px;
   }
 
   .case-gallery-image {
     width: 100%;
     height: 100%;
-    min-height: 260px;
+    min-height: 300px;
     object-fit: cover;
     object-position: center;
     display: block;
+    filter: saturate(1.04) contrast(1.04);
   }
 
   .case-info-card {
@@ -1623,14 +1674,14 @@ const antecedentePageStructuredData = [
       position: static;
     }
 
-    .case-proof-strip__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+    .case-executive-brief__grid,
+    .case-executive-brief__ledger {
+      grid-template-columns: 1fr;
     }
   }
 
   @media (max-width: 640px) {
     .case-detail-hero,
-    .case-proof-strip,
     .case-detail-main.case-detail,
     .case-related,
     .case-detail-footer-cta {
@@ -1638,16 +1689,16 @@ const antecedentePageStructuredData = [
       --case-body-line: 1.66;
       --case-section: clamp(1.12rem, 5.2vw, 1.28rem);
       --case-hero-excerpt: 1.0625rem;
-      --case-meta-label: 0.875rem;
-      --case-meta-value: 0.96875rem;
-      --case-sidebar-label: 0.875rem;
+      --case-meta-label: 1rem;
+      --case-meta-value: 1rem;
+      --case-sidebar-label: 1rem;
       --case-sidebar-value: 1rem;
       --case-card-title: 1.02rem;
     }
 
     .case-detail-hero__copy h1 {
       max-width: 100%;
-      font-size: clamp(1.82rem, 6.15vw, 2.08rem);
+      font-size: clamp(2.125rem, 7vw, 2.45rem);
       line-height: 1.1;
     }
 
@@ -1667,7 +1718,7 @@ const antecedentePageStructuredData = [
       width: 100%;
       min-width: 0;
       min-height: 48px;
-      font-size: 0.98rem;
+      font-size: 1rem;
     }
   }
 
@@ -1692,11 +1743,11 @@ const antecedentePageStructuredData = [
 
     .case-detail-label {
       margin-bottom: 0.7rem;
-      font-size: 0.95rem;
+      font-size: 1rem;
     }
 
     .case-detail-hero__copy h1 {
-      font-size: clamp(1.82rem, 6.15vw, 2.08rem);
+      font-size: clamp(2.125rem, 7vw, 2.45rem);
       line-height: 1.1;
     }
 
@@ -1713,12 +1764,17 @@ const antecedentePageStructuredData = [
       min-height: 0;
     }
 
+    .case-gallery-frame:first-child {
+      grid-column: auto;
+      min-height: 300px;
+    }
+
     .case-detail-dossier__body {
       padding: 16px 0 0;
     }
 
     .case-detail-dossier__body > span {
-      font-size: 0.86rem;
+      font-size: 1rem;
     }
 
     .case-detail-dossier__body > strong {
@@ -1730,13 +1786,9 @@ const antecedentePageStructuredData = [
       padding: 0.85rem;
     }
 
-    .case-proof-strip__grid {
-      grid-template-columns: 1fr;
-      padding-block: 10px;
-    }
-
-    .case-proof-strip__grid div {
-      padding: 12px 14px;
+    .case-executive-brief__grid {
+      gap: 18px;
+      padding-block: 26px;
     }
 
     .case-detail-main {

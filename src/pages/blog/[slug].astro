@@ -3,7 +3,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
 import BlogTOC from '../../components/blog/BlogTOC.astro';
 import IntentLinkGraph from '../../components/um/IntentLinkGraph.astro';
 import { fetchBlogPost, fetchBlogListing } from '../../utils/getBlogData';
-import { blogImageUrl, blogPostImageUrl } from '../../utils/blogHelpers';
+import { blogImageUrl, blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
 import { addHeadingIds, getCategoryLabel, formatBlogDate, extractFaqSchema } from '../../utils/blogUtils';
 import { isReplicaIdenticalCopy, resolveReplicaH1 } from '../../utils/replicaProdCopy';
 import { resolveCanonicalBlogSlug } from '../../data/seoRedirects';
@@ -52,6 +52,7 @@ const normalizedContent = normalizeArticleContent(post.contenido || '');
 const { html: contentHtml, headings } = await addHeadingIds(normalizedContent);
 const faqSchema = extractFaqSchema(contentHtml);
 const imgUrl = blogPostImageUrl(post);
+const imgAlt = blogPostImageAlt(post);
 const socialImg = post.social_image ? blogImageUrl(post.social_image) : imgUrl;
 const label = getCategoryLabel(post.categoria);
 const date = formatBlogDate(post.fecha_publicacion);
@@ -208,6 +209,12 @@ const articlePageStructuredData = [
           <p class="author-meta">ULTIMA MILLA · {label} · {date} · {post.tiempo_lectura} min de lectura</p>
         </div>
 
+        {imgUrl && (
+          <figure class="article-cover">
+            <img src={imgUrl} alt={imgAlt} loading="eager" decoding="async" />
+          </figure>
+        )}
+
         <hr class="article-divider" />
 
         <div class="prose" set:html={contentHtml} />
@@ -274,10 +281,10 @@ const articlePageStructuredData = [
 
   .article-layout {
     display: grid;
-    grid-template-columns: minmax(188px, 236px) minmax(0, 792px);
-    gap: clamp(30px, 4.6vw, 60px);
+    grid-template-columns: minmax(160px, 204px) minmax(0, 792px);
+    gap: clamp(24px, 4vw, 52px);
     align-items: start;
-    max-width: 1128px;
+    max-width: 1088px;
     margin: 0 auto;
   }
 
@@ -360,6 +367,24 @@ const articlePageStructuredData = [
     border: none;
     border-top: 1px solid var(--um-line);
     margin: 0 0 24px;
+  }
+
+  .article-cover {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    max-height: 360px;
+    margin: 0 0 26px;
+    overflow: hidden;
+    background: #f4f6f8;
+  }
+
+  .article-cover img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: center;
+    color: transparent;
   }
 
   /* Prev/next nav */
