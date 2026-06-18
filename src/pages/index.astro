@@ -112,7 +112,7 @@ const sectorLinks = [
 
 const proofMetrics = [
   ['8', 'servicios IT', 'red, seguridad, software, energía y soporte'],
-  [proofCountShort, 'antecedentes', `${proofCountExact} proyectos reales`],
+  [proofCountShort, 'antecedentes', `${proofCountExact} proyectos técnicos`],
   ['22+', 'años', 'de trayectoria técnica en infraestructura'],
   ['24/7', 'soporte', 'operación y monitoreo continuo']
 ];
@@ -268,7 +268,7 @@ const homeStructuredData = [
           </div>
           <div class="um-evidence-head__side">
             <p>
-              {proofCountExact} proyectos reales en el catálogo respaldan nuestra forma de trabajar: alcance técnico, evidencia y continuidad posterior.
+              {proofCountExact} proyectos técnicos en el catálogo respaldan nuestra forma de trabajar: alcance, evidencia y continuidad posterior.
             </p>
             <a href="/antecedentes">Ver todos los antecedentes</a>
           </div>
@@ -1253,8 +1253,14 @@ const homeStructuredData = [
         align-items: stretch;
       }
 
-      .um-btn {
+      .um-hero-actions :global(.um-btn-primary),
+      .um-hero-actions :global(.um-btn-secondary) {
+        box-sizing: border-box;
         width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        justify-content: center;
+        white-space: normal;
       }
 
       .um-hero-board {
@@ -2244,9 +2250,14 @@ const homeStructuredData = [
     }
 
     @media (max-width: 820px) {
+      :global(html),
+      :global(body) {
+        overflow-x: clip;
+      }
+
       .um-home-hero {
         min-height: auto;
-        overflow-x: hidden;
+        overflow-x: clip;
       }
 
       .um-hero-content {
@@ -2325,10 +2336,18 @@ const homeStructuredData = [
 
       .um-hero-actions {
         width: 100%;
+        min-width: 0;
+        max-width: 100%;
       }
 
-      .um-hero-actions .um-btn {
+      .um-hero-actions :global(.um-btn-primary),
+      .um-hero-actions :global(.um-btn-secondary) {
+        box-sizing: border-box;
         width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        justify-content: center;
+        white-space: normal;
       }
 
       .um-hero-mobile-photo {
