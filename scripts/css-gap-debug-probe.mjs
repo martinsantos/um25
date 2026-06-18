@@ -50,7 +50,7 @@ const routes = process.env.CSS_GAP_ROUTES === 'services'
       '/aeropuertos?template=atlas',
       '/antecedentes/3065/camara-de-cctv-aeropuerto-de-mendoza',
       '/estilo',
-      '/blog/plantilla-arca-facturacion-electronica-gratis',
+      '/blog/restic-y-postgresql-el-backup-que-si-vuelve',
       '/blog/nueva-normativa-camara-vigilancia-edificios-2024',
     ];
 

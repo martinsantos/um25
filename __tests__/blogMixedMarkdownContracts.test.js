@@ -17,6 +17,7 @@ describe('Blog mixed Markdown rendering contracts', () => {
 
     expect(source).toContain('function fixLiteralMarkdownHeadingsInParagraph');
     expect(source).toContain('headingRegex');
+    expect(source).toContain('|<a\\b)');
     expect(source).toContain('htmlBlockFromLiteralMarkdown');
     expect(source).toContain('.replace(/<p>([\\s\\S]*?)<\\/p>/gi');
     expect(source).toContain('return `<ul>${items.map((item) => `<li>${item}</li>`).join(\'\')}</ul>`;');
