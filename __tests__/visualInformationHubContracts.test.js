@@ -204,6 +204,8 @@ describe('Information hub visual contracts', () => {
     expect(titleBlock).toMatch(/overflow-wrap:\s*normal;/);
     expect(titleBlock).toMatch(/word-break:\s*normal;/);
     expect(titleBlock).toMatch(/hyphens:\s*none;/);
+    expect(evidenceRow).toMatch(/@media \(max-width:\s*520px\)\s*\{[\s\S]*\.evidence-case-row\s*\{[\s\S]*grid-template-columns:\s*minmax\(0,\s*1fr\);/);
+    expect(evidenceRow).toMatch(/@media \(max-width:\s*520px\)\s*\{[\s\S]*\.evidence-case-row__copy\s*\{[\s\S]*align-self:\s*start;/);
   });
 
   test('home secondary evidence rows remove repeated sector metadata to prevent compressed words', () => {
@@ -304,6 +306,19 @@ describe('Information hub visual contracts', () => {
     expect(titleBuilder).not.toMatch(/afterColon\.slice/);
     expect(titleBuilder).not.toContain('trimEnd()}…');
     expect(blogSingle).toContain('<h1 class="article-title">{articleTitle}</h1>');
+  });
+
+  test('blog single shows an editorial cover image before article prose', () => {
+    const blogSingle = read('src/pages/blog/[slug].astro');
+    const metaIndex = blogSingle.indexOf('class="author-row"');
+    const coverIndex = blogSingle.indexOf('class="article-cover"');
+    const proseIndex = blogSingle.indexOf('class="prose"');
+
+    expect(blogSingle).toContain('blogPostImageAlt');
+    expect(coverIndex).toBeGreaterThan(metaIndex);
+    expect(proseIndex).toBeGreaterThan(coverIndex);
+    expect(blogSingle).toMatch(/\.article-cover\s*\{[\s\S]*aspect-ratio:\s*16\s*\/\s*9;/);
+    expect(blogSingle).toMatch(/\.article-cover img\s*\{[\s\S]*object-fit:\s*cover;/);
   });
 
   test('blog index stays readable without a duplicated featured banner or repeated header CTAs', () => {
