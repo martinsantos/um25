@@ -26,14 +26,14 @@ export const editorialImages = {
     software: '/images/editorial/umsa-sector-software.webp',
   },
   services: {
-    101: '/images/editorial/umsa-home-operations.webp',
-    102: '/images/editorial/umsa-sector-seguridad-electronica.webp',
-    103: '/images/editorial/umsa-sector-aeropuertos.webp',
-    104: '/images/editorial/umsa-sector-software.webp',
+    101: '/images/editorial/umsa-service-redes.webp',
+    102: '/images/editorial/umsa-service-seguridad-electronica.webp',
+    103: '/images/editorial/umsa-service-telecomunicaciones.webp',
+    104: '/images/editorial/umsa-service-software-a-medida.webp',
     105: '/images/editorial/umsa-service-soporte-247.webp',
-    106: '/images/editorial/umsa-about-engineering.webp',
+    106: '/images/editorial/umsa-service-consultoria-it.webp',
     107: '/images/editorial/umsa-service-deteccion-incendios.webp',
-    108: '/images/editorial/umsa-sector-constructoras.webp',
+    108: '/images/editorial/umsa-service-electricos-it.webp',
   },
 } as const;
 
