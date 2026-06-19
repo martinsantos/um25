@@ -366,11 +366,19 @@ const compactCaseTitle = (value: unknown, client?: unknown): string => {
 // SEO
 const siteUrl = 'https://www.ultimamilla.com.ar';
 const canonicalUrl = toCanonicalUrl(`/antecedentes/${id}/${slugFromUrl}`);
+const caseSeoDescriptionSource = [
+  antecedente.displayDescription || caseBodySource,
+  caseRecordSummary,
+  caseCalloutText,
+  scopeItems[0],
+].filter(Boolean).join('. ');
 const caseSeo = buildCaseSeoMeta({
   title: antecedente.displayTitle || antecedente.Titulo || antecedente.Nombre,
-  description: antecedente.displayDescription || caseBodySource,
+  description: caseSeoDescriptionSource,
+  client: displayClientName || antecedente.Cliente,
   area: antecedente.Area || antecedente.Unidad_de_negocio,
   date: antecedente.Fecha,
+  identifier: id,
 });
 const metaDescription = caseSeo.description;
 const structuredImageUrl = publicImageUrl(caseSeoImageUrl) || toCanonicalUrl(DEFAULT_IMAGE_URL);

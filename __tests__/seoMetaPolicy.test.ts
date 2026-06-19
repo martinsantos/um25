@@ -34,6 +34,57 @@ describe('human SEO metatag policy', () => {
     expect(meta.description.length).toBeLessThanOrEqual(SEO_META_LIMITS.description);
   });
 
+  test('keeps real client context visible for repeated case titles', () => {
+    const hospital = buildCaseSeoMeta({
+      title: 'Asistencia técnica SDI',
+      client: 'Hospital A Italo Perrupato',
+      identifier: 3216,
+    });
+    const cela = buildCaseSeoMeta({
+      title: 'Asistencia técnica SDI',
+      client: 'Cela SA',
+      identifier: 3303,
+    });
+
+    expect(hospital.title).toContain('Hospital A Italo');
+    expect(cela.title).toContain('Cela SA');
+    expect(hospital.title).not.toBe(cela.title);
+    expect(hospital.title.length).toBeLessThanOrEqual(SEO_META_LIMITS.title);
+  });
+
+  test('preserves differentiating context when the base case title is long', () => {
+    const meta = buildCaseSeoMeta({
+      title: 'Reparación de Central de detección de incendio Firewarden 100X.',
+      client: 'Allex S.A',
+      identifier: 3134,
+    });
+
+    expect(meta.title).toContain('Allex S.A');
+    expect(meta.title.length).toBeLessThanOrEqual(SEO_META_LIMITS.title);
+  });
+
+  test('uses the public case code when the client already repeats the title', () => {
+    const meta = buildCaseSeoMeta({
+      title: 'Conectividad & Redes: Insumo de red - Municipalidad de Gral San Martín',
+      client: 'Municipalidad de Gral San Martín',
+      identifier: 3159,
+    });
+
+    expect(meta.title).toContain('UM-3159');
+    expect(meta.title.length).toBeLessThanOrEqual(SEO_META_LIMITS.title);
+  });
+
+  test('expands short case descriptions with useful operational context', () => {
+    const meta = buildCaseSeoMeta({
+      title: "alojamietno y ss's para guaymallén",
+      description: 'Ejecución integral de alojamietno y ss',
+    });
+
+    expect(meta.description.length).toBeGreaterThanOrEqual(SEO_META_LIMITS.minimumDescription);
+    expect(meta.description).toContain('ULTIMA MILLA');
+    expect(meta.description.length).toBeLessThanOrEqual(SEO_META_LIMITS.description);
+  });
+
   test('humanizes CMS case-card descriptions without changing the real title', () => {
     const meta = buildCaseSeoMeta({
       title: 'Diagnóstico de Infraestructura IT',
