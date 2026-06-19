@@ -12,7 +12,7 @@ describe('service visual system', () => {
     expect(new Set(images).size).toBe(images.length);
 
     for (const image of images) {
-      expect(image).toMatch(/^\/images\/editorial\/.+\.webp$/);
+      expect(image).toMatch(/^\/images\/editorial\/umsa-service-.+\.webp$/);
       expect(fs.existsSync(path.join(process.cwd(), 'public', image))).toBe(true);
     }
   });
