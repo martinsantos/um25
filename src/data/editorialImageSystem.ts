@@ -30,9 +30,9 @@ export const editorialImages = {
     102: '/images/editorial/umsa-sector-seguridad-electronica.webp',
     103: '/images/editorial/umsa-sector-aeropuertos.webp',
     104: '/images/editorial/umsa-sector-software.webp',
-    105: '/images/editorial/umsa-home-operations.webp',
+    105: '/images/editorial/umsa-service-soporte-247.webp',
     106: '/images/editorial/umsa-about-engineering.webp',
-    107: '/images/editorial/umsa-sector-seguridad-electronica.webp',
+    107: '/images/editorial/umsa-service-deteccion-incendios.webp',
     108: '/images/editorial/umsa-sector-constructoras.webp',
   },
 } as const;
