@@ -32,6 +32,8 @@ export interface CaseSeoMetaInput {
   description?: unknown;
   area?: unknown;
   date?: unknown;
+  client?: unknown;
+  identifier?: unknown;
 }
 
 export interface BlogSeoMetaInput {
@@ -111,6 +113,69 @@ export function buildHumanSeoTitle(rawTitle: unknown, options: BuildSeoTitleOpti
   return `${compactTitle}${suffix}`.slice(0, maxLength).trim();
 }
 
+function normalizeForSeoComparison(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('es-AR')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function appearsInsideTitle(title: string, context: string): boolean {
+  const normalizedTitle = normalizeForSeoComparison(title);
+  const normalizedContext = normalizeForSeoComparison(context);
+  return Boolean(
+    normalizedContext.length > 8
+    && normalizedTitle.includes(normalizedContext),
+  );
+}
+
+function uniqueContextParts(parts: string[]): string[] {
+  const seen = new Set<string>();
+  return parts.filter((part) => {
+    const key = normalizeForSeoComparison(part);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function buildCaseSeoTitle(input: CaseSeoMetaInput): string {
+  const title = cleanSeoText(input.title) || 'Antecedente técnico';
+  const client = cleanSeoText(input.client);
+  const area = cleanSeoText(input.area);
+  const year = cleanSeoText(input.date).match(/\b(20\d{2}|19\d{2})\b/)?.[1] || '';
+  const identifier = cleanSeoText(input.identifier);
+  const caseCode = identifier ? `UM-${identifier}` : '';
+  const clientIsGeneric = /cliente\s+confidencial/i.test(client);
+  const clientRepeatsTitle = client ? appearsInsideTitle(title, client) : false;
+  const areaRepeatsTitle = area ? appearsInsideTitle(title, area) : false;
+  const contextParts = uniqueContextParts([
+    client && !clientIsGeneric && !clientRepeatsTitle ? client : '',
+    clientIsGeneric && caseCode ? `Confidencial ${caseCode}` : '',
+    !areaRepeatsTitle && !client && caseCode ? area : '',
+    clientRepeatsTitle && caseCode ? caseCode : '',
+    !client && !area && caseCode && year ? year : '',
+    !client && !area && !year ? caseCode : '',
+  ].filter(Boolean));
+
+  if (contextParts.length === 0) return buildHumanSeoTitle(title);
+
+  const siteName = SITE_NAME;
+  const maxLength = SEO_META_LIMITS.title;
+  const suffix = ` | ${siteName}`;
+  const available = Math.max(24, maxLength - suffix.length);
+  const minBaseLength = Math.min(28, Math.max(20, Math.floor(available * 0.46)));
+  const maxContextLength = Math.max(14, available - minBaseLength - 3);
+  const context = trimAtWordBoundary(contextParts.join(' · '), maxContextLength);
+  const baseLength = Math.max(18, available - context.length - 3);
+  const compactTitle = trimAtWordBoundary(title, baseLength);
+
+  return `${compactTitle} · ${context}${suffix}`.slice(0, maxLength).trim();
+}
+
 export function buildHumanSeoDescription(
   primary: unknown,
   fallbackParts: unknown[] = [],
@@ -140,16 +205,18 @@ export function buildHumanSeoDescription(
 export function buildCaseSeoMeta(input: CaseSeoMetaInput) {
   const title = cleanSeoText(input.title) || 'Antecedente técnico';
   const area = cleanSeoText(input.area);
+  const client = cleanSeoText(input.client);
   const year = cleanSeoText(input.date).match(/\b(20\d{2}|19\d{2})\b/)?.[1] || '';
   const sourceDescription = humanizeCaseDescriptionTemplate(cleanSeoText(input.description));
   const description = buildHumanSeoDescription(sourceDescription, [
     title,
+    client ? `Proyecto para ${client}` : '',
     area ? `Trabajo relacionado con ${area}` : '',
     year ? `Registro del proyecto en ${year}` : '',
   ]);
 
   return {
-    title: buildHumanSeoTitle(title),
+    title: buildCaseSeoTitle(input),
     description,
   };
 }
