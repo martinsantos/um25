@@ -1,18 +1,15 @@
 import type { APIRoute } from 'astro';
+import {
+  addVisibleBlogStatusFilter,
+  normalizeBlogStatus,
+  normalizePublicationDate,
+} from '../../utils/blogPublishing';
+import { checkBasicAuth } from '../../utils/serverAuth';
 
-const API_USER = process.env['BLOG_API_USER'] ?? import.meta.env['BLOG_API_USER'];
-const API_PASS = process.env['BLOG_API_PASS'] ?? import.meta.env['BLOG_API_PASS'];
-const DIRECTUS_URL = process.env['DIRECTUS_INTERNAL_URL'] ?? import.meta.env['DIRECTUS_INTERNAL_URL'] ?? 'http://localhost:8055';
-const DIRECTUS_TOKEN = process.env['DIRECTUS_ADMIN_TOKEN'] ?? import.meta.env['DIRECTUS_ADMIN_TOKEN'] ?? '';
-
-function checkAuth(request: Request): boolean {
-  const auth = request.headers.get('Authorization') || '';
-  if (!auth.startsWith('Basic ')) return false;
-  const decoded = atob(auth.slice(6));
-  const [user, ...rest] = decoded.split(':');
-  const pass = rest.join(':');
-  return user === API_USER && pass === API_PASS;
-}
+const API_USER = process.env['BLOG_API_USER'] ?? import.meta.env.BLOG_API_USER;
+const API_PASS = process.env['BLOG_API_PASS'] ?? import.meta.env.BLOG_API_PASS;
+const DIRECTUS_URL = process.env['DIRECTUS_INTERNAL_URL'] ?? import.meta.env.DIRECTUS_INTERNAL_URL ?? 'http://localhost:8055';
+const DIRECTUS_TOKEN = process.env['DIRECTUS_ADMIN_TOKEN'] ?? import.meta.env.DIRECTUS_ADMIN_TOKEN ?? '';
 
 function slugify(text: string): string {
   return text
@@ -30,7 +27,7 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  if (!checkAuth(request)) {
+  if (!checkBasicAuth(request, API_USER, API_PASS)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: {
@@ -61,6 +58,7 @@ export const POST: APIRoute = async ({ request }) => {
     fecha_publicacion,
     meta_title,
     meta_description,
+    status: statusInput,
     slug: slugInput,
   } = body as Record<string, unknown>;
 
@@ -72,9 +70,11 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const slug = (slugInput as string) || slugify(titulo as string);
+  const publishedAt = normalizePublicationDate(fecha_publicacion);
+  const status = normalizeBlogStatus(statusInput, publishedAt);
 
   const post = {
-    status: 'published',
+    status,
     slug,
     titulo,
     resumen,
@@ -87,8 +87,7 @@ export const POST: APIRoute = async ({ request }) => {
         ? String(tags).split(',').map((t: string) => t.trim()).filter(Boolean)
         : [],
     tiempo_lectura: Number(tiempo_lectura) || 3,
-    fecha_publicacion:
-      (fecha_publicacion as string) || new Date().toISOString().split('T')[0],
+    fecha_publicacion: publishedAt,
     meta_title: (meta_title as string) || null,
     meta_description: (meta_description as string) || null,
   };
@@ -111,7 +110,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const created = await res.json();
-  return new Response(JSON.stringify({ ok: true, slug, id: created.data?.id }), {
+  return new Response(JSON.stringify({ ok: true, slug, id: created.data?.id, status }), {
     status: 201,
     headers: { 'Content-Type': 'application/json' },
   });
@@ -119,8 +118,12 @@ export const POST: APIRoute = async ({ request }) => {
 
 export const GET: APIRoute = async () => {
   const headers: HeadersInit = DIRECTUS_TOKEN ? { Authorization: `Bearer ${DIRECTUS_TOKEN}` } : {};
+  const params = addVisibleBlogStatusFilter(new URLSearchParams());
+  params.set('sort', '-fecha_publicacion');
+  params.set('limit', '20');
+  params.set('fields', 'slug,titulo,fecha_publicacion,categoria,status');
   const res = await fetch(
-    `${DIRECTUS_URL}/items/blog_posts?filter[status][_eq]=published&sort=-fecha_publicacion&limit=20&fields=slug,titulo,fecha_publicacion,categoria`,
+    `${DIRECTUS_URL}/items/blog_posts?${params.toString()}`,
     { headers }
   );
   const data = await res.json();

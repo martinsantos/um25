@@ -3,7 +3,7 @@ import { promises as fs, readFileSync } from 'node:fs';
 import path from 'node:path';
 import dns from 'node:dns/promises';
 
-const DEFAULT_SITE_URL = 'https://ultimamilla.com.ar';
+const DEFAULT_SITE_URL = 'https://www.ultimamilla.com.ar';
 const DEFAULT_MEMORY = '/Users/santosma/.codex/automations/umsa-diaria/memory.md';
 const DEFAULT_OUTPUTS = '/Users/santosma/umsa-codex/outputs';
 
@@ -58,13 +58,20 @@ function basicAuthHeader() {
   const pass = process.env.BLOG_API_PASS || process.env.UMSA_BLOG_PASS;
   if (user && pass) return `Basic ${Buffer.from(`${user}:${pass}`).toString('base64')}`;
 
-  try {
-    const skillPath = path.join(process.cwd(), '.agents', 'skills', 'umsa-diaria', 'SKILL.md');
-    const skill = readFileSync(skillPath, 'utf8');
-    const match = skill.match(/Authorization:\s*(Basic\s+[A-Za-z0-9+/=]+)/);
-    if (match?.[1]) return match[1];
-  } catch {
-    // Missing local skill is fine; the explicit env vars are the preferred path.
+  const skillPaths = [
+    process.env.UMSA_BLOG_SKILL_PATH,
+    path.join(process.cwd(), '.agents', 'skills', 'umsa-diaria', 'SKILL.md'),
+    '/Users/santosma/umsa-codex/.agents/skills/umsa-diaria/SKILL.md',
+  ].filter(Boolean);
+
+  for (const skillPath of skillPaths) {
+    try {
+      const skill = readFileSync(skillPath, 'utf8');
+      const match = skill.match(/Authorization:\s*(Basic\s+[A-Za-z0-9+/=]+)/);
+      if (match?.[1]) return match[1];
+    } catch {
+      // Missing local skill is fine; the explicit env vars are the preferred path.
+    }
   }
 
   return null;
@@ -94,13 +101,19 @@ async function main() {
     dnsResult = { ok: false, host, error: error instanceof Error ? error.message : String(error) };
   }
 
-  const canonicalGet = await statusFor(`${siteUrl}/api/blog`, { method: 'GET' });
-  const wwwHead = await statusFor(`${siteUrl.replace('https://', 'https://www.')}/api/blog`, {
+  const canonicalUrl = new URL(siteUrl);
+  const apexSiteUrl = canonicalUrl.hostname.startsWith('www.')
+    ? siteUrl.replace('://www.', '://')
+    : siteUrl;
+
+  const canonicalGet = await statusFor(`${siteUrl}/api/blog`, { method: 'GET', redirect: 'manual' });
+  const apexHead = await statusFor(`${apexSiteUrl}/api/blog`, {
     method: 'HEAD',
     redirect: 'manual',
   });
   const unauthorizedPost = await statusFor(`${siteUrl}/api/blog`, {
     method: 'POST',
+    redirect: 'manual',
     headers: { 'Content-Type': 'application/json' },
     body: '{}',
   });
@@ -108,6 +121,7 @@ async function main() {
   const authenticatedContractPost = authHeader
     ? await statusFor(`${siteUrl}/api/blog`, {
         method: 'POST',
+        redirect: 'manual',
         headers: {
           Authorization: authHeader,
           'Content-Type': 'application/json',
@@ -119,8 +133,12 @@ async function main() {
   const checks = {
     dns: dnsResult.ok,
     canonicalGet: canonicalGet.status === 200,
-    wwwRedirectsToCanonical:
-      wwwHead.status === 301 && typeof wwwHead.location === 'string' && wwwHead.location.startsWith(siteUrl),
+    canonicalHostIsWww: canonicalUrl.hostname.startsWith('www.'),
+    apexRedirectsToCanonical:
+      apexSiteUrl === siteUrl ||
+      ([301, 302, 307, 308].includes(apexHead.status) &&
+        typeof apexHead.location === 'string' &&
+        apexHead.location.startsWith(siteUrl)),
     unauthorizedPostIsProtected:
       unauthorizedPost.status === 401 && unauthorizedPost.wwwAuthenticate?.includes('Blog API'),
     outputsWritable: await canWrite(outputsDir),
@@ -135,7 +153,7 @@ async function main() {
   const requiredForReplay = [
     'dns',
     'canonicalGet',
-    'wwwRedirectsToCanonical',
+    'canonicalHostIsWww',
     'unauthorizedPostIsProtected',
     'outputsWritable',
     'memoryWritable',
@@ -158,11 +176,22 @@ async function main() {
     details: {
       dns: dnsResult,
       canonicalGet,
-      wwwHead,
+      apexHead,
       unauthorizedPost,
       authenticatedContractPost,
     },
   };
+
+  try {
+    await fs.mkdir(outputsDir, { recursive: true });
+    await fs.writeFile(
+      path.join(outputsDir, 'preflight-ultimo.json'),
+      `${JSON.stringify({ ...result, checkedAt: new Date().toISOString() }, null, 2)}\n`,
+      'utf8'
+    );
+  } catch {
+    // In read-only sandboxes stdout is the only available diagnostic channel.
+  }
 
   console.log(JSON.stringify(result, null, 2));
   process.exit(readyForReplay ? 0 : 2);

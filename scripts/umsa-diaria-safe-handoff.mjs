@@ -4,7 +4,7 @@ import path from 'node:path';
 import os from 'node:os';
 import dns from 'node:dns/promises';
 
-const DEFAULT_SITE_URL = 'https://ultimamilla.com.ar';
+const DEFAULT_SITE_URL = 'https://www.ultimamilla.com.ar';
 const DEFAULT_DATE = process.env.UMSA_RUN_DATE || new Date().toISOString().slice(0, 10);
 const DEFAULT_NOTES = [
   {

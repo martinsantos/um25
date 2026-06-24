@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { addComment, getCommentsByPostSlug } from '../../data/comments';
+import { parsePublicCommentInput } from '../../utils/commentValidation';
 
 export const GET: APIRoute = async ({ request }) => {
     const url = new URL(request.url);
@@ -34,11 +35,11 @@ export const GET: APIRoute = async ({ request }) => {
 
 export const POST: APIRoute = async ({ request }) => {
     try {
-        const body = await request.json();
-        
-        // Validación básica
-        if (!body.author || !body.email || !body.content || !body.postSlug) {
-            return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+        let body: Record<string, unknown>;
+        try {
+            body = await request.json();
+        } catch {
+            return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
                 status: 400,
                 headers: {
                     'Content-Type': 'application/json'
@@ -46,12 +47,18 @@ export const POST: APIRoute = async ({ request }) => {
             });
         }
 
-        const comment = await addComment({
-            author: body.author,
-            email: body.email,
-            content: body.content,
-            postSlug: body.postSlug
-        });
+        const parsed = parsePublicCommentInput(body);
+
+        if (!parsed.ok) {
+            return new Response(JSON.stringify({ error: parsed.error }), {
+                status: 400,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        }
+
+        const comment = await addComment(parsed.value);
 
         return new Response(JSON.stringify(comment), {
             status: 201,

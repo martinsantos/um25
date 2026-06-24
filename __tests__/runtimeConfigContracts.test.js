@@ -61,6 +61,14 @@ describe('Production runtime configuration contracts', () => {
     expect(fn.indexOf("processEnv('DIRECTUS_ADMIN_TOKEN')")).toBeLessThan(fn.indexOf("import.meta.env?.['DIRECTUS_ADMIN_TOKEN']"));
   });
 
+  test('blog mocks can be enabled explicitly for local visual review', () => {
+    const source = fs.readFileSync(path.join(process.cwd(), 'src/config/runtime.ts'), 'utf8');
+    const fn = source.match(/export function allowMockBlogFallback\(\): boolean \{([\s\S]*?)\n\}/)?.[1] || '';
+
+    expect(fn).toContain("processEnv('UMSA_BLOG_MOCKS')");
+    expect(fn).toContain("import.meta.env?.DEV && !isLocalProdReplica()");
+  });
+
   test('production smoke test validates current theme content and Directus-backed collections', () => {
     const workflow = fs.readFileSync(path.join(process.cwd(), '.github/workflows/production-deploy.yml'), 'utf8');
 

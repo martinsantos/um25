@@ -300,13 +300,13 @@ const thumbLabel = `Leer artículo: ${post.titulo}`;
 
   @media (max-width: 760px) {
     .feed-item {
-      grid-template-columns: 42px minmax(0, 1fr);
-      gap: 14px;
-      padding: 24px 0;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+      padding: 26px 0;
     }
 
     .feed-item--no-image {
-      grid-template-columns: 42px minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr);
     }
 
     .feed-item--compact {
@@ -324,14 +324,10 @@ const thumbLabel = `Leer artículo: ${post.titulo}`;
     }
 
     .feed-meta {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 8px;
       align-items: start;
-    }
-
-    .feed-meta .meta-sep {
-      display: none;
     }
 
     .feed-title {
@@ -346,8 +342,11 @@ const thumbLabel = `Leer artículo: ${post.titulo}`;
     }
 
     .feed-index {
-      border-right: 0;
-      padding-top: 10px;
+      display: none;
+    }
+
+    .feed-body {
+      padding-inline-end: 0;
     }
 
     .feed-item--compact .feed-thumb-wrap {

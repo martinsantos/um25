@@ -16,6 +16,9 @@ import {
     type CliServicio,
 } from '../../../utils/cliDirectus';
 
+// CONEXIÓN DIRECTA CON DIRECTUS REAL - SEGÚN PREMISAS PLAN.MD
+// OBJETIVO: Acceso a TODOS los 469 antecedentes + 9 servicios con URLs reales
+
 interface FormattedResult {
     id: number;
     type: string;
@@ -32,7 +35,7 @@ interface FormattedResult {
 // DIRECTUS API CONNECTION - REAL DATA ACCESS
 async function queryDirectusReal(searchQuery: string): Promise<{antecedentes: CliAntecedente[], servicios: CliServicio[]}> {
     try {
-        const { directusUrl, token } = getCliDirectusRuntime();
+        const { directusUrl, token } = await getCliDirectusRuntime();
         const headers = getCliDirectusHeaders(token);
         
         // BUSCAR EN ANTECEDENTES REALES (469 registros) - AMPLIO ALCANCE
@@ -50,7 +53,7 @@ async function queryDirectusReal(searchQuery: string): Promise<{antecedentes: Cl
         const antecedentes = antecedentesResponse.ok ? (await antecedentesResponse.json()).data : [];
         const servicios = serviciosResponse.ok ? (await serviciosResponse.json()).data : [];
         
-        console.log(`[UM-CLI] Directus Query Results: ${antecedentes.length} antecedentes, ${servicios.length} servicios`);
+        console.warn(`[UM-CLI] Directus Query Results: ${antecedentes.length} antecedentes, ${servicios.length} servicios`);
         
         return { antecedentes, servicios };
     } catch (error) {

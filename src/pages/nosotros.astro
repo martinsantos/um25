@@ -30,12 +30,24 @@ const structuredData = {
   '@type': 'AboutPage',
   name: 'Nosotros | ULTIMA MILLA',
   url: 'https://www.ultimamilla.com.ar/nosotros',
+  significantLink: [
+    'https://www.ultimamilla.com.ar/servicios',
+    'https://www.ultimamilla.com.ar/antecedentes',
+    'https://www.ultimamilla.com.ar/sectores',
+    'https://www.ultimamilla.com.ar/contacto',
+    'https://www.ultimamilla.com.ar/geo',
+  ],
   about: {
     '@type': 'Organization',
     name: 'ULTIMA MILLA',
     url: 'https://www.ultimamilla.com.ar',
     description: 'Empresa argentina de servicios IT integrales, infraestructura tecnológica, telecomunicaciones, seguridad electrónica, software y soporte.'
-  }
+  },
+  hasPart: [
+    { '@type': 'WebPage', name: 'Servicios IT integrales', url: 'https://www.ultimamilla.com.ar/servicios' },
+    { '@type': 'WebPage', name: 'Antecedentes técnicos', url: 'https://www.ultimamilla.com.ar/antecedentes' },
+    { '@type': 'WebPage', name: 'Sectores ULTIMA MILLA', url: 'https://www.ultimamilla.com.ar/sectores' },
+  ],
 };
 ---
 
@@ -62,12 +74,16 @@ const structuredData = {
           continuidad operativa. Nuestra diferencia está en unir diseño, instalación y soporte en un
           mismo sistema de trabajo.
         </p>
+        <div class="about-hero__actions" aria-label="Acciones institucionales">
+          <UMButton href="/antecedentes">Ver antecedentes</UMButton>
+          <UMButton href="/servicios" variant="secondary">Ver servicios</UMButton>
+        </div>
       </div>
       <MetricStrip
         class="about-hero__proof"
         metrics={[
           { value: '22+', label: 'trayectoria técnica' },
-          { value: getAntecedentesCountShort(), label: 'antecedentes' },
+          { value: getAntecedentesCountShort(), label: 'proyectos' },
           { value: '24/7', label: 'soporte operativo' },
         ]}
       />
@@ -232,8 +248,17 @@ const structuredData = {
     line-height: 1.68;
   }
 
+  .about-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: clamp(22px, 2.6vw, 30px);
+  }
+
   :global(.about-hero__proof.um-metric-strip) {
     display: grid;
+    align-self: start;
+    margin-top: clamp(34px, 5vw, 66px);
     padding: 0 clamp(16px, 2vw, 22px);
     border-top: 0;
     border-bottom: 0;
@@ -546,8 +571,14 @@ const structuredData = {
       line-height: 1.62;
     }
 
+    .about-hero__actions {
+      display: grid;
+      gap: 10px;
+    }
+
     :global(.about-hero__proof.um-metric-strip) {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 0;
       padding: 0 10px;
       border-bottom: 0;
       overflow: hidden;

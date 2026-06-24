@@ -532,7 +532,7 @@ Ejecute 'help' para ver todos los comandos disponibles.
   /**
    * Comando help
    */
-  help(args) {
+  help() {
     return {
       output: `
 📚 ULTIMA MILLA CLI - SISTEMA DE AYUDA

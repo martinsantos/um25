@@ -195,6 +195,17 @@ describe('Information hub visual contracts', () => {
     expect(source).toContain('href={item.href}');
   });
 
+  test('antecedentes archive keeps crawlable view and sort controls', () => {
+    const source = read('src/pages/antecedentes/index.astro');
+
+    expect(source).toContain("archiveView: ['list', 'grid'].includes(requestedView) ? requestedView : 'list'");
+    expect(source).toContain("archiveSort: ['newest', 'oldest', 'client'].includes(requestedSort) ? requestedSort : 'newest'");
+    expect(antecedentesEditorial).toContain('data-view-control={option.id}');
+    expect(antecedentesEditorial).toContain('data-sort-control={option.id}');
+    expect(antecedentesEditorial).toContain('Más recientes');
+    expect(antecedentesEditorial).toMatch(/\.ante-dossier__archive--grid \.ante-dossier__ledger\s*\{[\s\S]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
+  });
+
   test('evidence case rows reserve enough copy width to avoid broken client names', () => {
     const evidenceRow = read('src/components/um/EvidenceCaseRow.astro');
     const rowBlock = cssBlock(evidenceRow, '.evidence-case-row');

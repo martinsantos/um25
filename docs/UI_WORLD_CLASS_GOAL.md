@@ -13,6 +13,58 @@ La meta no es decorar. La meta es que cada ruta critica comunique en menos de 30
 - con que evidencia real;
 - cual es el siguiente paso comercial.
 
+## Estado de Auditoria - 2026-06-14
+
+### Fixes P0 aplicados
+
+- Se elimino el texto publico interno tipo "FUENTE DOCUMENTAL" y equivalentes; busqueda actual en `src`, `__tests__`, `docs` y `scripts` no encuentra ese copy.
+- El contrato CSS comercial quedo limpio: `npm run audit:css` reporta `findings: 0`, `commercialErrors: 0`, `warnings: 0`.
+- Se removieron sombras visibles en superficies comerciales criticas y se dejo la separacion basada en borde fino, fondo y espacio.
+- Se normalizo texto visible sub-16px en superficies comerciales: modal de contacto, single de antecedente, servicios, CCTV AI y stats.
+- Se corrigio H1 mobile en single de antecedente: visual strict mide `34px` en `/antecedentes/3064/...`.
+- Se corrigio H1 en antecedentes filtrados por sector: visual strict mide `42px` desktop y `34px` mobile en `/antecedentes?sector=aeropuertos` y `/antecedentes?sector=bodegas`.
+- Se elimino el script duplicado `download-images` en `package.json`; queda el flujo canonico de Directus.
+- Se declaro explicitamente la coleccion `blog` en `src/content.config.ts`; el build ya no auto-genera esa coleccion.
+- Se migro la configuracion runtime de Sentry a `sentry.client.config.ts` y `sentry.server.config.ts`; `npm run build` ya no emite warnings deprecated de Sentry ni warnings de sourcemap/release sin token.
+- Se actualizo `caniuse-lite` en `package-lock.json`; `npm run build` ya no emite warning de Browserslist desactualizado.
+- Se redujo deuda de lint de 71 a 0 warnings: se eliminaron parametros muertos, imports sin uso, callbacks legacy no consumidos, logs informativos de produccion, fixtures muertos en tests y ruido mecanico en scripts utilitarios.
+
+### Evidencia de QA local
+
+| Gate | Resultado | Evidencia |
+|---|---:|---|
+| CSS contract | PASS | `npm run audit:css`: 0 findings |
+| Typecheck | PASS | `npm run typecheck` |
+| Tests | PASS | `npm test -- --runInBand`: 31 suites, 254 tests |
+| Lint | PASS limpio | `npm run lint`: 0 errores, 0 warnings |
+| Build SSR | PASS limpio | `npm run build` sin warnings Sentry/Browserslist |
+| SEO/GEO | PASS | `npm run seo:audit` |
+| Visual strict focal | PASS | 16/16 combinaciones desktop/mobile sin failures |
+| Visual strict regression | PASS | 4/4 antecedentes filtrados desktop/mobile sin failures |
+| Visual strict comercial amplio | PARTIAL | 82 checks previos: 4 failures, todos el H1 filtrado ya corregido; rerun completo post-fix quedo sin output util y se corto manualmente |
+| Produccion home | PASS | `curl -sSI https://www.ultimamilla.com.ar/`: HTTP 200 |
+| Produccion antecedente 3067 | PASS | HTTP 200 y sin `FUENTE DOCUMENTAL`, `Datos del antecedente`, `Directus` ni textos equivalentes en HTML descargado |
+| Directus origin health | PASS condicionado | `curl -k --resolve admin.ultimamilla.com.ar:443:23.105.176.45 .../server/health`: `{"status":"ok"}` |
+
+Visual strict focal cubrio:
+
+- `/`
+- `/servicios`
+- `/antecedentes`
+- `/antecedentes?template=editorial&skin=white`
+- `/antecedentes/3064/desarrollo-de-software-y-digitalizacion-de-procesos-para-el-gobierno-de-la-provincia-de-mendoza`
+- `/antecedentes/3065/camara-de-cctv-aeropuerto-de-mendoza`
+- `/blog`
+- `/contacto`
+
+### Hallazgos vivos priorizados
+
+| Severidad | Area | Evidencia | Accion |
+|---|---|---|---|
+| P1 | Directus DNS/TLS publico | `dig +short admin.ultimamilla.com.ar` sin A record; health del origen responde 200 solo con `--resolve` y `-k` por certificado self-signed | Corregir DNS/Cloudflare de `admin.ultimamilla.com.ar` y certificado publico; no editar servidor manualmente fuera del flujo aprobado. |
+| P2 | Visual full matrix | Rerun completo post-fix de la matriz comercial no entrego output util en tiempo razonable | Ejecutar `npm run audit:visual` completo antes de PR/deploy. |
+| P2 | Produccion | Cambios validados localmente, no desplegados | Deploy solo via Git Flow/GitHub Actions. |
+
 ## Rutas Criticas
 
 | Prioridad | Ruta | Criterio principal |

@@ -5,7 +5,7 @@
  * GPU-only animations, choreographed enter sequences, and idle loops.
  */
 
-import { prepareWithSegments, layoutWithLines, prepare, layout, measureLineStats } from '@chenglou/pretext';
+import { prepareWithSegments, layoutWithLines, measureLineStats } from '@chenglou/pretext';
 import type { PreparedTextWithSegments, LayoutLine } from '@chenglou/pretext';
 
 const H_FONT = '"Poppins","Futura PT","Century Gothic",sans-serif';
@@ -42,8 +42,6 @@ interface BuildResult {
 }
 
 const CHAR_EFFECTS = new Set<string>(['typewriter','decode','scramble','fade','ecg','heartbeat','pulse','compile','terminal','code','cctv','surveillance','tune','alarm','surge','dotmatrix','official','excavate','drill']);
-const SEG_EFFECTS = new Set<string>(['splitflap3d','departure','flipboard','liquid','pour','conveyor','assembly','word','packets']);
-const LINE_EFFECTS = new Set<string>(['drafting','blueprint','stamp','dossier','ticket']);
 
 // ── 1.1× responsive scale ──
 function rSize(): number {
@@ -1090,7 +1088,7 @@ export function paragraphFx(selector: string | HTMLElement, text: string, opts: 
   el.querySelectorAll(':scope > div').forEach(p => obs.observe(p));
 }
 
-export function cardFx(container: string | HTMLElement, _opts?: { color?: string }) {
+export function cardFx(container: string | HTMLElement) {
   css();
   const root = typeof container === 'string' ? document.querySelector(container) as HTMLElement : container;
   if (!root) return;

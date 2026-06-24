@@ -279,7 +279,7 @@ export function serviceHeroLead(
   if (cleanedPage && !containsBannedLedgerCopy(cleanedPage) && !duplicatesBody) {
     return cleanedPage;
   }
-  return visualProof || cleanedSub || 'Alcance técnico con evidencia y soporte en sitio.';
+  return visualProof || cleanedSub || 'Alcance técnico verificable con evidencia y soporte en sitio.';
 }
 
 export function sanitizeServiceStats(stats: Array<{ value?: string; label?: string; valor?: string }> = []) {

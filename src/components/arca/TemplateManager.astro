@@ -4,24 +4,6 @@
 // - Cargar plantillas existentes
 // - Eliminar plantillas
 // - Selector para cambiar entre plantillas
-
-interface Template {
-  id: string;
-  nombre: string;
-  cuit: string;
-  razon_social: string;
-  domicilio: string;
-  condicion_iva: string;
-  logo_url?: string | null;
-  fecha_creacion: string;
-}
-
-interface Props {
-  onTemplateSelect?: (template: Template) => void;
-  onTemplateSave?: (template: Template) => void;
-}
-
-const { onTemplateSelect, onTemplateSave } = Astro.props;
 ---
 
 <div class="template-manager space-y-4">

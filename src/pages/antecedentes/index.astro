@@ -28,6 +28,8 @@ const PAGE_SIZE = 12;
 const getUrlParams = (url) => {
   const searchParams = new URL(url).searchParams;
   const resetFilters = searchParams.get('reset') === '1';
+  const requestedView = searchParams.get('view') || 'list';
+  const requestedSort = searchParams.get('sort') || 'newest';
 
   const activeFilters = resetFilters
     ? { area: '', cliente: '', unidad_negocio: '', sector: '' }
@@ -42,6 +44,8 @@ const getUrlParams = (url) => {
     searchQuery: searchParams.get('q') || '',
     currentPage: Math.max(1, parseInt(searchParams.get('page') || '1')),
     activeFilters,
+    archiveView: ['list', 'grid'].includes(requestedView) ? requestedView : 'list',
+    archiveSort: ['newest', 'oldest', 'client'].includes(requestedSort) ? requestedSort : 'newest',
     pageSize: PAGE_SIZE
   };
 };
@@ -104,6 +108,29 @@ const filterAntecedentes = (antecedentes, filters, searchQuery) => {
   return filtered;
 };
 
+const antecedenteTimestamp = (item) => {
+  const raw = item?.Fecha || item?.fecha || item?.displayYear || item?.year || item?.anio || '';
+  const parsed = new Date(raw);
+  if (!Number.isNaN(parsed.getTime())) return parsed.getTime();
+  const year = String(raw).match(/\b(19\d{2}|20\d{2})\b/)?.[1];
+  return year ? Date.UTC(Number(year), 0, 1) : 0;
+};
+
+const sortAntecedentesArchive = (antecedentes, sortMode) => {
+  const byTitle = (a, b) => String(a?.displayTitle || a?.Titulo || '').localeCompare(String(b?.displayTitle || b?.Titulo || ''), 'es');
+  const byClient = (a, b) => String(a?.Cliente || '').localeCompare(String(b?.Cliente || ''), 'es') || byTitle(a, b);
+  const byNewest = (a, b) => (antecedenteTimestamp(b) - antecedenteTimestamp(a)) || byTitle(a, b);
+  const byOldest = (a, b) => (antecedenteTimestamp(a) - antecedenteTimestamp(b)) || byTitle(a, b);
+
+  const comparators = {
+    newest: byNewest,
+    oldest: byOldest,
+    client: byClient,
+  };
+
+  return [...antecedentes].sort(comparators[sortMode] || byNewest);
+};
+
 const localGenerateSlug = (text = '') => {
   if (!text || text === null || typeof text === 'undefined') {
     return 'item';
@@ -158,9 +185,9 @@ try {
   }));
   allAntecedentesForIndex = allAntecedentes;
 
-  const filteredAntecedentes = sortAntecedentesForPublicList(
+  const filteredAntecedentes = sortAntecedentesArchive(sortAntecedentesForPublicList(
     filterAntecedentes(allAntecedentes, pageData.activeFilters, pageData.searchQuery)
-  );
+  ), pageData.archiveSort);
   const hasActiveFilters = Boolean(
     pageData.searchQuery
     || pageData.activeFilters.sector
@@ -330,6 +357,12 @@ const antecedentesCollectionStructuredData = {
   description: pageDescription,
   url: currentCanonicalUrl,
   inLanguage: 'es-AR',
+  significantLink: [
+    'https://www.ultimamilla.com.ar/servicios',
+    'https://www.ultimamilla.com.ar/sectores',
+    'https://www.ultimamilla.com.ar/contacto',
+    ...structuredPageItems.slice(0, 8).map((item) => `https://www.ultimamilla.com.ar/antecedentes/${item.slug}`),
+  ],
   mainEntity: {
     '@type': 'ItemList',
     numberOfItems: allAntecedentesForIndex.length,

@@ -164,6 +164,7 @@ const metaParts = [parentLabel, showCategoryLabel ? categoryLabel : undefined].f
             class="product-sheet__image"
             loading="lazy"
             decoding="async"
+            onerror="this.onerror=null;this.src='/images/default-background.jpg'"
           />
         ) : (
           <div class="product-sheet__fallback">

@@ -7,13 +7,20 @@ const RATE_LIMIT_WINDOW = 15 * 60 * 1000;
 const MAX_REQUESTS_PER_WINDOW = 30;
 const DUPLICATE_WINDOW = 2 * 60 * 1000;
 const MESSAGE_MAX_LENGTH = 2400;
+const ASTRO_ENV: Record<string, string | undefined> = {
+  SMTP_HOST: import.meta.env.SMTP_HOST,
+  SMTP_PORT: import.meta.env.SMTP_PORT,
+  SMTP_USER: import.meta.env.SMTP_USER,
+  SMTP_PASS: import.meta.env.SMTP_PASS,
+  SMTP_FROM: import.meta.env.SMTP_FROM,
+};
 
 function processEnv(name: string): string | undefined {
   return typeof process !== 'undefined' ? process.env[name] : undefined;
 }
 
 function envValue(name: string): string {
-  return processEnv(name) || import.meta.env?.[name] || '';
+  return processEnv(name) || ASTRO_ENV[name] || '';
 }
 
 function createTransporter() {
@@ -191,9 +198,24 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     const contentType = request.headers.get('content-type') || '';
 
     if (contentType.includes('application/json')) {
-      data = await request.json();
+      try {
+        data = await request.json();
+      } catch {
+        return jsonResponse({
+          success: false,
+          message: 'JSON inválido.'
+        }, 400);
+      }
     } else {
-      const formData = await request.formData();
+      let formData: FormData;
+      try {
+        formData = await request.formData();
+      } catch {
+        return jsonResponse({
+          success: false,
+          message: 'Formulario inválido.'
+        }, 400);
+      }
       data = {};
       for (const [key, value] of formData.entries()) {
         data[key] = value;

@@ -21,9 +21,13 @@ module.exports = {
   modulePathIgnorePatterns: [
     '<rootDir>/node_modules/',
     '<rootDir>/dist/',
+    '<rootDir>/work/',
     '<rootDir>/.cache/',
     '<rootDir>/.claude/',
     '<rootDir>/src/test/__mocks__',
+  ],
+  testPathIgnorePatterns: [
+    '<rootDir>/work/',
   ],
   clearMocks: true,
   resetMocks: true,

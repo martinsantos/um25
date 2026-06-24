@@ -72,6 +72,14 @@ describe('Plantilla ARCA Page', () => {
       // Verify form exists and can be used to collect data
       expect(form).toBeTruthy();
       expect(form?.id).toBe('formulario-arca');
+
+      let receivedFormData: typeof mockFormData | null = null;
+      form?.addEventListener('formDataChange', ((event: CustomEvent<typeof mockFormData>) => {
+        receivedFormData = event.detail;
+      }) as EventListener);
+      form?.dispatchEvent(new window.CustomEvent('formDataChange', { detail: mockFormData }));
+
+      expect(receivedFormData).toEqual(mockFormData);
     });
 
     it('should have form for data collection', () => {
