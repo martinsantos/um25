@@ -1,5 +1,4 @@
 import {
-  sanitizeEditorialText,
   stripBannedLedgerPhrases,
   renderEditorialBody,
   productAnchorId,

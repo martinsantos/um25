@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { addReply } from '../../../../data/comments';
+import { parsePublicCommentInput } from '../../../../utils/commentValidation';
 
 export const POST: APIRoute = async ({ request, params }) => {
     try {
@@ -13,11 +14,11 @@ export const POST: APIRoute = async ({ request, params }) => {
             });
         }
 
-        const body = await request.json();
-        
-        // Validación básica
-        if (!body.author || !body.email || !body.content || !body.postSlug) {
-            return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+        let body: Record<string, unknown>;
+        try {
+            body = await request.json();
+        } catch {
+            return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
                 status: 400,
                 headers: {
                     'Content-Type': 'application/json'
@@ -25,12 +26,18 @@ export const POST: APIRoute = async ({ request, params }) => {
             });
         }
 
-        const reply = await addReply(commentId, {
-            author: body.author,
-            email: body.email,
-            content: body.content,
-            postSlug: body.postSlug
-        });
+        const parsed = parsePublicCommentInput(body);
+
+        if (!parsed.ok) {
+            return new Response(JSON.stringify({ error: parsed.error }), {
+                status: 400,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        }
+
+        const reply = await addReply(commentId, parsed.value);
 
         if (!reply) {
             return new Response(JSON.stringify({ error: 'Parent comment not found' }), {

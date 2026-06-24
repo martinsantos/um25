@@ -1,5 +1,4 @@
 ---
-import EnhancedImage from "./EnhancedImage.astro";
 import { generateSlug } from '../utils/slugUtils.js';
 import { truncateEditorialText } from '../utils/editorialContent';
 
@@ -33,7 +32,7 @@ const getImageUrl = async (item) => {
       return `/imagenes_antecedentes_versionproduccion/${nombreArchivo}`;
     }
   } catch (error) {
-    console.log('[FEATURED] ⚠️ Error en mapeo:', error.message);
+    console.warn('[FEATURED] ⚠️ Error en mapeo:', error.message);
   }
   
   return null; // Dejar que el onerror maneje el default

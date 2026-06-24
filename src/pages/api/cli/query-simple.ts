@@ -45,7 +45,7 @@ async function queryDatabase(sql: string, params: string[] = []) {
 // CONECTAR DIRECTAMENTE CON DIRECTUS REAL - 469 antecedentes + 9 servicios
 async function queryDirectusAPI(searchQuery: string): Promise<any> {
     try {
-        const { directusUrl, token } = getCliDirectusRuntime();
+        const { directusUrl, token } = await getCliDirectusRuntime();
         const headers = getCliDirectusHeaders(token);
         
         // BUSCAR EN ANTECEDENTES REALES (469 registros)

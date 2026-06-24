@@ -9,6 +9,7 @@ import {
 } from '../config/runtime';
 import { SITE_URL } from '../config/seo';
 import { isCanonicalBlogSlug } from '../data/seoRedirects';
+import { addVisibleBlogStatusFilter } from './blogPublishing';
 
 const DIRECTUS_URL = getDirectusInternalUrl();
 const DIRECTUS_TOKEN = getDirectusToken();
@@ -180,18 +181,36 @@ export async function fetchBlogListing(
   limit = 10,
   categoria?: string
 ): Promise<{ posts: EntradaBlog[]; total: number }> {
-  const catFilter = categoria ? `&filter[categoria][_eq]=${encodeURIComponent(categoria)}` : '';
   const fields = 'id,slug,titulo,resumen,imagen_portada,imagen_portada_alt,categoria,tags,fecha_publicacion,fecha_modificacion,tiempo_lectura,meta_title,meta_description,meta_keywords';
   const offset = (page - 1) * limit;
+  const now = new Date();
+  const itemsParams = new URLSearchParams();
+  const countParams = new URLSearchParams();
+
+  if (categoria) {
+    addVisibleBlogStatusFilter(itemsParams, now, 'filter[_and][0]');
+    addVisibleBlogStatusFilter(countParams, now, 'filter[_and][0]');
+    itemsParams.set('filter[_and][1][categoria][_eq]', categoria);
+    countParams.set('filter[_and][1][categoria][_eq]', categoria);
+  } else {
+    addVisibleBlogStatusFilter(itemsParams, now);
+    addVisibleBlogStatusFilter(countParams, now);
+  }
+
+  itemsParams.set('sort', '-fecha_publicacion');
+  itemsParams.set('limit', String(limit));
+  itemsParams.set('offset', String(offset));
+  itemsParams.set('fields', fields);
+  countParams.set('aggregate[count]', 'id');
 
   try {
     const [itemsRes, countRes] = await Promise.all([
       fetch(
-        `${DIRECTUS_URL}/items/blog_posts?filter[status][_eq]=published${catFilter}&sort=-fecha_publicacion&limit=${limit}&offset=${offset}&fields=${fields}`,
+        `${DIRECTUS_URL}/items/blog_posts?${itemsParams.toString()}`,
         { headers: authHeaders() }
       ),
       fetch(
-        `${DIRECTUS_URL}/items/blog_posts?aggregate[count]=id&filter[status][_eq]=published${catFilter}`,
+        `${DIRECTUS_URL}/items/blog_posts?${countParams.toString()}`,
         { headers: authHeaders() }
       ),
     ]);
@@ -218,8 +237,13 @@ export async function fetchBlogListing(
 
 export async function fetchBlogPost(slug: string): Promise<EntradaBlog | null> {
   try {
+    const params = new URLSearchParams();
+    addVisibleBlogStatusFilter(params, new Date(), 'filter[_and][0]');
+    params.set('filter[_and][1][slug][_eq]', slug);
+    params.set('limit', '1');
+    params.set('fields', '*');
     const res = await fetch(
-      `${DIRECTUS_URL}/items/blog_posts?filter[slug][_eq]=${encodeURIComponent(slug)}&filter[status][_eq]=published&limit=1&fields=*`,
+      `${DIRECTUS_URL}/items/blog_posts?${params.toString()}`,
       { headers: authHeaders() }
     );
     const data = await res.json();
@@ -237,8 +261,12 @@ export async function fetchBlogPost(slug: string): Promise<EntradaBlog | null> {
 
 export async function fetchBlogBand(limit = 3): Promise<EntradaBlog[]> {
   try {
+    const params = addVisibleBlogStatusFilter(new URLSearchParams());
+    params.set('sort', '-fecha_publicacion');
+    params.set('limit', String(limit));
+    params.set('fields', 'id,slug,titulo,imagen_portada,categoria,fecha_publicacion');
     const res = await fetch(
-      `${DIRECTUS_URL}/items/blog_posts?filter[status][_eq]=published&sort=-fecha_publicacion&limit=${limit}&fields=id,slug,titulo,imagen_portada,categoria,fecha_publicacion`,
+      `${DIRECTUS_URL}/items/blog_posts?${params.toString()}`,
       { headers: authHeaders() }
     );
     const data = await res.json();

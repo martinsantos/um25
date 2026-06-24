@@ -45,6 +45,8 @@ const institutionalProofShort = institutionalProofTotal >= 500
   : String(institutionalProofTotal);
 const totalPages = Math.max(1, pageData.totalPages || 1);
 const currentPage = pageData.currentPage || 1;
+const archiveView = ['list', 'grid'].includes(pageData.archiveView) ? pageData.archiveView : 'list';
+const archiveSort = ['newest', 'oldest', 'client'].includes(pageData.archiveSort) ? pageData.archiveSort : 'newest';
 const feature = featuredAntecedente || spotlight[0];
 const secondary = spotlight.slice(1, 3);
 const hasResults = totalItems > 0;
@@ -68,6 +70,14 @@ const buildSectorUrl = (sector: string) => {
 const buildPageUrl = (page: number) => {
   const url = new URL(currentUrl);
   url.searchParams.set('page', String(page));
+  url.searchParams.delete('reset');
+  return `${url.pathname}${url.search}`;
+};
+
+const buildArchiveControlUrl = (key: 'view' | 'sort', value: string) => {
+  const url = new URL(currentUrl);
+  url.searchParams.set(key, value);
+  url.searchParams.delete('page');
   url.searchParams.delete('reset');
   return `${url.pathname}${url.search}`;
 };
@@ -130,6 +140,15 @@ const archiveTitle = isLandingPage
 const archiveText = isLandingPage
   ? 'Lectura ejecutiva por cliente, alcance, sector y año para abrir cada dossier con contexto comercial claro.'
   : 'Proyectos reales de ULTIMA MILLA, ordenados por cliente, sector, año e imagen asociada.';
+const viewOptions = [
+  { id: 'list', label: 'Lista' },
+  { id: 'grid', label: 'Miniaturas' },
+];
+const sortOptions = [
+  { id: 'newest', label: 'Más recientes' },
+  { id: 'oldest', label: 'Más antiguos' },
+  { id: 'client', label: 'Cliente A-Z' },
+];
 ---
 
 <section class="ante-dossier">
@@ -322,13 +341,42 @@ const archiveText = isLandingPage
   )}
 
   {archive.length > 0 && (
-    <section class="um-container ante-dossier__archive ante-dossier__archive--compact" id="archivo-antecedentes" aria-labelledby="archivo-antecedentes-title">
+    <section class:list={['um-container', 'ante-dossier__archive', 'ante-dossier__archive--compact', `ante-dossier__archive--${archiveView}`]} id="archivo-antecedentes" aria-labelledby="archivo-antecedentes-title">
       <div class="ante-dossier__archive-head">
         <h2 id="archivo-antecedentes-title">{archiveTitle}</h2>
         <p>{archiveText}</p>
       </div>
 
-      <div class="ante-dossier__ledger antecedentes-list">
+      <div class="ante-dossier__archive-toolbar" aria-label="Controles del archivo de antecedentes">
+        <div class="ante-dossier__view-toggle" role="group" aria-label="Vista del archivo">
+          <span>Vista</span>
+          {viewOptions.map((option) => (
+            <a
+              href={buildArchiveControlUrl('view', option.id)}
+              class={archiveView === option.id ? 'is-active' : ''}
+              aria-current={archiveView === option.id ? 'true' : undefined}
+              data-view-control={option.id}
+            >
+              {option.label}
+            </a>
+          ))}
+        </div>
+        <div class="ante-dossier__sort-toggle" role="group" aria-label="Orden del archivo">
+          <span>Orden</span>
+          {sortOptions.map((option) => (
+            <a
+              href={buildArchiveControlUrl('sort', option.id)}
+              class={archiveSort === option.id ? 'is-active' : ''}
+              aria-current={archiveSort === option.id ? 'true' : undefined}
+              data-sort-control={option.id}
+            >
+              {option.label}
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <div class="ante-dossier__ledger antecedentes-list" data-view={archiveView} data-sort={archiveSort}>
         <div class="ante-dossier__ledger-head" aria-hidden="true">
           <span>Proyecto</span>
           <span>Sector</span>
@@ -922,7 +970,7 @@ const archiveText = isLandingPage
   .ante-dossier__feature {
     display: grid;
     grid-template-columns: minmax(0, 0.58fr) minmax(360px, 0.42fr);
-    height: clamp(420px, 36vw, 520px);
+    min-height: clamp(420px, 36vw, 520px);
     overflow: hidden;
     border: 1px solid #e3e6ea;
     border-radius: 6px;
@@ -1130,6 +1178,68 @@ const archiveText = isLandingPage
     padding-top: clamp(28px, 4vw, 44px);
   }
 
+  .ante-dossier__archive-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px 18px;
+    margin: -2px 0 clamp(14px, 2vw, 22px);
+  }
+
+  .ante-dossier__view-toggle,
+  .ante-dossier__sort-toggle {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .ante-dossier__view-toggle > span,
+  .ante-dossier__sort-toggle > span {
+    color: var(--ante-muted);
+    font-size: 1rem;
+    font-weight: var(--um-weight-strong, 700);
+    line-height: 1.2;
+  }
+
+  .ante-dossier__view-toggle a,
+  .ante-dossier__sort-toggle a {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #d9dadd;
+    border-radius: 4px;
+    background: #fff;
+    color: #111;
+    padding: 0 13px;
+    font-size: 1rem;
+    font-weight: var(--um-weight-strong, 700);
+    line-height: 1.15;
+    text-decoration: none;
+    transition:
+      background-color 160ms ease,
+      border-color 160ms ease,
+      color 160ms ease;
+  }
+
+  .ante-dossier__view-toggle a:hover,
+  .ante-dossier__view-toggle a:focus-visible,
+  .ante-dossier__sort-toggle a:hover,
+  .ante-dossier__sort-toggle a:focus-visible {
+    border-color: var(--um-red);
+    color: var(--um-red);
+    outline: none;
+  }
+
+  .ante-dossier__view-toggle a.is-active,
+  .ante-dossier__sort-toggle a.is-active {
+    border-color: #111;
+    background: #111;
+    color: #fff;
+  }
+
   .ante-dossier__ledger {
     border-top: 0;
     display: grid;
@@ -1146,7 +1256,7 @@ const archiveText = isLandingPage
     margin-bottom: 0;
     border-top: 0;
     border-bottom: 0;
-    padding: 16px 0;
+    padding: 10px 0;
     background: var(--ante-page, #fff);
     box-shadow: none;
   }
@@ -1160,6 +1270,51 @@ const archiveText = isLandingPage
 
   .ante-dossier__ledger-head span:first-child {
     grid-column: 2;
+  }
+
+  .ante-dossier__archive--grid .ante-dossier__ledger {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(12px, 1.6vw, 18px);
+  }
+
+  .ante-dossier__archive--grid .ante-dossier__ledger-head {
+    display: none;
+  }
+
+  .ante-dossier__archive--grid :global(.evidence-case-row) {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    height: 100%;
+    margin: 0;
+    padding: clamp(14px, 1.6vw, 18px);
+  }
+
+  .ante-dossier__archive--grid :global(.evidence-case-row__number),
+  .ante-dossier__archive--grid :global(.evidence-case-row__thumb),
+  .ante-dossier__archive--grid :global(.evidence-case-row__copy),
+  .ante-dossier__archive--grid :global(.evidence-case-row__meta-group),
+  .ante-dossier__archive--grid :global(.evidence-case-row__action) {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .ante-dossier__archive--grid :global(.evidence-case-row__thumb) {
+    width: 100%;
+    min-width: 0;
+    min-height: 150px;
+    aspect-ratio: 16 / 10;
+  }
+
+  .ante-dossier__archive--grid :global(.evidence-case-row__copy) {
+    align-self: start;
+  }
+
+  .ante-dossier__archive--grid :global(.evidence-case-row__meta-group) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ante-dossier__archive--grid :global(.evidence-case-row__action) {
+    justify-self: start;
   }
 
   .ante-dossier__row {
@@ -1386,6 +1541,10 @@ const archiveText = isLandingPage
       display: none;
     }
 
+    .ante-dossier__archive--grid .ante-dossier__ledger {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .ante-dossier__row-meta:nth-of-type(2) {
       display: none;
     }
@@ -1394,6 +1553,7 @@ const archiveText = isLandingPage
       justify-self: stretch;
       width: 100%;
     }
+
   }
 
   @media (max-width: 780px) {
@@ -1417,6 +1577,11 @@ const archiveText = isLandingPage
       text-wrap: pretty;
     }
 
+    .ante-dossier__hero p {
+      max-width: 34ch;
+      line-height: 1.48;
+    }
+
     .ante-dossier__image-wall {
       grid-template-columns: 1fr 1fr;
       grid-template-rows: auto auto;
@@ -1436,6 +1601,25 @@ const archiveText = isLandingPage
 
     .ante-dossier__proof {
       grid-template-columns: 1fr 1fr;
+    }
+
+    .ante-dossier__archive-toolbar {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .ante-dossier__view-toggle,
+    .ante-dossier__sort-toggle {
+      width: 100%;
+    }
+
+    .ante-dossier__view-toggle a,
+    .ante-dossier__sort-toggle a {
+      flex: 1 1 auto;
+    }
+
+    .ante-dossier__archive--grid .ante-dossier__ledger {
+      grid-template-columns: minmax(0, 1fr);
     }
 
     .ante-dossier__controls {
@@ -1498,11 +1682,11 @@ const archiveText = isLandingPage
 
     .ante-dossier__sector-links a {
       min-height: 42px;
-      font-size: 0.95rem;
+      font-size: 1rem;
     }
 
     .ante-dossier__sector-links a em {
-      font-size: 0.95rem;
+      font-size: 1rem;
     }
 
     .ante-dossier__feature {
@@ -1607,7 +1791,7 @@ const archiveText = isLandingPage
 
     .ante-dossier__archive-intro h1 {
       max-width: 100%;
-      font-size: clamp(2rem, 7vw, 2.32rem);
+      font-size: clamp(2.125rem, 7vw, 2.42rem);
     }
 
     .ante-dossier__section-head h2,
@@ -1654,13 +1838,13 @@ const archiveText = isLandingPage
       width: 100%;
       min-height: 44px;
       padding: 0 16px;
-      font-size: 0.98rem;
+      font-size: 1rem;
     }
 
     .ante-dossier__search input,
     .ante-dossier__search button {
       min-height: 42px;
-      font-size: 0.95rem;
+      font-size: 1rem;
     }
 
     .ante-dossier__search input {

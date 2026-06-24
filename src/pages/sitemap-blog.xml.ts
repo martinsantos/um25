@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { SITE_URL } from '../config/seo';
 import { blogPosts as fallbackBlogPosts } from '../data/blog-posts';
 import { isCanonicalBlogSlug } from '../data/seoRedirects';
+import { addVisibleBlogStatusFilter } from '../utils/blogPublishing';
 import { canonicalUrl, escapeXml, formatSitemapDate, publicImageUrl } from '../utils/seoUrl';
 
 const DIRECTUS_URL =
@@ -48,8 +49,12 @@ function parseFallbackBlogDate(value: string | undefined): string {
 async function fetchPublishedPosts(): Promise<BlogPost[]> {
   try {
     const headers = DIRECTUS_TOKEN ? { Authorization: `Bearer ${DIRECTUS_TOKEN}` } : undefined;
+    const params = addVisibleBlogStatusFilter(new URLSearchParams());
+    params.set('sort', '-fecha_publicacion');
+    params.set('limit', '200');
+    params.set('fields', 'slug,titulo,fecha_publicacion,imagen_portada');
     const res = await fetch(
-      `${DIRECTUS_URL}/items/blog_posts?filter[status][_eq]=published&sort=-fecha_publicacion&limit=200&fields=slug,titulo,fecha_publicacion,imagen_portada`,
+      `${DIRECTUS_URL}/items/blog_posts?${params.toString()}`,
       { headers }
     );
     if (!res.ok) throw new Error(`Directus blog sitemap returned ${res.status}`);

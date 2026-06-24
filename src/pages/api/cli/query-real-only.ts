@@ -16,6 +16,9 @@ import {
     type CliServicio,
 } from '../../../utils/cliDirectus';
 
+// CRÍTICO: SOLO URLs REALES - NUNCA INVENTAR URLs
+// Basado en corrección por violación de orden del usuario
+
 interface FormattedResult {
     id: number;
     type: string;
@@ -31,7 +34,7 @@ interface FormattedResult {
 // CONEXIÓN DIRECTA A DIRECTUS REAL - SOLO URLs VERIFICADAS
 async function queryDirectusRealOnly(searchQuery: string): Promise<FormattedResult[]> {
     try {
-        const { directusUrl, token } = getCliDirectusRuntime();
+        const { directusUrl, token } = await getCliDirectusRuntime();
         const headers = getCliDirectusHeaders(token);
 
         // BUSCAR EN ANTECEDENTES REALES

@@ -41,7 +41,7 @@ export async function getAllServicios(): Promise<ServicioV4[]> {
     }
 
     if (IS_DEV) {
-      console.log(`✅ Loaded ${servicios.length} servicios from Directus`);
+      console.warn(`✅ Loaded ${servicios.length} servicios from Directus`);
     }
 
     return servicios;
@@ -66,7 +66,7 @@ export async function getServicioById(id: number | string): Promise<ServicioV4 |
     }
 
     if (IS_DEV) {
-      console.log(`✅ Loaded servicio ${numId} with ${servicio.productos?.length || 0} productos`);
+      console.warn(`✅ Loaded servicio ${numId} with ${servicio.productos?.length || 0} productos`);
     }
 
     return servicio;
@@ -84,7 +84,7 @@ export async function getProductos(servicioId: number): Promise<ProductoV4[]> {
     const productos = await getProductosPorServicio(servicioId);
 
     if (IS_DEV) {
-      console.log(`✅ Loaded ${productos.length} productos for servicio ${servicioId}`);
+      console.warn(`✅ Loaded ${productos.length} productos for servicio ${servicioId}`);
     }
 
     return productos;
@@ -105,7 +105,7 @@ export async function getAntecedenteWithServices(id: number | string): Promise<A
 
     if (antecedente) {
       if (IS_DEV) {
-        console.log(`✅ Loaded antecedente ${numId} from Directus with ${antecedente.servicios_relacionados?.length || 0} servicios`);
+        console.warn(`✅ Loaded antecedente ${numId} from Directus with ${antecedente.servicios_relacionados?.length || 0} servicios`);
       }
       return antecedente;
     }
@@ -133,7 +133,7 @@ export async function getProyectosPorServicio(servicioId: number, limit: number 
 
     if (antecedentes && antecedentes.length > 0) {
       if (IS_DEV) {
-        console.log(`✅ Loaded ${antecedentes.length} antecedentes for servicio ${servicioId}`);
+        console.warn(`✅ Loaded ${antecedentes.length} antecedentes for servicio ${servicioId}`);
       }
       return antecedentes;
     }
@@ -158,7 +158,7 @@ export async function searchServicios(query: string, area?: string): Promise<Ser
     const servicios = await buscarServicios(query, area);
 
     if (IS_DEV) {
-      console.log(`✅ Found ${servicios.length} servicios matching "${query}"${area ? ` in area "${area}"` : ''}`);
+      console.warn(`✅ Found ${servicios.length} servicios matching "${query}"${area ? ` in area "${area}"` : ''}`);
     }
 
     return servicios;

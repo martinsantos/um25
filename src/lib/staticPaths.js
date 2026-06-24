@@ -14,7 +14,6 @@ const generateSlug = (titulo = '') => {
 };
 
 export async function generateStaticPaths() {
-  console.log('Running generateStaticPaths for service details...');
   try {
     const response = await directus.get('/items/Servicios', {
       params: {

@@ -422,7 +422,7 @@ const actionItems = (mode: 'service' | 'sector' | 'case' | 'blog'): StrategicLin
     {
       href: '/presupuesto-servicios-it-empresas',
       label: 'Presupuesto IT',
-      summary: 'Ordena variables de alcance, criticidad, materiales, SLA y documentación.',
+      summary: 'Ordena variables de alcance, criticidad, materiales, SLA y entregables.',
       reason: 'Ayuda a comparar alcance antes de hablar de precio.',
       eyebrow: 'Compra',
       kind: 'geoHub',
@@ -475,7 +475,7 @@ export const buildServiceStrategicLinkGroups = (context: StrategicPageContext): 
     },
     {
       title: 'Sectores donde aplica',
-      summary: 'Verticales donde cambia el riesgo, la criticidad o la documentación.',
+      summary: 'Verticales donde cambia el riesgo, la criticidad o la trazabilidad.',
       items: decorateItems(scoredItems(sectorLinkItems, contextText, context.currentPath, 4), () => 'Muestra el mismo servicio en un contexto operativo distinto.'),
     },
     {

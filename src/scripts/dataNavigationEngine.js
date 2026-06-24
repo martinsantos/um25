@@ -44,7 +44,7 @@ class DataNavigationEngine {
             this.antecedentes = antecedentesReales || [];
             this.servicios = serviciosReales || [];
             
-            console.log(`✓ Loaded ${this.antecedentes.length} antecedentes and ${this.servicios.length} servicios`);
+            console.warn(`✓ Loaded ${this.antecedentes.length} antecedentes and ${this.servicios.length} servicios`);
         } catch (error) {
             console.error('Error loading data:', error);
             this.antecedentes = [];
@@ -105,11 +105,11 @@ class DataNavigationEngine {
             this.yearsMap.get(year).push(item);
         });
         
-        console.log(`✓ Preprocessed data: ${this.clientesMap.size} clientes, ${this.areasMap.size} areas, ${this.yearsMap.size} years`);
+        console.warn(`✓ Preprocessed data: ${this.clientesMap.size} clientes, ${this.areasMap.size} areas, ${this.yearsMap.size} years`);
     }
 
     // EXPLORE command - hierarchical navigation
-    async explore(path = null, options = {}) {
+    async explore(path = null) {
         const targetPath = path || this.currentPath;
         const fullPath = this.resolvePath(targetPath);
         
@@ -120,7 +120,7 @@ class DataNavigationEngine {
         this.currentPath = fullPath;
         const contents = this.filesystem[fullPath];
         
-        let output = `<div class="command-success">
+        const output = `<div class="command-success">
 📁 EXPLORANDO: ${fullPath}
 ═══════════════════════════════════════════════════════════════
 
@@ -146,7 +146,6 @@ ${contents.map((item, index) => {
 
     // FILTER command - advanced filtering
     async filter(criteria, options = {}) {
-        const criteriaLower = criteria?.toLowerCase() || '';
         let dataset = [];
         let results = [];
         
@@ -346,7 +345,7 @@ ${Object.keys(filters).map(key => `   • ${key}: ${filters[key]}`).join('\n') |
     }
 
     // DETAILS command - detailed view of specific items
-    async details(identifier, options = {}) {
+    async details(identifier) {
         let item = null;
         
         // Try to find by ID

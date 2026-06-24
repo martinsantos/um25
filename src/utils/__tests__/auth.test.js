@@ -6,8 +6,6 @@
 import { describe, test, expect } from '@jest/globals';
 import { getStaticToken, getAuthHeaders, generateSlug } from '../auth';
 
-const TEST_TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
-
 describe('Auth Utils', () => {
   describe('getStaticToken', () => {
     test('returns token from env with fallback', () => {

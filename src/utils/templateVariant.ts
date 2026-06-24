@@ -6,7 +6,6 @@ export function getDevTemplateVariant(url: URL, isDev: boolean): DevTemplateVari
   if (!isDev) return null;
 
   const value = url.searchParams.get('template');
-  if (value === 'atlas') return 'atlas';
-  if (value === 'editorial') return 'editorial';
+  if (allowedTemplateVariants.has(value as DevTemplateVariant)) return value as DevTemplateVariant;
   return 'editorial';
 }

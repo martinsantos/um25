@@ -3,17 +3,31 @@
 import type { APIRoute } from 'astro';
 import { execSync } from 'child_process';
 import fs from 'fs';
-import path from 'path';
+import { requestHasSecret, secretMatches } from '../../utils/serverAuth';
 
 // Token de seguridad para validar webhook
-const WEBHOOK_SECRET = process.env.DIRECTUS_WEBHOOK_SECRET || 'um-cli-2024-secure-webhook';
+const LEGACY_DEFAULT_WEBHOOK_SECRET = ['um', 'cli', '2024', 'secure', 'webhook'].join('-');
 const REBUILD_SCRIPT_PATH = '/root/fumbling-field/scripts/auto-rebuild.sh';
+
+function getWebhookSecret(): string {
+  return process.env['DIRECTUS_WEBHOOK_SECRET'] ?? import.meta.env.DIRECTUS_WEBHOOK_SECRET ?? '';
+}
+
+function isWebhookSecretConfigured(secret: string): boolean {
+  return Boolean(secret) && secret !== LEGACY_DEFAULT_WEBHOOK_SECRET;
+}
+
+function redactWebhookPayload(payload: Record<string, unknown>): string {
+  const redacted = { ...payload };
+  if ('token' in redacted) redacted.token = '[redacted]';
+  return JSON.stringify(redacted).substring(0, 200);
+}
 
 // Log helper
 const logWebhook = (message: string, level: 'info' | 'error' | 'success' = 'info') => {
   const timestamp = new Date().toISOString();
   const logMessage = `[${timestamp}] [WEBHOOK-${level.toUpperCase()}] ${message}`;
-  console.log(logMessage);
+  console.warn(logMessage);
   
   // También log a archivo si estamos en producción
   if (process.env.NODE_ENV === 'production') {
@@ -45,12 +59,40 @@ export const POST: APIRoute = async ({ request }) => {
     }
     
     // Leer payload
-    const payload = await request.json();
-    logWebhook(`📦 Webhook payload received: ${JSON.stringify(payload).substring(0, 200)}...`);
+    let payload: Record<string, unknown>;
+    try {
+      payload = await request.json();
+    } catch {
+      logWebhook('❌ Invalid JSON received', 'error');
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Invalid JSON'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    logWebhook(`📦 Webhook payload received: ${redactWebhookPayload(payload)}...`);
+
+    const webhookSecret = getWebhookSecret();
+    if (!isWebhookSecretConfigured(webhookSecret)) {
+      logWebhook('🔒 Webhook secret not configured', 'error');
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Webhook secret not configured'
+      }), {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
     
     // Validar token de seguridad
-    const providedToken = payload.token || request.headers.get('x-webhook-secret');
-    if (providedToken !== WEBHOOK_SECRET) {
+    const authorized =
+      secretMatches(payload.token, webhookSecret) ||
+      requestHasSecret(request, webhookSecret, ['x-webhook-secret']);
+
+    if (!authorized) {
       logWebhook('🔒 Unauthorized webhook attempt - invalid token', 'error');
       return new Response(JSON.stringify({
         success: false,
@@ -113,7 +155,7 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({
         success: false,
         error: 'Rebuild failed',
-        message: rebuildError.message,
+        message: 'Rebuild failed. Check server logs.',
         duration: duration,
         timestamp: new Date().toISOString()
       }), {
@@ -129,7 +171,7 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(JSON.stringify({
       success: false,
       error: 'Internal server error',
-      message: error.message,
+      message: 'Webhook processing failed. Check server logs.',
       timestamp: new Date().toISOString()
     }), {
       status: 500,

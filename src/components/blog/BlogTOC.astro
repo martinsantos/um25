@@ -58,16 +58,31 @@ const { headings, title } = Astro.props;
     display: none;
     position: sticky;
     top: 6rem;
-    width: min(100%, 236px);
-    max-height: calc(100svh - 7rem);
+    width: min(100%, 204px);
+    max-height: calc(100vh - 8rem);
     flex-shrink: 0;
     align-self: flex-start;
-    padding: 4px 0 8px 0;
+    padding: 4px 6px 8px 0;
     background: transparent;
     overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
     scrollbar-width: thin;
+    scrollbar-color: rgba(17, 17, 17, 0.2) transparent;
   }
   @media (min-width: 900px) { .toc { display: block; } }
+
+  .toc::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  .toc::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .toc::-webkit-scrollbar-thumb {
+    background: rgba(17, 17, 17, 0.18);
+  }
 
   .toc__label {
     font-family: var(--um-font-body);

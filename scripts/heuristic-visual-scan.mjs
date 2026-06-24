@@ -6,8 +6,10 @@ const BASE = process.env.VISUAL_AUDIT_BASE_URL || 'http://localhost:4321';
 const CHROME = process.env.CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const PORT = Number(process.env.HEURISTIC_CDP_PORT || (9345 + Math.floor(Math.random() * 1000)));
 const OUT = process.env.HEURISTIC_OUT || 'docs/audits/consistency-pass-2026-05-29/heuristic-matrix.json';
+const CDP_BOOT_TIMEOUT_MS = Number(process.env.HEURISTIC_CDP_BOOT_TIMEOUT_MS || 60000);
 const CDP_TIMEOUT_MS = Number(process.env.HEURISTIC_CDP_TIMEOUT_MS || 25000);
 const ROUTE_ATTEMPTS = Number(process.env.HEURISTIC_ROUTE_ATTEMPTS || 2);
+const CDP_BOOT_POLL_MS = 125;
 
 const routes = E2E_DEFECT_PATHS;
 
@@ -220,7 +222,8 @@ async function main() {
   let ws;
   try {
     let targets = null;
-    for (let attempt = 1; attempt <= 80; attempt += 1) {
+    const bootAttempts = Math.max(1, Math.ceil(CDP_BOOT_TIMEOUT_MS / CDP_BOOT_POLL_MS));
+    for (let attempt = 1; attempt <= bootAttempts; attempt += 1) {
       try {
         const response = await fetch(`http://127.0.0.1:${PORT}/json/list`);
         if (response.ok) {
@@ -230,9 +233,9 @@ async function main() {
       } catch {
         // Chrome can take a few seconds to expose CDP under load.
       }
-      await sleep(125);
+      await sleep(CDP_BOOT_POLL_MS);
     }
-    if (!targets) throw new Error(`Chrome CDP not ready on ${PORT}`);
+    if (!targets) throw new Error(`Chrome CDP not ready on ${PORT} after ${CDP_BOOT_TIMEOUT_MS}ms`);
     const pageTarget = targets.find((t) => t.type === 'page');
     if (!pageTarget) throw new Error('No Chrome page target');
 

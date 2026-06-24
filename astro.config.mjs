@@ -5,6 +5,9 @@ import tailwind from '@astrojs/tailwind';
 import alpinejs from '@astrojs/alpinejs';
 import sentry from '@sentry/astro';
 
+const sentryDsn = process.env.PUBLIC_SENTRY_DSN || process.env.SENTRY_DSN || '';
+const sentryEnvironment = process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || 'development';
+const sentryRelease = process.env.SENTRY_RELEASE || process.env.npm_package_version || '';
 
 export default defineConfig({
   // Configuración SSR y Adaptador
@@ -23,13 +26,10 @@ export default defineConfig({
   // Integraciones
   integrations: [
     sentry({
-      dsn: process.env.SENTRY_DSN,
-      environment: process.env.NODE_ENV || 'development',
-      release: process.env.npm_package_version,
       enabled: process.env.NODE_ENV === 'production',
-      tracesSampleRate: 1.0,
-      replaysSessionSampleRate: 0.1,
-      replaysOnErrorSampleRate: 1.0,
+      sourcemaps: {
+        disable: !process.env.SENTRY_AUTH_TOKEN,
+      },
     }),
     mdx(),
     tailwind(),
@@ -44,6 +44,11 @@ export default defineConfig({
 
   // Configuración de Vite
   vite: {
+    define: {
+      __UMSA_SENTRY_DSN__: JSON.stringify(sentryDsn),
+      __UMSA_SENTRY_ENVIRONMENT__: JSON.stringify(sentryEnvironment),
+      __UMSA_SENTRY_RELEASE__: JSON.stringify(sentryRelease),
+    },
     resolve: {
       alias: {
         '@': '/src'

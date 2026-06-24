@@ -68,18 +68,18 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
     lead: 'Infraestructura, seguridad, software, soporte y energía IT coordinados por un equipo local que releva, diseña, implementa y sostiene operaciones exigentes.',
     proof: getInstitutionalProofLines(),
     searchTerms: ['servicios informáticos para empresas Mendoza', 'empresa de sistemas Mendoza', 'proveedor IT empresarial Mendoza', 'soporte infraestructura IT Mendoza'],
-    buyerNeed: 'Elegir un proveedor tecnológico capaz de combinar cercanía local, ingeniería, documentación y soporte sin fragmentar la operación entre contratistas aislados.',
-    decisionFrame: 'La comparación no debería empezar por precio unitario: primero hay que entender criticidad, sedes, estado de red, seguridad, documentación, ventanas de trabajo y soporte posterior.',
-    operatingRisks: ['Redes sin documentación ni certificación', 'Soporte reactivo sin trazabilidad', 'CCTV o accesos desconectados de la operación', 'Software aislado de procesos reales'],
+    buyerNeed: 'Elegir un proveedor tecnológico capaz de combinar cercanía local, ingeniería, evidencia técnica y soporte sin fragmentar la operación entre contratistas aislados.',
+    decisionFrame: 'La comparación no debería empezar por precio unitario: primero hay que entender criticidad, sedes, estado de red, seguridad, entregables, ventanas de trabajo y soporte posterior.',
+    operatingRisks: ['Redes sin trazabilidad ni certificación', 'Soporte reactivo sin trazabilidad', 'CCTV o accesos desconectados de la operación', 'Software aislado de procesos reales'],
     services: [
-      { id: 101, title: 'Infraestructura de redes', href: serviceHref(101, 'infraestructura-de-redes-cableado-fibra-optica-radioenlaces'), summary: 'Cableado, fibra, switching, WiFi, radioenlaces y documentación.' },
+      { id: 101, title: 'Infraestructura de redes', href: serviceHref(101, 'infraestructura-de-redes-cableado-fibra-optica-radioenlaces'), summary: 'Cableado, fibra, switching, WiFi, radioenlaces y evidencia técnica.' },
       { id: 105, title: 'Soporte técnico 24/7', href: serviceHref(105, 'soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it'), summary: 'Mesa de ayuda, mantenimiento, monitoreo y continuidad operativa.' },
       { id: 102, title: 'Seguridad electrónica', href: serviceHref(102, 'sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi'), summary: 'CCTV, accesos, intrusión, SDI y mantenimiento técnico.' },
       { id: 104, title: 'Software a medida', href: serviceHref(104, 'desarrollo-de-software-a-medida-web-mobile-erp'), summary: 'Sistemas, APIs, tableros e integraciones para procesos operativos.' }
     ],
     sectors: [
       { title: 'Bodegas', href: '/bodegas', summary: 'Plantas productivas, trazabilidad, CCTV, red industrial y soporte.' },
-      { title: 'Construcción', href: '/constructoras', summary: 'Pre-cableado, tableros, racks, SDI y documentación de obra.' },
+      { title: 'Construcción', href: '/constructoras', summary: 'Pre-cableado, tableros, racks, SDI y entregables de obra.' },
       { title: 'Salud', href: '/salud', summary: 'Disponibilidad, privacidad operativa, redes y seguridad edilicia.' },
       { title: 'Gobierno', href: '/gobiernosectorpublico', summary: 'Edificios públicos, software, videovigilancia y continuidad institucional.' }
     ],
@@ -88,7 +88,7 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
       { title: 'Cámara de CCTV', client: 'Aeropuertos Argentina 2000', href: '/antecedentes/3065/camara-de-cctv-aeropuerto-de-mendoza', sector: 'Aeropuertos' },
       { title: 'Detección y mantenimiento crítico', client: 'Consorcio Torre Thays', href: '/antecedentes/3066/torre-thays-dispositivos-de-deteccion', sector: 'Seguridad' }
     ],
-    process: ['Relevamiento de sitio y criticidad', 'Arquitectura técnica y alcance', 'Implementación verificada', 'Soporte, medición y mejora'],
+    process: ['Relevamiento de sitio y criticidad', 'Arquitectura técnica y alcance', 'Implementación verificable', 'Soporte, medición y mejora'],
     faqs: [
       { question: '¿ULTIMA MILLA trabaja solo en Mendoza?', answer: 'La base operativa está en Mendoza, con cobertura en Cuyo, Patagonia y proyectos en Argentina según alcance, criticidad y necesidad de soporte.' },
       { question: '¿Se puede contratar un solo servicio?', answer: 'Sí. El relevamiento define si conviene resolver una necesidad puntual o construir un plan integrado de red, seguridad, soporte, energía o software.' },
@@ -134,7 +134,7 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
     ],
     process: ['Definir necesidad y criticidad', 'Relevar sitio, sedes y restricciones', 'Separar alcance, entregables y SLA', 'Presentar propuesta comparable'],
     faqs: [
-      { question: '¿Publican precios fijos?', answer: 'No como lista cerrada. Para servicios IT empresariales, el presupuesto depende de sitio, alcance, criticidad, SLA, materiales, integraciones y documentación.' },
+      { question: '¿Publican precios fijos?', answer: 'No como lista cerrada. Para servicios IT empresariales, el presupuesto depende de sitio, alcance, criticidad, SLA, materiales, integraciones y entregables.' },
       { question: '¿Qué información acelera una cotización?', answer: 'Sedes, cantidad de usuarios o puntos, planos, fotos de racks, servicios esperados, ventanas de trabajo y criticidad del negocio.' },
       { question: '¿Se puede empezar con un diagnóstico?', answer: 'Sí. Un diagnóstico permite ordenar riesgos, quick wins, inversión inicial y fases antes de comprometer una implementación mayor.' }
     ],
@@ -180,7 +180,7 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
     faqs: [
       { question: '¿Qué diferencia un proyecto de ingeniería IT de una instalación común?', answer: 'La ingeniería define alcance, riesgos, documentación, pruebas, coordinación con otros gremios y soporte posterior; no se limita a instalar equipos.' },
       { question: '¿Trabajan con obras en curso?', answer: 'Sí. La planificación debe coordinar canalizaciones, racks, energía, tableros, seguridad y puesta en marcha con obra civil y mantenimiento.' },
-      { question: '¿Entregan cierre técnico?', answer: 'El objetivo del proyecto es dejar infraestructura funcionando, probada y lista para operación y mantenimiento.' }
+      { question: '¿Entregan cierre técnico?', answer: 'El objetivo del proyecto es dejar infraestructura funcionando, probada y trazable para operación y mantenimiento.' }
     ],
     primaryCta: 'Solicitar relevamiento',
     secondaryCta: 'Ver proyectos',
@@ -220,11 +220,11 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
       { title: 'CCTV aeroportuario', client: 'Aeropuertos Argentina 2000', href: '/antecedentes/3065/camara-de-cctv-aeropuerto-de-mendoza', sector: 'Aeropuertos' },
       { title: 'Mantenimiento crítico de sistemas', client: 'Torre Thays', href: '/antecedentes/3067/mantenimiento-critico-de-sistemas-de-deteccion-torre-thays', sector: 'Seguridad' }
     ],
-    process: ['Diagnóstico remoto o presencial', 'Arquitectura por sedes y criticidad', 'Ejecución local o coordinada', 'Soporte y documentación reusable'],
+    process: ['Diagnóstico remoto o presencial', 'Arquitectura por sedes y criticidad', 'Ejecución local o coordinada', 'Soporte y entregables reutilizables'],
     faqs: [
-      { question: '¿Atienden empresas fuera de Mendoza?', answer: 'Sí, según alcance y criticidad. El modelo combina consultoría, ejecución planificada, soporte remoto, visitas y documentación.' },
+      { question: '¿Atienden empresas fuera de Mendoza?', answer: 'Sí, según alcance y criticidad. El modelo combina consultoría, ejecución planificada, soporte remoto, visitas y entregables.' },
       { question: '¿Qué tipo de empresas encajan mejor?', answer: 'Organizaciones medianas con infraestructura, sedes, sistemas, seguridad o soporte que requieren continuidad operativa y trazabilidad.' },
-      { question: '¿Cómo se evita depender de una sola persona?', answer: 'Con documentación, tablero de soporte, transferencia, procedimientos y arquitectura entendible para operación.' }
+      { question: '¿Cómo se evita depender de una sola persona?', answer: 'Con trazabilidad, tablero de soporte, transferencia, procedimientos y arquitectura entendible para operación.' }
     ],
     primaryCta: 'Hablar con un especialista',
     secondaryCta: 'Ver servicios',

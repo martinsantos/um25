@@ -215,7 +215,7 @@ export function deleteSession(sessionId: string): boolean {
 export function getStorageStats(): { used: number; available: number; percentage: number } {
   let used = 0;
   
-  for (let key in localStorage) {
+  for (const key in localStorage) {
     if (localStorage.hasOwnProperty(key) && key.startsWith('cannaval_')) {
       used += localStorage.getItem(key)?.length || 0;
     }

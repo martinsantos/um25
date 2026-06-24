@@ -31,6 +31,12 @@ const sectorIndexStrategicLinkGroups = buildSectorStrategicLinkGroups({
   summary: 'Soluciones tecnológicas por industria con evidencia operativa.',
   text: sectores.map((sector) => `${sector.label} ${sector.summary} ${sector.operatingNeed} ${sector.services.join(' ')}`).join(' '),
 });
+const sectorIndexSignificantLinks = [
+  'https://www.ultimamilla.com.ar/servicios',
+  'https://www.ultimamilla.com.ar/antecedentes',
+  'https://www.ultimamilla.com.ar/contacto',
+  ...sectores.map((sector) => `https://www.ultimamilla.com.ar/${sector.slug}`),
+];
 
 const structuredData = [
   {
@@ -39,7 +45,14 @@ const structuredData = [
     name: 'Soluciones IT por sector',
     description:
       'Soluciones tecnológicas por industria para aeropuertos, bodegas, gobierno, salud, construcción, industria, minería, seguridad electrónica y software.',
-    url: 'https://www.ultimamilla.com.ar/sectores'
+    url: 'https://www.ultimamilla.com.ar/sectores',
+    significantLink: sectorIndexSignificantLinks,
+    hasPart: sectores.map((sector) => ({
+      '@type': 'WebPage',
+      name: sector.label,
+      url: `https://www.ultimamilla.com.ar/${sector.slug}`,
+      description: sector.operatingNeed || sector.summary,
+    })),
   },
   {
     '@context': 'https://schema.org',

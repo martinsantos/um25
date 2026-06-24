@@ -3,12 +3,6 @@
 // - Checkbox: "Enviar por Email"
 // - Input de email (oculto por defecto)
 // - Función window.getEmailToSend() para obtener el email
-
-interface Props {
-  onEmailChange?: (email: string | null) => void;
-}
-
-const { onEmailChange } = Astro.props;
 ---
 
 <div class="email-input space-y-3">

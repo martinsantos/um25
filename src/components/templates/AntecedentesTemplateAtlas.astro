@@ -1,7 +1,7 @@
 ---
 import EvidenceItem from './EvidenceItem.astro';
 import { truncateEditorialText } from '../../utils/editorialContent';
-import { getAntecedentesCatalogCount, getAntecedentesCountShort } from '../../utils/verifiedProof';
+import { getAntecedentesCountShort } from '../../utils/verifiedProof';
 
 interface Props {
   pageData: any;
@@ -48,7 +48,6 @@ const paginationPages = computePaginationPages();
 const projects = pageData.antecedentes || [];
 const rowItems = projects.slice(0, 7);
 const ledgerItems = projects.slice(7);
-const institutionalProofTotal = getAntecedentesCatalogCount();
 const institutionalProofShort = getAntecedentesCountShort();
 const showingStart = pageData.totalItems === 0 ? 0 : ((pageData.currentPage - 1) * pageSize) + 1;
 const showingEnd = Math.min(pageData.currentPage * pageSize, pageData.totalItems);
@@ -118,7 +117,7 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
                 description={truncate(item.Descripcion || item.Titulo, 130)}
                 image={item.imageUrl}
                 imageAlt={item.Titulo || item.Cliente || 'Antecedente'}
-                eyebrow="Registro"
+                eyebrow="Proyecto"
                 index={index}
                 sector={item.Area || item.Unidad_de_negocio || 'Servicios IT'}
               />
@@ -132,7 +131,7 @@ const projectHref = (item: any) => `/antecedentes/${item.slug}`;
                   href={projectHref(item)}
                   title={item.Cliente || item.Titulo || 'Antecedente'}
                   description={truncate(item.Descripcion || item.Titulo, 120)}
-                  eyebrow="Registro"
+                  eyebrow="Proyecto"
                   index={index + rowItems.length}
                   sector={item.Area || item.Unidad_de_negocio || 'Servicios IT'}
                 />
