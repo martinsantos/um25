@@ -24,19 +24,42 @@ export type CliServicio = {
   description?: string;
 };
 
-export type CliQueryParseResult = {
-  ok: true;
-  query: string;
-} | {
-  ok: false;
-  response: Response;
-};
+export type CliQueryParseResult =
+  | {
+      ok: true;
+      query: string;
+    }
+  | {
+      ok: false;
+      response: Response;
+    };
 
 function jsonResponse(body: Record<string, unknown>, status: number): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: { 'Content-Type': 'application/json' },
   });
+}
+
+export async function getCliDirectusRuntime() {
+  const { getDirectusInternalUrl, getDirectusToken } = await import('../config/runtime');
+  return {
+    directusUrl: getDirectusInternalUrl().replace(/\/$/, ''),
+    token: getDirectusToken(),
+  };
+}
+
+export function getCliDirectusHeaders(token: string): Record<string, string> {
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  };
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  return headers;
 }
 
 export async function readCliSearchQuery(request: Request): Promise<CliQueryParseResult> {
@@ -47,11 +70,14 @@ export async function readCliSearchQuery(request: Request): Promise<CliQueryPars
   } catch {
     return {
       ok: false,
-      response: jsonResponse({
-        error: true,
-        message: 'JSON inválido.',
-        fallback_commands: ['help', 'servicios', 'antecedentes', 'contacto'],
-      }, 400),
+      response: jsonResponse(
+        {
+          error: true,
+          message: 'JSON inválido.',
+          fallback_commands: ['help', 'servicios', 'antecedentes', 'contacto'],
+        },
+        400,
+      ),
     };
   }
 
@@ -59,11 +85,14 @@ export async function readCliSearchQuery(request: Request): Promise<CliQueryPars
   if (typeof rawQuery !== 'string') {
     return {
       ok: false,
-      response: jsonResponse({
-        error: true,
-        message: 'Query requerida.',
-        fallback_commands: ['help', 'servicios', 'antecedentes', 'contacto'],
-      }, 400),
+      response: jsonResponse(
+        {
+          error: true,
+          message: 'Query requerida.',
+          fallback_commands: ['help', 'servicios', 'antecedentes', 'contacto'],
+        },
+        400,
+      ),
     };
   }
 
@@ -71,22 +100,28 @@ export async function readCliSearchQuery(request: Request): Promise<CliQueryPars
   if (query.length < 2) {
     return {
       ok: false,
-      response: jsonResponse({
-        error: true,
-        message: 'Query muy corta. Mínimo 2 caracteres.',
-        fallback_commands: ['help', 'servicios', 'antecedentes', 'contacto'],
-      }, 400),
+      response: jsonResponse(
+        {
+          error: true,
+          message: 'Query muy corta. Mínimo 2 caracteres.',
+          fallback_commands: ['help', 'servicios', 'antecedentes', 'contacto'],
+        },
+        400,
+      ),
     };
   }
 
   if (query.length > 120) {
     return {
       ok: false,
-      response: jsonResponse({
-        error: true,
-        message: 'Query demasiado larga. Máximo 120 caracteres.',
-        fallback_commands: ['help', 'servicios', 'antecedentes', 'contacto'],
-      }, 400),
+      response: jsonResponse(
+        {
+          error: true,
+          message: 'Query demasiado larga. Máximo 120 caracteres.',
+          fallback_commands: ['help', 'servicios', 'antecedentes', 'contacto'],
+        },
+        400,
+      ),
     };
   }
 
@@ -114,7 +149,7 @@ export function antecedenteDescription(item: CliAntecedente, length = 280): stri
   return excerpt(
     cleanText(item.Descripcion) || cleanText(item.content),
     'Información disponible en el sitio web',
-    length
+    length,
   );
 }
 
@@ -135,7 +170,7 @@ export function servicioDescription(item: CliServicio, length = 280): string {
   return excerpt(
     cleanText(item.Descripcion) || cleanText(item.description),
     'Servicio profesional disponible',
-    length
+    length,
   );
 }
 

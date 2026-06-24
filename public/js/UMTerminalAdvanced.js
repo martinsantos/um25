@@ -1,6 +1,6 @@
 /**
  * UMTerminal Advanced Engine v3.0
- * Features: Themes, animations, enhanced commands, Matrix effects, AI-like responses
+ * Features: Themes, animations, enhanced commands, data modes, guided responses
  * Integration of server-side engine with client-side enhancements
  */
 
@@ -200,7 +200,7 @@ class UMTerminalAdvanced {
             this.terminal.setAttribute('data-theme', theme);
         }
         
-        // Special effects for Matrix theme
+        // Data-mode visual effect.
         if (theme === 'matrix') {
             this.startMatrixRain();
         } else {
@@ -216,11 +216,11 @@ class UMTerminalAdvanced {
 
     updatePromptStyle() {
         const colors = {
-            default: '#00ffaa',
-            matrix: '#00ff00',
-            retro: '#ff00ff',
-            neon: '#00ffff',
-            corporate: '#fbbf24'
+            default: '#DC2626',
+            matrix: '#DC2626',
+            retro: '#DC2626',
+            neon: '#DC2626',
+            corporate: '#DC2626'
         };
         
         if (this.prompt) {
@@ -232,11 +232,11 @@ class UMTerminalAdvanced {
         if (!this.themeSelector) return;
         
         const colors = {
-            default: '#00ffaa',
-            matrix: '#00ff00',
-            retro: '#ff00ff',
-            neon: '#00ffff',
-            corporate: '#fbbf24'
+            default: '#DC2626',
+            matrix: '#DC2626',
+            retro: '#DC2626',
+            neon: '#DC2626',
+            corporate: '#DC2626'
         };
         
         const currentColor = colors[this.currentTheme] || colors.default;
@@ -245,7 +245,7 @@ class UMTerminalAdvanced {
     }
     
     handleResize() {
-        // Update Matrix canvas size if it exists
+        // Update data-mode canvas size if it exists.
         if (this.matrixCanvas && this.terminal) {
             this.matrixCanvas.width = this.terminal.offsetWidth;
             this.matrixCanvas.height = this.terminal.offsetHeight;
@@ -278,8 +278,8 @@ class UMTerminalAdvanced {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
             ctx.fillRect(0, 0, this.matrixCanvas.width, this.matrixCanvas.height);
             
-            ctx.fillStyle = '#00ff00';
-            ctx.font = `${fontSize}px 'Fira Code', monospace`;
+            ctx.fillStyle = '#DC2626';
+            ctx.font = `${fontSize}px 'Open Sans', Arial, system-ui, sans-serif`;
             
             for (let i = 0; i < drops.length; i++) {
                 const text = chars[Math.floor(Math.random() * chars.length)];
@@ -529,10 +529,10 @@ class UMTerminalAdvanced {
 • ps                   Procesos activos (proyectos)
 • history [número]     Historial de comandos
 
-🎨 EFECTOS Y DIVERSIÓN:
-• matrix               Activar efecto Matrix
-• fortune              Frase inspiracional aleatoria
-• cowsay "mensaje"     Vaca habladora de UM
+🎨 MODOS Y UTILIDADES:
+• matrix               Activar modo datos
+• fortune              Frase operativa aleatoria
+• cowsay "mensaje"     Mensaje ASCII de UM
 
 📞 CONTACTO Y DEMO:
 • contacto [mensaje]   Enviar consulta al equipo
@@ -712,7 +712,7 @@ drwxr-xr-x 2 um um  4096 dic  1 10:00 📂 equipo/
 • 469+ Proyectos Completados
 • 150+ Clientes Satisfechos
 • 22 Años de Experiencia
-• 99.9% Uptime Garantizado
+• Continuidad operativa monitoreada
 
 🏆 CERTIFICACIONES:
 • ISO 9001:2015 (Calidad)
@@ -778,7 +778,7 @@ class UltimaMilla:
         self.experiencia = 22
         self.proyectos = 469
         self.clientes = 150
-        self.uptime = 99.9
+        self.estado = "monitoreado"
         
     def demo(self):
         print("🚀 INICIANDO DEMO ULTIMA MILLA...")
@@ -810,20 +810,20 @@ if __name__ == "__main__":
 # ULTIMA MILLA - Terminal Interactivo
 
 ## 🚀 Descripción
-Terminal empresarial avanzado con IA integrada para explorar 22 años 
-de experiencia en desarrollo tecnológico.
+Terminal empresarial para explorar 22 años de proyectos, clientes
+e infraestructura tecnológica.
 
 ## ⚡ Características
 - **469+ proyectos** documentados y navegables
 - **150+ clientes** del sector público y privado  
-- **Temas visuales** (Matrix, Retro, Neon, Corporate)
+- **Modos visuales** (Datos, Archivo, Diagnostico, Corporativo)
 - **Comandos inteligentes** con autocompletado
 - **Integración en tiempo real** con sistemas UM
 
 ## 🎯 Comandos Principales
 - \`help\` - Lista completa de comandos
 - \`stats\` - Estadísticas empresariales  
-- \`matrix\` - Efecto visual Matrix
+- \`matrix\` - Modo datos
 - \`contacto\` - Formulario de contacto directo
 
 ## 🛠️ Tecnologías
@@ -852,27 +852,27 @@ de experiencia en desarrollo tecnológico.
 📊 PROYECTO: Modernización AFIP (2023)
 🎯 Objetivo: Transformación digital del sistema tributario
 💻 Tecnologías: React, Node.js, PostgreSQL, Redis
-⏱️ Duración: 8 meses
-💰 Presupuesto: $5.000.000
-⭐ Resultado: 40% mejora en eficiencia, 99.9% uptime
+⏱️ Alcance: proyecto por etapas
+💰 Modalidad: relevamiento, implementación y soporte
+⭐ Resultado: operación tributaria con mayor trazabilidad
 
 ═══════════════════════════════════════════════════════════
 
 🌐 PROYECTO: Portal Ciudadano Digital (2023)  
 🎯 Objetivo: Plataforma unificada de servicios gubernamentales
 💻 Tecnologías: Vue.js, Python Django, AWS
-⏱️ Duración: 6 meses
-💰 Presupuesto: $3.500.000
-⭐ Resultado: 500,000+ usuarios registrados
+⏱️ Alcance: servicios digitales integrados
+💰 Modalidad: arquitectura, desarrollo y operación
+⭐ Resultado: canales de atención unificados
 
 ═══════════════════════════════════════════════════════════
 
 📱 PROYECTO: App Municipal Quilmes (2023)
 🎯 Objetivo: Servicios municipales móviles  
 💻 Tecnologías: React Native, Node.js, MongoDB
-⏱️ Duración: 4 meses
-💰 Presupuesto: $2.000.000
-⭐ Resultado: 4.8★ en app stores, 100K+ descargas
+⏱️ Alcance: experiencia móvil y backend operativo
+💰 Modalidad: producto, integración y mantenimiento
+⭐ Resultado: acceso móvil a servicios municipales
 
 ═══════════════════════════════════════════════════════════
 
@@ -883,7 +883,7 @@ de experiencia en desarrollo tecnológico.
 💰 Presupuesto: $4.500.000
 ⭐ Resultado: 0 incidentes de seguridad, certificación ISO 27001
 
-💡 Cada proyecto refleja nuestro compromiso con la excelencia
+💡 Cada proyecto refleja continuidad operativa y trazabilidad técnica
 💡 Usa 'grep [cliente]' para buscar proyectos específicos
             `
         };
@@ -949,35 +949,35 @@ ${results.join('\n')}
 • Clientes Atendidos:     ${this.clientes.length}+
 • Sectores:               Público y Privado
 
-💰 MÉTRICAS FINANCIERAS:
-• Facturación Total:      $${totalPresupuesto.toLocaleString()}
-• Proyecto Promedio:      $${Math.round(avgPresupuesto).toLocaleString()}  
-• Crecimiento Anual:      +25% YoY
-• ROI Cliente Promedio:   +340%
+💰 MÉTRICAS OPERATIVAS:
+• Relevamientos:          infraestructura, software y soporte
+• Documentación:          alcance técnico y trazabilidad
+• Modalidad:              diagnóstico, implementación y mantenimiento
+• Continuidad:            seguimiento operativo por etapa
 
 🎯 ÁREAS DE ESPECIALIZACIÓN:
-• Desarrollo Web:         35% de proyectos
-• Aplicaciones Móviles:   25% de proyectos  
-• Ciberseguridad:         20% de proyectos
-• Infraestructura:        20% de proyectos
+• Desarrollo Web:         portales y sistemas operativos
+• Aplicaciones Móviles:   servicios de campo y atención
+• Ciberseguridad:         control, hardening y monitoreo
+• Infraestructura:        redes, energía y continuidad
 
 🌟 INDICADORES DE CALIDAD:
-• Satisfacción Cliente:   98.5%
-• Uptime Promedio:        99.9%
-• Tiempo Entrega:         95% on-time
-• Retención Clientes:     92%
+• Relación Cliente:       seguimiento post-implementación
+• Disponibilidad:         monitoreo y mantenimiento
+• Entrega:                planificación por hitos
+• Retención Clientes:     soporte recurrente
 
-🔥 TECNOLOGÍAS LÍDERES:
-• React/Vue.js:          80% proyectos web
-• Node.js/Python:        70% backends
-• AWS/Azure:             60% cloud deployments
-• Docker/Kubernetes:     85% containerization
+🔥 TECNOLOGÍAS APLICADAS:
+• Frontend:              React, Vue.js y Astro
+• Backend:               Node.js, Python y APIs
+• Infraestructura:       cloud, servidores y redes
+• Operación:             contenedores, monitoreo y backups
 
-📈 PROYECCIÓN 2025:
-• Meta Proyectos:        +100 nuevos proyectos
-• Expansión:             Brasil y Chile
-• Nuevas Tecnologías:    IA, Blockchain, IoT
-• Equipo:                +50% crecimiento
+📈 PRIORIDADES 2026:
+• Continuidad:           soporte y mantenimiento crítico
+• Evidencia:             documentación de antecedentes
+• Integración:           sistemas, redes y seguridad
+• Equipo:                especialistas por frente técnico
 
 ═══════════════════════════════════════════════════════════
 
@@ -995,7 +995,7 @@ ${results.join('\n')}
         
         return {
             output: `
-🟢 INICIANDO MATRIX PROTOCOL...
+INICIANDO MODO DATOS...
 
 U L T I M A   M I L L A   N E T W O R K
 █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░
@@ -1007,17 +1007,17 @@ ${this.servicios.length}   P R O Y E C T O S   A C T I V O S
 █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░
 2 0 0 3   ─ ─ ─ →   2 0 2 5   ─ ─ ─ →   ∞
 
-🔴 The Matrix has you... 🔴
-¿Tomar la píldora roja o azul? [R/a] 
+ULTIMA MILLA - datos operativos
+¿Ver historial técnico o volver al terminal? [H/v]
 
-💊 PÍLDORA ROJA: Descubre la verdad de 22 años de código
-💊 PÍLDORA AZUL: Regresa al terminal normal
+HISTORIAL: 22 años de proyectos, redes y software
+VOLVER: Regresa al terminal normal
 
-🌐 CONECTANDO A LA MATRIX DE ULTIMA MILLA...
+CONECTANDO A LA RED DE DATOS ULTIMA MILLA...
 ⚡ Cargando datos en tiempo real...
 🔒 Acceso autorizado: NIVEL_DESARROLLADOR
 
-Tip: El efecto Matrix está activo en el fondo 👀
+Tip: el modo datos está activo en el fondo
             `
         };
     }
@@ -1030,7 +1030,7 @@ Tip: El efecto Matrix está activo en el fondo 👀
             "22 años conectando sueños con realidad tecnológica.",
             "No hay problemas de redes que no podamos resolver. - Equipo UM",
             "El código limpio siempre parece que fue escrito por alguien que se preocupa. - Robert C. Martin",
-            "La excelencia tecnológica se construye proyecto a proyecto. - Ultima Milla",
+            "La continuidad operativa se construye proyecto a proyecto. - Ultima Milla",
             "Desde Mendoza para el mundo: conectamos el futuro digitalmente.",
             "Un bug es una feature no documentada. - Desarrolladores UM",
             "En la nube o en tierra, Ultima Milla te conecta donde estés."
@@ -1095,7 +1095,7 @@ Tema activo: ${this.currentTheme}
 • ISO 27001 (Seguridad de la Información)
 • Partner Microsoft & AWS
 
-22 años de excelencia tecnológica 🚀
+22 años de infraestructura operativa
                 `
             };
         }
@@ -1264,13 +1264,13 @@ Mensaje: "${mensaje}"
 📊 DATOS EN TIEMPO REAL:
    • Proyectos Activos: ${this.servicios.length}
    • Clientes Conectados: ${this.clientes.length}
-   • Uptime: 99.9%
+   • Estado: monitoreado
    • Performance: ÓPTIMO
 
 🔧 DEMO COMPLETADA - Explora con comandos:
    • stats (estadísticas detalladas)
    • ls servicios (ver proyectos)
-   • matrix (efecto visual)
+   • matrix (modo datos)
    • contacto (enviar mensaje)
 
 🎯 PRÓXIMO PASO: ¿Listo para un proyecto real?
@@ -1528,8 +1528,9 @@ const additionalStyles = `
 }
 
 .command-text {
-    color: #00ffaa;
+    color: #ffffff;
     font-weight: 600;
+    border-bottom: 1px solid #DC2626;
 }
 
 .response-text {
@@ -1541,25 +1542,27 @@ const additionalStyles = `
 }
 
 .error-text {
-    color: #ff6b6b;
+    color: #ffffff;
     font-weight: 500;
+    border-left: 3px solid #DC2626;
+    padding-left: 10px;
 }
 
 /* Theme-specific colors */
 [data-theme="matrix"] .response-text {
-    color: #00ff00;
+    color: #ffffff;
 }
 
 [data-theme="retro"] .response-text {
-    color: #ff00ff;
+    color: #ffffff;
 }
 
 [data-theme="neon"] .response-text {
-    color: #00ffff;
+    color: #ffffff;
 }
 
 [data-theme="corporate"] .response-text {
-    color: #fbbf24;
+    color: #ffffff;
 }
 
 .um-terminal.maximized {

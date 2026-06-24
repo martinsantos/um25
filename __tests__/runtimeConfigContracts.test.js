@@ -83,6 +83,17 @@ describe('Production runtime configuration contracts', () => {
     expect(workflow).not.toContain('TOTAL_IMGS=$((DIRECTUS_IMGS + LOCAL_IMGS))');
   });
 
+  test('production deploy runs SEO locale and UMCLI release contract audits against www', () => {
+    const workflow = fs.readFileSync(path.join(process.cwd(), '.github/workflows/production-deploy.yml'), 'utf8');
+
+    expect(workflow).toContain('SEO and GEO release audit');
+    expect(workflow).toContain('UMCLI release contract audit');
+    expect(workflow).toContain('Directus integration release audit');
+    expect(workflow).toContain('node scripts/seo-audit.mjs --base-url https://www.ultimamilla.com.ar');
+    expect(workflow).toContain('node scripts/umcli-contract-audit.mjs --base-url https://www.ultimamilla.com.ar');
+    expect(workflow).toContain('node scripts/directus-release-audit.mjs --base-url https://www.ultimamilla.com.ar');
+  });
+
   test('production health check matches the live www canonical redirect policy', () => {
     const workflow = fs.readFileSync(path.join(process.cwd(), '.github/workflows/production-deploy.yml'), 'utf8');
 

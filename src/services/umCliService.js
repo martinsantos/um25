@@ -410,13 +410,13 @@ ${this.data.clientes.sectores.infraestructura_critica.map(c => `• ${c}`).join(
 • Proyectos completados: ${this.data.estadisticas.proyectos_completados}
 • Años de experiencia: ${this.data.estadisticas.anos_experiencia} (2003-2024)
 • Clientes activos: ${this.data.estadisticas.clientes_activos}+
-• Presupuesto total: $${this.data.estadisticas.presupuesto_total_gestionado.toLocaleString()} ARS
+• Alcance gestionado: proyectos de redes, software, seguridad y soporte
 
 🔧 DISTRIBUCIÓN POR ÁREAS
-• Redes y Comunicaciones: 45%
-• Software a Medida: 25%  
-• Sistemas de Seguridad: 20%
-• Soporte IT: 10%
+• Redes y Comunicaciones: infraestructura y conectividad
+• Software a Medida: sistemas operativos y automatización
+• Sistemas de Seguridad: CCTV, SDI y control
+• Soporte IT: mantenimiento y continuidad
 
 🌍 COBERTURA GEOGRÁFICA
 • Argentina: 5 provincias principales
@@ -434,30 +434,30 @@ ${this.data.clientes.sectores.infraestructura_critica.map(c => `• ${c}`).join(
         output: `
 🚀 ULTIMA MILLA - DEMOSTRACIÓN COMPLETA
 
-[████████████████████████████████] 100% Cargando sistemas...
+[████████████████████████████████] Cargando sistemas...
 
-✅ Sistema de redes: OPERATIVO (45% de capacidad)
-✅ Centro de desarrollo: OPERATIVO (201 proyectos activos)  
+✅ Sistema de redes: OPERATIVO
+✅ Centro de desarrollo: OPERATIVO
 ✅ Infraestructura de seguridad: OPERATIVO (SDI+CCTV)
-✅ Soporte 24/7: OPERATIVO (5 técnicos en línea)
+✅ Soporte 24/7: OPERATIVO
 
 🏆 PROYECTOS EMBLEMÁTICOS EJECUTÁNDOSE:
-• Hospital Schestakow - $12.9M (Corrientes débiles)
+• Hospital Schestakow - Corrientes débiles
 • Gobierno de Mendoza - Portal web completo
 • AFIP Multi-sede - Sistema detección incendios
 • Quilmes - Mantenimiento integral
 
 📡 CONECTIVIDAD:
-• Mendoza ████████████ 100%
-• Buenos Aires ██████████ 90%
-• Córdoba ████████ 80%
-• San Juan ██████ 70%
+• Mendoza: cobertura operativa
+• Buenos Aires: proyectos atendidos
+• Córdoba: instalaciones documentadas
+• San Juan: soporte regional
 
 💡 TECNOLOGÍAS DESPLEGADAS:
-• Fibra óptica: 500+ KM tendidos
-• CCTV: 2000+ cámaras instaladas
-• SDI: 150+ sistemas activos
-• Software: 50+ aplicaciones en producción
+• Fibra óptica: tendidos y certificación
+• CCTV: instalación, integración y mantenimiento
+• SDI: detección y documentación técnica
+• Software: aplicaciones operativas e integraciones
 
 🎯 STATUS: READY FOR NEW CHALLENGES
 Contacto: info@ultimamilla.com
@@ -470,7 +470,7 @@ Contacto: info@ultimamilla.com
         output: `
 🔍 ESCANEANDO INFRAESTRUCTURA ULTIMA MILLA...
 
-[█████████████████████████████████] 100%
+[█████████████████████████████████]
 
 📍 UBICACIONES DETECTADAS:
 • Mendoza (HQ): 15 servicios activos
@@ -485,10 +485,10 @@ Contacto: info@ultimamilla.com
 • Soporte IT: 17 contratos activos
 
 ⚡ INFRAESTRUCTURA CRÍTICA:
-• Aeropuertos: 100% operativo
-• Hospitales: 100% operativo  
-• Gobierno: 100% operativo
-• Telecomunicaciones: 100% operativo
+• Aeropuertos: operativo y monitoreado
+• Hospitales: operativo y documentado
+• Gobierno: operativo por alcance
+• Telecomunicaciones: operativo con soporte
 
 ✅ ESCANEO COMPLETADO
 Todos los sistemas funcionando correctamente.
@@ -513,10 +513,10 @@ Todos los sistemas funcionando correctamente.
 ✅ Cobertura: Nacional e internacional
 
 🚀 CAPACIDADES OPERATIVAS:
-• Desarrollo de software ████████████ 100%
-• Infraestructura de redes ████████████ 100% 
-• Sistemas de seguridad ████████████ 100%
-• Soporte técnico 24/7 ████████████ 100%
+• Desarrollo de software: activo
+• Infraestructura de redes: activo
+• Sistemas de seguridad: activo
+• Soporte técnico 24/7: activo
 
 💡 COMANDOS DISPONIBLES:
 • --demo     : Demostración completa
@@ -552,10 +552,10 @@ Ejecute 'help' para ver todos los comandos disponibles.
 • history               Historial de comandos
 • ps [--área]           Proyectos activos
 
-🎭 EASTER EGGS:
-• fortune               Frase motivacional
-• matrix                Efecto Matrix UM
-• cowsay [mensaje]      Arte ASCII
+🎭 UTILIDADES:
+• fortune               Frase operativa
+• matrix                Modo datos UM
+• cowsay [mensaje]      Mensaje ASCII
 
 💡 EJEMPLOS:
 • grep "Quilmes"        → Busca proyectos de Quilmes
@@ -607,7 +607,7 @@ Para ayuda específica: help [comando]
   matrix() {
     return {
       output: `
-🔴 Activando Matrix Effect...
+Activando modo datos...
 
 U L T I M A   M I L L A   S Y S T E M S
 █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █
@@ -618,7 +618,7 @@ Q U I L M E S   A F I P   G O B I E R N O
 2 0 0 3   →   2 0 2 4   →   ∞
 █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █
 
-¿Seguir el conejo blanco? [S/n] _
+¿Ver historial tecnico? [S/n] _
       `
     };
   }

@@ -339,7 +339,7 @@ function htmlBlockFromLiteralMarkdown(text: string): string {
 function fixLiteralMarkdownHeadingsInParagraph(inner: string): string {
   if (!/\s##\s+/.test(inner)) return `<p>${inner}</p>`;
 
-  const headingRegex = /\s##\s+(.{1,140}?)(?=\s+(?:El|La|Los|Las|Un|Una|En|Si|Cuando|Cada|Zammad|FleetDM|OpenWISP|Caddy|ARCA|ENACOM|Grafana|PostGIS|LibreNMS|GitHub)\s+[a-záéíóúñ]|\s+-\s+<a\b|$)/g;
+  const headingRegex = /\s##\s+(.{1,140}?)(?=\s+(?:El|La|Los|Las|Un|Una|En|Si|Cuando|Cada|Zammad|FleetDM|OpenWISP|Caddy|ARCA|ENACOM|Grafana|PostGIS|LibreNMS|GitHub)\s+(?:[a-záéíóúñ]|<a\b)|\s+-\s+<a\b|$)/g;
   const blocks: string[] = [];
   let cursor = 0;
   let match: RegExpExecArray | null;

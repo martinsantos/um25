@@ -8,10 +8,14 @@ import {
     antecedenteDescription,
     antecedenteTitle,
     antecedenteUrl,
+    getCliDirectusHeaders,
+    getCliDirectusRuntime,
     readCliSearchQuery,
     servicioDescription,
     servicioTitle,
     servicioUrl,
+    type CliAntecedente,
+    type CliServicio,
 } from '../../../utils/cliDirectus';
 
 // Enable server-side rendering for this endpoint
@@ -41,24 +45,17 @@ async function queryDatabase(sql: string, params: string[] = []) {
 // CONECTAR DIRECTAMENTE CON DIRECTUS REAL - 469 antecedentes + 9 servicios
 async function queryDirectusAPI(searchQuery: string): Promise<any> {
     try {
-        const token = import.meta.env.DIRECTUS_STATIC_TOKEN || import.meta.env.PUBLIC_DIRECTUS_TOKEN || '';
-        const directusUrl = import.meta.env.DIRECTUS_INTERNAL_URL || import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-        if (!token) return { antecedentes: [], servicios: [] };
+        const { directusUrl, token } = await getCliDirectusRuntime();
+        const headers = getCliDirectusHeaders(token);
         
         // BUSCAR EN ANTECEDENTES REALES (469 registros)
         const antecedentesResponse = await fetch(`${directusUrl}/items/Antecedentes?limit=50&search=${encodeURIComponent(searchQuery)}&fields=${CLI_ANTECEDENTES_FIELDS}&sort=-Fecha`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
+            headers,
         });
         
         // BUSCAR EN SERVICIOS REALES (9 registros)
         const serviciosResponse = await fetch(`${directusUrl}/items/Servicios?limit=10&search=${encodeURIComponent(searchQuery)}&fields=${CLI_SERVICIOS_FIELDS}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
+            headers,
         });
         
         const antecedentes = antecedentesResponse.ok ? (await antecedentesResponse.json()).data : [];
@@ -84,7 +81,7 @@ export const POST: APIRoute = async ({ request }) => {
         const formattedResults: any[] = [];
         
         // FORMATEAR ANTECEDENTES REALES CON URLs REALES
-        directusData.antecedentes.forEach((antecedente: any) => {
+        directusData.antecedentes.forEach((antecedente: CliAntecedente) => {
             const title = antecedenteTitle(antecedente);
             const realUrl = antecedenteUrl(antecedente);
             
@@ -103,7 +100,7 @@ export const POST: APIRoute = async ({ request }) => {
         });
         
         // FORMATEAR SERVICIOS REALES CON URLs REALES  
-        directusData.servicios.forEach((servicio: any) => {
+        directusData.servicios.forEach((servicio: CliServicio) => {
             const title = servicioTitle(servicio);
             const realUrl = servicioUrl(servicio);
             
@@ -159,7 +156,7 @@ export const POST: APIRoute = async ({ request }) => {
                 suggestions.push({
                     type: 'help',
                     icon: '💡',
-                    title: `Sin resultados para "${query}"`,
+                    title: `Sin resultados para "${searchQuery}"`,
                     content: 'Intenta con: "seguridad", "redes", "desarrollo", "cámaras", "wifi" o "antecedentes"',
                     url: '/servicios'
                 });

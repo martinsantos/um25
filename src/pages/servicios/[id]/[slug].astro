@@ -1175,6 +1175,11 @@ const servicePageStructuredData = [
   .service-info-card:first-child {
     position: sticky;
     top: 104px;
+    max-height: calc(100vh - 128px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(17,17,17,0.28) transparent;
   }
 
   .service-info-card--dossier {
@@ -1554,6 +1559,11 @@ const servicePageStructuredData = [
 
     .service-info-card--dossier {
       padding: 0;
+    }
+
+    .service-info-ledger div {
+      grid-template-columns: 1fr;
+      gap: 0.35rem;
     }
   }
 </style>

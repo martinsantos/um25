@@ -74,7 +74,7 @@ export const E2E_DEFECT_PATHS = [
   '/contacto',
   '/blog',
   '/blog/categoria/tecnico',
-  '/blog/plantilla-arca-facturacion-electronica-gratis',
+  '/blog/restic-y-postgresql-el-backup-que-si-vuelve',
   '/servicios-it-empresas-mendoza',
   '/servicios-it-empresas-argentina',
   '/presupuesto-servicios-it-empresas',

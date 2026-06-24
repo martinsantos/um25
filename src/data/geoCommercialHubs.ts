@@ -74,7 +74,7 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
     services: [
       { id: 101, title: 'Infraestructura de redes', href: serviceHref(101, 'infraestructura-de-redes-cableado-fibra-optica-radioenlaces'), summary: 'Cableado, fibra, switching, WiFi, radioenlaces y evidencia técnica.' },
       { id: 105, title: 'Soporte técnico 24/7', href: serviceHref(105, 'soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it'), summary: 'Mesa de ayuda, mantenimiento, monitoreo y continuidad operativa.' },
-      { id: 102, title: 'Seguridad electrónica', href: serviceHref(102, 'sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi'), summary: 'CCTV, accesos, intrusión, SDI y mantenimiento preventivo.' },
+      { id: 102, title: 'Seguridad electrónica', href: serviceHref(102, 'sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi'), summary: 'CCTV, accesos, intrusión, SDI y mantenimiento técnico.' },
       { id: 104, title: 'Software a medida', href: serviceHref(104, 'desarrollo-de-software-a-medida-web-mobile-erp'), summary: 'Sistemas, APIs, tableros e integraciones para procesos operativos.' }
     ],
     sectors: [

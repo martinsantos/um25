@@ -352,7 +352,7 @@ ${filteredResults.map((result, index) =>
 
 💬 WHATSAPP COMERCIAL:
    📱 +54 261 123 4567
-   💭 "Hola! Vengo desde su terminal CLI"
+   💭 "Hola! Vengo desde el sitio web de ULTIMA MILLA"
 
 ⏰ HORARIOS DE ATENCIÓN:
    📅 Lunes a Viernes: 9:00 - 18:00
@@ -367,10 +367,10 @@ ${filteredResults.map((result, index) =>
 </div>`;
     
     if (args.includes('email')) {
-      window.open('mailto:info@ultimamilla.com.ar?subject=Consulta desde Terminal CLI');
+      window.open('mailto:info@ultimamilla.com.ar?subject=Consulta desde sitio web ULTIMA MILLA');
     }
     if (args.includes('wa')) {
-      window.open('https://wa.me/5492611234567?text=Hola! Vengo desde el terminal CLI de su sitio web');
+      window.open('https://wa.me/5492611234567?text=Hola! Vengo desde el sitio web de ULTIMA MILLA');
     }
     
     return contactInfo;
@@ -791,10 +791,10 @@ class UMCliPlugin {
         border-left: 3px solid #DC2626;
         padding-left: 10px;
         text-shadow: none;
-        animation: matrix-glow 1s infinite alternate;
+        animation: um-data-pulse 1s infinite alternate;
       }
 
-      @keyframes matrix-glow {
+      @keyframes um-data-pulse {
         from { opacity: 0.8; }
         to { opacity: 1; }
       }

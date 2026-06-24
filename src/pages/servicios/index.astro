@@ -1194,20 +1194,44 @@ const serviceIconPaths: Record<string, string> = {
   }
 
   @media (max-width: 640px) {
+    :global(html),
+    :global(body) {
+      overflow-x: clip;
+    }
+
     .services-hero {
       padding-top: 34px;
       padding-bottom: 30px;
+      max-width: 100%;
+      overflow-x: clip;
     }
 
     .services-breadcrumb {
       display: none;
     }
 
-    .services-hero h1 {
+    .services-hero__grid,
+    .services-dossier-head,
+    .services-dossier__brief,
+    .services-dossier__list,
+    .services-product-feature,
+    .services-intent-ctas {
+      min-width: 0;
       max-width: 100%;
+    }
+
+    .services-hero h1 {
+      max-width: calc(100vw - 32px);
       font-size: clamp(2rem, 8.3vw, 2.22rem) !important;
       line-height: 1.1 !important;
-      text-wrap: balance !important;
+      overflow-wrap: anywhere;
+      text-wrap: wrap !important;
+    }
+
+    .services-dossier-head h2 {
+      max-width: calc(100vw - 32px);
+      overflow-wrap: anywhere;
+      text-wrap: wrap;
     }
 
     .service-row h3 {
@@ -1236,14 +1260,22 @@ const serviceIconPaths: Record<string, string> = {
 
     .services-actions {
       margin-top: 16px;
-    }
-
-    .services-actions .um-btn-primary {
       width: 100%;
-      justify-content: center;
+      min-width: 0;
+      max-width: 100%;
     }
 
-    .services-actions .services-secondary-dark {
+    .services-actions :global(.um-btn-primary),
+    .services-actions :global(.um-btn-secondary) {
+      box-sizing: border-box;
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      justify-content: center;
+      white-space: normal;
+    }
+
+    .services-actions :global(.services-secondary-dark) {
       display: none;
     }
 
@@ -1257,14 +1289,14 @@ const serviceIconPaths: Record<string, string> = {
       grid-template-columns: 1fr;
     }
 
-      .services-dossier__list {
-        order: 0;
-        scroll-margin-top: 76px;
-      }
+    .services-dossier__list {
+      order: 0;
+      scroll-margin-top: 76px;
+    }
 
-      .services-dossier__folio {
-        order: 1;
-      }
+    .services-dossier__folio {
+      order: 1;
+    }
 
     .services-products-band {
       margin-top: 34px;

@@ -515,7 +515,7 @@ const sortOptions = [
     color: #0b0b0b;
     font-size: 1rem;
     font-weight: 600;
-    line-height: 1.2;
+    line-height: 1.2 !important;
     text-decoration: underline;
     text-decoration-color: transparent;
     text-decoration-thickness: 2px;
@@ -565,6 +565,7 @@ const sortOptions = [
     min-width: 0;
     border-radius: 6px;
     background: #0b0b0b;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: none;
   }
 
@@ -641,7 +642,7 @@ const sortOptions = [
     margin-top: clamp(14px, 2vw, 20px);
     color: var(--ante-text);
     font-family: var(--um-font-display);
-    font-size: clamp(2.625rem, 2.72vw, 2.95rem);
+    font-size: clamp(2.5rem, 3vw, 3rem);
     font-weight: var(--um-weight-title, 600);
     line-height: 1.1;
     letter-spacing: 0;
@@ -855,7 +856,7 @@ const sortOptions = [
     color: var(--ante-text);
     font-size: 1rem;
     font-weight: var(--um-weight-title, 600);
-    line-height: 1.2;
+    line-height: 1.2 !important;
     white-space: nowrap;
     text-decoration: none;
     transition: color 180ms ease;
@@ -947,8 +948,9 @@ const sortOptions = [
     font-family: var(--um-font-display);
     font-size: clamp(1.85rem, 2.55vw, 2.7rem);
     font-weight: var(--um-weight-title, 600);
-    line-height: 1.12;
+    line-height: 1.2;
     letter-spacing: 0;
+    min-height: 1.2em;
     text-wrap: balance;
   }
 
@@ -1333,7 +1335,7 @@ const sortOptions = [
 
   .ante-dossier__row:hover {
     border-color: color-mix(in srgb, var(--um-red) 34%, #e3e6ea);
-    background: color-mix(in srgb, #ffffff 94%, var(--um-red) 6%);
+    background: color-mix(in srgb, #fff 94%, var(--um-red) 6%);
   }
 
   .ante-dossier__row-number {
@@ -1792,6 +1794,12 @@ const sortOptions = [
       font-size: clamp(2.125rem, 7vw, 2.42rem);
     }
 
+    .ante-dossier__section-head h2,
+    .ante-dossier__archive-head h2,
+    .ante-dossier__empty h2 {
+      line-height: 1.2 !important;
+    }
+
     .ante-dossier__archive-intro aside {
       border-left-width: 2px;
       padding-left: 16px;
@@ -1879,6 +1887,12 @@ const sortOptions = [
     .ante-dossier__secondary dl {
       grid-template-columns: 1fr;
       gap: 12px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .ante-dossier h2 {
+      line-height: 1.24 !important;
     }
   }
 </style>

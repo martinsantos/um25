@@ -369,7 +369,7 @@ class EnhancedTerminal {
   • export               - Exportar datos (en desarrollo)
 
 🎨 PERSONALIZACIÓN:
-  • theme [tema]         - Cambiar tema visual (professional|matrix|retro|hacker)
+  • theme [tema]         - Cambiar modo visual (professional|datos|archivo|diagnostico)
   • fullscreen           - Modo pantalla completa
 
 ⚡ OPTIMIZACIÓN Y RENDIMIENTO:
@@ -623,7 +623,7 @@ Ej: servicios web, servicios apps, servicios marketing
    • Sistema de reservas online
 
 Total proyectos: 469+ | Años de experiencia: 22
-Clientes activos: 150+ | Tasa de satisfacción: 98%
+Clientes activos: 150+ | Seguimiento post-implementación
 
 💡 Use: antecedentes [sector] para filtrar por categoría
 </div>`;
@@ -642,13 +642,13 @@ Clientes activos: 150+ | Tasa de satisfacción: 98%
    • Total completados: 469+
    • Proyectos activos: 23
    • En desarrollo: 8
-   • Tasa de éxito: 98.5%
+   • Seguimiento: por hitos y documentación
 
 👥 CLIENTES:
    • Total clientes: 150+
    • Clientes activos: 89
-   • Clientes recurrentes: 76%
-   • NPS Score: 9.2/10
+   • Clientes recurrentes: soporte y mantenimiento
+   • Indicador relacional: seguimiento post-implementación
 
 🌐 TECNOLOGÍAS:
    • Sitios web: 280+
@@ -657,11 +657,11 @@ Clientes activos: 150+ | Tasa de satisfacción: 98%
    • Campañas marketing: 320+
 
 🎯 SECTORES ATENDIDOS:
-   • Salud: 28%
-   • Educación: 18%  
-   • Empresas: 35%
-   • Turismo: 12%
-   • Otros: 7%
+   • Salud: sistemas críticos
+   • Educación: conectividad y software
+   • Empresas: infraestructura y soporte
+   • Turismo: presencia y operación digital
+   • Otros: proyectos por alcance
 
 ⏱️  TIEMPO PROMEDIO:
    • Sitio web: 3-6 semanas
@@ -702,11 +702,11 @@ Clientes activos: 150+ | Tasa de satisfacción: 98%
         } else {
             // Fallback to basic theming
             if (args.length === 0) {
-                return `<span class="command-info">Tema actual: dark. Disponibles: dark, light, matrix</span>`;
+                return `<span class="command-info">Tema actual: dark. Disponibles: dark, light, datos</span>`;
             }
 
             const theme = args[0].toLowerCase();
-            const validThemes = ['dark', 'light', 'matrix'];
+            const validThemes = ['dark', 'light', 'datos', 'matrix'];
 
             if (validThemes.includes(theme)) {
                 this.applyTheme(theme);
@@ -718,6 +718,13 @@ Clientes activos: 150+ | Tasa de satisfacción: 98%
     }
 
     applyTheme(theme) {
+        const aliases = {
+            datos: 'matrix',
+            archivo: 'retro',
+            diagnostico: 'hacker'
+        };
+        theme = aliases[theme] || theme;
+
         const terminal = this.container.querySelector('.um-terminal-enhanced');
         if (terminal) {
             terminal.className = terminal.className.replace(/theme-\w+/g, '');
@@ -800,7 +807,7 @@ Clientes activos: 150+ | Tasa de satisfacción: 98%
             'whoami', 'date', 'echo', 'history', 'contacto', 'contact',
             'servicios', 'services', 'antecedentes', 'casos', 'projects',
             'stats', 'estadisticas', 'theme', 'fullscreen',
-            'theme professional', 'theme matrix', 'theme retro', 'theme hacker',
+            'theme professional', 'theme datos', 'theme archivo', 'theme diagnostico',
             'performance', 'perf', 'cache', 'memory',
             'performance metrics', 'performance clear', 'performance optimize',
             'cache status', 'cache clear', 'cache info',

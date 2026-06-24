@@ -6,6 +6,8 @@ import {
     antecedenteDescription,
     antecedenteTitle,
     antecedenteUrl,
+    getCliDirectusHeaders,
+    getCliDirectusRuntime,
     readCliSearchQuery,
     servicioDescription,
     servicioTitle,
@@ -33,20 +35,14 @@ interface FormattedResult {
 // DIRECTUS API CONNECTION - REAL DATA ACCESS
 async function queryDirectusReal(searchQuery: string): Promise<{antecedentes: CliAntecedente[], servicios: CliServicio[]}> {
     try {
-        const token = import.meta.env.DIRECTUS_STATIC_TOKEN || import.meta.env.PUBLIC_DIRECTUS_TOKEN || '';
-        const directusUrl = import.meta.env.DIRECTUS_INTERNAL_URL || import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-        if (!token) return { antecedentes: [], servicios: [] };
+        const { directusUrl, token } = await getCliDirectusRuntime();
+        const headers = getCliDirectusHeaders(token);
         
         // BUSCAR EN ANTECEDENTES REALES (469 registros) - AMPLIO ALCANCE
         const antecedentesUrl = `${directusUrl}/items/Antecedentes?limit=20&search=${encodeURIComponent(searchQuery)}&fields=${CLI_ANTECEDENTES_FIELDS}&sort=-Fecha`;
         
         // BUSCAR EN SERVICIOS REALES (9 registros)
         const serviciosUrl = `${directusUrl}/items/Servicios?limit=10&search=${encodeURIComponent(searchQuery)}&fields=${CLI_SERVICIOS_FIELDS}`;
-        
-        const headers = {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        };
         
         // PARALLEL REQUESTS para máximo rendimiento
         const [antecedentesResponse, serviciosResponse] = await Promise.all([
@@ -94,7 +90,7 @@ function expandSearchQuery(query: string): string[] {
 // FORMAT RESULTS WITH REAL URLs - SOLO URLs QUE EXISTEN VERIFICADAMENTE
 function formatResults(directusData: {antecedentes: CliAntecedente[], servicios: CliServicio[]}): FormattedResult[] {
     const results: FormattedResult[] = [];
-    
+
     // FORMATEAR ANTECEDENTES - usar slug real del CMS o índice genérico
     directusData.antecedentes.forEach((antecedente) => {
         const title = antecedenteTitle(antecedente);

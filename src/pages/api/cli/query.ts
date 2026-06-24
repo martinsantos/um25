@@ -6,6 +6,8 @@ import {
     antecedenteDescription,
     antecedenteTitle,
     antecedenteUrl,
+    getCliDirectusHeaders,
+    getCliDirectusRuntime,
     readCliSearchQuery,
     servicioDescription,
     servicioTitle,
@@ -32,24 +34,17 @@ interface FormattedResult {
 // CONEXIÓN DIRECTA A DIRECTUS REAL - SOLO URLs VERIFICADAS
 async function queryDirectusRealOnly(searchQuery: string): Promise<FormattedResult[]> {
     try {
-        const token = import.meta.env.DIRECTUS_STATIC_TOKEN || import.meta.env.PUBLIC_DIRECTUS_TOKEN || '';
-        const directusUrl = import.meta.env.DIRECTUS_INTERNAL_URL || import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-        if (!token) return [];
-        
+        const { directusUrl, token } = await getCliDirectusRuntime();
+        const headers = getCliDirectusHeaders(token);
+
         // BUSCAR EN ANTECEDENTES REALES
         const antecedentesResponse = await fetch(`${directusUrl}/items/Antecedentes?limit=10&search=${encodeURIComponent(searchQuery)}&fields=${CLI_ANTECEDENTES_FIELDS}&sort=-Fecha`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
+            headers,
         });
         
         // BUSCAR EN SERVICIOS REALES
         const serviciosResponse = await fetch(`${directusUrl}/items/Servicios?limit=5&search=${encodeURIComponent(searchQuery)}&fields=${CLI_SERVICIOS_FIELDS}&sort=id`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
+            headers,
         });
         
         const results: FormattedResult[] = [];
