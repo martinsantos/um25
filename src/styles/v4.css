@@ -1639,29 +1639,27 @@ body[data-skin] main :where(
     max-width: 100%;
     background: #ffffff !important;
     overflow: hidden !important;
-    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 28px), transparent 100%);
-    mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 28px), transparent 100%);
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
   }
 
   body[data-skin] main .cat-tabs .cat-tabs__list {
-    display: flex !important;
-    grid-template-columns: none !important;
-    flex-wrap: nowrap !important;
-    gap: 18px !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    padding-inline: 14px 42px !important;
-    scroll-padding-inline: 14px 42px !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 0 !important;
+    overflow: visible !important;
+    padding-inline: 0 !important;
+    scroll-padding-inline: 0 !important;
   }
 
   body[data-skin] main .cat-tabs .cat-tab {
-    flex: 0 0 auto !important;
+    min-width: 0 !important;
     min-height: 42px;
-    padding: 0 !important;
+    padding: 12px 0 !important;
     align-items: center;
-    white-space: nowrap !important;
-    text-align: left !important;
-    overflow-wrap: normal !important;
+    white-space: normal !important;
+    text-align: center !important;
+    overflow-wrap: anywhere !important;
   }
 
   body[data-skin] main .cat-tabs .cat-tab::after {
@@ -2925,6 +2923,8 @@ body[data-skin] main .case-related .evidence-case-row p {
 /* Interaction contract — final override over data-skin normalizers. */
 body main .um-arrow-link {
   border-bottom: 0 !important;
+  margin-inline-end: -8px !important;
+  padding-inline-end: 8px !important;
   padding-bottom: 0 !important;
 }
 
@@ -2981,4 +2981,193 @@ body main .um-click-surface:focus-visible :where(
 ) {
   color: var(--um-click-accent, var(--service-accent, var(--um-red))) !important;
   text-decoration-color: currentColor !important;
+}
+
+/* World-class UI goal — evidence surfaces, related links and commercial dossiers.
+   Keep this narrow: it corrects the production skin normalizers without changing SEO/data. */
+body[data-skin] main :where(.um-intent-link-graph) {
+  background: linear-gradient(180deg, #ffffff 0%, #f7f8f9 100%) !important;
+}
+
+body[data-skin] main :where(.um-intent-link-graph__item, .evidence-case-row, .ante-dossier__feature, .ante-dossier__secondary-item, .ante-dossier__row) {
+  border-color: #e3e6ea !important;
+  box-shadow: none !important;
+}
+
+body[data-skin] main :where(.um-intent-link-graph__item, .evidence-case-row, .ante-dossier__feature, .ante-dossier__secondary-item, .ante-dossier__row):hover {
+  border-color: color-mix(in srgb, var(--um-red) 34%, #e3e6ea) !important;
+  background: color-mix(in srgb, #ffffff 94%, var(--um-red) 6%) !important;
+}
+
+body[data-skin] main :where(.case-proof-strip) {
+  background: #f5f5f5 !important;
+  color: #111111 !important;
+  border-color: #e4e6e9 !important;
+}
+
+body[data-skin] main :where(.case-proof-strip__grid) {
+  background: transparent !important;
+}
+
+body[data-skin] main :where(.case-proof-strip__grid div) {
+  border-left: 3px solid var(--um-red) !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+body[data-skin] main :where(.case-proof-strip__grid span) {
+  color: #5f6670 !important;
+}
+
+body[data-skin] main :where(.case-proof-strip__grid strong) {
+  color: #111111 !important;
+}
+
+@media (max-width: 640px) {
+  body[data-skin] main .ante-dossier .ante-dossier__hero h1 {
+    max-width: 17ch !important;
+    font-size: clamp(2rem, 6.2vw, 2.18rem) !important;
+    line-height: 1.14 !important;
+    text-wrap: pretty !important;
+  }
+
+  body[data-skin] main .ante-dossier .ante-dossier__actions a {
+    min-height: 44px !important;
+    font-size: 1rem !important;
+  }
+
+  body[data-skin] main .ante-dossier .ante-dossier__search input,
+  body[data-skin] main .ante-dossier .ante-dossier__search button {
+    min-height: 42px !important;
+    font-size: 1rem !important;
+  }
+
+  body[data-skin] main .ante-dossier .ante-dossier__sector-links {
+    gap: 14px !important;
+  }
+
+  body[data-skin] main .ante-dossier .ante-dossier__sector-links a,
+  body[data-skin] main .ante-dossier .ante-dossier__sector-links a em {
+    min-height: 38px !important;
+    font-size: 1rem !important;
+  }
+
+  body[data-skin] main .case-detail-hero .case-detail-hero__copy h1 {
+    font-size: clamp(2.125rem, 7vw, 2.45rem) !important;
+    line-height: 1.12 !important;
+  }
+
+  body[data-skin] main .case-detail-hero .case-detail-hero__copy > p {
+    font-size: 1.05rem !important;
+    line-height: 1.58 !important;
+  }
+
+  body[data-skin] main :where(.stats-bar-v4__grid) {
+    grid-template-columns: 1fr !important;
+  }
+
+  body[data-skin] main :where(.stats-bar-v4__item) {
+    border-right: 0 !important;
+    padding-inline: 0 !important;
+  }
+}
+
+body[data-skin] main .case-related .evidence-case-row {
+  grid-template-columns: 3rem minmax(156px, 0.2fr) minmax(240px, 1fr) minmax(160px, 0.34fr) auto !important;
+  padding: clamp(14px, 1.8vw, 20px) !important;
+  border: 1px solid #e3e6ea !important;
+  border-radius: 6px !important;
+  background: #ffffff !important;
+}
+
+body[data-skin] main .case-related .evidence-case-row__meta-group {
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 12px !important;
+}
+
+body[data-skin] main .case-related .evidence-case-row__thumb {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 156px !important;
+  height: auto !important;
+  min-height: 112px !important;
+  aspect-ratio: 16 / 10 !important;
+  border-radius: 4px !important;
+}
+
+@media (max-width: 900px) {
+  body[data-skin] main .case-related .evidence-case-row {
+    grid-template-columns: minmax(112px, 0.34fr) minmax(0, 1fr) !important;
+  }
+
+  body[data-skin] main .case-related .evidence-case-row__thumb {
+    min-width: 112px !important;
+    min-height: 72px !important;
+  }
+}
+
+/* World-class precision pass — compact mobile heroes and long factual metadata. */
+body[data-skin] main :where(
+  .ante-dossier__feature dd,
+  .ante-dossier__secondary dd,
+  .case-detail-dossier__body > strong,
+  .case-detail-meta strong,
+  .case-proof-strip__grid strong,
+  .case-info-value,
+  .evidence-case-row h3,
+  .evidence-case-row p,
+  .evidence-case-row__meta strong
+) {
+  overflow-wrap: anywhere !important;
+}
+
+@media (max-width: 640px) {
+  body[data-skin] main .um-home-hero .um-hero-content {
+    padding-top: clamp(54px, 12vw, 68px) !important;
+    padding-bottom: 24px !important;
+  }
+
+  body[data-skin] main .um-home-hero .um-hero-copy h1,
+  body[data-skin] main .service-detail-hero h1 {
+    font-size: clamp(2.125rem, 7vw, 2.48rem) !important;
+    line-height: 1.12 !important;
+    text-wrap: balance !important;
+  }
+
+  body[data-skin] main .um-home-hero .um-hero-copy p,
+  body[data-skin] main .service-detail-hero .service-detail-hero__content p {
+    font-size: 1.02rem !important;
+    line-height: 1.56 !important;
+  }
+
+  body[data-skin] main .um-home-hero .um-hero-mobile-photo {
+    display: none !important;
+  }
+
+  body[data-skin] main .um-home-hero .um-hero-proofbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  body[data-skin] main .um-home-hero .um-hero-proofbar div {
+    grid-template-columns: minmax(0, 1fr) !important;
+    row-gap: 4px !important;
+    min-height: 74px !important;
+    padding: 12px 14px !important;
+  }
+
+  body[data-skin] main .um-home-hero .um-hero-proofbar strong {
+    grid-row: auto !important;
+    font-size: clamp(1.5rem, 7.8vw, 2rem) !important;
+  }
+
+  body[data-skin] main .um-home-hero .um-hero-proofbar span {
+    max-width: 100% !important;
+    font-size: 1rem !important;
+    line-height: 1.15 !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  body[data-skin] main .um-home-hero .um-hero-proofbar p {
+    display: none !important;
+  }
 }

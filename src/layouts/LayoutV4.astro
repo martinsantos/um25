@@ -12,7 +12,7 @@ import FooterV4 from '../components/v4/FooterV4.astro';
 import ContactModal from '../components/um/ContactModal.astro';
 import SEOHead from '../components/SEO/SEOHead.astro';
 import { SITE_URL } from '../config/seo';
-import { hasEnglishAlternate } from '../config/i18nRoutes';
+import { hasEnglishAlternate, resolvePageLanguage } from '../config/i18nRoutes';
 import { getDevSkinVariant } from '../utils/skinVariant';
 import '../styles/v4.css';
 
@@ -68,7 +68,7 @@ if (Astro.url.pathname !== "/") {
 
 const skinVariant = getDevSkinVariant(Astro.url, import.meta.env.DEV) ?? 'hybrid';
 const skinAttribute = skinVariant;
-const pageLang = Astro.url.pathname === '/en' || Astro.url.pathname.startsWith('/en/') ? 'en' : 'es';
+const pageLang = resolvePageLanguage(Astro.url.pathname);
 const skipLinkLabel = pageLang === 'en' ? 'Skip to main content' : 'Saltar al contenido principal';
 const shouldEmitHreflang = hasEnglishAlternate(Astro.url.pathname);
 ---

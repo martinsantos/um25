@@ -1,16 +1,21 @@
 import type { APIRoute } from 'astro';
+import {
+    CLI_ANTECEDENTES_FIELDS,
+    CLI_SERVICIOS_FIELDS,
+    antecedenteClient,
+    antecedenteDescription,
+    antecedenteTitle,
+    antecedenteUrl,
+    readCliSearchQuery,
+    servicioDescription,
+    servicioTitle,
+    servicioUrl,
+    type CliAntecedente,
+    type CliServicio,
+} from '../../../utils/cliDirectus';
 
 // CRÍTICO: SOLO URLs REALES - NUNCA INVENTAR URLs
 // Basado en corrección por violación de orden del usuario
-
-interface DirectusResult {
-    id: number;
-    title: string;
-    content?: string;
-    client?: string;
-    description?: string;
-    slug?: string;
-}
 
 interface FormattedResult {
     id: number;
@@ -31,27 +36,8 @@ async function queryDirectusRealOnly(searchQuery: string): Promise<FormattedResu
         const directusUrl = import.meta.env.DIRECTUS_INTERNAL_URL || import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
         if (!token) return [];
         
-        // ⚠️ CRÍTICO: URLs REALES CONOCIDAS (de memorias del proyecto)
-        // NO GENERAR URLs INVENTADAS - SOLO ESTAS VERIFICADAS
-        const knownValidUrls: Record<string, string> = {
-            // ANTECEDENTES VERIFICADOS EN PRODUCCIÓN
-            '10769': 'ministerio-de-deportes-gobierno-de-mendoza-redes-y',
-            '10771': 'bodega-domaine-bousquet-redes-y-comunicaciones', 
-            '10775': 'municipalidad-de-maipu-redes-y-comunicaciones',
-            '10777': 'cnn-software-a-medida',
-            '10787': 'verde-pimienta-espana-software-a-medida',
-            
-            // SERVICIOS VERIFICADOS EN PRODUCCIÓN 
-            '1': 'servicios-it',
-            '2': 'redes-de-datos',
-            '3': 'seguridad-informatica', 
-            '4': 'servicios-gestionados',
-            '5': 'consultoria-tecnologica',
-            '11': 'servicios-web'
-        };
-        
         // BUSCAR EN ANTECEDENTES REALES
-        const antecedentesResponse = await fetch(`${directusUrl}/items/Antecedentes?limit=10&search=${encodeURIComponent(searchQuery)}&fields=id,title,content,client&sort=-id`, {
+        const antecedentesResponse = await fetch(`${directusUrl}/items/Antecedentes?limit=10&search=${encodeURIComponent(searchQuery)}&fields=${CLI_ANTECEDENTES_FIELDS}&sort=-Fecha`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -59,7 +45,7 @@ async function queryDirectusRealOnly(searchQuery: string): Promise<FormattedResu
         });
         
         // BUSCAR EN SERVICIOS REALES
-        const serviciosResponse = await fetch(`${directusUrl}/items/Servicios?limit=5&search=${encodeURIComponent(searchQuery)}&fields=id,title,description&sort=id`, {
+        const serviciosResponse = await fetch(`${directusUrl}/items/Servicios?limit=5&search=${encodeURIComponent(searchQuery)}&fields=${CLI_SERVICIOS_FIELDS}&sort=id`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -71,26 +57,22 @@ async function queryDirectusRealOnly(searchQuery: string): Promise<FormattedResu
         // PROCESAR ANTECEDENTES
         if (antecedentesResponse.ok) {
             const antecedentesData = await antecedentesResponse.json();
-            const antecedentes: DirectusResult[] = antecedentesData.data || [];
+            const antecedentes: CliAntecedente[] = antecedentesData.data || [];
             
             antecedentes.forEach((ant) => {
-                const knownSlug = knownValidUrls[ant.id.toString()];
-                
-                // SOLO URLs REALES O GENÉRICAS - NUNCA INVENTADAS
-                const realUrl = knownSlug 
-                    ? `https://www.ultimamilla.com.ar/antecedentes/${ant.id}/${knownSlug}`
-                    : 'https://www.ultimamilla.com.ar/antecedentes'; // Página genérica si no conocemos slug específico
+                const title = antecedenteTitle(ant);
+                const realUrl = antecedenteUrl(ant);
                 
                 results.push({
                     id: ant.id,
                     type: 'antecedente',
                     icon: '📊',
-                    title: ant.title,
-                    content: (ant.content || 'Información disponible en el sitio web').slice(0, 250) + '...',
+                    title,
+                    content: antecedenteDescription(ant, 250),
                     url: realUrl,
-                    client: ant.client || null,
+                    client: antecedenteClient(ant),
                     image: null,
-                    mailto_link: `mailto:?subject=${encodeURIComponent(`Consulta: ${ant.title}`)}&body=${encodeURIComponent(`Hola,\n\nMe interesa el proyecto: ${ant.title}\n\nVer más información: ${realUrl}\n\nSaludos`)}`
+                    mailto_link: `mailto:?subject=${encodeURIComponent(`Consulta: ${title}`)}&body=${encodeURIComponent(`Hola,\n\nMe interesa el proyecto: ${title}\n\nVer más información: ${realUrl}\n\nSaludos`)}`
                 });
             });
         }
@@ -98,26 +80,22 @@ async function queryDirectusRealOnly(searchQuery: string): Promise<FormattedResu
         // PROCESAR SERVICIOS
         if (serviciosResponse.ok) {
             const serviciosData = await serviciosResponse.json();
-            const servicios: DirectusResult[] = serviciosData.data || [];
+            const servicios: CliServicio[] = serviciosData.data || [];
             
             servicios.forEach((serv) => {
-                const knownSlug = knownValidUrls[serv.id.toString()];
-                
-                // SOLO URLs REALES O GENÉRICAS - NUNCA INVENTADAS
-                const realUrl = knownSlug 
-                    ? `https://www.ultimamilla.com.ar/servicios/${serv.id}/${knownSlug}`
-                    : 'https://www.ultimamilla.com.ar/servicios'; // Página genérica si no conocemos slug específico
+                const title = servicioTitle(serv);
+                const realUrl = servicioUrl(serv);
                 
                 results.push({
                     id: serv.id,
                     type: 'servicio',
                     icon: '🛠️',
-                    title: serv.title,
-                    content: (serv.description || 'Servicio profesional disponible').slice(0, 250) + '...',
+                    title,
+                    content: servicioDescription(serv, 250),
                     url: realUrl,
                     client: null,
                     image: null,
-                    mailto_link: `mailto:?subject=${encodeURIComponent(`Consulta servicio: ${serv.title}`)}&body=${encodeURIComponent(`Hola,\n\nMe interesa el servicio: ${serv.title}\n\nVer más información: ${realUrl}\n\nAguardo su contacto`)}`
+                    mailto_link: `mailto:?subject=${encodeURIComponent(`Consulta servicio: ${title}`)}&body=${encodeURIComponent(`Hola,\n\nMe interesa el servicio: ${title}\n\nVer más información: ${realUrl}\n\nAguardo su contacto`)}`
                 });
             });
         }
@@ -133,21 +111,11 @@ async function queryDirectusRealOnly(searchQuery: string): Promise<FormattedResu
 // API ENDPOINT CORREGIDO - SOLO URLs REALES
 export const POST: APIRoute = async ({ request }) => {
     try {
-        const { query } = await request.json();
-        
-        if (!query || query.trim().length < 2) {
-            return new Response(JSON.stringify({
-                error: true,
-                message: 'Query muy corta. Mínimo 2 caracteres.',
-                fallback_commands: ['help', 'servicios', 'antecedentes', 'contacto']
-            }), { 
-                status: 400,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
-        
-        const searchQuery = query.toLowerCase().trim();
-        console.log(`[CLI] Processing: "${searchQuery}"`);
+        const parsed = await readCliSearchQuery(request);
+        if (!parsed.ok) return parsed.response;
+
+        const searchQuery = parsed.query.toLowerCase();
+        console.warn(`[CLI] Processing: "${searchQuery}"`);
         
         // CONSULTAR DIRECTUS CON URLs REALES SOLAMENTE
         const results = await queryDirectusRealOnly(searchQuery);
@@ -165,7 +133,7 @@ export const POST: APIRoute = async ({ request }) => {
             }
         };
         
-        console.log(`[CLI] Response: ${results.length} results (REAL URLs only)`);
+        console.warn(`[CLI] Response: ${results.length} results (REAL URLs only)`);
         
         return new Response(JSON.stringify(response), {
             status: 200,

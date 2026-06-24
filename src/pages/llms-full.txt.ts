@@ -16,8 +16,8 @@ export const GET: APIRoute = async () => {
   try {
     directusCaseResources = await getGeoCaseResources();
   } catch (error) {
-    console.error('[LLMS-FULL] Directus unavailable for cases:', error);
-    return new Response('Directus unavailable for LLM cases index', {
+    console.error('[LLMS-FULL] Content source unavailable for cases:', error);
+    return new Response('Indice LLM temporalmente no disponible', {
       status: 503,
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',

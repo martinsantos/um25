@@ -85,7 +85,7 @@ try {
     }
 } catch (error) {
     console.error(`Error loading antecedente ${id} from Directus:`, error);
-    return new Response('Directus antecedente unavailable', {
+    return new Response('Contenido temporalmente no disponible', {
       status: 503,
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     });
@@ -94,9 +94,28 @@ try {
 if (!antecedente) return Astro.redirect('/404');
 
 antecedente = curateAntecedente(antecedente);
-const caseRecordLabel = antecedente.curation?.recordLabel || 'Registro técnico';
+const toPublicCaseLabel = (value: unknown): string => {
+  const label = String(value || '')
+    .replace(/\bRegistro\s+[\p{L}]+\b/giu, 'Proyecto técnico')
+    .replace(/\bRegistro\b/gi, 'Proyecto')
+    .replace(/\bDoc[\p{L}]*\b/giu, 'Técnico')
+    .trim();
+  return label || 'Proyecto técnico';
+};
+const toPublicCaseSummary = (value: unknown): string => {
+  const summary = String(value || '').trim();
+  if (!summary || /Directus|registro\s+p[uú]blico|imagen\s+[uú]nica|datos\s+del\s+antecedente/i.test(summary)) {
+    return 'Proyecto técnico de ULTIMA MILLA con alcance, vertical y fecha operativa disponibles.';
+  }
+  return summary
+    .replace(/cargad[oa]s?\s+desde\s+Directus/gi, 'publicados por ULTIMA MILLA')
+    .replace(/\bregistro\s+p[uú]blico\b/gi, 'proyecto')
+    .replace(/\bimagen\s+[uú]nica\s+asociada\b/gi, 'imagen asociada')
+    .trim();
+};
+const caseRecordLabel = toPublicCaseLabel(antecedente.curation?.recordLabel);
 const caseRecordTone = antecedente.curation?.recordTone || 'technical-record';
-const caseRecordSummary = antecedente.curation?.recordSummary || 'Antecedente real cargado desde Directus.';
+const caseRecordSummary = toPublicCaseSummary(antecedente.curation?.recordSummary);
 
 // --- Prepare data for UI (generated-case image first, Directus as fallback) ---
 const directusMainImageUrl = getAssetUrl(antecedente.Imagen || antecedente.ImagenPrincipal);
@@ -271,34 +290,34 @@ const getRelatedAntecedentes = async (area: string, excludeId: string, limit: nu
 const relatedAntecedentes = await getRelatedAntecedentes(antecedente.Area || '', id);
 
 const buildCaseHeadline = (item: any): string => {
-  const title = cleanDisplayText(item.Titulo || item.Nombre || 'Proyecto técnico documentado');
+  const title = cleanDisplayText(item.Titulo || item.Nombre || 'Proyecto técnico');
   const client = formatDisplayName(item.Cliente);
   const area = cleanDisplayText(item.Area);
   const normalized = title.toLowerCase();
 
   if (normalized.includes('digitalización') || normalized.includes('digitalizacion') || normalized.includes('software')) {
     if (client) return `Software operativo para ${client}`;
-    return 'Software operativo documentado';
+    return 'Software operativo implementado';
   }
   if (normalized.includes('soporte')) {
-    if (client) return `Soporte IT documentado para ${client}`;
-    return 'Soporte IT documentado';
+    if (client) return `Soporte IT operativo para ${client}`;
+    return 'Soporte IT operativo';
   }
   if (normalized.includes('cctv') || normalized.includes('cámara') || normalized.includes('camara')) {
     if (client) return `CCTV operativo para ${client}`;
-    return 'CCTV operativo documentado';
+    return 'CCTV operativo';
   }
   if (normalized.includes('detección') || normalized.includes('deteccion') || normalized.includes('incendio')) {
     if (client) return `Detección y seguridad para ${client}`;
-    return 'Detección y seguridad documentada';
+    return 'Detección y seguridad implementada';
   }
   if (normalized.includes('redes') || normalized.includes('fibra')) {
     if (client) return `Redes y fibra para ${client}`;
-    return 'Redes y fibra documentadas';
+    return 'Redes y fibra implementadas';
   }
   if (normalized.includes('eléctrica') || normalized.includes('electrica') || normalized.includes('data center')) {
     if (client) return `Energía IT para ${client}`;
-    return 'Energía IT documentada';
+    return 'Energía IT implementada';
   }
 
   const beforeDash = title.split(/\s[-–]\s/)[0]?.trim() || title;
@@ -314,10 +333,10 @@ const caseHeadlineSource = isReplicaIdenticalCopy()
 const baseCaseHeadline = buildCaseHeadline({ ...antecedente, Titulo: caseHeadlineSource });
 const caseHeadline = (() => {
   if (antecedente.curation?.quality === 'low-value-candidate') {
-    return `Registro documental: ${baseCaseHeadline}`;
+    return baseCaseHeadline;
   }
   if (antecedente.curation?.quality === 'data-error-candidate') {
-    return `Registro técnico en revisión: ${baseCaseHeadline}`;
+    return baseCaseHeadline;
   }
   return baseCaseHeadline;
 })();
@@ -355,13 +374,23 @@ const caseSeo = buildCaseSeoMeta({
 });
 const metaDescription = caseSeo.description;
 const structuredImageUrl = publicImageUrl(caseSeoImageUrl) || toCanonicalUrl(DEFAULT_IMAGE_URL);
-const caseDossierFacts = [
-  { label: 'Registro', value: `ANT-${id}` },
-  { label: 'Tipo', value: caseRecordLabel },
-  displayClientName ? { label: 'Organización', value: displayClientName } : null,
-  antecedente.Area ? { label: 'Vertical', value: cleanDisplayText(antecedente.Area) } : null,
-  caseDateLabel ? { label: 'Fecha', value: caseDateLabel } : null,
-].filter(Boolean) as Array<{ label: string; value: string }>;
+const caseExecutiveItems = [
+  {
+    label: 'Contexto',
+    value: truncateEditorialText(
+      [displayClientName, antecedente.Area].filter(Boolean).join(' · ') || caseRecordLabel,
+      120,
+    ),
+  },
+  {
+    label: 'Alcance',
+    value: truncateEditorialText(scopeItems[0] || caseCalloutText || caseRecordSummary, 135),
+  },
+  {
+    label: 'Lectura',
+    value: truncateEditorialText(caseRecordSummary, 135),
+  },
+];
 const caseStrategicLinkGroups = buildCaseStrategicLinkGroups({
   currentPath: `/antecedentes/${id}/${slugFromUrl}`,
   title: caseHeadline,
@@ -391,10 +420,9 @@ const antecedenteStructuredData = {
   "genre": caseRecordLabel,
   "about": antecedente.Area ? { "@type": "Thing", "name": cleanDisplayText(antecedente.Area) } : undefined,
   "mentions": antecedente.Cliente ? [{ "@type": "Organization", "name": cleanDisplayText(antecedente.Cliente) }] : undefined,
-  "identifier": `ANT-${id}`,
   "isPartOf": {
     "@type": "CollectionPage",
-    "name": "Evidencia operativa documentada",
+    "name": "Evidencia operativa real",
     "url": toCanonicalUrl('/antecedentes')
   },
   "provider": {
@@ -453,7 +481,7 @@ const antecedentePageStructuredData = [
           </div>
         </div>
 
-        <aside class="case-detail-dossier" aria-label="Dossier documental del antecedente">
+        <aside class="case-detail-dossier" aria-label="Ficha técnica del antecedente">
           <figure class="case-detail-dossier__media">
             <img
               src={mainImageUrl}
@@ -468,7 +496,7 @@ const antecedentePageStructuredData = [
           </figure>
           <div class="case-detail-dossier__body">
             <span>{caseRecordLabel}</span>
-            <strong>{displayClientName || `ANT-${id}`}</strong>
+            <strong>{displayClientName || 'Proyecto técnico'}</strong>
             <p>{caseRecordSummary}</p>
             <div class="case-detail-meta">
               {antecedente.Area && (
@@ -483,10 +511,6 @@ const antecedentePageStructuredData = [
                   <strong>{caseDateLabel}</strong>
                 </div>
               )}
-              <div>
-                <span>Registro</span>
-                <strong>ANT-{id}</strong>
-              </div>
             </div>
           </div>
         </aside>
@@ -494,14 +518,20 @@ const antecedentePageStructuredData = [
     </div>
   </section>
 
-  <section class="case-proof-strip" aria-label="Ficha rápida del antecedente">
-    <div class="um-container case-proof-strip__grid">
-      {caseDossierFacts.map((fact) => (
-        <div>
-          <span>{fact.label}</span>
-          <strong>{fact.value}</strong>
-        </div>
-      ))}
+  <section class="case-executive-brief" aria-label="Resumen ejecutivo del antecedente">
+    <div class="um-container case-executive-brief__grid">
+      <div class="case-executive-brief__head">
+        <span>Resumen ejecutivo</span>
+        <h2>Qué mirar antes de entrar al detalle técnico.</h2>
+      </div>
+      <dl class="case-executive-brief__ledger">
+        {caseExecutiveItems.map((item) => (
+          <div>
+            <dt>{item.label}</dt>
+            <dd>{item.value}</dd>
+          </div>
+        ))}
+      </dl>
     </div>
   </section>
 
@@ -537,7 +567,7 @@ const antecedentePageStructuredData = [
           <div class="flex flex-col gap-4 sm:gap-5">
             <div class="case-section-title">
               <span aria-hidden="true"></span>
-              <h2>Alcance documentado</h2>
+              <h2>Alcance técnico</h2>
             </div>
             <ul class="case-scope-list">
               {scopeItems.map((item) => (
@@ -583,7 +613,7 @@ const antecedentePageStructuredData = [
           </div>
         )}
 
-        <!-- Gallery (if has additional images from Directus) -->
+        <!-- Additional project gallery -->
         {antecedente.Imagenes && antecedente.Imagenes.length > 0 && (
           <div class="flex flex-col gap-4 sm:gap-5">
             <div class="case-section-title">
@@ -658,13 +688,8 @@ const antecedentePageStructuredData = [
             )}
             <div class="h-px bg-gray-100"></div>
             <div class="flex flex-col gap-1">
-              <span class="case-info-label">Jerarquía</span>
+              <span class="case-info-label">Tipo de trabajo</span>
               <span class="case-info-value">{caseRecordLabel}</span>
-            </div>
-            <div class="h-px bg-gray-100"></div>
-            <div class="flex flex-col gap-1">
-              <span class="case-info-label">Código Proyecto</span>
-              <span class="case-info-value case-info-value--code">ANT-{id}</span>
             </div>
           </div>
         </div>
@@ -709,7 +734,7 @@ const antecedentePageStructuredData = [
       <div class="um-container">
         <div class="case-related__head">
           <div>
-            <span class="um-kicker">Archivo relacionado</span>
+            <span class="um-kicker">Proyectos relacionados</span>
             <h2>Evidencia relacionada</h2>
           </div>
           <a href="/antecedentes" class="um-click-surface case-related__link">
@@ -780,7 +805,6 @@ const antecedentePageStructuredData = [
 <style>
   /* Escala editorial única — detalle antecedente (cuerpo 18px, sección ~1.11×) */
   .case-detail-hero,
-  .case-proof-strip,
   .case-detail-main.case-detail,
   .case-related,
   .case-detail-footer-cta {
@@ -839,7 +863,7 @@ const antecedentePageStructuredData = [
 
   .case-detail-hero__grid {
     display: grid;
-    grid-template-columns: minmax(0, 0.58fr) minmax(340px, 0.42fr);
+    grid-template-columns: minmax(0, 0.52fr) minmax(380px, 0.48fr);
     gap: clamp(26px, 4.2vw, 56px);
     align-items: start;
   }
@@ -931,19 +955,19 @@ const antecedentePageStructuredData = [
 
   .case-detail-dossier {
     overflow: hidden;
-    width: min(100%, 480px);
+    width: min(100%, 540px);
     justify-self: end;
-    border: 0;
+    border: 1px solid rgba(17, 17, 17, 0.12);
     background: #fff;
     box-shadow: none;
   }
 
   .case-detail-dossier__media {
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 16 / 10;
     width: 100%;
     max-width: 100%;
     margin: 0;
-    min-height: 190px;
+    min-height: 280px;
     overflow: hidden;
     background: #111;
   }
@@ -954,7 +978,7 @@ const antecedentePageStructuredData = [
     height: 100%;
     object-fit: cover;
     object-position: center;
-    filter: saturate(0.92) contrast(1.05);
+    filter: saturate(1.04) contrast(1.06);
   }
 
   .case-detail-dossier__body {
@@ -1026,52 +1050,80 @@ const antecedentePageStructuredData = [
     text-transform: none;
   }
 
-  .case-proof-strip {
-    background: #f5f5f5;
-    color: #111;
-    border-top: 1px solid #e4e6e9;
+  .case-detail-main {
+    padding: clamp(42px, 5.5vw, 72px) 0;
+    background: #fff;
+  }
+
+  .case-executive-brief {
+    background: #fff;
     border-bottom: 1px solid #e4e6e9;
   }
 
-  .case-proof-strip__grid {
+  .case-executive-brief__grid {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: clamp(10px, 1.4vw, 16px);
-    background: transparent;
-    padding-block: clamp(14px, 2vw, 20px);
+    grid-template-columns: minmax(240px, 0.32fr) minmax(0, 0.68fr);
+    gap: clamp(24px, 4.5vw, 62px);
+    padding-block: clamp(28px, 4vw, 48px);
   }
 
-  .case-proof-strip__grid div {
+  .case-executive-brief__head span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: #DC2626;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .case-executive-brief__head span::before {
+    content: "";
+    width: 34px;
+    height: 2px;
+    background: #DC2626;
+  }
+
+  .case-executive-brief__head h2 {
+    max-width: 440px;
+    margin-top: 0.9rem;
+    color: #111;
+    font-size: clamp(1.45rem, 1.8vw, 2rem);
+    font-weight: 600;
+    line-height: 1.14;
+    text-wrap: balance;
+  }
+
+  .case-executive-brief__ledger {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    margin: 0;
+    background: #dfe3e7;
+  }
+
+  .case-executive-brief__ledger div {
     min-width: 0;
-    border-left: 3px solid #DC2626;
-    background: #fff;
-    padding: clamp(14px, 1.6vw, 18px) clamp(14px, 1.8vw, 20px);
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+    padding: clamp(16px, 2vw, 22px);
+    background: #f7f8f9;
   }
 
-  .case-proof-strip__grid span {
-    display: block;
+  .case-executive-brief__ledger dt {
     color: #5f6670;
     font-size: 1rem;
     font-weight: 700;
     line-height: 1.25;
-    letter-spacing: 0.04em;
     text-transform: uppercase;
   }
 
-  .case-proof-strip__grid strong {
-    display: block;
-    margin-top: 8px;
+  .case-executive-brief__ledger dd {
+    margin: 0.65rem 0 0;
     color: #111;
-    font-size: clamp(1.02rem, 1.12vw, 1.16rem);
-    font-weight: 700;
-    line-height: 1.35;
+    font-size: clamp(1.02rem, 1.08vw, 1.12rem);
+    font-weight: 600;
+    line-height: 1.45;
     overflow-wrap: anywhere;
-  }
-
-  .case-detail-main {
-    padding: clamp(42px, 5.5vw, 72px) 0;
-    background: #fff;
   }
 
   .case-detail-main__grid {
@@ -1185,27 +1237,34 @@ const antecedentePageStructuredData = [
 
   .case-gallery-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: clamp(1rem, 2vw, 1.35rem);
   }
 
   .case-gallery-frame {
     margin: 0;
-    min-height: 260px;
+    min-height: 300px;
     padding: 0;
-    border: 0;
+    border: 1px solid rgba(17, 17, 17, 0.12);
     border-radius: 0;
-    background: #f3f4f6;
+    background: #111;
+    box-shadow: none;
     overflow: hidden;
+  }
+
+  .case-gallery-frame:first-child {
+    grid-column: span 2;
+    min-height: 380px;
   }
 
   .case-gallery-image {
     width: 100%;
     height: 100%;
-    min-height: 260px;
+    min-height: 300px;
     object-fit: cover;
     object-position: center;
     display: block;
+    filter: saturate(1.04) contrast(1.04);
   }
 
   .case-info-card {
@@ -1615,14 +1674,14 @@ const antecedentePageStructuredData = [
       position: static;
     }
 
-    .case-proof-strip__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+    .case-executive-brief__grid,
+    .case-executive-brief__ledger {
+      grid-template-columns: 1fr;
     }
   }
 
   @media (max-width: 640px) {
     .case-detail-hero,
-    .case-proof-strip,
     .case-detail-main.case-detail,
     .case-related,
     .case-detail-footer-cta {
@@ -1630,16 +1689,16 @@ const antecedentePageStructuredData = [
       --case-body-line: 1.66;
       --case-section: clamp(1.12rem, 5.2vw, 1.28rem);
       --case-hero-excerpt: 1.0625rem;
-      --case-meta-label: 0.875rem;
-      --case-meta-value: 0.96875rem;
-      --case-sidebar-label: 0.875rem;
+      --case-meta-label: 1rem;
+      --case-meta-value: 1rem;
+      --case-sidebar-label: 1rem;
       --case-sidebar-value: 1rem;
       --case-card-title: 1.02rem;
     }
 
     .case-detail-hero__copy h1 {
       max-width: 100%;
-      font-size: clamp(1.82rem, 6.15vw, 2.08rem);
+      font-size: clamp(2.125rem, 7vw, 2.45rem);
       line-height: 1.1;
     }
 
@@ -1659,7 +1718,7 @@ const antecedentePageStructuredData = [
       width: 100%;
       min-width: 0;
       min-height: 48px;
-      font-size: 0.98rem;
+      font-size: 1rem;
     }
   }
 
@@ -1684,11 +1743,11 @@ const antecedentePageStructuredData = [
 
     .case-detail-label {
       margin-bottom: 0.7rem;
-      font-size: 0.95rem;
+      font-size: 1rem;
     }
 
     .case-detail-hero__copy h1 {
-      font-size: clamp(1.82rem, 6.15vw, 2.08rem);
+      font-size: clamp(2.125rem, 7vw, 2.45rem);
       line-height: 1.1;
     }
 
@@ -1705,12 +1764,17 @@ const antecedentePageStructuredData = [
       min-height: 0;
     }
 
+    .case-gallery-frame:first-child {
+      grid-column: auto;
+      min-height: 300px;
+    }
+
     .case-detail-dossier__body {
       padding: 16px 0 0;
     }
 
     .case-detail-dossier__body > span {
-      font-size: 0.86rem;
+      font-size: 1rem;
     }
 
     .case-detail-dossier__body > strong {
@@ -1722,13 +1786,9 @@ const antecedentePageStructuredData = [
       padding: 0.85rem;
     }
 
-    .case-proof-strip__grid {
-      grid-template-columns: 1fr;
-      padding-block: 10px;
-    }
-
-    .case-proof-strip__grid div {
-      padding: 12px 14px;
+    .case-executive-brief__grid {
+      gap: 18px;
+      padding-block: 26px;
     }
 
     .case-detail-main {

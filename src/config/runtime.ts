@@ -65,6 +65,8 @@ export function allowPublicBlogFallback(): boolean {
 }
 
 export function allowMockBlogFallback(): boolean {
+  // ponytail: explicit preview switch, remove when Directus has durable seeded blog content.
+  if (envFlag(processEnv('UMSA_BLOG_MOCKS'))) return true;
   return import.meta.env?.DEV && !isLocalProdReplica();
 }
 

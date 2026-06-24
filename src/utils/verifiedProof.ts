@@ -35,8 +35,8 @@ export function getAntecedentesCountShort(): string {
 /** Etiqueta explícita con conteo del catálogo (p. ej. copy factual / llms). */
 export function getAntecedentesCountExactPhrase(): string {
   const n = getAntecedentesCatalogCount();
-  if (n <= 0) return 'antecedentes documentados';
-  return `${n} antecedentes documentados`;
+  if (n <= 0) return 'antecedentes técnicos';
+  return `${n} antecedentes técnicos`;
 }
 
 /** Clientes con más proyectos en el campo Cliente del CMS (solo texto, sin logos). */
@@ -55,7 +55,7 @@ export function getTopClienteNames(limit = 6): string[] {
     .map(([name]) => name);
 }
 
-/** Clientes frecuentes con cantidad de antecedentes documentados y vertical dominante. */
+/** Clientes frecuentes con cantidad de antecedentes técnicos y vertical dominante. */
 export function getTopClienteRecords(limit = 6): { name: string; count: number; dominantArea: string }[] {
   const counts = new Map<string, number>();
   const areasByClient = new Map<string, Map<string, number>>();

@@ -32,7 +32,7 @@ class PerformanceOptimizer {
             this.setupErrorBoundaries();
             this.setupPerformanceMonitoring();
             this.setupOfflineMode();
-            console.log('✓ Performance Optimizer initialized successfully');
+            console.warn('✓ Performance Optimizer initialized successfully');
         } catch (error) {
             console.warn('Performance Optimizer initialization failed:', error);
         }
@@ -93,7 +93,7 @@ class PerformanceOptimizer {
 
         const scrollContainer = this.terminal.output;
         
-        this.scrollHandler = this.throttle((e) => {
+        this.scrollHandler = this.throttle(() => {
             this.updateVirtualScroll();
         }, 16); // 60fps
 
@@ -476,7 +476,7 @@ class PerformanceOptimizer {
         if (strategy) {
             try {
                 strategy.recover(error);
-                console.log('Successfully recovered from error:', error.message);
+                console.warn('Successfully recovered from error:', error.message);
             } catch (recoveryError) {
                 console.error('Recovery strategy failed:', recoveryError);
                 this.fallbackRecovery(error);
@@ -490,7 +490,7 @@ class PerformanceOptimizer {
         // Network error recovery
         this.errorBoundary.recoveryStrategies.set('network', {
             test: (error) => error.message.includes('fetch') || error.message.includes('network'),
-            recover: (error) => {
+            recover: () => {
                 this.enableOfflineMode();
                 this.terminal.addOutput('⚠️ Modo offline activado debido a problemas de conexión', 'warning');
             }
@@ -499,7 +499,7 @@ class PerformanceOptimizer {
         // Memory error recovery
         this.errorBoundary.recoveryStrategies.set('memory', {
             test: (error) => error.message.includes('memory') || error.message.includes('heap'),
-            recover: (error) => {
+            recover: () => {
                 this.clearCache();
                 this.cleanupVirtualScroll();
                 this.terminal.addOutput('🧹 Memoria optimizada automáticamente', 'info');
@@ -509,7 +509,7 @@ class PerformanceOptimizer {
         // Terminal state recovery
         this.errorBoundary.recoveryStrategies.set('terminal', {
             test: (error) => error.message.includes('terminal') || error.message.includes('input'),
-            recover: (error) => {
+            recover: () => {
                 this.resetTerminalState();
                 this.terminal.addOutput('🔄 Estado del terminal restaurado', 'info');
             }
@@ -517,7 +517,7 @@ class PerformanceOptimizer {
     }
 
     findRecoveryStrategy(error) {
-        for (const [name, strategy] of this.errorBoundary.recoveryStrategies) {
+        for (const [, strategy] of this.errorBoundary.recoveryStrategies) {
             if (strategy.test(error)) {
                 return strategy;
             }
@@ -525,7 +525,7 @@ class PerformanceOptimizer {
         return null;
     }
 
-    fallbackRecovery(error) {
+    fallbackRecovery() {
         // Last resort recovery
         try {
             // Clear any potentially corrupted state
@@ -704,7 +704,7 @@ class PerformanceOptimizer {
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js')
                 .then(registration => {
-                    console.log('Service Worker registered:', registration);
+                    console.warn('Service Worker registered:', registration);
                 })
                 .catch(error => {
                     console.warn('Service Worker registration failed:', error);

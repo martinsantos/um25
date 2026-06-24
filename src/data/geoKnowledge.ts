@@ -296,7 +296,7 @@ export const authorityHubs: AuthorityHub[] = [
       note: 'Rangos orientativos para dimensionar conversaciones comerciales; la cotizacion final depende de sitio, alcance, SLA, materiales, integraciones y documentacion requerida.',
       ranges: [
         { label: 'Diagnostico y roadmap', usdFrom: 900, usdTo: 2800, scope: 'Relevamiento, inventario, riesgos, prioridades y plan de accion.' },
-        { label: 'Implementacion pyme inicial', usdFrom: 3500, usdTo: 18000, scope: 'Redes, soporte, seguridad o software con alcance acotado y entrega documentada.' },
+        { label: 'Implementacion pyme inicial', usdFrom: 3500, usdTo: 18000, scope: 'Redes, soporte, seguridad o software con alcance acotado y entrega verificable.' },
         { label: 'Proyecto multisede o critico', usdFrom: 18000, usdTo: null, scope: 'Ingenieria, coordinacion de obra, continuidad operativa, pruebas y soporte posterior.' },
       ],
     },

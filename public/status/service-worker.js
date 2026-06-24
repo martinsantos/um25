@@ -64,7 +64,7 @@ self.addEventListener('fetch', event => {
               JSON.stringify({
                 offline: true,
                 message: 'Aplicación en modo offline',
-                data: { demo: true }
+                data: null
               }),
               { headers: { 'Content-Type': 'application/json' } }
             );
@@ -87,7 +87,7 @@ self.addEventListener('fetch', event => {
         }).catch(() => {
           console.log('[SW] Failed to fetch:', request.url);
           return new Response('Network error occurred', {
-            status: 0,
+            status: 503,
             statusText: 'Service Unavailable'
           });
         });

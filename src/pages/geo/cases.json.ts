@@ -11,8 +11,8 @@ export const GET: APIRoute = async () => {
       },
     });
   } catch (error) {
-    console.error('[GEO-CASES] Directus unavailable:', error);
-    return new Response(JSON.stringify({ error: 'Directus unavailable for GEO cases' }), {
+    console.error('[GEO-CASES] Content source unavailable:', error);
+    return new Response(JSON.stringify({ error: 'Casos GEO temporalmente no disponibles' }), {
       status: 503,
       headers: {
         'Content-Type': 'application/json; charset=utf-8',

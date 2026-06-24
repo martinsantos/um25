@@ -12,7 +12,29 @@ export interface Comment {
     isApproved?: boolean;
 }
 
+export type PublicComment = Omit<Comment, 'email' | 'replies'> & {
+    replies?: PublicComment[];
+};
+
 const COMMENTS_FILE = path.join(process.cwd(), 'src/data/comments.json');
+
+function toPublicComment(comment: Comment): PublicComment {
+    const { email, replies, ...publicComment } = comment;
+    void email;
+
+    return {
+        ...publicComment,
+        replies: (replies || [])
+            .filter(reply => reply.isApproved)
+            .map(toPublicComment)
+    };
+}
+
+export function filterApprovedCommentsForPublic(comments: Comment[]): PublicComment[] {
+    return comments
+        .filter(comment => comment.isApproved)
+        .map(toPublicComment);
+}
 
 // Asegurarse de que el archivo existe
 async function ensureCommentsFile() {
@@ -36,9 +58,9 @@ async function saveComments(comments: Comment[]): Promise<void> {
 }
 
 // Obtener comentarios por slug del post
-export async function getCommentsByPostSlug(postSlug: string): Promise<Comment[]> {
+export async function getCommentsByPostSlug(postSlug: string): Promise<PublicComment[]> {
     const comments = await loadComments();
-    return comments
+    return filterApprovedCommentsForPublic(comments)
         .filter(comment => comment.postSlug === postSlug && comment.isApproved)
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }

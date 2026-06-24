@@ -35,7 +35,7 @@ Content-Type: application/json
   "imagen_portada": "https://images.unsplash.com/photo-xxx?w=1200&h=480&fit=crop",
   "tags": ["infraestructura", "redes", "fibra"],
   "tiempo_lectura": 4,
-  "fecha_publicacion": "2026-04-23",
+  "fecha_publicacion": "2026-04-23T12:00:00-03:00",
   "meta_title": "Título SEO (opcional, ≤60 chars)",
   "meta_description": "Descripción para Google (opcional, ≤160 chars)"
 }
@@ -44,7 +44,7 @@ Content-Type: application/json
 ### Response exitosa
 
 ```json
-{ "ok": true, "slug": "titulo-del-articulo", "id": 5 }
+{ "ok": true, "slug": "titulo-del-articulo", "id": 5, "status": "published" }
 ```
 
 ### Response de error
@@ -52,7 +52,7 @@ Content-Type: application/json
 ```json
 { "error": "Campos requeridos: titulo, resumen, contenido" }
 { "error": "Unauthorized" }
-{ "error": "Directus error", "detail": "..." }
+{ "error": "No se pudo completar la publicacion", "detail": "..." }
 ```
 
 ---
@@ -69,9 +69,17 @@ Content-Type: application/json
 | `tags` | — | string[] | Array de tags: `["tag1","tag2"]` |
 | `tiempo_lectura` | — | number | Minutos estimados de lectura (default: 3) |
 | `slug` | — | string | URL del post (auto-generado del título si se omite) |
-| `fecha_publicacion` | — | string | `YYYY-MM-DD` (default: hoy) |
+| `fecha_publicacion` | — | string | ISO datetime recomendado, por ejemplo `2026-04-23T12:00:00-03:00` (default: ahora) |
+| `status` | — | string | `published`, `scheduled` o `draft`. Si la fecha es futura, el API fuerza `scheduled`. |
 | `meta_title` | — | string | Título SEO ≤60 chars (default: `titulo`) |
 | `meta_description` | — | string | Descripción SEO ≤160 chars (default: `resumen`) |
+
+### Publicación inmediata o programada
+
+- Sin `fecha_publicacion`, el post se publica inmediatamente con `status=published`.
+- Con `fecha_publicacion` pasada o actual, el post se publica inmediatamente con `status=published`.
+- Con `fecha_publicacion` futura, el API guarda `status=scheduled`.
+- El sitio, RSS y sitemap sólo muestran posts `published` o `scheduled` ya vencidos.
 
 ---
 
@@ -133,7 +141,7 @@ IDs sugeridos por categoría:
 
 ## Otros endpoints
 
-### Listar posts publicados
+### Listar posts visibles
 
 ```http
 GET https://www.ultimamilla.com.ar/api/blog
@@ -143,21 +151,21 @@ Response:
 ```json
 {
   "data": [
-    { "slug": "mi-post", "titulo": "Mi Post", "fecha_publicacion": "2026-04-23", "categoria": "noticias" }
+    { "slug": "mi-post", "titulo": "Mi Post", "fecha_publicacion": "2026-04-23T12:00:00-03:00", "categoria": "noticias", "status": "published" }
   ]
 }
 ```
 
-### Despublicar un post
+### Borrar un post
 
 ```http
 DELETE https://www.ultimamilla.com.ar/api/blog/{slug}
 Authorization: Basic YWRtaW5AdW1ib3QuY29tLmFyOlVtYm90QWRtaW4yMDI1IQ==
 ```
 
-Response: `{ "ok": true, "slug": "mi-post", "action": "unpublished" }`
+Response: `{ "ok": true, "slug": "mi-post", "action": "deleted" }`
 
-> No borra el post — cambia el status a `draft`. Se puede recuperar desde el admin de Directus.
+> Este endpoint borra el item en Directus para liberar el slug. Para despublicar sin borrar, usar el admin de Directus o un `PUT` con `status=draft`.
 
 ---
 
@@ -208,7 +216,7 @@ curl -X POST https://www.ultimamilla.com.ar/api/blog \
 
 1. **El slug se genera automáticamente** del título (minúsculas, sin acentos, guiones). Si querés un slug específico, pasalo explícitamente.
 2. **La imagen es opcional** — si no hay URL, el post muestra un fallback genérico.
-3. **El post se publica inmediatamente** — status `published` desde el momento del POST.
+3. **El post se publica inmediatamente salvo fecha futura** — fecha futura queda `scheduled` hasta su horario.
 4. **El contenido es Markdown** — no HTML. El sistema convierte `##` en títulos con IDs para el TOC automáticamente.
 5. **Verificar publicación**: `GET https://www.ultimamilla.com.ar/api/blog` para ver el post en la lista.
 6. **Ver en el sitio**: `https://www.ultimamilla.com.ar/blog/{slug}` una vez publicado.

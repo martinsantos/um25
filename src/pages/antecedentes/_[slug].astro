@@ -11,6 +11,7 @@ import { getFixedImage } from '../../utils/imageFixer.js';
 import { getServicioById, getProductos } from '../../utils/directusHelpers';
 import { getServiceIdFromArea } from '../../data/areaToServiceMap.js';
 import { getDirectusInternalUrl } from '../../config/runtime';
+import { plainTextFromHtml } from '../../utils/editorialContent';
 
 // --- Configuration ---
 const DIRECTUS_URL = getDirectusInternalUrl();
@@ -183,7 +184,8 @@ const { products: relatedProducts, servicio: relatedServicio, serviceId: related
 const siteUrl = 'https://www.ultimamilla.com.ar';
 // Canonical points to THIS clean URL (or prefer ID based? Let's point to ID based to be consistent with sitemap)
 const canonicalUrl = `${siteUrl}/antecedentes/${id}/${slugFromUrl}`;
-const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').substring(0, 160) + '...';
+const safeAntecedenteDescription = plainTextFromHtml(antecedente.Descripcion || antecedente.descripcion);
+const metaDescription = safeAntecedenteDescription.substring(0, 160) + '...';
 ---
 
 <LayoutV4
@@ -231,7 +233,7 @@ const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').
 
       <!-- Subtitle (from description) -->
       <p class="text-base sm:text-base lg:text-lg text-white/80 max-w-2xl leading-relaxed mb-5 sm:mb-6">
-        {antecedente.Descripcion?.replace(/<[^>]+>/g, '').substring(0, 150)}...
+        {safeAntecedenteDescription.substring(0, 150)}...
       </p>
 
       <!-- Meta Info -->
@@ -278,7 +280,7 @@ const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').
             <h2 class="text-lg sm:text-xl lg:text-[22px] font-bold text-gray-900">Descripción del Proyecto</h2>
           </div>
           <div class="text-gray-600 leading-relaxed text-base sm:text-base prose prose-lg max-w-none">
-            <div set:html={antecedente.Descripcion || antecedente.descripcion || '<p>Información detallada del proyecto no disponible.</p>'} />
+            <p>{safeAntecedenteDescription || 'Información detallada del proyecto no disponible.'}</p>
           </div>
 
           <!-- Callout Box -->
@@ -430,11 +432,6 @@ const metaDescription = (antecedente.Descripcion || '').replace(/<[^>]+>/g, '').
                 </div>
               </>
             )}
-            <div class="h-px bg-gray-100"></div>
-            <div class="flex flex-col gap-1">
-              <span class="text-base font-semibold text-gray-500 tracking-wider uppercase">Código Proyecto</span>
-              <span class="text-base sm:text-base font-semibold text-um-primary font-mono">ANT-{id}</span>
-            </div>
           </div>
         </div>
 

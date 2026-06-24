@@ -66,6 +66,20 @@ const sectorMetrics = sectorStats.map((stat: any) => ({
 if (mode === 'detail' && antecedentes.length > 0) {
   sectorMetrics.push({ value: `${antecedentes.length}+`, label: 'Antecedentes' });
 }
+const sectorHeroBriefItems = [
+  {
+    label: 'Necesidad',
+    value: truncate(sector.operatingNeed || `Continuidad técnica para ${sectorName}`, 120),
+  },
+  {
+    label: 'Evidencia',
+    value: truncate(sector.proof || sectorSummary, 120),
+  },
+  {
+    label: 'Servicios',
+    value: truncate(Array.isArray(sector.services) ? sector.services.slice(0, 3).join(' · ') : 'Redes · seguridad · soporte', 120),
+  },
+];
 const sectorStrategicLinkGroups = buildSectorStrategicLinkGroups({
   currentPath: mode === 'detail' && sectorSlug ? `/${sectorSlug}` : '/sectores',
   sectorSlug,
@@ -192,29 +206,42 @@ const buildSectorIndexUrl = (slug: string) => slug ? `/sectores?sector=${encodeU
           <span>/</span>
           <span>{sectorName}</span>
         </nav>
-        <div class="sector-editorial-detail-hero__copy">
-          <span class="sector-editorial__rule" aria-hidden="true"></span>
-          <p class="sector-editorial-detail-hero__kicker">Infraestructura crítica · {sectorName}</p>
-          <h1>{sectorTitle}</h1>
-          <p class="sector-editorial-detail-hero__lead">{sectorSummary}</p>
-          <div class="sector-editorial-detail-hero__actions">
-            <UMButton href="/contacto">Solicitar diagnóstico</UMButton>
-            <UMButton href={sectorAntecedentesHref} variant="secondary">Ver antecedentes del sector</UMButton>
+        <div class="sector-editorial-detail-hero__grid">
+          <div class="sector-editorial-detail-hero__copy">
+            <span class="sector-editorial__rule" aria-hidden="true"></span>
+            <p class="sector-editorial-detail-hero__kicker">Infraestructura crítica · {sectorName}</p>
+            <h1>{sectorTitle}</h1>
+            <p class="sector-editorial-detail-hero__lead">{sectorSummary}</p>
+            <div class="sector-editorial-detail-hero__actions">
+              <UMButton href="/contacto">Solicitar diagnóstico</UMButton>
+              <UMButton href={sectorAntecedentesHref} variant="secondary">Ver antecedentes del sector</UMButton>
+            </div>
+            <dl class="sector-editorial-detail-hero__proofline" aria-label="Prueba institucional">
+              <div>
+                <dt>Archivo</dt>
+                <dd>{antecedentesProofLabel}</dd>
+              </div>
+              <div>
+                <dt>Años</dt>
+                <dd>22+</dd>
+              </div>
+              <div>
+                <dt>Soporte</dt>
+                <dd>24/7</dd>
+              </div>
+            </dl>
           </div>
-          <dl class="sector-editorial-detail-hero__proofline" aria-label="Prueba institucional">
-            <div>
-              <dt>Archivo</dt>
-              <dd>{antecedentesProofLabel}</dd>
-            </div>
-            <div>
-              <dt>Años</dt>
-              <dd>22+</dd>
-            </div>
-            <div>
-              <dt>Soporte</dt>
-              <dd>24/7</dd>
-            </div>
-          </dl>
+          <aside class="sector-editorial-detail-hero__brief" aria-label="Resumen ejecutivo del sector">
+            <span>Resumen ejecutivo</span>
+            <dl>
+              {sectorHeroBriefItems.map((item) => (
+                <div>
+                  <dt>{item.label}</dt>
+                  <dd>{item.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </aside>
         </div>
       </div>
     </div>
@@ -756,7 +783,7 @@ const buildSectorIndexUrl = (slug: string) => slug ? `/sectores?sector=${encodeU
     height: 100%;
     object-fit: cover;
     color: transparent;
-    filter: grayscale(0.1) contrast(1.08) saturate(0.86);
+    filter: grayscale(0) contrast(1.06) saturate(1.04) brightness(0.88);
   }
 
   .sector-editorial-detail-hero::after {
@@ -764,18 +791,18 @@ const buildSectorIndexUrl = (slug: string) => slug ? `/sectores?sector=${encodeU
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(90deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.82) 58%, rgba(0,0,0,0.55) 100%),
-      linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.86));
+      linear-gradient(90deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.8) 44%, rgba(0,0,0,0.34) 74%, rgba(0,0,0,0.12) 100%),
+      linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.74));
   }
 
   .sector-editorial-detail-hero .um-container {
     position: relative;
     z-index: 1;
     display: grid;
-    min-height: clamp(360px, 46vh, 480px);
+    min-height: clamp(390px, 49vh, 520px);
     align-content: start;
-    padding-top: clamp(56px, 7vw, 84px);
-    padding-bottom: clamp(28px, 4vw, 44px);
+    padding-top: clamp(48px, 6vw, 72px);
+    padding-bottom: clamp(26px, 3.4vw, 38px);
   }
 
   .sector-editorial__crumb {
@@ -796,6 +823,70 @@ const buildSectorIndexUrl = (slug: string) => slug ? `/sectores?sector=${encodeU
 
   .sector-editorial-detail-hero__copy {
     max-width: 840px;
+  }
+
+  .sector-editorial-detail-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.64fr) minmax(300px, 0.36fr);
+    gap: clamp(28px, 5vw, 72px);
+    align-items: start;
+    min-width: 0;
+  }
+
+  .sector-editorial-detail-hero__grid > * {
+    min-width: 0;
+  }
+
+  .sector-editorial-detail-hero__brief {
+    padding: clamp(20px, 2.5vw, 30px);
+    background: rgba(5,5,5,0.74);
+    color: #fff;
+  }
+
+  .sector-editorial-detail-hero__brief > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: #DC2626;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .sector-editorial-detail-hero__brief > span::before {
+    content: "";
+    width: 30px;
+    height: 2px;
+    background: #DC2626;
+  }
+
+  .sector-editorial-detail-hero__brief dl {
+    display: grid;
+    gap: 0;
+    margin: 1rem 0 0;
+  }
+
+  .sector-editorial-detail-hero__brief dl div {
+    padding: 1rem 0;
+    border-top: 1px solid rgba(255,255,255,0.18);
+  }
+
+  .sector-editorial-detail-hero__brief dt {
+    color: rgba(255,255,255,0.64);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.25;
+    text-transform: uppercase;
+  }
+
+  .sector-editorial-detail-hero__brief dd {
+    margin: 0.5rem 0 0;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
   }
 
   .sector-editorial-detail-hero__kicker {
@@ -861,7 +952,7 @@ const buildSectorIndexUrl = (slug: string) => slug ? `/sectores?sector=${encodeU
   .sector-editorial-detail {
     display: grid;
     gap: clamp(64px, 8vw, 104px);
-    padding-top: clamp(72px, 9vw, 116px);
+    padding-top: clamp(48px, 6.5vw, 76px);
   }
 
   .sector-editorial-detail__risk,
@@ -1147,6 +1238,10 @@ const buildSectorIndexUrl = (slug: string) => slug ? `/sectores?sector=${encodeU
       grid-template-columns: 1fr;
     }
 
+    .sector-editorial-detail-hero__grid {
+      grid-template-columns: 1fr;
+    }
+
     .sector-editorial-detail-hero .um-container {
       min-height: 0;
       padding-top: 34px;
@@ -1200,6 +1295,10 @@ const buildSectorIndexUrl = (slug: string) => slug ? `/sectores?sector=${encodeU
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
       margin-top: 18px;
+    }
+
+    .sector-editorial-detail-hero__brief {
+      padding: 16px;
     }
 
     .sector-editorial-detail-hero__proofline dt,
@@ -1259,6 +1358,12 @@ const buildSectorIndexUrl = (slug: string) => slug ? `/sectores?sector=${encodeU
     .sector-editorial-criteria-grid p {
       margin-top: 8px;
       line-height: 1.48;
+    }
+  }
+
+  @media (max-width: 430px) {
+    .sector-editorial-detail-hero__actions {
+      grid-template-columns: 1fr;
     }
   }
 </style>

@@ -192,8 +192,9 @@ const date = formatBlogDate(post.fecha_publicacion);
     }
 
     .hero-media {
-      order: 1;
+      order: 2;
       min-height: 230px;
+      margin-top: 18px;
     }
 
     .hero-img {
@@ -201,14 +202,14 @@ const date = formatBlogDate(post.fecha_publicacion);
     }
 
     .hero-body {
-      order: 2;
-      padding: 22px 0 24px;
+      order: 1;
+      padding: 0;
     }
 
     .hero-meta {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
       align-items: start;
     }
 

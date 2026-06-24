@@ -6,11 +6,10 @@ import type { APIRoute } from 'astro';
  *
  * Returns overall system health and uptime information
  */
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async () => {
   try {
     // Get current timestamp
     const now = new Date();
-    const startTime = new Date(process.uptime ? now.getTime() - (process.uptime() * 1000) : now);
 
     // Format uptime
     const uptimeSeconds = process.uptime?.() || 0;
@@ -21,31 +20,26 @@ export const GET: APIRoute = async ({ request }) => {
 
     const uptimeFormatted = `${days}d ${hours}h ${minutes}m ${seconds}s`;
 
-    // Mock services status (will be enhanced with actual checks)
+    // Service status is reported by /api/monitoring/services. Do not claim
+    // downstream services are online from this process-only health check.
     const services = {
       astro: 'online',
-      directus: 'online',
-      postgres: 'online',
-      redis: 'online',
-      nginx: 'online'
+      directus: 'unknown',
+      postgres: 'unknown',
+      redis: 'unknown',
+      nginx: 'unknown'
     };
-
-    // Calculate uptime percentage (mock)
-    const uptimePercentage = 99.5;
 
     return new Response(
       JSON.stringify({
         success: true,
-        status: 'healthy',
+        status: 'online',
         timestamp: now.toISOString(),
         uptime_seconds: uptimeSeconds,
         uptime_formatted: uptimeFormatted,
-        uptime_percentage: uptimePercentage,
         services,
         checks: {
-          memory: 'ok',
-          cpu: 'ok',
-          disk: 'ok'
+          process: 'ok'
         }
       }),
       {

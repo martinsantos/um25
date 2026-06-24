@@ -300,11 +300,26 @@ export function getPostBySlug(slug: string): BlogPost | undefined {
 }
 
 export const getPostsByCategory = (category: string) => {
-	// Implementar lógica para filtrar posts por categoría
-	return [];
+	const normalizedCategory = category.trim().toLowerCase();
+	return blogPosts.filter(post =>
+		post.category.toLowerCase() === normalizedCategory ||
+		post.categories?.some(item => item.toLowerCase() === normalizedCategory)
+	);
 };
 
 export const searchPosts = (query: string) => {
-	// Implementar lógica de búsqueda
-	return [];
+	const normalizedQuery = query.trim().toLowerCase();
+	if (!normalizedQuery) return [];
+
+	return blogPosts.filter(post => {
+		const searchable = [
+			post.title,
+			post.excerpt,
+			post.category,
+			...(post.categories || []),
+			...post.tags,
+		].join(' ').toLowerCase();
+
+		return searchable.includes(normalizedQuery);
+	});
 };

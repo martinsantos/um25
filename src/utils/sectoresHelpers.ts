@@ -105,14 +105,14 @@ export async function getAntecedentesForSector(
     );
 
     const filtered = filterAntecedentesByKeywords(allAntecedentes as any[], keywords, limit);
-    console.log(`[${sectorName.toUpperCase()}] Found ${filtered.length} antecedentes from Directus`);
+    console.warn(`[${sectorName.toUpperCase()}] Found ${filtered.length} antecedentes from Directus`);
     return filtered;
   } catch (error) {
     console.error(`[${sectorName.toUpperCase()}] Error fetching sector query from Directus, retrying shared Directus loader:`, error);
     try {
       const allAntecedentes = await getAllAntecedentes();
       const filtered = filterAntecedentesByKeywords(allAntecedentes as any[], keywords, limit);
-      console.log(`[${sectorName.toUpperCase()}] Found ${filtered.length} antecedentes from shared Directus loader`);
+      console.warn(`[${sectorName.toUpperCase()}] Found ${filtered.length} antecedentes from shared Directus loader`);
       return filtered;
     } catch {
       return [];

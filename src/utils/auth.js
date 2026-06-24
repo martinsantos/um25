@@ -32,7 +32,6 @@ export async function verifyToken() {
   
   // In development or when Directus is disabled, skip verification
   if (isDevelopment || !useDirectus) {
-    console.log('Skipping token verification in development mode');
     return true;
   }
   
@@ -51,29 +50,16 @@ export async function verifyToken() {
 /**
  * Obtiene los datos de un antecedente por su ID
  * @param {string} id ID del antecedente
- * @returns {Promise<Object>} Datos del antecedente
+ * @returns {Promise<Object>} Antecedente obtenido
  */
 export async function fetchAntecedente(id) {
   try {
     const url = `${import.meta.env.PUBLIC_DIRECTUS_URL}/items/antecedentes/${id}?fields=*.*.*,Galeria.directus_files_id.*,Servicios.Servicios_id.*,Imagen.*,ImagenFondo.*,documentos.*`;
-    console.log('Fetching antecedente from:', url);
     
     const response = await fetch(url, { headers: getAuthHeaders() });
     
     if (!response.ok) throw new Error('Antecedente no encontrado');
     const result = await response.json();
-    
-    // Log the structure of the returned data
-    console.log('Antecedente data structure:', {
-      hasImagenFondo: !!result.data.ImagenFondo,
-      imagenFondoType: typeof result.data.ImagenFondo,
-      imagenFondoKeys: result.data.ImagenFondo ? Object.keys(result.data.ImagenFondo) : [],
-      isArray: Array.isArray(result.data.ImagenFondo)
-    });
-    
-    if (result.data.ImagenFondo) {
-      console.log('ImagenFondo data:', JSON.stringify(result.data.ImagenFondo, null, 2));
-    }
     
     return result.data;
   } catch (error) {

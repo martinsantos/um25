@@ -6,6 +6,7 @@ import type {
   AntecedenteServicioRelation
 } from '../types/directus-v4';
 import { getDirectusInternalUrl, getDirectusToken, isLocalProdReplica } from '../config/runtime';
+import { normalizeServicioRecord } from '../utils/normalizeServicioRecord';
 
 const readItemsAny = readItems as any;
 const readItemAny = readItem as any;
@@ -102,7 +103,7 @@ async function getServicioFromSnapshot(numId: number): Promise<ServicioV4 | null
   const servicio = allServicios.find((s) => Number(s.id) === numId);
   if (!servicio) return null;
   const productos = await getProductosPorServicio(numId);
-  return { ...servicio, productos } as ServicioV4;
+  return normalizeServicioRecord({ ...servicio, productos });
 }
 
 async function getProductoFromSnapshotBySlug(slug: string): Promise<ProductoV4 | null> {
@@ -114,6 +115,15 @@ async function getProductoFromSnapshotBySlug(slug: string): Promise<ProductoV4 |
         .toLowerCase() === slug.toLowerCase()
     ) || null
   );
+}
+
+async function getAntecedentesFromSnapshot(): Promise<AntecedenteV4[]> {
+  return loadSnapshotData<AntecedenteV4>('antecedentes');
+}
+
+async function getAntecedenteFromSnapshot(id: number | string): Promise<AntecedenteV4 | null> {
+  const allAntecedentes = await getAntecedentesFromSnapshot();
+  return allAntecedentes.find((antecedente) => String(antecedente.id) === String(id)) || null;
 }
 
 // 5. Tipos según tu estructura actual
@@ -188,15 +198,39 @@ async function obtenerContenidoPublicado<T = unknown>(
   }
 }
 
+async function getStaticBlogPosts(limite: number = 10): Promise<EntradaBlog[]> {
+  try {
+    const { blogPosts } = await import('../data/blog-posts');
+    return blogPosts.slice(0, limite).map((post: any) => ({
+      id: String(post.id || post.slug),
+      status: 'published',
+      slug: post.slug,
+      titulo: post.title || post.titulo || '',
+      resumen: post.excerpt || post.resumen || '',
+      contenido: post.content || post.contenido || '',
+      imagen_portada: post.image || null,
+      categoria: 'tecnico',
+      tags: Array.isArray(post.tags) ? post.tags : [],
+      fecha_publicacion: post.date || post.fecha_publicacion || '',
+      tiempo_lectura: Number(post.readTime || post.tiempo_lectura || 5),
+    }));
+  } catch {
+    return [];
+  }
+}
+
 // 6. Funciones específicas para cada colección (LEGACY - mantener por compatibilidad)
 export const getServicios = async (limite: number = 10) =>
-  obtenerContenidoPublicado('servicios', { limite });
+  (await getServiciosV4()).slice(0, limite);
 
-export const getBlogPosts = async (limite: number = 10) =>
-  obtenerContenidoPublicado('blog_posts', { limite });
+export const getBlogPosts = async (limite: number = 10) => {
+  const posts = await obtenerContenidoPublicado<EntradaBlog>('blog_posts', { limite });
+  if (posts.length > 0) return posts;
+  return getStaticBlogPosts(limite);
+};
 
 export const getCasosExito = async (limite: number = 10) =>
-  obtenerContenidoPublicado('casos_de_exito', { limite });
+  (await getAllAntecedentes()).slice(0, limite);
 
 // ==========================================
 // 7. FUNCIONES V4 - Sistema de Diseño V4
@@ -222,21 +256,22 @@ export async function getServiciosV4(): Promise<ServicioV4[]> {
           'PorQueElegirnos',
           'Area',
           'Cliente',
-          'Productos'
+          'Productos',
+          'slug'
         ],
         sort: ['id']
       })
     );
 
     const list = (response || []) as unknown as ServicioV4[];
-    if (list.length > 0) return list;
+    if (list.length > 0) return list.map((item) => normalizeServicioRecord(item));
 
     console.warn('[directus] Servicios vacíos desde API, usando snapshot');
-    return loadSnapshotData<ServicioV4>('servicios');
+    return (await loadSnapshotData<ServicioV4>('servicios')).map((item) => normalizeServicioRecord(item));
   } catch (error) {
     console.error('Error fetching servicios V4, trying snapshot:', error);
     try {
-      return loadSnapshotData<ServicioV4>('servicios');
+      return (await loadSnapshotData<ServicioV4>('servicios')).map((item) => normalizeServicioRecord(item));
     } catch {
       return [];
     }
@@ -266,7 +301,8 @@ export async function getServicioConProductos(id: number | string): Promise<Serv
           'PorQueElegirnos',
           'Area',
           'Cliente',
-          'Productos'
+          'Productos',
+          'slug'
         ]
       })
     );
@@ -277,10 +313,10 @@ export async function getServicioConProductos(id: number | string): Promise<Serv
     }
 
     const productos = await getProductosPorServicio(numId);
-    return {
+    return normalizeServicioRecord({
       ...servicio,
       productos,
-    } as ServicioV4;
+    });
   } catch (error) {
     console.error(`Error fetching servicio ${id}, trying snapshot:`, error);
     try {
@@ -377,8 +413,8 @@ export async function getAntecedenteConServicios(id: number | string): Promise<A
 
     return directusDataItem<AntecedenteV4>(payload);
   } catch (error) {
-    console.error(`Error fetching antecedente ${id} with services from Directus:`, error);
-    throw error;
+    console.error(`Error fetching antecedente ${id} with services from Directus, trying snapshot:`, error);
+    return getAntecedenteFromSnapshot(id);
   }
 }
 
@@ -549,8 +585,6 @@ let imageLocalMap: Record<string, string> = {};
 try {
   const mapModule = await import('../data/image-local-map.json');
   imageLocalMap = mapModule.default || mapModule;
-  const mapSize = Object.keys(imageLocalMap).length;
-  console.log(`[directus] Loaded ${mapSize} image mappings from local map`);
 } catch (error) {
   console.error('[directus] Failed to load image-local-map.json:', error);
   // No map available, will use Directus URLs
@@ -560,14 +594,11 @@ let generatedAntecedenteImageMap: Record<string, string> = {};
 try {
   const mapModule = await import('../data/antecedentes-generated-image-map.json');
   generatedAntecedenteImageMap = mapModule.default || mapModule;
-  const mapSize = Object.keys(generatedAntecedenteImageMap).length;
-  console.log(`[directus] Loaded ${mapSize} generated antecedente image mappings`);
 } catch {
   generatedAntecedenteImageMap = {};
 }
 
 const directusAssetsAvailable = !import.meta.env?.DEV || isLocalProdReplica();
-console.log('[directus] Using Directus assets in public runtime; local maps remain development fallback');
 
 // Cache-bust version: incrementar cuando se actualizan imágenes en Directus
 const IMAGE_CACHE_VERSION = '20260201';
@@ -657,9 +688,17 @@ export async function getAllAntecedentes(): Promise<AntecedenteV4[]> {
       `/items/Antecedentes?fields=${encodeURIComponent(fields)}&sort[]=-Fecha&sort[]=-id&limit=-1`,
     );
 
-    return directusDataArray<AntecedenteV4>(response);
+    const list = directusDataArray<AntecedenteV4>(response);
+    if (list.length > 0) return list;
+
+    console.warn('[directus] Antecedentes vacíos desde API, usando snapshot');
+    return getAntecedentesFromSnapshot();
   } catch (error) {
-    console.error('Error fetching antecedentes V4 from Directus:', error);
-    throw error;
+    console.error('Error fetching antecedentes V4 from Directus, trying snapshot:', error);
+    try {
+      return getAntecedentesFromSnapshot();
+    } catch {
+      return [];
+    }
   }
 }

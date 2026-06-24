@@ -1,24 +1,25 @@
 /**
- * Terminal Básico CSS - Estilos simples para fallback
+ * Consola operativa UMSA - estilos de fallback
  */
 
 .terminal-window {
-    background: #1a1a2e;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    background: #111111;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
     overflow: hidden;
-    font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+    font-family: 'Open Sans', Arial, system-ui, sans-serif;
     max-width: 100%;
     margin: 20px 0;
 }
 
 .terminal-header {
-    background: #16213e;
+    background: #050505;
     padding: 12px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid #0f1419;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .terminal-controls {
@@ -33,13 +34,13 @@
     cursor: pointer;
 }
 
-.control.close { background: #ff5f57; }
-.control.minimize { background: #ffbd2e; }
-.control.maximize { background: #28ca42; }
+.control.close { background: #DC2626; }
+.control.minimize { background: #ffffff; opacity: 0.64; }
+.control.maximize { background: #ffffff; opacity: 0.36; }
 
 .terminal-title {
-    color: #8892b0;
-    font-size: 14px;
+    color: #ffffff;
+    font-size: 16px;
     font-weight: 600;
 }
 
@@ -52,7 +53,8 @@
     max-height: 500px;
     overflow-y: auto;
     margin-bottom: 20px;
-    color: #ccd6f6;
+    color: #f5f5f5;
+    font-size: 16px;
     line-height: 1.6;
 }
 
@@ -63,24 +65,25 @@
 }
 
 .terminal-prompt {
-    color: #00d4aa;
+    color: #ffffff;
     font-weight: bold;
     white-space: nowrap;
+    border-bottom: 1px solid #DC2626;
 }
 
 .terminal-input {
     background: transparent;
     border: none;
-    color: #ccd6f6;
+    color: #ffffff;
     font-family: inherit;
-    font-size: 14px;
+    font-size: 16px;
     outline: none;
     flex: 1;
     padding: 4px 0;
 }
 
 .terminal-input::placeholder {
-    color: #8892b0;
+    color: #cccccc;
 }
 
 /* Estilos para contenido */
@@ -89,12 +92,13 @@
 }
 
 .command-line .prompt {
-    color: #00d4aa;
+    color: #ffffff;
     font-weight: bold;
+    border-bottom: 1px solid #DC2626;
 }
 
 .command-line .command {
-    color: #ccd6f6;
+    color: #f5f5f5;
     margin-left: 10px;
 }
 
@@ -103,25 +107,29 @@
 }
 
 .error {
-    color: #ff6b6b;
+    color: #ffffff;
+    border-left: 3px solid #DC2626;
+    padding-left: 12px;
 }
 
 .success {
-    color: #51cf66;
+    color: #ffffff;
 }
 
 .info {
-    color: #74c0fc;
+    color: #ffffff;
 }
 
 .highlight {
-    color: #00d4aa;
+    color: #ffffff;
     font-weight: bold;
+    border-bottom: 1px solid #DC2626;
 }
 
 .cmd {
-    color: #00d4aa;
+    color: #ffffff;
     font-weight: bold;
+    border-bottom: 1px solid #DC2626;
 }
 
 /* Welcome message */
@@ -131,9 +139,10 @@
 }
 
 .ascii-art {
-    color: #00d4aa;
-    font-size: 12px;
+    color: #ffffff;
+    font-size: 16px;
     margin: 20px 0;
+    line-height: 1.35;
 }
 
 .welcome-text p {
@@ -142,8 +151,8 @@
 
 /* Listas de comandos y contenido */
 .help-content h3 {
-    color: #00d4aa;
-    border-bottom: 1px solid #333;
+    color: #ffffff;
+    border-bottom: 1px solid rgba(220, 38, 38, 0.72);
     padding-bottom: 8px;
     margin-bottom: 16px;
 }
@@ -167,8 +176,9 @@
 }
 
 .dir-header {
-    color: #00d4aa;
+    color: #ffffff;
     font-weight: bold;
+    border-bottom: 1px solid #DC2626;
     margin-bottom: 12px;
 }
 
@@ -178,7 +188,7 @@
 
 .file {
     margin: 4px 0;
-    color: #ccd6f6;
+    color: #f5f5f5;
 }
 
 .service-list div {
@@ -202,10 +212,6 @@
         max-height: 350px;
     }
     
-    .ascii-art {
-        font-size: 10px;
-    }
-    
     .terminal-input {
         font-size: 16px; /* Evita zoom en móviles */
     }
@@ -217,14 +223,14 @@
 }
 
 .terminal-output::-webkit-scrollbar-track {
-    background: #16213e;
+    background: #050505;
 }
 
 .terminal-output::-webkit-scrollbar-thumb {
-    background: #00d4aa;
+    background: #DC2626;
     border-radius: 4px;
 }
 
 .terminal-output::-webkit-scrollbar-thumb:hover {
-    background: #00b894;
+    background: #b91c1c;
 }

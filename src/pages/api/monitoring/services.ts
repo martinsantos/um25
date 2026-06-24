@@ -1,57 +1,110 @@
 import type { APIRoute } from 'astro';
+import { createConnection } from 'node:net';
 
 /**
  * Services Status Endpoint
  * GET /api/monitoring/services
  *
  * Returns the status of all monitored services
- * In production, this would check actual service health
  */
-export const GET: APIRoute = async ({ request }) => {
+type ServiceConfig = {
+  name: string;
+  host: string;
+  port: number;
+  endpoint?: string;
+  critical: boolean;
+  timeout: number;
+  type: 'http' | 'tcp';
+};
+
+function elapsedMs(start: number): string {
+  return `${Date.now() - start}ms`;
+}
+
+async function checkTcpService(service: ServiceConfig): Promise<{ status: 'online' | 'offline'; responseTime: string }> {
+  const start = Date.now();
+
+  return new Promise((resolve) => {
+    const socket = createConnection({ host: service.host, port: service.port });
+    const done = (status: 'online' | 'offline') => {
+      socket.removeAllListeners();
+      socket.destroy();
+      resolve({ status, responseTime: elapsedMs(start) });
+    };
+
+    socket.setTimeout(service.timeout);
+    socket.once('connect', () => done('online'));
+    socket.once('timeout', () => done('offline'));
+    socket.once('error', () => done('offline'));
+  });
+}
+
+async function checkHttpService(service: ServiceConfig): Promise<{ status: 'online' | 'offline'; responseTime: string }> {
+  const start = Date.now();
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), service.timeout);
+
+  try {
+    const response = await fetch(`http://${service.host}:${service.port}${service.endpoint || '/'}`, {
+      signal: controller.signal
+    });
+    return {
+      status: response.ok || response.status < 500 ? 'online' : 'offline',
+      responseTime: elapsedMs(start)
+    };
+  } catch {
+    return { status: 'offline', responseTime: elapsedMs(start) };
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+export const GET: APIRoute = async () => {
   try {
     // Service health check configurations
-    const servicesConfig = [
+    const servicesConfig: ServiceConfig[] = [
       {
         name: 'Astro Frontend',
+        host: '127.0.0.1',
         port: 4321,
         endpoint: '/',
         critical: true,
-        timeout: 5000
+        timeout: 5000,
+        type: 'http'
       },
       {
         name: 'Directus CMS',
+        host: '127.0.0.1',
         port: 8055,
         endpoint: '/server/health',
         critical: true,
-        timeout: 5000
+        timeout: 5000,
+        type: 'http'
       },
       {
         name: 'PostgreSQL Database',
+        host: '127.0.0.1',
         port: 5432,
-        endpoint: null,
         critical: true,
+        timeout: 3000,
         type: 'tcp'
       },
       {
         name: 'Redis Cache',
+        host: '127.0.0.1',
         port: 6379,
-        endpoint: null,
         critical: false,
+        timeout: 3000,
         type: 'tcp'
       },
       {
         name: 'Nginx Reverse Proxy',
+        host: '127.0.0.1',
         port: 80,
         endpoint: '/',
         critical: true,
-        timeout: 5000
-      },
-      {
-        name: 'CyberPanel',
-        port: 8090,
-        endpoint: '/',
-        critical: false,
-        timeout: 5000
+        timeout: 5000,
+        type: 'http'
       }
     ];
 
@@ -59,43 +112,21 @@ export const GET: APIRoute = async ({ request }) => {
     const servicesStatus = await Promise.all(
       servicesConfig.map(async (service) => {
         try {
-          if (service.endpoint) {
-            // HTTP health check
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), service.timeout || 5000);
+          const check = service.type === 'tcp'
+            ? await checkTcpService(service)
+            : await checkHttpService(service);
 
-            const response = await fetch(
-              `http://localhost:${service.port}${service.endpoint}`,
-              { signal: controller.signal }
-            ).catch(() => null);
-
-            clearTimeout(timeoutId);
-
-            return {
-              name: service.name,
-              port: service.port,
-              status: response && (response.ok || response.status < 500) ? 'online' : 'offline',
-              critical: service.critical,
-              responseTime: response ? '~50ms' : 'timeout',
-              lastCheck: new Date().toISOString()
-            };
-          } else {
-            // TCP connection check (for databases)
-            // In production, use actual TCP connection check
-            return {
-              name: service.name,
-              port: service.port,
-              status: 'online', // Mock response
-              critical: service.critical,
-              responseTime: '~30ms',
-              lastCheck: new Date().toISOString(),
-              type: service.type
-            };
-          }
+          return {
+            name: service.name,
+            status: check.status,
+            critical: service.critical,
+            responseTime: check.responseTime,
+            lastCheck: new Date().toISOString(),
+            type: service.type
+          };
         } catch (error) {
           return {
             name: service.name,
-            port: service.port,
             status: 'offline',
             critical: service.critical,
             error: error instanceof Error ? error.message : 'Unknown error',

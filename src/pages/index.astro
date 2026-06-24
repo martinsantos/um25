@@ -93,7 +93,7 @@ const secondaryEvidenceCases = featuredCasesEnhanced.slice(1);
 
 const evidenceYear = (item: any) => {
   const raw = item?.Fecha || item?.fecha || item?.anio;
-  if (!raw) return 'documentado';
+  if (!raw) return 'sin fecha';
   const date = new Date(raw);
   return Number.isNaN(date.getTime()) ? String(raw) : String(date.getFullYear());
 };
@@ -112,7 +112,7 @@ const sectorLinks = [
 
 const proofMetrics = [
   ['8', 'servicios IT', 'red, seguridad, software, energía y soporte'],
-  [proofCountShort, 'antecedentes', `${proofCountExact} proyectos documentados`],
+  [proofCountShort, 'antecedentes', `${proofCountExact} proyectos técnicos`],
   ['22+', 'años', 'de trayectoria técnica en infraestructura'],
   ['24/7', 'soporte', 'operación y monitoreo continuo']
 ];
@@ -268,7 +268,7 @@ const homeStructuredData = [
           </div>
           <div class="um-evidence-head__side">
             <p>
-              {proofCountExact} proyectos documentados en el catálogo respaldan nuestra forma de trabajar: alcance técnico, evidencia y continuidad posterior.
+              {proofCountExact} proyectos técnicos en el catálogo respaldan nuestra forma de trabajar: alcance, evidencia y continuidad posterior.
             </p>
             <a href="/antecedentes">Ver todos los antecedentes</a>
           </div>
@@ -328,7 +328,7 @@ const homeStructuredData = [
             </a>
           ))}
         </nav>
-        <p>Mapa de riesgo operativo por industria. Cada sector enlaza a antecedentes y alcance técnico documentado.</p>
+        <p>Mapa de riesgo operativo por industria. Cada sector enlaza a antecedentes y alcance técnico verificable.</p>
       </aside>
       </div>
   </section>

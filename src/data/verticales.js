@@ -72,6 +72,13 @@ export function clasificarEnVertical(antecedente) {
       }
     }
     
+    // Verificar coincidencias por área operativa
+    for (const areaConfig of config.areas) {
+      if (area.includes(areaConfig.toLowerCase())) {
+        return key;
+      }
+    }
+
     // Verificar coincidencias exactas de clientes
     for (const clienteConfig of config.clientes) {
       if (cliente.includes(clienteConfig.toLowerCase())) {
