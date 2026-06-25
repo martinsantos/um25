@@ -6,6 +6,7 @@
 
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import EvidenceCaseRow from '../components/um/EvidenceCaseRow.astro';
+import HeroBCine from '../components/um/HeroBCine.astro';
 import EvidenceItem from '../components/templates/EvidenceItem.astro';
 import TrustStrip from '../components/um/TrustStrip.astro';
 import IntentLinkGraph from '../components/um/IntentLinkGraph.astro';
@@ -55,7 +56,6 @@ const serviceModules = serviceVisualOrder
 const homeHeroImage = resolveCmsImageUrl(heroHomeImages[0]?.imagen, editorialImages.homeHero);
 const homeServicesImage = resolveCmsImageUrl(heroHomeImages[1]?.imagen, editorialImages.homeServices);
 const proofCountExact = antecedentesData.length;
-const proofCountShort = proofCountExact >= 500 ? '500+' : String(proofCountExact);
 
 const caseTargets = [
   { label: 'Gobierno de Mendoza', terms: ['gobierno de mendoza', 'ministerio', 'municipalidad'] },
@@ -108,13 +108,6 @@ const sectorLinks = [
   { slug: 'mineria', label: 'Minería', cue: 'entornos exigentes' },
   { slug: 'industria', label: 'Industria', cue: 'planta y energía' },
   { slug: 'seguridad-electronica', label: 'Seguridad', cue: 'monitoreo y acceso' }
-];
-
-const proofMetrics = [
-  ['8', 'servicios IT', 'red, seguridad, software, energía y soporte'],
-  [proofCountShort, 'antecedentes', `${proofCountExact} proyectos técnicos`],
-  ['22+', 'años', 'de trayectoria técnica en infraestructura'],
-  ['24/7', 'soporte', 'operación y monitoreo continuo']
 ];
 
 const iconPaths: Record<string, string> = {
@@ -172,43 +165,7 @@ const homeStructuredData = [
   imageHeight={editorialImageDimensions.height}
   structuredData={homeStructuredData}
 >
-  <section class="um-home-hero">
-    <div class="um-hero-media" aria-hidden="true">
-      <img src={homeHeroImage} alt="" loading="eager" fetchpriority="high" decoding="async" width={editorialImageDimensions.width} height={editorialImageDimensions.height} />
-    </div>
-    <div class="um-hero-grid" aria-hidden="true"></div>
-
-    <div class="um-home-container um-hero-content">
-      <div class="um-hero-copy">
-        <h1>{homeH1}</h1>
-        <span class="um-red-rule" aria-hidden="true"></span>
-        <p>
-          Redes, seguridad electrónica, telecomunicaciones, software, energía y soporte técnico para empresas que necesitan continuidad, evidencia y respuesta en sitio.
-        </p>
-        <div class="um-hero-actions">
-          <a class="um-btn um-btn-primary" href="/contacto">Solicitar diagnóstico</a>
-          <a class="um-btn um-btn-secondary" href="/antecedentes">Ver antecedentes</a>
-        </div>
-        <figure class="um-hero-mobile-photo">
-          <img src={homeHeroImage} alt="Centro de monitoreo e infraestructura IT operativa" loading="eager" fetchpriority="high" decoding="async" width={editorialImageDimensions.width} height={editorialImageDimensions.height} />
-          <figcaption>
-            <span>Operación técnica</span>
-            <strong>Mendoza, Cuyo y Patagonia</strong>
-          </figcaption>
-        </figure>
-      </div>
-    </div>
-
-    <div class="um-home-container um-hero-proofbar" aria-label="Prueba institucional">
-      {proofMetrics.map(([value, label, text]) => (
-        <div>
-          <strong>{value}</strong>
-          <span>{label}</span>
-          <p>{text}</p>
-        </div>
-      ))}
-    </div>
-  </section>
+  <HeroBCine position="Servicios IT integrales para operaciones que no pueden detenerse." founded={2000} />
 
   <TrustStrip />
 

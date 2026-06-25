@@ -1,0 +1,574 @@
+---
+interface HeroBg {
+  src: string;
+  caption: string;
+  loc: string;
+  firstLiner: string;
+  fx: 'type' | 'flap';
+}
+
+interface Props {
+  position?: string;
+  founded?: number;
+}
+
+const {
+  position = 'Servicios IT integrales para operaciones que no pueden detenerse.',
+  founded = 2000,
+} = Astro.props;
+
+const backgrounds: HeroBg[] = [
+  {
+    src: '/img/servicios/telecomunicaciones.webp',
+    caption: 'TELECOMUNICACIONES DATOS/VOZ/VIDEO',
+    loc: 'Patagonia',
+    fx: 'flap',
+    firstLiner: 'Enlaces donde no llega nadie mas.',
+  },
+  {
+    src: '/hero/bodega.png',
+    caption: 'REDES INDUSTRIALES EN CAVA',
+    loc: 'Bodega Tapiz',
+    fx: 'type',
+    firstLiner: 'Trazabilidad de cosecha a botella.',
+  },
+  {
+    src: '/hero/noc.png',
+    caption: 'CENTRO DE OPERACIONES NOC',
+    loc: 'Mendoza',
+    fx: 'type',
+    firstLiner: 'Monitoreo 24/7 sin puntos ciegos.',
+  },
+  {
+    src: '/hero/fiber.png',
+    caption: 'BACKBONE DE FIBRA OPTICA',
+    loc: 'Aeropuertos Argentina 2000',
+    fx: 'flap',
+    firstLiner: 'Fibra certificada, operacion continua.',
+  },
+  {
+    src: '/hero/cctv.png',
+    caption: 'CENTRO DE MONITOREO CCTV',
+    loc: 'Aeropuerto El Plumerillo',
+    fx: 'flap',
+    firstLiner: 'Evidencia visual accionable.',
+  },
+  {
+    src: '/img/servicios/redes.webp',
+    caption: 'CABLEADO ESTRUCTURADO CERTIFICADO',
+    loc: 'Mendoza',
+    fx: 'type',
+    firstLiner: 'Redes que sostienen la operacion.',
+  },
+  {
+    src: '/img/sectores/aeropuertos.webp',
+    caption: 'OPERACION AEROPORTUARIA CONTINUA',
+    loc: 'AA2000',
+    fx: 'flap',
+    firstLiner: 'Perimetro, pistas y terminal 24/7.',
+  },
+  {
+    src: '/img/sectores/mineria.webp',
+    caption: 'TELECOMUNICACIONES EN FAENA REMOTA',
+    loc: 'Minera Frontera',
+    fx: 'flap',
+    firstLiner: 'Conectividad en campamento y mina.',
+  },
+];
+
+const initialBg = backgrounds[0];
+---
+
+<section class="um-bcine-hero" data-um-bcine data-backgrounds={JSON.stringify(backgrounds)}>
+  <div class="um-bcine-hero__media" aria-hidden="true">
+    <img
+      data-um-bcine-image
+      src={initialBg.src}
+      alt=""
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+      width="1920"
+      height="1080"
+    />
+  </div>
+
+  <div class="um-bcine-hero__topbar">
+    <span class="um-bcine-hero__status"><span class="um-live-dot"></span>NOC · OPERATIVO</span>
+    <span class="um-bcine-hero__region">Mendoza · Cuyo · Patagonia</span>
+  </div>
+
+  <button class="um-bcine-hero__shuffle" type="button" data-um-bcine-shuffle aria-label="Cambiar fondo del hero">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M16 3h5v5" />
+      <path d="M4 20 21 3" />
+      <path d="M21 16v5h-5" />
+      <path d="m15 15 6 6" />
+      <path d="m4 4 5 5" />
+    </svg>
+    <span>Fondo</span>
+    <strong data-um-bcine-mode>{initialBg.fx === 'flap' ? 'FLAP' : 'TYPE'}</strong>
+  </button>
+
+  <a class="um-bcine-hero__seal" href="/antecedentes" aria-label="Ver 518 antecedentes operativos">
+    <span>Antecedentes operativos</span>
+    <strong>5<em>1</em>8</strong>
+    <i></i>
+    <span>Casos verificables -&gt;</span>
+  </a>
+
+  <div class="um-bcine-hero__content">
+    <div class="um-bcine-hero__kicker">
+      <span></span>
+      <strong>Servicios IT · Desde {founded}</strong>
+    </div>
+
+    <p class="um-bcine-hero__position">{position}</p>
+
+    <h1 class:list={['um-bcine-hero__title', initialBg.fx === 'type' ? 'is-type' : 'is-flap']} data-um-bcine-title>
+      {initialBg.firstLiner}
+    </h1>
+
+    <p class="um-bcine-hero__lead">
+      Redes, seguridad electronica, telecomunicaciones, software a medida, soporte 24/7 y energia IT. Evidencia operativa visible antes de contratar.
+    </p>
+
+    <div class="um-bcine-hero__actions">
+      <a href="/antecedentes" class="um-bcine-hero__primary">
+        Ver evidencia operativa
+        <span aria-hidden="true">-&gt;</span>
+      </a>
+      <a href="/sectores" class="um-bcine-hero__secondary">
+        Entrar por sector
+        <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+
+    <p class="um-bcine-hero__caption">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z" />
+        <circle cx="12" cy="10" r="3" />
+      </svg>
+      <span data-um-bcine-caption>{initialBg.caption} · {initialBg.loc}</span>
+      <em data-um-bcine-count>01/{String(backgrounds.length).padStart(2, '0')}</em>
+    </p>
+  </div>
+</section>
+
+<script>
+  const root = document.querySelector('[data-um-bcine]');
+  if (root) {
+    const backgrounds = JSON.parse(root.getAttribute('data-backgrounds') || '[]');
+    const image = root.querySelector('[data-um-bcine-image]');
+    const title = root.querySelector('[data-um-bcine-title]');
+    const caption = root.querySelector('[data-um-bcine-caption]');
+    const count = root.querySelector('[data-um-bcine-count]');
+    const mode = root.querySelector('[data-um-bcine-mode]');
+    const button = root.querySelector('[data-um-bcine-shuffle]');
+    let index = 0;
+
+    const applyBackground = (next) => {
+      const bg = backgrounds[next];
+      if (!bg || !image || !title || !caption || !count || !mode) return;
+
+      image.setAttribute('src', bg.src);
+      image.classList.remove('is-ready');
+      window.requestAnimationFrame(() => image.classList.add('is-ready'));
+      title.textContent = bg.firstLiner;
+      title.classList.toggle('is-type', bg.fx === 'type');
+      title.classList.toggle('is-flap', bg.fx === 'flap');
+      caption.textContent = `${bg.caption} · ${bg.loc}`;
+      count.textContent = `${String(next + 1).padStart(2, '0')}/${String(backgrounds.length).padStart(2, '0')}`;
+      mode.textContent = bg.fx === 'flap' ? 'FLAP' : 'TYPE';
+    };
+
+    button?.addEventListener('click', () => {
+      index = (index + 1) % backgrounds.length;
+      applyBackground(index);
+    });
+  }
+</script>
+
+<style>
+  .um-bcine-hero {
+    position: relative;
+    min-height: clamp(620px, calc(100svh - 96px), 780px);
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    isolation: isolate;
+    background: #0a0a0b;
+    color: #fff;
+  }
+
+  .um-bcine-hero__media,
+  .um-bcine-hero__media::before,
+  .um-bcine-hero__media::after {
+    position: absolute;
+    inset: 0;
+  }
+
+  .um-bcine-hero__media {
+    z-index: -3;
+  }
+
+  .um-bcine-hero__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.98;
+    transform: scale(1.01);
+    filter: saturate(0.86) contrast(1.08) brightness(0.7);
+    transition: opacity 0.28s ease, filter 0.28s ease;
+  }
+
+  .um-bcine-hero__media img.is-ready {
+    opacity: 1;
+  }
+
+  .um-bcine-hero__media::before,
+  .um-bcine-hero__media::after {
+    content: "";
+    pointer-events: none;
+  }
+
+  .um-bcine-hero__media::before {
+    z-index: 1;
+    background:
+      linear-gradient(105deg, rgba(10,10,11,0.95) 0%, rgba(10,10,11,0.64) 43%, rgba(10,10,11,0.3) 100%),
+      linear-gradient(0deg, rgba(10,10,11,0.8), transparent 58%);
+  }
+
+  .um-bcine-hero__media::after {
+    z-index: 2;
+    background: linear-gradient(to top, #0a0a0b 0%, rgba(10,10,11,0.56) 48%, transparent 100%);
+  }
+
+  .um-bcine-hero__topbar,
+  .um-bcine-hero__content {
+    width: min(1400px, calc(100% - 48px));
+    margin-inline: auto;
+  }
+
+  .um-bcine-hero__topbar {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .um-bcine-hero__status,
+  .um-bcine-hero__region,
+  .um-bcine-hero__kicker strong,
+  .um-bcine-hero__caption,
+  .um-bcine-hero__shuffle,
+  .um-bcine-hero__seal span {
+    font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+  }
+
+  .um-bcine-hero__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(255,255,255,0.16);
+    padding: 7px 10px;
+    color: rgba(255,255,255,0.72);
+    font-size: 9px;
+  }
+
+  .um-live-dot {
+    position: relative;
+    width: 6px;
+    height: 6px;
+    display: inline-flex;
+  }
+
+  .um-live-dot::before,
+  .um-live-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #dc2626;
+  }
+
+  .um-live-dot::before {
+    animation: um-ping 1.8s cubic-bezier(0,0,0.2,1) infinite;
+  }
+
+  @keyframes um-ping {
+    75%, 100% {
+      transform: scale(2.5);
+      opacity: 0;
+    }
+  }
+
+  .um-bcine-hero__region {
+    color: rgba(255,255,255,0.5);
+    font-size: 9px;
+  }
+
+  .um-bcine-hero__shuffle {
+    position: absolute;
+    top: 64px;
+    right: max(24px, calc((100vw - 1400px) / 2 + 32px));
+    z-index: 4;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid rgba(255,255,255,0.16);
+    background: rgba(10,10,11,0.7);
+    color: rgba(255,255,255,0.82);
+    padding: 10px 12px;
+    font-size: 9px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+  }
+
+  .um-bcine-hero__shuffle:hover {
+    border-color: rgba(220,38,38,0.72);
+    color: #fff;
+  }
+
+  .um-bcine-hero__shuffle svg {
+    width: 13px;
+    height: 13px;
+    fill: none;
+    stroke: #dc2626;
+    stroke-width: 2;
+  }
+
+  .um-bcine-hero__shuffle strong {
+    border-left: 1px solid rgba(255,255,255,0.16);
+    color: #dc2626;
+    padding-left: 10px;
+    font: inherit;
+    font-weight: 700;
+  }
+
+  .um-bcine-hero__seal {
+    position: absolute;
+    right: max(24px, calc((100vw - 1400px) / 2 + 10px));
+    top: 50%;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    transform: translateY(-46%);
+  }
+
+  .um-bcine-hero__seal span {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 9px;
+    line-height: 1;
+  }
+
+  .um-bcine-hero__seal strong {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-size: clamp(5.2rem, 8vw, 7.3rem);
+    line-height: 0.78;
+    letter-spacing: -0.06em;
+    color: #fff;
+    text-shadow: 0 4px 24px rgba(0,0,0,0.62);
+  }
+
+  .um-bcine-hero__seal strong em {
+    color: #dc2626;
+    font-style: normal;
+  }
+
+  .um-bcine-hero__seal i {
+    width: 1px;
+    height: 48px;
+    background: linear-gradient(to bottom, #dc2626, transparent);
+  }
+
+  .um-bcine-hero__content {
+    position: relative;
+    z-index: 2;
+    padding: 0 0 clamp(52px, 7vw, 86px);
+  }
+
+  .um-bcine-hero__kicker {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 26px;
+  }
+
+  .um-bcine-hero__kicker span {
+    width: 40px;
+    height: 3px;
+    background: #dc2626;
+  }
+
+  .um-bcine-hero__kicker strong {
+    color: #dc2626;
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .um-bcine-hero__position {
+    max-width: 720px;
+    margin: 0 0 16px;
+    color: rgba(255,255,255,0.58);
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-size: clamp(0.94rem, 1vw, 1.08rem);
+    font-weight: 500;
+  }
+
+  .um-bcine-hero__title {
+    max-width: 930px;
+    min-height: 1.86em;
+    margin: 0;
+    color: #fff;
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-size: clamp(3.15rem, 7vw, 5.75rem);
+    font-weight: 700;
+    line-height: 0.92;
+    letter-spacing: 0;
+    text-wrap: balance;
+    text-shadow: 0 4px 18px rgba(0,0,0,0.52);
+  }
+
+  .um-bcine-hero__title.is-type::after {
+    content: "_";
+    color: #dc2626;
+    margin-left: 0.04em;
+    animation: um-cursor 1s steps(2) infinite;
+  }
+
+  .um-bcine-hero__title.is-flap::after {
+    content: "";
+    display: inline-block;
+    width: 0.14em;
+    height: 0.72em;
+    margin-left: 0.08em;
+    background: #dc2626;
+    transform: translateY(0.08em);
+  }
+
+  @keyframes um-cursor {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  .um-bcine-hero__lead {
+    max-width: 650px;
+    margin: 28px 0 0;
+    color: rgba(255,255,255,0.72);
+    font-size: clamp(1rem, 1.3vw, 1.16rem);
+    line-height: 1.55;
+  }
+
+  .um-bcine-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 34px;
+  }
+
+  .um-bcine-hero__primary,
+  .um-bcine-hero__secondary {
+    display: inline-flex;
+    min-height: 50px;
+    align-items: center;
+    gap: 10px;
+    padding: 0 22px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .um-bcine-hero__primary {
+    background: #dc2626;
+    color: #fff;
+  }
+
+  .um-bcine-hero__primary:hover {
+    background: #ff3b3b;
+  }
+
+  .um-bcine-hero__secondary {
+    border: 1px solid rgba(255,255,255,0.28);
+    color: #fff;
+    background: rgba(10,10,11,0.24);
+  }
+
+  .um-bcine-hero__secondary:hover {
+    border-color: rgba(255,255,255,0.58);
+    background: rgba(255,255,255,0.1);
+  }
+
+  .um-bcine-hero__caption {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 32px 0 0;
+    color: rgba(255,255,255,0.52);
+    font-size: 16px;
+  }
+
+  .um-bcine-hero__caption svg {
+    width: 13px;
+    height: 13px;
+    fill: none;
+    stroke: #dc2626;
+    stroke-width: 2;
+  }
+
+  .um-bcine-hero__caption em {
+    margin-left: 6px;
+    color: rgba(255,255,255,0.36);
+    font-style: normal;
+  }
+
+  @media (max-width: 1180px) {
+    .um-bcine-hero__seal {
+      display: none;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .um-bcine-hero {
+      min-height: calc(100svh - 64px);
+    }
+
+    .um-bcine-hero__topbar,
+    .um-bcine-hero__content {
+      width: min(100% - 32px, 1400px);
+    }
+
+    .um-bcine-hero__status,
+    .um-bcine-hero__shuffle {
+      display: none;
+    }
+
+    .um-bcine-hero__topbar {
+      justify-content: flex-end;
+      top: 16px;
+    }
+
+    .um-bcine-hero__title {
+      min-height: auto;
+      font-size: clamp(2.6rem, 13vw, 4.2rem);
+    }
+
+    .um-bcine-hero__caption {
+      align-items: flex-start;
+      line-height: 1.45;
+    }
+  }
+</style>
