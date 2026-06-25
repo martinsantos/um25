@@ -32,7 +32,9 @@ describe('mobile overflow production contracts', () => {
   test('services mobile proofline permits long evidence text to wrap', () => {
     const css = source('src/pages/servicios/index.astro');
 
-    expect(css).toContain('grid-template-columns: minmax(0, 96px) minmax(0, 1fr)');
+    expect(css).toContain('class="um26-services"');
+    expect(css).toContain('grid-template-columns: repeat(3, minmax(0, 1fr))');
+    expect(css).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.services-proofline\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
     expect(css).not.toContain('grid-template-columns: minmax(96px, max-content) minmax(0, 1fr)');
     expect(css).not.toContain('overflow-wrap: normal;');
   });

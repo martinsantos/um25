@@ -363,24 +363,30 @@ describe('Information hub visual contracts', () => {
   test('services mobile proofline avoids narrow three-column word breaks', () => {
     const servicios = read('src/pages/servicios/index.astro');
 
-    expect(servicios.indexOf('class="um-section services-index"')).toBeLessThan(servicios.indexOf('<TrustStrip />'));
-    expect(servicios).toMatch(/\.services-intent-ctas\s*\{[\s\S]*border:\s*0;/);
-    expect(servicios).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-hero__visual\s*\{[\s\S]*display:\s*none;/);
-    expect(servicios).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-dossier__folio\s*\{[\s\S]*order:\s*1;/);
-    expect(servicios).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-dossier__list\s*\{[\s\S]*order:\s*0;/);
-    expect(servicios).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-hero__proofline\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
-    expect(servicios).toMatch(/\.services-hero__proofline div,[\s\S]*\.services-hero__proofline div \+ div\s*\{[\s\S]*grid-template-columns:\s*minmax\(0,\s*96px\) minmax\(0,\s*1fr\);/);
-    expect(servicios).toMatch(/\.services-hero__proofline dt\s*\{[\s\S]*white-space:\s*normal;/);
-    expect(servicios).toMatch(/\.services-hero__proofline dd\s*\{[\s\S]*overflow-wrap:\s*anywhere;/);
-    expect(servicios).not.toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-hero__proofline\s*\{[\s\S]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
+    expect(servicios).toContain('class="um26-services"');
+    expect(servicios).toContain('class="services-proofline"');
+    expect(servicios).toContain('loading="eager"');
+    expect(servicios).not.toContain("loading={index < 2 ? 'eager' : 'lazy'}");
+    expect(servicios).toMatch(/\.service-image\s*\{[\s\S]*background:\s*#121214 var\(--service-image\) center \/ cover no-repeat !important;/);
+    expect(cssBlock(servicios, '.service-image::after')).toMatch(/z-index:\s*1;/);
+    expect(cssBlock(servicios, '.service-image img')).toMatch(/z-index:\s*0;/);
+    expect(cssBlock(servicios, '.service-image__evidence')).toMatch(/z-index:\s*2;/);
+    expect(servicios).toMatch(/\.services-proofline\s*\{[\s\S]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
+    expect(servicios).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.services-proofline\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
+    expect(servicios).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.services-proofline div\s*\{[\s\S]*border-left:\s*0;/);
+    expect(cssBlock(servicios, '.services-proofline dd')).toMatch(/line-height:\s*1\.35;/);
+    expect(servicios).toMatch(/@media \(max-width:\s*1100px\)\s*\{[\s\S]*\.services-hero__note\s*\{[\s\S]*display:\s*none;/);
+    expect(servicios).not.toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.services-proofline\s*\{[\s\S]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
   });
 
   test('services dark product band avoids off-brand red microtext', () => {
     const servicios = read('src/pages/servicios/index.astro');
 
     expect(servicios).not.toContain('#fca5a5');
-    expect(cssBlock(servicios, '.services-product-feature__eyebrow')).toMatch(/color:\s*rgba\(255,\s*255,\s*255,\s*0\.72\);/);
-    expect(servicios).toMatch(/\.services-product-feature__eyebrow\)\s*\{[\s\S]*color:\s*rgba\(255,\s*255,\s*255,\s*0\.72\) !important;/);
+    expect(cssBlock(servicios, '.services-closing__panel')).toMatch(/rgba\(220,38,38,0\.24\)/);
+    expect(cssBlock(servicios, '.services-closing__panel')).toMatch(/linear-gradient\(135deg,\s*#0f0f11,\s*#121214\)/);
+    expect(cssBlock(servicios, '.services-closing p:not(.um26-kicker)')).toMatch(/color:\s*#a1a1aa;/);
+    expect(servicios).toContain('class="services-closing__actions"');
   });
 
   test('contact feedback links use canonical UMSA red only', () => {
