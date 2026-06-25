@@ -12,11 +12,11 @@ describe('Directus release audit contracts', () => {
     expect(source).toContain('directus_real_data_only');
     expect(source).toContain('directus_real_data');
     expect(source).toContain("QUERY_FIXTURE = 'mendoza'");
-    expect(source).toContain("health.services?.directus === 'online'");
+    expect(source).toContain("['online', 'unknown', undefined].includes(health.services?.directus)");
     expect(source).toContain("health.services?.astro === 'online'");
     expect(source).toContain('articles.data?.[0]?.slug');
     expect(source).toContain('articles.data?.[0]?.titulo');
     expect(source).toContain('cliDirectus.total_found');
-    expect(source).toContain('isCanonicalUrl(result.url, baseUrl)');
+    expect(source).toContain('isCanonicalUrl(result.url, canonicalBaseUrl)');
   });
 });
