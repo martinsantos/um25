@@ -28,16 +28,16 @@ describe('UM26 theme contract', () => {
     expect(template).not.toContain('sector-editorial');
   });
 
-  test('antecedentes index defaults to the editorial dossier template and exposes its DOM marker', () => {
+  test('antecedentes index renders the UM26 evidence experience and exposes its DOM marker', () => {
     const page = read('src/pages/antecedentes/index.astro');
-    const template = read('src/components/templates/AntecedentesTemplateEditorial.astro');
 
-    expect(page).toContain("import AntecedentesTemplateEditorial from '../../components/templates/AntecedentesTemplateEditorial.astro'");
-    expect(page).toContain(": 'editorial'");
-    expect(page).toContain('<AntecedentesTemplateEditorial');
-    expect(page).not.toContain('<AntecedentesTemplateUM26');
-    expect(page).not.toContain("import AntecedentesTemplateUM26");
-    expect(template).toContain('class="ante-dossier"');
-    expect(template).not.toContain('um26-antecedentes');
+    expect(page).toContain("import { getAntecedentes, getServicios } from '../../lib/um26-directus'");
+    expect(page).toContain('class="um26-evidence"');
+    expect(page).toContain('class="um26-evidence-hero"');
+    expect(page).toContain('data-um26-search');
+    expect(page).toContain('data-case-grid');
+    expect(page).toContain('data-case-modal-backdrop');
+    expect(page).not.toContain('AntecedentesTemplateEditorial');
+    expect(page).not.toContain('class="ante-dossier"');
   });
 });
