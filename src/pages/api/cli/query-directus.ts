@@ -8,10 +8,12 @@ import {
     antecedenteUrl,
     getCliDirectusHeaders,
     getCliDirectusRuntime,
+    queryCliDirectusSnapshot,
     readCliSearchQuery,
     servicioDescription,
     servicioTitle,
     servicioUrl,
+    type CliDirectusData,
     type CliAntecedente,
     type CliServicio,
 } from '../../../utils/cliDirectus';
@@ -33,7 +35,7 @@ interface FormattedResult {
 }
 
 // DIRECTUS API CONNECTION - REAL DATA ACCESS
-async function queryDirectusReal(searchQuery: string): Promise<{antecedentes: CliAntecedente[], servicios: CliServicio[]}> {
+async function queryDirectusReal(searchQuery: string): Promise<CliDirectusData> {
     try {
         const { directusUrl, token } = await getCliDirectusRuntime();
         const headers = getCliDirectusHeaders(token);
@@ -50,15 +52,27 @@ async function queryDirectusReal(searchQuery: string): Promise<{antecedentes: Cl
             fetch(serviciosUrl, { headers })
         ]);
         
-        const antecedentes = antecedentesResponse.ok ? (await antecedentesResponse.json()).data : [];
-        const servicios = serviciosResponse.ok ? (await serviciosResponse.json()).data : [];
+        let antecedentes = antecedentesResponse.ok ? (await antecedentesResponse.json()).data : [];
+        let servicios = serviciosResponse.ok ? (await serviciosResponse.json()).data : [];
+
+        if (antecedentes.length === 0 && servicios.length === 0) {
+            const fallback = await queryCliDirectusSnapshot(searchQuery, {
+                antecedenteLimit: 20,
+                servicioLimit: 10,
+            });
+            antecedentes = fallback.antecedentes;
+            servicios = fallback.servicios;
+        }
         
         console.warn(`[UM-CLI] Directus Query Results: ${antecedentes.length} antecedentes, ${servicios.length} servicios`);
         
         return { antecedentes, servicios };
     } catch (error) {
         console.error('[UM-CLI] Directus API Error:', error);
-        return { antecedentes: [], servicios: [] };
+        return queryCliDirectusSnapshot(searchQuery, {
+            antecedenteLimit: 20,
+            servicioLimit: 10,
+        });
     }
 }
 

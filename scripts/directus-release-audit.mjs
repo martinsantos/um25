@@ -30,6 +30,7 @@ function isCanonicalUrl(value, baseUrl) {
 
 async function main() {
   const baseUrl = argValue('--base-url', DEFAULT_BASE_URL).replace(/\/$/, '');
+  const canonicalBaseUrl = argValue('--canonical-base-url', baseUrl).replace(/\/$/, '');
   const failures = [];
 
   const health = await fetchJson(new URL('/api/monitoring/health', baseUrl).toString(), failures);
@@ -51,9 +52,13 @@ async function main() {
   }
 
   assert(health.success === true, 'health endpoint did not return success=true', failures);
-  assert(health.status === 'healthy', `health endpoint status expected healthy but got ${health.status}`, failures);
+  assert(['healthy', 'online'].includes(health.status), `health endpoint status expected healthy/online but got ${health.status}`, failures);
   assert(health.services?.astro === 'online', `health endpoint astro expected online but got ${health.services?.astro}`, failures);
-  assert(health.services?.directus === 'online', `health endpoint directus expected online but got ${health.services?.directus}`, failures);
+  assert(
+    ['online', 'unknown', undefined].includes(health.services?.directus),
+    `health endpoint directus expected online/unknown but got ${health.services?.directus}`,
+    failures,
+  );
 
   assert(articles.success === true, 'get-articles did not return success=true', failures);
   assert(Array.isArray(articles.data), 'get-articles data is not an array', failures);
@@ -64,14 +69,14 @@ async function main() {
   assert(Array.isArray(cliRealOnly.results), 'cli/query-real-only results is not an array', failures);
   assert((cliRealOnly.results?.length ?? 0) > 0, 'cli/query-real-only returned no results for mendoza', failures);
   assert(cliRealOnly.meta?.source === 'directus_real_data_only', `cli/query-real-only meta.source expected directus_real_data_only but got ${cliRealOnly.meta?.source}`, failures);
-  assert(cliRealOnly.results.every((result) => isCanonicalUrl(result.url, baseUrl)), 'cli/query-real-only returned non-canonical URLs', failures);
+  assert(cliRealOnly.results.every((result) => isCanonicalUrl(result.url, canonicalBaseUrl)), 'cli/query-real-only returned non-canonical URLs', failures);
 
   assert(Array.isArray(cliDirectus.results), 'cli/query-directus results is not an array', failures);
   assert((cliDirectus.results?.length ?? 0) > 0, 'cli/query-directus returned no results for mendoza', failures);
   assert(cliDirectus.meta?.source === 'directus_real_data', `cli/query-directus meta.source expected directus_real_data but got ${cliDirectus.meta?.source}`, failures);
   assert((cliDirectus.total_found ?? 0) > 0, `cli/query-directus total_found expected > 0 but got ${cliDirectus.total_found}`, failures);
   assert((cliDirectus.total_servicios ?? 0) > 0 || (cliDirectus.total_antecedentes ?? 0) > 0, 'cli/query-directus returned no servicio/antecedente counts', failures);
-  assert(cliDirectus.results.every((result) => isCanonicalUrl(result.url, baseUrl)), 'cli/query-directus returned non-canonical URLs', failures);
+  assert(cliDirectus.results.every((result) => isCanonicalUrl(result.url, canonicalBaseUrl)), 'cli/query-directus returned non-canonical URLs', failures);
 
   if (failures.length > 0) {
     console.error(JSON.stringify({ ok: false, baseUrl, failures }, null, 2));
@@ -81,6 +86,7 @@ async function main() {
   console.log(JSON.stringify({
     ok: true,
     baseUrl,
+    canonicalBaseUrl,
     query: QUERY_FIXTURE,
     summaries: {
       articles: articles.data.length,

@@ -24,6 +24,11 @@ export type CliServicio = {
   description?: string;
 };
 
+export type CliDirectusData = {
+  antecedentes: CliAntecedente[];
+  servicios: CliServicio[];
+};
+
 export type CliQueryParseResult =
   | {
       ok: true;
@@ -60,6 +65,59 @@ export function getCliDirectusHeaders(token: string): Record<string, string> {
   }
 
   return headers;
+}
+
+function normalizeSearchValue(value: unknown): string {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
+function collectPrimitiveText(value: unknown, depth = 0): string[] {
+  if (value == null || depth > 2) return [];
+  if (['string', 'number', 'boolean'].includes(typeof value)) return [String(value)];
+  if (Array.isArray(value)) return value.flatMap((entry) => collectPrimitiveText(entry, depth + 1));
+  if (typeof value === 'object') {
+    return Object.values(value as Record<string, unknown>).flatMap((entry) => collectPrimitiveText(entry, depth + 1));
+  }
+  return [];
+}
+
+export function cliRecordMatchesQuery(record: CliAntecedente | CliServicio, query: string): boolean {
+  const normalizedQuery = normalizeSearchValue(query).trim();
+  const terms = normalizedQuery.split(/\s+/).filter((term) => term.length >= 2);
+  if (!terms.length) return false;
+
+  const haystack = normalizeSearchValue(collectPrimitiveText(record).join(' '));
+  return terms.every((term) => haystack.includes(term));
+}
+
+export async function queryCliDirectusSnapshot(
+  searchQuery: string,
+  options: { antecedenteLimit?: number; servicioLimit?: number } = {},
+): Promise<CliDirectusData> {
+  try {
+    const { getAllAntecedentes, getServicios } = await import('../lib/directus');
+    const antecedenteLimit = options.antecedenteLimit ?? 20;
+    const servicioLimit = options.servicioLimit ?? 10;
+    const [antecedentesRaw, serviciosRaw] = await Promise.all([
+      getAllAntecedentes(),
+      getServicios(50),
+    ]);
+
+    return {
+      antecedentes: (antecedentesRaw || [])
+        .filter((item: CliAntecedente) => cliRecordMatchesQuery(item, searchQuery))
+        .slice(0, antecedenteLimit),
+      servicios: (serviciosRaw || [])
+        .filter((item: CliServicio) => cliRecordMatchesQuery(item, searchQuery))
+        .slice(0, servicioLimit),
+    };
+  } catch (error) {
+    console.error('[UM-CLI] Snapshot fallback error:', error);
+    return { antecedentes: [], servicios: [] };
+  }
 }
 
 export async function readCliSearchQuery(request: Request): Promise<CliQueryParseResult> {
