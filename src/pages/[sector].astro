@@ -7,13 +7,13 @@
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import SectorTemplateEditorial from '../components/templates/SectorTemplateEditorial.astro';
 import SectorTemplateAtlas from '../components/templates/SectorTemplateAtlas.astro';
+import SectorTemplateUM26 from '../components/templates/SectorTemplateUM26.astro';
 import GeoHubDossier from '../components/templates/GeoHubDossier.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getSectorBySlug, getAntecedentesForSector } from '../utils/sectoresHelpers.ts';
 import { getFAQSchema } from '../data/sectorFAQs';
 import { getSectorVisualSpec } from '../data/sectorVisualSystem';
 import { editorialImageDimensions, editorialImages, getSectorEditorialImage } from '../data/editorialImageSystem';
-import { getDevTemplateVariant } from '../utils/templateVariant';
 import { resolveCmsImageUrl } from '../utils/directusImageResolver';
 import { buildGeoHubStructuredData, getGeoCommercialHub } from '../data/geoCommercialHubs';
 import {
@@ -69,9 +69,12 @@ const sanitizeSectorStats = (items: any[] = []) => items.map((stat: any) => {
 });
 const displayStats = sanitizeSectorStats(stats || []);
 const faqSchema = getFAQSchema(sectorSlug);
-const templateVariant = isReplicaIdenticalCopy()
-  ? 'editorial'
-  : (getDevTemplateVariant(Astro.url, import.meta.env.DEV) ?? 'editorial');
+const devTemplateParam = import.meta.env.DEV && !isReplicaIdenticalCopy()
+  ? Astro.url.searchParams.get('template')
+  : null;
+const templateVariant = devTemplateParam === 'editorial' || devTemplateParam === 'atlas'
+  ? devTemplateParam
+  : 'um26';
 const templateSector = {
   ...(visual || {}),
   ...sectorData,
@@ -131,7 +134,15 @@ const sectorStructuredData = geoHub ? [] : [
 </LayoutV4>
 ) : (
 <LayoutV4 title={editorialSeoTitle} description={seo_description} keywords={seo_keywords} image={heroImage} imageWidth={editorialImageDimensions.width} imageHeight={editorialImageDimensions.height} structuredData={sectorStructuredData}>
-  {templateVariant !== 'atlas' && (
+  {templateVariant === 'um26' && (
+    <SectorTemplateUM26
+      sector={templateSector}
+      antecedentes={antecedentes}
+      valueProps={value_props || []}
+      serviciosRelacionados={templateServiciosRelacionados}
+    />
+  )}
+  {templateVariant === 'editorial' && (
     <SectorTemplateEditorial
       mode="detail"
       sector={templateSector}
