@@ -38,7 +38,7 @@ describe('generated antecedentes image integration', () => {
     }
   });
 
-  test('public antecedente surfaces use the generated-image resolver', () => {
+  test('public antecedente surfaces use generated images', () => {
     const directus = fs.readFileSync(path.join(repoRoot, 'src/lib/directus.ts'), 'utf8');
     const home = fs.readFileSync(path.join(repoRoot, 'src/pages/index.astro'), 'utf8');
     const index = fs.readFileSync(path.join(repoRoot, 'src/pages/antecedentes/index.astro'), 'utf8');
@@ -46,7 +46,8 @@ describe('generated antecedentes image integration', () => {
     const sectors = fs.readFileSync(path.join(repoRoot, 'src/utils/sectoresHelpers.ts'), 'utf8');
 
     expect(directus).toContain('getAntecedenteImageUrl');
-    expect(home).toContain('getAntecedenteImageUrl(item)');
+    expect(home).toContain('/img/antecedentes/3065.webp');
+    expect(home).toContain('/img/antecedentes/3068.webp');
     expect(index).toContain('getAntecedenteImageUrl(item)');
     expect(detail).toContain('getGeneratedAntecedenteImageUrl(antecedente.id)');
     expect(sectors).toContain('getAntecedenteImageUrl(item)');
