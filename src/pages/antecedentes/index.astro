@@ -7,6 +7,7 @@
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import AntecedentesTemplateEditorial from '../../components/templates/AntecedentesTemplateEditorial.astro';
 import AntecedentesTemplateAtlas from '../../components/templates/AntecedentesTemplateAtlas.astro';
+import AntecedentesTemplateUM26 from '../../components/templates/AntecedentesTemplateUM26.astro';
 import IntentLinkGraph from '../../components/um/IntentLinkGraph.astro';
 import { getAllAntecedentes, getAntecedenteImageUrl } from '../../lib/directus.ts';
 import { getDevTemplateVariant } from '../../utils/templateVariant';
@@ -311,7 +312,10 @@ const pageDescription = pageData.currentPage > 1
       ? 'Archivo filtrado de antecedentes técnicos de ULTIMA MILLA con proyectos reales, cliente, sector, fecha e imagen asociada.'
       : 'Antecedentes técnicos de ULTIMA MILLA: proyectos reales de redes, seguridad electrónica, telecomunicaciones, software, soporte e infraestructura IT.';
 
-const templateVariant = getDevTemplateVariant(Astro.url, import.meta.env.DEV) ?? 'editorial';
+const requestedTemplateVariant = getDevTemplateVariant(Astro.url, import.meta.env.DEV);
+const templateVariant = import.meta.env.DEV && (requestedTemplateVariant === 'editorial' || requestedTemplateVariant === 'atlas')
+  ? requestedTemplateVariant
+  : 'um26';
 const visibleAntecedentes = [
   ...(pageData.spotlightAntecedentes || []),
   ...(pageData.antecedentes || []),
@@ -400,7 +404,7 @@ const antecedentesCollectionStructuredData = {
       pageSize={PAGE_SIZE}
     />
   )}
-  {templateVariant !== 'atlas' && (
+  {templateVariant === 'editorial' && (
     <AntecedentesTemplateEditorial
       pageData={pageData}
       featuredAntecedente={featuredAntecedente}
@@ -412,12 +416,26 @@ const antecedentesCollectionStructuredData = {
       pageSize={PAGE_SIZE}
     />
   )}
-  <IntentLinkGraph
-    kicker="Para avanzar"
-    title="Usar la evidencia"
-    text="Pasá de casos reales a servicios aplicados, sectores similares o contacto técnico."
-    groups={antecedentesStrategicLinkGroups}
-  />
+  {templateVariant === 'um26' && (
+    <AntecedentesTemplateUM26
+      pageData={pageData}
+      featuredAntecedente={featuredAntecedente}
+      filterChips={filterChips}
+      sectorFilter={sectorFilter}
+      searchQuery={searchQuery}
+      areaFilter={areaFilter}
+      unidadFilter={unidadFilter}
+      pageSize={PAGE_SIZE}
+    />
+  )}
+  {templateVariant !== 'um26' && (
+    <IntentLinkGraph
+      kicker="Para avanzar"
+      title="Usar la evidencia"
+      text="Pasá de casos reales a servicios aplicados, sectores similares o contacto técnico."
+      groups={antecedentesStrategicLinkGroups}
+    />
+  )}
   {crawlableAntecedenteIndex.length > 0 && (
     <section class="antecedentes-crawl-index" aria-labelledby="antecedentes-crawl-index-title">
       <div class="antecedentes-crawl-index__inner">
@@ -442,8 +460,8 @@ const antecedentesCollectionStructuredData = {
 
 <style>
   .antecedentes-crawl-index {
-    background: #ffffff;
-    border-top: 1px solid #e5e7eb;
+    background: #0a0a0b;
+    border-top: 1px solid rgba(255,255,255,0.08);
     padding: 28px 0 56px;
   }
 
@@ -454,9 +472,9 @@ const antecedentesCollectionStructuredData = {
   }
 
   .antecedentes-crawl-index details {
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    background: #f9fafb;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 6px;
+    background: #111113;
   }
 
   .antecedentes-crawl-index summary {
@@ -467,13 +485,13 @@ const antecedentesCollectionStructuredData = {
     justify-content: space-between;
     gap: 12px;
     padding: 18px 20px;
-    color: #111827;
+    color: #fff;
     font-size: 18px;
     font-weight: 700;
   }
 
   .antecedentes-crawl-index summary span {
-    color: #6b7280;
+    color: rgba(255,255,255,0.58);
     font-size: 16px;
     font-weight: 600;
   }
@@ -482,8 +500,8 @@ const antecedentesCollectionStructuredData = {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 1px;
-    border-top: 1px solid #e5e7eb;
-    background: #e5e7eb;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.12);
   }
 
   .antecedentes-crawl-index a {
@@ -491,14 +509,14 @@ const antecedentesCollectionStructuredData = {
     gap: 4px;
     min-width: 0;
     padding: 12px 14px;
-    background: #ffffff;
-    color: #111827;
+    background: #0a0a0b;
+    color: #fff;
     text-decoration: none;
   }
 
   .antecedentes-crawl-index a:hover,
   .antecedentes-crawl-index a:focus-visible {
-    background: color-mix(in srgb, #ffffff 92%, var(--um-red, #dc2626) 8%);
+    background: color-mix(in srgb, #0a0a0b 86%, var(--um-red, #DC2626) 14%);
     outline: none;
   }
 
@@ -514,7 +532,7 @@ const antecedentesCollectionStructuredData = {
   }
 
   .antecedentes-crawl-index a span {
-    color: #6b7280;
+    color: rgba(255,255,255,0.58);
     font-size: 16px;
     line-height: 1.35;
   }
