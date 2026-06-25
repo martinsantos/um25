@@ -27,4 +27,16 @@ describe('UM26 theme contract', () => {
     expect(template).toContain('class="um26-sector"');
     expect(template).not.toContain('sector-editorial');
   });
+
+  test('antecedentes index defaults to the UM26 template and exposes its DOM marker', () => {
+    const page = read('src/pages/antecedentes/index.astro');
+    const template = read('src/components/templates/AntecedentesTemplateUM26.astro');
+
+    expect(page).toContain("import AntecedentesTemplateUM26 from '../../components/templates/AntecedentesTemplateUM26.astro'");
+    expect(page).toContain(": 'um26'");
+    expect(page).toContain('<AntecedentesTemplateUM26');
+    expect(page).not.toContain("?? 'editorial'");
+    expect(template).toContain('class="um26-antecedentes"');
+    expect(template).not.toContain('ante-dossier');
+  });
 });
