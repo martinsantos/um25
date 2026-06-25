@@ -1,1521 +1,806 @@
 ---
 import LayoutV4 from '../../layouts/LayoutV4.astro';
-import TrustStrip from '../../components/um/TrustStrip.astro';
-import IntentLinkGraph from '../../components/um/IntentLinkGraph.astro';
-import { generateSlug } from '../../utils/slugUtils.js';
-import { getAllServicios } from '../../utils/directusHelpers';
-import { getServiceVisualSpec, serviceVisualOrder } from '../../data/serviceVisualSystem';
-import { editorialImageDimensions, editorialImages } from '../../data/editorialImageSystem';
-import { resolveReplicaH1 } from '../../utils/replicaProdCopy';
-import { getAntecedentesCountExactPhrase } from '../../utils/verifiedProof';
-import {
-  buildServiceStrategicLinkGroups,
-  buildStrategicWebPageStructuredData,
-} from '../../data/strategicLinkGraph';
 
-const serviciosIndexH1 = resolveReplicaH1('/servicios', 'Servicios IT para continuidad operativa');
-
-const serviciosFromDirectus = await getAllServicios();
-const byId = new Map(serviciosFromDirectus.map((servicio) => [Number(servicio.id), servicio]));
-
-const servicios = serviceVisualOrder
-  .map((id) => {
-    const directus = byId.get(id);
-    const visual = getServiceVisualSpec(id);
-    if (!directus || !visual) return undefined;
-    return {
-      id,
-      title: directus.Titulo,
-      slug: directus.slug || generateSlug(directus.Titulo),
-      href: `/servicios/${id}/${directus.slug || generateSlug(directus.Titulo)}`,
-      description: String(directus.Descripcion || '').replace(/\\\\/g, ' ').replace(/\s+/g, ' ').trim(),
-      visual
-    };
-  })
-  .filter(Boolean);
-const servicesIndexImage = servicios[0]?.visual.image || editorialImages.homeServices;
-const seguridadElectronica = servicios.find((servicio) => Number(servicio.id) === 102);
-const cctvAiProduct = {
-  title: 'UMSA CCTV AI',
-  eyebrow: 'Producto',
-  description:
-    'Producto UMSA para convertir cámaras existentes en alertas útiles, clips, dashboard e informes forenses verificables.',
-  proof: 'Piloto de 30 días sobre 6 cámaras críticas, con dashboard e informe forense.',
-  image: '/images/services/productos/cctv-ai/cctv-ai-forense-telefono.webp',
-  href: '/cctvai/',
-  serviceHref:
-    seguridadElectronica?.href ||
-    '/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi',
+type Service = {
+  code: string;
+  name: string;
+  slug: string;
+  tagline: string;
+  description: string;
+  capabilities: string[];
+  sectors: number;
+  evidence: number;
+  image: string;
 };
-const servicesStrategicLinkGroups = buildServiceStrategicLinkGroups({
-  currentPath: '/servicios',
-  title: serviciosIndexH1,
-  summary: 'Servicios IT integrales para empresas: redes, seguridad, telecomunicaciones, software, soporte, consultoría, detección y energía IT.',
-  text: [
-    servicios.map((servicio) => `${servicio.title} ${servicio.description} ${servicio.visual.shortName} ${servicio.visual.proof}`).join(' '),
-    `${cctvAiProduct.title} ${cctvAiProduct.description}`,
-  ].join(' '),
-});
-const servicesIndexSignificantLinks = [
-  'https://www.ultimamilla.com.ar/antecedentes',
-  'https://www.ultimamilla.com.ar/sectores',
-  'https://www.ultimamilla.com.ar/contacto',
-  ...servicios.slice(0, 8).map((servicio) => `https://www.ultimamilla.com.ar${servicio.href}`),
+
+const services: Service[] = [
+  {
+    code: '101',
+    name: 'Redes',
+    slug: 'infraestructura-de-redes-cableado-fibra-optica-radioenlaces',
+    tagline: 'Cableado estructurado, fibra optica y enlaces certificados.',
+    description:
+      'Disenamos e implementamos redes fisicas y logicas para edificios, plantas, campamentos y sedes distribuidas, con documentacion tecnica verificable.',
+    capabilities: ['Relevamiento y diseno de topologia', 'Cableado estructurado y fibra optica', 'Certificacion y documentacion', 'Mantenimiento correctivo y preventivo'],
+    sectors: 9,
+    evidence: 86,
+    image: '/img/servicios/redes.webp',
+  },
+  {
+    code: '102',
+    name: 'Seguridad electronica',
+    slug: 'sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi',
+    tagline: 'CCTV IP, control de accesos y monitoreo operativo.',
+    description:
+      'Integramos camaras, grabacion, accesos, alarmas y visualizacion para que la evidencia sea util, disponible y auditable por responsables tecnicos.',
+    capabilities: ['CCTV IP y VMS', 'Control de accesos', 'Monitoreo y grabacion', 'Integracion con operacion existente'],
+    sectors: 8,
+    evidence: 72,
+    image: '/img/servicios/seguridad-electronica.webp',
+  },
+  {
+    code: '103',
+    name: 'Telecomunicaciones',
+    slug: 'telecomunicaciones-datos-voz-video',
+    tagline: 'Datos, voz y video para sitios remotos.',
+    description:
+      'Resolvemos conectividad de ultima milla, radioenlaces, enlaces corporativos y comunicaciones de respaldo para operaciones que no pueden quedar aisladas.',
+    capabilities: ['Radioenlaces y enlaces dedicados', 'Voz, datos y video', 'Redundancia y contingencia', 'Operaciones remotas'],
+    sectors: 8,
+    evidence: 64,
+    image: '/img/servicios/telecomunicaciones.webp',
+  },
+  {
+    code: '104',
+    name: 'Software a medida',
+    slug: 'desarrollo-de-software-a-medida-web-mobile-erp',
+    tagline: 'Sistemas, APIs y tableros para procesos propios.',
+    description:
+      'Desarrollamos plataformas web, moviles, integraciones y tableros para digitalizar procesos reales sin despegar el sistema de la operacion diaria.',
+    capabilities: ['Aplicaciones web y moviles', 'APIs e integraciones', 'Dashboards operativos', 'Automatizacion de procesos'],
+    sectors: 7,
+    evidence: 58,
+    image: '/img/servicios/software-a-medida.webp',
+  },
+  {
+    code: '105',
+    name: 'Soporte 24/7',
+    slug: 'soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it',
+    tagline: 'Mesa de ayuda, NOC y mantenimiento con SLA.',
+    description:
+      'Acompanamos infraestructura instalada con soporte, monitoreo y mantenimiento para reducir tiempos de respuesta y sostener continuidad operativa.',
+    capabilities: ['Mesa de ayuda', 'Monitoreo NOC', 'Mantenimiento en sitio', 'Gestion de incidentes y SLA'],
+    sectors: 9,
+    evidence: 92,
+    image: '/img/servicios/soporte-247.webp',
+  },
+  {
+    code: '106',
+    name: 'Consultoria IT',
+    slug: 'consultoria-it-y-transformacion-digital-arquitectura-auditoria',
+    tagline: 'Arquitectura, auditoria y roadmap operativo.',
+    description:
+      'Evaluamos riesgos, infraestructura, procesos y decisiones tecnologicas para ordenar inversiones y transformar necesidades en alcance ejecutable.',
+    capabilities: ['Auditoria tecnica', 'Roadmap de infraestructura', 'Analisis de riesgo', 'Pliegos y especificaciones'],
+    sectors: 9,
+    evidence: 44,
+    image: '/img/servicios/consultoria-it.webp',
+  },
+  {
+    code: '107',
+    name: 'Deteccion de incendios',
+    slug: 'sistemas-de-deteccion-y-alarma-de-incendios',
+    tagline: 'SDI, sensores y paneles para entornos productivos.',
+    description:
+      'Implementamos deteccion y alarma de incendios con criterio tecnico, pruebas documentadas e integracion con seguridad electronica y operacion edilicia.',
+    capabilities: ['Paneles y sensores', 'Pruebas y puesta en marcha', 'Documentacion de zonas', 'Mantenimiento y verificacion'],
+    sectors: 7,
+    evidence: 39,
+    image: '/img/servicios/deteccion-incendios.webp',
+  },
+  {
+    code: '108',
+    name: 'Electricos IT',
+    slug: 'servicios-electricos-para-it',
+    tagline: 'Tableros, UPS y energia limpia para infraestructura.',
+    description:
+      'Resolvemos la capa electrica que sostiene redes, datacenters, CCTV y equipamiento critico, con instalacion prolija y continuidad medida.',
+    capabilities: ['Tableros y protecciones', 'UPS y autonomia', 'Energia para racks', 'Medicion y mantenimiento'],
+    sectors: 8,
+    evidence: 63,
+    image: '/img/servicios/electricos-it.webp',
+  },
 ];
 
-const structuredData = [
-  {
-    '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
-    name: 'Servicios IT integrales ULTIMA MILLA',
-    description: 'Servicios IT integrales: redes, telecomunicaciones, seguridad electrónica, software, soporte, consultoría, detección de incendios y eléctricos para IT.',
-    url: 'https://www.ultimamilla.com.ar/servicios',
-    significantLink: servicesIndexSignificantLinks,
-    hasPart: servicios.slice(0, 8).map((servicio) => ({
-      '@type': 'WebPage',
-      name: servicio.visual.shortName,
-      url: `https://www.ultimamilla.com.ar${servicio.href}`,
-    })),
-  },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    itemListElement: servicios.map((servicio, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      name: servicio.title,
-      url: `https://www.ultimamilla.com.ar${servicio.href}`
-    }))
-  },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'Service',
-    name: 'UMSA CCTV AI',
-    alternateName: 'Inteligencia artificial para cámaras de seguridad',
-    description: cctvAiProduct.description,
-    url: `https://www.ultimamilla.com.ar${cctvAiProduct.href}`,
-    serviceType: 'CCTV AI, videovigilancia inteligente, analítica de video, seguridad electrónica',
-    provider: {
-      '@type': 'Organization',
-      name: 'ULTIMA MILLA',
-      url: 'https://www.ultimamilla.com.ar',
-    },
-    areaServed: [
-      { '@type': 'City', name: 'Mendoza' },
-      { '@type': 'AdministrativeArea', name: 'Cuyo' },
-      { '@type': 'AdministrativeArea', name: 'Patagonia' },
-    ],
-    offers: {
-      '@type': 'Offer',
-      availability: 'https://schema.org/InStock',
-      category: 'Producto',
-      name: 'Piloto UMSA CCTV AI',
-      description: cctvAiProduct.proof,
-    },
-  },
-  buildStrategicWebPageStructuredData({
-    url: 'https://www.ultimamilla.com.ar/servicios',
-    name: serviciosIndexH1,
-    description: 'Servicios IT integrales para empresas: redes, seguridad, telecomunicaciones, software, soporte, consultoría, detección y energía IT.',
-    groups: servicesStrategicLinkGroups,
-  })
-];
-
-const serviceIconPaths: Record<string, string> = {
-  network: '<path d="M6 9v6"/><path d="M18 9v6"/><path d="M10 12h4"/><rect x="3" y="4" width="6" height="5" rx="1.5"/><rect x="15" y="4" width="6" height="5" rx="1.5"/><rect x="3" y="15" width="6" height="5" rx="1.5"/><rect x="15" y="15" width="6" height="5" rx="1.5"/><path d="M9 6.5h6"/><path d="M9 17.5h6"/>',
-  shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
-  radio: '<circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49"/><path d="M7.76 16.24a6 6 0 0 1 0-8.49"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 19.07a10 10 0 0 1 0-14.14"/>',
-  code: '<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/><path d="m14 4-4 16"/>',
-  headset: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/><path d="M12 21v-2"/>',
-  briefcase: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><path d="M2 12h20"/><path d="M12 12v2"/>',
-  flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
-  bolt: '<path d="M13 2 4 14h7l-1 8 10-13h-7l0-7z"/>'
-};
+const totalServices = String(services.length).padStart(2, '0');
 ---
 
 <LayoutV4
-  title="Servicios IT integrales para continuidad operativa | ULTIMA MILLA"
-  description="Servicios IT integrales para empresas: redes, seguridad electrónica, telecomunicaciones, software, soporte 24/7, consultoría, detección de incendios y eléctricos para IT."
+  title="Servicios IT para continuidad operativa | ULTIMA MILLA"
+  description="8 frentes de servicio IT: redes, seguridad electronica, telecomunicaciones, software, soporte 24/7, consultoria, deteccion de incendios y electricos IT."
   keywords="servicios IT integrales, redes empresariales, seguridad electronica, telecomunicaciones, software a medida, soporte IT 24/7, consultoria IT, deteccion de incendios, electricos para IT"
-  image={servicesIndexImage}
-  imageWidth={editorialImageDimensions.width}
-  imageHeight={editorialImageDimensions.height}
-  structuredData={structuredData}
+  image="/img/servicios/redes.webp"
 >
-  <section class="services-hero">
-    <div class="um-container services-hero__grid">
-      <div>
-        <nav class="services-breadcrumb" aria-label="Breadcrumb">
-          <a href="/">Inicio</a>
-          <span>/</span>
-          <span>Servicios</span>
-        </nav>
-        <h1>{serviciosIndexH1}</h1>
-        <p>
-          Infraestructura tecnológica para empresas que necesitan redes estables,
-          seguridad, software operativo y soporte real en terreno.
-        </p>
-        <div class="services-actions services-actions--intents">
-          <a href="/contacto" class="um-btn-primary">Solicitar diagnóstico</a>
-          <a href="/antecedentes" class="um-btn-secondary services-secondary-dark">Ver antecedentes</a>
+  <main class="um26-services">
+    <section class="services-hero" aria-labelledby="services-title">
+      <img src="/img/servicios/redes.webp" alt="" loading="eager" fetchpriority="high" decoding="async" />
+      <div class="services-hero__veil" aria-hidden="true"></div>
+      <div class="services-shell services-hero__body">
+        <p class="um26-kicker"><span></span>01 / Servicios</p>
+        <h1 id="services-title">Ocho frentes de servicio.</h1>
+        <p>Una arquitectura tecnica, no proveedores aislados. Redes, seguridad, telecomunicaciones, software, soporte, consultoria, deteccion y energia IT conectados por evidencia operativa.</p>
+        <div class="services-hero__actions">
+          <a class="um26-btn um26-btn--red" href="/contacto">Solicitar diagnostico</a>
+          <a class="um26-btn um26-btn--ghost" href="/antecedentes">Ver antecedentes</a>
         </div>
-        <dl class="services-hero__proofline" aria-label="Prueba institucional">
-          <div>
-            <dt>Servicios</dt>
-            <dd>8 frentes integrados</dd>
-          </div>
-          <div>
-            <dt>Archivo</dt>
-            <dd>{getAntecedentesCountExactPhrase()}</dd>
-          </div>
-          <div>
-            <dt>Operación</dt>
-            <dd>22+ años / 24-7</dd>
-          </div>
+        <dl class="services-proofline" aria-label="Prueba institucional">
+          <div><dt>Servicios</dt><dd>8 frentes integrados</dd></div>
+          <div><dt>Archivo</dt><dd>518 antecedentes tecnicos</dd></div>
+          <div><dt>Operacion</dt><dd>22+ anos / 24-7</dd></div>
         </dl>
       </div>
-
-      <aside class="services-hero__visual" aria-label="Prueba operativa">
-        <div class="services-hero__image">
-          <img src={servicesIndexImage} alt="Infraestructura IT operada por ULTIMA MILLA" loading="eager" fetchpriority="high" decoding="async" width={editorialImageDimensions.width} height={editorialImageDimensions.height} />
-        </div>
-        <div class="services-proof-note">
-          <strong>Diagnóstico, implementación, evidencia y soporte dentro de una misma cadena operativa.</strong>
-          <p>El servicio debe poder verificarse por alcance, sector, antecedente y continuidad posterior.</p>
-        </div>
+      <aside class="services-hero__note" aria-label="Criterio operativo">
+        <strong>Diagnostico, implementacion, evidencia y soporte dentro de una misma cadena operativa.</strong>
+        <p>El servicio debe verificarse por alcance, sector, antecedente y continuidad posterior.</p>
       </aside>
-    </div>
-  </section>
+    </section>
 
-  <section class="um-section services-index">
-    <div class="um-container">
-      <div class="services-dossier-head">
+    <section class="services-intro">
+      <div class="services-shell services-intro__grid">
         <div>
-          <span class="services-rule" aria-hidden="true"></span>
-          <h2>Una arquitectura de servicio, no proveedores aislados.</h2>
+          <p class="um26-kicker"><span></span>Arquitectura</p>
+          <h2>Continuidad operativa primero.</h2>
         </div>
-        <p>
-          Ocho frentes técnicos conectados por diagnóstico, ingeniería, implementación,
-          evidencia técnica y soporte. El diseño debe poder leerse en minutos y auditarse después.
-        </p>
+        <p>El diseno se lee en minutos y se audita despues: alcance, riesgo, integracion, responsables, evidencia tecnica y soporte posterior.</p>
       </div>
+    </section>
 
-      <div class="services-dossier">
-        <div class="services-dossier__brief services-dossier__folio" aria-label="Criterio operativo de servicios">
-          <span>criterio de diseño</span>
-          <strong>Continuidad operativa primero.</strong>
-          <p>
-            Se priorizan alcance, riesgo, integración y soporte posterior. Cada servicio debe
-            poder vincularse a un antecedente, un responsable y una evidencia técnica.
-          </p>
-        </div>
-
-        <div class="services-dossier__list services-dossier__list--visual" aria-label="Frentes de servicios IT">
-          {servicios.map((servicio, index) => (
-            <a
-              href={servicio.href}
-              class="um-click-surface service-dossier-item service-dossier-item--visual"
-              style={`--service-accent:${servicio.visual.accent};`}
-            >
-              <span class="service-dossier-item__num">{String(index + 1).padStart(2, '0')}</span>
-              <span class="service-dossier-item__media" aria-hidden="true">
-                <img
-                  src={servicio.visual.image}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                  width={editorialImageDimensions.width}
-                  height={editorialImageDimensions.height}
-                />
-              </span>
-              <span class="service-dossier-item__icon" aria-hidden="true">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" set:html={serviceIconPaths[servicio.visual.icon] || serviceIconPaths.network} />
-              </span>
-              <span class="service-dossier-item__body">
-                <span>{servicio.visual.eyebrow}</span>
-                <strong>{servicio.visual.shortName}</strong>
-                <em>{servicio.visual.proof}</em>
-              </span>
-              <span class="service-dossier-item__signal">{servicio.visual.signal}</span>
+    <section class="services-ledger" aria-label="Frentes de servicio de ULTIMA MILLA">
+      <div class="services-shell">
+        {services.map((service, index) => (
+          <article class:list={['service-row', { 'service-row--reverse': index % 2 === 1 }]}>
+                <a
+                  href={`/servicios/${service.code}/${service.slug}`}
+                  class="service-image"
+                  style={`--service-image: url(${service.image})`}
+                  aria-label={`Abrir servicio ${service.name}`}
+                >
+                  <img src={service.image} alt="" loading="eager" decoding="async" />
+              <span class="service-image__code">SRV.{service.code}</span>
+              <span class="service-image__sectors">{service.sectors} sectores</span>
+              <span class="service-image__evidence"><strong>{service.evidence}<b>.</b></strong><em>antecedentes</em></span>
             </a>
-          ))}
-        </div>
-      </div>
-
-      <section class="services-products-band" aria-labelledby="services-products-title">
-        <div class="services-product-feature">
-          <div class="services-product-feature__media" aria-hidden="true">
-            <img
-              src={cctvAiProduct.image}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              width="1200"
-              height="800"
-            />
-          </div>
-
-          <div class="services-product-feature__copy">
-            <p class="services-product-feature__eyebrow">{cctvAiProduct.eyebrow}</p>
-            <h2 id="services-products-title">{cctvAiProduct.title}</h2>
-            <p>{cctvAiProduct.description}</p>
-
-            <dl class="services-product-feature__proof" aria-label="Alcance inicial de CCTV AI">
-              <div>
-                <dt>Modo</dt>
-                <dd>Producto UMSA</dd>
+            <div class="service-body">
+              <p class="service-front"><span></span>Frente {String(index + 1).padStart(2, '0')} / {totalServices}</p>
+              <h2><a href={`/servicios/${service.code}/${service.slug}`}>{service.name}</a></h2>
+              <p class="service-tagline">{service.tagline}</p>
+              <p class="service-description">{service.description}</p>
+              <ul>
+                {service.capabilities.map((capability) => (
+                  <li><span aria-hidden="true"></span>{capability}</li>
+                ))}
+              </ul>
+              <div class="service-footer">
+                <span><strong>{service.evidence}<b>.</b></strong> antecedentes</span>
+                <a href={`/servicios/${service.code}/${service.slug}`}>Ver detalle</a>
+                <a href={`/antecedentes?servicio=${service.code}`}>Ver evidencia</a>
               </div>
-              <div>
-                <dt>Piloto</dt>
-                <dd>30 días / 6 cámaras</dd>
-              </div>
-              <div>
-                <dt>Entrega</dt>
-                <dd>Dashboard + forense</dd>
-              </div>
-            </dl>
-
-            <div class="services-product-feature__actions">
-              <a href={cctvAiProduct.href} class="um-btn-primary">Ver producto</a>
-              <a href="/contacto" class="um-btn-secondary services-product-feature__secondary">Solicitar diagnóstico</a>
             </div>
-          </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="services-closing">
+      <div class="services-shell services-closing__panel">
+        <div>
+          <p class="um26-kicker"><span></span>Diagnostico sin costo inicial</p>
+          <h2>Que parte de su operacion necesita estabilizar primero?</h2>
+          <p>Levantamos un relevamiento tecnico y mostramos antecedentes comparables antes de proponer alcance. Un unico interlocutor para infraestructura IT critica.</p>
         </div>
-      </section>
-
-      <div class="services-intent-ctas" id="decision" aria-label="Próximo paso por intención">
-        <a href="/contacto" class="um-click-surface services-intent-card">
-          <span>01</span>
-          <strong>Solicitar diagnóstico</strong>
-          <p>Relevamiento técnico, riesgos visibles y presupuesto base antes de comprometer alcance.</p>
-        </a>
-        <a href="/contacto" class="um-click-surface services-intent-card">
-          <span>02</span>
-          <strong>Cotizar abono</strong>
-          <p>Soporte mensual con SLA, tickets, visitas preventivas y reporte ejecutivo.</p>
-        </a>
-        <a href="/contacto" class="um-click-surface services-intent-card">
-          <span>03</span>
-          <strong>Solicitar relevamiento</strong>
-          <p>Obra puntual, sala técnica, red express o seguridad con entrega técnica verificable.</p>
-        </a>
+        <div class="services-closing__actions">
+          <a class="um26-btn um26-btn--red" href="/contacto">Solicitar relevamiento</a>
+          <a class="um26-btn um26-btn--ghost" href="/sectores">Explorar por sector</a>
+          <a class="um26-btn um26-btn--ghost" href="/antecedentes">Ver antecedentes</a>
+        </div>
       </div>
-    </div>
-  </section>
-
-  <IntentLinkGraph
-    kicker="Para avanzar"
-    title="Ver también"
-    text="Relacioná los servicios con sectores, casos reales y contacto técnico para definir el alcance."
-    groups={servicesStrategicLinkGroups}
-  />
-
-  <TrustStrip />
-
-  <section class="services-final-cta">
-    <div class="um-container">
-      <h2>¿Qué parte de su operación necesita estabilizar primero?</h2>
-      <p>Podemos empezar por un diagnóstico puntual y escalar hacia un sistema completo.</p>
-      <div>
-        <a href="/contacto" class="um-btn-primary">Hablar con ULTIMA MILLA</a>
-        <a href="/sectores" class="um-btn-secondary">Ver sectores</a>
-      </div>
-    </div>
-  </section>
-</LayoutV4>
-
-<style>
-  .services-hero {
-    background: #080808;
-    color: #fff;
-    padding: clamp(24px, 3.4vw, 42px) 0 clamp(28px, 3.8vw, 48px);
-  }
-
-  .services-hero__grid {
-    display: grid;
-    grid-template-columns: minmax(0, 0.64fr) minmax(320px, 0.36fr);
-    gap: clamp(34px, 6vw, 72px);
-    align-items: start;
-  }
-
-  .services-hero__grid > * {
-    min-width: 0;
-  }
-
-  .services-breadcrumb {
-    display: flex;
-    gap: 0.55rem;
-    margin-bottom: clamp(16px, 2.2vw, 26px);
-    color: rgba(255,255,255,0.58);
-    font-size: 1rem;
-    font-weight: 700;
-  }
-
-  .services-breadcrumb a:hover {
-    color: #fff;
-  }
-
-  .services-hero h1 {
-    max-width: 760px;
-    font-size: clamp(2rem, 2.5vw, 2.64rem);
-    line-height: 1.1;
-    font-weight: 600;
-    letter-spacing: 0;
-    text-wrap: balance;
-    overflow-wrap: anywhere;
-  }
-
-  .services-hero p {
-    max-width: 680px;
-    margin-top: 1rem;
-    color: rgba(255,255,255,0.72);
-    font-size: clamp(1rem, 1.08vw, 1.12rem);
-    line-height: 1.68;
-    overflow-wrap: anywhere;
-  }
-
-  .services-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.8rem;
-    margin-top: 1.35rem;
-  }
-
-  .services-hero__proofline {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    max-width: 760px;
-    margin: clamp(16px, 2vw, 22px) 0 0;
-    border: 0;
-  }
-
-  .services-hero__proofline div {
-    min-width: 0;
-    padding: 12px 16px 12px 0;
-    border-right: 0;
-  }
-
-  .services-hero__proofline div + div {
-    padding-left: 16px;
-  }
-
-  .services-hero__proofline div:last-child {
-    border-right: 0;
-  }
-
-  .services-hero__proofline dt {
-    color: var(--skin-hero-muted);
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.25;
-    text-transform: uppercase;
-  }
-
-  .services-hero__proofline dd {
-    margin: 7px 0 0;
-    color: var(--skin-hero-text);
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.35;
-  }
-
-  .services-secondary-dark {
-    color: #fff;
-    border-color: rgba(255,255,255,0.44);
-  }
-
-  .services-secondary-dark:hover {
-    background: #fff;
-    color: #080808;
-    border-color: #fff;
-  }
-
-  .services-hero__visual {
-    min-width: 0;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.06);
-  }
-
-  .services-hero__image {
-    height: clamp(180px, 16vw, 230px);
-    overflow: hidden;
-    background: #111;
-  }
-
-  .services-hero__image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: grayscale(0.1) contrast(1.06) saturate(0.9);
-  }
-
-  .services-proof-note {
-    padding: 1rem 1rem 1.08rem;
-    border-top: 0;
-  }
-
-  .services-proof-note strong {
-    display: block;
-    color: var(--skin-text, #fff);
-    font-family: var(--um-font-display);
-    font-size: clamp(1.08rem, 1.38vw, 1.24rem);
-    font-weight: 600;
-    line-height: 1.28;
-  }
-
-  .services-proof-note p {
-    margin: 0.5rem 0 0;
-    color: var(--skin-muted, rgba(255,255,255,0.64));
-    font-size: 1rem;
-    line-height: 1.58;
-  }
-
-  :global(body[data-skin="white"] main .services-proof-note),
-  :global(body[data-skin="steel"] main .services-proof-note) {
-    border-top-color: transparent !important;
-  }
-
-  :global(body[data-skin="white"] main .services-hero .services-proof-note strong),
-  :global(body[data-skin="steel"] main .services-hero .services-proof-note strong) {
-    color: #fff !important;
-  }
-
-  :global(body[data-skin="white"] main .services-hero .services-proof-note p),
-  :global(body[data-skin="steel"] main .services-hero .services-proof-note p) {
-    color: rgba(255, 255, 255, 0.68) !important;
-  }
-
-  .services-index {
-    background: #fff;
-    padding-top: clamp(22px, 3vw, 38px);
-    padding-bottom: clamp(46px, 5.8vw, 74px);
-  }
-
-  .services-dossier-head {
-    display: grid;
-    grid-template-columns: minmax(0, 0.54fr) minmax(300px, 0.46fr);
-    gap: clamp(22px, 4vw, 48px);
-    align-items: end;
-    margin-bottom: clamp(18px, 2.8vw, 30px);
-    border-top: 0;
-    padding: clamp(20px, 2.6vw, 30px) 0 clamp(18px, 2.4vw, 26px);
-  }
-
-  .services-rule {
-    display: block;
-    width: 42px;
-    height: 3px;
-    margin-bottom: 14px;
-    background: var(--um-red);
-  }
-
-  .services-dossier-head h2 {
-    max-width: 660px;
-    color: var(--skin-text);
-    font-family: var(--um-font-display);
-    font-size: clamp(1.85rem, 2.55vw, 2.82rem);
-    line-height: 1.08;
-    font-weight: 600;
-    letter-spacing: 0;
-    text-wrap: balance;
-  }
-
-  .services-dossier-head p {
-    margin: 0;
-    color: var(--skin-muted);
-    font-size: clamp(1rem, 1.08vw, 1.12rem);
-    line-height: 1.58;
-  }
-
-  .services-dossier {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: clamp(18px, 2.8vw, 30px);
-    align-items: start;
-  }
-
-  .services-dossier__brief {
-    display: grid;
-    grid-template-columns: minmax(180px, 0.28fr) minmax(240px, 0.28fr) minmax(0, 0.44fr);
-    gap: clamp(14px, 2.4vw, 28px);
-    align-items: center;
-    padding: clamp(18px, 2.2vw, 26px) clamp(18px, 2.4vw, 28px);
-    border-top: 1px solid var(--um-line);
-    border-bottom: 1px solid var(--um-line);
-  }
-
-  .services-dossier__brief span {
-    display: block;
-    color: var(--um-red);
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.25;
-    text-transform: uppercase;
-  }
-
-  .services-dossier__brief strong {
-    color: var(--skin-text);
-    font-family: var(--um-font-display);
-    font-size: clamp(1.28rem, 1.52vw, 1.62rem);
-    line-height: 1.12;
-    font-weight: 600;
-    text-wrap: balance;
-  }
-
-  .services-dossier__brief p {
-    margin: 0;
-    color: var(--skin-muted);
-    font-size: 1rem;
-    line-height: 1.58;
-  }
-
-  .services-dossier__list {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    scroll-margin-top: 96px;
-    border: 0;
-    background: transparent;
-    gap: clamp(12px, 1.45vw, 18px);
-  }
-
-  .service-dossier-item {
-    position: relative;
-    display: flex;
-    min-height: 100%;
-    flex-direction: column;
-    border: 0;
-    background: #fff;
-    color: var(--skin-text);
-    transition: background-color 180ms ease;
-  }
-
-  @media (hover: hover) {
-    .service-dossier-item:hover {
-      background: color-mix(in srgb, var(--skin-panel, #fff) 88%, var(--um-red) 12%);
-    }
-  }
-
-  .service-dossier-item:focus-visible {
-    outline: 3px solid color-mix(in srgb, var(--um-red) 72%, #fff 28%);
-    outline-offset: 3px;
-  }
-
-  .service-dossier-item__num {
-    position: absolute;
-    left: 14px;
-    top: 14px;
-    z-index: 2;
-    display: grid;
-    width: 42px;
-    height: 42px;
-    place-items: center;
-    background: var(--skin-panel, #fff);
-    color: var(--um-red);
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1;
-  }
-
-  .service-dossier-item__media {
-    position: relative;
-    display: block;
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    background: #111;
-  }
-
-  .service-dossier-item__media::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(180deg, rgba(0, 0, 0, 0.34) 0%, transparent 42%),
-      linear-gradient(0deg, rgba(0, 0, 0, 0.24) 0%, transparent 54%);
-    pointer-events: none;
-  }
-
-  .service-dossier-item__media img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: saturate(0.92) contrast(1.05);
-  }
-
-  .service-dossier-item__icon {
-    display: grid;
-    width: 42px;
-    height: 42px;
-    margin: clamp(16px, 1.8vw, 22px) clamp(16px, 1.8vw, 22px) 0;
-    place-items: center;
-    background: color-mix(in srgb, var(--service-accent, var(--um-red)) 12%, var(--skin-panel, #fff) 88%);
-    color: var(--service-accent, var(--um-red));
-  }
-
-  .service-dossier-item__icon svg {
-    width: 26px;
-    height: 26px;
-  }
-
-  .service-dossier-item__body {
-    min-width: 0;
-    padding: clamp(14px, 1.8vw, 20px) clamp(16px, 1.8vw, 22px) 0;
-  }
-
-  .service-dossier-item__body > span {
-    display: block;
-    color: var(--skin-muted);
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.3;
-  }
-
-  .service-dossier-item__body strong {
-    display: block;
-    margin-top: 9px;
-    color: var(--skin-text);
-    font-family: var(--um-font-display);
-    font-size: clamp(1.18rem, 1.34vw, 1.5rem);
-    line-height: 1.12;
-    font-weight: 600;
-    text-wrap: balance;
-  }
-
-  .service-dossier-item__body em {
-    display: block;
-    margin-top: 8px;
-    color: var(--skin-muted);
-    font-size: 1rem;
-    font-style: normal;
-    line-height: 1.48;
-  }
-
-  .service-dossier-item__signal {
-    align-self: stretch;
-    width: fit-content;
-    margin: auto clamp(16px, 1.8vw, 22px) 0;
-    border-top: 2px solid var(--um-red);
-    padding: 12px 0 clamp(16px, 1.8vw, 22px);
-    color: var(--skin-text);
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.2;
-  }
-
-  .services-products-band {
-    margin-top: clamp(38px, 5vw, 64px);
-    padding: clamp(18px, 3vw, 28px);
-    background: #050505;
-    color: #ffffff;
-  }
-
-  .services-product-feature {
-    display: grid;
-    grid-template-columns: minmax(260px, 0.42fr) minmax(0, 0.58fr);
-    gap: clamp(22px, 4vw, 54px);
-    align-items: stretch;
-  }
-
-  .services-product-feature__media {
-    min-width: 0;
-    min-height: 100%;
-    overflow: hidden;
-    background: #111111;
-  }
-
-  .services-product-feature__media img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    min-height: 330px;
-    object-fit: cover;
-    object-position: center;
-    filter: saturate(0.96) contrast(1.08) brightness(0.86);
-  }
-
-  .services-product-feature__copy {
-    display: flex;
-    min-width: 0;
-    flex-direction: column;
-    justify-content: center;
-    padding: clamp(10px, 2vw, 18px) clamp(4px, 1vw, 10px);
-  }
-
-  .services-product-feature__eyebrow {
-    margin: 0 0 12px;
-    color: rgba(255, 255, 255, 0.72);
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    line-height: 1.2;
-    text-transform: uppercase;
-  }
-
-  .services-product-feature h2 {
-    max-width: 680px;
-    color: #ffffff;
-    font-family: var(--um-font-display);
-    font-size: 2.35rem;
-    font-weight: 600;
-    line-height: 1.06;
-    text-wrap: balance;
-  }
-
-  .services-product-feature__copy > p:not(.services-product-feature__eyebrow) {
-    max-width: 720px;
-    margin: 1rem 0 0;
-    color: rgba(255, 255, 255, 0.82);
-    font-size: 1.06rem;
-    line-height: 1.62;
-  }
-
-  .services-product-feature__proof {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1px;
-    margin: clamp(18px, 2.6vw, 26px) 0 0;
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  .services-product-feature__proof div {
-    min-width: 0;
-    padding: 14px 16px;
-    background: rgba(255, 255, 255, 0.11);
-  }
-
-  .services-product-feature__proof dt {
-    color: rgba(255, 255, 255, 0.72);
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.2;
-    text-transform: uppercase;
-  }
-
-  .services-product-feature__proof dd {
-    margin: 7px 0 0;
-    color: #ffffff;
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.32;
-  }
-
-  .services-product-feature__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.8rem;
-    margin-top: clamp(18px, 2.8vw, 28px);
-  }
-
-  .services-product-feature__secondary {
-    color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.42);
-    background: rgba(255, 255, 255, 0.12);
-  }
-
-  .services-product-feature__secondary:hover,
-  .services-product-feature__secondary:focus-visible {
-    background: #fff;
-    color: #080808;
-    border-color: #fff;
-  }
-
-  :global(body[data-skin] main .services-products-band) {
-    background: #050505 !important;
-    color: #ffffff !important;
-  }
-
-  :global(body[data-skin] main .services-products-band :where(h1, h2, h3, strong, dt, dd)) {
-    color: #ffffff !important;
-  }
-
-  :global(body[data-skin] main .services-products-band :where(p, span, li)) {
-    color: rgba(255, 255, 255, 0.82) !important;
-  }
-
-  :global(body[data-skin] main .services-products-band .services-product-feature__eyebrow) {
-    color: rgba(255, 255, 255, 0.72) !important;
-  }
-
-  :global(body[data-skin] main .services-products-band .services-product-feature__proof dt) {
-    color: rgba(255, 255, 255, 0.72) !important;
-  }
-
-  :global(body[data-skin] main .services-products-band .services-product-feature__secondary) {
-    border: 1px solid rgba(255, 255, 255, 0.36) !important;
-    background: rgba(255, 255, 255, 0.12) !important;
-    color: #ffffff !important;
-  }
-
-  :global(body[data-skin] main .services-products-band .services-product-feature__secondary:hover),
-  :global(body[data-skin] main .services-products-band .services-product-feature__secondary:focus-visible) {
-    border-color: #ffffff !important;
-    background: #ffffff !important;
-    color: #050505 !important;
-  }
-
-  .services-intent-ctas {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(10px, 1.4vw, 16px);
-    margin-top: clamp(36px, 5vw, 56px);
-    border: 0;
-    background: transparent;
-  }
-
-  .services-intent-card {
-    display: grid;
-    gap: 10px;
-    min-height: 148px;
-    padding: clamp(20px, 2.4vw, 28px);
-    background: #fff;
-    color: #111;
-    transition: background-color 180ms ease;
-  }
-
-  .services-intent-card:hover,
-  .services-intent-card:focus-visible {
-    background: color-mix(in srgb, #ffffff 92%, var(--um-red) 8%);
-  }
-
-  .services-intent-card > span {
-    color: var(--um-red);
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1;
-  }
-
-  .services-intent-card strong {
-    font-family: var(--um-font-display);
-    font-size: clamp(1.08rem, 1.18vw, 1.22rem);
-    font-weight: 600;
-    line-height: 1.15;
-  }
-
-  .services-intent-card p {
-    margin: 0;
-    color: var(--um-muted);
-    font-size: 1rem;
-    line-height: 1.55;
-  }
-
-  :global(body[data-skin] main .services-index .service-dossier-item__body strong) {
-    font-size: clamp(1.12rem, 1.22vw, 1.28rem) !important;
-    line-height: 1.14 !important;
-    font-weight: 600 !important;
-  }
-
-  .services-section-head {
-    display: grid;
-    grid-template-columns: minmax(0, 0.58fr) minmax(280px, 0.42fr);
-    gap: clamp(28px, 5vw, 76px);
-    align-items: end;
-    margin-bottom: clamp(30px, 5vw, 58px);
-    border-top: 1px solid var(--um-line);
-    padding-top: clamp(24px, 4vw, 38px);
-  }
-
-  .services-section-head h2 {
-    margin-top: 1.25rem;
-    color: #111;
-    font-size: clamp(1.9rem, 2.65vw, 2.95rem);
-    line-height: 1.09;
-    font-weight: 600;
-    text-wrap: balance;
-  }
-
-  .services-section-head p {
-    color: var(--um-muted);
-    font-size: clamp(1rem, 1.08vw, 1.12rem);
-    line-height: 1.7;
-  }
-
-  .services-list {
-    display: grid;
-    gap: 0;
-    background: transparent;
-    border-top: 1px solid var(--um-line);
-  }
-
-  .service-row {
-    display: grid;
-    grid-template-columns: minmax(180px, 0.24fr) minmax(0, 1fr);
-    min-height: 0;
-    background: #fff;
-    border-bottom: 1px solid var(--um-line);
-  }
-
-  .service-row__media {
-    display: block;
-    min-height: 178px;
-    overflow: hidden;
-    background: #111;
-  }
-
-  .service-row__media img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: saturate(0.92) contrast(1.04);
-    transition: none;
-  }
-
-  .service-row__content {
-    display: grid;
-    grid-template-columns: minmax(0, 0.76fr) minmax(180px, 0.24fr);
-    gap: clamp(18px, 3vw, 38px);
-    align-items: center;
-    padding: clamp(24px, 3.5vw, 40px);
-  }
-
-  .service-row__meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.7rem 1.1rem;
-    margin-bottom: 1.25rem;
-    color: var(--um-red);
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0;
-    text-transform: uppercase;
-  }
-
-  .service-row h3 {
-    color: #111;
-    font-size: clamp(1.32rem, 1.65vw, 1.72rem);
-    line-height: 1.12;
-    font-weight: 600;
-    text-wrap: balance;
-  }
-
-  .service-row h3 a:hover {
-    color: var(--um-red);
-  }
-
-  .service-row p {
-    max-width: 720px;
-    margin-top: 1.25rem;
-    color: var(--um-muted);
-    font-size: clamp(1rem, 1.05vw, 1.08rem);
-    line-height: 1.68;
-  }
-
-  .service-row__signals {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    margin-top: 0;
-    border-top: 1px solid var(--um-line);
-  }
-
-  .service-row__signals span {
-    border: 0;
-    border-bottom: 1px solid var(--um-line);
-    padding: 0.75rem 0;
-    color: #374151;
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.35;
-  }
-
-  .service-row__signals span:last-child {
-    border-bottom: 0;
-    color: var(--um-red);
-  }
-
-  .service-row__link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    width: fit-content;
-    margin-top: 1.2rem;
-    color: #111;
-    font-size: 1rem;
-    font-weight: 700;
-  }
-
-  .service-row__link svg {
-    width: 1.05rem;
-    height: 1.05rem;
-    color: var(--um-red);
-  }
-
-  .service-row:first-child {
-    grid-template-columns: minmax(320px, 0.48fr) minmax(0, 0.52fr);
-  }
-
-  .service-row:first-child .service-row__media {
-    min-height: clamp(300px, 31vw, 420px);
-  }
-
-  .service-row:first-child .service-row__content {
-    align-content: center;
-    grid-template-columns: 1fr;
-    padding: clamp(34px, 5vw, 58px);
-  }
-
-  .service-row:first-child .service-row__signals {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0;
-    margin-top: 1.5rem;
-    border: 0;
-    background: transparent;
-  }
-
-  .service-row:first-child .service-row__signals span {
-    border: 0;
-    background: #f8f8f8;
-    padding: 0.85rem 0.95rem;
-  }
-
-  .services-operating-model {
-    background: #FFFFFF;
-    padding: clamp(54px, 6.5vw, 86px) 0;
-  }
-
-  .services-operating-grid {
-    display: grid;
-    grid-template-columns: 0.85fr 1.15fr;
-    gap: clamp(32px, 6vw, 88px);
-  }
-
-  .services-operating-model h2 {
-    margin-top: 1rem;
-    font-size: clamp(1.7rem, 2.08vw, 2.22rem);
-    line-height: 1.12;
-    font-weight: 600;
-    text-wrap: balance;
-  }
-
-  .operating-steps {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1px;
-    border: 0;
-    background: rgba(17,17,17,0.1);
-  }
-
-  .operating-step {
-    min-height: 160px;
-    padding: clamp(20px, 2.6vw, 30px);
-    background: #fff;
-  }
-
-  .operating-step span {
-    color: var(--um-red);
-    font-size: 1rem;
-    font-weight: 700;
-  }
-
-  .operating-step h3 {
-    margin-top: 1rem;
-    color: #111;
-    font-size: 1.18rem;
-    font-weight: 600;
-  }
-
-  .operating-step p {
-    margin-top: 0.75rem;
-    color: var(--um-muted);
-    line-height: 1.65;
-  }
-
-  .services-final-cta {
-    padding: clamp(52px, 6.2vw, 78px) 0;
-    background: #080808;
-    color: #fff;
-  }
-
-  .services-final-cta .um-container {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 2rem;
-    align-items: end;
-  }
-
-  .services-final-cta h2 {
-    max-width: 760px;
-    font-size: clamp(1.7rem, 2.08vw, 2.22rem);
-    line-height: 1.12;
-    font-weight: 600;
-    text-wrap: balance;
-  }
-
-  .services-final-cta p {
-    margin-top: 1rem;
-    color: rgba(255,255,255,0.68);
-    font-size: 1.05rem;
-    line-height: 1.65;
-  }
-
-  .services-final-cta div div {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.8rem;
-    justify-content: flex-end;
-  }
-
-  .services-final-cta .um-btn-secondary {
-    color: #fff;
-    border-color: rgba(255,255,255,0.44);
-  }
-
-  .services-final-cta .um-btn-secondary:hover {
-    background: #fff;
-    border-color: #fff;
-    color: #080808;
-  }
-
-  @media (max-width: 920px) {
-    .services-hero__grid,
-    .services-section-head,
-    .services-dossier-head,
-    .services-dossier,
-    .services-product-feature,
-    .service-row,
-    .service-row:first-child,
-    .service-row__content,
-    .services-operating-grid,
-    .services-final-cta .um-container {
-      grid-template-columns: 1fr;
+    </section>
+  </main>
+
+  <style>
+    :global(body[data-skin]) main {
+      background: #0a0a0b;
     }
 
-    .services-final-cta div div {
-      justify-content: flex-start;
+    .um26-services {
+      background: #0a0a0b;
+      color: #fafafa;
     }
 
-    .services-dossier__brief {
-      grid-template-columns: 1fr;
-      align-items: start;
-    }
-
-    .services-dossier__list {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (max-width: 640px) {
-    :global(html),
-    :global(body) {
-      overflow-x: clip;
+    .services-shell {
+      width: min(1336px, calc(100% - 126px));
+      margin-inline: auto;
     }
 
     .services-hero {
-      padding-top: 34px;
-      padding-bottom: 30px;
-      max-width: 100%;
-      overflow-x: clip;
+      position: relative;
+      min-height: 78vh;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      isolation: isolate;
+      background: #0a0a0b;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
 
-    .services-breadcrumb {
-      display: none;
+    .services-hero > img,
+    .services-hero__veil {
+      position: absolute;
+      inset: 0;
     }
 
-    .services-hero__grid,
-    .services-dossier-head,
-    .services-dossier__brief,
-    .services-dossier__list,
-    .services-product-feature,
-    .services-intent-ctas {
-      min-width: 0;
-      max-width: 100%;
+    .services-hero > img {
+      z-index: -3;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .services-hero__veil {
+      z-index: -2;
+      background:
+        linear-gradient(100deg, rgba(10,10,11,0.94), rgba(10,10,11,0.62) 48%, rgba(10,10,11,0.2)),
+        linear-gradient(to top, #0a0a0b, rgba(10,10,11,0.36), transparent);
+    }
+
+    .services-hero__body {
+      position: relative;
+      z-index: 1;
+      padding: 0 0 72px;
+    }
+
+    .um26-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      margin: 0 0 24px;
+      color: #dc2626;
+      font-family: var(--um-font-mono);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .um26-kicker span {
+      width: 44px;
+      height: 3px;
+      background: #dc2626;
+    }
+
+    .services-hero h1,
+    .services-intro h2,
+    .service-body h2,
+    .services-closing h2 {
+      margin: 0;
+      font-family: var(--um-font-display);
+      font-weight: 700;
+      letter-spacing: 0;
+      color: #fff;
     }
 
     .services-hero h1 {
-      max-width: calc(100vw - 32px);
-      font-size: clamp(2rem, 8.3vw, 2.22rem) !important;
-      line-height: 1.1 !important;
-      overflow-wrap: anywhere;
-      text-wrap: wrap !important;
+      max-width: 12ch;
+      font-size: clamp(4rem, 7vw, 6.75rem);
+      line-height: 0.92;
     }
 
-    .services-dossier-head h2 {
-      max-width: calc(100vw - 32px);
-      overflow-wrap: anywhere;
-      text-wrap: wrap;
+    .services-hero__body > p:not(.um26-kicker) {
+      max-width: 48rem;
+      margin: 28px 0 0;
+      color: rgba(255,255,255,0.74);
+      font-size: clamp(1rem, 1.3vw, 1.25rem);
+      line-height: 1.65;
     }
 
-    .service-row h3 {
-      max-width: 320px;
-      word-break: normal;
-      overflow-wrap: anywhere;
-      hyphens: none;
-      text-wrap: wrap;
-    }
-
-    .services-hero p {
-      max-width: 34ch;
-      margin-top: 0.9rem;
-      font-size: 1.02rem;
-      line-height: 1.58;
-      overflow-wrap: anywhere;
-      hyphens: none;
-      text-wrap: pretty;
-    }
-
-    .services-actions,
-    .services-final-cta div div {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .services-actions {
-      margin-top: 16px;
-      width: 100%;
-      min-width: 0;
-      max-width: 100%;
-    }
-
-    .services-actions :global(.um-btn-primary),
-    .services-actions :global(.um-btn-secondary) {
-      box-sizing: border-box;
-      width: 100%;
-      min-width: 0;
-      max-width: 100%;
-      justify-content: center;
-      white-space: normal;
-    }
-
-    .services-actions :global(.services-secondary-dark) {
-      display: none;
-    }
-
-    .services-hero__visual {
-      display: none;
-    }
-
-    .services-dossier__list,
-    .services-product-feature__proof,
-    .services-intent-ctas {
-      grid-template-columns: 1fr;
-    }
-
-    .services-dossier__list {
-      order: 0;
-      scroll-margin-top: 76px;
-    }
-
-    .services-dossier__folio {
-      order: 1;
-    }
-
-    .services-products-band {
+    .services-hero__actions,
+    .services-closing__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
       margin-top: 34px;
-      padding: 18px;
     }
 
-    .services-product-feature__media img {
-      min-height: 240px;
-      aspect-ratio: 16 / 10;
-    }
-
-    .services-product-feature h2 {
-      font-size: 1.9rem;
-      overflow-wrap: anywhere;
-    }
-
-    .services-product-feature__actions {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .services-product-feature__actions a {
+    .um26-btn {
+      display: inline-flex;
+      align-items: center;
       justify-content: center;
-      width: 100%;
+      min-height: 52px;
+      padding: 0 24px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9375rem;
+      border: 1px solid rgba(255,255,255,0.26);
+      transition: background 0.18s ease, border-color 0.18s ease;
     }
 
-    .services-hero__proofline {
-      grid-template-columns: 1fr;
-      gap: 0;
-      margin-top: 18px;
-      background: transparent;
+    .um26-btn::after {
+      content: ">";
+      margin-left: 10px;
     }
 
-    .services-hero__proofline div,
-    .services-hero__proofline div + div {
+    .um26-btn--red {
+      background: #dc2626;
+      border-color: #dc2626;
+    }
+
+    .um26-btn--red:hover {
+      background: #ff3b3b;
+      border-color: #ff3b3b;
+    }
+
+    .um26-btn--ghost {
+      background: rgba(10,10,11,0.36);
+    }
+
+    .um26-btn--ghost:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.58);
+    }
+
+    .services-proofline {
       display: grid;
-      grid-template-columns: minmax(0, 96px) minmax(0, 1fr);
-      align-items: baseline;
-      column-gap: 14px;
-      border-right: 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-      background: transparent;
-      padding: 8px 0;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      max-width: 780px;
+      margin: 54px 0 0;
+      padding: 0;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(10,10,11,0.52);
     }
 
-    .services-hero__proofline div:first-child {
-      padding-top: 0;
+    .services-proofline div {
+      padding: 22px;
+      border-left: 1px solid rgba(255,255,255,0.08);
     }
 
-    .services-hero__proofline div:last-child {
-      border-bottom: 0;
-      padding-bottom: 0;
+    .services-proofline div:first-child {
+      border-left: 0;
     }
 
-    .services-hero__proofline dt {
-      color: rgba(255, 255, 255, 0.58);
-      font-size: 1rem;
-      letter-spacing: 0;
-      line-height: 1.15;
-      text-transform: none;
-      white-space: normal;
-      overflow-wrap: anywhere;
+    .services-proofline dt {
+      color: #dc2626;
+      font-family: var(--um-font-mono);
+      font-size: 0.625rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
     }
 
-    .services-hero__proofline dd {
-      margin-top: 0;
-      font-size: 1rem;
-      line-height: 1.24;
-      overflow-wrap: anywhere;
-      word-break: normal;
+    .services-proofline dd {
+      margin: 8px 0 0;
+      color: #fff;
+      font-weight: 700;
+      line-height: 1.35;
     }
 
-    .service-dossier-item {
-      min-height: auto;
-      border-right: 0;
+    .services-hero__note {
+      position: absolute;
+      right: 48px;
+      bottom: 72px;
+      z-index: 2;
+      max-width: 360px;
+      padding-left: 22px;
+      border-left: 2px solid #dc2626;
+      color: rgba(255,255,255,0.72);
     }
 
-    .service-dossier-item__media {
-      aspect-ratio: 16 / 10;
+    .services-hero__note strong {
+      display: block;
+      color: #fff;
+      font-size: 1.15rem;
+      line-height: 1.35;
+    }
+
+    .services-hero__note p {
+      margin: 12px 0 0;
+      line-height: 1.55;
+    }
+
+    .services-intro {
+      padding: clamp(72px, 8vw, 108px) 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: #0f0f11;
+    }
+
+    .services-intro__grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1fr);
+      gap: 72px;
+      align-items: end;
+    }
+
+    .services-intro h2 {
+      max-width: 12ch;
+      font-size: clamp(2.6rem, 4.1vw, 4.25rem);
+      line-height: 0.96;
+    }
+
+    .services-intro__grid > p {
+      margin: 0;
+      color: #a1a1aa;
+      font-size: clamp(1rem, 1.45vw, 1.25rem);
+      line-height: 1.65;
+    }
+
+    .services-ledger {
+      padding: clamp(72px, 8vw, 118px) 0;
+      background: #0a0a0b;
     }
 
     .service-row {
-      min-height: auto;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-bottom: 0;
+      background: #0a0a0b;
     }
 
-    .service-row__content,
-    .service-row:first-child .service-row__content {
-      grid-template-columns: 1fr;
-      padding: 24px 0 30px;
+    .service-row:last-child {
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
 
-    .service-row__signals,
-    .service-row:first-child .service-row__signals {
-      margin-top: 18px;
+    .service-row--reverse .service-image {
+      order: 2;
     }
 
-    .service-row:first-child .service-row__signals {
-      grid-template-columns: 1fr;
+    .service-image {
+      position: relative;
+      min-height: 440px;
+      overflow: hidden;
+      display: block;
+      color: #fff;
+      background: #121214 var(--service-image) center / cover no-repeat !important;
+      isolation: isolate;
     }
 
-    .service-row__media {
-      min-height: 260px;
+    .service-image::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background:
+        linear-gradient(to top, rgba(10,10,11,0.88), rgba(10,10,11,0.18) 58%, rgba(10,10,11,0.04)),
+        linear-gradient(120deg, rgba(220,38,38,0.12), transparent 34%);
     }
 
-    .services-hero__image {
-      height: 220px;
+    .service-image img {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
     }
 
-    .services-proof-note {
-      padding: 0.95rem;
+    .service-image__code,
+    .service-image__sectors {
+      position: absolute;
+      z-index: 2;
+      top: 22px;
+      font-family: var(--um-font-mono);
+      font-size: 0.6875rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
     }
 
-    .operating-steps {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .services-hero {
-    background: #000;
-  }
-
-  .services-hero h1,
-  .services-section-head h2,
-  .services-operating-model h2,
-  .services-final-cta h2,
-  .services-packages h2 {
-    letter-spacing: 0;
-  }
-
-  .services-packages {
-    background: #fff;
-    padding: clamp(48px, 5.8vw, 76px) 0 clamp(54px, 6.5vw, 86px);
-    border-top: 1px solid var(--um-line);
-    border-bottom: 1px solid var(--um-line);
-  }
-
-  .services-packages__grid {
-    display: grid;
-    grid-template-columns: minmax(270px, 0.34fr) minmax(0, 0.66fr);
-    gap: clamp(34px, 6vw, 78px);
-    align-items: start;
-  }
-
-  .services-packages h2 {
-    margin-top: 1rem;
-    max-width: 520px;
-    color: #000;
-    font-size: clamp(1.82rem, 2.35vw, 2.55rem);
-    line-height: 1.12;
-    font-weight: 600;
-    text-wrap: balance;
-  }
-
-  .services-packages p {
-    max-width: 500px;
-    margin-top: 1.2rem;
-    color: var(--um-gray-700);
-    font-size: 1.08rem;
-    line-height: 1.65;
-  }
-
-  .services-package-list {
-    display: grid;
-    border-top: 1px solid var(--um-line);
-  }
-
-  .services-package-row {
-    display: grid;
-    grid-template-columns: 46px minmax(150px, 0.27fr) minmax(0, 1fr) auto;
-    gap: clamp(14px, 2vw, 24px);
-    align-items: start;
-    min-height: 76px;
-    padding: 16px clamp(20px, 2vw, 28px);
-    border-bottom: 1px solid var(--um-line);
-    color: #111;
-  }
-
-  .services-package-row > span {
-    color: var(--um-red);
-    font-size: 1rem;
-    font-weight: 700;
-  }
-
-  .services-package-row strong {
-    color: #000;
-    font-size: clamp(1.12rem, 1.28vw, 1.32rem);
-    line-height: 1.18;
-    font-weight: 600;
-  }
-
-  .services-package-row p {
-    margin: 0;
-    color: var(--um-gray-700);
-    font-size: 1rem;
-    line-height: 1.56;
-  }
-
-  .services-package-row em {
-    color: var(--um-red);
-    font-style: normal;
-    font-size: 1rem;
-    font-weight: 700;
-    white-space: nowrap;
-  }
-
-  @media (max-width: 960px) {
-    .services-packages__grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  @media (max-width: 820px) {
-    .services-package-row {
-      grid-template-columns: 46px minmax(0, 1fr);
+    .service-image__code {
+      left: 22px;
+      padding: 6px 9px;
+      background: #dc2626;
+      color: #fff;
+      font-weight: 700;
     }
 
-    .services-package-row p,
-    .services-package-row em {
-      grid-column: 2;
+    .service-image__sectors {
+      left: 112px;
+      color: rgba(255,255,255,0.7);
     }
-  }
-</style>
+
+    .service-image__evidence {
+      position: absolute;
+      z-index: 2;
+      right: 28px;
+      bottom: 28px;
+      display: grid;
+      justify-items: end;
+      color: #fff;
+    }
+
+    .service-image__evidence strong {
+      font-family: var(--um-font-display);
+      font-size: clamp(2.4rem, 4vw, 3.4rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .service-image__evidence b,
+    .service-footer b {
+      color: #dc2626;
+      font-weight: inherit;
+    }
+
+    .service-image__evidence em {
+      margin-top: 7px;
+      color: rgba(255,255,255,0.68);
+      font-family: var(--um-font-mono);
+      font-style: normal;
+      font-size: 0.6875rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .service-body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(34px, 5vw, 64px);
+      background: #0a0a0b;
+    }
+
+    .service-front {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 22px;
+      color: #dc2626;
+      font-family: var(--um-font-mono);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .service-front span {
+      width: 36px;
+      height: 3px;
+      background: #dc2626;
+    }
+
+    .service-body h2 {
+      font-size: clamp(2.4rem, 4.7vw, 4.4rem);
+      line-height: 0.94;
+    }
+
+    .service-body h2 a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .service-row:hover .service-body h2 {
+      color: #ff3b3b;
+    }
+
+    .service-tagline {
+      margin: 18px 0 0;
+      color: #dc2626;
+      font-size: clamp(1.1rem, 1.5vw, 1.35rem);
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .service-description {
+      max-width: 44rem;
+      margin: 20px 0 0;
+      color: #a1a1aa;
+      font-size: clamp(1rem, 1.25vw, 1.125rem);
+      line-height: 1.65;
+    }
+
+    .service-body ul {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 22px;
+      margin: 28px 0 0;
+      padding: 0;
+      color: #a1a1aa;
+      line-height: 1.45;
+    }
+
+    .service-body li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .service-body li span {
+      width: 7px;
+      height: 7px;
+      margin-top: 8px;
+      flex: 0 0 auto;
+      background: #dc2626;
+      border-radius: 999px;
+    }
+
+    .service-footer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px 24px;
+      align-items: center;
+      margin-top: 34px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.62);
+      font-size: 0.9375rem;
+    }
+
+    .service-footer span {
+      margin-right: auto;
+      color: #fff;
+      font-family: var(--um-font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.75rem;
+    }
+
+    .service-footer strong {
+      margin-right: 8px;
+      font-family: var(--um-font-display);
+      font-size: 1.5rem;
+      letter-spacing: 0;
+    }
+
+    .service-footer a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      border-bottom: 2px solid #dc2626;
+      padding-bottom: 3px;
+    }
+
+    .service-footer a::after {
+      content: ">";
+      margin-left: 8px;
+      color: #dc2626;
+    }
+
+    .services-closing {
+      padding: 0 0 clamp(82px, 9vw, 132px);
+      background: #0a0a0b;
+    }
+
+    .services-closing__panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 64px;
+      align-items: center;
+      padding: clamp(42px, 5vw, 72px);
+      border: 1px solid rgba(255,255,255,0.1);
+      background:
+        radial-gradient(circle at 86% 12%, rgba(220,38,38,0.24), transparent 30%),
+        linear-gradient(135deg, #0f0f11, #121214);
+    }
+
+    .services-closing h2 {
+      max-width: 16ch;
+      font-size: clamp(2.5rem, 4.4vw, 4.8rem);
+      line-height: 0.94;
+    }
+
+    .services-closing p:not(.um26-kicker) {
+      max-width: 48rem;
+      margin: 22px 0 0;
+      color: #a1a1aa;
+      line-height: 1.65;
+    }
+
+    .services-closing__actions {
+      display: grid;
+      min-width: min(100%, 360px);
+      margin: 0;
+    }
+
+    @media (max-width: 1100px) {
+      .services-hero__note {
+        display: none;
+      }
+
+      .services-intro__grid,
+      .services-closing__panel {
+        grid-template-columns: 1fr;
+      }
+
+      .service-row {
+        grid-template-columns: 1fr;
+      }
+
+      .service-row--reverse .service-image {
+        order: 0;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .services-shell {
+        width: min(100% - 28px, 1400px);
+      }
+
+      .services-hero {
+        min-height: 88vh;
+      }
+
+      .services-hero__body {
+        padding-bottom: 54px;
+      }
+
+      .services-hero h1 {
+        font-size: clamp(3rem, 15vw, 4.25rem);
+      }
+
+      .services-proofline {
+        grid-template-columns: 1fr;
+        margin-top: 34px;
+      }
+
+      .services-proofline div {
+        border-left: 0;
+        border-top: 1px solid rgba(255,255,255,0.08);
+      }
+
+      .services-proofline div:first-child {
+        border-top: 0;
+      }
+
+      .services-intro {
+        padding: 68px 0;
+      }
+
+      .services-intro h2,
+      .services-closing h2 {
+        font-size: clamp(2.35rem, 12vw, 3.45rem);
+      }
+
+      .services-ledger {
+        padding: 64px 0;
+      }
+
+      .service-image {
+        min-height: 300px;
+      }
+
+      .service-image__sectors {
+        display: none;
+      }
+
+      .service-body {
+        padding: 30px 20px 34px;
+      }
+
+      .service-body h2 {
+        font-size: clamp(2.25rem, 13vw, 3.3rem);
+      }
+
+      .service-body ul {
+        grid-template-columns: 1fr;
+      }
+
+      .service-footer {
+        align-items: flex-start;
+      }
+
+      .service-footer span {
+        width: 100%;
+        margin-right: 0;
+      }
+
+      .services-closing__panel {
+        padding: 30px 22px;
+        gap: 30px;
+      }
+
+      .services-closing__actions .um26-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</LayoutV4>
