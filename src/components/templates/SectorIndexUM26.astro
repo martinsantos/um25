@@ -405,19 +405,19 @@ const activeFilterLabel = sectorFilterOptions.find((option) => option.id === sec
 
   .sectors26-feature-card {
     position: relative;
-    min-height: 560px;
     display: grid;
-    align-items: end;
+    grid-template-rows: clamp(260px, 24vw, 340px) auto;
+    align-items: stretch;
     overflow: hidden;
     color: #fff;
     text-decoration: none;
-    background: #111;
+    background: #0f0f11;
     border: 1px solid rgba(255,255,255,0.12);
   }
 
   .sectors26-feature-card img {
-    position: absolute;
-    inset: 0;
+    position: relative;
+    grid-area: 1 / 1;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -426,15 +426,24 @@ const activeFilterLabel = sectorFilterOptions.find((option) => option.id === sec
 
   .sectors26-feature-card::after {
     content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.46), rgba(0,0,0,0.1));
+    grid-area: 1 / 1;
+    z-index: 1;
+    align-self: stretch;
+    justify-self: stretch;
+    pointer-events: none;
+    background:
+      linear-gradient(to top, rgba(10,10,11,0.74), rgba(10,10,11,0.14) 54%, transparent),
+      linear-gradient(110deg, rgba(10,10,11,0.46), transparent 62%);
   }
 
   .sectors26-feature-card > div {
     position: relative;
-    z-index: 1;
-    padding: clamp(26px, 4vw, 48px);
+    z-index: 2;
+    grid-area: 2 / 1;
+    min-width: 0;
+    padding: clamp(24px, 3.2vw, 38px);
+    background: #0f0f11;
+    border-top: 1px solid rgba(255,255,255,0.1);
   }
 
   .sectors26-feature-card span,
@@ -450,8 +459,8 @@ const activeFilterLabel = sectorFilterOptions.find((option) => option.id === sec
   .sectors26-feature-card h2 {
     margin-top: 12px;
     color: #fff;
-    font-size: clamp(2.2rem, 4vw, 4.2rem);
-    line-height: 0.96;
+    font-size: clamp(2rem, 3.1vw, 3.35rem);
+    line-height: 1;
     font-weight: 600;
     text-wrap: balance;
   }
@@ -459,7 +468,7 @@ const activeFilterLabel = sectorFilterOptions.find((option) => option.id === sec
   .sectors26-feature-card p {
     max-width: 620px;
     margin-top: 14px;
-    color: rgba(255,255,255,0.72);
+    color: #a1a1aa;
     font-size: 1rem;
     line-height: 1.62;
   }
@@ -473,11 +482,12 @@ const activeFilterLabel = sectorFilterOptions.find((option) => option.id === sec
 
   .sectors26-feature-card dl div {
     padding: 13px;
-    background: rgba(255,255,255,0.08);
+    background: #121214;
+    border: 1px solid rgba(255,255,255,0.1);
   }
 
   .sectors26-feature-card dt {
-    color: rgba(255,255,255,0.58);
+    color: #a1a1aa;
     font-size: 0.74rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -485,7 +495,7 @@ const activeFilterLabel = sectorFilterOptions.find((option) => option.id === sec
 
   .sectors26-feature-card dd {
     margin: 5px 0 0;
-    color: #fff;
+    color: #fafafa;
     font-size: 0.88rem;
     font-weight: 700;
     line-height: 1.35;
@@ -494,8 +504,13 @@ const activeFilterLabel = sectorFilterOptions.find((option) => option.id === sec
   .sectors26-feature-card strong {
     display: inline-flex;
     margin-top: 20px;
-    color: #fff;
+    color: #fafafa;
     font-size: 0.9rem;
+  }
+
+  .sectors26-feature-card:hover,
+  .sectors26-feature-card:focus-visible {
+    border-color: rgba(220,38,38,0.58);
   }
 
   .sectors26-feature-card strong::after,
@@ -669,7 +684,7 @@ const activeFilterLabel = sectorFilterOptions.find((option) => option.id === sec
     }
 
     .sectors26-feature-card {
-      min-height: 480px;
+      grid-template-rows: minmax(220px, 42vw) auto;
     }
 
     .sectors26-feature-card dl,
