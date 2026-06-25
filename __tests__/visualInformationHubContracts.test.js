@@ -174,7 +174,9 @@ describe('Information hub visual contracts', () => {
 
     expect(home).not.toContain('<i aria-hidden="true"></i>');
     expect(home).not.toMatch(/\.um-service-unit__head i\s*\{/);
-    expect(home).toMatch(/\.um-service-unit__head\s*\{[\s\S]*justify-content:\s*flex-start;/);
+    expect(home).toContain('class="um26-service-grid"');
+    expect(home).toContain('class="um26-card-bar" aria-hidden="true"');
+    expect(home).toMatch(/\.um26-card-bar\s*\{[\s\S]*background:\s*#dc2626;/);
   });
 
   test('antecedentes hero secondary action renders as an intentional muted button, not loose text', () => {
@@ -222,17 +224,19 @@ describe('Information hub visual contracts', () => {
   test('home secondary evidence rows remove repeated sector metadata to prevent compressed words', () => {
     const home = read('src/pages/index.astro');
 
-    expect(home).toMatch(/\.um-evidence-ledger :global\(\.evidence-case-row\)\s*\{[\s\S]*grid-template-columns:\s*3rem 136px minmax\(0,\s*1fr\) minmax\(4\.5rem,\s*5rem\) auto;/);
-    expect(home).toMatch(/\.um-evidence-ledger :global\(\.evidence-case-row__meta-group\)\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
-    expect(home).toMatch(/\.um-evidence-ledger :global\(\.evidence-case-row__meta:first-child\)\s*\{[\s\S]*display:\s*none;/);
+    expect(home).toContain('class="um26-case-grid"');
+    expect(home).toMatch(/\.um26-case-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
+    expect(home).toMatch(/\.um26-case-card\s*\{[\s\S]*min-height:\s*440px;/);
+    expect(home).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-case-grid,[\s\S]*\.um26-hub-grid\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
   });
 
   test('home service visual loads reliably for full-page visual QA', () => {
     const home = read('src/pages/index.astro');
 
-    expect(home).toContain('class="um-services-command__visual"');
-    expect(home).toContain('loading="eager" decoding="async" fetchpriority="low"');
-    expect(home).not.toMatch(/um-services-command__visual"[^>]*>[\s\S]{0,180}<img[^>]+loading="lazy"/);
+    expect(home).toContain('class="um26-service-grid"');
+    expect(home).toContain("loading={index < 4 ? 'eager' : 'lazy'}");
+    expect(home).toContain("fetchpriority={index === 0 ? 'high' : 'low'}");
+    expect(home).toContain('decoding="async"');
   });
 
   test('contact antispam field stays visually hidden without offscreen overflow', () => {
