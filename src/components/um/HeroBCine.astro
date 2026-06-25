@@ -74,6 +74,62 @@ const backgrounds: HeroBg[] = [
     fx: 'flap',
     firstLiner: 'Conectividad en campamento y mina.',
   },
+  {
+    src: '/hero/hospital.png',
+    caption: 'INFRAESTRUCTURA CRITICA EN SALUD',
+    loc: 'Hospital Perrupato',
+    fx: 'type',
+    firstLiner: 'Sistemas criticos con guardia real.',
+  },
+  {
+    src: '/img/sectores/bodegas.webp',
+    caption: 'OPERACION TECNOLOGICA EN BODEGA',
+    loc: 'Valle de Uco',
+    fx: 'type',
+    firstLiner: 'Produccion conectada sin interrumpir planta.',
+  },
+  {
+    src: '/img/servicios/seguridad-electronica.webp',
+    caption: 'SEGURIDAD ELECTRONICA INTEGRADA',
+    loc: 'Mendoza',
+    fx: 'flap',
+    firstLiner: 'CCTV, accesos y alarmas en una sola operacion.',
+  },
+  {
+    src: '/img/servicios/deteccion-incendios.webp',
+    caption: 'DETECCION Y ALARMA DE INCENDIOS',
+    loc: 'Torre Thays',
+    fx: 'flap',
+    firstLiner: 'Deteccion temprana documentada.',
+  },
+  {
+    src: '/img/servicios/software-a-medida.webp',
+    caption: 'SOFTWARE OPERATIVO A MEDIDA',
+    loc: 'Gobierno y empresas',
+    fx: 'type',
+    firstLiner: 'Sistemas propios conectados a la operacion real.',
+  },
+  {
+    src: '/img/servicios/soporte-247.webp',
+    caption: 'SOPORTE TECNICO 24/7',
+    loc: 'Mesa operativa',
+    fx: 'type',
+    firstLiner: 'Respuesta tecnica cuando la operacion lo exige.',
+  },
+  {
+    src: '/img/sectores/industria.webp',
+    caption: 'REDES Y ENERGIA EN PLANTA',
+    loc: 'Industria',
+    fx: 'type',
+    firstLiner: 'Infraestructura estable para procesos continuos.',
+  },
+  {
+    src: '/img/sectores/gobierno.webp',
+    caption: 'ESCALA PUBLICA Y CONTINUIDAD',
+    loc: 'Mendoza',
+    fx: 'flap',
+    firstLiner: 'Tecnologia para servicios publicos en marcha.',
+  },
 ];
 
 const initialBg = backgrounds[0];
@@ -415,7 +471,7 @@ const initialBg = backgrounds[0];
 
   .um-bcine-hero__kicker strong {
     color: #dc2626;
-    font-size: 16px;
+    font-size: 0.6875rem;
     line-height: 1;
   }
 
@@ -518,7 +574,7 @@ const initialBg = backgrounds[0];
     gap: 8px;
     margin: 32px 0 0;
     color: rgba(255,255,255,0.52);
-    font-size: 16px;
+    font-size: 0.625rem;
   }
 
   .um-bcine-hero__caption svg {
@@ -551,14 +607,21 @@ const initialBg = backgrounds[0];
       width: min(100% - 32px, 1400px);
     }
 
-    .um-bcine-hero__status,
+    .um-bcine-hero__topbar,
     .um-bcine-hero__shuffle {
       display: none;
     }
 
-    .um-bcine-hero__topbar {
-      justify-content: flex-end;
-      top: 16px;
+    .um-bcine-hero__kicker {
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .um-bcine-hero__kicker strong {
+      max-width: 22rem;
+      letter-spacing: 0.16em;
+      line-height: 1.35;
     }
 
     .um-bcine-hero__title {
