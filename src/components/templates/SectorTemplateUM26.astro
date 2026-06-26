@@ -19,6 +19,7 @@ const {
 
 const truncate = (value: unknown, length = 150) => truncateEditorialText(value, length);
 const sectorSlug = sector.slug || '';
+const sectorDataSlug = sectorSlug === 'gobierno' ? 'gobiernosectorpublico' : sectorSlug;
 const sectorName = sector.nombre || sector.label || sector.pageHeadline || 'Sector';
 const sectorTitle = sectorName;
 const sectorSummary = sector.pageSummary || sector.summary || sector.descripcion || '';
@@ -49,17 +50,17 @@ const sectorOrder = [
   'seguridad-electronica',
   'software',
 ];
-const sectorNumber = String(Math.max(1, sectorOrder.indexOf(sectorSlug) + 1)).padStart(2, '0');
-const sectorAccent = sectorSlug === 'bodegas'
+const sectorNumber = String(Math.max(1, sectorOrder.indexOf(sectorDataSlug) + 1)).padStart(2, '0');
+const sectorAccent = sectorDataSlug === 'bodegas'
   ? '#2d8a2d'
-  : sectorSlug === 'mineria'
+  : sectorDataSlug === 'mineria'
     ? '#71717a'
-    : sectorSlug === 'seguridad-electronica' || sectorSlug === 'salud' || sectorSlug === 'industria'
+    : sectorDataSlug === 'seguridad-electronica' || sectorDataSlug === 'salud' || sectorDataSlug === 'industria'
       ? '#dc2626'
       : '#1a56c0';
 const strategicLinkGroups = buildSectorStrategicLinkGroups({
   currentPath: sectorSlug ? `/${sectorSlug}` : '/sectores',
-  sectorSlug,
+  sectorSlug: sectorDataSlug,
   sectorName,
   title: sectorTitle,
   summary: sectorSummary,

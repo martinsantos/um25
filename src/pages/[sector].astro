@@ -23,14 +23,19 @@ import {
 } from '../data/strategicLinkGraph';
 import { getReplicaProdEntry, isReplicaIdenticalCopy, resolveReplicaH1 } from '../utils/replicaProdCopy';
 
-const sectorSlug = Astro.params.sector || '';
-const legacyRedirectTarget = getLegacyRedirectTarget(sectorSlug);
+const requestedSectorSlug = Astro.params.sector || '';
+const sectorSlugAliases: Record<string, string> = {
+  gobierno: 'gobiernosectorpublico',
+};
+const sectorSlug = sectorSlugAliases[requestedSectorSlug] || requestedSectorSlug;
+const publicSectorSlug = requestedSectorSlug;
+const legacyRedirectTarget = getLegacyRedirectTarget(publicSectorSlug);
 
 if (legacyRedirectTarget) {
   return Astro.redirect(legacyRedirectTarget, 301);
 }
 
-const geoHub = getGeoCommercialHub(sectorSlug);
+const geoHub = getGeoCommercialHub(publicSectorSlug);
 const sectorData = geoHub ? null : await getSectorBySlug(sectorSlug);
 
 if (!geoHub && !sectorData) {
@@ -50,12 +55,12 @@ const {
   servicios: serviciosRelacionados,
 } = sectorData || {};
 
-const visual = getSectorVisualSpec(sectorSlug);
+const visual = getSectorVisualSpec(publicSectorSlug) || getSectorVisualSpec(sectorSlug);
 const heroImage = resolveCmsImageUrl(hero_image, visual?.image || getSectorEditorialImage(sectorSlug));
 const editorialHeadline = visual?.headline || `Tecnología para ${nombre}`;
-const editorialSeoTitle = getReplicaProdEntry(`/${sectorSlug}`)?.title || seo_title || editorialHeadline;
+const editorialSeoTitle = getReplicaProdEntry(`/${publicSectorSlug}`)?.title || seo_title || editorialHeadline;
 const pageHeadline = isReplicaIdenticalCopy()
-  ? resolveReplicaH1(`/${sectorSlug}`, seo_title || editorialHeadline)
+  ? resolveReplicaH1(`/${publicSectorSlug}`, seo_title || editorialHeadline)
   : editorialHeadline;
 const pageSummary = visual?.summary || descripcion;
 const antecedentes = geoHub ? [] : await getAntecedentesForSector(keywords, nombre);
@@ -80,7 +85,7 @@ const templateSector = {
   ...sectorData,
   nombre,
   label: visual?.label || nombre,
-  slug: sectorSlug,
+  slug: publicSectorSlug,
   pageHeadline,
   pageSummary,
   heroImage,
@@ -95,7 +100,7 @@ const templateServiciosRelacionados = (serviciosRelacionados || []).map((servici
   slug: generateSlug(servicio.nombre || servicio.Titulo || 'servicio')
 }));
 const sectorStrategicLinkGroups = geoHub ? [] : buildSectorStrategicLinkGroups({
-  currentPath: `/${sectorSlug}`,
+  currentPath: `/${publicSectorSlug}`,
   sectorSlug,
   sectorName: templateSector.label || nombre,
   title: pageHeadline,
@@ -111,7 +116,7 @@ const sectorStrategicLinkGroups = geoHub ? [] : buildSectorStrategicLinkGroups({
 const sectorStructuredData = geoHub ? [] : [
   ...(faqSchema ? [faqSchema] : []),
   buildStrategicWebPageStructuredData({
-    url: `https://www.ultimamilla.com.ar/${sectorSlug}`,
+    url: `https://www.ultimamilla.com.ar/${publicSectorSlug}`,
     name: pageHeadline,
     description: seo_description || pageSummary,
     groups: sectorStrategicLinkGroups,
