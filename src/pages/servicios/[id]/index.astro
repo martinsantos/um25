@@ -1,0 +1,20 @@
+---
+import { generateSlug } from '../../../utils/slugUtils.js';
+import { getServicioById } from '../../../utils/directusHelpers';
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect('/404');
+}
+
+const servicio = await getServicioById(id);
+
+if (!servicio) {
+  return Astro.redirect('/404');
+}
+
+const slug = servicio.slug || generateSlug(servicio.Titulo);
+
+return Astro.redirect(`/servicios/${id}/${slug}`, 301);
+---

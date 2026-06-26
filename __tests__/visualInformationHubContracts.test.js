@@ -191,21 +191,21 @@ describe('Information hub visual contracts', () => {
   test('antecedentes archive exposes a crawlable complete index of case links', () => {
     const source = read('src/pages/antecedentes/index.astro');
 
-    expect(source).toContain('crawlableAntecedenteIndex');
-    expect(source).toContain('Índice completo de antecedentes');
-    expect(source).toContain('Todos los antecedentes técnicos');
+    expect(source).toContain('const cases = [...orderedLeadCases, ...fallbackCases].map');
+    expect(source).toContain('data-case-card');
+    expect(source).toContain('data-case-modal={item.id}');
     expect(source).toContain('href={item.href}');
   });
 
   test('antecedentes archive keeps crawlable view and sort controls', () => {
     const source = read('src/pages/antecedentes/index.astro');
 
-    expect(source).toContain("archiveView: ['list', 'grid'].includes(requestedView) ? requestedView : 'list'");
-    expect(source).toContain("archiveSort: ['newest', 'oldest', 'client'].includes(requestedSort) ? requestedSort : 'newest'");
-    expect(antecedentesEditorial).toContain('data-view-control={option.id}');
-    expect(antecedentesEditorial).toContain('data-sort-control={option.id}');
-    expect(antecedentesEditorial).toContain('Más recientes');
-    expect(antecedentesEditorial).toMatch(/\.ante-dossier__archive--grid \.ante-dossier__ledger\s*\{[\s\S]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
+    expect(source).toContain('data-view-toggle="grid"');
+    expect(source).toContain('data-view-toggle="list"');
+    expect(source).toContain('data-sort-select');
+    expect(source).toContain('<option value="recent">Más recientes</option>');
+    expect(source).toMatch(/\.um26-case-grid--list \.um26-case-card,[\s\S]*\.um26-case-grid--list \.um26-case-card--wide\s*\{[\s\S]*flex-direction:\s*row;/);
+    expect(source).toMatch(/\.um26-case-grid--list \.um26-case-card__thumb\s*\{[\s\S]*flex:\s*0 0 156px;/);
   });
 
   test('evidence case rows reserve enough copy width to avoid broken client names', () => {
@@ -363,30 +363,28 @@ describe('Information hub visual contracts', () => {
   test('services mobile proofline avoids narrow three-column word breaks', () => {
     const servicios = read('src/pages/servicios/index.astro');
 
-    expect(servicios).toContain('class="um26-services"');
-    expect(servicios).toContain('class="services-proofline"');
+    expect(servicios).toContain('class="services-demo"');
+    expect(servicios).toContain('class="services-demo-row"');
     expect(servicios).toContain('loading="eager"');
     expect(servicios).not.toContain("loading={index < 2 ? 'eager' : 'lazy'}");
-    expect(servicios).toMatch(/\.service-image\s*\{[\s\S]*background:\s*#121214 var\(--service-image\) center \/ cover no-repeat !important;/);
-    expect(cssBlock(servicios, '.service-image::after')).toMatch(/z-index:\s*1;/);
-    expect(cssBlock(servicios, '.service-image img')).toMatch(/z-index:\s*0;/);
-    expect(cssBlock(servicios, '.service-image__evidence')).toMatch(/z-index:\s*2;/);
-    expect(servicios).toMatch(/\.services-proofline\s*\{[\s\S]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
-    expect(servicios).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.services-proofline\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
-    expect(servicios).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.services-proofline div\s*\{[\s\S]*border-left:\s*0;/);
-    expect(cssBlock(servicios, '.services-proofline dd')).toMatch(/line-height:\s*1\.35;/);
-    expect(servicios).toMatch(/@media \(max-width:\s*1100px\)\s*\{[\s\S]*\.services-hero__note\s*\{[\s\S]*display:\s*none;/);
-    expect(servicios).not.toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.services-proofline\s*\{[\s\S]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
+    expect(servicios).toMatch(/\.services-demo-media\s*\{[\s\S]*background-image:\s*var\(--service-image\);/);
+    expect(cssBlock(servicios, '.services-demo-media div')).toMatch(/z-index:\s*1;/);
+    expect(cssBlock(servicios, '.services-demo-media img')).toMatch(/z-index:\s*0;/);
+    expect(cssBlock(servicios, '.services-demo-media span,\n    .services-demo-media em')).toMatch(/z-index:\s*2;/);
+    expect(servicios).toMatch(/\.services-demo-body ul\s*\{[\s\S]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
+    expect(servicios).toMatch(/@media \(max-width:\s*980px\)\s*\{[\s\S]*\.services-demo-row,[\s\S]*\.services-demo-row:nth-child\(even\)\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
+    expect(servicios).toMatch(/@media \(max-width:\s*980px\)\s*\{[\s\S]*\.services-demo-body ul\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
+    expect(servicios).not.toMatch(/@media \(max-width:\s*980px\)\s*\{[\s\S]*\.services-demo-body ul\s*\{[\s\S]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
   });
 
   test('services dark product band avoids off-brand red microtext', () => {
     const servicios = read('src/pages/servicios/index.astro');
 
     expect(servicios).not.toContain('#fca5a5');
-    expect(cssBlock(servicios, '.services-closing__panel')).toMatch(/rgba\(220,38,38,0\.24\)/);
-    expect(cssBlock(servicios, '.services-closing__panel')).toMatch(/linear-gradient\(135deg,\s*#0f0f11,\s*#121214\)/);
-    expect(cssBlock(servicios, '.services-closing p:not(.um26-kicker)')).toMatch(/color:\s*#a1a1aa;/);
-    expect(servicios).toContain('class="services-closing__actions"');
+    expect(cssBlock(servicios, '.services-demo-closing')).toMatch(/background:\s*#0f0f11;/);
+    expect(cssBlock(servicios, '.services-demo-closing a')).toMatch(/background:\s*#dc2626;/);
+    expect(cssBlock(servicios, '.services-demo-closing a + a')).toMatch(/background:\s*transparent;/);
+    expect(servicios).toContain('class="services-demo-shell services-demo-closing"');
   });
 
   test('contact feedback links use canonical UMSA red only', () => {
