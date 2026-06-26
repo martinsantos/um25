@@ -1,5 +1,7 @@
 import type { EntradaBlog } from '../lib/directus';
 import { MOCK_POSTS } from '../data/blog-mock';
+import { BLOG_POSTS as UM26_BLOG_POSTS } from '../lib/um26-data/blog';
+import type { BlogPost as Um26BlogPost } from '../lib/um26-data/types';
 import {
   allowMockBlogFallback,
   allowPublicBlogFallback,
@@ -17,6 +19,60 @@ const PUBLIC_SITE_URL = allowPublicBlogFallback() ? SITE_URL : getPublicSiteUrl(
 const ENABLE_PUBLIC_BLOG_FALLBACK = allowPublicBlogFallback();
 
 const publicBlogIndexCache = new Map<string, Promise<string[]>>();
+
+function escapeHtml(value = ''): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function um26PostToEntrada(post: Um26BlogPost, index: number): EntradaBlog {
+  const tags = post.tags || [];
+  const tagList = tags.length
+    ? `<ul>${tags.slice(0, 5).map((tag) => `<li>${escapeHtml(tag)}</li>`).join('')}</ul>`
+    : '';
+
+  return {
+    id: `um26-${index}`,
+    status: 'published',
+    slug: post.slug,
+    titulo: post.title,
+    resumen: post.excerpt || post.summary,
+    contenido: `
+      <p>${escapeHtml(post.summary || post.excerpt)}</p>
+      <h2>Contexto operativo</h2>
+      <p>${escapeHtml(post.excerpt || post.summary)}</p>
+      <h2>Puntos de lectura</h2>
+      ${tagList || '<p>Lectura editorial de ULTIMA MILLA para decisiones de infraestructura, continuidad y operacion IT.</p>'}
+    `,
+    imagen_portada: null,
+    imagen_portada_alt: post.title,
+    categoria: post.category,
+    tags,
+    fecha_publicacion: `${post.date}T12:00:00Z`,
+    tiempo_lectura: post.readingMinutes,
+    meta_title: `${post.title} | ULTIMA MILLA`,
+    meta_description: post.summary || post.excerpt,
+    meta_keywords: tags.join(', '),
+  };
+}
+
+const UM26_FALLBACK_POSTS: EntradaBlog[] = UM26_BLOG_POSTS
+  .map(um26PostToEntrada)
+  .sort((a, b) => new Date(b.fecha_publicacion).getTime() - new Date(a.fecha_publicacion).getTime());
+
+function getUm26BlogListing(page: number, limit: number, categoria?: string): { posts: EntradaBlog[]; total: number } {
+  const offset = (page - 1) * limit;
+  const filtered = (categoria
+    ? UM26_FALLBACK_POSTS.filter((post) => post.categoria === categoria)
+    : UM26_FALLBACK_POSTS
+  ).filter((post) => isCanonicalBlogSlug(post.slug));
+
+  return { posts: filtered.slice(offset, offset + limit), total: filtered.length };
+}
 
 function authHeaders(): HeadersInit {
   return DIRECTUS_TOKEN ? { Authorization: `Bearer ${DIRECTUS_TOKEN}` } : {};
@@ -225,6 +281,9 @@ export async function fetchBlogListing(
     const publicListing = await fetchPublicBlogListing(page, limit, categoria);
     if (publicListing && publicListing.posts.length > 0) return publicListing;
 
+    const um26Listing = getUm26BlogListing(page, limit, categoria);
+    if (um26Listing.posts.length > 0) return um26Listing;
+
     if (!allowMockBlogFallback()) {
       return { posts: [], total: 0 };
     }
@@ -254,6 +313,9 @@ export async function fetchBlogPost(slug: string): Promise<EntradaBlog | null> {
     const publicPost = await fetchPublicBlogPost(slug);
     if (publicPost) return publicPost;
 
+    const um26Post = UM26_FALLBACK_POSTS.find((p) => p.slug === slug);
+    if (um26Post) return um26Post;
+
     if (!allowMockBlogFallback()) return null;
     return MOCK_POSTS.find(p => p.slug === slug) || null;
   }
@@ -276,6 +338,8 @@ export async function fetchBlogBand(limit = 3): Promise<EntradaBlog[]> {
   } catch {
     const publicListing = await fetchPublicBlogListing(1, limit);
     if (publicListing && publicListing.posts.length > 0) return publicListing.posts.slice(0, limit);
+
+    if (UM26_FALLBACK_POSTS.length > 0) return UM26_FALLBACK_POSTS.slice(0, limit);
 
     if (!allowMockBlogFallback()) return [];
     return MOCK_POSTS.slice(0, limit);
