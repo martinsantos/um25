@@ -28,7 +28,9 @@
   --um-container: 1180px;
   --um-container-wide: 1280px;
   --um-font-logo: 'Futura PT', 'Futura', sans-serif;
-  --um-font-display: 'Poppins', 'Inter', Arial, system-ui, sans-serif;
+  --font-poppins: 'Poppins', 'Poppins Fallback';
+  --font-head: var(--font-poppins);
+  --um-font-display: var(--font-poppins), 'Inter', Arial, system-ui, sans-serif;
   --um-font-body: 'Inter', Arial, system-ui, sans-serif;
   --um-weight-title: 600;
   --um-weight-strong: 700;
