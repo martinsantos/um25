@@ -1,29 +1,32 @@
 ---
 import LayoutV4 from '../layouts/LayoutV4.astro';
-import { ArrowRight, ArrowUpRight, MapPin, Shuffle } from 'lucide-astro';
+import { ArrowRight, ArrowUpRight, MapPin } from 'lucide-astro';
 
 const heroLead = 'Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.';
 const heroVariants = [
-  { image: '/hero/noc.png', fx: 'TYPE', title: 'Monitoreo 24/7 sin puntos ciegos.', lead: heroLead, caption: 'Centro de operaciones NOC · Mendoza', code: '01/16' },
-  { image: '/hero/fiber.png', fx: 'FLAP', title: 'Fibra certificada, operación continua.', lead: heroLead, caption: 'Backbone de fibra óptica · Aeropuertos Argentina 2000', code: '02/16' },
-  { image: '/hero/cctv.png', fx: 'FLAP', title: 'Evidencia visual accionable.', lead: heroLead, caption: 'Centro de monitoreo CCTV · Aeropuerto El Plumerillo', code: '03/16' },
-  { image: '/hero/bodega.png', fx: 'TYPE', title: 'Trazabilidad de cosecha a botella.', lead: heroLead, caption: 'Redes industriales en cava · Bodega Tapiz', code: '04/16' },
-  { image: '/hero/hospital.png', fx: 'TYPE', title: 'Continuidad para misión crítica.', lead: heroLead, caption: 'Infraestructura IT hospitalaria · Hospital Perrupato', code: '05/16' },
-  { image: '/img/servicios/redes.webp', fx: 'TYPE', title: 'Redes que sostienen la operación.', lead: heroLead, caption: 'Cableado estructurado certificado · Mendoza', code: '06/16' },
-  { image: '/img/servicios/seguridad-electronica.webp', fx: 'FLAP', title: 'CCTV, accesos y detección integrados.', lead: heroLead, caption: 'Seguridad electrónica IP · Cuyo', code: '07/16' },
-  { image: '/img/servicios/telecomunicaciones.webp', fx: 'FLAP', title: 'Enlaces donde no llega nadie más.', lead: heroLead, caption: 'Telecomunicaciones datos/voz/video · Patagonia', code: '08/16' },
-  { image: '/img/servicios/deteccion-incendios.webp', fx: 'TYPE', title: 'Detección temprana, respuesta inmediata.', lead: heroLead, caption: 'Sistema SDI certificado · Torre Thays', code: '09/16' },
-  { image: '/img/servicios/electricos-it.webp', fx: 'TYPE', title: 'Energía limpia para data centers.', lead: heroLead, caption: 'Energía IT para datacenter · Mendoza', code: '10/16' },
-  { image: '/img/servicios/soporte-247.webp', fx: 'TYPE', title: 'Soporte con SLA garantizado.', lead: heroLead, caption: 'Mesa de ayuda y NOC 24/7 · 4 hubs', code: '11/16' },
-  { image: '/img/servicios/consultoria-it.webp', fx: 'TYPE', title: 'Arquitectura antes que marketing.', lead: heroLead, caption: 'Consultoría y auditoría IT · Argentina', code: '12/16' },
-  { image: '/img/sectores/aeropuertos.webp', fx: 'FLAP', title: 'Perímetro, pistas y terminal 24/7.', lead: heroLead, caption: 'Operación aeroportuaria continua · AA2000', code: '13/16' },
-  { image: '/img/sectores/salud.webp', fx: 'TYPE', title: 'Redes para imágenes médicas y historia clínica.', lead: heroLead, caption: 'Infraestructura hospitalaria · FUESMEN', code: '14/16' },
-  { image: '/img/sectores/mineria.webp', fx: 'FLAP', title: 'Conectividad en campamento y mina.', lead: heroLead, caption: 'Telecomunicaciones en faena remota · Minera Frontera', code: '15/16' },
-  { image: '/img/sectores/industria.webp', fx: 'TYPE', title: 'Planta que no para, red que no falla.', lead: heroLead, caption: 'Redes industriales en planta 24/7 · Cela SA', code: '16/16' },
+  { image: '/hero/noc.png', fx: 'TYPE', title: 'Monitoreo 24/7 sin puntos ciegos.', lead: heroLead, caption: 'CENTRO DE OPERACIONES NOC · MENDOZA', code: '01/16' },
+  { image: '/hero/fiber.png', fx: 'FLAP', title: 'Fibra certificada, operación continua.', lead: heroLead, caption: 'BACKBONE DE FIBRA ÓPTICA · AEROPUERTOS ARGENTINA 2000', code: '02/16' },
+  { image: '/hero/cctv.png', fx: 'FLAP', title: 'Evidencia visual accionable.', lead: heroLead, caption: 'CENTRO DE MONITOREO CCTV · AEROPUERTO EL PLUMERILLO', code: '03/16' },
+  { image: '/hero/bodega.png', fx: 'TYPE', title: 'Trazabilidad de cosecha a botella.', lead: heroLead, caption: 'REDES INDUSTRIALES EN CAVA · BODEGA TAPIZ', code: '04/16' },
+  { image: '/hero/hospital.png', fx: 'TYPE', title: 'Continuidad para misión crítica.', lead: heroLead, caption: 'INFRAESTRUCTURA IT HOSPITALARIA · HOSPITAL PERRUPATO', code: '05/16' },
+  { image: '/img/servicios/redes.webp', fx: 'TYPE', title: 'Redes que sostienen la operación.', lead: heroLead, caption: 'CABLEADO ESTRUCTURADO CERTIFICADO · MENDOZA', code: '06/16' },
+  { image: '/img/servicios/seguridad-electronica.webp', fx: 'FLAP', title: 'CCTV, accesos y detección integrados.', lead: heroLead, caption: 'SEGURIDAD ELECTRÓNICA IP · CUYO', code: '07/16' },
+  { image: '/img/servicios/telecomunicaciones.webp', fx: 'FLAP', title: 'Enlaces donde no llega nadie más.', lead: heroLead, caption: 'TELECOMUNICACIONES DATOS/VOZ/VIDEO · PATAGONIA', code: '08/16' },
+  { image: '/img/servicios/deteccion-incendios.webp', fx: 'TYPE', title: 'Detección temprana, respuesta inmediata.', lead: heroLead, caption: 'SISTEMA SDI CERTIFICADO · TORRE THAYS', code: '09/16' },
+  { image: '/img/servicios/electricos-it.webp', fx: 'TYPE', title: 'Energía limpia para data centers.', lead: heroLead, caption: 'ENERGÍA IT PARA DATACENTER · MENDOZA', code: '10/16' },
+  { image: '/img/servicios/soporte-247.webp', fx: 'TYPE', title: 'Soporte con SLA garantizado.', lead: heroLead, caption: 'MESA DE AYUDA Y NOC 24/7 · 4 HUBS', code: '11/16' },
+  { image: '/img/servicios/consultoria-it.webp', fx: 'TYPE', title: 'Arquitectura antes que marketing.', lead: heroLead, caption: 'CONSULTORÍA Y AUDITORÍA IT · ARGENTINA', code: '12/16' },
+  { image: '/img/sectores/aeropuertos.webp', fx: 'FLAP', title: 'Perímetro, pistas y terminal 24/7.', lead: heroLead, caption: 'OPERACIÓN AEROPORTUARIA CONTINUA · AA2000', code: '13/16' },
+  { image: '/img/sectores/salud.webp', fx: 'TYPE', title: 'Redes para imágenes médicas y historia clínica.', lead: heroLead, caption: 'INFRAESTRUCTURA HOSPITALARIA · FUESMEN', code: '14/16' },
+  { image: '/img/sectores/mineria.webp', fx: 'FLAP', title: 'Conectividad en campamento y mina.', lead: heroLead, caption: 'TELECOMUNICACIONES EN FAENA REMOTA · MINERA FRONTERA', code: '15/16' },
+  { image: '/img/sectores/industria.webp', fx: 'TYPE', title: 'Planta que no para, red que no falla.', lead: heroLead, caption: 'REDES INDUSTRIALES EN PLANTA 24/7 · CELA SA', code: '16/16' },
 ];
 
-const initialHeroIndex = Math.floor(Math.random() * heroVariants.length);
-const initialHero = heroVariants[initialHeroIndex];
+const initialHeroIndex = 8;
+const initialHero = {
+  ...heroVariants[initialHeroIndex],
+  lead: heroLead,
+};
 const heroImage = initialHero.image;
 
 const services = [
@@ -173,22 +176,22 @@ const hubs = [
       </a>
 
       <button class="um26-hero__shuffle" type="button" aria-label="Cambiar fondo visual">
-        <Shuffle size={13} strokeWidth={2} />
+        <span class="um26-hero__shuffle-icon" aria-hidden="true">⌘</span>
         <span>Fondo</span>
         <b data-hero-fx>{initialHero.fx}</b>
       </button>
 
       <div class="um26-shell um26-hero__body">
-        <p class="um26-kicker"><span></span>Servicios IT · Desde 2000</p>
+        <p class="um26-kicker" data-hero-reveal style="--d: 120ms;"><span></span>Servicios IT · Desde 2000</p>
         <h1 id="home-title">
-          <span class="um26-hero__line" data-hero-title>{initialHero.title}</span><span class="um26-hero__cursor" aria-hidden="true"></span>
+          <span data-hero-title>{initialHero.title}</span>
         </h1>
-        <p class="um26-hero__lead" data-hero-lead>{initialHero.lead}</p>
+        <p class="um26-hero__lead" data-hero-reveal style="--d: 520ms;" data-hero-lead>{initialHero.lead}</p>
         <div class="um26-hero__actions">
-          <a class="um26-btn um26-btn--red" href="/antecedentes">Ver evidencia operativa <ArrowRight size={16} strokeWidth={2} /></a>
-          <a class="um26-btn um26-btn--ghost" href="/sectores">Entrar por sector <ArrowUpRight size={15} strokeWidth={2} /></a>
+          <a class="um26-btn um26-btn--red" data-hero-reveal style="--d: 680ms;" href="/antecedentes">Ver evidencia operativa <ArrowRight size={16} strokeWidth={2} /></a>
+          <a class="um26-btn um26-btn--ghost" data-hero-reveal style="--d: 780ms;" href="/sectores">Entrar por sector <ArrowUpRight size={15} strokeWidth={2} /></a>
         </div>
-        <p class="um26-hero__caption"><MapPin size={12} strokeWidth={2} /><span data-hero-caption>{initialHero.caption}</span> <span data-hero-code>{initialHero.code}</span></p>
+        <p class="um26-hero__caption" data-hero-reveal style="--d: 900ms;"><MapPin size={12} strokeWidth={2} /><span data-hero-caption>{initialHero.caption}</span> <span data-hero-code>{initialHero.code}</span></p>
       </div>
     </section>
 
@@ -342,7 +345,7 @@ const hubs = [
     }
 
     .um26-shell {
-      width: min(1336px, calc(100% - 126px));
+      width: min(1400px, calc(100% - 64px));
       margin-inline: auto;
     }
 
@@ -381,7 +384,7 @@ const hubs = [
       top: 20px;
       left: 50%;
       transform: translateX(-50%);
-      width: min(1336px, calc(100% - 126px));
+      width: min(1400px, calc(100% - 64px));
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -464,14 +467,44 @@ const hubs = [
       gap: 10px;
       font-family: var(--font-geist-mono), ui-monospace, monospace;
       border: 1px solid rgba(255, 255, 255, 0.16);
-      background: rgba(10, 10, 11, 0.62);
+      background: rgba(10, 10, 11, 0.72);
+      backdrop-filter: blur(8px);
       padding: 10px 13px;
       color: rgba(255, 255, 255, 0.78);
       text-transform: uppercase;
       letter-spacing: 0.16em;
-      font-size: 0.625rem;
+      font-size: 0.5625rem;
       z-index: 2;
       cursor: pointer;
+      opacity: 0;
+      transform: translateY(14px);
+      animation: um26FadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.42s forwards;
+    }
+
+    .um26-home .um26-hero__shuffle,
+    .um26-home .um26-hero__shuffle * {
+      font-size: 0.5625rem !important;
+      line-height: 1 !important;
+      white-space: nowrap;
+      text-wrap: nowrap;
+    }
+
+    .um26-hero__shuffle:hover {
+      border-color: rgba(220, 38, 38, 0.78);
+      color: #fff;
+    }
+
+    .um26-hero__shuffle-icon {
+      color: #dc2626;
+      font-size: 0.875rem !important;
+      line-height: 1;
+    }
+
+    .um26-hero__shuffle b {
+      color: #dc2626;
+      font-weight: 700;
+      border-left: 1px solid rgba(255, 255, 255, 0.16);
+      padding-left: 10px;
     }
 
     .um26-hero__variant {
@@ -509,17 +542,6 @@ const hubs = [
       background: #dc2626;
       color: #fff;
       font-weight: 700;
-    }
-
-    .um26-hero__shuffle svg {
-      color: #dc2626;
-    }
-
-    .um26-hero__shuffle b {
-      color: #dc2626;
-      font-weight: 700;
-      border-left: 1px solid rgba(255, 255, 255, 0.16);
-      padding-left: 10px;
     }
 
     .um26-hero__body {
@@ -566,8 +588,9 @@ const hubs = [
     }
 
     .um26-hero h1 {
-      max-width: 900px;
-      font-size: clamp(4.5rem, 6vw, 5.5rem);
+      max-width: 980px;
+      min-height: 1.9em;
+      font-size: clamp(3.5rem, 4.5vw, 5.5rem);
       line-height: 0.95;
       letter-spacing: 0;
       text-wrap: normal;
@@ -576,10 +599,11 @@ const hubs = [
       hyphens: none;
     }
 
-    .um26-hero h1 em {
+    .um26-hero h1 > span {
       display: block;
-      color: #dc2626;
-      font-style: normal;
+      opacity: 0;
+      transform: translateY(18px);
+      animation: um26FadeUp 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.26s forwards;
     }
 
     .um26-hero__line {
@@ -593,6 +617,36 @@ const hubs = [
       margin-left: 0.08em;
       transform: translateY(0.08em);
       background: #dc2626;
+    }
+
+    .um26-hero h1.is-typing > span::after {
+      content: "";
+      display: inline-block;
+      width: 0.12em;
+      height: 0.82em;
+      margin-left: 0.08em;
+      transform: translateY(0.08em);
+      background: #dc2626;
+      animation: um26Cursor 0.72s steps(2, start) infinite;
+    }
+
+    [data-hero-reveal] {
+      opacity: 0;
+      transform: translateY(18px);
+      animation: um26FadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0ms) forwards;
+    }
+
+    @keyframes um26FadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes um26Cursor {
+      50% {
+        opacity: 0;
+      }
     }
 
     .um26-hero__lead {
@@ -614,6 +668,7 @@ const hubs = [
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      gap: 10px;
       min-height: 52px;
       padding: 0 24px;
       color: #fff;
@@ -668,14 +723,6 @@ const hubs = [
     }
 
     .um26-hero__caption svg { color: #dc2626; flex: 0 0 auto; }
-
-    .um26-hero__caption [data-hero-caption] {
-      color: rgba(255, 255, 255, 0.45);
-    }
-
-    .um26-hero__caption [data-hero-code] {
-      color: rgba(255, 255, 255, 0.28);
-    }
 
     .um26-stats {
       border-block: 1px solid rgba(255, 255, 255, 0.08);
@@ -1083,19 +1130,14 @@ const hubs = [
         display: none;
       }
 
-      .um26-hero__shuffle {
-        top: 64px;
-        right: 16px;
-        display: inline-flex;
-      }
-
       .um26-hero__body {
         padding-block: 0 66px;
       }
 
       .um26-hero h1 {
         max-width: 100%;
-        font-size: clamp(1.9rem, 7.8vw, 2.05rem);
+        min-height: 2.9em;
+        font-size: clamp(2.55rem, 11vw, 3.35rem);
         line-height: 1;
       }
 
@@ -1105,7 +1147,7 @@ const hubs = [
 
       .um26-hero__lead {
         font-size: 1rem;
-        margin-top: 52px;
+        margin-top: 24px;
       }
 
       .um26-hero__actions {
@@ -1164,32 +1206,122 @@ const hubs = [
   </style>
 
   <script>
-    document.querySelectorAll('[data-um26-hero]').forEach((hero) => {
-      const variants = JSON.parse(hero.getAttribute('data-hero-variants') || '[]');
-      if (!Array.isArray(variants) || variants.length < 2) return;
+    const bootUm26Hero = () => {
+      document.querySelectorAll('[data-um26-hero]').forEach((hero) => {
+        const variants = JSON.parse(hero.getAttribute('data-hero-variants') || '[]');
+        if (!Array.isArray(variants) || variants.length < 1) return;
 
-      let current = Number(hero.getAttribute('data-hero-index') || 0);
-      const image = hero.querySelector('[data-hero-image]');
-      const title = hero.querySelector('[data-hero-title]');
-      const lead = hero.querySelector('[data-hero-lead]');
-      const caption = hero.querySelector('[data-hero-caption]');
-      const code = hero.querySelector('[data-hero-code]');
-      const fx = hero.querySelector('[data-hero-fx]');
-      const button = hero.querySelector('.um26-hero__shuffle');
+        let current = Number(hero.getAttribute('data-hero-index') || 0);
+        const image = hero.querySelector('[data-hero-image]');
+        const title = hero.querySelector('[data-hero-title]');
+        const lead = hero.querySelector('[data-hero-lead]');
+        const caption = hero.querySelector('[data-hero-caption]');
+        const code = hero.querySelector('[data-hero-code]');
+        const fx = hero.querySelector('[data-hero-fx]');
+        const button = hero.querySelector('.um26-hero__shuffle');
+        const heading = hero.querySelector('#home-title');
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let titleTimer = 0;
 
-      const applyVariant = (nextIndex) => {
-        current = nextIndex % variants.length;
-        const variant = variants[current];
-        if (!variant) return;
-        if (image instanceof HTMLImageElement) image.src = variant.image;
-        if (title) title.textContent = variant.title || '';
-        if (lead) lead.textContent = variant.lead || '';
-        if (caption) caption.textContent = variant.caption || '';
-        if (code) code.textContent = variant.code || '';
-        if (fx) fx.textContent = variant.fx || 'TYPE';
-      };
+        const setText = (node, value) => {
+          if (node) node.textContent = value || '';
+        };
 
-      button?.addEventListener('click', () => applyVariant(current + 1));
-    });
+        const typeTitle = (value) => {
+          if (!title || reduceMotion) {
+            setText(title, value);
+            heading?.classList.remove('is-typing');
+            return;
+          }
+
+          window.clearInterval(titleTimer);
+          title.textContent = '';
+          heading?.classList.add('is-typing');
+          let index = 0;
+          titleTimer = window.setInterval(() => {
+            index += 1;
+            title.textContent = value.slice(0, index);
+            if (index >= value.length) {
+              window.clearInterval(titleTimer);
+              window.setTimeout(() => heading?.classList.remove('is-typing'), 420);
+            }
+          }, 28);
+        };
+
+        const flapTitle = (value) => {
+          if (!title || reduceMotion) {
+            setText(title, value);
+            return;
+          }
+
+          window.clearInterval(titleTimer);
+          const glyphs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789·/+-';
+          let frame = 0;
+          const frames = 16;
+          titleTimer = window.setInterval(() => {
+            frame += 1;
+            title.textContent = value
+              .split('')
+              .map((char, index) => {
+                if (char === ' ') return ' ';
+                if (index / value.length < frame / frames) return char;
+                return glyphs[(frame + index * 7) % glyphs.length];
+              })
+              .join('');
+            if (frame >= frames) {
+              window.clearInterval(titleTimer);
+              title.textContent = value;
+            }
+          }, 42);
+        };
+
+        const applyVariant = (nextIndex, animate = true) => {
+          current = ((nextIndex % variants.length) + variants.length) % variants.length;
+          const variant = variants[current];
+          if (!variant) return;
+
+          if (image instanceof HTMLImageElement && !image.src.endsWith(variant.image)) {
+            image.style.opacity = '0';
+            window.setTimeout(() => {
+              image.src = variant.image;
+              image.style.opacity = '1';
+            }, 120);
+          }
+
+          setText(lead, variant.lead);
+          setText(caption, variant.caption);
+          setText(code, variant.code);
+          setText(fx, variant.fx || 'TYPE');
+
+          if (!animate) {
+            setText(title, variant.title);
+            return;
+          }
+
+          if (variant.fx === 'FLAP') {
+            flapTitle(variant.title);
+          } else {
+            typeTitle(variant.title);
+          }
+        };
+
+        button?.addEventListener('click', () => {
+          let next = current;
+          while (next === current && variants.length > 1) {
+            next = Math.floor(Math.random() * variants.length);
+          }
+          applyVariant(next);
+        });
+
+        window.setTimeout(() => applyVariant(current), 180);
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bootUm26Hero, { once: true });
+    } else {
+      bootUm26Hero();
+    }
   </script>
+
 </LayoutV4>
