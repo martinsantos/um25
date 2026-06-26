@@ -13,6 +13,10 @@ import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
 import { getServiceIdFromArea } from '../../../data/areaToServiceMap.js';
 import { getAntecedenteConServicios, getAntecedenteImageUrl, getDirectusImageUrl, getGeneratedAntecedenteImageUrl, getAllAntecedentes } from '../../../lib/directus.ts';
+import {
+  getAntecedenteById as getUm26AntecedenteById,
+  getSectores as getUm26Sectores,
+} from '../../../lib/um26-directus';
 import { canonicalUrl as toCanonicalUrl, publicImageUrl } from '../../../utils/seoUrl';
 import {
   curateAntecedente,
@@ -50,6 +54,8 @@ if (!id || !slugFromUrl) {
 
 // --- State ---
 let antecedente: any = null;
+let sourceSlug: string | null = null;
+let resolvedFromUm26 = false;
 
 // --- Helper Functions ---
 const getAssetUrl = (assetId: any): string => {
@@ -64,6 +70,7 @@ const getAssetUrl = (assetId: any): string => {
     // Handle string UUIDs
     if (typeof assetId === 'string') {
         if (assetId.startsWith('http')) return assetId;
+        if (assetId.startsWith('/')) return assetId;
         const url = getDirectusImageUrl(assetId);
         if (url) return url;
     }
@@ -71,24 +78,90 @@ const getAssetUrl = (assetId: any): string => {
     return DEFAULT_IMAGE_URL;
 };
 
-// --- Get data and validate: Directus is the only public source for antecedentes. ---
-try {
-    antecedente = await getAntecedenteConServicios(id);
+const toUm26Date = (year?: number, month?: number): string => {
+  const safeYear = Number.isFinite(Number(year)) ? Number(year) : new Date().getFullYear();
+  const safeMonth = Number.isFinite(Number(month)) ? Math.min(12, Math.max(1, Number(month))) : 1;
+  return `${safeYear}-${String(safeMonth).padStart(2, '0')}-01`;
+};
 
-    if (antecedente) {
+const getUm26AntecedenteFallback = async (rawId: string): Promise<any | null> => {
+  const source = await getUm26AntecedenteById(Number(rawId));
+  if (!source) return null;
+
+  const sectors = await getUm26Sectores();
+  const sectorLabel = sectors.find((sector) => sector.slug === source.sector_slug)?.name || source.sector_slug;
+  const description = [
+    source.summary,
+    ...source.scope,
+  ].filter(Boolean).join('. ');
+
+  sourceSlug = source.slug;
+  resolvedFromUm26 = true;
+  return {
+    id: source.id,
+    original_id: source.id,
+    Titulo: source.title,
+    Nombre: source.title,
+    displayTitle: source.title,
+    Descripcion: description,
+    displayDescription: description,
+    Cliente: source.client,
+    Area: sectorLabel,
+    Unidad_de_negocio: sectorLabel,
+    Fecha: toUm26Date(source.year, source.month),
+    Imagen: source.image,
+    ImagenPrincipal: source.image,
+    Imagenes: [],
+    curation: {
+      recordLabel: 'Caso operativo',
+      recordTone: 'technical-record',
+      recordSummary: source.summary,
+      quality: 'technical-record',
+    },
+  };
+};
+
+// --- Get data and validate. Directus is preferred; UM26 local archive backs the new evidence grid. ---
+try {
+    const um26Source = await getUm26AntecedenteById(Number(id));
+    const um26Slugs = new Set([
+      um26Source?.slug,
+      um26Source?.title ? generateSlug(um26Source.title) : null,
+    ].filter(Boolean));
+
+    antecedente = um26Slugs.has(slugFromUrl)
+      ? await getUm26AntecedenteFallback(id)
+      : await getAntecedenteConServicios(id);
+
+    if (antecedente && !resolvedFromUm26) {
         const expectedSlug = generateSlug(antecedente.Titulo);
         if (expectedSlug !== slugFromUrl) {
             return Astro.redirect(`/antecedentes/${id}/${expectedSlug}`, 301);
         }
+    } else if (antecedente && resolvedFromUm26) {
+        const directSlug = generateSlug(antecedente.Titulo);
+        const validSlugs = new Set([directSlug, sourceSlug].filter(Boolean));
+        if (!validSlugs.has(slugFromUrl)) {
+            return Astro.redirect(`/antecedentes/${id}/${sourceSlug || directSlug}`, 301);
+        }
     } else {
-        return Astro.redirect('/404');
+        antecedente = await getUm26AntecedenteFallback(id);
+        if (!antecedente) return Astro.redirect('/404');
+        const directSlug = generateSlug(antecedente.Titulo);
+        const validSlugs = new Set([directSlug, sourceSlug].filter(Boolean));
+        if (!validSlugs.has(slugFromUrl)) {
+            return Astro.redirect(`/antecedentes/${id}/${sourceSlug || directSlug}`, 301);
+        }
     }
 } catch (error) {
     console.error(`Error loading antecedente ${id} from Directus:`, error);
-    return new Response('Contenido temporalmente no disponible', {
-      status: 503,
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-    });
+    antecedente = await getUm26AntecedenteFallback(id);
+    if (!antecedente) {
+      return new Response('Contenido temporalmente no disponible', {
+        status: 503,
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      });
+    }
 }
 
 if (!antecedente) return Astro.redirect('/404');
