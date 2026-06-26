@@ -141,7 +141,7 @@ const stats = [
   ['9', 'Sectores atendidos'],
   ['320+', 'Clientes activos'],
   ['4', 'Hubs GEO'],
-  ['99,9%', 'Disponibilidad SLA'],
+  ['99.9%', 'Disponibilidad SLA'],
 ];
 
 const hubs = [
@@ -196,13 +196,23 @@ const hubs = [
     </section>
 
     <section class="um26-stats" aria-label="Indicadores ULTIMA MILLA">
-      <div class="um26-shell um26-stats__grid">
-        {stats.map(([value, label]) => (
-          <div>
-            <strong>{value}</strong>
-            <span>{label}</span>
-          </div>
-        ))}
+      <div class="um26-shell um26-stats__inner">
+        <div class="um26-stats__grid">
+          {stats.map(([value, label]) => (
+            <div>
+              <strong>
+                {value.endsWith('+') ? (
+                  <>{value.slice(0, -1)}<b>+</b></>
+                ) : value.endsWith('%') ? (
+                  <>{value.slice(0, -1)}<b>%</b></>
+                ) : (
+                  value
+                )}
+              </strong>
+              <span>{label}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
 
@@ -733,27 +743,53 @@ const hubs = [
       background: #0f0f11;
     }
 
+    .um26-stats__inner {
+      padding-block: 32px;
+    }
+
     .um26-stats__grid {
       display: grid;
       grid-template-columns: repeat(6, minmax(0, 1fr));
-      padding-block: 26px;
+      min-height: 138px;
       background: rgba(255, 255, 255, 0.05);
       gap: 1px;
     }
 
     .um26-stats__grid div {
       background: #0f0f11;
-      padding: 24px;
+      padding: 20px;
+      position: relative;
+    }
+
+    .um26-stats__grid div:nth-child(2)::after {
+      content: '';
+      position: absolute;
+      left: 8px;
+      bottom: 14px;
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #dc2626;
+    }
+
+    .um26-stats__grid div:last-child {
+      background: #151517;
     }
 
     .um26-stats strong {
       display: block;
       color: #fff;
-      font-family: var(--um-font-display);
-      font-size: clamp(2rem, 3vw, 3rem);
-      font-weight: 700;
-      letter-spacing: -0.04em;
+      font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+      font-size: 2.25rem;
+      --um-stats-number-weight: 800;
+      font-weight: var(--um-stats-number-weight);
+      letter-spacing: 0;
       line-height: 1;
+    }
+
+    .um26-stats strong b {
+      color: #dc2626;
+      font: inherit;
     }
 
     .um26-stats span {
@@ -767,7 +803,7 @@ const hubs = [
     }
 
     .um26-section {
-      padding-block: clamp(88px, 9vw, 128px);
+      padding-block: 112px;
       background: #0a0a0b;
     }
 
@@ -797,12 +833,27 @@ const hubs = [
       align-items: end;
       justify-content: space-between;
       gap: 56px;
-      margin-bottom: 46px;
+      margin-bottom: 40px;
+    }
+
+    .um26-section .um26-kicker {
+      color: #dc2626 !important;
+      font-family: var(--um-font-mono) !important;
+      font-size: 0.6875rem !important;
+      line-height: 1.5 !important;
+      margin-bottom: 9px;
     }
 
     .um26-section h2 {
-      max-width: 760px;
-      font-size: clamp(2.6rem, 4.1vw, 3.75rem);
+      max-width: 650px;
+      --um-section-title-weight: 800;
+      font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+      font-size: clamp(2.25rem, 4.4vw, 3.75rem);
+      font-weight: var(--um-section-title-weight) !important;
+      letter-spacing: -0.035em !important;
+      line-height: 0.95;
+      text-wrap: wrap;
+      overflow-wrap: normal !important;
     }
 
     .um26-section__head > p {
