@@ -12,7 +12,7 @@ describe('UM26 theme contract', () => {
     expect(page).toContain(": 'um26'");
     expect(page).toContain('<SectorIndexUM26');
     expect(page).not.toContain("?? 'editorial'");
-    expect(template).toContain('class="um26-sectors"');
+    expect(template).toContain('class="sectors-demo"');
     expect(template).not.toContain('sector-editorial');
   });
 

@@ -44,11 +44,13 @@ describe('generated antecedentes image integration', () => {
     const index = fs.readFileSync(path.join(repoRoot, 'src/pages/antecedentes/index.astro'), 'utf8');
     const detail = fs.readFileSync(path.join(repoRoot, 'src/pages/antecedentes/[id]/[slug].astro'), 'utf8');
     const sectors = fs.readFileSync(path.join(repoRoot, 'src/utils/sectoresHelpers.ts'), 'utf8');
+    const um26Directus = fs.readFileSync(path.join(repoRoot, 'src/lib/um26-directus.ts'), 'utf8');
 
     expect(directus).toContain('getAntecedenteImageUrl');
     expect(home).toContain('/img/antecedentes/3065.webp');
-    expect(home).toContain('/img/antecedentes/3068.webp');
-    expect(index).toContain('getAntecedenteImageUrl(item)');
+    expect(index).toContain("const heroImage = '/img/antecedentes/3068.webp'");
+    expect(index).toContain('image: item.image');
+    expect(um26Directus).toContain('getAntecedenteImage(');
     expect(detail).toContain('getGeneratedAntecedenteImageUrl(antecedente.id)');
     expect(sectors).toContain('getAntecedenteImageUrl(item)');
   });
