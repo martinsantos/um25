@@ -3,6 +3,7 @@ import { editorialImages } from '../data/editorialImageSystem';
 import imageLocalMap from '../data/image-local-map.json';
 
 const UUID_RE = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+const PUBLIC_BLOG_IMAGE_HOSTS = new Set(['ultimamilla.com.ar', 'www.ultimamilla.com.ar']);
 
 const FALLBACK_BY_SLUG: Record<string, string> = {
   'plantilla-arca-facturacion-electronica-gratis': editorialImages.sectors.software,
@@ -28,18 +29,21 @@ export function blogImageUrl(value: string | null | undefined): string {
     try {
       const parsed = new URL(value);
       if (
-        parsed.hostname.includes('ultimamilla.com.ar') &&
+        PUBLIC_BLOG_IMAGE_HOSTS.has(parsed.hostname) &&
         /\.(jpg|jpeg|png|webp|gif)$/i.test(parsed.pathname)
       ) {
         return parsed.pathname;
       }
-      if (parsed.pathname.startsWith('/uploads/') || parsed.pathname.startsWith('/images/')) {
+      if (
+        PUBLIC_BLOG_IMAGE_HOSTS.has(parsed.hostname) &&
+        (parsed.pathname.startsWith('/uploads/') || parsed.pathname.startsWith('/images/'))
+      ) {
         return parsed.pathname;
       }
     } catch {
-      /* keep absolute URL below */
+      return '';
     }
-    return value;
+    return '';
   }
   if (value.startsWith('/')) {
     return value;
