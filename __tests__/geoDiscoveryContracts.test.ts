@@ -101,6 +101,18 @@ describe('GEO discovery and commercial hub contracts', () => {
     expect(payload.policy.join(' ')).toContain('No inventar nombres de clientes');
   });
 
+  test('GEO topics include natural commercial vocabulary used by scoring', () => {
+    const payload = buildGeoResource('topics') as { topics: string[] };
+
+    expect(payload.topics).toEqual(expect.arrayContaining([
+      'servicios tecnológicos para empresas',
+      'servicios IT para empresas',
+      'infraestructura de redes',
+      'soporte técnico 24/7',
+      'seguridad electrónica',
+    ]));
+  });
+
   test('commercial hub pages use the shared dossier, canonical and JSON-LD builder', () => {
     for (const slug of expectedCommercialHubs) {
       const sourcePath = path.join(repoRoot, 'src/pages', `${slug}.astro`);

@@ -232,6 +232,7 @@ export function buildGeoResource(resource: string) {
       return {
         ...common,
         topics: [
+          'servicios tecnológicos para empresas',
           'servicios IT para empresas',
           'infraestructura de redes',
           'soporte técnico 24/7',
