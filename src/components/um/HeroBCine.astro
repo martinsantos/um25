@@ -324,7 +324,7 @@ const initialBg = backgrounds[0];
   .um-bcine-hero__caption,
   .um-bcine-hero__shuffle,
   .um-bcine-hero__seal span {
-    font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-family: var(--um-font-mono);
     text-transform: uppercase;
     letter-spacing: 0.18em;
   }
@@ -431,7 +431,7 @@ const initialBg = backgrounds[0];
   }
 
   .um-bcine-hero__seal strong {
-    font-family: 'Poppins', 'Inter', sans-serif;
+    font-family: var(--um-font-display);
     font-size: clamp(5.2rem, 8vw, 7.3rem);
     line-height: 0.78;
     letter-spacing: -0.06em;
@@ -479,7 +479,7 @@ const initialBg = backgrounds[0];
     max-width: 720px;
     margin: 0 0 16px;
     color: rgba(255,255,255,0.58);
-    font-family: 'Poppins', 'Inter', sans-serif;
+    font-family: var(--um-font-display);
     font-size: clamp(0.94rem, 1vw, 1.08rem);
     font-weight: 500;
   }
@@ -489,11 +489,11 @@ const initialBg = backgrounds[0];
     min-height: 1.86em;
     margin: 0;
     color: #fff;
-    font-family: 'Poppins', 'Inter', sans-serif;
+    font-family: var(--um-font-display);
     font-size: clamp(3.15rem, 7vw, 5.75rem);
-    font-weight: 700;
+    font-weight: var(--um-display-weight);
     line-height: 0.92;
-    letter-spacing: 0;
+    letter-spacing: var(--um-display-tracking);
     text-wrap: balance;
     text-shadow: 0 4px 18px rgba(0,0,0,0.52);
   }

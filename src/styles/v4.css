@@ -837,7 +837,7 @@ body[data-skin="steel"] {
 
   /* Legacy navigation (migrated from theme.css) */
   .nav-link {
-    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--um-font-body);
     font-weight: 600;
   }
 
