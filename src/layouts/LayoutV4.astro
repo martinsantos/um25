@@ -205,7 +205,7 @@ const shouldEmitHreflang = hasEnglishAlternate(Astro.url.pathname);
         height: auto;
         transform: translateY(calc(-100% - 32px));
         overflow: visible;
-        z-index: 10000;
+        z-index: var(--um-z-skip);
         padding: 12px 18px;
         background: #111;
         color: #fff;

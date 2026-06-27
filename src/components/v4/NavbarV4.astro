@@ -157,7 +157,8 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   .um-ops-header {
     position: sticky;
     top: 0;
-    z-index: 60;
+    z-index: var(--um-z-header);
+    isolation: isolate;
     background: rgba(10,10,11,0.92);
     color: #fff;
     border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -170,6 +171,8 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   }
 
   .um-ops-header__main {
+    position: relative;
+    z-index: 2;
     border-bottom: 1px solid rgba(255,255,255,0.08);
   }
 
@@ -247,6 +250,8 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   }
 
   .um-ops-nav {
+    position: relative;
+    z-index: 3;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -301,6 +306,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
 
   .um-ops-more {
     position: relative;
+    z-index: 4;
   }
 
   .um-ops-more__trigger svg {
@@ -320,6 +326,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     border: 1px solid rgba(255,255,255,0.1);
     background: #101012;
     border-top-color: rgba(220,38,38,0.42);
+    z-index: var(--um-z-header-menu);
     opacity: 0;
     pointer-events: none;
     transform: translateY(-4px);
@@ -387,6 +394,8 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   }
 
   .um-ops-ticker {
+    position: relative;
+    z-index: 1;
     overflow: hidden;
     background: rgba(10,10,11,0.82);
     color: #71717a;
@@ -524,6 +533,8 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   }
 
   .um-ops-mobile {
+    position: relative;
+    z-index: 2;
     border-top: 1px solid rgba(255,255,255,0.1);
     background: #0a0a0b;
   }

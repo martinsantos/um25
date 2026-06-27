@@ -47,6 +47,12 @@
   --um-world-lead: clamp(1.25rem, 0.42vw + 1.08rem, 1.3125rem);
   --um-world-gutter: clamp(28px, 5vw, 76px);
   --um-world-rule: 1px solid color-mix(in srgb, var(--skin-text) 8%, transparent);
+  --um-z-progress: 100;
+  --um-z-sticky: 500;
+  --um-z-header: 1000;
+  --um-z-header-menu: 1010;
+  --um-z-overlay: 2000;
+  --um-z-skip: 3000;
   --um-dark-bg: #050505;
   --um-dark-panel: #101010;
   --um-dark-panel-soft: #151515;
@@ -846,7 +852,7 @@ body[data-skin="steel"] {
     margin: 0;
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: var(--um-z-header);
   }
 
   .logo {
