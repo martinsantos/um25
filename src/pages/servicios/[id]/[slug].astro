@@ -75,7 +75,7 @@ if (slug !== expectedSlug) {
 }
 
 // Productos del servicio (viene de Directus o de JS)
-const productos = servicio.productos || [];
+const productos = Array.isArray(servicio.productos) ? servicio.productos : [];
 const visual = getServiceVisualSpec(id);
 const serviceImage = visual?.image || getDirectusImageUrl(servicio.Imagen);
 const demoCopy = serviceSingleDemoCopy[Number(id)];
@@ -105,6 +105,8 @@ const isCommercialProduct = (producto: any) => (
 );
 const commercialProducts = productos.filter(isCommercialProduct);
 const hasCommercialProducts = commercialProducts.length > 0;
+const productCards = hasCommercialProducts ? commercialProducts : productos;
+const hasProductCards = productCards.length > 0;
 const productsSectionKicker = replicaProd ? '' : hasCommercialProducts ? 'Producto' : 'Equipamiento';
 const productsSectionTitle = replicaProd
   ? 'Productos y Soluciones'
@@ -253,16 +255,18 @@ const serviceStructuredData = {
     { "@type": "AdministrativeArea", "name": "Patagonia" }
   ],
   ...(servicio.area && { "serviceType": servicio.area }),
-  ...(commercialProducts.length > 0 && {
+  ...(productCards.length > 0 && {
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
       "name": `Productos de ${servicio.Titulo}`,
-      "itemListElement": commercialProducts.map((p: any) => ({
+      "itemListElement": productCards.map((p: any) => ({
         "@type": "Offer",
         "itemOffered": {
           "@type": "Service",
-          "name": p.titulo,
-          ...(p.descripcion && { "description": plainTextFromHtml(p.descripcion, 300) })
+          "name": p.titulo || p.nombre,
+          ...((p.descripcion || p.servicio_asociado || p.headline) && {
+            "description": plainTextFromHtml(p.descripcion || p.servicio_asociado || p.headline, 300)
+          })
         }
       }))
     }
@@ -519,7 +523,7 @@ const servicePageStructuredData = [
   )}
 
   <!-- PRODUCTOS Y EQUIPAMIENTO - Usando componente ProductCard V4 -->
-  {commercialProducts.length > 0 && (
+  {hasProductCards && (
     <section class="service-products-section">
       <div class="um-container">
         <div class="service-products-head">
@@ -531,12 +535,12 @@ const servicePageStructuredData = [
         </div>
 
         <div class="service-products-list">
-          {commercialProducts.map((producto, index) => (
+          {productCards.map((producto, index) => (
             <ProductCard
               titulo={producto.titulo || producto.nombre || 'Equipamiento'}
-              descripcion={producto.descripcion || ''}
-              imagen={producto.imagen}
-              features={producto.features || []}
+              descripcion={producto.descripcion || producto.servicio_asociado || producto.headline || ''}
+              imagen={producto.imagen_publica || producto.imagen}
+              features={producto.features || producto.caracteristicas || []}
               destacado={producto.destacado}
               marcas={producto.marcas || []}
               orden={index}
@@ -546,7 +550,7 @@ const servicePageStructuredData = [
               serviceHref={`/servicios/${id}/${slug}`}
               ctaLabel={producto.slug_producto === 'cctv-ai-integrado' ? 'Ver producto' : [102, 107].includes(Number(id)) ? 'Solicitar relevamiento' : 'Cotizar solución'}
               ctaHref={producto.url_producto || (producto.slug_producto === 'cctv-ai-integrado' ? '/cctvai/' : '/contacto')}
-              showActions={producto.slug_producto === 'cctv-ai-integrado' || shouldShowProductCardActions({ index, total: commercialProducts.length })}
+              showActions={producto.slug_producto === 'cctv-ai-integrado' || shouldShowProductCardActions({ index, total: productCards.length })}
             />
           ))}
         </div>
@@ -662,9 +666,10 @@ const servicePageStructuredData = [
     gap: 0.625rem;
     margin-bottom: 1rem;
     color: rgba(255, 255, 255, 0.82);
+    font-family: var(--um-font-mono);
     font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0;
+    font-weight: 600;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     max-width: 100%;
     overflow-wrap: anywhere;
@@ -680,10 +685,11 @@ const servicePageStructuredData = [
   .service-detail-hero h1 {
     max-width: min(760px, 22ch);
     color: #ffffff !important;
-    font-size: clamp(2rem, 2.9vw, 3.15rem);
-    line-height: 1.08;
-    font-weight: 600;
-    letter-spacing: 0;
+    font-family: var(--um-font-display);
+    font-size: var(--um-world-h1);
+    line-height: var(--um-display-line-height);
+    font-weight: var(--um-display-weight);
+    letter-spacing: var(--um-display-tracking);
     text-wrap: balance;
     overflow-wrap: anywhere;
   }
@@ -757,17 +763,21 @@ const servicePageStructuredData = [
   .service-detail-proof strong {
     display: block;
     color: #fff;
+    font-family: var(--um-font-display);
     font-size: clamp(1.12rem, 1.5vw, 1.5rem);
     line-height: 1.12;
-    font-weight: 600;
+    font-weight: var(--um-display-weight);
+    letter-spacing: var(--um-display-tracking);
   }
 
   .service-detail-proof span {
     display: block;
     margin-top: 0.55rem;
     color: rgba(255,255,255,0.62);
+    font-family: var(--um-font-mono);
     font-size: 1rem;
-    font-weight: 700;
+    font-weight: 600;
+    letter-spacing: 0.08em;
     line-height: 1.35;
     text-transform: uppercase;
   }
@@ -796,8 +806,10 @@ const servicePageStructuredData = [
     align-items: center;
     gap: 0.65rem;
     color: #DC2626;
+    font-family: var(--um-font-mono);
     font-size: 1rem;
-    font-weight: 700;
+    font-weight: 600;
+    letter-spacing: 0.12em;
     line-height: 1.2;
     text-transform: uppercase;
   }
@@ -813,9 +825,11 @@ const servicePageStructuredData = [
     max-width: 440px;
     margin-top: 0.9rem;
     color: #fff !important;
+    font-family: var(--um-font-display);
     font-size: clamp(1.55rem, 2vw, 2.15rem);
-    font-weight: 600;
-    line-height: 1.12;
+    font-weight: var(--um-display-weight);
+    letter-spacing: var(--um-display-tracking);
+    line-height: 1;
     text-wrap: balance;
   }
 
@@ -875,18 +889,22 @@ const servicePageStructuredData = [
   .service-detail-section-title {
     margin-bottom: 1.2rem;
     color: #111;
+    font-family: var(--um-font-display);
     font-size: clamp(1.9rem, 2.65vw, 2.95rem);
-    line-height: 1.09;
-    font-weight: 600;
+    line-height: 1;
+    font-weight: var(--um-display-weight);
+    letter-spacing: var(--um-display-tracking);
     text-wrap: balance;
   }
 
   .service-detail-subtitle {
     margin-bottom: 1.3rem;
     color: #111;
+    font-family: var(--um-font-display);
     font-size: clamp(1.22rem, 1.55vw, 1.52rem);
     line-height: 1.18;
-    font-weight: 600;
+    font-weight: var(--um-display-weight);
+    letter-spacing: var(--um-display-tracking);
   }
 
   .service-detail-copy p {
@@ -915,8 +933,10 @@ const servicePageStructuredData = [
   .service-capabilities-showcase__head p:first-of-type {
     margin: 1.15rem 0 0;
     color: var(--um-muted);
+    font-family: var(--um-font-mono);
     font-size: 1rem;
-    font-weight: 700;
+    font-weight: 600;
+    letter-spacing: 0.12em;
     line-height: 1.25;
     text-transform: uppercase;
   }
@@ -924,9 +944,11 @@ const servicePageStructuredData = [
   .service-capabilities-showcase__head h2 {
     margin-top: 0.85rem;
     color: #111;
+    font-family: var(--um-font-display);
     font-size: clamp(1.8rem, 2.42vw, 2.72rem);
-    font-weight: 600;
-    line-height: 1.14;
+    font-weight: var(--um-display-weight);
+    letter-spacing: var(--um-display-tracking);
+    line-height: 1;
     text-wrap: balance;
   }
 
@@ -994,8 +1016,10 @@ const servicePageStructuredData = [
 
   .service-capability-card__copy h3 {
     color: #111;
+    font-family: var(--um-font-display);
     font-size: clamp(1.16rem, 1.28vw, 1.42rem);
-    font-weight: 600;
+    font-weight: var(--um-display-weight);
+    letter-spacing: var(--um-display-tracking);
     line-height: 1.12;
     text-wrap: balance;
   }
@@ -1060,8 +1084,11 @@ const servicePageStructuredData = [
     gap: 0.9rem;
     padding: clamp(18px, 2.4vw, 26px);
     color: rgba(255,255,255,0.86);
+    font-family: var(--um-font-mono);
     font-weight: 600;
+    letter-spacing: 0.08em;
     line-height: 1.3;
+    text-transform: uppercase;
   }
 
   .service-approach-band__media figcaption::before,
@@ -1087,9 +1114,10 @@ const servicePageStructuredData = [
   .service-approach-band__eyebrow {
     margin: 1.15rem 0 0;
     color: rgba(255,255,255,0.62);
+    font-family: var(--um-font-mono);
     font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    font-weight: 600;
+    letter-spacing: 0.12em;
     line-height: 1.2;
     text-transform: uppercase;
   }
@@ -1098,9 +1126,11 @@ const servicePageStructuredData = [
     max-width: 560px;
     margin-top: 1rem;
     color: #fff !important;
+    font-family: var(--um-font-display);
     font-size: clamp(1.75rem, 2.35vw, 2.52rem);
-    font-weight: 600;
-    line-height: 1.08;
+    font-weight: var(--um-display-weight);
+    letter-spacing: var(--um-display-tracking);
+    line-height: 1;
     text-wrap: balance;
   }
 
@@ -1133,15 +1163,19 @@ const servicePageStructuredData = [
 
   .service-approach-steps span {
     color: #DC2626;
+    font-family: var(--um-font-mono);
     font-size: 1rem;
-    font-weight: 700;
+    font-weight: 600;
+    letter-spacing: 0.08em;
   }
 
   .service-approach-steps h3 {
     margin-top: 0.65rem;
     color: #fff;
+    font-family: var(--um-font-display);
     font-size: clamp(1.08rem, 1.2vw, 1.28rem);
-    font-weight: 600;
+    font-weight: var(--um-display-weight);
+    letter-spacing: var(--um-display-tracking);
     line-height: 1.18;
   }
 
@@ -1197,9 +1231,10 @@ const servicePageStructuredData = [
     gap: 0.65rem;
     margin: 0 0 0.8rem;
     color: #DC2626;
+    font-family: var(--um-font-mono);
     font-size: 1rem;
     font-weight: 600;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.12em;
     line-height: 1.2;
     text-transform: uppercase;
   }
@@ -1214,8 +1249,10 @@ const servicePageStructuredData = [
   .service-info-head h2 {
     margin: 0;
     color: #111;
+    font-family: var(--um-font-display);
     font-size: clamp(1.15rem, 1.4vw, 1.35rem);
-    font-weight: 600;
+    font-weight: var(--um-display-weight);
+    letter-spacing: var(--um-display-tracking);
     line-height: 1.18;
   }
 
@@ -1364,9 +1401,10 @@ const servicePageStructuredData = [
     align-items: center;
     gap: 0.65rem;
     color: #DC2626;
+    font-family: var(--um-font-mono);
     font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0;
+    font-weight: 600;
+    letter-spacing: 0.12em;
     line-height: 1.2;
     text-transform: uppercase;
   }
@@ -1383,9 +1421,11 @@ const servicePageStructuredData = [
     color: #111;
     max-width: 720px;
     color: #111;
+    font-family: var(--um-font-display);
     font-size: clamp(2rem, 2.55vw, 3rem);
-    line-height: 1.05;
-    font-weight: 600;
+    line-height: 1;
+    font-weight: var(--um-display-weight);
+    letter-spacing: var(--um-display-tracking);
     text-wrap: balance;
     word-break: normal;
     overflow-wrap: normal;
@@ -1452,7 +1492,7 @@ const servicePageStructuredData = [
 
     .service-detail-label {
       gap: 0.5rem;
-      letter-spacing: 0;
+      letter-spacing: 0.08em;
       line-height: 1.28;
     }
 
@@ -1463,8 +1503,8 @@ const servicePageStructuredData = [
     }
 
     .service-detail-hero h1 {
-      font-size: clamp(1.95rem, 7vw, 2.24rem);
-      line-height: 1.12;
+      font-size: clamp(2.125rem, 7.25vw, 2.5rem);
+      line-height: 1.05;
       max-width: 100%;
     }
 
