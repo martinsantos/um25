@@ -119,7 +119,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
 
       <div class="um-ops-ticker__marquee">
         <div class="um-ops-ticker__track">
-          {[...nocEvents, ...nocEvents].map((event) => (
+          {nocEvents.slice(0, 4).map((event) => (
             <a href={event.href} class="um-ops-event">
               <span>{event.t}</span>
               <i class={`is-${event.s}`}>{event.s === 'ok' ? '✓' : event.s === 'warn' ? '!' : 'ℹ'}</i>
@@ -157,7 +157,8 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   .um-ops-header {
     position: sticky;
     top: 0;
-    z-index: 60;
+    z-index: var(--um-z-header);
+    isolation: isolate;
     background: rgba(10,10,11,0.92);
     color: #fff;
     border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -165,11 +166,13 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   }
 
   .um-ops-container {
-    width: min(1400px, calc(100% - 48px));
+    width: min(1920px, calc(100% - 128px));
     margin-inline: auto;
   }
 
   .um-ops-header__main {
+    position: relative;
+    z-index: 2;
     border-bottom: 1px solid rgba(255,255,255,0.08);
   }
 
@@ -187,7 +190,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     font-size: clamp(1.17rem, 1.4vw, 1.33rem);
     font-weight: 700;
     line-height: 1;
-    letter-spacing: 0;
+    letter-spacing: -0.02em;
     text-decoration: none;
     white-space: nowrap;
   }
@@ -247,6 +250,8 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   }
 
   .um-ops-nav {
+    position: relative;
+    z-index: 3;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -301,6 +306,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
 
   .um-ops-more {
     position: relative;
+    z-index: 4;
   }
 
   .um-ops-more__trigger svg {
@@ -320,6 +326,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     border: 1px solid rgba(255,255,255,0.1);
     background: #101012;
     border-top-color: rgba(220,38,38,0.42);
+    z-index: var(--um-z-header-menu);
     opacity: 0;
     pointer-events: none;
     transform: translateY(-4px);
@@ -387,6 +394,8 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   }
 
   .um-ops-ticker {
+    position: relative;
+    z-index: 1;
     overflow: hidden;
     background: rgba(10,10,11,0.82);
     color: #71717a;
@@ -462,29 +471,25 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   }
 
   .um-ops-ticker__marquee {
-    flex: 1;
+    flex: 1 1 0;
+    width: 0;
     min-width: 0;
     overflow: hidden;
+    overflow: clip;
   }
 
   .um-ops-ticker__track {
     display: flex;
-    width: max-content;
+    width: 100%;
+    max-width: 100%;
     min-height: 28px;
     align-items: center;
-    animation: um-ops-marquee 42s linear infinite;
-  }
-
-  .um-ops-ticker__marquee:hover .um-ops-ticker__track {
-    animation-play-state: paused;
-  }
-
-  @keyframes um-ops-marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+    overflow: hidden;
   }
 
   .um-ops-event {
+    flex: 1 1 0;
+    min-width: 0;
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -510,6 +515,10 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   .um-ops-event i.is-info { color: #1a56c0; }
 
   .um-ops-event em {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-style: normal;
   }
 
@@ -524,6 +533,8 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   }
 
   .um-ops-mobile {
+    position: relative;
+    z-index: 2;
     border-top: 1px solid rgba(255,255,255,0.1);
     background: #0a0a0b;
   }
