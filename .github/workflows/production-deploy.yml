@@ -257,6 +257,9 @@ jobs:
       - name: SEO and GEO release audit
         run: node scripts/seo-audit.mjs --base-url https://www.ultimamilla.com.ar
 
+      - name: GEO scoring release audit
+        run: npm run geo:score -- --base-url https://www.ultimamilla.com.ar --min-score 90 --json
+
       - name: UMCLI release contract audit
         run: node scripts/umcli-contract-audit.mjs --base-url https://www.ultimamilla.com.ar
 
