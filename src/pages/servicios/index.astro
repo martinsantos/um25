@@ -182,16 +182,17 @@ const totalServices = String(services.length).padStart(2, '0');
       min-height: 100vh;
       background: #0a0a0b;
       color: #fff;
+      font-family: var(--um-font-body);
     }
 
     .services-demo-shell {
-      width: min(100% - 64px, 1302px);
+      width: min(1920px, calc(100% - 128px));
       margin-inline: auto;
     }
 
     .services-demo-hero {
       position: relative;
-      min-height: 322px;
+      min-height: clamp(322px, 22vw, 452px);
       display: flex;
       align-items: flex-end;
       overflow: hidden;
@@ -246,15 +247,27 @@ const totalServices = String(services.length).padStart(2, '0');
     }
 
     .services-demo-hero h1 {
-      max-width: 920px;
+      width: min(100%, 1320px);
+      max-width: none;
       margin: 22px 0 0;
       color: #fff;
       font-family: var(--um-font-display);
-      font-size: clamp(3rem, 6vw, 5.2rem);
-      font-weight: 700;
-      letter-spacing: 0;
-      line-height: 0.98;
-      text-wrap: balance;
+      font-size: clamp(3rem, 4.8vw, 5.2rem);
+      font-weight: var(--um-display-weight);
+      letter-spacing: var(--um-display-tracking);
+      line-height: var(--um-display-line-height);
+      text-shadow: 0 4px 24px rgba(0,0,0,0.85), 0 2px 8px rgba(0,0,0,0.9);
+      text-wrap: nowrap;
+    }
+
+    .services-demo-hero h1::after {
+      content: "";
+      display: inline-block;
+      width: 0.12em;
+      height: 0.82em;
+      margin-left: 0.08em;
+      transform: translateY(0.08em);
+      background: #dc2626;
     }
 
     .services-demo-hero p:not(.services-demo-kicker) {
@@ -374,9 +387,9 @@ const totalServices = String(services.length).padStart(2, '0');
       color: #fff;
       font-family: var(--um-font-display);
       font-size: clamp(2.8rem, 5vw, 4.25rem);
-      font-weight: 700;
-      letter-spacing: 0;
-      line-height: 0.98;
+      font-weight: var(--um-display-weight);
+      letter-spacing: var(--um-display-tracking);
+      line-height: var(--um-display-line-height);
       overflow-wrap: anywhere;
     }
 
@@ -484,7 +497,9 @@ const totalServices = String(services.length).padStart(2, '0');
       color: #fff;
       font-family: var(--um-font-display);
       font-size: clamp(1.55rem, 3vw, 2.1rem);
-      line-height: 1.08;
+      font-weight: var(--um-display-weight);
+      letter-spacing: var(--um-display-tracking);
+      line-height: 1;
     }
 
     .services-demo-closing > div:last-child {
@@ -517,15 +532,19 @@ const totalServices = String(services.length).padStart(2, '0');
       }
 
       .services-demo-hero {
-        min-height: 330px;
+        min-height: 42vh;
       }
 
       .services-demo-hero__content {
-        padding: 72px 0 42px;
+        padding: 40px 0;
       }
 
       .services-demo-hero h1 {
-        font-size: clamp(2.55rem, 12vw, 4.4rem);
+        width: min(100%, 800px);
+        max-width: 100%;
+        font-size: clamp(2rem, 8.5vw, 3rem);
+        line-height: 0.95;
+        text-wrap: balance;
       }
 
       .services-demo-row,

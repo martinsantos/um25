@@ -164,9 +164,9 @@ const thumbLabel = `Leer artículo: ${post.titulo}`;
     max-width: 100%;
     font-family: var(--um-font-display);
     font-size: clamp(1.22rem, 1.34vw, 1.48rem);
-    font-weight: 600;
-    letter-spacing: 0;
-    line-height: 1.16;
+    font-weight: var(--um-display-weight);
+    letter-spacing: var(--um-display-tracking);
+    line-height: var(--um-display-line-height);
     color: var(--skin-text);
     margin: 0 0 12px;
     text-wrap: balance;
@@ -193,8 +193,9 @@ const thumbLabel = `Leer artículo: ${post.titulo}`;
   :global(body[data-skin] main .blog-index .feed-title),
   :global(body[data-skin] main .blog-cat .feed-title) {
     font-size: clamp(1.28rem, 1.42vw, 1.58rem) !important;
-    line-height: 1.16 !important;
-    font-weight: 600 !important;
+    line-height: var(--um-display-line-height) !important;
+    font-weight: var(--um-display-weight) !important;
+    letter-spacing: var(--um-display-tracking) !important;
   }
 
   .feed-link {

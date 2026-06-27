@@ -376,9 +376,11 @@ const hubs = [
     }
 
     .um26-hero__image {
+      display: block;
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center;
       z-index: -3;
     }
 
@@ -453,7 +455,7 @@ const hubs = [
       font-family: var(--um-font-display);
       font-size: 7rem;
       line-height: 0.8;
-      letter-spacing: -0.05em;
+      letter-spacing: var(--um-display-tracking);
       text-shadow: 0 20px 55px rgba(0, 0, 0, 0.65);
     }
 
@@ -592,7 +594,7 @@ const hubs = [
       margin: 0;
       font-family: var(--um-font-display);
       font-weight: 700;
-      letter-spacing: -0.045em;
+      letter-spacing: var(--um-display-tracking);
       line-height: 0.94;
       color: #fff;
     }
@@ -603,9 +605,9 @@ const hubs = [
       font-size: clamp(3.5rem, 5.5vw, 5.5rem);
       line-height: 0.95;
       --um-hero-title-weight: 800;
-      font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+      font-family: var(--um-font-display) !important;
       font-weight: var(--um-hero-title-weight) !important;
-      letter-spacing: 0 !important;
+      letter-spacing: var(--um-display-tracking) !important;
       text-shadow: none;
       text-wrap: normal !important;
       overflow-wrap: normal !important;
@@ -624,26 +626,6 @@ const hubs = [
       display: inline;
     }
 
-    .um26-hero__cursor {
-      display: inline-block;
-      width: 0.12em;
-      height: 0.82em;
-      margin-left: 0.08em;
-      transform: translateY(0.08em);
-      background: #dc2626;
-    }
-
-    .um26-hero h1.is-typing > span::after {
-      content: "";
-      display: inline-block;
-      width: 0.12em;
-      height: 0.82em;
-      margin-left: 0.08em;
-      transform: translateY(0.08em);
-      background: #dc2626;
-      animation: um26Cursor 0.72s steps(2, start) infinite;
-    }
-
     [data-hero-reveal] {
       opacity: 0;
       transform: translateY(18px);
@@ -654,12 +636,6 @@ const hubs = [
       to {
         opacity: 1;
         transform: translateY(0);
-      }
-    }
-
-    @keyframes um26Cursor {
-      50% {
-        opacity: 0;
       }
     }
 
@@ -779,11 +755,11 @@ const hubs = [
     .um26-stats strong {
       display: block;
       color: #fff;
-      font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+      font-family: var(--um-font-display);
       font-size: 2.25rem;
       --um-stats-number-weight: 800;
       font-weight: var(--um-stats-number-weight);
-      letter-spacing: 0;
+      letter-spacing: var(--um-display-tracking);
       line-height: 1;
     }
 
@@ -833,7 +809,14 @@ const hubs = [
       align-items: end;
       justify-content: space-between;
       gap: 56px;
+      min-width: 0;
+      max-width: 100%;
       margin-bottom: 40px;
+    }
+
+    .um26-section__head > * {
+      min-width: 0;
+      max-width: 100%;
     }
 
     .um26-section .um26-kicker {
@@ -845,12 +828,12 @@ const hubs = [
     }
 
     .um26-section h2 {
-      max-width: 650px;
+      width: min(650px, 100%);
       --um-section-title-weight: 800;
-      font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+      font-family: var(--um-font-display) !important;
       font-size: clamp(2.25rem, 4.4vw, 3.75rem);
       font-weight: var(--um-section-title-weight) !important;
-      letter-spacing: -0.035em !important;
+      letter-spacing: var(--um-display-tracking) !important;
       line-height: 0.95;
       text-wrap: wrap;
       overflow-wrap: normal !important;
@@ -869,6 +852,7 @@ const hubs = [
     .um26-case-grid {
       display: grid;
       gap: 12px;
+      min-width: 0;
     }
 
     .um26-service-grid {
@@ -886,6 +870,7 @@ const hubs = [
 
     .um26-media-card {
       position: relative;
+      min-width: 0;
       min-height: 360px;
       overflow: hidden;
       display: flex;
@@ -901,9 +886,11 @@ const hubs = [
     .um26-media-card img {
       position: absolute;
       inset: 0;
+      display: block;
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center;
       z-index: -3;
     }
 
@@ -941,12 +928,13 @@ const hubs = [
     }
 
     .um26-media-card h3 {
+      min-width: 0;
       margin: 0;
       color: #fff;
       font-family: var(--um-font-display);
       font-size: clamp(1.25rem, 1.7vw, 1.7rem);
       font-weight: 700;
-      letter-spacing: -0.035em;
+      letter-spacing: var(--um-display-tracking);
       line-height: 1.02;
       transition: color 0.18s ease;
     }
@@ -956,6 +944,7 @@ const hubs = [
     }
 
     .um26-media-card p {
+      min-width: 0;
       margin: 8px 0 0;
       color: #a1a1aa;
       font-size: 0.875rem;
@@ -993,7 +982,7 @@ const hubs = [
       font-family: var(--um-font-display);
       font-size: clamp(2rem, 3vw, 3.4rem);
       line-height: 1;
-      letter-spacing: -0.05em;
+      letter-spacing: var(--um-display-tracking);
       text-shadow: 0 10px 28px rgba(0, 0, 0, 0.7);
     }
 
@@ -1063,7 +1052,7 @@ const hubs = [
       font-family: var(--um-font-display);
       font-size: 2rem;
       font-weight: 700;
-      letter-spacing: -0.04em;
+      letter-spacing: var(--um-display-tracking);
       line-height: 1;
     }
 
@@ -1281,62 +1270,12 @@ const hubs = [
         const fx = hero.querySelector('[data-hero-fx]');
         const button = hero.querySelector('.um26-hero__shuffle');
         const heading = hero.querySelector('#home-title');
-        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        let titleTimer = 0;
 
         const setText = (node, value) => {
           if (node) node.textContent = value || '';
         };
 
-        const typeTitle = (value) => {
-          if (!title || reduceMotion) {
-            setText(title, value);
-            heading?.classList.remove('is-typing');
-            return;
-          }
-
-          window.clearInterval(titleTimer);
-          title.textContent = '';
-          heading?.classList.add('is-typing');
-          let index = 0;
-          titleTimer = window.setInterval(() => {
-            index += 1;
-            title.textContent = value.slice(0, index);
-            if (index >= value.length) {
-              window.clearInterval(titleTimer);
-              window.setTimeout(() => heading?.classList.remove('is-typing'), 420);
-            }
-          }, 28);
-        };
-
-        const flapTitle = (value) => {
-          if (!title || reduceMotion) {
-            setText(title, value);
-            return;
-          }
-
-          window.clearInterval(titleTimer);
-          const glyphs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789·/+-';
-          let frame = 0;
-          const frames = 16;
-          titleTimer = window.setInterval(() => {
-            frame += 1;
-            title.textContent = value
-              .split('')
-              .map((char, index) => {
-                if (char === ' ') return ' ';
-                if (index / value.length < frame / frames) return char;
-                return glyphs[(frame + index * 7) % glyphs.length];
-              })
-              .join('');
-            if (frame >= frames) {
-              window.clearInterval(titleTimer);
-              title.textContent = value;
-            }
-          }, 42);
-        };
-
-        const applyVariant = (nextIndex, animate = true) => {
+        const applyVariant = (nextIndex) => {
           current = ((nextIndex % variants.length) + variants.length) % variants.length;
           const variant = variants[current];
           if (!variant) return;
@@ -1353,17 +1292,8 @@ const hubs = [
           setText(caption, variant.caption);
           setText(code, variant.code);
           setText(fx, variant.fx || 'TYPE');
-
-          if (!animate) {
-            setText(title, variant.title);
-            return;
-          }
-
-          if (variant.fx === 'FLAP') {
-            flapTitle(variant.title);
-          } else {
-            typeTitle(variant.title);
-          }
+          setText(title, variant.title);
+          heading?.classList.remove('is-typing');
         };
 
         button?.addEventListener('click', () => {
