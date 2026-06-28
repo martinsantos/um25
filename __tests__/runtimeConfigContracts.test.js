@@ -106,6 +106,17 @@ describe('Production runtime configuration contracts', () => {
     expect(workflow).not.toContain('apex serves 200 and www redirects to apex');
   });
 
+  test('production deploy installs a complete runtime package tree before PM2 restart', () => {
+    const workflow = fs.readFileSync(path.join(process.cwd(), '.github/workflows/production-deploy.yml'), 'utf8');
+
+    expect(workflow).not.toContain('npm ci --production');
+    expect(workflow).toContain('npm ci --include=dev');
+    expect(workflow).toContain('node_modules/@directus/sdk/package.json');
+    expect(workflow).toContain('node_modules/@sentry/astro/package.json');
+    expect(workflow).toContain('node_modules/zod/package.json');
+    expect(workflow).toContain('Missing runtime package metadata');
+  });
+
   test('contact API resolves SMTP settings from runtime-safe environment sources', () => {
     const source = fs.readFileSync(path.join(process.cwd(), 'src/pages/api/contact.ts'), 'utf8');
 
