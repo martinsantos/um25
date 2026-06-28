@@ -6,6 +6,7 @@ describe('UMCLI release audit contracts', () => {
     const source = fs.readFileSync(path.join(process.cwd(), 'scripts/umcli-contract-audit.mjs'), 'utf8');
 
     expect(source).toContain('/api/umcli.json');
+    expect(source).toContain('/api/blog');
     expect(source).toContain('/geo/image-evidence.json');
     expect(source).toContain('totalServicios');
     expect(source).toContain('totalAntecedentes');
@@ -23,5 +24,8 @@ describe('UMCLI release audit contracts', () => {
     expect(source).toContain('antecedentes.length === stats.totalAntecedentes');
     expect(source).toContain('stats.totalAntecedentes === expectedAntecedentes');
     expect(source).toContain('stats.totalCasosExito === expectedAntecedentes');
+    expect(source).toContain('umcliBlogSlugs[0] === publicBlogSlugs[0]');
+    expect(source).toContain('UMCLI blog_posts is missing at least one slug from the current /api/blog top 10');
+    expect(source).toContain('UMCLI top blog_posts must expose absolute imagen_portada URLs for GEO consumers');
   });
 });
