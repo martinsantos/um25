@@ -32,8 +32,13 @@ describe('seoUrl helpers', () => {
     );
   });
 
-  test('rejects non-canonical image hosts for SEO and sitemap output', () => {
-    expect(publicImageUrl('https://images.unsplash.com/photo-1586281380349-6325315f36a2?w=1200')).toBeNull();
+  test('keeps configured external blog images for SEO and sitemap output', () => {
+    const cover = 'https://images.unsplash.com/photo-1586281380349-6325315f36a2?w=1200&h=480&fit=crop&q=80';
+    expect(publicImageUrl(cover)).toBe(cover);
+  });
+
+  test('rejects non-canonical image hosts outside the configured allowlist', () => {
+    expect(publicImageUrl('https://example.com/photo-1586281380349-6325315f36a2.jpg')).toBeNull();
     expect(publicImageUrl('https://admin.ultimamilla.com.ar/assets/371dc1b5-48d4-4b19-b60d-d884ad178c77')).toBeNull();
   });
 
