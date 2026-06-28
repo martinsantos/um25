@@ -110,11 +110,13 @@ describe('Production runtime configuration contracts', () => {
     const workflow = fs.readFileSync(path.join(process.cwd(), '.github/workflows/production-deploy.yml'), 'utf8');
 
     expect(workflow).not.toContain('npm ci --production');
-    expect(workflow).toContain('npm ci --include=dev');
-    expect(workflow).toContain('node_modules/@directus/sdk/package.json');
-    expect(workflow).toContain('node_modules/@sentry/astro/package.json');
-    expect(workflow).toContain('node_modules/zod/package.json');
-    expect(workflow).toContain('Missing runtime package metadata');
+    expect(workflow).toContain('npm install --include=dev --prefer-offline --no-audit --progress=false');
+    expect(workflow).toContain('command_timeout: 20m');
+    expect(workflow).toContain('npm ls @directus/sdk @sentry/astro zod piccolore astro @astrojs/node --depth=0');
+    expect(workflow).toContain("import('piccolore')");
+    expect(workflow).toContain("import('@directus/sdk')");
+    expect(workflow).toContain("import('zod')");
+    expect(workflow).toContain('runtime imports ok');
   });
 
   test('contact API resolves SMTP settings from runtime-safe environment sources', () => {

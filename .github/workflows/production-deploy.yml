@@ -131,10 +131,12 @@ jobs:
           host: 23.105.176.45
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 20m
           script: |
             cd ${{ env.DEPLOY_PATH }}
-            npm ci --include=dev
-            node -e "const fs=require('fs'); for (const p of ['node_modules/@directus/sdk/package.json','node_modules/@sentry/astro/package.json','node_modules/zod/package.json']) { if (!fs.existsSync(p)) { console.error('Missing runtime package metadata: '+p); process.exit(1); } }"
+            npm install --include=dev --prefer-offline --no-audit --progress=false
+            npm ls @directus/sdk @sentry/astro zod piccolore astro @astrojs/node --depth=0
+            node -e "Promise.all([import('piccolore'), import('@directus/sdk'), import('zod')]).then(() => console.log('runtime imports ok'))"
             # Ensure Directus uploads dir is writable by container (uid 1000)
             chown -R 1000:1000 ${{ env.DEPLOY_PATH }}/uploads/ 2>/dev/null || true
             chmod 775 ${{ env.DEPLOY_PATH }}/uploads/ 2>/dev/null || true
@@ -299,12 +301,14 @@ jobs:
           host: 23.105.176.45
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 20m
           script: |
             cd ${{ env.DEPLOY_PATH }}
             git fetch --tags
             git checkout v1.0.0-mvp
-            npm ci --include=dev
-            node -e "const fs=require('fs'); for (const p of ['node_modules/@directus/sdk/package.json','node_modules/@sentry/astro/package.json','node_modules/zod/package.json']) { if (!fs.existsSync(p)) { console.error('Missing runtime package metadata: '+p); process.exit(1); } }"
+            npm install --include=dev --prefer-offline --no-audit --progress=false
+            npm ls @directus/sdk @sentry/astro zod piccolore astro @astrojs/node --depth=0
+            node -e "Promise.all([import('piccolore'), import('@directus/sdk'), import('zod')]).then(() => console.log('runtime imports ok'))"
             pm2 restart astro-ultimamilla
 
       - name: Verify rollback
