@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { pathToFileURL } from 'node:url';
+
 const DEFAULT_BASE_URL = 'https://www.ultimamilla.com.ar';
 const DEFAULT_CANONICAL_BASE_URL = 'https://www.ultimamilla.com.ar';
 const NON_CANONICAL_APEX_URL = 'https://ultimamilla.com.ar';
@@ -497,6 +499,23 @@ function scoreSnapshot(snapshot, options = {}) {
   };
 }
 
+async function runGeoScore(options = {}) {
+  const baseUrl = normalizeBase(options.baseUrl || DEFAULT_BASE_URL);
+  const canonicalBaseUrl = normalizeBase(options.canonicalBaseUrl || DEFAULT_CANONICAL_BASE_URL);
+  const snapshot = await buildSnapshot(baseUrl);
+  const result = scoreSnapshot(snapshot, { canonicalBaseUrl });
+
+  return {
+    baseUrl,
+    canonicalBaseUrl,
+    methodology: {
+      adaptedFrom: GEO_SCORE_REFERENCE,
+      note: 'Local UMSA implementation. No external runtime dependency.',
+    },
+    ...result,
+  };
+}
+
 async function main() {
   const baseUrl = normalizeBase(argValue('--base-url', DEFAULT_BASE_URL));
   const canonicalBaseUrl = normalizeBase(argValue('--canonical-base-url', DEFAULT_CANONICAL_BASE_URL));
@@ -504,17 +523,10 @@ async function main() {
   const minScore = minScoreRaw === '' ? null : Number(minScoreRaw);
   const jsonOnly = hasFlag('--json');
 
-  const snapshot = await buildSnapshot(baseUrl);
-  const result = scoreSnapshot(snapshot, { canonicalBaseUrl });
+  const result = await runGeoScore({ baseUrl, canonicalBaseUrl });
   const payload = {
     ok: minScore === null ? true : result.score >= minScore,
-    baseUrl,
-    canonicalBaseUrl,
     minScore,
-    methodology: {
-      adaptedFrom: GEO_SCORE_REFERENCE,
-      note: 'Local UMSA implementation. No external runtime dependency.',
-    },
     ...result,
   };
 
@@ -529,7 +541,22 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(error instanceof Error ? error.stack || error.message : error);
-  process.exit(1);
-});
+export {
+  CATEGORY_WEIGHTS,
+  DEFAULT_BASE_URL,
+  DEFAULT_CANONICAL_BASE_URL,
+  GEO_RESOURCE_PATHS,
+  GEO_SCORE_REFERENCE,
+  REQUIRED_HTML_PATHS,
+  TEXT_RESOURCE_PATHS,
+  buildSnapshot,
+  runGeoScore,
+  scoreSnapshot,
+};
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error) => {
+    console.error(error instanceof Error ? error.stack || error.message : error);
+    process.exit(1);
+  });
+}

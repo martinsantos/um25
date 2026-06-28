@@ -29,6 +29,7 @@ const priorityHubLinks = priorityHubPaths
   .filter((item): item is { path: string; hub: typeof hubs[number] } => Boolean(item.hub));
 
 const machineResources = [
+  { label: 'score', href: '/geo/score', note: 'Dashboard publico del scoring GEO y SEO aplicado en CI/CD.' },
   { label: 'llms.txt', href: '/llms.txt', note: 'Indice breve para asistentes y agentes de busqueda.' },
   { label: 'llms-full.txt', href: '/llms-full.txt', note: 'Contexto extendido, servicios, sectores, evidencia y FAQs.' },
   { label: 'brand-facts.json', href: '/geo/brand-facts.json', note: 'Identidad oficial, cobertura, vocabulario y politica de citas.' },
