@@ -2,6 +2,7 @@ const {
   addVisibleBlogStatusFilter,
   normalizeBlogStatus,
   normalizePublicationDate,
+  visibleBlogStatusDirectusFilter,
 } = require('../src/utils/blogPublishing');
 
 describe('Blog publishing contract', () => {
@@ -25,5 +26,19 @@ describe('Blog publishing contract', () => {
     expect(params.get('filter[_or][0][status][_eq]')).toBe('published');
     expect(params.get('filter[_or][1][_and][0][status][_eq]')).toBe('scheduled');
     expect(params.get('filter[_or][1][_and][1][fecha_publicacion][_lte]')).toBe(now.toISOString());
+  });
+
+  test('builds the equivalent SDK filter for published posts and due scheduled posts', () => {
+    expect(visibleBlogStatusDirectusFilter(now)).toEqual({
+      _or: [
+        { status: { _eq: 'published' } },
+        {
+          _and: [
+            { status: { _eq: 'scheduled' } },
+            { fecha_publicacion: { _lte: now.toISOString() } },
+          ],
+        },
+      ],
+    });
   });
 });

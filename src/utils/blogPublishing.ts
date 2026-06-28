@@ -41,3 +41,17 @@ export function addVisibleBlogStatusFilter(
   params.set(`${prefix}[_or][1][_and][1][fecha_publicacion][_lte]`, now.toISOString());
   return params;
 }
+
+export function visibleBlogStatusDirectusFilter(now = new Date()) {
+  return {
+    _or: [
+      { status: { _eq: 'published' } },
+      {
+        _and: [
+          { status: { _eq: 'scheduled' } },
+          { fecha_publicacion: { _lte: now.toISOString() } },
+        ],
+      },
+    ],
+  };
+}
