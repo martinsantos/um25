@@ -1,5 +1,9 @@
 import type { APIRoute } from 'astro';
 import { normalizeBlogStatus, normalizePublicationDate } from '../../../utils/blogPublishing';
+import {
+  BLOG_COVER_DIVERSITY_LIMIT,
+  selectDiverseBlogCover,
+} from '../../../utils/blogCoverDiversity.js';
 import { checkBasicAuth } from '../../../utils/serverAuth';
 
 const API_USER = process.env['BLOG_API_USER'] ?? import.meta.env.BLOG_API_USER;
@@ -9,16 +13,41 @@ const DIRECTUS_TOKEN = process.env['DIRECTUS_ADMIN_TOKEN'] ?? import.meta.env.DI
 
 type ExistingPost = {
   id: number;
+  slug?: string;
+  titulo?: string;
+  categoria?: string;
+  imagen_portada?: string | null;
+  status?: string;
   fecha_publicacion?: string;
 };
 
 async function findPost(slug: string): Promise<ExistingPost | null> {
   const res = await fetch(
-    `${DIRECTUS_URL}/items/blog_posts?filter[slug][_eq]=${encodeURIComponent(slug)}&fields=id,fecha_publicacion&limit=1`,
+    `${DIRECTUS_URL}/items/blog_posts?filter[slug][_eq]=${encodeURIComponent(slug)}&fields=id,slug,titulo,categoria,imagen_portada,status,fecha_publicacion&limit=1`,
     { headers: { Authorization: `Bearer ${DIRECTUS_TOKEN}` } }
   );
   const data = await res.json();
   return data.data?.[0] ?? null;
+}
+
+async function fetchBlogCoverCorpus(excludeSlug: string): Promise<Record<string, unknown>[]> {
+  const params = new URLSearchParams();
+  params.set('sort', '-fecha_publicacion');
+  params.set('limit', String(BLOG_COVER_DIVERSITY_LIMIT));
+  params.set('fields', 'id,slug,titulo,categoria,imagen_portada,fecha_publicacion,status');
+  params.set('filter[_and][0][status][_neq]', 'draft');
+  params.set('filter[_and][1][slug][_neq]', excludeSlug);
+
+  try {
+    const res = await fetch(`${DIRECTUS_URL}/items/blog_posts?${params.toString()}`, {
+      headers: { Authorization: `Bearer ${DIRECTUS_TOKEN}` },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data.data) ? data.data : [];
+  } catch {
+    return [];
+  }
 }
 
 export const PUT: APIRoute = async ({ request, params }) => {
@@ -87,6 +116,16 @@ export const PUT: APIRoute = async ({ request, params }) => {
     meta_description: (body['meta_description'] as string) ?? null,
   };
   if (body['fecha_publicacion']) update['fecha_publicacion'] = publishedAt;
+
+  const coverCorpus = await fetchBlogCoverCorpus(slug);
+  update['imagen_portada'] = selectDiverseBlogCover({
+    slug,
+    titulo: String(update['titulo'] || existingPost.titulo || ''),
+    categoria: String(update['categoria'] || existingPost.categoria || 'noticias'),
+    imagen_portada: update['imagen_portada'] as string | null,
+    fecha_publicacion: publishedAt,
+    status: update['status'],
+  }, coverCorpus);
 
   const res = await fetch(`${DIRECTUS_URL}/items/blog_posts/${existingPost.id}`, {
     method: 'PATCH',

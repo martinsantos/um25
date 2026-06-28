@@ -43,6 +43,7 @@
     "seo:audit": "node scripts/seo-audit.mjs",
     "geo:score": "node scripts/geo-score.mjs",
     "blog:score": "node scripts/blog-editorial-score.mjs",
+    "blog:covers:diversify": "node scripts/blog-cover-diversity-backfill.mjs",
     "audit:visual": "node scripts/visual-contrast-audit.mjs",
     "audit:css": "node scripts/css-contract-audit.mjs",
     "audit:hover": "node scripts/hover-contract-audit.mjs",
