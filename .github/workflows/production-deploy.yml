@@ -260,6 +260,9 @@ jobs:
       - name: GEO scoring release audit
         run: npm run geo:score -- --base-url https://www.ultimamilla.com.ar --min-score 90 --json
 
+      - name: Blog editorial GEO score audit
+        run: npm run blog:score -- --base-url https://www.ultimamilla.com.ar --min-score 80 --json
+
       - name: UMCLI release contract audit
         run: node scripts/umcli-contract-audit.mjs --base-url https://www.ultimamilla.com.ar
 

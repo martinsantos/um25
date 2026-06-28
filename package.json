@@ -42,6 +42,7 @@
     "check": "npm run lint && npm run typecheck && npm run audit:css && npm run test:ci && npm run build",
     "seo:audit": "node scripts/seo-audit.mjs",
     "geo:score": "node scripts/geo-score.mjs",
+    "blog:score": "node scripts/blog-editorial-score.mjs",
     "audit:visual": "node scripts/visual-contrast-audit.mjs",
     "audit:css": "node scripts/css-contract-audit.mjs",
     "audit:hover": "node scripts/hover-contract-audit.mjs",
