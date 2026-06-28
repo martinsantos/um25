@@ -3,6 +3,7 @@ import { SITE_URL } from '../config/seo';
 import { blogPosts as fallbackBlogPosts } from '../data/blog-posts';
 import { isCanonicalBlogSlug } from '../data/seoRedirects';
 import { addVisibleBlogStatusFilter } from '../utils/blogPublishing';
+import { diversifyBlogPostCovers } from '../utils/blogCoverDiversity.js';
 import { canonicalUrl, escapeXml, formatSitemapDate, publicImageUrl } from '../utils/seoUrl';
 
 const DIRECTUS_URL =
@@ -59,14 +60,15 @@ async function fetchPublishedPosts(): Promise<BlogPost[]> {
     );
     if (!res.ok) throw new Error(`Directus blog sitemap returned ${res.status}`);
     const data = await res.json();
-    return ((data.data || []) as BlogPost[]).filter((post) => isCanonicalBlogSlug(post.slug));
+    return diversifyBlogPostCovers(((data.data || []) as BlogPost[])
+      .filter((post) => isCanonicalBlogSlug(post.slug))) as BlogPost[];
   } catch {
-    return fallbackBlogPosts.filter((post) => isCanonicalBlogSlug(post.slug)).map((post) => ({
+    return diversifyBlogPostCovers(fallbackBlogPosts.filter((post) => isCanonicalBlogSlug(post.slug)).map((post) => ({
       slug: post.slug,
       titulo: post.title,
       fecha_publicacion: parseFallbackBlogDate(post.date),
       imagen_portada: post.image,
-    }));
+    }))) as BlogPost[];
   }
 }
 

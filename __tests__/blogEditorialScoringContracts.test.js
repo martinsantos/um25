@@ -9,6 +9,7 @@ describe('Blog editorial GEO scoring contracts', () => {
     const pkg = JSON.parse(source('package.json'));
 
     expect(pkg.scripts['blog:score']).toBe('node scripts/blog-editorial-score.mjs');
+    expect(pkg.scripts['blog:covers:diversify']).toBe('node scripts/blog-cover-diversity-backfill.mjs');
   });
 
   test('scores freshness, cover integrity, cover diversity, metadata and governance', () => {
@@ -45,5 +46,15 @@ describe('Blog editorial GEO scoring contracts', () => {
     expect(scorePage).toContain('blogScoreGate = 80');
     expect(scorePage).toContain('Blog editorial / GEO');
     expect(scorePage).toContain('Fallas editoriales del blog');
+  });
+
+  test('blog cover diversity is enforced across public surfaces and publishing API', () => {
+    expect(source('src/pages/api/blog.ts')).toContain('selectDiverseBlogCover');
+    expect(source('src/pages/api/blog.ts')).toContain('diversifyBlogPostCovers(data.data)');
+    expect(source('src/pages/api/blog/[slug].ts')).toContain('selectDiverseBlogCover');
+    expect(source('src/utils/getBlogData.ts')).toContain('fetchDirectusBlogCoverCorpus');
+    expect(source('src/utils/getBlogData.ts')).toContain('diversifyBlogPostCovers(contextPosts)');
+    expect(source('src/pages/sitemap-blog.xml.ts')).toContain('diversifyBlogPostCovers');
+    expect(source('scripts/blog-cover-diversity-backfill.mjs')).toContain('--apply');
   });
 });
