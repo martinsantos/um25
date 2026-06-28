@@ -1,7 +1,24 @@
-import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
-const require = createRequire(import.meta.url);
-const generatedImageMap = require('../data/antecedentes-generated-image-map.json');
+function loadGeneratedImageMap() {
+  const candidates = [
+    join(process.cwd(), 'src/data/antecedentes-generated-image-map.json'),
+    join(process.cwd(), 'dist/server/data/antecedentes-generated-image-map.json'),
+  ];
+
+  for (const filePath of candidates) {
+    try {
+      return JSON.parse(readFileSync(filePath, 'utf8'));
+    } catch {
+      // Try the next packaged location.
+    }
+  }
+
+  return {};
+}
+
+const generatedImageMap = loadGeneratedImageMap();
 
 export const BLOG_COVER_CANONICAL_SITE_URL = 'https://www.ultimamilla.com.ar';
 export const BLOG_COVER_DIVERSITY_LIMIT = 200;
