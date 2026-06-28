@@ -6,12 +6,18 @@ import {
   GEO_SCORE_REFERENCE,
   runGeoScore,
 } from '../../../scripts/geo-score.mjs';
+import {
+  BLOG_SCORE_REFERENCE,
+  BLOG_SCORE_WEIGHTS,
+  runBlogEditorialScore,
+} from '../../../scripts/blog-editorial-score.mjs';
 
 export const prerender = false;
 
 Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=900');
 
 const scoreGate = 90;
+const blogScoreGate = 80;
 const generatedAt = new Date();
 const categoryLabels = {
   citability: 'Citabilidad IA',
@@ -21,9 +27,18 @@ const categoryLabels = {
   structuredData: 'Datos estructurados',
   platformOptimization: 'Optimizacion por plataforma',
 };
+const blogCategoryLabels = {
+  freshnessAlignment: 'Actualizacion y alineacion',
+  coverIntegrity: 'Integridad de portadas',
+  coverDiversity: 'Diversidad visual',
+  metadataStructuredData: 'Metadatos y schema',
+  editorialGovernance: 'Gobernanza editorial',
+};
 
 let report;
 let reportError = '';
+let blogReport;
+let blogReportError = '';
 
 try {
   report = await runGeoScore({
@@ -32,6 +47,15 @@ try {
   });
 } catch (error) {
   reportError = error instanceof Error ? error.message : String(error);
+}
+
+try {
+  blogReport = await runBlogEditorialScore({
+    baseUrl: SITE_URL,
+    canonicalBaseUrl: SITE_URL,
+  });
+} catch (error) {
+  blogReportError = error instanceof Error ? error.message : String(error);
 }
 
 const categoryRows = report
@@ -49,6 +73,21 @@ const categoryRows = report
       checks: [],
     }));
 
+const blogCategoryRows = blogReport
+  ? Object.entries(blogReport.categories).map(([key, category]) => ({
+      key,
+      label: blogCategoryLabels[key as keyof typeof blogCategoryLabels] || key,
+      ...category,
+    }))
+  : Object.entries(BLOG_SCORE_WEIGHTS).map(([key, max]) => ({
+      key,
+      label: blogCategoryLabels[key as keyof typeof blogCategoryLabels] || key,
+      score: 0,
+      max,
+      percent: 0,
+      checks: [],
+    }));
+
 const stats = report
   ? [
       { label: 'HTML auditado', value: report.stats.htmlPages },
@@ -59,15 +98,36 @@ const stats = report
       { label: 'Hubs comerciales', value: report.stats.commercialHubs },
     ]
   : [];
+const blogStats = blogReport
+  ? [
+      { label: 'Posts visibles', value: blogReport.stats.visiblePosts },
+      { label: 'Detalles auditados', value: blogReport.stats.auditedDetails },
+      { label: 'Portadas unicas top20', value: `${blogReport.stats.top20UniqueImages}/${blogReport.stats.top20Images}` },
+      { label: 'Grupos duplicados', value: blogReport.stats.duplicateImageGroups },
+      { label: 'Posts duplicados', value: blogReport.stats.duplicatePosts },
+      { label: 'Max reuse', value: blogReport.stats.maxImageReuse },
+    ]
+  : [];
 
 const statusLabel = report
   ? report.score >= scoreGate ? 'Gate aprobado' : 'Gate no aprobado'
   : 'Sin lectura';
 const scoreValue = report ? report.score : 0;
 const scoreTone = report ? (report.score >= scoreGate ? 'ok' : 'warn') : 'error';
+const blogStatusLabel = blogReport
+  ? blogReport.score >= blogScoreGate ? 'Blog gate aprobado' : 'Blog gate no aprobado'
+  : 'Sin lectura blog';
+const blogScoreValue = blogReport ? blogReport.score : 0;
+const blogScoreTone = blogReport ? (blogReport.score >= blogScoreGate ? 'ok' : 'warn') : 'error';
 const failedChecks = report?.failedChecks || [];
+const blogFailedChecks = blogReport?.failedChecks || [];
 const checksTotal = categoryRows.reduce((sum, category) => sum + category.checks.length, 0);
 const checksOk = categoryRows.reduce(
+  (sum, category) => sum + category.checks.filter((check) => check.ok).length,
+  0,
+);
+const blogChecksTotal = blogCategoryRows.reduce((sum, category) => sum + category.checks.length, 0);
+const blogChecksOk = blogCategoryRows.reduce(
   (sum, category) => sum + category.checks.filter((check) => check.ok).length,
   0,
 );
@@ -76,7 +136,7 @@ const schema = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
   name: 'Scoring GEO SEO de ULTIMA MILLA',
-  description: 'Dashboard publico del scoring GEO y SEO tecnico aplicado a los recursos de ULTIMA MILLA.',
+  description: 'Dashboard publico del scoring GEO, SEO tecnico y control editorial del blog aplicado a los recursos de ULTIMA MILLA.',
   url: `${SITE_URL}/geo/score`,
   inLanguage: 'es-AR',
   about: {
@@ -102,7 +162,7 @@ const schema = {
           <h1>Scoring publico del sistema GEO.</h1>
           <p class="score-lead">
             Vista operativa del mismo scoring usado en CI para validar citabilidad IA, autoridad,
-            contenido, base tecnica, datos estructurados y recursos para plataformas de busqueda generativa.
+            contenido, base tecnica, datos estructurados, blog editorial y recursos para plataformas de busqueda generativa.
           </p>
           <div class="score-actions" aria-label="Recursos relacionados">
             <a href="/geo">Centro GEO</a>
@@ -112,11 +172,19 @@ const schema = {
           </div>
         </div>
 
-        <aside class={`score-card score-card--${scoreTone}`} aria-label="Resultado general">
-          <span class="score-status">{statusLabel}</span>
-          <strong>{scoreValue}<span>/100</span></strong>
-          <em>{report ? `Grado ${report.grade}` : 'No calculado'}</em>
-          <p>Gate de despliegue: {scoreGate}/100</p>
+        <aside class="score-card-stack" aria-label="Resultados de scoring">
+          <div class={`score-card score-card--${scoreTone}`}>
+            <span class="score-status">{statusLabel}</span>
+            <strong>{scoreValue}<span>/100</span></strong>
+            <em>{report ? `Grado ${report.grade}` : 'No calculado'}</em>
+            <p>Gate de despliegue: {scoreGate}/100</p>
+          </div>
+          <div class={`score-card score-card--compact score-card--${blogScoreTone}`}>
+            <span class="score-status">{blogStatusLabel}</span>
+            <strong>{blogScoreValue}<span>/100</span></strong>
+            <em>{blogReport ? `Grado ${blogReport.grade}` : 'No calculado'}</em>
+            <p>Gate editorial: {blogScoreGate}/100</p>
+          </div>
         </aside>
       </div>
     </section>
@@ -127,6 +195,7 @@ const schema = {
           <span>Base auditada: <a href={SITE_URL}>{SITE_URL}</a></span>
           <span>Generado: <time datetime={generatedAt.toISOString()}>{generatedAt.toISOString()}</time></span>
           <span>Checks OK: {checksOk}/{checksTotal}</span>
+          <span>Blog checks OK: {blogChecksOk}/{blogChecksTotal}</span>
         </div>
 
         {reportError && (
@@ -135,12 +204,61 @@ const schema = {
             <span>{reportError}</span>
           </div>
         )}
+        {blogReportError && (
+          <div class="score-alert" role="alert">
+            <strong>No se pudo calcular el scoring editorial.</strong>
+            <span>{blogReportError}</span>
+          </div>
+        )}
 
         <div class="stat-grid" aria-label="Cobertura auditada">
           {stats.map((stat) => (
             <article class="stat-tile">
               <span>{stat.label}</span>
               <strong>{stat.value}</strong>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="score-band">
+      <div class="score-inner">
+        <div class="section-head">
+          <p class="score-kicker">Blog editorial / GEO</p>
+          <h2>Actualizacion, portadas y datos para crawlers</h2>
+        </div>
+
+        <div class="stat-grid stat-grid--blog" aria-label="Score editorial del blog">
+          {blogStats.map((stat) => (
+            <article class="stat-tile">
+              <span>{stat.label}</span>
+              <strong>{stat.value}</strong>
+            </article>
+          ))}
+        </div>
+
+        <div class="category-list category-list--light">
+          {blogCategoryRows.map((category) => (
+            <article class="category-row">
+              <div class="category-top">
+                <div>
+                  <h3>{category.label}</h3>
+                  <p>{category.checks.filter((check) => check.ok).length}/{category.checks.length} checks cumplidos</p>
+                </div>
+                <strong>{category.score}<span>/{category.max}</span></strong>
+              </div>
+              <div class="bar" aria-hidden="true">
+                <span style={`--bar:${category.percent}%`}></span>
+              </div>
+              <ul>
+                {category.checks.map((check) => (
+                  <li class={check.ok ? 'is-ok' : 'is-fail'}>
+                    <span>{check.ok ? 'OK' : 'Falla'}</span>
+                    {check.label}
+                  </li>
+                ))}
+              </ul>
             </article>
           ))}
         </div>
@@ -201,6 +319,20 @@ const schema = {
               El scoring actual no registra checks fallidos contra el gate configurado para produccion.
             </p>
           )}
+          {blogFailedChecks.length > 0 && (
+            <>
+              <h3 class="subhead">Fallas editoriales del blog</h3>
+              <div class="fail-list">
+                {blogFailedChecks.map((check) => (
+                  <div class="fail-row">
+                    <strong>{check.category}</strong>
+                    <span>{check.points} pts</span>
+                    <p>{check.label}</p>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </article>
 
         <article class="method-panel">
@@ -211,6 +343,11 @@ const schema = {
             <a href={GEO_SCORE_REFERENCE} rel="noreferrer">geo-seo-claude</a>, sin dependencia runtime externa.
             El calculo se ejecuta sobre recursos publicos, canonicals, JSON GEO, sitemaps, llms.txt,
             schema y evidencia comercial.
+          </p>
+          <p>
+            El bloque editorial del blog usa un score local separado para verificar frescura, alineacion con UMCLI,
+            portadas originales, diversidad visual, metadatos, JSON-LD y gobernanza de publicacion.
+            Referencia interna: {BLOG_SCORE_REFERENCE}
           </p>
           <dl>
             {Object.entries(CATEGORY_WEIGHTS).map(([key, weight]) => (
@@ -257,6 +394,11 @@ const schema = {
     grid-template-columns: minmax(0, 1fr) 320px;
     gap: 48px;
     align-items: end;
+  }
+
+  .score-card-stack {
+    display: grid;
+    gap: 14px;
   }
 
   .score-kicker {
@@ -321,6 +463,14 @@ const schema = {
     background: #0b0b0d;
     border: 1px solid rgba(255, 255, 255, 0.14);
     box-shadow: inset 4px 0 0 var(--score-red);
+  }
+
+  .score-card--compact {
+    min-height: 0;
+  }
+
+  .score-card--compact strong {
+    font-size: 58px;
   }
 
   .score-card--ok {
@@ -412,6 +562,10 @@ const schema = {
     gap: 12px;
   }
 
+  .stat-grid--blog {
+    margin-bottom: 24px;
+  }
+
   .stat-tile {
     min-height: 118px;
     padding: 18px;
@@ -455,6 +609,29 @@ const schema = {
     padding: 22px;
     border: 1px solid rgba(255, 255, 255, 0.14);
     background: #0d0d0f;
+  }
+
+  .category-list--light .category-row {
+    border-color: var(--score-line);
+    background: #ffffff;
+  }
+
+  .category-list--light .category-top h3,
+  .category-list--light .category-top strong {
+    color: var(--score-ink);
+  }
+
+  .category-list--light .category-top p,
+  .category-list--light .category-row li {
+    color: var(--score-muted);
+  }
+
+  .category-list--light .category-top strong span {
+    color: var(--score-muted);
+  }
+
+  .category-list--light .bar {
+    background: #f1f5f9;
   }
 
   .category-top {
@@ -585,6 +762,12 @@ const schema = {
     display: grid;
     gap: 12px;
     margin-top: 24px;
+  }
+
+  .subhead {
+    margin: 34px 0 0;
+    font-size: 22px;
+    line-height: 1.2;
   }
 
   .fail-row {
