@@ -1,0 +1,664 @@
+---
+import LayoutV4 from '../../layouts/LayoutV4.astro';
+import { SITE_URL } from '../../config/seo';
+import {
+  CATEGORY_WEIGHTS,
+  GEO_SCORE_REFERENCE,
+  runGeoScore,
+} from '../../../scripts/geo-score.mjs';
+
+export const prerender = false;
+
+Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=900');
+
+const scoreGate = 90;
+const generatedAt = new Date();
+const categoryLabels = {
+  citability: 'Citabilidad IA',
+  brandAuthority: 'Autoridad de marca',
+  contentQuality: 'Calidad de contenido',
+  technicalFoundations: 'Base tecnica',
+  structuredData: 'Datos estructurados',
+  platformOptimization: 'Optimizacion por plataforma',
+};
+
+let report;
+let reportError = '';
+
+try {
+  report = await runGeoScore({
+    baseUrl: SITE_URL,
+    canonicalBaseUrl: SITE_URL,
+  });
+} catch (error) {
+  reportError = error instanceof Error ? error.message : String(error);
+}
+
+const categoryRows = report
+  ? Object.entries(report.categories).map(([key, category]) => ({
+      key,
+      label: categoryLabels[key as keyof typeof categoryLabels] || key,
+      ...category,
+    }))
+  : Object.entries(CATEGORY_WEIGHTS).map(([key, max]) => ({
+      key,
+      label: categoryLabels[key as keyof typeof categoryLabels] || key,
+      score: 0,
+      max,
+      percent: 0,
+      checks: [],
+    }));
+
+const stats = report
+  ? [
+      { label: 'HTML auditado', value: report.stats.htmlPages },
+      { label: 'JSON GEO', value: report.stats.geoJsonResources },
+      { label: 'Imagenes sitemap', value: report.stats.imageSitemapEntries },
+      { label: 'Casos GEO', value: report.stats.geoCases },
+      { label: 'Imagenes GEO', value: report.stats.geoImages },
+      { label: 'Hubs comerciales', value: report.stats.commercialHubs },
+    ]
+  : [];
+
+const statusLabel = report
+  ? report.score >= scoreGate ? 'Gate aprobado' : 'Gate no aprobado'
+  : 'Sin lectura';
+const scoreValue = report ? report.score : 0;
+const scoreTone = report ? (report.score >= scoreGate ? 'ok' : 'warn') : 'error';
+const failedChecks = report?.failedChecks || [];
+const checksTotal = categoryRows.reduce((sum, category) => sum + category.checks.length, 0);
+const checksOk = categoryRows.reduce(
+  (sum, category) => sum + category.checks.filter((check) => check.ok).length,
+  0,
+);
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: 'Scoring GEO SEO de ULTIMA MILLA',
+  description: 'Dashboard publico del scoring GEO y SEO tecnico aplicado a los recursos de ULTIMA MILLA.',
+  url: `${SITE_URL}/geo/score`,
+  inLanguage: 'es-AR',
+  about: {
+    '@type': 'Organization',
+    name: 'ULTIMA MILLA',
+    url: SITE_URL,
+  },
+};
+---
+
+<LayoutV4
+  title="Scoring GEO SEO | ULTIMA MILLA"
+  description="Dashboard publico del scoring GEO y SEO tecnico de ULTIMA MILLA, con citabilidad IA, autoridad de marca, contenido, tecnica, schema y plataformas."
+  keywords="scoring GEO SEO ULTIMA MILLA, auditoria GEO, llms.txt, SEO tecnico, buscadores IA"
+  canonical={`${SITE_URL}/geo/score`}
+  structuredData={schema}
+>
+  <div class="score-page">
+    <section class="score-hero">
+      <div class="score-inner score-hero-grid">
+        <div>
+          <p class="score-kicker">GEO / SEO scoring</p>
+          <h1>Scoring publico del sistema GEO.</h1>
+          <p class="score-lead">
+            Vista operativa del mismo scoring usado en CI para validar citabilidad IA, autoridad,
+            contenido, base tecnica, datos estructurados y recursos para plataformas de busqueda generativa.
+          </p>
+          <div class="score-actions" aria-label="Recursos relacionados">
+            <a href="/geo">Centro GEO</a>
+            <a href="/llms-full.txt">llms-full.txt</a>
+            <a href="/sitemap-geo.xml">sitemap-geo.xml</a>
+            <a href="/geo/authority.json">authority.json</a>
+          </div>
+        </div>
+
+        <aside class={`score-card score-card--${scoreTone}`} aria-label="Resultado general">
+          <span class="score-status">{statusLabel}</span>
+          <strong>{scoreValue}<span>/100</span></strong>
+          <em>{report ? `Grado ${report.grade}` : 'No calculado'}</em>
+          <p>Gate de despliegue: {scoreGate}/100</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="score-band">
+      <div class="score-inner">
+        <div class="score-meta">
+          <span>Base auditada: <a href={SITE_URL}>{SITE_URL}</a></span>
+          <span>Generado: <time datetime={generatedAt.toISOString()}>{generatedAt.toISOString()}</time></span>
+          <span>Checks OK: {checksOk}/{checksTotal}</span>
+        </div>
+
+        {reportError && (
+          <div class="score-alert" role="alert">
+            <strong>No se pudo calcular el scoring.</strong>
+            <span>{reportError}</span>
+          </div>
+        )}
+
+        <div class="stat-grid" aria-label="Cobertura auditada">
+          {stats.map((stat) => (
+            <article class="stat-tile">
+              <span>{stat.label}</span>
+              <strong>{stat.value}</strong>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="score-band score-band--dark">
+      <div class="score-inner">
+        <div class="section-head">
+          <p class="score-kicker">Categorias ponderadas</p>
+          <h2>Donde se gana el puntaje</h2>
+        </div>
+
+        <div class="category-list">
+          {categoryRows.map((category) => (
+            <article class="category-row">
+              <div class="category-top">
+                <div>
+                  <h3>{category.label}</h3>
+                  <p>{category.checks.filter((check) => check.ok).length}/{category.checks.length} checks cumplidos</p>
+                </div>
+                <strong>{category.score}<span>/{category.max}</span></strong>
+              </div>
+              <div class="bar" aria-hidden="true">
+                <span style={`--bar:${category.percent}%`}></span>
+              </div>
+              <ul>
+                {category.checks.map((check) => (
+                  <li class={check.ok ? 'is-ok' : 'is-fail'}>
+                    <span>{check.ok ? 'OK' : 'Falla'}</span>
+                    {check.label}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="score-band">
+      <div class="score-inner score-two-col">
+        <article>
+          <p class="score-kicker">Fallas abiertas</p>
+          <h2>{failedChecks.length ? 'Checks que bajan el score' : 'Sin fallas de scoring'}</h2>
+          {failedChecks.length ? (
+            <div class="fail-list">
+              {failedChecks.map((check) => (
+                <div class="fail-row">
+                  <strong>{check.category}</strong>
+                  <span>{check.points} pts</span>
+                  <p>{check.label}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p class="score-copy">
+              El scoring actual no registra checks fallidos contra el gate configurado para produccion.
+            </p>
+          )}
+        </article>
+
+        <article class="method-panel">
+          <p class="score-kicker">Metodo</p>
+          <h2>Scoring adaptado a UMSA</h2>
+          <p>
+            El modelo local toma como referencia el enfoque GEO/SEO de
+            <a href={GEO_SCORE_REFERENCE} rel="noreferrer">geo-seo-claude</a>, sin dependencia runtime externa.
+            El calculo se ejecuta sobre recursos publicos, canonicals, JSON GEO, sitemaps, llms.txt,
+            schema y evidencia comercial.
+          </p>
+          <dl>
+            {Object.entries(CATEGORY_WEIGHTS).map(([key, weight]) => (
+              <div>
+                <dt>{categoryLabels[key as keyof typeof categoryLabels] || key}</dt>
+                <dd>{weight}%</dd>
+              </div>
+            ))}
+          </dl>
+        </article>
+      </div>
+    </section>
+  </div>
+</LayoutV4>
+
+<style>
+  .score-page {
+    --score-black: #050505;
+    --score-ink: #111827;
+    --score-muted: #6b7280;
+    --score-line: #e5e7eb;
+    --score-red: #dc2626;
+    --score-green: #2f8f2f;
+    background: #ffffff;
+    color: var(--score-ink);
+  }
+
+  .score-inner {
+    width: min(1180px, calc(100% - 48px));
+    margin: 0 auto;
+  }
+
+  .score-hero {
+    padding: 76px 0 64px;
+    background:
+      linear-gradient(120deg, rgba(0, 0, 0, 0.94), rgba(0, 0, 0, 0.82)),
+      url('/img/servicios/redes.webp') center / cover;
+    color: #ffffff;
+    border-bottom: 4px solid var(--score-red);
+  }
+
+  .score-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 48px;
+    align-items: end;
+  }
+
+  .score-kicker {
+    margin: 0 0 14px;
+    color: var(--score-red);
+    font-family: var(--um-font-mono, 'Geist Mono', monospace);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .score-hero h1,
+  .section-head h2,
+  .score-two-col h2 {
+    margin: 0;
+    font-family: var(--um-font-display, 'Poppins', sans-serif);
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  .score-hero h1 {
+    max-width: 820px;
+    font-size: clamp(42px, 7vw, 88px);
+    line-height: 0.98;
+  }
+
+  .score-lead {
+    max-width: 760px;
+    margin: 24px 0 0;
+    color: rgba(255, 255, 255, 0.76);
+    font-size: 20px;
+    line-height: 1.55;
+  }
+
+  .score-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 34px;
+  }
+
+  .score-actions a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #ffffff;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .score-actions a:hover {
+    border-color: var(--score-red);
+    background: rgba(220, 38, 38, 0.18);
+  }
+
+  .score-card {
+    min-height: 270px;
+    padding: 28px;
+    background: #0b0b0d;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: inset 4px 0 0 var(--score-red);
+  }
+
+  .score-card--ok {
+    box-shadow: inset 4px 0 0 var(--score-green);
+  }
+
+  .score-card--error,
+  .score-card--warn {
+    box-shadow: inset 4px 0 0 var(--score-red);
+  }
+
+  .score-status {
+    display: block;
+    color: rgba(255, 255, 255, 0.72);
+    font-family: var(--um-font-mono, 'Geist Mono', monospace);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .score-card strong {
+    display: block;
+    margin-top: 20px;
+    color: #ffffff;
+    font-size: 82px;
+    line-height: 0.95;
+  }
+
+  .score-card strong span {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 30px;
+  }
+
+  .score-card em,
+  .score-card p {
+    display: block;
+    margin: 18px 0 0;
+    color: rgba(255, 255, 255, 0.75);
+    font-style: normal;
+    font-weight: 700;
+  }
+
+  .score-band {
+    padding: 64px 0;
+    border-bottom: 1px solid var(--score-line);
+  }
+
+  .score-band--dark {
+    background: var(--score-black);
+    color: #ffffff;
+    border-bottom: 0;
+  }
+
+  .score-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 28px;
+    color: var(--score-muted);
+    font-family: var(--um-font-mono, 'Geist Mono', monospace);
+    font-size: 16px;
+  }
+
+  .score-meta span {
+    padding: 10px 12px;
+    border: 1px solid var(--score-line);
+    background: #fafafa;
+  }
+
+  .score-meta a {
+    color: var(--score-ink);
+    font-weight: 700;
+  }
+
+  .score-alert {
+    display: grid;
+    gap: 6px;
+    margin-bottom: 28px;
+    padding: 18px;
+    border-left: 4px solid var(--score-red);
+    background: #fff1f2;
+    color: #7f1d1d;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .stat-tile {
+    min-height: 118px;
+    padding: 18px;
+    border: 1px solid var(--score-line);
+    background: #ffffff;
+  }
+
+  .stat-tile span {
+    display: block;
+    color: var(--score-muted);
+    font-family: var(--um-font-mono, 'Geist Mono', monospace);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .stat-tile strong {
+    display: block;
+    margin-top: 18px;
+    font-size: 42px;
+    line-height: 1;
+  }
+
+  .section-head {
+    margin-bottom: 28px;
+  }
+
+  .section-head h2,
+  .score-two-col h2 {
+    font-size: clamp(30px, 4vw, 54px);
+    line-height: 1.04;
+  }
+
+  .category-list {
+    display: grid;
+    gap: 14px;
+  }
+
+  .category-row {
+    padding: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: #0d0d0f;
+  }
+
+  .category-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .category-top h3 {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.15;
+  }
+
+  .category-top p {
+    margin: 8px 0 0;
+    color: rgba(255, 255, 255, 0.58);
+  }
+
+  .category-top strong {
+    flex: 0 0 auto;
+    color: #ffffff;
+    font-size: 34px;
+    line-height: 1;
+  }
+
+  .category-top strong span {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 18px;
+  }
+
+  .bar {
+    height: 8px;
+    margin-top: 18px;
+    background: rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+  }
+
+  .bar span {
+    display: block;
+    width: var(--bar);
+    height: 100%;
+    background: var(--score-red);
+  }
+
+  .category-row ul {
+    display: grid;
+    gap: 8px;
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .category-row li {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 10px;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 16px;
+    line-height: 1.35;
+  }
+
+  .category-row li span {
+    color: var(--score-green);
+    font-family: var(--um-font-mono, 'Geist Mono', monospace);
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .category-row li.is-fail span {
+    color: var(--score-red);
+  }
+
+  .score-two-col {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 420px;
+    gap: 48px;
+  }
+
+  .score-copy,
+  .method-panel p {
+    color: var(--score-muted);
+    font-size: 18px;
+    line-height: 1.65;
+  }
+
+  .method-panel {
+    padding: 28px;
+    border: 1px solid var(--score-line);
+    background: #fafafa;
+  }
+
+  .method-panel a {
+    color: var(--score-red);
+    font-weight: 700;
+  }
+
+  .method-panel dl {
+    display: grid;
+    gap: 10px;
+    margin: 24px 0 0;
+  }
+
+  .method-panel div {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    padding-top: 10px;
+    border-top: 1px solid var(--score-line);
+  }
+
+  .method-panel dt,
+  .method-panel dd {
+    margin: 0;
+  }
+
+  .method-panel dt {
+    color: var(--score-muted);
+  }
+
+  .method-panel dd {
+    font-weight: 700;
+  }
+
+  .fail-list {
+    display: grid;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .fail-row {
+    display: grid;
+    grid-template-columns: 160px 70px minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+    padding: 16px;
+    border: 1px solid var(--score-line);
+  }
+
+  .fail-row strong,
+  .fail-row span {
+    font-family: var(--um-font-mono, 'Geist Mono', monospace);
+    font-size: 16px;
+    text-transform: uppercase;
+  }
+
+  .fail-row span {
+    color: var(--score-red);
+    font-weight: 700;
+  }
+
+  .fail-row p {
+    margin: 0;
+    color: var(--score-muted);
+  }
+
+  @media (max-width: 980px) {
+    .score-hero-grid,
+    .score-two-col {
+      grid-template-columns: 1fr;
+    }
+
+    .stat-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .score-inner {
+      width: min(100% - 32px, 1180px);
+    }
+
+    .score-hero {
+      padding: 56px 0 48px;
+    }
+
+    .score-hero h1 {
+      font-size: 44px;
+    }
+
+    .score-lead {
+      font-size: 17px;
+    }
+
+    .score-card strong {
+      font-size: 68px;
+    }
+
+    .stat-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .category-top {
+      display: grid;
+    }
+
+    .category-row li {
+      grid-template-columns: 1fr;
+    }
+
+    .fail-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

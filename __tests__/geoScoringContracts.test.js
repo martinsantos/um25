@@ -21,6 +21,8 @@ describe('GEO scoring contracts', () => {
     expect(scorer).toContain('structuredData: 10');
     expect(scorer).toContain('platformOptimization: 10');
     expect(scorer).toContain('No external runtime dependency');
+    expect(scorer).toContain('runGeoScore');
+    expect(scorer).toContain('pathToFileURL(process.argv[1])');
     expect(scorer).not.toContain('from "geo-seo-claude"');
     expect(scorer).not.toContain("from 'geo-seo-claude'");
   });
@@ -47,5 +49,15 @@ describe('GEO scoring contracts', () => {
     expect(scorer).toContain('Equipamiento aplicado');
     expect(scorer).toContain('Claude-SearchBot');
     expect(scorer).toContain('OAI-SearchBot');
+  });
+
+  test('exposes the same scoring engine to the public GEO scoring UI', () => {
+    const scorePage = fs.readFileSync(path.join(repoRoot, 'src/pages/geo/score.astro'), 'utf8');
+
+    expect(scorePage).toContain("from '../../../scripts/geo-score.mjs'");
+    expect(scorePage).toContain('runGeoScore');
+    expect(scorePage).toContain('CATEGORY_WEIGHTS');
+    expect(scorePage).toContain('GEO_SCORE_REFERENCE');
+    expect(scorePage).toContain('scoreGate = 90');
   });
 });
