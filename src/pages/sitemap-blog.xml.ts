@@ -16,6 +16,7 @@ interface BlogPost {
   slug: string;
   fecha_publicacion: string;
   imagen_portada?: string | null;
+  categoria?: string;
   titulo: string;
 }
 
@@ -53,7 +54,7 @@ async function fetchPublishedPosts(): Promise<BlogPost[]> {
     const params = addVisibleBlogStatusFilter(new URLSearchParams());
     params.set('sort', '-fecha_publicacion');
     params.set('limit', '200');
-    params.set('fields', 'slug,titulo,fecha_publicacion,imagen_portada');
+    params.set('fields', 'slug,titulo,categoria,fecha_publicacion,imagen_portada');
     const res = await fetch(
       `${DIRECTUS_URL}/items/blog_posts?${params.toString()}`,
       { headers }
