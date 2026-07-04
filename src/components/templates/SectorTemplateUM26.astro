@@ -129,11 +129,11 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
       </div>
       <div class="sector26-service-grid">
         {serviceItems.map((item: any, index: number) => (
-          <a href={`/servicios/${item.id}/${item.slug || ''}`} class="sector26-service-card">
+          <a href={`/servicios/${item.id}/${item.slug || ''}`} class="um-click-surface sector26-service-card">
             <span>{String(index + 1).padStart(2, '0')}</span>
             <strong>{item.nombre || item.Titulo || 'Servicio'}</strong>
             <p>{truncate(item.descripcion || item.Descripcion, 138)}</p>
-            <em>Ver detalle</em>
+            <em class="um-click-action">Ver detalle</em>
           </a>
         ))}
         {serviceItems.length === 0 && sectorServices.map((item: string, index: number) => (
@@ -641,6 +641,11 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
 
   .sector26-service-card,
   .sector26-criteria-grid article {
+    position: relative;
+    isolation: isolate;
+    --um-click-hover-bg:
+      radial-gradient(circle at 100% 0%, rgba(220,38,38,0.18), transparent 48%),
+      #171719;
     min-height: 260px;
     padding: clamp(22px, 3.1vw, 38px);
     background:
@@ -650,6 +655,33 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     border-bottom: 1px solid rgba(255,255,255,0.1);
     color: #fff;
     text-decoration: none;
+    transition:
+      background 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease;
+  }
+
+  a.sector26-service-card:hover,
+  a.sector26-service-card:focus-visible {
+    background:
+      radial-gradient(circle at 100% 0%, rgba(220,38,38,0.18), transparent 48%),
+      #171719;
+    border-color: rgba(255,255,255,0.22);
+  }
+
+  a.sector26-service-card:focus-visible {
+    outline: 3px solid rgba(220, 38, 38, 0.42);
+    outline-offset: 4px;
+  }
+
+  a.sector26-service-card:hover strong,
+  a.sector26-service-card:focus-visible strong {
+    color: #fff !important;
+  }
+
+  a.sector26-service-card:hover p,
+  a.sector26-service-card:focus-visible p {
+    color: rgba(255,255,255,0.74);
   }
 
   .sector26-service-card span,
@@ -680,16 +712,36 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
 
   .sector26-service-card em {
     display: inline-flex;
+    align-items: center;
     margin-top: 22px;
     color: #fff;
     font-style: normal;
     font-weight: 700;
+    text-decoration: underline;
+    text-decoration-color: rgba(220,38,38,0.66);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 5px;
+    transition:
+      color 180ms ease,
+      text-decoration-color 180ms ease;
   }
 
   .sector26-service-card em::after {
     content: " ->";
     color: #DC2626;
     margin-left: 6px;
+    transition: transform 180ms ease;
+  }
+
+  a.sector26-service-card:hover em,
+  a.sector26-service-card:focus-visible em {
+    color: #fff;
+    text-decoration-color: #DC2626;
+  }
+
+  a.sector26-service-card:hover em::after,
+  a.sector26-service-card:focus-visible em::after {
+    transform: translateX(4px);
   }
 
   .sector26-feature-case {

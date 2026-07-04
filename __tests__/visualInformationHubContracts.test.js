@@ -22,6 +22,7 @@ function cssBlock(source, selector) {
 describe('Information hub visual contracts', () => {
   const sectorAtlas = read('src/components/templates/SectorTemplateAtlas.astro');
   const antecedentesEditorial = read('src/components/templates/AntecedentesTemplateEditorial.astro');
+  const sectorUM26 = read('src/components/templates/SectorTemplateUM26.astro');
 
   test('sectores abandons family language in the public hub template', () => {
     expect(sectorAtlas).not.toMatch(/\bfamilia(s)?\b/i);
@@ -177,6 +178,17 @@ describe('Information hub visual contracts', () => {
     expect(home).toContain('class="um26-service-grid"');
     expect(home).toContain('class="um26-card-bar" aria-hidden="true"');
     expect(home).toMatch(/\.um26-card-bar\s*\{[\s\S]*background:\s*#dc2626;/);
+  });
+
+  test('sector service cards expose real link interaction states', () => {
+    expect(sectorUM26).toContain('class="um-click-surface sector26-service-card"');
+    expect(sectorUM26).toContain('class="um-click-action">Ver detalle</em>');
+    expect(sectorUM26).toMatch(/\.sector26-service-card,[\s\S]*--um-click-hover-bg:[\s\S]*#171719;/);
+    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover,[\s\S]*a\.sector26-service-card:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.22\);/);
+    expect(sectorUM26).toMatch(/a\.sector26-service-card:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
+    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover strong,[\s\S]*a\.sector26-service-card:focus-visible strong\s*\{[\s\S]*color:\s*#fff !important;/);
+    expect(sectorUM26).toMatch(/\.sector26-service-card em\s*\{[\s\S]*text-decoration:\s*underline;/);
+    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover em::after,[\s\S]*a\.sector26-service-card:focus-visible em::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
   });
 
   test('antecedentes hero secondary action renders as an intentional muted button, not loose text', () => {
