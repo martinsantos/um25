@@ -943,6 +943,64 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
       grid-template-columns: 1fr;
     }
 
+    .sector26-feature-case {
+      min-height: auto;
+      display: grid;
+      align-items: start;
+      overflow: hidden;
+      background: #101114;
+      border: 1px solid rgba(255,255,255,0.14);
+    }
+
+    .sector26-feature-case > img {
+      position: static;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      filter: contrast(1.06) saturate(0.9) brightness(0.82);
+    }
+
+    .sector26-feature-case::after {
+      display: none;
+    }
+
+    .sector26-feature-case > div {
+      width: 100%;
+      padding: 20px;
+      background: #0f1012;
+    }
+
+    .sector26-feature-case p:first-child {
+      color: rgba(255,255,255,0.78) !important;
+    }
+
+    .sector26-feature-case h3 {
+      margin-top: 10px;
+      color: #fff !important;
+      font-size: clamp(1.45rem, 6.4vw, 1.85rem);
+      line-height: 1.12;
+    }
+
+    .sector26-feature-case p:not(:first-child) {
+      color: rgba(255,255,255,0.86) !important;
+      line-height: 1.58;
+    }
+
+    .sector26-feature-case dl div {
+      padding: 14px 0 0;
+      background: transparent;
+      border-top: 1px solid rgba(255,255,255,0.16);
+    }
+
+    .sector26-feature-case dt {
+      color: rgba(255,255,255,0.74) !important;
+    }
+
+    .sector26-feature-case dd {
+      color: #fff !important;
+    }
+
     .sector26-case-row {
       grid-template-columns: minmax(0, 1fr);
       grid-template-areas:
