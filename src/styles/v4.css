@@ -3193,3 +3193,84 @@ body[data-skin] main :where(
     display: none !important;
   }
 }
+
+/* Production hotfix: sector evidence rows must not inherit desktop ledger
+   columns on phones. The mobile card reads as number, image, copy, action. */
+@media (max-width: 900px) {
+  body main .sector26-case-list {
+    display: grid !important;
+    gap: 16px !important;
+  }
+
+  body main .sector26-case-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-areas: "number" "media" "copy" "action" !important;
+    align-items: start !important;
+    gap: 14px !important;
+    padding: 18px !important;
+    color: #fff !important;
+    background: #101114 !important;
+    border: 1px solid rgba(255, 255, 255, 0.13) !important;
+    overflow: hidden !important;
+  }
+
+  body main .sector26-case-row > span {
+    grid-area: number !important;
+    justify-self: start !important;
+    min-width: 0 !important;
+    line-height: 1 !important;
+  }
+
+  body main .sector26-case-row > img {
+    grid-area: media !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    aspect-ratio: 16 / 9 !important;
+    object-fit: cover !important;
+  }
+
+  body main .sector26-case-row > div {
+    grid-area: copy !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body main .sector26-case-row p {
+    display: none !important;
+  }
+
+  body main .sector26-case-row strong {
+    display: block !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    color: #fff !important;
+    font-size: clamp(1.15rem, 5.3vw, 1.38rem) !important;
+    line-height: 1.16 !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+    hyphens: none !important;
+  }
+
+  body main .sector26-case-row em {
+    display: block !important;
+    margin-top: 10px !important;
+    color: rgba(255, 255, 255, 0.82) !important;
+    font-size: 1rem !important;
+    line-height: 1.55 !important;
+    overflow-wrap: break-word !important;
+  }
+
+  body main .sector26-case-row b {
+    grid-area: action !important;
+    display: inline-flex !important;
+    width: fit-content !important;
+    justify-self: start !important;
+    margin-top: 2px !important;
+    color: #fff !important;
+    font-size: 1rem !important;
+    line-height: 1.2 !important;
+  }
+}

@@ -73,6 +73,21 @@ const strategicLinkGroups = buildSectorStrategicLinkGroups({
   relatedCases: antecedentes.slice(0, 4),
 });
 const nextLinks = strategicLinkGroups.flatMap((group: any) => group.links || []).slice(0, 4);
+const caseNameAcronyms = new Set(['SA', 'SRL', 'IT', 'CCTV', 'SDI', 'API', 'APIS', 'ERP']);
+const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
+  const raw = String(value || fallback).trim();
+  if (!raw) return fallback;
+  const hasLowercase = /[a-záéíóúüñ]/.test(raw);
+  if (hasLowercase || raw.length < 12) return raw;
+
+  return raw
+    .toLocaleLowerCase('es-AR')
+    .replace(/(^|[\s/–-])([\p{L}\d][\p{L}\d.]*)/gu, (_match, prefix, word) => {
+      const upper = word.toLocaleUpperCase('es-AR');
+      if (caseNameAcronyms.has(upper)) return `${prefix}${upper}`;
+      return `${prefix}${word.charAt(0).toLocaleUpperCase('es-AR')}${word.slice(1)}`;
+    });
+};
 ---
 
 <div class="um26-sector">
@@ -185,7 +200,7 @@ const nextLinks = strategicLinkGroups.flatMap((group: any) => group.links || [])
             {item.imageUrl && <img src={item.imageUrl} alt="" loading="lazy" decoding="async" />}
             <div>
               <p>Archivo</p>
-              <strong>{item.Cliente || item.Titulo || 'Antecedente'}</strong>
+              <strong>{formatCaseName(item.Cliente || item.Titulo, 'Antecedente')}</strong>
               <em>{truncate(item.Descripcion || item.Titulo, 128)}</em>
             </div>
             <b>Ver detalle</b>
@@ -929,17 +944,65 @@ const nextLinks = strategicLinkGroups.flatMap((group: any) => group.links || [])
     }
 
     .sector26-case-row {
-      grid-template-columns: 42px minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        "number"
+        "media"
+        "copy"
+        "action";
       align-items: start;
+      gap: 14px;
+      padding: 18px;
+    }
+
+    .sector26-case-row > span {
+      grid-area: number;
+      justify-self: start;
+      line-height: 1;
     }
 
     .sector26-case-row img {
-      grid-column: 1 / -1;
+      grid-area: media;
       width: 100%;
+      max-height: none;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+    }
+
+    .sector26-case-row > div {
+      grid-area: copy;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    .sector26-case-row p {
+      display: none;
+    }
+
+    .sector26-case-row strong {
+      margin-top: 0;
+      max-width: 100%;
+      font-size: clamp(1.15rem, 5.3vw, 1.38rem);
+      line-height: 1.16;
+      overflow-wrap: break-word;
+      word-break: normal;
+      hyphens: none;
+    }
+
+    .sector26-case-row em {
+      margin-top: 10px;
+      font-size: 1rem;
+      line-height: 1.55;
     }
 
     .sector26-case-row b {
-      grid-column: 2;
+      grid-area: action;
+      display: inline-flex;
+      width: fit-content;
+      justify-self: start;
+      margin-top: 2px;
+      line-height: 1.2;
     }
   }
 
