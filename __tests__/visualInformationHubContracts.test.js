@@ -23,6 +23,7 @@ describe('Information hub visual contracts', () => {
   const sectorAtlas = read('src/components/templates/SectorTemplateAtlas.astro');
   const antecedentesEditorial = read('src/components/templates/AntecedentesTemplateEditorial.astro');
   const sectorUM26 = read('src/components/templates/SectorTemplateUM26.astro');
+  const v4Css = read('src/styles/v4.css');
 
   test('sectores abandons family language in the public hub template', () => {
     expect(sectorAtlas).not.toMatch(/\bfamilia(s)?\b/i);
@@ -203,6 +204,25 @@ describe('Information hub visual contracts', () => {
     expect(sectorUM26).toMatch(/\.sector26-case-row:hover,[\s\S]*\.sector26-case-row:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.24\);/);
     expect(sectorUM26).toMatch(/\.sector26-case-row:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
     expect(sectorUM26).toMatch(/\.sector26-case-row:hover b::after,[\s\S]*\.sector26-case-row:focus-visible b::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
+  });
+
+  test('sector dark surfaces keep body text readable over images and black panels', () => {
+    expect(sectorUM26).toMatch(/\.sector26-hero-frame > img\s*\{[\s\S]*filter:\s*contrast\(1\.1\) saturate\(0\.9\) brightness\(0\.54\);/);
+    expect(sectorUM26).toMatch(/\.sector26-hero-frame__body > p:not\(\.sector26-kicker\)\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.88\);/);
+    expect(sectorUM26).toMatch(/\.sector26-hero__copy > p:not\(\.sector26-kicker\)\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.86\);/);
+    expect(sectorUM26).toMatch(/\.sector26-service-card p,[\s\S]*\.sector26-criteria-grid p\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.76\);/);
+    expect(sectorUM26).toMatch(/\.sector26-feature-case p:not\(:first-child\)\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.86\);/);
+    expect(sectorUM26).toMatch(/\.sector26-case-row em\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.74\);/);
+    expect(sectorUM26).not.toMatch(/\.sector26-hero-frame__body > p:not\(\.sector26-kicker\)\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.72\);/);
+    expect(sectorUM26).not.toMatch(/\.sector26-service-card p,[\s\S]*\.sector26-criteria-grid p\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.62\);/);
+    expect(sectorUM26).not.toMatch(/\.sector26-case-row em\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.58\);/);
+  });
+
+  test('global skin overrides cannot flatten UM26 sector dark contrast', () => {
+    expect(v4Css).toContain('UM26 sector dark surfaces: keep image-backed and black modules readable under every skin.');
+    expect(v4Css).toMatch(/body\[data-skin\] main \.sector26-hero-frame__body > p:not\(\.sector26-kicker\),[\s\S]*color:\s*rgba\(255,255,255,0\.88\) !important;/);
+    expect(v4Css).toMatch(/body\[data-skin\] main \.sector26-service-card p,[\s\S]*body\[data-skin\] main \.sector26-case-row em,[\s\S]*color:\s*rgba\(255,255,255,0\.78\) !important;/);
+    expect(v4Css).toMatch(/body\[data-skin\] main \.sector26-service-card span,[\s\S]*body\[data-skin\] main \.sector26-case-row > span,[\s\S]*color:\s*#DC2626 !important;/);
   });
 
   test('antecedentes hero secondary action renders as an intentional muted button, not loose text', () => {
