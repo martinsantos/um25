@@ -178,7 +178,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
       </div>
 
       {leadCase && (
-        <a class="sector26-feature-case" href={caseHref(leadCase)}>
+        <a class="um-click-surface sector26-feature-case" href={caseHref(leadCase)}>
           {leadCase.imageUrl && <img src={leadCase.imageUrl} alt="" loading="lazy" decoding="async" />}
           <div>
             <p>Caso destacado</p>
@@ -188,14 +188,14 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
               <div><dt>Sector</dt><dd>{leadCase.Area || leadCase.Unidad_de_negocio || sectorName}</dd></div>
               <div><dt>Alcance</dt><dd>Ejecucion + soporte</dd></div>
             </dl>
-            <strong>Ver detalle</strong>
+            <strong class="um-click-action">Ver detalle</strong>
           </div>
         </a>
       )}
 
       <div class="sector26-case-list">
         {evidenceCases.slice(1).map((item: any, index: number) => (
-          <a href={caseHref(item)} class="sector26-case-row">
+          <a href={caseHref(item)} class="um-click-surface sector26-case-row">
             <span>{String(index + 2).padStart(2, '0')}</span>
             {item.imageUrl && <img src={item.imageUrl} alt="" loading="lazy" decoding="async" />}
             <div>
@@ -203,7 +203,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
               <strong>{formatCaseName(item.Cliente || item.Titulo, 'Antecedente')}</strong>
               <em>{truncate(item.Descripcion || item.Titulo, 128)}</em>
             </div>
-            <b>Ver detalle</b>
+            <b class="um-click-action">Ver detalle</b>
           </a>
         ))}
       </div>
@@ -746,6 +746,8 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
 
   .sector26-feature-case {
     position: relative;
+    isolation: isolate;
+    --um-click-hover-bg: #111;
     min-height: 420px;
     display: grid;
     align-items: end;
@@ -754,6 +756,16 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     text-decoration: none;
     border: 1px solid rgba(255,255,255,0.12);
     background: #111;
+  }
+
+  .sector26-feature-case:hover,
+  .sector26-feature-case:focus-visible {
+    border-color: rgba(255,255,255,0.26);
+  }
+
+  .sector26-feature-case:focus-visible {
+    outline: 3px solid rgba(220, 38, 38, 0.42);
+    outline-offset: 4px;
   }
 
   .sector26-feature-case > img {
@@ -831,15 +843,33 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
 
   .sector26-feature-case strong {
     display: inline-flex;
+    align-items: center;
     margin-top: 20px;
     color: #fff;
     font-size: 0.9rem;
+    text-decoration: underline;
+    text-decoration-color: rgba(220,38,38,0.66);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 5px;
+    transition: color 180ms ease, text-decoration-color 180ms ease;
   }
 
   .sector26-feature-case strong::after {
     content: " ->";
     color: #DC2626;
     margin-left: 6px;
+    transition: transform 180ms ease;
+  }
+
+  .sector26-feature-case:hover strong,
+  .sector26-feature-case:focus-visible strong {
+    color: #fff !important;
+    text-decoration-color: #DC2626;
+  }
+
+  .sector26-feature-case:hover strong::after,
+  .sector26-feature-case:focus-visible strong::after {
+    transform: translateX(4px);
   }
 
   .sector26-case-list {
@@ -850,6 +880,11 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
   }
 
   .sector26-case-row {
+    position: relative;
+    isolation: isolate;
+    --um-click-hover-bg:
+      linear-gradient(105deg, rgba(220,38,38,0.12), transparent 46%),
+      #171719;
     display: grid;
     grid-template-columns: 70px 190px minmax(0, 1fr) auto;
     gap: 22px;
@@ -859,6 +894,23 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     text-decoration: none;
     border-bottom: 1px solid rgba(255,255,255,0.12);
     background: #0f0f10;
+    transition:
+      background 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease;
+  }
+
+  .sector26-case-row:hover,
+  .sector26-case-row:focus-visible {
+    background:
+      linear-gradient(105deg, rgba(220,38,38,0.12), transparent 46%),
+      #171719;
+    border-color: rgba(255,255,255,0.24);
+  }
+
+  .sector26-case-row:focus-visible {
+    outline: 3px solid rgba(220, 38, 38, 0.42);
+    outline-offset: 4px;
   }
 
   .sector26-case-row img {
@@ -874,6 +926,11 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     font-size: 1rem;
   }
 
+  .sector26-case-row:hover strong,
+  .sector26-case-row:focus-visible strong {
+    color: #fff !important;
+  }
+
   .sector26-case-row em {
     display: block;
     margin-top: 5px;
@@ -882,14 +939,39 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     line-height: 1.46;
   }
 
+  .sector26-case-row:hover em,
+  .sector26-case-row:focus-visible em {
+    color: rgba(255,255,255,0.72);
+  }
+
   .sector26-case-row b {
+    display: inline-flex;
+    align-items: center;
     color: #fff;
     font-size: 0.86rem;
+    text-decoration: underline;
+    text-decoration-color: rgba(220,38,38,0.66);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 5px;
+    transition: color 180ms ease, text-decoration-color 180ms ease;
   }
 
   .sector26-case-row b::after {
     content: " ->";
     color: #DC2626;
+    margin-left: 6px;
+    transition: transform 180ms ease;
+  }
+
+  .sector26-case-row:hover b,
+  .sector26-case-row:focus-visible b {
+    color: #DC2626;
+    text-decoration-color: #DC2626;
+  }
+
+  .sector26-case-row:hover b::after,
+  .sector26-case-row:focus-visible b::after {
+    transform: translateX(4px);
   }
 
   .sector26-closing__panel {
