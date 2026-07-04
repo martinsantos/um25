@@ -191,6 +191,20 @@ describe('Information hub visual contracts', () => {
     expect(sectorUM26).toMatch(/a\.sector26-service-card:hover em::after,[\s\S]*a\.sector26-service-card:focus-visible em::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
   });
 
+  test('sector evidence links expose active hover and focus states', () => {
+    expect(sectorUM26).toContain('class="um-click-surface sector26-feature-case"');
+    expect(sectorUM26).toContain('class="um-click-action">Ver detalle</strong>');
+    expect(sectorUM26).toContain('class="um-click-surface sector26-case-row"');
+    expect(sectorUM26).toContain('class="um-click-action">Ver detalle</b>');
+    expect(sectorUM26).toMatch(/\.sector26-feature-case:hover,[\s\S]*\.sector26-feature-case:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.26\);/);
+    expect(sectorUM26).toMatch(/\.sector26-feature-case:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
+    expect(sectorUM26).toMatch(/\.sector26-feature-case:hover strong::after,[\s\S]*\.sector26-feature-case:focus-visible strong::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
+    expect(sectorUM26).toMatch(/\.sector26-case-row\s*\{[\s\S]*--um-click-hover-bg:[\s\S]*#171719;/);
+    expect(sectorUM26).toMatch(/\.sector26-case-row:hover,[\s\S]*\.sector26-case-row:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.24\);/);
+    expect(sectorUM26).toMatch(/\.sector26-case-row:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
+    expect(sectorUM26).toMatch(/\.sector26-case-row:hover b::after,[\s\S]*\.sector26-case-row:focus-visible b::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
+  });
+
   test('antecedentes hero secondary action renders as an intentional muted button, not loose text', () => {
     const actionsBlock = cssBlock(antecedentesEditorial, '.ante-dossier__actions a + a');
 
