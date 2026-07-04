@@ -2068,6 +2068,48 @@ body[data-skin] main :where(
   background: rgba(255,255,255,0.1) !important;
 }
 
+/* UM26 sector dark surfaces: keep image-backed and black modules readable under every skin. */
+body[data-skin] main .sector26-hero-card :where(p, li, dd, em),
+body[data-skin] main .sector26-hero :where(p, li, dd, em),
+body[data-skin] main .sector26-intro :where(p, li, dd, em),
+body[data-skin] main .sector26-services :where(p, li, dd, em),
+body[data-skin] main .sector26-criteria :where(p, li, dd, em),
+body[data-skin] main .sector26-evidence :where(p, li, dd, em),
+body[data-skin] main .sector26-closing :where(p, li, dd, em) {
+  color: rgba(255,255,255,0.82) !important;
+}
+
+body[data-skin] main .sector26-hero-frame__body > p:not(.sector26-kicker),
+body[data-skin] main .sector26-hero__copy > p:not(.sector26-kicker),
+body[data-skin] main .sector26-feature-case p:not(:first-child) {
+  color: rgba(255,255,255,0.88) !important;
+}
+
+body[data-skin] main .sector26-service-card p,
+body[data-skin] main .sector26-criteria-grid p,
+body[data-skin] main .sector26-case-row em,
+body[data-skin] main .sector26-closing__links em {
+  color: rgba(255,255,255,0.78) !important;
+}
+
+body[data-skin] main .sector26-back,
+body[data-skin] main .sector26-crumb,
+body[data-skin] main .sector26-kicker,
+body[data-skin] main .sector26-proofline dt,
+body[data-skin] main .sector26-hero__panel dt,
+body[data-skin] main .sector26-feature-case dt {
+  color: rgba(255,255,255,0.78) !important;
+}
+
+body[data-skin] main .sector26-service-card span,
+body[data-skin] main .sector26-criteria-grid span,
+body[data-skin] main .sector26-case-row > span,
+body[data-skin] main .sector26-feature-case p:first-child,
+body[data-skin] main .sector26-case-row p,
+body[data-skin] main .sector26-closing__links span {
+  color: #DC2626 !important;
+}
+
 body[data-skin="white"] main :where(.blog-index, .blog-cat) {
   background: #FFFFFF !important;
 }
