@@ -585,5 +585,106 @@ const totalServices = String(services.length).padStart(2, '0');
         padding: 24px;
       }
     }
+
+    @media (max-width: 640px) {
+      .services-demo-list {
+        padding: 28px 0 18px;
+      }
+
+      .services-demo-row,
+      .services-demo-row:nth-child(even) {
+        grid-template-columns: minmax(82px, 26vw) minmax(0, 1fr);
+        min-height: 0;
+        border-top-width: 1px;
+      }
+
+      .services-demo-row + .services-demo-row {
+        margin-top: 14px;
+      }
+
+      .services-demo-row:nth-child(even) .services-demo-media {
+        order: 0;
+      }
+
+      .services-demo-media {
+        min-height: 100%;
+      }
+
+      .services-demo-media img {
+        transform: none;
+      }
+
+      .services-demo-media:hover img,
+      .services-demo-media:focus-visible img {
+        transform: none;
+      }
+
+      .services-demo-media div {
+        background:
+          linear-gradient(to top, rgba(10,10,11,0.72), rgba(10,10,11,0.18)),
+          linear-gradient(120deg, rgba(220,38,38,0.12), transparent 52%);
+      }
+
+      .services-demo-media span,
+      .services-demo-media em {
+        display: none;
+      }
+
+      .services-demo-body {
+        justify-content: start;
+        padding: 20px 18px 18px;
+      }
+
+      .services-demo-front {
+        gap: 8px;
+        font-size: 1rem;
+        letter-spacing: 0.12em;
+      }
+
+      .services-demo-front span {
+        width: 24px;
+      }
+
+      .services-demo-body h2 {
+        margin-top: 14px;
+        font-size: clamp(1.52rem, 6.6vw, 1.92rem);
+        line-height: 1;
+        word-break: normal;
+      }
+
+      .services-demo-body strong {
+        margin-top: 10px;
+        font-size: 1rem;
+        line-height: 1.35;
+      }
+
+      .services-demo-body > p {
+        display: none;
+      }
+
+      .services-demo-body ul {
+        display: none;
+      }
+
+      .services-demo-body footer {
+        gap: 10px 14px;
+        margin-top: 14px;
+        padding-top: 12px;
+      }
+
+      .services-demo-body footer span {
+        font-size: 1rem;
+        letter-spacing: 0.02em;
+      }
+
+      .services-demo-body footer a {
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+        padding-bottom: 0;
+        border-bottom-width: 1px;
+        font-size: 1rem;
+      }
+    }
   </style>
 </LayoutV4>
