@@ -181,6 +181,21 @@ describe('Information hub visual contracts', () => {
     expect(home).toMatch(/\.um26-card-bar\s*\{[\s\S]*background:\s*#dc2626;/);
   });
 
+  test('home numeric summary is actionable instead of dead dashboard text', () => {
+    const home = read('src/pages/index.astro');
+
+    expect(home).toContain("href: '/nosotros'");
+    expect(home).toContain("href: '/antecedentes'");
+    expect(home).toContain("href: '/sectores'");
+    expect(home).toContain("href: '/servicios-it-empresas-argentina'");
+    expect(home).toContain("href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it'");
+    expect(home).toContain('{stats.map(({ value, label, href, aria }) => (');
+    expect(home).toContain('<a href={href} aria-label={aria}>');
+    expect(home).toMatch(/\.um26-stats__grid a:hover,[\s\S]*\.um26-stats__grid a:focus-visible\s*\{/);
+    expect(home).toMatch(/\.um26-stats__grid a:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.5\);/);
+    expect(home).not.toMatch(/\.um26-stats__grid div\s*\{/);
+  });
+
   test('sector service cards expose real link interaction states', () => {
     expect(sectorUM26).toContain('class="um-click-surface sector26-service-card"');
     expect(sectorUM26).toContain('class="um-click-action">Ver detalle</em>');

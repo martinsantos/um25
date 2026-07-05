@@ -136,12 +136,12 @@ const cases = [
 ];
 
 const stats = [
-  ['25', 'Años de operación'],
-  ['518', 'Antecedentes operativos'],
-  ['9', 'Sectores atendidos'],
-  ['320+', 'Clientes activos'],
-  ['4', 'Hubs GEO'],
-  ['99.9%', 'Disponibilidad SLA'],
+  { value: '25', label: 'Años de operación', href: '/nosotros', aria: 'Ver trayectoria de ULTIMA MILLA' },
+  { value: '518', label: 'Antecedentes operativos', href: '/antecedentes', aria: 'Ver archivo de antecedentes operativos' },
+  { value: '9', label: 'Sectores atendidos', href: '/sectores', aria: 'Ver sectores atendidos' },
+  { value: '320+', label: 'Clientes activos', href: '/antecedentes', aria: 'Ver evidencia por clientes y proyectos' },
+  { value: '4', label: 'Hubs GEO', href: '/servicios-it-empresas-argentina', aria: 'Ver cobertura nacional y hubs GEO' },
+  { value: '99.9%', label: 'Disponibilidad SLA', href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it', aria: 'Ver soporte 24/7 y disponibilidad SLA' },
 ];
 
 const hubs = [
@@ -198,8 +198,8 @@ const hubs = [
     <section class="um26-stats" aria-label="Indicadores ULTIMA MILLA">
       <div class="um26-shell um26-stats__inner">
         <div class="um26-stats__grid">
-          {stats.map(([value, label]) => (
-            <div>
+          {stats.map(({ value, label, href, aria }) => (
+            <a href={href} aria-label={aria}>
               <strong>
                 {value.endsWith('+') ? (
                   <>{value.slice(0, -1)}<b>+</b></>
@@ -210,7 +210,7 @@ const hubs = [
                 )}
               </strong>
               <span>{label}</span>
-            </div>
+            </a>
           ))}
         </div>
       </div>
@@ -731,14 +731,31 @@ const hubs = [
       gap: 1px;
     }
 
-    .um26-stats__grid div {
+    .um26-stats__grid a {
       background: #0f0f11;
       padding: 20px;
       position: relative;
+      color: inherit;
+      text-decoration: none;
+      transition: background-color 160ms ease, color 160ms ease;
     }
 
-    .um26-stats__grid div:last-child {
+    .um26-stats__grid a:last-child {
       background: #151517;
+    }
+
+    .um26-stats__grid a:hover,
+    .um26-stats__grid a:focus-visible {
+      background: #182233;
+    }
+
+    .um26-stats__grid a:focus-visible {
+      outline: 3px solid rgba(220, 38, 38, 0.5);
+      outline-offset: -3px;
+    }
+
+    .um26-stats__grid a:active {
+      background: #231414;
     }
 
     .um26-stats strong {
