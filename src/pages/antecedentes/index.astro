@@ -1493,19 +1493,29 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       }
 
       .um26-filter-row {
-        grid-template-columns: 1fr;
-        gap: 6px;
+        grid-template-columns: 78px minmax(0, 1fr);
+        align-items: center;
+        gap: 8px;
       }
 
       .um26-filter-row strong {
         padding-top: 0;
+        color: rgba(255,255,255,0.72);
+        font-family: var(--um-font-body);
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        line-height: 1;
       }
 
       .um26-filter-row div {
-        flex-wrap: wrap;
-        overflow-x: visible;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
         padding-bottom: 0;
-        scrollbar-width: auto;
+        scrollbar-width: none;
+        overscroll-behavior-inline: contain;
+        mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 34px), transparent 100%);
       }
 
       .um26-filter-row div::-webkit-scrollbar {
@@ -1513,16 +1523,48 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       }
 
       .um26-filter-row button {
-        flex: 0 1 auto;
+        flex: 0 0 auto;
+        min-height: 34px;
+        padding-inline: 10px;
+        font-size: 1rem;
+      }
+
+      .um26-filter-row button span {
+        display: none;
+      }
+
+      :global(body[data-skin]) .um26-evidence .um26-filter-row strong {
+        color: rgba(255,255,255,0.72) !important;
+        font-family: var(--um-font-body) !important;
+        font-size: 1rem !important;
+        font-weight: 700 !important;
+        line-height: 1 !important;
+      }
+
+      :global(body[data-skin]) .um26-evidence .um26-filter-row button {
+        min-height: 34px !important;
+        color: #c7cedd !important;
+        font-size: 1rem !important;
+        line-height: 1.2 !important;
+      }
+
+      :global(body[data-skin]) .um26-evidence .um26-filter-row button span {
+        display: none !important;
       }
 
       .um26-filters {
-        padding: 18px 10px;
+        gap: 10px;
+        padding: 12px 10px;
+      }
+
+      .um26-filter-split {
+        display: contents;
       }
 
       .um26-search input {
+        height: 44px;
         padding-left: 46px;
-        font-size: 14px;
+        font-size: 1rem;
       }
 
       .um26-results-bar {

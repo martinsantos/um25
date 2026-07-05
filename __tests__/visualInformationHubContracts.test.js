@@ -89,6 +89,19 @@ describe('Information hub visual contracts', () => {
     expect(antecedentesEditorial).toMatch(/rail\.scrollLeft\s*=\s*Math\.max\(0,\s*targetLeft\);/);
   });
 
+  test('UM26 antecedentes filters become compact horizontal controls on mobile', () => {
+    const antecedentesIndex = read('src/pages/antecedentes/index.astro');
+
+    expect(antecedentesIndex).toContain('aria-label="Filtros de antecedentes"');
+    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-filter-row\s*\{[\s\S]*grid-template-columns:\s*78px minmax\(0,\s*1fr\);/);
+    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-filter-row div\s*\{[\s\S]*flex-wrap:\s*nowrap;[\s\S]*overflow-x:\s*auto;[\s\S]*scrollbar-width:\s*none;/);
+    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-filter-split\s*\{[\s\S]*display:\s*contents;/);
+    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-filter-row button span\s*\{[\s\S]*display:\s*none;/);
+    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*:global\(body\[data-skin\]\) \.um26-evidence \.um26-filter-row strong\s*\{[\s\S]*font-size:\s*1rem !important;/);
+    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*:global\(body\[data-skin\]\) \.um26-evidence \.um26-filter-row button\s*\{[\s\S]*min-height:\s*34px !important;[\s\S]*font-size:\s*1rem !important;/);
+    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-search input\s*\{[\s\S]*height:\s*44px;[\s\S]*font-size:\s*1rem;/);
+  });
+
   test('row hover treatment stays calm and does not add red rails or layout drift', () => {
     const hoverBlocks = [
       sectorAtlas.match(/\.sector-atlas-exec-row:hover\s*\{[\s\S]*?\}/)?.[0] || '',
