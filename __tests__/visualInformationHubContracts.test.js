@@ -439,6 +439,13 @@ describe('Information hub visual contracts', () => {
 
     expect(servicios).toContain('class="services-demo"');
     expect(servicios).toContain('class="services-demo-row"');
+    expect(servicios).toMatch(/<a\s+class="services-demo-row"[\s\S]*?href=\{`\/servicios\/\$\{service\.code\}\/\$\{service\.slug\}`\}/);
+    expect(servicios).toContain('aria-label={`Abrir servicio ${service.name}`}');
+    expect(servicios).toContain('class="services-demo-action"');
+    expect(servicios).not.toMatch(/<h2><a\s+href=\{`\/servicios\/\$\{service\.code\}\/\$\{service\.slug\}`\}/);
+    expect(servicios).not.toMatch(/<footer>[\s\S]*?<a\s+href=\{`\/servicios\/\$\{service\.code\}\/\$\{service\.slug\}`\}/);
+    expect(cssBlock(servicios, '.services-demo-row')).toMatch(/text-decoration:\s*none;/);
+    expect(servicios).toMatch(/\.services-demo-row:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,38,38,0\.58\);/);
     expect(servicios).toContain('loading="eager"');
     expect(servicios).not.toContain("loading={index < 2 ? 'eager' : 'lazy'}");
     expect(servicios).toMatch(/\.services-demo-media\s*\{[\s\S]*background-image:\s*var\(--service-image\);/);

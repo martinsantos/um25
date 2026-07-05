@@ -134,21 +134,24 @@ const totalServices = String(services.length).padStart(2, '0');
 
     <section class="services-demo-shell services-demo-list" aria-label="Frentes de servicio de ULTIMA MILLA">
       {services.map((service, index) => (
-        <article class="services-demo-row">
-          <a
-            href={`/servicios/${service.code}/${service.slug}`}
+        <a
+          class="services-demo-row"
+          href={`/servicios/${service.code}/${service.slug}`}
+          aria-label={`Abrir servicio ${service.name}`}
+        >
+          <div
+            role="presentation"
             class={`services-demo-media services-demo-media--${service.code}`}
             style={`--service-image: url('${service.image}')`}
-            aria-label={`Abrir servicio ${service.name}`}
           >
             <img src={service.image} alt="" loading="eager" decoding="async" />
             <div aria-hidden="true"></div>
             <span>SRV.{service.code}</span>
             <em>{service.sectors} sectores</em>
-          </a>
+          </div>
           <div class="services-demo-body">
             <p class="services-demo-front"><span></span>Frente {String(index + 1).padStart(2, '0')} / {totalServices}</p>
-            <h2><a href={`/servicios/${service.code}/${service.slug}`}>{service.name}</a></h2>
+            <h2>{service.name}</h2>
             <strong>{service.tagline}</strong>
             <p>{service.description}</p>
             <ul>
@@ -158,10 +161,10 @@ const totalServices = String(services.length).padStart(2, '0');
             </ul>
             <footer>
               <span>{service.evidence} antecedentes</span>
-              <a href={`/servicios/${service.code}/${service.slug}`}>Ver detalle</a>
+              <span class="services-demo-action">Ver detalle</span>
             </footer>
           </div>
-        </article>
+        </a>
       ))}
     </section>
 
@@ -289,6 +292,20 @@ const totalServices = String(services.length).padStart(2, '0');
       border: 1px solid rgba(255,255,255,0.1);
       border-top: 3px solid #dc2626;
       background: #0a0a0b;
+      color: inherit;
+      text-decoration: none;
+      transition: background-color 0.18s ease, border-color 0.18s ease;
+    }
+
+    .services-demo-row:hover,
+    .services-demo-row:focus-visible {
+      background: #101014;
+      border-color: rgba(255,255,255,0.22);
+    }
+
+    .services-demo-row:focus-visible {
+      outline: 3px solid rgba(220,38,38,0.58);
+      outline-offset: -3px;
     }
 
     .services-demo-row + .services-demo-row {
@@ -325,7 +342,8 @@ const totalServices = String(services.length).padStart(2, '0');
       transition: transform 0.25s ease, filter 0.25s ease;
     }
 
-    .services-demo-media:hover img {
+    .services-demo-row:hover .services-demo-media img,
+    .services-demo-row:focus-visible .services-demo-media img {
       transform: scale(1.04);
       filter: contrast(1.1) saturate(1) brightness(0.9);
     }
@@ -393,12 +411,8 @@ const totalServices = String(services.length).padStart(2, '0');
       overflow-wrap: anywhere;
     }
 
-    .services-demo-body h2 a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .services-demo-row:hover h2 {
+    .services-demo-row:hover h2,
+    .services-demo-row:focus-visible h2 {
       color: #ff3b3b;
     }
 
@@ -466,18 +480,25 @@ const totalServices = String(services.length).padStart(2, '0');
       text-transform: uppercase;
     }
 
-    .services-demo-body footer a {
+    .services-demo-action {
       color: #fff;
       font-weight: 700;
       text-decoration: none;
       border-bottom: 2px solid #dc2626;
       padding-bottom: 3px;
+      transition: color 0.18s ease, border-color 0.18s ease;
     }
 
-    .services-demo-body footer a::after {
+    .services-demo-action::after {
       content: "->";
       margin-left: 8px;
       color: #dc2626;
+    }
+
+    .services-demo-row:hover .services-demo-action,
+    .services-demo-row:focus-visible .services-demo-action {
+      color: #ff3b3b;
+      border-color: #ff3b3b;
     }
 
     .services-demo-closing {
@@ -614,8 +635,8 @@ const totalServices = String(services.length).padStart(2, '0');
         transform: none;
       }
 
-      .services-demo-media:hover img,
-      .services-demo-media:focus-visible img {
+      .services-demo-row:hover .services-demo-media img,
+      .services-demo-row:focus-visible .services-demo-media img {
         transform: none;
       }
 
@@ -677,7 +698,7 @@ const totalServices = String(services.length).padStart(2, '0');
         letter-spacing: 0.02em;
       }
 
-      .services-demo-body footer a {
+      .services-demo-action {
         min-height: 34px;
         display: inline-flex;
         align-items: center;
