@@ -196,6 +196,19 @@ describe('Information hub visual contracts', () => {
     expect(home).not.toMatch(/\.um26-stats__grid div\s*\{/);
   });
 
+  test('home GEO hub cards are full-cell links with visible action states', () => {
+    const home = read('src/pages/index.astro');
+
+    expect(home).toContain("href: '/servicios-it-empresas-mendoza'");
+    expect(home).toContain("href: '/servicios-it-empresas-argentina'");
+    expect(home).toContain('{hubs.map(({ name, region, coords, href, aria }, index) => (');
+    expect(home).toContain('<a href={href} aria-label={aria}>');
+    expect(home).toContain('class="um26-hub-grid__action"');
+    expect(home).toMatch(/\.um26-hub-grid a:hover,[\s\S]*\.um26-hub-grid a:focus-visible\s*\{/);
+    expect(home).toMatch(/\.um26-hub-grid a:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.5\);/);
+    expect(home).not.toMatch(/\.um26-hub-grid div\s*\{/);
+  });
+
   test('sector service cards expose real link interaction states', () => {
     expect(sectorUM26).toContain('class="um-click-surface sector26-service-card"');
     expect(sectorUM26).toContain('class="um-click-action">Ver detalle</em>');
