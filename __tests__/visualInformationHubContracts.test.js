@@ -591,6 +591,22 @@ describe('Information hub visual contracts', () => {
     expect(serviceDetail).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.service-detail-hero h1\s*\{[\s\S]*max-width:\s*100%;/);
   });
 
+  test('service detail injected editorial copy keeps controlled mobile typography', () => {
+    const serviceDetail = read('src/pages/servicios/[id]/[slug].astro');
+    const copyBlock = cssBlock(serviceDetail, '.service-detail-copy');
+    const paragraphBlock = cssBlock(serviceDetail, '.service-detail-copy :global(p)');
+
+    expect(serviceDetail).toContain('class="service-detail-copy editorial-body"');
+    expect(serviceDetail).not.toContain('prose prose-lg max-w-none text-um-gray mb-12 service-detail-copy');
+    expect(copyBlock).toMatch(/max-width:\s*760px;/);
+    expect(paragraphBlock).toMatch(/font-size:\s*clamp\(1\.0625rem,\s*1\.08vw,\s*1\.1rem\);/);
+    expect(paragraphBlock).toMatch(/line-height:\s*1\.72;/);
+    expect(serviceDetail).toMatch(/:global\(body\[data-skin\] main \.service-detail-copy p\)\s*\{[\s\S]*font-size:\s*clamp\(1\.0625rem,\s*1\.08vw,\s*1\.1rem\)\s*!important;/);
+    expect(serviceDetail).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.service-detail-copy :global\(p\)\s*\{[\s\S]*font-size:\s*1rem;/);
+    expect(serviceDetail).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*:global\(body\[data-skin\] main \.service-detail-copy p\)\s*\{[\s\S]*font-size:\s*1rem\s*!important;/);
+    expect(serviceDetail).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.service-detail-copy :global\(p\)\s*\{[\s\S]*line-height:\s*1\.68;/);
+  });
+
   test('service detail mobile breadcrumb does not leave a trailing separator when current item is hidden', () => {
     const serviceDetail = read('src/pages/servicios/[id]/[slug].astro');
 

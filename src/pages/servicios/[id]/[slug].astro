@@ -405,7 +405,7 @@ const servicePageStructuredData = [
         <!-- Main Content -->
         <div class="service-detail-main__body">
           <h2 class="service-detail-section-title">{descriptionSectionTitle}</h2>
-          <div class="prose prose-lg max-w-none text-um-gray mb-12 service-detail-copy editorial-body">
+          <div class="service-detail-copy editorial-body">
             {serviceDescriptionHtml ? (
               <div set:html={serviceDescriptionHtml} />
             ) : (
@@ -907,10 +907,64 @@ const servicePageStructuredData = [
     letter-spacing: var(--um-display-tracking);
   }
 
-  .service-detail-copy p {
+  .service-detail-copy {
+    max-width: 760px;
+    margin-bottom: 3rem;
+  }
+
+  .service-detail-copy :global(p) {
+    max-width: 68ch;
+    margin: 0 0 1.1rem;
     color: var(--um-muted);
-    font-size: clamp(1rem, 1.08vw, 1.1rem);
-    line-height: 1.78;
+    font-size: clamp(1.0625rem, 1.08vw, 1.1rem);
+    line-height: 1.72;
+  }
+
+  .service-detail-copy :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .service-detail-copy :global(strong) {
+    color: #111;
+    font-weight: 700;
+  }
+
+  .service-detail-copy :global(ul),
+  .service-detail-copy :global(ol) {
+    display: grid;
+    gap: 0.75rem;
+    max-width: 68ch;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .service-detail-copy :global(li) {
+    position: relative;
+    padding-left: 1.35rem;
+    color: var(--um-muted);
+    font-size: clamp(1rem, 1.02vw, 1.06rem);
+    line-height: 1.62;
+  }
+
+  .service-detail-copy :global(li::before) {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.72em;
+    width: 0.42rem;
+    height: 2px;
+    background: var(--um-red);
+  }
+
+  :global(body[data-skin] main .service-detail-copy p) {
+    font-size: clamp(1.0625rem, 1.08vw, 1.1rem) !important;
+    line-height: 1.72 !important;
+  }
+
+  :global(body[data-skin] main .service-detail-copy li) {
+    font-size: clamp(1rem, 1.02vw, 1.06rem) !important;
+    line-height: 1.62 !important;
   }
 
   .service-capabilities-showcase {
@@ -1526,6 +1580,37 @@ const servicePageStructuredData = [
 
     .service-detail-main__body {
       max-width: 100%;
+    }
+
+    .service-detail-copy {
+      max-width: 100%;
+      margin-bottom: 2.2rem;
+    }
+
+    .service-detail-copy :global(p) {
+      max-width: 100%;
+      font-size: 1rem;
+      line-height: 1.68;
+    }
+
+    .service-detail-copy :global(ul),
+    .service-detail-copy :global(ol) {
+      max-width: 100%;
+    }
+
+    .service-detail-copy :global(li) {
+      font-size: 1rem;
+      line-height: 1.58;
+    }
+
+    :global(body[data-skin] main .service-detail-copy p) {
+      font-size: 1rem !important;
+      line-height: 1.68 !important;
+    }
+
+    :global(body[data-skin] main .service-detail-copy li) {
+      font-size: 1rem !important;
+      line-height: 1.58 !important;
     }
 
     .service-detail-main {
