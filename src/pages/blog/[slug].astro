@@ -6,7 +6,7 @@ import { fetchBlogPost, fetchBlogListing } from '../../utils/getBlogData';
 import { blogImageUrl, blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
 import { addHeadingIds, getCategoryLabel, formatBlogDate, extractFaqSchema } from '../../utils/blogUtils';
 import { isReplicaIdenticalCopy, resolveReplicaH1 } from '../../utils/replicaProdCopy';
-import { resolveCanonicalBlogSlug } from '../../data/seoRedirects';
+import { canonicalizeBlogSlug, canonicalizeInternalBlogLinks } from '../../utils/blogCanonicalLinks';
 import { blogSeoTitleOverrides } from '../../data/seoTitleOverrides';
 import { buildBlogSeoMeta } from '../../utils/seoMetaPolicy';
 import {
@@ -15,7 +15,7 @@ import {
 } from '../../data/strategicLinkGraph';
 
 const slug = Astro.params.slug || '';
-const canonicalSlug = resolveCanonicalBlogSlug(slug);
+const canonicalSlug = canonicalizeBlogSlug(slug);
 
 if (canonicalSlug !== slug) {
   return Astro.redirect(`/blog/${canonicalSlug}`, 301);
@@ -25,7 +25,7 @@ const post = await fetchBlogPost(slug);
 const siteUrl = 'https://www.ultimamilla.com.ar';
 
 if (!post) {
-  return Astro.redirect('/blog');
+  return Astro.rewrite('/404');
 }
 
 const normalizeArticleContent = (html: string): string => {
@@ -40,7 +40,8 @@ const normalizeArticleContent = (html: string): string => {
     'Cómo Empezar: Tres Caminos': 'Cómo empezar',
   };
 
-  const canonicalizedHtml = (html || '').replace(/https?:\/\/(?:www\.)?ultimamilla\.com\.ar/gi, siteUrl);
+  const canonicalizedHtml = canonicalizeInternalBlogLinks(html || '')
+    .replace(/https?:\/\/(?:www\.)?ultimamilla\.com\.ar/gi, siteUrl);
 
   return Object.entries(replacements).reduce((acc, [from, to]) => {
     const escaped = from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

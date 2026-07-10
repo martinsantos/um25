@@ -58,20 +58,20 @@ import { getDatasheetPublicPath } from '../../../utils/datasheets';
 const { id, slug } = Astro.params;
 
 if (!id || !slug) {
-  return Astro.redirect('/404');
+  return Astro.rewrite('/404');
 }
 
 // Obtener servicio de Directus con fallback automático a JS
 const servicio = await getServicioById(id);
 
 if (!servicio) {
-  return Astro.redirect('/404');
+  return Astro.rewrite('/404');
 }
 
 // Validar slug
 const expectedSlug = servicio.slug || generateSlug(servicio.Titulo);
 if (slug !== expectedSlug) {
-  return Astro.redirect(`/servicios/${id}/${expectedSlug}`);
+  return Astro.redirect(`/servicios/${id}/${expectedSlug}`, 301);
 }
 
 // Productos del servicio (viene de Directus o de JS)

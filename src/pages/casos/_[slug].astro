@@ -18,7 +18,7 @@ const { slug } = Astro.params;
 const caso = getCasoBySlug(slug || '');
 const casosRelacionados = getCasosRelacionados(slug || '');
 
-if (!caso) return Astro.redirect('/404');
+if (!caso) return Astro.rewrite('/404');
 ---
 
 <LayoutV4 title={`${caso.titulo} | Ultima Milla`} description={caso.descripcionCorta}>

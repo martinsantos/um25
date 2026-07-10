@@ -391,7 +391,7 @@ describe('Information hub visual contracts', () => {
     const normalizeEnd = blogSingle.indexOf('const normalizedContent');
     const normalizer = blogSingle.slice(normalizeStart, normalizeEnd);
 
-    expect(normalizer).toContain("const canonicalizedHtml = (html || '').replace");
+    expect(normalizer).toContain("const canonicalizedHtml = canonicalizeInternalBlogLinks(html || '')");
     expect(normalizer).toContain('replace(/https?:');
     expect(normalizer).toContain('ultimamilla');
     expect(normalizer).toContain('siteUrl');

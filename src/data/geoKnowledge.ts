@@ -119,8 +119,8 @@ export type GeoBlogIndex = {
 const servicesData = serviciosSnapshot as { data?: SnapshotService[] };
 const casesData = antecedentesSnapshot as { data?: SnapshotCase[] };
 
-export const GEO_VERSION = '2026-06-05';
-export const GEO_UPDATED = '2026-06-05';
+export const GEO_VERSION = '2026-07-10';
+export const GEO_UPDATED = '2026-07-10';
 
 export const IT_SEARCH_VOCABULARY = {
   disambiguation: 'IT = tecnologia informatica empresarial; en espanol de Argentina tambien se busca como informatica, sistemas, tecnologia para empresas, soporte tecnico y soluciones tecnologicas.',

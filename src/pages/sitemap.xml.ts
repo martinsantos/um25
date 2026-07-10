@@ -5,7 +5,7 @@ import serviciosSnapshot from '../data/snapshots/servicios.json';
 
 type SitemapPage = { loc: string; priority: string; changefreq: string; lastmod?: string };
 
-const STATIC_CONTENT_LASTMOD = '2026-06-04';
+const STATIC_CONTENT_LASTMOD = '2026-07-10';
 
 function getSnapshotServices(): Array<{ id: number; Titulo: string; slug?: string }> {
     const snapshot = serviciosSnapshot as { data?: Array<{ id: number; Titulo: string; slug?: string }> };

@@ -11,7 +11,7 @@ import { getAntecedenteById as getUm26AntecedenteById } from '../../../lib/um26-
 const { id } = Astro.params;
 
 if (!id) {
-    return Astro.redirect('/antecedentes');
+    return Astro.rewrite('/404');
 }
 
 try {
@@ -35,6 +35,6 @@ try {
     console.error(`Error fetching antecedente ${id} for redirect:`, error);
 }
 
-// If not found or error, redirect to main list
-return Astro.redirect('/antecedentes', 302);
+// Unknown records must leave the index clean instead of creating a soft redirect.
+return Astro.rewrite('/404');
 ---

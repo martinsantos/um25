@@ -39,7 +39,7 @@ const geoHub = getGeoCommercialHub(publicSectorSlug);
 const sectorData = geoHub ? null : await getSectorBySlug(sectorSlug);
 
 if (!geoHub && !sectorData) {
-  return Astro.redirect('/sectores', 301);
+  return Astro.rewrite('/404');
 }
 
 const {
