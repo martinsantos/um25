@@ -15,7 +15,7 @@ const VALID_CATS = ['noticias', 'proyectos', 'tecnico', 'tecnologia', 'empresa']
 const cat = Astro.params.cat || '';
 
 if (!VALID_CATS.includes(cat)) {
-  return Astro.redirect('/blog');
+  return Astro.rewrite('/404');
 }
 
 const PAGE_SIZE = 10;

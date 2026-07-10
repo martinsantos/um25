@@ -88,6 +88,39 @@ async function fetchText(url, failures) {
   }
 }
 
+async function auditHttpSemantics(baseUrl, failures) {
+  const missingPaths = [
+    '/__seo_missing_probe_2026__',
+    '/servicios/999999/__seo_missing__',
+    '/antecedentes/999999/__seo_missing__',
+    '/blog/__seo_missing_probe_2026__',
+    '/blog/categoria/__seo_missing__',
+  ];
+
+  for (const path of missingPaths) {
+    try {
+      const response = await fetch(new URL(path, baseUrl), { redirect: 'manual' });
+      assert(response.status === 404, `${path} must return 404 directly, got ${response.status}`, failures);
+      assert(!response.headers.get('location'), `${path} must not redirect missing content`, failures);
+    } catch (error) {
+      failures.push(`${path} HTTP semantics check failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  const legacyBlogPath = '/blog/exportaci%C3%B3n-monitoreada-cctv-sita-y-prueba-de-planta';
+  try {
+    const response = await fetch(new URL(legacyBlogPath, baseUrl), { redirect: 'manual' });
+    assert(response.status === 301, `${legacyBlogPath} must permanently redirect, got ${response.status}`, failures);
+    assert(
+      response.headers.get('location') === '/blog/exportacion-monitoreada-cctv-sita-y-prueba-de-planta',
+      `${legacyBlogPath} redirects to an unexpected canonical`,
+      failures,
+    );
+  } catch (error) {
+    failures.push(`${legacyBlogPath} canonical redirect check failed: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
 async function auditPage(baseUrl, canonicalBaseUrl, path, failures) {
   const url = new URL(path, baseUrl).toString();
   const html = await fetchText(url, failures);
@@ -213,6 +246,7 @@ async function main() {
   const paths = argValue('--paths', REQUIRED_PATHS.join(',')).split(',').map((p) => p.trim()).filter(Boolean);
   const failures = [];
 
+  await auditHttpSemantics(baseUrl, failures);
   await auditSitemap(baseUrl, canonicalBaseUrl, failures);
   await auditGeoDiscovery(baseUrl, canonicalBaseUrl, failures);
   for (const path of paths) {
