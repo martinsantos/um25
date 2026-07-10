@@ -32,7 +32,13 @@ describe('mobile overflow production contracts', () => {
   test('services mobile proofline permits long evidence text to wrap', () => {
     const css = source('src/pages/servicios/index.astro');
 
-    expect(css).toContain('grid-template-columns: minmax(0, 96px) minmax(0, 1fr)');
+    expect(css).toContain('class="services-demo"');
+    expect(css).toMatch(/\.services-demo-row\s*\{[\s\S]*grid-template-columns:\s*minmax\(0,\s*1\.02fr\) minmax\(0,\s*1fr\);/);
+    expect(css).toMatch(/@media \(max-width:\s*980px\)\s*\{[\s\S]*\.services-demo-row,[\s\S]*\.services-demo-row:nth-child\(even\)\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
+    expect(css).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-demo-row,[\s\S]*\.services-demo-row:nth-child\(even\)\s*\{[\s\S]*grid-template-columns:\s*minmax\(82px,\s*26vw\) minmax\(0,\s*1fr\);/);
+    expect(css).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-demo-body > p\s*\{[\s\S]*display:\s*none;/);
+    expect(css).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-demo-body ul\s*\{[\s\S]*display:\s*none;/);
+    expect(css).toMatch(/@media \(max-width:\s*980px\)\s*\{[\s\S]*\.services-demo-body ul\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
     expect(css).not.toContain('grid-template-columns: minmax(96px, max-content) minmax(0, 1fr)');
     expect(css).not.toContain('overflow-wrap: normal;');
   });

@@ -36,6 +36,7 @@ function generateGeoSitemapXml() {
   const geoLastmod = formatSitemapDate(geoVersion);
   const entries: GeoSitemapEntry[] = [
     { loc: canonicalUrl('/geo'), priority: '0.9', changefreq: 'weekly' },
+    { loc: canonicalUrl('/geo/score'), priority: '0.85', changefreq: 'daily' },
     { loc: canonicalUrl('/llms.txt'), priority: '0.9', changefreq: 'weekly' },
     { loc: canonicalUrl('/llms-full.txt'), priority: '0.9', changefreq: 'weekly' },
     ...geoResourceNames.map((resource) => ({

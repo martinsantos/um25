@@ -7,6 +7,9 @@ import type {
 } from '../types/directus-v4';
 import { getDirectusInternalUrl, getDirectusToken, isLocalProdReplica } from '../config/runtime';
 import { normalizeServicioRecord } from '../utils/normalizeServicioRecord';
+import { visibleBlogStatusDirectusFilter } from '../utils/blogPublishing';
+import { diversifyBlogPostCovers } from '../utils/blogCoverDiversity.js';
+import { isCanonicalBlogSlug } from '../data/seoRedirects';
 
 const readItemsAny = readItems as any;
 const readItemAny = readItem as any;
@@ -179,41 +182,36 @@ type ArchivoDirectus = {
   alto?: number;
 };
 
-async function obtenerContenidoPublicado<T = unknown>(
-  coleccion: keyof Colecciones,
-  options: { limite?: number } = {},
-): Promise<T[]> {
-  try {
-    const client = getClient() as any;
-    const response = await client.request(
-      readItemsAny(coleccion, {
-        limit: options.limite ?? 10,
-        fields: ['*'],
-      }),
-    );
-    return (response || []) as T[];
-  } catch (error) {
-    console.error(`[directus] Error fetching ${String(coleccion)}:`, error);
-    return [];
-  }
+function blogSortTime(value: string | null | undefined): number {
+  const time = Date.parse(value || '');
+  return Number.isFinite(time) ? time : 0;
 }
 
 async function getStaticBlogPosts(limite: number = 10): Promise<EntradaBlog[]> {
   try {
     const { blogPosts } = await import('../data/blog-posts');
-    return blogPosts.slice(0, limite).map((post: any) => ({
-      id: String(post.id || post.slug),
-      status: 'published',
-      slug: post.slug,
-      titulo: post.title || post.titulo || '',
-      resumen: post.excerpt || post.resumen || '',
-      contenido: post.content || post.contenido || '',
-      imagen_portada: post.image || null,
-      categoria: 'tecnico',
-      tags: Array.isArray(post.tags) ? post.tags : [],
-      fecha_publicacion: post.date || post.fecha_publicacion || '',
-      tiempo_lectura: Number(post.readTime || post.tiempo_lectura || 5),
-    }));
+    const normalizedPosts: EntradaBlog[] = blogPosts
+      .map((post: any): EntradaBlog => ({
+        id: String(post.id || post.slug),
+        status: 'published',
+        slug: post.slug,
+        titulo: post.title || post.titulo || '',
+        resumen: post.excerpt || post.resumen || '',
+        contenido: post.content || post.contenido || '',
+        imagen_portada: post.image || null,
+        categoria: 'tecnico',
+        tags: Array.isArray(post.tags) ? post.tags.map(String) : [],
+        fecha_publicacion: post.date || post.fecha_publicacion || '',
+        tiempo_lectura: Number(post.readTime || post.tiempo_lectura || 5),
+      }));
+
+    const visibleCanonicalPosts = normalizedPosts
+      .filter((post: EntradaBlog) => isCanonicalBlogSlug(post.slug))
+      .sort((a: EntradaBlog, b: EntradaBlog) =>
+        blogSortTime(b.fecha_publicacion) - blogSortTime(a.fecha_publicacion),
+      );
+
+    return diversifyBlogPostCovers(visibleCanonicalPosts).slice(0, limite) as EntradaBlog[];
   } catch {
     return [];
   }
@@ -224,8 +222,24 @@ export const getServicios = async (limite: number = 10) =>
   (await getServiciosV4()).slice(0, limite);
 
 export const getBlogPosts = async (limite: number = 10) => {
-  const posts = await obtenerContenidoPublicado<EntradaBlog>('blog_posts', { limite });
-  if (posts.length > 0) return posts;
+  try {
+    const client = getClient() as any;
+    const posts = await client.request(
+      readItemsAny('blog_posts', {
+        limit: limite,
+        fields: ['*'],
+        filter: visibleBlogStatusDirectusFilter(),
+        sort: ['-fecha_publicacion'],
+      }),
+    );
+    const visibleCanonicalPosts = ((posts || []) as EntradaBlog[])
+      .filter((post) => post?.slug && isCanonicalBlogSlug(post.slug));
+    if (visibleCanonicalPosts.length > 0) {
+      return diversifyBlogPostCovers(visibleCanonicalPosts).slice(0, limite) as EntradaBlog[];
+    }
+  } catch (error) {
+    console.error('[directus] Error fetching sorted blog_posts:', error);
+  }
   return getStaticBlogPosts(limite);
 };
 

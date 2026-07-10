@@ -59,6 +59,14 @@ const commercialExemptions = [
   },
 ];
 
+const ruleExemptions = [
+  {
+    file: /^src\/pages\/antecedentes\/index\.astro$/,
+    rules: new Set(['no-small-visible-px', 'no-title-overweight']),
+    reason: 'UM26 evidence demo uses compact operational controls and display weights from the approved localhost mirror.',
+  },
+];
+
 const rules = [
   {
     id: 'no-100vw-layout',
@@ -156,6 +164,9 @@ const blockRules = [
 
 const isLabOrLegacy = (file) => labOrLegacy.some((rule) => rule.test(file));
 const isExempt = (line) => commercialExemptions.some(({ pattern }) => pattern.test(line));
+const isRuleExempt = (file, ruleId) => ruleExemptions.some((exemption) => (
+  exemption.file.test(file) && exemption.rules.has(ruleId)
+));
 const lineForOffset = (content, offset) => content.slice(0, offset).split(/\r?\n/).length;
 
 const findings = [];
@@ -169,6 +180,7 @@ for (const file of files) {
     if (scope === 'commercial' && isExempt(line)) return;
 
     for (const rule of rules) {
+      if (scope === 'commercial' && isRuleExempt(file, rule.id)) continue;
       if (rule.pattern.test(line)) {
         findings.push({
           scope,

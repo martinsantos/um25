@@ -4,6 +4,11 @@ import {
   normalizeBlogStatus,
   normalizePublicationDate,
 } from '../../utils/blogPublishing';
+import {
+  BLOG_COVER_DIVERSITY_LIMIT,
+  diversifyBlogPostCovers,
+  selectDiverseBlogCover,
+} from '../../utils/blogCoverDiversity.js';
 import { checkBasicAuth } from '../../utils/serverAuth';
 
 const API_USER = process.env['BLOG_API_USER'] ?? import.meta.env.BLOG_API_USER;
@@ -17,6 +22,25 @@ function slugify(text: string): string {
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
+}
+
+async function fetchBlogCoverCorpus(): Promise<Record<string, unknown>[]> {
+  const params = new URLSearchParams();
+  params.set('sort', '-fecha_publicacion');
+  params.set('limit', String(BLOG_COVER_DIVERSITY_LIMIT));
+  params.set('fields', 'id,slug,titulo,categoria,imagen_portada,fecha_publicacion,status');
+  params.set('filter[status][_neq]', 'draft');
+
+  try {
+    const res = await fetch(`${DIRECTUS_URL}/items/blog_posts?${params.toString()}`, {
+      headers: { Authorization: `Bearer ${DIRECTUS_TOKEN}` },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data.data) ? data.data : [];
+  } catch {
+    return [];
+  }
 }
 
 export const POST: APIRoute = async ({ request }) => {
@@ -92,6 +116,9 @@ export const POST: APIRoute = async ({ request }) => {
     meta_description: (meta_description as string) || null,
   };
 
+  const coverCorpus = await fetchBlogCoverCorpus();
+  post.imagen_portada = selectDiverseBlogCover(post, coverCorpus);
+
   const res = await fetch(`${DIRECTUS_URL}/items/blog_posts`, {
     method: 'POST',
     headers: {
@@ -110,7 +137,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const created = await res.json();
-  return new Response(JSON.stringify({ ok: true, slug, id: created.data?.id, status }), {
+  return new Response(JSON.stringify({ ok: true, slug, id: created.data?.id, status, imagen_portada: post.imagen_portada }), {
     status: 201,
     headers: { 'Content-Type': 'application/json' },
   });
@@ -121,12 +148,15 @@ export const GET: APIRoute = async () => {
   const params = addVisibleBlogStatusFilter(new URLSearchParams());
   params.set('sort', '-fecha_publicacion');
   params.set('limit', '20');
-  params.set('fields', 'slug,titulo,fecha_publicacion,categoria,status');
+  params.set('fields', 'slug,titulo,fecha_publicacion,categoria,status,imagen_portada');
   const res = await fetch(
     `${DIRECTUS_URL}/items/blog_posts?${params.toString()}`,
     { headers }
   );
   const data = await res.json();
+  if (Array.isArray(data.data)) {
+    data.data = diversifyBlogPostCovers(data.data);
+  }
   return new Response(JSON.stringify(data), {
     headers: { 'Content-Type': 'application/json' },
   });

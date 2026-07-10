@@ -83,13 +83,15 @@ describe('Production runtime configuration contracts', () => {
     expect(workflow).not.toContain('TOTAL_IMGS=$((DIRECTUS_IMGS + LOCAL_IMGS))');
   });
 
-  test('production deploy runs SEO locale and UMCLI release contract audits against www', () => {
+  test('production deploy runs SEO, GEO scoring and release contract audits against www', () => {
     const workflow = fs.readFileSync(path.join(process.cwd(), '.github/workflows/production-deploy.yml'), 'utf8');
 
     expect(workflow).toContain('SEO and GEO release audit');
+    expect(workflow).toContain('GEO scoring release audit');
     expect(workflow).toContain('UMCLI release contract audit');
     expect(workflow).toContain('Directus integration release audit');
     expect(workflow).toContain('node scripts/seo-audit.mjs --base-url https://www.ultimamilla.com.ar');
+    expect(workflow).toContain('npm run geo:score -- --base-url https://www.ultimamilla.com.ar --min-score 90 --json');
     expect(workflow).toContain('node scripts/umcli-contract-audit.mjs --base-url https://www.ultimamilla.com.ar');
     expect(workflow).toContain('node scripts/directus-release-audit.mjs --base-url https://www.ultimamilla.com.ar');
   });
@@ -102,6 +104,19 @@ describe('Production runtime configuration contracts', () => {
     expect(workflow).toContain('https://www.ultimamilla.com.ar/');
     expect(workflow).toContain('Canonical health check passed: www serves 200 and apex redirects to www');
     expect(workflow).not.toContain('apex serves 200 and www redirects to apex');
+  });
+
+  test('production deploy installs a complete runtime package tree before PM2 restart', () => {
+    const workflow = fs.readFileSync(path.join(process.cwd(), '.github/workflows/production-deploy.yml'), 'utf8');
+
+    expect(workflow).not.toContain('npm ci --production');
+    expect(workflow).toContain('npm install --include=dev --prefer-offline --no-audit --progress=false');
+    expect(workflow).toContain('command_timeout: 20m');
+    expect(workflow).toContain('npm ls @directus/sdk @sentry/astro zod piccolore astro @astrojs/node --depth=0');
+    expect(workflow).toContain("import('piccolore')");
+    expect(workflow).toContain("import('@directus/sdk')");
+    expect(workflow).toContain("import('zod')");
+    expect(workflow).toContain('runtime imports ok');
   });
 
   test('contact API resolves SMTP settings from runtime-safe environment sources', () => {

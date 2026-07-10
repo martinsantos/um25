@@ -131,9 +131,12 @@ jobs:
           host: 23.105.176.45
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 20m
           script: |
             cd ${{ env.DEPLOY_PATH }}
-            npm ci --production
+            npm install --include=dev --prefer-offline --no-audit --progress=false
+            npm ls @directus/sdk @sentry/astro zod piccolore astro @astrojs/node --depth=0
+            node -e "Promise.all([import('piccolore'), import('@directus/sdk'), import('zod')]).then(() => console.log('runtime imports ok'))"
             # Ensure Directus uploads dir is writable by container (uid 1000)
             chown -R 1000:1000 ${{ env.DEPLOY_PATH }}/uploads/ 2>/dev/null || true
             chmod 775 ${{ env.DEPLOY_PATH }}/uploads/ 2>/dev/null || true
@@ -257,6 +260,12 @@ jobs:
       - name: SEO and GEO release audit
         run: node scripts/seo-audit.mjs --base-url https://www.ultimamilla.com.ar
 
+      - name: GEO scoring release audit
+        run: npm run geo:score -- --base-url https://www.ultimamilla.com.ar --min-score 90 --json
+
+      - name: Blog editorial GEO score audit
+        run: npm run blog:score -- --base-url https://www.ultimamilla.com.ar --min-score 80 --json
+
       - name: UMCLI release contract audit
         run: node scripts/umcli-contract-audit.mjs --base-url https://www.ultimamilla.com.ar
 
@@ -292,11 +301,14 @@ jobs:
           host: 23.105.176.45
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 20m
           script: |
             cd ${{ env.DEPLOY_PATH }}
             git fetch --tags
             git checkout v1.0.0-mvp
-            npm ci --production
+            npm install --include=dev --prefer-offline --no-audit --progress=false
+            npm ls @directus/sdk @sentry/astro zod piccolore astro @astrojs/node --depth=0
+            node -e "Promise.all([import('piccolore'), import('@directus/sdk'), import('zod')]).then(() => console.log('runtime imports ok'))"
             pm2 restart astro-ultimamilla
 
       - name: Verify rollback

@@ -53,7 +53,7 @@ const { html: contentHtml, headings } = await addHeadingIds(normalizedContent);
 const faqSchema = extractFaqSchema(contentHtml);
 const imgUrl = blogPostImageUrl(post);
 const imgAlt = blogPostImageAlt(post);
-const socialImg = post.social_image ? blogImageUrl(post.social_image) : imgUrl;
+const socialImg = blogImageUrl(post.social_image) || imgUrl;
 const label = getCategoryLabel(post.categoria);
 const date = formatBlogDate(post.fecha_publicacion);
 const blogSeo = buildBlogSeoMeta({
@@ -268,7 +268,8 @@ const articlePageStructuredData = [
     height: 2px;
     width: 0%;
     background: #DC2626;
-    z-index: 9999;
+    z-index: var(--um-z-progress);
+    pointer-events: none;
     transition: width 0.1s linear;
   }
 
@@ -330,9 +331,9 @@ const articlePageStructuredData = [
   .article-title {
     font-family: var(--um-font-display);
     font-size: clamp(2.625rem, 2.72vw, 2.72rem);
-    font-weight: 600;
-    line-height: 1.14;
-    letter-spacing: 0;
+    font-weight: var(--um-display-weight);
+    line-height: var(--um-display-line-height);
+    letter-spacing: var(--um-display-tracking);
     color: #000;
     max-width: 760px;
     margin: 0 0 16px;
@@ -464,9 +465,9 @@ const articlePageStructuredData = [
   :global(.prose h2) {
     font-family: var(--um-font-display);
     font-size: clamp(1.42rem, 1.55vw, 1.68rem);
-    font-weight: 600;
-    letter-spacing: 0;
-    line-height: 1.26;
+    font-weight: var(--um-display-weight);
+    letter-spacing: var(--um-display-tracking);
+    line-height: 1.05;
     color: #000;
     margin: 46px 0 14px;
     scroll-margin-top: 5rem;
@@ -479,9 +480,9 @@ const articlePageStructuredData = [
   :global(.prose h3) {
     font-family: var(--um-font-display);
     font-size: clamp(1.1rem, 1.12vw, 1.18rem);
-    font-weight: 600;
-    letter-spacing: 0;
-    line-height: 1.36;
+    font-weight: var(--um-display-weight);
+    letter-spacing: var(--um-display-tracking);
+    line-height: 1.08;
     color: #1f2937;
     margin: 30px 0 9px;
     scroll-margin-top: 5rem;

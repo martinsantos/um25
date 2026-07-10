@@ -64,14 +64,14 @@ describe('CCTV AI product contract', () => {
     expect(fs.existsSync(path.join(root, 'public', imageMap['07007b33-b8bd-4647-be53-ad7c97ef3ca6']))).toBe(true);
   });
 
-  test('surfaces Producto on the services index', () => {
+  test('keeps security electronic reachable from the services index', () => {
     const source = fs.readFileSync(path.join(root, 'src/pages/servicios/index.astro'), 'utf8');
 
-    expect(source).toContain("eyebrow: 'Producto'");
-    expect(source).toContain("title: 'UMSA CCTV AI'");
-    expect(source).toContain('Producto UMSA');
-    expect(source).toContain('Dashboard + forense');
-    expect(source).toContain("href: '/cctvai/'");
+    expect(source).toContain("code: '102'");
+    expect(source).toContain("name: 'Seguridad electronica'");
+    expect(source).toContain("slug: 'sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi'");
+    expect(source).toContain('CCTV IP y VMS');
+    expect(source).toContain('href={`/servicios/${service.code}/${service.slug}`}');
   });
 
   test('renders CCTV AI through the commercial product template route', () => {
@@ -88,5 +88,18 @@ describe('CCTV AI product contract', () => {
     expect(helper).toContain('Producto publicado');
     expect(helper).toContain('buildCctvAiProductTemplate');
     expect(sitemap).toContain("{ loc: '/cctvai'");
+  });
+
+  test('guards the CCTV AI dashboard against dark-mode CSS scrubs', () => {
+    const page = fs.readFileSync(path.join(root, 'src/pages/cctvai/index.astro'), 'utf8');
+
+    expect(page).toContain('--cctvai-dark-muted: rgba(255, 255, 255, 0.8)');
+    expect(page).toContain('--cctvai-dark-meta: rgba(255, 255, 255, 0.72)');
+    expect(page).toContain('scroll-margin-top: 150px');
+    expect(page).toContain(".cctvai-scrub input[type='range']:focus-visible");
+    expect(page).toContain('outline: 3px solid rgba(220, 38, 38, 0.48)');
+    expect(page).toContain('min-height: 36px');
+    expect(page).toContain('.cctvai-scrub__event:focus-visible');
+    expect(page).toContain('grid-template-columns: repeat(2, minmax(0, 1fr));');
   });
 });

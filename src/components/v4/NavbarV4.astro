@@ -1,10 +1,8 @@
 ---
 /**
- * NavbarV4 - Navbar responsivo V4 Design System
- * - Fixed position con backdrop blur
- * - Menu hamburguesa para móvil
- * - Touch targets 44px mínimo
- * - Highlight de página activa
+ * NavbarV4 - cabecera operativa UMSA.
+ * Replica el sistema del UMDESIGNv2: logo + tag operaciones + menu numerado
+ * + CTA + ticker NOC clickeable.
  */
 
 interface Props {
@@ -13,344 +11,633 @@ interface Props {
 
 const { currentPath = Astro.url.pathname } = Astro.props;
 
-// Navigation items
 const navItems = [
-  { href: '/servicios', label: 'Servicios' },
-  { href: '/antecedentes', label: 'Antecedentes' },
-  { href: '/sectores', label: 'Sectores' },
-  { href: '/nosotros', label: 'Nosotros' },
-  { href: '/blog', label: 'Blog' },
+  { href: '/', label: 'Inicio', num: '00' },
+  { href: '/servicios', label: 'Servicios', num: '01' },
+  { href: '/sectores', label: 'Sectores', num: '02' },
+  { href: '/antecedentes', label: 'Antecedentes', num: '03' },
+  { href: '/blog', label: 'Blog', num: '04' },
 ];
 
-// Helper to check if current page
+const moreItems = [
+  { href: '/nosotros', label: 'Nosotros' },
+  { href: '/cctvai', label: 'UMSA CCTV AI' },
+  { href: '/certificaciones', label: 'Certificaciones' },
+  { href: '/contacto', label: 'Contacto' },
+  { href: '/geo', label: 'Centro GEO' },
+  { href: '/plantilla-arca', label: 'Plantilla ARCA' },
+];
+
+const nocEvents = [
+  { t: '03:42', s: 'ok', txt: 'Backup incremental — FUESMEN', href: '/salud' },
+  { t: '03:28', s: 'ok', txt: 'SDI test mensual OK — Torre Thays', href: '/constructoras' },
+  { t: '02:55', s: 'info', txt: 'Cambio de configuracion VMS — AA2000', href: '/aeropuertos' },
+  { t: '02:12', s: 'ok', txt: 'Fibra certificada — Headcomm SA', href: '/industria' },
+  { t: '01:48', s: 'warn', txt: 'Latencia elevada — Minera Frontera (resuelto)', href: '/mineria' },
+  { t: '01:20', s: 'ok', txt: 'CCTV perimetro operativo — Aeropuerto Mendoza', href: '/aeropuertos' },
+  { t: '00:55', s: 'ok', txt: 'Patch panel — Hospital Perrupato', href: '/salud' },
+  { t: '00:30', s: 'info', txt: 'Reporte mensual NOC — 4 hubs', href: '/antecedentes' },
+];
+
 const isActive = (href: string) => {
   if (href === '/') return currentPath === '/';
   return currentPath.startsWith(href);
 };
+
+const moreIsActive = moreItems.some((item) => isActive(item.href));
 ---
 
-<nav
-  class="um-site-nav fixed top-0 left-0 right-0 z-50 backdrop-blur-md"
->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16 sm:h-20">
-      <!-- Logo responsive -->
-      <a href="/" class="um-brand-link flex items-center">
-        <span class="um-logo">ultimamilla<span>.</span>com<span>.</span>ar</span>
+<header class="um-ops-header">
+  <div class="um-ops-header__main">
+    <div class="um-ops-container um-ops-header__row">
+      <a href="/" class="um-ops-logo" aria-label="Ir al inicio">
+        ultimamilla<span>.</span>com<span>.</span>ar
       </a>
 
-      <!-- Desktop Menu (visible ≥1180px; ver DESIGN.md § Navbar) -->
-      <div class="um-desktop-menu items-center gap-4 xl:gap-7">
+      <span class="um-ops-tag">
+        <i></i>
+        OPERACIONES
+      </span>
+
+      <nav class="um-ops-nav" aria-label="Navegacion principal">
         {navItems.map((item) => (
-          <a
-            href={item.href}
-            class={`um-nav-link ${isActive(item.href) ? 'is-active' : ''}`}
-          >
+          <a href={item.href} class:list={['um-ops-nav__link', { 'is-active': isActive(item.href) }]}>
+            <span>{item.num}</span>
             {item.label}
           </a>
         ))}
-        <a
-          href="/contacto"
-          data-contact-open
-          data-contact-intent="general"
-          class="um-nav-cta px-5 py-2.5 rounded-[4px] text-base font-bold"
-        >
-          Contacto
-        </a>
-      </div>
 
-      <!-- Hamburger Button (visible solo móvil) -->
+        <div class:list={['um-ops-more', { 'is-active': moreIsActive }]}>
+          <button type="button" class="um-ops-more__trigger" aria-haspopup="true" aria-expanded="false">
+            <span>+</span>
+            Mas
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+          </button>
+          <div class="um-ops-more__menu" role="menu">
+            {moreItems.map((item) => (
+              <a href={item.href} role="menuitem" class:list={[{ 'is-active': isActive(item.href) }]}>
+                {item.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      </nav>
+
+      <a href="/antecedentes" class="um-ops-cta">
+        Ver evidencia
+        <span aria-hidden="true">↗</span>
+      </a>
+
       <button
         id="menuToggle"
-        class="um-menu-toggle md:hidden p-2 -mr-2 rounded-[4px] min-h-[44px] min-w-[44px] flex items-center justify-center"
-        aria-label="Abrir menú"
+        class="um-ops-menu-toggle"
+        type="button"
+        aria-label="Abrir menu"
         aria-expanded="false"
         aria-controls="mobileMenu"
       >
-        <svg id="hamburgerIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-        <svg id="closeIcon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
+        <span></span>
+        <span></span>
+        <span></span>
       </button>
     </div>
   </div>
 
-  <!-- Mobile Menu Dropdown -->
-  <div id="mobileMenu" class="um-mobile-menu mobile-menu-hidden md:hidden">
-    <div class="px-4 py-4 space-y-1">
+  <div class="um-ops-ticker" aria-label="NOC operativo">
+    <div class="um-ops-container um-ops-ticker__row">
+      <a class="um-ops-ticker__badge" href="/geo">
+        <i></i>
+        <span>NOC</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+      </a>
+
+      <div class="um-ops-ticker__kpis">
+        <a href="/certificaciones">UPTIME <strong>99,98%</strong></a>
+        <a href="/antecedentes">SITES <strong>87</strong></a>
+        <a href="/servicios">LINKS <strong>312</strong></a>
+      </div>
+
+      <div class="um-ops-ticker__marquee">
+        <div class="um-ops-ticker__track">
+          {nocEvents.slice(0, 4).map((event) => (
+            <a href={event.href} class="um-ops-event">
+              <span>{event.t}</span>
+              <i class={`is-${event.s}`}>{event.s === 'ok' ? '✓' : event.s === 'warn' ? '!' : 'ℹ'}</i>
+              <em>{event.txt}</em>
+              <b>·</b>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <a class="um-ops-ticker__sla" href="/certificaciones">SLA <strong>99,9%</strong></a>
+    </div>
+  </div>
+
+  <div id="mobileMenu" class="um-ops-mobile" hidden>
+    <nav class="um-ops-container" aria-label="Menu movil">
       {navItems.map((item) => (
-        <a
-          href={item.href}
-          class={`um-mobile-link ${isActive(item.href) ? 'is-active' : ''}`}
-        >
+        <a href={item.href} class:list={[{ 'is-active': isActive(item.href) }]}>
+          <span>{item.num}</span>
           {item.label}
         </a>
       ))}
-      <a
-        href="/contacto"
-        data-contact-open
-        data-contact-intent="general"
-        class={`um-mobile-cta ${isActive('/contacto') ? 'is-active' : ''}`}
-      >
-        Contacto
-      </a>
-    </div>
+      <p>Mas</p>
+      {moreItems.map((item) => (
+        <a href={item.href} class:list={[{ 'is-active': isActive(item.href) }]}>
+          <span>+</span>
+          {item.label}
+        </a>
+      ))}
+    </nav>
   </div>
-</nav>
-
-<!-- Spacer to compensate for fixed navbar -->
-<div class="h-16 sm:h-20"></div>
+</header>
 
 <style>
-  /* Mobile menu animation */
-  .mobile-menu-hidden {
-    display: none;
+  .um-ops-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--um-z-header);
+    isolation: isolate;
+    background: rgba(10,10,11,0.92);
+    color: #fff;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(14px);
   }
 
-  .mobile-menu-visible {
-    display: block;
+  .um-ops-container {
+    width: min(1920px, calc(100% - 128px));
+    margin-inline: auto;
   }
 
-  .um-site-nav {
-    background: var(--skin-nav-bg);
-    border-bottom: 1px solid var(--skin-nav-line);
+  .um-ops-header__main {
+    position: relative;
+    z-index: 2;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
   }
 
-  .um-brand-link {
-    min-width: 0;
-    max-width: calc(100vw - 92px);
+  .um-ops-header__row {
+    display: flex;
+    min-height: 64px;
+    align-items: center;
+    gap: 12px;
   }
 
-  .um-logo {
-    display: block;
-    max-width: 100%;
-    color: var(--skin-nav-text-strong);
+  .um-ops-logo {
+    flex: 0 0 auto;
+    color: #fff;
     font-family: var(--um-font-logo);
-    font-size: 1.5rem;
-    font-weight: 600;
-    letter-spacing: 0;
+    font-size: clamp(1.17rem, 1.4vw, 1.33rem);
+    font-weight: 700;
     line-height: 1;
-    overflow: hidden;
-    text-overflow: clip;
+    letter-spacing: -0.02em;
+    text-decoration: none;
     white-space: nowrap;
   }
 
-  .um-logo span {
-    color: var(--um-red);
+  .um-ops-logo span {
+    color: #dc2626;
   }
 
-  .um-desktop-menu {
-    display: flex;
+  .um-ops-tag,
+  .um-ops-nav__link span,
+  .um-ops-more__trigger span,
+  .um-ops-ticker,
+  .um-ops-mobile p,
+  .um-ops-mobile a span {
+    font-family: var(--um-font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.17em;
   }
 
-  .um-nav-link {
-    color: var(--skin-nav-text);
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1;
-    padding: 0.5rem 0;
-    border-bottom: 2px solid transparent;
-    transition: color 160ms ease, border-color 160ms ease;
-  }
-
-  .um-nav-link:hover,
-  .um-nav-link.is-active {
-    color: var(--skin-nav-text-strong);
-    border-bottom-color: var(--um-red);
-  }
-
-  .um-nav-cta,
-  .um-mobile-cta {
-    background: var(--um-red);
-    color: #fff;
-  }
-
-  .um-nav-cta:hover,
-  .um-mobile-cta:hover,
-  .um-mobile-cta.is-active {
-    background: var(--um-red-dark);
-    color: #fff;
-  }
-
-  .um-menu-toggle {
-    color: var(--skin-nav-text-strong);
-    position: relative;
-    z-index: 2;
-  }
-
-  .um-menu-toggle:hover {
-    background: color-mix(in srgb, var(--skin-nav-text-strong) 10%, transparent);
-  }
-
-  .um-menu-toggle svg {
-    color: var(--skin-nav-text-strong);
-    stroke: var(--skin-nav-text-strong);
-  }
-
-  .um-menu-toggle::before {
-    content: "";
-    display: block;
-    width: 24px;
-    height: 16px;
-    background:
-      linear-gradient(var(--skin-nav-text-strong), var(--skin-nav-text-strong)) 0 0 / 24px 2px no-repeat,
-      linear-gradient(var(--skin-nav-text-strong), var(--skin-nav-text-strong)) 0 7px / 24px 2px no-repeat,
-      linear-gradient(var(--skin-nav-text-strong), var(--skin-nav-text-strong)) 0 14px / 24px 2px no-repeat;
-  }
-
-  .um-menu-toggle svg {
-    display: none;
-  }
-
-  .um-mobile-menu {
-    background: var(--skin-nav-bg);
-    border-top: 1px solid var(--skin-nav-line);
-  }
-
-  .um-mobile-link {
-    display: flex;
-    min-height: 44px;
+  .um-ops-tag {
+    display: inline-flex;
     align-items: center;
-    padding: 0.75rem 1rem;
-    border-left: 2px solid transparent;
-    border-radius: 6px;
-    color: var(--skin-nav-text);
-    font-weight: 700;
-    transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+    gap: 7px;
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 6px 9px;
+    color: #71717a;
+    font-size: 9px;
+    line-height: 1;
   }
 
-  .um-mobile-link:hover,
-  .um-mobile-link.is-active {
-    background: color-mix(in srgb, var(--skin-nav-text-strong) 10%, transparent);
-    border-left-color: var(--um-red);
-    color: var(--skin-nav-text-strong);
+  .um-ops-tag i,
+  .um-ops-ticker__badge i {
+    position: relative;
+    width: 6px;
+    height: 6px;
+    display: inline-flex;
   }
 
-  .um-mobile-cta {
+  .um-ops-tag i::before,
+  .um-ops-tag i::after,
+  .um-ops-ticker__badge i::before,
+  .um-ops-ticker__badge i::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #dc2626;
+  }
+
+  .um-ops-tag i::before,
+  .um-ops-ticker__badge i::before {
+    animation: um-ops-ping 1.8s cubic-bezier(0,0,0.2,1) infinite;
+  }
+
+  @keyframes um-ops-ping {
+    75%, 100% { transform: scale(2.5); opacity: 0; }
+  }
+
+  .um-ops-nav {
+    position: relative;
+    z-index: 3;
     display: flex;
-    min-height: 44px;
     align-items: center;
     justify-content: center;
-    margin-top: 0.5rem;
-    padding: 0.75rem 1rem;
-    border-radius: 6px;
+    gap: 2px;
+    margin-left: auto;
+  }
+
+  .um-ops-nav__link,
+  .um-ops-more__trigger {
+    position: relative;
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 7px;
+    border: 0;
+    background: transparent;
+    color: #a1a1aa;
+    padding: 0 13px;
+    font-family: var(--um-font-body);
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .um-ops-nav__link span,
+  .um-ops-more__trigger span {
+    color: #52525b;
+    font-size: 9px;
+  }
+
+  .um-ops-nav__link:hover,
+  .um-ops-nav__link.is-active,
+  .um-ops-more:hover .um-ops-more__trigger,
+  .um-ops-more.is-active .um-ops-more__trigger {
+    color: #fff;
+  }
+
+  .um-ops-nav__link.is-active::after,
+  .um-ops-more.is-active .um-ops-more__trigger::after,
+  .um-ops-more:hover .um-ops-more__trigger::after {
+    content: "";
+    position: absolute;
+    left: 13px;
+    right: 13px;
+    bottom: 0;
+    height: 2px;
+    background: #dc2626;
+  }
+
+  .um-ops-nav__link.is-active span {
+    color: #dc2626;
+  }
+
+  .um-ops-more {
+    position: relative;
+    z-index: 4;
+  }
+
+  .um-ops-more__trigger svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+  }
+
+  .um-ops-more__menu {
+    position: absolute;
+    top: calc(100% + 0px);
+    right: 0;
+    min-width: 230px;
+    padding: 10px 0;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: #101012;
+    border-top-color: rgba(220,38,38,0.42);
+    z-index: var(--um-z-header-menu);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+
+  .um-ops-more:hover .um-ops-more__menu,
+  .um-ops-more:focus-within .um-ops-more__menu {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .um-ops-more__menu a {
+    display: block;
+    color: #a1a1aa;
+    padding: 11px 18px;
+    font-size: 16px;
+    line-height: 1;
+    text-decoration: none;
+  }
+
+  .um-ops-more__menu a:hover,
+  .um-ops-more__menu a.is-active {
+    color: #fff;
+    background: rgba(220,38,38,0.09);
+  }
+
+  .um-ops-cta {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 8px;
+    margin-left: 18px;
+    background: #dc2626;
+    color: #fff;
+    padding: 0 21px;
+    font-size: 16px;
     font-weight: 700;
-    transition: background-color 160ms ease, color 160ms ease;
+    text-decoration: none;
+    white-space: nowrap;
   }
 
-  /* Desktop nav visible from 1180px (Forbes QA: 5 ítems + CTA sin colapsar antes de 1181px). */
-  @media (min-width: 1180px) {
-    .um-menu-toggle {
-      display: none;
-    }
+  .um-ops-cta:hover {
+    background: #ff3b3b;
   }
 
-  @media (max-width: 1179px) {
-    .um-desktop-menu {
-      display: none !important;
-    }
+  .um-ops-menu-toggle {
+    display: none;
+    width: 44px;
+    height: 44px;
+    margin-left: auto;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+  }
 
-    .um-menu-toggle {
-      display: flex !important;
-      position: absolute;
-      top: 10px;
-      right: 16px;
-    }
+  .um-ops-menu-toggle span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    margin: 5px auto;
+    background: currentColor;
+  }
 
-    .um-mobile-menu {
+  .um-ops-ticker {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    background: rgba(10,10,11,0.82);
+    color: #71717a;
+    font-size: 9px;
+  }
+
+  .um-ops-ticker__row {
+    display: flex;
+    min-height: 28px;
+    align-items: stretch;
+  }
+
+  .um-ops-ticker a {
+    text-decoration: none;
+  }
+
+  .um-ops-ticker__badge,
+  .um-ops-ticker__kpis,
+  .um-ops-ticker__sla {
+    border-color: rgba(255,255,255,0.08);
+  }
+
+  .um-ops-ticker__badge,
+  .um-ops-ticker__sla {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #71717a;
+    white-space: nowrap;
+  }
+
+  .um-ops-ticker__badge {
+    border-right: 1px solid rgba(255,255,255,0.08);
+    padding: 0 16px 0 0;
+  }
+
+  .um-ops-ticker__badge span {
+    color: #2d8a2d;
+    font-weight: 700;
+  }
+
+  .um-ops-ticker__badge svg {
+    width: 13px;
+    height: 13px;
+    fill: none;
+    stroke: #dc2626;
+    stroke-width: 2;
+  }
+
+  .um-ops-ticker__kpis {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    padding: 0 18px;
+    white-space: nowrap;
+  }
+
+  .um-ops-ticker__kpis a,
+  .um-ops-ticker__sla {
+    color: #71717a;
+  }
+
+  .um-ops-ticker__kpis strong:first-child {
+    color: #2d8a2d;
+  }
+
+  .um-ops-ticker strong {
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .um-ops-ticker__marquee {
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
+    overflow: hidden;
+    overflow: clip;
+  }
+
+  .um-ops-ticker__track {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    min-height: 28px;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .um-ops-event {
+    flex: 1 1 0;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #a1a1aa;
+    padding: 0 16px;
+    font-size: 0.625rem;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .um-ops-event span {
+    color: #52525b;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .um-ops-event i {
+    font-style: normal;
+    font-weight: 700;
+  }
+
+  .um-ops-event i.is-ok { color: #2d8a2d; }
+  .um-ops-event i.is-warn { color: #dc2626; }
+  .um-ops-event i.is-info { color: #1a56c0; }
+
+  .um-ops-event em {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-style: normal;
+  }
+
+  .um-ops-event b {
+    color: #3f3f46;
+    font-weight: 400;
+  }
+
+  .um-ops-ticker__sla {
+    border-left: 1px solid rgba(255,255,255,0.08);
+    padding-left: 18px;
+  }
+
+  .um-ops-mobile {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    background: #0a0a0b;
+  }
+
+  .um-ops-mobile nav {
+    display: grid;
+    gap: 2px;
+    padding-top: 12px;
+    padding-bottom: 14px;
+  }
+
+  .um-ops-mobile a {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 10px;
+    border-left: 2px solid transparent;
+    color: #a1a1aa;
+    padding: 0 12px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .um-ops-mobile a:hover,
+  .um-ops-mobile a.is-active {
+    border-left-color: #dc2626;
+    color: #fff;
+    background: rgba(220,38,38,0.08);
+  }
+
+  .um-ops-mobile a span {
+    color: #52525b;
+    font-size: 9px;
+  }
+
+  .um-ops-mobile p {
+    margin: 12px 0 4px;
+    padding: 0 12px;
+    color: #52525b;
+    font-size: 9px;
+  }
+
+  @media (max-width: 1110px) {
+    .um-ops-nav,
+    .um-ops-cta,
+    .um-ops-tag {
       display: none;
     }
 
-    .um-mobile-menu.mobile-menu-visible {
+    .um-ops-menu-toggle {
       display: block;
     }
 
-    .um-site-nav .um-logo {
-      font-size: clamp(1.08rem, 4.6vw, 1.5rem) !important;
+    .um-ops-header__row {
+      min-height: 62px;
     }
   }
 
-  @media (max-width: 420px) {
-    .um-site-nav .um-logo {
-      font-size: clamp(1rem, 4.2vw, 1.12rem) !important;
+  @media (max-width: 760px) {
+    .um-ops-container {
+      width: min(100% - 32px, 1400px);
+    }
+
+    .um-ops-logo {
+      font-size: clamp(1.05rem, 5vw, 1.28rem);
+    }
+
+    .um-ops-ticker {
+      display: none;
     }
   }
 
-  /* Respect reduced motion preferences */
   @media (prefers-reduced-motion: reduce) {
-    .mobile-menu-hidden,
-    .mobile-menu-visible {
-      transition: none;
+    .um-ops-ticker__track,
+    .um-ops-tag i::before,
+    .um-ops-ticker__badge i::before {
+      animation: none;
     }
   }
 </style>
 
 <script>
-  // Mobile menu toggle functionality
   const menuToggle = document.getElementById('menuToggle');
   const mobileMenu = document.getElementById('mobileMenu');
-  const hamburgerIcon = document.getElementById('hamburgerIcon');
-  const closeIcon = document.getElementById('closeIcon');
 
-  if (menuToggle && mobileMenu && hamburgerIcon && closeIcon) {
-    menuToggle.addEventListener('click', function() {
-      const isHidden = mobileMenu.classList.contains('mobile-menu-hidden');
-
-      if (isHidden) {
-        mobileMenu.classList.remove('mobile-menu-hidden');
-        mobileMenu.classList.add('mobile-menu-visible');
-        hamburgerIcon.classList.add('hidden');
-        closeIcon.classList.remove('hidden');
-        menuToggle.setAttribute('aria-expanded', 'true');
-        menuToggle.setAttribute('aria-label', 'Cerrar menú');
-      } else {
-        mobileMenu.classList.remove('mobile-menu-visible');
-        mobileMenu.classList.add('mobile-menu-hidden');
-        hamburgerIcon.classList.remove('hidden');
-        closeIcon.classList.add('hidden');
-        menuToggle.setAttribute('aria-expanded', 'false');
-        menuToggle.setAttribute('aria-label', 'Abrir menú');
-      }
+  if (menuToggle && mobileMenu) {
+    menuToggle.addEventListener('click', () => {
+      const willOpen = mobileMenu.hasAttribute('hidden');
+      mobileMenu.toggleAttribute('hidden', !willOpen);
+      menuToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      menuToggle.setAttribute('aria-label', willOpen ? 'Cerrar menu' : 'Abrir menu');
     });
 
-    // Close menu when clicking a link
-    mobileMenu.querySelectorAll('a').forEach(function(link) {
-      link.addEventListener('click', function() {
-        mobileMenu.classList.remove('mobile-menu-visible');
-        mobileMenu.classList.add('mobile-menu-hidden');
-        hamburgerIcon.classList.remove('hidden');
-        closeIcon.classList.add('hidden');
+    mobileMenu.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        mobileMenu.setAttribute('hidden', '');
         menuToggle.setAttribute('aria-expanded', 'false');
-        menuToggle.setAttribute('aria-label', 'Abrir menú');
+        menuToggle.setAttribute('aria-label', 'Abrir menu');
       });
-    });
-
-    // Close menu on Escape key
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && mobileMenu.classList.contains('mobile-menu-visible')) {
-        mobileMenu.classList.remove('mobile-menu-visible');
-        mobileMenu.classList.add('mobile-menu-hidden');
-        hamburgerIcon.classList.remove('hidden');
-        closeIcon.classList.add('hidden');
-        menuToggle.setAttribute('aria-expanded', 'false');
-        menuToggle.setAttribute('aria-label', 'Abrir menú');
-        menuToggle.focus();
-      }
-    });
-
-    // Close menu when clicking outside
-    document.addEventListener('click', function(e) {
-      const target = e.target as Node;
-      if (!menuToggle.contains(target) && !mobileMenu.contains(target) && mobileMenu.classList.contains('mobile-menu-visible')) {
-        mobileMenu.classList.remove('mobile-menu-visible');
-        mobileMenu.classList.add('mobile-menu-hidden');
-        hamburgerIcon.classList.remove('hidden');
-        closeIcon.classList.add('hidden');
-        menuToggle.setAttribute('aria-expanded', 'false');
-        menuToggle.setAttribute('aria-label', 'Abrir menú');
-      }
     });
   }
 </script>

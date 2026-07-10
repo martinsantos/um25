@@ -1,5 +1,7 @@
 import type { EntradaBlog } from '../lib/directus';
 import { MOCK_POSTS } from '../data/blog-mock';
+import { BLOG_POSTS as UM26_BLOG_POSTS } from '../lib/um26-data/blog';
+import type { BlogPost as Um26BlogPost } from '../lib/um26-data/types';
 import {
   allowMockBlogFallback,
   allowPublicBlogFallback,
@@ -10,6 +12,11 @@ import {
 import { SITE_URL } from '../config/seo';
 import { isCanonicalBlogSlug } from '../data/seoRedirects';
 import { addVisibleBlogStatusFilter } from './blogPublishing';
+import {
+  BLOG_COVER_DIVERSITY_LIMIT,
+  diversifyBlogPostCovers,
+  diversifySortedBlogPostCovers,
+} from './blogCoverDiversity.js';
 
 const DIRECTUS_URL = getDirectusInternalUrl();
 const DIRECTUS_TOKEN = getDirectusToken();
@@ -17,6 +24,61 @@ const PUBLIC_SITE_URL = allowPublicBlogFallback() ? SITE_URL : getPublicSiteUrl(
 const ENABLE_PUBLIC_BLOG_FALLBACK = allowPublicBlogFallback();
 
 const publicBlogIndexCache = new Map<string, Promise<string[]>>();
+
+function escapeHtml(value = ''): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function um26PostToEntrada(post: Um26BlogPost, index: number): EntradaBlog {
+  const tags = post.tags || [];
+  const tagList = tags.length
+    ? `<ul>${tags.slice(0, 5).map((tag) => `<li>${escapeHtml(tag)}</li>`).join('')}</ul>`
+    : '';
+
+  return {
+    id: `um26-${index}`,
+    status: 'published',
+    slug: post.slug,
+    titulo: post.title,
+    resumen: post.excerpt || post.summary,
+    contenido: `
+      <p>${escapeHtml(post.summary || post.excerpt)}</p>
+      <h2>Contexto operativo</h2>
+      <p>${escapeHtml(post.excerpt || post.summary)}</p>
+      <h2>Puntos de lectura</h2>
+      ${tagList || '<p>Lectura editorial de ULTIMA MILLA para decisiones de infraestructura, continuidad y operacion IT.</p>'}
+    `,
+    imagen_portada: null,
+    imagen_portada_alt: post.title,
+    categoria: post.category,
+    tags,
+    fecha_publicacion: `${post.date}T12:00:00Z`,
+    tiempo_lectura: post.readingMinutes,
+    meta_title: `${post.title} | ULTIMA MILLA`,
+    meta_description: post.summary || post.excerpt,
+    meta_keywords: tags.join(', '),
+  };
+}
+
+const UM26_FALLBACK_POSTS: EntradaBlog[] = UM26_BLOG_POSTS
+  .map(um26PostToEntrada)
+  .sort((a, b) => new Date(b.fecha_publicacion).getTime() - new Date(a.fecha_publicacion).getTime());
+
+function getUm26BlogListing(page: number, limit: number, categoria?: string): { posts: EntradaBlog[]; total: number } {
+  const offset = (page - 1) * limit;
+  const filtered = (categoria
+    ? UM26_FALLBACK_POSTS.filter((post) => post.categoria === categoria)
+    : UM26_FALLBACK_POSTS
+  ).filter((post) => isCanonicalBlogSlug(post.slug));
+
+  const diversified = diversifyBlogPostCovers(filtered) as EntradaBlog[];
+  return { posts: diversified.slice(offset, offset + limit), total: filtered.length };
+}
 
 function authHeaders(): HeadersInit {
   return DIRECTUS_TOKEN ? { Authorization: `Bearer ${DIRECTUS_TOKEN}` } : {};
@@ -170,9 +232,36 @@ async function fetchPublicBlogListing(page: number, limit: number, categoria?: s
       };
     }));
 
-    return { posts, total: all.length };
+    return { posts: diversifyBlogPostCovers(posts) as EntradaBlog[], total: all.length };
   } catch {
     return null;
+  }
+}
+
+async function fetchDirectusBlogCoverCorpus(limit = BLOG_COVER_DIVERSITY_LIMIT): Promise<EntradaBlog[]> {
+  const params = addVisibleBlogStatusFilter(new URLSearchParams());
+  params.set('sort', '-fecha_publicacion');
+  params.set('limit', String(limit));
+  params.set('fields', 'id,slug,titulo,imagen_portada,categoria,fecha_publicacion,status');
+
+  const res = await fetch(
+    `${DIRECTUS_URL}/items/blog_posts?${params.toString()}`,
+    { headers: authHeaders() }
+  );
+  if (!res.ok) return [];
+
+  const data = await res.json();
+  return ((data.data || []) as EntradaBlog[]).filter((post) => isCanonicalBlogSlug(post.slug));
+}
+
+async function attachDiverseCover(post: EntradaBlog): Promise<EntradaBlog> {
+  try {
+    const corpus = await fetchDirectusBlogCoverCorpus();
+    const match = (diversifyBlogPostCovers(corpus) as EntradaBlog[])
+      .find((item) => item.slug === post.slug);
+    return match ? { ...post, imagen_portada: match.imagen_portada } : post;
+  } catch {
+    return post;
   }
 }
 
@@ -198,8 +287,8 @@ export async function fetchBlogListing(
   }
 
   itemsParams.set('sort', '-fecha_publicacion');
-  itemsParams.set('limit', String(limit));
-  itemsParams.set('offset', String(offset));
+  itemsParams.set('limit', String(offset + limit));
+  itemsParams.set('offset', '0');
   itemsParams.set('fields', fields);
   countParams.set('aggregate[count]', 'id');
 
@@ -216,7 +305,8 @@ export async function fetchBlogListing(
     ]);
 
     const [itemsData, countData] = await Promise.all([itemsRes.json(), countRes.json()]);
-    const posts = ((itemsData.data || []) as EntradaBlog[]).filter((post) => isCanonicalBlogSlug(post.slug));
+    const contextPosts = ((itemsData.data || []) as EntradaBlog[]).filter((post) => isCanonicalBlogSlug(post.slug));
+    const posts = (diversifyBlogPostCovers(contextPosts) as EntradaBlog[]).slice(offset, offset + limit);
     const total = Number(countData.data?.[0]?.count?.id || 0);
 
     if (posts.length > 0) return { posts, total: Math.max(posts.length, total) };
@@ -225,13 +315,17 @@ export async function fetchBlogListing(
     const publicListing = await fetchPublicBlogListing(page, limit, categoria);
     if (publicListing && publicListing.posts.length > 0) return publicListing;
 
+    const um26Listing = getUm26BlogListing(page, limit, categoria);
+    if (um26Listing.posts.length > 0) return um26Listing;
+
     if (!allowMockBlogFallback()) {
       return { posts: [], total: 0 };
     }
 
     const filtered = (categoria ? MOCK_POSTS.filter(p => p.categoria === categoria) : MOCK_POSTS)
       .filter((post) => isCanonicalBlogSlug(post.slug));
-    return { posts: filtered.slice(offset, offset + limit), total: filtered.length };
+    const diversified = diversifyBlogPostCovers(filtered) as EntradaBlog[];
+    return { posts: diversified.slice(offset, offset + limit), total: filtered.length };
   }
 }
 
@@ -248,11 +342,15 @@ export async function fetchBlogPost(slug: string): Promise<EntradaBlog | null> {
     );
     const data = await res.json();
     const post = (data.data || [])[0] as EntradaBlog | undefined;
-    if (post) return post;
+    if (post) return attachDiverseCover(post);
     throw new Error('not found');
   } catch {
     const publicPost = await fetchPublicBlogPost(slug);
     if (publicPost) return publicPost;
+
+    const um26Post = UM26_FALLBACK_POSTS.find((p) => p.slug === slug);
+    if (um26Post) return (diversifySortedBlogPostCovers(UM26_FALLBACK_POSTS, UM26_FALLBACK_POSTS.length) as EntradaBlog[])
+      .find((p) => p.slug === slug) || um26Post;
 
     if (!allowMockBlogFallback()) return null;
     return MOCK_POSTS.find(p => p.slug === slug) || null;
@@ -271,13 +369,15 @@ export async function fetchBlogBand(limit = 3): Promise<EntradaBlog[]> {
     );
     const data = await res.json();
     const posts = (data.data || []) as EntradaBlog[];
-    if (posts.length > 0) return posts;
+    if (posts.length > 0) return diversifyBlogPostCovers(posts) as EntradaBlog[];
     throw new Error('empty');
   } catch {
     const publicListing = await fetchPublicBlogListing(1, limit);
-    if (publicListing && publicListing.posts.length > 0) return publicListing.posts.slice(0, limit);
+    if (publicListing && publicListing.posts.length > 0) return (diversifyBlogPostCovers(publicListing.posts) as EntradaBlog[]).slice(0, limit);
+
+    if (UM26_FALLBACK_POSTS.length > 0) return (diversifyBlogPostCovers(UM26_FALLBACK_POSTS) as EntradaBlog[]).slice(0, limit);
 
     if (!allowMockBlogFallback()) return [];
-    return MOCK_POSTS.slice(0, limit);
+    return (diversifyBlogPostCovers(MOCK_POSTS) as EntradaBlog[]).slice(0, limit);
   }
 }

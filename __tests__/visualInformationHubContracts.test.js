@@ -22,6 +22,8 @@ function cssBlock(source, selector) {
 describe('Information hub visual contracts', () => {
   const sectorAtlas = read('src/components/templates/SectorTemplateAtlas.astro');
   const antecedentesEditorial = read('src/components/templates/AntecedentesTemplateEditorial.astro');
+  const sectorUM26 = read('src/components/templates/SectorTemplateUM26.astro');
+  const v4Css = read('src/styles/v4.css');
 
   test('sectores abandons family language in the public hub template', () => {
     expect(sectorAtlas).not.toMatch(/\bfamilia(s)?\b/i);
@@ -85,6 +87,19 @@ describe('Information hub visual contracts', () => {
     expect(antecedentesEditorial).toMatch(/\.ante-dossier__sector-links\s*\{[\s\S]*padding-right:\s*clamp\(32px,\s*5vw,\s*72px\);/);
     expect(antecedentesEditorial).toMatch(/\.ante-dossier__sector-links\s*\{[\s\S]*overscroll-behavior-inline:\s*contain;/);
     expect(antecedentesEditorial).toMatch(/rail\.scrollLeft\s*=\s*Math\.max\(0,\s*targetLeft\);/);
+  });
+
+  test('UM26 antecedentes filters become compact horizontal controls on mobile', () => {
+    const antecedentesIndex = read('src/pages/antecedentes/index.astro');
+
+    expect(antecedentesIndex).toContain('aria-label="Filtros de antecedentes"');
+    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-filter-row\s*\{[\s\S]*grid-template-columns:\s*78px minmax\(0,\s*1fr\);/);
+    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-filter-row div\s*\{[\s\S]*flex-wrap:\s*nowrap;[\s\S]*overflow-x:\s*auto;[\s\S]*scrollbar-width:\s*none;/);
+    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-filter-split\s*\{[\s\S]*display:\s*contents;/);
+    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-filter-row button span\s*\{[\s\S]*display:\s*none;/);
+    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*:global\(body\[data-skin\]\) \.um26-evidence \.um26-filter-row strong\s*\{[\s\S]*font-size:\s*1rem !important;/);
+    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*:global\(body\[data-skin\]\) \.um26-evidence \.um26-filter-row button\s*\{[\s\S]*min-height:\s*34px !important;[\s\S]*font-size:\s*1rem !important;/);
+    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-search input\s*\{[\s\S]*height:\s*44px;[\s\S]*font-size:\s*1rem;/);
   });
 
   test('row hover treatment stays calm and does not add red rails or layout drift', () => {
@@ -174,7 +189,81 @@ describe('Information hub visual contracts', () => {
 
     expect(home).not.toContain('<i aria-hidden="true"></i>');
     expect(home).not.toMatch(/\.um-service-unit__head i\s*\{/);
-    expect(home).toMatch(/\.um-service-unit__head\s*\{[\s\S]*justify-content:\s*flex-start;/);
+    expect(home).toContain('class="um26-service-grid"');
+    expect(home).toContain('class="um26-card-bar" aria-hidden="true"');
+    expect(home).toMatch(/\.um26-card-bar\s*\{[\s\S]*background:\s*#dc2626;/);
+  });
+
+  test('home numeric summary is actionable instead of dead dashboard text', () => {
+    const home = read('src/pages/index.astro');
+
+    expect(home).toContain("href: '/nosotros'");
+    expect(home).toContain("href: '/antecedentes'");
+    expect(home).toContain("href: '/sectores'");
+    expect(home).toContain("href: '/servicios-it-empresas-argentina'");
+    expect(home).toContain("href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it'");
+    expect(home).toContain('{stats.map(({ value, label, href, aria }) => (');
+    expect(home).toContain('<a href={href} aria-label={aria}>');
+    expect(home).toMatch(/\.um26-stats__grid a:hover,[\s\S]*\.um26-stats__grid a:focus-visible\s*\{/);
+    expect(home).toMatch(/\.um26-stats__grid a:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.5\);/);
+    expect(home).not.toMatch(/\.um26-stats__grid div\s*\{/);
+  });
+
+  test('home GEO hub cards are full-cell links with visible action states', () => {
+    const home = read('src/pages/index.astro');
+
+    expect(home).toContain("href: '/servicios-it-empresas-mendoza'");
+    expect(home).toContain("href: '/servicios-it-empresas-argentina'");
+    expect(home).toContain('{hubs.map(({ name, region, coords, href, aria }, index) => (');
+    expect(home).toContain('<a href={href} aria-label={aria}>');
+    expect(home).toContain('class="um26-hub-grid__action"');
+    expect(home).toMatch(/\.um26-hub-grid a:hover,[\s\S]*\.um26-hub-grid a:focus-visible\s*\{/);
+    expect(home).toMatch(/\.um26-hub-grid a:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.5\);/);
+    expect(home).not.toMatch(/\.um26-hub-grid div\s*\{/);
+  });
+
+  test('sector service cards expose real link interaction states', () => {
+    expect(sectorUM26).toContain('class="um-click-surface sector26-service-card"');
+    expect(sectorUM26).toContain('class="um-click-action">Ver detalle</em>');
+    expect(sectorUM26).toMatch(/\.sector26-service-card,[\s\S]*--um-click-hover-bg:[\s\S]*#171719;/);
+    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover,[\s\S]*a\.sector26-service-card:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.22\);/);
+    expect(sectorUM26).toMatch(/a\.sector26-service-card:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
+    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover strong,[\s\S]*a\.sector26-service-card:focus-visible strong\s*\{[\s\S]*color:\s*#fff !important;/);
+    expect(sectorUM26).toMatch(/\.sector26-service-card em\s*\{[\s\S]*text-decoration:\s*underline;/);
+    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover em::after,[\s\S]*a\.sector26-service-card:focus-visible em::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
+  });
+
+  test('sector evidence links expose active hover and focus states', () => {
+    expect(sectorUM26).toContain('class="um-click-surface sector26-feature-case"');
+    expect(sectorUM26).toContain('class="um-click-action">Ver detalle</strong>');
+    expect(sectorUM26).toContain('class="um-click-surface sector26-case-row"');
+    expect(sectorUM26).toContain('class="um-click-action">Ver detalle</b>');
+    expect(sectorUM26).toMatch(/\.sector26-feature-case:hover,[\s\S]*\.sector26-feature-case:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.26\);/);
+    expect(sectorUM26).toMatch(/\.sector26-feature-case:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
+    expect(sectorUM26).toMatch(/\.sector26-feature-case:hover strong::after,[\s\S]*\.sector26-feature-case:focus-visible strong::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
+    expect(sectorUM26).toMatch(/\.sector26-case-row\s*\{[\s\S]*--um-click-hover-bg:[\s\S]*#171719;/);
+    expect(sectorUM26).toMatch(/\.sector26-case-row:hover,[\s\S]*\.sector26-case-row:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.24\);/);
+    expect(sectorUM26).toMatch(/\.sector26-case-row:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
+    expect(sectorUM26).toMatch(/\.sector26-case-row:hover b::after,[\s\S]*\.sector26-case-row:focus-visible b::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
+  });
+
+  test('sector dark surfaces keep body text readable over images and black panels', () => {
+    expect(sectorUM26).toMatch(/\.sector26-hero-frame > img\s*\{[\s\S]*filter:\s*contrast\(1\.1\) saturate\(0\.9\) brightness\(0\.54\);/);
+    expect(sectorUM26).toMatch(/\.sector26-hero-frame__body > p:not\(\.sector26-kicker\)\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.88\);/);
+    expect(sectorUM26).toMatch(/\.sector26-hero__copy > p:not\(\.sector26-kicker\)\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.86\);/);
+    expect(sectorUM26).toMatch(/\.sector26-service-card p,[\s\S]*\.sector26-criteria-grid p\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.76\);/);
+    expect(sectorUM26).toMatch(/\.sector26-feature-case p:not\(:first-child\)\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.86\);/);
+    expect(sectorUM26).toMatch(/\.sector26-case-row em\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.74\);/);
+    expect(sectorUM26).not.toMatch(/\.sector26-hero-frame__body > p:not\(\.sector26-kicker\)\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.72\);/);
+    expect(sectorUM26).not.toMatch(/\.sector26-service-card p,[\s\S]*\.sector26-criteria-grid p\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.62\);/);
+    expect(sectorUM26).not.toMatch(/\.sector26-case-row em\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.58\);/);
+  });
+
+  test('global skin overrides cannot flatten UM26 sector dark contrast', () => {
+    expect(v4Css).toContain('UM26 sector dark surfaces: keep image-backed and black modules readable under every skin.');
+    expect(v4Css).toMatch(/body\[data-skin\] main \.sector26-hero-frame__body > p:not\(\.sector26-kicker\),[\s\S]*color:\s*rgba\(255,255,255,0\.88\) !important;/);
+    expect(v4Css).toMatch(/body\[data-skin\] main \.sector26-service-card p,[\s\S]*body\[data-skin\] main \.sector26-case-row em,[\s\S]*color:\s*rgba\(255,255,255,0\.78\) !important;/);
+    expect(v4Css).toMatch(/body\[data-skin\] main \.sector26-service-card span,[\s\S]*body\[data-skin\] main \.sector26-case-row > span,[\s\S]*color:\s*#DC2626 !important;/);
   });
 
   test('antecedentes hero secondary action renders as an intentional muted button, not loose text', () => {
@@ -189,21 +278,21 @@ describe('Information hub visual contracts', () => {
   test('antecedentes archive exposes a crawlable complete index of case links', () => {
     const source = read('src/pages/antecedentes/index.astro');
 
-    expect(source).toContain('crawlableAntecedenteIndex');
-    expect(source).toContain('Índice completo de antecedentes');
-    expect(source).toContain('Todos los antecedentes técnicos');
+    expect(source).toContain('const cases = [...orderedLeadCases, ...fallbackCases].map');
+    expect(source).toContain('data-case-card');
+    expect(source).toContain('data-case-modal={item.id}');
     expect(source).toContain('href={item.href}');
   });
 
   test('antecedentes archive keeps crawlable view and sort controls', () => {
     const source = read('src/pages/antecedentes/index.astro');
 
-    expect(source).toContain("archiveView: ['list', 'grid'].includes(requestedView) ? requestedView : 'list'");
-    expect(source).toContain("archiveSort: ['newest', 'oldest', 'client'].includes(requestedSort) ? requestedSort : 'newest'");
-    expect(antecedentesEditorial).toContain('data-view-control={option.id}');
-    expect(antecedentesEditorial).toContain('data-sort-control={option.id}');
-    expect(antecedentesEditorial).toContain('Más recientes');
-    expect(antecedentesEditorial).toMatch(/\.ante-dossier__archive--grid \.ante-dossier__ledger\s*\{[\s\S]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
+    expect(source).toContain('data-view-toggle="grid"');
+    expect(source).toContain('data-view-toggle="list"');
+    expect(source).toContain('data-sort-select');
+    expect(source).toContain('<option value="recent">Más recientes</option>');
+    expect(source).toMatch(/\.um26-case-grid--list \.um26-case-card,[\s\S]*\.um26-case-grid--list \.um26-case-card--wide\s*\{[\s\S]*flex-direction:\s*row;/);
+    expect(source).toMatch(/\.um26-case-grid--list \.um26-case-card__thumb\s*\{[\s\S]*flex:\s*0 0 156px;/);
   });
 
   test('evidence case rows reserve enough copy width to avoid broken client names', () => {
@@ -222,17 +311,19 @@ describe('Information hub visual contracts', () => {
   test('home secondary evidence rows remove repeated sector metadata to prevent compressed words', () => {
     const home = read('src/pages/index.astro');
 
-    expect(home).toMatch(/\.um-evidence-ledger :global\(\.evidence-case-row\)\s*\{[\s\S]*grid-template-columns:\s*3rem 136px minmax\(0,\s*1fr\) minmax\(4\.5rem,\s*5rem\) auto;/);
-    expect(home).toMatch(/\.um-evidence-ledger :global\(\.evidence-case-row__meta-group\)\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
-    expect(home).toMatch(/\.um-evidence-ledger :global\(\.evidence-case-row__meta:first-child\)\s*\{[\s\S]*display:\s*none;/);
+    expect(home).toContain('class="um26-case-grid"');
+    expect(home).toMatch(/\.um26-case-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
+    expect(home).toMatch(/\.um26-case-card\s*\{[\s\S]*min-height:\s*440px;/);
+    expect(home).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-case-grid,[\s\S]*\.um26-hub-grid\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
   });
 
   test('home service visual loads reliably for full-page visual QA', () => {
     const home = read('src/pages/index.astro');
 
-    expect(home).toContain('class="um-services-command__visual"');
-    expect(home).toContain('loading="eager" decoding="async" fetchpriority="low"');
-    expect(home).not.toMatch(/um-services-command__visual"[^>]*>[\s\S]{0,180}<img[^>]+loading="lazy"/);
+    expect(home).toContain('class="um26-service-grid"');
+    expect(home).toContain("loading={index < 4 ? 'eager' : 'lazy'}");
+    expect(home).toContain("fetchpriority={index === 0 ? 'high' : 'low'}");
+    expect(home).toContain('decoding="async"');
   });
 
   test('contact antispam field stays visually hidden without offscreen overflow', () => {
@@ -359,24 +450,35 @@ describe('Information hub visual contracts', () => {
   test('services mobile proofline avoids narrow three-column word breaks', () => {
     const servicios = read('src/pages/servicios/index.astro');
 
-    expect(servicios.indexOf('class="um-section services-index"')).toBeLessThan(servicios.indexOf('<TrustStrip />'));
-    expect(servicios).toMatch(/\.services-intent-ctas\s*\{[\s\S]*border:\s*0;/);
-    expect(servicios).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-hero__visual\s*\{[\s\S]*display:\s*none;/);
-    expect(servicios).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-dossier__folio\s*\{[\s\S]*order:\s*1;/);
-    expect(servicios).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-dossier__list\s*\{[\s\S]*order:\s*0;/);
-    expect(servicios).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-hero__proofline\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
-    expect(servicios).toMatch(/\.services-hero__proofline div,[\s\S]*\.services-hero__proofline div \+ div\s*\{[\s\S]*grid-template-columns:\s*minmax\(0,\s*96px\) minmax\(0,\s*1fr\);/);
-    expect(servicios).toMatch(/\.services-hero__proofline dt\s*\{[\s\S]*white-space:\s*normal;/);
-    expect(servicios).toMatch(/\.services-hero__proofline dd\s*\{[\s\S]*overflow-wrap:\s*anywhere;/);
-    expect(servicios).not.toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-hero__proofline\s*\{[\s\S]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
+    expect(servicios).toContain('class="services-demo"');
+    expect(servicios).toContain('class="services-demo-row"');
+    expect(servicios).toMatch(/<a\s+class="services-demo-row"[\s\S]*?href=\{`\/servicios\/\$\{service\.code\}\/\$\{service\.slug\}`\}/);
+    expect(servicios).toContain('aria-label={`Abrir servicio ${service.name}`}');
+    expect(servicios).toContain('class="services-demo-action"');
+    expect(servicios).not.toMatch(/<h2><a\s+href=\{`\/servicios\/\$\{service\.code\}\/\$\{service\.slug\}`\}/);
+    expect(servicios).not.toMatch(/<footer>[\s\S]*?<a\s+href=\{`\/servicios\/\$\{service\.code\}\/\$\{service\.slug\}`\}/);
+    expect(cssBlock(servicios, '.services-demo-row')).toMatch(/text-decoration:\s*none;/);
+    expect(servicios).toMatch(/\.services-demo-row:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,38,38,0\.58\);/);
+    expect(servicios).toContain('loading="eager"');
+    expect(servicios).not.toContain("loading={index < 2 ? 'eager' : 'lazy'}");
+    expect(servicios).toMatch(/\.services-demo-media\s*\{[\s\S]*background-image:\s*var\(--service-image\);/);
+    expect(cssBlock(servicios, '.services-demo-media div')).toMatch(/z-index:\s*1;/);
+    expect(cssBlock(servicios, '.services-demo-media img')).toMatch(/z-index:\s*0;/);
+    expect(cssBlock(servicios, '.services-demo-media span,\n    .services-demo-media em')).toMatch(/z-index:\s*2;/);
+    expect(servicios).toMatch(/\.services-demo-body ul\s*\{[\s\S]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
+    expect(servicios).toMatch(/@media \(max-width:\s*980px\)\s*\{[\s\S]*\.services-demo-row,[\s\S]*\.services-demo-row:nth-child\(even\)\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
+    expect(servicios).toMatch(/@media \(max-width:\s*980px\)\s*\{[\s\S]*\.services-demo-body ul\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
+    expect(servicios).not.toMatch(/@media \(max-width:\s*980px\)\s*\{[\s\S]*\.services-demo-body ul\s*\{[\s\S]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
   });
 
   test('services dark product band avoids off-brand red microtext', () => {
     const servicios = read('src/pages/servicios/index.astro');
 
     expect(servicios).not.toContain('#fca5a5');
-    expect(cssBlock(servicios, '.services-product-feature__eyebrow')).toMatch(/color:\s*rgba\(255,\s*255,\s*255,\s*0\.72\);/);
-    expect(servicios).toMatch(/\.services-product-feature__eyebrow\)\s*\{[\s\S]*color:\s*rgba\(255,\s*255,\s*255,\s*0\.72\) !important;/);
+    expect(cssBlock(servicios, '.services-demo-closing')).toMatch(/background:\s*#0f0f11;/);
+    expect(cssBlock(servicios, '.services-demo-closing a')).toMatch(/background:\s*#dc2626;/);
+    expect(cssBlock(servicios, '.services-demo-closing a + a')).toMatch(/background:\s*transparent;/);
+    expect(servicios).toContain('class="services-demo-shell services-demo-closing"');
   });
 
   test('contact feedback links use canonical UMSA red only', () => {
@@ -487,6 +589,22 @@ describe('Information hub visual contracts', () => {
     expect(heroH1).toContain('max-width: min(760px, 22ch)');
     expect(heroH1).not.toMatch(/max-width:\s*1[0-6]ch/);
     expect(serviceDetail).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.service-detail-hero h1\s*\{[\s\S]*max-width:\s*100%;/);
+  });
+
+  test('service detail injected editorial copy keeps controlled mobile typography', () => {
+    const serviceDetail = read('src/pages/servicios/[id]/[slug].astro');
+    const copyBlock = cssBlock(serviceDetail, '.service-detail-copy');
+    const paragraphBlock = cssBlock(serviceDetail, '.service-detail-copy :global(p)');
+
+    expect(serviceDetail).toContain('class="service-detail-copy editorial-body"');
+    expect(serviceDetail).not.toContain('prose prose-lg max-w-none text-um-gray mb-12 service-detail-copy');
+    expect(copyBlock).toMatch(/max-width:\s*760px;/);
+    expect(paragraphBlock).toMatch(/font-size:\s*clamp\(1\.0625rem,\s*1\.08vw,\s*1\.1rem\);/);
+    expect(paragraphBlock).toMatch(/line-height:\s*1\.72;/);
+    expect(serviceDetail).toMatch(/:global\(body\[data-skin\] main \.service-detail-copy p\)\s*\{[\s\S]*font-size:\s*clamp\(1\.0625rem,\s*1\.08vw,\s*1\.1rem\)\s*!important;/);
+    expect(serviceDetail).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.service-detail-copy :global\(p\)\s*\{[\s\S]*font-size:\s*1rem;/);
+    expect(serviceDetail).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*:global\(body\[data-skin\] main \.service-detail-copy p\)\s*\{[\s\S]*font-size:\s*1rem\s*!important;/);
+    expect(serviceDetail).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.service-detail-copy :global\(p\)\s*\{[\s\S]*line-height:\s*1\.68;/);
   });
 
   test('service detail mobile breadcrumb does not leave a trailing separator when current item is hidden', () => {

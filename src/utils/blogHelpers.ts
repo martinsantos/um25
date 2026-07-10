@@ -3,6 +3,9 @@ import { editorialImages } from '../data/editorialImageSystem';
 import imageLocalMap from '../data/image-local-map.json';
 
 const UUID_RE = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+const PUBLIC_BLOG_IMAGE_HOSTS = new Set(['ultimamilla.com.ar', 'www.ultimamilla.com.ar']);
+const EXTERNAL_BLOG_IMAGE_HOSTS = new Set(['images.unsplash.com']);
+const IMAGE_PATH_RE = /\.(avif|gif|jpe?g|png|svg|webp)$/i;
 
 const FALLBACK_BY_SLUG: Record<string, string> = {
   'plantilla-arca-facturacion-electronica-gratis': editorialImages.sectors.software,
@@ -22,30 +25,37 @@ const FALLBACK_BY_CATEGORY: Record<string, string> = {
   empresa: '/uploads/hero/a7f7d962-a5f8-4310-9f59-afeb62dcb0eb.jpg',
 };
 
+function isLocalBlogImagePath(pathname: string): boolean {
+  const cleanPath = pathname.split('?')[0] || '';
+  if (!cleanPath.startsWith('/')) return false;
+  if (IMAGE_PATH_RE.test(cleanPath)) return true;
+  if (/^\/(?:api\/asset|assets)\/[a-f0-9-]{36}$/i.test(cleanPath)) return true;
+  return false;
+}
+
 export function blogImageUrl(value: string | null | undefined): string {
   if (!value) return '';
-  if (value.startsWith('http://') || value.startsWith('https://')) {
+  const cleanValue = value.trim();
+  if (!cleanValue) return '';
+  if (cleanValue.startsWith('http://') || cleanValue.startsWith('https://')) {
     try {
-      const parsed = new URL(value);
-      if (
-        parsed.hostname.includes('ultimamilla.com.ar') &&
-        /\.(jpg|jpeg|png|webp|gif)$/i.test(parsed.pathname)
-      ) {
+      const parsed = new URL(cleanValue);
+      if (PUBLIC_BLOG_IMAGE_HOSTS.has(parsed.hostname) && isLocalBlogImagePath(parsed.pathname)) {
         return parsed.pathname;
       }
-      if (parsed.pathname.startsWith('/uploads/') || parsed.pathname.startsWith('/images/')) {
-        return parsed.pathname;
+      if (EXTERNAL_BLOG_IMAGE_HOSTS.has(parsed.hostname) && /^\/photo-[a-z0-9-]+$/i.test(parsed.pathname)) {
+        return parsed.toString();
       }
     } catch {
-      /* keep absolute URL below */
+      return '';
     }
-    return value;
+    return '';
   }
-  if (value.startsWith('/')) {
-    return value;
+  if (cleanValue.startsWith('/')) {
+    return isLocalBlogImagePath(cleanValue) ? cleanValue : '';
   }
-  if (UUID_RE.test(value)) {
-    return (imageLocalMap as Record<string, string>)[value] || `/api/asset/${value}`;
+  if (UUID_RE.test(cleanValue)) {
+    return (imageLocalMap as Record<string, string>)[cleanValue] || `/api/asset/${cleanValue}`;
   }
   return '';
 }

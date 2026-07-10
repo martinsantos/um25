@@ -1,521 +1,1646 @@
 ---
-/**
- * Antecedentes Index - dossier editorial UMSA.
- * Public route is preserved; local template variants stay available in development.
- */
-
 import LayoutV4 from '../../layouts/LayoutV4.astro';
-import AntecedentesTemplateEditorial from '../../components/templates/AntecedentesTemplateEditorial.astro';
-import AntecedentesTemplateAtlas from '../../components/templates/AntecedentesTemplateAtlas.astro';
-import IntentLinkGraph from '../../components/um/IntentLinkGraph.astro';
-import { getAllAntecedentes, getAntecedenteImageUrl } from '../../lib/directus.ts';
-import { getDevTemplateVariant } from '../../utils/templateVariant';
-import {
-  buildAntecedenteListItemStructuredData,
-  curateAntecedente,
-  isPromotableAntecedente,
-  sortAntecedentesForPublicList,
-} from '../../utils/antecedentesCuration';
-import { canonicalUrl } from '../../utils/seoUrl';
-import {
-  buildCaseStrategicLinkGroups,
-  buildStrategicWebPageStructuredData,
-} from '../../data/strategicLinkGraph';
-import { editorialImages, editorialImageDimensions, generatedAntecedenteImageDimensions } from '../../data/editorialImageSystem';
+import { getAntecedentes, getServicios } from '../../lib/um26-directus';
 
-const PAGE_SIZE = 12;
+const heroImage = '/img/antecedentes/3068.webp';
 
-const getUrlParams = (url) => {
-  const searchParams = new URL(url).searchParams;
-  const resetFilters = searchParams.get('reset') === '1';
-  const requestedView = searchParams.get('view') || 'list';
-  const requestedSort = searchParams.get('sort') || 'newest';
+const sectors = [
+  ['aeropuertos', 'Aeropuertos', '14', '#1A56C0'],
+  ['bodegas', 'Bodegas', '16', '#2D8A2D'],
+  ['constructoras', 'Constructoras', '13', '#A1A1AA'],
+  ['gobierno', 'Gobierno', '17', '#1A56C0'],
+  ['industria', 'Industria', '15', '#DC2626'],
+  ['mineria', 'Minería', '10', '#71717A'],
+  ['salud', 'Salud', '16', '#DC2626'],
+  ['seguridad', 'Seguridad', '11', '#FAFAFA'],
+  ['software', 'Software', '8', '#1A56C0'],
+];
 
-  const activeFilters = resetFilters
-    ? { area: '', cliente: '', unidad_negocio: '', sector: '' }
-    : {
-        area: searchParams.get('area') || '',
-        cliente: searchParams.get('cliente') || '',
-        unidad_negocio: searchParams.get('unidad_negocio') || '',
-        sector: searchParams.get('sector') || ''
-      };
+const services = [
+  ['redes', 'Redes', '41'],
+  ['seguridad-electronica', 'Seguridad electrónica', '28'],
+  ['telecomunicaciones', 'Telecomunicaciones', '13'],
+  ['software', 'Software a medida', '21'],
+  ['soporte', 'Soporte 24/7', '64'],
+  ['consultoria', 'Consultoría IT', '32'],
+  ['incendios', 'Detección de incendios', '23'],
+  ['electricos', 'Eléctricos IT', '18'],
+];
 
+const years = [
+  ['2025', '16'],
+  ['2024', '47'],
+  ['2023', '40'],
+  ['2022', '16'],
+  ['2021', '1'],
+];
+
+const statuses = [
+  ['verificado', 'Verificado', '69', '#2D8A2D'],
+  ['operativo', 'Operativo', '43', '#DC2626'],
+  ['mantenimiento', 'Mantenimiento', '8', '#71717A'],
+];
+
+const antecedentes = await getAntecedentes({ limit: 1000 });
+const initialResultCount = antecedentes.length;
+const serviciosCatalog = await getServicios();
+const antecedentesById = new Map(antecedentes.map((item) => [item.id, item]));
+const serviciosByCode = new Map(serviciosCatalog.map((item) => [item.code, item]));
+const sectorLabelMap = new Map(sectors.map(([key, label]) => [key, label]));
+const statusLabelMap = {
+  verificado: 'Verificado',
+  operativo: 'Operativo',
+  mantenimiento: 'Mantenimiento',
+};
+
+const demoLeadOrder = [3043, 3029, 3111, 3013, 3022, 3037, 3066, 3031, 3028, 3067, 3068, 3071];
+const orderedLeadCases = demoLeadOrder
+  .map((id) => antecedentesById.get(id))
+  .filter(Boolean);
+const fallbackCases = antecedentes
+  .filter((item) => !demoLeadOrder.includes(item.id));
+
+const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
+  const caseServices = item.service_codes
+    .map((code) => serviciosByCode.get(code))
+    .filter(Boolean);
   return {
-    searchQuery: searchParams.get('q') || '',
-    currentPage: Math.max(1, parseInt(searchParams.get('page') || '1')),
-    activeFilters,
-    archiveView: ['list', 'grid'].includes(requestedView) ? requestedView : 'list',
-    archiveSort: ['newest', 'oldest', 'client'].includes(requestedSort) ? requestedSort : 'newest',
-    pageSize: PAGE_SIZE
+    id: String(item.id),
+    client: item.client,
+    title: item.title,
+    summary: item.summary,
+    year: String(item.year),
+    location: item.location,
+    sector: sectorLabelMap.get(item.sector_slug) || item.sector_slug,
+    sectorKey: item.sector_slug,
+    status: item.status,
+    statusLabel: statusLabelMap[item.status],
+    image: item.image,
+    href: `/antecedentes/${item.id}/${item.slug}`,
+    tags: item.tags,
+    scope: item.scope,
+    serviceCodes: item.service_codes.map(String),
+    serviceNames: caseServices.map((service) => service.name),
+    serviceSlugs: caseServices.map((service) => service.slug),
+    variant: index === 0 ? 'featured' : index === 5 ? 'wide' : undefined,
   };
-};
-
-let pageData = {
-  antecedentes: [],
-  error: null,
-  totalItems: 0,
-  totalPages: 1,
-  isLoading: true,
-  ...getUrlParams(Astro.request?.url || Astro.url)
-};
-
-const sectorKeywords: Record<string, string[]> = {
-  aeropuertos: ['aeropuerto', 'aeroportuario', 'aviación', 'aviacion', 'terminal aérea', 'aerolinea'],
-  bodegas: ['bodega', 'vino', 'vitivinícola', 'vitivinicola', 'viñedo', 'vinedo', 'enología'],
-  gobierno: ['gobierno', 'municipal', 'provincial', 'público', 'publico', 'ministerio', 'secretaría', 'legislatura'],
-  salud: ['hospital', 'clínica', 'clinica', 'sanatorio', 'salud', 'médico', 'medico', 'sanitario'],
-  construccion: ['constructora', 'construcción', 'construccion', 'edificio', 'torre', 'inmobiliaria', 'obra'],
-  industria: ['industria', 'industrial', 'fábrica', 'fabrica', 'planta', 'manufactura', 'producción'],
-  datacenter: ['data center', 'datacenter', 'centro de datos', 'servidor', 'rack', 'hosting'],
-  mineria: ['minería', 'mineria', 'mina', 'minero', 'extracción', 'yacimiento'],
-  seguridad: ['seguridad', 'cctv', 'videovigilancia', 'control acceso', 'alarma', 'monitoreo'],
-  software: ['software', 'desarrollo', 'aplicación', 'aplicacion', 'sistema', 'web', 'app'],
-};
-
-const safeText = (value = '') => String(value || '').toLowerCase();
-
-const filterAntecedentes = (antecedentes, filters, searchQuery) => {
-  let filtered = [...antecedentes];
-
-  if (searchQuery) {
-    const query = safeText(searchQuery);
-    filtered = filtered.filter((item) => {
-      const searchText = `${item.displayTitle || item.Titulo || ''} ${item.displayDescription || item.Descripcion || ''} ${item.Cliente || ''} ${item.Area || ''}`.toLowerCase();
-      return searchText.includes(query);
-    });
-  }
-
-  if (filters.sector && sectorKeywords[filters.sector]) {
-    const keywords = sectorKeywords[filters.sector];
-    filtered = filtered.filter((item) => {
-      const searchText = `${item.displayTitle || item.Titulo || ''} ${item.displayDescription || item.Descripcion || ''} ${item.Cliente || ''} ${item.Area || ''}`.toLowerCase();
-      return keywords.some((keyword) => searchText.includes(keyword.toLowerCase()));
-    });
-  }
-
-  if (filters.unidad_negocio) {
-    filtered = filtered.filter((item) => item.Unidad_de_negocio === filters.unidad_negocio);
-  }
-
-  if (filters.area) {
-    filtered = filtered.filter((item) => item.Area === filters.area);
-  }
-
-  if (filters.cliente) {
-    filtered = filtered.filter((item) => safeText(item.Cliente).includes(safeText(filters.cliente)));
-  }
-
-  return filtered;
-};
-
-const antecedenteTimestamp = (item) => {
-  const raw = item?.Fecha || item?.fecha || item?.displayYear || item?.year || item?.anio || '';
-  const parsed = new Date(raw);
-  if (!Number.isNaN(parsed.getTime())) return parsed.getTime();
-  const year = String(raw).match(/\b(19\d{2}|20\d{2})\b/)?.[1];
-  return year ? Date.UTC(Number(year), 0, 1) : 0;
-};
-
-const sortAntecedentesArchive = (antecedentes, sortMode) => {
-  const byTitle = (a, b) => String(a?.displayTitle || a?.Titulo || '').localeCompare(String(b?.displayTitle || b?.Titulo || ''), 'es');
-  const byClient = (a, b) => String(a?.Cliente || '').localeCompare(String(b?.Cliente || ''), 'es') || byTitle(a, b);
-  const byNewest = (a, b) => (antecedenteTimestamp(b) - antecedenteTimestamp(a)) || byTitle(a, b);
-  const byOldest = (a, b) => (antecedenteTimestamp(a) - antecedenteTimestamp(b)) || byTitle(a, b);
-
-  const comparators = {
-    newest: byNewest,
-    oldest: byOldest,
-    client: byClient,
-  };
-
-  return [...antecedentes].sort(comparators[sortMode] || byNewest);
-};
-
-const localGenerateSlug = (text = '') => {
-  if (!text || text === null || typeof text === 'undefined') {
-    return 'item';
-  }
-
-  const slug = String(text)
-    .toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^\w\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 100);
-
-  return slug || 'item';
-};
-
-const protagonistTargets = [
-  { terms: ['gobierno de mendoza', 'ministerio', 'municipalidad'] },
-  { terms: ['aeropuerto', 'aeropuertos argentina'] },
-  { terms: ['torre thays', 'thays', 'consorcio'] }
-];
-
-function pickProtagonistAntecedente(items: any[]) {
-  for (const target of protagonistTargets) {
-    const match = items.find((item) => {
-      const text = `${item.Cliente || ''} ${item.Titulo || ''} ${item.Area || ''} ${item.Descripcion || ''}`.toLowerCase();
-      return target.terms.some((term) => text.includes(term));
-    });
-    if (match) return match;
-  }
-  return items[0] || null;
-}
-
-let featuredAntecedente: any = null;
-let allAntecedentesForIndex: any[] = [];
-
-try {
-  const response = await getAllAntecedentes();
-
-  const allAntecedentes = sortAntecedentesForPublicList(response.map((item) => {
-    const curated = curateAntecedente({
-      ...item,
-      imageUrl: getAntecedenteImageUrl(item),
-    });
-
-    return {
-      ...curated,
-      slug: `${item.id}/${localGenerateSlug(item.Titulo)}`,
-    };
-  }));
-  allAntecedentesForIndex = allAntecedentes;
-
-  const filteredAntecedentes = sortAntecedentesArchive(sortAntecedentesForPublicList(
-    filterAntecedentes(allAntecedentes, pageData.activeFilters, pageData.searchQuery)
-  ), pageData.archiveSort);
-  const hasActiveFilters = Boolean(
-    pageData.searchQuery
-    || pageData.activeFilters.sector
-    || pageData.activeFilters.area
-    || pageData.activeFilters.cliente
-    || pageData.activeFilters.unidad_negocio
-  );
-
-  let spotlightAntecedentes;
-  let archivePool;
-
-  const isLandingPage = pageData.currentPage === 1 && !hasActiveFilters;
-
-  if (isLandingPage) {
-    const promotableAntecedentes = filteredAntecedentes.filter(isPromotableAntecedente);
-    const spotlightSource = promotableAntecedentes.length > 0 ? promotableAntecedentes : filteredAntecedentes;
-    featuredAntecedente = pickProtagonistAntecedente(spotlightSource);
-    const remaining = featuredAntecedente
-      ? filteredAntecedentes.filter((item) => item.id !== featuredAntecedente.id)
-      : filteredAntecedentes;
-    const secondarySource = remaining.filter(isPromotableAntecedente);
-    const secondarySpotlight = secondarySource.length >= 2 ? secondarySource.slice(0, 2) : remaining.slice(0, 2);
-    spotlightAntecedentes = featuredAntecedente ? [featuredAntecedente, ...secondarySpotlight] : filteredAntecedentes.slice(0, 3);
-    const spotlightIds = new Set(spotlightAntecedentes.map((item) => item.id));
-    archivePool = filteredAntecedentes.filter((item) => !spotlightIds.has(item.id));
-  } else {
-    spotlightAntecedentes = [];
-    archivePool = filteredAntecedentes;
-  }
-
-  const archiveStartIndex = (pageData.currentPage - 1) * PAGE_SIZE;
-  const archiveEndIndex = archiveStartIndex + PAGE_SIZE;
-
-  pageData = {
-    ...pageData,
-    antecedentes: archivePool.slice(archiveStartIndex, archiveEndIndex),
-    spotlightAntecedentes,
-    totalItems: filteredAntecedentes.length,
-    catalogTotalItems: allAntecedentes.length,
-    archiveTotalItems: archivePool.length,
-    totalPages: Math.max(1, Math.ceil(archivePool.length / PAGE_SIZE)),
-    hasActiveFilters,
-    isLandingPage,
-    error: null,
-    isLoading: false
-  };
-} catch (error) {
-  console.error('Error loading antecedentes from Directus:', error);
-  pageData = {
-    ...pageData,
-    antecedentes: [],
-    spotlightAntecedentes: [],
-    archiveTotalItems: 0,
-    hasActiveFilters: false,
-    isLandingPage: false,
-    error: 'Error loading projects',
-    isLoading: false
-  };
-}
-
-const searchQuery = pageData.searchQuery;
-const areaFilter = pageData.activeFilters.area;
-const unidadFilter = pageData.activeFilters.unidad_negocio;
-const sectorFilter = pageData.activeFilters.sector;
-
-const filterChips = [
-  { id: '', name: 'Todas', icon: 'grid' },
-  { id: 'aeropuertos', name: 'Aeropuertos', icon: 'plane' },
-  { id: 'bodegas', name: 'Bodegas', icon: 'wine' },
-  { id: 'gobierno', name: 'Gobierno', icon: 'landmark' },
-  { id: 'salud', name: 'Salud', icon: 'heart' },
-  { id: 'construccion', name: 'Construcción', icon: 'building' },
-  { id: 'industria', name: 'Industria', icon: 'factory' },
-  { id: 'datacenter', name: 'Data Center', icon: 'server' },
-  { id: 'mineria', name: 'Minería', icon: 'mountain' },
-  { id: 'seguridad', name: 'Seguridad', icon: 'shield' },
-  { id: 'software', name: 'Software', icon: 'code' },
-];
-
-const hasActiveArchiveFilters = Boolean(searchQuery || areaFilter || unidadFilter || sectorFilter);
-const activeSectorName = sectorFilter
-  ? filterChips.find((chip) => chip.id === sectorFilter)?.name || ''
-  : '';
-const isSearchResultPage = Boolean(searchQuery);
-
-const buildCanonicalPageUrl = (page: number) => {
-  const params = new URLSearchParams();
-  if (!isSearchResultPage) {
-    if (sectorFilter) params.set('sector', sectorFilter);
-    if (areaFilter) params.set('area', areaFilter);
-    if (unidadFilter) params.set('unidad_negocio', unidadFilter);
-  }
-  if (page > 1) params.set('page', String(page));
-  const query = params.toString();
-  return canonicalUrl(`/antecedentes${query ? `?${query}` : ''}`);
-};
-
-const currentCanonicalUrl = isSearchResultPage
-  ? canonicalUrl('/antecedentes')
-  : buildCanonicalPageUrl(pageData.currentPage);
-const previousPageUrl = !isSearchResultPage && pageData.currentPage > 1
-  ? buildCanonicalPageUrl(pageData.currentPage - 1)
-  : '';
-const nextPageUrl = !isSearchResultPage && pageData.currentPage < pageData.totalPages
-  ? buildCanonicalPageUrl(pageData.currentPage + 1)
-  : '';
-
-const pageTitle = pageData.currentPage > 1
-  ? `Archivo de antecedentes - página ${pageData.currentPage} | ULTIMA MILLA`
-  : activeSectorName
-    ? `Antecedentes en ${activeSectorName} | ULTIMA MILLA`
-  : hasActiveArchiveFilters
-      ? 'Archivo filtrado de antecedentes | ULTIMA MILLA'
-      : 'Evidencia operativa real | ULTIMA MILLA';
-
-const pageDescription = pageData.currentPage > 1
-  ? `Antecedentes técnicos de ULTIMA MILLA, página ${pageData.currentPage}: proyectos reales con cliente, sector, fecha e imagen asociada.`
-  : activeSectorName
-    ? `Antecedentes técnicos de ULTIMA MILLA relacionados con ${activeSectorName}: casos y proyectos reales con cliente, sector, fecha e imagen.`
-    : hasActiveArchiveFilters
-      ? 'Archivo filtrado de antecedentes técnicos de ULTIMA MILLA con proyectos reales, cliente, sector, fecha e imagen asociada.'
-      : 'Antecedentes técnicos de ULTIMA MILLA: proyectos reales de redes, seguridad electrónica, telecomunicaciones, software, soporte e infraestructura IT.';
-
-const templateVariant = getDevTemplateVariant(Astro.url, import.meta.env.DEV) ?? 'editorial';
-const visibleAntecedentes = [
-  ...(pageData.spotlightAntecedentes || []),
-  ...(pageData.antecedentes || []),
-].slice(0, 6);
-const pageOgImage = visibleAntecedentes.find((item: any) => item.imageUrl)?.imageUrl || editorialImages.defaultOg;
-const pageOgDimensions = pageOgImage.startsWith('/images/antecedentes/generated/')
-  ? generatedAntecedenteImageDimensions
-  : editorialImageDimensions;
-const crawlableAntecedenteIndex = allAntecedentesForIndex
-  .map((item) => ({
-    id: item.id,
-    title: item.displayTitle || item.Titulo || 'Antecedente técnico',
-    area: item.Area || item.Unidad_de_negocio || '',
-    href: `/antecedentes/${item.slug}`,
-    quality: item.curation?.quality || '',
-  }))
-  .sort((a, b) => String(a.title).localeCompare(String(b.title), 'es'));
-const antecedentesStrategicLinkGroups = buildCaseStrategicLinkGroups({
-  currentPath: '/antecedentes',
-  title: 'Evidencia operativa real',
-  summary: 'Antecedentes técnicos de redes, seguridad electrónica, telecomunicaciones, software, soporte e infraestructura IT.',
-  text: visibleAntecedentes.map((item: any) => `${item.displayTitle || item.Titulo || ''} ${item.displayDescription || item.Descripcion || ''} ${item.Cliente || ''} ${item.Area || ''}`).join(' '),
-  relatedCases: visibleAntecedentes.map((item: any) => ({
-    ...item,
-    href: item.slug ? `/antecedentes/${item.slug}` : '',
-  })),
 });
-const antecedentesStructuredData = buildStrategicWebPageStructuredData({
-  url: currentCanonicalUrl,
-  name: pageTitle.replace(/\s+\|\s+ULTIMA MILLA$/, ''),
-  description: pageDescription,
-  groups: antecedentesStrategicLinkGroups,
-});
-const structuredPageItems = [
-  ...(pageData.spotlightAntecedentes || []),
-  ...(pageData.antecedentes || []),
-];
-const structuredPositionOffset = pageData.currentPage > 1 ? (pageData.currentPage - 1) * PAGE_SIZE : 0;
-const antecedentesCollectionStructuredData = {
-  '@context': 'https://schema.org',
-  '@type': 'CollectionPage',
-  name: pageTitle.replace(/\s+\|\s+ULTIMA MILLA$/, ''),
-  description: pageDescription,
-  url: currentCanonicalUrl,
-  inLanguage: 'es-AR',
-  significantLink: [
-    'https://www.ultimamilla.com.ar/servicios',
-    'https://www.ultimamilla.com.ar/sectores',
-    'https://www.ultimamilla.com.ar/contacto',
-    ...structuredPageItems.slice(0, 8).map((item) => `https://www.ultimamilla.com.ar/antecedentes/${item.slug}`),
-  ],
-  mainEntity: {
-    '@type': 'ItemList',
-    numberOfItems: allAntecedentesForIndex.length,
-    itemListOrder: 'https://schema.org/ItemListOrderDescending',
-    itemListElement: structuredPageItems
-      .slice(0, 24)
-      .map((item, index) => buildAntecedenteListItemStructuredData(item, structuredPositionOffset + index + 1)),
-  },
-};
 ---
 
 <LayoutV4
-  title={pageTitle}
-  description={pageDescription}
-  keywords="casos exito tecnologia mendoza, proyectos telecomunicaciones, antecedentes cableado estructurado, portfolio seguridad electronica, software a medida casos"
-  image={pageOgImage}
-  imageWidth={pageOgDimensions.width}
-  imageHeight={pageOgDimensions.height}
-  canonical={currentCanonicalUrl}
-  noindex={isSearchResultPage}
-  structuredData={[antecedentesStructuredData, antecedentesCollectionStructuredData]}
+  title="Evidencia operativa real | ULTIMA MILLA"
+  description="Antecedentes operativos UMSA con cliente, sector, servicio aplicado y alcance técnico verificable."
+  image={heroImage}
 >
-  <Fragment slot="head">
-    {previousPageUrl && <link rel="prev" href={previousPageUrl} />}
-    {nextPageUrl && <link rel="next" href={nextPageUrl} />}
-  </Fragment>
-  {templateVariant === 'atlas' && (
-    <AntecedentesTemplateAtlas
-      pageData={pageData}
-      filterChips={filterChips}
-      sectorFilter={sectorFilter}
-      searchQuery={searchQuery}
-      areaFilter={areaFilter}
-      unidadFilter={unidadFilter}
-      pageSize={PAGE_SIZE}
-    />
-  )}
-  {templateVariant !== 'atlas' && (
-    <AntecedentesTemplateEditorial
-      pageData={pageData}
-      featuredAntecedente={featuredAntecedente}
-      filterChips={filterChips}
-      sectorFilter={sectorFilter}
-      searchQuery={searchQuery}
-      areaFilter={areaFilter}
-      unidadFilter={unidadFilter}
-      pageSize={PAGE_SIZE}
-    />
-  )}
-  <IntentLinkGraph
-    kicker="Para avanzar"
-    title="Usar la evidencia"
-    text="Pasá de casos reales a servicios aplicados, sectores similares o contacto técnico."
-    groups={antecedentesStrategicLinkGroups}
-  />
-  {crawlableAntecedenteIndex.length > 0 && (
-    <section class="antecedentes-crawl-index" aria-labelledby="antecedentes-crawl-index-title">
-      <div class="antecedentes-crawl-index__inner">
-        <details>
-          <summary id="antecedentes-crawl-index-title">
-            Índice completo de antecedentes
-            <span>{crawlableAntecedenteIndex.length} casos técnicos</span>
-          </summary>
-          <nav aria-label="Todos los antecedentes técnicos">
-            {crawlableAntecedenteIndex.map((item) => (
-              <a href={item.href}>
-                <strong>{item.title}</strong>
-                {item.area && <span>{item.area}</span>}
-              </a>
-            ))}
-          </nav>
-        </details>
+  <div class="um26-evidence">
+    <section class="um26-evidence-hero" aria-labelledby="evidence-title">
+      <img src={heroImage} alt="" loading="eager" decoding="async" fetchpriority="high" />
+      <div class="um26-evidence-hero__shade" aria-hidden="true"></div>
+      <div class="um26-shell">
+        <p class="um26-kicker"><span></span>04 / Evidencia</p>
+        <h1 id="evidence-title">
+          <span>Evidencia operativa</span>
+          <span>real.<i aria-hidden="true"></i></span>
+        </h1>
+        <p>518 antecedentes con cliente, sector y alcance técnico.</p>
       </div>
     </section>
-  )}
+
+    <main class="um26-shell um26-evidence-main">
+      <section class="um26-filters" aria-label="Filtros de antecedentes">
+        <label class="um26-search">
+          <input type="search" data-um26-search aria-label="Buscar por cliente, sector, servicio o alcance" placeholder="Buscar antecedentes…" />
+        </label>
+
+        <div class="um26-filter-row">
+          <strong>Sector</strong>
+          <div>
+            {sectors.map(([key, label, count, color]) => (
+              <button type="button" data-filter="sector" data-value={key} style={`--dot:${color};`}>
+                <i></i>{label}<span>{count}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div class="um26-filter-row">
+          <strong>Servicio</strong>
+          <div>
+            {services.map(([key, label, count]) => (
+              <button type="button" data-filter="service" data-value={key}>{label}<span>{count}</span></button>
+            ))}
+          </div>
+        </div>
+
+        <div class="um26-filter-split">
+          <div class="um26-filter-row">
+            <strong>Año</strong>
+            <div>
+              {years.map(([year, count]) => <button type="button" data-filter="year" data-value={year}>{year}<span>{count}</span></button>)}
+            </div>
+          </div>
+          <div class="um26-filter-row">
+            <strong>Estado</strong>
+            <div>
+              {statuses.map(([key, label, count, color]) => (
+                <button type="button" data-filter="status" data-value={key} style={`--dot:${color};`}>
+                  <i></i>{label}<span>{count}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="um26-results-bar" aria-label="Resultados">
+        <p>Resultados <strong data-result-count>{initialResultCount}</strong> <span>/ 518</span></p>
+        <div>
+          <button type="button" class="is-active" aria-label="Vista grilla" aria-pressed="true" data-view-toggle="grid">
+            <span class="um26-view-icon um26-view-icon--grid" aria-hidden="true"></span>
+          </button>
+          <button type="button" aria-label="Vista lista" aria-pressed="false" data-view-toggle="list">
+            <span class="um26-view-icon um26-view-icon--list" aria-hidden="true"></span>
+          </button>
+          <select aria-label="Ordenar antecedentes" data-sort-select>
+            <option value="recent">Más recientes</option>
+            <option value="oldest">Más antiguos</option>
+            <option value="client">Por cliente A-Z</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="um26-case-grid" aria-label="Antecedentes" data-case-grid>
+        {cases.map((item, index) => (
+          <button
+            type="button"
+            class:list={['um26-case-card', item.variant === 'featured' && 'um26-case-card--featured', item.variant === 'wide' && 'um26-case-card--wide']}
+            data-case-card
+            data-modal-target={item.id}
+            data-order={index}
+            data-client={item.client.toLowerCase()}
+            data-title={item.title.toLowerCase()}
+            data-search={`${item.client} ${item.title} ${item.summary} ${item.sector} ${item.tags.join(' ')} ${item.serviceNames.join(' ')}`.toLowerCase()}
+            data-sector={item.sectorKey}
+            data-status={item.status}
+            data-year={item.year}
+            data-tags={`${item.tags.join(' ')} ${item.serviceSlugs.join(' ')} ${item.serviceCodes.join(' ')}`.toLowerCase()}
+          >
+            {item.variant === 'wide' ? (
+              <>
+                <img src={item.image} alt="" loading="lazy" decoding="async" />
+                <div class="um26-case-card__body">
+                  <p>{item.client} · {item.year}</p>
+                  <h2>{item.title}</h2>
+                  <span>{item.summary}</span>
+                  <small>{item.sector} · #{item.id}</small>
+                </div>
+              </>
+            ) : item.variant === 'featured' ? (
+              <>
+                <img src={item.image} alt="" loading="eager" decoding="async" />
+                <b>#{item.id}</b>
+                <em>{item.status}</em>
+                <div class="um26-case-card__overlay">
+                  <p>{item.client} · {item.year}</p>
+                  <h2>{item.title}</h2>
+                  <span>{item.summary}</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div class="um26-case-card__thumb">
+                  <img src={item.image} alt="" loading={index < 12 ? 'eager' : 'lazy'} decoding="async" />
+                </div>
+                <div class="um26-case-card__body">
+                  <p>{item.client}</p>
+                  <h2>{item.title}</h2>
+                  <span>{item.summary}</span>
+                  <small>{item.sector} · {item.year} · #{item.id}</small>
+                </div>
+              </>
+            )}
+            <i aria-hidden="true"></i>
+          </button>
+        ))}
+      </section>
+
+      <div class="um26-case-modal-backdrop" data-case-modal-backdrop hidden>
+        <div class="um26-case-modal" role="dialog" aria-modal="true" aria-label="Ficha rápida de antecedente">
+          {cases.map((item) => (
+            <article class="um26-case-modal__panel" data-case-modal={item.id} hidden>
+              <button type="button" class="um26-case-modal__close" data-modal-close aria-label="Cerrar">×</button>
+              <p class="um26-case-modal__eyebrow"><span>#{item.id}</span> / {item.client}</p>
+              <h2>{item.title}</h2>
+              <div class="um26-case-modal__meta">
+                <span>{item.sector}</span>
+                <span>{item.year}</span>
+                <span>{item.location}</span>
+                <span>{item.statusLabel}</span>
+              </div>
+              <p class="um26-case-modal__summary">{item.summary}</p>
+
+              <div class="um26-case-modal__block">
+                <h3>Servicios aplicados</h3>
+                <div class="um26-case-modal__chips">
+                  {item.serviceNames.slice(0, 2).map((name) => <span>{name}</span>)}
+                </div>
+              </div>
+
+              <div class="um26-case-modal__block">
+                <h3>Alcance</h3>
+                <ul>
+                  {item.scope.map((scopeItem) => <li>{scopeItem}</li>)}
+                </ul>
+              </div>
+
+              <div class="um26-case-modal__block">
+                <h3>Tags</h3>
+                <div class="um26-case-modal__chips um26-case-modal__chips--muted">
+                  {item.tags.map((tag) => <span>#{tag}</span>)}
+                </div>
+              </div>
+
+              <footer>
+                <span>Ficha rápida · {item.id}</span>
+                <a href={item.href}>Ver detalle completo</a>
+              </footer>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <section class="um26-empty" data-empty hidden>
+        <h2>Sin evidencia que coincida</h2>
+        <p>No encontramos antecedentes con los filtros actuales. Probá con menos restricciones o limpiá filtros.</p>
+      </section>
+    </main>
+
+    <section class="um26-contact">
+      <div class="um26-shell">
+        <div class="um26-contact__panel">
+          <div>
+            <p class="um26-kicker"><span></span>Contacto rápido</p>
+            <h2>Ordenemos su infraestructura y su continuidad operativa.</h2>
+            <p>Respondemos en el día con un relevamiento técnico y una propuesta verificable.</p>
+          </div>
+          <div>
+            <a class="um26-btn um26-btn--red" href="mailto:contacto@ultimamilla.com.ar">contacto@ultimamilla.com.ar</a>
+            <span>Lun-Vie 08:00-18:00</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script is:inline data-astro-rerun define:vars={{ initialResultCount }}>
+    function initEvidencePage() {
+      const root = document.querySelector('.um26-evidence');
+      if (!root || root.getAttribute('data-ready') === 'true') return;
+      root.setAttribute('data-ready', 'true');
+
+      const search = root.querySelector('[data-um26-search]');
+      const cards = Array.from(root.querySelectorAll('[data-case-card]'));
+      const chips = Array.from(root.querySelectorAll('[data-filter]'));
+      const count = root.querySelector('[data-result-count]');
+      const empty = root.querySelector('[data-empty]');
+      const grid = root.querySelector('[data-case-grid]');
+      const viewButtons = Array.from(root.querySelectorAll('[data-view-toggle]'));
+      const sortSelect = root.querySelector('[data-sort-select]');
+      const filters = { sector: '', service: '', year: '', status: '' };
+      const modalBackdrop = root.querySelector('[data-case-modal-backdrop]');
+      const modalPanels = Array.from(root.querySelectorAll('[data-case-modal]'));
+      const closeModalButtons = Array.from(root.querySelectorAll('[data-modal-close]'));
+      let activeView = 'grid';
+
+      function numberValue(card, attribute) {
+        return Number(card.getAttribute(attribute) || 0);
+      }
+
+      function setView(view) {
+        activeView = view === 'list' ? 'list' : 'grid';
+        grid?.classList.toggle('um26-case-grid--list', activeView === 'list');
+        viewButtons.forEach((button) => {
+          const isActive = button.getAttribute('data-view-toggle') === activeView;
+          button.classList.toggle('is-active', isActive);
+          button.setAttribute('aria-pressed', String(isActive));
+        });
+      }
+
+      function sortCards() {
+        if (!grid) return;
+        const mode = String(sortSelect?.value || 'recent');
+        const ordered = cards.slice().sort((a, b) => {
+          if (mode === 'oldest') {
+            return numberValue(a, 'data-year') - numberValue(b, 'data-year') || numberValue(a, 'data-order') - numberValue(b, 'data-order');
+          }
+          if (mode === 'client') {
+            const client = String(a.getAttribute('data-client') || '').localeCompare(String(b.getAttribute('data-client') || ''), 'es');
+            return client || String(a.getAttribute('data-title') || '').localeCompare(String(b.getAttribute('data-title') || ''), 'es');
+          }
+          return numberValue(a, 'data-order') - numberValue(b, 'data-order');
+        });
+        ordered.forEach((card) => grid.appendChild(card));
+        applyFilters();
+      }
+
+      function applyFilters() {
+        const q = String(search?.value || '').trim().toLowerCase();
+        const hasActiveFilter = Boolean(q || filters.sector || filters.service || filters.year || filters.status);
+        let visible = 0;
+        for (const card of cards) {
+          const text = String(card.getAttribute('data-search') || '');
+          const tags = String(card.getAttribute('data-tags') || '');
+          const match =
+            (!q || text.includes(q)) &&
+            (!filters.sector || card.getAttribute('data-sector') === filters.sector) &&
+            (!filters.year || card.getAttribute('data-year') === filters.year) &&
+            (!filters.status || card.getAttribute('data-status') === filters.status) &&
+            (!filters.service || tags.includes(filters.service));
+          card.hidden = !match;
+          if (match) visible += 1;
+        }
+        if (count) count.textContent = String(hasActiveFilter ? visible : initialResultCount);
+        if (empty) empty.hidden = visible !== 0;
+      }
+
+      function closeCaseModal() {
+        if (!modalBackdrop) return;
+        modalBackdrop.hidden = true;
+        modalPanels.forEach((panel) => {
+          panel.hidden = true;
+        });
+        document.documentElement.classList.remove('um26-modal-open');
+      }
+
+      function openCaseModal(id) {
+        if (!modalBackdrop) return;
+        const activePanel = modalPanels.find((panel) => panel.getAttribute('data-case-modal') === id);
+        if (!activePanel) return;
+        modalPanels.forEach((panel) => {
+          panel.hidden = panel !== activePanel;
+        });
+        modalBackdrop.hidden = false;
+        document.documentElement.classList.add('um26-modal-open');
+      }
+
+      chips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+          const type = chip.getAttribute('data-filter');
+          const value = chip.getAttribute('data-value') || '';
+          if (!type) return;
+          filters[type] = filters[type] === value ? '' : value;
+          chips
+            .filter((item) => item.getAttribute('data-filter') === type)
+            .forEach((item) => item.classList.toggle('is-active', item === chip && filters[type] === value));
+          applyFilters();
+        });
+      });
+
+      cards.forEach((card) => {
+        card.addEventListener('click', () => {
+          openCaseModal(card.getAttribute('data-modal-target') || '');
+        });
+      });
+
+      viewButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          setView(button.getAttribute('data-view-toggle') || 'grid');
+        });
+      });
+
+      closeModalButtons.forEach((button) => {
+        button.addEventListener('click', closeCaseModal);
+      });
+
+      search?.addEventListener('input', applyFilters);
+      sortSelect?.addEventListener('change', sortCards);
+
+      modalBackdrop?.addEventListener('click', (event) => {
+        if (event.target === modalBackdrop) closeCaseModal();
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeCaseModal();
+      });
+
+      setView(activeView);
+      sortCards();
+    }
+
+    initEvidencePage();
+    document.addEventListener('astro:page-load', initEvidencePage);
+  </script>
+
+  <style>
+    :global(body[data-skin]) main {
+      background: #0a0a0b;
+    }
+
+    .um26-evidence {
+      background: #0a0a0b;
+      color: #fafafa;
+      font-family: var(--um-font-body);
+    }
+
+    .um26-shell {
+      width: min(1336px, calc(100% - 78px));
+      margin-inline: auto;
+    }
+
+    .um26-evidence-hero {
+      position: relative;
+      min-height: clamp(208px, 18vw, 230px);
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      isolation: isolate;
+    }
+
+    .um26-evidence-hero > img,
+    .um26-evidence-hero__shade {
+      position: absolute;
+      inset: 0;
+    }
+
+    .um26-evidence-hero > img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -3;
+    }
+
+    .um26-evidence-hero__shade {
+      z-index: -2;
+      background:
+        linear-gradient(105deg, rgba(10,10,11,0.94), rgba(10,10,11,0.62) 46%, rgba(10,10,11,0.22)),
+        linear-gradient(to top, #0a0a0b, rgba(10,10,11,0.55) 48%, transparent);
+    }
+
+    .um26-evidence-hero .um26-shell {
+      padding-block: 0 30px;
+    }
+
+    .um26-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      margin: 0 0 14px;
+      color: #dc2626;
+      font-family: var(--um-font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .um26-kicker span {
+      width: 36px;
+      height: 3px;
+      background: #dc2626;
+    }
+
+    .um26-evidence-hero h1,
+    .um26-case-card h2,
+    .um26-contact h2 {
+      margin: 0;
+      color: #fff;
+      font-family: var(--um-font-display);
+      font-weight: 800;
+      letter-spacing: -0.045em;
+      line-height: 0.94;
+    }
+
+    .um26-evidence-hero h1 {
+      max-width: 900px;
+      font-size: clamp(2.25rem, 3.55vw, 3.15rem);
+      text-shadow: 0 10px 38px rgba(0,0,0,0.65);
+    }
+
+    .um26-evidence-hero h1 span {
+      display: inline;
+    }
+
+    .um26-evidence-hero h1 i {
+      display: inline-block;
+      width: 8px;
+      height: 0.82em;
+      margin-left: 0.08em;
+      background: #dc2626;
+      transform: translateY(0.08em);
+      animation: um26-blink 1s steps(2, start) infinite;
+    }
+
+    @keyframes um26-blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    .um26-evidence-hero p:not(.um26-kicker) {
+      max-width: 680px;
+      margin: 10px 0 0;
+      color: #d4d4d8;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .um26-evidence-main {
+      position: relative;
+      padding-block: 26px 96px;
+      background: #0a0a0b;
+    }
+
+    :global(body[data-skin]) main.um26-evidence-main {
+      background: #0a0a0b !important;
+    }
+
+    .um26-evidence-main::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+
+    .um26-evidence-main > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .um26-filters {
+      display: grid;
+      gap: 12px;
+      margin-top: 0;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: #0b0b0d;
+    }
+
+    .um26-search {
+      display: block;
+      position: relative;
+    }
+
+    .um26-search span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+
+    .um26-search::before {
+      content: "";
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      width: 12px;
+      height: 12px;
+      transform: translateY(-50%);
+      border: 2px solid #dc2626;
+      border-radius: 50%;
+    }
+
+    .um26-search::after {
+      content: "";
+      position: absolute;
+      left: 26px;
+      top: calc(50% + 7px);
+      width: 7px;
+      height: 2px;
+      transform: rotate(45deg);
+      background: #dc2626;
+    }
+
+    .um26-search input {
+      width: 100%;
+      height: 52px;
+      padding: 0 18px 0 48px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: #121214;
+      color: #fff;
+      font: inherit;
+      font-size: 15px;
+      outline: none;
+      border-radius: 0;
+    }
+
+    .um26-search input:focus {
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220,38,38,0.15);
+    }
+
+    .um26-filter-row,
+    .um26-filter-split {
+      display: grid;
+      gap: 10px;
+    }
+
+    .um26-filter-row {
+      grid-template-columns: 116px minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .um26-filter-split {
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+    }
+
+    .um26-filter-row strong {
+      color: #71717a;
+      font-family: var(--um-font-logo);
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      padding-top: 6px;
+      white-space: nowrap;
+    }
+
+    .um26-filter-row div {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .um26-filter-row button {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 30px;
+      padding: 0 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: #121214;
+      color: #a1a1aa;
+      font: inherit;
+      font-size: 12px;
+      line-height: 1.45;
+      cursor: pointer;
+      transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+      border-radius: 0;
+      white-space: nowrap;
+    }
+
+    .um26-filter-row button:hover,
+    .um26-filter-row button.is-active {
+      border-color: #dc2626;
+      background: rgba(220,38,38,0.1);
+      color: #fff;
+    }
+
+    .um26-filter-row button i {
+      width: 7px;
+      height: 7px;
+      background: var(--dot, #dc2626);
+      border-radius: 50%;
+    }
+
+    .um26-filter-row button span {
+      color: #52525b;
+      font-family: var(--um-font-logo);
+      font-size: 10px;
+      margin-left: 1px;
+    }
+
+    .um26-results-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      min-height: 52px;
+      margin-top: 12px;
+      padding: 12px 18px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: #0b0b0d;
+    }
+
+    .um26-results-bar p {
+      margin: 0;
+      color: #71717a;
+      font-family: var(--um-font-logo);
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    .um26-results-bar strong {
+      margin-left: 10px;
+      color: #fff;
+      font-family: var(--um-font-display);
+      font-size: 1.82rem;
+      letter-spacing: -0.04em;
+      vertical-align: middle;
+    }
+
+    .um26-results-bar > div {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .um26-results-bar button,
+    .um26-results-bar select {
+      height: 34px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: #121214;
+      color: #a1a1aa;
+      padding-inline: 12px;
+      font: inherit;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .um26-results-bar select {
+      min-width: 164px;
+      appearance: auto;
+    }
+
+    .um26-results-bar button:hover,
+    .um26-results-bar select:hover {
+      border-color: rgba(220,38,38,0.55);
+      color: #fff;
+    }
+
+    .um26-results-bar button.is-active {
+      color: #0a0a0b;
+      background: #fafafa;
+    }
+
+    :global(body[data-skin]) .um26-evidence .um26-filters {
+      color: #fff !important;
+      background: #0b0b0d !important;
+      border-color: rgba(255,255,255,0.12) !important;
+    }
+
+    :global(body[data-skin]) .um26-evidence .um26-search input {
+      height: 52px !important;
+      background: #121214 !important;
+      border-color: rgba(255,255,255,0.14) !important;
+      color: #fff !important;
+      font-size: 15px !important;
+      line-height: 1.2 !important;
+    }
+
+    :global(body[data-skin]) .um26-evidence .um26-search input::placeholder {
+      color: #8b8b94 !important;
+      opacity: 1 !important;
+    }
+
+    :global(body[data-skin]) .um26-evidence .um26-filter-row strong {
+      font-size: 11px !important;
+      line-height: 1.2 !important;
+      color: #8b8b94 !important;
+    }
+
+    :global(body[data-skin]) .um26-evidence .um26-filter-row button,
+    :global(body[data-skin]) .um26-evidence .um26-filter-row button span {
+      min-height: 30px !important;
+      line-height: 1.35 !important;
+    }
+
+    :global(body[data-skin]) .um26-evidence .um26-filter-row button {
+      background: #121214 !important;
+      border-color: rgba(255,255,255,0.12) !important;
+      color: #a1a1aa !important;
+      font-size: 12px !important;
+    }
+
+    :global(body[data-skin]) .um26-evidence .um26-filter-row button:hover,
+    :global(body[data-skin]) .um26-evidence .um26-filter-row button.is-active {
+      background: rgba(220,38,38,0.12) !important;
+      border-color: rgba(220,38,38,0.8) !important;
+      color: #fff !important;
+    }
+
+    :global(body[data-skin]) .um26-evidence .um26-filter-row button span {
+      color: #60606a !important;
+      font-size: 10px !important;
+    }
+
+    :global(body[data-skin]) .um26-evidence .um26-results-bar p {
+      font-size: 11px !important;
+      line-height: 1.2 !important;
+      color: #8b8b94 !important;
+    }
+
+    :global(body[data-skin]) .um26-evidence .um26-results-bar strong {
+      color: #fff !important;
+    }
+
+    :global(body[data-skin]) .um26-evidence .um26-results-bar button,
+    :global(body[data-skin]) .um26-evidence .um26-results-bar select {
+      height: 34px !important;
+      min-height: 34px !important;
+      font-size: 14px !important;
+      line-height: 1.2 !important;
+      background: #121214 !important;
+      border-color: rgba(255,255,255,0.14) !important;
+      color: #a1a1aa !important;
+    }
+
+    :global(body[data-skin]) .um26-evidence .um26-results-bar button.is-active {
+      background: #f4f4f5 !important;
+      border-color: #f4f4f5 !important;
+      color: #111113 !important;
+    }
+
+    :global(body[data-skin]) .um26-evidence .um26-results-bar select {
+      color-scheme: dark;
+    }
+
+    .um26-view-icon {
+      display: block;
+      width: 14px;
+      height: 14px;
+    }
+
+    .um26-view-icon--grid {
+      background:
+        linear-gradient(currentColor 0 0) 0 0 / 5px 5px no-repeat,
+        linear-gradient(currentColor 0 0) 9px 0 / 5px 5px no-repeat,
+        linear-gradient(currentColor 0 0) 0 9px / 5px 5px no-repeat,
+        linear-gradient(currentColor 0 0) 9px 9px / 5px 5px no-repeat;
+    }
+
+    .um26-view-icon--list {
+      background:
+        linear-gradient(currentColor 0 0) 0 1px / 14px 2px no-repeat,
+        linear-gradient(currentColor 0 0) 0 6px / 14px 2px no-repeat,
+        linear-gradient(currentColor 0 0) 0 11px / 14px 2px no-repeat;
+    }
+
+    .um26-case-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-auto-rows: minmax(190px, auto);
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .um26-case-grid--list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-top: 18px;
+    }
+
+    .um26-case-card {
+      position: relative;
+      min-height: 230px;
+      display: flex;
+      color: #fff;
+      text-decoration: none;
+      background: #121214;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-left: 3px solid #1a56c0;
+      overflow: hidden;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.18s ease, border-color 0.18s ease;
+    }
+
+    .um26-case-card[hidden] {
+      display: none;
+    }
+
+    .um26-case-grid--list .um26-case-card[hidden] {
+      display: none;
+    }
+
+    .um26-case-card:hover {
+      background: #16161a;
+      border-color: rgba(220,38,38,0.5);
+      border-left-color: #dc2626;
+    }
+
+    .um26-case-card--featured {
+      grid-column: span 2;
+      grid-row: span 2;
+      border-left: 1px solid rgba(255,255,255,0.08);
+      min-height: 472px;
+    }
+
+    .um26-case-card--wide {
+      grid-column: span 2;
+      min-height: 230px;
+      border-left: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .um26-case-card:not(.um26-case-card--featured):not(.um26-case-card--wide) {
+      min-height: 342px;
+      flex-direction: column;
+    }
+
+    .um26-case-card > img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    .um26-case-card__thumb {
+      position: relative;
+      z-index: 1;
+      height: 118px;
+      flex: 0 0 118px;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: #0b0b0d;
+    }
+
+    .um26-case-card__thumb::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(10,10,11,0.04), rgba(10,10,11,0.42));
+      pointer-events: none;
+    }
+
+    .um26-case-card__thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: saturate(0.82) contrast(1.04) brightness(0.78);
+      transform: scale(1.01);
+      transition: transform 0.24s ease, filter 0.24s ease;
+    }
+
+    .um26-case-card:hover .um26-case-card__thumb img {
+      filter: saturate(0.94) contrast(1.07) brightness(0.88);
+      transform: scale(1.045);
+    }
+
+    .um26-case-grid--list .um26-case-card,
+    .um26-case-grid--list .um26-case-card--featured,
+    .um26-case-grid--list .um26-case-card--wide {
+      min-height: 126px;
+      flex-direction: row;
+      grid-column: auto;
+      grid-row: auto;
+      border-left-width: 1px;
+      border-bottom: 0;
+    }
+
+    .um26-case-grid--list .um26-case-card:last-child {
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .um26-case-grid--list .um26-case-card > img,
+    .um26-case-grid--list .um26-case-card--featured::before,
+    .um26-case-grid--list .um26-case-card--wide::before,
+    .um26-case-grid--list .um26-case-card b,
+    .um26-case-grid--list .um26-case-card em {
+      display: none;
+    }
+
+    .um26-case-grid--list .um26-case-card__thumb {
+      width: 156px;
+      height: auto;
+      min-height: 126px;
+      flex: 0 0 156px;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      border-bottom: 0;
+    }
+
+    .um26-case-card--wide > img {
+      position: static;
+      width: 180px;
+      height: auto;
+      object-fit: cover;
+      opacity: 0.88;
+    }
+
+    .um26-case-card--featured::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(to top, rgba(10,10,11,0.98), rgba(10,10,11,0.78) 48%, transparent);
+    }
+
+    .um26-case-card b,
+    .um26-case-card em {
+      position: absolute;
+      top: 16px;
+      z-index: 2;
+      font-family: var(--um-font-logo);
+      font-size: 11px;
+      font-style: normal;
+      letter-spacing: 0.12em;
+    }
+
+    .um26-case-card b {
+      left: 16px;
+      color: rgba(255,255,255,0.55);
+    }
+
+    .um26-case-card em {
+      right: 16px;
+      color: #2d8a2d;
+      text-transform: uppercase;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(10,10,11,0.74);
+      padding: 5px 8px;
+    }
+
+    .um26-case-card__overlay,
+    .um26-case-card__body {
+      position: relative;
+      z-index: 2;
+      padding: 26px;
+      align-self: end;
+      width: 100%;
+    }
+
+    .um26-case-grid--list .um26-case-card__overlay,
+    .um26-case-grid--list .um26-case-card__body {
+      align-self: center;
+      padding: 20px 28px;
+    }
+
+    .um26-case-grid--list .um26-case-card h2 {
+      max-width: 780px;
+      font-size: 1.05rem;
+      line-height: 1.2;
+    }
+
+    .um26-case-grid--list .um26-case-card span {
+      max-width: 780px;
+      margin-top: 8px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .um26-case-grid--list .um26-case-card p {
+      margin-bottom: 8px;
+      font-size: 11px;
+      font-family: var(--um-font-logo);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .um26-case-grid--list .um26-case-card small {
+      position: absolute;
+      right: 28px;
+      bottom: 20px;
+      margin-top: 0;
+      padding-top: 0;
+    }
+
+    .um26-case-card__body {
+      align-self: stretch;
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+    }
+
+  .um26-case-card p {
+    margin: 0 0 14px;
+    color: #a1a1aa;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+    .um26-case-card h2 {
+      font-size: clamp(1.25rem, 1.6vw, 1.65rem);
+      line-height: 1.12;
+      letter-spacing: -0.025em;
+      transition: color 0.18s ease;
+    }
+
+    .um26-case-card--featured h2 {
+      font-size: clamp(1.8rem, 2.5vw, 2.65rem);
+    }
+
+    .um26-case-card:hover h2 {
+      color: #dc2626;
+    }
+
+    .um26-case-card span {
+      display: block;
+      margin-top: 14px;
+      color: #a1a1aa;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .um26-case-card small {
+      display: block;
+      margin-top: auto;
+      padding-top: 22px;
+      color: #1a56c0;
+      font-family: var(--um-font-logo);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .um26-case-card > i {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 3px;
+      background: #dc2626;
+      z-index: 4;
+      transition: width 0.25s ease;
+    }
+
+    .um26-case-card:hover > i {
+      width: 100%;
+    }
+
+    :global(.um26-modal-open) {
+      overflow: hidden;
+    }
+
+    .um26-case-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: var(--um-z-overlay);
+      display: grid;
+      place-items: start center;
+      padding-top: 117px;
+      background: rgba(3,3,4,0.72);
+      backdrop-filter: blur(1px);
+    }
+
+    .um26-evidence-main > .um26-case-modal-backdrop {
+      position: fixed;
+      z-index: var(--um-z-overlay);
+    }
+
+    .um26-case-modal-backdrop[hidden] {
+      display: none;
+    }
+
+    .um26-case-modal {
+      width: min(671px, calc(100vw - 40px));
+      max-height: calc(100vh - 142px);
+      overflow: hidden auto;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-top: 3px solid #dc2626;
+      background: #101012;
+    }
+
+    .um26-case-modal__panel {
+      position: relative;
+      display: grid;
+      gap: 16px;
+      min-height: 530px;
+      padding: 23px 24px 0;
+    }
+
+    .um26-case-modal__panel[hidden] {
+      display: none;
+    }
+
+    .um26-case-modal__close {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      width: 28px;
+      height: 28px;
+      border: 0;
+      background: transparent;
+      color: #a1a1aa;
+      font-size: 26px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .um26-case-modal__close:hover {
+      color: #fff;
+    }
+
+    .um26-case-modal__eyebrow,
+    .um26-case-modal h3,
+    .um26-case-modal footer span {
+      margin: 0;
+      color: #dc2626;
+      font-family: var(--um-font-logo);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    .um26-case-modal__eyebrow {
+      color: #8b8b94;
+    }
+
+    .um26-case-modal__eyebrow span {
+      color: #dc2626;
+    }
+
+    .um26-case-modal h2 {
+      max-width: 620px;
+      margin: -14px 0 0;
+      color: #fff;
+      font-family: var(--um-font-display);
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.06;
+    }
+
+    .um26-case-modal__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin-top: -8px;
+      color: #a1a1aa;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .um26-case-modal__meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .um26-case-modal__meta span::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #71717a;
+    }
+
+    .um26-case-modal__summary {
+      max-width: 590px;
+      margin: 0;
+      color: #a1a1aa;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .um26-case-modal__block {
+      display: grid;
+      gap: 10px;
+    }
+
+    .um26-case-modal__chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .um26-case-modal__chips span {
+      display: inline-flex;
+      min-height: 29px;
+      align-items: center;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: #151518;
+      padding: 0 10px;
+      color: #fff;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .um26-case-modal__chips--muted span {
+      color: #a1a1aa;
+    }
+
+    .um26-case-modal ul {
+      display: grid;
+      gap: 9px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: #a1a1aa;
+      font-size: 15px;
+    }
+
+    .um26-case-modal li {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .um26-case-modal li::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      flex: 0 0 6px;
+      border-radius: 50%;
+      background: #dc2626;
+    }
+
+    .um26-case-modal footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 77px;
+      margin: 0 -24px;
+      margin-top: auto;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding: 18px 19px 18px 20px;
+      background: #0e0e10;
+    }
+
+    .um26-case-modal footer span {
+      color: #71717a;
+      font-size: 10px;
+    }
+
+    .um26-case-modal footer a {
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      background: #dc2626;
+      padding: 0 22px;
+      color: #fff;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .um26-case-modal footer a::after {
+      content: "↗";
+      margin-left: 10px;
+      font-size: 14px;
+    }
+
+    .um26-empty {
+      margin-top: 30px;
+      padding: 48px;
+      border: 1px dashed rgba(255,255,255,0.14);
+      background: #121214;
+      text-align: center;
+    }
+
+    .um26-empty h2 {
+      margin: 0;
+      font-family: var(--um-font-display);
+      font-size: 2rem;
+    }
+
+    .um26-empty p {
+      color: #a1a1aa;
+    }
+
+    .um26-contact {
+      padding-block: 0 110px;
+      background: #0a0a0b;
+    }
+
+    .um26-contact__panel {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 72px;
+      align-items: center;
+      padding: clamp(42px, 5vw, 72px);
+      border: 1px solid rgba(255,255,255,0.1);
+      background: radial-gradient(circle at 88% 2%, rgba(220,38,38,0.24), transparent 30%), #0f0f11;
+    }
+
+    .um26-contact h2 {
+      max-width: 760px;
+      font-size: clamp(2.4rem, 4vw, 4.4rem);
+    }
+
+    .um26-contact p:not(.um26-kicker) {
+      max-width: 520px;
+      margin: 22px 0 0;
+      color: #a1a1aa;
+      line-height: 1.6;
+    }
+
+    .um26-contact__panel > div:last-child {
+      display: grid;
+      gap: 14px;
+      min-width: min(100%, 360px);
+    }
+
+    .um26-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 52px;
+      padding: 0 28px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .um26-btn::after {
+      content: ">";
+      margin-left: 10px;
+    }
+
+    .um26-btn--red {
+      background: #dc2626;
+      border: 1px solid #dc2626;
+    }
+
+    .um26-contact__panel span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 52px;
+      border: 1px solid rgba(255,255,255,0.16);
+      padding: 0 24px;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    @media (max-width: 1100px) {
+      .um26-filter-split,
+      .um26-contact__panel {
+        grid-template-columns: 1fr;
+      }
+
+      .um26-case-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .um26-shell {
+        width: min(100% - 28px, 1400px);
+      }
+
+      .um26-evidence-hero {
+        min-height: auto;
+      }
+
+      .um26-evidence-hero .um26-shell {
+        padding-block: 92px 18px;
+      }
+
+      .um26-evidence-hero h1 {
+        max-width: 362px;
+        font-size: clamp(1.9rem, 8.5vw, 2.05rem);
+        line-height: 0.94;
+      }
+
+      .um26-evidence-hero p:not(.um26-kicker) {
+        margin-top: 14px;
+        font-size: 0.875rem;
+        line-height: 1.45;
+      }
+
+      .um26-filter-row {
+        grid-template-columns: 78px minmax(0, 1fr);
+        align-items: center;
+        gap: 8px;
+      }
+
+      .um26-filter-row strong {
+        padding-top: 0;
+        color: rgba(255,255,255,0.72);
+        font-family: var(--um-font-body);
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        line-height: 1;
+      }
+
+      .um26-filter-row div {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 0;
+        scrollbar-width: none;
+        overscroll-behavior-inline: contain;
+        mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 34px), transparent 100%);
+      }
+
+      .um26-filter-row div::-webkit-scrollbar {
+        display: none;
+      }
+
+      .um26-filter-row button {
+        flex: 0 0 auto;
+        min-height: 34px;
+        padding-inline: 10px;
+        font-size: 1rem;
+      }
+
+      .um26-filter-row button span {
+        display: none;
+      }
+
+      :global(body[data-skin]) .um26-evidence .um26-filter-row strong {
+        color: rgba(255,255,255,0.72) !important;
+        font-family: var(--um-font-body) !important;
+        font-size: 1rem !important;
+        font-weight: 700 !important;
+        line-height: 1 !important;
+      }
+
+      :global(body[data-skin]) .um26-evidence .um26-filter-row button {
+        min-height: 34px !important;
+        color: #c7cedd !important;
+        font-size: 1rem !important;
+        line-height: 1.2 !important;
+      }
+
+      :global(body[data-skin]) .um26-evidence .um26-filter-row button span {
+        display: none !important;
+      }
+
+      .um26-filters {
+        gap: 10px;
+        padding: 12px 10px;
+      }
+
+      .um26-filter-split {
+        display: contents;
+      }
+
+      .um26-search input {
+        height: 44px;
+        padding-left: 46px;
+        font-size: 1rem;
+      }
+
+      .um26-results-bar {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+        min-height: auto;
+        padding: 14px 10px;
+      }
+
+      .um26-results-bar > div {
+        width: 100%;
+        justify-content: flex-end;
+      }
+
+      .um26-case-grid {
+        margin-top: 8px;
+      }
+
+      .um26-case-grid { grid-template-columns: 1fr; }
+
+      .um26-case-card,
+      .um26-case-card--featured,
+      .um26-case-card--wide {
+        grid-column: auto;
+        grid-row: auto;
+        min-height: 290px;
+      }
+
+      .um26-case-card--wide > img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .um26-case-card--wide::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(10,10,11,0.98), rgba(10,10,11,0.58), transparent);
+        z-index: 1;
+      }
+
+      .um26-case-modal-backdrop {
+        padding-top: 84px;
+      }
+
+      .um26-case-modal {
+        width: calc(100vw - 28px);
+        max-height: calc(100vh - 104px);
+      }
+
+      .um26-case-modal__panel {
+        min-height: auto;
+        padding: 22px 20px 0;
+      }
+
+      .um26-case-modal h2 {
+        font-size: 24px;
+      }
+
+      .um26-case-modal footer {
+        align-items: stretch;
+        flex-direction: column;
+        margin-inline: -20px;
+      }
+
+      .um26-contact {
+        padding-bottom: 80px;
+      }
+
+      .um26-contact__panel {
+        padding: 30px 22px;
+        gap: 28px;
+      }
+    }
+  </style>
 </LayoutV4>
-
-<style>
-  .antecedentes-crawl-index {
-    background: #ffffff;
-    border-top: 1px solid #e5e7eb;
-    padding: 28px 0 56px;
-  }
-
-  .antecedentes-crawl-index__inner {
-    max-width: 1120px;
-    margin: 0 auto;
-    padding: 0 24px;
-  }
-
-  .antecedentes-crawl-index details {
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    background: #f9fafb;
-  }
-
-  .antecedentes-crawl-index summary {
-    cursor: pointer;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 18px 20px;
-    color: #111827;
-    font-size: 18px;
-    font-weight: 700;
-  }
-
-  .antecedentes-crawl-index summary span {
-    color: #6b7280;
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  .antecedentes-crawl-index nav {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1px;
-    border-top: 1px solid #e5e7eb;
-    background: #e5e7eb;
-  }
-
-  .antecedentes-crawl-index a {
-    display: grid;
-    gap: 4px;
-    min-width: 0;
-    padding: 12px 14px;
-    background: #ffffff;
-    color: #111827;
-    text-decoration: none;
-  }
-
-  .antecedentes-crawl-index a:hover,
-  .antecedentes-crawl-index a:focus-visible {
-    background: color-mix(in srgb, #ffffff 92%, var(--um-red, #dc2626) 8%);
-    outline: none;
-  }
-
-  .antecedentes-crawl-index strong,
-  .antecedentes-crawl-index span {
-    overflow-wrap: anywhere;
-  }
-
-  .antecedentes-crawl-index strong {
-    font-size: 16px;
-    line-height: 1.35;
-    font-weight: 700;
-  }
-
-  .antecedentes-crawl-index a span {
-    color: #6b7280;
-    font-size: 16px;
-    line-height: 1.35;
-  }
-</style>

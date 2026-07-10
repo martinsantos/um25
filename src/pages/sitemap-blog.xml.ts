@@ -3,6 +3,7 @@ import { SITE_URL } from '../config/seo';
 import { blogPosts as fallbackBlogPosts } from '../data/blog-posts';
 import { isCanonicalBlogSlug } from '../data/seoRedirects';
 import { addVisibleBlogStatusFilter } from '../utils/blogPublishing';
+import { diversifyBlogPostCovers } from '../utils/blogCoverDiversity.js';
 import { canonicalUrl, escapeXml, formatSitemapDate, publicImageUrl } from '../utils/seoUrl';
 
 const DIRECTUS_URL =
@@ -15,6 +16,7 @@ interface BlogPost {
   slug: string;
   fecha_publicacion: string;
   imagen_portada?: string | null;
+  categoria?: string;
   titulo: string;
 }
 
@@ -52,21 +54,22 @@ async function fetchPublishedPosts(): Promise<BlogPost[]> {
     const params = addVisibleBlogStatusFilter(new URLSearchParams());
     params.set('sort', '-fecha_publicacion');
     params.set('limit', '200');
-    params.set('fields', 'slug,titulo,fecha_publicacion,imagen_portada');
+    params.set('fields', 'slug,titulo,categoria,fecha_publicacion,imagen_portada');
     const res = await fetch(
       `${DIRECTUS_URL}/items/blog_posts?${params.toString()}`,
       { headers }
     );
     if (!res.ok) throw new Error(`Directus blog sitemap returned ${res.status}`);
     const data = await res.json();
-    return ((data.data || []) as BlogPost[]).filter((post) => isCanonicalBlogSlug(post.slug));
+    return diversifyBlogPostCovers(((data.data || []) as BlogPost[])
+      .filter((post) => isCanonicalBlogSlug(post.slug))) as BlogPost[];
   } catch {
-    return fallbackBlogPosts.filter((post) => isCanonicalBlogSlug(post.slug)).map((post) => ({
+    return diversifyBlogPostCovers(fallbackBlogPosts.filter((post) => isCanonicalBlogSlug(post.slug)).map((post) => ({
       slug: post.slug,
       titulo: post.title,
       fecha_publicacion: parseFallbackBlogDate(post.date),
       imagen_portada: post.image,
-    }));
+    }))) as BlogPost[];
   }
 }
 

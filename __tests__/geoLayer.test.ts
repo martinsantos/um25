@@ -65,6 +65,7 @@ describe('GEO layer', () => {
     expect(staticRobots).toContain('Claude-SearchBot');
     expect(geoUrls).toEqual(expect.arrayContaining([
       'https://www.ultimamilla.com.ar/llms.txt',
+      'https://www.ultimamilla.com.ar/geo/score',
       'https://www.ultimamilla.com.ar/geo/services.json',
       'https://www.ultimamilla.com.ar/geo/image-evidence.json',
       'https://www.ultimamilla.com.ar/sitemap-images.xml',
@@ -89,6 +90,7 @@ describe('GEO layer', () => {
       'src/pages/geo/image-evidence.json.ts',
       'src/pages/geo/faqs.json.ts',
       'src/pages/geo/index.astro',
+      'src/pages/geo/score.astro',
       'src/pages/servicios-it-empresas-mendoza.astro',
       'src/pages/presupuesto-servicios-it-empresas.astro',
       'src/pages/proyectos-ingenieria-it-mendoza.astro',
@@ -153,6 +155,7 @@ describe('GEO layer', () => {
       'https://www.ultimamilla.com.ar/proyectos-ingenieria-it-mendoza',
       'https://www.ultimamilla.com.ar/servicios-it-empresas-argentina',
       'https://www.ultimamilla.com.ar/geo',
+      'https://www.ultimamilla.com.ar/geo/score',
       'https://www.ultimamilla.com.ar/geo/authority.json',
     ]));
   });
@@ -182,12 +185,24 @@ describe('GEO layer', () => {
     expect(geoPage).toContain('Centro GEO para asistentes y buscadores IA');
     expect(geoPage).toContain('/llms.txt');
     expect(geoPage).toContain('/llms-full.txt');
+    expect(geoPage).toContain('/geo/score');
     expect(geoPage).toContain('/geo/authority.json');
     expect(geoPage).toContain('/geo/brand-facts.json');
     expect(geoPage).toContain('/servicios-it-empresas-mendoza');
     expect(geoPage).toContain('OAI-SearchBot');
     expect(geoPage).toContain('Claude-SearchBot');
     expect(geoPage).toContain('servicios informaticos para empresas');
+  });
+
+  test('publishes a human-readable GEO scoring dashboard using the shared scorer', () => {
+    const scorePage = fs.readFileSync(path.join(repoRoot, 'src/pages/geo/score.astro'), 'utf8');
+
+    expect(scorePage).toContain('runGeoScore');
+    expect(scorePage).toContain('Scoring publico del sistema GEO');
+    expect(scorePage).toContain('/llms-full.txt');
+    expect(scorePage).toContain('/sitemap-geo.xml');
+    expect(scorePage).toContain('geo-seo-claude');
+    expect(scorePage).toContain('Cache-Control');
   });
 
   test('keeps the shared footer crawler-friendly on GEO pages', () => {

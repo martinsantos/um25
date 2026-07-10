@@ -2,6 +2,8 @@ import { SITE_URL } from '../config/seo';
 
 const UUID_RE = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 const PUBLIC_SITE_RE = /^https?:\/\/(?:www\.)?ultimamilla\.com\.ar/i;
+const PUBLIC_IMAGE_HOSTS = new Set(['ultimamilla.com.ar', 'www.ultimamilla.com.ar']);
+const EXTERNAL_IMAGE_HOSTS = new Set(['images.unsplash.com']);
 
 export function stripWww(url: string): string {
   return url.replace(PUBLIC_SITE_RE, SITE_URL);
@@ -39,7 +41,18 @@ export function publicImageUrl(image: unknown): string | null {
   if (!image) return null;
 
   if (typeof image === 'string') {
-    if (image.startsWith('http')) return stripWww(image);
+    if (image.startsWith('http')) {
+      try {
+        const parsed = new URL(image);
+        if (EXTERNAL_IMAGE_HOSTS.has(parsed.hostname) && /^\/photo-[a-z0-9-]+$/i.test(parsed.pathname)) {
+          return parsed.toString();
+        }
+        if (!PUBLIC_IMAGE_HOSTS.has(parsed.hostname)) return null;
+      } catch {
+        return null;
+      }
+      return stripWww(image);
+    }
     if (image.startsWith('/')) return canonicalUrl(image);
     if (UUID_RE.test(image)) return canonicalUrl(`/assets/${image}`);
     return null;

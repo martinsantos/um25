@@ -161,6 +161,7 @@ export const GEO_DISCOVERY_URLS = [
   canonicalUrl('/llms.txt'),
   canonicalUrl('/llms-full.txt'),
   canonicalUrl('/geo'),
+  canonicalUrl('/geo/score'),
   canonicalUrl('/geo/brand-facts.json'),
   canonicalUrl('/geo/services.json'),
   canonicalUrl('/geo/sectors.json'),

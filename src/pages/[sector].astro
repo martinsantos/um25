@@ -7,13 +7,13 @@
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import SectorTemplateEditorial from '../components/templates/SectorTemplateEditorial.astro';
 import SectorTemplateAtlas from '../components/templates/SectorTemplateAtlas.astro';
+import SectorTemplateUM26 from '../components/templates/SectorTemplateUM26.astro';
 import GeoHubDossier from '../components/templates/GeoHubDossier.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getSectorBySlug, getAntecedentesForSector } from '../utils/sectoresHelpers.ts';
 import { getFAQSchema } from '../data/sectorFAQs';
 import { getSectorVisualSpec } from '../data/sectorVisualSystem';
 import { editorialImageDimensions, editorialImages, getSectorEditorialImage } from '../data/editorialImageSystem';
-import { getDevTemplateVariant } from '../utils/templateVariant';
 import { resolveCmsImageUrl } from '../utils/directusImageResolver';
 import { buildGeoHubStructuredData, getGeoCommercialHub } from '../data/geoCommercialHubs';
 import {
@@ -23,14 +23,19 @@ import {
 } from '../data/strategicLinkGraph';
 import { getReplicaProdEntry, isReplicaIdenticalCopy, resolveReplicaH1 } from '../utils/replicaProdCopy';
 
-const sectorSlug = Astro.params.sector || '';
-const legacyRedirectTarget = getLegacyRedirectTarget(sectorSlug);
+const requestedSectorSlug = Astro.params.sector || '';
+const sectorSlugAliases: Record<string, string> = {
+  gobierno: 'gobiernosectorpublico',
+};
+const sectorSlug = sectorSlugAliases[requestedSectorSlug] || requestedSectorSlug;
+const publicSectorSlug = requestedSectorSlug;
+const legacyRedirectTarget = getLegacyRedirectTarget(publicSectorSlug);
 
 if (legacyRedirectTarget) {
   return Astro.redirect(legacyRedirectTarget, 301);
 }
 
-const geoHub = getGeoCommercialHub(sectorSlug);
+const geoHub = getGeoCommercialHub(publicSectorSlug);
 const sectorData = geoHub ? null : await getSectorBySlug(sectorSlug);
 
 if (!geoHub && !sectorData) {
@@ -50,12 +55,12 @@ const {
   servicios: serviciosRelacionados,
 } = sectorData || {};
 
-const visual = getSectorVisualSpec(sectorSlug);
+const visual = getSectorVisualSpec(publicSectorSlug) || getSectorVisualSpec(sectorSlug);
 const heroImage = resolveCmsImageUrl(hero_image, visual?.image || getSectorEditorialImage(sectorSlug));
 const editorialHeadline = visual?.headline || `Tecnología para ${nombre}`;
-const editorialSeoTitle = getReplicaProdEntry(`/${sectorSlug}`)?.title || seo_title || editorialHeadline;
+const editorialSeoTitle = getReplicaProdEntry(`/${publicSectorSlug}`)?.title || seo_title || editorialHeadline;
 const pageHeadline = isReplicaIdenticalCopy()
-  ? resolveReplicaH1(`/${sectorSlug}`, seo_title || editorialHeadline)
+  ? resolveReplicaH1(`/${publicSectorSlug}`, seo_title || editorialHeadline)
   : editorialHeadline;
 const pageSummary = visual?.summary || descripcion;
 const antecedentes = geoHub ? [] : await getAntecedentesForSector(keywords, nombre);
@@ -69,15 +74,18 @@ const sanitizeSectorStats = (items: any[] = []) => items.map((stat: any) => {
 });
 const displayStats = sanitizeSectorStats(stats || []);
 const faqSchema = getFAQSchema(sectorSlug);
-const templateVariant = isReplicaIdenticalCopy()
-  ? 'editorial'
-  : (getDevTemplateVariant(Astro.url, import.meta.env.DEV) ?? 'editorial');
+const devTemplateParam = import.meta.env.DEV && !isReplicaIdenticalCopy()
+  ? Astro.url.searchParams.get('template')
+  : null;
+const templateVariant = devTemplateParam === 'editorial' || devTemplateParam === 'atlas'
+  ? devTemplateParam
+  : 'um26';
 const templateSector = {
   ...(visual || {}),
   ...sectorData,
   nombre,
   label: visual?.label || nombre,
-  slug: sectorSlug,
+  slug: publicSectorSlug,
   pageHeadline,
   pageSummary,
   heroImage,
@@ -92,7 +100,7 @@ const templateServiciosRelacionados = (serviciosRelacionados || []).map((servici
   slug: generateSlug(servicio.nombre || servicio.Titulo || 'servicio')
 }));
 const sectorStrategicLinkGroups = geoHub ? [] : buildSectorStrategicLinkGroups({
-  currentPath: `/${sectorSlug}`,
+  currentPath: `/${publicSectorSlug}`,
   sectorSlug,
   sectorName: templateSector.label || nombre,
   title: pageHeadline,
@@ -108,7 +116,7 @@ const sectorStrategicLinkGroups = geoHub ? [] : buildSectorStrategicLinkGroups({
 const sectorStructuredData = geoHub ? [] : [
   ...(faqSchema ? [faqSchema] : []),
   buildStrategicWebPageStructuredData({
-    url: `https://www.ultimamilla.com.ar/${sectorSlug}`,
+    url: `https://www.ultimamilla.com.ar/${publicSectorSlug}`,
     name: pageHeadline,
     description: seo_description || pageSummary,
     groups: sectorStrategicLinkGroups,
@@ -131,7 +139,15 @@ const sectorStructuredData = geoHub ? [] : [
 </LayoutV4>
 ) : (
 <LayoutV4 title={editorialSeoTitle} description={seo_description} keywords={seo_keywords} image={heroImage} imageWidth={editorialImageDimensions.width} imageHeight={editorialImageDimensions.height} structuredData={sectorStructuredData}>
-  {templateVariant !== 'atlas' && (
+  {templateVariant === 'um26' && (
+    <SectorTemplateUM26
+      sector={templateSector}
+      antecedentes={antecedentes}
+      valueProps={value_props || []}
+      serviciosRelacionados={templateServiciosRelacionados}
+    />
+  )}
+  {templateVariant === 'editorial' && (
     <SectorTemplateEditorial
       mode="detail"
       sector={templateSector}
