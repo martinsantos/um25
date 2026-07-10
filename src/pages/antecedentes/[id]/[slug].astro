@@ -49,7 +49,7 @@ export const prerender = false;
 const { id, slug: slugFromUrl } = Astro.params;
 
 if (!id || !slugFromUrl) {
-    return Astro.redirect('/404');
+    return Astro.rewrite('/404');
 }
 
 // --- State ---
@@ -146,7 +146,7 @@ try {
         }
     } else {
         antecedente = await getUm26AntecedenteFallback(id);
-        if (!antecedente) return Astro.redirect('/404');
+        if (!antecedente) return Astro.rewrite('/404');
         const directSlug = generateSlug(antecedente.Titulo);
         const validSlugs = new Set([directSlug, sourceSlug].filter(Boolean));
         if (!validSlugs.has(slugFromUrl)) {
@@ -164,7 +164,7 @@ try {
     }
 }
 
-if (!antecedente) return Astro.redirect('/404');
+if (!antecedente) return Astro.rewrite('/404');
 
 antecedente = curateAntecedente(antecedente);
 const toPublicCaseLabel = (value: unknown): string => {
@@ -405,13 +405,9 @@ const caseHeadlineSource = isReplicaIdenticalCopy()
   : cleanDisplayText(antecedente.displayTitle || antecedente.Titulo || antecedente.Nombre);
 const baseCaseHeadline = buildCaseHeadline({ ...antecedente, Titulo: caseHeadlineSource });
 const caseHeadline = (() => {
-  if (antecedente.curation?.quality === 'low-value-candidate') {
-    return baseCaseHeadline;
-  }
-  if (antecedente.curation?.quality === 'data-error-candidate') {
-    return baseCaseHeadline;
-  }
-  return baseCaseHeadline;
+  const year = formatAntecedenteYear(antecedente.Fecha);
+  const dateContext = year && !baseCaseHeadline.includes(year) ? ` · ${caseDateLabel}` : '';
+  return `${baseCaseHeadline}${dateContext} · UM-${id}`;
 })();
 const compactCaseTitle = (value: unknown, client?: unknown): string => {
   const title = cleanDisplayText(value)

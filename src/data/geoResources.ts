@@ -39,7 +39,7 @@ const snapshotData = <T>(snapshot: Snapshot<T>): T[] => (
   Array.isArray(snapshot) ? snapshot : snapshot.data || []
 );
 
-export const geoVersion = '2026-06-05';
+export const geoVersion = '2026-07-10';
 
 export const geoHubRoutes = Object.values(geoCommercialHubs).map((hub) => ({
   slug: hub.slug,

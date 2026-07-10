@@ -154,14 +154,12 @@ function buildCaseSeoTitle(input: CaseSeoMetaInput): string {
   const areaRepeatsTitle = area ? appearsInsideTitle(title, area) : false;
   const contextParts = uniqueContextParts([
     client && !clientIsGeneric && !clientRepeatsTitle ? client : '',
-    clientIsGeneric && caseCode ? `Confidencial ${caseCode}` : '',
+    clientIsGeneric ? 'Cliente confidencial' : '',
     !areaRepeatsTitle && !client && caseCode ? area : '',
-    clientRepeatsTitle && caseCode ? caseCode : '',
-    !client && !area && caseCode && year ? year : '',
-    !client && !area && !year ? caseCode : '',
+    year && caseCode && !appearsInsideTitle(title, year) ? year : '',
   ].filter(Boolean));
 
-  if (contextParts.length === 0) return buildHumanSeoTitle(title);
+  if (contextParts.length === 0 && !caseCode) return buildHumanSeoTitle(title);
 
   const siteName = SITE_NAME;
   const maxLength = SEO_META_LIMITS.title;
@@ -169,7 +167,10 @@ function buildCaseSeoTitle(input: CaseSeoMetaInput): string {
   const available = Math.max(24, maxLength - suffix.length);
   const minBaseLength = Math.min(28, Math.max(20, Math.floor(available * 0.46)));
   const maxContextLength = Math.max(14, available - minBaseLength - 3);
-  const context = trimAtWordBoundary(contextParts.join(' · '), maxContextLength);
+  const codeSuffix = caseCode ? ` · ${caseCode}` : '';
+  const humanContextLength = Math.max(8, maxContextLength - codeSuffix.length);
+  const humanContext = trimAtWordBoundary(contextParts.join(' · '), humanContextLength);
+  const context = `${humanContext}${codeSuffix}`.replace(/^\s*·\s*/, '');
   const baseLength = Math.max(18, available - context.length - 3);
   const compactTitle = trimAtWordBoundary(title, baseLength);
 

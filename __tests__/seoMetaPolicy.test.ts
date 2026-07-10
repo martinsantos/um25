@@ -49,6 +49,8 @@ describe('human SEO metatag policy', () => {
     expect(hospital.title).toContain('Hospital A Italo');
     expect(cela.title).toContain('Cela SA');
     expect(hospital.title).not.toBe(cela.title);
+    expect(hospital.title).toContain('UM-3216');
+    expect(cela.title).toContain('UM-3303');
     expect(hospital.title.length).toBeLessThanOrEqual(SEO_META_LIMITS.title);
   });
 
@@ -60,6 +62,7 @@ describe('human SEO metatag policy', () => {
     });
 
     expect(meta.title).toContain('Allex S.A');
+    expect(meta.title).toContain('UM-3134');
     expect(meta.title.length).toBeLessThanOrEqual(SEO_META_LIMITS.title);
   });
 
