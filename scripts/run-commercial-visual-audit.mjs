@@ -20,6 +20,7 @@ const commercialRoutes = LABEL_FILTER
   : COMMERCIAL_E2E_LABELS;
 const MAX_CHUNK_ATTEMPTS = Number(process.env.VISUAL_AUDIT_CHUNK_ATTEMPTS || 3);
 const CHUNK_TIMEOUT_MS = Number(process.env.VISUAL_AUDIT_CHUNK_TIMEOUT_MS || 180000);
+const ROUTES_PER_BATCH = Number(process.env.VISUAL_AUDIT_ROUTES_PER_BATCH || 6);
 const CDP_PORT_BASE = Number(process.env.VISUAL_AUDIT_CDP_PORT_BASE || 9341);
 
 const viewports = process.env.VISUAL_AUDIT_E2E_VIEWPORTS
@@ -29,7 +30,7 @@ const viewports = process.env.VISUAL_AUDIT_E2E_VIEWPORTS
 const outDir = process.env.VISUAL_AUDIT_REPORT_DIR || 'docs/audits/umsa-closure-2026-05-29';
 
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const routeLabelFilter = commercialRoutes.map(escapeRegExp).join('|');
+const buildRouteLabelFilter = (labels) => labels.map(escapeRegExp).join('|');
 
 function isTransientAuditFailure(chunk) {
   const failures = chunk?.failures || [];
@@ -46,7 +47,8 @@ function isTransientAuditFailure(chunk) {
   ));
 }
 
-async function runViewport(viewport) {
+async function runViewport(viewport, labels) {
+  const routeLabelFilter = buildRouteLabelFilter(labels);
   return new Promise((resolve, reject) => {
     const child = spawn('node', ['scripts/visual-contrast-audit.mjs', '--strict'], {
       cwd: process.cwd(),
@@ -70,7 +72,7 @@ async function runViewport(viewport) {
     const timer = setTimeout(() => {
       timedOut = true;
       child.kill('SIGKILL');
-    }, CHUNK_TIMEOUT_MS * Math.max(1, commercialRoutes.length / 8));
+    }, CHUNK_TIMEOUT_MS * Math.max(1, labels.length / ROUTES_PER_BATCH));
 
     child.stdout.on('data', (chunk) => { stdout += chunk; });
     child.stderr.on('data', (chunk) => { stdout += chunk; });
@@ -101,18 +103,18 @@ async function runViewport(viewport) {
   });
 }
 
-async function runViewportWithRetry(viewport) {
+async function runViewportWithRetry(viewport, labels) {
   let lastChunk = null;
   let lastError = null;
 
   for (let attempt = 1; attempt <= MAX_CHUNK_ATTEMPTS; attempt += 1) {
     try {
-      const chunk = await runViewport(viewport);
+      const chunk = await runViewport(viewport, labels);
       lastChunk = chunk;
       if (!isTransientAuditFailure(chunk) || attempt === MAX_CHUNK_ATTEMPTS) {
         return chunk;
       }
-      process.stderr.write(`Retrying commercial batch @ ${viewport} after transient audit failure (${attempt}/${MAX_CHUNK_ATTEMPTS})...\n`);
+      process.stderr.write(`Retrying commercial batch (${labels.length} routes) @ ${viewport} after transient audit failure (${attempt}/${MAX_CHUNK_ATTEMPTS})...\n`);
     } catch (error) {
       lastError = error;
       if (attempt === MAX_CHUNK_ATTEMPTS) throw error;
@@ -207,10 +209,13 @@ if (!commercialRoutes.length) {
 }
 
 for (const viewport of viewports) {
-  process.stderr.write(`Auditing commercial batch @ ${viewport}...\n`);
-  const chunk = await runViewportWithRetry(viewport);
-  allFailures.push(...chunk.failures);
-  allResults.push(...chunk.results);
+  for (let index = 0; index < commercialRoutes.length; index += ROUTES_PER_BATCH) {
+    const labels = commercialRoutes.slice(index, index + ROUTES_PER_BATCH);
+    process.stderr.write(`Auditing commercial batch ${Math.floor(index / ROUTES_PER_BATCH) + 1} @ ${viewport} (${labels.length} routes)...\n`);
+    const chunk = await runViewportWithRetry(viewport, labels);
+    allFailures.push(...chunk.failures);
+    allResults.push(...chunk.results);
+  }
 }
 
 await mkdir(outDir, { recursive: true });

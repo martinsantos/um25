@@ -20,10 +20,12 @@ describe('Visual audit runner contracts', () => {
     expect(source).toContain("UMSA_LOCAL_REPLICA: '1'");
     expect(source).toContain("UMSA_REPLICA_IDENTICAL: '1'");
     expect(source).toContain('CHUNK_TIMEOUT_MS');
+    expect(source).toContain('ROUTES_PER_BATCH');
+    expect(source).toContain('VISUAL_AUDIT_ROUTES_PER_BATCH || 6');
     expect(source).toContain("VISUAL_AUDIT_CHUNK_TIMEOUT_MS || 180000");
     expect(source).toContain('isTransientAuditFailure');
     expect(source).toContain('runViewportWithRetry');
-    expect(source).toContain('routeLabelFilter');
+    expect(source).toContain('buildRouteLabelFilter');
     expect(source).toContain('Emulation\\.setUserAgentOverride');
     expect(source).toMatch(/CDP timeout/);
     expect(source).toMatch(/chunk timeout after/);
@@ -37,7 +39,8 @@ describe('Visual audit runner contracts', () => {
     expect(visualAudit).toContain("targets.some((target) => target.type === 'page')");
 
     const finalLoop = source.slice(source.indexOf('for (const viewport of viewports)'));
-    expect(finalLoop).toMatch(/const chunk = await runViewportWithRetry\(viewport\);/);
+    expect(finalLoop).toMatch(/for \(let index = 0; index < commercialRoutes\.length; index \+= ROUTES_PER_BATCH\)/);
+    expect(finalLoop).toMatch(/const chunk = await runViewportWithRetry\(viewport, labels\);/);
     expect(finalLoop).not.toMatch(/for \(const label of commercialRoutes\)/);
     expect(finalLoop).not.toMatch(/const chunk = await runViewport\(viewport\);/);
   });
