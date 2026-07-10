@@ -141,7 +141,7 @@ const stats = [
   { value: '9', label: 'Sectores atendidos', href: '/sectores', aria: 'Ver sectores atendidos' },
   { value: '320+', label: 'Clientes activos', href: '/antecedentes', aria: 'Ver evidencia por clientes y proyectos' },
   { value: '4', label: 'Hubs GEO', href: '/servicios-it-empresas-argentina', aria: 'Ver cobertura nacional y hubs GEO' },
-  { value: '99.9%', label: 'Disponibilidad SLA', href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it', aria: 'Ver soporte 24/7 y disponibilidad SLA' },
+  { value: '24/7', label: 'Soporte operativo', href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it', aria: 'Ver soporte operativo 24/7' },
 ];
 
 const hubs = [
@@ -404,7 +404,7 @@ const hubs = [
       gap: 24px;
       color: rgba(255, 255, 255, 0.52);
       font-family: var(--font-geist-mono), ui-monospace, monospace;
-      font-size: 0.5625rem;
+      font-size: 1rem;
       text-transform: uppercase;
       letter-spacing: 0.2em;
       z-index: 2;
@@ -445,7 +445,7 @@ const hubs = [
     .um26-hero__metric span {
       writing-mode: vertical-rl;
       transform: rotate(180deg);
-      font-size: 0.5625rem;
+      font-size: 1rem;
       text-transform: uppercase;
       letter-spacing: 0.25em;
       color: rgba(255, 255, 255, 0.55);
@@ -486,7 +486,7 @@ const hubs = [
       color: rgba(255, 255, 255, 0.78);
       text-transform: uppercase;
       letter-spacing: 0.16em;
-      font-size: 0.5625rem;
+      font-size: 1rem;
       z-index: 2;
       cursor: pointer;
       opacity: 0;
@@ -496,7 +496,7 @@ const hubs = [
 
     .um26-home .um26-hero__shuffle,
     .um26-home .um26-hero__shuffle * {
-      font-size: 0.5625rem !important;
+      font-size: 1rem !important;
       line-height: 1 !important;
       white-space: nowrap;
       text-wrap: nowrap;
@@ -509,13 +509,13 @@ const hubs = [
 
     .um26-hero__shuffle-icon {
       color: #dc2626;
-      font-size: 0.875rem !important;
+      font-size: 1rem !important;
       line-height: 1;
     }
 
     .um26-hero__shuffle b {
       color: #dc2626;
-      font-weight: 700;
+      font-weight: 600;
       border-left: 1px solid rgba(255, 255, 255, 0.16);
       padding-left: 10px;
     }
@@ -532,7 +532,7 @@ const hubs = [
       backdrop-filter: blur(8px);
       color: rgba(255, 255, 255, 0.45);
       font-family: var(--font-geist-mono), ui-monospace, monospace;
-      font-size: 0.5625rem;
+      font-size: 1rem;
       letter-spacing: 0.18em;
       text-transform: uppercase;
     }
@@ -576,10 +576,14 @@ const hubs = [
       margin: 0 0 24px;
       color: #dc2626;
       font-family: var(--um-font-mono);
-      font-size: 0.6875rem;
+      font-size: 1rem;
       font-weight: 700;
       letter-spacing: 0.18em;
       text-transform: uppercase;
+    }
+
+    .um26-home .um26-kicker {
+      font-size: 1rem !important;
     }
 
     .um26-kicker span {
@@ -602,10 +606,10 @@ const hubs = [
 
     .um26-hero h1 {
       max-width: 980px;
-      min-height: 1.9em;
-      font-size: clamp(3.5rem, 5.5vw, 5.5rem);
-      line-height: 0.95;
-      --um-hero-title-weight: 800;
+      min-height: 0;
+      font-size: clamp(3rem, 3.8vw, 3.5rem);
+      line-height: 1.08;
+      --um-hero-title-weight: 600;
       font-family: var(--um-font-display) !important;
       font-weight: var(--um-hero-title-weight) !important;
       letter-spacing: var(--um-display-tracking) !important;
@@ -665,7 +669,7 @@ const hubs = [
       color: #fff;
       text-decoration: none;
       font-weight: 700;
-      font-size: 0.9375rem;
+      font-size: 1rem;
       letter-spacing: 0;
       transition: background 0.18s ease, border-color 0.18s ease;
     }
@@ -687,8 +691,9 @@ const hubs = [
     }
 
     .um26-btn--red:hover {
-      background: #ff3b3b;
-      border-color: #ff3b3b;
+      background: #dc2626;
+      border-color: #dc2626;
+      opacity: 0.9;
     }
 
     .um26-btn--ghost {
@@ -708,7 +713,7 @@ const hubs = [
       margin: 40px 0 0;
       color: rgba(255, 255, 255, 0.45);
       font-family: var(--font-geist-mono), ui-monospace, monospace;
-      font-size: 0.625rem;
+      font-size: 1rem;
       text-transform: uppercase;
       letter-spacing: 0.18em;
     }
@@ -764,7 +769,7 @@ const hubs = [
       color: #fff;
       font-family: var(--um-font-display);
       font-size: 2.25rem;
-      --um-stats-number-weight: 800;
+      --um-stats-number-weight: 700;
       font-weight: var(--um-stats-number-weight);
       letter-spacing: var(--um-display-tracking);
       line-height: 1;
@@ -830,14 +835,14 @@ const hubs = [
     .um26-section .um26-kicker {
       color: #dc2626 !important;
       font-family: var(--um-font-mono) !important;
-      font-size: 0.6875rem !important;
+      font-size: 1rem !important;
       line-height: 1.5 !important;
       margin-bottom: 9px;
     }
 
     .um26-section h2 {
       width: min(650px, 100%);
-      --um-section-title-weight: 800;
+      --um-section-title-weight: 600;
       font-family: var(--um-font-display) !important;
       font-size: clamp(2.25rem, 4.4vw, 3.75rem);
       font-weight: var(--um-section-title-weight) !important;
@@ -948,7 +953,7 @@ const hubs = [
     }
 
     .um26-media-card:hover h3 {
-      color: #ff3b3b;
+      color: #dc2626;
     }
 
     .um26-media-card p {
@@ -1225,21 +1230,37 @@ const hubs = [
         display: none;
       }
 
+      /* The site header already carries brand and navigation on phones.
+         Removing duplicated operational chrome restores a clean first fold. */
+      .um26-home .um26-hero__top,
+      .um26-home .um26-hero__shuffle {
+        display: none;
+      }
+
       .um26-hero__body {
-        padding-block: 0 66px;
+        padding-block: 0 56px;
       }
 
       .um26-hero h1 {
         max-width: 100%;
-        min-height: 2.4em;
-        font-size: 2.25rem;
-        --um-hero-mobile-title-weight: 800;
+        min-height: 0;
+        font-size: clamp(2.125rem, 9.4vw, 2.4rem);
+        --um-hero-mobile-title-weight: 600;
         font-weight: var(--um-hero-mobile-title-weight) !important;
-        line-height: 0.95;
-        text-wrap: normal !important;
-        overflow-wrap: normal !important;
+        line-height: 1.08;
+        text-wrap: balance !important;
+        overflow-wrap: anywhere !important;
         word-break: normal !important;
         text-shadow: none;
+      }
+
+      .um26-hero .um26-kicker {
+        max-width: 100%;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+        font-size: 1rem;
+        line-height: 1.35;
+        letter-spacing: 0.12em;
       }
 
       .um26-hero__line {

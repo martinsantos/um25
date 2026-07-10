@@ -240,7 +240,7 @@
 /* SOPORTE — Uptime dots + status */
 .overlay-soporte {}
 .overlay-soporte::after {
-  content: '● ● ● ● ● ● ● ● ● ●  99.99% UPTIME';
+  content: '● ● ● ● ● ● ● ● ● ●  SOPORTE 24/7';
   position: absolute; top: 20px; right: 20px;
   font: 16px/1.15 'SF Mono',monospace; letter-spacing: 2px; color: #22c55e; opacity: 0.5;
   animation: _uptime 2s ease-in-out infinite;

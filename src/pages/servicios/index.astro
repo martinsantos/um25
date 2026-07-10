@@ -129,6 +129,7 @@ const totalServices = String(services.length).padStart(2, '0');
         <p class="services-demo-kicker"><span></span>01 / Servicios</p>
         <h1 id="services-demo-title">Ocho frentes de servicio.</h1>
         <p>Una arquitectura, no proveedores aislados.</p>
+        <a class="services-demo-hero__cta" href="/contacto">Solicitar relevamiento</a>
       </div>
     </section>
 
@@ -225,6 +226,24 @@ const totalServices = String(services.length).padStart(2, '0');
 
     .services-demo-hero__content {
       padding: 86px 0 56px;
+    }
+
+    .services-demo-hero__cta {
+      display: inline-flex;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      margin-top: 24px;
+      padding: 0 20px;
+      background: #dc2626;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .services-demo :where(p, li, span, strong, em, a) {
+      font-size: max(16px, 1em) !important;
     }
 
     .services-demo-kicker,
@@ -338,14 +357,8 @@ const totalServices = String(services.length).padStart(2, '0');
       height: 100%;
       object-fit: cover;
       filter: contrast(1.08) saturate(0.9) brightness(0.82);
-      transform: scale(1.01);
-      transition: transform 0.25s ease, filter 0.25s ease;
-    }
-
-    .services-demo-row:hover .services-demo-media img,
-    .services-demo-row:focus-visible .services-demo-media img {
-      transform: scale(1.04);
-      filter: contrast(1.1) saturate(1) brightness(0.9);
+      transform: none;
+      transition: filter 0.18s ease;
     }
 
     .services-demo-media div {
@@ -413,7 +426,7 @@ const totalServices = String(services.length).padStart(2, '0');
 
     .services-demo-row:hover h2,
     .services-demo-row:focus-visible h2 {
-      color: #ff3b3b;
+      color: #dc2626;
     }
 
     .services-demo-body strong {
@@ -440,7 +453,7 @@ const totalServices = String(services.length).padStart(2, '0');
       padding: 0;
       list-style: none;
       color: #a1a1aa;
-      font-size: 0.92rem;
+      font-size: 1rem;
       line-height: 1.45;
     }
 
@@ -497,8 +510,8 @@ const totalServices = String(services.length).padStart(2, '0');
 
     .services-demo-row:hover .services-demo-action,
     .services-demo-row:focus-visible .services-demo-action {
-      color: #ff3b3b;
-      border-color: #ff3b3b;
+      color: #dc2626;
+      border-color: #dc2626;
     }
 
     .services-demo-closing {

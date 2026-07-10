@@ -29,13 +29,13 @@
   --um-container-wide: 1280px;
   --font-poppins: 'Poppins', 'Inter', Arial, system-ui, sans-serif;
   --font-head: var(--font-poppins);
-  --um-font-logo: var(--font-poppins);
+  --um-font-logo: 'Futura PT', 'Futura', var(--font-poppins);
   --um-font-display: var(--font-poppins);
   --um-font-body: 'Inter', Arial, system-ui, sans-serif;
   --um-font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  --um-display-weight: 800;
-  --um-display-tracking: -0.035em;
-  --um-display-line-height: 0.95;
+  --um-display-weight: 600;
+  --um-display-tracking: 0;
+  --um-display-line-height: 1.06;
   --um-weight-title: var(--um-display-weight);
   --um-weight-strong: 700;
   --um-section-y: clamp(72px, 9vw, 120px);
@@ -986,6 +986,30 @@ body[data-skin] main {
   color: var(--skin-text) !important;
 }
 
+/* Public reading surfaces have one hard lower bound. Decorative icons are
+   deliberately excluded; every textual control and piece of body copy must
+   remain readable at the system's 16px minimum on desktop and mobile. */
+body[data-skin] main :where(
+  p,
+  li,
+  dt,
+  dd,
+  label,
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  span,
+  small,
+  em,
+  strong,
+  b,
+  i
+) {
+  font-size: max(16px, 1em) !important;
+}
+
 body[data-skin] main :where(
   .services-hero,
   .service-detail-hero,
@@ -1781,9 +1805,9 @@ body[data-skin] main :where(
   .sector-editorial-detail-hero,
   .geo-dossier-hero
 ) :where(.um-btn-secondary:hover) {
-  background: var(--skin-hero-text) !important;
-  border-color: transparent !important;
-  color: var(--skin-hero-bg) !important;
+  background: color-mix(in srgb, var(--skin-hero-text) 12%, transparent) !important;
+  border-color: var(--skin-hero-text) !important;
+  color: var(--skin-hero-text) !important;
 }
 
 body[data-skin] main .um-hero-proofbar {
@@ -3167,6 +3191,29 @@ body[data-skin] main .case-related .evidence-case-row__thumb {
   body[data-skin] main .case-related .evidence-case-row__thumb {
     min-width: 112px !important;
     min-height: 72px !important;
+  }
+}
+
+/* The desktop ledger must release its columns on phones. Keeping the old
+   two-column grid made titles and metadata collapse into a narrow strip. */
+@media (max-width: 640px) {
+  body[data-skin] main .case-related .evidence-case-row {
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding: 16px !important;
+  }
+
+  body[data-skin] main .case-related .evidence-case-row__thumb {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 160px !important;
+    aspect-ratio: 16 / 9 !important;
+  }
+
+  body[data-skin] main .case-related .evidence-case-row__copy,
+  body[data-skin] main .case-related .evidence-case-row__meta-group,
+  body[data-skin] main .case-related .evidence-case-row__action {
+    grid-column: 1 !important;
+    grid-row: auto !important;
   }
 }
 
