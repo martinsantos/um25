@@ -89,6 +89,9 @@ try {
   const start = commercial.stdout.indexOf('{');
   commercialJson = start >= 0 ? JSON.parse(commercial.stdout.slice(start)) : commercialJson;
 } catch { /* keep */ }
+if (commercialJson.failureCount == null && Array.isArray(commercialJson.failures)) {
+  commercialJson.failureCount = commercialJson.failures.length;
+}
 summary.layers.commercialStrict = {
   exitCode: commercial.code,
   ...commercialJson,

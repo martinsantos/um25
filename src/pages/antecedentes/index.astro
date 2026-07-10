@@ -443,7 +443,8 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
     }
 
     .um26-shell {
-      width: min(1336px, calc(100% - 78px));
+      /* Same desktop axis as the navigation and home shell. */
+      width: min(1400px, calc(100% - 64px));
       margin-inline: auto;
     }
 
@@ -779,7 +780,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       background: #121214 !important;
       border-color: rgba(255,255,255,0.14) !important;
       color: #fff !important;
-      font-size: 15px !important;
+      font-size: 16px !important;
       line-height: 1.2 !important;
     }
 
@@ -789,14 +790,14 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
     }
 
     :global(body[data-skin]) .um26-evidence .um26-filter-row strong {
-      font-size: 11px !important;
+      font-size: 16px !important;
       line-height: 1.2 !important;
       color: #8b8b94 !important;
     }
 
     :global(body[data-skin]) .um26-evidence .um26-filter-row button,
     :global(body[data-skin]) .um26-evidence .um26-filter-row button span {
-      min-height: 30px !important;
+      min-height: 44px !important;
       line-height: 1.35 !important;
     }
 
@@ -804,7 +805,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       background: #121214 !important;
       border-color: rgba(255,255,255,0.12) !important;
       color: #a1a1aa !important;
-      font-size: 12px !important;
+      font-size: 16px !important;
     }
 
     :global(body[data-skin]) .um26-evidence .um26-filter-row button:hover,
@@ -816,11 +817,11 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
 
     :global(body[data-skin]) .um26-evidence .um26-filter-row button span {
       color: #60606a !important;
-      font-size: 10px !important;
+      font-size: 16px !important;
     }
 
     :global(body[data-skin]) .um26-evidence .um26-results-bar p {
-      font-size: 11px !important;
+      font-size: 16px !important;
       line-height: 1.2 !important;
       color: #8b8b94 !important;
     }
@@ -831,9 +832,9 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
 
     :global(body[data-skin]) .um26-evidence .um26-results-bar button,
     :global(body[data-skin]) .um26-evidence .um26-results-bar select {
-      height: 34px !important;
-      min-height: 34px !important;
-      font-size: 14px !important;
+      height: 44px !important;
+      min-height: 44px !important;
+      font-size: 16px !important;
       line-height: 1.2 !important;
       background: #121214 !important;
       border-color: rgba(255,255,255,0.14) !important;

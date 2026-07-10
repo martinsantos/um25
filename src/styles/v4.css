@@ -986,6 +986,30 @@ body[data-skin] main {
   color: var(--skin-text) !important;
 }
 
+/* Public reading surfaces have one hard lower bound. Decorative icons are
+   deliberately excluded; every textual control and piece of body copy must
+   remain readable at the system's 16px minimum on desktop and mobile. */
+body[data-skin] main :where(
+  p,
+  li,
+  dt,
+  dd,
+  label,
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  span,
+  small,
+  em,
+  strong,
+  b,
+  i
+) {
+  font-size: max(16px, 1em) !important;
+}
+
 body[data-skin] main :where(
   .services-hero,
   .service-detail-hero,

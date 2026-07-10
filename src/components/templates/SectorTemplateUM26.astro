@@ -101,6 +101,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
           <p class="sector26-kicker"><span></span>Sector / {sectorNumber}</p>
           <h1 id="sector26-title">{sectorTitle}</h1>
           <p>{sectorSummary}</p>
+          <a class="sector26-frame-action" href="/contacto">Solicitar relevamiento</a>
         </div>
         <dl class="sector26-hero-frame__stats" aria-label="Resumen operativo">
           {heroStats.map((stat) => (
@@ -319,8 +320,8 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     margin: 0;
     color: #fff;
     font-family: var(--um-font-display);
-    font-size: clamp(3rem, 6vw, 5rem);
-    font-weight: 700;
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    font-weight: 600;
     letter-spacing: 0;
     line-height: 0.98;
     text-wrap: balance;
@@ -453,8 +454,8 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     max-width: 850px;
     margin-top: 16px;
     color: #fff;
-    font-size: clamp(3.25rem, 6.5vw, 6.75rem);
-    line-height: 0.94;
+    font-size: clamp(2.75rem, 4.5vw, 3.5rem);
+    line-height: 1.06;
     font-weight: 600;
     letter-spacing: 0;
     text-wrap: balance;
@@ -586,8 +587,8 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
   .sector26-closing h2 {
     margin-top: 14px;
     color: #fff;
-    font-size: clamp(2.3rem, 4.3vw, 4.65rem);
-    line-height: 0.96;
+    font-size: clamp(1.9rem, 3.2vw, 2.5rem);
+    line-height: 1.08;
     font-weight: 600;
     text-wrap: balance;
     overflow-wrap: normal;
@@ -807,6 +808,25 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     font-size: clamp(1.8rem, 3vw, 3rem);
     line-height: 1.02;
     font-weight: 600;
+  }
+
+  .sector26-frame-action {
+    display: inline-flex;
+    min-height: 46px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 24px;
+    padding: 0 18px;
+    background: #dc2626;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .sector26-frame-action:hover,
+  .sector26-frame-action:focus-visible {
+    background: #b91c1c;
   }
 
   .sector26-feature-case p:not(:first-child) {
@@ -1040,8 +1060,8 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     }
 
     .sector26-hero-frame h1 {
-      font-size: clamp(2.45rem, 12vw, 3.8rem);
-      line-height: 1;
+      font-size: clamp(2rem, 9.4vw, 2.35rem);
+      line-height: 1.08;
     }
 
     .sector26-hero-frame__stats {
@@ -1068,6 +1088,13 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
       overflow-wrap: normal;
       word-break: normal;
       hyphens: none;
+    }
+
+    .sector26-intro h2,
+    .sector26-section-head h2,
+    .sector26-closing h2 {
+      font-size: clamp(1.75rem, 8vw, 2rem);
+      line-height: 1.08;
     }
 
     .sector26-proofline,

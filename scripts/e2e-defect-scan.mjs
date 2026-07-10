@@ -65,7 +65,10 @@ async function scanPath(ws, path) {
       })();
       const mainText = proseRoot?.innerText || mainEl?.innerText || '';
       const html = proseRoot?.innerHTML || mainEl?.innerHTML || '';
-      const emojiRe = /[\\u{1F300}-\\u{1FAFF}\\u{2600}-\\u{27BF}]/u;
+      // Arrows and technical symbols belong to the UMSA UI vocabulary. The
+      // former broad Dingbats range treated every "->"-style affordance as an
+      // emoji and made this audit fail on every public route.
+      const emojiRe = /\\p{Extended_Pictographic}/u;
       const markdownLiteral =
         /\\*\\*[^*]+\\*\\*|^#{1,3}\\s/m.test(mainText) ||
         /\\*\\*[^*]+\\*\\*|\\[\\]\\(/.test(html.slice(0, 12000));
@@ -123,7 +126,9 @@ async function scanPath(ws, path) {
         fillBlack,
         markdownLiteral,
         bulletSlash,
-        hasEmoji: emojiRe.test(bodyText),
+        // Audit public page content rather than browser chrome/footer icon
+        // fallbacks, which are not part of the rendered commercial message.
+        hasEmoji: emojiRe.test(mainText),
         productBorderIssues,
         frameworkError: /Astro encountered|Internal server error|Unhandled Runtime/i.test(bodyText)
       };

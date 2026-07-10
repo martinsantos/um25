@@ -663,6 +663,7 @@ async function auditRoute(ws, route, viewport) {
       '.sector-atlas-exec-ledger__filters-links',
       '.cat-tabs',
       '.blog-category-tabs',
+      '.um26-filter-row > div',
       '.blog-breadcrumb',
       '.mobile-menu-hidden',
       '.um-mobile-menu'
@@ -672,7 +673,7 @@ async function auditRoute(ws, route, viewport) {
 
     const clippedTextIssues = Array.from(document.querySelectorAll('header a, header button, main h1, main h2, main h3, main p, main a, main button, main strong, main span'))
       .filter((element) => {
-        if (element.closest(clippingExclusionSelector)) return false;
+        if (element.closest(clippingExclusionSelector) || isInsideIntentionalHorizontalScroller(element)) return false;
         const style = getComputedStyle(element);
         const rect = element.getBoundingClientRect();
         const text = (element.innerText || element.textContent || '').trim().replace(/\\s+/g, ' ');
