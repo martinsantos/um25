@@ -515,7 +515,7 @@ const hubs = [
 
     .um26-hero__shuffle b {
       color: #dc2626;
-      font-weight: 700;
+      font-weight: 600;
       border-left: 1px solid rgba(255, 255, 255, 0.16);
       padding-left: 10px;
     }
@@ -602,10 +602,10 @@ const hubs = [
 
     .um26-hero h1 {
       max-width: 980px;
-      min-height: 1.9em;
-      font-size: clamp(3.5rem, 5.5vw, 5.5rem);
-      line-height: 0.95;
-      --um-hero-title-weight: 800;
+      min-height: 0;
+      font-size: clamp(3.25rem, 5vw, 4.75rem);
+      line-height: 1.04;
+      --um-hero-title-weight: 600;
       font-family: var(--um-font-display) !important;
       font-weight: var(--um-hero-title-weight) !important;
       letter-spacing: var(--um-display-tracking) !important;
@@ -687,8 +687,9 @@ const hubs = [
     }
 
     .um26-btn--red:hover {
-      background: #ff3b3b;
-      border-color: #ff3b3b;
+      background: #dc2626;
+      border-color: #dc2626;
+      opacity: 0.9;
     }
 
     .um26-btn--ghost {
@@ -948,7 +949,7 @@ const hubs = [
     }
 
     .um26-media-card:hover h3 {
-      color: #ff3b3b;
+      color: #dc2626;
     }
 
     .um26-media-card p {
@@ -1226,20 +1227,29 @@ const hubs = [
       }
 
       .um26-hero__body {
-        padding-block: 0 66px;
+        padding-block: 0 56px;
       }
 
       .um26-hero h1 {
         max-width: 100%;
-        min-height: 2.4em;
-        font-size: 2.25rem;
-        --um-hero-mobile-title-weight: 800;
+        min-height: 0;
+        font-size: clamp(2.125rem, 9.4vw, 2.4rem);
+        --um-hero-mobile-title-weight: 600;
         font-weight: var(--um-hero-mobile-title-weight) !important;
-        line-height: 0.95;
-        text-wrap: normal !important;
-        overflow-wrap: normal !important;
+        line-height: 1.08;
+        text-wrap: balance !important;
+        overflow-wrap: anywhere !important;
         word-break: normal !important;
         text-shadow: none;
+      }
+
+      .um26-hero .um26-kicker {
+        max-width: 100%;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+        font-size: 0.75rem;
+        line-height: 1.35;
+        letter-spacing: 0.12em;
       }
 
       .um26-hero__line {

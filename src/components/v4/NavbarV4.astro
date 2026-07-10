@@ -166,7 +166,8 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   }
 
   .um-ops-container {
-    width: min(1920px, calc(100% - 128px));
+    /* Share the same reading axis as the public page shells. */
+    width: min(1400px, calc(100% - 64px));
     margin-inline: auto;
   }
 
@@ -374,7 +375,8 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   }
 
   .um-ops-cta:hover {
-    background: #ff3b3b;
+    background: #dc2626;
+    opacity: 0.9;
   }
 
   .um-ops-menu-toggle {
@@ -599,7 +601,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
 
   @media (max-width: 760px) {
     .um-ops-container {
-      width: min(100% - 32px, 1400px);
+      width: min(100% - 28px, 1400px);
     }
 
     .um-ops-logo {

@@ -319,14 +319,8 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
     height: 100%;
     object-fit: cover;
     filter: contrast(1.08) saturate(0.9) brightness(0.82);
-    transform: scale(1.01);
-    transition: transform 0.25s ease, filter 0.25s ease;
-  }
-
-  .sectors-demo-feature:hover > img,
-  .sectors-demo-card:hover > img {
-    transform: scale(1.04);
-    filter: contrast(1.1) saturate(1) brightness(0.9);
+    transform: none;
+    transition: filter 0.18s ease;
   }
 
   .sectors-demo-feature__shade,
