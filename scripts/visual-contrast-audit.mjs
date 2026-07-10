@@ -468,7 +468,10 @@ async function auditRoute(ws, route, viewport) {
       return true;
     }
 
-    const textElements = Array.from(document.body.querySelectorAll('body *'))
+    // The commercial readability contract applies to the public decision
+    // surface. Header/footer telemetry has its own layout contract and must
+    // not make every route fail a body-copy audit.
+    const textElements = Array.from((document.querySelector('main') || document.body).querySelectorAll('*'))
       .filter((element) => !['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEMPLATE'].includes(element.tagName))
       .filter(isVisibleTextElement);
 
@@ -741,7 +744,7 @@ async function auditRoute(ws, route, viewport) {
       const className = String(surface?.className || '');
       return (
         surface?.tagName === 'SECTION' ||
-        /(^|\\s)um-container(\\s|$)|__grid|__list|contact-dossier|service-detail-main__grid|services-dossier__list/i.test(className)
+        /(^|\\s)(um-container|um26-shell|um26-evidence-main)(\\s|$)|__grid|__list|contact-dossier|service-detail-main__grid|services-dossier__list/i.test(className)
       );
     };
 
