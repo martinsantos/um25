@@ -32,8 +32,26 @@ describe('404 SEO contracts', () => {
       .toContain('Astro.redirect(`/servicios/${id}/${expectedSlug}`, 301)');
   });
 
-  test('case H1s carry a stable evidence identifier', () => {
-    expect(source('src/pages/antecedentes/[id]/[slug].astro'))
-      .toContain('`${baseCaseHeadline}${dateContext} · UM-${id}`');
+  test('case pages keep the stable evidence identifier outside the editorial H1', () => {
+    const route = source('src/pages/antecedentes/[id]/[slug].astro');
+    expect(route).toContain('const caseHeadline = baseCaseHeadline');
+    expect(route).toContain('const caseReference = `UM-${id}`');
+    expect(route).toContain('<span class="case-detail-label__reference">{caseReference}</span>');
+  });
+
+  test('public case records win over colliding local archive ids', () => {
+    const detailRoute = source('src/pages/antecedentes/[id]/[slug].astro');
+    const indexRoute = source('src/pages/antecedentes/[id]/index.astro');
+
+    expect(detailRoute.indexOf('antecedente = await getAntecedenteConServicios(id)'))
+      .toBeLessThan(detailRoute.indexOf('antecedente = await getUm26AntecedenteFallback(id)'));
+    expect(indexRoute.indexOf('const item = await getAntecedenteConServicios(id)'))
+      .toBeLessThan(indexRoute.indexOf('const um26Item = await getUm26AntecedenteById(Number(id))'));
+  });
+
+  test('case related rows import their year formatter', () => {
+    const route = source('src/pages/antecedentes/[id]/[slug].astro');
+    expect(route).toMatch(/formatAntecedenteDate,\s+formatAntecedenteYear,/);
+    expect(route).toContain('year={formatAntecedenteYear(ant.Fecha)}');
   });
 });

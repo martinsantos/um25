@@ -35,12 +35,12 @@ describe('mobile overflow production contracts', () => {
     expect(css).toContain('class="services-demo"');
     expect(css).toMatch(/\.services-demo-row\s*\{[\s\S]*grid-template-columns:\s*minmax\(0,\s*1\.02fr\) minmax\(0,\s*1fr\);/);
     expect(css).toMatch(/@media \(max-width:\s*980px\)\s*\{[\s\S]*\.services-demo-row,[\s\S]*\.services-demo-row:nth-child\(even\)\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
-    expect(css).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-demo-row,[\s\S]*\.services-demo-row:nth-child\(even\)\s*\{[\s\S]*grid-template-columns:\s*minmax\(82px,\s*26vw\) minmax\(0,\s*1fr\);/);
+    expect(css).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-demo-row,[\s\S]*\.services-demo-row:nth-child\(even\)\s*\{[\s\S]*grid-template-columns:\s*minmax\(92px,\s*27vw\) minmax\(0,\s*1fr\);/);
     expect(css).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-demo-body > p\s*\{[\s\S]*display:\s*none;/);
     expect(css).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-demo-body ul\s*\{[\s\S]*display:\s*none;/);
     expect(css).toMatch(/@media \(max-width:\s*980px\)\s*\{[\s\S]*\.services-demo-body ul\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
     expect(css).not.toContain('grid-template-columns: minmax(96px, max-content) minmax(0, 1fr)');
-    expect(css).not.toContain('overflow-wrap: normal;');
+    expect(css).toMatch(/\.services-demo-body h2\s*\{[\s\S]*overflow-wrap:\s*normal;/);
   });
 
   test('article and contact mobile headings use container-relative sizing', () => {
@@ -49,6 +49,13 @@ describe('mobile overflow production contracts', () => {
 
     expect(article).toContain('font-size: clamp(2.125rem, 8.2vw, 2.32rem)');
     expect(contact).toContain('font-size: clamp(1.78rem, 8vw, 2.08rem)');
+  });
+
+  test('blog singles without table-of-contents headings use the full editorial column', () => {
+    const article = source('src/pages/blog/[slug].astro');
+
+    expect(article).toContain("headings.length === 0 && 'article-layout--single'");
+    expect(article).toMatch(/\.article-layout--single\s*\{[\s\S]*grid-template-columns:\s*minmax\(0,\s*792px\);[\s\S]*max-width:\s*792px;/);
   });
 
   test('sector and antecedentes rails are deliberately contained on mobile', () => {

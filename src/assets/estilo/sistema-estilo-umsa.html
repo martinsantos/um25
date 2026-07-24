@@ -4,21 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sistema de Estilo — ULTIMA MILLA S.A.</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preload" href="/fonts/um-sans/UMSans-Variable.woff2?v=1.2.0-production" as="font" type="font/woff2" crossorigin>
+<link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin>
+<link href="https://fonts.cdnfonts.com/css/futura-pt" rel="stylesheet">
 <style>
+@font-face{font-family:'UM Sans';src:url('/fonts/um-sans/UMSans-Variable.woff2?v=1.2.0-production') format('woff2');font-weight:100 900;font-style:normal;font-display:swap}
+@font-face{font-family:'UM Sans';src:url('/fonts/um-sans/UMSans-VariableItalic.woff2?v=1.2.0-production') format('woff2');font-weight:100 900;font-style:italic;font-display:swap}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --negro:#000000;--rojo:#DC2626;--azul:#1A56C0;--blanco:#FFFFFF;
   --gris-o:#333333;--gris-t:#666666;--gris-f:#F5F5F5;--gris-b:#DDDDDD;
   --verde:#2D8A2D;--azul-bg:#EFF4FF;--verde-bg:#EEF7EE;--rojo-bg:#FFF5F5;
   --sidebar-w:280px;--header-h:64px;
-  --font-head:'Poppins','Century Gothic',sans-serif;
-  --font-body:'Arial','Inter',system-ui,sans-serif;
+  --font-head:'UM Sans',Arial,system-ui,sans-serif;
+  --font-body:'UM Sans',Arial,system-ui,sans-serif;
   --font-code:'Fira Code','Consolas','Courier New',monospace;
 }
 html{scroll-behavior:smooth}
-body{font-family:var(--font-body);font-size:15px;color:var(--negro);background:#fff;line-height:1.6}
+body{font-family:var(--font-body);font-size:16px;font-size-adjust:.546;font-synthesis:none;color:var(--negro);background:#fff;line-height:1.62}
 
 /* ── TOP HEADER ─────────────────────────────────────── */
 #top-header{
@@ -28,7 +31,7 @@ body{font-family:var(--font-body);font-size:15px;color:var(--negro);background:#
   border-bottom:3px solid var(--rojo);
 }
 #top-header .logo{
-  font-family:var(--font-head);font-weight:700;font-size:20px;
+  font-family:'Futura PT','Futura',Arial,sans-serif;font-size-adjust:none;font-weight:700;font-size:20px;
   color:#fff;letter-spacing:-0.02em;white-space:nowrap;text-decoration:none;
 }
 #top-header .logo span{color:var(--rojo)}
@@ -587,8 +590,9 @@ hr.section-hr{border:none;border-top:1px solid var(--gris-b);margin:40px 0}
   <table class="um-table">
     <thead><tr><th>Rol</th><th>Principal</th><th>Fallbacks</th><th>Pesos UMSA</th></tr></thead>
     <tbody>
-      <tr><td><strong>Headings / Logo</strong></td><td>Futura PT</td><td>Poppins, Century Gothic</td><td>Demi 600 · Bold 700 · Heavy 800</td></tr>
-      <tr><td><strong>Cuerpo / Datos</strong></td><td>Arial</td><td>Inter, system-ui</td><td>Regular 400 · Bold 700</td></tr>
+      <tr><td><strong>Logo / marca</strong></td><td>Futura PT</td><td>Futura, Arial</td><td>Demi 600 · Bold 700</td></tr>
+      <tr><td><strong>Headings / interfaz</strong></td><td>UM Sans 1.1 Editorial RC</td><td>Arial, system-ui</td><td>Medium 500 · SemiBold 600 · Bold 700</td></tr>
+      <tr><td><strong>Cuerpo / datos</strong></td><td>UM Sans 1.1 Editorial RC</td><td>Arial, system-ui</td><td>Regular 400 · Medium 500 · SemiBold 600 · Italic 400</td></tr>
       <tr><td><strong>Código</strong></td><td>Fira Code</td><td>Consolas, Courier New</td><td>Regular 400</td></tr>
     </tbody>
   </table>
@@ -598,7 +602,7 @@ hr.section-hr{border:none;border-top:1px solid var(--gris-b);margin:40px 0}
     <div class="type-row" style="background:#fff">
       <div class="type-label">Display</div>
       <div class="type-preview" style="font-size:36px;font-weight:700">ultimamilla</div>
-      <div class="type-meta">36pt · 72hp<br>Bold 800</div>
+      <div class="type-meta">36pt · 72hp<br>Bold Display 700</div>
     </div>
     <div class="type-row">
       <div class="type-label">H1</div>
@@ -806,7 +810,7 @@ hr.section-hr{border:none;border-top:1px solid var(--gris-b);margin:40px 0}
 <span class="kw">const</span> GRIS_T = <span class="st">'666666'</span>, VERDE = <span class="st">'2D8A2D'</span>;
 
 <span class="cm">// Fuentes</span>
-<span class="kw">const</span> F_HEAD = <span class="st">'Poppins'</span>, F_BODY = <span class="st">'Arial'</span>;
+<span class="kw">const</span> F_HEAD = <span class="st">'UM Sans'</span>, F_BODY = <span class="st">'UM Sans'</span>;
 
 <span class="cm">// Página A4</span>
 <span class="kw">const</span> W = <span class="nm">9026</span>; <span class="cm">// ancho útil en DXA</span>
@@ -880,7 +884,9 @@ hr.section-hr{border:none;border-top:1px solid var(--gris-b);margin:40px 0}
   <span class="prop">--um-rojo-bg</span>: <span class="st">#FFF5F5</span>;
 
   <span class="cm">/* Tipografía */</span>
-  <span class="prop">--um-font-head</span>: <span class="st">'Futura PT', 'Poppins', 'Century Gothic', sans-serif</span>;
+  <span class="prop">--um-font-logo</span>: <span class="st">'Futura PT', 'Futura', Arial, sans-serif</span>;
+  <span class="prop">--um-font-display</span>: <span class="st">'UM Sans', Arial, system-ui, sans-serif</span>;
+  <span class="prop">--um-font-body</span>: <span class="st">'UM Sans', Arial, system-ui, sans-serif</span>;
   <span class="prop">--um-font-body</span>: <span class="st">'Arial', 'Inter', system-ui, sans-serif</span>;
 
   <span class="cm">/* Escala tipográfica */</span>
@@ -897,7 +903,7 @@ hr.section-hr{border:none;border-top:1px solid var(--gris-b);margin:40px 0}
   <pre><code><span class="kw">const</span> UMSA = {
   c: { negro:<span class="st">'#000'</span>, rojo:<span class="st">'#DC2626'</span>, azul:<span class="st">'#1A56C0'</span>, grisF:<span class="st">'#F5F5F5'</span>,
        grisB:<span class="st">'#DDDDDD'</span>, grisT:<span class="st">'#666'</span>, verde:<span class="st">'#2D8A2D'</span>, blanco:<span class="st">'#FFF'</span> },
-  f: { head:<span class="st">"'Poppins','Century Gothic',sans-serif"</span>,
+  f: { head:<span class="st">"'UM Sans','Arial',sans-serif"</span>,
        body:<span class="st">"'Arial','Inter',system-ui,sans-serif"</span> }
 };
 
@@ -969,7 +975,7 @@ hr.section-hr{border:none;border-top:1px solid var(--gris-b);margin:40px 0}
 
 <span class="kw">const</span> umsaChartDefaults = {
   plugins: {
-    legend: { labels: { font: { family:<span class="st">'Poppins'</span>, size:<span class="nm">11</span> }, color:<span class="st">'#333'</span> } }
+    legend: { labels: { font: { family:<span class="st">'UM Sans'</span>, size:<span class="nm">11</span> }, color:<span class="st">'#333'</span> } }
   },
   scales: {
     x: { grid: { color:<span class="st">'#DDDDDD'</span>, lineWidth:<span class="nm">1</span> },
@@ -996,12 +1002,12 @@ hr.section-hr{border:none;border-top:1px solid var(--gris-b);margin:40px 0}
   <table class="um-table">
     <thead><tr><th>Elemento</th><th>Fuente</th><th>Tamaño</th><th>Color</th></tr></thead>
     <tbody>
-      <tr><td>Título de slide</td><td>Poppins Bold</td><td>28–32pt</td><td><span class="pip" style="background:#000"></span>#000000</td></tr>
-      <tr><td>Subtítulo</td><td>Poppins SemiBold</td><td>20–24pt</td><td><span class="pip" style="background:#333"></span>#333333</td></tr>
+      <tr><td>Título de slide</td><td>UM Sans Bold</td><td>28–32pt</td><td><span class="pip" style="background:#000"></span>#000000</td></tr>
+      <tr><td>Subtítulo</td><td>UM Sans SemiBold</td><td>20–24pt</td><td><span class="pip" style="background:#333"></span>#333333</td></tr>
       <tr><td>Bullets / cuerpo</td><td>Arial</td><td>18pt</td><td><span class="pip" style="background:#333"></span>#333333</td></tr>
-      <tr><td>Dato destacado</td><td>Poppins Bold</td><td>36–48pt</td><td><span class="pip" style="background:#000"></span>#000000 o <span class="pip" style="background:#DC2626"></span>#DC2626</td></tr>
+      <tr><td>Dato destacado</td><td>UM Sans Bold</td><td>36–48pt</td><td><span class="pip" style="background:#000"></span>#000000 o <span class="pip" style="background:#DC2626"></span>#DC2626</td></tr>
       <tr><td>Nota al pie</td><td>Arial</td><td>11pt</td><td><span class="pip" style="background:#666"></span>#666666</td></tr>
-      <tr><td>Cabecera tabla</td><td>Poppins Bold</td><td>11pt</td><td><span class="pip" style="background:#fff;border:1px solid #ccc"></span>#FFFFFF sobre <span class="pip" style="background:#000"></span>#000000</td></tr>
+      <tr><td>Cabecera tabla</td><td>UM Sans Bold</td><td>11pt</td><td><span class="pip" style="background:#fff;border:1px solid #ccc"></span>#FFFFFF sobre <span class="pip" style="background:#000"></span>#000000</td></tr>
     </tbody>
   </table>
   <div class="callout callout--info">
@@ -1143,8 +1149,8 @@ wkhtmltopdf --page-size A4 \
     </div>
     <div class="check-group">
       <div class="check-group-label">Tipografía</div>
-      <label class="check-item"><input type="checkbox"> Display/cover: Poppins Bold 36pt / 72hp</label>
-      <label class="check-item"><input type="checkbox"> Secciones H2: Poppins Bold 14pt / 28hp</label>
+      <label class="check-item"><input type="checkbox"> Display/cover: UM Sans Bold 36pt / 72hp</label>
+      <label class="check-item"><input type="checkbox"> Secciones H2: UM Sans Bold 14pt / 28hp</label>
       <label class="check-item"><input type="checkbox"> Body: Arial mínimo 12pt / 24hp <span class="check-code">Regla 5</span></label>
       <label class="check-item"><input type="checkbox"> Labels/metadata: Arial 9pt, color #666666</label>
       <label class="check-item"><input type="checkbox"> Jerarquía en orden: Display → H1 → H2 → H3 (sin saltos)</label>
@@ -1176,7 +1182,7 @@ wkhtmltopdf --page-size A4 \
       <div class="check-group-label">Generación y entrega</div>
       <label class="check-item"><input type="checkbox"> Ejecutado: node generar_nota.js && libreoffice --headless --convert-to pdf *.docx</label>
       <label class="check-item"><input type="checkbox"> PDF revisado visualmente (no solo en LibreOffice)</label>
-      <label class="check-item"><input type="checkbox"> Fonts Poppins/Arial embebidos en el PDF</label>
+      <label class="check-item"><input type="checkbox"> Fonts UM Sans/Arial embebidos en el PDF</label>
     </div>
   </div>
 

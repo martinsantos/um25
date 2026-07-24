@@ -68,7 +68,7 @@ describe('CCTV AI product contract', () => {
     const source = fs.readFileSync(path.join(root, 'src/pages/servicios/index.astro'), 'utf8');
 
     expect(source).toContain("code: '102'");
-    expect(source).toContain("name: 'Seguridad electronica'");
+    expect(source).toContain("name: 'Seguridad electrónica'");
     expect(source).toContain("slug: 'sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi'");
     expect(source).toContain('CCTV IP y VMS');
     expect(source).toContain('href={`/servicios/${service.code}/${service.slug}`}');

@@ -93,11 +93,9 @@ const shouldEmitHreflang = hasEnglishAlternate(Astro.url.pathname);
       breadcrumbs={breadcrumbs}
     />
 
-    <!-- Fonts - Poppins titulares + Inter cuerpo + Geist Mono labels + Futura PT logo/marca -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Fonts - verified UM Sans editorial family + Futura PT reserved for logo -->
+    <link rel="preload" href="/fonts/um-sans/UMSans-Variable.woff2?v=1.2.0-production" as="font" type="font/woff2" crossorigin />
     <link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.cdnfonts.com/css/futura-pt" rel="stylesheet" />
 
     {hasHeadSlot && <slot name="head" />}
@@ -126,6 +124,9 @@ const shouldEmitHreflang = hasEnglishAlternate(Astro.url.pathname);
         color: var(--skin-text);
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+        font-kerning: normal;
+        font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
       }
 
       /* Static cards: hierarchy comes from layout, not motion or shadows. */
@@ -197,6 +198,14 @@ const shouldEmitHreflang = hasEnglishAlternate(Astro.url.pathname);
         text-decoration: none;
       }
 
+      /* Editorial headings must wrap by phrase, never split ordinary words. */
+      main :where(h1, h2, h3, h4) {
+        overflow-wrap: normal !important;
+        word-break: normal !important;
+        hyphens: none !important;
+        text-wrap: pretty;
+      }
+
       .um-skip-link {
         position: fixed;
         left: 16px;
@@ -220,7 +229,10 @@ const shouldEmitHreflang = hasEnglishAlternate(Astro.url.pathname);
       }
     </style>
   </head>
-  <body data-skin={skinAttribute}>
+  <body
+    data-skin={skinAttribute}
+    data-font-system="um-sans-editorial-1.2"
+  >
     <a class="um-skip-link" href="#main-content">{skipLinkLabel}</a>
     <NavbarV4 />
 

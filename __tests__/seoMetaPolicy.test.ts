@@ -98,6 +98,18 @@ describe('human SEO metatag policy', () => {
     expect(meta.description).toBe('Antecedente de Diagnóstico de Infraestructura IT para Jose Nucete e Hijos SA, dentro de Soluciones Tecnológicas.');
   });
 
+  test('normalizes duplicated punctuation inherited from joined CMS fields', () => {
+    const meta = buildCaseSeoMeta({
+      title: 'Cámara de CCTV - Aeropuerto de Mendoza',
+      description: 'Antecedente de CCTV para Aeropuertos Argentina 2000.. Operación documentada.',
+      client: 'Aeropuertos Argentina 2000',
+      area: 'Aeropuertos y Telecomunicaciones',
+    });
+
+    expect(meta.description).not.toContain('..');
+    expect(meta.description).toContain('Operación documentada.');
+  });
+
   test('blog meta uses editorial titles for repeated topics without redirects', () => {
     const slug = 'ia-local-llm-pymes-argentina-2026';
     const meta = buildBlogSeoMeta({

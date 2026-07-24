@@ -1,0 +1,54 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "UM Sans 1.2 Production SBOM",
+  "documentNamespace": "https://ultimamilla.com.ar/sbom/um-sans/1.2",
+  "creationInfo": {
+    "created": "2026-07-13T00:00:00Z",
+    "creators": [
+      "Organization: ULTIMA MILLA S.A."
+    ],
+    "licenseListVersion": "3.26"
+  },
+  "documentDescribes": [
+    "SPDXRef-Package-UMSans"
+  ],
+  "packages": [
+    {
+      "name": "UM Sans",
+      "SPDXID": "SPDXRef-Package-UMSans",
+      "versionInfo": "1.2.0",
+      "supplier": "Organization: ULTIMA MILLA S.A.",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "OFL-1.1",
+      "licenseDeclared": "OFL-1.1",
+      "copyrightText": "UMSA modifications and release engineering; upstream outlines remain governed by the SIL Open Font License 1.1",
+      "summary": "Corporate editorial font release derived from Inter 4.001."
+    },
+    {
+      "name": "Inter",
+      "SPDXID": "SPDXRef-Package-Inter",
+      "versionInfo": "4.001",
+      "supplier": "Organization: The Inter Project Authors",
+      "downloadLocation": "https://github.com/google/fonts/tree/ec0464b978de222073645d6d3366f3fdf03376d8/ofl/inter",
+      "filesAnalyzed": false,
+      "licenseConcluded": "OFL-1.1",
+      "licenseDeclared": "OFL-1.1",
+      "copyrightText": "Copyright The Inter Project Authors"
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-UMSans"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-UMSans",
+      "relationshipType": "GENERATED_FROM",
+      "relatedSpdxElement": "SPDXRef-Package-Inter"
+    }
+  ]
+}

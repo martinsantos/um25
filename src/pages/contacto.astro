@@ -442,7 +442,7 @@ const structuredData = {
   .contact-dossier__copy > p {
     max-width: 690px;
     color: var(--skin-muted, #475569);
-    font-size: clamp(1.04rem, 1.4vw, 1.18rem);
+    font-size: var(--um-copy-lead);
     line-height: 1.7;
   }
 
@@ -540,7 +540,7 @@ const structuredData = {
     max-width: 42ch;
     margin: 18px 0 28px;
     color: rgba(255,255,255,0.76);
-    font-size: 16px;
+    font-size: var(--um-copy-description);
     line-height: 1.68;
   }
 
@@ -615,7 +615,7 @@ const structuredData = {
   .contact-intent p {
     margin: 0;
     color: var(--skin-muted, #5f6368);
-    font-size: 1rem;
+    font-size: var(--um-copy-description);
     line-height: 1.55;
   }
 
@@ -665,7 +665,7 @@ const structuredData = {
     max-width: 680px;
     margin: 0 0 18px;
     color: var(--skin-muted, #475569);
-    font-size: 16px;
+    font-size: var(--um-copy-description);
     line-height: 1.58;
   }
 
@@ -951,7 +951,9 @@ const structuredData = {
       font-size: clamp(1.78rem, 8vw, 2.08rem);
       line-height: 1.12;
       margin: 10px 0 12px;
-      overflow-wrap: anywhere;
+      overflow-wrap: normal;
+      word-break: normal;
+      hyphens: none;
     }
 
     .contact-dossier__copy > p {
@@ -960,15 +962,13 @@ const structuredData = {
       font-size: 1rem;
       line-height: 1.54;
       white-space: normal !important;
-      overflow-wrap: anywhere;
+      overflow-wrap: normal;
       word-break: normal;
     }
 
     .contact-dossier__actions {
-      display: grid;
-      grid-template-columns: 1fr;
-      width: 100%;
-      margin-top: 16px;
+      display: flex;
+      margin-top: 20px;
     }
 
     .contact-dossier__actions :global(.um-btn-secondary) {

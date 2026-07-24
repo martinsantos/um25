@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "family": "UM Sans",
+  "version": "1.2 Production",
+  "releaseDate": "2026-07-13",
+  "releaseStatus": "production",
+  "classification": "Modified OFL derivative of Inter 4.001",
+  "license": "SIL Open Font License 1.1",
+  "trademark": "UM Sans is a trademark of ULTIMA MILLA S.A.",
+  "vendor": "ULTIMA MILLA S.A.",
+  "provenance": {
+    "classification": "Modified OFL derivative",
+    "upstream": "Inter 4.001",
+    "license": "SIL Open Font License 1.1",
+    "independentOutlineCopyright": false,
+    "umsaContributions": [
+      "technical I/l disambiguation defaults",
+      "governed optical proportions and width profiles",
+      "weight-axis response curve",
+      "editorial sidebearing guards",
+      "Spanish and technical kerning additions",
+      "commercial naming, metadata, packaging and QA"
+    ]
+  },
+  "familyMatrix": {
+    "staticStyles": 18,
+    "variableStyles": 2,
+    "weights": [
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700,
+      800,
+      900
+    ],
+    "styles": [
+      "normal",
+      "italic"
+    ],
+    "axes": {
+      "wght": [
+        100,
+        900
+      ],
+      "opsz": [
+        14,
+        32
+      ]
+    }
+  },
+  "metrics": {
+    "unitsPerEm": 2048,
+    "xHeight": 1118,
+    "capHeight": 1490,
+    "typoAscender": 1984,
+    "typoDescender": -494,
+    "typoLineGap": 0
+  },
+  "coverage": {
+    "characters": 1204,
+    "romanGlyphs": 1900,
+    "italicGlyphs": 1862,
+    "scriptsClaimed": [
+      "Latin"
+    ],
+    "scriptsNotClaimed": [
+      "Arabic",
+      "CJK",
+      "Cyrillic",
+      "Greek",
+      "Hebrew",
+      "Emoji"
+    ]
+  },
+  "openType": {
+    "GSUB": [
+      "aalt",
+      "calt",
+      "case",
+      "cv01",
+      "cv02",
+      "cv03",
+      "cv04",
+      "cv05",
+      "cv06",
+      "cv07",
+      "cv08",
+      "cv09",
+      "cv10",
+      "cv11",
+      "cv12",
+      "cv13",
+      "cv14",
+      "dlig",
+      "dnom",
+      "frac",
+      "locl",
+      "numr",
+      "ordn",
+      "pnum",
+      "salt",
+      "sinf",
+      "ss01",
+      "ss02",
+      "ss03",
+      "ss04",
+      "ss05",
+      "ss06",
+      "ss07",
+      "ss08",
+      "subs",
+      "sups",
+      "tnum",
+      "zero"
+    ],
+    "GPOS": [
+      "cpsp",
+      "kern"
+    ]
+  },
+  "web": {
+    "fullVariableRoman": "Web/WOFF2/UMSans-Variable.woff2",
+    "fullVariableItalic": "Web/WOFF2/UMSans-VariableItalic.woff2",
+    "latinCoreRoman": "Web/Subset/UMSans-Variable-LatinCore.woff2",
+    "latinCoreItalic": "Web/Subset/UMSans-VariableItalic-LatinCore.woff2",
+    "recommendedStylesheet": "Web/um-sans-variable.css",
+    "fallbackMetrics": {
+      "family": "Arial",
+      "sizeAdjustPercent": 112.33,
+      "ascentOverridePercent": 86.24,
+      "descentOverridePercent": 21.47,
+      "lineGapOverridePercent": 0.0,
+      "calibration": "UMSA Spanish editorial corpus"
+    }
+  },
+  "source": {
+    "upstream": "Inter",
+    "upstreamVersion": "4.001",
+    "license": "SIL OFL 1.1",
+    "googleFontsCommit": "ec0464b978de222073645d6d3366f3fdf03376d8",
+    "files": [
+      {
+        "file": "Inter[opsz,wght].ttf",
+        "bytes": 876576,
+        "sha256": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031",
+        "url": "https://raw.githubusercontent.com/google/fonts/ec0464b978de222073645d6d3366f3fdf03376d8/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf"
+      },
+      {
+        "file": "Inter-Italic[opsz,wght].ttf",
+        "bytes": 906596,
+        "sha256": "acd98e64795781b2058f07b18475e0ecee2a0fe2b42a49e2f9e37d0d6bf66ce6",
+        "url": "https://raw.githubusercontent.com/google/fonts/ec0464b978de222073645d6d3366f3fdf03376d8/ofl/inter/Inter-Italic%5Bopsz%2Cwght%5D.ttf"
+      },
+      {
+        "file": "OFL.txt",
+        "bytes": 4377,
+        "sha256": "5b9321a4298cfeb6b34354164a1c3afc3db114569984c502b9b35d988fd58c57",
+        "url": "https://raw.githubusercontent.com/google/fonts/ec0464b978de222073645d6d3366f3fdf03376d8/ofl/inter/OFL.txt"
+      }
+    ]
+  }
+}

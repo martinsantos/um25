@@ -1,0 +1,24 @@
+/* UM Sans 1.2 Production metric-compatible fallback · SIL OFL 1.1 */
+
+@font-face {
+  font-family: 'UM Sans Fallback';
+  src: local('Arial');
+  size-adjust: 112.33%;
+  ascent-override: 86.24%;
+  descent-override: 21.47%;
+  line-gap-override: 0.00%;
+}
+
+:root {
+  --um-font-editorial: 'UM Sans', 'UM Sans Fallback', Arial, system-ui, sans-serif;
+  --um-font-display-weight: 700;
+  --um-font-title-weight: 600;
+  --um-font-body-weight: 400;
+}
+
+html {
+  font-family: var(--um-font-editorial);
+  font-optical-sizing: auto;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}

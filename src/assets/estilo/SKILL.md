@@ -6,6 +6,11 @@ description: "Sistema de identidad visual completo de ULTIMA MILLA S.A. Usar par
 # ULTIMA MILLA S.A. — Sistema de Identidad Visual para Documentos
 ## Basado en Manual de Marca v1.0 — Enero 2026
 
+> **Actualizacion tipografica julio 2026:** para web y nuevas piezas editoriales,
+> usar UM Sans 1.2 Production (`public/fonts/um-sans`) en pesos publicos 400-700. Futura PT se reserva
+> para el wordmark. Las recetas historicas con Poppins/Arial siguen documentadas
+> solo para reproducir archivos antiguos y no deben iniciar trabajos nuevos.
+
 ---
 
 ## 1. Identidad de empresa
@@ -64,36 +69,39 @@ description: "Sistema de identidad visual completo de ULTIMA MILLA S.A. Usar par
 
 > **FUENTE**: Manual de Marca UMSA v1.0, sección 5. Tipografía Corporativa.
 
-### Tipografía principal: Futura PT
+### Tipografía de marca: Futura PT
 
-"Futura PT es la tipografía oficial del logotipo y de los títulos corporativos. Es una tipografía geométrica caracterizada por sus formas circulares perfectas y su estética modernista."
+Futura PT queda reservada para el logotipo y reproducciones históricas de marca.
+Los títulos corporativos y el cuerpo de piezas nuevas usan UM Sans 1.2
+Production. Esta regla editorial vigente supera la cita histórica del manual.
 
 | Peso | CSS value | Uso |
 |------|-----------|-----|
-| Medium | 500 | Subtítulos |
-| **Demi (principal)** | **600** | **Logotipo, títulos de sección** |
-| Bold | 700 | Énfasis en títulos |
-| Heavy | 800 | Display grande |
+| **Demi (principal)** | **600** | **Logotipo** |
 
 - Tracking: `-0.02em` (letter-spacing negativo, el logo siempre en lowercase)
 - Web: `https://fonts.cdnfonts.com/css/futura-pt`
 
-### Tipografía secundaria: Arial / Inter
+### Tipografía editorial: UM Sans 1.2 Production
 
-Para cuerpo de texto en documentos donde Futura no esté disponible.
+UM Sans se usa en títulos, cuerpo, interfaz, cifras, documentos y PDF: 400 para
+lectura, 500 para interfaz, 600 para títulos y 700 para énfasis breve. Arial y
+system-ui son fallbacks. La familia completa, su licencia OFL, kits web,
+inventarios, specimen y QA están en `public/fonts/um-sans` y
+`docs/typography/release`.
 
-### Futura PT en DOCX — estrategia de fuentes
+### DOCX — estrategia de fuentes
 
-Futura PT es una fuente comercial. Para DOCX/LibreOffice:
-- **Opción A (recomendada)**: Usar `Poppins` (instalada en el servidor de generación `/usr/share/fonts/truetype/google-fonts/Poppins-Bold.ttf`). Es geométrica y visualmente muy similar a Futura PT. Funciona en LibreOffice PDF export.
-- **Opción B (fallback Windows)**: `Century Gothic` — fuente geométrica incluida en Windows Office.
-- **Opción C (last resort)**: `Arial` — pierde la identidad geométrica pero es universal.
+Para documentos nuevos:
+- **Opción A (recomendada)**: instalar los TTF de UM Sans 1.2 y usarlos en título y cuerpo.
+- **Opción B (legacy)**: Poppins para reproducir documentos anteriores que ya dependían de esa métrica.
+- **Opción C (fallback Windows)**: Arial cuando no se controla la instalación de fuentes.
 
-En el generador JS usar: `font: "Poppins"` para headings, `font: "Arial"` para body.
+En generadores nuevos usar `font: "UM Sans"`; comprobar el embedding al exportar PDF.
 
 **Referencia de pesos en DOCX**:
-- `bold: false, font: "Poppins"` → Poppins Regular (400)
-- `bold: true, font: "Poppins"` → Poppins Bold (700) — DOCX solo tiene normal/bold como binario
+- `bold: false, font: "UM Sans"` → UM Sans Regular (400)
+- `bold: true, font: "UM Sans"` → UM Sans Bold (700) en flujos DOCX binarios
 
 ---
 
