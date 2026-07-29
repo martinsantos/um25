@@ -288,6 +288,8 @@ describe('UM Sans 1.2 production family', () => {
     expect(specimen).toContain('Qué existe. Qué falta.');
     expect(specimen).toContain('La web usa UM Sans Text 1.2 en todos los roles editoriales.');
     expect(specimen).toContain('no permite cursiva sintética');
+    expect(specimen).toMatch(/\.ums2-composition--data strong \{[^}]*font-weight: 800;/);
+    expect(specimen).not.toMatch(/\.ums2-composition--data strong \{[^}]*font-weight: 900;/);
     expect(specimen).not.toContain('UMSans2Display-Bold.woff2');
     expect(specimen).not.toContain("url('/fonts/um-sans-2/UMSans2-");
     expect(specimen).not.toContain('UMSans2-Variable');

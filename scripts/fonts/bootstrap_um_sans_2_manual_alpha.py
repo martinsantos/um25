@@ -218,22 +218,22 @@ def draw_c(pen):
 
 
 def draw_e(pen):
-    # Alpha 6 enlarges the aperture from 54 to 116 units and reduces the
-    # crossbar from 110 to 74 units. Alpha 5 passed structural checks but its
-    # aperture collapsed optically into a capsule at mobile raster sizes.
-    pen.moveTo((590, 298))
-    pen.lineTo((184, 298))
-    pen.curveTo((194, 374), (242, 420), (312, 420))
-    pen.curveTo((372, 420), (418, 392), (450, 342))
-    pen.lineTo((564, 414))
-    pen.curveTo((508, 510), (420, 554), (310, 554))
+    # Alpha 7 rejects Alpha 6's abrupt diagonal terminal and overlong
+    # crossbar. The upper terminal now turns as part of the bowl and leaves a
+    # visibly diagonal aperture instead of reading as a damaged c plus a bar.
+    pen.moveTo((568, 300))
+    pen.lineTo((184, 300))
+    pen.curveTo((194, 376), (242, 420), (312, 420))
+    pen.curveTo((372, 420), (418, 392), (438, 344))
+    pen.lineTo((568, 300))
+    pen.curveTo((532, 476), (420, 554), (310, 554))
     pen.curveTo((140, 554), (38, 444), (38, 270))
     pen.curveTo((38, 96), (140, -14), (310, -14))
-    pen.curveTo((428, -14), (518, 36), (566, 132))
-    pen.lineTo((444, 210))
-    pen.curveTo((416, 150), (374, 120), (312, 120))
+    pen.curveTo((404, -14), (484, 0), (516, 24))
+    pen.lineTo((392, 112))
+    pen.curveTo((370, 118), (342, 120), (312, 120))
     pen.curveTo((244, 120), (196, 160), (184, 224))
-    pen.lineTo((590, 224))
+    pen.lineTo((568, 224))
     pen.closePath()
 
 
@@ -364,7 +364,7 @@ def build(force=False):
     font = Font()
     info = font.info
     info.familyName = "UM Sans 2 Manual"
-    info.styleName = "Display Bold Alpha 6"
+    info.styleName = "Display Bold Alpha 7"
     info.unitsPerEm = 1000
     info.ascender = 780
     info.descender = -220
@@ -373,9 +373,9 @@ def build(force=False):
     info.openTypeOS2WeightClass = 700
     info.openTypeOS2WidthClass = 5
     info.versionMajor = 0
-    info.versionMinor = 700
+    info.versionMinor = 800
     info.copyright = "Copyright 2026 ULTIMA MILLA S.A. Hand-authored alpha outlines."
-    info.note = "Independent manual Alpha 6 control redraw. Not approved for production or distribution."
+    info.note = "Independent manual Alpha 7 control redraw. Not approved for production or distribution."
 
     add_glyph(font, ".notdef", 660, None, draw_notdef)
     add_glyph(font, "space", 290, 0x20)
@@ -410,7 +410,7 @@ def build(force=False):
     oacute.appendComponent(mark)
 
     font.lib["public.glyphOrder"] = list(font.keys())
-    # Alpha 5 validates sidebearings before introducing pair adjustments.
+    # Alpha 7 validates sidebearings before introducing pair adjustments.
     # Premature negative kerning hid bad advances and produced collisions.
     font.features.text = """languagesystem DFLT dflt;\nlanguagesystem latn dflt;\n"""
     font.save(UFO_PATH, formatVersion=3)

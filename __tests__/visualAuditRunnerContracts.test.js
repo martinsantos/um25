@@ -37,6 +37,9 @@ describe('Visual audit runner contracts', () => {
     expect(visualAudit).toContain('/tmp/umsa-visual-audit-${port}');
     expect(visualAudit).toContain("pkill");
     expect(visualAudit).toContain("targets.some((target) => target.type === 'page')");
+    expect(visualAudit).toContain("Network.setCacheDisabled");
+    expect(visualAudit).toContain("Storage.clearDataForOrigin");
+    expect(visualAudit).toContain("storageTypes: 'service_workers,cache_storage'");
 
     const finalLoop = source.slice(source.indexOf('for (const viewport of viewports)'));
     expect(finalLoop).toMatch(/for \(let index = 0; index < commercialRoutes\.length; index \+= ROUTES_PER_BATCH\)/);
@@ -113,11 +116,13 @@ describe('Visual audit runner contracts', () => {
     expect(visualAudit).toContain('sticky filter lacks stable background');
   });
 
-  test('stable editorial H1 permits governed impact 800 without relaxing lower headings', () => {
+  test('audit permits a governed 800 exception while the public H1 token stays at 700', () => {
     const visualAudit = read('scripts/visual-contrast-audit.mjs');
     const home = read('src/pages/index.astro');
+    const v4Css = read('src/styles/v4.css');
 
     expect(home).toContain('class="um-display-emphasis"');
+    expect(v4Css).toContain('--um-hero-weight: 700');
     expect(visualAudit).toContain("element.classList.contains('um-display-emphasis')");
     expect(visualAudit).toContain("const maxWeight = tag === 'h1' ? 800 : 700");
     expect(visualAudit).toContain('fontWeight) > 800');

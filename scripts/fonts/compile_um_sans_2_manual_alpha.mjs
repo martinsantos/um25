@@ -12,8 +12,8 @@ const SOURCE_SCRIPT = path.join(ROOT, 'scripts/fonts/bootstrap_um_sans_2_manual_
 const UFO = path.join(ROOT, 'type/um-sans-2/sources/UMSans2Display-Bold.ufo');
 const BUILD = path.join(ROOT, 'type/um-sans-2/build');
 const WEB = path.join(ROOT, 'public/fonts/um-sans-2-manual-alpha');
-const OTF_NAME = 'UMSans2ManualAlpha6-DisplayBold.otf';
-const VERSION = '0.700';
+const OTF_NAME = 'UMSans2ManualAlpha7-DisplayBold.otf';
+const VERSION = '0.800';
 const KAPPA = 0.5522847498;
 
 const SPECS = [
@@ -270,11 +270,11 @@ function writeUfo(definitions) {
   fs.writeFileSync(path.join(UFO, 'metainfo.plist'), plistDict([['creator', 'com.ultimamilla.umsans2'], ['formatVersion', 3]]));
   fs.writeFileSync(path.join(UFO, 'layercontents.plist'), plistDocument('<array>\n  <array>\n    <string>public.default</string>\n    <string>glyphs</string>\n  </array>\n</array>'));
   fs.writeFileSync(path.join(UFO, 'fontinfo.plist'), plistDict([
-    ['familyName', 'UM Sans 2 Manual'], ['styleName', 'Display Bold Alpha 6'],
+    ['familyName', 'UM Sans 2 Manual'], ['styleName', 'Display Bold Alpha 7'],
     ['unitsPerEm', 1000], ['ascender', 780], ['descender', -220],
     ['capHeight', 720], ['xHeight', 540], ['openTypeOS2WeightClass', 700],
-    ['openTypeOS2WidthClass', 5], ['versionMajor', 0], ['versionMinor', 600],
-    ['note', 'Independent manual Alpha 6 control redraw. Not approved for production or distribution.'],
+    ['openTypeOS2WidthClass', 5], ['versionMajor', 0], ['versionMinor', 800],
+    ['note', 'Independent manual Alpha 7 control redraw. Not approved for production or distribution.'],
   ]));
   fs.writeFileSync(path.join(UFO, 'lib.plist'), plistDict([['public.glyphOrder', definitions.map((glyph) => glyph.name)]]));
   fs.writeFileSync(path.join(UFO, 'features.fea'), 'languagesystem DFLT dflt;\nlanguagesystem latn dflt;\n');
@@ -301,7 +301,7 @@ export function compile() {
     path: toOpenTypePath(glyph.contours),
   }));
   const font = new opentype.Font({
-    familyName: 'UM Sans 2 Manual Alpha 6',
+    familyName: 'UM Sans 2 Manual Alpha 7',
     styleName: 'Display Bold',
     designer: 'ULTIMA MILLA S.A. Type Development',
     designerURL: 'https://www.ultimamilla.com.ar',
@@ -336,9 +336,9 @@ export function compile() {
     }];
   }));
   const report = {
-    family: 'UM Sans 2 Manual Alpha 6',
+    family: 'UM Sans 2 Manual Alpha 7',
     version: VERSION,
-    status: 'manual-alpha-6-quarantined',
+    status: 'manual-alpha-7-quarantined',
     generatedAt: new Date().toISOString(),
     source: path.relative(ROOT, UFO),
     outlineOrigin: 'hand-authored UMSA coordinates parsed from the manual master; no imported outlines',
@@ -347,12 +347,14 @@ export function compile() {
     approvedUse: 'noindex specimen only',
     productionUse: false,
     kerningPairs: 0,
+    visualGateRequired: true,
+    visualGateReport: 'type/um-sans-2/build/visual-gate-report.json',
     metrics,
     files: [buildOtf, webOtf].map((filePath) => ({ path: path.relative(ROOT, filePath), sha256: sha256(filePath) })),
   };
   fs.writeFileSync(path.join(BUILD, 'build-report.json'), `${JSON.stringify(report, null, 2)}\n`);
   fs.writeFileSync(path.join(WEB, 'build-report.json'), `${JSON.stringify(report, null, 2)}\n`);
-  fs.writeFileSync(path.join(WEB, 'DO-NOT-SHIP.md'), '# UM Sans 2 Manual Alpha 6\n\nInternal noindex proof only. Alpha 1 through Alpha 5 were rejected as release candidates after visual review. Do not register globally, package or deploy to production.\n');
+  fs.writeFileSync(path.join(WEB, 'DO-NOT-SHIP.md'), '# UM Sans 2 Manual Alpha 7\n\nInternal noindex proof only. Alpha 1 through Alpha 6 were rejected after visual review. Alpha 7 also requires a locked raster gate and direct human review. Do not register globally, package or deploy to production.\n');
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
   return report;
 }

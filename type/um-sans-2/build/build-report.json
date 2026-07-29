@@ -1,8 +1,8 @@
 {
-  "family": "UM Sans 2 Manual Alpha 6",
-  "version": "0.700",
-  "status": "manual-alpha-6-quarantined",
-  "generatedAt": "2026-07-24T13:07:25.697Z",
+  "family": "UM Sans 2 Manual Alpha 7",
+  "version": "0.800",
+  "status": "manual-alpha-7-quarantined",
+  "generatedAt": "2026-07-29T11:22:19.075Z",
   "source": "type/um-sans-2/sources/UMSans2Display-Bold.ufo",
   "outlineOrigin": "hand-authored UMSA coordinates parsed from the manual master; no imported outlines",
   "glyphCount": 24,
@@ -10,6 +10,8 @@
   "approvedUse": "noindex specimen only",
   "productionUse": false,
   "kerningPairs": 0,
+  "visualGateRequired": true,
+  "visualGateReport": "type/um-sans-2/build/visual-gate-report.json",
   "metrics": {
     ".notdef": {
       "advanceWidth": 660,
@@ -100,9 +102,9 @@
     "e": {
       "advanceWidth": 616,
       "leftSidebearing": 38,
-      "rightSidebearing": 26,
+      "rightSidebearing": 48,
       "contourAreas": [
-        190296
+        175697
       ]
     },
     "f": {
@@ -217,12 +219,12 @@
   },
   "files": [
     {
-      "path": "type/um-sans-2/build/UMSans2ManualAlpha6-DisplayBold.otf",
-      "sha256": "daab7b09786934623b1aa1c48cf51ab79942f8f93228fa7d4ba83379c553cf00"
+      "path": "type/um-sans-2/build/UMSans2ManualAlpha7-DisplayBold.otf",
+      "sha256": "496e9d9fe45840acff626a2b25cb2cae95a4852610c8f41a5720fbbf039deab7"
     },
     {
-      "path": "public/fonts/um-sans-2-manual-alpha/UMSans2ManualAlpha6-DisplayBold.otf",
-      "sha256": "daab7b09786934623b1aa1c48cf51ab79942f8f93228fa7d4ba83379c553cf00"
+      "path": "public/fonts/um-sans-2-manual-alpha/UMSans2ManualAlpha7-DisplayBold.otf",
+      "sha256": "496e9d9fe45840acff626a2b25cb2cae95a4852610c8f41a5720fbbf039deab7"
     }
   ]
 }

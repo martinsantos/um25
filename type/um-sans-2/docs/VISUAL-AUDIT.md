@@ -97,13 +97,37 @@ checks did not detect that optical failure.
 
 ## Alpha 6
 
-Decision: PENDING VISUAL REVIEW. RELEASE REJECTED.
+Decision: REJECTED AFTER MOBILE BROWSER REVIEW. RELEASE REJECTED.
 
 - The `e` aperture is enlarged to 116 units.
 - The crossbar is reduced from 110 to 74 units.
 - Tracking, kerning and synthetic bold remain disabled.
 - Approval requires direct browser review at 16, 20, 24, 30, 32, 48 and 72px
   on 360px and 390px mobile widths plus desktop.
+- The direct 432px browser review on 2026-07-29 found the `e` in
+  `Fibra certificada, operación continua.` visually inadmissible. The widened
+  aperture did not repair the abrupt upper terminal or overlong crossbar.
+
+## Alpha 7
+
+Decision: CONTROL MASTER PASSED. RELEASE REJECTED.
+
+- The `e` upper terminal now turns with the bowl instead of ending in Alpha
+  6's abrupt diagonal.
+- The crossbar is shortened and the right sidebearing is restored to 48 units.
+- The automatic gate renders the critical strings at 16, 20, 24, 30, 32, 48
+  and 72px, then checks glyph coverage, connected ink, counter survival and
+  aperture depth.
+- A reviewed raster fingerprint is mandatory. Any later outline, advance,
+  fallback or spacing change blocks the proof until a human reviews and locks
+  the new evidence.
+- Desktop 1280×720 and mobile 432×661, 390×900 and 360×740 browser proofs were
+  reviewed directly on 2026-07-29. The `e` reads correctly in `certificada`,
+  the intended Alpha 7 family loads, and the page has no horizontal overflow.
+- The seven reviewed raster fingerprints are locked in
+  `scripts/fonts/audit_um_sans_2_manual_visual.mjs`; the gate passes only when
+  all control strings reproduce exactly and every semantic raster check passes.
+- Evidence is stored in `type/um-sans-2/proofs/reviews/`.
 
 ## Approval boundary
 

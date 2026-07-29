@@ -6,7 +6,7 @@ transform or interpolate third-party outlines.
 
 ## Current milestone
 
-`Alpha 6 / Display Bold control set`
+`Alpha 7 / Display Bold control set`
 
 Alpha 0 was rejected for structural contour defects. Alpha 1 compiled cleanly
 but was visually rejected because its `e`, terminal language and word rhythm
@@ -18,7 +18,10 @@ the words legible but still left an over-dark `e` construction and a 140-unit
 left sidebearing on `f`, creating a false word break. Alpha 5 rebuilt `e` as
 an open contour but its aperture still collapsed in the mobile raster. Alpha 6
 widens that aperture and thins the crossbar while preserving the corrected
-`f` spacing. It remains a quarantined control master, not a usable family.
+`f` spacing. The mobile browser review on 2026-07-29 still found that `e`
+inadmissible. Alpha 7 redraws its terminal and shortens its crossbar, then
+locks the reviewed output with a multi-size raster fingerprint. It remains a
+quarantined control master, not a usable family.
 
 - one manually drawn UFO master;
 - Spanish-first proof characters, accent and punctuation;
@@ -47,7 +50,8 @@ similarity review.
 ## Non-negotiable gate
 
 A structurally valid font is not an approved font. Every promoted master must
-pass desktop, mobile, print and long-word screenshots reviewed by a human.
+pass the deterministic multi-size raster gate plus desktop, mobile, print and
+long-word screenshots reviewed by a human.
 
 ## Local workflow
 

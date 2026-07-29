@@ -31,6 +31,7 @@ describe('Information hub visual contracts', () => {
 
     expect(v4Css).toContain('--um-container-wide: 1400px');
     expect(v4Css).toContain('--um-font-body: var(--um-font-editorial)');
+    expect(v4Css).toContain('--um-hero-weight: 700');
     expect(v4Css).toContain('.um-page-shell');
     expect(v4Css).toMatch(/\.services-demo,[\s\S]*\.um26-evidence,[\s\S]*\.sectors-demo,[\s\S]*--skin-muted:\s*#c4c7cc;/i);
     expect(layout).not.toContain('fonts.googleapis.com');
@@ -57,6 +58,7 @@ describe('Information hub visual contracts', () => {
     expect(home).not.toContain('class="um26-hero__metric"');
     expect(home).not.toContain('class="um26-hero__shuffle"');
     expect(servicesIndex).toMatch(/\.services-demo-row\s*\{[\s\S]*min-height:\s*360px;/);
+    expect(servicesIndex).toMatch(/\.services-demo-hero h1\s*\{[\s\S]*font-weight:\s*700;/);
     expect(servicesIndex).toMatch(/\.services-demo-body h2\s*\{[\s\S]*2\.375rem/);
     expect(servicesIndex).toMatch(/\.services-demo-body h2\s*\{[\s\S]*line-height:\s*1\.12;[\s\S]*overflow-wrap:\s*normal;/);
     expect(sectoresIndex).toMatch(/@media \(max-width:\s*980px\)[\s\S]*\.sectors-demo-hero h1\s*\{[\s\S]*overflow-wrap:\s*normal;/);

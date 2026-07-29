@@ -1,12 +1,14 @@
 # UM Sans 2.0 Drawing Specification
 
-Status: Alpha 6 control redraw. Alpha 0 was rejected for contour winding,
+Status: Alpha 7 control redraw. Alpha 0 was rejected for contour winding,
 Alpha 1 for visual form and rhythm defects, Alpha 2 for inconsistent stem
 weight and joins, and Alpha 3 for its constructed `e` and unstable `f/r`
 spacing. This document governs drawing decisions; it does not approve the
 family for use. Alpha 4 was retained only as evidence of a spacing defect: its
 `f` began 140 units inside the advance and its closed `e` was over-dark. Alpha
 5 corrected that spacing but its 54-unit `e` aperture collapsed on mobile.
+Alpha 6 widened the aperture but retained an abrupt diagonal terminal and an
+overlong crossbar that still read as a defective character.
 
 ## Voice
 
@@ -17,7 +19,7 @@ technical figures and operational interfaces.
 
 ## Metrics
 
-| Metric | Display Bold Alpha 6 |
+| Metric | Display Bold Alpha 7 |
 | --- | ---: |
 | Units per em | 1000 |
 | Ascender | 780 |
@@ -28,7 +30,7 @@ technical figures and operational interfaces.
 | Round overshoot | 14 |
 | Default sidebearing | 52 |
 
-Alpha 6 is evaluated with zero CSS tracking and no kerning pairs. Word rhythm
+Alpha 7 is evaluated with zero CSS tracking and no kerning pairs. Word rhythm
 must first work from the authored advances and sidebearings.
 
 ## Drawing principles
@@ -71,5 +73,5 @@ No full alphabet is extrapolated until the control words pass review.
 - interpolation before compatible manual masters exist;
 - website rollout before raster approval.
 
-Alpha 6 control glyphs are authored as final contours. Stems, crossbars and
+Alpha 7 control glyphs are authored as final contours. Stems, crossbars and
 bowls do not depend on a compiler-side `Remove Overlap` pass.

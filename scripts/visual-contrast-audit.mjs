@@ -1806,6 +1806,12 @@ async function main() {
 
     await cdp(ws, 'Page.enable');
     await cdp(ws, 'Runtime.enable');
+    await cdp(ws, 'Network.enable');
+    await cdp(ws, 'Network.setCacheDisabled', { cacheDisabled: true });
+    await cdp(ws, 'Storage.clearDataForOrigin', {
+      origin: new URL(BASE_URL).origin,
+      storageTypes: 'service_workers,cache_storage',
+    });
 
     const selectedViewports = VIEWPORT_FILTER ? viewports.filter((viewport) => VIEWPORT_FILTER.test(viewport.name)) : viewports;
     const selectedRoutes = routes

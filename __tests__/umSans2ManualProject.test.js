@@ -10,7 +10,7 @@ describe('UM Sans 2 manual project quarantine', () => {
     expect(fs.existsSync(path.join(root, 'type/um-sans-2/UMSans2.designspace'))).toBe(true);
     expect(fs.existsSync(path.join(root, 'type/um-sans-2/proofs/specimen.html'))).toBe(true);
     expect(read('type/um-sans-2/docs/DRAWING-SPEC.md')).toMatch(/manual/i);
-    expect(read('type/um-sans-2/README.md')).toMatch(/Alpha 6/i);
+    expect(read('type/um-sans-2/README.md')).toMatch(/Alpha 7/i);
   });
 
   test('does not import or transform third-party outlines', () => {
@@ -32,14 +32,14 @@ describe('UM Sans 2 manual project quarantine', () => {
   test('loads the proof only in a noindex specimen', () => {
     const route = read('src/pages/estilo/um-sans-2-manual.astro');
     expect(route).toContain('noindex={true}');
-    expect(route).toContain('UMSans2ManualAlpha6-DisplayBold.otf?v=0.700');
+    expect(route).toContain('UMSans2ManualAlpha7-DisplayBold.otf?v=0.800');
 
     const globalRuntime = [
       'src/styles/v4.css',
       'src/styles/global.css',
       'src/layouts/LayoutV4.astro',
     ].map(read).join('\n');
-    expect(globalRuntime).not.toContain('UM Sans 2 Manual Alpha 6');
+    expect(globalRuntime).not.toContain('UM Sans 2 Manual Alpha 7');
     expect(globalRuntime).not.toContain('um-sans-2-manual-alpha');
   });
 
@@ -49,6 +49,20 @@ describe('UM Sans 2 manual project quarantine', () => {
     expect(marker).toMatch(/Do not/i);
     expect(report.productionUse).toBe(false);
     expect(report.approvedUse).toBe('noindex specimen only');
+  });
+
+  test('requires the human-reviewed raster baseline to pass at every size', () => {
+    const report = JSON.parse(read('public/fonts/um-sans-2-manual-alpha/visual-gate-report.json'));
+    expect(report.status).toBe('PASS');
+    expect(report.baselineReview).toBe('human-reviewed-and-locked');
+    expect(report.rasterSizes).toEqual([16, 20, 24, 30, 32, 48, 72]);
+    expect(report.sizes).toHaveLength(7);
+    for (const size of report.sizes) {
+      expect(size.inkComponents).toBe(1);
+      expect(size.counterAreas).toHaveLength(1);
+      expect(size.apertureOpenRows).toBeGreaterThan(0);
+      expect(size.controlRasterSha256).toBe(size.approvedSha256);
+    }
   });
 
   test('keeps the long proof phrase bounded on narrow screens', () => {
@@ -63,9 +77,15 @@ describe('UM Sans 2 manual project quarantine', () => {
   test('exposes a multi-size raster gate before any release claim', () => {
     const route = read('src/pages/estilo/um-sans-2-manual.astro');
     const audit = read('type/um-sans-2/docs/VISUAL-AUDIT.md');
+    const visualGate = read('scripts/fonts/audit_um_sans_2_manual_visual.mjs');
     expect(route).toContain('const rasterSizes = [16, 20, 24, 30, 32, 48, 72]');
     expect(route).toContain('La forma debe sobrevivir a cada escala.');
     expect(route).toContain('release bloqueada');
+    expect(visualGate).toContain('export const RASTER_SIZES = [16, 20, 24, 30, 32, 48, 72]');
+    expect(visualGate).toContain('Fibra certificada, operación continua.');
+    expect(visualGate).toContain('e aperture is too narrow');
+    expect(visualGate).toContain('Visual regression');
+    expect(visualGate).toContain('pending-human-review');
     expect(audit).toMatch(/RELEASE REJECTED/i);
     expect(audit).toMatch(/FontBakery still reports six intrinsic release failures/i);
   });
