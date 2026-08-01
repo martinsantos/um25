@@ -10,7 +10,7 @@ describe('UM Sans 2 manual project quarantine', () => {
     expect(fs.existsSync(path.join(root, 'type/um-sans-2/UMSans2.designspace'))).toBe(true);
     expect(fs.existsSync(path.join(root, 'type/um-sans-2/proofs/specimen.html'))).toBe(true);
     expect(read('type/um-sans-2/docs/DRAWING-SPEC.md')).toMatch(/manual/i);
-    expect(read('type/um-sans-2/README.md')).toMatch(/Alpha 6/i);
+    expect(read('type/um-sans-2/README.md')).toMatch(/Alpha 12/i);
   });
 
   test('does not import or transform third-party outlines', () => {
@@ -32,14 +32,14 @@ describe('UM Sans 2 manual project quarantine', () => {
   test('loads the proof only in a noindex specimen', () => {
     const route = read('src/pages/estilo/um-sans-2-manual.astro');
     expect(route).toContain('noindex={true}');
-    expect(route).toContain('UMSans2ManualAlpha6-DisplayBold.otf?v=0.700');
+    expect(route).toContain('UMSans2ManualAlpha12-DisplayBold.ttf?v=0.912');
 
     const globalRuntime = [
       'src/styles/v4.css',
       'src/styles/global.css',
       'src/layouts/LayoutV4.astro',
     ].map(read).join('\n');
-    expect(globalRuntime).not.toContain('UM Sans 2 Manual Alpha 6');
+    expect(globalRuntime).not.toContain('UM Sans 2 Manual Alpha 12');
     expect(globalRuntime).not.toContain('um-sans-2-manual-alpha');
   });
 
@@ -48,7 +48,7 @@ describe('UM Sans 2 manual project quarantine', () => {
     const report = JSON.parse(read('public/fonts/um-sans-2-manual-alpha/build-report.json'));
     expect(marker).toMatch(/Do not/i);
     expect(report.productionUse).toBe(false);
-    expect(report.approvedUse).toBe('noindex specimen only');
+    expect(report.approvedUse).toMatch(/diagnostic inspection only/i);
   });
 
   test('keeps the long proof phrase bounded on narrow screens', () => {
@@ -67,6 +67,30 @@ describe('UM Sans 2 manual project quarantine', () => {
     expect(route).toContain('La forma debe sobrevivir a cada escala.');
     expect(route).toContain('release bloqueada');
     expect(audit).toMatch(/RELEASE REJECTED/i);
-    expect(audit).toMatch(/FontBakery still reports six intrinsic release failures/i);
+    expect(audit).toMatch(/FontBakery release failures/i);
+  });
+
+  test('keeps Fontmake normalization separate from the diagnostic compiler', () => {
+    const compiler = read('scripts/fonts/compile_um_sans_2_manual_alpha.mjs');
+    const fontmake = read('scripts/fonts/fontmake_um_sans_2_manual.mjs');
+    expect(compiler).not.toContain('writeUfo(definitions);');
+    expect(fontmake).toContain('RemoveOverlapsFilter');
+    expect(fontmake).toContain(".venv-fonts/bin/fontmake");
+    expect(fontmake).toContain('GENERATED_FOR_REVIEW');
+    expect(fontmake).toContain('productionUse: false');
+  });
+
+  test('refuses fallback glyphs in each visual proof', () => {
+    const glyphReview = read('scripts/fonts/render_um_sans_2_manual_glyph_review.mjs');
+    const visualGate = read('scripts/fonts/render_um_sans_2_manual_visual_gate.mjs');
+    const multiscale = read('scripts/fonts/render_um_sans_2_manual_multiscale.mjs');
+    expect(glyphReview).toContain("import { missingCodepoints } from './ttf_cmap.mjs'");
+    expect(glyphReview).toContain('Glyph review refuses fallback rendering');
+    expect(visualGate).toContain('Visual gate refuses fallback rendering');
+    expect(multiscale).toContain('Multiscale proof refuses fallback rendering');
+    expect(multiscale).toContain('390px CSS width at 3x raster');
+    expect(multiscale).toContain('A4 portrait at 300 dpi');
+    expect(read('type/um-sans-2/docs/CORE-GLYPH-REVIEW.md')).toMatch(/Alpha 14[\s\S]*Rechazada/i);
+    expect(read('type/um-sans-2/docs/PRODUCTION-MAP.md')).toMatch(/Latin Extended-A/);
   });
 });

@@ -111,3 +111,52 @@ The family remains quarantined until its full alphabet, figures, punctuation,
 Spanish coverage, spacing, kerning, hinting and platform raster review exist.
 Passing OTS, FreeType or FontBakery means the binary is structurally usable; it
 does not mean the drawing is aesthetically acceptable.
+
+## Alpha 12
+
+Decision: CONTROL DIRECTION RETAINED. RELEASE REJECTED.
+
+Alpha 6 remains rejected as a browser specimen. Its single notched contour
+created a fragile aperture and made the review dependent on a custom compiler.
+Alpha 12 separates the rounded open body from the horizontal bar in the source
+then uses Fontmake's overlap removal to make a normalized review font.
+
+Required evidence before any further drawing decision:
+
+1. Fontmake build completes from the editable UFO without changing source.
+2. The review TTF contains one normalized `e` outline and no source overlap.
+3. Multiscale control sheets at 16, 20, 24, 30, 32, 48 and 72px show open
+   counters and stable word color at desktop and mobile widths.
+4. FontBakery release failures are recorded as blockers, never converted into
+   an approval claim.
+
+Remaining blockers are material: one weight, a partial 25-glyph inventory,
+no complete Latin Extended-A, figures, punctuation, kerning, interpolation,
+hinting, platform matrix or independent similarity review. The custom audit is
+only a diagnostic check and cannot approve the typeface.
+
+The generated file `proofs/generated/alpha12/fontmake-control-sheet.png` is a
+technical raster control only. It does not approve Alpha 12's drawing: its `e`
+construction and unfinished terminal system remain rejected for web use.
+
+The generated file `proofs/generated/alpha12/fontmake-control-sheet.png` is a
+technical raster control only. It does not approve Alpha 12's drawing; the
+`e` construction and the unfinished terminal system remain rejected for any
+web integration.
+
+## Alpha 13 and Alpha 14
+
+Decision: REJECTED FOR DESIGN. RELEASE REJECTED.
+
+Alpha 13 and Alpha 14 were generated as isolated `e` aperture studies. Their
+Fontmake outputs normalize overlaps cleanly, and the proof scripts now refuse
+to render any string containing an absent glyph. This is an engineering
+improvement, not an aesthetic approval.
+
+The desktop, mobile and print sheets from the normalized Alpha 14 TTF were
+reviewed. The samples fit their canvases after the mobile proof was corrected,
+but the `a/c/e/o/s` group remains too generic and lacks a shared terminal
+language. Alpha 14 cannot be loaded by the commercial theme.
+
+See `CORE-GLYPH-REVIEW.md` and `PRODUCTION-MAP.md` for the next required
+drawing decisions and deliverables.

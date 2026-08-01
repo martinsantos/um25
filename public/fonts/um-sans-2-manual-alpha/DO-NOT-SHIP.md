@@ -1,3 +1,3 @@
-# UM Sans 2 Manual Alpha 6
+# UM Sans 2 Manual Alpha 12
 
-Internal noindex proof only. Alpha 1 through Alpha 5 were rejected as release candidates after visual review. Do not register globally, package or deploy to production.
+Diagnostic output only. The only browser proof allowed is the normalized Fontmake review artifact. Do not register globally, package or deploy to production.

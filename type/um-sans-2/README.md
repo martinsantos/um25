@@ -6,7 +6,7 @@ transform or interpolate third-party outlines.
 
 ## Current milestone
 
-`Alpha 6 / Display Bold control set`
+`Alpha 12 / Display Bold control set`
 
 Alpha 0 was rejected for structural contour defects. Alpha 1 compiled cleanly
 but was visually rejected because its `e`, terminal language and word rhythm
@@ -17,8 +17,28 @@ a constructed `c` plus bar and `f/r` destabilized word spacing. Alpha 4 made
 the words legible but still left an over-dark `e` construction and a 140-unit
 left sidebearing on `f`, creating a false word break. Alpha 5 rebuilt `e` as
 an open contour but its aperture still collapsed in the mobile raster. Alpha 6
-widens that aperture and thins the crossbar while preserving the corrected
-`f` spacing. It remains a quarantined control master, not a usable family.
+widened that aperture but retained a notched spiral. Alpha 12 replaces it with
+a rounded open body plus a horizontal bar, then requires Fontmake overlap
+normalization before any browser proof. It remains a quarantined control
+master, not a usable family.
+
+The technical build does not approve the design. See
+[`docs/ALPHA12-DESIGN-REVIEW.md`](docs/ALPHA12-DESIGN-REVIEW.md) before any
+redraw: the next alternative must live in a new source rather than silently
+mutating this control master.
+
+The technical build does not approve the design. Read
+[`docs/ALPHA12-DESIGN-REVIEW.md`](docs/ALPHA12-DESIGN-REVIEW.md) before any
+redraw: the next alternative must live in a new source, not silently mutate
+this control master.
+
+See [`docs/CORE-GLYPH-REVIEW.md`](docs/CORE-GLYPH-REVIEW.md) for the current
+decision record. Alpha 12, 13 and 14 are rejected studies; none may be
+integrated into the theme.
+
+See [`docs/CORE-GLYPH-REVIEW.md`](docs/CORE-GLYPH-REVIEW.md) for the current
+decision record. Alpha 12, 13 and 14 are rejected studies; none may be
+integrated into the theme.
 
 - one manually drawn UFO master;
 - Spanish-first proof characters, accent and punctuation;
@@ -26,10 +46,9 @@ widens that aperture and thins the crossbar while preserving the corrected
 - no production CSS registration;
 - no distribution or originality claim.
 
-The current external release check is intentionally red: FontBakery reports
-six intrinsic release failures, two warnings and one environment-only version
-check failure because the alphabet, NBSP, naming/version records and kerning
-are not complete. A green custom alpha audit only means
+The current external release check is intentionally red: FontBakery release
+failures remain because the alphabet, naming/version records and kerning are
+not complete. A green custom alpha audit only means
 the proof artifact is loadable and quarantined; it is not market readiness.
 
 The website continues to use UM Sans 1.2 until this project passes human word-
@@ -54,6 +73,7 @@ pass desktop, mobile, print and long-word screenshots reviewed by a human.
 ```bash
 .venv-fonts/bin/pip install -r scripts/fonts/requirements.txt
 npm run fonts:proof:um-sans-2-manual
+UMSANS_FONT_PYTHON=.venv-fonts/bin/python npm run fonts:release-gate:um-sans-2-manual
 ```
 
 Review the browser proof at `/estilo/um-sans-2-manual` and the portable proof
@@ -63,3 +83,6 @@ The bootstrap script only exists to reproduce the first explicitly authored
 control master. It refuses to overwrite the UFO unless `--force` is supplied.
 Once drawing continues in a font editor, the UFO remains authoritative and the
 bootstrap must not be used to replace those manual edits.
+
+The second command above is expected to return `BLOCKED` until the full
+commercial family exists. It is a release gate, not a build failure to ignore.

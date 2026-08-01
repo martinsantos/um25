@@ -8,8 +8,8 @@ import opentypeModule from 'opentype.js';
 const opentype = opentypeModule.default ?? opentypeModule;
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const REPORT = path.join(ROOT, 'type/um-sans-2/build/build-report.json');
-const OTF = path.join(ROOT, 'type/um-sans-2/build/UMSans2ManualAlpha6-DisplayBold.otf');
-const WEB_OTF = path.join(ROOT, 'public/fonts/um-sans-2-manual-alpha/UMSans2ManualAlpha6-DisplayBold.otf');
+const OTF = path.join(ROOT, 'type/um-sans-2/build/UMSans2ManualAlpha12-Diagnostic.otf');
+const WEB_OTF = path.join(ROOT, 'public/fonts/um-sans-2-manual-alpha/UMSans2ManualAlpha12-Diagnostic.otf');
 const ROUTE = path.join(ROOT, 'src/pages/estilo/um-sans-2-manual.astro');
 const OUTPUT = path.join(ROOT, 'type/um-sans-2/build/audit-report.json');
 
@@ -22,10 +22,10 @@ check(fs.existsSync(WEB_OTF), 'Web OTF proof is missing');
 const report = fs.existsSync(REPORT) ? JSON.parse(fs.readFileSync(REPORT, 'utf8')) : { metrics: {} };
 const route = fs.readFileSync(ROUTE, 'utf8');
 check(report.productionUse === false, 'Manual proof must remain quarantined');
-check(report.version === '0.700', 'Expected Alpha 6 version 0.700');
-check(report.kerningPairs === 0, 'Alpha 6 must validate spacing without kerning');
+check(report.version === '0.912', 'Expected Alpha 12 version 0.912');
+check(report.kerningPairs === 0, 'Alpha 12 must validate spacing without kerning');
 check(route.includes('noindex={true}'), 'Specimen must remain noindex');
-check(route.includes('UMSans2ManualAlpha6-DisplayBold.otf?v=0.700'), 'Specimen is not loading Alpha 6 OTF');
+check(!route.includes('UMSans2ManualAlpha12-Diagnostic.otf'), 'Browser specimen must not load a diagnostic OTF');
 check(!/letter-spacing:\s*-/.test(route), 'Specimen uses negative tracking');
 check(!route.includes('text-rendering: geometricPrecision'), 'Specimen forces non-default rasterization');
 
@@ -35,7 +35,7 @@ for (const name of ['O', 'o', 'a', 'b', 'd', 'p']) {
 }
 {
   const eAreas = report.metrics?.e?.contourAreas ?? [];
-  check(eAreas.length === 1 && Math.abs(eAreas[0]) > 100000, `e open contour is invalid: ${eAreas.join(', ')}`);
+  check(eAreas.length === 2 && eAreas.every((area) => area > 0), `e source contours must have the same winding before Fontmake normalization: ${eAreas.join(', ')}`);
 }
 for (const [name, left, right] of [['a', 30, 30], ['e', 30, 20], ['f', 18, 30], ['o', 30, 30], ['r', 40, 20], ['s', 24, 24]]) {
   const metric = report.metrics?.[name] ?? {};
@@ -47,7 +47,7 @@ if (fs.existsSync(OTF)) {
   const font = opentype.loadSync(OTF);
   check(font.unitsPerEm === 1000, 'Unexpected unitsPerEm');
   check(font.ascender === 780 && font.descender === -220, 'Vertical metrics changed');
-  check(font.glyphs.length === 24, `Unexpected glyph count: ${font.glyphs.length}`);
+  check(font.glyphs.length === 25, `Unexpected glyph count: ${font.glyphs.length}`);
   for (const name of ['f', 'r']) {
     const glyph = Object.values(font.glyphs.glyphs).find((item) => item.name === name);
     check(Boolean(glyph), `Missing ${name} in compiled proof`);
@@ -56,7 +56,8 @@ if (fs.existsSync(OTF)) {
 }
 
 const result = {
-  status: failures.length ? 'FAIL' : 'PASS',
+  // This validates a quarantined diagnostic artifact, never the family.
+  status: failures.length ? 'DIAGNOSTIC_FAIL' : 'DIAGNOSTIC_PASS',
   version: report.version,
   glyphCount: report.glyphCount,
   productionUse: false,

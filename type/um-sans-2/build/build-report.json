@@ -1,13 +1,13 @@
 {
-  "family": "UM Sans 2 Manual Alpha 6",
-  "version": "0.700",
-  "status": "manual-alpha-6-quarantined",
-  "generatedAt": "2026-07-24T13:07:25.697Z",
+  "family": "UM Sans 2 Manual Alpha 12 Diagnostic",
+  "version": "0.912",
+  "status": "manual-alpha-12-diagnostic-quarantined",
+  "generatedAt": "2026-07-28T15:18:13.995Z",
   "source": "type/um-sans-2/sources/UMSans2Display-Bold.ufo",
   "outlineOrigin": "hand-authored UMSA coordinates parsed from the manual master; no imported outlines",
-  "glyphCount": 24,
-  "unicodeCount": 23,
-  "approvedUse": "noindex specimen only",
+  "glyphCount": 25,
+  "unicodeCount": 24,
+  "approvedUse": "diagnostic inspection only; browser specimen must use Fontmake review output",
   "productionUse": false,
   "kerningPairs": 0,
   "metrics": {
@@ -23,6 +23,12 @@
       ]
     },
     "space": {
+      "advanceWidth": 290,
+      "leftSidebearing": 0,
+      "rightSidebearing": 290,
+      "contourAreas": []
+    },
+    "nbspace": {
       "advanceWidth": 290,
       "leftSidebearing": 0,
       "rightSidebearing": 290,
@@ -100,9 +106,10 @@
     "e": {
       "advanceWidth": 616,
       "leftSidebearing": 38,
-      "rightSidebearing": 26,
+      "rightSidebearing": 60,
       "contourAreas": [
-        190296
+        159195,
+        29008
       ]
     },
     "f": {
@@ -217,12 +224,12 @@
   },
   "files": [
     {
-      "path": "type/um-sans-2/build/UMSans2ManualAlpha6-DisplayBold.otf",
-      "sha256": "daab7b09786934623b1aa1c48cf51ab79942f8f93228fa7d4ba83379c553cf00"
+      "path": "type/um-sans-2/build/UMSans2ManualAlpha12-Diagnostic.otf",
+      "sha256": "8eb2ce6402eb8a1bbd61514ca06c7bcc00ab76441481ed449c45b1b15a43a1c4"
     },
     {
-      "path": "public/fonts/um-sans-2-manual-alpha/UMSans2ManualAlpha6-DisplayBold.otf",
-      "sha256": "daab7b09786934623b1aa1c48cf51ab79942f8f93228fa7d4ba83379c553cf00"
+      "path": "public/fonts/um-sans-2-manual-alpha/UMSans2ManualAlpha12-Diagnostic.otf",
+      "sha256": "8eb2ce6402eb8a1bbd61514ca06c7bcc00ab76441481ed449c45b1b15a43a1c4"
     }
   ]
 }

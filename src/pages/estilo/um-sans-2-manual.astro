@@ -22,16 +22,16 @@ const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
 ---
 
 <LayoutV4
-  title="UM Sans 2 Manual Alpha 6 | Laboratorio tipográfico"
-  description="Prueba interna noindex del redibujo Alpha 6 de UM Sans 2 como proyecto tipográfico independiente."
+  title="UM Sans 2 Manual Alpha 12 | Laboratorio tipográfico"
+  description="Prueba interna noindex del redibujo Alpha 12 de UM Sans 2 normalizado con Fontmake para revisión tipográfica."
   noindex={true}
 >
   <link
     slot="head"
     rel="preload"
-    href="/fonts/um-sans-2-manual-alpha/UMSans2ManualAlpha6-DisplayBold.otf?v=0.700"
+    href="/fonts/um-sans-2-manual-alpha/UMSans2ManualAlpha12-DisplayBold.ttf?v=0.912"
     as="font"
-    type="font/otf"
+    type="font/ttf"
     crossorigin
   />
 
@@ -39,11 +39,11 @@ const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
     <header class="manual-type__intro">
       <div class="manual-shell manual-type__intro-grid">
         <div>
-          <p class="manual-kicker">Proyecto independiente · Alpha 6</p>
+          <p class="manual-kicker">Proyecto independiente · Alpha 12</p>
           <h1>UM Sans 2 Manual</h1>
         </div>
         <div class="manual-type__summary">
-          <p>Sexta master de control. Alpha 5 fue rechazada después de la revisión móvil porque la apertura de e se cerraba ópticamente. Alpha 6 redibuja esa forma sin ocultarla con tracking o kerning, pero sigue siendo un control incompleto y no se usa en producción.</p>
+          <p>Alpha 12 sustituye el espiral con muesca de Alpha 6 por una contraforma abierta y un travesaño normalizado por Fontmake. Es una muestra de control incompleta: no se usa en producción.</p>
           <dl>
             <div><dt>Fuente editable</dt><dd>UFO 3</dd></div>
             <div><dt>Corte</dt><dd>Display Bold</dd></div>
@@ -85,7 +85,7 @@ const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
     <section class="manual-type__inventory" aria-labelledby="inventory-title">
       <div class="manual-shell manual-type__inventory-grid">
         <div>
-          <p class="manual-kicker">Inventario Alpha 6</p>
+          <p class="manual-kicker">Inventario Alpha 12</p>
           <h2 id="inventory-title">Veinticuatro glifos para decidir el lenguaje.</h2>
           <p>No es una familia comercial ni un alfabeto terminado. Es el conjunto mínimo para validar si la dirección merece una segunda ronda de dibujo.</p>
         </div>
@@ -124,7 +124,7 @@ const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
         <dl class="manual-source-ledger">
           <div><dt>Master</dt><dd>type/um-sans-2/sources/UMSans2Display-Bold.ufo</dd></div>
           <div><dt>Especificación</dt><dd>type/um-sans-2/docs/DRAWING-SPEC.md</dd></div>
-          <div><dt>Proof web</dt><dd>UMSans2ManualAlpha6-DisplayBold.otf</dd></div>
+          <div><dt>Proof web</dt><dd>UMSans2ManualAlpha12-DisplayBold.ttf · Fontmake</dd></div>
           <div><dt>Uso autorizado</dt><dd>Solo este specimen noindex</dd></div>
         </dl>
       </div>
@@ -150,8 +150,8 @@ const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
 
 <style is:global>
   @font-face {
-    font-family: 'UM Sans 2 Manual Alpha 6';
-    src: url('/fonts/um-sans-2-manual-alpha/UMSans2ManualAlpha6-DisplayBold.otf?v=0.700') format('opentype');
+    font-family: 'UM Sans 2 Manual Alpha 12';
+    src: url('/fonts/um-sans-2-manual-alpha/UMSans2ManualAlpha12-DisplayBold.ttf?v=0.912') format('truetype');
     font-style: normal;
     font-weight: 700;
     font-display: swap;
@@ -180,7 +180,7 @@ const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
   }
 
   .manual-alpha {
-    font-family: 'UM Sans 2 Manual Alpha 6', sans-serif;
+    font-family: 'UM Sans 2 Manual Alpha 12', sans-serif;
     font-synthesis: none;
     font-weight: 700;
     font-kerning: none;

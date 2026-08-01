@@ -12,13 +12,14 @@ const SOURCE_SCRIPT = path.join(ROOT, 'scripts/fonts/bootstrap_um_sans_2_manual_
 const UFO = path.join(ROOT, 'type/um-sans-2/sources/UMSans2Display-Bold.ufo');
 const BUILD = path.join(ROOT, 'type/um-sans-2/build');
 const WEB = path.join(ROOT, 'public/fonts/um-sans-2-manual-alpha');
-const OTF_NAME = 'UMSans2ManualAlpha6-DisplayBold.otf';
-const VERSION = '0.700';
+const OTF_NAME = 'UMSans2ManualAlpha12-Diagnostic.otf';
+const VERSION = '0.912';
 const KAPPA = 0.5522847498;
 
 const SPECS = [
   ['.notdef', 660, null, 'notdef'],
   ['space', 290, 0x20, null],
+  ['nbspace', 290, 0xa0, null],
   ['H', 700, 0x48, 'H'],
   ['F', 690, 0x46, 'F'],
   ['O', 740, 0x4f, 'O'],
@@ -263,37 +264,14 @@ function glifFor(glyph) {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<glyph name="${xmlEscape(glyph.name)}" format="2">\n  <advance width="${glyph.advanceWidth}"/>${unicode}\n  <outline>${contours ? `\n${contours}\n  ` : ''}</outline>\n</glyph>\n`;
 }
 
-function writeUfo(definitions) {
-  fs.rmSync(UFO, { recursive: true, force: true });
-  const glyphDir = path.join(UFO, 'glyphs');
-  fs.mkdirSync(glyphDir, { recursive: true });
-  fs.writeFileSync(path.join(UFO, 'metainfo.plist'), plistDict([['creator', 'com.ultimamilla.umsans2'], ['formatVersion', 3]]));
-  fs.writeFileSync(path.join(UFO, 'layercontents.plist'), plistDocument('<array>\n  <array>\n    <string>public.default</string>\n    <string>glyphs</string>\n  </array>\n</array>'));
-  fs.writeFileSync(path.join(UFO, 'fontinfo.plist'), plistDict([
-    ['familyName', 'UM Sans 2 Manual'], ['styleName', 'Display Bold Alpha 6'],
-    ['unitsPerEm', 1000], ['ascender', 780], ['descender', -220],
-    ['capHeight', 720], ['xHeight', 540], ['openTypeOS2WeightClass', 700],
-    ['openTypeOS2WidthClass', 5], ['versionMajor', 0], ['versionMinor', 600],
-    ['note', 'Independent manual Alpha 6 control redraw. Not approved for production or distribution.'],
-  ]));
-  fs.writeFileSync(path.join(UFO, 'lib.plist'), plistDict([['public.glyphOrder', definitions.map((glyph) => glyph.name)]]));
-  fs.writeFileSync(path.join(UFO, 'features.fea'), 'languagesystem DFLT dflt;\nlanguagesystem latn dflt;\n');
-  const contents = [];
-  for (const glyph of definitions) {
-    const fileName = glyphFileName(glyph.name);
-    contents.push([glyph.name, fileName]);
-    fs.writeFileSync(path.join(glyphDir, fileName), glifFor(glyph));
-  }
-  fs.writeFileSync(path.join(glyphDir, 'contents.plist'), plistDict(contents));
-}
-
 function sha256(filePath) {
   return crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
 }
 
 export function compile() {
   const definitions = buildGlyphDefinitions();
-  writeUfo(definitions);
+  // The UFO is editable source material. A diagnostic compile must never
+  // replace it; explicit bootstrap is the only operation allowed to do that.
   const glyphs = definitions.map((glyph) => new opentype.Glyph({
     name: glyph.name,
     unicode: glyph.unicode ?? undefined,
@@ -301,7 +279,7 @@ export function compile() {
     path: toOpenTypePath(glyph.contours),
   }));
   const font = new opentype.Font({
-    familyName: 'UM Sans 2 Manual Alpha 6',
+    familyName: 'UM Sans 2 Manual Alpha 12 Diagnostic',
     styleName: 'Display Bold',
     designer: 'ULTIMA MILLA S.A. Type Development',
     designerURL: 'https://www.ultimamilla.com.ar',
@@ -336,15 +314,15 @@ export function compile() {
     }];
   }));
   const report = {
-    family: 'UM Sans 2 Manual Alpha 6',
+    family: 'UM Sans 2 Manual Alpha 12 Diagnostic',
     version: VERSION,
-    status: 'manual-alpha-6-quarantined',
+    status: 'manual-alpha-12-diagnostic-quarantined',
     generatedAt: new Date().toISOString(),
     source: path.relative(ROOT, UFO),
     outlineOrigin: 'hand-authored UMSA coordinates parsed from the manual master; no imported outlines',
     glyphCount: definitions.length,
     unicodeCount: definitions.filter((glyph) => glyph.unicode != null).length,
-    approvedUse: 'noindex specimen only',
+    approvedUse: 'diagnostic inspection only; browser specimen must use Fontmake review output',
     productionUse: false,
     kerningPairs: 0,
     metrics,
@@ -352,7 +330,7 @@ export function compile() {
   };
   fs.writeFileSync(path.join(BUILD, 'build-report.json'), `${JSON.stringify(report, null, 2)}\n`);
   fs.writeFileSync(path.join(WEB, 'build-report.json'), `${JSON.stringify(report, null, 2)}\n`);
-  fs.writeFileSync(path.join(WEB, 'DO-NOT-SHIP.md'), '# UM Sans 2 Manual Alpha 6\n\nInternal noindex proof only. Alpha 1 through Alpha 5 were rejected as release candidates after visual review. Do not register globally, package or deploy to production.\n');
+  fs.writeFileSync(path.join(WEB, 'DO-NOT-SHIP.md'), '# UM Sans 2 Manual Alpha 12\n\nDiagnostic output only. The only browser proof allowed is the normalized Fontmake review artifact. Do not register globally, package or deploy to production.\n');
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
   return report;
 }

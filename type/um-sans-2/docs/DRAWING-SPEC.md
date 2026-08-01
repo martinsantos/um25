@@ -1,6 +1,6 @@
 # UM Sans 2.0 Drawing Specification
 
-Status: Alpha 6 control redraw. Alpha 0 was rejected for contour winding,
+Status: Alpha 12 control redraw. Alpha 0 was rejected for contour winding,
 Alpha 1 for visual form and rhythm defects, Alpha 2 for inconsistent stem
 weight and joins, and Alpha 3 for its constructed `e` and unstable `f/r`
 spacing. This document governs drawing decisions; it does not approve the
@@ -15,9 +15,13 @@ novelty display face. Display cuts are round, wide and assertive. Text cuts are
 open, neutral and calm. The family must remain recognisable in Spanish words,
 technical figures and operational interfaces.
 
+Alpha 12 rejects Alpha 6 as a browser candidate. Its `e` must be evaluated
+only from the Fontmake output after overlap removal; a raw source-outline
+render is not a visual proof.
+
 ## Metrics
 
-| Metric | Display Bold Alpha 6 |
+| Metric | Display Bold Alpha 12 |
 | --- | ---: |
 | Units per em | 1000 |
 | Ascender | 780 |
@@ -28,7 +32,7 @@ technical figures and operational interfaces.
 | Round overshoot | 14 |
 | Default sidebearing | 52 |
 
-Alpha 6 is evaluated with zero CSS tracking and no kerning pairs. Word rhythm
+Alpha 12 is evaluated with zero CSS tracking and no kerning pairs. Word rhythm
 must first work from the authored advances and sidebearings.
 
 ## Drawing principles
@@ -71,5 +75,7 @@ No full alphabet is extrapolated until the control words pass review.
 - interpolation before compatible manual masters exist;
 - website rollout before raster approval.
 
-Alpha 6 control glyphs are authored as final contours. Stems, crossbars and
-bowls do not depend on a compiler-side `Remove Overlap` pass.
+Alpha 12 control glyphs retain their source contours as editable drawing
+decisions. The review binary is compiled with Fontmake and its
+`RemoveOverlapsFilter`; neither browser rendering nor visual review may rely
+on raw overlapping source paths.

@@ -218,23 +218,23 @@ def draw_c(pen):
 
 
 def draw_e(pen):
-    # Alpha 6 enlarges the aperture from 54 to 116 units and reduces the
-    # crossbar from 110 to 74 units. Alpha 5 passed structural checks but its
-    # aperture collapsed optically into a capsule at mobile raster sizes.
-    pen.moveTo((590, 298))
-    pen.lineTo((184, 298))
-    pen.curveTo((194, 374), (242, 420), (312, 420))
-    pen.curveTo((372, 420), (418, 392), (450, 342))
-    pen.lineTo((564, 414))
-    pen.curveTo((508, 510), (420, 554), (310, 554))
-    pen.curveTo((140, 554), (38, 444), (38, 270))
-    pen.curveTo((38, 96), (140, -14), (310, -14))
-    pen.curveTo((428, -14), (518, 36), (566, 132))
-    pen.lineTo((444, 210))
-    pen.curveTo((416, 150), (374, 120), (312, 120))
-    pen.curveTo((244, 120), (196, 160), (184, 224))
-    pen.lineTo((590, 224))
+    # Alpha 12 abandons the notched spiral of Alpha 6. The body is a rounded,
+    # open counterform matching `c`; the horizontal bar is deliberately a
+    # separate same-winding contour. Fontmake removes that overlap for the
+    # review font so browser proofs can never depend on accidental winding.
+    # This source master is still not a release drawing.
+    pen.moveTo((548, 390))
+    pen.curveTo((502, 500), (418, 554), (300, 554))
+    pen.curveTo((140, 554), (38, 446), (38, 270))
+    pen.curveTo((38, 94), (140, -14), (300, -14))
+    pen.curveTo((418, -14), (502, 40), (548, 150))
+    pen.lineTo((422, 210))
+    pen.curveTo((394, 152), (354, 122), (300, 122))
+    pen.curveTo((226, 122), (182, 178), (182, 270))
+    pen.curveTo((182, 362), (226, 418), (300, 418))
+    pen.curveTo((354, 418), (394, 388), (422, 330))
     pen.closePath()
+    rect(pen, 164, 224, 556, 298, reverse=True)
 
 
 def draw_s(pen):
@@ -363,8 +363,11 @@ def build(force=False):
     UFO_PATH.mkdir(parents=True, exist_ok=True)
     font = Font()
     info = font.info
-    info.familyName = "UM Sans 2 Manual"
-    info.styleName = "Display Bold Alpha 6"
+    # The project name is intentionally verbose in documentation, but the
+    # OpenType family and style names must remain short enough for platform
+    # name tables. This is a diagnostic review face, not a released family.
+    info.familyName = "UM Sans 2 A12"
+    info.styleName = "Bold"
     info.unitsPerEm = 1000
     info.ascender = 780
     info.descender = -220
@@ -373,12 +376,21 @@ def build(force=False):
     info.openTypeOS2WeightClass = 700
     info.openTypeOS2WidthClass = 5
     info.versionMajor = 0
-    info.versionMinor = 700
+    info.versionMinor = 912
     info.copyright = "Copyright 2026 ULTIMA MILLA S.A. Hand-authored alpha outlines."
-    info.note = "Independent manual Alpha 6 control redraw. Not approved for production or distribution."
+    info.openTypeHheaAscender = 780
+    info.openTypeHheaDescender = -220
+    info.openTypeHheaLineGap = 0
+    info.openTypeOS2TypoAscender = 780
+    info.openTypeOS2TypoDescender = -220
+    info.openTypeOS2TypoLineGap = 0
+    info.openTypeOS2WinAscent = 780
+    info.openTypeOS2WinDescent = 220
+    info.note = "Independent manual Alpha 12 control redraw. Fontmake review only; not approved for production or distribution."
 
     add_glyph(font, ".notdef", 660, None, draw_notdef)
     add_glyph(font, "space", 290, 0x20)
+    add_glyph(font, "nbspace", 290, 0x00A0)
     add_glyph(font, "H", 700, ord("H"), draw_H)
     add_glyph(font, "F", 690, ord("F"), draw_F)
     add_glyph(font, "O", 740, ord("O"), draw_O)
