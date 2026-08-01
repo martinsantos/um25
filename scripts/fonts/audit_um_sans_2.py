@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import sys
 
@@ -11,7 +12,10 @@ from fontTools.ttLib import TTFont
 
 
 ROOT = Path(__file__).resolve().parents[2]
-FONT_DIR = ROOT / "public" / "fonts" / "um-sans-2"
+FONT_DIR = Path(
+    os.environ.get("UM_SANS_2_FONT_DIR", ROOT / "public" / "fonts" / "um-sans-2")
+).expanduser().resolve()
+REQUIRE_ARCHIVE = os.environ.get("UM_SANS_2_REQUIRE_ARCHIVE", "1") == "1"
 
 STYLES = [
     ("Light", 300, False),
@@ -70,9 +74,25 @@ def audit_font(path: Path, expected_weight: int, expected_italic: bool) -> dict:
                 for character in representative
             )
         )
-        expected_topology = {"a": 3 if expected_italic else 2, "b": 2, "n": 1, "p": 2, "t": 1}
+        checks["gpos"] = (
+            "GPOS" in font
+            and bool(font["GPOS"].table.LookupList)
+            and len(font["GPOS"].table.LookupList.Lookup) > 0
+        )
+        # The editorial manual core uses a two-contour double-storey `a`.
+        # Lower-weight italics still inherit the builder's tested italic `a`,
+        # which has an additional counter contour. Both are intentional and
+        # structurally valid; the rejected procedural prototype was the old
+        # source of the previous one-size-fits-all expectation.
+        expected_topology = {
+            "a": {2, 3} if expected_italic and expected_weight < 600 else {2},
+            "b": {2},
+            "n": {1},
+            "p": {2},
+            "t": {1},
+        }
         checks["topology"] = all(
-            glyf[cmap[ord(character)]].numberOfContours == expected
+            glyf[cmap[ord(character)]].numberOfContours in expected
             for character, expected in expected_topology.items()
         )
     font.close()
@@ -106,17 +126,20 @@ def main() -> int:
     build_report_path = FONT_DIR / "build-report.json"
     provenance_path = FONT_DIR / "provenance.json"
     specimen_path = FONT_DIR / "specimen.html"
-    for required in (
+    required_files = [
         build_report_path,
         provenance_path,
         specimen_path,
         FONT_DIR / "CHECKSUMS.sha256",
-        FONT_DIR / "UMSans2-2.0-Original-Beta.zip",
-    ):
+    ]
+    if REQUIRE_ARCHIVE:
+        required_files.append(FONT_DIR / "UMSans2-2.0-Original-Beta.zip")
+    for required in required_files:
         if not required.exists():
             failures.append(f"missing:{required.name}")
 
     build_report = json.loads(build_report_path.read_text()) if build_report_path.exists() else {}
+    provenance = json.loads(provenance_path.read_text()) if provenance_path.exists() else {}
     if len(build_report.get("statics", [])) != 14:
         failures.append("build-report:static-count")
     if build_report.get("variables") != []:
@@ -126,7 +149,7 @@ def main() -> int:
 
     report = {
         "family": "UM Sans 2",
-        "version": "2.0 Original Beta",
+        "version": build_report.get("version") or provenance.get("version", "2.0 Original Beta"),
         "status": "pass" if not failures else "fail",
         "checkedFiles": len(files),
         "staticStyles": len(STYLES),

@@ -13,25 +13,25 @@ const controlRows = [
 ] as const;
 
 const inventory = [
-  'H F O',
-  'a b c d e f i l n o p r s t u',
-  'ó , .',
+  'Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm',
+  'Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz',
+  'ÁÉÍÓÚÜÑ áéíóúüñ ¿¡ 0123456789 · … → ↗',
 ] as const;
 
 const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
 ---
 
 <LayoutV4
-  title="UM Sans 2 Manual Alpha 17 | Laboratorio tipográfico"
-  description="Prueba interna noindex del redibujo Alpha 17 de UM Sans 2 normalizado con Fontmake para revisión tipográfica."
+  title="UM Sans 2 Candidate 2.1 | Laboratorio tipográfico"
+  description="Specimen interno noindex del candidato completo UM Sans 2.1, construido desde fuentes geométricas UMSA y bloqueado para producción hasta superar la revisión tipográfica."
   noindex={true}
 >
   <link
     slot="head"
     rel="preload"
-    href="/fonts/um-sans-2-manual-alpha/UMSans2ManualAlpha17-DisplayBold.ttf?v=0.917"
+    href="/fonts/um-sans-2-editorial-candidate/UMSans2-Bold.woff2?v=2.1-candidate"
     as="font"
-    type="font/ttf"
+    type="font/woff2"
     crossorigin
   />
 
@@ -39,15 +39,15 @@ const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
     <header class="manual-type__intro">
       <div class="manual-shell manual-type__intro-grid">
         <div>
-          <p class="manual-kicker">Proyecto independiente · Alpha 17</p>
+          <p class="manual-kicker">Proyecto independiente · Candidate 2.1</p>
           <h1>UM Sans 2 Manual</h1>
         </div>
         <div class="manual-type__summary">
-          <p>Alpha 17 corrige la barra flotante de la e y la normaliza a un solo contorno mediante Fontmake. Es una muestra de control incompleta: no se usa en producción.</p>
+          <p>Candidate 2.1 reúne el repertorio editorial completo y aplica los glifos manuales de control al corte Bold. Es una prueba local: la distribución y la integración productiva siguen bloqueadas.</p>
           <dl>
-            <div><dt>Fuente editable</dt><dd>UFO 3</dd></div>
+            <div><dt>Fuente editable</dt><dd>Builder geométrico UMSA</dd></div>
             <div><dt>Corte</dt><dd>Display Bold</dd></div>
-            <div><dt>Estado</dt><dd>Revisión óptica activa · release bloqueada</dd></div>
+            <div><dt>Estado</dt><dd>Revisión óptica activa · producción bloqueada</dd></div>
           </dl>
         </div>
       </div>
@@ -58,7 +58,7 @@ const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
         <div class="manual-type__proof-copy">
           <p class="manual-kicker">Prueba de voz</p>
           <h2 id="proof-title">Una frase. Un corte. Sin sustituciones.</h2>
-          <p>La muestra utiliza únicamente los glifos ya dibujados. La interfaz y las explicaciones permanecen en la familia estable para que una letra faltante nunca se mezcle con el prototipo.</p>
+          <p>La muestra utiliza el candidato completo, pero la revisión se concentra en el dibujo manual de la voz Bold. La interfaz explicativa permanece en la familia estable para que el specimen no oculte fallas de lectura del prototipo.</p>
         </div>
         <p class="manual-alpha manual-type__hero-sample">Fibra certificada, operación continua.</p>
       </div>
@@ -85,9 +85,9 @@ const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
     <section class="manual-type__inventory" aria-labelledby="inventory-title">
       <div class="manual-shell manual-type__inventory-grid">
         <div>
-          <p class="manual-kicker">Inventario Alpha 17</p>
-          <h2 id="inventory-title">Veinticuatro glifos para decidir el lenguaje.</h2>
-          <p>No es una familia comercial ni un alfabeto terminado. Es el conjunto mínimo para validar si la dirección merece una segunda ronda de dibujo.</p>
+          <p class="manual-kicker">Inventario Candidate 2.1</p>
+          <h2 id="inventory-title">Un repertorio completo para probar el lenguaje.</h2>
+          <p>El candidato cubre Latin Extended-A, cifras, signos, flechas y caracteres necesarios para revisar una interfaz editorial en español. La autorización comercial sigue pendiente de QA.</p>
         </div>
         <div class="manual-type__glyph-lines" aria-label="Glifos disponibles">
           {inventory.map((line) => <p class="manual-alpha">{line}</p>)}
@@ -119,13 +119,13 @@ const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
       <div class="manual-shell">
         <div class="manual-section-head">
           <div><p class="manual-kicker">Fuente de verdad</p><h2 id="source-title">El UFO se edita; el OTF solo prueba.</h2></div>
-          <p>La compilación convierte las curvas para navegador sin escribir puntos generados sobre el dibujo original.</p>
+          <p>La compilación convierte las curvas geométricas UMSA para navegador sin leer ni transformar contornos de una familia de terceros.</p>
         </div>
         <dl class="manual-source-ledger">
-          <div><dt>Master</dt><dd>type/um-sans-2/sources/UMSans2Display-Alpha17.ufo</dd></div>
-          <div><dt>Especificación</dt><dd>type/um-sans-2/docs/DRAWING-SPEC.md</dd></div>
-          <div><dt>Proof web</dt><dd>UMSans2ManualAlpha17-DisplayBold.ttf · Fontmake</dd></div>
-          <div><dt>Uso autorizado</dt><dd>Solo este specimen noindex</dd></div>
+          <div><dt>Master</dt><dd>scripts/fonts/build_um_sans_2.py</dd></div>
+          <div><dt>Especificación</dt><dd>public/fonts/um-sans-2-editorial-candidate/provenance.json</dd></div>
+          <div><dt>Proof web</dt><dd>UMSans2-Bold.woff2 · Candidate 2.1</dd></div>
+          <div><dt>Uso autorizado</dt><dd>Solo este specimen local noindex</dd></div>
         </dl>
       </div>
     </section>
@@ -137,11 +137,11 @@ const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
           <h2 id="gate-title">La siguiente fase empieza solo si este corte funciona.</h2>
         </div>
         <ol>
-          <li>Validar curvas y color en H, O, o, a, e y s.</li>
-          <li>Ajustar espaciado con palabras y no con glifos aislados.</li>
-          <li>Dibujar mayúsculas y minúsculas restantes.</li>
-          <li>Completar español, cifras, signos, kerning y marcas.</li>
-          <li>Recién entonces estudiar Regular, Text e interpolación.</li>
+          <li>Validar curvas y color en palabras en desktop, móvil, impresión y rasterizado pequeño.</li>
+          <li>Corregir la topología de las itálicas pesadas y repetir la prueba de contornos.</li>
+          <li>Revisar espaciado y kerning con texto real, no solo con glifos aislados.</li>
+          <li>Comparar el repertorio completo con lectores nativos y herramientas tipográficas.</li>
+          <li>Solo después estudiar la autorización de Regular, Text, variable y producción.</li>
         </ol>
       </div>
     </section>
@@ -150,8 +150,8 @@ const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
 
 <style is:global>
   @font-face {
-    font-family: 'UM Sans 2 Manual Alpha 17';
-    src: url('/fonts/um-sans-2-manual-alpha/UMSans2ManualAlpha17-DisplayBold.ttf?v=0.917') format('truetype');
+    font-family: 'UM Sans 2 Editorial Candidate';
+    src: url('/fonts/um-sans-2-editorial-candidate/UMSans2-Bold.woff2?v=2.1-candidate') format('woff2');
     font-style: normal;
     font-weight: 700;
     font-display: swap;
@@ -180,11 +180,11 @@ const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
   }
 
   .manual-alpha {
-    font-family: 'UM Sans 2 Manual Alpha 17', sans-serif;
+    font-family: 'UM Sans 2 Editorial Candidate', Arial, sans-serif;
     font-synthesis: none;
     font-weight: 700;
-    font-kerning: none;
-    font-feature-settings: 'kern' 0;
+    font-kerning: normal;
+    font-feature-settings: 'kern' 1, 'liga' 1;
     letter-spacing: 0;
     text-rendering: auto;
   }

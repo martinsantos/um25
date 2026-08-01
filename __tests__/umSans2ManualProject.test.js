@@ -32,8 +32,8 @@ describe('UM Sans 2 manual project quarantine', () => {
   test('loads the proof only in a noindex specimen', () => {
     const route = read('src/pages/estilo/um-sans-2-manual.astro');
     expect(route).toContain('noindex={true}');
-    expect(route).toContain('UMSans2ManualAlpha17-DisplayBold.ttf?v=0.917');
-    expect(route).toContain('type/um-sans-2/sources/UMSans2Display-Alpha17.ufo');
+    expect(route).toContain('UMSans2-Bold.woff2?v=2.1-candidate');
+    expect(route).toContain('public/fonts/um-sans-2-editorial-candidate/provenance.json');
     expect(route).not.toContain('UMSans2ManualAlpha12-DisplayBold.ttf?v=0.912');
 
     const globalRuntime = [
@@ -67,7 +67,7 @@ describe('UM Sans 2 manual project quarantine', () => {
     const audit = read('type/um-sans-2/docs/VISUAL-AUDIT.md');
     expect(route).toContain('const rasterSizes = [16, 20, 24, 30, 32, 48, 72]');
     expect(route).toContain('La forma debe sobrevivir a cada escala.');
-    expect(route).toContain('release bloqueada');
+    expect(route).toContain('producción bloqueada');
     expect(audit).toMatch(/RELEASE REJECTED/i);
     expect(audit).toMatch(/FontBakery release failures/i);
   });

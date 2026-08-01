@@ -28,6 +28,7 @@ from fontTools.designspaceLib import AxisDescriptor, DesignSpaceDocument, Instan
 from fontTools.feaLib.builder import addOpenTypeFeaturesFromString
 from fontTools.fontBuilder import FontBuilder
 from fontTools.pens.qu2cuPen import Qu2CuPen
+from fontTools.pens.cu2quPen import Cu2QuPen
 from fontTools.pens.t2CharStringPen import T2CharStringPen
 from fontTools.pens.transformPen import TransformPen
 from fontTools.pens.ttGlyphPen import TTGlyphPen
@@ -36,6 +37,31 @@ from fontTools.ttLib.removeOverlaps import removeOverlaps
 from fontTools.ttLib.tables._g_l_y_f import OVERLAP_COMPOUND, flagOverlapSimple
 from fontTools.ttLib.tables.ttProgram import Program
 from ttfautohint import ttfautohint
+
+# The manual control master is an internal UMSA drawing source. Reusing its
+# explicit cubic paths here keeps the complete-family builder independent from
+# third-party outlines while giving the visible core glyphs the same smooth
+# construction used for word-level review. The source module has no side
+# effects unless invoked as a script.
+from bootstrap_um_sans_2_manual_alpha import (
+    draw_F as draw_manual_F,
+    draw_H as draw_manual_H,
+    draw_a as draw_manual_a,
+    draw_b as draw_manual_b,
+    draw_c as draw_manual_c,
+    draw_d as draw_manual_d,
+    draw_e as draw_manual_e,
+    draw_f as draw_manual_f,
+    draw_i as draw_manual_i,
+    draw_l as draw_manual_l,
+    draw_n as draw_manual_n,
+    draw_o as draw_manual_o,
+    draw_p as draw_manual_p,
+    draw_r as draw_manual_r,
+    draw_s as draw_manual_s,
+    draw_t as draw_manual_t,
+    draw_u as draw_manual_u,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -320,6 +346,52 @@ def stroke_polyline(
     outlined.draw(pen)
 
 
+MANUAL_LOWER_CORE = {
+    "a": (606, draw_manual_a),
+    "b": (636, draw_manual_b),
+    "c": (584, draw_manual_c),
+    "d": (610, draw_manual_d),
+    "e": (616, draw_manual_e),
+    "f": (472, draw_manual_f),
+    "i": (252, draw_manual_i),
+    "l": (252, draw_manual_l),
+    "n": (632, draw_manual_n),
+    "o": (624, draw_manual_o),
+    "p": (636, draw_manual_p),
+    "r": (492, draw_manual_r),
+    "s": (584, draw_manual_s),
+    "t": (498, draw_manual_t),
+    "u": (632, draw_manual_u),
+}
+
+MANUAL_UPPER_CORE = {
+    "F": (690, draw_manual_F),
+    "H": (700, draw_manual_H),
+}
+
+
+def draw_manual_core(pen, character: str, width: float, d: Design, core: dict) -> bool:
+    """Place an explicit manual core drawing into the current design metrics."""
+    if character not in core:
+        return False
+    source_width, draw = core[character]
+    if character in {"b", "d", "f", "p"}:
+        source_height = 760
+        target_height = d.cap
+    elif character in {"i", "l"}:
+        source_height = 602
+        target_height = d.x_height
+    else:
+        source_height = 540
+        target_height = d.x_height
+    transform = TransformPen(
+        pen,
+        (width / source_width, 0, 0, target_height / source_height, 0, 0),
+    )
+    draw(transform)
+    return True
+
+
 def sampled_arc(
     cx: float,
     cy: float,
@@ -432,7 +504,19 @@ def advance_for(character: str, design: Design) -> int:
     elif base in "0123456789":
         width = 620
     else:
-        width = 555
+        # The complete-family prototype used one 555-unit advance for nearly
+        # every lowercase letter. That made the hand-drawn core collide at
+        # display weights and forced CSS tracking to hide a font-metric bug.
+        # These advances follow the explicit manual control drawings and keep
+        # their proportions stable as the weight/optical axes change.
+        width = {
+            "a": 606, "b": 636, "c": 584, "d": 610, "e": 616,
+            "f": 472, "g": 610, "h": 632, "i": 252, "j": 300,
+            "k": 590, "l": 252, "m": 820, "n": 632, "o": 624,
+            "p": 636, "q": 610, "r": 492, "s": 584, "t": 498,
+            "u": 632, "v": 590, "w": 820, "x": 590, "y": 590,
+            "z": 560,
+        }.get(base, 555)
     optical = (design.optical_size - 14) / 58
     weight = (design.weight - 300) / 600
     width *= 1 - 0.045 * optical + 0.025 * weight
@@ -442,6 +526,8 @@ def advance_for(character: str, design: Design) -> int:
 
 
 def draw_upper(pen, character: str, width: float, d: Design) -> None:
+    if d.weight >= 600 and draw_manual_core(pen, character, width, d, MANUAL_UPPER_CORE):
+        return
     s, cap, side = d.stem, d.cap, d.side
     left, right = side, width - side
     mid = width / 2
@@ -535,6 +621,8 @@ def draw_upper(pen, character: str, width: float, d: Design) -> None:
 
 
 def draw_lower(pen, character: str, width: float, d: Design) -> None:
+    if d.weight >= 600 and draw_manual_core(pen, character, width, d, MANUAL_LOWER_CORE):
+        return
     s, xh, side = d.stem * .92, d.x_height, d.side
     left, right = side, width - side
     mid = width / 2
@@ -1039,7 +1127,8 @@ def build_glyph_set(d: Design) -> tuple[list[str], dict[str, object], dict[str, 
         # deliberately reversed contours used for counters.
         source_path = pathops.Path()
         draw(source_path.getPen())
-        pen = TTGlyphPen(glyphs)
+        tt_pen = TTGlyphPen(glyphs)
+        pen = Cu2QuPen(tt_pen, max_err=0.35, reverse_direction=False)
         if source_path:
             simplified = pathops.simplify(
                 source_path,
@@ -1049,7 +1138,7 @@ def build_glyph_set(d: Design) -> tuple[list[str], dict[str, object], dict[str, 
             )
             simplified.convertConicsToQuads(0.35)
             simplified.draw(pen)
-        glyphs[name] = pen.glyph()
+        glyphs[name] = tt_pen.glyph()
         metrics[name] = (width, 0)
         if name not in order:
             order.append(name)
@@ -1475,15 +1564,15 @@ def write_docs(report: dict[str, object]) -> None:
     provenance = {
         "family": FAMILY,
         "version": VERSION_LABEL,
-        "status": "rejected-outline prototype",
-        "visualStatus": "blocked: glyph drawing failed word, paragraph and responsive review",
+        "status": "candidate - not production",
+        "visualStatus": "blocked: roman core improved; italic topology, multiscale review and independent sign-off remain pending",
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "outlineOrigin": "UMSA-authored geometric primitives in scripts/fonts/build_um_sans_2.py",
         "upstreamOutlineDependencies": [],
         "outlineCleanup": "Boolean union with FontTools removeOverlaps + skia-pathops before every TTF export",
         "reviewBoundary": [
-            "base glyph redraw required before any further release candidate",
-            "word, paragraph and responsive visual review failed",
+            "roman core is a local candidate and still requires word, paragraph and responsive sign-off",
+            "heavy italic topology requires correction or explicit acceptance",
             "independent contour similarity review pending",
             "trademark clearance pending",
             "signed chain of title pending",
@@ -1497,9 +1586,9 @@ def write_docs(report: dict[str, object]) -> None:
         "report": report,
     }
     (OUTPUT / "provenance.json").write_text(json.dumps(provenance, ensure_ascii=False, indent=2) + "\n")
-    license_text = """UM Sans 2.0 — rejected prototype notice\n\nCopyright 2026 ULTIMA MILLA S.A.\n\nThis rejected prototype is retained only for internal diagnosis. Its glyph drawing did not pass visual review. It is not approved for evaluation, redistribution, resale or production deployment. A future release requires a complete redraw plus independent visual, legal, similarity and platform reviews.\n"""
+    license_text = """UM Sans 2.1 — candidate evaluation notice\n\nCopyright 2026 ULTIMA MILLA S.A.\n\nThis candidate is retained for local specimen and engineering review only. It is not approved for redistribution, resale or production deployment. Heavy italics, multiscale visual review, independent similarity, legal and platform reviews remain open.\n"""
     (OUTPUT / "EVALUATION-LICENSE.txt").write_text(license_text)
-    source_readme = """# UM Sans 2.0 rejected prototype sources\n\nThese UFO masters, designspaces and feature sources are generated exclusively from the geometric constructions in `scripts/fonts/build_um_sans_2.py`. The builder does not open, subset or transform Inter or another font.\n\nThe output is retained as diagnostic source only. Structural validation does not make the drawing usable: the current glyphs failed word, paragraph and responsive visual review. No static or variable binary is approved for distribution. A full redraw is required before a new release candidate.\n"""
+    source_readme = """# UM Sans 2.1 candidate sources\n\nThese UFO masters, designspaces and feature sources are generated exclusively from the geometric constructions in `scripts/fonts/build_um_sans_2.py`. The builder does not open, subset or transform Inter or another font.\n\nThe output is a local candidate, not a release. The roman core is ready for controlled visual review; heavy italics, multiscale proofs, similarity, legal and platform sign-off remain open. No binary is approved for production or redistribution.\n"""
     (SOURCE_OUTPUT / "README.md").write_text(source_readme)
 
 
@@ -1516,7 +1605,7 @@ def write_standalone_specimen() -> None:
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>UM Sans 2 — Build rechazada</title>
+<title>UM Sans 2 — Candidate visual QA</title>
 <style>
 :root{--red:#dc2626;--ink:#101114;--muted:#60666e;--line:#dfe2e5;--paper:#fff;--black:#08090a}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,system-ui,sans-serif;font-size:18px;line-height:1.55;font-synthesis:none;-webkit-font-smoothing:antialiased}
@@ -1529,14 +1618,14 @@ footer{padding:48px 0;background:#0a0a0b;color:#a9adb2}footer strong{color:#fff}
 </style>
 </head>
 <body>
-<header class="hero dark"><div class="shell"><p class="kicker">UMSA / Control visual / 2.0</p><h1>BUILD 2.0<br>RECHAZADA</h1><p>Los contornos procedurales no alcanzan el estándar de legibilidad y dibujo requerido. Esta página usa una referencia segura y no distribuye la familia.</p></div></header>
+<header class="hero dark"><div class="shell"><p class="kicker">UMSA / Control visual / 2.1</p><h1>CANDIDATE 2.1<br>QA LOCAL</h1><p>El corte romano se prueba en palabra, párrafo y escala. La familia sigue bloqueada para producción hasta cerrar itálicas, plataformas y revisión independiente.</p></div></header>
 <nav aria-label="Specimen"><div class="shell"><a href="#familia">Familia</a><a href="#repertorio">Repertorio</a><a href="#tecnico">Técnico</a><a href="#interfaz">Interfaz</a><a href="#estado">Estado</a></div></nav>
 <main>
 <section id="familia" class="band"><div class="shell"><p class="kicker">01 / Familia</p><h2>Siete pesos.<br>Romana y cursiva.</h2><div class="weights">__ROWS__</div></div></section>
 <section id="repertorio" class="band dark"><div class="shell"><p class="kicker">02 / Repertorio</p><h2>Español completo.<br>Información técnica.</h2><div class="proof">ABCDEFGHIJKLMNÑOPQRSTUVWXYZ<br>abcdefghijklmnñopqrstuvwxyz<br>ÁÉÍÓÚÜÑ áéíóúüñ ¿? ¡! “ ” « »</div><div class="proof figures">0123456789 · 24/7 · 99,98%<br>$ 1.234.567,89 · € £ ¥</div></div></section>
 <section id="tecnico" class="band dark"><div class="shell"><p class="kicker">03 / Lenguaje técnico</p><h2>Datos que se leen<br>sin ambigüedad.</h2><div class="technical"><p>Red de fibra certificada con continuidad 24/7 y SLA documentado.<code>INC-2847 · 10.20.16.24<br>UPTIME 99,98%<br>OTDR 1.550 nm · -18,4 dBm</code></p><p class="figures">CUIT 30-71234567-8<br>ARS 1.234.567,89<br>14/07/2026 · 03:42<br>Rack A-17 · VLAN 240</p></div></div></section>
 <section id="interfaz" class="band"><div class="shell"><p class="kicker">04 / Interfaz</p><h2>Jerarquía sin ruido.</h2><div class="ui"><div><h3>Solicitar relevamiento</h3><p>Describa el sitio, la restricción operativa y el plazo. ULTIMA MILLA responde con alcance y próximo paso.</p><span class="button">Hablar con un especialista</span></div><div><div class="status"><b>Operativo</b><span>Monitoreo y soporte activos</span></div><div class="status"><b>En revisión</b><span>Evidencia y documentación</span></div><div class="status"><b>Crítico</b><span>Escalado inmediato</span></div></div></div></div></section>
-<section id="estado" class="band"><div class="shell"><p class="kicker">05 / Estado de entrega</p><h2>Contornos retirados.<br>Distribución bloqueada.</h2><p class="lead">La validez estructural de los archivos no compensa los defectos observados en lectura real. El próximo paso es redibujo profesional, pruebas de palabra y QA físico antes de generar una nueva build.</p></div></section>
+<section id="estado" class="band"><div class="shell"><p class="kicker">05 / Estado de entrega</p><h2>Roman mejorado.<br>Distribución bloqueada.</h2><p class="lead">La cobertura y la compilación ya son completas para el candidato local. El próximo paso es cerrar la topología itálica, repetir pruebas de palabra y obtener QA físico e independiente antes de generar una nueva release.</p></div></section>
 </main>
 <footer><div class="shell"><strong>UM Sans 2.0 — Build rechazada</strong><br>Copyright 2026 ULTIMA MILLA S.A. Evaluación interna. No distribuir.</div></footer>
 </body></html>
@@ -1582,7 +1671,7 @@ def build() -> None:
         "statics": [],
         "variables": [],
         "variableStatus": "blocked: cleaned masters are not contour-compatible",
-        "visualStatus": "blocked: glyph drawing failed word, paragraph and responsive review",
+        "visualStatus": "blocked: roman core improved; italic topology, multiscale review and independent sign-off remain pending",
     }
 
     for italic in (False, True):
@@ -1642,7 +1731,7 @@ def build() -> None:
         "statics": len(report["statics"]),
         "variables": len(report["variables"]),
         "archive": None,
-        "distribution": "blocked: rejected visual build",
+        "distribution": "blocked: candidate review incomplete",
         "output": str(OUTPUT),
     }, ensure_ascii=False, indent=2))
 
