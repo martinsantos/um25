@@ -3,17 +3,20 @@
 
 import type { APIRoute } from 'astro';
 import { getDirectusInternalUrl } from '../config/runtime';
+import { fetchWithTimeout, getFetchTimeoutMs } from '../utils/fetchWithTimeout';
+
+const DIRECTUS_HEALTH_TIMEOUT_MS = getFetchTimeoutMs(
+  process.env.DIRECTUS_HEALTH_TIMEOUT_MS,
+  1500,
+);
 
 async function checkDirectus(startTime: number) {
   const directusUrl = getDirectusInternalUrl();
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 5000);
 
   try {
-    const directusResponse = await fetch(`${directusUrl}/server/ping`, {
+    const directusResponse = await fetchWithTimeout(`${directusUrl}/server/ping`, {
       method: 'GET',
-      signal: controller.signal,
-    });
+    }, DIRECTUS_HEALTH_TIMEOUT_MS);
 
     return {
       status: directusResponse.ok ? 'healthy' : 'unhealthy',
@@ -25,8 +28,6 @@ async function checkDirectus(startTime: number) {
       error: error instanceof Error ? error.message : 'unknown error',
       responseTime: Date.now() - startTime,
     };
-  } finally {
-    clearTimeout(timeout);
   }
 }
 
@@ -38,10 +39,10 @@ export const GET: APIRoute = async () => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    service: 'astro-app',
-    version: '1.0.0',
+    service: 'ultimamilla-astro',
+    version: process.env.GIT_SHA || process.env.npm_package_version || 'unknown',
     environment: process.env.NODE_ENV || 'development',
-    port: process.env.PORT || '3000',
+    port: process.env.PORT || '4321',
   };
 
   // Verificaciones adicionales en producción
@@ -75,7 +76,7 @@ export const GET: APIRoute = async () => {
     'Cache-Control': 'no-cache, no-store, must-revalidate',
     'Pragma': 'no-cache',
     'Expires': '0',
-    'X-Health-Check': 'astro-app',
+    'X-Health-Check': 'ultimamilla-astro',
   };
 
   return new Response(JSON.stringify(healthData, null, 2), {

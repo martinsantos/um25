@@ -5,11 +5,13 @@ import {
   selectDiverseBlogCover,
 } from '../../../utils/blogCoverDiversity.js';
 import { checkBasicAuth } from '../../../utils/serverAuth';
+import { fetchWithTimeout, getFetchTimeoutMs } from '../../../utils/fetchWithTimeout';
 
 const API_USER = process.env['BLOG_API_USER'] ?? import.meta.env.BLOG_API_USER;
 const API_PASS = process.env['BLOG_API_PASS'] ?? import.meta.env.BLOG_API_PASS;
 const DIRECTUS_URL = process.env['DIRECTUS_INTERNAL_URL'] ?? import.meta.env.DIRECTUS_INTERNAL_URL ?? 'http://localhost:8055';
 const DIRECTUS_TOKEN = process.env['DIRECTUS_ADMIN_TOKEN'] ?? import.meta.env.DIRECTUS_ADMIN_TOKEN ?? '';
+const DIRECTUS_TIMEOUT_MS = getFetchTimeoutMs(process.env['DIRECTUS_TIMEOUT_MS']);
 
 type ExistingPost = {
   id: number;
@@ -22,9 +24,10 @@ type ExistingPost = {
 };
 
 async function findPost(slug: string): Promise<ExistingPost | null> {
-  const res = await fetch(
+  const res = await fetchWithTimeout(
     `${DIRECTUS_URL}/items/blog_posts?filter[slug][_eq]=${encodeURIComponent(slug)}&fields=id,slug,titulo,categoria,imagen_portada,status,fecha_publicacion&limit=1`,
-    { headers: { Authorization: `Bearer ${DIRECTUS_TOKEN}` } }
+    { headers: { Authorization: `Bearer ${DIRECTUS_TOKEN}` } },
+    DIRECTUS_TIMEOUT_MS,
   );
   const data = await res.json();
   return data.data?.[0] ?? null;
@@ -39,9 +42,9 @@ async function fetchBlogCoverCorpus(excludeSlug: string): Promise<Record<string,
   params.set('filter[_and][1][slug][_neq]', excludeSlug);
 
   try {
-    const res = await fetch(`${DIRECTUS_URL}/items/blog_posts?${params.toString()}`, {
+    const res = await fetchWithTimeout(`${DIRECTUS_URL}/items/blog_posts?${params.toString()}`, {
       headers: { Authorization: `Bearer ${DIRECTUS_TOKEN}` },
-    });
+    }, DIRECTUS_TIMEOUT_MS);
     if (!res.ok) return [];
     const data = await res.json();
     return Array.isArray(data.data) ? data.data : [];
@@ -127,14 +130,14 @@ export const PUT: APIRoute = async ({ request, params }) => {
     status: update['status'],
   }, coverCorpus);
 
-  const res = await fetch(`${DIRECTUS_URL}/items/blog_posts/${existingPost.id}`, {
+  const res = await fetchWithTimeout(`${DIRECTUS_URL}/items/blog_posts/${existingPost.id}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${DIRECTUS_TOKEN}`,
     },
     body: JSON.stringify(update),
-  });
+  }, DIRECTUS_TIMEOUT_MS);
 
   if (!res.ok) {
     const err = await res.text();
@@ -179,10 +182,10 @@ export const DELETE: APIRoute = async ({ request, params }) => {
   }
 
   // Hard-delete from Directus so the slug can be reused
-  const res = await fetch(`${DIRECTUS_URL}/items/blog_posts/${existingPost.id}`, {
+  const res = await fetchWithTimeout(`${DIRECTUS_URL}/items/blog_posts/${existingPost.id}`, {
     method: 'DELETE',
     headers: { Authorization: `Bearer ${DIRECTUS_TOKEN}` },
-  });
+  }, DIRECTUS_TIMEOUT_MS);
 
   if (!res.ok) {
     const err = await res.text();

@@ -10,9 +10,11 @@ import { normalizeServicioRecord } from '../utils/normalizeServicioRecord';
 import { visibleBlogStatusDirectusFilter } from '../utils/blogPublishing';
 import { diversifyBlogPostCovers } from '../utils/blogCoverDiversity.js';
 import { isCanonicalBlogSlug } from '../data/seoRedirects';
+import { fetchWithTimeout, getFetchTimeoutMs, withTimeout } from '../utils/fetchWithTimeout';
 
 const readItemsAny = readItems as any;
 const readItemAny = readItem as any;
+const DIRECTUS_TIMEOUT_MS = getFetchTimeoutMs(process.env['DIRECTUS_TIMEOUT_MS']);
 
 // SSR: misma máquina que Directus (prod :8055, réplica local vía túnel o localhost)
 export const DIRECTUS_CONFIG = {
@@ -43,12 +45,15 @@ if (!DIRECTUS_CONFIG.token && !isLocalProdReplica()) {
 // Exportar cliente con tipos para casos específicos
 export const getClient = () => {
   const client = createDirectus<Colecciones>(DIRECTUS_CONFIG.url);
+  const restWithTimeout = rest({
+    onRequest: (request) => withTimeout(request, DIRECTUS_TIMEOUT_MS),
+  });
 
   if (DIRECTUS_CONFIG.token) {
-    return client.with(staticToken(DIRECTUS_CONFIG.token)).with(rest());
+    return client.with(staticToken(DIRECTUS_CONFIG.token)).with(restWithTimeout);
   }
 
-  return client.with(rest());
+  return client.with(restWithTimeout);
 };
 
 type DirectusJsonOptions = {
@@ -69,9 +74,9 @@ async function requestDirectusJson<T>(
   includeToken = true,
 ): Promise<T | null> {
   const baseUrl = DIRECTUS_CONFIG.url.replace(/\/$/, '');
-  const response = await fetch(`${baseUrl}${path}`, {
+  const response = await fetchWithTimeout(`${baseUrl}${path}`, {
     headers: getDirectusFetchHeaders(includeToken),
-  });
+  }, DIRECTUS_TIMEOUT_MS);
 
   if ((response.status === 401 || response.status === 403) && includeToken && DIRECTUS_CONFIG.token) {
     console.warn(`[directus] Token rechazado para ${path}; reintentando lectura pública.`);
@@ -270,8 +275,7 @@ export async function getServiciosV4(): Promise<ServicioV4[]> {
           'PorQueElegirnos',
           'Area',
           'Cliente',
-          'Productos',
-          'slug'
+          'Productos'
         ],
         sort: ['id']
       })
@@ -315,8 +319,7 @@ export async function getServicioConProductos(id: number | string): Promise<Serv
           'PorQueElegirnos',
           'Area',
           'Cliente',
-          'Productos',
-          'slug'
+          'Productos'
         ]
       })
     );
@@ -450,8 +453,7 @@ export async function getAntecedentesPorServicio(servicioId: number, limit: numb
           'id',
           'Titulo',
           'Descripcion',
-          'Imagen',
-          'slug'
+          'Imagen'
         ]
       })
     );

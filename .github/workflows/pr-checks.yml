@@ -35,8 +35,7 @@ jobs:
         run: npm ci
 
       - name: Run ESLint
-        run: npm run lint || echo "Lint completed with warnings"
-        continue-on-error: true
+        run: npm run lint
 
       - name: Check TypeScript
         run: npm run typecheck
@@ -97,8 +96,7 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm test || echo "Tests completed"
-        continue-on-error: true
+        run: npm test
 
   #===========================================================================
   # JOB 4: SUMMARY COMMENT

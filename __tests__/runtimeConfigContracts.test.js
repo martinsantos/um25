@@ -141,6 +141,42 @@ describe('Production runtime configuration contracts', () => {
     expect(workflow).toContain("export SMTP_USER='${{ secrets.SMTP_USER }}'");
     expect(workflow).toContain("export SMTP_PASS='${{ secrets.SMTP_PASS }}'");
     expect(workflow).toContain('pm2 startOrRestart ecosystem.config.cjs --only astro-ultimamilla --update-env');
-    expect(workflow).toContain('pm2 restart astro-ultimamilla --update-env');
+    expect(workflow).not.toContain('pm2 restart astro-ultimamilla --update-env');
+    expect(workflow).toContain("export BLOG_API_USER='${{ secrets.BLOG_API_USER }}'");
+    expect(workflow).toContain("export BLOG_API_PASS='${{ secrets.BLOG_API_PASS }}'");
+  });
+
+  test('production runtime does not commit blog credentials', () => {
+    const ecosystem = fs.readFileSync(path.join(process.cwd(), 'ecosystem.config.cjs'), 'utf8');
+
+    expect(ecosystem).not.toContain('admin@umbot.com.ar');
+    expect(ecosystem).not.toContain('UmbotAdmin2025!');
+    expect(ecosystem).toContain("process.env[key]");
+  });
+
+  test('production deploy waits for the local Astro origin before edge checks', () => {
+    const workflow = fs.readFileSync(path.join(process.cwd(), '.github/workflows/production-deploy.yml'), 'utf8');
+
+    expect(workflow).toContain('name: Health check origin');
+    expect(workflow).toContain('name: Health check edge');
+    expect(workflow).toContain('uses: appleboy/ssh-action@v1.2.0');
+    expect(workflow).toContain('http://127.0.0.1:4321/health');
+    expect(workflow).toContain('Origin health passed on attempt');
+    expect(workflow).toContain('Origin health did not recover within 60 seconds');
+  });
+
+  test('production deployment removes only the known stale PM2 alias', () => {
+    const workflow = fs.readFileSync(path.join(process.cwd(), '.github/workflows/production-deploy.yml'), 'utf8');
+    const cleanup = fs.readFileSync(path.join(process.cwd(), 'scripts/ops/cleanup-stale-pm2-app.sh'), 'utf8');
+    const legacyDeploy = fs.readFileSync(path.join(process.cwd(), 'scripts/deploy-server.sh'), 'utf8');
+
+    expect(workflow).toContain('name: Remove stale PM2 process alias');
+    expect(workflow).toContain('scripts/ops/cleanup-stale-pm2-app.sh');
+    expect(cleanup).toContain('pm2 describe astro-app');
+    expect(cleanup).toContain('pm2 del astro-app');
+    expect(cleanup).not.toContain('pm2 del astro-ultimamilla');
+    expect(legacyDeploy).toContain('Manual production deployment is disabled');
+    expect(legacyDeploy).not.toContain('git pull origin main');
+    expect(legacyDeploy).not.toContain('pm2 restart astro-app');
   });
 });
