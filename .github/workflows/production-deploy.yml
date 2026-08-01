@@ -39,8 +39,7 @@ jobs:
         run: npm ci
 
       - name: Run linter
-        run: npm run lint || echo "Lint check completed"
-        continue-on-error: true  # No bloquear por ahora
+        run: npm run lint
 
       - name: Check TypeScript
         run: npm run typecheck
@@ -54,8 +53,7 @@ jobs:
           NODE_ENV: production
 
       - name: Run tests
-        run: npm test || echo "Tests completed"
-        continue-on-error: true  # No bloquear por ahora
+        run: npm test
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7
@@ -141,6 +139,15 @@ jobs:
             chown -R 1000:1000 ${{ env.DEPLOY_PATH }}/uploads/ 2>/dev/null || true
             chmod 775 ${{ env.DEPLOY_PATH }}/uploads/ 2>/dev/null || true
 
+      - name: Remove stale PM2 process alias
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: 23.105.176.45
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            bash ${{ env.DEPLOY_PATH }}/scripts/ops/cleanup-stale-pm2-app.sh
+
       - name: Restart PM2 process
         uses: appleboy/ssh-action@v1.2.0
         env:
@@ -149,6 +156,8 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           SMTP_FROM: ${{ secrets.SMTP_FROM }}
+          BLOG_API_USER: ${{ secrets.BLOG_API_USER }}
+          BLOG_API_PASS: ${{ secrets.BLOG_API_PASS }}
         with:
           host: 23.105.176.45
           username: root
@@ -160,8 +169,9 @@ jobs:
             export SMTP_USER='${{ secrets.SMTP_USER }}'
             export SMTP_PASS='${{ secrets.SMTP_PASS }}'
             export SMTP_FROM='${{ secrets.SMTP_FROM }}'
+            export BLOG_API_USER='${{ secrets.BLOG_API_USER }}'
+            export BLOG_API_PASS='${{ secrets.BLOG_API_PASS }}'
             pm2 startOrRestart ecosystem.config.cjs --only astro-ultimamilla --update-env
-            pm2 restart astro-ultimamilla --update-env
             pm2 save
 
       - name: Apply WWW canonical routing
@@ -173,9 +183,31 @@ jobs:
           script: |
             bash ${{ env.DEPLOY_PATH }}/scripts/ops/apply-www-canonical-nginx.sh
 
-      - name: Health check
+      - name: Health check origin
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: 23.105.176.45
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 2m
+          script: |
+            echo "Waiting for the local Astro origin on the production server..."
+            for attempt in $(seq 1 30); do
+              if curl -4 -fsS --max-time 3 http://127.0.0.1:4321/health > /tmp/ultimamilla-health.json; then
+                echo "✅ Origin health passed on attempt $attempt"
+                cat /tmp/ultimamilla-health.json
+                break
+              fi
+              if [ "$attempt" -eq 30 ]; then
+                echo "❌ Origin health did not recover within 60 seconds"
+                exit 1
+              fi
+              sleep 2
+            done
+
+      - name: Health check edge
         run: |
-          echo "Waiting 15s for app to start..."
+          echo "Waiting 15s before edge checks..."
           sleep 15
 
           APEX_CHECK=$(curl -4 -sS -o /dev/null --max-time 20 \
@@ -309,7 +341,11 @@ jobs:
             npm install --include=dev --prefer-offline --no-audit --progress=false
             npm ls @directus/sdk @sentry/astro zod piccolore astro @astrojs/node --depth=0
             node -e "Promise.all([import('piccolore'), import('@directus/sdk'), import('zod')]).then(() => console.log('runtime imports ok'))"
+            if pm2 describe astro-app >/dev/null 2>&1; then
+              pm2 del astro-app
+            fi
             pm2 restart astro-ultimamilla
+            pm2 save
 
       - name: Verify rollback
         run: |
