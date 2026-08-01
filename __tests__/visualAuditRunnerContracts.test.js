@@ -112,4 +112,34 @@ describe('Visual audit runner contracts', () => {
     expect(visualAudit).toContain("'sectores default'");
     expect(visualAudit).toContain('sticky filter lacks stable background');
   });
+
+  test('stable editorial H1 permits governed impact 800 without relaxing lower headings', () => {
+    const visualAudit = read('scripts/visual-contrast-audit.mjs');
+    const home = read('src/pages/index.astro');
+
+    expect(home).toContain('class="um-display-emphasis"');
+    expect(visualAudit).toContain("element.classList.contains('um-display-emphasis')");
+    expect(visualAudit).toContain("const maxWeight = tag === 'h1' ? 800 : 700");
+    expect(visualAudit).toContain('fontWeight) > 800');
+    expect(visualAudit).toContain("measureFont('\"UM Sans\", monospace', 800");
+    expect(visualAudit).toContain("tag === 'h1' ||");
+  });
+
+  test('the typography specimen may prove extended weights without relaxing public routes', () => {
+    const visualAudit = read('scripts/visual-contrast-audit.mjs');
+
+    expect(visualAudit).toContain("label: 'um sans portfolio'");
+    expect(visualAudit).toContain('allowSpecimenStructure: true');
+    expect(visualAudit).toContain('allowSpecimenStructure: route.allowSpecimenStructure === true');
+    expect(visualAudit).toContain('!result.allowSpecimenStructure && result.heavyCount > 0');
+    expect(visualAudit).toContain('!result.allowSpecimenStructure && (result.borderNoiseCount || 0) > 12');
+  });
+
+  test('core web vitals gate returns a deterministic process verdict after CDP cleanup', () => {
+    const vitalsAudit = read('scripts/core-web-vitals-audit.mjs');
+
+    expect(vitalsAudit).toContain("chrome.kill('SIGKILL')");
+    expect(vitalsAudit).toContain('cleanupChrome()');
+    expect(vitalsAudit).toContain('process.exit(failures.length > 0 ? 1 : 0)');
+  });
 });

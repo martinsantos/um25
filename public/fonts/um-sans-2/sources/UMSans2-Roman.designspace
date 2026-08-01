@@ -1,0 +1,170 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<designspace format="5.0">
+  <axes>
+    <axis tag="wght" name="Weight" minimum="300" maximum="900" default="400"/>
+    <axis tag="opsz" name="Optical Size" minimum="14" maximum="72" default="18"/>
+  </axes>
+  <sources>
+    <source filename="../masters/UMSans2-300-14.ttf" name="master.300.14.roman" familyname="UM Sans 2" stylename="Light Text">
+      <location>
+        <dimension name="Weight" xvalue="300"/>
+        <dimension name="Optical Size" xvalue="14"/>
+      </location>
+    </source>
+    <source filename="../masters/UMSans2-300-72.ttf" name="master.300.72.roman" familyname="UM Sans 2" stylename="Light Display">
+      <location>
+        <dimension name="Weight" xvalue="300"/>
+        <dimension name="Optical Size" xvalue="72"/>
+      </location>
+    </source>
+    <source filename="../masters/UMSans2-400-18.ttf" name="master.400.18.roman" familyname="UM Sans 2" stylename="Regular Display">
+      <lib copy="1"/>
+      <features copy="1"/>
+      <info copy="1"/>
+      <location>
+        <dimension name="Weight" xvalue="400"/>
+        <dimension name="Optical Size" xvalue="18"/>
+      </location>
+    </source>
+    <source filename="../masters/UMSans2-900-14.ttf" name="master.900.14.roman" familyname="UM Sans 2" stylename="Black Text">
+      <location>
+        <dimension name="Weight" xvalue="900"/>
+        <dimension name="Optical Size" xvalue="14"/>
+      </location>
+    </source>
+    <source filename="../masters/UMSans2-900-72.ttf" name="master.900.72.roman" familyname="UM Sans 2" stylename="Black Display">
+      <location>
+        <dimension name="Weight" xvalue="900"/>
+        <dimension name="Optical Size" xvalue="72"/>
+      </location>
+    </source>
+  </sources>
+  <instances>
+    <instance name="Light Text" familyname="UM Sans 2" stylename="Light Text">
+      <location>
+        <dimension name="Weight" xvalue="300"/>
+        <dimension name="Optical Size" xvalue="14"/>
+      </location>
+    </instance>
+    <instance name="Light Display" familyname="UM Sans 2" stylename="Light Display">
+      <location>
+        <dimension name="Weight" xvalue="300"/>
+        <dimension name="Optical Size" xvalue="32"/>
+      </location>
+    </instance>
+    <instance name="Light Poster" familyname="UM Sans 2" stylename="Light Poster">
+      <location>
+        <dimension name="Weight" xvalue="300"/>
+        <dimension name="Optical Size" xvalue="72"/>
+      </location>
+    </instance>
+    <instance name="Regular Text" familyname="UM Sans 2" stylename="Regular Text">
+      <location>
+        <dimension name="Weight" xvalue="400"/>
+        <dimension name="Optical Size" xvalue="14"/>
+      </location>
+    </instance>
+    <instance name="Regular Display" familyname="UM Sans 2" stylename="Regular Display">
+      <location>
+        <dimension name="Weight" xvalue="400"/>
+        <dimension name="Optical Size" xvalue="32"/>
+      </location>
+    </instance>
+    <instance name="Regular Poster" familyname="UM Sans 2" stylename="Regular Poster">
+      <location>
+        <dimension name="Weight" xvalue="400"/>
+        <dimension name="Optical Size" xvalue="72"/>
+      </location>
+    </instance>
+    <instance name="Medium Text" familyname="UM Sans 2" stylename="Medium Text">
+      <location>
+        <dimension name="Weight" xvalue="500"/>
+        <dimension name="Optical Size" xvalue="14"/>
+      </location>
+    </instance>
+    <instance name="Medium Display" familyname="UM Sans 2" stylename="Medium Display">
+      <location>
+        <dimension name="Weight" xvalue="500"/>
+        <dimension name="Optical Size" xvalue="32"/>
+      </location>
+    </instance>
+    <instance name="Medium Poster" familyname="UM Sans 2" stylename="Medium Poster">
+      <location>
+        <dimension name="Weight" xvalue="500"/>
+        <dimension name="Optical Size" xvalue="72"/>
+      </location>
+    </instance>
+    <instance name="SemiBold Text" familyname="UM Sans 2" stylename="SemiBold Text">
+      <location>
+        <dimension name="Weight" xvalue="600"/>
+        <dimension name="Optical Size" xvalue="14"/>
+      </location>
+    </instance>
+    <instance name="SemiBold Display" familyname="UM Sans 2" stylename="SemiBold Display">
+      <location>
+        <dimension name="Weight" xvalue="600"/>
+        <dimension name="Optical Size" xvalue="32"/>
+      </location>
+    </instance>
+    <instance name="SemiBold Poster" familyname="UM Sans 2" stylename="SemiBold Poster">
+      <location>
+        <dimension name="Weight" xvalue="600"/>
+        <dimension name="Optical Size" xvalue="72"/>
+      </location>
+    </instance>
+    <instance name="Bold Text" familyname="UM Sans 2" stylename="Bold Text">
+      <location>
+        <dimension name="Weight" xvalue="700"/>
+        <dimension name="Optical Size" xvalue="14"/>
+      </location>
+    </instance>
+    <instance name="Bold Display" familyname="UM Sans 2" stylename="Bold Display">
+      <location>
+        <dimension name="Weight" xvalue="700"/>
+        <dimension name="Optical Size" xvalue="32"/>
+      </location>
+    </instance>
+    <instance name="Bold Poster" familyname="UM Sans 2" stylename="Bold Poster">
+      <location>
+        <dimension name="Weight" xvalue="700"/>
+        <dimension name="Optical Size" xvalue="72"/>
+      </location>
+    </instance>
+    <instance name="ExtraBold Text" familyname="UM Sans 2" stylename="ExtraBold Text">
+      <location>
+        <dimension name="Weight" xvalue="800"/>
+        <dimension name="Optical Size" xvalue="14"/>
+      </location>
+    </instance>
+    <instance name="ExtraBold Display" familyname="UM Sans 2" stylename="ExtraBold Display">
+      <location>
+        <dimension name="Weight" xvalue="800"/>
+        <dimension name="Optical Size" xvalue="32"/>
+      </location>
+    </instance>
+    <instance name="ExtraBold Poster" familyname="UM Sans 2" stylename="ExtraBold Poster">
+      <location>
+        <dimension name="Weight" xvalue="800"/>
+        <dimension name="Optical Size" xvalue="72"/>
+      </location>
+    </instance>
+    <instance name="Black Text" familyname="UM Sans 2" stylename="Black Text">
+      <location>
+        <dimension name="Weight" xvalue="900"/>
+        <dimension name="Optical Size" xvalue="14"/>
+      </location>
+    </instance>
+    <instance name="Black Display" familyname="UM Sans 2" stylename="Black Display">
+      <location>
+        <dimension name="Weight" xvalue="900"/>
+        <dimension name="Optical Size" xvalue="32"/>
+      </location>
+    </instance>
+    <instance name="Black Poster" familyname="UM Sans 2" stylename="Black Poster">
+      <location>
+        <dimension name="Weight" xvalue="900"/>
+        <dimension name="Optical Size" xvalue="72"/>
+      </location>
+    </instance>
+  </instances>
+</designspace>

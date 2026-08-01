@@ -1,0 +1,170 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<designspace format="5.0">
+  <axes>
+    <axis tag="wght" name="Weight" minimum="300" maximum="900" default="400"/>
+    <axis tag="opsz" name="Optical Size" minimum="14" maximum="72" default="18"/>
+  </axes>
+  <sources>
+    <source filename="../masters/UMSans2-300-14-Italic.ttf" name="master.300.14.italic" familyname="UM Sans 2" stylename="Light Italic Text">
+      <location>
+        <dimension name="Weight" xvalue="300"/>
+        <dimension name="Optical Size" xvalue="14"/>
+      </location>
+    </source>
+    <source filename="../masters/UMSans2-300-72-Italic.ttf" name="master.300.72.italic" familyname="UM Sans 2" stylename="Light Italic Display">
+      <location>
+        <dimension name="Weight" xvalue="300"/>
+        <dimension name="Optical Size" xvalue="72"/>
+      </location>
+    </source>
+    <source filename="../masters/UMSans2-400-18-Italic.ttf" name="master.400.18.italic" familyname="UM Sans 2" stylename="Italic Display">
+      <lib copy="1"/>
+      <features copy="1"/>
+      <info copy="1"/>
+      <location>
+        <dimension name="Weight" xvalue="400"/>
+        <dimension name="Optical Size" xvalue="18"/>
+      </location>
+    </source>
+    <source filename="../masters/UMSans2-900-14-Italic.ttf" name="master.900.14.italic" familyname="UM Sans 2" stylename="Black Italic Text">
+      <location>
+        <dimension name="Weight" xvalue="900"/>
+        <dimension name="Optical Size" xvalue="14"/>
+      </location>
+    </source>
+    <source filename="../masters/UMSans2-900-72-Italic.ttf" name="master.900.72.italic" familyname="UM Sans 2" stylename="Black Italic Display">
+      <location>
+        <dimension name="Weight" xvalue="900"/>
+        <dimension name="Optical Size" xvalue="72"/>
+      </location>
+    </source>
+  </sources>
+  <instances>
+    <instance name="Light Text Italic" familyname="UM Sans 2" stylename="Light Text Italic">
+      <location>
+        <dimension name="Weight" xvalue="300"/>
+        <dimension name="Optical Size" xvalue="14"/>
+      </location>
+    </instance>
+    <instance name="Light Display Italic" familyname="UM Sans 2" stylename="Light Display Italic">
+      <location>
+        <dimension name="Weight" xvalue="300"/>
+        <dimension name="Optical Size" xvalue="32"/>
+      </location>
+    </instance>
+    <instance name="Light Poster Italic" familyname="UM Sans 2" stylename="Light Poster Italic">
+      <location>
+        <dimension name="Weight" xvalue="300"/>
+        <dimension name="Optical Size" xvalue="72"/>
+      </location>
+    </instance>
+    <instance name="Regular Text Italic" familyname="UM Sans 2" stylename="Regular Text Italic">
+      <location>
+        <dimension name="Weight" xvalue="400"/>
+        <dimension name="Optical Size" xvalue="14"/>
+      </location>
+    </instance>
+    <instance name="Regular Display Italic" familyname="UM Sans 2" stylename="Regular Display Italic">
+      <location>
+        <dimension name="Weight" xvalue="400"/>
+        <dimension name="Optical Size" xvalue="32"/>
+      </location>
+    </instance>
+    <instance name="Regular Poster Italic" familyname="UM Sans 2" stylename="Regular Poster Italic">
+      <location>
+        <dimension name="Weight" xvalue="400"/>
+        <dimension name="Optical Size" xvalue="72"/>
+      </location>
+    </instance>
+    <instance name="Medium Text Italic" familyname="UM Sans 2" stylename="Medium Text Italic">
+      <location>
+        <dimension name="Weight" xvalue="500"/>
+        <dimension name="Optical Size" xvalue="14"/>
+      </location>
+    </instance>
+    <instance name="Medium Display Italic" familyname="UM Sans 2" stylename="Medium Display Italic">
+      <location>
+        <dimension name="Weight" xvalue="500"/>
+        <dimension name="Optical Size" xvalue="32"/>
+      </location>
+    </instance>
+    <instance name="Medium Poster Italic" familyname="UM Sans 2" stylename="Medium Poster Italic">
+      <location>
+        <dimension name="Weight" xvalue="500"/>
+        <dimension name="Optical Size" xvalue="72"/>
+      </location>
+    </instance>
+    <instance name="SemiBold Text Italic" familyname="UM Sans 2" stylename="SemiBold Text Italic">
+      <location>
+        <dimension name="Weight" xvalue="600"/>
+        <dimension name="Optical Size" xvalue="14"/>
+      </location>
+    </instance>
+    <instance name="SemiBold Display Italic" familyname="UM Sans 2" stylename="SemiBold Display Italic">
+      <location>
+        <dimension name="Weight" xvalue="600"/>
+        <dimension name="Optical Size" xvalue="32"/>
+      </location>
+    </instance>
+    <instance name="SemiBold Poster Italic" familyname="UM Sans 2" stylename="SemiBold Poster Italic">
+      <location>
+        <dimension name="Weight" xvalue="600"/>
+        <dimension name="Optical Size" xvalue="72"/>
+      </location>
+    </instance>
+    <instance name="Bold Text Italic" familyname="UM Sans 2" stylename="Bold Text Italic">
+      <location>
+        <dimension name="Weight" xvalue="700"/>
+        <dimension name="Optical Size" xvalue="14"/>
+      </location>
+    </instance>
+    <instance name="Bold Display Italic" familyname="UM Sans 2" stylename="Bold Display Italic">
+      <location>
+        <dimension name="Weight" xvalue="700"/>
+        <dimension name="Optical Size" xvalue="32"/>
+      </location>
+    </instance>
+    <instance name="Bold Poster Italic" familyname="UM Sans 2" stylename="Bold Poster Italic">
+      <location>
+        <dimension name="Weight" xvalue="700"/>
+        <dimension name="Optical Size" xvalue="72"/>
+      </location>
+    </instance>
+    <instance name="ExtraBold Text Italic" familyname="UM Sans 2" stylename="ExtraBold Text Italic">
+      <location>
+        <dimension name="Weight" xvalue="800"/>
+        <dimension name="Optical Size" xvalue="14"/>
+      </location>
+    </instance>
+    <instance name="ExtraBold Display Italic" familyname="UM Sans 2" stylename="ExtraBold Display Italic">
+      <location>
+        <dimension name="Weight" xvalue="800"/>
+        <dimension name="Optical Size" xvalue="32"/>
+      </location>
+    </instance>
+    <instance name="ExtraBold Poster Italic" familyname="UM Sans 2" stylename="ExtraBold Poster Italic">
+      <location>
+        <dimension name="Weight" xvalue="800"/>
+        <dimension name="Optical Size" xvalue="72"/>
+      </location>
+    </instance>
+    <instance name="Black Text Italic" familyname="UM Sans 2" stylename="Black Text Italic">
+      <location>
+        <dimension name="Weight" xvalue="900"/>
+        <dimension name="Optical Size" xvalue="14"/>
+      </location>
+    </instance>
+    <instance name="Black Display Italic" familyname="UM Sans 2" stylename="Black Display Italic">
+      <location>
+        <dimension name="Weight" xvalue="900"/>
+        <dimension name="Optical Size" xvalue="32"/>
+      </location>
+    </instance>
+    <instance name="Black Poster Italic" familyname="UM Sans 2" stylename="Black Poster Italic">
+      <location>
+        <dimension name="Weight" xvalue="900"/>
+        <dimension name="Optical Size" xvalue="72"/>
+      </location>
+    </instance>
+  </instances>
+</designspace>

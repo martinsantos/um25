@@ -188,7 +188,7 @@ const articlePageStructuredData = [
 
   <section class="article-page">
 
-    <div class="article-layout">
+    <div class:list={['article-layout', headings.length === 0 && 'article-layout--single']}>
       <BlogTOC headings={headings} title={articleTitle} />
 
       <article class="article-body">
@@ -290,6 +290,11 @@ const articlePageStructuredData = [
     margin: 0 auto;
   }
 
+  .article-layout--single {
+    grid-template-columns: minmax(0, 792px);
+    max-width: 792px;
+  }
+
   /* Article body */
   .article-body {
     min-width: 0;
@@ -344,7 +349,7 @@ const articlePageStructuredData = [
   .article-lead {
     font-family: var(--um-font-body);
     max-width: 62ch;
-    font-size: clamp(1.02rem, 1.08vw, 1.12rem);
+    font-size: var(--um-copy-description);
     font-weight: 400;
     font-style: normal;
     line-height: 1.76;
@@ -660,8 +665,8 @@ const articlePageStructuredData = [
     }
 
     .article-lead {
-      font-size: 1rem;
-      line-height: 1.66;
+      font-size: var(--um-copy-description);
+      line-height: 1.7;
       margin-bottom: 18px;
     }
 
@@ -679,8 +684,8 @@ const articlePageStructuredData = [
     }
 
     :global(.prose) {
-      font-size: 1rem;
-      line-height: 1.82;
+      font-size: 1.0625rem;
+      line-height: 1.78;
     }
 
     :global(.prose h2) {

@@ -26,31 +26,23 @@ function isLocalAuditTarget(baseUrl) {
 const isDevAuditTarget = isLocalAuditTarget(BASE_URL);
 
 const allChecks = [
-  { path: '/', selector: '.um-service-unit', label: 'home service unit' },
-  { path: '/', selector: '.um-services-command__links .um-arrow-link', label: 'home arrow link' },
-  { path: '/', selector: '.evidence-case-row', label: 'home evidence row' },
-  { path: '/', selector: 'nav[aria-label="Sectores con antecedentes"] a', label: 'home sector link' },
-  { path: '/', selector: '.um-intent-link-graph__item', label: 'home intent link' },
-  { path: '/servicios', selector: '.um-btn-primary', label: 'services primary cta' },
-  { path: '/servicios', selector: '.um-btn-secondary', label: 'services secondary cta' },
-  { path: '/servicios', selector: '.service-dossier-item', label: 'services dossier item' },
-  { path: '/servicios', selector: '.services-intent-card', label: 'services intent card' },
+  { path: '/', selector: '.um26-hero__actions .um26-btn--red', label: 'home primary cta' },
+  { path: '/', selector: '.um26-stats__grid a', label: 'home metric link' },
+  { path: '/', selector: '.um26-service-grid .um26-media-card', label: 'home service card' },
+  { path: '/', selector: '.um26-sector-grid .um26-media-card', label: 'home sector card' },
+  { path: '/', selector: '.um26-case-grid .um26-case-card', label: 'home evidence card' },
+  { path: '/', selector: '.um26-hub-grid a', label: 'home coverage link' },
+  { path: '/servicios', selector: '.services-demo-hero__cta', label: 'services primary cta' },
+  { path: '/servicios', selector: '.services-demo-row', label: 'services linked row' },
+  { path: '/servicios', selector: '.services-demo-closing a:first-child', label: 'services closing cta' },
   { path: '/contacto', selector: '.contact-intent', label: 'contact intent card' },
   { path: '/contacto', selector: '.contact-submit', label: 'contact submit button' },
-  { path: '/antecedentes', selector: '.ante-dossier__feature, .ante-dossier__secondary-item, .evidence-item', label: 'antecedentes evidence item' },
-  { path: '/antecedentes', selector: '.ante-dossier__actions a:first-child', label: 'antecedentes hero primary cta' },
-  { path: '/antecedentes', selector: '.ante-dossier__actions a:nth-child(2)', label: 'antecedentes hero secondary cta' },
-  { path: '/antecedentes?sector=bodegas', selector: '.ante-dossier__search input', label: 'antecedentes search input' },
-  { path: '/antecedentes?sector=bodegas', selector: '.ante-dossier__search button', label: 'antecedentes search button' },
-  { path: '/antecedentes?sector=bodegas', selector: '.ante-dossier__sector-links a:not(.is-active)', label: 'antecedentes sector filter' },
-  { path: '/antecedentes?sector=bodegas', selector: '.ante-dossier__clear', label: 'antecedentes clear filter' },
-  { path: '/antecedentes?page=2', selector: '.ante-dossier__pagination a:not(.is-active)', label: 'antecedentes pagination' },
-  { path: '/antecedentes?template=atlas&sector=bodegas', selector: '.ante-atlas__filters input', label: 'antecedentes atlas search input', devOnly: true },
-  { path: '/antecedentes?template=atlas&sector=bodegas', selector: '.ante-atlas__filters nav a:not(.is-active)', label: 'antecedentes atlas sector filter', devOnly: true },
-  { path: '/antecedentes?template=atlas&page=2', selector: '.ante-atlas__pagination a:not(.is-active)', label: 'antecedentes atlas pagination', devOnly: true },
-  { path: '/sectores', selector: '.sector-editorial-row, .sector-atlas-exec-row, a.um-click-surface', label: 'sectores linked row' },
-  { path: '/sectores?sector=bodegas', selector: '.sector-editorial__market-links a:not(.is-active)', label: 'sectores editorial market filter' },
-  { path: '/sectores?template=atlas&sector=bodegas', selector: '.sector-atlas-exec-ledger__filters-links a:not(.is-active)', label: 'sectores atlas market filter', devOnly: true },
+  { path: '/antecedentes', selector: '.um26-filter-toggle', label: 'antecedentes filter toggle' },
+  { path: '/antecedentes', selector: '.um26-results-bar button:not(.is-active)', label: 'antecedentes view control' },
+  { path: '/antecedentes', selector: '.um26-case-card', label: 'antecedentes evidence card' },
+  { path: '/sectores', selector: '.sectors-demo-filter:not(.is-active)', label: 'sectores market filter' },
+  { path: '/sectores', selector: '.sectors-demo-feature', label: 'sectores featured market' },
+  { path: '/sectores', selector: '.sectors-demo-card', label: 'sectores market card' },
   { path: '/blog', selector: '.cat-tab:not(.cat-tab--active)', label: 'blog category tab' },
 ];
 
@@ -197,15 +189,18 @@ async function runCheck(ws, check) {
     deviceScaleFactor: 1,
     mobile: false,
   });
-  await cdp(ws, 'Page.navigate', { url: new URL(check.path, BASE_URL).toString() });
-  await sleep(1400);
-
-  const before = await readHoverState(ws, check.selector);
-  const documentResult = await cdp(ws, 'DOM.getDocument', { depth: 1 });
-  const queryResult = await cdp(ws, 'DOM.querySelector', {
-    nodeId: documentResult.root.nodeId,
-    selector: check.selector,
-  });
+  let before = null;
+  let queryResult = { nodeId: 0 };
+  for (let attempt = 0; attempt < 2 && !queryResult.nodeId; attempt += 1) {
+    await cdp(ws, 'Page.navigate', { url: new URL(check.path, BASE_URL).toString() });
+    await sleep(1400 + attempt * 700);
+    before = await readHoverState(ws, check.selector);
+    const documentResult = await cdp(ws, 'DOM.getDocument', { depth: 1 });
+    queryResult = await cdp(ws, 'DOM.querySelector', {
+      nodeId: documentResult.root.nodeId,
+      selector: check.selector,
+    });
+  }
 
   if (!queryResult.nodeId) {
     return { ...check, status: 'FAIL', reason: 'selector not found', before, after: null };

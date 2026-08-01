@@ -8,6 +8,31 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'UM Sans';
+  src: url('/fonts/um-sans/UMSans-Variable.woff2?v=1.2.0-production') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans';
+  src: url('/fonts/um-sans/UMSans-VariableItalic.woff2?v=1.2.0-production') format('woff2');
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans Fallback';
+  src: local('Arial');
+  size-adjust: 112.33%;
+  ascent-override: 86.24%;
+  descent-override: 22.38%;
+  line-gap-override: 0%;
+}
+
 :root {
   --um-red: #DC2626;
   --um-red-dark: #DC2626;
@@ -26,25 +51,42 @@
   --um-radius: 4px;
   --um-radius-lg: 8px;
   --um-container: 1180px;
-  --um-container-wide: 1280px;
-  --font-poppins: 'Poppins', 'Inter', Arial, system-ui, sans-serif;
-  --font-head: var(--font-poppins);
-  --um-font-logo: 'Futura PT', 'Futura', var(--font-poppins);
-  --um-font-display: var(--font-poppins);
-  --um-font-body: 'Inter', Arial, system-ui, sans-serif;
-  --um-font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --um-container-wide: 1400px;
+  --um-page-gutter: clamp(20px, 3.2vw, 32px);
+  --um-font-editorial: 'UM Sans', 'UM Sans Fallback', Arial, system-ui, sans-serif;
+  --font-head: var(--um-font-editorial);
+  --um-font-logo: 'Futura PT', 'Futura', Arial, sans-serif;
+  /* The procedural UM Sans 2 Display alpha failed word-level raster review.
+     Impact roles stay on the verified editorial family until a full redraw is
+     approved; never mask a broken outline with a CSS fallback. */
+  --um-font-impact: var(--um-font-editorial);
+  --um-font-display: var(--um-font-editorial);
+  --um-font-body: var(--um-font-editorial);
+  --um-font-ui: var(--um-font-editorial);
+  --um-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --um-font-x-height: 0.546;
   --um-display-weight: 600;
-  --um-display-tracking: 0;
-  --um-display-line-height: 1.06;
+  --um-display-emphasis-weight: 700;
+  --um-hero-weight: 800;
+  --um-display-tracking: -0.025em;
+  --um-display-line-height: 1;
+  --um-heading-h2-line-height: 1.12;
+  --um-heading-h3-line-height: 1.14;
+  --um-body-line-height: 1.62;
+  --um-reading-line-height: 1.72;
+  --um-copy-technical: 1rem;
+  --um-copy-description: clamp(1.0625rem, 0.14vw + 1.02rem, 1.125rem);
+  --um-copy-lead: clamp(1.125rem, 0.32vw + 1.02rem, 1.25rem);
+  --um-label-tracking: 0.08em;
   --um-weight-title: var(--um-display-weight);
   --um-weight-strong: 700;
   --um-section-y: clamp(72px, 9vw, 120px);
   --um-section-y-tight: clamp(56px, 7vw, 88px);
-  --um-world-h1: clamp(2.625rem, 2.72vw, 3.16rem);
-  --um-world-h2: clamp(1.58rem, 1.92vw, 2.08rem);
-  --um-world-h3: clamp(1.08rem, 1.12vw, 1.28rem);
-  --um-world-body: clamp(1.1875rem, 0.35vw + 1.05rem, 1.25rem);
-  --um-world-lead: clamp(1.25rem, 0.42vw + 1.08rem, 1.3125rem);
+  --um-world-h1: 3.25rem;
+  --um-world-h2: 2.125rem;
+  --um-world-h3: 1.25rem;
+  --um-world-body: 1.125rem;
+  --um-world-lead: 1.25rem;
   --um-world-gutter: clamp(28px, 5vw, 76px);
   --um-world-rule: 1px solid color-mix(in srgb, var(--skin-text) 8%, transparent);
   --um-z-progress: 100;
@@ -90,6 +132,44 @@
   --skin-footer-text: rgba(255,255,255,0.64);
   --skin-footer-heading: #FFFFFF;
   --skin-footer-line: rgba(255,255,255,0.08);
+}
+
+/* Global-provider composition primitives. New commercial surfaces should use
+   these axes instead of introducing another page-specific container width. */
+.um-page-shell {
+  width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
+  margin-inline: auto;
+}
+
+.um-surface-dark {
+  --um-surface-text: #fff;
+  --um-surface-muted: rgba(255,255,255,0.76);
+  --um-surface-line: rgba(255,255,255,0.14);
+  background: #0a0a0b;
+  color: var(--um-surface-text);
+}
+
+.um-surface-light {
+  --um-surface-text: #111;
+  --um-surface-muted: #535a62;
+  --um-surface-line: #dfe3e7;
+  background: #fff;
+  color: var(--um-surface-text);
+}
+
+/* Active dark commercial systems inherit the semantic contrast contract.
+   This prevents the generic skin normalizer from flattening body copy to
+   light-theme gray on black surfaces. */
+body[data-skin] main :where(
+  .um26-home,
+  .services-demo,
+  .um26-evidence,
+  .sectors-demo,
+  .um26-sector
+) {
+  --skin-text: #fff;
+  --skin-muted: #c4c7cc;
+  --skin-line: rgba(255,255,255,0.14);
 }
 
 body[data-skin="black"] {
@@ -261,7 +341,9 @@ body[data-skin="steel"] {
 @layer base {
   html {
     font-family: var(--um-font-body);
+    font-size-adjust: var(--um-font-x-height);
     font-synthesis: none;
+    font-optical-sizing: auto;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -272,8 +354,12 @@ body[data-skin="steel"] {
     background-color: var(--skin-page);
     color: var(--skin-text);
     font-size: 16px;
-    line-height: 1.5;
+    line-height: var(--um-body-line-height);
     font-synthesis: none;
+    font-optical-sizing: auto;
+    font-kerning: normal;
+    font-variant-ligatures: common-ligatures contextual;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
     overflow-x: hidden;
     width: 100%;
     max-width: 100%;
@@ -303,6 +389,14 @@ body[data-skin="steel"] {
     color: inherit;
     letter-spacing: var(--um-display-tracking);
     font-family: var(--um-font-display);
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    font-size-adjust: inherit;
   }
 
   p {
@@ -434,7 +528,7 @@ body[data-skin="steel"] {
   .um-heading-md {
     font-family: var(--um-font-display);
     font-size: var(--um-world-h3);
-    line-height: 1.05;
+    line-height: var(--um-heading-h3-line-height);
     font-weight: var(--um-display-weight);
     letter-spacing: var(--um-display-tracking);
     text-wrap: balance;
@@ -629,7 +723,7 @@ body[data-skin="steel"] {
     font-family: var(--um-font-display);
     font-size: var(--um-world-h2);
     font-weight: var(--um-display-weight);
-    line-height: 1;
+    line-height: 1.1;
     letter-spacing: var(--um-display-tracking);
     text-wrap: balance;
   }
@@ -989,7 +1083,7 @@ body[data-skin] main {
 /* Public reading surfaces have one hard lower bound. Decorative icons are
    deliberately excluded; every textual control and piece of body copy must
    remain readable at the system's 16px minimum on desktop and mobile. */
-body[data-skin] main :where(
+:where(body[data-skin] main) :where(
   p,
   li,
   dt,
@@ -1007,7 +1101,7 @@ body[data-skin] main :where(
   b,
   i
 ) {
-  font-size: max(16px, 1em) !important;
+  font-size: max(16px, 1em);
 }
 
 body[data-skin] main :where(
@@ -2139,38 +2233,52 @@ body[data-skin="white"] main :where(.blog-index, .blog-cat) {
 }
 
 /* UMSA 2026 editorial typography gate:
-   Poppins owns content headlines; Futura PT stays reserved for the logo/brand. */
+   UM Sans owns editorial text; Futura PT stays reserved for the logo/brand. */
 :where(html, body) {
   font-synthesis: none;
 }
 
 :where(main) :where(
   h1,
-  h2,
-  h3,
   .um-heading-xl,
-  .um-heading-lg,
-  .um-heading-md,
   .blog-title,
   .hero-title,
-  .feed-title,
-  .section-title,
-  .page-title,
-  .card-title
+  .page-title
 ) {
-  font-family: var(--um-font-display) !important;
-  font-weight: var(--um-display-weight) !important;
+  font-family: var(--um-font-impact) !important;
+  font-weight: var(--um-hero-weight) !important;
   letter-spacing: var(--um-display-tracking) !important;
   text-wrap: balance;
   overflow-wrap: anywhere;
   word-break: normal;
 }
 
+:where(main) :where(
+  h2,
+  h3,
+  .um-heading-lg,
+  .um-heading-md,
+  .feed-title,
+  .section-title,
+  .card-title
+) {
+  font-family: var(--um-font-body) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
 :where(main) :where(.display, .um-display) {
-  font-family: var(--um-font-display) !important;
+  font-family: var(--um-font-impact) !important;
   font-weight: var(--um-display-weight) !important;
   letter-spacing: var(--um-display-tracking) !important;
   line-height: var(--um-display-line-height) !important;
+}
+
+:where(main) .um-display-emphasis {
+  font-weight: var(--um-display-emphasis-weight) !important;
 }
 
 :where(main) h1 {
@@ -2181,13 +2289,13 @@ body[data-skin="white"] main :where(.blog-index, .blog-cat) {
 
 :where(main) h2 {
   font-size: var(--um-world-h2);
-  line-height: 1;
+  line-height: var(--um-heading-h2-line-height);
   max-width: min(100%, 920px);
 }
 
 :where(main) h3 {
   font-size: var(--um-world-h3);
-  line-height: 1.05;
+  line-height: var(--um-heading-h3-line-height);
   max-width: min(100%, 820px);
 }
 
@@ -2208,6 +2316,35 @@ body[data-skin="white"] main :where(.blog-index, .blog-cat) {
   strong
 ) {
   font-weight: 600;
+}
+
+:where(main) :where(
+  .um-metric-strip strong,
+  .um26-stats strong,
+  .um-stat-value,
+  .um-metric-value,
+  .stats-value,
+  .metric-value,
+  time
+) {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "tnum" 1, "lnum" 1;
+}
+
+:where(.um-ops-logo, .um-footer-logo, .um-nav-logo, .um-footer-brand, [data-um-logo]) {
+  font-size-adjust: none;
+}
+
+/* Reading surfaces keep their final lines composed instead of leaving short
+   fragments caused by viewport-dependent wrapping. */
+:where(main) :where(
+  .um26-hero__lead,
+  .article-lead,
+  .geo-dossier-lead,
+  .case-detail-hero__copy > p,
+  .prose p
+) {
+  text-wrap: pretty;
 }
 
 @media (max-width: 640px) {
@@ -2247,7 +2384,8 @@ body[data-skin] main :where(
 ) {
   font-size: var(--um-world-h1) !important;
   line-height: var(--um-display-line-height) !important;
-  font-weight: var(--um-display-weight) !important;
+  font-family: var(--um-font-impact) !important;
+  font-weight: var(--um-hero-weight) !important;
   letter-spacing: var(--um-display-tracking) !important;
 }
 
@@ -2286,9 +2424,10 @@ body[data-skin] main :where(
   .blog-cat h2
 ) {
   font-size: var(--um-world-h2) !important;
-  line-height: 1 !important;
-  font-weight: var(--um-display-weight) !important;
-  letter-spacing: var(--um-display-tracking) !important;
+  line-height: 1.1 !important;
+  font-family: var(--um-font-body) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
 }
 
 body[data-skin] main :where(
@@ -2313,9 +2452,10 @@ body[data-skin] main :where(
   .hero-title
 ) {
   font-size: var(--um-world-h3) !important;
-  line-height: 1.05 !important;
-  font-weight: var(--um-display-weight) !important;
-  letter-spacing: var(--um-display-tracking) !important;
+  line-height: var(--um-heading-h3-line-height) !important;
+  font-family: var(--um-font-body) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
 }
 
 @media (max-width: 640px) {
@@ -2556,11 +2696,6 @@ body[data-skin="hybrid"] main :where(
   :where(main, nav, footer) :where(.text-xs, .text-sm, .text-\[9px\], .text-\[10px\], .text-\[11px\], .text-\[12px\], .text-\[13px\], .text-\[14px\], .text-\[15px\], small) {
     font-size: 1rem !important;
     line-height: 1.45 !important;
-  }
-
-  body[data-skin="hybrid"] main :where(p, li, dd, dt, label, a, button, input, textarea, select, figcaption, td, th),
-  body[data-skin="white"] main :where(p, li, dd, dt, label, a, button, input, textarea, select, figcaption, td, th) {
-    font-size: max(1.125rem, 1em) !important;
   }
 
   /* Antecedentes — ver bloque sin @layer al final del archivo (gana a <style scoped> de Astro) */
@@ -3416,4 +3551,84 @@ body[data-skin] main :where(
     font-size: 1rem !important;
     line-height: 1.2 !important;
   }
+}
+
+/* UM Sans 2 editorial integration gate.
+   The original display cut is intentionally limited to large headings. Text,
+   UI, metadata and compact card titles stay on the verified UM Sans Text cut. */
+body main :where(h1, .um-heading-xl, .hero-title, .page-title):not(.ums2 *) {
+  font-family: var(--um-font-impact) !important;
+  font-size: var(--um-world-h1) !important;
+  font-weight: var(--um-hero-weight) !important;
+  line-height: 1.02 !important;
+  letter-spacing: 0 !important;
+  text-wrap: balance;
+}
+
+/* Role boundary with enough specificity to beat page-scoped legacy rules.
+   Display is a deliberate impact voice, never an inherited heading default. */
+body[data-font-system][data-skin] main h1 {
+  --um-font-display: var(--um-font-impact);
+  font-family: var(--um-font-impact) !important;
+}
+
+body[data-font-system][data-skin] main :is(h2, h3, h4, h5, h6) {
+  font-family: var(--um-font-body) !important;
+}
+
+body main :where(h2, .um-heading-lg, .section-title):not(.ums2 *) {
+  font-family: var(--um-font-body) !important;
+  font-size: var(--um-world-h2) !important;
+  font-weight: 600 !important;
+  line-height: var(--um-heading-h2-line-height) !important;
+  letter-spacing: 0 !important;
+  text-wrap: balance;
+}
+
+body main :where(h3, h4, h5, h6, .um-heading-md, .feed-title, .card-title):not(.ums2 *) {
+  font-family: var(--um-font-body) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+}
+
+@media (max-width: 640px) {
+  body main :where(h1, .um-heading-xl, .hero-title, .page-title):not(.ums2 *) {
+    font-size: 2.25rem !important;
+    line-height: 1.06 !important;
+    text-wrap: balance;
+    overflow-wrap: normal !important;
+  }
+
+  body main :where(h2, .um-heading-lg, .section-title):not(.ums2 *) {
+    font-size: 1.75rem !important;
+    line-height: 1.1 !important;
+  }
+
+  body main :where(h3, .um-heading-md, .feed-title, .card-title):not(.ums2 *) {
+    font-size: 1.25rem !important;
+    line-height: 1.18 !important;
+  }
+}
+
+/* Hero actions live on dark media independently of the active skin. */
+body main .um26-hero__actions .um26-btn {
+  color: #ffffff !important;
+}
+
+body main .um26-hero__actions .um26-btn--red:is(:hover, :focus-visible) {
+  background: #b91c1c !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+}
+
+body main .um26-hero__actions .um26-btn--ghost {
+  background: rgba(8, 8, 10, 0.48) !important;
+  border-color: rgba(255, 255, 255, 0.42) !important;
+  color: #ffffff !important;
+}
+
+body main .um26-hero__actions .um26-btn--ghost:is(:hover, :focus-visible) {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.72) !important;
+  color: #ffffff !important;
 }

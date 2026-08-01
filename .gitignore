@@ -1,5 +1,6 @@
 # build output
 dist/
+dist-alpha6/
 .output/
 .astro/
 
@@ -38,9 +39,14 @@ backups/
 tmp/
 temp/
 outputs/
+.sites-preview/
 *.tsbuildinfo
+__pycache__/
+*.py[cod]
 
 # windsurf rules
 .windsurfrules
 imagenes_ultrarealistas/
 venv/
+.venv-fonts/
+.font-sources/

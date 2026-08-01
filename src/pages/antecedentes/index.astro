@@ -94,7 +94,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
 >
   <div class="um26-evidence">
     <section class="um26-evidence-hero" aria-labelledby="evidence-title">
-      <img src={heroImage} alt="" loading="eager" decoding="async" fetchpriority="high" />
+      <img src={heroImage} alt="" width="1920" height="1080" loading="eager" decoding="async" fetchpriority="high" />
       <div class="um26-evidence-hero__shade" aria-hidden="true"></div>
       <div class="um26-shell">
         <p class="um26-kicker"><span></span>04 / Evidencia</p>
@@ -112,48 +112,55 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
           <input type="search" data-um26-search aria-label="Buscar por cliente, sector, servicio o alcance" placeholder="Buscar antecedentes…" />
         </label>
 
-        <div class="um26-filter-row">
-          <strong>Sector</strong>
-          <div>
-            {sectors.map(([key, label, count, color]) => (
-              <button type="button" data-filter="sector" data-value={key} style={`--dot:${color};`}>
-                <i></i>{label}<span>{count}</span>
-              </button>
-            ))}
-          </div>
-        </div>
+        <button class="um26-filter-toggle" type="button" data-filter-toggle aria-expanded="false" aria-controls="evidence-filter-panel">
+          <span>Refinar resultados</span>
+          <strong data-active-filter-count>Todos los filtros</strong>
+        </button>
 
-        <div class="um26-filter-row">
-          <strong>Servicio</strong>
-          <div>
-            {services.map(([key, label, count]) => (
-              <button type="button" data-filter="service" data-value={key}>{label}<span>{count}</span></button>
-            ))}
-          </div>
-        </div>
-
-        <div class="um26-filter-split">
+        <div class="um26-filter-panel" id="evidence-filter-panel" data-filter-panel>
           <div class="um26-filter-row">
-            <strong>Año</strong>
+            <strong>Sector</strong>
             <div>
-              {years.map(([year, count]) => <button type="button" data-filter="year" data-value={year}>{year}<span>{count}</span></button>)}
-            </div>
-          </div>
-          <div class="um26-filter-row">
-            <strong>Estado</strong>
-            <div>
-              {statuses.map(([key, label, count, color]) => (
-                <button type="button" data-filter="status" data-value={key} style={`--dot:${color};`}>
+              {sectors.map(([key, label, count, color]) => (
+                <button type="button" data-filter="sector" data-value={key} style={`--dot:${color};`}>
                   <i></i>{label}<span>{count}</span>
                 </button>
               ))}
+            </div>
+          </div>
+
+          <div class="um26-filter-row">
+            <strong>Servicio</strong>
+            <div>
+              {services.map(([key, label, count]) => (
+                <button type="button" data-filter="service" data-value={key}>{label}<span>{count}</span></button>
+              ))}
+            </div>
+          </div>
+
+          <div class="um26-filter-split">
+            <div class="um26-filter-row">
+              <strong>Año</strong>
+              <div>
+                {years.map(([year, count]) => <button type="button" data-filter="year" data-value={year}>{year}<span>{count}</span></button>)}
+              </div>
+            </div>
+            <div class="um26-filter-row">
+              <strong>Estado</strong>
+              <div>
+                {statuses.map(([key, label, count, color]) => (
+                  <button type="button" data-filter="status" data-value={key} style={`--dot:${color};`}>
+                    <i></i>{label}<span>{count}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       <section class="um26-results-bar" aria-label="Resultados">
-        <p>Resultados <strong data-result-count>{initialResultCount}</strong> <span>/ 518</span></p>
+        <p aria-live="polite" aria-atomic="true">Resultados <strong data-result-count>{initialResultCount}</strong> <span>/ 518</span></p>
         <div>
           <button type="button" class="is-active" aria-label="Vista grilla" aria-pressed="true" data-view-toggle="grid">
             <span class="um26-view-icon um26-view-icon--grid" aria-hidden="true"></span>
@@ -187,7 +194,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
           >
             {item.variant === 'wide' ? (
               <>
-                <img src={item.image} alt="" loading="lazy" decoding="async" />
+                <img src={item.image} alt="" width="1600" height="900" loading="lazy" decoding="async" />
                 <div class="um26-case-card__body">
                   <p>{item.client} · {item.year}</p>
                   <h2>{item.title}</h2>
@@ -197,7 +204,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
               </>
             ) : item.variant === 'featured' ? (
               <>
-                <img src={item.image} alt="" loading="eager" decoding="async" />
+                <img src={item.image} alt="" width="1600" height="900" loading="eager" fetchpriority="high" decoding="async" />
                 <b>#{item.id}</b>
                 <em>{item.status}</em>
                 <div class="um26-case-card__overlay">
@@ -209,7 +216,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
             ) : (
               <>
                 <div class="um26-case-card__thumb">
-                  <img src={item.image} alt="" loading={index < 12 ? 'eager' : 'lazy'} decoding="async" />
+                  <img src={item.image} alt="" width="1200" height="900" loading={index < 3 ? 'eager' : 'lazy'} decoding="async" />
                 </div>
                 <div class="um26-case-card__body">
                   <p>{item.client}</p>
@@ -306,6 +313,9 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       const grid = root.querySelector('[data-case-grid]');
       const viewButtons = Array.from(root.querySelectorAll('[data-view-toggle]'));
       const sortSelect = root.querySelector('[data-sort-select]');
+      const filterToggle = root.querySelector('[data-filter-toggle]');
+      const filterPanel = root.querySelector('[data-filter-panel]');
+      const activeFilterCount = root.querySelector('[data-active-filter-count]');
       const filters = { sector: '', service: '', year: '', status: '' };
       const modalBackdrop = root.querySelector('[data-case-modal-backdrop]');
       const modalPanels = Array.from(root.querySelectorAll('[data-case-modal]'));
@@ -361,6 +371,16 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
         }
         if (count) count.textContent = String(hasActiveFilter ? visible : initialResultCount);
         if (empty) empty.hidden = visible !== 0;
+        if (activeFilterCount) {
+          const activeCount = Object.values(filters).filter(Boolean).length + (q ? 1 : 0);
+          activeFilterCount.textContent = activeCount ? `${activeCount} activos` : 'Todos los filtros';
+        }
+      }
+
+      function setFilterPanel(open) {
+        if (!filterToggle || !filterPanel) return;
+        filterPanel.classList.toggle('is-open', open);
+        filterToggle.setAttribute('aria-expanded', String(open));
       }
 
       function closeCaseModal() {
@@ -414,6 +434,9 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
 
       search?.addEventListener('input', applyFilters);
       sortSelect?.addEventListener('change', sortCards);
+      filterToggle?.addEventListener('click', () => {
+        setFilterPanel(filterToggle.getAttribute('aria-expanded') !== 'true');
+      });
 
       modalBackdrop?.addEventListener('click', (event) => {
         if (event.target === modalBackdrop) closeCaseModal();
@@ -444,7 +467,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
 
     .um26-shell {
       /* Same desktop axis as the navigation and home shell. */
-      width: min(1400px, calc(100% - 64px));
+      width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
       margin-inline: auto;
     }
 
@@ -489,7 +512,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       margin: 0 0 14px;
       color: #dc2626;
       font-family: var(--um-font-mono);
-      font-size: 11px;
+      font-size: 1rem;
       font-weight: 600;
       letter-spacing: 0.18em;
       text-transform: uppercase;
@@ -514,7 +537,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
 
     .um26-evidence-hero h1 {
       max-width: 900px;
-      font-size: clamp(2.25rem, 3.55vw, 3.15rem);
+      font-size: clamp(2.625rem, 3.55vw, 3.15rem);
       text-shadow: 0 10px 38px rgba(0,0,0,0.65);
     }
 
@@ -541,7 +564,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       max-width: 680px;
       margin: 10px 0 0;
       color: #d4d4d8;
-      font-size: 0.95rem;
+      font-size: 1rem;
       line-height: 1.5;
     }
 
@@ -572,11 +595,51 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
 
     .um26-filters {
       display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
       gap: 12px;
       margin-top: 0;
       padding: 18px;
       border: 0;
       background: #0b0b0d;
+    }
+
+    .um26-filter-toggle {
+      display: flex;
+      min-width: 228px;
+      min-height: 52px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border: 0;
+      background: #151519;
+      padding: 0 18px;
+      color: #fff;
+      font: inherit;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.18s ease;
+    }
+
+    .um26-filter-toggle:hover,
+    .um26-filter-toggle:focus-visible {
+      background: #232329;
+    }
+
+    .um26-filter-toggle strong {
+      color: #aeb4bd;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .um26-filter-panel {
+      display: none;
+      grid-column: 1 / -1;
+      gap: 12px;
+      padding-top: 4px;
+    }
+
+    .um26-filter-panel.is-open {
+      display: grid;
     }
 
     .um26-search {
@@ -624,7 +687,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       background: #121214;
       color: #fff;
       font: inherit;
-      font-size: 15px;
+      font-size: 1rem;
       outline: none;
       border-radius: 0;
     }
@@ -653,7 +716,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
     .um26-filter-row strong {
       color: #71717a;
       font-family: var(--um-font-logo);
-      font-size: 11px;
+      font-size: 1rem;
       letter-spacing: 0.22em;
       text-transform: uppercase;
       padding-top: 6px;
@@ -677,7 +740,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       background: transparent;
       color: #a1a1aa;
       font: inherit;
-      font-size: 12px;
+      font-size: 1rem;
       line-height: 1.45;
       cursor: pointer;
       transition: color 0.18s ease, background 0.18s ease;
@@ -701,7 +764,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
     .um26-filter-row button span {
       color: #52525b;
       font-family: var(--um-font-logo);
-      font-size: 10px;
+      font-size: 1rem;
       margin-left: 1px;
     }
 
@@ -722,7 +785,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       margin: 0;
       color: #71717a;
       font-family: var(--um-font-logo);
-      font-size: 11px;
+      font-size: 1rem;
       letter-spacing: 0.22em;
       text-transform: uppercase;
     }
@@ -750,7 +813,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       color: #a1a1aa;
       padding-inline: 12px;
       font: inherit;
-      font-size: 14px;
+      font-size: 1rem;
       cursor: pointer;
     }
 
@@ -762,6 +825,8 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
     .um26-results-bar button:hover,
     .um26-results-bar select:hover {
       color: #fff;
+      background: #202026 !important;
+      box-shadow: inset 0 -2px 0 #dc2626;
     }
 
     .um26-results-bar button.is-active {
@@ -894,12 +959,13 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       color: #fff;
       text-decoration: none;
       background: #121214;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-left: 3px solid #1a56c0;
+      border: 1px solid rgba(255,255,255,0.1);
       overflow: hidden;
       font: inherit;
       text-align: left;
       cursor: pointer;
+      content-visibility: auto;
+      contain-intrinsic-block-size: 360px;
       transition: background 0.18s ease, border-color 0.18s ease;
     }
 
@@ -914,14 +980,13 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
     .um26-case-card:hover {
       background: #16161a;
       border-color: rgba(220,38,38,0.5);
-      border-left-color: #dc2626;
     }
 
     .um26-case-card--featured {
       grid-column: span 2;
       grid-row: span 2;
       border-left: 1px solid rgba(255,255,255,0.08);
-      min-height: 472px;
+      min-height: 452px;
     }
 
     .um26-case-card--wide {
@@ -931,7 +996,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
     }
 
     .um26-case-card:not(.um26-case-card--featured):not(.um26-case-card--wide) {
-      min-height: 342px;
+      min-height: 320px;
       flex-direction: column;
     }
 
@@ -1025,7 +1090,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       top: 16px;
       z-index: 2;
       font-family: var(--um-font-logo);
-      font-size: 11px;
+      font-size: 1rem;
       font-style: normal;
       letter-spacing: 0.12em;
     }
@@ -1068,13 +1133,13 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
     .um26-case-grid--list .um26-case-card span {
       max-width: 780px;
       margin-top: 8px;
-      font-size: 14px;
+      font-size: 1rem;
       line-height: 1.45;
     }
 
     .um26-case-grid--list .um26-case-card p {
       margin-bottom: 8px;
-      font-size: 11px;
+      font-size: 1rem;
       font-family: var(--um-font-logo);
       letter-spacing: 0.14em;
       text-transform: uppercase;
@@ -1098,7 +1163,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
   .um26-case-card p {
     margin: 0 0 14px;
     color: #a1a1aa;
-    font-size: 14px;
+    font-size: 1rem;
     line-height: 1.45;
   }
 
@@ -1121,7 +1186,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       display: block;
       margin-top: 14px;
       color: #a1a1aa;
-      font-size: 14px;
+      font-size: 1rem;
       line-height: 1.5;
     }
 
@@ -1129,9 +1194,9 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       display: block;
       margin-top: auto;
       padding-top: 22px;
-      color: #1a56c0;
+      color: #b4b8c0;
       font-family: var(--um-font-logo);
-      font-size: 11px;
+      font-size: 1rem;
       font-weight: 700;
       letter-spacing: 0.14em;
       text-transform: uppercase;
@@ -1221,7 +1286,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       margin: 0;
       color: #dc2626;
       font-family: var(--um-font-logo);
-      font-size: 11px;
+      font-size: 1rem;
       font-weight: 700;
       letter-spacing: 0.22em;
       text-transform: uppercase;
@@ -1252,7 +1317,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       gap: 18px;
       margin-top: -8px;
       color: #a1a1aa;
-      font-size: 13px;
+      font-size: 1rem;
       line-height: 1;
     }
 
@@ -1274,7 +1339,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       max-width: 590px;
       margin: 0;
       color: #a1a1aa;
-      font-size: 15px;
+      font-size: var(--um-copy-description);
       line-height: 1.55;
     }
 
@@ -1297,7 +1362,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       background: #151518;
       padding: 0 10px;
       color: #fff;
-      font-size: 13px;
+      font-size: 1rem;
       line-height: 1;
     }
 
@@ -1312,7 +1377,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       padding: 0;
       list-style: none;
       color: #a1a1aa;
-      font-size: 15px;
+      font-size: 1rem;
     }
 
     .um26-case-modal li {
@@ -1345,7 +1410,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
 
     .um26-case-modal footer span {
       color: #71717a;
-      font-size: 10px;
+      font-size: 1rem;
     }
 
     .um26-case-modal footer a {
@@ -1357,7 +1422,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       padding: 0 22px;
       color: #fff;
       text-decoration: none;
-      font-size: 15px;
+      font-size: 1rem;
       font-weight: 700;
       white-space: nowrap;
     }
@@ -1365,7 +1430,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
     .um26-case-modal footer a::after {
       content: "↗";
       margin-left: 10px;
-      font-size: 14px;
+      font-size: 1rem;
     }
 
     .um26-empty {
@@ -1428,7 +1493,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       color: #fff;
       text-decoration: none;
       font-weight: 700;
-      font-size: 15px;
+      font-size: 1rem;
     }
 
     .um26-btn::after {
@@ -1465,7 +1530,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
 
     @media (max-width: 760px) {
       .um26-shell {
-        width: min(100% - 28px, 1400px);
+        width: min(100% - 32px, var(--um-container-wide));
       }
 
       .um26-evidence-hero {
@@ -1478,13 +1543,13 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
 
       .um26-evidence-hero h1 {
         max-width: 362px;
-        font-size: clamp(1.9rem, 8.5vw, 2.05rem);
-        line-height: 1.08;
+        font-size: clamp(2.125rem, 8.5vw, 2.25rem);
+        line-height: 1.1;
       }
 
       .um26-evidence-hero p:not(.um26-kicker) {
         margin-top: 14px;
-        font-size: 0.875rem;
+        font-size: 1rem;
         line-height: 1.45;
       }
 
@@ -1549,8 +1614,43 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       }
 
       .um26-filters {
+        grid-template-columns: 1fr;
         gap: 10px;
-        padding: 12px 10px;
+        padding: 12px 0 4px;
+        background: transparent;
+      }
+
+      .um26-filter-toggle {
+        display: flex;
+        width: 100%;
+        min-height: 48px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        border: 0;
+        border-bottom: 1px solid rgba(255,255,255,0.16);
+        background: transparent;
+        padding: 0 4px;
+        color: #fff;
+        font: inherit;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+
+      .um26-filter-toggle strong {
+        color: #aeb4bd;
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      .um26-filter-panel {
+        display: none;
+        gap: 12px;
+        padding: 12px 0 6px;
+      }
+
+      .um26-filter-panel.is-open {
+        display: grid;
       }
 
       .um26-filter-split {
@@ -1564,16 +1664,44 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       }
 
       .um26-results-bar {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 8px;
+        align-items: center;
+        flex-direction: row;
+        gap: 12px;
         min-height: auto;
-        padding: 14px 10px;
+        padding: 10px 0;
       }
 
       .um26-results-bar > div {
-        width: 100%;
-        justify-content: flex-end;
+        width: auto;
+        margin-left: auto;
+      }
+
+      .um26-results-bar p {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        min-width: 0;
+        white-space: nowrap;
+        letter-spacing: 0.08em;
+      }
+
+      .um26-results-bar strong {
+        margin-left: 0;
+        font-size: 1.25rem;
+        letter-spacing: 0;
+      }
+
+      .um26-results-bar p span {
+        letter-spacing: 0;
+      }
+
+      .um26-results-bar button {
+        display: none;
+      }
+
+      .um26-results-bar select {
+        min-width: 146px;
+        padding-inline: 8px;
       }
 
       .um26-case-grid {
@@ -1588,6 +1716,42 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
         grid-column: auto;
         grid-row: auto;
         min-height: 290px;
+      }
+
+      .um26-case-card:not(.um26-case-card--featured):not(.um26-case-card--wide) {
+        display: grid;
+        grid-template-columns: 112px minmax(0, 1fr);
+        min-height: 174px;
+      }
+
+      .um26-case-card:not(.um26-case-card--featured):not(.um26-case-card--wide) .um26-case-card__thumb {
+        width: 112px;
+        height: 100%;
+        min-height: 174px;
+        border-right: 1px solid rgba(255,255,255,0.08);
+        border-bottom: 0;
+      }
+
+      .um26-case-card:not(.um26-case-card--featured):not(.um26-case-card--wide) .um26-case-card__body {
+        min-width: 0;
+        padding: 16px;
+      }
+
+      .um26-case-card:not(.um26-case-card--featured):not(.um26-case-card--wide) h2 {
+        font-size: 1.125rem;
+        line-height: 1.2;
+      }
+
+      .um26-case-card:not(.um26-case-card--featured):not(.um26-case-card--wide) .um26-case-card__body > span {
+        display: none;
+      }
+
+      .um26-case-card:not(.um26-case-card--featured):not(.um26-case-card--wide) small {
+        margin-top: auto;
+        padding-top: 12px;
+        font-size: 1rem;
+        letter-spacing: 0;
+        text-transform: none;
       }
 
       .um26-case-card--wide > img {
@@ -1636,6 +1800,16 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       .um26-contact__panel {
         padding: 30px 22px;
         gap: 28px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .um26-case-card:not(.um26-case-card--featured):not(.um26-case-card--wide) {
+        grid-template-columns: 96px minmax(0, 1fr);
+      }
+
+      .um26-case-card:not(.um26-case-card--featured):not(.um26-case-card--wide) .um26-case-card__thumb {
+        width: 96px;
       }
     }
   </style>

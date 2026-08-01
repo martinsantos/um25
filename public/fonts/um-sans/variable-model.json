@@ -1,0 +1,275 @@
+{
+  "schemaVersion": 1,
+  "family": "UM Sans",
+  "version": "1.2 Production",
+  "models": [
+    {
+      "file": "UMSans-Variable.ttf",
+      "axes": [
+        {
+          "tag": "opsz",
+          "name": "Optical size",
+          "minimum": 14.0,
+          "default": 14.0,
+          "maximum": 32.0
+        },
+        {
+          "tag": "wght",
+          "name": "Weight",
+          "minimum": 100.0,
+          "default": 400.0,
+          "maximum": 900.0
+        }
+      ],
+      "namedInstances": [
+        {
+          "name": "Thin",
+          "postScriptName": "UMSans-Variable-Thin",
+          "coordinates": {
+            "opsz": 14.0,
+            "wght": 100.0
+          }
+        },
+        {
+          "name": "ExtraLight",
+          "postScriptName": "UMSans-Variable-ExtraLight",
+          "coordinates": {
+            "opsz": 14.0,
+            "wght": 200.0
+          }
+        },
+        {
+          "name": "Light",
+          "postScriptName": "UMSans-Variable-Light",
+          "coordinates": {
+            "opsz": 14.0,
+            "wght": 300.0
+          }
+        },
+        {
+          "name": "Regular",
+          "postScriptName": "UMSans-Variable",
+          "coordinates": {
+            "opsz": 14.0,
+            "wght": 400.0
+          }
+        },
+        {
+          "name": "Medium",
+          "postScriptName": "UMSans-Variable-Medium",
+          "coordinates": {
+            "opsz": 14.0,
+            "wght": 500.0
+          }
+        },
+        {
+          "name": "SemiBold",
+          "postScriptName": "UMSans-Variable-SemiBold",
+          "coordinates": {
+            "opsz": 18.0,
+            "wght": 600.0
+          }
+        },
+        {
+          "name": "Bold",
+          "postScriptName": "UMSans-Variable-Bold",
+          "coordinates": {
+            "opsz": 24.0,
+            "wght": 700.0
+          }
+        },
+        {
+          "name": "ExtraBold",
+          "postScriptName": "UMSans-Variable-ExtraBold",
+          "coordinates": {
+            "opsz": 32.0,
+            "wght": 800.0
+          }
+        },
+        {
+          "name": "Black",
+          "postScriptName": "UMSans-Variable-Black",
+          "coordinates": {
+            "opsz": 32.0,
+            "wght": 900.0
+          }
+        }
+      ],
+      "STAT": [
+        {
+          "tag": "opsz",
+          "name": "Optical Size",
+          "ordering": 0
+        },
+        {
+          "tag": "wght",
+          "name": "Weight",
+          "ordering": 1
+        },
+        {
+          "tag": "ital",
+          "name": "Italic",
+          "ordering": 2
+        }
+      ],
+      "avar": {
+        "opsz": {
+          "-1.0": -1.0,
+          "0.0": 0.0,
+          "1.0": 1.0
+        },
+        "wght": {
+          "-1.0": -1.0,
+          "0.0": 0.0,
+          "0.20001220703125": 0.260009765625,
+          "0.4000244140625": 0.52001953125,
+          "0.5999755859375": 0.760009765625,
+          "0.79998779296875": 0.9200439453125,
+          "1.0": 1.0
+        }
+      },
+      "variationTables": [
+        "fvar",
+        "avar",
+        "gvar",
+        "HVAR",
+        "MVAR",
+        "STAT"
+      ]
+    },
+    {
+      "file": "UMSans-VariableItalic.ttf",
+      "axes": [
+        {
+          "tag": "opsz",
+          "name": "Optical size",
+          "minimum": 14.0,
+          "default": 14.0,
+          "maximum": 32.0
+        },
+        {
+          "tag": "wght",
+          "name": "Weight",
+          "minimum": 100.0,
+          "default": 400.0,
+          "maximum": 900.0
+        }
+      ],
+      "namedInstances": [
+        {
+          "name": "Thin Italic",
+          "postScriptName": "UMSans-Variable-ThinItalic",
+          "coordinates": {
+            "opsz": 14.0,
+            "wght": 100.0
+          }
+        },
+        {
+          "name": "ExtraLight Italic",
+          "postScriptName": "UMSans-Variable-ExtraLightItalic",
+          "coordinates": {
+            "opsz": 14.0,
+            "wght": 200.0
+          }
+        },
+        {
+          "name": "Light Italic",
+          "postScriptName": "UMSans-Variable-LightItalic",
+          "coordinates": {
+            "opsz": 14.0,
+            "wght": 300.0
+          }
+        },
+        {
+          "name": "Italic",
+          "postScriptName": "UMSans-VariableItalic",
+          "coordinates": {
+            "opsz": 14.0,
+            "wght": 400.0
+          }
+        },
+        {
+          "name": "Medium Italic",
+          "postScriptName": "UMSans-Variable-MediumItalic",
+          "coordinates": {
+            "opsz": 14.0,
+            "wght": 500.0
+          }
+        },
+        {
+          "name": "SemiBold Italic",
+          "postScriptName": "UMSans-Variable-SemiBoldItalic",
+          "coordinates": {
+            "opsz": 18.0,
+            "wght": 600.0
+          }
+        },
+        {
+          "name": "Bold Italic",
+          "postScriptName": "UMSans-Variable-BoldItalic",
+          "coordinates": {
+            "opsz": 24.0,
+            "wght": 700.0
+          }
+        },
+        {
+          "name": "ExtraBold Italic",
+          "postScriptName": "UMSans-Variable-ExtraBoldItalic",
+          "coordinates": {
+            "opsz": 32.0,
+            "wght": 800.0
+          }
+        },
+        {
+          "name": "Black Italic",
+          "postScriptName": "UMSans-Variable-BlackItalic",
+          "coordinates": {
+            "opsz": 32.0,
+            "wght": 900.0
+          }
+        }
+      ],
+      "STAT": [
+        {
+          "tag": "opsz",
+          "name": "Optical Size",
+          "ordering": 0
+        },
+        {
+          "tag": "wght",
+          "name": "Weight",
+          "ordering": 1
+        },
+        {
+          "tag": "ital",
+          "name": "Italic",
+          "ordering": 2
+        }
+      ],
+      "avar": {
+        "opsz": {
+          "-1.0": -1.0,
+          "0.0": 0.0,
+          "1.0": 1.0
+        },
+        "wght": {
+          "-1.0": -1.0,
+          "0.0": 0.0,
+          "0.20001220703125": 0.260009765625,
+          "0.4000244140625": 0.52001953125,
+          "0.5999755859375": 0.760009765625,
+          "0.79998779296875": 0.9200439453125,
+          "1.0": 1.0
+        }
+      },
+      "variationTables": [
+        "fvar",
+        "avar",
+        "gvar",
+        "HVAR",
+        "MVAR",
+        "STAT"
+      ]
+    }
+  ]
+}

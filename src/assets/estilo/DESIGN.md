@@ -1,5 +1,11 @@
 # DESIGN.md — Sistema de Estilo ULTIMA MILLA S.A.
 
+> **Contrato tipografico vigente (julio 2026):** UM Sans 1.2 Production reemplaza Poppins,
+> Open Sans, Inter y Arial como familia editorial de web, interfaz y documentos.
+> Futura PT queda reservada exclusivamente para el logotipo. Las referencias
+> historicas posteriores a otras familias quedan superadas por el `DESIGN.md`
+> raiz y `docs/typography/UM-SANS-SPEC.md`.
+
 Fuente visual: https://www.ultimamilla.com.ar/estilo
 Fuente corporativa: https://www.ultimamilla.com.ar/estilo/skill.md
 Fuente editorial blog: https://www.ultimamilla.com.ar/estilo/blog/blogskill.md
@@ -102,9 +108,16 @@ Regla critica: sobre fondo rojo, usar siempre texto blanco. Negro sobre rojo fal
 
 | Rol | Principal | Fallbacks | Pesos |
 | --- | --- | --- | --- |
-| Headings / Logo | Futura PT | Poppins, Century Gothic | 600, 700, 800 |
-| Cuerpo / Datos | Arial | Inter, system-ui | 400, 700 |
+| Logo / wordmark | Futura PT | Poppins, Century Gothic | 600 |
+| Headings editoriales | UM Sans | Arial, system-ui | 600, 700 |
+| Cuerpo / Datos | UM Sans | Arial, system-ui | 400, 500, 600 |
 | Codigo | Fira Code | Consolas, Courier New | 400 |
+
+El activo completo se documenta en `/estilo/um-sans`,
+`docs/typography/README.md` y `docs/typography/release/`. Incluye 18 estilos,
+dos variables, kits web, fallback metrico, inventarios, metadata, specimen y QA.
+La clasificacion legal es derivado OFL de Inter 4.001; un 2.0 original exige
+masters y contornos independientes.
 
 ### Escala Formal
 

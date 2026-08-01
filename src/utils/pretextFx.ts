@@ -8,8 +8,8 @@
 import { prepareWithSegments, layoutWithLines, measureLineStats } from '@chenglou/pretext';
 import type { PreparedTextWithSegments, LayoutLine } from '@chenglou/pretext';
 
-const H_FONT = '"Poppins","Futura PT","Century Gothic",sans-serif';
-const B_FONT = '"Open Sans",system-ui,sans-serif';
+const H_FONT = '"UM Sans",Arial,system-ui,sans-serif';
+const B_FONT = '"UM Sans",Arial,system-ui,sans-serif';
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 // ── Writing styles ──
@@ -159,7 +159,7 @@ function css() {
 
 /* ═══ DOTMATRIX ═══ */
 .ptfx-char.dot{display:inline-block;font-family:'VT323','Courier New',monospace;color:white;text-shadow:0 0 2px var(--c)}
-.ptfx-stamp{position:absolute;display:inline-block;color:#DC2626;border:3px solid #DC2626;padding:4px 14px;font:700 18px/1 var(--um-font-display, 'Poppins', sans-serif);text-transform:uppercase;letter-spacing:.15em;border-radius:4px;opacity:0;transform:scale(3.5) rotate(-18deg);pointer-events:none;mix-blend-mode:multiply;filter:drop-shadow(0 1px 0 rgba(0,0,0,.3))}
+.ptfx-stamp{position:absolute;display:inline-block;color:#DC2626;border:3px solid #DC2626;padding:4px 14px;font:700 18px/1 var(--um-font-display, 'UM Sans', Arial, sans-serif);text-transform:uppercase;letter-spacing:.15em;border-radius:4px;opacity:0;transform:scale(3.5) rotate(-18deg);pointer-events:none;mix-blend-mode:multiply;filter:drop-shadow(0 1px 0 rgba(0,0,0,.3))}
 .ptfx-stamp.on{animation:_stamp .65s cubic-bezier(.22,1,.36,1) forwards}
 @keyframes _stamp{
   0%{opacity:0;transform:scale(3.5) rotate(-18deg)}
