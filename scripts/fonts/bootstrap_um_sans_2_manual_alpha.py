@@ -218,23 +218,37 @@ def draw_c(pen):
 
 
 def draw_e(pen):
-    # Alpha 12 abandons the notched spiral of Alpha 6. The body is a rounded,
-    # open counterform matching `c`; the horizontal bar is deliberately a
-    # separate same-winding contour. Fontmake removes that overlap for the
-    # review font so browser proofs can never depend on accidental winding.
-    # This source master is still not a release drawing.
-    pen.moveTo((548, 390))
-    pen.curveTo((502, 500), (418, 554), (300, 554))
+    # The previous control was a `c` with a rectangular bar laid over it. At
+    # display size that read as a clipped construction rather than a letter:
+    # the mouth was too wide, the terminals were pointed and the bar ended in
+    # a hard vertical cut. This is a single, calmer e system: a round bowl
+    # with a shorter aperture and a crossbar whose outer terminal is rounded.
+    pen.moveTo((500, 360))
+    pen.curveTo((468, 486), (392, 554), (296, 554))
     pen.curveTo((140, 554), (38, 446), (38, 270))
-    pen.curveTo((38, 94), (140, -14), (300, -14))
-    pen.curveTo((418, -14), (502, 40), (548, 150))
-    pen.lineTo((422, 210))
-    pen.curveTo((394, 152), (354, 122), (300, 122))
-    pen.curveTo((226, 122), (182, 178), (182, 270))
-    pen.curveTo((182, 362), (226, 418), (300, 418))
-    pen.curveTo((354, 418), (394, 388), (422, 330))
+    pen.curveTo((38, 94), (140, -14), (296, -14))
+    pen.curveTo((392, -14), (468, 34), (500, 180))
+    pen.lineTo((410, 226))
+    pen.curveTo((382, 172), (344, 150), (296, 150))
+    pen.curveTo((224, 150), (182, 190), (182, 270))
+    pen.curveTo((182, 350), (224, 390), (296, 390))
+    pen.curveTo((344, 390), (382, 368), (410, 314))
     pen.closePath()
-    rect(pen, 164, 224, 556, 298, reverse=True)
+
+    # The left edge disappears into the bowl. The right edge is a cubic cap,
+    # so the e keeps a controlled, rounded exit instead of a pasted-on bar.
+    # The bowl contour above runs counter-clockwise in the UFO coordinate
+    # system. Keep the crossbar on the same winding so PathOps unions it with
+    # the bowl; the former clockwise rectangle was interpreted as a counter
+    # and punched a horizontal hole through every exported `e`.
+    pen.moveTo((150, 315))
+    pen.lineTo((150, 225))
+    # Stop inside the counter. Reaching the inner terminal closes the mouth
+    # and splits the counter into two black slots, which is the `theta` defect
+    # caught in the previous raster proof.
+    pen.lineTo((380, 225))
+    pen.lineTo((380, 315))
+    pen.closePath()
 
 
 def draw_s(pen):
