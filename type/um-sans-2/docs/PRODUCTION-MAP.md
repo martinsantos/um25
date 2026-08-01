@@ -8,7 +8,8 @@ cronograma de marketing: cada fase requiere artefactos verificables.
 Artefactos: UFOs manuales separados, láminas desktop/mobile/print y decisión de
 diseño por `a c e o s n r t`.
 
-Bloqueo actual: **activo**. Alpha 12–14 rechazadas.
+Bloqueo actual: **activo**. Alpha 12–16 rechazadas; Alpha 17 es una hipótesis
+de dibujo en revisión y tampoco está aprobada.
 
 ## 1. Roman Display Bold
 

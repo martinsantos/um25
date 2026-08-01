@@ -13,9 +13,9 @@ import { fileURLToPath } from 'node:url';
 import { missingCodepoints } from './ttf_cmap.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const FONT = path.resolve(ROOT, process.env.UMSANS_REVIEW_FONT || 'type/um-sans-2/build/fontmake/UMSans2ManualAlpha12-DisplayBold.ttf');
-const PROOF_ID = process.env.UMSANS_PROOF_ID || 'alpha12';
-const REVIEW_LABEL = process.env.UMSANS_REVIEW_LABEL || 'UM SANS 2 MANUAL / ALPHA 12 / FONTMAKE REVIEW';
+const FONT = path.resolve(ROOT, process.env.UMSANS_REVIEW_FONT || 'type/um-sans-2/build/fontmake/UMSans2ManualAlpha17-DisplayBold.ttf');
+const PROOF_ID = process.env.UMSANS_PROOF_ID || 'alpha17';
+const REVIEW_LABEL = process.env.UMSANS_REVIEW_LABEL || 'UM SANS 2 MANUAL / ALPHA 17 / FONTMAKE REVIEW';
 const OUTPUT_DIR = path.join(ROOT, 'type/um-sans-2/proofs/generated', PROOF_ID);
 const OUTPUT = path.join(OUTPUT_DIR, 'fontmake-control-sheet.png');
 const REPORT = path.join(OUTPUT_DIR, 'fontmake-control-sheet.json');

@@ -9,10 +9,10 @@ import { fileURLToPath } from 'node:url';
 import { missingCodepoints } from './ttf_cmap.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const FONT = path.resolve(ROOT, process.env.UMSANS_REVIEW_FONT || 'type/um-sans-2/build/fontmake/UMSans2ManualAlpha12-DisplayBold.ttf');
-const PROOF_ID = process.env.UMSANS_PROOF_ID || 'alpha12';
+const FONT = path.resolve(ROOT, process.env.UMSANS_REVIEW_FONT || 'type/um-sans-2/build/fontmake/UMSans2ManualAlpha17-DisplayBold.ttf');
+const PROOF_ID = process.env.UMSANS_PROOF_ID || 'alpha17';
 const OUTPUT_DIR = path.join(ROOT, 'type/um-sans-2/proofs/generated', PROOF_ID);
-const LABEL = process.env.UMSANS_REVIEW_LABEL || 'UM SANS 2 MANUAL / ALPHA 12';
+const LABEL = process.env.UMSANS_REVIEW_LABEL || 'UM SANS 2 MANUAL / ALPHA 17';
 const magick = process.env.UMSANS_MAGICK || 'magick';
 const samples = ['Fibra certificada,', 'operacion continua.', 'a c e o s', 'ece ese oeo', 'referencia tecnica.'];
 

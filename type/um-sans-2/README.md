@@ -6,7 +6,7 @@ transform or interpolate third-party outlines.
 
 ## Current milestone
 
-`Alpha 12 / Display Bold control set`
+`Alpha 17 / Display Bold control set`
 
 Alpha 0 was rejected for structural contour defects. Alpha 1 compiled cleanly
 but was visually rejected because its `e`, terminal language and word rhythm
@@ -17,28 +17,21 @@ a constructed `c` plus bar and `f/r` destabilized word spacing. Alpha 4 made
 the words legible but still left an over-dark `e` construction and a 140-unit
 left sidebearing on `f`, creating a false word break. Alpha 5 rebuilt `e` as
 an open contour but its aperture still collapsed in the mobile raster. Alpha 6
-widened that aperture but retained a notched spiral. Alpha 12 replaces it with
-a rounded open body plus a horizontal bar, then requires Fontmake overlap
-normalization before any browser proof. It remains a quarantined control
-master, not a usable family.
-
-The technical build does not approve the design. See
-[`docs/ALPHA12-DESIGN-REVIEW.md`](docs/ALPHA12-DESIGN-REVIEW.md) before any
-redraw: the next alternative must live in a new source rather than silently
-mutating this control master.
+widened that aperture but retained a notched spiral. Alpha 12–16 are separate
+control studies and are rejected. Alpha 17 is the current source: it redraws
+the `e` in a new UFO and normalizes a review TTF with Fontmake. It remains a
+quarantined control master, not a usable family.
 
 The technical build does not approve the design. Read
-[`docs/ALPHA12-DESIGN-REVIEW.md`](docs/ALPHA12-DESIGN-REVIEW.md) before any
-redraw: the next alternative must live in a new source, not silently mutate
-this control master.
+[`docs/ALPHA12-DESIGN-REVIEW.md`](docs/ALPHA12-DESIGN-REVIEW.md) for the
+historical control decision and [`docs/CORE-GLYPH-REVIEW.md`](docs/CORE-GLYPH-REVIEW.md)
+for the current Alpha17 decision. Every new alternative must live in a new
+source rather than silently mutating a prior control master.
 
 See [`docs/CORE-GLYPH-REVIEW.md`](docs/CORE-GLYPH-REVIEW.md) for the current
-decision record. Alpha 12, 13 and 14 are rejected studies; none may be
-integrated into the theme.
-
-See [`docs/CORE-GLYPH-REVIEW.md`](docs/CORE-GLYPH-REVIEW.md) for the current
-decision record. Alpha 12, 13 and 14 are rejected studies; none may be
-integrated into the theme.
+decision record. Alpha 12–16 are rejected studies. Alpha 17 is the current
+quarantined review source; it may only be loaded by the noindex specimen and
+must not be integrated into the theme.
 
 - one manually drawn UFO master;
 - Spanish-first proof characters, accent and punctuation;
@@ -51,9 +44,9 @@ failures remain because the alphabet, naming/version records and kerning are
 not complete. A green custom alpha audit only means
 the proof artifact is loadable and quarantined; it is not market readiness.
 
-The website continues to use UM Sans 1.2 until this project passes human word-
-level review, interpolation review, platform testing and independent legal and
-similarity review.
+The website continues to use the stable production family until this project
+passes human word-level review, interpolation review, platform testing and
+independent legal and similarity review.
 
 ## Source layout
 
@@ -77,7 +70,8 @@ UMSANS_FONT_PYTHON=.venv-fonts/bin/python npm run fonts:release-gate:um-sans-2-m
 ```
 
 Review the browser proof at `/estilo/um-sans-2-manual` and the portable proof
-at `proofs/specimen.html`. The public website must continue using UM Sans 1.2.
+at `proofs/specimen.html`. The public website must continue using the stable
+production family; Alpha17 is specimen-only.
 
 The bootstrap script only exists to reproduce the first explicitly authored
 control master. It refuses to overwrite the UFO unless `--force` is supplied.

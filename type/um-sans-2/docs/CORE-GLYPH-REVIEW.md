@@ -42,9 +42,30 @@ con una densidad de 300 dpi.
 
 ## Alpha 16
 
-En evaluación. Parte de la forma abierta de `c` y añade una barra positiva con
-terminal redondeado. Esta estructura debe demostrar una boca clara y un color
-coherente junto a `a/c/o/s` antes de ampliar el inventario.
+Rechazada como candidato de navegador. Parte de la forma abierta de `c` y
+añade una barra positiva con terminal redondeado, pero no resolvió de forma
+suficiente el color de palabra ni la relación con `a/c/o/s`.
+
+## Alpha 17
+
+Es el último control visual disponible y sigue bloqueado. Corrige la barra
+flotante de la `e` en el UFO y produce una fuente TTF normalizada por Fontmake,
+pero no convierte el set en una familia terminada. La lámina debe leerse como
+una hipótesis de dibujo, no como una aprobación estética: el peso único sigue
+siendo demasiado limitado para juzgar la familia y el inventario continúa en
+25 glifos.
+
+Artefactos de revisión:
+
+- `type/um-sans-2/sources/UMSans2Display-Alpha17.ufo`
+- `type/um-sans-2/build/fontmake/UMSans2ManualAlpha17-DisplayBold.ttf`
+- `type/um-sans-2/proofs/generated/alpha17/glyph-review.png`
+- `type/um-sans-2/proofs/generated/alpha17/mobile-review.png`
+- `type/um-sans-2/proofs/generated/alpha17/print-review.png`
+
+El specimen web carga Alpha17 únicamente para comparar esta hipótesis en
+`/estilo/um-sans-2-manual`; la ruta permanece `noindex` y el theme no la
+registra.
 
 ## Brief del próximo dibujo
 

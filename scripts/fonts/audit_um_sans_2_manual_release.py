@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[2]
 FONT_PATH = Path(
     os.environ.get(
         "UMSANS_RELEASE_FONT",
-        ROOT / "type/um-sans-2/build/fontmake/UMSans2ManualAlpha12-DisplayBold.ttf",
+        ROOT / "type/um-sans-2/build/fontmake/UMSans2ManualAlpha17-DisplayBold.ttf",
     )
 ).resolve()
 REPORT_PATH = Path(
