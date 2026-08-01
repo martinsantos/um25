@@ -35,6 +35,10 @@ describe('UM Sans 2 manual project quarantine', () => {
     expect(route).toContain('UMSans2-Bold.woff2?v=2.1-latin-a');
     expect(route).toContain('public/fonts/um-sans-2-editorial-candidate/provenance.json');
     expect(route).not.toContain('UMSans2ManualAlpha12-DisplayBold.ttf?v=0.912');
+    expect(route).toContain('manual-pending-codepoints');
+    expect(route).toContain('Glifos no dibujados');
+    expect(route).toContain('U+00C6');
+    expect(route).not.toContain('Æ æ Œ œ Ĳ ĳ');
 
     const globalRuntime = [
       'src/styles/v4.css',
