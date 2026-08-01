@@ -136,13 +136,26 @@ COMBINING_MARKS = {
     "\u0328": "ogonekcomb",
 }
 
+SPECIAL_LATIN_CHARS = "\u00adÆÐØÞßæðøþĐđĦħıĲĳĸĿŀŁłŉŊŋŒœŦŧſ"
+
 BASE_CHARS = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     "0123456789"
     " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
     "\u00a0¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿"
     "×÷–—‘’‚“”„•…€™←↑→↓↗↘"
+    + SPECIAL_LATIN_CHARS
 )
+
+SPECIAL_LATIN_WIDTHS = {
+    "\u00ad": 0,
+    "Æ": 980, "Ð": 760, "Ø": 780, "Þ": 760, "ß": 690,
+    "æ": 930, "ð": 650, "ø": 650, "þ": 650,
+    "Đ": 760, "đ": 650, "Ħ": 760, "ħ": 660, "ı": 252,
+    "Ĳ": 1050, "ĳ": 540, "ĸ": 590, "Ŀ": 760, "ŀ": 300,
+    "Ł": 760, "ł": 300, "ŉ": 650, "Ŋ": 790, "ŋ": 650,
+    "Œ": 1040, "œ": 980, "Ŧ": 760, "ŧ": 520, "ſ": 520,
+}
 
 KERN_PAIRS = {
     ("A", "V"): -58, ("A", "W"): -42, ("A", "Y"): -62,
@@ -487,7 +500,9 @@ def advance_for(character: str, design: Design) -> int:
     base = character
     if unicodedata.normalize("NFD", character):
         base = unicodedata.normalize("NFD", character)[0]
-    if character.isspace():
+    if character in SPECIAL_LATIN_WIDTHS:
+        width = SPECIAL_LATIN_WIDTHS[character]
+    elif character.isspace():
         width = 300
     elif base in "ilI.,:;!'`|":
         width = 300
@@ -653,16 +668,16 @@ def draw_lower(pen, character: str, width: float, d: Design) -> None:
         # display weights and made words such as "certificada" lose rhythm.
         stroke_polyline(
             pen,
-            sampled_arc(mid, xh / 2, (right - left) / 2, xh / 2, 44, 322, 22),
+            sampled_arc(mid, xh / 2, (right - left) / 2, xh / 2, 48, 318, 22),
             s,
             True,
         )
         rect(
             pen,
-            left + s * .48,
-            xh * .47 - s * .34,
-            right - s * .04,
-            xh * .47 + s * .34,
+            left + s * .58,
+            xh * .47 - s * .24,
+            right - s * .12,
+            xh * .47 + s * .24,
         )
     elif character == "f":
         # A restrained ascender replaces the former circular hook.  It keeps
@@ -1079,11 +1094,135 @@ def draw_punctuation(pen, character: str, width: float, d: Design) -> None:
             ellipse(pen, x-dot/2, 0, x+dot/2, dot)
 
 
+def draw_scaled_upper(
+    pen,
+    character: str,
+    target_width: float,
+    d: Design,
+    x: float = 0,
+    y: float = 0,
+    scale_y: float = 1,
+) -> None:
+    source_width = advance_for(character, d)
+    scale_x = target_width / source_width
+    transformed = TransformPen(pen, (scale_x, 0, 0, scale_y, x, y))
+    draw_upper(transformed, character, source_width, d)
+
+
+def draw_scaled_lower(
+    pen,
+    character: str,
+    target_width: float,
+    d: Design,
+    x: float = 0,
+    y: float = 0,
+    scale_y: float = 1,
+) -> None:
+    source_width = advance_for(character, d)
+    scale_x = target_width / source_width
+    transformed = TransformPen(pen, (scale_x, 0, 0, scale_y, x, y))
+    draw_lower(transformed, character, source_width, d)
+
+
+def draw_special_latin(pen, character: str, width: float, d: Design) -> None:
+    """Draw the non-decomposable Latin characters required by the release gate.
+
+    These are authored constructions from the UM Sans alphabet, not Unicode
+    fallbacks. Ligatures and barred forms keep the same round terminals,
+    counters and optical sidebearings as their source letters.
+    """
+    s, cap, xh, side = d.stem, d.cap, d.x_height, d.side
+    mid = width / 2
+
+    if character == "\u00ad":
+        return
+    if character == "Æ":
+        draw_scaled_upper(pen, "A", width * .53, d, 0)
+        draw_scaled_upper(pen, "E", width * .53, d, width * .45)
+    elif character == "æ":
+        draw_scaled_lower(pen, "a", width * .53, d, 0)
+        draw_scaled_lower(pen, "e", width * .53, d, width * .45)
+    elif character == "Œ":
+        draw_scaled_upper(pen, "O", width * .54, d, 0)
+        draw_scaled_upper(pen, "E", width * .54, d, width * .46)
+    elif character == "œ":
+        draw_scaled_lower(pen, "o", width * .54, d, 0)
+        draw_scaled_lower(pen, "e", width * .54, d, width * .46)
+    elif character == "Ĳ":
+        draw_scaled_upper(pen, "I", width * .30, d, 0)
+        draw_scaled_upper(pen, "J", width * .54, d, width * .38)
+    elif character == "ĳ":
+        draw_scaled_lower(pen, "i", width * .28, d, 0)
+        draw_scaled_lower(pen, "j", width * .50, d, width * .40)
+    elif character == "ß":
+        # A horizontal long-s-plus-s construction keeps the eszett legible;
+        # the earlier stacked construction created a decorative knot at bold
+        # sizes instead of a usable alphabetic character.
+        draw_scaled_lower(pen, "s", width * .52, d, 0, scale_y=cap / xh)
+        draw_scaled_lower(pen, "s", width * .52, d, width * .43, scale_y=cap / xh)
+    elif character == "ſ":
+        draw_scaled_lower(pen, "s", width * .92, d, 0, scale_y=cap / xh)
+    elif character == "ı":
+        stem = d.stem * .92
+        rect(pen, mid - stem / 2, 0, mid + stem / 2, xh * .72)
+    elif character in {"Ð", "Ø", "Þ", "Đ", "Ħ", "Ŧ"}:
+        source = {
+            "Ð": "D", "Ø": "O", "Þ": "P", "Đ": "D", "Ħ": "H", "Ŧ": "T",
+        }[character]
+        draw_scaled_upper(pen, source, width * .96, d, 0)
+        if character in {"Ð", "Đ"}:
+            rect(pen, width * .14, cap * .45 - s * .24, width * .82, cap * .45 + s * .24)
+        elif character == "Ø":
+            stroke_polyline(pen, [(side + s * .2, -40), (width - side - s * .2, cap + 40)], s * .56)
+        elif character == "Þ":
+            rect(pen, width * .12, cap * .45 - s * .24, width * .86, cap * .45 + s * .24)
+        elif character == "Ħ":
+            rect(pen, width * .12, cap * .66 - s * .22, width * .86, cap * .66 + s * .22)
+        else:  # Ŧ
+            rect(pen, width * .18, cap * .50 - s * .22, width * .82, cap * .50 + s * .22)
+    elif character in {"Ł", "Ŀ"}:
+        draw_scaled_upper(pen, "L", width * .94, d, 0)
+        if character == "Ł":
+            stroke_polyline(pen, [(width * .16, cap * .08), (width * .83, cap * .82)], s * .56)
+        else:
+            ellipse(pen, width * .68, cap * .44, width * .68 + s * .78, cap * .44 + s * .78)
+    elif character == "Ŋ":
+        draw_scaled_upper(pen, "N", width * .90, d, 0)
+        stroke_polyline(pen, [(width * .42, cap * .56), (width * .96, 0)], s * .76)
+    elif character in {"đ", "ð", "þ", "ħ", "ŧ", "ł", "ŀ", "ŋ", "ø"}:
+        source = {
+            "đ": "d", "ð": "d", "þ": "p", "ħ": "h", "ŧ": "t",
+            "ł": "l", "ŀ": "l", "ŋ": "n", "ø": "o",
+        }[character]
+        draw_scaled_lower(pen, source, width * .96, d, 0)
+        if character in {"đ", "ð", "þ"}:
+            rect(pen, width * .14, xh * .46 - s * .22, width * .82, xh * .46 + s * .22)
+        elif character == "ħ":
+            rect(pen, width * .14, xh * .62 - s * .20, width * .84, xh * .62 + s * .20)
+        elif character == "ŧ":
+            rect(pen, width * .18, xh * .56 - s * .20, width * .82, xh * .56 + s * .20)
+        elif character == "ø":
+            stroke_polyline(pen, [(side + s * .12, -28), (width - side - s * .12, xh + 28)], s * .52)
+        elif character == "ł":
+            stroke_polyline(pen, [(width * .18, xh * .08), (width * .82, xh * .74)], s * .50)
+        elif character == "ŀ":
+            ellipse(pen, width * .70, xh * .42, width * .70 + s * .72, xh * .42 + s * .72)
+        else:  # ŋ
+            stroke_polyline(pen, [(width * .58, xh * .36), (width * .94, -150)], s * .72, True)
+    elif character == "ĸ":
+        draw_scaled_lower(pen, "k", width * .96, d, 0)
+    elif character == "ŉ":
+        draw_scaled_lower(pen, "n", width * .94, d, 0)
+        polygon(pen, [(width * .70, xh + 24), (width * .80, xh + 24), (width * .86, xh + 132), (width * .76, xh + 132)])
+
+
 def draw_character(pen, character: str, width: int, d: Design) -> None:
     target_pen = pen
     if d.italic:
         target_pen = TransformPen(pen, (1, 0, d.shear, 1, -d.shear * 90, 0))
-    if "A" <= character <= "Z":
+    if character in SPECIAL_LATIN_WIDTHS:
+        draw_special_latin(target_pen, character, width, d)
+    elif "A" <= character <= "Z":
         draw_upper(target_pen, character, width, d)
     elif "a" <= character <= "z":
         draw_lower(target_pen, character, width, d)

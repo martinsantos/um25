@@ -54,8 +54,12 @@ def audit_font(path: Path, expected_weight: int, expected_italic: bool) -> dict:
         "upm": font["head"].unitsPerEm == 1000,
         "weight": font["OS/2"].usWeightClass == expected_weight,
         "italic": bool(font["head"].macStyle & 0b10) == expected_italic,
-        "characters": len(cmap) == 320,
-        "glyphs": len(glyph_order) == (328 if "glyf" in font else 327),
+        # Candidate 2.1 adds the non-decomposable Latin Extended-A set while
+        # keeping the same static family contract. The expected counts must
+        # move with the authored cmap; otherwise the gate reports a false
+        # failure for every format and weight.
+        "characters": len(cmap) == 350,
+        "glyphs": len(glyph_order) == (358 if "glyf" in font else 357),
         "spanish": all(codepoint in cmap for codepoint in map(ord, "ÁÉÍÓÚÜÑáéíóúüñ¿¡")),
         "notdef": ".notdef" in glyph_order,
         "metrics": all(

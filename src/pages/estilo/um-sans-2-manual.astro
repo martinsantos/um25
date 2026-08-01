@@ -18,18 +18,24 @@ const inventory = [
   'ÁÉÍÓÚÜÑ áéíóúüñ ¿¡ 0123456789 · … → ↗',
 ] as const;
 
+const extendedInventory = [
+  ['Ligaduras y compuestos', 'Æ æ Œ œ Ĳ ĳ'],
+  ['Barras y eszett', 'Ð Ø Þ ß Đ đ Ħ ħ Ŧ ŧ'],
+  ['Variantes latinas', 'ı ĸ Ŀ ŀ Ł ł ŉ Ŋ ŋ ſ'],
+] as const;
+
 const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
 ---
 
 <LayoutV4
-  title="UM Sans 2 Candidate 2.1 | Laboratorio tipográfico"
-  description="Specimen interno noindex del candidato completo UM Sans 2.1, construido desde fuentes geométricas UMSA y bloqueado para producción hasta superar la revisión tipográfica."
+  title="UM Sans 2 Candidate 2.1 Latin Extended-A | Laboratorio tipográfico"
+  description="Specimen interno noindex del candidato UM Sans 2.1 con Latin Extended-A, construido desde fuentes geométricas UMSA y bloqueado para producción hasta superar la revisión tipográfica."
   noindex={true}
 >
   <link
     slot="head"
     rel="preload"
-    href="/fonts/um-sans-2-editorial-candidate/UMSans2-Bold.woff2?v=2.1-candidate"
+    href="/fonts/um-sans-2-editorial-candidate/UMSans2-Bold.woff2?v=2.1-latin-a"
     as="font"
     type="font/woff2"
     crossorigin
@@ -39,11 +45,11 @@ const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
     <header class="manual-type__intro">
       <div class="manual-shell manual-type__intro-grid">
         <div>
-          <p class="manual-kicker">Proyecto independiente · Candidate 2.1</p>
+          <p class="manual-kicker">Proyecto independiente · Candidate 2.1 · Latin Extended-A</p>
           <h1>UM Sans 2 Manual</h1>
         </div>
         <div class="manual-type__summary">
-          <p>Candidate 2.1 reúne el repertorio editorial completo y aplica los glifos manuales de control al corte Bold. Es una prueba local: la distribución y la integración productiva siguen bloqueadas.</p>
+          <p>Candidate 2.1 reúne el repertorio editorial y las construcciones Latin Extended-A del corte Bold. Es una prueba local: la distribución y la integración productiva siguen bloqueadas.</p>
           <dl>
             <div><dt>Fuente editable</dt><dd>Builder geométrico UMSA</dd></div>
             <div><dt>Corte</dt><dd>Display Bold</dd></div>
@@ -85,12 +91,20 @@ const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
     <section class="manual-type__inventory" aria-labelledby="inventory-title">
       <div class="manual-shell manual-type__inventory-grid">
         <div>
-          <p class="manual-kicker">Inventario Candidate 2.1</p>
+          <p class="manual-kicker">Inventario Candidate 2.1 · Latin Extended-A</p>
           <h2 id="inventory-title">Un repertorio completo para probar el lenguaje.</h2>
           <p>El candidato cubre Latin Extended-A, cifras, signos, flechas y caracteres necesarios para revisar una interfaz editorial en español. La autorización comercial sigue pendiente de QA.</p>
         </div>
         <div class="manual-type__glyph-lines" aria-label="Glifos disponibles">
           {inventory.map((line) => <p class="manual-alpha">{line}</p>)}
+        </div>
+        <div class="manual-type__extended" aria-label="Construcciones Latin Extended-A">
+          {extendedInventory.map(([label, sample]) => (
+            <div class="manual-type__extended-row">
+              <span>{label}</span>
+              <p class="manual-alpha">{sample}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -151,7 +165,7 @@ const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
 <style is:global>
   @font-face {
     font-family: 'UM Sans 2 Editorial Candidate';
-    src: url('/fonts/um-sans-2-editorial-candidate/UMSans2-Bold.woff2?v=2.1-candidate') format('woff2');
+    src: url('/fonts/um-sans-2-editorial-candidate/UMSans2-Bold.woff2?v=2.1-latin-a') format('woff2');
     font-style: normal;
     font-weight: 700;
     font-display: swap;
@@ -422,6 +436,35 @@ const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
     overflow-wrap: anywhere;
   }
 
+  .manual-type__extended {
+    grid-column: 1 / -1;
+    margin-top: 4px;
+    border-top: 1px solid var(--manual-line);
+  }
+
+  .manual-type__extended-row {
+    display: grid;
+    grid-template-columns: minmax(180px, 0.35fr) minmax(0, 1fr);
+    gap: 32px;
+    align-items: baseline;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--manual-line);
+  }
+
+  .manual-type__extended-row > span {
+    color: var(--manual-muted);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .manual-type__extended-row .manual-alpha {
+    margin: 0;
+    font-size: clamp(30px, 4vw, 52px);
+    line-height: 1;
+    overflow-wrap: anywhere;
+  }
+
   .manual-type__source {
     border-bottom: 1px solid var(--manual-line);
   }
@@ -529,6 +572,16 @@ const rasterSizes = [16, 20, 24, 30, 32, 48, 72] as const;
     .manual-source-ledger div {
       grid-template-columns: 1fr;
       gap: 7px;
+    }
+
+    .manual-type__extended-row {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .manual-type__extended-row .manual-alpha {
+      font-size: clamp(28px, 9vw, 42px);
+      line-height: 1.08;
     }
   }
 </style>
