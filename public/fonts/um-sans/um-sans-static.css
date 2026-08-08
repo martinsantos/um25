@@ -1,0 +1,168 @@
+/* UM Sans 1.2 Production static web kit · SIL OFL 1.1 */
+
+@font-face {
+  font-family: 'UM Sans';
+  src: url('./UMSans-Thin.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans';
+  src: url('./UMSans-ThinItalic.woff2') format('woff2');
+  font-style: italic;
+  font-weight: 100;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans';
+  src: url('./UMSans-ExtraLight.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans';
+  src: url('./UMSans-ExtraLightItalic.woff2') format('woff2');
+  font-style: italic;
+  font-weight: 200;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans';
+  src: url('./UMSans-Light.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans';
+  src: url('./UMSans-LightItalic.woff2') format('woff2');
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans';
+  src: url('./UMSans-Regular.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans';
+  src: url('./UMSans-Italic.woff2') format('woff2');
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans';
+  src: url('./UMSans-Medium.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans';
+  src: url('./UMSans-MediumItalic.woff2') format('woff2');
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans';
+  src: url('./UMSans-SemiBold.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans';
+  src: url('./UMSans-SemiBoldItalic.woff2') format('woff2');
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans';
+  src: url('./UMSans-Bold.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans';
+  src: url('./UMSans-BoldItalic.woff2') format('woff2');
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans';
+  src: url('./UMSans-ExtraBold.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans';
+  src: url('./UMSans-ExtraBoldItalic.woff2') format('woff2');
+  font-style: italic;
+  font-weight: 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans';
+  src: url('./UMSans-Black.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans';
+  src: url('./UMSans-BlackItalic.woff2') format('woff2');
+  font-style: italic;
+  font-weight: 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UM Sans Fallback';
+  src: local('Arial');
+  size-adjust: 112.33%;
+  ascent-override: 86.24%;
+  descent-override: 21.47%;
+  line-gap-override: 0.00%;
+}
+
+:root {
+  --um-font-editorial: 'UM Sans', 'UM Sans Fallback', Arial, system-ui, sans-serif;
+  --um-font-display-weight: 700;
+  --um-font-title-weight: 600;
+  --um-font-body-weight: 400;
+}
+
+html {
+  font-family: var(--um-font-editorial);
+  font-optical-sizing: auto;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}

@@ -68,6 +68,7 @@ export function cleanSeoText(value: unknown): string {
     .replace(/<[^>]+>/g, ' ')
     .replace(/&([a-zA-Z0-9#]+);/g, (match, entity) => htmlEntities[entity] ?? match)
     .replace(/&#(\d+);/g, (_match, code) => String.fromCharCode(Number(code)))
+    .replace(/([.!?])(?:\s*[.!?])+/g, '$1')
     .replace(/\s+/g, ' ')
     .trim();
 }

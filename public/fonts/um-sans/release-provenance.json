@@ -1,0 +1,378 @@
+{
+  "schemaVersion": 1,
+  "family": "UM Sans",
+  "version": "1.2 Production",
+  "recordType": "Reproducible build provenance",
+  "attestation": {
+    "signed": false,
+    "status": "Unsigned local build record",
+    "requiredForSignedRelease": "ULTIMA MILLA organizational signing identity and external verifier"
+  },
+  "builder": {
+    "name": "UM Sans deterministic Python pipeline",
+    "entrypoint": "Source/build_um_sans.py",
+    "packager": "Source/package_um_sans.py"
+  },
+  "source": {
+    "upstream": "Inter",
+    "upstreamVersion": "4.001",
+    "license": "SIL OFL 1.1",
+    "googleFontsCommit": "ec0464b978de222073645d6d3366f3fdf03376d8",
+    "files": [
+      {
+        "file": "Inter[opsz,wght].ttf",
+        "bytes": 876576,
+        "sha256": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031",
+        "url": "https://raw.githubusercontent.com/google/fonts/ec0464b978de222073645d6d3366f3fdf03376d8/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf"
+      },
+      {
+        "file": "Inter-Italic[opsz,wght].ttf",
+        "bytes": 906596,
+        "sha256": "acd98e64795781b2058f07b18475e0ecee2a0fe2b42a49e2f9e37d0d6bf66ce6",
+        "url": "https://raw.githubusercontent.com/google/fonts/ec0464b978de222073645d6d3366f3fdf03376d8/ofl/inter/Inter-Italic%5Bopsz%2Cwght%5D.ttf"
+      },
+      {
+        "file": "OFL.txt",
+        "bytes": 4377,
+        "sha256": "5b9321a4298cfeb6b34354164a1c3afc3db114569984c502b9b35d988fd58c57",
+        "url": "https://raw.githubusercontent.com/google/fonts/ec0464b978de222073645d6d3366f3fdf03376d8/ofl/inter/OFL.txt"
+      }
+    ]
+  },
+  "materials": [
+    {
+      "path": "Source/build_um_sans.py",
+      "sha256": "3c3eb609dbedd61f31f7a86248d8e8b632a52bdd7dcca0eec96ac3b9422e1cae"
+    },
+    {
+      "path": "Source/fetch_um_sans_sources.py",
+      "sha256": "8489eb2a93ee4a63e1538ffb9c2e19d8fa164c8cb8c9ef3a47fe35db40a3391a"
+    },
+    {
+      "path": "Source/audit_um_sans.py",
+      "sha256": "c182df08973b52030f5c54235cbb08247d6552188db101d756145d6c2173354d"
+    },
+    {
+      "path": "Source/audit_um_sans_fontbakery.py",
+      "sha256": "ef77070259eccedde0e1d3dedf6103c66e7c1e3254cf71f418c3f00137afb293"
+    },
+    {
+      "path": "Source/audit_um_sans_pdf.sh",
+      "sha256": "cf945258faeb1a78db6ac1863d5901ed90d633b41dce267c3d6767b3ae2556ac"
+    },
+    {
+      "path": "Source/package_um_sans.py",
+      "sha256": "edda34c32c379e07600ab803098934c45db805b58460fc742ced4a49bfad8492"
+    },
+    {
+      "path": "Source/run_font_python.sh",
+      "sha256": "f6e15d73980994d06ca2932523df8fd7f5591e8cfec4081cbf884fc1821a2c83"
+    },
+    {
+      "path": "Source/requirements.txt",
+      "sha256": "b6f46f99cb5a6024fb4426eb17537a7992ecc062858f9caa85e61b5a6617e412"
+    }
+  ],
+  "subjects": [
+    {
+      "file": "UMSans-Black.otf",
+      "bytes": 397144,
+      "sha256": "09238b343dbde155f1bd25c33a04ce2cf63f9458521006d357ff62f56d8802df"
+    },
+    {
+      "file": "UMSans-Black.ttf",
+      "bytes": 408716,
+      "sha256": "84cd9f5db932b262d0f93ce3219f47cae5773e2b735469960c5174fbc028edd4"
+    },
+    {
+      "file": "UMSans-Black.woff2",
+      "bytes": 118176,
+      "sha256": "59af19db83b8553b779b97de633ac4060f3b6fcec29f2f162a35f748d908c228"
+    },
+    {
+      "file": "UMSans-BlackItalic.otf",
+      "bytes": 401092,
+      "sha256": "4e42ed46dc0d3d546b8f28a5b854b2abfa009036aeb6e8b345e6ccd430263aec"
+    },
+    {
+      "file": "UMSans-BlackItalic.ttf",
+      "bytes": 409300,
+      "sha256": "6fd3bde3ee5bdce7ecae517e8195129bc3b93384f351d25fb84659f6b6a9f4b3"
+    },
+    {
+      "file": "UMSans-BlackItalic.woff2",
+      "bytes": 122688,
+      "sha256": "1afad8244da5602f5c8bca25d34d4a14e59531dc6c14a3818309dbb445a8837e"
+    },
+    {
+      "file": "UMSans-Bold.otf",
+      "bytes": 397044,
+      "sha256": "e5b4d2d1018e68110008d960dbec76140c51a96a635a9dd510438b3e403c47d1"
+    },
+    {
+      "file": "UMSans-Bold.ttf",
+      "bytes": 440704,
+      "sha256": "72f9066567714fa22aa7ec9dc01821d63427f5cb623a1342574c32e3098bc6e5"
+    },
+    {
+      "file": "UMSans-Bold.woff2",
+      "bytes": 125816,
+      "sha256": "1df4eb218bbb81d0761877b3e7a62c1ffec82555e3c36187545ab9ebb5afc5a3"
+    },
+    {
+      "file": "UMSans-BoldItalic.otf",
+      "bytes": 400888,
+      "sha256": "d0f22147814e9cf911b4e9a924099e445d594b2f287b0f0fc5d9ec78a5731159"
+    },
+    {
+      "file": "UMSans-BoldItalic.ttf",
+      "bytes": 434796,
+      "sha256": "cb5c675872751a278d6bcbd0f71ec2f8b80ecffd6abb21db924222fb6d4bbb65"
+    },
+    {
+      "file": "UMSans-BoldItalic.woff2",
+      "bytes": 129408,
+      "sha256": "e769d1001f20b4690fed705febc42e219a9e39b0d575ddaf2ba138c6527071ed"
+    },
+    {
+      "file": "UMSans-ExtraBold.otf",
+      "bytes": 396472,
+      "sha256": "970f64e2977d1ccf2f72aafaba2d3424390bf907e63a25822c87218de489504c"
+    },
+    {
+      "file": "UMSans-ExtraBold.ttf",
+      "bytes": 408360,
+      "sha256": "93b56d973defeb9cd411ae77940cb5d02296ea9f39bf060b4d8d5173c1297ea9"
+    },
+    {
+      "file": "UMSans-ExtraBold.woff2",
+      "bytes": 120480,
+      "sha256": "502c4d4816bcf839597490204cda2134b48fb4ebd718b15b3014326364ca36a4"
+    },
+    {
+      "file": "UMSans-ExtraBoldItalic.otf",
+      "bytes": 400288,
+      "sha256": "9a3ecee168d840902da1b6105a3ae705bfe7dac780e8d5ca79c7229c00957aec"
+    },
+    {
+      "file": "UMSans-ExtraBoldItalic.ttf",
+      "bytes": 404100,
+      "sha256": "88e9698bf4f03bbfcf4af66c1efae2c3e3ccaa6e82fc0d9ccf2fe42a19a9f922"
+    },
+    {
+      "file": "UMSans-ExtraBoldItalic.woff2",
+      "bytes": 124780,
+      "sha256": "ab937540d70565b1bfb44dfd770d900145e0f1ff96918316f4939f52319923fa"
+    },
+    {
+      "file": "UMSans-ExtraLight.otf",
+      "bytes": 394548,
+      "sha256": "feb761905ffb80155039f0b458f2a08998c025e2020104de7fa0d964bbe949c8"
+    },
+    {
+      "file": "UMSans-ExtraLight.ttf",
+      "bytes": 453620,
+      "sha256": "ceca619772995e24c2d40a7cba2b2653367857b5f8127d021eb20eff457899da"
+    },
+    {
+      "file": "UMSans-ExtraLight.woff2",
+      "bytes": 120528,
+      "sha256": "de024797faa33b5d58a093eb7a7c0943e2b40b91b1b25a53c816ab6cbe789662"
+    },
+    {
+      "file": "UMSans-ExtraLightItalic.otf",
+      "bytes": 398284,
+      "sha256": "fe04bb72f006851a497316733cd7671d3d76de7b057902db11b57a542db8e3cd"
+    },
+    {
+      "file": "UMSans-ExtraLightItalic.ttf",
+      "bytes": 473452,
+      "sha256": "3fbe959098dfc4b54d95f522b8f5a76fd4940f864a61e62c80417203cf9918ea"
+    },
+    {
+      "file": "UMSans-ExtraLightItalic.woff2",
+      "bytes": 125956,
+      "sha256": "2f2fd7ee320b635ebfc08a61dadcd8def5ff526fcdf5ea4abad9da2c8ea1b1a1"
+    },
+    {
+      "file": "UMSans-Italic.otf",
+      "bytes": 404680,
+      "sha256": "6ca332bb61c4555d31f04eac3aac34302efd6671654e83531ee608ff6ef5d4fb"
+    },
+    {
+      "file": "UMSans-Italic.ttf",
+      "bytes": 408188,
+      "sha256": "e7a0a11eb3371ab4fafb72c7fd64a23ac84824668c445f4383a293ffcc1b0644"
+    },
+    {
+      "file": "UMSans-Italic.woff2",
+      "bytes": 122104,
+      "sha256": "25e1049f4b12a40d78ca750231d0db2add931817e1829cb66bcdb28ae0744989"
+    },
+    {
+      "file": "UMSans-Light.otf",
+      "bytes": 398216,
+      "sha256": "7cee1c5da5f02c8956b8a9d1972719a58b87a45d8b2d07f92da157bdc2a41728"
+    },
+    {
+      "file": "UMSans-Light.ttf",
+      "bytes": 402272,
+      "sha256": "58ca10deea6888b7e8ae8b7cc168285ad064fde4d97529283bb99b37ac694251"
+    },
+    {
+      "file": "UMSans-Light.woff2",
+      "bytes": 117784,
+      "sha256": "67343860872612b78b65258cadf65eed81065f70c6cf4e413be5735da8f11463"
+    },
+    {
+      "file": "UMSans-LightItalic.otf",
+      "bytes": 402072,
+      "sha256": "755e453c843e8d0893f002a9cc17db51059ffd55efc38884db7063df9000fae4"
+    },
+    {
+      "file": "UMSans-LightItalic.ttf",
+      "bytes": 452568,
+      "sha256": "a3547003a419a96c05f65449742716faabf420f7e5f5dc87150011d83165ac69"
+    },
+    {
+      "file": "UMSans-LightItalic.woff2",
+      "bytes": 124816,
+      "sha256": "009743fadd5932d2510f79de7b2d710cc11bc39bcc9ddf71f4db20e7a9e15161"
+    },
+    {
+      "file": "UMSans-Medium.otf",
+      "bytes": 399732,
+      "sha256": "fb90d083e8a34923cf85fb31e76927e8aba5ade4eec9e717d154419aac1a477e"
+    },
+    {
+      "file": "UMSans-Medium.ttf",
+      "bytes": 422988,
+      "sha256": "be288bd03af92701b9d8f76f113be3ffe5aae350d6033a52623f1873f97e1c07"
+    },
+    {
+      "file": "UMSans-Medium.woff2",
+      "bytes": 121368,
+      "sha256": "3dd0b53652bdb348f9416fe70f6ef88f79f34f4f21d6736066abaa27a3391df3"
+    },
+    {
+      "file": "UMSans-MediumItalic.otf",
+      "bytes": 404096,
+      "sha256": "a647559a042c3932e0497b0c0435e805d8ca77513905d08b26bdc7f3da9aca86"
+    },
+    {
+      "file": "UMSans-MediumItalic.ttf",
+      "bytes": 413404,
+      "sha256": "2327b62fe23a9dd6ecd0c47525cf32514cbb46452b2e177052de7338027b075f"
+    },
+    {
+      "file": "UMSans-MediumItalic.woff2",
+      "bytes": 124988,
+      "sha256": "ec53fe738c5b45f642c5042343d84d9e91fd7315f8a634fbb5b8077c4f20ccf5"
+    },
+    {
+      "file": "UMSans-Regular.otf",
+      "bytes": 401136,
+      "sha256": "43da233309c6433ffa45a61e238c36aac5cc90952e3c844facacb055632a9543"
+    },
+    {
+      "file": "UMSans-Regular.ttf",
+      "bytes": 413852,
+      "sha256": "3830d8856c4c9429d54c52e201209165915b26952fc805fd6909b2169be93349"
+    },
+    {
+      "file": "UMSans-Regular.woff2",
+      "bytes": 119064,
+      "sha256": "c4b17fd337765b9d9a91bfdefca079bb69b6c173de0dfd7e30a8e5a691686c1c"
+    },
+    {
+      "file": "UMSans-SemiBold.otf",
+      "bytes": 398388,
+      "sha256": "2b5a8d6832ca05406b75ad9467dcf7c35e8120d4986be241cfa98af7908d05d8"
+    },
+    {
+      "file": "UMSans-SemiBold.ttf",
+      "bytes": 424056,
+      "sha256": "bce8d67399a952f97fdbab709caeded720853ed27bf56b8cb3c7b31311e641d4"
+    },
+    {
+      "file": "UMSans-SemiBold.woff2",
+      "bytes": 123280,
+      "sha256": "f243919775ed9fb0dc9f409dd22b5b2edde1c87e87e38b9942a53f7908649197"
+    },
+    {
+      "file": "UMSans-SemiBoldItalic.otf",
+      "bytes": 402368,
+      "sha256": "af77ad32b85dd5817cfcbdff1a09e866ccb52d41f498b41ff5ac3fd20786bee4"
+    },
+    {
+      "file": "UMSans-SemiBoldItalic.ttf",
+      "bytes": 415664,
+      "sha256": "af43159adadb8b1ed0afa4d52a17fb69743819caad3591960f18e98c59c6d87c"
+    },
+    {
+      "file": "UMSans-SemiBoldItalic.woff2",
+      "bytes": 126236,
+      "sha256": "1d54c681a1345c390d1977a5e4f177e2d6b9299b67998a809ebcf77a2dd4e5e0"
+    },
+    {
+      "file": "UMSans-Thin.otf",
+      "bytes": 395672,
+      "sha256": "393df8ab6de6f6064aedf818eecfcccfb5ec129151f2f4ecf3676a5d5e64cdce"
+    },
+    {
+      "file": "UMSans-Thin.ttf",
+      "bytes": 369684,
+      "sha256": "9be750ba9a3c5767c0aea23f0bec0cd663a3d3c1bf7d1b33495651526f412e05"
+    },
+    {
+      "file": "UMSans-Thin.woff2",
+      "bytes": 110416,
+      "sha256": "f875c8f7b4959875f876a6cad71998a6f54b833ae13d958bacc0ede5dce5e000"
+    },
+    {
+      "file": "UMSans-ThinItalic.otf",
+      "bytes": 399580,
+      "sha256": "69702f2383a5a43964dc1fa0b0881f79007887ebdd7ddab67ecad07495b25d8a"
+    },
+    {
+      "file": "UMSans-ThinItalic.ttf",
+      "bytes": 366312,
+      "sha256": "6ee05a177e10d8d69c44c77d5269490baffd4e359245d3a37b5886791649092f"
+    },
+    {
+      "file": "UMSans-ThinItalic.woff2",
+      "bytes": 113240,
+      "sha256": "f7229236b00e73e4866b3a43ebfdaade33b280c9aaac2f8e22ffe390aca8196d"
+    },
+    {
+      "file": "UMSans-Variable.ttf",
+      "bytes": 568696,
+      "sha256": "923dc1d9bc203e0bcfd33cd158a48363af8bd533201efaea2616d68fdf383044"
+    },
+    {
+      "file": "UMSans-Variable.woff2",
+      "bytes": 224540,
+      "sha256": "2a133926f64003a5fa0ac6cb894f79e0ffb6b7169b952e147d90f54157ccd5b4"
+    },
+    {
+      "file": "UMSans-VariableItalic.ttf",
+      "bytes": 582832,
+      "sha256": "947814312382383a1a14c7082b5f6f0a594956591eb0adbf2c945c3b8038447f"
+    },
+    {
+      "file": "UMSans-VariableItalic.woff2",
+      "bytes": 245948,
+      "sha256": "6ee8f35aa002507110c695bd985d8930a4b0aba321c3264739f9ea51ed7b9e04"
+    }
+  ],
+  "reproducibility": {
+    "deterministicZipTimestamp": "2026-07-13T00:00:00Z",
+    "archiveTimestampsNormalized": true,
+    "upstreamPinnedByCommitAndSha256": true
+  },
+  "ownershipBoundary": {
+    "classification": "Modified OFL derivative",
+    "upstream": "Inter 4.001",
+    "independentOutlineCopyright": false
+  }
+}

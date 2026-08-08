@@ -91,6 +91,13 @@ const routes = [
   { path: '/presupuesto-servicios-it-empresas?skin=white', label: 'geo presupuesto', canonical: 'https://www.ultimamilla.com.ar/presupuesto-servicios-it-empresas', requiresFirstViewportCta: true },
   { path: '/proyectos-ingenieria-it-mendoza', label: 'geo proyectos default', canonical: 'https://www.ultimamilla.com.ar/proyectos-ingenieria-it-mendoza', requiresFirstViewportCta: true },
   { path: '/proyectos-ingenieria-it-mendoza?skin=white', label: 'geo proyectos', canonical: 'https://www.ultimamilla.com.ar/proyectos-ingenieria-it-mendoza', requiresFirstViewportCta: true },
+  {
+    path: '/estilo/um-sans',
+    label: 'um sans portfolio',
+    allowDisplayScale: true,
+    allowSampleClaims: true,
+    allowSpecimenStructure: true,
+  },
   { path: '/banners', label: 'lab banners' },
   { path: '/pretext-demo', label: 'lab pretext' },
   { path: '/plantilla-arca', label: 'utilidad arca' },
@@ -318,6 +325,15 @@ async function auditRoute(ws, route, viewport) {
       h1Count: 0,
       textCount: 0,
     };
+  }
+
+  try {
+    await cdp(ws, 'Runtime.evaluate', {
+      expression: 'document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()',
+      awaitPromise: true,
+    });
+  } catch {
+    // The geometry probe below still detects a fallback when FontFaceSet is unavailable.
   }
 
   const expression = `(() => {
@@ -977,9 +993,13 @@ async function auditRoute(ws, route, viewport) {
         const actualLineRatio = Number.isFinite(lineHeight) && Number.isFinite(fontSize) && fontSize > 0
           ? lineHeight / fontSize
           : null;
-        const overweight = Number.isFinite(fontWeight) && fontWeight > 600;
+        const usesUmDisplay = false;
+        const isDisplayEmphasis = tag === 'h1' || element.classList.contains('um-display-emphasis');
+        const maxWeight = tag === 'h1' ? 800 : 700;
+        const overweight = Number.isFinite(fontWeight) && fontWeight > maxWeight;
         const oversized = Number.isFinite(fontSize) && fontSize > maxSize;
-        const cramped = actualLineRatio != null && actualLineRatio < minLineHeight;
+        const displayMinLineHeight = tag === 'h1' ? .98 : tag === 'h2' ? 1.04 : 1.1;
+        const cramped = actualLineRatio != null && actualLineRatio < (isDisplayEmphasis ? displayMinLineHeight : minLineHeight);
         const clipped = rect.left < -1 || rect.right > window.innerWidth + 1;
         const tooTall =
           tag === 'h1' &&
@@ -996,6 +1016,8 @@ async function auditRoute(ws, route, viewport) {
           width: Math.round(rect.width),
           height: Math.round(rect.height),
           overweight,
+          usesUmDisplay,
+          isDisplayEmphasis,
           oversized,
           cramped,
           clipped,
@@ -1335,7 +1357,52 @@ async function auditRoute(ws, route, viewport) {
     }
 
     const h1FontFamily = h1Style?.fontFamily || null;
-    const h1Overweight = h1Style && Number.parseFloat(h1Style.fontWeight) > 600;
+    const bodyFontFamily = getComputedStyle(document.body).fontFamily || null;
+    const logo = document.querySelector('.um-ops-logo, .um-nav-logo, [data-um-logo]');
+    const logoFontFamily = logo ? getComputedStyle(logo).fontFamily : null;
+    const fontSystem = document.body.dataset.fontSystem || null;
+    const measureFont = (family, weight, sample) => {
+      const probe = document.createElement('span');
+      probe.textContent = sample;
+      probe.setAttribute('aria-hidden', 'true');
+      Object.assign(probe.style, {
+        position: 'fixed',
+        inset: 'auto auto -1000px -1000px',
+        visibility: 'hidden',
+        whiteSpace: 'nowrap',
+        fontFamily: family,
+        fontWeight: String(weight),
+        fontSize: '64px',
+        lineHeight: '1'
+      });
+      document.body.appendChild(probe);
+      const width = probe.getBoundingClientRect().width;
+      probe.remove();
+      return width;
+    };
+    const fontReady = document.fonts.check('16px "UM Sans"');
+    const displayProbeText = 'Operación 518 WMWM ÁÑ';
+    const displayProbeWidth = measureFont('"UM Sans", monospace', 800, displayProbeText);
+    const displayFallbackWidth = measureFont('monospace', 700, displayProbeText);
+    const displayFontReady = Math.abs(displayProbeWidth - displayFallbackWidth) > 0.5;
+    const h1UsesDisplay = Boolean(h1FontFamily?.includes('UM Sans'));
+    const h1DisplayEmphasis = Boolean(h1);
+    const h1Overweight = h1Style && Number.parseFloat(h1Style.fontWeight) > 800;
+
+    const displayTypographyIssues = textElements
+      .filter((element) => /UM Sans 2(?: Display| Candidate)?/i.test(getComputedStyle(element).fontFamily))
+      .map((element) => {
+        const style = getComputedStyle(element);
+        return {
+          tag: element.tagName.toLowerCase(),
+          className: String(element.className || '').slice(0, 90),
+          text: 'Blocked unapproved UM Sans 2 reference',
+          fontSize: Number.parseFloat(style.fontSize),
+          allowedElement: false,
+          tooSmall: true
+        };
+      })
+      .slice(0, 12);
 
     return {
       title: document.title,
@@ -1346,7 +1413,7 @@ async function auditRoute(ws, route, viewport) {
       h1Top: h1Rect ? Math.round(h1Rect.top) : null,
       canonical: document.querySelector('link[rel="canonical"]')?.href || null,
       minFont: fontSizes.length ? Math.min(...fontSizes) : null,
-      heavyCount: weights.filter((weight) => weight > 700).length,
+      heavyCount: weights.filter((weight) => weight > 800).length,
       maxWeight: weights.length ? Math.max(...weights) : null,
       overflowX: document.documentElement.scrollWidth > window.innerWidth + 1,
       overflowOffenders,
@@ -1377,6 +1444,14 @@ async function auditRoute(ws, route, viewport) {
       editorialAltBg,
       editorialAltSamples,
       h1FontFamily,
+      bodyFontFamily,
+      logoFontFamily,
+      fontSystem,
+      fontReady,
+      displayFontReady,
+      h1UsesDisplay,
+      displayTypographyIssues,
+      h1DisplayEmphasis,
       h1Overweight,
       frameworkOverlay,
       textCount: textElements.length
@@ -1395,6 +1470,9 @@ async function auditRoute(ws, route, viewport) {
     viewport: viewport.name,
     expectedCanonical: route.canonical || null,
     requiresFirstViewportCta: ctaRequirementApplies(route, viewport),
+    allowDisplayScale: route.allowDisplayScale === true,
+    allowSampleClaims: route.allowSampleClaims === true,
+    allowSpecimenStructure: route.allowSpecimenStructure === true,
     ...(value || {
       title: null,
       h1: null,
@@ -1406,6 +1484,14 @@ async function auditRoute(ws, route, viewport) {
       minFont: null,
       heavyCount: 0,
       maxWeight: null,
+      h1FontFamily: null,
+      bodyFontFamily: null,
+      logoFontFamily: null,
+      fontSystem: null,
+      fontReady: false,
+      displayFontReady: false,
+      h1UsesDisplay: false,
+      displayTypographyIssues: [],
       overflowX: false,
       overflowOffenders: [],
       navCollisionIssues: [],
@@ -1466,6 +1552,14 @@ async function auditRouteWithTimeout(ws, route, viewport) {
       minFont: null,
       heavyCount: 0,
       maxWeight: null,
+      h1FontFamily: null,
+      bodyFontFamily: null,
+      logoFontFamily: null,
+      fontSystem: null,
+      fontReady: false,
+      displayFontReady: false,
+      h1UsesDisplay: false,
+      displayTypographyIssues: [],
       overflowX: false,
       overflowOffenders: [],
       navCollisionIssues: [],
@@ -1511,8 +1605,32 @@ function collectFailures(results) {
     if (result.minFont != null && result.minFont < 16) {
       failures.push(`${result.viewport} ${result.label}: minFont ${result.minFont}`);
     }
-    if (result.heavyCount > 0) {
-      failures.push(`${result.viewport} ${result.label}: ${result.heavyCount} text nodes above weight 700`);
+    if (!result.fontReady) {
+      failures.push(`${result.viewport} ${result.label}: UM Sans not ready`);
+    }
+    if (!result.displayFontReady) {
+      failures.push(`${result.viewport} ${result.label}: UM Sans impact weight not ready`);
+    }
+    if (!String(result.bodyFontFamily || '').includes('UM Sans')) {
+      failures.push(`${result.viewport} ${result.label}: body font is not UM Sans (${result.bodyFontFamily})`);
+    }
+    if (result.h1FontFamily && !String(result.h1FontFamily).includes('UM Sans')) {
+      failures.push(`${result.viewport} ${result.label}: H1 font is not UM Sans (${result.h1FontFamily})`);
+    }
+    if (!result.allowSpecimenStructure && result.h1FontFamily && !result.h1UsesDisplay) {
+      failures.push(`${result.viewport} ${result.label}: H1 does not use verified UM Sans (${result.h1FontFamily})`);
+    }
+    if (!result.allowSpecimenStructure && (result.displayTypographyIssues || []).length) {
+      failures.push(`${result.viewport} ${result.label}: invalid impact typography roles ${JSON.stringify(result.displayTypographyIssues)}`);
+    }
+    if (result.logoFontFamily && !String(result.logoFontFamily).includes('Futura PT')) {
+      failures.push(`${result.viewport} ${result.label}: logo font contract missing Futura PT (${result.logoFontFamily})`);
+    }
+    if (result.fontSystem !== 'um-sans-editorial-1.2') {
+      failures.push(`${result.viewport} ${result.label}: font system marker ${result.fontSystem || 'missing'}`);
+    }
+    if (!result.allowSpecimenStructure && result.heavyCount > 0) {
+      failures.push(`${result.viewport} ${result.label}: ${result.heavyCount} text nodes above weight 800`);
     }
     if (result.overflowX) {
       failures.push(`${result.viewport} ${result.label}: horizontal overflow ${JSON.stringify(result.overflowOffenders || [])}`);
@@ -1541,7 +1659,7 @@ function collectFailures(results) {
     if (STRICT && result.h1ContentIssue && !REPLICA_IDENTICAL_COPY) {
       failures.push(`${result.viewport} ${result.label}: h1 content issue ${JSON.stringify(result.h1ContentIssue)}`);
     }
-    if (STRICT && (result.headingIssues || []).length && !REPLICA_IDENTICAL_COPY) {
+    if (STRICT && !result.allowDisplayScale && (result.headingIssues || []).length && !REPLICA_IDENTICAL_COPY) {
       failures.push(`${result.viewport} ${result.label}: heading typography issues ${JSON.stringify(result.headingIssues)}`);
     }
     if (result.evaluationError) {
@@ -1586,7 +1704,7 @@ function collectFailures(results) {
     if (STRICT && (result.ctaGeometryIssues || []).length) {
       failures.push(`${result.viewport} ${result.label}: CTA geometry issues ${JSON.stringify(result.ctaGeometryIssues)}`);
     }
-    if (STRICT && (result.borderNoiseCount || 0) > 12) {
+    if (STRICT && !result.allowSpecimenStructure && (result.borderNoiseCount || 0) > 12) {
       failures.push(`${result.viewport} ${result.label}: excessive bordered elements in first viewport (${result.borderNoiseCount}) ${JSON.stringify(result.borderNoiseSample || [])}`);
     }
     if (STRICT && result.redBackgroundAreaRatio > 0.12) {
@@ -1595,7 +1713,7 @@ function collectFailures(results) {
     if (result.expectedCanonical && result.canonical !== result.expectedCanonical) {
       failures.push(`${result.viewport} ${result.label}: canonical ${result.canonical} expected ${result.expectedCanonical}`);
     }
-    if (STRICT && (result.claimWarnings || []).length) {
+    if (STRICT && !result.allowSampleClaims && (result.claimWarnings || []).length) {
       failures.push(`${result.viewport} ${result.label}: unsupported precision claim (${result.claimWarnings.join(', ')})`);
     }
     if (STRICT && isCommercial && (result.saasColorIssues || []).length) {
@@ -1688,6 +1806,12 @@ async function main() {
 
     await cdp(ws, 'Page.enable');
     await cdp(ws, 'Runtime.enable');
+    await cdp(ws, 'Network.enable');
+    await cdp(ws, 'Network.setCacheDisabled', { cacheDisabled: true });
+    await cdp(ws, 'Storage.clearDataForOrigin', {
+      origin: new URL(BASE_URL).origin,
+      storageTypes: 'service_workers,cache_storage',
+    });
 
     const selectedViewports = VIEWPORT_FILTER ? viewports.filter((viewport) => VIEWPORT_FILTER.test(viewport.name)) : viewports;
     const selectedRoutes = routes

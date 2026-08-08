@@ -37,6 +37,9 @@ describe('Visual audit runner contracts', () => {
     expect(visualAudit).toContain('/tmp/umsa-visual-audit-${port}');
     expect(visualAudit).toContain("pkill");
     expect(visualAudit).toContain("targets.some((target) => target.type === 'page')");
+    expect(visualAudit).toContain("Network.setCacheDisabled");
+    expect(visualAudit).toContain("Storage.clearDataForOrigin");
+    expect(visualAudit).toContain("storageTypes: 'service_workers,cache_storage'");
 
     const finalLoop = source.slice(source.indexOf('for (const viewport of viewports)'));
     expect(finalLoop).toMatch(/for \(let index = 0; index < commercialRoutes\.length; index \+= ROUTES_PER_BATCH\)/);
@@ -111,5 +114,37 @@ describe('Visual audit runner contracts', () => {
     expect(visualAudit).toContain("'antecedentes default'");
     expect(visualAudit).toContain("'sectores default'");
     expect(visualAudit).toContain('sticky filter lacks stable background');
+  });
+
+  test('audit permits a governed 800 exception while the public H1 token stays at 700', () => {
+    const visualAudit = read('scripts/visual-contrast-audit.mjs');
+    const home = read('src/pages/index.astro');
+    const v4Css = read('src/styles/v4.css');
+
+    expect(home).toContain('class="um-display-emphasis"');
+    expect(v4Css).toContain('--um-hero-weight: 700');
+    expect(visualAudit).toContain("element.classList.contains('um-display-emphasis')");
+    expect(visualAudit).toContain("const maxWeight = tag === 'h1' ? 800 : 700");
+    expect(visualAudit).toContain('fontWeight) > 800');
+    expect(visualAudit).toContain("measureFont('\"UM Sans\", monospace', 800");
+    expect(visualAudit).toContain("tag === 'h1' ||");
+  });
+
+  test('the typography specimen may prove extended weights without relaxing public routes', () => {
+    const visualAudit = read('scripts/visual-contrast-audit.mjs');
+
+    expect(visualAudit).toContain("label: 'um sans portfolio'");
+    expect(visualAudit).toContain('allowSpecimenStructure: true');
+    expect(visualAudit).toContain('allowSpecimenStructure: route.allowSpecimenStructure === true');
+    expect(visualAudit).toContain('!result.allowSpecimenStructure && result.heavyCount > 0');
+    expect(visualAudit).toContain('!result.allowSpecimenStructure && (result.borderNoiseCount || 0) > 12');
+  });
+
+  test('core web vitals gate returns a deterministic process verdict after CDP cleanup', () => {
+    const vitalsAudit = read('scripts/core-web-vitals-audit.mjs');
+
+    expect(vitalsAudit).toContain("chrome.kill('SIGKILL')");
+    expect(vitalsAudit).toContain('cleanupChrome()');
+    expect(vitalsAudit).toContain('process.exit(failures.length > 0 ? 1 : 0)');
   });
 });

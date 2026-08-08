@@ -1,9 +1,5 @@
 ---
-/**
- * NavbarV4 - cabecera operativa UMSA.
- * Replica el sistema del UMDESIGNv2: logo + tag operaciones + menu numerado
- * + CTA + ticker NOC clickeable.
- */
+/** Cabecera comercial UMSA: marca, navegación principal y contacto. */
 
 interface Props {
   currentPath?: string;
@@ -12,11 +8,11 @@ interface Props {
 const { currentPath = Astro.url.pathname } = Astro.props;
 
 const navItems = [
-  { href: '/', label: 'Inicio', num: '00' },
-  { href: '/servicios', label: 'Servicios', num: '01' },
-  { href: '/sectores', label: 'Sectores', num: '02' },
-  { href: '/antecedentes', label: 'Antecedentes', num: '03' },
-  { href: '/blog', label: 'Blog', num: '04' },
+  { href: '/', label: 'Inicio' },
+  { href: '/servicios', label: 'Servicios' },
+  { href: '/sectores', label: 'Sectores' },
+  { href: '/antecedentes', label: 'Antecedentes' },
+  { href: '/blog', label: 'Blog' },
 ];
 
 const moreItems = [
@@ -24,19 +20,6 @@ const moreItems = [
   { href: '/cctvai', label: 'UMSA CCTV AI' },
   { href: '/certificaciones', label: 'Certificaciones' },
   { href: '/contacto', label: 'Contacto' },
-  { href: '/geo', label: 'Centro GEO' },
-  { href: '/plantilla-arca', label: 'Plantilla ARCA' },
-];
-
-const nocEvents = [
-  { t: '03:42', s: 'ok', txt: 'Backup incremental — FUESMEN', href: '/salud' },
-  { t: '03:28', s: 'ok', txt: 'SDI test mensual OK — Torre Thays', href: '/constructoras' },
-  { t: '02:55', s: 'info', txt: 'Cambio de configuracion VMS — AA2000', href: '/aeropuertos' },
-  { t: '02:12', s: 'ok', txt: 'Fibra certificada — Headcomm SA', href: '/industria' },
-  { t: '01:48', s: 'warn', txt: 'Latencia elevada — Minera Frontera (resuelto)', href: '/mineria' },
-  { t: '01:20', s: 'ok', txt: 'CCTV perimetro operativo — Aeropuerto Mendoza', href: '/aeropuertos' },
-  { t: '00:55', s: 'ok', txt: 'Patch panel — Hospital Perrupato', href: '/salud' },
-  { t: '00:30', s: 'info', txt: 'Reporte mensual NOC — 4 hubs', href: '/antecedentes' },
 ];
 
 const isActive = (href: string) => {
@@ -54,23 +37,16 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
         ultimamilla<span>.</span>com<span>.</span>ar
       </a>
 
-      <span class="um-ops-tag">
-        <i></i>
-        OPERACIONES
-      </span>
-
-      <nav class="um-ops-nav" aria-label="Navegacion principal">
+      <nav class="um-ops-nav" aria-label="Navegación principal">
         {navItems.map((item) => (
           <a href={item.href} class:list={['um-ops-nav__link', { 'is-active': isActive(item.href) }]}>
-            <span>{item.num}</span>
             {item.label}
           </a>
         ))}
 
         <div class:list={['um-ops-more', { 'is-active': moreIsActive }]}>
           <button type="button" class="um-ops-more__trigger" aria-haspopup="true" aria-expanded="false">
-            <span>+</span>
-            Mas
+            Más
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
           </button>
           <div class="um-ops-more__menu" role="menu">
@@ -83,16 +59,15 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
         </div>
       </nav>
 
-      <a href="/antecedentes" class="um-ops-cta">
-        Ver evidencia
-        <span aria-hidden="true">↗</span>
+      <a href="/contacto" class="um-ops-cta">
+        Contactar
       </a>
 
       <button
         id="menuToggle"
         class="um-ops-menu-toggle"
         type="button"
-        aria-label="Abrir menu"
+        aria-label="Abrir menú"
         aria-expanded="false"
         aria-controls="mobileMenu"
       >
@@ -103,49 +78,16 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     </div>
   </div>
 
-  <div class="um-ops-ticker" aria-label="NOC operativo">
-    <div class="um-ops-container um-ops-ticker__row">
-      <a class="um-ops-ticker__badge" href="/geo">
-        <i></i>
-        <span>NOC</span>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
-      </a>
-
-      <div class="um-ops-ticker__kpis">
-        <a href="/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it">SOPORTE <strong>24/7</strong></a>
-        <a href="/antecedentes">SITES <strong>87</strong></a>
-        <a href="/servicios">LINKS <strong>312</strong></a>
-      </div>
-
-      <div class="um-ops-ticker__marquee">
-        <div class="um-ops-ticker__track">
-          {nocEvents.slice(0, 4).map((event) => (
-            <a href={event.href} class="um-ops-event">
-              <span>{event.t}</span>
-              <i class={`is-${event.s}`}>{event.s === 'ok' ? '✓' : event.s === 'warn' ? '!' : 'ℹ'}</i>
-              <em>{event.txt}</em>
-              <b>·</b>
-            </a>
-          ))}
-        </div>
-      </div>
-
-      <a class="um-ops-ticker__sla" href="/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it">SLA <strong>ACTIVO</strong></a>
-    </div>
-  </div>
-
   <div id="mobileMenu" class="um-ops-mobile" hidden>
-    <nav class="um-ops-container" aria-label="Menu movil">
+    <nav class="um-ops-container" aria-label="Menú móvil">
       {navItems.map((item) => (
         <a href={item.href} class:list={[{ 'is-active': isActive(item.href) }]}>
-          <span>{item.num}</span>
           {item.label}
         </a>
       ))}
-      <p>Mas</p>
+      <p>Más</p>
       {moreItems.map((item) => (
         <a href={item.href} class:list={[{ 'is-active': isActive(item.href) }]}>
-          <span>+</span>
           {item.label}
         </a>
       ))}
@@ -167,7 +109,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
 
   .um-ops-container {
     /* Share the same reading axis as the public page shells. */
-    width: min(1400px, calc(100% - 64px));
+    width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
     margin-inline: auto;
   }
 
@@ -201,11 +143,8 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   }
 
   .um-ops-tag,
-  .um-ops-nav__link span,
-  .um-ops-more__trigger span,
   .um-ops-ticker,
-  .um-ops-mobile p,
-  .um-ops-mobile a span {
+  .um-ops-mobile p {
     font-family: var(--um-font-mono);
     text-transform: uppercase;
     letter-spacing: 0.17em;
@@ -214,11 +153,11 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   .um-ops-tag {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
     border: 1px solid rgba(255,255,255,0.12);
     padding: 6px 9px;
     color: #71717a;
-    font-size: 9px;
+    font-size: 16px;
     line-height: 1;
   }
 
@@ -270,19 +209,13 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     border: 0;
     background: transparent;
     color: #a1a1aa;
-    padding: 0 13px;
+    padding: 0 15px;
     font-family: var(--um-font-body);
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1;
     text-decoration: none;
     cursor: pointer;
-  }
-
-  .um-ops-nav__link span,
-  .um-ops-more__trigger span {
-    color: #52525b;
-    font-size: 9px;
   }
 
   .um-ops-nav__link:hover,
@@ -297,15 +230,11 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   .um-ops-more:hover .um-ops-more__trigger::after {
     content: "";
     position: absolute;
-    left: 13px;
-    right: 13px;
+    left: 15px;
+    right: 15px;
     bottom: 0;
     height: 2px;
     background: #dc2626;
-  }
-
-  .um-ops-nav__link.is-active span {
-    color: #dc2626;
   }
 
   .um-ops-more {
@@ -364,10 +293,10 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     min-height: 44px;
     align-items: center;
     gap: 8px;
-    margin-left: 18px;
+    margin-left: 12px;
     background: #dc2626;
     color: #fff;
-    padding: 0 21px;
+    padding: 0 20px;
     font-size: 16px;
     font-weight: 700;
     text-decoration: none;
@@ -396,15 +325,23 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     height: 2px;
     margin: 5px auto;
     background: currentColor;
+    transition: transform 0.18s ease, opacity 0.18s ease;
+  }
+
+  .um-ops-menu-toggle[aria-expanded="true"] span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .um-ops-menu-toggle[aria-expanded="true"] span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .um-ops-menu-toggle[aria-expanded="true"] span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
   }
 
   .um-ops-ticker {
-    position: relative;
-    z-index: 1;
-    overflow: hidden;
-    background: rgba(10,10,11,0.82);
-    color: #71717a;
-    font-size: 9px;
+    display: none;
   }
 
   .um-ops-ticker__row {
@@ -542,6 +479,10 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     z-index: 2;
     border-top: 1px solid rgba(255,255,255,0.1);
     background: #0a0a0b;
+    max-height: calc(100dvh - 62px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
   }
 
   .um-ops-mobile nav {
@@ -577,10 +518,11 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   }
 
   .um-ops-mobile p {
-    margin: 12px 0 4px;
+    margin: 16px 0 6px;
     padding: 0 12px;
-    color: #52525b;
-    font-size: 9px;
+    color: #8b8b94;
+    font-size: 16px;
+    line-height: 1.3;
   }
 
   @media (max-width: 1110px) {
@@ -601,7 +543,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
 
   @media (max-width: 760px) {
     .um-ops-container {
-      width: min(100% - 28px, 1400px);
+      width: min(100% - 32px, var(--um-container-wide));
     }
 
     .um-ops-logo {
@@ -623,23 +565,34 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
 </style>
 
 <script>
-  const menuToggle = document.getElementById('menuToggle');
-  const mobileMenu = document.getElementById('mobileMenu');
+  const initOpsNavigation = () => {
+    const menuToggle = document.getElementById('menuToggle');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (!menuToggle || !mobileMenu || menuToggle.dataset.bound === 'true') return;
 
-  if (menuToggle && mobileMenu) {
+    menuToggle.dataset.bound = 'true';
+    const closeMenu = () => {
+      mobileMenu.setAttribute('hidden', '');
+      menuToggle.setAttribute('aria-expanded', 'false');
+      menuToggle.setAttribute('aria-label', 'Abrir menú');
+    };
+
     menuToggle.addEventListener('click', () => {
       const willOpen = mobileMenu.hasAttribute('hidden');
       mobileMenu.toggleAttribute('hidden', !willOpen);
       menuToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-      menuToggle.setAttribute('aria-label', willOpen ? 'Cerrar menu' : 'Abrir menu');
+      menuToggle.setAttribute('aria-label', willOpen ? 'Cerrar menú' : 'Abrir menú');
     });
 
-    mobileMenu.querySelectorAll('a').forEach((link) => {
-      link.addEventListener('click', () => {
-        mobileMenu.setAttribute('hidden', '');
-        menuToggle.setAttribute('aria-expanded', 'false');
-        menuToggle.setAttribute('aria-label', 'Abrir menu');
-      });
+    mobileMenu.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !mobileMenu.hasAttribute('hidden')) {
+        closeMenu();
+        menuToggle.focus();
+      }
     });
-  }
+  };
+
+  initOpsNavigation();
+  document.addEventListener('astro:page-load', initOpsNavigation);
 </script>

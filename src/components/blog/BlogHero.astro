@@ -16,7 +16,7 @@ const date = formatBlogDate(post.fecha_publicacion);
 
 <article class="hero-post">
   <a href={`/blog/${post.slug}`} class="hero-media" aria-label={`Leer ${post.titulo}`}>
-    <img src={imgUrl} alt={imgAlt} class="hero-img" loading="eager" />
+    <img src={imgUrl} alt={imgAlt} class="hero-img" width="1280" height="720" loading="eager" fetchpriority="high" decoding="async" />
   </a>
 
   <div class="hero-body">
@@ -140,7 +140,7 @@ const date = formatBlogDate(post.fecha_publicacion);
     font-size: clamp(1.8rem, 2.12vw, 2.3rem);
     font-weight: var(--um-display-weight);
     letter-spacing: var(--um-display-tracking);
-    line-height: var(--um-display-line-height);
+    line-height: 1.1;
     color: var(--skin-text);
     margin: 0 0 18px;
     text-wrap: balance;
@@ -165,7 +165,7 @@ const date = formatBlogDate(post.fecha_publicacion);
   :global(body[data-skin] main .blog-index .hero-title),
   :global(body[data-skin] main .blog-cat .hero-title) {
     font-size: clamp(1.88rem, 2.26vw, 2.46rem) !important;
-    line-height: var(--um-display-line-height) !important;
+    line-height: 1.1 !important;
     font-weight: var(--um-display-weight) !important;
     letter-spacing: var(--um-display-tracking) !important;
   }

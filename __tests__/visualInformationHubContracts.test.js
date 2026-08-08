@@ -25,6 +25,45 @@ describe('Information hub visual contracts', () => {
   const sectorUM26 = read('src/components/templates/SectorTemplateUM26.astro');
   const v4Css = read('src/styles/v4.css');
 
+  test('global provider shell, typography and dark contrast remain canonical', () => {
+    const layout = read('src/layouts/LayoutV4.astro');
+    const navbar = read('src/components/v4/NavbarV4.astro');
+
+    expect(v4Css).toContain('--um-container-wide: 1400px');
+    expect(v4Css).toContain('--um-font-body: var(--um-font-editorial)');
+    expect(v4Css).toContain('--um-hero-weight: 700');
+    expect(v4Css).toContain('.um-page-shell');
+    expect(v4Css).toMatch(/\.services-demo,[\s\S]*\.um26-evidence,[\s\S]*\.sectors-demo,[\s\S]*--skin-muted:\s*#c4c7cc;/i);
+    expect(layout).not.toContain('fonts.googleapis.com');
+    expect(v4Css).toContain('--um-font-mono: ui-monospace');
+    expect(layout).not.toContain('family=Open+Sans');
+    expect(layout).toMatch(/main :where\(h1, h2, h3, h4\)[\s\S]*overflow-wrap:\s*normal !important;/);
+    expect(navbar).toMatch(/\.um-ops-container\s*\{[\s\S]*var\(--um-container-wide\)/);
+    expect(navbar).toMatch(/\.um-ops-ticker\s*\{[\s\S]*display:\s*none;/);
+    expect(navbar).not.toContain('class="um-ops-tag"');
+    expect(navbar).not.toContain('class="um-ops-ticker"');
+    expect(navbar).toContain('<a href="/contacto" class="um-ops-cta">');
+    expect(navbar).toContain("document.addEventListener('astro:page-load', initOpsNavigation)");
+    expect(navbar).toContain("menuToggle.dataset.bound = 'true'");
+    expect(navbar).toMatch(/\.um-ops-mobile p\s*\{[\s\S]*font-size:\s*16px;/);
+    expect(navbar).toMatch(/\.um-ops-mobile\s*\{[\s\S]*max-height:\s*calc\(100dvh - 62px\);[\s\S]*overflow-y:\s*auto;/);
+  });
+
+  test('core commercial surfaces use the global provider density contract', () => {
+    const home = read('src/pages/index.astro');
+    const servicesIndex = read('src/pages/servicios/index.astro');
+    const sectoresIndex = read('src/components/templates/SectorIndexUM26.astro');
+
+    expect(home).toContain('Servicios IT para operaciones que no pueden detenerse.');
+    expect(home).not.toContain('class="um26-hero__metric"');
+    expect(home).not.toContain('class="um26-hero__shuffle"');
+    expect(servicesIndex).toMatch(/\.services-demo-row\s*\{[\s\S]*min-height:\s*360px;/);
+    expect(servicesIndex).toMatch(/\.services-demo-hero h1\s*\{[\s\S]*font-weight:\s*700;/);
+    expect(servicesIndex).toMatch(/\.services-demo-body h2\s*\{[\s\S]*2\.375rem/);
+    expect(servicesIndex).toMatch(/\.services-demo-body h2\s*\{[\s\S]*line-height:\s*1\.12;[\s\S]*overflow-wrap:\s*normal;/);
+    expect(sectoresIndex).toMatch(/@media \(max-width:\s*980px\)[\s\S]*\.sectors-demo-hero h1\s*\{[\s\S]*overflow-wrap:\s*normal;/);
+  });
+
   test('sectores abandons family language in the public hub template', () => {
     expect(sectorAtlas).not.toMatch(/\bfamilia(s)?\b/i);
     expect(sectorAtlas).toContain('Mercados operativos UMSA');
@@ -100,6 +139,25 @@ describe('Information hub visual contracts', () => {
     expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*:global\(body\[data-skin\]\) \.um26-evidence \.um26-filter-row strong\s*\{[\s\S]*font-size:\s*1rem !important;/);
     expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*:global\(body\[data-skin\]\) \.um26-evidence \.um26-filter-row button\s*\{[\s\S]*min-height:\s*34px !important;[\s\S]*font-size:\s*1rem !important;/);
     expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-search input\s*\{[\s\S]*height:\s*44px;[\s\S]*font-size:\s*1rem;/);
+    expect(antecedentesIndex).toContain('data-filter-toggle');
+    expect(antecedentesIndex).toContain('data-filter-panel');
+    expect(antecedentesIndex).toMatch(/\.um26-filter-panel\s*\{[\s\S]*display:\s*none;/);
+    expect(antecedentesIndex).toMatch(/\.um26-filter-panel\.is-open\s*\{[\s\S]*display:\s*grid;/);
+    expect(antecedentesIndex).toContain('aria-live="polite" aria-atomic="true"');
+    expect(antecedentesIndex).toMatch(/\.um26-case-card\s*\{[\s\S]*content-visibility:\s*auto;[\s\S]*contain-intrinsic-block-size:\s*360px;/);
+  });
+
+  test('final mobile information hubs trade tall cards for documentary density', () => {
+    const antecedentes = read('src/pages/antecedentes/index.astro');
+    const services = read('src/pages/servicios/index.astro');
+    const sectores = read('src/components/templates/SectorIndexUM26.astro');
+
+    expect(antecedentes).toMatch(/grid-template-columns:\s*112px minmax\(0, 1fr\)/);
+    expect(antecedentes).toMatch(/\.um26-results-bar button\s*\{[\s\S]*display:\s*none;/);
+    expect(services).toMatch(/grid-template-columns:\s*minmax\(92px, 27vw\) minmax\(0, 1fr\)/);
+    expect(services).toMatch(/\.services-demo-hero\s*\{[\s\S]*min-height:\s*340px;/);
+    expect(sectores).toMatch(/\.sectors-demo-stats\s*\{[\s\S]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
+    expect(sectores).toMatch(/@media \(max-width:\s*620px\)[\s\S]*\.sectors-demo-filters > div\s*\{[\s\S]*flex-wrap:\s*nowrap;[\s\S]*overflow-x:\s*auto;/);
   });
 
   test('row hover treatment stays calm and does not add red rails or layout drift', () => {
@@ -206,6 +264,9 @@ describe('Information hub visual contracts', () => {
     expect(home).toContain('<a href={href} aria-label={aria}>');
     expect(home).toMatch(/\.um26-stats__grid a:hover,[\s\S]*\.um26-stats__grid a:focus-visible\s*\{/);
     expect(home).toMatch(/\.um26-stats__grid a:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.5\);/);
+    expect(home).toMatch(/\.um26-stats__inner\s*\{[\s\S]*padding-block:\s*0;/);
+    expect(home).toMatch(/\.um26-stats__grid a\s*\{[\s\S]*display:\s*flex;[\s\S]*min-height:\s*138px;/);
+    expect(home).toMatch(/\.um26-stats__grid a:hover,[\s\S]*box-shadow:\s*inset 0 -3px 0 #dc2626;/);
     expect(home).not.toMatch(/\.um26-stats__grid div\s*\{/);
   });
 
@@ -313,7 +374,7 @@ describe('Information hub visual contracts', () => {
 
     expect(home).toContain('class="um26-case-grid"');
     expect(home).toMatch(/\.um26-case-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
-    expect(home).toMatch(/\.um26-case-card\s*\{[\s\S]*min-height:\s*440px;/);
+    expect(home).toMatch(/\.um26-case-card\s*\{[\s\S]*min-height:\s*380px;/);
     expect(home).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-case-grid,[\s\S]*\.um26-hub-grid\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
   });
 
@@ -321,8 +382,10 @@ describe('Information hub visual contracts', () => {
     const home = read('src/pages/index.astro');
 
     expect(home).toContain('class="um26-service-grid"');
-    expect(home).toContain("loading={index < 4 ? 'eager' : 'lazy'}");
+    expect(home).toContain("loading={index < 2 ? 'eager' : 'lazy'}");
     expect(home).toContain("fetchpriority={index === 0 ? 'high' : 'low'}");
+    expect(home).toContain('width="1200"');
+    expect(home).toContain('height="900"');
     expect(home).toContain('decoding="async"');
   });
 
@@ -459,8 +522,9 @@ describe('Information hub visual contracts', () => {
     expect(servicios).not.toMatch(/<footer>[\s\S]*?<a\s+href=\{`\/servicios\/\$\{service\.code\}\/\$\{service\.slug\}`\}/);
     expect(cssBlock(servicios, '.services-demo-row')).toMatch(/text-decoration:\s*none;/);
     expect(servicios).toMatch(/\.services-demo-row:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,38,38,0\.58\);/);
-    expect(servicios).toContain('loading="eager"');
-    expect(servicios).not.toContain("loading={index < 2 ? 'eager' : 'lazy'}");
+    expect(servicios).toContain("loading={index < 2 ? 'eager' : 'lazy'}");
+    expect(servicios).toContain("fetchpriority={index === 0 ? 'high' : 'low'}");
+    expect(servicios).toMatch(/\.services-demo-row\s*\{[\s\S]*content-visibility:\s*auto;[\s\S]*contain-intrinsic-block-size:\s*360px;/);
     expect(servicios).toMatch(/\.services-demo-media\s*\{[\s\S]*background-image:\s*var\(--service-image\);/);
     expect(cssBlock(servicios, '.services-demo-media div')).toMatch(/z-index:\s*1;/);
     expect(cssBlock(servicios, '.services-demo-media img')).toMatch(/z-index:\s*0;/);
@@ -548,6 +612,15 @@ describe('Information hub visual contracts', () => {
     expect(cssBlock(productCard, '.product-sheet__frame')).toMatch(/box-shadow:\s*none;/);
     expect(cssBlock(productCard, '.product-sheet__image')).toMatch(/height:\s*clamp\(240px,\s*32vw,\s*380px\);/);
     expect(productCard).toMatch(/@media \(max-width:\s*900px\)\s*\{[\s\S]*\.product-sheet__image\s*\{[\s\S]*height:\s*clamp\(220px,\s*62vw,\s*320px\);/);
+  });
+
+  test('shared service imagery reserves intrinsic space before loading', () => {
+    const productCard = read('src/components/v4/ProductCard.astro');
+    const ctaSection = read('src/components/v4/CTASection.astro');
+    expect(productCard).toContain('width="1600"');
+    expect(productCard).toContain('height="900"');
+    expect(ctaSection).toContain('width="1920"');
+    expect(ctaSection).toContain('height="1080"');
   });
 
   test('service detail equipment heading stays in one readable column', () => {

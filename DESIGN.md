@@ -1,5 +1,38 @@
 # ULTIMA MILLA Website Design System 2026
 
+## Contrato activo julio 2026: UMSA Global Provider
+
+La direccion vigente es **Industrial Evidence System**. Toda decision historica
+que contradiga este bloque queda como registro de iteracion, no como regla activa.
+
+- Un solo eje exterior para navegacion y superficies comerciales: `1400px` con
+  gutter semantico `--um-page-gutter`.
+- UM Sans 600 para titulares, UM Sans 400-700 para cuerpo, Futura PT solo para
+  marca y la pila monoespaciada del sistema solo para codigos tecnicos breves.
+- Apertura tecnica oscura; lectura, comparacion y contacto en superficies claras
+  cuando el contenido necesite decision prolongada.
+- Texto oscuro: `#111`; texto sobre negro: blanco y gris minimo `#C4C7CC`.
+- Titulares nunca separan palabras comunes con `overflow-wrap: anywhere`.
+- El ticker NOC deja de formar parte de la navegacion publica principal.
+- Servicios se compactan para comparar ocho frentes sin consumir ocho viewports.
+- Antecedentes prioriza evidencia; los filtros avanzados quedan subordinados y
+  colapsados por defecto en mobile.
+- Produccion no recibe cambios hasta superar desktop `1440/1280`, tablet `834` y
+  mobile `390/360`, junto con build, pruebas, canonicals y GEO.
+
+### Contrato de madurez internacional
+
+- La navegacion movil debe funcionar despues de cargas completas y transiciones
+  de Astro, cerrar con `Escape`, devolver el foco y no exceder el alto util.
+- Toda imagen comercial declara dimensiones intrinsecas; solo hero y primeras
+  evidencias visibles usan `loading="eager"`. El archivo restante usa lazy load.
+- Listados extensos usan `content-visibility` con una reserva estable para reducir
+  trabajo de render sin introducir saltos visuales.
+- Los resultados filtrados se anuncian con `aria-live`; controles, links y filas
+  completas deben tener estado hover y foco verificable sin mover la geometria.
+- El copy publico usa ortografia editorial completa. Slugs y keywords pueden
+  conservar formas tecnicas, pero ningun titulo, CTA o descripcion visible.
+
 Documento de direccion visual para el redisenio local de `ultimamilla.com.ar`.
 
 Estado: maqueta local iterada en branch `codex/umsa-white-dossier-local`.
@@ -82,13 +115,13 @@ Este documento funciona como compuerta de aceptacion, no como referencia aspirac
 
 | Elemento | Desktop | Mobile | Peso |
 |---|---:|---:|---:|
-| H1 sitio/interior | 42-58px, home maximo 60px | 34-42px | 600 |
+| H1 sitio/interior | 42-58px, home maximo 60px | 34-42px | 600; 700 solo en hero de enfasis |
 | H2 seccion | 28-40px | 24-32px | 600 |
 | H3/modulo | 18-24px | 18-22px | 600 |
 | Body, metadata, labels, botones | minimo 16px | minimo 16px | 400-700 |
 | Numeros, CTA, labels fuertes | minimo 16px | minimo 16px | maximo 700 |
 
-Futura PT queda reservada para logo/marca. Los titulares editoriales usan Poppins con `font-synthesis: none`. No se admiten pesos `800/900`, tracking negativo fuera del logo ni titulares que ganen jerarquia solo por gigantismo.
+Futura PT queda reservada para logo/marca. Los titulares y el cuerpo editorial usan UM Sans con `font-synthesis: none`. Poppins y Open Sans quedan solo como fallbacks de compatibilidad. No se admiten pesos `800/900`, tracking negativo fuera del logo ni titulares que ganen jerarquia solo por gigantismo.
 
 ### Rojo UMSA: contrato canonico
 
@@ -163,8 +196,8 @@ La estetica aprobada es la de las referencias visuales adjuntas de mayo 2026:
 - secciones blancas editoriales para antecedentes, paquetes, sectores y decision comercial;
 - rojo UMSA `#DC2626` como instrumento de enfasis, no como tema cromatico completo;
 - tipografia grande pero proporcional: nada visible por debajo de 16px, cuerpos de lectura 16-20px, titulares con aire y line-height controlado;
-- titulares editoriales con `Poppins` 600 como primera opcion y Futura PT reservada para logo/marca;
-- marca intacta: logo `ultimamilla.com.ar`, puntos rojos, Futura/Open Sans, negro/blanco/gris y reglas UMSA no se redisenan.
+- titulares editoriales con `UM Sans` 600 como primera opcion y Futura PT reservada para logo/marca;
+- marca intacta: logo `ultimamilla.com.ar`, puntos rojos, Futura PT/UM Sans, negro/blanco/gris y reglas UMSA no se redisenan.
 
 El sitio no debe parecer una landing SaaS ni una pieza AI-looking. Debe parecer una empresa tecnica real que vende continuidad operativa, soporte, redes, seguridad electronica, energia IT, software operativo y ejecucion documentada.
 
@@ -304,7 +337,7 @@ No publicar precios en esta fase. No redireccionar rutas alternativas. No cambia
 
 Aplicada sobre la maqueta local en `localhost:4322`:
 
-- Pase transversal 2026-05-17: titulares editoriales pasan a `Poppins` con peso `600`; Futura PT queda reservada para logo/marca. Numeros, CTAs y labels quedan en `700` como techo.
+- Pase transversal 2026-05-17 (historico, superado en julio): titulares editoriales pasaron a `Poppins` 600. El contrato vigente usa `UM Sans` 600; Futura PT queda reservada para logo/marca y `700` permanece como techo.
 - Pase transversal 2026-05-19: rojo identitario bloqueado en `#DC2626`; se eliminan `#EF4444`, rojos oscuros y rojos claros como acentos de marca en UI activa. Blog queda image-led: miniatura e imagen destacada desde Directus para cada nota.
 - Servicios: `/servicios` y `/servicios/[id]/[slug]` ya no usan labels largos que quiebran la grilla de metricas; las pruebas quedan como `Servicios / Casos / Soporte`.
 - Blog: el indice y las filas de feed se integran al sistema UMSA, sin serif externa ni escala ajena; las piezas de contenido dejan de competir con el H1.
@@ -352,7 +385,7 @@ Contrato de la prueba:
 
 Revision final ejecutada sobre `localhost:4322` en desktop `1440x900` y mobile `390x900`:
 
-- Titulares de templates: escala visible normalizada con `Poppins 600` desktop/mobile para evitar acentos con fallback visual y peso desproporcionado.
+- Titulares de templates: escala visible normalizada originalmente con `Poppins 600`; desde julio el mismo contrato usa `UM Sans 600` desktop/mobile para unificar acentos, proporciones y peso.
 - Sectores `editorial` y `atlas`: se redujo el espacio superior, se agrego texto de contexto y se quito contenido fallback oculto para evitar H1 duplicados en variantes dev.
 - Antecedentes `editorial`: hero mas compacto, filtros mobile sin scroll horizontal, chips convertidos a navegacion textual sobria y evidencia visible antes.
 - Blog: deja de ser una columna angosta aislada; pasa a header tecnico oscuro, tabs UMSA, articulos editoriales amplios y titulos proporcionados. En mobile el titulo de articulo baja a ~26px para no competir con el H1.
@@ -491,13 +524,14 @@ Construccion:
 | Rol | Familia | Peso | Uso |
 |---|---|---:|---|
 | Logo / marca | `Futura PT`, fallback `Futura`, sans-serif | 600 | logo canonico y puntos rojos |
-| Display / H1 / H2 | `Poppins`, fallback `Futura PT`, `Century Gothic`, sans-serif | 600 | titulares editoriales y contenido publico |
-| UI / cuerpo | `Open Sans`, fallback `Arial`, system-ui | 400-700 | parrafos, nav, botones, forms |
-| Blog largo | `Open Sans` o una serif editorial solo si queda subordinada al sistema | 400-700 | articulos |
+| Impacto / H1 | `UM Sans`, fallback `Arial`, system-ui | 700-800 | hero, H1 y palabras de impacto desde 32px |
+| Editorial / H2 / H3 | `UM Sans`, fallback `Arial`, system-ui | 600 | secciones, subtitulos y titulos compactos |
+| UI / cuerpo | `UM Sans`, fallback `Arial`, system-ui | 400-700 | parrafos, nav, botones, forms |
+| Blog largo | `UM Sans`, fallback `Open Sans`, `Arial`, system-ui | 400-600 | articulos |
 
 Reglas:
 
-- Tracking general en headings: `0`. El tracking negativo queda reservado al logo.
+- Tracking general en headings: `0`. Solo el H1 de impacto puede usar hasta `-0.025em`, con revisión visual de palabras completas; el logo conserva su construcción propia.
 - No bajar de `16px` en texto visible de UI publica; evitar microtexto tambien en labels, fechas, filtros y metadata.
 - Line-height: headings `1.0-1.12`, cuerpo `1.5-1.65`.
 - Mobile no debe usar escala por viewport sin limite. Usar `clamp()` con minimos legibles.
@@ -506,10 +540,10 @@ Reglas:
 
 | Nivel | Desktop | Mobile | Peso | Line-height |
 |---|---:|---:|---:|---:|
-| Hero H1 | 40-64px | 30-38px | 600 | 1.06-1.12 |
-| Page H1 | 38-56px | 30-36px | 600 | 1.08-1.14 |
-| Section H2 | 28-42px | 26-32px | 700 | 1.1-1.16 |
-| Card/row title | 21-30px | 20-24px | 700 | 1.12-1.2 |
+| Hero H1 | 40-60px | 34-38px | 700-800 Editorial | 0.98-1.06 |
+| Page H1 | 42-56px | 32-36px | 700-800 Editorial | 1.00-1.08 |
+| Section H2 | 28-40px | 26-32px | 600 Text | 1.08-1.16 |
+| Card/row title | 21-30px | 20-24px | 600 Text | 1.12-1.2 |
 | Body large | 18-21px | 17-18px | 400 | 1.55 |
 | Body | 16-18px | 16px | 400 | 1.55-1.65 |
 | Label/meta | 16px minimo | 16px minimo | 700 | 1.3-1.45 |
@@ -654,7 +688,7 @@ Evitar:
 
 Formato UMSA:
 
-- numero grande Futura/Poppins;
+- numero grande UM Sans 600-700;
 - label legible minimo 16px;
 - borde simple;
 - maximo 4 metricas;
@@ -874,7 +908,7 @@ Destino:
 Problemas actuales:
 
 - Limpio, pero visualmente parece otro sitio.
-- Serif dominante no conversa con Futura/Open Sans.
+- Serif dominante no conversa con Futura PT/UM Sans.
 
 Destino:
 
@@ -938,8 +972,9 @@ Crear o consolidar tokens en `src/styles/v4.css`:
   --um-blue-doc: #1A56C0;
 
   --um-font-logo: 'Futura PT', 'Futura', sans-serif;
-  --um-font-display: 'Poppins', 'Futura PT', 'Century Gothic', sans-serif;
-  --um-font-body: 'Open Sans', Arial, system-ui, sans-serif;
+  --um-font-impact: var(--um-font-editorial);
+  --um-font-display: 'UM Sans', Arial, system-ui, sans-serif; /* alias editorial legacy */
+  --um-font-body: 'UM Sans', Arial, system-ui, sans-serif;
   --um-weight-title: 600;
   --um-weight-strong: 700;
 
@@ -1023,7 +1058,7 @@ Antes de cerrar una pantalla:
 
 ## 13. Decision Actual
 
-La decision vigente es White Dossier como prototipo principal local: blanco editorial para evidencia, compra y lectura; negro tecnico solo donde agrega prueba operativa; rojo UMSA como acento quirurgico.
+La decision vigente es Hibrido Ejecutivo: negro tecnico para aperturas, operacion y evidencia; blanco editorial para lectura, compra y contacto; rojo UMSA como acento quirurgico. White Dossier permanece como criterio de claridad, no como obligacion de fondo blanco en toda pantalla.
 
 El salto de calidad no depende de cambiar colores por pantalla. Depende de sostener una grilla editorial UMSA en todas las rutas, retirar elementos generic SaaS, controlar tipografia/contraste y probar cada superficie en navegador.
 
@@ -1041,3 +1076,62 @@ Iteracion local agregada sobre el remanente visible:
 - `/estilo`: el login restringido abandona Inter/azul y se alinea al acceso institucional blanco con logo UMSA y rojo exacto.
 
 Regla para utilidades publicas: aunque no sean parte del recorrido comercial, nunca deben parecer otro producto ni otra marca. Deben sostener contraste, minimo 16px, pesos hasta 700, radius 0-8px y acento rojo controlado.
+
+---
+
+## 15. Contrato final de ritmo y densidad
+
+- Home puede conservar una apertura cinematografica; indices y paginas de decision deben mostrar contenido util antes de 440px bajo la navegacion en mobile.
+- Servicios mobile usa imagen lateral estable de `92px` como minimo y una fila completa cliqueable. Titulo, promesa, evidencia y accion deben entrar sin repetir la descripcion larga.
+- Antecedentes usa un solo protagonista. Los casos secundarios se convierten en filas documentales de `174px` con miniatura, cliente, titulo y metadata; no se repite el resumen en mobile.
+- Los controles de Antecedentes ocupan una linea de resultados en mobile. La vista se fija en el formato mas legible y los controles de grilla/lista quedan reservados para desktop.
+- Sectores resume volumen en dos columnas completas. En mobile, el indice de mercados permanece en una sola linea desplazable para no empujar la evidencia fuera del primer recorrido.
+- Ninguna card comercial usa un borde lateral cromatico repetido. El estado interactivo se expresa con contraste, foco y un acento rojo medido.
+- Las aperturas editoriales blancas comparten gutter y arranque; las aperturas tecnicas oscuras pueden variar de altura segun su funcion, no por decoracion.
+
+---
+
+## 16. Sistema tipografico UM Sans
+
+La web pública usa una sola familia verificada: `UM Sans Text 1.2`. Sus pesos `700–800` resuelven impacto; `600–700`, jerarquía; `400–500`, lectura, interfaz, cifras, presupuestos e informes. Futura PT permanece reservada para el logotipo.
+
+Los prototipos procedurales `public/fonts/um-sans-2/` y `public/fonts/um-sans-2-display/` están bloqueados. El corte `2.1` también fue rechazado después de verlo en titulares comerciales reales: sus minúsculas, uniones y color de palabra no alcanzan calidad tipográfica. Su binario fue retirado de `public/` y quedó archivado en `docs/typography/rejected-artifacts/um-sans-2.1-candidate/`. Ningún query param puede volver a activarlo.
+
+Una futura `2.2` debe entrar primero como prueba aislada de dibujo. No se registra con `@font-face`, no se integra a la home y no se llama candidata hasta superar capturas de palabras completas en desktop y mobile, alfabeto español, numerales, espaciado y revisión humana explícita.
+
+Fuentes de referencia y mantenimiento:
+
+- portfolio visual: `/estilo/um-sans`;
+- indice del activo: `docs/typography/README.md`;
+- especificacion tecnica: `docs/typography/UM-SANS-SPEC.md`;
+- especificacion del prototipo bloqueado: `docs/typography/UM-SANS-2-DISPLAY-SPEC.md`;
+- archivos instalables y web: `public/fonts/um-sans/`;
+- cuarentena del prototipo original: `public/fonts/um-sans-2-display/BLOCKED.md`;
+- evidencia del corte 2.1 rechazado: `docs/typography/rejected-artifacts/um-sans-2.1-candidate/`;
+- generador reproducible: `scripts/fonts/build_um_sans.py`;
+- comando de compilacion: `npm run fonts:build:um-sans`.
+- comando de release completo: `npm run fonts:release:um-sans`;
+- diagnóstico estructural del prototipo: `npm run fonts:audit:um-sans-2-display` (no promociona ni publica);
+- matriz de entrega: `docs/typography/release/MARKET-DELIVERABLES.md`;
+- brief de redibujo independiente: `docs/typography/release/UM-SANS-2.0-ORIGINAL-BRIEF.md`.
+
+Reglas de gobierno:
+
+- Text entrega nueve pesos `100–900`, romanos y cursivos genuinos, más variables `wght 100–900` y `opsz 14–32`;
+- H1 usa Text `700–800`; H2 y H3 usan Text `600–700`; cuerpo, interfaz y metadata usan Text `400–700` según función;
+- el peso `800` solo se permite en H1 de impacto desde `32px`; `900` queda reservado al specimen y cifras editoriales, no a títulos públicos;
+- la `l` usa terminal inferior inequivoco en todos los pesos, cursivas y tamaños opticos; `p` y formas redondas conservan apertura y fit compacto;
+- cada slant incorpora `8.882` pares de kerning español y conserva `frac`, `ordn`, `tnum`, `zero`, superindices, subindices y ocho sets estilisticos;
+- `npm run fonts:audit:um-sans` valida 58 binarios con FontTools, HarfBuzz, ImageMagick y fontconfig, incluyendo 54 pruebas de raster por familia;
+- TTF y WOFF2 estaticos incorporan hinting TrueType latino; todos los formatos declaran `USE_TYPO_METRICS`, line gap interno `0`, embedding instalable y politica `gasp` consistente;
+- la web usa un solo preload variable romano y carga la cursiva bajo demanda con `font-optical-sizing: auto`; el kit Latin Core puede reemplazar al completo cuando la cobertura declarada alcanza;
+- el fallback Arial calibrado usa `size-adjust: 112.33%`, overrides verticales y queda documentado en `FONT-METRICS.md` para reducir CLS;
+- `family-metadata.json`, `unicode-coverage.json`, `character-set.txt`, `glyph-order.txt`, `binary-inventory.json`, `variable-model.json`, `embedding-rights.json`, `name-table.json`, `sbom.spdx.json`, `release-provenance.json` y `webfont-manifest.json` son parte contractual del release;
+- la hoja de estilo publica 41 entregables: binarios, web kits, modelo variable, hinting, embedding, metadata, SBOM, procedencia, formatos, QA, documentación, procurement, migración, accesibilidad y la frontera 2.0 Original;
+- la aprobacion distingue `Verificado`, `Incluido`, `Externo` y `2.0 Original`; no se convierten pruebas pendientes en claims comerciales;
+- no sintetizar negritas ni italicas;
+- no usar tracking negativo;
+- no cargar ningún binario desde `public/fonts/um-sans-2/`, `public/fonts/um-sans-2-display/` ni cualquier corte archivado en `docs/typography/rejected-artifacts/`;
+- preservar cuerpos web visibles de al menos `16px`;
+- verificar siempre tildes, dieresis, ene, signos de apertura, cifras, moneda y tablas;
+- toda nueva aplicacion impresa o PDF debe probar Regular, SemiBold, cifras tabulares y espanol completo antes de publicarse.

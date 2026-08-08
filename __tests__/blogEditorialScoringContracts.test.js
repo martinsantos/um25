@@ -57,4 +57,13 @@ describe('Blog editorial GEO scoring contracts', () => {
     expect(source('src/pages/sitemap-blog.xml.ts')).toContain('diversifyBlogPostCovers');
     expect(source('scripts/blog-cover-diversity-backfill.mjs')).toContain('--apply');
   });
+
+  test('single posts preserve the editorial reading scale on desktop and mobile', () => {
+    const post = source('src/pages/blog/[slug].astro');
+
+    expect(post).toContain('font-size: var(--um-copy-description);');
+    expect(post).toContain('font-size: 1.0625rem;');
+    expect(post).toContain('line-height: 1.78;');
+    expect(post).not.toContain('font-size: clamp(1.02rem, 1.08vw, 1.12rem);');
+  });
 });

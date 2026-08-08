@@ -32,6 +32,7 @@ import {
   sanitizeMarketingCopy,
   truncateEditorialText,
 } from '../../../utils/editorialContent';
+import { excerptEditorialSentences } from '../../../utils/editorialExcerpt';
 import { isReplicaIdenticalCopy, resolveReplicaH1 } from '../../../utils/replicaProdCopy';
 import {
   buildCaseStrategicLinkGroups,
@@ -55,7 +56,6 @@ if (!id || !slugFromUrl) {
 // --- State ---
 let antecedente: any = null;
 let sourceSlug: string | null = null;
-let resolvedFromUm26 = false;
 
 // --- Helper Functions ---
 const getAssetUrl = (assetId: any): string => {
@@ -96,7 +96,6 @@ const getUm26AntecedenteFallback = async (rawId: string): Promise<any | null> =>
   ].filter(Boolean).join('. ');
 
   sourceSlug = source.slug;
-  resolvedFromUm26 = true;
   return {
     id: source.id,
     original_id: source.id,
@@ -121,28 +120,14 @@ const getUm26AntecedenteFallback = async (rawId: string): Promise<any | null> =>
   };
 };
 
-// --- Get data and validate. Directus is preferred; UM26 local archive backs the new evidence grid. ---
+// --- Get data and validate. Public Directus/snapshot records always win over the local archive. ---
 try {
-    const um26Source = await getUm26AntecedenteById(Number(id));
-    const um26Slugs = new Set([
-      um26Source?.slug,
-      um26Source?.title ? generateSlug(um26Source.title) : null,
-    ].filter(Boolean));
+    antecedente = await getAntecedenteConServicios(id);
 
-    antecedente = um26Slugs.has(slugFromUrl)
-      ? await getUm26AntecedenteFallback(id)
-      : await getAntecedenteConServicios(id);
-
-    if (antecedente && !resolvedFromUm26) {
+    if (antecedente) {
         const expectedSlug = generateSlug(antecedente.Titulo);
         if (expectedSlug !== slugFromUrl) {
             return Astro.redirect(`/antecedentes/${id}/${expectedSlug}`, 301);
-        }
-    } else if (antecedente && resolvedFromUm26) {
-        const directSlug = generateSlug(antecedente.Titulo);
-        const validSlugs = new Set([directSlug, sourceSlug].filter(Boolean));
-        if (!validSlugs.has(slugFromUrl)) {
-            return Astro.redirect(`/antecedentes/${id}/${sourceSlug || directSlug}`, 301);
         }
     } else {
         antecedente = await getUm26AntecedenteFallback(id);
@@ -222,7 +207,7 @@ const displayCaseText = (value: unknown) => applyDisplayNameReplacements(value, 
 const caseBodySource = antecedente.displayDescription || antecedente.Descripcion || antecedente.descripcion || '';
 const caseBodyPlain = plainTextFromHtml(caseBodySource, 4000);
 const caseDescriptionHtml = await renderEditorialBody(caseBodySource);
-const rawCaseHeroExcerpt = truncateEditorialText(caseBodySource, 170)
+const rawCaseHeroExcerpt = excerptEditorialSentences(caseBodySource, 176, 3)
   || cleanDisplayText(antecedente.displayTitle || antecedente.Titulo || antecedente.Nombre);
 const caseHeroExcerpt = displayCaseText(rawCaseHeroExcerpt);
 
@@ -404,11 +389,8 @@ const caseHeadlineSource = isReplicaIdenticalCopy()
   ? resolveReplicaH1(Astro.url.pathname, cleanDisplayText(antecedente.displayTitle || antecedente.Titulo || antecedente.Nombre))
   : cleanDisplayText(antecedente.displayTitle || antecedente.Titulo || antecedente.Nombre);
 const baseCaseHeadline = buildCaseHeadline({ ...antecedente, Titulo: caseHeadlineSource });
-const caseHeadline = (() => {
-  const year = formatAntecedenteYear(antecedente.Fecha);
-  const dateContext = year && !baseCaseHeadline.includes(year) ? ` · ${caseDateLabel}` : '';
-  return `${baseCaseHeadline}${dateContext} · UM-${id}`;
-})();
+const caseHeadline = baseCaseHeadline;
+const caseReference = `UM-${id}`;
 const compactCaseTitle = (value: unknown, client?: unknown): string => {
   const title = cleanDisplayText(value)
     .replace(/Sistena/gi, 'Sistema')
@@ -543,7 +525,8 @@ const antecedentePageStructuredData = [
       <div class="case-detail-hero__grid">
         <div class="case-detail-hero__copy">
           <div class:list={['case-detail-label', `is-${caseRecordTone}`]}>
-            <span>{antecedente.Area || 'Proyecto'}</span>
+            <span class="case-detail-label__area">{antecedente.Area || 'Proyecto'}</span>
+            <span class="case-detail-label__reference">{caseReference}</span>
           </div>
 
           <h1>{caseHeadline}</h1>
@@ -988,6 +971,20 @@ const antecedentePageStructuredData = [
 
   .case-detail-label.is-editorial-review::before {
     background: #92400e;
+  }
+
+  .case-detail-label .case-detail-label__area {
+    color: #dc2626 !important;
+  }
+
+  .case-detail-label .case-detail-label__reference {
+    padding-left: 0.7rem;
+    border-left: 1px solid #d5d8dc;
+    color: #6b7280 !important;
+    font-variant-numeric: tabular-nums lining-nums;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
   }
 
   .case-detail-hero__copy h1 {
@@ -1821,6 +1818,10 @@ const antecedentePageStructuredData = [
     .case-detail-label {
       margin-bottom: 0.7rem;
       font-size: 1rem;
+    }
+
+    .case-detail-label .case-detail-label__reference {
+      padding-left: 0.6rem;
     }
 
     .case-detail-hero__copy h1 {

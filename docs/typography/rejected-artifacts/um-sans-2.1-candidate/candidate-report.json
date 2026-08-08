@@ -1,0 +1,25 @@
+{
+  "family": "UM Sans 2 Candidate",
+  "version": "2.1",
+  "status": "rejected-after-human-visual-review",
+  "visualStatus": "failed: malformed lowercase rhythm and inconsistent word texture",
+  "approvedUse": "none",
+  "productionUse": false,
+  "source": "scripts/fonts/build_um_sans_2.py",
+  "style": "ExtraBold 800 Roman",
+  "sha256": "5dec391a584cc7b198a2b771e2011a7fe3e56c762e53337710c2dd188ddd655f",
+  "changes": [
+    "open e counter and terminal separation",
+    "restrained f ascender",
+    "open r shoulder",
+    "balanced t crossbar and terminal",
+    "wider f, j, r and t advances"
+  ],
+  "blocked": [
+    "all runtime and specimen rendering",
+    "production deployment",
+    "body and UI roles",
+    "commercial distribution",
+    "variable font export"
+  ]
+}

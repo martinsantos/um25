@@ -18,6 +18,8 @@ const {
 } = Astro.props;
 
 const truncate = (value: unknown, length = 150) => truncateEditorialText(value, length);
+const serviceExcerpt = (value: unknown, length = 150) => truncate(value, length)
+  .replace(/soluciones integrales/gi, 'arquitectura técnica integrada');
 const sectorSlug = sector.slug || '';
 const sectorDataSlug = sectorSlug === 'gobierno' ? 'gobiernosectorpublico' : sectorSlug;
 const sectorName = sector.nombre || sector.label || sector.pageHeadline || 'Sector';
@@ -36,7 +38,7 @@ const serviceItems = (serviciosRelacionados || []).slice(0, 8);
 const criteriaItems = (valueProps || []).slice(0, 6);
 const heroStats = [
   { label: 'Archivo', value: proofLabel },
-  { label: 'Operacion', value: '24/7' },
+  { label: 'Operación', value: '24/7' },
   { label: 'Antecedentes', value: `${antecedentes.length}+` },
 ];
 const sectorOrder = [
@@ -95,7 +97,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     <div class="sector26-shell">
       <a class="sector26-back" href="/sectores">← Volver a sectores</a>
       <div class="sector26-hero-frame" style={`--sector-accent: ${sectorAccent}`}>
-        {sectorImage && <img src={sectorImage} alt="" loading="eager" fetchpriority="high" decoding="async" />}
+        {sectorImage && <img src={sectorImage} alt="" width="1920" height="1080" loading="eager" fetchpriority="high" decoding="async" />}
         <div class="sector26-hero-frame__veil" aria-hidden="true"></div>
         <div class="sector26-hero-frame__body">
           <p class="sector26-kicker"><span></span>Sector / {sectorNumber}</p>
@@ -133,7 +135,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
           <a href={`/servicios/${item.id}/${item.slug || ''}`} class="um-click-surface sector26-service-card">
             <span>{String(index + 1).padStart(2, '0')}</span>
             <strong>{item.nombre || item.Titulo || 'Servicio'}</strong>
-            <p>{truncate(item.descripcion || item.Descripcion, 138)}</p>
+            <p>{serviceExcerpt(item.descripcion || item.Descripcion, 138)}</p>
             <em class="um-click-action">Ver detalle</em>
           </a>
         ))}
@@ -180,7 +182,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
 
       {leadCase && (
         <a class="um-click-surface sector26-feature-case" href={caseHref(leadCase)}>
-          {leadCase.imageUrl && <img src={leadCase.imageUrl} alt="" loading="lazy" decoding="async" />}
+          {leadCase.imageUrl && <img src={leadCase.imageUrl} alt="" width="1600" height="900" loading="lazy" decoding="async" />}
           <div>
             <p>Caso destacado</p>
             <h3>{leadCase.Cliente || leadCase.Titulo || 'Antecedente destacado'}</h3>
@@ -198,7 +200,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
         {evidenceCases.slice(1).map((item: any, index: number) => (
           <a href={caseHref(item)} class="um-click-surface sector26-case-row">
             <span>{String(index + 2).padStart(2, '0')}</span>
-            {item.imageUrl && <img src={item.imageUrl} alt="" loading="lazy" decoding="async" />}
+            {item.imageUrl && <img src={item.imageUrl} alt="" width="1200" height="900" loading="lazy" decoding="async" />}
             <div>
               <p>Archivo</p>
               <strong>{formatCaseName(item.Cliente || item.Titulo, 'Antecedente')}</strong>
@@ -248,7 +250,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
   }
 
   .sector26-shell {
-    width: min(1336px, calc(100% - 126px));
+    width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
     margin-inline: auto;
   }
 
@@ -265,7 +267,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     margin-bottom: 32px;
     color: rgba(255,255,255,0.78);
     font-family: var(--um-font-mono);
-    font-size: 0.68rem;
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -357,7 +359,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
   .sector26-hero-frame__stats dt {
     color: rgba(255,255,255,0.74);
     font-family: var(--um-font-mono);
-    font-size: 0.58rem;
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -419,7 +421,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     gap: 9px;
     margin-bottom: 28px;
     color: rgba(255,255,255,0.78);
-    font-size: 0.86rem;
+    font-size: 1rem;
     font-weight: 700;
   }
 
@@ -437,7 +439,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     align-items: center;
     gap: 10px;
     color: rgba(255,255,255,0.78);
-    font-size: 0.78rem;
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.1em;
     line-height: 1.2;
@@ -483,7 +485,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     justify-content: center;
     padding: 0 18px;
     color: #fff;
-    font-size: 0.88rem;
+    font-size: 1rem;
     font-weight: 700;
     text-decoration: none;
   }
@@ -507,7 +509,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
   .sector26-proofline dt,
   .sector26-hero__panel dt {
     color: rgba(255,255,255,0.74);
-    font-size: 0.78rem;
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.1em;
     line-height: 1.2;
@@ -557,7 +559,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
   .sector26-hero__panel dd {
     margin: 7px 0 0;
     color: #fff;
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: 700;
     line-height: 1.42;
   }
@@ -638,7 +640,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
   .sector26-criteria-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    border: 1px solid rgba(255,255,255,0.12);
+    border-top: 1px solid rgba(255,255,255,0.12);
   }
 
   .sector26-service-card,
@@ -690,7 +692,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
   .sector26-criteria-grid span,
   .sector26-case-row > span {
     color: #DC2626;
-    font-size: 0.86rem;
+    font-size: 1rem;
     font-weight: 700;
   }
 
@@ -708,7 +710,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
   .sector26-criteria-grid p {
     margin-top: 14px;
     color: rgba(255,255,255,0.76);
-    font-size: 0.98rem;
+    font-size: var(--um-copy-description);
     line-height: 1.56;
   }
 
@@ -796,7 +798,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
   .sector26-feature-case p:first-child,
   .sector26-case-row p {
     color: #DC2626;
-    font-size: 0.78rem;
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -821,6 +823,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     color: #fff;
     font-size: 1rem;
     font-weight: 700;
+    line-height: 1.2;
     text-decoration: none;
   }
 
@@ -850,7 +853,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
 
   .sector26-feature-case dt {
     color: rgba(255,255,255,0.74);
-    font-size: 0.74rem;
+    font-size: 1rem;
     font-weight: 700;
     text-transform: uppercase;
   }
@@ -858,7 +861,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
   .sector26-feature-case dd {
     margin: 5px 0 0;
     color: #fff;
-    font-size: 0.88rem;
+    font-size: 1rem;
     font-weight: 700;
   }
 
@@ -867,7 +870,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     align-items: center;
     margin-top: 20px;
     color: #fff;
-    font-size: 0.9rem;
+    font-size: 1rem;
     text-decoration: underline;
     text-decoration-color: rgba(220,38,38,0.66);
     text-decoration-thickness: 1px;
@@ -896,8 +899,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
   .sector26-case-list {
     display: grid;
     margin-top: 20px;
-    border: 1px solid rgba(255,255,255,0.12);
-    border-bottom: 0;
+    border-top: 1px solid rgba(255,255,255,0.12);
   }
 
   .sector26-case-row {
@@ -969,7 +971,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     display: inline-flex;
     align-items: center;
     color: #fff;
-    font-size: 0.86rem;
+    font-size: 1rem;
     text-decoration: underline;
     text-decoration-color: rgba(220,38,38,0.66);
     text-decoration-thickness: 1px;
@@ -1023,7 +1025,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
 
   .sector26-closing__links span {
     color: #DC2626;
-    font-size: 0.76rem;
+    font-size: 1rem;
     font-weight: 700;
     text-transform: uppercase;
   }
@@ -1060,8 +1062,8 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     }
 
     .sector26-hero-frame h1 {
-      font-size: clamp(2rem, 9.4vw, 2.35rem);
-      line-height: 1.08;
+      font-size: clamp(2.125rem, 5vw, 2.625rem);
+      line-height: 1.1;
     }
 
     .sector26-hero-frame__stats {
@@ -1083,8 +1085,8 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     }
 
     .sector26-hero h1 {
-      font-size: 2.45rem;
-      line-height: 1.02;
+      font-size: 2.625rem;
+      line-height: 1.08;
       overflow-wrap: normal;
       word-break: normal;
       hyphens: none;
@@ -1103,6 +1105,13 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     .sector26-feature-case dl,
     .sector26-closing__links {
       grid-template-columns: 1fr;
+    }
+
+    .sector26-service-card,
+    .sector26-criteria-grid article {
+      min-height: 0;
+      padding: 24px 20px;
+      border-right: 0;
     }
 
     .sector26-feature-case {
@@ -1230,14 +1239,14 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     }
 
     .sector26-hero h1 {
-      font-size: 2rem;
-      line-height: 1.04;
+      font-size: 2.125rem;
+      line-height: 1.08;
     }
   }
 
   @media (max-width: 360px) {
     .sector26-hero h1 {
-      font-size: 1.82rem;
+      font-size: 2.125rem;
     }
   }
 </style>
