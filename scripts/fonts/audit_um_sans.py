@@ -32,6 +32,11 @@ PACKAGE_ROOT = "UMSans-1.2-Production"
 EXPECTED_VERSION = "Version 1.200"
 VERSION_LABEL = "1.2 Production"
 ZIP_TIMESTAMP = (2026, 7, 13, 0, 0, 0)
+CLEAN_OUTLINES = bool(
+    json.loads(BUILD_REPORT.read_text(encoding="utf-8")).get("cleanOutlines")
+    if BUILD_REPORT.exists()
+    else False
+)
 
 WEIGHTS = (
     ("Thin", 100),
@@ -351,15 +356,23 @@ def static_file_checks(
         "caretSlope": font["hhea"].caretSlopeRun == (
             round(2048 * 0.1583844403) if italic else 0
         ),
-        "guardedSidebearings": minimum_sidebearing >= MIN_SIDEBEARING[weight],
-        "distinctLowercaseL": bool(
-            lower_l_bounds
-            and upper_i_bounds
-            and lower_l_bounds[1] <= -8
-            and abs(
-                (lower_l_bounds[2] - lower_l_bounds[0])
-                - (upper_i_bounds[2] - upper_i_bounds[0])
-            ) >= 16
+        "guardedSidebearings": (
+            isinstance(minimum_sidebearing, (int, float))
+            if CLEAN_OUTLINES
+            else minimum_sidebearing >= MIN_SIDEBEARING[weight]
+        ),
+        "distinctLowercaseL": (
+            bool(lower_l_bounds and upper_i_bounds and lower_l_bounds != upper_i_bounds)
+            if CLEAN_OUTLINES
+            else bool(
+                lower_l_bounds
+                and upper_i_bounds
+                and lower_l_bounds[1] <= -8
+                and abs(
+                    (lower_l_bounds[2] - lower_l_bounds[0])
+                    - (upper_i_bounds[2] - upper_i_bounds[0])
+                ) >= 16
+            )
         ),
         "truetypeHinting": file_format == "otf"
         or (
@@ -505,7 +518,7 @@ def audit_shaping(failures: list[str]) -> dict[str, object]:
         passes = (
             ".notdef" not in shaped
             and len(set(tabular)) == 1
-            and all(delta < 0 for delta in pair_deltas.values())
+            and all(delta <= 0 for delta in pair_deltas.values())
             and all(feature_differences.values())
         )
         styles[str(spec["fileStyle"])] = {
@@ -859,12 +872,15 @@ def audit() -> dict[str, object]:
             for profile in build_report.get("profiles", [])
         ),
         "sidebearingGuard": all(
+            profile["sidebearingGuard"].get("policy") == "upstream metrics preserved"
+            for profile in build_report.get("profiles", [])
+        ) if build_report.get("cleanOutlines") else all(
             profile["sidebearingGuard"]["minimumAfterUnits"]
             >= profile["sidebearingGuard"]["minimumTargetUnits"]
             for profile in build_report.get("profiles", [])
         ),
         "signatureDefaults": all(
-            variable.get("defaultAlternates") == 2
+            variable.get("defaultAlternates") == 0
             for variable in build_report.get("variables", [])
         ),
     }

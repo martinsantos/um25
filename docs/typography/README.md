@@ -5,6 +5,11 @@ verificada para impacto, lectura, interfaces, presupuestos, informes y PDF.
 Futura PT continúa reservada al logotipo. Los experimentos procedurales 2.0
 están en cuarentena porque sus contornos fallaron la revisión visual raster.
 
+La build definitiva de 1.2 conserva los contornos y métricas de Inter 4.001:
+no añade glifos, no escala contornos y no aplica alternativos o kerning
+inventados. El gate óptico compara cada glifo publicado con la fuente fijada y
+falla ante cualquier deriva.
+
 ## Portfolio visible
 
 - `http://localhost:4322/estilo/um-sans`
@@ -19,6 +24,8 @@ están en cuarentena porque sus contornos fallaron la revisión visual raster.
 - `../../DESIGN.md`: contrato visual general UMSA.
 - `../../public/fonts/um-sans/build-report.json`: procedencia y métricas.
 - `../../public/fonts/um-sans/qa-report.json`: compuerta técnica.
+- `../../public/fonts/um-sans/optical-audit.json`: equivalencia de contornos,
+  cobertura y shaping sin fallback.
 - `../../public/fonts/um-sans/OFL-1.1.txt`: licencia SIL OFL 1.1 controlante.
 - `release/MARKET-DELIVERABLES.md`: matriz de entrega comparable con una familia comercial.
 - `release/ORIGINALITY-ROADMAP.md`: frontera de originalidad de 1.x y requisitos para 2.0 propietaria.
@@ -77,7 +84,7 @@ fallbacks editoriales accidentales. Requiere el localhost activo.
 
 ## Aprobación
 
-El gate local debe quedar en `status: pass` y FontBakery en cero `ERROR`,
+El gate local debe quedar en `status: pass`, el gate óptico en `status: pass` y FontBakery en cero `ERROR`,
 `FATAL` y `FAIL`. La versión 1.2 está cerrada como release digital reproducible.
 La validación física en Windows, Office, Adobe, Android, iOS e impresión sigue
 siendo necesaria antes de prometer compatibilidad certificada con esos entornos.

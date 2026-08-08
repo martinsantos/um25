@@ -20,7 +20,7 @@ const weights = [
   ['Black', 'BlackItalic'],
 ];
 
-describe('UM Sans 1.2 production family', () => {
+describe('UM Sans 1.2 definitive clean family', () => {
   test('ships 18 static styles and two variable fonts', () => {
     for (const [roman, italic] of weights) {
       for (const style of [roman, italic]) {
@@ -60,12 +60,11 @@ describe('UM Sans 1.2 production family', () => {
     for (const variable of report.variables) {
       expect(variable.axes).toEqual({ opsz: [14, 32], wght: [100, 900] });
       expect(variable.namedInstances).toBe(9);
-      expect(variable.customKerningPairs).toBe(8882);
-      expect(variable.defaultAlternates).toBe(2);
+      expect(variable.customKerningPairs).toBe(0);
+      expect(variable.defaultAlternates).toBe(0);
       expect(variable.lowercaseL).toMatchObject({
         glyph: 'l',
-        sourceAlternate: 'l.ss02',
-        terminalDropUnits: 14,
+        policy: 'upstream contour preserved',
       });
       expect(variable.editorialFeatures).toEqual(expect.arrayContaining([
         'calt', 'frac', 'locl', 'ordn', 'ss01', 'ss08', 'sups', 'tnum', 'zero',
@@ -73,8 +72,7 @@ describe('UM Sans 1.2 production family', () => {
     }
 
     for (const profile of report.profiles) {
-      expect(profile.sidebearingGuard.minimumAfterUnits)
-        .toBeGreaterThanOrEqual(profile.sidebearingGuard.minimumTargetUnits);
+      expect(profile.sidebearingGuard.policy).toBe('upstream metrics preserved');
       expect(profile.hinting.instructedGlyphs).toBeGreaterThanOrEqual(1700);
       expect(profile.hinting.tables).toEqual(['cvt ', 'fpgm', 'prep']);
     }
@@ -109,6 +107,23 @@ describe('UM Sans 1.2 production family', () => {
       expect(Object.values(font.checks).every(Boolean)).toBe(true);
       expect(font.cornerChecks).toHaveLength(8);
     }
+  });
+
+  test('passes the contour-equivalence and no-fallback optical gate', () => {
+    const opticalAudit = JSON.parse(
+      fs.readFileSync(path.join(fontDir, 'optical-audit.json'), 'utf8'),
+    );
+    expect(report.cleanOutlines).toBe(true);
+    expect(report.outlinePolicy).toBe('upstream-contour-equivalent');
+    expect(opticalAudit).toMatchObject({
+      status: 'pass',
+      policy: 'upstream-contour-equivalent',
+      failures: [],
+      details: {
+        roman: { shape: 'pass' },
+        italic: { shape: 'pass' },
+      },
+    });
   });
 
   test('passes FontBakery without fatal, error or fail results', () => {

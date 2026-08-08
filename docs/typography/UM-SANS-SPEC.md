@@ -1,6 +1,8 @@
 # UM Sans 1.2 Production
 
 Estado: familia editorial completa, reproducible y empaquetada para distribución.
+La build definitiva conserva los contornos upstream y queda cerrada contra
+deriva óptica mediante `public/fonts/um-sans/optical-audit.json`.
 
 Portfolio local: `http://localhost:4322/estilo/um-sans`
 Índice de gobierno: `docs/typography/README.md`
@@ -80,14 +82,15 @@ para 700 y `32` para 800–900. En web se usa `font-optical-sizing: auto`.
 | Line gap interno | 0 |
 | Embedding | Instalable (`fsType 0`) |
 
-Decisiones distintivas:
+Decisiones de entrega:
 
-- `l` usa el alternativo con pie y conserva un descenso óptico de terminal en
-  todos los pesos, tamaños ópticos y cursivas para no confundirse con `I` o `1`.
-- `p` y las minúsculas redondas ganan apertura y presencia sin invadir el avance.
-- las cifras reciben mayor anchura óptica; `tnum` conserva avance uniforme;
-- una guarda física por peso evita márgenes accidentales después del hinting;
-- la cursiva es un dibujo real, no una oblicua sintetizada.
+- `l`, `I` y `1` conservan las formas profesionales de Inter 4.001; no se
+  introducen alternativos manuales ni deformaciones locales.
+- Las proporciones, contraformas, sidebearings y cifras se preservan desde la
+  fuente fijada; `tnum` conserva el comportamiento OpenType upstream.
+- El paquete cambia identidad, metadata, formatos, licencia y tooling, no la
+  geometría de los glifos.
+- La cursiva proviene del master itálico real upstream, no de una oblicua CSS.
 
 ## OpenType editorial
 
@@ -96,9 +99,9 @@ La familia conserva, entre otras, estas funciones:
 `aalt`, `calt`, `case`, `dlig`, `frac`, `locl`, `ordn`, `pnum`, `salt`,
 `sinf`, `ss01–ss08`, `subs`, `sups`, `tnum` y `zero`.
 
-GPOS incluye kerning y espaciado de mayúsculas. El pipeline añade 8.882 pares
-para combinaciones de español, vocales acentuadas, signos de apertura,
-puntuación, guiones y alternativos. HarfBuzz verifica cada uno de los 18 cortes.
+GPOS conserva el kerning y el espaciado de mayúsculas upstream. No se agregan
+pares específicos que puedan alterar el color de palabra sin una fuente de
+referencia aprobada. HarfBuzz verifica cada uno de los 18 cortes.
 
 ## Uso web
 
@@ -149,7 +152,9 @@ La precisión también se lee. · l I 1 · p q g y
 La compuerta local abre 58 archivos y verifica nombres, estilos, cobertura,
 ejes, nueve instancias, interpolación en esquinas, itálicas, márgenes, hinting,
 OpenType, shaping, cifras tabulares, rasterización a 11/16/56 px e identidad de
-instalación desktop.
+instalación desktop. El gate óptico compara los contornos publicados con los
+dos masters Inter fijados, rechaza codepoints privados o inadmisibles y da forma
+al corpus español sin `.notdef` ni fallback.
 
 La exportación web a PDF se reproduce con `npm run fonts:audit:um-sans:pdf`.
 Chrome imprime el portfolio completo y Poppler comprueba que

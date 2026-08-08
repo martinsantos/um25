@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Build the complete UM Sans 1.2 Production family.
 
-UM Sans is an OFL derivative of Inter. This pipeline produces a governed
-editorial family instead of a collection of renamed files: nine weights,
-genuine italics, optical-size and weight variable fonts, named static cuts,
-editorial OpenType features, deterministic metadata and a reproducible archive.
+UM Sans is an OFL derivative of Inter. The definitive build preserves the
+upstream outlines and changes only release metadata, packaging and the
+OpenType tables required for a governed web family. It must never invent or
+silently deform a glyph.
 """
 
 from __future__ import annotations
@@ -12,6 +12,7 @@ from __future__ import annotations
 from copy import deepcopy
 import json
 import math
+import os
 import shutil
 import unicodedata
 from pathlib import Path
@@ -49,6 +50,7 @@ VERSION_LABEL = "1.2 Production"
 VERSION = "Version 1.200"
 VERSION_SLUG = "1.2-Production"
 ARCHIVE_NAME = f"UMSans-{VERSION_SLUG}.zip"
+CLEAN_OUTLINES = os.environ.get("UMSANS_CLEAN_OUTLINES", "1") == "1"
 VENDOR = "UMSA"
 FONT_TIMESTAMP = 3_866_745_600
 ZIP_TIMESTAMP = (2026, 7, 13, 0, 0, 0)
@@ -775,11 +777,25 @@ def set_variable_metadata(font: TTFont, italic: bool) -> None:
 def prepare_variable(source: Path, italic: bool) -> tuple[TTFont, dict[str, object]]:
     font = TTFont(source, recalcBBoxes=False, recalcTimestamp=False)
     subset_editorial(font)
-    default_alternates = apply_variable_default_alternates(font)
-    lowercase_l = strengthen_lowercase_l_terminal(font)
-    geometry = apply_variable_geometry(font)
-    set_weight_axis_profile(font)
-    custom_pairs = add_custom_kerning(font)
+    if CLEAN_OUTLINES:
+        default_alternates = 0
+        lowercase_l = {
+            "glyph": "l",
+            "policy": "upstream contour preserved",
+            "adjustedPoints": [],
+        }
+        geometry = {
+            "transformedGlyphs": 0,
+            "profiledGlyphs": 0,
+            "policy": "upstream contours and variation data preserved",
+        }
+        custom_pairs = 0
+    else:
+        default_alternates = apply_variable_default_alternates(font)
+        lowercase_l = strengthen_lowercase_l_terminal(font)
+        geometry = apply_variable_geometry(font)
+        set_weight_axis_profile(font)
+        custom_pairs = add_custom_kerning(font)
     set_variable_metadata(font, italic)
     font.recalcBBoxes = True
     font.recalcTimestamp = False
@@ -1120,7 +1136,13 @@ def main() -> None:
                 inplace=False,
                 optimize=True,
             )
-            sidebearing_report = enforce_optical_sidebearings(static_font, int(spec["weight"]))
+            if CLEAN_OUTLINES:
+                sidebearing_report = {
+                    "adjustments": 0,
+                    "policy": "upstream metrics preserved",
+                }
+            else:
+                sidebearing_report = enforce_optical_sidebearings(static_font, int(spec["weight"]))
             set_static_metadata(static_font, spec, italic)
             _, file_style = style_names(spec, italic)
             stem = f"UMSans-{file_style}"
@@ -1165,15 +1187,24 @@ def main() -> None:
             "upstream": "Inter 4.001",
             "license": "SIL Open Font License 1.1",
             "independentOutlineCopyright": False,
-            "umsaContributions": [
-                "technical I/l disambiguation defaults",
-                "governed optical proportions and width profiles",
-                "weight-axis response curve",
-                "editorial sidebearing guards",
-                "Spanish and technical kerning additions",
-                "commercial naming, metadata, packaging and QA",
-            ],
+            "umsaContributions": (
+                [
+                    "commercial naming, metadata, packaging and QA",
+                    "reproducible source pinning and release engineering",
+                ]
+                if CLEAN_OUTLINES
+                else [
+                    "technical I/l disambiguation defaults",
+                    "governed optical proportions and width profiles",
+                    "weight-axis response curve",
+                    "editorial sidebearing guards",
+                    "Spanish and technical kerning additions",
+                    "commercial naming, metadata, packaging and QA",
+                ]
+            ),
         },
+        "outlinePolicy": "upstream-contour-equivalent" if CLEAN_OUTLINES else "modified-contours",
+        "cleanOutlines": CLEAN_OUTLINES,
         "staticStyles": len(profiles),
         "variableStyles": len(variables),
         "profiles": profiles,

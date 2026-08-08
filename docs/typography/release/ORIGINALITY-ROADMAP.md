@@ -2,11 +2,10 @@
 
 ## Qué es original en UM Sans 1.2
 
-ULTIMA MILLA define y mantiene la dirección, selección de repertorio,
-proporciones ópticas, curvas de peso, alternativos técnicos por defecto,
-tratamiento de `I/l/1`, guardas de espaciado, pares de kerning adicionales,
-naming, metadata, build reproducible, QA, documentación, specimen y marca
-`UM Sans`.
+ULTIMA MILLA define y mantiene la dirección, selección de repertorio, naming,
+metadata, build reproducible, QA, documentación, specimen y marca `UM Sans`.
+La build definitiva no altera los contornos de Inter ni agrega ajustes de
+espaciado que puedan introducir glifos o ritmos no auditados.
 
 Esas decisiones producen una voz corporativa diferenciada y una distribución
 profesional. No borran la genealogía: los masters de origen son Inter 4.001 y
