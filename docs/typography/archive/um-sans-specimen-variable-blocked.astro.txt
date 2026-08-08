@@ -1,0 +1,822 @@
+---
+// Archivo histórico: esta versión cargaba binarios variables bloqueados.
+import LayoutV4 from '../../layouts/LayoutV4.astro';
+
+const weights = [
+  { name: 'Light', value: 300, role: 'Apertura y cita', file: 'Light', italic: 'LightItalic' },
+  { name: 'Regular', value: 400, role: 'Lectura y documentación', file: 'Regular', italic: 'Italic' },
+  { name: 'Medium', value: 500, role: 'Interfaz y metadata', file: 'Medium', italic: 'MediumItalic' },
+  { name: 'SemiBold', value: 600, role: 'Titular editorial', file: 'SemiBold', italic: 'SemiBoldItalic' },
+  { name: 'Bold', value: 700, role: 'Hero, acción y cifra', file: 'Bold', italic: 'BoldItalic' },
+  { name: 'ExtraBold', value: 800, role: 'Campaña controlada', file: 'ExtraBold', italic: 'ExtraBoldItalic' },
+  { name: 'Black', value: 900, role: 'Póster y palabra de impacto', file: 'Black', italic: 'BlackItalic' },
+];
+
+const roles = [
+  { name: 'Hero', value: '56 / 1,02', weight: 700, sample: 'Operaciones que no pueden detenerse.' },
+  { name: 'Título', value: '40 / 1,10', weight: 600, sample: 'Infraestructura con alcance verificable.' },
+  { name: 'Subtítulo', value: '26 / 1,18', weight: 600, sample: 'Del diagnóstico a la operación.' },
+  { name: 'Lead', value: '21 / 1,55', weight: 400, sample: 'Evidencia, alcance y un próximo paso claro.' },
+  { name: 'Cuerpo', value: '18 / 1,66', weight: 400, sample: 'Cada intervención se releva, documenta y entrega.' },
+  { name: 'Interfaz', value: '16 / 1,42', weight: 500, sample: 'Cliente · Sector · Alcance · Año' },
+];
+
+const features = [
+  ['kern', 'AVATAR · TÉCNICA', 'Pares de kerning para titulares, mayúsculas y signos.'],
+  ['liga', 'oficina / fibra', 'Ligaduras estándar sin alterar la lectura técnica.'],
+  ['mark', 'ÁÉÍÓÚÜÑ', 'Anclajes para diacríticos y español completo.'],
+  ['zero', '0 100 2026', 'Cero barrado opcional para datos técnicos inequívocos.'],
+];
+
+const statusLabels = {
+  verified: 'Verificado',
+  included: 'Incluido',
+  external: 'Externo',
+  beta: 'Beta',
+} as const;
+type DeliveryStatus = keyof typeof statusLabels;
+
+const deliverables: Array<{ area: string; output: string; detail: string; status: DeliveryStatus }> = [
+  { area: 'Desktop', output: '14 TTF + 14 OTF', detail: 'Siete pesos en romana y cursiva con nombres propios UM Sans 2.', status: 'verified' },
+  { area: 'Web', output: '14 WOFF2 estáticos', detail: 'Un archivo web por estilo para integración selectiva.', status: 'verified' },
+  { area: 'Variable', output: 'Roman + Italic', detail: 'TTF y WOFF2 con wght 300–900 y opsz 14–72.', status: 'verified' },
+  { area: 'Masters', output: '10 fuentes maestras', detail: 'Cinco ubicaciones por romana y cursiva.', status: 'verified' },
+  { area: 'Fuentes editables', output: '10 UFO + 2 designspace', detail: 'Contornos y modelo de interpolación auditables.', status: 'verified' },
+  { area: 'OpenType', output: 'kern · liga · mark · zero', detail: 'Funciones compiladas en estáticos y variables.', status: 'verified' },
+  { area: 'Repertorio', output: '320 caracteres', detail: '327 glifos por build con español, símbolos y flechas.', status: 'verified' },
+  { area: 'Integridad', output: 'SHA-256 + ZIP', detail: 'Inventario de hashes y paquete determinista.', status: 'verified' },
+  { area: 'Procedencia', output: 'Build independiente', detail: 'El generador no lee ni transforma una fuente de terceros.', status: 'verified' },
+  { area: 'Specimen', output: 'Astro + HTML autónomo', detail: 'Portfolio responsive y archivo portable.', status: 'included' },
+  { area: 'QA estructural', output: 'FontTools + FontBakery', detail: 'Cero ERROR, FATAL o FAIL; seis warnings beta.', status: 'verified' },
+  { area: 'Licencia', output: 'Evaluación interna', detail: 'Uso limitado hasta cerrar revisión jurídica y autoral.', status: 'beta' },
+  { area: 'Contornos', output: 'Limpieza de solapes', detail: 'La construcción modular debe consolidarse antes del release.', status: 'beta' },
+  { area: 'Hinting', output: 'Revisión multirraster', detail: 'Pendiente en Windows y baja densidad.', status: 'beta' },
+  { area: 'Idiomas', output: 'Latin ampliado', detail: 'Español cubierto; Vietnamese, Greek y Cyrillic fuera de esta beta.', status: 'included' },
+  { area: 'Autoría formal', output: 'Atestación firmada', detail: 'La cadena de autoría debe firmarse fuera del build.', status: 'external' },
+  { area: 'Similitud', output: 'Informe independiente', detail: 'Revisión comparativa de mercado pendiente.', status: 'external' },
+  { area: 'Marca', output: 'Búsqueda registral', detail: 'El nombre requiere validación antes de comercializarse.', status: 'external' },
+  { area: 'Compatibilidad', output: 'Matriz física', detail: 'Office, Adobe, Safari/iOS y Android requieren pruebas firmadas.', status: 'external' },
+  { area: 'Release comercial', output: '2.0 Production', detail: 'Solo tras cerrar contornos, hinting, similitud, autoría y plataforma.', status: 'external' },
+];
+
+const compatibility: Array<[string, string, DeliveryStatus]> = [
+  ['Chromium + Astro', 'Variable WOFF2 integrada en localhost', 'verified'],
+  ['FontTools', 'Nombres, ejes, instanciación, repertorio y tablas', 'verified'],
+  ['FontBakery Universal', '0 ERROR · 0 FATAL · 0 FAIL · 6 WARN', 'verified'],
+  ['Firefox', 'WOFF2 preparado; prueba física pendiente', 'external'],
+  ['Windows + Office', 'Instalación y exportación pendientes', 'external'],
+  ['Adobe + preprensa', 'InDesign, Illustrator y PDF/X pendientes', 'external'],
+  ['Safari / iOS', 'Raster, variable y fallback pendientes', 'external'],
+  ['Android', 'Raster, variable y fallback pendientes', 'external'],
+];
+
+const kerningSamples = [
+  'AVATAR · TÉCNICA · VÍNCULO',
+  '¿QUÉ? · ¡OPERACIÓN! · ÑANDÚ',
+  '24/7 · 99,98% · $ 1.234.567,89',
+  'IIl1 · O0 · rn/m · cl/d',
+];
+---
+
+<LayoutV4
+  title="UM Sans 2.0 Original Beta | Specimen integral ULTIMA MILLA"
+  description="Specimen integral de UM Sans 2: familia original beta, pesos, ejes variables, combinaciones editoriales, repertorio, fuentes y QA."
+  noindex={true}
+>
+  <div class="ums-type">
+    <header class="ums-hero">
+      <div class="ums-shell ums-hero__grid">
+        <div>
+          <p class="ums-kicker">Sistema tipográfico · 2.0 Original Beta</p>
+          <h1>UM Sans 2<br /><span>Original</span></h1>
+        </div>
+        <div class="ums-hero__brief">
+          <p>Geometría amplia, terminales directos y masa display firme. Contornos independientes para lectura, evidencia y operación.</p>
+          <div class="ums-actions" aria-label="Descargas principales">
+            <a class="ums-action ums-action--primary" href="/fonts/um-sans-2/UMSans2-2.0-Original-Beta.zip" download>Descargar beta completa</a>
+            <a class="ums-action" href="/fonts/um-sans-2/UMSans2-Variable.ttf" download>Variable TTF</a>
+            <a class="ums-action" href="/fonts/um-sans-2/provenance.json">Ver procedencia</a>
+          </div>
+        </div>
+      </div>
+      <dl class="ums-shell ums-ledger" aria-label="Identidad de la familia">
+        <div><dt>Familia</dt><dd>UM Sans 2</dd></div>
+        <div><dt>Estilos</dt><dd>14 estáticos</dd></div>
+        <div><dt>Ejes</dt><dd>wght + opsz</dd></div>
+        <div><dt>Cobertura</dt><dd>320 caracteres</dd></div>
+        <div><dt>Estado</dt><dd>Original Beta</dd></div>
+      </dl>
+    </header>
+
+    <nav class="ums-index" aria-label="Índice del portfolio tipográfico">
+      <div class="ums-shell">
+        <a href="#concepto">Concepto</a>
+        <a href="#familia">Familia</a>
+        <a href="#variable">Variable</a>
+        <a href="#combinaciones">Combinaciones</a>
+        <a href="#lectura">Lectura</a>
+        <a href="#kerning">Kerning</a>
+        <a href="#opentype">OpenType</a>
+        <a href="#repertorio">Repertorio</a>
+        <a href="#escala">Escala</a>
+        <a href="#entrega">Entrega</a>
+        <a href="#compatibilidad">Compatibilidad</a>
+        <a href="#originalidad">Originalidad</a>
+        <a href="#gobierno">Gobierno</a>
+      </div>
+    </nav>
+
+    <main>
+      <section id="concepto" class="ums-section ums-concept">
+        <div class="ums-shell ums-split">
+          <div>
+            <p class="ums-kicker ums-kicker--red">01 · Concepto</p>
+            <h2>Precisión industrial.<br />Lectura humana.</h2>
+          </div>
+          <div class="ums-prose">
+            <p class="ums-lead">UM Sans 2 nace para que una empresa técnica pueda hablar con autoridad sin sonar rígida ni perder legibilidad.</p>
+            <p>Las formas son geométricas, anchas y redondeadas donde importa; los pesos display ganan presencia sin cerrar las contraformas. Futura PT continúa reservada al logotipo.</p>
+          </div>
+        </div>
+        <div class="ums-shell ums-principles">
+          <article><span>01</span><h3>Original</h3><p>Contornos generados desde primitivas propias, sin leer una fuente upstream.</p></article>
+          <article><span>02</span><h3>Variable</h3><p>Peso 300–900 y tamaño óptico 14–72 en romana y cursiva.</p></article>
+          <article><span>03</span><h3>Operativa</h3><p>Funciona en hero, interfaz, dossier, presupuesto y lectura larga.</p></article>
+        </div>
+      </section>
+
+      <section id="familia" class="ums-section ums-family" aria-labelledby="family-title">
+        <div class="ums-shell ums-section-head">
+          <div>
+            <p class="ums-kicker ums-kicker--red">02 · Familia estática</p>
+            <h2 id="family-title">Siete pesos.<br />Romana y cursiva.</h2>
+          </div>
+          <p>Catorce estilos instalables. La web pública usa 400–700; los extremos completan el sistema editorial y de campaña.</p>
+        </div>
+        <div class="ums-shell ums-weight-list">
+          {weights.map((weight, index) => (
+            <article class="ums-weight" style={`--sample-weight:${weight.value}`}>
+              <div class="ums-weight__meta">
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <strong>{weight.name}</strong>
+                <b>{weight.value}</b>
+                <p>{weight.role}</p>
+              </div>
+              <div class="ums-weight__samples">
+                <p>Última milla, primera evidencia.</p>
+                <p class="ums-weight__italic">Alcance claro, operación continua.</p>
+              </div>
+              <div class="ums-weight__downloads" aria-label={`Descargar ${weight.name}`}>
+                <a href={`/fonts/um-sans-2/UMSans2-${weight.file}.otf`} download>OTF</a>
+                <a href={`/fonts/um-sans-2/UMSans2-${weight.file}.ttf`} download>TTF</a>
+                <a href={`/fonts/um-sans-2/UMSans2-${weight.italic}.woff2`} download>Italic WOFF2</a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="variable" class="ums-section ums-variable" aria-labelledby="variable-title">
+        <div class="ums-shell">
+          <div class="ums-section-head ums-section-head--dark">
+            <div>
+              <p class="ums-kicker">03 · Laboratorio variable</p>
+              <h2 id="variable-title">Una voz continua,<br />no siete saltos.</h2>
+            </div>
+            <p>Probá peso, tamaño óptico y cursiva. La muestra usa el mismo WOFF2 variable integrado en localhost.</p>
+          </div>
+          <div class="ums-variable__controls">
+            <label>
+              <span>Peso <output id="ums-weight-output">700</output></span>
+              <input id="ums-weight" type="range" min="300" max="900" step="10" value="700" />
+            </label>
+            <label>
+              <span>Tamaño óptico <output id="ums-opsz-output">48</output></span>
+              <input id="ums-opsz" type="range" min="14" max="72" step="1" value="48" />
+            </label>
+            <label class="ums-toggle">
+              <input id="ums-italic" type="checkbox" />
+              <span class="ums-toggle__track" aria-hidden="true"><i></i></span>
+              <span>Construcción cursiva beta</span>
+            </label>
+          </div>
+          <p id="ums-variable-sample" class="ums-variable__sample" contenteditable="true" spellcheck="false">Fibra certificada,<br />operación continua.</p>
+          <p class="ums-variable__hint">Muestra editable · wght 300–900 · opsz 14–72</p>
+        </div>
+      </section>
+
+      <section id="combinaciones" class="ums-section ums-combinations" aria-labelledby="combinations-title">
+        <div class="ums-shell ums-section-head">
+          <div>
+            <p class="ums-kicker ums-kicker--red">04 · Specimen de uso</p>
+            <h2 id="combinations-title">Una familia.<br />Cinco registros.</h2>
+          </div>
+          <p>La personalidad se demuestra al sostener marketing, documentación, cifras, interfaz y lectura larga con la misma coherencia.</p>
+        </div>
+        <div class="ums-shell ums-combination-stack">
+          <article class="ums-combo ums-combo--campaign">
+            <p>Servicios IT · desde 2000</p>
+            <h3>Fibra certificada,<br />operación continua.</h3>
+            <span>Redes, seguridad y soporte para operaciones que no pueden detenerse.</span>
+          </article>
+          <article class="ums-combo ums-combo--editorial">
+            <div><p>Informe 06/2026</p><h3>La continuidad se diseña antes de instalar.</h3></div>
+            <div><p>Un relevamiento serio convierte restricciones reales en alcance, materiales, pruebas y responsabilidades verificables.</p><p>La documentación no es un cierre administrativo: es parte de la operación.</p></div>
+          </article>
+          <article class="ums-combo ums-combo--ledger">
+            <div><strong>99,98%</strong><span>disponibilidad mensual</span></div>
+            <div><strong>24/7</strong><span>soporte operativo</span></div>
+            <div><strong>518</strong><span>antecedentes documentados</span></div>
+          </article>
+          <article class="ums-combo ums-combo--interface">
+            <header><p>NOC / OPERACIONES</p><span>ACTIVO</span></header>
+            <dl><div><dt>INC-2847</dt><dd>En curso · prioridad alta</dd></div><div><dt>SLA</dt><dd>01:42 restante</dd></div><div><dt>Responsable</dt><dd>Mesa técnica</dd></div></dl>
+            <button type="button">Abrir incidente</button>
+          </article>
+          <article class="ums-combo ums-combo--quote">
+            <p>“La evidencia permite decidir antes de que la operación se detenga.”</p>
+            <span>Informe ejecutivo · continuidad operativa</span>
+          </article>
+        </div>
+      </section>
+
+      <section id="lectura" class="ums-section ums-reading" aria-labelledby="reading-title">
+        <div class="ums-shell ums-reading__grid">
+          <div>
+            <p class="ums-kicker ums-kicker--red">04 · Lectura</p>
+            <h2 id="reading-title">La precisión también se lee.</h2>
+            <blockquote>“Una red no termina cuando enciende. Termina cuando queda medida, documentada y operable.”</blockquote>
+          </div>
+          <div class="ums-reading__copy">
+            <p>Antes de intervenir, ULTIMA MILLA releva el sitio, sus restricciones, el riesgo y el nivel de continuidad requerido. Esa información define topología, materiales, integración, energía y soporte.</p>
+            <p>UM Sans conserva una altura x generosa, signos de apertura claros y una cursiva con ritmo propio. La l con terminal evita confundirse con I o 1; las cifras tabulares sostienen fechas, CUIT, importes y SLA.</p>
+            <p><em>La cursiva marca una voz secundaria sin perder densidad ni contraste. No es una romana inclinada por el navegador.</em></p>
+          </div>
+        </div>
+      </section>
+
+      <section id="opentype" class="ums-section ums-features" aria-labelledby="features-title">
+        <div class="ums-shell ums-section-head">
+          <div>
+            <p class="ums-kicker ums-kicker--red">05 · OpenType editorial</p>
+            <h2 id="features-title">Funciones que resuelven información real.</h2>
+          </div>
+          <p>Kerning español, ocho sets estilísticos y alternativas técnicas conservadas en romano y cursiva.</p>
+        </div>
+        <div class="ums-shell ums-feature-list">
+          {features.map(([tag, sample, description], index) => (
+            <article>
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <code>{tag}</code>
+              <strong class={`ums-feature--${tag.replace('–', '-')}`}>{sample}</strong>
+              <p>{description}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="repertorio" class="ums-section ums-glyphs" aria-labelledby="glyphs-title">
+        <div class="ums-shell">
+          <p class="ums-kicker">06 · Repertorio</p>
+          <h2 id="glyphs-title">Español completo.<br />Información técnica.</h2>
+          <div class="ums-glyphs__proof">
+            <p>ABCDEFGHIJKLMNÑOPQRSTUVWXYZ</p>
+            <p>abcdefghijklmnñopqrstuvwxyz</p>
+            <p>ÁÉÍÓÚÜÑ áéíóúüñ ¿? ¡! “ ” « »</p>
+            <p class="ums-glyphs__numbers">0123456789 · 24/7 · 99,9% · $ 1.234.567,89</p>
+            <p>€ £ ¥ @ # &amp; © ® ™ ° ± × → ↗</p>
+          </div>
+          <dl class="ums-glyphs__metrics">
+            <div><dt>2048</dt><dd>unidades por em</dd></div>
+            <div><dt>1204</dt><dd>caracteres</dd></div>
+            <div><dt>1900</dt><dd>glifos romanos TTF</dd></div>
+            <div><dt>1862</dt><dd>glifos cursivos TTF</dd></div>
+            <div><dt>8.882</dt><dd>pares de kerning</dd></div>
+            <div><dt>24</dt><dd>features editoriales</dd></div>
+          </dl>
+        </div>
+      </section>
+
+      <section id="escala" class="ums-section ums-scale" aria-labelledby="scale-title">
+        <div class="ums-shell">
+          <div class="ums-section-head">
+            <div>
+              <p class="ums-kicker ums-kicker--red">07 · Escala</p>
+              <h2 id="scale-title">Jerarquía por proporción.</h2>
+            </div>
+            <p>El peso organiza; el espacio y la escala terminan de construir la jerarquía.</p>
+          </div>
+          <div class="ums-role-list">
+            {roles.map((role) => (
+              <article style={`--role-weight:${role.weight}`}>
+                <div><strong>{role.name}</strong><span>{role.value}</span></div>
+                <p>{role.sample}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="aplicaciones" class="ums-section ums-applications" aria-labelledby="applications-title">
+        <div class="ums-shell ums-section-head">
+          <div>
+            <p class="ums-kicker ums-kicker--red">08 · Aplicaciones</p>
+            <h2 id="applications-title">Una familia.<br />Tres contextos.</h2>
+          </div>
+          <p>La identidad editorial debe conservarse al cambiar de pantalla a documento.</p>
+        </div>
+        <div class="ums-shell ums-application-grid">
+          <article class="ums-application ums-application--proposal">
+            <header><strong>ultimamilla<span>.</span>com<span>.</span>ar</strong><em>Propuesta técnica</em></header>
+            <p>UM-2026-014</p>
+            <h3>Red de datos y respaldo operativo</h3>
+            <dl><div><dt>Cliente</dt><dd>Organización industrial</dd></div><div><dt>Plazo</dt><dd>6 semanas</dd></div><div><dt>SLA</dt><dd>99,9%</dd></div></dl>
+          </article>
+          <article class="ums-application ums-application--interface">
+            <p>OPERACIÓN · 24/7</p>
+            <h3>Incidencias activas</h3>
+            <strong>03</strong>
+            <dl><div><dt>Crítica</dt><dd>1</dd></div><div><dt>En curso</dt><dd>2</dd></div><div><dt>Tiempo medio</dt><dd>18 min</dd></div></dl>
+          </article>
+          <article class="ums-application ums-application--report">
+            <p>INFORME EJECUTIVO</p>
+            <h3>Continuidad operativa · junio</h3>
+            <blockquote>“La evidencia permite decidir antes de que la operación se detenga.”</blockquote>
+            <p>Disponibilidad mensual <strong>99,98%</strong></p>
+          </article>
+        </div>
+      </section>
+
+      <section id="entrega" class="ums-section ums-delivery" aria-labelledby="delivery-title">
+        <div class="ums-shell ums-section-head">
+          <div>
+            <p class="ums-kicker ums-kicker--red">09 · Paquete de distribución</p>
+            <h2 id="delivery-title">Una familia de mercado se entrega completa.</h2>
+          </div>
+          <div class="ums-delivery__intro">
+            <p>No alcanza con exportar fuentes. Esta matriz separa cada artefacto que una familia comercial seria debe entregar, documentar o someter a validación externa.</p>
+            <p><strong>Clasificación:</strong> modificación OFL de Inter 4.001. Tiene dirección y modificaciones UMSA, pero no reclama contornos base dibujados desde cero.</p>
+          </div>
+        </div>
+        <div class="ums-shell ums-delivery__list">
+          {deliverables.map((delivery, index) => (
+            <article data-status={delivery.status}>
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <div><strong>{delivery.area}</strong><b>{delivery.output}</b></div>
+              <p>{delivery.detail}</p>
+              <em>{statusLabels[delivery.status]}</em>
+            </article>
+          ))}
+        </div>
+        <div class="ums-shell ums-delivery__links">
+          <a href="/fonts/um-sans/release-manifest.json">Manifest del release</a>
+          <a href="/fonts/um-sans/family-metadata.json">Metadata de familia</a>
+          <a href="/fonts/um-sans/binary-inventory.json">Inventario binario</a>
+          <a href="/fonts/um-sans/variable-model.json">Modelo variable</a>
+          <a href="/fonts/um-sans/embedding-rights.json">Derechos de embedding</a>
+          <a href="/fonts/um-sans/name-table.json">Tabla de nombres</a>
+          <a href="/fonts/um-sans/sbom.spdx.json">SBOM SPDX</a>
+          <a href="/fonts/um-sans/release-provenance.json">Procedencia del build</a>
+          <a href="/fonts/um-sans/unicode-coverage.json">Cobertura Unicode</a>
+          <a href="/fonts/um-sans/webfont-manifest.json">Manifest web</a>
+          <a href="/fonts/um-sans/um-sans-latin-core.css">CSS Latin Core</a>
+          <a href="/fonts/um-sans/CHECKSUMS.sha256">Checksums SHA-256</a>
+          <a href="/fonts/um-sans/fontbakery-report.md">Reporte FontBakery</a>
+        </div>
+      </section>
+
+      <section id="compatibilidad" class="ums-section ums-compatibility" aria-labelledby="compatibility-title">
+        <div class="ums-shell ums-section-head">
+          <div>
+            <p class="ums-kicker ums-kicker--red">10 · Compatibilidad demostrable</p>
+            <h2 id="compatibility-title">Un claim vale lo que vale su evidencia.</h2>
+          </div>
+          <p>La matriz distingue pruebas ejecutadas por el repositorio de validaciones que requieren hardware o aplicaciones externas.</p>
+        </div>
+        <div class="ums-shell ums-compatibility__list">
+          {compatibility.map(([surface, evidence, status]) => (
+            <article data-status={status}>
+              <strong>{surface}</strong>
+              <p>{evidence}</p>
+              <em>{statusLabels[status]}</em>
+            </article>
+          ))}
+        </div>
+        <p class="ums-shell ums-compatibility__note">“Externo” no significa defectuoso: significa que todavía no existe una prueba física firmada y, por lo tanto, no se convierte en promesa comercial.</p>
+      </section>
+
+      <section id="originalidad" class="ums-section ums-originality" aria-labelledby="originality-title">
+        <div class="ums-shell ums-originality__grid">
+          <div>
+            <p class="ums-kicker">11 · Frontera de originalidad</p>
+            <h2 id="originality-title">Definitiva para UMSA.<br />Honesta sobre su genealogía.</h2>
+          </div>
+          <div class="ums-originality__tracks">
+            <article>
+              <span>1.2 Production</span>
+              <h3>Activo corporativo cerrado</h3>
+              <p>Familia OFL profesional, reproducible, instalable y lista para web, interfaz, propuesta, informe y PDF.</p>
+            </article>
+            <article>
+              <span>2.0 Original</span>
+              <h3>Proyecto de dibujo independiente</h3>
+              <p>Masters nuevos, contornos propios, historial de diseño, cadena de autoría, revisión legal y beta multiplataforma.</p>
+            </article>
+          </div>
+        </div>
+        <div class="ums-shell ums-originality__statement">
+          <strong>Renombrar, ensanchar o transformar Inter no crea una fuente original.</strong>
+          <p>La independencia de mercado se demuestra con masters y decisiones de construcción auditables. El brief 2.0 ya define ese trabajo sin falsear el estado de 1.2.</p>
+        </div>
+      </section>
+
+      <section id="gobierno" class="ums-section ums-governance" aria-labelledby="governance-title">
+        <div class="ums-shell ums-governance__grid">
+          <div>
+            <p class="ums-kicker">12 · Gobierno y QA</p>
+            <h2 id="governance-title">Una familia publicable debe poder demostrarse.</h2>
+            <p>El pipeline abre y prueba cada binario. La aprobación no depende de una captura aislada.</p>
+          </div>
+          <dl>
+            <div><dt>1533</dt><dd>checks FontBakery aprobados</dd></div>
+            <div><dt>0</dt><dd>errores, fatal o fail</dd></div>
+            <div><dt>58</dt><dd>binarios auditados</dd></div>
+            <div><dt>54</dt><dd>pruebas de raster</dd></div>
+          </dl>
+        </div>
+        <div class="ums-shell ums-governance__actions">
+          <a class="ums-action ums-action--primary" href="/fonts/um-sans/UMSans-1.2-Production.zip" download>Descargar paquete de producción</a>
+          <a class="ums-action" href="/fonts/um-sans/qa-report.json">Abrir QA técnico</a>
+          <a class="ums-action" href="/fonts/um-sans/fontbakery-report.md">Abrir FontBakery</a>
+          <a class="ums-action" href="/fonts/um-sans/build-report.json">Abrir build report</a>
+          <a class="ums-action" href="/fonts/um-sans/specimen-audit.pdf">Abrir specimen PDF</a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const weight = document.querySelector<HTMLInputElement>('#ums-weight');
+    const opticalSize = document.querySelector<HTMLInputElement>('#ums-opsz');
+    const italic = document.querySelector<HTMLInputElement>('#ums-italic');
+    const sample = document.querySelector<HTMLElement>('#ums-variable-sample');
+    const weightOutput = document.querySelector<HTMLOutputElement>('#ums-weight-output');
+    const opticalOutput = document.querySelector<HTMLOutputElement>('#ums-opsz-output');
+
+    const updateVariableSample = () => {
+      if (!weight || !opticalSize || !italic || !sample || !weightOutput || !opticalOutput) return;
+      sample.style.fontWeight = weight.value;
+      sample.style.fontVariationSettings = `'wght' ${weight.value}, 'opsz' ${opticalSize.value}`;
+      sample.style.fontStyle = italic.checked ? 'italic' : 'normal';
+      weightOutput.value = weight.value;
+      opticalOutput.value = opticalSize.value;
+    };
+
+    weight?.addEventListener('input', updateVariableSample);
+    opticalSize?.addEventListener('input', updateVariableSample);
+    italic?.addEventListener('change', updateVariableSample);
+    updateVariableSample();
+  </script>
+
+  <style>
+    @font-face {
+      font-family: 'UM Sans 2 Variable Proof';
+      src: url('/fonts/um-sans-2/UMSans2-Variable.woff2?v=2.0.0-stroke-fix') format('woff2');
+      font-style: normal;
+      font-weight: 300 900;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'UM Sans 2 Variable Proof';
+      src: url('/fonts/um-sans-2/UMSans2-VariableItalic.woff2?v=2.0.0-stroke-fix') format('woff2');
+      font-style: italic;
+      font-weight: 300 900;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'UM Sans 2 Specimen';
+      src: url('/fonts/um-sans-2/UMSans2-Light.woff2?v=2.0.0-contour-fix') format('woff2');
+      font-style: normal;
+      font-weight: 300;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'UM Sans 2 Specimen';
+      src: url('/fonts/um-sans-2/UMSans2-LightItalic.woff2?v=2.0.0-contour-fix') format('woff2');
+      font-style: italic;
+      font-weight: 300;
+      font-display: swap;
+    }
+
+    @font-face { font-family: 'UM Sans 2 Specimen'; src: url('/fonts/um-sans-2/UMSans2-Regular.otf?v=2.0.0-stroke-fix') format('opentype'); font-style: normal; font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'UM Sans 2 Specimen'; src: url('/fonts/um-sans-2/UMSans2-Italic.woff2?v=2.0.0-contour-fix') format('woff2'); font-style: italic; font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'UM Sans 2 Specimen'; src: url('/fonts/um-sans-2/UMSans2-Medium.woff2?v=2.0.0-contour-fix') format('woff2'); font-style: normal; font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'UM Sans 2 Specimen'; src: url('/fonts/um-sans-2/UMSans2-MediumItalic.woff2?v=2.0.0-contour-fix') format('woff2'); font-style: italic; font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'UM Sans 2 Specimen'; src: url('/fonts/um-sans-2/UMSans2-SemiBold.otf?v=2.0.0-stroke-fix') format('opentype'); font-style: normal; font-weight: 600; font-display: swap; }
+    @font-face { font-family: 'UM Sans 2 Specimen'; src: url('/fonts/um-sans-2/UMSans2-SemiBoldItalic.woff2?v=2.0.0-contour-fix') format('woff2'); font-style: italic; font-weight: 600; font-display: swap; }
+    @font-face { font-family: 'UM Sans 2 Specimen'; src: url('/fonts/um-sans-2/UMSans2-Bold.otf?v=2.0.0-stroke-fix') format('opentype'); font-style: normal; font-weight: 700; font-display: swap; }
+    @font-face { font-family: 'UM Sans 2 Specimen'; src: url('/fonts/um-sans-2/UMSans2-BoldItalic.woff2?v=2.0.0-contour-fix') format('woff2'); font-style: italic; font-weight: 700; font-display: swap; }
+    @font-face { font-family: 'UM Sans 2 Specimen'; src: url('/fonts/um-sans-2/UMSans2-ExtraBold.woff2?v=2.0.0-contour-fix') format('woff2'); font-style: normal; font-weight: 800; font-display: swap; }
+    @font-face { font-family: 'UM Sans 2 Specimen'; src: url('/fonts/um-sans-2/UMSans2-ExtraBoldItalic.woff2?v=2.0.0-contour-fix') format('woff2'); font-style: italic; font-weight: 800; font-display: swap; }
+    @font-face { font-family: 'UM Sans 2 Specimen'; src: url('/fonts/um-sans-2/UMSans2-Black.woff2?v=2.0.0-contour-fix') format('woff2'); font-style: normal; font-weight: 900; font-display: swap; }
+    @font-face { font-family: 'UM Sans 2 Specimen'; src: url('/fonts/um-sans-2/UMSans2-BlackItalic.woff2?v=2.0.0-contour-fix') format('woff2'); font-style: italic; font-weight: 900; font-display: swap; }
+
+    .ums-type {
+      --type-red: #dc2626;
+      --type-ink: #111214;
+      --type-muted: #5e646c;
+      --type-line: #dfe2e5;
+      --type-paper: #fff;
+      --type-soft: #f3f4f5;
+      --skin-text: var(--type-ink);
+      --skin-muted: var(--type-muted);
+      background: var(--type-paper);
+      color: var(--type-ink);
+      font-family: 'UM Sans 2 Specimen', 'UM Sans', 'UM Sans Fallback', Arial, system-ui, sans-serif;
+      font-size: 16px;
+      font-optical-sizing: auto;
+    }
+
+    .ums-type * { box-sizing: border-box; }
+    .ums-type :where(h1, h2, h3, h4, p, dl, dd, blockquote) { margin: 0; }
+    .ums-type :where(h1, h2, h3, h4) { font-family: inherit !important; }
+    .ums-variable__sample { font-family: 'UM Sans 2 Variable Proof', 'UM Sans 2 Specimen', sans-serif !important; }
+    .ums-shell { width: min(1240px, calc(100% - 64px)); margin-inline: auto; }
+    .ums-section { padding-block: 104px; scroll-margin-top: 152px; }
+    .ums-kicker { color: #fff !important; font-size: 16px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .ums-kicker--red { color: var(--type-red) !important; }
+
+    /* The specimen owns its surface contrast. Global skin normalizers must not
+       flatten purpose-built black sections back to the light-skin muted gray. */
+    .ums-hero,
+    .ums-variable,
+    .ums-glyphs,
+    .ums-originality,
+    .ums-governance,
+    .ums-application--interface {
+      --skin-text: #fff;
+      --skin-muted: #c9ccd0;
+    }
+
+    .ums-hero { background: #090a0b; color: #fff; padding: 112px 0 0; }
+    .ums-hero__grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 80px; align-items: end; padding-bottom: 80px; }
+    .ums-hero h1 { margin-top: 22px; font-size: 80px; line-height: .96; font-weight: 700 !important; letter-spacing: 0; }
+    .ums-hero h1 span { color: #a5a8ad; font-style: italic; }
+    .ums-hero__brief { display: grid; gap: 34px; }
+    .ums-hero__brief > p { color: #c9ccd0 !important; font-size: 21px; line-height: 1.58; max-width: 600px; }
+    .ums-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+    .ums-action { min-height: 48px; display: inline-flex; align-items: center; justify-content: center; padding: 12px 18px; border: 1px solid #55585d; color: inherit; font-size: 16px; font-weight: 700; text-decoration: none; transition: background-color .18s ease, color .18s ease, border-color .18s ease; }
+    .ums-action:hover, .ums-action:focus-visible { background: #fff; border-color: #fff; color: #111; }
+    .ums-action--primary { background: var(--type-red); border-color: var(--type-red); color: #fff; }
+    .ums-action--primary:hover, .ums-action--primary:focus-visible { background: #b91c1c; border-color: #b91c1c; color: #fff; }
+    .ums-ledger { display: grid; grid-template-columns: repeat(5, 1fr); margin-inline: auto !important; border-top: 1px solid #2a2c2f; }
+    .ums-ledger > div { padding: 24px 0 28px; border-right: 1px solid #2a2c2f; }
+    .ums-ledger > div + div { padding-left: 24px; }
+    .ums-ledger > div:last-child { border-right: 0; }
+    .ums-ledger dt { color: #74787e; font-size: 16px; }
+    .ums-ledger dd { margin-top: 7px; color: #fff; font-size: 18px; font-weight: 600; }
+
+    .ums-index { position: sticky; top: 72px; z-index: 20; background: rgba(255,255,255,.97); border-bottom: 1px solid var(--type-line); }
+    .ums-index .ums-shell { display: flex; overflow-x: auto; scrollbar-width: none; }
+    .ums-index .ums-shell::-webkit-scrollbar { display: none; }
+    .ums-index a { flex: 0 0 auto; padding: 20px 18px; color: var(--type-muted); font-size: 16px; font-weight: 600; text-decoration: none; border-bottom: 2px solid transparent; }
+    .ums-index a:first-child { padding-left: 0; }
+    .ums-index a:hover, .ums-index a:focus-visible { color: var(--type-ink); border-color: var(--type-red); }
+
+    .ums-split, .ums-section-head { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+    .ums-section h2 { margin-top: 18px; max-width: 760px; font-size: 48px; line-height: 1.08; font-weight: 650; }
+    .ums-prose, .ums-section-head > p { color: var(--type-muted); font-size: 18px; line-height: 1.68; max-width: 650px; }
+    .ums-prose { display: grid; gap: 24px; }
+    .ums-lead { color: var(--type-ink) !important; font-size: 21px; line-height: 1.58; }
+    .ums-principles { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 80px; border-top: 1px solid var(--type-line); }
+    .ums-principles article { padding: 30px 32px 0 0; }
+    .ums-principles article + article { padding-left: 32px; border-left: 1px solid var(--type-line); }
+    .ums-principles span { color: var(--type-red); font-weight: 700; }
+    .ums-principles h3 { margin-top: 20px; font-size: 24px; font-weight: 650; }
+    .ums-principles p { margin-top: 10px; color: var(--type-muted); font-size: 17px; line-height: 1.58; }
+
+    .ums-family { background: var(--type-soft); }
+    .ums-weight-list { margin-top: 64px; border-top: 1px solid #cfd3d7; }
+    .ums-weight { display: grid; grid-template-columns: 220px minmax(0, 1fr) 190px; gap: 34px; align-items: center; min-height: 164px; padding-block: 26px; border-bottom: 1px solid #cfd3d7; }
+    .ums-weight__meta { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: baseline; }
+    .ums-weight__meta span { color: var(--type-red); font-size: 16px; font-weight: 700; }
+    .ums-weight__meta strong { font-size: 18px; font-weight: 650; }
+    .ums-weight__meta b { color: var(--type-muted); font-size: 16px; font-weight: 500; }
+    .ums-weight__meta p { grid-column: 2 / -1; color: var(--type-muted); font-size: 16px; line-height: 1.45; }
+    .ums-weight__samples { min-width: 0; font-weight: var(--sample-weight); font-size: 29px; line-height: 1.2; }
+    .ums-weight__italic { margin-top: 9px !important; color: #6b7077; font-style: italic; font-size: 22px; }
+    .ums-weight__downloads { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; }
+    .ums-weight__downloads a { color: var(--type-muted); font-size: 16px; font-weight: 650; text-decoration: none; border-bottom: 1px solid #aeb3b8; }
+    .ums-weight__downloads a:hover, .ums-weight__downloads a:focus-visible { color: var(--type-red); border-color: var(--type-red); }
+
+    .ums-variable { background: #08090a; color: #fff; }
+    .ums-section-head--dark > p { color: #aaaeb4 !important; }
+    .ums-variable__controls { display: grid; grid-template-columns: 1fr 1fr 230px; gap: 36px; margin-top: 64px; padding-block: 24px; border-block: 1px solid #303236; }
+    .ums-variable__controls label { display: grid; gap: 14px; color: #c9ccd0; font-size: 16px; font-weight: 600; }
+    .ums-variable__controls output { color: #fff; font-variant-numeric: tabular-nums; }
+    .ums-variable__controls input[type='range'] { width: 100%; accent-color: var(--type-red); }
+    .ums-toggle { position: relative; grid-template-columns: 44px 1fr; align-items: center; align-content: center; cursor: pointer; }
+    .ums-toggle input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    .ums-toggle__track { display: flex; align-items: center; width: 42px; height: 24px; padding: 2px; border: 1px solid #666a70; border-radius: 12px; background: #17191c; transition: background-color .18s ease, border-color .18s ease; }
+    .ums-toggle__track i { display: block; width: 18px; height: 18px; border-radius: 50%; background: #c9ccd0; transition: transform .18s ease, background-color .18s ease; }
+    .ums-toggle input:checked + .ums-toggle__track { border-color: var(--type-red); background: var(--type-red); }
+    .ums-toggle input:checked + .ums-toggle__track i { background: #fff; transform: translateX(18px); }
+    .ums-toggle input:focus-visible + .ums-toggle__track { outline: 2px solid #fff; outline-offset: 3px; }
+    .ums-variable__sample { margin-top: 72px !important; max-width: 1120px; color: #fff !important; font-size: 72px; line-height: .98; font-weight: 600; overflow-wrap: anywhere; outline: 0; }
+    .ums-variable__sample:focus { box-shadow: inset 0 -2px var(--type-red); }
+    .ums-variable__hint { margin-top: 40px !important; color: #9a9ea4 !important; font-size: 16px; }
+
+    .ums-reading__grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 100px; }
+    .ums-reading blockquote { margin-top: 52px; padding-left: 24px; border-left: 3px solid var(--type-red); color: #3d4248; font-size: 22px; line-height: 1.55; font-style: italic; }
+    .ums-reading__copy { padding-top: 44px; display: grid; gap: 28px; color: #4f555c; font-size: 20px; line-height: 1.7; }
+    .ums-reading__copy em { color: var(--type-ink); }
+
+    .ums-features { background: var(--type-soft); }
+    .ums-feature-list { margin-top: 64px; border-top: 1px solid #cfd3d7; }
+    .ums-feature-list article { display: grid; grid-template-columns: 50px 100px 1fr 1fr; gap: 28px; align-items: center; min-height: 112px; border-bottom: 1px solid #cfd3d7; }
+    .ums-feature-list span { color: var(--type-red); font-size: 16px; font-weight: 700; }
+    .ums-feature-list code { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 16px; font-weight: 700; }
+    .ums-feature-list strong { font-size: 28px; font-weight: 600; }
+    .ums-feature-list p { color: var(--type-muted); font-size: 17px; line-height: 1.5; }
+    .ums-feature--tnum { font-variant-numeric: tabular-nums; }
+    .ums-feature--frac { font-variant-numeric: diagonal-fractions; }
+    .ums-feature--zero { font-feature-settings: 'zero' 1; }
+    .ums-feature--sups { font-feature-settings: 'sups' 1; }
+    .ums-feature--ordn { font-feature-settings: 'ordn' 1; }
+    .ums-feature--ss01-08 { font-feature-settings: 'ss01' 1, 'ss02' 1, 'ss03' 1, 'ss04' 1, 'ss05' 1, 'ss06' 1, 'ss07' 1, 'ss08' 1; }
+
+    .ums-glyphs { background: #0a0b0c; color: #fff; }
+    .ums-glyphs__proof { margin-top: 56px; padding-block: 38px; border-block: 1px solid #303236; overflow-wrap: anywhere; }
+    .ums-glyphs__proof p { color: #fff !important; font-size: 36px; line-height: 1.45; }
+    .ums-glyphs__proof p + p { margin-top: 12px; }
+  .ums-glyphs__numbers { color: #dc2626 !important; font-variant-numeric: tabular-nums; font-weight: 650; }
+    .ums-glyphs__metrics { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 56px; }
+    .ums-glyphs__metrics > div { padding: 26px 24px 26px 0; border-top: 1px solid #303236; }
+    .ums-glyphs__metrics > div:nth-child(3n + 2), .ums-glyphs__metrics > div:nth-child(3n + 3) { padding-left: 24px; border-left: 1px solid #303236; }
+    .ums-glyphs__metrics dt { font-size: 36px; font-weight: 700; }
+    .ums-glyphs__metrics dd { margin-top: 8px; color: #93979d; font-size: 16px; }
+
+    .ums-role-list { margin-top: 64px; }
+    .ums-role-list article { display: grid; grid-template-columns: 220px 1fr; gap: 40px; align-items: baseline; padding-block: 28px; border-top: 1px solid var(--type-line); }
+    .ums-role-list article:last-child { border-bottom: 1px solid var(--type-line); }
+    .ums-role-list article > div { display: flex; justify-content: space-between; color: var(--type-muted); font-size: 16px; }
+    .ums-role-list article > div strong { color: var(--type-ink); }
+    .ums-role-list article > p { font-size: 30px; line-height: 1.2; font-weight: var(--role-weight); }
+
+    .ums-applications { background: var(--type-soft); }
+    .ums-application-grid { display: grid; grid-template-columns: 1.1fr .9fr .9fr; gap: 24px; margin-top: 64px; align-items: stretch; }
+    .ums-application { min-height: 430px; padding: 32px; background: #fff; }
+    .ums-application h3 { margin-top: 36px; font-size: 29px; line-height: 1.16; font-weight: 650; }
+    .ums-application > p { color: var(--type-muted); font-size: 16px; }
+    .ums-application header { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding-bottom: 24px; border-bottom: 1px solid var(--type-line); }
+    .ums-application header strong { font-family: var(--um-font-logo); font-size: 20px; }
+    .ums-application header strong span { color: var(--type-red); }
+    .ums-application header em { color: var(--type-muted); font-size: 16px; }
+    .ums-application dl { margin-top: 64px; display: grid; gap: 14px; }
+    .ums-application dl div { display: flex; justify-content: space-between; gap: 20px; padding-top: 12px; border-top: 1px solid var(--type-line); }
+    .ums-application dt, .ums-application dd { font-size: 16px; }
+    .ums-application dd { font-weight: 600; text-align: right; }
+    .ums-application--interface { background: #111214; color: #fff; }
+  .ums-application--interface > p { color: #fff !important; font-weight: 700; letter-spacing: .08em; }
+    .ums-application--interface > strong { display: block; margin-top: 44px; font-size: 96px; line-height: .9; }
+    .ums-application--interface dl { margin-top: 54px; }
+    .ums-application--interface dl div { border-color: #323438; }
+    .ums-application--interface dt { color: #989ca2; }
+    .ums-application--report blockquote { margin-top: 70px; font-size: 22px; line-height: 1.52; font-style: italic; }
+    .ums-application--report > p:last-child { margin-top: 52px; padding-top: 18px; border-top: 1px solid var(--type-line); }
+    .ums-application--report > p strong { display: block; margin-top: 8px; color: var(--type-ink); font-size: 32px; }
+
+    .ums-delivery { background: #fff; }
+    .ums-delivery__intro { display: grid; gap: 20px; color: var(--type-muted); font-size: 18px; line-height: 1.62; }
+    .ums-delivery__intro strong { color: var(--type-ink); }
+    .ums-delivery__list { margin-top: 64px; border-top: 1px solid var(--type-line); }
+    .ums-delivery__list article { display: grid; grid-template-columns: 54px 240px minmax(0, 1fr) 138px; gap: 28px; align-items: start; padding-block: 25px; border-bottom: 1px solid var(--type-line); }
+    .ums-delivery__list article > span { color: var(--type-red); font-size: 16px; font-weight: 700; }
+    .ums-delivery__list article > div { display: grid; gap: 5px; }
+    .ums-delivery__list strong { font-size: 20px; font-weight: 650; }
+    .ums-delivery__list b { color: var(--type-muted); font-size: 16px; font-weight: 500; }
+    .ums-delivery__list p { color: var(--type-muted); font-size: 17px; line-height: 1.55; }
+    .ums-delivery__list em, .ums-compatibility__list em { display: flex; align-items: center; gap: 9px; color: var(--type-muted); font-size: 16px; font-style: normal; font-weight: 700; }
+    .ums-delivery__list em::before, .ums-compatibility__list em::before { content: ''; flex: 0 0 auto; width: 8px; height: 8px; background: #565b62; }
+    [data-status='verified'] > em::before { background: #16803b; }
+    [data-status='external'] > em::before { background: #9a6700; }
+    [data-status='original'] > em::before { background: var(--type-red); }
+    .ums-delivery__links { display: flex; flex-wrap: wrap; gap: 22px; margin-top: 34px; }
+    .ums-delivery__links a { color: var(--type-ink); font-size: 16px; font-weight: 650; text-underline-offset: 5px; text-decoration-color: var(--type-red); }
+    .ums-delivery__links a:hover, .ums-delivery__links a:focus-visible { color: var(--type-red); }
+
+    .ums-compatibility { background: var(--type-soft); }
+    .ums-compatibility__list { margin-top: 64px; border-top: 1px solid #cfd3d7; }
+    .ums-compatibility__list article { display: grid; grid-template-columns: 250px minmax(0, 1fr) 150px; gap: 32px; align-items: center; padding-block: 25px; border-bottom: 1px solid #cfd3d7; }
+    .ums-compatibility__list strong { font-size: 20px; font-weight: 650; }
+    .ums-compatibility__list p { color: var(--type-muted); font-size: 17px; line-height: 1.55; }
+    .ums-compatibility__note { margin-top: 34px !important; max-width: 850px; color: var(--type-muted); font-size: 17px; line-height: 1.62; }
+
+    .ums-originality { background: #111214; color: #fff; }
+    .ums-originality__grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 90px; align-items: start; }
+    .ums-originality__tracks { border-top: 1px solid #35383c; }
+    .ums-originality__tracks article { display: grid; grid-template-columns: 145px 1fr; gap: 14px 28px; padding-block: 28px; border-bottom: 1px solid #35383c; }
+    .ums-originality__tracks span { color: #a7abb1; font-size: 16px; font-weight: 700; }
+    .ums-originality__tracks h3 { font-size: 23px; font-weight: 650; }
+    .ums-originality__tracks p { grid-column: 2; color: #c4c7cc !important; font-size: 17px; line-height: 1.6; }
+    .ums-originality__statement { display: grid; grid-template-columns: .9fr 1.1fr; gap: 90px; margin-top: 70px !important; padding-top: 28px; border-top: 1px solid #35383c; }
+    .ums-originality__statement strong { color: #fff; font-size: 21px; line-height: 1.45; }
+    .ums-originality__statement p { color: #c4c7cc !important; font-size: 17px; line-height: 1.62; }
+
+    .ums-governance { background: #08090a; color: #fff; }
+    .ums-governance__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; }
+    .ums-governance__grid > div > p:last-child { margin-top: 28px; max-width: 590px; color: #c4c7cc !important; font-size: 18px; line-height: 1.62; }
+    .ums-governance__grid dl { display: grid; grid-template-columns: 1fr 1fr; }
+    .ums-governance__grid dl div { padding: 28px; border-top: 1px solid #303236; }
+    .ums-governance__grid dl div:nth-child(even) { border-left: 1px solid #303236; }
+    .ums-governance__grid dt { font-size: 44px; font-weight: 700; }
+    .ums-governance__grid dd { margin-top: 8px; color: #92969c; font-size: 16px; }
+    .ums-governance__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 60px; }
+
+    @media (max-width: 900px) {
+      .ums-shell { width: min(100% - 40px, 720px); }
+      .ums-section { padding-block: 76px; }
+      .ums-hero { padding-top: 78px; }
+      .ums-hero__grid, .ums-split, .ums-section-head, .ums-reading__grid, .ums-originality__grid, .ums-originality__statement, .ums-governance__grid { grid-template-columns: 1fr; gap: 38px; }
+      .ums-hero h1 { font-size: 58px; }
+      .ums-ledger { grid-template-columns: repeat(2, 1fr); }
+      .ums-ledger > div { border-bottom: 1px solid #2a2c2f; }
+      .ums-ledger > div + div { padding-left: 20px; }
+      .ums-ledger > div:nth-child(odd) { padding-left: 0; }
+      .ums-ledger > div:nth-child(even) { border-right: 0; }
+      .ums-index { top: 64px; }
+      .ums-principles, .ums-application-grid { grid-template-columns: 1fr; }
+      .ums-principles article + article { padding-left: 0; border-left: 0; }
+      .ums-principles article { padding: 26px 0; border-bottom: 1px solid var(--type-line); }
+      .ums-weight { grid-template-columns: 180px 1fr; }
+      .ums-weight__downloads { grid-column: 2; justify-content: flex-start; }
+      .ums-variable__controls { grid-template-columns: 1fr 1fr; }
+      .ums-toggle { grid-column: 1 / -1; }
+      .ums-feature-list article { grid-template-columns: 40px 80px 1fr; padding-block: 22px; }
+      .ums-feature-list p { grid-column: 3; }
+      .ums-application { min-height: 0; }
+      .ums-delivery__list article { grid-template-columns: 46px 210px minmax(0, 1fr); }
+      .ums-delivery__list article > em { grid-column: 2; }
+      .ums-compatibility__list article { grid-template-columns: 210px minmax(0, 1fr); }
+      .ums-compatibility__list article > em { grid-column: 2; }
+    }
+
+    @media (max-width: 560px) {
+      .ums-shell { width: calc(100% - 40px); }
+      .ums-section { padding-block: 64px; }
+      .ums-hero { padding-top: 56px; }
+      .ums-hero__grid { padding-bottom: 54px; }
+      .ums-hero h1 { font-size: 44px; line-height: 1; }
+      .ums-hero__brief > p { font-size: 18px; }
+      .ums-actions { display: grid; }
+      .ums-action { width: 100%; }
+      .ums-ledger { grid-template-columns: 1fr 1fr; }
+      .ums-ledger > div { padding-block: 20px; }
+      .ums-ledger dd { font-size: 16px; }
+      .ums-index a { padding: 17px 14px; }
+      .ums-section h2 { font-size: 34px; line-height: 1.1; }
+      .ums-lead { font-size: 19px; }
+      .ums-principles { margin-top: 52px; }
+      .ums-weight { grid-template-columns: 1fr; gap: 18px; min-height: 0; padding-block: 28px; }
+      .ums-weight__samples { font-size: 25px; overflow-wrap: anywhere; }
+      .ums-weight__italic { font-size: 20px; }
+      .ums-weight__downloads { grid-column: 1; }
+      .ums-variable__controls { grid-template-columns: 1fr; gap: 28px; }
+      .ums-toggle { grid-column: 1; }
+      .ums-variable__sample { margin-top: 54px !important; font-size: 42px; line-height: 1.02; }
+      .ums-reading blockquote { margin-top: 36px; font-size: 20px; }
+      .ums-reading__copy { padding-top: 0; font-size: 18px; }
+      .ums-feature-list article { grid-template-columns: 34px 1fr; gap: 14px; }
+      .ums-feature-list code { grid-column: 2; }
+      .ums-feature-list strong { grid-column: 1 / -1; font-size: 25px; }
+      .ums-feature-list p { grid-column: 1 / -1; }
+      .ums-glyphs__proof p { font-size: 25px; line-height: 1.5; }
+      .ums-glyphs__metrics { grid-template-columns: 1fr 1fr; }
+      .ums-glyphs__metrics > div:nth-child(3n + 2), .ums-glyphs__metrics > div:nth-child(3n + 3) { padding-left: 0; border-left: 0; }
+      .ums-glyphs__metrics > div:nth-child(even) { padding-left: 18px; border-left: 1px solid #303236; }
+      .ums-glyphs__metrics dt { font-size: 30px; }
+      .ums-role-list article { grid-template-columns: 1fr; gap: 16px; }
+      .ums-role-list article > p { font-size: 25px; }
+      .ums-application { padding: 24px; }
+      .ums-application header { align-items: flex-start; flex-direction: column; }
+      .ums-delivery__list article { grid-template-columns: 34px 1fr; gap: 14px; }
+      .ums-delivery__list article > p { grid-column: 2; }
+      .ums-delivery__list article > em { grid-column: 2; }
+      .ums-delivery__links { display: grid; }
+      .ums-compatibility__list article { grid-template-columns: 1fr; gap: 10px; }
+      .ums-compatibility__list article > em { grid-column: 1; }
+      .ums-originality__tracks article { grid-template-columns: 1fr; gap: 10px; }
+      .ums-originality__tracks p { grid-column: 1; }
+      .ums-governance__grid dl div { padding: 22px 12px 22px 0; }
+      .ums-governance__grid dl div:nth-child(even) { padding-left: 18px; }
+      .ums-governance__grid dt { font-size: 36px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ums-type * { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</LayoutV4>

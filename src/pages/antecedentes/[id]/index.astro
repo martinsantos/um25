@@ -3,8 +3,7 @@
  * Redirect from /antecedentes/[id]/ to /antecedentes/[id]/[slug]
  * This page fetches the antecedente title from Directus to generate the slug
  */
-import { getClient } from '../../../lib/directus.ts';
-import { readItem } from '@directus/sdk';
+import { getAntecedenteConServicios } from '../../../lib/directus.ts';
 import { generateSlug } from '../../../utils/slugUtils';
 import { getAntecedenteById as getUm26AntecedenteById } from '../../../lib/um26-directus';
 
@@ -15,21 +14,16 @@ if (!id) {
 }
 
 try {
-    const um26Item = await getUm26AntecedenteById(Number(id));
-    if (um26Item?.title) {
-        return Astro.redirect(`/antecedentes/${id}/${generateSlug(um26Item.title)}`, 301);
-    }
-
-    const client = getClient();
-    const item = await client.request(
-        readItem('Antecedentes', parseInt(id), {
-            fields: ['id', 'Titulo']
-        })
-    );
+    const item = await getAntecedenteConServicios(id);
 
     if (item && item.Titulo) {
         const slug = generateSlug(item.Titulo);
         return Astro.redirect(`/antecedentes/${id}/${slug}`, 301);
+    }
+
+    const um26Item = await getUm26AntecedenteById(Number(id));
+    if (um26Item?.title) {
+        return Astro.redirect(`/antecedentes/${id}/${generateSlug(um26Item.title)}`, 301);
     }
 } catch (error) {
     console.error(`Error fetching antecedente ${id} for redirect:`, error);

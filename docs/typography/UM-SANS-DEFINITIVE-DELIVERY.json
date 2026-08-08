@@ -1,0 +1,43 @@
+{
+  "family": "UM Sans",
+  "release": "1.2 Production",
+  "policy": "upstream-contour-equivalent",
+  "commit": "3bdfc49e",
+  "branch": "codex/umsans-next-2026-07-29",
+  "source": {
+    "family": "Inter",
+    "version": "4.001",
+    "googleFontsCommit": "ec0464b978de222073645d6d3366f3fdf03376d8",
+    "license": "SIL Open Font License 1.1"
+  },
+  "artifacts": {
+    "package": "public/fonts/um-sans/UMSans-1.2-Production.zip",
+    "checksums": "public/fonts/um-sans/CHECKSUMS.sha256",
+    "manifest": "public/fonts/um-sans/release-manifest.json",
+    "provenance": "public/fonts/um-sans/release-provenance.json",
+    "opticalAudit": "public/fonts/um-sans/optical-audit.json",
+    "qaReport": "public/fonts/um-sans/qa-report.json",
+    "fontBakeryReport": "public/fonts/um-sans/fontbakery-report.json"
+  },
+  "verification": {
+    "files": 58,
+    "staticStyles": 18,
+    "variableStyles": 2,
+    "opticalStatus": "pass",
+    "romanOutlineComparisons": 1899,
+    "italicOutlineComparisons": 1861,
+    "fontBakery": {"pass": 1533, "fail": 0, "error": 0, "fatal": 0},
+    "fontContract": "11/11",
+    "jest": "54 suites / 395 tests",
+    "astroBuild": "pass"
+  },
+  "application": {
+    "specimenRoute": "/estilo/fuente",
+    "demoRoute": "/",
+    "internalSpecimenRoute": "/estilo/um-sans",
+    "cover": "public route includes version, package download and optical QA summary",
+    "quarantinedRoute": "/estilo/um-sans-2-manual",
+    "localCommand": "npm run dev -- --host 127.0.0.1 --port 4322",
+    "productionDeployment": false
+  }
+}

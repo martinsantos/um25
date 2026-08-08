@@ -89,8 +89,8 @@ const rules = [
   {
     id: 'no-title-overweight',
     severity: 'error',
-    pattern: /font-weight:\s*(?:8\d{2}|9\d{2}|760)\b/,
-    message: 'No usar pesos visibles sobre 700. Titulares editoriales maximo 600, enfasis maximo 700.',
+    pattern: /font-weight:\s*(?:9\d{2}|760)\b/,
+    message: 'No usar pesos visibles sobre 800. Solo H1/display gobernado puede llegar a 800; el resto mantiene maximo 700.',
   },
   {
     id: 'no-small-visible-px',

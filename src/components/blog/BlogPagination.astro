@@ -64,7 +64,7 @@ const nextHref = page < totalPages ? `${baseHref}?page=${page + 1}` : null;
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-family: var(--um-font-body, 'Open Sans', system-ui, sans-serif);
+    font-family: var(--um-font-body);
     font-size: 16px;
     font-weight: 500;
     color: #374151;
@@ -79,7 +79,7 @@ const nextHref = page < totalPages ? `${baseHref}?page=${page + 1}` : null;
   .pag-btn--disabled { color: #b7bec8; pointer-events: none; border-color: transparent; }
 
   .pag-info {
-    font-family: var(--um-font-body, 'Open Sans', system-ui, sans-serif);
+    font-family: var(--um-font-body);
     font-size: 16px;
     color: #9ca3af;
   }

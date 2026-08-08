@@ -45,7 +45,7 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
 
 <div class="sectors-demo" aria-labelledby="sectors-demo-title">
   <section class="sectors-demo-hero">
-    <img src={leadImage} alt="" loading="eager" fetchpriority="high" decoding="async" />
+    <img src={leadImage} alt="" width="1920" height="1080" loading="eager" fetchpriority="high" decoding="async" />
     <div class="sectors-demo-hero__shade" aria-hidden="true"></div>
     <div class="sectors-demo-shell sectors-demo-hero__content">
       <p class="sectors-demo-kicker"><span></span>02 / Sectores</p>
@@ -84,7 +84,7 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
   {feature && (
     <section class="sectors-demo-shell">
       <a href={`/${feature.slug}`} class="sectors-demo-feature">
-        <img src={feature.image} alt={feature.imageAlt} loading="eager" decoding="async" />
+        <img src={feature.image} alt={feature.imageAlt} width="1600" height="900" loading="eager" decoding="async" />
         <div class="sectors-demo-feature__shade" aria-hidden="true"></div>
         <div class="sectors-demo-feature__body">
           <p>Sector 01 - {feature.label}</p>
@@ -106,7 +106,7 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
         href={`/${sector.slug}`}
         class:list={['sectors-demo-card', { 'sectors-demo-card--wide': index === 0 || index === 4 }]}
       >
-        <img src={sector.image} alt={sector.imageAlt} loading="lazy" decoding="async" />
+        <img src={sector.image} alt={sector.imageAlt} width="1200" height="900" loading="lazy" decoding="async" />
         <div class="sectors-demo-card__shade" aria-hidden="true"></div>
         <div class="sectors-demo-card__count">
           <span>Casos</span>
@@ -124,8 +124,8 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
 
   <section class="sectors-demo-shell sectors-demo-closing">
     <div>
-      <p class="sectors-demo-kicker"><span></span>Sector no listado?</p>
-      <h2>Trabajamos operaciones criticas en industrias diversas.</h2>
+      <p class="sectors-demo-kicker"><span></span>¿Sector no listado?</p>
+      <h2>Trabajamos en operaciones críticas de industrias diversas.</h2>
     </div>
     <div>
       <a href="/antecedentes">Explorar antecedentes</a>
@@ -142,7 +142,7 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
   }
 
   .sectors-demo-shell {
-    width: min(100% - 64px, 1302px);
+    width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
     margin-inline: auto;
   }
 
@@ -187,7 +187,7 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
     margin: 0 0 18px;
     color: #dc2626;
     font-family: var(--um-font-mono);
-    font-size: 0.72rem;
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.16em;
     text-transform: uppercase;
@@ -204,10 +204,13 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
     margin: 0;
     color: #fff;
     font-family: var(--um-font-display);
-    font-size: clamp(3rem, 6vw, 5.2rem);
-    font-weight: 700;
+    font-size: clamp(2.75rem, 4.2vw, 3.5rem);
+    font-weight: 600;
     letter-spacing: 0;
-    line-height: 0.98;
+    line-height: 1.1;
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: none;
     text-wrap: balance;
   }
 
@@ -215,13 +218,13 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
     max-width: 560px;
     margin: 20px 0 0;
     color: rgba(255,255,255,0.76);
-    font-size: 1.02rem;
+    font-size: var(--um-copy-lead);
     line-height: 1.6;
   }
 
   .sectors-demo-stats {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1px;
     margin-top: 56px;
     margin-bottom: 28px;
@@ -236,7 +239,7 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
   }
 
   .sectors-demo-stats div {
-    min-width: 190px;
+    min-width: 0;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -258,7 +261,7 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
   .sectors-demo-stats span {
     color: #71717a;
     font-family: var(--um-font-mono);
-    font-size: 0.64rem;
+    font-size: 1rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
@@ -280,7 +283,7 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
     padding: 0 14px;
     border: 0;
     color: #a1a1aa;
-    font-size: 0.82rem;
+    font-size: 1rem;
     font-weight: 700;
     text-decoration: none;
     background: transparent;
@@ -302,6 +305,16 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
     text-decoration: none;
     background: #0f0f11;
     border: 1px solid rgba(255,255,255,0.1);
+    transition: border-color 0.18s ease;
+    content-visibility: auto;
+    contain-intrinsic-block-size: 380px;
+  }
+
+  .sectors-demo-feature:hover,
+  .sectors-demo-feature:focus-visible,
+  .sectors-demo-card:hover,
+  .sectors-demo-card:focus-visible {
+    border-color: rgba(220, 38, 38, 0.72);
   }
 
   .sectors-demo-feature {
@@ -345,7 +358,7 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
     margin: 0 0 14px;
     color: #dc2626;
     font-family: var(--um-font-mono);
-    font-size: 0.74rem;
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -356,10 +369,10 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
     margin: 0;
     color: #fff;
     font-family: var(--um-font-display);
-    font-size: clamp(2.45rem, 5vw, 4.25rem);
-    font-weight: 700;
+    font-size: clamp(2.25rem, 3.5vw, 2.75rem);
+    font-weight: 600;
     letter-spacing: 0;
-    line-height: 1;
+    line-height: 1.12;
     text-wrap: balance;
   }
 
@@ -369,7 +382,7 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
     max-width: 620px;
     margin-top: 16px;
     color: rgba(255,255,255,0.72);
-    font-size: 1rem;
+    font-size: var(--um-copy-description);
     line-height: 1.55;
   }
 
@@ -388,7 +401,7 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
     margin-bottom: 4px;
     color: rgba(255,255,255,0.66);
     font-family: var(--um-font-mono);
-    font-size: 0.66rem;
+    font-size: 1rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
   }
@@ -430,7 +443,7 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
   }
 
   .sectors-demo-card__body span {
-    font-size: 0.96rem;
+    font-size: var(--um-copy-description);
   }
 
   .sectors-demo-card__count {
@@ -482,7 +495,7 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
     color: #fff;
     font-family: var(--um-font-display);
     font-size: clamp(1.55rem, 3vw, 2.1rem);
-    line-height: 1.08;
+    line-height: 1.16;
   }
 
   .sectors-demo-closing > div:last-child {
@@ -499,7 +512,7 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
     padding: 0 22px;
     background: #dc2626;
     color: #fff;
-    font-size: 0.92rem;
+    font-size: 1rem;
     font-weight: 700;
     text-decoration: none;
   }
@@ -511,7 +524,7 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
 
   @media (max-width: 980px) {
     .sectors-demo-shell {
-      width: min(100% - 28px, 1302px);
+      width: min(100% - 32px, var(--um-container-wide));
     }
 
     .sectors-demo-hero {
@@ -523,7 +536,13 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
     }
 
     .sectors-demo-hero h1 {
-      font-size: clamp(2.55rem, 12vw, 4.4rem);
+      max-width: 100%;
+      font-size: clamp(2.25rem, 8.8vw, 2.5rem);
+      line-height: 1.1;
+      text-wrap: pretty;
+      overflow-wrap: normal;
+      word-break: normal;
+      hyphens: none;
     }
 
     .sectors-demo-feature,
@@ -543,7 +562,8 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
 
     .sectors-demo-feature__body h2,
     .sectors-demo-card__body h2 {
-      font-size: clamp(2.1rem, 11vw, 3rem);
+      font-size: clamp(1.875rem, 8.5vw, 2.25rem);
+      line-height: 1.1;
     }
 
     .sectors-demo-feature__count {
@@ -567,7 +587,45 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
     }
 
     .sectors-demo-stats div {
-      width: 100%;
+      width: auto;
+      min-height: 72px;
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 7px;
+      padding: 14px 12px;
+    }
+
+    .sectors-demo-stats strong {
+      font-size: 1.45rem;
+    }
+
+    .sectors-demo-stats span {
+      line-height: 1.35;
+      letter-spacing: 0.06em;
+    }
+
+    .sectors-demo-filters {
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .sectors-demo-filters > div {
+      flex-wrap: nowrap;
+      gap: 6px;
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+      scrollbar-width: none;
+      mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 30px), transparent 100%);
+    }
+
+    .sectors-demo-filters > div::-webkit-scrollbar {
+      display: none;
+    }
+
+    .sectors-demo-filter {
+      flex: 0 0 auto;
+      min-height: 44px;
+      padding-inline: 12px;
     }
 
     .sectors-demo-feature,

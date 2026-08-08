@@ -8,6 +8,7 @@ const PORT = Number(process.env.VISUAL_SNAPSHOT_CDP_PORT || 9342);
 const OUT_DIR = process.env.VISUAL_SNAPSHOT_DIR || `/tmp/umsa-visual-snapshots-${new Date().toISOString().replace(/[:.]/g, '-')}`;
 const ROUTE_FILTER = process.env.VISUAL_SNAPSHOT_ROUTE_FILTER ? new RegExp(process.env.VISUAL_SNAPSHOT_ROUTE_FILTER) : null;
 const VIEWPORT_FILTER = process.env.VISUAL_SNAPSHOT_VIEWPORT_FILTER ? new RegExp(process.env.VISUAL_SNAPSHOT_VIEWPORT_FILTER) : null;
+const SCROLL_Y = Number(process.env.VISUAL_SNAPSHOT_SCROLL_Y || 0);
 const CDP_TIMEOUT_MS = Number(process.env.VISUAL_SNAPSHOT_CDP_TIMEOUT_MS || 30000);
 
 const routes = [
@@ -64,6 +65,8 @@ const routes = [
   { path: '/presupuesto-servicios-it-empresas?skin=white', label: 'geo-presupuesto' },
   { path: '/proyectos-ingenieria-it-mendoza', label: 'geo-proyectos-default' },
   { path: '/proyectos-ingenieria-it-mendoza?skin=white', label: 'geo-proyectos' },
+  { path: '/estilo/um-sans', label: 'um-sans-portfolio' },
+  { path: '/estilo/um-sans-2-manual?v=alpha-6-visual', label: 'um-sans-2-manual-alpha-6' },
   { path: '/banners', label: 'lab-banners' },
   { path: '/pretext-demo', label: 'lab-pretext' },
   { path: '/plantilla-arca', label: 'utilidad-arca' },
@@ -133,6 +136,12 @@ async function capture(ws, route, viewport) {
 
   await cdp(ws, 'Page.navigate', { url: buildUrl(route.path) });
   await sleep(1600);
+  if (SCROLL_Y > 0) {
+    await cdp(ws, 'Runtime.evaluate', {
+      expression: `window.scrollTo({ top: ${SCROLL_Y}, behavior: 'instant' })`,
+    });
+    await sleep(180);
+  }
 
   const shot = await cdp(ws, 'Page.captureScreenshot', {
     format: 'png',
@@ -149,7 +158,7 @@ async function capture(ws, route, viewport) {
 async function main() {
   await mkdir(OUT_DIR, { recursive: true });
 
-  const chrome = spawn(CHROME_BIN, [
+  const chromeArgs = [
     '--headless=new',
     '--disable-gpu',
     '--no-first-run',
@@ -160,6 +169,11 @@ async function main() {
     `--remote-debugging-port=${PORT}`,
     `--user-data-dir=/tmp/umsa-visual-snapshots-${PORT}`,
     'about:blank',
+  ];
+  const shellQuote = (value) => `'${String(value).replaceAll("'", "'\\''")}'`;
+  const chrome = spawn('/bin/zsh', [
+    '-lc',
+    `exec ${[CHROME_BIN, ...chromeArgs].map(shellQuote).join(' ')}`,
   ], { stdio: 'ignore' });
 
   try {

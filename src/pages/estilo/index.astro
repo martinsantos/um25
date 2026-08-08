@@ -72,12 +72,15 @@ function loginPage(error?: string): string {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Acceso restringido — ULTIMA MILLA</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" href="/fonts/um-sans/UMSans-Variable.woff2?v=1.2.0-production" as="font" type="font/woff2" crossorigin>
   <style>
+    @font-face { font-family:'UM Sans'; src:url('/fonts/um-sans/UMSans-Variable.woff2?v=1.2.0-production') format('woff2'); font-weight:100 900; font-style:normal; font-display:swap; }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Open Sans', Arial, sans-serif;
+      font-family: 'UM Sans', Arial, system-ui, sans-serif;
+      font-size-adjust: 0.546;
+      font-synthesis: none;
+      font-optical-sizing: auto;
       background: #ffffff;
       color: #111111;
       min-height: 100vh;
@@ -95,7 +98,8 @@ function loginPage(error?: string): string {
       max-width: 430px;
     }
     .logo {
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Futura PT', 'Futura', Arial, sans-serif;
+      font-size-adjust: none;
       font-size: 1.1rem;
       font-weight: 600;
       letter-spacing: 0;
@@ -104,7 +108,7 @@ function loginPage(error?: string): string {
     }
     .logo span { color: #DC2626; }
     h1 {
-      font-family: 'Poppins', sans-serif;
+      font-family: 'UM Sans', Arial, system-ui, sans-serif;
       font-size: clamp(1.7rem, 6vw, 2.1rem);
       font-weight: 600;
       line-height: 1.1;
@@ -121,6 +125,7 @@ function loginPage(error?: string): string {
       margin-bottom: 0.45rem;
     }
     input {
+      font-family: inherit;
       width: 100%;
       min-height: 48px;
       background: #ffffff;
