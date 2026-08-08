@@ -64,6 +64,8 @@ Abrir:
 3. [`http://127.0.0.1:4322/estilo/um-sans`](http://127.0.0.1:4322/estilo/um-sans) — specimen interno noindex para regresión.
 4. [`http://127.0.0.1:4322/estilo/um-sans-2-manual`](http://127.0.0.1:4322/estilo/um-sans-2-manual) — cuarentena histórica; no es la fuente de esta entrega.
 
+La portada pública identifica de forma visible `FINAL DELIVERY · 1.2`, expone el paquete descargable y resume los controles de entrega (`58 archivos`, `PASS` óptico y licencia `OFL`) antes de entrar al specimen.
+
 La verificación visual local realizada en escritorio y viewport móvil de 390 px confirmó: `UM Sans` cargada en Regular y Bold, sin overflow, sin referencias Alpha y sin glifos privados/fallback en la muestra. La prueba visual es una aceptación local reproducible; aún no sustituye una certificación externa en Windows DirectWrite, Office, iOS/Android, Adobe o impresión.
 
 ## Regla de mantenimiento

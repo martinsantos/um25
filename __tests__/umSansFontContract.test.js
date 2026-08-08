@@ -296,6 +296,9 @@ describe('UM Sans 1.2 definitive clean family', () => {
 
     expect(specimen).toContain('noindex={!isPublicRoute}');
     expect(specimen).toContain("Astro.url.pathname === '/estilo/fuente'");
+    expect(specimen).toContain('ums2-coverline');
+    expect(specimen).toContain('FINAL DELIVERY · 1.2');
+    expect(specimen).toContain('ums2-hero-proof');
     expect(publicRoute).toContain("import UMSans from './um-sans.astro';");
     expect(publicRoute).toContain('<UMSans publicRoute />');
     expect(specimen).toContain('UM Sans · sistema tipográfico editorial');

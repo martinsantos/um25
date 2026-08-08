@@ -75,6 +75,11 @@ const repertoire = [
 >
   <div class="ums2" id="contenido-tipografico">
     <header class="ums2-hero" id="concepto">
+      <div class="ums2-shell ums2-coverline" aria-label="Identificación de la entrega">
+        <span class="ums2-coverline__id">ULTIMA MILLA · TYPOGRAPHY SYSTEM</span>
+        <span class="ums2-coverline__status">{isPublicRoute ? 'FINAL DELIVERY · 1.2' : 'INTERNAL SPECIMEN'}</span>
+        <a class="ums2-coverline__download" href="/fonts/um-sans/UMSans-1.2-Production.zip" download>Descargar familia ↗</a>
+      </div>
       <div class="ums2-shell ums2-hero__grid">
         <div>
           <p class="ums2-kicker">UM Sans · sistema tipográfico editorial</p>
@@ -88,6 +93,11 @@ const repertoire = [
             <a class="ums2-button ums2-button--primary" href="#laboratorio">Probar familia editorial</a>
             <a class="ums2-button" href="#combinaciones">Ver combinaciones</a>
             <a class="ums2-link" href="/fonts/um-sans/release-provenance.json">Procedencia ↗</a>
+          </div>
+          <div class="ums2-hero-proof" aria-label="Controles de la entrega">
+            <div><strong>58</strong><span>archivos</span></div>
+            <div><strong>PASS</strong><span>auditoría óptica</span></div>
+            <div><strong>OFL</strong><span>licencia abierta</span></div>
           </div>
         </div>
       </div>
@@ -539,8 +549,11 @@ const repertoire = [
   .ums2-shell { width: min(1180px, calc(100% - 64px)); margin-inline: auto; }
   .ums2 .ums2-kicker { color: var(--ums2-red) !important; font-size: 16px; font-weight: 700; letter-spacing: .12em; line-height: 1.35; text-transform: uppercase; }
 
-  .ums2-hero { color: #fff; background: var(--ums2-black); padding: 104px 0 0; }
-  .ums2-hero__grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 96px; align-items: end; padding-bottom: 80px; }
+  .ums2-hero { color: #fff; background: var(--ums2-black); padding: 0; }
+  .ums2-coverline { display: flex; min-height: 64px; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid rgba(255,255,255,.18); color: rgba(255,255,255,.7); font-size: 14px; font-weight: 700; letter-spacing: .1em; line-height: 1.35; text-transform: uppercase; }
+  .ums2-coverline__status { color: #fff; }
+  .ums2-coverline__download { color: #fff !important; text-decoration: underline; text-decoration-color: var(--ums2-red); text-decoration-thickness: 2px; text-underline-offset: 6px; white-space: nowrap; }
+  .ums2-hero__grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 96px; align-items: end; padding-top: 84px; padding-bottom: 80px; }
   .ums2-hero h1 { margin-top: 24px; font-size: 72px !important; font-weight: 800 !important; letter-spacing: -.025em; line-height: .98 !important; }
   .ums2-hero h1 span { display: block; }
   .ums2-hero h1 .ums2-family-name, .ums2-hero h1 .ums2-state { color: #fff; }
@@ -553,6 +566,10 @@ const repertoire = [
   .ums2-button--primary:hover, .ums2-button--primary:focus-visible { border-color: #fff; background: #fff; color: #111; }
   .ums2-button--blocked { cursor: not-allowed; border-color: rgba(255,255,255,.26); color: rgba(255,255,255,.62); background: transparent; }
   .ums2-link { padding: 12px 4px; color: rgba(255,255,255,.82); font-size: 16px; font-weight: 700; text-underline-offset: 6px; }
+  .ums2-hero-proof { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.18); }
+  .ums2-hero-proof div { display: grid; gap: 4px; }
+  .ums2-hero-proof strong { color: #fff; font-size: 22px; font-weight: 700; line-height: 1; }
+  .ums2-hero-proof span { color: rgba(255,255,255,.62); font-size: 14px; line-height: 1.35; }
   .ums2-ledger { display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid rgba(255,255,255,.18); }
   .ums2-ledger div { min-height: 118px; padding: 24px 24px 24px 0; border-right: 1px solid rgba(255,255,255,.12); }
   .ums2-ledger div + div { padding-left: 24px; }
@@ -776,12 +793,19 @@ const repertoire = [
   @media (max-width: 600px) {
     .ums2-shell { width: calc(100% - 32px); }
     .ums2-kicker { letter-spacing: .08em; }
-    .ums2-hero { padding-top: 48px; }
+        .ums2-coverline { min-height: 58px; align-items: flex-start; flex-wrap: wrap; gap: 10px 18px; padding-block: 18px; font-size: 12px; }
+        .ums2-coverline__id { flex: 1 1 100%; }
+        .ums2-coverline__status { order: 2; }
+        .ums2-coverline__download { order: 3; }
+        .ums2-hero__grid { padding-top: 48px; }
     .ums2-hero h1 { margin-top: 18px; font-size: 46px !important; line-height: 1 !important; }
     .ums2-hero__copy > p { font-size: 19px; }
     .ums2-actions { align-items: stretch; flex-direction: column; }
     .ums2-button { width: 100%; }
-    .ums2-link { text-align: center; }
+        .ums2-link { text-align: center; }
+        .ums2-hero-proof { gap: 12px; }
+        .ums2-hero-proof strong { font-size: 20px; }
+        .ums2-hero-proof span { font-size: 13px; }
     .ums2-ledger div { min-height: 96px; padding: 20px 14px 20px 0; }
     .ums2-ledger div + div { padding-left: 14px; }
     .ums2-ledger dd { font-size: 18px; }
