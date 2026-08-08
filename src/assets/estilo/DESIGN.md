@@ -113,7 +113,7 @@ Regla critica: sobre fondo rojo, usar siempre texto blanco. Negro sobre rojo fal
 | Cuerpo / Datos | UM Sans | Arial, system-ui | 400, 500, 600 |
 | Codigo | Fira Code | Consolas, Courier New | 400 |
 
-El activo completo se documenta en `/estilo/um-sans`,
+El activo completo se documenta en `/estilo/fuente` (la ruta interna de regresión es `/estilo/um-sans`),
 `docs/typography/README.md` y `docs/typography/release/`. Incluye 18 estilos,
 dos variables, kits web, fallback metrico, inventarios, metadata, specimen y QA.
 La clasificacion legal es derivado OFL de Inter 4.001; un 2.0 original exige

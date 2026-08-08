@@ -290,10 +290,14 @@ describe('UM Sans 1.2 definitive clean family', () => {
 
   test('keeps the stable editorial family documented while quarantining the malformed display cut', () => {
     const specimen = fs.readFileSync(path.join(root, 'src/pages/estilo/um-sans.astro'), 'utf8');
+    const publicRoute = fs.readFileSync(path.join(root, 'src/pages/estilo/fuente.astro'), 'utf8');
     const design = fs.readFileSync(path.join(root, 'DESIGN.md'), 'utf8');
     const index = fs.readFileSync(path.join(root, 'docs/typography/README.md'), 'utf8');
 
-    expect(specimen).toContain('noindex={true}');
+    expect(specimen).toContain('noindex={!isPublicRoute}');
+    expect(specimen).toContain("Astro.url.pathname === '/estilo/fuente'");
+    expect(publicRoute).toContain("import UMSans from './um-sans.astro';");
+    expect(publicRoute).toContain('<UMSans publicRoute />');
     expect(specimen).toContain('UM Sans · sistema tipográfico editorial');
     expect(specimen).toContain('prototipo Display original está retirado');
     expect(specimen).toContain('falló ese gate y permanece bloqueado');

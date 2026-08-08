@@ -1,6 +1,12 @@
 ---
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 
+export interface Props {
+  publicRoute?: boolean;
+}
+
+const isPublicRoute = Astro.props.publicRoute === true || Astro.url.pathname === '/estilo/fuente';
+
 const displayWeights = [
   { name: 'Editorial SemiBold', value: 600, role: 'Títulos editoriales' },
   { name: 'Editorial Bold', value: 700, role: 'Acciones y énfasis' },
@@ -45,6 +51,10 @@ const deliverables = [
   ['Externo', 'Plataformas', 'Windows, Office, Adobe, iOS', 'La distribución comercial exige una matriz física firmada.'],
 ] as const;
 
+const publicDeliverables = deliverables.filter(([status, area]) =>
+  status === 'Verificado' || area === 'Legal' || area === 'Plataformas'
+);
+
 const repertoire = [
   'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
   'abcdefghijklmnopqrstuvwxyz',
@@ -57,9 +67,11 @@ const repertoire = [
 ---
 
 <LayoutV4
-  title="UM Sans | Specimen editorial integral"
-  description="Specimen interno del sistema tipográfico UM Sans: familia editorial verificada para impacto, lectura, interfaz y documentación; prototipo Display original bloqueado."
-  noindex={true}
+  title={isPublicRoute ? 'UM Sans | Fuente editorial de ULTIMA MILLA' : 'UM Sans | Specimen editorial integral'}
+  description={isPublicRoute
+    ? 'UM Sans 1.2 Production: familia editorial de ULTIMA MILLA para títulos, lectura, interfaz y documentación.'
+    : 'Specimen interno del sistema tipográfico UM Sans: familia editorial verificada para impacto, lectura, interfaz y documentación; prototipo Display original bloqueado.'}
+  noindex={!isPublicRoute}
 >
   <div class="ums2" id="contenido-tipografico">
     <header class="ums2-hero" id="concepto">
@@ -69,7 +81,9 @@ const repertoire = [
           <h1><span class="ums2-family-name">Fibra certificada,</span><span class="ums2-state">operación continua.</span></h1>
         </div>
         <div class="ums2-hero__copy">
-          <p>Una familia editorial verificada para títulos, lectura, interfaz y documentación. El prototipo Display original está retirado hasta completar un redibujo de calidad tipográfica real.</p>
+          <p>{isPublicRoute
+            ? 'Una familia editorial verificada para títulos, lectura, interfaz y documentación. UM Sans 1.2 Production está lista para integrarse con una jerarquía clara y sin glifos experimentales.'
+            : 'Una familia editorial verificada para títulos, lectura, interfaz y documentación. El prototipo Display original está retirado hasta completar un redibujo de calidad tipográfica real.'}</p>
           <div class="ums2-actions">
             <a class="ums2-button ums2-button--primary" href="#laboratorio">Probar familia editorial</a>
             <a class="ums2-button" href="#combinaciones">Ver combinaciones</a>
@@ -89,7 +103,7 @@ const repertoire = [
     <nav class="ums2-index" aria-label="Índice del specimen">
       <div class="ums2-shell">
         <a href="#familia">Familia</a>
-        <a href="#candidata">Corte rechazado</a>
+        {!isPublicRoute && <a href="#candidata">Corte rechazado</a>}
         <a href="#laboratorio">Laboratorio</a>
         <a href="#combinaciones">Combinaciones</a>
         <a href="#contextos">Contextos</a>
@@ -112,12 +126,14 @@ const repertoire = [
         </div>
         <div class="ums2-prose">
           <p>UM Sans Text 1.2 aporta una estructura consistente desde titulares hasta lectura prolongada. El impacto se obtiene con peso, escala, ancho y espacio, sin deformar glifos.</p>
-          <p>La personalidad no depende de declarar terminada una fuente que todavía falla. El corte original se conserva como investigación bloqueada y no contamina el sistema público.</p>
+          <p>{isPublicRoute
+            ? 'La personalidad se sostiene con proporción, peso y espacio: una voz clara para operaciones que necesitan continuidad.'
+            : 'La personalidad no depende de declarar terminada una fuente que todavía falla. El corte original se conserva como investigación bloqueada y no contamina el sistema público.'}</p>
         </div>
       </div>
     </section>
 
-    <section class="ums2-section ums2-section--candidate" id="candidata">
+    {!isPublicRoute && <section class="ums2-section ums2-section--candidate" id="candidata">
       <div class="ums2-shell ums2-candidate-grid">
         <div>
           <p class="ums2-kicker">02B · Corte rechazado</p>
@@ -131,7 +147,7 @@ const repertoire = [
           <a href="/estilo/um-sans-2-manual">Abrir proyecto manual Alpha 0 →</a>
         </div>
       </div>
-    </section>
+    </section>}
 
     <section class="ums2-section" id="familia">
       <div class="ums2-shell">
@@ -188,12 +204,14 @@ const repertoire = [
       <div class="ums2-shell">
         <div class="ums2-section-head">
           <div><p class="ums2-kicker">03 · Laboratorio editorial</p><h2>Probá tamaño y masa.</h2></div>
-          <p>El laboratorio usa los pesos de impacto de la familia verificada. El prototipo Display original no se carga.</p>
+          <p>{isPublicRoute
+            ? 'El laboratorio usa los pesos de impacto de la familia verificada y permite probar la lectura con textos reales.'
+            : 'El laboratorio usa los pesos de impacto de la familia verificada. El prototipo Display original no se carga.'}</p>
         </div>
-        <div class="ums2-blocker" role="status">
+        {!isPublicRoute && <div class="ums2-blocker" role="status">
           <strong>GATE TIPOGRÁFICO</strong>
           <p>Solo se integra un corte después de revisar palabras, alfabeto, acentos, cifras y pantallas reales. El prototipo original falló ese gate y permanece bloqueado.</p>
-        </div>
+        </div>}
         <form class="ums2-lab-controls" onsubmit="return false">
           <label>
             <span>Peso</span>
@@ -429,7 +447,7 @@ const repertoire = [
           <p>Una familia profesional también se define por la precisión de sus límites.</p>
         </div>
         <div class="ums2-delivery">
-          {deliverables.map(([status, area, output, detail]) => (
+          {(isPublicRoute ? publicDeliverables : deliverables).map(([status, area, output, detail]) => (
             <article>
               <span class:list={['ums2-status', status === 'Verificado' && 'is-ok', status === 'Bloqueado' && 'is-blocked']}>{status}</span>
               <strong>{area}</strong>
@@ -441,13 +459,17 @@ const repertoire = [
         <div class="ums2-delivery-note">
           <div>
             <p class="ums2-kicker">Criterio de promoción</p>
-            <h3>La web usa UM Sans Text 1.2 en todos los roles editoriales.</h3>
+            <h3>{isPublicRoute ? 'UM Sans 1.2 está lista para integrarse en la web.' : 'La web usa UM Sans Text 1.2 en todos los roles editoriales.'}</h3>
           </div>
-          <p>El prototipo Display original quedó retirado por defectos visibles de contorno. Su eventual regreso exige redibujo completo, pruebas raster y revisión independiente; no alcanza con un audit estructural.</p>
+          <p>{isPublicRoute
+            ? 'La entrega incluye procedencia, auditoría óptica, QA estructural, hashes y paquete instalable para una integración controlada.'
+            : 'El prototipo Display original quedó retirado por defectos visibles de contorno. Su eventual regreso exige redibujo completo, pruebas raster y revisión independiente; no alcanza con un audit estructural.'}</p>
         </div>
         <div class="ums2-files">
+          <a href="/fonts/um-sans/UMSans-1.2-Production.zip" download>Descargar familia ↗</a>
           <a href="/fonts/um-sans/release-manifest.json">Release manifest ↗</a>
           <a href="/fonts/um-sans/qa-report.json">QA report ↗</a>
+          <a href="/fonts/um-sans/optical-audit.json">Auditoría óptica ↗</a>
           <a href="/fonts/um-sans/release-provenance.json">Procedencia ↗</a>
           <a href="/fonts/um-sans/CHECKSUMS.sha256">Checksums ↗</a>
           <a href="/fonts/um-sans/specimen-audit.pdf">Text specimen PDF ↗</a>

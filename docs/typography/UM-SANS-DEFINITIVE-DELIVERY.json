@@ -32,8 +32,9 @@
     "astroBuild": "pass"
   },
   "application": {
-    "specimenRoute": "/estilo/um-sans",
+    "specimenRoute": "/estilo/fuente",
     "demoRoute": "/",
+    "internalSpecimenRoute": "/estilo/um-sans",
     "quarantinedRoute": "/estilo/um-sans-2-manual",
     "localCommand": "npm run dev -- --host 127.0.0.1 --port 4322",
     "productionDeployment": false

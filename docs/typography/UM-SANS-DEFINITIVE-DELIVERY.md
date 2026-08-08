@@ -59,9 +59,10 @@ npm run dev -- --host 127.0.0.1 --port 4322
 
 Abrir:
 
-1. [`http://127.0.0.1:4322/estilo/um-sans`](http://127.0.0.1:4322/estilo/um-sans) — muestra completa y controles de lectura.
+1. [`http://127.0.0.1:4322/estilo/fuente`](http://127.0.0.1:4322/estilo/fuente) — ruta pública candidata, muestra completa y controles de lectura.
 2. [`http://127.0.0.1:4322/`](http://127.0.0.1:4322/) — aplicación real con UM Sans aplicada en la interfaz.
-3. [`http://127.0.0.1:4322/estilo/um-sans-2-manual`](http://127.0.0.1:4322/estilo/um-sans-2-manual) — cuarentena histórica; no es la fuente de esta entrega.
+3. [`http://127.0.0.1:4322/estilo/um-sans`](http://127.0.0.1:4322/estilo/um-sans) — specimen interno noindex para regresión.
+4. [`http://127.0.0.1:4322/estilo/um-sans-2-manual`](http://127.0.0.1:4322/estilo/um-sans-2-manual) — cuarentena histórica; no es la fuente de esta entrega.
 
 La verificación visual local realizada en escritorio y viewport móvil de 390 px confirmó: `UM Sans` cargada en Regular y Bold, sin overflow, sin referencias Alpha y sin glifos privados/fallback en la muestra. La prueba visual es una aceptación local reproducible; aún no sustituye una certificación externa en Windows DirectWrite, Office, iOS/Android, Adobe o impresión.
 

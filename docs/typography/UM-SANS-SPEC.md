@@ -4,7 +4,7 @@ Estado: familia editorial completa, reproducible y empaquetada para distribució
 La build definitiva conserva los contornos upstream y queda cerrada contra
 deriva óptica mediante `public/fonts/um-sans/optical-audit.json`.
 
-Portfolio local: `http://localhost:4322/estilo/um-sans`
+Portfolio público local: `http://localhost:4322/estilo/fuente` · regresión interna: `http://localhost:4322/estilo/um-sans`
 Índice de gobierno: `docs/typography/README.md`
 
 ## Propósito

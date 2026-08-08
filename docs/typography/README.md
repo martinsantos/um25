@@ -12,7 +12,8 @@ falla ante cualquier deriva.
 
 ## Portfolio visible
 
-- `http://localhost:4322/estilo/um-sans`
+- `http://localhost:4322/estilo/fuente` (entrega pública)
+- `http://localhost:4322/estilo/um-sans` (regresión interna noindex)
 - La ruta permanece `noindex` durante la aprobación.
 - El portfolio muestra los 18 estilos, los ejes variables, español, funciones
   OpenType, lectura, display, cifras, aplicaciones y gobierno.
