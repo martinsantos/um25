@@ -35,58 +35,114 @@ const blocks = [
   description="Marco de documentación de proyectos, SDI y cableado de ULTIMA MILLA. Certificados y dossiers se entregan bajo solicitud comercial."
   keywords="documentación técnica proyectos IT, SDI Mendoza, cableado estructurado certificación puntos, cumplimiento licitaciones Argentina"
 >
-  <section class="um-container cert-page">
-    <header class="cert-page__hero">
-      <div>
-        <p class="cert-page__eyebrow">Cumplimiento técnico</p>
-        <h1>Documentación técnica para compras, auditorías y licitaciones</h1>
-        <p>
-          Qué puede acreditar ULTIMA MILLA en un proceso de compra y qué no se publica
-          como certificación corporativa sin respaldo verificable.
-        </p>
-        <div class="cert-page__hero-actions">
-          <UMButton href="/contacto">Solicitar documentación</UMButton>
-          <a href="/antecedentes">Ver antecedentes</a>
+  <section class="cert-page">
+    <div class="um-container">
+      <nav class="cert-page__breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Inicio</a>
+        <span aria-hidden="true">/</span>
+        <span>Documentación técnica</span>
+      </nav>
+
+      <header class="cert-page__hero">
+        <div class="cert-page__intro">
+          <p class="cert-page__eyebrow">Cumplimiento técnico</p>
+          <h1>Documentación técnica para compras, auditorías y licitaciones</h1>
+          <p class="cert-page__lead">
+            Qué puede acreditar ULTIMA MILLA en un proceso de compra y qué no se publica
+            como certificación corporativa sin respaldo verificable.
+          </p>
+          <div class="cert-page__hero-actions">
+            <UMButton href="/contacto">Solicitar documentación</UMButton>
+            <a href="/antecedentes">Ver antecedentes</a>
+          </div>
         </div>
-      </div>
+
+        <figure class="cert-page__evidence">
+          <img
+            src="/img/servicios/redes.webp"
+            alt="Equipo de red en operación con enlaces activos"
+            width="1672"
+            height="941"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
+          <figcaption>
+            <span>Evidencia operativa</span>
+            <strong>Pruebas, registro y documentación vinculados al alcance ejecutado.</strong>
+          </figcaption>
+        </figure>
+      </header>
+
       <aside class="cert-page__brief" aria-label="Criterio de documentación">
         <span>Criterio vigente</span>
         <strong>No inventamos sellos. Entregamos respaldo por proyecto cuando corresponde.</strong>
         <p>Dossiers, protocolos y referencias normativas se comparten bajo solicitud comercial.</p>
       </aside>
-    </header>
 
-    <div class="cert-page__ledger" aria-label="Áreas de documentación técnica">
-      {blocks.map((block) => (
-        <article>
-          <span>{block.code}</span>
-          <div>
-            <h2>{block.title}</h2>
-            <p>{block.body}</p>
-          </div>
-          <strong>{block.evidence}</strong>
-        </article>
-      ))}
-    </div>
+      <div class="cert-page__ledger" aria-label="Áreas de documentación técnica">
+        {blocks.map((block) => (
+          <article>
+            <span>{block.code}</span>
+            <div>
+              <h2>{block.title}</h2>
+              <p>{block.body}</p>
+            </div>
+            <strong>{block.evidence}</strong>
+          </article>
+        ))}
+      </div>
 
-    <div class="cert-page__cta">
-      <p>¿Necesita dossier para licitación, seguro o auditoría de proveedor?</p>
-      <UMButton href="/contacto">Solicitar documentación</UMButton>
+      <div class="cert-page__cta">
+        <p>¿Necesita dossier para licitación, seguro o auditoría de proveedor?</p>
+        <UMButton href="/contacto">Solicitar documentación</UMButton>
+      </div>
     </div>
   </section>
 </LayoutV4>
 
 <style>
   .cert-page {
-    padding: clamp(42px, 6vw, 82px) 0 clamp(56px, 7vw, 88px);
+    background: var(--skin-page, #fff);
+    padding: clamp(26px, 3.5vw, 46px) 0 clamp(56px, 7vw, 88px);
+    overflow-x: clip;
+  }
+
+  .cert-page__breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: clamp(28px, 4vw, 48px);
+    color: var(--skin-muted, #5f6368);
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .cert-page__breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .cert-page__breadcrumb a:hover,
+  .cert-page__breadcrumb a:focus-visible {
+    color: var(--um-red);
+  }
+
+  .cert-page__breadcrumb a:focus-visible {
+    outline: 2px solid var(--um-red);
+    outline-offset: 4px;
   }
 
   .cert-page__hero {
     display: grid;
-    grid-template-columns: minmax(0, 0.62fr) minmax(280px, 0.38fr);
-    gap: clamp(28px, 6vw, 86px);
-    align-items: end;
-    padding-bottom: clamp(32px, 5vw, 54px);
+    grid-template-columns: minmax(0, 1.03fr) minmax(360px, 0.8fr);
+    gap: clamp(32px, 5.5vw, 78px);
+    align-items: center;
+    padding-bottom: clamp(32px, 4.5vw, 52px);
+  }
+
+  .cert-page__intro {
+    min-width: 0;
   }
 
   .cert-page__eyebrow {
@@ -121,12 +177,13 @@ const blocks = [
     text-wrap: balance;
   }
 
-  .cert-page__hero p {
+  .cert-page__lead {
     max-width: 58ch;
     margin: 18px 0 0;
     color: var(--skin-muted, #4b5563);
-    font-size: 1.0625rem;
+    font-size: clamp(1.0625rem, 1.4vw, 1.18rem);
     line-height: 1.62;
+    text-wrap: pretty;
   }
 
   .cert-page__hero-actions {
@@ -151,10 +208,56 @@ const blocks = [
     text-underline-offset: 7px;
   }
 
-  .cert-page__brief {
+  .cert-page__hero-actions > a:not(.um-btn-primary):not(.um-btn-secondary):focus-visible {
+    outline: 2px solid var(--um-red);
+    outline-offset: 5px;
+  }
+
+  .cert-page__evidence {
+    min-width: 0;
+    margin: 0;
     background: #080808;
+  }
+
+  .cert-page__evidence img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .cert-page__evidence figcaption {
+    display: grid;
+    gap: 8px;
+    padding: 20px clamp(20px, 2.4vw, 28px) 24px;
     color: #fff;
-    padding: clamp(24px, 3vw, 34px);
+  }
+
+  .cert-page__evidence figcaption span {
+    color: #c9cdd2;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .cert-page__evidence figcaption strong {
+    max-width: 36ch;
+    color: #fff;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    line-height: 1.46;
+  }
+
+  .cert-page__brief {
+    display: grid;
+    grid-template-columns: minmax(140px, 0.24fr) minmax(0, 0.9fr) minmax(240px, 0.62fr);
+    gap: clamp(20px, 3vw, 42px);
+    align-items: start;
+    background: #f2f3f4;
+    color: var(--skin-text, #111);
+    padding: clamp(22px, 3vw, 30px) clamp(22px, 3vw, 34px);
+    border-left: 3px solid var(--um-red);
   }
 
   .cert-page__brief span {
@@ -169,17 +272,19 @@ const blocks = [
 
   .cert-page__brief strong {
     display: block;
-    margin-top: 18px;
-    color: #fff;
+    color: var(--skin-text, #111);
     font-family: var(--um-font-display);
-    font-size: clamp(1.35rem, 2vw, 1.85rem);
+    font-size: clamp(1.2rem, 1.6vw, 1.5rem);
     font-weight: 600;
-    line-height: 1.16;
+    line-height: 1.22;
     text-wrap: balance;
   }
 
   .cert-page__brief p {
-    color: rgba(255,255,255,0.76);
+    margin: 0;
+    color: var(--skin-muted, #4b5563);
+    font-size: 1rem;
+    line-height: 1.55;
   }
 
   .cert-page__ledger {
@@ -271,6 +376,35 @@ const blocks = [
 
     .cert-page__ledger strong {
       grid-column: 1;
+    }
+
+    .cert-page__brief {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .cert-page {
+      padding-top: 22px;
+    }
+
+    .cert-page__breadcrumb {
+      margin-bottom: 26px;
+    }
+
+    .cert-page__hero-actions {
+      align-items: stretch;
+    }
+
+    .cert-page__hero-actions :global(.um-btn-primary),
+    .cert-page__hero-actions > a:not(.um-btn-primary):not(.um-btn-secondary) {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .cert-page__evidence img {
+      aspect-ratio: 16 / 10;
     }
   }
 </style>

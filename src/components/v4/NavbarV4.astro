@@ -34,7 +34,14 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   <div class="um-ops-header__main">
     <div class="um-ops-container um-ops-header__row">
       <a href="/" class="um-ops-logo" aria-label="Ir al inicio">
-        ultimamilla<span>.</span>com<span>.</span>ar
+        <img
+          src="/images/logo-dark.svg"
+          alt=""
+          width="620"
+          height="100"
+          decoding="async"
+          fetchpriority="high"
+        />
       </a>
 
       <nav class="um-ops-nav" aria-label="Navegación principal">
@@ -128,18 +135,18 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
 
   .um-ops-logo {
     flex: 0 0 auto;
-    color: #fff;
-    font-family: var(--um-font-logo);
-    font-size: clamp(1.17rem, 1.4vw, 1.33rem);
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: -0.02em;
+    display: inline-flex;
+    width: clamp(12.625rem, 16.5vw, 14.5rem);
+    min-height: 44px;
+    align-items: center;
     text-decoration: none;
-    white-space: nowrap;
   }
 
-  .um-ops-logo span {
-    color: #dc2626;
+  .um-ops-logo img {
+    display: block;
+    width: 100%;
+    height: auto;
+    transform: translateY(14%);
   }
 
   .um-ops-tag,
@@ -547,7 +554,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     }
 
     .um-ops-logo {
-      font-size: clamp(1.05rem, 5vw, 1.28rem);
+      width: clamp(11.75rem, 56vw, 13.5rem);
     }
 
     .um-ops-ticker {

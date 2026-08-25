@@ -100,13 +100,17 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
         <p class="um26-kicker"><span></span>04 / Evidencia</p>
         <h1 id="evidence-title">
           <span>Evidencia operativa</span>
-          <span>real.<i aria-hidden="true"></i></span>
+          <span>real.</span>
         </h1>
         <p>518 antecedentes con cliente, sector y alcance técnico.</p>
+        <div class="um26-evidence-hero__actions" aria-label="Acciones principales">
+          <a href="#archivo-antecedentes">Explorar el archivo</a>
+          <a href="/contacto">Solicitar relevamiento</a>
+        </div>
       </div>
     </section>
 
-    <main class="um26-shell um26-evidence-main">
+    <div class="um26-shell um26-evidence-main" id="archivo-antecedentes">
       <section class="um26-filters" aria-label="Filtros de antecedentes">
         <label class="um26-search">
           <input type="search" data-um26-search aria-label="Buscar por cliente, sector, servicio o alcance" placeholder="Buscar antecedentes…" />
@@ -280,7 +284,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
         <h2>Sin evidencia que coincida</h2>
         <p>No encontramos antecedentes con los filtros actuales. Probá con menos restricciones o limpiá filtros.</p>
       </section>
-    </main>
+    </div>
 
     <section class="um26-contact">
       <div class="um26-shell">
@@ -473,7 +477,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
 
     .um26-evidence-hero {
       position: relative;
-      min-height: clamp(208px, 18vw, 230px);
+      min-height: clamp(320px, 32vw, 400px);
       display: flex;
       align-items: flex-end;
       overflow: hidden;
@@ -502,7 +506,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
     }
 
     .um26-evidence-hero .um26-shell {
-      padding-block: 0 30px;
+      padding-block: 92px 42px;
     }
 
     .um26-kicker {
@@ -510,7 +514,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       align-items: center;
       gap: 14px;
       margin: 0 0 14px;
-      color: #dc2626;
+      color: rgba(255,255,255,0.82);
       font-family: var(--um-font-mono);
       font-size: 1rem;
       font-weight: 600;
@@ -545,21 +549,6 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       display: inline;
     }
 
-    .um26-evidence-hero h1 i {
-      display: inline-block;
-      width: 8px;
-      height: 0.82em;
-      margin-left: 0.08em;
-      background: #dc2626;
-      transform: translateY(0.08em);
-      animation: um26-blink 1s steps(2, start) infinite;
-    }
-
-    @keyframes um26-blink {
-      0%, 50% { opacity: 1; }
-      51%, 100% { opacity: 0; }
-    }
-
     .um26-evidence-hero p:not(.um26-kicker) {
       max-width: 680px;
       margin: 10px 0 0;
@@ -568,10 +557,44 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       line-height: 1.5;
     }
 
+    .um26-evidence-hero__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .um26-evidence-hero__actions a {
+      display: inline-flex;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      padding: 0 22px;
+      border: 1px solid #dc2626;
+      background: #dc2626;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.2;
+      text-decoration: none;
+      transition: background-color 0.18s ease, border-color 0.18s ease;
+    }
+
+    .um26-evidence-hero__actions a + a {
+      border-color: rgba(255,255,255,0.32);
+      background: rgba(10,10,11,0.34);
+    }
+
+    .um26-evidence-hero__actions a:hover,
+    .um26-evidence-hero__actions a:focus-visible {
+      border-color: #fff;
+    }
+
     .um26-evidence-main {
       position: relative;
       padding-block: 26px 96px;
       background: #0a0a0b;
+      scroll-margin-top: 96px;
     }
 
     :global(body[data-skin]) main.um26-evidence-main {
@@ -795,7 +818,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       color: #fff;
       font-family: var(--um-font-display);
       font-size: 1.82rem;
-      letter-spacing: -0.04em;
+      letter-spacing: 0;
       vertical-align: middle;
     }
 
@@ -1170,7 +1193,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
     .um26-case-card h2 {
       font-size: clamp(1.25rem, 1.6vw, 1.65rem);
       line-height: 1.12;
-      letter-spacing: -0.025em;
+      letter-spacing: 0;
       transition: color 0.18s ease;
     }
 
@@ -1538,7 +1561,7 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
       }
 
       .um26-evidence-hero .um26-shell {
-        padding-block: 92px 18px;
+        padding-block: 92px 28px;
       }
 
       .um26-evidence-hero h1 {
@@ -1551,6 +1574,16 @@ const cases = [...orderedLeadCases, ...fallbackCases].map((item, index) => {
         margin-top: 14px;
         font-size: 1rem;
         line-height: 1.45;
+      }
+
+      .um26-evidence-hero__actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        margin-top: 22px;
+      }
+
+      .um26-evidence-hero__actions a {
+        width: 100%;
       }
 
       .um26-filter-row {

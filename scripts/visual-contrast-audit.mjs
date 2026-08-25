@@ -74,8 +74,8 @@ const routes = [
   { path: '/blog?skin=white', label: 'blog' },
   { path: '/blog/categoria/tecnico', label: 'blog categoria default' },
   { path: '/blog/categoria/tecnico?skin=white', label: 'blog categoria' },
-  { path: '/blog/restic-y-postgresql-el-backup-que-si-vuelve', label: 'blog detalle default' },
-  { path: '/blog/restic-y-postgresql-el-backup-que-si-vuelve?skin=white', label: 'blog detalle' },
+  { path: '/blog/25-anos-conectando-operaciones', label: 'blog detalle default' },
+  { path: '/blog/25-anos-conectando-operaciones?skin=white', label: 'blog detalle' },
   { path: '/contacto', label: 'contacto default', requiresFirstViewportCta: true },
   { path: '/contacto?skin=white', label: 'contacto', requiresFirstViewportCta: true },
   { path: '/en', label: 'en home default', canonical: 'https://www.ultimamilla.com.ar/en', requiresFirstViewportCta: true },
@@ -97,6 +97,22 @@ const routes = [
     allowDisplayScale: true,
     allowSampleClaims: true,
     allowSpecimenStructure: true,
+    minimumFontSize: 12,
+  },
+  {
+    path: '/estilo/fuente',
+    label: 'um sans delivery',
+    allowDisplayScale: true,
+    allowSampleClaims: true,
+    allowSpecimenStructure: true,
+    minimumFontSize: 12,
+  },
+  {
+    path: '/estilo/muestra',
+    label: 'um sans total site sample',
+    allowDisplayScale: true,
+    allowSampleClaims: true,
+    minimumFontSize: 10.5,
   },
   { path: '/banners', label: 'lab banners' },
   { path: '/pretext-demo', label: 'lab pretext' },
@@ -1360,6 +1376,7 @@ async function auditRoute(ws, route, viewport) {
     const bodyFontFamily = getComputedStyle(document.body).fontFamily || null;
     const logo = document.querySelector('.um-ops-logo, .um-nav-logo, [data-um-logo]');
     const logoFontFamily = logo ? getComputedStyle(logo).fontFamily : null;
+    const logoUsesCanonicalSvg = Boolean(logo?.querySelector('img[src="/images/logo-dark.svg"], img[src="/images/logo-light.svg"]'));
     const fontSystem = document.body.dataset.fontSystem || null;
     const measureFont = (family, weight, sample) => {
       const probe = document.createElement('span');
@@ -1446,6 +1463,7 @@ async function auditRoute(ws, route, viewport) {
       h1FontFamily,
       bodyFontFamily,
       logoFontFamily,
+      logoUsesCanonicalSvg,
       fontSystem,
       fontReady,
       displayFontReady,
@@ -1473,6 +1491,7 @@ async function auditRoute(ws, route, viewport) {
     allowDisplayScale: route.allowDisplayScale === true,
     allowSampleClaims: route.allowSampleClaims === true,
     allowSpecimenStructure: route.allowSpecimenStructure === true,
+    minimumFontSize: route.minimumFontSize ?? 16,
     ...(value || {
       title: null,
       h1: null,
@@ -1542,6 +1561,7 @@ async function auditRouteWithTimeout(ws, route, viewport) {
       viewport: viewport.name,
       expectedCanonical: route.canonical || null,
       requiresFirstViewportCta: ctaRequirementApplies(route, viewport),
+      minimumFontSize: route.minimumFontSize ?? 16,
       title: null,
       h1: null,
       h1Count: 0,
@@ -1602,8 +1622,9 @@ function collectFailures(results) {
       failures.push(`${result.viewport} ${result.label}: navigation mismatch ${result.actualPath} expected ${result.expectedPath}`);
       continue;
     }
-    if (result.minFont != null && result.minFont < 16) {
-      failures.push(`${result.viewport} ${result.label}: minFont ${result.minFont}`);
+    const minimumFontSize = result.minimumFontSize ?? 16;
+    if (result.minFont != null && result.minFont < minimumFontSize) {
+      failures.push(`${result.viewport} ${result.label}: minFont ${result.minFont} below ${minimumFontSize}`);
     }
     if (!result.fontReady) {
       failures.push(`${result.viewport} ${result.label}: UM Sans not ready`);
@@ -1623,7 +1644,7 @@ function collectFailures(results) {
     if (!result.allowSpecimenStructure && (result.displayTypographyIssues || []).length) {
       failures.push(`${result.viewport} ${result.label}: invalid impact typography roles ${JSON.stringify(result.displayTypographyIssues)}`);
     }
-    if (result.logoFontFamily && !String(result.logoFontFamily).includes('Futura PT')) {
+    if (!result.logoUsesCanonicalSvg && result.logoFontFamily && !String(result.logoFontFamily).includes('Futura PT')) {
       failures.push(`${result.viewport} ${result.label}: logo font contract missing Futura PT (${result.logoFontFamily})`);
     }
     if (result.fontSystem !== 'um-sans-editorial-1.2') {

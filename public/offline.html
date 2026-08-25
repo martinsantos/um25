@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ULTIMA MILLA - Modo Offline</title>
+    <link rel="preload" href="/fonts/um-sans/UMSans-Variable.woff2?v=1.2.0-production" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/fonts/um-sans/um-sans.css?v=1.2.0-production">
     <style>
         * {
             margin: 0;
@@ -16,11 +18,12 @@
             --um-black: #050505;
             --um-white: #ffffff;
             --um-line: rgba(255, 255, 255, 0.16);
-            --um-muted: rgba(255, 255, 255, 0.72);
+            --um-muted: #c4c7cc;
+            --um-radius: 4px;
         }
 
         body {
-            font-family: 'Open Sans', Arial, system-ui, sans-serif;
+            font-family: var(--um-font-editorial);
             background: var(--um-black);
             color: var(--um-white);
             min-height: 100vh;
@@ -28,16 +31,18 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            font-synthesis: none;
+            text-rendering: optimizeLegibility;
         }
         
         .offline-container {
             text-align: center;
             max-width: 640px;
-            padding: 40px;
+            padding: clamp(32px, 7vw, 56px);
             background: #111111;
-            border-radius: 8px;
+            border-radius: var(--um-radius);
             border: 1px solid var(--um-line);
-            box-shadow: 0 18px 36px rgba(0, 0, 0, 0.42);
+            box-shadow: 0 20px 56px rgba(0, 0, 0, 0.34);
         }
         
         .offline-icon {
@@ -55,12 +60,14 @@
         }
         
         .offline-title {
-            font-family: 'Poppins', 'Futura PT', 'Century Gothic', sans-serif;
-            font-size: clamp(2rem, 6vw, 2.7rem);
+            font-family: var(--um-font-editorial);
+            font-size: clamp(2.25rem, 7vw, 3.25rem);
             font-weight: 600;
-            line-height: 1.08;
+            line-height: 1.02;
             margin-bottom: 16px;
             color: var(--um-white);
+            text-wrap: balance;
+            overflow-wrap: normal;
         }
         
         .offline-message {
@@ -68,6 +75,7 @@
             line-height: 1.6;
             margin-bottom: 30px;
             color: var(--um-muted);
+            text-wrap: pretty;
         }
         
         .feature-list {
@@ -102,10 +110,16 @@
             border-radius: 4px;
             font-size: 1.1rem;
             font-weight: 700;
+            font-family: inherit;
             cursor: pointer;
             transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
             margin: 0 10px 10px 0;
             display: inline-block;
+        }
+
+        .retry-btn:focus-visible {
+            outline: 3px solid var(--um-white);
+            outline-offset: 3px;
         }
         
         .retry-btn:hover {
@@ -129,7 +143,7 @@
         .connection-status {
             margin-top: 30px;
             padding: 15px;
-            border-radius: 4px;
+            border-radius: var(--um-radius);
             font-size: 1rem;
             line-height: 1.45;
         }
@@ -147,11 +161,17 @@
         }
         
         .logo {
-            font-family: 'Futura PT', 'Futura', sans-serif;
-            font-size: 1.2rem;
-            color: var(--um-white);
+            display: block;
+            width: min(230px, 100%);
+            height: auto;
+            margin-inline: auto;
             margin-bottom: 20px;
-            letter-spacing: 0;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .retry-btn {
+                transition: none;
+            }
         }
         
         @media (max-width: 768px) {
@@ -179,7 +199,7 @@
 </head>
 <body>
     <div class="offline-container">
-        <div class="logo">ultimamilla.com.ar</div>
+        <img class="logo" src="/images/logo-dark.svg" alt="ultimamilla.com.ar" width="620" height="100">
         
         <div class="offline-icon">Offline</div>
         

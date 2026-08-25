@@ -1,0 +1,20 @@
+---
+/**
+ * Legacy case-study URLs were backed by demonstration records, not by the
+ * verified Directus evidence archive. Keep the known public paths resolvable
+ * without publishing fictional clients or unsupported outcome claims.
+ */
+const legacyCaseSlugs = new Set([
+  'transformacion-digital-retail',
+  'seguridad-financiera',
+  'cloud-manufacturing',
+]);
+
+const slug = Astro.params.slug || '';
+
+if (legacyCaseSlugs.has(slug)) {
+  return Astro.redirect('/antecedentes', 301);
+}
+
+return Astro.rewrite('/404');
+---

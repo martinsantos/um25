@@ -68,7 +68,7 @@
   --um-display-weight: 600;
   --um-display-emphasis-weight: 700;
   --um-hero-weight: 700;
-  --um-display-tracking: -0.025em;
+  --um-display-tracking: 0;
   --um-display-line-height: 1;
   --um-heading-h2-line-height: 1.12;
   --um-heading-h3-line-height: 1.14;
@@ -2249,7 +2249,8 @@ body[data-skin="white"] main :where(.blog-index, .blog-cat) {
   font-weight: var(--um-hero-weight) !important;
   letter-spacing: var(--um-display-tracking) !important;
   text-wrap: balance;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  hyphens: none;
   word-break: normal;
 }
 
@@ -2266,7 +2267,8 @@ body[data-skin="white"] main :where(.blog-index, .blog-cat) {
   font-weight: 600 !important;
   letter-spacing: 0 !important;
   text-wrap: balance;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  hyphens: none;
   word-break: normal;
 }
 
@@ -2352,7 +2354,7 @@ body[data-skin="white"] main :where(.blog-index, .blog-cat) {
     max-width: 100% !important;
     font-size: clamp(2.125rem, 7.25vw, 2.5rem) !important;
     line-height: 1.15 !important;
-    overflow-wrap: anywhere !important;
+    overflow-wrap: normal !important;
     word-break: normal !important;
   }
 }
@@ -2484,7 +2486,7 @@ body[data-skin] main :where(
   ) {
     font-size: clamp(2.125rem, 7.25vw, 2.5rem) !important;
     line-height: 1.15 !important;
-    overflow-wrap: anywhere !important;
+    overflow-wrap: normal !important;
     word-break: normal !important;
   }
 
@@ -3553,16 +3555,18 @@ body[data-skin] main :where(
   }
 }
 
-/* UM Sans 2 editorial integration gate.
-   The original display cut is intentionally limited to large headings. Text,
-   UI, metadata and compact card titles stay on the verified UM Sans Text cut. */
+/* UM Sans 1.2 production role boundary.
+   The rejected 2.x cuts remain quarantined; every public editorial role uses
+   the verified UM Sans Text family and keeps ordinary words intact. */
 body main :where(h1, .um-heading-xl, .hero-title, .page-title):not(.ums2 *) {
   font-family: var(--um-font-impact) !important;
-  font-size: var(--um-world-h1) !important;
   font-weight: var(--um-hero-weight) !important;
   line-height: 1.02 !important;
-  letter-spacing: 0 !important;
+  letter-spacing: var(--um-display-tracking) !important;
   text-wrap: balance;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  hyphens: none !important;
 }
 
 /* Role boundary with enough specificity to beat page-scoped legacy rules.
@@ -3578,11 +3582,13 @@ body[data-font-system][data-skin] main :is(h2, h3, h4, h5, h6) {
 
 body main :where(h2, .um-heading-lg, .section-title):not(.ums2 *) {
   font-family: var(--um-font-body) !important;
-  font-size: var(--um-world-h2) !important;
   font-weight: 600 !important;
   line-height: var(--um-heading-h2-line-height) !important;
   letter-spacing: 0 !important;
   text-wrap: balance;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  hyphens: none !important;
 }
 
 body main :where(h3, h4, h5, h6, .um-heading-md, .feed-title, .card-title):not(.ums2 *) {

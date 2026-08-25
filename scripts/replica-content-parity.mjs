@@ -2,15 +2,8 @@
 /**
  * Paridad de contenido de la réplica local (solo GET, sin modificar prod).
  *
- * Política post-Fase A (copyPolicy: "editorial-ledger"):
- *   - El H1/title visible YA NO se compara contra el copy legacy/genérico de
- *     producción. La fuente de verdad es el LEDGER EDITORIAL aprobado en
- *     src/data/replica-prod-copy.json (promovido en DESIGN.md / diagnostico-forbes-2026).
- *   - Este check valida que el H1/title que renderiza la réplica local sea
- *     EXACTAMENTE el copy editorial aprobado para esa ruta.
- *   - Se mantiene la paridad HTTP (status prod == status local) y la paridad
- *     estructural (enlaces /servicios/ en home) contra prod, porque rutas/slugs
- *     siguen siendo idénticos a prod por diseño.
+ * Política por defecto: producción viva es la verdad para una réplica exacta.
+ * El ledger editorial histórico sólo se usa con REPLICA_COPY_SOURCE=ledger.
  */
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -24,6 +17,7 @@ const ledgerPaths = ledger.paths || {};
 
 const PROD = process.env.REPLICA_PROD_URL || 'https://www.ultimamilla.com.ar';
 const LOCAL = process.env.REPLICA_LOCAL_URL || 'http://localhost:4321';
+const COPY_SOURCE = process.env.REPLICA_COPY_SOURCE === 'ledger' ? 'ledger' : 'production';
 const paths = process.argv.length > 2 ? process.argv.slice(2) : E2E_DEFECT_PATHS;
 
 function normalizePath(path) {
@@ -58,7 +52,7 @@ async function fetchHtml(base, path) {
 let mismatches = 0;
 let ledgerCovered = 0;
 console.log(
-  `Paridad de contenido (GET only)\n  Prod:  ${PROD}\n  Local: ${LOCAL}\n  Ledger: src/data/replica-prod-copy.json (${ledger.copyPolicy || 'n/a'})\n`,
+  `Paridad de contenido (GET only)\n  Prod:  ${PROD}\n  Local: ${LOCAL}\n  Fuente de copy: ${COPY_SOURCE === 'production' ? 'producción viva' : `ledger (${ledger.copyPolicy || 'n/a'})`}\n`,
 );
 
 for (const path of paths) {
@@ -82,10 +76,19 @@ for (const path of paths) {
   const issues = [];
   const notices = [];
 
-  // H1: aserción DURA contra el LEDGER EDITORIAL aprobado (fuente de verdad post-Fase A).
-  // El <title> del <head> NO está cableado al ledger en todas las plantillas (mantiene su
-  // copy SEO propio), por lo que se reporta como aviso informativo, no como divergencia.
-  if (ledgerEntry) {
+  if (COPY_SOURCE === 'production') {
+    const expectedH1 = normalizeText(p.h1);
+    const localH1 = normalizeText(l.h1);
+    if (expectedH1 && localH1 !== expectedH1) {
+      issues.push(`h1 distinto de producción (prod: "${expectedH1}" vs local: "${localH1}")`);
+    }
+
+    const expectedTitle = normalizeText(p.title);
+    const localTitle = normalizeText(l.title);
+    if (expectedTitle && localTitle !== expectedTitle) {
+      notices.push(`title <head> distinto de producción (prod: "${expectedTitle}" vs local: "${localTitle}")`);
+    }
+  } else if (ledgerEntry) {
     ledgerCovered += 1;
     const expectedH1 = normalizeText(ledgerEntry.h1);
     const localH1 = normalizeText(l.h1);
@@ -127,6 +130,6 @@ for (const path of paths) {
 }
 
 console.log(
-  `\n${paths.length} rutas — ${ledgerCovered} validadas contra ledger editorial — ${mismatches} divergencia(s) de contenido`,
+  `\n${paths.length} rutas — ${COPY_SOURCE === 'production' ? 'comparadas con producción' : `${ledgerCovered} validadas contra ledger editorial`} — ${mismatches} divergencia(s) de contenido`,
 );
 if (mismatches > 0) process.exit(1);

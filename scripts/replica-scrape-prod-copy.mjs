@@ -50,5 +50,5 @@ const payload = {
   paths,
 };
 
-writeFileSync(OUT, JSON.stringify(payload, null, 2));
+writeFileSync(OUT, `${JSON.stringify(payload, null, 2)}\n`);
 console.log(`\nGuardado: ${OUT}`);

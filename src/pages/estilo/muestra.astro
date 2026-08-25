@@ -1,0 +1,407 @@
+---
+import LayoutV4 from '../../layouts/LayoutV4.astro';
+
+const services = [
+  {
+    number: '01',
+    title: 'Redes y fibra',
+    summary: 'Diseño, cableado estructurado, fibra óptica y radioenlaces para que cada punto crítico tenga continuidad.',
+    href: '/servicios',
+  },
+  {
+    number: '02',
+    title: 'Seguridad electrónica',
+    summary: 'CCTV, control de acceso y detección para observar la operación y responder con evidencia.',
+    href: '/servicios',
+  },
+  {
+    number: '03',
+    title: 'Software a medida',
+    summary: 'Sistemas web y móviles que ordenan procesos, integran datos y hacen visible lo que antes estaba disperso.',
+    href: '/servicios',
+  },
+  {
+    number: '04',
+    title: 'Soporte continuo',
+    summary: 'Mesa de ayuda, mantenimiento y respuesta 24/7 para sostener la operación después de la instalación.',
+    href: '/servicios',
+  },
+];
+
+const cases = [
+  ['Infraestructura crítica', 'Una red documentada permite operar, medir y crecer sin perder trazabilidad.'],
+  ['Seguridad integrada', 'La evidencia útil aparece cuando cámaras, accesos y procedimientos hablan el mismo idioma.'],
+  ['Operación con datos', 'El software correcto convierte tareas repetitivas en decisiones que se pueden auditar.'],
+];
+
+const sectionCovers = [
+  {
+    id: 'tour-servicios',
+    number: '01',
+    label: 'Servicios',
+    title: 'Ocho frentes para sostener una operación completa.',
+    summary: 'Redes, seguridad, telecomunicaciones, software, soporte y los oficios técnicos que hacen que el sistema funcione.',
+    meta: '08 frentes · 24/7',
+    href: '/servicios',
+    image: '/img/servicios/redes.webp',
+  },
+  {
+    id: 'tour-sectores',
+    number: '02',
+    label: 'Sectores',
+    title: 'El contexto cambia. El estándar permanece.',
+    summary: 'Entradas por industria para revisar evidencia comparable antes de elegir una solución.',
+    meta: '09 sectores · 518 casos',
+    href: '/sectores',
+    image: '/img/sectores/aeropuertos.webp',
+  },
+  {
+    id: 'tour-antecedentes',
+    number: '03',
+    label: 'Antecedentes',
+    title: 'La experiencia se demuestra en campo.',
+    summary: 'Un archivo de proyectos con cliente, alcance, sector y servicio aplicado; no una galería de promesas.',
+    meta: 'Archivo operativo · evidencia',
+    href: '/antecedentes',
+    image: '/img/antecedentes/3065.webp',
+  },
+  {
+    id: 'tour-blog',
+    number: '04',
+    label: 'Blog',
+    title: 'Ideas técnicas para decidir mejor.',
+    summary: 'Notas sobre infraestructura IT, telecomunicaciones, seguridad electrónica y software para empresas.',
+    meta: 'Criterio · contexto · decisión',
+    href: '/blog',
+    image: '/uploads/hero/a7f7d962-a5f8-4310-9f59-afeb62dcb0eb.jpg',
+  },
+  {
+    id: 'tour-nosotros',
+    number: '05',
+    label: 'Nosotros',
+    title: 'Una mesa técnica para resolver el sistema completo.',
+    summary: 'Una empresa de Mendoza con responsabilidad sobre el resultado, desde el relevamiento hasta el soporte.',
+    meta: '+25 años · Mendoza',
+    href: '/nosotros',
+    image: '/uploads/hero/4f9aa0c4-4aeb-4027-a7a0-8a6cfbb14705.jpg',
+  },
+  {
+    id: 'tour-certificaciones',
+    number: '06',
+    label: 'Certificaciones',
+    title: 'Documentación que respalda la instalación.',
+    summary: 'Dossiers, certificados y criterios de aceptación para que cada entrega pueda revisarse después.',
+    meta: 'Dossiers · control · cumplimiento',
+    href: '/certificaciones',
+    image: '/img/sectores/industria.webp',
+  },
+  {
+    id: 'tour-contacto',
+    number: '07',
+    label: 'Contacto',
+    title: 'Empezar por la situación real.',
+    summary: 'Un formulario breve para orientar la conversación hacia continuidad, seguridad, conectividad o software.',
+    meta: 'Respuesta humana · próximo paso',
+    href: '/contacto',
+    image: '/img/servicios/soporte-247.webp',
+  },
+  {
+    id: 'tour-estilo',
+    number: '08',
+    label: 'Estilo',
+    title: 'Una voz clara para cada interfaz.',
+    summary: 'El sistema visual y UM Sans 1.2 Production como contrato común entre web, documentos y operación.',
+    meta: 'UM Sans 1.2 · sistema',
+    href: '/estilo/fuente',
+    image: null,
+  },
+];
+---
+
+<LayoutV4
+  title="Muestra local | ULTIMA MILLA"
+  description="Ensayo local de la experiencia web de ULTIMA MILLA con UM Sans 1.2 Production."
+  noindex={true}
+>
+  <div class="um-local-sample">
+    <div class="um-local-sample__notice" role="status">
+      <div class="um-local-sample__shell">
+        <span>MUESTRA LOCAL · ENSAYO TIPOGRÁFICO</span>
+        <a href="/estilo/fuente">Ver la entrega UM Sans 1.2 ↗</a>
+      </div>
+    </div>
+
+    <nav class="um-local-tour-nav" aria-label="Índice de secciones de la muestra">
+      <div class="um-local-sample__shell">
+        <span>Recorrido</span>
+        {sectionCovers.map((section) => <a href={`#${section.id}`}>{section.number} {section.label}</a>)}
+      </div>
+    </nav>
+
+    <section class="um-local-hero" aria-labelledby="sample-title">
+      <div class="um-local-sample__shell um-local-hero__grid">
+        <div class="um-local-hero__content">
+          <p class="um-local-eyebrow">Infraestructura digital · Mendoza · Desde 2000</p>
+          <h1 id="sample-title">La operación no puede quedar a mitad de camino.</h1>
+          <p class="um-local-hero__lead">Diseñamos, instalamos y sostenemos la infraestructura que mantiene conectadas a las organizaciones cuando más importa.</p>
+          <div class="um-local-actions">
+            <a class="um-local-button um-local-button--primary" href="/servicios">Explorar servicios <span aria-hidden="true">↗</span></a>
+            <a class="um-local-button um-local-button--ghost" href="/contacto">Hablar con el equipo</a>
+          </div>
+        </div>
+        <div class="um-local-hero__evidence" aria-label="Resumen operativo">
+          <p class="um-local-eyebrow">Sistema en prueba</p>
+          <div class="um-local-hero__signal">
+            <strong>24/7</strong>
+            <span>continuidad operativa</span>
+          </div>
+          <div class="um-local-hero__signal">
+            <strong>+25</strong>
+            <span>años resolviendo última milla</span>
+          </div>
+          <div class="um-local-hero__signal">
+            <strong>UM</strong>
+            <span>una voz clara para cada interfaz</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="um-local-intro" aria-labelledby="intro-title">
+      <div class="um-local-sample__shell um-local-two-col">
+        <div>
+          <p class="um-local-kicker">01 · La promesa</p>
+          <h2 id="intro-title">Conectar es el comienzo. Sostenerlo es el trabajo.</h2>
+        </div>
+        <div class="um-local-prose">
+          <p>ULTIMA MILLA integra redes, seguridad, software y soporte en una operación que se puede entender. Cada decisión tiene un responsable, cada instalación deja evidencia y cada sistema queda preparado para el siguiente paso.</p>
+          <p class="um-local-prose__note">Esta portada es un ensayo local de contenido, jerarquía y ritmo. No reemplaza los datos vivos del CMS.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="um-local-tour" aria-labelledby="tour-title">
+      <div class="um-local-sample__shell">
+        <div class="um-local-section__head">
+          <div>
+            <p class="um-local-kicker">00 · Recorrido completo</p>
+            <h2 id="tour-title">Cada sección tiene una entrada propia.</h2>
+          </div>
+          <p>Estas portadas son la primera capa de revisión: estructura, jerarquía, voz y acción antes de conectar todos los datos del CMS.</p>
+        </div>
+        <div class="um-local-tour-grid">
+          {sectionCovers.map((section) => (
+            <article id={section.id} class:list={['um-local-cover-card', { 'um-local-cover-card--type': !section.image }]}>
+              {section.image ? <img src={section.image} alt="" loading="lazy" /> : <div class="um-local-cover-card__type-mark" aria-hidden="true">UM</div>}
+              <div class="um-local-cover-card__wash"></div>
+              <div class="um-local-cover-card__content">
+                <div class="um-local-cover-card__topline"><span>{section.number}</span><span>{section.meta}</span></div>
+                <p class="um-local-cover-card__label">{section.label}</p>
+                <h3>{section.title}</h3>
+                <p class="um-local-cover-card__summary">{section.summary}</p>
+                <a href={section.href}>Abrir portada <span aria-hidden="true">↗</span></a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="um-local-section" aria-labelledby="services-title">
+      <div class="um-local-sample__shell">
+        <div class="um-local-section__head">
+          <div>
+            <p class="um-local-kicker">02 · Capacidades</p>
+            <h2 id="services-title">Una red de decisiones conectadas.</h2>
+          </div>
+          <a class="um-local-text-link" href="/servicios">Ver todos los servicios <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="um-local-service-grid">
+          {services.map((service) => (
+            <a class="um-local-service-card" href={service.href}>
+              <span class="um-local-service-card__number">{service.number}</span>
+              <h3>{service.title}</h3>
+              <p>{service.summary}</p>
+              <span class="um-local-service-card__link" aria-hidden="true">Abrir capacidad ↗</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="um-local-proof" aria-labelledby="proof-title">
+      <div class="um-local-sample__shell">
+        <div class="um-local-section__head um-local-section__head--light">
+          <div>
+            <p class="um-local-kicker">03 · Forma de trabajo</p>
+            <h2 id="proof-title">Menos promesas. Más trazabilidad.</h2>
+          </div>
+          <p>La experiencia visual usa la misma lógica que la operación: jerarquía explícita, estados legibles y espacio para que cada dato respire.</p>
+        </div>
+        <div class="um-local-proof-grid">
+          {cases.map(([title, text], index) => (
+            <article class="um-local-proof-card">
+              <span>0{index + 1}</span>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="um-local-type" aria-labelledby="type-title">
+      <div class="um-local-sample__shell um-local-two-col um-local-two-col--type">
+        <div>
+          <p class="um-local-kicker">04 · Sistema tipográfico</p>
+          <h2 id="type-title">La misma voz en cada escala.</h2>
+          <p class="um-local-prose__note">UM Sans 1.2 Production · romana y cursiva · pesos 400–700 para web.</p>
+        </div>
+        <div class="um-local-type-sample">
+          <p class="um-local-type-sample__display">Fibra certificada, operación continua.</p>
+          <p class="um-local-type-sample__body">Texto de lectura para interfaces, documentación y datos densos. La personalidad se sostiene con proporción, peso y espacio, sin glifos experimentales.</p>
+          <div class="um-local-type-sample__meta"><span>400 · lectura</span><span>600 · títulos</span><span>700 · énfasis</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="um-local-closing" aria-labelledby="closing-title">
+      <div class="um-local-sample__shell um-local-closing__inner">
+        <div>
+          <p class="um-local-kicker">05 · Siguiente paso</p>
+          <h2 id="closing-title">Cuando la infraestructura importa, se nota.</h2>
+        </div>
+        <div class="um-local-actions">
+          <a class="um-local-button um-local-button--primary" href="/contacto">Iniciar una conversación <span aria-hidden="true">↗</span></a>
+          <a class="um-local-button um-local-button--ghost" href="/antecedentes">Ver antecedentes</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</LayoutV4>
+
+<style>
+  .um-local-sample {
+    --local-ink: #111111;
+    --local-muted: #5f6368;
+    --local-line: #dddddd;
+    --local-soft: #f5f5f5;
+    --local-red: #dc2626;
+    --local-blue: #1a56c0;
+    --local-shell: min(1180px, calc(100% - 48px));
+    color: var(--local-ink);
+    background: #fff;
+    font-family: var(--um-font-body);
+  }
+
+  .um-local-sample__shell { width: var(--local-shell); margin-inline: auto; }
+  .um-local-sample__notice { border-bottom: 1px solid var(--local-line); background: var(--local-soft); color: var(--local-muted); font-family: var(--um-font-mono); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; }
+  .um-local-sample__notice .um-local-sample__shell { min-height: 40px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+  .um-local-sample__notice a { color: var(--local-ink); font-family: var(--um-font-body); font-size: .78rem; letter-spacing: 0; text-transform: none; text-decoration: underline; text-underline-offset: 3px; }
+  .um-local-tour-nav { position: sticky; top: 64px; z-index: 4; border-bottom: 1px solid var(--local-line); background: rgba(255,255,255,.94); backdrop-filter: blur(12px); }
+  .um-local-tour-nav .um-local-sample__shell { display: flex; min-height: 48px; align-items: center; gap: 18px; overflow-x: auto; scrollbar-width: none; }
+  .um-local-tour-nav .um-local-sample__shell::-webkit-scrollbar { display: none; }
+  .um-local-tour-nav span, .um-local-tour-nav a { flex: 0 0 auto; white-space: nowrap; }
+  .um-local-tour-nav span { color: var(--local-red); font-family: var(--um-font-mono); font-size: .68rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+  .um-local-tour-nav a { color: var(--local-muted); font-size: .78rem; text-decoration: none; }
+  .um-local-tour-nav a:hover { color: var(--local-ink); }
+  .um-local-hero { background: #080808; color: #fff; border-bottom: 4px solid var(--local-red); }
+  .um-local-hero__grid { min-height: 660px; display: grid; grid-template-columns: minmax(0, 1.42fr) minmax(260px, .58fr); align-items: end; gap: clamp(40px, 8vw, 120px); padding-block: clamp(72px, 11vw, 140px) clamp(64px, 9vw, 112px); }
+  .um-local-hero__content { max-width: 760px; }
+  .um-local-eyebrow, .um-local-kicker { margin: 0 0 20px; color: var(--local-red); font-family: var(--um-font-mono); font-size: .72rem; font-weight: 600; letter-spacing: .16em; line-height: 1.4; text-transform: uppercase; }
+  .um-local-hero h1 { max-width: 780px; margin: 0; color: #fff; font-size: clamp(3.2rem, 8vw, 7.5rem); font-weight: 700; letter-spacing: 0; line-height: .93; }
+  .um-local-hero__lead { max-width: 620px; margin: 34px 0 0; color: rgba(255,255,255,.76); font-size: clamp(1.12rem, 1.6vw, 1.35rem); line-height: 1.55; }
+  .um-local-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+  .um-local-button { display: inline-flex; min-height: 46px; align-items: center; justify-content: center; gap: 10px; padding: 12px 18px; border: 1px solid transparent; color: inherit; font-size: .9rem; font-weight: 600; line-height: 1.2; text-decoration: none; transition: background-color .18s ease, color .18s ease, border-color .18s ease; }
+  .um-local-button--primary { background: var(--local-red); color: #fff; }
+  .um-local-button--primary:hover { background: #fff; color: #111; }
+  .um-local-button--ghost { border-color: rgba(255,255,255,.28); color: #fff; }
+  .um-local-button--ghost:hover { border-color: #fff; background: #fff; color: #111; }
+  .um-local-hero__evidence { align-self: end; border-top: 1px solid rgba(255,255,255,.24); }
+  .um-local-hero__evidence .um-local-eyebrow { margin-top: 18px; color: rgba(255,255,255,.54); }
+  .um-local-hero__signal { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; padding: 15px 16px; border-bottom: 1px solid rgba(255,255,255,.16); }
+  .um-local-hero__signal strong { color: #fff; font-size: clamp(1.5rem, 3vw, 2.3rem); font-weight: 700; letter-spacing: 0; }
+  .um-local-hero__signal span { max-width: 145px; color: rgba(255,255,255,.62); font-size: .82rem; line-height: 1.35; text-align: right; }
+  .um-local-intro, .um-local-section, .um-local-type { padding-block: clamp(76px, 10vw, 136px); }
+  .um-local-two-col { display: grid; grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr); gap: clamp(44px, 10vw, 150px); }
+  .um-local-two-col h2, .um-local-section h2, .um-local-proof h2, .um-local-closing h2 { max-width: 650px; margin: 0; color: var(--local-ink); font-size: clamp(2.1rem, 4.2vw, 4.15rem); font-weight: 600; letter-spacing: 0; line-height: .98; }
+  .um-local-prose { max-width: 650px; color: #333; font-size: clamp(1.05rem, 1.4vw, 1.2rem); line-height: 1.7; }
+  .um-local-prose p { margin: 0 0 20px; }
+  .um-local-prose__note { color: var(--local-muted); font-size: .86rem; line-height: 1.55; }
+  .um-local-tour { border-top: 1px solid var(--local-line); padding-block: clamp(76px, 10vw, 136px); background: var(--local-soft); }
+  .um-local-tour-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--local-line); }
+  .um-local-cover-card { position: relative; display: flex; min-height: 430px; overflow: hidden; isolation: isolate; background: #080808; color: #fff; }
+  .um-local-cover-card img, .um-local-cover-card__wash { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .um-local-cover-card img { z-index: -2; object-fit: cover; filter: saturate(.74) contrast(1.08); transition: transform .35s ease, filter .35s ease; }
+  .um-local-cover-card__wash { z-index: -1; background: linear-gradient(180deg, rgba(8,8,8,.2) 0%, rgba(8,8,8,.72) 52%, rgba(8,8,8,.96) 100%); }
+  .um-local-cover-card:hover img { transform: scale(1.04); filter: saturate(.92) contrast(1.08); }
+  .um-local-cover-card__content { display: flex; width: 100%; flex-direction: column; justify-content: flex-end; padding: clamp(24px, 3vw, 38px); }
+  .um-local-cover-card__topline { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: auto; color: rgba(255,255,255,.72); font-family: var(--um-font-mono); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; }
+  .um-local-cover-card__topline span:first-child { color: var(--local-red); }
+  .um-local-cover-card__label { margin: 0 0 12px; color: var(--local-red); font-family: var(--um-font-mono); font-size: .72rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+  .um-local-cover-card h3 { max-width: 560px; margin: 0; color: #fff; font-size: clamp(1.8rem, 3.1vw, 3.1rem); font-weight: 600; letter-spacing: 0; line-height: .98; text-wrap: balance; }
+  .um-local-cover-card__summary { max-width: 520px; margin: 18px 0 22px; color: rgba(255,255,255,.74); font-size: .98rem; line-height: 1.55; text-wrap: pretty; }
+  .um-local-cover-card a { align-self: flex-start; border-bottom: 1px solid rgba(255,255,255,.45); color: #fff; font-size: .84rem; font-weight: 600; text-decoration: none; text-underline-offset: 4px; }
+  .um-local-cover-card a:hover { border-color: var(--local-red); color: var(--local-red); }
+  .um-local-cover-card--type { background: #111; }
+  .um-local-cover-card--type .um-local-cover-card__wash { background: radial-gradient(circle at 74% 20%, rgba(220,38,38,.24), transparent 38%), linear-gradient(160deg, #080808 0%, #171717 100%); }
+  .um-local-cover-card__type-mark { position: absolute; top: 18%; right: 8%; z-index: -1; color: rgba(255,255,255,.08); font-size: clamp(9rem, 23vw, 17rem); font-weight: 700; letter-spacing: 0; line-height: .7; }
+  .um-local-section { border-top: 1px solid var(--local-line); background: #fff; }
+  .um-local-section__head { display: flex; align-items: end; justify-content: space-between; gap: 36px; margin-bottom: 44px; }
+  .um-local-section__head .um-local-kicker { margin-bottom: 18px; }
+  .um-local-section__head > p { max-width: 360px; margin: 0; color: var(--local-muted); font-size: .98rem; line-height: 1.55; }
+  .um-local-text-link { flex: 0 0 auto; color: var(--local-ink); font-size: .92rem; font-weight: 600; text-decoration: none; }
+  .um-local-text-link:hover { color: var(--local-red); }
+  .um-local-service-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--local-line); border-left: 1px solid var(--local-line); }
+  .um-local-service-card { display: flex; min-height: 300px; flex-direction: column; padding: 24px; border-right: 1px solid var(--local-line); border-bottom: 1px solid var(--local-line); color: var(--local-ink); text-decoration: none; transition: background-color .18s ease, color .18s ease; }
+  .um-local-service-card:hover { background: #080808; color: #fff; }
+  .um-local-service-card__number { color: var(--local-red); font-family: var(--um-font-mono); font-size: .72rem; letter-spacing: .12em; }
+  .um-local-service-card h3 { margin: 62px 0 12px; font-size: clamp(1.28rem, 1.9vw, 1.75rem); font-weight: 600; letter-spacing: 0; line-height: 1.04; }
+  .um-local-service-card p { margin: 0; color: var(--local-muted); font-size: .92rem; line-height: 1.55; }
+  .um-local-service-card:hover p { color: rgba(255,255,255,.7); }
+  .um-local-service-card__link { margin-top: auto; padding-top: 26px; color: var(--local-red); font-family: var(--um-font-mono); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
+  .um-local-proof { padding-block: clamp(76px, 10vw, 136px); background: #080808; color: #fff; }
+  .um-local-section__head--light h2 { color: #fff; }
+  .um-local-section__head--light > p { color: rgba(255,255,255,.66); }
+  .um-local-proof-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: rgba(255,255,255,.2); }
+  .um-local-proof-card { min-height: 250px; padding: 28px; background: #080808; }
+  .um-local-proof-card > span { color: var(--local-red); font-family: var(--um-font-mono); font-size: .72rem; letter-spacing: .12em; }
+  .um-local-proof-card h3 { margin: 72px 0 12px; color: #fff; font-size: clamp(1.3rem, 2vw, 1.8rem); font-weight: 600; letter-spacing: 0; }
+  .um-local-proof-card p { max-width: 300px; margin: 0; color: rgba(255,255,255,.66); font-size: .94rem; line-height: 1.6; }
+  .um-local-type { border-top: 1px solid var(--local-line); }
+  .um-local-two-col--type { align-items: start; }
+  .um-local-type-sample { padding: clamp(28px, 5vw, 64px); border: 1px solid var(--local-line); background: var(--local-soft); }
+  .um-local-type-sample__display { margin: 0 0 28px; color: var(--local-ink); font-size: clamp(2.1rem, 5vw, 4.5rem); font-weight: 700; letter-spacing: 0; line-height: .95; }
+  .um-local-type-sample__body { max-width: 560px; margin: 0; color: #333; font-size: 1.05rem; line-height: 1.65; }
+  .um-local-type-sample__meta { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-top: 38px; padding-top: 14px; border-top: 1px solid var(--local-line); color: var(--local-muted); font-family: var(--um-font-mono); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
+  .um-local-closing { border-top: 4px solid var(--local-red); background: var(--local-soft); }
+  .um-local-closing__inner { display: flex; min-height: 360px; align-items: center; justify-content: space-between; gap: 40px; }
+  .um-local-closing .um-local-actions { margin-top: 0; }
+  .um-local-closing .um-local-button--primary { background: var(--local-ink); }
+  .um-local-closing .um-local-button--primary:hover { background: var(--local-red); color: #fff; }
+  .um-local-closing .um-local-button--ghost { border-color: var(--local-ink); color: var(--local-ink); }
+  .um-local-closing .um-local-button--ghost:hover { background: var(--local-ink); color: #fff; }
+
+  @media (max-width: 900px) {
+    .um-local-hero__grid, .um-local-two-col { grid-template-columns: 1fr; }
+    .um-local-hero__grid { min-height: 0; gap: 72px; }
+    .um-local-hero__evidence { max-width: 560px; }
+    .um-local-service-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .um-local-cover-card { min-height: 390px; }
+    .um-local-section__head, .um-local-closing__inner { align-items: start; flex-direction: column; }
+    .um-local-closing .um-local-actions { margin-top: 8px; }
+  }
+
+  @media (max-width: 560px) {
+    .um-local-sample { --local-shell: min(100% - 32px, 1180px); }
+    .um-local-sample__notice .um-local-sample__shell { min-height: 58px; align-items: flex-start; flex-direction: column; justify-content: center; gap: 4px; }
+    .um-local-hero h1 { font-size: clamp(2.8rem, 15vw, 4.6rem); }
+    .um-local-service-grid, .um-local-proof-grid { grid-template-columns: 1fr; }
+    .um-local-tour-grid { grid-template-columns: 1fr; }
+    .um-local-cover-card { min-height: 370px; }
+    .um-local-service-card { min-height: 240px; }
+    .um-local-service-card h3, .um-local-proof-card h3 { margin-top: 48px; }
+    .um-local-button { width: 100%; }
+    .um-local-actions { width: 100%; }
+  }
+</style>

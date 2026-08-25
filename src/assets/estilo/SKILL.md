@@ -6,10 +6,11 @@ description: "Sistema de identidad visual completo de ULTIMA MILLA S.A. Usar par
 # ULTIMA MILLA S.A. — Sistema de Identidad Visual para Documentos
 ## Basado en Manual de Marca v1.0 — Enero 2026
 
-> **Actualizacion tipografica julio 2026:** para web y nuevas piezas editoriales,
-> usar UM Sans 1.2 Production (`public/fonts/um-sans`) en pesos publicos 400-700. Futura PT se reserva
-> para el wordmark. Las recetas historicas con Poppins/Arial siguen documentadas
-> solo para reproducir archivos antiguos y no deben iniciar trabajos nuevos.
+> **Contrato tipográfico vigente — UM Sans 1.2 Production:** para web, títulos,
+> cuerpo, interfaz y nuevas piezas editoriales usar exclusivamente la familia local
+> `public/fonts/um-sans`, en pesos públicos 400–700. El wordmark no se recompone con
+> fuentes: se inserta desde los SVG canónicos locales. Futura PT se menciona solo
+> como origen histórico del dibujo de marca; no es una dependencia de runtime.
 
 ---
 
@@ -69,26 +70,47 @@ description: "Sistema de identidad visual completo de ULTIMA MILLA S.A. Usar par
 
 > **FUENTE**: Manual de Marca UMSA v1.0, sección 5. Tipografía Corporativa.
 
-### Tipografía de marca: Futura PT
+### Marca: wordmark vectorial canónico
 
-Futura PT queda reservada para el logotipo y reproducciones históricas de marca.
-Los títulos corporativos y el cuerpo de piezas nuevas usan UM Sans 1.2
-Production. Esta regla editorial vigente supera la cita histórica del manual.
+El dibujo original del wordmark tuvo como origen histórico Futura PT Demi, pero
+la marca vigente se distribuye como trazados vectoriales y **no se recompone con
+una fuente**. No cargar Futura PT ni otra fuente externa para mostrar el logo, no
+aplicar tracking y no aproximar el dibujo con texto HTML.
 
-| Peso | CSS value | Uso |
-|------|-----------|-----|
-| **Demi (principal)** | **600** | **Logotipo** |
+| Contexto | Activo local canónico |
+|----------|-----------------------|
+| Fondo claro | `/images/logo-light.svg` |
+| Fondo oscuro | `/images/logo-dark.svg` |
 
-- Tracking: `-0.02em` (letter-spacing negativo, el logo siempre en lowercase)
-- Web: `https://fonts.cdnfonts.com/css/futura-pt`
+Ambos activos incluyen las letras como trazados y los dos puntos rojos
+`#DC2626`. Conservar siempre su relación de aspecto `620:100`.
 
 ### Tipografía editorial: UM Sans 1.2 Production
 
 UM Sans se usa en títulos, cuerpo, interfaz, cifras, documentos y PDF: 400 para
 lectura, 500 para interfaz, 600 para títulos y 700 para énfasis breve. Arial y
-system-ui son fallbacks. La familia completa, su licencia OFL, kits web,
-inventarios, specimen y QA están en `public/fonts/um-sans` y
+system-ui son únicamente fallbacks. La familia completa, su licencia OFL, kits
+web, inventarios, specimen y QA están en `public/fonts/um-sans` y
 `docs/typography/release`.
+
+En web cargar localmente:
+
+```css
+@font-face {
+  font-family: 'UM Sans';
+  src: url('/fonts/um-sans/UMSans-Variable.woff2?v=1.2.0-production') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'UM Sans';
+  src: url('/fonts/um-sans/UMSans-VariableItalic.woff2?v=1.2.0-production') format('woff2');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+```
 
 ### DOCX — estrategia de fuentes
 
@@ -111,17 +133,11 @@ En generadores nuevos usar `font: "UM Sans"`; comprobar el embedding al exportar
 
 ### Construcción
 
-```
-ultimamilla  .  com  .  ar
-───────────  ─  ───  ─  ──
-   negro    RED negro RED negro
-```
-
-- Texto: `#000000` (negro puro)
-- Los **dos puntos**: `#DC2626` (Rojo UMSA) — representan nodos de conexión, la validación, el punto final de la última milla
-- Fuente: Futura PT Demi 600
-- Tracking: `-0.02em`
-- **Siempre en minúsculas** — NUNCA en mayúsculas
+- Usar el SVG canónico completo; no separar letras y puntos en nodos distintos.
+- Los **dos puntos** son `#DC2626` (Rojo UMSA) y representan nodos de conexión.
+- El dibujo mantiene siempre su relación de aspecto `620:100`.
+- La marca se lee en minúsculas; el archivo vectorial es la única geometría autorizada.
+- Futura PT Demi 600 es una referencia histórica del origen, no una receta de reconstrucción.
 
 ### Versiones
 
@@ -134,24 +150,25 @@ ultimamilla  .  com  .  ar
 ### En DOCX (Node.js docx library)
 
 ```javascript
-// Logo en header / cover — versión principal (fondo claro)
-[
-  new TextRun({ text: 'ultimamilla', font: 'Poppins', size: SIZE, bold: true, color: '000000' }),
-  new TextRun({ text: '.', font: 'Poppins', size: SIZE, bold: true, color: 'DC2626' }),
-  new TextRun({ text: 'com', font: 'Poppins', size: SIZE, bold: true, color: '000000' }),
-  new TextRun({ text: '.', font: 'Poppins', size: SIZE, bold: true, color: 'DC2626' }),
-  new TextRun({ text: 'ar', font: 'Poppins', size: SIZE, bold: true, color: '000000' }),
-]
+import { ImageRun } from 'docx';
+import { readFileSync } from 'node:fs';
 
-// Tamaños sugeridos (en half-points, DOCX):
-// Cover principal:  size: 72 (= 36pt)
-// Header de página: size: 22 (= 11pt)
-// Footer:           size: 18 (= 9pt)
+// Preparar previamente un PNG transparente desde el SVG canónico local.
+// Ejemplo de salida: logo-light-1240x200.png (misma relación 620:100).
+const logo = new ImageRun({
+  data: readFileSync('build/brand/logo-light-1240x200.png'),
+  type: 'png',
+  transformation: { width: 240, height: 39 }, // relación 620:100
+});
 ```
+
+El PNG se deriva siempre de `/images/logo-light.svg` o `/images/logo-dark.svg` y
+se rasteriza a la resolución final o superior. Nunca sustituirlo por `TextRun`
+ni volver a espaciarlo.
 
 ### Usos incorrectos (según Manual)
 
-- ❌ Cambiar la tipografía
+- ❌ Recomponer el wordmark con una tipografía
 - ❌ Cambiar el color de los puntos (siempre `#DC2626`)
 - ❌ Usar en mayúsculas (ULTIMAMILLA.COM.AR)
 - ❌ Separar en múltiples líneas
@@ -181,15 +198,11 @@ new Header({ children: [
     border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: 'DC2626', space: 4 } },
     spacing: { before: 0, after: 80 },
     children: [
-      // Logo pequeño
-      new TextRun({ text: 'ultimamilla', font: 'Poppins', size: 18, bold: true, color: '000000' }),
-      new TextRun({ text: '.', font: 'Poppins', size: 18, bold: true, color: 'DC2626' }),
-      new TextRun({ text: 'com', font: 'Poppins', size: 18, bold: true, color: '000000' }),
-      new TextRun({ text: '.', font: 'Poppins', size: 18, bold: true, color: 'DC2626' }),
-      new TextRun({ text: 'ar', font: 'Poppins', size: 18, bold: true, color: '000000' }),
+      // Wordmark canónico local, preparado como ImageRun (ver sección 4)
+      logo,
       // Tab + referencia derecha
-      new TextRun({ text: '\t', font: 'Arial' }),
-      new TextRun({ text: 'NOTA N.º XX/YYYY  —  Referencia', font: 'Arial', size: 16, color: '666666' })
+      new TextRun({ text: '\t', font: 'UM Sans' }),
+      new TextRun({ text: 'NOTA N.º XX/YYYY  —  Referencia', font: 'UM Sans', size: 16, color: '666666' })
     ]
   })
 ]})
@@ -205,10 +218,10 @@ new Footer({ children: [
     border: { top: { style: BorderStyle.SINGLE, size: 4, color: 'DDDDDD', space: 4 } },
     spacing: { before: 80, after: 0 },
     children: [
-      new TextRun({ text: 'ultimamilla.com.ar', font: 'Poppins', size: 16, bold: true, color: 'DC2626' }),
-      new TextRun({ text: '\t', font: 'Arial' }),
-      new TextRun({ text: 'Referencia expediente  —  Pág. ', font: 'Arial', size: 15, color: '666666' }),
-      new TextRun({ font: 'Arial', size: 15, color: '666666', children: [PageNumber.CURRENT] })
+      logoFooter,
+      new TextRun({ text: '\t', font: 'UM Sans' }),
+      new TextRun({ text: 'Referencia expediente  —  Pág. ', font: 'UM Sans', size: 15, color: '666666' }),
+      new TextRun({ font: 'UM Sans', size: 15, color: '666666', children: [PageNumber.CURRENT] })
     ]
   })
 ]})
@@ -235,8 +248,8 @@ El logo en el cover es:
 ### Grilla de metadatos (gridMeta)
 
 2 columnas, celdas con borde gris `#DDDDDD`:
-- Label: Arial 8pt `#666666` (gris medio)
-- Valor: Arial 10pt bold `#000000` o `#333333`
+- Label: UM Sans 8pt `#666666` (gris medio)
+- Valor: UM Sans 10pt bold `#000000` o `#333333`
 
 ```javascript
 // items = [[label1, valor1], [label2, valor2], ...]
@@ -255,8 +268,8 @@ function gridMeta(items) { /* ver código base */ }
 └─────┴────────────────────────────────────────────────────┘
 ```
 
-- Badge izquierdo: fondo `#1A56C0`, número en blanco, Poppins Bold
-- Título: Poppins Bold 700, ALL CAPS, color `#000000`
+- Badge izquierdo: fondo `#1A56C0`, número en blanco, UM Sans Bold
+- Título: UM Sans Bold 700, ALL CAPS, color `#000000`
 - Borde inferior: `#DC2626`, 6pt — **este borde rojo es el sello brand**
 - Separación antes: 280 DXA / después: 80 DXA
 
@@ -274,7 +287,7 @@ function sec(num, titulo) {
           margins: { top: 70, bottom: 70, left: 80, right: 80 },
           verticalAlign: VerticalAlign.CENTER,
           children: [new Paragraph({ alignment: AlignmentType.CENTER,
-            children: [new TextRun({ text: String(num), font: 'Poppins', size: 22, bold: true, color: 'FFFFFF' })]
+            children: [new TextRun({ text: String(num), font: 'UM Sans', size: 22, bold: true, color: 'FFFFFF' })]
           })]
         }),
         // Título
@@ -287,7 +300,7 @@ function sec(num, titulo) {
           margins: { top: 70, bottom: 70, left: 200, right: 80 },
           verticalAlign: VerticalAlign.CENTER,
           children: [new Paragraph({
-            children: [new TextRun({ text: titulo, font: 'Poppins', size: 24, bold: true, color: '000000' })]
+            children: [new TextRun({ text: titulo, font: 'UM Sans', size: 24, bold: true, color: '000000' })]
           })]
         })
       ] })]
@@ -307,7 +320,7 @@ function sec(num, titulo) {
 ```javascript
 // Fondo: #000000 (negro, no navy)
 // Texto: #FFFFFF bold
-// Font: Poppins Bold para labels de header
+// Font: UM Sans Bold para labels de header
 filaCab(['Columna 1', 'Columna 2'], widths)
 ```
 
@@ -345,9 +358,9 @@ const FIRMA_W = 130;
 const FIRMA_H = Math.round(130 * 716 / 678);
 // Espacio antes: 800 DXA
 // Línea: top border 6pt #333333
-// Nombre: Poppins Bold 11pt (size 22)
-// Cargo: Arial 10pt gris (size 20, color 444444)
-// Empresa: Arial 10pt italic gris (ULTIMA MILLA S.A.)
+// Nombre: UM Sans Bold 11pt (size 22)
+// Cargo: UM Sans 10pt gris (size 20, color 444444)
+// Empresa: UM Sans 10pt italic gris (ULTIMA MILLA S.A.)
 ```
 
 ---
@@ -366,8 +379,8 @@ const GRIS_B = 'DDDDDD';   // bordes de tabla
 const AZUL_S = '1A56C0';   // badge de sección (uso documental, no en Manual)
 
 // ── TIPOGRAFÍA ────────────────────────────────────────────────────────────
-const F_HEAD = 'Poppins';  // headings (sustituye Futura PT en DOCX)
-const F_BODY = 'Arial';    // body text
+const F_HEAD = 'UM Sans';  // títulos e interfaz
+const F_BODY = 'UM Sans';  // cuerpo y datos
 
 // ── PÁGINA ────────────────────────────────────────────────────────────────
 const W = 9026;            // ancho útil A4
@@ -533,14 +546,14 @@ lineas.forEach((linea, idx) => {
 
 | Nivel | Uso | Tamaño | Peso | Espacio después | Font |
 |-------|-----|--------|------|-----------------|------|
-| **Display** | Portada, cover de nota | 72 hp (36pt) | Bold | 400 DXA | Poppins |
-| **H1** | Título principal del documento | 48 hp (24pt) | Bold | 280 DXA | Poppins |
-| **H2 / Sección** | Cabecera de sección (`sec()`) | 28 hp (14pt) | Bold | 160 DXA | Poppins |
-| **H3 / Subsección** | Subtítulo dentro de sección | 24 hp (12pt) | Bold | 120 DXA | Poppins |
-| **Body large** | Intro, texto destacado | 24 hp (12pt) | Regular | 160 DXA | Arial |
-| **Body** | Texto principal (mínimo Regla 5) | 24 hp (12pt) | Regular | 120 DXA | Arial |
-| **Body small** | Contenido de tabla, notas | 20 hp (10pt) | Regular | 80 DXA | Arial |
-| **Caption / Meta** | Labels, metadata, footer | 18 hp (9pt) | Regular | 60 DXA | Arial |
+| **Display** | Portada, cover de nota | 72 hp (36pt) | Bold | 400 DXA | UM Sans |
+| **H1** | Título principal del documento | 48 hp (24pt) | Bold | 280 DXA | UM Sans |
+| **H2 / Sección** | Cabecera de sección (`sec()`) | 28 hp (14pt) | Bold | 160 DXA | UM Sans |
+| **H3 / Subsección** | Subtítulo dentro de sección | 24 hp (12pt) | Bold | 120 DXA | UM Sans |
+| **Body large** | Intro, texto destacado | 24 hp (12pt) | Regular | 160 DXA | UM Sans |
+| **Body** | Texto principal (mínimo Regla 5) | 24 hp (12pt) | Regular | 120 DXA | UM Sans |
+| **Body small** | Contenido de tabla, notas | 20 hp (10pt) | Regular | 80 DXA | UM Sans |
+| **Caption / Meta** | Labels, metadata, footer | 18 hp (9pt) | Regular | 60 DXA | UM Sans |
 
 ### Principios de jerarquía (GOV.UK)
 - Usar niveles **en orden** — nunca saltar de H1 a H3
@@ -666,7 +679,7 @@ La tabla de análisis técnico usa 4 columnas. Proporciones recomendadas sobre W
 | Col 3 — Justificación | Contenido secundario | 2300 | 25% |
 | Col 4 — Métrica/Número | Valor numérico (nunca < 1700) | 1700 | 19% |
 
-**Regla de columna numérica**: la columna que contiene importes en ARS nunca puede ser menor a 1700 DXA. "$ 12.939.000" en Arial 10pt necesita ~1450 DXA de texto + 280 DXA de márgenes = 1730 DXA mínimo.
+**Regla de columna numérica**: la columna que contiene importes en ARS nunca puede ser menor a 1700 DXA. Validar la métrica real de UM Sans 10pt y conservar 280 DXA de márgenes internos.
 
 ---
 
@@ -674,15 +687,15 @@ La tabla de análisis técnico usa 4 columnas. Proporciones recomendadas sobre W
 
 **Marca e identidad**
 - [ ] Rojo es **exactamente** `#DC2626` — no `#CC0000`, no `#FF0000`
-- [ ] Logo: `ultimamilla` negro + `.` rojo + `com` negro + `.` rojo + `ar` negro — siempre minúsculas
+- [ ] Logo insertado desde SVG canónico local claro/oscuro, sin recomposición tipográfica
 - [ ] Separador de header de página: línea `#DC2626` (nunca gris)
 - [ ] Badge de sección: `#1A56C0` (nunca otro azul)
 
 **Tipografía (Sección 13)**
-- [ ] Display/cover: Poppins Bold 36pt (72 hp)
-- [ ] Secciones H2: Poppins Bold 14pt (28 hp)
-- [ ] Body text: Arial mínimo 12pt (24 hp) — Regla 5
-- [ ] Labels/metadata: Arial 9pt (18 hp), color `#666666`
+- [ ] Display/cover: UM Sans Bold 36pt (72 hp)
+- [ ] Secciones H2: UM Sans Bold 14pt (28 hp)
+- [ ] Body text: UM Sans mínimo 12pt (24 hp) — Regla 5
+- [ ] Labels/metadata: UM Sans 9pt (18 hp), color `#666666`
 - [ ] Jerarquía en orden: Display → H1 → H2 → H3 — sin saltos de nivel
 
 **Espaciado (Sección 14)**
@@ -705,7 +718,7 @@ La tabla de análisis técnico usa 4 columnas. Proporciones recomendadas sobre W
 
 **Generación**
 - [ ] Validado con `validate.py` — 0 errores
-- [ ] PDF exportado con LibreOffice (fonts Poppins/Arial embebidos)
+- [ ] PDF exportado con UM Sans embebida
 - [ ] PDF revisado visualmente (Adobe o Preview) — no solo en LibreOffice
 
 ---
@@ -767,8 +780,16 @@ skills/ultima-milla/
 ### 20.1 Cargar design tokens
 
 ```html
-<!-- Opción A: inline en <style> -->
+<link rel="preload" href="/fonts/um-sans/UMSans-Variable.woff2?v=1.2.0-production"
+  as="font" type="font/woff2" crossorigin>
 <style>
+  @font-face {
+    font-family: 'UM Sans';
+    src: url('/fonts/um-sans/UMSans-Variable.woff2?v=1.2.0-production') format('woff2');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+  }
   :root {
     --um-negro: #000000;
     --um-rojo:  #DC2626;
@@ -777,23 +798,20 @@ skills/ultima-milla/
     --um-gris-f:#F5F5F5;
     --um-gris-b:#DDDDDD;
     --um-gris-t:#666666;
-    --um-font-head: 'Poppins', 'Century Gothic', sans-serif;
-    --um-font-body: 'Arial', 'Inter', system-ui, sans-serif;
+    --um-font-head: 'UM Sans', Arial, system-ui, sans-serif;
+    --um-font-body: 'UM Sans', Arial, system-ui, sans-serif;
   }
 </style>
-
-<!-- Opción B: Google Fonts para Poppins -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
 ```
 
 ### 20.2 Logo HTML canónico
 
 ```html
 <!-- Logo principal (fondo claro) -->
-<span class="um-logo" style="font-family:var(--um-font-head);font-weight:700;letter-spacing:-0.02em;color:#000">
-  ultimamilla<span style="color:#DC2626">.</span>com<span style="color:#DC2626">.</span>ar
-</span>
+<img class="um-logo" src="/images/logo-light.svg" alt="ultimamilla.com.ar"
+  width="620" height="100" style="display:block;width:min(240px,100%);height:auto">
+
+<!-- Sobre fondo oscuro usar /images/logo-dark.svg -->
 ```
 
 ### 20.3 Componentes HTML/CSS de documento UMSA
@@ -801,10 +819,9 @@ skills/ultima-milla/
 ```html
 <!-- Cabecera de página -->
 <header style="border-bottom:3px solid #DC2626;padding-bottom:8px;margin-bottom:24px;
-  display:flex;justify-content:space-between;align-items:baseline;">
-  <span style="font-family:var(--um-font-head);font-weight:700;font-size:22px">
-    ultimamilla<span style="color:#DC2626">.</span>com<span style="color:#DC2626">.</span>ar
-  </span>
+  display:flex;justify-content:space-between;align-items:center;">
+  <img src="/images/logo-light.svg" alt="ultimamilla.com.ar" width="620" height="100"
+    style="display:block;width:220px;height:auto">
   <span style="font-family:var(--um-font-head);font-weight:700;font-size:13px">NOTA N.º 03/2026</span>
 </header>
 
@@ -876,18 +893,20 @@ const UMSA = {
     verde: '#2D8A2D'
   },
   fonts: {
-    head: "'Poppins', 'Century Gothic', sans-serif",
-    body: "'Arial', 'Inter', system-ui, sans-serif"
+    head: "'UM Sans', Arial, system-ui, sans-serif",
+    body: "'UM Sans', Arial, system-ui, sans-serif"
   }
 };
 
 // Logo
-const Logo = ({ size = 22 }) => (
-  <span style={{ fontFamily: UMSA.fonts.head, fontWeight: 700, fontSize: size,
-    letterSpacing: '-0.02em', color: UMSA.colors.negro }}>
-    ultimamilla<span style={{ color: UMSA.colors.rojo }}>.</span>
-    com<span style={{ color: UMSA.colors.rojo }}>.</span>ar
-  </span>
+const Logo = ({ inverted = false, width = 240 }) => (
+  <img
+    src={inverted ? '/images/logo-dark.svg' : '/images/logo-light.svg'}
+    alt="ultimamilla.com.ar"
+    width="620"
+    height="100"
+    style={{ display: 'block', width, maxWidth: '100%', height: 'auto' }}
+  />
 );
 
 // Badge de sección
@@ -955,17 +974,17 @@ const UMSA_CHART_COLORS = {
 const umsaChartDefaults = {
   plugins: {
     legend: {
-      labels: { font: { family: 'Poppins', size: 11 }, color: '#333333' }
+      labels: { font: { family: 'UM Sans', size: 11 }, color: '#333333' }
     }
   },
   scales: {
     x: {
       grid: { color: '#DDDDDD', lineWidth: 1 },
-      ticks: { font: { family: 'Arial', size: 11 }, color: '#666666' }
+      ticks: { font: { family: 'UM Sans', size: 11 }, color: '#666666' }
     },
     y: {
       grid: { color: '#DDDDDD', lineWidth: 1 },
-      ticks: { font: { family: 'Arial', size: 11 }, color: '#666666' }
+      ticks: { font: { family: 'UM Sans', size: 11 }, color: '#666666' }
     }
   }
 };
@@ -988,7 +1007,7 @@ const fmt = {
 | Dato | Gráfico | Notas |
 |------|---------|-------|
 | Evolución temporal | Línea | Grid DDDDDD, área F5F5F5 |
-| Comparación de módulos | Barras horizontales | NEGRO fill, label en Arial |
+| Comparación de módulos | Barras horizontales | NEGRO fill, label en UM Sans |
 | Distribución porcentual | Torta / Donut | Paleta en orden desde Serie 1 |
 | Metas vs real | Barras agrupadas | Meta=gris, Real=negro o rojo si falta |
 | Avance acumulado | Área apilada | Colores en transparencia 80% |
@@ -1001,7 +1020,7 @@ import matplotlib as mpl
 
 # Tema UMSA
 mpl.rcParams.update({
-    'font.family':       'Arial',
+    'font.family':       'UM Sans',
     'axes.titlesize':    13,
     'axes.titleweight':  'bold',
     'axes.labelsize':    11,
@@ -1021,11 +1040,11 @@ UMSA_COLORS = ['#000000', '#DC2626', '#1A56C0', '#333333', '#666666', '#2D8A2D']
 
 # Línea de marca en título
 def umsa_title(ax, title, subtitle=None):
-    ax.set_title(title, fontfamily='Arial', fontweight='bold',
+    ax.set_title(title, fontfamily='UM Sans', fontweight='bold',
                  fontsize=13, color='#000000', loc='left')
     if subtitle:
         ax.text(0, 1.02, subtitle, transform=ax.transAxes,
-                fontsize=10, color='#666666', fontfamily='Arial')
+                fontsize=10, color='#666666', fontfamily='UM Sans')
     # Línea roja bajo el título
     ax.axhline(y=ax.get_ylim()[1], color='#DC2626', linewidth=2, xmin=0, xmax=0.3)
 ```
@@ -1061,7 +1080,7 @@ wkhtmltopdf --page-size A4 \
   margin: 21mm 20mm 25mm 30mm; /* top right bottom left — mismo que DOCX */
 }
 @media print {
-  body { font-family: Arial, sans-serif; font-size: 12pt; }
+  body { font-family: 'UM Sans', Arial, sans-serif; font-size: 12pt; }
   .no-break { page-break-inside: avoid; } /* equivale a cantSplit */
   .page-break { page-break-before: always; }
 }
@@ -1074,8 +1093,8 @@ wkhtmltopdf --page-size A4 \
 ### PPTX (presentaciones)
 - Usar la **SKILL `pptx`** para generación. Antes de aplicar colores, consultar esta SKILL para la paleta.
 - Fondo de diapositiva: `#FFFFFF` (blanco), nunca negro — el negro es para texto y headers de tabla.
-- Título de slide: Poppins Bold, `#000000`, línea roja inferior `#DC2626` de 3pt.
-- Texto de bullet: Arial 18pt, `#333333`.
+- Título de slide: UM Sans Bold, `#000000`, línea roja inferior `#DC2626` de 3pt.
+- Texto de bullet: UM Sans 18pt, `#333333`.
 - Acento: `#DC2626` para datos clave, nunca para fondo completo de slide.
 
 ### XLSX (planillas)

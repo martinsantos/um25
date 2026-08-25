@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sistema de Estilo — ULTIMA MILLA S.A.</title>
 <link rel="preload" href="/fonts/um-sans/UMSans-Variable.woff2?v=1.2.0-production" as="font" type="font/woff2" crossorigin>
-<link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin>
-<link href="https://fonts.cdnfonts.com/css/futura-pt" rel="stylesheet">
 <style>
 @font-face{font-family:'UM Sans';src:url('/fonts/um-sans/UMSans-Variable.woff2?v=1.2.0-production') format('woff2');font-weight:100 900;font-style:normal;font-display:swap}
 @font-face{font-family:'UM Sans';src:url('/fonts/um-sans/UMSans-VariableItalic.woff2?v=1.2.0-production') format('woff2');font-weight:100 900;font-style:italic;font-display:swap}
@@ -31,10 +29,10 @@ body{font-family:var(--font-body);font-size:16px;font-size-adjust:.546;font-synt
   border-bottom:3px solid var(--rojo);
 }
 #top-header .logo{
-  font-family:'Futura PT','Futura',Arial,sans-serif;font-size-adjust:none;font-weight:700;font-size:20px;
-  color:#fff;letter-spacing:-0.02em;white-space:nowrap;text-decoration:none;
+  display:inline-flex;flex:0 0 auto;align-items:center;width:200px;min-height:44px;
+  color:#fff;text-decoration:none;
 }
-#top-header .logo span{color:var(--rojo)}
+#top-header .logo img{display:block;width:100%;height:auto;transform:translateY(14%)}
 #top-header .doc-label{
   font-family:var(--font-head);font-size:11px;font-weight:600;
   color:var(--gris-t);text-transform:uppercase;letter-spacing:0.08em;
@@ -316,11 +314,8 @@ pre code{
 }
 .logo-variant.dark{background:var(--negro)}
 .logo-variant .logo-text{
-  font-family:var(--font-head);font-weight:700;font-size:24px;
-  letter-spacing:-0.02em;color:var(--negro);white-space:nowrap;
+  display:block;width:min(230px,100%);height:auto;
 }
-.logo-variant.dark .logo-text{color:#fff}
-.logo-variant .logo-text .dot{color:var(--rojo)}
 .logo-variant .variant-label{
   font-size:10px;color:var(--gris-t);font-family:var(--font-head);
   text-transform:uppercase;letter-spacing:0.08em;
@@ -330,11 +325,10 @@ pre code{
 /* ── COMPONENT DEMO: Header ──────────────────────────── */
 .demo-page-header{
   border-bottom:3px solid var(--rojo);padding-bottom:8px;
-  display:flex;justify-content:space-between;align-items:baseline;
+  display:flex;justify-content:space-between;align-items:center;
   font-family:var(--font-head);
 }
-.demo-page-header .dph-logo{font-weight:700;font-size:18px;letter-spacing:-0.02em}
-.demo-page-header .dph-logo span{color:var(--rojo)}
+.demo-page-header .dph-logo{display:block;width:min(180px,45%);height:auto}
 .demo-page-header .dph-ref{font-size:11px;font-weight:600;color:var(--gris-t)}
 
 /* ── COMPONENT DEMO: Section badge ──────────────────── */
@@ -379,9 +373,11 @@ hr.section-hr{border:none;border-top:1px solid var(--gris-b);margin:40px 0}
 
 <!-- TOP HEADER -->
 <header id="top-header">
-  <a href="#top" class="logo">ultimamilla<span>.</span>com<span>.</span>ar</a>
+  <a href="#top" class="logo" aria-label="Ir al inicio del manual">
+    <img src="/images/logo-dark.svg" alt="" width="620" height="100" decoding="async">
+  </a>
   <span class="doc-label">Sistema de Estilo</span>
-  <span class="version-badge">v1.0 · Enero 2026</span>
+  <span class="version-badge">v1.1 · UM Sans 1.2 · Julio 2026</span>
 </header>
 
 <!-- SIDEBAR -->
@@ -391,6 +387,7 @@ hr.section-hr{border:none;border-top:1px solid var(--gris-b);margin:40px 0}
   <a href="#color"><span class="nav-num">2</span> Sistema de color</a>
   <a href="#tipo"><span class="nav-num">3</span> Tipografía</a>
   <a href="#espacio"><span class="nav-num">4</span> Espaciado</a>
+  <a href="/estilo/muestra"><span class="nav-num">↗</span> Muestra web local</a>
 
   <div class="nav-section-label">Componentes</div>
   <a href="#componentes"><span class="nav-num">5</span> Componentes</a>
@@ -423,7 +420,7 @@ hr.section-hr{border:none;border-top:1px solid var(--gris-b);margin:40px 0}
     <p>Regla maestra de identidad visual corporativa. Aplica a todos los formatos de salida: DOCX, PDF, HTML, React, PPTX, XLSX, gráficos y dashboards.</p>
     <div class="meta">
       <div class="meta-item"><span class="lbl">Fuente</span><span class="val">Manual de Marca v1.0</span></div>
-      <div class="meta-item"><span class="lbl">Versión</span><span class="val">1.0 — Enero 2026</span></div>
+      <div class="meta-item"><span class="lbl">Versión</span><span class="val">1.1 — UM Sans 1.2</span></div>
       <div class="meta-item"><span class="lbl">Signatario</span><span class="val">Martín Santos</span></div>
       <div class="meta-item"><span class="lbl">CUIT</span><span class="val">30-71008591-5</span></div>
     </div>
@@ -437,23 +434,23 @@ hr.section-hr{border:none;border-top:1px solid var(--gris-b);margin:40px 0}
   </div>
 
   <h3>El logotipo</h3>
-  <p>El logo es siempre texto tipográfico. Los dos puntos en <strong style="color:var(--rojo)">Rojo UMSA #DC2626</strong> representan los nodos de conexión — nunca se cambian de color. Siempre en minúsculas, Futura PT Demi 600, letter-spacing <code style="font-family:var(--font-code);font-size:12px;background:#f5f5f5;padding:1px 5px">-0.02em</code>.</p>
+  <p>El logo es siempre el wordmark vectorial canónico. Sus letras son trazados y los dos puntos en <strong style="color:var(--rojo)">Rojo UMSA #DC2626</strong> representan los nodos de conexión — nunca se cambian de color. Se usa el SVG local correspondiente al fondo; no se recompone con fuentes ni se modifica su espaciado.</p>
 
   <div class="logo-preview-grid">
     <div class="logo-variant">
-      <div class="logo-text">ultimamilla<span class="dot">.</span>com<span class="dot">.</span>ar</div>
+      <img class="logo-text" src="/images/logo-light.svg" alt="Logotipo ultimamilla.com.ar sobre fondo claro" width="620" height="100" loading="lazy" decoding="async">
       <div class="variant-label">Principal — sobre fondo claro</div>
     </div>
     <div class="logo-variant dark">
-      <div class="logo-text">ultimamilla<span class="dot">.</span>com<span class="dot">.</span>ar</div>
+      <img class="logo-text" src="/images/logo-dark.svg" alt="Logotipo ultimamilla.com.ar sobre fondo negro" width="620" height="100" loading="lazy" decoding="async">
       <div class="variant-label">Invertida — sobre fondo negro</div>
     </div>
     <div class="logo-variant" style="background:#F5F5F5">
-      <div class="logo-text" style="font-size:32px">ultimamilla<span class="dot">.</span>com<span class="dot">.</span>ar</div>
+      <img class="logo-text" style="width:min(300px,100%)" src="/images/logo-light.svg" alt="Logotipo ultimamilla.com.ar en tamaño destacado" width="620" height="100" loading="lazy" decoding="async">
       <div class="variant-label">Display grande — cover de documento</div>
     </div>
     <div class="logo-variant dark" style="background:#1A56C0">
-      <div class="logo-text" style="color:#fff">ultimamilla<span class="dot">.</span>com<span class="dot">.</span>ar</div>
+      <img class="logo-text" src="/images/logo-dark.svg" alt="Logotipo ultimamilla.com.ar sobre fondo azul" width="620" height="100" loading="lazy" decoding="async">
       <div class="variant-label">Sobre fondo azul sección</div>
     </div>
   </div>
@@ -590,9 +587,9 @@ hr.section-hr{border:none;border-top:1px solid var(--gris-b);margin:40px 0}
   <table class="um-table">
     <thead><tr><th>Rol</th><th>Principal</th><th>Fallbacks</th><th>Pesos UMSA</th></tr></thead>
     <tbody>
-      <tr><td><strong>Logo / marca</strong></td><td>Futura PT</td><td>Futura, Arial</td><td>Demi 600 · Bold 700</td></tr>
-      <tr><td><strong>Headings / interfaz</strong></td><td>UM Sans 1.1 Editorial RC</td><td>Arial, system-ui</td><td>Medium 500 · SemiBold 600 · Bold 700</td></tr>
-      <tr><td><strong>Cuerpo / datos</strong></td><td>UM Sans 1.1 Editorial RC</td><td>Arial, system-ui</td><td>Regular 400 · Medium 500 · SemiBold 600 · Italic 400</td></tr>
+      <tr><td><strong>Logo / marca</strong></td><td>SVG canónico local</td><td>Ninguno</td><td>Trazados vectoriales</td></tr>
+      <tr><td><strong>Headings / interfaz</strong></td><td>UM Sans 1.2 Production</td><td>Arial, system-ui</td><td>Medium 500 · SemiBold 600 · Bold 700</td></tr>
+      <tr><td><strong>Cuerpo / datos</strong></td><td>UM Sans 1.2 Production</td><td>Arial, system-ui</td><td>Regular 400 · Medium 500 · SemiBold 600 · Italic 400</td></tr>
       <tr><td><strong>Código</strong></td><td>Fira Code</td><td>Consolas, Courier New</td><td>Regular 400</td></tr>
     </tbody>
   </table>
@@ -676,7 +673,7 @@ hr.section-hr{border:none;border-top:1px solid var(--gris-b);margin:40px 0}
     <div class="preview-label">Preview</div>
     <div class="preview-content">
       <div class="demo-page-header">
-        <div class="dph-logo">ultimamilla<span>.</span>com<span>.</span>ar</div>
+        <img class="dph-logo" src="/images/logo-light.svg" alt="ultimamilla.com.ar" width="620" height="100" loading="lazy" decoding="async">
         <div class="dph-ref">NOTA N.º 03/2026 — PLIEG-2025-07544314</div>
       </div>
     </div>
@@ -884,10 +881,10 @@ hr.section-hr{border:none;border-top:1px solid var(--gris-b);margin:40px 0}
   <span class="prop">--um-rojo-bg</span>: <span class="st">#FFF5F5</span>;
 
   <span class="cm">/* Tipografía */</span>
-  <span class="prop">--um-font-logo</span>: <span class="st">'Futura PT', 'Futura', Arial, sans-serif</span>;
+  <span class="prop">--um-logo-on-light</span>: <span class="st">url('/images/logo-light.svg')</span>;
+  <span class="prop">--um-logo-on-dark</span>: <span class="st">url('/images/logo-dark.svg')</span>;
   <span class="prop">--um-font-display</span>: <span class="st">'UM Sans', Arial, system-ui, sans-serif</span>;
   <span class="prop">--um-font-body</span>: <span class="st">'UM Sans', Arial, system-ui, sans-serif</span>;
-  <span class="prop">--um-font-body</span>: <span class="st">'Arial', 'Inter', system-ui, sans-serif</span>;
 
   <span class="cm">/* Escala tipográfica */</span>
   <span class="prop">--um-sz-display</span>: <span class="nm">36pt</span>; <span class="prop">--um-sz-h1</span>: <span class="nm">24pt</span>;
@@ -904,7 +901,7 @@ hr.section-hr{border:none;border-top:1px solid var(--gris-b);margin:40px 0}
   c: { negro:<span class="st">'#000'</span>, rojo:<span class="st">'#DC2626'</span>, azul:<span class="st">'#1A56C0'</span>, grisF:<span class="st">'#F5F5F5'</span>,
        grisB:<span class="st">'#DDDDDD'</span>, grisT:<span class="st">'#666'</span>, verde:<span class="st">'#2D8A2D'</span>, blanco:<span class="st">'#FFF'</span> },
   f: { head:<span class="st">"'UM Sans','Arial',sans-serif"</span>,
-       body:<span class="st">"'Arial','Inter',system-ui,sans-serif"</span> }
+       body:<span class="st">"'UM Sans','Arial',system-ui,sans-serif"</span> }
 };
 
 <span class="cm">// Logo</span>
@@ -1151,8 +1148,8 @@ wkhtmltopdf --page-size A4 \
       <div class="check-group-label">Tipografía</div>
       <label class="check-item"><input type="checkbox"> Display/cover: UM Sans Bold 36pt / 72hp</label>
       <label class="check-item"><input type="checkbox"> Secciones H2: UM Sans Bold 14pt / 28hp</label>
-      <label class="check-item"><input type="checkbox"> Body: Arial mínimo 12pt / 24hp <span class="check-code">Regla 5</span></label>
-      <label class="check-item"><input type="checkbox"> Labels/metadata: Arial 9pt, color #666666</label>
+      <label class="check-item"><input type="checkbox"> Body: UM Sans mínimo 12pt / 24hp <span class="check-code">Regla 5</span></label>
+      <label class="check-item"><input type="checkbox"> Labels/metadata: UM Sans 9pt, color #666666</label>
       <label class="check-item"><input type="checkbox"> Jerarquía en orden: Display → H1 → H2 → H3 (sin saltos)</label>
     </div>
     <div class="check-group">
@@ -1182,13 +1179,13 @@ wkhtmltopdf --page-size A4 \
       <div class="check-group-label">Generación y entrega</div>
       <label class="check-item"><input type="checkbox"> Ejecutado: node generar_nota.js && libreoffice --headless --convert-to pdf *.docx</label>
       <label class="check-item"><input type="checkbox"> PDF revisado visualmente (no solo en LibreOffice)</label>
-      <label class="check-item"><input type="checkbox"> Fonts UM Sans/Arial embebidos en el PDF</label>
+      <label class="check-item"><input type="checkbox"> Fonts UM Sans embebidos en el PDF</label>
     </div>
   </div>
 
   <hr class="section-hr">
   <p style="font-size:12px;color:var(--gris-t);text-align:center">
-    SISTEMA-ESTILO-UMSA.md — ULTIMA MILLA S.A. — Versión 1.0 — Enero 2026<br>
+    SISTEMA-ESTILO-UMSA.md — ULTIMA MILLA S.A. — Versión 1.1 — Julio 2026<br>
     Fuente de verdad: Manual de Marca v1.0 + SKILL.md secciones 1–25
   </p>
 

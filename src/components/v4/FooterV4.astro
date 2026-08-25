@@ -68,7 +68,16 @@ const socialLinks = [
       <!-- Brand Column -->
       <div class="min-w-0 sm:text-left">
         <div class="flex items-center justify-start mb-4 sm:mb-6">
-          <span class="um-footer-logo">ultimamilla<span>.</span>com<span>.</span>ar</span>
+          <span class="um-footer-logo">
+            <img
+              src="/images/logo-dark.svg"
+              alt="ultimamilla.com.ar"
+              width="620"
+              height="100"
+              loading="lazy"
+              decoding="async"
+            />
+          </span>
         </div>
         <p class="text-base leading-relaxed mb-4 sm:mb-6">
           Servicios IT integrales para continuidad operativa: redes, seguridad, software, energía y soporte para empresas en Mendoza, Cuyo y Patagonia.
@@ -190,17 +199,14 @@ const socialLinks = [
 
   .um-footer-logo {
     display: block;
-    max-width: 100%;
-    font-family: var(--um-font-logo);
-    font-size: 1.5rem;
-    font-weight: 600;
-    letter-spacing: 0;
-    line-height: 1;
-    overflow-wrap: anywhere;
+    width: min(15.5rem, 100%);
   }
 
-  .um-footer-logo span {
-    color: var(--um-red);
+  .um-footer-logo img {
+    display: block;
+    width: 100%;
+    height: auto;
+    transform: translateY(14%);
   }
 
   .um-site-footer p,

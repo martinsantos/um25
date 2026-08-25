@@ -27,10 +27,16 @@ El túnel `ssh -L 8055:127.0.0.1:8055` no escribe en el servidor; solo reenvía 
 | Canonical SEO | localhost | **ultimamilla.com.ar** en meta | igual |
 | Directus vacío | 404 / lista vacía | **snapshots** JSON | live + snapshots en error |
 | Gate visual | opcional | `npm run replica:gate` | post-deploy prod URL |
-| H1 visibles | copy editorial dossier | **idénticos a prod** (`UMSA_REPLICA_IDENTICAL=1`) | CMS legacy |
-| Paridad H1 | — | `npm run replica:content-parity` (30 rutas) | — |
+| H1 visibles | copy editorial dossier | **idénticos a prod** (`UMSA_REPLICA_IDENTICAL=1`) | CMS/live |
+| Paridad H1 | — | `npm run replica:content-parity` contra producción viva | — |
 
-Con `UMSA_REPLICA_IDENTICAL=1` (por defecto en réplica), los H1 salen de `src/data/replica-prod-copy.json`. Regenerar tras cambios en www:
+Con `UMSA_REPLICA_IDENTICAL=1` (por defecto en réplica), las plantillas pueden resolver copy estable desde `src/data/replica-prod-copy.json`. El gate, sin embargo, compara por defecto contra la producción viva para evitar que un ledger viejo certifique una copia falsa. Para auditar deliberadamente el ledger editorial histórico:
+
+```bash
+REPLICA_COPY_SOURCE=ledger npm run replica:content-parity
+```
+
+Regenerar el ledger tras cambios aprobados en www:
 
 ```bash
 npm run replica:scrape-copy   # solo GET a ultimamilla.com.ar

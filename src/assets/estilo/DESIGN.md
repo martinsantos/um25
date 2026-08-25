@@ -9,8 +9,8 @@
 Fuente visual: https://www.ultimamilla.com.ar/estilo
 Fuente corporativa: https://www.ultimamilla.com.ar/estilo/skill.md
 Fuente editorial blog: https://www.ultimamilla.com.ar/estilo/blog/blogskill.md
-Version: 1.0  
-Fecha: Enero 2026  
+Version: 1.1
+Fecha: Julio 2026
 Aplicacion: DOCX, PDF, HTML, React, PPTX, XLSX, graficos y dashboards
 
 ---

@@ -93,10 +93,8 @@ const shouldEmitHreflang = hasEnglishAlternate(Astro.url.pathname);
       breadcrumbs={breadcrumbs}
     />
 
-    <!-- Fonts - verified UM Sans editorial family + Futura PT reserved for logo -->
+    <!-- Typography: verified local UM Sans. The wordmark uses canonical local SVG paths. -->
     <link rel="preload" href="/fonts/um-sans/UMSans-Variable.woff2?v=1.2.0-production" as="font" type="font/woff2" crossorigin />
-    <link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin />
-    <link href="https://fonts.cdnfonts.com/css/futura-pt" rel="stylesheet" />
 
     {hasHeadSlot && <slot name="head" />}
 

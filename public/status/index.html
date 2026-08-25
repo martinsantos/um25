@@ -6,22 +6,24 @@
     <title>ULTIMA MILLA - Emergency Dashboard v1.0</title>
     <link rel="manifest" href="manifest.json">
     <link rel="shortcut icon" href="icon.svg" type="image/svg+xml">
+    <link rel="preload" href="/fonts/um-sans/UMSans-Variable.woff2?v=1.2.0-production" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/fonts/um-sans/um-sans.css?v=1.2.0-production">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         :root {
             --primary-color: #DC2626;
-            --secondary-color: #f39c12;
+            --secondary-color: #9a6700;
             --success-color: #166534;
-            --warning-color: #f39c12;
+            --warning-color: #9a6700;
             --error-color: #DC2626;
             --info-color: #333333;
-            --bg-color: #f5f5f5;
+            --bg-color: #f2f2f0;
             --card-bg: #ffffff;
             --text-color: #111111;
-            --text-secondary-color: #555555;
-            --border-color: #dddddd;
-            --shadow: 0 8px 20px rgba(0,0,0,0.06);
-            --border-radius: 8px;
+            --text-secondary-color: #515151;
+            --border-color: #d5d5d2;
+            --shadow: 0 12px 30px rgba(0,0,0,0.06);
+            --border-radius: 4px;
         }
 
         * {
@@ -31,11 +33,18 @@
         }
 
         body {
-            font-family: 'Open Sans', Arial, system-ui, sans-serif;
+            font-family: var(--um-font-editorial);
             background: var(--bg-color);
             min-height: 100vh;
             color: var(--text-color);
-            line-height: 1.6;
+            line-height: 1.55;
+            font-synthesis: none;
+            text-rendering: optimizeLegibility;
+        }
+
+        button,
+        input {
+            font: inherit;
         }
 
         .dashboard-container {
@@ -45,14 +54,15 @@
         }
 
         .dashboard-header {
-            background: var(--card-bg);
+            background: #0a0a0a;
             border-radius: var(--border-radius);
-            padding: 2rem;
+            padding: clamp(2rem, 5vw, 4rem);
             margin-bottom: 2rem;
-            box-shadow: var(--shadow);
-            text-align: center;
+            box-shadow: none;
+            text-align: left;
             position: relative;
             overflow: hidden;
+            border: 1px solid #242424;
         }
 
         .header-bg {
@@ -72,12 +82,14 @@
         }
 
         .main-title {
-            font-family: 'Poppins', 'Futura PT', 'Century Gothic', sans-serif;
-            font-size: clamp(2.25rem, 5vw, 3rem);
+            font-family: var(--um-font-editorial);
+            font-size: clamp(2.5rem, 6vw, 4rem);
             font-weight: 600;
-            line-height: 1.08;
-            margin-bottom: 0.5rem;
+            line-height: 1;
+            margin-bottom: 0.75rem;
             text-shadow: none;
+            text-wrap: balance;
+            overflow-wrap: normal;
         }
 
         .subtitle {
@@ -97,7 +109,7 @@
             gap: 0.5rem;
             background: rgba(255,255,255,0.12);
             padding: 0.5rem 1rem;
-            border-radius: 4px;
+            border-radius: var(--border-radius);
             margin-top: 1rem;
             border: 1px solid rgba(255,255,255,0.24);
         }
@@ -122,12 +134,12 @@
             padding: 1.5rem;
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            border-color: #b8b8b4;
+            box-shadow: 0 14px 36px rgba(0,0,0,0.08);
         }
 
         .stat-card {
@@ -154,6 +166,8 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            line-height: 1.2;
+            text-wrap: balance;
         }
 
         .btn {
@@ -198,6 +212,15 @@
             background: color-mix(in srgb, var(--error-color) 82%, #000 18%);
         }
 
+        .btn:focus-visible,
+        .filter-btn:focus-visible,
+        .form-control:focus-visible,
+        .command-input input:focus-visible,
+        .quick-cmd:focus-visible {
+            outline: 3px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
         .logs-container {
             max-height: 400px;
             overflow-y: auto;
@@ -230,7 +253,7 @@
 
         .log-type-badge {
             padding: 0.2rem 0.5rem;
-            border-radius: 12px;
+            border-radius: 2px;
             font-size: 1rem;
             font-weight: 500;
             margin-right: 0.5rem;
@@ -288,7 +311,7 @@
 
         .service-status {
             padding: 0.25rem 0.5rem;
-            border-radius: 12px;
+            border-radius: 2px;
             font-size: 1rem;
             font-weight: 500;
         }
@@ -340,7 +363,7 @@
             padding: 0.25rem 0.75rem;
             border: 1px solid var(--border-color);
             background: white;
-            border-radius: 20px;
+            border-radius: var(--border-radius);
             cursor: pointer;
             font-size: 1rem;
             transition: background-color 0.2s, border-color 0.2s, color 0.2s;
@@ -353,7 +376,7 @@
         }
 
         .command-panel {
-            background: #2c3e50;
+            background: #111111;
             border-radius: var(--border-radius);
             padding: 1rem;
             color: white;
@@ -368,8 +391,8 @@
         .command-input input {
             flex: 1;
             padding: 0.5rem;
-            background: #34495e;
-            border: 1px solid #4a5f7a;
+            background: #1b1b1b;
+            border: 1px solid #555555;
             border-radius: 4px;
             color: white;
             font-family: monospace;
@@ -383,8 +406,8 @@
 
         .quick-cmd {
             padding: 0.25rem 0.5rem;
-            background: #34495e;
-            border: 1px solid #4a5f7a;
+            background: #1b1b1b;
+            border: 1px solid #555555;
             border-radius: 4px;
             color: white;
             cursor: pointer;
@@ -393,7 +416,7 @@
         }
 
         .quick-cmd:hover {
-            background: #4a5f7a;
+            background: #333333;
         }
 
         .fade-in {
@@ -403,6 +426,18 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .card,
+            .btn,
+            .log-entry,
+            .filter-btn,
+            .quick-cmd,
+            .fade-in {
+                animation: none;
+                transition: none;
+            }
         }
 
         .text-center { text-align: center; }
