@@ -52,7 +52,7 @@
   --um-radius-lg: 8px;
   --um-container: 1180px;
   --um-container-wide: 1400px;
-  --um-page-gutter: clamp(20px, 3.2vw, 32px);
+  --um-page-gutter: clamp(20px, 4vw, 56px);
   --um-font-editorial: 'UM Sans', 'UM Sans Fallback', Arial, system-ui, sans-serif;
   --font-head: var(--um-font-editorial);
   --um-font-logo: 'Futura PT', 'Futura', Arial, sans-serif;
@@ -80,8 +80,8 @@
   --um-label-tracking: 0.08em;
   --um-weight-title: var(--um-display-weight);
   --um-weight-strong: 700;
-  --um-section-y: clamp(72px, 9vw, 120px);
-  --um-section-y-tight: clamp(56px, 7vw, 88px);
+  --um-section-y: clamp(80px, 9vw, 128px);
+  --um-section-y-tight: clamp(60px, 7vw, 96px);
   --um-world-h1: 3.25rem;
   --um-world-h2: 2.125rem;
   --um-world-h3: 1.25rem;
@@ -389,6 +389,7 @@ body[data-skin="steel"] {
     color: inherit;
     letter-spacing: var(--um-display-tracking);
     font-family: var(--um-font-display);
+    text-wrap: balance;
   }
 
   button,
@@ -401,6 +402,7 @@ body[data-skin="steel"] {
 
   p {
     margin: 0;
+    text-wrap: pretty;
   }
 
   img {
@@ -411,6 +413,16 @@ body[data-skin="steel"] {
 
   small {
     font-size: 1rem;
+  }
+
+  :where(a, button, input, select, textarea, summary):focus-visible {
+    outline: 2px solid var(--um-red);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: var(--um-red);
+    color: var(--um-white);
   }
 }
 

@@ -61,8 +61,8 @@ const socialLinks = [
 ];
 ---
 
-<footer class="um-site-footer py-10 sm:py-12 lg:py-16">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<footer class="um-site-footer">
+  <div class="um-footer-shell">
     <div class="um-footer-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8 sm:gap-10 lg:gap-8 xl:gap-12">
 
       <!-- Brand Column -->
@@ -186,10 +186,17 @@ const socialLinks = [
     border-top: 1px solid var(--skin-footer-line);
     color: var(--skin-footer-text);
     overflow-x: clip;
+    padding-block: clamp(64px, 7vw, 96px) clamp(32px, 4vw, 48px);
+  }
+
+  .um-footer-shell {
+    width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
+    margin-inline: auto;
   }
 
   .um-footer-grid > * {
     min-width: 0;
+    text-align: left;
   }
 
   .um-footer-logo,
@@ -199,7 +206,7 @@ const socialLinks = [
 
   .um-footer-logo {
     display: block;
-    width: min(15.5rem, 100%);
+    width: min(14.5rem, 100%);
   }
 
   .um-footer-logo img {
@@ -219,7 +226,6 @@ const socialLinks = [
   .um-site-footer a {
     color: inherit;
     max-width: 100%;
-    overflow-wrap: anywhere;
   }
 
   .um-site-footer a:hover {
@@ -229,6 +235,7 @@ const socialLinks = [
   .um-footer-social {
     background: color-mix(in srgb, var(--skin-footer-heading) 10%, transparent);
     color: var(--skin-footer-heading);
+    border: 1px solid color-mix(in srgb, var(--skin-footer-heading) 12%, transparent);
   }
 
   .um-footer-social:hover {
@@ -253,5 +260,31 @@ const socialLinks = [
 
   .um-footer-bottom {
     border-top: 1px solid var(--skin-footer-line);
+  }
+
+  .um-site-footer h4 {
+    font-size: 1rem;
+    line-height: 1.25;
+  }
+
+  .um-site-footer :where(p, li, a, span) {
+    line-height: 1.55;
+  }
+
+  @media (max-width: 639px) {
+    .um-footer-grid :where(.justify-center) {
+      justify-content: flex-start;
+    }
+
+    .um-footer-bottom {
+      align-items: flex-start;
+      text-align: left;
+    }
+  }
+
+  @media (hover: hover) {
+    .um-site-footer a {
+      transition: color 140ms ease, background-color 140ms ease, border-color 140ms ease;
+    }
   }
 </style>
