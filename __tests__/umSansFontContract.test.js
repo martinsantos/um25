@@ -322,6 +322,23 @@ describe('UM Sans 1.2 definitive clean family', () => {
     expect(index).toContain('Variable cursiva');
   });
 
+  test('keeps the public specimen legible and anchor-safe at mobile widths', () => {
+    const specimen = fs.readFileSync(path.join(root, 'src/pages/estilo/um-sans.astro'), 'utf8');
+
+    expect(specimen).toContain('--ums2-site-header-height: 74px');
+    expect(specimen).toContain('--ums2-index-height: 68px');
+    expect(specimen).toContain('--ums2-anchor-gap: 24px');
+    expect(specimen).toContain('scroll-margin-top: calc(var(--ums2-site-header-height) + var(--ums2-index-height) + var(--ums2-anchor-gap))');
+    expect(specimen).toMatch(/\.ums2-index \{[^}]*background: #fff;/);
+    expect(specimen).toMatch(/\.ums2-button \{[^}]*min-height: 48px;[^}]*font-size: 16px;/);
+    expect(specimen).toMatch(/\.ums2-hero-proof span \{ font-size: 16px; \}/);
+    expect(specimen).toContain('aria-label="Descargar familia UM Sans 1.2"');
+    expect(specimen).toContain('role="textbox"');
+    expect(specimen).toContain("link.setAttribute('aria-current', 'location')");
+    expect(specimen).not.toContain('font-size: 14px');
+    expect(specimen).not.toContain('font-size: 11px');
+  });
+
   test('integrates the variable family without changing the logo font', () => {
     const css = fs.readFileSync(path.join(root, 'src/styles/v4.css'), 'utf8');
     const layout = fs.readFileSync(path.join(root, 'src/layouts/LayoutV4.astro'), 'utf8');
