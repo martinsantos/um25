@@ -98,6 +98,13 @@ const routes = [
     allowSampleClaims: true,
     allowSpecimenStructure: true,
   },
+  {
+    path: '/estilo/fuente',
+    label: 'um sans delivery',
+    allowDisplayScale: true,
+    allowSampleClaims: true,
+    allowSpecimenStructure: true,
+  },
   { path: '/banners', label: 'lab banners' },
   { path: '/pretext-demo', label: 'lab pretext' },
   { path: '/plantilla-arca', label: 'utilidad arca' },
