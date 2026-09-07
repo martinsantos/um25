@@ -211,7 +211,7 @@ export default function HospitalExperience({modelBase='/models/'}){
  const go=(value,preserveDemo=false)=>{if(!preserveDemo)setDemo('');setExplore(false);setPlaying(false);setProgress(value);engine.current?.resetLook();};
  const runDemo=id=>{setDemo(id);setDemoRun(n=>n+1);setDemoStage(0);setExplore(false);setSystemsView(true);if(id){setLayer(DEMOS[id].layer);go(STOPS.find(s=>s.name===DEMOS[id].stop).step/JOURNEY_STEPS,true);mount.current?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'center'});}else setLayer('all');};
  return <section className="hospital-experience">
-  <div className="hospital-heading"><div><span className="hospital-kicker">ULTIMA MILLA / INFRAESTRUCTURA VIVA</span><h1>Entrá. Todo está conectado.</h1><p>Un hospital desde adentro. Descubrí la infraestructura detrás de cada operación.</p></div><span className="hospital-badge">01 / SALUD<br/>Estudio interactivo</span></div>
+  <div className="hospital-heading"><div><span className="hospital-kicker">ULTIMA MILLA / INFRAESTRUCTURA VIVA</span><h1>Sistemas integrales por SECTOR</h1><p>Un hospital desde adentro. Descubrí la infraestructura detrás de cada operación.</p></div><span className="hospital-badge">01 / SALUD<br/>Estudio interactivo</span></div>
   <div className={`hospital-stage ${expanded?'is-expanded':''}`}>
    <div className={`hospital-canvas ${explore?'is-exploring':''}`} ref={mount}/>
    {!ready&&!error?<div className="hospital-loading" role="status">Preparando arquitectura y sistemas…</div>:null}
