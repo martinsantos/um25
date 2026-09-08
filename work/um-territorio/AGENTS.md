@@ -1,6 +1,10 @@
 # Prototype Instructions
 
-Aeropuerto: ampliar accesos técnicos y de personal con puertas, lectores/contactos, comunicación y SDI diferenciados por zona. Integraciones conceptuales locales, no replica de seguridad aeroportuaria ni salidas de emergencia certificadas. SensorPicker debe permitir encuadrar el conjunto completo de puerta, no sólo el lector.
+Aeropuerto: ampliar accesos técnicos y de personal con puertas, lectores/contactos, comunicación y SDI diferenciados por zona. Etapa 4A: beam lineal en hall/nave, baliza exterior con luz fija, barrera vehicular, cámara en mástil con cobertura, PIR y panel de alarma. Integraciones conceptuales locales, no replica de seguridad aeroportuaria ni salidas de emergencia certificadas. SensorPicker debe permitir encuadrar el conjunto completo de puerta, no sólo el lector.
+
+Etapa 4B 2026-09-08: banco de baterías abierto, transferencia bypass y dish de redundancia con mástil a medida por escena. Métricas DEMO por dominio; sin maniobras reales ni espectro real.
+
+Etapa 4C 2026-09-08: mesa de relevamiento (consultoría tangible), muro NOC con mosaico SLA, tótem doble faz y radar de nivel como integración de proceso propuesta. Sin datos reales de pacientes, vuelos o producción.
 
 Sensores industriales 2026-09-08: enriquecer hospital, aeropuerto y bodega con instrumentación identificable por dominio. Distinguir oferta publicada de UM de integraciones de proceso propuestas. Mantener unidades propias, montaje y conexión, métricas DEMO, sin control de hardware ni disparos de incendio. industrialInventory.js y industrialSensors.js son kit local compartido sobre arquitectura Blender. Cajas de campo (fieldbox) concentran puntos cercanos con troncal único al rack; incendio mantiene home-run a central. No regenerar ni publicar hospital-3d sin una entrega autorizada por Git Flow.
 
