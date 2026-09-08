@@ -5,5 +5,6 @@ export const DEMOS={
  fire:{label:'Prueba de detección',stop:'Calderas',layer:'Fire-detection',title:'Zona CT-01 / Prueba de incendio',steps:['Entrada de prueba del detector térmico.','La central identifica la zona CT-01.','Avisador y evento de supervisión · sin descarga ni maniobras reales.']},
  power:{label:'Respaldo UPS',stop:'Energía IT',layer:'Power',title:'Continuidad IT / DEMO',steps:['Se simula pérdida de alimentación de red.','El UPS sostiene la carga IT representada.','La supervisión registra operación sobre batería.']},
  access:{label:'Probar credencial',stop:'Acceso técnico',layer:'Security',title:'Puerta técnica / DEMO',steps:['Se presenta una credencial ilustrativa.','El controlador valida el permiso de acceso.','Indicador autorizado · evento registrado en supervisión.']},
+ fiber:{label:'Fibra y certificación',stop:'Fibra y certificación',layer:'Data',title:'ODF → switch / DEMO',steps:['El certificador verifica el enlace hacia el distribuidor óptico.','Reserva de fibra y LC quedan documentados.','El enlace aparece operativo en supervisión · sin certificación real.']},
 };
 export const demoStep=elapsed=>Math.min(2,Math.max(0,Math.floor(elapsed/2500)));

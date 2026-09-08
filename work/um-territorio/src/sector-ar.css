@@ -1,0 +1,10 @@
+/* Shared AR appearance without changing the published hospital selectors. */
+.sector-heading nav{position:static;inset:auto;width:auto;height:auto;background:transparent;transform:none}
+@media(max-width:400px){.sector-filters{grid-template-columns:repeat(3,minmax(0,1fr))}.sector-filters button{font-size:10px;padding:7px 4px;overflow-wrap:anywhere}.sector-location{top:155px}.sector-heading nav{gap:14px}}
+.sector-actions select{width:auto;max-width:210px;margin:0;display:inline-block}
+.sector-stage:has(.um-ar-inspector) .sector-filters{visibility:hidden}
+.sector-experience .um-ar-tag{position:absolute;width:208px;border:1px solid #bdd6cc55;border-left:3px solid var(--ar-color);border-radius:4px 12px 12px 12px;background:#10221fed;color:#effbf6;text-align:left;padding:12px;box-shadow:0 8px 22px #0b21152a;backdrop-filter:blur(16px);pointer-events:auto;line-height:1.3;cursor:pointer}
+.sector-experience .um-ar-tag:hover,.sector-experience .um-ar-tag:focus-visible{background:#17352ff7;border-color:var(--ar-color);outline:1px solid var(--ar-color)}
+.sector-experience .um-ar-inspector>header button{background:transparent;color:#fff;border:0;font-size:23px;padding:3px 8px}
+.sector-experience .um-ar-pause{background:#d8eee2;color:#142f22;border:0;width:100%;border-radius:7px;padding:12px}
+@media(max-width:720px){.sector-experience .um-ar-tag{width:190px;padding:9px}}

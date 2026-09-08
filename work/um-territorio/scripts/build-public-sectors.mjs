@@ -1,0 +1,11 @@
+import {build} from 'vite';
+import react from '@vitejs/plugin-react';
+import {fileURLToPath} from 'node:url';
+import {resolve} from 'node:path';
+import {mkdir,cp} from 'node:fs/promises';
+const root=fileURLToPath(new URL('../',import.meta.url));
+const out=resolve(process.env.UM_SECTORS_OUT||resolve(root,'../../public/sector-3d'));
+await build({configFile:false,root,base:'/sector-3d/',publicDir:false,plugins:[react()],build:{outDir:out,emptyOutDir:false,rollupOptions:{input:[resolve(root,'aeropuerto.html'),resolve(root,'bodega.html')]}}});
+await mkdir(resolve(out,'models'),{recursive:true});
+for(const file of ['airport-connected.glb','winery-connected.glb','draco'])await cp(resolve(root,'public/models',file),resolve(out,'models',file),{recursive:true});
+console.log('Sector package generated locally. No deployment performed.');
