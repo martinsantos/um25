@@ -33,7 +33,23 @@ export function getCategoryLabel(cat: string): string {
 export function formatBlogDate(dateStr: string): string {
   if (!dateStr) return '';
   const d = new Date(dateStr);
-  return d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' });
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Argentina/Mendoza' });
+}
+
+/** Fecha larga para cabeceras de artículo: "3 de septiembre de 2026". */
+export function formatBlogDateLong(dateStr: string | undefined | null): string {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/Argentina/Mendoza' });
+}
+
+/** ISO 8601 válido o undefined (para <time datetime> y JSON-LD). */
+export function toIsoDate(dateStr: string | undefined | null): string | undefined {
+  if (!dateStr) return undefined;
+  const d = new Date(dateStr);
+  return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
 }
 
 export { markdownToHtml };

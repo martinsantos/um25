@@ -350,11 +350,36 @@ describe('UM Sans 1.2 definitive clean family', () => {
     expect(css).toContain('font-optical-sizing: auto');
     expect(css).toContain("--um-font-logo: 'Futura PT'");
     expect(css).toContain("font-family: 'UM Sans Fallback'");
-    expect(css).toContain('size-adjust: 112.33%');
+    // El fallback métrico se recalibró el 2026-09-27 (112,33 % daba +6 a +11 % de
+    // ancho; ver docs/typography/UM-SANS-AUDITORIA-2026-09-27.md). Se exige que
+    // siga siendo un fallback métrico acotado, no un valor exacto.
+    const fallbackBlock = css.match(/@font-face\s*\{[^}]*font-family: 'UM Sans Fallback'[^}]*\}/);
+    expect(fallbackBlock).not.toBeNull();
+    const sizeAdjust = Number((fallbackBlock[0].match(/size-adjust:\s*([0-9.]+)%/) || [])[1]);
+    expect(sizeAdjust).toBeGreaterThanOrEqual(100);
+    expect(sizeAdjust).toBeLessThanOrEqual(112.33);
+    expect(fallbackBlock[0]).toMatch(/ascent-override:\s*[0-9.]+%/);
+    expect(fallbackBlock[0]).toMatch(/descent-override:\s*[0-9.]+%/);
+    expect(fallbackBlock[0]).toMatch(/line-gap-override:\s*0%/);
+    expect(fs.existsSync(path.join(root, 'docs/typography/UM-SANS-AUDITORIA-2026-09-27.md'))).toBe(true);
     expect(css).not.toContain('woff2-variations');
     expect(layout).toContain('UMSans-Variable.woff2?v=1.2.0-production');
     expect(layout).not.toContain('UMSans-SemiBold.woff2?v=1.0.0-rc');
     expect(layout).toContain('data-font-system="um-sans-editorial-1.2"');
     expect(visualAudit).toContain("result.fontSystem !== 'um-sans-editorial-1.2'");
+
+    // Rediseño 2026-09: el logotipo dejó de ser texto en Futura y es el SVG
+    // vectorizado oficial. Garantía: nunca se compone con UM Sans ni con texto.
+    const logo = fs.readFileSync(path.join(root, 'src/components/brand/UMLogo.astro'), 'utf8');
+    const navbar = fs.readFileSync(path.join(root, 'src/components/v4/NavbarV4.astro'), 'utf8');
+    const footer = fs.readFileSync(path.join(root, 'src/components/v4/FooterV4.astro'), 'utf8');
+    expect(logo).toMatch(/<svg[^>]*role="img"[^>]*aria-label=\{title\}/);
+    expect((logo.match(/<path d="/g) || []).length).toBeGreaterThanOrEqual(10);
+    expect(logo).toContain('fill="currentColor"');
+    expect(logo).not.toMatch(/<text\b|font-family|UM Sans|--um-font-(editorial|body|display)/);
+    for (const shell of [navbar, footer]) {
+      expect(shell).toContain("import UMLogo from '../brand/UMLogo.astro'");
+      expect(shell).toContain('<UMLogo');
+    }
   });
 });

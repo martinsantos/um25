@@ -1,9 +1,10 @@
 import { SITE_NAME } from '../config/seo';
 
 export const SEO_META_LIMITS = {
-  title: 70,
+  title: 60,
+  minimumTitle: 30,
   description: 160,
-  minimumDescription: 70,
+  minimumDescription: 120,
 } as const;
 
 export const SEO_META_POLICY_SUMMARY = [
@@ -25,6 +26,8 @@ export interface BuildSeoDescriptionOptions {
   lang?: SeoLanguage;
   maxLength?: number;
   minLength?: number;
+  /** Frase de cierre propia del tipo de página cuando el texto real no alcanza. */
+  generic?: string;
 }
 
 export interface CaseSeoMetaInput {
@@ -144,38 +147,69 @@ function uniqueContextParts(parts: string[]): string[] {
 }
 
 function buildCaseSeoTitle(input: CaseSeoMetaInput): string {
-  const title = cleanSeoText(input.title) || 'Antecedente técnico';
+  const title = cleanSeoText(input.title).replace(/\s+-\s+/g, ' · ') || 'Antecedente técnico';
   const client = cleanSeoText(input.client);
   const area = cleanSeoText(input.area);
-  const year = cleanSeoText(input.date).match(/\b(20\d{2}|19\d{2})\b/)?.[1] || '';
   const identifier = cleanSeoText(input.identifier);
   const caseCode = identifier ? `UM-${identifier}` : '';
   const clientIsGeneric = /cliente\s+confidencial/i.test(client);
-  const clientRepeatsTitle = client ? appearsInsideTitle(title, client) : false;
-  const areaRepeatsTitle = area ? appearsInsideTitle(title, area) : false;
-  const contextParts = uniqueContextParts([
-    client && !clientIsGeneric && !clientRepeatsTitle ? client : '',
-    clientIsGeneric ? 'Cliente confidencial' : '',
-    !areaRepeatsTitle && !client && caseCode ? area : '',
-    year && caseCode && !appearsInsideTitle(title, year) ? year : '',
-  ].filter(Boolean));
+  const usableClient = client && !clientIsGeneric && !appearsInsideTitle(title, client) ? client : '';
+  const usableArea = area && !appearsInsideTitle(title, area) ? area : '';
+  const suffix = ` | ${SITE_NAME}`;
+  const { title: max, minimumTitle: min } = SEO_META_LIMITS;
 
-  if (contextParts.length === 0 && !caseCode) return buildHumanSeoTitle(title);
+  const wordTrim = (value: string, limit: number): string => {
+    if (value.length <= limit) return value;
+    const sliced = value.slice(0, Math.max(0, limit - 1));
+    const lastSpace = sliced.lastIndexOf(' ');
+    const cut = lastSpace > 8 ? sliced.slice(0, lastSpace) : sliced;
+    return `${cut.replace(/[\s.,;:·&|-]+$/g, '')}…`;
+  };
+  const trimmedClient = (() => {
+    if (!usableClient || !caseCode) return '';
+    const room = max - title.length - caseCode.length - 6;
+    if (room < 12) return '';
+    const compact = wordTrim(usableClient, room);
+    return compact.length >= 12 ? compact : '';
+  })();
 
-  const siteName = SITE_NAME;
-  const maxLength = SEO_META_LIMITS.title;
-  const suffix = ` | ${siteName}`;
-  const available = Math.max(24, maxLength - suffix.length);
-  const minBaseLength = Math.min(28, Math.max(20, Math.floor(available * 0.46)));
-  const maxContextLength = Math.max(14, available - minBaseLength - 3);
-  const codeSuffix = caseCode ? ` · ${caseCode}` : '';
-  const humanContextLength = Math.max(8, maxContextLength - codeSuffix.length);
-  const humanContext = trimAtWordBoundary(contextParts.join(' · '), humanContextLength);
-  const context = `${humanContext}${codeSuffix}`.replace(/^\s*·\s*/, '');
-  const baseLength = Math.max(18, available - context.length - 3);
-  const compactTitle = trimAtWordBoundary(title, baseLength);
+  // Título humano completo primero; el cliente y el código público diferencian
+  // títulos repetidos. Sólo se recorta por palabra, nunca a mitad de palabra.
+  const candidates = [
+    usableClient && caseCode ? `${title} · ${usableClient} · ${caseCode}${suffix}` : '',
+    usableClient && caseCode ? `${title} · ${usableClient} · ${caseCode}` : '',
+    trimmedClient ? `${title} · ${trimmedClient} · ${caseCode}` : '',
+    usableClient && !caseCode ? `${title} · ${usableClient}${suffix}` : '',
+    caseCode ? `${title} · ${caseCode}${suffix}` : '',
+    caseCode ? `${title} · ${caseCode}` : '',
+    usableArea && !caseCode ? `${title} · ${usableArea}${suffix}` : '',
+    `${title}${suffix}`,
+    title,
+  ].filter(Boolean);
 
-  return `${compactTitle} · ${context}${suffix}`.slice(0, maxLength).trim();
+  const fitting = candidates.find((candidate) => candidate.length >= min && candidate.length <= max);
+  if (fitting) return fitting;
+
+  const context = [usableClient ? wordTrim(usableClient, 22) : '', caseCode].filter(Boolean).join(' · ');
+  if (context) {
+    const room = max - context.length - 3;
+    if (room >= 18) return `${wordTrim(title, room)} · ${context}`;
+  }
+  const shortEnough = candidates.filter((candidate) => candidate.length <= max);
+  if (shortEnough.length > 0) return shortEnough.sort((a, b) => b.length - a.length)[0]!;
+  return wordTrim(title, max);
+}
+
+/**
+ * Title final para <title>/OG: 30–60 caracteres. Agrega la marca sólo si entra;
+ * si no, conserva el título humano completo (la marca ya está en og:site_name).
+ */
+export function finalizeSeoTitle(rawTitle: unknown, siteName = SITE_NAME): string {
+  const base = stripExistingBrand(cleanSeoText(rawTitle), siteName) || 'Servicios IT para empresas';
+  const branded = `${base} | ${siteName}`;
+  if (branded.length <= SEO_META_LIMITS.title) return branded;
+  if (base.length <= SEO_META_LIMITS.title) return base;
+  return trimAtWordBoundary(base, SEO_META_LIMITS.title);
 }
 
 export function buildHumanSeoDescription(
@@ -192,14 +226,15 @@ export function buildHumanSeoDescription(
     return trimAtWordBoundary(primaryText, maxLength);
   }
 
+  const usedText = normalizeForSeoComparison(primaryText);
   const fallbackText = fallbackParts
-    .map((part) => cleanSeoText(part))
-    .filter(Boolean)
+    .map((part) => cleanSeoText(part).replace(/[.]+$/g, ''))
+    .filter((part) => part && !usedText.includes(normalizeForSeoComparison(part)))
     .join('. ');
-  const generic = lang === 'en'
+  const generic = options.generic ?? (lang === 'en'
     ? 'Clear context, scope and next steps from ULTIMA MILLA for business technology decisions.'
-    : 'Contexto claro, alcance y próximos pasos de ULTIMA MILLA para decisiones tecnológicas empresariales.';
-  const combined = [primaryText, fallbackText, generic].filter(Boolean).join('. ');
+    : 'Contexto claro, alcance y próximos pasos de ULTIMA MILLA para decisiones tecnológicas empresariales.');
+  const combined = [primaryText.replace(/[.]+$/g, ''), fallbackText, generic].filter(Boolean).join('. ');
 
   return trimAtWordBoundary(combined, maxLength);
 }
@@ -215,7 +250,7 @@ export function buildCaseSeoMeta(input: CaseSeoMetaInput) {
     client ? `Proyecto para ${client}` : '',
     area ? `Trabajo relacionado con ${area}` : '',
     year ? `Registro del proyecto en ${year}` : '',
-  ]);
+  ], { generic: 'Antecedente técnico documentado por ULTIMA MILLA, servicios IT con sede en Mendoza.' });
 
   return {
     title: buildCaseSeoTitle(input),
@@ -227,13 +262,20 @@ export function buildBlogSeoMeta(input: BlogSeoMetaInput) {
   const lang = input.lang ?? 'es';
   const title = cleanSeoText(input.title) || (lang === 'en' ? 'Article' : 'Articulo');
   const category = cleanSeoText(input.category);
+  // El resumen real manda; si no alcanza 120 caracteres se cierra con una firma
+  // breve (sin repetir el título ni la categoría).
   const description = buildHumanSeoDescription(input.summary, [
-    title,
-    category ? (lang === 'en' ? `Topic: ${category}` : `Tema: ${category}`) : '',
-  ], { lang });
+    cleanSeoText(input.summary) ? '' : title,
+    cleanSeoText(input.summary) ? '' : category,
+  ], {
+    lang,
+    generic: lang === 'en'
+      ? 'Technical reading by ULTIMA MILLA.'
+      : 'Lectura técnica de ULTIMA MILLA.',
+  });
 
   return {
-    title: buildHumanSeoTitle(title),
+    title: finalizeSeoTitle(title),
     description,
   };
 }

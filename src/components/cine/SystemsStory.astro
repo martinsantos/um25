@@ -1,0 +1,168 @@
+---
+// "Sistemas, uno por uno" (alfa): relato didáctico guiado por scroll. La escena
+// 3D queda fija al costado y cada capítulo le indica al motor Cine qué mostrar
+// (estudio fijo del hospital, un sistema aislado o la movie completa). Un solo
+// iframe; se suspende fuera de pantalla. En móvil o con movimiento reducido /
+// ahorro de datos el 3D se monta solo si el usuario lo pide.
+interface Props { slug: string; name: string; }
+const { slug, name } = Astro.props;
+
+const MAP: Record<string, 'hospital' | 'aeropuerto' | 'bodega' | 'fachada'> = {
+  salud: 'hospital', aeropuertos: 'aeropuerto', 'seguridad-electronica': 'aeropuerto',
+  bodegas: 'bodega', industria: 'bodega', mineria: 'bodega',
+  constructoras: 'fachada', gobiernosectorpublico: 'fachada', gobierno: 'fachada', software: 'fachada',
+};
+const scene = MAP[slug] || 'fachada';
+const PLACE = {
+  hospital: { name: 'un hospital', short: 'Hospital conectado', where: { Data: 'bandejas sobre el cielorraso, del rack de piso a cada puesto clínico y de admisión', CCTV: 'accesos, circulaciones, farmacia y guardia', Fire: 'cada sala y cada cielorraso técnico, con la central en el cuarto de control', Power: 'el cuarto técnico: tablero, UPS y las cargas críticas que respalda', Software: 'los puestos de admisión, enfermería y los tableros de gestión' } },
+  aeropuerto: { name: 'una terminal', short: 'Terminal aeroportuaria', where: { Data: 'desde el cuarto técnico hasta check-in, seguridad y embarque', CCTV: 'perímetro, preembarque y puntos de control', Fire: 'hall central, cuarto técnico y zonas de espera', Power: 'el cuarto técnico y los puestos que no pueden apagarse', Software: 'pantallas de información al pasajero y el NOC' } },
+  bodega: { name: 'una nave productiva', short: 'Nave productiva', where: { Data: 'la nave de tanques, el laboratorio y el depósito', CCTV: 'ingresos, playa de carga y nave', Fire: 'nave, depósito y cuarto técnico, con pulsadores y balizas', Power: 'tableros de planta y el cuarto técnico', Software: 'el tótem de trazabilidad y la oficina de planta' } },
+  fachada: { name: 'un edificio', short: 'Edificio inteligente', where: { Data: 'la montante troncal y cada piso', CCTV: 'accesos, hall y circulaciones de cada nivel', Fire: 'todos los pisos, con la central en planta baja', Power: 'la sala técnica y la montante de energía', Software: 'la gestión del edificio y la atención de sus usuarios' } },
+}[scene];
+
+const SYS = {
+  Data: { label: 'Datos y fibra', code: 'D', color: '#168daa', focus: ['Data', 'Telecom'], what: 'Cableado estructurado, fibra y enlaces: el camino por el que viaja toda la información del edificio.', why: 'Todos los demás sistemas viajan por ella: la diseñamos certificada, documentada y con redundancia donde la operación no puede cortarse.' },
+  CCTV: { label: 'Video y accesos', code: 'V · S', color: '#cf528a', focus: ['CCTV', 'Security'], what: 'Cámaras IP, grabación y control de accesos sobre la misma red, con monitoreo centralizado.', why: 'Ver lo que pasa, decidir quién entra y conservar evidencia verificable de cada evento.' },
+  Fire: { label: 'Detección de incendio', code: 'F', color: '#d64032', focus: ['Fire-detection'], what: 'Detectores, pulsadores, sirenas y una central que supervisa cada lazo.', why: 'Detectar temprano y avisar a quien corresponde es lo que protege a personas y a la continuidad del lugar.' },
+  Power: { label: 'Energía IT', code: 'E', color: '#b88122', focus: ['Power'], what: 'Tableros, UPS y alimentación limpia para racks, cámaras y puestos críticos.', why: 'Racks, cámaras y puestos críticos siguen funcionando ante un corte de energía.' },
+  Software: { label: 'Software y operación', code: 'L', color: '#467aca', focus: ['Software'], what: 'Aplicaciones, integraciones y tableros que convierten la infraestructura en información para decidir.', why: 'La tecnología sirve cuando la operación la usa todos los días.' },
+} as const;
+
+type Chapter = { id: string; kicker: string; title: string; text: string; cmd: Record<string, unknown>[]; sys?: keyof typeof SYS };
+const intro: Chapter[] = scene === 'hospital'
+  ? [
+      { id: 'adentro', kicker: 'Adentro', title: 'Infraestructura al servicio del cuidado.', text: 'Entramos por la circulación principal. La infraestructura que sostiene al hospital recorre paredes, cielorrasos y cuartos técnicos.', cmd: [{ action: 'study', value: 'entrada' }] },
+      { id: 'conectar', kicker: 'Conectar', title: 'El detalle de cada conexión.', text: 'Un rack de piso a escala real: switch, patcheras y frentes ordenados. Acá empieza cada puesto de trabajo del hospital.', cmd: [{ action: 'study', value: 'equipo' }] },
+      { id: 'revelar', kicker: 'Revelar', title: 'Los datos, desde su origen.', text: 'La misma vista con la red revelada: cada recorrido nace en el rack y llega a un puesto, una cámara o un equipo.', cmd: [{ action: 'study', value: 'red' }] },
+    ]
+  : [
+      { id: 'edificio', kicker: 'El edificio', title: `${PLACE.short}, vista completa.`, text: `${PLACE.short}: primero el edificio completo y, capítulo a capítulo, cada sistema que lo hace funcionar.`, cmd: [{ action: 'mode', value: 'building' }, { action: 'focus', value: null }, { action: 'play' }] },
+    ];
+const systems: Chapter[] = (Object.keys(SYS) as (keyof typeof SYS)[]).map((k) => ({
+  id: `sys-${k.toLowerCase()}`, kicker: SYS[k].label, title: SYS[k].what, text: `Dónde está: ${PLACE.where[k]}. ${SYS[k].why}`, sys: k,
+  cmd: [{ action: 'mode', value: 'systems' }, { action: 'focus', value: SYS[k].focus }, { action: 'play' }],
+}));
+const outro: Chapter = { id: 'todo', kicker: 'Todo junto', title: 'Una sola infraestructura, un solo responsable.', text: 'Diseñamos, integramos y sostenemos cada sistema como parte de la misma operación, con soporte 24/7 desde Cuyo.', cmd: [{ action: 'focus', value: null }, { action: 'mode', value: 'film' }, { action: 'play' }] };
+const chapters = [...intro, ...systems, outro];
+const src = `/3d/cinema.html?scene=${scene}&mode=building&embed=1&ar=clean&center=1${scene === 'hospital' ? '&plano=entrada' : ''}`;
+---
+<section class="um-story" id="sistemas" aria-labelledby="um-story-title" data-scene={scene}>
+  <div class="um-story__head">
+    <p class="um-story__kicker"><span></span>Sistemas, uno por uno</p>
+    <h2 id="um-story-title">Cómo se integra la infraestructura de {PLACE.name}.</h2>
+  </div>
+  <div class="um-story__grid">
+    <div class="um-story__stage" data-src={src}>
+      <img src={`/cine/media/${scene}-cycles.webp`} alt={`${PLACE.short}: render de la escena 3D`} width="1600" height="1000" loading="lazy" decoding="async" />
+      <div class="um-story__frame" aria-hidden="true"></div>
+      <button class="um-story__mount" type="button" hidden>Ver en 3D</button>
+      <p class="um-story__now" aria-live="polite"><i></i><span>{PLACE.short}</span></p>
+    </div>
+    <ol class="um-story__chapters">
+      {chapters.map((c, i) => (
+        <li class="um-story__chapter" data-cmd={JSON.stringify(c.cmd)} data-label={c.kicker} data-color={c.sys ? SYS[c.sys].color : '#DC2626'} style={`--c:${c.sys ? SYS[c.sys].color : '#DC2626'}`}>
+          <span class="um-story__num">{String(i + 1).padStart(2, '0')}</span>
+          <p class="um-story__label">{c.sys && <i aria-hidden="true"></i>}{c.kicker}{c.sys && <b>{SYS[c.sys].code}</b>}</p>
+          <h3>{c.title}</h3>
+          <p>{c.text}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<script>
+  const story = document.querySelector<HTMLElement>('.um-story');
+  if (story) {
+    const stage = story.querySelector<HTMLElement>('.um-story__stage')!;
+    const frameHost = stage.querySelector<HTMLElement>('.um-story__frame')!;
+    const mountBtn = stage.querySelector<HTMLButtonElement>('.um-story__mount')!;
+    const now = stage.querySelector<HTMLElement>('.um-story__now span')!;
+    const nowDot = stage.querySelector<HTMLElement>('.um-story__now i')!;
+    const chapters = [...story.querySelectorAll<HTMLElement>('.um-story__chapter')];
+    const conn = (navigator as any).connection;
+    const limited = matchMedia('(prefers-reduced-motion: reduce)').matches || Boolean(conn?.saveData);
+    const compact = matchMedia('(max-width: 900px), (pointer: coarse)').matches;
+    let frame: HTMLIFrameElement | null = null, ready = false, active: HTMLElement | null = null, pending: ReturnType<typeof setTimeout> | undefined, inView = false;
+    const send = (action: string, value?: unknown) => frame?.contentWindow?.postMessage({ type: 'um-cinema-command', action, value }, location.origin);
+    const apply = (el: HTMLElement) => { if (!ready) return; for (const c of JSON.parse(el.dataset.cmd || '[]')) send(c.action, c.value); };
+    const mount = () => {
+      if (frame) return;
+      frame = document.createElement('iframe');
+      frame.title = 'Escena 3D del sector'; frame.tabIndex = -1; frame.src = stage.dataset.src || '';
+      frameHost.appendChild(frame); mountBtn.hidden = true;
+    };
+    addEventListener('message', (e) => {
+      if (e.origin !== location.origin || !frame || e.source !== frame.contentWindow) return;
+      if (e.data?.type === 'um-cinema-state' && e.data.ready && !ready) { ready = true; stage.classList.add('is-ready'); if (active) apply(active); if (!inView) send('suspend', true); }
+      if (e.data?.type === 'um-cinema-error') { stage.classList.remove('is-ready'); }
+    });
+    const activate = (el: HTMLElement) => {
+      if (el === active) return;
+      active = el;
+      chapters.forEach((c) => c.classList.toggle('is-active', c === el));
+      now.textContent = el.dataset.label || ''; nowDot.style.background = el.dataset.color || '';
+      // Intención: sólo se ordena a la escena si el capítulo queda en foco un instante.
+      clearTimeout(pending); pending = setTimeout(() => { if (active === el) apply(el); }, 260);
+    };
+    const io = new IntersectionObserver((entries) => { for (const e of entries) if (e.isIntersecting) activate(e.target as HTMLElement); }, { rootMargin: '-45% 0px -45% 0px' });
+    chapters.forEach((c) => io.observe(c));
+    new IntersectionObserver(([e]) => {
+      inView = e.isIntersecting;
+      if (inView && !compact && !limited) mount();
+      if (ready) send('suspend', !inView);
+    }, { rootMargin: '300px 0px' }).observe(story);
+    if (compact || limited) { mountBtn.hidden = false; mountBtn.addEventListener('click', mount); }
+    activate(chapters[0]);
+  }
+</script>
+
+<style>
+  .um-story{background:#0e0f11;color:#fff;padding:clamp(56px,7vw,96px) 0 clamp(40px,5vw,64px)}
+  .um-story__head,.um-story__grid,.um-story__note{width:min(1280px,100%);margin:0 auto;padding:0 clamp(20px,5vw,72px);box-sizing:border-box}
+  .um-story__kicker{display:flex;align-items:center;gap:10px;margin:0 0 14px;color:#c9cdd3;font-size:var(--x-fs-meta, .875rem);font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+  .um-story__kicker span{width:22px;height:2px;background:var(--um-red,#DC2626)}
+  .um-story__head h2{margin:0;color:#fff;font-size:clamp(28px,2.8vw,42px)!important;line-height:1.08!important;font-weight:600!important;letter-spacing:-.02em;max-width:24ch}
+  .um-story__head p{margin:14px 0 0;color:#aab0b7;font-size:17px;max-width:60ch}
+  .um-story__grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(24px,4vw,56px);margin-top:clamp(28px,4vw,48px);align-items:start}
+  .um-story__stage{position:sticky;top:88px;height:calc(100vh - 128px);min-height:420px;max-height:760px;border-radius:6px;overflow:hidden;background:#101113}
+  .um-story__stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 1s ease}
+  .um-story__frame,.um-story__frame :global(iframe){position:absolute;inset:0;width:100%;height:100%;border:0}
+  .um-story__frame{opacity:0;transition:opacity 1.1s ease}
+  .um-story__stage.is-ready .um-story__frame{opacity:1}
+  .um-story__stage.is-ready img{opacity:0}
+  .um-story__mount{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:12px 20px;border-radius:4px;border:0;background:var(--um-red,#DC2626);color:#fff;font:500 16px var(--um-font-editorial,sans-serif);cursor:pointer}
+  .um-story__mount[hidden]{display:none}
+  .um-story__now{position:absolute;left:14px;bottom:14px;margin:0;display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(14,15,17,.82);border:1px solid #ffffff22;font-size:16px;font-weight:600;pointer-events:none}
+  .um-story__now i{width:10px;height:10px;border-radius:2px;background:#DC2626;transition:background .4s ease}
+  .um-story__chapters{list-style:none;margin:0;padding:12vh 0 18vh;display:flex;flex-direction:column;gap:18vh}
+  .um-story__chapter{position:relative;padding:4px 0 4px 22px;border-left:1px solid #ffffff1f;opacity:.38;transition:opacity .5s ease,border-color .5s ease}
+  .um-story__chapter.is-active{opacity:1;border-left-color:var(--c)}
+  .um-story__num{display:block;margin-bottom:10px;color:#9aa1a9;font:600 14px/1 var(--um-font-editorial,'UM Sans',sans-serif);font-variant-numeric:tabular-nums}
+  .um-story__label{display:flex;align-items:center;gap:10px;margin:0 0 10px;color:#e3e6ea;font-size:var(--x-fs-meta, .875rem);font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+  .um-story__label i{width:10px;height:10px;border-radius:2px;background:var(--c)}
+  .um-story__label b{display:none}
+  .um-story__chapter h3{margin:0;color:#fff;font-size:clamp(22px,1.9vw,28px)!important;line-height:1.18!important;font-weight:600!important;letter-spacing:-.012em}
+  .um-story__chapter p:last-child{margin:12px 0 0;color:#c2c7cd;font-size:17px;line-height:1.6}
+  .um-story__note{margin-top:28px;color:#a1a1aa;font-size:var(--x-fs-meta, .875rem)}
+  .um-story__mount{min-height:44px}
+  @media (max-width:900px){
+    .um-story__grid{grid-template-columns:1fr}
+    .um-story__stage{top:63px;height:clamp(200px,30svh,280px);min-height:0;z-index:2;border-radius:0}
+    .um-story__chapters{padding:8px 0 0;gap:0}
+  }
+  @media (max-width:760px){
+    .um-story{padding:56px 0 48px}
+    .um-story__head,.um-story__grid,.um-story__note{padding:0 16px}
+    .um-story__head h2{text-wrap:balance}
+    .um-story__grid{gap:0;margin-top:24px}
+    /* Escenario más bajo y capítulos compactos: se lee todo sin atenuar. */
+    .um-story__chapter{opacity:1;padding:20px 0 20px 16px;border-bottom:1px solid #ffffff14}
+    .um-story__num{margin-bottom:6px}
+    .um-story__label{margin-bottom:8px;font-size:var(--x-fs-kicker, .8125rem)}
+    .um-story__chapter h3{font-size:20px!important;line-height:1.25!important}
+    .um-story__chapter p:last-child{margin-top:8px;font-size:16px;line-height:1.55}
+    .um-story__now{left:10px;top:10px;bottom:auto;padding:8px 12px;font-size:16px}
+    .um-story__mount{left:auto;top:auto;right:10px;bottom:10px;transform:none;padding:0 16px;font-size:16px;border-radius:0;background:rgba(8,10,13,.82);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(8px)}
+  }
+</style>

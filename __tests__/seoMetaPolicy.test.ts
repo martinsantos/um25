@@ -27,7 +27,7 @@ describe('human SEO metatag policy', () => {
       date: '2025-04-12',
     });
 
-    expect(meta.title).toBe('Redes y fibra óptica para operación industrial | ULTIMA MILLA');
+    expect(meta.title).toBe('Redes y fibra óptica para operación industrial');
     expect(meta.description).toContain('Infraestructura IT');
     expect(meta.description).toContain('2025');
     expect(meta.description).not.toContain('S.A.');
@@ -95,7 +95,8 @@ describe('human SEO metatag policy', () => {
     });
 
     expect(meta.title).toBe('Diagnóstico de Infraestructura IT | ULTIMA MILLA');
-    expect(meta.description).toBe('Antecedente de Diagnóstico de Infraestructura IT para Jose Nucete e Hijos SA, dentro de Soluciones Tecnológicas.');
+    expect(meta.description.startsWith('Antecedente de Diagnóstico de Infraestructura IT para Jose Nucete e Hijos SA, dentro de Soluciones Tecnológicas.')).toBe(true);
+    expect(meta.description.match(/Diagnóstico de Infraestructura IT/g)).toHaveLength(1);
   });
 
   test('normalizes duplicated punctuation inherited from joined CMS fields', () => {
@@ -119,7 +120,7 @@ describe('human SEO metatag policy', () => {
     });
 
     expect(isCanonicalBlogSlug(slug)).toBe(true);
-    expect(meta.title).toBe('LLM local para pymes argentinas: criterios y alcance | ULTIMA MILLA');
+    expect(meta.title).toBe('LLM local para pymes argentinas: criterios y alcance');
   });
 
   test('known duplicate blog slugs resolve to canonical human pages', () => {

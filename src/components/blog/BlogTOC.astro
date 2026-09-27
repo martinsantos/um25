@@ -1,4 +1,8 @@
 ---
+/**
+ * Índice del artículo: lista de h2/h3 con resaltado de la sección visible.
+ * Sin dependencias: IntersectionObserver en un script propio.
+ */
 interface Heading {
   level: number;
   id: string;
@@ -6,153 +10,70 @@ interface Heading {
 }
 interface Props {
   headings: Heading[];
-  title?: string;
 }
-const { headings, title } = Astro.props;
+const { headings } = Astro.props;
+const items = headings.filter((h) => h.level === 2 || h.level === 3);
 ---
 
-{headings.length > 0 && (
-  <nav
-    class="toc"
-    x-data="{ active: '' }"
-    x-init="
-      const els = document.querySelectorAll('h2[id], h3[id]');
-      const obs = new IntersectionObserver(entries => {
-        entries.forEach(e => { if (e.isIntersecting) active = e.target.id; });
-      }, { rootMargin: '-10% 0px -65% 0px' });
-      els.forEach(el => obs.observe(el));
-    "
-    aria-label="Tabla de contenidos"
-  >
-    <p class="toc__label">Índice</p>
-    <ul class="toc__list">
-      {title && (
-        <li class="toc__item">
-          <a
-            href="#"
-            class="toc__link toc__link--title"
-            :class={`active === '' ? 'toc__link--active' : ''`}
-            onclick="window.scrollTo({top:0,behavior:'smooth'});return false;"
-          >
-            {title}
-          </a>
-        </li>
-      )}
-      {headings.map(h => (
-        <li class={h.level === 3 ? 'toc__item toc__item--sub' : 'toc__item'}>
-          <a
-            href={`#${h.id}`}
-            class="toc__link"
-            :class={`active === '${h.id}' ? 'toc__link--active' : ''`}
-          >
-            {h.text}
-          </a>
+{items.length > 1 && (
+  <nav class="btoc" aria-label="En este artículo">
+    <p class="btoc__label">En este artículo</p>
+    <ol class="btoc__list">
+      {items.map((h) => (
+        <li class:list={['btoc__item', h.level === 3 && 'btoc__item--sub']}>
+          <a class="btoc__link" href={`#${h.id}`} data-toc-target={h.id}>{h.text}</a>
         </li>
       ))}
-    </ul>
+    </ol>
   </nav>
 )}
 
+<script>
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('.btoc__link'));
+  if (links.length && 'IntersectionObserver' in window) {
+    const byId = new Map(links.map((link) => [link.dataset.tocTarget, link]));
+    const setActive = (id: string) => {
+      links.forEach((link) => link.classList.toggle('is-active', link.dataset.tocTarget === id));
+    };
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && byId.has(entry.target.id)) setActive(entry.target.id);
+      });
+    }, { rootMargin: '-15% 0px -70% 0px' });
+    byId.forEach((_link, id) => {
+      const target = id ? document.getElementById(id) : null;
+      if (target) observer.observe(target);
+    });
+  }
+</script>
+
 <style>
-  .toc {
-    display: none;
-    position: sticky;
-    top: 6rem;
-    width: min(100%, 204px);
-    max-height: calc(100vh - 8rem);
-    flex-shrink: 0;
-    align-self: flex-start;
-    padding: 4px 6px 8px 0;
-    background: transparent;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-gutter: stable;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(17, 17, 17, 0.2) transparent;
-  }
-  @media (min-width: 900px) { .toc { display: block; } }
-
-  .toc::-webkit-scrollbar {
-    width: 3px;
-  }
-
-  .toc::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .toc::-webkit-scrollbar-thumb {
-    background: rgba(17, 17, 17, 0.18);
-  }
-
-  .toc__label {
-    font-family: var(--um-font-body);
-    font-size: 16px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0;
-    color: #6b7280;
-    margin: 0 0 12px;
-  }
-
-  .toc__list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    border-top: 1px solid rgba(17, 17, 17, 0.08);
-  }
-
-  .toc__item {
-    margin-bottom: 0;
-  }
-
-  .toc__item--sub {
-    padding-left: 8px;
-  }
-
-  .toc__link {
-    display: block;
-    font-family: var(--um-font-body);
-    font-size: 16px;
-    line-height: 1.38;
-    padding: 8px 4px 8px 0;
-    color: #717986;
-    text-decoration: none;
-    transition: color .15s, transform .15s;
-    overflow-wrap: anywhere;
-  }
-  .toc__link:hover {
-    color: #111827;
-    transform: none;
-  }
-  .toc__link--active {
-    color: #111827;
+  .btoc { position: sticky; top: 112px; max-height: calc(100vh - 144px); overflow-y: auto; padding-right: 8px; }
+  .btoc__label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 16px;
+    font-size: var(--x-fs-kicker);
     font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--x-muted);
   }
-
-  /* Title item is slightly bolder */
-  .toc__link--title {
-    font-size: 16px;
-    font-weight: 500;
-    color: #4b5563;
-    padding-bottom: 8px;
-    margin-bottom: 2px;
+  .btoc__label::before { content: ''; flex: none; width: 28px; height: 2px; background: var(--x-red); }
+  .btoc__list { margin: 0; padding: 0; list-style: none; border-left: 1px solid var(--x-line); }
+  .btoc__link {
+    display: block;
+    margin-left: -1px;
+    padding: 8px 0 8px 16px;
+    border-left: 1px solid transparent;
+    font-size: var(--x-fs-meta);
+    line-height: 1.45;
+    color: var(--x-muted);
+    text-decoration: none;
+    transition: color 160ms var(--x-ease), border-color 160ms var(--x-ease);
   }
-  .toc__link--title.toc__link--active {
-    color: #111827;
-    font-weight: 700;
-  }
-
-  .toc__item:has(.toc__link--active) {
-    position: relative;
-  }
-
-  .toc__item:has(.toc__link--active)::before {
-    content: "";
-    position: absolute;
-    left: -8px;
-    top: 11px;
-    bottom: 11px;
-    width: 2px;
-    background: #DC2626;
-  }
+  .btoc__item--sub .btoc__link { padding-left: 28px; }
+  .btoc__link:hover { color: var(--x-text); }
+  .btoc__link.is-active { color: var(--x-text); border-left-color: var(--x-text); }
 </style>

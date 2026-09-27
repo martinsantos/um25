@@ -15,93 +15,53 @@ const tabs = [
 ];
 ---
 
-<nav class="cat-tabs" aria-label="Categorías del blog">
-  <div class="cat-tabs__list">
-    {tabs.map(tab => {
+<nav class="btabs" aria-label="Categorías del blog">
+  <ul class="btabs__list">
+    {tabs.map((tab) => {
       const isActive = tab.key === current || (!current && !tab.key);
       return (
-        <a
-          href={tab.href}
-          class:list={['cat-tab', isActive && 'cat-tab--active']}
-          aria-current={isActive ? 'page' : undefined}
-        >
-          {tab.label}
-        </a>
+        <li>
+          <a
+            href={tab.href}
+            class:list={['btabs__tab', isActive && 'is-active']}
+            aria-current={isActive ? 'page' : undefined}
+          >
+            {tab.label}
+          </a>
+        </li>
       );
     })}
-  </div>
+  </ul>
 </nav>
 
 <style>
-  .cat-tabs {
-    display: block;
-    align-items: stretch;
-    margin-bottom: clamp(22px, 3vw, 36px);
-    border-bottom: 0;
-    background: #fff;
-    overflow-x: clip;
-  }
-
-  .cat-tabs__list {
+  .btabs { margin: 0 0 48px; border-bottom: 1px solid var(--x-line); }
+  .btabs__list {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px clamp(18px, 2.4vw, 30px);
+    gap: 8px;
+    margin: 0;
+    padding: 0 0 16px;
+    list-style: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .btabs__list::-webkit-scrollbar { display: none; }
+  .btabs__tab {
+    display: inline-flex;
     align-items: center;
-    min-width: 0;
-    padding: 10px 0;
-  }
-
-  .cat-tab {
-    position: relative;
-    font-family: var(--um-font-body);
-    font-size: 16px;
-    font-weight: 700;
-    color: #5b6470;
-    text-decoration: none;
-    padding: 11px 0;
-    border-bottom: 0;
-    transition: color .15s;
+    min-height: 40px;
+    padding: 0 16px;
+    border: 1px solid var(--x-line);
+    border-radius: 4px;
+    font-size: var(--x-fs-meta);
+    font-weight: 600;
+    line-height: 1;
     white-space: nowrap;
-    line-height: 1.25;
+    color: var(--x-text-2);
+    text-decoration: none;
+    transition: border-color 160ms var(--x-ease), color 160ms var(--x-ease), background-color 160ms var(--x-ease);
   }
-  .cat-tab:hover { color: #000; }
-  .cat-tab--active {
-    color: #111111;
-    font-weight: 700;
-  }
-
-  .cat-tab--active::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 4px;
-    height: 2px;
-    background: #DC2626;
-  }
-
-  @media (max-width: 760px) {
-    .cat-tabs {
-      margin-bottom: 26px;
-    }
-
-    .cat-tabs__list {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 0;
-      padding: 0;
-    }
-
-    .cat-tab {
-      min-width: 0;
-      padding: 14px 0;
-      border-bottom: 0;
-      white-space: normal;
-      text-align: center;
-      overflow-wrap: anywhere;
-    }
-
-    .cat-tab:nth-last-child(-n + 3) { border-bottom-color: transparent; }
-  }
-
+  .btabs__tab:hover { border-color: var(--x-line-strong); color: var(--x-text); }
+  .btabs__tab.is-active { background: var(--x-text); border-color: var(--x-text); color: var(--x-ink); }
+  .btabs__tab:focus-visible { outline: 2px solid var(--x-red); outline-offset: 2px; }
 </style>

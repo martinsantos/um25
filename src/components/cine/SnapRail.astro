@@ -1,0 +1,169 @@
+---
+// Carril horizontal para móvil. Cualquier lista marcada con `data-rail="Etiqueta"`
+// pasa a ser, por debajo de 760 px, una fila con scroll-snap (tarjetas al 82 %),
+// con contador de posición y botones anterior/siguiente. En escritorio no cambia nada.
+// Se incluye una sola vez por página; Astro deduplica el script.
+---
+<script>
+  const MQ = matchMedia('(max-width: 760px)');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+
+  const arrow = (dir: 'prev' | 'next') =>
+    `<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="${dir === 'prev' ? 'M13 8H4M7.5 4l-4 4 4 4' : 'M3 8h9M8.5 4l4 4-4 4'}" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>`;
+
+  const setup = (rail: HTMLElement) => {
+    if (rail.dataset.railReady) return;
+    rail.dataset.railReady = '1';
+    const label = rail.dataset.rail || 'Carrusel';
+    const items = () => [...rail.children].filter((c) => c instanceof HTMLElement && c.offsetParent !== null) as HTMLElement[];
+
+    const ui = document.createElement('div');
+    ui.className = 'um-rail-ui';
+    ui.innerHTML = `
+      <span class="um-rail-ui__count" aria-hidden="true"><b>01</b> / <i>01</i></span>
+      <span class="um-rail-ui__track" aria-hidden="true"><span></span></span>
+      <button type="button" class="um-rail-ui__btn" data-dir="prev" aria-label="Anterior: ${label}">${arrow('prev')}</button>
+      <button type="button" class="um-rail-ui__btn" data-dir="next" aria-label="Siguiente: ${label}">${arrow('next')}</button>`;
+    rail.after(ui);
+    const count = ui.querySelector('b')!;
+    const total = ui.querySelector('i')!;
+    const bar = ui.querySelector<HTMLElement>('.um-rail-ui__track span')!;
+    const [prev, next] = [...ui.querySelectorAll<HTMLButtonElement>('button')];
+
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const index = () => {
+      const list = items();
+      if (!list.length) return 0;
+      const origin = list[0].offsetLeft;
+      let best = 0, dist = Infinity;
+      list.forEach((el, i) => { const d = Math.abs(el.offsetLeft - origin - rail.scrollLeft); if (d < dist) { dist = d; best = i; } });
+      if (rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 4) best = list.length - 1;
+      return best;
+    };
+    const update = () => {
+      const list = items();
+      const on = MQ.matches && rail.scrollWidth > rail.clientWidth + 4;
+      ui.hidden = !on;
+      if (on) { rail.setAttribute('tabindex', '0'); rail.setAttribute('role', 'region'); rail.setAttribute('aria-roledescription', 'carrusel'); rail.setAttribute('aria-label', label); }
+      else { rail.removeAttribute('tabindex'); rail.removeAttribute('role'); rail.removeAttribute('aria-roledescription'); }
+      if (!on) return;
+      const i = index();
+      count.textContent = pad(i + 1);
+      total.textContent = pad(list.length);
+      bar.style.width = `${((i + 1) / list.length) * 100}%`;
+      prev.disabled = i <= 0;
+      next.disabled = i >= list.length - 1;
+    };
+    const go = (step: number) => {
+      const list = items();
+      const target = list[Math.max(0, Math.min(list.length - 1, index() + step))];
+      if (!target) return;
+      const left = target.offsetLeft - list[0].offsetLeft;
+      rail.scrollTo({ left, behavior: reduce.matches ? 'auto' : 'smooth' });
+    };
+    prev.addEventListener('click', () => go(-1));
+    next.addEventListener('click', () => go(1));
+    rail.addEventListener('keydown', (e) => {
+      if (e.target !== rail) return;
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+    });
+    // Al tabular dentro de una tarjeta fuera de vista, se la trae al carril.
+    rail.addEventListener('focusin', (e) => {
+      const card = items().find((c) => c.contains(e.target as Node));
+      if (card && MQ.matches) rail.scrollTo({ left: card.offsetLeft - items()[0].offsetLeft, behavior: 'auto' });
+    });
+    let raf = 0;
+    rail.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(update); }, { passive: true });
+    MQ.addEventListener('change', update);
+    addEventListener('resize', update, { passive: true });
+    update();
+  };
+
+  const boot = () => document.querySelectorAll<HTMLElement>('[data-rail]').forEach(setup);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
+  else boot();
+</script>
+
+<style is:global>
+  @media (max-width: 760px) {
+    [data-rail] {
+      --rail-bleed: var(--x-gutter, 16px);
+      display: grid !important;
+      grid-auto-flow: column !important;
+      grid-template-columns: none !important;
+      grid-template-rows: none !important;
+      grid-auto-columns: 82% !important;
+      gap: 12px !important;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: var(--rail-bleed);
+      margin-inline: calc(var(--rail-bleed) * -1) !important;
+      padding-inline: var(--rail-bleed) !important;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    [data-rail]::-webkit-scrollbar { display: none; }
+    [data-rail] > * {
+      scroll-snap-align: start;
+      min-width: 0;
+      grid-column: auto !important;
+      grid-row: auto !important;
+    }
+    [data-rail]:focus-visible { outline: 2px solid var(--x-red, #dc2626); outline-offset: 4px; }
+
+    .um-rail-ui {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .um-rail-ui[hidden] { display: none; }
+    .um-rail-ui__count {
+      min-width: 64px;
+      color: var(--x-muted, #a1a1aa);
+      font-family: var(--um-font-editorial, sans-serif);
+      font-size: var(--x-fs-meta, .875rem);
+      font-weight: 600;
+      letter-spacing: .06em;
+      font-variant-numeric: tabular-nums;
+    }
+    .um-rail-ui__count b { color: var(--x-text, #fafafa); font-weight: 600; }
+    .um-rail-ui__count i { font-style: normal; }
+    .um-rail-ui__track {
+      position: relative;
+      flex: 1 1 auto;
+      height: 2px;
+      background: var(--x-line, rgba(255,255,255,.1));
+      margin-right: 8px;
+    }
+    .um-rail-ui__track span {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 0;
+      background: var(--x-text, #fafafa);
+      transition: width 240ms cubic-bezier(.2,.8,.2,1);
+    }
+    .um-rail-ui__btn {
+      display: inline-grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      flex: 0 0 44px;
+      padding: 0;
+      border: 1px solid var(--x-line-strong, rgba(255,255,255,.18));
+      border-radius: 0;
+      background: transparent;
+      color: var(--x-text, #fafafa);
+      cursor: pointer;
+      transition: border-color 160ms ease, opacity 160ms ease;
+    }
+    .um-rail-ui__btn:disabled { opacity: .35; cursor: default; }
+    .um-rail-ui__btn:focus-visible { outline: 2px solid var(--x-red, #dc2626); outline-offset: 2px; }
+  }
+  @media (max-width: 760px) and (prefers-reduced-motion: reduce) {
+    .um-rail-ui__track span { transition: none; }
+  }
+</style>

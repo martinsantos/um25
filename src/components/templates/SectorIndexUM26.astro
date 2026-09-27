@@ -1,4 +1,7 @@
 ---
+import { sectorCaseLabel } from '../../data/sectorCaseCounts';
+import { getAntecedentesCatalogCount } from '../../utils/verifiedProof';
+import CineBanner from '../cine/CineBanner.astro';
 interface SectorIndexItem {
   slug: string;
   label: string;
@@ -36,23 +39,21 @@ const allSectors = activeSectors.length ? activeSectors : sectors;
 const feature = allSectors[0];
 const rest = allSectors.slice(1);
 const leadImage = feature?.image || sectors[0]?.image || '/img/sectores/aeropuertos.webp';
-const countLabel = (sector: SectorIndexItem) => {
-  const match = String(sector.cases || '').match(/\d+/);
-  return match?.[0] || '0';
-};
+const countLabel = (sector: SectorIndexItem) => sectorCaseLabel(sector.slug);
 const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id || !sectorFilter);
 ---
 
 <div class="sectors-demo" aria-labelledby="sectors-demo-title">
-  <section class="sectors-demo-hero">
-    <img src={leadImage} alt="" width="1920" height="1080" loading="eager" fetchpriority="high" decoding="async" />
-    <div class="sectors-demo-hero__shade" aria-hidden="true"></div>
-    <div class="sectors-demo-shell sectors-demo-hero__content">
-      <p class="sectors-demo-kicker"><span></span>02 / Sectores</p>
-      <h1 id="sectors-demo-title">Infraestructura por sector.</h1>
-      <p>Cada sector tiene exigencias distintas. Entra por el suyo.</p>
-    </div>
-  </section>
+  <CineBanner
+    variant="sector"
+    scenes={['aeropuerto', 'bodega', 'fachada', 'hospital', 'planta']}
+    titleId="sectors-demo-title"
+    kicker="Sectores"
+    title="Infraestructura por sector."
+    lead="Cada sector tiene exigencias distintas. Entrá por el suyo y revisá casos comparables antes de contratar."
+    primary={{ href: '/contacto', label: 'Solicitar relevamiento' }}
+    secondary={{ href: '/antecedentes', label: 'Ver evidencia operativa' }}
+  />
 
   <section class="sectors-demo-shell sectors-demo-stats" aria-label="Resumen de sectores">
     <div>
@@ -60,26 +61,11 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
       <span>sectores</span>
     </div>
     <div>
-      <strong>518</strong>
-      <span>antecedentes en archivo</span>
+      <strong>{getAntecedentesCatalogCount()}</strong>
+      <span>proyectos documentados</span>
     </div>
   </section>
 
-  {visibleFilterOptions.length > 1 && (
-    <nav class="sectors-demo-filters" aria-label="Sectores disponibles">
-      <div class="sectors-demo-shell">
-        {visibleFilterOptions.map((option) => (
-          <a
-            href={option.id ? `/sectores?sector=${option.id}` : '/sectores'}
-            class:list={['sectors-demo-filter', { 'is-active': option.id === sectorFilter }]}
-            aria-current={option.id === sectorFilter ? 'page' : undefined}
-          >
-            {option.label}
-          </a>
-        ))}
-      </div>
-    </nav>
-  )}
 
   {feature && (
     <section class="sectors-demo-shell">
@@ -87,14 +73,15 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
         <img src={feature.image} alt={feature.imageAlt} width="1600" height="900" loading="eager" decoding="async" />
         <div class="sectors-demo-feature__shade" aria-hidden="true"></div>
         <div class="sectors-demo-feature__body">
-          <p>Sector 01 - {feature.label}</p>
           <h2>{feature.label}</h2>
           <span>{feature.operatingNeed}</span>
         </div>
-        <div class="sectors-demo-feature__count">
-          <span>Antecedentes</span>
-          <strong>{countLabel(feature)}</strong>
-        </div>
+        {countLabel(feature) && (
+          <div class="sectors-demo-feature__count">
+            <span>Casos</span>
+            <strong>{countLabel(feature)}</strong>
+          </div>
+        )}
         <i aria-hidden="true"></i>
       </a>
     </section>
@@ -108,12 +95,13 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
       >
         <img src={sector.image} alt={sector.imageAlt} width="1200" height="900" loading="lazy" decoding="async" />
         <div class="sectors-demo-card__shade" aria-hidden="true"></div>
-        <div class="sectors-demo-card__count">
-          <span>Casos</span>
-          <strong>{countLabel(sector)}</strong>
-        </div>
+        {countLabel(sector) && (
+          <div class="sectors-demo-card__count">
+            <span>Casos</span>
+            <strong>{countLabel(sector)}</strong>
+          </div>
+        )}
         <div class="sectors-demo-card__body">
-          <p>Sector - {sector.label}</p>
           <h2>{sector.label}</h2>
           <span>{sector.operatingNeed || sector.summary}</span>
         </div>
@@ -628,10 +616,26 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
       padding-inline: 12px;
     }
 
-    .sectors-demo-feature,
+    /* Tarjetas apaisadas en teléfono: la foto y el nombre se leen igual y
+       los nueve sectores entran en ~2,5 pantallas. */
+    .sectors-demo-feature {
+      min-height: 0;
+      aspect-ratio: 4 / 3;
+    }
+
     .sectors-demo-card,
     .sectors-demo-card--wide {
-      min-height: 330px;
+      min-height: 0;
+      aspect-ratio: 16 / 10;
+    }
+
+    .sectors-demo-card__body h2 {
+      font-size: 1.625rem !important;
+      text-wrap: balance;
+    }
+
+    .sectors-demo-feature__count strong {
+      font-size: 2.5rem;
     }
 
     .sectors-demo-feature__body span,

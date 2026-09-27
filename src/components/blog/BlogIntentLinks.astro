@@ -1,0 +1,34 @@
+---
+/**
+ * IntentLinkGraph con el tratamiento oscuro (--x-*) para las páginas del blog.
+ * El componente compartido no se toca: las reglas viven en este envoltorio.
+ */
+import IntentLinkGraph from '../um/IntentLinkGraph.astro';
+
+type Props = Record<string, any>;
+const props = Astro.props;
+---
+
+<div class="bil">
+  <IntentLinkGraph {...props} />
+</div>
+
+<style>
+  .bil :global(.um-intent-link-graph) { padding: 0 !important; background: transparent !important; border: 0 !important; }
+  .bil :global(.um-intent-link-graph__inner) { width: 100% !important; max-width: none !important; padding: 0 !important; }
+  .bil :global(.um-intent-link-graph__header) { margin-bottom: 48px; }
+  .bil :global(.um-intent-link-graph__kicker) { display: flex; align-items: center; gap: 12px; font-size: var(--x-fs-kicker); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--x-muted) !important; }
+  .bil :global(.um-intent-link-graph__kicker::before) { content: ''; flex: none; width: 28px; height: 2px; background: var(--x-red); }
+  .bil :global(.um-intent-link-graph h2) { margin-top: 12px; color: var(--x-text) !important; font-size: var(--x-fs-h2) !important; line-height: 1.08 !important; font-weight: 600 !important; letter-spacing: -.02em !important; }
+  .bil :global(.um-intent-link-graph__header > p:last-child) { color: var(--x-text-2) !important; font-size: 1.0625rem; line-height: 1.6; max-width: 62ch; }
+  .bil :global(.um-intent-link-graph__list) { gap: 24px; }
+  .bil :global(.um-intent-link-graph__item) { border: 1px solid var(--x-line) !important; border-radius: 0 !important; background: var(--x-panel) !important; padding: 24px; box-shadow: none !important; transition: border-color 160ms var(--x-ease), background-color 160ms var(--x-ease); }
+  .bil :global(.um-intent-link-graph__item:hover),
+  .bil :global(.um-intent-link-graph__item:focus-visible) { background: var(--x-panel-2) !important; border-color: var(--x-line-strong) !important; }
+  .bil :global(.um-intent-link-graph__item:focus-visible) { outline: 2px solid var(--x-text); outline-offset: 2px; }
+  .bil :global(.um-intent-link-graph__eyebrow) { color: var(--x-muted) !important; font-size: var(--x-fs-kicker); font-weight: 600; letter-spacing: .12em; }
+  .bil :global(.um-intent-link-graph__item strong) { margin-top: 12px; color: var(--x-text) !important; font-family: var(--um-font-editorial); font-size: 1.0625rem; line-height: 1.35; }
+  .bil :global(.um-intent-link-graph__item > span:not(.um-intent-link-graph__eyebrow)) { color: var(--x-text-2) !important; font-size: 1rem; line-height: 1.55; }
+  .bil :global(.um-intent-link-graph__item em) { color: var(--x-text) !important; font-weight: 600; margin-top: 24px; }
+  @media (max-width: 680px) { .bil :global(.um-intent-link-graph__list) { gap: 16px; } }
+</style>

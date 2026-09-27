@@ -1,34 +1,18 @@
 ---
+import { sectorCaseLabel } from '../data/sectorCaseCounts';
+import { getAntecedentesCatalogCount } from '../utils/verifiedProof';
 import LayoutV4 from '../layouts/LayoutV4.astro';
-import { ArrowRight, ArrowUpRight } from 'lucide-astro';
+import EmailLink from '../components/common/EmailLink.astro';
+import CineBanner from '../components/cine/CineBanner.astro';
+import ServicesStory from '../components/cine/ServicesStory.astro';
+import SectorAtlas from '../components/cine/SectorAtlas.astro';
+import CoverageMap from '../components/cine/CoverageMap.astro';
+import ProductBand from '../components/cine/ProductBand.astro';
+import CompanyBand from '../components/cine/CompanyBand.astro';
+import JournalBand from '../components/cine/JournalBand.astro';
+import SnapRail from '../components/cine/SnapRail.astro';
 
 const heroLead = 'Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.';
-const heroVariants = [
-  { image: '/hero/noc.png', fx: 'TYPE', title: 'Servicios IT para operaciones que no pueden detenerse.', lead: heroLead, caption: 'CENTRO DE OPERACIONES NOC · MENDOZA', code: '01/16' },
-  { image: '/hero/fiber.png', fx: 'FLAP', title: 'Fibra certificada, operación continua.', lead: heroLead, caption: 'BACKBONE DE FIBRA ÓPTICA · AEROPUERTOS ARGENTINA 2000', code: '02/16' },
-  { image: '/hero/cctv.png', fx: 'FLAP', title: 'Evidencia visual accionable.', lead: heroLead, caption: 'CENTRO DE MONITOREO CCTV · AEROPUERTO EL PLUMERILLO', code: '03/16' },
-  { image: '/hero/bodega.png', fx: 'TYPE', title: 'Trazabilidad de cosecha a botella.', lead: heroLead, caption: 'REDES INDUSTRIALES EN CAVA · BODEGA TAPIZ', code: '04/16' },
-  { image: '/hero/hospital.png', fx: 'TYPE', title: 'Continuidad para misión crítica.', lead: heroLead, caption: 'INFRAESTRUCTURA IT HOSPITALARIA · HOSPITAL PERRUPATO', code: '05/16' },
-  { image: '/img/servicios/redes.webp', fx: 'TYPE', title: 'Redes que sostienen la operación.', lead: heroLead, caption: 'CABLEADO ESTRUCTURADO CERTIFICADO · MENDOZA', code: '06/16' },
-  { image: '/img/servicios/seguridad-electronica.webp', fx: 'FLAP', title: 'CCTV, accesos y detección integrados.', lead: heroLead, caption: 'SEGURIDAD ELECTRÓNICA IP · CUYO', code: '07/16' },
-  { image: '/img/servicios/telecomunicaciones.webp', fx: 'FLAP', title: 'Enlaces donde no llega nadie más.', lead: heroLead, caption: 'TELECOMUNICACIONES DATOS/VOZ/VIDEO · PATAGONIA', code: '08/16' },
-  { image: '/img/servicios/deteccion-incendios.webp', fx: 'TYPE', title: 'Detección temprana, respuesta inmediata.', lead: heroLead, caption: 'SISTEMA SDI CERTIFICADO · TORRE THAYS', code: '09/16' },
-  { image: '/img/servicios/electricos-it.webp', fx: 'TYPE', title: 'Energía limpia para data centers.', lead: heroLead, caption: 'ENERGÍA IT PARA DATACENTER · MENDOZA', code: '10/16' },
-  { image: '/img/servicios/soporte-247.webp', fx: 'TYPE', title: 'Soporte con SLA garantizado.', lead: heroLead, caption: 'MESA DE AYUDA Y NOC 24/7 · 4 HUBS', code: '11/16' },
-  { image: '/img/servicios/consultoria-it.webp', fx: 'TYPE', title: 'Arquitectura antes que marketing.', lead: heroLead, caption: 'CONSULTORÍA Y AUDITORÍA IT · ARGENTINA', code: '12/16' },
-  { image: '/img/sectores/aeropuertos.webp', fx: 'FLAP', title: 'Perímetro, pistas y terminal 24/7.', lead: heroLead, caption: 'OPERACIÓN AEROPORTUARIA CONTINUA · AA2000', code: '13/16' },
-  { image: '/img/sectores/salud.webp', fx: 'TYPE', title: 'Redes para imágenes médicas y historia clínica.', lead: heroLead, caption: 'INFRAESTRUCTURA HOSPITALARIA · FUESMEN', code: '14/16' },
-  { image: '/img/sectores/mineria.webp', fx: 'FLAP', title: 'Conectividad en campamento y mina.', lead: heroLead, caption: 'TELECOMUNICACIONES EN FAENA REMOTA · MINERA FRONTERA', code: '15/16' },
-  { image: '/img/sectores/industria.webp', fx: 'TYPE', title: 'Planta que no para, red que no falla.', lead: heroLead, caption: 'REDES INDUSTRIALES EN PLANTA 24/7 · CELA SA', code: '16/16' },
-];
-
-const initialHeroIndex = 0;
-const initialHero = {
-  ...heroVariants[initialHeroIndex],
-  title: 'Servicios IT para operaciones que no pueden detenerse.',
-  lead: heroLead,
-};
-const heroImage = initialHero.image;
 
 const services = [
   {
@@ -90,15 +74,15 @@ const services = [
 ];
 
 const sectors = [
-  { name: 'Aeropuertos', count: '58', text: 'CCTV de perímetro 24/7', href: '/aeropuertos', image: '/img/sectores/aeropuertos.webp', accent: '#DC2626', big: true },
-  { name: 'Bodegas', count: '67', text: 'Trazabilidad vitivinícola end-to-end', href: '/bodegas', image: '/img/sectores/bodegas.webp', accent: '#DC2626' },
-  { name: 'Constructoras', count: '54', text: 'Cableado estructurado certificado', href: '/constructoras', image: '/img/sectores/constructoras.webp', accent: '#DC2626' },
-  { name: 'Gobierno y Sector Público', count: '72', text: 'Digitalización de trámites', href: '/gobiernosectorpublico', image: '/img/sectores/gobierno.webp', accent: '#DC2626' },
-  { name: 'Industria', count: '63', text: 'Redes industriales en planta 24/7', href: '/industria', image: '/img/sectores/industria.webp', accent: '#DC2626' },
-  { name: 'Minería', count: '41', text: 'Telecomunicaciones en campamento remoto', href: '/mineria', image: '/img/sectores/mineria.webp', accent: '#DC2626', big: true },
-  { name: 'Salud', count: '69', text: 'Redes para imágenes médicas', href: '/salud', image: '/img/sectores/salud.webp', accent: '#DC2626' },
-  { name: 'Seguridad Electrónica', count: '48', text: 'Centro de monitoreo 24/7', href: '/seguridad-electronica', image: '/img/sectores/seguridad-electronica.webp', accent: '#DC2626' },
-  { name: 'Software', count: '38', text: 'ERPs y plataformas a medida', href: '/software', image: '/img/sectores/software.webp', accent: '#DC2626' },
+  { name: 'Aeropuertos', count: sectorCaseLabel('aeropuertos'), text: 'CCTV de perímetro 24/7', href: '/aeropuertos', image: '/img/sectores/aeropuertos.webp', accent: '#DC2626', big: true },
+  { name: 'Bodegas', count: sectorCaseLabel('bodegas'), text: 'Trazabilidad vitivinícola end-to-end', href: '/bodegas', image: '/img/sectores/bodegas.webp', accent: '#DC2626' },
+  { name: 'Constructoras', count: sectorCaseLabel('constructoras'), text: 'Cableado estructurado certificado', href: '/constructoras', image: '/img/sectores/constructoras.webp', accent: '#DC2626' },
+  { name: 'Gobierno y Sector Público', count: sectorCaseLabel('gobiernosectorpublico'), text: 'Digitalización de trámites', href: '/gobiernosectorpublico', image: '/img/sectores/gobierno.webp', accent: '#DC2626' },
+  { name: 'Industria', count: sectorCaseLabel('industria'), text: 'Redes industriales en planta 24/7', href: '/industria', image: '/img/sectores/industria.webp', accent: '#DC2626' },
+  { name: 'Minería', count: sectorCaseLabel('mineria'), text: 'Telecomunicaciones en campamento remoto', href: '/mineria', image: '/img/sectores/mineria.webp', accent: '#DC2626', big: true },
+  { name: 'Salud', count: sectorCaseLabel('salud'), text: 'Redes para imágenes médicas', href: '/salud', image: '/img/sectores/salud.webp', accent: '#DC2626' },
+  { name: 'Seguridad Electrónica', count: sectorCaseLabel('seguridad-electronica'), text: 'Centro de monitoreo 24/7', href: '/seguridad-electronica', image: '/img/sectores/seguridad-electronica.webp', accent: '#DC2626' },
+  { name: 'Software', count: sectorCaseLabel('software'), text: 'ERPs y plataformas a medida', href: '/software', image: '/img/sectores/software.webp', accent: '#DC2626' },
 ];
 
 const cases = [
@@ -137,11 +121,10 @@ const cases = [
 ];
 
 const stats = [
-  { value: '25', label: 'Años de operación', href: '/nosotros', aria: 'Ver trayectoria de ULTIMA MILLA' },
-  { value: '518', label: 'Antecedentes operativos', href: '/antecedentes', aria: 'Ver archivo de antecedentes operativos' },
+  { value: '22+', label: 'Años de operación', href: '/nosotros', aria: 'Ver trayectoria de ULTIMA MILLA' },
+  { value: String(getAntecedentesCatalogCount()), label: 'Proyectos documentados', href: '/antecedentes', aria: 'Ver proyectos documentados' },
   { value: '9', label: 'Sectores atendidos', href: '/sectores', aria: 'Ver sectores atendidos' },
-  { value: '320+', label: 'Clientes activos', href: '/antecedentes', aria: 'Ver evidencia por clientes y proyectos' },
-  { value: '4', label: 'Hubs GEO', href: '/servicios-it-empresas-argentina', aria: 'Ver cobertura nacional y hubs GEO' },
+  { value: '4', label: 'Sedes en Cuyo y Patagonia', href: '#cobertura', aria: 'Ver sedes y cobertura' },
   { value: '24/7', label: 'Soporte operativo', href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it', aria: 'Ver soporte operativo 24/7' },
 ];
 
@@ -153,29 +136,21 @@ const hubs = [
 ];
 ---
 
-<LayoutV4
+<LayoutV4 skin="black"
   title="ULTIMA MILLA | Operaciones que no pueden detenerse"
   description="Servicios IT integrales para empresas en Mendoza, Cuyo y Patagonia: redes, seguridad electrónica, telecomunicaciones, software, soporte y energía IT."
   keywords="servicios IT, redes, seguridad electrónica, CCTV, telecomunicaciones, software a medida, soporte técnico 24/7, Mendoza, Cuyo, Patagonia"
-  image={heroImage}
+  image="/cine/media/cine-bodega-poster.jpg"
 >
   <div class="um26-home">
-    <section class="um26-hero" aria-labelledby="home-title" data-um26-hero data-hero-index={initialHeroIndex} data-hero-variants={JSON.stringify(heroVariants)}>
-      <img class="um26-hero__image" data-hero-image src={heroImage} alt="" width="1920" height="1080" loading="eager" fetchpriority="high" decoding="async" />
-      <div class="um26-hero__veil" aria-hidden="true"></div>
-
-      <div class="um26-shell um26-hero__body">
-        <p class="um26-kicker" data-hero-reveal style="--d: 120ms;"><span></span>Servicios IT · Desde 2000</p>
-        <h1 id="home-title" class="um-display-emphasis">
-          <span data-hero-title>{initialHero.title}</span>
-        </h1>
-        <p class="um26-hero__lead" data-hero-reveal style="--d: 520ms;" data-hero-lead>{initialHero.lead}</p>
-        <div class="um26-hero__actions">
-          <a class="um26-btn um26-btn--red" data-hero-reveal style="--d: 680ms;" href="/antecedentes">Ver evidencia operativa <ArrowRight size={16} strokeWidth={2} /></a>
-          <a class="um26-btn um26-btn--ghost" data-hero-reveal style="--d: 780ms;" href="/sectores">Entrar por sector <ArrowUpRight size={15} strokeWidth={2} /></a>
-        </div>
-      </div>
-    </section>
+    <CineBanner
+      variant="home"
+      kicker="Más de 22 años de servicios IT · Mendoza, Argentina"
+      title="Servicios IT para operaciones que no pueden detenerse."
+      lead={heroLead}
+      primary={{ href: '/antecedentes', label: 'Ver evidencia operativa' }}
+      secondary={{ href: '/sectores', label: 'Entrar por sector' }}
+    />
 
     <section class="um26-stats" aria-label="Indicadores ULTIMA MILLA">
       <div class="um26-shell um26-stats__inner">
@@ -202,33 +177,13 @@ const hubs = [
       <div class="um26-shell">
         <div class="um26-section__head">
           <div>
-            <p class="um26-kicker"><span></span>01 / Servicios</p>
+            <p class="um26-kicker"><span></span>Servicios</p>
             <h2>Ocho frentes de servicio IT.</h2>
           </div>
-          <p>Una arquitectura de servicio, no proveedores aislados. Cada frente con evidencia operativa documentada.</p>
+          <p>Un mismo equipo releva, instala y sostiene cada sistema, de la obra a la operación diaria.</p>
         </div>
 
-        <div class="um26-service-grid">
-          {services.map((service, index) => (
-            <a class="um26-media-card" href={service.href}>
-              <img
-                src={service.image}
-                alt=""
-                width="1200"
-                height="900"
-                loading={index < 2 ? 'eager' : 'lazy'}
-                fetchpriority={index === 0 ? 'high' : 'low'}
-                decoding="async"
-              />
-              <span class="um26-media-card__code">{service.code}</span>
-              <div>
-                <h3>{service.name}</h3>
-                <p>{service.text}</p>
-              </div>
-              <span class="um26-card-bar" aria-hidden="true"></span>
-            </a>
-          ))}
-        </div>
+        <ServicesStory services={services} />
 
         <a class="um26-text-link" href="/servicios">Ver arquitectura de servicio completa</a>
       </div>
@@ -238,25 +193,13 @@ const hubs = [
       <div class="um26-shell">
         <div class="um26-section__head">
           <div>
-            <p class="um26-kicker"><span></span>02 / Sectores</p>
+            <p class="um26-kicker"><span></span>Sectores</p>
             <h2>Infraestructura IT por sector.</h2>
           </div>
-          <p>Nueve sectores con evidencia operativa real. Entrá por el suyo y revisá casos comparables antes de contratar.</p>
+          <p>Entrá por su sector y revisá casos comparables antes de contratar.</p>
         </div>
 
-        <div class="um26-sector-grid">
-          {sectors.map((sector) => (
-            <a class:list={['um26-media-card', 'um26-sector-card', { 'um26-sector-card--big': sector.big }]} href={sector.href} style={`--accent:${sector.accent};`}>
-              <img src={sector.image} alt="" width="1200" height="900" loading="lazy" decoding="async" />
-              <strong>{sector.count}</strong>
-              <div>
-                <h3>{sector.name}</h3>
-                <p>{sector.text}</p>
-              </div>
-              <span class="um26-card-bar" aria-hidden="true"></span>
-            </a>
-          ))}
-        </div>
+        <SectorAtlas sectors={sectors} />
       </div>
     </section>
 
@@ -264,17 +207,18 @@ const hubs = [
       <div class="um26-shell">
         <div class="um26-section__head">
           <div>
-            <p class="um26-kicker"><span></span>03 / Evidencia</p>
-            <h2>Antecedentes que prueban capacidad.</h2>
+            <p class="um26-kicker"><span></span>Proyectos</p>
+            <h2>Proyectos que respaldan cada propuesta.</h2>
           </div>
-          <p>518 casos operativos reales con cliente, sector, servicios aplicados y alcance técnico.</p>
+          <p>{getAntecedentesCatalogCount()} proyectos documentados con cliente, sector, servicios aplicados y alcance técnico.</p>
         </div>
 
-        <div class="um26-case-grid">
+        <div class="um26-case-grid" data-rail="Proyectos destacados">
           {cases.map((item) => (
             <a class="um26-media-card um26-case-card" href={item.href}>
               <img src={item.image} alt="" width="1200" height="900" loading="lazy" decoding="async" />
               <span class="um26-media-card__code">#{item.id}</span>
+              <span class="um26-media-card__ai">Imagen ilustrativa</span>
               <div>
                 <p>{item.meta}</p>
                 <h3>{item.title}</h3>
@@ -285,29 +229,38 @@ const hubs = [
           ))}
         </div>
 
-        <a class="um26-btn um26-btn--red um26-section__cta" href="/antecedentes">Explorar los 518 antecedentes</a>
+        <a class="um26-btn um26-btn--red um26-section__cta" href="/antecedentes">Explorar los {getAntecedentesCatalogCount()} proyectos</a>
       </div>
     </section>
 
-    <section class="um26-section um26-section--band">
+    <section class="um26-section um26-section--band" id="empresa">
+      <div class="um26-shell">
+        <CompanyBand />
+      </div>
+    </section>
+
+    <section class="um26-section" id="producto">
+      <div class="um26-shell">
+        <ProductBand />
+      </div>
+    </section>
+
+    <section class="um26-section um26-section--band" id="cobertura">
       <div class="um26-shell">
         <div class="um26-section__head">
           <div>
-            <p class="um26-kicker"><span></span>04 / Cobertura</p>
+            <p class="um26-kicker"><span></span>Cobertura</p>
             <h2>Cobertura en Cuyo y Patagonia.</h2>
           </div>
+          <p>Sede central en Mendoza, al pie de los Andes, y sedes en San Juan, San Luis y Neuquén.</p>
         </div>
-        <div class="um26-hub-grid">
-          {hubs.map(({ name, region, coords, href, aria }, index) => (
-            <a href={href} aria-label={aria}>
-              <p><span></span>Cobertura {String(index + 1).padStart(2, '0')}</p>
-              <strong>{name}</strong>
-              <em>{region}</em>
-              <small>{coords}</small>
-              <span class="um26-hub-grid__action">Ver cobertura <ArrowUpRight size={15} strokeWidth={2} /></span>
-            </a>
-          ))}
-        </div>
+        <CoverageMap hubs={hubs} />
+      </div>
+    </section>
+
+    <section class="um26-section" id="blog-home">
+      <div class="um26-shell">
+        <JournalBand />
       </div>
     </section>
 
@@ -320,13 +273,15 @@ const hubs = [
             <p>Respondemos en el día con un relevamiento técnico y una propuesta verificable. Sin compromiso inicial.</p>
           </div>
           <div>
-            <a class="um26-btn um26-btn--red" href="mailto:contacto@ultimamilla.com.ar">contacto@ultimamilla.com.ar</a>
-            <span>Lun-Vie 08:00-18:00</span>
+            <a class="um26-btn um26-btn--red" href="/contacto" data-contact-open>Escribinos</a>
+            <EmailLink class="um26-contact__mail" subject="Consulta desde la web ULTIMA MILLA" />
+            <span>Lunes a viernes, 8 a 18 h</span>
           </div>
         </div>
       </div>
     </section>
   </div>
+  <SnapRail />
 
   <style>
     :global(body[data-skin]) main {
@@ -660,7 +615,7 @@ const hubs = [
     }
 
     .um26-text-link::after {
-      content: ">";
+      content: "→";
       margin-left: 10px;
       color: currentColor;
     }
@@ -973,10 +928,22 @@ const hubs = [
       padding: 5px 7px;
       background: rgba(10, 10, 11, 0.74);
       color: #dc2626;
-      font-family: var(--um-font-logo);
+      font-family: var(--um-font-editorial);
       font-size: 1rem;
       font-weight: 700;
       letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .um26-media-card__ai {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      padding: 4px 7px;
+      background: rgba(10, 10, 11, 0.62);
+      color: rgba(255, 255, 255, 0.72);
+      font: 600 0.8125rem/1.2 var(--um-font-body, 'UM Sans', sans-serif);
+      letter-spacing: 0.1em;
       text-transform: uppercase;
     }
 
@@ -1009,7 +976,7 @@ const hubs = [
       display: inline-flex;
       margin-top: 14px;
       color: #dc2626;
-      font-family: var(--um-font-logo);
+      font-family: var(--um-font-editorial);
       font-size: 1rem;
       font-weight: 700;
       text-transform: uppercase;
@@ -1029,6 +996,13 @@ const hubs = [
 
     .um26-section__cta {
       margin-top: 34px;
+    }
+
+    @media (max-width: 1110px), (pointer: coarse) {
+      .um26-text-link {
+        min-height: 44px;
+        align-items: center;
+      }
     }
 
     .um26-hub-grid {
@@ -1070,7 +1044,7 @@ const hubs = [
       gap: 10px;
       margin: 0 0 22px;
       color: #71717a;
-      font-family: var(--um-font-logo);
+      font-family: var(--um-font-editorial);
       font-size: 1rem;
       letter-spacing: 0.18em;
       text-transform: uppercase;
@@ -1094,7 +1068,7 @@ const hubs = [
       margin-top: 12px;
       color: #71717a;
       font-style: normal;
-      font-family: var(--um-font-logo);
+      font-family: var(--um-font-editorial);
       font-size: 1rem;
       letter-spacing: 0.14em;
       text-transform: uppercase;
@@ -1103,7 +1077,7 @@ const hubs = [
     .um26-hub-grid small {
       margin-top: 28px;
       color: #3f3f46;
-      font-family: var(--um-font-logo);
+      font-family: var(--um-font-editorial);
       font-size: 1rem;
     }
 
@@ -1168,16 +1142,27 @@ const hubs = [
       min-width: min(100%, 360px);
     }
 
-    .um26-contact__panel span {
+    .um26-contact__panel :global(.um26-contact__mail) {
       display: inline-flex;
       justify-content: center;
       align-items: center;
       min-height: 52px;
       padding: 0 24px;
-      border: 1px solid rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.22);
       color: #fff;
-      font-weight: 700;
+      font-weight: 600;
       font-size: 1rem;
+      text-decoration: none;
+    }
+
+    .um26-contact__panel :global(.um26-contact__mail:hover) {
+      border-color: #fff;
+    }
+
+    .um26-contact__panel > div:last-child > span {
+      text-align: center;
+      color: #a1a1aa;
+      font-size: 0.95rem;
     }
 
     @media (max-width: 1100px) {
@@ -1330,8 +1315,77 @@ const hubs = [
       }
 
       .um26-contact__panel {
-        padding: 30px 22px;
-        gap: 28px;
+        padding: 28px 20px;
+        gap: 24px;
+      }
+
+      /* Ritmo móvil: 56 px por sección, cabeceras más próximas al contenido. */
+      .um26-section {
+        padding-block: 56px;
+      }
+
+      .um26-section__head {
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+
+      .um26-section h2,
+      .um26-contact h2 {
+        text-wrap: balance;
+      }
+
+      .um26-stats__grid,
+      .um26-stats__grid a {
+        min-height: 0;
+      }
+
+      .um26-stats__grid a {
+        padding: 20px 16px;
+      }
+
+      .um26-stats__grid a:last-child {
+        grid-column: 1 / -1;
+      }
+
+      .um26-stats strong {
+        font-size: 2rem;
+      }
+
+      .um26-stats span {
+        margin-top: 6px;
+        font-size: var(--x-fs-meta);
+      }
+
+      .um26-media-card,
+      .um26-case-card {
+        min-height: 0;
+        aspect-ratio: 4 / 5;
+      }
+
+      .um26-text-link {
+        min-height: 44px;
+        align-items: center;
+        margin-top: 16px;
+        padding-bottom: 0;
+        border-bottom: 0;
+        text-decoration: underline;
+        text-decoration-color: #dc2626;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 6px;
+      }
+
+      .um26-section__cta {
+        width: 100%;
+        margin-top: 24px;
+        justify-content: center;
+      }
+
+      .um26-contact {
+        padding-block: 56px;
+      }
+
+      .um26-contact p:not(.um26-kicker) {
+        margin-top: 16px;
       }
     }
   </style>

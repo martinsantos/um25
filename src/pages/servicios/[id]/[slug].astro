@@ -1,29 +1,24 @@
 ---
 /**
- * Service Detail Page - V4 Design System + Directus Integration
- * FASE 4: Conectado a Directus con fallback automático a datos JS
- *
- * Usa componentes V4:
- * - StatsBar
- * - ProductCard
- * - CTASection
+ * Service Detail Page - tema oscuro (tokens --x-*) + Directus con fallback.
+ * Estructura: CineBanner → resumen ejecutivo → qué cubre (+ soluciones en acordeón)
+ * → cómo trabajamos → antecedentes del servicio → ficha técnica + CTA único.
  *
  * Usa helpers de Directus con fallback:
  * - getServicioById() con fallback a servicios_completos_v4.js
  */
 
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
-import StatsBar from '../../../components/v4/StatsBar.astro';
-import ProductCard from '../../../components/v4/ProductCard.astro';
-import CTASection from '../../../components/v4/CTASection.astro';
-import SectionHeader from '../../../components/um/SectionHeader.astro';
-import UMButton from '../../../components/um/UMButton.astro';
-import IntentLinkGraph from '../../../components/um/IntentLinkGraph.astro';
 import EmailLink from '../../../components/common/EmailLink.astro';
+import CineBanner from '../../../components/cine/CineBanner.astro';
+import SnapRail from '../../../components/cine/SnapRail.astro';
+import { SERVICE_SCENES } from '../../../data/cine/scenes';
 
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
-import { getDirectusImageUrl } from '../../../lib/directus.ts';
+import { getDirectusImageUrl, getGeneratedAntecedenteImageUrl } from '../../../lib/directus.ts';
+import antecedentesSnapshot from '../../../data/snapshots/antecedentes.json';
+import { getAntecedentesCatalogCount } from '../../../utils/verifiedProof';
 import { getServiceVisualSpec } from '../../../data/serviceVisualSystem';
 import {
   serviceSingleDemoApproachSteps,
@@ -34,7 +29,6 @@ import { editorialImageDimensions } from '../../../data/editorialImageSystem';
 import {
   plainTextFromHtml,
   readServiceSubtitulo,
-  renderEditorialBody,
   sanitizeEditorialText,
   serviceHeroLead,
   sanitizeServiceStats,
@@ -42,7 +36,6 @@ import {
   sanitizeServicePageTitle,
   stripBannedLedgerPhrases,
 } from '../../../utils/editorialContent';
-import { shouldShowProductCardActions } from '../../../data/commercialPlacement';
 import {
   buildServiceStrategicLinkGroups,
   buildStrategicWebPageStructuredData,
@@ -87,15 +80,12 @@ const cmsSubtitulo = readServiceSubtitulo(servicio);
 const editorialHeroTitle =
   (!replicaProd && demoCopy?.headline) || visual?.shortName || cmsTitle || servicio.Titulo;
 const serviceHeroTitle = resolveReplicaH1(serviceDetailPath, editorialHeroTitle);
-const serviceBreadcrumbLabel = visual?.shortName || cmsTitle;
 const serviceCtaTitle = replicaProd
   ? `¿Listo para implementar ${cmsTitle}?`
   : visual?.shortName
     ? `Convertir ${visual.shortName.toLowerCase()} en un alcance verificable`
     : 'Convertir este servicio en un alcance verificable';
-const descriptionSectionTitle = replicaProd ? 'Descripción del Servicio' : 'Alcance operativo';
 const processSectionTitle = replicaProd ? 'Nuestro Proceso' : demoCopy?.approachHeading || 'Método de implementación';
-const sidebarInfoTitle = replicaProd ? 'Información del Servicio' : 'Metadata del servicio';
 const isCommercialProduct = (producto: any) => (
   ['producto', 'productos'].includes(String(producto.categoria_comercial || '').toLowerCase()) ||
   ['producto', 'productos'].includes(String(producto.categoria_informacion || '').toLowerCase()) ||
@@ -106,18 +96,6 @@ const isCommercialProduct = (producto: any) => (
 const commercialProducts = productos.filter(isCommercialProduct);
 const hasCommercialProducts = commercialProducts.length > 0;
 const productCards = hasCommercialProducts ? commercialProducts : productos;
-const hasProductCards = productCards.length > 0;
-const productsSectionKicker = replicaProd ? '' : hasCommercialProducts ? 'Producto' : 'Equipamiento';
-const productsSectionTitle = replicaProd
-  ? 'Productos y Soluciones'
-  : hasCommercialProducts
-    ? 'Equipamiento y producto aplicado'
-    : 'Equipamiento aplicado';
-const productsSectionText = replicaProd
-  ? ''
-  : hasCommercialProducts
-    ? 'Soluciones, materiales y producto vinculados al alcance real del servicio.'
-    : 'Soluciones, materiales y equipamiento vinculados al alcance real del servicio.';
 
 // SEO
 const siteUrl = 'https://www.ultimamilla.com.ar';
@@ -133,7 +111,6 @@ if (pageTitle.length > 60) {
       : `${seoTitleBase} | ULTIMA MILLA`;
 }
 const serviceBodySource = servicio.Descripcion?.replace(/\\/g, '\n') || '';
-const serviceDescriptionHtml = await renderEditorialBody(serviceBodySource);
 const rawDesc = stripBannedLedgerPhrases(plainTextFromHtml(serviceBodySource, 500));
 const pageDescription = rawDesc.length > 155 ? rawDesc.slice(0, 155) + '...' :
   rawDesc.length > 0 && rawDesc.length < 120 ? `${rawDesc} Servicios profesionales de ULTIMA MILLA en Mendoza, Cuyo y Patagonia.`.slice(0, 155) :
@@ -180,7 +157,7 @@ const serviceCapabilityItems = (demoCapabilities.length ? demoCapabilities : cms
       item.title || item.titulo || item.nombre || item.headline || `Capacidad ${index + 1}`
     );
     const description =
-      plainTextFromHtml(item.description || item.descripcion || item.servicio_asociado || item.headline || '', 170) ||
+      plainTextFromHtml(item.description || item.descripcion || item.servicio_asociado || item.headline || '') ||
       visual?.proof ||
       pageDescription;
     return {
@@ -283,9 +260,187 @@ const servicePageStructuredData = [
   }),
 ];
 
+
+// ── Limpieza de textos crudos de Directus ──────────────────────────────
+const TYPO_FIXES: [RegExp, string][] = [
+  [/\bSitema\b/g, 'Sistema'],
+  [/\bSistena\b/g, 'Sistema'],
+  [/\b([Tt])elefonos\b/g, '$1eléfonos'],
+  [/\btelefonico\b/g, 'telefónico'],
+  [/\bOptica\b/g, 'Óptica'],
+  [/\bIngenieria\b/g, 'Ingeniería'],
+  [/\bdebiles\b/g, 'débiles'],
+  [/\bremplazo\b/gi, 'Reemplazo'],
+  [/\bempalzadora\b/gi, 'empalmadora'],
+  [/\bdeteccion\b/g, 'detección'],
+  [/\bBaterias\b/g, 'Baterías'],
+];
+const fixTypos = (value: string) => TYPO_FIXES.reduce((text, [re, rep]) => text.replace(re, rep), value);
+const clarifyWarranty = (value: string) =>
+  value
+    .replace(/garant[ií]a extendida de 25 años en cableado/gi, 'Garantía de fabricante de 25 años en cableado certificado')
+    .replace(/garant[ií]a del fabricante de 25 años/gi, 'garantía de fabricante de 25 años en cableado certificado')
+    .replace(/garant[ií]a de 25 años/gi, 'garantía de fabricante de 25 años en cableado certificado');
+const cleanCmsText = (value: unknown) =>
+  clarifyWarranty(
+    fixTypos(
+      stripBannedLedgerPhrases(value)
+        .replace(/\*\*/g, '')
+        .replace(/\s*(?:\.{3}|…)\s*$/g, '')
+        .replace(/\s+/g, ' ')
+        .trim(),
+    ),
+  );
+const normalizeKey = (value: string) =>
+  value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+const LOWER_WORDS = new Set(['de', 'del', 'la', 'las', 'los', 'y', 'e', 'en', 'para', 'por', 'el']);
+const UPPER_WORDS = new Set(['sa', 's.a', 's.a.', 'srl', 'ltda', 'mza', 'fuesmen', 'aa2000']);
+const smartCase = (value: string) => {
+  const letters = value.replace(/[^A-Za-zÁÉÍÓÚÑáéíóúñ]/g, '');
+  const isUpper = letters && letters === letters.toUpperCase();
+  const isLower = letters && letters === letters.toLowerCase();
+  if (!isUpper && !isLower) return value.charAt(0).toUpperCase() + value.slice(1);
+  return value
+    .toLowerCase()
+    .split(/\s+/)
+    .map((word, index) => {
+      if (UPPER_WORDS.has(word)) return word.toUpperCase();
+      if (index > 0 && LOWER_WORDS.has(word)) return word;
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(' ');
+};
+const MONTH_YEAR_RE = /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)\s+\d{4}$/i;
+const cleanCaseTitle = (rawTitle: string, client: string) => {
+  let title = cleanCmsText(String(rawTitle || '').split('|')[0]).replace(/\s*\(\d+\)\s*$/, '');
+  const prefix = title.match(/^([^:]{3,42}):\s*(.{12,})$/);
+  if (prefix) title = prefix[2];
+  const clientKey = normalizeKey(client);
+  const clientHead = clientKey.split(' ')[0] || '';
+  const segments = title.split(/\s+[-–]\s+/).filter(Boolean);
+  const kept = segments.filter((segment, index) => {
+    if (index === 0) return true;
+    const key = normalizeKey(segment);
+    if (MONTH_YEAR_RE.test(segment.trim())) return false;
+    if (/cliente confidencial/i.test(segment)) return false;
+    if (!key) return false;
+    if (clientKey && (clientKey.includes(key) || key.includes(clientKey))) return false;
+    if (clientHead.length >= 4 && key.split(' ').includes(clientHead)) return false;
+    return true;
+  });
+  title = kept.join(' - ').replace(/[\s\-–,.]+$/, '').trim();
+  return smartCase(title);
+};
+const SECTOR_LABELS: Record<string, string> = {
+  'Aeropuertos & Telecomunicaciones': 'Aeropuertos',
+  'Salud & Sector Salud': 'Salud',
+  'Infraestructura Hospitalaria': 'Salud',
+  'Gobierno & Sector Público': 'Gobierno',
+  'Industria & Bodegas': 'Bodegas',
+  'Conectividad & Redes': 'Redes',
+  'Detección de Incendios & Seguridad': 'Incendios',
+  'Video Vigilancia & Seguridad': 'Seguridad',
+  'Seguridad Electrónica & SDI': 'Seguridad',
+  'Soluciones Tecnológicas': 'Tecnología',
+  'Servicios Corporativos': 'Corporativo',
+  'Infraestructura de Data Center': 'Data center',
+};
+
+// ── Antecedentes del servicio (snapshot real publicado) ────────────────
+type CaseRecord = { id: number; Titulo?: string; Cliente?: string; Area?: string; Fecha?: string };
+const SERVICE_CASE_MATCHERS: Record<string, { include: RegExp[]; exclude?: RegExp }> = {
+  '101': { include: [/fibra/i, /cableado/i, /\bredes?\b/i, /radioenlace/i, /\brack\b/i, /switch/i, /wi-?fi/i], exclude: /incendi|detecci/i },
+  '102': { include: [/cctv/i, /videovigilancia/i, /control de acceso/i, /c[aá]maras?\b/i, /alarma/i, /intrusi/i], exclude: /comercio|evento/i },
+  '103': { include: [/telef/i, /telecomunic/i, /\bvoz\b/i, /radiocomunic/i, /intercomunic/i, /portero/i, /conectividad/i], exclude: /incendi|detecci/i },
+  '104': { include: [/software/i, /digitaliz/i, /aplicaci[oó]n/i, /sistema web/i, /plataforma/i], exclude: /soporte/i },
+  '105': { include: [/soporte/i, /mesa de ayuda/i, /mantenimiento/i] },
+  '106': { include: [/diagn[oó]stico/i, /consultor[ií]a/i, /auditor/i, /asesor/i, /transformaci[oó]n digital/i, /ingenier[ií]a/i], exclude: /consultorios/i },
+  '107': { include: [/incendi/i, /detecci[oó]n/i, /detector/i, /extinci/i] },
+  '108': { include: [/el[eé]ctric/i, /\bups\b/i, /tablero/i, /energ[ií]a/i, /puesta a tierra/i, /bater[ií]as/i] },
+};
+const snapshotCases: CaseRecord[] = Array.isArray(antecedentesSnapshot)
+  ? (antecedentesSnapshot as CaseRecord[])
+  : ((antecedentesSnapshot as { data?: CaseRecord[] }).data || []);
+const caseMatcher = SERVICE_CASE_MATCHERS[String(id)];
+const serviceCases = (() => {
+  if (!caseMatcher) return [];
+  const ranked = snapshotCases
+    .map((record) => {
+      const client = smartCase(cleanCmsText(record.Cliente || ''));
+      const title = cleanCaseTitle(record.Titulo || '', client);
+      const image = getGeneratedAntecedenteImageUrl(record.id);
+      const rank = caseMatcher.include.findIndex((re) => re.test(title));
+      return { record, client, title, image, rank };
+    })
+    .filter((item) =>
+      item.rank >= 0 &&
+      !/\.{3}|…/.test(String(item.record.Titulo || '')) &&
+      item.client &&
+      item.image &&
+      item.title.length >= 8 &&
+      !(caseMatcher.exclude && caseMatcher.exclude.test(item.title)),
+    )
+    .sort((a, b) => a.rank - b.rank || String(b.record.Fecha || '').localeCompare(String(a.record.Fecha || '')));
+  const seenClients = new Set<string>();
+  const seenTitles = new Set<string>();
+  const picked: typeof ranked = [];
+  // Primera pasada: clientes y títulos distintos. Segunda: se admite título repetido con otro cliente.
+  for (const allowRepeatedTitle of [false, true]) {
+    for (const item of ranked) {
+      if (picked.length === 3 || picked.includes(item)) continue;
+      const clientKey = normalizeKey(item.client).split(' ').filter((word) => !LOWER_WORDS.has(word)).join(' ');
+      const titleKey = normalizeKey(item.title);
+      if (seenClients.has(clientKey) || (!allowRepeatedTitle && seenTitles.has(titleKey))) continue;
+      seenClients.add(clientKey);
+      seenTitles.add(titleKey);
+      picked.push(item);
+    }
+  }
+  return picked.map(({ record, client, title, image }) => ({
+    id: record.id,
+    href: `/antecedentes/${record.id}/${generateSlug(record.Titulo || '')}`,
+    client,
+    title,
+    image,
+    sector: SECTOR_LABELS[String(record.Area || '').trim()] || String(record.Area || '').split('&')[0].trim(),
+    year: String(record.Fecha || '').slice(0, 4),
+  }));
+})();
+const antecedentesTotal = getAntecedentesCatalogCount();
+
+// ── Soluciones incluidas (acordeón compacto, sin copy de folleto) ──────
+const productTechLine = (producto: any) => {
+  const raw = String(producto.descripcion || producto.servicio_asociado || producto.headline || '');
+  const technical = raw.match(/\*\*([^*]+)\*\*([\s\S]*)$/);
+  const source = technical ? `${technical[1]} ${technical[2]}` : raw;
+  return cleanCmsText(plainTextFromHtml(source))
+    .replace(/^Producto publicado:\s*/i, '')
+    .replace(/:\s*:/g, ':')
+    .replace(/^./, (first) => first.toUpperCase());
+};
+const solutionItems = productCards.map((producto: any, index: number) => ({
+  number: String(index + 1).padStart(2, '0'),
+  title: smartCase(cleanCmsText(String(producto.titulo || producto.nombre || 'Solución').split('|')[0])),
+  detail: productTechLine(producto),
+  href: producto.url_producto || (producto.slug_producto === 'cctv-ai-integrado' ? '/cctvai/' : ''),
+}));
+
+const whyItems = porQueElegirnos.map((item: string) => cleanCmsText(sanitizeEditorialText(item))).filter(Boolean);
+const marcas = Array.isArray(servicio.marcas) ? servicio.marcas.map((m: unknown) => cleanCmsText(m)).filter(Boolean) : [];
+const serviceShortName = visual?.shortName || cmsTitle;
+const serviceSummaryText = cleanCmsText(plainTextFromHtml(serviceBodySource)) ||
+  'Alcance técnico definido bajo relevamiento de sitio y criterios operativos verificables.';
+const fichaItems = [
+  { label: 'Implementación', value: '2–8 semanas' },
+  { label: 'Garantía', value: '5 años en materiales' },
+  { label: 'Cobertura', value: 'Mendoza, Cuyo y Patagonia' },
+  ...displayStats.slice(0, 3).map((stat: any) => ({ label: cleanCmsText(stat.label), value: cleanCmsText(stat.value) })),
+];
+
 ---
 
 <LayoutV4
+  skin="black"
   title={pageTitle}
   description={pageDescription}
   keywords={`${servicio.Titulo.toLowerCase()}${servicio.area ? `, ${servicio.area.toLowerCase()}` : ''}, servicios tecnologicos mendoza`}
@@ -295,1421 +450,987 @@ const servicePageStructuredData = [
   canonical={canonicalUrl}
   structuredData={servicePageStructuredData}
 >
-  <section class="service-detail-hero">
-    <div class="service-detail-hero__image">
-      <img
-        src={serviceImage}
-        alt={visual?.imageAlt || servicio.Titulo}
-        loading="eager"
-        fetchpriority="high"
-        decoding="async"
-        width={editorialImageDimensions.width}
-        height={editorialImageDimensions.height}
-      />
-    </div>
-    <div class="service-detail-hero__wash"></div>
+  <CineBanner
+    variant="sector"
+    scenes={[(SERVICE_SCENES[String(id)] || SERVICE_SCENES['101']).scene]}
+    systems={(SERVICE_SCENES[String(id)] || SERVICE_SCENES['101']).systems}
+    titleId="service-title"
+    kicker={visual?.eyebrow || servicio.area || 'Servicio IT'}
+    title={serviceHeroTitle}
+    lead={heroLead}
+    primary={{ href: '/contacto', label: 'Solicitar diagnóstico' }}
+    secondary={{ href: '/antecedentes', label: 'Ver evidencia' }}
+    back={{ href: '/servicios', label: '← Todos los servicios' }}
+  />
 
-    <div class="um-container service-detail-hero__content">
-      <nav class="service-detail-breadcrumb" aria-label="Breadcrumb">
-        <a href="/" class="hover:text-white transition-colors">Inicio</a>
-        <span>/</span>
-        <a href="/servicios" class="hover:text-white transition-colors">Servicios</a>
-        <span>/</span>
-        <span class="service-detail-breadcrumb__current">{serviceBreadcrumbLabel}</span>
-      </nav>
-
-      <div class="service-detail-hero__grid">
-        <div>
-          <span class="service-detail-label">{visual?.eyebrow || servicio.area || 'Servicio IT integral'}</span>
-          <h1>{serviceHeroTitle}</h1>
-          <p>{heroLead}</p>
-          <div class="service-detail-hero__actions" aria-label="Acciones principales del servicio">
-            <UMButton href="/contacto">Solicitar diagnóstico</UMButton>
-            <UMButton href="/antecedentes" variant="secondary">Ver evidencia</UMButton>
-          </div>
-        </div>
-        <aside class="service-detail-proof">
+  <div class="svc">
+    <!-- 1 · Resumen ejecutivo -->
+    <section class="svc-section svc-section--brief" aria-labelledby="svc-brief-title">
+      <div class="svc-wrap">
+        <header class="svc-head">
           <div>
-            <strong>{visual?.shortName || 'IT'}</strong>
-            <span>frente técnico</span>
+            <p class="svc-kicker">Resumen ejecutivo</p>
+            <h2 id="svc-brief-title">Del diagnóstico al alcance verificable.</h2>
           </div>
-          <div>
-            <strong>{visual?.signal || 'operación'} / 24-7</strong>
-            <span>diseño y soporte</span>
-          </div>
-        </aside>
-      </div>
-    </div>
-  </section>
-
-  <!-- STATS BAR - Componente V4 -->
-  {displayStats.length > 1 && (
-    <StatsBar stats={displayStats} />
-  )}
-
-  <!-- MAIN CONTENT -->
-  <section class="service-detail-main">
-    <div class="um-container">
-      <div class="service-executive-brief" aria-label="Resumen ejecutivo del servicio">
-        <div class="service-executive-brief__head">
-          <span>Resumen ejecutivo</span>
-          <h2>Del diagnóstico al alcance verificable.</h2>
-        </div>
-        <dl class="service-executive-brief__ledger">
-          {serviceBriefItems.map((item) => (
+          <p class="svc-head__lead">{serviceSummaryText}</p>
+        </header>
+        <dl class="svc-brief">
+          {serviceBriefItems.map((item, index) => (
             <div>
-              <dt>{item.label}</dt>
-              <dd>{item.value}</dd>
+              <dt><span>{String(index + 1).padStart(2, '0')}</span>{item.label}</dt>
+              <dd>{cleanCmsText(item.value)}</dd>
             </div>
           ))}
         </dl>
       </div>
+    </section>
 
-      {serviceCapabilityItems.length > 0 && (
-        <section class="service-capabilities-showcase" aria-labelledby="service-capabilities-title">
-          <header class="service-capabilities-showcase__head">
-            <span aria-hidden="true"></span>
-            <p>Alcance del servicio</p>
-            <h2 id="service-capabilities-title">Qué cubre {visual?.shortName || cmsTitle}.</h2>
-            <p>
+    <!-- 2 · Qué cubre -->
+    {(serviceCapabilityItems.length > 0 || solutionItems.length > 0) && (
+      <section class="svc-section" id="alcance" aria-labelledby="svc-scope-title">
+        <div class="svc-wrap">
+          <header class="svc-head">
+            <div>
+              <p class="svc-kicker">Alcance del servicio</p>
+              <h2 id="svc-scope-title">Qué cubre {serviceShortName}.</h2>
+            </div>
+            <p class="svc-head__lead">
               {demoCopy?.capabilitiesIntro || 'Un mismo equipo releva, diseña, implementa y sostiene cada frente técnico con evidencia verificable.'}
             </p>
           </header>
 
-          <div class="service-capability-grid" aria-label={`Capacidades de ${visual?.shortName || cmsTitle}`}>
-            {serviceCapabilityItems.map((item) => (
-              <article class="service-capability-card">
-                <div class="service-capability-card__media">
-                  <img
-                    src={item.image}
-                    alt={item.imageAlt}
-                    loading="lazy"
-                    decoding="async"
-                    width={editorialImageDimensions.width}
-                    height={editorialImageDimensions.height}
-                  />
-                  <span>{item.number}</span>
-                </div>
-                <div class="service-capability-card__copy">
-                  <h3>{item.title}</h3>
-                  <p>{item.description}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <div class="service-detail-main__grid">
-
-        <!-- Main Content -->
-        <div class="service-detail-main__body">
-          <h2 class="service-detail-section-title">{descriptionSectionTitle}</h2>
-          <div class="service-detail-copy editorial-body">
-            {serviceDescriptionHtml ? (
-              <div set:html={serviceDescriptionHtml} />
-            ) : (
-              <p>Alcance técnico definido bajo relevamiento de sitio y criterios operativos verificables.</p>
-            )}
-          </div>
-
-          <!-- Por Qué Elegirnos -->
-          {porQueElegirnos.length > 0 && (
-            <div class="service-why">
-              <h3 class="service-detail-subtitle">Por qué elegirnos</h3>
-              <ul class="space-y-3">
-                {porQueElegirnos.map((item) => (
-                  <li class="flex items-start gap-3">
-                    <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    <span class="text-um-dark">{sanitizeEditorialText(item)}</span>
-                  </li>
-                ))}
-              </ul>
+          {serviceCapabilityItems.length > 0 && (
+            <div class="svc-tiles" aria-label={`Capacidades de ${serviceShortName}`} data-rail={`Capacidades de ${serviceShortName}`}>
+              {serviceCapabilityItems.map((item) => (
+                <article class="svc-tile">
+                  <div class="svc-tile__media">
+                    <img
+                      src={item.image}
+                      alt={item.imageAlt}
+                      loading="lazy"
+                      decoding="async"
+                      width={editorialImageDimensions.width}
+                      height={editorialImageDimensions.height}
+                    />
+                  </div>
+                  <div class="svc-tile__copy">
+                    <p class="svc-tile__num">{item.number}</p>
+                    <h3>{cleanCmsText(item.title)}</h3>
+                    <p class="svc-tile__text">{cleanCmsText(item.description)}</p>
+                  </div>
+                </article>
+              ))}
             </div>
           )}
-        </div>
 
-        <!-- Sidebar -->
-        <div class="service-detail-main__aside">
-          <!-- Quick Info Card -->
-          <div class="service-info-card service-info-card--dossier">
-            <header class="service-info-head">
-              <p>Ficha técnica</p>
-              <h2>{sidebarInfoTitle}</h2>
-            </header>
-
-            <dl class="service-info-ledger" aria-label="Información operativa del servicio">
-              <div>
-                <dt>Implementación</dt>
-                <dd>2-8 semanas</dd>
-              </div>
-              <div>
-                <dt>Garantía</dt>
-                <dd>5 años en materiales</dd>
-              </div>
-              <div>
-                <dt>Cobertura</dt>
-                <dd>Mendoza, Cuyo y Patagonia</dd>
-              </div>
-            </dl>
-
-            {datasheetHref && (
-              <a href={datasheetHref} class="service-datasheet-btn" download>
-                Ficha técnica (PDF)
-              </a>
-            )}
-
-            <div class="service-info-actions">
-              <UMButton href="/contacto" class="service-info-primary">
-                Solicitar diagnóstico
-              </UMButton>
-              <EmailLink class="um-click-surface service-info-secondary" />
-            </div>
-          </div>
-
-          <!-- Brands -->
-          {servicio.marcas && servicio.marcas.length > 0 && (
-            <div class="service-info-card">
-              <h3 class="font-bold text-um-dark mb-4 text-lg">Marcas compatibles</h3>
-              <div class="flex flex-wrap gap-3">
-                {servicio.marcas.map((marca) => (
-                  <span class="px-3 py-1 bg-white rounded-[4px] text-base text-um-gray border">{marca}</span>
+          {solutionItems.length > 0 && (
+            <div class="svc-solutions">
+              <h3 class="svc-solutions__title">
+                {hasCommercialProducts ? 'Producto y soluciones incluidas' : 'Soluciones incluidas'}
+                <span>{solutionItems.length}</span>
+              </h3>
+              <div class="svc-accordion">
+                {solutionItems.map((item) => (
+                  <details class="svc-acc">
+                    <summary>
+                      <span class="svc-acc__num">{item.number}</span>
+                      <span class="svc-acc__title">{item.title}</span>
+                      <svg class="svc-acc__icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+                        <path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.6" />
+                      </svg>
+                    </summary>
+                    <div class="svc-acc__body">
+                      <p>{item.detail}</p>
+                      {item.href && (
+                        <a class="svc-textlink" href={item.href}>
+                          Ver producto <span aria-hidden="true">→</span>
+                        </a>
+                      )}
+                    </div>
+                  </details>
                 ))}
               </div>
             </div>
           )}
         </div>
-      </div>
-    </div>
-  </section>
+      </section>
+    )}
 
-  {showGenericProcess && (
-    <section class="service-approach-band" aria-labelledby="service-approach-title">
-      <div class="um-container service-approach-band__grid">
-        <figure class="service-approach-band__media">
-          <img
-            src={serviceImage}
-            alt={visual?.imageAlt || servicio.Titulo}
-            loading="lazy"
-            decoding="async"
-            width={editorialImageDimensions.width}
-            height={editorialImageDimensions.height}
-          />
-          <figcaption>{visual?.shortName || cmsTitle} · Mendoza, Cuyo y Patagonia</figcaption>
-        </figure>
-
-        <div class="service-approach-band__copy">
-          <span class="service-approach-band__rule" aria-hidden="true"></span>
-          <p class="service-approach-band__eyebrow">Cómo trabajamos</p>
-          <h2 id="service-approach-title">{processSectionTitle}</h2>
-          <p>
-            {demoCopy?.approachIntro || 'Nadie hereda un problema a medias: el mismo equipo conecta diagnóstico, ingeniería, implementación, prueba y soporte.'}
-          </p>
-
-          <ol class="service-approach-steps">
+    <!-- 3 · Cómo trabajamos -->
+    {showGenericProcess && (
+      <section class="svc-section" aria-labelledby="svc-approach-title">
+        <div class="svc-wrap">
+          <header class="svc-head">
+            <div>
+              <p class="svc-kicker">Cómo trabajamos</p>
+              <h2 id="svc-approach-title">{processSectionTitle}</h2>
+            </div>
+            <p class="svc-head__lead">
+              {demoCopy?.approachIntro || 'El mismo equipo conecta diagnóstico, ingeniería, implementación, prueba y soporte.'}
+            </p>
+          </header>
+          <ol class="svc-steps">
             {serviceApproachSteps.map((step) => (
               <li>
-                <span>{step.number}</span>
-                <h3>{step.title}</h3>
-                <p>{step.description}</p>
+                <span class="svc-steps__num">{step.number}</span>
+                <h3>{cleanCmsText(step.title)}</h3>
+                <p>{cleanCmsText(step.description)}</p>
               </li>
             ))}
           </ol>
         </div>
-      </div>
-    </section>
-  )}
+      </section>
+    )}
 
-  <!-- PRODUCTOS Y EQUIPAMIENTO - Usando componente ProductCard V4 -->
-  {hasProductCards && (
-    <section class="service-products-section">
-      <div class="um-container">
-        <div class="service-products-head">
-          <SectionHeader
-            kicker={productsSectionKicker}
-            title={productsSectionTitle}
-            text={productsSectionText}
-          />
+    <!-- 4 · Antecedentes del servicio -->
+    {serviceCases.length > 0 && (
+      <section class="svc-section" aria-labelledby="svc-cases-title">
+        <div class="svc-wrap">
+          <header class="svc-head">
+            <div>
+              <p class="svc-kicker">Antecedentes</p>
+              <h2 id="svc-cases-title">Casos comparables en operación.</h2>
+            </div>
+            <p class="svc-head__lead">
+              Proyectos reales con cliente, sector y año. Forman parte de un archivo de {antecedentesTotal} antecedentes.
+              <a class="svc-textlink" href="/antecedentes">Ver todos los antecedentes <span aria-hidden="true">→</span></a>
+            </p>
+          </header>
+          <div class="svc-cases" data-rail="Casos comparables">
+            {serviceCases.map((item) => (
+              <a class="svc-case" href={item.href}>
+                <div class="svc-case__media">
+                  <img src={item.image} alt="" width="1200" height="750" loading="lazy" decoding="async" />
+                  <span class="svc-case__seal">Imagen ilustrativa</span>
+                </div>
+                <div class="svc-case__body">
+                  <p class="svc-case__client">{item.client}</p>
+                  <h3>{item.title}</h3>
+                  <p class="svc-case__meta">{[item.sector, item.year].filter(Boolean).join(' · ')}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- 5 · Ficha técnica + CTA único -->
+    <section class="svc-section svc-section--close" aria-labelledby="svc-close-title">
+      <div class="svc-wrap svc-close">
+        <div class="svc-close__cta">
+          <p class="svc-kicker">Diagnóstico técnico</p>
+          <h2 id="svc-close-title">{serviceCtaTitle}</h2>
+          <p class="svc-close__text">
+            Revisamos sitio, riesgos, dependencias y objetivo operativo antes de proponer una solución.
+          </p>
+          <div class="svc-close__actions">
+            <a class="svc-btn" href="/contacto">
+              Solicitar diagnóstico
+              <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
+            </a>
+            <p class="svc-close__alt">
+              o escribir a <EmailLink class="svc-textlink" />
+            </p>
+          </div>
         </div>
 
-        <div class="service-products-list">
-          {productCards.map((producto, index) => (
-            <ProductCard
-              titulo={producto.titulo || producto.nombre || 'Equipamiento'}
-              descripcion={producto.descripcion || producto.servicio_asociado || producto.headline || ''}
-              imagen={producto.imagen_publica || producto.imagen}
-              features={producto.features || producto.caracteristicas || []}
-              destacado={producto.destacado}
-              marcas={producto.marcas || []}
-              orden={index}
-              serviceId={id}
-              serviceName={visual?.shortName || servicio.Titulo.split('|')[0]?.trim() || servicio.Titulo}
-              serviceCategory={producto.categoria_comercial || servicio.area || servicio.Area || visual?.eyebrow}
-              serviceHref={`/servicios/${id}/${slug}`}
-              ctaLabel={producto.slug_producto === 'cctv-ai-integrado' ? 'Ver producto' : [102, 107].includes(Number(id)) ? 'Solicitar relevamiento' : 'Cotizar solución'}
-              ctaHref={producto.url_producto || (producto.slug_producto === 'cctv-ai-integrado' ? '/cctvai/' : '/contacto')}
-              showActions={producto.slug_producto === 'cctv-ai-integrado' || shouldShowProductCardActions({ index, total: productCards.length })}
-            />
-          ))}
-        </div>
+        <aside class="svc-ficha" aria-label="Ficha técnica del servicio">
+          <p class="svc-kicker">Ficha técnica</p>
+          <dl>
+            {fichaItems.map((item) => (
+              <div>
+                <dt>{item.label}</dt>
+                <dd>{item.value}</dd>
+              </div>
+            ))}
+            {whyItems.length > 0 && (
+              <div>
+                <dt>Estándares</dt>
+                <dd>
+                  <ul>
+                    {whyItems.map((item) => <li>{item}</li>)}
+                  </ul>
+                </dd>
+              </div>
+            )}
+            {marcas.length > 0 && (
+              <div>
+                <dt>Marcas</dt>
+                <dd>{marcas.join(' · ')}</dd>
+              </div>
+            )}
+            {datasheetHref && (
+              <div>
+                <dt>Documento</dt>
+                <dd><a class="svc-textlink" href={datasheetHref} download>Ficha técnica (PDF)</a></dd>
+              </div>
+            )}
+          </dl>
+        </aside>
       </div>
     </section>
-  )}
-
-  <IntentLinkGraph
-    kicker="Para avanzar"
-    title="Ver también"
-    text="Servicios relacionados, sectores donde aplica, casos comparables y contacto técnico para relevar alcance."
-    groups={serviceStrategicLinkGroups}
-  />
-
-  <!-- CTA SECTION - Componente V4 -->
-  <CTASection
-    badge="Diagnóstico técnico"
-    badgeIcon="rocket"
-    titulo={serviceCtaTitle}
-    descripcion="Revisamos sitio, riesgos, dependencias y objetivo operativo antes de proponer una solución."
-    primaryButtonText="Solicitar diagnóstico"
-    primaryButtonUrl="/contacto"
-    secondaryButtonText="Escribir por email"
-    secondaryButtonUrl="/contacto"
-    secondaryButtonIcon="mail"
-    backgroundImage={serviceImage}
-  />
+  </div>
+  <SnapRail />
 </LayoutV4>
 
 <style>
-  /* Line clamp utility */
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  .svc {
+    --svc-pad: clamp(64px, 5vw, 80px);
+    background: var(--x-ink, #0a0a0b);
+    color: var(--x-text, #fafafa);
+    font-family: var(--um-font-editorial);
   }
 
-  .service-detail-hero {
-    position: relative;
-    overflow: hidden;
-    min-height: clamp(400px, 50vh, 540px);
-    background: #080808;
-    color: #fff;
-    max-width: 100%;
-  }
-
-  .service-detail-hero__image,
-  .service-detail-hero__wash {
-    position: absolute;
-    inset: 0;
-  }
-
-  .service-detail-hero__image img {
+  .svc-wrap {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: saturate(1.04) contrast(1.08) brightness(0.86);
+    max-width: var(--um-container-wide, 1400px);
+    margin-inline: auto;
+    padding-inline: var(--x-gutter, clamp(16px, 3.2vw, 32px));
   }
 
-  .service-detail-hero__wash {
-    background:
-      linear-gradient(90deg, rgba(8,8,8,0.94) 0%, rgba(8,8,8,0.84) 34%, rgba(8,8,8,0.38) 68%, rgba(8,8,8,0.08) 100%),
-      linear-gradient(0deg, rgba(8,8,8,0.82) 0%, rgba(8,8,8,0.1) 68%);
+  .svc-section {
+    padding-block: var(--svc-pad);
+    border-top: 1px solid var(--x-line);
   }
 
-  .service-detail-hero__content {
-    position: relative;
-    z-index: 1;
-    padding-top: clamp(22px, 2.8vw, 38px);
-    padding-bottom: clamp(30px, 3.8vw, 52px);
+  .svc-section--brief {
+    border-top: 0;
   }
 
-  .service-detail-breadcrumb {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.55rem;
-    margin-bottom: clamp(18px, 3vw, 34px);
-    color: rgba(255,255,255,0.58);
-    font-size: 1rem;
-    font-weight: 700;
-    min-width: 0;
+  .svc :where(h2, h3, p, dd, dt, li) {
+    margin: 0;
   }
 
-  .service-detail-breadcrumb span,
-  .service-detail-breadcrumb a {
-    overflow-wrap: anywhere;
-  }
-
-  .service-detail-breadcrumb__current {
-    max-width: min(100%, 42ch);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: rgba(255,255,255,0.76);
-  }
-
-  .service-detail-hero__grid {
-    display: grid;
-    grid-template-columns: minmax(0, 0.68fr) minmax(300px, 0.32fr);
-    gap: clamp(32px, 5.2vw, 72px);
-    align-items: start;
-    min-width: 0;
-  }
-
-  .service-detail-hero__grid > * {
-    min-width: 0;
-  }
-
-  .service-detail-label {
+  /* Kicker */
+  .svc-kicker {
     display: inline-flex;
     align-items: center;
-    gap: 0.625rem;
-    margin-bottom: 1rem;
-    color: rgba(255, 255, 255, 0.82);
-    font-family: var(--um-font-mono);
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    max-width: 100%;
-    overflow-wrap: anywhere;
-  }
-
-  .service-detail-label::before {
-    content: "";
-    width: 34px;
-    height: 2px;
-    background: #DC2626;
-  }
-
-  .service-detail-hero h1 {
-    max-width: min(760px, 22ch);
-    color: #ffffff !important;
-    font-family: var(--um-font-display);
-    font-size: var(--um-world-h1);
-    line-height: var(--um-display-line-height);
-    font-weight: var(--um-display-weight);
-    letter-spacing: var(--um-display-tracking);
-    text-wrap: balance;
-    overflow-wrap: anywhere;
-  }
-
-  .service-detail-hero p {
-    max-width: 58ch;
-    margin-top: 1.25rem;
-    color: rgba(255, 255, 255, 0.78) !important;
-    font-size: clamp(1rem, 1.08vw, 1.12rem);
-    line-height: 1.68;
-    overflow-wrap: anywhere;
-  }
-
-  .service-detail-hero__actions {
-    display: flex;
-    flex-wrap: wrap;
     gap: 12px;
-    margin-top: 1.65rem;
-    max-width: 100%;
-  }
-
-  .service-detail-hero__actions :where(.um-btn-primary, .um-btn-secondary) {
-    min-width: 210px;
-    min-height: 52px;
-    padding-inline: 1.35rem;
-    font-size: 1rem;
-    line-height: 1.1;
-    white-space: nowrap;
-  }
-
-  .service-detail-hero__actions .um-btn-secondary {
-    background: rgba(255,255,255,0.08) !important;
-    border-color: transparent !important;
-    color: #fff !important;
-  }
-
-  .service-detail-hero__actions .um-btn-secondary:hover {
-    background: #fff !important;
-    border-color: #fff !important;
-    color: #111 !important;
-  }
-
-  :global(body[data-skin="white"]) .service-detail-hero__actions .um-btn-secondary {
-    background: rgba(255,255,255,0.1) !important;
-    border-color: transparent !important;
-    color: #fff !important;
-  }
-
-  :global(body[data-skin="white"]) .service-detail-hero__actions .um-btn-secondary:hover {
-    background: #fff !important;
-    border-color: #fff !important;
-    color: #111 !important;
-  }
-
-  .service-detail-proof {
-    display: grid;
-    width: 100%;
-    max-width: 360px;
-    justify-self: end;
-    border: 0;
-    background: rgba(10,10,10,0.72);
-    box-shadow: none;
-  }
-
-  .service-detail-proof div {
-    padding: 1rem 1.1rem 1.05rem;
-    background: rgba(8,8,8,0.76);
-    border-bottom: 0;
-  }
-
-  .service-detail-proof strong {
-    display: block;
-    color: #fff;
-    font-family: var(--um-font-display);
-    font-size: clamp(1.12rem, 1.5vw, 1.5rem);
-    line-height: 1.12;
-    font-weight: var(--um-display-weight);
-    letter-spacing: var(--um-display-tracking);
-  }
-
-  .service-detail-proof span {
-    display: block;
-    margin-top: 0.55rem;
-    color: rgba(255,255,255,0.62);
-    font-family: var(--um-font-mono);
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    line-height: 1.35;
-    text-transform: uppercase;
-  }
-
-  .service-detail-main {
-    background: #fff;
-    padding: clamp(28px, 3.2vw, 44px) 0 clamp(8px, 1.4vw, 18px);
-  }
-
-  .service-executive-brief {
-    display: grid;
-    grid-template-columns: minmax(240px, 0.34fr) minmax(0, 0.66fr);
-    gap: clamp(24px, 4vw, 56px);
-    margin-bottom: clamp(34px, 4vw, 56px);
-    padding: clamp(24px, 3.2vw, 38px);
-    background: #050505;
-    color: #fff;
-  }
-
-  .service-executive-brief__head {
-    min-width: 0;
-  }
-
-  .service-executive-brief__head span {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.65rem;
-    color: #DC2626;
-    font-family: var(--um-font-mono);
-    font-size: 1rem;
+    margin: 0 0 16px;
+    color: var(--x-muted);
+    font-family: var(--um-font-editorial);
+    font-size: var(--x-fs-kicker, 0.8125rem);
     font-weight: 600;
     letter-spacing: 0.12em;
     line-height: 1.2;
     text-transform: uppercase;
   }
 
-  .service-executive-brief__head span::before {
+  .svc-kicker::before {
     content: "";
-    width: 34px;
+    flex: 0 0 28px;
+    width: 28px;
     height: 2px;
-    background: #DC2626;
+    background: var(--x-red);
   }
 
-  .service-executive-brief__head h2 {
-    max-width: 440px;
-    margin-top: 0.9rem;
-    color: #fff !important;
-    font-family: var(--um-font-display);
-    font-size: clamp(1.55rem, 2vw, 2.15rem);
-    font-weight: var(--um-display-weight);
-    letter-spacing: var(--um-display-tracking);
-    line-height: 1.1;
+  /* Section head */
+  .svc-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
+    gap: 24px 64px;
+    align-items: end;
+    margin-bottom: 48px;
+  }
+
+  .svc-head h2 {
+    max-width: 18ch;
+    color: var(--x-text) !important;
+    font-family: var(--um-font-editorial);
+    font-size: var(--x-fs-h2, clamp(2.25rem, 3.2vw, 3rem));
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.08;
     text-wrap: balance;
   }
 
-  .service-executive-brief__ledger {
+  .svc-head__lead {
+    max-width: 62ch;
+    color: var(--x-text-2) !important;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+  }
+
+  .svc-head__lead .svc-textlink {
+    display: inline-flex;
+    margin-top: 12px;
+  }
+
+  .svc-textlink {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--x-text) !important;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--x-line-strong);
+    text-underline-offset: 5px;
+    transition: text-decoration-color 160ms var(--x-ease), color 160ms var(--x-ease);
+  }
+
+  .svc-textlink:hover {
+    text-decoration-color: var(--x-red);
+  }
+
+  .svc-textlink span {
+    transition: transform 160ms var(--x-ease);
+  }
+
+  .svc-textlink:hover span {
+    transform: translateX(3px);
+  }
+
+  /* 1 · Brief */
+  .svc-brief {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1px;
     margin: 0;
-    background: rgba(255,255,255,0.18);
+    border: 1px solid var(--x-line);
+    background: var(--x-line);
   }
 
-  .service-executive-brief__ledger div {
+  .svc-brief > div {
     min-width: 0;
-    padding: clamp(16px, 2vw, 22px);
-    background: #101010;
+    padding: 24px;
+    background: var(--x-panel);
   }
 
-  .service-executive-brief__ledger dt {
-    color: rgba(255,255,255,0.64);
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.25;
+  .svc-brief dt {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    color: var(--x-muted);
+    font-size: var(--x-fs-meta, 0.875rem);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    line-height: 1.45;
     text-transform: uppercase;
   }
 
-  .service-executive-brief__ledger dd {
-    margin: 0.65rem 0 0;
-    color: #fff !important;
-    font-size: clamp(1.02rem, 1.1vw, 1.12rem);
+  .svc-brief dt span {
+    color: var(--x-text-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .svc-brief dd {
+    margin-top: 12px;
+    color: var(--x-text) !important;
+    font-size: 1.1875rem;
     font-weight: 600;
-    line-height: 1.42;
-    overflow-wrap: anywhere;
+    line-height: 1.4;
   }
 
-  .service-detail-main__grid {
-    display: grid;
-    grid-template-columns: minmax(0, 0.7fr) minmax(300px, 0.3fr);
-    gap: clamp(42px, 7vw, 92px);
-    align-items: start;
-    border-top: 0;
-    padding-top: 0;
-  }
-
-  .service-detail-main__grid > * {
-    min-width: 0;
-  }
-
-  .service-detail-main__body {
-    max-width: none;
-  }
-
-  .service-detail-main__aside {
-    justify-self: end;
-    width: min(100%, 360px);
-  }
-
-  .service-detail-section-title {
-    margin-bottom: 1.2rem;
-    color: #111;
-    font-family: var(--um-font-display);
-    font-size: clamp(1.9rem, 2.65vw, 2.95rem);
-    line-height: 1.1;
-    font-weight: var(--um-display-weight);
-    letter-spacing: var(--um-display-tracking);
-    text-wrap: balance;
-  }
-
-  .service-detail-subtitle {
-    margin-bottom: 1.3rem;
-    color: #111;
-    font-family: var(--um-font-display);
-    font-size: clamp(1.22rem, 1.55vw, 1.52rem);
-    line-height: 1.18;
-    font-weight: var(--um-display-weight);
-    letter-spacing: var(--um-display-tracking);
-  }
-
-  .service-detail-copy {
-    max-width: 760px;
-    margin-bottom: 3rem;
-  }
-
-  .service-detail-copy :global(p) {
-    max-width: 68ch;
-    margin: 0 0 1.1rem;
-    color: var(--um-muted);
-    font-size: clamp(1.0625rem, 1.08vw, 1.1rem);
-    line-height: 1.72;
-  }
-
-  .service-detail-copy :global(p:last-child) {
-    margin-bottom: 0;
-  }
-
-  .service-detail-copy :global(strong) {
-    color: #111;
-    font-weight: 700;
-  }
-
-  .service-detail-copy :global(ul),
-  .service-detail-copy :global(ol) {
-    display: grid;
-    gap: 0.75rem;
-    max-width: 68ch;
-    margin: 1.25rem 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .service-detail-copy :global(li) {
-    position: relative;
-    padding-left: 1.35rem;
-    color: var(--um-muted);
-    font-size: clamp(1rem, 1.02vw, 1.06rem);
-    line-height: 1.62;
-  }
-
-  .service-detail-copy :global(li::before) {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0.72em;
-    width: 0.42rem;
-    height: 2px;
-    background: var(--um-red);
-  }
-
-  :global(body[data-skin] main .service-detail-copy p) {
-    font-size: clamp(1.0625rem, 1.08vw, 1.1rem) !important;
-    line-height: 1.72 !important;
-  }
-
-  :global(body[data-skin] main .service-detail-copy li) {
-    font-size: clamp(1rem, 1.02vw, 1.06rem) !important;
-    line-height: 1.62 !important;
-  }
-
-  .service-capabilities-showcase {
-    margin-bottom: clamp(44px, 5.4vw, 76px);
-    scroll-margin-top: 96px;
-  }
-
-  .service-capabilities-showcase__head {
-    display: grid;
-    max-width: 760px;
-    margin-bottom: clamp(28px, 3.8vw, 46px);
-  }
-
-  .service-capabilities-showcase__head > span {
-    width: 56px;
-    height: 2px;
-    background: #DC2626;
-  }
-
-  .service-capabilities-showcase__head p:first-of-type {
-    margin: 1.15rem 0 0;
-    color: var(--um-muted);
-    font-family: var(--um-font-mono);
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    line-height: 1.25;
-    text-transform: uppercase;
-  }
-
-  .service-capabilities-showcase__head h2 {
-    margin-top: 0.85rem;
-    color: #111;
-    font-family: var(--um-font-display);
-    font-size: clamp(1.8rem, 2.42vw, 2.72rem);
-    font-weight: var(--um-display-weight);
-    letter-spacing: var(--um-display-tracking);
-    line-height: 1.1;
-    text-wrap: balance;
-  }
-
-  .service-capabilities-showcase__head p:last-of-type {
-    max-width: 650px;
-    margin: 1.1rem 0 0;
-    color: var(--um-muted);
-    font-size: clamp(1rem, 1.08vw, 1.1rem);
-    line-height: 1.68;
-  }
-
-  .service-capability-grid {
+  /* 2 · Tiles */
+  .svc-tiles {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(20px, 2vw, 32px) clamp(18px, 2vw, 30px);
+    gap: 24px;
   }
 
-  .service-capability-card {
+  .svc-tile {
+    display: grid;
+    grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.58fr);
     min-width: 0;
-    background: #fff;
-    color: #111;
+    border: 1px solid var(--x-line);
+    background: var(--x-panel);
+    transition: border-color 160ms var(--x-ease);
   }
 
-  .service-capability-card__media {
+  .svc-tile:hover {
+    border-color: var(--x-line-strong);
+  }
+
+  .svc-tile__media {
     position: relative;
-    aspect-ratio: 4 / 3;
+    min-height: 100%;
     overflow: hidden;
-    background: #111;
+    background: var(--x-panel-2);
   }
 
-  .service-capability-card__media img {
+  .svc-tile__media img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: saturate(0.94) contrast(1.04);
+    filter: saturate(0.92) contrast(1.04);
   }
 
-  .service-capability-card__media::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(0,0,0,0.32) 0%, transparent 46%);
-    pointer-events: none;
-  }
-
-  .service-capability-card__media span {
-    position: absolute;
-    top: 14px;
-    left: 14px;
-    z-index: 1;
-    display: grid;
-    width: 42px;
-    height: 42px;
-    place-items: center;
-    background: #fff;
-    color: #DC2626;
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1;
-  }
-
-  .service-capability-card__copy {
-    padding: clamp(16px, 1.7vw, 20px) 0 0;
-  }
-
-  .service-capability-card__copy h3 {
-    color: #111;
-    font-family: var(--um-font-display);
-    font-size: clamp(1.16rem, 1.28vw, 1.42rem);
-    font-weight: var(--um-display-weight);
-    letter-spacing: var(--um-display-tracking);
-    line-height: 1.12;
-    text-wrap: balance;
-  }
-
-  .service-capability-card__copy p,
-  .service-why li span,
-  .service-info-card {
-    font-size: 1rem;
-    line-height: 1.62;
-  }
-
-  .service-capability-card__copy p {
-    margin-top: 0.65rem;
-    color: var(--um-muted);
-  }
-
-  .service-approach-band {
-    background: #080808;
-    color: #fff;
-    padding: clamp(64px, 7.4vw, 104px) 0;
-    scroll-margin-top: 96px;
-  }
-
-  .service-approach-band__grid {
-    display: grid;
-    grid-template-columns: minmax(0, 0.44fr) minmax(0, 0.56fr);
-    gap: clamp(36px, 5vw, 76px);
-    align-items: stretch;
-  }
-
-  .service-approach-band__media {
-    position: relative;
-    min-height: clamp(390px, 36vw, 540px);
-    margin: 0;
-    overflow: hidden;
-    background: #111;
-  }
-
-  .service-approach-band__media img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: saturate(0.92) contrast(1.06);
-  }
-
-  .service-approach-band__media::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(0deg, rgba(8,8,8,0.82) 0%, rgba(8,8,8,0.08) 62%),
-      linear-gradient(90deg, rgba(8,8,8,0.5) 0%, transparent 42%);
-  }
-
-  .service-approach-band__media figcaption {
-    position: absolute;
-    inset-inline: 0;
-    bottom: 0;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    gap: 0.9rem;
-    padding: clamp(18px, 2.4vw, 26px);
-    color: rgba(255,255,255,0.86);
-    font-family: var(--um-font-mono);
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    line-height: 1.3;
-    text-transform: uppercase;
-  }
-
-  .service-approach-band__media figcaption::before,
-  .service-approach-band__rule {
-    content: "";
-    width: 56px;
-    height: 2px;
-    background: #DC2626;
-    flex: 0 0 auto;
-  }
-
-  .service-approach-band__copy {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  .svc-tile__copy {
     min-width: 0;
+    padding: 20px;
   }
 
-  .service-approach-band__rule {
-    display: block;
-  }
-
-  .service-approach-band__eyebrow {
-    margin: 1.15rem 0 0;
-    color: rgba(255,255,255,0.62);
-    font-family: var(--um-font-mono);
-    font-size: 1rem;
+  .svc-tile__num {
+    color: var(--x-muted) !important;
+    font-size: 0.8125rem;
     font-weight: 600;
     letter-spacing: 0.12em;
-    line-height: 1.2;
-    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
   }
 
-  .service-approach-band h2 {
-    max-width: 560px;
-    margin-top: 1rem;
-    color: #fff !important;
-    font-family: var(--um-font-display);
-    font-size: clamp(1.75rem, 2.35vw, 2.52rem);
-    font-weight: var(--um-display-weight);
-    letter-spacing: var(--um-display-tracking);
-    line-height: 1.1;
-    text-wrap: balance;
+  .svc-tile h3 {
+    margin-top: 8px;
+    color: var(--x-text) !important;
+    font-family: var(--um-font-editorial);
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
   }
 
-  .service-approach-band__copy > p:not(.service-approach-band__eyebrow) {
-    max-width: 540px;
-    margin-top: 1.2rem;
-    color: rgba(255,255,255,0.7);
-    font-size: 1.05rem;
-    line-height: 1.7;
+  .svc-tile__text {
+    display: -webkit-box;
+    margin-top: 8px !important;
+    overflow: hidden;
+    color: var(--x-muted) !important;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
   }
 
-  .service-approach-steps {
+  /* Accordion */
+  .svc-solutions {
+    margin-top: 48px;
+  }
+
+  .svc-solutions__title {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 16px !important;
+    color: var(--x-text) !important;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .svc-solutions__title span {
+    color: var(--x-muted);
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .svc-accordion {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    margin: clamp(26px, 3vw, 40px) 0 0;
-    padding: 0;
-    list-style: none;
+    column-gap: 24px;
+    border-top: 1px solid var(--x-line);
   }
 
-  .service-approach-steps li {
+  .svc-acc {
     min-width: 0;
-    border-top: 1px solid rgba(255,255,255,0.16);
-    padding: clamp(18px, 1.8vw, 24px) clamp(18px, 2vw, 28px) clamp(18px, 1.8vw, 24px) 0;
+    border-bottom: 1px solid var(--x-line);
   }
 
-  .service-approach-steps li:nth-child(even) {
-    border-left: 1px solid rgba(255,255,255,0.16);
-    padding-left: clamp(18px, 2vw, 28px);
-  }
-
-  .service-approach-steps span {
-    color: #DC2626;
-    font-family: var(--um-font-mono);
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-  }
-
-  .service-approach-steps h3 {
-    margin-top: 0.65rem;
-    color: #fff;
-    font-family: var(--um-font-display);
-    font-size: clamp(1.08rem, 1.2vw, 1.28rem);
-    font-weight: var(--um-display-weight);
-    letter-spacing: var(--um-display-tracking);
-    line-height: 1.18;
-  }
-
-  .service-approach-steps p {
-    margin-top: 0.55rem;
-    color: rgba(255,255,255,0.66);
-    font-size: 1rem;
-    line-height: 1.56;
-  }
-
-  .service-why {
-    margin-bottom: 2.6rem;
-    border-top: 1px solid var(--um-line);
-    border-bottom: 1px solid var(--um-line);
-    border-radius: 0;
-    padding: clamp(22px, 3vw, 30px) 0;
-    background: #fff;
-  }
-
-  .service-info-card {
-    margin-bottom: 1rem;
-    width: 100%;
-    max-width: 100%;
-    border-top: 0;
-    border-bottom: 0;
-    border-radius: 0;
-    padding: clamp(20px, 2.2vw, 26px);
-    background: #fff;
-  }
-
-  .service-info-card:first-child {
-    position: sticky;
-    top: 104px;
-    max-height: calc(100vh - 128px);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(17,17,17,0.28) transparent;
-  }
-
-  .service-info-card--dossier {
-    padding: 0;
-    background: transparent;
-  }
-
-  .service-info-head {
-    margin-bottom: 1.2rem;
-  }
-
-  .service-info-head p {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.65rem;
-    margin: 0 0 0.8rem;
-    color: #DC2626;
-    font-family: var(--um-font-mono);
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    line-height: 1.2;
-    text-transform: uppercase;
-  }
-
-  .service-info-head p::before {
-    content: "";
-    width: 28px;
-    height: 2px;
-    background: #DC2626;
-  }
-
-  .service-info-head h2 {
-    margin: 0;
-    color: #111;
-    font-family: var(--um-font-display);
-    font-size: clamp(1.15rem, 1.4vw, 1.35rem);
-    font-weight: var(--um-display-weight);
-    letter-spacing: var(--um-display-tracking);
-    line-height: 1.18;
-  }
-
-  .service-info-ledger {
+  .svc-acc summary {
     display: grid;
-    margin: 0 0 1.25rem;
-  }
-
-  .service-info-ledger div {
-    display: grid;
-    grid-template-columns: minmax(148px, 0.48fr) minmax(0, 0.52fr);
-    gap: 1rem;
-    padding: 0.9rem 0;
-    border-top: 1px solid #e2e4e7;
-  }
-
-  .service-info-ledger div:last-child {
-    border-bottom: 1px solid #e2e4e7;
-  }
-
-  .service-info-ledger dt {
-    color: #5f6670;
-    font-size: 1rem;
-    font-weight: 600;
-    line-height: 1.35;
-  }
-
-  .service-info-ledger dd {
-    margin: 0;
-    color: #111;
-    font-size: 1rem;
-    font-weight: 600;
-    line-height: 1.35;
-    overflow-wrap: anywhere;
-  }
-
-  .service-datasheet-btn {
-    display: flex;
+    grid-template-columns: 40px minmax(0, 1fr) 16px;
+    gap: 12px;
     align-items: center;
-    justify-content: center;
-    width: 100%;
-    min-height: 44px;
-    margin-bottom: 12px;
-    padding: 12px 16px;
-    border: 1px solid var(--skin-line, #d9dadd);
-    border-radius: 4px;
-    background: #fff;
-    color: var(--skin-text, #111);
-    font-size: 1rem;
-    font-weight: 700;
-    text-decoration: none;
-    transition: border-color 180ms ease, background-color 180ms ease;
+    min-height: 60px;
+    padding: 12px 4px;
+    color: var(--x-text);
+    cursor: pointer;
+    list-style: none;
+    transition: color 160ms var(--x-ease);
   }
 
-  .service-datasheet-btn:hover {
-    border-color: var(--um-red);
-    background: color-mix(in srgb, var(--um-red) 4%, #fff);
+  .svc-acc summary::-webkit-details-marker {
+    display: none;
   }
 
-  .service-datasheet-btn:focus-visible {
-    outline: 2px solid var(--um-red);
+  .svc-acc summary:focus-visible {
+    outline: 2px solid var(--x-red);
     outline-offset: 2px;
   }
 
-  .service-info-actions {
-    display: grid;
-    gap: 0.7rem;
-    margin-top: 1rem;
+  .svc-acc__num {
+    color: var(--x-muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
   }
 
-  :global(.service-info-primary),
-  .service-info-secondary {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    width: 100%;
-    min-height: 44px;
-    margin-top: 0;
-    border-radius: 0;
-    font-weight: 700;
-    text-align: center;
-  }
-
-  :global(.service-info-primary) {
-    background: #DC2626;
-    color: #fff;
-  }
-
-  :global(.service-info-primary:hover) {
-    background: #DC2626;
-  }
-
-  .service-info-secondary {
-    border: 0;
-    background: transparent;
-    color: #111;
-    font-size: 1rem;
-    min-height: auto;
-    justify-content: flex-start;
-    padding: 0;
-    overflow-wrap: anywhere;
-    text-decoration: underline;
-    text-decoration-color: #DC2626;
-    text-underline-offset: 5px;
-  }
-
-  .service-info-secondary:hover {
-    color: #DC2626;
-  }
-
-  .service-products-section {
-    padding: clamp(22px, 3.2vw, 42px) 0 clamp(42px, 6vw, 76px);
-    background: #ffffff;
-    border-top: 0;
-  }
-
-  .service-products-section :global(.product-sheet) {
-    background: #ffffff;
-  }
-
-  .service-products-section .um-container {
-    width: min(1200px, calc(100% - clamp(32px, 5vw, 64px)));
-  }
-
-  .service-products-head {
-    margin-bottom: clamp(26px, 4.5vw, 52px);
-  }
-
-  .service-products-head :global(.um-section-header) {
-    display: grid;
-    grid-template-columns: minmax(0, 780px);
-    grid-template-areas:
-      "kicker"
-      "title"
-      "text";
-    gap: clamp(12px, 1.6vw, 18px);
-    align-items: start;
-    max-width: none;
-    margin-bottom: 0;
-  }
-
-  .service-products-head :global(.um-section-header .um-kicker) {
-    grid-area: kicker;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.65rem;
-    color: #DC2626;
-    font-family: var(--um-font-mono);
+  .svc-acc__title {
     font-size: 1rem;
     font-weight: 600;
-    letter-spacing: 0.12em;
-    line-height: 1.2;
-    text-transform: uppercase;
+    line-height: 1.35;
   }
 
-  .service-products-head :global(.um-section-header .um-kicker)::before {
-    content: "";
-    width: 34px;
-    height: 2px;
-    background: #DC2626;
+  .svc-acc__icon {
+    color: var(--x-muted);
+    transition: transform 160ms var(--x-ease);
   }
 
-  .service-products-head :global(.um-section-header h2) {
-    grid-area: title;
-    color: #111;
-    max-width: 720px;
-    color: #111;
-    font-family: var(--um-font-display);
-    font-size: clamp(2rem, 2.55vw, 3rem);
-    line-height: 1;
-    font-weight: var(--um-display-weight);
-    letter-spacing: var(--um-display-tracking);
-    text-wrap: balance;
-    word-break: normal;
-    overflow-wrap: normal;
+  .svc-acc[open] .svc-acc__icon {
+    transform: rotate(180deg);
   }
 
-  .service-products-head :global(.um-section-header > p:not(.um-kicker)) {
-    grid-area: text;
-    max-width: 680px;
-    margin-top: 0;
-    color: var(--um-muted);
-    font-size: clamp(1rem, 1.08vw, 1.1rem);
-    line-height: 1.68;
+  .svc-acc summary:hover .svc-acc__icon {
+    color: var(--x-text);
   }
 
-  .service-products-list {
+  .svc-acc__body {
+    padding: 0 4px 20px 56px;
+  }
+
+  .svc-acc__body p {
+    max-width: 62ch;
+    color: var(--x-text-2) !important;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  .svc-acc__body .svc-textlink {
+    margin-top: 12px;
+    font-size: 0.9375rem;
+  }
+
+  /* 3 · Steps */
+  .svc-steps {
     display: grid;
-    gap: clamp(34px, 6vw, 76px);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--x-line-strong);
+  }
+
+  .svc-steps li {
+    min-width: 0;
+    padding: 24px 24px 0 0;
+  }
+
+  .svc-steps li + li {
+    padding-left: 24px;
+    border-left: 1px solid var(--x-line);
+  }
+
+  .svc-steps__num {
+    color: var(--x-muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .svc-steps h3 {
+    margin-top: 12px;
+    color: var(--x-text) !important;
+    font-family: var(--um-font-editorial);
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+
+  .svc-steps p {
+    margin-top: 8px;
+    color: var(--x-muted) !important;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+
+  /* 4 · Cases */
+  .svc-cases {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  .svc-case {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border: 1px solid var(--x-line);
+    background: var(--x-panel);
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 160ms var(--x-ease);
+  }
+
+  .svc-case:hover {
+    border-color: var(--x-line-strong);
+  }
+
+  .svc-case:focus-visible {
+    outline: 2px solid var(--x-red);
+    outline-offset: 2px;
+  }
+
+  .svc-case__media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--x-panel-2);
+  }
+
+  .svc-case__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 240ms var(--x-ease);
+  }
+
+  .svc-case:hover .svc-case__media img {
+    transform: scale(1.02);
+  }
+
+  .svc-case__seal {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: rgba(10, 10, 11, 0.78);
+    color: var(--x-text-2);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .svc-case__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .svc-case__client {
+    color: var(--x-muted) !important;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+
+  .svc-case h3 {
+    display: -webkit-box;
+    margin-top: 8px;
+    overflow: hidden;
+    color: var(--x-text) !important;
+    font-family: var(--um-font-editorial);
+    font-size: 1.1875rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .svc-case__meta {
+    margin-top: auto !important;
+    padding-top: 16px;
+    color: var(--x-muted) !important;
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+
+  /* 5 · Close */
+  .svc-section--close {
+    background: var(--x-panel);
+  }
+
+  .svc-close {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.8fr);
+    gap: 48px 96px;
+    align-items: start;
+  }
+
+  .svc-close__cta h2 {
+    max-width: 20ch;
+    color: var(--x-text) !important;
+    font-family: var(--um-font-editorial);
+    font-size: var(--x-fs-h2, clamp(2.25rem, 3.2vw, 3rem));
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+
+  .svc-close__text {
+    max-width: 52ch;
+    margin-top: 16px !important;
+    color: var(--x-text-2) !important;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+  }
+
+  .svc-close__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 24px;
+    margin-top: 32px;
+  }
+
+  .svc-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 52px;
+    padding: 0 24px;
+    border-radius: 0;
+    background: var(--x-red);
+    color: #fff !important;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 160ms var(--x-ease);
+  }
+
+  .svc-btn:hover {
+    background: var(--x-red-hover, #b91c1c);
+  }
+
+  .svc-btn:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+  }
+
+  .svc-close__alt {
+    color: var(--x-muted) !important;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  .svc-close__alt .svc-textlink {
+    display: inline;
+  }
+
+  /* EmailLink es un componente hijo: el estilo .svc-textlink necesita :global para llegar al <a>. */
+  .svc-close__alt :global(a[data-um-email-link]) {
+    color: var(--x-text) !important;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--x-line-strong);
+    text-underline-offset: 5px;
+    transition: text-decoration-color 160ms var(--x-ease);
+  }
+
+  .svc-close__alt :global(a[data-um-email-link]:hover) {
+    text-decoration-color: var(--x-red);
+  }
+
+  .svc-ficha .svc-kicker {
+    margin-bottom: 12px;
+  }
+
+  .svc-ficha dl {
+    margin: 0;
+    border-top: 1px solid var(--x-line-strong);
+  }
+
+  .svc-ficha dl > div {
+    display: grid;
+    grid-template-columns: minmax(120px, 0.4fr) minmax(0, 0.6fr);
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--x-line);
+  }
+
+  .svc-ficha dt {
+    color: var(--x-muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+
+  .svc-ficha dd {
+    min-width: 0;
+    color: var(--x-text) !important;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+
+  .svc-ficha ul {
+    display: grid;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .svc-ficha li {
+    font-weight: 500;
+  }
+
+  @media (max-width: 1120px), (pointer: coarse) {
+    .svc-textlink {
+      min-height: 44px;
+    }
   }
 
   @media (max-width: 1120px) {
-    .service-detail-hero__grid,
-    .service-detail-main__grid,
-    .service-approach-band__grid {
-      grid-template-columns: 1fr;
-    }
-
-    .service-capability-grid {
+    .svc-tiles,
+    .svc-cases {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .service-info-card:first-child {
-      position: static;
+    .svc-steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .service-detail-main__aside {
-      justify-self: stretch;
-      width: 100%;
+    .svc-steps li:nth-child(3) {
+      padding-left: 0;
+      border-left: 0;
+    }
+
+    .svc-close {
+      grid-template-columns: 1fr;
     }
   }
 
-  @media (max-width: 640px) {
-    :global(html),
-    :global(body) {
-      overflow-x: clip;
+  @media (max-width: 760px) {
+    .svc-head {
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
     }
 
-    .service-detail-hero {
-      min-height: auto;
-      max-width: 100%;
-    }
-
-    .service-detail-hero__content {
-      padding-top: 22px;
-      padding-bottom: 38px;
-      overflow-x: clip;
-    }
-
-    .service-detail-breadcrumb {
-      margin-bottom: 28px;
-    }
-
-    .service-detail-breadcrumb__current {
-      display: none;
-    }
-
-    .service-detail-breadcrumb span:nth-last-child(2) {
-      display: none;
-    }
-
-    .service-detail-label {
-      gap: 0.5rem;
-      letter-spacing: 0.08em;
-      line-height: 1.28;
-    }
-
-    .service-detail-label::before {
-      width: 28px;
-      flex: 0 0 28px;
-      margin-top: 0.56rem;
-    }
-
-    .service-detail-hero h1 {
-      font-size: clamp(2.125rem, 7.25vw, 2.5rem);
-      line-height: 1.05;
-      max-width: 100%;
-    }
-
-    .service-detail-proof {
-      display: none;
-    }
-
-    .service-detail-hero__actions {
-      display: grid;
-      margin-top: 1.35rem;
-      width: 100%;
-    }
-
-    .service-detail-hero__actions :where(.um-btn-primary, .um-btn-secondary) {
-      width: 100%;
-      min-width: 0;
-      white-space: normal;
-    }
-
-    .service-detail-main__body {
-      max-width: 100%;
-    }
-
-    .service-detail-main__aside {
-      justify-self: stretch;
-      width: 100%;
-      min-width: 0;
-    }
-
-    .service-detail-copy {
-      max-width: 100%;
-      margin-bottom: 2.2rem;
-    }
-
-    .service-detail-copy :global(p) {
-      max-width: 100%;
-      font-size: 1rem;
-      line-height: 1.68;
-    }
-
-    .service-detail-copy :global(ul),
-    .service-detail-copy :global(ol) {
-      max-width: 100%;
-    }
-
-    .service-detail-copy :global(li) {
-      font-size: 1rem;
-      line-height: 1.58;
-    }
-
-    :global(body[data-skin] main .service-detail-copy p) {
-      font-size: 1rem !important;
-      line-height: 1.68 !important;
-    }
-
-    :global(body[data-skin] main .service-detail-copy li) {
-      font-size: 1rem !important;
-      line-height: 1.58 !important;
-    }
-
-    .service-detail-main {
-      padding-top: 46px;
-      padding-bottom: 22px;
-    }
-
-    .service-detail-main__grid {
-      gap: 32px;
-    }
-
-    .service-capabilities-showcase {
-      margin-bottom: 38px;
-      scroll-margin-top: 76px;
-    }
-
-    .service-capability-grid,
-    .service-approach-steps {
+    .svc-brief,
+    .svc-tiles,
+    .svc-cases,
+    .svc-accordion,
+    .svc-steps {
       grid-template-columns: 1fr;
     }
 
-    .service-capability-card__media,
-    .service-approach-band__media {
-      aspect-ratio: 16 / 10;
-      min-height: 0;
+    .svc-tiles,
+    .svc-cases {
+      gap: 16px;
     }
 
-    .service-approach-band {
-      padding: 56px 0 64px;
-      scroll-margin-top: 76px;
+    .svc-tile {
+      grid-template-columns: 96px minmax(0, 1fr);
     }
 
-    .service-approach-steps li,
-    .service-approach-steps li:nth-child(even) {
+    .svc-tile__copy {
+      padding: 16px;
+    }
+
+    .svc-tile__text {
+      -webkit-line-clamp: 2;
+    }
+
+    .svc-tile h3 {
+      font-size: 1.0625rem;
+    }
+
+    .svc-brief > div {
+      padding: 16px;
+    }
+
+    .svc-brief dd {
+      margin-top: 6px;
+      font-size: 1.0625rem;
+    }
+
+    .svc-steps li,
+    .svc-steps li + li {
+      padding: 20px 0;
       border-left: 0;
-      padding-left: 0;
-      padding-right: 0;
+      border-bottom: 1px solid var(--x-line);
     }
 
-    .service-executive-brief {
-      grid-template-columns: 1fr;
-      gap: 18px;
-      margin-bottom: 34px;
-      padding: 20px 16px;
+    .svc-acc__body {
+      padding-left: 56px;
     }
 
-    .service-executive-brief__ledger {
-      grid-template-columns: 1fr;
+    .svc-close__actions {
+      align-items: stretch;
+      flex-direction: column;
     }
 
-    .service-products-section {
-      padding-top: 24px;
+    .svc-btn {
+      justify-content: center;
     }
 
-    .service-products-head :global(.um-section-header) {
+    .svc-ficha dl > div {
+      grid-template-columns: minmax(104px, 0.38fr) minmax(0, 0.62fr);
       gap: 12px;
     }
 
-    .service-products-head :global(.um-section-header h2) {
-      max-width: 100%;
-      font-size: clamp(1.75rem, 8vw, 2.25rem);
-      line-height: 1.08;
-      overflow-wrap: normal;
-      word-break: normal;
-      text-wrap: balance;
+    /* Ritmo móvil */
+    .svc {
+      --svc-pad: 56px;
     }
 
-    .service-info-card {
-      padding: 18px 16px;
+    .svc-head {
+      gap: 12px;
+      margin-bottom: 24px;
     }
 
-    .service-info-card:first-child {
-      position: static;
-      top: auto;
-      max-height: none;
-      overflow: visible;
-      overscroll-behavior: auto;
-      scrollbar-width: auto;
-      touch-action: pan-y;
-    }
-
-    .service-info-card--dossier {
-      padding: 0;
-    }
-
-    .service-info-ledger div {
+    /* Capacidades y casos pasan a carril horizontal (ver SnapRail):
+       tarjeta vertical con imagen 16:10 y texto a 3 líneas. */
+    .svc-tiles .svc-tile {
       grid-template-columns: 1fr;
-      gap: 0.35rem;
+      grid-template-rows: auto 1fr;
+    }
+
+    .svc-tiles .svc-tile__media {
+      min-height: 0;
+      aspect-ratio: 16 / 10;
+    }
+
+    .svc-tiles .svc-tile__text {
+      -webkit-line-clamp: 3;
+    }
+
+    .svc-case__body {
+      padding: 16px;
+    }
+
+    .svc-case h3 {
+      font-size: 1.125rem !important;
+    }
+
+    .svc-textlink {
+      min-height: 44px;
+    }
+
+    .svc-head__lead .svc-textlink {
+      margin-top: 4px;
+    }
+
+    .svc-close {
+      gap: 32px;
+    }
+
+    .svc-ficha dl > div {
+      padding: 10px 0;
+    }
+
+    .svc-close__actions {
+      margin-top: 24px;
+      gap: 8px;
+    }
+
+    .svc-close__alt .svc-textlink {
+      display: inline-flex;
+    }
+
+    .svc-acc summary {
+      min-height: 48px;
+      padding-block: 8px;
+    }
+
+    .svc-solutions {
+      margin-top: 32px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .svc *,
+    .svc *::before,
+    .svc *::after {
+      transition: none !important;
     }
   }
 </style>

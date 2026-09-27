@@ -1,5 +1,6 @@
 ---
 import { Send, X } from 'lucide-astro';
+import EmailLink from '../common/EmailLink.astro';
 ---
 
 <div id="umContactModal" class="um-contact-modal" hidden data-contact-modal>
@@ -18,7 +19,7 @@ import { Send, X } from 'lucide-astro';
       <p id="umContactIntro">Respondemos por email con el próximo paso.</p>
 
       <div class="um-contact-context" data-contact-context hidden>
-        <span>Contexto detectado</span>
+        <span>Tu consulta</span>
         <strong data-contact-context-title>Consulta general</strong>
         <p data-contact-context-detail>Origen: sitio ULTIMA MILLA</p>
       </div>
@@ -38,12 +39,12 @@ import { Send, X } from 'lucide-astro';
         <div class="um-contact-field-grid">
           <label>
             <span>Nombre *</span>
-            <input type="text" name="name" required autocomplete="name" placeholder="Nombre y apellido" />
+            <input type="text" name="name" required autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder="Nombre y apellido" />
             <small class="um-contact-error" data-error-for="name"></small>
           </label>
           <label>
             <span>Email *</span>
-            <input type="email" name="email" required autocomplete="email" placeholder="mail@empresa.com" />
+            <input type="email" name="email" required autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder="mail@empresa.com" />
             <small class="um-contact-error" data-error-for="email"></small>
           </label>
         </div>
@@ -99,7 +100,7 @@ import { Send, X } from 'lucide-astro';
         </div>
         <div class="um-contact-message um-contact-message--error" role="alert" hidden>
           No se pudo enviar.
-          <a href="mailto:contacto@ultimamilla.com.ar?subject=Consulta%20desde%20la%20web%20ULTIMA%20MILLA">Enviar por email</a>
+          <EmailLink label="Enviar por email" subject="Consulta desde la web ULTIMA MILLA" />
         </div>
       </form>
     </div>
@@ -136,9 +137,9 @@ import { Send, X } from 'lucide-astro';
     let lastActiveElement = null;
 
     const intentLabels = {
-      diagnostico: 'Diagnostico inicial',
-      relevamiento: 'Relevamiento tecnico',
-      documentacion: 'Documentacion',
+      diagnostico: 'Diagnóstico inicial',
+      relevamiento: 'Relevamiento técnico',
+      documentacion: 'Documentación',
       presupuesto: 'Presupuesto',
       soporte: 'Soporte',
       cctvai: 'UMSA CCTV AI',
@@ -263,7 +264,9 @@ import { Send, X } from 'lucide-astro';
         `Origen: ${originPath}`
       ].filter(Boolean).join('\n');
 
-      return `mailto:contacto@ultimamilla.com.ar?subject=${encodeURIComponent('Consulta desde la web ULTIMA MILLA')}&body=${encodeURIComponent(body)}`;
+      // Dirección armada en el cliente: el HTML/JS publicado no expone el email literal.
+      const address = ['contacto', 'ultimamilla.com.ar'].join('@');
+      return `${['mai', 'lto:'].join('')}${address}?subject=${encodeURIComponent('Consulta desde la web ULTIMA MILLA')}&body=${encodeURIComponent(body)}`;
     }
 
     function showSubmitError(message) {
@@ -347,9 +350,8 @@ import { Send, X } from 'lucide-astro';
       if (contextBox instanceof HTMLElement) contextBox.hidden = false;
       if (contextTitle) contextTitle.textContent = intentLabels[resolved.intent] || intentLabels.general;
       if (contextDetail) {
-        const displayPath = resolved.path === '/' ? 'Inicio del sitio' : `Página actual: ${resolved.path}`;
-        const displayTitle = resolved.title.replace(/[.。]+$/, '');
-        contextDetail.textContent = `${displayTitle}. ${displayPath}`;
+        const displayTitle = resolved.title.replace(/[.。]+$/, '').split('|')[0].trim();
+        contextDetail.textContent = resolved.path === '/' ? 'Consulta desde la página de inicio' : `Consulta desde ${displayTitle}`;
       }
 
       resetMessages();
@@ -406,6 +408,14 @@ import { Send, X } from 'lucide-astro';
       const isExplicit = source.hasAttribute('data-contact-open');
       const isContactLink = source instanceof HTMLAnchorElement && contactHref(source);
       if (!isExplicit && !isContactLink) return;
+      // En /contacto el formulario ya está en la página: llevar a él en lugar de abrir el modal.
+      const pageForm = location.pathname.replace(/\/$/, '') === '/contacto' ? document.getElementById('formulario') : null;
+      if (pageForm) {
+        event.preventDefault();
+        pageForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        pageForm.querySelector('input[name="name"]')?.focus({ preventScroll: true });
+        return;
+      }
       event.preventDefault();
       openContactModal(buildContext(source));
     });
@@ -894,8 +904,8 @@ import { Send, X } from 'lucide-astro';
 	    .um-contact-close {
 	      top: 12px;
 	      right: 12px;
-	      width: 40px;
-	      height: 40px;
+	      width: 44px;
+	      height: 44px;
 	    }
 
 	    .um-contact-mode {
@@ -1034,7 +1044,7 @@ import { Send, X } from 'lucide-astro';
 	    }
 
 	    .um-contact-mode button {
-	      min-height: 40px;
+	      min-height: 44px;
 	      padding: 0 8px;
 	      font-size: 1rem;
 	      line-height: 1.08;
@@ -1043,8 +1053,8 @@ import { Send, X } from 'lucide-astro';
 	    .um-contact-close {
 	      top: 10px;
 	      right: 10px;
-	      width: 40px;
-	      height: 40px;
+	      width: 44px;
+	      height: 44px;
 	    }
 
 	    .um-contact-form {
@@ -1070,7 +1080,7 @@ import { Send, X } from 'lucide-astro';
 	    }
 
 	    .um-contact-guides button {
-	      min-height: 40px;
+	      min-height: 44px;
 	    }
 
     .um-contact-field-grid,
@@ -1100,4 +1110,32 @@ import { Send, X } from 'lucide-astro';
       grid-template-columns: 1fr;
     }
   }
+  /* Tema oscuro del rediseño: el modal habla el mismo idioma que el sitio. */
+  .um-contact-modal .um-contact-modal__backdrop { background: rgba(4, 5, 7, 0.8); backdrop-filter: blur(6px); }
+  .um-contact-modal .um-contact-dialog { background: #0f1114; color: #fff; border-color: rgba(255, 255, 255, 0.14); }
+  .um-contact-modal .um-contact-dialog__rail { background: linear-gradient(180deg, rgba(7, 8, 10, 0.55), rgba(7, 8, 10, 0.94) 70%), url('/cine/media/story-fachada.jpg') center / cover, #07080a; }
+  .um-contact-modal .um-contact-kicker { color: #dc2626; letter-spacing: 0.14em; }
+  .um-contact-modal .um-contact-close { background: transparent; border-color: rgba(255, 255, 255, 0.26); color: #fff; }
+  .um-contact-modal .um-contact-close:hover { border-color: #fff; }
+  .um-contact-modal .um-contact-mode { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.14); }
+  .um-contact-modal .um-contact-mode button { color: rgba(255, 255, 255, 0.72); border-right-color: rgba(255, 255, 255, 0.14); }
+  .um-contact-modal .um-contact-mode button.is-active,
+  .um-contact-modal .um-contact-mode button[aria-pressed="true"] { background: rgba(220, 38, 38, 0.16); color: #fff; box-shadow: inset 0 -2px 0 #dc2626; }
+  .um-contact-modal .um-contact-form label > span { color: rgba(255, 255, 255, 0.86); }
+  .um-contact-modal .um-contact-form input,
+  .um-contact-modal .um-contact-form textarea { background: rgba(255, 255, 255, 0.05); color: #fff; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14); }
+  .um-contact-modal .um-contact-form input::placeholder,
+  .um-contact-modal .um-contact-form textarea::placeholder { color: rgba(255, 255, 255, 0.42); }
+  .um-contact-modal .um-contact-form input:focus,
+  .um-contact-modal .um-contact-form textarea:focus { background: rgba(255, 255, 255, 0.08); box-shadow: inset 0 0 0 1px #fff; }
+  .um-contact-modal .um-contact-form [aria-invalid="true"] { box-shadow: inset 0 0 0 1px #dc2626; }
+  .um-contact-modal .um-contact-error { color: #fff; padding-left: 10px; border-left: 2px solid var(--x-red, #dc2626); }
+  .um-contact-modal .um-contact-guides p { color: rgba(255, 255, 255, 0.6); }
+  .um-contact-modal .um-contact-guides button { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.16); color: #fff; }
+  .um-contact-modal .um-contact-guides button:hover { border-color: rgba(255, 255, 255, 0.45); }
+  .um-contact-modal .um-contact-guides button[aria-pressed="true"] { background: rgba(220, 38, 38, 0.16); border-color: #dc2626; color: #fff; }
+  .um-contact-modal .um-contact-submit-row p { color: rgba(255, 255, 255, 0.55); }
+  .um-contact-modal .um-contact-message--success { background: rgba(34, 197, 94, 0.1); color: #bbf7d0; }
+  .um-contact-modal .um-contact-message--error { background: rgba(220, 38, 38, 0.1); color: #fecaca; }
+  .um-contact-modal .um-contact-message a { color: #fff; }
 </style>

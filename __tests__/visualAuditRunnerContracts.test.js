@@ -121,7 +121,17 @@ describe('Visual audit runner contracts', () => {
     const home = read('src/pages/index.astro');
     const v4Css = read('src/styles/v4.css');
 
-    expect(home).toContain('class="um-display-emphasis"');
+    // Rediseño 2026-09: la home ya no usa el énfasis 800 (.um-display-emphasis);
+    // su H1 es el de CineBanner a 600. La excepción 800 sigue gobernada por la
+    // auditoría y ninguna superficie de la home puede superar el token de 700.
+    const cineBanner = read('src/components/cine/CineBanner.astro');
+    const cineBannerCss = read('src/styles/cine-banner.css');
+    expect(home).toContain("import CineBanner from '../components/cine/CineBanner.astro'");
+    expect(cineBanner).toMatch(/<h1 id=\{titleId\}>/);
+    expect(cineBannerCss).toMatch(/\.umc h1 \{[^}]*font:\s*600\s/);
+    for (const source of [home, cineBanner, cineBannerCss]) {
+      expect(source).not.toMatch(/font-weight:\s*(800|900)|font:\s*(800|900)\s/);
+    }
     expect(v4Css).toContain('--um-hero-weight: 700');
     expect(visualAudit).toContain("element.classList.contains('um-display-emphasis')");
     expect(visualAudit).toContain("const maxWeight = tag === 'h1' ? 800 : 700");

@@ -1,0 +1,60 @@
+---
+// Ocho frentes de servicio (alfa) con los mismos objetos que aparecen en la
+// movie: renders de producto de Blender (estudio → despiece al pasar el mouse o
+// enfocar) y el código de color del sistema que cada servicio representa en 3D.
+interface Service { code: string; name: string; text: string; href: string }
+interface Props { services: Service[] }
+const { services } = Astro.props;
+const SYSTEM: Record<string, { code: string; color: string; label: string }> = {
+  '101': { code: 'D', color: '#168daa', label: 'Datos' },
+  '102': { code: 'V', color: '#cf528a', label: 'Video y accesos' },
+  '103': { code: 'C', color: '#8056be', label: 'Comunicaciones' },
+  '104': { code: 'L', color: '#467aca', label: 'Software' },
+  '105': { code: 'L', color: '#467aca', label: 'Operación' },
+  '106': { code: '·', color: '#8b929a', label: 'Arquitectura' },
+  '107': { code: 'F', color: '#d64032', label: 'Incendio' },
+  '108': { code: 'E', color: '#b88122', label: 'Energía' },
+};
+const exploded = new Set(['102', '103', '104', '105', '106', '107', '108']);
+---
+<div class="um-svc">
+  {services.map((s, i) => {
+    const sys = SYSTEM[s.code] || SYSTEM['106'];
+    return (
+      <a class="um-svc__card" href={s.href} style={`--c:${sys.color}`}>
+        <div class="um-svc__media">
+          <img src={`/cine/servicios/${s.code}.webp`} alt="" width="1200" height="750" loading={i < 4 ? 'eager' : 'lazy'} decoding="async" />
+          {exploded.has(s.code) && <img class="um-svc__x" src={`/cine/servicios/${s.code}-x.webp`} alt="" width="1200" height="750" loading="lazy" decoding="async" />}
+          <span class="um-svc__code">{s.code}</span>
+          <span class="um-svc__sys"><i></i>{sys.code !== '·' && <b>{sys.code}</b>}{sys.label}</span>
+        </div>
+        <div class="um-svc__body">
+          <h3>{s.name}</h3>
+          <p>{s.text}</p>
+        </div>
+      </a>
+    );
+  })}
+</div>
+
+<style>
+  .um-svc{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:#ffffff14;border:1px solid #ffffff14;border-radius:6px;overflow:hidden}
+  .um-svc__card{display:flex;flex-direction:column;background:#101113;color:#fff;text-decoration:none;transition:background .35s ease}
+  .um-svc__card:hover,.um-svc__card:focus-visible{background:#15171a}
+  .um-svc__media{position:relative;aspect-ratio:16/10;overflow:hidden;background:#3b3b3b}
+  .um-svc__media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .6s ease,filter .24s ease}
+  .um-svc__x{opacity:0}
+  .um-svc__card:hover .um-svc__x,.um-svc__card:focus-visible .um-svc__x{opacity:1}
+  .um-svc__card:hover .um-svc__media img,.um-svc__card:focus-visible .um-svc__media img{filter:brightness(1.08)}
+  .um-svc__code{position:absolute;left:12px;top:12px;padding:3px 7px;background:#101113d9;color:#fff;font:12px/1.2 ui-monospace,Menlo,monospace}
+  .um-svc__sys{position:absolute;right:12px;top:12px;display:flex;align-items:center;gap:7px;padding:4px 8px;background:#101113d9;color:#e3e6ea;font-size:var(--x-fs-kicker, .8125rem);font-weight:500}
+  .um-svc__sys i{width:9px;height:9px;border-radius:2px;background:var(--c)}
+  .um-svc__sys b{font:600 11px ui-monospace,Menlo,monospace;color:#9aa1a9}
+  .um-svc__body{padding:18px 18px 22px;border-top:2px solid transparent;transition:border-color .35s ease;flex:1}
+  .um-svc__card:hover .um-svc__body,.um-svc__card:focus-visible .um-svc__body{border-top-color:var(--c)}
+  .um-svc__body h3{margin:0;color:#fff;font-size:19px!important;line-height:1.25!important;font-weight:600!important}
+  .um-svc__body p{margin:8px 0 0;color:#aab0b7;font-size:16px;line-height:1.5}
+  @media (max-width:1100px){.um-svc{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:560px){.um-svc{grid-template-columns:1fr}}
+  @media (prefers-reduced-motion:reduce){.um-svc__media img{transition:opacity .2s ease}.um-svc__card:hover .um-svc__media img{filter:none}}
+</style>

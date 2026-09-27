@@ -24,12 +24,17 @@
   font-display: swap;
 }
 
+/* Fallback métrico de UM Sans 1.2 sobre Arial (o Liberation Sans, mismo ancho).
+   Medido en Chrome 2026-09-27 contra UM Sans 400 a 13–24 px: error de ancho
+   entre −1,7 % y +3,7 % (con 112,33 % era +6 % a +11 %). ascent/descent =
+   typo 1984/−494 sobre 2048 dividido por size-adjust; alto de línea idéntico.
+   Ver docs/typography/UM-SANS-AUDITORIA-2026-09-27.md. */
 @font-face {
   font-family: 'UM Sans Fallback';
-  src: local('Arial');
-  size-adjust: 112.33%;
-  ascent-override: 86.24%;
-  descent-override: 22.38%;
+  src: local('Arial'), local('ArialMT'), local('Liberation Sans');
+  size-adjust: 105%;
+  ascent-override: 92.26%;
+  descent-override: 22.97%;
   line-gap-override: 0%;
 }
 
@@ -63,7 +68,15 @@
   --um-font-display: var(--um-font-editorial);
   --um-font-body: var(--um-font-editorial);
   --um-font-ui: var(--um-font-editorial);
-  --um-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  /* Etiquetas técnicas también en UM Sans: una sola familia en toda la UI. */
+  --um-font-mono: var(--um-font-editorial);
+  /* Rasgos OpenType de UM Sans 1.2 para usar con font-variant / font-feature-settings.
+     Cifras en tablas, KPIs y contadores: font-variant-numeric: var(--um-figures-tabular).
+     Kickers y textos en mayúsculas: font-feature-settings: var(--um-features-caps)
+     (el rasgo "case" centra paréntesis, guiones y barras sobre la altura de mayúscula). */
+  --um-figures-tabular: tabular-nums lining-nums;
+  --um-figures-proportional: proportional-nums lining-nums;
+  --um-features-caps: "kern" 1, "calt" 1, "case" 1;
   --um-font-x-height: 0.546;
   --um-display-weight: 600;
   --um-display-emphasis-weight: 700;
@@ -78,6 +91,27 @@
   --um-copy-description: clamp(1.0625rem, 0.14vw + 1.02rem, 1.125rem);
   --um-copy-lead: clamp(1.125rem, 0.32vw + 1.02rem, 1.25rem);
   --um-label-tracking: 0.08em;
+  /* Sistema oscuro unificado (2026-09). */
+  --x-ink: #0a0a0b;
+  --x-panel: #111214;
+  --x-panel-2: #17181b;
+  --x-line: rgba(255, 255, 255, 0.10);
+  --x-line-strong: rgba(255, 255, 255, 0.18);
+  --x-text: #fafafa;
+  --x-text-2: #d4d4d8;
+  --x-muted: #a1a1aa;
+  --x-red: #dc2626;
+  --x-red-hover: #b91c1c;
+  --x-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --x-section: clamp(64px, 8vw, 128px);
+  --x-gutter: clamp(16px, 3.2vw, 32px);
+  --x-fs-display: clamp(3rem, 6vw, 6rem);
+  --x-fs-h1: clamp(3rem, 4.5vw, 4rem);
+  --x-fs-h2: clamp(2.25rem, 3.2vw, 3rem);
+  --x-fs-h3: 1.25rem;
+  --x-fs-lead: 1.1875rem;
+  --x-fs-meta: 0.875rem;
+  --x-fs-kicker: 0.8125rem;
   --um-weight-title: var(--um-display-weight);
   --um-weight-strong: 700;
   --um-section-y: clamp(72px, 9vw, 120px);
@@ -173,8 +207,8 @@ body[data-skin] main :where(
 }
 
 body[data-skin="black"] {
-  --skin-page: #050505;
-  --skin-section: #080808;
+  --skin-page: #0a0a0b;
+  --skin-section: #0a0a0b;
   --skin-section-alt: #101113;
   --skin-panel: #111214;
   --skin-panel-strong: #151719;
@@ -3220,6 +3254,23 @@ body[data-skin] main :where(.um-intent-link-graph__item, .evidence-case-row, .an
 body[data-skin] main :where(.um-intent-link-graph__item, .evidence-case-row, .ante-dossier__feature, .ante-dossier__secondary-item, .ante-dossier__row):hover {
   border-color: color-mix(in srgb, var(--um-red) 34%, #e3e6ea) !important;
   background: color-mix(in srgb, #ffffff 94%, var(--um-red) 6%) !important;
+}
+
+/* Páginas del sistema oscuro: las mismas superficies, en oscuro. */
+body[data-skin="black"] main .um-intent-link-graph {
+  background: var(--x-ink) !important;
+  color: var(--x-text) !important;
+}
+
+body[data-skin="black"] main .um-intent-link-graph__item {
+  background: var(--x-panel) !important;
+  border-color: var(--x-line) !important;
+  color: var(--x-text) !important;
+}
+
+body[data-skin="black"] main .um-intent-link-graph__item:hover {
+  background: var(--x-panel-2) !important;
+  border-color: var(--x-line-strong) !important;
 }
 
 body[data-skin] main :where(.case-proof-strip) {

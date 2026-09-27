@@ -58,12 +58,22 @@ describe('global contact modal contract', () => {
   });
 
   test('contact page error state offers direct email fallback', () => {
+    // Rediseño 2026-09: el formulario de /contacto vive en ContactForm (cine).
+    // La garantía es la misma: ante un error de envío se ofrece un mailto armado
+    // en el cliente con la consulta completa, sin email literal en el HTML SSR.
     const page = read('src/pages/contacto.astro');
+    const form = read('src/components/cine/ContactForm.astro');
 
-    expect(page).toContain('Enviar por email');
-    expect(page).toContain('buildFallbackMailto(data = {})');
-    expect(page).toContain("['contacto', 'ultimamilla.com.ar'].join('@')");
-    expect(page).toContain("['mai', 'lto:'].join('')");
-    expect(page).not.toContain('mailto:contacto@ultimamilla.com.ar');
+    expect(page).toContain("import ContactForm from '../components/cine/ContactForm.astro'");
+    expect(page).toContain('<ContactForm />');
+    expect(form).toContain('Enviala por email');
+    expect(form).toMatch(/const mailto = \(body: string\) =>/);
+    expect(form).toContain("['contacto', 'ultimamilla.com.ar'].join('@')");
+    expect(form).toContain("['mai', 'lto:'].join('')");
+    expect(form).toMatch(/catch \(err\) \{[\s\S]*link\.href = mailto\(/);
+    expect(form).toContain('role="alert"');
+    for (const source of [page, form]) {
+      expect(source).not.toContain('mailto:contacto@ultimamilla.com.ar');
+    }
   });
 });

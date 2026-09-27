@@ -1,0 +1,53 @@
+---
+// Últimos artículos del blog técnico (mismo origen que /blog).
+import { fetchBlogListing } from '../../utils/getBlogData';
+import { blogImageUrl } from '../../utils/blogHelpers';
+import { getCategoryLabel, formatBlogDate } from '../../utils/blogUtils';
+
+let posts: any[] = [];
+try { posts = (await fetchBlogListing(1, 3)).posts || []; } catch { posts = []; }
+---
+{posts.length > 0 && (
+  <div class="umj">
+    <div class="umj__head">
+      <div>
+        <p class="umj__kicker"><span></span>Blog técnico</p>
+        <h2>Lo que estamos implementando.</h2>
+      </div>
+      <a class="umj__all" href="/blog">Ver todos los artículos <span aria-hidden="true">→</span></a>
+    </div>
+    <div class="umj__grid" data-rail="Artículos del blog">
+      {posts.map((post) => {
+        const img = blogImageUrl(post.imagen_portada);
+        return (
+          <a class="umj__card" href={`/blog/${post.slug}`}>
+            {img && <figure><img src={img} alt="" width="800" height="500" loading="lazy" decoding="async" /></figure>}
+            <p class="umj__meta">{getCategoryLabel(post.categoria)}{post.fecha_publicacion && <span> · {formatBlogDate(post.fecha_publicacion)}</span>}</p>
+            <h3>{post.titulo}</h3>
+            {post.resumen && <p class="umj__sum">{post.resumen}</p>}
+          </a>
+        );
+      })}
+    </div>
+  </div>
+)}
+<style>
+  .umj__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 36px; }
+  .umj__kicker { display: inline-flex; align-items: center; gap: 14px; margin: 0 0 24px; color: #dc2626; font: 700 1rem var(--um-font-mono, ui-monospace, monospace); letter-spacing: .18em; text-transform: uppercase; }
+  .umj__kicker span { display: inline-block; width: 44px; height: 3px; background: #dc2626; }
+  .umj__head h2 { margin: 0; font-size: clamp(2rem, 3.2vw, 3rem) !important; line-height: 1.05 !important; font-weight: 600 !important; letter-spacing: -.025em; color: #fff; }
+  .umj__all { font-size: 1rem; font-weight: 600; color: #fff; text-decoration: none; border-bottom: 1px solid #dc2626; padding-bottom: 3px; white-space: nowrap; }
+  .umj__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+  .umj__card { display: block; color: #fff; text-decoration: none; }
+  .umj__card figure { margin: 0 0 18px; aspect-ratio: 16 / 10; overflow: hidden; background: #15171b; }
+  .umj__card img { width: 100%; height: 100%; object-fit: cover; display: block; transition: filter .24s ease; }
+  .umj__card:hover img { filter: brightness(1.08); }
+  .umj__meta { margin: 0 0 10px; font-size: .86rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #dc2626; }
+  .umj__meta span { color: rgba(255, 255, 255, .6); }
+  .umj__card h3 { margin: 0; font-size: 1.3rem !important; line-height: 1.3 !important; font-weight: 600 !important; }
+  .umj__card:hover h3 { text-decoration: underline; text-decoration-color: #dc2626; text-underline-offset: 4px; }
+  .umj__sum { margin: 10px 0 0; font-size: 1rem; line-height: 1.55; color: rgba(255, 255, 255, .72); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  @media (max-width: 900px) { .umj__grid { grid-template-columns: 1fr; } .umj__head { flex-direction: column; align-items: flex-start; } }
+  @media (max-width: 1110px), (pointer: coarse) { .umj__all { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; } }
+  @media (max-width: 760px) { .umj__head { gap: 12px; margin-bottom: 24px; } .umj__kicker { margin-bottom: 12px; } .umj__all { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding-bottom: 0; border-bottom: 0; text-decoration: underline; text-decoration-color: #dc2626; text-underline-offset: 6px; } .umj__card figure { margin-bottom: 14px; } .umj__card h3 { font-size: 1.125rem !important; text-wrap: balance; } .umj__sum { -webkit-line-clamp: 2; } }
+</style>
