@@ -1,0 +1,52 @@
+name: Apply UM Sans Font Headers
+
+# Agrega CORS y caché a /fonts/um-sans/ sólo en el server block de
+# www.ultimamilla.com.ar, para que el SGI pueda cargar la fuente desde otro origen.
+# No modifica sgi.ultimamilla.com.ar: el script verifica que responda igual antes y
+# después y restaura el respaldo ante cualquier diferencia.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'dry-run (valida y muestra el diff, sin recargar) o apply'
+        required: true
+        default: dry-run
+        type: choice
+        options: [dry-run, apply]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  DEPLOY_PATH: '/root/fumbling-field'
+
+jobs:
+  apply:
+    name: UM Sans font headers (${{ inputs.mode }})
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://www.ultimamilla.com.ar
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -T 60 -H 23.105.176.45 >> ~/.ssh/known_hosts
+          sort -u ~/.ssh/known_hosts -o ~/.ssh/known_hosts
+
+      - name: Sync ops scripts
+        run: |
+          rsync -avz \
+            scripts/ops/ \
+            root@23.105.176.45:${{ env.DEPLOY_PATH }}/scripts/ops/
+
+      - name: Apply UM Sans font headers
+        run: |
+          ssh root@23.105.176.45 "UMSANS_FONT_MODE=${{ inputs.mode }} bash ${{ env.DEPLOY_PATH }}/scripts/ops/apply-umsans-font-headers.sh"
