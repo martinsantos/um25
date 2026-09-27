@@ -1,5 +1,6 @@
 ---
 import LayoutV4 from '../../layouts/LayoutV4.astro';
+import CineBanner from '../../components/cine/CineBanner.astro';
 
 type Service = {
   code: string;
@@ -115,23 +116,23 @@ const services: Service[] = [
 const totalServices = String(services.length).padStart(2, '0');
 ---
 
-<LayoutV4
+<LayoutV4 skin="black"
   title="Servicios IT para continuidad operativa | ULTIMA MILLA"
   description="8 frentes de servicio IT: redes, seguridad electronica, telecomunicaciones, software, soporte 24/7, consultoria, deteccion de incendios y electricos IT."
   keywords="servicios IT integrales, redes empresariales, seguridad electronica, telecomunicaciones, software a medida, soporte IT 24/7, consultoria IT, deteccion de incendios, electricos para IT"
   image="/img/servicios/redes.webp"
 >
   <div class="services-demo">
-    <section class="services-demo-hero" aria-labelledby="services-demo-title">
-      <img src="/img/servicios/redes.webp" alt="" width="1920" height="1080" loading="eager" fetchpriority="high" decoding="async" />
-      <div class="services-demo-hero__shade" aria-hidden="true"></div>
-      <div class="services-demo-shell services-demo-hero__content">
-        <p class="services-demo-kicker"><span></span>01 / Servicios</p>
-        <h1 id="services-demo-title">Ocho frentes de servicio.</h1>
-        <p>Diseñamos, implementamos y sostenemos infraestructura, seguridad, software y soporte.</p>
-        <a class="services-demo-hero__cta" href="/contacto">Solicitar relevamiento</a>
-      </div>
-    </section>
+    <CineBanner
+      variant="sector"
+      scenes={['fachada', 'aeropuerto', 'planta', 'hospital', 'bodega']}
+      titleId="services-demo-title"
+      kicker="Servicios"
+      title="Ocho frentes de servicio."
+      lead="Diseñamos, implementamos y sostenemos infraestructura, seguridad, software y soporte."
+      primary={{ href: '/contacto', label: 'Solicitar relevamiento' }}
+      secondary={{ href: '/antecedentes', label: 'Ver evidencia operativa' }}
+    />
 
     <section class="services-demo-shell services-demo-list" aria-label="Frentes de servicio de ULTIMA MILLA">
       {services.map((service, index) => (
@@ -145,7 +146,7 @@ const totalServices = String(services.length).padStart(2, '0');
             class={`services-demo-media services-demo-media--${service.code}`}
             style={`--service-image: url('${service.image}')`}
           >
-            <img src={service.image} alt="" width="1200" height="900" loading={index < 2 ? 'eager' : 'lazy'} fetchpriority={index === 0 ? 'high' : 'low'} decoding="async" />
+            <img src={service.image} alt="" width="1200" height="900" loading="lazy" decoding="async" />
             <div aria-hidden="true"></div>
             <span>SRV.{service.code}</span>
             <em>{service.sectors} sectores</em>
@@ -391,8 +392,9 @@ const totalServices = String(services.length).padStart(2, '0');
     }
 
     .services-demo-media em {
-      left: 126px;
-      color: rgba(255,255,255,0.66);
+      right: 28px;
+      padding: 7px 0;
+      color: rgba(255,255,255,0.78);
     }
 
     .services-demo-media--101 { --service-image: url('/img/servicios/redes.webp'); }
@@ -630,7 +632,7 @@ const totalServices = String(services.length).padStart(2, '0');
 
       .services-demo-row,
       .services-demo-row:nth-child(even) {
-        grid-template-columns: minmax(92px, 27vw) minmax(0, 1fr);
+        grid-template-columns: minmax(84px, 24vw) minmax(0, 1fr);
         min-height: 0;
         border-top-width: 1px;
         contain-intrinsic-block-size: 240px;
@@ -685,9 +687,10 @@ const totalServices = String(services.length).padStart(2, '0');
 
       .services-demo-body h2 {
         margin-top: 10px;
-        font-size: clamp(1.42rem, 6vw, 1.72rem);
-        line-height: 1.12;
+        font-size: clamp(1.25rem, 5.4vw, 1.5rem) !important;
+        line-height: 1.15;
         word-break: normal;
+        text-wrap: balance;
       }
 
       .services-demo-body strong {

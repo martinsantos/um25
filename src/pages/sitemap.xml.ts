@@ -5,7 +5,7 @@ import serviciosSnapshot from '../data/snapshots/servicios.json';
 
 type SitemapPage = { loc: string; priority: string; changefreq: string; lastmod?: string };
 
-const STATIC_CONTENT_LASTMOD = '2026-07-10';
+const STATIC_CONTENT_LASTMOD = '2026-09-27';
 
 function getSnapshotServices(): Array<{ id: number; Titulo: string; slug?: string }> {
     const snapshot = serviciosSnapshot as { data?: Array<{ id: number; Titulo: string; slug?: string }> };
@@ -26,7 +26,6 @@ function generateSitemapXml(): string {
         { loc: '/nosotros', priority: '0.6', changefreq: 'monthly' },
         { loc: '/contacto', priority: '0.7', changefreq: 'monthly' },
         { loc: '/certificaciones', priority: '0.6', changefreq: 'monthly' },
-        { loc: '/plantilla-arca', priority: '0.5', changefreq: 'monthly' },
         // Sector verticals
         { loc: '/aeropuertos', priority: '0.7', changefreq: 'monthly' },
         { loc: '/bodegas', priority: '0.7', changefreq: 'monthly' },

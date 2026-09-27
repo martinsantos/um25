@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>Infraestructura en movimiento · Última Milla</title>
+    <style>
+      html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}
+      #cinema{position:fixed;inset:0;isolation:isolate}
+      #cinema canvas{position:absolute;inset:0;display:block;width:100%;height:100%}
+      #cinema-live{outline:none;touch-action:pan-y}
+      #cinema-live:focus-visible{outline:1px solid rgba(255,255,255,.6);outline-offset:-3px}
+      #cinema-still{pointer-events:none;opacity:0;transition:opacity 1.15s ease;z-index:1}
+      @media(prefers-reduced-motion:reduce){#cinema-still{transition:none}}
+      .cinema-ar{position:absolute;inset:0;z-index:2;pointer-events:none;font-family:'UM Sans',Arial,sans-serif}
+      .ar-tag{position:absolute;left:0;top:0;opacity:0;transition:opacity .45s ease;will-change:transform}
+      .ar-tag.on{opacity:1}
+      .ar-reticle{position:absolute;left:-15px;top:-15px;width:30px;height:30px;--g:linear-gradient(var(--c),var(--c));background:var(--g) 0 0/8px 2px no-repeat,var(--g) 0 0/2px 8px no-repeat,var(--g) 100% 0/8px 2px no-repeat,var(--g) 100% 0/2px 8px no-repeat,var(--g) 0 100%/8px 2px no-repeat,var(--g) 0 100%/2px 8px no-repeat,var(--g) 100% 100%/8px 2px no-repeat,var(--g) 100% 100%/2px 8px no-repeat;animation:ar-lock 2.4s ease-in-out infinite}
+      .ar-reticle::after{content:"";position:absolute;left:12px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--c);box-shadow:0 0 0 3px #0008,0 0 12px var(--c)}
+      @keyframes ar-lock{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+      .ar-leader{position:absolute;left:15px;top:-15px;width:34px;height:1px;background:var(--c);transform-origin:0 0;transform:rotate(-58deg)}
+      .ar-card{position:absolute;left:30px;top:-96px;display:grid;gap:3px;min-width:170px;max-width:260px;padding:9px 12px 10px;background:rgba(12,14,17,.86);border:1px solid rgba(255,255,255,.14);border-left:2px solid var(--c);color:#fff;backdrop-filter:blur(6px)}
+      .ar-card small{font:600 12px/1.25 'UM Sans',Arial,sans-serif;letter-spacing:.1em;color:color-mix(in srgb,var(--c) 45%,#fff);text-transform:uppercase}
+      .ar-card b{font-weight:600;font-size:15px;line-height:1.3}
+      .ar-card span{font-size:12px;color:rgba(255,255,255,.75);font-variant-numeric:tabular-nums}
+      .ar-corner{position:absolute;width:22px;height:22px;border:0 solid rgba(255,255,255,.55)}
+      .ar-corner.tl{left:14px;top:14px;border-left-width:1px;border-top-width:1px}.ar-corner.tr{right:14px;top:14px;border-right-width:1px;border-top-width:1px}
+      .ar-corner.bl{left:14px;bottom:14px;border-left-width:1px;border-bottom-width:1px}.ar-corner.br{right:14px;bottom:14px;border-right-width:1px;border-bottom-width:1px}
+      .ar-status{position:absolute;right:22px;top:20px;margin:0;display:flex;gap:8px;align-items:center;font:11px/1 ui-monospace,Menlo,monospace;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+      .ar-status b{padding:3px 5px;background:#dc2626;color:#fff;font-weight:600}
+      @media(prefers-reduced-motion:reduce){.ar-reticle{animation:none}.ar-tag{transition:none}}
+      .ar-tag.fx .ar-card{left:auto;right:30px;border-left-width:1px;border-right:2px solid var(--c)}
+      .ar-tag.fx .ar-leader{transform:rotate(-122deg)}
+      .ar-tag.fy .ar-card{top:26px}
+      .ar-tag.fy .ar-leader{transform:rotate(58deg)}
+      .ar-tag.fx.fy .ar-leader{transform:rotate(122deg)}
+      @media(max-width:480px){.ar-card{min-width:140px;max-width:180px}.ar-card span{display:none}}
+      .ar-card span[hidden]{display:none}
+
+    </style>
+    <script type="module" crossorigin src="/3d/assets/cinema-CDsBiKpi.js"></script>
+    <link rel="modulepreload" crossorigin href="/3d/assets/modulepreload-polyfill-B5Qt9EMX.js">
+    <link rel="modulepreload" crossorigin href="/3d/assets/facadeScene-CgOw1GER.js">
+    <link rel="modulepreload" crossorigin href="/3d/assets/industrialInventory-WqBMd18g.js">
+    <link rel="modulepreload" crossorigin href="/3d/assets/hospitalFinishes-W3fFFzSr.js">
+    <link rel="modulepreload" crossorigin href="/3d/assets/arMetrics-UC7hXjPM.js">
+  </head>
+  <body>
+    <div id="cinema" aria-label="Representación conceptual de infraestructura conectada"></div>
+  </body>
+</html>

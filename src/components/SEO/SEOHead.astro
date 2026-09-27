@@ -11,7 +11,11 @@
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, BUSINESS_ADDRESS } from '../../config/seo';
 import { resolveEnglishPath, resolvePageLanguage, resolveSpanishPath } from '../../config/i18nRoutes';
 import { editorialImages, editorialImageDimensions } from '../../data/editorialImageSystem';
-import { canonicalUrl as toCanonicalUrl, clampText, publicImageUrl, stripWww } from '../../utils/seoUrl';
+import { canonicalUrl as toCanonicalUrl, publicImageUrl, stripWww } from '../../utils/seoUrl';
+import { finalizeSeoTitle, trimAtWordBoundary } from '../../utils/seoMetaPolicy';
+import { getPageMetaOverride, isInternalPath } from '../../utils/seoPageOverrides';
+import { DEFAULT_OG_IMAGE_PATH, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH, absoluteOgUrl, ogVariantFor } from '../../utils/seoOgImage';
+import { getLocalImageDimensions } from '../../utils/seoImageMeta';
 
 export interface Props {
   title?: string;
@@ -61,6 +65,8 @@ const currentUrl = canonical
   : toCanonicalUrl(Astro.url.pathname);
 
 const pathname = Astro.url.pathname;
+const pageOverride = getPageMetaOverride(pathname);
+const shouldNoindex = noindex || isInternalPath(pathname);
 const pageLang = resolvePageLanguage(pathname);
 const pageLanguageTag = pageLang === 'en' ? 'en' : 'es-AR';
 const dcLanguage = pageLang === 'en' ? 'en' : 'es';
@@ -74,24 +80,23 @@ const hreflangEnUrl = toCanonicalUrl(englishPath);
 // Title
 // ---------------------------------------------------------------------------
 const defaultTitle = `${SITE_NAME} | Servicios Tecnológicos en Mendoza, Cuyo y Patagonia`;
-const rawTitle = title ?? defaultTitle;
+const rawTitle = pageOverride?.title ?? title ?? defaultTitle;
 
 const seoTitle = service
-  ? `${service.name} en Mendoza - ${service.area} | ${SITE_NAME}`
-  : rawTitle.includes(SITE_NAME)
-    ? rawTitle
-    : `${rawTitle} | ${SITE_NAME}`;
-const metaTitle = clampText(seoTitle, 75);
+  ? `${service.name} en Mendoza · ${service.area}`
+  : rawTitle;
+// 30–60 caracteres: la marca se agrega sólo si entra sin cortar el título humano.
+const metaTitle = finalizeSeoTitle(seoTitle);
 
 // ---------------------------------------------------------------------------
 // Description
 // ---------------------------------------------------------------------------
-const rawDescription = description ?? SITE_DESCRIPTION;
+const rawDescription = pageOverride?.description ?? description ?? SITE_DESCRIPTION;
 
 const seoDescription = service
   ? `${service.description} Servicios de ${service.area.toLowerCase()} para empresas en Mendoza, Cuyo y Patagonia. Relevamiento técnico y alcance operativo.`
   : rawDescription;
-const metaDescription = clampText(seoDescription, 160);
+const metaDescription = trimAtWordBoundary(seoDescription, 160);
 
 // ---------------------------------------------------------------------------
 // Keywords
@@ -103,10 +108,26 @@ const pageKeywords = keywords ?? defaultKeywords;
 // ---------------------------------------------------------------------------
 // OG Image — ensure absolute URL
 // ---------------------------------------------------------------------------
+// Preferencia: variante 1200×630 generada > imagen dedicada de 1200×630 >
+// imagen original con sus dimensiones medidas > imagen por defecto 1200×630.
 const rawImage = ogImage || editorialImages.defaultOg;
-const pageImage = publicImageUrl(rawImage) || `${SITE_URL}${editorialImages.defaultOg}`;
-const normalizedOgImageWidth = typeof ogImageWidth === 'number' && Number.isFinite(ogImageWidth) ? String(ogImageWidth) : String(editorialImageDimensions.width);
-const normalizedOgImageHeight = typeof ogImageHeight === 'number' && Number.isFinite(ogImageHeight) ? String(ogImageHeight) : String(editorialImageDimensions.height);
+const ogVariant = ogVariantFor(rawImage);
+const declaresOgSize = ogImageWidth === OG_IMAGE_WIDTH && ogImageHeight === OG_IMAGE_HEIGHT;
+const publicRawImage = publicImageUrl(rawImage);
+let pageImage = absoluteOgUrl(DEFAULT_OG_IMAGE_PATH);
+let ogWidth: number | null = OG_IMAGE_WIDTH;
+let ogHeight: number | null = OG_IMAGE_HEIGHT;
+if (ogVariant) {
+  pageImage = absoluteOgUrl(ogVariant);
+} else if (publicRawImage) {
+  pageImage = publicRawImage;
+  const measured = declaresOgSize ? null : await getLocalImageDimensions(publicRawImage);
+  ogWidth = declaresOgSize ? OG_IMAGE_WIDTH : measured?.width ?? null;
+  ogHeight = declaresOgSize ? OG_IMAGE_HEIGHT : measured?.height ?? null;
+}
+const normalizedOgImageWidth = ogWidth ? String(ogWidth) : '';
+const normalizedOgImageHeight = ogHeight ? String(ogHeight) : '';
+const ogImageType = /\.jpe?g$/i.test(pageImage) ? 'image/jpeg' : /\.webp$/i.test(pageImage) ? 'image/webp' : /\.png$/i.test(pageImage) ? 'image/png' : '';
 
 // ---------------------------------------------------------------------------
 // Timestamps
@@ -121,13 +142,18 @@ const stableUpdatedTime = updatedTime ? new Date(updatedTime).toISOString() : nu
 /** Base organisation — always present */
 const organizationSchema = {
   "@type": "Organization",
+  "@id": `${SITE_URL}/#organization`,
   name: SITE_NAME,
+  legalName: "ULTIMA MILLA S.A.",
   alternateName: "Ultima Milla Comunicaciones",
   url: SITE_URL,
-  logo: `${SITE_URL}/images/um-logo.png`,
+  logo: {
+    "@type": "ImageObject",
+    url: `${SITE_URL}/images/um-logo.png`,
+    width: 2816,
+    height: 1536,
+  },
   description: SITE_DESCRIPTION,
-  inLanguage: pageLanguageTag,
-  foundingDate: "2000",
   address: {
     "@type": "PostalAddress",
     ...BUSINESS_ADDRESS,
@@ -160,10 +186,13 @@ const organizationSchema = {
 /** LocalBusiness — always present (physical office in Mendoza) */
 const localBusinessSchema = {
   "@type": "LocalBusiness",
-  name: SITE_NAME,
+  "@id": `${SITE_URL}/#sede-mendoza`,
+  name: `${SITE_NAME} · Sede Mendoza`,
   description: SITE_DESCRIPTION,
-  inLanguage: pageLanguageTag,
   url: SITE_URL,
+  image: `${SITE_URL}${DEFAULT_OG_IMAGE_PATH}`,
+  logo: `${SITE_URL}/images/um-logo.png`,
+  parentOrganization: { "@id": `${SITE_URL}/#organization` },
   email: "contacto@ultimamilla.com.ar",
   address: {
     "@type": "PostalAddress",
@@ -174,8 +203,13 @@ const localBusinessSchema = {
     latitude: -32.8908,
     longitude: -68.8272,
   },
-  areaServed: { "@type": "City", name: "Mendoza" },
-  foundingDate: "2000",
+  areaServed: [
+    { "@type": "AdministrativeArea", name: "Mendoza" },
+    { "@type": "AdministrativeArea", name: "San Juan" },
+    { "@type": "AdministrativeArea", name: "San Luis" },
+    { "@type": "AdministrativeArea", name: "Neuquén" },
+    { "@type": "AdministrativeArea", name: "Patagonia" },
+  ],
   slogan: "Servicios IT para operaciones que no pueden detenerse",
   openingHoursSpecification: {
     "@type": "OpeningHoursSpecification",
@@ -226,15 +260,7 @@ const serviceSchema = service
       name: `${service.name} en Mendoza`,
       description: service.description,
       inLanguage: pageLanguageTag,
-      provider: {
-        "@type": "LocalBusiness",
-        name: SITE_NAME,
-        address: {
-          "@type": "PostalAddress",
-          addressLocality: "Mendoza",
-          addressCountry: "AR",
-        },
-      },
+      provider: { "@id": `${SITE_URL}/#organization` },
       areaServed: { "@type": "City", name: "Mendoza" },
       serviceType: service.area,
     }
@@ -287,7 +313,7 @@ const combinedSchema = {
   <meta name="title" content={metaTitle} />
   <meta name="description" content={metaDescription} />
   <meta name="keywords" content={pageKeywords} />
-  <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
+  <meta name="robots" content={shouldNoindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
   <meta name="author" content={SITE_NAME} />
   <meta name="publisher" content={SITE_NAME} />
   <meta name="copyright" content={`© ${currentYear} ${SITE_NAME}`} />
@@ -345,6 +371,7 @@ const combinedSchema = {
   <!-- Sitemap Discovery -->
   <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
   <link rel="alternate" type="text/plain" href="/llms.txt" title="ULTIMA MILLA LLM discovery" />
+  <link rel="alternate" type="application/rss+xml" href="/rss.xml" title="Blog ULTIMA MILLA" />
   <link rel="alternate" type="application/json" href="/geo/brand-facts.json" title="ULTIMA MILLA GEO brand facts" />
 
   <!-- Open Graph / Facebook -->
@@ -355,6 +382,7 @@ const combinedSchema = {
   <meta property="og:image" content={pageImage} />
   {normalizedOgImageWidth && <meta property="og:image:width" content={normalizedOgImageWidth} />}
   {normalizedOgImageHeight && <meta property="og:image:height" content={normalizedOgImageHeight} />}
+  {ogImageType && <meta property="og:image:type" content={ogImageType} />}
   <meta property="og:image:alt" content={metaTitle} />
   <meta property="og:site_name" content={SITE_NAME} />
   <meta property="og:locale" content={ogLocale} />

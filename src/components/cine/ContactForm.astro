@@ -1,0 +1,339 @@
+---
+// Formulario de contacto guiado. Envía a /api/contact con el mismo contrato que el
+// modal global (name, email, company, message + campos de origen y anti-spam): tema,
+// servicios, sede y urgencia se suman al mensaje y el tema viaja como originIntent,
+// que el mail usa como asunto.
+const topics = [
+  { id: 'diagnostico', label: 'Diagnóstico o incidente', hint: 'Qué sistema falla, en qué sede y desde cuándo.' },
+  { id: 'relevamiento', label: 'Relevamiento técnico', hint: 'Qué hay que instalar o mejorar, cuántas sedes y qué restricciones tiene el edificio.' },
+  { id: 'abono', label: 'Abono de soporte 24/7', hint: 'Qué activos son críticos, qué tiempo de respuesta necesitás y en qué horarios.' },
+  { id: 'pliego', label: 'Licitación o pliego', hint: 'Número de proceso, fechas y requisitos técnicos o de documentación.' },
+  { id: 'otra', label: 'Otra consulta', hint: 'Contanos qué necesitás y lo ordenamos nosotros.' },
+];
+const services = ['Redes', 'Seguridad electrónica', 'Telecomunicaciones', 'Software a medida', 'Soporte 24/7', 'Consultoría IT', 'Detección de incendios', 'Eléctricos IT'];
+const urgencies = ['Sin urgencia', 'Esta semana', 'Hoy: hay una falla en curso', 'Tengo fecha de pliego'];
+---
+<div class="ctf" data-ctf>
+  <form class="ctf__form" id="contactForm" method="post" action="/api/contact" novalidate>
+    <div class="ctf__grid">
+      <label class="ctf__field">
+        <span>Nombre <em aria-hidden="true">*</em></span>
+        <input type="text" id="name" name="name" required autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder="Nombre y apellido" />
+        <small class="ctf__error" data-error-for="name"></small>
+      </label>
+      <label class="ctf__field">
+        <span>Email de trabajo <em aria-hidden="true">*</em></span>
+        <input type="email" id="email" name="email" required autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder="mail@empresa.com" />
+        <small class="ctf__error" data-error-for="email"></small>
+      </label>
+    </div>
+
+    <label class="ctf__field">
+      <span>Empresa u organismo</span>
+      <input type="text" id="company" name="company" autocomplete="organization" enterkeyhint="next" placeholder="Opcional" />
+    </label>
+
+    <label class="ctf__field">
+      <span>Motivo</span>
+      <select id="topic" name="topic">
+        <option value="">Elegí un motivo</option>
+        {topics.map((t) => <option value={t.id} data-label={t.label} data-hint={t.hint}>{t.label}</option>)}
+      </select>
+    </label>
+
+    <details class="ctf__more" data-ctf-more>
+      <summary>
+        <span class="ctf__more-icon" aria-hidden="true"></span>
+        Agregar servicios <small>(opcional)</small>
+        <b class="ctf__more-count" data-services-count hidden></b>
+      </summary>
+      <fieldset class="ctf__group">
+        <legend class="ctf__sr">Servicios relacionados</legend>
+        <div class="ctf__chips">
+          {services.map((s, i) => (
+            <label class="ctf__chip">
+              <input type="checkbox" name="services" value={s} id={`service-${i}`} />
+              <span>{s}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+    </details>
+
+    <div class="ctf__grid">
+      <label class="ctf__field">
+        <span>Ciudad o sede</span>
+        <input type="text" id="site" name="site" autocomplete="address-level2" enterkeyhint="next" placeholder="Ej.: Mendoza, 3 sedes" />
+      </label>
+      <label class="ctf__field">
+        <span>Urgencia</span>
+        <select id="urgency" name="urgency">
+          {urgencies.map((u) => <option value={u}>{u}</option>)}
+        </select>
+      </label>
+    </div>
+
+    <label class="ctf__field">
+      <span>Mensaje <em aria-hidden="true">*</em></span>
+      <textarea id="message" name="message" required rows="5" maxlength="1200" placeholder="Contanos qué necesitás y lo ordenamos nosotros."></textarea>
+      <small class="ctf__error" data-error-for="message"></small>
+      <span class="ctf__count" aria-hidden="true"><b data-count>0</b>/1200</span>
+    </label>
+
+    <input type="text" name="website" class="ctf__hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+    <input type="text" name="contact_phone" class="ctf__hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+    <input type="hidden" name="startedAt" value="" />
+    <input type="hidden" name="contactProof" value="" />
+
+    <div class="ctf__submit">
+      <button type="submit" class="ctf__btn">Enviar consulta <span aria-hidden="true">→</span></button>
+      <p>Te respondemos por email en el día hábil.</p>
+    </div>
+    <div class="ctf__error-box" role="alert" hidden></div>
+  </form>
+
+  <div class="ctf__done" role="status" hidden tabindex="-1">
+    <p class="ctf__done-kicker">Consulta enviada</p>
+    <h3>Recibimos tu mensaje.</h3>
+    <p>Un técnico lo revisa y te responde por email con el próximo paso.</p>
+    <button type="button" class="ctf__btn ctf__btn--ghost" data-ctf-again>Enviar otra consulta</button>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-ctf]').forEach((root) => {
+    const form = root.querySelector<HTMLFormElement>('form')!;
+    const done = root.querySelector<HTMLElement>('.ctf__done')!;
+    const errorBox = root.querySelector<HTMLElement>('.ctf__error-box')!;
+    const message = form.querySelector<HTMLTextAreaElement>('textarea[name="message"]')!;
+    const count = root.querySelector<HTMLElement>('[data-count]')!;
+    const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const field = (name: string) => form.elements.namedItem(name) as HTMLInputElement | null;
+    const stamp = () => {
+      field('startedAt')!.value = String(Date.now());
+      field('contactProof')!.value = `${Date.now()}:${Math.round(performance.now())}:${navigator.language || 'es-AR'}`;
+    };
+    stamp();
+
+    const updateCount = () => { count.textContent = String(message.value.length); };
+    // El error de un campo se va apenas se corrige.
+    form.addEventListener('input', (e) => {
+      const el = e.target as HTMLElement;
+      if (!el.hasAttribute('aria-invalid')) return;
+      el.removeAttribute('aria-invalid');
+      const msg = form.querySelector<HTMLElement>(`[data-error-for="${(el as HTMLInputElement).name}"]`);
+      if (msg) msg.textContent = '';
+    });
+    message.addEventListener('input', updateCount);
+    const topicSelect = form.querySelector<HTMLSelectElement>('select[name="topic"]')!;
+    const defaultHint = message.placeholder;
+    const selectedTopic = () => topicSelect.selectedOptions[0]?.value ? topicSelect.selectedOptions[0] : null;
+    const syncHint = () => {
+      message.placeholder = selectedTopic()?.dataset.hint || defaultHint;
+      topicSelect.classList.toggle('is-empty', !topicSelect.value);
+    };
+    topicSelect.addEventListener('change', syncHint);
+    syncHint();
+
+    // Servicios plegables: el resumen muestra cuántos hay marcados.
+    const more = root.querySelector<HTMLDetailsElement>('[data-ctf-more]')!;
+    const servicesCount = root.querySelector<HTMLElement>('[data-services-count]')!;
+    const syncServices = () => {
+      const n = form.querySelectorAll('input[name="services"]:checked').length;
+      servicesCount.textContent = String(n);
+      servicesCount.hidden = n === 0;
+    };
+    form.addEventListener('change', (e) => { if ((e.target as HTMLInputElement).name === 'services') syncServices(); });
+
+    // Precarga desde la URL: ?tema=pliego&servicio=Redes o los datos del presupuestador.
+    const params = new URLSearchParams(location.search);
+    const topic = params.get('tema');
+    if (topic && [...topicSelect.options].some((o) => o.value === topic)) { topicSelect.value = topic; syncHint(); }
+    for (const s of params.getAll('servicio')) {
+      const c = [...form.querySelectorAll<HTMLInputElement>('input[name="services"]')].find((x) => x.value.toLowerCase() === s.toLowerCase());
+      if (c) { c.checked = true; more.open = true; }
+    }
+    syncServices();
+    const budget = [['budgetSector', 'Sector'], ['budgetScope', 'Alcance'], ['budgetCriticality', 'Criticidad'], ['budgetSites', 'Sedes']]
+      .map(([k, label]) => [label, String(params.get(k) || '').trim()]).filter(([, v]) => v);
+    if (budget.length && !message.value) { message.value = budget.map(([l, v]) => `${l}: ${v}`).join('\n') + '\n\n'; updateCount(); }
+
+    const showError = (name: string, text: string) => {
+      const el = form.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
+      if (el) el.textContent = text;
+      field(name)?.setAttribute('aria-invalid', 'true');
+    };
+    const clearErrors = () => {
+      form.querySelectorAll<HTMLElement>('[data-error-for]').forEach((el) => { el.textContent = ''; });
+      form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
+      errorBox.hidden = true;
+    };
+    const mailto = (body: string) => {
+      const address = ['contacto', 'ultimamilla.com.ar'].join('@');
+      return `${['mai', 'lto:'].join('')}${address}?subject=${encodeURIComponent('Consulta desde la web ULTIMA MILLA')}&body=${encodeURIComponent(body)}`;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      clearErrors();
+      const name = field('name')!.value.trim();
+      const email = field('email')!.value.trim();
+      const text = message.value.trim();
+      let invalid = false;
+      if (name.length < 2) { showError('name', 'Ingresá tu nombre.'); invalid = true; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('email', 'Ingresá un email válido.'); invalid = true; }
+      if (text.length < 12) { showError('message', 'Contanos un poco más para poder ayudarte.'); invalid = true; }
+      if (invalid) { form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus(); return; }
+
+      const topicInput = selectedTopic();
+      const services = [...form.querySelectorAll<HTMLInputElement>('input[name="services"]:checked')].map((c) => c.value);
+      const site = field('site')!.value.trim();
+      const urgency = (form.elements.namedItem('urgency') as HTMLSelectElement).value;
+      const header = [
+        topicInput ? `Tema: ${topicInput.dataset.label}` : '',
+        services.length ? `Servicios: ${services.join(', ')}` : '',
+        site ? `Ciudad o sede: ${site}` : '',
+        urgency && urgency !== 'Sin urgencia' ? `Urgencia: ${urgency}` : '',
+      ].filter(Boolean);
+      const payload = {
+        name, email,
+        company: field('company')!.value.trim(),
+        message: header.length ? `${header.join('\n')}\n\n${text}` : text,
+        website: field('website')!.value,
+        contact_phone: field('contact_phone')!.value,
+        startedAt: field('startedAt')!.value,
+        contactProof: field('contactProof')!.value,
+        formVariant: 'contacto-guiado',
+        originPath: location.pathname,
+        originTitle: document.title,
+        originLabel: services.join(', '),
+        originIntent: topicInput?.dataset.label || 'Consulta general',
+        originHref: location.href,
+      };
+
+      submit.disabled = true;
+      submit.firstChild!.textContent = 'Enviando ';
+      try {
+        const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const result = await res.json().catch(() => ({}));
+        if (res.ok && result.success) {
+          form.hidden = true;
+          done.hidden = false;
+          done.focus();
+          form.reset(); stamp(); updateCount(); syncHint(); syncServices(); more.open = false;
+        } else {
+          throw new Error(result.message || 'No se pudo enviar.');
+        }
+      } catch (err) {
+        errorBox.innerHTML = '';
+        errorBox.append(`${err instanceof Error && err.message ? err.message : 'No se pudo enviar.'} `);
+        const link = document.createElement('a');
+        link.href = mailto(`${payload.message}\n\n${name} · ${email}${payload.company ? ` · ${payload.company}` : ''}`);
+        link.textContent = 'Enviala por email';
+        errorBox.append(link);
+        errorBox.hidden = false;
+      } finally {
+        submit.disabled = false;
+        submit.firstChild!.textContent = 'Enviar consulta ';
+      }
+    });
+
+    root.querySelector('[data-ctf-again]')?.addEventListener('click', () => { done.hidden = true; form.hidden = false; field('name')?.focus(); });
+  });
+</script>
+
+<style>
+  .ctf { font-family: var(--um-font-editorial); color: var(--x-text); }
+  .ctf__form { position: relative; display: grid; gap: 24px; }
+  .ctf [hidden] { display: none !important; }
+  .ctf__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .ctf__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 16px; }
+  .ctf__field { position: relative; display: grid; gap: 8px; min-width: 0; }
+  .ctf__field > span { font-size: var(--x-fs-meta); font-weight: 600; line-height: 1.3; color: var(--x-text-2); }
+  .ctf__field > span em { font-style: normal; color: var(--x-muted); }
+
+  .ctf .ctf__field input,
+  .ctf .ctf__field select,
+  .ctf .ctf__field textarea {
+    width: 100%; min-height: 48px; padding: 0 16px; border: 1px solid var(--x-line-strong) !important; border-radius: 4px; background-color: var(--x-panel-2) !important;
+    color: var(--x-text) !important; font: 400 1rem/1.4 var(--um-font-editorial); box-shadow: none !important;
+    transition: border-color 160ms var(--x-ease), background-color 160ms var(--x-ease);
+  }
+  .ctf .ctf__field select {
+    appearance: none; -webkit-appearance: none; padding-right: 44px; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5l5-5' stroke='%23a1a1aa' stroke-width='1.5'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important; background-position: right 16px center !important; background-size: 12px 8px !important;
+  }
+  .ctf .ctf__field select.is-empty { color: var(--x-muted) !important; }
+  .ctf__field select option { background: var(--x-panel-2); color: var(--x-text); }
+  .ctf .ctf__field textarea { min-height: 144px; padding: 12px 16px 32px; line-height: 1.55; resize: vertical; }
+  .ctf__field ::placeholder { color: var(--x-muted); opacity: .8; }
+  .ctf .ctf__field input:hover, .ctf .ctf__field select:hover, .ctf .ctf__field textarea:hover { border-color: rgba(255, 255, 255, .32) !important; }
+  .ctf .ctf__field input:focus, .ctf .ctf__field select:focus, .ctf .ctf__field textarea:focus { outline: none; border-color: var(--x-text) !important; background-color: #1c1d21 !important; }
+  .ctf .ctf__field input:focus-visible, .ctf .ctf__field select:focus-visible, .ctf .ctf__field textarea:focus-visible { box-shadow: 0 0 0 3px rgba(255, 255, 255, .12) !important; }
+  .ctf .ctf__field [aria-invalid='true'] { border-color: var(--x-red) !important; }
+  .ctf .ctf__field input:-webkit-autofill { -webkit-text-fill-color: var(--x-text); -webkit-box-shadow: 0 0 0 40px var(--x-panel-2) inset !important; }
+  .ctf__error { font-size: var(--x-fs-meta); line-height: 1.4; color: #fff; padding-left: 10px; border-left: 2px solid var(--x-red); }
+  .ctf__error:empty { display: none; }
+  .ctf__count { position: absolute; right: 12px; bottom: 8px; font-size: var(--x-fs-kicker); color: var(--x-muted); font-variant-numeric: tabular-nums; pointer-events: none; }
+  .ctf__field:has(.ctf__error:not(:empty)) .ctf__count { bottom: 32px; }
+  .ctf__count b { font-weight: 500; }
+  /* Honeypots: ocultos sin sacarlos de pantalla (left negativo genera overflow horizontal). */
+  .ctf__hp { position: absolute !important; width: 1px !important; height: 1px !important; margin: 0 !important; padding: 0 !important; border: 0 !important; overflow: hidden !important; clip: rect(0 0 0 0) !important; clip-path: inset(50%) !important; white-space: nowrap !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+
+  /* Servicios plegables */
+  .ctf__more { border-top: 1px solid var(--x-line); border-bottom: 1px solid var(--x-line); }
+  .ctf__more summary {
+    display: flex; align-items: center; gap: 12px; min-height: 48px; cursor: pointer; list-style: none;
+    font-size: 1rem; font-weight: 600; color: var(--x-text); user-select: none;
+  }
+  .ctf__more summary::-webkit-details-marker { display: none; }
+  .ctf__more summary small { font-size: var(--x-fs-meta); font-weight: 400; color: var(--x-muted); }
+  .ctf__more summary:focus-visible { outline: 2px solid var(--x-text); outline-offset: 2px; }
+  .ctf__more-icon { position: relative; flex: none; width: 16px; height: 16px; }
+  .ctf__more-icon::before, .ctf__more-icon::after { content: ''; position: absolute; left: 3px; top: 7.5px; width: 10px; height: 1.5px; background: var(--x-text-2); transition: transform 160ms var(--x-ease); }
+  .ctf__more-icon::after { transform: rotate(90deg); }
+  .ctf__more[open] .ctf__more-icon::after { transform: rotate(0deg); }
+  .ctf__more-count { margin-left: auto; min-width: 24px; height: 24px; padding: 0 8px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; background: var(--x-text); color: var(--x-ink); font-size: var(--x-fs-kicker); font-weight: 600; }
+  .ctf__group { margin: 0; padding: 4px 0 16px; border: 0; min-width: 0; }
+  .ctf__chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ctf__chip { position: relative; cursor: pointer; }
+  .ctf__chip input { position: absolute; opacity: 0; pointer-events: none; }
+  .ctf__chip span {
+    display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 1px solid var(--x-line-strong); border-radius: 4px; background: transparent;
+    font-size: var(--x-fs-meta); font-weight: 500; color: var(--x-text-2);
+    transition: border-color 160ms var(--x-ease), background-color 160ms var(--x-ease), color 160ms var(--x-ease);
+  }
+  .ctf__chip:hover span { border-color: rgba(255, 255, 255, .4); color: var(--x-text); }
+  .ctf__chip input:checked + span { border-color: var(--x-text); background: rgba(255, 255, 255, .08); color: var(--x-text); }
+  .ctf__chip input:focus-visible + span { outline: 2px solid var(--x-text); outline-offset: 2px; }
+
+  .ctf__submit { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding-top: 8px; }
+  .ctf__submit p { margin: 0; font-size: var(--x-fs-meta); color: var(--x-muted); }
+  .ctf__btn {
+    display: inline-flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 24px; border: 0; border-radius: 0;
+    background: var(--x-red); color: #fff; font: 600 1rem var(--um-font-editorial); cursor: pointer; transition: background-color 160ms var(--x-ease);
+  }
+  .ctf__btn span { transition: transform 160ms var(--x-ease); }
+  .ctf__btn:hover { background: var(--x-red-hover); }
+  .ctf__btn:hover span { transform: translateX(3px); }
+  .ctf__btn:focus-visible { outline: 2px solid var(--x-text); outline-offset: 3px; }
+  .ctf__btn:disabled { opacity: .7; cursor: progress; }
+  .ctf__btn--ghost { background: transparent; border: 1px solid var(--x-line-strong); }
+  .ctf__btn--ghost:hover { background: rgba(255, 255, 255, .06); border-color: var(--x-text); }
+  .ctf__error-box { padding: 12px 16px; border: 1px solid rgba(220, 38, 38, .5); border-left: 2px solid var(--x-red); border-radius: 4px; background: rgba(220, 38, 38, .08); font-size: var(--x-fs-meta); line-height: 1.5; color: var(--x-text); }
+  /* El enlace de respaldo se crea por JS: sin :global no recibe el atributo de alcance. */
+  .ctf__error-box :global(a) { color: var(--x-text); font-weight: 600; text-decoration: underline; text-decoration-color: var(--x-red); text-underline-offset: 3px; }
+  .ctf__done { padding: 8px 0; outline: none; }
+  .ctf__done-kicker { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; font-size: var(--x-fs-kicker); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--x-muted); }
+  .ctf__done-kicker::before { content: ''; width: 28px; height: 2px; background: var(--x-red); }
+  .ctf__done h3 { margin: 0; font-size: 2rem !important; line-height: 1.1 !important; font-weight: 600 !important; letter-spacing: -.02em !important; color: var(--x-text); }
+  .ctf__done p { margin: 12px 0 24px; font-size: 1.0625rem; line-height: 1.55; color: var(--x-text-2); }
+  @media (max-width: 640px) {
+    .ctf__grid { grid-template-columns: 1fr; }
+    .ctf__submit .ctf__btn { width: 100%; justify-content: space-between; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ctf *, .ctf *::before, .ctf *::after { transition: none !important; }
+  }
+</style>

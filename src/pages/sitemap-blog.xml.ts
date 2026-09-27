@@ -1,89 +1,37 @@
 import type { APIRoute } from 'astro';
 import { SITE_URL } from '../config/seo';
-import { blogPosts as fallbackBlogPosts } from '../data/blog-posts';
-import { isCanonicalBlogSlug } from '../data/seoRedirects';
-import { addVisibleBlogStatusFilter } from '../utils/blogPublishing';
-import { diversifyBlogPostCovers } from '../utils/blogCoverDiversity.js';
+import { fetchBlogSitemapEntries } from '../utils/getBlogData';
 import { canonicalUrl, escapeXml, formatSitemapDate, publicImageUrl } from '../utils/seoUrl';
-
-const DIRECTUS_URL =
-  (typeof process !== 'undefined' ? process.env['DIRECTUS_INTERNAL_URL'] : undefined) ??
-  'http://localhost:8055';
-const DIRECTUS_TOKEN =
-  (typeof process !== 'undefined' ? process.env['DIRECTUS_ADMIN_TOKEN'] : undefined) ?? '';
 
 interface BlogPost {
   slug: string;
-  fecha_publicacion: string;
+  fecha_publicacion?: string;
+  fecha_modificacion?: string;
   imagen_portada?: string | null;
   categoria?: string;
   titulo: string;
 }
 
-const spanishMonthNumbers: Record<string, string> = {
-  enero: '01',
-  febrero: '02',
-  marzo: '03',
-  abril: '04',
-  mayo: '05',
-  junio: '06',
-  julio: '07',
-  agosto: '08',
-  septiembre: '09',
-  setiembre: '09',
-  octubre: '10',
-  noviembre: '11',
-  diciembre: '12',
-};
-
-function parseFallbackBlogDate(value: string | undefined): string {
-  const clean = String(value || '').trim().toLowerCase();
-  const match = clean.match(/^(\d{1,2})\s+([a-záéíóúñ]+)\s+(\d{4})$/i);
-  if (!match) return '2024-01-01';
-
-  const day = match[1]?.padStart(2, '0');
-  const month = spanishMonthNumbers[match[2]?.normalize('NFD').replace(/[\u0300-\u036f]/g, '') || ''];
-  const year = match[3];
-
-  return day && month && year ? `${year}-${month}-${day}` : '2024-01-01';
-}
-
 async function fetchPublishedPosts(): Promise<BlogPost[]> {
-  try {
-    const headers = DIRECTUS_TOKEN ? { Authorization: `Bearer ${DIRECTUS_TOKEN}` } : undefined;
-    const params = addVisibleBlogStatusFilter(new URLSearchParams());
-    params.set('sort', '-fecha_publicacion');
-    params.set('limit', '200');
-    params.set('fields', 'slug,titulo,categoria,fecha_publicacion,imagen_portada');
-    const res = await fetch(
-      `${DIRECTUS_URL}/items/blog_posts?${params.toString()}`,
-      { headers }
-    );
-    if (!res.ok) throw new Error(`Directus blog sitemap returned ${res.status}`);
-    const data = await res.json();
-    return diversifyBlogPostCovers(((data.data || []) as BlogPost[])
-      .filter((post) => isCanonicalBlogSlug(post.slug))) as BlogPost[];
-  } catch {
-    return diversifyBlogPostCovers(fallbackBlogPosts.filter((post) => isCanonicalBlogSlug(post.slug)).map((post) => ({
-      slug: post.slug,
-      titulo: post.title,
-      fecha_publicacion: parseFallbackBlogDate(post.date),
-      imagen_portada: post.image,
-    }))) as BlogPost[];
-  }
+  // Misma fuente que el blog renderizado, con timeout y fallback (getBlogData).
+  return (await fetchBlogSitemapEntries()) as BlogPost[];
 }
 
 export const GET: APIRoute = async () => {
   const posts = await fetchPublishedPosts();
   const latestPostLastmod = posts
-    .map((post) => formatSitemapDate(post.fecha_publicacion))
+    .map((post) => post.fecha_modificacion || post.fecha_publicacion)
+    .filter((value): value is string => Boolean(value))
+    .map((value) => formatSitemapDate(value))
     .sort()
-    .at(-1) || formatSitemapDate('2024-01-01');
+    .at(-1) || '';
+  const latestTag = latestPostLastmod ? `\n    <lastmod>${latestPostLastmod}</lastmod>` : '';
 
   const urls = posts
     .map(post => {
       const loc = canonicalUrl(`/blog/${post.slug}`);
-      const lastmod = formatSitemapDate(post.fecha_publicacion) || latestPostLastmod;
+      const lastmodSource = post.fecha_modificacion || post.fecha_publicacion;
+      const lastmod = lastmodSource ? formatSitemapDate(lastmodSource) : '';
       const imageUrl = publicImageUrl(post.imagen_portada);
       const imageTag = imageUrl
         ? `
@@ -93,8 +41,7 @@ export const GET: APIRoute = async () => {
         : '';
       return `  <url>
     <loc>${escapeXml(loc)}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>monthly</changefreq>
+${lastmod ? `    <lastmod>${lastmod}</lastmod>\n` : ''}    <changefreq>monthly</changefreq>
     <priority>0.7</priority>${imageTag}
   </url>`;
     })
@@ -104,32 +51,32 @@ export const GET: APIRoute = async () => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
-    <loc>${SITE_URL}/blog</loc>
-    <lastmod>${latestPostLastmod}</lastmod>
+    <loc>${SITE_URL}/blog</loc>${latestTag}
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/blog/categoria/noticias</loc>
-    <lastmod>${latestPostLastmod}</lastmod>
+    <loc>${SITE_URL}/blog/categoria/noticias</loc>${latestTag}
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/blog/categoria/proyectos</loc>
-    <lastmod>${latestPostLastmod}</lastmod>
+    <loc>${SITE_URL}/blog/categoria/proyectos</loc>${latestTag}
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/blog/categoria/tecnico</loc>
-    <lastmod>${latestPostLastmod}</lastmod>
+    <loc>${SITE_URL}/blog/categoria/tecnico</loc>${latestTag}
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/blog/categoria/empresa</loc>
-    <lastmod>${latestPostLastmod}</lastmod>
+    <loc>${SITE_URL}/blog/categoria/tecnologia</loc>${latestTag}
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${SITE_URL}/blog/categoria/empresa</loc>${latestTag}
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>

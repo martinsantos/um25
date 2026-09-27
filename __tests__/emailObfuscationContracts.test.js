@@ -4,10 +4,14 @@ const path = require('path');
 const repoRoot = process.cwd();
 
 const ssrHtmlSources = [
+  'src/pages/index.astro',
   'src/components/v4/FooterV4.astro',
+  'src/components/um/ContactModal.astro',
   'src/pages/contacto.astro',
+  'src/components/cine/ContactForm.astro',
   'src/pages/privacidad.astro',
   'src/pages/terminos.astro',
+  'src/pages/antecedentes/index.astro',
   'src/pages/antecedentes/[id]/[slug].astro',
   'src/pages/antecedentes/_[slug].astro',
   'src/pages/servicios/[id]/[slug].astro',
@@ -30,6 +34,8 @@ describe('Email obfuscation contracts', () => {
     expect(footer).toContain('<EmailLink');
     expect(contacto).toContain("import EmailLink from '../components/common/EmailLink.astro'");
     expect(contacto).toContain('<EmailLink');
+    expect(contacto).not.toMatch(/>\s*contacto@ultimamilla\.com\.ar\s*</i);
+    expect(contacto).not.toMatch(/data-copy=\{email\}|data-copy="[^"]*@/);
   });
 
   test('public service CTAs do not render literal email addresses as visible body text', () => {

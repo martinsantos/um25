@@ -6,6 +6,7 @@ import {
   geoCommercialHubs,
   geoCommercialHubSlugs,
 } from '../src/data/geoCommercialHubs';
+import { commercialHubLinkItems } from '../src/data/strategicLinkGraph';
 import {
   buildGeoResource,
   geoHubRoutes,
@@ -232,19 +233,31 @@ describe('GEO discovery and commercial hub contracts', () => {
     expect(seoAudit).toContain("'/certificaciones'");
   });
 
-  test('public English pages and ARCA utility stay represented in the main sitemap', () => {
+  test('public English pages stay in the main sitemap and lab pages stay out', () => {
     const sitemap = fs.readFileSync(path.join(repoRoot, 'src/pages/sitemap.xml.ts'), 'utf8');
 
-    for (const route of ['/en', '/en/services', '/en/about', '/en/contacto', '/plantilla-arca']) {
+    for (const route of ['/en', '/en/services', '/en/about', '/en/contacto']) {
       expect(sitemap).toContain(`{ loc: '${route}'`);
+    }
+    for (const route of ['/plantilla-arca', '/pretext-demo', '/banners', '/geo']) {
+      expect(sitemap).not.toContain(`{ loc: '${route}'`);
     }
   });
 
   test('global footer exposes GEO hubs as crawlable commercial paths', () => {
     const footer = fs.readFileSync(path.join(repoRoot, 'src/components/v4/FooterV4.astro'), 'utf8');
 
-    expect(footer).toContain('commercialHubLinkItems');
-    expect(footer).toContain("title: 'Hubs GEO'");
-    expect(footer).toContain("href: '/geo'");
+    // Rediseño 2026-09: la columna "Hubs GEO" pasó a llamarse "Sedes" y el
+    // laboratorio /geo salió del footer y del sitemap. La garantía comercial es
+    // la misma: cada hub GEO comercial queda enlazado con <a href> rastreable.
+    expect(footer).toContain("import { commercialHubLinkItems, commercialHubShortLabels } from '../../data/strategicLinkGraph'");
+    expect(footer).toMatch(/hubs:\s*\{\s*title: 'Sedes',\s*links: \[\s*\.\.\.commercialHubFooterLinks,/);
+    expect(footer).toMatch(/\{footerSections\.hubs\.links\.map\(\(link\) => \([\s\S]*?href=\{link\.href\}/);
+    expect(footer).not.toContain("href: '/geo'");
+
+    expect(commercialHubLinkItems.map((item) => item.href)).toEqual(
+      geoCommercialHubSlugs.map((slug) => `/${geoCommercialHubs[slug].slug}`),
+    );
+    expect(commercialHubLinkItems.length).toBeGreaterThanOrEqual(4);
   });
 });

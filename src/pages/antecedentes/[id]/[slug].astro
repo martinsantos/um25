@@ -652,7 +652,7 @@ const antecedentePageStructuredData = [
                       <img
                         src={servicio.imageUrl || '/images/default-background.jpg'}
                         alt={servicio.imageAlt}
-                        loading={serviceIndex === 0 ? 'eager' : 'lazy'}
+                        loading="lazy"
                         decoding="async"
                         width="320"
                         height="240"
@@ -915,6 +915,16 @@ const antecedentePageStructuredData = [
     color: #5f6368;
     font-size: 1rem;
     font-weight: 700;
+  }
+
+  .case-detail-breadcrumb {
+    align-items: center;
+  }
+
+  .case-detail-breadcrumb a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
   }
 
   .case-detail-breadcrumb a:hover {
@@ -1481,7 +1491,7 @@ const antecedentePageStructuredData = [
     margin-top: 1.1rem;
   }
 
-  .case-cta-card__actions a {
+  .case-cta-card__actions :global(a) {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1492,13 +1502,16 @@ const antecedentePageStructuredData = [
     font-size: 1rem;
     font-weight: 700;
     background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.22);
+    text-decoration: none;
   }
 
   .case-cta-card__actions a:first-child {
     background: #DC2626;
+    border-color: #DC2626;
   }
 
-  .case-cta-card__actions a:hover {
+  .case-cta-card__actions :global(a:hover) {
     background: #fff;
     color: #080808;
   }
@@ -1663,7 +1676,9 @@ const antecedentePageStructuredData = [
   }
 
   .case-service-cards__all {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     margin-top: 1rem;
     color: var(--um-red);
     font-size: 1.125rem;

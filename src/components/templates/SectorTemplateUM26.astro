@@ -1,6 +1,11 @@
 ---
 import { truncateEditorialText } from '../../utils/editorialContent';
-import { getAntecedentesCountShort } from '../../utils/verifiedProof';
+import SystemsStory from '../cine/SystemsStory.astro';
+import CineBanner from '../cine/CineBanner.astro';
+import SnapRail from '../cine/SnapRail.astro';
+import { sectorBySlug } from '../../data/cine/scenes';
+import { getAntecedentesCountShort, getAntecedentesCatalogCount } from '../../utils/verifiedProof';
+import { serviceSummary, cleanCmsText } from '../../data/serviceSummaries';
 import { buildSectorStrategicLinkGroups } from '../../data/strategicLinkGraph';
 
 interface Props {
@@ -74,6 +79,15 @@ const strategicLinkGroups = buildSectorStrategicLinkGroups({
   relatedServices: serviceItems,
   relatedCases: antecedentes.slice(0, 4),
 });
+const cineSector = sectorBySlug(sectorDataSlug);
+const cineScene = cineSector?.scene || 'fachada';
+const cineStats = [
+  cineSector?.count
+    ? { label: 'Casos en el sector', value: cineSector.count }
+    : { label: 'Proyectos ejecutados', value: String(getAntecedentesCatalogCount()) },
+  { label: 'Soporte', value: '24/7' },
+  { label: 'Trayectoria', value: '22+ años' },
+];
 const nextLinks = strategicLinkGroups.flatMap((group: any) => group.links || []).slice(0, 4);
 const caseNameAcronyms = new Set(['SA', 'SRL', 'IT', 'CCTV', 'SDI', 'API', 'APIS', 'ERP']);
 const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
@@ -93,49 +107,33 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
 ---
 
 <div class="um26-sector">
-  <section class="sector26-hero-card" aria-labelledby="sector26-title">
-    <div class="sector26-shell">
-      <a class="sector26-back" href="/sectores">← Volver a sectores</a>
-      <div class="sector26-hero-frame" style={`--sector-accent: ${sectorAccent}`}>
-        {sectorImage && <img src={sectorImage} alt="" width="1920" height="1080" loading="eager" fetchpriority="high" decoding="async" />}
-        <div class="sector26-hero-frame__veil" aria-hidden="true"></div>
-        <div class="sector26-hero-frame__body">
-          <p class="sector26-kicker"><span></span>Sector / {sectorNumber}</p>
-          <h1 id="sector26-title">{sectorTitle}</h1>
-          <p>{sectorSummary}</p>
-          <a class="sector26-frame-action" href="/contacto">Solicitar relevamiento</a>
-        </div>
-        <dl class="sector26-hero-frame__stats" aria-label="Resumen operativo">
-          {heroStats.map((stat) => (
-            <div><dt>{stat.label}</dt><dd>{stat.value}</dd></div>
-          ))}
-        </dl>
-      </div>
-    </div>
-  </section>
+  <CineBanner
+    variant="sector"
+    scenes={[cineScene]}
+    titleId="sector26-title"
+    kicker={cineSector?.text || `Sector ${sectorNumber}`}
+    title={sectorTitle}
+    lead={sectorSummary}
+    primary={{ href: '/contacto', label: 'Solicitar relevamiento' }}
+    secondary={{ href: sectorAntecedentesHref, label: 'Ver casos del sector' }}
+    stats={cineStats}
+    back={{ href: '/sectores', label: '← Todos los sectores' }}
+  />
 
-  <section class="sector26-intro">
-    <div class="sector26-shell sector26-intro__grid">
-      <div>
-        <p class="sector26-kicker"><span></span>01 / Riesgo</p>
-        <h2>{sector.operatingNeed || `Continuidad operativa para ${sectorName}.`}</h2>
-      </div>
-      <p>{sector.proof || sectorSummary}</p>
-    </div>
-  </section>
+  <SystemsStory slug={sectorSlug} name={sectorName} />
 
   <section class="sector26-services" aria-label="Servicios aplicados">
     <div class="sector26-shell">
       <div class="sector26-section-head">
-        <p class="sector26-kicker"><span></span>02 / Servicios</p>
-        <h2>Capacidades conectadas al vertical.</h2>
+        <p class="sector26-kicker"><span></span>Servicios</p>
+        <h2>Servicios aplicados a {sectorName.toLowerCase()}.</h2>
       </div>
-      <div class="sector26-service-grid">
+      <div class="sector26-service-grid" data-rail="Servicios aplicados">
         {serviceItems.map((item: any, index: number) => (
           <a href={`/servicios/${item.id}/${item.slug || ''}`} class="um-click-surface sector26-service-card">
             <span>{String(index + 1).padStart(2, '0')}</span>
-            <strong>{item.nombre || item.Titulo || 'Servicio'}</strong>
-            <p>{serviceExcerpt(item.descripcion || item.Descripcion, 138)}</p>
+            <strong>{serviceSummary(item.id)?.name || cleanCmsText(item.nombre || item.Titulo).split(' · ')[0] || 'Servicio'}</strong>
+            <p>{serviceSummary(item.id)?.summary || cleanCmsText(item.descripcion || item.Descripcion)}</p>
             <em class="um-click-action">Ver detalle</em>
           </a>
         ))}
@@ -154,8 +152,8 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     <section class="sector26-criteria">
       <div class="sector26-shell">
         <div class="sector26-section-head">
-          <p class="sector26-kicker"><span></span>03 / Criterios</p>
-          <h2>Condiciones de diseno.</h2>
+          <p class="sector26-kicker"><span></span>Criterios</p>
+          <h2>Condiciones de diseño.</h2>
         </div>
         <div class="sector26-criteria-grid">
           {criteriaItems.map((item: any, index: number) => (
@@ -174,10 +172,10 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     <div class="sector26-shell">
       <div class="sector26-section-head sector26-section-head--split">
         <div>
-          <p class="sector26-kicker"><span></span>04 / Evidencia</p>
-          <h2>Archivo operativo vinculado.</h2>
+          <p class="sector26-kicker"><span></span>Proyectos</p>
+          <h2>Proyectos en el sector.</h2>
         </div>
-        <a href={sectorAntecedentesHref}>Ver todos los antecedentes</a>
+        <a href={sectorAntecedentesHref}>Ver todos los proyectos</a>
       </div>
 
       {leadCase && (
@@ -185,26 +183,26 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
           {leadCase.imageUrl && <img src={leadCase.imageUrl} alt="" width="1600" height="900" loading="lazy" decoding="async" />}
           <div>
             <p>Caso destacado</p>
-            <h3>{leadCase.Cliente || leadCase.Titulo || 'Antecedente destacado'}</h3>
-            <p>{truncate(leadCase.Descripcion || leadCase.Titulo, 190)}</p>
+            <h3>{formatCaseName(leadCase.Cliente || leadCase.Titulo, 'Proyecto destacado')}</h3>
+            <p>{cleanCmsText(leadCase.Descripcion || leadCase.Titulo)}</p>
             <dl>
-              <div><dt>Sector</dt><dd>{leadCase.Area || leadCase.Unidad_de_negocio || sectorName}</dd></div>
-              <div><dt>Alcance</dt><dd>Ejecucion + soporte</dd></div>
+              <div><dt>Área</dt><dd>{String(leadCase.Area || sectorName).replace(/\s*&\s*/g, ' y ')}</dd></div>
+              {leadCase.Fecha && <div><dt>Año</dt><dd>{String(leadCase.Fecha).slice(0, 4)}</dd></div>}
             </dl>
             <strong class="um-click-action">Ver detalle</strong>
           </div>
         </a>
       )}
 
-      <div class="sector26-case-list">
+      <div class="sector26-case-list" data-rail="Proyectos del sector">
         {evidenceCases.slice(1).map((item: any, index: number) => (
           <a href={caseHref(item)} class="um-click-surface sector26-case-row">
             <span>{String(index + 2).padStart(2, '0')}</span>
             {item.imageUrl && <img src={item.imageUrl} alt="" width="1200" height="900" loading="lazy" decoding="async" />}
             <div>
-              <p>Archivo</p>
-              <strong>{formatCaseName(item.Cliente || item.Titulo, 'Antecedente')}</strong>
-              <em>{truncate(item.Descripcion || item.Titulo, 128)}</em>
+              <p>{String(item.Area || sectorName).replace(/\s*&\s*/g, ' y ')}{item.Fecha ? ` · ${String(item.Fecha).slice(0, 4)}` : ''}</p>
+              <strong>{formatCaseName(item.Cliente || item.Titulo, 'Proyecto')}</strong>
+              <em>{cleanCmsText(item.Descripcion || item.Titulo)}</em>
             </div>
             <b class="um-click-action">Ver detalle</b>
           </a>
@@ -217,10 +215,10 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     <div class="sector26-shell sector26-closing__panel">
       <div>
         <p class="sector26-kicker"><span></span>Para avanzar</p>
-        <h2>Convertir riesgo del vertical en alcance tecnico.</h2>
-        <p>Entramos por contexto, evidencia comparable y servicios aplicados para definir el proximo paso sin perder trazabilidad.</p>
+        <h2>Hablemos de su operación.</h2>
+        <p>Cuéntenos qué necesita resolver y le proponemos un relevamiento técnico con casos comparables del sector.</p>
       </div>
-      <div class="sector26-closing__links">
+      <div class="sector26-closing__links" data-rail="Próximos pasos">
         {nextLinks.map((link: any) => (
           <a href={link.href}>
             <span>{link.label || 'Ruta'}</span>
@@ -230,7 +228,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
         ))}
         {nextLinks.length === 0 && (
           <>
-            <a href="/contacto"><span>Contacto</span><strong>Contacto tecnico</strong><em>Enviar contexto operativo para recibir el proximo paso.</em></a>
+            <a href="/contacto"><span>Contacto</span><strong>Contacto técnico</strong><em>Enviar contexto operativo para recibir el próximo paso.</em></a>
             <a href="/servicios"><span>Servicios</span><strong>Servicios IT</strong><em>Ver capacidades aplicadas a continuidad operativa.</em></a>
           </>
         )}
@@ -238,6 +236,8 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     </div>
   </section>
 </div>
+
+<SnapRail />
 
 <style>
   :global(body[data-skin]) main {
@@ -631,8 +631,16 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
     text-decoration: none;
   }
 
+  @media (max-width: 1110px), (pointer: coarse) {
+    .sector26-section-head--split a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+  }
+
   .sector26-section-head--split a::after {
-    content: " ->";
+    content: " →";
     color: #DC2626;
   }
 
@@ -833,6 +841,10 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
   }
 
   .sector26-feature-case p:not(:first-child) {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    overflow: hidden;
     margin-top: 14px;
     color: rgba(255,255,255,0.86);
     font-size: 1rem;
@@ -955,7 +967,10 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
   }
 
   .sector26-case-row em {
-    display: block;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
     margin-top: 5px;
     color: rgba(255,255,255,0.74);
     font-style: normal;
@@ -1230,6 +1245,78 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
       justify-self: start;
       margin-top: 2px;
       line-height: 1.2;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .sector26-services,
+    .sector26-criteria,
+    .sector26-evidence,
+    .sector26-closing {
+      padding: 56px 0;
+    }
+
+    .sector26-section-head {
+      margin-bottom: 24px;
+    }
+
+    .sector26-section-head h2,
+    .sector26-closing h2 {
+      text-wrap: balance;
+    }
+
+    .sector26-section-head--split {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .sector26-section-head--split a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+
+    /* Carriles: servicios, proyectos y próximos pasos. */
+    .sector26-service-grid {
+      border-top: 0;
+    }
+
+    .sector26-service-grid .sector26-service-card {
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .sector26-case-list .sector26-case-row {
+      height: 100%;
+      grid-template-rows: auto auto 1fr auto;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .sector26-case-list .sector26-case-row + .sector26-case-row {
+      margin-top: 0;
+    }
+
+    .sector26-case-list {
+      margin-top: 0;
+      border-top: 0;
+    }
+
+    .sector26-feature-case {
+      margin-bottom: 16px;
+    }
+
+    .sector26-closing__panel {
+      padding: 28px 20px;
+      gap: 24px;
+    }
+
+    .sector26-closing__links a {
+      min-height: 0;
+    }
+
+    .sector26-criteria-grid article {
+      padding: 20px 0;
     }
   }
 

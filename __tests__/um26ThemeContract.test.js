@@ -29,14 +29,18 @@ describe('UM26 theme contract', () => {
   });
 
   test('antecedentes index renders the UM26 evidence experience and exposes its DOM marker', () => {
+    // Rediseño 2026-09: la experiencia de evidencia usa el marcador data-evidence
+    // (clase .ev) y tarjetas que enlazan directo a la ficha, sin modal.
     const page = read('src/pages/antecedentes/index.astro');
 
     expect(page).toContain("import { getAntecedentes, getServicios } from '../../lib/um26-directus'");
-    expect(page).toContain('class="um26-evidence"');
-    expect(page).toContain('class="um26-evidence-hero"');
-    expect(page).toContain('data-um26-search');
-    expect(page).toContain('data-case-grid');
-    expect(page).toContain('data-case-modal-backdrop');
+    expect(page).toContain('<div class="ev" data-evidence>');
+    expect(page).toContain('<header class="ev-hero" aria-labelledby="evidence-title">');
+    expect(page).toContain("document.querySelector('[data-evidence]')");
+    expect(page).toContain('data-search');
+    expect(page).toContain('data-grid');
+    expect(page).toContain('<a class="ev-card" href={item.href}>');
+    expect(page).toContain('skin="black"');
     expect(page).not.toContain('AntecedentesTemplateEditorial');
     expect(page).not.toContain('class="ante-dossier"');
   });

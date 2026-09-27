@@ -1,0 +1,59 @@
+---
+// Portada Cine (alfa): recorrido 3D de los cuatro gemelos (Blender → Three.js)
+// detrás del copy real de la home. El motor vive en /3d/cinema.html y el
+// controlador en /cine/interaction.js (ambos estáticos, sin Directus).
+// Métricas y sistemas de las escenas son DEMO / visualización conceptual.
+import '../../styles/cine-hero.css';
+---
+<div class="um-cine">
+<section class="hero cinema" id="manifiesto" aria-labelledby="heroTitle" data-mode="film" data-scene="hospital">
+  <div class="ar" id="arStage"><video id="arHero" muted loop playsinline preload="none" poster="/cine/media/hospital-cycles.webp" aria-hidden="true"></video></div>
+  <div class="scrim" id="arScrim"></div>
+  <div class="ar-hint" id="arHint" aria-hidden="true"></div>
+  <div class="ar-feedback" id="arFeedback" role="status" hidden><p id="arFeedbackText"></p><button class="motion-control" id="arRetry" type="button" hidden>Reintentar 3D</button></div>
+  <div class="wrap hero-layout">
+    <div class="hero-copy">
+      <span class="hero-eyebrow">Servicios IT · Desde 2000</span>
+      <h1 id="heroTitle">Servicios IT para operaciones que no pueden detenerse<span class="dot">.</span></h1>
+      <p class="lead">Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="/antecedentes">Ver evidencia operativa <span aria-hidden="true">↗</span></a>
+        <button class="cinema-explore" id="arZone" type="button" aria-label="Explorar en 3D: arrastrá para girar y usá la rueda para acercarte"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Zm0 9 8-4.5M12 12 4 7.5M12 12v9"/></svg><span class="ar-entry-label">Explorar en 3D</span></button>
+      </div>
+      <div class="now" id="arNow"><i></i><span>Infraestructura conectada · Visualización conceptual</span></div>
+    </div>
+    <div class="cinema-scene-caption" aria-live="off">
+      <span class="cinema-index" id="cinemaStep">01 / 04</span>
+      <div><h2 id="cinemaSceneTitle">Hospital conectado</h2><p id="cinemaDescription">Cada conexión, al servicio del cuidado.</p></div>
+    </div>
+  </div>
+  <div class="cinema-console wrap">
+    <div class="cinema-toolbar">
+      <nav id="cinemaStudyNav" class="cinema-study-nav" aria-label="Estudios del hospital" hidden>
+        <a href="?plano=entrada" data-study="entrada">01 Interior</a>
+        <a href="?plano=equipo" data-study="equipo">02 Detalle</a>
+        <a href="?plano=red" data-study="red">03 Red</a>
+      </nav>
+      <div class="cinema-modes" role="group" aria-label="Cómo ver la infraestructura">
+        <button type="button" data-cinema-mode="film" aria-pressed="true">Cine</button>
+        <button type="button" data-cinema-mode="building" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V5l7-3 7 3v16M3 21h18M9 7h2m2 0h2M9 11h2m2 0h2M9 15h2m2 0h2M10 21v-3h4v3"/></svg>Edificio</button>
+        <button type="button" data-cinema-mode="systems" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"/></svg>Esqueleto</button>
+        <button type="button" data-cinema-mode="journey" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17c0-5 16-5 16-10M16 7h4v4M4 17v3m0-9v2M8 4h5"/></svg>Recorrido</button>
+      </div>
+      <div class="cinema-playback">
+        <span id="cinemaModeLabel">Cine · 14 segundos</span>
+        <button class="ar-back" id="arBack" type="button" hidden>Volver a la movie <kbd>Esc</kbd></button>
+        <button class="motion-control" id="arMotion" type="button" aria-controls="arStage">Pausar</button>
+      </div>
+    </div>
+    <div class="cinema-progress" aria-hidden="true"><i id="cinemaProgress"></i></div>
+    <div class="cinema-scene-rail" role="group" aria-label="Elegí un entorno">
+      <button type="button" data-cinema-scene="hospital" aria-pressed="true"><span>01</span>Hospital</button>
+      <button type="button" data-cinema-scene="aeropuerto" aria-pressed="false"><span>02</span>Aeropuerto</button>
+      <button type="button" data-cinema-scene="bodega" aria-pressed="false"><span>03</span>Bodega</button>
+      <button type="button" data-cinema-scene="fachada" aria-pressed="false"><span>04</span>Edificio</button>
+      <span class="cinema-simulation">Sistemas integrales por sector · DEMO</span>
+    </div>
+  </div>
+</section>
+</div>
