@@ -109,7 +109,7 @@ const shouldEmitHreflang = hasEnglishAlternate(Astro.url.pathname);
 ---
 
 <!DOCTYPE html>
-<html lang={pageLang === 'en' ? 'en' : 'es-AR'}>
+<html lang={pageLang}>
   <head>
     <!-- SEOHead — handles all meta, OG, Twitter, schema, canonical, hreflang, favicon -->
     <SEOHead

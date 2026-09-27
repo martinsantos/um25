@@ -1,6 +1,10 @@
 import type { APIRoute } from 'astro';
 import { SITE_URL } from '../config/seo';
-import { geoResourceNames, geoVersion } from '../data/geoResources';
+import {
+  geoHubRoutes,
+  geoResourceNames,
+  geoVersion,
+} from '../data/geoResources';
 import { canonicalUrl, escapeXml, formatSitemapDate } from '../utils/seoUrl';
 
 type GeoSitemapEntry = {
@@ -9,9 +13,10 @@ type GeoSitemapEntry = {
   changefreq: string;
 };
 
-// Sólo URLs finales (200) e indexables: /geo y /geo/score son internas (noindex)
-// y los hubs comerciales redirigen a /servicios.
+// /geo y /geo/score son internas (noindex) y quedan fuera; los hubs comerciales
+// son páginas finales y forman parte del contrato GEO (scripts/seo-audit.mjs).
 const coreGeoDiscoveryPaths = [
+  '/sitemap-images.xml',
   '/servicios',
   '/sectores',
   '/antecedentes',
@@ -44,6 +49,7 @@ function generateGeoSitemapXml() {
       priority: path === '/servicios' ? '0.95' : '0.9',
       changefreq: 'weekly',
     })),
+    ...geoHubRoutes.map((hub) => ({ loc: hub.url, priority: '0.92', changefreq: 'weekly' })),
   ];
 
   const uniqueEntries = Array.from(new Map(entries.map((entry) => [entry.loc, entry])).values());
