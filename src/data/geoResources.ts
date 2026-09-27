@@ -186,6 +186,7 @@ export function buildGeoResource(resource: string) {
         description: SITE_DESCRIPTION,
         position: 'Servicios IT integrales para operaciones que no pueden detenerse.',
         location: 'Mendoza, Argentina',
+        foundingDate: '2003-06-01',
         coverage: ['Mendoza', 'Cuyo', 'Patagonia', 'Argentina según alcance'],
         proof: getInstitutionalProofLines(),
         accentColor: '#DC2626',
