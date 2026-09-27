@@ -28,6 +28,8 @@ export interface Props {
   structuredData?: Record<string, unknown> | Record<string, unknown>[];
   noindex?: boolean;
   gscVerification?: string;
+  /** Fondo de página: las páginas del sistema oscuro piden 'black'. */
+  skin?: 'black' | 'white' | 'hybrid' | 'steel';
 }
 
 const {
@@ -42,6 +44,7 @@ const {
   structuredData,
   noindex = false,
   gscVerification = 'TSoaOAODUVxCt2ohPOomFxRxF3I_MMKzu_wmbpFVpuw',
+  skin,
 } = Astro.props;
 
 const siteUrl = SITE_URL;
@@ -49,24 +52,56 @@ const currentUrl = (canonical || `${siteUrl}${Astro.url.pathname}`).replace(/^ht
 
 const hasHeadSlot = Astro.slots.has('head');
 
-// Build breadcrumb trail from URL path
+// Build breadcrumb trail from URL path. Los segmentos numéricos (IDs) y los
+// agrupadores sin página propia se omiten; el último nivel usa el título humano.
 const breadcrumbs: Array<{ name: string; url: string }> = [
   { name: "Inicio", url: siteUrl },
 ];
 
+const breadcrumbLabels: Record<string, string> = {
+  servicios: "Servicios",
+  sectores: "Sectores",
+  antecedentes: "Antecedentes",
+  blog: "Blog",
+  nosotros: "Nosotros",
+  contacto: "Contacto",
+  certificaciones: "Documentación técnica",
+  cctvai: "UMSA CCTV AI",
+  aeropuertos: "Aeropuertos",
+  bodegas: "Bodegas",
+  constructoras: "Constructoras",
+  gobiernosectorpublico: "Gobierno y sector público",
+  industria: "Industria",
+  mineria: "Minería",
+  salud: "Salud",
+  "seguridad-electronica": "Seguridad electrónica",
+  software: "Software",
+};
+const sectorSlugs = new Set(["aeropuertos", "bodegas", "constructoras", "gobiernosectorpublico", "industria", "mineria", "salud", "seguridad-electronica", "software"]);
+const breadcrumbTitle = String(title || "")
+  .replace(/\s*[|·–-]\s*ULTIMA MILLA\s*$/i, "")
+  .trim();
+
 if (Astro.url.pathname !== "/") {
   const segments = Astro.url.pathname.split("/").filter(Boolean);
+  if (segments.length === 1 && sectorSlugs.has(segments[0]!)) {
+    breadcrumbs.push({ name: "Sectores", url: `${siteUrl}/sectores` });
+  }
   let pathAccumulator = "";
-  segments.forEach((segment) => {
+  segments.forEach((segment, index) => {
     pathAccumulator += `/${segment}`;
+    const isLast = index === segments.length - 1;
+    if (!isLast && (/^\d+$/.test(segment) || segment === "categoria" || segment === "en")) return;
+    const fallbackName = segment.split("-").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+    const name = breadcrumbLabels[segment] || (isLast && breadcrumbTitle ? breadcrumbTitle : fallbackName);
     breadcrumbs.push({
-      name: segment.split("-").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
-      url: `${siteUrl}${pathAccumulator}`,
+      name,
+      url: isLast ? currentUrl : `${siteUrl}${pathAccumulator}`,
     });
   });
 }
 
-const skinVariant = getDevSkinVariant(Astro.url, import.meta.env.DEV) ?? 'hybrid';
+const skinVariant = getDevSkinVariant(Astro.url, import.meta.env.DEV) ?? skin ?? 'hybrid';
 const skinAttribute = skinVariant;
 const pageLang = resolvePageLanguage(Astro.url.pathname);
 const skipLinkLabel = pageLang === 'en' ? 'Skip to main content' : 'Saltar al contenido principal';
@@ -74,7 +109,7 @@ const shouldEmitHreflang = hasEnglishAlternate(Astro.url.pathname);
 ---
 
 <!DOCTYPE html>
-<html lang={pageLang}>
+<html lang={pageLang === 'en' ? 'en' : 'es-AR'}>
   <head>
     <!-- SEOHead — handles all meta, OG, Twitter, schema, canonical, hreflang, favicon -->
     <SEOHead

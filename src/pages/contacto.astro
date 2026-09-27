@@ -1,13 +1,11 @@
 ---
 import LayoutV4 from '../layouts/LayoutV4.astro';
-import MetricStrip from '../components/um/MetricStrip.astro';
-import UMButton from '../components/um/UMButton.astro';
-import SectionHeader from '../components/um/SectionHeader.astro';
 import IntentLinkGraph from '../components/um/IntentLinkGraph.astro';
+import ContactForm from '../components/cine/ContactForm.astro';
 import EmailLink from '../components/common/EmailLink.astro';
 import { contactStrategicLinkGroups } from '../data/strategicLinkGraph';
 import { resolveReplicaH1 } from '../utils/replicaProdCopy';
-import { getAntecedentesCountShort } from '../utils/verifiedProof';
+import { getAntecedentesCatalogCount } from '../utils/verifiedProof';
 
 const contactoH1 = resolveReplicaH1('/contacto', 'Enviá contexto técnico. Respondemos con el próximo paso.');
 
@@ -17,7 +15,6 @@ const seoData = {
   keywords: 'contacto ultima milla, servicios IT Mendoza, soporte IT, infraestructura tecnologica, seguridad electronica, telecomunicaciones'
 };
 
-const startedAt = Date.now();
 const contactSignificantLinks = Array.from(
   new Set(contactStrategicLinkGroups.flatMap((group) => group.items.map((item) => item.href))),
 ).map((href) => new URL(href, 'https://www.ultimamilla.com.ar').toString());
@@ -40,1004 +37,208 @@ const structuredData = {
     }
   },
   significantLink: contactSignificantLinks,
-  hasPart: contactSignificantLinks.slice(0, 12).map((url) => ({
-    '@type': 'WebPage',
-    url
-  }))
+  hasPart: contactSignificantLinks.slice(0, 12).map((url) => ({ '@type': 'WebPage', url }))
 };
+
+const proof = [
+  { value: '22+', label: 'años de trayectoria' },
+  { value: String(getAntecedentesCatalogCount()), label: 'proyectos documentados' },
+  { value: '24/7', label: 'soporte con abono' },
+];
+const checklist = [
+  'Servicio principal o sistema afectado.',
+  'Sede, ciudad o cantidad de sitios.',
+  'Urgencia real, ventana de intervención o fecha de pliego.',
+  'Riesgo operativo: caída, seguridad, auditoría, crecimiento o mantenimiento.',
+];
+const hubs = [
+  { name: 'Mendoza', role: 'Sede central', href: '/servicios-it-empresas-mendoza' },
+  { name: 'San Juan', role: 'Cuyo', href: '/servicios-it-empresas-argentina' },
+  { name: 'San Luis', role: 'Cuyo', href: '/servicios-it-empresas-argentina' },
+  { name: 'Neuquén', role: 'Patagonia', href: '/servicios-it-empresas-argentina' },
+];
 ---
 
-<LayoutV4 title={seoData.title} description={seoData.description} keywords={seoData.keywords} structuredData={structuredData}>
-  <section class="contact-dossier">
-    <div class="um-container contact-dossier__grid">
-      <div class="contact-dossier__copy">
-        <nav class="contact-breadcrumb" aria-label="Breadcrumb">
-          <a href="/">Inicio</a>
-          <span>/</span>
-          <span>Contacto</span>
-        </nav>
-        <span class="um-kicker">Contacto</span>
-        <h1>{contactoH1}</h1>
-        <p>
-          Contanos servicio, sede, urgencia y objetivo. Respondemos con el próximo paso técnico.
-        </p>
-
-        <div class="contact-dossier__actions" aria-label="Acciones principales de contacto">
-          <UMButton href="#contactForm" class="contact-primary-cta">Solicitar diagnóstico</UMButton>
-          <EmailLink class="um-btn-secondary" label="Escribir por email" />
+<LayoutV4 skin="black" title={seoData.title} description={seoData.description} keywords={seoData.keywords} structuredData={structuredData}>
+  <div class="ctc">
+    <section class="ctc-hero" aria-labelledby="ctcTitle">
+      <div class="ctc-hero__bg" aria-hidden="true">
+        <img src="/cine/media/cine-fachada-poster.jpg" alt="" width="1920" height="1080" fetchpriority="high" decoding="async" />
+      </div>
+      <div class="ctc-shell ctc-hero__grid">
+        <div class="ctc-intro">
+          <nav class="ctc-crumbs" aria-label="Migas de pan"><a href="/">Inicio</a><span aria-hidden="true">/</span><span>Contacto</span></nav>
+          <p class="ctc-eyebrow">Contacto</p>
+          <h1 id="ctcTitle">{contactoH1}</h1>
+          <p class="ctc-lead">Contanos qué necesitás, dónde y para cuándo. Un técnico te responde por email con el próximo paso: diagnóstico, relevamiento, propuesta o documentación.</p>
         </div>
-
-        <MetricStrip
-          class="contact-proofline"
-          metrics={[
-            { value: '24/7', label: 'soporte para clientes activos' },
-            { value: getAntecedentesCountShort(), label: 'proyectos técnicos' },
-            { value: '22+', label: 'años de trayectoria técnica' },
-          ]}
-        />
+        <div class="ctc-aside">
+          <dl class="ctc-proof">
+            {proof.map((p) => <div><dt>{p.label}</dt><dd>{p.value}</dd></div>)}
+          </dl>
+          <div class="ctc-direct">
+            <div>
+              <span>Email</span>
+              <strong class="ctc-mail"><EmailLink subject="Consulta desde la web ULTIMA MILLA" /></strong>
+              <button type="button" class="ctc-copy" data-copy-email>Copiar</button>
+            </div>
+            <div>
+              <span>Oficina</span>
+              <strong>Houssay 1159, Guaymallén, Mendoza</strong>
+              <a class="ctc-map" href="https://www.google.com/maps/search/?api=1&query=Houssay%201159%20Guaymallen%20Mendoza" target="_blank" rel="noopener">Ver en el mapa ↗</a>
+            </div>
+            <div>
+              <span>Horario</span>
+              <strong>Lunes a viernes, 8 a 18 h</strong>
+              <p>Clientes con abono: guardia 24/7.</p>
+            </div>
+          </div>
+        </div>
+        <div class="ctc-panel" id="formulario">
+          <p class="ctc-panel__kicker">Consulta</p>
+          <h2>Escribinos</h2>
+          <ContactForm />
+        </div>
       </div>
+    </section>
 
-      <article class="contact-form-panel contact-form-panel--hero">
-        <span class="um-kicker">Solicitud</span>
-        <h2>Consulta rápida</h2>
-        <p class="contact-form-panel__lead">
-          Cuatro campos visibles alcanzan. Si hay pliego, urgencia o múltiples sedes, dejalo escrito en el mensaje.
-        </p>
-
-        <form id="contactForm" class="contact-form" method="post" action="/api/contact" novalidate>
-          <div class="field-grid">
-            <label>
-              <span>Nombre *</span>
-              <input type="text" id="name" name="name" required autocomplete="name" placeholder="Nombre y apellido" />
-              <small id="nameError" class="field-error hidden"></small>
-            </label>
-            <label>
-              <span>Email *</span>
-              <input type="email" id="email" name="email" required autocomplete="email" placeholder="mail@empresa.com" />
-              <small id="emailError" class="field-error hidden"></small>
-            </label>
-          </div>
-
-          <label>
-            <span>Empresa u organismo</span>
-            <input type="text" id="company" name="company" autocomplete="organization" placeholder="Opcional" />
-          </label>
-
-          <label>
-            <span>Mensaje *</span>
-            <textarea id="message" name="message" required rows="5" placeholder="Servicio requerido, sitio o sedes, urgencia, restricción principal y objetivo esperado."></textarea>
-            <small id="messageError" class="field-error hidden"></small>
-          </label>
-
-          <input type="text" id="website" name="website" class="contact-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
-          <input type="hidden" id="startedAt" name="startedAt" value={startedAt} />
-
-          <div class="contact-submit-row">
-            <button type="submit" class="um-btn-primary contact-submit">Enviar consulta</button>
-          </div>
-          <p class="contact-submit-note">No usamos captcha visible. Si algo falla, podés enviar el mismo contexto por email.</p>
-
-          <div id="successMessage" class="form-message success hidden" role="status">
-            Mensaje enviado. Vamos a responder por email con próximos pasos.
-          </div>
-          <div id="errorMessage" class="form-message error hidden" role="alert">
-            No se pudo enviar.
-            <EmailLink label="Enviar por email" subject="Consulta desde la web ULTIMA MILLA" />
-          </div>
-        </form>
-      </article>
-    </div>
-  </section>
-
-  <section class="contact-intents">
-    <div class="um-container">
-      <SectionHeader kicker="Por intención" title="Elegí el próximo paso según tu situación" />
-      <div class="contact-intents__grid">
-        <a class="um-click-surface contact-intent" href="#contactForm" data-intent="diagnostico">
-          <span>Diagnóstico inicial</span>
-          <strong>Caída, incidente o urgencia operativa</strong>
-          <p>Indicá sistema afectado, sede y ventana de intervención.</p>
-        </a>
-        <a class="um-click-surface contact-intent" href="#contactForm" data-intent="relevamiento">
-          <span>Relevamiento técnico</span>
-          <strong>Red, CCTV, energía o software en sitio</strong>
-          <p>Compartí alcance, cantidad de sedes y restricciones del edificio.</p>
-        </a>
-        <a class="um-click-surface contact-intent" href="#contactForm" data-intent="abono">
-          <span>Abono / soporte</span>
-          <strong>Continuidad 24/7 para operación activa</strong>
-          <p>Detallá activos críticos, SLA esperado y horarios de atención.</p>
-        </a>
-        <a class="um-click-surface contact-intent" href="#contactForm" data-intent="pliego">
-          <span>Licitación / pliego</span>
-          <strong>Documentación y alcance para compras</strong>
-          <p>Adjuntá pliego, fechas y requisitos de certificación en el mensaje.</p>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <IntentLinkGraph
-    kicker="Para avanzar"
-    title="Completar la consulta"
-    text="Entrá por alcance técnico, antecedente, sector o presupuesto para que el pedido llegue con información útil."
-    groups={contactStrategicLinkGroups}
-  />
-
-  <section class="contact-action">
-    <div class="um-container contact-action__grid">
-
-      <aside class="contact-context">
-        <div class="contact-context__block">
-          <SectionHeader kicker="Para acelerar la respuesta" title="Qué conviene incluir" />
-          <ul>
-            <li>Servicio principal o sistema afectado.</li>
-            <li>Sede, ciudad o cantidad de sitios involucrados.</li>
-            <li>Urgencia real, ventana de intervención o fecha de pliego.</li>
-            <li>Riesgo operativo: caída, seguridad, auditoría, crecimiento o mantenimiento.</li>
+    <section class="ctc-info" aria-label="Información útil">
+      <div class="ctc-shell ctc-info__grid">
+        <div>
+          <h2>Para responderte más rápido</h2>
+          <ul class="ctc-check">
+            {checklist.map((c) => <li>{c}</li>)}
           </ul>
         </div>
-
-        <div class="contact-context__block contact-context__block--line">
-          <span>Alcances frecuentes</span>
-          <p>
-            Abonos de soporte, relevamientos de red, CCTV/SDI, detección de incendios, tableros para
-            salas técnicas, software operativo y documentación para licitaciones.
-          </p>
+        <div>
+          <h2>Alcances frecuentes</h2>
+          <p>Abonos de soporte, relevamientos de red, CCTV y control de accesos, detección de incendios, tableros para salas técnicas, software operativo y documentación para licitaciones.</p>
+          <a class="ctc-link" href="/certificaciones">Documentación para compras y auditorías →</a>
         </div>
-
-        <div class="contact-address">
-          <span>Dirección</span>
-          <strong>Houssay 1159, Guaymallén, Mendoza</strong>
-          <a href="https://www.google.com/maps/search/?api=1&query=Houssay%201159%20Guaymallen%20Mendoza" target="_blank" rel="noopener">Ver ubicación</a>
+        <div>
+          <h2>Cobertura</h2>
+          <ul class="ctc-hubs">
+            {hubs.map((h) => <li><a href={h.href}><strong>{h.name}</strong><span>{h.role}</span></a></li>)}
+          </ul>
         </div>
-      </aside>
+      </div>
+    </section>
 
-      <aside class="contact-quick-card um-invert">
-        <span>Base operativa</span>
-        <strong>Mendoza, Cuyo y cobertura nacional</strong>
-        <p>
-          Redes, seguridad electrónica, telecomunicaciones, software operativo, soporte y energía
-          para organizaciones que necesitan continuidad.
-        </p>
-        <EmailLink />
-      </aside>
-    </div>
-  </section>
+    <IntentLinkGraph
+      kicker="Para avanzar"
+      title="Completá el contexto de tu consulta"
+      text="Revisá alcances técnicos, antecedentes comparables, sectores o presupuesto para que el pedido llegue con información útil."
+      groups={contactStrategicLinkGroups}
+    />
+  </div>
 </LayoutV4>
 
 <script>
-  const form = document.getElementById('contactForm');
-  const successMessage = document.getElementById('successMessage');
-  const errorMessage = document.getElementById('errorMessage');
-  const startedAtInput = document.getElementById('startedAt');
-  const submitButton = form?.querySelector('button[type="submit"]');
-  const errorElements = {
-    name: document.getElementById('nameError'),
-    email: document.getElementById('emailError'),
-    message: document.getElementById('messageError')
-  };
-
-  if (startedAtInput instanceof HTMLInputElement) {
-    startedAtInput.value = String(Date.now());
-  }
-
-  function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
-
-  function showError(field, message) {
-    const errorElement = errorElements[field];
-    if (errorElement) {
-      errorElement.textContent = message;
-      errorElement.classList.remove('hidden');
-    }
-  }
-
-  function clearErrors() {
-    Object.values(errorElements).forEach((element) => {
-      if (element) {
-        element.textContent = '';
-        element.classList.add('hidden');
-      }
-    });
-    successMessage?.classList.add('hidden');
-    errorMessage?.classList.add('hidden');
-  }
-
-  function buildFallbackMailto(data = {}) {
-    const name = String(data.name || '').trim();
-    const email = String(data.email || '').trim();
-    const company = String(data.company || '').trim();
-    const message = String(data.message || '').trim();
-    const body = [
-      'Hola ULTIMA MILLA,',
-      '',
-      'No pude enviar el formulario desde la web. Dejo la consulta por email:',
-      '',
-      name ? `Nombre: ${name}` : '',
-      email ? `Email: ${email}` : '',
-      company ? `Empresa u organismo: ${company}` : '',
-      '',
-      message,
-      '',
-      `Origen: ${window.location.href}`
-    ].filter(Boolean).join('\n');
-
-    const address = ['contacto', 'ultimamilla.com.ar'].join('@');
-    const protocol = ['mai', 'lto:'].join('');
-    return `${protocol}${address}?subject=${encodeURIComponent('Consulta desde la web ULTIMA MILLA')}&body=${encodeURIComponent(body)}`;
-  }
-
-  function showSubmitError(message, data = {}) {
-    if (!errorMessage) return;
-    errorMessage.textContent = `${message || 'No se pudo enviar.'} `;
-    const link = document.createElement('a');
-    link.href = buildFallbackMailto(data);
-    link.textContent = 'Enviar por email';
-    errorMessage.append(link);
-    errorMessage.classList.remove('hidden');
-  }
-
-  const intentSubjects: Record<string, string> = {
-    diagnostico: 'Diagnóstico / incidente',
-    relevamiento: 'Relevamiento técnico',
-    abono: 'Abono / soporte 24/7',
-    pliego: 'Pliego o licitación'
-  };
-
-  document.querySelectorAll<HTMLAnchorElement>('.contact-intent[data-intent]').forEach((card) => {
-    card.addEventListener('click', () => {
-      const intent = card.dataset.intent;
-      const message = document.getElementById('message');
-      if (!(message instanceof HTMLTextAreaElement) || !intent) return;
-      const prefix = intentSubjects[intent];
-      if (prefix && !message.value.trim().startsWith(prefix)) {
-        message.value = `${prefix}: `;
-        message.focus();
-      }
-    });
-  });
-
-  if (form instanceof HTMLFormElement) {
-    const params = new URLSearchParams(window.location.search);
-
-    const budgetLines = [];
-    const budgetMap = [
-      ['budgetSector', 'Sector'],
-      ['budgetScope', 'Alcance'],
-      ['budgetCriticality', 'Criticidad'],
-      ['budgetSites', 'Sedes']
-    ] as const;
-
-    for (const [name, label] of budgetMap) {
-      const value = String(params.get(name) || '').trim();
-      if (value) budgetLines.push(`${label}: ${value}`);
-    }
-
-    const messageField = document.getElementById('message');
-    if (budgetLines.length > 0 && messageField instanceof HTMLTextAreaElement && !messageField.value.trim()) {
-      messageField.value = `[Contexto presupuesto]\n${budgetLines.join('\n')}\n\n`;
-    }
-
-    if (budgetLines.length > 0) {
-      document.getElementById('contactForm')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      clearErrors();
-
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
-      const name = String(data.name || '').trim();
-      const email = String(data.email || '').trim();
-      let message = String(data.message || '').trim();
-      data.message = message;
-      let hasErrors = false;
-
-      if (name.length < 2) {
-        showError('name', 'Ingresá tu nombre.');
-        hasErrors = true;
-      }
-
-      if (!isValidEmail(email)) {
-        showError('email', 'Ingresá un email válido.');
-        hasErrors = true;
-      }
-
-      if (message.length < 12) {
-        showError('message', 'Agregá un poco más de contexto.');
-        hasErrors = true;
-      }
-
-      if (hasErrors) {
-        return;
-      }
-
-      if (submitButton instanceof HTMLButtonElement) {
-        submitButton.disabled = true;
-        submitButton.textContent = 'Enviando...';
-      }
-
-      try {
-        const response = await fetch('/api/contact', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        const result = await response.json();
-
-        if (response.ok && result.success) {
-          form.reset();
-          if (startedAtInput instanceof HTMLInputElement) {
-            startedAtInput.value = String(Date.now());
-          }
-          successMessage?.classList.remove('hidden');
-        } else {
-          showSubmitError(result.message || 'No se pudo enviar. Revisá los datos.', data);
-        }
-      } catch {
-        showSubmitError('No se pudo enviar. Usá el email directo.', data);
-      } finally {
-        if (submitButton instanceof HTMLButtonElement) {
-          submitButton.disabled = false;
-          submitButton.textContent = 'Enviar consulta';
-        }
-      }
-    });
-  }
+  // La dirección se arma en el cliente desde EmailLink: el HTML SSR no expone el email literal.
+  document.querySelectorAll<HTMLButtonElement>('.ctc-copy[data-copy-email]').forEach((b) => b.addEventListener('click', async () => {
+    const link = b.previousElementSibling?.querySelector<HTMLElement>('[data-um-email-link]');
+    const address = link ? `${link.dataset.emailUser}@${link.dataset.emailDomain}` : '';
+    try { await navigator.clipboard.writeText(address); b.textContent = 'Copiado'; }
+    catch { const s = getSelection(); const r = document.createRange(); r.selectNodeContents(b.previousElementSibling as Node); s?.removeAllRanges(); s?.addRange(r); b.textContent = 'Seleccionado'; }
+    setTimeout(() => { b.textContent = 'Copiar'; }, 2000);
+  }));
 </script>
 
 <style>
-  .contact-dossier {
-    background: var(--skin-page, #fff);
-    border-bottom: 0;
-    padding: clamp(24px, 3.2vw, 42px) 0 clamp(34px, 5vw, 56px);
-    overflow-x: clip;
+  :global(body[data-skin]) main { background: var(--x-ink); }
+  .ctc { background: var(--x-ink); color: var(--x-text); font-family: var(--um-font-editorial); }
+  .ctc-shell { width: min(var(--um-container-wide, 1400px), calc(100% - 2 * var(--x-gutter))); margin-inline: auto; }
+
+  .ctc-hero { position: relative; isolation: isolate; overflow: hidden; padding-block: clamp(32px, 4vw, 56px) var(--x-section); }
+  .ctc-hero__bg { position: absolute; inset: 0; z-index: -1; }
+  .ctc-hero__bg img { width: 100%; height: 100%; object-fit: cover; opacity: .3; }
+  .ctc-hero__bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--x-ink) 0%, rgba(10, 10, 11, .9) 40%, rgba(10, 10, 11, .6) 100%), linear-gradient(0deg, var(--x-ink) 0%, transparent 30%); }
+  .ctc-hero__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); grid-template-areas: 'intro panel' 'aside panel'; column-gap: clamp(32px, 6vw, 96px); row-gap: 0; align-items: start; }
+  .ctc-intro { grid-area: intro; }
+  .ctc-aside { grid-area: aside; }
+  .ctc-panel { grid-area: panel; }
+
+  .ctc-crumbs { display: flex; gap: 8px; margin-bottom: 48px; font-size: var(--x-fs-meta); color: var(--x-muted); }
+  .ctc-crumbs { align-items: center; }
+  .ctc-crumbs a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; color: var(--x-text-2); text-decoration: none; transition: color 160ms var(--x-ease); }
+  .ctc-crumbs a:hover { color: var(--x-text); }
+  .ctc-map { display: inline-flex; align-items: center; min-height: 44px; }
+  .ctc-eyebrow,
+  .ctc-panel__kicker { display: flex; align-items: center; gap: 12px; margin: 0 0 24px; font-size: var(--x-fs-kicker); font-weight: 600; line-height: 1.2; letter-spacing: .12em; text-transform: uppercase; color: var(--x-muted); }
+  .ctc-eyebrow::before,
+  .ctc-panel__kicker::before { content: ''; flex: none; width: 28px; height: 2px; background: var(--x-red); }
+  .ctc-intro h1 { margin: 0; max-width: 15ch; font-size: var(--x-fs-h1) !important; line-height: 1.02 !important; font-weight: 600 !important; letter-spacing: -.025em !important; text-wrap: balance; color: var(--x-text); }
+  .ctc-lead { margin: 24px 0 0; max-width: 46ch; font-size: var(--x-fs-lead); line-height: 1.55; color: var(--x-text-2); }
+  .ctc-proof { display: flex; flex-wrap: wrap; margin: 48px 0 0; border-top: 1px solid var(--x-line); }
+  .ctc-proof div { display: flex; flex-direction: column-reverse; gap: 8px; padding: 16px 24px 0 0; margin-right: 24px; border-right: 1px solid var(--x-line); }
+  .ctc-proof div:last-child { border-right: 0; margin-right: 0; }
+  .ctc-proof dt { font-size: var(--x-fs-meta); line-height: 1.45; color: var(--x-muted); }
+  .ctc .ctc-proof dd { margin: 0; color: var(--x-text); font-size: 2rem; line-height: 1; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .ctc-direct { display: grid; gap: 16px; margin-top: 48px; }
+  .ctc-direct > div { display: grid; grid-template-columns: 96px 1fr; column-gap: 16px; row-gap: 4px; align-items: baseline; padding-top: 16px; border-top: 1px solid var(--x-line); }
+  .ctc-direct span { grid-row: span 2; font-size: var(--x-fs-kicker); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--x-muted); }
+  .ctc-direct strong { font-size: 1.0625rem; font-weight: 600; color: var(--x-text); user-select: all; }
+  .ctc-direct strong :global(a) { font-size: inherit; color: inherit; text-decoration: none; }
+  .ctc-direct strong :global(a:hover) { text-decoration: underline; text-decoration-color: var(--x-red); text-underline-offset: 3px; }
+  .ctc-direct a, .ctc-direct p { margin: 0; font-size: var(--x-fs-meta); color: var(--x-text-2); }
+  .ctc-direct a { text-decoration: none; transition: color 160ms var(--x-ease); }
+  .ctc-direct a:hover { color: var(--x-text); }
+  .ctc-copy { justify-self: start; min-height: 44px; min-width: 44px; padding: 0 12px; border: 1px solid var(--x-line-strong); border-radius: 0; background: transparent; color: var(--x-text); font: 600 var(--x-fs-meta) var(--um-font-editorial); cursor: pointer; transition: border-color 160ms var(--x-ease); }
+  .ctc-copy:hover { border-color: var(--x-text); }
+  .ctc-copy:focus-visible { outline: 2px solid var(--x-text); outline-offset: 2px; }
+
+  .ctc-panel { scroll-margin-top: clamp(84px, 10vw, 112px); padding: clamp(24px, 3vw, 48px); background: rgba(17, 18, 20, .92); border: 1px solid var(--x-line); backdrop-filter: blur(14px); }
+  .ctc-panel__kicker { margin-bottom: 16px; }
+  .ctc-panel h2 { margin: 0 0 32px; font-size: var(--x-fs-h2) !important; line-height: 1.08 !important; font-weight: 600 !important; letter-spacing: -.02em !important; color: var(--x-text); }
+
+  .ctc-info { padding-block: var(--x-section); border-top: 1px solid var(--x-line); background: var(--x-panel); }
+  .ctc-info__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(32px, 4vw, 64px); }
+  .ctc-info h2 { margin: 0 0 16px; font-size: var(--x-fs-h3) !important; line-height: 1.3 !important; font-weight: 600 !important; letter-spacing: 0 !important; color: var(--x-text); }
+  .ctc-info p { margin: 0; font-size: 1rem; line-height: 1.6; color: var(--x-text-2); }
+  .ctc-check { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .ctc-check li { position: relative; padding-left: 24px; font-size: 1rem; line-height: 1.55; color: var(--x-text-2); }
+  .ctc-check li::before { content: ''; position: absolute; left: 0; top: .72em; width: 12px; height: 1px; background: var(--x-muted); }
+  .ctc-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 8px; font-weight: 600; color: var(--x-text); text-decoration: none; border-bottom: 1px solid var(--x-line-strong); padding-bottom: 4px; transition: border-color 160ms var(--x-ease); }
+  .ctc-link:hover { border-color: var(--x-text); }
+  .ctc-hubs { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--x-line); }
+  .ctc-hubs a { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 16px 0; border-bottom: 1px solid var(--x-line); color: var(--x-text); text-decoration: none; }
+  .ctc-hubs strong { font-size: 1.0625rem; font-weight: 600; }
+  .ctc-hubs span { font-size: var(--x-fs-meta); color: var(--x-muted); transition: color 160ms var(--x-ease); }
+  .ctc-hubs a:hover span { color: var(--x-text); }
+
+  /* Cierre "Para avanzar": componente compartido, tematizado oscuro sólo en /contacto */
+  .ctc :global(.um-intent-link-graph) { padding-block: var(--x-section); background: var(--x-ink) !important; border-top: 1px solid var(--x-line); border-bottom: 0; }
+  .ctc :global(.um-intent-link-graph__inner) { width: min(var(--um-container-wide, 1400px), calc(100% - 2 * var(--x-gutter))); }
+  .ctc :global(.um-intent-link-graph__header) { margin-bottom: 48px; }
+  .ctc :global(.um-intent-link-graph__kicker) { display: flex; align-items: center; gap: 12px; font-size: var(--x-fs-kicker); font-weight: 600; letter-spacing: .12em; color: var(--x-muted); }
+  .ctc :global(.um-intent-link-graph__kicker::before) { content: ''; flex: none; width: 28px; height: 2px; background: var(--x-red); }
+  .ctc :global(.um-intent-link-graph h2) { margin-top: 12px; color: var(--x-text) !important; font-size: var(--x-fs-h2) !important; line-height: 1.08 !important; font-weight: 600 !important; letter-spacing: -.02em !important; }
+  .ctc :global(.um-intent-link-graph__header > p:last-child) { color: var(--x-text-2); font-size: 1.0625rem; line-height: 1.6; max-width: 62ch; }
+  .ctc :global(.um-intent-link-graph__list) { gap: 24px; }
+  .ctc :global(.um-intent-link-graph__item) { border: 1px solid var(--x-line) !important; border-radius: 0; background: var(--x-panel) !important; padding: 24px; transition: border-color 160ms var(--x-ease), background-color 160ms var(--x-ease); }
+  .ctc :global(.um-intent-link-graph__item:hover),
+  .ctc :global(.um-intent-link-graph__item:focus-visible) { background: var(--x-panel-2) !important; border-color: var(--x-line-strong) !important; }
+  .ctc :global(.um-intent-link-graph__item:focus-visible) { outline: 2px solid var(--x-text); outline-offset: 2px; }
+  .ctc :global(.um-intent-link-graph__eyebrow) { color: var(--x-muted); font-size: var(--x-fs-kicker); font-weight: 600; letter-spacing: .12em; }
+  .ctc :global(.um-intent-link-graph__item strong) { margin-top: 12px; color: var(--x-text) !important; font-family: var(--um-font-editorial); font-size: 1.0625rem; line-height: 1.35; }
+  .ctc :global(.um-intent-link-graph__item > span:not(.um-intent-link-graph__eyebrow)) { color: var(--x-text-2); font-size: 1rem; line-height: 1.55; }
+  .ctc :global(.um-intent-link-graph__item em) { color: var(--x-text); font-weight: 600; margin-top: 24px; }
+
+  @media (max-width: 960px) {
+    .ctc-hero__grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'intro' 'panel' 'aside'; row-gap: 48px; }
+    .ctc-info__grid { grid-template-columns: 1fr; gap: 48px; }
+    .ctc-direct > div { grid-template-columns: 1fr; }
+    .ctc-direct span { grid-row: auto; }
   }
-
-  .contact-dossier__grid {
-    display: grid;
-    grid-template-columns: minmax(0, 0.96fr) minmax(360px, 0.72fr);
-    grid-template-areas:
-      "copy form";
-    gap: clamp(28px, 5vw, 70px);
-    align-items: start;
-  }
-
-  .contact-dossier__copy {
-    grid-area: copy;
-  }
-
-  .contact-breadcrumb {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 28px;
-    color: var(--skin-muted, #64748B);
-    font-size: 16px;
-  }
-
-  .contact-breadcrumb a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .contact-breadcrumb a:hover {
-    color: var(--um-red);
-  }
-
-  .contact-dossier h1 {
-    max-width: 820px;
-    margin: 18px 0 22px;
-    color: var(--skin-text, #0B0B0B);
-    font-family: var(--um-font-display);
-    font-size: clamp(2.1rem, 3.45vw, 3.08rem);
-    font-weight: var(--um-weight-title);
-    line-height: 1.08;
-    letter-spacing: 0;
-  }
-
-  .contact-dossier__copy > p {
-    max-width: 690px;
-    color: var(--skin-muted, #475569);
-    font-size: var(--um-copy-lead);
-    line-height: 1.7;
-  }
-
-  .contact-dossier__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 28px;
-  }
-
-  .contact-dossier__actions :global(.um-btn-primary),
-  .contact-dossier__actions :global(.um-btn-secondary) {
-    box-sizing: border-box;
-  }
-
-  :global(.contact-proofline.um-metric-strip) {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
-    margin-top: 24px;
-    padding: 18px 0 0;
-  }
-
-  :global(.contact-proofline.um-metric-strip > *) {
-    min-width: 0;
-    padding-inline: clamp(12px, 1.6vw, 18px);
-  }
-
-  :global(.contact-proofline.um-metric-strip strong) {
-    display: block;
-    color: var(--skin-text, #0B0B0B);
-    font-family: var(--um-font-display);
-    font-size: clamp(1.45rem, 2vw, 1.9rem);
-    font-weight: 600;
-    line-height: 1;
-  }
-
-  :global(.contact-proofline.um-metric-strip span) {
-    display: block;
-    max-width: 170px;
-    margin-top: 8px;
-    color: var(--skin-muted, #64748B);
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 1.45;
-  }
-
-  .contact-submit-note {
-    max-width: 34ch;
-    margin-top: 10px;
-    color: var(--skin-muted, #64748B);
-    font-size: 16px;
-    line-height: 1.45;
-  }
-
-  .contact-quick-card {
-    position: relative;
-    min-height: 380px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    overflow: hidden;
-    background: #050505;
-    padding: clamp(26px, 3vw, 36px);
-    color: #fff;
-    border: 0;
-  }
-
-  .contact-quick-card::before,
-  .contact-quick-card::after {
-    display: none;
-  }
-
-  .contact-quick-card span {
-    position: relative;
-    color: rgba(255,255,255,0.68);
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  .contact-quick-card strong {
-    position: relative;
-    display: block;
-    max-width: min(100%, 320px);
-    margin-top: 18px;
-    color: #fff;
-    font-family: var(--um-font-display);
-    font-size: clamp(1.65rem, 2.8vw, 2.45rem);
-    font-weight: 600;
-    line-height: 1.12;
-  }
-
-  .contact-quick-card p {
-    position: relative;
-    max-width: 42ch;
-    margin: 18px 0 28px;
-    color: rgba(255,255,255,0.76);
-    font-size: var(--um-copy-description);
-    line-height: 1.68;
-  }
-
-  .contact-quick-card a {
-    position: relative;
-    width: fit-content;
-    max-width: 100%;
-    color: #fff;
-    font-size: 16px;
-    font-weight: 700;
-    text-decoration: none;
-    border-bottom: 2px solid var(--um-red);
-    padding-bottom: 6px;
-    overflow-wrap: anywhere;
-  }
-
-  .contact-intents {
-    background: #FFFFFF;
-    border-top: 0;
-    border-bottom: 0;
-    padding: clamp(40px, 5vw, 64px) 0;
-  }
-
-  .contact-intents__grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: clamp(10px, 1.45vw, 16px);
-    margin-top: clamp(24px, 3vw, 36px);
-    border-top: 0;
-  }
-
-  .contact-intent {
-    display: grid;
-    gap: 8px;
-    min-height: 180px;
-    padding: clamp(18px, 2.2vw, 24px);
-    border-right: 0;
-    background: #f7f8f9;
-    color: inherit;
-    text-decoration: none;
-    transition: background-color 180ms ease;
-  }
-
-  .contact-intent:last-child {
-    border-right: 0;
-  }
-
-  .contact-intent:hover,
-  .contact-intent:focus-visible {
-    background: color-mix(in srgb, #f7f8f9 92%, var(--um-red) 8%);
-  }
-
-  .contact-intent:focus-visible {
-    outline: 2px solid var(--um-red);
-    outline-offset: -2px;
-  }
-
-  .contact-intent > span {
-    color: var(--um-red);
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.2;
-  }
-
-  .contact-intent strong {
-    color: var(--skin-text, #0b0b0b);
-    font-size: 1.05rem;
-    font-weight: 600;
-    line-height: 1.25;
-  }
-
-  .contact-intent p {
-    margin: 0;
-    color: var(--skin-muted, #5f6368);
-    font-size: var(--um-copy-description);
-    line-height: 1.55;
-  }
-
-  .contact-action {
-    background: #fff;
-    padding: clamp(44px, 6vw, 76px) 0;
-    overflow-x: clip;
-  }
-
-  .contact-action__grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.72fr);
-    gap: clamp(28px, 5vw, 72px);
-    align-items: start;
-  }
-
-  .contact-form-panel,
-  .contact-form {
-    min-width: 0;
-    max-width: 100%;
-  }
-
-  .contact-form-panel {
-    background: var(--skin-panel, #fff);
-    padding: clamp(24px, 3vw, 34px);
-    border: 0;
-    box-shadow: none;
-  }
-
-  .contact-form-panel--hero {
-    grid-area: form;
-    align-self: start;
-  }
-
-  .contact-form-panel h2,
-  .contact-context h2 {
-    margin: 10px 0 12px;
-    color: var(--skin-text, #0B0B0B);
-    font-family: var(--um-font-display);
-    font-size: clamp(1.45rem, 1.9vw, 1.9rem);
-    font-weight: 600;
-    line-height: 1.1;
-    letter-spacing: 0;
-  }
-
-  .contact-form-panel__lead {
-    max-width: 680px;
-    margin: 0 0 18px;
-    color: var(--skin-muted, #475569);
-    font-size: var(--um-copy-description);
-    line-height: 1.58;
-  }
-
-  .contact-form {
-    display: grid;
-    position: relative;
-    scroll-margin-top: clamp(84px, 10vw, 112px);
-    gap: 12px;
-  }
-
-  .field-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-
-  .contact-form label {
-    display: grid;
-    gap: 7px;
-  }
-
-  .contact-form label > span {
-    color: var(--skin-text, #111827);
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  .contact-form input,
-  .contact-form select,
-  .contact-form textarea {
-    width: 100%;
-    border: 0;
-    border-radius: 0;
-    background: #f7f8f9;
-    color: var(--skin-text, #0B0B0B);
-    font: 400 16px/1.5 var(--um-font-body);
-    padding: 13px 16px;
-    outline: none;
-    box-shadow: inset 0 -1px 0 var(--skin-line, #D6DAE1);
-    transition: box-shadow .18s ease, background-color .18s ease;
-  }
-
-  .contact-form textarea {
-    resize: vertical;
-    min-height: 104px;
-  }
-
-  .contact-form input:focus,
-  .contact-form select:focus,
-  .contact-form textarea:focus {
-    background: #fff;
-    box-shadow: inset 0 -2px 0 var(--um-red);
-  }
-
-  .contact-hp {
-    position: absolute !important;
-    width: 1px !important;
-    height: 1px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: 0 !important;
-    overflow: hidden !important;
-    clip: rect(0 0 0 0) !important;
-    clip-path: inset(50%) !important;
-    white-space: nowrap !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-  }
-
-  .field-error {
-    color: #DC2626;
-    font-size: 16px;
-    line-height: 1.4;
-  }
-
-  .contact-submit-row {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 4px;
-  }
-
-  .contact-submit-row p {
-    max-width: 330px;
-    margin: 0;
-    color: var(--skin-muted, #64748B);
-    font-size: 16px;
-    line-height: 1.5;
-  }
-
-  .contact-submit:disabled {
-    cursor: wait;
-    opacity: 0.68;
-  }
-
-  .form-message {
-    border: 0;
-    border-left: 3px solid currentColor;
-    padding: 16px 18px;
-    font-size: 16px;
-    line-height: 1.55;
-  }
-
-  .form-message.success {
-    border-color: rgba(22,101,52,0.28);
-    background: #F0FDF4;
-    color: #166534;
-  }
-
-  .form-message.error {
-    border-color: rgba(220,38,38,0.28);
-    background: #FEF2F2;
-    color: #111111;
-  }
-
-  .form-message a {
-    color: var(--um-red);
-    font-weight: 700;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
-  .hidden {
-    display: none !important;
-  }
-
-  .contact-context {
-    display: grid;
-    gap: 14px;
-  }
-
-  .contact-context__block,
-  .contact-address {
-    background: var(--skin-panel, #fff);
-    padding: clamp(22px, 2.6vw, 30px);
-    box-shadow: inset 0 1px 0 rgba(216, 221, 227, 0.82);
-  }
-
-  .contact-context__block ul {
-    display: grid;
-    gap: 12px;
-    margin: 18px 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .contact-context__block li {
-    position: relative;
-    padding-left: 22px;
-    color: var(--skin-muted, #475569);
-    font-size: 16px;
-    line-height: 1.6;
-  }
-
-  .contact-context__block li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 11px;
-    width: 9px;
-    height: 2px;
-    background: var(--um-red);
-  }
-
-  .contact-context__block--line {
-    box-shadow: inset 3px 0 0 var(--um-red), inset 0 1px 0 rgba(216, 221, 227, 0.82);
-  }
-
-  .contact-context__block--line span,
-  .contact-address span {
-    display: block;
-    color: var(--skin-muted, #64748B);
-    font-size: 16px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  .contact-context__block--line p {
-    margin: 10px 0 0;
-    color: var(--skin-text, #0B0B0B);
-    font-size: 16px;
-    line-height: 1.62;
-  }
-
-  .contact-address strong {
-    display: block;
-    margin: 12px 0 20px;
-    color: var(--skin-text, #0B0B0B);
-    font-family: var(--um-font-display);
-    font-size: 1.25rem;
-    font-weight: 600;
-    line-height: 1.25;
-  }
-
-  .contact-address a {
-    color: var(--um-red);
-    font-size: 16px;
-    font-weight: 700;
-    text-decoration: none;
-    border-bottom: 1px solid currentColor;
-  }
-
-  @media (max-width: 1280px) and (max-height: 860px) {
-    .contact-dossier {
-      padding-top: 28px;
-      padding-bottom: 36px;
-    }
-
-    .contact-breadcrumb {
-      margin-bottom: 16px;
-    }
-
-    .contact-dossier h1 {
-      margin: 12px 0 14px;
-      font-size: clamp(1.9rem, 2.6vw, 2.5rem);
-    }
-
-    .contact-dossier__actions {
-      margin-top: 18px;
-    }
-  }
-
-  @media (max-width: 980px) {
-    .contact-dossier__grid,
-    .contact-action__grid {
-      grid-template-columns: 1fr;
-      grid-template-areas:
-        "copy"
-        "form";
-    }
-
-    .contact-intents__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .contact-intent:nth-child(2) {
-      border-right: 0;
-    }
-
-    .contact-intent:nth-child(odd) {
-      border-right: 0;
-    }
-
-    .contact-quick-card {
-      display: none;
-    }
-  }
-
   @media (max-width: 640px) {
-    .contact-intents__grid {
-      grid-template-columns: 1fr;
-    }
-
-    .contact-intent {
-      border-right: 0;
-    }
-
-    .contact-dossier {
-      padding-top: 24px;
-      padding-bottom: 30px;
-    }
-
-    .contact-dossier__grid,
-    .contact-action__grid {
-      width: calc(100% - 32px);
-      max-width: calc(100% - 32px);
-      margin-inline: auto;
-    }
-
-    .contact-dossier__copy,
-    .contact-dossier__copy > p,
-    .contact-form-panel,
-    .contact-context {
-      min-width: 0;
-      max-width: 100%;
-    }
-
-    .contact-dossier h1 {
-      max-width: 100%;
-      font-size: clamp(1.78rem, 8vw, 2.08rem);
-      line-height: 1.12;
-      margin: 10px 0 12px;
-      overflow-wrap: normal;
-      word-break: normal;
-      hyphens: none;
-    }
-
-    .contact-dossier__copy > p {
-      width: 100%;
-      max-width: 100%;
-      font-size: 1rem;
-      line-height: 1.54;
-      white-space: normal !important;
-      overflow-wrap: normal;
-      word-break: normal;
-    }
-
-    .contact-dossier__actions {
-      display: flex;
-      margin-top: 20px;
-    }
-
-    .contact-dossier__actions :global(.um-btn-secondary) {
-      display: none;
-    }
-
-    .contact-dossier__actions :global(.um-btn-primary),
-    .contact-dossier__actions :global(.um-btn-secondary) {
-      width: 100%;
-      justify-content: center;
-      min-height: 50px;
-    }
-
-    .field-grid,
-    .contact-submit-row {
-      grid-template-columns: 1fr;
-    }
-
-    :global(.contact-proofline.um-metric-strip) {
-      display: none;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      margin-top: 18px;
-      gap: 18px 16px;
-    }
-
-    .contact-breadcrumb {
-      margin-bottom: 14px;
-    }
-
-    .contact-form-panel {
-      padding: 22px 18px;
-    }
-
-    .contact-form-panel h2 {
-      margin: 8px 0 10px;
-    }
-
-    .contact-form-panel__lead {
-      margin-bottom: 14px;
-      line-height: 1.48;
-    }
-
-    .contact-form {
-      gap: 12px;
-    }
-
-    :global(.contact-proofline.um-metric-strip > *) {
-      padding-inline: 0;
-      min-width: 0;
-    }
-
-    :global(.contact-proofline.um-metric-strip strong) {
-      font-size: clamp(1.4rem, 6vw, 1.75rem);
-    }
-
-    :global(.contact-proofline.um-metric-strip span) {
-      max-width: none;
-      margin-top: 8px;
-      line-height: 1.35;
-      overflow-wrap: normal;
-    }
-
-    .contact-submit-row {
-      display: grid;
-    }
-
-    .contact-submit-row .um-btn-primary {
-      width: 100%;
-      justify-content: center;
-    }
+    .ctc-crumbs { margin-bottom: 20px; }
+    /* H1 relativo al ancho: 48 px fijos desbordaban la columna a 320 px. */
+    .ctc-intro h1 { font-size: clamp(2.25rem, 11vw, 3rem) !important; }
+    .ctc-panel { padding: 24px 16px; margin-inline: calc(-1 * var(--x-gutter) + 0px); border-left: 0; border-right: 0; }
+    .ctc-panel h2 { margin-bottom: 24px; }
+    .ctc :global(.um-intent-link-graph__list) { gap: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ctc *, .ctc :global(*) { transition: none !important; }
   }
 </style>

@@ -1,0 +1,140 @@
+---
+// Cobertura (alfa v2): mapa técnico regional de Cuyo y Neuquén, al pie de los Andes.
+// Límites provinciales: geoBoundaries (CC BY 2.5), proyección equirectangular a 34,5° S.
+// Recorte regional deliberado (no es un mapa del territorio nacional completo).
+import map from '../../data/cine/cobertura-map.json';
+
+interface Hub { name: string; region: string; coords: string; href: string; aria: string }
+interface Props { hubs: Hub[] }
+const { hubs } = Astro.props;
+const byName = Object.fromEntries(map.hubs.map((h) => [h.name.normalize('NFD').replace(/[̀-ͯ]/g, ''), h]));
+const pos = (name: string) => byName[name.normalize('NFD').replace(/[̀-ͯ]/g, '')];
+const mdz = pos('Mendoza');
+const links = map.hubs.filter((h) => h.name !== 'Mendoza').map((h) => {
+  const mx = (mdz.x + h.x) / 2 + (h.y - mdz.y) * .18, my = (mdz.y + h.y) / 2 - (h.x - mdz.x) * .18;
+  return { name: h.name, d: `M${mdz.x},${mdz.y} Q${mx.toFixed(1)},${my.toFixed(1)} ${h.x},${h.y}` };
+});
+const deg = (v: number, pos: string, neg: string) => `${Math.abs(v).toFixed(2).replace('.', ',')}° ${v < 0 ? neg : pos}`;
+const VIEW = { x: 40, y: 330, w: 860, h: 1160 };
+---
+<div class="umc-map" data-umc-map>
+  <ol class="umc-map__list">
+    {hubs.map((h, i) => {
+      const p = pos(h.name);
+      return (
+        <li>
+          <a href={h.href} aria-label={h.aria} data-hub={h.name} class:list={[{ 'is-main': i === 0 }]}>
+            <span class="umc-map__n">{String(i + 1).padStart(2, '0')}</span>
+            <span class="umc-map__name">{h.name === 'Neuquen' ? 'Neuquén' : h.name}<small>{h.region}</small></span>
+            <span class="umc-map__coords">{p ? `${deg(p.lat, 'N', 'S')} · ${deg(p.lon, 'E', 'O')}` : h.coords}</span>
+            <span class="umc-map__go" aria-hidden="true">↗</span>
+          </a>
+        </li>
+      );
+    })}
+  </ol>
+  <figure class="umc-map__figure">
+    <svg viewBox={`${VIEW.x} ${VIEW.y} ${VIEW.w} ${VIEW.h}`} role="img" aria-labelledby="umcMapTitle">
+      <title id="umcMapTitle">Mapa de cobertura: sede central en Mendoza y hubs en San Juan, San Luis y Neuquén</title>
+      <defs>
+        <pattern id="umcHatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="7" stroke="rgba(220,38,38,.28)" stroke-width="1.2" />
+        </pattern>
+      </defs>
+      <g class="umc-map__grat">
+        {map.grat.lon.map((g) => <><line x1={g.x} y1={VIEW.y} x2={g.x} y2={VIEW.y + VIEW.h} /><text x={g.x + 6} y={VIEW.y + 22}>{Math.abs(g.v)}° O</text></>)}
+        {map.grat.lat.map((g) => <><line x1={VIEW.x} y1={g.y} x2={VIEW.x + VIEW.w} y2={g.y} /><text x={VIEW.x + 8} y={g.y - 6}>{Math.abs(g.v)}° S</text></>)}
+      </g>
+      <g class="umc-map__prov">
+        {map.provinces.map((p) => <path d={p.d} class:list={[{ 'is-hi': p.hi }]} data-name={p.name} />)}
+      </g>
+      <text class="umc-map__range" transform="translate(196 1080) rotate(-80)">CORDILLERA DE LOS ANDES</text>
+      <text class="umc-map__chile" x="120" y="800">CHILE</text>
+      <g class="umc-map__links">
+        {links.map((l) => <path d={l.d} data-link={l.name} />)}
+      </g>
+      <g class="umc-map__hubs">
+        {map.hubs.map((h) => (
+          <g class:list={['umc-map__hub', { 'is-main': h.name === 'Mendoza' }]} data-hub={h.name.normalize('NFD').replace(/[̀-ͯ]/g, '')} transform={`translate(${h.x} ${h.y})`}>
+            <circle class="umc-map__ping" r="16" />
+            <circle class="umc-map__dot" r={h.name === 'Mendoza' ? 7 : 5} />
+            <text x="18" y="-10">{h.name}</text>
+            <text class="umc-map__role" x="18" y="14">{h.role}</text>
+          </g>
+        ))}
+      </g>
+      <g class="umc-map__scale" transform={`translate(${VIEW.x + VIEW.w - map.km100 - 40} ${VIEW.y + VIEW.h - 40})`}>
+        <line x1="0" y1="0" x2={map.km100} y2="0" /><line x1="0" y1="-5" x2="0" y2="5" /><line x1={map.km100} y1="-5" x2={map.km100} y2="5" />
+        <text x={map.km100 / 2} y="-12">100 km</text>
+      </g>
+      <g class="umc-map__north" transform={`translate(${VIEW.x + VIEW.w - 50} ${VIEW.y + 70})`}>
+        <path d="M0,-22 L7,6 L0,1 L-7,6 Z" /><text y="26">N</text>
+      </g>
+    </svg>
+    <figcaption>Recorte regional · límites provinciales: geoBoundaries (CC BY 2.5)</figcaption>
+  </figure>
+</div>
+
+<style>
+  .umc-map { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(28px, 5vw, 80px); align-items: center; }
+  .umc-map__list { list-style: none; margin: 0; padding: 0; border-top: 1px solid rgba(255, 255, 255, .14); }
+  .umc-map__list a {
+    display: grid; grid-template-columns: 40px 1fr 20px; gap: 14px; align-items: center;
+    padding: 20px 4px; border-bottom: 1px solid rgba(255, 255, 255, .14); color: rgba(255, 255, 255, .78); text-decoration: none;
+    transition: color .2s ease, background .2s ease;
+  }
+  .umc-map__list a:hover, .umc-map__list a:focus-visible, .umc-map__list a.is-lit { color: #fff; background: rgba(255, 255, 255, .03); }
+  .umc-map__n { font: 600 .9rem 'UM Sans', Arial, sans-serif; font-variant-numeric: tabular-nums; letter-spacing: .1em; color: rgba(255, 255, 255, .5); }
+  .umc-map__name { font-size: 1.55rem; font-weight: 600; letter-spacing: -.02em; }
+  .umc-map__name small { display: block; margin-top: 4px; font-size: .86rem; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: rgba(255, 255, 255, .5); }
+  .umc-map__coords { display: none; }
+  .umc-map__go { color: #dc2626; }
+  .umc-map__figure { margin: 0; position: relative; }
+  .umc-map__figure svg { display: block; width: 100%; height: auto; max-height: 78vh; }
+  .umc-map__figure figcaption { margin-top: 10px; font: .8125rem 'UM Sans', Arial, sans-serif; letter-spacing: .04em; color: rgba(255, 255, 255, .5); text-align: right; }
+  .umc-map__grat line { stroke: rgba(255, 255, 255, .06); stroke-width: 1; }
+  .umc-map__grat text { fill: rgba(255, 255, 255, .32); font: 500 18px 'UM Sans', Arial, sans-serif; }
+  .umc-map__prov path { fill: none; stroke: rgba(255, 255, 255, .2); stroke-width: 1.2; stroke-linejoin: round; transition: fill .3s ease, stroke .3s ease; }
+  .umc-map__prov path.is-hi { fill: url(#umcHatch); fill-opacity: 1; stroke: rgba(255, 255, 255, .62); stroke-width: 1.6; }
+  .umc-map__range { fill: rgba(255, 255, 255, .38); font: 600 19px 'UM Sans', Arial, sans-serif; letter-spacing: .5em; }
+  .umc-map__chile { fill: rgba(255, 255, 255, .2); font: 600 21px 'UM Sans', Arial, sans-serif; letter-spacing: .4em; }
+  .umc-map__links path { fill: none; stroke: #dc2626; stroke-width: 1.6; stroke-dasharray: 6 7; opacity: .75; animation: umc-flow 1.6s linear infinite; }
+  @keyframes umc-flow { to { stroke-dashoffset: -26; } }
+  .umc-map__hub text { fill: #fff; font: 600 26px 'UM Sans', Arial, sans-serif; paint-order: stroke; stroke: #0a0a0b; stroke-width: 5px; }
+  .umc-map__hub .umc-map__role { fill: rgba(255, 255, 255, .56); font: 600 18px 'UM Sans', Arial, sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+  .umc-map__dot { fill: #fff; stroke: #0a0a0b; stroke-width: 2; }
+  .umc-map__hub.is-main .umc-map__dot { fill: #dc2626; }
+  .umc-map__ping { fill: none; stroke: #dc2626; stroke-width: 1.5; opacity: 0; transform-origin: center; }
+  .umc-map__hub.is-main .umc-map__ping, .umc-map__hub.is-lit .umc-map__ping { animation: umc-map-ping 2.4s ease-out infinite; }
+  @keyframes umc-map-ping { 0% { transform: scale(.4); opacity: .9; } 80%, 100% { transform: scale(1.8); opacity: 0; } }
+  .umc-map__hub.is-lit .umc-map__dot { fill: #dc2626; }
+  .umc-map__scale line, .umc-map__north path { stroke: rgba(255, 255, 255, .6); stroke-width: 1.4; fill: rgba(255, 255, 255, .6); }
+  .umc-map__scale text, .umc-map__north text { fill: rgba(255, 255, 255, .55); font: 500 18px 'UM Sans', Arial, sans-serif; text-anchor: middle; }
+  @media (max-width: 860px) {
+    .umc-map { grid-template-columns: 1fr; }
+    .umc-map__figure { order: -1; }
+    .umc-map__figure svg { max-height: 44svh; margin-inline: auto; }
+    .umc-map { gap: 16px; }
+    .umc-map__list a { padding: 12px 4px; min-height: 64px; }
+    .umc-map__name { font-size: 1.25rem; }
+    /* A este ancho el SVG se reduce a menos de la mitad: los nombres quedan en la lista. */
+    .umc-map__figure svg text { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .umc-map__links path, .umc-map__ping { animation: none !important; } }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-umc-map]').forEach((root) => {
+    const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
+    const light = (name: string | null) => {
+      root.querySelectorAll('[data-hub]').forEach((el) => el.classList.toggle('is-lit', !!name && norm(el.getAttribute('data-hub') || '') === name));
+    };
+    root.querySelectorAll<HTMLAnchorElement>('.umc-map__list a').forEach((a) => {
+      const name = norm(a.dataset.hub || '');
+      a.addEventListener('pointerenter', () => light(name));
+      a.addEventListener('focus', () => light(name));
+      a.addEventListener('pointerleave', () => light(null));
+      a.addEventListener('blur', () => light(null));
+    });
+  });
+</script>

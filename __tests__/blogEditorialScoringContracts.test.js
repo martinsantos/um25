@@ -54,16 +54,29 @@ describe('Blog editorial GEO scoring contracts', () => {
     expect(source('src/pages/api/blog/[slug].ts')).toContain('selectDiverseBlogCover');
     expect(source('src/utils/getBlogData.ts')).toContain('fetchDirectusBlogCoverCorpus');
     expect(source('src/utils/getBlogData.ts')).toContain('diversifyBlogPostCovers(contextPosts)');
-    expect(source('src/pages/sitemap-blog.xml.ts')).toContain('diversifyBlogPostCovers');
+    // Rediseño 2026-09: el sitemap del blog delega en fetchBlogSitemapEntries
+    // (misma fuente que el blog renderizado), que diversifica portadas tanto con
+    // Directus como en el fallback estático.
+    const blogData = source('src/utils/getBlogData.ts');
+    const sitemapEntries = blogData.slice(blogData.indexOf('export async function fetchBlogSitemapEntries'));
+    expect(source('src/pages/sitemap-blog.xml.ts')).toContain('return (await fetchBlogSitemapEntries()) as BlogPost[];');
+    expect(sitemapEntries).toContain('if (posts.length > 0) return diversifyBlogPostCovers(posts) as BlogSitemapEntry[];');
+    expect(sitemapEntries).toContain('return diversifyBlogPostCovers(UM26_FALLBACK_POSTS');
     expect(source('scripts/blog-cover-diversity-backfill.mjs')).toContain('--apply');
   });
 
   test('single posts preserve the editorial reading scale on desktop and mobile', () => {
+    // Rediseño 2026-09: el cuerpo del artículo es .prose sobre fondo oscuro.
+    // Se exige la misma escala de lectura: >= 17px en móvil, 18px en escritorio,
+    // interlineado amplio y medida de línea acotada.
     const post = source('src/pages/blog/[slug].astro');
+    const proseBlock = (post.match(/\n  \.prose \{([^}]*)\}/) || [])[1] || '';
+    const mobileBlock = (post.match(/@media \(max-width: 680px\) \{([\s\S]*?)\n  \}/) || [])[1] || '';
 
-    expect(post).toContain('font-size: var(--um-copy-description);');
-    expect(post).toContain('font-size: 1.0625rem;');
-    expect(post).toContain('line-height: 1.78;');
+    expect(proseBlock).toContain('font-size: 1.125rem;');
+    expect(Number((proseBlock.match(/line-height:\s*([0-9.]+);/) || [])[1])).toBeGreaterThanOrEqual(1.6);
+    expect(mobileBlock).toContain('.prose { font-size: 1.0625rem; }');
+    expect(post).toMatch(/\.bp-layout \{[^}]*minmax\(0, 68ch\)/);
     expect(post).not.toContain('font-size: clamp(1.02rem, 1.08vw, 1.12rem);');
   });
 });

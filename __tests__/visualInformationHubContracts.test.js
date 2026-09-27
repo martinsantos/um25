@@ -35,7 +35,9 @@ describe('Information hub visual contracts', () => {
     expect(v4Css).toContain('.um-page-shell');
     expect(v4Css).toMatch(/\.services-demo,[\s\S]*\.um26-evidence,[\s\S]*\.sectors-demo,[\s\S]*--skin-muted:\s*#c4c7cc;/i);
     expect(layout).not.toContain('fonts.googleapis.com');
-    expect(v4Css).toContain('--um-font-mono: ui-monospace');
+    // Rediseño 2026-09: las etiquetas técnicas usan UM Sans (una sola familia en la UI);
+    // la garantía es que el token mono siga resolviendo a la familia editorial canónica.
+    expect(v4Css).toContain('--um-font-mono: var(--um-font-editorial)');
     expect(layout).not.toContain('family=Open+Sans');
     expect(layout).toMatch(/main :where\(h1, h2, h3, h4\)[\s\S]*overflow-wrap:\s*normal !important;/);
     expect(navbar).toMatch(/\.um-ops-container\s*\{[\s\S]*var\(--um-container-wide\)/);
@@ -45,8 +47,15 @@ describe('Information hub visual contracts', () => {
     expect(navbar).toContain('<a href="/contacto" class="um-ops-cta">');
     expect(navbar).toContain("document.addEventListener('astro:page-load', initOpsNavigation)");
     expect(navbar).toContain("menuToggle.dataset.bound = 'true'");
-    expect(navbar).toMatch(/\.um-ops-mobile p\s*\{[\s\S]*font-size:\s*16px;/);
-    expect(navbar).toMatch(/\.um-ops-mobile\s*\{[\s\S]*max-height:\s*calc\(100dvh - 62px\);[\s\S]*overflow-y:\s*auto;/);
+    // Rediseño 2026-09: el rótulo del menú móvil es un kicker de 13 px (mínimo del
+    // sistema) y los enlaces del menú quedan en >= 17 px.
+    expect(navbar).toContain('<p class="um-ops-mobile__label">');
+    expect(navbar).toMatch(/\.um-ops-mobile__label\s*\{[^}]*font-size:\s*var\(--x-fs-kicker\);/);
+    expect(navbar).toMatch(/\.um-ops-mobile__primary a\s*\{[^}]*font-size:\s*1\.625rem;/);
+    expect(navbar).toMatch(/\.um-ops-mobile__secondary a\s*\{[^}]*font-size:\s*1\.0625rem;/);
+    // Rediseño 2026-09: el menú móvil es una capa fija entre la cabecera y el
+    // borde inferior (inset), con scroll propio: nunca excede el viewport.
+    expect(navbar).toMatch(/\.um-ops-mobile\s*\{[^}]*position:\s*fixed;[^}]*inset:\s*var\(--um-ops-header-h, 63px\) 0 0 0;[^}]*overflow-y:\s*auto;[^}]*overscroll-behavior:\s*contain;/);
   });
 
   test('core commercial surfaces use the global provider density contract', () => {
@@ -129,33 +138,39 @@ describe('Information hub visual contracts', () => {
   });
 
   test('UM26 antecedentes filters become compact horizontal controls on mobile', () => {
+    // Rediseño 2026-09: los filtros por faceta viven en un panel plegable (botón
+    // "Filtros") en lugar de filas horizontales. Garantías equivalentes: control
+    // compacto con estado accesible, objetivos táctiles de 44 px, inputs de 16 px
+    // en móvil (sin zoom de iOS), recuento en vivo y carga paginada de fichas.
     const antecedentesIndex = read('src/pages/antecedentes/index.astro');
+    const mobile = (antecedentesIndex.match(/@media \(max-width: 639px\) \{([\s\S]*?)\n    \}\n\n    @media/) || [])[1] || '';
 
-    expect(antecedentesIndex).toContain('aria-label="Filtros de antecedentes"');
-    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-filter-row\s*\{[\s\S]*grid-template-columns:\s*78px minmax\(0,\s*1fr\);/);
-    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-filter-row div\s*\{[\s\S]*flex-wrap:\s*nowrap;[\s\S]*overflow-x:\s*auto;[\s\S]*scrollbar-width:\s*none;/);
-    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-filter-split\s*\{[\s\S]*display:\s*contents;/);
-    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-filter-row button span\s*\{[\s\S]*display:\s*none;/);
-    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*:global\(body\[data-skin\]\) \.um26-evidence \.um26-filter-row strong\s*\{[\s\S]*font-size:\s*1rem !important;/);
-    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*:global\(body\[data-skin\]\) \.um26-evidence \.um26-filter-row button\s*\{[\s\S]*min-height:\s*34px !important;[\s\S]*font-size:\s*1rem !important;/);
-    expect(antecedentesIndex).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-search input\s*\{[\s\S]*height:\s*44px;[\s\S]*font-size:\s*1rem;/);
-    expect(antecedentesIndex).toContain('data-filter-toggle');
-    expect(antecedentesIndex).toContain('data-filter-panel');
-    expect(antecedentesIndex).toMatch(/\.um26-filter-panel\s*\{[\s\S]*display:\s*none;/);
-    expect(antecedentesIndex).toMatch(/\.um26-filter-panel\.is-open\s*\{[\s\S]*display:\s*grid;/);
+    expect(antecedentesIndex).toContain('aria-label="Buscar y filtrar antecedentes"');
+    expect(antecedentesIndex).toMatch(/<button class="ev-toggle" type="button" data-filter-toggle aria-expanded="false" aria-controls="evidence-filter-panel" hidden>/);
+    expect(antecedentesIndex).toContain('<div class="ev-panel" id="evidence-filter-panel" data-filter-panel>');
+    expect(antecedentesIndex).toMatch(/\.ev\.is-enhanced \.ev-panel:not\(\.is-open\)\s*\{\s*display:\s*none;/);
+    expect(antecedentesIndex).toContain("panel?.classList.toggle('is-open', open);");
+    expect(antecedentesIndex).toContain("toggle.setAttribute('aria-expanded', String(open));");
+    expect(antecedentesIndex).toContain('aria-pressed="false"');
+    expect(mobile).toMatch(/\.ev-search input,\s*\.ev-sort select,\s*\.ev-toggle\s*\{\s*font-size:\s*16px;/);
+    expect(mobile).toMatch(/\.ev-chip\s*\{\s*min-height:\s*44px;/);
+    expect(mobile).toMatch(/\.ev-panel__row\s*\{\s*grid-template-columns:\s*1fr;/);
     expect(antecedentesIndex).toContain('aria-live="polite" aria-atomic="true"');
-    expect(antecedentesIndex).toMatch(/\.um26-case-card\s*\{[\s\S]*content-visibility:\s*auto;[\s\S]*contain-intrinsic-block-size:\s*360px;/);
+    expect(antecedentesIndex).toContain('const PAGE_SIZE = 24;');
   });
 
   test('final mobile information hubs trade tall cards for documentary density', () => {
+    // Rediseño 2026-09: mismas garantías de densidad con los valores nuevos:
+    // antecedentes pasa a fila miniatura + texto (132 px), servicios a miniatura
+    // acotada por vw y descripción oculta, sectores conserva su resumen 2x.
     const antecedentes = read('src/pages/antecedentes/index.astro');
     const services = read('src/pages/servicios/index.astro');
     const sectores = read('src/components/templates/SectorIndexUM26.astro');
 
-    expect(antecedentes).toMatch(/grid-template-columns:\s*112px minmax\(0, 1fr\)/);
-    expect(antecedentes).toMatch(/\.um26-results-bar button\s*\{[\s\S]*display:\s*none;/);
-    expect(services).toMatch(/grid-template-columns:\s*minmax\(92px, 27vw\) minmax\(0, 1fr\)/);
-    expect(services).toMatch(/\.services-demo-hero\s*\{[\s\S]*min-height:\s*340px;/);
+    expect(antecedentes).toMatch(/@media \(max-width: 639px\)[\s\S]*\.ev-card\s*\{\s*display:\s*grid;\s*grid-template-columns:\s*132px minmax\(0, 1fr\);/);
+    expect(antecedentes).toMatch(/@media \(max-width: 639px\)[\s\S]*\.ev-card__media\s*\{\s*aspect-ratio:\s*auto;\s*min-height:\s*132px;/);
+    expect(services).toMatch(/@media \(max-width:\s*640px\)[\s\S]*grid-template-columns:\s*minmax\(84px, 24vw\) minmax\(0, 1fr\)/);
+    expect(services).toMatch(/@media \(max-width:\s*640px\)[\s\S]*\.services-demo-body > p\s*\{\s*display:\s*none;/);
     expect(sectores).toMatch(/\.sectors-demo-stats\s*\{[\s\S]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
     expect(sectores).toMatch(/@media \(max-width:\s*620px\)[\s\S]*\.sectors-demo-filters > div\s*\{[\s\S]*flex-wrap:\s*nowrap;[\s\S]*overflow-x:\s*auto;/);
   });
@@ -243,11 +258,19 @@ describe('Information hub visual contracts', () => {
   });
 
   test('home service index avoids floating red dash markers in each service unit', () => {
+    // Rediseño 2026-09: el índice de servicios de la home es ServicesStory. Se
+    // mantiene: ningún servicio lleva un guion rojo flotante propio; el acento de
+    // cada unidad es su color de sistema y un único enlace real al servicio.
     const home = read('src/pages/index.astro');
+    const story = read('src/components/cine/ServicesStory.astro');
+    const itemTemplate = story.slice(story.indexOf('<ol class="svc-story__list">'), story.indexOf('</ol>'));
 
+    expect(home).toContain("import ServicesStory from '../components/cine/ServicesStory.astro'");
+    expect(home).toContain('<ServicesStory services={services} />');
     expect(home).not.toContain('<i aria-hidden="true"></i>');
     expect(home).not.toMatch(/\.um-service-unit__head i\s*\{/);
-    expect(home).toContain('class="um26-service-grid"');
+    expect(itemTemplate).not.toMatch(/<i\b/);
+    expect(itemTemplate).toContain('<a class="svc-story__link" href={s.href}>');
     expect(home).toContain('class="um26-card-bar" aria-hidden="true"');
     expect(home).toMatch(/\.um26-card-bar\s*\{[\s\S]*background:\s*#dc2626;/);
   });
@@ -271,16 +294,20 @@ describe('Information hub visual contracts', () => {
   });
 
   test('home GEO hub cards are full-cell links with visible action states', () => {
+    // Rediseño 2026-09: los hubs GEO de la home viven en CoverageMap (lista + mapa).
+    // Cada hub sigue siendo una fila-enlace completa con estados hover/focus.
     const home = read('src/pages/index.astro');
+    const coverage = read('src/components/cine/CoverageMap.astro');
 
     expect(home).toContain("href: '/servicios-it-empresas-mendoza'");
     expect(home).toContain("href: '/servicios-it-empresas-argentina'");
-    expect(home).toContain('{hubs.map(({ name, region, coords, href, aria }, index) => (');
-    expect(home).toContain('<a href={href} aria-label={aria}>');
-    expect(home).toContain('class="um26-hub-grid__action"');
-    expect(home).toMatch(/\.um26-hub-grid a:hover,[\s\S]*\.um26-hub-grid a:focus-visible\s*\{/);
-    expect(home).toMatch(/\.um26-hub-grid a:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.5\);/);
-    expect(home).not.toMatch(/\.um26-hub-grid div\s*\{/);
+    expect(home).toContain('<CoverageMap hubs={hubs} />');
+    expect(coverage).toContain('{hubs.map((h, i) => {');
+    expect(coverage).toMatch(/<a href=\{h\.href\} aria-label=\{h\.aria\}/);
+    expect(coverage).toContain('<span class="umc-map__go" aria-hidden="true">↗</span>');
+    expect(cssBlock(coverage, '.umc-map__list a')).toMatch(/display:\s*grid;/);
+    expect(coverage).toMatch(/\.umc-map__list a:hover, \.umc-map__list a:focus-visible[^{]*\{[^}]*color:\s*#fff;/);
+    expect(coverage).not.toMatch(/outline:\s*(none|0)/);
   });
 
   test('sector service cards expose real link interaction states', () => {
@@ -337,23 +364,30 @@ describe('Information hub visual contracts', () => {
   });
 
   test('antecedentes archive exposes a crawlable complete index of case links', () => {
+    // Rediseño 2026-09: todas las fichas se renderizan en SSR como <a href>; el
+    // filtrado y el "ver más" sólo ocultan en el cliente.
     const source = read('src/pages/antecedentes/index.astro');
 
-    expect(source).toContain('const cases = [...orderedLeadCases, ...fallbackCases].map');
-    expect(source).toContain('data-case-card');
-    expect(source).toContain('data-case-modal={item.id}');
-    expect(source).toContain('href={item.href}');
+    expect(source).toContain('const cases = [...orderedLead, ...rest].map');
+    expect(source).toContain("href: `/antecedentes/${item.id}/${item.slug}`,");
+    expect(source).toContain('data-card');
+    expect(source).toContain('<a class="ev-card" href={item.href}>');
+    expect(source).not.toContain('data-case-modal');
+    expect(source).not.toMatch(/cases\.slice\(/);
   });
 
   test('antecedentes archive keeps crawlable view and sort controls', () => {
+    // El toggle grilla/lista se eliminó a propósito en el rediseño; el archivo
+    // conserva orden real sobre las fichas SSR y una vista móvil en filas.
     const source = read('src/pages/antecedentes/index.astro');
 
-    expect(source).toContain('data-view-toggle="grid"');
-    expect(source).toContain('data-view-toggle="list"');
-    expect(source).toContain('data-sort-select');
-    expect(source).toContain('<option value="recent">Más recientes</option>');
-    expect(source).toMatch(/\.um26-case-grid--list \.um26-case-card,[\s\S]*\.um26-case-grid--list \.um26-case-card--wide\s*\{[\s\S]*flex-direction:\s*row;/);
-    expect(source).toMatch(/\.um26-case-grid--list \.um26-case-card__thumb\s*\{[\s\S]*flex:\s*0 0 156px;/);
+    expect(source).toContain('<select aria-label="Ordenar antecedentes" data-sort>');
+    expect(source).toContain('<option value="recent">Destacados</option>');
+    expect(source).toContain('<option value="year-desc">Año, más reciente</option>');
+    expect(source).toContain('ordered.forEach((card) => grid?.appendChild(card));');
+    expect(source).toMatch(/data-order=\{index\}/);
+    expect(source).toMatch(/\.ev-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\);/);
+    expect(source).toMatch(/@media \(max-width: 639px\)[\s\S]*\.ev-card\s*\{\s*display:\s*grid;/);
   });
 
   test('evidence case rows reserve enough copy width to avoid broken client names', () => {
@@ -379,56 +413,81 @@ describe('Information hub visual contracts', () => {
   });
 
   test('home service visual loads reliably for full-page visual QA', () => {
+    // Rediseño 2026-09: la primera pantalla es CineBanner (póster con prioridad
+    // alta); las imágenes de servicios están bajo el pliegue y reservan su tamaño.
     const home = read('src/pages/index.astro');
+    const banner = read('src/components/cine/CineBanner.astro');
+    const story = read('src/components/cine/ServicesStory.astro');
 
-    expect(home).toContain('class="um26-service-grid"');
-    expect(home).toContain("loading={index < 2 ? 'eager' : 'lazy'}");
-    expect(home).toContain("fetchpriority={index === 0 ? 'high' : 'low'}");
+    expect(home).toContain('<CineBanner');
+    expect(banner).toMatch(/<img class="umc-poster"[^>]*width="1920" height="1080" fetchpriority="high" decoding="async"/);
+    expect(story).toMatch(/<img src="\/cine\/media\/story-fachada\.jpg" alt="" width="1600" height="900" loading="lazy" decoding="async" \/>/);
+    expect(story).toMatch(/<img class="svc-story__render"[^>]*width="160" height="120" loading="lazy" decoding="async" \/>/);
     expect(home).toContain('width="1200"');
     expect(home).toContain('height="900"');
     expect(home).toContain('decoding="async"');
   });
 
   test('contact antispam field stays visually hidden without offscreen overflow', () => {
+    // Rediseño 2026-09: el formulario de /contacto es ContactForm (cine) y sus
+    // honeypots usan .ctf__hp. Misma garantía: ocultos sin coordenadas negativas.
     const contacto = read('src/pages/contacto.astro');
-    const honeypotBlock = cssBlock(contacto, '.contact-hp');
+    const form = read('src/components/cine/ContactForm.astro');
+    const honeypotBlock = cssBlock(form, '.ctf__hp');
 
-    expect(contacto).toContain('name="website" class="contact-hp"');
+    expect(form).toContain('name="website" class="ctf__hp"');
+    expect(form).toContain('name="contact_phone" class="ctf__hp"');
     expect(honeypotBlock).not.toMatch(/left:\s*-[0-9]/);
     expect(honeypotBlock).not.toMatch(/top:\s*-[0-9]/);
     expect(honeypotBlock).toMatch(/clip-path:\s*inset\(50%\)/);
     expect(honeypotBlock).toMatch(/overflow:\s*hidden/);
     expect(honeypotBlock).toMatch(/visibility:\s*hidden/);
-    expect(contacto).toMatch(/\.contact-form\s*\{[\s\S]*position:\s*relative;/);
-    expect(contacto).toMatch(/\.contact-form\s*\{[\s\S]*scroll-margin-top:\s*clamp\(84px,\s*10vw,\s*112px\)/);
+    expect(form).toMatch(/\.ctf__form\s*\{[^}]*position:\s*relative;/);
+    expect(contacto).toContain('class="ctc-panel" id="formulario"');
+    expect(contacto).toMatch(/\.ctc-panel\s*\{[^}]*scroll-margin-top:\s*clamp\(84px,\s*10vw,\s*112px\)/);
   });
 
-  test('contact keeps the public form to four visible fields and invisible antispam only', () => {
+  test('contact keeps the public form short: three required fields, optional context and invisible antispam only', () => {
+    // El diseño anterior tenía exactamente 4 campos. El rediseño suma contexto
+    // opcional (motivo, servicios plegados, sede, urgencia); la intención de fondo
+    // se mantiene: sólo nombre, email y mensaje son obligatorios, los servicios
+    // quedan plegados y el antispam no es visible.
     const contacto = read('src/pages/contacto.astro');
-    const formSource = contacto.slice(
-      contacto.indexOf('<form id="contactForm"'),
-      contacto.indexOf('</form>') + '</form>'.length
+    const form = read('src/components/cine/ContactForm.astro');
+    const formSource = form.slice(
+      form.indexOf('<form class="ctf__form" id="contactForm"'),
+      form.indexOf('</form>') + '</form>'.length
     );
-    const visibleFieldNames = Array.from(formSource.matchAll(/<(?:input|textarea|select)\b[^>]*\sname="([^"]+)"/g))
-      .map((match) => match[1])
-      .filter((name) => !['website', 'startedAt'].includes(name));
+    const hiddenNames = ['website', 'contact_phone', 'startedAt', 'contactProof'];
+    const fieldTags = Array.from(formSource.matchAll(/<(?:input|textarea|select)\b[^>]*\sname="([^"]+)"[^>]*>/g));
+    const visibleFieldNames = [...new Set(fieldTags.map((match) => match[1]).filter((name) => !hiddenNames.includes(name)))];
+    const requiredFieldNames = fieldTags.filter((match) => /\srequired\b/.test(match[0])).map((match) => match[1]);
 
-    expect(visibleFieldNames).toEqual(['name', 'email', 'company', 'message']);
+    expect(requiredFieldNames).toEqual(['name', 'email', 'message']);
+    expect(visibleFieldNames).toEqual(['name', 'email', 'company', 'topic', 'services', 'site', 'urgency', 'message']);
+    expect(visibleFieldNames.length).toBeLessThanOrEqual(8);
+    expect(formSource).toMatch(/<details class="ctf__more"[\s\S]*name="services"[\s\S]*<\/details>/);
+    expect(formSource).toMatch(/<input type="hidden" name="startedAt"/);
+    expect(formSource).toMatch(/<input type="hidden" name="contactProof"/);
     expect(contacto).not.toContain('BudgetBriefFields');
     expect(contacto).not.toContain('contact-budget-details');
-    expect(contacto).toContain('class="contact-primary-cta"');
-    expect(formSource.indexOf('class="contact-submit-row"')).toBeGreaterThan(formSource.indexOf('name="message"'));
-    expect(formSource.indexOf('class="contact-submit-row"')).toBeLessThan(formSource.indexOf('id="successMessage"'));
+    expect(contacto).toContain('<ContactForm />');
+    expect(formSource.indexOf('class="ctf__submit"')).toBeGreaterThan(formSource.indexOf('name="message"'));
+    expect(form.indexOf('class="ctf__submit"')).toBeLessThan(form.indexOf('class="ctf__done"'));
   });
 
   test('blog single keeps the reading sidebar and removes repeated commercial header CTAs', () => {
     const blogSingle = read('src/pages/blog/[slug].astro');
-    const layoutIndex = blogSingle.indexOf('class="article-layout"');
-    const tocIndex = blogSingle.indexOf('<BlogTOC headings={headings} title={articleTitle} />');
+    const toc = read('src/components/blog/BlogTOC.astro');
+    const layoutIndex = blogSingle.indexOf("class:list={['bp-layout'");
+    const tocIndex = blogSingle.indexOf('<BlogTOC headings={headings} />');
     const proseIndex = blogSingle.indexOf('class="prose"');
+    const header = blogSingle.slice(blogSingle.indexOf('<header class="bp-head'), blogSingle.indexOf('</header>'));
 
     expect(tocIndex).toBeGreaterThan(layoutIndex);
     expect(proseIndex).toBeGreaterThan(tocIndex);
+    expect(toc).toMatch(/\.btoc\s*\{[^}]*position:\s*sticky;/);
+    expect(header).not.toContain('/contacto');
     expect(blogSingle).not.toContain('article-hero-actions');
     expect(blogSingle).not.toContain('article-sticky-cta');
     expect(blogSingle).not.toContain('href={heroPrimaryHref}');
@@ -465,49 +524,68 @@ describe('Information hub visual contracts', () => {
     const titleBuilderStart = blogSingle.indexOf('const buildArticleTitle');
     const titleBuilderEnd = blogSingle.indexOf('const editorialArticleTitle');
     const titleBuilder = blogSingle.slice(titleBuilderStart, titleBuilderEnd);
+    const mobile = (blogSingle.match(/@media \(max-width: 680px\) \{([\s\S]*?)\n  \}/) || [])[1] || '';
 
-    expect(titleBuilder).toContain('return clean;');
-    expect(titleBuilder).not.toMatch(/slice\(0,\s*72\)/);
-    expect(titleBuilder).not.toMatch(/afterColon\.slice/);
-    expect(titleBuilder).not.toContain('trimEnd()}…');
-    expect(blogSingle).toContain('<h1 class="article-title">{articleTitle}</h1>');
+    expect(titleBuilderStart).toBeGreaterThan(-1);
+    expect(titleBuilder).toMatch(/\.trim\(\);\s*$/);
+    expect(titleBuilder).not.toMatch(/\.slice\(/);
+    expect(titleBuilder).not.toMatch(/afterColon/);
+    expect(titleBuilder).not.toContain('…');
+    expect(blogSingle).toContain('<h1 id="bp-title" class="article-title bp-title">{articleTitle}</h1>');
+    expect(cssBlock(blogSingle, '.bp-title')).not.toMatch(/text-overflow:\s*ellipsis|line-clamp/);
+    // El título completo no desborda en teléfonos: tamaño relativo al ancho.
+    expect(mobile).toMatch(/\.bp-title\s*\{\s*font-size:\s*clamp\([^;]*vw[^;]*\)\s*!important;/);
   });
 
   test('blog single shows an editorial cover image before article prose', () => {
     const blogSingle = read('src/pages/blog/[slug].astro');
-    const metaIndex = blogSingle.indexOf('class="author-row"');
-    const coverIndex = blogSingle.indexOf('class="article-cover"');
+    const metaIndex = blogSingle.indexOf('<dl class="bp-meta">');
+    const coverIndex = blogSingle.indexOf('<figure class="bp-cover bp-shell">');
     const proseIndex = blogSingle.indexOf('class="prose"');
 
     expect(blogSingle).toContain('blogPostImageAlt');
+    expect(blogSingle).toContain('alt={imgAlt}');
     expect(coverIndex).toBeGreaterThan(metaIndex);
     expect(proseIndex).toBeGreaterThan(coverIndex);
-    expect(blogSingle).toMatch(/\.article-cover\s*\{[\s\S]*aspect-ratio:\s*16\s*\/\s*9;/);
-    expect(blogSingle).toMatch(/\.article-cover img\s*\{[\s\S]*object-fit:\s*cover;/);
+    expect(blogSingle).toMatch(/\.bp-cover img\s*\{[^}]*aspect-ratio:\s*16\s*\/\s*9;/);
+    expect(blogSingle).toMatch(/\.bp-cover img\s*\{[^}]*object-fit:\s*cover;/);
   });
 
   test('blog index stays readable without a duplicated featured banner or repeated header CTAs', () => {
+    // Rediseño 2026-09: el índice vuelve a tener un artículo destacado (BlogHero),
+    // sólo en la página 1 y excluido del archivo, así que no se duplica. La
+    // cabecera no repite CTAs comerciales.
     const blogIndex = read('src/pages/blog/index.astro');
-    const headerIndex = blogIndex.indexOf('class="blog-header"');
-    const archiveIndex = blogIndex.indexOf('class="blog-archive"');
+    const headerIndex = blogIndex.indexOf('<header class="bx-hero bx-shell">');
+    const header = blogIndex.slice(headerIndex, blogIndex.indexOf('</header>'));
+    const archiveIndex = blogIndex.indexOf('<section class="bx-archive"');
 
     expect(headerIndex).toBeGreaterThan(-1);
     expect(archiveIndex).toBeGreaterThan(headerIndex);
-    expect(blogIndex).not.toContain("import { blogPostImageAlt, blogPostImageUrl }");
-    expect(blogIndex).not.toContain('blog-header__feature');
-    expect(blogIndex).not.toContain('src={heroImgUrl}');
+    expect(blogIndex).toContain('const featuredPost = page === 1 ? posts[0] : null;');
+    expect(blogIndex).toContain('const archivePosts = featuredPost ? posts.slice(1) : posts;');
+    expect((blogIndex.match(/<BlogHero /g) || []).length).toBe(1);
+    expect(blogIndex).toContain('{archivePosts.map((post, idx) => <BlogCard post={post} eager={idx < 3} />)}');
+    expect(header).not.toContain('/contacto');
     expect(blogIndex).not.toContain('blog-header__actions');
     expect(blogIndex).not.toContain('Solicitar diagnóstico');
-    expect(blogIndex).not.toContain('<BlogHero post={hero} />');
-    expect(blogIndex).not.toMatch(/<section class="blog-feature"/);
+    expect(blogIndex).not.toContain('src={heroImgUrl}');
   });
 
   test('blog index mobile proofline wraps long evidence without viewport overflow', () => {
+    // La "proofline" del diseño anterior ya no existe. Garantía equivalente: las
+    // grillas del índice y del destacado nunca usan pistas max-content/auto y el
+    // contenedor no genera scroll horizontal.
     const blogIndex = read('src/pages/blog/index.astro');
+    const hero = read('src/components/blog/BlogHero.astro');
 
-    expect(blogIndex).toMatch(/\.blog-proofline div\s*\{[\s\S]*grid-template-columns:\s*minmax\(0,\s*124px\) minmax\(0,\s*1fr\);/);
-    expect(blogIndex).toMatch(/\.blog-proofline dt\s*\{[\s\S]*white-space:\s*normal;/);
-    expect(blogIndex).toMatch(/\.blog-proofline dt\s*\{[\s\S]*overflow-wrap:\s*anywhere;/);
+    expect(blogIndex).toMatch(/\.bx-grid\s*\{[^}]*repeat\(3, minmax\(0, 1fr\)\)/);
+    expect(blogIndex).toMatch(/@media \(max-width: 680px\)[\s\S]*\.bx-grid\s*\{\s*grid-template-columns:\s*minmax\(0, 1fr\);/);
+    expect(hero).toMatch(/\.bfeat\s*\{\s*grid-template-columns:\s*minmax\(0, 1fr\);\s*\}/);
+    expect(blogIndex).toMatch(/\.bx\s*\{[^}]*overflow-x:\s*clip;/);
+    for (const source of [blogIndex, hero]) {
+      expect(source).not.toMatch(/max-content/);
+    }
   });
 
   test('services mobile proofline avoids narrow three-column word breaks', () => {
@@ -522,8 +600,10 @@ describe('Information hub visual contracts', () => {
     expect(servicios).not.toMatch(/<footer>[\s\S]*?<a\s+href=\{`\/servicios\/\$\{service\.code\}\/\$\{service\.slug\}`\}/);
     expect(cssBlock(servicios, '.services-demo-row')).toMatch(/text-decoration:\s*none;/);
     expect(servicios).toMatch(/\.services-demo-row:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,38,38,0\.58\);/);
-    expect(servicios).toContain("loading={index < 2 ? 'eager' : 'lazy'}");
-    expect(servicios).toContain("fetchpriority={index === 0 ? 'high' : 'low'}");
+    // Rediseño 2026-09: la primera pantalla es CineBanner; las filas de servicio
+    // quedan bajo el pliegue, cargan diferido y reservan su tamaño intrínseco.
+    expect(servicios).toContain('<CineBanner');
+    expect(servicios).toContain('<img src={service.image} alt="" width="1200" height="900" loading="lazy" decoding="async" />');
     expect(servicios).toMatch(/\.services-demo-row\s*\{[\s\S]*content-visibility:\s*auto;[\s\S]*contain-intrinsic-block-size:\s*360px;/);
     expect(servicios).toMatch(/\.services-demo-media\s*\{[\s\S]*background-image:\s*var\(--service-image\);/);
     expect(cssBlock(servicios, '.services-demo-media div')).toMatch(/z-index:\s*1;/);
@@ -546,14 +626,21 @@ describe('Information hub visual contracts', () => {
   });
 
   test('contact feedback links use canonical UMSA red only', () => {
+    // Rediseño 2026-09: el feedback de /contacto está en ContactForm y usa el
+    // token oscuro --x-red (#dc2626, el mismo rojo canónico que --um-red).
     const contacto = read('src/pages/contacto.astro');
+    const form = read('src/components/cine/ContactForm.astro');
     const modal = read('src/components/um/ContactModal.astro');
 
-    expect(contacto).not.toContain('#B91C1C');
-    expect(modal).not.toContain('#B91C1C');
-    expect(cssBlock(contacto, '.form-message a')).toMatch(/color:\s*var\(--um-red\);/);
+    expect(v4Css).toMatch(/--x-red:\s*#dc2626;/i);
+    expect(v4Css).toMatch(/--um-red:\s*#DC2626;/i);
+    for (const source of [contacto, form, modal]) {
+      expect(source).not.toMatch(/#B91C1C/i);
+    }
+    expect(cssBlock(form, '.ctf__error-box :global(a)')).toMatch(/text-decoration-color:\s*var\(--x-red\);/);
     expect(cssBlock(modal, '.um-contact-message a')).toMatch(/color:\s*var\(--um-red\);/);
-    expect(cssBlock(contacto, '.form-message.error')).toMatch(/border-color:\s*rgba\(220,38,38,0\.28\);/);
+    expect(cssBlock(form, '.ctf__error-box')).toMatch(/border-left:\s*2px solid var\(--x-red\);/);
+    expect(cssBlock(form, '.ctf__error-box')).toMatch(/rgba\(220,\s*38,\s*38,/);
   });
 
   test('public utility fallbacks keep UMSA typography and restrained motion', () => {
@@ -624,22 +711,20 @@ describe('Information hub visual contracts', () => {
   });
 
   test('service detail equipment heading stays in one readable column', () => {
+    // Rediseño 2026-09: las secciones del detalle usan .svc-head (título + bajada).
+    // Garantía equivalente: columnas que no se comprimen, título acotado sin
+    // cortes de palabra y una sola columna en móvil.
     const serviceDetail = read('src/pages/servicios/[id]/[slug].astro');
-    const globalCss = read('src/styles/v4.css');
-    const headGrid = cssBlock(serviceDetail, '.service-products-head :global(.um-section-header)');
-    const titleBlock = cssBlock(serviceDetail, '.service-products-head :global(.um-section-header h2)');
-    const globalHeadGrid = cssBlock(globalCss, 'body main .service-products-head .um-section-header');
-    const globalTitleBlock = cssBlock(globalCss, 'body main .service-products-head .um-section-header h2');
+    const layout = read('src/layouts/LayoutV4.astro');
+    const headGrid = cssBlock(serviceDetail, '.svc-head');
+    const titleBlock = cssBlock(serviceDetail, '.svc-head h2');
 
-    expect(headGrid).toMatch(/grid-template-columns:\s*minmax\(0,\s*780px\);/);
-    expect(headGrid).toMatch(/"kicker"[\s\S]*"title"[\s\S]*"text"/);
-    expect(titleBlock).toMatch(/overflow-wrap:\s*normal;/);
-    expect(titleBlock).toMatch(/word-break:\s*normal;/);
-    expect(globalHeadGrid).toMatch(/grid-template-columns:\s*minmax\(0,\s*780px\)\s*!important;/);
-    expect(globalHeadGrid).toMatch(/"kicker"[\s\S]*"title"[\s\S]*"text"/);
-    expect(globalTitleBlock).toMatch(/overflow-wrap:\s*normal\s*!important;/);
-    expect(globalTitleBlock).toMatch(/word-break:\s*normal\s*!important;/);
-    expect(serviceDetail).not.toMatch(/\.service-products-head\s+:global\(\.um-section-header\)\s*\{[\s\S]*grid-template-columns:\s*minmax\(220px,\s*0\.34fr\)/);
+    expect(headGrid).toMatch(/grid-template-columns:\s*minmax\(0,\s*1fr\) minmax\(0,\s*0\.92fr\);/);
+    expect(titleBlock).toMatch(/max-width:\s*18ch;/);
+    expect(titleBlock).toMatch(/text-wrap:\s*balance;/);
+    expect(layout).toMatch(/main :where\(h1, h2, h3, h4\)[\s\S]*word-break:\s*normal !important;/);
+    expect(serviceDetail).toMatch(/@media \(max-width: 760px\) \{\s*\.svc-head\s*\{\s*grid-template-columns:\s*1fr;/);
+    expect(serviceDetail).not.toMatch(/grid-template-columns:\s*minmax\(220px,\s*0\.34fr\)/);
   });
 
   test('replica service detail H1s use editorial headlines without legacy separators', () => {
@@ -656,64 +741,71 @@ describe('Information hub visual contracts', () => {
   });
 
   test('service detail hero titles are not constrained to narrow poster columns on desktop', () => {
+    // Rediseño 2026-09: el H1 del servicio lo pinta CineBanner (variante sector).
     const serviceDetail = read('src/pages/servicios/[id]/[slug].astro');
-    const heroH1 = cssBlock(serviceDetail, '.service-detail-hero h1');
+    const bannerCss = read('src/styles/cine-banner.css');
+    const sectorH1 = cssBlock(bannerCss, '.umc--sector h1');
+    const sectorMaxCh = Number((sectorH1.match(/max-width:\s*(\d+)ch/) || [])[1]);
 
-    expect(heroH1).toContain('max-width: min(760px, 22ch)');
-    expect(heroH1).not.toMatch(/max-width:\s*1[0-6]ch/);
-    expect(serviceDetail).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.service-detail-hero h1\s*\{[\s\S]*max-width:\s*100%;/);
+    expect(serviceDetail).toMatch(/<CineBanner\s+variant="sector"[\s\S]*titleId="service-title"[\s\S]*title=\{serviceHeroTitle\}/);
+    expect(sectorMaxCh).toBeGreaterThanOrEqual(16);
+    expect(bannerCss).toMatch(/@media \(max-width: 820px\)[\s\S]*\.umc h1 \{ font-size: clamp\([^)]*vw[^)]*\); \}/);
   });
 
   test('service detail injected editorial copy keeps controlled mobile typography', () => {
+    // Rediseño 2026-09: el copy del CMS ya no se inyecta como HTML; se limpia con
+    // cleanCmsText y se pinta en bloques con tipografía fija (>= 15 px).
     const serviceDetail = read('src/pages/servicios/[id]/[slug].astro');
-    const copyBlock = cssBlock(serviceDetail, '.service-detail-copy');
-    const paragraphBlock = cssBlock(serviceDetail, '.service-detail-copy :global(p)');
 
-    expect(serviceDetail).toContain('class="service-detail-copy editorial-body"');
     expect(serviceDetail).not.toContain('prose prose-lg max-w-none text-um-gray mb-12 service-detail-copy');
-    expect(copyBlock).toMatch(/max-width:\s*760px;/);
-    expect(paragraphBlock).toMatch(/font-size:\s*clamp\(1\.0625rem,\s*1\.08vw,\s*1\.1rem\);/);
-    expect(paragraphBlock).toMatch(/line-height:\s*1\.72;/);
-    expect(serviceDetail).toMatch(/:global\(body\[data-skin\] main \.service-detail-copy p\)\s*\{[\s\S]*font-size:\s*clamp\(1\.0625rem,\s*1\.08vw,\s*1\.1rem\)\s*!important;/);
-    expect(serviceDetail).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.service-detail-copy :global\(p\)\s*\{[\s\S]*font-size:\s*1rem;/);
-    expect(serviceDetail).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*:global\(body\[data-skin\] main \.service-detail-copy p\)\s*\{[\s\S]*font-size:\s*1rem\s*!important;/);
-    expect(serviceDetail).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.service-detail-copy :global\(p\)\s*\{[\s\S]*line-height:\s*1\.68;/);
+    expect(serviceDetail).not.toMatch(/set:html=/);
+    expect(serviceDetail).toContain('<p class="svc-tile__text">{cleanCmsText(item.description)}</p>');
+    expect(cssBlock(serviceDetail, '.svc-head__lead')).toMatch(/max-width:\s*62ch;/);
+    expect(cssBlock(serviceDetail, '.svc-head__lead')).toMatch(/font-size:\s*1\.0625rem;/);
+    expect(cssBlock(serviceDetail, '.svc-head__lead')).toMatch(/line-height:\s*1\.6;/);
   });
 
   test('service detail mobile breadcrumb does not leave a trailing separator when current item is hidden', () => {
+    // Rediseño 2026-09: la miga visible se reemplazó por un enlace "Todos los
+    // servicios" en CineBanner (sin separadores que puedan quedar colgados); la
+    // jerarquía sigue expuesta a buscadores como BreadcrumbList.
     const serviceDetail = read('src/pages/servicios/[id]/[slug].astro');
+    const banner = read('src/components/cine/CineBanner.astro');
 
-    expect(serviceDetail).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.service-detail-breadcrumb__current\s*\{[\s\S]*display:\s*none;/);
-    expect(serviceDetail).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.service-detail-breadcrumb span:nth-last-child\(2\)\s*\{[\s\S]*display:\s*none;/);
+    expect(serviceDetail).toContain("back={{ href: '/servicios', label: '← Todos los servicios' }}");
+    expect(banner).toContain('{back && <a class="umc-back" href={back.href}>{back.label}</a>}');
+    expect(serviceDetail).not.toContain('service-detail-breadcrumb');
+    expect(read('src/layouts/LayoutV4.astro')).toContain('breadcrumbs={breadcrumbs}');
+    expect(read('src/components/SEO/SEOHead.astro')).toContain('"@type": "BreadcrumbList"');
   });
 
   test('service detail technical sidebar renders as a compact ledger instead of a redundant card', () => {
+    // Rediseño 2026-09: la ficha técnica es un <dl> compacto junto al CTA único.
     const serviceDetail = read('src/pages/servicios/[id]/[slug].astro');
 
-    expect(serviceDetail).toContain('class="service-info-ledger"');
+    expect(serviceDetail).toContain('<aside class="svc-ficha" aria-label="Ficha técnica del servicio">');
     expect(serviceDetail).not.toContain('<SectionHeader kicker="Ficha técnica" title={sidebarInfoTitle} />');
-    expect(cssBlock(serviceDetail, '.service-info-card--dossier')).toMatch(/padding:\s*0;/);
-    expect(cssBlock(serviceDetail, '.service-info-ledger div')).toMatch(/grid-template-columns:\s*minmax\(148px,\s*0\.48fr\) minmax\(0,\s*0\.52fr\);/);
-    expect(serviceDetail).toMatch(/:global\(\.service-info-primary\)[\s\S]*width:\s*100%;/);
-    expect(serviceDetail).toMatch(/\.service-info-secondary\s*\{[\s\S]*background:\s*transparent;/);
+    expect(cssBlock(serviceDetail, '.svc-ficha dl > div')).toMatch(/grid-template-columns:\s*minmax\(120px,\s*0\.4fr\) minmax\(0,\s*0\.6fr\);/);
+    expect(cssBlock(serviceDetail, '.svc-ficha dd')).toMatch(/overflow-wrap:\s*anywhere;/);
+    expect(serviceDetail).not.toMatch(/\.svc-ficha\s*\{[^}]*box-shadow/);
   });
 
   test('blog category stays readable without a duplicated featured banner or repeated header CTAs', () => {
     const blogCategory = read('src/pages/blog/categoria/[cat].astro');
-    const headerIndex = blogCategory.indexOf('class="blog-header"');
-    const archiveIndex = blogCategory.indexOf('class="blog-archive"');
+    const headerIndex = blogCategory.indexOf('<header class="bx-hero bx-shell">');
+    const header = blogCategory.slice(headerIndex, blogCategory.indexOf('</header>'));
+    const archiveIndex = blogCategory.indexOf('<div class="bx-grid">');
 
     expect(headerIndex).toBeGreaterThan(-1);
     expect(archiveIndex).toBeGreaterThan(headerIndex);
-    expect(blogCategory).not.toContain("import { blogPostImageAlt, blogPostImageUrl }");
+    expect(header).not.toContain('/contacto');
     expect(blogCategory).not.toContain('const heroImgUrl = hero ? blogPostImageUrl(hero)');
-    expect(blogCategory).not.toContain('blog-header__feature');
     expect(blogCategory).not.toContain('src={heroImgUrl}');
     expect(blogCategory).not.toContain('blog-header__actions');
     expect(blogCategory).not.toContain('Solicitar diagnóstico');
-    expect(blogCategory).not.toContain("import BlogHero");
-    expect(blogCategory).not.toContain('<BlogHero post={hero} />');
-    expect(blogCategory).not.toMatch(/<section class="blog-feature"/);
+    expect(blogCategory).not.toContain('import BlogHero');
+    expect(blogCategory).not.toContain('<BlogHero');
+    expect(blogCategory).toMatch(/@media \(max-width: 680px\) \{ \.bx-grid \{ grid-template-columns: minmax\(0, 1fr\);/);
   });
 
   test('certifications page exposes first-fold action and avoids unsafe ledger columns', () => {

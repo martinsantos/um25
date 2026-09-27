@@ -125,7 +125,7 @@ const sectorStructuredData = geoHub ? [] : [
 ---
 
 {geoHub ? (
-<LayoutV4
+<LayoutV4 skin="black"
   title={geoHub.seoTitle}
   description={geoHub.description}
   keywords={geoHub.keywords}
@@ -138,7 +138,7 @@ const sectorStructuredData = geoHub ? [] : [
   <GeoHubDossier hub={geoHub} />
 </LayoutV4>
 ) : (
-<LayoutV4 title={editorialSeoTitle} description={seo_description} keywords={seo_keywords} image={heroImage} imageWidth={editorialImageDimensions.width} imageHeight={editorialImageDimensions.height} structuredData={sectorStructuredData}>
+<LayoutV4 skin="black" title={editorialSeoTitle} description={seo_description} keywords={seo_keywords} image={heroImage} imageWidth={editorialImageDimensions.width} imageHeight={editorialImageDimensions.height} structuredData={sectorStructuredData}>
   {templateVariant === 'um26' && (
     <SectorTemplateUM26
       sector={templateSector}

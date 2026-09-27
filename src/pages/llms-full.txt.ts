@@ -1,84 +1,90 @@
 import type { APIRoute } from 'astro';
-import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '../config/seo';
+import { BUSINESS_ADDRESS, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '../config/seo';
 import {
   geoCaseResources,
-  geoHubRoutes,
   getGeoCaseResources,
   geoResourceNames,
   geoSectorResources,
   geoServiceResources,
-  geoVersion,
 } from '../data/geoResources';
-import { getInstitutionalProofLines } from '../utils/verifiedProof';
+import { getAntecedentesCatalogCount, getInstitutionalProofLines } from '../utils/verifiedProof';
+
+/**
+ * llms-full.txt — índice extendido para buscadores generativos.
+ * Si Directus no responde se usa el snapshot de antecedentes (getAllAntecedentes
+ * ya degrada a snapshot); nunca se devuelve 503 por falta de CMS.
+ */
+const LAST_REVIEW = '2026-09-27';
 
 export const GET: APIRoute = async () => {
-  let directusCaseResources = geoCaseResources;
+  let caseResources = geoCaseResources;
   try {
-    directusCaseResources = await getGeoCaseResources();
+    caseResources = await getGeoCaseResources();
   } catch (error) {
-    console.error('[LLMS-FULL] Content source unavailable for cases:', error);
-    return new Response('Indice LLM temporalmente no disponible', {
-      status: 503,
-      headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-        'Cache-Control': 'no-store',
-      },
-    });
+    console.error('[LLMS-FULL] Antecedentes no disponibles, se publica sin lista de casos:', error);
   }
 
+  const count = getAntecedentesCatalogCount();
+
   const lines = [
-    `# ${SITE_NAME} — GEO/LLM Index`,
+    `# ${SITE_NAME} — índice extendido para modelos de lenguaje`,
     '',
-    `Version: ${geoVersion}`,
-    `Canonical domain: ${SITE_URL}`,
-    'Language: es-AR',
+    `> ${SITE_DESCRIPTION}`,
     '',
-    `Description: ${SITE_DESCRIPTION}`,
-    'Positioning: Servicios IT integrales para empresas que necesitan continuidad operativa, evidencia, soporte y documentación.',
-    'Primary market: Mendoza, Cuyo, Patagonia y Argentina según alcance.',
+    `Sitio canónico: ${SITE_URL}`,
+    'Idioma: es-AR',
+    `Última revisión: ${LAST_REVIEW}`,
     '',
-    '## Brand Facts',
-    `- Website: ${SITE_URL}`,
-    '- Location: Mendoza, Argentina',
-    '- Services: redes, seguridad electrónica, telecomunicaciones, software, soporte, consultoría, detección de incendios y energía IT.',
-    `- Proof: ${getInstitutionalProofLines().join('; ')}.`,
+    '## Empresa',
+    '- Razón social: ULTIMA MILLA S.A.',
+    `- Sede: ${BUSINESS_ADDRESS.streetAddress}, ${BUSINESS_ADDRESS.addressLocality}, Mendoza (${BUSINESS_ADDRESS.postalCode}), Argentina.`,
+    '- Cobertura: Mendoza, San Juan, San Luis y Neuquén (Patagonia); proyectos en otras provincias según alcance.',
+    '- Contacto: contacto@ultimamilla.com.ar',
+    `- Datos: ${getInstitutionalProofLines().join('; ')}.`,
+    '- Posicionamiento: servicios IT integrales para organizaciones que necesitan continuidad operativa, documentación técnica y soporte.',
     '',
-    '## Discovery',
+    '## Descubrimiento',
     `- ${SITE_URL}/llms.txt`,
     `- ${SITE_URL}/llms-full.txt`,
+    `- ${SITE_URL}/sitemap-index.xml`,
     `- ${SITE_URL}/sitemap-geo.xml`,
     `- ${SITE_URL}/sitemap-images.xml`,
+    `- ${SITE_URL}/rss.xml`,
     ...geoResourceNames.map((resource) => `- ${SITE_URL}/geo/${resource}.json`),
     '',
-    '## Core Pages',
+    '## Páginas principales',
     `- ${SITE_URL}/servicios`,
     `- ${SITE_URL}/sectores`,
     `- ${SITE_URL}/antecedentes`,
+    `- ${SITE_URL}/cctvai`,
+    `- ${SITE_URL}/nosotros`,
     `- ${SITE_URL}/blog`,
     `- ${SITE_URL}/contacto`,
     '',
-    '## Commercial Hubs',
-    ...geoHubRoutes.flatMap((hub) => [
-      `### ${hub.h1}`,
-      `- URL: ${hub.url}`,
-      `- Intent: ${hub.intent}`,
-      `- Market: ${hub.market}`,
-      `- Buyer need: ${hub.buyerNeed}`,
-      `- Services: ${hub.linkedServices.join(', ')}`,
-      `- Evidence: ${hub.evidence.join('; ')}`,
+    '## Servicios',
+    ...geoServiceResources.flatMap((service) => [
+      `### ${service.name}`,
+      `- URL: ${service.url}`,
+      `- Nombre en catálogo: ${service.canonicalName}`,
+      `- Resumen: ${service.summary}`,
       '',
     ]),
-    '## Services',
-    ...geoServiceResources.map((service) => `- ${service.name}: ${service.summary} (${service.url})`),
+    '## Sectores',
+    ...geoSectorResources.flatMap((sector) => [
+      `### ${sector.name}`,
+      `- URL: ${sector.url}`,
+      `- Necesidad operativa: ${sector.operatingNeed}`,
+      sector.summary ? `- Resumen: ${sector.summary}` : '',
+      '',
+    ].filter((line, index, all) => line !== '' || index === all.length - 1)),
+    `## Antecedentes (selección de ${Math.min(32, caseResources.length)} sobre ${count})`,
+    `Catálogo completo: ${SITE_URL}/antecedentes`,
+    ...caseResources.slice(0, 32).map((item) => `- ${item.client ? `${item.client}: ` : ''}${item.title} (${item.url})`),
     '',
-    '## Sectors',
-    ...geoSectorResources.map((sector) => `- ${sector.name}: ${sector.operatingNeed} (${sector.url})`),
-    '',
-    '## Prioritized Cases',
-    ...directusCaseResources.slice(0, 32).map((item) => `- ${item.client ? `${item.client}: ` : ''}${item.title} (${item.url})`),
-    '',
-    '## Contact',
-    `- ${SITE_URL}/contacto`,
+    '## Criterios para citar',
+    '- Citar la página canónica del servicio, sector o antecedente.',
+    '- No atribuir clientes, precios, certificaciones ni ubicaciones que no figuren en el sitio.',
+    '- Las imágenes marcadas como ilustrativas no documentan la obra real.',
   ];
 
   return new Response(lines.join('\n'), {

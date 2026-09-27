@@ -1,0 +1,47 @@
+---
+// Producto propio: UMSA CCTV AI (textos de /cctvai, resumidos).
+const features = [
+  ['Detecta', 'Cruces de línea, intrusión, permanencia, conteo, EPP o eventos validados por sitio.'],
+  ['Ordena', 'Clasifica eventos, clips, severidad, estado y responsables para reducir la búsqueda manual.'],
+  ['Documenta', 'Genera reportes operativos o forenses con evidencia visual y recomendaciones revisables.'],
+];
+const facts = [['Piloto', '30 días'], ['Cámaras', '6 críticas'], ['Entrega', 'Dashboard y reporte forense']];
+---
+<div class="ump">
+  <figure class="ump__media">
+    <img src="/images/services/productos/cctv-ai/cctv-ai-forense-telefono.webp" alt="Detección de un operario con casco y chaleco en una barrera de acceso, marcada por UMSA CCTV AI" width="1536" height="1024" loading="lazy" decoding="async" />
+  </figure>
+  <div class="ump__body">
+    <p class="ump__kicker">Producto UMSA</p>
+    <h2>UMSA CCTV AI</h2>
+    <p class="ump__lead">Convierte las cámaras que ya tiene en alertas útiles, clips revisables, dashboard, trazabilidad e informes forenses.</p>
+    <ul class="ump__features">
+      {features.map(([t, d]) => <li><strong>{t}</strong><span>{d}</span></li>)}
+    </ul>
+    <dl class="ump__facts">
+      {facts.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}
+    </dl>
+    <a class="ump__cta" href="/cctvai">Conocer UMSA CCTV AI <span aria-hidden="true">↗</span></a>
+  </div>
+</div>
+<style>
+  .ump { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 80px); align-items: center; }
+  .ump__media { margin: 0; position: relative; overflow: hidden; aspect-ratio: 3 / 2; background: #111; }
+  .ump__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ump__kicker { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; font-size: .9rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: rgba(255, 255, 255, .78); }
+  .ump__kicker::before { content: ''; width: 28px; height: 2px; background: #dc2626; }
+  .ump h2 { margin: 0; font-size: clamp(2.2rem, 3.6vw, 3.4rem) !important; line-height: 1.02 !important; font-weight: 600 !important; letter-spacing: -.03em; color: #fff; }
+  .ump__lead { margin: 18px 0 0; font-size: 1.15rem; line-height: 1.55; color: rgba(255, 255, 255, .84); max-width: 44ch; }
+  .ump__features { list-style: none; margin: 30px 0 0; padding: 0; display: grid; gap: 16px; }
+  .ump__features li { display: grid; grid-template-columns: 110px 1fr; gap: 16px; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, .12); }
+  .ump__features strong { font-size: 1.05rem; font-weight: 600; color: #fff; }
+  .ump__features span { font-size: 1rem; line-height: 1.55; color: rgba(255, 255, 255, .74); }
+  .ump__facts { display: flex; flex-wrap: wrap; gap: 10px; margin: 28px 0 0; }
+  .ump__facts div { padding: 10px 14px; border: 1px solid rgba(255, 255, 255, .16); }
+  .ump__facts dt { font-size: .82rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: rgba(255, 255, 255, .6); }
+  .ump__facts dd { margin: 4px 0 0; font-size: 1rem; font-weight: 600; color: #fff; }
+  .ump__cta { display: inline-flex; align-items: center; gap: 12px; min-height: 52px; margin-top: 30px; padding: 0 24px; background: #dc2626; color: #fff; font-weight: 600; text-decoration: none; }
+  .ump__cta:hover { background: #b91c1c; }
+  @media (max-width: 900px) { .ump { grid-template-columns: 1fr; } .ump__features li { grid-template-columns: 1fr; gap: 4px; } }
+  @media (max-width: 760px) { .ump { gap: 24px; } .ump__media { aspect-ratio: 16 / 9; } .ump__lead { font-size: 1.0625rem; } .ump__features { margin-top: 20px; gap: 12px; } .ump__features li { padding-top: 12px; } .ump__facts { margin-top: 20px; gap: 8px; } .ump__facts div { flex: 1 1 auto; padding: 8px 12px; } .ump__cta { width: 100%; justify-content: center; margin-top: 24px; } }
+</style>

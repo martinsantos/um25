@@ -12,6 +12,7 @@ import {
 import { SITE_URL } from '../config/seo';
 import { isCanonicalBlogSlug } from '../data/seoRedirects';
 import { addVisibleBlogStatusFilter } from './blogPublishing';
+import { fetchWithTimeout, getFetchTimeoutMs } from './fetchWithTimeout';
 import {
   BLOG_COVER_DIVERSITY_LIMIT,
   diversifyBlogPostCovers,
@@ -23,7 +24,35 @@ const DIRECTUS_TOKEN = getDirectusToken();
 const PUBLIC_SITE_URL = allowPublicBlogFallback() ? SITE_URL : getPublicSiteUrl();
 const ENABLE_PUBLIC_BLOG_FALLBACK = allowPublicBlogFallback();
 
-const publicBlogIndexCache = new Map<string, Promise<string[]>>();
+const publicBlogIndexCache = new Map<string, { at: number; promise: Promise<string[]> }>();
+const publicBlogPostCache = new Map<string, { at: number; promise: Promise<EntradaBlog | null> }>();
+const PUBLIC_CACHE_TTL_MS = 10 * 60 * 1000;
+
+// Timeouts cortos: un CMS caído debe degradar al fallback sin frenar el SSR.
+const DIRECTUS_BLOG_TIMEOUT_MS = getFetchTimeoutMs(
+  typeof process !== 'undefined' ? process.env['DIRECTUS_BLOG_TIMEOUT_MS'] : undefined,
+  3500,
+);
+const PUBLIC_BLOG_TIMEOUT_MS = 6000;
+// Circuit breaker: tras un fallo de red/timeout no se reintenta Directus por 60 s.
+const DIRECTUS_COOLDOWN_MS = 60 * 1000;
+let directusUnavailableUntil = 0;
+
+async function directusFetch(url: string): Promise<Response> {
+  if (Date.now() < directusUnavailableUntil) throw new Error('directus cooldown');
+  try {
+    const res = await fetchWithTimeout(url, { headers: authHeaders() }, DIRECTUS_BLOG_TIMEOUT_MS);
+    if (res.status >= 500) directusUnavailableUntil = Date.now() + DIRECTUS_COOLDOWN_MS;
+    return res;
+  } catch (error) {
+    directusUnavailableUntil = Date.now() + DIRECTUS_COOLDOWN_MS;
+    throw error;
+  }
+}
+
+function publicFetch(url: string): Promise<Response> {
+  return fetchWithTimeout(url, {}, PUBLIC_BLOG_TIMEOUT_MS);
+}
 
 function escapeHtml(value = ''): string {
   return value
@@ -128,7 +157,8 @@ async function fetchPublicBlogSlugs(categoria?: string): Promise<string[]> {
   if (!ENABLE_PUBLIC_BLOG_FALLBACK) return [];
 
   const cacheKey = categoria || 'all';
-  if (publicBlogIndexCache.has(cacheKey)) return publicBlogIndexCache.get(cacheKey)!;
+  const cached = publicBlogIndexCache.get(cacheKey);
+  if (cached && Date.now() - cached.at < PUBLIC_CACHE_TTL_MS) return cached.promise;
 
   const promise = (async () => {
     const allSlugs: string[] = [];
@@ -137,7 +167,7 @@ async function fetchPublicBlogSlugs(categoria?: string): Promise<string[]> {
 
     for (let page = 1; page <= 30; page += 1) {
       const url = `${PUBLIC_SITE_URL}${basePath}${page === 1 ? '' : `?page=${page}`}`;
-      const res = await fetch(url);
+      const res = await publicFetch(url);
       if (!res.ok) break;
       const html = await res.text();
       const pageSlugs = uniqueSlugsFromBlogHtml(html).filter((slug) => !seen.has(slug));
@@ -155,15 +185,25 @@ async function fetchPublicBlogSlugs(categoria?: string): Promise<string[]> {
     return allSlugs;
   })();
 
-  publicBlogIndexCache.set(cacheKey, promise);
+  publicBlogIndexCache.set(cacheKey, { at: Date.now(), promise });
+  // Un fallo no queda cacheado: el próximo request vuelve a intentar.
+  promise.catch(() => publicBlogIndexCache.delete(cacheKey));
   return promise;
 }
 
 async function fetchPublicBlogPost(slug: string): Promise<EntradaBlog | null> {
   if (!ENABLE_PUBLIC_BLOG_FALLBACK) return null;
+  const cached = publicBlogPostCache.get(slug);
+  if (cached && Date.now() - cached.at < PUBLIC_CACHE_TTL_MS) return cached.promise;
+  const promise = fetchPublicBlogPostUncached(slug);
+  publicBlogPostCache.set(slug, { at: Date.now(), promise });
+  promise.then((post) => { if (!post) publicBlogPostCache.delete(slug); }, () => publicBlogPostCache.delete(slug));
+  return promise;
+}
 
+async function fetchPublicBlogPostUncached(slug: string): Promise<EntradaBlog | null> {
   try {
-    const res = await fetch(`${PUBLIC_SITE_URL}/blog/${encodeURIComponent(slug)}`);
+    const res = await publicFetch(`${PUBLIC_SITE_URL}/blog/${encodeURIComponent(slug)}`);
     if (!res.ok) return null;
     const html = await res.text();
 
@@ -173,7 +213,7 @@ async function fetchPublicBlogPost(slug: string): Promise<EntradaBlog | null> {
     const lead = stripTags(html.match(/<p[^>]*class=["'][^"']*article-lead[^"']*["'][^>]*>([\s\S]*?)<\/p>/i)?.[1] || '');
     const prose = (
       html.match(
-        /<div class=["']prose["'][^>]*>([\s\S]*?)<\/div>\s*(?:<aside\b|<nav\b[^>]*class=["'][^"']*post-nav|<div\b[^>]*class=["'][^"']*tags-row|<\/article>)/i,
+        /<div class=["']prose["'][^>]*>([\s\S]*?)<\/div>\s*(?:<section\b[^>]*(?:um-intent-link-graph|post-)|<aside\b|<nav\b[^>]*class=["'][^"']*post-nav|<div\b[^>]*class=["'][^"']*tags-row|<\/article>)/i,
       )?.[1] || ''
     );
     const category = normalizeCategory(metaContent(html, 'article:section'));
@@ -244,10 +284,7 @@ async function fetchDirectusBlogCoverCorpus(limit = BLOG_COVER_DIVERSITY_LIMIT):
   params.set('limit', String(limit));
   params.set('fields', 'id,slug,titulo,imagen_portada,categoria,fecha_publicacion,status');
 
-  const res = await fetch(
-    `${DIRECTUS_URL}/items/blog_posts?${params.toString()}`,
-    { headers: authHeaders() }
-  );
+  const res = await directusFetch(`${DIRECTUS_URL}/items/blog_posts?${params.toString()}`);
   if (!res.ok) return [];
 
   const data = await res.json();
@@ -294,14 +331,8 @@ export async function fetchBlogListing(
 
   try {
     const [itemsRes, countRes] = await Promise.all([
-      fetch(
-        `${DIRECTUS_URL}/items/blog_posts?${itemsParams.toString()}`,
-        { headers: authHeaders() }
-      ),
-      fetch(
-        `${DIRECTUS_URL}/items/blog_posts?${countParams.toString()}`,
-        { headers: authHeaders() }
-      ),
+      directusFetch(`${DIRECTUS_URL}/items/blog_posts?${itemsParams.toString()}`),
+      directusFetch(`${DIRECTUS_URL}/items/blog_posts?${countParams.toString()}`),
     ]);
 
     const [itemsData, countData] = await Promise.all([itemsRes.json(), countRes.json()]);
@@ -336,10 +367,7 @@ export async function fetchBlogPost(slug: string): Promise<EntradaBlog | null> {
     params.set('filter[_and][1][slug][_eq]', slug);
     params.set('limit', '1');
     params.set('fields', '*');
-    const res = await fetch(
-      `${DIRECTUS_URL}/items/blog_posts?${params.toString()}`,
-      { headers: authHeaders() }
-    );
+    const res = await directusFetch(`${DIRECTUS_URL}/items/blog_posts?${params.toString()}`);
     const data = await res.json();
     const post = (data.data || [])[0] as EntradaBlog | undefined;
     if (post) return attachDiverseCover(post);
@@ -363,10 +391,7 @@ export async function fetchBlogBand(limit = 3): Promise<EntradaBlog[]> {
     params.set('sort', '-fecha_publicacion');
     params.set('limit', String(limit));
     params.set('fields', 'id,slug,titulo,imagen_portada,categoria,fecha_publicacion');
-    const res = await fetch(
-      `${DIRECTUS_URL}/items/blog_posts?${params.toString()}`,
-      { headers: authHeaders() }
-    );
+    const res = await directusFetch(`${DIRECTUS_URL}/items/blog_posts?${params.toString()}`);
     const data = await res.json();
     const posts = (data.data || []) as EntradaBlog[];
     if (posts.length > 0) return diversifyBlogPostCovers(posts) as EntradaBlog[];
@@ -379,5 +404,49 @@ export async function fetchBlogBand(limit = 3): Promise<EntradaBlog[]> {
 
     if (!allowMockBlogFallback()) return [];
     return (diversifyBlogPostCovers(MOCK_POSTS) as EntradaBlog[]).slice(0, limit);
+  }
+}
+
+export interface BlogSitemapEntry {
+  slug: string;
+  titulo: string;
+  fecha_publicacion?: string;
+  fecha_modificacion?: string;
+  imagen_portada?: string | null;
+  categoria?: string;
+}
+
+/**
+ * Entradas para sitemap/índices: la misma cadena de fuentes que el blog
+ * renderizado (Directus → sitio público → posts UM26), sin traer cuerpos.
+ */
+export async function fetchBlogSitemapEntries(limit = 500): Promise<BlogSitemapEntry[]> {
+  try {
+    const params = addVisibleBlogStatusFilter(new URLSearchParams());
+    params.set('sort', '-fecha_publicacion');
+    params.set('limit', String(limit));
+    params.set('fields', 'slug,titulo,categoria,fecha_publicacion,fecha_modificacion,imagen_portada');
+    const res = await directusFetch(`${DIRECTUS_URL}/items/blog_posts?${params.toString()}`);
+    if (!res.ok) throw new Error(`Directus ${res.status}`);
+    const data = await res.json();
+    const posts = ((data.data || []) as BlogSitemapEntry[]).filter((post) => isCanonicalBlogSlug(post.slug));
+    if (posts.length > 0) return diversifyBlogPostCovers(posts) as BlogSitemapEntry[];
+    throw new Error('empty');
+  } catch {
+    try {
+      const slugs = await fetchPublicBlogSlugs();
+      if (slugs.length > 0) return slugs.map((slug) => ({ slug, titulo: slug }));
+    } catch {
+      // continuar con el fallback estático
+    }
+    return diversifyBlogPostCovers(UM26_FALLBACK_POSTS
+      .filter((post) => isCanonicalBlogSlug(post.slug))
+      .map((post) => ({
+        slug: post.slug,
+        titulo: post.titulo,
+        fecha_publicacion: post.fecha_publicacion,
+        imagen_portada: post.imagen_portada,
+        categoria: post.categoria,
+      }))) as BlogSitemapEntry[];
   }
 }

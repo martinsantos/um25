@@ -33,7 +33,7 @@ export const serviceSingleDemoCopy: Record<number, ServiceSingleCopy> = {
     paragraph: 'Videovigilancia IP, control de accesos, intrusión y monitoreo, con documentación y evidencia técnica para operaciones que no pueden detenerse.',
     capabilitiesIntro: 'Un mismo equipo releva, diseña, implementa, documenta y sostiene cada frente de protección para operaciones que no pueden detenerse.',
     approachHeading: 'De la auditoría de riesgo al monitoreo continuo.',
-    approachIntro: 'Un mismo equipo releva, diseña, instala y opera la seguridad del sitio. Sin proveedores cruzados ni responsabilidades difusas.',
+    approachIntro: 'Un mismo equipo releva, diseña, instala y opera la seguridad del sitio, con un único responsable de punta a punta.',
   },
   103: {
     headline: 'Telecomunicaciones para conectar lo crítico.',
@@ -47,7 +47,7 @@ export const serviceSingleDemoCopy: Record<number, ServiceSingleCopy> = {
     paragraph: 'Aplicaciones, integraciones y automatización diseñadas sobre el proceso concreto de cada empresa, con datos, trazabilidad y soporte para que el sistema acompañe la operación.',
     capabilitiesIntro: 'Un mismo equipo releva, diseña, desarrolla, documenta y sostiene cada sistema sobre el proceso real de la operación.',
     approachHeading: 'Del proceso real al sistema que lo ordena.',
-    approachIntro: 'No empezamos por la tecnología, empezamos por cómo trabaja el equipo. El software se adapta a la operación, no al revés.',
+    approachIntro: 'Empezamos por cómo trabaja el equipo y adaptamos el software a esa operación.',
   },
   105: {
     headline: 'Soporte 24/7 para que nada se detenga.',
@@ -455,7 +455,7 @@ export const serviceSingleDemoApproachSteps: Record<number, ServiceSingleApproac
   ],
   104: [
     { number: '01', title: 'Mapa del proceso', description: 'Entendemos cómo trabaja el equipo hoy y dónde se pierde tiempo o control.' },
-    { number: '02', title: 'Diseño funcional', description: 'Definimos flujos, datos e integraciones sobre el proceso real, no genérico.' },
+    { number: '02', title: 'Diseño funcional', description: 'Definimos flujos, datos e integraciones sobre el proceso real de cada cliente.' },
     { number: '03', title: 'Desarrollo e integración', description: 'Construimos, conectamos los sistemas existentes y validamos con usuarios.' },
     { number: '04', title: 'Evolución continua', description: 'Mantenemos, medimos y sumamos funciones a medida que crece la operación.' },
   ],

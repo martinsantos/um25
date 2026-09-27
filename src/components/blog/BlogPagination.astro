@@ -1,4 +1,8 @@
 ---
+/**
+ * Paginación numerada del blog. La página 1 enlaza siempre a la URL limpia
+ * (sin ?page=1) para no duplicar el índice.
+ */
 interface Props {
   page: number;
   totalPages: number;
@@ -6,81 +10,80 @@ interface Props {
 }
 
 const { page, totalPages, baseHref } = Astro.props;
+const hrefFor = (n: number) => (n <= 1 ? baseHref : `${baseHref}?page=${n}`);
 
-const prevHref = page > 1 ? `${baseHref}?page=${page - 1}` : null;
-const nextHref = page < totalPages ? `${baseHref}?page=${page + 1}` : null;
+const windowPages = Array.from(new Set([1, page - 1, page, page + 1, totalPages]))
+  .filter((n) => n >= 1 && n <= totalPages)
+  .sort((a, b) => a - b);
+const items: Array<number | 'gap'> = [];
+windowPages.forEach((n, i) => {
+  if (i > 0 && n - windowPages[i - 1]! > 1) items.push('gap');
+  items.push(n);
+});
 ---
 
 {totalPages > 1 && (
-  <nav class="pagination" aria-label="Paginación">
-    {prevHref ? (
-      <a href={prevHref} class="pag-btn">
-        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-        </svg>
-        Anterior
-      </a>
-    ) : (
-      <span class="pag-btn pag-btn--disabled">
-        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-        </svg>
-        Anterior
-      </span>
-    )}
+  <nav class="bpag" aria-label="Paginación del blog">
+    {page > 1 ? (
+      <a class="bpag__step" href={hrefFor(page - 1)} rel="prev"><span aria-hidden="true">←</span> Anteriores</a>
+    ) : <span class="bpag__step is-disabled" aria-hidden="true"><span>←</span> Anteriores</span>}
 
-    <span class="pag-info">{page} / {totalPages}</span>
+    <ol class="bpag__list">
+      {items.map((item) => item === 'gap'
+        ? <li class="bpag__gap" aria-hidden="true">…</li>
+        : (
+          <li>
+            <a
+              class:list={['bpag__num', item === page && 'is-current']}
+              href={hrefFor(item)}
+              aria-current={item === page ? 'page' : undefined}
+              aria-label={`Página ${item}`}
+            >{item}</a>
+          </li>
+        ))}
+    </ol>
 
-    {nextHref ? (
-      <a href={nextHref} class="pag-btn">
-        Siguiente
-        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-        </svg>
-      </a>
-    ) : (
-      <span class="pag-btn pag-btn--disabled">
-        Siguiente
-        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-        </svg>
-      </span>
-    )}
+    {page < totalPages ? (
+      <a class="bpag__step" href={hrefFor(page + 1)} rel="next">Siguientes <span aria-hidden="true">→</span></a>
+    ) : <span class="bpag__step is-disabled" aria-hidden="true">Siguientes <span>→</span></span>}
   </nav>
 )}
 
 <style>
-  .pagination {
+  .bpag {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     gap: 16px;
-    padding: 34px 0 0;
-    border-top: 0;
-    margin-top: 10px;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--x-line);
   }
-
-  .pag-btn {
+  .bpag__list { display: flex; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .bpag__num,
+  .bpag__step {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    font-family: var(--um-font-body);
-    font-size: 16px;
-    font-weight: 500;
-    color: #374151;
+    justify-content: center;
+    gap: 8px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--x-line);
+    font-size: var(--x-fs-meta);
+    font-weight: 600;
+    color: var(--x-text-2);
     text-decoration: none;
-    padding: 8px 0;
-    border: 0;
-    border-bottom: 2px solid transparent;
-    border-radius: 0;
-    transition: border-color .15s, color .15s;
+    font-variant-numeric: tabular-nums;
+    transition: border-color 160ms var(--x-ease), color 160ms var(--x-ease);
   }
-  .pag-btn:hover { border-color: #DC2626; color: #DC2626; }
-  .pag-btn--disabled { color: #b7bec8; pointer-events: none; border-color: transparent; }
+  .bpag__num:hover, .bpag__step:hover { border-color: var(--x-line-strong); color: var(--x-text); }
+  .bpag__num.is-current { background: var(--x-text); border-color: var(--x-text); color: var(--x-ink); }
+  .bpag__step.is-disabled { opacity: 0.4; }
+  .bpag__gap { display: inline-flex; align-items: center; min-height: 44px; color: var(--x-muted); font-size: var(--x-fs-meta); }
 
-  .pag-info {
-    font-family: var(--um-font-body);
-    font-size: 16px;
-    color: #9ca3af;
+  @media (max-width: 640px) {
+    .bpag__list { display: none; }
+    .bpag__step { flex: 1; }
   }
 </style>

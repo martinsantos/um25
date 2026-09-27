@@ -1,0 +1,88 @@
+---
+// Banner cine: plano Cycles pre-renderizado (vuelo imposible por la escena, con cortes
+// "pop" entre edificio y esqueleto de sistemas) y etiquetas que siguen a los equipos.
+// Portada: encadena las escenas. Sector o servicio: una escena en bucle.
+// El 3D interactivo se abre sólo a pedido (/cine/cine-banner.js).
+import '../../styles/cine-banner.css';
+import { HOME_SCENES, SCENE_TITLES, type Scene } from '../../data/cine/scenes';
+
+interface Stat { label: string; value: string }
+interface Link { href: string; label: string }
+interface Props {
+  variant?: 'home' | 'sector';
+  scenes?: Scene[];
+  systems?: string[];
+  kicker?: string;
+  title: string;
+  lead?: string;
+  primary?: Link;
+  secondary?: Link;
+  stats?: Stat[];
+  back?: Link;
+  titleId?: string;
+}
+const {
+  variant = 'home', scenes = HOME_SCENES.map((s) => s.scene), systems = [], kicker,
+  title, lead, primary, secondary, stats = [], back, titleId = 'umcTitle',
+} = Astro.props;
+const first = scenes[0];
+const dot = title.endsWith('.');
+const heading = dot ? title.slice(0, -1) : title;
+const rail = HOME_SCENES.filter((s) => scenes.includes(s.scene));
+---
+<section class:list={['umc', `umc--${variant}`]} data-umc data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} aria-labelledby={titleId}>
+  <div class="umc-stage" aria-hidden="true">
+    <img class="umc-poster" src={`/cine/media/cine-${first}-poster.jpg`} alt="" width="1920" height="1080" fetchpriority="high" decoding="async" />
+    <video class="umc-video" muted playsinline preload="none" disablepictureinpicture></video>
+    <video class="umc-video" muted playsinline preload="none" disablepictureinpicture></video>
+    <div class="umc-grade"></div>
+    <div class="umc-ar"></div>
+  </div>
+
+  <div class="umc-copy">
+    {back && <a class="umc-back" href={back.href}>{back.label}</a>}
+    {kicker && <p class="umc-eyebrow">{kicker}</p>}
+    <h1 id={titleId}>{heading}{dot && <span class="umc-dot">.</span>}</h1>
+    {lead && <p class="umc-lead">{lead}</p>}
+    {(primary || secondary) && (
+      <div class="umc-cta">
+        {primary && <a class="umc-btn" href={primary.href}>{primary.label}<span aria-hidden="true">↗</span></a>}
+        {secondary && <a class="umc-btn umc-btn--ghost" href={secondary.href}>{secondary.label}</a>}
+      </div>
+    )}
+    {stats.length > 0 && (
+      <dl class="umc-stats">
+        {stats.map((s) => <div><dt>{s.label}</dt><dd>{s.value}</dd></div>)}
+      </dl>
+    )}
+  </div>
+
+  <div class="umc-foot">
+    {variant === 'home' ? (
+      <div class="umc-rail" role="group" aria-label="Escenas por sector">
+        {rail.map((s, i) => (
+          <button type="button" data-umc-scene={s.scene} aria-pressed={i === 0 ? 'true' : 'false'}>
+            <span class="umc-rail__n">{String(i + 1).padStart(2, '0')}</span>
+            <span class="umc-rail__t">{s.name}<small>{s.text}</small></span>
+            <i class="umc-rail__bar"><b></b></i>
+          </button>
+        ))}
+      </div>
+    ) : scenes.length > 1 ? (
+      <p class="umc-caption" data-umc-caption>{SCENE_TITLES[first]}</p>
+    ) : (
+      <span class="umc-caption" aria-hidden="true"></span>
+    )}
+    <div class="umc-tools">
+      <button class="umc-tool" type="button" data-umc-3d aria-label="Explorar la escena en 3D">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Zm0 9 8-4.5M12 12 4 7.5M12 12v9"/></svg>
+        <span>Explorar en 3D</span>
+      </button>
+      <button class="umc-tool umc-tool--icon" type="button" data-umc-motion aria-label="Pausar la escena">
+        <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>
+        <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5v14l12-7L7 5Z"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+<script src="/cine/cine-banner.js" type="module" is:inline></script>

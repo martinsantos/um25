@@ -28,8 +28,8 @@ export function getAntecedentesCatalogCount(): number {
 export function getAntecedentesCountShort(): string {
   const n = getAntecedentesCatalogCount();
   if (n <= 0) return '—';
-  if (n >= 500) return '500+';
-  return `${n}+`;
+  // Cifra exacta del catálogo: la misma en todas las páginas.
+  return String(n);
 }
 
 /** Etiqueta explícita con conteo del catálogo (p. ej. copy factual / llms). */
