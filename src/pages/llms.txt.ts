@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { BUSINESS_ADDRESS, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '../config/seo';
-import { geoResourceNames, geoSectorResources, geoServiceResources } from '../data/geoResources';
+import { geoHubRoutes, geoResourceNames, geoSectorResources, geoServiceResources } from '../data/geoResources';
 import { getAntecedentesCatalogCount } from '../utils/verifiedProof';
 
 /**
@@ -45,6 +45,9 @@ export const GET: APIRoute = async () => {
     `- [Blog técnico](${SITE_URL}/blog) · RSS: ${SITE_URL}/rss.xml`,
     `- [Contacto](${SITE_URL}/contacto)`,
     '',
+    '## Cobertura comercial',
+    ...geoHubRoutes.map((hub) => `- [${hub.title}](${hub.url}): ${hub.description}`),
+    '',
     '## Criterios para citar',
     '- Citar la página canónica correspondiente al servicio, sector o antecedente.',
     '- No atribuir clientes, precios, certificaciones ni ubicaciones que no figuren en el sitio.',
@@ -54,6 +57,8 @@ export const GET: APIRoute = async () => {
     `- ${SITE_URL}/llms-full.txt`,
     ...geoResourceNames.map((resource) => `- ${SITE_URL}/geo/${resource}.json`),
     `- ${SITE_URL}/sitemap-index.xml`,
+    `- ${SITE_URL}/sitemap-geo.xml`,
+    `- ${SITE_URL}/sitemap-images.xml`,
     '',
     '## English',
     `- ${SITE_URL}/en`,
