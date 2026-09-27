@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { BUSINESS_ADDRESS, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '../config/seo';
 import {
   geoCaseResources,
+  geoHubRoutes,
   getGeoCaseResources,
   geoResourceNames,
   geoSectorResources,
@@ -60,6 +61,9 @@ export const GET: APIRoute = async () => {
     `- ${SITE_URL}/nosotros`,
     `- ${SITE_URL}/blog`,
     `- ${SITE_URL}/contacto`,
+    '',
+    '## Cobertura comercial',
+    ...geoHubRoutes.map((hub) => `- ${hub.title}: ${hub.url}`),
     '',
     '## Servicios',
     ...geoServiceResources.flatMap((service) => [
