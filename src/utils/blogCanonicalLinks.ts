@@ -9,7 +9,10 @@ export function canonicalizeBlogSlug(value: unknown): string {
   } catch {
     // Keep malformed legacy input deterministic; generateSlug will sanitize it.
   }
-  return resolveCanonicalBlogSlug(generateSlug(decoded));
+  // Un slug ya limpio se respeta completo: generateSlug lo corta a 100 caracteres y
+  // dejaba posts largos de Directus redirigiendo a una URL inexistente.
+  const clean = /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(decoded) ? decoded : generateSlug(decoded);
+  return resolveCanonicalBlogSlug(clean);
 }
 
 export function canonicalizeInternalBlogLinks(html: string): string {

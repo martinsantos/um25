@@ -51,7 +51,7 @@ function humanizeCaseDescriptionTemplate(value: string): string {
   if (!match) return value;
 
   const [, title, client, sector] = match.map((part) => cleanSeoText(part));
-  return `Antecedente de ${title} para ${client}, dentro de ${sector}.`;
+  return `Antecedente de ${title.replace(/[.\s]+$/, '')} para ${client}, dentro de ${sector}.`;
 }
 
 const htmlEntities: Record<string, string> = {
@@ -94,7 +94,12 @@ export function trimAtWordBoundary(value: unknown, maxLength = SEO_META_LIMITS.d
     sliced.lastIndexOf('? '),
     sliced.lastIndexOf('! '),
   );
-  if (sentenceEnd > maxLength * 0.55) {
+  // Cortar en una oración sólo si lo que queda sigue siendo una descripción útil
+  // (≥120 con el límite de 160). Antes cortaba al 55 % y dejaba 88–119 caracteres.
+  const minSentenceKeep = maxLength >= SEO_META_LIMITS.minimumDescription
+    ? SEO_META_LIMITS.minimumDescription
+    : maxLength * 0.55;
+  if (sentenceEnd >= minSentenceKeep) {
     return sliced.slice(0, sentenceEnd + 1).trim();
   }
 
@@ -183,6 +188,9 @@ function buildCaseSeoTitle(input: CaseSeoMetaInput): string {
     caseCode ? `${title} · ${caseCode}${suffix}` : '',
     caseCode ? `${title} · ${caseCode}` : '',
     usableArea && !caseCode ? `${title} · ${usableArea}${suffix}` : '',
+    // Si el cliente ya está en el título (origen de los títulos repetidos), el código
+    // público los diferencia: si no entra completo, se recorta el título por palabra.
+    caseCode && !usableClient && `${title} · ${caseCode}`.length > max ? `${wordTrim(title, max - caseCode.length - 3)} · ${caseCode}` : '',
     `${title}${suffix}`,
     title,
   ].filter(Boolean);

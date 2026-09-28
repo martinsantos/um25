@@ -41,6 +41,8 @@ function banner(el) {
   const narrow = () => stage.clientWidth <= stage.clientHeight * 1.05;
   const src = (scene) => `/cine/media/cine-${scene}${narrow() ? '-sq' : ''}.mp4`;
   let index = 0, active = va, idle = vb, track = null, visible = true, userPaused = motionLimited();
+  // El video no compite con el póster (LCP): arranca con la página ya cargada.
+  let started = false;
   let shown = [], lastPick = 0, cutting = false, preloaded = -1, posNow = .5;
 
   const pool = Array.from({ length: 4 }, () => {
@@ -61,6 +63,7 @@ function banner(el) {
   };
 
   function play() {
+    if (!started) return;
     if (userPaused || !visible || document.hidden) { active.pause(); return; }
     if (!active.getAttribute('src')) { active.loop = !multi; active.src = src(scenes[index]); }
     active.play().then(() => { active.classList.add('is-on'); poster.classList.add('is-hidden'); }).catch((e) => {
@@ -205,11 +208,13 @@ function banner(el) {
 
   rail.forEach((b, k) => b.addEventListener('click', () => {
     if (k === index) return;
+    started = true;
     userPaused = false;
     cutTo(k);
     label();
   }));
   motion?.addEventListener('click', () => {
+    started = true;
     userPaused = !(userPaused || active.paused);
     if (userPaused) active.pause(); else play();
     label();
@@ -225,7 +230,13 @@ function banner(el) {
   el.querySelector('[data-umc-3d]')?.addEventListener('click', () => explore(el.dataset.scene));
   useTrack(scenes[0]);
   active.loop = !multi;
-  if (!userPaused) { active.preload = 'auto'; play(); }
+  const start = () => {
+    if (started) return;
+    started = true;
+    if (!userPaused) { active.preload = 'auto'; play(); }
+  };
+  const whenIdle = () => ('requestIdleCallback' in window ? requestIdleCallback(start, { timeout: 1500 }) : setTimeout(start, 600));
+  if (document.readyState === 'complete') whenIdle(); else addEventListener('load', whenIdle, { once: true });
   label();
   requestAnimationFrame(frame);
 }
