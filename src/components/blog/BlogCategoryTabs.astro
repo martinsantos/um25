@@ -64,4 +64,8 @@ const tabs = [
   .btabs__tab:hover { border-color: var(--x-line-strong); color: var(--x-text); }
   .btabs__tab.is-active { background: var(--x-text); border-color: var(--x-text); color: var(--x-ink); }
   .btabs__tab:focus-visible { outline: 2px solid var(--x-red); outline-offset: 2px; }
+  /* Pantallas táctiles: objetivo de 44 px. */
+  @media (pointer: coarse), (max-width: 639px) {
+    .btabs__tab { min-height: 44px; }
+  }
 </style>

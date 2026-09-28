@@ -1,6 +1,8 @@
-import { ANTECEDENTES } from './um26-data/antecedentes';
+// El listado usa el catálogo real (snapshot de Directus); um26-data/antecedentes.ts era un mock.
+import { ANTECEDENTES_REALES as ANTECEDENTES, mapearAntecedentes } from './um26-data/antecedentesReales';
+import { getAllAntecedentes } from './directus';
 import { BLOG_POSTS } from './um26-data/blog';
-import { getAntecedenteImage, getSectorCover, getServiceCover } from './um26-data/images';
+import { assignAntecedenteThumbnails, getAntecedenteImage, getSectorCover, getServiceCover } from './um26-data/images';
 import { SECTORES } from './um26-data/sectores';
 import { SERVICIOS } from './um26-data/servicios';
 import type {
@@ -10,6 +12,9 @@ import type {
   Servicio as SourceServicio,
   ServiceCode,
 } from './um26-data/types';
+
+// Miniaturas únicas en todo el catálogo (sin repetir imagen entre antecedentes).
+assignAntecedenteThumbnails(ANTECEDENTES);
 
 type FetchOptions = {
   limit?: number;
@@ -188,8 +193,20 @@ export async function getSectorBySlug(slug: string): Promise<Sector | null> {
   return (await getSectores()).find((sector) => sector.slug === slug) ?? null;
 }
 
+// Catálogo en vivo desde Directus (cada tarjeta enlaza a su ficha real); si Directus no
+// responde se usa la copia del catálogo. Nunca datos de prueba.
+async function catalogoVivo() {
+  try {
+    const vivos = mapearAntecedentes((await getAllAntecedentes()) as any[]);
+    if (vivos.length > 0) return vivos;
+  } catch {
+    // respaldo: snapshot del catálogo
+  }
+  return ANTECEDENTES;
+}
+
 export async function getAntecedentes(options: FetchOptions = {}): Promise<Antecedente[]> {
-  return limit(sortAntecedentes(ANTECEDENTES.map(toAntecedente), options.sort), options.limit);
+  return limit(sortAntecedentes((await catalogoVivo()).map(toAntecedente), options.sort), options.limit);
 }
 
 export async function getAntecedenteById(id: number): Promise<Antecedente | null> {

@@ -70,7 +70,7 @@ function banner(el) {
   function label() {
     const paused = userPaused || active.paused;
     el.classList.toggle('is-paused', paused);
-    motion?.setAttribute('aria-label', paused ? 'Reproducir la escena' : 'Pausar la escena');
+    motion?.setAttribute('aria-label', paused ? 'Reanudar el recorrido' : 'Pausar el recorrido');
   }
   // Corte seco al plano siguiente: el glitch del final y del comienzo disimulan el empalme.
   function cutTo(i) {
@@ -236,14 +236,17 @@ function explore(scene) {
   if (!dlg) {
     dlg = document.createElement('dialog');
     dlg.className = 'umc-dialog';
-    dlg.innerHTML = '<div class="umc-dialog__bar"><p><b>Explorar en 3D</b><span>Arrastrá para girar y usá la rueda para acercarte.</span></p><button type="button">Cerrar</button></div><div class="umc-dialog__view"></div>';
+    dlg.innerHTML = '<div class="umc-dialog__bar"><p><b data-umc-dialog-title>Gemelo digital</b><span>Arrastrá para orbitar · rueda para acercar</span></p><button type="button" aria-label="Cerrar el gemelo digital">Cerrar</button></div><div class="umc-dialog__view"></div>';
     document.body.appendChild(dlg);
     dlg.querySelector('button').addEventListener('click', () => dlg.close());
     dlg.addEventListener('close', () => { dlg.querySelector('.umc-dialog__view').replaceChildren(); document.documentElement.classList.remove('umc-lock'); });
     dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
   }
+  const name = TITLES[scene] || '';
+  dlg.querySelector('[data-umc-dialog-title]').textContent = name ? `Gemelo digital · ${name}` : 'Gemelo digital';
+  dlg.setAttribute('aria-label', name ? `Gemelo digital · ${name}` : 'Gemelo digital');
   const frame = document.createElement('iframe');
-  frame.title = 'Escena 3D interactiva';
+  frame.title = name ? `Gemelo digital interactivo · ${name}` : 'Gemelo digital interactivo';
   frame.src = `/3d/cinema.html?scene=${ENGINE[scene] || scene}&mode=building&embed=1&ar=clean&center=1`;
   frame.allow = 'fullscreen';
   dlg.querySelector('.umc-dialog__view').replaceChildren(frame);

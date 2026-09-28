@@ -47,24 +47,24 @@ export const cctvAiProductDefaults = {
 const defaultContent: Required<TemplateContent> = {
   hero: {
     kicker: 'Producto UMSA · CCTV + IA + evidencia operativa',
-    title: 'UMSA CCTV AI para convertir cámaras existentes en evidencia accionable.',
+    title: 'UMSA CCTV AI convierte las cámaras instaladas en evidencia accionable.',
     lead:
-      'Un producto para operaciones que no necesitan más video crudo: necesitan alertas útiles, clips revisables, dashboard, trazabilidad e informes forenses sobre cámaras que ya están instaladas.',
+      'Alertas útiles, clips revisables, dashboard, trazabilidad e informes forenses sobre las cámaras que su operación ya tiene instaladas.',
     image: cctvAiProductDefaults.heroImage,
     imageAlt: 'Dashboard CCTV AI integrado sobre entorno industrial',
-    modeLabel: 'Modo demo',
-    modeValue: 'UMSA CCTV AI + Forense',
+    modeLabel: 'Imagen ilustrativa',
+    modeValue: 'UMSA CCTV AI · Consola forense',
   },
   proof: [
     { label: 'Piloto', value: '30 días' },
     { label: 'Cámaras', value: '6 críticas' },
-    { label: 'Entrega', value: 'dashboard + forense' },
+    { label: 'Entrega', value: 'dashboard + informe forense' },
   ],
   value: {
     kicker: 'Producto UMSA',
     title: 'Menos búsqueda manual. Más eventos útiles y evidencia defendible.',
     text:
-      'La diferencia está en operar sobre cámaras reales, ajustar reglas útiles, separar falsos positivos y entregar evidencia revisable. UMSA CCTV AI se compra por resultado operativo, no por promesa de algoritmo.',
+      'UMSA CCTV AI opera sobre sus cámaras reales: ajusta reglas útiles, separa falsos positivos y entrega evidencia revisable. Se contrata por resultado operativo, medido durante el piloto.',
     cards: [
       {
         title: 'Detecta',
@@ -115,7 +115,7 @@ const defaultContent: Required<TemplateContent> = {
       fit: 'Más inversión inicial, menos integración operativa, sin reporte forense UMSA.',
     },
     {
-      model: 'Producto publicado',
+      model: 'UMSA CCTV AI',
       name: 'Forense UMSA',
       price: 'desde USD 24k',
       scope: 'Piloto de 30 días, IA sobre 6 cámaras críticas, alertas, clips, ajuste de reglas, dashboard e informe forense.',
@@ -190,7 +190,7 @@ const defaultContent: Required<TemplateContent> = {
       type: 'Fumador',
       confidence: '91%',
       severity: 'Alta',
-      status: 'Para revisión',
+      status: 'Para revisar',
       image: cctvAiProductDefaults.smokingImage,
       box: 'demo-box--smoking',
       summary: 'Se detecta una persona fumando dentro de una zona operativa no habilitada.',
@@ -206,7 +206,7 @@ const defaultContent: Required<TemplateContent> = {
       type: 'Distracción',
       confidence: '88%',
       severity: 'Media',
-      status: 'Para revisión',
+      status: 'Para revisar',
       image: cctvAiProductDefaults.phoneImage,
       box: 'demo-box--phone',
       summary: 'Se detecta uso de teléfono dentro de una zona de control y se registra duración estimada.',
@@ -228,7 +228,7 @@ const defaultContent: Required<TemplateContent> = {
       summary: 'UMSA ordena los eventos, adjunta evidencia visual y deja recomendaciones revisables.',
       recommendation: 'Usar el reporte como soporte técnico; la decisión final queda en revisión humana.',
       evidence: 'Resumen ejecutivo + fichas de incidente',
-      duration: 'PDF demo',
+      duration: 'Informe PDF',
     },
   ],
   limits: [
@@ -241,7 +241,7 @@ const defaultContent: Required<TemplateContent> = {
       text: 'Humo visual, EPP, uso de teléfono o fumar cuando cámara, zoom y ángulo lo permiten.',
     },
     {
-      title: 'No prometer sin validación',
+      title: 'Requiere validación específica',
       text: 'Reconocimiento facial, patentes sin cámara dedicada o video oscuro, lejano o de baja resolución.',
     },
   ],
@@ -274,6 +274,15 @@ function priceToNumber(price: string): number | null {
   return Math.round((whole + decimal) * 1000);
 }
 
+// Directus conserva el rótulo histórico "Producto publicado"; en pantalla se muestra como UMSA CCTV AI.
+export function isUmsaOption(model: string): boolean {
+  return model === 'UMSA CCTV AI' || model === 'Producto publicado';
+}
+
+export function optionLabel(model: string): string {
+  return isUmsaOption(model) ? 'UMSA CCTV AI' : model;
+}
+
 export function buildCctvAiProductTemplate(product?: ProductoV4 | null) {
   const content = (isPlainObject(product?.contenido_producto) ? product?.contenido_producto : {}) as TemplateContent;
   const hero = mergeObject(defaultContent.hero, content.hero);
@@ -289,7 +298,7 @@ export function buildCctvAiProductTemplate(product?: ProductoV4 | null) {
     ? `https://www.ultimamilla.com.ar${String(product.url_producto).replace(/\/$/, '')}`
     : cctvAiProductDefaults.productUrl;
   const heroImage = product?.imagen_publica || hero.image || cctvAiProductDefaults.heroImage;
-  const publishedOptions = options.filter((option) => option.model === 'Producto publicado');
+  const publishedOptions = options.filter((option) => isUmsaOption(option.model));
   const productOffers = publishedOptions.length > 0 ? publishedOptions : options;
   const lowPrices = productOffers
     .map((option) => priceToNumber(option.price))
@@ -358,7 +367,7 @@ export function buildCctvAiProductTemplate(product?: ProductoV4 | null) {
           name: '¿CCTV AI Integrado reemplaza operadores o revisión humana?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'No. Ordena video, marca eventos y documenta evidencia. La decisión final queda en revisión humana del cliente.',
+            text: 'CCTV AI Integrado ordena video, marca eventos y documenta evidencia. La decisión final queda en revisión humana del cliente.',
           },
         },
         {
@@ -386,7 +395,7 @@ export function buildCctvAiProductTemplate(product?: ProductoV4 | null) {
       url: productUrl,
       name: product?.titulo || 'CCTV AI Integrado',
       description:
-        'Producto UMSA CCTV AI de ULTIMA MILLA, con piloto, dashboard demo, alertas, clips e informe forense verificable.',
+        'Producto UMSA CCTV AI de ULTIMA MILLA, con piloto, consola forense, alertas, clips e informe forense verificable.',
       significantLink: [
         'https://www.ultimamilla.com.ar/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi',
         'https://www.ultimamilla.com.ar/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp',

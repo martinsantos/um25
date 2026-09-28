@@ -4,7 +4,8 @@ import { getAntecedentes, getServicios } from '../../lib/um26-directus';
 import { getAntecedentesCatalogCount } from '../../utils/verifiedProof';
 import EmailLink from '../../components/common/EmailLink.astro';
 
-const heroImage = '/img/antecedentes/3068.webp';
+// Hero editorial: no coincide con ninguna miniatura del listado.
+const heroImage = '/images/editorial/umsa-about-engineering.webp';
 const PAGE_SIZE = 24;
 const catalogCount = getAntecedentesCatalogCount();
 
@@ -49,7 +50,8 @@ function cleanTitle(raw: unknown, client: string): string {
   return title.replace(/\s+-\s+/g, ' · ');
 }
 
-const leadOrder = [3043, 3029, 3111, 3013, 3022, 3037, 3066, 3031, 3028, 3067, 3068, 3071];
+// Destacados: los 4 proyectos reales con imagen curada; el resto sigue por fecha.
+const leadOrder = [3065, 3075, 3064, 3334];
 const orderedLead = leadOrder.map((id) => antecedentesById.get(id)).filter(Boolean);
 const rest = antecedentes.filter((item) => !leadOrder.includes(item.id));
 
@@ -117,7 +119,7 @@ const filterGroups = [
 >
   <div class="ev" data-evidence>
     <header class="ev-hero" aria-labelledby="evidence-title">
-      <img src={heroImage} alt="" width="1920" height="1080" loading="eager" decoding="async" fetchpriority="high" />
+      <img src={heroImage} alt="" width="1672" height="941" loading="eager" decoding="async" fetchpriority="high" />
       <div class="ev-hero__shade" aria-hidden="true"></div>
       <div class="ev-shell ev-hero__inner">
         <p class="ev-kicker"><span aria-hidden="true"></span>Antecedentes</p>
@@ -534,8 +536,11 @@ const filterGroups = [
     }
 
     .ev-toggle span:not(:empty) {
-      min-width: 22px;
-      padding: 2px 6px;
+      display: inline-grid;
+      place-items: center;
+      min-width: 24px;
+      min-height: 24px;
+      padding: 0 8px;
       border-radius: 4px;
       background: var(--x-text);
       color: var(--x-ink);
@@ -748,12 +753,15 @@ const filterGroups = [
       position: absolute;
       left: 12px;
       bottom: 12px;
-      padding: 3px 8px;
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 10px;
       border-radius: 4px;
       background: rgba(10, 10, 11, 0.78);
       color: var(--x-text-2);
       font-size: 13px;
-      line-height: 1.3;
+      line-height: 1;
     }
 
     .ev-card__body {
@@ -992,7 +1000,9 @@ const filterGroups = [
         left: 0;
         right: 0;
         bottom: 0;
-        padding: 4px 6px;
+        justify-content: center;
+        min-height: 28px;
+        padding: 0 10px;
         border-radius: 0;
         text-align: center;
         white-space: nowrap;
