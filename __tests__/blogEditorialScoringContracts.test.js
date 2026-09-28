@@ -59,7 +59,7 @@ describe('Blog editorial GEO scoring contracts', () => {
     // Directus como en el fallback estático.
     const blogData = source('src/utils/getBlogData.ts');
     const sitemapEntries = blogData.slice(blogData.indexOf('export async function fetchBlogSitemapEntries'));
-    expect(source('src/pages/sitemap-blog.xml.ts')).toContain('return (await fetchBlogSitemapEntries()) as BlogPost[];');
+    expect(source('src/pages/sitemap-blog.xml.ts')).toContain('(await fetchBlogSitemapEntries()) as BlogPost[];');
     expect(sitemapEntries).toContain('if (posts.length > 0) return diversifyBlogPostCovers(posts) as BlogSitemapEntry[];');
     expect(sitemapEntries).toContain('return diversifyBlogPostCovers(UM26_FALLBACK_POSTS');
     expect(source('scripts/blog-cover-diversity-backfill.mjs')).toContain('--apply');

@@ -1,6 +1,7 @@
 ---
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import BlogCategoryTabs from '../../components/blog/BlogCategoryTabs.astro';
+import BlogTopicNav from '../../components/blog/BlogTopicNav.astro';
 import BlogCard from '../../components/blog/BlogCard.astro';
 import BlogHero from '../../components/blog/BlogHero.astro';
 import BlogPagination from '../../components/blog/BlogPagination.astro';
@@ -112,6 +113,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
 
     <div class="bx-shell">
       <BlogCategoryTabs />
+      <BlogTopicNav />
 
       {featuredPost && (
         <section class="bx-featured" aria-label="Artículo destacado">

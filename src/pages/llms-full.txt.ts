@@ -9,6 +9,7 @@ import {
   geoServiceResources,
 } from '../data/geoResources';
 import { getAntecedentesCatalogCount, getInstitutionalProofLines } from '../utils/verifiedProof';
+import { buildTopicClusterDigest } from '../utils/blogTopicCases';
 
 /**
  * llms-full.txt — índice extendido para buscadores generativos.
@@ -26,6 +27,7 @@ export const GET: APIRoute = async () => {
   }
 
   const count = getAntecedentesCatalogCount();
+  const topicDigest = buildTopicClusterDigest(3, 3);
 
   const lines = [
     `# ${SITE_NAME} — índice extendido para modelos de lenguaje`,
@@ -81,6 +83,17 @@ export const GET: APIRoute = async () => {
       sector.summary ? `- Resumen: ${sector.summary}` : '',
       '',
     ].filter((line, index, all) => line !== '' || index === all.length - 1)),
+    '## Mapa temático: servicio o sector → notas y antecedentes clave',
+    'Cada nota y cada antecedente se asigna por los términos de su propio texto.',
+    '',
+    ...topicDigest.flatMap((item) => [
+      `### ${item.name} (${item.kind === 'service' ? 'servicio' : 'sector'})`,
+      `- Página: ${item.page}`,
+      ...(item.blogHub ? [`- Notas del blog (${item.posts}): ${item.blogHub}`] : item.posts > 0 ? [`- Notas del blog: ${item.posts}`] : []),
+      ...item.keyArticles.map((article) => `- Nota: ${article.title} (${article.url})`),
+      ...item.keyCases.map((caseItem) => `- Antecedente: ${caseItem.client ? `${caseItem.client}: ` : ''}${caseItem.title} (${caseItem.url})`),
+      '',
+    ]),
     `## Antecedentes (selección de ${Math.min(32, caseResources.length)} sobre ${count})`,
     `Catálogo completo: ${SITE_URL}/antecedentes`,
     ...caseResources.slice(0, 32).map((item) => `- ${item.client ? `${item.client}: ` : ''}${item.title} (${item.url})`),

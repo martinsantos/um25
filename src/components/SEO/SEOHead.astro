@@ -54,8 +54,14 @@ const {
   gscVerification,
   updatedTime,
   service,
-  breadcrumbs = [],
+  breadcrumbs: breadcrumbsFromLayout = [],
 } = Astro.props;
+
+// Una página puede fijar su jerarquía (Blog → Tema → Nota) en Astro.locals;
+// si no, se usan las migas derivadas de la URL por el layout.
+const breadcrumbs = Astro.locals?.seoBreadcrumbs?.length
+  ? Astro.locals.seoBreadcrumbs
+  : breadcrumbsFromLayout;
 
 // ---------------------------------------------------------------------------
 // Normalise current URL to the public canonical host and strip trailing slash.

@@ -22,3 +22,14 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+declare namespace App {
+  interface Locals {
+    /**
+     * Migas explícitas para BreadcrumbList: una página las fija en su frontmatter
+     * cuando la jerarquía temática no coincide con la ruta (p. ej. Blog → Tema → Nota).
+     * SEOHead las prioriza sobre las derivadas de la URL.
+     */
+    seoBreadcrumbs?: Array<{ name: string; url: string }>;
+  }
+}

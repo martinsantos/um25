@@ -47,6 +47,7 @@ import {
   resolveReplicaTitle,
 } from '../../../utils/replicaProdCopy';
 import { getDatasheetPublicPath } from '../../../utils/datasheets';
+import TopicGuides from '../../../components/SEO/TopicGuides.astro';
 
 const { id, slug } = Astro.params;
 
@@ -211,6 +212,8 @@ const serviceStrategicLinkGroups = buildServiceStrategicLinkGroups({
 // Structured Data - Service schema
 const serviceStructuredData = {
   "@type": "Service",
+  // Misma @id que usan los artículos del blog en `about`/`mentions`.
+  "@id": `${canonicalUrl}#service`,
   "name": seoTitleBase,
   "description": pageDescription,
   "url": canonicalUrl,
@@ -222,11 +225,7 @@ const serviceStructuredData = {
     `${siteUrl}/contacto`,
   ],
   "image": serviceImage.startsWith('http') ? serviceImage : `${siteUrl}${serviceImage}`,
-  "provider": {
-    "@type": "Organization",
-    "name": "ULTIMA MILLA",
-    "url": siteUrl
-  },
+  "provider": { "@id": `${siteUrl}/#organization` },
   "areaServed": [
     { "@type": "City", "name": "Mendoza" },
     { "@type": "City", "name": "San Juan" },
@@ -616,6 +615,9 @@ const fichaItems = [
         </div>
       </section>
     )}
+
+    <!-- Guías y análisis del blog para este servicio (mapa temático) -->
+    <TopicGuides kind="service" topicKey={String(id)} label={visual?.shortName || cmsTitle} />
 
     <!-- 5 · Ficha técnica + CTA único -->
     <section class="svc-section svc-section--close" aria-labelledby="svc-close-title">
