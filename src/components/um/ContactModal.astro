@@ -21,7 +21,7 @@ import EmailLink from '../common/EmailLink.astro';
       <div class="um-contact-context" data-contact-context hidden>
         <span>Tu consulta</span>
         <strong data-contact-context-title>Consulta general</strong>
-        <p data-contact-context-detail>Origen: sitio ULTIMA MILLA</p>
+        <p data-contact-context-detail>Consulta desde el sitio</p>
       </div>
     </aside>
 
@@ -31,8 +31,8 @@ import EmailLink from '../common/EmailLink.astro';
 
     <div class="um-contact-dialog__main">
       <div class="um-contact-mode" role="group" aria-label="Modo de consulta">
-        <button type="button" class="is-active" data-contact-mode="short" aria-pressed="true">Mensaje corto</button>
-        <button type="button" data-contact-mode="guided" aria-pressed="false">Completar mensaje</button>
+        <button type="button" class="is-active" data-contact-mode="short" aria-pressed="true">Mensaje breve</button>
+        <button type="button" data-contact-mode="guided" aria-pressed="false">Mensaje guiado</button>
       </div>
 
       <form id="umContactModalForm" class="um-contact-form" method="post" action="/api/contact" novalidate>
@@ -67,7 +67,7 @@ import EmailLink from '../common/EmailLink.astro';
         </label>
 
         <div class="um-contact-guides" data-contact-guides hidden>
-          <p>Atajos rápidos</p>
+          <p>Motivo de la consulta</p>
           <div class="um-contact-guide-grid">
             <button type="button" data-contact-prompt="Quiero coordinar un diagnóstico sobre {context}.">Diagnóstico</button>
             <button type="button" data-contact-prompt="Quiero cotizar alcance y próximos pasos para {context}.">Cotizar alcance</button>
@@ -92,7 +92,7 @@ import EmailLink from '../common/EmailLink.astro';
             <Send aria-hidden="true" size={18} />
             Enviar consulta
           </button>
-          <p><span data-contact-count>0</span>/1200. El resto lo ordenamos nosotros.</p>
+          <p><span data-contact-count>0</span>/1200 caracteres</p>
         </div>
 
         <div class="um-contact-message um-contact-message--success" role="status" hidden>
@@ -221,7 +221,7 @@ import EmailLink from '../common/EmailLink.astro';
       }
       if (textarea instanceof HTMLTextAreaElement) {
         textarea.placeholder = isGuided
-          ? 'Elegí un atajo o escribí tu mensaje.'
+          ? 'Elegí un motivo o escribí tu mensaje.'
           : 'Necesito que me contacten por...';
       }
     }
@@ -298,22 +298,22 @@ import EmailLink from '../common/EmailLink.astro';
       let valid = true;
 
       if (name.length < 2) {
-        showError('name', 'Ingresa tu nombre.');
+        showError('name', 'Ingresá tu nombre.');
         valid = false;
       }
 
       if (!isValidEmail(email)) {
-        showError('email', 'Ingresa un email valido.');
+        showError('email', 'Ingresá un email válido.');
         valid = false;
       }
 
       if (message.length < 12) {
-        showError('message', 'Agrega una frase corta de contexto.');
+        showError('message', 'Agregá una frase de contexto.');
         valid = false;
       }
 
       if (message.length > 1200) {
-        showError('message', 'Reduci el mensaje a 1200 caracteres.');
+        showError('message', 'Reducí el mensaje a 1200 caracteres.');
         valid = false;
       }
 
@@ -472,7 +472,7 @@ import EmailLink from '../common/EmailLink.astro';
         updateCounter();
         if (successMessage instanceof HTMLElement) successMessage.hidden = false;
       } catch (error) {
-        showSubmitError(error instanceof Error ? error.message : 'No se pudo enviar. Revisa los datos.');
+        showSubmitError(error instanceof Error ? error.message : 'No se pudo enviar. Revisá los datos.');
       } finally {
         if (submitButton instanceof HTMLButtonElement) {
           submitButton.disabled = false;
@@ -635,10 +635,14 @@ import EmailLink from '../common/EmailLink.astro';
     cursor: pointer;
   }
 
-  .um-contact-close:hover,
+  .um-contact-close:hover {
+    border-color: var(--um-red);
+  }
+
   .um-contact-close:focus-visible {
     border-color: var(--um-red);
-    outline: none;
+    outline: 2px solid var(--um-red);
+    outline-offset: 2px;
   }
 
   .um-contact-mode {

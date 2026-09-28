@@ -23,7 +23,7 @@ const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=
   <div class="svc-story__stage" data-src={src}>
     <img src="/cine/media/story-fachada.jpg" alt="" width="1600" height="900" loading="lazy" decoding="async" />
     <div class="svc-story__frame" aria-hidden="true"></div>
-    <button class="svc-story__mount" type="button" hidden>Ver los sistemas en 3D</button>
+    <button class="svc-story__mount" type="button" hidden>Recorrer el gemelo digital</button>
     <p class="svc-story__now" aria-live="polite"><i></i><span>{items[0]?.name}</span></p>
   </div>
   <ol class="svc-story__list">
@@ -34,7 +34,7 @@ const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=
           <p class="svc-story__code"><span>{s.code}</span></p>
           <h3>{s.name}</h3>
           <p class="svc-story__body">{s.body}</p>
-          <a class="svc-story__link" href={s.href}>Ver {s.name.toLowerCase()} <span aria-hidden="true">→</span></a>
+          <a class="svc-story__link" href={s.href}>Ver {s.name.charAt(0).toLowerCase() + s.name.slice(1)} <span aria-hidden="true">→</span></a>
         </div>
       </li>
     ))}
@@ -58,7 +58,7 @@ const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=
     const mount = () => {
       if (frame) return;
       frame = document.createElement('iframe');
-      frame.title = 'Sistemas del edificio en 3D';
+      frame.title = 'Gemelo digital · Sistemas del edificio';
       frame.tabIndex = -1;
       frame.src = stage.dataset.src || '';
       host.appendChild(frame);

@@ -5,58 +5,64 @@ import UMButton from '../components/um/UMButton.astro';
 const blocks = [
   {
     code: '01',
-    title: 'Calidad y trazabilidad de obra',
-    body: 'Entregables, protocolos de prueba y documentación de proyecto según el alcance contratado. No publicamos certificados de gestión de la empresa (p. ej. ISO 9001) en el sitio: si su proceso de compras los exige, solicítelos por el canal comercial.',
-    evidence: 'Protocolos, entregables y respaldo del alcance ejecutado.',
+    title: 'Protocolos y entregables de obra',
+    body: 'Cada proyecto cierra con protocolos de prueba, entregables y documentación de obra según el alcance contratado, listos para recepción técnica y auditoría.',
+    evidence: 'Protocolos de prueba, entregables y registro del alcance ejecutado.',
   },
   {
     code: '02',
-    title: 'Seguridad de la información en proyectos',
-    body: 'Prácticas de acceso, respaldo y continuidad acordadas por proyecto (corporativo, sector público, planta). Evidencias y políticas se comparten en licitaciones o auditorías de proveedor cuando corresponde — no como certificación ISO 27001 corporativa visible en la web.',
-    evidence: 'Accesos, resguardos y responsabilidades definidos por proyecto.',
+    title: 'Certificación de puntos de cableado',
+    body: 'Cableado estructurado y canalizaciones certificados punto por punto con equipamiento Fluke, con reporte de mediciones por canal y documentación de obra.',
+    evidence: 'Reporte de certificación por punto y documentación de obra.',
   },
   {
     code: '03',
-    title: 'Detección de incendios (SDI) y corrientes débiles',
-    body: 'Experiencia en ingeniería, instalación y mantenimiento de SDI en aeropuertos, salud, industria y edificios corporativos (ver antecedentes por sector). Las referencias normativas (IRAM, NFPA u otras) se aplican según el proyecto y el requisito del cliente, no como sello de certificación de ULTIMA MILLA.',
-    evidence: 'Referencias normativas aplicadas al rubro y requisito del cliente.',
+    title: 'Seguridad de la información por proyecto',
+    body: 'Accesos, respaldos y continuidad se acuerdan con cada cliente —corporativo, sector público o planta— y quedan documentados como parte del proyecto.',
+    evidence: 'Accesos, resguardos y responsabilidades definidos por proyecto.',
   },
   {
     code: '04',
-    title: 'Cableado e instalaciones asociadas',
-    body: 'Cableado estructurado y canalizaciones con pruebas de canal y documentación de obra cuando el alcance lo incluye (certificación de puntos, no certificación ISO de la empresa).',
-    evidence: 'Pruebas de canal, planos y documentación cuando el alcance lo incluye.',
+    title: 'Ingeniería de detección de incendios (SDI)',
+    body: 'Ingeniería, instalación y mantenimiento de SDI en aeropuertos, salud, industria y edificios corporativos, según las normas aplicables a cada obra (IRAM, NFPA 72) y los requisitos del cliente.',
+    evidence: 'Ingeniería documentada con las normas aplicadas en cada obra.',
+  },
+  {
+    code: '05',
+    title: 'Dossiers para licitaciones y auditorías',
+    body: 'Para pliegos, seguros y auditorías de proveedor, ULTIMA MILLA arma un dossier con antecedentes, protocolos y documentación técnica del rubro.',
+    evidence: 'Dossier a medida del pliego o de la auditoría, bajo solicitud.',
   },
 ];
 ---
 
 <LayoutV4
   title="Documentación técnica y cumplimiento | ULTIMA MILLA"
-  description="Marco de documentación de proyectos, SDI y cableado de ULTIMA MILLA. Certificados y dossiers se entregan bajo solicitud comercial."
+  description="Protocolos, certificación de puntos de cableado, ingeniería SDI y documentación de obra de ULTIMA MILLA. Dossiers para licitaciones y auditorías de proveedor bajo solicitud."
   keywords="documentación técnica proyectos IT, SDI Mendoza, cableado estructurado certificación puntos, cumplimiento licitaciones Argentina"
 >
   <section class="um-container cert-page">
     <header class="cert-page__hero">
       <div>
-        <p class="cert-page__eyebrow">Cumplimiento técnico</p>
+        <p class="cert-page__eyebrow">Documentación técnica</p>
         <h1>Documentación técnica para compras, auditorías y licitaciones</h1>
         <p>
-          Qué puede acreditar ULTIMA MILLA en un proceso de compra y qué no se publica
-          como certificación corporativa sin respaldo verificable.
+          ULTIMA MILLA entrega con cada proyecto los protocolos, las mediciones y la documentación
+          de obra que respaldan lo ejecutado, listos para compras, auditoría o pliego.
         </p>
         <div class="cert-page__hero-actions">
           <UMButton href="/contacto">Solicitar documentación</UMButton>
           <a href="/antecedentes">Ver antecedentes</a>
         </div>
       </div>
-      <aside class="cert-page__brief" aria-label="Criterio de documentación">
-        <span>Criterio vigente</span>
-        <strong>No inventamos sellos. Entregamos respaldo por proyecto cuando corresponde.</strong>
-        <p>Dossiers, protocolos y referencias normativas se comparten bajo solicitud comercial.</p>
+      <aside class="cert-page__brief" aria-label="Respaldo por proyecto">
+        <span>Respaldo por proyecto</span>
+        <strong>Cada obra se entrega medida, documentada y trazable.</strong>
+        <p>Dossiers para licitaciones y auditorías de proveedor, bajo solicitud comercial.</p>
       </aside>
     </header>
 
-    <div class="cert-page__ledger" aria-label="Áreas de documentación técnica">
+    <div class="cert-page__ledger" aria-label="Documentación técnica por disciplina">
       {blocks.map((block) => (
         <article>
           <span>{block.code}</span>
@@ -70,7 +76,7 @@ const blocks = [
     </div>
 
     <div class="cert-page__cta">
-      <p>¿Necesita dossier para licitación, seguro o auditoría de proveedor?</p>
+      <p>¿Necesita un dossier para licitación, seguro o auditoría de proveedor?</p>
       <UMButton href="/contacto">Solicitar documentación</UMButton>
     </div>
   </section>

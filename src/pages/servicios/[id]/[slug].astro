@@ -81,7 +81,7 @@ const editorialHeroTitle =
   (!replicaProd && demoCopy?.headline) || visual?.shortName || cmsTitle || servicio.Titulo;
 const serviceHeroTitle = resolveReplicaH1(serviceDetailPath, editorialHeroTitle);
 const serviceCtaTitle = replicaProd
-  ? `¿Listo para implementar ${cmsTitle}?`
+  ? `¿Listo para implementar ${String(cmsTitle).replace(/[.\s]+$/, '')}?`
   : visual?.shortName
     ? `Convertir ${visual.shortName.toLowerCase()} en un alcance verificable`
     : 'Convertir este servicio en un alcance verificable';
@@ -430,9 +430,16 @@ const marcas = Array.isArray(servicio.marcas) ? servicio.marcas.map((m: unknown)
 const serviceShortName = visual?.shortName || cmsTitle;
 const serviceSummaryText = cleanCmsText(plainTextFromHtml(serviceBodySource)) ||
   'Alcance técnico definido bajo relevamiento de sitio y criterios operativos verificables.';
+// Plazo y garantía de materiales aplican a los servicios de instalación; software,
+// soporte y consultoría se definen por alcance.
+const isInstallService = [101, 102, 103, 107, 108].includes(Number(id));
 const fichaItems = [
-  { label: 'Implementación', value: '2–8 semanas' },
-  { label: 'Garantía', value: '5 años en materiales' },
+  ...(isInstallService
+    ? [
+        { label: 'Implementación', value: '2–8 semanas' },
+        { label: 'Garantía', value: '5 años en materiales' },
+      ]
+    : []),
   { label: 'Cobertura', value: 'Mendoza, Cuyo y Patagonia' },
   ...displayStats.slice(0, 3).map((stat: any) => ({ label: cleanCmsText(stat.label), value: cleanCmsText(stat.value) })),
 ];

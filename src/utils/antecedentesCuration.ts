@@ -210,8 +210,8 @@ function humanizeTemplateDescription(title: string, description: string): string
   const match = description.match(/^(.+?)\s+Cliente:\s+(.+?)\.\s+Sector:\s+(.+?)\.?$/i);
   if (!match) return description;
 
-  const [, sourceTitle, client, sector] = match.map((part) => fixKnownTextErrors(cleanAntecedenteText(part)));
-  return `Antecedente de ${sourceTitle || title} para ${client}, dentro de ${sector}.`;
+  const [, sourceTitle, client] = match.map((part) => fixKnownTextErrors(cleanAntecedenteText(part)));
+  return `${sourceTitle || title}. Cliente: ${client}.`;
 }
 
 function buildDisplayDescription(item: Record<string, any>, displayTitle: string): string {

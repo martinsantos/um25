@@ -81,7 +81,10 @@ describe('CCTV AI product contract', () => {
 
     expect(page).toContain("getProductoComercialBySlug('cctv-ai-integrado')");
     expect(page).toContain('buildCctvAiProductTemplate');
-    expect(page).toContain('Referencia de mercado vs. producto UMSA CCTV AI');
+    expect(page).toContain('Analítica de fabricante frente a UMSA CCTV AI.');
+    // La consola se lee como la interfaz real del producto: sin rótulos de demo.
+    expect(page).not.toMatch(/Demo con imágenes|Planta demo|Confianza demo|se muestra como referencia/);
+    expect(page).toContain('Imagen ilustrativa');
     expect(page).toContain('cctvai-options-row--recommended');
     expect(page).toContain('data-cctvai-demo');
     expect(helper).toContain('contenido_producto');

@@ -1,7 +1,7 @@
 ---
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import { getProductoComercialBySlug } from '../../lib/directus';
-import { buildCctvAiProductTemplate } from '../../utils/commercialProductTemplate';
+import { buildCctvAiProductTemplate, isUmsaOption, optionLabel } from '../../utils/commercialProductTemplate';
 
 const productRecord = await getProductoComercialBySlug('cctv-ai-integrado');
 const {
@@ -43,7 +43,7 @@ const {
         <p class="cctvai-hero__lead">{hero.lead}</p>
         <div class="cctvai-hero__actions">
           <a class="um-btn-primary" href="/contacto">Solicitar diagnóstico</a>
-          <a class="um-btn-secondary cctvai-btn-dark" href="#dashboard-demo">Abrir dashboard demo</a>
+          <a class="um-btn-secondary cctvai-btn-dark" href="#dashboard-demo">Ver la consola forense</a>
         </div>
         <dl class="cctvai-proof" aria-label="Alcance recomendado">
           {proof.map((item) => (
@@ -78,7 +78,7 @@ const {
       <a href="#valor">Valor</a>
       <a href="#opciones">Comparación</a>
       <a href="#piloto">Piloto</a>
-      <a href="#dashboard-demo">Dashboard demo</a>
+      <a href="#dashboard-demo">Consola forense</a>
       <a href="#limites">Límites</a>
     </div>
   </nav>
@@ -109,8 +109,8 @@ const {
         <p class="cctvai-kicker">Integraciones</p>
         <h2>CCTV, software y soporte dentro de una misma operación.</h2>
         <p>
-          UMSA CCTV AI vive entre seguridad electrónica, software a medida y soporte. UMSA configura,
-          integra, opera, ajusta o analiza según el caso del cliente.
+          UMSA CCTV AI reúne seguridad electrónica, software a medida y soporte. UMSA configura,
+          integra, opera y ajusta el sistema según cada operación.
         </p>
       </div>
 
@@ -130,10 +130,10 @@ const {
     <div class="um-container">
       <div class="cctvai-section-head">
         <p class="cctvai-kicker">Comparación comercial</p>
-        <h2>Referencia de mercado vs. producto UMSA CCTV AI.</h2>
+        <h2>Analítica de fabricante frente a UMSA CCTV AI.</h2>
         <p>
-          Publicamos una sola opción: UMSA CCTV AI. La alternativa de mercado se muestra como referencia
-          para comparar costo, alcance y funciones reales antes de decidir.
+          Costo, alcance y funciones de UMSA CCTV AI frente a una analítica cerrada de fabricante,
+          lado a lado, para decidir con números.
         </p>
       </div>
 
@@ -144,12 +144,12 @@ const {
           <ul>
             <li>Licencias y servidor del fabricante</li>
             <li>Reglas estándar por ecosistema</li>
-            <li>Menos integración con operación real</li>
+            <li>Integración limitada con la operación</li>
           </ul>
         </article>
         <article class="cctvai-mode-card cctvai-mode-card--umsa">
-          <p>Producto publicado</p>
-          <h3>UMSA CCTV AI.</h3>
+          <p>UMSA CCTV AI</p>
+          <h3>Abierta, integrada, medible.</h3>
           <ul>
             <li>Piloto de 30 días sobre 6 cámaras</li>
             <li>Alertas, clips, dashboard e informes</li>
@@ -161,7 +161,7 @@ const {
       <div class="cctvai-options-table" role="table" aria-label="Comparación CCTV AI">
         <div class="cctvai-options-table__head" role="row">
           <span role="columnheader">Alternativa</span>
-          <span role="columnheader">Qué se evalúa</span>
+          <span role="columnheader">Solución</span>
           <span role="columnheader">Inversión</span>
           <span role="columnheader">Funciones incluidas</span>
           <span role="columnheader">Lectura comercial</span>
@@ -170,12 +170,12 @@ const {
           <div
             class:list={[
               'cctvai-options-row',
-              option.model === 'Producto publicado' && 'cctvai-options-row--recommended',
+              isUmsaOption(option.model) && 'cctvai-options-row--recommended',
             ]}
             role="row"
           >
-            <span role="cell" data-label="Alternativa">{option.model}</span>
-            <strong role="cell" data-label="Qué se evalúa">{option.name}</strong>
+            <span role="cell" data-label="Alternativa">{optionLabel(option.model)}</span>
+            <strong role="cell" data-label="Solución">{option.name}</strong>
             <span role="cell" data-label="Inversión">{option.price}</span>
             <p role="cell" data-label="Funciones incluidas">{option.scope}</p>
             <p role="cell" data-label="Lectura comercial">{option.fit}</p>
@@ -211,11 +211,11 @@ const {
   <section id="dashboard-demo" class="cctvai-section cctvai-demo" aria-labelledby="dashboard-demo-title">
     <div class="um-container">
       <div class="cctvai-section-head">
-        <p class="cctvai-kicker">Dashboard demo</p>
-        <h2 id="dashboard-demo-title">Scrub forense: del video al informe.</h2>
+        <p class="cctvai-kicker">Consola forense</p>
+        <h2 id="dashboard-demo-title">Del video al informe forense.</h2>
         <p>
-          Demo con imágenes generadas. Simula cómo UMSA revisa clips, clasifica eventos,
-          adjunta evidencia visual y deja recomendaciones claras para la operación.
+          UMSA revisa clips, clasifica eventos, adjunta evidencia visual y entrega recomendaciones
+          claras para la operación. Recorra la línea de tiempo de un turno.
         </p>
       </div>
 
@@ -223,7 +223,7 @@ const {
         <header class="cctvai-demo-shell__bar">
           <div>
             <span>UMSA CCTV AI</span>
-            <strong>Planta demo / 6 cámaras críticas</strong>
+            <strong>Planta industrial · 6 cámaras críticas</strong>
           </div>
           <dl>
             <div>
@@ -235,8 +235,8 @@ const {
               <dd>controlables</dd>
             </div>
             <div>
-              <dt>Estado</dt>
-              <dd>piloto</dd>
+              <dt>Turno</dt>
+              <dd>mañana</dd>
             </div>
           </dl>
         </header>
@@ -247,7 +247,7 @@ const {
               <img
                 data-demo-image
                 src={demoEvents[0].image}
-                alt="Vista demo CCTV AI"
+                alt="Cámara analizada por UMSA CCTV AI"
                 width="1672"
                 height="941"
                 loading="lazy"
@@ -255,6 +255,7 @@ const {
               />
               <span data-demo-box class={`cctvai-demo-box ${demoEvents[0].box}`}></span>
               <span class="cctvai-scanline" aria-hidden="true"></span>
+              <span class="cctvai-viewer__seal">Imagen ilustrativa</span>
               <figcaption>
                 <span data-demo-camera>{demoEvents[0].camera}</span>
                 <strong data-demo-time>{demoEvents[0].time}</strong>
@@ -272,7 +273,7 @@ const {
                 step="1"
                 value="0"
               />
-              <div class="cctvai-scrub__events" aria-label="Eventos de la demo">
+              <div class="cctvai-scrub__events" aria-label="Eventos del turno">
                 {demoEvents.map((event, index) => (
                   <button
                     type="button"
@@ -297,7 +298,7 @@ const {
                 <dd data-demo-type>{demoEvents[0].type}</dd>
               </div>
               <div>
-                <dt>Confianza demo</dt>
+                <dt>Confianza</dt>
                 <dd data-demo-confidence>{demoEvents[0].confidence}</dd>
               </div>
               <div>
@@ -324,11 +325,11 @@ const {
   <section id="limites" class="cctvai-section cctvai-limits">
     <div class="um-container cctvai-limits__grid">
       <div class="cctvai-section-head">
-        <p class="cctvai-kicker">Límites responsables</p>
-        <h2>No prometemos detecciones frágiles antes de validar imagen real.</h2>
+        <p class="cctvai-kicker">Alcance técnico</p>
+        <h2>Cada detección se valida con imagen real antes de comprometerla.</h2>
         <p>
-          El producto marca evidencia y contexto. No reemplaza operadores, investigación humana ni
-          decisiones internas del cliente.
+          UMSA CCTV AI marca evidencia y contexto para que operadores y responsables decidan con
+          información verificable.
         </p>
       </div>
 
@@ -967,6 +968,21 @@ const {
     color: var(--cctvai-dark-text);
     font-size: 1rem;
     line-height: 1.32;
+  }
+
+  .cctvai-viewer__seal {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 10px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.72);
+    color: rgba(255, 255, 255, 0.86);
+    font-size: 0.8125rem;
+    line-height: 1;
   }
 
   .cctvai-viewer__frame figcaption strong {

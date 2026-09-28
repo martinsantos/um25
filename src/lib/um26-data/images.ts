@@ -9,6 +9,11 @@
  */
 
 import type { SectorSlug, ServiceCode } from "./types";
+import generatedImageMap from "../../data/antecedentes-generated-image-map.json";
+import { curatedAntecedenteImages } from "../../data/editorialImageSystem";
+
+const generatedMap = generatedImageMap as Record<string, string>;
+const CURATED_ANTECEDENTE_IMAGES: Record<string, string> = curatedAntecedenteImages;
 
 // ── Imágenes reales por ID de antecedente (del sitio actual) ──
 const REAL_IMG = {
@@ -106,24 +111,155 @@ export function getServiceCover(code: ServiceCode): string {
   return SERVICE_COVER[code];
 }
 
+// ── Miniaturas únicas por antecedente ──
+// 1) Curadas (/img/antecedentes/{id}.webp) para 3064, 3065, 3081 y 3087.
+// 2) Imagen generada propia del id (la misma que muestra la ficha).
+// 3) Sin imagen propia: la generada libre que mejor coincide con título,
+//    sector y rubro, sin repetir ninguna ya asignada en el catálogo.
+const SECTOR_TERMS: Record<SectorSlug, string[]> = {
+  aeropuertos: ["aeropuerto", "aeropuertos", "aa2000", "vuelo"],
+  bodegas: ["bodega", "bodegas", "vinedos", "cava"],
+  constructoras: ["torre", "fideicomiso", "edificio", "obra"],
+  gobierno: ["gobierno", "municipalidad", "ministerio", "provincia"],
+  industria: ["planta", "industrial", "fabrica", "produccion"],
+  mineria: ["minera", "mineria", "mina"],
+  salud: ["hospital", "salud", "clinica", "fuesmen", "medicina"],
+  "seguridad-electronica": ["seguridad", "acceso", "monitoreo", "alarma"],
+  software: ["software", "digitalizacion", "desarrollo", "sistema"],
+};
+
+const HINT_TERMS: Record<string, string[]> = {
+  "barrier-access": ["acceso", "barrera", "vehicular"],
+  "biometric-access": ["acceso", "biometrico", "control"],
+  "cctv-airport": ["cctv", "camara", "camaras", "aeropuerto"],
+  "cctv-camera": ["cctv", "camara", "camaras"],
+  "cctv-cellar": ["cctv", "camaras", "bodega"],
+  "cctv-perimeter": ["cctv", "camaras", "perimetro", "perimetral"],
+  "consulting-board": ["consultoria", "soporte", "infraestructura"],
+  "control-room": ["monitoreo", "centro", "seguridad"],
+  datacenter: ["data", "center", "rack", "servidores"],
+  "electrical-panel": ["electrica", "electricas", "tableros", "tablero", "ups"],
+  "factory-floor": ["planta", "industrial", "produccion"],
+  "fiber-optic": ["fibra", "optica", "redes"],
+  "fire-detection": ["deteccion", "incendios", "incendio", "sdi", "humo"],
+  "hospital-network": ["hospital", "redes", "datos"],
+  "hospital-rack": ["hospital", "rack", "patch"],
+  "mining-site": ["minera", "campamento"],
+  "network-cabinet": ["redes", "datos", "cableado", "rack"],
+  "server-room": ["servidores", "rack", "data", "center"],
+  "smart-building": ["edificio", "torre", "automatizacion"],
+  "software-screen": ["software", "desarrollo", "digitalizacion", "sistema"],
+  "telecom-tower": ["telecomunicaciones", "antena", "enlace", "radioenlace"],
+  "vineyard-cellar": ["bodega", "vinedos"],
+  "wifi-terminal": ["wifi", "ap", "inalambrica"],
+};
+
+const STOPWORDS = new Set([
+  "de", "del", "la", "las", "el", "los", "en", "y", "para", "por", "con", "a", "al",
+  "sa", "srl", "s", "e", "principal", "it", "24", "7",
+]);
+
+const normalizeWords = (value: string): string[] =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .split(/[^a-z0-9]+/)
+    .filter((word) => word.length > 1 && !STOPWORDS.has(word));
+
+const stem = (word: string) => word.slice(0, 6);
+
+type ThumbnailSeed = {
+  id: number;
+  title: string;
+  client?: string;
+  sectorSlug: SectorSlug;
+  image?: string;
+};
+
+const thumbnailAssignments = new Map<number, string>();
+
 /**
- * Imagen principal para un antecedente mock.
- * Asigna una imagen real basada en sectorSlug + serviceCodes, determinista.
+ * Precalcula una miniatura distinta para cada antecedente del catálogo.
+ * Se llama una vez con el catálogo completo; el resultado es determinista.
+ */
+export function assignAntecedenteThumbnails(seeds: ThumbnailSeed[]): void {
+  if (thumbnailAssignments.size) return;
+  const taken = new Set<string>();
+  const pending: ThumbnailSeed[] = [];
+
+  for (const seed of seeds) {
+    const own = getOwnAntecedenteImage(seed.id);
+    if (own && !taken.has(own)) {
+      thumbnailAssignments.set(seed.id, own);
+      taken.add(own);
+    } else {
+      pending.push(seed);
+    }
+  }
+
+  // Las generadas de ids del catálogo quedan reservadas para su propia ficha.
+  const catalogIds = new Set(seeds.map((seed) => String(seed.id)));
+  const pool = Object.entries(generatedMap)
+    .filter(([id, url]) => !catalogIds.has(id) && !taken.has(url))
+    .map(([, url]) => ({
+      url,
+      stems: new Set(normalizeWords(url.split("/").pop() || "").map(stem)),
+    }));
+
+  for (const seed of pending) {
+    const weighted = new Map<string, number>();
+    const add = (words: string[], weight: number) =>
+      words.forEach((word) => weighted.set(stem(word), Math.max(weighted.get(stem(word)) || 0, weight)));
+    add(normalizeWords(seed.title), 3);
+    add(normalizeWords(seed.client || ""), 1);
+    add(HINT_TERMS[seed.image || ""] || [], 3);
+    add(SECTOR_TERMS[seed.sectorSlug] || [], 1);
+
+    let best = -1;
+    let bestScore = -1;
+    pool.forEach((candidate, index) => {
+      if (taken.has(candidate.url)) return;
+      let score = 0;
+      weighted.forEach((weight, key) => {
+        if (candidate.stems.has(key)) score += weight;
+      });
+      if (score > bestScore) {
+        bestScore = score;
+        best = index;
+      }
+    });
+    if (best >= 0) {
+      const url = pool[best].url;
+      thumbnailAssignments.set(seed.id, url);
+      taken.add(url);
+    }
+  }
+}
+
+function getOwnAntecedenteImage(id: number | string): string {
+  const key = String(id);
+  return CURATED_ANTECEDENTE_IMAGES[key] || generatedMap[key] || "";
+}
+
+/**
+ * Imagen principal (miniatura y ficha) de un antecedente del catálogo.
+ * Única en todo el catálogo; si el id no fue asignado, cae al tema del sector.
  */
 export function getAntecedenteImage(
   sectorSlug: SectorSlug,
   serviceCodes: ServiceCode[],
   id: number,
 ): string {
-  // Combinar imágenes de su sector + su primer servicio, elegir por hash del id
+  const assigned = thumbnailAssignments.get(id) || getOwnAntecedenteImage(id);
+  if (assigned) return assigned;
   const pool = [
     ...THEME_BY_SECTOR[sectorSlug],
     ...(serviceCodes[0] ? THEME_BY_SERVICE[serviceCodes[0]] : []),
   ];
   const unique = [...new Set(pool)];
   if (unique.length === 0) return REAL_IMG["3069"];
-  const pick = unique[id % unique.length];
-  return REAL_IMG[pick];
+  return REAL_IMG[unique[id % unique.length]];
 }
 
 /**
