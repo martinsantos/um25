@@ -83,9 +83,15 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   startSystem();
   const attribution: Record<string, string> = {};
   const campaignUrl = new URL(location.href);
-  for (const key of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content']) {
+  const allowedAttribution: Record<string, RegExp> = {
+    utm_source: /^email$/,
+    utm_medium: /^outreach$/,
+    utm_campaign: /^comunidades_profesionales$/,
+    utm_content: /^photo_[abc]$/,
+  };
+  for (const [key, allowed] of Object.entries(allowedAttribution)) {
     const value = campaignUrl.searchParams.get(key);
-    if (value && /^[a-zA-Z0-9_-]{1,60}$/.test(value)) attribution[key] = value;
+    if (value && allowed.test(value)) attribution[key] = value;
   }
   const track = (event: string, placement: string) => {
     const layer = (window as Window & { dataLayer?: unknown[] }).dataLayer;
@@ -103,12 +109,9 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     if (button) button.disabled = true;
     if (status) status.textContent = 'Enviando consulta…';
     const fields = new FormData(form);
-    const url = new URL(location.href);
     const utm = new URLSearchParams();
-    for (const key of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content']) {
-      const value = url.searchParams.get(key);
-      if (value && /^[a-zA-Z0-9_-]{1,60}$/.test(value)) utm.set(key, value);
-    }
+    for (const [key, value] of Object.entries(attribution)) utm.set(key, value);
+    const url = new URL(location.href);
     const query = utm.toString();
     const payload = {
       name: String(fields.get('name') || '').trim(), email: String(fields.get('email') || '').trim(),
