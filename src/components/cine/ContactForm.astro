@@ -8,7 +8,7 @@ const topics = [
   { id: 'relevamiento', label: 'Relevamiento técnico', hint: 'Qué hay que instalar o mejorar, cuántas sedes y qué restricciones tiene el edificio.' },
   { id: 'abono', label: 'Abono de soporte 24/7', hint: 'Qué activos son críticos, qué tiempo de respuesta necesitás y en qué horarios.' },
   { id: 'pliego', label: 'Licitación o pliego', hint: 'Número de proceso, fechas y requisitos técnicos o de documentación.' },
-  { id: 'otra', label: 'Otra consulta', hint: 'Contanos qué necesitás y lo ordenamos nosotros.' },
+  { id: 'otra', label: 'Otra consulta', hint: 'Contanos qué necesitás, en qué sede y para cuándo.' },
 ];
 const services = ['Redes', 'Seguridad electrónica', 'Telecomunicaciones', 'Software a medida', 'Soporte 24/7', 'Consultoría IT', 'Detección de incendios', 'Eléctricos IT'];
 const urgencies = ['Sin urgencia', 'Esta semana', 'Hoy: hay una falla en curso', 'Tengo fecha de pliego'];
@@ -75,7 +75,7 @@ const urgencies = ['Sin urgencia', 'Esta semana', 'Hoy: hay una falla en curso',
 
     <label class="ctf__field">
       <span>Mensaje <em aria-hidden="true">*</em></span>
-      <textarea id="message" name="message" required rows="5" maxlength="1200" placeholder="Contanos qué necesitás y lo ordenamos nosotros."></textarea>
+      <textarea id="message" name="message" required rows="5" maxlength="1200" placeholder="Contanos qué necesitás, en qué sede y para cuándo."></textarea>
       <small class="ctf__error" data-error-for="message"></small>
       <span class="ctf__count" aria-hidden="true"><b data-count>0</b>/1200</span>
     </label>

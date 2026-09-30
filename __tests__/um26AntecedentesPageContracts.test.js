@@ -33,14 +33,16 @@ describe('UM26 antecedentes index contracts', () => {
     expect(pageSource).toMatch(/const visible = ok && total <= limit;[\s\S]*card\.hidden = !visible;/);
   });
 
-  test('keeps the demo lead order while retaining older records for sort and list mode', () => {
-    expect(pageSource).toContain('const leadOrder = [3043, 3029, 3111, 3013, 3022, 3037, 3066, 3031, 3028, 3067, 3068, 3071];');
+  test('el listado sale del catálogo real (Directus o su copia), nunca de datos de prueba', () => {
+    const um26Directus = fs.readFileSync(path.join(process.cwd(), 'src/lib/um26-directus.ts'), 'utf8');
+    const snapshot = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'src/data/snapshots/antecedentes.json'), 'utf8'));
+    const realIds = new Set((snapshot.data || snapshot).map((item) => Number(item.id)));
+    expect(um26Directus).not.toMatch(/from '\.\/um26-data\/antecedentes'/);
+    expect(um26Directus).toContain('getAllAntecedentes');
+    expect(um26Directus).toContain('mapearAntecedentes');
+    const lead = pageSource.match(/const leadOrder = \[([^\]]+)\]/)[1].split(',').map((id) => Number(id.trim()));
+    lead.forEach((id) => expect(realIds.has(id)).toBe(true));
     expect(pageSource).toContain('const rest = antecedentes.filter((item) => !leadOrder.includes(item.id));');
-    expect(dataSource).toContain('id: 3006');
-    expect(dataSource).toContain('Cableado Estructurado en Terminal de Pasajeros - Aeropuerto de Malargüe');
-    expect(dataSource).toContain('year: 2021');
-    expect(dataSource).toContain('id: 3026');
-    expect(dataSource).toContain('Sistema SDI en Sala de Barricas - Bodega Mendel');
   });
 
   test('exposes the controls required by the visual demo', () => {

@@ -17,7 +17,7 @@ const first = items[0]?.scene || 'aeropuerto';
     ))}
     <video class="um-atlas__video" muted loop playsinline preload="none" aria-hidden="true"></video>
     <p class="um-atlas__now" aria-live="polite"><i></i><span>{titles[first]}</span></p>
-    <button class="um-atlas__motion" type="button">Reproducir</button>
+    <button class="um-atlas__motion" type="button">Reproducir recorrido</button>
   </div>
   <ol class="um-atlas__list">
     {items.map((s, i) => (
@@ -44,7 +44,7 @@ const first = items[0]?.scene || 'aeropuerto';
     const limited = matchMedia('(prefers-reduced-motion: reduce)').matches || Boolean(conn?.saveData);
     const compact = innerWidth <= 820 || matchMedia('(pointer: coarse)').matches;
     let scene = atlas.dataset.scene || 'aeropuerto', userPaused = limited, visible = false, timer: ReturnType<typeof setTimeout> | undefined;
-    const label = () => { button.textContent = video.paused ? 'Reproducir' : 'Pausar'; };
+    const label = () => { button.textContent = video.paused ? 'Reproducir recorrido' : 'Pausar recorrido'; };
     const load = () => { const src = `/cine/media/cine-${scene}.mp4`; if (!video.src.endsWith(src)) { video.classList.remove('is-on'); video.src = src; } };
     const sync = () => { if (visible && !userPaused && !document.hidden) { load(); video.play().catch((e) => { if (e?.name === 'NotAllowedError') { userPaused = true; label(); } }); } else video.pause(); };
     video.addEventListener('playing', () => { video.classList.add('is-on'); label(); });

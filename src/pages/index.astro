@@ -1,4 +1,5 @@
 ---
+import { ANTECEDENTES_REALES } from '../lib/um26-data/antecedentesReales';
 import { sectorCaseLabel } from '../data/sectorCaseCounts';
 import { getAntecedentesCatalogCount } from '../utils/verifiedProof';
 import LayoutV4 from '../layouts/LayoutV4.astro';
@@ -85,40 +86,30 @@ const sectors = [
   { name: 'Software', count: sectorCaseLabel('software'), text: 'ERPs y plataformas a medida', href: '/software', image: '/img/sectores/software.webp', accent: '#DC2626' },
 ];
 
-const cases = [
-  {
-    id: '3065',
-    title: 'Camara de CCTV - Aeropuerto de Mendoza',
-    meta: 'Aeropuertos Argentina 2000 / 2024',
-    sector: 'Aeropuertos',
-    href: '/antecedentes/3065/camara-de-cctv-aeropuerto-de-mendoza',
-    image: '/img/antecedentes/3065.webp',
-  },
-  {
-    id: '3087',
-    title: 'Implementación de Redes de Datos y Fibra Óptica - FUESMEN',
-    meta: 'FUESMEN / 2023',
-    sector: 'Salud',
-    href: '/antecedentes/3087/3087-implementacion-de-redes-de-datos-y-fibra-optica-fuesmen',
-    image: '/img/antecedentes/3087.webp',
-  },
-  {
-    id: '3064',
-    title: 'Desarrollo de Software y Digitalización de Procesos para el Gobierno de Mendoza',
-    meta: 'Gobierno de Mendoza / 2025',
-    sector: 'Gobierno',
-    href: '/antecedentes/3064/desarrollo-de-software-y-digitalizacion-de-procesos-para-el-gobierno-de-la-provincia-de-mendoza',
-    image: '/img/antecedentes/3064.webp',
-  },
-  {
-    id: '3081',
-    title: 'Instalacion electrica para data center de bodega',
-    meta: 'Bodega Tapiz / 2024',
-    sector: 'Bodegas',
-    href: '/antecedentes',
-    image: '/img/antecedentes/3081.webp',
-  },
+// Proyectos destacados: registros reales del catálogo, con su ficha y su imagen curada.
+const SECTOR_LABEL: Record<string, string> = {
+  aeropuertos: 'Aeropuertos', bodegas: 'Bodegas', constructoras: 'Constructoras', gobierno: 'Gobierno',
+  industria: 'Industria', mineria: 'Minería', salud: 'Salud', 'seguridad-electronica': 'Seguridad electrónica', software: 'Software',
+};
+const DESTACADOS: { id: number; image: string }[] = [
+  { id: 3065, image: '/img/antecedentes/curadas/3065-aeropuerto-cctv.webp' },
+  { id: 3075, image: '/img/antecedentes/curadas/3075-fuesmen-redes.webp' },
+  { id: 3064, image: '/img/antecedentes/curadas/3064-gobierno-software.webp' },
+  { id: 3334, image: '/img/antecedentes/curadas/3334-bodega-servidores.webp' },
 ];
+const cases = DESTACADOS.flatMap(({ id, image }) => {
+  const item = ANTECEDENTES_REALES.find((antecedente) => antecedente.id === id);
+  if (!item) return [];
+  const title = item.title.replace(new RegExp(`\\s*-\\s*${item.client.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}.*$`, 'i'), '').trim() || item.title;
+  return [{
+    id: String(id),
+    title,
+    meta: `${item.client}${item.year ? ` / ${item.year}` : ''}`,
+    sector: SECTOR_LABEL[item.sectorSlug] || '',
+    href: `/antecedentes/${id}/${item.slug}`,
+    image,
+  }];
+});
 
 const stats = [
   { value: '22+', label: 'Años de operación', href: '/nosotros', aria: 'Ver trayectoria de ULTIMA MILLA' },
@@ -185,7 +176,7 @@ const hubs = [
 
         <ServicesStory services={services} />
 
-        <a class="um26-text-link" href="/servicios">Ver arquitectura de servicio completa</a>
+        <a class="um26-text-link" href="/servicios">Ver los ocho servicios</a>
       </div>
     </section>
 
@@ -925,7 +916,13 @@ const hubs = [
       position: absolute;
       top: 14px;
       left: 14px;
-      padding: 5px 7px;
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      /* El tracking deja aire a la derecha del último carácter: se descuenta del padding derecho. */
+      padding: 0 calc(12px - 0.15em) 0 12px;
+      border-radius: 4px;
+      line-height: 1;
       background: rgba(10, 10, 11, 0.74);
       color: #dc2626;
       font-family: var(--um-font-editorial);
@@ -939,10 +936,14 @@ const hubs = [
       position: absolute;
       top: 14px;
       right: 14px;
-      padding: 4px 7px;
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 0 calc(12px - 0.1em) 0 12px;
+      border-radius: 4px;
       background: rgba(10, 10, 11, 0.62);
       color: rgba(255, 255, 255, 0.72);
-      font: 600 0.8125rem/1.2 var(--um-font-body, 'UM Sans', sans-serif);
+      font: 600 0.8125rem/1 var(--um-font-body, 'UM Sans', sans-serif);
       letter-spacing: 0.1em;
       text-transform: uppercase;
     }

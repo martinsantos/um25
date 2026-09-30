@@ -84,7 +84,7 @@ const cineScene = cineSector?.scene || 'fachada';
 const cineStats = [
   cineSector?.count
     ? { label: 'Casos en el sector', value: cineSector.count }
-    : { label: 'Proyectos ejecutados', value: String(getAntecedentesCatalogCount()) },
+    : { label: 'Proyectos documentados', value: String(getAntecedentesCatalogCount()) },
   { label: 'Soporte', value: '24/7' },
   { label: 'Trayectoria', value: '22+ años' },
 ];
@@ -103,6 +103,11 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
       if (caseNameAcronyms.has(upper)) return `${prefix}${upper}`;
       return `${prefix}${word.charAt(0).toLocaleUpperCase('es-AR')}${word.slice(1)}`;
     });
+};
+// "Salud & Sector Salud" (dato del CMS) se muestra como "Salud".
+const areaLabel = (area: unknown) => {
+  const parts = String(area || sectorName).split(/\s*&\s*/).map((p) => p.trim()).filter(Boolean);
+  return parts.filter((p) => !parts.some((q) => q !== p && p.toLowerCase().includes(q.toLowerCase()))).join(' y ');
 };
 ---
 
@@ -186,7 +191,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
             <h3>{formatCaseName(leadCase.Cliente || leadCase.Titulo, 'Proyecto destacado')}</h3>
             <p>{cleanCmsText(leadCase.Descripcion || leadCase.Titulo)}</p>
             <dl>
-              <div><dt>Área</dt><dd>{String(leadCase.Area || sectorName).replace(/\s*&\s*/g, ' y ')}</dd></div>
+              <div><dt>Área</dt><dd>{areaLabel(leadCase.Area)}</dd></div>
               {leadCase.Fecha && <div><dt>Año</dt><dd>{String(leadCase.Fecha).slice(0, 4)}</dd></div>}
             </dl>
             <strong class="um-click-action">Ver detalle</strong>
@@ -200,7 +205,7 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
             <span>{String(index + 2).padStart(2, '0')}</span>
             {item.imageUrl && <img src={item.imageUrl} alt="" width="1200" height="900" loading="lazy" decoding="async" />}
             <div>
-              <p>{String(item.Area || sectorName).replace(/\s*&\s*/g, ' y ')}{item.Fecha ? ` · ${String(item.Fecha).slice(0, 4)}` : ''}</p>
+              <p>{areaLabel(item.Area)}{item.Fecha ? ` · ${String(item.Fecha).slice(0, 4)}` : ''}</p>
               <strong>{formatCaseName(item.Cliente || item.Titulo, 'Proyecto')}</strong>
               <em>{cleanCmsText(item.Descripcion || item.Titulo)}</em>
             </div>
@@ -228,8 +233,8 @@ const formatCaseName = (value: unknown, fallback = 'Antecedente') => {
         ))}
         {nextLinks.length === 0 && (
           <>
-            <a href="/contacto"><span>Contacto</span><strong>Contacto técnico</strong><em>Enviar contexto operativo para recibir el próximo paso.</em></a>
-            <a href="/servicios"><span>Servicios</span><strong>Servicios IT</strong><em>Ver capacidades aplicadas a continuidad operativa.</em></a>
+            <a href="/contacto"><span>Contacto</span><strong>Contacto técnico</strong><em>Un técnico responde por email con el próximo paso.</em></a>
+            <a href="/servicios"><span>Servicios</span><strong>Servicios IT</strong><em>Los ocho frentes de servicio, con su alcance técnico.</em></a>
           </>
         )}
       </div>

@@ -1,7 +1,7 @@
 ---
 /**
- * Banda de evidencia institucional.
- * Usa datos verificables del snapshot CMS; no inventa logos, certificaciones ni métricas.
+ * Banda de evidencia institucional con datos verificables del snapshot CMS
+ * (conteo de antecedentes y clientes con más proyectos).
  */
 import {
   getAntecedentesCatalogCount,
@@ -10,9 +10,48 @@ import {
 
 interface Props {
   class?: string;
+  locale?: 'es' | 'en';
 }
 
-const { class: className = '' } = Astro.props;
+const { class: className = '', locale = 'es' } = Astro.props;
+const COPY = {
+  es: {
+    eyebrow: 'Evidencia verificable',
+    title: 'Clientes, escala y evidencia antes de contratar.',
+    lead: 'Proyectos, organizaciones y sectores donde ULTIMA MILLA ya operó, con alcance y trazabilidad.',
+    archive: 'Archivo de proyectos',
+    archiveNote: 'antecedentes técnicos documentados.',
+    archiveLink: 'Ver antecedentes',
+    ledger: 'Clientes con más proyectos',
+    client: 'Cliente',
+    projects: 'Proyectos',
+    area: 'Sector principal',
+    docs: [
+      ['Dossier por proyecto', 'Alcance, protocolo, responsables y evidencia técnica de cada obra.'],
+      ['Cumplimiento por rubro', 'Normas y referencias aplicadas según el proyecto y el requisito del cliente.'],
+      ['Compra técnica', 'Documentación lista para compras, auditoría, licitación o continuidad operativa.'],
+    ],
+    docsLink: 'Ver documentación técnica',
+  },
+  en: {
+    eyebrow: 'Verifiable track record',
+    title: 'Clients, scale and evidence before you hire.',
+    lead: 'Projects, organizations and sectors where ULTIMA MILLA has operated, with scope and traceability.',
+    archive: 'Project archive',
+    archiveNote: 'documented technical projects.',
+    archiveLink: 'View projects (ES)',
+    ledger: 'Clients with the most projects',
+    client: 'Client',
+    projects: 'Projects',
+    area: 'Main sector',
+    docs: [
+      ['Project dossier', 'Scope, test protocols, responsibilities and technical evidence for every job.'],
+      ['Sector compliance', 'Standards and references applied per project and client requirement.'],
+      ['Technical procurement', 'Documentation ready for procurement, audits, tenders or operational continuity.'],
+    ],
+    docsLink: 'View technical documentation (ES)',
+  },
+}[locale];
 
 const catalogCount = getAntecedentesCatalogCount();
 const clientRecords = getTopClienteRecords(6);
@@ -22,29 +61,26 @@ const clientRecords = getTopClienteRecords(6);
   <div class="um-trust-strip__inner">
     <header class="um-trust-strip__head">
       <span class="um-trust-strip__rule" aria-hidden="true"></span>
-      <p class="um-trust-strip__eyebrow">Evidencia verificable</p>
-      <h2 id="trust-strip-title">Clientes, escala y evidencia visibles antes de contratar.</h2>
-      <p>
-        El catálogo público muestra proyectos, organizaciones y verticales donde UMSA ya operó.
-        La confianza se construye con proyectos, alcance y trazabilidad.
-      </p>
+      <p class="um-trust-strip__eyebrow">{COPY.eyebrow}</p>
+      <h2 id="trust-strip-title">{COPY.title}</h2>
+      <p>{COPY.lead}</p>
     </header>
 
     <div class="um-trust-strip__board">
-      <aside class="um-trust-strip__proof" aria-label={`${catalogCount} antecedentes técnicos`}>
-        <span>Archivo publicado</span>
+      <aside class="um-trust-strip__proof" aria-label={`${catalogCount} ${COPY.archiveNote}`}>
+        <span>{COPY.archive}</span>
         <strong>{catalogCount}</strong>
-        <p>antecedentes técnicos en el catálogo público.</p>
-        <a href="/antecedentes" class="um-trust-strip__proof-link">Abrir centro de evidencia</a>
+        <p>{COPY.archiveNote}</p>
+        <a href="/antecedentes" class="um-trust-strip__proof-link">{COPY.archiveLink}</a>
       </aside>
 
-      <div class="um-trust-strip__ledger" aria-label="Clientes con antecedentes técnicos">
-        <p class="um-trust-strip__ledger-title">Referencias publicadas</p>
+      <div class="um-trust-strip__ledger" aria-label={COPY.ledger}>
+        <p class="um-trust-strip__ledger-title">{COPY.ledger}</p>
         <div class="um-trust-strip__ledger-head" aria-hidden="true">
           <span></span>
-          <span>Cliente</span>
-          <span>Proyectos</span>
-          <span>Vertical dominante</span>
+          <span>{COPY.client}</span>
+          <span>{COPY.projects}</span>
+          <span>{COPY.area}</span>
         </div>
         {clientRecords.map((client, index) => (
           <a href={`/antecedentes?cliente=${encodeURIComponent(client.name)}`} class="um-trust-strip__client">
@@ -57,23 +93,15 @@ const clientRecords = getTopClienteRecords(6);
       </div>
     </div>
 
-    <div class="um-trust-strip__docs" aria-label="Documentación disponible">
-      <article>
-        <span>01</span>
-        <strong>Dossier por proyecto</strong>
-        <p>Alcance, protocolo, responsables y evidencia técnica cuando el proyecto lo requiere.</p>
-      </article>
-      <article>
-        <span>02</span>
-        <strong>Cumplimiento por rubro</strong>
-        <p>Normativa y referencias aplicadas al cliente, sin vender certificaciones corporativas no verificadas.</p>
-      </article>
-      <article>
-        <span>03</span>
-        <strong>Compra técnica</strong>
-        <p>Información suficiente para compras, auditoría, licitación o continuidad operativa.</p>
-      </article>
-      <a href="/certificaciones" class="um-trust-strip__docs-link">Ver documentación y cumplimiento</a>
+    <div class="um-trust-strip__docs" aria-label={COPY.docsLink}>
+      {COPY.docs.map(([title, text], index) => (
+        <article>
+          <span>{String(index + 1).padStart(2, '0')}</span>
+          <strong>{title}</strong>
+          <p>{text}</p>
+        </article>
+      ))}
+      <a href="/certificaciones" class="um-trust-strip__docs-link">{COPY.docsLink}</a>
     </div>
   </div>
 </section>
@@ -239,6 +267,8 @@ const clientRecords = getTopClienteRecords(6);
     grid-template-columns: 42px minmax(240px, 1.1fr) minmax(72px, 0.2fr) minmax(172px, 0.48fr);
     gap: clamp(16px, 2vw, 28px);
     align-items: center;
+    /* Aire lateral: el fondo de hover no queda pegado al índice ni al rubro. */
+    padding-inline: 16px;
   }
 
   .um-trust-strip__ledger-head {
@@ -253,7 +283,8 @@ const clientRecords = getTopClienteRecords(6);
 
   .um-trust-strip__client {
     min-height: 72px;
-    padding: 0;
+    padding-block: 0;
+    cursor: pointer;
     border-bottom: 1px solid rgba(17, 17, 17, 0.09);
     color: var(--skin-text, #111);
     background: transparent;
@@ -264,6 +295,11 @@ const clientRecords = getTopClienteRecords(6);
   .um-trust-strip__client:focus-visible {
     background: color-mix(in srgb, var(--um-red) 4%, transparent);
     outline: 0;
+  }
+
+  .um-trust-strip__client:focus-visible {
+    outline: 2px solid var(--um-red);
+    outline-offset: -2px;
   }
 
   .um-trust-strip__name {
@@ -434,7 +470,7 @@ const clientRecords = getTopClienteRecords(6);
       grid-template-columns: 30px minmax(0, 1fr) auto;
       gap: 10px;
       min-height: auto;
-      padding: 12px 0;
+      padding: 12px;
     }
 
     .um-trust-strip__client:nth-of-type(n+4) {

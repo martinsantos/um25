@@ -1,5 +1,6 @@
 import { geoCommercialHubs, geoCommercialHubSlugs } from './geoCommercialHubs';
 import { sectorVisualOrder, sectorVisualSystem } from './sectorVisualSystem';
+import { getAntecedentesCatalogCount } from '../utils/verifiedProof';
 
 export type StrategicLinkKind = 'geoHub' | 'service' | 'sector' | 'case' | 'core' | 'geoResource';
 
@@ -94,7 +95,7 @@ export const caseLinkItems: StrategicLinkItem[] = uniqueByHref(
     geoCommercialHubs[slug].cases.map((caseItem) => ({
       href: caseItem.href,
       label: `${caseItem.client}: ${caseItem.title}`,
-      summary: `Evidencia en ${caseItem.sector}: ${caseItem.title}.`,
+      summary: `${caseItem.title} · ${caseItem.sector}.`,
       eyebrow: caseItem.sector,
       kind: 'case' as const,
     })),
@@ -414,7 +415,7 @@ const actionItems = (mode: 'service' | 'sector' | 'case' | 'blog'): StrategicLin
     {
       href: '/contacto',
       label: 'Contacto técnico',
-      summary: 'Enviar contexto, sede, urgencia y alcance esperado para recibir el próximo paso.',
+      summary: 'Cuéntenos sede, urgencia y alcance: un técnico responde con el próximo paso.',
       reason: 'Convierte lectura en una solicitud con contexto técnico.',
       eyebrow: 'Acción',
       kind: 'core',
@@ -422,7 +423,7 @@ const actionItems = (mode: 'service' | 'sector' | 'case' | 'blog'): StrategicLin
     {
       href: '/presupuesto-servicios-it-empresas',
       label: 'Presupuesto IT',
-      summary: 'Ordena variables de alcance, criticidad, materiales, SLA y entregables.',
+      summary: 'Alcance, criticidad, materiales, SLA y entregables, ordenados para cotizar.',
       reason: 'Ayuda a comparar alcance antes de hablar de precio.',
       eyebrow: 'Compra',
       kind: 'geoHub',
@@ -430,7 +431,7 @@ const actionItems = (mode: 'service' | 'sector' | 'case' | 'blog'): StrategicLin
     {
       href: '/antecedentes',
       label: 'Archivo de antecedentes',
-      summary: 'Evidencia operativa para contrastar servicios, sectores y casos comparables.',
+      summary: `${getAntecedentesCatalogCount()} proyectos documentados por servicio, sector y año.`,
       reason: 'Lleva la decisión hacia evidencia verificable.',
       eyebrow: 'Evidencia',
       kind: 'case',
@@ -443,7 +444,7 @@ const actionItems = (mode: 'service' | 'sector' | 'case' | 'blog'): StrategicLin
       {
         href: '/servicios',
         label: 'Servicios IT',
-        summary: 'Capacidades técnicas para pasar de la lectura a un alcance posible.',
+        summary: 'Los ocho frentes de servicio, con su alcance técnico.',
         reason: 'Conecta contenido editorial con servicios aplicables.',
         eyebrow: 'Servicios',
         kind: 'service',

@@ -9,6 +9,17 @@ import { getServiceVisualSpec, serviceVisualOrder } from '../../data/serviceVisu
 const serviciosFromDirectus = await getAllServicios();
 const byId = new Map(serviciosFromDirectus.map((servicio) => [Number(servicio.id), servicio]));
 
+const serviceTitlesEn: Record<number, string> = {
+  101: 'Network infrastructure',
+  102: 'Electronic security',
+  103: 'Telecommunications',
+  104: 'Custom software',
+  105: '24/7 technical support',
+  106: 'IT consulting',
+  107: 'Fire detection and alarm',
+  108: 'Electrical systems for IT',
+};
+
 const servicios = serviceVisualOrder
   .map((id) => {
     const directus = byId.get(id);
@@ -17,7 +28,7 @@ const servicios = serviceVisualOrder
     const slug = directus.slug || generateSlug(directus.Titulo);
     return {
       id,
-      title: directus.Titulo,
+      title: serviceTitlesEn[id] || directus.Titulo,
       href: `/servicios/${id}/${slug}`,
       summary: String(directus.Descripcion || '')
         .replace(/\\/g, ' ')
@@ -60,7 +71,7 @@ const serviceSummariesEn: Record<number, string> = {
     <p class="um-en-hero__note"><a href="/servicios">Versión en español</a></p>
   </section>
 
-  <TrustStrip />
+  <TrustStrip locale="en" />
 
   <section class="um-container um-en-services-list">
     <h2>Service lines</h2>
