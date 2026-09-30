@@ -25,6 +25,15 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
           </div>
         </div>
         <div class="offer-line"><span><b>01</b> Datos tuyos, exportables y sin uso para marketing de terceros</span><span><b>02</b> Elegí tus medios de pago; integración según factibilidad y alcance</span><span><b>03</b> Cuotas, respuestas frecuentes y trámites automatizables</span></div>
+        <div class="people-story" aria-labelledby="people-story-title">
+          <div class="people-story-heading"><p class="kicker">LA TECNOLOGÍA ACOMPAÑA EL TRABAJO REAL</p><h2 id="people-story-title">Personas, oficios y organizaciones en movimiento.</h2><p>Una comunidad profesional reúne recorridos distintos. El software ayuda a sostener el vínculo, las gestiones y el día a día de cada institución.</p></div>
+          <div class="people-story-grid">
+            <figure><img src="/images/software-comunidades/comunidad-reunion.jpg" width="900" height="597" alt="Personas adultas conversando alrededor de una mesa de trabajo" /><figcaption>Compartir decisiones</figcaption></figure>
+            <figure><img src="/images/software-comunidades/oficio-panaderia.jpg" width="900" height="720" alt="Panadero trabajando una pieza de masa en su mesa" /><figcaption>Acompañar cada oficio</figcaption></figure>
+            <figure><img src="/images/software-comunidades/oficio-taller.jpg" width="900" height="675" alt="Manos trabajando una pieza de metal en un taller" /><figcaption>Dar continuidad al trabajo</figcaption></figure>
+          </div>
+          <p class="people-story-credit">Fotografías ilustrativas de Mario Amé, Crisher P.H y erik debarre / Pexels. Las personas retratadas no son clientes ni integrantes de ULTIMA MILLA.</p>
+        </div>
         <div class="demo-heading" id="experiencia"><span>ASÍ PODRÍA VIVIRSE, EN TRES MOMENTOS</span><span>Interfaces conceptuales · sin datos reales</span></div>
         <div class="demos">
           <article class="demo demo-payment">
@@ -141,6 +150,17 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   .gc .text-link span { margin-left:12px; color:#b94f45; }
   .gc .hero-service { max-width:380px; margin:auto 0 0; padding-top:28px; color:#606b6a !important; font-size:.86rem; line-height:1.45; }
   .hero-service strong { color:#28302f; }
+  .people-story { margin:0 0 84px; padding:74px 0 0; border-top:1px solid #e0e7e1; }
+  .people-story-heading { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr); gap:0 60px; align-items:end; margin-bottom:27px; }
+  .people-story-heading .kicker { grid-column:1 / -1; margin-bottom:16px; }
+  .gc .people-story-heading h2 { max-width:750px; margin:0; font-size:clamp(2.1rem,3.4vw,3.8rem); line-height:1.06; letter-spacing:-.05em; }
+  .gc .people-story-heading > p:last-child { max-width:390px; margin:0 0 4px; color:#51605a; font-size:1rem; line-height:1.5; }
+  .people-story-grid { display:grid; grid-template-columns:1.25fr 1fr 1fr; gap:14px; }
+  .people-story-grid figure { position:relative; min-width:0; height:320px; margin:0; overflow:hidden; background:#e8ece8; }
+  .people-story-grid img { display:block; width:100%; height:100%; object-fit:cover; }
+  .people-story-grid figure:first-child img { object-position:55% center; }
+  .people-story-grid figcaption { position:absolute; inset:auto 0 0; padding:38px 20px 19px; background:linear-gradient(transparent,#15201bd9); color:white; font-size:.9rem; font-weight:700; }
+  .gc .people-story-credit { margin:12px 0 0; color:#66736c; font-size:.72rem; line-height:1.4; }
   .hero-visual { display:flex; flex-direction:column; min-width:0; padding:30px clamp(22px,3vw,40px); background:#e7eeeb; }
   .hero-visual-top,.hero-visual-foot { display:flex; justify-content:space-between; gap:14px; color:#4e605c; font-size:.66rem; font-weight:800; letter-spacing:.12em; }
   .hero-visual-foot { align-items:end; margin-top:auto; }.hero-visual-foot span:first-child { color:#1b2828; font-size:.87rem; letter-spacing:0; }.hero-visual-foot span:last-child { text-align:right; font-size:.58rem; }
@@ -240,6 +260,8 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   #gc-form textarea { resize:vertical; }#gc-form .hp { position:absolute; left:-9999px; width:1px; }#gc-status { font-size:.9rem; color:#33473c; }
   @media(max-width:1050px) { .hero-intro { min-height:0; }.gc h1 { font-size:clamp(3.2rem,5.6vw,4.8rem); }.demo-payment { grid-template-columns:1fr; }.demo-payment .demo-copy { padding-bottom:20px; }.demo-payment .demo-index { margin-bottom:0; }.demo-payment .demo-copy h2 { margin-top:24px; }.demo-pair .demo { min-height:0; }.demo-stage { min-height:400px; } }
   @media(max-width:800px) { .hero-intro,.split,.demo-pair { grid-template-columns:1fr; }.hero-copy { min-height:0; }.hero-visual { min-height:470px; }.offer-line { grid-template-columns:1fr; gap:0; }.offer-line span { padding:15px 0; }.offer-line span + span { padding-left:0; border-left:0; border-top:1px solid #d9e1da; }.section { padding:70px 0; }.demo-pair .demo { min-height:0; } }
+  @media(max-width:800px) { .people-story-heading { grid-template-columns:1fr; gap:14px; }.people-story-heading .kicker { margin:0; }.people-story-grid { gap:8px; }.people-story-grid figure { height:240px; } }
   @media(max-width:520px) { .wrap { width:min(100% - 32px,1240px); }.gc h1 { margin:28px 0 23px; font-size:clamp(2.8rem,11vw,4.4rem); }.hero { padding:16px 0 72px; }.hero-intro { margin-bottom:20px; }.hero-copy { padding:34px 25px 40px; }.hero-copy .kicker { font-size:.65rem; line-height:1.45; }.gc .lead { font-size:1.05rem; }.hero-actions { align-items:stretch; }.hero-cta { width:100%; max-width:none; }.hero-service { margin:0; }.hero-visual { min-height:0; padding:20px 16px; }.hero-visual-top { font-size:.58rem; }.hero-screen { margin:28px auto; }.system-nav button { font-size:.65rem; }.system-content { height:280px; }.system-panel { padding:19px; }.gc .system-panel h2 { font-size:1.48rem; }.gc .system-panel p { font-size:.79rem; }.system-flow { gap:4px; }.system-flow span { padding:10px 4px; font-size:.6rem; }.hero-visual-foot span:last-child { max-width:150px; }.offer-line { margin-bottom:48px; }.offer-line span { font-size:.88rem; }#gc-form { padding:22px; }.demo-heading { flex-direction:column; gap:7px; font-size:.66rem; }.demo-copy { padding:26px; }.gc .demo h2,.gc .demo-pair h2 { font-size:2.6rem; }.demo-stage { min-height:360px; padding:28px 12px 42px; }.app-window { transform:none; }.pay-layout { grid-template-columns:1fr; }.pay-sidebar { display:none; }.pay-main { padding:22px 18px; }.gc .pay-main h3 { font-size:1.4rem; }.demo-pair .demo-copy { min-height:0; }.phone-stage,.credential-stage { min-height:400px; }.credential-shell { width:310px; }.gc .demo p { font-size:1rem; } }
+  @media(max-width:520px) { .people-story { margin-bottom:64px; padding-top:56px; }.people-story-grid { grid-template-columns:1fr 1fr; }.people-story-grid figure { height:210px; }.people-story-grid figure:first-child { grid-column:1 / -1; height:240px; }.people-story-grid figcaption { padding:30px 10px 11px; font-size:.72rem; } }
   @media(prefers-reduced-motion:reduce) { .app-window,.pay-choice,.pay-method,.pay-action,.pay-confirm,.phone,.phone-item,.phone-detail,.credential-shell,.credential-list,.credential-card { animation:none; }.system-panel { transition:none; }.pay-confirm,.phone-detail { opacity:0; pointer-events:none; }.credential-card { opacity:1; transform:none; } }
 </style>

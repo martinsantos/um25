@@ -118,6 +118,8 @@ jobs:
             --exclude='backups' \
             --exclude='.local_production_files' \
             --exclude='public/cache' \
+            --exclude='public/assets-mirror' \
+            --exclude='src/data/snapshots/*.json.tmp' \
             --exclude='uploads' \
             --exclude='ecosystem.config.cjs' \
             --exclude='*.log' \
