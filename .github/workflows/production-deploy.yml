@@ -109,7 +109,8 @@ jobs:
 
       - name: Deploy to server via rsync
         run: |
-          rsync -avz --delete \
+          rsync -avz --checksum --delete --backup \
+            --backup-dir="backups/umsa-release-${GITHUB_SHA::8}" \
             --exclude='node_modules' \
             --exclude='.git' \
             --exclude='.env' \
