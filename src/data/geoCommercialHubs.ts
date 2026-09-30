@@ -69,7 +69,7 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
     proof: getInstitutionalProofLines(),
     searchTerms: ['servicios informáticos para empresas Mendoza', 'empresa de sistemas Mendoza', 'proveedor IT empresarial Mendoza', 'soporte infraestructura IT Mendoza'],
     buyerNeed: 'Elegir un proveedor tecnológico capaz de combinar cercanía local, ingeniería, evidencia técnica y soporte sin fragmentar la operación entre contratistas aislados.',
-    decisionFrame: 'La comparación no debería empezar por precio unitario: primero hay que entender criticidad, sedes, estado de red, seguridad, entregables, ventanas de trabajo y soporte posterior.',
+    decisionFrame: 'Una comparación seria empieza por la criticidad, las sedes, el estado de la red, la seguridad, los entregables, las ventanas de trabajo y el soporte posterior; el precio unitario se compara después.',
     operatingRisks: ['Redes sin trazabilidad ni certificación', 'Soporte reactivo sin trazabilidad', 'CCTV o accesos desconectados de la operación', 'Software aislado de procesos reales'],
     services: [
       { id: 101, title: 'Infraestructura de redes', href: serviceHref(101, 'infraestructura-de-redes-cableado-fibra-optica-radioenlaces'), summary: 'Cableado, fibra, switching, WiFi, radioenlaces y evidencia técnica.' },
@@ -114,7 +114,7 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
     searchTerms: ['presupuesto tecnología para empresas', 'cotizar proyecto IT', 'presupuesto infraestructura IT', 'costo soporte técnico empresarial'],
     buyerNeed: 'Pasar de una consulta genérica de precio a una conversación de alcance: qué se debe relevar, qué se entrega, qué riesgos se cubren y cómo se sostiene después.',
     decisionFrame: 'Un presupuesto bajo puede ocultar omisiones críticas: certificación, pruebas, documentación, ventanas de trabajo, licencias, viáticos, soporte o integraciones.',
-    operatingRisks: ['Comparar precios sin comparar alcance', 'No separar obra, soporte y documentación', 'Contratar sin SLA ni criterio de criticidad', 'Dejar integraciones y materiales fuera del presupuesto'],
+    operatingRisks: ['Comparar precios sin comparar alcance', 'Mezclar obra, soporte y documentación en un solo ítem', 'Contratar sin SLA ni criterio de criticidad', 'Dejar integraciones y materiales fuera del presupuesto'],
     services: [
       { id: 106, title: 'Consultoría IT', href: serviceHref(106, 'consultoria-it-y-transformacion-digital-arquitectura-auditoria'), summary: 'Diagnóstico, arquitectura, auditoría y roadmap técnico.' },
       { id: 101, title: 'Infraestructura de redes', href: serviceHref(101, 'infraestructura-de-redes-cableado-fibra-optica-radioenlaces'), summary: 'Puntos, racks, fibra, certificación, switching y pruebas.' },
@@ -134,9 +134,9 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
     ],
     process: ['Definir necesidad y criticidad', 'Relevar sitio, sedes y restricciones', 'Separar alcance, entregables y SLA', 'Presentar propuesta comparable'],
     faqs: [
-      { question: '¿Publican precios fijos?', answer: 'No como lista cerrada. Para servicios IT empresariales, el presupuesto depende de sitio, alcance, criticidad, SLA, materiales, integraciones y entregables.' },
+      { question: '¿Publican precios fijos?', answer: 'Cada presupuesto se arma según sitio, alcance, criticidad, SLA, materiales, integraciones y entregables.' },
       { question: '¿Qué información acelera una cotización?', answer: 'Sedes, cantidad de usuarios o puntos, planos, fotos de racks, servicios esperados, ventanas de trabajo y criticidad del negocio.' },
-      { question: '¿Se puede empezar con un diagnóstico?', answer: 'Sí. Un diagnóstico permite ordenar riesgos, quick wins, inversión inicial y fases antes de comprometer una implementación mayor.' }
+      { question: '¿Se puede empezar con un diagnóstico?', answer: 'Sí. Un diagnóstico permite ordenar riesgos, mejoras rápidas, inversión inicial y fases antes de comprometer una implementación mayor.' }
     ],
     primaryCta: 'Cotizar alcance',
     secondaryCta: 'Enviar información técnica',
@@ -158,7 +158,7 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
     searchTerms: ['proyectos ingeniería IT Mendoza', 'corrientes débiles Mendoza', 'proyecto infraestructura redes Mendoza', 'ingeniería tecnológica empresas Mendoza'],
     buyerNeed: 'Resolver proyectos donde la tecnología se cruza con obra, operación, seguridad, energía, plazos, normativa y mantenimiento posterior.',
     decisionFrame: 'La ingeniería IT debe empezar por riesgo y condiciones de campo: edificios activos, sitios remotos, ventanas acotadas, continuidad del servicio y documentación final.',
-    operatingRisks: ['Ejecutar sin relevamiento de campo', 'No documentar planos ni pruebas', 'Subestimar energía, racks y canalizaciones', 'No coordinar con obra civil o mantenimiento'],
+    operatingRisks: ['Ejecutar sin relevamiento de campo', 'Cerrar la obra sin planos ni pruebas documentadas', 'Subestimar energía, racks y canalizaciones', 'Ejecutar sin coordinar con obra civil o mantenimiento'],
     services: [
       { id: 101, title: 'Infraestructura de redes', href: serviceHref(101, 'infraestructura-de-redes-cableado-fibra-optica-radioenlaces'), summary: 'Cableado, fibra, racks, switching y certificación.' },
       { id: 103, title: 'Telecomunicaciones', href: serviceHref(103, 'telecomunicaciones-datos-voz-video'), summary: 'Datos, voz, video, radioenlaces y comunicación distribuida.' },
@@ -178,9 +178,9 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
     ],
     process: ['Relevamiento técnico y restricciones', 'Arquitectura y documentación', 'Ejecución con ventanas operativas', 'Pruebas, entrega y soporte'],
     faqs: [
-      { question: '¿Qué diferencia un proyecto de ingeniería IT de una instalación común?', answer: 'La ingeniería define alcance, riesgos, documentación, pruebas, coordinación con otros gremios y soporte posterior; no se limita a instalar equipos.' },
+      { question: '¿Qué diferencia un proyecto de ingeniería IT de una instalación común?', answer: 'La ingeniería define alcance, riesgos, documentación, pruebas, coordinación con otros gremios y soporte posterior, además de la instalación de equipos.' },
       { question: '¿Trabajan con obras en curso?', answer: 'Sí. La planificación debe coordinar canalizaciones, racks, energía, tableros, seguridad y puesta en marcha con obra civil y mantenimiento.' },
-      { question: '¿Entregan cierre técnico?', answer: 'El objetivo del proyecto es dejar infraestructura funcionando, probada y trazable para operación y mantenimiento.' }
+      { question: '¿Entregan cierre técnico?', answer: 'Sí. Cada proyecto cierra con la infraestructura funcionando, probada y documentada para operación y mantenimiento.' }
     ],
     primaryCta: 'Solicitar relevamiento',
     secondaryCta: 'Ver proyectos',
@@ -198,7 +198,7 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
     eyebrow: 'Proveedor IT con base argentina',
     h1: 'Servicios IT para sedes en Argentina',
     lead: 'Consultoría, software, soporte, telecomunicaciones e infraestructura para organizaciones que necesitan un proveedor tecnológico con método, documentación y experiencia regional.',
-    proof: ['Base operativa en Mendoza', 'Cobertura nacional según alcance', 'Servicios integrados', 'Evidencia pública y anonimizada'],
+    proof: ['Base operativa en Mendoza', 'Cobertura nacional según alcance', 'Servicios integrados', 'Antecedentes documentados'],
     searchTerms: ['servicios informáticos para empresas Argentina', 'proveedor IT Argentina', 'soporte técnico empresarial Argentina', 'empresa servicios IT organizaciones medianas'],
     buyerNeed: 'Encontrar un proveedor capaz de operar con criterio local, soporte remoto, visitas planificadas, documentación y continuidad para sedes distribuidas.',
     decisionFrame: 'Para cobertura nacional conviene separar consultoría, ejecución local, soporte remoto, visitas, documentación, seguridad, software e integraciones.',

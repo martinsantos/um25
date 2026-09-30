@@ -8,6 +8,14 @@ export const generatedAntecedenteImageDimensions = {
   height: 1000,
 };
 
+/** Imágenes curadas (1600×1000) que reemplazan a la generada de esos antecedentes. */
+export const curatedAntecedenteImages: Record<string, string> = {
+  '3064': '/img/antecedentes/curadas/3064-gobierno-software.webp',
+  '3065': '/img/antecedentes/curadas/3065-aeropuerto-cctv.webp',
+  '3075': '/img/antecedentes/curadas/3075-fuesmen-redes.webp',
+  '3334': '/img/antecedentes/curadas/3334-bodega-servidores.webp',
+};
+
 export const editorialImages = {
   defaultOg: '/images/editorial/umsa-home-operations.webp',
   homeHero: '/images/editorial/umsa-home-operations.webp',
