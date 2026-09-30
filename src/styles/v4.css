@@ -3683,3 +3683,9 @@ body main .um26-hero__actions .um26-btn--ghost:is(:hover, :focus-visible) {
   border-color: rgba(255, 255, 255, 0.72) !important;
   color: #ffffff !important;
 }
+
+/* Los <i> decorativos (retículas AR, barras, marcadores) no llevan texto: sin esto el
+   navegador les asigna itálica y descarga UMSans-VariableItalic (241 KB) para nada. */
+:where(i:empty, i[aria-hidden="true"], .umc i, .umc b) {
+  font-style: normal;
+}

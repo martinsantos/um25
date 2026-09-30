@@ -109,7 +109,8 @@ jobs:
 
       - name: Deploy to server via rsync
         run: |
-          rsync -avz --delete \
+          rsync -avz --checksum --delete --backup \
+            --backup-dir="backups/umsa-release-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" \
             --exclude='node_modules' \
             --exclude='.git' \
             --exclude='.env' \
@@ -118,6 +119,8 @@ jobs:
             --exclude='backups' \
             --exclude='.local_production_files' \
             --exclude='public/cache' \
+            --exclude='public/assets-mirror' \
+            --exclude='src/data/snapshots/*.json.tmp' \
             --exclude='uploads' \
             --exclude='ecosystem.config.cjs' \
             --exclude='*.log' \

@@ -104,6 +104,8 @@ const seoTitleRaw = replicaProd
   : sanitizeServicePageTitle(Number(id), servicio.Titulo, visual?.shortName || serviceHeroTitle);
 const seoTitleBase = seoTitleRaw.replace(/\s*\|\s*ULTIMA MILLA\s*$/i, '').trim();
 let pageTitle = `${seoTitleBase} | ULTIMA MILLA`;
+// Nombres cortos ("Soporte 24/7") quedan bajo 30 caracteres: se suma el contexto real.
+if (pageTitle.length < 30) pageTitle = `${seoTitleBase} para empresas en Mendoza | ULTIMA MILLA`;
 if (pageTitle.length > 60) {
   pageTitle =
     seoTitleBase.length > 45
