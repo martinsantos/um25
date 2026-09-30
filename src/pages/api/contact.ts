@@ -89,9 +89,13 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
+function submissionKey(email: string, message: string): string {
+  return `${email}|${message.toLowerCase().replace(/\s+/g, ' ').slice(0, 260)}`;
+}
+
 function isDuplicateSubmission(email: string, message: string): boolean {
   const now = Date.now();
-  const normalized = `${email}|${message.toLowerCase().replace(/\s+/g, ' ').slice(0, 260)}`;
+  const normalized = submissionKey(email, message);
 
   for (const [key, timestamp] of duplicateMap.entries()) {
     if (now - timestamp > DUPLICATE_WINDOW) {
@@ -100,7 +104,6 @@ function isDuplicateSubmission(email: string, message: string): boolean {
   }
 
   const previous = duplicateMap.get(normalized);
-  duplicateMap.set(normalized, now);
 
   return Boolean(previous && now - previous < DUPLICATE_WINDOW);
 }
@@ -258,6 +261,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     if (isDuplicateSubmission(email, message)) {
       return jsonResponse({
         success: true,
+        duplicate: true,
         message: 'Mensaje recibido.'
       });
     }
@@ -286,6 +290,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       subject: `Consulta web UMSA: ${sanitizedData.originIntent || sanitizedData.company || sanitizedData.name}`,
       html: buildEmailHtml(sanitizedData),
     });
+    duplicateMap.set(submissionKey(email, message), Date.now());
 
     return jsonResponse({
       success: true,
