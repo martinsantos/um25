@@ -14,7 +14,7 @@ const MAP: Record<string, 'hospital' | 'aeropuerto' | 'bodega' | 'fachada'> = {
 };
 const scene = MAP[slug] || 'fachada';
 const PLACE = {
-  hospital: { name: 'un hospital', short: 'Hospital conectado', where: { Data: 'bandejas sobre el cielorraso, del rack de piso a cada puesto clínico y de admisión', CCTV: 'accesos, circulaciones, farmacia y guardia', Fire: 'cada sala y cada cielorraso técnico, con la central en el cuarto de control', Power: 'el cuarto técnico: tablero, UPS y las cargas críticas que respalda', Software: 'los puestos de admisión, enfermería y los tableros de gestión' } },
+  hospital: { name: 'un hospital', short: 'Hospital conectado', where: { Data: 'bandejas sobre el cielorraso, del rack de piso a cada puesto clínico y de admisión', CCTV: 'accesos, circulaciones, farmacia y guardia', Fire: 'cada sala y cada cielorraso técnico, con la central en el cuarto de control', Power: 'el cuarto técnico, con el tablero, la UPS y las cargas críticas que respalda', Software: 'los puestos de admisión, enfermería y los tableros de gestión' } },
   aeropuerto: { name: 'una terminal', short: 'Terminal aeroportuaria', where: { Data: 'desde el cuarto técnico hasta check-in, seguridad y embarque', CCTV: 'perímetro, preembarque y puntos de control', Fire: 'hall central, cuarto técnico y zonas de espera', Power: 'el cuarto técnico y los puestos que no pueden apagarse', Software: 'pantallas de información al pasajero y el NOC' } },
   bodega: { name: 'una nave productiva', short: 'Nave productiva', where: { Data: 'la nave de tanques, el laboratorio y el depósito', CCTV: 'ingresos, playa de carga y nave', Fire: 'nave, depósito y cuarto técnico, con pulsadores y balizas', Power: 'tableros de planta y el cuarto técnico', Software: 'el tótem de trazabilidad y la oficina de planta' } },
   fachada: { name: 'un edificio', short: 'Edificio inteligente', where: { Data: 'la montante troncal y cada piso', CCTV: 'accesos, hall y circulaciones de cada nivel', Fire: 'todos los pisos, con la central en planta baja', Power: 'la sala técnica y la montante de energía', Software: 'la gestión del edificio y la atención de sus usuarios' } },
@@ -23,9 +23,9 @@ const PLACE = {
 const SYS = {
   Data: { label: 'Datos y fibra', code: 'D', color: '#168daa', focus: ['Data', 'Telecom'], what: 'Cableado estructurado, fibra y enlaces: el camino por el que viaja toda la información del edificio.', why: 'Todos los demás sistemas viajan por ella: la diseñamos certificada, documentada y con redundancia donde la operación no puede cortarse.' },
   CCTV: { label: 'Video y accesos', code: 'V · S', color: '#cf528a', focus: ['CCTV', 'Security'], what: 'Cámaras IP, grabación y control de accesos sobre la misma red, con monitoreo centralizado.', why: 'Ver lo que pasa, decidir quién entra y conservar evidencia verificable de cada evento.' },
-  Fire: { label: 'Detección de incendio', code: 'F', color: '#d64032', focus: ['Fire-detection'], what: 'Detectores, pulsadores, sirenas y una central que supervisa cada lazo.', why: 'Detectar temprano y avisar a quien corresponde es lo que protege a personas y a la continuidad del lugar.' },
+  Fire: { label: 'Detección de incendio', code: 'F', color: '#d64032', focus: ['Fire-detection'], what: 'Detectores, pulsadores, sirenas y una central que supervisa cada lazo.', why: 'La detección temprana y el aviso inmediato protegen a las personas y la continuidad del lugar.' },
   Power: { label: 'Energía IT', code: 'E', color: '#b88122', focus: ['Power'], what: 'Tableros, UPS y alimentación limpia para racks, cámaras y puestos críticos.', why: 'Racks, cámaras y puestos críticos siguen funcionando ante un corte de energía.' },
-  Software: { label: 'Software y operación', code: 'L', color: '#467aca', focus: ['Software'], what: 'Aplicaciones, integraciones y tableros que convierten la infraestructura en información para decidir.', why: 'La tecnología sirve cuando la operación la usa todos los días.' },
+  Software: { label: 'Software y operación', code: 'L', color: '#467aca', focus: ['Software'], what: 'Aplicaciones, integraciones y tableros que convierten la infraestructura en información para decidir.', why: 'Herramientas que la operación usa todos los días.' },
 } as const;
 
 type Chapter = { id: string; kicker: string; title: string; text: string; cmd: Record<string, unknown>[]; sys?: keyof typeof SYS };
@@ -33,10 +33,10 @@ const intro: Chapter[] = scene === 'hospital'
   ? [
       { id: 'adentro', kicker: 'Adentro', title: 'Infraestructura al servicio del cuidado.', text: 'Entramos por la circulación principal. La infraestructura que sostiene al hospital recorre paredes, cielorrasos y cuartos técnicos.', cmd: [{ action: 'study', value: 'entrada' }] },
       { id: 'conectar', kicker: 'Conectar', title: 'El detalle de cada conexión.', text: 'Un rack de piso a escala real: switch, patcheras y frentes ordenados. Acá empieza cada puesto de trabajo del hospital.', cmd: [{ action: 'study', value: 'equipo' }] },
-      { id: 'revelar', kicker: 'Revelar', title: 'Los datos, desde su origen.', text: 'La misma vista con la red revelada: cada recorrido nace en el rack y llega a un puesto, una cámara o un equipo.', cmd: [{ action: 'study', value: 'red' }] },
+      { id: 'revelar', kicker: 'Revelar', title: 'Los datos, desde su origen.', text: 'Cada recorrido de datos nace en el rack y llega a un puesto, una cámara o un equipo.', cmd: [{ action: 'study', value: 'red' }] },
     ]
   : [
-      { id: 'edificio', kicker: 'El edificio', title: `${PLACE.short}, vista completa.`, text: `${PLACE.short}: primero el edificio completo y, capítulo a capítulo, cada sistema que lo hace funcionar.`, cmd: [{ action: 'mode', value: 'building' }, { action: 'focus', value: null }, { action: 'play' }] },
+      { id: 'edificio', kicker: 'El edificio', title: `${PLACE.short}, vista completa.`, text: `Cada sistema que hace funcionar ${PLACE.name}, en su lugar exacto dentro del edificio.`, cmd: [{ action: 'mode', value: 'building' }, { action: 'focus', value: null }, { action: 'play' }] },
     ];
 const systems: Chapter[] = (Object.keys(SYS) as (keyof typeof SYS)[]).map((k) => ({
   id: `sys-${k.toLowerCase()}`, kicker: SYS[k].label, title: SYS[k].what, text: `Dónde está: ${PLACE.where[k]}. ${SYS[k].why}`, sys: k,
@@ -46,16 +46,16 @@ const outro: Chapter = { id: 'todo', kicker: 'Todo junto', title: 'Una sola infr
 const chapters = [...intro, ...systems, outro];
 const src = `/3d/cinema.html?scene=${scene}&mode=building&embed=1&ar=clean&center=1${scene === 'hospital' ? '&plano=entrada' : ''}`;
 ---
-<section class="um-story" id="sistemas" aria-labelledby="um-story-title" data-scene={scene}>
+<section class="um-story" id="sistemas" aria-labelledby="um-story-title" data-scene={scene} data-name={PLACE.short}>
   <div class="um-story__head">
     <p class="um-story__kicker"><span></span>Sistemas, uno por uno</p>
     <h2 id="um-story-title">Cómo se integra la infraestructura de {PLACE.name}.</h2>
   </div>
   <div class="um-story__grid">
     <div class="um-story__stage" data-src={src}>
-      <img src={`/cine/media/${scene}-cycles.webp`} alt={`${PLACE.short}: render de la escena 3D`} width="1600" height="1000" loading="lazy" decoding="async" />
+      <img src={`/cine/media/${scene}-cycles.webp`} alt={`${PLACE.short}: gemelo digital de la infraestructura`} width="1600" height="1000" loading="lazy" decoding="async" />
       <div class="um-story__frame" aria-hidden="true"></div>
-      <button class="um-story__mount" type="button" hidden>Ver en 3D</button>
+      <button class="um-story__mount" type="button" hidden>Recorrer el gemelo digital</button>
       <p class="um-story__now" aria-live="polite"><i></i><span>{PLACE.short}</span></p>
     </div>
     <ol class="um-story__chapters">
@@ -89,7 +89,7 @@ const src = `/3d/cinema.html?scene=${scene}&mode=building&embed=1&ar=clean&cente
     const mount = () => {
       if (frame) return;
       frame = document.createElement('iframe');
-      frame.title = 'Escena 3D del sector'; frame.tabIndex = -1; frame.src = stage.dataset.src || '';
+      frame.title = `Gemelo digital · ${story.dataset.name || 'Sector'}`; frame.tabIndex = -1; frame.src = stage.dataset.src || '';
       frameHost.appendChild(frame); mountBtn.hidden = true;
     };
     addEventListener('message', (e) => {

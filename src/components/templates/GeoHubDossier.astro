@@ -12,11 +12,6 @@ interface Props {
 
 const { hub } = Astro.props;
 const hubH1 = resolveReplicaH1(`/${hub.slug}`, hub.h1);
-const intentLabel = {
-  comparison: 'Comparación de proveedor',
-  decision: 'Decisión de compra',
-  research: 'Investigación técnica'
-}[hub.intent];
 
 const proofItems = hub.proof.map((item, index) => {
   const supportMatch = item.match(/24\/7/);
@@ -95,17 +90,17 @@ const relatedHubGroups = [
       <aside class="geo-dossier-side" aria-label="Resumen comercial">
         <div class="geo-dossier-brief">
           <div class="geo-dossier-brief__top">
-            <span>Dossier comercial</span>
+            <span>Cobertura</span>
             <strong>{hub.market}</strong>
           </div>
           <dl>
             <div>
-              <dt>Intención</dt>
-              <dd>{intentLabel}</dd>
+              <dt>Respuesta</dt>
+              <dd>En el día hábil</dd>
             </div>
             <div>
-              <dt>Salida</dt>
-              <dd>{hub.primaryCta}</dd>
+              <dt>Soporte</dt>
+              <dd>24/7 con abono</dd>
             </div>
           </dl>
         </div>
@@ -173,8 +168,8 @@ const relatedHubGroups = [
     <div class="um-container geo-evidence-grid">
       <div class="geo-evidence-main">
         <p class="geo-dossier-kicker">Evidencia operativa</p>
-        <h2>Evidencia antes que promesa</h2>
-        <p>Los antecedentes conectan necesidad comercial, experiencia ejecutada y criterio técnico.</p>
+        <h2>Proyectos comparables</h2>
+        <p>Obras y servicios ejecutados, con cliente, sector y alcance técnico.</p>
         <a class="um-btn-secondary" href="/antecedentes">Explorar antecedentes</a>
       </div>
 
@@ -224,7 +219,7 @@ const relatedHubGroups = [
     class="geo-dossier-link-graph"
     kicker="Para avanzar"
     title="Ver también"
-    text="Seguí hacia compra, presupuesto, ingeniería o cobertura para continuar el recorrido correcto."
+    text="Presupuesto, ingeniería y cobertura, en páginas dedicadas."
     groups={relatedHubGroups}
   />
 
@@ -252,7 +247,7 @@ const relatedHubGroups = [
           <p class="geo-dossier-kicker">Presupuesto por variables</p>
           <h2 id="geo-budget-title">Definí alcance antes de cotizar</h2>
           <p>
-            Sin precio en web: sector, criticidad, sedes y tipo de intervención. Completá el contexto y continuá en contacto con el mismo equipo técnico.
+            Sector, criticidad, sedes y tipo de intervención: completá el contexto y seguí la conversación con el mismo equipo técnico.
           </p>
         </div>
         <form class="geo-budget-brief__form" action="/contacto" method="get">
@@ -268,7 +263,7 @@ const relatedHubGroups = [
     <div class="um-container geo-final__inner">
       <div>
         <p class="geo-dossier-kicker">Próximo paso</p>
-        <h2>Convertir intención de búsqueda en alcance técnico verificable.</h2>
+        <h2>Su operación, en un alcance técnico concreto.</h2>
       </div>
       <div>
         <a class="um-btn-primary" href="/contacto">{hub.primaryCta}</a>

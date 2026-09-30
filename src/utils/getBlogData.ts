@@ -94,9 +94,9 @@ function um26PostToEntrada(post: Um26BlogPost, index: number): EntradaBlog {
   };
 }
 
-const UM26_FALLBACK_POSTS: EntradaBlog[] = UM26_BLOG_POSTS
-  .map(um26PostToEntrada)
-  .sort((a, b) => new Date(b.fecha_publicacion).getTime() - new Date(a.fecha_publicacion).getTime());
+// Sin respaldo de prueba: si Directus y el sitio público fallan no se publican
+// artículos de muestra (um26-data/blog.ts era contenido inventado).
+const UM26_FALLBACK_POSTS: EntradaBlog[] = [];
 
 function getUm26BlogListing(page: number, limit: number, categoria?: string): { posts: EntradaBlog[]; total: number } {
   const offset = (page - 1) * limit;

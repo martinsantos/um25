@@ -90,10 +90,10 @@ const getUm26AntecedenteFallback = async (rawId: string): Promise<any | null> =>
 
   const sectors = await getUm26Sectores();
   const sectorLabel = sectors.find((sector) => sector.slug === source.sector_slug)?.name || source.sector_slug;
-  const description = [
-    source.summary,
-    ...source.scope,
-  ].filter(Boolean).join('. ');
+  const parts = [source.summary, ...source.scope]
+    .map((part) => String(part || '').replace(/[.\s]+$/, ''))
+    .filter(Boolean);
+  const description = parts.length ? `${parts.join('. ')}.` : '';
 
   sourceSlug = source.slug;
   return {
@@ -160,10 +160,13 @@ const toPublicCaseLabel = (value: unknown): string => {
     .trim();
   return label || 'Proyecto técnico';
 };
+// Las notas de curación ("Antecedente real con…", "requiere revisión editorial") son
+// internas: la ficha pública no las muestra.
+const INTERNAL_CURATION_NOTE = /Directus|registro\s+p[uú]blico|imagen\s+[uú]nica|datos\s+del\s+antecedente|^Antecedente\s+(real|con)\b|sobredimensionar|revisi[oó]n\s+editorial|lectura\s+comercial|profundidad\s+completa/i;
 const toPublicCaseSummary = (value: unknown): string => {
   const summary = String(value || '').trim();
-  if (!summary || /Directus|registro\s+p[uú]blico|imagen\s+[uú]nica|datos\s+del\s+antecedente/i.test(summary)) {
-    return 'Proyecto técnico de ULTIMA MILLA con alcance, vertical y fecha operativa disponibles.';
+  if (!summary || INTERNAL_CURATION_NOTE.test(summary)) {
+    return '';
   }
   return summary
     .replace(/cargad[oa]s?\s+desde\s+Directus/gi, 'publicados por ULTIMA MILLA')
@@ -181,7 +184,7 @@ const generatedMainImageUrl = getGeneratedAntecedenteImageUrl(antecedente.id) ||
 const mainImageUrl = generatedMainImageUrl
     || (directusMainImageUrl && !directusMainImageUrl.includes('default-background') ? directusMainImageUrl : '')
     || DEFAULT_IMAGE_URL;
-const hasGeneratedMainImage = mainImageUrl.startsWith('/images/antecedentes/generated/');
+const hasGeneratedMainImage = mainImageUrl.startsWith('/images/antecedentes/generated/') || mainImageUrl.startsWith('/img/antecedentes/');
 const caseImageDimensions = hasGeneratedMainImage ? generatedAntecedenteImageDimensions : { width: 720, height: 720 };
 const caseSeoImageUrl = mainImageUrl.startsWith('/uploads/antecedentes/') ? editorialImages.defaultOg : mainImageUrl;
 const caseSeoImageDimensions = hasGeneratedMainImage
@@ -211,12 +214,18 @@ const rawCaseHeroExcerpt = excerptEditorialSentences(caseBodySource, 176, 3)
   || cleanDisplayText(antecedente.displayTitle || antecedente.Titulo || antecedente.Nombre);
 const caseHeroExcerpt = displayCaseText(rawCaseHeroExcerpt);
 
+// La unidad de negocio se muestra sólo si agrega información (y nunca rótulos de importación).
+const isPublicBusinessUnit = (unit: unknown, area: unknown): boolean => {
+  const value = String(unit || '').trim();
+  return Boolean(value) && value !== String(area || '').trim() && !/import|sgi\b/i.test(value);
+};
+
 const buildStructuredScopeItems = (item: any): string[] => {
   const rows = [
     item.displayTitle || item.Titulo ? `Alcance: ${cleanDisplayText(item.displayTitle || item.Titulo)}` : '',
     item.Cliente ? `Cliente: ${formatDisplayName(item.Cliente)}` : '',
     item.Area ? `Sector: ${cleanDisplayText(item.Area)}` : '',
-    item.Unidad_de_negocio ? `Unidad: ${cleanDisplayText(item.Unidad_de_negocio)}` : '',
+    isPublicBusinessUnit(item.Unidad_de_negocio, item.Area) ? `Unidad: ${cleanDisplayText(item.Unidad_de_negocio)}` : '',
     formatAntecedenteDate(item.Fecha) ? `Cierre: ${formatDate(item.Fecha)}` : '',
   ].filter((row) => row.length > 8);
   return rows.slice(0, 5);
@@ -241,12 +250,6 @@ const scopeItems = (() => {
   });
   if (uniqueFromDesc.length >= 2) return uniqueFromDesc;
   return buildStructuredScopeItems(antecedente);
-})();
-
-const isDuplicateCallout = (() => {
-  const callout = `Proyecto aplicado en ${antecedente.Area || ''} para ${antecedente.Cliente || ''}`.toLowerCase();
-  const bodyStart = caseBodyPlain.slice(0, 180).toLowerCase();
-  return bodyStart.includes(callout.slice(0, 40)) || caseBodyPlain.length < 90;
 })();
 
 const caseCalloutText = [
@@ -345,7 +348,10 @@ const getRelatedAntecedentes = async (area: string, excludeId: string, limit: nu
   }
 };
 
-const relatedAntecedentes = await getRelatedAntecedentes(antecedente.Area || '', id);
+// La imagen principal de la ficha no se repite en los relacionados.
+const relatedAntecedentes = (await getRelatedAntecedentes(antecedente.Area || '', id, 4))
+  .filter((item) => item.imageUrl !== mainImageUrl)
+  .slice(0, 3);
 
 const buildCaseHeadline = (item: any): string => {
   const title = cleanDisplayText(item.Titulo || item.Nombre || 'Proyecto técnico');
@@ -443,13 +449,13 @@ const caseExecutiveItems = [
   },
   {
     label: 'Alcance',
-    value: truncateEditorialText(scopeItems[0] || caseCalloutText || caseRecordSummary, 135),
+    value: truncateEditorialText(String(scopeItems[0] || caseCalloutText || '').replace(/^Alcance:\s*/i, ''), 135),
   },
   {
-    label: 'Lectura',
-    value: truncateEditorialText(caseRecordSummary, 135),
+    label: 'Resultado',
+    value: caseRecordSummary ? truncateEditorialText(caseRecordSummary, 135) : '',
   },
-];
+].filter((item) => item.value);
 const caseStrategicLinkGroups = buildCaseStrategicLinkGroups({
   currentPath: `/antecedentes/${id}/${slugFromUrl}`,
   title: caseHeadline,
@@ -557,11 +563,11 @@ const antecedentePageStructuredData = [
           <div class="case-detail-dossier__body">
             <span>{caseRecordLabel}</span>
             <strong>{displayClientName || 'Proyecto técnico'}</strong>
-            <p>{caseRecordSummary}</p>
+            {caseRecordSummary && <p>{caseRecordSummary}</p>}
             <div class="case-detail-meta">
               {antecedente.Area && (
                 <div>
-                  <span>Vertical</span>
+                  <span>Sector</span>
                   <strong>{antecedente.Area}</strong>
                 </div>
               )}
@@ -582,7 +588,7 @@ const antecedentePageStructuredData = [
     <div class="um-container case-executive-brief__grid">
       <div class="case-executive-brief__head">
         <span>Resumen ejecutivo</span>
-        <h2>Qué mirar antes de entrar al detalle técnico.</h2>
+        <h2>Contexto y alcance del proyecto.</h2>
       </div>
       <dl class="case-executive-brief__ledger">
         {caseExecutiveItems.map((item) => (
@@ -605,7 +611,7 @@ const antecedentePageStructuredData = [
         <div class="flex flex-col gap-4 sm:gap-5">
           <div class="case-section-title">
             <span aria-hidden="true"></span>
-            <h2>Lectura del antecedente</h2>
+            <h2>Descripción del proyecto</h2>
           </div>
           <div class="case-detail-body__copy editorial-body">
             {caseDescriptionHtml ? (
@@ -615,11 +621,6 @@ const antecedentePageStructuredData = [
             )}
           </div>
 
-          {!isDuplicateCallout && caseCalloutText.length > 'Proyecto aplicado'.length && (
-            <div class="case-callout">
-              <span>{caseCalloutText}</span>
-            </div>
-          )}
         </div>
 
         <!-- Alcance del Proyecto Section -->
@@ -723,16 +724,16 @@ const antecedentePageStructuredData = [
             {antecedente.Area && (
               <>
                 <div class="flex flex-col gap-1">
-                  <span class="case-info-label">Vertical</span>
+                  <span class="case-info-label">Sector</span>
                   <span class="case-info-value">{antecedente.Area}</span>
                 </div>
                 <div class="h-px bg-gray-100"></div>
               </>
             )}
-            {antecedente.Unidad_de_negocio && (
+            {isPublicBusinessUnit(antecedente.Unidad_de_negocio, antecedente.Area) && (
               <>
                 <div class="flex flex-col gap-1">
-                  <span class="case-info-label">Unidad de Negocio</span>
+                  <span class="case-info-label">Unidad de negocio</span>
                   <span class="case-info-value">{antecedente.Unidad_de_negocio}</span>
                 </div>
                 <div class="h-px bg-gray-100"></div>
@@ -761,9 +762,9 @@ const antecedentePageStructuredData = [
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
             </svg>
           </div>
-          <h3>Relevar una operación similar</h3>
+          <h3>¿Tiene una operación similar?</h3>
           <p>
-            Podemos relevar contexto, riesgos, alcance y próximos pasos verificables.
+            Relevamos contexto, riesgos y alcance, y proponemos los próximos pasos.
           </p>
           <div class="case-cta-card__actions">
             <a href="/contacto">
@@ -821,7 +822,6 @@ const antecedentePageStructuredData = [
               imageAlt={ant.Titulo || 'Antecedente'}
               sector={ant.Area || 'Servicios IT'}
               year={formatAntecedenteYear(ant.Fecha)}
-              imageLoading="eager"
             />
           ))}
         </div>
@@ -843,7 +843,7 @@ const antecedentePageStructuredData = [
   <IntentLinkGraph
     kicker="Para avanzar"
     title="Ver también"
-    text="Servicio aplicado, casos comparables y contacto para pedir un relevamiento similar."
+    text="El servicio aplicado, casos comparables y un contacto directo con el equipo técnico."
     groups={caseStrategicLinkGroups}
   />
 
@@ -851,7 +851,7 @@ const antecedentePageStructuredData = [
     <div class="um-container case-detail-footer-cta__grid">
       <div>
         <span class="um-kicker">Siguiente paso</span>
-        <h2>Convertir esta evidencia en un alcance verificable</h2>
+        <h2>Un proyecto como este, en su operación</h2>
         <p>Relevamos sitio, riesgo, dependencias y prioridad técnica antes de proponer una intervención.</p>
       </div>
       <div class="case-detail-footer-cta__actions">
@@ -1545,6 +1545,8 @@ const antecedentePageStructuredData = [
 
   .case-related__link,
   .case-related__footer a {
+    /* Link de texto: sin caja tintada en hover (la superficie global la pinta pegada al texto). */
+    --um-click-hover-bg: transparent;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1553,6 +1555,32 @@ const antecedentePageStructuredData = [
     color: #111;
     font-size: 1rem;
     font-weight: 700;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 4px;
+    transition: color 160ms cubic-bezier(.2,.8,.2,1), text-decoration-color 160ms cubic-bezier(.2,.8,.2,1);
+  }
+
+  .case-related__link:hover,
+  .case-related__footer a:hover {
+    color: #b91c1c;
+    text-decoration-color: currentColor;
+  }
+
+  .case-related__icon {
+    transition: transform 160ms cubic-bezier(.2,.8,.2,1);
+  }
+
+  .case-related__link:hover .case-related__icon,
+  .case-related__footer a:hover .case-related__icon {
+    transform: translateX(3px);
+  }
+
+  .case-related__link:focus-visible,
+  .case-related__footer a:focus-visible,
+  .case-service-cards__all:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
   }
 
   .case-related__icon {
@@ -1676,8 +1704,12 @@ const antecedentePageStructuredData = [
   }
 
   .case-service-cards__all {
+    --um-click-hover-bg: transparent;
     display: inline-flex;
     align-items: center;
+    justify-self: start;
+    align-self: flex-start;
+    width: fit-content;
     min-height: 44px;
     margin-top: 1rem;
     color: var(--um-red);

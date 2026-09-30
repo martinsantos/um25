@@ -47,12 +47,38 @@ describe('generated antecedentes image integration', () => {
     const um26Directus = fs.readFileSync(path.join(repoRoot, 'src/lib/um26-directus.ts'), 'utf8');
 
     expect(directus).toContain('getAntecedenteImageUrl');
-    expect(home).toContain('/img/antecedentes/3065.webp');
-    expect(index).toContain("const heroImage = '/img/antecedentes/3068.webp'");
+    // Destacados de la home: registros reales del catálogo con su imagen curada.
+    expect(home).toContain('ANTECEDENTES_REALES');
+    expect(home).toContain('/img/antecedentes/curadas/3065-aeropuerto-cctv.webp');
+    expect(home).not.toContain('Tapiz');
+    // El hero del listado es editorial para no duplicar ninguna miniatura de la grilla.
+    expect(index).toContain("const heroImage = '/images/editorial/umsa-about-engineering.webp'");
     expect(index).toContain('image: item.image');
     expect(um26Directus).toContain('getAntecedenteImage(');
     expect(detail).toContain('getGeneratedAntecedenteImageUrl(antecedente.id)');
     expect(sectors).toContain('getAntecedenteImageUrl(item)');
+  });
+
+  test('catalog thumbnails are unique and prefer curated, then own generated image', async () => {
+    const { ANTECEDENTES_REALES } = await import('../src/lib/um26-data/antecedentesReales');
+    const { curatedAntecedenteImages } = await import('../src/data/editorialImageSystem');
+    const { assignAntecedenteThumbnails, getAntecedenteImage } = await import('../src/lib/um26-data/images');
+    assignAntecedenteThumbnails(ANTECEDENTES_REALES);
+    const images = ANTECEDENTES_REALES.map((item) => getAntecedenteImage(item.sectorSlug, item.serviceCodes, item.id));
+    expect(ANTECEDENTES_REALES.length).toBeGreaterThanOrEqual(518);
+    expect(new Set(images).size).toBe(images.length);
+    for (const image of images) {
+      expect(fs.existsSync(path.join(repoRoot, 'public', image))).toBe(true);
+    }
+    const byId = new Map(ANTECEDENTES_REALES.map((item, index) => [String(item.id), images[index]]));
+    const curated = Object.keys(curatedAntecedenteImages);
+    for (const id of curated) {
+      expect(byId.has(id)).toBe(true);
+      expect(byId.get(id)).toBe(curatedAntecedenteImages[id]);
+    }
+    for (const [id, image] of byId) {
+      if (!curated.includes(id) && generatedMap[id]) expect(image).toBe(generatedMap[id]);
+    }
   });
 
   test('generated case images win over legacy Directus assets on public surfaces', () => {

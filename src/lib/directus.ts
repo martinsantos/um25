@@ -11,6 +11,7 @@ import { visibleBlogStatusDirectusFilter } from '../utils/blogPublishing';
 import { diversifyBlogPostCovers } from '../utils/blogCoverDiversity.js';
 import { isCanonicalBlogSlug } from '../data/seoRedirects';
 import { fetchWithTimeout, getFetchTimeoutMs, withTimeout } from '../utils/fetchWithTimeout';
+import { curatedAntecedenteImages } from '../data/editorialImageSystem';
 
 const readItemsAny = readItems as any;
 const readItemAny = readItem as any;
@@ -664,7 +665,7 @@ export function getDirectusImageFallback(imageId: string | null | undefined): st
 
 export function getGeneratedAntecedenteImageUrl(id: string | number | null | undefined): string {
   if (id === null || id === undefined || id === '') return '';
-  return generatedAntecedenteImageMap[String(id)] || '';
+  return curatedAntecedenteImages[String(id)] || generatedAntecedenteImageMap[String(id)] || '';
 }
 
 export function getAntecedenteImageUrl(
