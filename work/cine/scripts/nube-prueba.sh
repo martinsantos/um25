@@ -14,7 +14,7 @@ if [ ! -x work/cine/.venv-bpy/bin/python ]; then
   uv venv -q -p 3.13 work/cine/.venv-bpy
   uv pip install -q -p work/cine/.venv-bpy/bin/python bpy==5.2.1
 fi
-{ command -v ffmpeg >/dev/null && [ -x /usr/bin/time ]; } || (apt-get update -qq && apt-get install -y -qq ffmpeg time) || true
+{ command -v ffmpeg >/dev/null && [ -x /usr/bin/time ] && ldconfig -p | grep -q libEGL.so.1; } || (apt-get update -qq && apt-get install -y -qq ffmpeg time libegl1) || true
 
 {
   echo "# Medición de render en la nube: $VARIANTE"
