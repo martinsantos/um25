@@ -123,6 +123,7 @@ cmp "$release/staging-credential.gif" \
   "$incoming/client/images/software-comunidades/credencial-demo-email.gif"
 stage_cleanup
 trap - EXIT
+sha256sum -c "$release/protected.before.sha256"
 
 # Stage and previous runtime stay on the same filesystem for atomic renames.
 trap rollback_live ERR
