@@ -5,7 +5,7 @@ Lee work/cine/nube/<tanda>/<escena>-<servicio>/ (recorrido.mp4, cine-2/5/85.jpg)
 work/cine/camaras-v4.json (métricas del explorador) y work/cine/nube/notas-<tanda>.json
 (revisión visual: {"<escena>-<servicio>": {"nota": 1..5, "texto": "..."}}).
 Escribe la página y sus medios en <salida>/ (index.html + m/).
-Uso: python3 work/cine/scripts/pagina-revision.py <tanda> <salida> [tanda_anterior]
+Uso: python3 work/cine/scripts/pagina-revision.py <tanda> <salida> [tandas anteriores, de la más nueva a la más vieja]
 """
 import html
 import json
@@ -16,7 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 tanda, salida = sys.argv[1], Path(sys.argv[2])
-anterior = sys.argv[3] if len(sys.argv) > 3 else None
+anteriores = sys.argv[3:]
 NUBE = ROOT / 'work/cine/nube'
 ESCENAS = ['bodega', 'planta', 'aeropuerto', 'hospital', 'fachada']
 NOMBRE_ESCENA = {'bodega': 'Bodega', 'planta': 'Planta industrial', 'aeropuerto': 'Aeropuerto',
@@ -29,8 +29,11 @@ PROPIA = {'redes': 'fachada', 'seguridad': 'aeropuerto', 'telecom': 'planta', 's
           'soporte': 'aeropuerto', 'consultoria': 'fachada', 'incendios': 'bodega', 'electricos': 'hospital'}
 
 camaras = json.loads((ROOT / 'work/cine/camaras-v4.json').read_text())
-notas_p = NUBE / f'notas-{tanda}.json'
-notas = json.loads(notas_p.read_text()) if notas_p.exists() else {}
+notas = {}
+for t in [tanda] + anteriores:
+    notas[t] = {}
+    for f in sorted(NUBE.glob(f'notas-{t}*.json')):
+        notas[t].update(json.loads(f.read_text()))
 if salida.exists():
     shutil.rmtree(salida)
 (salida / 'm').mkdir(parents=True)
@@ -45,10 +48,9 @@ celdas = {}
 for e in ESCENAS:
     for s in SERVICIOS:
         k = f'{e}-{s}'
-        d = NUBE / tanda / k
-        if not d.exists() and anterior:
-            d = NUBE / anterior / k          # sin cámara nueva: la toma sigue siendo la anterior
-        if not (d / 'recorrido.mp4').exists():
+        # sin cámara nueva, la toma sigue siendo la de la tanda anterior
+        d = next((NUBE / t / k for t in [tanda] + anteriores if (NUBE / t / k / 'recorrido.mp4').exists()), None)
+        if d is None:
             continue
         (salida / 'm' / k).mkdir()
         shutil.copy(d / 'recorrido.mp4', salida / 'm' / k / 'recorrido.mp4')
@@ -56,7 +58,7 @@ for e in ESCENAS:
             if (d / f'{f}.jpg').exists():
                 reducir(d / f'{f}.jpg', salida / 'm' / k / f'{f}.jpg', 960)
         c = camaras.get(k, {})
-        celdas[k] = dict(escena=e, servicio=s, propia=PROPIA[s] == e, cam=c, nota=notas.get(k, {}),
+        celdas[k] = dict(escena=e, servicio=s, propia=PROPIA[s] == e, cam=c, nota=notas[d.parent.name].get(k, {}),
                          origen=d.parent.name)
 
 datos = json.dumps(dict(escenas=ESCENAS, servicios=SERVICIOS, nombreEscena=NOMBRE_ESCENA,
