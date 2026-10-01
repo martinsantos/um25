@@ -124,6 +124,18 @@ cmp "$release/staging-credential.gif" \
 stage_cleanup
 trap - EXIT
 sha256sum -c "$release/protected.before.sha256"
+rsync -anic --delete \
+  --exclude='/_astro/***' \
+  --exclude='/images/software-comunidades/credencial-demo-email.gif' \
+  "$current/client/" "$incoming/client/" > "$release/asset-overlay-final-raw.txt"
+# rsync may warn that parent image directories cannot be deleted because the
+# new GIF is deliberately protected. Any actual itemized change still blocks.
+sed -E '/^rsync\([0-9]+\): warning: .*\/images(\/software-comunidades)?: not empty, cannot delete$/d' \
+  "$release/asset-overlay-final-raw.txt" > "$release/asset-overlay-final-drift.txt"
+if [[ -s "$release/asset-overlay-final-drift.txt" ]]; then
+  echo 'Published static assets changed during staging; refusing swap' >&2
+  exit 1
+fi
 
 # Stage and previous runtime stay on the same filesystem for atomic renames.
 trap rollback_live ERR
