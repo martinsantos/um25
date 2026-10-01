@@ -966,21 +966,34 @@ def ray_opaque(sc, deps, origin, direction, distance):
     return True, o
 
 
-def camera_score(keys, pts, frames=192, step=4, near=4.0):
+def camera_score(keys, pts, frames=192, step=2, near=4.0, skin=1.0, detail=False):
     """Mide un recorrido sin renderizar: rayos contra la geometría real de la escena.
 
-    bad: fracción de cuadros con la lente tapada (>20 % de los rayos chocan a menos de `near`)
-    o con la cámara dentro de un volumen; vis: fracción media de equipos del sistema en cuadro y
+    bad: fracción de cuadros con la lente tapada (2 de 15 rayos chocan a menos de `near`)
+    o con la cámara dentro de un volumen, a menos de `skin` de algo en cualquier dirección, o que
+    atraviesa geometría entre un cuadro y el siguiente (se revisan todos); vis: fracción media de equipos del sistema en cuadro y
     sin obstrucción; empty: fracción de cuadros sin ningún equipo visible."""
     sc = bpy.context.scene
     deps = bpy.context.evaluated_depsgraph_get()
     axes = [Vector(d) for d in ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1))]
     grid = [(u, w) for u in (-.8, -.4, 0, .4, .8) for w in (-.7, 0, .7)]
+    def at_frame(f):
+        x = f / max(1, frames - 1)
+        return flight_at(keys, .45 * x + .55 * (.5 - .5 * math.cos(math.pi * x)))
+
+    crossed = set()
+    prev = at_frame(0)[0]
+    for f in range(1, frames):
+        pos = at_frame(f)[0]
+        seg = pos - prev
+        if seg.length > 1e-4 and sc.ray_cast(deps, prev, seg.normalized(), distance=seg.length)[0]:
+            crossed.add(f // step)
+        prev = pos
     bad = empty = n = 0
     vis_sum = 0.0
+    malos = []
     for f in range(0, frames, step):
-        x = f / max(1, frames - 1)
-        pos, tgt, lens = flight_at(keys, .45 * x + .55 * (.5 - .5 * math.cos(math.pi * x)))
+        pos, tgt, lens = at_frame(f)
         d = tgt - pos
         if abs(d.normalized().z) > .995:
             d = tgt + Vector((0, .05, 0)) - pos
@@ -988,12 +1001,21 @@ def camera_score(keys, pts, frames=192, step=4, near=4.0):
         right, up, fwd = q @ Vector((1, 0, 0)), q @ Vector((0, 1, 0)), q @ Vector((0, 0, -1))
         hw = 18 / lens
         hh = hw * 9 / 16
-        blocked = sum(1 for u, w in grid
-                      if ray_opaque(sc, deps, pos, (fwd + right * u * hw + up * w * hh).normalized(), near)[0])
-        inside = 0
+        # L: algo pegado a la lente; F: un primer plano tapa el centro del cuadro (fila media)
+        # en el primer 30 % del camino al objetivo, donde el desenfoque lo vuelve una mancha
+        half = .3 * (tgt - pos).length
+        blocked = front = 0
+        for u, w in grid:
+            hit, loc = ray_opaque(sc, deps, pos, (fwd + right * u * hw + up * w * hh).normalized(), max(near, half))
+            if hit:
+                dist = (loc - pos).length
+                blocked += dist < near
+                front += dist < half and w == 0 and abs(u) < .5
+        inside = brush = 0
         for ax in axes:
-            hit, _, nrm, *_ = sc.ray_cast(deps, pos, ax, distance=60)
+            hit, loc, nrm, *_ = sc.ray_cast(deps, pos, ax, distance=60)
             inside += 1 if hit and nrm.dot(ax) > 0 else 0
+            brush += 1 if hit and (loc - pos).length < skin else 0
         seen = 0
         for p in pts:
             rel = p - pos
@@ -1003,20 +1025,25 @@ def camera_score(keys, pts, frames=192, step=4, near=4.0):
             hit, loc = ray_opaque(sc, deps, pos, rel.normalized(), rel.length)
             seen += 1 if (not hit or (loc - pos).length > rel.length - .7) else 0
         n += 1
-        bad += 1 if blocked > .2 * len(grid) or inside >= 4 else 0
+        why = ''.join(k for k, on in (('L', blocked >= 2), ('F', front >= 2), ('D', inside >= 4), ('R', brush),
+                                      ('X', (f // step) in crossed)) if on)
+        if why:
+            bad += 1
+            malos.append(f'{f + 1}{why}')
         empty += 1 if seen == 0 else 0
         vis_sum += seen / len(pts)
-    return dict(bad=round(bad / n, 3), vis=round(vis_sum / n, 3), empty=round(empty / n, 3))
+    m = dict(bad=round(bad / n, 3), vis=round(vis_sum / n, 3), empty=round(empty / n, 3))
+    return dict(m, malos=malos) if detail else m
 
 
 def scout(scene, names):
-    """Explorador: por servicio prueba 18 azimuts × 4 estilos × 2 distancias y guarda la mejor cámara."""
+    """Explorador: por servicio prueba 18 azimuts × 4 estilos × 3 distancias y guarda la mejor cámara."""
     styles = ('ground', 'orbit', 'aerial', 'overhead')
     for name in names:
         v, pts = VARIANTS[name], system_points(name, scene)
         base = camera_score(variant_path(name, scene, v['az'], v['style'], 1.0), pts)
         best = None
-        for zoom in (1.0, 1.35):
+        for zoom in (1.0, 1.35, 1.7):
             for st in (v['style'],) + tuple(s for s in styles if s != v['style']):
                 for k in range(18):
                     az = (v['az'] + 20 * k + 180) % 360 - 180
@@ -1024,7 +1051,7 @@ def scout(scene, names):
                     # el estilo pedido y la distancia original pesan: el explorador sólo los cambia
                     # si no hay un azimut limpio; la visibilidad desempata.
                     score = (4 * m['bad'] + m['empty'] - .5 * m['vis'] + (.3 if st != v['style'] else 0)
-                             + (.1 if zoom != 1.0 else 0) + .0005 * min(k, 18 - k))
+                             + .1 * (zoom != 1.0) + .1 * (zoom > 1.5) + .0005 * min(k, 18 - k))
                     if best is None or score < best[0]:
                         best = (score, az, st, zoom, m)
         _, az, st, zoom, m = best
