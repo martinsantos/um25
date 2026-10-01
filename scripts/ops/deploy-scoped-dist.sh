@@ -70,11 +70,11 @@ fi
 
 # Preserve every currently published un-hashed asset, including unfinished
 # cinema/3D work. Only the new campaign GIF and candidate _astro bundles differ.
-rsync -ani --delete \
+rsync -anic --delete \
   --exclude='/_astro/***' \
   --exclude='/images/software-comunidades/credencial-demo-email.gif' \
   "$current/client/" "$incoming/client/" > "$release/asset-overlay-dry-run.txt"
-rsync -a --delete \
+rsync -ac --delete \
   --exclude='/_astro/***' \
   --exclude='/images/software-comunidades/credencial-demo-email.gif' \
   "$current/client/" "$incoming/client/"
