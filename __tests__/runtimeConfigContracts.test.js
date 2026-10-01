@@ -106,17 +106,20 @@ describe('Production runtime configuration contracts', () => {
     expect(workflow).not.toContain('apex serves 200 and www redirects to apex');
   });
 
-  test('production deploy installs a complete runtime package tree before PM2 restart', () => {
+  test('scoped production deploy reuses the verified runtime package tree', () => {
     const workflow = fs.readFileSync(path.join(process.cwd(), '.github/workflows/production-deploy.yml'), 'utf8');
+    const scopedDeploy = fs.readFileSync(path.join(process.cwd(), 'scripts/ops/deploy-scoped-dist.sh'), 'utf8');
 
     expect(workflow).not.toContain('npm ci --production');
-    expect(workflow).toContain('npm install --include=dev --prefer-offline --no-audit --progress=false');
-    expect(workflow).toContain('command_timeout: 20m');
-    expect(workflow).toContain('npm ls @directus/sdk @sentry/astro zod piccolore astro @astrojs/node --depth=0');
-    expect(workflow).toContain("import('piccolore')");
-    expect(workflow).toContain("import('@directus/sdk')");
-    expect(workflow).toContain("import('zod')");
-    expect(workflow).toContain('runtime imports ok');
+    expect(workflow).toContain('Install audit dependencies on runner');
+    expect(workflow).toContain('run: npm ci');
+    expect(workflow).not.toContain('npm install --include=dev --prefer-offline --no-audit --progress=false');
+    expect(workflow).toContain('Stage build outside live site');
+    expect(workflow).toContain('Restore previous runtime after failed checks');
+    expect(scopedDeploy).toContain('node incoming-dist/server/entry.mjs');
+    expect(scopedDeploy).toContain('ln -s "$app/node_modules" "$release/node_modules"');
+    expect(scopedDeploy).toContain('mv "$current" "$previous"');
+    expect(scopedDeploy).toContain('sha256sum -c "$release/protected.before.sha256"');
   });
 
   test('contact API resolves SMTP settings from runtime-safe environment sources', () => {
@@ -129,21 +132,14 @@ describe('Production runtime configuration contracts', () => {
     expect(source).toContain("envValue('SMTP_PASS')");
   });
 
-  test('production restart passes SMTP secrets to PM2 contact form runtime', () => {
+  test('scoped production restart preserves existing PM2 contact credentials', () => {
     const workflow = fs.readFileSync(path.join(process.cwd(), '.github/workflows/production-deploy.yml'), 'utf8');
+    const scopedDeploy = fs.readFileSync(path.join(process.cwd(), 'scripts/ops/deploy-scoped-dist.sh'), 'utf8');
 
-    expect(workflow).toContain('SMTP_HOST: ${{ secrets.SMTP_HOST }}');
-    expect(workflow).toContain('SMTP_PORT: ${{ secrets.SMTP_PORT }}');
-    expect(workflow).toContain('SMTP_USER: ${{ secrets.SMTP_USER }}');
-    expect(workflow).toContain('SMTP_PASS: ${{ secrets.SMTP_PASS }}');
-    expect(workflow).toContain("export SMTP_HOST='${{ secrets.SMTP_HOST }}'");
-    expect(workflow).toContain("export SMTP_PORT='${{ secrets.SMTP_PORT }}'");
-    expect(workflow).toContain("export SMTP_USER='${{ secrets.SMTP_USER }}'");
-    expect(workflow).toContain("export SMTP_PASS='${{ secrets.SMTP_PASS }}'");
-    expect(workflow).toContain('pm2 startOrRestart ecosystem.config.cjs --only astro-ultimamilla --update-env');
+    expect(scopedDeploy).toContain('pm2 restart astro-ultimamilla');
+    expect(scopedDeploy).not.toContain('--update-env');
     expect(workflow).not.toContain('pm2 restart astro-ultimamilla --update-env');
-    expect(workflow).toContain("export BLOG_API_USER='${{ secrets.BLOG_API_USER }}'");
-    expect(workflow).toContain("export BLOG_API_PASS='${{ secrets.BLOG_API_PASS }}'");
+    expect(workflow).not.toContain('SMTP_PASS: ${{ secrets.SMTP_PASS }}');
   });
 
   test('production runtime does not commit blog credentials', () => {
@@ -165,13 +161,15 @@ describe('Production runtime configuration contracts', () => {
     expect(workflow).toContain('Origin health did not recover within 60 seconds');
   });
 
-  test('production deployment removes only the known stale PM2 alias', () => {
+  test('scoped production deployment leaves other PM2 processes untouched', () => {
     const workflow = fs.readFileSync(path.join(process.cwd(), '.github/workflows/production-deploy.yml'), 'utf8');
     const cleanup = fs.readFileSync(path.join(process.cwd(), 'scripts/ops/cleanup-stale-pm2-app.sh'), 'utf8');
     const legacyDeploy = fs.readFileSync(path.join(process.cwd(), 'scripts/deploy-server.sh'), 'utf8');
+    const scopedDeploy = fs.readFileSync(path.join(process.cwd(), 'scripts/ops/deploy-scoped-dist.sh'), 'utf8');
 
-    expect(workflow).toContain('name: Remove stale PM2 process alias');
-    expect(workflow).toContain('scripts/ops/cleanup-stale-pm2-app.sh');
+    expect(workflow).not.toContain('name: Remove stale PM2 process alias');
+    expect(scopedDeploy).toContain('pm2 restart astro-ultimamilla');
+    expect(scopedDeploy).not.toContain('pm2 del');
     expect(cleanup).toContain('pm2 describe astro-app');
     expect(cleanup).toContain('pm2 del astro-app');
     expect(cleanup).not.toContain('pm2 del astro-ultimamilla');
