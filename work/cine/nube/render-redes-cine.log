@@ -1,0 +1,39 @@
+/home/user/um25/work/cine/scripts/render-cine.py:143: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  self.mat.use_nodes = True
+CINE_MEM model 0.00 GB
+CINE_MEM bounds 0.00 GB
+/home/user/um25/work/cine/scripts/render-cine.py:840: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  world.use_nodes = True
+CINE_MEM context 0.00 GB
+CINE_SETUP fachada CPU comp 2.7 s
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+04:24.457  render           | Saved: '/home/user/um25/work/cine/out/fachada-redes/v3/cine/f_0001.jpg'
+08:40.249  render           | Saved: '/home/user/um25/work/cine/out/fachada-redes/v3/cine/f_0002.jpg'
+12:59.463  render           | Saved: '/home/user/um25/work/cine/out/fachada-redes/v3/cine/f_0003.jpg'
+17:19.119  render           | Saved: '/home/user/um25/work/cine/out/fachada-redes/v3/cine/f_0004.jpg'
+CINE_DONE {"scene": "fachada", "device": "CPU", "frames": 192, "seconds": 1038.7, "out": "/home/user/um25/work/cine/out/fachada-redes/v3"}
+	Command being timed: "work/cine/.venv-bpy/bin/python work/cine/scripts/render-cine.py -- bodega --variant redes --pass cine --frames 192 --limit 4 --width 2560 --samples 40"
+	User time (seconds): 4010.34
+	System time (seconds): 27.04
+	Percent of CPU this job got: 388%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 17:19.78
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 4181096
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 2231587
+	Voluntary context switches: 2660
+	Involuntary context switches: 239142
+	Swaps: 0
+	File system inputs: 4384
+	File system outputs: 4024
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
