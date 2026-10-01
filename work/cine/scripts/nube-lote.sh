@@ -3,12 +3,12 @@
 # Renderiza las pasadas cine y esqueleto (192 cuadros), compone los cortes glitch, codifica
 # y sube sólo los medios a work/cine/media/. Reanudable: si se corta, volver a correrlo
 # saltea los cuadros ya escritos (mientras el contenedor siga vivo).
-# Uso, desde la raíz del repo:  bash work/cine/scripts/nube-lote.sh <variante> [ancho] [samples]
+# Uso, desde la raíz del repo:  bash work/cine/scripts/nube-lote.sh <variante> [ancho] [samples] [escena]
+# (escena: el mismo servicio en otra escena; por omisión, la suya en VARIANTS)
 set -uo pipefail
 VARIANTE=$1; ANCHO=${2:-2560}; SAMPLES=${3:-40}; F=192
 PY=work/cine/.venv-bpy/bin/python
 DST=work/cine/media; mkdir -p "$DST" work/cine/nube
-LOG=work/cine/nube/lote-$VARIANTE.log
 
 if [ ! -x $PY ]; then
   python3 -m pip install -q --user uv || pip install -q uv
@@ -19,13 +19,14 @@ fi
 $PY -c 'import PIL' 2>/dev/null || { export PATH="$HOME/.local/bin:$PATH"; uv pip install -q -p $PY pillow; }
 { command -v ffmpeg >/dev/null && [ -x /usr/bin/time ] && ldconfig -p | grep -q libEGL.so.1; } || (apt-get update -qq && apt-get install -y -qq ffmpeg time libegl1) || true
 
-ESCENA=$(python3 - "$VARIANTE" <<'PY'
+ESCENA=${4:-$(python3 - "$VARIANTE" <<'PY'
 import re, sys
 src = open('work/cine/scripts/render-cine.py').read()
 print(re.search(r"'%s':\s*dict\(scene='([a-z]+)'" % sys.argv[1], src).group(1))
 PY
-)
+)}
 NOMBRE=$ESCENA-$VARIANTE; DIR=work/cine/out/$NOMBRE/v3
+LOG=work/cine/nube/lote-$([ -n "${4:-}" ] && echo "$NOMBRE" || echo "$VARIANTE").log
 echo "$(date -u +%FT%TZ) LOTE $VARIANTE escena=$ESCENA ${ANCHO}px ${SAMPLES} samples $(nproc) núcleos" | tee -a "$LOG"
 
 for pasada in cine skeleton; do
@@ -34,11 +35,11 @@ for pasada in cine skeleton; do
     n=$(ls "$DIR/$sub" 2>/dev/null | wc -l)
     [ "$n" -ge $F ] && break
     t0=$(date +%s)
-    $PY work/cine/scripts/render-cine.py -- "$ESCENA" --variant "$VARIANTE" --pass $pasada \
-      --frames $F --width "$ANCHO" --samples "$SAMPLES" > "work/cine/out/render-$VARIANTE-$pasada.log" 2>&1
+    $PY work/cine/scripts/render-cine.py -- "$ESCENA" --variant "$VARIANTE" --en "$ESCENA" --pass $pasada \
+      --frames $F --width "$ANCHO" --samples "$SAMPLES" > "work/cine/out/render-$NOMBRE-$pasada.log" 2>&1
     echo "$(date -u +%FT%TZ) PASADA $pasada intento=$intento salida=$? cuadros=$(ls "$DIR/$sub" 2>/dev/null | wc -l) segundos=$(( $(date +%s) - t0 ))" | tee -a "$LOG"
   done
-  [ "$(ls "$DIR/$sub" 2>/dev/null | wc -l)" -ge $F ] || { echo "FALLÓ $pasada, ver work/cine/out/render-$VARIANTE-$pasada.log" | tee -a "$LOG"; exit 1; }
+  [ "$(ls "$DIR/$sub" 2>/dev/null | wc -l)" -ge $F ] || { echo "FALLÓ $pasada, ver work/cine/out/render-$NOMBRE-$pasada.log" | tee -a "$LOG"; exit 1; }
 done
 
 $PY work/cine/scripts/compose-glitch.py "$NOMBRE" | tee -a "$LOG"

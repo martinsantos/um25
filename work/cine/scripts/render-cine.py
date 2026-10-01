@@ -93,10 +93,13 @@ VARIANTS = {
 }
 
 
-def variant_path(name):
-    """Keys (t, pos, target, lens) para un servicio, a partir de sus equipos reales."""
+def variant_path(name, scene=None):
+    """Keys (t, pos, target, lens) para un servicio, a partir de sus equipos reales.
+
+    scene: el mismo servicio en otra escena (por omisión, la suya)."""
     v = VARIANTS[name]
-    items = [a for a in ASSETS[v['scene']] if not v['systems'] or a['system'] in v['systems']] or ASSETS[v['scene']]
+    scene = scene or v['scene']
+    items = [a for a in ASSETS[scene] if not v['systems'] or a['system'] in v['systems']] or ASSETS[scene]
     pts = [Vector(a['p']) for a in items]
     c = sum(pts, Vector((0, 0, 0))) / len(pts)
     r = max(4.0, max((p - c).length for p in pts))
@@ -1140,10 +1143,11 @@ def main():
     ap.add_argument('--flight', action='store_true', help='v3: recorrido imposible (PATHS) en lugar del plano grúa')
     ap.add_argument('--pass', dest='pass_', choices=('cine', 'skeleton', 'preview'), default='cine')
     ap.add_argument('--variant', choices=sorted(VARIANTS), help='v4: recorrido propio de un servicio (implica --flight)')
+    ap.add_argument('--en', choices=SCENES, help='v4: el recorrido del servicio en otra escena')
     a = ap.parse_args(sys.argv[sys.argv.index('--') + 1:])
     if a.variant:
         a.flight = True
-        a.scene = VARIANTS[a.variant]['scene']
+        a.scene = a.en or VARIANTS[a.variant]['scene']
     t0 = time.monotonic()
     width, height = a.width, round(a.width * 9 / 16)
     out = (a.out or (OUT / f'{a.scene}-{a.variant}' / 'v3' if a.variant else OUT / a.scene / 'v3' if a.flight else OUT / a.scene)).resolve()
@@ -1161,7 +1165,7 @@ def main():
     center = (lo + hi) / 2
     extent = max(hi.x - lo.x, hi.y - lo.y, hi.z - lo.z)
     frames = a.frames
-    cam, cam_dir = (flight_path(a.scene, frames, variant_path(a.variant) if a.variant else None) if a.flight
+    cam, cam_dir = (flight_path(a.scene, frames, variant_path(a.variant, a.scene) if a.variant else None) if a.flight
                     else camera_path(a.scene, center, extent, frames))
     device, comp = 'WORKBENCH', False
     if a.track_only:
