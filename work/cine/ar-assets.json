@@ -1,0 +1,2386 @@
+{
+ "hospital": [
+  {
+   "id": "HOS-DOOR-1",
+   "system": "Security",
+   "name": "Puerta controlada · acceso principal",
+   "kind": "door",
+   "p": [
+    2.5,
+    -2.2,
+    1.25
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "HOS-DOOR-2",
+   "system": "Security",
+   "name": "Puerta controlada · personal de internación",
+   "kind": "door",
+   "p": [
+    7.5,
+    12,
+    1.25
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "HOS-WLAN-1",
+   "system": "Telecom",
+   "name": "Wi-Fi · pasillo",
+   "kind": "ceiling-wifi",
+   "p": [
+    0,
+    7,
+    3
+   ],
+   "metric": "DEMO · Señal −52 dBm · 18 clientes"
+  },
+  {
+   "id": "HOS-WLAN-2",
+   "system": "Telecom",
+   "name": "Wi-Fi · internación",
+   "kind": "ceiling-wifi",
+   "p": [
+    0,
+    13,
+    3
+   ],
+   "metric": "DEMO · Señal −52 dBm · 18 clientes"
+  },
+  {
+   "id": "HOS-SDI-1",
+   "system": "Fire-detection",
+   "name": "Detector · pasillo",
+   "kind": "ceiling-detector",
+   "p": [
+    -6,
+    7,
+    3.1
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "HOS-SDI-2",
+   "system": "Fire-detection",
+   "name": "Detector · internación",
+   "kind": "ceiling-detector",
+   "p": [
+    0,
+    13,
+    3.1
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "HOS-SDI-3",
+   "system": "Fire-detection",
+   "name": "Detector · consultorio",
+   "kind": "ceiling-detector",
+   "p": [
+    -9.5,
+    3.5,
+    3.3
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "HOS-SDI-4",
+   "system": "Fire-detection",
+   "name": "Detector · sala técnica",
+   "kind": "ceiling-detector",
+   "p": [
+    16.5,
+    3,
+    3.3
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "HOS-SDI-5",
+   "system": "Fire-detection",
+   "name": "Detector · internación este",
+   "kind": "ceiling-detector",
+   "p": [
+    4.5,
+    13,
+    3.3
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "HOS-MCP-CORR",
+   "system": "Fire-detection",
+   "name": "Pulsador manual · pasillo norte",
+   "kind": "callpoint",
+   "p": [
+    -0.5,
+    8.5,
+    1.3
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "HOS-AV-CORR",
+   "system": "Fire-detection",
+   "name": "Avisador audiovisual · pasillo norte",
+   "kind": "sounder",
+   "p": [
+    -0.5,
+    8.5,
+    2.35
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "HOS-BEACON-EXT",
+   "system": "Fire-detection",
+   "name": "Baliza exterior · marquesina",
+   "kind": "beacon",
+   "p": [
+    1.8,
+    -5,
+    0
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "HOS-IP-OPS",
+   "system": "Telecom",
+   "name": "Intercomunicador · acceso técnico",
+   "kind": "intercom",
+   "p": [
+    1,
+    -2.2,
+    1.45
+   ],
+   "metric": "DEMO · Voz IP · 8 llamadas"
+  },
+  {
+   "id": "HOS-TH-WARD",
+   "system": "Data",
+   "name": "Ambiente de internación · temperatura y humedad",
+   "kind": "environment",
+   "p": [
+    6,
+    13.5,
+    1.65
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "HOS-FB-WARD",
+   "system": "Data",
+   "name": "Caja de distribución · internación",
+   "kind": "fieldbox",
+   "p": [
+    6.8,
+    12.8,
+    1.5
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "HOS-BAT-1",
+   "system": "Power",
+   "name": "Banco de baterías · sala eléctrica",
+   "kind": "battery",
+   "p": [
+    17.7,
+    8.7,
+    0.7
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "HOS-ATS-1",
+   "system": "Power",
+   "name": "Tablero de transferencia · sala eléctrica",
+   "kind": "transfer",
+   "p": [
+    19.3,
+    7,
+    1.5
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "HOS-DISH-1",
+   "system": "Telecom",
+   "name": "Radioenlace · respaldo",
+   "kind": "dish",
+   "p": [
+    19.5,
+    7.9,
+    4
+   ],
+   "metric": "DEMO · Voz IP · 8 llamadas"
+  },
+  {
+   "id": "HOS-SURVEY-1",
+   "system": "Data",
+   "name": "Mesa de relevamiento · auditoría",
+   "kind": "survey",
+   "p": [
+    -3.5,
+    4,
+    0
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "HOS-NOC-1",
+   "system": "Software",
+   "name": "Muro NOC · SLA",
+   "kind": "noc-wall",
+   "p": [
+    -2,
+    2,
+    2
+   ],
+   "metric": "DEMO · 120 eventos/min"
+  },
+  {
+   "id": "HOS-TOTEM-1",
+   "system": "Software",
+   "name": "Tótem de turnos · hall",
+   "kind": "totem",
+   "p": [
+    3.5,
+    -1.5,
+    0
+   ],
+   "metric": "DEMO · 120 eventos/min"
+  },
+  {
+   "id": "HOS-PIR-1",
+   "system": "Security",
+   "name": "PIR · pasillo",
+   "kind": "pir",
+   "p": [
+    -6,
+    6.8,
+    2.3
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "HOS-ALARM-1",
+   "system": "Security",
+   "name": "Panel de alarma · sala técnica",
+   "kind": "alarm-panel",
+   "p": [
+    15,
+    3.6,
+    1.6
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "HOS-POLECAM-1",
+   "system": "CCTV",
+   "name": "Cámara perimetral · parking",
+   "kind": "camera",
+   "p": [
+    0.05,
+    -6,
+    0
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  },
+  {
+   "id": "HOS-BAT-T",
+   "system": "Power",
+   "name": "Temperatura del respaldo eléctrico",
+   "kind": "environment",
+   "p": [
+    17.8,
+    7.84,
+    0.6
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "HOS-LEAK",
+   "system": "Data",
+   "name": "Detección de agua · sala IT",
+   "kind": "contact",
+   "p": [
+    15.5,
+    2.45,
+    0.15
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "HOS-TH",
+   "system": "Data",
+   "name": "Ambiente del rack · temperatura y humedad",
+   "kind": "environment",
+   "p": [
+    15.78,
+    2.32,
+    1.65
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "HOS-PDU",
+   "system": "Power",
+   "name": "PDU medida · distribución del rack",
+   "kind": "pdu",
+   "p": [
+    16.62,
+    2.32,
+    1.1
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "HOS-OPT",
+   "system": "Data",
+   "name": "ODF · supervisión del enlace óptico",
+   "kind": "optical",
+   "p": [
+    15.78,
+    2.32,
+    1.3
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "HOS-METER",
+   "system": "Power",
+   "name": "Analizador de red · tablero IT",
+   "kind": "meter",
+   "p": [
+    18.12,
+    7.54,
+    1.65
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "HOS-IO",
+   "system": "Software",
+   "name": "Gateway de telemetría · entradas y eventos",
+   "kind": "gateway",
+   "p": [
+    17.6,
+    7.54,
+    1.3
+   ],
+   "metric": "DEMO · 120 eventos/min"
+  },
+  {
+   "id": "HOS-CALL",
+   "system": "Fire-detection",
+   "name": "Pulsador manual de alarma",
+   "kind": "callpoint",
+   "p": [
+    -13.95,
+    15.69,
+    1.3
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "HOS-SOUNDER",
+   "system": "Fire-detection",
+   "name": "Avisador audiovisual",
+   "kind": "sounder",
+   "p": [
+    -13.95,
+    15.69,
+    2.35
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "HOS-FIO",
+   "system": "Fire-detection",
+   "name": "Módulo de monitoreo e integración",
+   "kind": "gateway",
+   "p": [
+    -13.05,
+    15.69,
+    1.55
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "HOS-CONTACT",
+   "system": "Security",
+   "name": "Contacto de acceso · estado de apertura",
+   "kind": "contact",
+   "p": [
+    0.31,
+    -2.15,
+    1.6
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "HOS-WIFI",
+   "system": "Telecom",
+   "name": "Gateway inalámbrico · enlace de supervisión",
+   "kind": "radio",
+   "p": [
+    16.62,
+    2.32,
+    2.15
+   ],
+   "metric": "DEMO · Voz IP · 8 llamadas"
+  },
+  {
+   "id": "HOS-VIDEO",
+   "system": "CCTV",
+   "name": "Supervisión de grabación · nodo de salud",
+   "kind": "gateway",
+   "p": [
+    17.1,
+    12.64,
+    1.4
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  }
+ ],
+ "aeropuerto": [
+  {
+   "id": "AIR-DOOR-1",
+   "system": "Security",
+   "name": "Puerta controlada · sala de red",
+   "kind": "door",
+   "p": [
+    9.5,
+    0.7,
+    1.25
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "AIR-DOOR-2",
+   "system": "Security",
+   "name": "Puerta controlada · sala eléctrica",
+   "kind": "door",
+   "p": [
+    20.5,
+    0.7,
+    1.25
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "AIR-DOOR-3",
+   "system": "Security",
+   "name": "Puerta controlada · personal de embarque",
+   "kind": "door",
+   "p": [
+    15.1,
+    12,
+    1.25
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "AIR-WLAN-1",
+   "system": "Telecom",
+   "name": "Wi-Fi · embarque",
+   "kind": "ceiling-wifi",
+   "p": [
+    7,
+    14,
+    3.8
+   ],
+   "metric": "DEMO · Señal −52 dBm · 18 clientes"
+  },
+  {
+   "id": "AIR-WLAN-2",
+   "system": "Telecom",
+   "name": "Wi-Fi · check-in",
+   "kind": "ceiling-wifi",
+   "p": [
+    -10,
+    2,
+    3.8
+   ],
+   "metric": "DEMO · Señal −52 dBm · 18 clientes"
+  },
+  {
+   "id": "AIR-SDI-1",
+   "system": "Fire-detection",
+   "name": "Detector · sala de red",
+   "kind": "ceiling-detector",
+   "p": [
+    10.8,
+    4.8,
+    2.7
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-SDI-2",
+   "system": "Fire-detection",
+   "name": "Detector · sala eléctrica",
+   "kind": "ceiling-detector",
+   "p": [
+    21.5,
+    4.8,
+    2.7
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-SDI-3",
+   "system": "Fire-detection",
+   "name": "Detector · embarque",
+   "kind": "ceiling-detector",
+   "p": [
+    11,
+    13,
+    3.8
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-MCP-GATE",
+   "system": "Fire-detection",
+   "name": "Pulsador manual · embarque",
+   "kind": "callpoint",
+   "p": [
+    21.97,
+    14.08,
+    1.3
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-AV-GATE",
+   "system": "Fire-detection",
+   "name": "Avisador audiovisual · embarque",
+   "kind": "sounder",
+   "p": [
+    21.97,
+    14.08,
+    2.35
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-IP-OPS",
+   "system": "Telecom",
+   "name": "Intercomunicador · acceso técnico",
+   "kind": "intercom",
+   "p": [
+    8.65,
+    0.7,
+    1.45
+   ],
+   "metric": "DEMO · Voz IP · 8 llamadas"
+  },
+  {
+   "id": "AIR-DOOR-4",
+   "system": "Security",
+   "name": "Puerta controlada · manga de embarque",
+   "kind": "door",
+   "p": [
+    21.5,
+    12,
+    1.25
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "AIR-WLAN-3",
+   "system": "Telecom",
+   "name": "Wi-Fi · manga",
+   "kind": "ceiling-wifi",
+   "p": [
+    20,
+    13,
+    3.8
+   ],
+   "metric": "DEMO · Señal −52 dBm · 18 clientes"
+  },
+  {
+   "id": "AIR-SDI-4",
+   "system": "Fire-detection",
+   "name": "Detector · manga",
+   "kind": "ceiling-detector",
+   "p": [
+    22,
+    13,
+    3.8
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-METER-NET",
+   "system": "Power",
+   "name": "Analizador de red · sala de red",
+   "kind": "meter",
+   "p": [
+    9.1,
+    3.05,
+    1.65
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "AIR-LEAK-PWR",
+   "system": "Data",
+   "name": "Detección de agua · sala eléctrica",
+   "kind": "contact",
+   "p": [
+    22.7,
+    4.8,
+    0.15
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "AIR-CONTACT-GATE",
+   "system": "Security",
+   "name": "Contacto · puerta de manga",
+   "kind": "contact",
+   "p": [
+    21.76,
+    12.05,
+    1.6
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "AIR-FB-GATE",
+   "system": "Data",
+   "name": "Caja de distribución · manga",
+   "kind": "fieldbox",
+   "p": [
+    20.6,
+    12.6,
+    1.5
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "AIR-BAT-1",
+   "system": "Power",
+   "name": "Banco de baterías · sala eléctrica",
+   "kind": "battery",
+   "p": [
+    21.2,
+    5.4,
+    0.7
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "AIR-ATS-1",
+   "system": "Power",
+   "name": "Tablero de transferencia · sala eléctrica",
+   "kind": "transfer",
+   "p": [
+    22.9,
+    5.5,
+    1.5
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "AIR-DISH-1",
+   "system": "Telecom",
+   "name": "Radioenlace · terraza técnica",
+   "kind": "dish",
+   "p": [
+    10,
+    4,
+    4.9
+   ],
+   "metric": "DEMO · Voz IP · 8 llamadas"
+  },
+  {
+   "id": "AIR-SURVEY-1",
+   "system": "Data",
+   "name": "Mesa de relevamiento · auditoría",
+   "kind": "survey",
+   "p": [
+    8.2,
+    1.5,
+    0
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "AIR-TOTEM-1",
+   "system": "Software",
+   "name": "Tótem de vuelos · embarque",
+   "kind": "totem",
+   "p": [
+    10,
+    13,
+    0
+   ],
+   "metric": "DEMO · 120 eventos/min"
+  },
+  {
+   "id": "AIR-BEAM-1",
+   "system": "Fire-detection",
+   "name": "Detector lineal · hall",
+   "kind": "beam",
+   "p": [
+    -6,
+    8,
+    3.6
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-BEACON-1",
+   "system": "Fire-detection",
+   "name": "Baliza exterior · curb",
+   "kind": "beacon",
+   "p": [
+    8,
+    -2,
+    0
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-BARRIER-1",
+   "system": "Security",
+   "name": "Barrera vehicular · acceso",
+   "kind": "barrier",
+   "p": [
+    10.5,
+    -3,
+    0
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "AIR-POLECAM-1",
+   "system": "CCTV",
+   "name": "Cámara perimetral · plataforma",
+   "kind": "camera",
+   "p": [
+    24,
+    8,
+    0
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  },
+  {
+   "id": "AIR-PIR-1",
+   "system": "Security",
+   "name": "PIR · control",
+   "kind": "pir",
+   "p": [
+    -2,
+    8,
+    2.3
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "AIR-ALARM-1",
+   "system": "Security",
+   "name": "Panel de alarma · sala de red",
+   "kind": "alarm-panel",
+   "p": [
+    9,
+    3,
+    1.6
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "AIR-BAT-T",
+   "system": "Power",
+   "name": "Temperatura del respaldo eléctrico",
+   "kind": "environment",
+   "p": [
+    21.2,
+    4.6,
+    0.6
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "AIR-LEAK",
+   "system": "Data",
+   "name": "Detección de agua · sala IT",
+   "kind": "contact",
+   "p": [
+    9.3,
+    3.7,
+    0.15
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "AIR-TH",
+   "system": "Data",
+   "name": "Ambiente del rack · temperatura y humedad",
+   "kind": "environment",
+   "p": [
+    9.58,
+    3.57,
+    1.65
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "AIR-PDU",
+   "system": "Power",
+   "name": "PDU medida · distribución del rack",
+   "kind": "pdu",
+   "p": [
+    10.42,
+    3.57,
+    1.1
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "AIR-OPT",
+   "system": "Data",
+   "name": "ODF · supervisión del enlace óptico",
+   "kind": "optical",
+   "p": [
+    9.58,
+    3.57,
+    1.3
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "AIR-METER",
+   "system": "Power",
+   "name": "Analizador de red · tablero IT",
+   "kind": "meter",
+   "p": [
+    21.52,
+    4.3,
+    1.65
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "AIR-IO",
+   "system": "Software",
+   "name": "Gateway de telemetría · entradas y eventos",
+   "kind": "gateway",
+   "p": [
+    21,
+    4.3,
+    1.3
+   ],
+   "metric": "DEMO · 120 eventos/min"
+  },
+  {
+   "id": "AIR-CALL",
+   "system": "Fire-detection",
+   "name": "Pulsador manual de alarma",
+   "kind": "callpoint",
+   "p": [
+    14.55,
+    1,
+    1.3
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-SOUNDER",
+   "system": "Fire-detection",
+   "name": "Avisador audiovisual",
+   "kind": "sounder",
+   "p": [
+    14.55,
+    1,
+    2.35
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-FIO",
+   "system": "Fire-detection",
+   "name": "Módulo de monitoreo e integración",
+   "kind": "gateway",
+   "p": [
+    15.45,
+    1,
+    1.55
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-CONTACT",
+   "system": "Security",
+   "name": "Contacto de acceso · estado de apertura",
+   "kind": "contact",
+   "p": [
+    15.96,
+    13.05,
+    1.6
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "AIR-WIFI",
+   "system": "Telecom",
+   "name": "Gateway inalámbrico · enlace de supervisión",
+   "kind": "radio",
+   "p": [
+    10.42,
+    3.57,
+    2.15
+   ],
+   "metric": "DEMO · Voz IP · 8 llamadas"
+  },
+  {
+   "id": "AIR-VIDEO",
+   "system": "CCTV",
+   "name": "Supervisión de grabación · nodo de salud",
+   "kind": "gateway",
+   "p": [
+    14.1,
+    4,
+    1.4
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  },
+  {
+   "id": "AIR-MCP-REARW",
+   "system": "Fire-detection",
+   "name": "Pulsador manual · puerta trasera oeste",
+   "kind": "callpoint",
+   "p": [
+    -5.45,
+    15.76,
+    1.3
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-AV-REARW",
+   "system": "Fire-detection",
+   "name": "Avisador audiovisual · puerta trasera oeste",
+   "kind": "sounder",
+   "p": [
+    -5.45,
+    15.76,
+    2.35
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-MCP-REARE",
+   "system": "Fire-detection",
+   "name": "Pulsador manual · puerta trasera este",
+   "kind": "callpoint",
+   "p": [
+    5.45,
+    15.76,
+    1.3
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-AV-REARE",
+   "system": "Fire-detection",
+   "name": "Avisador audiovisual · puerta trasera este",
+   "kind": "sounder",
+   "p": [
+    5.45,
+    15.76,
+    2.35
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-MCP-HALL",
+   "system": "Fire-detection",
+   "name": "Pulsador manual · hall",
+   "kind": "callpoint",
+   "p": [
+    0,
+    0.42,
+    1.2
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-AV-HALL",
+   "system": "Fire-detection",
+   "name": "Avisador audiovisual · hall",
+   "kind": "sounder",
+   "p": [
+    0,
+    0.42,
+    2.05
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-SW",
+   "system": "Data",
+   "name": "Distribución de red / terminal",
+   "kind": "switch",
+   "p": [
+    10,
+    3.45,
+    1.8
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "AIR-PC-1",
+   "system": "Data",
+   "name": "Puesto de check-in 1",
+   "kind": "pc",
+   "p": [
+    -13,
+    3.08,
+    1.42
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "AIR-PC-2",
+   "system": "Data",
+   "name": "Puesto de check-in 2",
+   "kind": "pc",
+   "p": [
+    -9,
+    3.08,
+    1.42
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "AIR-PC-3",
+   "system": "Data",
+   "name": "Puesto de check-in 3",
+   "kind": "pc",
+   "p": [
+    -5,
+    3.08,
+    1.42
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "AIR-AP-1",
+   "system": "Telecom",
+   "name": "Wi-Fi / circulación de pasajeros",
+   "kind": "wifi",
+   "p": [
+    -10,
+    8,
+    4.05
+   ],
+   "metric": "DEMO · Señal −52 dBm · 18 clientes"
+  },
+  {
+   "id": "AIR-AP-2",
+   "system": "Telecom",
+   "name": "Wi-Fi / circulación de pasajeros",
+   "kind": "wifi",
+   "p": [
+    -2,
+    8,
+    4.05
+   ],
+   "metric": "DEMO · Señal −52 dBm · 18 clientes"
+  },
+  {
+   "id": "AIR-AP-3",
+   "system": "Telecom",
+   "name": "Wi-Fi / circulación de pasajeros",
+   "kind": "wifi",
+   "p": [
+    6,
+    8,
+    4.05
+   ],
+   "metric": "DEMO · Señal −52 dBm · 18 clientes"
+  },
+  {
+   "id": "AIR-AP-4",
+   "system": "Telecom",
+   "name": "Wi-Fi / circulación de pasajeros",
+   "kind": "wifi",
+   "p": [
+    14,
+    8,
+    4.05
+   ],
+   "metric": "DEMO · Señal −52 dBm · 18 clientes"
+  },
+  {
+   "id": "AIR-TEL",
+   "system": "Telecom",
+   "name": "Telefonía IP / embarque",
+   "kind": "phone",
+   "p": [
+    13.55,
+    14,
+    1.2
+   ],
+   "metric": "DEMO · Voz IP · 8 llamadas"
+  },
+  {
+   "id": "AIR-CAM-1",
+   "system": "CCTV",
+   "name": "Cámara IP / terminal",
+   "kind": "camera",
+   "p": [
+    -14,
+    1,
+    3.4
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  },
+  {
+   "id": "AIR-CAM-2",
+   "system": "CCTV",
+   "name": "Cámara IP / terminal",
+   "kind": "camera",
+   "p": [
+    1,
+    7,
+    3.5
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  },
+  {
+   "id": "AIR-CAM-3",
+   "system": "CCTV",
+   "name": "Cámara IP / terminal",
+   "kind": "camera",
+   "p": [
+    14,
+    14,
+    3.4
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  },
+  {
+   "id": "AIR-CAM-4",
+   "system": "CCTV",
+   "name": "Cámara IP / terminal",
+   "kind": "camera",
+   "p": [
+    20,
+    13,
+    2.7
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  },
+  {
+   "id": "AIR-DET-1",
+   "system": "Fire-detection",
+   "name": "Detector / hall",
+   "kind": "detector",
+   "p": [
+    -12,
+    6,
+    4.05
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-DET-2",
+   "system": "Fire-detection",
+   "name": "Detector / hall",
+   "kind": "detector",
+   "p": [
+    -4,
+    6,
+    4.05
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-DET-3",
+   "system": "Fire-detection",
+   "name": "Detector / hall",
+   "kind": "detector",
+   "p": [
+    4,
+    6,
+    4.05
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-DET-4",
+   "system": "Fire-detection",
+   "name": "Detector / hall",
+   "kind": "detector",
+   "p": [
+    12,
+    6,
+    4.05
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-FACP",
+   "system": "Fire-detection",
+   "name": "Central de detección",
+   "kind": "panel",
+   "p": [
+    15,
+    1,
+    1.5
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "AIR-ACC",
+   "system": "Security",
+   "name": "Control de acceso / embarque",
+   "kind": "access",
+   "p": [
+    15.7,
+    13,
+    1.2
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "AIR-UPS",
+   "system": "Power",
+   "name": "UPS / sala eléctrica independiente",
+   "kind": "ups",
+   "p": [
+    20,
+    4,
+    1.1
+   ],
+   "metric": "DEMO · UPS · carga 42 %"
+  },
+  {
+   "id": "AIR-TGBT",
+   "system": "Power",
+   "name": "Tablero de distribución IT",
+   "kind": "panel",
+   "p": [
+    22,
+    4.5,
+    1.6
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "AIR-NVR",
+   "system": "CCTV",
+   "name": "NVR / gabinete de supervisión",
+   "kind": "nvr",
+   "p": [
+    14.5,
+    4,
+    1.4
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  },
+  {
+   "id": "AIR-FIDS",
+   "system": "Software",
+   "name": "Información al pasajero / DEMO",
+   "kind": "screen",
+   "p": [
+    7,
+    10,
+    3.3
+   ],
+   "metric": "DEMO · 120 eventos/min"
+  }
+ ],
+ "bodega": [
+  {
+   "id": "WIN-BAT-T",
+   "system": "Power",
+   "name": "Temperatura del respaldo eléctrico",
+   "kind": "environment",
+   "p": [
+    21.2,
+    4.6,
+    0.6
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "WIN-LEAK",
+   "system": "Data",
+   "name": "Detección de agua · sala IT",
+   "kind": "contact",
+   "p": [
+    11.3,
+    2.7,
+    0.15
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "WIN-DOOR-1",
+   "system": "Security",
+   "name": "Puerta controlada · recepción",
+   "kind": "door",
+   "p": [
+    -13,
+    1,
+    1.25
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "WIN-DOOR-2",
+   "system": "Security",
+   "name": "Puerta controlada · depósito y despacho",
+   "kind": "door",
+   "p": [
+    13.5,
+    16,
+    1.25
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "WIN-WLAN-1",
+   "system": "Telecom",
+   "name": "Wi-Fi · nave de tanques",
+   "kind": "ceiling-wifi",
+   "p": [
+    -8,
+    11,
+    4.8
+   ],
+   "metric": "DEMO · Señal −52 dBm · 18 clientes"
+  },
+  {
+   "id": "WIN-WLAN-2",
+   "system": "Telecom",
+   "name": "Wi-Fi · depósito",
+   "kind": "ceiling-wifi",
+   "p": [
+    12,
+    16,
+    4.8
+   ],
+   "metric": "DEMO · Señal −52 dBm · 18 clientes"
+  },
+  {
+   "id": "WIN-SDI-1",
+   "system": "Fire-detection",
+   "name": "Detector · nave de tanques",
+   "kind": "ceiling-detector",
+   "p": [
+    -4,
+    11,
+    4.9
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-SDI-2",
+   "system": "Fire-detection",
+   "name": "Detector · depósito",
+   "kind": "ceiling-detector",
+   "p": [
+    12,
+    17,
+    4.9
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-IP-OPS",
+   "system": "Telecom",
+   "name": "Intercomunicador · operación",
+   "kind": "intercom",
+   "p": [
+    11.5,
+    3,
+    1.45
+   ],
+   "metric": "DEMO · Voz IP · 8 llamadas"
+  },
+  {
+   "id": "WIN-FB-DEP",
+   "system": "Data",
+   "name": "Caja de distribución · depósito",
+   "kind": "fieldbox",
+   "p": [
+    12.6,
+    16.6,
+    1.5
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "WIN-BAT-1",
+   "system": "Power",
+   "name": "Banco de baterías · sala eléctrica",
+   "kind": "battery",
+   "p": [
+    21.2,
+    5.4,
+    0.7
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "WIN-ATS-1",
+   "system": "Power",
+   "name": "Tablero de transferencia · sala eléctrica",
+   "kind": "transfer",
+   "p": [
+    22.9,
+    5.5,
+    1.5
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "WIN-DISH-1",
+   "system": "Telecom",
+   "name": "Radioenlace · operación",
+   "kind": "dish",
+   "p": [
+    16.5,
+    1,
+    3
+   ],
+   "metric": "DEMO · Voz IP · 8 llamadas"
+  },
+  {
+   "id": "WIN-TOTEM-1",
+   "system": "Software",
+   "name": "Tótem de trazabilidad · recepción",
+   "kind": "totem",
+   "p": [
+    -12,
+    5.5,
+    0
+   ],
+   "metric": "DEMO · 120 eventos/min"
+  },
+  {
+   "id": "WIN-LEVEL-1",
+   "system": "Software",
+   "name": "Nivel de tanque · integración propuesta",
+   "kind": "level",
+   "p": [
+    -4,
+    7.88,
+    2.6
+   ],
+   "metric": "DEMO · 120 eventos/min"
+  },
+  {
+   "id": "WIN-BEAM-1",
+   "system": "Fire-detection",
+   "name": "Detector lineal · nave",
+   "kind": "beam",
+   "p": [
+    -10,
+    12,
+    4.5
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-BEACON-1",
+   "system": "Fire-detection",
+   "name": "Baliza exterior · despacho",
+   "kind": "beacon",
+   "p": [
+    15.35,
+    18.5,
+    0
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-BARRIER-1",
+   "system": "Security",
+   "name": "Barrera vehicular · portón",
+   "kind": "barrier",
+   "p": [
+    -16,
+    4,
+    0
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "WIN-POLECAM-1",
+   "system": "CCTV",
+   "name": "Cámara perimetral · depósito",
+   "kind": "camera",
+   "p": [
+    16,
+    20,
+    0
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  },
+  {
+   "id": "WIN-PIR-1",
+   "system": "Security",
+   "name": "PIR · depósito",
+   "kind": "pir",
+   "p": [
+    14.5,
+    16,
+    2.3
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "WIN-BARREL-4",
+   "system": "Software",
+   "name": "Tonel 4 · temperatura ilustrativa",
+   "kind": "barrel",
+   "p": [
+    -6,
+    18.6,
+    1.55
+   ],
+   "metric": "DEMO · 120 eventos/min"
+  },
+  {
+   "id": "WIN-BARREL-1",
+   "system": "Software",
+   "name": "Tonel 1 · temperatura ilustrativa",
+   "kind": "barrel",
+   "p": [
+    -12,
+    18.6,
+    1.55
+   ],
+   "metric": "DEMO · 120 eventos/min"
+  },
+  {
+   "id": "WIN-BARREL-2",
+   "system": "Software",
+   "name": "Tonel 2 · temperatura ilustrativa",
+   "kind": "barrel",
+   "p": [
+    -10,
+    18.6,
+    1.55
+   ],
+   "metric": "DEMO · 120 eventos/min"
+  },
+  {
+   "id": "WIN-BARREL-3",
+   "system": "Software",
+   "name": "Tonel 3 · temperatura ilustrativa",
+   "kind": "barrel",
+   "p": [
+    -8,
+    18.6,
+    1.55
+   ],
+   "metric": "DEMO · 120 eventos/min"
+  },
+  {
+   "id": "WIN-CELLAR-RH",
+   "system": "Software",
+   "name": "Ambiente de crianza · humedad",
+   "kind": "environment",
+   "p": [
+    -14,
+    18,
+    1.65
+   ],
+   "metric": "DEMO · 120 eventos/min"
+  },
+  {
+   "id": "WIN-TH",
+   "system": "Data",
+   "name": "Ambiente del rack · temperatura y humedad",
+   "kind": "environment",
+   "p": [
+    11.58,
+    2.57,
+    1.65
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "WIN-PDU",
+   "system": "Power",
+   "name": "PDU medida · distribución del rack",
+   "kind": "pdu",
+   "p": [
+    12.42,
+    2.57,
+    1.1
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "WIN-OPT",
+   "system": "Data",
+   "name": "ODF · supervisión del enlace óptico",
+   "kind": "optical",
+   "p": [
+    11.58,
+    2.57,
+    1.3
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "WIN-METER",
+   "system": "Power",
+   "name": "Analizador de red · tablero IT",
+   "kind": "meter",
+   "p": [
+    21.52,
+    4.3,
+    1.65
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "WIN-IO",
+   "system": "Software",
+   "name": "Gateway de telemetría · entradas y eventos",
+   "kind": "gateway",
+   "p": [
+    21,
+    4.3,
+    1.3
+   ],
+   "metric": "DEMO · 120 eventos/min"
+  },
+  {
+   "id": "WIN-CALL",
+   "system": "Fire-detection",
+   "name": "Pulsador manual de alarma",
+   "kind": "callpoint",
+   "p": [
+    14.55,
+    1,
+    1.3
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-SOUNDER",
+   "system": "Fire-detection",
+   "name": "Avisador audiovisual",
+   "kind": "sounder",
+   "p": [
+    14.55,
+    1,
+    2.35
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-FIO",
+   "system": "Fire-detection",
+   "name": "Módulo de monitoreo e integración",
+   "kind": "gateway",
+   "p": [
+    15.45,
+    1,
+    1.55
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-CONTACT",
+   "system": "Security",
+   "name": "Contacto de acceso · estado de apertura",
+   "kind": "contact",
+   "p": [
+    -14.74,
+    1.05,
+    1.6
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "WIN-WIFI",
+   "system": "Telecom",
+   "name": "Gateway inalámbrico · enlace de supervisión",
+   "kind": "radio",
+   "p": [
+    12.42,
+    2.57,
+    2.15
+   ],
+   "metric": "DEMO · Voz IP · 8 llamadas"
+  },
+  {
+   "id": "WIN-VIDEO",
+   "system": "CCTV",
+   "name": "Supervisión de grabación · nodo de salud",
+   "kind": "gateway",
+   "p": [
+    13.6,
+    3,
+    1.4
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  },
+  {
+   "id": "WIN-TANK-T",
+   "system": "Software",
+   "name": "Temperatura de tanque · integración propuesta",
+   "kind": "probe",
+   "p": [
+    -8,
+    7.88,
+    2.35
+   ],
+   "metric": "DEMO · 120 eventos/min"
+  },
+  {
+   "id": "WIN-MCP-GATE",
+   "system": "Fire-detection",
+   "name": "Pulsador manual · portón",
+   "kind": "callpoint",
+   "p": [
+    -14.88,
+    2.5,
+    1.3
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-AV-GATE",
+   "system": "Fire-detection",
+   "name": "Avisador audiovisual · portón",
+   "kind": "sounder",
+   "p": [
+    -14.88,
+    2.5,
+    2.35
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-MCP-REC",
+   "system": "Fire-detection",
+   "name": "Pulsador manual · recepción",
+   "kind": "callpoint",
+   "p": [
+    -0.88,
+    4,
+    1.3
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-AV-REC",
+   "system": "Fire-detection",
+   "name": "Avisador audiovisual · recepción",
+   "kind": "sounder",
+   "p": [
+    -0.88,
+    4,
+    2.35
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-MCP-NAVE",
+   "system": "Fire-detection",
+   "name": "Pulsador manual · nave este",
+   "kind": "callpoint",
+   "p": [
+    6.88,
+    8,
+    1.3
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-AV-NAVE",
+   "system": "Fire-detection",
+   "name": "Avisador audiovisual · nave este",
+   "kind": "sounder",
+   "p": [
+    6.88,
+    8,
+    2.35
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-MCP-DEP",
+   "system": "Fire-detection",
+   "name": "Pulsador manual · depósito",
+   "kind": "callpoint",
+   "p": [
+    14.88,
+    12,
+    1.3
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-AV-DEP",
+   "system": "Fire-detection",
+   "name": "Avisador audiovisual · depósito",
+   "kind": "sounder",
+   "p": [
+    14.88,
+    12,
+    2.35
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-SW",
+   "system": "Data",
+   "name": "Distribución / bodega",
+   "kind": "switch",
+   "p": [
+    12,
+    2.45,
+    1.8
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "WIN-PC",
+   "system": "Data",
+   "name": "Puesto de recepción",
+   "kind": "pc",
+   "p": [
+    -12,
+    3,
+    1.42
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "WIN-TERM",
+   "system": "Software",
+   "name": "Terminal de trazabilidad / DEMO",
+   "kind": "screen",
+   "p": [
+    3,
+    10,
+    1.5
+   ],
+   "metric": "DEMO · 120 eventos/min"
+  },
+  {
+   "id": "WIN-OPS",
+   "system": "Software",
+   "name": "Puesto de operación / DEMO",
+   "kind": "pc",
+   "p": [
+    10,
+    3,
+    1.42
+   ],
+   "metric": "DEMO · 120 eventos/min"
+  },
+  {
+   "id": "WIN-AP-1",
+   "system": "Telecom",
+   "name": "Wi-Fi / producción y depósito",
+   "kind": "wifi",
+   "p": [
+    -10,
+    10,
+    5.15
+   ],
+   "metric": "DEMO · Señal −52 dBm · 18 clientes"
+  },
+  {
+   "id": "WIN-AP-2",
+   "system": "Telecom",
+   "name": "Wi-Fi / producción y depósito",
+   "kind": "wifi",
+   "p": [
+    -2,
+    10,
+    5.15
+   ],
+   "metric": "DEMO · Señal −52 dBm · 18 clientes"
+  },
+  {
+   "id": "WIN-AP-3",
+   "system": "Telecom",
+   "name": "Wi-Fi / producción y depósito",
+   "kind": "wifi",
+   "p": [
+    9,
+    15,
+    5.15
+   ],
+   "metric": "DEMO · Señal −52 dBm · 18 clientes"
+  },
+  {
+   "id": "WIN-TEL",
+   "system": "Telecom",
+   "name": "Telefonía IP / operación",
+   "kind": "phone",
+   "p": [
+    10.7,
+    3,
+    1.1
+   ],
+   "metric": "DEMO · Voz IP · 8 llamadas"
+  },
+  {
+   "id": "WIN-CAM-1",
+   "system": "CCTV",
+   "name": "Cámara IP / supervisión",
+   "kind": "camera",
+   "p": [
+    -14,
+    2,
+    3.8
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  },
+  {
+   "id": "WIN-CAM-2",
+   "system": "CCTV",
+   "name": "Cámara IP / supervisión",
+   "kind": "camera",
+   "p": [
+    -6,
+    17,
+    4.5
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  },
+  {
+   "id": "WIN-CAM-3",
+   "system": "CCTV",
+   "name": "Cámara IP / supervisión",
+   "kind": "camera",
+   "p": [
+    5,
+    10,
+    4
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  },
+  {
+   "id": "WIN-CAM-4",
+   "system": "CCTV",
+   "name": "Cámara IP / supervisión",
+   "kind": "camera",
+   "p": [
+    14,
+    18,
+    4.5
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  },
+  {
+   "id": "WIN-DET-1",
+   "system": "Fire-detection",
+   "name": "Detección / nave industrial",
+   "kind": "detector",
+   "p": [
+    -12,
+    9,
+    5.2
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-DET-2",
+   "system": "Fire-detection",
+   "name": "Detección / nave industrial",
+   "kind": "detector",
+   "p": [
+    -4,
+    9,
+    5.2
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-DET-3",
+   "system": "Fire-detection",
+   "name": "Detección / nave industrial",
+   "kind": "detector",
+   "p": [
+    4,
+    9,
+    5.2
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-DET-4",
+   "system": "Fire-detection",
+   "name": "Detección / nave industrial",
+   "kind": "detector",
+   "p": [
+    12,
+    9,
+    5.2
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-FACP",
+   "system": "Fire-detection",
+   "name": "Central de detección",
+   "kind": "panel",
+   "p": [
+    15,
+    1,
+    1.5
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "WIN-ACC",
+   "system": "Security",
+   "name": "Control de acceso / recepción",
+   "kind": "access",
+   "p": [
+    -15,
+    1,
+    1.2
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "WIN-UPS",
+   "system": "Power",
+   "name": "UPS / sala eléctrica",
+   "kind": "ups",
+   "p": [
+    20,
+    4,
+    1.1
+   ],
+   "metric": "DEMO · UPS · carga 42 %"
+  },
+  {
+   "id": "WIN-TGBT",
+   "system": "Power",
+   "name": "Tablero eléctrico IT",
+   "kind": "panel",
+   "p": [
+    22,
+    4.5,
+    1.6
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "WIN-NVR",
+   "system": "CCTV",
+   "name": "Gabinete CCTV / operación",
+   "kind": "nvr",
+   "p": [
+    14,
+    3,
+    1.4
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  }
+ ],
+ "fachada": [
+  {
+   "id": "FAC-PB-INTERCOM",
+   "system": "Intercom",
+   "name": "Citofonía / videoportero",
+   "kind": "intercom",
+   "p": [
+    -1.74,
+    -0.3,
+    1.35
+   ],
+   "metric": "DEMO · Audio / video IP · disponible"
+  },
+  {
+   "id": "FAC-PB-ACC",
+   "system": "Security",
+   "name": "Lector de acceso / portería",
+   "kind": "access",
+   "p": [
+    -3.335,
+    -0.35,
+    1.25
+   ],
+   "metric": "DEMO · Acceso · 12 eventos/h"
+  },
+  {
+   "id": "FAC-PB-CAM",
+   "system": "CCTV",
+   "name": "Cámara / hall de entrada",
+   "kind": "camera",
+   "p": [
+    -3.48,
+    2.2,
+    2.78
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  },
+  {
+   "id": "FAC-PB-TGBT",
+   "system": "Power",
+   "name": "Tablero general",
+   "kind": "panel",
+   "p": [
+    6.888,
+    0.75,
+    1.35
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "FAC-1-PABX",
+   "system": "Telecom",
+   "name": "Central telefónica IP",
+   "kind": "switch",
+   "p": [
+    -4.64,
+    4.5,
+    4.45
+   ],
+   "metric": "DEMO · Voz IP · 8 llamadas"
+  },
+  {
+   "id": "FAC-1-PHONE",
+   "system": "Telecom",
+   "name": "Puesto telefónico",
+   "kind": "phone",
+   "p": [
+    2.03,
+    1.5,
+    4.45
+   ],
+   "metric": "DEMO · Voz IP · 8 llamadas"
+  },
+  {
+   "id": "FAC-1-AP",
+   "system": "WiFi",
+   "name": "Wi-Fi / piso 1",
+   "kind": "wifi",
+   "p": [
+    0,
+    2.2,
+    5.78
+   ],
+   "metric": "DEMO · Señal −52 dBm · 18 clientes"
+  },
+  {
+   "id": "FAC-1-SW",
+   "system": "Data",
+   "name": "Switch de piso / telefonía",
+   "kind": "switch",
+   "p": [
+    3.19,
+    4.6,
+    4.45
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "FAC-2-RACK",
+   "system": "Data",
+   "name": "Rack de distribución / piso 2",
+   "kind": "switch",
+   "p": [
+    -4.64,
+    4.5,
+    7.45
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "FAC-2-ODF",
+   "system": "Fiber",
+   "name": "Fibra óptica · ODF del edificio",
+   "kind": "fieldbox",
+   "p": [
+    -4.64,
+    4.5,
+    7.45
+   ],
+   "metric": "DEMO · Enlace 10 Gb/s"
+  },
+  {
+   "id": "FAC-2-FB",
+   "system": "Data",
+   "name": "Caja de distribución / piso 2",
+   "kind": "fieldbox",
+   "p": [
+    1.74,
+    4.5,
+    7.45
+   ],
+   "metric": "DEMO · Tráfico 184 Mb/s"
+  },
+  {
+   "id": "FAC-2-AP",
+   "system": "WiFi",
+   "name": "Wi-Fi / piso 2",
+   "kind": "wifi",
+   "p": [
+    -1.16,
+    2.2,
+    8.78
+   ],
+   "metric": "DEMO · Señal −52 dBm · 18 clientes"
+  },
+  {
+   "id": "FAC-3-NVR",
+   "system": "CCTV",
+   "name": "Grabación / piso 3",
+   "kind": "nvr",
+   "p": [
+    -4.64,
+    4.5,
+    10.45
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  },
+  {
+   "id": "FAC-3-CAM",
+   "system": "CCTV",
+   "name": "Cámara IP / piso 3",
+   "kind": "camera",
+   "p": [
+    1.305,
+    4.6,
+    10.45
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  },
+  {
+   "id": "FAC-3-CAM2",
+   "system": "CCTV",
+   "name": "Cámara IP / piso 3 · corredor",
+   "kind": "camera",
+   "p": [
+    2.9,
+    2.2,
+    11.78
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  },
+  {
+   "id": "FAC-4-FACP",
+   "system": "Fire-detection",
+   "name": "Central de detección",
+   "kind": "panel",
+   "p": [
+    -4.64,
+    4.5,
+    13.45
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "FAC-4-AV",
+   "system": "Fire-detection",
+   "name": "Avisador audiovisual",
+   "kind": "sounder",
+   "p": [
+    1.74,
+    4.6,
+    13.45
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "FAC-4-DET",
+   "system": "Fire-detection",
+   "name": "Detector de humo",
+   "kind": "ceiling-detector",
+   "p": [
+    -0.58,
+    2.6,
+    13.45
+   ],
+   "metric": "DEMO · Lazo supervisado · 0 alarmas"
+  },
+  {
+   "id": "FAC-5-DISH",
+   "system": "Telecom",
+   "name": "Radioenlace / terraza",
+   "kind": "dish",
+   "p": [
+    -4.35,
+    1.2,
+    16.45
+   ],
+   "metric": "DEMO · Voz IP · 8 llamadas"
+  },
+  {
+   "id": "FAC-5-CAM",
+   "system": "CCTV",
+   "name": "Cámara perimetral / terraza",
+   "kind": "camera",
+   "p": [
+    3.19,
+    4.6,
+    16.45
+   ],
+   "metric": "DEMO · Video 4,8 Mb/s · 25 fps"
+  },
+  {
+   "id": "FAC-5-NOC",
+   "system": "Software",
+   "name": "Puesto de supervisión / terraza",
+   "kind": "pc",
+   "p": [
+    -2.03,
+    1.4,
+    16.45
+   ],
+   "metric": "DEMO · 120 eventos/min"
+  },
+  {
+   "id": "FAC-5-PDU",
+   "system": "Power",
+   "name": "PDU / terraza",
+   "kind": "pdu",
+   "p": [
+    3.77,
+    4.6,
+    16.45
+   ],
+   "metric": "DEMO · 230 V · 50 Hz"
+  },
+  {
+   "id": "FAC-1-HVAC",
+   "system": "HVAC",
+   "name": "Climatización · piso 1",
+   "kind": "environment",
+   "p": [
+    -1.74,
+    2,
+    5.88
+   ],
+   "metric": "DEMO · Ambiente 22,4 °C"
+  },
+  {
+   "id": "FAC-PB-PLUMB",
+   "system": "Plumbing",
+   "name": "Montante de saneamiento",
+   "kind": "probe",
+   "p": [
+    2.465,
+    3.9,
+    1.5
+   ],
+   "metric": "DEMO · Presión 3 bar"
+  }
+ ]
+}

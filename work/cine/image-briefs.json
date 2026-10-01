@@ -1,0 +1,68 @@
+{
+  "style": {
+    "always": "Art direction 'Cine técnico mendocino': photorealistic, shot on a cinema camera with a 35-50 mm lens, low early-morning sun from the east raking across surfaces, long soft shadows, deep graphite shadows with preserved detail, warm highlights, subtle atmospheric haze, the Andes cordillera with snow on the horizon when outdoors. Palette: graphite #07080a, warm plaster, brushed stainless steel, a single accent of signal red #dc2626. Clean, engineered, real materials with visible texture. Composition leaves calm negative space on the left third for headline text. No people facing camera.",
+    "never": "text, letters, numbers, logos, brand names, watermarks, flags, fake UI, holograms, neon, sci-fi glow, lens flares, stock-photo smiles, handshakes, generic server-room clichés with blue light, fisheye distortion"
+  },
+  "briefs": [
+    {
+      "id": "andes-plano-general",
+      "use": "Fondo de la franja 'Desde Mendoza' y OG por defecto",
+      "size": "1536x1024",
+      "prompt": "Wide establishing shot of the Mendoza plain at dawn: rows of Malbec vineyards on espalier trellises leading toward a line of tall Lombardy poplars, and behind them the snow-capped Andes lit pink-orange by the rising sun. A thin line of fiber-optic aerial cable on wooden poles crosses the vineyard toward a modern industrial winery building. Crisp air, precise detail."
+    },
+    {
+      "id": "sector-bodegas",
+      "use": "Complemento editorial de /bodegas (imagen ilustrativa)",
+      "size": "1536x1024",
+      "prompt": "Interior of a modern Mendoza winery fermentation hall at early morning: brushed stainless steel tanks with cooling jackets, a tidy overhead cable tray carrying network and fiber cabling, a wall-mounted industrial network cabinet with its door closed, sunlight entering through a high clerestory window in shafts of light."
+    },
+    {
+      "id": "sector-aeropuertos",
+      "use": "Complemento editorial de /aeropuertos (imagen ilustrativa)",
+      "size": "1536x1024",
+      "prompt": "Airport terminal glass facade seen from the apron at sunrise with the Andes behind, a jet bridge, ground-support equipment, and discreet PTZ security cameras on slender poles along the perimeter fence. Warm light on the glass, cool blue shadows."
+    },
+    {
+      "id": "sector-salud",
+      "use": "Complemento editorial de /salud (imagen ilustrativa)",
+      "size": "1536x1024",
+      "prompt": "Hospital corridor at dawn, clean and calm: pale sage vinyl floor with soft reflections, a nurse station with two monitors seen from behind (no readable content), a ceiling access point and a dome camera, warm light from a window at the end of the corridor. Empty of people."
+    },
+    {
+      "id": "sector-constructoras",
+      "use": "Complemento editorial de /constructoras (imagen ilustrativa)",
+      "size": "1536x1024",
+      "prompt": "Mendoza city street at golden morning light: a contemporary six-storey office building with a glass curtain wall and horizontal sun louvers, tall plane trees (plátanos) lining the sidewalk and a concrete irrigation channel (acequia) with running water between the curb and the trees. The Andes visible at the end of the street."
+    },
+    {
+      "id": "sector-mineria",
+      "use": "Complemento editorial de /mineria (imagen ilustrativa)",
+      "size": "1536x1024",
+      "prompt": "Remote high-Andes mining camp at 3500 m altitude at sunrise: modular camp buildings, a lattice telecommunications tower with microwave dishes and a small solar array with battery enclosures, dry ochre mountains and snow peaks around. Vast, silent, engineered."
+    },
+    {
+      "id": "servicio-redes-macro",
+      "use": "Detalle de servicio Redes (imagen ilustrativa)",
+      "size": "1024x1024",
+      "prompt": "Macro photograph of a perfectly dressed network rack: bundled Cat6A patch cords combed into vertical managers, LC fiber connectors in a fiber patch panel, shallow depth of field, a thin red velcro strap as the only accent, graphite background."
+    },
+    {
+      "id": "servicio-energia-macro",
+      "use": "Detalle de servicio Eléctricos IT (imagen ilustrativa)",
+      "size": "1024x1024",
+      "prompt": "Close-up of an IT electrical switchboard with DIN-rail breakers and a double-conversion UPS status panel, copper busbar partly visible, cable glands, clean labeling tapes without readable text, raking side light."
+    },
+    {
+      "id": "textura-hormigon",
+      "use": "Textura para renders Cycles (hormigón pulido de nave)",
+      "size": "1024x1024",
+      "prompt": "Seamless tileable top-down texture of polished industrial concrete floor with subtle aggregate, trowel marks and faint saw-cut joint, even diffuse lighting, no perspective, no shadows."
+    },
+    {
+      "id": "textura-acero-cepillado",
+      "use": "Textura para renders Cycles (tanques de acero)",
+      "size": "1024x1024",
+      "prompt": "Seamless tileable texture of vertically brushed stainless steel with fine linear grain and very subtle weld discoloration, even diffuse lighting, no perspective, no reflections of objects."
+    }
+  ]
+}

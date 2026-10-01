@@ -1,0 +1,1237 @@
+<title>Prompts de imágenes UMSA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #f5f4f1; --panel: #ffffff; --line: #dedbd4; --text: #17191d; --muted: #5d6169; --accent: #c61f1f; --accent-ink: #ffffff; --code: #f0eee9;
+    --sans: 'Archivo', 'Helvetica Neue', Arial, sans-serif; --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #0d0e11; --panel: #15171b; --line: #2a2d33; --text: #ecebe7; --muted: #9ba0a8; --accent: #e0342f; --accent-ink: #ffffff; --code: #1b1e23; color-scheme: dark; }
+  }
+  :root[data-theme="dark"] { --bg: #0d0e11; --panel: #15171b; --line: #2a2d33; --text: #ecebe7; --muted: #9ba0a8; --accent: #e0342f; --accent-ink: #ffffff; --code: #1b1e23; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font: 400 16px/1.55 var(--sans); padding-inline: 16px; padding-block: 0 64px; }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  .hero { padding-block: 40px 28px; border-bottom: 1px solid var(--line); }
+  .kicker { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+  .kicker::before { content: ''; width: 28px; height: 2px; background: var(--accent); }
+  h1 { margin: 0; font-size: clamp(30px, 5vw, 46px); line-height: 1.05; font-weight: 700; letter-spacing: -.025em; text-wrap: balance; }
+  .lead { margin: 14px 0 0; max-width: 62ch; color: var(--muted); font-size: 17px; }
+  .ways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 28px; }
+  .way { padding: 20px; background: var(--panel); border: 1px solid var(--line); }
+  .way h2 { margin: 0 0 10px; font-size: 18px; font-weight: 600; }
+  .way ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--text); }
+  .way code, .card code { font: 500 13.5px var(--mono); background: var(--code); padding: 1px 6px; border: 1px solid var(--line); }
+  .way .cost { margin: 12px 0 0; font-size: 14px; color: var(--muted); }
+  .bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; padding-block: 12px; background: var(--bg); border-bottom: 1px solid var(--line); }
+  .bar nav { display: flex; flex-wrap: wrap; gap: 6px; }
+  .bar a { padding: 6px 12px; border: 1px solid var(--line); color: var(--text); text-decoration: none; font-size: 14px; font-weight: 500; }
+  .bar a:hover, .bar a:focus-visible { border-color: var(--accent); }
+  .progress { margin-left: auto; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .progress b { color: var(--text); }
+  .group { padding-top: 34px; scroll-margin-top: 64px; }
+  .group__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin-bottom: 16px; }
+  .group__head h2 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -.01em; }
+  .group__head p { margin: 0; color: var(--muted); font-size: 14px; }
+  .cards { display: grid; gap: 14px; }
+  .master { margin-top: 28px; }
+  .prompt--master { max-height: 22em; }
+  .card { padding: 18px 20px 16px; background: var(--panel); border: 1px solid var(--line); transition: opacity .2s ease; }
+  .card.is-done { opacity: .55; }
+  .card__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .card h3 { margin: 0; font-size: 19px; font-weight: 600; }
+  .done { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); cursor: pointer; }
+  .done input { width: 18px; height: 18px; accent-color: var(--accent); }
+  .card__meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px 20px; margin: 12px 0 14px; }
+  .card__meta dt { font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .card__meta dd { margin: 4px 0 0; }
+  .card__meta ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+  .prompt { margin: 0; max-height: 11.5em; overflow: auto; padding: 14px 16px; background: var(--code); border: 1px solid var(--line); font: 400 13.5px/1.6 var(--mono); white-space: pre-wrap; word-break: break-word; }
+  .card__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+  .btn { min-height: 40px; padding: 0 14px; border: 1px solid var(--line); background: transparent; color: var(--text); font: 600 14px var(--sans); cursor: pointer; }
+  .btn:hover { border-color: var(--text); }
+  .btn--primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn--primary:hover { filter: brightness(1.08); border-color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .toast { font-size: 14px; color: var(--muted); }
+  .note { margin-top: 36px; padding: 18px 20px; border-left: 3px solid var(--accent); background: var(--panel); color: var(--muted); font-size: 15px; }
+  @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+</style>
+<div class="wrap">
+  <header class="hero">
+    <p class="kicker">Última Milla · rediseño 2026</p>
+    <h1>Prompts de imágenes UMSA</h1>
+    <p class="lead">22 imágenes para reemplazar las fotos del sitio con la misma dirección de arte de las escenas cine: mañana en Mendoza, cordillera, grafito y un solo acento rojo. Cada tarjeta dice con qué nombre guardar la imagen y dónde va.</p>
+    <div class="ways">
+      <section class="way">
+        <h2>Con ChatGPT (sin clave)</h2>
+        <ol>
+          <li>Abrí ChatGPT y pegá el prompt.</li>
+          <li>Descargá la imagen y guardala con el nombre indicado.</li>
+          <li>Dejala en <code>work/cine/ai/entrantes/</code> o mandámela.</li>
+          <li>Yo corro <code>import-ai-images.py</code> y la coloco en el sitio.</li>
+        </ol>
+      </section>
+      <section class="way">
+        <h2>Por API (con tu clave)</h2>
+        <ol>
+          <li>En tu terminal: <code>export OPENAI_API_KEY=…</code></li>
+          <li><code>node work/cine/scripts/openai-images.mjs --briefs work/cine/image-briefs-sitio.json</code></li>
+          <li>Después, <code>python3 work/cine/scripts/import-ai-images.py</code></li>
+        </ol>
+        <p class="cost">Modelo gpt-image-2 a 1536×1024: unos US$0,04 por imagen en calidad media o US$0,17 en alta. Las 22 cuestan entre US$1 y US$4.</p>
+      </section>
+    </div>
+  </header>
+  <section class="master card" id="lote">
+    <div class="card__top"><h3>Lote completo: 4 opciones de cada una y ZIP</h3></div>
+    <p class="lead">Pegalo entero en un chat nuevo de ChatGPT. Genera las 88 imágenes sin esperar, cada ficha con su escena, su estética y cuatro encuadres, y arma un ZIP por grupo. Si se corta, escribí «seguí desde la NN».</p>
+    <pre class="prompt prompt--master" id="p-lote">Vas a producir un lote de imágenes para el sitio web de ULTIMA MILLA, empresa argentina de servicios IT con sede en Mendoza, al pie de los Andes. Son 22 fichas y quiero 4 opciones de cada una (88 imágenes en total).
+
+CÓMO TRABAJAMOS
+1. Avanzá ficha por ficha, en el orden de la lista.
+2. Por cada ficha generá 4 imágenes SEPARADAS (no una grilla ni un collage), una por cada encuadre indicado en «Opciones». Las 4 comparten la escena y la estética de la ficha; lo único que cambia es el encuadre.
+3. Encabezá cada ficha con su número y nombre, y nombrá las opciones así: &lt;nombre&gt;-v1.png, &lt;nombre&gt;-v2.png, &lt;nombre&gt;-v3.png, &lt;nombre&gt;-v4.png. Sin explicaciones.
+4. Al terminar cada ficha seguí con la siguiente sin esperar confirmación. Si te freno o llegás a un límite de uso, al retomar escribo «seguí desde la NN».
+5. Al terminar cada grupo (Sectores, Servicios, Empresa, Antecedentes destacados) usá Python para armar un ZIP con las imágenes de ese grupo, con los nombres de arriba, y dame el link de descarga:
+   • Sectores → umsa-sectores.zip
+   • Servicios → umsa-servicios.zip
+   • Empresa → umsa-empresa.zip
+   • Antecedentes destacados → umsa-antecedentes.zip
+   Al final, un ZIP con todo: umsa-imagenes-lote.zip.
+6. Si no podés acceder desde Python a las imágenes que generaste, avisámelo sin inventar el archivo y seguí con las imágenes; yo las descargo a mano.
+7. Formato de todas: horizontal 3:2 (1536 × 1024), fotorrealistas.
+
+DIRECCIÓN DE ARTE GENERAL (vale para todas; la «Estética» de cada ficha la precisa y manda sobre esta)
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+PROHIBIDO EN TODAS
+text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.
+Si una imagen muestra pantallas, que tengan paneles abstractos sin texto legible. Las personas, siempre de espaldas, de perfil o sin rostro visible.
+
+LISTA
+
+— SECTORES —
+
+01 · sector-aeropuertos — Aeropuertos
+Escena: An airport terminal in Mendoza, Argentina, at sunrise, seen from the apron: a long glass curtain wall with a jet bridge docked, ground-support equipment parked in line, slim poles with PTZ security cameras along the perimeter fence. The snow-capped Andes rise behind the terminal, warm light on the glass, cool blue shadows on the concrete.
+Estética: Lente 35 mm a la altura de los ojos, desde la plataforma, veinte minutos después del amanecer. Sol bajo desde la izquierda, rasante sobre el vidrio, con sombras largas de la manga. El vidrio refleja un cielo durazno y el hormigón queda gris azulado frío. Acento rojo: la franja de seguridad de la manga. Textura nítida del hormigón en primer plano, leve reverberación sobre la pista y la cordillera nítida con nieve. Clima: calma antes del primer vuelo.
+Opciones:
+  sector-aeropuertos-v1 · Plano general panorámico: la terminal ocupa los dos tercios derechos y los Andes arriba.
+  sector-aeropuertos-v2 · Plano medio: la manga acoplada y los vehículos de rampa desenfocados.
+  sector-aeropuertos-v3 · Detalle: una cámara PTZ en su poste contra la fachada vidriada, terminal fuera de foco.
+  sector-aeropuertos-v4 · Punto de vista inesperado: a ras del suelo de la plataforma, entre las ruedas de la manga, hacia la terminal al amanecer.
+
+02 · sector-bodegas — Bodegas
+Escena: A modern winery in the Mendoza vineyards at dawn: rows of Malbec vines on espalier trellises lead toward a concrete and steel winery building, a line of tall Lombardy poplars behind it, and the snow-capped Andes on the horizon lit pink and orange. A slim fiber-optic aerial cable on wooden poles crosses the vineyard toward the building.
+Estética: Lente 50 mm, apenas elevado, entre las hileras del viñedo al alba. Luz rosa y naranja sobre la nieve de los Andes; el primer sol atraviesa las hojas a contraluz y las vuelve verdes translúcidas. Bodega de hormigón visto y acero oscuro. Acento rojo: la puerta de acero de la bodega. Rocío en las hojas, tierra rojiza seca y sombras largas de los álamos. Clima: preciso y bien mendocino.
+Opciones:
+  sector-bodegas-v1 · Plano general: las hileras convergen hacia la bodega, con la cordillera detrás.
+  sector-bodegas-v2 · Plano medio: el cable de fibra óptica en postes de madera cruzando el viñedo hacia el edificio.
+  sector-bodegas-v3 · Detalle: la bajada de fibra entrando a una caja estanca en el muro de la bodega, viñas desenfocadas.
+  sector-bodegas-v4 · Punto de vista inesperado: cenital de dron sobre la geometría del viñedo, con el techo de la bodega en un borde.
+
+03 · sector-constructoras — Constructoras
+Escena: A contemporary six-storey office building in its final construction stage in Mendoza: exposed concrete slabs, glass curtain wall panels being installed, steel cable trays and a steel services riser with the fire line painted red visible through an open floor, safety netting on the top level, a tower crane silhouette. Plane trees and a concrete irrigation channel (acequia) along the sidewalk, morning sun.
+Estética: Lente 28 mm desde la vereda, mirando hacia arriba. Sol de la mañana desde el este pintando franjas cálidas en las losas; el piso abierto en sombra fría deja ver las montantes de acero y grafito, con la de incendio pintada de rojo. Silueta de la grúa contra un cielo pálido; los plátanos dejan sombras moteadas y el agua de la acequia brilla. Acento rojo: la montante de incendio. Clima: obra en marcha, ordenada y segura.
+Opciones:
+  sector-constructoras-v1 · Plano general: el edificio completo con la grúa y la calle arbolada.
+  sector-constructoras-v2 · Plano medio: el borde de un piso abierto con bandejas portacables y la montante de servicios.
+  sector-constructoras-v3 · Detalle: manos con guantes pasando un cable sin rótulos por la bandeja, sin caras.
+  sector-constructoras-v4 · Punto de vista inesperado: desde abajo, mirando hacia arriba por el pleno vertical de la montante.
+
+04 · sector-gobierno — Gobierno y Sector Público
+Escena: A modernist public administration building in a civic center in Mendoza at early morning: board-formed concrete facade with deep horizontal sun louvers, a wide plaza with plane trees, a discreet dome camera on a slim pole, and through the ground-floor glass a clean open-plan office with rows of workstations. Institutional, orderly, precise.
+Estética: Lente 35 mm, composición frontal casi simétrica, apenas descentrada. El sol temprano roza el hormigón encofrado y deja ver la veta de la madera; los parasoles horizontales proyectan sombras rítmicas. El solado de la plaza, húmedo por el riego, refleja el cielo; el interior se ve cálido a través del vidrio. Acento rojo: un bolardo de luz rojo. Clima: calma institucional, transparencia.
+Opciones:
+  sector-gobierno-v1 · Plano general: fachada, plaza y plátanos.
+  sector-gobierno-v2 · Plano medio: la cámara domo en su poste, con la fachada detrás.
+  sector-gobierno-v3 · Detalle: las sombras de los parasoles sobre el hormigón encofrado.
+  sector-gobierno-v4 · Punto de vista inesperado: desde adentro de la oficina, mirando la plaza a través del vidrio.
+
+05 · sector-industria — Industria
+Escena: An industrial plant floor at early morning: steel process lines and structural frames, an industrial network cabinet mounted on a column with neatly routed cables rising to a cable tray overhead, signal red safety railings, sunbeams from high clerestory windows cutting through fine dust.
+Estética: Lente 24 mm a la altura del operario. Haces de luz desde los ventanales altos atravesando polvo fino; estructura de acero grafito y líneas de proceso de acero cepillado. Las barandas de seguridad rojas son el único color saturado; el gabinete de red tiene LED verdes y ámbar. Profundidad con leve bruma. Clima: operación continua, precisión industrial.
+Opciones:
+  sector-industria-v1 · Plano general: la planta con los haces de luz.
+  sector-industria-v2 · Plano medio: el gabinete de red en la columna, con los cables subiendo a la bandeja.
+  sector-industria-v3 · Detalle: fibra y cable Cat6A entrando por el prensacable del gabinete.
+  sector-industria-v4 · Punto de vista inesperado: desde una pasarela alta, mirando la línea hacia abajo.
+
+06 · sector-mineria — Minería
+Escena: A high-Andes mining camp at 3,500 meters at sunrise: white modular camp buildings, a red-and-white lattice telecommunications tower with microwave dishes, a small solar array with battery enclosures, gravel roads, dry ochre mountains and snowy peaks all around. Vast, silent, engineered.
+Estética: Teleobjetivo 70 mm que comprime distancias. Amanecer en altura con aire fino y nítido: el sol ya toca de rosa los picos y el campamento sigue en sombra azul. La torre roja y blanca recibe la primera luz; textura de pedregal ocre; los paneles solares reflejan el cielo con escarcha. Acento rojo: la torre. Clima: remoto, resistente, conectado.
+Opciones:
+  sector-mineria-v1 · Plano general: el valle con el campamento y la torre.
+  sector-mineria-v2 · Plano medio: la torre con las parábolas de microondas apuntando a través del valle.
+  sector-mineria-v3 · Detalle: el gabinete de baterías y el panel solar con escarcha.
+  sector-mineria-v4 · Punto de vista inesperado: desde lo alto de la torre, mirando el campamento hacia abajo.
+
+07 · sector-salud — Salud
+Escena: A hospital corridor at dawn, calm and spotless: pale sage vinyl floor with soft reflections, a nurse station seen from behind with two monitors showing abstract panels, a ceiling wireless access point and a small dome camera, warm window light at the end of the corridor. Empty of people.
+Estética: Lente 35 mm con perspectiva central hacia el fondo del pasillo. Luz cálida y suave de la ventana del final con relleno más frío; el piso vinílico verde salvia refleja; paredes blancas con textura sutil. Acento rojo: un pulsador de alarma en la pared. Access point y domo del cielorraso bien nítidos. Clima: calma, higiene, cuidado.
+Opciones:
+  sector-salud-v1 · Plano general: la perspectiva del pasillo hacia la ventana.
+  sector-salud-v2 · Plano medio: el puesto de enfermería de espaldas, con los monitores.
+  sector-salud-v3 · Detalle: el access point y la cámara domo del cielorraso.
+  sector-salud-v4 · Punto de vista inesperado: a ras del piso, a lo largo de su reflejo.
+
+08 · sector-seguridad-electronica — Seguridad Electrónica
+Escena: A security monitoring room before dawn: a gently curved video wall with a grid of camera views of perimeter fences, gates and parking lots, an operator seen from behind in silhouette at a console, a single red task light, graphite surfaces and warm low light. Serious and quiet.
+Estética: Lente 50 mm detrás del operador, con poca profundidad de campo. El video wall da una luz suave y neutra (sin azul) y una sola lámpara roja entibia la consola; superficies grafito mate con reflejos en el escritorio; por la ventana, el borde azul oscuro de la madrugada. Acento rojo: la lámpara de trabajo. Clima: vigilancia atenta y silenciosa.
+Opciones:
+  sector-seguridad-electronica-v1 · Plano general: la sala completa con el video wall curvo.
+  sector-seguridad-electronica-v2 · Plano medio: la silueta del operador contra el video wall.
+  sector-seguridad-electronica-v3 · Detalle: la mano sobre el joystick que mueve una cámara PTZ.
+  sector-seguridad-electronica-v4 · Punto de vista inesperado: desde un costado del video wall, el operador a contraluz, en silueta.
+
+09 · sector-software — Software
+Escena: An engineering studio in Mendoza at golden hour: two engineers seen from behind at wide monitors showing abstract dashboards and system diagrams, a blurred whiteboard with architecture sketches, large windows with the Andes in the distance, warm wood and graphite furniture.
+Estética: Lente 35 mm por encima del hombro, luz lateral de la hora dorada desde los ventanales. Madera cálida y mobiliario grafito; monitores con interfaces oscuras y una línea roja de acento; los Andes suaves a lo lejos. Acento rojo: la línea en las interfaces. Clima: foco y trabajo en equipo.
+Opciones:
+  sector-software-v1 · Plano general: el estudio con el ventanal y la cordillera.
+  sector-software-v2 · Plano medio: dos ingenieros de espaldas frente a los monitores.
+  sector-software-v3 · Detalle: el pizarrón con un esquema de arquitectura hecho de formas abstractas, sin texto.
+  sector-software-v4 · Punto de vista inesperado: la cordillera reflejada en un monitor oscuro.
+
+— SERVICIOS —
+
+10 · servicio-redes — Redes
+Escena: Macro photograph of a perfectly dressed network rack: bundled Cat6A patch cords combed into vertical cable managers, LC fiber connectors in a fiber patch panel, status LEDs, very shallow depth of field, a single red velcro strap as the only accent, graphite background, raking side light.
+Estética: Macro 100 mm a f/2.8, luz rasante desde la izquierda que roza las fundas de los cables. Rack grafito, patch cords grises y una sola cinta de velcro roja; LED verdes y ámbar como bokeh diminuto; conectores LC en foco nítido. Acento rojo: la cinta. Clima: orden meticuloso.
+Opciones:
+  servicio-redes-v1 · Plano medio: el frente del rack peinado.
+  servicio-redes-v2 · Macro: el haz de cables peinado en el organizador vertical.
+  servicio-redes-v3 · Macro: los conectores LC en la patchera de fibra.
+  servicio-redes-v4 · Punto de vista inesperado: a lo largo del organizador, con los cables fugando.
+
+11 · servicio-seguridad-electronica — Seguridad electrónica
+Escena: Close-up of an IP dome camera and a PTZ camera mounted on the corner of a concrete building at sunrise, cabling neatly routed in a steel conduit, a card access reader beside a glass door below, the city and the Andes softly out of focus behind.
+Estética: Teleobjetivo 85 mm desde abajo; la luz del amanecer brilla en los domos. Textura de la esquina de hormigón y caño de acero; fondo desenfocado con la ciudad y los Andes. Acento rojo: el LED de estado del lector de acceso. Clima: atento.
+Opciones:
+  servicio-seguridad-electronica-v1 · Plano general: la esquina del edificio con las dos cámaras.
+  servicio-seguridad-electronica-v2 · Plano medio: la cámara PTZ de cerca.
+  servicio-seguridad-electronica-v3 · Detalle: el lector de acceso junto a la puerta vidriada.
+  servicio-seguridad-electronica-v4 · Punto de vista inesperado: el punto de vista de la cámara mirando la entrada desde arriba, sin gráficos superpuestos.
+
+12 · servicio-telecomunicaciones — Telecomunicaciones
+Escena: A telecommunications mast on a hilltop above the Mendoza foothills at dawn: microwave dishes and panel antennas, a galvanized cable ladder, an equipment shelter with a small solar panel, valley haze below and the Andes in the distance.
+Estética: Lente 50 mm desde una loma un poco más baja. La luz del alba dora el acero galvanizado; niebla en el valle y la cordillera en capas azules. Acento rojo: la baliza de la punta del mástil. Panel solar sobre el shelter. Clima: largo alcance.
+Opciones:
+  servicio-telecomunicaciones-v1 · Plano general: el mástil con el valle y los Andes.
+  servicio-telecomunicaciones-v2 · Plano medio: las parábolas y las antenas de panel.
+  servicio-telecomunicaciones-v3 · Detalle: la escalerilla de cables con sus conectores.
+  servicio-telecomunicaciones-v4 · Punto de vista inesperado: mirando el mástil de abajo hacia arriba.
+
+13 · servicio-software-a-medida — Software a medida
+Escena: Over-the-shoulder view of a developer&#x27;s desk at morning: a laptop and a large monitor with abstract interface panels, charts and a system flow diagram, a notebook with a hand-drawn architecture sketch, warm wood desk, graphite chair, shallow depth of field.
+Estética: Lente 35 mm por encima del hombro, poca profundidad de campo y luz de ventana de la mañana. Monitor con interfaz oscura y una línea roja de acento; cuaderno con un croquis en lápiz; madera cálida. Acento rojo: la línea de la interfaz. Clima: oficio y concentración.
+Opciones:
+  servicio-software-a-medida-v1 · Plano general: el escritorio completo.
+  servicio-software-a-medida-v2 · Plano medio: el monitor y las manos sobre el teclado.
+  servicio-software-a-medida-v3 · Detalle: el croquis de arquitectura en el cuaderno, sin texto legible.
+  servicio-software-a-medida-v4 · Punto de vista inesperado: cenital del escritorio, como flat lay.
+
+14 · servicio-soporte-247 — Soporte 24/7
+Escena: A field technician in a dark polo shirt seen from behind, walking down an aisle of server racks at night with a laptop open in one hand, amber and white status LEDs, a single red accent light, reflections on the polished floor, warm graphite tones. Cinematic, not blue.
+Estética: Lente 35 mm de noche. El pasillo de racks arma líneas de fuga; LED ámbar y blancos; una sola luz roja al fondo; reflejos en el piso pulido; el técnico a contraluz con bruma sutil. Acento rojo: la luz del fondo. Clima: siempre encendidos.
+Opciones:
+  servicio-soporte-247-v1 · Plano general: el pasillo de racks completo.
+  servicio-soporte-247-v2 · Plano medio: el técnico de espaldas caminando con la notebook.
+  servicio-soporte-247-v3 · Detalle: el brillo de la pantalla sobre la mano del técnico.
+  servicio-soporte-247-v4 · Punto de vista inesperado: desde el piso, usando el reflejo del pasillo.
+
+15 · servicio-consultoria-it — Consultoría IT
+Escena: Top-down view of an engineering meeting table: printed network drawings and building floor plans with red markups, a tablet showing an abstract network topology, a scale ruler and a pen, the hands of two people pointing at the plans (no faces), morning light across the table.
+Estética: Cenital con lente 50 mm y luz de la mañana cruzando la mesa, con sombras largas de la regla y la lapicera. Textura del papel, marcas rojas sobre los planos y una tablet con una topología oscura; solo manos, sin caras. Acento rojo: las correcciones. Clima: claridad para decidir.
+Opciones:
+  servicio-consultoria-it-v1 · Plano general: la mesa completa con los planos.
+  servicio-consultoria-it-v2 · Plano medio: dos manos señalando un punto del plano.
+  servicio-consultoria-it-v3 · Detalle: las correcciones rojas sobre la planta del edificio.
+  servicio-consultoria-it-v4 · Punto de vista inesperado: rasante, cruzando la mesa a la altura del papel.
+
+16 · servicio-deteccion-incendios — Detección de incendios
+Escena: Close-up of an addressable smoke detector on a concrete ceiling next to a steel cable tray, a red manual call point and a sounder-strobe on the wall below slightly out of focus, raking morning light across the ceiling texture.
+Estética: Teleobjetivo 85 mm con luz rasante sobre el cielorraso de hormigón encofrado. Detector blanco nítido, pulsador rojo desenfocado abajo y bandeja de acero. Acento rojo: el pulsador. Clima: protección silenciosa.
+Opciones:
+  servicio-deteccion-incendios-v1 · Plano general: el cielorraso con el detector y la bandeja.
+  servicio-deteccion-incendios-v2 · Plano medio: el detector de humo de cerca.
+  servicio-deteccion-incendios-v3 · Detalle: el pulsador manual rojo y la sirena con baliza en la pared.
+  servicio-deteccion-incendios-v4 · Punto de vista inesperado: desde el piso hacia arriba, con varios detectores en la grilla del techo.
+
+17 · servicio-electricos-it — Eléctricos IT
+Escena: An IT electrical room: an open switchboard with rows of DIN-rail breakers and neatly dressed cables with blank grey markers, a double-conversion UPS cabinet and a battery bank beside it, copper busbar partly visible, strong side light and deep shadows, polished concrete floor.
+Estética: Lente 35 mm con luz lateral fuerte desde una puerta. Filas de interruptores, brillo del cobre, gabinete UPS grafito mate y banco de baterías; reflejos en el hormigón pulido. Acento rojo: el pulsador de parada de emergencia. Clima: energía bajo control.
+Opciones:
+  servicio-electricos-it-v1 · Plano general: la sala eléctrica completa.
+  servicio-electricos-it-v2 · Plano medio: el tablero abierto con los interruptores.
+  servicio-electricos-it-v3 · Detalle: la barra de cobre y los terminales.
+  servicio-electricos-it-v4 · Punto de vista inesperado: entre los racks de baterías.
+
+— EMPRESA —
+
+18 · nosotros-equipo — Nosotros · equipo en campo
+Escena: Three field engineers in dark work clothes seen from behind and in profile, faces not visible, walking into a technical room carrying toolkits and a fiber splicer case, a cable tray overhead, morning sun spilling through the open door, the Andes visible outside.
+Estética: Lente 35 mm a contraluz del sol de la mañana en la puerta: siluetas con borde de luz, ropa de trabajo oscura, cajas de herramientas y una bandeja portacables arriba; afuera, los Andes suavemente sobreexpuestos. Acento rojo: el estuche de la fusionadora de fibra. Clima: equipo de campo listo para salir.
+Opciones:
+  nosotros-equipo-v1 · Plano general: los tres técnicos entrando a la sala.
+  nosotros-equipo-v2 · Plano medio: dos técnicos de espaldas frente a un rack.
+  nosotros-equipo-v3 · Detalle: manos abriendo el estuche de la fusionadora.
+  nosotros-equipo-v4 · Punto de vista inesperado: desde el fondo de la sala, mirando la puerta mientras entran a contraluz.
+
+— ANTECEDENTES DESTACADOS —
+
+19 · antecedente-3065 — #3065 · CCTV en aeropuerto
+Escena: Illustrative photograph for an IT infrastructure case study: discreet IP dome cameras installed along the ceiling of an airport departure hall with a long glass facade, apron and aircraft outside, the Andes on the horizon, finished and tidy installation seen at working distance, no people facing the camera.
+Estética: Lente 35 mm con la perspectiva del cielorraso del hall de preembarque. Luz de la mañana por el vidrio; domos repetidos con ritmo; aviones afuera y la cordillera. Acento rojo: la cola de un avión o una señal de piso. Clima: cobertura discreta.
+Opciones:
+  antecedente-3065-v1 · Plano general: el hall con la línea de cámaras.
+  antecedente-3065-v2 · Plano medio: una cámara con el vidrio y el avión detrás.
+  antecedente-3065-v3 · Detalle: el montaje de la cámara en el cielorraso.
+  antecedente-3065-v4 · Punto de vista inesperado: desde afuera del vidrio, mirando la cámara hacia adentro.
+
+20 · antecedente-3087 — #3087 · Redes y fibra en salud
+Escena: Illustrative photograph for an IT infrastructure case study: a dressed network rack and a fiber-optic distribution frame in the technical room of a medical imaging center, neatly routed fiber and Cat6A cabling in a cable tray above, clean clinical environment, finished installation, no people.
+Estética: Lente 35 mm en una sala técnica blanca y limpia, con luz neutra y un toque cálido desde una ventana chica. Fibras con fundas agua apagado, rack grafito y bandeja superior. Acento rojo: la cinta de identificación de un cable. Clima: orden clínico.
+Opciones:
+  antecedente-3087-v1 · Plano general: la sala técnica.
+  antecedente-3087-v2 · Plano medio: el rack armado.
+  antecedente-3087-v3 · Detalle: el distribuidor de fibra con sus conectores.
+  antecedente-3087-v4 · Punto de vista inesperado: mirando por la bandeja portacables superior.
+
+21 · antecedente-3064 — #3064 · Software para gobierno
+Escena: Illustrative photograph for a software case study: an open-plan public administration office in Mendoza, workstations seen over the shoulder showing abstract process dashboards and forms without readable text, large windows, orderly and calm, no faces.
+Estética: Lente 35 mm en una oficina abierta con luz de la mañana. Puestos de trabajo con tableros abstractos, plantas y ventanales. Acento rojo: un indicador en los tableros. Clima: servicio público moderno.
+Opciones:
+  antecedente-3064-v1 · Plano general: la oficina completa.
+  antecedente-3064-v2 · Plano medio: por encima del hombro de un agente.
+  antecedente-3064-v3 · Detalle: una pantalla con un tablero abstracto, sin texto.
+  antecedente-3064-v4 · Punto de vista inesperado: desde un entrepiso, mirando la oficina desde arriba.
+
+22 · antecedente-3081 — #3081 · Eléctrica para data center de bodega
+Escena: Illustrative photograph for an IT electrical case study: a small data center room inside a Mendoza winery, a server rack with a dedicated electrical panel and UPS, stainless steel tanks visible through a glass partition, clean cable routing, finished installation, no people.
+Estética: Lente 35 mm en una sala chica con un vidrio hacia la nave de tanques. Los tanques de acero inoxidable reflejan la luz cálida de la nave; la sala queda más fría, con rack, tablero y UPS. Acento rojo: el pulsador de corte de energía. Clima: el vino se encuentra con la tecnología.
+Opciones:
+  antecedente-3081-v1 · Plano general: la sala con los tanques detrás del vidrio.
+  antecedente-3081-v2 · Plano medio: el tablero y la UPS.
+  antecedente-3081-v3 · Detalle: el recorrido prolijo de los cables.
+  antecedente-3081-v4 · Punto de vista inesperado: desde la nave de tanques, mirando el data center a través del vidrio.
+
+Empezá ahora con la 01.</pre>
+    <div class="card__actions">
+      <button type="button" class="btn btn--primary" data-copy="p-lote">Copiar prompt del lote</button>
+      <span class="toast" role="status" aria-live="polite"></span>
+    </div>
+  </section>
+  <section class="master card" id="maestro">
+    <div class="card__top"><h3>Prompt maestro: las 22 en un solo hilo</h3></div>
+    <p class="lead">Pegalo entero en un chat nuevo de ChatGPT. Genera una imagen por respuesta, en orden; escribí «siguiente» para avanzar u «otra» para repetir.</p>
+    <pre class="prompt prompt--master" id="p-master">Vas a generar 22 imágenes para el sitio web de ULTIMA MILLA, empresa argentina de servicios IT (redes, seguridad electrónica, telecomunicaciones, software, soporte 24/7, detección de incendios y energía IT) con sede en Mendoza, al pie de los Andes.
+
+CÓMO TRABAJAMOS EN ESTE HILO
+1. Generá UNA sola imagen por respuesta, siguiendo el orden de la lista.
+2. Encabezá cada respuesta sólo con el número y el nombre de archivo, por ejemplo: «01 · sector-aeropuertos.png». Sin explicaciones.
+3. Después de cada imagen esperá mi respuesta:
+   • «siguiente» → pasá a la próxima de la lista.
+   • «otra» → rehacé la misma imagen con el próximo encuadre de sus «Opciones».
+   • cualquier otro comentario → corregí esa misma imagen según lo que te pida.
+4. Todas las imágenes: formato horizontal 3:2 (1536 × 1024), fotorrealistas.
+
+DIRECCIÓN DE ARTE GENERAL (vale para las 22; la «Estética» de cada ficha la precisa y manda sobre esta)
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+PROHIBIDO EN TODAS
+text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.
+Si una imagen muestra pantallas, que tengan paneles abstractos sin texto legible. Las personas, siempre de espaldas, de perfil o sin rostro visible.
+
+LISTA
+
+— SECTORES —
+
+01 · sector-aeropuertos.png — Aeropuertos
+Escena: An airport terminal in Mendoza, Argentina, at sunrise, seen from the apron: a long glass curtain wall with a jet bridge docked, ground-support equipment parked in line, slim poles with PTZ security cameras along the perimeter fence. The snow-capped Andes rise behind the terminal, warm light on the glass, cool blue shadows on the concrete.
+Estética: Lente 35 mm a la altura de los ojos, desde la plataforma, veinte minutos después del amanecer. Sol bajo desde la izquierda, rasante sobre el vidrio, con sombras largas de la manga. El vidrio refleja un cielo durazno y el hormigón queda gris azulado frío. Acento rojo: la franja de seguridad de la manga. Textura nítida del hormigón en primer plano, leve reverberación sobre la pista y la cordillera nítida con nieve. Clima: calma antes del primer vuelo.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general panorámico: la terminal ocupa los dos tercios derechos y los Andes arriba.
+  2. Plano medio: la manga acoplada y los vehículos de rampa desenfocados.
+  3. Detalle: una cámara PTZ en su poste contra la fachada vidriada, terminal fuera de foco.
+  4. Punto de vista inesperado: a ras del suelo de la plataforma, entre las ruedas de la manga, hacia la terminal al amanecer.
+
+02 · sector-bodegas.png — Bodegas
+Escena: A modern winery in the Mendoza vineyards at dawn: rows of Malbec vines on espalier trellises lead toward a concrete and steel winery building, a line of tall Lombardy poplars behind it, and the snow-capped Andes on the horizon lit pink and orange. A slim fiber-optic aerial cable on wooden poles crosses the vineyard toward the building.
+Estética: Lente 50 mm, apenas elevado, entre las hileras del viñedo al alba. Luz rosa y naranja sobre la nieve de los Andes; el primer sol atraviesa las hojas a contraluz y las vuelve verdes translúcidas. Bodega de hormigón visto y acero oscuro. Acento rojo: la puerta de acero de la bodega. Rocío en las hojas, tierra rojiza seca y sombras largas de los álamos. Clima: preciso y bien mendocino.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: las hileras convergen hacia la bodega, con la cordillera detrás.
+  2. Plano medio: el cable de fibra óptica en postes de madera cruzando el viñedo hacia el edificio.
+  3. Detalle: la bajada de fibra entrando a una caja estanca en el muro de la bodega, viñas desenfocadas.
+  4. Punto de vista inesperado: cenital de dron sobre la geometría del viñedo, con el techo de la bodega en un borde.
+
+03 · sector-constructoras.png — Constructoras
+Escena: A contemporary six-storey office building in its final construction stage in Mendoza: exposed concrete slabs, glass curtain wall panels being installed, steel cable trays and a steel services riser with the fire line painted red visible through an open floor, safety netting on the top level, a tower crane silhouette. Plane trees and a concrete irrigation channel (acequia) along the sidewalk, morning sun.
+Estética: Lente 28 mm desde la vereda, mirando hacia arriba. Sol de la mañana desde el este pintando franjas cálidas en las losas; el piso abierto en sombra fría deja ver las montantes de acero y grafito, con la de incendio pintada de rojo. Silueta de la grúa contra un cielo pálido; los plátanos dejan sombras moteadas y el agua de la acequia brilla. Acento rojo: la montante de incendio. Clima: obra en marcha, ordenada y segura.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: el edificio completo con la grúa y la calle arbolada.
+  2. Plano medio: el borde de un piso abierto con bandejas portacables y la montante de servicios.
+  3. Detalle: manos con guantes pasando un cable sin rótulos por la bandeja, sin caras.
+  4. Punto de vista inesperado: desde abajo, mirando hacia arriba por el pleno vertical de la montante.
+
+04 · sector-gobierno.png — Gobierno y Sector Público
+Escena: A modernist public administration building in a civic center in Mendoza at early morning: board-formed concrete facade with deep horizontal sun louvers, a wide plaza with plane trees, a discreet dome camera on a slim pole, and through the ground-floor glass a clean open-plan office with rows of workstations. Institutional, orderly, precise.
+Estética: Lente 35 mm, composición frontal casi simétrica, apenas descentrada. El sol temprano roza el hormigón encofrado y deja ver la veta de la madera; los parasoles horizontales proyectan sombras rítmicas. El solado de la plaza, húmedo por el riego, refleja el cielo; el interior se ve cálido a través del vidrio. Acento rojo: un bolardo de luz rojo. Clima: calma institucional, transparencia.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: fachada, plaza y plátanos.
+  2. Plano medio: la cámara domo en su poste, con la fachada detrás.
+  3. Detalle: las sombras de los parasoles sobre el hormigón encofrado.
+  4. Punto de vista inesperado: desde adentro de la oficina, mirando la plaza a través del vidrio.
+
+05 · sector-industria.png — Industria
+Escena: An industrial plant floor at early morning: steel process lines and structural frames, an industrial network cabinet mounted on a column with neatly routed cables rising to a cable tray overhead, signal red safety railings, sunbeams from high clerestory windows cutting through fine dust.
+Estética: Lente 24 mm a la altura del operario. Haces de luz desde los ventanales altos atravesando polvo fino; estructura de acero grafito y líneas de proceso de acero cepillado. Las barandas de seguridad rojas son el único color saturado; el gabinete de red tiene LED verdes y ámbar. Profundidad con leve bruma. Clima: operación continua, precisión industrial.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: la planta con los haces de luz.
+  2. Plano medio: el gabinete de red en la columna, con los cables subiendo a la bandeja.
+  3. Detalle: fibra y cable Cat6A entrando por el prensacable del gabinete.
+  4. Punto de vista inesperado: desde una pasarela alta, mirando la línea hacia abajo.
+
+06 · sector-mineria.png — Minería
+Escena: A high-Andes mining camp at 3,500 meters at sunrise: white modular camp buildings, a red-and-white lattice telecommunications tower with microwave dishes, a small solar array with battery enclosures, gravel roads, dry ochre mountains and snowy peaks all around. Vast, silent, engineered.
+Estética: Teleobjetivo 70 mm que comprime distancias. Amanecer en altura con aire fino y nítido: el sol ya toca de rosa los picos y el campamento sigue en sombra azul. La torre roja y blanca recibe la primera luz; textura de pedregal ocre; los paneles solares reflejan el cielo con escarcha. Acento rojo: la torre. Clima: remoto, resistente, conectado.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: el valle con el campamento y la torre.
+  2. Plano medio: la torre con las parábolas de microondas apuntando a través del valle.
+  3. Detalle: el gabinete de baterías y el panel solar con escarcha.
+  4. Punto de vista inesperado: desde lo alto de la torre, mirando el campamento hacia abajo.
+
+07 · sector-salud.png — Salud
+Escena: A hospital corridor at dawn, calm and spotless: pale sage vinyl floor with soft reflections, a nurse station seen from behind with two monitors showing abstract panels, a ceiling wireless access point and a small dome camera, warm window light at the end of the corridor. Empty of people.
+Estética: Lente 35 mm con perspectiva central hacia el fondo del pasillo. Luz cálida y suave de la ventana del final con relleno más frío; el piso vinílico verde salvia refleja; paredes blancas con textura sutil. Acento rojo: un pulsador de alarma en la pared. Access point y domo del cielorraso bien nítidos. Clima: calma, higiene, cuidado.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: la perspectiva del pasillo hacia la ventana.
+  2. Plano medio: el puesto de enfermería de espaldas, con los monitores.
+  3. Detalle: el access point y la cámara domo del cielorraso.
+  4. Punto de vista inesperado: a ras del piso, a lo largo de su reflejo.
+
+08 · sector-seguridad-electronica.png — Seguridad Electrónica
+Escena: A security monitoring room before dawn: a gently curved video wall with a grid of camera views of perimeter fences, gates and parking lots, an operator seen from behind in silhouette at a console, a single red task light, graphite surfaces and warm low light. Serious and quiet.
+Estética: Lente 50 mm detrás del operador, con poca profundidad de campo. El video wall da una luz suave y neutra (sin azul) y una sola lámpara roja entibia la consola; superficies grafito mate con reflejos en el escritorio; por la ventana, el borde azul oscuro de la madrugada. Acento rojo: la lámpara de trabajo. Clima: vigilancia atenta y silenciosa.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: la sala completa con el video wall curvo.
+  2. Plano medio: la silueta del operador contra el video wall.
+  3. Detalle: la mano sobre el joystick que mueve una cámara PTZ.
+  4. Punto de vista inesperado: desde un costado del video wall, el operador a contraluz, en silueta.
+
+09 · sector-software.png — Software
+Escena: An engineering studio in Mendoza at golden hour: two engineers seen from behind at wide monitors showing abstract dashboards and system diagrams, a blurred whiteboard with architecture sketches, large windows with the Andes in the distance, warm wood and graphite furniture.
+Estética: Lente 35 mm por encima del hombro, luz lateral de la hora dorada desde los ventanales. Madera cálida y mobiliario grafito; monitores con interfaces oscuras y una línea roja de acento; los Andes suaves a lo lejos. Acento rojo: la línea en las interfaces. Clima: foco y trabajo en equipo.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: el estudio con el ventanal y la cordillera.
+  2. Plano medio: dos ingenieros de espaldas frente a los monitores.
+  3. Detalle: el pizarrón con un esquema de arquitectura hecho de formas abstractas, sin texto.
+  4. Punto de vista inesperado: la cordillera reflejada en un monitor oscuro.
+
+— SERVICIOS —
+
+10 · servicio-redes.png — Redes
+Escena: Macro photograph of a perfectly dressed network rack: bundled Cat6A patch cords combed into vertical cable managers, LC fiber connectors in a fiber patch panel, status LEDs, very shallow depth of field, a single red velcro strap as the only accent, graphite background, raking side light.
+Estética: Macro 100 mm a f/2.8, luz rasante desde la izquierda que roza las fundas de los cables. Rack grafito, patch cords grises y una sola cinta de velcro roja; LED verdes y ámbar como bokeh diminuto; conectores LC en foco nítido. Acento rojo: la cinta. Clima: orden meticuloso.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano medio: el frente del rack peinado.
+  2. Macro: el haz de cables peinado en el organizador vertical.
+  3. Macro: los conectores LC en la patchera de fibra.
+  4. Punto de vista inesperado: a lo largo del organizador, con los cables fugando.
+
+11 · servicio-seguridad-electronica.png — Seguridad electrónica
+Escena: Close-up of an IP dome camera and a PTZ camera mounted on the corner of a concrete building at sunrise, cabling neatly routed in a steel conduit, a card access reader beside a glass door below, the city and the Andes softly out of focus behind.
+Estética: Teleobjetivo 85 mm desde abajo; la luz del amanecer brilla en los domos. Textura de la esquina de hormigón y caño de acero; fondo desenfocado con la ciudad y los Andes. Acento rojo: el LED de estado del lector de acceso. Clima: atento.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: la esquina del edificio con las dos cámaras.
+  2. Plano medio: la cámara PTZ de cerca.
+  3. Detalle: el lector de acceso junto a la puerta vidriada.
+  4. Punto de vista inesperado: el punto de vista de la cámara mirando la entrada desde arriba, sin gráficos superpuestos.
+
+12 · servicio-telecomunicaciones.png — Telecomunicaciones
+Escena: A telecommunications mast on a hilltop above the Mendoza foothills at dawn: microwave dishes and panel antennas, a galvanized cable ladder, an equipment shelter with a small solar panel, valley haze below and the Andes in the distance.
+Estética: Lente 50 mm desde una loma un poco más baja. La luz del alba dora el acero galvanizado; niebla en el valle y la cordillera en capas azules. Acento rojo: la baliza de la punta del mástil. Panel solar sobre el shelter. Clima: largo alcance.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: el mástil con el valle y los Andes.
+  2. Plano medio: las parábolas y las antenas de panel.
+  3. Detalle: la escalerilla de cables con sus conectores.
+  4. Punto de vista inesperado: mirando el mástil de abajo hacia arriba.
+
+13 · servicio-software-a-medida.png — Software a medida
+Escena: Over-the-shoulder view of a developer&#x27;s desk at morning: a laptop and a large monitor with abstract interface panels, charts and a system flow diagram, a notebook with a hand-drawn architecture sketch, warm wood desk, graphite chair, shallow depth of field.
+Estética: Lente 35 mm por encima del hombro, poca profundidad de campo y luz de ventana de la mañana. Monitor con interfaz oscura y una línea roja de acento; cuaderno con un croquis en lápiz; madera cálida. Acento rojo: la línea de la interfaz. Clima: oficio y concentración.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: el escritorio completo.
+  2. Plano medio: el monitor y las manos sobre el teclado.
+  3. Detalle: el croquis de arquitectura en el cuaderno, sin texto legible.
+  4. Punto de vista inesperado: cenital del escritorio, como flat lay.
+
+14 · servicio-soporte-247.png — Soporte 24/7
+Escena: A field technician in a dark polo shirt seen from behind, walking down an aisle of server racks at night with a laptop open in one hand, amber and white status LEDs, a single red accent light, reflections on the polished floor, warm graphite tones. Cinematic, not blue.
+Estética: Lente 35 mm de noche. El pasillo de racks arma líneas de fuga; LED ámbar y blancos; una sola luz roja al fondo; reflejos en el piso pulido; el técnico a contraluz con bruma sutil. Acento rojo: la luz del fondo. Clima: siempre encendidos.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: el pasillo de racks completo.
+  2. Plano medio: el técnico de espaldas caminando con la notebook.
+  3. Detalle: el brillo de la pantalla sobre la mano del técnico.
+  4. Punto de vista inesperado: desde el piso, usando el reflejo del pasillo.
+
+15 · servicio-consultoria-it.png — Consultoría IT
+Escena: Top-down view of an engineering meeting table: printed network drawings and building floor plans with red markups, a tablet showing an abstract network topology, a scale ruler and a pen, the hands of two people pointing at the plans (no faces), morning light across the table.
+Estética: Cenital con lente 50 mm y luz de la mañana cruzando la mesa, con sombras largas de la regla y la lapicera. Textura del papel, marcas rojas sobre los planos y una tablet con una topología oscura; solo manos, sin caras. Acento rojo: las correcciones. Clima: claridad para decidir.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: la mesa completa con los planos.
+  2. Plano medio: dos manos señalando un punto del plano.
+  3. Detalle: las correcciones rojas sobre la planta del edificio.
+  4. Punto de vista inesperado: rasante, cruzando la mesa a la altura del papel.
+
+16 · servicio-deteccion-incendios.png — Detección de incendios
+Escena: Close-up of an addressable smoke detector on a concrete ceiling next to a steel cable tray, a red manual call point and a sounder-strobe on the wall below slightly out of focus, raking morning light across the ceiling texture.
+Estética: Teleobjetivo 85 mm con luz rasante sobre el cielorraso de hormigón encofrado. Detector blanco nítido, pulsador rojo desenfocado abajo y bandeja de acero. Acento rojo: el pulsador. Clima: protección silenciosa.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: el cielorraso con el detector y la bandeja.
+  2. Plano medio: el detector de humo de cerca.
+  3. Detalle: el pulsador manual rojo y la sirena con baliza en la pared.
+  4. Punto de vista inesperado: desde el piso hacia arriba, con varios detectores en la grilla del techo.
+
+17 · servicio-electricos-it.png — Eléctricos IT
+Escena: An IT electrical room: an open switchboard with rows of DIN-rail breakers and neatly dressed cables with blank grey markers, a double-conversion UPS cabinet and a battery bank beside it, copper busbar partly visible, strong side light and deep shadows, polished concrete floor.
+Estética: Lente 35 mm con luz lateral fuerte desde una puerta. Filas de interruptores, brillo del cobre, gabinete UPS grafito mate y banco de baterías; reflejos en el hormigón pulido. Acento rojo: el pulsador de parada de emergencia. Clima: energía bajo control.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: la sala eléctrica completa.
+  2. Plano medio: el tablero abierto con los interruptores.
+  3. Detalle: la barra de cobre y los terminales.
+  4. Punto de vista inesperado: entre los racks de baterías.
+
+— EMPRESA —
+
+18 · nosotros-equipo.png — Nosotros · equipo en campo
+Escena: Three field engineers in dark work clothes seen from behind and in profile, faces not visible, walking into a technical room carrying toolkits and a fiber splicer case, a cable tray overhead, morning sun spilling through the open door, the Andes visible outside.
+Estética: Lente 35 mm a contraluz del sol de la mañana en la puerta: siluetas con borde de luz, ropa de trabajo oscura, cajas de herramientas y una bandeja portacables arriba; afuera, los Andes suavemente sobreexpuestos. Acento rojo: el estuche de la fusionadora de fibra. Clima: equipo de campo listo para salir.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: los tres técnicos entrando a la sala.
+  2. Plano medio: dos técnicos de espaldas frente a un rack.
+  3. Detalle: manos abriendo el estuche de la fusionadora.
+  4. Punto de vista inesperado: desde el fondo de la sala, mirando la puerta mientras entran a contraluz.
+
+— ANTECEDENTES DESTACADOS —
+
+19 · antecedente-3065.png — #3065 · CCTV en aeropuerto
+Escena: Illustrative photograph for an IT infrastructure case study: discreet IP dome cameras installed along the ceiling of an airport departure hall with a long glass facade, apron and aircraft outside, the Andes on the horizon, finished and tidy installation seen at working distance, no people facing the camera.
+Estética: Lente 35 mm con la perspectiva del cielorraso del hall de preembarque. Luz de la mañana por el vidrio; domos repetidos con ritmo; aviones afuera y la cordillera. Acento rojo: la cola de un avión o una señal de piso. Clima: cobertura discreta.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: el hall con la línea de cámaras.
+  2. Plano medio: una cámara con el vidrio y el avión detrás.
+  3. Detalle: el montaje de la cámara en el cielorraso.
+  4. Punto de vista inesperado: desde afuera del vidrio, mirando la cámara hacia adentro.
+
+20 · antecedente-3087.png — #3087 · Redes y fibra en salud
+Escena: Illustrative photograph for an IT infrastructure case study: a dressed network rack and a fiber-optic distribution frame in the technical room of a medical imaging center, neatly routed fiber and Cat6A cabling in a cable tray above, clean clinical environment, finished installation, no people.
+Estética: Lente 35 mm en una sala técnica blanca y limpia, con luz neutra y un toque cálido desde una ventana chica. Fibras con fundas agua apagado, rack grafito y bandeja superior. Acento rojo: la cinta de identificación de un cable. Clima: orden clínico.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: la sala técnica.
+  2. Plano medio: el rack armado.
+  3. Detalle: el distribuidor de fibra con sus conectores.
+  4. Punto de vista inesperado: mirando por la bandeja portacables superior.
+
+21 · antecedente-3064.png — #3064 · Software para gobierno
+Escena: Illustrative photograph for a software case study: an open-plan public administration office in Mendoza, workstations seen over the shoulder showing abstract process dashboards and forms without readable text, large windows, orderly and calm, no faces.
+Estética: Lente 35 mm en una oficina abierta con luz de la mañana. Puestos de trabajo con tableros abstractos, plantas y ventanales. Acento rojo: un indicador en los tableros. Clima: servicio público moderno.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: la oficina completa.
+  2. Plano medio: por encima del hombro de un agente.
+  3. Detalle: una pantalla con un tablero abstracto, sin texto.
+  4. Punto de vista inesperado: desde un entrepiso, mirando la oficina desde arriba.
+
+22 · antecedente-3081.png — #3081 · Eléctrica para data center de bodega
+Escena: Illustrative photograph for an IT electrical case study: a small data center room inside a Mendoza winery, a server rack with a dedicated electrical panel and UPS, stainless steel tanks visible through a glass partition, clean cable routing, finished installation, no people.
+Estética: Lente 35 mm en una sala chica con un vidrio hacia la nave de tanques. Los tanques de acero inoxidable reflejan la luz cálida de la nave; la sala queda más fría, con rack, tablero y UPS. Acento rojo: el pulsador de corte de energía. Clima: el vino se encuentra con la tecnología.
+Opciones (la primera es la inicial; «otra» pasa a la siguiente):
+  1. Plano general: la sala con los tanques detrás del vidrio.
+  2. Plano medio: el tablero y la UPS.
+  3. Detalle: el recorrido prolijo de los cables.
+  4. Punto de vista inesperado: desde la nave de tanques, mirando el data center a través del vidrio.
+
+Empezá ahora con la 01.</pre>
+    <div class="card__actions">
+      <button type="button" class="btn btn--primary" data-copy="p-master">Copiar prompt maestro</button>
+      <span class="toast" role="status" aria-live="polite"></span>
+    </div>
+  </section>
+  <div class="bar">
+    <nav aria-label="Grupos"><a href="#sectores">Sectores</a><a href="#servicios">Servicios</a><a href="#empresa">Empresa</a><a href="#antecedentes">Antecedentes destacados</a></nav>
+    <p class="progress"><b id="count">0</b> de 22 hechas</p>
+  </div>
+  <section class="group" id="sectores"><header class="group__head"><h2>Sectores</h2><p>Tarjetas de /sectores y fichas de sector · 9 imágenes</p></header><div class="cards"><article class="card" data-id="sector-aeropuertos">
+  <div class="card__top">
+    <h3>Aeropuertos</h3>
+    <label class="done"><input type="checkbox" id="done-sector-aeropuertos" data-done="sector-aeropuertos"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">sector-aeropuertos.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/sectores/aeropuertos.webp</code></li><li><code>/images/editorial/umsa-sector-aeropuertos.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-sector-aeropuertos">Create an image, landscape 3:2 (1536×1024).
+
+Escena: An airport terminal in Mendoza, Argentina, at sunrise, seen from the apron: a long glass curtain wall with a jet bridge docked, ground-support equipment parked in line, slim poles with PTZ security cameras along the perimeter fence. The snow-capped Andes rise behind the terminal, warm light on the glass, cool blue shadows on the concrete.
+
+Estética: Lente 35 mm a la altura de los ojos, desde la plataforma, veinte minutos después del amanecer. Sol bajo desde la izquierda, rasante sobre el vidrio, con sombras largas de la manga. El vidrio refleja un cielo durazno y el hormigón queda gris azulado frío. Acento rojo: la franja de seguridad de la manga. Textura nítida del hormigón en primer plano, leve reverberación sobre la pista y la cordillera nítida con nieve. Clima: calma antes del primer vuelo.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general panorámico: la terminal ocupa los dos tercios derechos y los Andes arriba.
+2. Plano medio: la manga acoplada y los vehículos de rampa desenfocados.
+3. Detalle: una cámara PTZ en su poste contra la fachada vidriada, terminal fuera de foco.
+4. Punto de vista inesperado: a ras del suelo de la plataforma, entre las ruedas de la manga, hacia la terminal al amanecer.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-sector-aeropuertos">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="sector-aeropuertos.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article><article class="card" data-id="sector-bodegas">
+  <div class="card__top">
+    <h3>Bodegas</h3>
+    <label class="done"><input type="checkbox" id="done-sector-bodegas" data-done="sector-bodegas"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">sector-bodegas.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/sectores/bodegas.webp</code></li><li><code>/images/editorial/umsa-sector-bodegas.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-sector-bodegas">Create an image, landscape 3:2 (1536×1024).
+
+Escena: A modern winery in the Mendoza vineyards at dawn: rows of Malbec vines on espalier trellises lead toward a concrete and steel winery building, a line of tall Lombardy poplars behind it, and the snow-capped Andes on the horizon lit pink and orange. A slim fiber-optic aerial cable on wooden poles crosses the vineyard toward the building.
+
+Estética: Lente 50 mm, apenas elevado, entre las hileras del viñedo al alba. Luz rosa y naranja sobre la nieve de los Andes; el primer sol atraviesa las hojas a contraluz y las vuelve verdes translúcidas. Bodega de hormigón visto y acero oscuro. Acento rojo: la puerta de acero de la bodega. Rocío en las hojas, tierra rojiza seca y sombras largas de los álamos. Clima: preciso y bien mendocino.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: las hileras convergen hacia la bodega, con la cordillera detrás.
+2. Plano medio: el cable de fibra óptica en postes de madera cruzando el viñedo hacia el edificio.
+3. Detalle: la bajada de fibra entrando a una caja estanca en el muro de la bodega, viñas desenfocadas.
+4. Punto de vista inesperado: cenital de dron sobre la geometría del viñedo, con el techo de la bodega en un borde.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-sector-bodegas">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="sector-bodegas.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article><article class="card" data-id="sector-constructoras">
+  <div class="card__top">
+    <h3>Constructoras</h3>
+    <label class="done"><input type="checkbox" id="done-sector-constructoras" data-done="sector-constructoras"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">sector-constructoras.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/sectores/constructoras.webp</code></li><li><code>/images/editorial/umsa-sector-constructoras.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-sector-constructoras">Create an image, landscape 3:2 (1536×1024).
+
+Escena: A contemporary six-storey office building in its final construction stage in Mendoza: exposed concrete slabs, glass curtain wall panels being installed, steel cable trays and a steel services riser with the fire line painted red visible through an open floor, safety netting on the top level, a tower crane silhouette. Plane trees and a concrete irrigation channel (acequia) along the sidewalk, morning sun.
+
+Estética: Lente 28 mm desde la vereda, mirando hacia arriba. Sol de la mañana desde el este pintando franjas cálidas en las losas; el piso abierto en sombra fría deja ver las montantes de acero y grafito, con la de incendio pintada de rojo. Silueta de la grúa contra un cielo pálido; los plátanos dejan sombras moteadas y el agua de la acequia brilla. Acento rojo: la montante de incendio. Clima: obra en marcha, ordenada y segura.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: el edificio completo con la grúa y la calle arbolada.
+2. Plano medio: el borde de un piso abierto con bandejas portacables y la montante de servicios.
+3. Detalle: manos con guantes pasando un cable sin rótulos por la bandeja, sin caras.
+4. Punto de vista inesperado: desde abajo, mirando hacia arriba por el pleno vertical de la montante.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-sector-constructoras">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="sector-constructoras.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article><article class="card" data-id="sector-gobierno">
+  <div class="card__top">
+    <h3>Gobierno y Sector Público</h3>
+    <label class="done"><input type="checkbox" id="done-sector-gobierno" data-done="sector-gobierno"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">sector-gobierno.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/sectores/gobierno.webp</code></li><li><code>/images/editorial/umsa-sector-gobierno.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-sector-gobierno">Create an image, landscape 3:2 (1536×1024).
+
+Escena: A modernist public administration building in a civic center in Mendoza at early morning: board-formed concrete facade with deep horizontal sun louvers, a wide plaza with plane trees, a discreet dome camera on a slim pole, and through the ground-floor glass a clean open-plan office with rows of workstations. Institutional, orderly, precise.
+
+Estética: Lente 35 mm, composición frontal casi simétrica, apenas descentrada. El sol temprano roza el hormigón encofrado y deja ver la veta de la madera; los parasoles horizontales proyectan sombras rítmicas. El solado de la plaza, húmedo por el riego, refleja el cielo; el interior se ve cálido a través del vidrio. Acento rojo: un bolardo de luz rojo. Clima: calma institucional, transparencia.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: fachada, plaza y plátanos.
+2. Plano medio: la cámara domo en su poste, con la fachada detrás.
+3. Detalle: las sombras de los parasoles sobre el hormigón encofrado.
+4. Punto de vista inesperado: desde adentro de la oficina, mirando la plaza a través del vidrio.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-sector-gobierno">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="sector-gobierno.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article><article class="card" data-id="sector-industria">
+  <div class="card__top">
+    <h3>Industria</h3>
+    <label class="done"><input type="checkbox" id="done-sector-industria" data-done="sector-industria"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">sector-industria.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/sectores/industria.webp</code></li><li><code>/images/editorial/umsa-sector-industria.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-sector-industria">Create an image, landscape 3:2 (1536×1024).
+
+Escena: An industrial plant floor at early morning: steel process lines and structural frames, an industrial network cabinet mounted on a column with neatly routed cables rising to a cable tray overhead, signal red safety railings, sunbeams from high clerestory windows cutting through fine dust.
+
+Estética: Lente 24 mm a la altura del operario. Haces de luz desde los ventanales altos atravesando polvo fino; estructura de acero grafito y líneas de proceso de acero cepillado. Las barandas de seguridad rojas son el único color saturado; el gabinete de red tiene LED verdes y ámbar. Profundidad con leve bruma. Clima: operación continua, precisión industrial.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: la planta con los haces de luz.
+2. Plano medio: el gabinete de red en la columna, con los cables subiendo a la bandeja.
+3. Detalle: fibra y cable Cat6A entrando por el prensacable del gabinete.
+4. Punto de vista inesperado: desde una pasarela alta, mirando la línea hacia abajo.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-sector-industria">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="sector-industria.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article><article class="card" data-id="sector-mineria">
+  <div class="card__top">
+    <h3>Minería</h3>
+    <label class="done"><input type="checkbox" id="done-sector-mineria" data-done="sector-mineria"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">sector-mineria.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/sectores/mineria.webp</code></li><li><code>/images/editorial/umsa-sector-mineria.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-sector-mineria">Create an image, landscape 3:2 (1536×1024).
+
+Escena: A high-Andes mining camp at 3,500 meters at sunrise: white modular camp buildings, a red-and-white lattice telecommunications tower with microwave dishes, a small solar array with battery enclosures, gravel roads, dry ochre mountains and snowy peaks all around. Vast, silent, engineered.
+
+Estética: Teleobjetivo 70 mm que comprime distancias. Amanecer en altura con aire fino y nítido: el sol ya toca de rosa los picos y el campamento sigue en sombra azul. La torre roja y blanca recibe la primera luz; textura de pedregal ocre; los paneles solares reflejan el cielo con escarcha. Acento rojo: la torre. Clima: remoto, resistente, conectado.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: el valle con el campamento y la torre.
+2. Plano medio: la torre con las parábolas de microondas apuntando a través del valle.
+3. Detalle: el gabinete de baterías y el panel solar con escarcha.
+4. Punto de vista inesperado: desde lo alto de la torre, mirando el campamento hacia abajo.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-sector-mineria">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="sector-mineria.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article><article class="card" data-id="sector-salud">
+  <div class="card__top">
+    <h3>Salud</h3>
+    <label class="done"><input type="checkbox" id="done-sector-salud" data-done="sector-salud"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">sector-salud.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/sectores/salud.webp</code></li><li><code>/images/editorial/umsa-sector-salud.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-sector-salud">Create an image, landscape 3:2 (1536×1024).
+
+Escena: A hospital corridor at dawn, calm and spotless: pale sage vinyl floor with soft reflections, a nurse station seen from behind with two monitors showing abstract panels, a ceiling wireless access point and a small dome camera, warm window light at the end of the corridor. Empty of people.
+
+Estética: Lente 35 mm con perspectiva central hacia el fondo del pasillo. Luz cálida y suave de la ventana del final con relleno más frío; el piso vinílico verde salvia refleja; paredes blancas con textura sutil. Acento rojo: un pulsador de alarma en la pared. Access point y domo del cielorraso bien nítidos. Clima: calma, higiene, cuidado.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: la perspectiva del pasillo hacia la ventana.
+2. Plano medio: el puesto de enfermería de espaldas, con los monitores.
+3. Detalle: el access point y la cámara domo del cielorraso.
+4. Punto de vista inesperado: a ras del piso, a lo largo de su reflejo.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-sector-salud">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="sector-salud.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article><article class="card" data-id="sector-seguridad-electronica">
+  <div class="card__top">
+    <h3>Seguridad Electrónica</h3>
+    <label class="done"><input type="checkbox" id="done-sector-seguridad-electronica" data-done="sector-seguridad-electronica"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">sector-seguridad-electronica.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/sectores/seguridad-electronica.webp</code></li><li><code>/images/editorial/umsa-sector-seguridad-electronica.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-sector-seguridad-electronica">Create an image, landscape 3:2 (1536×1024).
+
+Escena: A security monitoring room before dawn: a gently curved video wall with a grid of camera views of perimeter fences, gates and parking lots, an operator seen from behind in silhouette at a console, a single red task light, graphite surfaces and warm low light. Serious and quiet.
+
+Estética: Lente 50 mm detrás del operador, con poca profundidad de campo. El video wall da una luz suave y neutra (sin azul) y una sola lámpara roja entibia la consola; superficies grafito mate con reflejos en el escritorio; por la ventana, el borde azul oscuro de la madrugada. Acento rojo: la lámpara de trabajo. Clima: vigilancia atenta y silenciosa.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: la sala completa con el video wall curvo.
+2. Plano medio: la silueta del operador contra el video wall.
+3. Detalle: la mano sobre el joystick que mueve una cámara PTZ.
+4. Punto de vista inesperado: desde un costado del video wall, el operador a contraluz, en silueta.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-sector-seguridad-electronica">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="sector-seguridad-electronica.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article><article class="card" data-id="sector-software">
+  <div class="card__top">
+    <h3>Software</h3>
+    <label class="done"><input type="checkbox" id="done-sector-software" data-done="sector-software"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">sector-software.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/sectores/software.webp</code></li><li><code>/images/editorial/umsa-sector-software.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-sector-software">Create an image, landscape 3:2 (1536×1024).
+
+Escena: An engineering studio in Mendoza at golden hour: two engineers seen from behind at wide monitors showing abstract dashboards and system diagrams, a blurred whiteboard with architecture sketches, large windows with the Andes in the distance, warm wood and graphite furniture.
+
+Estética: Lente 35 mm por encima del hombro, luz lateral de la hora dorada desde los ventanales. Madera cálida y mobiliario grafito; monitores con interfaces oscuras y una línea roja de acento; los Andes suaves a lo lejos. Acento rojo: la línea en las interfaces. Clima: foco y trabajo en equipo.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: el estudio con el ventanal y la cordillera.
+2. Plano medio: dos ingenieros de espaldas frente a los monitores.
+3. Detalle: el pizarrón con un esquema de arquitectura hecho de formas abstractas, sin texto.
+4. Punto de vista inesperado: la cordillera reflejada en un monitor oscuro.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-sector-software">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="sector-software.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article></div></section><section class="group" id="servicios"><header class="group__head"><h2>Servicios</h2><p>Lista de /servicios y páginas de servicio · 8 imágenes</p></header><div class="cards"><article class="card" data-id="servicio-redes">
+  <div class="card__top">
+    <h3>Redes</h3>
+    <label class="done"><input type="checkbox" id="done-servicio-redes" data-done="servicio-redes"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">servicio-redes.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/servicios/redes.webp</code></li><li><code>/images/editorial/umsa-service-redes.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-servicio-redes">Create an image, landscape 3:2 (1536×1024).
+
+Escena: Macro photograph of a perfectly dressed network rack: bundled Cat6A patch cords combed into vertical cable managers, LC fiber connectors in a fiber patch panel, status LEDs, very shallow depth of field, a single red velcro strap as the only accent, graphite background, raking side light.
+
+Estética: Macro 100 mm a f/2.8, luz rasante desde la izquierda que roza las fundas de los cables. Rack grafito, patch cords grises y una sola cinta de velcro roja; LED verdes y ámbar como bokeh diminuto; conectores LC en foco nítido. Acento rojo: la cinta. Clima: orden meticuloso.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano medio: el frente del rack peinado.
+2. Macro: el haz de cables peinado en el organizador vertical.
+3. Macro: los conectores LC en la patchera de fibra.
+4. Punto de vista inesperado: a lo largo del organizador, con los cables fugando.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-servicio-redes">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="servicio-redes.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article><article class="card" data-id="servicio-seguridad-electronica">
+  <div class="card__top">
+    <h3>Seguridad electrónica</h3>
+    <label class="done"><input type="checkbox" id="done-servicio-seguridad-electronica" data-done="servicio-seguridad-electronica"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">servicio-seguridad-electronica.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/servicios/seguridad-electronica.webp</code></li><li><code>/images/editorial/umsa-service-seguridad-electronica.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-servicio-seguridad-electronica">Create an image, landscape 3:2 (1536×1024).
+
+Escena: Close-up of an IP dome camera and a PTZ camera mounted on the corner of a concrete building at sunrise, cabling neatly routed in a steel conduit, a card access reader beside a glass door below, the city and the Andes softly out of focus behind.
+
+Estética: Teleobjetivo 85 mm desde abajo; la luz del amanecer brilla en los domos. Textura de la esquina de hormigón y caño de acero; fondo desenfocado con la ciudad y los Andes. Acento rojo: el LED de estado del lector de acceso. Clima: atento.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: la esquina del edificio con las dos cámaras.
+2. Plano medio: la cámara PTZ de cerca.
+3. Detalle: el lector de acceso junto a la puerta vidriada.
+4. Punto de vista inesperado: el punto de vista de la cámara mirando la entrada desde arriba, sin gráficos superpuestos.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-servicio-seguridad-electronica">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="servicio-seguridad-electronica.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article><article class="card" data-id="servicio-telecomunicaciones">
+  <div class="card__top">
+    <h3>Telecomunicaciones</h3>
+    <label class="done"><input type="checkbox" id="done-servicio-telecomunicaciones" data-done="servicio-telecomunicaciones"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">servicio-telecomunicaciones.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/servicios/telecomunicaciones.webp</code></li><li><code>/images/editorial/umsa-service-telecomunicaciones.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-servicio-telecomunicaciones">Create an image, landscape 3:2 (1536×1024).
+
+Escena: A telecommunications mast on a hilltop above the Mendoza foothills at dawn: microwave dishes and panel antennas, a galvanized cable ladder, an equipment shelter with a small solar panel, valley haze below and the Andes in the distance.
+
+Estética: Lente 50 mm desde una loma un poco más baja. La luz del alba dora el acero galvanizado; niebla en el valle y la cordillera en capas azules. Acento rojo: la baliza de la punta del mástil. Panel solar sobre el shelter. Clima: largo alcance.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: el mástil con el valle y los Andes.
+2. Plano medio: las parábolas y las antenas de panel.
+3. Detalle: la escalerilla de cables con sus conectores.
+4. Punto de vista inesperado: mirando el mástil de abajo hacia arriba.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-servicio-telecomunicaciones">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="servicio-telecomunicaciones.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article><article class="card" data-id="servicio-software-a-medida">
+  <div class="card__top">
+    <h3>Software a medida</h3>
+    <label class="done"><input type="checkbox" id="done-servicio-software-a-medida" data-done="servicio-software-a-medida"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">servicio-software-a-medida.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/servicios/software-a-medida.webp</code></li><li><code>/images/editorial/umsa-service-software-a-medida.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-servicio-software-a-medida">Create an image, landscape 3:2 (1536×1024).
+
+Escena: Over-the-shoulder view of a developer&#x27;s desk at morning: a laptop and a large monitor with abstract interface panels, charts and a system flow diagram, a notebook with a hand-drawn architecture sketch, warm wood desk, graphite chair, shallow depth of field.
+
+Estética: Lente 35 mm por encima del hombro, poca profundidad de campo y luz de ventana de la mañana. Monitor con interfaz oscura y una línea roja de acento; cuaderno con un croquis en lápiz; madera cálida. Acento rojo: la línea de la interfaz. Clima: oficio y concentración.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: el escritorio completo.
+2. Plano medio: el monitor y las manos sobre el teclado.
+3. Detalle: el croquis de arquitectura en el cuaderno, sin texto legible.
+4. Punto de vista inesperado: cenital del escritorio, como flat lay.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-servicio-software-a-medida">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="servicio-software-a-medida.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article><article class="card" data-id="servicio-soporte-247">
+  <div class="card__top">
+    <h3>Soporte 24/7</h3>
+    <label class="done"><input type="checkbox" id="done-servicio-soporte-247" data-done="servicio-soporte-247"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">servicio-soporte-247.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/servicios/soporte-247.webp</code></li><li><code>/images/editorial/umsa-service-soporte-247.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-servicio-soporte-247">Create an image, landscape 3:2 (1536×1024).
+
+Escena: A field technician in a dark polo shirt seen from behind, walking down an aisle of server racks at night with a laptop open in one hand, amber and white status LEDs, a single red accent light, reflections on the polished floor, warm graphite tones. Cinematic, not blue.
+
+Estética: Lente 35 mm de noche. El pasillo de racks arma líneas de fuga; LED ámbar y blancos; una sola luz roja al fondo; reflejos en el piso pulido; el técnico a contraluz con bruma sutil. Acento rojo: la luz del fondo. Clima: siempre encendidos.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: el pasillo de racks completo.
+2. Plano medio: el técnico de espaldas caminando con la notebook.
+3. Detalle: el brillo de la pantalla sobre la mano del técnico.
+4. Punto de vista inesperado: desde el piso, usando el reflejo del pasillo.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-servicio-soporte-247">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="servicio-soporte-247.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article><article class="card" data-id="servicio-consultoria-it">
+  <div class="card__top">
+    <h3>Consultoría IT</h3>
+    <label class="done"><input type="checkbox" id="done-servicio-consultoria-it" data-done="servicio-consultoria-it"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">servicio-consultoria-it.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/servicios/consultoria-it.webp</code></li><li><code>/images/editorial/umsa-service-consultoria-it.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-servicio-consultoria-it">Create an image, landscape 3:2 (1536×1024).
+
+Escena: Top-down view of an engineering meeting table: printed network drawings and building floor plans with red markups, a tablet showing an abstract network topology, a scale ruler and a pen, the hands of two people pointing at the plans (no faces), morning light across the table.
+
+Estética: Cenital con lente 50 mm y luz de la mañana cruzando la mesa, con sombras largas de la regla y la lapicera. Textura del papel, marcas rojas sobre los planos y una tablet con una topología oscura; solo manos, sin caras. Acento rojo: las correcciones. Clima: claridad para decidir.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: la mesa completa con los planos.
+2. Plano medio: dos manos señalando un punto del plano.
+3. Detalle: las correcciones rojas sobre la planta del edificio.
+4. Punto de vista inesperado: rasante, cruzando la mesa a la altura del papel.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-servicio-consultoria-it">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="servicio-consultoria-it.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article><article class="card" data-id="servicio-deteccion-incendios">
+  <div class="card__top">
+    <h3>Detección de incendios</h3>
+    <label class="done"><input type="checkbox" id="done-servicio-deteccion-incendios" data-done="servicio-deteccion-incendios"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">servicio-deteccion-incendios.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/servicios/deteccion-incendios.webp</code></li><li><code>/images/editorial/umsa-service-deteccion-incendios.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-servicio-deteccion-incendios">Create an image, landscape 3:2 (1536×1024).
+
+Escena: Close-up of an addressable smoke detector on a concrete ceiling next to a steel cable tray, a red manual call point and a sounder-strobe on the wall below slightly out of focus, raking morning light across the ceiling texture.
+
+Estética: Teleobjetivo 85 mm con luz rasante sobre el cielorraso de hormigón encofrado. Detector blanco nítido, pulsador rojo desenfocado abajo y bandeja de acero. Acento rojo: el pulsador. Clima: protección silenciosa.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: el cielorraso con el detector y la bandeja.
+2. Plano medio: el detector de humo de cerca.
+3. Detalle: el pulsador manual rojo y la sirena con baliza en la pared.
+4. Punto de vista inesperado: desde el piso hacia arriba, con varios detectores en la grilla del techo.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-servicio-deteccion-incendios">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="servicio-deteccion-incendios.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article><article class="card" data-id="servicio-electricos-it">
+  <div class="card__top">
+    <h3>Eléctricos IT</h3>
+    <label class="done"><input type="checkbox" id="done-servicio-electricos-it" data-done="servicio-electricos-it"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">servicio-electricos-it.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/servicios/electricos-it.webp</code></li><li><code>/images/editorial/umsa-service-electricos-it.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-servicio-electricos-it">Create an image, landscape 3:2 (1536×1024).
+
+Escena: An IT electrical room: an open switchboard with rows of DIN-rail breakers and neatly dressed cables with blank grey markers, a double-conversion UPS cabinet and a battery bank beside it, copper busbar partly visible, strong side light and deep shadows, polished concrete floor.
+
+Estética: Lente 35 mm con luz lateral fuerte desde una puerta. Filas de interruptores, brillo del cobre, gabinete UPS grafito mate y banco de baterías; reflejos en el hormigón pulido. Acento rojo: el pulsador de parada de emergencia. Clima: energía bajo control.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: la sala eléctrica completa.
+2. Plano medio: el tablero abierto con los interruptores.
+3. Detalle: la barra de cobre y los terminales.
+4. Punto de vista inesperado: entre los racks de baterías.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-servicio-electricos-it">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="servicio-electricos-it.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article></div></section><section class="group" id="empresa"><header class="group__head"><h2>Empresa</h2><p>Página /nosotros · 1 imágenes</p></header><div class="cards"><article class="card" data-id="nosotros-equipo">
+  <div class="card__top">
+    <h3>Nosotros · equipo en campo</h3>
+    <label class="done"><input type="checkbox" id="done-nosotros-equipo" data-done="nosotros-equipo"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">nosotros-equipo.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/images/editorial/umsa-about-engineering.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-nosotros-equipo">Create an image, landscape 3:2 (1536×1024).
+
+Escena: Three field engineers in dark work clothes seen from behind and in profile, faces not visible, walking into a technical room carrying toolkits and a fiber splicer case, a cable tray overhead, morning sun spilling through the open door, the Andes visible outside.
+
+Estética: Lente 35 mm a contraluz del sol de la mañana en la puerta: siluetas con borde de luz, ropa de trabajo oscura, cajas de herramientas y una bandeja portacables arriba; afuera, los Andes suavemente sobreexpuestos. Acento rojo: el estuche de la fusionadora de fibra. Clima: equipo de campo listo para salir.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: los tres técnicos entrando a la sala.
+2. Plano medio: dos técnicos de espaldas frente a un rack.
+3. Detalle: manos abriendo el estuche de la fusionadora.
+4. Punto de vista inesperado: desde el fondo de la sala, mirando la puerta mientras entran a contraluz.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-nosotros-equipo">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="nosotros-equipo.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article></div></section><section class="group" id="antecedentes"><header class="group__head"><h2>Antecedentes destacados</h2><p>Tarjetas de antecedentes en la home · 4 imágenes</p></header><div class="cards"><article class="card" data-id="antecedente-3065">
+  <div class="card__top">
+    <h3>#3065 · CCTV en aeropuerto</h3>
+    <label class="done"><input type="checkbox" id="done-antecedente-3065" data-done="antecedente-3065"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">antecedente-3065.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/antecedentes/3065.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-antecedente-3065">Create an image, landscape 3:2 (1536×1024).
+
+Escena: Illustrative photograph for an IT infrastructure case study: discreet IP dome cameras installed along the ceiling of an airport departure hall with a long glass facade, apron and aircraft outside, the Andes on the horizon, finished and tidy installation seen at working distance, no people facing the camera.
+
+Estética: Lente 35 mm con la perspectiva del cielorraso del hall de preembarque. Luz de la mañana por el vidrio; domos repetidos con ritmo; aviones afuera y la cordillera. Acento rojo: la cola de un avión o una señal de piso. Clima: cobertura discreta.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: el hall con la línea de cámaras.
+2. Plano medio: una cámara con el vidrio y el avión detrás.
+3. Detalle: el montaje de la cámara en el cielorraso.
+4. Punto de vista inesperado: desde afuera del vidrio, mirando la cámara hacia adentro.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-antecedente-3065">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="antecedente-3065.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article><article class="card" data-id="antecedente-3087">
+  <div class="card__top">
+    <h3>#3087 · Redes y fibra en salud</h3>
+    <label class="done"><input type="checkbox" id="done-antecedente-3087" data-done="antecedente-3087"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">antecedente-3087.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/antecedentes/3087.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-antecedente-3087">Create an image, landscape 3:2 (1536×1024).
+
+Escena: Illustrative photograph for an IT infrastructure case study: a dressed network rack and a fiber-optic distribution frame in the technical room of a medical imaging center, neatly routed fiber and Cat6A cabling in a cable tray above, clean clinical environment, finished installation, no people.
+
+Estética: Lente 35 mm en una sala técnica blanca y limpia, con luz neutra y un toque cálido desde una ventana chica. Fibras con fundas agua apagado, rack grafito y bandeja superior. Acento rojo: la cinta de identificación de un cable. Clima: orden clínico.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: la sala técnica.
+2. Plano medio: el rack armado.
+3. Detalle: el distribuidor de fibra con sus conectores.
+4. Punto de vista inesperado: mirando por la bandeja portacables superior.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-antecedente-3087">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="antecedente-3087.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article><article class="card" data-id="antecedente-3064">
+  <div class="card__top">
+    <h3>#3064 · Software para gobierno</h3>
+    <label class="done"><input type="checkbox" id="done-antecedente-3064" data-done="antecedente-3064"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">antecedente-3064.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/antecedentes/3064.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-antecedente-3064">Create an image, landscape 3:2 (1536×1024).
+
+Escena: Illustrative photograph for a software case study: an open-plan public administration office in Mendoza, workstations seen over the shoulder showing abstract process dashboards and forms without readable text, large windows, orderly and calm, no faces.
+
+Estética: Lente 35 mm en una oficina abierta con luz de la mañana. Puestos de trabajo con tableros abstractos, plantas y ventanales. Acento rojo: un indicador en los tableros. Clima: servicio público moderno.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: la oficina completa.
+2. Plano medio: por encima del hombro de un agente.
+3. Detalle: una pantalla con un tablero abstracto, sin texto.
+4. Punto de vista inesperado: desde un entrepiso, mirando la oficina desde arriba.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-antecedente-3064">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="antecedente-3064.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article><article class="card" data-id="antecedente-3081">
+  <div class="card__top">
+    <h3>#3081 · Eléctrica para data center de bodega</h3>
+    <label class="done"><input type="checkbox" id="done-antecedente-3081" data-done="antecedente-3081"> Hecha</label>
+  </div>
+  <dl class="card__meta">
+    <div><dt>Guardar como</dt><dd><code class="fname">antecedente-3081.png</code></dd></div>
+    <div><dt>Va en</dt><dd><ul><li><code>/img/antecedentes/3081.webp</code></li></ul></dd></div>
+  </dl>
+  <pre class="prompt" id="p-antecedente-3081">Create an image, landscape 3:2 (1536×1024).
+
+Escena: Illustrative photograph for an IT electrical case study: a small data center room inside a Mendoza winery, a server rack with a dedicated electrical panel and UPS, stainless steel tanks visible through a glass partition, clean cable routing, finished installation, no people.
+
+Estética: Lente 35 mm en una sala chica con un vidrio hacia la nave de tanques. Los tanques de acero inoxidable reflejan la luz cálida de la nave; la sala queda más fría, con rack, tablero y UPS. Acento rojo: el pulsador de corte de energía. Clima: el vino se encuentra con la tecnología.
+
+Encuadre: el 1. Si pido «otra», pasá al siguiente.
+1. Plano general: la sala con los tanques detrás del vidrio.
+2. Plano medio: el tablero y la UPS.
+3. Detalle: el recorrido prolijo de los cables.
+4. Punto de vista inesperado: desde la nave de tanques, mirando el data center a través del vidrio.
+
+Photorealistic editorial photograph, shot on a full-frame cinema camera, early-morning low sun raking from the side, long soft shadows, deep graphite shadows that keep their detail, warm highlights, subtle atmospheric haze. Palette: graphite, brushed steel, warm concrete and plaster, with a single accent of signal red (#dc2626). Real materials with visible texture, precise and engineered, premium and calm. Keep the left third of the frame quiet enough to place a headline over it. Landscape format, 3:2.
+
+Avoid: text, letters, numbers, logos, brand names, watermarks, flags, holograms, neon, lens flares, glowing blue sci-fi server rooms, stock-photo smiles, handshakes, people looking at the camera, fisheye distortion, oversaturated HDR look.</pre>
+  <div class="card__actions">
+    <button type="button" class="btn btn--primary" data-copy="p-antecedente-3081">Copiar prompt</button>
+    <button type="button" class="btn" data-copy-text="antecedente-3081.png">Copiar nombre de archivo</button>
+    <span class="toast" role="status" aria-live="polite"></span>
+  </div>
+</article></div></section>
+  <p class="note">Las imágenes de antecedentes son ilustrativas: muestran el tipo de trabajo, sin clientes ni marcas. En el sitio llevan la leyenda "Imagen ilustrativa". Si algo sale con texto, logos o caras de frente, pedí otra variante: el prompt ya lo excluye.</p>
+</div>
+<script>
+  const KEY = 'umsa-prompts-done';
+  const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
+  const write = (v) => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch {} };
+  const boxes = [...document.querySelectorAll('[data-done]')];
+  const sync = () => {
+    const done = boxes.filter((b) => b.checked).map((b) => b.dataset.done);
+    boxes.forEach((b) => b.closest('.card').classList.toggle('is-done', b.checked));
+    document.getElementById('count').textContent = done.length;
+    return done;
+  };
+  const saved = new Set(read());
+  boxes.forEach((b) => { b.checked = saved.has(b.dataset.done); b.addEventListener('change', () => write(sync())); });
+  sync();
+  const flash = (btn, msg) => { const t = btn.parentElement.querySelector('.toast'); t.textContent = msg; setTimeout(() => { if (t.textContent === msg) t.textContent = ''; }, 2200); };
+  const copy = async (btn, text, ok) => {
+    try { await navigator.clipboard.writeText(text); flash(btn, ok); }
+    catch { flash(btn, 'Seleccioná el texto y copialo'); }
+  };
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    if (b.dataset.copy) {
+      const pre = document.getElementById(b.dataset.copy);
+      copy(b, pre.textContent, 'Prompt copiado');
+      const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    }
+    if (b.dataset.copyText) copy(b, b.dataset.copyText, 'Nombre copiado');
+  });
+</script>
