@@ -3,6 +3,7 @@
 # Por combinación: recorrido completo en Workbench con entorno (1280 px → MP4 liviano) y tres
 # cuadros cine (Cycles) en t = .2/.5/.85. Sale en work/cine/nube/previas/<escena>-<variante>/.
 # Uso, desde la raíz del repo:  bash work/cine/scripts/nube-previa.sh <variante>:<escena> [...]
+# (PREVIAS=previas-v2 cambia la carpeta de salida, para comparar contra una tanda anterior)
 set -uo pipefail
 PY=work/cine/.venv-bpy/bin/python; F=192; W=1280
 if [ ! -x $PY ]; then
@@ -15,7 +16,7 @@ fi
 
 for combo in "$@"; do
   variante=${combo%%:*}; escena=${combo##*:}; nombre=$escena-$variante
-  tmp=work/cine/out/previa/$nombre; dst=work/cine/nube/previas/$nombre; log=work/cine/out/previa-$nombre.log
+  tmp=work/cine/out/previa/$nombre; dst=work/cine/nube/${PREVIAS:-previas}/$nombre; log=work/cine/out/previa-$nombre.log
   mkdir -p "$tmp" "$dst"; t0=$(date +%s)
   $PY work/cine/scripts/render-cine.py -- "$escena" --variant "$variante" --en "$escena" --pass preview \
     --frames $F --width $W --out "$tmp" > "$log" 2>&1
