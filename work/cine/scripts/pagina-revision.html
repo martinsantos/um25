@@ -1,0 +1,170 @@
+<title>Cámaras Cine v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Sala de revisión: claqueta arriba, matriz escena × servicio al centro, ficha de la toma abajo. */
+:root {
+  --bg: #eef1f3; --panel: #ffffff; --ink: #14202b; --muted: #5b6875; --line: #d3dae0;
+  --accent: #1d4f7a; --ok: #23784a; --warn: #a86a0c; --bad: #b3261e; --soft: #e2e8ed;
+  --f-display: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  --f-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --f-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f151b; --panel: #172029; --ink: #e5ebf0; --muted: #91a0ad; --line: #2b3742;
+  --accent: #7fb3e0; --ok: #5cc48a; --warn: #e3a744; --bad: #f0786f; --soft: #1e2a35; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f151b; --panel: #172029; --ink: #e5ebf0; --muted: #91a0ad; --line: #2b3742;
+  --accent: #7fb3e0; --ok: #5cc48a; --warn: #e3a744; --bad: #f0786f; --soft: #1e2a35; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--f-body); }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; display: grid; gap: 28px; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 600; letter-spacing: .01em; line-height: 1.05; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 4.5vw, 3rem); }
+h2 { font-size: 1.6rem; }
+.eyebrow { font: 500 .78rem/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.lede { max-width: 68ch; color: var(--muted); margin: 0; }
+header { display: grid; gap: 12px; }
+.tally { display: flex; flex-wrap: wrap; gap: 8px 22px; font: 500 .9rem var(--f-mono); font-variant-numeric: tabular-nums; }
+.tally span { display: inline-flex; align-items: center; gap: 8px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
+.s-limpia { --s: var(--ok); } .s-roce { --s: var(--warn); } .s-falla { --s: var(--bad); } .s-final { --s: var(--accent); }
+.dot { background: var(--s, var(--muted)); }
+.matrix { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; min-width: 980px; }
+th { font: 600 .95rem var(--f-display); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 10px; border-bottom: 1px solid var(--line); }
+th[scope=row] { font-size: 1.05rem; color: var(--ink); text-transform: none; letter-spacing: .01em; border-bottom: 1px solid var(--line); width: 120px; }
+td { padding: 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td, tr:last-child th { border-bottom: 0; }
+.cell { all: unset; cursor: pointer; display: grid; gap: 5px; width: 100%; border-radius: 4px; padding: 4px; box-sizing: border-box; }
+.cell:hover { background: var(--soft); }
+.cell:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.cell[aria-current="true"] { background: var(--soft); box-shadow: inset 0 0 0 2px var(--accent); }
+.thumb { aspect-ratio: 16 / 9; width: 100%; max-width: 100%; object-fit: cover; border-radius: 3px; display: block; background: var(--soft); border-top: 3px solid var(--s, var(--line)); }
+.meta { display: flex; align-items: center; justify-content: space-between; gap: 6px; font: .74rem/1.2 var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.meta b { font-weight: 500; color: var(--ink); }
+.own { font: 600 .66rem var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .85rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+#ficha { display: grid; gap: 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 22px; }
+.ficha-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; }
+.estado { display: inline-flex; align-items: center; gap: 8px; font: 500 .85rem var(--f-mono); padding: 4px 10px; border-radius: 99px; background: var(--soft); }
+.estado .dot { background: var(--s); }
+.player { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 16px; }
+video { width: 100%; max-width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 4px; display: block; }
+.stills { display: grid; gap: 10px; align-content: start; }
+.stills figure { margin: 0; display: grid; gap: 4px; }
+.stills img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 3px; display: block; }
+figcaption { font: .74rem var(--f-mono); color: var(--muted); }
+.cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; }
+.cols > * { min-width: 0; }
+.metrics { width: 100%; min-width: 0; font: .85rem var(--f-mono); font-variant-numeric: tabular-nums; }
+.metrics th { font: 500 .72rem var(--f-mono); padding: 6px 8px; }
+.metrics td { padding: 6px 8px; }
+.metrics td:not(:first-child), .metrics th:not(:first-child) { text-align: right; }
+.better { color: var(--ok); } .worse { color: var(--bad); }
+.nota { display: grid; gap: 8px; }
+.stars { font: 600 1.3rem var(--f-display); letter-spacing: .06em; color: var(--accent); }
+.nota p { margin: 0; max-width: 62ch; }
+.muted { color: var(--muted); }
+footer { font-size: .85rem; color: var(--muted); max-width: 72ch; }
+code { font: .85em var(--f-mono); }
+@media (max-width: 760px) { .player, .cols { grid-template-columns: minmax(0, 1fr); } .stills { grid-template-columns: repeat(3, minmax(0, 1fr)); } #ficha { padding: 16px; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Última Milla · Cine v4 · revisión de cámaras</div>
+    <h1>Cada servicio, en cada escena</h1>
+    <p class="lede" id="lede"></p>
+    <div class="tally" id="tally"></div>
+  </header>
+
+  <section aria-labelledby="t-matriz" style="display:grid;gap:12px">
+    <h2 id="t-matriz" class="eyebrow" style="font-family:var(--f-mono);font-size:.78rem">Matriz escena × servicio · tocá una toma para ver la ficha</h2>
+    <div class="matrix"><table id="tabla"></table></div>
+    <div class="legend">
+      <span class="s-limpia"><i class="dot"></i>Limpia: ningún cuadro con roce u obstrucción</span>
+      <span class="s-roce"><i class="dot"></i>Roce: hasta 5 % de cuadros con algo cerca de la lente</span>
+      <span class="s-falla"><i class="dot"></i>A corregir: más del 5 %</span>
+      <span class="s-final"><i class="dot"></i>Render final en curso</span>
+    </div>
+  </section>
+
+  <section id="ficha" aria-live="polite"></section>
+
+  <footer>
+    Las métricas salen del explorador de cámaras (<code>render-cine.py --scout</code>), que lanza rayos contra la geometría real en los 192 cuadros: obstrucción de lente, roces a menos de 1 m, cruces de muros y primer plano que tapa el centro. <em>Visibilidad</em> es la fracción media de equipos del servicio en cuadro y sin obstrucción. Las vistas previas son Workbench a 1280 px; los cuadros fijos ya son Cycles con la luz final.
+  </footer>
+</div>
+
+<script>
+const D = /*DATOS*/null;
+const $ = (s, el = document) => el.querySelector(s);
+const pct = v => v == null ? '—' : Math.round(v * 100) + ' %';
+function estado(c) {
+  const m = c.cam;
+  if (!m || m.bad == null) return c.propia ? 'final' : 'falla';
+  return m.bad === 0 ? 'limpia' : m.bad <= .05 ? 'roce' : 'falla';
+}
+const ROT = { limpia: 'Limpia', roce: 'Roce', falla: 'A corregir', final: 'Render final en curso' };
+const claves = Object.keys(D.celdas);
+const cuenta = { limpia: 0, roce: 0, falla: 0, final: 0 };
+claves.forEach(k => cuenta[estado(D.celdas[k])]++);
+$('#lede').textContent = `${claves.length} tomas: ${D.servicios.length} servicios recorridos en ${D.escenas.length} escenas. Cada toma es un vuelo de 8 s (192 cuadros a 24 fps) que se renderiza a 2560 px en Cycles. Esta tanda corrige las cámaras que atravesaban paredes; revisá las marcadas en ámbar y rojo antes del render final.`;
+$('#tally').innerHTML = Object.entries(cuenta).filter(([, n]) => n).map(([k, n]) => `<span class="s-${k}"><i class="dot"></i>${n} ${ROT[k].toLowerCase()}</span>`).join('');
+
+const tabla = $('#tabla');
+tabla.innerHTML = `<thead><tr><th scope="col">Escena</th>${D.servicios.map(s => `<th scope="col">${D.nombreServicio[s]}</th>`).join('')}</tr></thead>` +
+  `<tbody>${D.escenas.map(e => `<tr><th scope="row">${D.nombreEscena[e]}</th>${D.servicios.map(s => {
+    const k = `${e}-${s}`, c = D.celdas[k];
+    if (!c) return '<td></td>';
+    const st = estado(c), n = c.nota && c.nota.nota;
+    return `<td><button class="cell s-${st}" data-k="${k}" aria-label="${D.nombreServicio[s]} en ${D.nombreEscena[e]}: ${ROT[st]}">
+      <img class="thumb" src="m/${k}/cine-5.jpg" alt="" loading="lazy" width="320" height="180">
+      <span class="meta"><span><i class="dot"></i> ${c.cam && c.cam.bad != null ? pct(c.cam.bad) : '—'}</span>${c.propia ? '<span class="own">propia</span>' : ''}<b>${n ? n + '/5' : ''}</b></span></button></td>`;
+  }).join('')}</tr>`).join('')}</tbody>`;
+
+function fila(nombre, a, b, menosEsMejor) {
+  const fmt = v => v == null ? '—' : pct(v);
+  let cls = '';
+  if (a != null && b != null && a !== b) cls = (menosEsMejor ? b < a : b > a) ? 'better' : 'worse';
+  return `<tr><td>${nombre}</td><td>${fmt(a)}</td><td class="${cls}">${fmt(b)}</td></tr>`;
+}
+function mostrar(k, desplazar) {
+  const c = D.celdas[k]; if (!c) return;
+  document.querySelectorAll('.cell').forEach(b => b.setAttribute('aria-current', b.dataset.k === k));
+  const st = estado(c), m = c.cam || {}, b = m.base || {};
+  const cam = m.style ? `Estilo ${m.style} · azimut ${m.az}° · distancia ×${m.zoom || 1}` : 'Cámara original de la variante';
+  const n = c.nota || {};
+  $('#ficha').innerHTML = `
+    <div class="ficha-head">
+      <div style="display:grid;gap:6px"><div class="eyebrow">${D.nombreEscena[c.escena]}${c.propia ? ' · escena propia del servicio' : ''}</div>
+      <h2>${D.nombreServicio[c.servicio]}</h2></div>
+      <span class="estado s-${st}"><i class="dot"></i>${ROT[st]}</span>
+    </div>
+    <div class="player">
+      <video src="m/${k}/recorrido.mp4" controls muted loop playsinline preload="metadata" poster="m/${k}/cine-2.jpg"></video>
+      <div class="stills">${['2', '5', '85'].map(t => `<figure><img src="m/${k}/cine-${t}.jpg" alt="Cuadro cine al ${t === '2' ? 20 : t === '5' ? 50 : 85} % del recorrido" loading="lazy"><figcaption>Cycles · ${t === '2' ? 20 : t === '5' ? 50 : 85} % del recorrido</figcaption></figure>`).join('')}</div>
+    </div>
+    <div class="cols">
+      <div style="display:grid;gap:8px"><div class="eyebrow">${cam}</div>
+        <table class="metrics"><thead><tr><th>Medición</th><th>Cámara original</th><th>Cámara elegida</th></tr></thead><tbody>
+        ${fila('Cuadros con roce u obstrucción', b.bad, m.bad, true)}
+        ${fila('Visibilidad del sistema', b.vis, m.vis, false)}
+        ${fila('Cuadros sin equipos a la vista', b.empty, m.empty, true)}
+        </tbody></table>
+        ${m.malos && m.malos.length ? `<div class="muted" style="font:.78rem var(--f-mono)">Cuadros marcados: ${m.malos.join(' ')}</div>` : ''}
+      </div>
+      <div class="nota"><div class="eyebrow">Revisión visual</div>
+        ${n.nota ? `<div class="stars" aria-label="${n.nota} de 5">${'●'.repeat(n.nota)}${'○'.repeat(5 - n.nota)}</div>` : ''}
+        <p>${n.texto || '<span class="muted">Sin revisión visual todavía.</span>'}</p></div>
+    </div>`;
+  try { history.replaceState(null, '', '#' + k); } catch (e) {}
+  if (desplazar) $('#ficha').scrollIntoView({ block: 'start' });
+}
+tabla.addEventListener('click', ev => { const b = ev.target.closest('.cell'); if (b) mostrar(b.dataset.k, true); });
+const ini = location.hash.slice(1);
+mostrar(D.celdas[ini] ? ini : claves.find(k => estado(D.celdas[k]) !== 'limpia') || claves[0], false);
+</script>
