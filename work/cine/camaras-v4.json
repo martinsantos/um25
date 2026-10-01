@@ -5,37 +5,43 @@
   "base": {
    "bad": 0.0,
    "empty": 0.0,
-   "vis": 0.672
+   "vis": 0.667
   },
   "empty": 0.0,
+  "malos": [],
   "style": "overhead",
-  "vis": 0.731,
+  "vis": 0.73,
   "zoom": 1.0
  },
  "aeropuerto-electricos": {
-  "az": -70,
-  "bad": 0.0,
+  "az": -50,
+  "bad": 0.021,
   "base": {
-   "bad": 0.042,
+   "bad": 0.219,
    "empty": 0.0,
-   "vis": 0.438
-  },
-  "empty": 0.021,
-  "style": "aerial",
-  "vis": 0.573,
-  "zoom": 1.0
- },
- "aeropuerto-incendios": {
-  "az": -72,
-  "bad": 0.0,
-  "base": {
-   "bad": 0.0,
-   "empty": 0.0,
-   "vis": 0.602
+   "vis": 0.432
   },
   "empty": 0.0,
-  "style": "ground",
-  "vis": 0.621,
+  "malos": [
+   "149L",
+   "159L"
+  ],
+  "style": "aerial",
+  "vis": 0.724,
+  "zoom": 1.35
+ },
+ "aeropuerto-incendios": {
+  "az": -32,
+  "bad": 0.0,
+  "base": {
+   "bad": 0.062,
+   "empty": 0.0,
+   "vis": 0.596
+  },
+  "empty": 0.0,
+  "malos": [],
+  "style": "overhead",
+  "vis": 0.722,
   "zoom": 1.0
  },
  "aeropuerto-redes": {
