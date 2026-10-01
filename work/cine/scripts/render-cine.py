@@ -1055,9 +1055,13 @@ def scout(scene, names):
                     if best is None or score < best[0]:
                         best = (score, az, st, zoom, m)
         _, az, st, zoom, m = best
+        m = camera_score(variant_path(name, scene, az, st, zoom), pts, detail=True)
         CAMARAS[f'{scene}-{name}'] = dict(az=az, style=st, zoom=zoom, **m, base=base)
-        CAMARAS_PATH.write_text(json.dumps(CAMARAS, indent=1, sort_keys=True) + '\n')
-        print('CINE_SCOUT', scene, name, 'base', json.dumps(base), '→', az, st, zoom, json.dumps(m), flush=True)
+        # releer antes de escribir: puede haber otros exploradores (otras escenas) en paralelo
+        disco = json.loads(CAMARAS_PATH.read_text()) if CAMARAS_PATH.exists() else {}
+        disco[f'{scene}-{name}'] = CAMARAS[f'{scene}-{name}']
+        CAMARAS_PATH.write_text(json.dumps(disco, indent=1, sort_keys=True) + '\n')
+        print('CINE_SCOUT', scene, name, 'base', json.dumps(base), '→', az, st, zoom, json.dumps({k: v for k, v in m.items() if k != 'malos'}), flush=True)
 
 
 def flight_path(scene, frames, keys=None):
