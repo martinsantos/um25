@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { BUSINESS_ADDRESS, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '../config/seo';
 import { geoHubRoutes, geoResourceNames, geoSectorResources, geoServiceResources } from '../data/geoResources';
 import { getAntecedentesCatalogCount } from '../utils/verifiedProof';
+import { buildTopicClusterDigest } from '../utils/blogTopicCases';
 
 /**
  * llms.txt — resumen breve y verificable para buscadores generativos.
@@ -12,6 +13,7 @@ const LAST_REVIEW = '2026-09-27';
 
 export const GET: APIRoute = async () => {
   const count = getAntecedentesCatalogCount();
+  const blogTopics = buildTopicClusterDigest(1, 0).filter((item) => item.kind === 'service' && item.blogHub);
 
   const lines = [
     `# ${SITE_NAME}`,
@@ -44,6 +46,9 @@ export const GET: APIRoute = async () => {
     `- [Nosotros](${SITE_URL}/nosotros)`,
     `- [Blog técnico](${SITE_URL}/blog) · RSS: ${SITE_URL}/rss.xml`,
     `- [Contacto](${SITE_URL}/contacto)`,
+    '',
+    '## Blog técnico por tema',
+    ...blogTopics.map((item) => `- [${item.name}](${item.blogHub}): ${item.posts} notas · servicio: ${item.page}`),
     '',
     '## Cobertura comercial',
     ...geoHubRoutes.map((hub) => `- [${hub.title}](${hub.url}): ${hub.description}`),

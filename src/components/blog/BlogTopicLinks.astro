@@ -1,0 +1,142 @@
+---
+/**
+ * Puente nota → oferta: servicios del cluster temático de la nota y antecedentes
+ * reales del mismo tipo. Los datos salen de src/utils/blogTopicMap.ts (clasificación
+ * por términos del propio texto), nunca de asignaciones manuales.
+ */
+interface ServiceLink {
+  href: string;
+  label: string;
+  summary: string;
+}
+
+interface CaseLink {
+  href: string;
+  title: string;
+  client: string;
+  year: string;
+}
+
+interface Props {
+  services: ServiceLink[];
+  cases: CaseLink[];
+  topicHub?: { href: string; label: string; count: number } | null;
+  kicker?: string;
+  title?: string;
+}
+
+const {
+  services,
+  cases,
+  topicHub = null,
+  kicker = 'Aplicación',
+  title: titleProp,
+} = Astro.props;
+const defaultTitle = cases.length === 0
+  ? (services.length > 1 ? 'Servicios vinculados a esta nota' : 'Servicio vinculado a esta nota')
+  : services.length === 0
+    ? 'Proyectos del mismo tipo'
+    : 'Servicios y proyectos vinculados a esta nota';
+const title = titleProp || defaultTitle;
+const hasContent = services.length > 0 || cases.length > 0;
+const hubName = topicHub ? topicHub.label.charAt(0).toLowerCase() + topicHub.label.slice(1) : '';
+---
+
+{hasContent && (
+  <section class="btl" aria-labelledby="btl-title">
+    <p class="btl-kicker">{kicker}</p>
+    <h2 id="btl-title" class="btl-title">{title}</h2>
+
+    <div class:list={['btl-grid', (services.length === 0 || cases.length === 0) && 'btl-grid--single']}>
+      {services.length > 0 && (
+        <div class="btl-col">
+          <h3 class="btl-col__title">Servicios relacionados</h3>
+          <ul class="btl-list">
+            {services.map((service) => (
+              <li>
+                <a class="btl-item" href={service.href}>
+                  <span class="btl-item__label">{service.label}</span>
+                  <span class="btl-item__text">{service.summary}</span>
+                  <span class="btl-item__cta">Ver el servicio <span aria-hidden="true">→</span></span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {cases.length > 0 && (
+        <div class="btl-col">
+          <h3 class="btl-col__title">Proyectos del mismo tipo</h3>
+          <ul class="btl-list">
+            {cases.map((item) => (
+              <li>
+                <a class="btl-item" href={item.href}>
+                  <span class="btl-item__meta">{[item.client, item.year].filter(Boolean).join(' · ')}</span>
+                  <span class="btl-item__label">{item.title}</span>
+                  <span class="btl-item__cta">Ver el antecedente <span aria-hidden="true">→</span></span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+
+    {topicHub && (
+      <p class="btl-hub">
+        <a href={topicHub.href}>Todas las notas sobre {hubName} ({topicHub.count}) <span aria-hidden="true">→</span></a>
+      </p>
+    )}
+  </section>
+)}
+
+<style>
+  .btl { color: var(--x-text); }
+  .btl-kicker {
+    display: flex; align-items: center; gap: 12px; margin: 0 0 16px;
+    font-size: var(--x-fs-kicker); font-weight: 600; line-height: 1.2; letter-spacing: .12em; text-transform: uppercase; color: var(--x-muted);
+  }
+  .btl-kicker::before { content: ''; flex: none; width: 28px; height: 2px; background: var(--x-red); }
+  .btl-title {
+    margin: 0 0 48px; max-width: 24ch; font-family: var(--um-font-editorial);
+    font-size: var(--x-fs-h2); line-height: 1.08; font-weight: 600; letter-spacing: -.02em; color: var(--x-text);
+  }
+  .btl-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 24px; }
+  .btl-grid--single { grid-template-columns: minmax(0, 1fr); }
+  .btl-grid--single .btl-list { max-width: 760px; }
+  .btl-col__title {
+    margin: 0 0 16px; font-family: var(--um-font-editorial);
+    font-size: 1.0625rem; line-height: 1.35; font-weight: 600; color: var(--x-text-2);
+  }
+  .btl-list { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
+  .btl-grid:not(.btl-grid--single) .btl-col:last-child .btl-list { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .btl-item {
+    display: flex; flex-direction: column; gap: 8px; height: 100%; padding: 24px;
+    background: var(--x-panel); border: 1px solid var(--x-line); color: inherit; text-decoration: none;
+    transition: border-color 160ms var(--x-ease), background-color 160ms var(--x-ease);
+  }
+  .btl-item:hover, .btl-item:focus-visible { background: var(--x-panel-2); border-color: var(--x-line-strong); }
+  .btl-item:focus-visible { outline: 2px solid var(--x-text); outline-offset: 2px; }
+  .btl-item__meta { font-size: var(--x-fs-meta); line-height: 1.45; color: var(--x-muted); }
+  .btl-item__label { font-family: var(--um-font-editorial); font-size: 1.25rem; line-height: 1.3; font-weight: 600; color: var(--x-text); }
+  .btl-item__text { font-size: 1rem; line-height: 1.55; color: var(--x-text-2); }
+  .btl-item__cta { margin-top: auto; padding-top: 8px; font-size: var(--x-fs-meta); font-weight: 600; color: var(--x-text); }
+  .btl-hub { margin: 24px 0 0; font-size: 1rem; }
+  .btl-hub a {
+    color: var(--x-text); font-weight: 600; text-decoration: underline; text-decoration-color: var(--x-line-strong);
+    text-underline-offset: 4px; transition: text-decoration-color 160ms var(--x-ease);
+  }
+  .btl-hub a:hover { text-decoration-color: var(--x-red); }
+
+  @media (max-width: 900px) {
+    .btl-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 680px) {
+    .btl-list { gap: 12px; }
+    .btl-title { margin-bottom: 32px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btl-item, .btl-hub a { transition: none; }
+  }
+</style>

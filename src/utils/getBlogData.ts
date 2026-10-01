@@ -213,7 +213,7 @@ async function fetchPublicBlogPostUncached(slug: string): Promise<EntradaBlog | 
     const lead = stripTags(html.match(/<p[^>]*class=["'][^"']*article-lead[^"']*["'][^>]*>([\s\S]*?)<\/p>/i)?.[1] || '');
     const prose = (
       html.match(
-        /<div class=["']prose["'][^>]*>([\s\S]*?)<\/div>\s*(?:<section\b[^>]*(?:um-intent-link-graph|post-)|<aside\b|<nav\b[^>]*class=["'][^"']*post-nav|<div\b[^>]*class=["'][^"']*tags-row|<\/article>)/i,
+        /<div class=["']prose["'][^>]*>([\s\S]*?)<\/div>\s*(?:<section\b[^>]*(?:um-intent-link-graph|post-|bp-author|bp-topic)|<ul\b[^>]*class=["'][^"']*bp-tags|<nav\b[^>]*class=["'][^"']*(?:post-nav|bp-pn)|<aside\b|<div\b[^>]*class=["'][^"']*tags-row|<\/article>)/i,
       )?.[1] || ''
     );
     const category = normalizeCategory(metaContent(html, 'article:section'));
@@ -233,7 +233,7 @@ async function fetchPublicBlogPostUncached(slug: string): Promise<EntradaBlog | 
       categoria: category,
       tags,
       fecha_publicacion: published || new Date().toISOString(),
-      fecha_modificacion: published || undefined,
+      fecha_modificacion: metaContent(html, 'article:modified_time') || published || undefined,
       tiempo_lectura: Number(html.match(/(\d+)\s+min de lectura/i)?.[1] || 4),
       meta_title: metaContent(html, 'title') || `${title} | ULTIMA MILLA`,
       meta_description: metaContent(html, 'description') || lead,
@@ -404,6 +404,39 @@ export async function fetchBlogBand(limit = 3): Promise<EntradaBlog[]> {
 
     if (!allowMockBlogFallback()) return [];
     return (diversifyBlogPostCovers(MOCK_POSTS) as EntradaBlog[]).slice(0, limit);
+  }
+}
+
+/**
+ * Notas puntuales por slug (artículos relacionados por cluster), con los mismos
+ * campos que el listado y la misma cadena de fuentes. Respeta el orden pedido.
+ */
+export async function fetchBlogPostsBySlugs(slugs: string[]): Promise<EntradaBlog[]> {
+  const wanted = [...new Set(slugs.filter((slug) => slug && isCanonicalBlogSlug(slug)))];
+  if (wanted.length === 0) return [];
+  // Orden pedido y portadas sin repetir dentro del bloque (misma regla que los listados).
+  const order = (posts: EntradaBlog[]) => diversifyBlogPostCovers(wanted
+    .map((slug) => posts.find((post) => post.slug === slug))
+    .filter((post): post is EntradaBlog => Boolean(post))) as EntradaBlog[];
+
+  try {
+    const params = new URLSearchParams();
+    addVisibleBlogStatusFilter(params, new Date(), 'filter[_and][0]');
+    params.set('filter[_and][1][slug][_in]', wanted.join(','));
+    params.set('limit', String(wanted.length));
+    params.set('fields', 'id,slug,titulo,resumen,imagen_portada,imagen_portada_alt,categoria,tags,fecha_publicacion,fecha_modificacion,tiempo_lectura');
+    const res = await directusFetch(`${DIRECTUS_URL}/items/blog_posts?${params.toString()}`);
+    if (!res.ok) throw new Error(`Directus ${res.status}`);
+    const data = await res.json();
+    const posts = order((data.data || []) as EntradaBlog[]);
+    if (posts.length > 0) return posts;
+    throw new Error('empty');
+  } catch {
+    const fallback = await Promise.all(wanted.map(async (slug) => {
+      const publicPost = await fetchPublicBlogPost(slug);
+      return publicPost || UM26_FALLBACK_POSTS.find((post) => post.slug === slug) || null;
+    }));
+    return order(fallback.filter((post): post is EntradaBlog => Boolean(post)));
   }
 }
 

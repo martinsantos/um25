@@ -11,6 +11,12 @@ import { sectorVisualOrder, sectorVisualSystem } from './sectorVisualSystem';
 import { serviceVisualOrder, serviceVisualSystem } from './serviceVisualSystem';
 import serviciosSnapshot from './snapshots/servicios.json';
 import { getInstitutionalProofLines } from '../utils/verifiedProof';
+import { buildTopicClusterDigest } from '../utils/blogTopicCases';
+import {
+  getBlogTopicEntries,
+  latestBlogTopicDate,
+  publishableServiceHubs,
+} from '../utils/blogTopicMap';
 import {
   getAntecedentesImageEvidenceCoverage,
   getAntecedentesImageEvidenceEntries,
@@ -244,6 +250,9 @@ export function buildGeoResource(resource: string) {
           'proyectos de ingeniería IT',
           'presupuesto de servicios IT',
         ],
+        // Mapa temático: cada servicio y sector con sus notas y antecedentes clave.
+        // Asignación por términos del propio texto de cada nota o antecedente.
+        clusters: buildTopicClusterDigest(3, 3),
       };
 
     case 'buyer-intents':
@@ -265,7 +274,24 @@ export function buildGeoResource(resource: string) {
         blog: {
           url: canonicalUrl('/blog'),
           role: 'Archivo editorial técnico para explicar riesgos, criterios de decisión, normativa y operación IT.',
-          recommendedTopics: ['continuidad operativa', 'seguridad electrónica', 'soporte IT', 'software operativo', 'infraestructura verificable'],
+          // Temas con más notas publicadas, según el mapa temático.
+          recommendedTopics: publishableServiceHubs()
+            .sort((x, y) => y.count - x.count)
+            .slice(0, 5)
+            .map(({ cluster }) => cluster.label.toLowerCase()),
+          posts: getBlogTopicEntries().length,
+          lastUpdated: latestBlogTopicDate(),
+          feeds: [
+            canonicalUrl('/rss.xml'),
+            ...['noticias', 'proyectos', 'tecnico', 'tecnologia', 'empresa'].map((cat) => canonicalUrl(`/blog/categoria/${cat}/rss.xml`)),
+          ],
+          topicHubs: publishableServiceHubs().map(({ cluster, count }) => ({
+            name: cluster.label,
+            url: canonicalUrl(`/blog/tema/${cluster.hubSlug}`),
+            feed: canonicalUrl(`/blog/tema/${cluster.hubSlug}/rss.xml`),
+            service: canonicalUrl(cluster.href),
+            posts: count,
+          })),
         },
       };
 

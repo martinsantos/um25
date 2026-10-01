@@ -1,6 +1,7 @@
 ---
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import BlogCategoryTabs from '../../../components/blog/BlogCategoryTabs.astro';
+import BlogTopicNav from '../../../components/blog/BlogTopicNav.astro';
 import BlogCard from '../../../components/blog/BlogCard.astro';
 import BlogPagination from '../../../components/blog/BlogPagination.astro';
 import IntentLinkGraph from '../../../components/blog/BlogIntentLinks.astro';
@@ -86,14 +87,7 @@ const schema = {
   description: meta.desc,
   url: canonicalUrl,
   inLanguage: 'es-AR',
-  breadcrumb: {
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Inicio', item: siteUrl },
-      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${siteUrl}/blog` },
-      { '@type': 'ListItem', position: 3, name: catLabel, item: catUrl },
-    ],
-  },
+  isPartOf: { '@type': 'Blog', '@id': `${siteUrl}/blog#blog`, name: 'Blog ULTIMA MILLA' },
   mainEntity: {
     '@type': 'ItemList',
     numberOfItems: total,
@@ -105,6 +99,12 @@ const schema = {
     })),
   },
 };
+// Una sola BreadcrumbList (la del layout), con la jerarquía visible.
+Astro.locals.seoBreadcrumbs = [
+  { name: 'Inicio', url: siteUrl },
+  { name: 'Blog', url: `${siteUrl}/blog` },
+  { name: catLabel, url: catUrl },
+];
 const categoryStructuredData = [
   schema,
   buildStrategicWebPageStructuredData({
@@ -127,6 +127,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
 >
   {prevUrl && <link slot="head" rel="prev" href={prevUrl} />}
   {nextUrl && <link slot="head" rel="next" href={nextUrl} />}
+  <link slot="head" rel="alternate" type="application/rss+xml" href={`/blog/categoria/${cat}/rss.xml`} title={`Blog ULTIMA MILLA · ${catLabel}`} />
 
   <div class="bx">
     <header class="bx-hero bx-shell">
@@ -138,11 +139,12 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
       <p class="bx-kicker">Blog técnico · {catLabel}</p>
       <h1 class="bx-title">{categoryTitle}</h1>
       {meta.intro && <p class="bx-lead">{meta.intro}</p>}
-      {categoryLead && <p class="bx-count"><span>{categoryLead}</span><a href="/rss.xml">Suscribirse por RSS</a></p>}
+      {categoryLead && <p class="bx-count"><span>{categoryLead}</span><a href={`/blog/categoria/${cat}/rss.xml`}>RSS de {catLabel.toLowerCase()}</a></p>}
     </header>
 
     <div class="bx-shell">
       <BlogCategoryTabs current={cat} />
+      <BlogTopicNav />
 
       {archivePosts.length > 0 && (
         <section aria-label={`Artículos de ${catLabel.toLowerCase()}`}>
