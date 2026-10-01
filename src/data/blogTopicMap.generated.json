@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-09-27T23:46:35.308Z",
+ "generatedAt": "2026-10-01T18:35:11.414Z",
  "source": "https://www.ultimamilla.com.ar",
  "thresholds": {
   "service": {
@@ -15,17 +15,17 @@
   }
  },
  "stats": {
-  "posts": 384,
-  "withService": 375,
+  "posts": 396,
+  "withService": 387,
   "withSector": 75,
   "unclassified": 5,
   "servicePosts": {
    "101": 13,
    "102": 5,
    "103": 17,
-   "104": 241,
-   "105": 195,
-   "106": 152,
+   "104": 250,
+   "105": 201,
+   "106": 157,
    "107": 0,
    "108": 5
   },
@@ -33,9 +33,9 @@
    "101": 5,
    "102": 5,
    "103": 14,
-   "104": 157,
-   "105": 102,
-   "106": 89,
+   "104": 163,
+   "105": 107,
+   "106": 90,
    "107": 0,
    "108": 3
   },
@@ -50,9 +50,20 @@
    "seguridad-electronica": 5,
    "software": 7
   },
-  "postsWithoutInboundBodyLinks": 181
+  "postsWithoutInboundBodyLinks": 189
  },
  "posts": [
+  {"slug":"openbao-transit-en-pymes-cifrado-llaves-y-auditoria","title":"OpenBao Transit en pymes: cifrado, llaves y auditoría","category":"tecnico","published":"2026-10-01T15:00:00.000Z","modified":"2026-10-01T15:00:00.000Z","services":[{"key":"106","relevance":73,"evidence":["auditoria","riesgo"]},{"key":"104","relevance":45,"evidence":["postgresql","erp","api"]}],"sectors":[]},
+  {"slug":"arca-5907-2026-id-fal-cuit-y-f-931","title":"ARCA 5907/2026: ID FAL, CUIT y F. 931","category":"noticias","published":"2026-10-01T10:00:00.000Z","modified":"2026-10-01T10:00:00.000Z","services":[{"key":"104","relevance":86,"evidence":["arca","erp","postgresql"]},{"key":"106","relevance":75,"evidence":["resolucion general","resolucion","riesgo"]}],"sectors":[]},
+  {"slug":"glpi-11-0-8-en-cooperativas-tickets-activos-y-salida","title":"GLPI 11.0.8 en cooperativas: tickets, activos y salida","category":"proyectos","published":"2026-09-30T20:00:00.000Z","modified":"2026-09-30T20:00:00.000Z","services":[{"key":"105","relevance":100,"evidence":["glpi","tickets","mesa de ayuda"]}],"sectors":[]},
+  {"slug":"pgbackrest-2-59-2-wal-rpo-y-restauracion","title":"pgBackRest 2.59.2: WAL, RPO y restauración","category":"tecnico","published":"2026-09-30T15:00:00.000Z","modified":"2026-09-30T15:00:00.000Z","services":[{"key":"105","relevance":73,"evidence":["restauracion","backup","backups"]},{"key":"104","relevance":48,"evidence":["postgresql","facturas"]}],"sectors":[]},
+  {"slug":"arca-5906-2026-serie-garantia-y-reemplazo","title":"ARCA 5906/2026: serie, garantía y reemplazo","category":"noticias","published":"2026-09-30T10:00:00.000Z","modified":"2026-09-30T10:00:00.000Z","services":[{"key":"104","relevance":85,"evidence":["arca","erp","postgresql"]},{"key":"106","relevance":73,"evidence":["resolucion general","diagnostico","riesgo"]}],"sectors":[]},
+  {"slug":"nextcloud-35-en-colegios-carpetas-permisos-y-salida","title":"Nextcloud 35 en colegios: carpetas, permisos y salida","category":"proyectos","published":"2026-09-29T20:00:00.000Z","modified":"2026-09-29T20:00:00.000Z","services":[{"key":"104","relevance":85,"evidence":["nextcloud","base de datos","postgresql"]},{"key":"105","relevance":60,"evidence":["backup","restauracion","monitoreo"]}],"sectors":[]},
+  {"slug":"minio-con-postgresql-archivos-permisos-y-restauracion","title":"MinIO con PostgreSQL: archivos, permisos y restauración","category":"tecnico","published":"2026-09-29T15:00:00.000Z","modified":"2026-09-29T15:00:00.000Z","services":[{"key":"105","relevance":93,"evidence":["minio","restauracion","backup"]},{"key":"104","relevance":76,"evidence":["postgresql","erp","api"]}],"sectors":[]},
+  {"slug":"arca-5902-2026-fecha-codigo-547-y-plan-de-pago","title":"ARCA 5902/2026: fecha, código 547 y plan de pago","category":"noticias","published":"2026-09-29T10:00:00.000Z","modified":"2026-09-29T10:00:00.000Z","services":[{"key":"104","relevance":84,"evidence":["arca","odoo","postgresql"]},{"key":"106","relevance":63,"evidence":["resolucion general","resolucion","riesgo"]}],"sectors":[]},
+  {"slug":"restic-0-19-1-en-escuelas-copias-claves-y-restauracion","title":"restic 0.19.1 en escuelas: copias, claves y restauración","category":"proyectos","published":"2026-09-28T20:00:00.000Z","modified":"2026-09-28T20:00:00.000Z","services":[{"key":"105","relevance":99,"evidence":["restic","restauracion","backup"]}],"sectors":[]},
+  {"slug":"loki-3-7-8-en-pymes-logs-etiquetas-y-retencion","title":"Loki 3.7.8 en pymes: logs, etiquetas y retención","category":"tecnico","published":"2026-09-28T15:00:00.000Z","modified":"2026-09-28T15:00:00.000Z","services":[{"key":"105","relevance":80,"evidence":["grafana","backup","mantenimiento"]}],"sectors":[]},
+  {"slug":"enrege-663-2026-registro-contrato-y-dato-de-gas","title":"ENREGE 663/2026: registro, contrato y dato de gas","category":"noticias","published":"2026-09-28T10:00:00.000Z","modified":"2026-09-28T10:00:00.000Z","services":[{"key":"104","relevance":82,"evidence":["erp","odoo","postgresql"]},{"key":"106","relevance":60,"evidence":["auditoria","resolucion","riesgo"]}],"sectors":[]},
   {"slug":"listmonk-6-2-en-camaras-listas-bajas-y-evidencia","title":"listmonk 6.2 en cámaras: listas, bajas y evidencia","category":"proyectos","published":"2026-09-27T20:00:00.000Z","modified":"2026-09-27T20:00:00.000Z","services":[{"key":"104","relevance":66,"evidence":["postgresql","api"]}],"sectors":[]},
   {"slug":"pocketbase-0-40-4-en-pymes-reglas-backups-y-salida","title":"PocketBase 0.40.4 en pymes: reglas, backups y salida","category":"tecnico","published":"2026-09-27T15:00:00.000Z","modified":"2026-09-27T15:00:00.000Z","services":[{"key":"104","relevance":66,"evidence":["api","postgresql","formularios"]},{"key":"105","relevance":62,"evidence":["backups","backup","restauracion"]}],"sectors":[]},
   {"slug":"kit-4-0-suma-crm-ia-comercial-y-sistema-de-gestion","title":"Kit 4.0 suma CRM, IA comercial y sistema de gestión","category":"noticias","published":"2026-09-27T10:00:00.000Z","modified":"2026-09-27T10:00:00.000Z","services":[{"key":"104","relevance":97,"evidence":["odoo","crm","sistema de gestion"]}],"sectors":[]},
@@ -430,6 +441,7 @@
   {"slug":"trazabilidad-de-residuos-patogenicos-la-cadena-de-custodia-que-pide-el-estado","title":"Trazabilidad de residuos patogénicos: la cadena de custodia que pide el Estado","category":"proyectos","published":"2026-04-24T00:00:00.000Z","modified":"2026-04-24T00:00:00.000Z","services":[{"key":"104","relevance":53,"evidence":["postgresql","app movil","base de datos"]}],"sectors":[]},
   {"slug":"valkey-vs-redis-en-2026-por-que-el-fork-ya-gano-la-pulseada-tecnica","title":"Valkey frente a Redis en 2026: por qué el fork ya ganó la pulseada técnica","category":"tecnico","published":"2026-04-24T00:00:00.000Z","modified":"2026-04-24T00:00:00.000Z","services":[{"key":"104","relevance":88,"evidence":["redis","api","python"]},{"key":"106","relevance":62,"evidence":["licencias","gobernanza","roadmap"]},{"key":"105","relevance":60,"evidence":["grafana","prometheus","parches"]}],"sectors":[]},
   {"slug":"del-sap-al-open-source-como-una-pyme-argentina-libero-usd-120-000-en-licencias","title":"Del SAP al open source: cómo una PyME argentina liberó USD 120.000 en licencias","category":"proyectos","published":"2026-04-23T00:00:00.000Z","modified":"2026-04-23T00:00:00.000Z","services":[{"key":"104","relevance":99,"evidence":["odoo","erp","open source"]}],"sectors":[{"key":"constructoras","relevance":83,"evidence":["constructora","constructoras","obra"]}]},
+  {"slug":"el-cto-que-no-existe-como-las-pymes-argentinas-corren-tecnologia-de-primer-mundo-con-presupuesto-de-kiosco","title":"El CTO que no existe: cómo las PyMES argentinas corren tecnología de primer mundo con presupuesto de kiosco","category":"tecnico","published":"2026-04-23T00:00:00.000Z","modified":"2026-04-23T00:00:00.000Z","services":[{"key":"104","relevance":98,"evidence":["odoo","erp","facturacion electronica"]}],"sectors":[]},
   {"slug":"erp-opensource-pymes-argentina-2026","title":"Del SAP al open source: cómo una PyME argentina liberó USD 120.000 en licencias","category":"proyectos","published":"2026-04-23T00:00:00.000Z","modified":"2026-04-23T00:00:00.000Z","services":[{"key":"104","relevance":99,"evidence":["erp","odoo","open source"]}],"sectors":[{"key":"constructoras","relevance":83,"evidence":["constructora","constructoras","obra"]}]},
   {"slug":"ia-local-llm-pymes-argentina-2026","title":"Tu propio ChatGPT, en tu servidor, en pesos","category":"tecnico","published":"2026-04-23T00:00:00.000Z","modified":"2026-04-23T00:00:00.000Z","services":[{"key":"104","relevance":98,"evidence":["ollama","ia local","llm"]}],"sectors":[]},
   {"slug":"software-libre-en-la-empresa-lo-que-cuesta-y-lo-que-ahorra-sin-cuentos","title":"Software libre en la empresa: lo que cuesta y lo que ahorra","category":"tecnico","published":"2026-04-23T00:00:00.000Z","modified":"2026-04-23T00:00:00.000Z","services":[{"key":"104","relevance":89,"evidence":["odoo","open source","erp"]},{"key":"106","relevance":61,"evidence":["transformacion digital","licencias","costo total"]}],"sectors":[]},
