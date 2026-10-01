@@ -20,7 +20,7 @@ export const servicios = [
     {
         title: 'Consultoría IT',
         description: 'Diagnóstico, diseño de arquitectura y planificación técnica',
-        href: '/servicios/106/consultoria-it-transformacion-digital',
+        href: '/servicios/106/consultoria-it-y-transformacion-digital-arquitectura-auditoria',
         icon: 'briefcase'
     },
     {

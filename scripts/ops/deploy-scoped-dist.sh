@@ -55,8 +55,10 @@ if [[ -e "$previous" || -e "$release/active" ]]; then
   echo 'Release ID already used; refusing deployment' >&2
   exit 1
 fi
-if [[ -e "$current/client/images/software-comunidades/credencial-demo-email.gif" ]]; then
-  echo 'Campaign GIF appeared in live runtime; refusing to overwrite concurrent work' >&2
+if [[ ! -f "$current/client/images/software-comunidades/credencial-demo-email.gif" ]] ||
+   ! cmp -s "$current/client/images/software-comunidades/credencial-demo-email.gif" \
+     "$incoming/client/images/software-comunidades/credencial-demo-email.gif"; then
+  echo 'Published campaign GIF is missing or changed; refusing follow-up deployment' >&2
   exit 1
 fi
 
@@ -69,7 +71,8 @@ if (( available_kb < 2500000 )); then
 fi
 
 # Preserve every currently published un-hashed asset, including unfinished
-# cinema/3D work. Only the new campaign GIF and candidate _astro bundles differ.
+# cinema/3D work. The campaign GIF must already be live and byte-identical;
+# only candidate _astro bundles may differ.
 rsync -anic --delete \
   --exclude='/_astro/***' \
   --exclude='/images/software-comunidades/credencial-demo-email.gif' \

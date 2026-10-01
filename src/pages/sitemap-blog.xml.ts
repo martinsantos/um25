@@ -2,6 +2,9 @@ import type { APIRoute } from 'astro';
 import { SITE_URL } from '../config/seo';
 import { fetchBlogSitemapEntries } from '../utils/getBlogData';
 import { canonicalUrl, escapeXml, formatSitemapDate, publicImageUrl } from '../utils/seoUrl';
+import { getBlogTopicEntry, postsForCluster, publishableServiceHubs } from '../utils/blogTopicMap';
+
+const CATEGORIES = ['noticias', 'proyectos', 'tecnico', 'tecnologia', 'empresa'];
 
 interface BlogPost {
   slug: string;
@@ -14,8 +17,30 @@ interface BlogPost {
 
 async function fetchPublishedPosts(): Promise<BlogPost[]> {
   // Misma fuente que el blog renderizado, con timeout y fallback (getBlogData).
-  return (await fetchBlogSitemapEntries()) as BlogPost[];
+  // Si la fuente no trae fechas o categoría (fallback por slugs), se completan con
+  // las del mapa temático, que las tomó de cada nota publicada.
+  const posts = (await fetchBlogSitemapEntries()) as BlogPost[];
+  return posts.map((post) => {
+    const entry = getBlogTopicEntry(post.slug);
+    if (!entry) return post;
+    return {
+      ...post,
+      titulo: post.titulo && post.titulo !== post.slug ? post.titulo : entry.title,
+      categoria: post.categoria || entry.category,
+      fecha_publicacion: post.fecha_publicacion || entry.published || undefined,
+      fecha_modificacion: post.fecha_modificacion || entry.modified || undefined,
+    };
+  });
 }
+
+const latestDate = (values: Array<string | undefined>): string =>
+  values
+    .filter((value): value is string => Boolean(value))
+    .map((value) => formatSitemapDate(value))
+    .sort()
+    .at(-1) || '';
+
+const lastmodTag = (value: string): string => (value ? `\n    <lastmod>${value}</lastmod>` : '');
 
 export const GET: APIRoute = async () => {
   const posts = await fetchPublishedPosts();
@@ -25,7 +50,27 @@ export const GET: APIRoute = async () => {
     .map((value) => formatSitemapDate(value))
     .sort()
     .at(-1) || '';
-  const latestTag = latestPostLastmod ? `\n    <lastmod>${latestPostLastmod}</lastmod>` : '';
+  const latestTag = lastmodTag(latestPostLastmod);
+  // Cada categoría y cada tema cambian cuando cambia su nota más reciente.
+  const categoryUrls = CATEGORIES.map((cat) => {
+    const lastmod = latestDate(posts
+      .filter((post) => post.categoria === cat)
+      .map((post) => post.fecha_modificacion || post.fecha_publicacion));
+    return `  <url>
+    <loc>${SITE_URL}/blog/categoria/${cat}</loc>${lastmodTag(lastmod || latestPostLastmod)}
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>`;
+  }).join('\n');
+  const topicUrls = publishableServiceHubs().map(({ cluster }) => {
+    const lastmod = latestDate(postsForCluster('service', cluster.key)
+      .map((item) => item.entry.modified || item.entry.published));
+    return `  <url>
+    <loc>${SITE_URL}/blog/tema/${cluster.hubSlug}</loc>${lastmodTag(lastmod)}
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>`;
+  }).join('\n');
 
   const urls = posts
     .map(post => {
@@ -55,31 +100,8 @@ ${lastmod ? `    <lastmod>${lastmod}</lastmod>\n` : ''}    <changefreq>monthly</
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
-  <url>
-    <loc>${SITE_URL}/blog/categoria/noticias</loc>${latestTag}
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>${SITE_URL}/blog/categoria/proyectos</loc>${latestTag}
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>${SITE_URL}/blog/categoria/tecnico</loc>${latestTag}
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>${SITE_URL}/blog/categoria/tecnologia</loc>${latestTag}
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>${SITE_URL}/blog/categoria/empresa</loc>${latestTag}
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
+${categoryUrls}
+${topicUrls}
 ${urls}
 </urlset>`;
 

@@ -1,0 +1,226 @@
+---
+/**
+ * Listado temático del blog: todas las notas de un cluster de servicio (101–108),
+ * de la más relevante a la menos relevante según el mapa temático. Es la página
+ * pilar del tema: enlaza la ficha del servicio y antecedentes del mismo tipo.
+ * Sólo existe para clusters con notas suficientes (TOPIC_HUB_MIN_POSTS).
+ */
+import LayoutV4 from '../../../layouts/LayoutV4.astro';
+import BlogCategoryTabs from '../../../components/blog/BlogCategoryTabs.astro';
+import BlogTopicNav from '../../../components/blog/BlogTopicNav.astro';
+import BlogCard from '../../../components/blog/BlogCard.astro';
+import BlogPagination from '../../../components/blog/BlogPagination.astro';
+import BlogTopicLinks from '../../../components/blog/BlogTopicLinks.astro';
+import type { EntradaBlog } from '../../../lib/directus';
+import { fetchBlogPostsBySlugs } from '../../../utils/getBlogData';
+import { toIsoDate } from '../../../utils/blogUtils';
+import { getServiceClusterByHubSlug } from '../../../data/blogTopicTaxonomy';
+import { SERVICE_SUMMARIES } from '../../../data/serviceSummaries';
+import { TOPIC_HUB_MIN_POSTS, postsForCluster } from '../../../utils/blogTopicMap';
+import { casesForTopics } from '../../../utils/blogTopicCases';
+
+const tema = Astro.params.tema || '';
+const cluster = getServiceClusterByHubSlug(tema);
+const clusterPosts = cluster ? postsForCluster('service', cluster.key) : [];
+
+if (!cluster || clusterPosts.length < TOPIC_HUB_MIN_POSTS) {
+  return Astro.rewrite('/404');
+}
+
+const PAGE_SIZE = 12;
+const rawPage = Astro.url.searchParams.get('page');
+const page = Number(rawPage || '1');
+const hubPath = `/blog/tema/${tema}`;
+if (rawPage !== null && (!Number.isInteger(page) || page <= 1)) {
+  return Astro.redirect(hubPath, 301);
+}
+const total = clusterPosts.length;
+const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+if (page > totalPages) {
+  return Astro.rewrite('/404');
+}
+
+const pageItems = clusterPosts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+const details = await fetchBlogPostsBySlugs(pageItems.map((item) => item.entry.slug));
+// Si una nota no llega con detalle (CMS caído), la tarjeta usa los datos del mapa.
+const posts: EntradaBlog[] = pageItems.map((item) => details.find((post) => post.slug === item.entry.slug) || ({
+  id: `topic-${item.entry.slug}`,
+  status: 'published',
+  slug: item.entry.slug,
+  titulo: item.entry.title,
+  resumen: '',
+  contenido: '',
+  imagen_portada: null,
+  imagen_portada_alt: item.entry.title,
+  categoria: item.entry.category,
+  tags: [],
+  fecha_publicacion: item.entry.published,
+  fecha_modificacion: item.entry.modified,
+  tiempo_lectura: 0,
+} as unknown as EntradaBlog));
+
+const siteUrl = 'https://www.ultimamilla.com.ar';
+const hubUrl = `${siteUrl}${hubPath}`;
+const canonicalUrl = page === 1 ? hubUrl : `${hubUrl}?page=${page}`;
+const prevUrl = page > 1 ? (page === 2 ? hubUrl : `${hubUrl}?page=${page - 1}`) : null;
+const nextUrl = page < totalPages ? `${hubUrl}?page=${page + 1}` : null;
+
+const topicName = cluster.label.charAt(0).toLowerCase() + cluster.label.slice(1);
+const h1 = `${cluster.label}: guías y análisis`;
+const pageTitle = page === 1 ? h1 : `${h1} · Página ${page}`;
+const description = page === 1
+  ? `Notas técnicas de ULTIMA MILLA sobre ${topicName}: criterios, herramientas y casos para empresas y organismos de Argentina.`
+  : `Página ${page} de las notas técnicas de ULTIMA MILLA sobre ${topicName}.`;
+const lead = `${total} notas del blog técnico sobre ${topicName}, de la más relevante a la menos relevante.`;
+
+const serviceLinks = [{
+  href: cluster.href,
+  label: SERVICE_SUMMARIES[cluster.key]?.name || cluster.label,
+  summary: SERVICE_SUMMARIES[cluster.key]?.summary || cluster.schemaName,
+}];
+const caseLinks = casesForTopics({ services: [{ key: cluster.key, relevance: 100, evidence: [] }], sectors: [] }, 3)
+  .map((item) => ({ href: item.href, title: item.title, client: item.client, year: item.year }));
+
+const latestModified = clusterPosts
+  .map((item) => item.entry.modified || item.entry.published)
+  .filter(Boolean)
+  .sort()
+  .at(-1);
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  '@id': `${hubUrl}#collection`,
+  url: canonicalUrl,
+  name: pageTitle,
+  description,
+  inLanguage: 'es-AR',
+  ...(latestModified && { dateModified: latestModified }),
+  isPartOf: { '@type': 'Blog', '@id': `${siteUrl}/blog#blog`, name: 'Blog ULTIMA MILLA' },
+  publisher: { '@id': `${siteUrl}/#organization` },
+  about: {
+    '@type': 'Service',
+    '@id': `${siteUrl}${cluster.href}#service`,
+    name: cluster.schemaName,
+    url: `${siteUrl}${cluster.href}`,
+    provider: { '@id': `${siteUrl}/#organization` },
+  },
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: total,
+    itemListOrder: 'https://schema.org/ItemListUnordered',
+    itemListElement: posts.map((post, index) => ({
+      '@type': 'ListItem',
+      position: (page - 1) * PAGE_SIZE + index + 1,
+      url: `${siteUrl}/blog/${post.slug}`,
+      name: post.titulo,
+    })),
+  },
+  hasPart: posts.map((post) => ({
+    '@type': 'BlogPosting',
+    '@id': `${siteUrl}/blog/${post.slug}#article`,
+    headline: post.titulo,
+    url: `${siteUrl}/blog/${post.slug}`,
+    datePublished: toIsoDate(post.fecha_publicacion),
+    author: { '@id': `${siteUrl}/#organization` },
+  })),
+};
+
+Astro.locals.seoBreadcrumbs = [
+  { name: 'Inicio', url: siteUrl },
+  { name: 'Blog', url: `${siteUrl}/blog` },
+  { name: cluster.label, url: hubUrl },
+];
+
+Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=3600');
+---
+
+<LayoutV4
+  skin="black"
+  title={pageTitle}
+  description={description}
+  keywords={`${topicName}, blog técnico, ULTIMA MILLA, Mendoza, Argentina`}
+  canonical={canonicalUrl}
+  structuredData={schema}
+>
+  {prevUrl && <link slot="head" rel="prev" href={prevUrl} />}
+  {nextUrl && <link slot="head" rel="next" href={nextUrl} />}
+  <link slot="head" rel="alternate" type="application/rss+xml" href={`${hubPath}/rss.xml`} title={`Blog ULTIMA MILLA · ${cluster.label}`} />
+
+  <div class="bt">
+    <header class="bt-hero bt-shell">
+      <nav class="bt-crumbs" aria-label="Migas de pan">
+        <a href="/">Inicio</a><span aria-hidden="true">/</span>
+        <a href="/blog">Blog</a><span aria-hidden="true">/</span>
+        {page === 1
+          ? <span aria-current="page">{cluster.label}</span>
+          : <><a href={hubPath}>{cluster.label}</a><span aria-hidden="true">/</span><span aria-current="page">Página {page}</span></>}
+      </nav>
+      <p class="bt-kicker">Tema del blog</p>
+      <h1 class="bt-title">{h1}</h1>
+      <p class="bt-lead">{lead}</p>
+      <p class="bt-meta">
+        <a href={cluster.href}>Ver el servicio de {topicName}</a>
+        <a href={`${hubPath}/rss.xml`}>RSS de este tema</a>
+      </p>
+    </header>
+
+    <div class="bt-shell">
+      <BlogCategoryTabs />
+      <BlogTopicNav current={tema} />
+
+      <section aria-labelledby="bt-list-title">
+        <h2 id="bt-list-title" class="bt-list-title">{page === 1 ? 'Notas más relevantes' : `Notas · página ${page}`}</h2>
+        <div class="bt-grid">
+          {posts.map((post, idx) => <BlogCard post={post} eager={idx < 3} />)}
+        </div>
+      </section>
+
+      <BlogPagination page={page} totalPages={totalPages} baseHref={hubPath} />
+
+      <div class="bt-apply">
+        <BlogTopicLinks
+          kicker="Aplicación"
+          title={caseLinks.length > 0 ? `El servicio de ${topicName} y sus antecedentes` : `El servicio de ${topicName}`}
+          services={serviceLinks}
+          cases={caseLinks}
+        />
+      </div>
+    </div>
+  </div>
+</LayoutV4>
+
+<style>
+  .bt { background: var(--x-ink); color: var(--x-text); padding-bottom: var(--x-section); overflow-x: clip; }
+  .bt-shell { width: min(var(--um-container-wide, 1400px), calc(100% - 2 * var(--x-gutter))); margin-inline: auto; }
+  .bt-hero { padding-block: clamp(32px, 4vw, 56px) 48px; }
+  .bt-crumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 48px; font-size: var(--x-fs-meta); color: var(--x-muted); }
+  .bt-crumbs a { color: var(--x-text-2); text-decoration: none; transition: color 160ms var(--x-ease); }
+  .bt-crumbs a:hover { color: var(--x-text); }
+  .bt-kicker {
+    display: flex; align-items: center; gap: 12px; margin: 0 0 24px;
+    font-size: var(--x-fs-kicker); font-weight: 600; line-height: 1.2; letter-spacing: .12em; text-transform: uppercase; color: var(--x-muted);
+  }
+  .bt-kicker::before { content: ''; flex: none; width: 28px; height: 2px; background: var(--x-red); }
+  .bt-title {
+    margin: 0; max-width: 20ch; font-family: var(--um-font-editorial);
+    font-size: var(--x-fs-h1) !important; line-height: 1.02 !important; font-weight: 600 !important; letter-spacing: -.025em !important;
+    color: var(--x-text); text-wrap: balance;
+  }
+  .bt-lead { margin: 24px 0 0; max-width: 62ch; font-size: var(--x-fs-lead); line-height: 1.55; color: var(--x-text-2); }
+  .bt-meta { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 24px 0 0; font-size: var(--x-fs-meta); line-height: 1.45; }
+  .bt-meta a { color: var(--x-text-2); text-decoration: underline; text-decoration-color: var(--x-line-strong); text-underline-offset: 4px; }
+  .bt-meta a:hover { color: var(--x-text); text-decoration-color: var(--x-red); }
+  .bt-list-title {
+    margin: 0 0 24px; font-family: var(--um-font-editorial);
+    font-size: var(--x-fs-h2); line-height: 1.08; font-weight: 600; letter-spacing: -.02em; color: var(--x-text);
+  }
+  .bt-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .bt-apply { margin-top: var(--x-section); padding-top: var(--x-section); border-top: 1px solid var(--x-line); }
+  @media (max-width: 1100px) { .bt-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 680px) {
+    .bt-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .bt-crumbs { margin-bottom: 32px; }
+    .bt-title { font-size: clamp(2rem, 9.4vw, 3rem) !important; }
+  }
+</style>

@@ -194,6 +194,13 @@ export interface StrategicPageContext {
   relatedServices?: RecordLike[];
   relatedCases?: RecordLike[];
   relatedPosts?: RecordLike[];
+  /** Sectores del mapa temático (blog): reemplazan a los inferidos por alias. */
+  topicSectorItems?: StrategicLinkItem[];
+  /**
+   * URLs ya enlazadas en otro bloque de la página (servicios y casos del mapa temático).
+   * Si se informa, el grupo de servicios se omite y estas URLs no se repiten.
+   */
+  excludeHrefs?: string[];
 }
 
 const serviceAliasesById: Record<string, string[]> = {
@@ -563,17 +570,23 @@ export const buildBlogStrategicLinkGroups = (context: StrategicPageContext): Str
     context.text,
   ].filter(Boolean).join(' ');
   const relatedPosts = postItemsFromRecords(context.relatedPosts || [], 'Lectura cercana por fecha, categoría o continuidad editorial.', context.currentPath);
+  const topicMode = Array.isArray(context.excludeHrefs);
+  const excluded = new Set((context.excludeHrefs || []).map((href) => toPath(href)));
+  const notExcluded = (items: StrategicLinkItem[]) => items.filter((item) => !excluded.has(toPath(item.href)));
+  const sectorItems = context.topicSectorItems && context.topicSectorItems.length > 0
+    ? context.topicSectorItems
+    : decorateItems(scoredItems(sectorLinkItems, contextText, context.currentPath, 4), () => 'Sector donde esta lectura puede convertirse en decisión operativa.');
 
-  return [
-    {
+  const groups: StrategicLinkGroup[] = [
+    ...(topicMode ? [] : [{
       title: 'Servicios relacionados',
       summary: 'Capacidades técnicas que dan contexto comercial a la lectura.',
       items: decorateItems(scoredItems(serviceLinkItems, contextText, context.currentPath, 4, serviceAliasesForItem), () => 'La nota menciona esta capacidad o un problema que suele resolver.'),
-    },
+    }]),
     {
       title: 'Sectores sugeridos',
       summary: 'Verticales donde el tema cambia por criticidad, cumplimiento o continuidad.',
-      items: decorateItems(scoredItems(sectorLinkItems, contextText, context.currentPath, 4), () => 'Sector donde esta lectura puede convertirse en decisión operativa.'),
+      items: sectorItems,
     },
     {
       title: 'Presupuesto y cobertura',
@@ -588,6 +601,8 @@ export const buildBlogStrategicLinkGroups = (context: StrategicPageContext): Str
       items: (relatedPosts.length > 0 ? relatedPosts.slice(0, 3) : actionItems('blog')),
     },
   ];
+
+  return groups.map((group) => ({ ...group, items: notExcluded(group.items) }));
 };
 
 export const strategicLinkGroupUrls = (groups: StrategicLinkGroup[], siteUrl = SITE_ORIGIN): string[] =>

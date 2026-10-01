@@ -1,0 +1,128 @@
+---
+/**
+ * "Guías y análisis": las notas del blog más relevantes para un servicio o un
+ * sector, según el mapa temático (src/utils/blogTopicMap.ts). Si el cluster no
+ * tiene notas, el bloque no se renderiza.
+ */
+import type { TopicKind } from '../../data/blogTopicTaxonomy';
+import { fetchBlogPostsBySlugs } from '../../utils/getBlogData';
+import { formatBlogDate, getCategoryLabel } from '../../utils/blogUtils';
+import {
+  postsForCluster,
+  topPostsForCluster,
+  topicHubHref,
+  serviceClusterForId,
+  sectorClusterForSlug,
+} from '../../utils/blogTopicMap';
+
+interface Props {
+  kind: TopicKind;
+  /** '101'…'108' o slug de sector. */
+  topicKey: string;
+  /** Nombre visible del servicio o sector. */
+  label: string;
+  limit?: number;
+}
+
+const { kind, topicKey, label, limit = 3 } = Astro.props;
+const cluster = kind === 'service' ? serviceClusterForId(topicKey) : sectorClusterForSlug(topicKey);
+const top = cluster ? topPostsForCluster(kind, cluster.key, limit) : [];
+const total = cluster ? postsForCluster(kind, cluster.key).length : 0;
+const hubHref = cluster && kind === 'service' ? topicHubHref(cluster) : null;
+
+let details: Awaited<ReturnType<typeof fetchBlogPostsBySlugs>> = [];
+if (top.length > 0) {
+  try {
+    details = await fetchBlogPostsBySlugs(top.map((item) => item.entry.slug));
+  } catch {
+    details = [];
+  }
+}
+
+const guides = top.map((item) => {
+  const detail = details.find((post) => post.slug === item.entry.slug);
+  const summary = String(detail?.resumen || '').replace(/\s+/g, ' ').trim();
+  return {
+    href: `/blog/${item.entry.slug}`,
+    title: detail?.titulo || item.entry.title,
+    summary: summary.length > 170 ? `${summary.slice(0, 167).trimEnd()}…` : summary,
+    category: getCategoryLabel(detail?.categoria || item.entry.category),
+    date: formatBlogDate(detail?.fecha_publicacion || item.entry.published),
+    iso: item.entry.published,
+  };
+});
+const headingId = `topic-guides-${cluster?.key || 'none'}`;
+// Minúscula inicial sin romper siglas ("Consultoría IT" → "consultoría IT").
+const topicName = label ? label.charAt(0).toLowerCase() + label.slice(1) : '';
+---
+
+{guides.length > 0 && (
+  <section class="tg" aria-labelledby={headingId}>
+    <div class="tg-shell">
+      <p class="tg-kicker">Blog técnico</p>
+      <h2 id={headingId} class="tg-title">Guías y análisis sobre {topicName}</h2>
+      <p class="tg-lead">
+        {total === 1
+          ? 'La nota del blog que trata este tema con más detalle.'
+          : `Las ${guides.length} notas más relevantes de ${total} publicadas sobre este tema.`}
+      </p>
+      <ul class="tg-list">
+        {guides.map((guide) => (
+          <li>
+            <a class="tg-item" href={guide.href}>
+              <span class="tg-item__meta">
+                {guide.category}{guide.date && <> · <time datetime={guide.iso}>{guide.date}</time></>}
+              </span>
+              <span class="tg-item__title">{guide.title}</span>
+              {guide.summary && <span class="tg-item__text">{guide.summary}</span>}
+              <span class="tg-item__cta">Leer la nota <span aria-hidden="true">→</span></span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      {hubHref && total > guides.length && (
+        <p class="tg-more">
+          <a href={hubHref}>Ver las {total} notas sobre {topicName}{" "}<span aria-hidden="true">→</span></a>
+        </p>
+      )}
+    </div>
+  </section>
+)}
+
+<style>
+  .tg { padding-block: var(--x-section, clamp(64px, 8vw, 128px)); background: var(--x-ink); color: var(--x-text); border-top: 1px solid var(--x-line); }
+  .tg-shell { width: min(var(--um-container-wide, 1400px), calc(100% - 2 * var(--x-gutter, 24px))); margin-inline: auto; }
+  .tg-kicker {
+    display: flex; align-items: center; gap: 12px; margin: 0 0 16px;
+    font-size: var(--x-fs-kicker, 13px); font-weight: 600; line-height: 1.2; letter-spacing: .12em; text-transform: uppercase; color: var(--x-muted);
+  }
+  .tg-kicker::before { content: ''; flex: none; width: 28px; height: 2px; background: var(--x-red); }
+  .tg-title {
+    margin: 0; max-width: 24ch; font-family: var(--um-font-editorial);
+    font-size: var(--x-fs-h2, clamp(2.25rem, 3.2vw, 3rem)); line-height: 1.08; font-weight: 600; letter-spacing: -.02em; color: var(--x-text);
+    text-wrap: balance;
+  }
+  .tg-lead { margin: 16px 0 48px; max-width: 62ch; font-size: 1.0625rem; line-height: 1.6; color: var(--x-text-2); }
+  .tg-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin: 0; padding: 0; list-style: none; }
+  .tg-item {
+    display: flex; flex-direction: column; gap: 12px; height: 100%; padding: 24px;
+    background: var(--x-panel); border: 1px solid var(--x-line); color: inherit; text-decoration: none;
+    transition: border-color 160ms var(--x-ease, ease), background-color 160ms var(--x-ease, ease);
+  }
+  .tg-item:hover, .tg-item:focus-visible { background: var(--x-panel-2); border-color: var(--x-line-strong); }
+  .tg-item:focus-visible { outline: 2px solid var(--x-text); outline-offset: 2px; }
+  .tg-item__meta { font-size: var(--x-fs-meta, 14px); line-height: 1.45; color: var(--x-muted); }
+  .tg-item__title { font-family: var(--um-font-editorial); font-size: 1.25rem; line-height: 1.3; font-weight: 600; color: var(--x-text); }
+  .tg-item__text { font-size: 1rem; line-height: 1.55; color: var(--x-text-2); }
+  .tg-item__cta { margin-top: auto; padding-top: 8px; font-size: var(--x-fs-meta, 14px); font-weight: 600; color: var(--x-text); }
+  .tg-more { margin: 24px 0 0; font-size: 1rem; }
+  .tg-more a {
+    color: var(--x-text); font-weight: 600; text-decoration: underline; text-decoration-color: var(--x-line-strong);
+    text-underline-offset: 4px; transition: text-decoration-color 160ms var(--x-ease, ease);
+  }
+  .tg-more a:hover { text-decoration-color: var(--x-red); }
+
+  @media (max-width: 1000px) { .tg-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 680px) { .tg-list { grid-template-columns: minmax(0, 1fr); gap: 16px; } .tg-lead { margin-bottom: 32px; } }
+  @media (prefers-reduced-motion: reduce) { .tg-item, .tg-more a { transition: none; } }
+</style>
