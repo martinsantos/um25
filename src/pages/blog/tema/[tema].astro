@@ -13,6 +13,7 @@ import BlogPagination from '../../../components/blog/BlogPagination.astro';
 import BlogTopicLinks from '../../../components/blog/BlogTopicLinks.astro';
 import type { EntradaBlog } from '../../../lib/directus';
 import { fetchBlogPostsBySlugs } from '../../../utils/getBlogData';
+import { diversifyBlogPostCovers } from '../../../utils/blogCoverDiversity.js';
 import { toIsoDate } from '../../../utils/blogUtils';
 import { getServiceClusterByHubSlug } from '../../../data/blogTopicTaxonomy';
 import { SERVICE_SUMMARIES } from '../../../data/serviceSummaries';
@@ -43,7 +44,9 @@ if (page > totalPages) {
 const pageItems = clusterPosts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 const details = await fetchBlogPostsBySlugs(pageItems.map((item) => item.entry.slug));
 // Si una nota no llega con detalle (CMS caído), la tarjeta usa los datos del mapa.
-const posts: EntradaBlog[] = pageItems.map((item) => details.find((post) => post.slug === item.entry.slug) || ({
+// Las portadas se reparten sobre la página completa: una nota sin detalle no cae en la
+// imagen de su categoría repetida en varias tarjetas.
+const posts: EntradaBlog[] = diversifyBlogPostCovers(pageItems.map((item) => details.find((post) => post.slug === item.entry.slug) || ({
   id: `topic-${item.entry.slug}`,
   status: 'published',
   slug: item.entry.slug,
@@ -57,7 +60,7 @@ const posts: EntradaBlog[] = pageItems.map((item) => details.find((post) => post
   fecha_publicacion: item.entry.published,
   fecha_modificacion: item.entry.modified,
   tiempo_lectura: 0,
-} as unknown as EntradaBlog));
+} as unknown as EntradaBlog)));
 
 const siteUrl = 'https://www.ultimamilla.com.ar';
 const hubUrl = `${siteUrl}${hubPath}`;

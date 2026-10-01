@@ -42,5 +42,23 @@ describe('blog cover diversity', () => {
     expect(selected).not.toBe(repeatedCover);
     expect(selected).toMatch(/^https:\/\/www\.ultimamilla\.com\.ar\/images\//);
   });
-});
 
+  test('page of topic cards without CMS detail gets twelve distinct covers', () => {
+    const posts = Array.from({ length: 12 }, (_, index) => ({
+      slug: `nota-tema-${index}`,
+      titulo: `Nota ${index}`,
+      categoria: 'tecnico',
+      imagen_portada: null,
+      fecha_publicacion: `2026-09-${String(index + 1).padStart(2, '0')}T10:00:00Z`,
+    }));
+
+    const images = diversifyBlogPostCovers(posts).map((post) => post.imagen_portada);
+    expect(images.every(Boolean)).toBe(true);
+    expect(new Set(images).size).toBe(12);
+  });
+
+  test('topic hub pages diversify covers across the whole card grid', () => {
+    const source = require('fs').readFileSync(require('path').join(__dirname, '../src/pages/blog/tema/[tema].astro'), 'utf8');
+    expect(source).toMatch(/const posts: EntradaBlog\[\] = diversifyBlogPostCovers\(pageItems\.map/);
+  });
+});
