@@ -195,6 +195,22 @@ jobs:
             exit 1
           fi
 
+      - name: Check colleges landing and GIF at public edge
+        run: |
+          set -euo pipefail
+          BASE=https://www.ultimamilla.com.ar
+          curl -4 -fsS --max-time 20 \
+            "$BASE/software/gestion-de-comunidades-profesionales" \
+            -o /tmp/umsa-colleges-landing.html
+          grep -Fq 'Nuestro software para colegios permite:' \
+            /tmp/umsa-colleges-landing.html
+          grep -Fq 'id="gc-form"' /tmp/umsa-colleges-landing.html
+          curl -4 -fsS --max-time 20 \
+            "$BASE/images/software-comunidades/credencial-demo-email.gif" \
+            -o /tmp/umsa-credential-demo.gif
+          cmp /tmp/umsa-credential-demo.gif \
+            dist/client/images/software-comunidades/credencial-demo-email.gif
+
       - name: Smoke test - verify content integrity
         run: |
           HOMEPAGE=$(curl -sL https://www.ultimamilla.com.ar)
