@@ -38,6 +38,9 @@ SCENES = {
     # Industria y minería: la misma nave de proceso, en un campamento de altura (sin viñedo).
     'planta': ['UM-winery-connected-finished.blend'],
 }
+# Cámaras v4 elegidas por el explorador (--scout) para servicios en otras escenas: '<escena>-<servicio>'.
+CAMARAS_PATH = ROOT / 'work/cine/camaras-v4.json'
+CAMARAS = json.loads(CAMARAS_PATH.read_text()) if CAMARAS_PATH.exists() else {}
 ASSETS['planta'] = [dict(a, name=a['name'].replace('bodega', 'planta').replace('Bodega', 'Planta'))
                     for a in ASSETS['bodega'] if 'BARREL' not in a['id'] and 'Tonel' not in a['name']]
 SYSTEMS = {
@@ -93,17 +96,21 @@ VARIANTS = {
 }
 
 
-def variant_path(name, scene=None):
+def variant_path(name, scene=None, az=None, style=None, zoom=None):
     """Keys (t, pos, target, lens) para un servicio, a partir de sus equipos reales.
 
-    scene: el mismo servicio en otra escena (por omisión, la suya)."""
+    scene: el mismo servicio en otra escena (por omisión, la suya). az/style: fuerzan el
+    ataque y zoom aleja todo el recorrido; si no, se usa la cámara elegida por el explorador
+    (CAMARAS) o la de VARIANTS."""
     v = VARIANTS[name]
     scene = scene or v['scene']
+    elegida = CAMARAS.get(f'{scene}-{name}', {})
     items = [a for a in ASSETS[scene] if not v['systems'] or a['system'] in v['systems']] or ASSETS[scene]
     pts = [Vector(a['p']) for a in items]
     c = sum(pts, Vector((0, 0, 0))) / len(pts)
-    r = max(4.0, max((p - c).length for p in pts))
-    far = max(3.2 * r, 30.0)
+    zoom = zoom or elegida.get('zoom', 1.0)
+    r = max(4.0, max((p - c).length for p in pts)) * zoom
+    far = max(3.2 * r, 30.0 * zoom)
 
     def at(az, el, dist, dz=0.0):
         az, el = math.radians(az), math.radians(el)
@@ -112,7 +119,8 @@ def variant_path(name, scene=None):
     # equipo más lejano al centro y su opuesto: la pasada cruza el cluster entre ambos
     a1 = max(pts, key=lambda p: (p - c).length)
     a2 = min(pts, key=lambda p: (p - a1).length * -1 if p is not a1 else 0)
-    az, st = v['az'], v['style']
+    az = az if az is not None else elegida.get('az', v['az'])
+    st = style or elegida.get('style', v['style'])
     if st == 'ground':      # a ras del piso, entra entre equipos y sube a cenital
         keys = [(0, at(az, 4, far * .8, 1.2), c, 30), (.28, at(az + 18, 6, 1.5 * r, .8), c, 24),
                 (.52, a1 + (c - a1) * .35 + Vector((0, 0, 1.2)), a2, 20), (.74, at(az + 120, 12, 1.1 * r), c, 22),
@@ -934,6 +942,97 @@ def flight_at(keys, t):
     return pos, tgt, lens
 
 
+def system_points(name, scene):
+    v = VARIANTS[name]
+    items = [a for a in ASSETS[scene] if not v['systems'] or a['system'] in v['systems']] or ASSETS[scene]
+    return [Vector(a['p']) for a in items]
+
+
+def _is_glass(obj):
+    mats = [s.material.name for s in obj.material_slots if s.material]
+    return bool(mats) and all('glass' in m for m in mats)
+
+
+def ray_opaque(sc, deps, origin, direction, distance):
+    """ray_cast que atraviesa el vidrio: devuelve (hit, loc) del primer objeto opaco."""
+    o = origin
+    for _ in range(8):
+        hit, loc, _, _, obj, _ = sc.ray_cast(deps, o, direction, distance=distance - (o - origin).length)
+        if not hit:
+            return False, None
+        if not _is_glass(obj):
+            return True, loc
+        o = loc + direction * 1e-3
+    return True, o
+
+
+def camera_score(keys, pts, frames=192, step=4, near=4.0):
+    """Mide un recorrido sin renderizar: rayos contra la geometría real de la escena.
+
+    bad: fracción de cuadros con la lente tapada (>20 % de los rayos chocan a menos de `near`)
+    o con la cámara dentro de un volumen; vis: fracción media de equipos del sistema en cuadro y
+    sin obstrucción; empty: fracción de cuadros sin ningún equipo visible."""
+    sc = bpy.context.scene
+    deps = bpy.context.evaluated_depsgraph_get()
+    axes = [Vector(d) for d in ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1))]
+    grid = [(u, w) for u in (-.8, -.4, 0, .4, .8) for w in (-.7, 0, .7)]
+    bad = empty = n = 0
+    vis_sum = 0.0
+    for f in range(0, frames, step):
+        x = f / max(1, frames - 1)
+        pos, tgt, lens = flight_at(keys, .45 * x + .55 * (.5 - .5 * math.cos(math.pi * x)))
+        d = tgt - pos
+        if abs(d.normalized().z) > .995:
+            d = tgt + Vector((0, .05, 0)) - pos
+        q = d.to_track_quat('-Z', 'Y')
+        right, up, fwd = q @ Vector((1, 0, 0)), q @ Vector((0, 1, 0)), q @ Vector((0, 0, -1))
+        hw = 18 / lens
+        hh = hw * 9 / 16
+        blocked = sum(1 for u, w in grid
+                      if ray_opaque(sc, deps, pos, (fwd + right * u * hw + up * w * hh).normalized(), near)[0])
+        inside = 0
+        for ax in axes:
+            hit, _, nrm, *_ = sc.ray_cast(deps, pos, ax, distance=60)
+            inside += 1 if hit and nrm.dot(ax) > 0 else 0
+        seen = 0
+        for p in pts:
+            rel = p - pos
+            z = rel.dot(fwd)
+            if z <= .3 or abs(rel.dot(right) / (z * hw)) > .92 or abs(rel.dot(up) / (z * hh)) > .88:
+                continue
+            hit, loc = ray_opaque(sc, deps, pos, rel.normalized(), rel.length)
+            seen += 1 if (not hit or (loc - pos).length > rel.length - .7) else 0
+        n += 1
+        bad += 1 if blocked > .2 * len(grid) or inside >= 4 else 0
+        empty += 1 if seen == 0 else 0
+        vis_sum += seen / len(pts)
+    return dict(bad=round(bad / n, 3), vis=round(vis_sum / n, 3), empty=round(empty / n, 3))
+
+
+def scout(scene, names):
+    """Explorador: por servicio prueba 18 azimuts × 4 estilos × 2 distancias y guarda la mejor cámara."""
+    styles = ('ground', 'orbit', 'aerial', 'overhead')
+    for name in names:
+        v, pts = VARIANTS[name], system_points(name, scene)
+        base = camera_score(variant_path(name, scene, v['az'], v['style'], 1.0), pts)
+        best = None
+        for zoom in (1.0, 1.35):
+            for st in (v['style'],) + tuple(s for s in styles if s != v['style']):
+                for k in range(18):
+                    az = (v['az'] + 20 * k + 180) % 360 - 180
+                    m = camera_score(variant_path(name, scene, az, st, zoom), pts)
+                    # el estilo pedido y la distancia original pesan: el explorador sólo los cambia
+                    # si no hay un azimut limpio; la visibilidad desempata.
+                    score = (4 * m['bad'] + m['empty'] - .5 * m['vis'] + (.3 if st != v['style'] else 0)
+                             + (.1 if zoom != 1.0 else 0) + .0005 * min(k, 18 - k))
+                    if best is None or score < best[0]:
+                        best = (score, az, st, zoom, m)
+        _, az, st, zoom, m = best
+        CAMARAS[f'{scene}-{name}'] = dict(az=az, style=st, zoom=zoom, **m, base=base)
+        CAMARAS_PATH.write_text(json.dumps(CAMARAS, indent=1, sort_keys=True) + '\n')
+        print('CINE_SCOUT', scene, name, 'base', json.dumps(base), '→', az, st, zoom, json.dumps(m), flush=True)
+
+
 def flight_path(scene, frames, keys=None):
     """Cámara imposible: sigue PATHS (o las keys de una variante) con Catmull-Rom."""
     keys = keys or PATHS[scene]
@@ -1144,6 +1243,7 @@ def main():
     ap.add_argument('--pass', dest='pass_', choices=('cine', 'skeleton', 'preview'), default='cine')
     ap.add_argument('--variant', choices=sorted(VARIANTS), help='v4: recorrido propio de un servicio (implica --flight)')
     ap.add_argument('--en', choices=SCENES, help='v4: el recorrido del servicio en otra escena')
+    ap.add_argument('--scout', help='v4: servicios (coma) para elegir cámara en esta escena; escribe camaras-v4.json')
     a = ap.parse_args(sys.argv[sys.argv.index('--') + 1:])
     if a.variant:
         a.flight = True
@@ -1165,6 +1265,11 @@ def main():
     center = (lo + hi) / 2
     extent = max(hi.x - lo.x, hi.y - lo.y, hi.z - lo.z)
     frames = a.frames
+    if a.scout:
+        context_for(a.scene, lo, hi, center, extent)
+        interior_fill(a.scene, lo, hi)
+        scout(a.scene, a.scout.split(','))
+        return
     cam, cam_dir = (flight_path(a.scene, frames, variant_path(a.variant, a.scene) if a.variant else None) if a.flight
                     else camera_path(a.scene, center, extent, frames))
     device, comp = 'WORKBENCH', False
