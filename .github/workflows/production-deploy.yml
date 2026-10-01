@@ -125,6 +125,7 @@ jobs:
           while IFS= read -r path; do
             case "$path" in
               .github/workflows/production-deploy.yml|scripts/ops/deploy-scoped-dist.sh|\
+              __tests__/runtimeConfigContracts.test.js|__tests__/nginxOps.test.ts|\
               docs/campaign-preview/PHOTO-SOURCES.md|docs/campaign-preview/README.md|\
               docs/campaign-preview/compose-email.mjs|docs/campaign-preview/comunidades-email.html|\
               docs/campaign-preview/variants/photo-a-wide.jpg|\
