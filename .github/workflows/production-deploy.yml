@@ -114,9 +114,9 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H 23.105.176.45 >> ~/.ssh/known_hosts
 
-      # This release changes only the colleges landing and email assets. Keep
-      # production source, unpublished cinema work and existing static assets.
-      # Restore the ordinary source deploy only after that work is integrated.
+      # Continue the protected runtime release without touching production
+      # source, unpublished cinema work or existing static assets. Restore the
+      # ordinary source deploy only after that work is integrated.
       - name: Verify scoped release contents
         run: |
           set -euo pipefail
@@ -132,7 +132,31 @@ jobs:
               docs/campaign-preview/variants/photo-b-wide.jpg|\
               docs/campaign-preview/variants/photo-c-wide.jpg|\
               public/images/software-comunidades/credencial-demo-email.gif|\
-              src/pages/software/gestion-de-comunidades-profesionales.astro) ;;
+              src/pages/software/gestion-de-comunidades-profesionales.astro|\
+              __tests__/blogEditorialScoringContracts.test.js|\
+              __tests__/blogTopicMap.test.ts|package.json|\
+              scripts/build-blog-topic-map.mjs|\
+              src/components/SEO/SEOHead.astro|\
+              src/components/SEO/TopicGuides.astro|\
+              src/components/blog/BlogTopicLinks.astro|\
+              src/components/blog/BlogTopicNav.astro|\
+              src/config/servicios.ts|\
+              src/data/blogTopicMap.generated.json|\
+              src/data/blogTopicTaxonomy.ts|\
+              src/data/geoResources.ts|\
+              src/data/strategicLinkGraph.ts|\
+              src/env.d.ts|src/pages/'[sector].astro'|\
+              src/pages/blog/'[slug].astro'|\
+              src/pages/blog/categoria/'[cat].astro'|\
+              src/pages/blog/categoria/'[cat]'/rss.xml.ts|\
+              src/pages/blog/index.astro|\
+              src/pages/blog/tema/'[tema].astro'|\
+              src/pages/blog/tema/'[tema]'/rss.xml.ts|\
+              src/pages/llms-full.txt.ts|src/pages/llms.txt.ts|\
+              src/pages/servicios/'[id]'/'[slug].astro'|\
+              src/pages/sitemap-blog.xml.ts|\
+              src/utils/blogRss.ts|src/utils/blogTopicCases.ts|\
+              src/utils/blogTopicMap.ts|src/utils/getBlogData.ts) ;;
               *) echo "Unexpected release path: $path" >&2; exit 1 ;;
             esac
           done < /tmp/umsa-release-paths.txt
