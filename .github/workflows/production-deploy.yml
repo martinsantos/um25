@@ -14,6 +14,7 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   NODE_VERSION: '18.x'
   DEPLOY_PATH: '/root/fumbling-field'
+  RELEASE_ID: ${{ github.run_id }}-${{ github.run_attempt }}
 
 jobs:
   #===========================================================================
@@ -77,11 +78,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install audit dependencies on runner
+        run: npm ci
 
       - name: Download build artifacts
         id: download-artifact
@@ -98,6 +104,7 @@ jobs:
           npm run build
 
       - name: Setup SSH key
+        id: ssh_agent
         uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -107,84 +114,41 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H 23.105.176.45 >> ~/.ssh/known_hosts
 
-      - name: Deploy to server via rsync
+      # This release changes only the colleges landing and email assets. Keep
+      # production source, unpublished cinema work and existing static assets.
+      # Restore the ordinary source deploy only after that work is integrated.
+      - name: Verify scoped release contents
         run: |
-          rsync -avz --checksum --delete --backup \
-            --backup-dir="backups/umsa-release-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" \
-            --exclude='node_modules' \
-            --exclude='.git' \
-            --exclude='.env' \
-            --exclude='.env.*' \
-            --exclude='directus-admin/.env' \
-            --exclude='backups' \
-            --exclude='.local_production_files' \
-            --exclude='public/cache' \
-            --exclude='public/assets-mirror' \
-            --exclude='src/data/snapshots/*.json.tmp' \
-            --exclude='uploads' \
-            --exclude='ecosystem.config.cjs' \
-            --exclude='*.log' \
-            ./ root@23.105.176.45:${{ env.DEPLOY_PATH }}/
+          set -euo pipefail
+          git diff --name-only "${GITHUB_SHA}^1" "$GITHUB_SHA" > /tmp/umsa-release-paths.txt
+          test -s /tmp/umsa-release-paths.txt
+          while IFS= read -r path; do
+            case "$path" in
+              .github/workflows/production-deploy.yml|scripts/ops/deploy-scoped-dist.sh|\
+              docs/campaign-preview/PHOTO-SOURCES.md|docs/campaign-preview/README.md|\
+              docs/campaign-preview/compose-email.mjs|docs/campaign-preview/comunidades-email.html|\
+              docs/campaign-preview/variants/photo-a-wide.jpg|\
+              docs/campaign-preview/variants/photo-b-wide.jpg|\
+              docs/campaign-preview/variants/photo-c-wide.jpg|\
+              public/images/software-comunidades/credencial-demo-email.gif|\
+              src/pages/software/gestion-de-comunidades-profesionales.astro) ;;
+              *) echo "Unexpected release path: $path" >&2; exit 1 ;;
+            esac
+          done < /tmp/umsa-release-paths.txt
+          test -f dist/server/entry.mjs
+          test -f dist/client/images/software-comunidades/credencial-demo-email.gif
 
-      - name: Install dependencies on server
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: 23.105.176.45
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          command_timeout: 20m
-          script: |
-            cd ${{ env.DEPLOY_PATH }}
-            npm install --include=dev --prefer-offline --no-audit --progress=false
-            npm ls @directus/sdk @sentry/astro zod piccolore astro @astrojs/node --depth=0
-            node -e "Promise.all([import('piccolore'), import('@directus/sdk'), import('zod')]).then(() => console.log('runtime imports ok'))"
-            # Ensure Directus uploads dir is writable by container (uid 1000)
-            chown -R 1000:1000 ${{ env.DEPLOY_PATH }}/uploads/ 2>/dev/null || true
-            chmod 775 ${{ env.DEPLOY_PATH }}/uploads/ 2>/dev/null || true
+      - name: Stage build outside live site
+        run: |
+          set -euo pipefail
+          STAGE="${DEPLOY_PATH}/backups/umsa-campaign-${RELEASE_ID}/incoming-dist"
+          ssh root@23.105.176.45 "mkdir -p '$STAGE'"
+          rsync -az --checksum dist/ "root@23.105.176.45:$STAGE/"
 
-      - name: Remove stale PM2 process alias
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: 23.105.176.45
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            bash ${{ env.DEPLOY_PATH }}/scripts/ops/cleanup-stale-pm2-app.sh
-
-      - name: Restart PM2 process
-        uses: appleboy/ssh-action@v1.2.0
-        env:
-          SMTP_HOST: ${{ secrets.SMTP_HOST }}
-          SMTP_PORT: ${{ secrets.SMTP_PORT }}
-          SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASS: ${{ secrets.SMTP_PASS }}
-          SMTP_FROM: ${{ secrets.SMTP_FROM }}
-          BLOG_API_USER: ${{ secrets.BLOG_API_USER }}
-          BLOG_API_PASS: ${{ secrets.BLOG_API_PASS }}
-        with:
-          host: 23.105.176.45
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd ${{ env.DEPLOY_PATH }}
-            export SMTP_HOST='${{ secrets.SMTP_HOST }}'
-            export SMTP_PORT='${{ secrets.SMTP_PORT }}'
-            export SMTP_USER='${{ secrets.SMTP_USER }}'
-            export SMTP_PASS='${{ secrets.SMTP_PASS }}'
-            export SMTP_FROM='${{ secrets.SMTP_FROM }}'
-            export BLOG_API_USER='${{ secrets.BLOG_API_USER }}'
-            export BLOG_API_PASS='${{ secrets.BLOG_API_PASS }}'
-            pm2 startOrRestart ecosystem.config.cjs --only astro-ultimamilla --update-env
-            pm2 save
-
-      - name: Apply WWW canonical routing
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: 23.105.176.45
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            bash ${{ env.DEPLOY_PATH }}/scripts/ops/apply-www-canonical-nginx.sh
+      - name: Swap verified runtime with automatic origin rollback
+        run: |
+          ssh root@23.105.176.45 "bash -s -- '$RELEASE_ID' deploy" \
+            < scripts/ops/deploy-scoped-dist.sh
 
       - name: Health check origin
         uses: appleboy/ssh-action@v1.2.0
@@ -307,6 +271,12 @@ jobs:
       - name: Directus integration release audit
         run: node scripts/directus-release-audit.mjs --base-url https://www.ultimamilla.com.ar
 
+      - name: Restore previous runtime after failed checks
+        if: failure() && steps.ssh_agent.outcome == 'success'
+        run: |
+          ssh root@23.105.176.45 "bash -s -- '$RELEASE_ID' rollback" \
+            < scripts/ops/deploy-scoped-dist.sh
+
       - name: Send deployment notification
         if: always()
         run: |
@@ -319,39 +289,3 @@ jobs:
           echo "Author: $AUTHOR"
           echo "Message: $COMMIT_MSG"
           echo "Status: ${{ job.status }}"
-
-  #===========================================================================
-  # JOB 3: ROLLBACK (manual, solo en caso de fallo)
-  #===========================================================================
-  rollback:
-    name: Rollback to Previous Version
-    if: failure() && github.event_name == 'workflow_dispatch'
-    needs: deploy-production
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Rollback deployment
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: 23.105.176.45
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          command_timeout: 20m
-          script: |
-            cd ${{ env.DEPLOY_PATH }}
-            git fetch --tags
-            git checkout v1.0.0-mvp
-            npm install --include=dev --prefer-offline --no-audit --progress=false
-            npm ls @directus/sdk @sentry/astro zod piccolore astro @astrojs/node --depth=0
-            node -e "Promise.all([import('piccolore'), import('@directus/sdk'), import('zod')]).then(() => console.log('runtime imports ok'))"
-            if pm2 describe astro-app >/dev/null 2>&1; then
-              pm2 del astro-app
-            fi
-            pm2 restart astro-ultimamilla
-            pm2 save
-
-      - name: Verify rollback
-        run: |
-          sleep 10
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://www.ultimamilla.com.ar)
-          echo "Rollback health check: HTTP $HTTP_STATUS"
