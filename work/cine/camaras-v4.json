@@ -103,6 +103,19 @@
   "vis": 0.494,
   "zoom": 1.0
  },
+ "bodega-incendios": {
+  "az": -72,
+  "bad": 0.021,
+  "base": {
+   "bad": 0.042,
+   "empty": 0.021,
+   "vis": 0.641
+  },
+  "empty": 0.0,
+  "style": "ground",
+  "vis": 0.596,
+  "zoom": 1.0
+ },
  "bodega-redes": {
   "az": -2,
   "bad": 0.0,
@@ -168,6 +181,19 @@
   "vis": 0.593,
   "zoom": 1.0
  },
+ "fachada-consultoria": {
+  "az": -62,
+  "bad": 0.0,
+  "base": {
+   "bad": 0.167,
+   "empty": 0.417,
+   "vis": 0.072
+  },
+  "empty": 0.0,
+  "style": "overhead",
+  "vis": 0.141,
+  "zoom": 1.35
+ },
  "fachada-electricos": {
   "az": -90,
   "bad": 0.0,
@@ -192,6 +218,19 @@
   "empty": 1.0,
   "style": "overhead",
   "vis": 0.0,
+  "zoom": 1.35
+ },
+ "fachada-redes": {
+  "az": -102,
+  "bad": 0.0,
+  "base": {
+   "bad": 0.375,
+   "empty": 0.646,
+   "vis": 0.044
+  },
+  "empty": 0.229,
+  "style": "overhead",
+  "vis": 0.111,
   "zoom": 1.35
  },
  "fachada-seguridad": {
@@ -259,6 +298,19 @@
   "vis": 0.345,
   "zoom": 1.0
  },
+ "hospital-electricos": {
+  "az": 70,
+  "bad": 0.0,
+  "base": {
+   "bad": 0.583,
+   "empty": 0.521,
+   "vis": 0.146
+  },
+  "empty": 0.438,
+  "style": "overhead",
+  "vis": 0.138,
+  "zoom": 1.35
+ },
  "hospital-incendios": {
   "az": -92,
   "bad": 0.0,
@@ -296,6 +348,19 @@
   "empty": 0.062,
   "style": "orbit",
   "vis": 0.307,
+  "zoom": 1.35
+ },
+ "hospital-software": {
+  "az": -84,
+  "bad": 0.0,
+  "base": {
+   "bad": 0.208,
+   "empty": 0.417,
+   "vis": 0.127
+  },
+  "empty": 0.0,
+  "style": "overhead",
+  "vis": 0.206,
   "zoom": 1.35
  },
  "hospital-soporte": {
@@ -413,6 +478,19 @@
   "empty": 0.0,
   "style": "orbit",
   "vis": 0.6,
+  "zoom": 1.0
+ },
+ "planta-telecom": {
+  "az": 5,
+  "bad": 0.0,
+  "base": {
+   "bad": 0.083,
+   "empty": 0.042,
+   "vis": 0.533
+  },
+  "empty": 0.0,
+  "style": "aerial",
+  "vis": 0.593,
   "zoom": 1.0
  }
 }
