@@ -11,6 +11,8 @@
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import EmailLink from '../../../components/common/EmailLink.astro';
 import CineBanner from '../../../components/cine/CineBanner.astro';
+import RenderStage from '../../../components/cine/RenderStage.astro';
+import { RENDERS } from '../../../data/renders';
 import SnapRail from '../../../components/cine/SnapRail.astro';
 import { SERVICE_SCENES } from '../../../data/cine/scenes';
 
@@ -429,6 +431,7 @@ const solutionItems = productCards.map((producto: any, index: number) => ({
 const whyItems = porQueElegirnos.map((item: string) => cleanCmsText(sanitizeEditorialText(item))).filter(Boolean);
 const marcas = Array.isArray(servicio.marcas) ? servicio.marcas.map((m: unknown) => cleanCmsText(m)).filter(Boolean) : [];
 const serviceShortName = visual?.shortName || cmsTitle;
+const serviceRender = RENDERS[`servicio-${id}`];
 const serviceSummaryText = cleanCmsText(plainTextFromHtml(serviceBodySource)) ||
   'Alcance técnico definido bajo relevamiento de sitio y criterios operativos verificables.';
 // Plazo y garantía de materiales aplican a los servicios de instalación; software,
@@ -492,6 +495,22 @@ const fichaItems = [
         </dl>
       </div>
     </section>
+
+    <!-- 1b · Sistema y equipamiento (render UM25) -->
+    {serviceRender && (
+      <section class="svc-section svc-section--render" id="equipamiento" aria-labelledby="svc-render-title">
+        <div class="svc-wrap">
+          <header class="svc-head">
+            <div>
+              <p class="svc-kicker">Sistema y equipamiento</p>
+              <h2 id="svc-render-title">{serviceRender.title.split(' · ')[0]}, pieza por pieza.</h2>
+            </div>
+            <p class="svc-head__lead">Los mismos equipos que aparecen en la escena de arriba, en estudio. Cada componente se especifica según el sitio, la norma aplicable y la operación que debe sostener.</p>
+          </header>
+          <RenderStage render={serviceRender} layout="split" />
+        </div>
+      </section>
+    )}
 
     <!-- 2 · Qué cubre -->
     {(serviceCapabilityItems.length > 0 || solutionItems.length > 0) && (
@@ -708,6 +727,7 @@ const fichaItems = [
   .svc-section--brief {
     border-top: 0;
   }
+
 
   .svc :where(h2, h3, p, dd, dt, li) {
     margin: 0;

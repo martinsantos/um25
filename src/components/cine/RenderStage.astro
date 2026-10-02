@@ -11,13 +11,22 @@ interface Props {
   /** Prioridad de carga del poster (sólo para el primer viewport). */
   eager?: boolean;
   showLabels?: boolean;
+  /** 'split': cuadro a la izquierda y componentes a la derecha en escritorio,
+   *  para que la figura completa entre en un viewport. */
+  layout?: 'stack' | 'split';
   class?: string;
 }
-const { render, eager = false, showLabels = true, class: className } = Astro.props;
+const { render, eager = false, showLabels = true, layout = 'stack', class: className } = Astro.props;
 const asset = typeof render === 'string' ? getRender(render) : render;
 const labels = showLabels ? asset.labels ?? [] : [];
+const callouts = labels.filter((l) => typeof l.x === 'number' && typeof l.y === 'number');
+const components = labels.filter((l) => typeof l.x !== 'number' || typeof l.y !== 'number');
+const SYSTEM_NAME: Record<string, string> = {
+  D: 'Datos', V: 'Video y accesos', C: 'Comunicaciones', L: 'Software y operación', F: 'Incendio', E: 'Energía',
+};
+const stamp = asset.illustrative ? 'Render ilustrativo · UM25' : 'Render UM25 · Cycles';
 ---
-<figure class:list={['um-rs', className]} data-render-stage style={`--rs-aspect:${asset.aspect}`}>
+<figure class:list={['um-rs', className, { 'um-rs--exploded': Boolean(asset.exploded), 'um-rs--split': layout === 'split' }]} data-render-stage style={`--rs-aspect:${asset.aspect}`}>
   <div class="um-rs__frame">
     <img
       class="um-rs__poster"
@@ -32,15 +41,37 @@ const labels = showLabels ? asset.labels ?? [] : [];
     {asset.video && (
       <video class="um-rs__video" data-src={asset.video} muted loop playsinline preload="none" disablepictureinpicture aria-hidden="true"></video>
     )}
+    {asset.exploded && (
+      <img class="um-rs__exploded" src={asset.exploded} alt="" width={asset.posterWidth} height={asset.posterHeight} loading="lazy" decoding="async" />
+    )}
     <div class="um-rs__grid" aria-hidden="true"></div>
-    {labels.map((l) => (
+    {callouts.map((l) => (
       <span class="um-rs__label" style={`left:${l.x}%;top:${l.y}%`}>
         {l.system && <b>{l.system}</b>}
         {l.text}
       </span>
     ))}
-    <span class="um-rs__tag" aria-hidden="true">Render UM25 · Cycles</span>
+    {asset.exploded && (
+      <button class="um-rs__toggle" type="button" aria-pressed="false" data-rs-toggle>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4M9 12h6"/></svg>
+        <span>Ver despiece</span>
+      </button>
+    )}
+    <span class="um-rs__tag" aria-hidden="true">{stamp}</span>
   </div>
+  {components.length > 0 && (
+    <ul class="um-rs__components" aria-label="Componentes del sistema">
+      {components.map((l) => (
+        <li>
+          {l.system && <b title={SYSTEM_NAME[l.system] ?? l.system}>{l.system}</b>}
+          <div>
+            <strong>{l.text}</strong>
+            {l.role && <span>{l.role}</span>}
+          </div>
+        </li>
+      ))}
+    </ul>
+  )}
   {(asset.caption || asset.twin) && (
     <figcaption class="um-rs__caption">
       <span>{asset.caption ?? asset.title}</span>
@@ -51,6 +82,17 @@ const labels = showLabels ? asset.labels ?? [] : [];
 
 <script>
   const bootRenderStages = () => {
+    // Despiece: el botón alterna el estado (teclado y táctil); el hover lo hace por CSS.
+    document.querySelectorAll<HTMLButtonElement>('[data-rs-toggle]:not([data-bound])').forEach((btn) => {
+      btn.dataset.bound = 'true';
+      const stage = btn.closest<HTMLElement>('[data-render-stage]');
+      btn.addEventListener('click', () => {
+        const on = btn.getAttribute('aria-pressed') !== 'true';
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        btn.querySelector('span')!.textContent = on ? 'Ver armado' : 'Ver despiece';
+        stage?.classList.toggle('is-exploded', on);
+      });
+    });
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce || !('IntersectionObserver' in window)) return;
     const stages = document.querySelectorAll<HTMLElement>('[data-render-stage]');
@@ -109,6 +151,106 @@ const labels = showLabels ? asset.labels ?? [] : [];
 
   .um-rs.is-playing .um-rs__video {
     opacity: 1;
+  }
+
+  .um-rs__exploded {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .um-rs.is-exploded .um-rs__exploded {
+    opacity: 1;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .um-rs--exploded .um-rs__frame:hover .um-rs__exploded {
+      opacity: 1;
+    }
+  }
+
+  .um-rs__toggle {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(10, 10, 11, 0.82);
+    color: #fff;
+    font-family: var(--um-font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .um-rs__toggle svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .um-rs__toggle:hover,
+  .um-rs__toggle[aria-pressed="true"] {
+    border-color: #dc2626;
+  }
+
+  .um-rs__toggle:focus-visible {
+    outline: 2px solid #dc2626;
+    outline-offset: 2px;
+  }
+
+  .um-rs__components {
+    list-style: none;
+    margin: 14px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  .um-rs__components li {
+    display: grid;
+    grid-template-columns: 26px minmax(0, 1fr);
+    gap: 8px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .um-rs__components b {
+    font-family: var(--um-font-mono);
+    font-size: 1rem;
+    font-weight: 600;
+    color: #dc2626;
+    padding-top: 2px;
+  }
+
+  .um-rs__components strong {
+    display: block;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .um-rs__components span {
+    display: block;
+    margin-top: 2px;
+    color: #a1a1aa;
+    font-size: 1rem;
+    line-height: 1.45;
   }
 
   .um-rs__grid {
@@ -186,7 +328,40 @@ const labels = showLabels ? asset.labels ?? [] : [];
     border-bottom-color: #fff;
   }
 
+  @media (min-width: 901px) {
+    .um-rs--split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+      grid-template-areas: "frame list" "caption list";
+      gap: 0 clamp(24px, 3.5vw, 56px);
+      align-items: start;
+    }
+
+    .um-rs--split .um-rs__frame {
+      grid-area: frame;
+    }
+
+    .um-rs--split .um-rs__caption {
+      grid-area: caption;
+    }
+
+    .um-rs--split .um-rs__components {
+      grid-area: list;
+      grid-template-columns: 1fr;
+      margin-top: 0;
+      align-self: center;
+    }
+
+    .um-rs--split .um-rs__components li {
+      padding: 16px 0;
+    }
+  }
+
   @media (max-width: 760px) {
+    .um-rs__components {
+      grid-template-columns: 1fr;
+    }
+
     .um-rs__label {
       max-width: 70%;
       padding: 6px 8px;
@@ -204,6 +379,10 @@ const labels = showLabels ? asset.labels ?? [] : [];
   @media (prefers-reduced-motion: reduce) {
     .um-rs__video {
       display: none;
+    }
+
+    .um-rs__exploded {
+      transition: none;
     }
   }
 </style>
