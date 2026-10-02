@@ -125,6 +125,8 @@ const hubs = [
   { name: 'San Luis', region: 'Cuyo', coords: '-33.2950, -66.3356', href: '/servicios-it-empresas-argentina', aria: 'Ver cobertura de servicios IT para empresas en San Luis' },
   { name: 'Neuquen', region: 'Patagonia', coords: '-38.9516, -68.0591', href: '/servicios-it-empresas-argentina', aria: 'Ver cobertura de servicios IT para empresas en Patagonia' },
 ];
+import FilmGrid from '../components/cine/FilmGrid.astro';
+import { allFilms } from '../data/cine/films';
 ---
 
 <LayoutV4 skin="black"
@@ -193,6 +195,16 @@ const hubs = [
         <SectorAtlas sectors={sectors} />
       </div>
     </section>
+
+    <FilmGrid
+      films={allFilms()}
+      id="movies"
+      filters
+      initial="scene:bodega"
+      kicker="Cine · servicios × sectores"
+      title="Cada servicio, filmado dentro de cada sector."
+      lead={`${allFilms().length} recorridos sobre los gemelos digitales de las instalaciones que atendemos. Elegí un sector o un servicio y abrí cada recorrido para verlo completo.`}
+    />
 
     <section class="um26-section" id="antecedentes-home">
       <div class="um26-shell">

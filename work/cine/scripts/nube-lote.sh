@@ -50,6 +50,7 @@ h264=(-c:v libx264 -preset slow -profile:v high -movflags +faststart)
 ffmpeg "${in[@]}" "${h264[@]}" -crf 18 "$DST/cine-$NOMBRE-master.mp4"
 ffmpeg "${in[@]}" -vf scale=1920:-2:flags=lanczos "${h264[@]}" -crf 27 "$DST/cine-$NOMBRE.mp4"
 ffmpeg "${in[@]}" -vf "scale=1920:-2:flags=lanczos,crop=1080:1080:487:0" "${h264[@]}" -crf 28 "$DST/cine-$NOMBRE-sq.mp4"
+ffmpeg "${in[@]}" -vf scale=960:-2:flags=lanczos "${h264[@]}" -crf 30 "$DST/cine-$NOMBRE-preview.mp4"
 ffmpeg -hide_banner -loglevel error -y -i "$DIR/cine/f_0012.jpg" -vf scale=1920:-2 -q:v 3 "$DST/cine-$NOMBRE-poster.jpg"
 cp "$DIR/ar-track.json" "$DST/cine-$NOMBRE-ar.json"
 ls -la "$DST"/cine-"$NOMBRE"* | awk '{print $5, $9}' | tee -a "$LOG"

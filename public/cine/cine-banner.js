@@ -18,14 +18,19 @@ const ENGINE = { planta: 'bodega' }; // el motor 3D usa la nave de la bodega par
 const clean = (s) => String(s || '').replace(/\s*\/\s*DEMO\b/gi, '').replace(/\bDEMO\b\s*[·-]?\s*/gi, '').trim();
 const motionLimited = () => matchMedia('(prefers-reduced-motion: reduce)').matches || Boolean(navigator.connection?.saveData);
 const compact = () => innerWidth <= 820 || matchMedia('(pointer: coarse)').matches;
+// Un plano es una escena ("bodega", movie general) o una escena con un servicio
+// ("bodega-redes", movies v4 en /cine/v4/).
+const base = (id) => (id.includes('-') ? `/cine/v4/cine-${id}` : `/cine/media/cine-${id}`);
+const sceneOf = (id) => String(id || '').split('-')[0];
 const tracks = new Map();
-const loadTrack = (scene) => {
-  if (!tracks.has(scene)) tracks.set(scene, fetch(`/cine/media/cine-${scene}-ar.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
-  return tracks.get(scene);
+const loadTrack = (id) => {
+  if (!tracks.has(id)) tracks.set(id, fetch(`${base(id)}-ar.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
+  return tracks.get(id);
 };
 
 function banner(el) {
   const scenes = el.dataset.scenes.split(',');
+  const captions = (el.dataset.captions || '').split('|');
   const only = (el.dataset.systems || '').split(',').filter(Boolean);
   const [va, vb] = el.querySelectorAll('.umc-video');
   const poster = el.querySelector('.umc-poster');
@@ -39,7 +44,7 @@ function banner(el) {
   // encuadra el escenario, píxel a píxel. Más ancho (tablet, desktop): 1080p completo.
   const SQ = { x: 487, w: 1080, h: 1080 };
   const narrow = () => stage.clientWidth <= stage.clientHeight * 1.05;
-  const src = (scene) => `/cine/media/cine-${scene}${narrow() ? '-sq' : ''}.mp4`;
+  const src = (id) => `${base(id)}${narrow() ? '-sq' : ''}.mp4`;
   let index = 0, active = va, idle = vb, track = null, visible = true, userPaused = motionLimited();
   // El video no compite con el póster (LCP): arranca con la página ya cargada.
   let started = false;
@@ -59,7 +64,8 @@ function banner(el) {
   const mark = (i) => {
     el.dataset.scene = scenes[i];
     rail.forEach((b, k) => b.setAttribute('aria-pressed', String(k === i)));
-    if (caption) caption.textContent = TITLES[scenes[i]] || '';
+    if (caption) caption.textContent = captions[i] || TITLES[sceneOf(scenes[i])] || '';
+    if (poster && multi) poster.src = `${base(scenes[i])}-poster.jpg`;
   };
 
   function play() {
@@ -227,7 +233,7 @@ function banner(el) {
   }
   new IntersectionObserver(([e]) => { visible = e.intersectionRatio > .15; play(); label(); }, { threshold: [0, .15, .5] }).observe(el);
   document.addEventListener('visibilitychange', () => { play(); label(); });
-  el.querySelector('[data-umc-3d]')?.addEventListener('click', () => explore(el.dataset.scene));
+  el.querySelector('[data-umc-3d]')?.addEventListener('click', () => explore(sceneOf(el.dataset.scene)));
   useTrack(scenes[0]);
   active.loop = !multi;
   const start = () => {

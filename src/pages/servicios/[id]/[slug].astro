@@ -12,7 +12,9 @@ import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import EmailLink from '../../../components/common/EmailLink.astro';
 import CineBanner from '../../../components/cine/CineBanner.astro';
 import SnapRail from '../../../components/cine/SnapRail.astro';
+import FilmGrid from '../../../components/cine/FilmGrid.astro';
 import { SERVICE_SCENES } from '../../../data/cine/scenes';
+import { serviceByCode, filmsForService } from '../../../data/cine/films';
 
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
@@ -446,6 +448,8 @@ const fichaItems = [
   ...displayStats.slice(0, 3).map((stat: any) => ({ label: cleanCmsText(stat.label), value: cleanCmsText(stat.value) })),
 ];
 
+const cineService = serviceByCode(String(id));
+const cineFilms = cineService ? filmsForService(cineService) : [];
 ---
 
 <LayoutV4
@@ -461,7 +465,8 @@ const fichaItems = [
 >
   <CineBanner
     variant="sector"
-    scenes={[(SERVICE_SCENES[String(id)] || SERVICE_SCENES['101']).scene]}
+    scenes={cineFilms.length ? cineFilms.map((f) => f.id) : [(SERVICE_SCENES[String(id)] || SERVICE_SCENES['101']).scene]}
+    captions={cineFilms.map((f) => `${f.service.short} · ${f.sceneTitle}`)}
     systems={(SERVICE_SCENES[String(id)] || SERVICE_SCENES['101']).systems}
     titleId="service-title"
     kicker={visual?.eyebrow || servicio.area || 'Servicio IT'}
@@ -471,6 +476,17 @@ const fichaItems = [
     secondary={{ href: '/antecedentes', label: 'Ver evidencia' }}
     back={{ href: '/servicios', label: '← Todos los servicios' }}
   />
+
+  {cineService && (
+    <FilmGrid
+      films={cineFilms}
+      id="servicio-movies"
+      label="scene"
+      kicker="El servicio en cada sector"
+      title={`${cineService.name} en ${cineFilms.length} escenarios reales de operación`}
+      lead="El mismo servicio, filmado dentro de cada tipo de instalación que atendemos: dónde va cada equipo, por dónde corre el tendido y cómo se integra con el resto de los sistemas."
+    />
+  )}
 
   <div class="svc">
     <!-- 1 · Resumen ejecutivo -->

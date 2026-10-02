@@ -3,7 +3,9 @@ import { truncateEditorialText } from '../../utils/editorialContent';
 import SystemsStory from '../cine/SystemsStory.astro';
 import CineBanner from '../cine/CineBanner.astro';
 import SnapRail from '../cine/SnapRail.astro';
+import FilmGrid from '../cine/FilmGrid.astro';
 import { sectorBySlug } from '../../data/cine/scenes';
+import { filmsForScene, SCENE_INSIDE } from '../../data/cine/films';
 import { getAntecedentesCountShort, getAntecedentesCatalogCount } from '../../utils/verifiedProof';
 import { serviceSummary, cleanCmsText } from '../../data/serviceSummaries';
 import { buildSectorStrategicLinkGroups } from '../../data/strategicLinkGraph';
@@ -81,6 +83,7 @@ const strategicLinkGroups = buildSectorStrategicLinkGroups({
 });
 const cineSector = sectorBySlug(sectorDataSlug);
 const cineScene = cineSector?.scene || 'fachada';
+const cineFilms = filmsForScene(cineScene);
 const cineStats = [
   cineSector?.count
     ? { label: 'Casos en el sector', value: cineSector.count }
@@ -114,7 +117,8 @@ const areaLabel = (area: unknown) => {
 <div class="um26-sector">
   <CineBanner
     variant="sector"
-    scenes={[cineScene]}
+    scenes={cineFilms.length ? cineFilms.map((f) => f.id) : [cineScene]}
+    captions={cineFilms.map((f) => `${f.service.name} · ${f.sceneTitle}`)}
     titleId="sector26-title"
     kicker={cineSector?.text || `Sector ${sectorNumber}`}
     title={sectorTitle}
@@ -126,6 +130,15 @@ const areaLabel = (area: unknown) => {
   />
 
   <SystemsStory slug={sectorSlug} name={sectorName} />
+
+  <FilmGrid
+    films={cineFilms}
+    id="sector-movies"
+    label="service"
+    kicker={`${cineFilms.length} servicios en ${sectorName}`}
+    title={`Cada servicio, dentro de ${SCENE_INSIDE[cineScene]}`}
+    lead="Redes, seguridad, telecomunicaciones, software, soporte, consultoría, incendios y energía: recorridos filmados sobre el gemelo digital de la instalación tipo del sector, con el sistema de cada servicio a la vista."
+  />
 
   <section class="sector26-services" aria-label="Servicios aplicados">
     <div class="sector26-shell">

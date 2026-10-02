@@ -10,7 +10,10 @@ interface Stat { label: string; value: string }
 interface Link { href: string; label: string }
 interface Props {
   variant?: 'home' | 'sector';
-  scenes?: Scene[];
+  /** Escenas ("bodega") o movies v4 de escena y servicio ("bodega-redes"). */
+  scenes?: (Scene | string)[];
+  /** Texto del pie para cada plano, en el mismo orden que scenes. */
+  captions?: string[];
   systems?: string[];
   kicker?: string;
   title: string;
@@ -22,17 +25,18 @@ interface Props {
   titleId?: string;
 }
 const {
-  variant = 'home', scenes = HOME_SCENES.map((s) => s.scene), systems = [], kicker,
+  variant = 'home', scenes = HOME_SCENES.map((s) => s.scene), captions = [], systems = [], kicker,
   title, lead, primary, secondary, stats = [], back, titleId = 'umcTitle',
 } = Astro.props;
 const first = scenes[0];
+const mediaBase = (id: string) => (id.includes('-') ? `/cine/v4/cine-${id}` : `/cine/media/cine-${id}`);
 const dot = title.endsWith('.');
 const heading = dot ? title.slice(0, -1) : title;
 const rail = HOME_SCENES.filter((s) => scenes.includes(s.scene));
 ---
-<section class:list={['umc', `umc--${variant}`]} data-umc data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} aria-labelledby={titleId}>
+<section class:list={['umc', `umc--${variant}`]} data-umc data-scenes={scenes.join(',')} data-captions={captions.join('|') || undefined} data-systems={systems.join(',')} data-scene={first} aria-labelledby={titleId}>
   <div class="umc-stage" aria-hidden="true">
-    <img class="umc-poster" src={`/cine/media/cine-${first}-poster.jpg`} alt="" width="1920" height="1080" fetchpriority="high" decoding="async" />
+    <img class="umc-poster" src={`${mediaBase(first)}-poster.jpg`} alt="" width="1920" height="1080" fetchpriority="high" decoding="async" />
     <video class="umc-video" muted playsinline preload="none" disablepictureinpicture></video>
     <video class="umc-video" muted playsinline preload="none" disablepictureinpicture></video>
     <div class="umc-grade"></div>
@@ -69,7 +73,7 @@ const rail = HOME_SCENES.filter((s) => scenes.includes(s.scene));
         ))}
       </div>
     ) : scenes.length > 1 ? (
-      <p class="umc-caption" data-umc-caption>{SCENE_TITLES[first]}</p>
+      <p class="umc-caption" data-umc-caption>{captions[0] || SCENE_TITLES[first.split('-')[0] as Scene]}</p>
     ) : (
       <span class="umc-caption" aria-hidden="true"></span>
     )}
