@@ -133,6 +133,7 @@ jobs:
               docs/campaign-preview/variants/photo-b-wide.jpg|\
               docs/campaign-preview/variants/photo-c-wide.jpg|\
               public/images/software-comunidades/credencial-demo-email.gif|\
+              public/images/software-comunidades/comunidad-rosario.jpg|\
               public/sw.js|\
               public/software/gestion-de-comunidades-profesionales/demo/*|\
               work/um-comunidades-demo/*|\
@@ -167,6 +168,7 @@ jobs:
           done < /tmp/umsa-release-paths.txt
           test -f dist/server/entry.mjs
           test -f dist/client/images/software-comunidades/credencial-demo-email.gif
+          test -f dist/client/images/software-comunidades/comunidad-rosario.jpg
           test -f dist/client/software/gestion-de-comunidades-profesionales/demo/index.html
           grep -Fq '/software/gestion-de-comunidades-profesionales/demo/' dist/client/sw.js
 
@@ -238,6 +240,12 @@ jobs:
             /tmp/umsa-colleges-landing.html
           grep -Fq 'id="gc-form"' /tmp/umsa-colleges-landing.html
           grep -Fq 'data-cta="demo-hero"' /tmp/umsa-colleges-landing.html
+          grep -Fq '/images/software-comunidades/comunidad-rosario.jpg' /tmp/umsa-colleges-landing.html
+          curl -4 -fsS --max-time 20 \
+            "$BASE/images/software-comunidades/comunidad-rosario.jpg" \
+            -o /tmp/umsa-rosario-hero.jpg
+          cmp /tmp/umsa-rosario-hero.jpg \
+            dist/client/images/software-comunidades/comunidad-rosario.jpg
           curl -4 -fLsS --max-time 20 \
             "$BASE/software/gestion-de-comunidades-profesionales/demo/" \
             -o /tmp/umsa-colleges-demo.html

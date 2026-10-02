@@ -49,6 +49,7 @@ fi
 if [[ ! -d "$current/server" || ! -d "$current/client" ||
       ! -f "$incoming/server/entry.mjs" ||
       ! -f "$incoming/client/images/software-comunidades/credencial-demo-email.gif" ||
+      ! -f "$incoming/client/images/software-comunidades/comunidad-rosario.jpg" ||
       ! -f "$incoming/client/software/gestion-de-comunidades-profesionales/demo/index.html" ||
       ! -f "$incoming/client/sw.js" ]]; then
   echo 'Runtime or campaign asset missing; refusing deployment' >&2
@@ -86,17 +87,19 @@ fi
 
 # Preserve every currently published un-hashed asset, including unfinished
 # cinema/3D work. The campaign GIF must already be live and byte-identical;
-# only candidate _astro bundles may differ.
+# only candidate _astro bundles and the new Rosario hero image may differ.
 rsync -anic --delete \
   --exclude='/_astro/***' \
   --exclude='/sw.js' \
   --exclude='/images/software-comunidades/credencial-demo-email.gif' \
+  --exclude='/images/software-comunidades/comunidad-rosario.jpg' \
   --exclude='/software/gestion-de-comunidades-profesionales/demo/***' \
   "$current/client/" "$incoming/client/" > "$release/asset-overlay-dry-run.txt"
 rsync -ac --delete \
   --exclude='/_astro/***' \
   --exclude='/sw.js' \
   --exclude='/images/software-comunidades/credencial-demo-email.gif' \
+  --exclude='/images/software-comunidades/comunidad-rosario.jpg' \
   --exclude='/software/gestion-de-comunidades-profesionales/demo/***' \
   "$current/client/" "$incoming/client/"
 mkdir -p "$incoming/client/_astro"
@@ -150,6 +153,11 @@ curl -4 -fsS --max-time 8 \
   -o "$release/staging-credential.gif"
 cmp "$release/staging-credential.gif" \
   "$incoming/client/images/software-comunidades/credencial-demo-email.gif"
+curl -4 -fsS --max-time 8 \
+  "http://127.0.0.1:$port/images/software-comunidades/comunidad-rosario.jpg" \
+  -o "$release/staging-rosario.jpg"
+cmp "$release/staging-rosario.jpg" \
+  "$incoming/client/images/software-comunidades/comunidad-rosario.jpg"
 stage_cleanup
 trap - EXIT
 sha256sum -c "$release/protected.before.sha256"
@@ -157,6 +165,7 @@ rsync -anic --delete \
   --exclude='/_astro/***' \
   --exclude='/sw.js' \
   --exclude='/images/software-comunidades/credencial-demo-email.gif' \
+  --exclude='/images/software-comunidades/comunidad-rosario.jpg' \
   --exclude='/software/gestion-de-comunidades-profesionales/demo/***' \
   "$current/client/" "$incoming/client/" > "$release/asset-overlay-final-raw.txt"
 # rsync reports the parent directories of protected new assets as deletion
@@ -197,6 +206,7 @@ if [[ "$healthy" != 1 ]]; then
 fi
 for path in / /blog /antecedentes \
   /images/software-comunidades/credencial-demo-email.gif \
+  /images/software-comunidades/comunidad-rosario.jpg \
   "$demo_path/" "$demo_path/app.js" "$demo_path/import-worker.js"; do
   curl -4 -fLsS --max-time 12 "http://127.0.0.1:4321$path" -o /dev/null
 done
