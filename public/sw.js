@@ -106,6 +106,13 @@ self.addEventListener('fetch', (event) => {
   if (!url.startsWith(self.location.origin)) {
     return;
   }
+
+  // The interactive community demo has its own unversioned build assets.
+  // Let the network handle that subtree so this site's older cache rules
+  // cannot serve stale application code or imported sample files.
+  if (new URL(url).pathname.startsWith('/software/gestion-de-comunidades-profesionales/demo/')) {
+    return;
+  }
   
   // Determine cache strategy based on URL pattern
   const strategy = determineStrategy(url);
