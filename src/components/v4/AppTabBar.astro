@@ -5,11 +5,20 @@
  * el menú móvil está abierto y en escritorio no existe.
  */
 import { APP_TABS } from '../../data/navigation';
+import { shellLocale, shellRoutes } from '../../config/i18nShell';
 
 interface Props { currentPath?: string }
 const { currentPath = Astro.url.pathname } = Astro.props;
 const clean = currentPath.replace(/\/$/, '') || '/';
-const isActive = (href: string) => (href === '/' ? clean === '/' : clean.startsWith(href));
+const { lang, t } = shellLocale(currentPath);
+const routes = shellRoutes(lang);
+const tabHref: Record<string, string> = { '/': routes.home, '/servicios': routes.services, '/antecedentes': routes.projects, '/contacto': routes.contact };
+const tabLabel: Record<string, string> = { '/': t.tabs.home, '/servicios': t.tabs.services, '/antecedentes': t.tabs.projects, '/contacto': t.tabs.contact };
+const isActive = (href: string) => {
+  const target = (tabHref[href] || href).replace(/\/$/, '') || '/';
+  if (target === '/' || target === '/en') return clean === target;
+  return clean.startsWith(target);
+};
 
 const ICONS: Record<(typeof APP_TABS)[number]['icon'], string> = {
   home: '<path d="M3 11 12 4l9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/>',
@@ -19,11 +28,11 @@ const ICONS: Record<(typeof APP_TABS)[number]['icon'], string> = {
   contact: '<path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/>',
 };
 ---
-<nav class="um-tabbar" aria-label="Navegación rápida">
+<nav class="um-tabbar" aria-label={t.tabs.aria}>
   {APP_TABS.map((tab) => (
-    <a href={tab.href} class:list={['um-tabbar__item', { 'is-active': isActive(tab.href) }]} aria-current={isActive(tab.href) ? 'page' : undefined}>
+    <a href={tabHref[tab.href] || tab.href} class:list={['um-tabbar__item', { 'is-active': isActive(tab.href) }]} aria-current={isActive(tab.href) ? 'page' : undefined}>
       <svg viewBox="0 0 24 24" aria-hidden="true" set:html={ICONS[tab.icon]} />
-      <span>{tab.label}</span>
+      <span>{tabLabel[tab.href] || tab.label}</span>
     </a>
   ))}
 </nav>
