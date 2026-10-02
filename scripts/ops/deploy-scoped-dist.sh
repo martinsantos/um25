@@ -67,6 +67,17 @@ fi
 
 mkdir -p "$release"
 sha256sum "${protected[@]}" > "$release/protected.before.sha256"
+# Reclaim only the incoming runtimes left by these known failed campaign runs.
+# Keep their logs, every active release and every previous-dist rollback.
+for stale_id in 37009276958-1 37012107385-1 37020664135-1; do
+  stale="$app/backups/umsa-campaign-$stale_id"
+  if [[ "$stale_id" != "$release_id" &&
+        -d "$stale/incoming-dist" && ! -L "$stale/incoming-dist" &&
+        ! -e "$stale/active" && ! -e "$stale/previous-dist" ]]; then
+    echo "Reclaiming inactive campaign staging $stale_id"
+    rm -rf -- "$stale/incoming-dist"
+  fi
+done
 available_kb="$(df -Pk "$app" | awk 'NR==2 {print $4}')"
 if (( available_kb < 2500000 )); then
   echo 'Insufficient free space for staged runtime and rollback' >&2
