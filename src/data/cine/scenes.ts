@@ -1,4 +1,5 @@
 import { sectorCaseLabel } from '../sectorCaseCounts';
+import v4Media from './v4-media.json';
 // Escenas cine y su relación con sectores y servicios (una sola fuente para home,
 // banners de sector, banners de servicio y atlas).
 export type Scene = 'bodega' | 'fachada' | 'aeropuerto' | 'hospital' | 'planta';
@@ -49,3 +50,41 @@ export const SERVICE_SCENES: Record<string, { scene: Scene; systems: string[] }>
   '107': { scene: 'bodega', systems: ['Fire-detection'] },
   '108': { scene: 'hospital', systems: ['Power'] },
 };
+
+// Cine v4 (render en la nube): un recorrido por escena y por servicio. El
+// manifiesto lo genera scripts/cine/import-v4-media.mjs a partir de los
+// archivos presentes en public/cine/media; el banner usa la clave
+// "<escena>-<servicio>" con la misma convención de archivos que las escenas base.
+export interface SceneServiceCut {
+  key: string;
+  scene: Scene;
+  service: string;
+  code: string;
+  poster: string;
+  video: string;
+  square: string | null;
+  track: string | null;
+}
+
+export const V4_CUTS: Record<string, SceneServiceCut> = v4Media as Record<string, SceneServiceCut>;
+
+const SERVICE_SLUG_BY_CODE: Record<string, string> = {
+  '101': 'redes', '102': 'seguridad', '103': 'telecom', '104': 'software',
+  '105': 'soporte', '106': 'consultoria', '107': 'incendios', '108': 'electricos',
+};
+
+/** Clave de banner para un servicio: su recorrido v4 si está renderizado, o la escena base. */
+export const serviceSceneKey = (code: string): string => {
+  const base = SERVICE_SCENES[code] || SERVICE_SCENES['101'];
+  const key = `${base.scene}-${SERVICE_SLUG_BY_CODE[code] || ''}`;
+  return V4_CUTS[key] ? key : base.scene;
+};
+
+/** Recorridos v4 disponibles para una escena, en el orden de los ocho frentes. */
+export const sceneServiceCuts = (scene: Scene): SceneServiceCut[] =>
+  Object.keys(SERVICE_SLUG_BY_CODE)
+    .map((code) => V4_CUTS[`${scene}-${SERVICE_SLUG_BY_CODE[code]}`])
+    .filter((cut): cut is SceneServiceCut => Boolean(cut));
+
+/** Escena base de una clave de banner ("hospital-redes" → "hospital"). */
+export const baseScene = (key: string): Scene => (key.split('-')[0] as Scene);

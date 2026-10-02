@@ -1,6 +1,7 @@
 ---
 import { truncateEditorialText } from '../../utils/editorialContent';
 import SystemsStory from '../cine/SystemsStory.astro';
+import SceneServiceRail from '../cine/SceneServiceRail.astro';
 import CineBanner from '../cine/CineBanner.astro';
 import SnapRail from '../cine/SnapRail.astro';
 import { sectorBySlug } from '../../data/cine/scenes';
@@ -124,6 +125,8 @@ const areaLabel = (area: unknown) => {
     stats={cineStats}
     back={{ href: '/sectores', label: '← Todos los sectores' }}
   />
+
+  <SceneServiceRail scene={cineScene} sectorName={sectorName} />
 
   <SystemsStory slug={sectorSlug} name={sectorName} />
 

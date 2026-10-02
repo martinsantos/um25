@@ -15,6 +15,8 @@ const SERVICES = {
 };
 const TITLES = { bodega: 'Bodega', fachada: 'Edificio corporativo', aeropuerto: 'Terminal aeroportuaria', hospital: 'Hospital', planta: 'Planta de altura' };
 const ENGINE = { planta: 'bodega' }; // el motor 3D usa la nave de la bodega para la planta
+// Claves v4 "<escena>-<servicio>": la escena base define título y motor 3D.
+const baseOf = (scene) => String(scene || '').split('-')[0];
 const clean = (s) => String(s || '').replace(/\s*\/\s*DEMO\b/gi, '').replace(/\bDEMO\b\s*[·-]?\s*/gi, '').trim();
 const motionLimited = () => matchMedia('(prefers-reduced-motion: reduce)').matches || Boolean(navigator.connection?.saveData);
 const compact = () => innerWidth <= 820 || matchMedia('(pointer: coarse)').matches;
@@ -59,7 +61,7 @@ function banner(el) {
   const mark = (i) => {
     el.dataset.scene = scenes[i];
     rail.forEach((b, k) => b.setAttribute('aria-pressed', String(k === i)));
-    if (caption) caption.textContent = TITLES[scenes[i]] || '';
+    if (caption) caption.textContent = TITLES[baseOf(scenes[i])] || '';
   };
 
   function play() {
@@ -253,12 +255,13 @@ function explore(scene) {
     dlg.addEventListener('close', () => { dlg.querySelector('.umc-dialog__view').replaceChildren(); document.documentElement.classList.remove('umc-lock'); });
     dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
   }
-  const name = TITLES[scene] || '';
+  const base = baseOf(scene);
+  const name = TITLES[base] || '';
   dlg.querySelector('[data-umc-dialog-title]').textContent = name ? `Gemelo digital · ${name}` : 'Gemelo digital';
   dlg.setAttribute('aria-label', name ? `Gemelo digital · ${name}` : 'Gemelo digital');
   const frame = document.createElement('iframe');
   frame.title = name ? `Gemelo digital interactivo · ${name}` : 'Gemelo digital interactivo';
-  frame.src = `/3d/cinema.html?scene=${ENGINE[scene] || scene}&mode=building&embed=1&ar=clean&center=1`;
+  frame.src = `/3d/cinema.html?scene=${ENGINE[base] || base}&mode=building&embed=1&ar=clean&center=1`;
   frame.allow = 'fullscreen';
   dlg.querySelector('.umc-dialog__view').replaceChildren(frame);
   document.documentElement.classList.add('umc-lock');
