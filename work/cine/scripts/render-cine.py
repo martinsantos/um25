@@ -40,7 +40,7 @@ SCENES = {
 }
 # Cámaras v4 elegidas por el explorador (--scout) para servicios en otras escenas: '<escena>-<servicio>'.
 CAMARAS_PATH = Path(os.environ.get('CINE_CAMARAS', ROOT / 'work/cine/camaras-v4.json'))
-PASILLOS_PATH = ROOT / 'work/cine/camaras-pasillos.json'
+PASILLOS_PATH = Path(os.environ.get('CINE_PASILLOS', ROOT / 'work/cine/camaras-pasillos.json'))
 CAMARAS = json.loads(CAMARAS_PATH.read_text()) if CAMARAS_PATH.exists() else {}
 ASSETS['planta'] = [dict(a, name=a['name'].replace('bodega', 'planta').replace('Bodega', 'Planta'))
                     for a in ASSETS['bodega'] if 'BARREL' not in a['id'] and 'Tonel' not in a['name']]
