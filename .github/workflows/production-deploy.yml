@@ -114,73 +114,32 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H 23.105.176.45 >> ~/.ssh/known_hosts
 
-      # Continue the protected runtime release without touching production
-      # source, unpublished cinema work or existing static assets. Restore the
-      # ordinary source deploy only after that work is integrated.
-      - name: Verify scoped release contents
+      # Deploy ordinario: publica el build completo (server + client). El
+      # runtime nuevo se prueba en un proceso de staging y se intercambia de
+      # forma atómica; si falla cualquier comprobación posterior, se restaura
+      # el runtime anterior. Sólo las carpetas de cine/3D que viven en el
+      # servidor fuera del repositorio se heredan del runtime vivo.
+      - name: Verify release build
         run: |
           set -euo pipefail
-          git diff --name-only "${GITHUB_SHA}^1" "$GITHUB_SHA" > /tmp/umsa-release-paths.txt
-          test -s /tmp/umsa-release-paths.txt
-          while IFS= read -r path; do
-            case "$path" in
-              .github/workflows/production-deploy.yml|.github/workflows/community-demo-integrity.yml|\
-              scripts/ops/deploy-scoped-dist.sh|\
-              __tests__/runtimeConfigContracts.test.js|__tests__/nginxOps.test.ts|\
-              docs/campaign-preview/PHOTO-SOURCES.md|docs/campaign-preview/README.md|\
-              docs/campaign-preview/compose-email.mjs|docs/campaign-preview/comunidades-email.html|\
-              docs/campaign-preview/variants/photo-a-wide.jpg|\
-              docs/campaign-preview/variants/photo-b-wide.jpg|\
-              docs/campaign-preview/variants/photo-c-wide.jpg|\
-              public/images/software-comunidades/credencial-demo-email.gif|\
-              public/sw.js|\
-              public/software/gestion-de-comunidades-profesionales/demo/*|\
-              work/um-comunidades-demo/*|\
-              src/pages/software/gestion-de-comunidades-profesionales.astro|\
-              src/pages/software/gestion-de-comunidades-profesionales/demo/index.astro|\
-              __tests__/blogEditorialScoringContracts.test.js|\
-              __tests__/blogTopicMap.test.ts|package.json|\
-              scripts/build-blog-topic-map.mjs|\
-              src/components/SEO/SEOHead.astro|\
-              src/components/SEO/TopicGuides.astro|\
-              src/components/blog/BlogTopicLinks.astro|\
-              src/components/blog/BlogTopicNav.astro|\
-              src/config/servicios.ts|\
-              src/data/blogTopicMap.generated.json|\
-              src/data/blogTopicTaxonomy.ts|\
-              src/data/geoResources.ts|\
-              src/data/strategicLinkGraph.ts|\
-              src/env.d.ts|src/pages/'[sector].astro'|\
-              src/pages/blog/'[slug].astro'|\
-              src/pages/blog/categoria/'[cat].astro'|\
-              src/pages/blog/categoria/'[cat]'/rss.xml.ts|\
-              src/pages/blog/index.astro|\
-              src/pages/blog/tema/'[tema].astro'|\
-              src/pages/blog/tema/'[tema]'/rss.xml.ts|\
-              src/pages/llms-full.txt.ts|src/pages/llms.txt.ts|\
-              src/pages/servicios/'[id]'/'[slug].astro'|\
-              src/pages/sitemap-blog.xml.ts|\
-              src/utils/blogRss.ts|src/utils/blogTopicCases.ts|\
-              src/utils/blogTopicMap.ts|src/utils/getBlogData.ts) ;;
-              *) echo "Unexpected release path: $path" >&2; exit 1 ;;
-            esac
-          done < /tmp/umsa-release-paths.txt
           test -f dist/server/entry.mjs
+          test -d dist/client/_astro
+          test -f dist/client/manifest.json
+          test -f dist/client/cine/media/cine-bodega-poster.jpg
           test -f dist/client/images/software-comunidades/credencial-demo-email.gif
           test -f dist/client/software/gestion-de-comunidades-profesionales/demo/index.html
-          grep -Fq '/software/gestion-de-comunidades-profesionales/demo/' dist/client/sw.js
 
       - name: Stage build outside live site
         run: |
           set -euo pipefail
-          STAGE="${DEPLOY_PATH}/backups/umsa-campaign-${RELEASE_ID}/incoming-dist"
+          STAGE="${DEPLOY_PATH}/backups/umsa-release-${RELEASE_ID}/incoming-dist"
           ssh root@23.105.176.45 "mkdir -p '$STAGE'"
           rsync -az --checksum dist/ "root@23.105.176.45:$STAGE/"
 
       - name: Swap verified runtime with automatic origin rollback
         run: |
           ssh root@23.105.176.45 "bash -s -- '$RELEASE_ID' deploy" \
-            < scripts/ops/deploy-scoped-dist.sh
+            < scripts/ops/deploy-full-dist.sh
 
       - name: Health check origin
         uses: appleboy/ssh-action@v1.2.0
@@ -334,7 +293,7 @@ jobs:
         if: failure() && steps.ssh_agent.outcome == 'success'
         run: |
           ssh root@23.105.176.45 "bash -s -- '$RELEASE_ID' rollback" \
-            < scripts/ops/deploy-scoped-dist.sh
+            < scripts/ops/deploy-full-dist.sh
 
       - name: Send deployment notification
         if: always()
