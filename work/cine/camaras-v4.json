@@ -221,46 +221,57 @@
   "zoom": 1.7
  },
  "fachada-incendios": {
-  "az": 128,
-  "bad": 0.0,
+  "az": -52,
+  "bad": 0.104,
   "base": {
-   "bad": 0.49,
-   "empty": 0.625,
-   "vis": 0.24
+   "bad": 0.469,
+   "empty": 0.604,
+   "vis": 0.26
   },
-  "empty": 1.0,
-  "malos": [],
+  "empty": 0.635,
+  "malos": [
+   "83L",
+   "89L",
+   "91L",
+   "93L",
+   "125L",
+   "127L",
+   "129L",
+   "131L",
+   "133L",
+   "135L"
+  ],
   "style": "overhead",
-  "vis": 0.0,
+  "vis": 0.17,
   "zoom": 1.7
  },
  "fachada-redes": {
-  "az": -102,
+  "az": -82,
   "bad": 0.0,
   "base": {
-   "bad": 0.385,
-   "empty": 0.646,
-   "vis": 0.042
+   "bad": 0.365,
+   "empty": 0.427,
+   "vis": 0.132
   },
-  "empty": 0.083,
+  "empty": 0.073,
   "malos": [],
   "style": "overhead",
-  "vis": 0.152,
+  "vis": 0.209,
   "zoom": 1.7
  },
  "fachada-seguridad": {
-  "az": 88,
+  "az": -72,
   "bad": 0.0,
   "base": {
-   "bad": 0.271,
-   "empty": 0.719,
-   "vis": 0.057
+   "bad": 0.229,
+   "empty": 0.688,
+   "vis": 0.064
   },
   "empty": 0.021,
   "malos": [],
   "style": "overhead",
-  "vis": 0.143,
-  "zoom": 1.7
+  "vis": 0.213,
+  "zoom": 1.35
  },
  "fachada-software": {
   "az": -84,
@@ -270,10 +281,10 @@
    "empty": 0.823,
    "vis": 0.044
   },
-  "empty": 0.167,
+  "empty": 0.094,
   "malos": [],
   "style": "overhead",
-  "vis": 0.247,
+  "vis": 0.299,
   "zoom": 1.7
  },
  "fachada-soporte": {
