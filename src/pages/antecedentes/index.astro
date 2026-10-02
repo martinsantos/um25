@@ -703,6 +703,10 @@ const filterGroups = [
     .ev-grid__item {
       display: flex;
       min-width: 0;
+      /* Listado largo: el navegador salta el render de las cards fuera de
+         pantalla con una reserva estable, sin saltos visuales (DESIGN.md). */
+      content-visibility: auto;
+      contain-intrinsic-size: auto 420px;
     }
 
     .ev-grid__item[hidden] {
