@@ -8,6 +8,12 @@ import {upgradeState,appendImported,remaining,balance,cents,today,quotePlan,acce
 import {Bell,LayoutDashboard,ContactRound,FileText,MessageCircle,Users,Upload,Download,ArrowUpRight,ChevronRight,Plus,Check,CheckCircle2,Clock3,ShieldCheck,Wallet,History,RotateCcw,X,Info,Menu,Search,LogOut,Smartphone,AlertTriangle,FileSpreadsheet,Building2,BookOpen,ChevronDown,LoaderCircle} from 'lucide-react';
 import {seed,payMember,uid,stamp,validateRows,suggestMapping,safeCsv,addImported,MAX_FILE_BYTES,MAX_ROWS,parseAmount} from './domain.mjs';
 import {money,date,initials,download,Badge,Modal} from './ui.jsx';
+const demoSections={account:'cuotas',credential:'credencial',requests:'tramites',tickets:'consultas',members:'administracion'};
+function reportDemoSection(section){
+ if(window.parent===window)return;
+ const feature=demoSections[section];
+ if(feature)window.parent.postMessage({type:'umsa_demo_section',feature},window.location.origin);
+}
 function readState(){try{const raw=storage().getItem(storageKey);if(!raw)return {state:extendState(seed()),blocked:false};const s=JSON.parse(raw);if(s.version!==1||!Array.isArray(s.members)||!s.members.length||!Array.isArray(s.requests)||!Array.isArray(s.tickets)||!Array.isArray(s.movements))throw Error();return {state:extendState(s),blocked:false};}catch{return {state:extendState(seed()),blocked:true};}}
 function App(){
  const initial=useRef(null);if(!initial.current)initial.current=readState();const [state,setState]=useState(initial.current.state),[blocked,setBlocked]=useState(initial.current.blocked),[role,setRole]=useState('member'),[selected,setSelected]=useState('m1'),[page,setPage]=useState('home'),[modal,setModal]=useState(null),[toast,setToast]=useState(''),[search,setSearch]=useState(''),[install,setInstall]=useState(null),[fileStore,setFileStore]=useState({}),[workflowTab,setWorkflowTab]=useState('requests'),[showGuide,setShowGuide]=useState(true);
@@ -21,7 +27,7 @@ function App(){
  useEffect(()=>{if(!toast)return;const t=setTimeout(()=>setToast(''),6500);return()=>clearTimeout(t)},[toast]);
  useEffect(()=>{try{storage().setItem(storageKey,JSON.stringify(state));setBlocked(false)}catch{setBlocked(true)}},[state]);
  useEffect(()=>{const handle=e=>{if(e.key===storageKey){const next=readState();setState(next.state);setBlocked(next.blocked)}};window.addEventListener('storage',handle);const installEvent=e=>{e.preventDefault();setInstall(e)};window.addEventListener('beforeinstallprompt',installEvent);if(ENABLE_SW&&'serviceWorker' in navigator)navigator.serviceWorker.register(assetUrl('sw.js'),{scope:BASE_PATH}).catch(()=>{});return()=>{window.removeEventListener('storage',handle);window.removeEventListener('beforeinstallprompt',installEvent)}},[]);
- const nav=p=>{setPage(p);setSearch('');window.scrollTo({top:0});};
+ const nav=p=>{setPage(p);setSearch('');window.scrollTo({top:0});reportDemoSection(p)};
  const switchRole=r=>{setRole(r);nav('home')};
  const memberRequests=state.requests.filter(x=>admin||x.memberId===member.id),memberTickets=state.tickets.filter(x=>admin||x.memberId===member.id);
  const menus=admin?[['home','Resumen',LayoutDashboard],['members','Matriculados',Users],['requests','Trámites',FileText],['tickets','Consultas',MessageCircle],['import','Importar',Upload]]:[['home','Mi resumen',LayoutDashboard],['account','Mi cuenta',Wallet],['credential','Credencial',ContactRound],['requests','Trámites',FileText],['tickets','Consultas',MessageCircle]];

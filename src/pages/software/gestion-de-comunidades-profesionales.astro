@@ -23,8 +23,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
               <p class="hero-service"><strong>Instalación y puesta a punto sin cargo.</strong> Servicio en pesos argentinos. Sin comisión fija de ULTIMA MILLA por cuota.</p>
             </div>
             <figure class="hero-visual">
-              <img src="/images/software-comunidades/comunidad-reunion.jpg" width="900" height="597" alt="Profesionales adultos conversando en una reunión de trabajo; fotografía ilustrativa" />
-              <figcaption>Fotografía ilustrativa · Mario Amé / Pexels</figcaption>
+              <img src="/images/software-comunidades/comunidad-rosario.jpg" width="1800" height="1200" alt="Personas adultas colaborando con computadoras durante un hackatón en Rosario" />
             </figure>
           </div>
         </div>
@@ -68,7 +67,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
             <figure><img src="/images/software-comunidades/oficio-panaderia.jpg" width="900" height="720" alt="Panadero trabajando una pieza de masa en su mesa" /><figcaption>Acompañar cada oficio</figcaption></figure>
             <figure><img src="/images/software-comunidades/oficio-taller.jpg" width="900" height="675" alt="Manos trabajando una pieza de metal en un taller" /><figcaption>Dar continuidad al trabajo</figcaption></figure>
           </div>
-          <p class="people-story-credit">Fotografías ilustrativas de Mario Amé, Crisher P.H y erik debarre / Pexels. Las personas retratadas no son clientes ni integrantes de ULTIMA MILLA.</p>
+          <details class="people-story-credit"><summary>Créditos de imágenes</summary><p>Portada: <a href="https://commons.wikimedia.org/wiki/File:Hackaton_Rosario_05.jpg">Constanza Verón (WMAR)</a> / Wikimedia Commons, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> (encuadre recortado). Otras imágenes: Mario Amé, Crisher P.H y erik debarre / Pexels.</p></details>
         </div>
       </div>
     </section>
@@ -95,6 +94,14 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     function queueEvent(command: string, name: string, params: Record<string, string>) { layer!.push(arguments); }
     queueEvent('event', event, { campaign: 'comunidades_profesionales', placement, ...attribution });
   };
+  const demoFrame = document.querySelector<HTMLIFrameElement>('.live-demo-window iframe');
+  const demoSections = new Set(['cuotas', 'credencial', 'tramites', 'consultas', 'administracion']);
+  window.addEventListener('message', (event) => {
+    if (event.origin !== location.origin || event.source !== demoFrame?.contentWindow) return;
+    const message = event.data;
+    if (message?.type !== 'umsa_demo_section' || typeof message.feature !== 'string' || !demoSections.has(message.feature)) return;
+    track('gc_demo_section', message.feature);
+  });
   document.querySelectorAll<HTMLAnchorElement>('[data-cta]').forEach((link) => link.addEventListener('click', () => track('gc_cta_click', link.dataset.cta || 'unknown')));
   document.querySelectorAll<HTMLAnchorElement>('[data-interest]').forEach((link) => link.addEventListener('click', () => track('gc_interest_click', link.dataset.interest || 'unknown')));
   const form = document.querySelector<HTMLFormElement>('#gc-form');
@@ -166,6 +173,8 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   .people-story-grid figure:first-child img { object-position:55% center; }
   .people-story-grid figcaption { position:absolute; inset:auto 0 0; padding:38px 20px 19px; background:linear-gradient(transparent,#15201bd9); color:white; font-size:.9rem; font-weight:700; }
   .gc .people-story-credit { margin:12px 0 0; color:#66736c; font-size:.72rem; line-height:1.4; }
+  .gc .people-story-credit summary { cursor:pointer; display:list-item; width:max-content; max-width:100%; }
+  .gc .people-story-credit p { margin:7px 0 0; }
   .hero-visual { display:flex; flex-direction:column; min-width:0; border:1px solid #d5ded8; background:#f7f9f7; box-shadow:0 18px 44px #1833280d; }
   .hero-visual-foot { display:flex; justify-content:space-between; align-items:center; gap:14px; margin-top:auto; padding:17px 21px; color:#4b5954; font-size:.76rem; line-height:1.3; }
   .hero-visual-foot span:first-child { color:#1b2828; font-weight:650; }.hero-visual-foot span:last-child { text-align:right; font-size:.7rem; }
@@ -330,9 +339,8 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   .hero-content .hero-cta:hover { background:#b91c1c; }
   .hero-content .text-link { color:#1c2623; font-size:.96rem; }
   .gc .hero-content .hero-service { max-width:53ch; margin:auto 0 0; padding-top:18px; border-top:1px solid #cdd4d0; color:#3b4842 !important; font-size:.91rem; line-height:1.5; }
-  .hero-content .hero-visual { position:relative; display:block; min-width:0; min-height:480px; margin:0; overflow:hidden; border:0; background:#e2e7e3; box-shadow:none; }
-  .hero-content .hero-visual img { display:block; width:100%; height:100%; min-height:480px; object-fit:cover; object-position:50% 38%; }
-  .hero-content .hero-visual figcaption { position:absolute; right:16px; bottom:14px; padding:7px 10px; background:#151d1bcc; color:#fff; font-size:.74rem; line-height:1.2; }
+  .hero-content .hero-visual { position:relative; display:flex; flex-direction:column; min-width:0; min-height:0; margin:0; overflow:visible; border:0; background:#fff; box-shadow:none; }
+  .hero-content .hero-visual img { display:block; width:100%; height:480px; min-height:0; object-fit:cover; object-position:50% 58%; }
   .gc a[href],.gc button:not(:disabled) { cursor:pointer; }
   .gc button:disabled { cursor:not-allowed; }
   .gc a[href]:focus-visible,.gc button:focus-visible,.gc input:focus-visible,.gc textarea:focus-visible { outline:3px solid #bd352d; outline-offset:4px; }
@@ -341,7 +349,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   .gc .text-link:hover,.gc .band-action:hover,.gc .note a:hover { color:#a32d26; text-decoration-color:#a32d26; }
   @media(max-width:900px) {
     .hero-content { grid-template-columns:1fr 1fr; gap:28px; }
-    .hero-content .hero-visual,.hero-content .hero-visual img { min-height:530px; }
+    .hero-content .hero-visual img { height:530px; }
     .hero-content .hero-actions { display:grid; }
   }
   @media(max-width:700px) {
@@ -353,7 +361,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     .gc .hero-heading .hero-subtitle { font-size:1.23rem; }
     .hero-content { grid-template-columns:1fr; gap:28px; }
     .hero-content .hero-visual { grid-row:1; }
-    .hero-content .hero-visual,.hero-content .hero-visual img { min-height:0; height:280px; }
+    .hero-content .hero-visual img { height:280px; }
     .hero-content .hero-copy { padding:23px 22px 20px; }
     .gc .hero-content .hero-feature-title { font-size:1.2rem; }
     .hero-content .hero-feature-list { margin-bottom:24px; }
@@ -363,8 +371,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   @media(max-width:420px) {
     .hero { padding-top:34px; }
     body[data-skin] main.gc .hero-heading h1 { font-size:clamp(2.45rem,10.5vw,2.75rem) !important; }
-    .hero-content .hero-visual,.hero-content .hero-visual img { height:220px; }
-    .hero-content .hero-visual figcaption { right:8px; bottom:8px; font-size:.65rem; }
+    .hero-content .hero-visual img { height:220px; }
   }
   @media(prefers-reduced-motion:reduce) { .gc a,.gc button { transition:none !important; } }
   @media(prefers-reduced-motion:reduce) { .app-window,.pay-choice,.pay-method,.pay-action,.pay-confirm,.phone,.phone-item,.phone-detail,.credential-phone,.credential-scan,.credential-check-loading,.credential-check-result { animation:none; }.system-panel { transition:none; }.pay-action,.credential-scan,.credential-check-loading { display:none; }.pay-confirm { position:static; display:grid; grid-template-columns:24px 1fr; gap:2px 10px; align-items:center; margin-top:12px; padding:12px; background:#eaf3ed; opacity:1; transform:none; }.pay-confirm .confirm-mark { grid-row:1 / span 2; width:24px; height:24px; font-size:.8rem; }.pay-confirm strong { font-size:1rem; }.pay-confirm small { grid-column:2; }.phone-detail { opacity:1; transform:none; }.credential-check-result { margin-top:20px; opacity:1; transform:none; } }
