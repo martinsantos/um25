@@ -1056,13 +1056,13 @@ def camera_score(keys, pts, frames=192, step=2, near=4.0, skin=1.0, detail=False
 
 
 def scout(scene, names):
-    """Explorador: por servicio prueba 18 azimuts × 4 estilos × 3 distancias y guarda la mejor cámara."""
+    """Explorador: por servicio prueba 18 azimuts × 4 estilos × 5 distancias y guarda la mejor cámara."""
     styles = ('ground', 'orbit', 'aerial', 'overhead')
     for name in names:
         v, pts = VARIANTS[name], system_points(name, scene)
         base = camera_score(variant_path(name, scene, v['az'], v['style'], 1.0), pts)
         best = None
-        for zoom in (1.0, 1.35, 1.7):
+        for zoom in (1.0, 1.35, 1.7, 2.2, 2.8):
             for st in (v['style'],) + tuple(s for s in styles if s != v['style']):
                 for k in range(18):
                     az = (v['az'] + 20 * k + 180) % 360 - 180
@@ -1070,7 +1070,7 @@ def scout(scene, names):
                     # el estilo pedido y la distancia original pesan: el explorador sólo los cambia
                     # si no hay un azimut limpio; la visibilidad desempata.
                     score = (4 * m['bad'] + m['empty'] - .5 * m['vis'] + (.3 if st != v['style'] else 0)
-                             + .1 * (zoom != 1.0) + .1 * (zoom > 1.5) + .0005 * min(k, 18 - k))
+                             + .1 * (zoom != 1.0) + .1 * (zoom > 1.5) + .1 * (zoom > 2) + .0005 * min(k, 18 - k))
                     if best is None or score < best[0]:
                         best = (score, az, st, zoom, m)
         _, az, st, zoom, m = best
