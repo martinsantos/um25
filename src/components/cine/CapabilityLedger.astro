@@ -1,0 +1,322 @@
+---
+/**
+ * Capacidad de proveedor: cómo entrega ULTIMA MILLA un proyecto, con qué
+ * documentación y con qué cobertura. Textos tomados de /certificaciones,
+ * /nosotros y los servicios publicados; sin cifras no aprobadas.
+ */
+import RenderStage from './RenderStage.astro';
+
+const process = [
+  ['Relevamiento', 'Visita técnica, inventario de sistemas existentes y definición de alcance con el responsable de operación.'],
+  ['Ingeniería', 'Planos, memoria técnica y lista de materiales por sistema, según las normas aplicables a cada obra.'],
+  ['Instalación', 'Ejecución en campo con equipo propio: tendidos, racks, energía, cámaras, paneles y puesta en marcha.'],
+  ['Certificación y entrega', 'Protocolos de prueba, certificación de puntos con equipamiento Fluke y documentación de obra.'],
+  ['Soporte 24/7', 'Mesa de ayuda, NOC y mantenimiento con SLA sobre lo instalado, con trazabilidad por ticket.'],
+];
+
+const deliverables = [
+  ['Protocolos de prueba', 'Por sistema y por sitio, listos para recepción técnica.'],
+  ['Certificación de cableado', 'Reporte de mediciones por canal con equipamiento Fluke.'],
+  ['Documentación de obra', 'Planos, memoria técnica y registro del alcance ejecutado.'],
+  ['Dossier para licitaciones', 'Antecedentes, protocolos y documentación del rubro, a medida del pliego.'],
+];
+
+const coverage = [
+  ['Mendoza', 'Sede central'],
+  ['San Juan', 'Cuyo'],
+  ['San Luis', 'Cuyo'],
+  ['Neuquén', 'Patagonia'],
+];
+---
+<div class="um-cap">
+  <div class="um-cap__head">
+    <div>
+      <p class="um-cap__kicker"><span></span>Capacidad de proveedor</p>
+      <h2>Un proveedor que entrega obra, documentación y soporte.</h2>
+    </div>
+    <p>Cada proyecto recorre el mismo circuito, de la visita técnica al mantenimiento. Lo que se instala queda documentado para operar, auditar y ampliar.</p>
+  </div>
+
+  <div class="um-cap__body">
+    <ol class="um-cap__process" aria-label="Circuito de entrega">
+      {process.map(([title, text], i) => (
+        <li>
+          <span class="um-cap__step">{String(i + 1).padStart(2, '0')}</span>
+          <div>
+            <strong>{title}</strong>
+            <p>{text}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <div class="um-cap__stage">
+      <RenderStage render="fachada-sistemas" />
+    </div>
+  </div>
+
+  <div class="um-cap__ledger">
+    <section class="um-cap__block" aria-labelledby="cap-doc">
+      <h3 id="cap-doc">Entregables documentados</h3>
+      <ul>
+        {deliverables.map(([title, text]) => (
+          <li><strong>{title}</strong><span>{text}</span></li>
+        ))}
+      </ul>
+      <a href="/certificaciones">Ver documentación técnica <span aria-hidden="true">→</span></a>
+    </section>
+
+    <section class="um-cap__block" aria-labelledby="cap-cov">
+      <h3 id="cap-cov">Cobertura con equipo propio</h3>
+      <ul class="um-cap__coverage">
+        {coverage.map(([city, region]) => (
+          <li><strong>{city}</strong><span>{region}</span></li>
+        ))}
+      </ul>
+      <a href="/servicios-it-empresas-argentina">Ver cobertura en Argentina <span aria-hidden="true">→</span></a>
+    </section>
+
+    <section class="um-cap__block um-cap__block--cta" aria-labelledby="cap-rfq">
+      <h3 id="cap-rfq">Pedido de cotización</h3>
+      <p>Enviá el pliego, el plano o una descripción del sitio. Respondemos en el día con un relevamiento técnico y una propuesta verificable.</p>
+      <a class="um-cap__btn" href="/presupuesto-servicios-it-empresas">Pedir presupuesto <span aria-hidden="true">↗</span></a>
+    </section>
+  </div>
+</div>
+
+<style>
+  .um-cap {
+    color: #fff;
+  }
+
+  .um-cap__head {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 24px clamp(28px, 5vw, 80px);
+    align-items: end;
+    margin-bottom: clamp(32px, 4vw, 56px);
+  }
+
+  .um-cap__head > p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 1.12rem;
+    line-height: 1.6;
+    max-width: 48ch;
+  }
+
+  .um-cap__kicker {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  .um-cap__kicker span {
+    width: 28px;
+    height: 2px;
+    background: #dc2626;
+  }
+
+  .um-cap h2 {
+    margin: 0;
+    font-size: clamp(2rem, 3.2vw, 3rem) !important;
+    line-height: 1.06 !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.025em;
+    max-width: 20ch;
+    text-wrap: balance;
+  }
+
+  .um-cap__body {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(28px, 5vw, 72px);
+    align-items: center;
+  }
+
+  .um-cap__process {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  .um-cap__process li {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 12px;
+    padding: 18px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .um-cap__step {
+    font-family: var(--um-font-mono);
+    font-size: 1rem;
+    font-weight: 600;
+    color: #dc2626;
+    font-variant-numeric: tabular-nums;
+    padding-top: 3px;
+  }
+
+  .um-cap__process strong {
+    display: block;
+    font-size: 1.12rem;
+    font-weight: 600;
+  }
+
+  .um-cap__process p {
+    margin: 6px 0 0;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .um-cap__ledger {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: clamp(40px, 5vw, 72px);
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .um-cap__block {
+    display: flex;
+    flex-direction: column;
+    padding: clamp(22px, 2.6vw, 34px);
+    background: #0a0a0b;
+  }
+
+  .um-cap__block--cta {
+    background: #111214;
+  }
+
+  .um-cap__block h3 {
+    margin: 0 0 18px;
+    font-size: 1.25rem !important;
+    line-height: 1.25 !important;
+    font-weight: 600 !important;
+  }
+
+  .um-cap__block ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex: 1;
+  }
+
+  .um-cap__block li {
+    display: grid;
+    gap: 3px;
+    padding: 12px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .um-cap__block li strong {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .um-cap__block li span {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .um-cap__coverage li {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+  }
+
+  .um-cap__coverage li span {
+    font-family: var(--um-font-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .um-cap__block > p {
+    flex: 1;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .um-cap__block > a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-start;
+    min-height: 44px;
+    margin-top: 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+    border-bottom: 1px solid #dc2626;
+  }
+
+  .um-cap__block > a:hover,
+  .um-cap__block > a:focus-visible {
+    border-bottom-color: #fff;
+  }
+
+  .um-cap__block > a.um-cap__btn {
+    min-height: 52px;
+    padding: 0 24px;
+    background: #dc2626;
+    border: 0;
+  }
+
+  .um-cap__block > a.um-cap__btn:hover,
+  .um-cap__block > a.um-cap__btn:focus-visible {
+    background: #b91c1c;
+  }
+
+  @media (max-width: 1100px) {
+    .um-cap__ledger {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .um-cap__head,
+    .um-cap__body {
+      grid-template-columns: 1fr;
+    }
+
+    .um-cap__stage {
+      order: -1;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .um-cap__head {
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .um-cap__head > p {
+      font-size: 1.0625rem;
+    }
+
+    .um-cap__process li {
+      padding: 14px 0;
+    }
+
+    .um-cap__ledger {
+      margin-top: 32px;
+    }
+
+    .um-cap__block > a.um-cap__btn {
+      align-self: stretch;
+      justify-content: center;
+    }
+  }
+</style>

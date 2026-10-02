@@ -1,156 +1,29 @@
 {
+  "id": "/",
   "name": "ULTIMA MILLA",
   "short_name": "ULTIMA MILLA",
-  "description": "Sitio institucional de ULTIMA MILLA para servicios IT, soporte, infraestructura y evidencia operativa",
-  "start_url": "/",
+  "description": "Servicios IT para operaciones que no pueden detenerse: redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Mendoza, Cuyo y Patagonia.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
   "display": "standalone",
-  "orientation": "any",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
   "theme_color": "#DC2626",
   "background_color": "#050505",
-  "lang": "es",
-  "scope": "/",
-  "categories": ["business", "productivity", "utilities"],
+  "lang": "es-AR",
+  "dir": "ltr",
+  "categories": ["business", "technology"],
   "icons": [
-    {
-      "src": "/favicon-16x16.png",
-      "sizes": "16x16",
-      "type": "image/png"
-    },
-    {
-      "src": "/favicon-32x32.png",
-      "sizes": "32x32",
-      "type": "image/png"
-    },
-    {
-      "src": "/favicon-72x72.png",
-      "sizes": "72x72",
-      "type": "image/png"
-    },
-    {
-      "src": "/favicon-96x96.png",
-      "sizes": "96x96",
-      "type": "image/png"
-    },
-    {
-      "src": "/favicon-128x128.png",
-      "sizes": "128x128",
-      "type": "image/png"
-    },
-    {
-      "src": "/favicon-144x144.png",
-      "sizes": "144x144",
-      "type": "image/png"
-    },
-    {
-      "src": "/favicon-152x152.png",
-      "sizes": "152x152",
-      "type": "image/png"
-    },
-    {
-      "src": "/favicon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/favicon-384x384.png",
-      "sizes": "384x384",
-      "type": "image/png"
-    },
-    {
-      "src": "/favicon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/images/screenshot-desktop.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "platform": "wide",
-      "label": "Sitio ULTIMA MILLA en desktop"
-    },
-    {
-      "src": "/images/screenshot-mobile.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "platform": "narrow",
-      "label": "Sitio ULTIMA MILLA en móvil"
-    }
+    { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
   ],
   "shortcuts": [
-    {
-      "name": "Servicios",
-      "url": "/?cmd=servicios",
-      "description": "Ver servicios de ULTIMA MILLA",
-      "icons": [
-        {
-          "src": "/favicon-192x192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Antecedentes",
-      "url": "/?cmd=antecedentes",
-      "description": "Ver casos de éxito y antecedentes",
-      "icons": [
-        {
-          "src": "/favicon-192x192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Contacto",
-      "url": "/?cmd=contacto",
-      "description": "Información de contacto",
-      "icons": [
-        {
-          "src": "/favicon-192x192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Stats",
-      "url": "/?cmd=stats",
-      "description": "Estadísticas de la empresa",
-      "icons": [
-        {
-          "src": "/favicon-192x192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    }
+    { "name": "Servicios", "short_name": "Servicios", "url": "/servicios", "description": "Ocho frentes de servicio IT", "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "Proyectos documentados", "short_name": "Proyectos", "url": "/antecedentes", "description": "Antecedentes con cliente, sector y alcance", "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "Contacto", "short_name": "Contacto", "url": "/contacto", "description": "Relevamiento técnico y propuesta", "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" }] }
   ],
   "prefer_related_applications": false,
-  "edge_side_panel": {
-    "preferred_width": 400
-  },
-  "launch_handler": {
-    "client_mode": "navigate-new"
-  },
-  "handle_links": "preferred",
-  "protocol_handlers": [
-    {
-      "protocol": "web+umterminal",
-      "url": "/?cmd=%s"
-    }
-  ],
-  "file_handlers": [
-    {
-      "action": "/",
-      "accept": {
-        "text/plain": [".txt", ".log"],
-        "application/json": [".json"]
-      }
-    }
-  ]
+  "launch_handler": { "client_mode": "navigate-existing" }
 }

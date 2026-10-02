@@ -1,6 +1,8 @@
 ---
 import UMLogo from '../brand/UMLogo.astro';
-/** Cabecera comercial UMSA: marca, navegación principal y contacto. */
+import { NAV_SECTORS, NAV_SERVICES } from '../../data/navigation';
+/** Cabecera comercial UMSA: marca, navegación principal (con mega-menú de
+ *  servicios y sectores en escritorio) y contacto. */
 
 interface Props {
   currentPath?: string;
@@ -8,10 +10,10 @@ interface Props {
 
 const { currentPath = Astro.url.pathname } = Astro.props;
 
-const navItems = [
+const navItems: { href: string; label: string; mega?: 'servicios' | 'sectores' }[] = [
   { href: '/', label: 'Inicio' },
-  { href: '/servicios', label: 'Servicios' },
-  { href: '/sectores', label: 'Sectores' },
+  { href: '/servicios', label: 'Servicios', mega: 'servicios' },
+  { href: '/sectores', label: 'Sectores', mega: 'sectores' },
   { href: '/antecedentes', label: 'Antecedentes' },
   { href: '/blog', label: 'Blog' },
 ];
@@ -39,7 +41,59 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
       </a>
 
       <nav class="um-ops-nav" aria-label="Navegación principal">
-        {navItems.map((item) => (
+        {navItems.map((item) => item.mega ? (
+          <div class:list={['um-ops-mega', { 'is-active': isActive(item.href) }]} data-mega={item.mega}>
+            <a href={item.href} class:list={['um-ops-nav__link', 'um-ops-mega__link', { 'is-active': isActive(item.href) }]}>
+              {item.label}
+            </a>
+            <button type="button" class="um-ops-mega__toggle" aria-expanded="false" aria-controls={`um-mega-${item.mega}`} aria-label={`Abrir ${item.label.toLowerCase()}`}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+            </button>
+            <div class="um-ops-mega__panel" id={`um-mega-${item.mega}`}>
+              <div class="um-ops-container um-ops-mega__inner">
+                {item.mega === 'servicios' ? (
+                  <>
+                    <div class="um-ops-mega__intro">
+                      <p class="um-ops-mega__kicker"><i></i>Ocho frentes de servicio</p>
+                      <p class="um-ops-mega__lead">Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria.</p>
+                      <a class="um-ops-mega__all" href="/servicios">Ver los ocho servicios <span aria-hidden="true">→</span></a>
+                    </div>
+                    <ul class="um-ops-mega__grid um-ops-mega__grid--services">
+                      {NAV_SERVICES.map((s) => (
+                        <li>
+                          <a href={s.href} class:list={[{ 'is-active': currentPath.startsWith(`/servicios/${s.code}`) }]}>
+                            <span class="um-ops-mega__code">{s.code}</span>
+                            <span class="um-ops-mega__name">{s.name}</span>
+                            <span class="um-ops-mega__text">{s.text}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <>
+                    <div class="um-ops-mega__intro">
+                      <p class="um-ops-mega__kicker"><i></i>Nueve sectores</p>
+                      <p class="um-ops-mega__lead">Entrá por su sector y revisá casos comparables antes de contratar. El número es la cantidad de casos documentados.</p>
+                      <a class="um-ops-mega__all" href="/sectores">Ver todos los sectores <span aria-hidden="true">→</span></a>
+                    </div>
+                    <ul class="um-ops-mega__grid um-ops-mega__grid--sectors">
+                      {NAV_SECTORS.map((s) => (
+                        <li>
+                          <a href={s.href} class:list={[{ 'is-active': isActive(s.href) }]}>
+                            <span class="um-ops-mega__code" aria-label={s.count ? `${s.count} casos documentados` : undefined}>{s.count ?? '—'}</span>
+                            <span class="um-ops-mega__name">{s.name}</span>
+                            <span class="um-ops-mega__text">{s.text}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
           <a href={item.href} class:list={['um-ops-nav__link', { 'is-active': isActive(item.href) }]}>
             {item.label}
           </a>
@@ -214,8 +268,9 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
   }
 
   .um-ops-nav {
-    position: relative;
-    z-index: 3;
+    /* Sin posicionamiento propio: el panel del mega-menú se ancla al ancho
+       completo de .um-ops-header__main. */
+    position: static;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -259,6 +314,224 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     bottom: 0;
     height: 2px;
     background: #dc2626;
+  }
+
+  /* Mega-menú de escritorio: Servicios y Sectores despliegan un panel a todo
+     el ancho con los ocho frentes / nueve sectores, código y promesa. */
+  .um-ops-mega {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .um-ops-mega__link {
+    padding-right: 4px;
+  }
+
+  .um-ops-mega__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    min-height: 44px;
+    margin-right: 6px;
+    border: 0;
+    background: transparent;
+    color: #a1a1aa;
+    cursor: pointer;
+  }
+
+  .um-ops-mega__toggle svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    transition: transform 0.18s ease;
+  }
+
+  .um-ops-mega:hover .um-ops-mega__toggle,
+  .um-ops-mega.is-open .um-ops-mega__toggle,
+  .um-ops-mega__toggle:focus-visible {
+    color: #fff;
+  }
+
+  .um-ops-mega.is-open .um-ops-mega__toggle svg {
+    transform: rotate(180deg);
+  }
+
+  .um-ops-mega__toggle:focus-visible {
+    outline: 2px solid #dc2626;
+    outline-offset: -2px;
+  }
+
+  .um-ops-mega:hover .um-ops-mega__link,
+  .um-ops-mega.is-open .um-ops-mega__link {
+    color: #fff;
+  }
+
+  .um-ops-mega:hover .um-ops-mega__link::after,
+  .um-ops-mega.is-open .um-ops-mega__link::after {
+    content: "";
+    position: absolute;
+    left: 15px;
+    right: 4px;
+    bottom: 0;
+    height: 2px;
+    background: #dc2626;
+  }
+
+  .um-ops-mega__panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    z-index: var(--um-z-header-menu);
+    padding: 28px 0 34px;
+    background: #0b0b0c;
+    border-top: 1px solid rgba(220,38,38,0.42);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity 0.16s ease, transform 0.16s ease, visibility 0s linear 0.16s;
+  }
+
+  .um-ops-mega:hover .um-ops-mega__panel,
+  .um-ops-mega.is-open .um-ops-mega__panel {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition-delay: 0.06s, 0.06s, 0s;
+  }
+
+  .um-ops-mega__inner {
+    display: grid;
+    grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+    gap: clamp(28px, 4vw, 64px);
+    align-items: start;
+  }
+
+  .um-ops-mega__kicker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .um-ops-mega__kicker i {
+    width: 22px;
+    height: 2px;
+    background: #dc2626;
+  }
+
+  .um-ops-mega__lead {
+    margin: 14px 0 0;
+    color: #a1a1aa;
+    font-size: 1rem;
+    line-height: 1.55;
+    max-width: 30ch;
+  }
+
+  .um-ops-mega__all {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 18px;
+    min-height: 44px;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid #dc2626;
+  }
+
+  .um-ops-mega__all:hover,
+  .um-ops-mega__all:focus-visible {
+    color: #fff;
+    border-bottom-color: #fff;
+  }
+
+  .um-ops-mega__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0 24px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .um-ops-mega__grid--services {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .um-ops-mega__grid--sectors {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .um-ops-mega__grid a {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    grid-template-areas: "code name" "code text";
+    column-gap: 10px;
+    padding: 13px 10px 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    color: #fff;
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+  }
+
+  .um-ops-mega__grid a:hover,
+  .um-ops-mega__grid a:focus-visible,
+  .um-ops-mega__grid a.is-active {
+    background: rgba(255,255,255,0.045);
+  }
+
+  .um-ops-mega__grid a:focus-visible {
+    outline: 2px solid #dc2626;
+    outline-offset: -2px;
+  }
+
+  .um-ops-mega__code {
+    grid-area: code;
+    font-family: var(--um-font-mono);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #71717a;
+    font-variant-numeric: tabular-nums;
+    padding-top: 1px;
+  }
+
+  .um-ops-mega__grid a:hover .um-ops-mega__code,
+  .um-ops-mega__grid a.is-active .um-ops-mega__code {
+    color: #dc2626;
+  }
+
+  .um-ops-mega__name {
+    grid-area: name;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .um-ops-mega__text {
+    grid-area: text;
+    margin-top: 3px;
+    color: #a1a1aa;
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .um-ops-mega__panel,
+    .um-ops-mega__toggle svg {
+      transition: none;
+    }
   }
 
   .um-ops-more {
@@ -762,6 +1035,41 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     const mobileMenu = document.getElementById('mobileMenu');
     if (!header || !menuToggle || !mobileMenu || menuToggle.dataset.bound === 'true') return;
     menuToggle.dataset.bound = 'true';
+
+    // Mega-menú de escritorio: hover lo abre por CSS; teclado y clic usan is-open.
+    const megas = [...document.querySelectorAll<HTMLElement>('.um-ops-mega')];
+    const closeMegas = (except?: HTMLElement) => {
+      megas.forEach((m) => {
+        if (m === except) return;
+        m.classList.remove('is-open');
+        m.querySelector<HTMLButtonElement>('.um-ops-mega__toggle')?.setAttribute('aria-expanded', 'false');
+      });
+    };
+    megas.forEach((mega) => {
+      const toggle = mega.querySelector<HTMLButtonElement>('.um-ops-mega__toggle');
+      const link = mega.querySelector<HTMLAnchorElement>('.um-ops-mega__link');
+      if (!toggle) return;
+      const setOpen = (open: boolean) => {
+        closeMegas(mega);
+        mega.classList.toggle('is-open', open);
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      };
+      toggle.addEventListener('click', () => setOpen(!mega.classList.contains('is-open')));
+      link?.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowDown') { event.preventDefault(); setOpen(true); mega.querySelector<HTMLAnchorElement>('.um-ops-mega__grid a')?.focus(); }
+      });
+      mega.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && mega.classList.contains('is-open')) { event.preventDefault(); setOpen(false); toggle.focus(); }
+      });
+      mega.addEventListener('focusout', (event) => {
+        const next = event.relatedTarget as Node | null;
+        if (next && !mega.contains(next)) setOpen(false);
+      });
+      mega.addEventListener('mouseleave', () => { if (mega.classList.contains('is-open')) setOpen(false); });
+    });
+    document.addEventListener('click', (event) => {
+      if (!megas.some((m) => m.contains(event.target as Node))) closeMegas();
+    });
 
     const root = document.documentElement;
     const desktop = matchMedia('(min-width: 1111px)');
