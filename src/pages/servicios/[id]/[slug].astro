@@ -13,6 +13,7 @@ import EmailLink from '../../../components/common/EmailLink.astro';
 import CineBanner from '../../../components/cine/CineBanner.astro';
 import RenderStage from '../../../components/cine/RenderStage.astro';
 import ServiceSpecSheet from '../../../components/cine/ServiceSpecSheet.astro';
+import ShareButton from '../../../components/common/ShareButton.astro';
 import { getServiceSpec } from '../../../data/serviceSpecs';
 import { RENDERS } from '../../../data/renders';
 import SnapRail from '../../../components/cine/SnapRail.astro';
@@ -659,6 +660,9 @@ const fichaItems = [
             <p class="svc-head__lead">Lo que se contrata, con qué referencia normativa se ejecuta y qué documentación queda al cierre. La misma ficha se descarga en PDF para compras y pliegos.</p>
           </header>
           <ServiceSpecSheet spec={serviceSpec} pdfHref={datasheetHref} printHref={fichaPrintHref} />
+          <p class="svc-share">
+            <ShareButton title={`Ficha técnica · ${serviceSpec.name} · ULTIMA MILLA`} text={serviceSpec.promise} url={`${canonicalUrl}#ficha-tecnica`} />
+          </p>
         </div>
       </section>
     )}
@@ -746,6 +750,11 @@ const fichaItems = [
 
   .svc-section--brief {
     border-top: 0;
+  }
+
+  .svc-share {
+    margin: 18px 0 0;
+    color: var(--x-text);
   }
 
 
