@@ -9,6 +9,7 @@ if [[ ! "$release_id" =~ ^[0-9]+-[0-9]+$ ]] || [[ "$mode" != deploy && "$mode" !
 fi
 
 app=/root/fumbling-field
+demo_path=/software/gestion-de-comunidades-profesionales/demo
 release="$app/backups/umsa-campaign-$release_id"
 current="$app/dist"
 previous="$release/previous-dist"
@@ -47,7 +48,9 @@ fi
 
 if [[ ! -d "$current/server" || ! -d "$current/client" ||
       ! -f "$incoming/server/entry.mjs" ||
-      ! -f "$incoming/client/images/software-comunidades/credencial-demo-email.gif" ]]; then
+      ! -f "$incoming/client/images/software-comunidades/credencial-demo-email.gif" ||
+      ! -f "$incoming/client/software/gestion-de-comunidades-profesionales/demo/index.html" ||
+      ! -f "$incoming/client/sw.js" ]]; then
   echo 'Runtime or campaign asset missing; refusing deployment' >&2
   exit 1
 fi
@@ -75,11 +78,15 @@ fi
 # only candidate _astro bundles may differ.
 rsync -anic --delete \
   --exclude='/_astro/***' \
+  --exclude='/sw.js' \
   --exclude='/images/software-comunidades/credencial-demo-email.gif' \
+  --exclude='/software/gestion-de-comunidades-profesionales/demo/***' \
   "$current/client/" "$incoming/client/" > "$release/asset-overlay-dry-run.txt"
 rsync -ac --delete \
   --exclude='/_astro/***' \
+  --exclude='/sw.js' \
   --exclude='/images/software-comunidades/credencial-demo-email.gif' \
+  --exclude='/software/gestion-de-comunidades-profesionales/demo/***' \
   "$current/client/" "$incoming/client/"
 mkdir -p "$incoming/client/_astro"
 rsync -a --ignore-existing "$current/client/_astro/" "$incoming/client/_astro/"
@@ -119,6 +126,14 @@ if [[ "$ready" != 1 ]]; then
   echo 'Staged landing failed SSR check' >&2
   exit 1
 fi
+curl -4 -fsS --max-time 8 "http://127.0.0.1:$port$demo_path/" \
+  -o "$release/staging-demo.html"
+grep -Fq "$demo_path/app.js" "$release/staging-demo.html"
+for asset in app.js style.css import-worker.js pdf.worker.min.mjs \
+  manifest.webmanifest plantilla-matriculados.xlsx; do
+  curl -4 -fsS --max-time 8 "http://127.0.0.1:$port$demo_path/$asset" \
+    -o /dev/null
+done
 curl -4 -fsS --max-time 8 \
   "http://127.0.0.1:$port/images/software-comunidades/credencial-demo-email.gif" \
   -o "$release/staging-credential.gif"
@@ -129,7 +144,9 @@ trap - EXIT
 sha256sum -c "$release/protected.before.sha256"
 rsync -anic --delete \
   --exclude='/_astro/***' \
+  --exclude='/sw.js' \
   --exclude='/images/software-comunidades/credencial-demo-email.gif' \
+  --exclude='/software/gestion-de-comunidades-profesionales/demo/***' \
   "$current/client/" "$incoming/client/" > "$release/asset-overlay-final-raw.txt"
 # rsync may warn that parent image directories cannot be deleted because the
 # new GIF is deliberately protected. Any actual itemized change still blocks.
@@ -153,7 +170,7 @@ for _ in $(seq 1 30); do
      curl -4 -fsS --max-time 8 \
        http://127.0.0.1:4321/software/gestion-de-comunidades-profesionales \
        -o "$release/origin-landing.html" &&
-     grep -Fq 'Nuestro software para colegios permite:' "$release/origin-landing.html"; then
+     grep -Fq 'Un espacio propio para tu colegio y sus matriculados:' "$release/origin-landing.html"; then
     healthy=1
     break
   fi
@@ -164,8 +181,9 @@ if [[ "$healthy" != 1 ]]; then
   false
 fi
 for path in / /blog /antecedentes \
-  /images/software-comunidades/credencial-demo-email.gif; do
-  curl -4 -fsS --max-time 12 "http://127.0.0.1:4321$path" -o /dev/null
+  /images/software-comunidades/credencial-demo-email.gif \
+  "$demo_path/" "$demo_path/app.js" "$demo_path/import-worker.js"; do
+  curl -4 -fLsS --max-time 12 "http://127.0.0.1:4321$path" -o /dev/null
 done
 for path in /cine/media/cine-aeropuerto-poster.jpg \
   /3d/models/hospital-walkthrough.glb; do

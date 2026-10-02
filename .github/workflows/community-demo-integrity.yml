@@ -1,0 +1,55 @@
+name: Community Demo Integrity
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+on:
+  pull_request:
+    branches: [develop, master]
+    paths:
+      - '.github/workflows/community-demo-integrity.yml'
+      - '.github/workflows/production-deploy.yml'
+      - 'public/software/gestion-de-comunidades-profesionales/demo/**'
+      - 'public/sw.js'
+      - 'scripts/ops/deploy-scoped-dist.sh'
+      - 'src/pages/software/gestion-de-comunidades-profesionales.astro'
+      - 'src/pages/software/gestion-de-comunidades-profesionales/demo/index.astro'
+      - 'work/um-comunidades-demo/**'
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce-demo:
+    name: Rebuild and compare demo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20.x'
+          cache: npm
+          cache-dependency-path: work/um-comunidades-demo/package-lock.json
+      - name: Install pinned dependencies
+        run: npm ci
+        working-directory: work/um-comunidades-demo
+      - name: Run demo unit tests
+        run: npm test
+        working-directory: work/um-comunidades-demo
+      - name: Build at the published subpath
+        run: npm run build
+        working-directory: work/um-comunidades-demo
+        env:
+          UM_BASE_PATH: /software/gestion-de-comunidades-profesionales/demo/
+          UM_RETURN_URL: /software/gestion-de-comunidades-profesionales
+          UM_STORAGE_MODE: session
+          UM_ENABLE_SW: 'false'
+      - name: Match the reviewed static artifact
+        run: |
+          set -euo pipefail
+          test ! -e work/um-comunidades-demo/dist/sw.js
+          diff -qr work/um-comunidades-demo/dist/ public/software/gestion-de-comunidades-profesionales/demo/
+          if grep -RilF 'chatgpt.site' public/software/gestion-de-comunidades-profesionales/demo/; then
+            echo 'Unexpected external Site reference in demo' >&2
+            exit 1
+          fi
