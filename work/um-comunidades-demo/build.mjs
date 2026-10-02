@@ -12,8 +12,12 @@ const enableSW=process.env.UM_ENABLE_SW==='true';
 if(enableSW&&base==='/')throw Error('Service worker opcional sólo permitido bajo una subruta, nunca en la raíz del sitio.');
 await fs.rm('dist',{recursive:true,force:true});
 await fs.cp('static','dist',{recursive:true});
-await build({entryPoints:['src/app.jsx'],bundle:true,outfile:'dist/app.js',minify:true,format:'esm',target:'es2022',jsx:'automatic',define:{__APP_BASE__:JSON.stringify(base),__ENABLE_SW__:JSON.stringify(enableSW),__STORAGE_MODE__:JSON.stringify(storage),__RETURN_URL__:JSON.stringify(returnUrl)}});
+await build({entryPoints:['src/app.jsx'],bundle:true,outfile:'dist/app.js',minify:true,format:'esm',target:'es2022',jsx:'automatic',jsxImportSource:'react',tsconfigRaw:{compilerOptions:{jsx:'react-jsx',jsxImportSource:'react'}},define:{__APP_BASE__:JSON.stringify(base),__ENABLE_SW__:JSON.stringify(enableSW),__STORAGE_MODE__:JSON.stringify(storage),__RETURN_URL__:JSON.stringify(returnUrl)}});
 await build({entryPoints:['src/import-worker.mjs'],bundle:true,outfile:'dist/import-worker.js',minify:true,format:'iife',target:'es2022'});
+// Match the reviewed browser worker bundle. The source artifact has no strict
+// directive; esbuild can prepend one when nested under the site's tsconfig.
+const worker=await fs.readFile('dist/import-worker.js','utf8');
+await fs.writeFile('dist/import-worker.js',worker.replace(/^"use strict";/,''));
 await fs.copyFile('src/style.css','dist/style.css');
 await fs.copyFile('node_modules/pdfjs-dist/build/pdf.worker.min.mjs','dist/pdf.worker.min.mjs');
 let html=await fs.readFile('static/index.html','utf8');
