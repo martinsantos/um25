@@ -116,7 +116,7 @@ ready=0
 for _ in $(seq 1 20); do
   if curl -4 -fsS --max-time 3 "http://127.0.0.1:$port/software/gestion-de-comunidades-profesionales" \
       -o "$release/staging-landing.html" &&
-     grep -Fq 'Nuestro software para colegios permite:' "$release/staging-landing.html"; then
+     grep -Fq 'Un espacio propio para tu colegio y sus matriculados:' "$release/staging-landing.html"; then
     ready=1
     break
   fi
@@ -126,7 +126,7 @@ if [[ "$ready" != 1 ]]; then
   echo 'Staged landing failed SSR check' >&2
   exit 1
 fi
-curl -4 -fsS --max-time 8 "http://127.0.0.1:$port$demo_path/" \
+curl -4 -fLsS --max-time 8 "http://127.0.0.1:$port$demo_path/" \
   -o "$release/staging-demo.html"
 grep -Fq "$demo_path/app.js" "$release/staging-demo.html"
 for asset in app.js style.css import-worker.js pdf.worker.min.mjs \
