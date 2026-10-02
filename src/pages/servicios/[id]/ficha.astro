@@ -1,0 +1,79 @@
+---
+/**
+ * Ficha técnica imprimible de un frente de servicio (A4). Es el origen del PDF
+ * de public/datasheets/<slug>.pdf (scripts/datasheets/build-datasheets.mjs) y
+ * la versión "imprimible" enlazada desde el detalle. Sin layout ni navegación.
+ */
+import UMLogo from '../../../components/brand/UMLogo.astro';
+import ServiceSpecSheet from '../../../components/cine/ServiceSpecSheet.astro';
+import { getServiceSpec } from '../../../data/serviceSpecs';
+import { SITE_URL } from '../../../config/seo';
+
+const { id } = Astro.params;
+const spec = getServiceSpec(id);
+if (!spec) return Astro.rewrite('/404');
+
+const issued = new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long' });
+const detailUrl = `${SITE_URL}${spec.href}`;
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{`Ficha técnica · ${spec.name} · ULTIMA MILLA`}</title>
+    <link rel="canonical" href={detailUrl} />
+    <link rel="preload" href="/fonts/um-sans/UMSans-Variable.woff2?v=1.2.0-production" as="font" type="font/woff2" crossorigin />
+    <style is:global>
+      @font-face {
+        font-family: 'UM Sans';
+        src: url('/fonts/um-sans/UMSans-Variable.woff2?v=1.2.0-production') format('woff2');
+        font-weight: 100 900;
+        font-display: swap;
+      }
+      :root {
+        --um-font-body: 'UM Sans', Arial, system-ui, sans-serif;
+        --um-font-mono: ui-monospace, Menlo, monospace;
+        --x-text: #111;
+        --x-muted: #5f6368;
+        --x-line: #d9dadd;
+        --x-line-strong: #111;
+      }
+      @page { size: A4; margin: 16mm 14mm 18mm; }
+      html, body { margin: 0; background: #fff; color: #111; font-family: var(--um-font-body); font-synthesis: none; }
+      body { font-size: 16px; line-height: 1.5; }
+      .ds { width: min(100%, 182mm); margin: 0 auto; padding: 24px 16px 40px; }
+      .ds__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding-bottom: 14px; border-bottom: 2px solid #111; }
+      .ds__logo { font-size: 26px; color: #111; }
+      .ds__meta { text-align: right; font-family: var(--um-font-mono); font-size: 16px; color: #5f6368; line-height: 1.4; }
+      .ds__meta b { display: block; color: #dc2626; font-weight: 600; }
+      .ds__title { margin: 22px 0 6px; font-size: 30px; line-height: 1.1; font-weight: 600; }
+      .ds__promise { margin: 0 0 22px; font-size: 18px; color: #333; }
+      .ds__foot { margin-top: 28px; padding-top: 12px; border-top: 1px solid #d9dadd; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: 16px; color: #5f6368; }
+      .ds__foot a { color: #111; text-decoration: none; }
+      .ds__print { position: fixed; right: 16px; top: 16px; min-height: 44px; padding: 0 16px; border: 1px solid #111; background: #fff; color: #111; font: 600 16px var(--um-font-body); cursor: pointer; }
+      @media print { .ds__print { display: none; } .ds { padding: 0; width: auto; } }
+    </style>
+  </head>
+  <body>
+    <button class="ds__print" type="button" onclick="window.print()">Imprimir o guardar PDF</button>
+    <main class="ds">
+      <header class="ds__head">
+        <div class="ds__logo"><UMLogo title="ultimamilla.com.ar" /></div>
+        <div class="ds__meta">
+          <b>SRV.{spec.code}</b>
+          Ficha técnica · rev. {spec.revision}<br />
+          Emitida {issued}
+        </div>
+      </header>
+      <h1 class="ds__title">{spec.name}</h1>
+      <p class="ds__promise">{spec.promise}</p>
+      <ServiceSpecSheet spec={spec} print />
+      <footer class="ds__foot">
+        <span>ULTIMA MILLA · Houssay 1159, Guaymallén, Mendoza · contacto@ultimamilla.com.ar</span>
+        <a href={detailUrl}>{detailUrl.replace(/^https?:\/\//, '')}</a>
+      </footer>
+    </main>
+  </body>
+</html>

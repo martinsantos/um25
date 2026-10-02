@@ -93,7 +93,8 @@
     "migrate:m2m:dry": "node scripts/migration/create-m2m-antecedentes-servicios.js --dry-run",
     "migrate:m2m:test": "node scripts/migration/create-m2m-antecedentes-servicios.js --dry-run --limit=10",
     "migrate:v4": "npm run migrate:servicios-v4 && npm run migrate:productos && npm run migrate:m2m",
-    "migrate:v4:dry": "npm run migrate:servicios-v4:dry && npm run migrate:productos:dry && npm run migrate:m2m:test"
+    "migrate:v4:dry": "npm run migrate:servicios-v4:dry && npm run migrate:productos:dry && npm run migrate:m2m:test",
+    "datasheets:build": "node scripts/datasheets/build-datasheets.mjs"
   },
   "dependencies": {
     "@astrojs/alpinejs": "^0.3.0",

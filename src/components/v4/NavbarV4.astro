@@ -1,6 +1,7 @@
 ---
 import UMLogo from '../brand/UMLogo.astro';
 import { NAV_SECTORS, NAV_SERVICES } from '../../data/navigation';
+import { shellLocale, shellRoutes } from '../../config/i18nShell';
 /** Cabecera comercial UMSA: marca, navegación principal (con mega-menú de
  *  servicios y sectores en escritorio) y contacto. */
 
@@ -9,25 +10,29 @@ interface Props {
 }
 
 const { currentPath = Astro.url.pathname } = Astro.props;
+const { lang, t, alternate, alternateLang } = shellLocale(currentPath);
+const routes = shellRoutes(lang);
 
 const navItems: { href: string; label: string; mega?: 'servicios' | 'sectores' }[] = [
-  { href: '/', label: 'Inicio' },
-  { href: '/servicios', label: 'Servicios', mega: 'servicios' },
-  { href: '/sectores', label: 'Sectores', mega: 'sectores' },
-  { href: '/antecedentes', label: 'Antecedentes' },
-  { href: '/blog', label: 'Blog' },
+  { href: routes.home, label: t.nav.home },
+  { href: routes.services, label: t.nav.services, mega: 'servicios' },
+  { href: routes.sectors, label: t.nav.sectors, mega: 'sectores' },
+  { href: routes.projects, label: t.nav.projects },
+  { href: routes.blog, label: t.nav.blog },
 ];
 
 const moreItems = [
-  { href: '/nosotros', label: 'Nosotros' },
-  { href: '/cctvai', label: 'UMSA CCTV AI' },
-  { href: '/certificaciones', label: 'Certificaciones' },
-  { href: '/contacto', label: 'Contacto' },
+  { href: routes.about, label: lang === 'en' ? 'About' : 'Nosotros' },
+  { href: routes.cctv, label: 'UMSA CCTV AI' },
+  { href: routes.certifications, label: lang === 'en' ? 'Technical documentation' : 'Certificaciones' },
+  { href: routes.contact, label: lang === 'en' ? 'Contact' : 'Contacto' },
 ];
 
 const isActive = (href: string) => {
-  if (href === '/') return currentPath === '/';
-  return currentPath.startsWith(href);
+  const clean = currentPath.replace(/\/$/, '') || '/';
+  const target = href.replace(/\/$/, '') || '/';
+  if (target === '/' || target === '/en') return clean === target;
+  return clean.startsWith(target);
 };
 
 const moreIsActive = moreItems.some((item) => isActive(item.href));
@@ -46,7 +51,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
             <a href={item.href} class:list={['um-ops-nav__link', 'um-ops-mega__link', { 'is-active': isActive(item.href) }]}>
               {item.label}
             </a>
-            <button type="button" class="um-ops-mega__toggle" aria-expanded="false" aria-controls={`um-mega-${item.mega}`} aria-label={`Abrir ${item.label.toLowerCase()}`}>
+            <button type="button" class="um-ops-mega__toggle" aria-expanded="false" aria-controls={`um-mega-${item.mega}`} aria-label={item.mega === 'servicios' ? t.megaServices.open : t.megaSectors.open}>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
             </button>
             <div class="um-ops-mega__panel" id={`um-mega-${item.mega}`}>
@@ -54,9 +59,9 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
                 {item.mega === 'servicios' ? (
                   <>
                     <div class="um-ops-mega__intro">
-                      <p class="um-ops-mega__kicker"><i></i>Ocho frentes de servicio</p>
-                      <p class="um-ops-mega__lead">Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria.</p>
-                      <a class="um-ops-mega__all" href="/servicios">Ver los ocho servicios <span aria-hidden="true">→</span></a>
+                      <p class="um-ops-mega__kicker"><i></i>{t.megaServices.kicker}</p>
+                      <p class="um-ops-mega__lead">{t.megaServices.lead}</p>
+                      <a class="um-ops-mega__all" href={routes.services}>{t.megaServices.all} <span aria-hidden="true">→</span></a>
                     </div>
                     <ul class="um-ops-mega__grid um-ops-mega__grid--services">
                       {NAV_SERVICES.map((s) => (
@@ -73,9 +78,9 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
                 ) : (
                   <>
                     <div class="um-ops-mega__intro">
-                      <p class="um-ops-mega__kicker"><i></i>Nueve sectores</p>
-                      <p class="um-ops-mega__lead">Entrá por su sector y revisá casos comparables antes de contratar. El número es la cantidad de casos documentados.</p>
-                      <a class="um-ops-mega__all" href="/sectores">Ver todos los sectores <span aria-hidden="true">→</span></a>
+                      <p class="um-ops-mega__kicker"><i></i>{t.megaSectors.kicker}</p>
+                      <p class="um-ops-mega__lead">{t.megaSectors.lead}</p>
+                      <a class="um-ops-mega__all" href={routes.sectors}>{t.megaSectors.all} <span aria-hidden="true">→</span></a>
                     </div>
                     <ul class="um-ops-mega__grid um-ops-mega__grid--sectors">
                       {NAV_SECTORS.map((s) => (
@@ -101,7 +106,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
 
         <div class:list={['um-ops-more', { 'is-active': moreIsActive }]}>
           <button type="button" class="um-ops-more__trigger" aria-haspopup="true" aria-expanded="false">
-            Más
+            {t.nav.more}
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
           </button>
           <div class="um-ops-more__menu" role="menu">
@@ -114,15 +119,25 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
         </div>
       </nav>
 
-      <a href="/contacto" class="um-ops-cta">
-        Contactar
+      <a href={alternate} class="um-ops-lang" hreflang={alternateLang} lang={alternateLang} aria-label={t.lang.switchTo} title={t.lang.switchTo}>
+        {t.lang.code}
       </a>
+
+      {lang === 'en' ? (
+        <a href="/en/contacto" class="um-ops-cta">{t.nav.contact}</a>
+      ) : (
+        <a href="/contacto" class="um-ops-cta">
+          Contactar
+        </a>
+      )}
 
       <button
         id="menuToggle"
         class="um-ops-menu-toggle"
         type="button"
-        aria-label="Abrir menú"
+        aria-label={t.mobile.open}
+        data-label-open={t.mobile.open}
+        data-label-close={t.mobile.close}
         aria-expanded="false"
         aria-controls="mobileMenu"
       >
@@ -146,9 +161,9 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
         </li>
       ))}
     </ul>
-    <p class="um-ops-mobile__label">Más</p>
+    <p class="um-ops-mobile__label">{t.mobile.more}</p>
     <ul class="um-ops-mobile__secondary">
-      {moreItems.filter((item) => item.href !== '/contacto').map((item) => (
+      {moreItems.filter((item) => item.href !== routes.contact).map((item) => (
         <li>
           <a href={item.href} class:list={[{ 'is-active': isActive(item.href) }]} aria-current={isActive(item.href) ? 'page' : undefined}>
             {item.label}
@@ -157,18 +172,18 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
       ))}
     </ul>
     <div class="um-ops-mobile__foot">
-      <a href="/contacto" class="um-ops-mobile__cta">
-        Contactar
+      <a href={routes.contact} class="um-ops-mobile__cta">
+        {t.nav.contact}
         <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
       </a>
-      <p>Lunes a viernes, 8 a 18 h · Mendoza</p>
+      <p>{t.mobile.hours} · <a href={alternate} hreflang={alternateLang} lang={alternateLang}>{t.lang.switchTo}</a></p>
     </div>
   </nav>
 </div>
 
 <div class="um-ops-dock" data-ops-dock aria-hidden="true">
-  <a href="/contacto" class="um-ops-dock__cta" data-ops-dock-cta tabindex="-1">
-    Contactar
+  <a href={routes.contact} class="um-ops-dock__cta" data-ops-dock-cta tabindex="-1">
+    {t.nav.contact}
     <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
   </a>
 </div>
@@ -585,6 +600,34 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     background: rgba(220,38,38,0.09);
   }
 
+  .um-ops-lang {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    margin-left: 6px;
+    padding: 0 8px;
+    color: #a1a1aa;
+    font-family: var(--um-font-mono);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.14);
+  }
+
+  .um-ops-lang:hover,
+  .um-ops-lang:focus-visible {
+    color: #fff;
+    border-color: rgba(255,255,255,0.4);
+  }
+
+  .um-ops-lang:focus-visible {
+    outline: 2px solid #dc2626;
+    outline-offset: 2px;
+  }
+
   .um-ops-cta {
     display: inline-flex;
     min-height: 44px;
@@ -902,6 +945,13 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     text-align: center;
   }
 
+  .um-ops-mobile__foot p a {
+    color: #fff;
+    text-decoration: underline;
+    text-decoration-color: #dc2626;
+    text-underline-offset: 4px;
+  }
+
   .um-ops-mobile a:focus-visible,
   .um-ops-menu-toggle:focus-visible,
   .um-ops-dock__cta:focus-visible {
@@ -996,6 +1046,11 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
       display: none;
     }
 
+    .um-ops-lang {
+      margin-left: auto;
+      margin-right: 4px;
+    }
+
     .um-ops-menu-toggle {
       margin-left: auto;
     }
@@ -1086,7 +1141,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
       root.classList.add('um-ops-menu-open');
       outside().forEach((el) => { el.inert = true; });
       menuToggle.setAttribute('aria-expanded', 'true');
-      menuToggle.setAttribute('aria-label', 'Cerrar menú');
+      menuToggle.setAttribute('aria-label', menuToggle.dataset.labelClose || 'Cerrar menú');
       mobileMenu.querySelector<HTMLElement>('a[href]')?.focus({ preventScroll: true });
     };
     const closeMenu = (restoreFocus = false) => {
@@ -1096,7 +1151,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
       outside().forEach((el) => { el.inert = false; });
       if (Math.abs(scrollY - savedY) > 1) scrollTo({ top: savedY, behavior: 'instant' as ScrollBehavior });
       menuToggle.setAttribute('aria-expanded', 'false');
-      menuToggle.setAttribute('aria-label', 'Abrir menú');
+      menuToggle.setAttribute('aria-label', menuToggle.dataset.labelOpen || 'Abrir menú');
       if (restoreFocus) menuToggle.focus();
     };
 

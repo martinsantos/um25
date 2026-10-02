@@ -12,6 +12,9 @@ import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import EmailLink from '../../../components/common/EmailLink.astro';
 import CineBanner from '../../../components/cine/CineBanner.astro';
 import RenderStage from '../../../components/cine/RenderStage.astro';
+import ServiceSpecSheet from '../../../components/cine/ServiceSpecSheet.astro';
+import ShareButton from '../../../components/common/ShareButton.astro';
+import { getServiceSpec } from '../../../data/serviceSpecs';
 import { RENDERS } from '../../../data/renders';
 import SnapRail from '../../../components/cine/SnapRail.astro';
 import { SERVICE_SCENES } from '../../../data/cine/scenes';
@@ -432,6 +435,8 @@ const whyItems = porQueElegirnos.map((item: string) => cleanCmsText(sanitizeEdit
 const marcas = Array.isArray(servicio.marcas) ? servicio.marcas.map((m: unknown) => cleanCmsText(m)).filter(Boolean) : [];
 const serviceShortName = visual?.shortName || cmsTitle;
 const serviceRender = RENDERS[`servicio-${id}`];
+const serviceSpec = getServiceSpec(id);
+const fichaPrintHref = serviceSpec ? `/servicios/${id}/ficha` : null;
 const serviceSummaryText = cleanCmsText(plainTextFromHtml(serviceBodySource)) ||
   'Alcance técnico definido bajo relevamiento de sitio y criterios operativos verificables.';
 // Plazo y garantía de materiales aplican a los servicios de instalación; software,
@@ -643,9 +648,28 @@ const fichaItems = [
     )}
 
     <!-- Guías y análisis del blog para este servicio (mapa temático) -->
+    <!-- 4b · Ficha técnica completa -->
+    {serviceSpec && (
+      <section class="svc-section" id="ficha-tecnica" aria-labelledby="svc-spec-title">
+        <div class="svc-wrap">
+          <header class="svc-head">
+            <div>
+              <p class="svc-kicker">Ficha técnica</p>
+              <h2 id="svc-spec-title">Alcance, normas y entregables de {serviceShortName}.</h2>
+            </div>
+            <p class="svc-head__lead">Lo que se contrata, con qué referencia normativa se ejecuta y qué documentación queda al cierre. La misma ficha se descarga en PDF para compras y pliegos.</p>
+          </header>
+          <ServiceSpecSheet spec={serviceSpec} pdfHref={datasheetHref} printHref={fichaPrintHref} />
+          <p class="svc-share">
+            <ShareButton title={`Ficha técnica · ${serviceSpec.name} · ULTIMA MILLA`} text={serviceSpec.promise} url={`${canonicalUrl}#ficha-tecnica`} />
+          </p>
+        </div>
+      </section>
+    )}
+
     <TopicGuides kind="service" topicKey={String(id)} label={visual?.shortName || cmsTitle} />
 
-    <!-- 5 · Ficha técnica + CTA único -->
+    <!-- 5 · Datos del servicio + CTA único -->
     <section class="svc-section svc-section--close" aria-labelledby="svc-close-title">
       <div class="svc-wrap svc-close">
         <div class="svc-close__cta">
@@ -666,7 +690,7 @@ const fichaItems = [
         </div>
 
         <aside class="svc-ficha" aria-label="Ficha técnica del servicio">
-          <p class="svc-kicker">Ficha técnica</p>
+          <p class="svc-kicker">Datos del servicio</p>
           <dl>
             {fichaItems.map((item) => (
               <div>
@@ -726,6 +750,11 @@ const fichaItems = [
 
   .svc-section--brief {
     border-top: 0;
+  }
+
+  .svc-share {
+    margin: 18px 0 0;
+    color: var(--x-text);
   }
 
 

@@ -1,0 +1,75 @@
+---
+/**
+ * Compartir ficha (fase 5): Web Share cuando existe; si no, copia el enlace
+ * y lo confirma en el mismo botón. Sin JS es un enlace al mailto con el asunto.
+ */
+interface Props { title: string; text?: string; url?: string; class?: string; label?: string }
+const { title, text = '', url = Astro.url.href, class: className, label } = Astro.props;
+const mailto = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`${text ? text + '\n\n' : ''}${url}`)}`;
+---
+<a class:list={['um-share', className]} href={mailto} data-share data-share-title={title} data-share-text={text} data-share-url={url}>
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5"/></svg>
+  <span>{label ?? 'Compartir ficha'}</span>
+</a>
+
+<script>
+  const bootShare = () => {
+    document.querySelectorAll<HTMLAnchorElement>('[data-share]:not([data-bound])').forEach((el) => {
+      el.dataset.bound = 'true';
+      const label = el.querySelector('span')!;
+      const original = label.textContent || '';
+      el.addEventListener('click', async (event) => {
+        const data = { title: el.dataset.shareTitle || document.title, text: el.dataset.shareText || '', url: el.dataset.shareUrl || location.href };
+        if (navigator.share) {
+          event.preventDefault();
+          try { await navigator.share(data); } catch { /* cancelado */ }
+          return;
+        }
+        if (navigator.clipboard?.writeText) {
+          event.preventDefault();
+          try {
+            await navigator.clipboard.writeText(data.url);
+            label.textContent = 'Enlace copiado';
+            setTimeout(() => { label.textContent = original; }, 2200);
+          } catch { location.href = el.href; }
+        }
+      });
+    });
+  };
+  bootShare();
+  document.addEventListener('astro:page-load', bootShare);
+</script>
+
+<style>
+  .um-share {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    color: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid #dc2626;
+  }
+
+  .um-share svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .um-share:hover,
+  .um-share:focus-visible {
+    border-bottom-color: currentColor;
+  }
+
+  .um-share:focus-visible {
+    outline: 2px solid #dc2626;
+    outline-offset: 2px;
+  }
+</style>

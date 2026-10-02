@@ -10,6 +10,7 @@
 import NavbarV4 from '../components/v4/NavbarV4.astro';
 import FooterV4 from '../components/v4/FooterV4.astro';
 import AppTabBar from '../components/v4/AppTabBar.astro';
+import AppInstallHint from '../components/v4/AppInstallHint.astro';
 import ContactModal from '../components/um/ContactModal.astro';
 import SEOHead from '../components/SEO/SEOHead.astro';
 import { SITE_URL } from '../config/seo';
@@ -107,6 +108,9 @@ const skinAttribute = skinVariant;
 const pageLang = resolvePageLanguage(Astro.url.pathname);
 const skipLinkLabel = pageLang === 'en' ? 'Skip to main content' : 'Saltar al contenido principal';
 const shouldEmitHreflang = hasEnglishAlternate(Astro.url.pathname);
+// Service worker UM25 detrás de bandera de build (fase 5): sólo con
+// PUBLIC_ENABLE_SW=true. Por defecto no se registra nada.
+const enableServiceWorker = import.meta.env.PUBLIC_ENABLE_SW === 'true';
 ---
 
 <!DOCTYPE html>
@@ -291,6 +295,14 @@ const shouldEmitHreflang = hasEnglishAlternate(Astro.url.pathname);
     <ContactModal />
     <FooterV4 />
     <AppTabBar />
+    <AppInstallHint />
+    {enableServiceWorker && (
+      <script is:inline>
+        if ('serviceWorker' in navigator) {
+          addEventListener('load', () => { navigator.serviceWorker.register('/sw-um25.js', { scope: '/' }).catch(() => {}); });
+        }
+      </script>
+    )}
 
     <script>
       // Reveal: se activa sólo con IntersectionObserver y sin reduced-motion.
