@@ -39,7 +39,8 @@ SCENES = {
     'planta': ['UM-winery-connected-finished.blend'],
 }
 # Cámaras v4 elegidas por el explorador (--scout) para servicios en otras escenas: '<escena>-<servicio>'.
-CAMARAS_PATH = ROOT / 'work/cine/camaras-v4.json'
+CAMARAS_PATH = Path(os.environ.get('CINE_CAMARAS', ROOT / 'work/cine/camaras-v4.json'))
+PASILLOS_PATH = ROOT / 'work/cine/camaras-pasillos.json'
 CAMARAS = json.loads(CAMARAS_PATH.read_text()) if CAMARAS_PATH.exists() else {}
 ASSETS['planta'] = [dict(a, name=a['name'].replace('bodega', 'planta').replace('Bodega', 'Planta'))
                     for a in ASSETS['bodega'] if 'BARREL' not in a['id'] and 'Tonel' not in a['name']]
@@ -105,6 +106,8 @@ def variant_path(name, scene=None, az=None, style=None, zoom=None):
     v = VARIANTS[name]
     scene = scene or v['scene']
     elegida = CAMARAS.get(f'{scene}-{name}', {})
+    if elegida.get('keys') and az is None and style is None and zoom is None:  # recorrido del planificador
+        return [(k[0], tuple(k[1]), tuple(k[2]), k[3]) for k in elegida['keys']]
     items = [a for a in ASSETS[scene] if not v['systems'] or a['system'] in v['systems']] or ASSETS[scene]
     pts = [Vector(a['p']) for a in items]
     c = sum(pts, Vector((0, 0, 0))) / len(pts)
@@ -950,6 +953,191 @@ def _cr(p0, p1, p2, p3, u):
     return 0.5 * ((2 * p1) + (-p0 + p2) * u + (2 * p0 - 5 * p1 + 4 * p2 - p3) * u2 + (-p0 + 3 * p1 - 3 * p2 + p3) * u3)
 
 
+# ---------------------------------------------------------------- planificador de pasillos
+_BVH, _GRIDS = None, {}
+
+
+def scene_bvh():
+    """Árbol de búsqueda con toda la geometría visible de la escena, en coordenadas de mundo."""
+    from mathutils.bvhtree import BVHTree
+    deps = bpy.context.evaluated_depsgraph_get()
+    verts, polys = [], []
+    for obj in bpy.context.scene.objects:
+        if obj.type != 'MESH' or obj.hide_render:
+            continue
+        ev = obj.evaluated_get(deps)
+        me = ev.to_mesh()
+        mw = obj.matrix_world
+        base = len(verts)
+        verts.extend(mw @ v.co for v in me.vertices)
+        polys.extend([base + i for i in p.vertices] for p in me.polygons)
+        ev.to_mesh_clear()
+    return BVHTree.FromPolygons(verts, polys, epsilon=0.0)
+
+
+def corridor_path(name, scene, entry_az, res=.75, cmin=1.3, cap=6.0):
+    """Recorrido por pasillos libres: entra desde afuera a ras (az de ataque), pasa por el punto
+    libre con mejor vista a los equipos del servicio y sale en altura. Devuelve keys densas."""
+    import heapq
+    global _BVH
+    if _BVH is None:
+        _BVH = scene_bvh()
+    bvh = _BVH
+    pts = system_points(name, scene)
+    c = sum(pts, Vector()) / len(pts)
+    lo, hi = bounds()
+    # caja acotada alrededor de los equipos (el entorno de contexto llega a kilómetros)
+    span = max(max(abs(p.x - c.x), abs(p.y - c.y)) for p in pts)
+    R = min(40.0, max(22.0, span + 14))
+    ext = R * .8
+    gl = Vector((c.x - R, c.y - R, max(lo.z, c.z - 6) + .6))
+    gh = Vector((c.x + R, c.y + R, c.z + 16))
+    hi = Vector((hi.x, hi.y, min(hi.z, c.z + 9)))
+    nx, ny, nz = (int((gh[i] - gl[i]) / res) + 1 for i in range(3))
+    clave = (round(gl.x, 2), round(gl.y, 2), round(gl.z, 2), nx, ny, nz, res)
+    if clave not in _GRIDS:
+        clear = np.zeros((nx, ny, nz), dtype=np.float32)
+        for i in range(nx):
+            for j in range(ny):
+                for k in range(nz):
+                    p = Vector((gl.x + i * res, gl.y + j * res, gl.z + k * res))
+                    hit = bvh.find_nearest(p, cap)
+                    if hit[0] is None:
+                        clear[i, j, k] = cap
+                    else:
+                        loc, nrm, _, d = hit
+                        clear[i, j, k] = -1 if nrm is not None and (p - loc).dot(nrm) < 0 else d
+        _GRIDS[clave] = clear
+    clear = _GRIDS[clave]
+    free = clear >= cmin
+    cell = lambda p: tuple(int(round((p[a] - gl[a]) / res)) for a in range(3))
+    center = lambda q: Vector((gl.x + q[0] * res, gl.y + q[1] * res, gl.z + q[2] * res))
+
+    def nearest_free(p, rad=8):
+        q0 = cell(p)
+        best = None
+        for di in range(-rad, rad + 1):
+            for dj in range(-rad, rad + 1):
+                for dk in range(-rad, rad + 1):
+                    q = (q0[0] + di, q0[1] + dj, q0[2] + dk)
+                    if all(0 <= q[a] < (nx, ny, nz)[a] for a in range(3)) and free[q]:
+                        dd = di * di + dj * dj + dk * dk
+                        if best is None or dd < best[0]:
+                            best = (dd, q)
+        return best and best[1]
+
+    nbrs = [(a, b, d) for a in (-1, 0, 1) for b in (-1, 0, 1) for d in (-1, 0, 1) if (a, b, d) != (0, 0, 0)]
+
+    def astar(s, g):
+        openh = [(0.0, s)]
+        cost, prev = {s: 0.0}, {}
+        while openh:
+            _, q = heapq.heappop(openh)
+            if q == g:
+                path = [q]
+                while q in prev:
+                    q = prev[q]
+                    path.append(q)
+                return path[::-1]
+            for d in nbrs:
+                r = (q[0] + d[0], q[1] + d[1], q[2] + d[2])
+                if not all(0 <= r[a] < (nx, ny, nz)[a] for a in range(3)) or not free[r]:
+                    continue
+                step = math.sqrt(d[0] ** 2 + d[1] ** 2 + d[2] ** 2) * (1 + 2.5 / float(clear[r]))
+                nc = cost[q] + step
+                if nc < cost.get(r, 1e18):
+                    cost[r], prev[r] = nc, q
+                    h = math.sqrt(sum((r[a] - g[a]) ** 2 for a in range(3)))
+                    heapq.heappush(openh, (nc + h, r))
+        return None
+
+    sc, deps = bpy.context.scene, bpy.context.evaluated_depsgraph_get()
+    # punto de visita: celda libre a 3–9 m de los equipos con más equipos a la vista
+    goal, best = None, -1
+    q0 = cell(c)
+    for di in range(-12, 13, 2):
+        for dj in range(-12, 13, 2):
+            for dk in range(-4, 7, 2):
+                q = (q0[0] + di, q0[1] + dj, q0[2] + dk)
+                if not all(0 <= q[a] < (nx, ny, nz)[a] for a in range(3)) or not free[q]:
+                    continue
+                p = center(q)
+                if not 3 < (p - c).length < 9:
+                    continue
+                seen = sum(1 for t in pts if not ray_opaque(sc, deps, p, (t - p).normalized(), (t - p).length - .5)[0])
+                score = seen + .15 * min(float(clear[q]), 4)
+                if score > best:
+                    goal, best = q, score
+    if goal is None:
+        print('CINE_PASILLO_DEBUG sin meta', name, 'libres', int(free.sum()), 'de', free.size, flush=True)
+        return None
+    a = math.radians(entry_az)
+    # entrada a ras: primera celda libre de la columna (sobre el terreno), ~2 m más arriba
+    sx = c + Vector((math.sin(a), -math.cos(a), 0)) * ext * .85
+    q = cell(Vector((sx.x, sx.y, gl.z)))
+    q = (min(nx - 1, max(0, q[0])), min(ny - 1, max(0, q[1])), 0)
+    k0 = next((k for k in range(nz) if free[q[0], q[1], k]), None)
+    start = None if k0 is None else nearest_free(center((q[0], q[1], min(nz - 1, k0 + 2))))
+    exit_ = nearest_free(c + Vector((-math.sin(a) * 4, math.cos(a) * 4, hi.z - c.z + 7)))
+    if start is None or exit_ is None:
+        print('CINE_PASILLO_DEBUG sin entrada/salida', name, entry_az, start, exit_, flush=True)
+        return None
+    p1, p2 = astar(start, goal), astar(goal, exit_)
+    if not p1 or not p2:
+        print('CINE_PASILLO_DEBUG sin camino', name, entry_az, bool(p1), bool(p2), flush=True)
+        return None
+    raw = [center(q) for q in p1 + p2[1:]]
+    # suavizado gaussiano y re-muestreo por longitud de arco
+    sm = []
+    for i in range(len(raw)):
+        w = [(math.exp(-(k / 3) ** 2), raw[min(len(raw) - 1, max(0, i + k))]) for k in range(-6, 7)]
+        sm.append(sum((p * x for x, p in w), Vector()) / sum(x for x, _ in w))
+    acc = [0.0]
+    for i in range(1, len(sm)):
+        acc.append(acc[-1] + (sm[i] - sm[i - 1]).length)
+    n = 64
+    keys = []
+    for m in range(n):
+        s_ = acc[-1] * m / (n - 1)
+        i = next((j for j in range(1, len(acc)) if acc[j] >= s_), len(acc) - 1)
+        u = (s_ - acc[i - 1]) / max(1e-6, acc[i] - acc[i - 1])
+        pos = sm[i - 1].lerp(sm[i], u)
+        ahead = sm[min(len(sm) - 1, i + 8)]
+        w = math.exp(-((pos - c).length / 10) ** 2)
+        tgt = ahead.lerp(c, min(.85, .25 + w))
+        q = cell(pos)
+        cl = float(clear[q]) if all(0 <= q[a] < (nx, ny, nz)[a] for a in range(3)) else cap
+        x = m / (n - 1)
+        # keys en el mismo reparto temporal que flight_path (t ≈ ease del cuadro)
+        keys.append((.45 * x + .55 * (.5 - .5 * math.cos(math.pi * x)), tuple(pos), tuple(tgt), 20 + 2 * min(cl, 5)))
+    return keys
+
+
+def plan_corridors(scene, names):
+    """Prueba 8 entradas por servicio y guarda el mejor recorrido de pasillos en camaras-pasillos.json."""
+    for name in names:
+        pts = system_points(name, scene)
+        best = None
+        for az in range(-180, 180, 45):
+            keys = corridor_path(name, scene, az)
+            if not keys:
+                continue
+            m = camera_score(keys, pts, detail=True)
+            score = 4 * m['bad'] + m['empty'] - .5 * m['vis']
+            print('CINE_PASILLO_PRUEBA', scene, name, az, json.dumps({k: v for k, v in m.items() if k != 'malos'}), flush=True)
+            if best is None or score < best[0]:
+                best = (score, az, keys, m)
+        if best is None:
+            print('CINE_PASILLO', scene, name, 'sin recorrido', flush=True)
+            continue
+        _, az, keys, m = best
+        disco = json.loads(PASILLOS_PATH.read_text()) if PASILLOS_PATH.exists() else {}
+        disco[f'{scene}-{name}'] = dict(style='pasillo', az=az, **m, actual=CAMARAS.get(f'{scene}-{name}', {}),
+                                        keys=[[k[0], list(k[1]), list(k[2]), k[3]] for k in keys])
+        PASILLOS_PATH.write_text(json.dumps(disco, indent=1, sort_keys=True) + '\n')
+        print('CINE_PASILLO', scene, name, az, json.dumps({k: v for k, v in m.items() if k != 'malos'}), flush=True)
+
+
 def flight_at(keys, t):
     ts = [k[0] for k in keys]
     i = max(0, min(len(keys) - 2, next((j for j in range(len(ts) - 1) if t <= ts[j + 1]), len(ts) - 2)))
@@ -1293,6 +1481,7 @@ def main():
     ap.add_argument('--pass', dest='pass_', choices=('cine', 'skeleton', 'preview'), default='cine')
     ap.add_argument('--variant', choices=sorted(VARIANTS), help='v4: recorrido propio de un servicio (implica --flight)')
     ap.add_argument('--en', choices=SCENES, help='v4: el recorrido del servicio en otra escena')
+    ap.add_argument('--pasillo', help='v4: servicios (coma) para planificar recorridos por pasillos; escribe camaras-pasillos.json')
     ap.add_argument('--scout', help='v4: servicios (coma) para elegir cámara en esta escena; escribe camaras-v4.json')
     a = ap.parse_args(sys.argv[sys.argv.index('--') + 1:])
     if a.variant:
@@ -1317,6 +1506,11 @@ def main():
     center = (lo + hi) / 2
     extent = max(hi.x - lo.x, hi.y - lo.y, hi.z - lo.z)
     frames = a.frames
+    if a.pasillo:
+        context_for(a.scene, lo, hi, center, extent)
+        interior_fill(a.scene, lo, hi)
+        plan_corridors(a.scene, a.pasillo.split(','))
+        return
     if a.scout:
         context_for(a.scene, lo, hi, center, extent)
         interior_fill(a.scene, lo, hi)
