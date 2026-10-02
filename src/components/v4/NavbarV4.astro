@@ -74,14 +74,14 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
                   <>
                     <div class="um-ops-mega__intro">
                       <p class="um-ops-mega__kicker"><i></i>Nueve sectores</p>
-                      <p class="um-ops-mega__lead">Entrá por su sector y revisá casos comparables antes de contratar.</p>
+                      <p class="um-ops-mega__lead">Entrá por su sector y revisá casos comparables antes de contratar. El número es la cantidad de casos documentados.</p>
                       <a class="um-ops-mega__all" href="/sectores">Ver todos los sectores <span aria-hidden="true">→</span></a>
                     </div>
                     <ul class="um-ops-mega__grid um-ops-mega__grid--sectors">
                       {NAV_SECTORS.map((s) => (
                         <li>
                           <a href={s.href} class:list={[{ 'is-active': isActive(s.href) }]}>
-                            <span class="um-ops-mega__code">{s.count ?? ''}</span>
+                            <span class="um-ops-mega__code" aria-label={s.count ? `${s.count} casos documentados` : undefined}>{s.count ?? '—'}</span>
                             <span class="um-ops-mega__name">{s.name}</span>
                             <span class="um-ops-mega__text">{s.text}</span>
                           </a>
