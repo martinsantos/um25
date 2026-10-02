@@ -148,9 +148,13 @@ rsync -anic --delete \
   --exclude='/images/software-comunidades/credencial-demo-email.gif' \
   --exclude='/software/gestion-de-comunidades-profesionales/demo/***' \
   "$current/client/" "$incoming/client/" > "$release/asset-overlay-final-raw.txt"
-# rsync may warn that parent image directories cannot be deleted because the
-# new GIF is deliberately protected. Any actual itemized change still blocks.
-sed -E '/^rsync\([0-9]+\): warning: .*\/images(\/software-comunidades)?: not empty, cannot delete$/d' \
+# rsync reports the parent directories of protected new assets as deletion
+# candidates even though it keeps their contents. Ignore only those exact
+# parent-directory messages; any actual file change still blocks the swap.
+sed -E \
+  -e '/^rsync\([0-9]+\): warning: .*\/images(\/software-comunidades)?: not empty, cannot delete$/d' \
+  -e '/^cannot delete non-empty directory: software(\/gestion-de-comunidades-profesionales)?$/d' \
+  -e '/^\*deleting[[:space:]]+software\/gestion-de-comunidades-profesionales\/$/d' \
   "$release/asset-overlay-final-raw.txt" > "$release/asset-overlay-final-drift.txt"
 if [[ -s "$release/asset-overlay-final-drift.txt" ]]; then
   echo 'Published static assets changed during staging; refusing swap' >&2
