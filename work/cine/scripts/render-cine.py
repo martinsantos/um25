@@ -594,6 +594,25 @@ def cut_hospital():
         bm.free()
 
 
+def cut_fachada(y_cut=.6):
+    """Corte de sección "casa de muñecas": saca la piel del frente sur (muros, vidrio, carpinterías,
+    balcones) por encima de la vereda, para que la cámara vea los pisos y sus sistemas. Las losas y
+    los muros laterales, que cruzan toda la profundidad, quedan enteros."""
+    for obj in list(bpy.context.scene.objects):
+        if not obj.name.startswith('Architecture__') or obj.type != 'MESH':
+            continue
+        mesh = obj.data.copy()
+        obj.data = mesh
+        bm = bmesh.new()
+        bm.from_mesh(mesh)
+        mw = obj.matrix_world
+        front = [f for f in bm.faces
+                 if all((mw @ v.co).y < y_cut and (mw @ v.co).z > .05 and abs((mw @ v.co).x) < 9.8 for v in f.verts)]
+        bmesh.ops.delete(bm, geom=front, context='FACES')
+        bm.to_mesh(mesh)
+        bm.free()
+
+
 def bounds():
     pts = [o.matrix_world @ v.co for o in bpy.context.scene.objects
            if o.type == 'MESH' and not o.hide_render for v in o.data.vertices]
@@ -1287,6 +1306,8 @@ def main():
     load_model(SCENES[a.scene])
     if a.scene == 'hospital':
         cut_hospital()
+    elif a.scene == 'fachada':
+        cut_fachada()
     palette = build_palette(a.scene)
     restyle(a.scene, palette)
     bpy.context.view_layer.update()
