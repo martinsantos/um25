@@ -1,0 +1,134 @@
+---
+/**
+ * Aviso de instalación sobrio (fase 5). Sólo en teléfono, sólo cuando el
+ * navegador dispara beforeinstallprompt, y recién en la segunda visita.
+ * "Ahora no" lo silencia 30 días. Sin JS no existe.
+ */
+import { resolvePageLanguage } from '../../config/i18nRoutes';
+const lang = resolvePageLanguage(Astro.url.pathname);
+const t = lang === 'en'
+  ? { title: 'Install ULTIMA MILLA on your phone', text: 'Services, projects and contact, one tap away.', ok: 'Install', no: 'Not now' }
+  : { title: 'Instalar ULTIMA MILLA en el teléfono', text: 'Servicios, proyectos y contacto a un toque.', ok: 'Instalar', no: 'Ahora no' };
+---
+<div class="um-install" data-install-hint hidden role="dialog" aria-labelledby="um-install-title" aria-modal="false">
+  <div class="um-install__panel">
+    <div>
+      <p id="um-install-title" class="um-install__title">{t.title}</p>
+      <p class="um-install__text">{t.text}</p>
+    </div>
+    <div class="um-install__actions">
+      <button type="button" class="um-install__ok" data-install-ok>{t.ok}</button>
+      <button type="button" class="um-install__no" data-install-no>{t.no}</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const bootInstallHint = () => {
+    const hint = document.querySelector<HTMLElement>('[data-install-hint]');
+    if (!hint || hint.dataset.bound === 'true') return;
+    hint.dataset.bound = 'true';
+    const KEY_VISITS = 'um25:visits';
+    const KEY_SNOOZE = 'um25:install-snooze';
+    const read = (k: string) => { try { return localStorage.getItem(k); } catch { return null; } };
+    const write = (k: string, v: string) => { try { localStorage.setItem(k, v); } catch { /* sin storage */ } };
+    const visits = Number(read(KEY_VISITS) || 0) + 1;
+    write(KEY_VISITS, String(visits));
+    const snoozedUntil = Number(read(KEY_SNOOZE) || 0);
+    const standalone = matchMedia('(display-mode: standalone)').matches;
+    if (standalone || visits < 2 || Date.now() < snoozedUntil) return;
+
+    let deferred: any = null;
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferred = event;
+      hint.hidden = false;
+    });
+    hint.querySelector('[data-install-ok]')?.addEventListener('click', async () => {
+      hint.hidden = true;
+      if (!deferred) return;
+      deferred.prompt();
+      try { await deferred.userChoice; } catch { /* cancelado */ }
+      deferred = null;
+    });
+    hint.querySelector('[data-install-no]')?.addEventListener('click', () => {
+      hint.hidden = true;
+      write(KEY_SNOOZE, String(Date.now() + 30 * 24 * 60 * 60 * 1000));
+    });
+  };
+  bootInstallHint();
+  document.addEventListener('astro:page-load', bootInstallHint);
+</script>
+
+<style>
+  .um-install {
+    display: none;
+  }
+
+  @media (max-width: 760px) {
+    .um-install:not([hidden]) {
+      display: block;
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: calc(58px + 12px + env(safe-area-inset-bottom, 0px));
+      z-index: var(--um-z-sticky);
+    }
+
+    .um-install__panel {
+      display: grid;
+      gap: 12px;
+      padding: 14px 16px;
+      background: #111214;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-top: 2px solid #dc2626;
+      color: #fff;
+    }
+
+    .um-install__title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .um-install__text {
+      margin: 4px 0 0;
+      color: #a1a1aa;
+      font-size: 1rem;
+    }
+
+    .um-install__actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .um-install__ok,
+    .um-install__no {
+      min-height: 44px;
+      padding: 0 16px;
+      font-family: var(--um-font-body);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .um-install__ok {
+      flex: 1;
+      border: 0;
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .um-install__no {
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: transparent;
+      color: #fff;
+    }
+
+    .um-install__ok:focus-visible,
+    .um-install__no:focus-visible {
+      outline: 2px solid #dc2626;
+      outline-offset: 2px;
+    }
+  }
+</style>

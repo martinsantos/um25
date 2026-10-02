@@ -6,6 +6,8 @@
 
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import EvidenceCaseRow from '../../../components/um/EvidenceCaseRow.astro';
+import ShareButton from '../../../components/common/ShareButton.astro';
+import { getAntecedentes as getCatalogAntecedentes, getServicios as getCatalogServicios } from '../../../lib/um26-directus';
 import UMButton from '../../../components/um/UMButton.astro';
 import IntentLinkGraph from '../../../components/um/IntentLinkGraph.astro';
 import EmailLink from '../../../components/common/EmailLink.astro';
@@ -348,10 +350,57 @@ const getRelatedAntecedentes = async (area: string, excludeId: string, limit: nu
   }
 };
 
-// La imagen principal de la ficha no se repite en los relacionados.
-const relatedAntecedentes = (await getRelatedAntecedentes(antecedente.Area || '', id, 4))
-  .filter((item) => item.imageUrl !== mainImageUrl)
-  .slice(0, 3);
+// Casos comparables (fase 4): se puntúan por servicios compartidos (código SGI),
+// mismo sector y cercanía en el tiempo sobre el catálogo verificado. Si el caso
+// no está en el catálogo, se cae al criterio anterior (mismo sector por Area).
+const SECTOR_LABELS: Record<string, string> = {
+  aeropuertos: 'Aeropuertos', bodegas: 'Bodegas', constructoras: 'Constructoras', gobierno: 'Gobierno y sector público',
+  gobiernosectorpublico: 'Gobierno y sector público', industria: 'Industria', mineria: 'Minería', salud: 'Salud',
+  'seguridad-electronica': 'Seguridad electrónica', software: 'Software',
+};
+const [catalogCases, catalogServices] = await Promise.all([
+  getCatalogAntecedentes({ limit: 1000 }).catch(() => []),
+  getCatalogServicios().catch(() => []),
+]);
+const serviceNameByCode = new Map(catalogServices.map((s) => [Number(s.code), s.name]));
+const currentCatalogCase = catalogCases.find((item) => String(item.id) === String(id));
+const appliedServiceNames = (currentCatalogCase?.service_codes || [])
+  .map((code) => serviceNameByCode.get(Number(code)))
+  .filter((name): name is string => Boolean(name));
+const comparableCases = currentCatalogCase
+  ? catalogCases
+      .filter((item) => String(item.id) !== String(id) && item.image && item.image !== mainImageUrl)
+      .map((item) => {
+        const shared = item.service_codes.filter((c) => currentCatalogCase.service_codes.includes(c)).length;
+        const sameSector = item.sector_slug === currentCatalogCase.sector_slug ? 1 : 0;
+        const years = Math.abs((item.year || 0) - (currentCatalogCase.year || 0));
+        return { item, shared, sameSector, score: shared * 3 + sameSector * 2 - Math.min(years, 10) / 10 };
+      })
+      .filter((c) => c.shared > 0 || c.sameSector > 0)
+      .sort((a, b) => b.score - a.score || b.item.year - a.item.year)
+      // Un solo caso por título+cliente: las obras repetidas en lotes no se duplican.
+      .filter((c, i, arr) => arr.findIndex((o) => `${o.item.title}|${o.item.client}`.toLowerCase() === `${c.item.title}|${c.item.client}`.toLowerCase()) === i)
+      .slice(0, 3)
+      .map(({ item, shared, sameSector }) => ({
+        id: item.id,
+        slug: item.slug,
+        Titulo: item.title,
+        displayTitle: item.title,
+        Cliente: item.client,
+        displayDescription: item.summary,
+        Descripcion: item.summary,
+        imageUrl: item.image,
+        Area: SECTOR_LABELS[item.sector_slug] || item.sector_slug,
+        Fecha: String(item.year || ''),
+        comparableWhy: [shared > 0 ? (shared === 1 ? 'mismo servicio' : `${shared} servicios en común`) : '', sameSector ? 'mismo sector' : ''].filter(Boolean).join(' · '),
+      }))
+  : [];
+const relatedAntecedentes = comparableCases.length > 0
+  ? comparableCases
+  : (await getRelatedAntecedentes(antecedente.Area || '', id, 4))
+      .filter((item) => item.imageUrl !== mainImageUrl)
+      .slice(0, 3);
+const comparablesAreScored = comparableCases.length > 0;
 
 const buildCaseHeadline = (item: any): string => {
   const title = cleanDisplayText(item.Titulo || item.Nombre || 'Proyecto técnico');
@@ -455,6 +504,10 @@ const caseExecutiveItems = [
     label: 'Resultado',
     value: caseRecordSummary ? truncateEditorialText(caseRecordSummary, 135) : '',
   },
+  {
+    label: 'Servicios aplicados',
+    value: appliedServiceNames.join(' · '),
+  },
 ].filter((item) => item.value);
 const caseStrategicLinkGroups = buildCaseStrategicLinkGroups({
   currentPath: `/antecedentes/${id}/${slugFromUrl}`,
@@ -544,6 +597,7 @@ const antecedentePageStructuredData = [
           <div class="case-detail-actions">
             <UMButton href="/contacto">Solicitar relevamiento</UMButton>
             <UMButton href="/antecedentes" variant="secondary">Volver al archivo</UMButton>
+            <ShareButton title={caseHeadline} text={metaDescription} label="Compartir caso" />
           </div>
         </div>
 
@@ -795,8 +849,8 @@ const antecedentePageStructuredData = [
       <div class="um-container">
         <div class="case-related__head">
           <div>
-            <span class="um-kicker">Proyectos relacionados</span>
-            <h2>Evidencia relacionada</h2>
+            <span class="um-kicker">{comparablesAreScored ? 'Casos comparables' : 'Proyectos relacionados'}</span>
+            <h2>{comparablesAreScored ? 'Mismo servicio, mismo sector.' : 'Evidencia relacionada'}</h2>
           </div>
           <a href="/antecedentes" class="um-click-surface case-related__link">
             Ver antecedentes
@@ -822,6 +876,7 @@ const antecedentePageStructuredData = [
               imageAlt={ant.Titulo || 'Antecedente'}
               sector={ant.Area || 'Servicios IT'}
               year={formatAntecedenteYear(ant.Fecha)}
+              eyebrow={ant.comparableWhy}
             />
           ))}
         </div>

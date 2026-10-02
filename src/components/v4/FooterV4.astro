@@ -10,6 +10,8 @@ import UMLogo from '../brand/UMLogo.astro';
 
 import EmailLink from '../common/EmailLink.astro';
 import { commercialHubLinkItems, commercialHubShortLabels } from '../../data/strategicLinkGraph';
+import { shellLocale } from '../../config/i18nShell';
+const { t: shellT, alternate: alternateLangHref, alternateLang } = shellLocale(Astro.url.pathname);
 
 const currentYear = new Date().getFullYear();
 const commercialHubFooterLinks = commercialHubLinkItems.map((link) => ({
@@ -162,10 +164,11 @@ const socialLinks = [
 
     <!-- Bottom Bar -->
     <div class="um-footer-bottom mt-8 sm:mt-12 pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
-      <p class="text-base sm:text-base">© {currentYear} Ultima Milla. Todos los derechos reservados.</p>
+      <p class="text-base sm:text-base">© {currentYear} Ultima Milla. {shellT.footer.rights}</p>
       <div class="flex gap-4 sm:gap-6 text-base sm:text-base">
-        <a href="/privacidad" class="transition-colors">Privacidad</a>
-        <a href="/terminos" class="transition-colors">Términos</a>
+        <a href="/privacidad" class="transition-colors">{shellT.footer.privacy}</a>
+        <a href="/terminos" class="transition-colors">{shellT.footer.terms}</a>
+        <a href={alternateLangHref} class="transition-colors um-footer-lang" hreflang={alternateLang} lang={alternateLang}>{shellT.lang.switchTo}</a>
       </div>
     </div>
   </div>

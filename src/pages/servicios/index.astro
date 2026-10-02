@@ -1,5 +1,6 @@
 ---
 import LayoutV4 from '../../layouts/LayoutV4.astro';
+import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
 import CineBanner from '../../components/cine/CineBanner.astro';
 
 type Service = {
@@ -168,6 +169,40 @@ const totalServices = String(services.length).padStart(2, '0');
           </div>
         </a>
       ))}
+    </section>
+
+    <section class="services-demo-shell services-demo-compare" aria-labelledby="services-compare-title">
+      <div class="services-demo-compare__head">
+        <div>
+          <p class="services-demo-kicker"><span></span>Comparar</p>
+          <h2 id="services-compare-title">Los ocho frentes en una tabla.</h2>
+        </div>
+        <p>Entregable clave, referencia normativa y nivel de servicio de cada frente. La ficha técnica completa está en cada detalle y en <a href="/certificaciones#fichas">documentación técnica</a>.</p>
+      </div>
+      <div class="services-demo-compare__table">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Frente</th>
+              <th scope="col">Entregable clave</th>
+              <th scope="col">Referencia normativa</th>
+              <th scope="col">Nivel de servicio</th>
+              <th scope="col">Sectores</th>
+            </tr>
+          </thead>
+          <tbody>
+            {SERVICE_SPEC_LIST.map((spec) => (
+              <tr>
+                <th scope="row"><a href={spec.href}><span>{spec.code}</span>{spec.name}</a></th>
+                <td>{spec.keyDeliverable}</td>
+                <td>{spec.keyStandard}</td>
+                <td>{spec.serviceLevel[0]}</td>
+                <td>{spec.sectors.length}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <section class="services-demo-shell services-demo-closing">
@@ -510,6 +545,102 @@ const totalServices = String(services.length).padStart(2, '0');
     .services-demo-row:focus-visible .services-demo-action {
       color: #dc2626;
       border-color: #dc2626;
+    }
+
+    .services-demo-compare {
+      padding-top: clamp(40px, 6vw, 80px);
+    }
+
+    .services-demo-compare__head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 20px 48px;
+      align-items: end;
+      margin-bottom: 28px;
+    }
+
+    .services-demo-compare__head h2 {
+      margin: 0;
+      font-size: clamp(1.9rem, 3vw, 2.6rem);
+      line-height: 1.08;
+      font-weight: 600;
+    }
+
+    .services-demo-compare__head p {
+      margin: 0;
+      color: #a1a1aa;
+      font-size: 1.0625rem;
+      line-height: 1.6;
+      max-width: 52ch;
+    }
+
+    .services-demo-compare__head a {
+      color: #fff;
+      text-decoration: underline;
+      text-decoration-color: #dc2626;
+      text-underline-offset: 4px;
+    }
+
+    .services-demo-compare__table {
+      overflow-x: auto;
+      border-top: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .services-demo-compare__table table {
+      width: 100%;
+      min-width: 820px;
+      border-collapse: collapse;
+    }
+
+    .services-demo-compare__table th,
+    .services-demo-compare__table td {
+      padding: 14px 16px 14px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      text-align: left;
+      vertical-align: top;
+      font-size: 1rem;
+      line-height: 1.45;
+      color: #d4d4d8;
+    }
+
+    .services-demo-compare__table thead th {
+      color: #a1a1aa;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 1rem;
+    }
+
+    .services-demo-compare__table tbody th a {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 10px;
+      color: #fff;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .services-demo-compare__table tbody th a span {
+      font-family: var(--um-font-mono);
+      color: #dc2626;
+      font-weight: 600;
+    }
+
+    .services-demo-compare__table tbody th a:hover,
+    .services-demo-compare__table tbody th a:focus-visible {
+      text-decoration: underline;
+      text-decoration-color: #dc2626;
+      text-underline-offset: 4px;
+    }
+
+    .services-demo-compare__table td:last-child {
+      font-variant-numeric: tabular-nums;
+    }
+
+    @media (max-width: 820px) {
+      .services-demo-compare__head {
+        grid-template-columns: 1fr;
+      }
     }
 
     .services-demo-closing {

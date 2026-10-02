@@ -12,67 +12,12 @@ import ProductBand from '../components/cine/ProductBand.astro';
 import CompanyBand from '../components/cine/CompanyBand.astro';
 import JournalBand from '../components/cine/JournalBand.astro';
 import SnapRail from '../components/cine/SnapRail.astro';
+import CapabilityLedger from '../components/cine/CapabilityLedger.astro';
+import { NAV_SERVICES } from '../data/navigation';
 
 const heroLead = 'Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.';
 
-const services = [
-  {
-    code: '101',
-    name: 'Redes',
-    text: 'Cableado estructurado y fibra óptica certificada.',
-    href: '/servicios/101/infraestructura-de-redes-cableado-fibra-optica-radioenlaces',
-    image: '/img/servicios/redes.webp',
-  },
-  {
-    code: '102',
-    name: 'Seguridad electrónica',
-    text: 'CCTV IP, accesos y monitoreo documentado.',
-    href: '/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi',
-    image: '/img/servicios/seguridad-electronica.webp',
-  },
-  {
-    code: '103',
-    name: 'Telecomunicaciones',
-    text: 'Enlaces de datos, voz y video para sitios remotos.',
-    href: '/servicios/103/telecomunicaciones-datos-voz-video',
-    image: '/img/servicios/telecomunicaciones.webp',
-  },
-  {
-    code: '104',
-    name: 'Software a medida',
-    text: 'Sistemas, APIs y tableros para procesos críticos.',
-    href: '/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp',
-    image: '/img/servicios/software-a-medida.webp',
-  },
-  {
-    code: '105',
-    name: 'Soporte 24/7',
-    text: 'Mesa de ayuda, NOC y mantenimiento con SLA.',
-    href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it',
-    image: '/img/servicios/soporte-247.webp',
-  },
-  {
-    code: '106',
-    name: 'Consultoría IT',
-    text: 'Arquitectura, auditoría y roadmap operativo.',
-    href: '/servicios/106/consultoria-it-y-transformacion-digital-arquitectura-auditoria',
-    image: '/img/servicios/consultoria-it.webp',
-  },
-  {
-    code: '107',
-    name: 'Detección de incendios',
-    text: 'SDI, sensores y paneles para entornos productivos.',
-    href: '/servicios/107/sistemas-de-deteccion-y-alarma-de-incendios',
-    image: '/img/servicios/deteccion-incendios.webp',
-  },
-  {
-    code: '108',
-    name: 'Eléctricos IT',
-    text: 'Tableros, UPS y energía limpia para infraestructura.',
-    href: '/servicios/108/servicios-electricos-para-it',
-    image: '/img/servicios/electricos-it.webp',
-  },
-];
+const services = NAV_SERVICES;
 
 const sectors = [
   { name: 'Aeropuertos', count: sectorCaseLabel('aeropuertos'), text: 'CCTV de perímetro 24/7', href: '/aeropuertos', image: '/img/sectores/aeropuertos.webp', accent: '#DC2626', big: true },
@@ -166,7 +111,7 @@ const hubs = [
 
     <section class="um26-section" id="servicios-it">
       <div class="um26-shell">
-        <div class="um26-section__head">
+        <div class="um26-section__head" data-reveal>
           <div>
             <p class="um26-kicker"><span></span>Servicios</p>
             <h2>Ocho frentes de servicio IT.</h2>
@@ -182,7 +127,7 @@ const hubs = [
 
     <section class="um26-section um26-section--band" id="sectores">
       <div class="um26-shell">
-        <div class="um26-section__head">
+        <div class="um26-section__head" data-reveal>
           <div>
             <p class="um26-kicker"><span></span>Sectores</p>
             <h2>Infraestructura IT por sector.</h2>
@@ -196,7 +141,7 @@ const hubs = [
 
     <section class="um26-section" id="antecedentes-home">
       <div class="um26-shell">
-        <div class="um26-section__head">
+        <div class="um26-section__head" data-reveal>
           <div>
             <p class="um26-kicker"><span></span>Proyectos</p>
             <h2>Proyectos que respaldan cada propuesta.</h2>
@@ -204,7 +149,7 @@ const hubs = [
           <p>{getAntecedentesCatalogCount()} proyectos documentados con cliente, sector, servicios aplicados y alcance técnico.</p>
         </div>
 
-        <div class="um26-case-grid" data-rail="Proyectos destacados">
+        <div class="um26-case-grid" data-rail="Proyectos destacados" data-reveal>
           {cases.map((item) => (
             <a class="um26-media-card um26-case-card" href={item.href}>
               <img src={item.image} alt="" width="1200" height="900" loading="lazy" decoding="async" />
@@ -224,9 +169,15 @@ const hubs = [
       </div>
     </section>
 
-    <section class="um26-section um26-section--band" id="empresa">
+    <section class="um26-section" id="empresa">
       <div class="um26-shell">
         <CompanyBand />
+      </div>
+    </section>
+
+    <section class="um26-section um26-section--band" id="capacidad">
+      <div class="um26-shell">
+        <CapabilityLedger />
       </div>
     </section>
 
@@ -238,7 +189,7 @@ const hubs = [
 
     <section class="um26-section um26-section--band" id="cobertura">
       <div class="um26-shell">
-        <div class="um26-section__head">
+        <div class="um26-section__head" data-reveal>
           <div>
             <p class="um26-kicker"><span></span>Cobertura</p>
             <h2>Cobertura en Cuyo y Patagonia.</h2>
@@ -257,7 +208,7 @@ const hubs = [
 
     <section class="um26-contact">
       <div class="um26-shell">
-        <div class="um26-contact__panel">
+        <div class="um26-contact__panel" data-reveal>
           <div>
             <p class="um26-kicker"><span></span>Contacto rápido</p>
             <h2>Ordenemos su infraestructura y su continuidad operativa.</h2>
@@ -1390,65 +1341,5 @@ const hubs = [
       }
     }
   </style>
-
-  <script>
-    const bootUm26Hero = () => {
-      document.querySelectorAll('[data-um26-hero]').forEach((hero) => {
-        const variants = JSON.parse(hero.getAttribute('data-hero-variants') || '[]');
-        if (!Array.isArray(variants) || variants.length < 1) return;
-
-        let current = Number(hero.getAttribute('data-hero-index') || 0);
-        const image = hero.querySelector('[data-hero-image]');
-        const title = hero.querySelector('[data-hero-title]');
-        const lead = hero.querySelector('[data-hero-lead]');
-        const caption = hero.querySelector('[data-hero-caption]');
-        const code = hero.querySelector('[data-hero-code]');
-        const fx = hero.querySelector('[data-hero-fx]');
-        const button = hero.querySelector('.um26-hero__shuffle');
-        const heading = hero.querySelector('#home-title');
-
-        const setText = (node, value) => {
-          if (node) node.textContent = value || '';
-        };
-
-        const applyVariant = (nextIndex) => {
-          current = ((nextIndex % variants.length) + variants.length) % variants.length;
-          const variant = variants[current];
-          if (!variant) return;
-
-          if (image instanceof HTMLImageElement && !image.src.endsWith(variant.image)) {
-            image.style.opacity = '0';
-            window.setTimeout(() => {
-              image.src = variant.image;
-              image.style.opacity = '1';
-            }, 120);
-          }
-
-          setText(lead, variant.lead);
-          setText(caption, variant.caption);
-          setText(code, variant.code);
-          setText(fx, variant.fx || 'TYPE');
-          setText(title, variant.title);
-          heading?.classList.remove('is-typing');
-        };
-
-        button?.addEventListener('click', () => {
-          let next = current;
-          while (next === current && variants.length > 1) {
-            next = Math.floor(Math.random() * variants.length);
-          }
-          applyVariant(next);
-        });
-
-        window.setTimeout(() => applyVariant(current), 180);
-      });
-    };
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', bootUm26Hero, { once: true });
-    } else {
-      bootUm26Hero();
-    }
-  </script>
 
 </LayoutV4>

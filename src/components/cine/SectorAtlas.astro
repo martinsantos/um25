@@ -13,7 +13,10 @@ const first = items[0]?.scene || 'aeropuerto';
 <div class="um-atlas" data-scene={first}>
   <div class="um-atlas__stage">
     {['hospital', 'aeropuerto', 'bodega', 'fachada', 'planta'].map((k) => (
-      <img class:list={['um-atlas__poster', { 'is-on': k === first }]} data-poster={k} src={`/cine/media/cine-${k}-poster.jpg`} alt="" width="1920" height="1080" loading="lazy" decoding="async" />
+      <picture>
+        <source type="image/avif" srcset={`/cine/media/cine-${k}-poster.avif`} />
+        <img class:list={['um-atlas__poster', { 'is-on': k === first }]} data-poster={k} src={`/cine/media/cine-${k}-poster.jpg`} alt="" width="1920" height="1080" loading="lazy" decoding="async" />
+      </picture>
     ))}
     <video class="um-atlas__video" muted loop playsinline preload="none" aria-hidden="true"></video>
     <p class="um-atlas__now" aria-live="polite"><i></i><span>{titles[first]}</span></p>
