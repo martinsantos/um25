@@ -1,0 +1,209 @@
+---
+/**
+ * RenderStage: cuadro para un render UM25 (Blender Cycles) con poster estable,
+ * recorrido en video cargado sólo al entrar en pantalla, etiquetas de sistemas
+ * y acceso al gemelo digital. Respeta prefers-reduced-motion (queda el still).
+ */
+import { getRender, type RenderAsset } from '../../data/renders';
+
+interface Props {
+  render: string | RenderAsset;
+  /** Prioridad de carga del poster (sólo para el primer viewport). */
+  eager?: boolean;
+  showLabels?: boolean;
+  class?: string;
+}
+const { render, eager = false, showLabels = true, class: className } = Astro.props;
+const asset = typeof render === 'string' ? getRender(render) : render;
+const labels = showLabels ? asset.labels ?? [] : [];
+---
+<figure class:list={['um-rs', className]} data-render-stage style={`--rs-aspect:${asset.aspect}`}>
+  <div class="um-rs__frame">
+    <img
+      class="um-rs__poster"
+      src={asset.poster}
+      alt={asset.alt}
+      width={asset.posterWidth}
+      height={asset.posterHeight}
+      loading={eager ? 'eager' : 'lazy'}
+      decoding="async"
+      fetchpriority={eager ? 'high' : 'auto'}
+    />
+    {asset.video && (
+      <video class="um-rs__video" data-src={asset.video} muted loop playsinline preload="none" disablepictureinpicture aria-hidden="true"></video>
+    )}
+    <div class="um-rs__grid" aria-hidden="true"></div>
+    {labels.map((l) => (
+      <span class="um-rs__label" style={`left:${l.x}%;top:${l.y}%`}>
+        {l.system && <b>{l.system}</b>}
+        {l.text}
+      </span>
+    ))}
+    <span class="um-rs__tag" aria-hidden="true">Render UM25 · Cycles</span>
+  </div>
+  {(asset.caption || asset.twin) && (
+    <figcaption class="um-rs__caption">
+      <span>{asset.caption ?? asset.title}</span>
+      {asset.twin && <a href={asset.twin} target="_blank" rel="noopener">Recorrer el gemelo digital <span aria-hidden="true">↗</span></a>}
+    </figcaption>
+  )}
+</figure>
+
+<script>
+  const bootRenderStages = () => {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !('IntersectionObserver' in window)) return;
+    const stages = document.querySelectorAll<HTMLElement>('[data-render-stage]');
+    if (!stages.length) return;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const stage = entry.target as HTMLElement;
+        const video = stage.querySelector<HTMLVideoElement>('.um-rs__video');
+        if (!video) return;
+        if (entry.isIntersecting) {
+          if (!video.src && video.dataset.src) {
+            video.src = video.dataset.src;
+            video.addEventListener('playing', () => stage.classList.add('is-playing'), { once: true });
+          }
+          video.play().catch(() => {});
+        } else if (video.src) {
+          video.pause();
+        }
+      });
+    }, { rootMargin: '120px 0px', threshold: 0.25 });
+    stages.forEach((s) => io.observe(s));
+  };
+  bootRenderStages();
+  document.addEventListener('astro:page-load', bootRenderStages);
+</script>
+
+<style>
+  .um-rs {
+    margin: 0;
+    color: #fff;
+  }
+
+  .um-rs__frame {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: var(--rs-aspect, 16 / 10);
+    max-width: 100%;
+    background: #111214;
+    isolation: isolate;
+  }
+
+  .um-rs__poster,
+  .um-rs__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .um-rs__video {
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .um-rs.is-playing .um-rs__video {
+    opacity: 1;
+  }
+
+  .um-rs__grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+    background-size: 12.5% 12.5%;
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), transparent 70%);
+  }
+
+  .um-rs__label {
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: min(260px, 60%);
+    padding: 7px 10px;
+    transform: translate(-6px, -50%);
+    background: rgba(10, 10, 11, 0.86);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-left: 2px solid #dc2626;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .um-rs__label b {
+    font-family: var(--um-font-mono);
+    font-weight: 600;
+    color: #a1a1aa;
+  }
+
+  .um-rs__tag {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    padding: 5px 9px;
+    background: rgba(10, 10, 11, 0.78);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #a1a1aa;
+    font-family: var(--um-font-mono);
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .um-rs__caption {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 20px;
+    margin-top: 12px;
+    color: #a1a1aa;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .um-rs__caption a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid #dc2626;
+  }
+
+  .um-rs__caption a:hover,
+  .um-rs__caption a:focus-visible {
+    border-bottom-color: #fff;
+  }
+
+  @media (max-width: 760px) {
+    .um-rs__label {
+      max-width: 70%;
+      padding: 6px 8px;
+    }
+
+    .um-rs__label:nth-child(n + 5) {
+      display: none;
+    }
+
+    .um-rs__tag {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .um-rs__video {
+      display: none;
+    }
+  }
+</style>

@@ -9,6 +9,7 @@
 
 import NavbarV4 from '../components/v4/NavbarV4.astro';
 import FooterV4 from '../components/v4/FooterV4.astro';
+import AppTabBar from '../components/v4/AppTabBar.astro';
 import ContactModal from '../components/um/ContactModal.astro';
 import SEOHead from '../components/SEO/SEOHead.astro';
 import { SITE_URL } from '../config/seo';
@@ -218,6 +219,19 @@ const shouldEmitHreflang = hasEnglishAlternate(Astro.url.pathname);
         }
       }
 
+      /* Motion sobrio de entrada: los bloques marcados con data-reveal llegan
+         ya visibles (sin JS no cambia nada) y sólo se desplazan 12px cuando el
+         observador confirma que entran en pantalla. */
+      html.um-motion [data-reveal] {
+        opacity: 0;
+        transform: translateY(12px);
+        transition: opacity 0.55s cubic-bezier(.2,.8,.2,1), transform 0.55s cubic-bezier(.2,.8,.2,1);
+      }
+      html.um-motion [data-reveal].is-in {
+        opacity: 1;
+        transform: none;
+      }
+
       /* Reduced motion */
       @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after {
@@ -276,5 +290,38 @@ const shouldEmitHreflang = hasEnglishAlternate(Astro.url.pathname);
 
     <ContactModal />
     <FooterV4 />
+    <AppTabBar />
+
+    <script>
+      // Reveal: se activa sólo con IntersectionObserver y sin reduced-motion.
+      const bootReveal = () => {
+        const root = document.documentElement;
+        const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const targets = document.querySelectorAll<HTMLElement>('[data-reveal]:not(.is-in)');
+        if (reduce || !('IntersectionObserver' in window) || !targets.length) {
+          root.classList.remove('um-motion');
+          return;
+        }
+        root.classList.add('um-motion');
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            const el = entry.target as HTMLElement;
+            const delay = Number(el.dataset.revealDelay || 0);
+            el.style.transitionDelay = delay ? `${delay}ms` : '';
+            el.classList.add('is-in');
+            io.unobserve(el);
+          });
+        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+        targets.forEach((el) => {
+          const r = el.getBoundingClientRect();
+          // Lo que ya está en pantalla al cargar no se anima: la primera vista queda completa.
+          if (r.top < innerHeight && r.bottom > 0) el.classList.add('is-in');
+          else io.observe(el);
+        });
+      };
+      bootReveal();
+      document.addEventListener('astro:page-load', bootReveal);
+    </script>
   </body>
 </html>

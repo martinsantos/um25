@@ -174,3 +174,16 @@
   .umc-poster, .umc-tag, .umc-tag__card { transition: none; }
   .umc-tag__ret::before { animation: none !important; }
 }
+
+/* Teléfono con barra de pestañas: la apertura cede altura para que el CTA
+   principal entre en el primer viewport (compuerta estricta de la home). */
+@media (max-width: 760px) {
+  .umc--home .umc-stage { height: min(52svh, 440px); }
+  .umc--home .umc-copy { padding-top: calc(min(52svh, 440px) - 110px); }
+  .umc--home .umc-lead { margin-top: 16px; }
+  .umc--home .umc-cta { margin-top: 24px; }
+}
+@media (max-width: 760px) and (max-height: 760px) {
+  .umc--home .umc-stage { height: min(44svh, 360px); }
+  .umc--home .umc-copy { padding-top: calc(min(44svh, 360px) - 110px); }
+}
