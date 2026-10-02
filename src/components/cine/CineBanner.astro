@@ -4,13 +4,14 @@
 // Portada: encadena las escenas. Sector o servicio: una escena en bucle.
 // El 3D interactivo se abre sólo a pedido (/cine/cine-banner.js).
 import '../../styles/cine-banner.css';
-import { HOME_SCENES, SCENE_TITLES, type Scene } from '../../data/cine/scenes';
+import { HOME_SCENES, SCENE_TITLES, baseScene, type Scene } from '../../data/cine/scenes';
 
 interface Stat { label: string; value: string }
 interface Link { href: string; label: string }
 interface Props {
   variant?: 'home' | 'sector';
-  scenes?: Scene[];
+  /** Escenas base o claves v4 "<escena>-<servicio>" (mismos archivos, con sufijo). */
+  scenes?: string[];
   systems?: string[];
   kicker?: string;
   title: string;
@@ -29,6 +30,7 @@ const first = scenes[0];
 const dot = title.endsWith('.');
 const heading = dot ? title.slice(0, -1) : title;
 const rail = HOME_SCENES.filter((s) => scenes.includes(s.scene));
+const firstTitle = SCENE_TITLES[baseScene(first)];
 ---
 <section class:list={['umc', `umc--${variant}`]} data-umc data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} aria-labelledby={titleId}>
   <div class="umc-stage" aria-hidden="true">
@@ -72,7 +74,7 @@ const rail = HOME_SCENES.filter((s) => scenes.includes(s.scene));
         ))}
       </div>
     ) : scenes.length > 1 ? (
-      <p class="umc-caption" data-umc-caption>{SCENE_TITLES[first]}</p>
+      <p class="umc-caption" data-umc-caption>{firstTitle}</p>
     ) : (
       <span class="umc-caption" aria-hidden="true"></span>
     )}

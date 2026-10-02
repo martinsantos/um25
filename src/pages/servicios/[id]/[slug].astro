@@ -17,7 +17,7 @@ import ShareButton from '../../../components/common/ShareButton.astro';
 import { getServiceSpec } from '../../../data/serviceSpecs';
 import { RENDERS } from '../../../data/renders';
 import SnapRail from '../../../components/cine/SnapRail.astro';
-import { SERVICE_SCENES } from '../../../data/cine/scenes';
+import { SERVICE_SCENES, serviceSceneKey } from '../../../data/cine/scenes';
 
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
@@ -468,7 +468,7 @@ const fichaItems = [
 >
   <CineBanner
     variant="sector"
-    scenes={[(SERVICE_SCENES[String(id)] || SERVICE_SCENES['101']).scene]}
+    scenes={[serviceSceneKey(String(id))]}
     systems={(SERVICE_SCENES[String(id)] || SERVICE_SCENES['101']).systems}
     titleId="service-title"
     kicker={visual?.eyebrow || servicio.area || 'Servicio IT'}
