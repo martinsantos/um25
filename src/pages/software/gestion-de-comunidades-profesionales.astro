@@ -94,6 +94,14 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     function queueEvent(command: string, name: string, params: Record<string, string>) { layer!.push(arguments); }
     queueEvent('event', event, { campaign: 'comunidades_profesionales', placement, ...attribution });
   };
+  const demoFrame = document.querySelector<HTMLIFrameElement>('.live-demo-window iframe');
+  const demoSections = new Set(['cuotas', 'credencial', 'tramites', 'consultas', 'administracion']);
+  window.addEventListener('message', (event) => {
+    if (event.origin !== location.origin || event.source !== demoFrame?.contentWindow) return;
+    const message = event.data;
+    if (message?.type !== 'umsa_demo_section' || typeof message.feature !== 'string' || !demoSections.has(message.feature)) return;
+    track('gc_demo_section', message.feature);
+  });
   document.querySelectorAll<HTMLAnchorElement>('[data-cta]').forEach((link) => link.addEventListener('click', () => track('gc_cta_click', link.dataset.cta || 'unknown')));
   document.querySelectorAll<HTMLAnchorElement>('[data-interest]').forEach((link) => link.addEventListener('click', () => track('gc_interest_click', link.dataset.interest || 'unknown')));
   const form = document.querySelector<HTMLFormElement>('#gc-form');
