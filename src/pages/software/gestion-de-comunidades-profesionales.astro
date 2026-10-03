@@ -423,9 +423,12 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   });
   const form = document.querySelector<HTMLFormElement>('#gc-form');
   const status = document.querySelector<HTMLElement>('#gc-status');
+  let submitting = false;
   form?.addEventListener('submit', async (event) => {
     event.preventDefault();
+    if (submitting) return;
     if (!form.reportValidity()) return;
+    submitting = true;
     const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
     if (button) button.disabled = true;
     if (status) status.textContent = 'Enviando consulta…';
@@ -451,7 +454,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
       quizAttached = false;
       if (status) status.textContent = 'Recibimos tu solicitud de demo. Te responderemos por email.';
     } catch { if (status) status.textContent = 'No pudimos enviar la solicitud. Intentá nuevamente o escribinos a contacto@ultimamilla.com.ar.'; }
-    finally { if (button) button.disabled = false; }
+    finally { submitting = false; if (button) button.disabled = false; }
   });
 </script>
 <style>
@@ -698,7 +701,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   .quiz-intro .kicker { grid-column:1 / -1; margin-bottom:15px; color:#a12f29; }
   body[data-skin] main.gc .quiz-intro h2 { max-width:780px; margin:0; font-size:clamp(2.35rem,4vw,4.2rem) !important; font-weight:550; line-height:1.08; }
   .gc .quiz-intro p:last-child { max-width:390px; margin:0 0 7px; color:#43514b; font-size:1.08rem; line-height:1.55; }
-  .quiz-shell { display:grid; grid-template-columns:minmax(240px,.34fr) minmax(0,.66fr); min-height:550px; overflow:hidden; border:1px solid #ccd6cd; background:#fff; box-shadow:0 20px 50px #152c1b0a; scroll-margin-top:92px; }
+  .quiz-shell { display:grid; grid-template-columns:minmax(240px,.34fr) minmax(0,.66fr); min-height:550px; overflow:hidden; border:1px solid #ccd6cd; background:#fff; scroll-margin-top:92px; }
   .quiz-side { display:flex; flex-direction:column; padding:40px 38px; background:#172d27; color:#f4f8f3; }
   .quiz-side-mark { font-size:1.25rem; font-weight:750; letter-spacing:-.08em; }
   .quiz-side-mark span { color:#ef695f; }
