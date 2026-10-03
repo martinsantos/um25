@@ -197,6 +197,33 @@ jobs:
           test -f dist/client/software/gestion-de-comunidades-profesionales/demo/index.html
           grep -Fq '/software/gestion-de-comunidades-profesionales/demo/' dist/client/sw.js
 
+      # Read-only: report what is using the server disk (scoped release folders,
+      # git worktrees) and stop before uploading when the staged build plus the
+      # swap script's 2.5 GB reserve would not fit, so an aborted release never
+      # leaves another orphan incoming-dist behind.
+      - name: Report and check server storage
+        run: |
+          set -euo pipefail
+          need_kb=$(( $(du -sk dist | cut -f1) + 2500000 ))
+          ssh root@23.105.176.45 "bash -s -- '$DEPLOY_PATH' '$need_kb'" <<'EOF'
+          set -euo pipefail
+          app="$1"; need_kb="$2"
+          df -h "$app"
+          echo '--- scoped release folders (newest first)'
+          { ls -1dt "$app"/backups/umsa-campaign-* 2>/dev/null || true; } | head -20 | xargs -r du -sh
+          echo '--- backups total'
+          du -sh "$app/backups" 2>/dev/null || true
+          echo '--- git worktrees'
+          git -C "$app" worktree list 2>/dev/null || true
+          git -C "$app" worktree prune --dry-run -v 2>/dev/null || true
+          avail_kb="$(df -Pk "$app" | awk 'NR==2 {print $4}')"
+          echo "available_kb=$avail_kb need_kb=$need_kb"
+          if (( avail_kb < need_kb )); then
+            echo 'Not enough free space to stage this release; nothing was uploaded' >&2
+            exit 1
+          fi
+          EOF
+
       - name: Stage build outside live site
         run: |
           set -euo pipefail
