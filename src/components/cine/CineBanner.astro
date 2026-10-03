@@ -80,7 +80,7 @@ const firstTitle = SCENE_TITLES[baseScene(first)];
           </button>
         ))}
       </div>
-    ) : scenes.length > 1 ? (
+    ) : (scenes.length > 1 || variantsAttr) ? (
       <p class="umc-caption" data-umc-caption>{firstTitle}</p>
     ) : (
       <span class="umc-caption" aria-hidden="true"></span>

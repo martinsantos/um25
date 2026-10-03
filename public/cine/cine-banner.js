@@ -62,7 +62,9 @@ function banner(el) {
   const rail = [...el.querySelectorAll('[data-umc-scene]')];
   const motion = el.querySelector('[data-umc-motion]');
   const caption = el.querySelector('[data-umc-caption]');
-  const multi = scenes.length > 1;
+  // Con una sola escena pero varios recorridos (sector o servicio), el banner también
+  // encadena: al terminar un recorrido sortea otro de la misma escena.
+  const multi = scenes.length > 1 || vary;
   // Escenario angosto (teléfono vertical): recorte cuadrado 1080×1080 de la zona que
   // encuadra el escenario, píxel a píxel. Más ancho (tablet, desktop): 1080p completo.
   const SQ = { x: 487, w: 1080, h: 1080 };
