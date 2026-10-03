@@ -15,6 +15,8 @@ const SERVICES = {
 };
 const TITLES = { bodega: 'Bodega', fachada: 'Edificio corporativo', aeropuerto: 'Terminal aeroportuaria', hospital: 'Hospital', planta: 'Planta de altura' };
 const ENGINE = { planta: 'bodega' }; // el motor 3D usa la nave de la bodega para la planta
+// Claves v4 "<escena>-<servicio>": la escena base define título y motor 3D.
+const baseOf = (scene) => String(scene || '').split('-')[0];
 const clean = (s) => String(s || '').replace(/\s*\/\s*DEMO\b/gi, '').replace(/\bDEMO\b\s*[·-]?\s*/gi, '').trim();
 const motionLimited = () => matchMedia('(prefers-reduced-motion: reduce)').matches || Boolean(navigator.connection?.saveData);
 const compact = () => innerWidth <= 820 || matchMedia('(pointer: coarse)').matches;
@@ -24,8 +26,34 @@ const loadTrack = (scene) => {
   return tracks.get(scene);
 };
 
+const SERVICE_NAMES = {
+  redes: 'Redes', seguridad: 'Seguridad electrónica', telecom: 'Telecomunicaciones', software: 'Software a medida',
+  soporte: 'Soporte 24/7', consultoria: 'Consultoría IT', incendios: 'Detección de incendios', electricos: 'Eléctricos IT',
+};
+const serviceOf = (cut) => SERVICE_NAMES[String(cut || '').split('-')[1]] || '';
+// Empalmes entre planos: corte seco, ráfaga de glitch o barrido. Se sortea en cada corte.
+const FX = ['cut', 'glitch', 'wipe-l', 'wipe-r', 'wipe-u', 'glitch'];
+
 function banner(el) {
   const scenes = el.dataset.scenes.split(',');
+  // Recorridos alternativos por escena ("bodega:bodega-redes|bodega-soporte;hospital:…").
+  const VARIANTS = Object.fromEntries((el.dataset.variants || '').split(';').filter(Boolean).map((g) => {
+    const [s, list] = g.split(':');
+    return [s, (list || '').split('|').filter(Boolean)];
+  }));
+  const vary = Object.keys(VARIANTS).length > 0 && !motionLimited();
+  const planned = {};
+  let lastCut = '';
+  // Qué recorrido toca para la escena i: la escena base o uno de sus v4, nunca el mismo dos veces seguidas.
+  const cutOf = (i) => {
+    const s = scenes[i];
+    if (!vary) return s;
+    if (!planned[i]) {
+      const opts = [s, ...(VARIANTS[s] || [])].filter((k) => k !== lastCut);
+      planned[i] = opts[Math.floor(Math.random() * opts.length)] || s;
+    }
+    return planned[i];
+  };
   const only = (el.dataset.systems || '').split(',').filter(Boolean);
   const [va, vb] = el.querySelectorAll('.umc-video');
   const poster = el.querySelector('.umc-poster');
@@ -34,13 +62,15 @@ function banner(el) {
   const rail = [...el.querySelectorAll('[data-umc-scene]')];
   const motion = el.querySelector('[data-umc-motion]');
   const caption = el.querySelector('[data-umc-caption]');
-  const multi = scenes.length > 1;
+  // Con una sola escena pero varios recorridos (sector o servicio), el banner también
+  // encadena: al terminar un recorrido sortea otro de la misma escena.
+  const multi = scenes.length > 1 || vary;
   // Escenario angosto (teléfono vertical): recorte cuadrado 1080×1080 de la zona que
   // encuadra el escenario, píxel a píxel. Más ancho (tablet, desktop): 1080p completo.
   const SQ = { x: 487, w: 1080, h: 1080 };
   const narrow = () => stage.clientWidth <= stage.clientHeight * 1.05;
   const src = (scene) => `/cine/media/cine-${scene}${narrow() ? '-sq' : ''}.mp4`;
-  let index = 0, active = va, idle = vb, track = null, visible = true, userPaused = motionLimited();
+  let index = Math.min(Number(el.dataset.start) || 0, scenes.length - 1), active = va, idle = vb, track = null, visible = true, userPaused = motionLimited();
   // El video no compite con el póster (LCP): arranca con la página ya cargada.
   let started = false;
   let shown = [], lastPick = 0, cutting = false, preloaded = -1, posNow = .5;
@@ -58,14 +88,23 @@ function banner(el) {
   const clearTags = () => { shown = []; pool.forEach((p) => { p.id = null; p.el.classList.remove('is-on'); }); };
   const mark = (i) => {
     el.dataset.scene = scenes[i];
-    rail.forEach((b, k) => b.setAttribute('aria-pressed', String(k === i)));
-    if (caption) caption.textContent = TITLES[scenes[i]] || '';
+    const svc = serviceOf(cutOf(i));
+    rail.forEach((b, k) => {
+      b.setAttribute('aria-pressed', String(k === i));
+      // En la portada, el botón activo del carril dice qué servicio se está recorriendo.
+      const small = b.querySelector('small');
+      if (small) {
+        if (!small.dataset.base) small.dataset.base = small.textContent;
+        small.textContent = k === i && svc ? svc : small.dataset.base;
+      }
+    });
+    if (caption) caption.textContent = (TITLES[baseOf(scenes[i])] || '') + (svc ? ` · ${svc}` : '');
   };
 
   function play() {
     if (!started) return;
     if (userPaused || !visible || document.hidden) { active.pause(); return; }
-    if (!active.getAttribute('src')) { active.loop = !multi; active.src = src(scenes[index]); }
+    if (!active.getAttribute('src')) { active.loop = !multi; active.src = src(cutOf(index)); }
     active.play().then(() => { active.classList.add('is-on'); poster.classList.add('is-hidden'); }).catch((e) => {
       if (e?.name === 'NotAllowedError') { userPaused = true; label(); }
     });
@@ -80,7 +119,7 @@ function banner(el) {
     if (cutting) return;
     cutting = true;
     index = (i + scenes.length) % scenes.length;
-    const scene = scenes[index];
+    const scene = cutOf(index);
     if (preloaded !== index) { idle.src = src(scene); preloaded = index; }
     idle.currentTime = 0;
     idle.loop = !multi;
@@ -94,6 +133,15 @@ function banner(el) {
       clearTags();
       preloaded = -1;
       cutting = false;
+      lastCut = scene;
+      planned[index] = null; // la próxima vuelta vuelve a sortear
+      if (vary) {
+        const fx = FX[Math.floor(Math.random() * FX.length)];
+        el.dataset.fx = '';
+        void el.offsetWidth;
+        el.dataset.fx = fx;
+        setTimeout(() => { if (el.dataset.fx === fx) el.dataset.fx = ''; }, 800);
+      }
     }).catch(() => { cutting = false; });
   }
 
@@ -201,7 +249,7 @@ function banner(el) {
     if (bar && active.duration) bar.style.transform = `scaleX(${Math.min(1, time / active.duration).toFixed(4)})`;
     if (multi && active.duration) {
       const next = (index + 1) % scenes.length;
-      if (time > active.duration - 3 && preloaded !== next) { idle.src = src(scenes[next]); idle.preload = 'auto'; idle.load(); preloaded = next; }
+      if (time > active.duration - 3 && preloaded !== next) { idle.src = src(cutOf(next)); idle.preload = 'auto'; idle.load(); preloaded = next; }
       if (time >= active.duration - .05) cutTo(next);
     }
   }
@@ -228,7 +276,7 @@ function banner(el) {
   new IntersectionObserver(([e]) => { visible = e.intersectionRatio > .15; play(); label(); }, { threshold: [0, .15, .5] }).observe(el);
   document.addEventListener('visibilitychange', () => { play(); label(); });
   el.querySelector('[data-umc-3d]')?.addEventListener('click', () => explore(el.dataset.scene));
-  useTrack(scenes[0]);
+  useTrack(cutOf(index));
   active.loop = !multi;
   const start = () => {
     if (started) return;
@@ -253,12 +301,13 @@ function explore(scene) {
     dlg.addEventListener('close', () => { dlg.querySelector('.umc-dialog__view').replaceChildren(); document.documentElement.classList.remove('umc-lock'); });
     dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
   }
-  const name = TITLES[scene] || '';
+  const base = baseOf(scene);
+  const name = TITLES[base] || '';
   dlg.querySelector('[data-umc-dialog-title]').textContent = name ? `Gemelo digital · ${name}` : 'Gemelo digital';
   dlg.setAttribute('aria-label', name ? `Gemelo digital · ${name}` : 'Gemelo digital');
   const frame = document.createElement('iframe');
   frame.title = name ? `Gemelo digital interactivo · ${name}` : 'Gemelo digital interactivo';
-  frame.src = `/3d/cinema.html?scene=${ENGINE[scene] || scene}&mode=building&embed=1&ar=clean&center=1`;
+  frame.src = `/3d/cinema.html?scene=${ENGINE[base] || base}&mode=building&embed=1&ar=clean&center=1`;
   frame.allow = 'fullscreen';
   dlg.querySelector('.umc-dialog__view').replaceChildren(frame);
   document.documentElement.classList.add('umc-lock');
