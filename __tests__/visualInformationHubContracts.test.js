@@ -421,8 +421,10 @@ describe('Information hub visual contracts', () => {
 
     expect(home).toContain('<CineBanner');
     expect(banner).toMatch(/<img class="umc-poster"[^>]*width="1920" height="1080" fetchpriority="high" decoding="async"/);
-    expect(story).toMatch(/<img src="\/cine\/media\/story-fachada\.jpg" alt="" width="1600" height="900" loading="lazy" decoding="async" \/>/);
-    expect(story).toMatch(/<img class="svc-story__render"[^>]*width="160" height="120" loading="lazy" decoding="async" \/>/);
+    // El escenario tiene dos capas de póster (se funden al cambiar de servicio) con dimensiones
+    // explícitas y carga diferida; las miniaturas son el póster v4 de cada servicio.
+    expect(story).toMatch(/<img class="svc-story__poster is-on"[^>]*width="1920" height="1080" loading="lazy" decoding="async" data-poster-layer \/>/);
+    expect(story).toMatch(/<img class="svc-story__render" src=\{s\.poster\}[^>]*width="320" height="180" loading="lazy" decoding="async" \/>/);
     expect(home).toContain('width="1200"');
     expect(home).toContain('height="900"');
     expect(home).toContain('decoding="async"');

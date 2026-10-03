@@ -588,7 +588,7 @@ const fichaItems = [
 
     <!-- 2 · Qué cubre -->
     {(serviceCapabilityItems.length > 0 || solutionItems.length > 0) && (
-      <section class:list={['svc-section', isProductPage && 'svc-section--text-tiles']} id="alcance" aria-labelledby="svc-scope-title">
+      <section class="svc-section svc-section--text-tiles" id="alcance" aria-labelledby="svc-scope-title">
         <div class="svc-wrap">
           <header class="svc-head">
             <div>
@@ -716,7 +716,7 @@ const fichaItems = [
               <a class="svc-textlink" href="/antecedentes">Ver todos los antecedentes <span aria-hidden="true">→</span></a>
             </p>
           </header>
-          <div class:list={['svc-cases', isProductPage && 'svc-cases--text']} data-rail="Casos comparables">
+          <div class="svc-cases svc-cases--text" data-rail="Casos comparables">
             {serviceCases.map((item) => (
               <a class="svc-case" href={item.href}>
                 <div class="svc-case__media">
