@@ -74,15 +74,17 @@ if (( available_kb < 2500000 )); then
 fi
 
 # Preserve every currently published un-hashed asset, including unfinished
-# cinema/3D work. The campaign GIF must already be live and byte-identical;
-# only candidate _astro bundles may differ.
-rsync -anic --delete \
+# cinema/3D work, but let assets that only exist in the new build through:
+# without them the new server bundle references files that 404 (hero AVIF
+# posters, datasheets). The campaign GIF must already be live and
+# byte-identical; only candidate _astro bundles may differ.
+rsync -anic \
   --exclude='/_astro/***' \
   --exclude='/sw.js' \
   --exclude='/images/software-comunidades/credencial-demo-email.gif' \
   --exclude='/software/gestion-de-comunidades-profesionales/demo/***' \
   "$current/client/" "$incoming/client/" > "$release/asset-overlay-dry-run.txt"
-rsync -ac --delete \
+rsync -ac \
   --exclude='/_astro/***' \
   --exclude='/sw.js' \
   --exclude='/images/software-comunidades/credencial-demo-email.gif' \
@@ -142,14 +144,15 @@ cmp "$release/staging-credential.gif" \
 stage_cleanup
 trap - EXIT
 sha256sum -c "$release/protected.before.sha256"
-rsync -anic --delete \
+rsync -anic \
   --exclude='/_astro/***' \
   --exclude='/sw.js' \
   --exclude='/images/software-comunidades/credencial-demo-email.gif' \
   --exclude='/software/gestion-de-comunidades-profesionales/demo/***' \
   "$current/client/" "$incoming/client/" > "$release/asset-overlay-final-raw.txt"
-# rsync may warn that parent image directories cannot be deleted because the
-# new GIF is deliberately protected. Any actual itemized change still blocks.
+# Only changes to already-published assets count as drift; files that exist
+# solely in the new build are expected and were overlaid above. The sed keeps
+# tolerating rsync's parent-directory warnings.
 sed -E '/^rsync\([0-9]+\): warning: .*\/images(\/software-comunidades)?: not empty, cannot delete$/d' \
   "$release/asset-overlay-final-raw.txt" > "$release/asset-overlay-final-drift.txt"
 if [[ -s "$release/asset-overlay-final-drift.txt" ]]; then
