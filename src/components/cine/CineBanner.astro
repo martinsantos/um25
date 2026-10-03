@@ -4,7 +4,7 @@
 // Portada: encadena las escenas. Sector o servicio: una escena en bucle.
 // El 3D interactivo se abre sólo a pedido (/cine/cine-banner.js).
 import '../../styles/cine-banner.css';
-import { HOME_SCENES, SCENE_TITLES, baseScene, type Scene } from '../../data/cine/scenes';
+import { HOME_SCENES, cutCaption } from '../../data/cine/scenes';
 
 interface Stat { label: string; value: string }
 interface Link { href: string; label: string }
@@ -37,7 +37,7 @@ const variantsAttr = Object.entries(variants).filter(([, v]) => v.length).map(([
 const dot = title.endsWith('.');
 const heading = dot ? title.slice(0, -1) : title;
 const rail = HOME_SCENES.filter((s) => scenes.includes(s.scene));
-const firstTitle = SCENE_TITLES[baseScene(first)];
+const firstTitle = cutCaption(first);
 ---
 <section class:list={['umc', `umc--${variant}`]} data-umc data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} aria-labelledby={titleId}>
   <div class="umc-stage" aria-hidden="true">
