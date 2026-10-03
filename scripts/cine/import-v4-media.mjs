@@ -34,6 +34,8 @@ if (fromRef) {
     if (fs.existsSync(dest) && fs.readFileSync(dest).equals(blob)) continue;
     fs.writeFileSync(dest, blob);
     copied += 1;
+    // Un póster re-renderizado deja viejo su AVIF: se borra para regenerarlo abajo.
+    if (base.endsWith('-poster.jpg')) fs.rmSync(path.join(OUT, base.replace(/\.jpg$/, '.avif')), { force: true });
   }
 } else if (fromDir) {
   for (const base of fs.readdirSync(fromDir)) {
