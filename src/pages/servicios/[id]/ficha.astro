@@ -51,7 +51,8 @@ const detailUrl = `${SITE_URL}${spec.href}`;
       .ds__title { margin: 22px 0 6px; font-size: 30px; line-height: 1.1; font-weight: 600; }
       .ds__promise { margin: 0 0 22px; font-size: 18px; color: #333; }
       .ds__foot { margin-top: 28px; padding-top: 12px; border-top: 1px solid #d9dadd; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: 16px; color: #5f6368; }
-      .ds__foot a { color: #111; text-decoration: none; }
+      .ds__foot a { color: #111; text-decoration: none; min-width: 0; max-width: 100%; overflow-wrap: anywhere; word-break: break-all; }
+      .ds__foot span, .ds__foot small { min-width: 0; overflow-wrap: anywhere; }
       .ds__print { position: fixed; right: 16px; top: 16px; min-height: 44px; padding: 0 16px; border: 1px solid #111; background: #fff; color: #111; font: 600 16px var(--um-font-body); cursor: pointer; }
       @media print { .ds__print { display: none; } .ds { padding: 0; width: auto; } }
     </style>

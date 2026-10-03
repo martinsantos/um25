@@ -110,14 +110,16 @@ const first = MODULES[0];
               <li><strong>{k.value}</strong><span>{k.label}</span></li>
             ))}
           </ul>
-          <table class="sws__table">
-            <thead><tr>{m.head.map((h) => <th scope="col">{h}</th>)}</tr></thead>
-            <tbody>
-              {m.rows.map((r) => (
-                <tr data-state={r.state}>{r.cells.map((c, j) => (j === r.cells.length - 1 ? <td><span class="sws__state">{c}</span></td> : <td>{c}</td>))}</tr>
-              ))}
-            </tbody>
-          </table>
+          <div class="sws__scroll">
+            <table class="sws__table">
+              <thead><tr>{m.head.map((h) => <th scope="col">{h}</th>)}</tr></thead>
+              <tbody>
+                {m.rows.map((r) => (
+                  <tr data-state={r.state}>{r.cells.map((c, j) => (j === r.cells.length - 1 ? <td><span class="sws__state">{c}</span></td> : <td>{c}</td>))}</tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
       ))}
     </div>
@@ -234,7 +236,8 @@ const first = MODULES[0];
   }
   .sws__kpis strong { font-size: 1.5rem; font-weight: 700; line-height: 1.1; font-variant-numeric: var(--um-figures-tabular); }
   .sws__kpis span { font-size: 1rem; opacity: 0.75; }
-  .sws__table { width: 100%; border-collapse: collapse; font-size: 1rem; font-variant-numeric: var(--um-figures-tabular); }
+  .sws__scroll { overflow-x: auto; min-width: 0; }
+  .sws__table { width: 100%; min-width: 320px; border-collapse: collapse; font-size: 1rem; font-variant-numeric: var(--um-figures-tabular); }
   .sws__table th { text-align: left; font-weight: 600; padding: 8px 10px; border-bottom: 1px solid rgba(127, 127, 127, 0.5); opacity: 0.85; }
   .sws__table td { padding: 10px; border-bottom: 1px solid rgba(127, 127, 127, 0.25); vertical-align: top; }
   .sws__table td:first-child { font-weight: 600; }

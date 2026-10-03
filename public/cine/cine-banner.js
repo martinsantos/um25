@@ -26,8 +26,34 @@ const loadTrack = (scene) => {
   return tracks.get(scene);
 };
 
+const SERVICE_NAMES = {
+  redes: 'Redes', seguridad: 'Seguridad electrónica', telecom: 'Telecomunicaciones', software: 'Software a medida',
+  soporte: 'Soporte 24/7', consultoria: 'Consultoría IT', incendios: 'Detección de incendios', electricos: 'Eléctricos IT',
+};
+const serviceOf = (cut) => SERVICE_NAMES[String(cut || '').split('-')[1]] || '';
+// Empalmes entre planos: corte seco, ráfaga de glitch o barrido. Se sortea en cada corte.
+const FX = ['cut', 'glitch', 'wipe-l', 'wipe-r', 'wipe-u', 'glitch'];
+
 function banner(el) {
   const scenes = el.dataset.scenes.split(',');
+  // Recorridos alternativos por escena ("bodega:bodega-redes|bodega-soporte;hospital:…").
+  const VARIANTS = Object.fromEntries((el.dataset.variants || '').split(';').filter(Boolean).map((g) => {
+    const [s, list] = g.split(':');
+    return [s, (list || '').split('|').filter(Boolean)];
+  }));
+  const vary = Object.keys(VARIANTS).length > 0 && !motionLimited();
+  const planned = {};
+  let lastCut = '';
+  // Qué recorrido toca para la escena i: la escena base o uno de sus v4, nunca el mismo dos veces seguidas.
+  const cutOf = (i) => {
+    const s = scenes[i];
+    if (!vary) return s;
+    if (!planned[i]) {
+      const opts = [s, ...(VARIANTS[s] || [])].filter((k) => k !== lastCut);
+      planned[i] = opts[Math.floor(Math.random() * opts.length)] || s;
+    }
+    return planned[i];
+  };
   const only = (el.dataset.systems || '').split(',').filter(Boolean);
   const [va, vb] = el.querySelectorAll('.umc-video');
   const poster = el.querySelector('.umc-poster');
@@ -42,7 +68,7 @@ function banner(el) {
   const SQ = { x: 487, w: 1080, h: 1080 };
   const narrow = () => stage.clientWidth <= stage.clientHeight * 1.05;
   const src = (scene) => `/cine/media/cine-${scene}${narrow() ? '-sq' : ''}.mp4`;
-  let index = 0, active = va, idle = vb, track = null, visible = true, userPaused = motionLimited();
+  let index = Math.min(Number(el.dataset.start) || 0, scenes.length - 1), active = va, idle = vb, track = null, visible = true, userPaused = motionLimited();
   // El video no compite con el póster (LCP): arranca con la página ya cargada.
   let started = false;
   let shown = [], lastPick = 0, cutting = false, preloaded = -1, posNow = .5;
@@ -60,14 +86,23 @@ function banner(el) {
   const clearTags = () => { shown = []; pool.forEach((p) => { p.id = null; p.el.classList.remove('is-on'); }); };
   const mark = (i) => {
     el.dataset.scene = scenes[i];
-    rail.forEach((b, k) => b.setAttribute('aria-pressed', String(k === i)));
-    if (caption) caption.textContent = TITLES[baseOf(scenes[i])] || '';
+    const svc = serviceOf(cutOf(i));
+    rail.forEach((b, k) => {
+      b.setAttribute('aria-pressed', String(k === i));
+      // En la portada, el botón activo del carril dice qué servicio se está recorriendo.
+      const small = b.querySelector('small');
+      if (small) {
+        if (!small.dataset.base) small.dataset.base = small.textContent;
+        small.textContent = k === i && svc ? svc : small.dataset.base;
+      }
+    });
+    if (caption) caption.textContent = (TITLES[baseOf(scenes[i])] || '') + (svc ? ` · ${svc}` : '');
   };
 
   function play() {
     if (!started) return;
     if (userPaused || !visible || document.hidden) { active.pause(); return; }
-    if (!active.getAttribute('src')) { active.loop = !multi; active.src = src(scenes[index]); }
+    if (!active.getAttribute('src')) { active.loop = !multi; active.src = src(cutOf(index)); }
     active.play().then(() => { active.classList.add('is-on'); poster.classList.add('is-hidden'); }).catch((e) => {
       if (e?.name === 'NotAllowedError') { userPaused = true; label(); }
     });
@@ -82,7 +117,7 @@ function banner(el) {
     if (cutting) return;
     cutting = true;
     index = (i + scenes.length) % scenes.length;
-    const scene = scenes[index];
+    const scene = cutOf(index);
     if (preloaded !== index) { idle.src = src(scene); preloaded = index; }
     idle.currentTime = 0;
     idle.loop = !multi;
@@ -96,6 +131,15 @@ function banner(el) {
       clearTags();
       preloaded = -1;
       cutting = false;
+      lastCut = scene;
+      planned[index] = null; // la próxima vuelta vuelve a sortear
+      if (vary) {
+        const fx = FX[Math.floor(Math.random() * FX.length)];
+        el.dataset.fx = '';
+        void el.offsetWidth;
+        el.dataset.fx = fx;
+        setTimeout(() => { if (el.dataset.fx === fx) el.dataset.fx = ''; }, 800);
+      }
     }).catch(() => { cutting = false; });
   }
 
@@ -203,7 +247,7 @@ function banner(el) {
     if (bar && active.duration) bar.style.transform = `scaleX(${Math.min(1, time / active.duration).toFixed(4)})`;
     if (multi && active.duration) {
       const next = (index + 1) % scenes.length;
-      if (time > active.duration - 3 && preloaded !== next) { idle.src = src(scenes[next]); idle.preload = 'auto'; idle.load(); preloaded = next; }
+      if (time > active.duration - 3 && preloaded !== next) { idle.src = src(cutOf(next)); idle.preload = 'auto'; idle.load(); preloaded = next; }
       if (time >= active.duration - .05) cutTo(next);
     }
   }
@@ -230,7 +274,7 @@ function banner(el) {
   new IntersectionObserver(([e]) => { visible = e.intersectionRatio > .15; play(); label(); }, { threshold: [0, .15, .5] }).observe(el);
   document.addEventListener('visibilitychange', () => { play(); label(); });
   el.querySelector('[data-umc-3d]')?.addEventListener('click', () => explore(el.dataset.scene));
-  useTrack(scenes[0]);
+  useTrack(cutOf(index));
   active.loop = !multi;
   const start = () => {
     if (started) return;

@@ -157,6 +157,11 @@ const blocks = [
     text-transform: uppercase;
   }
 
+  /* La piel blanca pinta los párrafos del main en gris; el rótulo debe seguir en rojo. */
+  body[data-skin] .cert-page__eyebrow {
+    color: var(--um-red);
+  }
+
   .cert-page__eyebrow::before {
     content: "";
     width: 34px;

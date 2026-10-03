@@ -384,12 +384,18 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     color: #fff;
   }
 
-  .um-ops-mega:hover .um-ops-mega__link::after,
-  .um-ops-mega.is-open .um-ops-mega__link::after {
+  /* El subrayado cubre texto y flecha juntos (antes sólo el texto y quedaba
+     pegado a la izquierda del ítem). */
+  .um-ops-mega {
+    position: relative;
+  }
+
+  .um-ops-mega:hover::after,
+  .um-ops-mega.is-open::after {
     content: "";
     position: absolute;
     left: 15px;
-    right: 4px;
+    right: 12px;
     bottom: 0;
     height: 2px;
     background: #dc2626;
