@@ -133,6 +133,7 @@ jobs:
               docs/campaign-preview/variants/photo-b-wide.jpg|\
               docs/campaign-preview/variants/photo-c-wide.jpg|\
               public/images/software-comunidades/credencial-demo-email.gif|\
+              public/images/software-comunidades/comunidad-rosario.jpg|\
               public/sw.js|\
               public/software/gestion-de-comunidades-profesionales/demo/*|\
               work/um-comunidades-demo/*|\
@@ -162,9 +163,35 @@ jobs:
               src/pages/sitemap-blog.xml.ts|\
               src/utils/blogRss.ts|src/utils/blogTopicCases.ts|\
               src/utils/blogTopicMap.ts|src/utils/getBlogData.ts) ;;
+              # UM25 refactor: cine v4 (40 recorridos), páginas de producto
+              # 104/105/106 y control visual.
+              public/cine/cine-banner-v4.js|public/cine/media/cine-*|\
+              __tests__/visualInformationHubContracts.test.js|\
+              scripts/cine/import-v4-media.mjs|\
+              src/components/cine/*.astro|\
+              src/components/templates/SectorTemplateUM26.astro|\
+              src/components/v4/NavbarV4.astro|\
+              src/data/cine/scenes.ts|src/data/cine/v4-media.json|\
+              src/data/productPages.ts|\
+              src/pages/antecedentes/index.astro|\
+              src/pages/certificaciones.astro|\
+              src/pages/index.astro|\
+              src/pages/servicios/'[id]'/ficha.astro|\
+              src/pages/servicios/index.astro|\
+              src/styles/cine-banner.css) ;;
               *) echo "Unexpected release path: $path" >&2; exit 1 ;;
             esac
           done < /tmp/umsa-release-paths.txt
+          # The scoped overlay restores every already-published public asset, so a
+          # modified file under public/cine would silently ship its old version.
+          # Cinema assets may only be added; ship changes under a new name.
+          git diff --name-only --diff-filter=MR "${GITHUB_SHA}^1" "$GITHUB_SHA" -- public/cine \
+            > /tmp/umsa-cine-modified.txt
+          if [[ -s /tmp/umsa-cine-modified.txt ]]; then
+            echo 'Published cinema assets cannot change in a scoped release:' >&2
+            cat /tmp/umsa-cine-modified.txt >&2
+            exit 1
+          fi
           test -f dist/server/entry.mjs
           test -f dist/client/images/software-comunidades/credencial-demo-email.gif
           test -f dist/client/software/gestion-de-comunidades-profesionales/demo/index.html
