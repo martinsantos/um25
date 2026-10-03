@@ -106,20 +106,31 @@ describe('Production runtime configuration contracts', () => {
     expect(workflow).not.toContain('apex serves 200 and www redirects to apex');
   });
 
-  test('scoped production deploy reuses the verified runtime package tree', () => {
+  test('production deploy publishes the whole verified runtime with staging and rollback', () => {
     const workflow = fs.readFileSync(path.join(process.cwd(), '.github/workflows/production-deploy.yml'), 'utf8');
-    const scopedDeploy = fs.readFileSync(path.join(process.cwd(), 'scripts/ops/deploy-scoped-dist.sh'), 'utf8');
+    const fullDeploy = fs.readFileSync(path.join(process.cwd(), 'scripts/ops/deploy-full-dist.sh'), 'utf8');
 
     expect(workflow).not.toContain('npm ci --production');
     expect(workflow).toContain('Install audit dependencies on runner');
     expect(workflow).toContain('run: npm ci');
     expect(workflow).not.toContain('npm install --include=dev --prefer-offline --no-audit --progress=false');
+    expect(workflow).toContain('Verify release build');
+    expect(workflow).not.toContain('Verify scoped release contents');
+    expect(workflow).not.toContain('Unexpected release path');
     expect(workflow).toContain('Stage build outside live site');
     expect(workflow).toContain('Restore previous runtime after failed checks');
-    expect(scopedDeploy).toContain('node incoming-dist/server/entry.mjs');
-    expect(scopedDeploy).toContain('ln -s "$app/node_modules" "$release/node_modules"');
-    expect(scopedDeploy).toContain('mv "$current" "$previous"');
-    expect(scopedDeploy).toContain('sha256sum -c "$release/protected.before.sha256"');
+    expect(workflow).toContain('scripts/ops/deploy-full-dist.sh');
+    expect(workflow).not.toContain('deploy-scoped-dist.sh');
+    expect(fullDeploy).toContain('node incoming-dist/server/entry.mjs');
+    expect(fullDeploy).toContain('ln -sfn "$app/node_modules" "$release/node_modules"');
+    expect(fullDeploy).toContain('mv "$current" "$previous"');
+    expect(fullDeploy).toContain('sha256sum -c "$release/protected.before.sha256"');
+    // El deploy ordinario no copia los assets vivos sobre el build ni rechaza
+    // el swap por assets nuevos: sólo hereda el trabajo de cine/3D del servidor.
+    expect(fullDeploy).not.toContain('refusing swap');
+    expect(fullDeploy).toContain('server_owned_dirs=(3d hospital-3d sector-3d)');
+    expect(fullDeploy).toContain('server_owned_files=(cine/servicios/102-x.webp)');
+    expect(fullDeploy).not.toMatch(/rsync -a[a-z]* --delete[^\n]*"\$current\/client\/" "\$incoming\/client\/"/);
   });
 
   test('contact API resolves SMTP settings from runtime-safe environment sources', () => {
@@ -132,12 +143,12 @@ describe('Production runtime configuration contracts', () => {
     expect(source).toContain("envValue('SMTP_PASS')");
   });
 
-  test('scoped production restart preserves existing PM2 contact credentials', () => {
+  test('production restart preserves existing PM2 contact credentials', () => {
     const workflow = fs.readFileSync(path.join(process.cwd(), '.github/workflows/production-deploy.yml'), 'utf8');
-    const scopedDeploy = fs.readFileSync(path.join(process.cwd(), 'scripts/ops/deploy-scoped-dist.sh'), 'utf8');
+    const fullDeploy = fs.readFileSync(path.join(process.cwd(), 'scripts/ops/deploy-full-dist.sh'), 'utf8');
 
-    expect(scopedDeploy).toContain('pm2 restart astro-ultimamilla');
-    expect(scopedDeploy).not.toContain('--update-env');
+    expect(fullDeploy).toContain('pm2 restart astro-ultimamilla');
+    expect(fullDeploy).not.toContain('--update-env');
     expect(workflow).not.toContain('pm2 restart astro-ultimamilla --update-env');
     expect(workflow).not.toContain('SMTP_PASS: ${{ secrets.SMTP_PASS }}');
   });
@@ -161,15 +172,15 @@ describe('Production runtime configuration contracts', () => {
     expect(workflow).toContain('Origin health did not recover within 60 seconds');
   });
 
-  test('scoped production deployment leaves other PM2 processes untouched', () => {
+  test('production deployment leaves other PM2 processes untouched', () => {
     const workflow = fs.readFileSync(path.join(process.cwd(), '.github/workflows/production-deploy.yml'), 'utf8');
     const cleanup = fs.readFileSync(path.join(process.cwd(), 'scripts/ops/cleanup-stale-pm2-app.sh'), 'utf8');
     const legacyDeploy = fs.readFileSync(path.join(process.cwd(), 'scripts/deploy-server.sh'), 'utf8');
-    const scopedDeploy = fs.readFileSync(path.join(process.cwd(), 'scripts/ops/deploy-scoped-dist.sh'), 'utf8');
+    const fullDeploy = fs.readFileSync(path.join(process.cwd(), 'scripts/ops/deploy-full-dist.sh'), 'utf8');
 
     expect(workflow).not.toContain('name: Remove stale PM2 process alias');
-    expect(scopedDeploy).toContain('pm2 restart astro-ultimamilla');
-    expect(scopedDeploy).not.toContain('pm2 del');
+    expect(fullDeploy).toContain('pm2 restart astro-ultimamilla');
+    expect(fullDeploy).not.toContain('pm2 del');
     expect(cleanup).toContain('pm2 describe astro-app');
     expect(cleanup).toContain('pm2 del astro-app');
     expect(cleanup).not.toContain('pm2 del astro-ultimamilla');

@@ -11,7 +11,7 @@ on:
       - '.github/workflows/production-deploy.yml'
       - 'public/software/gestion-de-comunidades-profesionales/demo/**'
       - 'public/sw.js'
-      - 'scripts/ops/deploy-scoped-dist.sh'
+      - 'scripts/ops/deploy-full-dist.sh'
       - 'src/pages/software/gestion-de-comunidades-profesionales.astro'
       - 'src/pages/software/gestion-de-comunidades-profesionales/demo/index.astro'
       - 'work/um-comunidades-demo/**'
