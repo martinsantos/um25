@@ -52,7 +52,7 @@ const blocks = [
   <section class="um-container cert-page">
     <header class="cert-page__hero">
       <div>
-        <p class="cert-page__eyebrow">Documentación técnica</p>
+        <span class="cert-page__eyebrow">Documentación técnica</span>
         <h1>Documentación técnica para compras, auditorías y licitaciones</h1>
         <p>
           ULTIMA MILLA entrega con cada proyecto los protocolos, las mediciones y la documentación
@@ -85,7 +85,7 @@ const blocks = [
 
     <section class="cert-page__downloads" id="fichas" aria-labelledby="cert-downloads-title">
       <header>
-        <p class="cert-page__eyebrow">Centro de descargas</p>
+        <span class="cert-page__eyebrow">Centro de descargas</span>
         <h2 id="cert-downloads-title">Fichas técnicas por frente de servicio</h2>
         <p>Alcance, normas de referencia, entregables, nivel de servicio y equipamiento típico de cada frente, en una hoja A4. Los valores se ajustan por sitio en el relevamiento.</p>
       </header>
@@ -108,7 +108,7 @@ const blocks = [
 
     <section class="cert-page__norms" aria-labelledby="cert-norms-title">
       <header>
-        <p class="cert-page__eyebrow">Referencias normativas</p>
+        <span class="cert-page__eyebrow">Referencias normativas</span>
         <h2 id="cert-norms-title">Qué norma rige cada frente</h2>
       </header>
       <div class="cert-page__norms-grid">
@@ -157,9 +157,10 @@ const blocks = [
     text-transform: uppercase;
   }
 
-  /* La piel blanca pinta los párrafos del main en gris; el rótulo debe seguir en rojo. */
-  body[data-skin] .cert-page__eyebrow {
-    color: var(--um-red);
+  /* La piel blanca pinta todo <p> del main en gris con !important; el rótulo es un
+     <span> en bloque para quedar fuera de esa regla y seguir en rojo. */
+  .cert-page__eyebrow {
+    display: flex;
   }
 
   .cert-page__eyebrow::before {
