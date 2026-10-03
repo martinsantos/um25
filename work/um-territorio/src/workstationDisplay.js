@@ -20,7 +20,7 @@ export function createWorkstationDisplay(){
   ctx.strokeStyle='#e1473b';ctx.lineWidth=3;ctx.beginPath();
   for(let x=0;x<580;x++){const y=403-Math.sin(x*.038+(reduced?0:ms*.0003))*22-Math.sin(x*.017)*37;x?ctx.lineTo(54+x,y):ctx.moveTo(54+x,y);}ctx.stroke();
   ['Admisión','Consultorios','Internación','Sala técnica'].forEach((name,i)=>{ctx.font='17px Arial';ctx.fillStyle='#d4e3e8';ctx.fillText(name,706,322+i*43);ctx.fillStyle='#63c4a2';ctx.beginPath();ctx.arc(958,316+i*43,5,0,Math.PI*2);ctx.fill();});
-  const events={wifi:'AP-04 / Dispositivo DEMO asociado',phone:'PBX / Llamada DEMO 201 → 203',fire:'CT-01 / Evento de prueba · sin emergencia real',power:'UPS / Operación DEMO sobre batería',access:'Acceso técnico / Credencial DEMO autorizada'};
+  const events={wifi:'AP-04 / Dispositivo DEMO asociado',phone:'PBX / Llamada DEMO 201 → 203',fire:'CT-01 / Evento de prueba · sin emergencia real',power:'UPS / Operación DEMO sobre batería',access:'Acceso técnico / Credencial DEMO autorizada',fiber:'ODF / Enlace DEMO verificado · sin certificación real'};
   ctx.font='16px Arial';ctx.fillStyle=demo?'#ffbd80':'#93acb7';ctx.fillText(demo?`${stage+1}/3 · ${events[demo]}`:'Conectividad • Supervisión • Continuidad operativa',32,551);texture.needsUpdate=true;
  }
  update(0);return {texture,update,dispose:()=>texture.dispose()};
